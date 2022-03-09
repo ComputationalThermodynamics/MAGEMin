@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>io_function &mdash; MAGEMin 2021 documentation</title>
+  <title>io_function &mdash; MAGEMin 2022 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
@@ -70,6 +70,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#pyroxenite-mixg1">Pyroxenite (MIXG1)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#basalt-re46">Basalt (RE46)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#basalt-nmorb">Basalt (NMORB)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#hydrous-basalt">Hydrous basalt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#tonalite-101">Tonalite 101</a></li>
 </ul>
 </li>
 </ul>
@@ -169,7 +171,7 @@
 
 <dl class="c function">
 <dt class="sig sig-object c" id="c.AddResults_output_struct">
-<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AddResults_output_struct</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">P</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">T</span></span>, <span class="n"><span class="pre">Databases</span></span><span class="w"> </span><span class="n"><span class="pre">DB</span></span>, <span class="n"><span class="pre">out_data</span></span><span class="w"> </span><span class="n"><span class="pre">output</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AddResults_output_struct" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/io_function.c.html#c.AddResults_output_struct"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AddResults_output_struct</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="n"><span class="pre">Databases</span></span><span class="w"> </span><span class="n"><span class="pre">DB</span></span>, <span class="n"><span class="pre">out_data</span></span><span class="w"> </span><span class="n"><span class="pre">output</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AddResults_output_struct" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/io_function.c.html#c.AddResults_output_struct"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>This adds the results to an output struct, which can be passed on to julia.</p>
 <p>NOTE: we likely need a cleanup struct for this as well, as we do malloc and julia will likely not release</p>
 </dd></dl>
@@ -186,7 +188,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2021, Riel, N., &amp; Kaus, B..</p>
+    <p>&#169; Copyright 2021, Riel, N., &amp; Kaus, B.J.P..</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

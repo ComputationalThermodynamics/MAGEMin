@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MAGEMin &mdash; MAGEMin 2021 documentation</title>
+  <title>MAGEMin &mdash; MAGEMin 2022 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
@@ -71,6 +71,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#pyroxenite-mixg1">Pyroxenite (MIXG1)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#basalt-re46">Basalt (RE46)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#basalt-nmorb">Basalt (NMORB)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#hydrous-basalt">Hydrous basalt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#tonalite-101">Tonalite 101</a></li>
 </ul>
 </li>
 </ul>
@@ -231,12 +233,6 @@ for phase equilibria at constant P,T and bulk-rock.</p>
 </dd></dl>
 
 <dl class="c function">
-<dt class="sig sig-object c" id="c.MAGEMin_FromJulia">
-<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MAGEMin_FromJulia</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">Databases</span></span><span class="w"> </span><span class="n"><span class="pre">DB</span></span>, <span class="n"><span class="pre">io_data</span></span><span class="w"> </span><span class="n"><span class="pre">input_data_in</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">n_points1</span></span>, <span class="n"><span class="pre">out_data</span></span><span class="w"> </span><span class="n"><span class="pre">output</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.MAGEMin_FromJulia" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/MAGEMin.c.html#c.MAGEMin_FromJulia"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>call MAGEMin from julia for a range of points</p>
-</dd></dl>
-
-<dl class="c function">
 <dt class="sig sig-object c" id="c.PrintOutput">
 <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">PrintOutput</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">rank</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">l</span></span>, <span class="n"><span class="pre">Databases</span></span><span class="w"> </span><span class="n"><span class="pre">DB</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">time_taken</span></span>, <span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.PrintOutput" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/MAGEMin.c.html#c.PrintOutput"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>This prints output on screen</p>
@@ -256,7 +252,7 @@ for phase equilibria at constant P,T and bulk-rock.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2021, Riel, N., &amp; Kaus, B..</p>
+    <p>&#169; Copyright 2021, Riel, N., &amp; Kaus, B.J.P..</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
