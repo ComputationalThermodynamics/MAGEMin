@@ -28,12 +28,11 @@
     --navbar-scrollbar-active-color: #853535;
     --navbar-scrollbar-background: #131e2b;
 
-
-	--link-color: #8cf;
-	--link-color-hover: #9df;
-	--link-color-active: #6ad;
-	--link-color-visited: #cb99f6;
-	--classref-badge-text-color: hsl(0, 0%, 70%);
+    --link-color: #183d7a;
+    --link-color-hover: #9df;
+    --link-color-active: #6ad;
+    --link-color-visited: #a93d3e;
+    --classref-badge-text-color: hsl(0, 0%, 70%);
 
     --hr-color: #e1e4e5;
     --table-row-odd-background-color: #f3f6f6;
