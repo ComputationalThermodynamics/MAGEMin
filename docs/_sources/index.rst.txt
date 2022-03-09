@@ -1,0 +1,71 @@
+.. MAGEMin documentation
+
+.. image:: /figs/GUI.png
+   :width: 720
+   :align: center
+
+|
+
+Mineral Assemblage Gibbs Energy Minimization		  
+============================================
+                                          
+C routine to compute a stable mineralogical assemblage using Gibbs Free Energy Minimization. MAGEMin  combines discretization of the equations of state in composition space (Connolly, 1990) with linear programming (de Capitani & Brown,1987), and extends the mass constrained Gibbs-hyperplane rotation (Piro et al., 2013) method to account for the mixing-on-sites that takes place in silicate mineral solid solutions (Riel et al., *submitted*).
+                    
+- Igneous thermodynamic database (Holland et al., 2008)
+- KNCFMASHTOCr chemical space                           
+- Solid solutions (biotite, clinopyroxene, cordierite, epidote, fluids, garnet, hornblende, ilmenite, K-felspar, liquid, muscovite, olivine, orthopyroxene, plagioclase, spinel) 
+
+                                                    
+Imported libraries                       
+==================
+
+- LAPACKE (C version of LAPACK)                         
+- NLopt  (https://nlopt.readthedocs.io/)                
+- uthash (https://troydhanson.github.io/uthash/)        
+- ketopt (https://github.com/attractivechaos/klib/blob/master/ketopt.h) 
+   
+.. toctree::
+   :maxdepth: 2
+   :caption: Installation:
+   
+   stp
+                                                   
+.. toctree::
+   :maxdepth: 2
+   :caption: Methods and examples:
+   
+   man
+   
+.. toctree::
+   :maxdepth: 2
+   :caption: Cookbook:
+   
+   ckbk
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Developers section:
+   
+   dev
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Source code:
+
+   src
+
+**Contributors:**
+
+- MAGEMin developpers: Riel N., Kaus. B.
+- Database translation and debugging: Green E., Berlie N., and Rummel L. 
+     
+*Contacts: nriel@uni-mainz.de, kaus@uni-mainz.de*
+
+**References**
+
+*de Capitani, C., & Brown, T. H. (1987). The computation of chemical equilibrium in complex systems containing non-ideal solutions.Geochimica et Cosmochimica Acta,51(10), 2639-2652. doi:https://doi.org/10.1016/0016-7037(87)90145-1*
+
+*Connolly, J. A. D. (1990). Multivariable phase diagrams; an algorithm based on generalized thermodynamics. American Journal of Science,290(6), 666-718. doi:10.2475/ajs.290.6.666*
+
+*Piro, M. H. A., Simunovic, S., Besmann, T. M., Lewis, B. J., & Thompson, W. T. (2013).  The thermochemistry library thermochimica.Computational Materials Science, 67*
+ 

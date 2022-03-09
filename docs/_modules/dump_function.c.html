@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dump_function.c &mdash; MAGEMin 2021 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html">
+            <img src="../_static/2022_MAGEMin_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../stp.html">Linux-based system</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../stp/Linux.html">External libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stp/Linux.html#magemin">MAGEMin</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../stp.html#macos-system">macOS system</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../stp/macOS.html">External libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stp/macOS.html#magemin">MAGEMin</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../stp.html#optional-developers">Optional (developers)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../stp/Dev.html">Python libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stp/Dev.html#c-tools">C tools</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods and examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../man.html">Thermodynamic problem</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../man/Thermo.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Thermo.html#gibbs-free-energy">Gibbs free energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Thermo.html#global-minimum-and-g-hyperplane">Global minimum and G-hyperplane</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../man.html#phase-diagrams">Phase diagrams</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html">Examples of phase diagrams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#peridotite-klb1">Peridotite (KLB1)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#pyroxenite-mixg1">Pyroxenite (MIXG1)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#basalt-re46">Basalt (RE46)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#basalt-nmorb">Basalt (NMORB)</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Cookbook:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ckbk.html">Run minimization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html">List of arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html#single-point-calculation">Single point calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html#multiple-points-calculation">Multiple points calculation</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developers section:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dev.html">Add database</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../dev/Dev.html">Analytical formulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev/Dev.html#generate-pseudocompounds">Generate pseudocompounds</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Source code:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../src.html">Main algorithm</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../src/MAGEMin.html">MAGEMin</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../src/MAGEMin.html#mineral-assemblage-gibbs-energy-minimization">Mineral Assemblage Gibbs Energy Minimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../src/MAGEMin.html#imported-libraries">Imported libraries</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../src/simplex_levelling.html">Simplex levelling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../src/PGE_function.html">PGE_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../src/phase_update_function.html">phase_update_function</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../src/phase_update_function.html#pp-ss-flags">PP &amp; SS_flags</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../src/dump_function.html">dump_function</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../src.html#pure-phases-functions">Pure phases functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../src/gem_function.html">gem_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../src/pp_min_function.html">pp_min_function</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../src/pp_min_function.html#pure-phase-minimization-function">Pure phase minimization function</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../src.html#solution-phases-functions">Solution phases functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../src/gss_init_function.html">gss_init_function</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../src/gss_init_function.html#pp-ss-flags">PP &amp; SS_flags</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../src/gss_function.html">gss_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../src/ss_min_function.html">ss_min_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../src/NLopt_opt_function.html">NLopt_opt_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../src/objective_functions.html">objective_functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../src.html#toolkit">Toolkit</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../src/toolkit.html">toolkit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../src/io_function.html">io_function</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">MAGEMin</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>dump_function.c</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for dump_function.c</h1><div class="highlight"><pre>
+<span></span><span class="cm">/**</span>
+<span class="cm"> The goal is to retrieve logged data and dump them into      </span>
+<span class="cm"> files to track the behaviour of the solver                  </span>
+<span class="cm"> This should be used in production runs as dumping files to  </span>
+<span class="cm"> disk will drastically slow down the performances            </span>
+<span class="cm">                                                             </span>
+<span class="cm"> TRACKED DOWN DATA:                                          </span>
+<span class="cm">  - Execution time per function                      </span>
+<span class="cm">  - Residual                                                                                                     </span>
+<span class="cm">*/</span><span class="w"></span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;math.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;time.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;complex.h&gt;</span><span class="c1"> </span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sys/types.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sys/stat.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unistd.h&gt;</span><span class="cp"></span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;mpi.h&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;MAGEMin.h&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;gem_function.h&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;gss_function.h&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;toolkit.h&quot;</span><span class="cp"></span>
+
+<div class="viewcode-block" id="c.dump_init"><a class="viewcode-back" href="../src/dump_function.html#c.dump_init">[docs]</a><span class="cm">/**</span>
+<span class="cm">  Initialize dumping function by creating needed files</span>
+<span class="cm">*/</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">dump_init</span><span class="p">(</span><span class="n">global_variable</span><span class="w"> </span><span class="n">gv</span><span class="p">){</span><span class="w"></span>
+<span class="w">	</span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">loc_min</span><span class="p">;</span><span class="w"></span>
+<span class="w">	</span><span class="kt">char</span><span class="w"> 	</span><span class="n">out_lm</span><span class="p">[</span><span class="mi">255</span><span class="p">];</span><span class="w"></span>
+<span class="w">	</span><span class="k">struct</span> 	<span class="nc">stat</span><span class="w"> </span><span class="n">st</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">};</span><span class="w"></span>
+<span class="w">	</span><span class="kt">int</span><span class="w"> 	</span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">numprocs</span><span class="p">;</span><span class="w"></span>
+<span class="w">	</span>
+<span class="w">	</span><span class="n">MPI_Comm_size</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">numprocs</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">MPI_Comm_rank</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">rank</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">stat</span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">outpath</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">st</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    	</span><span class="n">mkdir</span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">outpath</span><span class="p">,</span><span class="w"> </span><span class="mo">0700</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="p">}</span><span class="w"></span>
+
+<span class="w">	</span><span class="cm">/** ----------------------------------------------------------------------------------------------- **/</span><span class="w"></span>
+<span class="w">	</span><span class="cm">/** THERMOCALC LIKE FINAL OUTPUT **/</span><span class="w"></span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">verbose</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
+<span class="w">		</span><span class="n">sprintf</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w">	</span><span class="s">&quot;%s__TC_RESULTS.txt&quot;</span><span class="w">		</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">outpath</span><span class="p">);</span><span class="w"> </span>
+<span class="w">		</span><span class="n">loc_min</span><span class="w"> 	</span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot;w&quot;</span><span class="p">);</span><span class="w"> </span>
+<span class="w">		</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="n">fclose</span><span class="p">(</span><span class="n">loc_min</span><span class="p">);</span><span class="w">	</span>
+<span class="w">	</span><span class="p">}</span><span class="w"></span>
+<span class="w">	</span><span class="cm">/** ----------------------------------------------------------------------------------------------- **/</span><span class="w"></span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">verbose</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">2</span><span class="p">){</span><span class="w"></span>
+<span class="w">		</span><span class="cm">/** MATLAB GRID OUTPUT **/</span><span class="w"></span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">numprocs</span><span class="o">==</span><span class="mi">1</span><span class="p">){</span><span class="w">	</span><span class="n">sprintf</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w">	</span><span class="s">&quot;%s__FOR_GRID_RESULTS.txt&quot;</span><span class="w">		</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">outpath</span><span class="p">);</span><span class="w"> 		</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="k">else</span><span class="w"> 			</span><span class="p">{</span><span class="w">	</span><span class="n">sprintf</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w">	</span><span class="s">&quot;%s__FOR_GRID_RESULTS.%i.txt&quot;</span><span class="w">	</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">outpath</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">);</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="n">loc_min</span><span class="w"> 	</span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot;w&quot;</span><span class="p">);</span><span class="w"> </span>
+<span class="w">		</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;// NUMBER</span><span class="se">\t</span><span class="s">	STATUS[S,R1,R2,F]</span><span class="se">\t</span><span class="s">P[kbar]</span><span class="se">\t</span><span class="s">T[C]</span><span class="se">\t</span><span class="s">G_sys[G]</span><span class="se">\t</span><span class="s">br_norm[wt]</span><span class="se">\t</span><span class="s">GAMMA[G]; PHASE[name]</span><span class="se">\t</span><span class="s">MODE[wt]</span><span class="se">\t</span><span class="s">RHO[kg.m-3]</span><span class="se">\t</span><span class="s">X-EOS</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="n">fclose</span><span class="p">(</span><span class="n">loc_min</span><span class="p">);</span><span class="w">	</span>
+<span class="w">			</span>
+<span class="w">		</span><span class="cm">/** MODE 2 - LOCAL MINIMA **/</span><span class="w"></span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">Mode</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">numprocs</span><span class="o">==</span><span class="mi">1</span><span class="p">){</span><span class="w">	 </span><span class="n">sprintf</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w">	</span><span class="s">&quot;%s__LOCAL_MINIMA.txt&quot;</span><span class="w">		</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">outpath</span><span class="p">);</span><span class="w"> 	   </span><span class="p">}</span><span class="w"></span>
+<span class="w">			</span><span class="k">else</span><span class="w"> 			</span><span class="p">{</span><span class="w">	 </span><span class="n">sprintf</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w">	</span><span class="s">&quot;%s__LOCAL_MINIMA.%i.txt&quot;</span><span class="w">	</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">outpath</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">);}</span><span class="w"></span>
+<span class="w">			</span><span class="n">loc_min</span><span class="w"> 	</span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot;w&quot;</span><span class="p">);</span><span class="w"> </span>
+<span class="w">			</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;// PHASE_NAME[char]</span><span class="se">\t</span><span class="s">N_x-eos[n]</span><span class="se">\t</span><span class="s">N_POINTS</span><span class="se">\t</span><span class="s">GAMMA[G]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">			</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;// NUMBER</span><span class="se">\t</span><span class="s"> INITIAL ENDMEMBER PROPORTIONS[n+1]</span><span class="se">\t</span><span class="s">INITIAL_GUESS_x_eos[n]</span><span class="se">\t</span><span class="s">FINAL_x-eos[n]</span><span class="se">\t</span><span class="s">FINAL ENDMEMBER PROPORTIONS[n+1]</span><span class="se">\t</span><span class="s">DRIVING_FORCE[dG]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span>
+<span class="w">			</span><span class="n">fclose</span><span class="p">(</span><span class="n">loc_min</span><span class="p">);</span><span class="w">	</span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="cm">/** MODE 2 - LEVELLING_GAMMA **/</span><span class="w"></span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">Mode</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">numprocs</span><span class="o">==</span><span class="mi">1</span><span class="p">){</span><span class="w">	 </span><span class="n">sprintf</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w">	</span><span class="s">&quot;%s__LEVELLING_GAMMA.txt&quot;</span><span class="w">		</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">outpath</span><span class="p">);</span><span class="w"> 	   </span><span class="p">}</span><span class="w"></span>
+<span class="w">			</span><span class="k">else</span><span class="w"> 			</span><span class="p">{</span><span class="w">	 </span><span class="n">sprintf</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w">	</span><span class="s">&quot;%s__LEVELLING_GAMMA.%i.txt&quot;</span><span class="w">	</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">outpath</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">);}</span><span class="w"></span>
+<span class="w">			</span><span class="n">loc_min</span><span class="w"> 	</span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot;w&quot;</span><span class="p">);</span><span class="w"> </span>
+<span class="w">			</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;// BULK-ROCK[len_ox]</span><span class="se">\t</span><span class="s">P[kbar]</span><span class="se">\t</span><span class="s">T[°C]</span><span class="se">\t</span><span class="s">GAMMA[G]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">			</span><span class="n">fclose</span><span class="p">(</span><span class="n">loc_min</span><span class="p">);</span><span class="w">	</span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">	</span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span></div>
+
+<div class="viewcode-block" id="c.dump_results_function"><a class="viewcode-back" href="../src/dump_function.html#c.dump_results_function">[docs]</a><span class="cm">/**</span>
+<span class="cm">  Save final result of minimization</span>
+<span class="cm">*/</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">dump_results_function</span><span class="p">(</span><span class="w">		</span><span class="n">global_variable</span><span class="w"> 	</span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
+<span class="w">								</span><span class="k">struct</span> <span class="nc">bulk_info</span><span class="w"> 	</span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">								</span><span class="n">PP_ref</span><span class="w"> 				</span><span class="o">*</span><span class="n">PP_ref_db</span><span class="p">,</span><span class="w"></span>
+<span class="w">								</span><span class="n">SS_ref</span><span class="w"> 				</span><span class="o">*</span><span class="n">SS_ref_db</span><span class="p">,</span><span class="w"></span>
+<span class="w">								</span><span class="n">csd_phase_set</span><span class="w">  		</span><span class="o">*</span><span class="n">cp</span><span class="w"></span>
+<span class="p">){</span><span class="w"></span>
+<span class="w">	</span>
+<span class="w">	</span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">loc_min</span><span class="p">;</span><span class="w"></span>
+<span class="w">	</span><span class="kt">char</span><span class="w"> </span><span class="n">out_lm</span><span class="p">[</span><span class="mi">255</span><span class="p">];</span><span class="w"></span>
+<span class="w">	</span>
+<span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">numprocs</span><span class="p">;</span><span class="w"></span>
+<span class="w">	</span>
+<span class="w">	</span><span class="n">MPI_Comm_size</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">numprocs</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">MPI_Comm_rank</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">rank</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">	</span><span class="cm">/** ----------------------------------------------------------------------------------------------- **/</span><span class="w"></span>
+<span class="w">	</span><span class="cm">/** THERMOCALC LIKE FINAL OUTPUT **/</span><span class="w"></span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">verbose</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
+<span class="w">		</span><span class="cm">/* output active phase fraction*/</span><span class="w"></span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">numprocs</span><span class="o">==</span><span class="mi">1</span><span class="p">){</span><span class="w">	</span><span class="n">sprintf</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w">	</span><span class="s">&quot;%s__TC_RESULTS.txt&quot;</span><span class="w">		</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">outpath</span><span class="p">);</span><span class="w"> 	</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="k">else</span><span class="w"> 			</span><span class="p">{</span><span class="w">	</span><span class="n">sprintf</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w">	</span><span class="s">&quot;%s__TC_RESULTS.%i.txt&quot;</span><span class="w">		</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">outpath</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">);</span><span class="w"> 	</span><span class="p">}</span><span class="w"></span>
+
+<span class="w">		</span><span class="n">loc_min</span><span class="w"> 	</span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot;a&quot;</span><span class="p">);</span><span class="w"> </span>
+<span class="w">		</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;============================================================</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_cp</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
+<span class="w">				</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot;%4s &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">name</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">			</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_pp</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">pp_flags</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
+<span class="w">				</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot;%4s &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">PP_list</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span><span class="w"></span>
+<span class="w">			</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w">	</span>
+<span class="w">		</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot; {%+4f, %+4f} kbar/°C</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">z_b</span><span class="p">.</span><span class="n">P</span><span class="p">,</span><span class="n">z_b</span><span class="p">.</span><span class="n">T</span><span class="mf">-273.15</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span>
+<span class="w">		</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Compositional variables (solution models):</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">		</span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_cp</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
+<span class="w">				</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot; %5s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">name</span><span class="p">);</span><span class="w"></span>
+<span class="w">				</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">n_xeos</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">					</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot;%10.5f &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">xeos</span><span class="p">[</span><span class="n">j</span><span class="p">]);</span><span class="w"></span>
+<span class="w">				</span><span class="p">}</span><span class="w"></span>
+<span class="w">				</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ox</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">					</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot;%10s &quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;-&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">				</span><span class="p">}</span><span class="w">		</span>
+<span class="w">				</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">	</span>
+<span class="w">			</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">Mode</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Gibbs energy of reference G0 (solution models):</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">		</span>
+<span class="w">			</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_cp</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">				</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
+<span class="w">					</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot; %5s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">name</span><span class="p">);</span><span class="w"></span>
+<span class="w">					</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">n_em</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">						</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot;%14.6f &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">gbase</span><span class="p">[</span><span class="n">j</span><span class="p">]);</span><span class="w"></span>
+<span class="w">					</span><span class="p">}</span><span class="w"></span>
+<span class="w">					</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ox</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">						</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot;%14s &quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;-&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">					</span><span class="p">}</span><span class="w">		</span>
+<span class="w">					</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">	</span>
+<span class="w">				</span><span class="p">}</span><span class="w"></span>
+<span class="w">			</span><span class="p">}</span><span class="w"></span>
+<span class="w">					</span>
+<span class="w">			</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Chemical potentials (solution models):</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">		</span>
+<span class="w">			</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_cp</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">				</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
+<span class="w">					</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot; %5s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">name</span><span class="p">);</span><span class="w"></span>
+<span class="w">					</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">n_em</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">						</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot;%14.6f &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">mu</span><span class="p">[</span><span class="n">j</span><span class="p">]);</span><span class="w"></span>
+<span class="w">					</span><span class="p">}</span><span class="w"></span>
+<span class="w">					</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ox</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">						</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot;%14s &quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;-&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">					</span><span class="p">}</span><span class="w">		</span>
+<span class="w">					</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">	</span>
+<span class="w">				</span><span class="p">}</span><span class="w"></span>
+<span class="w">			</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+
+<span class="w">		</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Site fractions:</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">		</span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_cp</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
+<span class="w">				</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot; %5s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">name</span><span class="p">);</span><span class="w"></span>
+<span class="w">				</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="p">(</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">n_sf</span><span class="p">);</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">					</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot;%10.5f &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">sf</span><span class="p">[</span><span class="n">j</span><span class="p">]);</span><span class="w"> </span><span class="c1">// *-1.0 because inequality are given as -x &lt;= 0 in NLopt</span>
+<span class="w">				</span><span class="p">}</span><span class="w"></span>
+<span class="w">				</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ox</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">					</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot;%10s &quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;-&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">				</span><span class="p">}</span><span class="w">		</span>
+<span class="w">				</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">	</span>
+<span class="w">			</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span>
+<span class="w">		</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Oxide compositions:</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">	</span>
+<span class="w">		</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%5s&quot;</span><span class="p">,</span><span class="s">&quot; &quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ox</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot; %10s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">ox</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s"> %5s&quot;</span><span class="p">,</span><span class="s">&quot;SYS&quot;</span><span class="p">);</span><span class="w">	</span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ox</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%10.5f &quot;</span><span class="p">,</span><span class="n">z_b</span><span class="p">.</span><span class="n">bulk_rock</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">	</span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_cp</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
+<span class="w">				</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot; %5s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">name</span><span class="p">);</span><span class="w"></span>
+<span class="w">				</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ox</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">					</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%10.5f &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_comp</span><span class="p">[</span><span class="n">j</span><span class="p">]);</span><span class="w"></span>
+<span class="w">				</span><span class="p">}</span><span class="w"></span>
+<span class="w">				</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">			</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span>
+<span class="w">		</span><span class="kt">double</span><span class="w"> </span><span class="n">G</span><span class="p">;</span><span class="w"></span>
+<span class="w">		</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">	</span>
+<span class="w">		</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Stable mineral assemblage:</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">	</span>
+<span class="w">		</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%6s%12s %12s %12s %12s %12s %12s %12s %12s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="s">&quot;phase&quot;</span><span class="p">,</span><span class="s">&quot;mode&quot;</span><span class="p">,</span><span class="s">&quot;f&quot;</span><span class="p">,</span><span class="s">&quot;G&quot;</span><span class="w"> </span><span class="p">,</span><span class="s">&quot;V&quot;</span><span class="w"> </span><span class="p">,</span><span class="s">&quot;Cp&quot;</span><span class="p">,</span><span class="s">&quot;rho&quot;</span><span class="p">,</span><span class="s">&quot;Thermal_Exp&quot;</span><span class="p">,</span><span class="s">&quot;ShearModu&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">					</span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_cp</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
+<span class="w">				</span>
+<span class="w">				</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">Mode</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
+<span class="w">					</span><span class="n">G</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">df</span><span class="p">;</span><span class="w"></span>
+<span class="w">				</span><span class="p">}</span><span class="w"></span>
+<span class="w">				</span><span class="k">else</span><span class="p">{</span><span class="w"></span>
+<span class="w">					</span><span class="n">G</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
+<span class="w">					</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ox</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">						</span><span class="n">G</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_comp</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">*</span><span class="n">gv</span><span class="p">.</span><span class="n">gam_tot</span><span class="p">[</span><span class="n">j</span><span class="p">];</span><span class="w"></span>
+<span class="w">					</span><span class="p">}</span><span class="w"></span>
+<span class="w">				</span><span class="p">}</span><span class="w"></span>
+
+<span class="w">				</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%6s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">name</span><span class="p">);</span><span class="w"></span>
+<span class="w">				</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.2f&quot;</span><span class="p">,</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_n</span><span class="p">,</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">factor</span><span class="p">,</span><span class="n">G</span><span class="p">,</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">volume</span><span class="p">,</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">phase_cp</span><span class="p">,</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">phase_density</span><span class="p">,</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">phase_expansivity</span><span class="p">,</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">phase_shearModulus</span><span class="p">);</span><span class="w"></span>
+<span class="w">				</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">			</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_pp</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">pp_flags</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"> </span>
+<span class="w">				</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%6s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">PP_list</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span><span class="w"></span>
+<span class="w">				</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.2f&quot;</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">pp_n</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">PP_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">factor</span><span class="p">,</span><span class="n">PP_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">gbase</span><span class="p">,</span><span class="n">PP_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">volume</span><span class="p">,</span><span class="n">PP_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">phase_cp</span><span class="p">,</span><span class="n">PP_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">phase_density</span><span class="p">,</span><span class="n">PP_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">phase_expansivity</span><span class="p">,</span><span class="n">PP_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">phase_shearModulus</span><span class="p">);</span><span class="w"></span>
+<span class="w">				</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">			</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span>
+<span class="w">		</span>
+<span class="w">			</span>
+<span class="w">		</span><span class="n">G</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ox</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="n">G</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">z_b</span><span class="p">.</span><span class="n">bulk_rock</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">*</span><span class="n">gv</span><span class="p">.</span><span class="n">gam_tot</span><span class="p">[</span><span class="n">j</span><span class="p">];</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%6s %24s %+12.5f</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="s">&quot;SYS&quot;</span><span class="p">,</span><span class="s">&quot; &quot;</span><span class="p">,</span><span class="n">G</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">		</span><span class="cm">/* output solution phase composition */</span><span class="w"> 	</span>
+<span class="w">		</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Gamma (chemical potential of oxides):</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ox</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%6s %+12.5f</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">ox</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">gam_tot</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">delta Gibbs energy (G-hyperplane distance):</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_cp</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
+<span class="w">				</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot;%5s %+10e</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">name</span><span class="p">,</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">df</span><span class="p">);</span><span class="w"></span>
+<span class="w">			</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="n">fclose</span><span class="p">(</span><span class="n">loc_min</span><span class="p">);</span><span class="w">	</span>
+<span class="w">	</span><span class="p">}</span><span class="w"></span>
+<span class="w">	</span>
+
+<span class="w">	</span>
+<span class="w">	</span><span class="cm">/** ----------------------------------------------------------------------------------------------- **/</span><span class="w"></span>
+<span class="w">	</span><span class="cm">/** MATLAB GRID OUTPUT **/</span><span class="w"></span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">verbose</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">2</span><span class="p">){</span><span class="w"></span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">numprocs</span><span class="o">==</span><span class="mi">1</span><span class="p">){</span><span class="w">	</span><span class="n">sprintf</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w">	</span><span class="s">&quot;%s__FOR_GRID_RESULTS.txt&quot;</span><span class="w">		</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">outpath</span><span class="p">);</span><span class="w"> 		</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="k">else</span><span class="w"> 			</span><span class="p">{</span><span class="w">	</span><span class="n">sprintf</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w">	</span><span class="s">&quot;%s__FOR_GRID_RESULTS.%i.txt&quot;</span><span class="w">	</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">outpath</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">);</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">		</span><span class="kt">int</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">							</span><span class="c1">//result, 0 success, 1 under-relaxed, 2 more under-relaxed, 3 failed</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">global_ite</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">ur_1</span><span class="p">){</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">	</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">global_ite</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">ur_2</span><span class="p">){</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w">	</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">global_ite</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">ur_3</span><span class="p">){</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w">	</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">global_ite</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">ur_f</span><span class="p">){</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span><span class="w">	</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">div</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"> 			  </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span><span class="w">	</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span>
+<span class="w">		</span><span class="cm">/* get number of repeated phases for the solvi */</span><span class="w"></span>
+<span class="w">		</span><span class="kt">int</span><span class="w"> </span><span class="n">n_solvi</span><span class="p">[</span><span class="n">gv</span><span class="p">.</span><span class="n">len_ss</span><span class="p">];</span><span class="w"></span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ss</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="n">n_solvi</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_cp</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
+<span class="w">				</span><span class="n">n_solvi</span><span class="p">[</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">id</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">			</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">	</span>
+<span class="w">		</span><span class="n">loc_min</span><span class="w"> 	</span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot;a&quot;</span><span class="p">);</span><span class="w"> </span>
+<span class="w">		</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%i %i %.10f %.10f %.10f %.10f&quot;</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">numPoint</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">z_b</span><span class="p">.</span><span class="n">P</span><span class="p">,</span><span class="n">z_b</span><span class="p">.</span><span class="n">T</span><span class="mf">-273.15</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">G_system</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">BR_norm</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ox</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot; </span><span class="se">\t</span><span class="s"> %0.10f &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">gam_tot</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_cp</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"> </span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
+<span class="w">				</span>
+<span class="w">				</span>
+<span class="w">				</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">n_solvi</span><span class="p">[</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">id</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
+<span class="w">					</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot;%s_%d </span><span class="se">\t</span><span class="s"> %.10f </span><span class="se">\t</span><span class="s"> %.10f </span><span class="se">\t</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">name</span><span class="p">,</span><span class="n">n_solvi</span><span class="p">[</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">id</span><span class="p">],</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_n</span><span class="p">,</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">phase_density</span><span class="p">);</span><span class="w"></span>
+<span class="w">				</span><span class="p">}</span><span class="w"></span>
+<span class="w">				</span><span class="k">else</span><span class="p">{</span><span class="w"></span>
+<span class="w">					</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot;%s </span><span class="se">\t</span><span class="s"> %.10f </span><span class="se">\t</span><span class="s"> %.10f </span><span class="se">\t</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_n</span><span class="p">,</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">phase_density</span><span class="p">);</span><span class="w"></span>
+<span class="w">				</span><span class="p">}</span><span class="w"></span>
+<span class="w">				</span>
+<span class="w">				</span>
+<span class="w">				</span><span class="c1">//fprintf(loc_min, 	&quot;%s \t %.10f \t %.10f \t&quot;, cp[i].name, cp[i].ss_n, cp[i].phase_density);</span>
+<span class="w">				</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot;%d &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">n_xeos</span><span class="p">);</span><span class="w"></span>
+<span class="w">				</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="p">(</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">n_xeos</span><span class="p">);</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">					</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot;%.10f &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">xeos</span><span class="p">[</span><span class="n">j</span><span class="p">]);</span><span class="w"></span>
+<span class="w">				</span><span class="p">}</span><span class="w"></span>
+<span class="w">				</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="p">(</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">n_em</span><span class="p">);</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">					</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot;%.10f &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">p_em</span><span class="p">[</span><span class="n">j</span><span class="p">]);</span><span class="w"></span>
+<span class="w">				</span><span class="p">}</span><span class="w"></span>
+<span class="w">				</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">			</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w">	</span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_pp</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">pp_flags</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
+<span class="w">				</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot;%s </span><span class="se">\t</span><span class="s"> %.10f </span><span class="se">\t</span><span class="s"> %.10f </span><span class="se">\t</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">PP_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">pp_n</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">PP_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">phase_density</span><span class="p">);</span><span class="w"></span>
+<span class="w">				</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">			</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w">	</span>
+<span class="w">		</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="n">fclose</span><span class="p">(</span><span class="n">loc_min</span><span class="p">);</span><span class="w">	</span>
+<span class="w">	</span><span class="p">}</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span></div>
+
+<div class="viewcode-block" id="c.mergeParallelFiles"><a class="viewcode-back" href="../src/dump_function.html#c.mergeParallelFiles">[docs]</a><span class="cm">/**</span>
+<span class="cm">  Parallel file dump for phase diagrams</span>
+<span class="cm">*/</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">mergeParallelFiles</span><span class="p">(</span><span class="n">global_variable</span><span class="w"> </span><span class="n">gv</span><span class="p">){</span><span class="w"></span>
+
+<span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">numprocs</span><span class="p">,</span><span class="w">  </span><span class="n">MAX_LINE_LENGTH</span><span class="o">=</span><span class="mi">200</span><span class="p">;</span><span class="w"></span>
+<span class="w">	</span><span class="kt">char</span><span class="w"> </span><span class="n">out_lm</span><span class="p">[</span><span class="mi">255</span><span class="p">];</span><span class="w"></span>
+<span class="w">	</span><span class="kt">char</span><span class="w"> </span><span class="n">in_lm</span><span class="p">[</span><span class="mi">255</span><span class="p">];</span><span class="w"></span>
+<span class="w">	</span><span class="kt">char</span><span class="w"> </span><span class="n">c</span><span class="p">;</span><span class="w"> </span>
+<span class="w">	</span><span class="kt">char</span><span class="w"> </span><span class="n">buf</span><span class="p">[</span><span class="n">MAX_LINE_LENGTH</span><span class="p">];</span><span class="w"></span>
+<span class="w">	</span>
+<span class="w">	</span><span class="n">MPI_Comm_size</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">numprocs</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">MPI_Comm_rank</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">rank</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">numprocs</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"> </span><span class="k">return</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">	</span><span class="n">sprintf</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w">	</span><span class="s">&quot;%s__FOR_GRID_RESULTS.txt&quot;</span><span class="w">		</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">outpath</span><span class="p">);</span><span class="w"></span>
+<span class="w">   	</span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">fp2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;w&quot;</span><span class="p">);</span><span class="w"> </span>
+
+<span class="w">	</span><span class="n">fprintf</span><span class="p">(</span><span class="n">fp2</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;// NUMBER</span><span class="se">\t</span><span class="s">STATUS[S,R1,R2,F]</span><span class="se">\t</span><span class="s">P[kbar]</span><span class="se">\t</span><span class="s">T[C]</span><span class="se">\t</span><span class="s">G_sys[G]</span><span class="se">\t</span><span class="s">br_norm[wt]</span><span class="se">\t</span><span class="s">GAMMA[G]; PHASE[name]</span><span class="se">\t</span><span class="s">MODE[wt]</span><span class="se">\t</span><span class="s">RHO[kg.m-3]</span><span class="se">\t</span><span class="s">X-EOS</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">	</span><span class="c1">// Open file to be merged </span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">numprocs</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">		</span><span class="c1">// open file</span>
+<span class="w">		</span><span class="n">sprintf</span><span class="p">(</span><span class="n">in_lm</span><span class="p">,</span><span class="w">	</span><span class="s">&quot;%s__FOR_GRID_RESULTS.%i.txt&quot;</span><span class="w">		</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">outpath</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">fp1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="n">in_lm</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;r&quot;</span><span class="p">);</span><span class="w"> </span>
+<span class="w">		</span>
+<span class="w">		</span><span class="n">fgets</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="n">MAX_LINE_LENGTH</span><span class="p">,</span><span class="w"> </span><span class="n">fp1</span><span class="p">);</span><span class="w">					</span><span class="c1">// skip first line = comment (we don&#39;t want to copy that)</span>
+<span class="w">	</span>
+<span class="w">		</span><span class="c1">// Copy contents of first file to file3.txt </span>
+<span class="w">		</span><span class="k">while</span><span class="w"> </span><span class="p">((</span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fgetc</span><span class="p">(</span><span class="n">fp1</span><span class="p">))</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">EOF</span><span class="p">){</span><span class="w"> </span>
+<span class="w">			</span><span class="n">fputc</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">fp2</span><span class="p">);</span><span class="w"> </span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="n">fclose</span><span class="p">(</span><span class="n">fp1</span><span class="p">);</span><span class="w"> </span>
+<span class="w">	</span><span class="p">}</span><span class="w"></span>
+<span class="w">   </span><span class="n">fclose</span><span class="p">(</span><span class="n">fp2</span><span class="p">);</span><span class="w"> </span>
+<span class="p">}</span><span class="w"></span></div>
+
+<div class="viewcode-block" id="c.mergeParallel_LocalMinima_Files"><a class="viewcode-back" href="../src/dump_function.html#c.mergeParallel_LocalMinima_Files">[docs]</a><span class="cm">/**</span>
+<span class="cm">  Parallel file dump for local minima search</span>
+<span class="cm">*/</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">mergeParallel_LocalMinima_Files</span><span class="p">(</span><span class="n">global_variable</span><span class="w"> </span><span class="n">gv</span><span class="p">){</span><span class="w"></span>
+
+<span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">numprocs</span><span class="p">,</span><span class="w">  </span><span class="n">MAX_LINE_LENGTH</span><span class="o">=</span><span class="mi">200</span><span class="p">;</span><span class="w"></span>
+<span class="w">	</span><span class="kt">char</span><span class="w"> </span><span class="n">out_lm</span><span class="p">[</span><span class="mi">255</span><span class="p">];</span><span class="w"></span>
+<span class="w">	</span><span class="kt">char</span><span class="w"> </span><span class="n">in_lm</span><span class="p">[</span><span class="mi">255</span><span class="p">];</span><span class="w"></span>
+<span class="w">	</span><span class="kt">char</span><span class="w"> </span><span class="n">c</span><span class="p">;</span><span class="w"> </span>
+<span class="w">	</span><span class="kt">char</span><span class="w"> </span><span class="n">buf</span><span class="p">[</span><span class="n">MAX_LINE_LENGTH</span><span class="p">];</span><span class="w"></span>
+<span class="w">	</span>
+<span class="w">	</span><span class="n">MPI_Comm_size</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">numprocs</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">MPI_Comm_rank</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">rank</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">numprocs</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"> </span><span class="k">return</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">	</span><span class="n">sprintf</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w">	</span><span class="s">&quot;%s__LOCAL_MINIMA.txt&quot;</span><span class="w">		</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">outpath</span><span class="p">);</span><span class="w"></span>
+<span class="w">   	</span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">fp2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;w&quot;</span><span class="p">);</span><span class="w"> </span>
+
+<span class="w">	</span><span class="n">fprintf</span><span class="p">(</span><span class="n">fp2</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;// PHASE_NAME[char]</span><span class="se">\t</span><span class="s">N_x-eos[n]</span><span class="se">\t</span><span class="s">N_POINTS</span><span class="se">\t</span><span class="s">GAMMA[G]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">fprintf</span><span class="p">(</span><span class="n">fp2</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;// NUMBER</span><span class="se">\t</span><span class="s"> INITIAL ENDMEMBER PROPORTIONS[n+1]</span><span class="se">\t</span><span class="s">INITIAL_GUESS_x_eos[n]</span><span class="se">\t</span><span class="s">FINAL_x-eos[n]</span><span class="se">\t</span><span class="s">FINAL ENDMEMBER PROPORTIONS[n+1]</span><span class="se">\t</span><span class="s">DRIVING_FORCE[dG]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span>
+
+<span class="w">	</span><span class="c1">// Open file to be merged </span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">numprocs</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">		</span><span class="c1">// open file</span>
+<span class="w">		</span><span class="n">sprintf</span><span class="p">(</span><span class="n">in_lm</span><span class="p">,</span><span class="w">	</span><span class="s">&quot;%s__LOCAL_MINIMA.%i.txt&quot;</span><span class="w">		</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">outpath</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">fp1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="n">in_lm</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;r&quot;</span><span class="p">);</span><span class="w"> </span>
+<span class="w">		</span>
+<span class="w">		</span><span class="n">fgets</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="n">MAX_LINE_LENGTH</span><span class="p">,</span><span class="w"> </span><span class="n">fp1</span><span class="p">);</span><span class="w">					</span><span class="c1">// skip 1th line = comment (we don&#39;t want to copy that)</span>
+<span class="w">		</span><span class="n">fgets</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="n">MAX_LINE_LENGTH</span><span class="p">,</span><span class="w"> </span><span class="n">fp1</span><span class="p">);</span><span class="w">					</span><span class="c1">// skip 2nd line = comment (we don&#39;t want to copy that)</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="n">fgets</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="n">MAX_LINE_LENGTH</span><span class="p">,</span><span class="w"> </span><span class="n">fp1</span><span class="p">);</span><span class="w">				</span><span class="c1">// skip 3rd line = info about Gamma (only needed once)</span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">	</span>
+<span class="w">		</span><span class="c1">// Copy contents of first file to file3.txt </span>
+<span class="w">		</span><span class="k">while</span><span class="w"> </span><span class="p">((</span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fgetc</span><span class="p">(</span><span class="n">fp1</span><span class="p">))</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">EOF</span><span class="p">){</span><span class="w"> </span>
+<span class="w">			</span><span class="n">fputc</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">fp2</span><span class="p">);</span><span class="w"> </span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="n">fclose</span><span class="p">(</span><span class="n">fp1</span><span class="p">);</span><span class="w"> </span>
+<span class="w">	</span><span class="p">}</span><span class="w"></span>
+<span class="w">   </span><span class="n">fclose</span><span class="p">(</span><span class="n">fp2</span><span class="p">);</span><span class="w"> </span>
+<span class="p">}</span><span class="w"></span></div>
+
+<div class="viewcode-block" id="c.mergeParallel_LevellingGamma_Files"><a class="viewcode-back" href="../src/dump_function.html#c.mergeParallel_LevellingGamma_Files">[docs]</a><span class="cm">/**</span>
+<span class="cm">  Parallel file dump for first stage of levelling minimization only</span>
+<span class="cm">*/</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">mergeParallel_LevellingGamma_Files</span><span class="p">(</span><span class="n">global_variable</span><span class="w"> </span><span class="n">gv</span><span class="p">){</span><span class="w"></span>
+
+<span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">,</span><span class="w"> </span><span class="n">numprocs</span><span class="p">,</span><span class="w">  </span><span class="n">MAX_LINE_LENGTH</span><span class="o">=</span><span class="mi">200</span><span class="p">;</span><span class="w"></span>
+<span class="w">	</span><span class="kt">char</span><span class="w"> </span><span class="n">out_lm</span><span class="p">[</span><span class="mi">255</span><span class="p">];</span><span class="w"></span>
+<span class="w">	</span><span class="kt">char</span><span class="w"> </span><span class="n">in_lm</span><span class="p">[</span><span class="mi">255</span><span class="p">];</span><span class="w"></span>
+<span class="w">	</span><span class="kt">char</span><span class="w"> </span><span class="n">c</span><span class="p">;</span><span class="w"> </span>
+<span class="w">	</span><span class="kt">char</span><span class="w"> </span><span class="n">buf</span><span class="p">[</span><span class="n">MAX_LINE_LENGTH</span><span class="p">];</span><span class="w"></span>
+<span class="w">	</span>
+<span class="w">	</span><span class="n">MPI_Comm_size</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">numprocs</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">MPI_Comm_rank</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">rank</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">numprocs</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"> </span><span class="k">return</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">	</span><span class="n">sprintf</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w">	</span><span class="s">&quot;%s__LEVELLING_GAMMA.txt&quot;</span><span class="w">		</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">outpath</span><span class="p">);</span><span class="w"></span>
+<span class="w">   	</span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">fp2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;w&quot;</span><span class="p">);</span><span class="w"> </span>
+
+<span class="w">	</span><span class="n">fprintf</span><span class="p">(</span><span class="n">fp2</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;// BULK-ROCK[len_ox]</span><span class="se">\t</span><span class="s">P[kbar]</span><span class="se">\t</span><span class="s">T[°C]</span><span class="se">\t</span><span class="s">GAMMA[G]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">	</span><span class="c1">// Open file to be merged </span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">numprocs</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">		</span><span class="c1">// open file</span>
+<span class="w">		</span><span class="n">sprintf</span><span class="p">(</span><span class="n">in_lm</span><span class="p">,</span><span class="w">	</span><span class="s">&quot;%s__LEVELLING_GAMMA.%i.txt&quot;</span><span class="w">		</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">outpath</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">fp1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="n">in_lm</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;r&quot;</span><span class="p">);</span><span class="w"> </span>
+<span class="w">		</span>
+<span class="w">		</span><span class="n">fgets</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="n">MAX_LINE_LENGTH</span><span class="p">,</span><span class="w"> </span><span class="n">fp1</span><span class="p">);</span><span class="w">					</span><span class="c1">// skip 1th line = comment (we don&#39;t want to copy that)</span>
+<span class="w">		</span><span class="n">fgets</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="n">MAX_LINE_LENGTH</span><span class="p">,</span><span class="w"> </span><span class="n">fp1</span><span class="p">);</span><span class="w">					</span><span class="c1">// skip 2nd line = comment (we don&#39;t want to copy that)</span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="n">fgets</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="n">MAX_LINE_LENGTH</span><span class="p">,</span><span class="w"> </span><span class="n">fp1</span><span class="p">);</span><span class="w">					</span><span class="c1">// skip 3rd line = info about Gamma (only needed once)</span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">	</span>
+<span class="w">		</span><span class="c1">// Copy contents of first file to file3.txt </span>
+<span class="w">		</span><span class="k">while</span><span class="w"> </span><span class="p">((</span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fgetc</span><span class="p">(</span><span class="n">fp1</span><span class="p">))</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">EOF</span><span class="p">){</span><span class="w"> </span>
+<span class="w">			</span><span class="n">fputc</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">fp2</span><span class="p">);</span><span class="w"> </span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="n">fclose</span><span class="p">(</span><span class="n">fp1</span><span class="p">);</span><span class="w"> </span>
+<span class="w">	</span><span class="p">}</span><span class="w"></span>
+<span class="w">   </span><span class="n">fclose</span><span class="p">(</span><span class="n">fp2</span><span class="p">);</span><span class="w"> </span>
+<span class="p">}</span><span class="w"></span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Riel, N., &amp; Kaus, B..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

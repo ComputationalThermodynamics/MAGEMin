@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>toolkit &mdash; MAGEMin 2021 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="io_function" href="io_function.html" />
+    <link rel="prev" title="objective_functions" href="objective_functions.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html">
+            <img src="../_static/2022_MAGEMin_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../stp.html">Linux-based system</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../stp/Linux.html">External libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stp/Linux.html#magemin">MAGEMin</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../stp.html#macos-system">macOS system</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../stp/macOS.html">External libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stp/macOS.html#magemin">MAGEMin</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../stp.html#optional-developers">Optional (developers)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../stp/Dev.html">Python libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stp/Dev.html#c-tools">C tools</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods and examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../man.html">Thermodynamic problem</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../man/Thermo.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Thermo.html#gibbs-free-energy">Gibbs free energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Thermo.html#global-minimum-and-g-hyperplane">Global minimum and G-hyperplane</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../man.html#phase-diagrams">Phase diagrams</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html">Examples of phase diagrams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#peridotite-klb1">Peridotite (KLB1)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#pyroxenite-mixg1">Pyroxenite (MIXG1)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#basalt-re46">Basalt (RE46)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#basalt-nmorb">Basalt (NMORB)</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Cookbook:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ckbk.html">Run minimization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html">List of arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html#single-point-calculation">Single point calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html#multiple-points-calculation">Multiple points calculation</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developers section:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dev.html">Add database</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../dev/Dev.html">Analytical formulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev/Dev.html#generate-pseudocompounds">Generate pseudocompounds</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Source code:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../src.html">Main algorithm</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="MAGEMin.html">MAGEMin</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="MAGEMin.html#mineral-assemblage-gibbs-energy-minimization">Mineral Assemblage Gibbs Energy Minimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="MAGEMin.html#imported-libraries">Imported libraries</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="simplex_levelling.html">Simplex levelling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PGE_function.html">PGE_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="phase_update_function.html">phase_update_function</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="phase_update_function.html#pp-ss-flags">PP &amp; SS_flags</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dump_function.html">dump_function</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../src.html#pure-phases-functions">Pure phases functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gem_function.html">gem_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pp_min_function.html">pp_min_function</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pp_min_function.html#pure-phase-minimization-function">Pure phase minimization function</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../src.html#solution-phases-functions">Solution phases functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gss_init_function.html">gss_init_function</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="gss_init_function.html#pp-ss-flags">PP &amp; SS_flags</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="gss_function.html">gss_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ss_min_function.html">ss_min_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="NLopt_opt_function.html">NLopt_opt_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="objective_functions.html">objective_functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../src.html#toolkit">Toolkit</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">toolkit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="io_function.html">io_function</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">MAGEMin</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../src.html">Main algorithm</a> &raquo;</li>
+      <li>toolkit</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/src/toolkit.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="toolkit">
+<h1>toolkit<a class="headerlink" href="#toolkit" title="Permalink to this headline"></a></h1>
+<dl class="c function">
+<dt class="sig sig-object c" id="c.AFunction">
+<span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AFunction</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">mode</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">v</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">data</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AFunction" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.AFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>test function for Brent method</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.RootBracketed">
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">RootBracketed</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">x1</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">x2</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.RootBracketed" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.RootBracketed"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>TRUE if x1*x2 negative</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.Minimum">
+<span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Minimum</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">a</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.Minimum" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.Minimum"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>returns the minimum of two real numbers</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.Maximum">
+<span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Maximum</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">a</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.Maximum" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.Maximum"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>returns the maimum of two real numbers</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.BrentRoots">
+<span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">BrentRoots</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">x1</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">x2</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">data</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">Tolerance</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">mode</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">maxIterations</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">valueAtRoot</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">niter</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">error</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.BrentRoots" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.BrentRoots"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>main Brent root finding routine</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.createMatrix">
+<span class="n"><span class="pre">TMATRIX</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">createMatrix</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">nRows</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">nCols</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.createMatrix" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.createMatrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>create matrix</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.freeMatrix">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">freeMatrix</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TMATRIX</span></span><span class="w"> </span><span class="n"><span class="pre">oMatrix</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.freeMatrix" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.freeMatrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Remove values less than tolerance</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.cleanUpMatrix">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cleanUpMatrix</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TMATRIX</span></span><span class="w"> </span><span class="n"><span class="pre">oMatrix</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">tolerance</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.cleanUpMatrix" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.cleanUpMatrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Remove values less than tolerance</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.exchangeRows">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">exchangeRows</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TMATRIX</span></span><span class="w"> </span><span class="n"><span class="pre">oMatrix</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">r1</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">r2</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.exchangeRows" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.exchangeRows"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>exchange rows in the matrix</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.getValue">
+<span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getValue</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TMATRIX</span></span><span class="w"> </span><span class="n"><span class="pre">oMatrix</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">i</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">j</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.getValue" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.getValue"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Mainly for debugging, helps spot out of range errors when indexing elements</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.rref">
+<span class="n"><span class="pre">TMATRIX</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">rref</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TMATRIX</span></span><span class="w"> </span><span class="n"><span class="pre">oMatrix</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">pivot</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">tolerance</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.rref" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.rref"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>main rref routine (reduced row echelon form)
+- used to calculate the potential reactions between endmembers satisfying the mass constraint</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.norm_vector">
+<span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">norm_vector</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">array</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.norm_vector" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.norm_vector"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>function to calculate norm of a vector</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.euclidean_distance">
+<span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">euclidean_distance</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">array1</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">array2</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.euclidean_distance" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.euclidean_distance"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>function to calculate the Euclidean distance between two normalized vectors
+- used to decypher which phase to add during phase update</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.inverseMatrix">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">inverseMatrix</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">A1</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.inverseMatrix" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.inverseMatrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>inverse a matrix using LAPACKE dgetrf and dgetri</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.VecVecMul">
+<span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">VecVecMul</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">B0</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">B1</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.VecVecMul" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.VecVecMul"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>vector vectorT multiplication</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.VecMatMul">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">VecMatMul</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">B1</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">A1</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">B</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.VecMatMul" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.VecMatMul"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>vector matrix multiplication</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.MatVecMul">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MatVecMul</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">A1</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">br</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">n_vec</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.MatVecMul" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.MatVecMul"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>matrix vector multiplication</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.get_active_em">
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_active_em</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">array</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.get_active_em" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.get_active_em"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>get active endmember</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.EndsWithTail">
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">EndsWithTail</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">name</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">tail</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.EndsWithTail" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.EndsWithTail"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>compare last character of a string with a reference character
+- function to find out the Liquid endmembers, and remove them from considerations after levelling</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.sum_array">
+<span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">sum_array</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">array</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">size</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.sum_array" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.sum_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>function to calculate the sum of an array</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.check_sign">
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">check_sign</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">v1</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">v2</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.check_sign" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.check_sign"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>function to compare the sign of two variables</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.sign">
+<span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">sign</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.sign" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.sign"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>function to compare the sign of two variables</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.print_cp">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">print_cp</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">csd_phase_set</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">cp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.print_cp" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.print_cp"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>function to print out considered phases structure</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.print_SS_informations">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">print_SS_informations</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">iss</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.print_SS_informations" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.print_SS_informations"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>rotate G-hyperplane using Gamma</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.rotate_hyperplane">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">rotate_hyperplane</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.rotate_hyperplane" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.rotate_hyperplane"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>rotate G-hyperplane using Gamma</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.raw_hyperplane">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">raw_hyperplane</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">gb</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.raw_hyperplane" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.raw_hyperplane"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>raw G-hyperplane using Gamma</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.restrict_SS_HyperVolume">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">restrict_SS_HyperVolume</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">box_size</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.restrict_SS_HyperVolume" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.restrict_SS_HyperVolume"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>restrict solution phase hyper volume for local minimization</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.check_SS_bounds">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">check_SS_bounds</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.check_SS_bounds" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.check_SS_bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>check bounds</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.getActiveSPhaseN">
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getActiveSPhaseN</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">PP_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">PP_ref_db</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.getActiveSPhaseN" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.getActiveSPhaseN"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>retrieve the number of solution phase that are active</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.getActivePhaseN">
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getActivePhaseN</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">PP_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">PP_ref_db</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.getActivePhaseN" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.getActivePhaseN"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>retrieve the number of phases that are active</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.get_pp_id">
+<span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_pp_id</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.get_pp_id" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.get_pp_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>get id of active pure phases</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.get_ss_id">
+<span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_ss_id</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">csd_phase_set</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">cp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.get_ss_id" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.get_ss_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>get id of active solution phases</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="objective_functions.html" class="btn btn-neutral float-left" title="objective_functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="io_function.html" class="btn btn-neutral float-right" title="io_function" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Riel, N., &amp; Kaus, B..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

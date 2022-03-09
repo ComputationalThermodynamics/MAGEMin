@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MAGEMin &mdash; MAGEMin 2021 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Simplex levelling" href="simplex_levelling.html" />
+    <link rel="prev" title="Main algorithm" href="../src.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html">
+            <img src="../_static/2022_MAGEMin_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../stp.html">Linux-based system</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../stp/Linux.html">External libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stp/Linux.html#magemin">MAGEMin</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../stp.html#macos-system">macOS system</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../stp/macOS.html">External libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stp/macOS.html#magemin">MAGEMin</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../stp.html#optional-developers">Optional (developers)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../stp/Dev.html">Python libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stp/Dev.html#c-tools">C tools</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods and examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../man.html">Thermodynamic problem</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../man/Thermo.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Thermo.html#gibbs-free-energy">Gibbs free energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Thermo.html#global-minimum-and-g-hyperplane">Global minimum and G-hyperplane</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../man.html#phase-diagrams">Phase diagrams</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html">Examples of phase diagrams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#peridotite-klb1">Peridotite (KLB1)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#pyroxenite-mixg1">Pyroxenite (MIXG1)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#basalt-re46">Basalt (RE46)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#basalt-nmorb">Basalt (NMORB)</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Cookbook:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ckbk.html">Run minimization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html">List of arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html#single-point-calculation">Single point calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html#multiple-points-calculation">Multiple points calculation</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developers section:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dev.html">Add database</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../dev/Dev.html">Analytical formulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev/Dev.html#generate-pseudocompounds">Generate pseudocompounds</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Source code:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../src.html">Main algorithm</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">MAGEMin</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mineral-assemblage-gibbs-energy-minimization">Mineral Assemblage Gibbs Energy Minimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#imported-libraries">Imported libraries</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="simplex_levelling.html">Simplex levelling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PGE_function.html">PGE_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="phase_update_function.html">phase_update_function</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="phase_update_function.html#pp-ss-flags">PP &amp; SS_flags</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dump_function.html">dump_function</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../src.html#pure-phases-functions">Pure phases functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gem_function.html">gem_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pp_min_function.html">pp_min_function</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pp_min_function.html#pure-phase-minimization-function">Pure phase minimization function</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../src.html#solution-phases-functions">Solution phases functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gss_init_function.html">gss_init_function</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="gss_init_function.html#pp-ss-flags">PP &amp; SS_flags</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="gss_function.html">gss_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ss_min_function.html">ss_min_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="NLopt_opt_function.html">NLopt_opt_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="objective_functions.html">objective_functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../src.html#toolkit">Toolkit</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="toolkit.html">toolkit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="io_function.html">io_function</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">MAGEMin</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../src.html">Main algorithm</a> &raquo;</li>
+      <li>MAGEMin</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/src/MAGEMin.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="magemin">
+<h1>MAGEMin<a class="headerlink" href="#magemin" title="Permalink to this headline"></a></h1>
+<section id="mineral-assemblage-gibbs-energy-minimization">
+<h2>Mineral Assemblage Gibbs Energy Minimization<a class="headerlink" href="#mineral-assemblage-gibbs-energy-minimization" title="Permalink to this headline"></a></h2>
+<p>Contributors:</p>
+<ul class="simple">
+<li><p>Main developers: Riel N., Kaus. B.</p></li>
+<li><p>Database translation and debugging: Green E., Berlie N., and Rummel L.</p></li>
+</ul>
+<p>Contacts: nriel[at]uni-mainz.de, kaus[at]uni-mainz.de</p>
+<p>C routine to compute a stable mineralogical assemblage
+using Gibbs Energy Minimization.
+We employ a Partitioning Gibbs Energy strategy coupled
+with local non-linear constrained minimization to solve
+for phase equilibria at constant P,T and bulk-rock.</p>
+<ul class="simple">
+<li><p>Igneous thermodynamic database (Holland et al., 2008)</p></li>
+<li><p>KNCFMASHTOCr chemical space</p></li>
+<li><p>Solid solutions (biotite, clinopyroxene, cordierite, epidote, fluids, garnet, hornblende, ilmenite, K-felspar, liquid, muscovite, olivine, orthopyroxene, plagioclase, spinel)</p></li>
+</ul>
+</section>
+<section id="imported-libraries">
+<h2>Imported libraries<a class="headerlink" href="#imported-libraries" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>LAPACKE (C version of LAPACK)</p></li>
+<li><p>NLopt  (<a class="reference external" href="https://nlopt.readthedocs.io/">https://nlopt.readthedocs.io/</a>)</p></li>
+<li><p>uthash (<a class="reference external" href="https://troydhanson.github.io/uthash/">https://troydhanson.github.io/uthash/</a>)</p></li>
+<li><p>ketopt (<a class="reference external" href="https://github.com/attractivechaos/klib/blob/master/ketopt.h">https://github.com/attractivechaos/klib/blob/master/ketopt.h</a>)</p></li>
+</ul>
+<dl class="c function">
+<dt class="sig sig-object c" id="c.main">
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">main</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">argc</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">argv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.main" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/MAGEMin.c.html#c.main"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Main routine</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.runMAGEMin">
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">runMAGEMin</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">argc</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">argv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.runMAGEMin" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/MAGEMin.c.html#c.runMAGEMin"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>call MAGEMin</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.ComputePostProcessing">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ComputePostProcessing</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">PP_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">PP_ref_db</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="n"><span class="pre">csd_phase_set</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">cp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.ComputePostProcessing" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/MAGEMin.c.html#c.ComputePostProcessing"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Compute stable equilibrium at given P/T/C point</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.ComputeEquilibrium_Point">
+<span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ComputeEquilibrium_Point</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">io_data</span></span><span class="w"> </span><span class="n"><span class="pre">input_data</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">Mode</span></span>, <span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">PP_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">PP_ref_db</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="n"><span class="pre">csd_phase_set</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">cp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.ComputeEquilibrium_Point" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/MAGEMin.c.html#c.ComputeEquilibrium_Point"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Compute stable equilibrium at given P/T/C point</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.ReadCommandLineOptions">
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ReadCommandLineOptions</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">argc</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">argv</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">Mode_out</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">Verb_out</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">test_out</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">n_points_out</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">P</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">T</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">Bulk</span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">11</span></span><span class="p"><span class="pre">]</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">Gam</span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">11</span></span><span class="p"><span class="pre">]</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">InitEM_Prop</span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">15</span></span><span class="p"><span class="pre">]</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="n"><span class="pre">File</span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">50</span></span><span class="p"><span class="pre">]</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="n"><span class="pre">Phase</span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">50</span></span><span class="p"><span class="pre">]</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">n_pc_out</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">maxeval_out</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.ReadCommandLineOptions" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/MAGEMin.c.html#c.ReadCommandLineOptions"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Get command line options</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.InitializeDatabases">
+<span class="n"><span class="pre">Databases</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">InitializeDatabases</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.InitializeDatabases" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/MAGEMin.c.html#c.InitializeDatabases"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Initiatizes the endmember and solid solution databases and adds them to a single struct</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.FreeDatabases">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">FreeDatabases</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">Databases</span></span><span class="w"> </span><span class="n"><span class="pre">DB</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.FreeDatabases" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/MAGEMin.c.html#c.FreeDatabases"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Free the memory associated with the databases</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.MAGEMin_FromJulia">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MAGEMin_FromJulia</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">Databases</span></span><span class="w"> </span><span class="n"><span class="pre">DB</span></span>, <span class="n"><span class="pre">io_data</span></span><span class="w"> </span><span class="n"><span class="pre">input_data_in</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">n_points1</span></span>, <span class="n"><span class="pre">out_data</span></span><span class="w"> </span><span class="n"><span class="pre">output</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.MAGEMin_FromJulia" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/MAGEMin.c.html#c.MAGEMin_FromJulia"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>call MAGEMin from julia for a range of points</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.PrintOutput">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">PrintOutput</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">rank</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">l</span></span>, <span class="n"><span class="pre">Databases</span></span><span class="w"> </span><span class="n"><span class="pre">DB</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">time_taken</span></span>, <span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.PrintOutput" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/MAGEMin.c.html#c.PrintOutput"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>This prints output on screen</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../src.html" class="btn btn-neutral float-left" title="Main algorithm" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="simplex_levelling.html" class="btn btn-neutral float-right" title="Simplex levelling" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Riel, N., &amp; Kaus, B..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
