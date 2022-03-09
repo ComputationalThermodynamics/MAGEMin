@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>External libraries &mdash; MAGEMin 2021 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="External libraries" href="macOS.html" />
+    <link rel="prev" title="Linux-based system" href="../stp.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html">
+            <img src="../_static/logo_v3_text_white_bg.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../stp.html">Linux-based system</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">External libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#magemin">MAGEMin</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../stp.html#macos-system">macOS system</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="macOS.html">External libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="macOS.html#magemin">MAGEMin</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../stp.html#optional-developers">Optional (developers)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Dev.html">Python libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dev.html#c-tools">C tools</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods and examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../man.html">Thermodynamic problem</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../man/Thermo.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Thermo.html#gibbs-free-energy">Gibbs free energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Thermo.html#global-minimum-and-g-hyperplane">Global minimum and G-hyperplane</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../man.html#phase-diagrams">Phase diagrams</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html">Examples of phase diagrams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#peridotite-klb1">Peridotite (KLB1)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#pyroxenite-mixg1">Pyroxenite (MIXG1)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#basalt-re46">Basalt (RE46)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#basalt-nmorb">Basalt (NMORB)</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Cookbook:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ckbk.html">Run minimization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html">List of arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html#single-point-calculation">Single point calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html#multiple-points-calculation">Multiple points calculation</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developers section:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dev.html">Add database</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../dev/Dev.html">Analytical formulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev/Dev.html#generate-pseudocompounds">Generate pseudocompounds</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Source code:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../src.html">Main algorithm</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../src/MAGEMin.html">MAGEMin</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../src/MAGEMin.html#mineral-assemblage-gibbs-energy-minimization">Mineral Assemblage Gibbs Energy Minimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../src/MAGEMin.html#imported-libraries">Imported libraries</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../src/simplex_levelling.html">Simplex levelling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../src/PGE_function.html">PGE_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../src/phase_update_function.html">phase_update_function</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../src/phase_update_function.html#pp-ss-flags">PP &amp; SS_flags</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../src/dump_function.html">dump_function</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../src.html#pure-phases-functions">Pure phases functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../src/gem_function.html">gem_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../src/pp_min_function.html">pp_min_function</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../src/pp_min_function.html#pure-phase-minimization-function">Pure phase minimization function</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../src.html#solution-phases-functions">Solution phases functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../src/gss_init_function.html">gss_init_function</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../src/gss_init_function.html#pp-ss-flags">PP &amp; SS_flags</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../src/gss_function.html">gss_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../src/ss_min_function.html">ss_min_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../src/NLopt_opt_function.html">NLopt_opt_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../src/objective_functions.html">objective_functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../src.html#toolkit">Toolkit</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../src/toolkit.html">toolkit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../src/io_function.html">io_function</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">MAGEMin</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../stp.html">Linux-based system</a> &raquo;</li>
+      <li>External libraries</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/stp/Linux.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="external-libraries">
+<h1>External libraries<a class="headerlink" href="#external-libraries" title="Permalink to this headline"></a></h1>
+<p><strong>1. C and fortran compilers</strong></p>
+<p>Using either <em>gcc</em> or <em>clang</em> to compile <em>MAGEMin</em> is up to you as the runtime performances are similar. However, in the event you want to modify <em>MAGEMin</em> for your own use, I would advice that you compile <em>MAGEMin</em> with <em>clang</em> as the error handling system is more strict which will save you from having unexpected segfaults errors…</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo apt-get install gcc
+sudo apt-get install clang
+sudo apt-get install gfortran
+</pre></div>
+</div>
+<p><strong>2. Open MPI</strong> (Message Passing Interface)</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo apt-get install openmpi-bin libopenmpi-dev
+</pre></div>
+</div>
+<p>Note that <em>mpich</em> can equally be used.</p>
+<p><strong>3. lapacke</strong> (C version of the fotran lapack library)</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo apt-get install liblapacke-dev
+</pre></div>
+</div>
+<p><strong>4. NLopt</strong> (Non Linear optimization library)</p>
+<p>First <em>cmake</em> must be installed on your machine</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo apt-get install cmake
+</pre></div>
+</div>
+<p>Then <em>NLopt</em> can installed such as</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo apt-get install libnlopt-dev
+</pre></div>
+</div>
+<p>Alternatively <em>NLopt</em> be downloaded and installed</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/stevengj/nlopt.git
+<span class="nb">cd</span> nlopt
+mkdir build
+<span class="nb">cd</span> build
+cmake ..
+make
+sudo make install
+</pre></div>
+</div>
+<p><strong>5. Lockless</strong> (optional memory allocator)</p>
+<p><em>Lockless</em> is given in <em>TOOLS</em> folder, it is not necessary to install and use it, but if you choose to install it, performances will be slighlty increased.
+To install the <em>Lockless</em> memory allocator, you must first copy it to the correct location in your file system.</p>
+<p>The correct location is:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>/usr/lib
+</pre></div>
+</div>
+<p>Copy the library to the correct location (here we assume /usr/lib)</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>cp libllalloc.so.1.3 /usr/lib
+</pre></div>
+</div>
+<p>Go to that location (here we assume /usr/lib)</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> /usr/lib
+</pre></div>
+</div>
+<p>Make the two symlinks to properly install the library</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ln -sf libllalloc.so.1.4 libllalloc.so
+ln -sf libllalloc.so.1.4 libllalloc.so.1
+</pre></div>
+</div>
+<p>Regenerate your library cache for the directory you are in (assuming /usr/lib)</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ldconfig -n /usr/lib
+</pre></div>
+</div>
+<p>Done - all installed</p>
+</section>
+<section id="magemin">
+<h1>MAGEMin<a class="headerlink" href="#magemin" title="Permalink to this headline"></a></h1>
+<p>Choose the C compiler in the first line of the <em>Makefile</em> by commenting out one or another</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1">#CC=gcc</span>
+<span class="nv">CC</span><span class="o">=</span>clang
+</pre></div>
+</div>
+<p>Make sure the open MPI paths for libraries and include directory in <em>Makefile</em> are correct. By default the paths to <em>openmpi</em> are the following:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">LIBS</span>   <span class="o">+=</span> <span class="o">(</span>...<span class="o">)</span> -L/usr/lib/x86_64-linux-gnu/openmpi/lib -lmpi
+<span class="nv">INC</span>     <span class="o">=</span> <span class="o">(</span>...<span class="o">)</span> -I/usr/lib/x86_64-linux-gnu/openmpi/include/
+</pre></div>
+</div>
+<p>Depending on the machine on which you want to install <em>MAGEMin</em>, you might need to manually give the paths to <em>NLopt</em> libraries and include directory too</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">LIBS</span>   <span class="o">+=</span> <span class="o">(</span>...<span class="o">)</span> --L/local/home/kwak/nlopt_install/install/lib -lnlopt
+<span class="nv">INC</span>     <span class="o">=</span> <span class="o">(</span>...<span class="o">)</span> -I/local/home/kwak/nlopt_install/install/include
+</pre></div>
+</div>
+<p>If you are using <em>Lockless</em> memory allocator, add the following flag in the makefile:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">LIBS</span>   <span class="o">+=</span> <span class="o">(</span>...<span class="o">)</span> -lllalloc
+</pre></div>
+</div>
+<p>Then compile MAGEMin:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>make clean<span class="p">;</span> make all<span class="p">;</span>
+</pre></div>
+</div>
+<p>Note that by default the optimization flag <em>-O3</em> and debugging flag <em>-g</em> are used.</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../stp.html" class="btn btn-neutral float-left" title="Linux-based system" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="macOS.html" class="btn btn-neutral float-right" title="External libraries" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Riel, N., &amp; Kaus, B..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
