@@ -13,19 +13,19 @@
     --content-wrap-background-color: #efefef;
     --content-background-color: #fcfcfc;
     --logo-opacity: 1.0;
-    --navbar-background-color: #333f67;
-    --navbar-background-color-hover: #29355c;
-    --navbar-background-color-active: #212d51;
-    --navbar-current-background-color: #212d51;
+    --navbar-background-color: #121a32;
+    --navbar-background-color-hover: #1b2842;
+    --navbar-background-color-active: #212e4e;
+    --navbar-current-background-color: #192543;
     --navbar-current-background-color-hover: #182343;
     --navbar-current-background-color-active: #131e3b;
-    --navbar-level-1-color: #c3e3ff;
+    --navbar-level-1-color: #c3e3ff; /*SUB TITLE OF THE MAVIGATION SIDEBAR */
     --navbar-level-2-color: #b8d6f0;
     --navbar-level-3-color: #a3c4e1;
-    --navbar-heading-color: #ff7381;
-    --navbar-scrollbar-color: #d45a66;
-    --navbar-scrollbar-hover-color: #b14550;
-    --navbar-scrollbar-active-color: #72383e;
+    --navbar-heading-color: #A53535;/*CAPS TITLE OF THE MAVIGATION SIDEBAR */
+    --navbar-scrollbar-color: #A53535;
+    --navbar-scrollbar-hover-color: #993535;
+    --navbar-scrollbar-active-color: #853535;
     --navbar-scrollbar-background: #131e2b;
 
 
@@ -39,7 +39,7 @@
     --table-row-odd-background-color: #f3f6f6;
     --code-background-color: #fff;
     --code-border-color: #e1e4e5;
-    --code-literal-color: #d04c60;
+    --code-literal-color: #bb3535;
     --input-background-color: #fcfcfc;
     --input-focus-border-color: #5f8cff;
 
@@ -75,7 +75,7 @@
     --admonition-attention-title-color: #fff;
     --admonition-danger-background-color: #fcf3f2;
     --admonition-danger-color: #404040;
-    --admonition-danger-title-background-color: #e9a499;
+    --admonition-danger-title-background-color: #be3535;
     --admonition-danger-title-color: #fff;
     --admonition-tip-background-color: #dbfaf4;
     --admonition-tip-color: #404040;

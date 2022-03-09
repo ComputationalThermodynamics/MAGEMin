@@ -28,7 +28,7 @@
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
             <a href="#">
-            <img src="_static/logo_v3_text_white_bg.png" class="logo" alt="Logo"/>
+            <img src="_static/2022_MAGEMin_logo.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -157,19 +157,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <a class="reference internal image-reference" href="_images/opt.png"><img alt="_images/opt.png" class="align-center" src="_images/opt.png" style="width: 400px;" /></a>
+  <a class="reference internal image-reference" href="_images/GUI.png"><img alt="_images/GUI.png" class="align-center" src="_images/GUI.png" style="width: 720px;" /></a>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
 <section id="mineral-assemblage-gibbs-energy-minimization">
 <h1>Mineral Assemblage Gibbs Energy Minimization<a class="headerlink" href="#mineral-assemblage-gibbs-energy-minimization" title="Permalink to this headline"></a></h1>
-<p><strong>Contributors:</strong></p>
-<ul class="simple">
-<li><p>MAGEMin developpers: Riel N., Kaus. B.</p></li>
-<li><p>Database translation and debugging: Green E., Berlie N., and Rummel L.</p></li>
-</ul>
-<p><strong>Contacts: nriel&#64;uni-mainz.de, kaus&#64;uni-mainz.de</strong></p>
-<p>C routine to compute a stable mineralogical assemblage using Gibbs Free Energy Minimization. We employ a combination of linear programming, partitioning Gibbs free energy and non-linear constrained minimization to solve for phase equilibria at constant pressure, temperature and bulk-rock composition.</p>
+<p>C routine to compute a stable mineralogical assemblage using Gibbs Free Energy Minimization. MAGEMin  combines discretization of the equations of state in composition space (Connolly, 1990) with linear programming (de Capitani &amp; Brown,1987), and extends the mass constrained Gibbs-hyperplane rotation (Piro et al., 2013) method to account for the mixing-on-sites that takes place in silicate mineral solid solutions (Riel et al., <em>submitted</em>).</p>
 <ul class="simple">
 <li><p>Igneous thermodynamic database (Holland et al., 2008)</p></li>
 <li><p>KNCFMASHTOCr chemical space</p></li>
@@ -275,6 +269,16 @@
 </li>
 </ul>
 </div>
+<p><strong>Contributors:</strong></p>
+<ul class="simple">
+<li><p>MAGEMin developpers: Riel N., Kaus. B.</p></li>
+<li><p>Database translation and debugging: Green E., Berlie N., and Rummel L.</p></li>
+</ul>
+<p><em>Contacts: nriel&#64;uni-mainz.de, kaus&#64;uni-mainz.de</em></p>
+<p><strong>References</strong></p>
+<p><em>de Capitani, C., &amp; Brown, T. H. (1987). The computation of chemical equilibrium in complex systems containing non-ideal solutions.Geochimica et Cosmochimica Acta,51(10), 2639-2652. doi:https://doi.org/10.1016/0016-7037(87)90145-1</em></p>
+<p><em>Connolly, J. A. D. (1990). Multivariable phase diagrams; an algorithm based on generalized thermodynamics. American Journal of Science,290(6), 666-718. doi:10.2475/ajs.290.6.666</em></p>
+<p><em>Piro, M. H. A., Simunovic, S., Besmann, T. M., Lewis, B. J., &amp; Thompson, W. T. (2013).  The thermochemistry library thermochimica.Computational Materials Science, 67</em></p>
 </section>
 
 
