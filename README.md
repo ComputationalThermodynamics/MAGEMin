@@ -1,3 +1,5 @@
+<img src="./pics/GUI.png" alt="drawing" width="640"/>
+
 # Mineral Assemblage Gibbs Energy Minimization (MAGEMin)
 
 C routine to compute a stable mineralogical assemblage using Gibbs Free Energy Minimization. We employ a combination of linear programming, partitioning Gibbs free energy and non-linear constrained minimization to solve for phase equilibria at constant pressure, temperature and bulk-rock composition.
@@ -13,8 +15,6 @@ C routine to compute a stable mineralogical assemblage using Gibbs Free Energy M
 - uthash (https://troydhanson.github.io/uthash/)
 - ketopt (https://github.com/attractivechaos/klib/blob/master/ketopt.h)
 
-
-<img src="./pics/opt.png" alt="drawing" width="240"/>
 
 ## Usage 
 
