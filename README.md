@@ -13,7 +13,8 @@ C routine to compute a stable mineralogical assemblage using Gibbs Free Energy M
 - uthash (https://troydhanson.github.io/uthash/)
 - ketopt (https://github.com/attractivechaos/klib/blob/master/ketopt.h)
 
-![README_img](./pics/KLB1.png)
+
+<img src="./pics/opt.png" alt="drawing" width="240"/>
 
 ## Usage 
 
