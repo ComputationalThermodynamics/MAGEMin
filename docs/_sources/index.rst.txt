@@ -10,11 +10,19 @@ Mineral Assemblage Gibbs Energy Minimization
 ============================================
                                           
 C routine to compute a stable mineralogical assemblage using Gibbs Free Energy Minimization. MAGEMin  combines discretization of the equations of state in composition space (Connolly, 1990) with linear programming (de Capitani & Brown,1987), and extends the mass constrained Gibbs-hyperplane rotation (Piro et al., 2013) method to account for the mixing-on-sites that takes place in silicate mineral solid solutions (Riel et al., *submitted*).
+      
+      
+Available thermodynamic dataset                       
+================================
+ 
+Igneous thermodynamic dataset
+*****************************
                     
-- Igneous thermodynamic database (Holland et al., 2008)
-- KNCFMASHTOCr chemical space                           
-- Solid solutions (biotite, clinopyroxene, cordierite, epidote, fluids, garnet, hornblende, ilmenite, K-felspar, liquid, muscovite, olivine, orthopyroxene, plagioclase, spinel) 
-
+- Holland et al., 2018 (see http://hpxeosandthermocalc.org)
+- K2O-Na2O-CaO-FeO-MgO-Al2O3-SiO2-H2O-TiO2-O-Cr2O3 chemical system                     
+- Equations of state for
+	- Pure stoichiometric phases quartz (q), cristobalite (crst), tridymite (trd), coesite (coe), stishovite (stv), kyanite (ky), sillimanite (sill), andalusite (and), rutile (ru) and sphene (sph). 
+	- Solution phases spinel (spn), biotite (bi), cordierite (cd), clinopyroxene (cpx), orthopyroxene (opx), epidote (ep), garnet (g), hornblende (hb), ilmenite (ilm), silicate melt (liq), muscovite (mu), olivine (ol), ternary feldspar (pl4T), and aqueous fluid (fl).
                                                     
 Imported libraries                       
 ==================

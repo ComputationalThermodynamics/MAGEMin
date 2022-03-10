@@ -1,8 +1,8 @@
 .. MAGEMin documentation
 
-.. image:: /figs/GUI.png
-   :width: 640
-   :align: center
+.. image:: /figs/GUI_label.png
+	:width: 640
+	:align: center
 
 Usage		  
 =====

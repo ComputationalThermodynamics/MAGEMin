@@ -60,8 +60,14 @@
 <p class="caption" role="heading"><span class="caption-text">Methods and examples:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../man.html">Thermodynamic problem</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Problem definition</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Problem definition</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#total-gibbs-energy">1. Total Gibbs energy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gibbs-duhem-constraint">2. Gibbs-Duhem constraint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mass-constraint">3. Mass constraint</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#minimization-approach">Minimization approach</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#algorithm-demonstration">Algorithm demonstration</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../man.html#phase-diagrams">Phase diagrams</a><ul>
@@ -178,10 +184,12 @@
              
   <section id="problem-definition">
 <h1>Problem definition<a class="headerlink" href="#problem-definition" title="Permalink to this headline"></a></h1>
-<p>Finding the most stable phase assemblage  is a challenging constrained optimization problem including both equality and inequality constraints.</p>
+<p>Finding the most stable phase assemblage is a challenging constrained optimization problem including both equality and inequality constraints. One has to minimize the Gibbs energy (1) of the system while satisfying the Gibbs-Duhem (2) and mass equality constraints (3) while satisfying the mixing-in-sites inequality constraints (4).</p>
+<section id="total-gibbs-energy">
+<h2>1. Total Gibbs energy<a class="headerlink" href="#total-gibbs-energy" title="Permalink to this headline"></a></h2>
 <p>The Gibbs energy of a multi-component multiphase system is given by the weighted summation of the chemical potentials of all end-members and pure phases:</p>
 <div class="math">
-<p><img src="../_images/math/b74238a382eae4de91aac9dd005bc7246e2ba8c8.svg" alt="G_{sys} = \sum_{\lambda=1}^{\Lambda} n_{\lambda} \sum_{i=1}^{N_{\lambda}} \mu_{i}(\lambda) p_{i}(\lambda) + \sum_{\omega=1}^{\Omega} \mu_{\omega} n_{\omega}"/></p>
+<p><img src="../_images/math/8e4d07e31817389b51de118d100b92bf8944120c.svg" alt="G_{sys} = \sum_{\lambda=1}^{\Lambda} n_{\lambda} \sum_{i=1}^{N_{\lambda}} \mu_{i}(\lambda) p_{i}(\lambda) + \sum_{\omega=1}^{\Omega} n_{\omega} \mu_{\omega}"/></p>
 </div><p>where</p>
 <div class="math">
 <p><img src="../_images/math/29ba5ce345f5007672da33292cabca6ce0be513f.svg" alt="n_{\lambda}"/></p>
@@ -192,15 +200,12 @@
 <div class="math">
 <p><img src="../_images/math/ff98b4958ad43dd7a0fa33b158999ebbc67a3f44.svg" alt="n_{\omega}"/></p>
 </div><p>is the molar fraction of the pure phase.</p>
-<p>The Gibbs energy of the system can alternatively be represented with respect to the chemical potentials [J.mol-1] and the number of moles [mol] of the system (Gibbs-Duhem constraint) for which there are C elements in the system.</p>
-<div class="math">
-<p><img src="../_images/math/c0a462b2104c6dfb21df1c8159d244b670d5a8b7.svg" alt="G_{sys} = \sum_{j=1}^{C} \Gamma_{j} b_{j}"/></p>
-</div><p>The chemical potential of a phase is either a constant for a condensed (pure) phase:</p>
+<p>The chemical potential of a phase is either a constant for a condensed (pure) phase:</p>
 <div class="math">
 <p><img src="../_images/math/d7fd760f66b06ab171c7b94274c751f3f8b53d0c.svg" alt="\mu_{i} = G_{i}^{0}"/></p>
 </div><p>or a function for a phase within a solution:</p>
 <div class="math">
-<p><img src="../_images/math/82b450e6cc46efaad6911f91c5cdbc822193f06d.svg" alt="\mu_{i} = G_{i}^{0} + RTln(a_{i}) + G_{i}^{ex}"/></p>
+<p><img src="../_images/math/c213f9d55cae80a8dcf92295d2d8a404321ad653.svg" alt="\mu_{i} = G_{i}^{0} + RTlog(a_{i}) + G_{i}^{ex}"/></p>
 </div><p>where</p>
 <div class="math">
 <p><img src="../_images/math/daa4ff7b05660be4716fc5189a8037d3240a59a2.svg" alt="a_{i}"/></p>
@@ -209,6 +214,23 @@
 <p><img src="../_images/math/7723a0e120ac765b154c88c458bd213d552e45ae.svg" alt="a_{i} = x_{i} \gamma_{i}"/></p>
 </div><p>For the case of ideal mixing between the end-members, the activity coefficient is unity. The mixing of a species dissolved in a condensed phase, however rarely behaves ideally
 and is typically a function of both temperature and composition (mixing-on-sites formulation).</p>
+</section>
+<section id="gibbs-duhem-constraint">
+<h2>2. Gibbs-Duhem constraint<a class="headerlink" href="#gibbs-duhem-constraint" title="Permalink to this headline"></a></h2>
+<p>The Gibbs-Duhem constraint is defined as</p>
+<div class="math">
+<p><img src="../_images/math/3c328f2ace8b0939cfc138408872d13c2167d245.svg" alt="\sum_{j=1}^{C} \Gamma_{j} a_{ij} - \mu_{i} = 0"/></p>
+</div><p>where</p>
+<div class="math">
+<p><img src="../_images/math/f5fa57319af96f9375daa8c0c2defa7fed144842.svg" alt="\Gamma_{j}"/></p>
+</div><p>is the chemical potential of pure component (oxide) j</p>
+<p>and</p>
+<div class="math">
+<p><img src="../_images/math/a63dc02663a804bb5a7777bb62138c2d8b9139e0.svg" alt="a_{ij}"/></p>
+</div><p>is the molar compositional of component j in end-member/pure phase i</p>
+</section>
+<section id="mass-constraint">
+<h2>3. Mass constraint<a class="headerlink" href="#mass-constraint" title="Permalink to this headline"></a></h2>
 <p>The mass equality constraint is defined as</p>
 <div class="math">
 <p><img src="../_images/math/c7a0f56ec8517004cdfb95f5369a2432e2b28998.svg" alt="\sum_{\lambda=1}^{\Lambda} n_{\lambda} \sum_{i=1}^{N_{\lambda}} a_{ij}(\lambda) p_{i}(\lambda) + \sum_{\omega=1}^{\Omega} n_{\omega} a_{\omega j} - b_j = 0"/></p>
@@ -221,10 +243,20 @@ and is typically a function of both temperature and composition (mixing-on-sites
 <p><img src="../_images/math/96e36062a99d51bfe8ff71f5ac1917a3a25c4663.svg" alt="a_{\omega j}"/></p>
 </div><p>is the molar composition of component j in a pure phase</p>
 </section>
+</section>
 <section id="minimization-approach">
 <h1>Minimization approach<a class="headerlink" href="#minimization-approach" title="Permalink to this headline"></a></h1>
 <p>The Gibbs minimization approach employed in MAGEMin combines discretization of the equations of state in composition space with linear programming and extends the mass constrained Gibbs-hyperplane rotation method to account for the mixing-on-sites that takes place in silicate mineral solid solutions. For an exhaustive description of the methodology see Riel et (submitted).</p>
-<a class="reference internal image-reference" href="../_images/GFE_intro.png"><img alt="../_images/GFE_intro.png" class="align-center" src="../_images/GFE_intro.png" style="width: 800px;" /></a>
+<a class="reference internal image-reference" href="../_images/GFE_intro.png"><img alt="../_images/GFE_intro.png" class="align-center" src="../_images/GFE_intro.png" style="width: 640px;" /></a>
+</section>
+<hr class="docutils" />
+<section id="algorithm-demonstration">
+<h1>Algorithm demonstration<a class="headerlink" href="#algorithm-demonstration" title="Permalink to this headline"></a></h1>
+<p>A simplified example of the Gibbs energy minimization approach used in MAGEMin is provided at:</p>
+<p><a class="reference external" href="https://github.com/ComputationalThermodynamics/SandBox/blob/main/MAGEMin_PGE_and_LP.m">https://github.com/ComputationalThermodynamics/SandBox/blob/main/MAGEMin_PGE_and_LP.m</a></p>
+<p>This MATLAB application includes two pure phases, sillimanite and quartz, and activity–composition (a-x) relations for feldspar (pl4T, Holland et al., 2021) in a reduced Na2O-CaO-K2O-Al2O3-SiO2 (NCKAS) chemical system.</p>
+<p><strong>References</strong></p>
+<p><em>Holland, T. J. B., Green, E. C. R., &amp; Powell, R.(2021). A thermodynamic model for feldspars in KAlSi3O8-NaAlSi3O8-CaAl2Si2O8 for mineral equilibrium calculations</em></p>
 </section>
 
 

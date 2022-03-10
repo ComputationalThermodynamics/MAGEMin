@@ -59,8 +59,14 @@
 <p class="caption" role="heading"><span class="caption-text">Methods and examples:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="man.html">Thermodynamic problem</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="man/Thermo.html">Problem definition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="man/Thermo.html">Problem definition</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="man/Thermo.html#total-gibbs-energy">1. Total Gibbs energy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="man/Thermo.html#gibbs-duhem-constraint">2. Gibbs-Duhem constraint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="man/Thermo.html#mass-constraint">3. Mass constraint</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="man/Thermo.html#minimization-approach">Minimization approach</a></li>
+<li class="toctree-l2"><a class="reference internal" href="man/Thermo.html#algorithm-demonstration">Algorithm demonstration</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="man.html#phase-diagrams">Phase diagrams</a><ul>
@@ -181,11 +187,24 @@
 <section id="mineral-assemblage-gibbs-energy-minimization">
 <h1>Mineral Assemblage Gibbs Energy Minimization<a class="headerlink" href="#mineral-assemblage-gibbs-energy-minimization" title="Permalink to this headline"></a></h1>
 <p>C routine to compute a stable mineralogical assemblage using Gibbs Free Energy Minimization. MAGEMin  combines discretization of the equations of state in composition space (Connolly, 1990) with linear programming (de Capitani &amp; Brown,1987), and extends the mass constrained Gibbs-hyperplane rotation (Piro et al., 2013) method to account for the mixing-on-sites that takes place in silicate mineral solid solutions (Riel et al., <em>submitted</em>).</p>
+</section>
+<section id="available-thermodynamic-dataset">
+<h1>Available thermodynamic dataset<a class="headerlink" href="#available-thermodynamic-dataset" title="Permalink to this headline"></a></h1>
+<section id="igneous-thermodynamic-dataset">
+<h2>Igneous thermodynamic dataset<a class="headerlink" href="#igneous-thermodynamic-dataset" title="Permalink to this headline"></a></h2>
 <ul class="simple">
-<li><p>Igneous thermodynamic database (Holland et al., 2008)</p></li>
-<li><p>KNCFMASHTOCr chemical space</p></li>
-<li><p>Solid solutions (biotite, clinopyroxene, cordierite, epidote, fluids, garnet, hornblende, ilmenite, K-felspar, liquid, muscovite, olivine, orthopyroxene, plagioclase, spinel)</p></li>
+<li><p>Holland et al., 2018 (see <a class="reference external" href="http://hpxeosandthermocalc.org">http://hpxeosandthermocalc.org</a>)</p></li>
+<li><p>K2O-Na2O-CaO-FeO-MgO-Al2O3-SiO2-H2O-TiO2-O-Cr2O3 chemical system</p></li>
+<li><dl class="simple">
+<dt>Equations of state for</dt><dd><ul>
+<li><p>Pure stoichiometric phases quartz (q), cristobalite (crst), tridymite (trd), coesite (coe), stishovite (stv), kyanite (ky), sillimanite (sill), andalusite (and), rutile (ru) and sphene (sph).</p></li>
+<li><p>Solution phases spinel (spn), biotite (bi), cordierite (cd), clinopyroxene (cpx), orthopyroxene (opx), epidote (ep), garnet (g), hornblende (hb), ilmenite (ilm), silicate melt (liq), muscovite (mu), olivine (ol), ternary feldspar (pl4T), and aqueous fluid (fl).</p></li>
 </ul>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
 </section>
 <section id="imported-libraries">
 <h1>Imported libraries<a class="headerlink" href="#imported-libraries" title="Permalink to this headline"></a></h1>
@@ -221,6 +240,7 @@
 <li class="toctree-l1"><a class="reference internal" href="man.html">Thermodynamic problem</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="man/Thermo.html">Problem definition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="man/Thermo.html#minimization-approach">Minimization approach</a></li>
+<li class="toctree-l2"><a class="reference internal" href="man/Thermo.html#algorithm-demonstration">Algorithm demonstration</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="man.html#phase-diagrams">Phase diagrams</a><ul>
