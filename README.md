@@ -20,7 +20,7 @@ MAGEMin is written as a parallel C library callable from any petrological/geodyn
 
 ## Documentation
 
-- Full support on how install and use MAGEMin routines and GUI is provided here: https://computationalthermodynamics.github.io/MAGEMin
+- Full support on how to install and use MAGEMin routines and GUI is provided here: https://computationalthermodynamics.github.io/MAGEMin
 
 ## Contributing
 You are very welcome to request new features and point out bugs by opening an issue. You can also help by adding features and creating a pull request.
