@@ -159,7 +159,7 @@ Change displayed field
 Display stable phases labels
 ****************************
  
-- In the bottom right menu, you can now access the plotting option.
+- In the bottom right menu, you can now access the plotting options
 
 .. image:: /figs/GUI_plot_menu.png
 	:width: 240
@@ -171,5 +171,23 @@ Display stable phases labels
 	:width: 480
 	:align: center
 	
-Note that the label box position, with respect to the field you click on, remains the same e.g. in a top-right position. If you missclicked and two boxes overlap, don't panick, you can always click on "remove last label", or even "remove all labels" and redo the process
+Note that the label box position, with respect to the field you click on, remains the same e.g. in a top-right position. If you miss-clicked and two boxes overlap, don't panick, you can always click on "remove last label", or even "remove all labels" and redo the process
+
+Save pseudosection data
+************************
+
+- You have the option to save the pseudosection data in a MATLAB "mat" file.
+
+.. image:: /figs/GUI_save.png
+	:width: 240
+	:align: center
+
+1. To save the pseudosection data come back to the simulation window, by clicking on the top left "simulation" tab. Then click on "save". This created the following file
+
+.. code-block:: shell
+	
+	KLB-1_pseudosection.mat
+	
+2. If you close and relaunch the GUI, you can load the saved pseudosection by entering its name in the "Filename" window and click on "load"
+
 
