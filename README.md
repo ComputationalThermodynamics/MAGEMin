@@ -4,11 +4,7 @@
 
 MAGEMin is written as a parallel C library callable from any petrological/geodynamic tool. For a given set of pressure, temperature and bulk-rock composition MAGEMin uses a combination of linear programming, extended Partitioning Gibbs free Energy and gradient-based local minimization to compute the most stable mineral assemblage     
   
-## Documentation
-
-- Documentation and tutorial on how to install and use MAGEMin are available here: https://computationalthermodynamics.github.io/MAGEMin/index.html
-
-  
+ 
 ## Available thermodynamic dataset
 - Holland et al., 2018 (see http://hpxeosandthermocalc.org)
 - K2O-Na2O-CaO-FeO-MgO-Al2O3-SiO2-H2O-TiO2-O-Cr2O3 chemical system
@@ -21,6 +17,10 @@ MAGEMin is written as a parallel C library callable from any petrological/geodyn
 - NLopt (https://nlopt.readthedocs.io/)
 - uthash (https://troydhanson.github.io/uthash/)
 - ketopt (https://github.com/attractivechaos/klib/blob/master/ketopt.h)
+
+## Documentation
+
+- Full support to install and use MAGEMin is available here: https://computationalthermodynamics.github.io/MAGEMin/index.html
 
 ## Contributing
 You are very welcome to request new features and point out bugs by opening an issue. You can also help by adding features and creating a pull request.
