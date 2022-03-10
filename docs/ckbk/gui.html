@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usage &mdash; MAGEMin 2022 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Add database" href="../dev.html" />
+    <link rel="prev" title="List of arguments" href="Commands.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html">
+            <img src="../_static/2022_MAGEMin_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../stp.html">Linux-based system</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../stp/Linux.html">External libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stp/Linux.html#magemin">MAGEMin</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../stp.html#macos-system">macOS system</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../stp/macOS.html">External libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stp/macOS.html#magemin">MAGEMin</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../stp.html#optional-developers">Optional (developers)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../stp/Dev.html">Python libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stp/Dev.html#c-tools">C tools</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods and examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../man.html">Thermodynamic problem</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../man/Thermo.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Thermo.html#gibbs-free-energy">Gibbs free energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Thermo.html#global-minimum-and-g-hyperplane">Global minimum and G-hyperplane</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../man.html#phase-diagrams">Phase diagrams</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html">Examples of phase diagrams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#peridotite-klb1">Peridotite (KLB1)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#pyroxenite-mixg1">Pyroxenite (MIXG1)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#basalt-re46">Basalt (RE46)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#basalt-nmorb">Basalt (NMORB)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#hydrous-basalt">Hydrous basalt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Examples.html#tonalite-101">Tonalite 101</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Cookbook:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../ckbk.html">Command line minimization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Commands.html">List of arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Commands.html#single-point-calculation">Single point calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Commands.html#multiple-points-calculation">Multiple points calculation</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../ckbk.html#pseudosection-generator">Pseudosection generator</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#klb-1-tutorial">KLB-1 Tutorial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#launch-gui">Launch GUI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#set-p-t-conditions">Set P-T conditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mesh-refinement-and-computation-options">Mesh refinement and computation options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#choose-bulk-rock-composition">Choose bulk-rock composition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compute-pseudosection">Compute pseudosection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#refine-pseudosection">Refine pseudosection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#change-displayed-field">Change displayed field</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#display-stable-phases-labels">Display stable phases labels</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developers section:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dev.html">Add database</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../dev/Dev.html">Analytical formulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev/Dev.html#generate-pseudocompounds">Generate pseudocompounds</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Source code:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../src.html">Main algorithm</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../src/MAGEMin.html">MAGEMin</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../src/MAGEMin.html#mineral-assemblage-gibbs-energy-minimization">Mineral Assemblage Gibbs Energy Minimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../src/MAGEMin.html#imported-libraries">Imported libraries</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../src/simplex_levelling.html">Simplex levelling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../src/PGE_function.html">PGE_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../src/phase_update_function.html">phase_update_function</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../src/phase_update_function.html#pp-ss-flags">PP &amp; SS_flags</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../src/dump_function.html">dump_function</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../src.html#pure-phases-functions">Pure phases functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../src/gem_function.html">gem_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../src/pp_min_function.html">pp_min_function</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../src/pp_min_function.html#pure-phase-minimization-function">Pure phase minimization function</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../src.html#solution-phases-functions">Solution phases functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../src/gss_init_function.html">gss_init_function</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../src/gss_init_function.html#pp-ss-flags">PP &amp; SS_flags</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../src/gss_function.html">gss_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../src/ss_min_function.html">ss_min_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../src/NLopt_opt_function.html">NLopt_opt_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../src/objective_functions.html">objective_functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../src.html#toolkit">Toolkit</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../src/toolkit.html">toolkit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../src/io_function.html">io_function</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">MAGEMin</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../ckbk.html">Command line minimization</a> &raquo;</li>
+      <li>Usage</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/ckbk/gui.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <a class="reference internal image-reference" href="../_images/GUI.png"><img alt="../_images/GUI.png" class="align-center" src="../_images/GUI.png" style="width: 640px;" /></a>
+<section id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline"></a></h1>
+<p>In order to generate pseudosections (including isochemical phase diagrams) we provide a in-house GUI developped using MATLAB 2020b and tested on MATLAB 2019b.</p>
+<p><strong>Specifications</strong></p>
+<ul class="simple">
+<li><p>The GUI sends a list of pressure-temperature points to MAGEMin for a specified bulk-rock composition and receives back the stable phase mineral assemblage.</p></li>
+<li><p>The GUI uses adaptive mesh refinement to refine the reactions lines.</p></li>
+<li><p>Possibility to save and load pseudosections</p></li>
+<li><p>Various display options including, stable phases, Gibbs energy, phase fractions, phase compositions (isopleth), densities etc…</p></li>
+</ul>
+</section>
+<section id="klb-1-tutorial">
+<h1>KLB-1 Tutorial<a class="headerlink" href="#klb-1-tutorial" title="Permalink to this headline"></a></h1>
+<p>As a simple tutorial we present the necessary steps needed to produce a pseudosections for KLB-1 peridotite in the KNCFMASTOCr chemical system and from 0.0 to 50 kbar and 800 to 2000°C.</p>
+<section id="launch-gui">
+<h2>Launch GUI<a class="headerlink" href="#launch-gui" title="Permalink to this headline"></a></h2>
+<p>Using MATLAB (2019+) launch the GUI within MAGEMin working directory</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> /your_path_to_MAGEMin/MAGEMin_1.0.0/
+run PlotPseudosection.mlapp
+</pre></div>
+</div>
+<p>This opens the following window:</p>
+<a class="reference internal image-reference" href="../_images/GUI_1.png"><img alt="../_images/GUI_1.png" class="align-center" src="../_images/GUI_1.png" style="width: 480px;" /></a>
+<hr class="docutils" />
+<ul class="simple">
+<li><p>On the displayed window (simulation) you can choose and modifiy several parameters/options. First, you can change the name of the simulation (or save/load a pre-existing simulation)</p></li>
+</ul>
+<a class="reference internal image-reference" href="../_images/GUI_infos.png"><img alt="../_images/GUI_infos.png" class="align-center" src="../_images/GUI_infos.png" style="width: 240px;" /></a>
+<ol class="arabic simple">
+<li><p>Change the filename from “test” to “KLB-1_pseudosection”</p></li>
+</ol>
+</section>
+<section id="set-p-t-conditions">
+<h2>Set P-T conditions<a class="headerlink" href="#set-p-t-conditions" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>Below you can accept or modify the suggested pressure and temperature range. The step parameter defines the number of points along the pressure and temperature axes.</p></li>
+</ul>
+<a class="reference internal image-reference" href="../_images/GUI_PT.png"><img alt="../_images/GUI_PT.png" class="align-center" src="../_images/GUI_PT.png" style="width: 240px;" /></a>
+<ol class="arabic simple">
+<li><p>Use the default pressure and temperature range and change the pressure step to 4 kbar and the temperature to 100 °C</p></li>
+</ol>
+</section>
+<section id="mesh-refinement-and-computation-options">
+<h2>Mesh refinement and computation options<a class="headerlink" href="#mesh-refinement-and-computation-options" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>Under the P-T range selection, you can access the refinement options and the calculation parameters. By default the refinement is set on 2 levels and the parallel calculation is deactivated.</p></li>
+</ul>
+<a class="reference internal image-reference" href="../_images/GUI_refine.png"><img alt="../_images/GUI_refine.png" class="align-center" src="../_images/GUI_refine.png" style="width: 240px;" /></a>
+<ol class="arabic simple">
+<li><p>Change the default refinement value to 4</p></li>
+<li><p>Use default value for verbose</p></li>
+<li><p>Activate parallel computation by ticking the box “Compute all points at once”</p></li>
+</ol>
+<hr class="docutils" />
+<ul class="simple">
+<li><p>Ticking “Compute all points at once” releases the following options: “# of MPI ranks”, “mpiexec path” and “Perform computations on remote server”</p></li>
+</ul>
+<a class="reference internal image-reference" href="../_images/GUI_mpi.png"><img alt="../_images/GUI_mpi.png" class="align-center" src="../_images/GUI_mpi.png" style="width: 240px;" /></a>
+<ol class="arabic simple">
+<li><p>Change “# of MPI ranks” according to the number of core available on your machine</p></li>
+<li><p>Change “mpiexec path” to your own mpi path e.g. commonly “/usr/bin/” for Linux-based system</p></li>
+<li><p>Leave “Perform computations on remote server” unticked</p></li>
+</ol>
+</section>
+<section id="choose-bulk-rock-composition">
+<h2>Choose bulk-rock composition<a class="headerlink" href="#choose-bulk-rock-composition" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>In the middle “Composition” panel you can either specify your own bulk-rock composition or access the in-built list of bulk-rock compositions</p></li>
+</ul>
+<a class="reference internal image-reference" href="../_images/GUI_bulk.png"><img alt="../_images/GUI_bulk.png" class="align-center" src="../_images/GUI_bulk.png" style="width: 240px;" /></a>
+<ol class="arabic simple">
+<li><p>Use default option “pre-defined test 0” (KLB-1 peridotite)</p></li>
+</ol>
+</section>
+<section id="compute-pseudosection">
+<h2>Compute pseudosection<a class="headerlink" href="#compute-pseudosection" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>The set of parameters should look like this.</p></li>
+</ul>
+<a class="reference internal image-reference" href="../_images/GUI_ready.png"><img alt="../_images/GUI_ready.png" class="align-center" src="../_images/GUI_ready.png" style="width: 480px;" /></a>
+<ol class="arabic simple">
+<li><p>Click on “Start new computation” at the bottom of the “Thermodynamics” panel to launch the computation. If everything is correctly setup it should opens the folloying window</p></li>
+</ol>
+<a class="reference internal image-reference" href="../_images/GUI_running.png"><img alt="../_images/GUI_running.png" class="align-center" src="../_images/GUI_running.png" style="width: 240px;" /></a>
+<ul class="simple">
+<li><p>At the end of each refinement step, a set of 3 figures are displayed and updated. They show the “melt fraction”, the “adaptive mesh refinement” and “the number of stable phases”</p></li>
+</ul>
+<a class="reference internal image-reference" href="../_images/GUI_figs.png"><img alt="../_images/GUI_figs.png" class="align-center" src="../_images/GUI_figs.png" style="width: 800px;" /></a>
+<hr class="docutils" />
+<ul class="simple">
+<li><p>Once the computation is over, the GUI displays the pseudosections. The number of minimization points is shown at the bottom right, for this example “3493 points”. Note that by default the number of stable phases is displayed together wit the mesh refinement grid. Note that, you are in the “Pseudosection” window.</p></li>
+</ul>
+<a class="reference internal image-reference" href="../_images/GUI_pseudo.png"><img alt="../_images/GUI_pseudo.png" class="align-center" src="../_images/GUI_pseudo.png" style="width: 480px;" /></a>
+</section>
+<section id="refine-pseudosection">
+<h2>Refine pseudosection<a class="headerlink" href="#refine-pseudosection" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>From there you can decide to refine the pseudosections as the resolution is rather low.</p></li>
+</ul>
+<a class="reference internal image-reference" href="../_images/GUI_PS_refine.png"><img alt="../_images/GUI_PS_refine.png" class="align-center" src="../_images/GUI_PS_refine.png" style="width: 480px;" /></a>
+<ol class="arabic simple">
+<li><p>click on “Refine all phase boundaries” in the bottom right corner, and then “Start computation”</p></li>
+</ol>
+</section>
+<section id="change-displayed-field">
+<h2>Change displayed field<a class="headerlink" href="#change-displayed-field" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>Upon refinement you can choose to change the field that is displayed</p></li>
+</ul>
+<a class="reference internal image-reference" href="../_images/GUI_PS_refine.png"><img alt="../_images/GUI_PS_refine.png" class="align-center" src="../_images/GUI_PS_refine.png" style="width: 480px;" /></a>
+<ol class="arabic simple">
+<li><p>To display the variance click on the “Plot color” menu and select “Variance”</p></li>
+</ol>
+<a class="reference internal image-reference" href="../_images/GUI_pcolor.png"><img alt="../_images/GUI_pcolor.png" class="align-center" src="../_images/GUI_pcolor.png" style="width: 240px;" /></a>
+<ol class="arabic simple" start="2">
+<li><p>To hide the mesh refinement grid click, set “Show edges” to “Off”, which gives</p></li>
+</ol>
+<a class="reference internal image-reference" href="../_images/GUI_variance.png"><img alt="../_images/GUI_variance.png" class="align-center" src="../_images/GUI_variance.png" style="width: 480px;" /></a>
+</section>
+<section id="display-stable-phases-labels">
+<h2>Display stable phases labels<a class="headerlink" href="#display-stable-phases-labels" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>In the bottom right menu, you can now access the plotting option.</p></li>
+</ul>
+<a class="reference internal image-reference" href="../_images/GUI_plot_menu.png"><img alt="../_images/GUI_plot_menu.png" class="align-center" src="../_images/GUI_plot_menu.png" style="width: 240px;" /></a>
+<ol class="arabic simple">
+<li><p>Tick “Add phase labels” and then click on the different fields to display the stable mineral assemblage directly on the grid such as</p></li>
+</ol>
+<a class="reference internal image-reference" href="../_images/GUI_label.png"><img alt="../_images/GUI_label.png" class="align-center" src="../_images/GUI_label.png" style="width: 480px;" /></a>
+<p>Note that the label box position, with respect to the field you click on, remains the same e.g. in a top-right position. If you missclicked and two boxes overlap, don’t panick, you can always click on “remove last label”, or even “remove all labels” and redo the process</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Commands.html" class="btn btn-neutral float-left" title="List of arguments" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../dev.html" class="btn btn-neutral float-right" title="Add database" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Riel, N., &amp; Kaus, B.J.P..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

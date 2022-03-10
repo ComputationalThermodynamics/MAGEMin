@@ -1,16 +1,24 @@
 .. MAGEMin documentation
 
-.. image:: /figs/run.png
-   :width: 800
-   :align: center
-
-|
-
-Run minimization
-================
+Command line minimization
+=========================
 
 .. toctree::
    :maxdepth: 2
    
    ckbk/Commands
+   
 
+
+
+Pseudosection generator
+=======================
+
+.. image:: /figs/GUI.png
+   :width: 320
+   :align: right
+
+.. toctree::
+   :maxdepth: 2
+   
+   ckbk/gui
