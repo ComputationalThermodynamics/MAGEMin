@@ -1,10 +1,8 @@
 .. MAGEMin documentation
 
-
 .. image:: /figs/MAGMA_Logo.png
-   :width: 360
+   :width: 420
    :align: right
-
 
 .. image:: /figs/GUI.png
    :width: 720
