@@ -6,11 +6,10 @@
 
 |
 
-Mineral Assemblage Gibbs Energy Minimization		  
-============================================
+Mineral Assemblage Gibbs Energy Minimization (MAGEMin)		  
+======================================================
                                           
-C routine to compute a stable mineralogical assemblage using Gibbs Free Energy Minimization. MAGEMin  combines discretization of the equations of state in composition space (Connolly, 1990) with linear programming (de Capitani & Brown,1987), and extends the mass constrained Gibbs-hyperplane rotation (Piro et al., 2013) method to account for the mixing-on-sites that takes place in silicate mineral solid solutions (Riel et al., *submitted*).
-      
+MAGEMin is written as a parallel C library callable from any petrological/geodynamic tool. For a given set of pressure, temperature and bulk-rock composition MAGEMin uses a combination of linear programming, extended Partitioning Gibbs free Energy and gradient-based local minimization to compute the stable mineral assemblage     
       
 Available thermodynamic dataset                       
 ================================
