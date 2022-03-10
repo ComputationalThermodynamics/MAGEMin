@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Introduction &mdash; MAGEMin 2022 documentation</title>
+  <title>Problem definition &mdash; MAGEMin 2022 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
@@ -60,9 +60,8 @@
 <p class="caption" role="heading"><span class="caption-text">Methods and examples:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../man.html">Thermodynamic problem</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#gibbs-free-energy">Gibbs free energy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#global-minimum-and-g-hyperplane">Global minimum and G-hyperplane</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Problem definition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#minimization-approach">Minimization approach</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../man.html#phase-diagrams">Phase diagrams</a><ul>
@@ -167,7 +166,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../man.html">Thermodynamic problem</a> &raquo;</li>
-      <li>Introduction</li>
+      <li>Problem definition</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/man/Thermo.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -177,28 +176,23 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="introduction">
-<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline"></a></h1>
-<p>Finding the most stable phase assemblage boils down to a constrained optimization problem that has to ensure three main points:</p>
-<ul class="simple">
-<li><p>The objective function to minimize is the weighted sum of the Gibbs free energy of the solution and pure phases.</p></li>
-<li><p>The equality constraint is the weighted sum of the phase composition that must be equal to the prescribed bulk rock composition.</p></li>
-<li><p>Inequality constraints are expressed in complex solution phases as site fractions and represent “forbidden” compositional space.</p></li>
-</ul>
-</section>
-<section id="gibbs-free-energy">
-<h1>Gibbs free energy<a class="headerlink" href="#gibbs-free-energy" title="Permalink to this headline"></a></h1>
-<p>The Gibbs energy of a multi-component multiphase system is given by the weighted summation of the chemical potentials of each phase:</p>
+  <section id="problem-definition">
+<h1>Problem definition<a class="headerlink" href="#problem-definition" title="Permalink to this headline"></a></h1>
+<p>Finding the most stable phase assemblage  is a challenging constrained optimization problem including both equality and inequality constraints.</p>
+<p>The Gibbs energy of a multi-component multiphase system is given by the weighted summation of the chemical potentials of all end-members and pure phases:</p>
 <div class="math">
-<p><img src="../_images/math/9778bc69ef97e3a11afe18321abe0cc8ffc2e25f.svg" alt="G_{sys} = \sum_{\lambda=1}^{\Lambda} n_{\lambda} \sum_{i=1}^{N_{\lambda}} \mu_{i}(\lambda) \chi_{i}(\lambda) + \sum_{\omega=1}^{\Omega} \mu_{\omega} n_{\omega}"/></p>
+<p><img src="../_images/math/b74238a382eae4de91aac9dd005bc7246e2ba8c8.svg" alt="G_{sys} = \sum_{\lambda=1}^{\Lambda} n_{\lambda} \sum_{i=1}^{N_{\lambda}} \mu_{i}(\lambda) p_{i}(\lambda) + \sum_{\omega=1}^{\Omega} \mu_{\omega} n_{\omega}"/></p>
 </div><p>where</p>
 <div class="math">
 <p><img src="../_images/math/29ba5ce345f5007672da33292cabca6ce0be513f.svg" alt="n_{\lambda}"/></p>
-</div><p>is are the molar fraction of the solution phase.</p>
+</div><p>is the molar fraction of the solution phase.</p>
+<div class="math">
+<p><img src="../_images/math/bf7bfdd6764201a20eb0569a4d2d01c2843d605c.svg" alt="p_{\lambda}"/></p>
+</div><p>is the molar fraction of the endmembers</p>
 <div class="math">
 <p><img src="../_images/math/ff98b4958ad43dd7a0fa33b158999ebbc67a3f44.svg" alt="n_{\omega}"/></p>
-</div><p>is are the molar fraction of the pure phase.</p>
-<p>The Gibbs energy of the system can alternatively be represented with respect to the chemical potentials [J.mol-1] and the number of moles [mol] of the system for which there are C elements in the system.</p>
+</div><p>is the molar fraction of the pure phase.</p>
+<p>The Gibbs energy of the system can alternatively be represented with respect to the chemical potentials [J.mol-1] and the number of moles [mol] of the system (Gibbs-Duhem constraint) for which there are C elements in the system.</p>
 <div class="math">
 <p><img src="../_images/math/c0a462b2104c6dfb21df1c8159d244b670d5a8b7.svg" alt="G_{sys} = \sum_{j=1}^{C} \Gamma_{j} b_{j}"/></p>
 </div><p>The chemical potential of a phase is either a constant for a condensed (pure) phase:</p>
@@ -210,15 +204,27 @@
 </div><p>where</p>
 <div class="math">
 <p><img src="../_images/math/daa4ff7b05660be4716fc5189a8037d3240a59a2.svg" alt="a_{i}"/></p>
-</div><p>is the thermochemical activity is related to the mole fraction and the activity coefficient by</p>
+</div><p>is the thermochemical activity related to the mole fraction and the activity coefficient by</p>
 <div class="math">
 <p><img src="../_images/math/7723a0e120ac765b154c88c458bd213d552e45ae.svg" alt="a_{i} = x_{i} \gamma_{i}"/></p>
-</div><p>For the case of ideal mixing, the activity coefficient is unity. The mixing of a species dissolved in a condensed phase, however rarely behaves ideally
-and is typically a function of both temperature and composition.</p>
+</div><p>For the case of ideal mixing between the end-members, the activity coefficient is unity. The mixing of a species dissolved in a condensed phase, however rarely behaves ideally
+and is typically a function of both temperature and composition (mixing-on-sites formulation).</p>
+<p>The mass equality constraint is defined as</p>
+<div class="math">
+<p><img src="../_images/math/c7a0f56ec8517004cdfb95f5369a2432e2b28998.svg" alt="\sum_{\lambda=1}^{\Lambda} n_{\lambda} \sum_{i=1}^{N_{\lambda}} a_{ij}(\lambda) p_{i}(\lambda) + \sum_{\omega=1}^{\Omega} n_{\omega} a_{\omega j} - b_j = 0"/></p>
+</div><p>where</p>
+<div class="math">
+<p><img src="../_images/math/a63dc02663a804bb5a7777bb62138c2d8b9139e0.svg" alt="a_{ij}"/></p>
+</div><p>is the molar composition of component j in end-member i</p>
+<p>and</p>
+<div class="math">
+<p><img src="../_images/math/96e36062a99d51bfe8ff71f5ac1917a3a25c4663.svg" alt="a_{\omega j}"/></p>
+</div><p>is the molar composition of component j in a pure phase</p>
 </section>
-<section id="global-minimum-and-g-hyperplane">
-<h1>Global minimum and G-hyperplane<a class="headerlink" href="#global-minimum-and-g-hyperplane" title="Permalink to this headline"></a></h1>
-<img alt="../_images/Levelling_sketch_Manual.png" class="align-center" src="../_images/Levelling_sketch_Manual.png" />
+<section id="minimization-approach">
+<h1>Minimization approach<a class="headerlink" href="#minimization-approach" title="Permalink to this headline"></a></h1>
+<p>The Gibbs minimization approach employed in MAGEMin combines discretization of the equations of state in composition space with linear programming and extends the mass constrained Gibbs-hyperplane rotation method to account for the mixing-on-sites that takes place in silicate mineral solid solutions. For an exhaustive description of the methodology see Riel et (submitted).</p>
+<a class="reference internal image-reference" href="../_images/GFE_intro.png"><img alt="../_images/GFE_intro.png" class="align-center" src="../_images/GFE_intro.png" style="width: 800px;" /></a>
 </section>
 
 

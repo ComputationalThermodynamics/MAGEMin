@@ -7,19 +7,19 @@
 Usage		  
 =====
 
-In order to generate pseudosections (including isochemical phase diagrams) we provide a in-house GUI developped using MATLAB 2020b and tested on MATLAB 2019b.
+In order to generate pseudosection (including isochemical phase diagrams) we provide a in-house GUI developped using MATLAB 2020b and tested on MATLAB 2019b.
 
 **Specifications**
 
 - The GUI sends a list of pressure-temperature points to MAGEMin for a specified bulk-rock composition and receives back the stable phase mineral assemblage.
 - The GUI uses adaptive mesh refinement to refine the reactions lines.
-- Possibility to save and load pseudosections
+- Possibility to save and load pseudosection
 - Various display options including, stable phases, Gibbs energy, phase fractions, phase compositions (isopleth), densities etc...
 
 KLB-1 Tutorial
 ==============
 
-As a simple tutorial we present the necessary steps needed to produce a pseudosections for KLB-1 peridotite in the KNCFMASTOCr chemical system and from 0.0 to 50 kbar and 800 to 2000°C.
+As a simple tutorial we present the necessary steps needed to produce a pseudosection for KLB-1 peridotite in the KNCFMASTOCr chemical system and from 0.0 to 50 kbar and 800 to 2000°C.
 
 Launch GUI
 **********
@@ -117,7 +117,7 @@ Compute pseudosection
 
 ----
 
-- Once the computation is over, the GUI displays the pseudosections. The number of minimization points is shown at the bottom right, for this example "3493 points". Note that by default the number of stable phases is displayed together wit the mesh refinement grid. Note that, you are in the "Pseudosection" window.
+- Once the computation is over, the GUI displays the pseudosection. The number of minimization points is shown at the bottom right, for this example "3493 points". Note that by default the number of stable phases is displayed together wit the mesh refinement grid. Note that, you are in the "Pseudosection" window.
 
 .. image:: /figs/GUI_pseudo.png
    :width: 480
@@ -126,7 +126,7 @@ Compute pseudosection
 Refine pseudosection
 ********************
    
-- From there you can decide to refine the pseudosections as the resolution is rather low.
+- From there you can decide to refine the pseudosection as the resolution is rather low.
 
 .. image:: /figs/GUI_PS_refine.png
    :width: 480
@@ -188,6 +188,6 @@ Save pseudosection data
 	
 	KLB-1_pseudosection.mat
 	
-2. If you close and relaunch the GUI, you can load the saved pseudosection by entering its name in the "Filename" window and click on "load"
+2. If you close and relaunch the GUI, you can load the saved pseudosection by entering its name in the "Filename" window and click on "load". Note that loading can potentially take a long time if the pseudosection you saved contains a large number of points
 
 

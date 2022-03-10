@@ -1,35 +1,33 @@
 .. MAGEMin documentation
 
-Introduction
-============
+Problem definition
+==================
 
-Finding the most stable phase assemblage boils down to a constrained optimization problem that has to ensure three main points:
+Finding the most stable phase assemblage  is a challenging constrained optimization problem including both equality and inequality constraints. 
 
-- The objective function to minimize is the weighted sum of the Gibbs free energy of the solution and pure phases. 
-- The equality constraint is the weighted sum of the phase composition that must be equal to the prescribed bulk rock composition.
-- Inequality constraints are expressed in complex solution phases as site fractions and represent "forbidden" compositional space.
-
-Gibbs free energy
-=================
-
-The Gibbs energy of a multi-component multiphase system is given by the weighted summation of the chemical potentials of each phase:
+The Gibbs energy of a multi-component multiphase system is given by the weighted summation of the chemical potentials of all end-members and pure phases:
 
 .. math::
-   G_{sys} = \sum_{\lambda=1}^{\Lambda} n_{\lambda} \sum_{i=1}^{N_{\lambda}} \mu_{i}(\lambda) \chi_{i}(\lambda) + \sum_{\omega=1}^{\Omega} \mu_{\omega} n_{\omega}
+   G_{sys} = \sum_{\lambda=1}^{\Lambda} n_{\lambda} \sum_{i=1}^{N_{\lambda}} \mu_{i}(\lambda) p_{i}(\lambda) + \sum_{\omega=1}^{\Omega} \mu_{\omega} n_{\omega}
 
 where  
 
 .. math:: 
    n_{\lambda} 
    
-is are the molar fraction of the solution phase.
+is the molar fraction of the solution phase.
+
+.. math:: 
+   p_{\lambda} 
+   
+is the molar fraction of the endmembers
 
 .. math:: 
    n_{\omega} 
    
-is are the molar fraction of the pure phase.
+is the molar fraction of the pure phase.
 
-The Gibbs energy of the system can alternatively be represented with respect to the chemical potentials [J.mol-1] and the number of moles [mol] of the system for which there are C elements in the system.
+The Gibbs energy of the system can alternatively be represented with respect to the chemical potentials [J.mol-1] and the number of moles [mol] of the system (Gibbs-Duhem constraint) for which there are C elements in the system.
 
 .. math:: 
    G_{sys} = \sum_{j=1}^{C} \Gamma_{j} b_{j}
@@ -49,19 +47,39 @@ where
 .. math::
    a_{i}
 
-is the thermochemical activity is related to the mole fraction and the activity coefficient by
+is the thermochemical activity related to the mole fraction and the activity coefficient by
 
 .. math::
    a_{i} = x_{i} \gamma_{i}
 
 
-For the case of ideal mixing, the activity coefficient is unity. The mixing of a species dissolved in a condensed phase, however rarely behaves ideally
-and is typically a function of both temperature and composition.
+For the case of ideal mixing between the end-members, the activity coefficient is unity. The mixing of a species dissolved in a condensed phase, however rarely behaves ideally
+and is typically a function of both temperature and composition (mixing-on-sites formulation).
 
+The mass equality constraint is defined as
 
-Global minimum and G-hyperplane
-===============================
+.. math::
+   \sum_{\lambda=1}^{\Lambda} n_{\lambda} \sum_{i=1}^{N_{\lambda}} a_{ij}(\lambda) p_{i}(\lambda) + \sum_{\omega=1}^{\Omega} n_{\omega} a_{\omega j} - b_j = 0
 
-.. image:: /figs/Levelling_sketch_Manual.png
-   :align: center
+where
+
+.. math::
+   a_{ij}
    
+is the molar composition of component j in end-member i
+
+and
+
+.. math::
+   a_{\omega j}
+   
+is the molar composition of component j in a pure phase
+
+Minimization approach 
+=====================
+
+The Gibbs minimization approach employed in MAGEMin combines discretization of the equations of state in composition space with linear programming and extends the mass constrained Gibbs-hyperplane rotation method to account for the mixing-on-sites that takes place in silicate mineral solid solutions. For an exhaustive description of the methodology see Riel et (submitted). 
+
+.. image:: /figs/GFE_intro.png
+	:width: 800
+	:align: center

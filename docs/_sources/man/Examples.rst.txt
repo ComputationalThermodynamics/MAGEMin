@@ -3,7 +3,7 @@
 Examples of phase diagrams
 ==========================
 
-Here is a list of phase diagrams produced using *MAGEMin* and the in-house *Matlab* app.
+Here is a list of phase diagrams produced using MAGEMin and the in-house MATLAB app.
 
 Peridotite (KLB1)
 =================

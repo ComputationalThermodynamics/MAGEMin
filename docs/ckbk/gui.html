@@ -60,9 +60,8 @@
 <p class="caption" role="heading"><span class="caption-text">Methods and examples:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../man.html">Thermodynamic problem</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../man/Thermo.html">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../man/Thermo.html#gibbs-free-energy">Gibbs free energy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../man/Thermo.html#global-minimum-and-g-hyperplane">Global minimum and G-hyperplane</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Thermo.html">Problem definition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../man/Thermo.html#minimization-approach">Minimization approach</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../man.html#phase-diagrams">Phase diagrams</a><ul>
@@ -180,18 +179,18 @@
   <a class="reference internal image-reference" href="../_images/GUI.png"><img alt="../_images/GUI.png" class="align-center" src="../_images/GUI.png" style="width: 640px;" /></a>
 <section id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline"></a></h1>
-<p>In order to generate pseudosections (including isochemical phase diagrams) we provide a in-house GUI developped using MATLAB 2020b and tested on MATLAB 2019b.</p>
+<p>In order to generate pseudosection (including isochemical phase diagrams) we provide a in-house GUI developped using MATLAB 2020b and tested on MATLAB 2019b.</p>
 <p><strong>Specifications</strong></p>
 <ul class="simple">
 <li><p>The GUI sends a list of pressure-temperature points to MAGEMin for a specified bulk-rock composition and receives back the stable phase mineral assemblage.</p></li>
 <li><p>The GUI uses adaptive mesh refinement to refine the reactions lines.</p></li>
-<li><p>Possibility to save and load pseudosections</p></li>
+<li><p>Possibility to save and load pseudosection</p></li>
 <li><p>Various display options including, stable phases, Gibbs energy, phase fractions, phase compositions (isopleth), densities etc…</p></li>
 </ul>
 </section>
 <section id="klb-1-tutorial">
 <h1>KLB-1 Tutorial<a class="headerlink" href="#klb-1-tutorial" title="Permalink to this headline"></a></h1>
-<p>As a simple tutorial we present the necessary steps needed to produce a pseudosections for KLB-1 peridotite in the KNCFMASTOCr chemical system and from 0.0 to 50 kbar and 800 to 2000°C.</p>
+<p>As a simple tutorial we present the necessary steps needed to produce a pseudosection for KLB-1 peridotite in the KNCFMASTOCr chemical system and from 0.0 to 50 kbar and 800 to 2000°C.</p>
 <section id="launch-gui">
 <h2>Launch GUI<a class="headerlink" href="#launch-gui" title="Permalink to this headline"></a></h2>
 <p>Using MATLAB (2019+) launch the GUI within MAGEMin working directory</p>
@@ -268,14 +267,14 @@ run PlotPseudosection.mlapp
 <a class="reference internal image-reference" href="../_images/GUI_figs.png"><img alt="../_images/GUI_figs.png" class="align-center" src="../_images/GUI_figs.png" style="width: 800px;" /></a>
 <hr class="docutils" />
 <ul class="simple">
-<li><p>Once the computation is over, the GUI displays the pseudosections. The number of minimization points is shown at the bottom right, for this example “3493 points”. Note that by default the number of stable phases is displayed together wit the mesh refinement grid. Note that, you are in the “Pseudosection” window.</p></li>
+<li><p>Once the computation is over, the GUI displays the pseudosection. The number of minimization points is shown at the bottom right, for this example “3493 points”. Note that by default the number of stable phases is displayed together wit the mesh refinement grid. Note that, you are in the “Pseudosection” window.</p></li>
 </ul>
 <a class="reference internal image-reference" href="../_images/GUI_pseudo.png"><img alt="../_images/GUI_pseudo.png" class="align-center" src="../_images/GUI_pseudo.png" style="width: 480px;" /></a>
 </section>
 <section id="refine-pseudosection">
 <h2>Refine pseudosection<a class="headerlink" href="#refine-pseudosection" title="Permalink to this headline"></a></h2>
 <ul class="simple">
-<li><p>From there you can decide to refine the pseudosections as the resolution is rather low.</p></li>
+<li><p>From there you can decide to refine the pseudosection as the resolution is rather low.</p></li>
 </ul>
 <a class="reference internal image-reference" href="../_images/GUI_PS_refine.png"><img alt="../_images/GUI_PS_refine.png" class="align-center" src="../_images/GUI_PS_refine.png" style="width: 480px;" /></a>
 <ol class="arabic simple">
@@ -322,7 +321,7 @@ run PlotPseudosection.mlapp
 </pre></div>
 </div>
 <ol class="arabic simple" start="2">
-<li><p>If you close and relaunch the GUI, you can load the saved pseudosection by entering its name in the “Filename” window and click on “load”</p></li>
+<li><p>If you close and relaunch the GUI, you can load the saved pseudosection by entering its name in the “Filename” window and click on “load”. Note that loading can potentially take a long time if the pseudosection you saved contains a large number of points</p></li>
 </ol>
 </section>
 </section>
