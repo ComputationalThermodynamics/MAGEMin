@@ -1,4 +1,4 @@
-<img src="./pics/GUI.png" alt="drawing" width="640"/>
+<img src="./pics/GUI.png" alt="drawing" width="640" class="center"/>
 
 # Mineral Assemblage Gibbs Energy Minimization (MAGEMin)
 
