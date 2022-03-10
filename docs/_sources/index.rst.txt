@@ -1,5 +1,11 @@
 .. MAGEMin documentation
 
+
+.. image:: /figs/MAGMA_Logo.png
+   :width: 360
+   :align: right
+
+
 .. image:: /figs/GUI.png
    :width: 720
    :align: center
@@ -9,7 +15,7 @@
 Mineral Assemblage Gibbs Energy Minimization (MAGEMin)		  
 ======================================================
                                           
-MAGEMin is written as a parallel C library callable from any petrological/geodynamic tool. For a given set of pressure, temperature and bulk-rock composition MAGEMin uses a combination of linear programming, extended Partitioning Gibbs free Energy and gradient-based local minimization to compute the stable mineral assemblage     
+MAGEMin is written as a parallel C library callable from any petrological/geodynamic tool. For a given set of pressure, temperature and bulk-rock composition MAGEMin uses a combination of linear programming, extended Partitioning Gibbs free Energy and gradient-based local minimization to compute the most stable mineral assemblage     
       
 Available thermodynamic dataset                       
 ================================
@@ -18,7 +24,7 @@ Igneous thermodynamic dataset
 *****************************
                     
 - Holland et al., 2018 (see http://hpxeosandthermocalc.org)
-- K2O-Na2O-CaO-FeO-MgO-Al2O3-SiO2-H2O-TiO2-O-Cr2O3 chemical system                     
+- K2O-Na2O-CaO-FeO-MgO-Al2O3-SiO2-H2O-TiO2-O-Cr2O3 chemical system
 - Equations of state for
 	- Pure stoichiometric phases quartz (q), cristobalite (crst), tridymite (trd), coesite (coe), stishovite (stv), kyanite (ky), sillimanite (sill), andalusite (and), rutile (ru) and sphene (sph). 
 	- Solution phases spinel (spn), biotite (bi), cordierite (cd), clinopyroxene (cpx), orthopyroxene (opx), epidote (ep), garnet (g), hornblende (hb), ilmenite (ilm), silicate melt (liq), muscovite (mu), olivine (ol), ternary feldspar (pl4T), and aqueous fluid (fl).
@@ -61,18 +67,14 @@ Imported libraries
 
    src
 
-**Contributors:**
+|
+
+Contributors
+============
 
 - MAGEMin developpers: Riel N., Kaus. B.
 - Database translation and debugging: Green E., Berlie N., and Rummel L. 
      
 *Contacts: nriel@uni-mainz.de, kaus@uni-mainz.de*
 
-**References**
-
-*de Capitani, C., & Brown, T. H. (1987). The computation of chemical equilibrium in complex systems containing non-ideal solutions.Geochimica et Cosmochimica Acta,51(10), 2639-2652. doi:https://doi.org/10.1016/0016-7037(87)90145-1*
-
-*Connolly, J. A. D. (1990). Multivariable phase diagrams; an algorithm based on generalized thermodynamics. American Journal of Science,290(6), 666-718. doi:10.2475/ajs.290.6.666*
-
-*Piro, M. H. A., Simunovic, S., Besmann, T. M., Lewis, B. J., & Thompson, W. T. (2013).  The thermochemistry library thermochimica.Computational Materials Science, 67*
- 
+**This open source project was funded by the European Research Council through the MAGMA project, ERC Consolidator Grant #771143**
