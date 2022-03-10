@@ -19,8 +19,8 @@
     --navbar-current-background-color: #192543;
     --navbar-current-background-color-hover: #182343;
     --navbar-current-background-color-active: #131e3b;
-    --navbar-level-1-color: #c3e3ff; /*SUB TITLE OF THE MAVIGATION SIDEBAR */
-    --navbar-level-2-color: #b8d6f0;
+    --navbar-level-1-color: #D0AA93; /*SUB TITLE OF THE MAVIGATION SIDEBAR */
+    --navbar-level-2-color: #D0AA93;
     --navbar-level-3-color: #a3c4e1;
     --navbar-heading-color: #A53535;/*CAPS TITLE OF THE MAVIGATION SIDEBAR */
     --navbar-scrollbar-color: #A53535;
@@ -29,7 +29,7 @@
     --navbar-scrollbar-background: #131e2b;
 
     --link-color: #183d7a;
-    --link-color-hover: #9df;
+    --link-color-hover: #D0AA93;
     --link-color-active: #6ad;
     --link-color-visited: #a93d3e;
     --classref-badge-text-color: hsl(0, 0%, 70%);
