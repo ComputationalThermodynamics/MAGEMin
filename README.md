@@ -19,7 +19,7 @@ The details of this thermodynamic solid solution and endmember database are:
 	- Solution phases spinel (spn), biotite (bi), cordierite (cd), clinopyroxene (cpx), orthopyroxene (opx), epidote (ep), garnet (g), hornblende (hb), ilmenite (ilm), silicate melt (liq), muscovite (mu), olivine (ol), ternary feldspar (pl4T), and aqueous fluid (fl).
      
 ## Imported libraries
-We rely on a number if external packages. If you wish to install MAGEMin on your machine, you will need to install this firstm
+We rely on a number if external packages. If you wish to install MAGEMin on your machine, you will need to install this first
 - MPICH (to allow parallel computations)
 - LAPACKE (C version of LAPACK)
 - NLopt (https://nlopt.readthedocs.io/)
