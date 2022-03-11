@@ -1,11 +1,17 @@
 <img src="./pics/GUI.png" alt="drawing" width="640" alt="centered image"/>
 
 # Mineral Assemblage Gibbs Energy Minimization (MAGEMin)
+MAGEMin is a Gibbs energy minimization solver package, which computes the thermodynamically most stable assemblage for a given bulk rock composition and pressure/temperature condition. It also returns parameters such as melt fraction or density, which can be combined with geodynamic/petrological tools to simulate, for example, the evolving chemistry of a crystallising melt.
 
-MAGEMin is written as a parallel C library callable from any petrological/geodynamic tool. For a given set of pressure, temperature and bulk-rock composition MAGEMin uses a combination of linear programming, extended Partitioning Gibbs free Energy and gradient-based local minimization to compute the most stable mineral assemblage     
+MAGEMin is written as a parallel C library and uses a combination of linear programming, extended Partitioning Gibbs free Energy and gradient-based local minimization to compute the most stable mineral assemblage. In this, it differs from exisisting approaches which makes it particularly suitable to utilize modern multicore processors.
+
+We also provide a MATLAB-based graphical user interface to help computing pseudosections for given bulk rock composition.
   
  
 ## Available thermodynamic dataset
+The MAGEMin algorithm is general and can in principle be used with any thermodynamic database. Yet, for speed reasons, the current implementation hardcoded the hydrous mafic melting model of Holland et al. 2018 which is callibrated for hydrous mafic melts and can be used to simulate the fractional crystallisation from a hydrous basalt to a felsic melt. 
+
+The details of this thermodynamic solid solution and endmember database are:
 - Holland et al., 2018 (see http://hpxeosandthermocalc.org)
 - K2O-Na2O-CaO-FeO-MgO-Al2O3-SiO2-H2O-TiO2-O-Cr2O3 chemical system
 - Equations of state for
@@ -13,6 +19,8 @@ MAGEMin is written as a parallel C library callable from any petrological/geodyn
 	- Solution phases spinel (spn), biotite (bi), cordierite (cd), clinopyroxene (cpx), orthopyroxene (opx), epidote (ep), garnet (g), hornblende (hb), ilmenite (ilm), silicate melt (liq), muscovite (mu), olivine (ol), ternary feldspar (pl4T), and aqueous fluid (fl).
      
 ## Imported libraries
+We rely on a number if external packages. If you wish to install MAGEMin on your machine, you will need to install this firstm
+- MPICH (to allow parallel computations)
 - LAPACKE (C version of LAPACK)
 - NLopt (https://nlopt.readthedocs.io/)
 - uthash (https://troydhanson.github.io/uthash/)
