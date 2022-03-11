@@ -48,7 +48,8 @@ for iPoint=1:length(newPoints)
     Density         =   [];
     CompositionalVar=   [];
     EMFractions     =   [];
-    
+    EMlist		    =   [];  	%list of end-members name
+     
     i               =   1;
     line            =   fgetl(fid);
     
@@ -64,7 +65,8 @@ for iPoint=1:length(newPoints)
 %         n_xeos                = str2num(out{4});
         
         CompVar               = [];
-        EM_Frac                = [];
+        EM_Frac               = [];
+        EM_list               = [];
         if length(out)>4
             % We have a solution model; read in the compositional variables
             % and their proportions
@@ -72,19 +74,21 @@ for iPoint=1:length(newPoints)
             n_xeos                = data(4);
             for j=1:n_xeos
                 CompVar(j) =  str2num(out{j+4});
-                %CompVar(j) =  data(j+7);
             end
             for j=1:n_xeos+1
-                EM_Frac(j) =  str2num(out{j+4+n_xeos});
-                %EM_Frac(j) =  data(j+7+n_xeos);
+                EM_Frac(j) =  str2num(out{j*2+4+n_xeos});
             end
+            for j=1:n_xeos+1
+                EM_list{j} =  out{j*2+4+n_xeos - 1};
+            end
+	        
         else
             n_xeos=0;
         end
-         
+
         CompositionalVar{i} = CompVar; % the compositional variables for this file
-        EMFractions{i} = EM_Frac; % the compositional variables for this file
-        
+        EMFractions{i} 		= EM_Frac; % the compositional variables for this file
+        EMlist{i}  			= EM_list;
         line	=   fgetl(fid);
         i       =   i+1;
     end
@@ -97,6 +101,7 @@ for iPoint=1:length(newPoints)
     % recompute all again
     FullInfo.StableSolutions    = StableSolutions;
     FullInfo.StableFractions    = StableFractions;
+    FullInfo.EMlist    			= EMlist;
     FullInfo.CompositionalVar	= CompositionalVar;
     FullInfo.EMFractions        = EMFractions;
     FullInfo.Density            = Density;
@@ -104,6 +109,7 @@ for iPoint=1:length(newPoints)
     
     ind                         =   find(StableFractions>MinPhaseFraction);
     StableFractions             =   StableFractions(ind);
+    EMlist             			=   EMlist(ind);
     StableSolutions             =   StableSolutions(ind);
     CompositionalVar            =   CompositionalVar(ind);
     EMFractions                 =   EMFractions(ind);
@@ -161,6 +167,7 @@ for iPoint=1:length(newPoints)
     PhaseData{newPoints(numPoint)}.Gamma            =   Gamma;
     PhaseData{newPoints(numPoint)}.StableSolutions  =   StableSolutions;
     PhaseData{newPoints(numPoint)}.StableFractions  =   StableFractions;
+    PhaseData{newPoints(numPoint)}.EMlist  			=   EMlist;
     PhaseData{newPoints(numPoint)}.Density          =   Density;
     PhaseData{newPoints(numPoint)}.CompositionalVar =   CompositionalVar;
     PhaseData{newPoints(numPoint)}.EMFractions      =   EMFractions;

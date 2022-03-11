@@ -136,6 +136,30 @@ void dump_results_function(		global_variable 	gv,
 			}
 		}
 		
+		fprintf(loc_min, "\nEnd-members fraction (solution phase):\n");		
+		for (i = 0; i < gv.len_cp; i++){
+			if (cp[i].ss_flags[1] == 1){
+				
+				fprintf(loc_min, 	" %5s", "");
+				for (j = 0; j < cp[i].n_em; j++){
+					fprintf(loc_min, 	"%10s ", SS_ref_db[cp[i].id].EM_list[j]);
+				}
+				for (int k = j; k < gv.len_ox; k++){
+					fprintf(loc_min, 	"%10s ", "-");
+				}		
+				fprintf(loc_min, "\n");	
+				
+				fprintf(loc_min, 	" %5s", cp[i].name);
+				for (j = 0; j < cp[i].n_em; j++){
+					fprintf(loc_min, 	"%10.5f ", cp[i].p_em[j]);
+				}
+				for (int k = j; k < gv.len_ox; k++){
+					fprintf(loc_min, 	"%10s ", "-");
+				}		
+				fprintf(loc_min, "\n");	
+			}
+		}
+		
 		if (gv.Mode == 1){
 			fprintf(loc_min, "\nGibbs energy of reference G0 (solution phase):\n");		
 			for (i = 0; i < gv.len_cp; i++){
@@ -299,12 +323,13 @@ void dump_results_function(		global_variable 	gv,
 				}
 				
 				
-				//fprintf(loc_min, 	"%s \t %.10f \t %.10f \t", cp[i].name, cp[i].ss_n, cp[i].phase_density);
+
 				fprintf(loc_min, 	"%d ", cp[i].n_xeos);
 				for (int j = 0; j < (cp[i].n_xeos); j++){
 					fprintf(loc_min, 	"%.10f ", cp[i].xeos[j]);
 				}
 				for (int j = 0; j < (cp[i].n_em); j++){
+					fprintf(loc_min, 	"%10s ",  SS_ref_db[cp[i].id].EM_list[j]);	
 					fprintf(loc_min, 	"%.10f ", cp[i].p_em[j]);
 				}
 				fprintf(loc_min, "\n");

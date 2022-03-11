@@ -52,6 +52,9 @@ typedef struct SS_refs {
 	double T;
 	double R;
 
+	/** end-member list */
+	char   **EM_list;			/** solution phase list */
+
 	/** flags */
 	double   ss_n;				/** fraction of solution phase in estimated phase assemblage 				*/
 	double   delta_ss_n;		/** fraction of solution phase in estimated phase assemblage 				*/

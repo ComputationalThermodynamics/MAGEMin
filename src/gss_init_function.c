@@ -379,6 +379,11 @@ SS_ref G_SS_INIT_EM_function(SS_ref SS_ref_db, int EM_database, char *name, glob
 	int n_sf   = SS_ref_db.n_sf;
 	int sym    = SS_ref_db.symmetry;
 	
+	SS_ref_db.EM_list 		 = malloc ((n_em) * sizeof (char*)	);
+	for (int i = 0; i < n_em; i++){ 
+		SS_ref_db.EM_list[i] = malloc(20 * sizeof(char)		);		
+	}
+
 	if (sym == 0){
 		SS_ref_db.W   		= malloc (SS_ref_db.n_w * sizeof (double) ); 
 		SS_ref_db.v   		= malloc (SS_ref_db.n_v * sizeof (double) ); 

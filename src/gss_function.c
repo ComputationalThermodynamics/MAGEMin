@@ -55,6 +55,11 @@ get_data get_gb_comp(	double 		*density,
 */
 SS_ref G_SS_bi_function(SS_ref SS_ref_bi_db, int EM_database, double *bulk_rock, double P, 
 								  double T, double eps){	
+								
+	char   *EM_tmp[] 		= {"phl","annm","obi","east","tbi","fbi"};	
+	for (int i = 0; i < SS_ref_bi_db.n_em; i++){ 
+		strcpy(SS_ref_bi_db.EM_list[i],EM_tmp[i]);			
+	}
 									  
     SS_ref_bi_db.W[0] = 12.;
     SS_ref_bi_db.W[1] = 4.;
@@ -185,8 +190,13 @@ SS_ref G_SS_bi_function(SS_ref SS_ref_bi_db, int EM_database, double *bulk_rock,
   retrieve reference thermodynamic data for clinopyroxene 
 */
 SS_ref G_SS_cpx_function(SS_ref SS_ref_cpx_db, int EM_database, double *bulk_rock, double P, 
-								  double T, double eps){		
-
+								  double T, double eps){	
+									  	
+	char   *EM_tmp[] 		= {"di","cfs","cats","crdi","cess","cbuf","jd","cen","cfm","kjd"};	
+	for (int i = 0; i < SS_ref_cpx_db.n_em; i++){ 
+		strcpy(SS_ref_cpx_db.EM_list[i],EM_tmp[i]);			
+	}
+		
     SS_ref_cpx_db.W[0] = 25.8;
     SS_ref_cpx_db.W[1] = 13.0 - 0.06*P;
     SS_ref_cpx_db.W[2] = 8.0;
@@ -407,6 +417,11 @@ SS_ref G_SS_cpx_function(SS_ref SS_ref_cpx_db, int EM_database, double *bulk_roc
 SS_ref G_SS_cd_function(SS_ref SS_ref_cd_db, int EM_database, double *bulk_rock, double P, 
 								  double T, double eps){
 		
+	char   *EM_tmp[] 		= {"crd","fcrd","hcrd"};	
+	for (int i = 0; i < SS_ref_cd_db.n_em; i++){ 
+		strcpy(SS_ref_cd_db.EM_list[i],EM_tmp[i]);			
+	}
+	
     SS_ref_cd_db.W[0] = 6.;
     SS_ref_cd_db.W[1] = 0.;
     SS_ref_cd_db.W[2] = 0.;  
@@ -464,6 +479,11 @@ SS_ref G_SS_cd_function(SS_ref SS_ref_cd_db, int EM_database, double *bulk_rock,
 */
 SS_ref G_SS_ep_function(SS_ref SS_ref_ep_db, int EM_database, double *bulk_rock, double P, 
 								  double T, double eps){
+									  	
+	char   *EM_tmp[] 		= {"cz","ep","fep"};	
+	for (int i = 0; i < SS_ref_ep_db.n_em; i++){ 
+		strcpy(SS_ref_ep_db.EM_list[i],EM_tmp[i]);			
+	}
 		
     SS_ref_ep_db.W[0] = 1.;
     SS_ref_ep_db.W[1] = 3.;
@@ -517,7 +537,12 @@ SS_ref G_SS_ep_function(SS_ref SS_ref_ep_db, int EM_database, double *bulk_rock,
 */
 SS_ref G_SS_fl_function(SS_ref SS_ref_fl_db, int EM_database, double *bulk_rock, double P, 
 								  double T, double eps){
-									  
+									  	
+	char   *EM_tmp[] 		= {"qfL","slfL","wofL","fofL","fafL","jdfL","hmfL","ekfL","tifL","kjfL","h2o"};	
+	for (int i = 0; i < SS_ref_fl_db.n_em; i++){ 
+		strcpy(SS_ref_fl_db.EM_list[i],EM_tmp[i]);			
+	}
+							  
     SS_ref_fl_db.W[0] = 0.0;
     SS_ref_fl_db.W[1] = 0.0;
     SS_ref_fl_db.W[2] = 0.0;
@@ -740,7 +765,12 @@ SS_ref G_SS_fl_function(SS_ref SS_ref_fl_db, int EM_database, double *bulk_rock,
 */
 SS_ref G_SS_g_function(SS_ref SS_ref_g_db, int EM_database, double *bulk_rock, double P, 
 								  double T, double eps){
-				
+									  	
+	char   *EM_tmp[] 		= {"py","alm","gr","andr","knom","tig"};	
+	for (int i = 0; i < SS_ref_g_db.n_em; i++){ 
+		strcpy(SS_ref_g_db.EM_list[i],EM_tmp[i]);			
+	}
+		
     SS_ref_g_db.W[0] = 4.0 + 0.10*P;
     SS_ref_g_db.W[1] = 45.4 - 0.010*T + 0.04*P;
     SS_ref_g_db.W[2] = 107.0 - 0.010*T - 0.036*P;
@@ -863,7 +893,12 @@ SS_ref G_SS_g_function(SS_ref SS_ref_g_db, int EM_database, double *bulk_rock, d
 */
 SS_ref G_SS_hb_function(SS_ref SS_ref_hb_db, int EM_database, double *bulk_rock, double P, 
 								  double T, double eps){
-
+									  	
+	char   *EM_tmp[] 		= {"tr","tsm","prgm","glm","cumm","grnm","a","b","mrb","kprg","tts"};	
+	for (int i = 0; i < SS_ref_hb_db.n_em; i++){ 
+		strcpy(SS_ref_hb_db.EM_list[i],EM_tmp[i]);			
+	}
+	
     SS_ref_hb_db.W[0] = 20.0;
     SS_ref_hb_db.W[1] = 25.0;
     SS_ref_hb_db.W[2] = 65.0;
@@ -1090,7 +1125,12 @@ SS_ref G_SS_hb_function(SS_ref SS_ref_hb_db, int EM_database, double *bulk_rock,
 */
 SS_ref G_SS_ilm_function(SS_ref SS_ref_ilm_db, int EM_database, double *bulk_rock, double P, 
 								  double T, double eps){
-									  
+									  	
+	char   *EM_tmp[] 		= {"oilm","dilm","dhem"};	
+	for (int i = 0; i < SS_ref_ilm_db.n_em; i++){ 
+		strcpy(SS_ref_ilm_db.EM_list[i],EM_tmp[i]);			
+	}
+							  
     SS_ref_ilm_db.W[0] = 7.05;
     SS_ref_ilm_db.W[1] = 14.3;
     SS_ref_ilm_db.W[2] = 7.25;    						  
@@ -1141,6 +1181,11 @@ SS_ref G_SS_ilm_function(SS_ref SS_ref_ilm_db, int EM_database, double *bulk_roc
 */
 SS_ref G_SS_liq_function(SS_ref SS_ref_liq_db, int EM_database, double *bulk_rock, double P, 
 								  double T, double eps){
+									  	
+	char   *EM_tmp[] 		= {"q4L","sl1L","wo1L","fo2L","fa2L","jdL","hmL","ekL","tiL","kjL","ctL","h2o1L"};	
+	for (int i = 0; i < SS_ref_liq_db.n_em; i++){ 
+		strcpy(SS_ref_liq_db.EM_list[i],EM_tmp[i]);			
+	}
 		  
     SS_ref_liq_db.W[0] = 9.5 - 0.10*P;
     SS_ref_liq_db.W[1] = -10.3;
@@ -1405,7 +1450,12 @@ SS_ref G_SS_liq_function(SS_ref SS_ref_liq_db, int EM_database, double *bulk_roc
 */
 SS_ref G_SS_mu_function(SS_ref SS_ref_mu_db, int EM_database, double *bulk_rock, double P, 
 								  double T, double eps){		
-					
+									  	
+	char   *EM_tmp[] 		= {"mu","cel","fcel","pa","mam","fmu"};	
+	for (int i = 0; i < SS_ref_mu_db.n_em; i++){ 
+		strcpy(SS_ref_mu_db.EM_list[i],EM_tmp[i]);			
+	}
+						
     SS_ref_mu_db.W[0] = 0. + 0.20*P;
     SS_ref_mu_db.W[1] = 0. + 0.20*P;
     SS_ref_mu_db.W[2] = 10.12 + 0.0034*T + 0.353*P;
@@ -1513,7 +1563,12 @@ SS_ref G_SS_mu_function(SS_ref SS_ref_mu_db, int EM_database, double *bulk_rock,
 */
 SS_ref G_SS_ol_function(SS_ref SS_ref_ol_db, int EM_database, double *bulk_rock, double P, 
 								  double T, double eps){		
-									  
+									  	
+	char   *EM_tmp[] 		= {"mont","fa","fo","cfm"};	
+	for (int i = 0; i < SS_ref_ol_db.n_em; i++){ 
+		strcpy(SS_ref_ol_db.EM_list[i],EM_tmp[i]);			
+	}
+								  
     SS_ref_ol_db.W[0] = 24.;
     SS_ref_ol_db.W[1] = 38.;
     SS_ref_ol_db.W[2] = 24.;
@@ -1579,6 +1634,11 @@ SS_ref G_SS_ol_function(SS_ref SS_ref_ol_db, int EM_database, double *bulk_rock,
 */
 SS_ref G_SS_opx_function(SS_ref SS_ref_opx_db, int EM_database, double *bulk_rock, double P, 
 								  double T, double eps){		
+									  	
+	char   *EM_tmp[] 		= {"en","fs","fm","odi","mgts","cren","obuf","mess","ojd"};	
+	for (int i = 0; i < SS_ref_opx_db.n_em; i++){ 
+		strcpy(SS_ref_opx_db.EM_list[i],EM_tmp[i]);			
+	}
 		
     SS_ref_opx_db.W[0] = 7.0;
     SS_ref_opx_db.W[1] = 4.0;
@@ -1773,6 +1833,11 @@ SS_ref G_SS_opx_function(SS_ref SS_ref_opx_db, int EM_database, double *bulk_roc
 */
 SS_ref G_SS_pl4T_function(SS_ref SS_ref_pl4T_db, int EM_database, double *bulk_rock, double P, 
 								  double T, double eps){
+									  	
+	char   *EM_tmp[] 		= {"ab","an","san"};	
+	for (int i = 0; i < SS_ref_pl4T_db.n_em; i++){ 
+		strcpy(SS_ref_pl4T_db.EM_list[i],EM_tmp[i]);			
+	}
 			
     SS_ref_pl4T_db.W[0]    = 14.6 - 0.00935*T - 0.04*P;
     SS_ref_pl4T_db.W[1]    = 24.1 - 0.00957*T + 0.338*P;
@@ -1829,6 +1894,11 @@ SS_ref G_SS_pl4T_function(SS_ref SS_ref_pl4T_db, int EM_database, double *bulk_r
 */
 SS_ref G_SS_spn_function(SS_ref SS_ref_spn_db, int EM_database, double *bulk_rock, double P, 
 								  double T, double eps){	
+									  	
+	char   *EM_tmp[] 		= {"nsp","isp","nhc","ihc","nmt","imt","pcr","qndm"};	
+	for (int i = 0; i < SS_ref_spn_db.n_em; i++){ 
+		strcpy(SS_ref_spn_db.EM_list[i],EM_tmp[i]);			
+	}
 									  
     SS_ref_spn_db.W[0] = -8.2;
     SS_ref_spn_db.W[1] = 3.5;
