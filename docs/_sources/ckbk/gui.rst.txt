@@ -45,6 +45,8 @@ This opens the following window:
    :width: 240
    :align: center
    
+|
+
 #. Change the filename from "test" to "KLB-1_pseudosection"
    
 Set P-T conditions
@@ -55,6 +57,8 @@ Set P-T conditions
 .. image:: /figs/GUI_PT.png
    :width: 240
    :align: center
+   
+|
 
 #. Use the default pressure and temperature range and change the pressure step to 4 kbar and the temperature to 100 °C
 
@@ -67,6 +71,8 @@ Mesh refinement and computation options
    :width: 240
    :align: center
    
+|
+ 
 #. Change the default refinement value to 4
 #. Use default value for verbose
 #. Activate parallel computation by ticking the box "Compute all points at once"
@@ -79,6 +85,8 @@ Mesh refinement and computation options
    :width: 240
    :align: center
    
+|
+
 #. Change "# of MPI ranks" according to the number of core available on your machine
 #. Change "mpiexec path" to your own mpi path e.g. commonly "/usr/bin/" for Linux-based system
 #. Leave "Perform computations on remote server" unticked
@@ -92,6 +100,8 @@ Choose bulk-rock composition
    :width: 240
    :align: center
    
+|
+ 
 #. Use default option "pre-defined test 0" (KLB-1 peridotite)
 
 Compute pseudosection
@@ -103,11 +113,15 @@ Compute pseudosection
    :width: 480
    :align: center
    
+|
+
 #. Click on "Start new computation" at the bottom of the "Thermodynamics" panel to launch the computation. If everything is correctly setup it should opens the folloying window
 
 .. image:: /figs/GUI_running.png
    :width: 240
    :align: center
+   
+|
 
 - At the end of each refinement step, a set of 3 figures are displayed and updated. They show the "melt fraction", the "adaptive mesh refinement" and "the number of stable phases"
 
@@ -123,6 +137,8 @@ Compute pseudosection
    :width: 480
    :align: center
    
+|
+
 Refine pseudosection
 ********************
    
@@ -131,6 +147,8 @@ Refine pseudosection
 .. image:: /figs/GUI_PS_refine.png
    :width: 480
    :align: center
+   
+|
 
 #. click on "Refine all phase boundaries" in the bottom right corner, and then "Start computation"
 
@@ -143,18 +161,23 @@ Change displayed field
    :width: 480
    :align: center
    
+|
+
 1. To display the variance click on the "Plot color" menu and select "Variance"
 
 .. image:: /figs/GUI_pcolor.png
    :width: 240
    :align: center
    
+|
+ 
 2. To hide the mesh refinement grid click, set "Show edges" to "Off", which gives
 
 .. image:: /figs/GUI_variance.png
    :width: 480
    :align: center
-
+   
+|
 
 Display stable phases labels
 ****************************
@@ -165,13 +188,19 @@ Display stable phases labels
 	:width: 240
 	:align: center
    
+|
+
 #. Tick "Add phase labels" and then click on the different fields to display the stable mineral assemblage directly on the grid such as
 
 .. image:: /figs/GUI_label.png
 	:width: 480
 	:align: center
+   
+|
 	
 Note that the label box position, with respect to the field you click on, remains the same e.g. in a top-right position. If you miss-clicked and two boxes overlap, don't panick, you can always click on "remove last label", or even "remove all labels" and redo the process
+   
+|
 
 Save pseudosection data
 ************************
@@ -181,13 +210,15 @@ Save pseudosection data
 .. image:: /figs/GUI_save.png
 	:width: 240
 	:align: center
+   
+|
 
 1. To save the pseudosection data come back to the simulation window, by clicking on the top left "simulation" tab. Then click on "save". This created the following file
 
 .. code-block:: shell
 	
 	KLB-1_pseudosection.mat
-	
+ 
 2. If you close and relaunch the GUI, you can load the saved pseudosection by entering its name in the "Filename" window and click on "load". Note that loading can potentially take a long time if the pseudosection you saved contains a large number of points
 
 

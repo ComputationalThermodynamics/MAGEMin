@@ -1,6 +1,6 @@
 .. MAGEMin documentation
 
-.. image:: /figs/MAGMA_Logo.png
+.. image:: /figs/MAGMA_Logo2.png
    :width: 420
    :align: right
 
@@ -75,4 +75,10 @@ Contributors
      
 *Contacts: nriel@uni-mainz.de, kaus@uni-mainz.de*
 
-**This open source project was funded by the European Research Council through the MAGMA project, ERC Consolidator Grant #771143**
+.. image:: /figs/Magma_alone_Logo.png
+   :width: 240
+   :align: right
+   
+This open source project was funded by the European Research Council through the `MAGMA`_.  project, ERC Consolidator Grant #771143
+
+.. _MAGMA: https://magma.uni-mainz.de
