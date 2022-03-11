@@ -109,7 +109,7 @@ The Gibbs minimization approach employed in MAGEMin combines discretization of t
 	:width: 640
 	:align: center
 
-----
+|
 
 Algorithm demonstration
 =======================

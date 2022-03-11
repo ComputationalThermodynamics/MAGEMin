@@ -3,6 +3,8 @@
 .. image:: /figs/GUI_label.png
 	:width: 640
 	:align: center
+   
+|
 
 Usage		  
 =====
@@ -199,8 +201,7 @@ Display stable phases labels
 |
 	
 Note that the label box position, with respect to the field you click on, remains the same e.g. in a top-right position. If you miss-clicked and two boxes overlap, don't panick, you can always click on "remove last label", or even "remove all labels" and redo the process
-   
-|
+
 
 Save pseudosection data
 ************************
