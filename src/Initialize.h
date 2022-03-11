@@ -143,7 +143,8 @@ struct bulk_info zeros_in_bulk(double *bulk, double P, double T) {
 global_variable global_variable_init(){
 	global_variable gv;
 	
-	gv.version 			= malloc(15 * sizeof(char));
+	gv.outpath 			= malloc(100 * sizeof(char));
+	gv.version 			= malloc(15  * sizeof(char));
 	gv.len_pp      		= 10;	
 	
 	/* Control center... */
@@ -152,12 +153,16 @@ global_variable global_variable_init(){
 	char   *ox_tmp[] 		= {"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"Cr2O3","H2O"								};
 	char   *PP_tmp[] 		= {"q"		,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"										};
 	char   *SS_tmp[]     	= {"spn"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"hb"	,"ilm"	,"liq"	,"mu"	,"ol"	,"opx"	,"pl4T"	,"fl"		};
+	/* next entry is a flag to check for wrong local minimum/solvus when getting close to solution */
 	int     verifyPC_tmp[]	= {1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1			};
 	int 	n_SS_PC_tmp[]   = {4996		,2587	,121	,4529	,110	,972	,6801	,420	,3099	,2376	,222	,1735	,231	,1			};
 	double 	SS_PC_stp_tmp[] = {0.199	,0.124	,0.098	,0.249	,0.049	,0.198	,0.329	,0.0499	,0.198	,0.198	,0.098	,0.249	,0.049	,1.0 		};
 
 	/* system parameters */
+
+	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
 	strcpy(gv.version,"1.0.0");					/** MAGEMin version 																*/
+	
 	gv.len_ox           = 11;					/** number of components in the system 												*/
 	gv.max_n_cp 		= 64;					/** number of considered solution phases 											*/									
 	gv.verbose          = 1;					/** verbose: 0, no verbose; 1, full verbose 										*/
@@ -213,10 +218,7 @@ global_variable global_variable_init(){
 	gv.gb_T_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
 
 
-	/* output path for log */
-	gv.outpath = malloc(100 * sizeof(char));
-	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	
+
 	/* initialize other values */
 	gv.alpha        	= gv.max_fac;				/** active under-relaxing factor 													*/
 	gv.len_ss          	= (int)(sizeof(n_SS_PC_tmp) / sizeof(n_SS_PC_tmp[0] ));					/** number of solution phases taken into accounnt									*/
@@ -457,23 +459,8 @@ void get_bulk(double *bulk_rock, int test, int n_El) {
 		bulk_rock[8]  = 0.41;
 		bulk_rock[9]  = 0.01;
 		bulk_rock[10] =	0.0;
-	}
-	else if (test == 5){
-		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
-		/* Granite Stern et al 1975 */
-		bulk_rock[0] = 81.93;	
-		bulk_rock[1] = 8.65;	
-		bulk_rock[2] = 1.16;	
-		bulk_rock[3] = 0.16;	
-		bulk_rock[4] = 0.57;	
-		bulk_rock[5] = 3.19;	
-		bulk_rock[6]  = 4.21;
-		bulk_rock[7]  = 0.12;
-		bulk_rock[8]  = 0.04;
-		bulk_rock[9]  = 0.01;
-		bulk_rock[10] =	0.0;
 	}	
-	else if (test == 6){
+	else if (test == 5){
 		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
 		/* Tonalite 101 */
 		bulk_rock[0] = 66.01;	
@@ -488,7 +475,7 @@ void get_bulk(double *bulk_rock, int test, int n_El) {
 		bulk_rock[9]  = 0.01;
 		bulk_rock[10] =	50.0;
 	}		
-	else if (test == 19){
+	else if (test == 6){
 		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
 		/* Bulk rock composition of test 8 */
 		bulk_rock[0] = 50.0810;	

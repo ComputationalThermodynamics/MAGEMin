@@ -11,46 +11,6 @@ List of objective functions used for non-linear minimization and to generate pse
 #include "nlopt.h"
 #include "MAGEMin.h"
 
-//#define len_ss 13
-
-/** 
-  debugging function to print out NLopt iteration verbose
-*/
-void print_iteration_output(void *SS_ref_db, const double *x)
-{
-	SS_ref *d  = (SS_ref *) SS_ref_db;
-
-	int    i;
-	double df; 
-	
-
-	df = 0.0;
-	for (i = 0; i < d->n_em; i++){
-		df += d->mu[i]*d->p[i];
-	}
-
-	for (i = 0; i < d->n_xeos; i++){	printf("%- .6e ", x[i]);				}
-	
-	printf("\n                                           grad  = ");
-	for (i = 0; i < d->n_xeos; i++){	printf("%- .6e ", d->dfx[i]);		}
-
-	printf("\n                                           mu_Gex= ");
-	for (i = 0; i < d->n_em; i++){		printf("%- .6e ", d->mu_Gex[i]);	}
-
-	printf("\n                                           p     = ");
-	for (i = 0; i < d->n_em; i++){		printf("%- .6e ", d->p[i]);			}
-
-	printf("\n                                           mu    = ");
-	for (i = 0; i < d->n_em; i++){		printf("%- .6e ", d->mu[i]);		}
-
-	printf("\n                                           gb    = ");
-	for (i = 0; i < d->n_em; i++){		printf("%- .6e ", d->gb_lvl[i]);		}
-
-	printf("\n                                           sf    = ");
-	for (i = 0; i < d->n_sf; i++){		printf("%- .6e ", d->sf[i]);		}
-	printf("\n");
-}
-
 /**
   function to make sure we don't get a NaN out of the log function 
 */
@@ -58,7 +18,6 @@ double fct_log(double a){
 	return log(fabs(a));
 };
 
-// CHOOSE DATABASE HERE?
 /** 
   endmembers to xeos (biotite)
 */

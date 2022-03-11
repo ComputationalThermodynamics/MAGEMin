@@ -12,8 +12,6 @@ typedef double (*obj_type) (	unsigned  		 n,
 void SS_objective_init_function(	obj_type 			*SS_objective,
 									global_variable 	 gv				);
 
-void print_iteration_output(void *SS_ref_db, const double *x);
-
 void p2x_bi(  SS_ref SS_ref_db, double eps);
 void p2x_cd(  SS_ref SS_ref_db, double eps);
 void p2x_cpx( SS_ref SS_ref_db, double eps);
