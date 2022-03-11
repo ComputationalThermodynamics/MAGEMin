@@ -91,8 +91,8 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ckbk.html#pseudosection-generator">Pseudosection generator</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/gui.html">Usage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../ckbk/gui.html#klb-1-tutorial">KLB-1 Tutorial</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../ckbk/gui.html#launch-gui">Launch GUI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/gui.html#klb-1-pseudosection-tutorial">KLB-1 Pseudosection tutorial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/gui.html#sarting-gui">Sarting GUI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../ckbk/gui.html#set-p-t-conditions">Set P-T conditions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../ckbk/gui.html#mesh-refinement-and-computation-options">Mesh refinement and computation options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../ckbk/gui.html#choose-bulk-rock-composition">Choose bulk-rock composition</a></li>
@@ -119,7 +119,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../src.html">Main algorithm</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="MAGEMin.html">MAGEMin</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="MAGEMin.html#mineral-assemblage-gibbs-energy-minimization">Mineral Assemblage Gibbs Energy Minimization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="MAGEMin.html#imported-libraries">Imported libraries</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="simplex_levelling.html">Simplex levelling</a></li>
@@ -185,12 +184,6 @@
   <section id="objective-functions">
 <h1>objective_functions<a class="headerlink" href="#objective-functions" title="Permalink to this headline"></a></h1>
 <p>List of objective functions used for non-linear minimization and to generate pseudocompounds</p>
-<dl class="c function">
-<dt class="sig sig-object c" id="c.print_iteration_output">
-<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">print_iteration_output</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.print_iteration_output" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.print_iteration_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>debugging function to print out NLopt iteration verbose</p>
-</dd></dl>
-
 <dl class="c function">
 <dt class="sig sig-object c" id="c.fct_log">
 <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fct_log</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">a</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.fct_log" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.fct_log"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>

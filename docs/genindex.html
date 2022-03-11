@@ -88,8 +88,8 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="ckbk.html#pseudosection-generator">Pseudosection generator</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="ckbk/gui.html">Usage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ckbk/gui.html#klb-1-tutorial">KLB-1 Tutorial</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="ckbk/gui.html#launch-gui">Launch GUI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ckbk/gui.html#klb-1-pseudosection-tutorial">KLB-1 Pseudosection tutorial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ckbk/gui.html#sarting-gui">Sarting GUI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="ckbk/gui.html#set-p-t-conditions">Set P-T conditions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="ckbk/gui.html#mesh-refinement-and-computation-options">Mesh refinement and computation options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="ckbk/gui.html#choose-bulk-rock-composition">Choose bulk-rock composition</a></li>
@@ -116,7 +116,6 @@
 <li class="toctree-l1"><a class="reference internal" href="src.html">Main algorithm</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="src/MAGEMin.html">MAGEMin</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="src/MAGEMin.html#mineral-assemblage-gibbs-energy-minimization">Mineral Assemblage Gibbs Energy Minimization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="src/MAGEMin.html#imported-libraries">Imported libraries</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="src/simplex_levelling.html">Simplex levelling</a></li>
@@ -242,15 +241,11 @@
 </li>
       <li><a href="src/toolkit.html#c.cleanUpMatrix">cleanUpMatrix (C function)</a>
 </li>
-      <li><a href="src/phase_update_function.html#c.cmp_dbl">cmp_dbl (C function)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src/phase_update_function.html#c.cmp_dbl">cmp_dbl (C function)</a>
+</li>
       <li><a href="src/phase_update_function.html#c.cmp_int">cmp_int (C function)</a>
-</li>
-      <li><a href="src/MAGEMin.html#c.ComputeEquilibrium_Point">ComputeEquilibrium_Point (C function)</a>
-</li>
-      <li><a href="src/MAGEMin.html#c.ComputePostProcessing">ComputePostProcessing (C function)</a>
 </li>
       <li><a href="src/ss_min_function.html#c.CP_destroy">CP_destroy (C function)</a>
 </li>
@@ -332,13 +327,11 @@
 </li>
       <li><a href="src/simplex_levelling.html#c.fill_simplex_arrays_A">fill_simplex_arrays_A (C function)</a>
 </li>
-      <li><a href="src/simplex_levelling.html#c.filter_hld_PC">filter_hld_PC (C function)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/NLopt_opt_function.html#c.fl_c">fl_c (C function)</a>
+      <li><a href="src/simplex_levelling.html#c.filter_hld_PC">filter_hld_PC (C function)</a>
 </li>
-      <li><a href="src/MAGEMin.html#c.FreeDatabases">FreeDatabases (C function)</a>
+      <li><a href="src/NLopt_opt_function.html#c.fl_c">fl_c (C function)</a>
 </li>
       <li><a href="src/toolkit.html#c.freeMatrix">freeMatrix (C function)</a>
 </li>
@@ -464,8 +457,6 @@
 </li>
       <li><a href="src/ss_min_function.html#c.init_ss_db">init_ss_db (C function)</a>
 </li>
-      <li><a href="src/MAGEMin.html#c.InitializeDatabases">InitializeDatabases (C function)</a>
-</li>
       <li><a href="src/toolkit.html#c.inverseMatrix">inverseMatrix (C function)</a>
 </li>
   </ul></td>
@@ -486,8 +477,6 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/MAGEMin.html#c.main">main (C function)</a>
-</li>
       <li><a href="src/toolkit.html#c.MatVecMul">MatVecMul (C function)</a>
 </li>
       <li><a href="src/toolkit.html#c.Maximum">Maximum (C function)</a>
@@ -612,10 +601,10 @@
 </li>
       <li><a href="src/PGE_function.html#c.PGE_update_solution">PGE_update_solution (C function)</a>
 </li>
-      <li><a href="src/PGE_function.html#c.PGE_update_xi">PGE_update_xi (C function)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src/PGE_function.html#c.PGE_update_xi">PGE_update_xi (C function)</a>
+</li>
       <li><a href="src/phase_update_function.html#c.phase_act2hold">phase_act2hold (C function)</a>
 </li>
       <li><a href="src/phase_update_function.html#c.phase_hold2act">phase_hold2act (C function)</a>
@@ -632,13 +621,9 @@
 </li>
       <li><a href="src/toolkit.html#c.print_cp">print_cp (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.print_iteration_output">print_iteration_output (C function)</a>
-</li>
       <li><a href="src/simplex_levelling.html#c.print_levelling">print_levelling (C function)</a>
 </li>
       <li><a href="src/toolkit.html#c.print_SS_informations">print_SS_informations (C function)</a>
-</li>
-      <li><a href="src/MAGEMin.html#c.PrintOutput">PrintOutput (C function)</a>
 </li>
       <li><a href="src/objective_functions.html#c.px_bi">px_bi (C function)</a>
 </li>
@@ -678,8 +663,6 @@
 </li>
       <li><a href="src/io_function.html#c.read_in_data">read_in_data (C function)</a>
 </li>
-      <li><a href="src/MAGEMin.html#c.ReadCommandLineOptions">ReadCommandLineOptions (C function)</a>
-</li>
       <li><a href="src/simplex_levelling.html#c.reduce_ss_list">reduce_ss_list (C function)</a>
 </li>
       <li><a href="src/ss_min_function.html#c.reset_global_variables">reset_global_variables (C function)</a>
@@ -701,8 +684,6 @@
       <li><a href="src/simplex_levelling.html#c.run_simplex_vPC_only">run_simplex_vPC_only (C function)</a>
 </li>
       <li><a href="src/simplex_levelling.html#c.run_simplex_vPC_stage1">run_simplex_vPC_stage1 (C function)</a>
-</li>
-      <li><a href="src/MAGEMin.html#c.runMAGEMin">runMAGEMin (C function)</a>
 </li>
   </ul></td>
 </tr></table>

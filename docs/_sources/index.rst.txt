@@ -79,6 +79,6 @@ Contributors
    :width: 240
    :align: right
    
-This open source project was funded by the European Research Council through the `MAGMA`_.  project, ERC Consolidator Grant #771143
+This open source project was funded by the European Research Council through the `MAGMA`_ project, ERC Consolidator Grant #771143
 
 .. _MAGMA: https://magma.uni-mainz.de

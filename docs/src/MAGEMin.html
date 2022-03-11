@@ -91,8 +91,8 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ckbk.html#pseudosection-generator">Pseudosection generator</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/gui.html">Usage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../ckbk/gui.html#klb-1-tutorial">KLB-1 Tutorial</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../ckbk/gui.html#launch-gui">Launch GUI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/gui.html#klb-1-pseudosection-tutorial">KLB-1 Pseudosection tutorial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/gui.html#sarting-gui">Sarting GUI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../ckbk/gui.html#set-p-t-conditions">Set P-T conditions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../ckbk/gui.html#mesh-refinement-and-computation-options">Mesh refinement and computation options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../ckbk/gui.html#choose-bulk-rock-composition">Choose bulk-rock composition</a></li>
@@ -119,7 +119,6 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../src.html">Main algorithm</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">MAGEMin</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#mineral-assemblage-gibbs-energy-minimization">Mineral Assemblage Gibbs Energy Minimization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#imported-libraries">Imported libraries</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="simplex_levelling.html">Simplex levelling</a></li>
@@ -192,73 +191,7 @@
 <li><p>Database translation and debugging: Green E., Berlie N., and Rummel L.</p></li>
 </ul>
 <p>Contacts: nriel[at]uni-mainz.de, kaus[at]uni-mainz.de</p>
-<p>C routine to compute a stable mineralogical assemblage
-using Gibbs Energy Minimization.
-We employ a Partitioning Gibbs Energy strategy coupled
-with local non-linear constrained minimization to solve
-for phase equilibria at constant P,T and bulk-rock.</p>
-<ul class="simple">
-<li><p>Igneous thermodynamic database (Holland et al., 2008)</p></li>
-<li><p>KNCFMASHTOCr chemical space</p></li>
-<li><p>Solid solutions (biotite, clinopyroxene, cordierite, epidote, fluids, garnet, hornblende, ilmenite, K-felspar, liquid, muscovite, olivine, orthopyroxene, plagioclase, spinel)</p></li>
-</ul>
-</section>
-<section id="imported-libraries">
-<h2>Imported libraries<a class="headerlink" href="#imported-libraries" title="Permalink to this headline"></a></h2>
-<ul class="simple">
-<li><p>LAPACKE (C version of LAPACK)</p></li>
-<li><p>NLopt  (<a class="reference external" href="https://nlopt.readthedocs.io/">https://nlopt.readthedocs.io/</a>)</p></li>
-<li><p>uthash (<a class="reference external" href="https://troydhanson.github.io/uthash/">https://troydhanson.github.io/uthash/</a>)</p></li>
-<li><p>ketopt (<a class="reference external" href="https://github.com/attractivechaos/klib/blob/master/ketopt.h">https://github.com/attractivechaos/klib/blob/master/ketopt.h</a>)</p></li>
-</ul>
-<dl class="c function">
-<dt class="sig sig-object c" id="c.main">
-<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">main</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">argc</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">argv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.main" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/MAGEMin.c.html#c.main"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>Main routine</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.runMAGEMin">
-<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">runMAGEMin</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">argc</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">argv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.runMAGEMin" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/MAGEMin.c.html#c.runMAGEMin"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>call MAGEMin</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.ComputePostProcessing">
-<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ComputePostProcessing</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">PP_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">PP_ref_db</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="n"><span class="pre">csd_phase_set</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">cp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.ComputePostProcessing" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/MAGEMin.c.html#c.ComputePostProcessing"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>Compute stable equilibrium at given P/T/C point</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.ComputeEquilibrium_Point">
-<span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ComputeEquilibrium_Point</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">io_data</span></span><span class="w"> </span><span class="n"><span class="pre">input_data</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">Mode</span></span>, <span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">PP_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">PP_ref_db</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="n"><span class="pre">csd_phase_set</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">cp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.ComputeEquilibrium_Point" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/MAGEMin.c.html#c.ComputeEquilibrium_Point"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>Compute stable equilibrium at given P/T/C point</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.ReadCommandLineOptions">
-<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ReadCommandLineOptions</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">argc</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">argv</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">Mode_out</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">Verb_out</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">test_out</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">n_points_out</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">P</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">T</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">Bulk</span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">11</span></span><span class="p"><span class="pre">]</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">Gam</span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">11</span></span><span class="p"><span class="pre">]</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">InitEM_Prop</span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">15</span></span><span class="p"><span class="pre">]</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="n"><span class="pre">File</span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">50</span></span><span class="p"><span class="pre">]</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="n"><span class="pre">Phase</span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">50</span></span><span class="p"><span class="pre">]</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">n_pc_out</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">maxeval_out</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.ReadCommandLineOptions" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/MAGEMin.c.html#c.ReadCommandLineOptions"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>Get command line options</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.InitializeDatabases">
-<span class="n"><span class="pre">Databases</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">InitializeDatabases</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.InitializeDatabases" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/MAGEMin.c.html#c.InitializeDatabases"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>Initiatizes the endmember and solid solution databases and adds them to a single struct</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.FreeDatabases">
-<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">FreeDatabases</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">Databases</span></span><span class="w"> </span><span class="n"><span class="pre">DB</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.FreeDatabases" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/MAGEMin.c.html#c.FreeDatabases"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>Free the memory associated with the databases</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.PrintOutput">
-<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">PrintOutput</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">rank</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">l</span></span>, <span class="n"><span class="pre">Databases</span></span><span class="w"> </span><span class="n"><span class="pre">DB</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">time_taken</span></span>, <span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.PrintOutput" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/MAGEMin.c.html#c.PrintOutput"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>This prints output on screen</p>
-</dd></dl>
-
+<p>MAGEMin is written as a parallel C library callable from any petrological/geodynamic tool. For a given set of pressure, temperature and bulk-rock composition MAGEMin uses a combination of linear programming, extended Partitioning Gibbs free Energy and gradient-based local minimization to compute the most stable mineral assemblage</p>
 </section>
 </section>
 

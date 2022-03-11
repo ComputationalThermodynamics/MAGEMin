@@ -18,13 +18,13 @@ In order to generate pseudosection (including isochemical phase diagrams) we pro
 - Possibility to save and load pseudosection
 - Various display options including, stable phases, Gibbs energy, phase fractions, phase compositions (isopleth), densities etc...
 
-KLB-1 Tutorial
-==============
+KLB-1 Pseudosection tutorial
+============================
 
 As a simple tutorial we present the necessary steps needed to produce a pseudosection for KLB-1 peridotite in the KNCFMASTOCr chemical system and from 0.0 to 50 kbar and 800 to 2000°C.
 
-Launch GUI
-**********
+Sarting GUI
+***********
 
 Using MATLAB (2019+) launch the GUI within MAGEMin working directory
 

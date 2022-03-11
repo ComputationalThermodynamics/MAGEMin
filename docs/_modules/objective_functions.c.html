@@ -88,8 +88,8 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ckbk.html#pseudosection-generator">Pseudosection generator</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/gui.html">Usage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../ckbk/gui.html#klb-1-tutorial">KLB-1 Tutorial</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../ckbk/gui.html#launch-gui">Launch GUI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/gui.html#klb-1-pseudosection-tutorial">KLB-1 Pseudosection tutorial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/gui.html#sarting-gui">Sarting GUI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../ckbk/gui.html#set-p-t-conditions">Set P-T conditions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../ckbk/gui.html#mesh-refinement-and-computation-options">Mesh refinement and computation options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../ckbk/gui.html#choose-bulk-rock-composition">Choose bulk-rock composition</a></li>
@@ -116,7 +116,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../src.html">Main algorithm</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../src/MAGEMin.html">MAGEMin</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../src/MAGEMin.html#mineral-assemblage-gibbs-energy-minimization">Mineral Assemblage Gibbs Energy Minimization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../src/MAGEMin.html#imported-libraries">Imported libraries</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../src/simplex_levelling.html">Simplex levelling</a></li>
@@ -191,46 +190,6 @@
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;nlopt.h&quot;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;MAGEMin.h&quot;</span><span class="cp"></span>
 
-<span class="c1">//#define len_ss 13</span>
-
-<div class="viewcode-block" id="c.print_iteration_output"><a class="viewcode-back" href="../src/objective_functions.html#c.print_iteration_output">[docs]</a><span class="cm">/** </span>
-<span class="cm">  debugging function to print out NLopt iteration verbose</span>
-<span class="cm">*/</span><span class="w"></span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">print_iteration_output</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">SS_ref_db</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">x</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">	</span><span class="n">SS_ref</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">SS_ref</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">;</span><span class="w"></span>
-
-<span class="w">	</span><span class="kt">int</span><span class="w">    </span><span class="n">i</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">df</span><span class="p">;</span><span class="w"> </span>
-<span class="w">	</span>
-
-<span class="w">	</span><span class="n">df</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_em</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">		</span><span class="n">df</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">mu</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
-<span class="w">	</span><span class="p">}</span><span class="w"></span>
-
-<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_xeos</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%- .6e &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span><span class="w">				</span><span class="p">}</span><span class="w"></span>
-<span class="w">	</span>
-<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">                                           grad  = &quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_xeos</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%- .6e &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">dfx</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span><span class="w">		</span><span class="p">}</span><span class="w"></span>
-
-<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">                                           mu_Gex= &quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_em</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%- .6e &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">mu_Gex</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span><span class="w">	</span><span class="p">}</span><span class="w"></span>
-
-<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">                                           p     = &quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_em</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%- .6e &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span><span class="w">			</span><span class="p">}</span><span class="w"></span>
-
-<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">                                           mu    = &quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_em</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%- .6e &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">mu</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span><span class="w">		</span><span class="p">}</span><span class="w"></span>
-
-<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">                                           gb    = &quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_em</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%- .6e &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">gb_lvl</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span><span class="w">		</span><span class="p">}</span><span class="w"></span>
-
-<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">                                           sf    = &quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_sf</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%- .6e &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">sf</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span><span class="w">		</span><span class="p">}</span><span class="w"></span>
-<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span></div>
-
 <div class="viewcode-block" id="c.fct_log"><a class="viewcode-back" href="../src/objective_functions.html#c.fct_log">[docs]</a><span class="cm">/**</span>
 <span class="cm">  function to make sure we don&#39;t get a NaN out of the log function </span>
 <span class="cm">*/</span><span class="w"></span>
@@ -238,7 +197,6 @@
 <span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">log</span><span class="p">(</span><span class="n">fabs</span><span class="p">(</span><span class="n">a</span><span class="p">));</span><span class="w"></span>
 <span class="p">};</span><span class="w"></span></div>
 
-<span class="c1">// CHOOSE DATABASE HERE?</span>
 <div class="viewcode-block" id="c.p2x_bi"><a class="viewcode-back" href="../src/objective_functions.html#c.p2x_bi">[docs]</a><span class="cm">/** </span>
 <span class="cm">  endmembers to xeos (biotite)</span>
 <span class="cm">*/</span><span class="w"></span>

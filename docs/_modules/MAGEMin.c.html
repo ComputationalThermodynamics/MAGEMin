@@ -88,8 +88,8 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ckbk.html#pseudosection-generator">Pseudosection generator</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/gui.html">Usage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../ckbk/gui.html#klb-1-tutorial">KLB-1 Tutorial</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../ckbk/gui.html#launch-gui">Launch GUI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/gui.html#klb-1-pseudosection-tutorial">KLB-1 Pseudosection tutorial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/gui.html#sarting-gui">Sarting GUI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../ckbk/gui.html#set-p-t-conditions">Set P-T conditions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../ckbk/gui.html#mesh-refinement-and-computation-options">Mesh refinement and computation options</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../ckbk/gui.html#choose-bulk-rock-composition">Choose bulk-rock composition</a></li>
@@ -116,7 +116,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../src.html">Main algorithm</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../src/MAGEMin.html">MAGEMin</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../src/MAGEMin.html#mineral-assemblage-gibbs-energy-minimization">Mineral Assemblage Gibbs Energy Minimization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../src/MAGEMin.html#imported-libraries">Imported libraries</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../src/simplex_levelling.html">Simplex levelling</a></li>
@@ -188,24 +187,29 @@
 <span class="cm">- Database translation and debugging: Green E., Berlie N., and Rummel L. </span>
 <span class="cm">     </span>
 <span class="cm">Contacts: nriel[at]uni-mainz.de, kaus[at]uni-mainz.de 		 </span>
-<span class="cm">                                                         </span>
-<span class="cm">C routine to compute a stable mineralogical assemblage </span>
-<span class="cm">using Gibbs Energy Minimization. </span>
-<span class="cm">We employ a Partitioning Gibbs Energy strategy coupled  </span>
-<span class="cm">with local non-linear constrained minimization to solve </span>
-<span class="cm">for phase equilibria at constant P,T and bulk-rock.     </span>
-<span class="cm">                              </span>
-<span class="cm">- Igneous thermodynamic database (Holland et al., 2008)</span>
-<span class="cm">- KNCFMASHTOCr chemical space                           </span>
-<span class="cm">- Solid solutions (biotite, clinopyroxene, cordierite, epidote, fluids, garnet, hornblende, ilmenite, K-felspar, liquid, muscovite, olivine, orthopyroxene, plagioclase, spinel) </span>
-
+<span class="cm">                                                                                                  </span>
+<span class="cm">MAGEMin is written as a parallel C library callable from any petrological/geodynamic tool. For a given set of pressure, temperature and bulk-rock composition MAGEMin uses a combination of linear programming, extended Partitioning Gibbs free Energy and gradient-based local minimization to compute the most stable mineral assemblage     </span>
+<span class="cm">      </span>
+<span class="cm">Available thermodynamic dataset                       </span>
+<span class="cm">================================</span>
+<span class="cm"> </span>
+<span class="cm">Igneous thermodynamic dataset</span>
+<span class="cm">*****************************</span>
+<span class="cm">                    </span>
+<span class="cm">- Holland et al., 2018 (see http://hpxeosandthermocalc.org)</span>
+<span class="cm">- K2O-Na2O-CaO-FeO-MgO-Al2O3-SiO2-H2O-TiO2-O-Cr2O3 chemical system</span>
+<span class="cm">- Equations of state for</span>
+<span class="cm">	- Pure stoichiometric phases quartz (q), cristobalite (crst), tridymite (trd), coesite (coe), stishovite (stv), kyanite (ky), sillimanite (sill), andalusite (and), rutile (ru) and sphene (sph). </span>
+<span class="cm">	- Solution phases spinel (spn), biotite (bi), cordierite (cd), clinopyroxene (cpx), orthopyroxene (opx), epidote (ep), garnet (g), hornblende (hb), ilmenite (ilm), silicate melt (liq), muscovite (mu), olivine (ol), ternary feldspar (pl4T), and aqueous fluid (fl).</span>
 <span class="cm">                                                    </span>
 <span class="cm">Imported libraries                       </span>
-<span class="cm">------------------</span>
+<span class="cm">==================</span>
+
 <span class="cm">- LAPACKE (C version of LAPACK)                         </span>
 <span class="cm">- NLopt  (https://nlopt.readthedocs.io/)                </span>
 <span class="cm">- uthash (https://troydhanson.github.io/uthash/)        </span>
 <span class="cm">- ketopt (https://github.com/attractivechaos/klib/blob/master/ketopt.h) </span>
+<span class="cm">   </span>
 <span class="cm"> */</span><span class="w"></span>
 
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;math.h&gt;</span><span class="cp"></span>
@@ -238,7 +242,7 @@
 
 <div class="viewcode-block" id="c.n_em_db"><span class="cp">#define n_em_db 291</span></div>
 
-<div class="viewcode-block" id="c.main"><a class="viewcode-back" href="../src/MAGEMin.html#c.main">[docs]</a><span class="cm">/** </span>
+<div class="viewcode-block" id="c.main"><span class="cm">/** </span>
 <span class="cm">  Main routine</span>
 <span class="cm">*/</span><span class="w"></span>
 <span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="n">argv</span><span class="p">){</span><span class="w"></span>
@@ -254,7 +258,7 @@
 <span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span></div>
 
-<div class="viewcode-block" id="c.runMAGEMin"><a class="viewcode-back" href="../src/MAGEMin.html#c.runMAGEMin">[docs]</a><span class="cm">/** </span>
+<div class="viewcode-block" id="c.runMAGEMin"><span class="cm">/** </span>
 <span class="cm">  call MAGEMin</span>
 <span class="cm">*/</span><span class="w"></span>
 <span class="kt">int</span><span class="w"> </span><span class="nf">runMAGEMin</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="n">argv</span><span class="p">){</span><span class="w"></span>
@@ -446,7 +450,7 @@
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span></div>
 
-<div class="viewcode-block" id="c.ComputePostProcessing"><a class="viewcode-back" href="../src/MAGEMin.html#c.ComputePostProcessing">[docs]</a><span class="cm">/** </span>
+<div class="viewcode-block" id="c.ComputePostProcessing"><span class="cm">/** </span>
 <span class="cm">  Compute stable equilibrium at given P/T/C point</span>
 <span class="cm">*/</span><span class="w"></span>
 <span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">ComputePostProcessing</span><span class="p">(</span><span class="w">			</span><span class="kt">int</span><span class="w"> 				</span><span class="n">EM_database</span><span class="p">,</span><span class="w"></span>
@@ -614,7 +618,7 @@
 <span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">VOL_SYS </span><span class="se">\t</span><span class="s"> %+10f</span><span class="se">\n</span><span class="s">RHO_SYS  </span><span class="se">\t</span><span class="s">  %+10f</span><span class="se">\n</span><span class="s">MASS_RES </span><span class="se">\t</span><span class="s"> %+10f</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">sum_volume</span><span class="p">,</span><span class="n">system_density</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">BR_norm</span><span class="p">);</span><span class="w">	</span>
 <span class="p">}</span><span class="w"></span></div>
 
-<div class="viewcode-block" id="c.ComputeEquilibrium_Point"><a class="viewcode-back" href="../src/MAGEMin.html#c.ComputeEquilibrium_Point">[docs]</a><span class="cm">/** </span>
+<div class="viewcode-block" id="c.ComputeEquilibrium_Point"><span class="cm">/** </span>
 <span class="cm">  Compute stable equilibrium at given P/T/C point</span>
 <span class="cm">*/</span><span class="w"></span>
 <span class="n">global_variable</span><span class="w"> </span><span class="nf">ComputeEquilibrium_Point</span><span class="p">(</span><span class="w"> 		</span><span class="kt">int</span><span class="w"> 				 </span><span class="n">EM_database</span><span class="p">,</span><span class="w"></span>
@@ -762,7 +766,7 @@
 <span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">gv</span><span class="p">;</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span></div>
 
-<div class="viewcode-block" id="c.ReadCommandLineOptions"><a class="viewcode-back" href="../src/MAGEMin.html#c.ReadCommandLineOptions">[docs]</a><span class="cm">/** </span>
+<div class="viewcode-block" id="c.ReadCommandLineOptions"><span class="cm">/** </span>
 <span class="cm">  Get command line options</span>
 <span class="cm">*/</span><span class="w"></span>
 <span class="kt">int</span><span class="w"> </span><span class="nf">ReadCommandLineOptions</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">argv</span><span class="p">,</span><span class="w"> 	</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">Mode_out</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">Verb_out</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">test_out</span><span class="p">,</span><span class="w"> </span>
@@ -891,7 +895,7 @@
 <span class="p">}</span><span class="w"> </span></div>
 
 <span class="w">	</span>
-<div class="viewcode-block" id="c.InitializeDatabases"><a class="viewcode-back" href="../src/MAGEMin.html#c.InitializeDatabases">[docs]</a><span class="cm">/** </span>
+<div class="viewcode-block" id="c.InitializeDatabases"><span class="cm">/** </span>
 <span class="cm">  Initiatizes the endmember and solid solution databases and adds them to a single struct</span>
 <span class="cm">**/</span><span class="w"></span>
 <span class="n">Databases</span><span class="w"> </span><span class="nf">InitializeDatabases</span><span class="p">(</span><span class="n">global_variable</span><span class="w"> </span><span class="n">gv</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">EM_database</span><span class="p">){</span><span class="w"></span>
@@ -948,7 +952,7 @@
 <span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">DB</span><span class="p">;</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span></div>
 
-<div class="viewcode-block" id="c.FreeDatabases"><a class="viewcode-back" href="../src/MAGEMin.html#c.FreeDatabases">[docs]</a><span class="cm">/** </span>
+<div class="viewcode-block" id="c.FreeDatabases"><span class="cm">/** </span>
 <span class="cm">  Free the memory associated with the databases</span>
 <span class="cm">**/</span><span class="w"></span>
 <span class="kt">void</span><span class="w"> </span><span class="nf">FreeDatabases</span><span class="p">(</span><span class="w">		</span><span class="n">global_variable</span><span class="w"> </span><span class="n">gv</span><span class="p">,</span><span class="w"> </span>
@@ -972,7 +976,7 @@
 <span class="w">	</span><span class="n">free</span><span class="p">(</span><span class="n">DB</span><span class="p">.</span><span class="n">PP_ref_db</span><span class="p">);</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span></div>
 
-<div class="viewcode-block" id="c.PrintOutput"><a class="viewcode-back" href="../src/MAGEMin.html#c.PrintOutput">[docs]</a><span class="cm">/** </span>
+<div class="viewcode-block" id="c.PrintOutput"><span class="cm">/** </span>
 <span class="cm">  This prints output on screen</span>
 <span class="cm">**/</span><span class="w"></span>
 <span class="kt">void</span><span class="w"> </span><span class="nf">PrintOutput</span><span class="p">(</span><span class="w">	</span><span class="n">global_variable</span><span class="w"> 	</span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
