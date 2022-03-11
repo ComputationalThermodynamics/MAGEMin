@@ -1,3 +1,5 @@
+<img src="./pics/JGR_MAGMA_ERC.png" alt="drawing" width="480" alt="centered image"/>
+
 <img src="./pics/GUI.png" alt="drawing" width="640" alt="centered image"/>
 
 # Mineral Assemblage Gibbs Energy Minimization (MAGEMin)
