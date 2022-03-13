@@ -49,7 +49,7 @@ all: $(OBJECTS)
 	rm src/*.o
 
 lib: $(OBJECTS)
-	$(CC) -shared -fPIC  -o libMAGEMin.dylib $(OBJECTS) $(INC) $(LIBS) -lc
+	$(CC) -shared -fPIC  -o libMAGEMin.dylib $(OBJECTS) $(INC) $(LIBS)
  
 clean:
 	rm -f src/*.o *.dylib MAGEMin
