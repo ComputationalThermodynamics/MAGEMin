@@ -42,7 +42,7 @@ The Gibbs-Duhem constraint is defined as
 .. math:: 
    \sum_{j=1}^{C} \Gamma_{j} a_{ij} - \mu_{i} = 0
    
-where :math:`\Gamma_{j}` is the chemical potential of pure component (oxide) :math:`j` and :math:`a_{ij}` is the molar compositional of component j in end-member/pure phase i
+where :math:`\Gamma_{j}` is the chemical potential of pure component (oxide) :math:`j` and :math:`a_{ij}` is the molar compositional of component :math:`j` in end-member/pure phase :math:`i`
 
 3. Mass constraint
 ******************
@@ -58,8 +58,6 @@ Minimization approach
 =====================
 
 The Gibbs minimization approach employed in MAGEMin combines discretization of the equations of state in composition space with linear programming and extends the mass constrained Gibbs-hyperplane rotation method to account for the mixing-on-sites that takes place in silicate mineral solid solutions. For an exhaustive description of the methodology see Riel et (submitted). 
-
-
 
 .. image:: /figs/GFE_intro.png
 	:width: 640
