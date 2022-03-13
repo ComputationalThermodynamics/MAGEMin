@@ -1,6 +1,10 @@
 #ifndef __MAGEMIN_H_
 #define __MAGEMIN_H_
 
+#ifdef _WIN32
+#define mkdir(path,mode) _mkdir(path) 
+#endif
+
 #define n_em_db 291
 #define nEl 11
 
