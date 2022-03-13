@@ -13,22 +13,7 @@ The Gibbs energy of a multi-component multiphase system is given by the weighted
 .. math::
    G_{sys} = \sum_{\lambda=1}^{\Lambda} n_{\lambda} \sum_{i=1}^{N_{\lambda}} \mu_{i}(\lambda) p_{i}(\lambda) + \sum_{\omega=1}^{\Omega} n_{\omega} \mu_{\omega} 
 
-where  
-
-.. math:: 
-   n_{\lambda} 
-   
-is the molar fraction of the solution phase.
-
-.. math:: 
-   p_{\lambda} 
-   
-is the molar fraction of the endmembers
-
-.. math:: 
-   n_{\omega} 
-   
-is the molar fraction of the pure phase.
+where :math:`n_{\lambda}` is the molar fraction of the solution phase, :math:`p_{\lambda}` is the molar fraction of the endmembers and :math:`n_{\omega}` is the molar fraction of the pure phase.
 
 The chemical potential of a phase is either a constant for a condensed (pure) phase:
 
@@ -40,12 +25,7 @@ or a function for a phase within a solution:
 .. math:: 
    \mu_{i} = G_{i}^{0} + RTlog(a_{i}) + G_{i}^{ex}
 
-where
-
-.. math::
-   a_{i}
-
-is the thermochemical activity related to the mole fraction and the activity coefficient by
+where :math:`a_{i}` is the thermochemical activity related to the mole fraction and the activity coefficient by
 
 .. math::
    a_{i} = x_{i} \gamma_{i}
@@ -62,19 +42,7 @@ The Gibbs-Duhem constraint is defined as
 .. math:: 
    \sum_{j=1}^{C} \Gamma_{j} a_{ij} - \mu_{i} = 0
    
-where
-
-.. math:: 
-	\Gamma_{j}
-
-is the chemical potential of pure component (oxide) j
-
-and
-
-.. math:: 
-	a_{ij}
-	
-is the molar compositional of component j in end-member/pure phase i
+where :math:`\Gamma_{j}` is the chemical potential of pure component (oxide) :math:`j` and :math:`a_{ij}` is the molar compositional of component j in end-member/pure phase i
 
 3. Mass constraint
 ******************
@@ -84,19 +52,7 @@ The mass equality constraint is defined as
 .. math::
    \sum_{\lambda=1}^{\Lambda} n_{\lambda} \sum_{i=1}^{N_{\lambda}} a_{ij}(\lambda) p_{i}(\lambda) + \sum_{\omega=1}^{\Omega} n_{\omega} a_{\omega j} - b_j = 0
 
-where
-
-.. math::
-   a_{ij}
-   
-is the molar composition of component j in end-member i
-
-and
-
-.. math::
-   a_{\omega j}
-   
-is the molar composition of component j in a pure phase
+where :math:`a_{ij}` is the molar composition of component :math:`j` in end-member :math:`i`, and :math:`a_{\omega j}` is the molar composition of component j in a pure phase
 
 Minimization approach 
 =====================

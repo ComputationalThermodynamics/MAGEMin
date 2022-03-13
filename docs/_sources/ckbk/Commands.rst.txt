@@ -44,14 +44,28 @@ Here, the verbose is active and the bulk rock composition of *test 0* is selecte
 Multiple points	calculation	  
 ===========================
 
-When running multiple points using the command line argument *-\-file=path_to_file* several parameters can be passed to MAGEMin.
+When running multiple points using the command line argument 
 
-One line per point has to be provided as follows
+.. code-block:: shell
 
-+------------+----------------+----------------+---------+---------+-------+---------+
-|  Mode(0-1) | Pressure(kbar) | Temperature(C) | Gamma_1 | Gamma_2 | .\.\. | Gamma_n |
-+------------+----------------+----------------+---------+---------+-------+---------+
+	--file=path_to_file
+	
+several parameters have to be passed to MAGEMin. One line per point has to be provided as follows
 
-Note that mode = 0 for global minimization
++------------+----------------+----------------+---------+---------+-----+---------+
+|  Mode(0-1) | Pressure(kbar) | Temperature(C) | Gamma_1 | Gamma_2 | ... | Gamma_n |
++------------+----------------+----------------+---------+---------+-----+---------+
+
+- mode = 0 for global minimization
+- "Gamma_n" is the array of oxide chemical potential (defining the Gibbs-hyperplane). This functionality is in development and will be used in a future update to provide an initial guess of the Gibbs-hyperplane to improve performances.
+
+A valid list of point is for instance:
+
+.. code-block:: shell
+
+	0 0.0 800.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+	0 4.0 800.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+	0 8.0 800.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+	(...)
 
 

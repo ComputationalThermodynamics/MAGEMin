@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Main algorithm &mdash; MAGEMin 2022 documentation</title>
+  <title>Seismic velocity calculation &mdash; MAGEMin 2022 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -19,8 +19,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="MAGEMin" href="src/MAGEMin.html" />
-    <link rel="prev" title="Analytical formulation" href="dev/Dev.html" /> 
+    <link rel="next" title="Linux-based system" href="stp.html" />
+    <link rel="prev" title="Mineral Assemblage Gibbs Energy Minimization (MAGEMin)" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -40,8 +40,8 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">In development:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="news.html">Seismic velocity calculation</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Seismic velocity calculation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
 <ul>
@@ -119,8 +119,8 @@
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Source code:</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Main algorithm</a><ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="src.html">Main algorithm</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="src/MAGEMin.html">MAGEMin</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="src/MAGEMin.html#mineral-assemblage-gibbs-energy-minimization">Mineral Assemblage Gibbs Energy Minimization</a></li>
 </ul>
@@ -134,7 +134,7 @@
 <li class="toctree-l2"><a class="reference internal" href="src/dump_function.html">dump_function</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#pure-phases-functions">Pure phases functions</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="src.html#pure-phases-functions">Pure phases functions</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="src/gem_function.html">gem_function</a></li>
 <li class="toctree-l2"><a class="reference internal" href="src/pp_min_function.html">pp_min_function</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="src/pp_min_function.html#pure-phase-minimization-function">Pure phase minimization function</a></li>
@@ -142,7 +142,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#solution-phases-functions">Solution phases functions</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="src.html#solution-phases-functions">Solution phases functions</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="src/gss_init_function.html">gss_init_function</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="src/gss_init_function.html#pp-ss-flags">PP &amp; SS_flags</a></li>
 </ul>
@@ -153,7 +153,7 @@
 <li class="toctree-l2"><a class="reference internal" href="src/objective_functions.html">objective_functions</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#toolkit">Toolkit</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="src.html#toolkit">Toolkit</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="src/toolkit.html">toolkit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="src/io_function.html">io_function</a></li>
 </ul>
@@ -174,9 +174,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Main algorithm</li>
+      <li>Seismic velocity calculation</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/src.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/news.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -184,69 +184,23 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="main-algorithm">
-<h1>Main algorithm<a class="headerlink" href="#main-algorithm" title="Permalink to this headline"></a></h1>
-<a class="reference internal image-reference" href="_images/algo.png"><img alt="_images/algo.png" class="align-right" src="_images/algo.png" style="width: 300px;" /></a>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="src/MAGEMin.html">MAGEMin</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="src/MAGEMin.html#mineral-assemblage-gibbs-energy-minimization">Mineral Assemblage Gibbs Energy Minimization</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="src/simplex_levelling.html">Simplex levelling</a></li>
-<li class="toctree-l1"><a class="reference internal" href="src/PGE_function.html">PGE_function</a></li>
-<li class="toctree-l1"><a class="reference internal" href="src/phase_update_function.html">phase_update_function</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="src/phase_update_function.html#pp-ss-flags">PP &amp; SS_flags</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="src/dump_function.html">dump_function</a></li>
-</ul>
-</div>
-</section>
-<section id="pure-phases-functions">
-<h1>Pure phases functions<a class="headerlink" href="#pure-phases-functions" title="Permalink to this headline"></a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="src/gem_function.html">gem_function</a></li>
-<li class="toctree-l1"><a class="reference internal" href="src/pp_min_function.html">pp_min_function</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="src/pp_min_function.html#pure-phase-minimization-function">Pure phase minimization function</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</section>
-<section id="solution-phases-functions">
-<h1>Solution phases functions<a class="headerlink" href="#solution-phases-functions" title="Permalink to this headline"></a></h1>
-<a class="reference internal image-reference" href="_images/hb.png"><img alt="_images/hb.png" class="align-right" src="_images/hb.png" style="width: 256px;" /></a>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="src/gss_init_function.html">gss_init_function</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="src/gss_init_function.html#pp-ss-flags">PP &amp; SS_flags</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="src/gss_function.html">gss_function</a></li>
-<li class="toctree-l1"><a class="reference internal" href="src/ss_min_function.html">ss_min_function</a></li>
-<li class="toctree-l1"><a class="reference internal" href="src/NLopt_opt_function.html">NLopt_opt_function</a></li>
-<li class="toctree-l1"><a class="reference internal" href="src/objective_functions.html">objective_functions</a></li>
-</ul>
-</div>
-</section>
-<section id="toolkit">
-<h1>Toolkit<a class="headerlink" href="#toolkit" title="Permalink to this headline"></a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="src/toolkit.html">toolkit</a></li>
-<li class="toctree-l1"><a class="reference internal" href="src/io_function.html">io_function</a></li>
-</ul>
-</div>
+  <section id="seismic-velocity-calculation">
+<h1>Seismic velocity calculation<a class="headerlink" href="#seismic-velocity-calculation" title="Permalink to this headline"></a></h1>
+<p>We are working on adding the calculation of seismic velocities using the method described in Connolly and Kerrick (2002) such as</p>
+<div class="math">
+<p><img src="_images/math/e296e42ed3016d7e63f8f58e4c194323102db0c3.svg" alt="v_p = \sqrt{ \frac{K_s + 4 \mu / 3}{\rho}}"/></p>
+</div><p>and</p>
+<div class="math">
+<p><img src="_images/math/3c7b859c551577bcc436580254f31cf661f0d6f2.svg" alt="v_s = \sqrt{ \frac{\mu}{\rho}}"/></p>
+</div><p>where <img class="math" src="_images/math/322c023ed2656c17c7a1c58ed3d3b486126753fb.svg" alt="\rho"/> is the density, <img class="math" src="_images/math/560f0cbdc8826eaa1f530443d32e5370b88680b0.svg" alt="K_s"/> is the adiabatic shear modulus and <img class="math" src="_images/math/27f71248400d47ef18272c712f6aa22e756e0562.svg" alt="\mu"/> is the shear modulus.</p>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="dev/Dev.html" class="btn btn-neutral float-left" title="Analytical formulation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="src/MAGEMin.html" class="btn btn-neutral float-right" title="MAGEMin" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Mineral Assemblage Gibbs Energy Minimization (MAGEMin)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="stp.html" class="btn btn-neutral float-right" title="Linux-based system" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

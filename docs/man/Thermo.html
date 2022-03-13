@@ -39,7 +39,11 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">In development:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../news.html">Seismic velocity calculation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../stp.html">Linux-based system</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../stp/Linux.html">External libraries</a></li>
@@ -189,26 +193,14 @@
 <p>The Gibbs energy of a multi-component multiphase system is given by the weighted summation of the chemical potentials of all end-members and pure phases:</p>
 <div class="math">
 <p><img src="../_images/math/8f30c6a98f2c50c865135fa75dce37887542ab49.svg" alt="G_{sys} = \sum_{\lambda=1}^{\Lambda} n_{\lambda} \sum_{i=1}^{N_{\lambda}} \mu_{i}(\lambda) p_{i}(\lambda) + \sum_{\omega=1}^{\Omega} n_{\omega} \mu_{\omega}"/></p>
-</div><p>where</p>
-<div class="math">
-<p><img src="../_images/math/38c5638be5b7a3ea1b617f8b41f4354969a17268.svg" alt="n_{\lambda}"/></p>
-</div><p>is the molar fraction of the solution phase.</p>
-<div class="math">
-<p><img src="../_images/math/3befc2eaf46b5df772df0a66a3f96fe811e58ac0.svg" alt="p_{\lambda}"/></p>
-</div><p>is the molar fraction of the endmembers</p>
-<div class="math">
-<p><img src="../_images/math/a2b9b0b90aa5dc3efe658c9dc7ffa5a879ff15ec.svg" alt="n_{\omega}"/></p>
-</div><p>is the molar fraction of the pure phase.</p>
+</div><p>where <img class="math" src="../_images/math/a15bbdcb0d0e276c67b193adae14ea8f1252174a.svg" alt="n_{\lambda}"/> is the molar fraction of the solution phase, <img class="math" src="../_images/math/cad915734e8bd4a17984dd90665e33d6a76dcecf.svg" alt="p_{\lambda}"/> is the molar fraction of the endmembers and <img class="math" src="../_images/math/b039704e662607c0eb5f424ca2193a911650177c.svg" alt="n_{\omega}"/> is the molar fraction of the pure phase.</p>
 <p>The chemical potential of a phase is either a constant for a condensed (pure) phase:</p>
 <div class="math">
 <p><img src="../_images/math/2b0dd4585b64cf67811e7daf59086052c88160fe.svg" alt="\mu_{i} = G_{i}^{0}"/></p>
 </div><p>or a function for a phase within a solution:</p>
 <div class="math">
 <p><img src="../_images/math/2921a236347980802e39f8f4aaaf3f4c8ba9223e.svg" alt="\mu_{i} = G_{i}^{0} + RTlog(a_{i}) + G_{i}^{ex}"/></p>
-</div><p>where</p>
-<div class="math">
-<p><img src="../_images/math/c1b8f5cc947a9b19ecef1eaa8698b3d29d1c001b.svg" alt="a_{i}"/></p>
-</div><p>is the thermochemical activity related to the mole fraction and the activity coefficient by</p>
+</div><p>where <img class="math" src="../_images/math/ea430eb91088d201e776b54b30ecc2d8e1549fea.svg" alt="a_{i}"/> is the thermochemical activity related to the mole fraction and the activity coefficient by</p>
 <div class="math">
 <p><img src="../_images/math/2c8713da6d3ab8a597a94a5237b313ec02e8f250.svg" alt="a_{i} = x_{i} \gamma_{i}"/></p>
 </div><p>For the case of ideal mixing between the end-members, the activity coefficient is unity. The mixing of a species dissolved in a condensed phase, however rarely behaves ideally
@@ -219,28 +211,14 @@ and is typically a function of both temperature and composition (mixing-on-sites
 <p>The Gibbs-Duhem constraint is defined as</p>
 <div class="math">
 <p><img src="../_images/math/05b5ca00acd3a38a5c091c0d12594b114be96d0c.svg" alt="\sum_{j=1}^{C} \Gamma_{j} a_{ij} - \mu_{i} = 0"/></p>
-</div><p>where</p>
-<div class="math">
-<p><img src="../_images/math/359219b35433423a1d179920716712956a68da33.svg" alt="\Gamma_{j}"/></p>
-</div><p>is the chemical potential of pure component (oxide) j</p>
-<p>and</p>
-<div class="math">
-<p><img src="../_images/math/c225b8f2c7b377bb54e44a4ec8d0099f9a43dbdb.svg" alt="a_{ij}"/></p>
-</div><p>is the molar compositional of component j in end-member/pure phase i</p>
+</div><p>where <img class="math" src="../_images/math/c3bcd4f1b79dc9e62aea68f426edf63a8a6d9d5b.svg" alt="\Gamma_{j}"/> is the chemical potential of pure component (oxide) <img class="math" src="../_images/math/6c9288b85c20a09a2d06df99fe081e9ef663a560.svg" alt="j"/> and <img class="math" src="../_images/math/f1263e8547403dd01d5d5316c28f91d739fd9662.svg" alt="a_{ij}"/> is the molar compositional of component j in end-member/pure phase i</p>
 </section>
 <section id="mass-constraint">
 <h2>3. Mass constraint<a class="headerlink" href="#mass-constraint" title="Permalink to this headline"></a></h2>
 <p>The mass equality constraint is defined as</p>
 <div class="math">
 <p><img src="../_images/math/1c05d17338c05591f2bdf069f5a1d002d25faee7.svg" alt="\sum_{\lambda=1}^{\Lambda} n_{\lambda} \sum_{i=1}^{N_{\lambda}} a_{ij}(\lambda) p_{i}(\lambda) + \sum_{\omega=1}^{\Omega} n_{\omega} a_{\omega j} - b_j = 0"/></p>
-</div><p>where</p>
-<div class="math">
-<p><img src="../_images/math/c225b8f2c7b377bb54e44a4ec8d0099f9a43dbdb.svg" alt="a_{ij}"/></p>
-</div><p>is the molar composition of component j in end-member i</p>
-<p>and</p>
-<div class="math">
-<p><img src="../_images/math/8ce35cdeca50a4bfa46c2ec0b55c39b7b0a45a5e.svg" alt="a_{\omega j}"/></p>
-</div><p>is the molar composition of component j in a pure phase</p>
+</div><p>where <img class="math" src="../_images/math/f1263e8547403dd01d5d5316c28f91d739fd9662.svg" alt="a_{ij}"/> is the molar composition of component <img class="math" src="../_images/math/6c9288b85c20a09a2d06df99fe081e9ef663a560.svg" alt="j"/> in end-member <img class="math" src="../_images/math/a03d49b7c344a3a503cfa761cdce88ce5f3a7cff.svg" alt="i"/>, and <img class="math" src="../_images/math/2bbd4f1f5a5b24971adcde7d997a84a5179a5110.svg" alt="a_{\omega j}"/> is the molar composition of component j in a pure phase</p>
 </section>
 </section>
 <section id="minimization-approach">

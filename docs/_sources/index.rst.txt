@@ -34,6 +34,12 @@ Imported libraries
 - NLopt  (https://nlopt.readthedocs.io/)                
 - uthash (https://troydhanson.github.io/uthash/)        
 - ketopt (https://github.com/attractivechaos/klib/blob/master/ketopt.h) 
+  
+.. toctree::
+   :maxdepth: 2
+   :caption: In development:
+   
+   news
    
 .. toctree::
    :maxdepth: 2

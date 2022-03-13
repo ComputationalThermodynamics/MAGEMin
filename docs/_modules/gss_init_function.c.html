@@ -36,7 +36,11 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">In development:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../news.html">Seismic velocity calculation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../stp.html">Linux-based system</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../stp/Linux.html">External libraries</a></li>
@@ -558,6 +562,11 @@
 <span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">n_sf</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">n_sf</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">sym</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">symmetry</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span>
+<span class="w">	</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">EM_list</span><span class="w"> 		 </span><span class="o">=</span><span class="w"> </span><span class="n">malloc</span><span class="w"> </span><span class="p">((</span><span class="n">n_em</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="w">	</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n_em</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"> </span>
+<span class="w">		</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">EM_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">malloc</span><span class="p">(</span><span class="mi">20</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">char</span><span class="p">)</span><span class="w">		</span><span class="p">);</span><span class="w">		</span>
+<span class="w">	</span><span class="p">}</span><span class="w"></span>
+
 <span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sym</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">){</span><span class="w"></span>
 <span class="w">		</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">W</span><span class="w">   		</span><span class="o">=</span><span class="w"> </span><span class="n">malloc</span><span class="w"> </span><span class="p">(</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">n_w</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"> </span>
 <span class="w">		</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">v</span><span class="w">   		</span><span class="o">=</span><span class="w"> </span><span class="n">malloc</span><span class="w"> </span><span class="p">(</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">n_v</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"> </span>

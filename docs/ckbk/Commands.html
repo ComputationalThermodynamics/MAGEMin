@@ -39,7 +39,11 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">In development:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../news.html">Seismic velocity calculation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../stp.html">Linux-based system</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../stp/Linux.html">External libraries</a></li>
@@ -234,16 +238,19 @@
 </section>
 <section id="multiple-points-calculation">
 <h1>Multiple points calculation<a class="headerlink" href="#multiple-points-calculation" title="Permalink to this headline"></a></h1>
-<p>When running multiple points using the command line argument <em>--file=path_to_file</em> several parameters can be passed to MAGEMin.</p>
-<p>One line per point has to be provided as follows</p>
+<p>When running multiple points using the command line argument</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>--file<span class="o">=</span>path_to_file
+</pre></div>
+</div>
+<p>several parameters have to be passed to MAGEMin. One line per point has to be provided as follows</p>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 15%" />
+<col style="width: 16%" />
 <col style="width: 21%" />
 <col style="width: 21%" />
 <col style="width: 12%" />
 <col style="width: 12%" />
-<col style="width: 9%" />
+<col style="width: 7%" />
 <col style="width: 12%" />
 </colgroup>
 <tbody>
@@ -252,12 +259,22 @@
 <td><p>Temperature(C)</p></td>
 <td><p>Gamma_1</p></td>
 <td><p>Gamma_2</p></td>
-<td><p>...</p></td>
+<td><p>…</p></td>
 <td><p>Gamma_n</p></td>
 </tr>
 </tbody>
 </table>
-<p>Note that mode = 0 for global minimization</p>
+<ul class="simple">
+<li><p>mode = 0 for global minimization</p></li>
+<li><p>“Gamma_n” is the array of oxide chemical potential (defining the Gibbs-hyperplane). This functionality is in development and will be used in a future update to provide an initial guess of the Gibbs-hyperplane to improve performances.</p></li>
+</ul>
+<p>A valid list of point is for instance:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="m">0</span> <span class="m">0</span>.0 <span class="m">800</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0
+<span class="m">0</span> <span class="m">4</span>.0 <span class="m">800</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0
+<span class="m">0</span> <span class="m">8</span>.0 <span class="m">800</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0
+<span class="o">(</span>...<span class="o">)</span>
+</pre></div>
+</div>
 </section>
 
 
