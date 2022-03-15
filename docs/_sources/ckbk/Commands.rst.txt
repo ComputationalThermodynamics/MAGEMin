@@ -48,7 +48,7 @@ When running multiple points using the command line argument
 
 .. code-block:: shell
 
-	--file=path_to_file
+	--File=path_to_file --n_points=x
 	
 several parameters have to be passed to MAGEMin. One line per point has to be provided as follows
 
