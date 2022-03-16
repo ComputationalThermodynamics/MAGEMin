@@ -1,4 +1,4 @@
-<img src="./pics/JGR_MAGMA_ERC.png" alt="drawing" width="480" alt="centered image"/>
+<img src="./pics/MAGMA_Logo.png" alt="drawing" width="480" alt="centered image"/>
 
 <img src="./pics/GUI.png" alt="drawing" width="640" alt="centered image"/>
 
@@ -20,22 +20,29 @@ The details of this thermodynamic solid solution and endmember database are:
 	- Pure stoichiometric phases quartz (q), cristobalite (crst), tridymite (trd), coesite (coe), stishovite (stv), kyanite (ky), sillimanite (sill), andalusite (and), rutile (ru) and sphene (sph). 
 	- Solution phases spinel (spn), biotite (bi), cordierite (cd), clinopyroxene (cpx), orthopyroxene (opx), epidote (ep), garnet (g), hornblende (hb), ilmenite (ilm), silicate melt (liq), muscovite (mu), olivine (ol), ternary feldspar (pl4T), and aqueous fluid (fl).
      
-## Imported libraries
-We rely on a number if external packages. If you wish to install MAGEMin on your machine, you will need to install this first
+## Installing MAGEMin
+
+**Quick start**
+The easiest way to use `MAGEMin` is through the MATLAB graphical user interface, which has an installation script to download the correct parallel binaries for your system (using julia).
+
+Do these 3 steps:
+1) Download a zip file with the most recent release of `MAGEMin` and unzip it on your machine.
+2) Open the `PlotPseudosection` graphical user interface from matlab. 
+3) Follow the binary installation instructions (which requires you to install a recent [julia](https://www.julialang.org) version).
+
+**Manual compilation**
+if you wish, you can also compile MAGEMin yourself, which requires you to install these packages as well:
 - MPICH (to allow parallel computations)
 - LAPACKE (C version of LAPACK)
 - NLopt (https://nlopt.readthedocs.io/)
-- uthash (https://troydhanson.github.io/uthash/)
-- ketopt (https://github.com/attractivechaos/klib/blob/master/ketopt.h)
+  
+In addition, we make use of [uthash](https://troydhanson.github.io/uthash/) and [ketopt](https://github.com/attractivechaos/klib/blob/master/ketopt.h).
 
 ## Documentation
-
-- Full support to install and use MAGEMin is available here: https://computationalthermodynamics.github.io/MAGEMin/index.html
+Full support to install and use MAGEMin is available here: https://computationalthermodynamics.github.io/MAGEMin/index.html
 
 ## Contributing
 You are very welcome to request new features and point out bugs by opening an issue. You can also help by adding features and creating a pull request.
-
-## Development roadmap
 
 ## Funding
 Development of this software package was funded by the European Research Council under grant ERC CoG #771143 - [MAGMA](https://magma.uni-mainz.de).

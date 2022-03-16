@@ -2,15 +2,20 @@ function Execute_MAGEMin(Computation, VerboseLevel, n_points, Test, MolProp)
 % This executes MAGEMin, either on the local machine (on 1 or more MPI
 % threads), or on a remote, more powerful, server.
 % 
+% Locally, there are two 
 
 
 % Run simulation
 NumRanks    =   Computation.NumRanks;
 MPI_dir     =   Computation.MPI_dir;
-RemoteServer=   Computation.RemoteServer;    
+RemoteServer=   Computation.RemoteServer;
+
+% Retrieve name of executable
+exe = MAGEMin_exe(Computation);
+
 
 % Setup the general execution command
-command = ['./MAGEMin --Verb=',num2str(VerboseLevel),' --File=MAGEMin_input.dat --n_points=',num2str(n_points)];
+command = [exe, ' --Verb=',num2str(VerboseLevel),' --File=MAGEMin_input.dat --n_points=',num2str(n_points)];
 
 if ~isnan(Test)
     % employ a prededined test
@@ -27,8 +32,8 @@ end
 
 if ~RemoteServer
     % In case we run it locally:    
-    if NumRanks>1
-        if isempty(MPI_dir)
+    if NumRanks>1 
+        if isempty(MPI_dir) || strcmp(Computation.BinaryMethod,'Default')==true
             command_MPI = ['mpiexec -n ',num2str(NumRanks),' '];
         else
             command_MPI = [MPI_dir,'/mpiexec -n ',num2str(NumRanks),' '];
@@ -38,11 +43,23 @@ if ~RemoteServer
     end
     command = [command_MPI, command];
     
-    system('killall MAGEMin 2>&1')
+    % In case we do NOT use the locally compiled MAGEMin, but instead the
+    % automatically downloaded MAGEMin binaries, we need to load the correct
+    % directories first:
+     
     disp(command)
+    if Computation.Julia_MAGEMin_binary==true
+        command = add_dynamic_libs(command, Computation)
+    end
+    if isunix
+        system('killall MAGEMin 2>&1')
+    end
     system(command);
     
+    
+    
 else
+    
    % We want to run it remotely, we need to 
    %  1) copy the MAGEMin_input.dat to the remote machine, 
    %  2) run MAGEMin on the requested # of MPI cores
@@ -80,3 +97,6 @@ else
    
    
 end
+
+end
+
