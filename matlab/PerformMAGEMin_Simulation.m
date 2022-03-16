@@ -135,10 +135,10 @@ switch Mode
             end
             
             n_points = Write_MAGEMin_InputFile(id, TP_vec, PhaseData, UseGammaEstimation, Use_xEOS, Use_EMFrac);
-            command  = [command, ' --File=MAGEMin_input.dat --n_points=',num2str(n_points)];
+           
+            Computation.NumRanks=1; % makes no sense to do a single calculation on >1 core 
+            Execute_MAGEMin(Computation, VerboseLevel, n_points, Test, MolProp)
             
-            disp(command);
-            system(command);
             ForwardSimulation_Time = ForwardSimulation_Time + toc;
             disp(['Percentage finished ',num2str(iPoint/length(newPoints)*100),'% ; total forward computational time = ',num2str(ForwardSimulation_Time),'s'])
             disp(' ')
