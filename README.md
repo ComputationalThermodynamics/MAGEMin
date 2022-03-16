@@ -1,4 +1,4 @@
-<img src="./pics/JGR_MAGMA_ERC.png" alt="drawing" width="480" alt="centered image"/>
+<img src="./pics/MAGMA_Logo.png" alt="drawing" width="480" alt="centered image"/>
 
 <img src="./pics/GUI.png" alt="drawing" width="640" alt="centered image"/>
 
