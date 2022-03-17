@@ -5,8 +5,6 @@ Pkg.add("MAGEMin_jll")
 # Use MAGEMin_jll
 using MAGEMin_jll
 
-
-
 function write_environmental_variables_file()
 
     open("environmental_variables.m", "w") do io
@@ -16,6 +14,9 @@ function write_environmental_variables_file()
         pth = MAGEMin_jll.PATH[]                # location of binaries
         write(io, "path_bin = '$(pth)'; \n")
         
+        pth = Sys.BINDIR                # location of binaries
+        write(io, "path_julia = '$(pth)'; \n")
+        
     end
     return nothing
 end
@@ -24,3 +25,6 @@ write_environmental_variables_file()
 
 println("Succesfully downloaded the MAGEMin_jll package")
 println("And installed the environmental_variables.m file in: $(pwd())")
+
+# Show the version number
+run(`$(MAGEMin()) --version`)
