@@ -114,18 +114,30 @@ int runMAGEMin(int argc, char **argv){
 	double 	Pres;
 	double 	Temp;
 	double 	P = 0.0, T = 0.0;
-	int 	test, Verb, Mode, n_points, n_pc, maxeval;
+	int 	test, Verb, Mode, n_points, n_pc, maxeval, get_version;
 	double	Gam[11],  Bulk[11], InitEM_Prop[15];
 	char    File[50], Phase[50];
 
 	/** 
 	Read command-line arguments and set default parameters
 	*/
-	ReadCommandLineOptions(argc, argv,  &Mode, &Verb, &test, 
-										&n_points, &Pres, &Temp,
-										Bulk, Gam, 
-										gv.init_prop, 
-										File, Phase, &n_pc, &maxeval); 
+	gv = ReadCommandLineOptions(	 gv,
+									 argc, 
+									 argv,  
+									&Mode, 
+									&Verb, 
+									&test, 
+									&n_points, 
+									&Pres, 
+									&Temp,
+									 Bulk, 
+									 Gam, 
+									 gv.init_prop, 
+									 File, 
+									 Phase, 
+									&n_pc, 
+									&maxeval,
+									&get_version			); 
 									
 	if ( Verb == 0){
 		gv.verbose = Verb;
@@ -590,12 +602,25 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 /** 
   Get command line options
 */
-int ReadCommandLineOptions(int argc, char ** argv, 	int *Mode_out, int *Verb_out, int *test_out, 
-													int *n_points_out, double *P, double *T, 
-													double Bulk[11], double Gam[11], 
-													double InitEM_Prop[15],
-													char File[50], char Phase[50], int *n_pc_out, 
-													int *maxeval_out){
+global_variable ReadCommandLineOptions(	global_variable 	 gv,		
+
+									int argc, 
+									char ** argv, 	
+									int *Mode_out, 
+									int *Verb_out, 
+									int *test_out, 
+									int *n_points_out, 
+									double *P, 
+									double *T, 
+									double Bulk[11], 
+									double Gam[11], 
+									double InitEM_Prop[15],
+									char File[50], 
+									char Phase[50], 
+									int *n_pc_out, 
+									int *maxeval_out,
+									int *get_version_out			
+){
 	int i;
 	static ko_longopt_t longopts[] = {
 		{ "Verb", 		ko_optional_argument, 301 },
@@ -611,6 +636,7 @@ int ReadCommandLineOptions(int argc, char ** argv, 	int *Mode_out, int *Verb_out
 		{ "Bulk", 		ko_optional_argument, 311 },
         { "InitEM_Prop",ko_optional_argument, 312 },
         { "maxeval",    ko_optional_argument, 313 },
+        { "version",    ko_optional_argument, 314 },
     	{ NULL, 0, 0 }
 	};
 	ketopt_t opt = KETOPT_INIT;
@@ -627,7 +653,6 @@ int ReadCommandLineOptions(int argc, char ** argv, 	int *Mode_out, int *Verb_out
 	Temp   = 1100.0;
 	Pres   = 12.0;
 	 
-	//Gam[11], Bulk[11];
 	for (i = 0; i < nEl; i++) {
 		Bulk[i] = 0.0;
 		Gam[i]  = 0.0;
@@ -639,15 +664,16 @@ int ReadCommandLineOptions(int argc, char ** argv, 	int *Mode_out, int *Verb_out
 	strcpy(File,"none"); // Filename to be read to have multiple P-T-bulk conditions to solve
 
 	while ((c = ketopt(&opt, argc, argv, 1, "", longopts)) >= 0) {
-        if	    (c == 301){ Verb     = atoi(opt.arg	);}
-		else if (c == 302){ Mode     = atoi(opt.arg);			if (Verb == 1){printf("--Mode        : Mode                     = %i \n", 	 	   		Mode		);}}																		
-		else if (c == 303){ strcpy(File,opt.arg);		 		if (Verb == 1){printf("--File        : File                     = %s \n", 	 	   		File		);}}
-		else if (c == 304){ n_points = atoi(opt.arg); 	 		if (Verb == 1){printf("--n_points    : n_points                 = %i \n", 	 	   		n_points	);}}
-		else if (c == 305){ test     = atoi(opt.arg); 		 	if (Verb == 1){printf("--test        : Test                     = %i \n", 	 	  		test		);}}
-		else if (c == 306){ Temp     = strtof(opt.arg,NULL); 	if (Verb == 1){printf("--Temp        : Temperature              = %f C \n",             Temp		);}}
-		else if (c == 307){ Pres     = strtof(opt.arg,NULL); 	if (Verb == 1){printf("--Pres        : Pressure                 = %f kbar \n", 			Pres		);}}
-		else if (c == 308){ strcpy(Phase,opt.arg);		 		if (Verb == 1){printf("--Phase       : Phase name               = %s \n", 	   			Phase		);}}
-		else if (c == 309){ n_pc     = strtof(opt.arg,NULL); 	if (Verb == 1){printf("--n_pc        : Number of pc             = %i  \n", 				n_pc		);}}
+		if 		(c == 314){ printf("MAGEMin %20s\n",gv.version ); exit(0); }	
+        else if	(c == 301){ Verb     = atoi(opt.arg	);}
+		else if (c == 302){ Mode     = atoi(opt.arg);			if (Verb == 1){		printf("--Mode        : Mode                     = %i \n", 	 	   		Mode		);}}																		
+		else if (c == 303){ strcpy(File,opt.arg);		 		if (Verb == 1){		printf("--File        : File                     = %s \n", 	 	   		File		);}}
+		else if (c == 304){ n_points = atoi(opt.arg); 	 		if (Verb == 1){		printf("--n_points    : n_points                 = %i \n", 	 	   		n_points	);}}
+		else if (c == 305){ test     = atoi(opt.arg); 		 	if (Verb == 1){		printf("--test        : Test                     = %i \n", 	 	  		test		);}}
+		else if (c == 306){ Temp     = strtof(opt.arg,NULL); 	if (Verb == 1){		printf("--Temp        : Temperature              = %f C \n",             Temp		);}}
+		else if (c == 307){ Pres     = strtof(opt.arg,NULL); 	if (Verb == 1){		printf("--Pres        : Pressure                 = %f kbar \n", 			Pres		);}}
+		else if (c == 308){ strcpy(Phase,opt.arg);		 		if (Verb == 1){		printf("--Phase       : Phase name               = %s \n", 	   			Phase		);}}
+		else if (c == 309){ n_pc     = strtof(opt.arg,NULL); 	if (Verb == 1){		printf("--n_pc        : Number of pc             = %i  \n", 				n_pc		);}}
 		else if (c == 313){ maxeval  = strtof(opt.arg,NULL); 	if (Verb == 1){
             if (maxeval==0){        printf("--maxeval     : Max. # of local iter.    = infinite  \n"		); }
             else{                   printf("--maxeval     : Max. # of local iter.    = %i  \n", maxeval		);}
@@ -712,8 +738,9 @@ int ReadCommandLineOptions(int argc, char ** argv, 	int *Mode_out, int *Verb_out
 	*n_pc_out       =   n_pc;
     *maxeval_out    =   maxeval;
 	
-	return 0;
+	return gv;
 } 
+
 
 	
 /** 
