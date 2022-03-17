@@ -23,10 +23,10 @@ The details of this thermodynamic solid solution and endmember database are:
 ## Installing MAGEMin
 
 **Quick start**
-The easiest way to use `MAGEMin` is through the MATLAB graphical user interface, which has an installation script to download the correct parallel binaries for your system (using julia).
+The easiest way to use `MAGEMin` is through the MATLAB graphical user interface, which has an installation script to download the correct parallel binaries for your system (creauing using [BinaryBuilder](https://binarybuilder.org) & julia).
 
 Do these 3 steps:
-1) Download a zip file with the most recent release of `MAGEMin` and unzip it on your machine.
+1) Download a zip file with the most recent release of `MAGEMin` (click on the green Code button @ the top of this page) and unzip it on your machine .
 2) Open the `PlotPseudosection` graphical user interface from matlab. 
 3) Follow the binary installation instructions (which requires you to install a recent [julia](https://www.julialang.org) version).
 
