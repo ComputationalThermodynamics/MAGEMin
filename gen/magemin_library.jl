@@ -585,6 +585,17 @@ struct IODATA
     phase_emp::Ptr{Ptr{Cdouble}}
 end
 
+struct IODATA_julia
+    n_phase::Int64
+    P::Float64
+    T::Float64
+    bulk::Vector{Float64}
+    in_gam::Vector{Float64}
+    phase_names::Vector{String}
+    phase_xeos::Matrix{Float64}
+    phase_emp::Matrix{Float64}
+end
+
 const io_data = IODATA
 
 struct OUTDATA
