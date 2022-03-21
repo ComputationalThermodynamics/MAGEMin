@@ -1,6 +1,9 @@
 #ifndef __INITIALIZE_H_
 #define __INITIALIZE_H_
 
+#include "uthash.h"
+#include "Endmembers_tc-ds634.h"
+
 enum {
 	_tc_ds634_
 };

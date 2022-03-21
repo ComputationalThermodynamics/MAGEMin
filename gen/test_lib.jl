@@ -12,12 +12,12 @@ DB = LibMAGEMin.InitializeDatabases(gv, EM_database)
 
 function Perform_Minimisation(P::Float64,T::Float64, bulk_rock::Vector{Float64}, gv::LibMAGEMin.global_variables, DB::LibMAGEMin.Database)
     
-    LibMAGEMin.norm_array(		bulk_rock, gv.len_ox);	                # normalize bulk_rock
+    LibMAGEMin.norm_array(bulk_rock, gv.len_ox);	                    # normalize bulk_rock
     
-    input_data      =   Vector{LibMAGEMin.io_data}(undef,1);            # zero (not used actually)
+    input_data      =   LibMAGEMin.io_data();                           # zero (not used actually)
     z_b             =   LibMAGEMin.zeros_in_bulk(	bulk_rock, P, T);
 
-    z_b.T           =  T + 273.15    # in K
+    z_b.T           =   T + 273.15    # in K
     z_b.P           =   P
     
     Mode            = 0;
@@ -28,7 +28,7 @@ function Perform_Minimisation(P::Float64,T::Float64, bulk_rock::Vector{Float64},
 
     gv      = LibMAGEMin.reset_global_variables(gv,DB.PP_ref_db, DB.SS_ref_db, DB.cp)
     gv      = LibMAGEMin.reset_phases(gv, z_b, DB.PP_ref_db, DB.SS_ref_db, DB.cp)
-    gv      = LibMAGEMin.ComputeEquilibrium_Point(EM_database, input_data[1], Mode, z_b,gv,	DB.PP_ref_db,DB.SS_ref_db,DB.cp);
+    gv      = LibMAGEMin.ComputeEquilibrium_Point(EM_database, input_data, Mode, z_b,gv,	DB.PP_ref_db,DB.SS_ref_db,DB.cp);
 
     return gv, z_b
 end

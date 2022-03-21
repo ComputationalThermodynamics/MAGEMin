@@ -1,6 +1,7 @@
 #ifndef __DUMP_FUNCTION_H_
 #define __DUMP_FUNCTION_H_
 
+#include "MAGEMin.h"
 void dump_init(global_variable gv);
 
 void dump_results_function(		global_variable 	gv,
