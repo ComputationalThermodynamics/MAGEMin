@@ -471,7 +471,7 @@ function get_EM_DB_names(EM_database)
     ccall((:get_EM_DB_names, libMAGEMin), Ptr{Ptr{Cchar}}, (Cint,), EM_database)
 end
 
-struct bulk_info
+mutable struct bulk_info
     P::Cdouble
     T::Cdouble
     R::Cdouble
@@ -585,17 +585,6 @@ struct IODATA
     phase_emp::Ptr{Ptr{Cdouble}}
 end
 
-struct IODATA_julia
-    n_phase::Int64
-    P::Float64
-    T::Float64
-    bulk::Vector{Float64}
-    in_gam::Vector{Float64}
-    phase_names::Vector{String}
-    phase_xeos::Matrix{Float64}
-    phase_emp::Matrix{Float64}
-end
-
 const io_data = IODATA
 
 struct OUTDATA
@@ -662,7 +651,7 @@ end
 
 const csd_phase_set = csd_phase_sets
 
-struct global_variables
+mutable struct global_variables
     version::Ptr{Cchar}
     verbose::Cint
     outpath::Ptr{Cchar}
@@ -793,12 +782,64 @@ function ComputePostProcessing(EM_database, z_b, gv, PP_ref_db, SS_ref_db, cp)
     ccall((:ComputePostProcessing, libMAGEMin), Cvoid, (Cint, bulk_info, global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), EM_database, z_b, gv, PP_ref_db, SS_ref_db, cp)
 end
 
-function ReadCommandLineOptions(argc, argv, Mode_out, Verb_out, test_out, n_points_out, P, T, Bulk, Gam, InitEM_Prop, File, Phase, n_pc_out, maxeval_out)
-    ccall((:ReadCommandLineOptions, libMAGEMin), Cint, (Cint, Ptr{Ptr{Cchar}}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cchar}, Ptr{Cchar}, Ptr{Cint}, Ptr{Cint}), argc, argv, Mode_out, Verb_out, test_out, n_points_out, P, T, Bulk, Gam, InitEM_Prop, File, Phase, n_pc_out, maxeval_out)
+function ReadCommandLineOptions(gv, argc, argv, Mode_out, Verb_out, test_out, n_points_out, P, T, Bulk, Gam, InitEM_Prop, File, Phase, n_pc_out, maxeval_out, get_version_out)
+    ccall((:ReadCommandLineOptions, libMAGEMin), global_variable, (global_variable, Cint, Ptr{Ptr{Cchar}}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cchar}, Ptr{Cchar}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}), gv, argc, argv, Mode_out, Verb_out, test_out, n_points_out, P, T, Bulk, Gam, InitEM_Prop, File, Phase, n_pc_out, maxeval_out, get_version_out)
 end
 
 function PrintOutput(gv, rank, l, DB, time_taken, z_b)
     ccall((:PrintOutput, libMAGEMin), Cvoid, (global_variable, Cint, Cint, Databases, Cdouble, bulk_info), gv, rank, l, DB, time_taken, z_b)
+end
+
+function SS_UPDATE_function(gv, SS_ref_db, z_b, name)
+    ccall((:SS_UPDATE_function, libMAGEMin), SS_ref, (global_variable, SS_ref, bulk_info, Ptr{Cchar}), gv, SS_ref_db, z_b, name)
+end
+
+function CP_UPDATE_function(gv, SS_ref_db, cp, z_b)
+    ccall((:CP_UPDATE_function, libMAGEMin), csd_phase_set, (global_variable, SS_ref, csd_phase_set, bulk_info), gv, SS_ref_db, cp, z_b)
+end
+
+function split_cp(i, gv, SS_ref_db, cp)
+    ccall((:split_cp, libMAGEMin), global_variable, (Cint, global_variable, Ptr{SS_ref}, Ptr{csd_phase_set}), i, gv, SS_ref_db, cp)
+end
+
+function ss_min_PGE(mode, i, gv, z_b, SS_ref_db, cp)
+    ccall((:ss_min_PGE, libMAGEMin), Cvoid, (Cint, Cint, global_variable, bulk_info, Ptr{SS_ref}, Ptr{csd_phase_set}), mode, i, gv, z_b, SS_ref_db, cp)
+end
+
+function reset_global_variables(gv, PP_ref_db, SS_ref_db, cp)
+    ccall((:reset_global_variables, libMAGEMin), global_variable, (global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, PP_ref_db, SS_ref_db, cp)
+end
+
+function init_ss_db(EM_database, z_b, gv, SS_ref_db)
+    ccall((:init_ss_db, libMAGEMin), global_variable, (Cint, bulk_info, global_variable, Ptr{SS_ref}), EM_database, z_b, gv, SS_ref_db)
+end
+
+function reset_phases(gv, z_b, PP_ref_db, SS_ref_db, cp)
+    ccall((:reset_phases, libMAGEMin), global_variable, (global_variable, bulk_info, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, z_b, PP_ref_db, SS_ref_db, cp)
+end
+
+function SS_ref_destroy(gv, SS_ref_db)
+    ccall((:SS_ref_destroy, libMAGEMin), Cvoid, (global_variable, Ptr{SS_ref}), gv, SS_ref_db)
+end
+
+function CP_destroy(gv, cp)
+    ccall((:CP_destroy, libMAGEMin), Cvoid, (global_variable, Ptr{csd_phase_set}), gv, cp)
+end
+
+function read_in_data(gv, input_data, file_name, n_points)
+    ccall((:read_in_data, libMAGEMin), Cvoid, (global_variable, Ptr{io_data}, Ptr{Cchar}, Cint), gv, input_data, file_name, n_points)
+end
+
+function AddResults_output_struct(gv, z_b, P, T, DB, output)
+    ccall((:AddResults_output_struct, libMAGEMin), Cvoid, (global_variable, bulk_info, Cdouble, Cdouble, Databases, out_data), gv, z_b, P, T, DB, output)
+end
+
+function InitializeOutput(gv, DB)
+    ccall((:InitializeOutput, libMAGEMin), out_data, (global_variable, Databases), gv, DB)
+end
+
+function FreeOutput(output)
+    ccall((:FreeOutput, libMAGEMin), Cvoid, (out_data,), output)
 end
 
 const n_em_db = 291

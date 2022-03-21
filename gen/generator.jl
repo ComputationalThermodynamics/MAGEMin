@@ -13,8 +13,9 @@ cd(@__DIR__)
 const HASH_JEN = 0
 
 # headers 
-MAGEMin_toml = joinpath(dirname(pathof(MAGEMin_jll)), "..", "Artifacts.toml")
-MAGEMin_dir = Pkg.Artifacts.ensure_artifact_installed("MAGEMin", MAGEMin_toml)
+#MAGEMin_toml = joinpath(dirname(pathof(MAGEMin_jll)), "..", "Artifacts.toml")
+#MAGEMin_dir = Pkg.Artifacts.ensure_artifact_installed("MAGEMin", MAGEMin_toml)
+MAGEMin_dir = joinpath(pwd(),"../src");
 
 NLopt_toml = joinpath(dirname(pathof(NLopt_jll)), "..", "Artifacts.toml")
 NLopt_dir = Pkg.Artifacts.ensure_artifact_installed("NLopt", NLopt_toml)
@@ -22,9 +23,14 @@ NLopt_dir = Pkg.Artifacts.ensure_artifact_installed("NLopt", NLopt_toml)
 MPICH_toml = joinpath(dirname(pathof(MPICH_jll)), "..", "Artifacts.toml")       # not for windows
 MPICH_dir = Pkg.Artifacts.ensure_artifact_installed("MPICH", MPICH_toml)
 
-magemin_include_dir = normpath(MAGEMin_dir, "include") |> normpath
+#magemin_include_dir = normpath(MAGEMin_dir, "include") |> normpath
+magemin_include_dir = MAGEMin_dir
 magemin_h = joinpath(magemin_include_dir, "MAGEMin.h")
-@assert isfile(magemin_h)
+iofunction_h = joinpath(magemin_include_dir, "io_function.h")
+ss_min_function_h = joinpath(magemin_include_dir, "ss_min_function.h")
+
+
+@assert isfile(iofunction_h)
 
 nlopt_include_dir = normpath(NLopt_dir, "include") |> normpath
 nlopt_h = joinpath(nlopt_include_dir, "nlopt.h")
@@ -43,7 +49,8 @@ push!(args, "-I$magemin_include_dir")
 push!(args, "-I$nlopt_include_dir")
 push!(args, "-isystem$mpi_include_dir")
 
-header_files = [magemin_h]
+#header_files = [magemin_h]
+header_files = [ss_min_function_h, iofunction_h]
 
 
 #headers = [joinpath(magemin_include_dir, header) for header in readdir(include_dir) if endswith(header, ".h")]
