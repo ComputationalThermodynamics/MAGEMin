@@ -807,56 +807,67 @@ function PrintOutput(gv, rank, l, DB, time_taken, z_b)
     ccall((:PrintOutput, libMAGEMin), Cvoid, (global_variable, Cint, Cint, Databases, Cdouble, bulk_info), gv, rank, l, DB, time_taken, z_b)
 end
 
-function read_in_data(gv, input_data, file_name, n_points)
-    ccall((:read_in_data, libMAGEMin), Cvoid, (global_variable, Ptr{io_data}, Ptr{Cchar}, Cint), gv, input_data, file_name, n_points)
+struct UT_hash_handle
+    tbl::Ptr{Cvoid} # tbl::Ptr{UT_hash_table}
+    prev::Ptr{Cvoid}
+    next::Ptr{Cvoid}
+    hh_prev::Ptr{UT_hash_handle}
+    hh_next::Ptr{UT_hash_handle}
+    key::Ptr{Cvoid}
+    keylen::Cuint
+    hashv::Cuint
 end
 
-function AddResults_output_struct(gv, z_b, P, T, DB, output)
-    ccall((:AddResults_output_struct, libMAGEMin), Cvoid, (global_variable, bulk_info, Cdouble, Cdouble, Databases, out_data), gv, z_b, P, T, DB, output)
+function Base.getproperty(x::UT_hash_handle, f::Symbol)
+    f === :tbl && return Ptr{UT_hash_table}(getfield(x, f))
+    return getfield(x, f)
 end
 
-function InitializeOutput(gv, DB)
-    ccall((:InitializeOutput, libMAGEMin), out_data, (global_variable, Databases), gv, DB)
+struct UT_hash_table
+    buckets::Ptr{Cvoid} # buckets::Ptr{UT_hash_bucket}
+    num_buckets::Cuint
+    log2_num_buckets::Cuint
+    num_items::Cuint
+    tail::Ptr{UT_hash_handle}
+    hho::Cptrdiff_t
+    ideal_chain_maxlen::Cuint
+    nonideal_items::Cuint
+    ineff_expands::Cuint
+    noexpand::Cuint
+    signature::UInt32
 end
 
-function FreeOutput(output)
-    ccall((:FreeOutput, libMAGEMin), Cvoid, (out_data,), output)
+function Base.getproperty(x::UT_hash_table, f::Symbol)
+    f === :buckets && return Ptr{UT_hash_bucket}(getfield(x, f))
+    return getfield(x, f)
 end
 
-function SS_UPDATE_function(gv, SS_ref_db, z_b, name)
-    ccall((:SS_UPDATE_function, libMAGEMin), SS_ref, (global_variable, SS_ref, bulk_info, Ptr{Cchar}), gv, SS_ref_db, z_b, name)
+struct UT_hash_bucket
+    hh_head::Ptr{UT_hash_handle}
+    count::Cuint
+    expand_mult::Cuint
 end
 
-function CP_UPDATE_function(gv, SS_ref_db, cp, z_b)
-    ccall((:CP_UPDATE_function, libMAGEMin), csd_phase_set, (global_variable, SS_ref, csd_phase_set, bulk_info), gv, SS_ref_db, cp, z_b)
+@cenum var"##Ctag#1288"::UInt32 begin
+    _tc_ds634_ = 0
 end
 
-function split_cp(i, gv, SS_ref_db, cp)
-    ccall((:split_cp, libMAGEMin), global_variable, (Cint, global_variable, Ptr{SS_ref}, Ptr{csd_phase_set}), i, gv, SS_ref_db, cp)
+mutable struct EM2id
+    EM_tag::NTuple{20, Cchar}
+    id::Cint
+    hh::UT_hash_handle
+    EM2id() = new()
 end
 
-function ss_min_PGE(mode, i, gv, z_b, SS_ref_db, cp)
-    ccall((:ss_min_PGE, libMAGEMin), Cvoid, (Cint, Cint, global_variable, bulk_info, Ptr{SS_ref}, Ptr{csd_phase_set}), mode, i, gv, z_b, SS_ref_db, cp)
+mutable struct PP2id
+    PP_tag::NTuple{20, Cchar}
+    id::Cint
+    hh::UT_hash_handle
+    PP2id() = new()
 end
 
-function reset_global_variables(gv, PP_ref_db, SS_ref_db, cp)
-    ccall((:reset_global_variables, libMAGEMin), global_variable, (global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, PP_ref_db, SS_ref_db, cp)
-end
-
-function init_ss_db(EM_database, z_b, gv, SS_ref_db)
-    ccall((:init_ss_db, libMAGEMin), global_variable, (Cint, bulk_info, global_variable, Ptr{SS_ref}), EM_database, z_b, gv, SS_ref_db)
-end
-
-function reset_phases(gv, z_b, PP_ref_db, SS_ref_db, cp)
-    ccall((:reset_phases, libMAGEMin), global_variable, (global_variable, bulk_info, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, z_b, PP_ref_db, SS_ref_db, cp)
-end
-
-function SS_ref_destroy(gv, SS_ref_db)
-    ccall((:SS_ref_destroy, libMAGEMin), Cvoid, (global_variable, Ptr{SS_ref}), gv, SS_ref_db)
-end
-
-function CP_destroy(gv, cp)
-    ccall((:CP_destroy, libMAGEMin), Cvoid, (global_variable, Ptr{csd_phase_set}), gv, cp)
+function find_PP_id(PP_tag)
+    ccall((:find_PP_id, libMAGEMin), Cint, (Ptr{Cchar},), PP_tag)
 end
 
 # typedef void ( * sf_type ) ( unsigned m , double * result , unsigned n , const double * x , double * grad , void * data )
@@ -923,6 +934,48 @@ end
 
 function CP_INIT_function(cp, gv)
     ccall((:CP_INIT_function, libMAGEMin), csd_phase_set, (csd_phase_set, global_variable), cp, gv)
+end
+
+function read_in_data(gv, input_data, file_name, n_points)
+    ccall((:read_in_data, libMAGEMin), Cvoid, (global_variable, Ptr{io_data}, Ptr{Cchar}, Cint), gv, input_data, file_name, n_points)
+end
+
+function AddResults_output_struct(gv, z_b, P, T, DB, output)
+    ccall((:AddResults_output_struct, libMAGEMin), Cvoid, (global_variable, bulk_info, Cdouble, Cdouble, Databases, out_data), gv, z_b, P, T, DB, output)
+end
+
+function InitializeOutput(gv, DB)
+    ccall((:InitializeOutput, libMAGEMin), out_data, (global_variable, Databases), gv, DB)
+end
+
+function FreeOutput(output)
+    ccall((:FreeOutput, libMAGEMin), Cvoid, (out_data,), output)
+end
+
+mutable struct ketopt_t
+    ind::Cint
+    opt::Cint
+    arg::Ptr{Cchar}
+    longidx::Cint
+    i::Cint
+    pos::Cint
+    n_args::Cint
+    ketopt_t() = new()
+end
+
+mutable struct ko_longopt_t
+    name::Ptr{Cchar}
+    has_arg::Cint
+    val::Cint
+    ko_longopt_t() = new()
+end
+
+function ketopt_permute(argv, j, n)
+    ccall((:ketopt_permute, libMAGEMin), Cvoid, (Ptr{Ptr{Cchar}}, Cint, Cint), argv, j, n)
+end
+
+function ketopt(s, argc, argv, permute, ostr, longopts)
+    ccall((:ketopt, libMAGEMin), Cint, (Ptr{ketopt_t}, Cint, Ptr{Ptr{Cchar}}, Cint, Ptr{Cchar}, Ptr{ko_longopt_t}), s, argc, argv, permute, ostr, longopts)
 end
 
 # typedef double ( * obj_type ) ( unsigned n , const double * x , double * grad , void * SS_ref_db )
@@ -1143,6 +1196,42 @@ function print_levelling(z_b, gv, PP_ref_db, SS_ref_db)
     ccall((:print_levelling, libMAGEMin), Cvoid, (bulk_info, global_variable, Ptr{PP_ref}, Ptr{SS_ref}), z_b, gv, PP_ref_db, SS_ref_db)
 end
 
+function SS_UPDATE_function(gv, SS_ref_db, z_b, name)
+    ccall((:SS_UPDATE_function, libMAGEMin), SS_ref, (global_variable, SS_ref, bulk_info, Ptr{Cchar}), gv, SS_ref_db, z_b, name)
+end
+
+function CP_UPDATE_function(gv, SS_ref_db, cp, z_b)
+    ccall((:CP_UPDATE_function, libMAGEMin), csd_phase_set, (global_variable, SS_ref, csd_phase_set, bulk_info), gv, SS_ref_db, cp, z_b)
+end
+
+function split_cp(i, gv, SS_ref_db, cp)
+    ccall((:split_cp, libMAGEMin), global_variable, (Cint, global_variable, Ptr{SS_ref}, Ptr{csd_phase_set}), i, gv, SS_ref_db, cp)
+end
+
+function ss_min_PGE(mode, i, gv, z_b, SS_ref_db, cp)
+    ccall((:ss_min_PGE, libMAGEMin), Cvoid, (Cint, Cint, global_variable, bulk_info, Ptr{SS_ref}, Ptr{csd_phase_set}), mode, i, gv, z_b, SS_ref_db, cp)
+end
+
+function reset_global_variables(gv, PP_ref_db, SS_ref_db, cp)
+    ccall((:reset_global_variables, libMAGEMin), global_variable, (global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, PP_ref_db, SS_ref_db, cp)
+end
+
+function init_ss_db(EM_database, z_b, gv, SS_ref_db)
+    ccall((:init_ss_db, libMAGEMin), global_variable, (Cint, bulk_info, global_variable, Ptr{SS_ref}), EM_database, z_b, gv, SS_ref_db)
+end
+
+function reset_phases(gv, z_b, PP_ref_db, SS_ref_db, cp)
+    ccall((:reset_phases, libMAGEMin), global_variable, (global_variable, bulk_info, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, z_b, PP_ref_db, SS_ref_db, cp)
+end
+
+function SS_ref_destroy(gv, SS_ref_db)
+    ccall((:SS_ref_destroy, libMAGEMin), Cvoid, (global_variable, Ptr{SS_ref}), gv, SS_ref_db)
+end
+
+function CP_destroy(gv, cp)
+    ccall((:CP_destroy, libMAGEMin), Cvoid, (global_variable, Ptr{csd_phase_set}), gv, cp)
+end
+
 function _DCDCT_fct(id, result, A, n_act_sf, n_xeos)
     ccall((:_DCDCT_fct, libMAGEMin), Cvoid, (Ptr{Cint}, Ptr{Cdouble}, Ptr{Ptr{Cdouble}}, Cint, Cint), id, result, A, n_act_sf, n_xeos)
 end
@@ -1284,69 +1373,6 @@ function get_ss_id(gv, cp)
     ccall((:get_ss_id, libMAGEMin), global_variable, (global_variable, Ptr{csd_phase_set}), gv, cp)
 end
 
-struct UT_hash_handle
-    tbl::Ptr{Cvoid} # tbl::Ptr{UT_hash_table}
-    prev::Ptr{Cvoid}
-    next::Ptr{Cvoid}
-    hh_prev::Ptr{UT_hash_handle}
-    hh_next::Ptr{UT_hash_handle}
-    key::Ptr{Cvoid}
-    keylen::Cuint
-    hashv::Cuint
-end
-
-function Base.getproperty(x::UT_hash_handle, f::Symbol)
-    f === :tbl && return Ptr{UT_hash_table}(getfield(x, f))
-    return getfield(x, f)
-end
-
-struct UT_hash_table
-    buckets::Ptr{Cvoid} # buckets::Ptr{UT_hash_bucket}
-    num_buckets::Cuint
-    log2_num_buckets::Cuint
-    num_items::Cuint
-    tail::Ptr{UT_hash_handle}
-    hho::Cptrdiff_t
-    ideal_chain_maxlen::Cuint
-    nonideal_items::Cuint
-    ineff_expands::Cuint
-    noexpand::Cuint
-    signature::UInt32
-end
-
-function Base.getproperty(x::UT_hash_table, f::Symbol)
-    f === :buckets && return Ptr{UT_hash_bucket}(getfield(x, f))
-    return getfield(x, f)
-end
-
-struct UT_hash_bucket
-    hh_head::Ptr{UT_hash_handle}
-    count::Cuint
-    expand_mult::Cuint
-end
-
-@cenum var"##Ctag#1048"::UInt32 begin
-    _tc_ds634_ = 0
-end
-
-mutable struct EM2id
-    EM_tag::NTuple{20, Cchar}
-    id::Cint
-    hh::UT_hash_handle
-    EM2id() = new()
-end
-
-mutable struct PP2id
-    PP_tag::NTuple{20, Cchar}
-    id::Cint
-    hh::UT_hash_handle
-    PP2id() = new()
-end
-
-function find_PP_id(PP_tag)
-    ccall((:find_PP_id, libMAGEMin), Cint, (Ptr{Cchar},), PP_tag)
-end
-
 const n_em_db = 291
 
 const nEl = 11
@@ -1372,6 +1398,12 @@ const HASH_BLOOM_BYTELEN = Cuint(0)
 const HASH_SIGNATURE = Cuint(0xa0111fe1)
 
 const HASH_BLOOM_SIGNATURE = Cuint(0xb12220f2)
+
+const ko_no_argument = 0
+
+const ko_required_argument = 1
+
+const ko_optional_argument = 2
 
 # exports
 const PREFIXES = ["CX", "clang_"]

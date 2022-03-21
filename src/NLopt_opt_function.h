@@ -1,6 +1,5 @@
 #ifndef __NLOPT_OPT_FUNCTION_H_
 #define __NLOPT_OPT_FUNCTION_H_
-
 #include "MAGEMin.h"
 
 typedef void (*sf_type) (		unsigned  		 m,
