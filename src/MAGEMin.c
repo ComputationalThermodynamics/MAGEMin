@@ -507,8 +507,7 @@ int runMAGEMin(			int    argc,
 	gv.system_Vp 			= sqrt((gv.system_bulkModulus +4.0/3.0*gv.system_shearModulus)/(gv.system_density/1e3));
 	gv.system_Vs 			= sqrt(gv.system_shearModulus/(gv.system_density/1e3));
 
-
-	printf("System informations\n");
+	printf("System information\n");
 	printf("════════════════════\n");
 
 	printf(" Mass residual      : %+12.5f\n\n",gv.BR_norm);
@@ -516,8 +515,8 @@ int runMAGEMin(			int    argc,
 	printf(" Volume             : %+12.5f\n",sum_volume);
 	printf(" Density            : %+12.5f\n\n",gv.system_density);
 
-	printf(" Shear modulus      : %+12.5f\t [GPa]\n",gv.system_shearModulus);
-	printf(" Vp                 : %+12.5f\t [km/s]\n",gv.system_Vp);
+	printf(" Shear modulus      : %+12.5f\t [GPa]\n",   gv.system_shearModulus);
+	printf(" Vp                 : %+12.5f\t [km/s]\n",  gv.system_Vp);
 	printf(" Vs                 : %+12.5f\t [km/s]\n\n",gv.system_Vs);
 
 	return gv;
