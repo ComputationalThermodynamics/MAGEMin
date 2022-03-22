@@ -448,7 +448,9 @@ int runMAGEMin(int argc, char **argv){
 			system_density += PP_ref_db[i].phase_density*((PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor)/sum_volume);
 		}
 	}
-	printf("\nVOL_SYS \t %+10f\nRHO_SYS  \t  %+10f\nMASS_RES \t %+10f\n",sum_volume,system_density,gv.BR_norm);	
+	if (gv.verbose==1){
+		printf("\nVOL_SYS \t %+10f\nRHO_SYS  \t  %+10f\nMASS_RES \t %+10f\n",sum_volume,system_density,gv.BR_norm);	
+	}
 }
 
 /** 
