@@ -164,7 +164,7 @@ global_variable global_variable_init(){
 	/* system parameters */
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.0.6 [18/03/2022]");					/** MAGEMin version 																*/
+	strcpy(gv.version,"1.1.0 [22/03/2022]");					/** MAGEMin version 																*/
 	
 	gv.len_ox           = 11;					/** number of components in the system 												*/
 	gv.max_n_cp 		= 64;					/** number of considered solution phases 											*/									
@@ -219,8 +219,6 @@ global_variable global_variable_init(){
 	/* density calculation */
 	gv.gb_P_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
 	gv.gb_T_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
-
-
 
 	/* initialize other values */
 	gv.alpha        	= gv.max_fac;				/** active under-relaxing factor 													*/

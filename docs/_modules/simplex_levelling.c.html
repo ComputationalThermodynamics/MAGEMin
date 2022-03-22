@@ -88,7 +88,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html">List of arguments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html#single-point-calculation">Single point calculation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html#multiple-points-calculation">Multiple points calculation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html#multiple-points-in-parallel">Multiple points in parallel</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ckbk.html#pseudosection-generator">Pseudosection generator</a><ul>
@@ -913,7 +912,7 @@
 <span class="w">	</span>
 <span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">verbose</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
 <span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s"> Initial guesses for compositional variables:</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;═════════════════════════════════════════════</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">		</span>
 <span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">id_cp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">id_cp</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_cp</span><span class="p">;</span><span class="w"> </span><span class="n">id_cp</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
 <span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cp</span><span class="p">[</span><span class="n">id_cp</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
@@ -1431,9 +1430,9 @@
 
 <span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">verbose</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
 <span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Get initial guess (Gamma and phase fractions) </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;══════════════════════════════════════════════</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;   STEP 1: Pure species guess</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;   ═══════════════════════════</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;    P: %+10f T: %+10f</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">z_b</span><span class="p">.</span><span class="n">P</span><span class="p">,</span><span class="n">z_b</span><span class="p">.</span><span class="n">T</span><span class="p">);</span><span class="w"></span>
 <span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">[---------------------------------------]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">[  EM  |   EM PROP  |   g0_EM    |  ix  ]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
@@ -1511,7 +1510,7 @@
 
 <span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">verbose</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
 <span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Levelling (endmembers &amp; solution phase)</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;════════════════════════════════════════</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">	</span><span class="p">}</span><span class="w"></span>
 <span class="w">			</span>
 <span class="w">	</span><span class="cm">/* pseudosection function to get starting guess */</span><span class="w"></span>

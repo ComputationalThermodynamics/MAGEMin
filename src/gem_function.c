@@ -18,8 +18,13 @@
 /**
   compute the Gibbs Free energy from the thermodynamic database
 */
-PP_ref G_EM_function(int EM_database, double *bulk_rock, double P, 
-							double T, char *name, char* state) {
+PP_ref G_EM_function(		int 		 EM_database, 
+							double 		*bulk_rock, 
+							double 		 P, 
+							double 		 T, 
+							char 		*name, 
+							char		*state			
+){
 	/* Get thermodynamic data */
 	struct EM_db EM_return;
 	int i, p_id = find_EM_id(name);
@@ -48,7 +53,7 @@ PP_ref G_EM_function(int EM_database, double *bulk_rock, double P,
 	double ta = 0.0;
 	double tb = 0.0;
 	double tc = 0.0;
-
+	double kbar2bar = 1e3;
 	t0 = 298.15;
 	p0 = 0.001;
 	R  = 0.0083144; 
@@ -274,8 +279,11 @@ PP_ref G_EM_function(int EM_database, double *bulk_rock, double P,
 	}
 	PP_ref_db.gbase   =  gbase;
 	PP_ref_db.factor  =  factor;
+	PP_ref_db.phase_shearModulus  =  (EM_return.input_4[0]*kbar2bar + (P - p0)*(EM_return.input_4[1])*kbar2bar + (T - t0)*(EM_return.input_4[2]))/kbar2bar;
 	
-	//printf(" %4s %+10f\n",name,gbase);
+	//printf(" %4s %+10f |",name,gbase);
+	//printf(" %+10f %+10f -> %+10f\n",(P - p0)*kbar2bar,(T - t0),PP_ref_db.phase_shearModulus);
+	
 	//for (i = 0; i < nEl; i++){
 		//printf(" %+10f",PP_ref_db.Comp[i]);
 	//}
