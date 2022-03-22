@@ -1,7 +1,7 @@
 # The full functionality of MAGEMin is wrapped in ../gen/magemin_library.jl
 # Yet, the routines here make it more convenient to use this from julia
 
-export init_MAGEMin, point_wise_minimization, get_bulk_rock
+export init_MAGEMin, point_wise_minimization, get_bulk_rock, create_output
 
 
 """
@@ -71,4 +71,42 @@ function point_wise_minimization(P::Float64,T::Float64, bulk_rock::Vector{Float6
     return gv, z_b, time*1e3
 end
 
+"""
+    structure that holds the result of the pointwise minisation 
+
+"""
+struct output{len_ox,T}
+    G_system::T             # G of system
+    Gamma::Vector{T}        # Gamma
+    P_kbar::T               # Pressure in kbar
+    T_C::T                  # Temperature in Celcius
+    iter::Int64             # number of iterations required
+end
+
+"""
+    out = create_output(gv, z_b)
+
+This extracts the output of a pointwise MAGEMin optimization and adds it into a julia structure
+"""
+function create_output(gv, z_b)
+
+    G_system = gv.G_system;
+    nzEl_arr = unsafe_wrap(Vector{Cint}, z_b.nzEl_array, z_b.nzEl_val) .+ 1;
+    Gam_array= unsafe_wrap(Vector{Cdouble},gv.gam_tot,gv.len_ox)
+    Gamma    = Gam_array[nzEl_arr]      # gamma of active oxides
+    P_kbar   = z_b.P
+    T_C      = z_b.T-273.15 
+    iter     = gv.global_ite
+    
+    # extract names of stable pure phases  
+    PP_list = unsafe_wrap(Vector{Ptr{Int8}}, gv.PP_list, gv.len_pp)
+    #pp_flags= unsafe_wrap(Array{Cint}, gv.pp_flags, (gv.len_pp, 1))
+
+    cp      = unsafe_wrap(Vector{LibMAGEMin.csd_phase_sets}, DB.cp,gv.len_cp)
+    for i=1:gv.len_cp
+
+    end
+
+    return output{gv.len_ox, typeof(G_system)}(G_system, Gamma, P_kbar, T_C, iter)
+end
 
