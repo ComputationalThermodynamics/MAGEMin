@@ -123,7 +123,7 @@ int runMAGEMin(			int    argc,
 	double 	T 			=  0.0;
 	
 	int 	test 		=  0;
-	int 	Verb 		=  1;
+	int 	Verb 		= -1;
 	int     Mode 		=  0;
 	int     n_points 	=  1;
 	
@@ -153,10 +153,9 @@ int runMAGEMin(			int    argc,
 									&maxeval,
 									&get_version			); 
 									
-	if ( Verb == 0){
-		gv.verbose = Verb;
-	}
-	gv.Mode = Mode;
+
+	gv.verbose 	= Verb;
+	gv.Mode 	= Mode;
 
     if (maxeval>-1){
         gv.maxeval = maxeval;   // otherwise we use default. Note that 0 = no limit
@@ -165,7 +164,7 @@ int runMAGEMin(			int    argc,
 	/* initial dumping logs and output */
 	dump_init(gv);
 
-	if (rank==0 && gv.verbose != 2){
+	if (rank==0 && gv.verbose != -1){
     	printf("Running MAGEMin %5s on %d cores {\n", gv.version, numprocs);
     	printf("═══════════════════════════════════\n");
 	}
@@ -281,11 +280,9 @@ int runMAGEMin(			int    argc,
 											DB.cp						);
 
 		/* Print output to screen */
-		t = clock() - t; 
-		time_taken = ((double)t)/CLOCKS_PER_SEC; 			/* in seconds 	 									*/
-		PrintOutput(gv, rank, sgleP, DB, time_taken, z_b);	/* print output on screen 							*/
-										
-		printf("Point   \t  %i\n",sgleP);					/* repeted here to be able to track it in the GUI 	*/
+		t 			= clock() - t; 
+		time_taken 	= ((double)t)/CLOCKS_PER_SEC; 											/* in seconds 	 					*/
+		PrintOutput(gv, rank, sgleP, DB, time_taken, z_b);									/* print output on screen 			*/
 	}
 	/* end of loop over points */
 
@@ -301,7 +298,7 @@ int runMAGEMin(			int    argc,
 	/* print the time */
 	u = clock() - u; 
 	
-	if (gv.verbose != 2){
+	if (gv.verbose != -1){
 		time_taken = ((double)u)/(CLOCKS_PER_SEC); 				/** in seconds */
 		if (rank==0){
 			printf("__________________________________\n");
@@ -502,17 +499,19 @@ int runMAGEMin(			int    argc,
 	gv.system_Vp 			= sqrt((gv.system_bulkModulus +4.0/3.0*gv.system_shearModulus)/(gv.system_density/1e3));
 	gv.system_Vs 			= sqrt(gv.system_shearModulus/(gv.system_density/1e3));
 
-	printf("System information\n");
-	printf("════════════════════\n");
+	if (gv.verbose != -1){
+		printf("System information\n");
+		printf("═══════════════════\n");
 
-	printf(" Mass residual      : %+12.5f\n\n",gv.BR_norm);
+		printf(" Mass residual      : %+12.5f\n\n",gv.BR_norm);
 
-	printf(" Volume             : %+12.5f\n",sum_volume);
-	printf(" Density            : %+12.5f\n\n",gv.system_density);
+		printf(" Volume             : %+12.5f\n",sum_volume);
+		printf(" Density            : %+12.5f\n\n",gv.system_density);
 
-	printf(" Shear modulus      : %+12.5f\t [GPa]\n",   gv.system_shearModulus);
-	printf(" Vp                 : %+12.5f\t [km/s]\n",  gv.system_Vp);
-	printf(" Vs                 : %+12.5f\t [km/s]\n\n",gv.system_Vs);
+		printf(" Shear modulus      : %+12.5f\t [GPa]\n",gv.system_shearModulus);
+		printf(" Vp                 : %+12.5f\t [km/s]\n",gv.system_Vp);
+		printf(" Vs                 : %+12.5f\t [km/s]\n\n",gv.system_Vs);
+	}
 
 	return gv;
 }
@@ -705,7 +704,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 	
 	int    c;
 	int    Mode     =  0;
-	int    Verb     =  0;
+	int    Verb     = -1;
 	int    test     =  0;
 	int    n_points =  1;
 	int    n_pc     =  2;		/** number of pseudocompounds for Mode 2 */
@@ -896,7 +895,7 @@ void PrintOutput(	global_variable 	gv,
 					struct bulk_info 	z_b				){
 						
 	int i;
-	if (gv.Mode==0 && gv.verbose != 2){
+	if (gv.Mode == 0 && gv.verbose != -1){
 
     	printf(" Rank               : %12i \n",rank);
     	printf(" Point              : %12i \n",l);
@@ -910,7 +909,7 @@ void PrintOutput(	global_variable 	gv,
         }
     }
 
-	if ((gv.verbose < 1) &  (gv.Mode==0)){
+	if ((gv.verbose != -1) &&  (gv.Mode==0)){
 		printf("\nSOLUTION: [G = %.3f] (%i iterations, %.2f ms)\n",gv.G_system,gv.global_ite,time_taken*1000.0);
 		printf("[");
 		for (i = 0; i < z_b.nzEl_val; i++){

@@ -50,7 +50,7 @@ void dump_init(global_variable gv){
 		fclose(loc_min);	
 	}
 	/** ----------------------------------------------------------------------------------------------- **/
-	if (gv.verbose != 2){
+	if (gv.verbose == 0){
 		/** MATLAB GRID OUTPUT **/
 		if (numprocs==1){	sprintf(out_lm,	"%s_pseudosection_output.txt"		,gv.outpath); 		}
 		else 			{	sprintf(out_lm,	"%s_pseudosection_output.%i.txt"	,gv.outpath, rank); }
@@ -151,6 +151,9 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].SS[m].Vp 		 = sqrt((cp[i].phase_bulkModulus/10. + 4.0/3.0*cp[i].phase_shearModulus/10.)/(cp[i].phase_density/1e3));
 			sp[0].SS[m].Vs 		 = sqrt(cp[i].phase_shearModulus/10.0/(cp[i].phase_density/1e3));	
 
+			sp[0].SS[m].n_xeos   = cp[i].n_xeos;
+			sp[0].SS[m].n_em 	 = cp[i].n_em;
+
 			/* solution phase composition */
 			for (j = 0; j < gv.len_ox; j++){
 				sp[0].SS[m].Comp[j]				= cp[i].ss_comp[j]*cp[i].factor;
@@ -181,7 +184,7 @@ void fill_output_struct(		global_variable 	 gv,
 					sp[0].frac_F 				= cp[i].ss_n;
 					sp[0].rho_F  				= cp[i].phase_density;
 					for (j = 0; j < gv.len_ox; j++){
-						sp[0].bulk_F[j]	   = cp[i].ss_comp[j];
+						sp[0].bulk_F[j]	   		= cp[i].ss_comp[j];
 					}
 				}
 			}
@@ -235,9 +238,9 @@ void fill_output_struct(		global_variable 	 gv,
 	}
 	
 	/* normalize rho_S and bulk_S */
-	sp[0].rho_S  				   /= sp[0].frac_S;
+	sp[0].rho_S  				/= sp[0].frac_S;
 	for (j = 0; j < gv.len_ox; j++){
-		sp[0].bulk_S[j]	   		   /= sp[0].frac_S;
+		sp[0].bulk_S[j]	   		/= sp[0].frac_S;
 	}
 	
 }
@@ -443,7 +446,7 @@ void dump_results_function(		global_variable 	 gv,
 	
 	/** ----------------------------------------------------------------------------------------------- **/
 	/** MATLAB GRID OUTPUT **/
-	if (gv.verbose != 2){
+	if (gv.verbose == 0){
 		if (numprocs==1){	sprintf(out_lm,	"%s_pseudosection_output.txt"		,gv.outpath); 		}
 		else 			{	sprintf(out_lm,	"%s_pseudosection_output.%i.txt"	,gv.outpath, rank); }
 

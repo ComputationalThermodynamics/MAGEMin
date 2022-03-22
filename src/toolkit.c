@@ -105,17 +105,18 @@ double Maximum(double a,double b) {
 /**
   main Brent root finding routine 
 */
-double BrentRoots(  double x1, 
-					double x2, 
+double BrentRoots(  double  x1, 
+					double  x2, 
 					double *data,
-					double Tolerance,
+					double  Tolerance,
 					
-					int mode,
-					int maxIterations,
+					int 	mode,
+					int 	maxIterations,
 					double *valueAtRoot,
 					
-					int *niter, 
-					int *error )  {
+					int 	*niter, 
+					int 	*error 			
+){
 
   double FPP = 1e-11, nearzero = 1e-40;
 
@@ -525,9 +526,8 @@ void print_vector_norm( char* desc, int m, int n, double* a, int lda ) {
 /**
 	function to print out considered phases structure 
 */
-void print_cp(
-	global_variable gv,
-	csd_phase_set  *cp
+void print_cp(		global_variable	 gv,
+					csd_phase_set  	*cp
 ){
 	printf("PRINT CONSIDERED PHASES\n");
 	printf("------------------------\n\n");

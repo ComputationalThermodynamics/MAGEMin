@@ -1,8 +1,6 @@
 #ifndef __GEM_FUNCTION_H_
 #define __GEM_FUNCTION_H_
 
-#include "MAGEMin.h"
-
 double sum_array(double *array, int size);
 
 int check_sign(double v1, double v2);
