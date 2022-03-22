@@ -56,7 +56,6 @@ csd_phase_set CP_INIT_function(csd_phase_set cp, global_variable gv){
 	
 	cp.name   		= malloc (20 * sizeof (char)		);
 	cp.p_em   		= malloc (n  * sizeof (double) 		);
-	cp.z_em   		= malloc (n  * sizeof (double) 		);
 	cp.xi_em  		= malloc (n  * sizeof (double) 		);
 	cp.dguess 		= malloc (n  * sizeof (double) 		);
 	cp.lvlxeos 		= malloc (n  * sizeof (double) 		);
@@ -80,6 +79,52 @@ csd_phase_set CP_INIT_function(csd_phase_set cp, global_variable gv){
 	
 	return cp;
 }
+
+/** 
+  allocate memory to store considered phases
+*/
+stb_system SP_INIT_function(stb_system sp, global_variable gv){
+	
+	sp.MAGEMin_ver   		= malloc(50  		* sizeof(char)				);
+	sp.oxides 	     		= malloc(gv.len_ox  * sizeof(char*)				);
+	
+	for (int i = 0; i < gv.len_ox; i++){
+		sp.oxides[i] 		= malloc(20 * sizeof(char));	
+	}
+	sp.bulk 				= malloc(gv.len_ox  * sizeof(double)			);	
+	sp.gamma 				= malloc(gv.len_ox  * sizeof(double)			);	
+	sp.bulk_S 				= malloc(gv.len_ox 	* sizeof(double)			);	
+	sp.bulk_M 				= malloc(gv.len_ox 	* sizeof(double)			);	
+	sp.bulk_F 				= malloc(gv.len_ox 	* sizeof(double)			);	
+	sp.ph 	     			= malloc(gv.len_ox  * sizeof(char*)				);
+	sp.ph_frac 	     		= malloc(gv.len_ox  * sizeof(double)			);
+	for (int i = 0; i < gv.len_ox; i++){
+		sp.ph[i] 			= malloc(20 * sizeof(char));	
+	}
+	sp.ph_type 				= malloc(gv.len_ox 	* sizeof(int)				);	
+	sp.ph_id 				= malloc(gv.len_ox 	* sizeof(int)				);	
+	sp.PP 		 			= malloc(gv.len_ox  * sizeof(stb_PP_phase)		); 
+	sp.SS 		 			= malloc(gv.len_ox  * sizeof(stb_SS_phase)		); 
+
+	for (int n = 0; n< gv.len_ox; n++){
+		sp.PP[n].Comp 			= malloc(gv.len_ox 	* sizeof(double)		);
+		sp.SS[n].Comp 			= malloc(gv.len_ox 	* sizeof(double)		);
+		sp.SS[n].compVariables	= malloc(gv.len_ox 	* sizeof(double)		);
+		sp.SS[n].emFrac			= malloc((gv.len_ox+1) * sizeof(double)		);
+		sp.SS[n].emChemPot		= malloc((gv.len_ox+1) * sizeof(double)		);
+		sp.SS[n].emNames 	    = malloc((gv.len_ox+1) * sizeof(char*)		);
+		sp.SS[n].emComp 	    = malloc((gv.len_ox+1) * sizeof(double*)	);
+		
+		for (int i = 0; i < gv.len_ox+1; i++){
+			sp.SS[n].emNames[i]	= malloc(20 * sizeof(char)					);
+			sp.SS[n].emComp[i]	= malloc(gv.len_ox * sizeof(double)			);		
+		}
+
+	}
+
+	return sp;
+}
+
 
 /** 
   allocate memory for biotite
@@ -404,9 +449,9 @@ SS_ref G_SS_INIT_EM_function(SS_ref SS_ref_db, int EM_database, char *name, glob
 	}
 
 	/* dynamic memory allocation of data to send to NLopt */
-	SS_ref_db.box_bounds 	= malloc (n_xeos * sizeof (double*)  ); 
+	SS_ref_db.bounds 	= malloc (n_xeos * sizeof (double*)  ); 
 	for (int i = 0; i < n_xeos; i++){
-		SS_ref_db.box_bounds[i] = malloc (2 * sizeof (double) );
+		SS_ref_db.bounds[i] = malloc (2 * sizeof (double) );
 	}
 	
 	SS_ref_db.eye 			= malloc (n_em 			* sizeof (double*)); 
@@ -425,6 +470,7 @@ SS_ref G_SS_INIT_EM_function(SS_ref SS_ref_db, int EM_database, char *name, glob
 	SS_ref_db.dguess 		= malloc (n_xeos 		* sizeof (double) );
 	SS_ref_db.iguess  		= malloc (n_xeos   	  	* sizeof (double) );
 	SS_ref_db.p       		= malloc (n_em       	* sizeof (double) ); 
+	SS_ref_db.ElShearMod    = malloc (n_em       	* sizeof (double) ); 
 	SS_ref_db.ape      		= malloc (n_em       	* sizeof (double) ); 
 	SS_ref_db.mat_phi 		= malloc (n_em       	* sizeof (double) ); 
 	SS_ref_db.mu_Gex  		= malloc (n_em       	* sizeof (double) ); 
@@ -443,9 +489,9 @@ SS_ref G_SS_INIT_EM_function(SS_ref SS_ref_db, int EM_database, char *name, glob
 	}	
 	
 	/* dynamic memory allocation of data to send to NLopt */
-	SS_ref_db.box_bounds_default = malloc ((n_xeos) * sizeof (double*) ); 
+	SS_ref_db.bounds_ref = malloc ((n_xeos) * sizeof (double*) ); 
 	for (int i = 0; i < (n_xeos); i++){
-		SS_ref_db.box_bounds_default[i] = malloc (2 * sizeof (double) );
+		SS_ref_db.bounds_ref[i] = malloc (2 * sizeof (double) );
 	}
 	
 	/* dynamic memory allocation of data to send to NLopt */

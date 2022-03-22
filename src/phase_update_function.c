@@ -109,9 +109,9 @@ global_variable phase_merge_function(		struct bulk_info 	z_b,
 	
 	if (gv.verbose == 1){
 		printf("\nMerge Compositionally close solution phases\n");
-		printf("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n");
+		printf("════════════════════════════════════════════\n");
 		printf(" phase |  #cp > #cp | Euclidian distance\n");
-		printf("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n");
+		printf("══════════════════════════════════════════\n");
 	}
 	
 	int phid, i, j, k, l, iss, phA, phB;

@@ -1,6 +1,8 @@
 #ifndef __GEM_FUNCTION_H_
 #define __GEM_FUNCTION_H_
 
+#include "MAGEMin.h"
+
 double sum_array(double *array, int size);
 
 int check_sign(double v1, double v2);
@@ -13,9 +15,10 @@ typedef struct PP_refs {
     double 	gb_lvl;         	/**driving force, delta_G with G-hyperplane */
     double 	factor;
     double  phase_density;		/** molar density of the phase */
+    double  phase_shearModulus;		/** molar density of the phase */
     double  phase_cp;			/** molar cp of the phase */
 	double  phase_expansivity;
-	double  phase_shearModulus;
+	double  phase_bulkModulus;
     double  volume;				/** molar volume of the phase */
     double  mass;				/** molar mass of the phase */
     

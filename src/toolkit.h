@@ -1,6 +1,8 @@
 #ifndef __TOOLKIT_H_
 #define __TOOLKIT_H_
 
+#include "MAGEMin.h"
+
 /* set of matrix operations */
 void 	_DCDCT_fct(int *id, double *result, double **A, int n_act_sf, int n_xeos);
 void 	_DC_Null_fct(int *id, double *result, double **A, double *B, int n_xeos, int n_act_sf);

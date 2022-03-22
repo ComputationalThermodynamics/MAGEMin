@@ -1,6 +1,8 @@
 #ifndef __PHASE_UPDATE_FUNCTION_H_
 #define __PHASE_UPDATE_FUNCTION_H_
 
+#include "MAGEMin.h"
+
 global_variable phase_update_function(		struct bulk_info 	z_b,
 											global_variable 	gv,
 											
