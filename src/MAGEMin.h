@@ -12,6 +12,7 @@
 
 #include "nlopt.h"
 #include "gem_function.h"
+
 /*---------------------------------------------------------------------------*/ 
 int runMAGEMin(					int argc, 
 								char ** argv			);

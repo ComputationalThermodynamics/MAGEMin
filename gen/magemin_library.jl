@@ -1,13 +1,7 @@
 module LibMAGEMin
 
-if isfile("libMAGEMin.dylib")
-    libMAGEMin = joinpath(pwd(),"libMAGEMin.dylib")
-    println("Loading local libMAGEMin dynamic library")
-else
-    using MAGEMin_jll
-    export MAGEMin_jll
-    println("Loading libMAGEMin dynamic library from MAGEMin_jll")
-end
+using MAGEMin_jll
+export MAGEMin_jll
 
 using CEnum
 
@@ -443,9 +437,10 @@ struct PP_refs
     gb_lvl::Cdouble
     factor::Cdouble
     phase_density::Cdouble
+    phase_shearModulus::Cdouble
     phase_cp::Cdouble
     phase_expansivity::Cdouble
-    phase_shearModulus::Cdouble
+    phase_bulkModulus::Cdouble
     volume::Cdouble
     mass::Cdouble
 end
@@ -478,6 +473,7 @@ mutable struct EM_db
     input_1::NTuple{3, Cdouble}
     input_2::NTuple{4, Cdouble}
     input_3::NTuple{11, Cdouble}
+    input_4::NTuple{3, Cdouble}
     EM_db() = new()
 end
 
@@ -550,13 +546,12 @@ struct SS_refs
     mu_array::Ptr{Ptr{Cdouble}}
     gb_lvl::Ptr{Cdouble}
     factor::Cdouble
-    box_bounds::Ptr{Ptr{Cdouble}}
-    box_bounds_default::Ptr{Ptr{Cdouble}}
+    bounds::Ptr{Ptr{Cdouble}}
+    bounds_ref::Ptr{Ptr{Cdouble}}
     z_em::Ptr{Cdouble}
     n_guess::Cint
     iguess::Ptr{Cdouble}
     dguess::Ptr{Cdouble}
-    nz_em::Cint
     check_df::Cdouble
     forced_stop::Cint
     xeos_sf_ok_saved::Cint
@@ -585,6 +580,7 @@ struct SS_refs
     sum_xi::Cdouble
     xeos::Ptr{Cdouble}
     xeos_sf_ok::Ptr{Cdouble}
+    ElShearMod::Ptr{Cdouble}
     density::Ptr{Cdouble}
     phase_density::Cdouble
     volume::Cdouble
@@ -648,7 +644,6 @@ struct csd_phase_sets
     min_time::Cdouble
     sum_xi::Cdouble
     sum_dxi::Cdouble
-    z_em::Ptr{Cdouble}
     p_em::Ptr{Cdouble}
     xi_em::Ptr{Cdouble}
     lvlxeos::Ptr{Cdouble}
@@ -667,10 +662,82 @@ struct csd_phase_sets
     phase_density::Cdouble
     phase_cp::Cdouble
     phase_expansivity::Cdouble
+    phase_bulkModulus::Cdouble
     phase_shearModulus::Cdouble
 end
 
 const csd_phase_set = csd_phase_sets
+
+struct stb_SS_phases
+    f::Cdouble
+    G::Cdouble
+    deltaG::Cdouble
+    V::Cdouble
+    alpha::Cdouble
+    cp::Cdouble
+    rho::Cdouble
+    bulkMod::Cdouble
+    shearMod::Cdouble
+    Vp::Cdouble
+    Vs::Cdouble
+    Comp::Ptr{Cdouble}
+    compVariables::Ptr{Cdouble}
+    emNames::Ptr{Ptr{Cchar}}
+    emFrac::Ptr{Cdouble}
+    emChemPot::Ptr{Cdouble}
+    emComp::Ptr{Ptr{Cdouble}}
+end
+
+const stb_SS_phase = stb_SS_phases
+
+struct stb_PP_phases
+    f::Cdouble
+    G::Cdouble
+    deltaG::Cdouble
+    V::Cdouble
+    alpha::Cdouble
+    cp::Cdouble
+    rho::Cdouble
+    bulkMod::Cdouble
+    shearMod::Cdouble
+    Vp::Cdouble
+    Vs::Cdouble
+    Comp::Ptr{Cdouble}
+end
+
+const stb_PP_phase = stb_PP_phases
+
+struct stb_systems
+    MAGEMin_ver::Ptr{Cchar}
+    oxides::Ptr{Ptr{Cchar}}
+    P::Cdouble
+    T::Cdouble
+    bulk::Ptr{Cdouble}
+    gamma::Ptr{Cdouble}
+    G::Cdouble
+    bulk_res_norm::Cdouble
+    rho::Cdouble
+    bulk_S::Ptr{Cdouble}
+    frac_S::Cdouble
+    rho_S::Cdouble
+    bulk_M::Ptr{Cdouble}
+    frac_M::Cdouble
+    rho_M::Cdouble
+    bulk_F::Ptr{Cdouble}
+    frac_F::Cdouble
+    rho_F::Cdouble
+    n_ph::Cint
+    n_PP::Cint
+    n_SS::Cint
+    ph::Ptr{Ptr{Cchar}}
+    ph_frac::Ptr{Cdouble}
+    ph_type::Ptr{Cint}
+    ph_id::Ptr{Cint}
+    SS::Ptr{stb_SS_phase}
+    PP::Ptr{stb_PP_phase}
+end
+
+const stb_system = stb_systems
 
 mutable struct global_variables
     version::Ptr{Cchar}
@@ -770,6 +837,11 @@ mutable struct global_variables
     BR_norm::Cdouble
     gb_P_eps::Cdouble
     gb_T_eps::Cdouble
+    system_density::Cdouble
+    system_bulkModulus::Cdouble
+    system_shearModulus::Cdouble
+    system_Vp::Cdouble
+    system_Vs::Cdouble
     global_variables() = new()
 end
 
@@ -783,6 +855,7 @@ mutable struct Database
     PP_ref_db::Ptr{PP_ref}
     SS_ref_db::Ptr{SS_ref}
     cp::Ptr{csd_phase_set}
+    sp::Ptr{stb_system}
     EM_names::Ptr{Ptr{Cchar}}
     Database() = new()
 end
@@ -802,11 +875,11 @@ function ComputeEquilibrium_Point(EM_database, input_data, Mode, z_b, gv, PP_ref
 end
 
 function ComputePostProcessing(EM_database, z_b, gv, PP_ref_db, SS_ref_db, cp)
-    ccall((:ComputePostProcessing, libMAGEMin), Cvoid, (Cint, bulk_info, global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), EM_database, z_b, gv, PP_ref_db, SS_ref_db, cp)
+    ccall((:ComputePostProcessing, libMAGEMin), global_variable, (Cint, bulk_info, global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), EM_database, z_b, gv, PP_ref_db, SS_ref_db, cp)
 end
 
-function ReadCommandLineOptions(gv, argc, argv, Mode_out, Verb_out, test_out, n_points_out, P, T, Bulk, Gam, InitEM_Prop, File, Phase, n_pc_out, maxeval_out, get_version_out)
-    ccall((:ReadCommandLineOptions, libMAGEMin), global_variable, (global_variable, Cint, Ptr{Ptr{Cchar}}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cchar}, Ptr{Cchar}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}), gv, argc, argv, Mode_out, Verb_out, test_out, n_points_out, P, T, Bulk, Gam, InitEM_Prop, File, Phase, n_pc_out, maxeval_out, get_version_out)
+function ReadCommandLineOptions(gv, argc, argv, Mode_out, Verb_out, test_out, n_points_out, P, T, Bulk, Gam, InitEM_Prop, File, Phase, maxeval_out, get_version_out)
+    ccall((:ReadCommandLineOptions, libMAGEMin), global_variable, (global_variable, Cint, Ptr{Ptr{Cchar}}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cchar}, Ptr{Cchar}, Ptr{Cint}, Ptr{Cint}), gv, argc, argv, Mode_out, Verb_out, test_out, n_points_out, P, T, Bulk, Gam, InitEM_Prop, File, Phase, maxeval_out, get_version_out)
 end
 
 function PrintOutput(gv, rank, l, DB, time_taken, z_b)
@@ -854,7 +927,7 @@ struct UT_hash_bucket
     expand_mult::Cuint
 end
 
-@cenum var"##Ctag#1288"::UInt32 begin
+@cenum var"##Ctag#368"::UInt32 begin
     _tc_ds634_ = 0
 end
 
@@ -914,6 +987,10 @@ function dump_init(gv)
     ccall((:dump_init, libMAGEMin), Cvoid, (global_variable,), gv)
 end
 
+function fill_output_struct(gv, z_b, PP_ref_db, SS_ref_db, cp, sp)
+    ccall((:fill_output_struct, libMAGEMin), Cvoid, (global_variable, bulk_info, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}, Ptr{stb_system}), gv, z_b, PP_ref_db, SS_ref_db, cp, sp)
+end
+
 function dump_results_function(gv, z_b, PP_ref_db, SS_ref_db, cp)
     ccall((:dump_results_function, libMAGEMin), Cvoid, (global_variable, bulk_info, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, z_b, PP_ref_db, SS_ref_db, cp)
 end
@@ -940,6 +1017,10 @@ end
 
 function CP_INIT_function(cp, gv)
     ccall((:CP_INIT_function, libMAGEMin), csd_phase_set, (csd_phase_set, global_variable), cp, gv)
+end
+
+function SP_INIT_function(sp, gv)
+    ccall((:SP_INIT_function, libMAGEMin), stb_system, (stb_system, global_variable), sp, gv)
 end
 
 function read_in_data(gv, input_data, file_name, n_points)
@@ -1218,16 +1299,24 @@ function ss_min_PGE(mode, i, gv, z_b, SS_ref_db, cp)
     ccall((:ss_min_PGE, libMAGEMin), Cvoid, (Cint, Cint, global_variable, bulk_info, Ptr{SS_ref}, Ptr{csd_phase_set}), mode, i, gv, z_b, SS_ref_db, cp)
 end
 
-function reset_global_variables(gv, PP_ref_db, SS_ref_db, cp)
-    ccall((:reset_global_variables, libMAGEMin), global_variable, (global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, PP_ref_db, SS_ref_db, cp)
+function reset_SS(gv, z_b, SS_ref_db)
+    ccall((:reset_SS, libMAGEMin), Cvoid, (global_variable, bulk_info, Ptr{SS_ref}), gv, z_b, SS_ref_db)
+end
+
+function reset_gv(gv, z_b, PP_ref_db, SS_ref_db)
+    ccall((:reset_gv, libMAGEMin), global_variable, (global_variable, bulk_info, Ptr{PP_ref}, Ptr{SS_ref}), gv, z_b, PP_ref_db, SS_ref_db)
+end
+
+function reset_cp(gv, z_b, cp)
+    ccall((:reset_cp, libMAGEMin), Cvoid, (global_variable, bulk_info, Ptr{csd_phase_set}), gv, z_b, cp)
+end
+
+function reset_sp(gv, sp)
+    ccall((:reset_sp, libMAGEMin), Cvoid, (global_variable, Ptr{stb_system}), gv, sp)
 end
 
 function init_ss_db(EM_database, z_b, gv, SS_ref_db)
     ccall((:init_ss_db, libMAGEMin), global_variable, (Cint, bulk_info, global_variable, Ptr{SS_ref}), EM_database, z_b, gv, SS_ref_db)
-end
-
-function reset_phases(gv, z_b, PP_ref_db, SS_ref_db, cp)
-    ccall((:reset_phases, libMAGEMin), global_variable, (global_variable, bulk_info, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, z_b, PP_ref_db, SS_ref_db, cp)
 end
 
 function SS_ref_destroy(gv, SS_ref_db)
