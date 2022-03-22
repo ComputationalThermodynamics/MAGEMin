@@ -1,5 +1,10 @@
+
 .. MAGEMin documentation
 
+.. image:: /figs/macOS.png
+   :width: 64
+   :align: right
+   
 External libraries		  
 ==================
 
@@ -22,9 +27,9 @@ Note that the ``gcc`` package comes with ``gcc``, ``g++`` and ``gfortran``
 
 	brew install mpich
 
-Note that ``open-mpi`` can equally be used.
+Note that ``openmpi`` can equally be used.
 
-**3. lapacke** (``C`` version of the fotran ``lapack`` library, should now be included in the ``lapack`` libraries)
+**3. lapacke** (``C`` version of the fortran ``lapack`` library, should now be included in the ``lapack`` libraries)
 
 .. code-block:: shell
 
@@ -40,40 +45,69 @@ If the ``lapacke`` libraries are not included you can download the ``lapack`` pa
 
 	brew install nlopt
 
+.. image:: /figs/macOS.png
+   :width: 64
+   :align: right
+   
 
 MAGEMin
 =======
 	
-Choose the ``C`` compiler in the first line of the Makefile by commenting out one
+Choose the ``C`` compiler in the first line of the ``Makefile`` by commenting out one
 
 .. code-block:: shell
 
 	#CC=gcc
 	CC=clang
 
-Make sure the ``MPICH`` paths for libraries and include directory in Makefile are correct for instance:
+Make sure the ``MPICH`` paths for libraries and include directory in the ``Makefile`` are correct for instance:
 
 .. code-block:: shell
 
-	LIBS   += (...) -I/.../mpich/lib/libmpich.dylib
-	INC     = (...) -I/.../mpich/include
+	LIBS   += (...) /opt/homebrew/lib/libmpich.dylib
+	INC     = (...) -I/opt/homebrew/include 
 
 Do the same for ``lapacke``:
 
 .. code-block:: shell
 
-	LIBS   += (...) /.../liblapacke.dylib
+	LIBS   += (...) /opt/homebrew/opt/lapack/lib/liblapacke.dylib
+	INC    += (...) -I/opt/homebrew/opt/lapack/include
 	
 And ``NLopt``:
 
 .. code-block:: shell
 
-	LIBS   += (...) /.../libnlopt.dylib
+	LIBS   += (...) /opt/homebrew/lib/libnlopt.dylib
 	
-Then compile MAGEMin:
+	
+Which should give:
+
+.. code-block:: shell
+
+	LIBS    = -lm -framework Accelerate /opt/homebrew/opt/lapack/lib/liblapacke.dylib /opt/homebrew/lib/libnlopt.dylib /opt/homebrew/lib/libmpich.dylib
+	INC     = -I/opt/homebrew/opt/lapack/include -I/opt/homebrew/include 
+	
+Note that this setup is provided by default in the ``Makefile`` for Mac OS X. As long as you installed every package using ``Homebrew`` you should be able to install MAGEMin without modifying these entries.
+
+If you decided to use ``openmpi`` instead of ``mpich`` your ``Makefile`` should look like:
+
+.. code-block:: shell
+
+	LIBS    = -lm -framework Accelerate /opt/homebrew/opt/lapack/lib/liblapacke.dylib /opt/homebrew/opt/nlopt/lib/libnlopt.dylib /opt/homebrew/opt/openmpi/lib/libmpi.dylib  
+	INC     = -I/opt/homebrew/opt/openmpi/include/ -I/opt/homebrew/opt/lapack/include -I/usr/local/include -I/opt/homebrew/opt/nlopt/include/
+
+Then simply enter MAGEMin directory and compile MAGEMin as:
 
 .. code-block:: shell
 	
 	make clean; make all;
 
 Note that by default the optimization flag ``-O3`` and debugging flag ``-g`` are used.
+
+To test if MAGEMin compilation was successful you can for instance check the version of MAGEMin by running:
+
+.. code-block:: shell
+	
+	./MAGEMin --version
+
