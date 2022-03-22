@@ -2,10 +2,6 @@
 #define __OBJECTIVE_FUNCTIONS_H_
 
 #include "MAGEMin.h"
-<<<<<<< HEAD
-=======
-
->>>>>>> dev
 /** 
 	definition of the objective function type in order to associate them with the right solution phase number
 */

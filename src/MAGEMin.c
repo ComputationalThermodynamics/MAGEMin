@@ -498,11 +498,6 @@ int runMAGEMin(			int    argc,
 			gv.system_density += PP_ref_db[i].phase_density*((PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor)/sum_volume);
 		}
 	}
-<<<<<<< HEAD
-	if (gv.verbose==1){
-		printf("\nVOL_SYS \t %+10f\nRHO_SYS  \t  %+10f\nMASS_RES \t %+10f\n",sum_volume,system_density,gv.BR_norm);	
-	}
-=======
 	
 	gv.system_Vp 			= sqrt((gv.system_bulkModulus +4.0/3.0*gv.system_shearModulus)/(gv.system_density/1e3));
 	gv.system_Vs 			= sqrt(gv.system_shearModulus/(gv.system_density/1e3));
@@ -520,7 +515,6 @@ int runMAGEMin(			int    argc,
 	printf(" Vs                 : %+12.5f\t [km/s]\n\n",gv.system_Vs);
 
 	return gv;
->>>>>>> dev
 }
 
 /** 

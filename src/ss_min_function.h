@@ -2,17 +2,9 @@
 #define __SS_MIN_FUNCTION_H_
 
 #include "MAGEMin.h"
-<<<<<<< HEAD
-
-SS_ref SS_UPDATE_function(				global_variable 	gv,
-										SS_ref 				SS_ref_db, 
-										struct bulk_info 	z_b,
-=======
-							
 SS_ref SS_UPDATE_function(				global_variable 	 gv,
 										SS_ref 				 SS_ref_db, 
 										struct bulk_info 	 z_b,
->>>>>>> dev
 										char    			*name			);		
 								
 csd_phase_set CP_UPDATE_function(		global_variable 	 gv,
