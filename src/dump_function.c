@@ -140,6 +140,7 @@ void fill_output_struct(		global_variable 	 gv,
 				G += cp[i].ss_comp[j]*gv.gam_tot[j];
 			}
 			
+			sp[0].SS[m].nOx 	 = gv.len_ox;
 			sp[0].SS[m].f 		 = cp[i].factor;
 			sp[0].SS[m].G 		 = G;
 			sp[0].SS[m].deltaG	 = cp[i].df;
@@ -211,6 +212,7 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].ph_id[n] 		 = m;
 			sp[0].n_PP 			+= 1;
 					
+			sp[0].PP[m].nOx 	 = gv.len_ox;
 			sp[0].PP[m].f 		 = PP_ref_db[i].factor;
 			sp[0].PP[m].G 		 = PP_ref_db[i].gbase;
 			sp[0].PP[m].deltaG	 = PP_ref_db[i].gb_lvl;

@@ -262,6 +262,8 @@ typedef struct csd_phase_sets {
 
 /* hold information of solution phases */
 typedef struct stb_SS_phases {
+	int      nOx;
+	
 	double   f;
 	double   G;
 	double   deltaG;
@@ -291,6 +293,8 @@ typedef struct stb_SS_phases {
 
 /* hold information of pure phases */
 typedef struct stb_PP_phases {
+	int    	 nOx;
+	
 	double   f;
 	double   G;
 	double   deltaG;
