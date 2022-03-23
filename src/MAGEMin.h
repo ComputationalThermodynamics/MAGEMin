@@ -210,7 +210,7 @@ struct bulk_info {
     int     *nzEl_array;   		/** position of non zero entries in the bulk 			*/
     int     *zEl_array;    	 	/** position of zero entries in the bulk 				*/
     double  *apo;				/** atom per oxide 										*/
-    double    fbc;				/** atom per oxide 										*/
+    double   fbc;				/** atom per oxide 										*/
     double  *masspo;			/** atom per oxide 										*/
 };
 
@@ -275,6 +275,9 @@ typedef struct stb_SS_phases {
 	double   Vp;
 	double   Vs;
 	
+	int      n_xeos;
+	int      n_em;
+	
 	double  *Comp;
 	double  *compVariables;
 	
@@ -320,16 +323,16 @@ typedef struct stb_systems {
 	double  bulk_res_norm;
 	double  rho;
 
-	double *bulk_S; double frac_S; double rho_S;  
-	double *bulk_M; double frac_M; double rho_M; 
-	double *bulk_F; double frac_F; double rho_F; 
+	double *bulk_S; double frac_S; double rho_S;  	/* Solid system informations 												*/
+	double *bulk_M; double frac_M; double rho_M; 	/* Melt system informations 												*/
+	double *bulk_F; double frac_F; double rho_F; 	/* Fluid system informations 												*/
 	
 	int     n_ph;									/* number of predicted stable phases 										*/
 	int     n_PP;									/* number of predicted stable pure phases 									*/
 	int     n_SS;									/* number of predicted stable solution phases 								*/
 
 	char  **ph;										/* phases names 															*/
-	double *ph_frac; 								/* 0 -> Solution phases; 1 -> Pure phases									*/
+	double *ph_frac; 								/* phase fractions															*/
 	int    *ph_type; 								/* 0 -> Solution phases; 1 -> Pure phases									*/
 	int    *ph_id;									/* position in the related stb_SS_phase or stb_PP_phase structure arrays	*/
 	
@@ -394,7 +397,7 @@ typedef struct global_variables {
 	double   eps_sf_pc;	
 	
 	/* SOLVI */
-	int     *verifyPC;		/** allow to check for solvi */
+	int     *verifyPC;			/** allow to check for solvi */
 	int 	*n_solvi;			/** number of phase considered for solvi */
 	int    **id_solvi;			/** cp id of the phases considered for solvi */
 			
@@ -404,8 +407,8 @@ typedef struct global_variables {
 
 	int     *newly_added;       /** index of the newly added solution phase */
 	double   box_size_mode_1;	/** edge size of the hyperdensity used during local minimization */
-	int   	 maxeval;			/** edge size of the hyperdensity used during local minimization */
-	int   	 maxeval_mode_1;	/** edge size of the hyperdensity used during local minimization */
+	int   	 maxeval;			/** maximum number of objective function evaluations during local minimization */
+	int   	 maxeval_mode_1;	/** maximum number of objective function evaluations during local minimization for mode 1 */
 	double   bnd_val;			/** boundary value for x-eos when the fraction of an endmember = 0. */
 	double 	*init_prop;			/** holds the initial proportions of the EM's, in case we do Mode=2 with only a single point */
 
@@ -441,7 +444,7 @@ typedef struct global_variables {
 	double	*dGamma;			/** array to store gamma change */
 	
 	double  *PGE_mass_norm;		/** save the evolution of the norm */
-	double  *PGE_total_norm;		/** save the evolution of the moving norm */
+	double  *PGE_total_norm;	/** save the evolution of the moving norm */
 	double  *gamma_norm;		/** save the evolution of the gamma norm */
 	double  *ite_time;
 	double   G_system;      	/** Gibbs energy of the system */
@@ -485,11 +488,11 @@ typedef struct Database {	PP_ref     		*PP_ref_db;			/** Pure phases 											
 							char 	  		**EM_names;			/** Names of endmembers 									*/
 } Databases;
 
-Databases InitializeDatabases(	global_variable gv, 
-								int 			EM_database		);
+Databases InitializeDatabases(				global_variable 	gv, 
+											int 				EM_database			);
 
-void FreeDatabases(	global_variable gv, 
-					Databases		DB							);
+void FreeDatabases(							global_variable 	gv, 
+											Databases			DB					);
 
 global_variable ComputeEquilibrium_Point(	int 				 EM_database,
 											io_data 			 input_data,
@@ -530,7 +533,7 @@ void PrintOutput(	global_variable 	gv,
 					int 				l, 
 					Databases 			DB, 
 					double 				time_taken, 
-					struct bulk_info 	z_b);
+					struct bulk_info 	z_b)				;
 
 
 #endif

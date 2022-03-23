@@ -43,9 +43,9 @@ PP_ref G_EM_function(		int 		 EM_database,
     */
 
 	/** if (EM_database == _tc_ds633_) { **/
-	double t0, p0, R;
-	double pth, theta, vv;
-	double enthalpy, entropy, volume;
+	double t0, 	p0, 	R;
+	double pth, theta, 	vv;
+	double enthalpy, 	entropy, volume;
 	double cpa, cpb, cpc, cpd;
 	double alpha0, kappa0, kappa0p, kappa0pp, dkappa0dT;
 	double cpterms, vterm, n;
@@ -127,7 +127,6 @@ PP_ref G_EM_function(		int 		 EM_database,
 		int mode      = 0;               														/** Mode is used to send the right *data (see root_finding.c) */
 		
 		vsub          =  BrentRoots(x1,x2,data,e,mode,maxiter, &yr, &k, &err);
-		
 		
 		double r      =   1.0/vsub;
 		double Ares   =   R1*T*( c1*r + (1.0/(c2 + c3*r + c4*pow(r, 2.0) + c5*pow(r, 3.0) + c6*pow(r, 4.0)) - 1.0/c2) - c7/c8*(exp(-c8*r) - 1.0) - c9/c10*(exp(-c10*r) - 1.0) );
