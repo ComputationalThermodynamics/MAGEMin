@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Main algorithm &mdash; MAGEMin 2022 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="MAGEMin" href="src/MAGEMin.html" />
+    <link rel="prev" title="Analytical formulation" href="dev/Dev.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html">
+            <img src="_static/2022_MAGEMin_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">In development:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="news.html">Seismic velocity calculation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="stp.html">Linux-based system</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="stp/Linux.html">External libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stp/Linux.html#magemin">MAGEMin</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="stp.html#macos-system">macOS system</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="stp/macOS.html">External libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stp/macOS.html#magemin">MAGEMin</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="stp.html#optional-developers">Optional (developers)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="stp/Dev.html">Python libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stp/Dev.html#c-tools">C tools</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods and examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="man.html">Thermodynamic problem</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="man/Thermo.html">Problem definition</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="man/Thermo.html#total-gibbs-energy">1. Total Gibbs energy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="man/Thermo.html#gibbs-duhem-constraint">2. Gibbs-Duhem constraint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="man/Thermo.html#mass-constraint">3. Mass constraint</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="man/Thermo.html#minimization-approach">Minimization approach</a></li>
+<li class="toctree-l2"><a class="reference internal" href="man/Thermo.html#algorithm-demonstration">Algorithm demonstration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="man.html#phase-diagrams">Phase diagrams</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="man/Examples.html">Examples of phase diagrams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="man/Examples.html#peridotite-klb1">Peridotite (KLB1)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="man/Examples.html#pyroxenite-mixg1">Pyroxenite (MIXG1)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="man/Examples.html#basalt-re46">Basalt (RE46)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="man/Examples.html#basalt-nmorb">Basalt (NMORB)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="man/Examples.html#hydrous-basalt">Hydrous basalt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="man/Examples.html#tonalite-101">Tonalite 101</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Cookbook:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ckbk.html">Command line minimization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ckbk/Commands.html">List of arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ckbk/Commands.html#single-point-calculation">Single point calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ckbk/Commands.html#multiple-points-calculation">Multiple points calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ckbk/Commands.html#multiple-points-in-parallel">Multiple points in parallel</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ckbk.html#data-output">Data output</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ckbk/out_struct.html">As a nested structure</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ckbk.html#pseudosection-generator">Pseudosection generator</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ckbk/gui.html">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ckbk/gui.html#klb-1-pseudosection-tutorial">KLB-1 Pseudosection tutorial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ckbk/gui.html#sarting-gui">Sarting GUI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ckbk/gui.html#set-p-t-conditions">Set P-T conditions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ckbk/gui.html#mesh-refinement-and-computation-options">Mesh refinement and computation options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ckbk/gui.html#choose-bulk-rock-composition">Choose bulk-rock composition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ckbk/gui.html#compute-pseudosection">Compute pseudosection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ckbk/gui.html#refine-pseudosection">Refine pseudosection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ckbk/gui.html#change-displayed-field">Change displayed field</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ckbk/gui.html#display-stable-phases-labels">Display stable phases labels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ckbk/gui.html#save-pseudosection-data">Save pseudosection data</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">FAQs:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Firewall warning (Apple M1)</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Developers section:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dev.html">Add database</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dev/Dev.html">Analytical formulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dev/Dev.html#generate-pseudocompounds">Generate pseudocompounds</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Source code:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Main algorithm</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src/MAGEMin.html">MAGEMin</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src/MAGEMin.html#mineral-assemblage-gibbs-energy-minimization">Mineral Assemblage Gibbs Energy Minimization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src/simplex_levelling.html">Simplex levelling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src/PGE_function.html">PGE_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src/phase_update_function.html">phase_update_function</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src/phase_update_function.html#pp-ss-flags">PP &amp; SS_flags</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src/dump_function.html">dump_function</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#pure-phases-functions">Pure phases functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src/gem_function.html">gem_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src/pp_min_function.html">pp_min_function</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src/pp_min_function.html#pure-phase-minimization-function">Pure phase minimization function</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#solution-phases-functions">Solution phases functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src/gss_init_function.html">gss_init_function</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src/gss_init_function.html#pp-ss-flags">PP &amp; SS_flags</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src/gss_function.html">gss_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src/ss_min_function.html">ss_min_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src/NLopt_opt_function.html">NLopt_opt_function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src/objective_functions.html">objective_functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#toolkit">Toolkit</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src/toolkit.html">toolkit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src/io_function.html">io_function</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">MAGEMin</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Main algorithm</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/src.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="main-algorithm">
+<h1>Main algorithm<a class="headerlink" href="#main-algorithm" title="Permalink to this headline"></a></h1>
+<a class="reference internal image-reference" href="_images/algo.png"><img alt="_images/algo.png" class="align-right" src="_images/algo.png" style="width: 300px;" /></a>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="src/MAGEMin.html">MAGEMin</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src/MAGEMin.html#mineral-assemblage-gibbs-energy-minimization">Mineral Assemblage Gibbs Energy Minimization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="src/simplex_levelling.html">Simplex levelling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="src/PGE_function.html">PGE_function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="src/phase_update_function.html">phase_update_function</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src/phase_update_function.html#pp-ss-flags">PP &amp; SS_flags</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="src/dump_function.html">dump_function</a></li>
+</ul>
+</div>
+</section>
+<section id="pure-phases-functions">
+<h1>Pure phases functions<a class="headerlink" href="#pure-phases-functions" title="Permalink to this headline"></a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="src/gem_function.html">gem_function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="src/pp_min_function.html">pp_min_function</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src/pp_min_function.html#pure-phase-minimization-function">Pure phase minimization function</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="solution-phases-functions">
+<h1>Solution phases functions<a class="headerlink" href="#solution-phases-functions" title="Permalink to this headline"></a></h1>
+<a class="reference internal image-reference" href="_images/hb.png"><img alt="_images/hb.png" class="align-right" src="_images/hb.png" style="width: 256px;" /></a>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="src/gss_init_function.html">gss_init_function</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src/gss_init_function.html#pp-ss-flags">PP &amp; SS_flags</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="src/gss_function.html">gss_function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="src/ss_min_function.html">ss_min_function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="src/NLopt_opt_function.html">NLopt_opt_function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="src/objective_functions.html">objective_functions</a></li>
+</ul>
+</div>
+</section>
+<section id="toolkit">
+<h1>Toolkit<a class="headerlink" href="#toolkit" title="Permalink to this headline"></a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="src/toolkit.html">toolkit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="src/io_function.html">io_function</a></li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="dev/Dev.html" class="btn btn-neutral float-left" title="Analytical formulation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="src/MAGEMin.html" class="btn btn-neutral float-right" title="MAGEMin" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Riel, N., &amp; Kaus, B.J.P..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -49,7 +49,7 @@ struct EM_db {
     double input_1[3];          /** first line of the thermodynamics datable 								*/
     double input_2[4];          /** second line of the thermodynamics datable 								*/
     double input_3[11];         /** third line of the thermodynamics datable 								*/
-    double input_4[3];         /** third line of the thermodynamics datable 								*/
+    double input_4[3];         	/** third line of the thermodynamics datable 								*/
 };
 
 /* Declare structures to hold reference gbase, composition and factor for solid solutions */
@@ -109,8 +109,8 @@ typedef struct SS_refs {
     double **mu_array;        	/** 2d array of gbase, including values for numerical differentiation 		*/
     double  *gb_lvl;
     double   factor;			/** normalizing factor 														*/
-    double **bounds;		/** x-eos bounds 															*/
-    double **bounds_ref;/** x-eos bounds 															*/
+    double **bounds;			/** x-eos bounds 															*/
+    double **bounds_ref;		/** x-eos bounds 															*/
     double  *z_em; 				/** 1d array to deactivate endmembers when bulk-rock = 0; this part is needed to calculat xi in PGE method */
     int      n_guess;			/** number of initial guesses used to solve for solvi (or local minimum) 	*/
     double  *iguess;    		/** 2d array of initial guess 												*/
@@ -311,6 +311,8 @@ typedef struct stb_PP_phases {
 typedef struct stb_systems {
 	
 	char   *MAGEMin_ver;
+	
+	int     nOx;
 	char  **oxides;
 	
 	double  P;
@@ -487,11 +489,11 @@ typedef struct Database {	PP_ref     		*PP_ref_db;			/** Pure phases 											
 							char 	  		**EM_names;			/** Names of endmembers 									*/
 } Databases;
 
-Databases InitializeDatabases(				global_variable 	gv, 
-											int 				EM_database			);
+Databases InitializeDatabases(				global_variable 	 gv, 
+											int 				 EM_database			);
 
-void FreeDatabases(							global_variable 	gv, 
-											Databases			DB					);
+void FreeDatabases(							global_variable 	 gv, 
+											Databases			 DB					);
 
 global_variable ComputeEquilibrium_Point(	int 				 EM_database,
 											io_data 			 input_data,
