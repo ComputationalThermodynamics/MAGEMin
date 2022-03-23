@@ -58,12 +58,17 @@ function point_wise_minimization(P::Float64,T::Float64, bulk_rock::Vector{Float6
     EM_database = 0
     
     # Perform the point-wise minimization after resetting variables
-    gv      = LibMAGEMin.reset_global_variables(gv,DB.PP_ref_db, DB.SS_ref_db, DB.cp)
-    gv      = LibMAGEMin.reset_phases(gv, z_b, DB.PP_ref_db, DB.SS_ref_db, DB.cp)
+    gv      = LibMAGEMin.reset_gv(gv,z_b, DB.PP_ref_db, DB.SS_ref_db)
+    LibMAGEMin.reset_cp(gv,z_b, DB.cp)
+    LibMAGEMin.reset_SS(gv,z_b, DB.SS_ref_db)
+    LibMAGEMin.reset_sp(gv, DB.sp)
+    
     time = @elapsed  gv      = LibMAGEMin.ComputeEquilibrium_Point(EM_database, input_data, Mode, z_b,gv,	DB.PP_ref_db,DB.SS_ref_db,DB.cp);
 
     # Postprocessing (NOTE: we should switch off printing if gv.verbose=0)
     LibMAGEMin.ComputePostProcessing(0, z_b, gv, DB.PP_ref_db, DB.SS_ref_db, DB.cp)
+
+    LibMAGEMin.fill_output_struct(	gv,	z_b, DB.PP_ref_db,DB.SS_ref_db,	DB.cp, DB.sp );
 
     # Transform results to a more convenient julia struct
     # To be done
@@ -88,25 +93,53 @@ end
 
 This extracts the output of a pointwise MAGEMin optimization and adds it into a julia structure
 """
-function create_output(gv, z_b)
+function create_output(DB, gv)
 
-    G_system = gv.G_system;
-    nzEl_arr = unsafe_wrap(Vector{Cint}, z_b.nzEl_array, z_b.nzEl_val) .+ 1;
-    Gam_array= unsafe_wrap(Vector{Cdouble},gv.gam_tot,gv.len_ox)
-    Gamma    = Gam_array[nzEl_arr]      # gamma of active oxides
-    P_kbar   = z_b.P
-    T_C      = z_b.T-273.15 
-    iter     = gv.global_ite
+    stb     =  unsafe_wrap(Vector{LibMAGEMin.stb_systems},DB.sp,1)[1]
+
+    G_system = stb.G;
+    Gamma    = unsafe_wrap(Vector{Cdouble},stb.gamma,gv.len_ox)
+    P_kbar   = stb.P
+    T_C      = stb.T-273.15 
     
-    # extract names of stable pure phases  
-    PP_list = unsafe_wrap(Vector{Ptr{Int8}}, gv.PP_list, gv.len_pp)
-    #pp_flags= unsafe_wrap(Array{Cint}, gv.pp_flags, (gv.len_pp, 1))
+    # Bulk rock info (total, melt, solid, fluid)
+    bulk     = unsafe_wrap(Vector{Cdouble},stb.bulk,   gv.len_ox)
+    bulk_M   = unsafe_wrap(Vector{Cdouble},stb.bulk_M, gv.len_ox)
+    bulk_S   = unsafe_wrap(Vector{Cdouble},stb.bulk_S, gv.len_ox)
+    bulk_F   = unsafe_wrap(Vector{Cdouble},stb.bulk_F, gv.len_ox)
+    
+    # Solid, melt, fluid fractions
+    frac_M   = stb.frac_M      
+    frac_S   = stb.frac_S
+    frac_F   = stb.frac_F
 
-    cp      = unsafe_wrap(Vector{LibMAGEMin.csd_phase_sets}, DB.cp,gv.len_cp)
-    for i=1:gv.len_cp
+    # Solid, melt, fluid densities
+    rho_M   = stb.rho_M      
+    rho_S   = stb.rho_S
+    rho_F   = stb.rho_F
 
-    end
+    # Numerics
+    bulk_res_norm = stb.bulk_res_norm
+    iter     =  gv.global_ite   
 
-    return output{gv.len_ox, typeof(G_system)}(G_system, Gamma, P_kbar, T_C, iter)
+    # Stable assemblage info
+    n_ph     =  stb.n_ph        # total # of stable phases
+    n_PP     =  stb.n_PP        # number of pure phases
+    n_SS     =  stb.n_SS        # number of solid solutions
+    
+    ph_frac  =  unsafe_wrap(Vector{Cdouble},stb.ph_frac,   n_ph)
+    ph_type  =  unsafe_wrap(Vector{Cint},   stb.ph_type,   n_ph)
+    ph_id    =  unsafe_wrap(Vector{Cint},   stb.ph_id  ,   n_ph)
+    ph       =  unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, stb.ph, n_ph)) # stable phases
+    
+    # extract info about compositional variables of the solution models
+    stb_SS_phase = unsafe_wrap(Vector{LibMAGEMin.stb_SS_phase},stb.SS,n_SS)
+    stb_PP_phase = unsafe_wrap(Vector{LibMAGEMin.stb_PP_phase},stb.PP,n_PP)    
+
+    # Names of oxides
+    oxides   = unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, stb.oxides, gv.len_ox))
+
+
+   # return output{gv.len_ox, typeof(G_system)}(G_system, Gamma, P_kbar, T_C, iter)
 end
 
