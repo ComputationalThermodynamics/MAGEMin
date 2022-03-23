@@ -1,7 +1,10 @@
 # The full functionality of MAGEMin is wrapped in ../gen/magemin_library.jl
 # Yet, the routines here make it more convenient to use this from julia
 
-export init_MAGEMin, point_wise_minimization, get_bulk_rock, create_output
+import Base.show
+
+export  init_MAGEMin, point_wise_minimization, get_bulk_rock, create_output,
+        print_info
 
 
 """
@@ -66,34 +69,70 @@ function point_wise_minimization(P::Float64,T::Float64, bulk_rock::Vector{Float6
     time = @elapsed  gv      = LibMAGEMin.ComputeEquilibrium_Point(EM_database, input_data, Mode, z_b,gv,	DB.PP_ref_db,DB.SS_ref_db,DB.cp);
 
     # Postprocessing (NOTE: we should switch off printing if gv.verbose=0)
-    LibMAGEMin.ComputePostProcessing(0, z_b, gv, DB.PP_ref_db, DB.SS_ref_db, DB.cp)
+    gv = LibMAGEMin.ComputePostProcessing(0, z_b, gv, DB.PP_ref_db, DB.SS_ref_db, DB.cp)
 
     LibMAGEMin.fill_output_struct(	gv,	z_b, DB.PP_ref_db,DB.SS_ref_db,	DB.cp, DB.sp );
 
     # Transform results to a more convenient julia struct
-    # To be done
+    out = create_gmin_struct(DB, gv, time);
 
-    return gv, z_b, time
+    return out
 end
 
 """
     structure that holds the result of the pointwise minisation 
 
 """
-struct output{len_ox,T}
+struct gmin_struct{T,I}
     G_system::T             # G of system
     Gamma::Vector{T}        # Gamma
     P_kbar::T               # Pressure in kbar
     T_C::T                  # Temperature in Celcius
-    iter::Int64             # number of iterations required
+
+    # bulk rock composition:
+    bulk::Vector{T}   
+    bulk_M::Vector{T}   
+    bulk_S::Vector{T}   
+    bulk_F::Vector{T}   
+    
+    # Fractions:
+    # Solid, melt, fluid fractions
+    frac_M::T   
+    frac_S::T
+    frac_F::T
+ 
+    # Solid, melt, fluid densities
+    rho::T
+    rho_M::T      
+    rho_S::T
+    rho_F::T
+
+    # Phase fractions and type:
+    n_PP::Int64                 # number of pure phases
+    n_SS::Int64                 # number of solid solutions
+    
+    ph_frac::Vector{T}          # phase fractions
+    ph_type::Vector{I}      # type of phase (SS or PP)
+    ph_id::Vector{I}        # id of phase
+    ph::Vector{String}          # Name of phase
+    
+    SS_vec::Vector{LibMAGEMin.SS_data}
+    PP_vec::Vector{LibMAGEMin.PP_data}
+    
+    oxides::Vector{String}
+
+    # Numerics:
+    iter::I             # number of iterations required
+    bulk_res_norm::T    # bulk residual norm
+    time_ms::T          # computational time for this point
 end
 
 """
-    out = create_output(gv, z_b)
+    out = create_gmin_struct(gv, z_b)
 
 This extracts the output of a pointwise MAGEMin optimization and adds it into a julia structure
 """
-function create_output(DB, gv)
+function create_gmin_struct(DB, gv, time)
 
     stb     =  unsafe_wrap(Vector{LibMAGEMin.stb_systems},DB.sp,1)[1]
 
@@ -114,13 +153,10 @@ function create_output(DB, gv)
     frac_F   = stb.frac_F
 
     # Solid, melt, fluid densities
+    rho     = stb.rho
     rho_M   = stb.rho_M      
     rho_S   = stb.rho_S
     rho_F   = stb.rho_F
-
-    # Numerics
-    bulk_res_norm = stb.bulk_res_norm
-    iter     =  gv.global_ite   
 
     # Stable assemblage info
     n_ph     =  stb.n_ph        # total # of stable phases
@@ -132,14 +168,155 @@ function create_output(DB, gv)
     ph_id    =  unsafe_wrap(Vector{Cint},   stb.ph_id  ,   n_ph)
     ph       =  unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, stb.ph, n_ph)) # stable phases
     
-    # extract info about compositional variables of the solution models
-    stb_SS_phase = unsafe_wrap(Vector{LibMAGEMin.stb_SS_phase},stb.SS,n_SS)
-    stb_PP_phase = unsafe_wrap(Vector{LibMAGEMin.stb_PP_phase},stb.PP,n_PP)    
+    # extract info about compositional variables of the solution models:
+    SS_vec  = convert.(LibMAGEMin.SS_data, unsafe_wrap(Vector{LibMAGEMin.stb_SS_phase},stb.SS,n_SS))
+    
+    # Info about the endmembers:
+    PP_vec  = convert.(LibMAGEMin.PP_data, unsafe_wrap(Vector{LibMAGEMin.stb_PP_phase},stb.PP,n_PP))    
 
-    # Names of oxides
+    # Names of oxides:
     oxides   = unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, stb.oxides, gv.len_ox))
     
+    # Numerics
+    bulk_res_norm   =  stb.bulk_res_norm
+    iter            =  gv.global_ite   
+    time_ms         =  time*1000.0
 
-   # return output{gv.len_ox, typeof(G_system)}(G_system, Gamma, P_kbar, T_C, iter)
+    # Store all in output struct 
+    out = gmin_struct{Float64,Int64}( G_system, Gamma, P_kbar, T_C, 
+                bulk, bulk_M, bulk_S, bulk_F, 
+                frac_M, frac_S, frac_F, 
+                rho, rho_M, rho_S, rho_F,   
+                n_PP, n_SS,
+                ph_frac, ph_type, ph_id, ph,
+                SS_vec,  PP_vec, 
+                oxides,  
+                iter, bulk_res_norm, time_ms)
+
+   return out
 end
+
+
+# Print brief info about pointwise calculation result 
+function show(io::IO, g::gmin_struct)  
+    println(io, "Pressure          : $(g.P_kbar)      [kbar]")  
+    println(io, "Temperature       : $(round(g.T_C,digits=4))    [Celcius]")  
+    
+    println(io, "     Stable phase | Fraction ")  
+    for i=1:length(g.ph)
+        println(io, "   $(lpad(g.ph[i],14," "))   $( round(g.ph_frac[i], digits=5)) ")  
+    end
+    println(io, "Gibbs free energy : $(round(g.G_system,digits=6))  ($(g.iter) iterations; $(round(g.time_ms,digits=2)) ms)")  
+    
+end
+
+"""
+    print_info(g::gmin_struct)
+
+Prints a more extensive overview of the simulation results
+"""
+function print_info(g::gmin_struct)
+   
+    for i=1:length(g.ph)
+        print("$(lpad(g.ph[i],6," ")) ")  
+    end
+    print("  {$(round(g.P_kbar,digits=4)), $(round(g.T_C,digits=4))}  kbar/°C \n \n")  
+   
+    # ==
+    println("Compositional variables (solution phase):")
+    for i=1:g.n_SS
+        print("$(lpad(g.ph[i],15," ")) ")  
+        for j=1:length(g.SS_vec[i].compVariables)
+            print("$(lpad(round(g.SS_vec[i].compVariables[j],digits=5),8," ")) ")  
+        end
+        print("\n")
+    end
+    print("\n")
+    # ==
+
+    # ==
+    println("End-members fraction (solution phase):")
+    for i=1:g.n_SS
+
+        print("                ")
+        for j=1:length(g.SS_vec[i].emNames)
+            print("$(lpad(g.SS_vec[i].emNames[j],8," ")) ")  
+        end
+        print("\n")
+        print("$(lpad(g.ph[i],15," ")) ")  
+        for j=1:length(g.SS_vec[i].emFrac)
+            print("$(lpad(round(g.SS_vec[i].emFrac[j],digits=5),8," ")) ")  
+        end
+        print("\n")
+    end
+    print("\n")
+    # ==
+      # ==
+      println("Oxide compositions [mol%] (normalized):")
+      print("                ")    
+      for i=1:length(g.oxides)
+          print("$(lpad(g.oxides[i],8," ")) ")  
+      end
+      print("\n")
+  
+      print("$(lpad("SYS",15)) ")  
+      for i=1:length(g.oxides)
+          print("$(lpad(round(g.bulk[i],digits=5),8," ")) ")  
+      end
+      print("\n")
+  
+      for i=1:g.n_SS
+          print("$(lpad(g.ph[i],15," ")) ")  
+          for j=1:length(g.oxides)
+              print("$(lpad(round(g.SS_vec[i].Comp[j],digits=5),8," ")) ")  
+          end
+          print("\n")
+      end
+      print("\n")
+      # ==
+      
+    # ==
+    println("Stable mineral assemblage:")
+    println("          phase     mode        f           G        V       Cp         rho  Thermal_Exp BulkMod[GPa] ShearMod[GPa]   Vp[km/s]   Vs[km/s]    ")
+    for i=1:g.n_SS
+        print("$(lpad(g.ph[i],15," ")) ")  
+        print("$(lpad(round(g.ph_frac[i],digits=5),8," ")) ")  
+        print("$(lpad(round(g.SS_vec[i].f,digits=5),8," ")) ")  
+        print("$(lpad(round(g.SS_vec[i].G,digits=5),8," ")) ")  
+        print("$(lpad(round(g.SS_vec[i].V,digits=5),8," ")) ")  
+        print("$(lpad(round(g.SS_vec[i].cp,digits=5),8," ")) ")  
+        print("$(lpad(round(g.SS_vec[i].rho,digits=5),11," "))   ")  
+        print("$(lpad(round(g.SS_vec[i].alpha,digits=5),8," "))   ")  
+        print("$(lpad(round(g.SS_vec[i].bulkMod,digits=5),12," ")) ")  
+        print("$(lpad(round(g.SS_vec[i].shearMod,digits=5),13," ")) ")  
+        print("$(lpad(round(g.SS_vec[i].Vp,digits=5),10," ")) ")  
+        print("$(lpad(round(g.SS_vec[i].Vs,digits=5),10," ")) ")  
+        
+        print("\n")
+    end
+    print("$(lpad("SYS",15," "))                    ")  
+    print("$(lpad(round(g.G_system,digits=5),8," ")) ")  
+    print("$(lpad(round(g.rho,digits=5),29," ")) ")  
+        
+    print("\n")
+    print("\n")
+    # ==
+
+  
+
+    println("Gamma (chemical potential of oxides):")  
+    for i=1:length(g.oxides)
+        println("  $(lpad(g.oxides[i],6," "))  $(rpad(round(g.Gamma[i],digits=5),15," ")) ")  
+    end
+    print("\n")
+
+    println("delta Gibbs energy (G-hyperplane distance):")  
+    for i=1:g.n_SS
+        println("  $(lpad(g.ph[i],6," "))  $(rpad(g.SS_vec[i].deltaG,15," ")) ")  
+    end
+    print("\n")
+
+end
+
+
 
