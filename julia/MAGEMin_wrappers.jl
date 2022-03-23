@@ -73,7 +73,7 @@ function point_wise_minimization(P::Float64,T::Float64, bulk_rock::Vector{Float6
     # Transform results to a more convenient julia struct
     # To be done
 
-    return gv, z_b, time*1e3
+    return gv, z_b, time
 end
 
 """
@@ -138,7 +138,7 @@ function create_output(DB, gv)
 
     # Names of oxides
     oxides   = unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, stb.oxides, gv.len_ox))
-
+    
 
    # return output{gv.len_ox, typeof(G_system)}(G_system, Gamma, P_kbar, T_C, iter)
 end

@@ -1,13 +1,7 @@
 module LibMAGEMin
 
-if isfile("libMAGEMin.dylib")
-    libMAGEMin = joinpath(pwd(),"libMAGEMin.dylib")
-    println("Loading local libMAGEMin dynamic library")
-else
-    using MAGEMin_jll
-    export MAGEMin_jll
-    println("Loading libMAGEMin dynamic library from MAGEMin_jll")
-end
+using MAGEMin_jll
+export MAGEMin_jll
 
 using CEnum
 
@@ -17,6 +11,18 @@ using CEnum
 
 
 const HASH_JEN = 0;
+
+if isfile("libMAGEMin.dylib")
+    libMAGEMin = joinpath(pwd(),"libMAGEMin.dylib")
+    println("Loading local libMAGEMin dynamic library")
+else
+    using MAGEMin_jll
+    export MAGEMin_jll
+    println("Loading libMAGEMin dynamic library from MAGEMin_jll")
+end
+
+
+
 
 #
 # END OF PROLOGUE
@@ -686,6 +692,8 @@ struct stb_SS_phases
     shearMod::Cdouble
     Vp::Cdouble
     Vs::Cdouble
+    n_xeos::Cint
+    n_em::Cint
     Comp::Ptr{Cdouble}
     compVariables::Ptr{Cdouble}
     emNames::Ptr{Ptr{Cchar}}
@@ -715,6 +723,7 @@ const stb_PP_phase = stb_PP_phases
 
 struct stb_systems
     MAGEMin_ver::Ptr{Cchar}
+    nOx::Cint
     oxides::Ptr{Ptr{Cchar}}
     P::Cdouble
     T::Cdouble
@@ -933,7 +942,7 @@ struct UT_hash_bucket
     expand_mult::Cuint
 end
 
-@cenum var"##Ctag#368"::UInt32 begin
+@cenum var"##Ctag#302"::UInt32 begin
     _tc_ds634_ = 0
 end
 
@@ -1505,6 +1514,60 @@ const ko_no_argument = 0
 const ko_required_argument = 1
 
 const ko_optional_argument = 2
+
+#
+# START OF EPILOGUE
+#
+
+
+
+
+struct SS_data
+    f::Cdouble
+    G::Cdouble
+    deltaG::Cdouble
+    V::Cdouble
+    alpha::Cdouble
+    cp::Cdouble
+    rho::Cdouble
+    bulkMod::Cdouble
+    shearMod::Cdouble
+    Vp::Cdouble
+    Vs::Cdouble
+    n_xeos::Cint
+    n_em::Cint
+    Comp::Vector{Cdouble}
+    compVariables::Vector{Cdouble}
+    emNames::Vector{String}
+    emFrac::Vector{Cdouble}
+    emChemPot::Vector{Cdouble}
+    emComp::Vector{String}
+end
+
+struct PP_data
+    f::Cdouble
+    G::Cdouble
+    deltaG::Cdouble
+    V::Cdouble
+    alpha::Cdouble
+    cp::Cdouble
+    rho::Cdouble
+    bulkMod::Cdouble
+    shearMod::Cdouble
+    Vp::Cdouble
+    Vs::Cdouble
+    Comp::Vector{Cdouble}
+end
+
+function Base.convert(::Type{PP_data}, a::stb_PP_phases) 
+    return PP_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
+                    unsafe_wrap(Vector{Cdouble},a.Comp, 11))
+end
+
+
+#
+# END OF EPILOGUE
+#
 
 # exports
 const PREFIXES = ["CX", "clang_"]

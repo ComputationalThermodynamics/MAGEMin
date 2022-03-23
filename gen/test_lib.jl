@@ -11,7 +11,7 @@ bulk_rock = get_bulk_rock(gv, test)
 # Call optimization routine for given P & T
 P       = 8.
 T       = 800.
-gv.verbose = 0
+gv.verbose = -1
 gv, z_b, time = point_wise_minimization(P,T, bulk_rock, gv, DB);
 
 

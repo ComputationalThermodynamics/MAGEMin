@@ -5,6 +5,7 @@ module_name = "LibMAGEMin"
 jll_pkg_name = "MAGEMin_jll"
 
 prologue_file_path = "./prologue.jl"
+epilogue_file_path = "./epilogue.jl"
 
 auto_mutability = true              # Create mutable structures:
 auto_mutability_with_new = true     # Allow creating empty structs
