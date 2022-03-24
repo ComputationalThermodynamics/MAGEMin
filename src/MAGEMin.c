@@ -567,8 +567,8 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 	/* if Mode = 1, spit out Gibbs energy and reference values with given compositional variables */
 	else if (Mode == 1){
 		printf("\n");
-		printf("  Spit out Solution model informations forgiven input\n");
-		printf("  ═══════════════════════════════════════════════════\n");
+		printf("  Spit out Solution model informations for given input\n");
+		printf("  ════════════════════════════════════════════════════\n");
 		int id_cp = 0;
 		for (int i = 0; i < input_data.n_phase; i++){
 			/* simple function to get the array index of the given solution phase */

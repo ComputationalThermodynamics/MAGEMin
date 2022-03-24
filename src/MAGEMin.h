@@ -316,6 +316,10 @@ typedef struct stb_systems {
 	
 	char   *MAGEMin_ver;
 	
+	double  bulk_res_norm;
+	int     n_iterations;
+	int     status;
+	
 	int     nOx;
 	char  **oxides;
 	
@@ -325,7 +329,6 @@ typedef struct stb_systems {
 	
 	double *gamma;
 	double  G;
-	double  bulk_res_norm;
 	double  rho;
 	
 	double  bulkMod;
@@ -361,6 +364,7 @@ typedef struct global_variables {
 	int      Mode;				/** calcultion mode, 0 = full minimization, 1 = extract solution phases informations, 2 = local minimization */
 	double **numDiff;
 	int      n_Diff;
+	int      status;			/** status of the minimization */
 	
 	/* GENERAL PARAMETERS */
 	double   relax_PGE;

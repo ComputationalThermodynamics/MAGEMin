@@ -1004,10 +1004,10 @@ global_variable PGE(	struct bulk_info 	z_b,
 		/* Increment global iteration value */
 		gv.global_ite += 1;
 
-		if (gv.global_ite > gv.ur_1 && gv.BR_norm < gv.br_max_tol*(gv.br_max_rlx/5.0)){		if (gv.verbose != -1){printf(" >200 iterations, under-relax mass constraint norm (*2.0)\n\n");}		break;	}
-		if (gv.global_ite > gv.ur_2 && gv.BR_norm < gv.br_max_tol*(gv.br_max_rlx/2.0)){		if (gv.verbose != -1){printf(" >300 iterations, under-relax mass constraint norm (*5.0)\n\n");}		break;	}
-		if (gv.global_ite > gv.ur_3 && gv.BR_norm < gv.br_max_tol*gv.br_max_rlx){			if (gv.verbose != -1){printf(" >400 iterations, under-relax mass constraint norm (*10.0)\n\n");}		break;	}
-		if (gv.global_ite > gv.ur_f){														if (gv.verbose != -1){printf(" >500 iterations, did not converge  !!!\n\n");}						break;	}
+		if (gv.global_ite > gv.ur_1 && gv.BR_norm < gv.br_max_tol*(gv.br_max_rlx/5.0)){		gv.status = 1; if (gv.verbose != -1){printf(" >200 iterations, under-relax mass constraint norm (*2.0)\n\n");}		break;	}
+		if (gv.global_ite > gv.ur_2 && gv.BR_norm < gv.br_max_tol*(gv.br_max_rlx/2.0)){		gv.status = 2; if (gv.verbose != -1){printf(" >300 iterations, under-relax mass constraint norm (*5.0)\n\n");}		break;	}
+		if (gv.global_ite > gv.ur_3 && gv.BR_norm < gv.br_max_tol*gv.br_max_rlx){			gv.status = 2; if (gv.verbose != -1){printf(" >400 iterations, under-relax mass constraint norm (*10.0)\n\n");}		break;	}
+		if (gv.global_ite > gv.ur_f){														gv.status = 3; if (gv.verbose != -1){printf(" >500 iterations, did not converge  !!!\n\n");}						break;	}
 
 		/* check evolution of mass constraint residual */
 		gv.PGE_mass_norm[gv.global_ite]  = gv.BR_norm;	/** sav norm for the current global iteration */
@@ -1024,8 +1024,7 @@ global_variable PGE(	struct bulk_info 	z_b,
 				}
 			}
 		}
-		if (gv.div == 1){ break; }
-		
+		if (gv.div == 1){ gv.status = 4; break; }
 
 		t = clock() - t; 
 		if (gv.verbose == 1){
