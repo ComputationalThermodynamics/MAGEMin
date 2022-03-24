@@ -327,7 +327,12 @@ typedef struct stb_systems {
 	double  G;
 	double  bulk_res_norm;
 	double  rho;
-
+	
+	double  bulkMod;
+	double  shearMod;
+	double  Vp;
+	double  Vs;
+	
 	double *bulk_S; double frac_S; double rho_S;  	/* Solid system informations 												*/
 	double *bulk_M; double frac_M; double rho_M; 	/* Melt system informations 												*/
 	double *bulk_F; double frac_F; double rho_F; 	/* Fluid system informations 												*/

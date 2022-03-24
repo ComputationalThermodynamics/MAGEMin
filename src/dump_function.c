@@ -100,6 +100,10 @@ void fill_output_struct(		global_variable 	 gv,
 	sp[0].nOx					 = gv.len_ox;
 	sp[0].bulk_res_norm 		 = gv.br_norm;
 	sp[0].rho					 = gv.system_density;
+	sp[0].bulkMod				 = gv.system_bulkModulus;
+	sp[0].shearMod				 = gv.system_shearModulus;
+	sp[0].Vp					 = gv.system_Vp;
+	sp[0].Vs					 = gv.system_Vs;
 
 	sp[0].G = 0.0;
 	for (j = 0; j < gv.len_ox; j++){
