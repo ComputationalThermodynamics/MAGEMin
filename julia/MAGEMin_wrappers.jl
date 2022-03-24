@@ -75,9 +75,13 @@ function point_wise_minimization(P::Float64,T::Float64, bulk_rock::Vector{Float6
 
     # Transform results to a more convenient julia struct
     out = create_gmin_struct(DB, gv, time);
-
+    
     return out
 end
+
+point_wise_minimization(P::Integer, T::Integer, bulk_rock::Vector{Float64}, gv, DB) = point_wise_minimization(Float64(P),Float64(T), bulk_rock::Vector{Float64}, gv, DB)
+point_wise_minimization(P::Float64, T::Integer, bulk_rock::Vector{Float64}, gv, DB) = point_wise_minimization(Float64(P),Float64(T), bulk_rock::Vector{Float64}, gv, DB)
+point_wise_minimization(P::Integer, T::Float64, bulk_rock::Vector{Float64}, gv, DB) = point_wise_minimization(Float64(P),Float64(T), bulk_rock::Vector{Float64}, gv, DB)
 
 """
     structure that holds the result of the pointwise minisation 
@@ -182,6 +186,7 @@ function create_gmin_struct(DB, gv, time)
     iter            =  gv.global_ite   
     time_ms         =  time*1000.0
 
+    
     # Store all in output struct 
     out = gmin_struct{Float64,Int64}( G_system, Gamma, P_kbar, T_C, 
                 bulk, bulk_M, bulk_S, bulk_F, 
@@ -192,7 +197,7 @@ function create_gmin_struct(DB, gv, time)
                 SS_vec,  PP_vec, 
                 oxides,  
                 iter, bulk_res_norm, time_ms)
-
+    
    return out
 end
 
@@ -217,13 +222,14 @@ Prints a more extensive overview of the simulation results
 """
 function print_info(g::gmin_struct)
    
+    println("Stable phases @ {$(round(g.P_kbar,digits=4)), $(round(g.T_C,digits=4))}  kbar/°C :")
     for i=1:length(g.ph)
         print("$(lpad(g.ph[i],6," ")) ")  
     end
-    print("  {$(round(g.P_kbar,digits=4)), $(round(g.T_C,digits=4))}  kbar/°C \n \n")  
+    print("  \n \n")  
    
     # ==
-    println("Compositional variables (solution phase):")
+    println("Compositional variables (sol   ution phase):")
     for i=1:g.n_SS
         print("$(lpad(g.ph[i],15," ")) ")  
         for j=1:length(g.SS_vec[i].compVariables)
@@ -272,12 +278,19 @@ function print_info(g::gmin_struct)
           end
           print("\n")
       end
+      for i=1:g.n_PP
+        print("$(lpad(g.ph[i],15," ")) ")  
+        for j=1:length(g.oxides)
+            print("$(lpad(round(g.PP_vec[i].Comp[j],digits=5),8," ")) ")  
+        end
+        print("\n")
+    end
       print("\n")
       # ==
       
     # ==
     println("Stable mineral assemblage:")
-    println("          phase     mode        f           G        V       Cp         rho  Thermal_Exp BulkMod[GPa] ShearMod[GPa]   Vp[km/s]   Vs[km/s]    ")
+    println("          phase     mode        f           G        V       Cp  rho[kg/m3]  Thermal_Exp BulkMod[GPa] ShearMod[GPa]   Vp[km/s]   Vs[km/s]    ")
     for i=1:g.n_SS
         print("$(lpad(g.ph[i],15," ")) ")  
         print("$(lpad(round(g.ph_frac[i],digits=5),8," ")) ")  
@@ -294,15 +307,31 @@ function print_info(g::gmin_struct)
         
         print("\n")
     end
-    print("$(lpad("SYS",15," "))                    ")  
-    print("$(lpad(round(g.G_system,digits=5),8," ")) ")  
+    for i=1:g.n_PP
+        print("$(lpad(g.ph[i],15," ")) ")  
+        print("$(lpad(round(g.ph_frac[i],digits=5),8," ")) ")  
+        print("$(lpad(round(g.PP_vec[i].f,digits=5),8," ")) ")  
+        print("$(lpad(round(g.PP_vec[i].G,digits=5),8," ")) ")  
+        print("$(lpad(round(g.PP_vec[i].V,digits=5),8," ")) ")  
+        print("$(lpad(round(g.PP_vec[i].cp,digits=5),8," ")) ")  
+        print("$(lpad(round(g.PP_vec[i].rho,digits=5),11," "))   ")  
+        print("$(lpad(round(g.PP_vec[i].alpha,digits=5),8," "))   ")  
+        print("$(lpad(round(g.PP_vec[i].bulkMod,digits=5),12," ")) ")  
+        print("$(lpad(round(g.PP_vec[i].shearMod,digits=5),13," ")) ")  
+        print("$(lpad(round(g.PP_vec[i].Vp,digits=5),10," ")) ")  
+        print("$(lpad(round(g.PP_vec[i].Vs,digits=5),10," ")) ")  
+        
+        print("\n")
+    end
+    
+    print("$(lpad("SYS",15," ")) ")  
+    print("$(lpad(round(sum(g.ph_frac),digits=5),4," ")) ")  
+    print("$(lpad(round(g.G_system,digits=5),24," ")) ")  
     print("$(lpad(round(g.rho,digits=5),29," ")) ")  
         
     print("\n")
     print("\n")
     # ==
-
-  
 
     println("Gamma (chemical potential of oxides):")  
     for i=1:length(g.oxides)
@@ -314,6 +343,10 @@ function print_info(g::gmin_struct)
     for i=1:g.n_SS
         println("  $(lpad(g.ph[i],6," "))  $(rpad(g.SS_vec[i].deltaG,15," ")) ")  
     end
+    for i=1:g.n_PP
+        println("  $(lpad(g.ph[i],6," "))  $(rpad(g.PP_vec[i].deltaG,15," ")) ")  
+    end
+    
     print("\n")
 
 end
