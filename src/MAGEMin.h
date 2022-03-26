@@ -300,6 +300,7 @@ typedef struct global_variables {
 
 	int      numPoint; 			/** the number of the current point */
 	int      global_ite;		/** global iteration increment */
+	int      status;		    /** status code */
 
 	/* LEVELLING */
 	double   LVL_time;			/** time taken for levelling (ms) */
@@ -452,5 +453,7 @@ void PrintOutput(	global_variable 	gv,
 					double 				time_taken, 
 					struct bulk_info 	z_b);
 
+/* function converting the solver status code to human-readable text and printing it to screen */
+void PrintStatus(	int status );
 
 #endif
