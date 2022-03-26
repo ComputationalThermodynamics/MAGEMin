@@ -896,8 +896,8 @@ void PrintOutput(	global_variable 	gv,
 					struct bulk_info 	z_b				){
 						
 	int i;
-	if (gv.Mode==0 && gv.verbose != 2){
-		printf("Status        : %i ",gv.status);
+	if (gv.Mode==0 && gv.verbose !=-1){
+		printf(" Status             : %i ",gv.status);
 		if (gv.verbose == 1){PrintStatus(gv.status);}
 		printf("\n");
 
