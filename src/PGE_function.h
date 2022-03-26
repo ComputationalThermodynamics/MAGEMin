@@ -1,6 +1,8 @@
 #ifndef __PGE_FUNCTION_H_
 #define __PGE_FUNCTION_H_
 
+#include "MAGEMin.h"
+
 global_variable PGE(			struct bulk_info 	z_b,
 								global_variable 	gv,
 								

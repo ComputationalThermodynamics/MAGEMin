@@ -105,17 +105,18 @@ double Maximum(double a,double b) {
 /**
   main Brent root finding routine 
 */
-double BrentRoots(  double x1, 
-					double x2, 
+double BrentRoots(  double  x1, 
+					double  x2, 
 					double *data,
-					double Tolerance,
+					double  Tolerance,
 					
-					int mode,
-					int maxIterations,
+					int 	mode,
+					int 	maxIterations,
 					double *valueAtRoot,
 					
-					int *niter, 
-					int *error )  {
+					int 	*niter, 
+					int 	*error 			
+){
 
   double FPP = 1e-11, nearzero = 1e-40;
 
@@ -525,9 +526,8 @@ void print_vector_norm( char* desc, int m, int n, double* a, int lda ) {
 /**
 	function to print out considered phases structure 
 */
-void print_cp(
-	global_variable gv,
-	csd_phase_set  *cp
+void print_cp(		global_variable	 gv,
+					csd_phase_set  	*cp
 ){
 	printf("PRINT CONSIDERED PHASES\n");
 	printf("------------------------\n\n");
@@ -557,10 +557,6 @@ void print_cp(
 		}
 		printf("\n");
 		printf(" SS_mode:  %+10f\n", cp[i].ss_n);
-	 	printf(" SS_z_em:  ");
-		for (int ii = 0; ii < cp[i].n_em; ii++){
-			printf("%+10f ",cp[i].z_em[ii]);
-		}
 		printf("\n");
 	 	printf(" SS_p_em:  ");
 		for (int ii = 0; ii < cp[i].n_em; ii++){
@@ -605,24 +601,11 @@ void print_SS_informations(		global_variable gv,
 	for (int k = SS_ref_db.n_xeos; k < 11; k++){
 		printf(" %10s","-");
 	}
-	//printf(" | ");
-	//for (int k = 0; k < SS_ref_db.n_em; k++) {
-		//printf(" %+10f",SS_ref_db.p[k]);
-	//}
-	//for (int k = SS_ref_db.n_em; k < 12; k++){
-		//printf(" %10s","-");
-	//}
-	//printf(" | ");
-	//for (int k = 0; k < gv.len_ox; k++){
-		//printf(" %+10f",SS_ref_db.ss_comp[k]*SS_ref_db.factor);
-	//}
+
 	printf(" | ");
 	for (int k = 0; k < SS_ref_db.n_xeos; k++) {
 		printf(" %+10f",SS_ref_db.dfx[k]);
 	}
-	//for (int k = SS_ref_db.n_em; k < 12; k++){
-		//printf(" %10s","-");
-	//}
 	printf("\n");
 }
 
@@ -667,20 +650,19 @@ SS_ref restrict_SS_HyperVolume(		global_variable gv,
 									double box_size		){
 									
 	for (int j = 0; j < SS_ref_db.n_xeos; j++){
-		SS_ref_db.box_bounds[j][0] = SS_ref_db.iguess[j] - box_size;
-		SS_ref_db.box_bounds[j][1] = SS_ref_db.iguess[j] + box_size;
+		SS_ref_db.bounds[j][0] = SS_ref_db.iguess[j] - box_size;
+		SS_ref_db.bounds[j][1] = SS_ref_db.iguess[j] + box_size;
 		
-		if (SS_ref_db.box_bounds[j][0] < SS_ref_db.box_bounds_default[j][0]){
-			SS_ref_db.box_bounds[j][0] = SS_ref_db.box_bounds_default[j][0];
+		if (SS_ref_db.bounds[j][0] < SS_ref_db.bounds_ref[j][0]){
+			SS_ref_db.bounds[j][0] = SS_ref_db.bounds_ref[j][0];
 		}
-		if (SS_ref_db.box_bounds[j][1] > SS_ref_db.box_bounds_default[j][1]){
-			SS_ref_db.box_bounds[j][1] = SS_ref_db.box_bounds_default[j][1];
+		if (SS_ref_db.bounds[j][1] > SS_ref_db.bounds_ref[j][1]){
+			SS_ref_db.bounds[j][1] = SS_ref_db.bounds_ref[j][1];
 		}
 	}
 						
 	return SS_ref_db;										
 }
-
 
 /**
    check bounds
@@ -689,18 +671,16 @@ SS_ref check_SS_bounds(		global_variable gv,
 							SS_ref SS_ref_db					){
 									
 	for (int j = 0; j < SS_ref_db.n_xeos; j++){
-		if (SS_ref_db.iguess[j] < SS_ref_db.box_bounds_default[j][0]){
-			SS_ref_db.iguess[j] = SS_ref_db.box_bounds_default[j][0];
+		if (SS_ref_db.iguess[j] < SS_ref_db.bounds_ref[j][0]){
+			SS_ref_db.iguess[j] = SS_ref_db.bounds_ref[j][0];
 		}
-		if (SS_ref_db.iguess[j] > SS_ref_db.box_bounds_default[j][1]){
-			SS_ref_db.iguess[j] = SS_ref_db.box_bounds_default[j][1];
+		if (SS_ref_db.iguess[j] > SS_ref_db.bounds_ref[j][1]){
+			SS_ref_db.iguess[j] = SS_ref_db.bounds_ref[j][1];
 		}
 	}
 						
 	return SS_ref_db;										
 }
-
-
 
 /**
    retrieve the number of solution phase that are active 

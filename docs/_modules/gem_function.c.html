@@ -88,7 +88,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html">List of arguments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html#single-point-calculation">Single point calculation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html#multiple-points-calculation">Multiple points calculation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html#multiple-points-in-parallel">Multiple points in parallel</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ckbk.html#data-output">Data output</a><ul>
@@ -210,13 +209,8 @@
 <div class="viewcode-block" id="c.G_EM_function"><a class="viewcode-back" href="../src/gem_function.html#c.G_EM_function">[docs]</a><span class="cm">/**</span>
 <span class="cm">  compute the Gibbs Free energy from the thermodynamic database</span>
 <span class="cm">*/</span><span class="w"></span>
-<span class="n">PP_ref</span><span class="w"> </span><span class="nf">G_EM_function</span><span class="p">(</span><span class="w">		</span><span class="kt">int</span><span class="w"> 		 </span><span class="n">EM_database</span><span class="p">,</span><span class="w"> </span>
-<span class="w">							</span><span class="kt">double</span><span class="w"> 		</span><span class="o">*</span><span class="n">bulk_rock</span><span class="p">,</span><span class="w"> </span>
-<span class="w">							</span><span class="kt">double</span><span class="w"> 		 </span><span class="n">P</span><span class="p">,</span><span class="w"> </span>
-<span class="w">							</span><span class="kt">double</span><span class="w"> 		 </span><span class="n">T</span><span class="p">,</span><span class="w"> </span>
-<span class="w">							</span><span class="kt">char</span><span class="w"> 		</span><span class="o">*</span><span class="n">name</span><span class="p">,</span><span class="w"> </span>
-<span class="w">							</span><span class="kt">char</span><span class="w">		</span><span class="o">*</span><span class="n">state</span><span class="w">			</span>
-<span class="p">){</span><span class="w"></span>
+<span class="n">PP_ref</span><span class="w"> </span><span class="nf">G_EM_function</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">EM_database</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">bulk_rock</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">P</span><span class="p">,</span><span class="w"> </span>
+<span class="w">							</span><span class="kt">double</span><span class="w"> </span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">state</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">	</span><span class="cm">/* Get thermodynamic data */</span><span class="w"></span>
 <span class="w">	</span><span class="k">struct</span> <span class="nc">EM_db</span><span class="w"> </span><span class="n">EM_return</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">p_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">find_EM_id</span><span class="p">(</span><span class="n">name</span><span class="p">);</span><span class="w"></span>
@@ -245,7 +239,7 @@
 <span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">ta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">tb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">tc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">kbar2bar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1e3</span><span class="p">;</span><span class="w"></span>
+
 <span class="w">	</span><span class="n">t0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">298.15</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span><span class="n">p0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.001</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span><span class="n">R</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0083144</span><span class="p">;</span><span class="w"> </span>
@@ -470,6 +464,7 @@
 <span class="w">	</span><span class="p">}</span><span class="w"></span>
 <span class="w">	</span><span class="n">PP_ref_db</span><span class="p">.</span><span class="n">gbase</span><span class="w">   </span><span class="o">=</span><span class="w">  </span><span class="n">gbase</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span><span class="n">PP_ref_db</span><span class="p">.</span><span class="n">factor</span><span class="w">  </span><span class="o">=</span><span class="w">  </span><span class="n">factor</span><span class="p">;</span><span class="w"></span>
+
 <span class="w">	</span><span class="n">PP_ref_db</span><span class="p">.</span><span class="n">phase_shearModulus</span><span class="w">  </span><span class="o">=</span><span class="w">  </span><span class="p">(</span><span class="n">EM_return</span><span class="p">.</span><span class="n">input_4</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">kbar2bar</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">P</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">p0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">EM_return</span><span class="p">.</span><span class="n">input_4</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">kbar2bar</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">EM_return</span><span class="p">.</span><span class="n">input_4</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span><span class="o">/</span><span class="n">kbar2bar</span><span class="p">;</span><span class="w"></span>
 
 <span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">PP_ref_db</span><span class="p">);</span><span class="w"></span>
