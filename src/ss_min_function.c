@@ -79,14 +79,14 @@ csd_phase_set CP_UPDATE_function(		global_variable 	gv,
 	cp.sum_xi 	= 0.0;	
 	for (int i = 0; i < cp.n_em; i++){ 
 		cp.xi_em[i] = exp(-cp.mu[i]/(SS_ref_db.R*SS_ref_db.T));
-		cp.sum_xi  += cp.xi_em[i]*cp.p_em[i]*cp.z_em[i];
+		cp.sum_xi  += cp.xi_em[i]*cp.p_em[i]*SS_ref_db.z_em[i];
 	}
 
 	/* get composition of solution phase */
 	for (int j = 0; j < nEl; j++){
 		cp.ss_comp[j] = 0.0;
 		for (int i = 0; i < cp.n_em; i++){
-		   cp.ss_comp[j] += SS_ref_db.Comp[i][j]*cp.p_em[i]*cp.z_em[i];
+		   cp.ss_comp[j] += SS_ref_db.Comp[i][j]*cp.p_em[i]*SS_ref_db.z_em[i];
 	   } 
 	}
 
@@ -98,10 +98,10 @@ csd_phase_set CP_UPDATE_function(		global_variable 	gv,
 	- Drifting occurs when tilting of the hyperplane moves the x-eos far away from their initial guess
 	- Note that each instance of the phase, initialized during levelling can only be split once
 */
-global_variable split_cp(	int 				i, 
-							global_variable 	gv,
-							SS_ref 			    *SS_ref_db,
-							csd_phase_set  		*cp
+global_variable split_cp(		int 				 i, 
+								global_variable 	 gv,
+								SS_ref 			    *SS_ref_db,
+								csd_phase_set  		*cp
 ){
 	int id_cp;
 	int ph_id = cp[i].id;
@@ -132,7 +132,6 @@ global_variable split_cp(	int 				i,
 		cp[id_cp].ss_n          = 0.0;							/* get initial phase fraction */
 		
 		for (int ii = 0; ii < SS_ref_db[ph_id].n_em; ii++){
-			cp[id_cp].z_em[ii]      = SS_ref_db[ph_id].z_em[ii];
 			cp[id_cp].p_em[ii]      = 0.0;
 		}
 		for (int ii = 0; ii < SS_ref_db[ph_id].n_xeos; ii++){
@@ -157,7 +156,6 @@ global_variable split_cp(	int 				i,
 	
 	return gv;
 };
-
 
 /** 
 	Minimization function for PGE 
@@ -187,7 +185,6 @@ void ss_min_PGE(		int 				mode,
 	*/
 	SS_ref_db[ph_id] = rotate_hyperplane(	gv, 
 											SS_ref_db[ph_id]			);
-
 
 	double relax, norm;
 	if (cp[i].in_iter > 0 && abs(cp[i].in_iter - gv.global_ite) <= 8){
@@ -273,6 +270,7 @@ void ss_min_PGE(		int 				mode,
 			printf(" !> SF not respected for %4s (SS not updated)\n",gv.SS_list[ph_id]);
 		}	
 	}
+
 	/** 
 		print solution phase informations 
 	*/
@@ -287,10 +285,10 @@ void ss_min_PGE(		int 				mode,
 /**
   reset global variable for parallel calculations 
 */
-global_variable reset_global_variables(		global_variable 	gv,
+global_variable reset_gv(					global_variable 	 gv,
+											struct bulk_info 	 z_b,
 											PP_ref 				*PP_ref_db,
-											SS_ref 				*SS_ref_db,
-											csd_phase_set  		*cp
+											SS_ref 				*SS_ref_db
 ){
 	int i,k;
 	for (k = 0; k < gv.n_flags; k++){
@@ -310,16 +308,47 @@ global_variable reset_global_variables(		global_variable 	gv,
 		gv.delta_pp_xi[i] = 0.0;
 	}
 	
+	/* reset pure phases */
+	char liq_tail[] = "L";
+	for (int i = 0; i < gv.len_pp; i++){
+		if ( EndsWithTail(gv.PP_list[i], liq_tail) == 1 ){
+			if (z_b.T < 773.0){
+				gv.pp_flags[i][0] = 0;
+				gv.pp_flags[i][1] = 0;
+				gv.pp_flags[i][2] = 0;
+				gv.pp_flags[i][3] = 1;
+			}
+			else{
+				gv.pp_flags[i][0] = 1;
+				gv.pp_flags[i][1] = 0;
+				gv.pp_flags[i][2] = 0;
+				gv.pp_flags[i][3] = 0;
+			}
+		}
+		else{
+			gv.pp_flags[i][0] = 1;
+			gv.pp_flags[i][1] = 0;
+			gv.pp_flags[i][2] = 1;
+			gv.pp_flags[i][3] = 0;
+		}
+	}
 	/* reset solution phases frations */
 	for (int i = 0; i < gv.len_ss; i++){ 	
 		SS_ref_db[i].ss_n = 0.0;
 	}
 	
+	gv.system_density     = 0.;
+	gv.system_bulkModulus = 0.;
+	gv.system_shearModulus= 0.;
+	gv.system_Vp 		  = 0.;
+	gv.system_Vs 		  = 0.;
+
 	gv.check_PC_ite		  = 0;
 	gv.check_PC			  = 0;
 	gv.maxeval		      = gv.maxeval_mode_1;
 	gv.len_cp 		  	  = 0;
 	gv.div				  = 0;
+	gv.status			  = 0;
 	gv.n_phase            = 0;                  /** reset the number of phases to start with */
 	gv.global_ite		  = 0;					/** reset the number of global iteration to zero */
 	gv.G_system           = 0.0;
@@ -359,11 +388,11 @@ global_variable init_ss_db(		int 				 EM_database,
 	double R  = 0.0083144; 
 	for (int i = 0; i < gv.len_ss; i++){
 	
-		SS_ref_db[i]    = G_SS_EM_function(			gv, 
-													SS_ref_db[i], 
-													EM_database, 
-													z_b, 
-													gv.SS_list[i]		);
+		SS_ref_db[i]    = G_SS_EM_function(		gv, 
+												SS_ref_db[i], 
+												EM_database, 
+												z_b, 
+												gv.SS_list[i]		);
 										 
 		SS_ref_db[i].P  = z_b.P;									/** needed to pass to local minimizer, allows for P variation for liq/sol */
 		SS_ref_db[i].T  = z_b.T;		
@@ -375,37 +404,74 @@ global_variable init_ss_db(		int 				 EM_database,
 };
 
 /**
-  reset compositional variables (xeos) when something goes wrong during minimization 
+  reset stable phases entries
 */
-global_variable reset_phases(		global_variable 	 gv,
+void reset_sp(						global_variable 	 gv,
+									stb_system  		*sp
+){
+	/* reset system */
+	for (int i = 0; i < gv.len_ox; i++){
+		strcpy(sp[0].ph[i],"");	
+		sp[0].bulk[i] 					= 0.0;
+		sp[0].gamma[i] 					= 0.0;
+		sp[0].bulk_S[i] 				= 0.0;
+		sp[0].bulk_M[i] 				= 0.0;
+		sp[0].bulk_F[i] 				= 0.0;
+
+		sp[0].ph_type[i] 				= -1;
+		sp[0].ph_id[i] 					=  0;
+		sp[0].ph_frac[i] 				=  0.0;
+	}
+
+	/* reset phases */
+	for (int n = 0; n < gv.len_ox; n++){
+		for (int i = 0; i < gv.len_ox; i++){
+			sp[0].PP[n].Comp[i] 			= 0.0;
+			sp[0].SS[n].Comp[i] 			= 0.0;
+			sp[0].SS[n].compVariables[i] 	= 0.0;
+		}
+		for (int i = 0; i < gv.len_ox+1; i++){
+			strcpy(sp[0].SS[n].emNames[i],"");	
+			
+			sp[0].SS[n].emFrac[i] 			= 0.0;
+			sp[0].SS[n].emChemPot[i] 		= 0.0;
+
+			for (int j = 0; j < gv.len_ox; j++){
+				sp[0].SS[n].emComp[i][j]	= 0.0;
+			}
+		}
+	}
+
+}
+
+/**
+  reset considered phases entries
+*/
+void reset_cp(						global_variable 	 gv,
 									struct bulk_info 	 z_b,
-									PP_ref 				*PP_ref_db,
-									SS_ref 				*SS_ref_db,
 									csd_phase_set  		*cp
 ){
 	
 	for (int i = 0; i < gv.max_n_cp; i++){		
 		strcpy(cp[i].name,"");					/* get phase name */	
-		cp[i].in_iter		= 0;
-		cp[i].split			= 0;
-		cp[i].id 			= -1;				/* get phaseid */
-		cp[i].n_xeos		= 0;				/* get number of compositional variables */
-		cp[i].n_em			= 0;				/* get number of endmembers */
-		cp[i].n_sf			= 0;
-				
-		cp[i].df 			= 0.0;
-		cp[i].factor 		= 0.0;
+		cp[i].in_iter			=  0;
+		cp[i].split				=  0;
+		cp[i].id 				= -1;				/* get phaseid */
+		cp[i].n_xeos			=  0;				/* get number of compositional variables */
+		cp[i].n_em				=  0;				/* get number of endmembers */
+		cp[i].n_sf				=  0;			
+		cp[i].df 				=  0.0;
+		cp[i].factor 			=  0.0;
 		
 		for (int ii = 0; ii < gv.n_flags; ii++){
-			cp[i].ss_flags[ii] = 0;
+			cp[i].ss_flags[ii] 	= 0;
 		}
 
-		cp[i].ss_n        	= 0.0;				/* get initial phase fraction */
-		cp[i].delta_ss_n    = 0.0;				/* get initial phase fraction */
+		cp[i].ss_n        		= 0.0;				/* get initial phase fraction */
+		cp[i].delta_ss_n    	= 0.0;				/* get initial phase fraction */
 		
 		for (int ii = 0; ii < gv.len_ox + 1; ii++){
 			cp[i].p_em[ii]      = 0.0;
-			cp[i].z_em[ii]      = 1.0;
 			cp[i].xi_em[ii]     = 0.0;
 			cp[i].dguess[ii]    = 0.0;
 			cp[i].xeos[ii]      = 0.0;
@@ -416,40 +482,23 @@ global_variable reset_phases(		global_variable 	 gv,
 		}
 		 
 		for (int ii = 0; ii < (gv.len_ox + 1)*2; ii++){
-			cp[i].sf[ii]    = 0.0;
+			cp[i].sf[ii]    	= 0.0;
 		}
-		
-		cp[i].mass 			= 0.0;
-		cp[i].volume 		= 0.0;
-		cp[i].phase_density = 0.0;
-		cp[i].phase_cp 		= 0.0;
+		cp[i].mass 				= 0.0;
+		cp[i].volume 			= 0.0;
+		cp[i].phase_density 	= 0.0;
+		cp[i].phase_cp 			= 0.0;
 	}
-	
-	/* reset pure phases */
-	char liq_tail[] = "L";
-	for (int i = 0; i < gv.len_pp; i++){
-		if ( EndsWithTail(gv.PP_list[i], liq_tail) == 1 ){
-			if (z_b.T < 773.0){
-				gv.pp_flags[i][0] = 0;
-				gv.pp_flags[i][1] = 0;
-				gv.pp_flags[i][2] = 0;
-				gv.pp_flags[i][3] = 1;
-			}
-			else{
-				gv.pp_flags[i][0] = 1;
-				gv.pp_flags[i][1] = 0;
-				gv.pp_flags[i][2] = 0;
-				gv.pp_flags[i][3] = 0;
-			}
-		}
-		else{
-			gv.pp_flags[i][0] = 1;
-			gv.pp_flags[i][1] = 0;
-			gv.pp_flags[i][2] = 1;
-			gv.pp_flags[i][3] = 0;
-		}
-	}
-	
+
+};
+
+/**
+  reset compositional variables (xeos) when something goes wrong during minimization 
+*/
+void reset_SS(						global_variable 	 gv,
+									struct bulk_info 	 z_b,
+									SS_ref 				*SS_ref_db
+){
 	/* reset solution phases */
 	for (int iss = 0; iss < gv.len_ss; iss++){
 		SS_ref_db[iss].min_mode	= 1;
@@ -476,6 +525,7 @@ global_variable reset_phases(		global_variable 	 gv,
 		}
 		for (int j = 0; j < SS_ref_db[iss].n_em; j++){
 			SS_ref_db[iss].xi_em[j]     = 0.0;
+			SS_ref_db[iss].z_em[j]      = 1.0;
 			SS_ref_db[iss].mu[j] 	    = 0.0;
 		}
 		SS_ref_db[iss].sum_xi		    = 0.0;
@@ -486,12 +536,11 @@ global_variable reset_phases(		global_variable 	 gv,
 			SS_ref_db[iss].iguess[k]  = 0.0;
 			SS_ref_db[iss].dguess[k]  = 0.0;
 			SS_ref_db[iss].xeos[k]    = 0.0;
-			SS_ref_db[iss].box_bounds[k][0] = SS_ref_db[iss].box_bounds_default[k][0];
-			SS_ref_db[iss].box_bounds[k][1] = SS_ref_db[iss].box_bounds_default[k][1];
+			SS_ref_db[iss].bounds[k][0] = SS_ref_db[iss].bounds_ref[k][0];
+			SS_ref_db[iss].bounds[k][1] = SS_ref_db[iss].bounds_ref[k][1];
 		}		
 	}	
-	
-	return gv;
+
 };
 
 
@@ -530,11 +579,11 @@ void SS_ref_destroy(	global_variable gv,
 
 		/** destroy box bounds */
 		for (int j = 0; j< SS_ref_db[i].n_xeos; j++) {
-			free(SS_ref_db[i].box_bounds[j]);
-			free(SS_ref_db[i].box_bounds_default[j]);
+			free(SS_ref_db[i].bounds[j]);
+			free(SS_ref_db[i].bounds_ref[j]);
 		}
-		free(SS_ref_db[i].box_bounds_default);			
-		free(SS_ref_db[i].box_bounds);
+		free(SS_ref_db[i].bounds_ref);			
+		free(SS_ref_db[i].bounds);
 		
 		/** free pseudocompound related memory */
 		for (int j = 0; j< SS_ref_db[i].n_pc; j++) {
@@ -564,7 +613,6 @@ void CP_destroy(		global_variable gv,
 											  
 	for (int i = 0; i < gv.max_n_cp; i++){
 		free(cp[i].name);
-		free(cp[i].z_em);
 		free(cp[i].p_em);
 		free(cp[i].xi_em);
 		free(cp[i].dguess);
