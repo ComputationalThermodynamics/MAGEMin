@@ -286,13 +286,6 @@ void dump_results_function(		global_variable 	gv,
 	if (gv.verbose != 2){
 		if (numprocs==1){	sprintf(out_lm,	"%s_pseudosection_output.txt"		,gv.outpath); 		}
 		else 			{	sprintf(out_lm,	"%s_pseudosection_output.%i.txt"	,gv.outpath, rank); }
-
-		int result = 0;							//result, 0 success, 1 under-relaxed, 2 more under-relaxed, 3 failed
-		if (gv.global_ite > gv.ur_1){ result = 1;	}
-		if (gv.global_ite > gv.ur_2){ result = 2;	}
-		if (gv.global_ite > gv.ur_3){ result = 2;	}
-		if (gv.global_ite > gv.ur_f){ result = 3;	}
-		if (gv.div == 1){ 			  result = 4;	}
 		
 		/* get number of repeated phases for the solvi */
 		int n_solvi[gv.len_ss];
@@ -306,7 +299,7 @@ void dump_results_function(		global_variable 	gv,
 		}
 	
 		loc_min 	= fopen(out_lm, 	"a"); 
-		fprintf(loc_min, "%i %i %.10f %.10f %.10f %.10f",gv.numPoint+1,result, z_b.P,z_b.T-273.15,gv.G_system,gv.BR_norm);
+		fprintf(loc_min, "%i %i %.10f %.10f %.10f %.10f", gv.numPoint+1, gv.status, z_b.P,z_b.T-273.15,gv.G_system,gv.BR_norm);
 		for (i = 0; i < gv.len_ox; i++){
 			fprintf(loc_min, 	" \t %0.10f ", gv.gam_tot[i]);
 		}
