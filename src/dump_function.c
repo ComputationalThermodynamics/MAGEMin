@@ -287,11 +287,19 @@ void dump_results_function(		global_variable 	gv,
 		if (numprocs==1){	sprintf(out_lm,	"%s_pseudosection_output.txt"		,gv.outpath); 		}
 		else 			{	sprintf(out_lm,	"%s_pseudosection_output.%i.txt"	,gv.outpath, rank); }
 
-		int result = 0;							//result, 0 success, 1 under-relaxed, 2 more under-relaxed, 3 failed
-		if (gv.global_ite > gv.ur_1){ result = 1;	}
-		if (gv.global_ite > gv.ur_2){ result = 2;	}
-		if (gv.global_ite > gv.ur_3){ result = 2;	}
-		if (gv.global_ite > gv.ur_f){ result = 3;	}
+		/**
+		 * Solver result (see documentation in PGE_function.c for more details)
+		 * 0: success
+		 * 1: under-relaxed
+		 * 2: more under-relaxed
+		 * 3: reached max iterations (failed)
+		 * 4: terminated due to slow convergence or a very large residual (failed)
+		**/
+		int result = 0;
+		if (gv.global_ite > gv.it_1){ result = 1;	}
+		if (gv.global_ite > gv.it_2){ result = 2;	}
+		if (gv.global_ite > gv.it_3){ result = 2;	}
+		if (gv.global_ite > gv.it_f){ result = 3;	}
 		if (gv.div == 1){ 			  result = 4;	}
 		
 		/* get number of repeated phases for the solvi */
