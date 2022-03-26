@@ -211,19 +211,12 @@ int runMAGEMin(			int    argc,
 	for (int sgleP = 0; sgleP < n_points; sgleP++){
         if ((Mode==0) && (sgleP % numprocs != rank)) continue;   	/** this ensures that, in parallel, not every point is computed by every processor (instead only every numprocs point). Only applied to Mode==0 */
 
-<<<<<<< HEAD
-		t              = clock();							/** reset loop timer 				*/
-		gv.BR_norm     = 1.0; 								/** reset bulk rock norm 			*/
-		gv.global_ite  = 0;              					/** reset global iteration 			*/
-		gv.status  = 0;              						/** reset status code 			*/
+		t              = clock();								/** reset loop timer 				*/
+		gv.BR_norm     = 1.0; 									/** reset bulk rock norm 			*/
+		gv.global_ite  = 0;              						/** reset global iteration 			*/
+		gv.status 	   = 0;              						/** reset status code 			*/
 		gv.numPoint    = sgleP; 								/** the number of the current point */
-=======
-		t              = clock();									/** reset loop timer 						*/
-		gv.BR_norm     = 1.0; 										/** reset bulk rock norm 					*/
-		gv.global_ite  = 0;              							/** reset global iteration 					*/
-		gv.numPoint    = sgleP; 									/** the number of the current point 		*/
->>>>>>> dev
-		
+
 		/* If we read input from file: */
 		if (strcmp( File, "none") != 0){						
 			z_b.P = input_data[sgleP].P;
@@ -903,14 +896,11 @@ void PrintOutput(	global_variable 	gv,
 					struct bulk_info 	z_b				){
 						
 	int i;
-<<<<<<< HEAD
 	if (gv.Mode==0 && gv.verbose != 2){
 		printf("Status        : %i ",gv.status);
 		if (gv.verbose == 1){PrintStatus(gv.status);}
 		printf("\n");
-=======
-	if (gv.Mode == 0 && gv.verbose != -1){
->>>>>>> dev
+
 
     	printf(" Rank               : %12i \n",rank);
     	printf(" Point              : %12i \n",l);
