@@ -1,0 +1,96 @@
+.. MAGEMin documentation
+
+.. image:: /figs/MAGMA_Logo2.png
+   :width: 420
+   :align: right
+
+.. image:: /figs/GUI.png
+   :width: 720
+   :align: center
+
+|
+
+Mineral Assemblage Gibbs Energy Minimization (MAGEMin)		  
+======================================================
+                                          
+MAGEMin is written as a parallel C library callable from any petrological/geodynamic tool. For a given set of pressure, temperature and bulk-rock composition MAGEMin uses a combination of linear programming, extended Partitioning Gibbs free Energy and gradient-based local minimization to compute the most stable mineral assemblage     
+      
+Available thermodynamic dataset                       
+================================
+ 
+Igneous thermodynamic dataset
+*****************************
+                    
+- Holland et al., 2018 (see http://hpxeosandthermocalc.org)
+- K2O-Na2O-CaO-FeO-MgO-Al2O3-SiO2-H2O-TiO2-O-Cr2O3 chemical system
+- Equations of state for
+	- Pure stoichiometric phases quartz (q), cristobalite (crst), tridymite (trd), coesite (coe), stishovite (stv), kyanite (ky), sillimanite (sill), andalusite (and), rutile (ru) and sphene (sph). 
+	- Solution phases spinel (spn), biotite (bi), cordierite (cd), clinopyroxene (cpx), orthopyroxene (opx), epidote (ep), garnet (g), hornblende (hb), ilmenite (ilm), silicate melt (liq), muscovite (mu), olivine (ol), ternary feldspar (pl4T), and aqueous fluid (fl).
+                                                    
+Imported libraries                       
+==================
+
+- LAPACKE (C version of LAPACK)                         
+- NLopt  (https://nlopt.readthedocs.io/)                
+- uthash (https://troydhanson.github.io/uthash/)        
+- ketopt (https://github.com/attractivechaos/klib/blob/master/ketopt.h) 
+  
+.. toctree::
+   :maxdepth: 2
+   :caption: In development:
+   
+   news
+   
+.. toctree::
+   :maxdepth: 2
+   :caption: Installation:
+   
+   stp
+                                                   
+.. toctree::
+   :maxdepth: 2
+   :caption: Methods and examples:
+   
+   man
+   
+.. toctree::
+   :maxdepth: 2
+   :caption: Cookbook:
+   
+   ckbk
+   
+.. toctree::
+   :maxdepth: 2
+   :caption: FAQs:
+   
+   faq
+   
+.. toctree::
+   :maxdepth: 2
+   :caption: Developers section:
+   
+   dev
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Source code:
+
+   src
+
+|
+
+Contributors
+============
+
+- MAGEMin developpers: Riel N., Kaus. B.
+- Database translation and debugging: Green E., Berlie N., and Rummel L. 
+     
+*Contacts: nriel@uni-mainz.de, kaus@uni-mainz.de*
+
+.. image:: /figs/Magma_alone_Logo.png
+   :width: 240
+   :align: right
+   
+This open source project was funded by the European Research Council through the `MAGMA`_ project, ERC Consolidator Grant #771143
+
+.. _MAGMA: https://magma.uni-mainz.de

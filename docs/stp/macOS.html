@@ -91,7 +91,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html">List of arguments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html#single-point-calculation">Single point calculation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html#multiple-points-calculation">Multiple points calculation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html#multiple-points-in-parallel">Multiple points in parallel</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ckbk.html#pseudosection-generator">Pseudosection generator</a><ul>
@@ -193,38 +192,57 @@
   <a class="reference internal image-reference" href="../_images/macOS.png"><img alt="../_images/macOS.png" class="align-right" src="../_images/macOS.png" style="width: 64px;" /></a>
 <section id="external-libraries">
 <h1>External libraries<a class="headerlink" href="#external-libraries" title="Permalink to this headline"></a></h1>
-<p>The installation details for Mas OS X use <code class="docutils literal notranslate"><span class="pre">Homebrew</span></code>. However, the libraries can also be installed using <code class="docutils literal notranslate"><span class="pre">MacPorts</span></code>.</p>
 <p><strong>1. C and fortran compilers</strong></p>
-<p>Using either <code class="docutils literal notranslate"><span class="pre">gcc</span></code> or <code class="docutils literal notranslate"><span class="pre">clang</span></code> to compile MAGEMin is up to you as the runtime performances are similar. However, in the event you want to modify MAGEMin for your own use, I would advice that you compile MAGEMin with <code class="docutils literal notranslate"><span class="pre">clang</span></code> as the error handling system is more strict which will save you from having unexpected segfaults errors…</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>brew install llvm
-brew install gcc
+<p>Using either <em>gcc</em> or <em>clang</em> to compile <em>MAGEMin</em> is up to you as the runtime performances are similar. However, in the event you want to modify <em>MAGEMin</em> for your own use, I would advice that you compile <em>MAGEMin</em> with <em>clang</em> as the error handling system is more strict which will save you from having unexpected segfaults errors…</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo apt-get install gcc
+sudo apt-get install clang
+sudo apt-get install gfortran
 </pre></div>
 </div>
-<p>Note that the <code class="docutils literal notranslate"><span class="pre">gcc</span></code> package comes with <code class="docutils literal notranslate"><span class="pre">gcc</span></code>, <code class="docutils literal notranslate"><span class="pre">g++</span></code> and <code class="docutils literal notranslate"><span class="pre">gfortran</span></code></p>
-<p><strong>2. MPICH</strong> (Message Passing Interface)</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>brew install mpich
+<p><strong>2. Open MPI</strong> (Message Passing Interface)</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo apt-get install openmpi-bin
 </pre></div>
 </div>
+<<<<<<< HEAD
 <p>Note that <code class="docutils literal notranslate"><span class="pre">openmpi</span></code> can equally be used.</p>
 <p><strong>3. lapacke</strong> (<code class="docutils literal notranslate"><span class="pre">C</span></code> version of the fortran <code class="docutils literal notranslate"><span class="pre">lapack</span></code> library, should now be included in the <code class="docutils literal notranslate"><span class="pre">lapack</span></code> libraries)</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>brew install lapack
+=======
+<p>Note that <em>mpich</em> can equally be used.</p>
+<p><strong>3. lapacke</strong> (C version of the fotran lapack library)</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo apt-get install liblapacke-dev
+>>>>>>> dev
 </pre></div>
 </div>
-<p>If the <code class="docutils literal notranslate"><span class="pre">lapacke</span></code> libraries are not included you can download the <code class="docutils literal notranslate"><span class="pre">lapack</span></code> package from netlib that includes it.</p>
 <p><strong>4. NLopt</strong> (Non Linear optimization library)</p>
-<p><code class="docutils literal notranslate"><span class="pre">NLopt</span></code> can be installed using</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>brew install nlopt
+<p>First <em>cmake</em> must be installed on your machine</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo apt-get install cmake
+</pre></div>
+</div>
+<p>Then NLopt can be downloaded and installed</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/stevengj/nlopt.git
+<span class="nb">cd</span> nlopt
+mkdir build
+<span class="nb">cd</span> build
+cmake ..
+make
+sudo make install
 </pre></div>
 </div>
 <a class="reference internal image-reference" href="../_images/macOS.png"><img alt="../_images/macOS.png" class="align-right" src="../_images/macOS.png" style="width: 64px;" /></a>
 </section>
 <section id="magemin">
 <h1>MAGEMin<a class="headerlink" href="#magemin" title="Permalink to this headline"></a></h1>
+<<<<<<< HEAD
 <p>Choose the <code class="docutils literal notranslate"><span class="pre">C</span></code> compiler in the first line of the <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> by commenting out one</p>
+=======
+<p>Choose the C compiler in the first line of the <em>Makefile</em> by commenting out one or another</p>
+>>>>>>> dev
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1">#CC=gcc</span>
 <span class="nv">CC</span><span class="o">=</span>clang
 </pre></div>
 </div>
+<<<<<<< HEAD
 <p>Make sure the <code class="docutils literal notranslate"><span class="pre">MPICH</span></code> paths for libraries and include directory in the <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> are correct for instance:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">LIBS</span>   <span class="o">+=</span> <span class="o">(</span>...<span class="o">)</span> /opt/homebrew/lib/libmpich.dylib
 <span class="nv">INC</span>     <span class="o">=</span> <span class="o">(</span>...<span class="o">)</span> -I/opt/homebrew/include
@@ -248,17 +266,31 @@ brew install gcc
 <p>If you decided to use <code class="docutils literal notranslate"><span class="pre">openmpi</span></code> instead of <code class="docutils literal notranslate"><span class="pre">mpich</span></code> your <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> should look like:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">LIBS</span>    <span class="o">=</span> -lm -framework Accelerate /opt/homebrew/opt/lapack/lib/liblapacke.dylib /opt/homebrew/opt/nlopt/lib/libnlopt.dylib /opt/homebrew/opt/openmpi/lib/libmpi.dylib
 <span class="nv">INC</span>     <span class="o">=</span> -I/opt/homebrew/opt/openmpi/include/ -I/opt/homebrew/opt/lapack/include -I/usr/local/include -I/opt/homebrew/opt/nlopt/include/
+=======
+<p>Make sure the open MPI paths for libraries and include directory in <em>Makefile</em> are correct. By default the paths to openmpi are the following:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">LIBS</span>   <span class="o">+=</span> <span class="o">(</span>...<span class="o">)</span> -L/usr/lib/x86_64-linux-gnu/openmpi/lib -lmpi
+<span class="nv">INC</span>     <span class="o">=</span> <span class="o">(</span>...<span class="o">)</span> -I/usr/lib/x86_64-linux-gnu/openmpi/include/
+</pre></div>
+</div>
+<p>Depending on the machine on which you want to install MAGEMin, you might need to manually give the paths to NLopt libraries and include directory too</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">LIBS</span>   <span class="o">+=</span> <span class="o">(</span>...<span class="o">)</span> --L/local/home/kwak/nlopt_install/install/lib -lnlopt
+<span class="nv">INC</span>     <span class="o">=</span> <span class="o">(</span>...<span class="o">)</span> -I/local/home/kwak/nlopt_install/install/include
+>>>>>>> dev
 </pre></div>
 </div>
 <p>Then simply enter MAGEMin directory and compile MAGEMin as:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>make clean<span class="p">;</span> make all<span class="p">;</span>
 </pre></div>
 </div>
+<<<<<<< HEAD
 <p>Note that by default the optimization flag <code class="docutils literal notranslate"><span class="pre">-O3</span></code> and debugging flag <code class="docutils literal notranslate"><span class="pre">-g</span></code> are used.</p>
 <p>To test if MAGEMin compilation was successful you can for instance check the version of MAGEMin by running:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./MAGEMin --version
 </pre></div>
 </div>
+=======
+<p>Note that by default the optimization flag <em>-O3</em> and debugging flag <em>-g</em> are used.</p>
+>>>>>>> dev
 </section>
 
 

@@ -1,6 +1,8 @@
 #ifndef __PC_XEOS_H_
 #define __PC_XEOS_H_
 
+#include "MAGEMin.h"
+
 struct ss_pc{
     double xeos_pc[11];
 };

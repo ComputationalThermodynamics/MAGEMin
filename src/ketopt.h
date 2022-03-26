@@ -49,7 +49,7 @@ static void ketopt_permute(char *argv[], int j, int n) /* move argv[j] over n el
  * @param ostr      option string
  * @param longopts  long options
  *
- * @return ASCII for a short option; ko_longopt_t::val for a long option; -1 if
+ * @return ASCII for a short option; ko_longopt_t:val for a long option; -1 if
  *         argv[] is fully processed; '?' for an unknown option or an ambiguous
  *         long option; ':' if an option argument is missing
  */

@@ -8,42 +8,55 @@
 External libraries		  
 ==================
 
-The installation details for Mas OS X use ``Homebrew``. However, the libraries can also be installed using ``MacPorts``.
-
 **1. C and fortran compilers**
 
-Using either ``gcc`` or ``clang`` to compile MAGEMin is up to you as the runtime performances are similar. However, in the event you want to modify MAGEMin for your own use, I would advice that you compile MAGEMin with ``clang`` as the error handling system is more strict which will save you from having unexpected segfaults errors...
+Using either *gcc* or *clang* to compile *MAGEMin* is up to you as the runtime performances are similar. However, in the event you want to modify *MAGEMin* for your own use, I would advice that you compile *MAGEMin* with *clang* as the error handling system is more strict which will save you from having unexpected segfaults errors...
 
 .. code-block:: shell
 
-	brew install llvm
-	brew install gcc
+	sudo apt-get install gcc
+	sudo apt-get install clang
+	sudo apt-get install gfortran
 
-Note that the ``gcc`` package comes with ``gcc``, ``g++`` and ``gfortran``
-
-**2. MPICH** (Message Passing Interface)
+**2. Open MPI** (Message Passing Interface)
 
 .. code-block:: shell
 
-	brew install mpich
+	sudo apt-get install openmpi-bin
 
+<<<<<<< HEAD
 Note that ``openmpi`` can equally be used.
 
 **3. lapacke** (``C`` version of the fortran ``lapack`` library, should now be included in the ``lapack`` libraries)
+=======
+Note that *mpich* can equally be used.
+
+**3. lapacke** (C version of the fotran lapack library)
+>>>>>>> dev
 
 .. code-block:: shell
 
-	brew install lapack
-	
-If the ``lapacke`` libraries are not included you can download the ``lapack`` package from netlib that includes it.
+	sudo apt-get install liblapacke-dev
 
 **4. NLopt** (Non Linear optimization library)
 
-``NLopt`` can be installed using
+First *cmake* must be installed on your machine
+
+.. code-block:: shell
+	
+	sudo apt-get install cmake
+
+Then NLopt can be downloaded and installed
 
 .. code-block:: shell
 
-	brew install nlopt
+	git clone https://github.com/stevengj/nlopt.git
+	cd nlopt
+	mkdir build
+	cd build
+	cmake ..
+	make
+	sudo make install
 
 .. image:: /figs/macOS.png
    :width: 64
@@ -53,31 +66,49 @@ If the ``lapacke`` libraries are not included you can download the ``lapack`` pa
 MAGEMin
 =======
 	
+<<<<<<< HEAD
 Choose the ``C`` compiler in the first line of the ``Makefile`` by commenting out one
+=======
+Choose the C compiler in the first line of the *Makefile* by commenting out one or another
+>>>>>>> dev
 
 .. code-block:: shell
 
 	#CC=gcc
 	CC=clang
 
+<<<<<<< HEAD
 Make sure the ``MPICH`` paths for libraries and include directory in the ``Makefile`` are correct for instance:
 
 .. code-block:: shell
 
 	LIBS   += (...) /opt/homebrew/lib/libmpich.dylib
 	INC     = (...) -I/opt/homebrew/include 
-
-Do the same for ``lapacke``:
+=======
+Make sure the open MPI paths for libraries and include directory in *Makefile* are correct. By default the paths to openmpi are the following:
 
 .. code-block:: shell
 
+	LIBS   += (...) -L/usr/lib/x86_64-linux-gnu/openmpi/lib -lmpi
+	INC     = (...) -I/usr/lib/x86_64-linux-gnu/openmpi/include/
+>>>>>>> dev
+
+Depending on the machine on which you want to install MAGEMin, you might need to manually give the paths to NLopt libraries and include directory too
+
+.. code-block:: shell
+
+<<<<<<< HEAD
 	LIBS   += (...) /opt/homebrew/opt/lapack/lib/liblapacke.dylib
 	INC    += (...) -I/opt/homebrew/opt/lapack/include
 	
 And ``NLopt``:
+=======
+	LIBS   += (...) --L/local/home/kwak/nlopt_install/install/lib -lnlopt 
+	INC     = (...) -I/local/home/kwak/nlopt_install/install/include
+>>>>>>> dev
 
-.. code-block:: shell
 
+<<<<<<< HEAD
 	LIBS   += (...) /opt/homebrew/lib/libnlopt.dylib
 	
 	
@@ -98,11 +129,15 @@ If you decided to use ``openmpi`` instead of ``mpich`` your ``Makefile`` should 
 	INC     = -I/opt/homebrew/opt/openmpi/include/ -I/opt/homebrew/opt/lapack/include -I/usr/local/include -I/opt/homebrew/opt/nlopt/include/
 
 Then simply enter MAGEMin directory and compile MAGEMin as:
+=======
+Then compile MAGEMin:
+>>>>>>> dev
 
 .. code-block:: shell
 	
 	make clean; make all;
 
+<<<<<<< HEAD
 Note that by default the optimization flag ``-O3`` and debugging flag ``-g`` are used.
 
 To test if MAGEMin compilation was successful you can for instance check the version of MAGEMin by running:
@@ -111,3 +146,6 @@ To test if MAGEMin compilation was successful you can for instance check the ver
 	
 	./MAGEMin --version
 
+=======
+Note that by default the optimization flag *-O3* and debugging flag *-g* are used.
+>>>>>>> dev
