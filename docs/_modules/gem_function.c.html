@@ -91,6 +91,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html#multiple-points-in-parallel">Multiple points in parallel</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../ckbk.html#data-output">Data output</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/out_struct.html">As a nested structure</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../ckbk.html#pseudosection-generator">Pseudosection generator</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/gui.html">Usage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/gui.html#klb-1-pseudosection-tutorial">KLB-1 Pseudosection tutorial</a><ul>
@@ -107,6 +111,10 @@
 </li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">FAQs:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Firewall warning (Apple M1)</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developers section:</span></p>
 <ul>
@@ -227,9 +235,9 @@
 <span class="cm">    */</span><span class="w"></span>
 
 <span class="w">	</span><span class="cm">/** if (EM_database == _tc_ds633_) { **/</span><span class="w"></span>
-<span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">t0</span><span class="p">,</span><span class="w"> </span><span class="n">p0</span><span class="p">,</span><span class="w"> </span><span class="n">R</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">pth</span><span class="p">,</span><span class="w"> </span><span class="n">theta</span><span class="p">,</span><span class="w"> </span><span class="n">vv</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">enthalpy</span><span class="p">,</span><span class="w"> </span><span class="n">entropy</span><span class="p">,</span><span class="w"> </span><span class="n">volume</span><span class="p">;</span><span class="w"></span>
+<span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">t0</span><span class="p">,</span><span class="w"> 	</span><span class="n">p0</span><span class="p">,</span><span class="w"> 	</span><span class="n">R</span><span class="p">;</span><span class="w"></span>
+<span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">pth</span><span class="p">,</span><span class="w"> </span><span class="n">theta</span><span class="p">,</span><span class="w"> 	</span><span class="n">vv</span><span class="p">;</span><span class="w"></span>
+<span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">enthalpy</span><span class="p">,</span><span class="w"> 	</span><span class="n">entropy</span><span class="p">,</span><span class="w"> </span><span class="n">volume</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">cpa</span><span class="p">,</span><span class="w"> </span><span class="n">cpb</span><span class="p">,</span><span class="w"> </span><span class="n">cpc</span><span class="p">,</span><span class="w"> </span><span class="n">cpd</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">alpha0</span><span class="p">,</span><span class="w"> </span><span class="n">kappa0</span><span class="p">,</span><span class="w"> </span><span class="n">kappa0p</span><span class="p">,</span><span class="w"> </span><span class="n">kappa0pp</span><span class="p">,</span><span class="w"> </span><span class="n">dkappa0dT</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">cpterms</span><span class="p">,</span><span class="w"> </span><span class="n">vterm</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"></span>
@@ -311,7 +319,6 @@
 <span class="w">		</span><span class="kt">int</span><span class="w"> </span><span class="n">mode</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">               														</span><span class="cm">/** Mode is used to send the right *data (see root_finding.c) */</span><span class="w"></span>
 <span class="w">		</span>
 <span class="w">		</span><span class="n">vsub</span><span class="w">          </span><span class="o">=</span><span class="w">  </span><span class="n">BrentRoots</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span><span class="n">data</span><span class="p">,</span><span class="n">e</span><span class="p">,</span><span class="n">mode</span><span class="p">,</span><span class="n">maxiter</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">yr</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">err</span><span class="p">);</span><span class="w"></span>
-<span class="w">		</span>
 <span class="w">		</span>
 <span class="w">		</span><span class="kt">double</span><span class="w"> </span><span class="n">r</span><span class="w">      </span><span class="o">=</span><span class="w">   </span><span class="mf">1.0</span><span class="o">/</span><span class="n">vsub</span><span class="p">;</span><span class="w"></span>
 <span class="w">		</span><span class="kt">double</span><span class="w"> </span><span class="n">Ares</span><span class="w">   </span><span class="o">=</span><span class="w">   </span><span class="n">R1</span><span class="o">*</span><span class="n">T</span><span class="o">*</span><span class="p">(</span><span class="w"> </span><span class="n">c1</span><span class="o">*</span><span class="n">r</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="p">(</span><span class="n">c2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">c3</span><span class="o">*</span><span class="n">r</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">c4</span><span class="o">*</span><span class="n">pow</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="mf">2.0</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">c5</span><span class="o">*</span><span class="n">pow</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="mf">3.0</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">c6</span><span class="o">*</span><span class="n">pow</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="mf">4.0</span><span class="p">))</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1.0</span><span class="o">/</span><span class="n">c2</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">c7</span><span class="o">/</span><span class="n">c8</span><span class="o">*</span><span class="p">(</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">c8</span><span class="o">*</span><span class="n">r</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1.0</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">c9</span><span class="o">/</span><span class="n">c10</span><span class="o">*</span><span class="p">(</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">c10</span><span class="o">*</span><span class="n">r</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1.0</span><span class="p">)</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
@@ -464,15 +471,7 @@
 <span class="w">	</span><span class="n">PP_ref_db</span><span class="p">.</span><span class="n">gbase</span><span class="w">   </span><span class="o">=</span><span class="w">  </span><span class="n">gbase</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span><span class="n">PP_ref_db</span><span class="p">.</span><span class="n">factor</span><span class="w">  </span><span class="o">=</span><span class="w">  </span><span class="n">factor</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span><span class="n">PP_ref_db</span><span class="p">.</span><span class="n">phase_shearModulus</span><span class="w">  </span><span class="o">=</span><span class="w">  </span><span class="p">(</span><span class="n">EM_return</span><span class="p">.</span><span class="n">input_4</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">kbar2bar</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">P</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">p0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">EM_return</span><span class="p">.</span><span class="n">input_4</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">kbar2bar</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">EM_return</span><span class="p">.</span><span class="n">input_4</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span><span class="o">/</span><span class="n">kbar2bar</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span>
-<span class="w">	</span><span class="c1">//printf(&quot; %4s %+10f |&quot;,name,gbase);</span>
-<span class="w">	</span><span class="c1">//printf(&quot; %+10f %+10f -&gt; %+10f\n&quot;,(P - p0)*kbar2bar,(T - t0),PP_ref_db.phase_shearModulus);</span>
-<span class="w">	</span>
-<span class="w">	</span><span class="c1">//for (i = 0; i &lt; nEl; i++){</span>
-<span class="w">		</span><span class="c1">//printf(&quot; %+10f&quot;,PP_ref_db.Comp[i]);</span>
-<span class="w">	</span><span class="c1">//}</span>
-<span class="w">	</span><span class="c1">//printf(&quot;\n&quot;);</span>
-<span class="w">	</span>
+
 <span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">PP_ref_db</span><span class="p">);</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span></div>
 
