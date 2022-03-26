@@ -201,6 +201,7 @@ int runMAGEMin(int argc, char **argv){
 		t              = clock();							/** reset loop timer 				*/
 		gv.BR_norm     = 1.0; 								/** reset bulk rock norm 			*/
 		gv.global_ite  = 0;              					/** reset global iteration 			*/
+		gv.status  = 0;              						/** reset status code 			*/
 		gv.numPoint    = sgleP; 								/** the number of the current point */
 		
 		/* If we read input from file: */
@@ -836,6 +837,9 @@ void PrintOutput(	global_variable 	gv,
 						
 	int i;
 	if (gv.Mode==0 && gv.verbose != 2){
+		printf("Status        : %i ",gv.status);
+		if (gv.verbose == 1){PrintStatus(gv.status);}
+		printf("\n");
 
     	printf("Rank          : %i \n",rank);
     	printf("Point         : %i \n",l);
@@ -867,4 +871,16 @@ void PrintOutput(	global_variable 	gv,
 			}
 		}	
 	}
+}
+
+/** 
+  This converts the solver status code to human-readable text and prints it to screen
+**/
+void PrintStatus( int status )
+{
+	if (status == 0){printf("(success)");}
+	if (status == 1){printf("(success, under-relaxed)");}
+	if (status == 2){printf("(success, heavily under-relaxed)");}
+	if (status == 3){printf("(failure, reached maximum iterations)");}
+	if (status == 4){printf("(failure, terminated due to slow convergence or divergence)");}
 }

@@ -225,23 +225,8 @@ void AddResults_output_struct(		global_variable 	gv,
 {
 	int i,j,num;
 
-	/**
-	 * Solver status (see documentation in PGE_function.c for more details)
-	 * 0: success
-	 * 1: under-relaxed
-	 * 2: more under-relaxed
-	 * 3: reached max iterations (failed)
-	 * 4: terminated due to slow convergence or a very large residual (failed)
-	**/
-	int status = 0;
-	if (gv.global_ite > gv.it_1){ status = 1;	}
-	if (gv.global_ite > gv.it_2){ status = 2;	}
-	if (gv.global_ite > gv.it_3){ status = 2;	}
-	if (gv.global_ite > gv.it_f){ status = 3;	}
-	if (gv.div == 1){ 			  status = 4;	}
-
 	printf("\n ********* Outputting data: P=%f \n",z_b.P);
-	output.status 	= 	status;
+	output.status 	= 	gv.status;
 	output.number   = 	gv.numPoint+1;
 	output.P 		= 	z_b.P;
 	output.T 		= 	z_b.T-273.15;
