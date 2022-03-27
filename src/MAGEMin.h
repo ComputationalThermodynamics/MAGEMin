@@ -544,7 +544,8 @@ global_variable ReadCommandLineOptions(	global_variable   gv,
 										char 			  File[50], 
 										char 			  Phase[50], 
 										int 			 *maxeval_out, 
-										int     		 *get_version_out			);
+										int     		 *get_version_out,
+										int 			 *get_help					);
 
 /* function that prints output */
 void PrintOutput(	global_variable 	gv, 
