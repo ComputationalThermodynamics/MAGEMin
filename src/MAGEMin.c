@@ -128,7 +128,9 @@ int runMAGEMin(			int    argc,
 	int     n_points 	=  1;
 	
 	int 	maxeval		= -1;
+	
 	int		get_version;
+	int		get_help;
 	
 	double	Gam[11],  Bulk[11], InitEM_Prop[15];
 	char    File[50], Phase[50];
@@ -151,7 +153,8 @@ int runMAGEMin(			int    argc,
 									 File, 
 									 Phase, 
 									&maxeval,
-									&get_version			); 
+									&get_version,
+									&get_help		); 
 									
 
 	gv.verbose 	= Verb;
@@ -681,7 +684,8 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 										char 				 File[50], 
 										char 				 Phase[50], 
 										int 				*maxeval_out,
-										int 				*get_version_out			
+										int 				*get_version_out,
+										int					*get_help		
 ){
 	int i;
 	static ko_longopt_t longopts[] = {
@@ -699,6 +703,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
         { "InitEM_Prop",ko_optional_argument, 312 },
         { "maxeval",    ko_optional_argument, 313 },
         { "version",    ko_optional_argument, 314 },
+        { "help",    	ko_optional_argument, 315 },
     	{ NULL, 0, 0 }
 	};
 	ketopt_t opt = KETOPT_INIT;
@@ -727,6 +732,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 
 	while ((c = ketopt(&opt, argc, argv, 1, "", longopts)) >= 0) {
 		if 		(c == 314){ printf("MAGEMin %20s\n",gv.version ); exit(0); }	
+		else if (c == 315){ print_help( gv ); 					  exit(0); }	
         else if	(c == 301){ Verb     = atoi(opt.arg	);}
 		else if (c == 302){ Mode     = atoi(opt.arg);			if (Verb == 1){		printf("--Mode        : Mode                     = %i \n", 	 	   		Mode		);}}																		
 		else if (c == 303){ strcpy(File,opt.arg);		 		if (Verb == 1){		printf("--File        : File                     = %s \n", 	 	   		File		);}}
@@ -897,10 +903,9 @@ void PrintOutput(	global_variable 	gv,
 						
 	int i;
 	if (gv.Mode==0 && gv.verbose !=-1){
-		printf(" Status             : %i ",gv.status);
+		printf(" Status             : %12i ",gv.status);
 		if (gv.verbose == 1){PrintStatus(gv.status);}
 		printf("\n");
-
 
     	printf(" Rank               : %12i \n",rank);
     	printf(" Point              : %12i \n",l);
@@ -939,9 +944,9 @@ void PrintOutput(	global_variable 	gv,
 **/
 void PrintStatus( int status )
 {
-	if (status == 0){printf("(success)");}
-	if (status == 1){printf("(success, under-relaxed)");}
-	if (status == 2){printf("(success, heavily under-relaxed)");}
-	if (status == 3){printf("(failure, reached maximum iterations)");}
-	if (status == 4){printf("(failure, terminated due to slow convergence or divergence)");}
+	if (status == 0){printf("\t [success]");}
+	if (status == 1){printf("\t [success, under-relaxed]");}
+	if (status == 2){printf("\t [success, heavily under-relaxed]");}
+	if (status == 3){printf("\t [failure, reached maximum iterations]");}
+	if (status == 4){printf("\t [failure, terminated due to slow convergence or divergence]");}
 }

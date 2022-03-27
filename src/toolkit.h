@@ -4,6 +4,7 @@
 #include "MAGEMin.h"
 
 /* set of matrix operations */
+void 	print_help(global_variable gv);
 void 	_DCDCT_fct(int *id, double *result, double **A, int n_act_sf, int n_xeos);
 void 	_DC_Null_fct(int *id, double *result, double **A, double *B, int n_xeos, int n_act_sf);
 void 	_Epsilon_C_fct(int *id, double *result, double *A, double *b, int n_xeos, int n_sf);

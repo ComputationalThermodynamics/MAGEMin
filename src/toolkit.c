@@ -19,6 +19,71 @@
 #define TRUE   1
 
 /**
+  function to print help and give command line parameters
+*/
+void print_help(	global_variable gv	){
+	
+	printf("\n");
+	printf(" +---------------+-----------------------+\n");
+	printf(" |    MAGEMin    |   %15s  |\n",gv.version);
+	printf(" +---------------+-----------------------+\n");
+	printf("\n");
+	printf(" List of valid arguments:\n");
+	printf(" ------------------------\n");	
+	printf("\n");
+	printf("  --Verb=     [int]   : Verbose option, 0. inactive, 1. active\n");	
+	printf("  --File=     [str]   : Given file for multiple point calculation\n");
+	printf("  --n_points= [int]   : Number of points when using 'File' argument\n");
+	printf("  --test=     [int]   : Number of points when using 'File' argument\n");
+	printf("  --Pres=     [float] : Pressure in kilobar\n");
+	printf("  --Temp=     [float] : Temperature in Celsius\n");
+	printf("  --Bulk=     [float] : Bulk rock composition in molar amount*\n");
+	printf("  --Gam=      [float] : Chemical potential of oxides (pure components)*\n");
+	printf("\n");
+	printf(" *the list of oxides must be given as follow:\n");
+	printf("  SiO2, Al2O3, CaO, MgO, FeO, K2O, Na2O, TiO2, O, Cr2O3, H2O\n");
+	printf("\n\n");
+	printf(" Example of single point calculation:\n");
+	printf(" ------------------------------------\n");	
+	printf("\n");
+    printf("  ./MAGEMin --Verb=1 --Temp=718.750 --Pres=30.5000 --test=0 >&log.txt\n");
+    printf("\n");
+	printf(" Here, the verbose is active and the bulk rock composition of 'test 0' is selected. The output of the verbose is saved as a log file 'log.txt'\n");
+	printf("\n\n");
+	printf(" Example multiple points calculation:\n");
+	printf(" ------------------------------------\n");	
+    printf("\n");
+	printf(" To run multiple points at once you can pass an input file containing the list of points such as\n");
+    printf("\n");
+    printf("  ./MAGEMin --Verb=1 --File='path_to_file' --n_points=x\n");
+    printf("\n");
+	printf(" where 'path_to_file' is the location of the file and 'x' is an integer corresponding to the total number of points contained in the file. The file must have one point per line using the following structure\n");
+    printf("\n");
+	printf("  Mode(0-1), Pressure(kbar), Temperature(C), Gam1, Gam2, ..., Gamn\n");
+    printf("\n");
+	printf(" *Mode = 0 for global minimization\n");
+    printf("\n");
+	printf(" A valid list of points is for instance (MAGEMin_input.dat):\n");
+    printf("\n");	
+    printf("  0 0.0 800.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0\n");
+    printf("  0 4.0 800.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0\n");
+    printf("  0 7.0 800.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0\n");
+    printf("  0 7.0 700.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0\n");	
+    printf("\n");	
+	printf(" Example of parallel points calculation:\n");
+	printf(" ---------------------------------------\n");	
+    printf("\n");	
+    printf(" Simply call 'MPI' before MAGEMin and give the number of cores you want to use. Valid calls using previously defined input file are for instance\n");	
+    printf("\n");	
+    printf("  mpirun -np 8 ./MAGEMin --Verb=1 --File=/path_to_file/MAGEMin_input.dat --n_points=4\n");
+    printf("  mpiexec -n 8 ./MAGEMin --Verb=1 --File=/path_to_file/MAGEMin_input.dat --n_points=4\n");	   
+    printf("\n");	 
+    printf("\n");	 
+
+}
+
+
+/**
   test function for Brent method
 */
 double AFunction(int mode, double v, double *data) {
