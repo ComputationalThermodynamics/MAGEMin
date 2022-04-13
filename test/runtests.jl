@@ -8,7 +8,7 @@ using MAGEMin_C
 # Initialize database 
 gv, DB = init_MAGEMin();
 
-ble struct outP{ _T  } 
+mutable struct outP{ _T  } 
     P           ::  _T
     T           ::  _T 
     test        ::  Int64
