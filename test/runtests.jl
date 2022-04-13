@@ -1,6 +1,8 @@
 # this tests the julia interface to MAGEMin
 using Test
 
+cd("../")       # change to main directory
+
 using MAGEMin_C
 
 # Initialize database 
