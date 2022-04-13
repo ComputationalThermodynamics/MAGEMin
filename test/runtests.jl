@@ -44,7 +44,7 @@ gv.verbose  = -1    # switch off any verbose
         end
     end
 
-    @testset "RE-46 peridorite tests" begin
+    @testset "RE-46 icelandic basalt tests" begin
         for i=1:size(test1list,1)
             
             bulk_rock   = get_bulk_rock(gv, test1list[i].test)
