@@ -725,6 +725,9 @@ const stb_PP_phase = stb_PP_phases
 
 struct stb_systems
     MAGEMin_ver::Ptr{Cchar}
+    bulk_res_norm::Cdouble
+    n_iterations::Cint
+    status::Cint
     nOx::Cint
     oxides::Ptr{Ptr{Cchar}}
     P::Cdouble
@@ -732,8 +735,11 @@ struct stb_systems
     bulk::Ptr{Cdouble}
     gamma::Ptr{Cdouble}
     G::Cdouble
-    bulk_res_norm::Cdouble
     rho::Cdouble
+    bulkMod::Cdouble
+    shearMod::Cdouble
+    Vp::Cdouble
+    Vs::Cdouble
     bulk_S::Ptr{Cdouble}
     frac_S::Cdouble
     rho_S::Cdouble
@@ -763,6 +769,7 @@ mutable struct global_variables
     Mode::Cint
     numDiff::Ptr{Ptr{Cdouble}}
     n_Diff::Cint
+    status::Cint
     relax_PGE::Cdouble
     relax_PGE_val::Cdouble
     PC_df_add::Cdouble
@@ -827,11 +834,16 @@ mutable struct global_variables
     br_liq_x::Cdouble
     max_fac::Cdouble
     max_br::Cdouble
-    br_max_rlx::Cdouble
-    ur_1::Cint
-    ur_2::Cint
-    ur_3::Cint
-    ur_f::Cint
+    it_1::Cint
+    ur_1::Cdouble
+    it_2::Cint
+    ur_2::Cdouble
+    it_3::Cint
+    ur_3::Cdouble
+    it_f::Cint
+    it_slow::Cint
+    ur_slow::Cdouble
+    ur_break::Cdouble
     div::Cint
     dGamma::Ptr{Cdouble}
     PGE_mass_norm::Ptr{Cdouble}
@@ -895,12 +907,16 @@ function ComputePostProcessing(EM_database, z_b, gv, PP_ref_db, SS_ref_db, cp)
     ccall((:ComputePostProcessing, libMAGEMin), global_variable, (Cint, bulk_info, global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), EM_database, z_b, gv, PP_ref_db, SS_ref_db, cp)
 end
 
-function ReadCommandLineOptions(gv, argc, argv, Mode_out, Verb_out, test_out, n_points_out, P, T, Bulk, Gam, InitEM_Prop, File, Phase, maxeval_out, get_version_out)
-    ccall((:ReadCommandLineOptions, libMAGEMin), global_variable, (global_variable, Cint, Ptr{Ptr{Cchar}}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cchar}, Ptr{Cchar}, Ptr{Cint}, Ptr{Cint}), gv, argc, argv, Mode_out, Verb_out, test_out, n_points_out, P, T, Bulk, Gam, InitEM_Prop, File, Phase, maxeval_out, get_version_out)
+function ReadCommandLineOptions(gv, argc, argv, Mode_out, Verb_out, test_out, n_points_out, P, T, Bulk, Gam, InitEM_Prop, File, Phase, maxeval_out, get_version_out, get_help)
+    ccall((:ReadCommandLineOptions, libMAGEMin), global_variable, (global_variable, Cint, Ptr{Ptr{Cchar}}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cchar}, Ptr{Cchar}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}), gv, argc, argv, Mode_out, Verb_out, test_out, n_points_out, P, T, Bulk, Gam, InitEM_Prop, File, Phase, maxeval_out, get_version_out, get_help)
 end
 
 function PrintOutput(gv, rank, l, DB, time_taken, z_b)
     ccall((:PrintOutput, libMAGEMin), Cvoid, (global_variable, Cint, Cint, Databases, Cdouble, bulk_info), gv, rank, l, DB, time_taken, z_b)
+end
+
+function PrintStatus(status)
+    ccall((:PrintStatus, libMAGEMin), Cvoid, (Cint,), status)
 end
 
 struct UT_hash_handle
@@ -1342,6 +1358,10 @@ end
 
 function CP_destroy(gv, cp)
     ccall((:CP_destroy, libMAGEMin), Cvoid, (global_variable, Ptr{csd_phase_set}), gv, cp)
+end
+
+function print_help(gv)
+    ccall((:print_help, libMAGEMin), Cvoid, (global_variable,), gv)
 end
 
 function _DCDCT_fct(id, result, A, n_act_sf, n_xeos)

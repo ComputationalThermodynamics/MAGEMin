@@ -4,7 +4,7 @@
 import Base.show
 
 export  init_MAGEMin, point_wise_minimization, get_bulk_rock, create_output,
-        print_info
+        print_info, create_gmin_struct
 
 
 """
@@ -71,7 +71,11 @@ function point_wise_minimization(P::Float64,T::Float64, bulk_rock::Vector{Float6
     # Postprocessing (NOTE: we should switch off printing if gv.verbose=0)
     gv = LibMAGEMin.ComputePostProcessing(0, z_b, gv, DB.PP_ref_db, DB.SS_ref_db, DB.cp)
 
+    # Fill structure
     LibMAGEMin.fill_output_struct(	gv,	z_b, DB.PP_ref_db,DB.SS_ref_db,	DB.cp, DB.sp );
+
+    # Print output to screen 
+    LibMAGEMin.PrintOutput(gv, 0, 1, DB, time, z_b);		
 
     # Transform results to a more convenient julia struct
     out = create_gmin_struct(DB, gv, time);
@@ -125,10 +129,17 @@ struct gmin_struct{T,I}
     
     oxides::Vector{String}
 
+    # Seismic velocity info
+    Vp::T               # P-wave velocity
+    Vs::T               # S-wave velocity
+    bulkMod::T          # Elastic bulk modulus
+    shearMod::T         # Elastic shear modulus
+
     # Numerics:
     iter::I             # number of iterations required
     bulk_res_norm::T    # bulk residual norm
     time_ms::T          # computational time for this point
+    status::I           # status of calculations
 end
 
 """
@@ -196,7 +207,8 @@ function create_gmin_struct(DB, gv, time)
                 ph_frac, ph_type, ph_id, ph,
                 SS_vec,  PP_vec, 
                 oxides,  
-                iter, bulk_res_norm, time_ms)
+                stb.Vp, stb.Vs, stb.bulkMod, stb.shearMod,
+                iter, bulk_res_norm, time_ms, stb.status)
     
    return out
 end
@@ -328,7 +340,11 @@ function print_info(g::gmin_struct)
     print("$(lpad(round(sum(g.ph_frac),digits=5),4," ")) ")  
     print("$(lpad(round(g.G_system,digits=5),24," ")) ")  
     print("$(lpad(round(g.rho,digits=5),29," ")) ")  
-        
+    print("$(lpad(round(g.bulkMod,digits=5),25," ")) ")  
+    print("$(lpad(round(g.shearMod,digits=5),13," ")) ")  
+    print("$(lpad(round(g.Vp,digits=5),10," ")) ")  
+    print("$(lpad(round(g.Vs,digits=5),10," ")) ")  
+    
     print("\n")
     print("\n")
     # ==
