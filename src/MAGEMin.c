@@ -128,7 +128,9 @@ int runMAGEMin(			int    argc,
 	int     n_points 	=  1;
 	
 	int 	maxeval		= -1;
+	
 	int		get_version;
+	int		get_help;
 	
 	double	Gam[11],  Bulk[11], InitEM_Prop[15];
 	char    File[50], Phase[50];
@@ -151,7 +153,8 @@ int runMAGEMin(			int    argc,
 									 File, 
 									 Phase, 
 									&maxeval,
-									&get_version			); 
+									&get_version,
+									&get_help		); 
 									
 
 	gv.verbose 	= Verb;
@@ -211,11 +214,12 @@ int runMAGEMin(			int    argc,
 	for (int sgleP = 0; sgleP < n_points; sgleP++){
         if ((Mode==0) && (sgleP % numprocs != rank)) continue;   	/** this ensures that, in parallel, not every point is computed by every processor (instead only every numprocs point). Only applied to Mode==0 */
 
-		t              = clock();									/** reset loop timer 						*/
-		gv.BR_norm     = 1.0; 										/** reset bulk rock norm 					*/
-		gv.global_ite  = 0;              							/** reset global iteration 					*/
-		gv.numPoint    = sgleP; 									/** the number of the current point 		*/
-		
+		t              = clock();								/** reset loop timer 				*/
+		gv.BR_norm     = 1.0; 									/** reset bulk rock norm 			*/
+		gv.global_ite  = 0;              						/** reset global iteration 			*/
+		gv.status 	   = 0;              						/** reset status code 			*/
+		gv.numPoint    = sgleP; 								/** the number of the current point */
+
 		/* If we read input from file: */
 		if (strcmp( File, "none") != 0){						
 			z_b.P = input_data[sgleP].P;
@@ -680,7 +684,8 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 										char 				 File[50], 
 										char 				 Phase[50], 
 										int 				*maxeval_out,
-										int 				*get_version_out			
+										int 				*get_version_out,
+										int					*get_help		
 ){
 	int i;
 	static ko_longopt_t longopts[] = {
@@ -698,13 +703,14 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
         { "InitEM_Prop",ko_optional_argument, 312 },
         { "maxeval",    ko_optional_argument, 313 },
         { "version",    ko_optional_argument, 314 },
+        { "help",    	ko_optional_argument, 315 },
     	{ NULL, 0, 0 }
 	};
 	ketopt_t opt = KETOPT_INIT;
 	
 	int    c;
 	int    Mode     =  0;
-	int    Verb     = -1;
+	int    Verb     =  gv.verbose;
 	int    test     =  0;
 	int    n_points =  1;
 	int    n_pc     =  2;		/** number of pseudocompounds for Mode 2 */
@@ -726,6 +732,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 
 	while ((c = ketopt(&opt, argc, argv, 1, "", longopts)) >= 0) {
 		if 		(c == 314){ printf("MAGEMin %20s\n",gv.version ); exit(0); }	
+		else if (c == 315){ print_help( gv ); 					  exit(0); }	
         else if	(c == 301){ Verb     = atoi(opt.arg	);}
 		else if (c == 302){ Mode     = atoi(opt.arg);			if (Verb == 1){		printf("--Mode        : Mode                     = %i \n", 	 	   		Mode		);}}																		
 		else if (c == 303){ strcpy(File,opt.arg);		 		if (Verb == 1){		printf("--File        : File                     = %s \n", 	 	   		File		);}}
@@ -895,7 +902,10 @@ void PrintOutput(	global_variable 	gv,
 					struct bulk_info 	z_b				){
 						
 	int i;
-	if (gv.Mode == 0 && gv.verbose != -1){
+	if (gv.Mode==0 && gv.verbose !=-1){
+		printf(" Status             : %12i ",gv.status);
+		if (gv.verbose == 1){PrintStatus(gv.status);}
+		printf("\n");
 
     	printf(" Rank               : %12i \n",rank);
     	printf(" Point              : %12i \n",l);
@@ -927,4 +937,16 @@ void PrintOutput(	global_variable 	gv,
 			}
 		}	
 	}
+}
+
+/** 
+  This converts the solver status code to human-readable text and prints it to screen
+**/
+void PrintStatus( int status )
+{
+	if (status == 0){printf("\t [success]");}
+	if (status == 1){printf("\t [success, under-relaxed]");}
+	if (status == 2){printf("\t [success, heavily under-relaxed]");}
+	if (status == 3){printf("\t [failure, reached maximum iterations]");}
+	if (status == 4){printf("\t [failure, terminated due to slow convergence or divergence]");}
 }

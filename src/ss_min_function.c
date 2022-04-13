@@ -356,7 +356,7 @@ global_variable reset_gv(					global_variable 	 gv,
 	gv.n_pp_phase         = 0;					/** reset the number of pp phases to start with */
 	gv.alpha          	  = gv.max_fac;
 
-    for (i = 0; i < gv.ur_f; i++){	
+    for (i = 0; i < gv.it_f; i++){
         gv.PGE_mass_norm[i] = 0.0;
     }
 

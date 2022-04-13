@@ -18,7 +18,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-
 #include "mpi.h"
 #include "MAGEMin.h"
 #include "gem_function.h"
@@ -459,7 +458,6 @@ void dump_results_function(		global_variable 	 gv,
 	if (gv.verbose == 0){
 		if (numprocs==1){	sprintf(out_lm,	"%s_pseudosection_output.txt"		,gv.outpath); 		}
 		else 			{	sprintf(out_lm,	"%s_pseudosection_output.%i.txt"	,gv.outpath, rank); }
-
 		/* get number of repeated phases for the solvi */
 		int n_solvi[gv.len_ss];
 		for (int i = 0; i < gv.len_ss; i++){
@@ -472,7 +470,8 @@ void dump_results_function(		global_variable 	 gv,
 		}
 	
 		loc_min 	= fopen(out_lm, 	"a"); 
-		fprintf(loc_min, "%i %i %.10f %.10f %.10f %.10f",gv.numPoint+1,gv.status, z_b.P,z_b.T-273.15,gv.G_system,gv.BR_norm);
+		fprintf(loc_min, "%i %i %.10f %.10f %.10f %.10f", gv.numPoint+1, gv.status, z_b.P,z_b.T-273.15,gv.G_system,gv.BR_norm);
+
 		for (i = 0; i < gv.len_ox; i++){
 			fprintf(loc_min," %0.10f", gv.gam_tot[i]);
 		}

@@ -88,6 +88,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html">List of arguments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html#single-point-calculation">Single point calculation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html#multiple-points-calculation">Multiple points calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html#multiple-points-in-parallel">Multiple points in parallel</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../ckbk.html#data-output">Data output</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/out_struct.html">As a nested structure</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ckbk.html#pseudosection-generator">Pseudosection generator</a><ul>
@@ -106,6 +111,10 @@
 </li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">FAQs:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Firewall warning (Apple M1)</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developers section:</span></p>
 <ul>
@@ -288,17 +297,18 @@
 <div class="viewcode-block" id="c.BrentRoots"><a class="viewcode-back" href="../src/toolkit.html#c.BrentRoots">[docs]</a><span class="cm">/**</span>
 <span class="cm">  main Brent root finding routine </span>
 <span class="cm">*/</span><span class="w"></span>
-<span class="kt">double</span><span class="w"> </span><span class="nf">BrentRoots</span><span class="p">(</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">x1</span><span class="p">,</span><span class="w"> </span>
-<span class="w">					</span><span class="kt">double</span><span class="w"> </span><span class="n">x2</span><span class="p">,</span><span class="w"> </span>
+<span class="kt">double</span><span class="w"> </span><span class="nf">BrentRoots</span><span class="p">(</span><span class="w">  </span><span class="kt">double</span><span class="w">  </span><span class="n">x1</span><span class="p">,</span><span class="w"> </span>
+<span class="w">					</span><span class="kt">double</span><span class="w">  </span><span class="n">x2</span><span class="p">,</span><span class="w"> </span>
 <span class="w">					</span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">,</span><span class="w"></span>
-<span class="w">					</span><span class="kt">double</span><span class="w"> </span><span class="n">Tolerance</span><span class="p">,</span><span class="w"></span>
+<span class="w">					</span><span class="kt">double</span><span class="w">  </span><span class="n">Tolerance</span><span class="p">,</span><span class="w"></span>
 <span class="w">					</span>
-<span class="w">					</span><span class="kt">int</span><span class="w"> </span><span class="n">mode</span><span class="p">,</span><span class="w"></span>
-<span class="w">					</span><span class="kt">int</span><span class="w"> </span><span class="n">maxIterations</span><span class="p">,</span><span class="w"></span>
+<span class="w">					</span><span class="kt">int</span><span class="w"> 	</span><span class="n">mode</span><span class="p">,</span><span class="w"></span>
+<span class="w">					</span><span class="kt">int</span><span class="w"> 	</span><span class="n">maxIterations</span><span class="p">,</span><span class="w"></span>
 <span class="w">					</span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">valueAtRoot</span><span class="p">,</span><span class="w"></span>
 <span class="w">					</span>
-<span class="w">					</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">niter</span><span class="p">,</span><span class="w"> </span>
-<span class="w">					</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">error</span><span class="w"> </span><span class="p">)</span><span class="w">  </span><span class="p">{</span><span class="w"></span>
+<span class="w">					</span><span class="kt">int</span><span class="w"> 	</span><span class="o">*</span><span class="n">niter</span><span class="p">,</span><span class="w"> </span>
+<span class="w">					</span><span class="kt">int</span><span class="w"> 	</span><span class="o">*</span><span class="n">error</span><span class="w"> 			</span>
+<span class="p">){</span><span class="w"></span>
 
 <span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">FPP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1e-11</span><span class="p">,</span><span class="w"> </span><span class="n">nearzero</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1e-40</span><span class="p">;</span><span class="w"></span>
 
@@ -708,9 +718,8 @@
 <div class="viewcode-block" id="c.print_cp"><a class="viewcode-back" href="../src/toolkit.html#c.print_cp">[docs]</a><span class="cm">/**</span>
 <span class="cm">	function to print out considered phases structure </span>
 <span class="cm">*/</span><span class="w"></span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">print_cp</span><span class="p">(</span><span class="w"></span>
-<span class="w">	</span><span class="n">global_variable</span><span class="w"> </span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
-<span class="w">	</span><span class="n">csd_phase_set</span><span class="w">  </span><span class="o">*</span><span class="n">cp</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">print_cp</span><span class="p">(</span><span class="w">		</span><span class="n">global_variable</span><span class="w">	 </span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
+<span class="w">					</span><span class="n">csd_phase_set</span><span class="w">  	</span><span class="o">*</span><span class="n">cp</span><span class="w"></span>
 <span class="p">){</span><span class="w"></span>
 <span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;PRINT CONSIDERED PHASES</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;------------------------</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
@@ -740,10 +749,6 @@
 <span class="w">		</span><span class="p">}</span><span class="w"></span>
 <span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; SS_mode:  %+10f</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_n</span><span class="p">);</span><span class="w"></span>
-<span class="w">	 	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; SS_z_em:  &quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">ii</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">ii</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">n_em</span><span class="p">;</span><span class="w"> </span><span class="n">ii</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">			</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%+10f &quot;</span><span class="p">,</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">z_em</span><span class="p">[</span><span class="n">ii</span><span class="p">]);</span><span class="w"></span>
-<span class="w">		</span><span class="p">}</span><span class="w"></span>
 <span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">	 	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; SS_p_em:  &quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">ii</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">ii</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">n_em</span><span class="p">;</span><span class="w"> </span><span class="n">ii</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
@@ -788,24 +793,11 @@
 <span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">n_xeos</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">11</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
 <span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; %10s&quot;</span><span class="p">,</span><span class="s">&quot;-&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">	</span><span class="p">}</span><span class="w"></span>
-<span class="w">	</span><span class="c1">//printf(&quot; | &quot;);</span>
-<span class="w">	</span><span class="c1">//for (int k = 0; k &lt; SS_ref_db.n_em; k++) {</span>
-<span class="w">		</span><span class="c1">//printf(&quot; %+10f&quot;,SS_ref_db.p[k]);</span>
-<span class="w">	</span><span class="c1">//}</span>
-<span class="w">	</span><span class="c1">//for (int k = SS_ref_db.n_em; k &lt; 12; k++){</span>
-<span class="w">		</span><span class="c1">//printf(&quot; %10s&quot;,&quot;-&quot;);</span>
-<span class="w">	</span><span class="c1">//}</span>
-<span class="w">	</span><span class="c1">//printf(&quot; | &quot;);</span>
-<span class="w">	</span><span class="c1">//for (int k = 0; k &lt; gv.len_ox; k++){</span>
-<span class="w">		</span><span class="c1">//printf(&quot; %+10f&quot;,SS_ref_db.ss_comp[k]*SS_ref_db.factor);</span>
-<span class="w">	</span><span class="c1">//}</span>
+
 <span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; | &quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">n_xeos</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; %+10f&quot;</span><span class="p">,</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">dfx</span><span class="p">[</span><span class="n">k</span><span class="p">]);</span><span class="w"></span>
 <span class="w">	</span><span class="p">}</span><span class="w"></span>
-<span class="w">	</span><span class="c1">//for (int k = SS_ref_db.n_em; k &lt; 12; k++){</span>
-<span class="w">		</span><span class="c1">//printf(&quot; %10s&quot;,&quot;-&quot;);</span>
-<span class="w">	</span><span class="c1">//}</span>
 <span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span></div>
 
@@ -850,20 +842,19 @@
 <span class="w">									</span><span class="kt">double</span><span class="w"> </span><span class="n">box_size</span><span class="w">		</span><span class="p">){</span><span class="w"></span>
 <span class="w">									</span>
 <span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">n_xeos</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">		</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">box_bounds</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">iguess</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">box_size</span><span class="p">;</span><span class="w"></span>
-<span class="w">		</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">box_bounds</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">iguess</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">box_size</span><span class="p">;</span><span class="w"></span>
+<span class="w">		</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">iguess</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">box_size</span><span class="p">;</span><span class="w"></span>
+<span class="w">		</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">iguess</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">box_size</span><span class="p">;</span><span class="w"></span>
 <span class="w">		</span>
-<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">box_bounds</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">box_bounds_default</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]){</span><span class="w"></span>
-<span class="w">			</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">box_bounds</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">box_bounds_default</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">];</span><span class="w"></span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">bounds_ref</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]){</span><span class="w"></span>
+<span class="w">			</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">bounds_ref</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">];</span><span class="w"></span>
 <span class="w">		</span><span class="p">}</span><span class="w"></span>
-<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">box_bounds</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">box_bounds_default</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">1</span><span class="p">]){</span><span class="w"></span>
-<span class="w">			</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">box_bounds</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">box_bounds_default</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">1</span><span class="p">];</span><span class="w"></span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">bounds_ref</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">1</span><span class="p">]){</span><span class="w"></span>
+<span class="w">			</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">bounds_ref</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">1</span><span class="p">];</span><span class="w"></span>
 <span class="w">		</span><span class="p">}</span><span class="w"></span>
 <span class="w">	</span><span class="p">}</span><span class="w"></span>
 <span class="w">						</span>
 <span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">;</span><span class="w">										</span>
 <span class="p">}</span><span class="w"></span></div>
-
 
 <div class="viewcode-block" id="c.check_SS_bounds"><a class="viewcode-back" href="../src/toolkit.html#c.check_SS_bounds">[docs]</a><span class="cm">/**</span>
 <span class="cm">   check bounds</span>
@@ -872,18 +863,16 @@
 <span class="w">							</span><span class="n">SS_ref</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="w">					</span><span class="p">){</span><span class="w"></span>
 <span class="w">									</span>
 <span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">n_xeos</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">iguess</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">box_bounds_default</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]){</span><span class="w"></span>
-<span class="w">			</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">iguess</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">box_bounds_default</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">];</span><span class="w"></span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">iguess</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">bounds_ref</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]){</span><span class="w"></span>
+<span class="w">			</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">iguess</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">bounds_ref</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">];</span><span class="w"></span>
 <span class="w">		</span><span class="p">}</span><span class="w"></span>
-<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">iguess</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">box_bounds_default</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">1</span><span class="p">]){</span><span class="w"></span>
-<span class="w">			</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">iguess</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">box_bounds_default</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">1</span><span class="p">];</span><span class="w"></span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">iguess</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">bounds_ref</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">1</span><span class="p">]){</span><span class="w"></span>
+<span class="w">			</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">iguess</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">bounds_ref</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">1</span><span class="p">];</span><span class="w"></span>
 <span class="w">		</span><span class="p">}</span><span class="w"></span>
 <span class="w">	</span><span class="p">}</span><span class="w"></span>
 <span class="w">						</span>
 <span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">;</span><span class="w">										</span>
 <span class="p">}</span><span class="w"></span></div>
-
-
 
 <div class="viewcode-block" id="c.getActiveSPhaseN"><a class="viewcode-back" href="../src/toolkit.html#c.getActiveSPhaseN">[docs]</a><span class="cm">/**</span>
 <span class="cm">   retrieve the number of solution phase that are active </span>
