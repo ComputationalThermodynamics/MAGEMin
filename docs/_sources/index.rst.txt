@@ -58,7 +58,13 @@ Imported libraries
    :caption: Cookbook:
    
    ckbk
-
+   
+.. toctree::
+   :maxdepth: 2
+   :caption: FAQs:
+   
+   faq
+   
 .. toctree::
    :maxdepth: 2
    :caption: Developers section:

@@ -317,6 +317,10 @@ typedef struct stb_systems {
 	
 	char   *MAGEMin_ver;
 	
+	double  bulk_res_norm;
+	int     n_iterations;
+	int     status;
+	
 	int     nOx;
 	char  **oxides;
 	
@@ -326,9 +330,13 @@ typedef struct stb_systems {
 	
 	double *gamma;
 	double  G;
-	double  bulk_res_norm;
 	double  rho;
-
+	
+	double  bulkMod;
+	double  shearMod;
+	double  Vp;
+	double  Vs;
+	
 	double *bulk_S; double frac_S; double rho_S;  	/* Solid system informations 												*/
 	double *bulk_M; double frac_M; double rho_M; 	/* Melt system informations 												*/
 	double *bulk_F; double frac_F; double rho_F; 	/* Fluid system informations 												*/
@@ -357,6 +365,7 @@ typedef struct global_variables {
 	int      Mode;				/** calcultion mode, 0 = full minimization, 1 = extract solution phases informations, 2 = local minimization */
 	double **numDiff;
 	int      n_Diff;
+	int      status;			/** status of the minimization */
 	
 	/* GENERAL PARAMETERS */
 	double   relax_PGE;
@@ -439,12 +448,17 @@ typedef struct global_variables {
 	double   br_liq_x;
 	double   max_fac;			/** max updating factor */
 	double 	 max_br;
-	double   br_max_rlx;        /** maximum relaxing factor on mass constraint */
-	int      ur_1;				/** under-relax solution parameters in case iteration number becomes too large */
-	int      ur_2;
-	int      ur_3;
-	int      ur_f;				/** send a failed message when the number of iteration is greater than this value */
-	int 	 div;				/** send status of divergence */
+	int      it_1;              /** first critical iteration                                                      */
+	double   ur_1;              /** under relaxing factor on mass constraint if iteration is bigger than it_1     */
+	int      it_2;              /** second critical iteration                                                     */
+	double   ur_2;              /** under relaxing factor on mass constraint if iteration is bigger than it_2     */
+	int      it_3;              /** third critical iteration                                                      */
+	double   ur_3;              /** under relaxing factor on mass constraint if iteration is bigger than it_3     */
+	int      it_f;              /** send a failed message when the number of iteration is greater than this value */
+	int      it_slow;           /** critical iteration for slow convergence                                       */
+	double   ur_slow;           /** under relaxing factor on mass constraint defining overly slow convergence     */
+	double   ur_break;          /** under relaxing factor on mass constraint defining a breaking iteration        */
+	int      div;               /** send status of divergence */
 
 	/* DECLARE ARRAY FOR PGE CALCULATION */	
 	double	*dGamma;			/** array to store gamma change */
@@ -531,7 +545,8 @@ global_variable ReadCommandLineOptions(	global_variable   gv,
 										char 			  File[50], 
 										char 			  Phase[50], 
 										int 			 *maxeval_out, 
-										int     		 *get_version_out			);
+										int     		 *get_version_out,
+										int 			 *get_help					);
 
 /* function that prints output */
 void PrintOutput(	global_variable 	gv, 
@@ -541,5 +556,7 @@ void PrintOutput(	global_variable 	gv,
 					double 				time_taken, 
 					struct bulk_info 	z_b)				;
 
+/* function converting the solver status code to human-readable text and printing it to screen */
+void PrintStatus(	int status );
 
 #endif

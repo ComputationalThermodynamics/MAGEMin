@@ -279,15 +279,7 @@ PP_ref G_EM_function(		int 		 EM_database,
 	PP_ref_db.gbase   =  gbase;
 	PP_ref_db.factor  =  factor;
 	PP_ref_db.phase_shearModulus  =  (EM_return.input_4[0]*kbar2bar + (P - p0)*(EM_return.input_4[1])*kbar2bar + (T - t0)*(EM_return.input_4[2]))/kbar2bar;
-	
-	//printf(" %4s %+10f |",name,gbase);
-	//printf(" %+10f %+10f -> %+10f\n",(P - p0)*kbar2bar,(T - t0),PP_ref_db.phase_shearModulus);
-	
-	//for (i = 0; i < nEl; i++){
-		//printf(" %+10f",PP_ref_db.Comp[i]);
-	//}
-	//printf("\n");
-	
+
 	return (PP_ref_db);
 }
 

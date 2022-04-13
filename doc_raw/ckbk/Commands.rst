@@ -20,15 +20,22 @@ The list of valid command line arguments is the following
 +---------------+-----------------------------------------------+
 | -\-Pres=y     | Pressure in kilobar                           |
 +---------------+-----------------------------------------------+
-| -\-Temp=y     | Temperature in celsus                         |
+| -\-Temp=y     | Temperature in Celsius                        |
 +---------------+-----------------------------------------------+
 | -\-Bulk=[y]   | Bulk rock composition in molar amount         |
 +---------------+-----------------------------------------------+
 | -\-Gam=[y]    | Gamma, when a guess of gamma is known         |
 +---------------+-----------------------------------------------+
 
-where *x* is an integer, *y* a float/double and *[]* an array of size *number of oxydes*.
+where *x* is an ``integer``, *y* a ``float``/``double`` and *[]* a comma-separated list of size *number of oxydes*. 
 
+The list of oxides must be given in the following order: 
+
++------+-------+-----+-----+-----+-----+------+------+---+-------+-----+
+| SiO2 | Al2O3 | CaO | MgO | FeO | K2O | Na2O | TiO2 | O | Cr2O3 | H2O |
++------+-------+-----+-----+-----+-----+------+------+---+-------+-----+
+
+|
 
 Single point calculation		  
 ========================
@@ -40,6 +47,8 @@ Using previously defined arguments, a valid command to run a single point calcul
 	./MAGEMin --Verb=1 --Temp=718.750 --Pres=30.5000 --test=0 >&log.txt
 
 Here, the verbose is active and the bulk rock composition of *test 0* is selected. The output of the verbose is saved as a log file *log.txt*.
+
+|
 
 Multiple points	calculation	  
 ===========================
@@ -71,6 +80,7 @@ A valid list of points is for instance:
 	0 8.0 800.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
 	(...)
 
+|
 
 Multiple points in parallel 
 ===========================
