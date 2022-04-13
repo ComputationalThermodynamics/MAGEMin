@@ -1017,15 +1017,12 @@ global_variable PGE(	struct bulk_info 	z_b,
 		if (gv.global_ite > gv.it_3 && gv.BR_norm < gv.br_max_tol*gv.ur_3){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_3, gv.ur_3);}; gv.status = 2; break;}
 		if (gv.global_ite > gv.it_f){											if (gv.verbose != -1){printf(" >%d iterations, did not converge  !!!\n\n", gv.it_f);}; gv.status = 3; break;}
 
-
 		/* check evolution of mass constraint residual */
-		gv.PGE_mass_norm[gv.global_ite]  = gv.BR_norm;	/** save norm for the current global iteration */
+		gv.PGE_mass_norm[ gv.global_ite] = gv.BR_norm;	/** save norm for the current global iteration */
 		gv.PGE_total_norm[gv.global_ite] = gv.fc_norm_t1;
 
-		// capture points that fail to converge sufficiently quickly
-		// or have a very large norm after any iteration
-		if ((gv.global_ite > gv.it_slow && gv.BR_norm > gv.br_max_tol*gv.ur_slow) ||
-			 gv.BR_norm > gv.br_max_tol*gv.ur_break){
+		/** capture points that fail to converge sufficiently quickly or have a very large norm after any iteration */
+		if ((gv.global_ite > gv.it_slow && gv.BR_norm > gv.br_max_tol*gv.ur_slow) || gv.BR_norm > gv.br_max_tol*gv.ur_break){
 			gv.status = 4;
 			gv.div = 1;	
 		}

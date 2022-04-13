@@ -13,13 +13,13 @@
 
 #include "nlopt.h"                  // requires specifying this in the makefile
 #include "MAGEMin.h"
-#include "gss_function.h"			// order of header file declaration is important
+#include "gss_function.h"		    	  // order of header file declaration is important
 #include "objective_functions.h"
 #include "NLopt_opt_function.h"
 #include "toolkit.h"
 
-#define nEl 11						// max number of non-zeros compoenents
-#define eps_sf -1e-10				// eps to shift site fraction from zero
+#define nEl 11						        // max number of non-zeros compoenents
+#define eps_sf -1e-10				      // eps to shift site fraction from zero
 
 
 /** 
