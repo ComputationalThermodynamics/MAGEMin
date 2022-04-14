@@ -365,6 +365,13 @@ function print_info(g::gmin_struct)
     
     print("\n")
 
+    println("mass residual :  $(g.bulk_res_norm)")  
+    println("# iterations  :  $(g.iter)")  
+    println("status        :  $(g.status)")  
+    
+
+    print("\n")
+
 end
 
 
