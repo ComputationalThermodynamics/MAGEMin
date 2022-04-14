@@ -3,7 +3,7 @@
 
 import Base.show
 
-export  init_MAGEMin, point_wise_minimization, get_bulk_rock, create_output,
+export  init_MAGEMin, finalize_MAGEMin, point_wise_minimization, get_bulk_rock, create_output,
         print_info, create_gmin_struct
 
 
@@ -18,6 +18,16 @@ function  init_MAGEMin(;EM_database=0)
     DB = LibMAGEMin.InitializeDatabases(gv, EM_database)
 
     return gv, DB
+end
+
+"""
+    finalize_MAGEMin(gv,DB)
+Cleans up the memory 
+"""
+function  finalize_MAGEMin(gv,DB)
+    LibMAGEMin.FreeDatabases(gv, DB)
+
+    nothing
 end
 
 
@@ -60,6 +70,10 @@ function point_wise_minimization(P::Float64,T::Float64, bulk_rock::Vector{Float6
 
     EM_database = 0
     
+    # Initialize EM & SS databases: 
+    gv = LibMAGEMin.init_em_db(EM_database, z_b, gv, DB.PP_ref_db)
+    gv = LibMAGEMin.init_ss_db(EM_database, z_b, gv, DB.SS_ref_db)
+
     # Perform the point-wise minimization after resetting variables
     gv      = LibMAGEMin.reset_gv(gv,z_b, DB.PP_ref_db, DB.SS_ref_db)
     LibMAGEMin.reset_cp(gv,z_b, DB.cp)
