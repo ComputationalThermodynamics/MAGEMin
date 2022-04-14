@@ -475,8 +475,11 @@ void reset_cp(						global_variable 	 gv,
 			cp[i].xi_em[ii]     = 0.0;
 			cp[i].dguess[ii]    = 0.0;
 			cp[i].xeos[ii]      = 0.0;
+			cp[i].lvlxeos[ii]   = 0.0;
+			cp[i].delta_mu[ii]  = 0.0;
 			cp[i].dfx[ii]       = 0.0;
 			cp[i].mu[ii]        = 0.0;
+			cp[i].gbase[ii]     = 0.0;
 			cp[i].mu0[ii]       = 0.0;
 			cp[i].ss_comp[ii]   = 0.0;
 		}
@@ -507,6 +510,7 @@ void reset_SS(						global_variable 	 gv,
 		for (int j = 0; j < gv.len_ox; j++){
 			SS_ref_db[iss].solvus_id[j] = -1;	
 		}
+		/* reset pseudocompounds */
 		for (int i = 0; i < (SS_ref_db[iss].n_pc); i++){
 			SS_ref_db[iss].factor_pc[i] = 0.0;
 			SS_ref_db[iss].n_swap[i] = 0;
@@ -523,6 +527,7 @@ void reset_SS(						global_variable 	 gv,
 				SS_ref_db[iss].xeos_pc[i][j]  = 0.0;
 			}
 		}
+		
 		for (int j = 0; j < SS_ref_db[iss].n_em; j++){
 			SS_ref_db[iss].xi_em[j]     = 0.0;
 			SS_ref_db[iss].z_em[j]      = 1.0;

@@ -247,7 +247,7 @@ global_variable global_variable_init(){
 		gv.PGE_mass_norm[i] 	= 0.0;
 		gv.PGE_total_norm[i] 	= 0.0;
 		gv.gamma_norm[i] 		= 0.0;	
-		gv.ite_time[i] 			= 0;
+		gv.ite_time[i] 			= 0.0;
 	}
 	
 	/* store values for numerical differentiation */
