@@ -398,6 +398,7 @@ typedef struct global_variables {
 
 	int      numPoint; 			/** the number of the current point */
 	int      global_ite;		/** global iteration increment */
+	int      status;		    /** status code */
 
 	/* LEVELLING */
 	double   LVL_time;			/** time taken for levelling (ms) */
