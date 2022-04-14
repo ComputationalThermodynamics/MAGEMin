@@ -91,6 +91,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html#multiple-points-in-parallel">Multiple points in parallel</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../ckbk.html#data-output">Data output</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/out_struct.html">As a nested structure</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../ckbk.html#pseudosection-generator">Pseudosection generator</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/gui.html">Usage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/gui.html#klb-1-pseudosection-tutorial">KLB-1 Pseudosection tutorial</a><ul>
@@ -107,6 +111,10 @@
 </li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">FAQs:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Firewall warning (Apple M1)</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developers section:</span></p>
 <ul>
@@ -289,17 +297,18 @@
 <div class="viewcode-block" id="c.BrentRoots"><a class="viewcode-back" href="../src/toolkit.html#c.BrentRoots">[docs]</a><span class="cm">/**</span>
 <span class="cm">  main Brent root finding routine </span>
 <span class="cm">*/</span><span class="w"></span>
-<span class="kt">double</span><span class="w"> </span><span class="nf">BrentRoots</span><span class="p">(</span><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">x1</span><span class="p">,</span><span class="w"> </span>
-<span class="w">					</span><span class="kt">double</span><span class="w"> </span><span class="n">x2</span><span class="p">,</span><span class="w"> </span>
+<span class="kt">double</span><span class="w"> </span><span class="nf">BrentRoots</span><span class="p">(</span><span class="w">  </span><span class="kt">double</span><span class="w">  </span><span class="n">x1</span><span class="p">,</span><span class="w"> </span>
+<span class="w">					</span><span class="kt">double</span><span class="w">  </span><span class="n">x2</span><span class="p">,</span><span class="w"> </span>
 <span class="w">					</span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">,</span><span class="w"></span>
-<span class="w">					</span><span class="kt">double</span><span class="w"> </span><span class="n">Tolerance</span><span class="p">,</span><span class="w"></span>
+<span class="w">					</span><span class="kt">double</span><span class="w">  </span><span class="n">Tolerance</span><span class="p">,</span><span class="w"></span>
 <span class="w">					</span>
-<span class="w">					</span><span class="kt">int</span><span class="w"> </span><span class="n">mode</span><span class="p">,</span><span class="w"></span>
-<span class="w">					</span><span class="kt">int</span><span class="w"> </span><span class="n">maxIterations</span><span class="p">,</span><span class="w"></span>
+<span class="w">					</span><span class="kt">int</span><span class="w"> 	</span><span class="n">mode</span><span class="p">,</span><span class="w"></span>
+<span class="w">					</span><span class="kt">int</span><span class="w"> 	</span><span class="n">maxIterations</span><span class="p">,</span><span class="w"></span>
 <span class="w">					</span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">valueAtRoot</span><span class="p">,</span><span class="w"></span>
 <span class="w">					</span>
-<span class="w">					</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">niter</span><span class="p">,</span><span class="w"> </span>
-<span class="w">					</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">error</span><span class="w"> </span><span class="p">)</span><span class="w">  </span><span class="p">{</span><span class="w"></span>
+<span class="w">					</span><span class="kt">int</span><span class="w"> 	</span><span class="o">*</span><span class="n">niter</span><span class="p">,</span><span class="w"> </span>
+<span class="w">					</span><span class="kt">int</span><span class="w"> 	</span><span class="o">*</span><span class="n">error</span><span class="w"> 			</span>
+<span class="p">){</span><span class="w"></span>
 
 <span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">FPP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1e-11</span><span class="p">,</span><span class="w"> </span><span class="n">nearzero</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1e-40</span><span class="p">;</span><span class="w"></span>
 
@@ -709,9 +718,8 @@
 <div class="viewcode-block" id="c.print_cp"><a class="viewcode-back" href="../src/toolkit.html#c.print_cp">[docs]</a><span class="cm">/**</span>
 <span class="cm">	function to print out considered phases structure </span>
 <span class="cm">*/</span><span class="w"></span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">print_cp</span><span class="p">(</span><span class="w"></span>
-<span class="w">	</span><span class="n">global_variable</span><span class="w"> </span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
-<span class="w">	</span><span class="n">csd_phase_set</span><span class="w">  </span><span class="o">*</span><span class="n">cp</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">print_cp</span><span class="p">(</span><span class="w">		</span><span class="n">global_variable</span><span class="w">	 </span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
+<span class="w">					</span><span class="n">csd_phase_set</span><span class="w">  	</span><span class="o">*</span><span class="n">cp</span><span class="w"></span>
 <span class="p">){</span><span class="w"></span>
 <span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;PRINT CONSIDERED PHASES</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;------------------------</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>

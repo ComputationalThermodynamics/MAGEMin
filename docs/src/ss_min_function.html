@@ -94,6 +94,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html#multiple-points-in-parallel">Multiple points in parallel</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../ckbk.html#data-output">Data output</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/out_struct.html">As a nested structure</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../ckbk.html#pseudosection-generator">Pseudosection generator</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/gui.html">Usage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/gui.html#klb-1-pseudosection-tutorial">KLB-1 Pseudosection tutorial</a><ul>
@@ -110,6 +114,10 @@
 </li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">FAQs:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Firewall warning (Apple M1)</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developers section:</span></p>
 <ul>
@@ -217,8 +225,8 @@ NOTE: When the phase is “liq”, the normalization factor is also updated as i
 </dd></dl>
 
 <dl class="c function">
-<dt class="sig sig-object c" id="c.reset_global_variables">
-<span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reset_global_variables</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">PP_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">PP_ref_db</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="n"><span class="pre">csd_phase_set</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">cp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.reset_global_variables" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/ss_min_function.c.html#c.reset_global_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dt class="sig sig-object c" id="c.reset_gv">
+<span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reset_gv</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="n"><span class="pre">PP_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">PP_ref_db</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.reset_gv" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/ss_min_function.c.html#c.reset_gv"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>reset global variable for parallel calculations</p>
 </dd></dl>
 
@@ -229,8 +237,20 @@ NOTE: When the phase is “liq”, the normalization factor is also updated as i
 </dd></dl>
 
 <dl class="c function">
-<dt class="sig sig-object c" id="c.reset_phases">
-<span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reset_phases</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="n"><span class="pre">PP_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">PP_ref_db</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="n"><span class="pre">csd_phase_set</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">cp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.reset_phases" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/ss_min_function.c.html#c.reset_phases"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dt class="sig sig-object c" id="c.reset_sp">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reset_sp</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">stb_system</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">sp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.reset_sp" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/ss_min_function.c.html#c.reset_sp"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>reset stable phases entries</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.reset_cp">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reset_cp</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="n"><span class="pre">csd_phase_set</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">cp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.reset_cp" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/ss_min_function.c.html#c.reset_cp"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>reset considered phases entries</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.reset_SS">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reset_SS</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.reset_SS" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/ss_min_function.c.html#c.reset_SS"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>reset compositional variables (xeos) when something goes wrong during minimization</p>
 </dd></dl>
 

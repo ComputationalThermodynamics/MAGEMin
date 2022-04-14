@@ -1,0 +1,15 @@
+[general]
+library_name = "libMAGEMin"
+output_file_path = "./magemin_library.jl"
+module_name = "LibMAGEMin"
+jll_pkg_name = "MAGEMin_jll"
+
+prologue_file_path = "./prologue.jl"
+epilogue_file_path = "./epilogue.jl"
+
+auto_mutability = true              # Create mutable structures:
+auto_mutability_with_new = true     # Allow creating empty structs
+auto_mutability_ignorelist = []
+auto_mutability_includelist = []
+
+export_symbol_prefixes = ["CX", "clang_"]

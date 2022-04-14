@@ -1,13 +1,14 @@
 #ifndef __OBJECTIVE_FUNCTIONS_H_
 #define __OBJECTIVE_FUNCTIONS_H_
 
+#include "MAGEMin.h"
 /** 
 	definition of the objective function type in order to associate them with the right solution phase number
 */
-typedef double (*obj_type) (	unsigned  		 n,
-								const double 	*x,
-								double 			*grad,
-								void 			*SS_ref_db		);
+typedef double (*obj_type) (		unsigned  		 n,
+									const double 	*x,
+									double 			*grad,
+									void 			*SS_ref_db		);
  
 void SS_objective_init_function(	obj_type 			*SS_objective,
 									global_variable 	 gv				);
@@ -44,18 +45,18 @@ double obj_spn(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 
 SS_ref PC_PX_function(		SS_ref SS_ref_db, 
 							double  *x,
-							char    *name				);	
+							char    *name					);	
 													
 SS_ref PC_function(			global_variable gv,
 							SS_ref SS_ref_db, 
 							struct bulk_info z_b,
-							char    *name				);
+							char    *name					);
 													
 SS_ref P2X(					global_variable gv,
 							SS_ref SS_ref_db, 
 							struct bulk_info z_b,
-							char    *name				);	
+							char    *name					);	
 							
-int get_phase_id(		global_variable 	 gv,
-						char    			*name		);
+int get_phase_id(			global_variable 	 gv,
+							char    			*name		);
 #endif

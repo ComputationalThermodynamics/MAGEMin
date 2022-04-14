@@ -13,13 +13,13 @@
 
 #include "nlopt.h"                  // requires specifying this in the makefile
 #include "MAGEMin.h"
-#include "gss_function.h"			// order of header file declaration is important
+#include "gss_function.h"		    	  // order of header file declaration is important
 #include "objective_functions.h"
 #include "NLopt_opt_function.h"
 #include "toolkit.h"
 
-#define nEl 11						// max number of non-zeros compoenents
-#define eps_sf -1e-10				// eps to shift site fraction from zero
+#define nEl 11						        // max number of non-zeros compoenents
+#define eps_sf -1e-10				      // eps to shift site fraction from zero
 
 
 /** 
@@ -1522,7 +1522,6 @@ double GM_obj(		unsigned  		 n,
 	return Gsys;
 };
 
-
 /** 
 	global minimization given fixed phase assemblage
 	n: number of variables in the objective function (phase fractions + compositional variables)
@@ -1602,8 +1601,8 @@ global_variable NLopt_global_opt_function(	struct bulk_info 	z_b,
 		for (j = 0; j < SS_ref_db[ss].n_xeos; j++){
 			x[ix]  = cp[ph].xeos[j];
 			
-			lb[ix] = SS_ref_db[ss].box_bounds_default[j][0];
-			ub[ix] = SS_ref_db[ss].box_bounds_default[j][1];
+			lb[ix] = SS_ref_db[ss].bounds_ref[j][0];
+			ub[ix] = SS_ref_db[ss].bounds_ref[j][1];
 			ix    += 1;
 		}
 	}
@@ -1695,8 +1694,8 @@ SS_ref NLopt_opt_bi_function(global_variable gv, SS_ref SS_ref_db){
    double *x  = SS_ref_db.iguess; 
 
    for (int i = 0; i < (SS_ref_db.n_xeos); i++){
-      SS_ref_db.lb[i] = SS_ref_db.box_bounds[i][0];
-      SS_ref_db.ub[i] = SS_ref_db.box_bounds[i][1];
+      SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+      SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
    }
    
    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n));
@@ -1736,8 +1735,8 @@ SS_ref NLopt_opt_cd_function(global_variable gv, SS_ref SS_ref_db){
 	double *x  = SS_ref_db.iguess;   
 
 	for (int i = 0; i < (SS_ref_db.n_xeos); i++){
-		SS_ref_db.lb[i] = SS_ref_db.box_bounds[i][0];
-		SS_ref_db.ub[i] = SS_ref_db.box_bounds[i][1];		
+		SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+		SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];		
 	}
 	
     SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n)); 
@@ -1779,8 +1778,8 @@ SS_ref NLopt_opt_cpx_function(global_variable gv, SS_ref SS_ref_db){
    
 
    for (int i = 0; i < (SS_ref_db.n_xeos); i++){
-      SS_ref_db.lb[i] = SS_ref_db.box_bounds[i][0];
-      SS_ref_db.ub[i] = SS_ref_db.box_bounds[i][1];
+      SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+      SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
    }
    
    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n)); 
@@ -1821,8 +1820,8 @@ SS_ref NLopt_opt_ep_function(global_variable gv, SS_ref SS_ref_db){
    double *x  = SS_ref_db.iguess; 
 
    for (int i = 0; i < (SS_ref_db.n_xeos); i++){
-      SS_ref_db.lb[i] = SS_ref_db.box_bounds[i][0];
-      SS_ref_db.ub[i] = SS_ref_db.box_bounds[i][1];
+      SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+      SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
    }
    
    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n)); 
@@ -1863,8 +1862,8 @@ SS_ref NLopt_opt_fl_function(global_variable gv, SS_ref SS_ref_db){
    double *x  = SS_ref_db.iguess; 
 
    for (int i = 0; i < (SS_ref_db.n_xeos); i++){
-      SS_ref_db.lb[i] = SS_ref_db.box_bounds[i][0];
-      SS_ref_db.ub[i] = SS_ref_db.box_bounds[i][1];
+      SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+      SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
    }
    
    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n)); 
@@ -1905,8 +1904,8 @@ SS_ref NLopt_opt_g_function(global_variable gv, SS_ref SS_ref_db){
    double *x  = SS_ref_db.iguess; 
 
    for (int i = 0; i < (SS_ref_db.n_xeos); i++){
-      SS_ref_db.lb[i] = SS_ref_db.box_bounds[i][0];
-      SS_ref_db.ub[i] = SS_ref_db.box_bounds[i][1];
+      SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+      SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
    }
    
    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n)); 
@@ -1947,8 +1946,8 @@ SS_ref NLopt_opt_hb_function(global_variable gv, SS_ref SS_ref_db){
    double *x  = SS_ref_db.iguess; 
 
    for (int i = 0; i < (SS_ref_db.n_xeos); i++){
-      SS_ref_db.lb[i] = SS_ref_db.box_bounds[i][0];
-      SS_ref_db.ub[i] = SS_ref_db.box_bounds[i][1];
+      SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+      SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
    }
    
    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n)); 
@@ -1989,8 +1988,8 @@ SS_ref NLopt_opt_ilm_function(global_variable gv, SS_ref SS_ref_db){
    double *x  = SS_ref_db.iguess; 
 
    for (int i = 0; i < (SS_ref_db.n_xeos); i++){
-      SS_ref_db.lb[i] = SS_ref_db.box_bounds[i][0];
-      SS_ref_db.ub[i] = SS_ref_db.box_bounds[i][1];
+      SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+      SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
    }
    
    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n)); 
@@ -2031,8 +2030,8 @@ SS_ref NLopt_opt_liq_function(global_variable gv, SS_ref SS_ref_db){
    double *x  = SS_ref_db.iguess; 
    
    for (int i = 0; i < (SS_ref_db.n_xeos); i++){
-      SS_ref_db.lb[i] = SS_ref_db.box_bounds[i][0];
-      SS_ref_db.ub[i] = SS_ref_db.box_bounds[i][1];
+      SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+      SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
    }
 
    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n)); 
@@ -2072,8 +2071,8 @@ SS_ref NLopt_opt_mu_function(global_variable gv, SS_ref SS_ref_db){
    double *x  = SS_ref_db.iguess; 
 
    for (int i = 0; i < (SS_ref_db.n_xeos); i++){
-      SS_ref_db.lb[i] = SS_ref_db.box_bounds[i][0];
-      SS_ref_db.ub[i] = SS_ref_db.box_bounds[i][1];
+      SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+      SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
    }
    
    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n)); 
@@ -2114,8 +2113,8 @@ SS_ref NLopt_opt_ol_function(global_variable gv, SS_ref SS_ref_db){
    double *x  = SS_ref_db.iguess; 
 
    for (int i = 0; i < (SS_ref_db.n_xeos); i++){
-      SS_ref_db.lb[i] = SS_ref_db.box_bounds[i][0];
-      SS_ref_db.ub[i] = SS_ref_db.box_bounds[i][1];
+      SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+      SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
    }
    
    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n)); 
@@ -2156,8 +2155,8 @@ SS_ref NLopt_opt_opx_function(global_variable gv, SS_ref SS_ref_db){
    double *x  = SS_ref_db.iguess; 
 
    for (int i = 0; i < (SS_ref_db.n_xeos); i++){
-      SS_ref_db.lb[i] = SS_ref_db.box_bounds[i][0];
-      SS_ref_db.ub[i] = SS_ref_db.box_bounds[i][1];
+      SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+      SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
    }
    
    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n)); 
@@ -2198,8 +2197,8 @@ SS_ref NLopt_opt_pl4T_function(global_variable gv, SS_ref SS_ref_db){
    double *x  = SS_ref_db.iguess; 
 
    for (int i = 0; i < (SS_ref_db.n_xeos); i++){
-      SS_ref_db.lb[i] = SS_ref_db.box_bounds[i][0];
-      SS_ref_db.ub[i] = SS_ref_db.box_bounds[i][1];
+      SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+      SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
    }
    
    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n)); 
@@ -2240,8 +2239,8 @@ SS_ref NLopt_opt_spn_function(global_variable gv, SS_ref SS_ref_db){
    double *x  = SS_ref_db.iguess; 
 
    for (int i = 0; i < (SS_ref_db.n_xeos); i++){
-      SS_ref_db.lb[i] = SS_ref_db.box_bounds[i][0];
-      SS_ref_db.ub[i] = SS_ref_db.box_bounds[i][1];
+      SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+      SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
    }
    
    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n));

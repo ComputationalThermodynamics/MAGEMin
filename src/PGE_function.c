@@ -27,7 +27,6 @@ The routine is the core of MAGEMin algorithm and is constructed around the Gibbs
 #include "objective_functions.h"
 #include "NLopt_opt_function.h"
 
-
 /** 
   Partitioning Gibbs Energy function 
 */
@@ -47,35 +46,21 @@ void PGE_print(					struct bulk_info 		z_b,
 	printf("\n");
 	printf("\n ___________________________________\n");
 	printf("           PHASE ASSEMBLAGE         \n");
-	printf(" ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n\n");
+	printf(" ═══════════════════════════════════\n\n");
 	printf("ON | phase |  Fraction |  delta_G   |  factor   |   sum_xi   |    Pi - Xi...\n");
-	printf("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n");
+	printf("═══════════════════════════════════════════════════════════════════════════════════════\n");
 
 	for (int i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[0] == 1 && cp[i].ss_flags[1] == 1 ){
 
 			printf(" %d | %4s | %+10f | %+10f | %+10f | %+10f | ",cp[i].ss_flags[1],cp[i].name,cp[i].ss_n,cp[i].df,cp[i].factor,cp[i].sum_xi);
-			//for (int k = 0; k < cp[i].n_xeos; k++) {
-				//printf(" %+10f",cp[i].xeos[k]);
-			//}
-			//for (int k = cp[i].n_xeos; k < 11; k++){
-				//printf(" %10s","-");
-			//}
-			//printf(" | ");
+
 			for (int k = 0; k < cp[i].n_em; k++) {
-				printf(" %+10f",(cp[i].p_em[k]-cp[i].xi_em[k]*cp[i].p_em[k])*cp[i].z_em[k]);
+				printf(" %+10f",(cp[i].p_em[k]-cp[i].xi_em[k]*cp[i].p_em[k])*SS_ref_db[cp[i].id].z_em[k]);
 			}
 			for (int k = cp[i].n_em; k < 12; k++){
 				printf(" %10s","-");
 			}
-			//printf(" | ");
-
-			//for (int k = 0; k < cp[i].n_em; k++) {
-				//printf(" %+10f",cp[i].mu[k]);
-			//}
-			//for (int k = cp[i].n_em; k < 12; k++){
-				//printf(" %10s","-");
-			//}
 			printf("\n");
 						
 		}
@@ -84,7 +69,7 @@ void PGE_print(					struct bulk_info 		z_b,
 	if (gv.n_pp_phase > 0){
 		printf("\n");
 		printf("ON | P. phase |  Fraction  |  delta_G   |  factor   | \n");
-		printf("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n");
+		printf("═══════════════════════════════════════════════════════════════════════════════════════\n");
 		for (int i = 0; i < gv.len_pp; i++){ 
 			if (gv.pp_flags[i][1] == 1){
 				printf(" %d | %4s     | %+10f | %+10f | %+10f | \n",1,gv.PP_list[i],gv.pp_n[i],PP_ref_db[i].gb_lvl*PP_ref_db[i].factor,PP_ref_db[i].factor);
@@ -94,45 +79,25 @@ void PGE_print(					struct bulk_info 		z_b,
 
 	printf("\n");
 	printf("OFF| phase |  Fraction |  delta_G   |  factor   |   sum_xi   |    Pi - Xi...\n");
-	printf("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n");
+	printf("═══════════════════════════════════════════════════════════════════════════════════════\n");
 	for (int i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[0] == 1 && cp[i].ss_flags[2] == 1){
 
 			printf(" %d | %4s | %+10f | %+10f | %+10f | %+10f | ",cp[i].ss_flags[1],cp[i].name,cp[i].ss_n,cp[i].df,cp[i].factor,cp[i].sum_xi);
 
-			//for (int k = 0; k < cp[i].n_xeos; k++) {
-				//printf(" %+10f",cp[i].xeos[k]);
-			//}
-			//for (int k = cp[i].n_xeos; k < 11; k++){
-				//printf(" %10s","-");
-			//}
 			for (int k = 0; k < cp[i].n_em; k++) {
-				printf(" %+10f",(cp[i].p_em[k]-cp[i].xi_em[k]*cp[i].p_em[k])*cp[i].z_em[k]);
+				printf(" %+10f",(cp[i].p_em[k]-cp[i].xi_em[k]*cp[i].p_em[k])*SS_ref_db[cp[i].id].z_em[k]);
 			}
 			for (int k = cp[i].n_em; k < 12; k++){
 				printf(" %10s","-");
 			}
-			//printf(" | ");
-			//for (int k = 0; k < cp[i].n_xeos; k++) {
-				//printf(" %+10f",cp[i].xeos[k]);
-			//}
-			//for (int k = cp[i].n_xeos; k < 11; k++){
-				//printf(" %10s","-");
-			//}
-			//printf(" | ");
-			//for (int k = 0; k < cp[i].n_em; k++) {
-				//printf(" %+10f",cp[i].mu[k]);
-			//}
-			//for (int k = cp[i].n_em; k < 12; k++){
-				//printf(" %10s","-");
-			//}
 			printf("\n");
 						
 		}
 	}
 	printf("\n");
 	printf("OFF| P. phase |  Fraction  |  delta_G  (< 5.0) | \n");
-	printf("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n");
+	printf("═══════════════════════════════════════════════════════════════════════════════════════\n");
 	for (int i = 0; i < gv.len_pp; i++){ 
 		if (gv.pp_flags[i][2] == 1 && PP_ref_db[i].gb_lvl*PP_ref_db[i].factor < 50.0){
 			printf(" %d | %4s     | %+10f | %+10f | \n",0,gv.PP_list[i],gv.pp_n[i],PP_ref_db[i].gb_lvl*PP_ref_db[i].factor);
@@ -143,17 +108,17 @@ void PGE_print(					struct bulk_info 		z_b,
 	printf(" [MASS RESIDUAL NORM  = %+.8f ]\n",gv.BR_norm);
 };
 
-
 /** 
   Partitioning Gibbs Energy function 
 */
 global_variable PGE_residual_update_function(	struct bulk_info 		z_b,
-											global_variable  		gv,
+												global_variable  		gv,
 
-											PP_ref 					*PP_ref_db,
-											SS_ref 					*SS_ref_db,
-											csd_phase_set  			*cp
+												PP_ref 					*PP_ref_db,
+												SS_ref 					*SS_ref_db,
+												csd_phase_set  			*cp
 ){
+	int ss;
 
 	/* update mass-constraint residual here */
 	for (int j = 0; j < gv.len_ox; j++){
@@ -167,8 +132,9 @@ global_variable PGE_residual_update_function(	struct bulk_info 		z_b,
 		/** calculate residual as function xi fraction and not endmember fractions from x-eos */
 		for (int i = 0; i < gv.len_cp; i++){
 			if (cp[i].ss_flags[1] == 1 ){ // && cp[i].ss_n > 0.0
+				ss = cp[i].id;
 				for (int k = 0; k < cp[i].n_em; k++){
-					gv.mass_residual[j] += SS_ref_db[cp[i].id].Comp[k][j]*cp[i].factor*cp[i].p_em[k]*cp[i].xi_em[k]*cp[i].z_em[k]*cp[i].ss_n;
+					gv.mass_residual[j] += SS_ref_db[ss].Comp[k][j]*cp[i].factor*cp[i].p_em[k]*cp[i].xi_em[k]*SS_ref_db[ss].z_em[k]*cp[i].ss_n;
 				}
 			}
 		}
@@ -197,7 +163,6 @@ global_variable PGE_residual_update_function(	struct bulk_info 		z_b,
 
    return gv;
 };
-
 
 /** 
   Function to update chemical potential of endmembers (mui)
@@ -249,7 +214,7 @@ global_variable PGE_update_pi(		struct bulk_info 	z_b,
 
 			double dp[cp[ph].n_em];
 			for (k = 0; k < cp[ph].n_em; k++){
-				dp[k] = (cp[ph].p_em[k]-cp[ph].xi_em[k]*cp[ph].p_em[k])*cp[ph].z_em[k];
+				dp[k] = (cp[ph].p_em[k]-cp[ph].xi_em[k]*cp[ph].p_em[k])*SS_ref_db[ss].z_em[k];
 			}
 
 			if (norm_vector(dp ,cp[ph].n_em) > 1e-4){
@@ -309,8 +274,6 @@ global_variable PGE_update_xi(		struct bulk_info 	z_b,
    return gv;
 };
 
-
-
 /**
 	check PC driving force and add phase if below hyperplane
 */
@@ -327,7 +290,7 @@ global_variable check_EM(					struct bulk_info 	 z_b,
 
 			for (int l = 0; l < SS_ref_db[i].n_em; l++){	
 				/** if bulk-rock satisfy the compositions of endmembers, retrieve their informations */
-				if (SS_ref_db[i].z_em[l] == 1){
+				if (SS_ref_db[i].z_em[l] == 1.0){
 					
 					/* update normalizing factor for solution models than need it */
 					factor 	= z_b.fbc/SS_ref_db[i].ape[l];	
@@ -520,9 +483,10 @@ void PGE_get_Jacobian( 		double 			    *A,
 					/* CONSTRUCT TL CORNER */
 					A[ix] 					+= 	SS_ref_db[ss].Comp[x][z_b.nzEl_array[j]] * cp[ph].factor * 
 												SS_ref_db[ss].Comp[x][z_b.nzEl_array[v]] * cp[ph].factor * 
-												cp[ph].xi_em[x]*cp[ph].p_em[x] * cp[ph].ss_n * cp[ph].z_em[x];
+												cp[ph].xi_em[x]*cp[ph].p_em[x] * cp[ph].ss_n * SS_ref_db[ss].z_em[x];
 				}
 			}
+
 		}
 	}
 
@@ -536,7 +500,7 @@ void PGE_get_Jacobian( 		double 			    *A,
 			ix = (l+z_b.nzEl_val)*nEntry + j;
 			A[ix] =  0.0;
 			for (i = 0; i < cp[ph].n_em; i++){
-				A[ix] +=  SS_ref_db[ss].Comp[i][z_b.nzEl_array[j]] * cp[ph].factor * (cp[ph].p_em[i]*cp[ph].xi_em[i])  * cp[ph].z_em[i];		
+				A[ix] +=  SS_ref_db[ss].Comp[i][z_b.nzEl_array[j]] * cp[ph].factor * (cp[ph].p_em[i]*cp[ph].xi_em[i])  * SS_ref_db[ss].z_em[i];		
 			}
 		}
 	}
@@ -562,7 +526,7 @@ void PGE_get_Jacobian( 		double 			    *A,
 			ix0    = j*nEntry + l + z_b.nzEl_val;
 			A[ix0] =  0.0;
 			for (i = 0; i < cp[ph].n_em; i++){
-				A[ix0] +=  SS_ref_db[ss].Comp[i][z_b.nzEl_array[j]] * cp[ph].factor * (cp[ph].p_em[i]*cp[ph].xi_em[i])  * cp[ph].z_em[i];		
+				A[ix0] +=  SS_ref_db[ss].Comp[i][z_b.nzEl_array[j]] * cp[ph].factor * (cp[ph].p_em[i]*cp[ph].xi_em[i])  * SS_ref_db[ss].z_em[i];		
 			}
 		}
 	}
@@ -578,15 +542,18 @@ void PGE_get_Jacobian( 		double 			    *A,
 	}
 	
 	//debug print
-	if (1==0){
-		for (i = 0; i < nEntry; i++){
-			for (j = 0; j < nEntry; j++){
-				ix = i*nEntry + j;
-				printf(" %+5f",A[ix]);
-			}
-			printf("\n");
-		}
-	}
+	//if (0==1){
+		//for (i = 0; i < nEntry; i++){
+			//for (j = 0; j < nEntry; j++){
+				//ix = i*nEntry + j;
+				//printf(" %+5f",A[ix]);
+			//}
+			//printf("\n");
+		//}
+		//printf("\n");
+	//}
+	
+	
 }
 
 /** 
@@ -611,7 +578,7 @@ void PGE_get_gradient( 		double				*b,
 			ph = gv.cp_id[i];
 			ss = cp[ph].id;
 			for (x = 0; x < cp[ph].n_em; x++){
-				b[v] 	+= SS_ref_db[ss].Comp[x][z_b.nzEl_array[v]] * cp[ph].factor * (cp[ph].p_em[x]*cp[ph].xi_em[x]) * cp[ph].ss_n * cp[ph].z_em[x];
+				b[v] 	+= SS_ref_db[ss].Comp[x][z_b.nzEl_array[v]] * cp[ph].factor * (cp[ph].p_em[x]*cp[ph].xi_em[x]) * cp[ph].ss_n * SS_ref_db[ss].z_em[x];
 			}
 		}
 		
@@ -630,7 +597,7 @@ void PGE_get_gradient( 		double				*b,
 		/* CONSTRUCT RHS */
 		b[l+z_b.nzEl_val]    = -1.0;
 		for (i = 0; i < cp[ph].n_em; i++){
-			b[l+z_b.nzEl_val]    +=  (cp[ph].p_em[i]*cp[ph].xi_em[i])* cp[ph].z_em[i];
+			b[l+z_b.nzEl_val]    +=  (cp[ph].p_em[i]*cp[ph].xi_em[i])* SS_ref_db[ss].z_em[i];
 		}
 		b[l+z_b.nzEl_val] *= -1.0;
 	}
@@ -810,8 +777,8 @@ global_variable PGE_function(	int 				PGEi,
 /** 
   Partitioning Gibbs Energy function 
 */
-global_variable PGE_inner_loop(		struct bulk_info 	z_b,
-									global_variable  	gv,
+global_variable PGE_inner_loop(		struct bulk_info 	 z_b,
+									global_variable  	 gv,
 
 									PP_ref 				*PP_ref_db,
 									SS_ref 				*SS_ref_db,
@@ -939,15 +906,15 @@ global_variable PGE(	struct bulk_info 	z_b,
 		if (gv.verbose == 1){
 			printf("\n__________________________________________ ‿︵MAGEMin‿︵ "); printf("_ %5s _",gv.version);
 			printf("\n                     GLOBAL ITERATION %i\n",gv.global_ite);
-			printf("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n");
+			printf("═════════════════════════════════════════════════════════════════\n");
 		}
 		
 		/* calculate delta_G of solution phases (including local minimization) */
 		if (gv.verbose == 1){
 			printf("Minimize solution phases\n");
-			printf("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n");
+			printf("═════════════════════════\n");
 			printf(" phase |  delta_G   | SF |   sum_xi   | time(ms)   |   x-eos ...\n");
-			printf("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n");
+			printf("══════════════════════════════════════════════════════════════════\n");
 		}
 		
 		/** 
@@ -964,7 +931,7 @@ global_variable PGE(	struct bulk_info 	z_b,
 		if (gv.BR_norm < gv.PC_check_val && gv.check_PC == 0){
 			if (gv.verbose == 1){
 				printf(" Checking PC driving force\n");	
-				printf("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n");	
+				printf("═══════════════════════════\n");	
 					
 			}
 			gv = check_PC( 					z_b,									/** bulk rock constraint 				*/ 
@@ -977,13 +944,7 @@ global_variable PGE(	struct bulk_info 	z_b,
 			gv.check_PC 		= 1;
 			gv.check_PC_ite 	= gv.global_ite;					
 		}
-
-		//gv = check_EM( 					z_b,									/** bulk rock constraint 				*/ 
-										//gv,										/** global variables (e.g. Gamma) 		*/
-
-										//PP_ref_db,								/** pure phase database 				*/ 
-										//SS_ref_db,
-										//cp				); 				
+		
 		/** 
 			update delta_G of solution phases as function of updated Gamma
 		*/
@@ -1031,7 +992,6 @@ global_variable PGE(	struct bulk_info 	z_b,
 										
 		/* dump & print */
 		if (gv.verbose == 1){
-		
 			/* Partitioning Gibbs Energy */
 			PGE_print(					z_b,								/** bulk rock constraint 				*/ 
 										gv,									/** global variables (e.g. Gamma) 		*/
@@ -1039,23 +999,31 @@ global_variable PGE(	struct bulk_info 	z_b,
 										PP_ref_db,							/** pure phase database 				*/ 
 										SS_ref_db,							/** solution phase database 			*/
 										cp					); 
-
 		}
 
 		/* Increment global iteration value */
 		gv.global_ite += 1;
 
-		if (gv.global_ite > gv.ur_1 && gv.BR_norm < gv.br_max_tol*(gv.br_max_rlx/5.0)){		if (gv.verbose != 2){printf(" >200 iterations, under-relax mass constraint norm (*2.0)\n\n");}		break;	}
-		if (gv.global_ite > gv.ur_2 && gv.BR_norm < gv.br_max_tol*(gv.br_max_rlx/2.0)){		if (gv.verbose != 2){printf(" >300 iterations, under-relax mass constraint norm (*5.0)\n\n");}		break;	}
-		if (gv.global_ite > gv.ur_3 && gv.BR_norm < gv.br_max_tol*gv.br_max_rlx){			if (gv.verbose != 2){printf(" >400 iterations, under-relax mass constraint norm (*10.0)\n\n");}		break;	}
-		if (gv.global_ite > gv.ur_f){														if (gv.verbose != 2){printf(" >500 iterations, did not converge  !!!\n\n");}						break;	}
+	    /**
+	     * Solver status
+	     * 0: success
+	     * 1: under-relaxed
+	     * 2: more under-relaxed
+	     * 3: reached max iterations (failed)
+	     * 4: terminated due to slow convergence or a very large residual (failed)
+    	**/
+		if (gv.global_ite > gv.it_1 && gv.BR_norm < gv.br_max_tol*gv.ur_1){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_1, gv.ur_1);}; gv.status = 1; break;}
+		if (gv.global_ite > gv.it_2 && gv.BR_norm < gv.br_max_tol*gv.ur_2){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_2, gv.ur_2);}; gv.status = 2; break;}
+		if (gv.global_ite > gv.it_3 && gv.BR_norm < gv.br_max_tol*gv.ur_3){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_3, gv.ur_3);}; gv.status = 2; break;}
+		if (gv.global_ite > gv.it_f){											if (gv.verbose != -1){printf(" >%d iterations, did not converge  !!!\n\n", gv.it_f);}; gv.status = 3; break;}
 
 		/* check evolution of mass constraint residual */
-		gv.PGE_mass_norm[gv.global_ite]  = gv.BR_norm;	/** sav norm for the current global iteration */
+		gv.PGE_mass_norm[ gv.global_ite] = gv.BR_norm;	/** save norm for the current global iteration */
 		gv.PGE_total_norm[gv.global_ite] = gv.fc_norm_t1;
 
-		/* capture points that fail to converge */
-		if ((gv.global_ite > 256 && gv.BR_norm > 0.01) || gv.BR_norm > 10.0){	
+		/** capture points that fail to converge sufficiently quickly or have a very large norm after any iteration */
+		if ((gv.global_ite > gv.it_slow && gv.BR_norm > gv.br_max_tol*gv.ur_slow) || gv.BR_norm > gv.br_max_tol*gv.ur_break){
+			gv.status = 4;
 			gv.div = 1;	
 		}
 		for (int i = 0; i < gv.len_cp; i++){
@@ -1065,8 +1033,7 @@ global_variable PGE(	struct bulk_info 	z_b,
 				}
 			}
 		}
-		if (gv.div == 1){ break; }
-		
+		if (gv.div == 1){ gv.status = 4; break; }
 
 		t = clock() - t; 
 		if (gv.verbose == 1){
@@ -1084,7 +1051,7 @@ global_variable PGE(	struct bulk_info 	z_b,
 										cp				); 		
 		
 		printf("\n\n\n\n ite  | duration   |  Mass norm |  move ave  | Gamma norm\n");
-		printf("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\n");
+		printf("═════════════════════════════════════════════════════════\n");
 
 		for (int i = 0; i < gv.global_ite; i++){	
 			printf(" %4d | %+10f | %+10f | %+10f | %+10f\n",i,gv.ite_time[i],gv.PGE_mass_norm[i],gv.PGE_total_norm[i],gv.gamma_norm[i]);

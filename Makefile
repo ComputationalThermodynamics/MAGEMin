@@ -3,9 +3,15 @@ CC=clang
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
-	# This is for a Mac, where we employ the build-in CBLAS and LAPACKE from MacPorts
 	CCFLAGS = -Wall -O3 -g -fPIC -Wno-unused-variable -Wno-unused-but-set-variable
-	LIBS   += -lm -framework Accelerate /opt/local/lib/lapack/liblapacke.dylib /usr/local/lib/libnlopt.dylib ~/Software/mpich-3.3.2/mpich-install/lib/libmpich.dylib
+	
+	# These are the flags to be used ou followed the instructions on the webpage and installed MPICH, LAPACKE and NLopt all through homebrew 
+	# 
+	LIBS    = -lm -framework Accelerate /opt/homebrew/opt/lapack/lib/liblapacke.dylib /opt/homebrew/lib/libnlopt.dylib /opt/homebrew/lib/libmpich.dylib
+	INC     = -I/opt/homebrew/opt/lapack/include -I/opt/homebrew/include 
+	
+	# This is for a Mac, where we employ the build-in CBLAS and LAPACKE from MacPorts
+	LIBS    = -lm -framework Accelerate /opt/local/lib/lapack/liblapacke.dylib /usr/local/lib/libnlopt.dylib ~/Software/mpich-3.3.2/mpich-install/lib/libmpich.dylib
 	INC     = -I/opt/local/include/lapack -I/usr/local/include -I/Users/kausb/Software/mpich-3.3.2/mpich-install/include
 endif
 ifeq ($(UNAME_S),Linux)

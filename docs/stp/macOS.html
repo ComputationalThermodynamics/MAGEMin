@@ -94,6 +94,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/Commands.html#multiple-points-in-parallel">Multiple points in parallel</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../ckbk.html#data-output">Data output</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/out_struct.html">As a nested structure</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../ckbk.html#pseudosection-generator">Pseudosection generator</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/gui.html">Usage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/gui.html#klb-1-pseudosection-tutorial">KLB-1 Pseudosection tutorial</a><ul>
@@ -110,6 +114,10 @@
 </li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">FAQs:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Firewall warning (Apple M1)</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developers section:</span></p>
 <ul>
@@ -186,7 +194,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="external-libraries">
+  <a class="reference internal image-reference" href="../_images/macOS.png"><img alt="../_images/macOS.png" class="align-right" src="../_images/macOS.png" style="width: 64px;" /></a>
+<section id="external-libraries">
 <h1>External libraries<a class="headerlink" href="#external-libraries" title="Permalink to this headline"></a></h1>
 <p>The installation details for Mas OS X use <code class="docutils literal notranslate"><span class="pre">Homebrew</span></code>. However, the libraries can also be installed using <code class="docutils literal notranslate"><span class="pre">MacPorts</span></code>.</p>
 <p><strong>1. C and fortran compilers</strong></p>
@@ -200,8 +209,8 @@ brew install gcc
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>brew install mpich
 </pre></div>
 </div>
-<p>Note that <code class="docutils literal notranslate"><span class="pre">open-mpi</span></code> can equally be used.</p>
-<p><strong>3. lapacke</strong> (<code class="docutils literal notranslate"><span class="pre">C</span></code> version of the fotran <code class="docutils literal notranslate"><span class="pre">lapack</span></code> library, should now be included in the <code class="docutils literal notranslate"><span class="pre">lapack</span></code> libraries)</p>
+<p>Note that <code class="docutils literal notranslate"><span class="pre">openmpi</span></code> can equally be used.</p>
+<p><strong>3. lapacke</strong> (<code class="docutils literal notranslate"><span class="pre">C</span></code> version of the fortran <code class="docutils literal notranslate"><span class="pre">lapack</span></code> library, should now be included in the <code class="docutils literal notranslate"><span class="pre">lapack</span></code> libraries)</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>brew install lapack
 </pre></div>
 </div>
@@ -211,32 +220,49 @@ brew install gcc
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>brew install nlopt
 </pre></div>
 </div>
+<a class="reference internal image-reference" href="../_images/macOS.png"><img alt="../_images/macOS.png" class="align-right" src="../_images/macOS.png" style="width: 64px;" /></a>
 </section>
 <section id="magemin">
 <h1>MAGEMin<a class="headerlink" href="#magemin" title="Permalink to this headline"></a></h1>
-<p>Choose the <code class="docutils literal notranslate"><span class="pre">C</span></code> compiler in the first line of the Makefile by commenting out one</p>
+<p>Choose the <code class="docutils literal notranslate"><span class="pre">C</span></code> compiler in the first line of the <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> by commenting out one</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1">#CC=gcc</span>
 <span class="nv">CC</span><span class="o">=</span>clang
 </pre></div>
 </div>
-<p>Make sure the <code class="docutils literal notranslate"><span class="pre">MPICH</span></code> paths for libraries and include directory in Makefile are correct for instance:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">LIBS</span>   <span class="o">+=</span> <span class="o">(</span>...<span class="o">)</span> -I/.../mpich/lib/libmpich.dylib
-<span class="nv">INC</span>     <span class="o">=</span> <span class="o">(</span>...<span class="o">)</span> -I/.../mpich/include
+<p>Make sure the <code class="docutils literal notranslate"><span class="pre">MPICH</span></code> paths for libraries and include directory in the <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> are correct for instance:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">LIBS</span>   <span class="o">+=</span> <span class="o">(</span>...<span class="o">)</span> /opt/homebrew/lib/libmpich.dylib
+<span class="nv">INC</span>     <span class="o">=</span> <span class="o">(</span>...<span class="o">)</span> -I/opt/homebrew/include
 </pre></div>
 </div>
 <p>Do the same for <code class="docutils literal notranslate"><span class="pre">lapacke</span></code>:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">LIBS</span>   <span class="o">+=</span> <span class="o">(</span>...<span class="o">)</span> /.../liblapacke.dylib
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">LIBS</span>   <span class="o">+=</span> <span class="o">(</span>...<span class="o">)</span> /opt/homebrew/opt/lapack/lib/liblapacke.dylib
+<span class="nv">INC</span>    <span class="o">+=</span> <span class="o">(</span>...<span class="o">)</span> -I/opt/homebrew/opt/lapack/include
 </pre></div>
 </div>
 <p>And <code class="docutils literal notranslate"><span class="pre">NLopt</span></code>:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">LIBS</span>   <span class="o">+=</span> <span class="o">(</span>...<span class="o">)</span> /.../libnlopt.dylib
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">LIBS</span>   <span class="o">+=</span> <span class="o">(</span>...<span class="o">)</span> /opt/homebrew/lib/libnlopt.dylib
 </pre></div>
 </div>
-<p>Then compile MAGEMin:</p>
+<p>Which should give:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">LIBS</span>    <span class="o">=</span> -lm -framework Accelerate /opt/homebrew/opt/lapack/lib/liblapacke.dylib /opt/homebrew/lib/libnlopt.dylib /opt/homebrew/lib/libmpich.dylib
+<span class="nv">INC</span>     <span class="o">=</span> -I/opt/homebrew/opt/lapack/include -I/opt/homebrew/include
+</pre></div>
+</div>
+<p>Note that this setup is provided by default in the <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> for Mac OS X. As long as you installed every package using <code class="docutils literal notranslate"><span class="pre">Homebrew</span></code> you should be able to install MAGEMin without modifying these entries.</p>
+<p>If you decided to use <code class="docutils literal notranslate"><span class="pre">openmpi</span></code> instead of <code class="docutils literal notranslate"><span class="pre">mpich</span></code> your <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> should look like:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">LIBS</span>    <span class="o">=</span> -lm -framework Accelerate /opt/homebrew/opt/lapack/lib/liblapacke.dylib /opt/homebrew/opt/nlopt/lib/libnlopt.dylib /opt/homebrew/opt/openmpi/lib/libmpi.dylib
+<span class="nv">INC</span>     <span class="o">=</span> -I/opt/homebrew/opt/openmpi/include/ -I/opt/homebrew/opt/lapack/include -I/usr/local/include -I/opt/homebrew/opt/nlopt/include/
+</pre></div>
+</div>
+<p>Then simply enter MAGEMin directory and compile MAGEMin as:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>make clean<span class="p">;</span> make all<span class="p">;</span>
 </pre></div>
 </div>
 <p>Note that by default the optimization flag <code class="docutils literal notranslate"><span class="pre">-O3</span></code> and debugging flag <code class="docutils literal notranslate"><span class="pre">-g</span></code> are used.</p>
+<p>To test if MAGEMin compilation was successful you can for instance check the version of MAGEMin by running:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./MAGEMin --version
+</pre></div>
+</div>
 </section>
 
 

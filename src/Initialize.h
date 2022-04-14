@@ -1,6 +1,9 @@
 #ifndef __INITIALIZE_H_
 #define __INITIALIZE_H_
 
+#include "uthash.h"
+#include "Endmembers_tc-ds634.h"
+
 enum {
 	_tc_ds634_
 };
@@ -159,14 +162,12 @@ global_variable global_variable_init(){
 	double 	SS_PC_stp_tmp[] = {0.199	,0.124	,0.098	,0.249	,0.049	,0.198	,0.329	,0.0499	,0.198	,0.198	,0.098	,0.249	,0.049	,1.0 		};
 
 	/* system parameters */
-
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.0.6 [18/03/2022]");					/** MAGEMin version 																*/
+	strcpy(gv.version,"1.1.0 [14/04/2022]");	/** MAGEMin version 																*/
 
-	
 	gv.len_ox           = 11;					/** number of components in the system 												*/
 	gv.max_n_cp 		= 64;					/** number of considered solution phases 											*/									
-	gv.verbose          = 1;					/** verbose: 0, no verbose; 1, full verbose 										*/
+	gv.verbose          = 0;					/** verbose: -1, no verbose; 0, light verbose; 1, full verbose 										*/
 
 	/* residual tolerance */
 	gv.br_max_tol       = 1.0e-5;				/** value under which the solution is accepted to satisfy the mass constraint 		*/
@@ -203,13 +204,18 @@ global_variable global_variable_init(){
 	gv.max_g_phase  	= 2.5;					/** maximum delta_G of reference change during PGE 									*/
 	gv.max_fac          = 1.0;					/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
 	gv.max_br			= 0.25;
-			
-	/* set of parameters to record the evolution of the norm of the mass constraint 												*/
-	gv.br_max_rlx       = 20.0;					/** maximum relaxing factor on mass constraint when #PGE iterations is too large	*/
-	gv.ur_1             = 200;					/** under relaxing factor on mass constraint if iteration is bigger that ur_1 		*/
-	gv.ur_2             = 300;					/** under relaxing factor on mass constraint if iteration is bigger that ur_2 		*/
-	gv.ur_3             = 400;					/** under relaxing factor on mass constraint if iteration is bigger that ur_2 		*/
-	gv.ur_f             = 500;					/** gives back failure when the number of iteration is bigger than ur_f 			*/
+
+	/* set of parameters to record the evolution of the norm of the mass constraint                                                 */
+	gv.it_1             = 200;                  /** first critical iteration                                                        */
+	gv.ur_1             = 4.;                   /** under relaxing factor on mass constraint if iteration is bigger than it_1       */
+	gv.it_2             = 300;                  /** second critical iteration                                                       */
+	gv.ur_2             = 10.;                  /** under relaxing factor on mass constraint if iteration is bigger than it_2       */
+	gv.it_3             = 400;                  /** third critical iteration                                                        */
+	gv.ur_3             = 20.;                  /** under relaxing factor on mass constraint if iteration is bigger than it_3       */
+	gv.it_f             = 500;                  /** gives back failure when the number of iteration is bigger than it_f             */
+	gv.it_slow          = 256;                  /** critical iteration for slow convergence                                         */
+	gv.ur_slow          = 1e3;                	/** under relaxing factor on mass constraint defining overly slow convergence       */
+	gv.ur_break         = 1e6;             		/** under relaxing factor on mass constraint defining a breaking iteration          */
 
 	/* phase update options */
 	gv.re_in_n          = 1e-6;					/** fraction of phase when being reintroduce.  										*/
@@ -217,8 +223,6 @@ global_variable global_variable_init(){
 	/* density calculation */
 	gv.gb_P_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
 	gv.gb_T_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
-
-
 
 	/* initialize other values */
 	gv.alpha        	= gv.max_fac;				/** active under-relaxing factor 													*/
@@ -234,12 +238,12 @@ global_variable global_variable_init(){
 	for (int i = 0; i < 15; i++){ gv.init_prop[i] = -100.0; 							}  
 
 	/* declare chemical system */
-	gv.PGE_mass_norm  	= malloc (gv.ur_f * sizeof (double) 	); 
-	gv.PGE_total_norm  	= malloc (gv.ur_f * sizeof (double) 	); 
-	gv.gamma_norm  		= malloc (gv.ur_f * sizeof (double) 	); 
-	gv.ite_time  		= malloc (gv.ur_f * sizeof (double) 	); 
+	gv.PGE_mass_norm  	= malloc (gv.it_f * sizeof (double) 	); 
+	gv.PGE_total_norm  	= malloc (gv.it_f * sizeof (double) 	); 
+	gv.gamma_norm  		= malloc (gv.it_f * sizeof (double) 	); 
+	gv.ite_time  		= malloc (gv.it_f * sizeof (double) 	); 
 	
-	for (int i = 0; i < gv.ur_f; i++){	
+	for (int i = 0; i < gv.it_f; i++){	
 		gv.PGE_mass_norm[i] 	= 0.0;
 		gv.PGE_total_norm[i] 	= 0.0;
 		gv.gamma_norm[i] 		= 0.0;	

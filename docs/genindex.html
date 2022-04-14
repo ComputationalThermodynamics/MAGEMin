@@ -91,6 +91,10 @@
 <li class="toctree-l2"><a class="reference internal" href="ckbk/Commands.html#multiple-points-in-parallel">Multiple points in parallel</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="ckbk.html#data-output">Data output</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ckbk/out_struct.html">As a nested structure</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="ckbk.html#pseudosection-generator">Pseudosection generator</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="ckbk/gui.html">Usage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ckbk/gui.html#klb-1-pseudosection-tutorial">KLB-1 Pseudosection tutorial</a><ul>
@@ -107,6 +111,10 @@
 </li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">FAQs:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Firewall warning (Apple M1)</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developers section:</span></p>
 <ul>
@@ -329,6 +337,8 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/objective_functions.html#c.fct_log">fct_log (C function)</a>
+</li>
+      <li><a href="src/dump_function.html#c.fill_output_struct">fill_output_struct (C function)</a>
 </li>
       <li><a href="src/simplex_levelling.html#c.fill_simplex_arrays_A">fill_simplex_arrays_A (C function)</a>
 </li>
@@ -670,14 +680,18 @@
 </li>
       <li><a href="src/simplex_levelling.html#c.reduce_ss_list">reduce_ss_list (C function)</a>
 </li>
-      <li><a href="src/ss_min_function.html#c.reset_global_variables">reset_global_variables (C function)</a>
+      <li><a href="src/ss_min_function.html#c.reset_cp">reset_cp (C function)</a>
 </li>
-      <li><a href="src/ss_min_function.html#c.reset_phases">reset_phases (C function)</a>
+      <li><a href="src/ss_min_function.html#c.reset_gv">reset_gv (C function)</a>
 </li>
-      <li><a href="src/toolkit.html#c.restrict_SS_HyperVolume">restrict_SS_HyperVolume (C function)</a>
+      <li><a href="src/ss_min_function.html#c.reset_sp">reset_sp (C function)</a>
+</li>
+      <li><a href="src/ss_min_function.html#c.reset_SS">reset_SS (C function)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src/toolkit.html#c.restrict_SS_HyperVolume">restrict_SS_HyperVolume (C function)</a>
+</li>
       <li><a href="src/toolkit.html#c.RootBracketed">RootBracketed (C function)</a>
 </li>
       <li><a href="src/toolkit.html#c.rotate_hyperplane">rotate_hyperplane (C function)</a>
@@ -698,6 +712,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/toolkit.html#c.sign">sign (C function)</a>
 </li>
+      <li><a href="src/gss_init_function.html#c.SP_INIT_function">SP_INIT_function (C function)</a>
+</li>
       <li><a href="src/ss_min_function.html#c.split_cp">split_cp (C function)</a>
 </li>
       <li><a href="src/NLopt_opt_function.html#c.spn_c">spn_c (C function)</a>
@@ -706,10 +722,10 @@
 </li>
       <li><a href="src/simplex_levelling.html#c.SS_objective_init_function">SS_objective_init_function (C function)</a>
 </li>
-      <li><a href="src/ss_min_function.html#c.SS_ref_destroy">SS_ref_destroy (C function)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src/ss_min_function.html#c.SS_ref_destroy">SS_ref_destroy (C function)</a>
+</li>
       <li><a href="src/NLopt_opt_function.html#c.SS_sf_init_function">SS_sf_init_function (C function)</a>
 </li>
       <li><a href="src/ss_min_function.html#c.SS_UPDATE_function">SS_UPDATE_function (C function)</a>
