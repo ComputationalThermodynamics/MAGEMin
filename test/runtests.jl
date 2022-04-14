@@ -73,7 +73,7 @@ println("Testing points from the reference diagrams:")
     end
 
     @testset "Wet MORB tests" begin
-        include("test_diagram_test5.jl")
+        include("test_diagram_test6.jl")
         TestPoints(list, gv, DB)
     end
 end
