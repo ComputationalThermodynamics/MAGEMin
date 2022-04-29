@@ -1,6 +1,8 @@
 #ifndef __run_levelling_function_H_
 #define __run_levelling_function_H_
 
+#include "MAGEMin.h"
+
 void inverseMatrix(double *A1, int n);
 void VecMatMul(double *B1, double *A1, double *B, int n);
 void MatVecMul(double *A1, double *br, double *n_vec, int n);

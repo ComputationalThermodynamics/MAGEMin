@@ -1,6 +1,8 @@
 #ifndef __MAGEMIN_H_
 #define __MAGEMIN_H_
 
+#include "MAGEMin.h"
+
 #ifdef _WIN32
 #define mkdir(path,mode) _mkdir(path) 
 #endif
@@ -10,6 +12,7 @@
 
 #include "nlopt.h"
 #include "gem_function.h"
+
 /*---------------------------------------------------------------------------*/ 
 int runMAGEMin(					int argc, 
 								char ** argv			);
@@ -47,6 +50,7 @@ struct EM_db {
     double input_1[3];          /** first line of the thermodynamics datable 								*/
     double input_2[4];          /** second line of the thermodynamics datable 								*/
     double input_3[11];         /** third line of the thermodynamics datable 								*/
+    double input_4[3];         	/** third line of the thermodynamics datable 								*/
 };
 
 /* Declare structures to hold reference gbase, composition and factor for solid solutions */
@@ -106,14 +110,13 @@ typedef struct SS_refs {
     double **mu_array;        	/** 2d array of gbase, including values for numerical differentiation 		*/
     double  *gb_lvl;
     double   factor;			/** normalizing factor 														*/
-    double **box_bounds;		/** x-eos bounds 															*/
-    double **box_bounds_default;/** x-eos bounds 															*/
+    double **bounds;			/** x-eos bounds 															*/
+    double **bounds_ref;		/** x-eos bounds 															*/
     double  *z_em; 				/** 1d array to deactivate endmembers when bulk-rock = 0; this part is needed to calculat xi in PGE method */
     int      n_guess;			/** number of initial guesses used to solve for solvi (or local minimum) 	*/
     double  *iguess;    		/** 2d array of initial guess 												*/
 	double  *dguess;    		/** 2d array of default guess 												*/
-	int      nz_em;
-		
+	
     /** data needed for local minimization **/
     double   check_df;			/** driving force from PC, stored for mode 3								*/
 	int 	 forced_stop;		/** 0-1, check if local minimization left to a forced stop 					*/
@@ -150,6 +153,7 @@ typedef struct SS_refs {
 	double  *xeos_sf_ok;		/** save xeos that satisfy the SF 						*/
 	
 	/* data output */
+	double  *ElShearMod;		/** density of the endmembers 							*/
 	double  *density;			/** density of the endmembers 							*/
 	double   phase_density;		/** density of the phase 								*/
 	double   volume;			/** volume of the phase 								*/
@@ -206,11 +210,11 @@ struct bulk_info {
     int     *nzEl_array;   		/** position of non zero entries in the bulk 			*/
     int     *zEl_array;    	 	/** position of zero entries in the bulk 				*/
     double  *apo;				/** atom per oxide 										*/
-    double    fbc;				/** atom per oxide 										*/
+    double   fbc;				/** atom per oxide 										*/
     double  *masspo;			/** atom per oxide 										*/
 };
 
-/* structure to store global variables */
+/* structure to informations about the considered set of phases during  minimization 	*/
 typedef struct csd_phase_sets {
 	char   *name;				/** local copy of the phase name 						*/
 	
@@ -232,7 +236,6 @@ typedef struct csd_phase_sets {
 	double  sum_xi;
 	double  sum_dxi;
 
-	double *z_em;
 	double *p_em;
 	double *xi_em;
 	double *lvlxeos;
@@ -246,17 +249,111 @@ typedef struct csd_phase_sets {
 	double *delta_mu;
 	double *sf;
 	double *ss_comp;
-	double *gbase;				/** chemical potentials 													*/
+	double *gbase;				/** chemical potentials 									*/
 
 	double mass;
 	double volume;
 	double phase_density;
 	double phase_cp;
 	double phase_expansivity;
+	double phase_bulkModulus;
 	double phase_shearModulus;
 
 } csd_phase_set;
 
+/* hold information of solution phases */
+typedef struct stb_SS_phases {
+	int      nOx;
+	
+	double   f;
+	double   G;
+	double   deltaG;
+	double   V;
+	double   alpha;
+	double   cp;
+	double   rho;
+	double   bulkMod;
+	double   shearMod;
+	double   Vp;
+	double   Vs;
+	
+	int      n_xeos;
+	int      n_em;
+	
+	double  *Comp;
+	double  *compVariables;
+	
+	char   **emNames;
+	double  *emFrac;
+	double  *emChemPot;
+	double **emComp;
+	
+	//double  *siteFrac;
+	
+} stb_SS_phase;
+
+/* hold information of pure phases */
+typedef struct stb_PP_phases {
+	int    	 nOx;
+	
+	double   f;
+	double   G;
+	double   deltaG;
+	double   V;
+	double   alpha;
+	double   cp;
+	double   rho;
+	double   bulkMod;
+	double   shearMod;
+	double   Vp;
+	double   Vs;	
+	
+	double  *Comp;
+	
+} stb_PP_phase;
+
+/* structure to store informations of stable phase equilibria */
+typedef struct stb_systems {
+	
+	char   *MAGEMin_ver;
+	
+	double  bulk_res_norm;
+	int     n_iterations;
+	int     status;
+	
+	int     nOx;
+	char  **oxides;
+	
+	double  P;
+	double  T;
+	double *bulk;
+	
+	double *gamma;
+	double  G;
+	double  rho;
+	
+	double  bulkMod;
+	double  shearMod;
+	double  Vp;
+	double  Vs;
+	
+	double *bulk_S; double frac_S; double rho_S;  	/* Solid system informations 												*/
+	double *bulk_M; double frac_M; double rho_M; 	/* Melt system informations 												*/
+	double *bulk_F; double frac_F; double rho_F; 	/* Fluid system informations 												*/
+	
+	int     n_ph;									/* number of predicted stable phases 										*/
+	int     n_PP;									/* number of predicted stable pure phases 									*/
+	int     n_SS;									/* number of predicted stable solution phases 								*/
+
+	char  **ph;										/* phases names 															*/
+	double *ph_frac; 								/* phase fractions															*/
+	int    *ph_type; 								/* 0 -> Solution phases; 1 -> Pure phases									*/
+	int    *ph_id;									/* position in the related stb_SS_phase or stb_PP_phase structure arrays	*/
+	
+	stb_SS_phase *SS;
+	stb_PP_phase *PP;
+
+} stb_system;
 
 /* structure to store global variables */
 typedef struct global_variables {
@@ -268,6 +365,7 @@ typedef struct global_variables {
 	int      Mode;				/** calcultion mode, 0 = full minimization, 1 = extract solution phases informations, 2 = local minimization */
 	double **numDiff;
 	int      n_Diff;
+	int      status;			/** status of the minimization */
 	
 	/* GENERAL PARAMETERS */
 	double   relax_PGE;
@@ -300,7 +398,6 @@ typedef struct global_variables {
 
 	int      numPoint; 			/** the number of the current point */
 	int      global_ite;		/** global iteration increment */
-	int      status;		    /** status code */
 
 	/* LEVELLING */
 	double   LVL_time;			/** time taken for levelling (ms) */
@@ -315,7 +412,7 @@ typedef struct global_variables {
 	double   eps_sf_pc;	
 	
 	/* SOLVI */
-	int     *verifyPC;		/** allow to check for solvi */
+	int     *verifyPC;			/** allow to check for solvi */
 	int 	*n_solvi;			/** number of phase considered for solvi */
 	int    **id_solvi;			/** cp id of the phases considered for solvi */
 			
@@ -325,8 +422,8 @@ typedef struct global_variables {
 
 	int     *newly_added;       /** index of the newly added solution phase */
 	double   box_size_mode_1;	/** edge size of the hyperdensity used during local minimization */
-	int   	 maxeval;			/** edge size of the hyperdensity used during local minimization */
-	int   	 maxeval_mode_1;	/** edge size of the hyperdensity used during local minimization */
+	int   	 maxeval;			/** maximum number of objective function evaluations during local minimization */
+	int   	 maxeval_mode_1;	/** maximum number of objective function evaluations during local minimization for mode 1 */
 	double   bnd_val;			/** boundary value for x-eos when the fraction of an endmember = 0. */
 	double 	*init_prop;			/** holds the initial proportions of the EM's, in case we do Mode=2 with only a single point */
 
@@ -367,7 +464,7 @@ typedef struct global_variables {
 	double	*dGamma;			/** array to store gamma change */
 	
 	double  *PGE_mass_norm;		/** save the evolution of the norm */
-	double  *PGE_total_norm;		/** save the evolution of the moving norm */
+	double  *PGE_total_norm;	/** save the evolution of the moving norm */
 	double  *gamma_norm;		/** save the evolution of the gamma norm */
 	double  *ite_time;
 	double   G_system;      	/** Gibbs energy of the system */
@@ -390,26 +487,32 @@ typedef struct global_variables {
 	double  *mass_residual;		/** bulk rock residual */
 	double   BR_norm;			/** norm of bulk rock residual  */
 	
-	/* DENSITY/CP CALC */
+	/* DENSITY/CP MODULUS CALC */
 	double   gb_P_eps;			/** small value to calculate V using finite difference: V = dG/dP */
 	double   gb_T_eps;			/** small value to calculate V using finite difference: V = dG/dP */
-
+	double   system_density;
+	double   system_bulkModulus;
+	double   system_shearModulus;
+	double   system_Vp;
+	double   system_Vs;
+	
 } global_variable;
 
 global_variable global_variable_init(void);
 
 /** Stores databases **/
-typedef struct Database {	PP_ref     		*PP_ref_db;			/** Pure phases 								*/
-							SS_ref     		*SS_ref_db;			/** Solid solution phases phases 				*/
-							csd_phase_set   *cp;				/** considered solution phases (solvus setup) 	*/
-							char 	  		**EM_names;			/** Names of endmembers 						*/
+typedef struct Database {	PP_ref     		*PP_ref_db;			/** Pure phases 											*/
+							SS_ref     		*SS_ref_db;			/** Solid solution phases phases 							*/
+							csd_phase_set   *cp;				/** considered solution phases (solvus setup) 				*/
+							stb_system      *sp;				/** structure holding the informations of the stable phases */
+							char 	  		**EM_names;			/** Names of endmembers 									*/
 } Databases;
 
-Databases InitializeDatabases(	global_variable gv, 
-								int 			EM_database		);
+Databases InitializeDatabases(				global_variable 	 gv, 
+											int 				 EM_database			);
 
-void FreeDatabases(	global_variable gv, 
-					Databases		DB							);
+void FreeDatabases(							global_variable 	 gv, 
+											Databases			 DB					);
 
 global_variable ComputeEquilibrium_Point(	int 				 EM_database,
 											io_data 			 input_data,
@@ -420,30 +523,30 @@ global_variable ComputeEquilibrium_Point(	int 				 EM_database,
 											SS_ref  			*SS_ref_db,
 											csd_phase_set  		*cp					);
 											
-void ComputePostProcessing(					int 				 EM_database,
+global_variable ComputePostProcessing(		int 				 EM_database,
 											struct bulk_info 	 z_b,
 											global_variable 	 gv,
 											PP_ref  			*PP_ref_db,
 											SS_ref  			*SS_ref_db,
 											csd_phase_set  		*cp					);											
 
-global_variable ReadCommandLineOptions(	global_variable 	 gv,
-										int 	  argc, 
-										char 	**argv, 
-										int 	 *Mode_out, 
-										int 	 *Verb_out, 
-										int 	 *test_out, 
-										int 	 *n_points_out, 
-										double 	 *P, 
-										double 	 *T, 
-										double 	  Bulk[11], 
-										double 	  Gam[11], 
-										double 	  InitEM_Prop[15], 
-										char 	  File[50], 
-										char 	  Phase[50], 
-										int 	 *n_pc_out, 
-										int 	 *maxeval_out, 
-										int      *get_version_out	);
+global_variable ReadCommandLineOptions(	global_variable   gv,
+										int 			  argc, 
+										char 			**argv, 
+										int 			 *Mode_out, 
+										int 			 *Verb_out, 
+										int 			 *test_out, 
+										int 			 *n_points_out, 
+										double 			 *P, 
+										double 			 *T, 
+										double 			  Bulk[11], 
+										double 			  Gam[11], 
+										double 			  InitEM_Prop[15], 
+										char 			  File[50], 
+										char 			  Phase[50], 
+										int 			 *maxeval_out, 
+										int     		 *get_version_out,
+										int 			 *get_help					);
 
 /* function that prints output */
 void PrintOutput(	global_variable 	gv, 
@@ -451,7 +554,7 @@ void PrintOutput(	global_variable 	gv,
 					int 				l, 
 					Databases 			DB, 
 					double 				time_taken, 
-					struct bulk_info 	z_b);
+					struct bulk_info 	z_b)				;
 
 /* function converting the solver status code to human-readable text and printing it to screen */
 void PrintStatus(	int status );

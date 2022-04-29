@@ -18,8 +18,13 @@
 /**
   compute the Gibbs Free energy from the thermodynamic database
 */
-PP_ref G_EM_function(int EM_database, double *bulk_rock, double P, 
-							double T, char *name, char* state) {
+PP_ref G_EM_function(		int 		 EM_database, 
+							double 		*bulk_rock, 
+							double 		 P, 
+							double 		 T, 
+							char 		*name, 
+							char		*state			
+){
 	/* Get thermodynamic data */
 	struct EM_db EM_return;
 	int i, p_id = find_EM_id(name);
@@ -38,9 +43,9 @@ PP_ref G_EM_function(int EM_database, double *bulk_rock, double P,
     */
 
 	/** if (EM_database == _tc_ds633_) { **/
-	double t0, p0, R;
-	double pth, theta, vv;
-	double enthalpy, entropy, volume;
+	double t0, 	p0, 	R;
+	double pth, theta, 	vv;
+	double enthalpy, 	entropy, volume;
 	double cpa, cpb, cpc, cpd;
 	double alpha0, kappa0, kappa0p, kappa0pp, dkappa0dT;
 	double cpterms, vterm, n;
@@ -48,7 +53,7 @@ PP_ref G_EM_function(int EM_database, double *bulk_rock, double P,
 	double ta = 0.0;
 	double tb = 0.0;
 	double tc = 0.0;
-
+	double kbar2bar = 1e3;
 	t0 = 298.15;
 	p0 = 0.001;
 	R  = 0.0083144; 
@@ -122,7 +127,6 @@ PP_ref G_EM_function(int EM_database, double *bulk_rock, double P,
 		int mode      = 0;               														/** Mode is used to send the right *data (see root_finding.c) */
 		
 		vsub          =  BrentRoots(x1,x2,data,e,mode,maxiter, &yr, &k, &err);
-		
 		
 		double r      =   1.0/vsub;
 		double Ares   =   R1*T*( c1*r + (1.0/(c2 + c3*r + c4*pow(r, 2.0) + c5*pow(r, 3.0) + c6*pow(r, 4.0)) - 1.0/c2) - c7/c8*(exp(-c8*r) - 1.0) - c9/c10*(exp(-c10*r) - 1.0) );
@@ -274,13 +278,8 @@ PP_ref G_EM_function(int EM_database, double *bulk_rock, double P,
 	}
 	PP_ref_db.gbase   =  gbase;
 	PP_ref_db.factor  =  factor;
-	
-	//printf(" %4s %+10f\n",name,gbase);
-	//for (i = 0; i < nEl; i++){
-		//printf(" %+10f",PP_ref_db.Comp[i]);
-	//}
-	//printf("\n");
-	
+	PP_ref_db.phase_shearModulus  =  (EM_return.input_4[0]*kbar2bar + (P - p0)*(EM_return.input_4[1])*kbar2bar + (T - t0)*(EM_return.input_4[2]))/kbar2bar;
+	// printf(" %4s %+10f\n",name,PP_ref_db.gbase);
 	return (PP_ref_db);
 }
 
