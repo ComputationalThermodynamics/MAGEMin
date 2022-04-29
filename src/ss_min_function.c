@@ -378,7 +378,7 @@ global_variable reset_gv(					global_variable 	 gv,
 }
 
 /**
-  initilize solution phase database
+  initialize solution phase database
 **/
 global_variable init_ss_db(		int 				 EM_database,
 								struct bulk_info 	 z_b,
@@ -527,7 +527,7 @@ void reset_SS(						global_variable 	 gv,
 				SS_ref_db[iss].xeos_pc[i][j]  = 0.0;
 			}
 		}
-		
+
 		for (int j = 0; j < SS_ref_db[iss].n_em; j++){
 			SS_ref_db[iss].xi_em[j]     = 0.0;
 			SS_ref_db[iss].z_em[j]      = 1.0;
