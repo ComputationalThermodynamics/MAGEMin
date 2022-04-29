@@ -30,7 +30,7 @@ Using MATLAB (2019+) launch the GUI within MAGEMin working directory
 
 .. code-block:: shell
 	
-	cd /your_path_to_MAGEMin/MAGEMin_1.0.0/
+	cd /your_path_to_MAGEMin/MAGEMin_1.x/
 	run PlotPseudosection.mlapp
 	
 This opens the following window:
