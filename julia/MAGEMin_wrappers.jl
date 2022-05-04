@@ -94,6 +94,8 @@ function point_wise_minimization(P::Float64,T::Float64, bulk_rock::Vector{Float6
     # Transform results to a more convenient julia struct
     out = create_gmin_struct(DB, gv, time);
     
+    # LibMAGEMin.FreeDatabases(gv, DB);
+
     return out
 end
 
