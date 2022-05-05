@@ -47,9 +47,13 @@ function TestPoints(list, gv, DB)
         bulk_rock   = get_bulk_rock(gv, list[i].test)
         out         = point_wise_minimization(list[i].P,list[i].T, bulk_rock, gv, DB)
 
+        # We need to sort the phases (sometimes they are ordered differently)
+        ind_sol = sortperm(list[i].ph)
+        ind_out = sortperm(out.ph)
+        
         result1 = @test out.G_system  ≈ list[i].G     rtol=1e-3
-        result2 = @test out.ph        == list[i].ph
-        result3 = @test out.ph_frac ≈ list[i].ph_frac atol=1.5e-2       # ok, this is really large (needs fixing for test6!)
+        result2 = @test out.ph[ind_out]        == list[i].ph[ind_sol]
+        result3 = @test out.ph_frac[ind_out] ≈ list[i].ph_frac[ind_sol] atol=1.5e-2       # ok, this is really large (needs fixing for test6!)
         
         # print more info about the point if one of the tests above fails
         if isa(result1,Test.Fail) || isa(result2,Test.Fail) || isa(result3,Test.Fail)
