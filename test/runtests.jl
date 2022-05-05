@@ -39,7 +39,8 @@ mutable struct outP{ _T  }
     ph_frac     ::  Vector{Float64}
 end
 
-print_error_msg(i,out) = println("ERROR for point $i with test=$(out.test); P=$(out.P); T=$(out.T);")
+print_error_msg(i,out) = println("ERROR for point $i with test=$(out.test); P=$(out.P); T=$(out.T); stable phases=$(out.ph), fractions=$(out.ph_frac)")
+finalize_MAGEMin(gv,DB)
 
 # Automatic testing of all points
 function TestPoints(list, gv, DB)
@@ -66,20 +67,34 @@ end
 # load reference for built-in tests
 println("Testing points from the reference diagrams:")
 @testset verbose = true "Total tests" begin
+    println("  Starting KLB-1 peridotite tests")
+    gv, DB = init_MAGEMin();
+    gv.verbose=-1;
     @testset "KLB-1 peridotite tests" begin
         include("test_diagram_test0.jl")
         TestPoints(list, gv, DB)
     end
+    finalize_MAGEMin(gv,DB)
 
+    println("  Starting RE-46 icelandic basalt tests")
+    gv, DB = init_MAGEMin();
+    gv.verbose=-1;
     @testset "RE-46 icelandic basalt tests" begin
         include("test_diagram_test1.jl")
         TestPoints(list, gv, DB)
     end
+    finalize_MAGEMin(gv,DB)
 
+    println("  Starting Wet MORB tests")
+    gv, DB = init_MAGEMin();
+    gv.verbose=-1;
     @testset "Wet MORB tests" begin
         include("test_diagram_test6.jl")
         TestPoints(list, gv, DB)
     end
+    finalize_MAGEMin(gv,DB)
 end
+
+
 
 cd(cur_dir)
