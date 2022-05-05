@@ -2,7 +2,6 @@
 #define __SS_MIN_FUNCTION_H_
 
 #include "MAGEMin.h"
-							
 SS_ref SS_UPDATE_function(				global_variable 	 gv,
 										SS_ref 				 SS_ref_db, 
 										struct bulk_info 	 z_b,

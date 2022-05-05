@@ -1,10 +1,7 @@
 #ifndef __NLOPT_OPT_FUNCTION_H_
 #define __NLOPT_OPT_FUNCTION_H_
-
 #include "MAGEMin.h"
 
-#include "objective_functions.h"
-	
 typedef void (*sf_type) (		unsigned  		 m,
 								double 			*result,
 								unsigned 		 n,

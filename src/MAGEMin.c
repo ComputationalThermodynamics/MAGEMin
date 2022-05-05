@@ -710,7 +710,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 	
 	int    c;
 	int    Mode     =  0;
-	int    Verb     = -1;
+	int    Verb     =  gv.verbose;
 	int    test     =  0;
 	int    n_points =  1;
 	int    n_pc     =  2;		/** number of pseudocompounds for Mode 2 */

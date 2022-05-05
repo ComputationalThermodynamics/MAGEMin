@@ -18,7 +18,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-
 #include "mpi.h"
 #include "MAGEMin.h"
 #include "gem_function.h"

@@ -162,13 +162,12 @@ global_variable global_variable_init(){
 	double 	SS_PC_stp_tmp[] = {0.199	,0.124	,0.098	,0.249	,0.049	,0.198	,0.329	,0.0499	,0.198	,0.198	,0.098	,0.249	,0.049	,1.0 		};
 
 	/* system parameters */
-
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.1.0 [01/04/2022]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.1.0 [14/04/2022]");	/** MAGEMin version 																*/
 
 	gv.len_ox           = 11;					/** number of components in the system 												*/
 	gv.max_n_cp 		= 64;					/** number of considered solution phases 											*/									
-	gv.verbose          = 1;					/** verbose: 0, no verbose; 1, full verbose 										*/
+	gv.verbose          = 0;					/** verbose: -1, no verbose; 0, light verbose; 1, full verbose 										*/
 
 	/* residual tolerance */
 	gv.br_max_tol       = 1.0e-5;				/** value under which the solution is accepted to satisfy the mass constraint 		*/
@@ -215,8 +214,8 @@ global_variable global_variable_init(){
 	gv.ur_3             = 20.;                  /** under relaxing factor on mass constraint if iteration is bigger than it_3       */
 	gv.it_f             = 500;                  /** gives back failure when the number of iteration is bigger than it_f             */
 	gv.it_slow          = 256;                  /** critical iteration for slow convergence                                         */
-	gv.ur_slow          = 1000.;                /** under relaxing factor on mass constraint defining overly slow convergence       */
-	gv.ur_break         = 1000000.;             /** under relaxing factor on mass constraint defining a breaking iteration          */
+	gv.ur_slow          = 1e3;                	/** under relaxing factor on mass constraint defining overly slow convergence       */
+	gv.ur_break         = 1e6;             		/** under relaxing factor on mass constraint defining a breaking iteration          */
 
 	/* phase update options */
 	gv.re_in_n          = 1e-6;					/** fraction of phase when being reintroduce.  										*/
@@ -248,7 +247,7 @@ global_variable global_variable_init(){
 		gv.PGE_mass_norm[i] 	= 0.0;
 		gv.PGE_total_norm[i] 	= 0.0;
 		gv.gamma_norm[i] 		= 0.0;	
-		gv.ite_time[i] 			= 0;
+		gv.ite_time[i] 			= 0.0;
 	}
 	
 	/* store values for numerical differentiation */

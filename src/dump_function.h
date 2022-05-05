@@ -2,7 +2,6 @@
 #define __DUMP_FUNCTION_H_
 
 #include "MAGEMin.h"
-
 void dump_init(global_variable gv);
 
 void fill_output_struct(		global_variable 	gv,
@@ -13,6 +12,7 @@ void fill_output_struct(		global_variable 	gv,
 								csd_phase_set  		*cp,
 								stb_system  		*sp
 );
+
 
 void dump_results_function(		global_variable 	gv,
 								struct bulk_info 	z_b,
