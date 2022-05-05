@@ -19,15 +19,15 @@ end
 outList       = Vector{outP}(undef, 0)
 
 # test 0
-test        = 1
+test        = 6
 gv.verbose  = -1    # switch off any verbose
 
 Tmin        = 800.0
-Tmax        = 2000.0
-Tstep       = 200.0
+Tmax        = 1400.0
+Tstep       = 100.0
 Pmin        = 0.0
-Pmax        = 50.0
-Pstep       = 10.0
+Pmax        = 30.0
+Pstep       = 5.0
 
 for i=Pmin:Pstep:Pmax
     for j=Tmin:Tstep:Tmax
@@ -40,7 +40,7 @@ for i=Pmin:Pstep:Pmax
     end
 end
 
-
-print(outList)
-print(size(outList))
+for i=1:length(outList)
+    print(outList[i],",\n")
+end
 
