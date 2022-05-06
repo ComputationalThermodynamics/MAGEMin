@@ -90,7 +90,6 @@ function point_wise_minimization(P::Float64,T::Float64, bulk_rock::Vector{Float6
 
     # Print output to screen 
     LibMAGEMin.PrintOutput(gv, 0, 1, DB, time, z_b);	
-    @show gv.BR_norm	
 
     # Transform results to a more convenient julia struct
     out = create_gmin_struct(DB, gv, time);
@@ -257,7 +256,7 @@ function print_info(g::gmin_struct)
     print("  \n \n")  
    
     # ==
-    println("Compositional variables (sol   ution phase):")
+    println("Compositional variables (solution phase):")
     for i=1:g.n_SS
         print("$(lpad(g.ph[i],15," ")) ")  
         for j=1:length(g.SS_vec[i].compVariables)
