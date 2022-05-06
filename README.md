@@ -1,3 +1,5 @@
+
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://computationalthermodynamics.github.io/MAGEMin/index.html)
 <img src="./pics/GUI.png" alt="drawing" width="640" alt="centered image"/>
 
 # Mineral Assemblage Gibbs Energy Minimization (MAGEMin)
@@ -58,6 +60,10 @@ julia> out.rho
 3144.282577840362
 julia> out.Vp
 5.919986959559542
+```
+Once you are done with all calculations, release the memory with
+```julia
+julia> finalize_MAGEMin(gv,DB)
 ```
 
 **Manual compilation**
