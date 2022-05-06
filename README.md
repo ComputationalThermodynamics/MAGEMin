@@ -25,7 +25,7 @@ Follow these steps:
 
 **Julia interface**
 
-To make it easier to interface MAGEMin with other (geodynamic) codes, we provide a julia interface to the MAGEMin C library, with which you can perform pointwise calculations. 
+To make it easier to interface MAGEMin with other (geodynamic) codes, we provide a [julia interface](https://github.com/ComputationalThermodynamics/MAGEMin_C.jl) to the MAGEMin C library, with which you can perform pointwise calculations. 
 First, install the `MAGEMin_C` package with: 
 ```julia
 julia> ]
@@ -34,7 +34,7 @@ pkg> add MAGEMin_C
 By pushing `backspace` you come back to the main julia terminal.
 Next, you can do calculations with
 ```julia
-julia> using MAGEMin
+julia> using MAGEMin_C
 Using libMAGEMin.dylib from MAGEMin_jll
 julia> gv, DB = init_MAGEMin();	# initialize database
 julia> test = 0;
