@@ -12,7 +12,7 @@ We also provide a MATLAB-based graphical user interface to help computing pseudo
 
 **Quick start**
 
-The easiest way to use `MAGEMin` is through the MATLAB graphical user interface, which has an installation script to download the correct parallel binaries for your system (created using [BinaryBuilder](https://binarybuilder.org) & julia).
+The easiest way to use `MAGEMin` is through the MATLAB graphical user interface, which has an installation script to download the correct parallel binaries for your system (created using [BinaryBuilder](https://binarybuilder.org) & [julia](https://julialang.org)).
 
 Follow these steps:
 1) Download a zip file with the most recent release of `MAGEMin` (click on the green `Code` button @ the top of this page) and unzip it on your machine.
@@ -21,8 +21,7 @@ Follow these steps:
 4) After this you are ready to get started, for example by pushing the `Start new computation` button. 
 
 **Julia interface**
-To make it eaier to interface MAGEMin with other (geodynamic) codes, we provide a julia interface to the MAGEMin C library, with which you can perform pointwise calculations 
-
+To make it easier to interface MAGEMin with other (geodynamic) codes, we provide a julia interface to the MAGEMin C library, with which you can perform pointwise calculations. 
 First, install the `MAGEMin_C` package with: 
 ```julia
 julia> ]
@@ -33,7 +32,7 @@ Next, you can do calculations with
 ```julia
 julia> using MAGEMin_C
 Using libMAGEMin.dylib from MAGEMin_jll
-julia> gv, DB = init_MAGEMin();					# initialize database
+julia> gv, DB = init_MAGEMin();	# initialize database
 julia> test = 0;
 julia> bulk_rock   = get_bulk_rock(gv, test);	 
 julia> P_kbar      = 8.0;		   				
@@ -54,7 +53,7 @@ You can show a full overview of that with
 ```julia
 julia> print_info(out)
 ```
-If you are interested in the density or seismic velocity at the point, you can access it with
+If you are interested in the density or seismic velocity at the point,  access it with
 ```julia
 julia> out.rho
 3144.282577840362

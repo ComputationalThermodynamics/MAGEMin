@@ -96,7 +96,7 @@ void fill_output_struct(		global_variable 	 gv,
 	
 	strcpy(sp[0].MAGEMin_ver,gv.version);	
 	
-	sp[0].bulk_res_norm 		 = gv.br_norm;
+	sp[0].bulk_res_norm 		 = gv.BR_norm;
 	sp[0].n_iterations 		     = gv.global_ite;
 	sp[0].status 		         = gv.div;
 	
