@@ -1,5 +1,5 @@
 
-[![stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://computationalthermodynamics.github.io/MAGEMin/index.html)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://computationalthermodynamics.github.io/MAGEMin/index.html)
 
 <img src="./pics/GUI.png" alt="drawing" width="640" alt="centered image"/>
 
@@ -25,7 +25,7 @@ Follow these steps:
 
 **Julia interface**
 
-To make it easier to interface MAGEMin with other (geodynamic) codes, we provide a julia interface to the MAGEMin C library, with which you can perform pointwise calculations. 
+To make it easier to interface MAGEMin with other (geodynamic) codes, we provide a [julia interface](https://github.com/ComputationalThermodynamics/MAGEMin_C.jl) to the MAGEMin C library, with which you can perform pointwise calculations. 
 First, install the `MAGEMin_C` package with: 
 ```julia
 julia> ]
@@ -100,4 +100,5 @@ You are very welcome to request new features and point out bugs by opening an is
 
 ## Funding
 Development of this software package was funded by the European Research Council under grant ERC CoG #771143 - [MAGMA](https://magma.uni-mainz.de).
+
 <img src="./pics/MAGMA_Logo.png" alt="drawing" width="480" alt="centered image"/>
