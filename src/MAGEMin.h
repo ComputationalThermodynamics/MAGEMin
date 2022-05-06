@@ -470,7 +470,6 @@ typedef struct global_variables {
 	double   G_system;      	/** Gibbs energy of the system */
 	double   G_system_mu;		/** Gibbs energy of the system based on fraction and chemical potential of phases **/
 
-	double   br_norm;			/** norm of bulk-rock mass constraint (residual) */
 	double   br_max_tol;    	/** max residual on mass-constraint */
 	double   alpha;				/** active under-relaxing factor of PGE, used to check if a phase can be reintroduced */
 	
