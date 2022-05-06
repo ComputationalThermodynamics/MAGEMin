@@ -100,4 +100,5 @@ You are very welcome to request new features and point out bugs by opening an is
 
 ## Funding
 Development of this software package was funded by the European Research Council under grant ERC CoG #771143 - [MAGMA](https://magma.uni-mainz.de).
+
 <img src="./pics/MAGMA_Logo.png" alt="drawing" width="480" alt="centered image"/>
