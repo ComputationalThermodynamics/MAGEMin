@@ -34,7 +34,7 @@ pkg> add MAGEMin_C
 By pushing `backspace` you come back to the main julia terminal.
 Next, you can do calculations with
 ```julia
-julia> using MAGEMin_C
+julia> using MAGEMin
 Using libMAGEMin.dylib from MAGEMin_jll
 julia> gv, DB = init_MAGEMin();	# initialize database
 julia> test = 0;
