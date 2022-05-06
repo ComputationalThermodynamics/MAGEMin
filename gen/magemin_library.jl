@@ -1,6 +1,10 @@
 module LibMAGEMin
 
+using MAGEMin_jll
+export MAGEMin_jll
+
 using CEnum
+
 #
 # START OF PROLOGUE
 #
@@ -17,9 +21,6 @@ function __init__()
         println("Using libMAGEMin.dylib from MAGEMin_jll")
     end
 end
-
-
-
 
 #
 # END OF PROLOGUE
@@ -849,7 +850,6 @@ mutable struct global_variables
     ite_time::Ptr{Cdouble}
     G_system::Cdouble
     G_system_mu::Cdouble
-    br_norm::Cdouble
     br_max_tol::Cdouble
     alpha::Cdouble
     merge_value::Cdouble

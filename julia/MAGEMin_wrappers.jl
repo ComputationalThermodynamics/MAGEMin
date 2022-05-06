@@ -89,7 +89,7 @@ function point_wise_minimization(P::Float64,T::Float64, bulk_rock::Vector{Float6
     LibMAGEMin.fill_output_struct(	gv,	z_b, DB.PP_ref_db,DB.SS_ref_db,	DB.cp, DB.sp );
 
     # Print output to screen 
-    LibMAGEMin.PrintOutput(gv, 0, 1, DB, time, z_b);		
+    LibMAGEMin.PrintOutput(gv, 0, 1, DB, time, z_b);	
 
     # Transform results to a more convenient julia struct
     out = create_gmin_struct(DB, gv, time);
@@ -202,6 +202,7 @@ function create_gmin_struct(DB, gv, time)
     # extract info about compositional variables of the solution models:
     SS_vec  = convert.(LibMAGEMin.SS_data, unsafe_wrap(Vector{LibMAGEMin.stb_SS_phase},stb.SS,n_SS))
     
+
     # Info about the endmembers:
     PP_vec  = convert.(LibMAGEMin.PP_data, unsafe_wrap(Vector{LibMAGEMin.stb_PP_phase},stb.PP,n_PP))    
 
@@ -209,11 +210,10 @@ function create_gmin_struct(DB, gv, time)
     oxides   = unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, stb.oxides, gv.len_ox))
     
     # Numerics
-    bulk_res_norm   =  stb.bulk_res_norm
+    bulk_res_norm   =  gv.BR_norm
     iter            =  gv.global_ite   
     time_ms         =  time*1000.0
 
-    
     # Store all in output struct 
     out = gmin_struct{Float64,Int64}( G_system, Gamma, P_kbar, T_C, 
                 bulk, bulk_M, bulk_S, bulk_F, 
@@ -240,6 +240,9 @@ function show(io::IO, g::gmin_struct)
         println(io, "   $(lpad(g.ph[i],14," "))   $( round(g.ph_frac[i], digits=5)) ")  
     end
     println(io, "Gibbs free energy : $(round(g.G_system,digits=6))  ($(g.iter) iterations; $(round(g.time_ms,digits=2)) ms)")  
+    if g.status>0
+        println(io, "WARNING: calculation did not converge ----------------------------")  
+    end
     
 end
 
@@ -257,7 +260,7 @@ function print_info(g::gmin_struct)
     print("  \n \n")  
    
     # ==
-    println("Compositional variables (sol   ution phase):")
+    println("Compositional variables (solution phase):")
     for i=1:g.n_SS
         print("$(lpad(g.ph[i],15," ")) ")  
         for j=1:length(g.SS_vec[i].compVariables)

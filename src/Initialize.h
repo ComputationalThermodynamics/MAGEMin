@@ -163,7 +163,7 @@ global_variable global_variable_init(){
 
 	/* system parameters */
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.1.0 [14/04/2022]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.1.1 [06/05/2022]");	/** MAGEMin version 																*/
 
 	gv.len_ox           = 11;					/** number of components in the system 												*/
 	gv.max_n_cp 		= 64;					/** number of considered solution phases 											*/									

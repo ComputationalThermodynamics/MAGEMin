@@ -507,7 +507,7 @@ int runMAGEMin(			int    argc,
 		printf("System information\n");
 		printf("═══════════════════\n");
 
-		printf(" Mass residual      : %+12.5f\n\n",gv.BR_norm);
+		printf(" Mass residual      : %+12.5e\n\n",gv.BR_norm);
 
 		printf(" Volume             : %+12.5f\n",sum_volume);
 		printf(" Density            : %+12.5f\n\n",gv.system_density);
