@@ -35,10 +35,9 @@ Using libMAGEMin.dylib from MAGEMin_jll
 julia> gv, DB = init_MAGEMin();	# initialize database
 julia> test = 0;
 julia> bulk_rock   = get_bulk_rock(gv, test);	 
-julia> P_kbar      = 8.0;		   				
-julia> T_Celcius   = 1300.0;		
 julia> gv.verbose  = -1; 							
-julia> out         = point_wise_minimization(P_kbar,T_Celcius, bulk_rock, gv, DB)  
+julia> P_kbar, T_C = 8.0, 1300.0;		
+julia> out         = point_wise_minimization(P_kbar,T_C, bulk_rock, gv, DB)  
 Pressure          : 8.0      [kbar]
 Temperature       : 1300.0    [Celcius]
      Stable phase | Fraction 
