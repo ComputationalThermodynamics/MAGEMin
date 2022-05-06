@@ -54,7 +54,7 @@ void dump_init(global_variable gv){
 		if (numprocs==1){	sprintf(out_lm,	"%s_pseudosection_output.txt"		,gv.outpath); 		}
 		else 			{	sprintf(out_lm,	"%s_pseudosection_output.%i.txt"	,gv.outpath, rank); }
 		loc_min 	= fopen(out_lm, 	"w"); 
-		fprintf(loc_min, "// NUMBER\tSTATUS[S,R1,R2,F]\tP[kbar]\tT[C]\tG_sys[G]\tbr_norm[wt]\tVp[km/s]\tVs[km/s]\tGAMMA[G] PHASE[name]\tMODE[wt]\tRHO[kg.m-3]\tX-EOS\n");
+		fprintf(loc_min, "// NUMBER\tSTATUS[S,R1,R2,F]\tP[kbar]\tT[C]\tG_sys[G]\tBR_norm[wt]\tVp[km/s]\tVs[km/s]\tGAMMA[G] PHASE[name]\tMODE[wt]\tRHO[kg.m-3]\tX-EOS\n");
 		fclose(loc_min);	
 			
 		/** MODE 2 - LOCAL MINIMA **/
@@ -185,14 +185,14 @@ void fill_output_struct(		global_variable 	 gv,
 					sp[0].frac_M 				= cp[i].ss_n;
 					sp[0].rho_M  				= cp[i].phase_density;
 					for (j = 0; j < gv.len_ox; j++){
-						sp[0].bulk_M[j]	   = cp[i].ss_comp[j];
+						sp[0].bulk_M[j]	   = cp[i].ss_comp[j]*cp[i].factor;
 					}
 				}
 				else{
 					sp[0].frac_F 				= cp[i].ss_n;
 					sp[0].rho_F  				= cp[i].phase_density;
 					for (j = 0; j < gv.len_ox; j++){
-						sp[0].bulk_F[j]	   		= cp[i].ss_comp[j];
+						sp[0].bulk_F[j]	   		= cp[i].ss_comp[j]*cp[i].factor;
 					}
 				}
 			}
@@ -200,7 +200,7 @@ void fill_output_struct(		global_variable 	 gv,
 				sp[0].frac_S 				   += cp[i].ss_n;
 				sp[0].rho_S  				   += cp[i].ss_n*cp[i].phase_density;
 				for (j = 0; j < gv.len_ox; j++){
-					sp[0].bulk_S[j]	   		   += cp[i].ss_n*cp[i].ss_comp[j];
+					sp[0].bulk_S[j]	   		   += cp[i].ss_n*cp[i].ss_comp[j]*cp[i].factor;
 				}
 			}
 
@@ -528,7 +528,7 @@ void mergeParallelFiles(global_variable gv){
 	sprintf(out_lm,	"%s_pseudosection_output.txt"		,gv.outpath);
    	FILE *fp2 = fopen(out_lm, "w"); 
 
-	fprintf(fp2, "// NUMBER\tSTATUS[S,R1,R2,F]\tP[kbar]\tT[C]\tG_sys[G]\tbr_norm[wt]\tVp[km/s]\tVs[km/s]\tGAMMA[G]; PHASE[name]\tMODE[wt]\tRHO[kg.m-3]\tX-EOS\n");
+	fprintf(fp2, "// NUMBER\tSTATUS[S,R1,R2,F]\tP[kbar]\tT[C]\tG_sys[G]\tBR_norm[wt]\tVp[km/s]\tVs[km/s]\tGAMMA[G]; PHASE[name]\tMODE[wt]\tRHO[kg.m-3]\tX-EOS\n");
 
 	// Open file to be merged 
 	for (i = 0; i < numprocs; i++){
