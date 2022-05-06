@@ -202,6 +202,7 @@ function create_gmin_struct(DB, gv, time)
     # extract info about compositional variables of the solution models:
     SS_vec  = convert.(LibMAGEMin.SS_data, unsafe_wrap(Vector{LibMAGEMin.stb_SS_phase},stb.SS,n_SS))
     
+
     # Info about the endmembers:
     PP_vec  = convert.(LibMAGEMin.PP_data, unsafe_wrap(Vector{LibMAGEMin.stb_PP_phase},stb.PP,n_PP))    
 
@@ -239,6 +240,9 @@ function show(io::IO, g::gmin_struct)
         println(io, "   $(lpad(g.ph[i],14," "))   $( round(g.ph_frac[i], digits=5)) ")  
     end
     println(io, "Gibbs free energy : $(round(g.G_system,digits=6))  ($(g.iter) iterations; $(round(g.time_ms,digits=2)) ms)")  
+    if g.status>0
+        println(io, "WARNING: calculation did not converge ----------------------------")  
+    end
     
 end
 
