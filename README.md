@@ -1,5 +1,6 @@
 
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://computationalthermodynamics.github.io/MAGEMin/index.html)
+[![stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://computationalthermodynamics.github.io/MAGEMin/index.html)
+
 <img src="./pics/GUI.png" alt="drawing" width="640" alt="centered image"/>
 
 # Mineral Assemblage Gibbs Energy Minimization (MAGEMin)
@@ -23,6 +24,7 @@ Follow these steps:
 4) After this you are ready to get started, for example by pushing the `Start new computation` button. 
 
 **Julia interface**
+
 To make it easier to interface MAGEMin with other (geodynamic) codes, we provide a julia interface to the MAGEMin C library, with which you can perform pointwise calculations. 
 First, install the `MAGEMin_C` package with: 
 ```julia
