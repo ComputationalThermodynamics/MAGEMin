@@ -6,7 +6,7 @@ cur_dir = pwd();
 if  cur_dir[end-3:end]=="test"
     cd("../")       # change to main directory if we are in /test
 end
-using MAGEMin_C     # load MAGEMin (needs to be loaded from main directory to pick up correct library in case it is locally compiled)
+using MAGEMin_C    # load MAGEMin (needs to be loaded from main directory to pick up correct library in case it is locally compiled)
 
 # Initialize database 
 gv, DB = init_MAGEMin();

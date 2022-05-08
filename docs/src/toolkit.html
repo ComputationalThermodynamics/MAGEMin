@@ -115,6 +115,27 @@
 </ul>
 </li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Julia interface:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html">Julia interface to MAGEMin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html#installation">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Installation.html">MAGEMin_C.jll installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Installation.html#install-julia">Install Julia</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Installation.html#install-magemin-c">Install MAGEMin_C</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html#use-magemin-c">Use MAGEMin_C</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html">Single point calculation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#initialize-database">Initialize database</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-p-t-x-pressure-temperature-and-bulk-rock-composition">Set P-T-X (pressure temperature and bulk rock composition)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-the-level-of-verbose-1-0-1">Set the level of verbose <code class="docutils literal notranslate"><span class="pre">[-1,0,1]</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#call-optimization-routine-for-given-p-t-x">Call optimization routine for given P-T-X</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#display-minimized-point">Display minimized point</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">FAQs:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Firewall warning (Apple M1)</a></li>
@@ -196,6 +217,12 @@
              
   <section id="toolkit">
 <h1>toolkit<a class="headerlink" href="#toolkit" title="Permalink to this headline"></a></h1>
+<dl class="c function">
+<dt class="sig sig-object c" id="c.print_help">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">print_help</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.print_help" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.print_help"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>function to print help and give command line parameters</p>
+</dd></dl>
+
 <dl class="c function">
 <dt class="sig sig-object c" id="c.AFunction">
 <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AFunction</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">mode</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">v</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">data</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.AFunction" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.AFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
