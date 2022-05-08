@@ -1024,7 +1024,7 @@ global_variable PGE(	struct bulk_info 	z_b,
 		// capture points that fail to converge sufficiently quickly
 		// or have a very large norm after any iteration
 		if ((gv.global_ite > gv.it_slow && gv.BR_norm > gv.br_max_tol*gv.ur_slow) ||
-			 gv.BR_norm > gv.br_max_tol*gv.ur_break){
+			gv.BR_norm > gv.br_max_tol*gv.ur_break){
 			gv.status = 4;
 			gv.div = 1;	
 		}

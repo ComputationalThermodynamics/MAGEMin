@@ -2,7 +2,7 @@
 
 cd("../")       # change to main directory
 
-using MAGEMin_C
+using MAGEMin
 
 gv, DB = init_MAGEMin();
 

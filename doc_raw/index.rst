@@ -58,6 +58,12 @@ Imported libraries
    :caption: Cookbook:
    
    ckbk
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Julia interface:
+   
+   julia
    
 .. toctree::
    :maxdepth: 2
