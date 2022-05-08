@@ -13,7 +13,7 @@ MAGEMin_C.jll installation
 Install Julia
 =============
 
-If you don't have Julia already you can download it here:
+If you don't have Julia you can download it here:
 
 https://julialang.org/downloads/
 
@@ -48,7 +48,20 @@ Open the package manager by typing :literal:`]`:
 
 |
 
-To test the package type :literal:`test MAGEMin_C`. You should get the test summary:
+To install :literal:`MAGEMin_C` enter in the command window of the package manager:
+
+.. code-block:: shell
+
+	add MAGEMin_C
+
+After the installation is complete, you can test the package by typing:
+
+.. code-block:: shell
+
+	test MAGEMin_C
+
+Which gives the test summary:
+
 
 .. image:: /figs/julia_test.png
    :width: 360
