@@ -224,7 +224,7 @@
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>gv, <span class="nv">DB</span> <span class="o">=</span> init_MAGEMin<span class="o">()</span><span class="p">;</span>
 </pre></div>
 </div>
-<p>This initiatize the global variables and the Database.</p>
+<p>This initiatizes the global variables and the Database.</p>
 </section>
 <section id="set-p-t-x-pressure-temperature-and-bulk-rock-composition">
 <h2>Set P-T-X (pressure temperature and bulk rock composition)<a class="headerlink" href="#set-p-t-x-pressure-temperature-and-bulk-rock-composition" title="Permalink to this headline"></a></h2>
@@ -234,8 +234,8 @@
 <span class="nv">bulk_rock</span>   <span class="o">=</span> get_bulk_rock<span class="o">(</span>gv, <span class="nb">test</span><span class="o">)</span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">get_bulk_rock</span></code> retrieve the saved bulk-rock composition 0, which corresponds to KLB-1 peridotite.
-This is where you can pass your own bulk-rock and P-T conditions.</p>
+<p><code class="docutils literal notranslate"><span class="pre">get_bulk_rock</span></code> retrieves the saved bulk-rock composition 0, which corresponds to KLB-1 peridotite.
+This is where you can pass your own bulk-rock and P-T conditions by directly assigning <code class="docutils literal notranslate"><span class="pre">bulk_rock</span> <span class="pre">=</span> <span class="pre">[...]</span></code>.</p>
 </section>
 <section id="set-the-level-of-verbose-1-0-1">
 <h2>Set the level of verbose <code class="docutils literal notranslate"><span class="pre">[-1,0,1]</span></code><a class="headerlink" href="#set-the-level-of-verbose-1-0-1" title="Permalink to this headline"></a></h2>
@@ -273,7 +273,7 @@ This is where you can pass your own bulk-rock and P-T conditions.</p>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-<p>The displayed informations are part of the <code class="docutils literal notranslate"><span class="pre">C</span></code> output structure <code class="docutils literal notranslate"><span class="pre">stb_systems</span></code>, and can be access individually (e.g., <code class="docutils literal notranslate"><span class="pre">out.Gamma</span></code>) or displayed all at once using</p>
+<p>The displayed informations are part of the <code class="docutils literal notranslate"><span class="pre">C</span></code> output structure <code class="docutils literal notranslate"><span class="pre">stb_systems</span></code>, and can be accessed individually (e.g., <code class="docutils literal notranslate"><span class="pre">out.Gamma</span></code>) or displayed all at once using</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>print_info<span class="o">(</span>out<span class="o">)</span>
 </pre></div>
 </div>

@@ -12,7 +12,7 @@ Initialize database
 
    gv, DB = init_MAGEMin();
 
-This initiatize the global variables and the Database.
+This initiatizes the global variables and the Database.
 
 Set P-T-X (pressure temperature and bulk rock composition)
 **********************************************************
@@ -23,8 +23,8 @@ Set P-T-X (pressure temperature and bulk rock composition)
    test        = 0;
    bulk_rock   = get_bulk_rock(gv, test)
 
-:literal:`get_bulk_rock` retrieve the saved bulk-rock composition 0, which corresponds to KLB-1 peridotite. 
-This is where you can pass your own bulk-rock and P-T conditions.
+:literal:`get_bulk_rock` retrieves the saved bulk-rock composition 0, which corresponds to KLB-1 peridotite. 
+This is where you can pass your own bulk-rock and P-T conditions by directly assigning :literal:`bulk_rock = [...]`.
 
 Set the level of verbose :literal:`[-1,0,1]`
 ********************************************
@@ -74,7 +74,7 @@ which displays the content of structure ``out``:
 
 |
 
-The displayed informations are part of the ``C`` output structure ``stb_systems``, and can be access individually (e.g., ``out.Gamma``) or displayed all at once using 
+The displayed informations are part of the ``C`` output structure ``stb_systems``, and can be accessed individually (e.g., ``out.Gamma``) or displayed all at once using 
 
 .. code-block:: shell   
 
