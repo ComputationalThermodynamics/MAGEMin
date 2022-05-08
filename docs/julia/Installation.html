@@ -223,7 +223,7 @@
 </section>
 <section id="install-julia">
 <h1>Install Julia<a class="headerlink" href="#install-julia" title="Permalink to this headline"></a></h1>
-<p>If you don’t have Julia already you can download it here:</p>
+<p>If you don’t have Julia you can download it here:</p>
 <p><a class="reference external" href="https://julialang.org/downloads/">https://julialang.org/downloads/</a></p>
 <p>Then, extract the archive and create a symbolic link. On linux this can be achieved as:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo ln -s /path_to_julia/bin/julia /usr/local/bin/julia
@@ -246,7 +246,15 @@
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-<p>To test the package type <code class="docutils literal notranslate"><span class="pre">test</span> <span class="pre">MAGEMin_C</span></code>. You should get the test summary:</p>
+<p>To install <code class="docutils literal notranslate"><span class="pre">MAGEMin_C</span></code> enter in the command window of the package manager:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>add MAGEMin_C
+</pre></div>
+</div>
+<p>After the installation is complete, you can test the package by typing:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">test</span> MAGEMin_C
+</pre></div>
+</div>
+<p>Which gives the test summary:</p>
 <a class="reference internal image-reference" href="../_images/julia_test.png"><img alt="../_images/julia_test.png" class="align-center" src="../_images/julia_test.png" style="width: 360px;" /></a>
 <div class="line-block">
 <div class="line"><br /></div>
