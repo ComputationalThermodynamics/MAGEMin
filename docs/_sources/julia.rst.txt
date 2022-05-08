@@ -9,7 +9,7 @@ Julia interface to MAGEMin
 
 The julia package :guilabel:`MAGEMin_C.jll` is a Julia wrapper for :guilabel:`MAGEMin`.
 The interface is well-fitted for geodynamic coupling as the ``C`` functions can be directly called from Julia. 
-Moreover, the inferface allow you to get rid of file I/O (e.g., remove slow disk access).
+Moreover, the inferface allows to get rid of file I/O (i.e., no slow disk access).
 
 Installation
 ============
