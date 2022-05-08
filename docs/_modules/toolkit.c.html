@@ -112,6 +112,28 @@
 </ul>
 </li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Julia interface:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html">Julia interface to MAGEMin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html#installation">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Installation.html">MAGEMin_C.jll installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Installation.html#install-julia">Install Julia</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Installation.html#install-magemin-c">Install MAGEMin_C</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html#use-magemin-c">Use MAGEMin_C</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html">Single point calculation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#initialize-database">Initialize database</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-p-t-x-pressure-temperature-and-bulk-rock-composition">Set P-T-X (pressure temperature and bulk rock composition)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-the-level-of-verbose-1-0-1">Set the level of verbose <code class="docutils literal notranslate"><span class="pre">[-1,0,1]</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#call-optimization-routine-for-given-p-t-x">Call optimization routine for given P-T-X</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#display-minimized-point">Display minimized point</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#access-output-structure">Access output structure</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">FAQs:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Firewall warning (Apple M1)</a></li>
@@ -209,6 +231,71 @@
 
 <div class="viewcode-block" id="c.FALSE"><span class="cp">#define FALSE  0</span></div>
 <div class="viewcode-block" id="c.TRUE"><span class="cp">#define TRUE   1</span></div>
+
+<div class="viewcode-block" id="c.print_help"><a class="viewcode-back" href="../src/toolkit.html#c.print_help">[docs]</a><span class="cm">/**</span>
+<span class="cm">  function to print help and give command line parameters</span>
+<span class="cm">*/</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">print_help</span><span class="p">(</span><span class="w">	</span><span class="n">global_variable</span><span class="w"> </span><span class="n">gv</span><span class="w">	</span><span class="p">){</span><span class="w"></span>
+<span class="w">	</span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; +---------------+-----------------------+</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; |    MAGEMin    |   %15s  |</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">version</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; +---------------+-----------------------+</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; List of valid arguments:</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; ------------------------</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">	</span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  --Verb=     [int]   : Verbose option, 0. inactive, 1. active</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">	</span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  --File=     [str]   : Given file for multiple point calculation</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  --n_points= [int]   : Number of points when using &#39;File&#39; argument</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  --test=     [int]   : Number of points when using &#39;File&#39; argument</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  --Pres=     [float] : Pressure in kilobar</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  --Temp=     [float] : Temperature in Celsius</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  --Bulk=     [float] : Bulk rock composition in molar amount*</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  --Gam=      [float] : Chemical potential of oxides (pure components)*</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; *the list of oxides must be given as follow:</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  SiO2, Al2O3, CaO, MgO, FeO, K2O, Na2O, TiO2, O, Cr2O3, H2O</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; Example of single point calculation:</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; ------------------------------------</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">	</span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  ./MAGEMin --Verb=1 --Temp=718.750 --Pres=30.5000 --test=0 &gt;&amp;log.txt</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; Here, the verbose is active and the bulk rock composition of &#39;test 0&#39; is selected. The output of the verbose is saved as a log file &#39;log.txt&#39;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; Example multiple points calculation:</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; ------------------------------------</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">	</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; To run multiple points at once you can pass an input file containing the list of points such as</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  ./MAGEMin --Verb=1 --File=&#39;path_to_file&#39; --n_points=x</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; where &#39;path_to_file&#39; is the location of the file and &#39;x&#39; is an integer corresponding to the total number of points contained in the file. The file must have one point per line using the following structure</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  Mode(0-1), Pressure(kbar), Temperature(C), Gam1, Gam2, ..., Gamn</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; *Mode = 0 for global minimization</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; A valid list of points is for instance (MAGEMin_input.dat):</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">	</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  0 0.0 800.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  0 4.0 800.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  0 7.0 800.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  0 7.0 700.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">	</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">	</span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; Example of parallel points calculation:</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; ---------------------------------------</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">	</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">	</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; Simply call &#39;MPI&#39; before MAGEMin and give the number of cores you want to use. Valid calls using previously defined input file are for instance</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">	</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">	</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  mpirun -np 8 ./MAGEMin --Verb=1 --File=/path_to_file/MAGEMin_input.dat --n_points=4</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  mpiexec -n 8 ./MAGEMin --Verb=1 --File=/path_to_file/MAGEMin_input.dat --n_points=4</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">	   </span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">	 </span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">	 </span>
+
+<span class="p">}</span><span class="w"></span></div>
+
 
 <div class="viewcode-block" id="c.AFunction"><a class="viewcode-back" href="../src/toolkit.html#c.AFunction">[docs]</a><span class="cm">/**</span>
 <span class="cm">  test function for Brent method</span>
