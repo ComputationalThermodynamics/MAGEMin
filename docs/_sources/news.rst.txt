@@ -5,7 +5,6 @@ Seismic velocity calculation
 
 We are working on adding the calculation of seismic velocities using the method described in Connolly and Kerrick (2002) such as
 
-
 .. math:: 
 	v_p = \sqrt{ \frac{K_s + 4 \mu / 3}{\rho}}
 
