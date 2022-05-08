@@ -191,7 +191,7 @@ PP_ref G_EM_function(		int 		 EM_database,
 					/* Test function to define min/max */
 					v = eps;
 					double v1 = ( sfdh + P*sfdhv + (sfw + P*sfwv)*(2.*v - 1.) + sffac*sfn/(sfn + 1.)*R*T * log(sfn*pow(1. - v,2.0)/((1. + sfn*v)*(sfn + v))) );
-					v = 1-eps;
+					v = 1.0-eps;
 					double v2 = ( sfdh + P*sfdhv + (sfw + P*sfwv)*(2.*v - 1.) + sffac*sfn/(sfn + 1.)*R*T * log(sfn*pow(1. - v,2.0)/((1. + sfn*v)*(sfn + v))) );
 					
 					/* solve for volume at P, T */
