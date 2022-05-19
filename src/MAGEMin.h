@@ -334,6 +334,13 @@ typedef struct stb_systems {
 	
 	double  bulkMod;
 	double  shearMod;
+
+	double  bulkModulus_M;
+	double  bulkModulus_S;
+	double  shearModulus_S;
+	double  Vp_S;
+	double  Vs_S;
+
 	double  Vp;
 	double  Vs;
 	
@@ -494,7 +501,19 @@ typedef struct global_variables {
 	double   system_shearModulus;
 	double   system_Vp;
 	double   system_Vs;
-	
+
+	double   melt_density;
+	double   melt_bulkModulus;
+	double   melt_fraction;
+
+	double   solid_density;
+	double   solid_bulkModulus;
+	double   solid_shearModulus;
+	double   solid_Vp;
+	double   solid_Vs;
+
+	double  *V_cor;
+
 } global_variable;
 
 global_variable global_variable_init(void);

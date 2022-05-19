@@ -107,6 +107,12 @@ void fill_output_struct(		global_variable 	 gv,
 	sp[0].Vp					 = gv.system_Vp;
 	sp[0].Vs					 = gv.system_Vs;
 
+	sp[0].bulkModulus_M  		 = gv.melt_bulkModulus,
+	sp[0].bulkModulus_S  		 = gv.solid_bulkModulus,
+	sp[0].shearModulus_S  		 = gv.solid_shearModulus,
+	sp[0].Vp_S  		 		 = gv.solid_Vp,
+	sp[0].Vs_S  		 		 = gv.solid_Vs,
+
 	sp[0].G = 0.0;
 	for (j = 0; j < gv.len_ox; j++){
 		strcpy(sp[0].oxides[j],gv.ox[j]);	

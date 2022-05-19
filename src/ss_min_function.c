@@ -336,13 +336,24 @@ global_variable reset_gv(					global_variable 	 gv,
 	for (int i = 0; i < gv.len_ss; i++){ 	
 		SS_ref_db[i].ss_n = 0.0;
 	}
-	
+
+	gv.melt_fraction	  = 0.;
+	gv.melt_density       = 0.;
+	gv.melt_bulkModulus   = 0.;
+
+	gv.solid_density      = 0.;
+	gv.solid_bulkModulus  = 0.;
+	gv.solid_shearModulus = 0.;
+	gv.solid_Vp 		  = 0.;
+	gv.solid_Vs 		  = 0.;
+
 	gv.system_density     = 0.;
 	gv.system_bulkModulus = 0.;
 	gv.system_shearModulus= 0.;
 	gv.system_Vp 		  = 0.;
 	gv.system_Vs 		  = 0.;
-
+	gv.V_cor[0]			  = 0.;
+	gv.V_cor[1]			  = 0.;
 	gv.check_PC_ite		  = 0;
 	gv.check_PC			  = 0;
 	gv.maxeval		      = gv.maxeval_mode_1;
@@ -355,6 +366,8 @@ global_variable reset_gv(					global_variable 	 gv,
 	gv.n_cp_phase         = 0;					/** reset the number of ss phases to start with */
 	gv.n_pp_phase         = 0;					/** reset the number of pp phases to start with */
 	gv.alpha          	  = gv.max_fac;
+
+
 
     for (i = 0; i < gv.it_f; i++){
         gv.PGE_mass_norm[i] = 0.0;

@@ -258,7 +258,7 @@ global_variable global_variable_init(){
 	}
 	gv.numDiff[0][0] = 0.0;	gv.numDiff[0][1] = 0.0;		gv.numDiff[0][2] = 1.0;	gv.numDiff[0][3] = 1.0;		gv.numDiff[0][4] = 2.0;	gv.numDiff[0][5] = 1.0;	gv.numDiff[0][6] = 0.0;
 	gv.numDiff[1][0] = 1.0;	gv.numDiff[1][1] = -1.0;	gv.numDiff[1][2] = 1.0;	gv.numDiff[1][3] = -1.0;	gv.numDiff[1][4] = 0.0;	gv.numDiff[1][5] = 0.0;	gv.numDiff[1][6] = 0.0;
-
+	gv.V_cor = malloc (2 * sizeof(double));
 	/* declare size of chemical potential (gamma) vector */
 	gv.dGamma 			= malloc (gv.len_ox * sizeof(double)	);
 	gv.ox 				= malloc (gv.len_ox * sizeof(char*)		);

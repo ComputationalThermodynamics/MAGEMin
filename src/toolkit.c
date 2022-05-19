@@ -845,3 +845,149 @@ global_variable get_ss_id(	global_variable  	 gv,
 	
 	return gv;
 }
+
+/**
+  Melt-fraction correction for P-wave and S-wave velocities
+  The routine uses the reduction formulation of Clark et al., (2017) and is based on the equilibrium geometry model for the solid skeleton of Takei et al., 1997.
+  * aspectRatio:  Coefficient defining the geometry of the solid framework (contiguity): 0.0 (layered melt distributed) < 0.1 (grain boundary melt) < 1.0 (melt in separated bubble pockets)
+  
+	printf(" Vp_Sol      (harm) : %+12.5f\t [km/s]\n",gv.solid_Vp);
+	printf(" Vs_Sol      (harm) : %+12.5f\t [km/s]\n",gv.solid_Vs);
+	gv.solid_Vs = anelastic_correction( 0,
+										gv.solid_Vs,
+										z_b.P,
+										z_b.T 		);
+	printf(" Vs_Sol      (anel) : %+12.5f\t [km/s]\n",gv.solid_Vs);
+	if (gv.melt_fraction > 0.0){
+		wave_melt_correction(  	gv.melt_bulkModulus,
+								gv.solid_bulkModulus,
+								gv.solid_shearModulus,
+								gv.melt_density,
+								gv.solid_density,
+								gv.solid_Vp,	
+								gv.solid_Vs,
+								gv.melt_fraction,
+								0.1,
+								gv.V_cor				);
+		printf("\n Vp_Melt_cor        : %+12.5f\t [km/s]\n",  gv.V_cor[0]);
+		printf(" Vs_Melt_cor        : %+12.5f\t [km/s]\n",	gv.V_cor[1]);
+		printf(" Vp/Vs_Melt_cor     : %+12.5f\t [km/s]\n",gv.V_cor[0]/gv.V_cor[1]);
+	}
+	printf("\n");
+
+*/
+void wave_melt_correction( 	 double  Kb_L,
+							 double  Kb_S,
+							 double  Ks_S,
+							 double  rhoL,
+							 double  rhoS,
+							 double  Vp0,
+							 double  Vs0,
+							 double  meltFrac,
+							 double  aspectRatio,
+							 double *V_cor		)
+{
+	double poisson = 0.25;
+
+    double aij[3][4] ={ {0.318, 6.780, 57.560, 0.182},
+						{0.164, 4.290, 26.658, 0.464},
+						{1.549, 4.814, 8.777, -0.290}   };
+
+    double bij[2][2] ={  {-0.3238, 0.2341},
+            			 {-0.1819, 0.5103}  			};
+
+    double a[3];
+	double b[2];
+
+	for (int i = 0; i < 3; i++){
+		a[i] = aij[i][0]*exp( aij[i][1]*(poisson-0.25) + aij[i][2]*pow(poisson - 0.25,3.0) ) + aij[i][3];
+	}
+	for (int i = 0; i < 2; i++){
+		b[i] = bij[i][0]*poisson + bij[i][1];
+	}
+	
+    double nk      = a[0]*aspectRatio + a[1]*(1.0 - aspectRatio) + a[2]*aspectRatio*(1.0 - aspectRatio)*(0.5 - aspectRatio);
+    double nmu     = b[0]*aspectRatio + b[1]*(1.0 - aspectRatio);
+
+    double ksk_k   = pow(aspectRatio,nk);
+    double musk_mu = pow(aspectRatio,nmu);
+
+    double ksk     = ksk_k*Kb_S;
+    double musk    = musk_mu*Ks_S;
+
+    double kb      = (1.0-meltFrac)*ksk;
+    double mu      = (1.0-meltFrac)*musk;
+
+    double LambdaK = Kb_S/kb;
+    double LambdaG = Ks_S/mu;
+
+    double beta    = Kb_S/Kb_L;
+    double gamma   = Ks_S/Kb_S;
+
+	double deltaVp = (((((beta -1.0)*LambdaK) / ((beta-1.0) + LambdaK) + 4.0/3.0*gamma*LambdaG ) / ( 1.0 + 4.0/3.0*gamma)) - (1.0 - rhoL/rhoS) )*(meltFrac/2.0);
+	double deltaVs = ( LambdaG - (1.0 - rhoL/rhoS) )*(meltFrac/2.0);
+
+    V_cor[0] = Vp0 - deltaVp*Vp0;
+    V_cor[1] = Vs0 - deltaVs*Vs0;
+
+	if (V_cor[0] < 0.0){ V_cor[0] = 0.0;}
+	if (V_cor[1] < 0.0){ V_cor[1] = 0.0;}
+
+}	
+
+double anelastic_correction(  	int 	water,
+								double 	Vs0,
+								double 	P,
+								double 	T 		)
+{
+	double rH = 0.0, COH = 0.0;
+    double kbar2pa = 100.0e3;
+
+    double Pref    = P*kbar2pa;            	//pa
+    double R       = 8.31446261815324;
+
+    // values based on fitting experimental constraints (Behn et al., 2009)
+    double alpha   = 0.27;
+    double B0      = 1.28e8;               	//m/s
+    double dref    = 1.24e-5;             	//m
+    double COHref  = 50.0/1e6;             	//50H/1e6Si
+
+    double Gref    = 1.09;
+    double Eref    = 505.0e3;              	//J/mol
+    double Vref    = 1.2e-5;               	//m3*mol
+
+    double G       = 1.00;
+    double E       = 420.0e3;              	//J/mol (activation energy)
+    double V       = 1.2e-5;               	//m3*mol (activation volume)
+
+    // using remaining values from Cobden et al., 2018
+    double omega   = 0.01;                 	//Hz (frequency to match for studied seismic system)
+    double d       = 1e-2;                 	//m (grain size)
+    
+    if (water == 0){
+        COH     = 50.0/1e6;             	//for dry mantle
+        rH      = 0.0;                  	//for dry mantle
+	}
+	else if(water == 1){
+        COH     = 1000.0/1e6;          	 	//for damp mantle    
+        rH      = 1.0;                	  	//for damp mantle
+	}
+	else if(water == 2){
+        COH     = 3000.0/1e6;           	//for wet mantle (saturated water)
+        rH      = 2.0;                  	//for wet mantle
+	}
+	else{
+        printf("WARN: water mode is not implemented. Valid values are 0 (dry),1 (dampened) and 2 (wet)\n");	
+	}
+
+    double B       = B0*pow(dref,G-Gref)*pow(COH/COHref,rH) * exp(((E+Pref*V)-(Eref + Pref*Vref))/(R*T));
+
+    double Qinv    = pow( B*pow(d,(-G))*(1.0/omega) * exp(- (E+Pref*V)/(R*T)) ,alpha);
+
+    double Vs_anel = Vs0*(1.0 - (Qinv)/(2.0*tan(3.141592*alpha/2.0) ) );
+
+
+    return Vs_anel;
+
+
+}

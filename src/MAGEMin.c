@@ -329,6 +329,7 @@ int runMAGEMin(			int    argc,
 	double P 			  = z_b.P;					/** PC function uses the z_b structure this is why the Pressure is saved here */
 	double T 			  = z_b.T;					/** PC function uses the z_b structure this is why the Pressure is saved here */
 	double sum_volume     = 0.0;
+	double sum_volume_sol = 0.0;
 	double dGdTPP, dGdTMP, dG2dT2, dGdP, dG2dP2;
 
 	double density[gv.len_ox];
@@ -404,8 +405,19 @@ int runMAGEMin(			int    argc,
 			/** calculate density from volume */
 			cp[i].phase_density = (cp[i].mass*1000.0)/(cp[i].volume*10.0);
 
+			if (strcmp( cp[i].name, "liq") == 0){
+				gv.melt_density   	= cp[i].phase_density;
+				gv.melt_fraction  	= cp[i].ss_n;
+				gv.melt_bulkModulus = cp[i].phase_bulkModulus/10.0;
+			}
+
 			/** get sum of volume*fraction*factor to calculate vol% from mol% */
 			sum_volume += cp[i].volume*cp[i].ss_n*cp[i].factor;
+
+			if (strcmp( cp[i].name, "liq") != 0 && strcmp( cp[i].name, "fl") != 0){
+				sum_volume_sol += cp[i].volume*cp[i].ss_n*cp[i].factor;
+			}
+
 		}
 	}
 
@@ -438,11 +450,11 @@ int runMAGEMin(			int    argc,
 				PP_ref_db[i].mass += PP_ref_db[i].Comp[j]*z_b.masspo[j];
 			}
 
-			dG2dT2 					 = (muE-2.0*muC+muW)/(gv.gb_T_eps*gv.gb_T_eps);
-			dG2dP2 					 = (muNN-2.0*muN+muC)/(gv.gb_P_eps*gv.gb_P_eps);
-			dGdTPP 					 = (muNE-muNW)/(2.0*gv.gb_T_eps);
-			dGdTMP 					 = (muE-muW)/(2.0*gv.gb_T_eps);
-			dGdP					 = (muN-muC)/(gv.gb_P_eps);
+			dG2dT2 		= (muE-2.0*muC+muW)/(gv.gb_T_eps*gv.gb_T_eps);
+			dG2dP2 		= (muNN-2.0*muN+muC)/(gv.gb_P_eps*gv.gb_P_eps);
+			dGdTPP 		= (muNE-muNW)/(2.0*gv.gb_T_eps);
+			dGdTMP 		= (muE-muW)/(2.0*gv.gb_T_eps);
+			dGdP		= (muN-muC)/(gv.gb_P_eps);
 
 			/* Calculate volume  per pure phase */
 			PP_ref_db[i].volume  	   		= dGdP; 
@@ -460,48 +472,74 @@ int runMAGEMin(			int    argc,
 			PP_ref_db[i].phase_bulkModulus	= -dGdP/( dG2dP2 + pow(((dGdTPP-dGdTMP)/(gv.gb_P_eps)),2.0)/dG2dT2 );
 	
 			/** get sum of volume*fraction*factor to calculate vol% from mol% */
-			sum_volume += PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor;
+			sum_volume 		+= PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor;
+			sum_volume_sol 	+= PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor;
 		}
 	}
 
 	/* calculate the bulk and shear modulus of the aggregate using the Voigt-Reuss-Hill averaging scheme with a weighting factor of 0.5 */
 	double s1 = 0.0; double b1 = 0.0;
 	double s2 = 0.0; double b2 = 0.0;
-	
+	double s1S = 0.0; double b1S = 0.0;
+	double s2S = 0.0; double b2S = 0.0;
+
 	for (int i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1){
-			s1 += 0.5 * cp[i].volume*cp[i].ss_n*cp[i].factor/sum_volume *  (cp[i].phase_shearModulus/10.0);
-			s2 += 	   (cp[i].volume*cp[i].ss_n*cp[i].factor/sum_volume) / (cp[i].phase_shearModulus/10.0);
-			b1 += 0.5 * cp[i].volume*cp[i].ss_n*cp[i].factor/sum_volume *  (cp[i].phase_bulkModulus /10.0);
-			b2 += 	   (cp[i].volume*cp[i].ss_n*cp[i].factor/sum_volume) / (cp[i].phase_bulkModulus /10.0);
+			s1 +=  cp[i].volume*cp[i].ss_n*cp[i].factor/sum_volume *  (cp[i].phase_shearModulus/10.0);
+			s2 += (cp[i].volume*cp[i].ss_n*cp[i].factor/sum_volume) / (cp[i].phase_shearModulus/10.0);
+			b1 +=  cp[i].volume*cp[i].ss_n*cp[i].factor/sum_volume *  (cp[i].phase_bulkModulus /10.0);
+			b2 += (cp[i].volume*cp[i].ss_n*cp[i].factor/sum_volume) / (cp[i].phase_bulkModulus /10.0);
+			if (strcmp( cp[i].name, "liq") != 0 && strcmp( cp[i].name, "fl") != 0){
+				s1S +=  cp[i].volume*cp[i].ss_n*cp[i].factor/sum_volume_sol *  (cp[i].phase_shearModulus/10.0);
+				s2S += (cp[i].volume*cp[i].ss_n*cp[i].factor/sum_volume_sol) / (cp[i].phase_shearModulus/10.0);
+				b1S +=  cp[i].volume*cp[i].ss_n*cp[i].factor/sum_volume_sol *  (cp[i].phase_bulkModulus /10.0);
+				b2S += (cp[i].volume*cp[i].ss_n*cp[i].factor/sum_volume_sol) / (cp[i].phase_bulkModulus /10.0);
+			}
+
 		}
 	}
 	for (int i = 0; i < gv.len_pp; i++){
 		if (gv.pp_flags[i][1] == 1){
-			s1 += 0.5 * PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor/sum_volume *  (PP_ref_db[i].phase_shearModulus/10.0);
-			s2 += 	   (PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor/sum_volume) / (PP_ref_db[i].phase_shearModulus/10.0);
-			b1 += 0.5 * PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor/sum_volume *  (PP_ref_db[i].phase_bulkModulus /10.0);
-			b2 +=      (PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor/sum_volume) / (PP_ref_db[i].phase_bulkModulus /10.0);
+			s1 +=  PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor/sum_volume *  (PP_ref_db[i].phase_shearModulus/10.0);
+			s2 += (PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor/sum_volume) / (PP_ref_db[i].phase_shearModulus/10.0);
+			b1 +=  PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor/sum_volume *  (PP_ref_db[i].phase_bulkModulus /10.0);
+			b2 += (PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor/sum_volume) / (PP_ref_db[i].phase_bulkModulus /10.0);
+
+			s1S +=  PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor/sum_volume_sol *  (PP_ref_db[i].phase_shearModulus/10.0);
+			s2S += (PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor/sum_volume_sol) / (PP_ref_db[i].phase_shearModulus/10.0);
+			b1S +=  PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor/sum_volume_sol *  (PP_ref_db[i].phase_bulkModulus /10.0);
+			b2S += (PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor/sum_volume_sol) / (PP_ref_db[i].phase_bulkModulus /10.0);
 		}
 	}
 
-	gv.system_shearModulus 	= s1 + 0.5 * (1.0/(s2));
-	gv.system_bulkModulus  	= b1 + 0.5 * (1.0/(b2));
+	// Voight-Reuss-Hill averaging
+	gv.system_shearModulus 	= 0.50 * s1 + 0.50 * (1.0/(s2));
+	gv.system_bulkModulus  	= 0.50 * b1 + 0.50 * (1.0/(b2));
+
+	gv.solid_shearModulus 	= 0.50 * s1S + 0.50 * (1.0/(s2S));
+	gv.solid_bulkModulus  	= 0.50 * b1S + 0.50 * (1.0/(b2S));
 
 	/* calculate density of the system */
 	for (int i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1){
 			gv.system_density += cp[i].phase_density*((cp[i].volume*cp[i].ss_n*cp[i].factor)/sum_volume);
+			if (strcmp( cp[i].name, "liq") != 0 && strcmp( cp[i].name, "fl") != 0){
+				gv.solid_density += cp[i].phase_density*((cp[i].volume*cp[i].ss_n*cp[i].factor)/sum_volume_sol);
+			}
 		}
 	}
 	for (int i = 0; i < gv.len_pp; i++){
 		if (gv.pp_flags[i][1] == 1){
 			gv.system_density += PP_ref_db[i].phase_density*((PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor)/sum_volume);
+			gv.solid_density  += PP_ref_db[i].phase_density*((PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor)/sum_volume_sol);
 		}
 	}
-	
-	gv.system_Vp 			= sqrt((gv.system_bulkModulus +4.0/3.0*gv.system_shearModulus)/(gv.system_density/1e3));
-	gv.system_Vs 			= sqrt(gv.system_shearModulus/(gv.system_density/1e3));
+
+	gv.system_Vp 	= sqrt((gv.system_bulkModulus +4.0/3.0*gv.system_shearModulus)/(gv.system_density/1e3));
+	gv.system_Vs 	= sqrt(gv.system_shearModulus/(gv.system_density/1e3));
+
+	gv.solid_Vp 	= sqrt((gv.solid_bulkModulus +4.0/3.0*gv.solid_shearModulus)/(gv.solid_density/1e3));
+	gv.solid_Vs 	= sqrt(gv.solid_shearModulus/(gv.solid_density/1e3));
 
 	if (gv.verbose != -1){
 		printf("System information\n");
@@ -513,8 +551,9 @@ int runMAGEMin(			int    argc,
 		printf(" Density            : %+12.5f\n\n",gv.system_density);
 
 		printf(" Shear modulus      : %+12.5f\t [GPa]\n",gv.system_shearModulus);
-		printf(" Vp                 : %+12.5f\t [km/s]\n",gv.system_Vp);
-		printf(" Vs                 : %+12.5f\t [km/s]\n\n",gv.system_Vs);
+		printf(" Vp           (VRH) : %+12.5f\t [km/s]\n",gv.system_Vp);
+		printf(" Vs           (VRH) : %+12.5f\t [km/s]\n",gv.system_Vs);
+		printf(" Vp/Vs        (VRH) : %+12.5f\t [km/s]\n\n",gv.system_Vp/gv.system_Vs);
 	}
 
 	return gv;

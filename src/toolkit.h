@@ -89,5 +89,22 @@ global_variable get_pp_id(			global_variable  	 gv		);
 
 global_variable get_ss_id(			global_variable  	 gv,
 									csd_phase_set  		*cp		);
-			
+
+/* Melt-fraction correction for P-wave and S-wave velocities */		
+void wave_melt_correction( 	 double  Kb_L,
+							 double  Kb_S,
+							 double  Ks_S,
+							 double  rhoL,
+							 double  rhoS,
+							 double  Vp0,
+							 double  Vs0,
+							 double  meltFrac,
+							 double  aspectRatio,
+							 double *V_cor		);
+/* This routine computes a correction of P-wave and S-wave velocities using melt fraction reduction.  */
+double anelastic_correction( int 	 water,
+							 double  Vs0,
+							 double  P,
+							 double  T 		);
+
 #endif
