@@ -65,7 +65,8 @@ char** get_EM_DB_names(int EM_database) {
 }
 
 /* get position of zeros and non-zeros values in the bulk */
-struct bulk_info zeros_in_bulk(double *bulk, double P, double T) {
+struct bulk_info initialize_bulk_infos(		double  P, 
+											double  T			){
 	struct bulk_info z_b;
 	
 	int i, j, k;
@@ -100,44 +101,6 @@ struct bulk_info zeros_in_bulk(double *bulk, double P, double T) {
 	z_b.masspo[10] 	= 18.015;
 
 	z_b.bulk_rock  	= malloc (nEl * sizeof (double) ); 
-	
-	int sum = 0;
-	for (i = 0; i < nEl; i++) {
-		z_b.bulk_rock[i] = bulk[i];
-		if (bulk[i] > 0.0){
-			sum += 1;
-		}
-	}
-
-	/** calculate fbc to be used for normalization factor of liq */
-	z_b.fbc			= 0.0; 
-	for (i = 0; i < nEl; i++){
-		z_b.fbc += z_b.bulk_rock[i]*z_b.apo[i];
-	}
-	
-	z_b.nzEl_val = sum;					/** store number of non zero values */
-	z_b.zEl_val  = nEl - sum;			/** store number of zero values */
-	
-	z_b.nzEl_array  = malloc (z_b.nzEl_val * sizeof (int) ); 
-	if (z_b.zEl_val > 0){
-		z_b.zEl_array   = malloc (z_b.zEl_val * sizeof (int) ); 
-		j = 0; k = 0;
-		for (i = 0; i < nEl; i++){
-			if (bulk[i] == 0.){
-				z_b.zEl_array[j] = i;
-				j += 1;
-			}
-			else{
-				z_b.nzEl_array[k] = i;
-				k += 1;
-			}
-		}
-	}
-	else {
-		for (i = 0; i < nEl; i++){
-			z_b.nzEl_array[i] = i;
-		}
-	}
 
 	return z_b;
 }
@@ -187,6 +150,10 @@ global_variable global_variable_init(){
 	gv.max_G_pc         = 5.0;					/** dG under which PC is considered after their generation		 					*/
 	gv.eps_sf_pc		= 1e-10;				/** Minimum value of site fraction under which PC is rejected, 
 													don't put it too high as it will conflict with bounds of x-eos					*/
+
+	/* PGE LP pseudocompounds parameters */
+	gv.n_Ppc			= 1024;
+
 	/* solvus tolerance */
 	gv.merge_value      = 5e-2;					/** max norm distance between two instances of a solution phase						*/	
 	
@@ -228,27 +195,13 @@ global_variable global_variable_init(){
 	gv.alpha        	= gv.max_fac;				/** active under-relaxing factor 													*/
 	gv.len_ss          	= (int)(sizeof(n_SS_PC_tmp) / sizeof(n_SS_PC_tmp[0] ));					/** number of solution phases taken into accounnt									*/
 	gv.maxeval		    = gv.maxeval_mode_1;
-	gv.div				= 0;					/** initialize flag 																*/
-	gv.ph_change  	    = 0;
-	gv.BR_norm          = 1.0;					/** start with 1.0 																	*/
-	gv.G_system         = 0.0;			
-	gv.init_prop  		= malloc (15*sizeof(double));/** in case we want to do minimization of a single phase (Mode=2); define initial EM properties */
 	gv.newly_added      = malloc (4 * sizeof (int) );
-
-	for (int i = 0; i < 15; i++){ gv.init_prop[i] = -100.0; 							}  
 
 	/* declare chemical system */
 	gv.PGE_mass_norm  	= malloc (gv.it_f * sizeof (double) 	); 
 	gv.PGE_total_norm  	= malloc (gv.it_f * sizeof (double) 	); 
 	gv.gamma_norm  		= malloc (gv.it_f * sizeof (double) 	); 
 	gv.ite_time  		= malloc (gv.it_f * sizeof (double) 	); 
-	
-	for (int i = 0; i < gv.it_f; i++){	
-		gv.PGE_mass_norm[i] 	= 0.0;
-		gv.PGE_total_norm[i] 	= 0.0;
-		gv.gamma_norm[i] 		= 0.0;	
-		gv.ite_time[i] 			= 0.0;
-	}
 	
 	/* store values for numerical differentiation */
 	gv.n_Diff = 7;
@@ -270,10 +223,6 @@ global_variable global_variable_init(){
 	for (int i = 0; i < gv.len_ox; i++){
 		gv.ox[i] 			= malloc(20 * sizeof(char));	
 		strcpy(gv.ox[i],ox_tmp[i]);	
-		gv.gam_tot[i] 		= 0.0;	
-		gv.del_gam_tot[i] 	= 0.0;
-		gv.delta_gam_tot[i] = 0.0;	
-		gv.mass_residual[i] = 0.0;	
 	}
 
 	gv.n_SS_PC     		= malloc ((gv.len_ss) * sizeof (int) 	);
@@ -307,19 +256,11 @@ global_variable global_variable_init(){
     gv.pp_flags 		= malloc (gv.len_pp * sizeof(int*)		);
 
 	for (int i = 0; i < (gv.len_pp); i++){	
-		gv.pp_n[i] 			= 0.0;							
-		gv.delta_pp_n[i] 	= 0.0;
 		gv.PP_list[i] 		= malloc(20 * sizeof(char));
 		strcpy(gv.PP_list[i],PP_tmp[i]);
 		gv.pp_flags[i]   	= malloc (gv.n_flags  * sizeof(int));
 	}
 		
-	for (int k = 0; k < gv.n_flags; k++){
-		for (int i = 0; i < gv.len_pp; i++){	
-			gv.pp_flags[i][k] 	= 0;				
-		}
-	}
-
 	/**
 		PGE Matrix and RHS
 	*/
@@ -341,26 +282,8 @@ global_variable global_variable_init(){
 	
 	/* bulk rock vector */
 	gv.b = malloc (gv.len_ox * sizeof(double));	
-	for (int i = 0; i < (gv.len_ox); i++){ gv.b[i] = 0.0;
-		for (int j = 0; j < gv.len_ox; j++){
-			gv.A[i][j] = 0.0;
-		}
-	}
 	
 	return gv;
-}
-
-/* Normalize array to sum to 1 */
-double* norm_array(double *array, int size) {
-	int i;
-	double sum = 0.0;
-	for (i = 0; i < size; i++) {
-		sum += array[i];
-	}
-	for (i = 0; i < size; i++) {
-		array[i] /= sum;
-	}	
-	return array;
 }
 
 /* Get benchmark bulk rock composition given by Holland et al., 2018*/
@@ -500,4 +423,355 @@ void get_bulk(double *bulk_rock, int test, int n_El) {
 	 	exit(EXIT_FAILURE);
 	}
 }
+
+
+/**
+  reset global variable for parallel calculations 
+*/
+global_variable reset_gv(					global_variable 	 gv,
+											struct bulk_info 	 z_b,
+											PP_ref 				*PP_ref_db,
+											SS_ref 				*SS_ref_db
+){
+	int i,j,k;
+	for (k = 0; k < gv.n_flags; k++){
+		for (i = 0; i < gv.len_pp; i++){
+			gv.pp_flags[i][k]   = 0;
+		}
+		for (int i = 0; i < gv.len_ss; i++){ 
+			SS_ref_db[i].ss_flags[k]   = 0;
+		}
+	}
+	
+	/* reset pure phases fractions and xi */
+	for (int i = 0; i < gv.len_pp; i++){		
+		gv.pp_n[i] 		  = 0.0;
+		gv.delta_pp_n[i]  = 0.0;
+		gv.pp_xi[i] 	  = 0.0;
+		gv.delta_pp_xi[i] = 0.0;
+	}
+	
+	/* reset pure phases */
+	char liq_tail[] = "L";
+	for (int i = 0; i < gv.len_pp; i++){
+		if ( EndsWithTail(gv.PP_list[i], liq_tail) == 1 ){
+			if (z_b.T < 773.0){
+				gv.pp_flags[i][0] = 0;
+				gv.pp_flags[i][1] = 0;
+				gv.pp_flags[i][2] = 0;
+				gv.pp_flags[i][3] = 1;
+			}
+			else{
+				gv.pp_flags[i][0] = 1;
+				gv.pp_flags[i][1] = 0;
+				gv.pp_flags[i][2] = 0;
+				gv.pp_flags[i][3] = 0;
+			}
+		}
+		else{
+			gv.pp_flags[i][0] = 1;
+			gv.pp_flags[i][1] = 0;
+			gv.pp_flags[i][2] = 1;
+			gv.pp_flags[i][3] = 0;
+		}
+	}
+
+
+	gv.melt_fraction	  = 0.;
+	gv.melt_density       = 0.;
+	gv.melt_bulkModulus   = 0.;
+
+	gv.solid_density      = 0.;
+	gv.solid_bulkModulus  = 0.;
+	gv.solid_shearModulus = 0.;
+	gv.solid_Vp 		  = 0.;
+	gv.solid_Vs 		  = 0.;
+
+	gv.system_density     = 0.;
+	gv.system_bulkModulus = 0.;
+	gv.system_shearModulus= 0.;
+	gv.system_Vp 		  = 0.;
+	gv.system_Vs 		  = 0.;
+	gv.V_cor[0]			  = 0.;
+	gv.V_cor[1]			  = 0.;
+	gv.check_PC_ite		  = 0;
+	gv.check_PC			  = 0;
+	gv.maxeval		      = gv.maxeval_mode_1;
+	gv.len_cp 		  	  = 0;
+	gv.ph_change  	      = 0;
+	gv.BR_norm            = 1.0;					/** start with 1.0 																	*/
+	gv.G_system           = 0.0;	
+	gv.div				  = 0;
+	gv.status			  = 0;
+	gv.n_phase            = 0;                  /** reset the number of phases to start with */
+	gv.global_ite		  = 0;					/** reset the number of global iteration to zero */
+	gv.n_cp_phase         = 0;					/** reset the number of ss phases to start with */
+	gv.n_pp_phase         = 0;					/** reset the number of pp phases to start with */
+	gv.alpha          	  = gv.max_fac;
+
+	/* reset iteration record */
+	for (i = 0; i < gv.it_f; i++){	
+		gv.PGE_mass_norm[i] 	= 0.0;
+		gv.PGE_total_norm[i] 	= 0.0;
+		gv.gamma_norm[i] 		= 0.0;	
+		gv.ite_time[i] 			= 0.0;
+	}
+
+	/* reset norm and residuals */
+    for (i = 0; i < gv.len_ox; i++){	
+        gv.mass_residual[i] = 0.0;
+        gv.gam_tot[i]     	= 0.0;
+        gv.del_gam_tot[i]   = 0.0;
+        gv.delta_gam_tot[i] = 0.0;
+		gv.mass_residual[i] = 0.0;	
+    }
+
+    for (i = 0; i < gv.len_ss; i++){	
+        gv.n_solvi[i] = 0;
+		for (k = 0; k < gv.max_n_cp; k++){	
+			gv.id_solvi[i][k] = 0;
+		} 
+    }
+
+	for (i = 0; i < (gv.len_ox); i++){ gv.b[i] = 0.0;
+		for (j = 0; j < gv.len_ox; j++){
+			gv.A[i][j] = 0.0;
+		}
+	}
+
+	return gv;
+}
+
+/**
+  reset stable phases entries
+*/
+void reset_sp(						global_variable 	 gv,
+									stb_system  		*sp
+){
+	/* reset system */
+	for (int i = 0; i < gv.len_ox; i++){
+		strcpy(sp[0].ph[i],"");	
+		sp[0].bulk[i] 					= 0.0;
+		sp[0].gamma[i] 					= 0.0;
+		sp[0].bulk_S[i] 				= 0.0;
+		sp[0].bulk_M[i] 				= 0.0;
+		sp[0].bulk_F[i] 				= 0.0;
+
+		sp[0].ph_type[i] 				= -1;
+		sp[0].ph_id[i] 					=  0;
+		sp[0].ph_frac[i] 				=  0.0;
+	}
+
+	/* reset phases */
+	for (int n = 0; n < gv.len_ox; n++){
+		for (int i = 0; i < gv.len_ox; i++){
+			sp[0].PP[n].Comp[i] 			= 0.0;
+			sp[0].SS[n].Comp[i] 			= 0.0;
+			sp[0].SS[n].compVariables[i] 	= 0.0;
+		}
+		for (int i = 0; i < gv.len_ox+1; i++){
+			strcpy(sp[0].SS[n].emNames[i],"");	
+			
+			sp[0].SS[n].emFrac[i] 			= 0.0;
+			sp[0].SS[n].emChemPot[i] 		= 0.0;
+
+			for (int j = 0; j < gv.len_ox; j++){
+				sp[0].SS[n].emComp[i][j]	= 0.0;
+			}
+		}
+	}
+
+}
+
+/**
+  reset bulk rock composition informations (needed if the bulk-rock is not constant during parallel computation)
+*/
+struct bulk_info reset_z_b(			global_variable 	 gv,
+									double 				*bulk,
+									struct bulk_info 	 z_b
+){
+	int i, j, k;
+
+	int sum = 0;
+	for (i = 0; i < nEl; i++) {
+		z_b.bulk_rock[i] = bulk[i];
+		if (bulk[i] > 0.0){
+			sum += 1;
+		}
+	}
+
+	/** calculate fbc to be used for normalization factor of liq */
+	z_b.fbc			= 0.0; 
+	for (i = 0; i < nEl; i++){
+		z_b.fbc += z_b.bulk_rock[i]*z_b.apo[i];
+	}
+	
+	z_b.nzEl_val = sum;					/** store number of non zero values */
+	z_b.zEl_val  = nEl - sum;			/** store number of zero values */
+	
+	z_b.nzEl_array  = malloc (z_b.nzEl_val * sizeof (int) ); 
+	if (z_b.zEl_val > 0){
+		z_b.zEl_array   = malloc (z_b.zEl_val * sizeof (int) ); 
+		j = 0; k = 0;
+		for (i = 0; i < nEl; i++){
+			if (bulk[i] == 0.){
+				z_b.zEl_array[j] = i;
+				j += 1;
+			}
+			else{
+				z_b.nzEl_array[k] = i;
+				k += 1;
+			}
+		}
+	}
+	else {
+		for (i = 0; i < nEl; i++){
+			z_b.nzEl_array[i] = i;
+		}
+	}
+	
+	return z_b;
+};
+
+
+/**
+  reset considered phases entries
+*/
+void reset_cp(						global_variable 	 gv,
+									struct bulk_info 	 z_b,
+									csd_phase_set  		*cp
+){
+	
+	for (int i = 0; i < gv.max_n_cp; i++){		
+		strcpy(cp[i].name,"");					/* get phase name */	
+		cp[i].in_iter			=  0;
+		cp[i].split				=  0;
+		cp[i].id 				= -1;				/* get phaseid */
+		cp[i].n_xeos			=  0;				/* get number of compositional variables */
+		cp[i].n_em				=  0;				/* get number of endmembers */
+		cp[i].n_sf				=  0;			
+		cp[i].df 				=  0.0;
+		cp[i].factor 			=  0.0;
+		
+		for (int ii = 0; ii < gv.n_flags; ii++){
+			cp[i].ss_flags[ii] 	= 0;
+		}
+
+		cp[i].ss_n        		= 0.0;				/* get initial phase fraction */
+		cp[i].delta_ss_n    	= 0.0;				/* get initial phase fraction */
+		
+		for (int ii = 0; ii < gv.len_ox + 1; ii++){
+			cp[i].p_em[ii]      = 0.0;
+			cp[i].xi_em[ii]     = 0.0;
+			cp[i].dguess[ii]    = 0.0;
+			cp[i].xeos[ii]      = 0.0;
+			cp[i].lvlxeos[ii]   = 0.0;
+			cp[i].delta_mu[ii]  = 0.0;
+			cp[i].dfx[ii]       = 0.0;
+			cp[i].mu[ii]        = 0.0;
+			cp[i].gbase[ii]     = 0.0;
+			cp[i].mu0[ii]       = 0.0;
+			cp[i].ss_comp[ii]   = 0.0;
+		}
+		 
+		for (int ii = 0; ii < (gv.len_ox + 1)*2; ii++){
+			cp[i].sf[ii]    	= 0.0;
+		}
+		cp[i].mass 				= 0.0;
+		cp[i].volume 			= 0.0;
+		cp[i].phase_density 	= 0.0;
+		cp[i].phase_cp 			= 0.0;
+	}
+
+};
+
+/**
+  reset compositional variables (xeos) when something goes wrong during minimization 
+*/
+void reset_SS(						global_variable 	 gv,
+									struct bulk_info 	 z_b,
+									SS_ref 				*SS_ref_db
+){
+	/* reset solution phases */
+	for (int iss = 0; iss < gv.len_ss; iss++){
+
+		for (int j = 0; j < gv.n_flags; j++){	
+			SS_ref_db[iss].ss_flags[j]   = 0;
+		}
+
+		SS_ref_db[iss].min_mode	= 1;
+		SS_ref_db[iss].tot_pc 	= 0;
+		SS_ref_db[iss].id_pc  	= 0;
+		for (int j = 0; j < gv.len_ox; j++){
+			SS_ref_db[iss].solvus_id[j] = -1;	
+		}
+
+		/* reset levelling pseudocompounds */
+		for (int i = 0; i < (SS_ref_db[iss].n_pc); i++){
+			SS_ref_db[iss].n_swap[i] = 0;
+			SS_ref_db[iss].info[i]   = 0;
+			SS_ref_db[iss].G_pc[i]   = 0.0;
+			SS_ref_db[iss].DF_pc[i]  = 0.0;
+			for (int j = 0; j < gv.len_ox; j++){
+				SS_ref_db[iss].comp_pc[i][j]  = 0.0;
+			}
+			for (int j = 0; j < SS_ref_db[iss].n_em; j++){
+				SS_ref_db[iss].p_pc[i][j]  = 0.0;	
+				SS_ref_db[iss].mu_pc[i][j] = 0.0;	
+			}
+			for (int j = 0; j < (SS_ref_db[iss].n_xeos); j++){
+				SS_ref_db[iss].xeos_pc[i][j]  = 0.0;
+			}
+			SS_ref_db[iss].factor_pc[i] = 0.0;
+		}
+
+		/* reset LP part of PGE (algo 2.0) */
+		for (int i = 0; i < (SS_ref_db[iss].n_Ppc); i++){
+			SS_ref_db[iss].n_swap_Ppc[i] = 0;
+			SS_ref_db[iss].info_Ppc[i]   = 0;
+			SS_ref_db[iss].G_Ppc[i]      = 0.0;
+			SS_ref_db[iss].DF_Ppc[i]     = 0.0;
+			for (int j = 0; j < gv.len_ox; j++){
+				SS_ref_db[iss].comp_Ppc[i][j]  = 0.0;
+			}
+			for (int j = 0; j < SS_ref_db[iss].n_em; j++){
+				SS_ref_db[iss].p_Ppc[i][j]  = 0;	
+				SS_ref_db[iss].mu_Ppc[i][j] = 0;	
+			}
+			for (int j = 0; j < (SS_ref_db[iss].n_xeos); j++){
+				SS_ref_db[iss].xeos_Ppc[i][j]  = 0.0;
+			}
+			SS_ref_db[iss].factor_Ppc[i] = 0.0;
+		}
+
+		/* reset solution phase model parameters */
+		for (int j = 0; j < SS_ref_db[iss].n_em; j++){
+			SS_ref_db[iss].xi_em[j]      = 0.0;
+			SS_ref_db[iss].z_em[j]       = 1.0;
+			SS_ref_db[iss].mu[j] 	     = 0.0;
+		}
+		SS_ref_db[iss].sum_xi		     = 0.0;
+		SS_ref_db[iss].df			     = 0.0;
+		SS_ref_db[iss].df_raw		     = 0.0;
+
+		for (int k = 0; k < SS_ref_db[iss].n_xeos; k++) {					/** initialize initial guess using default thermocalc guess	*/ 
+			SS_ref_db[iss].iguess[k]     = 0.0;
+			SS_ref_db[iss].dguess[k]     = 0.0;
+			SS_ref_db[iss].xeos[k]       = 0.0;
+			SS_ref_db[iss].bounds[k][0]  = SS_ref_db[iss].bounds_ref[k][0];
+			SS_ref_db[iss].bounds[k][1]  = SS_ref_db[iss].bounds_ref[k][1];
+			SS_ref_db[iss].xeos_sf_ok[k] = 0.0;
+		}
+
+		for (int j = 0; j < SS_ref_db[iss].n_em; j++){
+			SS_ref_db[iss].p[j]     = 0.0;
+			SS_ref_db[iss].ape[j]   = 0.0;
+		}
+		SS_ref_db[iss].forced_stop = 0; 
+		SS_ref_db[iss].min_mode    = 1;
+		SS_ref_db[iss].nlopt_verb  = 0; // no output by default
+	}
+
+};
+
 #endif

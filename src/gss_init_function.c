@@ -417,7 +417,7 @@ SS_ref G_SS_INIT_EM_function(SS_ref SS_ref_db, int EM_database, char *name, glob
 	}	
 	
 	/**
-		Allocate memory sollution phase minimization
+		Allocate memory for solution phase models and pseudocompound storage (memory is initialized in the reset function)
 	*/
 	int n_em   = SS_ref_db.n_em;
 	int n_xeos = SS_ref_db.n_xeos;
@@ -439,10 +439,6 @@ SS_ref G_SS_INIT_EM_function(SS_ref SS_ref_db, int EM_database, char *name, glob
 	
 	/* initialize fractions flags and cycle arrays with zeros */
 	SS_ref_db.ss_flags   = malloc (gv.n_flags  * sizeof(int));
-	for (int j = 0; j < gv.n_flags; j++){	
-		SS_ref_db.ss_flags[j]   = 0;
-	}
-	SS_ref_db.ss_n = 0.0;
 
 	for (int i = 0; i < gv.len_ox; i++){
 		SS_ref_db.solvus_id = malloc (gv.len_ox * sizeof (int)  	);
@@ -481,6 +477,7 @@ SS_ref G_SS_INIT_EM_function(SS_ref SS_ref_db, int EM_database, char *name, glob
 	SS_ref_db.ss_comp		= malloc (gv.len_ox  	* sizeof (double) ); 
 	SS_ref_db.xi_em   		= malloc (n_em   	 	* sizeof (double) ); 
 	SS_ref_db.xeos    		= malloc (n_xeos     	* sizeof (double) ); 	
+	SS_ref_db.xeos_sf_ok 	= malloc ((n_xeos) 		* sizeof (double) );
 
 	/* memory allocation to store all gbase */
 	SS_ref_db.mu_array = malloc ((gv.n_Diff) * sizeof (double*) ); 
@@ -501,19 +498,11 @@ SS_ref G_SS_INIT_EM_function(SS_ref SS_ref_db, int EM_database, char *name, glob
 	for (int j = 0; j < n_sf; j++){
 		SS_ref_db.tol_sf[j] = gv.ineq_res;
 	}
-
-	for (int j = 0; j < n_xeos; j++){
-		SS_ref_db.dguess[j]  = 0.0;
-		SS_ref_db.iguess[j]  = 0.0;
-	}
 	
 	/**
-		Allocate memory for pseudocompounds 
+		Allocate memory for levelling pseudocompounds 
 	*/
-	SS_ref_db.tot_pc 	= 0;
-	SS_ref_db.id_pc  	= 0;
 	SS_ref_db.n_pc   	= gv.n_pc;								/** maximum number of pseudocompounds to store */
-	
 	SS_ref_db.G_pc   	= malloc ((SS_ref_db.n_pc) * sizeof (double) ); 
 	SS_ref_db.DF_pc 	= malloc ((SS_ref_db.n_pc) * sizeof (double) ); 
 	SS_ref_db.factor_pc = malloc ((SS_ref_db.n_pc) * sizeof (double) ); 
@@ -534,47 +523,44 @@ SS_ref G_SS_INIT_EM_function(SS_ref SS_ref_db, int EM_database, char *name, glob
 	for (int i = 0; i < (SS_ref_db.n_pc); i++){
 		SS_ref_db.xeos_pc[i] = malloc ((n_xeos)  * sizeof (double) 	);
 	}	
-	for (int i = 0; i < SS_ref_db.n_pc; i++){
-		SS_ref_db.factor_pc[i] 	= 0.0;
-		SS_ref_db.n_swap[i] 	= 0;
-		SS_ref_db.info[i]   	= 0;
-		SS_ref_db.G_pc[i]   	= 0.0;
-		SS_ref_db.DF_pc[i]  	= 0.0;
-		for (int j = 0; j < gv.len_ox; j++){
-			SS_ref_db.comp_pc[i][j]  = 0.0;	
-		}
-		for (int j = 0; j < n_em; j++){
-			SS_ref_db.p_pc[i][j] = 0.0;	
-			SS_ref_db.mu_pc[i][j]= 0.0;	
-		}
-		for (int j = 0; j < (n_xeos); j++){
-			SS_ref_db.xeos_pc[i][j] = 0.0;
-		}
-	}
+
+	/**
+		Allocate memory for PGE pseudocompounds 
+	*/
+	SS_ref_db.n_Ppc   	= gv.n_Ppc;								/** maximum number of pseudocompounds to store */
+	SS_ref_db.G_Ppc   	= malloc ((SS_ref_db.n_Ppc) * sizeof (double) ); 
+	SS_ref_db.DF_Ppc 	= malloc ((SS_ref_db.n_Ppc) * sizeof (double) ); 
+	SS_ref_db.factor_Ppc= malloc ((SS_ref_db.n_Ppc) * sizeof (double) ); 
+	SS_ref_db.n_swap_Ppc= malloc ((SS_ref_db.n_Ppc) * sizeof (int) 	 ); 
+	SS_ref_db.info_Ppc 	= malloc ((SS_ref_db.n_Ppc) * sizeof (int) 	 ); 
+	SS_ref_db.p_Ppc 	= malloc ((SS_ref_db.n_Ppc) * sizeof (double*)); 
+	SS_ref_db.mu_Ppc 	= malloc ((SS_ref_db.n_Ppc) * sizeof (double*)); 
 	
-	SS_ref_db.lb_pc   	 = malloc ((n_em)   * sizeof (double) ); 
-	SS_ref_db.ub_pc   	 = malloc ((n_em)   * sizeof (double) ); 
-	SS_ref_db.xeos_sf_ok = malloc ((n_xeos) * sizeof (double) );
-	
-	for (int i = 0; i < (n_xeos); i++){
-		SS_ref_db.xeos_sf_ok[i] = 0.0;
+	for (int i = 0; i < (SS_ref_db.n_Ppc); i++){
+		SS_ref_db.p_Ppc[i] 	 = malloc ((n_em) * sizeof (double) 		);
+		SS_ref_db.mu_Ppc[i]  = malloc ((n_em) * sizeof (double) 		);
 	}
+	SS_ref_db.comp_Ppc = malloc ((SS_ref_db.n_Ppc) * sizeof (double*) 	); 
+	for (int i = 0; i < (SS_ref_db.n_Ppc); i++){
+		SS_ref_db.comp_Ppc[i] = malloc (gv.len_ox * sizeof (double) 	);
+	}
+	SS_ref_db.xeos_Ppc = malloc ((SS_ref_db.n_Ppc) * sizeof (double*) 	); 
+	for (int i = 0; i < (SS_ref_db.n_Ppc); i++){
+		SS_ref_db.xeos_Ppc[i] = malloc ((n_xeos)  * sizeof (double) 	);
+	}	
+
+
+	/* initiliazes eye matrix as there is no need to redo it afterward */
 	for (int i = 0; i < n_em; i++){
 		for (int j = 0; j < n_em; j++){
 			SS_ref_db.eye[i][j] = 0.0;
 		}	
 	}
 	
+	/* initialize eye matrix */
 	for (int j = 0; j < n_em; j++){
 		SS_ref_db.eye[j][j]= 1.0;
-		SS_ref_db.p[j]     = 0.0;
-		SS_ref_db.ape[j]   = 0.0;
-		SS_ref_db.lb_pc[j] = 0.0;
-		SS_ref_db.ub_pc[j] = 1.0;
 	}
-	SS_ref_db.forced_stop = 0; 
-	SS_ref_db.min_mode    = 1;
-	SS_ref_db.nlopt_verb  = 0; // no output by default
 
 	return SS_ref_db;
 };

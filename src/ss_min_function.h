@@ -24,22 +24,6 @@ void ss_min_PGE(						int 				 mode,
 										SS_ref 				*SS_ref_db,
 										csd_phase_set  		*cp				);
 									
-void reset_SS(							global_variable 	 gv,
-										struct bulk_info 	 z_b,
-										SS_ref 				*SS_ref_db		);
-										
-global_variable reset_gv(				global_variable 	 gv,
-										struct bulk_info 	 z_b,
-										PP_ref 				*PP_ref_db,
-										SS_ref 				*SS_ref_db		);
-
-void reset_cp(							global_variable 	 gv,
-										struct bulk_info 	 z_b,
-										csd_phase_set  		*cp				);
-										
-void reset_sp(							global_variable 	 gv,
-										stb_system  		*sp				);
-
 global_variable init_ss_db(				int 				 EM_database,
 										struct bulk_info 	 z_b,
 										global_variable 	 gv,

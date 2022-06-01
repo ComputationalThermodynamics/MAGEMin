@@ -20,10 +20,6 @@ int runMAGEMin(					int argc,
 /* Function declaration from Initialize.h file */
 int find_EM_id(					char* em_tag			);
 
-/** Normalize array so that the sum = 1 */
-double* norm_array(				double *array, 
-								int size				);
-
 /** declare function to get benchmark bulk rock composition **/
 void get_bulk(					double *bulk_rock, 
 								int test, 
@@ -37,9 +33,8 @@ struct EM_db Access_EM_DB(		int id,
 char** get_EM_DB_names(			int EM_database			);
 
 /** Return the number of zero element in the bulk-rock, position of zeros and non zeros elements **/
-struct bulk_info zeros_in_bulk(	double *bulk_rock, 
-								double P, 
-								double T				);
+struct bulk_info initialize_bulk_infos(		double P, 
+											double T				);
 
 /*---------------------------------------------------------------------------*/ 
 /* structure declaration */
@@ -64,12 +59,10 @@ typedef struct SS_refs {
 	char   **EM_list;			/** solution phase list */
 
 	/** flags */
-	double   ss_n;				/** fraction of solution phase in estimated phase assemblage 				*/
-	double   delta_ss_n;		/** fraction of solution phase in estimated phase assemblage 				*/
 	int     *ss_flags;			/** integer table for solution phase list 									*/
 	int 	 CstFactor;			/** flag to indicate if the solution model have a p-dependent apf			*/
 
-	/** data needed for levelling and/or PGE **/
+	/** data needed for levelling and PGE check **/
 	int      n_pc;				/** maximum number of pseudocompounds to store 								*/
 	int      tot_pc;			/** total number of pseudocompounds  										*/
 	int      id_pc;				/** total number of pseudocompounds  										*/
@@ -82,9 +75,21 @@ typedef struct SS_refs {
 	double **mu_pc;				/** compositional array of the pseudocompounds 								*/
 	double **xeos_pc;			/** x-eos array of the pseudocompounds 										*/
 	double  *factor_pc;			/** normalization factor of each PC, mainly useful for liquid 				*/
-	double  *ub_pc;				/** upper bounds for pc 													*/
-	double  *lb_pc;				/** lower bounds for pc 													*/
-	
+
+	/** data needed for the LP stage of PGE (algorithm 2.0) **/
+	int      n_Ppc;				/** maximum number of pseudocompounds to store 								*/
+	int      tot_Ppc;			/** total number of pseudocompounds  										*/
+	int      id_Ppc;			/** total number of pseudocompounds  										*/
+	int     *n_swap_Ppc;		/** number of time PC has been added to the assemblage 						*/
+	int     *info_Ppc;			/** store some infos for debugging 											*/
+	double  *G_Ppc;				/** array to store the gibbs energy of the pseudocompounds 					*/
+	double  *DF_Ppc;			/** array to store the final driving force of the pseudocompounds 			*/
+	double **comp_Ppc;			/** compositional array of the pseudocompounds 								*/
+	double **p_Ppc;				/** compositional array of the pseudocompounds 								*/
+	double **mu_Ppc;			/** compositional array of the pseudocompounds 								*/
+	double **xeos_Ppc;			/** x-eos array of the pseudocompounds 										*/
+	double  *factor_Ppc;		/** normalization factor of each PC, mainly useful for liquid 				*/
+
 	/** data needed for phase change and solvus processing **/	
 	int	    *solvus_id;
 	
@@ -411,6 +416,7 @@ typedef struct global_variables {
 	double   em2ss_shift;		/** small value to retrieve x-eos from pure endmember after levelling */
 	
 	/* PSEUDOCOMPOUNDS */
+	//levelling
 	double   bnd_filter_pc;     /** value of driving force the pseudocompound is considered to reduce the compositional space */
 	int  	 n_pc;
 	double 	 max_G_pc;
@@ -418,6 +424,9 @@ typedef struct global_variables {
 	double  *SS_PC_stp;
 	double   eps_sf_pc;	
 	
+	//linear programming during PGE
+	int  	 n_Ppc;
+
 	/* SOLVI */
 	int     *verifyPC;			/** allow to check for solvi */
 	int 	*n_solvi;			/** number of phase considered for solvi */
@@ -432,7 +441,6 @@ typedef struct global_variables {
 	int   	 maxeval;			/** maximum number of objective function evaluations during local minimization */
 	int   	 maxeval_mode_1;	/** maximum number of objective function evaluations during local minimization for mode 1 */
 	double   bnd_val;			/** boundary value for x-eos when the fraction of an endmember = 0. */
-	double 	*init_prop;			/** holds the initial proportions of the EM's, in case we do Mode=2 with only a single point */
 
 	/* PARTITIONING GIBBS ENERGY */ 
 	double 	*A_PGE;				/** RHS */
@@ -559,7 +567,6 @@ global_variable ReadCommandLineOptions(	global_variable   gv,
 										double 			 *T, 
 										double 			  Bulk[11], 
 										double 			  Gam[11], 
-										double 			  InitEM_Prop[15], 
 										char 			  File[50], 
 										char 			  Phase[50], 
 										int 			 *maxeval_out, 

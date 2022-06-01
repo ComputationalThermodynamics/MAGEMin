@@ -149,7 +149,6 @@ int runMAGEMin(			int    argc,
 									&Temp,
 									 Bulk, 
 									 Gam, 
-									 gv.init_prop, 
 									 File, 
 									 Phase, 
 									&maxeval,
@@ -204,9 +203,8 @@ int runMAGEMin(			int    argc,
 					gv.len_ox						);						
 								
 	/** Get zeros in bulk P and T 					*/				
-	z_b = zeros_in_bulk(	bulk_rock, 
-							P, 
-							T						);									
+	z_b = initialize_bulk_infos(	P, 
+									T				);									
 
 	/****************************************************************************************/
 	/**                               LAUNCH MINIMIZATION ROUTINE                          **/
@@ -214,43 +212,51 @@ int runMAGEMin(			int    argc,
 	for (int sgleP = 0; sgleP < n_points; sgleP++){
         if ((Mode==0) && (sgleP % numprocs != rank)) continue;   	/** this ensures that, in parallel, not every point is computed by every processor (instead only every numprocs point). Only applied to Mode==0 */
 
-		t              = clock();								/** reset loop timer 				*/
-		gv.BR_norm     = 1.0; 									/** reset bulk rock norm 			*/
-		gv.global_ite  = 0;              						/** reset global iteration 			*/
-		gv.status 	   = 0;              						/** reset status code 			*/
-		gv.numPoint    = sgleP; 								/** the number of the current point */
+		t              = clock();									/** reset loop timer 				*/
+		gv.numPoint    = sgleP; 									/** the number of the current point */
 
 		/* If we read input from file: */
 		if (strcmp( File, "none") != 0){						
 			z_b.P = input_data[sgleP].P;
-			z_b.T = input_data[sgleP].T + 273.15;					/** K to C 									*/
+			z_b.T = input_data[sgleP].T + 273.15;					/** K to C 		*/
 
 			for (int i = 0; i < gv.len_ox; i++){
 				gv.gam_tot[i] = input_data[sgleP].in_gam[i];					
-			}		
+			}
+			// if (input_data[sgleP].bulk_rock[i] > 0.0){
+			// 	for (int i = 0; i < gv.len_ox; i++){
+			// 		bulk_rock[i] = input_data[sgleP].bulk_rock[i];					
+			// 	}	
+			// }
 		}
 		
-		/* reset global variables flags 		*/
+		/* reset global variables flags 											*/
 		gv = reset_gv(						gv,
 											z_b,
 											DB.PP_ref_db,
 											DB.SS_ref_db				);
-											
-		/** reset considered phases structure 	*/
+
+		/** reset bulk rock information (needed for parallel point calculation) 	*/
+		z_b = reset_z_b(					gv,				
+											bulk_rock,								
+											z_b							);	
+																			
+		/** reset considered phases structure 										*/
 		reset_cp(							gv,												
 											z_b,
 											DB.cp						);	
 											
-		/** reset pure and solution phases		*/
+		/** reset pure and solution phases											*/
 		reset_SS(							gv,												
 											z_b,
 											DB.SS_ref_db				);	
 		
-		/** reset stable phases					*/
+		/** reset stable phases														*/
 		reset_sp(							gv,
 											DB.sp						);
 		
-		/* Perform calculation for a single point */	
+
+		/* Perform calculation for a single point 									*/	
 		gv = ComputeEquilibrium_Point(		EM_database, 
 											input_data[sgleP],
 											Mode,
@@ -260,7 +266,7 @@ int runMAGEMin(			int    argc,
 											DB.SS_ref_db,									/** solid solution database 		*/
 											DB.cp						);
 
-		/* Perform calculation for a single point */	
+		/* Perform calculation for a single point 									*/	
 		gv = ComputePostProcessing(			EM_database,
 											z_b,											/** bulk rock informations 			*/
 											gv,												/** global variables (e.g. Gamma) 	*/
@@ -268,7 +274,7 @@ int runMAGEMin(			int    argc,
 											DB.SS_ref_db,									/** solid solution database 		*/
 											DB.cp						);
 					
-		/* Fill structure holding stable phase equilibrium informations */
+		/* Fill structure holding stable phase equilibrium informations 			*/
 		fill_output_struct(					gv,												/** global variables (e.g. Gamma) 	*/
 											z_b,											/** bulk-rock informations 			*/
 											DB.PP_ref_db,									/** pure phase database 			*/
@@ -276,18 +282,19 @@ int runMAGEMin(			int    argc,
 											DB.cp,
 											DB.sp						);
 
-		/* Dump final results to files */
+		/* Dump final results to files 												*/
 		dump_results_function(				gv,												/** global variables (e.g. Gamma) 	*/
 											z_b,											/** bulk-rock informations 			*/
 											DB.PP_ref_db,									/** pure phase database 			*/
 											DB.SS_ref_db,									/** solution phase database 		*/
 											DB.cp						);
 
-		/* Print output to screen */
+		/* Print output to screen 													*/
 		t 			= clock() - t; 
 		time_taken 	= ((double)t)/CLOCKS_PER_SEC; 											/* in seconds 	 					*/
 		PrintOutput(gv, rank, sgleP, DB, time_taken, z_b);									/* print output on screen 			*/
 	}
+
 	/* end of loop over points */
 
 	/* wait for all cores to be finished */
@@ -719,7 +726,6 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 										double 				*T, 
 										double 				 Bulk[11], 
 										double 				 Gam[11], 
-										double 				 InitEM_Prop[15],
 										char 				 File[50], 
 										char 				 Phase[50], 
 										int 				*maxeval_out,
@@ -739,7 +745,6 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		{ "n_pc", 		ko_optional_argument, 309 },
 		{ "Gam",  		ko_optional_argument, 310 },
 		{ "Bulk", 		ko_optional_argument, 311 },
-        { "InitEM_Prop",ko_optional_argument, 312 },
         { "maxeval",    ko_optional_argument, 313 },
         { "version",    ko_optional_argument, 314 },
         { "help",    	ko_optional_argument, 315 },
@@ -763,9 +768,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		Bulk[i] = 0.0;
 		Gam[i]  = 0.0;
 	}
-    for (i = 0; i < 15; i++) {
-        InitEM_Prop[i] = -100.0;
-    }
+
 
 	strcpy(File,"none"); // Filename to be read to have multiple P-T-bulk conditions to solve
 
@@ -811,23 +814,6 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 				printf("--Bulk  	 : Bulk         = ");
 				for (int j = 0; j < 11; j++){
 					printf("%g ", Bulk[j]);	
-				} 
-				printf(" \n");
-			}
-		 }
-         else if (c == 312){
-			char *p  = strtok(opt.arg,",");
-			size_t i = 0;
-            int num=0;
-			while(p && i<11) {
-					InitEM_Prop[i++] = atof(p);
-					p = strtok(NULL, ",");
-                    num += 1;
-			}
-			if (Verb == 1){
-				printf("--InitEM_Prop : Initial EM prop = ");
-				for (int j = 0; j < num; j++){
-					printf("%g ", InitEM_Prop[j]);	
 				} 
 				printf(" \n");
 			}

@@ -82,6 +82,18 @@ void print_help(	global_variable gv	){
 
 }
 
+/* Normalize array to sum to 1 */
+double* norm_array(double *array, int size) {
+	int i;
+	double sum = 0.0;
+	for (i = 0; i < size; i++) {
+		sum += array[i];
+	}
+	for (i = 0; i < size; i++) {
+		array[i] /= sum;
+	}	
+	return array;
+}
 
 /**
   test function for Brent method

@@ -16,7 +16,6 @@ void 	inverseMatrix(double *A1, int n);
 void 	MatMatMul( double **A, int nrowA, double **B, int ncolB, int common, double **C);
 void 	VecMatMul(double *B1, double *A1, double *B, int n);
 void 	MatVecMul(double *A1, double *br, double *n_vec, int n);
-
 void 	pseudo_inverse(	double *matrix,
 						double *B,
 						int m,
@@ -27,6 +26,7 @@ int 	get_active_em(double *array, int n);
 int 	EndsWithTail(char *name, char* tail);	
 int    	RootBracketed(double x1,double x2);
 
+double* norm_array(double *array, int size);
 double  sign(double x);
 double  AFunction(double x, double *data);
 double  Minimum(double x1,double x2);
