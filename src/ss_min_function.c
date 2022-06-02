@@ -157,6 +157,80 @@ global_variable split_cp(		int 				 i,
 	return gv;
 };
 
+/**
+	copy the minimized phase informations to cp structure, if the site fractions are respected
+*/
+void copy_to_cp(		int 				 i, 
+						int 				 ph_id,
+						global_variable 	 gv,
+						SS_ref 			    *SS_ref_db,
+						csd_phase_set  		*cp					){
+
+	cp[i].min_time			= SS_ref_db[ph_id].LM_time;
+	cp[i].df				= SS_ref_db[ph_id].df_raw;
+	cp[i].factor			= SS_ref_db[ph_id].factor;
+	cp[i].sum_xi			= SS_ref_db[ph_id].sum_xi;
+
+	for (int ii = 0; ii < cp[i].n_xeos; ii++){
+		cp[i].xeos[ii]		= SS_ref_db[ph_id].iguess[ii]; 
+		cp[i].dfx[ii]		= SS_ref_db[ph_id].dfx[ii]; 
+	}
+	
+	for (int ii = 0; ii < cp[i].n_em; ii++){
+		cp[i].p_em[ii]		= SS_ref_db[ph_id].p[ii];
+		cp[i].xi_em[ii]		= SS_ref_db[ph_id].xi_em[ii];
+		cp[i].mu[ii]		= SS_ref_db[ph_id].mu[ii];
+	}
+	for (int ii = 0; ii < SS_ref_db[ph_id].n_em; ii++){
+		for (int jj = 0; jj < SS_ref_db[ph_id].n_xeos; jj++){
+			cp[i].dpdx[ii][jj] = SS_ref_db[ph_id].dp_dx[ii][jj];
+		}
+	}
+	for (int ii = 0; ii < gv.len_ox; ii++){
+		cp[i].ss_comp[ii]	= SS_ref_db[ph_id].ss_comp[ii];
+	}
+	
+	for (int ii = 0; ii < cp[i].n_sf; ii++){
+		cp[i].sf[ii]		= SS_ref_db[ph_id].sf[ii];
+	}
+}
+/**
+	add minimized phase to LP PGE pseudocompound list 
+*/
+void copy_to_Ppc(		int 				 i, 
+						int 				 ph_id,
+						global_variable 	 gv,
+						SS_ref 			    *SS_ref_db,
+						csd_phase_set  		*cp					){
+
+		if (SS_ref_db[ph_id].id_Ppc >= SS_ref_db[ph_id].n_Ppc){ SS_ref_db[ph_id].id_Ppc = 0; printf("MAXIMUM STORAGE SPACE FOR PC IS REACHED, INCREASED #PC_MAX\n");}
+		
+		int m_Ppc = SS_ref_db[ph_id].id_Ppc;
+
+		SS_ref_db[ph_id].info[m_Ppc]       = 0;
+		SS_ref_db[ph_id].factor_Ppc[m_Ppc] = SS_ref_db[ph_id].factor;
+		SS_ref_db[ph_id].DF_Ppc[m_Ppc]     = SS_ref_db[ph_id].df_raw;
+		
+		/* get pseudocompound composition */
+		for (int j = 0; j < gv.len_ox; j++){				
+			SS_ref_db[ph_id].comp_Ppc[m_Ppc][j] = SS_ref_db[ph_id].ss_comp[j]*SS_ref_db[ph_id].factor;	/** composition */
+		}
+		for (int j = 0; j < SS_ref_db[ph_id].n_em; j++){												/** save coordinates */
+			SS_ref_db[ph_id].p_Ppc[m_Ppc][j]  = SS_ref_db[ph_id].p[j];												
+			SS_ref_db[ph_id].mu_Ppc[m_Ppc][j] = SS_ref_db[ph_id].mu[j]*SS_ref_db[ph_id].z_em[j];										
+		}
+		/* save xeos */
+		for (int j = 0; j < SS_ref_db[ph_id].n_xeos; j++){		
+			SS_ref_db[ph_id].xeos_Ppc[m_Ppc][j] = SS_ref_db[ph_id].iguess[j];							/** compositional variables */
+		}	
+		SS_ref_db[ph_id].G_Ppc[m_Ppc] = SS_ref_db[ph_id].df_raw;
+		
+		/* add increment to the number of considered phases */
+		SS_ref_db[ph_id].tot_Ppc += 1;
+		SS_ref_db[ph_id].id_Ppc  += 1;
+
+}
+
 /** 
 	Minimization function for PGE 
 */
@@ -168,7 +242,6 @@ void ss_min_PGE(		int 				mode,
 						csd_phase_set  		*cp
 ){
 	int 	ph_id = cp[i].id;
-	
 	cp[i].min_time		  		= 0.0;								/** reset local minimization time to 0.0 */
 	SS_ref_db[ph_id].min_mode 	= mode;								/** send the right mode to the local minimizer */
 	gv.maxeval   		  		= gv.maxeval_mode_1;
@@ -212,9 +285,9 @@ void ss_min_PGE(		int 				mode,
 	/**
 		call to NLopt for non-linear + inequality constraints optimization
 	*/
-	SS_ref_db[ph_id] = NLopt_opt_function(	gv, 
-											SS_ref_db[ph_id], 
-											ph_id						);
+	SS_ref_db[ph_id] = NLopt_opt_function(		gv, 
+												SS_ref_db[ph_id], 
+												ph_id					);
 	
 	/**
 		establish a set of conditions to update initial guess for next round of local minimization 
@@ -223,47 +296,36 @@ void ss_min_PGE(		int 				mode,
 		SS_ref_db[ph_id].iguess[k]  = SS_ref_db[ph_id].xeos[k];
 	}	
 
-	SS_ref_db[ph_id] = PC_function(			gv,
-											SS_ref_db[ph_id], 
-											z_b,
-											gv.SS_list[ph_id] 			);
+	SS_ref_db[ph_id] = PC_function(				gv,
+												SS_ref_db[ph_id], 
+												z_b,
+												gv.SS_list[ph_id] 		);
 											
-	SS_ref_db[ph_id] = SS_UPDATE_function(	gv, 
-											SS_ref_db[ph_id], 
-											z_b, 
-											gv.SS_list[ph_id]			);
-	
-	/**
-		copy the minimized phase informations to cp structure, if the site fractions are respected
-	*/
-	if (SS_ref_db[ph_id].sf_ok == 1){
-		cp[i].min_time			= SS_ref_db[ph_id].LM_time;
-		cp[i].df				= SS_ref_db[ph_id].df_raw;
-		cp[i].factor			= SS_ref_db[ph_id].factor;
-		cp[i].sum_xi			= SS_ref_db[ph_id].sum_xi;
+	SS_ref_db[ph_id] = SS_UPDATE_function(		gv, 
+												SS_ref_db[ph_id], 
+												z_b, 
+												gv.SS_list[ph_id]		);
 
-		for (int ii = 0; ii < cp[i].n_xeos; ii++){
-			cp[i].xeos[ii]		= SS_ref_db[ph_id].iguess[ii]; 
-			cp[i].dfx[ii]		= SS_ref_db[ph_id].dfx[ii]; 
-		}
-		
-		for (int ii = 0; ii < cp[i].n_em; ii++){
-			cp[i].p_em[ii]		= SS_ref_db[ph_id].p[ii];
-			cp[i].xi_em[ii]		= SS_ref_db[ph_id].xi_em[ii];
-			cp[i].mu[ii]		= SS_ref_db[ph_id].mu[ii];
-		}
-		for (int ii = 0; ii < SS_ref_db[ph_id].n_em; ii++){
-			for (int jj = 0; jj < SS_ref_db[ph_id].n_xeos; jj++){
-				cp[i].dpdx[ii][jj] = SS_ref_db[ph_id].dp_dx[ii][jj];
-			}
-		}
-		for (int ii = 0; ii < gv.len_ox; ii++){
-			cp[i].ss_comp[ii]	= SS_ref_db[ph_id].ss_comp[ii];
-		}
-		
-		for (int ii = 0; ii < cp[i].n_sf; ii++){
-			cp[i].sf[ii]		= SS_ref_db[ph_id].sf[ii];
-		}	
+
+	/* if site fractions are respected then save the minimized point */
+	if (SS_ref_db[ph_id].sf_ok == 1){
+		/**
+			copy the minimized phase informations to cp structure
+		*/
+		copy_to_cp(								i, 
+												ph_id,
+												gv,
+												SS_ref_db,
+												cp						);				
+
+		/**
+			add minimized phase to LP PGE pseudocompound list 
+		*/
+		copy_to_Ppc(							i, 
+												ph_id,
+												gv,
+												SS_ref_db,
+												cp						);	
 	}
 	else{
 		if (gv.verbose == 1){

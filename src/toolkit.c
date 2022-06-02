@@ -82,6 +82,13 @@ void print_help(	global_variable gv	){
 
 }
 
+/**
+  Get the number of max_pc
+*/
+int get_max_n_pc(int tot_pc, int n_pc){
+	return ((tot_pc >= n_pc) ? (n_pc) : (tot_pc));
+};
+
 /* Normalize array to sum to 1 */
 double* norm_array(double *array, int size) {
 	int i;

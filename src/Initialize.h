@@ -726,6 +726,8 @@ void reset_SS(						global_variable 	 gv,
 		}
 
 		/* reset LP part of PGE (algo 2.0) */
+		SS_ref_db[iss].tot_Ppc 	= 0;
+		SS_ref_db[iss].id_Ppc  	= 0;
 		for (int i = 0; i < (SS_ref_db[iss].n_Ppc); i++){
 			SS_ref_db[iss].n_swap_Ppc[i] = 0;
 			SS_ref_db[iss].info_Ppc[i]   = 0;

@@ -34,12 +34,6 @@ Levelling occurs in two stages:
 #include "PGE_function.h"
 #include "SS_xeos_PC.h"
 
-/**
-  Get the number of max_pc
-*/
-int get_max_n_pc(int tot_pc, int n_pc){
-	return ((tot_pc >= n_pc) ? (n_pc) : (tot_pc));
-};
 
 /**
   update Gamma using LAPACKE dgesv
@@ -353,16 +347,16 @@ void generate_pseudocompounds(	int 		 		 ss,
 		/** store pseudocompound */
 		if ( G < gv.max_G_pc ){
 
-			/* get composition of solution phase */
-			for (j = 0; j < nEl; j++){
-				SS_ref_db[ss].ss_comp[j] = 0.0;
-				for (i = 0; i < SS_ref_db[ss].n_em; i++){
-				   SS_ref_db[ss].ss_comp[j] += SS_ref_db[ss].Comp[i][j]*SS_ref_db[ss].p[i]*SS_ref_db[ss].z_em[i];
-			   } 
-			}
-
 			swp     = 0;
 			while (swp == 0){
+
+				/* get composition of solution phase */
+				for (j = 0; j < nEl; j++){
+					SS_ref_db[ss].ss_comp[j] = 0.0;
+					for (i = 0; i < SS_ref_db[ss].n_em; i++){
+					SS_ref_db[ss].ss_comp[j] += SS_ref_db[ss].Comp[i][j]*SS_ref_db[ss].p[i]*SS_ref_db[ss].z_em[i];
+				} 
+				}
 
 				if (SS_ref_db[ss].id_pc >= SS_ref_db[ss].n_pc){ SS_ref_db[ss].id_pc = 0; printf("MAXIMUM STORAGE SPACE FOR PC IS REACHED, INCREASED #PC_MAX\n");}
 				m_pc = SS_ref_db[ss].id_pc;
