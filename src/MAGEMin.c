@@ -204,7 +204,9 @@ int runMAGEMin(			int    argc,
 								
 	/** Get zeros in bulk P and T 					*/				
 	z_b = initialize_bulk_infos(	P, 
-									T				);									
+									T				);	
+
+	simplex_data 	splx_data;
 
 	/****************************************************************************************/
 	/**                               LAUNCH MINIMIZATION ROUTINE                          **/
@@ -230,6 +232,7 @@ int runMAGEMin(			int    argc,
 			// }
 		}
 		
+
 		/* reset global variables flags 											*/
 		gv = reset_gv(						gv,
 											z_b,
@@ -240,7 +243,15 @@ int runMAGEMin(			int    argc,
 		z_b = reset_z_b(					gv,				
 											bulk_rock,								
 											z_b							);	
-																			
+
+		/** allocate memory (it's allocate in the MPI loop because the number of oxides is not necessarely constant)*/
+		init_simplex_A(			   		   &splx_data,
+											gv,
+											z_b							);
+											
+		init_simplex_B_em(				   &splx_data					);
+			
+
 		/** reset considered phases structure 										*/
 		reset_cp(							gv,												
 											z_b,
@@ -256,12 +267,14 @@ int runMAGEMin(			int    argc,
 											DB.sp						);
 		
 
+
 		/* Perform calculation for a single point 									*/	
 		gv = ComputeEquilibrium_Point(		EM_database, 
 											input_data[sgleP],
 											Mode,
 											z_b,											/** bulk rock informations 			*/
 											gv,												/** global variables (e.g. Gamma) 	*/
+											&splx_data,
 											DB.PP_ref_db,									/** pure phase database 			*/
 											DB.SS_ref_db,									/** solid solution database 		*/
 											DB.cp						);
@@ -289,6 +302,7 @@ int runMAGEMin(			int    argc,
 											DB.SS_ref_db,									/** solution phase database 		*/
 											DB.cp						);
 
+
 		/* Print output to screen 													*/
 		t 			= clock() - t; 
 		time_taken 	= ((double)t)/CLOCKS_PER_SEC; 											/* in seconds 	 					*/
@@ -305,6 +319,10 @@ int runMAGEMin(			int    argc,
 
 	/* free memory allocated to solution and pure phases */
 	FreeDatabases(gv, DB);
+
+	/** deallocate memory */
+	destroy_simplex_A(&splx_data);
+	destroy_simplex_B(&splx_data);
 
 	/* print the time */
 	u = clock() - u; 
@@ -574,6 +592,7 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 												int 				 Mode,
 												struct bulk_info 	 z_b,
 												global_variable 	 gv,
+												simplex_data	    *splx_data,
 												PP_ref  			*PP_ref_db,
 												SS_ref  			*SS_ref_db,
 												csd_phase_set  		*cp						){
@@ -598,7 +617,8 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 		/****************************************************************************************/	
 		gv = Levelling(			z_b,									/** bulk rock informations */
 								gv,										/** global variables (e.g. Gamma) */
-								
+
+							    splx_data,
 								PP_ref_db,								/** pure phase database */
 								SS_ref_db,								/** solution phase database */
 								cp					);
@@ -715,17 +735,18 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 		/* when Mode = 3, only first stage of levelling is activated */
 		gv = Levelling(			z_b,									/** bulk rock informations */
 								gv,										/** global variables (e.g. Gamma) */
-								
+
+							    splx_data,
 								PP_ref_db,								/** pure phase database */
 								SS_ref_db,								/** solution phase database */
 								cp						);
-		}
-	
+	}
+
 	return gv;
 }
 
 /** 
-  Get command line options
+  	Get command line options
 */
 global_variable ReadCommandLineOptions(	global_variable 	 gv,		
 										int 				 argc, 

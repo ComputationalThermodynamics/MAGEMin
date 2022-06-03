@@ -776,4 +776,92 @@ void reset_SS(						global_variable 	 gv,
 
 };
 
+
+/**
+  function to allocate memory for simplex linear programming (A)
+*/	
+void init_simplex_A( 	simplex_data 		*splx_data,
+						global_variable 	 gv,
+						struct bulk_info 	 z_b
+){
+	simplex_data *d  = (simplex_data *) splx_data;
+	
+	/* allocate reference assemblage memory */
+	d->n_local_min =  0;
+	d->n_filter    =  0;
+	d->ph2swp      = -1;
+	d->n_swp       =  0;
+	d->swp         =  0;
+	d->n_Ox        =  z_b.nzEl_val;
+	d->len_ox      =  gv.len_ox;
+	
+	/* allocate reference assemblage memory */
+	d->A           = malloc ((d->n_Ox*d->n_Ox)  * sizeof(double));
+	d->A1  		   = malloc ((d->n_Ox*d->n_Ox)  * sizeof(double));
+	
+	d->ph_id_A     = malloc (d->n_Ox * sizeof(int*));
+    for (int i = 0; i < d->n_Ox; i++){
+		d->ph_id_A[i] = malloc ((d->n_Ox*4)  * sizeof(int));
+	}
+	
+	d->pivot   	   = malloc ((d->n_Ox) * sizeof(int));
+	d->g0_A   	   = malloc ((d->n_Ox) * sizeof(double));
+	d->dG_A   	   = malloc ((d->n_Ox) * sizeof(double));
+	d->n_vec   	   = malloc ((d->n_Ox) * sizeof(double));
+	d->gamma_ps	   = malloc ((d->n_Ox) * sizeof(double));
+	d->gamma_ss	   = malloc ((d->n_Ox) * sizeof(double));
+	d->gamma_tot   = malloc ((d->len_ox) * sizeof(double));
+	d->gamma_delta = malloc ((d->len_ox) * sizeof(double));
+
+	/* initialize arrays */
+    for (int i = 0; i < d->len_ox; i++){
+		d->gamma_tot[i] 		= 0.0;
+		d->gamma_delta[i] 	= 0.0;
+	}
+	int k;
+    for (int i = 0; i < d->n_Ox; i++){
+		d->pivot[i]	  = 0;
+		d->g0_A[i]     = 0.0;
+		d->dG_A[i]     = 0.0;
+		d->n_vec[i]    = 0.0;
+		d->gamma_ps[i] = 0.0;
+		d->gamma_ss[i] = 0.0;
+		
+		for (int j = 0; j < d->n_Ox; j++){
+			k = i + j*d->n_Ox;
+			d->A[k]  = 0.0;
+			d->A1[k] = 0.0;
+		}
+		
+		for (int j = 0; j < 4; j++){
+			d->ph_id_A[i][j] = 0;
+		}
+	}
+
+
+};
+
+/**
+  function to allocate memory for simplex linear programming (B)
+*/	
+void init_simplex_B_em(				simplex_data 		 *splx_data
+
+){
+	simplex_data *d  = (simplex_data *) splx_data;
+	
+	d->ph_id_B    = malloc (3  * sizeof(int));
+	d->B   	 	  = malloc ((d->n_Ox) * sizeof(double));
+	d->B1   	  = malloc ((d->n_Ox) * sizeof(double));
+
+	/** initialize arrays */
+	for (int j = 0; j < 3; j++){
+		d->ph_id_B[j] = 0;
+	}
+
+	for (int j = 0; j < d->n_Ox; j++){
+		d->B[j]   = 0.0;	
+		d->B1[j]  = 0.0;	
+	}
+};
+
 #endif

@@ -146,96 +146,6 @@ void update_dG(	simplex_data *splx_data
 }
 
 /**
-  function to allocate memory for simplex linear programming (A)
-*/	
-void init_simplex_A( 	void 				*splx_data,
-						global_variable 	 gv,
-						struct bulk_info 	 z_b
-){
-	simplex_data *d  = (simplex_data *) splx_data;
-	
-	/* allocate reference assemblage memory */
-	d->n_local_min =  0;
-	d->n_filter    =  0;
-	d->ph2swp      = -1;
-	d->n_swp       =  0;
-	d->swp         =  0;
-	d->n_Ox        =  z_b.nzEl_val;
-	d->len_ox      =  gv.len_ox;
-	
-	d->A           = malloc ((d->n_Ox*d->n_Ox)  * sizeof(double));
-	d->A1  		   = malloc ((d->n_Ox*d->n_Ox)  * sizeof(double));
-	
-	d->ph_id_A     = malloc (d->n_Ox * sizeof(int*));
-    for (int i = 0; i < d->n_Ox; i++){
-		d->ph_id_A[i] = malloc ((d->n_Ox*4)  * sizeof(int));
-	}
-	
-	d->pivot   	   = malloc ((d->n_Ox) * sizeof(int));
-	d->g0_A   	   = malloc ((d->n_Ox) * sizeof(double));
-	d->dG_A   	   = malloc ((d->n_Ox) * sizeof(double));
-	d->n_vec   	   = malloc ((d->n_Ox) * sizeof(double));
-	d->gamma_ps	   = malloc ((d->n_Ox) * sizeof(double));
-	d->gamma_ss	   = malloc ((d->n_Ox) * sizeof(double));
-	d->gamma_tot   = malloc ((d->len_ox) * sizeof(double));
-	d->gamma_delta = malloc ((d->len_ox) * sizeof(double));
-	
-	/* initialize arrays */
-    for (int i = 0; i < d->len_ox; i++){
-		d->gamma_tot[i] 		= 0.0;
-		d->gamma_delta[i] 	= 0.0;
-	}
-	int k;
-    for (int i = 0; i < d->n_Ox; i++){
-		d->pivot[i]	  = 0;
-		d->g0_A[i]     = 0.0;
-		d->dG_A[i]     = 0.0;
-		d->n_vec[i]    = 0.0;
-		d->gamma_ps[i] = 0.0;
-		d->gamma_ss[i] = 0.0;
-		
-		for (int j = 0; j < d->n_Ox; j++){
-			k = i + j*d->n_Ox;
-			d->A[k]  = 0.0;
-			d->A1[k] = 0.0;
-		}
-		
-		for (int j = 0; j < 4; j++){
-			d->ph_id_A[i][j] = 0;
-		}
-	}
-
-};
-
-/**
-  function to allocate memory for simplex linear programming (B)
-*/	
-void init_simplex_B_em(				void 		 		*splx_data,
-									global_variable 	 gv,
-									struct bulk_info 	 z_b,
-
-									PP_ref 				*PP_ref_db,
-									SS_ref 				*SS_ref_db
-){
-	simplex_data *d  = (simplex_data *) splx_data;
-	
-	d->ph_id_B    = malloc (3  * sizeof(int));
-	d->B   	 	  = malloc ((d->n_Ox) * sizeof(double));
-	d->B1   	  = malloc ((d->n_Ox) * sizeof(double));
-
-	/** initialize arrays */
-	for (int j = 0; j < 3; j++){
-		d->ph_id_B[j] = 0;
-	}
-
-	for (int j = 0; j < d->n_Ox; j++){
-		d->B[j]   = 0.0;	
-		d->B1[j]  = 0.0;	
-	}
-
-};
-
-/**
   function to run simplex linear programming 
 */	
 void fill_simplex_arrays_A(				struct bulk_info 	 z_b,
@@ -949,7 +859,7 @@ void run_simplex_vPC_only(				struct bulk_info 	 z_b,
 /**
   function to run simplex linear programming with pseudocompounds
 */	
-void run_simplex_vPC_stage1(			struct bulk_info 	 z_b,
+void run_simplex_vPC_stage(				struct bulk_info 	 z_b,
 										simplex_data 		*splx_data,
 										
 										global_variable 	 gv,
@@ -1127,7 +1037,7 @@ global_variable run_levelling_function(		struct bulk_info 	 z_b,
 											SS_ref_db		);
 
 	/** run linear programming with simplex approach */
-	run_simplex_vPC_stage1(					z_b,
+	run_simplex_vPC_stage(					z_b,
 										    splx_data,
 											gv,
 											PP_ref_db,
@@ -1152,13 +1062,6 @@ global_variable run_levelling_function(		struct bulk_info 	 z_b,
 											SS_ref_db,
 											cp,
 											SS_objective	);
-
-	//if (gv.verbose == 1){
-		//print_levelling(				z_b,
-										//gv,
-										//PP_ref_db,
-										//SS_ref_db			);											
-	//}
 
 	if (gv.verbose == 1){
 		printf("\nGet initial guess (Gamma and phase fractions) \n");
@@ -1218,10 +1121,6 @@ global_variable run_levelling_function(		struct bulk_info 	 z_b,
 		printf("\t[---------------------------------------]\n");
 	}
 
-	/** deallocate memory */
-	destroy_simplex_A(splx_data);
-	destroy_simplex_B(splx_data);
-
 	t 			= clock() - t; 
 	time_taken  = ((double)t)/CLOCKS_PER_SEC; // in seconds 
 	gv.LVL_time = time_taken*1000;	
@@ -1235,6 +1134,7 @@ global_variable run_levelling_function(		struct bulk_info 	 z_b,
 global_variable Levelling(	struct bulk_info 	z_b,
 							global_variable 	gv,
 
+							simplex_data	   *splx_data,
 							PP_ref 			   *PP_ref_db,
 							SS_ref 			   *SS_ref_db,
 							csd_phase_set  	   *cp
@@ -1245,25 +1145,10 @@ global_variable Levelling(	struct bulk_info 	z_b,
 		printf("════════════════════════════════════════\n");
 	}
 
-	simplex_data 	splx_data;
-	
-	/** allocate memory */
-	init_simplex_A(			   			   &splx_data,
-											gv,
-											z_b				);
-										
-								
-	init_simplex_B_em(					   &splx_data,
-											gv,
-											z_b,
-											PP_ref_db,
-											SS_ref_db		);
-
-
 	/* pseudosection function to get starting guess */
 	gv = run_levelling_function(	z_b,												/** bulk rock informations    */
 									gv,													/** global variables (e.g. Gamma) */
-								   &splx_data,
+								    splx_data,
 									PP_ref_db,											/** pure phase database */
 									SS_ref_db,											/** solution phase database */
 									cp				);
