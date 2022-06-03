@@ -613,6 +613,18 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 								SS_ref_db,								/** solution phase database */
 								cp					);
 
+		if (0 == 1){
+			for (int i = 0; i < gv.len_ss; i++){
+				printf("#PGE_PC %s: %d\n", gv.SS_list[i], SS_ref_db[i].tot_Ppc);
+				for (int k = 0; k < SS_ref_db[i].tot_Ppc; k++){
+					for (int j = 0; j < gv.len_ox; j++){
+						printf(" %g",SS_ref_db[i].comp_Ppc[k][j]);
+					}
+					printf("\n");
+				}
+			}
+		}
+
 	}
 	/* if Mode = 1, spit out Gibbs energy and reference values with given compositional variables */
 	else if (Mode == 1){
