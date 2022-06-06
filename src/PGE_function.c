@@ -874,6 +874,7 @@ global_variable PGE_inner_loop(		struct bulk_info 	 z_b,
 global_variable PGE(	struct bulk_info 	z_b,
 						global_variable 	gv,
 
+						simplex_data	    *splx_data,
 						PP_ref 				*PP_ref_db,
 						SS_ref 				*SS_ref_db,
 						csd_phase_set  		*cp					){
@@ -893,14 +894,6 @@ global_variable PGE(	struct bulk_info 	z_b,
 				
 	//for (int gi = 0; gi < 1; gi++){
 	while (gv.BR_norm > gv.br_max_tol || gv.global_ite < gv.outter_PGE_ite){
-		
-		//gv = NLopt_global_opt_function(		z_b,								/** bulk rock constraint 				*/
-											//gv,									/** global variables (e.g. Gamma) 		*/
-
-											//PP_ref_db,							/** pure phase database 				*/
-											//SS_ref_db,							/** solution phase database 			*/ 
-											//cp						);
-		
 
 		t = clock();
 		if (gv.verbose == 1){

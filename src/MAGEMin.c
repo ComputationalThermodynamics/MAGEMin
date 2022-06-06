@@ -281,7 +281,7 @@ int runMAGEMin(			int    argc,
 											Mode,
 											z_b,											/** bulk rock informations 			*/
 											gv,												/** global variables (e.g. Gamma) 	*/
-											&splx_data,
+										   &splx_data,
 											DB.PP_ref_db,									/** pure phase database 			*/
 											DB.SS_ref_db,									/** solid solution database 		*/
 											DB.cp						);
@@ -574,7 +574,7 @@ int runMAGEMin(			int    argc,
 	gv.solid_Vs 	= sqrt(gv.solid_shearModulus/(gv.solid_density/1e3));
 
 	if (gv.verbose != -1){
-		printf("System information\n");
+		printf("\nSystem information\n");
 		printf("═══════════════════\n");
 
 		printf(" Mass residual      : %+12.5e\n\n",gv.BR_norm);
@@ -635,7 +635,8 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 		/****************************************************************************************/
 		gv = PGE(				z_b,									/** bulk rock constraint */ 
 								gv,										/** global variables (e.g. Gamma) */
-								
+
+							    splx_data,
 								PP_ref_db,								/** pure phase database */
 								SS_ref_db,								/** solution phase database */
 								cp					);

@@ -14,23 +14,23 @@
 #include "gem_function.h"
 
 /*---------------------------------------------------------------------------*/ 
-int runMAGEMin(					int argc, 
-								char ** argv			);
+int runMAGEMin(								int argc, 
+											char ** argv			);
 
 /* Function declaration from Initialize.h file */
-int find_EM_id(					char* em_tag			);
+int find_EM_id(								char* em_tag			);
 
 /** declare function to get benchmark bulk rock composition **/
-void get_bulk(					double *bulk_rock, 
-								int test, 
-								int n_El				);
+void get_bulk(								double *bulk_rock, 
+											int test, 
+											int n_El				);
 
 /** Function to retrieve database structure **/
-struct EM_db Access_EM_DB(		int id, 
-								int EM_database			);
+struct EM_db Access_EM_DB(					int id, 
+											int EM_database			);
 
 /** Function to retrieve the endmember names from the database **/
-char** get_EM_DB_names(			int EM_database			);
+char** get_EM_DB_names(						int EM_database			);
 
 /** Return the number of zero element in the bulk-rock, position of zeros and non zeros elements **/
 struct bulk_info initialize_bulk_infos(		double P, 
@@ -57,33 +57,33 @@ typedef struct simplex_datas
 	double  *gamma_tot;		/** update global gamma									*/
 	double  *gamma_delta;	/** delta gamma between two levelling rounds			*/
 	
-	double   min_F;		/** min F */
-	int      ph2swp;	/** index of phase to swap */
-	int      n_swp;     /** number of phase added to the reference assemblage */
-	int      swp;       /** swap occured? */
-	int     *pivot;		/** pivot point when doing RREF toget the rational basis of the null space */
+	double   min_F;			/** min F 												*/
+	int      ph2swp;		/** index of phase to swap 								*/
+	int      n_swp;    		/** number of phase added to the reference assemblage 	*/
+	int      swp;       	/** swap occured? 										*/
+	int     *pivot;			/** pivot point when doing RREF toget the rational basis of the null space */
 	
 	/* Reference assemblage */
-	double  *A;			/** stoechiometry matrix */
-	double  *A1;		/** inverse of stoechiometry matrix */
-	int    **ph_id_A;	/** id of phases */
+	double  *A;				/** stoechiometry matrix 								*/
+	double  *A1;			/** inverse of stoechiometry matrix 					*/
+	int    **ph_id_A;		/** id of phases 										*/
 	
-	double  *g0_A;		/** save reference gibbs energy of pseudocompound */
-	double  *dG_A;		/** driving force matrix */
-	double  *n_vec;		/** phase fractions */
-	int    	 n_Ox;		/** number of active oxides */
+	double  *g0_A;			/** save reference gibbs energy of pseudocompound 		*/
+	double  *dG_A;			/** driving force matrix 								*/
+	double  *n_vec;			/** phase fractions 									*/
+	int    	 n_Ox;			/** number of active oxides 							*/
 
 	/* Potential candidates */
-	int      n_pp;		/** number of pure phases */
-	int      n_em_ss;	/** number of endmembers in solutions phases */
+	int      n_pp;			/** number of pure phases 								*/
+	int      n_em_ss;		/** number of endmembers in solutions phases 			*/
 	
-	double  *B;			/** stoechiometry matrix */
-	double  *B1;		/** inverse of stoechiometry matrix entry to be added*/
-	int     *ph_id_B;	/** id of phases */
+	double  *B;				/** stoechiometry matrix 								*/
+	double  *B1;			/** inverse of stoechiometry matrix entry to be added	*/
+	int     *ph_id_B;		/** id of phases 										*/
 	
-	double   g0_B;		/** save reference gibbs energy of pseudocompound */
-	double   dG_B;		/** driving force matrix */
-	int      n_B;		/** number of pseudocompounds */
+	double   g0_B;			/** save reference gibbs energy of pseudocompound 		*/
+	double   dG_B;			/** driving force matrix 								*/
+	int      n_B;			/** number of pseudocompounds 							*/
 	
 	int n_local_min;
 	int n_filter;
@@ -251,7 +251,8 @@ struct bulk_info {
 	double   P;					/** store pressure 										*/
 	double   T;					/** store temperature 									*/
 	double   R;
-	double  *bulk_rock;			/** bulk rock composition in weigth  					*/
+	double  *bulk_rock;			/** bulk rock composition in weight  					*/
+	double  *bulk_rock_cat;		/** bulk rock composition in weight (nzer values first) */
 	int      nzEl_val;			/** number of non zero entries in the bulk 				*/
 	int      zEl_val;			/** number of zero entries in the bulk 					*/
     int     *nzEl_array;   		/** position of non zero entries in the bulk 			*/
@@ -298,13 +299,13 @@ typedef struct csd_phase_sets {
 	double *ss_comp;
 	double *gbase;				/** chemical potentials 									*/
 
-	double mass;
-	double volume;
-	double phase_density;
-	double phase_cp;
-	double phase_expansivity;
-	double phase_bulkModulus;
-	double phase_shearModulus;
+	double  mass;
+	double  volume;
+	double  phase_density;
+	double  phase_cp;
+	double  phase_expansivity;
+	double  phase_bulkModulus;
+	double  phase_shearModulus;
 
 } csd_phase_set;
 

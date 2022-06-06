@@ -597,17 +597,11 @@ void swap_pure_phases(				struct bulk_info 	 z_b,
 ){
 	simplex_data *d  = (simplex_data *) splx_data;
 	int     k;
-	double  br[d->n_Ox];
-	
-	/** get a local copy of the bulk rock composition, without zero values */
-	for (int i = 0; i < d->n_Ox; i++){
-		br[i] = z_b.bulk_rock[z_b.nzEl_array[i]];
-	}
 	
 	for (int i = 0; i < gv.len_pp; i++){
 		if (gv.pp_flags[i][0] == 1){
 			
-			d->g0_B 			= PP_ref_db[i].gbase*PP_ref_db[i].factor;
+			d->g0_B 		= PP_ref_db[i].gbase*PP_ref_db[i].factor;
 			d->ph_id_B[0]  	= 1;															/** added phase is a pure species */
 			d->ph_id_B[1]	= i;															/** save pure species index */
 		
@@ -641,7 +635,8 @@ void swap_pure_phases(				struct bulk_info 	 z_b,
 				
 				/** update phase fractions */
 				MatVecMul(		d->A1,
-								br,
+								// br,
+								z_b.bulk_rock_cat,
 								d->n_vec,
 								d->n_Ox		);	
 			}
@@ -664,14 +659,8 @@ void swap_pure_endmembers(				struct bulk_info 	 z_b,
 	simplex_data *d  = (simplex_data *) splx_data;
 
 	int     k;
-	double  br[d->n_Ox];
 	double factor;
-	
-	/** get a local copy of the bulk rock composition, without zero values */
-	for (int i = 0; i < d->n_Ox; i++){
-		br[i] = z_b.bulk_rock[z_b.nzEl_array[i]];
-	}
-	
+
 	for (int i = 0; i < gv.len_ss; i++){												/**loop to pass informations from active endmembers */
 		if (SS_ref_db[i].ss_flags[0] == 1){														/** if SS is not filtered out then continue */
 
@@ -718,7 +707,8 @@ void swap_pure_endmembers(				struct bulk_info 	 z_b,
 						
 						/** update phase fractions */
 						MatVecMul(		d->A1,
-										br,
+										// br,
+										z_b.bulk_rock_cat,
 										d->n_vec,
 										d->n_Ox		);	
 					}
@@ -742,12 +732,6 @@ void swap_pseudocompounds(				struct bulk_info 	 z_b,
 	simplex_data *d  = (simplex_data *) splx_data;
 
 	int     k, max_n_pc;
-	double  br[d->n_Ox];
-	
-	/** get a local copy of the bulk rock composition, without zero values */
-	for (int i = 0; i < d->n_Ox; i++){
-		br[i] = z_b.bulk_rock[z_b.nzEl_array[i]];
-	}
 	
 	for (int i = 0; i < gv.len_ss; i++){										/**loop to pass informations from active endmembers */
 		if (SS_ref_db[i].ss_flags[0] == 1){
@@ -796,7 +780,8 @@ void swap_pseudocompounds(				struct bulk_info 	 z_b,
 					
 					/** update phase fractions */
 					MatVecMul(		d->A1,
-									br,
+									// br,
+									z_b.bulk_rock_cat,
 									d->n_vec,
 									d->n_Ox		);
 				}
@@ -819,13 +804,7 @@ void run_simplex_vPC_only(				struct bulk_info 	 z_b,
 	simplex_data *d  = (simplex_data *) splx_data;
 
 	int     k = 0;
-	double  br[d->n_Ox];
-	
-	/** get a local copy of the bulk rock composition, without zero values */
-	for (int i = 0; i < d->n_Ox; i++){
-		br[i] = z_b.bulk_rock[z_b.nzEl_array[i]];
-	}
-	
+
 	d->swp = 1;
 	while (d->swp == 1){																			/** as long as a phase can be added to the guessed assemblage, go on */
 		k 				 += 1;
@@ -871,19 +850,13 @@ void run_simplex_vPC_stage(				struct bulk_info 	 z_b,
 	simplex_data *d  = (simplex_data *) splx_data;
 
 	int i, k, iss;
-	
-	/** get a local copy of the bulk rock composition, without zero values */
-	double  br[d->n_Ox];
-	for (int i = 0; i < d->n_Ox; i++){
-		br[i] = z_b.bulk_rock[z_b.nzEl_array[i]];
-	}
 
 	/** copy A onto A1 in order to inverse it using LAPACKE */
 	for (k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k];}
 
 	/** inverse guessed assemblage stoechiometry matrix */
 	inverseMatrix(						d->A1, 
-										d->n_Ox			);
+										d->n_Ox					);
 	
 	swap_pure_phases(					z_b,
 										splx_data,
@@ -900,7 +873,7 @@ void run_simplex_vPC_stage(				struct bulk_info 	 z_b,
 	update_local_gamma(					d->A1,
 										d->g0_A,
 										d->gamma_ps,
-										d->n_Ox			);
+										d->n_Ox					);
 
 
 	/** update gam_tot using pure species levelling gamma */

@@ -6,9 +6,10 @@
 global_variable PGE(			struct bulk_info 	z_b,
 								global_variable 	gv,
 								
+								simplex_data	    *splx_data,
 								PP_ref 				*PP_ref_db,
 								SS_ref 				*SS_ref_db,
-								csd_phase_set  		*cp	);
+								csd_phase_set  		*cp					);
 
 double norm_vector(double *array ,int n);
 

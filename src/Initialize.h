@@ -100,7 +100,9 @@ struct bulk_info initialize_bulk_infos(		double  P,
 	z_b.masspo[9]  	= 151.99;
 	z_b.masspo[10] 	= 18.015;
 
-	z_b.bulk_rock  	= malloc (nEl * sizeof (double) ); 
+	z_b.bulk_rock_cat  	= malloc (nEl * sizeof (double) ); 
+	z_b.bulk_rock  		= malloc (nEl * sizeof (double) ); 
+
 
 	return z_b;
 }
@@ -629,6 +631,13 @@ struct bulk_info reset_z_b(			global_variable 	 gv,
 			z_b.nzEl_array[i] = i;
 		}
 	}
+
+	for ( i = 0; i < z_b.nzEl_val; i++){
+		z_b.bulk_rock_cat[i] = z_b.bulk_rock[z_b.nzEl_array[i]];
+	}
+	for ( i = z_b.nzEl_val; i < nEl; i++){
+		z_b.bulk_rock_cat[i] = 0.0;
+	}
 	
 	return z_b;
 };
@@ -872,7 +881,7 @@ void reset_simplex_A( 	simplex_data 		*splx_data,
 
 	/* initialize arrays */
     for (int i = 0; i < gv.len_ox; i++){
-		d->gamma_tot[i] 		= 0.0;
+		d->gamma_tot[i] 	= 0.0;
 		d->gamma_delta[i] 	= 0.0;
 	}
 	int k;
@@ -901,7 +910,7 @@ void reset_simplex_A( 	simplex_data 		*splx_data,
 /**
   function to allocate memory for simplex linear programming (B)
 */	
-void reset_simplex_B_em(				simplex_data 		 *splx_data,
+void reset_simplex_B_em(			simplex_data 		*splx_data,
 									global_variable 	 gv
 
 ){
