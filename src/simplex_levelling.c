@@ -740,7 +740,7 @@ void swap_pseudocompounds(				struct bulk_info 	 z_b,
 
 			for (int l = 0; l < max_n_pc; l++){
 
-				d->g0_B		 = SS_ref_db[i].G_pc[l];
+				d->g0_B		  = SS_ref_db[i].G_pc[l];
 				d->ph_id_B[0] = 3;														/** added phase is a pure species */
 				d->ph_id_B[1] = i;														/** save solution phase index */
 				d->ph_id_B[2] = 0;														/** save pseudocompound index */
@@ -758,14 +758,14 @@ void swap_pseudocompounds(				struct bulk_info 	 z_b,
 				
 				/** swap phase */
 				if (d->ph2swp != -1){													/** if the phase can be added */
-					SS_ref_db[i].n_swap[l]       		   = d->n_swp;
-					d->swp 				 		   = 1;
-					d->n_swp 					  += 1;
+					SS_ref_db[i].n_swap[l]   = d->n_swp;
+					d->swp 				 	 = 1;
+					d->n_swp 				+= 1;
 					d->ph_id_A[d->ph2swp][0] = d->ph_id_B[0];
 					d->ph_id_A[d->ph2swp][1] = d->ph_id_B[1];
 					d->ph_id_A[d->ph2swp][2] = d->ph_id_B[2];
 					d->ph_id_A[d->ph2swp][3] = l;									/** save pseudocompound number */
-					d->g0_A[d->ph2swp] 	   = d->g0_B;
+					d->g0_A[d->ph2swp] 	     = d->g0_B;
 					
 					for (int j = 0; j < d->n_Ox; j++){				
 						int k = d->ph2swp + j*d->n_Ox;
@@ -1046,10 +1046,8 @@ global_variable run_levelling_function(		struct bulk_info 	 z_b,
 		printf("\t[  EM  |   EM PROP  |   g0_EM    |  ix  ]\n");
 		printf("\t[---------------------------------------]\n");
 		
-		double sum_prop = 0.0;
+
 		for (int i = 0; i < d->n_Ox; i++){
-			sum_prop += d->n_vec[i];
-			
 			if (d->ph_id_A[i][0] == 1){
 				printf("\t['%5s' %+10f  %+10f  %5d ]", gv.PP_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
 				printf("\n");

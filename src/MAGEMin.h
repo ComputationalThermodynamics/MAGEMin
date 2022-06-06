@@ -85,17 +85,17 @@ typedef struct simplex_datas
 	double   dG_B;			/** driving force matrix 								*/
 	int      n_B;			/** number of pseudocompounds 							*/
 	
-	int n_local_min;
-	int n_filter;
+	int 	 n_local_min;
+	int 	 n_filter;
 	
 } simplex_data;
 
 /* Declare structures to hold reference gbase, composition and factor for solid solutions */
 /* "bi","cpx","crd","ep","fl","g","hb","ilm","liq","mu","ol","opx","pl4T","spn" */
 typedef struct SS_refs {
-	double P;					/** used to pass to local minimizer, would allow to have pressure difference for liq/solid */
-	double T;
-	double R;
+	double 	 P;					/** used to pass to local minimizer, would allow to have pressure difference for liq/solid */
+	double 	 T;
+	double 	 R;
 
 	/** end-member list */
 	char   **EM_list;			/** solution phase list */
@@ -600,30 +600,30 @@ global_variable ComputePostProcessing(		int 				 EM_database,
 											SS_ref  			*SS_ref_db,
 											csd_phase_set  		*cp					);											
 
-global_variable ReadCommandLineOptions(	global_variable   gv,
-										int 			  argc, 
-										char 			**argv, 
-										int 			 *Mode_out, 
-										int 			 *Verb_out, 
-										int 			 *test_out, 
-										int 			 *n_points_out, 
-										double 			 *P, 
-										double 			 *T, 
-										double 			  Bulk[11], 
-										double 			  Gam[11], 
-										char 			  File[50], 
-										char 			  Phase[50], 
-										int 			 *maxeval_out, 
-										int     		 *get_version_out,
-										int 			 *get_help					);
+global_variable ReadCommandLineOptions(		global_variable   gv,
+											int 			  argc, 
+											char 			**argv, 
+											int 			 *Mode_out, 
+											int 			 *Verb_out, 
+											int 			 *test_out, 
+											int 			 *n_points_out, 
+											double 			 *P, 
+											double 			 *T, 
+											double 			  Bulk[11], 
+											double 			  Gam[11], 
+											char 			  File[50], 
+											char 			  Phase[50], 
+											int 			 *maxeval_out, 
+											int     		 *get_version_out,
+											int 			 *get_help				);
 
 /* function that prints output */
-void PrintOutput(	global_variable 	gv, 
-					int 				rank, 
-					int 				l, 
-					Databases 			DB, 
-					double 				time_taken, 
-					struct bulk_info 	z_b)				;
+void PrintOutput(							global_variable 	gv, 
+											int 				rank, 
+											int 				l, 
+											Databases 			DB, 
+											double 				time_taken, 
+											struct bulk_info 	z_b					);
 
 /* function converting the solver status code to human-readable text and printing it to screen */
 void PrintStatus(	int status );

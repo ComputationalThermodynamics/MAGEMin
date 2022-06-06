@@ -714,62 +714,62 @@ global_variable PGE_function(	int 				PGEi,
 	/**
 		get id of active pure phases
 	*/
-	gv = get_pp_id(			gv					);
+	gv = get_pp_id(				gv					);
 	
 	/**
 		get id of active solution phases
 	*/
-	gv = get_ss_id(			gv,
-							cp					);
+	gv = get_ss_id(				gv,
+								cp					);
 	
 	/** 
 		function to fill Jacobian
 	*/
-	PGE_get_Jacobian( 		gv.A_PGE,
-							z_b,
-							gv,
+	PGE_get_Jacobian( 			gv.A_PGE,
+								z_b,
+								gv,
 
-							PP_ref_db,
-							SS_ref_db,
-							cp,
-							nEntry				);
+								PP_ref_db,
+								SS_ref_db,
+								cp,
+								nEntry				);
 
 	/** 
 		function to fill gradient
 	*/
-	PGE_get_gradient( 		gv.b_PGE,
-							z_b,
-							gv,
+	PGE_get_gradient( 			gv.b_PGE,
+								z_b,
+								gv,
 
-							PP_ref_db,
-							SS_ref_db,
-							cp,
-							nEntry				);
+								PP_ref_db,
+								SS_ref_db,
+								cp,
+								nEntry				);
 							
 	/**
 		save RHS vector 
 	*/
 	gv.fc_norm_t1 = norm_vector(	gv.b_PGE,
-									nEntry		);
+									nEntry			);
 										
 	/**
 		call lapacke to solve system of linear equation using LU 
 	*/
-	info = LAPACKE_dgesv(	LAPACK_ROW_MAJOR, 
-							nEntry, 
-							nrhs, 
-							gv.A_PGE, 
-							lda, 
-							ipiv, 
-							gv.b_PGE, 
-							ldb					);
+	info = LAPACKE_dgesv(		LAPACK_ROW_MAJOR, 
+								nEntry, 
+								nrhs, 
+								gv.A_PGE, 
+								lda, 
+								ipiv, 
+								gv.b_PGE, 
+								ldb					);
 
 	/**
 		get solution and max values for the set of variables
 	*/
 	gv = PGE_update_solution(	gv,
 								z_b,
-								cp				);
+								cp					);
 
 	return gv;
 };
@@ -793,13 +793,13 @@ global_variable PGE_inner_loop(		struct bulk_info 	 z_b,
 	while (PGEi < gv.inner_PGE_ite && delta_fc_norm > 1e-10){
 		u = clock();
 
-		gv =	PGE_function(			PGEi,
-										z_b,								/** bulk rock constraint 				*/ 
-										gv,									/** global variables (e.g. Gamma) 		*/
+		gv =	PGE_function(				PGEi,
+											z_b,								/** bulk rock constraint 				*/ 
+											gv,									/** global variables (e.g. Gamma) 		*/
 
-										PP_ref_db,							/** pure phase database 				*/ 
-										SS_ref_db,							/** solution phase database 			*/
-										cp						); 
+											PP_ref_db,							/** pure phase database 				*/ 
+											SS_ref_db,							/** solution phase database 			*/
+											cp					); 
 				
 								
 		delta_fc_norm 	= fabs(gv.fc_norm_t1 - fc_norm_t0);
@@ -809,19 +809,19 @@ global_variable PGE_inner_loop(		struct bulk_info 	 z_b,
 		/**
 		calculate delta_G of pure phases 
 		*/
-		pp_min_function(				gv,
-										z_b,
-										PP_ref_db				);
+		pp_min_function(					gv,
+											z_b,
+											PP_ref_db			);
 										
 										
 							
 		/* Update mu of solution phase  */
-		gv =	PGE_update_mu(			z_b,								/** bulk rock constraint 				*/ 
-										gv,									/** global variables (e.g. Gamma) 		*/
+		gv =	PGE_update_mu(				z_b,								/** bulk rock constraint 				*/ 
+											gv,									/** global variables (e.g. Gamma) 		*/
 
-										PP_ref_db,							/** pure phase database 				*/ 
-										SS_ref_db,							/** solution phase database 			*/
-										cp						); 
+											PP_ref_db,							/** pure phase database 				*/ 
+											SS_ref_db,							/** solution phase database 			*/
+											cp					); 
 
 		/* Update mu and xi of solution phase  */
 		if (gv.BR_norm < gv.act_varFac_stab){
@@ -842,20 +842,20 @@ global_variable PGE_inner_loop(		struct bulk_info 	 z_b,
 											
 		}
 
-		gv = 	phase_update_function(	z_b,								/** bulk rock constraint 				*/
-										gv,									/** global variables (e.g. Gamma) 		*/
+		gv = 	phase_update_function(		z_b,								/** bulk rock constraint 				*/
+											gv,									/** global variables (e.g. Gamma) 		*/
 
-										PP_ref_db,							/** pure phase database 				*/
-										SS_ref_db,							/** solution phase database 			*/ 
-										cp						); 
+											PP_ref_db,							/** pure phase database 				*/
+											SS_ref_db,							/** solution phase database 			*/ 
+											cp					); 
 		/** 
 			Update mass constraint residual
 		*/
-		gv = PGE_residual_update_function(	z_b,							/** bulk rock constraint 				*/ 
-											gv,								/** global variables (e.g. Gamma) 		*/
+		gv = PGE_residual_update_function(	z_b,								/** bulk rock constraint 				*/ 
+											gv,									/** global variables (e.g. Gamma) 		*/
 
-											PP_ref_db,						/** pure phase database 				*/ 
-											SS_ref_db,						/** solution phase database 			*/
+											PP_ref_db,							/** pure phase database 				*/ 
+											SS_ref_db,							/** solution phase database 			*/
 											cp					);  
 		
 		u = clock() - u; 
@@ -868,7 +868,7 @@ global_variable PGE_inner_loop(		struct bulk_info 	 z_b,
 
 
 
-/** 
+/**
   Main PGE routine
 */ 
 global_variable PGE(	struct bulk_info 	z_b,
@@ -927,10 +927,10 @@ global_variable PGE(	struct bulk_info 	z_b,
 				printf("═══════════════════════════\n");	
 					
 			}
-			gv = check_PC( 					z_b,									/** bulk rock constraint 				*/ 
-											gv,										/** global variables (e.g. Gamma) 		*/
+			gv = check_PC( 					z_b,						/** bulk rock constraint 				*/ 
+											gv,							/** global variables (e.g. Gamma) 		*/
 
-											PP_ref_db,								/** pure phase database 				*/ 
+											PP_ref_db,					/** pure phase database 				*/ 
 											SS_ref_db,
 											cp				); 					
 			
@@ -947,29 +947,29 @@ global_variable PGE(	struct bulk_info 	z_b,
 				/**
 					Split phase if the current xeos is far away from the initial one 
 				*/
-				gv = split_cp(		iss,
-									gv, 								/** global variables (e.g. Gamma) */
-									SS_ref_db,							/** solution phase database */	
-									cp 					);		
+				gv = split_cp(			iss,
+										gv, 							/** global variables (e.g. Gamma) 		*/
+										SS_ref_db,						/** solution phase database 			*/	
+										cp 					);		
 				/**
 					Local minimization of the solution phases
 				*/
-				ss_min_PGE(			mode, iss,
-									gv, 								/** global variables (e.g. Gamma) */
-									z_b,								/** bulk-rock, pressure and temperature conditions */
-									SS_ref_db,							/** solution phase database */	
-									cp 					);	
+				ss_min_PGE(				mode, iss,
+										gv, 							/** global variables (e.g. Gamma) 		*/
+										z_b,							/** bulk-rock, pressure and temperature conditions */
+										SS_ref_db,						/** solution phase database 			*/	
+										cp 					);	
 			}
 		}
 		
 		/**
 			Merge instances of the same solution phase that are compositionnally close 
 		*/
-		gv = 	phase_merge_function(	z_b,								/** bulk rock constraint 				*/
-										gv,									/** global variables (e.g. Gamma) 		*/
+		gv = 	phase_merge_function(	z_b,							/** bulk rock constraint 				*/
+										gv,								/** global variables (e.g. Gamma) 		*/
 
-										PP_ref_db,							/** pure phase database 				*/
-										SS_ref_db,							/** solution phase database 			*/ 
+										PP_ref_db,						/** pure phase database 				*/
+										SS_ref_db,						/** solution phase database 			*/ 
 										cp
 		); 
 	
@@ -986,11 +986,11 @@ global_variable PGE(	struct bulk_info 	z_b,
 		/* dump & print */
 		if (gv.verbose == 1){
 			/* Partitioning Gibbs Energy */
-			PGE_print(					z_b,								/** bulk rock constraint 				*/ 
-										gv,									/** global variables (e.g. Gamma) 		*/
+			PGE_print(					z_b,							/** bulk rock constraint 				*/ 
+										gv,								/** global variables (e.g. Gamma) 		*/
 
-										PP_ref_db,							/** pure phase database 				*/ 
-										SS_ref_db,							/** solution phase database 			*/
+										PP_ref_db,						/** pure phase database 				*/ 
+										SS_ref_db,						/** solution phase database 			*/
 										cp					); 
 		}
 
@@ -1038,12 +1038,12 @@ global_variable PGE(	struct bulk_info 	z_b,
 	}
 	
 	if (gv.verbose == 1){
-		gv = check_PC_driving_force( 	z_b,									/** bulk rock constraint 				*/ 
-										gv,										/** global variables (e.g. Gamma) 		*/
+		gv = check_PC_driving_force( 	z_b,							/** bulk rock constraint 				*/ 
+										gv,								/** global variables (e.g. Gamma) 		*/
 
-										PP_ref_db,								/** pure phase database 				*/ 
+										PP_ref_db,						/** pure phase database 				*/ 
 										SS_ref_db,
-										cp				); 		
+										cp						); 		
 		
 		printf("\n\n\n\n ite  | duration   |  Mass norm |  move ave  | Gamma norm\n");
 		printf("═════════════════════════════════════════════════════════\n");

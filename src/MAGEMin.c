@@ -315,7 +315,6 @@ int runMAGEMin(			int    argc,
 		time_taken 	= ((double)t)/CLOCKS_PER_SEC; 											/* in seconds 	 					*/
 		PrintOutput(gv, rank, sgleP, DB, time_taken, z_b);									/* print output on screen 			*/
 	}
-
 	/* end of loop over points */
 
 	/* wait for all cores to be finished */
