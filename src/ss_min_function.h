@@ -20,6 +20,7 @@ global_variable split_cp(				int 				 i,
 void ss_min_PGE(						int 				 mode, 
 										int 				 i,
 										global_variable 	 gv,
+										obj_type 			*SS_objective,
 										struct bulk_info 	 z_b,
 										SS_ref 				*SS_ref_db,
 										csd_phase_set  		*cp				);

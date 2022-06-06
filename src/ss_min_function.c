@@ -200,15 +200,20 @@ void copy_to_cp(		int 				 i,
 void copy_to_Ppc(		int 				 i, 
 						int 				 ph_id,
 						global_variable 	 gv,
+
+						obj_type 			*SS_objective,
 						SS_ref 			    *SS_ref_db,
 						csd_phase_set  		*cp					){
 
-		// /* get unrotated gbase */
-		// SS_ref_db[ph_id] = non_rot_hyperplane(	gv, 
-		// 										SS_ref_db[ph_id]			);
+		/* get unrotated gbase */
+		SS_ref_db[ph_id] = non_rot_hyperplane(	gv, 
+												SS_ref_db[ph_id]			);
 
-		// /* get unrotated minimized point informations */
-		// double G 	= (*SS_objective[ph_id])(SS_ref_db[ph_id].n_xeos, SS_ref_db[ph_id].xeos, NULL, &SS_ref_db[ph_id]);
+		/* get unrotated minimized point informations */
+		double G 	= (*SS_objective[ph_id])(	SS_ref_db[ph_id].n_xeos,
+												SS_ref_db[ph_id].xeos,
+												NULL,
+												&SS_ref_db[ph_id]			);
 
 		/* check where to add the new phase PC */
 		if (SS_ref_db[ph_id].id_Ppc >= SS_ref_db[ph_id].n_Ppc){ SS_ref_db[ph_id].id_Ppc = 0; printf("MAXIMUM STORAGE SPACE FOR PC IS REACHED, INCREASED #PC_MAX\n");}
@@ -217,7 +222,7 @@ void copy_to_Ppc(		int 				 i,
 
 		SS_ref_db[ph_id].info[m_Ppc]       = 0;
 		SS_ref_db[ph_id].factor_Ppc[m_Ppc] = SS_ref_db[ph_id].factor;
-		SS_ref_db[ph_id].DF_Ppc[m_Ppc]     = SS_ref_db[ph_id].df_raw;
+		SS_ref_db[ph_id].DF_Ppc[m_Ppc]     = G;
 		
 		/* get pseudocompound composition */
 		for (int j = 0; j < gv.len_ox; j++){				
@@ -231,7 +236,7 @@ void copy_to_Ppc(		int 				 i,
 		for (int j = 0; j < SS_ref_db[ph_id].n_xeos; j++){		
 			SS_ref_db[ph_id].xeos_Ppc[m_Ppc][j] = SS_ref_db[ph_id].iguess[j];							/** compositional variables */
 		}	
-		SS_ref_db[ph_id].G_Ppc[m_Ppc] = SS_ref_db[ph_id].df_raw;
+		SS_ref_db[ph_id].G_Ppc[m_Ppc] = G;
 		
 		/* add increment to the number of considered phases */
 		SS_ref_db[ph_id].tot_Ppc += 1;
@@ -245,6 +250,8 @@ void copy_to_Ppc(		int 				 i,
 void ss_min_PGE(		int 				mode, 
 						int 				i, 
 						global_variable 	gv,
+
+						obj_type 			*SS_objective,
 						struct 	bulk_info 	z_b,
 						SS_ref 			    *SS_ref_db,
 						csd_phase_set  		*cp
@@ -332,6 +339,8 @@ void ss_min_PGE(		int 				mode,
 		copy_to_Ppc(							i, 
 												ph_id,
 												gv,
+
+												SS_objective,
 												SS_ref_db,
 												cp						);	
 	}

@@ -647,6 +647,7 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 		gv = PGE(				z_b,									/** bulk rock constraint */ 
 								gv,										/** global variables (e.g. Gamma) */
 
+								SS_objective,
 							    splx_data,
 								PP_ref_db,								/** pure phase database */
 								SS_ref_db,								/** solution phase database */

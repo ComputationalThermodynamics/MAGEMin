@@ -874,6 +874,7 @@ global_variable PGE_inner_loop(		struct bulk_info 	 z_b,
 global_variable PGE(	struct bulk_info 	z_b,
 						global_variable 	gv,
 
+						obj_type 			*SS_objective,
 						simplex_data	    *splx_data,
 						PP_ref 				*PP_ref_db,
 						SS_ref 				*SS_ref_db,
@@ -956,6 +957,8 @@ global_variable PGE(	struct bulk_info 	z_b,
 				*/
 				ss_min_PGE(				mode, iss,
 										gv, 							/** global variables (e.g. Gamma) 		*/
+
+										SS_objective,							
 										z_b,							/** bulk-rock, pressure and temperature conditions */
 										SS_ref_db,						/** solution phase database 			*/	
 										cp 					);	
