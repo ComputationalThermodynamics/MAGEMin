@@ -203,6 +203,14 @@ void copy_to_Ppc(		int 				 i,
 						SS_ref 			    *SS_ref_db,
 						csd_phase_set  		*cp					){
 
+		// /* get unrotated gbase */
+		// SS_ref_db[ph_id] = non_rot_hyperplane(	gv, 
+		// 										SS_ref_db[ph_id]			);
+
+		// /* get unrotated minimized point informations */
+		// double G 	= (*SS_objective[ph_id])(SS_ref_db[ph_id].n_xeos, SS_ref_db[ph_id].xeos, NULL, &SS_ref_db[ph_id]);
+
+		/* check where to add the new phase PC */
 		if (SS_ref_db[ph_id].id_Ppc >= SS_ref_db[ph_id].n_Ppc){ SS_ref_db[ph_id].id_Ppc = 0; printf("MAXIMUM STORAGE SPACE FOR PC IS REACHED, INCREASED #PC_MAX\n");}
 		
 		int m_Ppc = SS_ref_db[ph_id].id_Ppc;

@@ -2,14 +2,8 @@
 #define __OBJECTIVE_FUNCTIONS_H_
 
 #include "MAGEMin.h"
-/** 
-	definition of the objective function type in order to associate them with the right solution phase number
-*/
-typedef double (*obj_type) (		unsigned  		 n,
-									const double 	*x,
-									double 			*grad,
-									void 			*SS_ref_db			);
- 
+
+
 void SS_objective_init_function(	obj_type 		*SS_objective,
 									global_variable  gv					);
 

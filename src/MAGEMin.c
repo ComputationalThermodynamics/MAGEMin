@@ -207,13 +207,20 @@ int runMAGEMin(			int    argc,
 											T							);	
 
 	/** allocate simplex data memory outside the MPI loop 					*/
-	simplex_data 	splx_data;
+	simplex_data 							splx_data;
 
 	init_simplex_A(			   		   	   &splx_data,
 											gv							);
 										
 	init_simplex_B_em(				   	   &splx_data,
 											gv							);
+
+	/** pointer array to objective functions 								*/
+	obj_type 								SS_objective[gv.len_ss];	
+	
+	SS_objective_init_function(				SS_objective,
+											gv							);
+								
 		
 	/****************************************************************************************/
 	/**                               LAUNCH MINIMIZATION ROUTINE                          **/
@@ -281,6 +288,8 @@ int runMAGEMin(			int    argc,
 											Mode,
 											z_b,											/** bulk rock informations 			*/
 											gv,												/** global variables (e.g. Gamma) 	*/
+
+											SS_objective,
 										   &splx_data,
 											DB.PP_ref_db,									/** pure phase database 			*/
 											DB.SS_ref_db,									/** solid solution database 		*/
@@ -598,6 +607,8 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 												int 				 Mode,
 												struct bulk_info 	 z_b,
 												global_variable 	 gv,
+
+												obj_type 			*SS_objective,
 												simplex_data	    *splx_data,
 												PP_ref  			*PP_ref_db,
 												SS_ref  			*SS_ref_db,
@@ -624,6 +635,7 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 		gv = Levelling(			z_b,									/** bulk rock informations */
 								gv,										/** global variables (e.g. Gamma) */
 
+								SS_objective,
 							    splx_data,
 								PP_ref_db,								/** pure phase database */
 								SS_ref_db,								/** solution phase database */
@@ -743,6 +755,7 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 		gv = Levelling(			z_b,									/** bulk rock informations */
 								gv,										/** global variables (e.g. Gamma) */
 
+								SS_objective,
 							    splx_data,
 								PP_ref_db,								/** pure phase database */
 								SS_ref_db,								/** solution phase database */

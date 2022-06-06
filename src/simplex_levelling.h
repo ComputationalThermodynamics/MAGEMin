@@ -5,6 +5,8 @@
 
 global_variable Levelling(			struct bulk_info 	z_b,
 									global_variable 	gv,
+
+									obj_type 		   *SS_objective,
 									simplex_data	   *splx_data,
 									PP_ref 			   *PP_ref_db,
 									SS_ref 			   *SS_ref_db,

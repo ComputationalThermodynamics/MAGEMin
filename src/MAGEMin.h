@@ -48,7 +48,14 @@ struct EM_db {
     double input_4[3];         	/** third line of the thermodynamics datable 								*/
 };
 
-
+/** 
+	definition of the objective function type in order to associate them with the right solution phase number
+*/
+typedef double (*obj_type) (		unsigned  		 n,
+									const double 	*x,
+									double 			*grad,
+									void 			*SS_ref_db			);
+ 
 typedef struct simplex_datas
 {
 	/* global variables */
@@ -588,6 +595,8 @@ global_variable ComputeEquilibrium_Point(	int 				 EM_database,
 											int 				 Mode,
 											struct bulk_info 	 z_b,
 											global_variable 	 gv,
+
+											obj_type 		    *SS_objective,
 											simplex_data	    *splx_data,
 											PP_ref  			*PP_ref_db,
 											SS_ref  			*SS_ref_db,

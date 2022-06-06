@@ -697,7 +697,7 @@ void print_SS_informations(		global_variable gv,
    rotate G-hyperplane using Gamma
 */
 SS_ref rotate_hyperplane(	global_variable gv,
-							SS_ref SS_ref_db		){
+							SS_ref 			SS_ref_db		){
 	
 	/** rotate gbase with respect to the G-hyperplane (change of base) */
 	for (int k = 0; k < SS_ref_db.n_em; k++) {
@@ -705,6 +705,20 @@ SS_ref rotate_hyperplane(	global_variable gv,
 		for (int j = 0; j < gv.len_ox; j++) {
 			SS_ref_db.gb_lvl[k] -= SS_ref_db.Comp[k][j]*gv.gam_tot[j];
 		}
+	}	
+	
+	return SS_ref_db;
+}
+
+/**
+   non rotated G-hyperplane
+*/
+SS_ref non_rot_hyperplane(	global_variable gv,
+							SS_ref 			SS_ref_db		){
+	
+	/** rotate gbase with respect to the G-hyperplane (change of base) */
+	for (int k = 0; k < SS_ref_db.n_em; k++) {
+		SS_ref_db.gb_lvl[k] = SS_ref_db.gbase[k];
 	}	
 	
 	return SS_ref_db;

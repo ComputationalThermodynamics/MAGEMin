@@ -985,6 +985,8 @@ void destroy_simplex_B(
 */	
 global_variable run_levelling_function(		struct bulk_info 	 z_b,
 											global_variable 	 gv,
+
+											obj_type			*SS_objective,	
 											simplex_data		*splx_data,
 											PP_ref 				*PP_ref_db,
 											SS_ref 				*SS_ref_db,
@@ -995,12 +997,6 @@ global_variable run_levelling_function(		struct bulk_info 	 z_b,
 	clock_t t; 
 	double time_taken;
 	t = clock();
-	
-	/** declare structure to storesimplex arrays */
-	obj_type 		SS_objective[gv.len_ss];	
-	
-	SS_objective_init_function(				SS_objective,
-											gv				);
 
 	/** fill matrices */
 	fill_simplex_arrays_A(					z_b,
@@ -1105,6 +1101,7 @@ global_variable run_levelling_function(		struct bulk_info 	 z_b,
 global_variable Levelling(	struct bulk_info 	z_b,
 							global_variable 	gv,
 
+							obj_type 		   *SS_objective,
 							simplex_data	   *splx_data,
 							PP_ref 			   *PP_ref_db,
 							SS_ref 			   *SS_ref_db,
@@ -1116,9 +1113,17 @@ global_variable Levelling(	struct bulk_info 	z_b,
 		printf("════════════════════════════════════════\n");
 	}
 
+	/** declare structure to store simplex arrays */
+	// obj_type 		SS_objective[gv.len_ss];	
+	
+	// SS_objective_init_function(				SS_objective,
+	// 										gv				);
+
 	/* pseudosection function to get starting guess */
 	gv = run_levelling_function(	z_b,												/** bulk rock informations    */
 									gv,													/** global variables (e.g. Gamma) */
+
+									SS_objective,
 								    splx_data,
 									PP_ref_db,											/** pure phase database */
 									SS_ref_db,											/** solution phase database */

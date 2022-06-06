@@ -60,17 +60,21 @@ void print_SS_informations(		global_variable gv,
 /* functon related to hyperplane manipulation */
 SS_ref rotate_hyperplane(		global_variable gv,
 								SS_ref SS_ref_db			);
+								
+SS_ref non_rot_hyperplane(	global_variable gv,
+							SS_ref 			SS_ref_db		);
 							
 SS_ref raw_hyperplane(		global_variable  gv,
 							SS_ref 			 SS_ref_db,
 							double 			*gb				);
+
+
 SS_ref restrict_SS_HyperVolume(	global_variable gv, 
 								SS_ref SS_ref_db,
 								double box_size				);		
-									
+
 SS_ref check_SS_bounds(			global_variable gv, 
 								SS_ref SS_ref_db			);																	
-
 
 /*	Reduce row echelon form function (should be deleted eventually) */
 typedef struct TMatrix {
