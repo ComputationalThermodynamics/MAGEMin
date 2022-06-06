@@ -72,8 +72,7 @@ typedef struct simplex_datas
 	double  *dG_A;		/** driving force matrix */
 	double  *n_vec;		/** phase fractions */
 	int    	 n_Ox;		/** number of active oxides */
-	int		 len_ox;	/** number of total oxides */
-	
+
 	/* Potential candidates */
 	int      n_pp;		/** number of pure phases */
 	int      n_em_ss;	/** number of endmembers in solutions phases */

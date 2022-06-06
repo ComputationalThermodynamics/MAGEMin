@@ -185,29 +185,36 @@ int runMAGEMin(			int    argc,
 	/****************************************************************************************/
 	/**                       DEFINE SOME TEST BULK-ROCK COMPOSITIONS                      **/
 	/****************************************************************************************/
-	/* get bulk rock composition parsed from args */
-	get_bulk(		bulk_rock,
-					test,
-					gv.len_ox 						);
+	/* get bulk rock composition parsed from args 							*/
+	get_bulk(								bulk_rock,
+											test,
+											gv.len_ox 					);
 
 	/* Override P,T & bulk with command-line options, if there is no file parsed: */
-	if (Pres    > 0.0){ P = Pres 					;}
-	if (Temp    > 0.0){ T = Temp + 273.15			;}
+	if (Pres    > 0.0){ P = Pres 			;}
+	if (Temp    > 0.0){ T = Temp + 273.15	;}
 	
 	if (Bulk[0] > 0.0) {
 		for (i = 0; i < gv.len_ox; i++){ bulk_rock[i] = Bulk[i];}
 	}
 	
-	/** Normalize composition to sum to 1. 			*/
-	norm_array(		bulk_rock,
-					gv.len_ox						);						
+	/** Normalize composition to sum to 1. 									*/
+	norm_array(								bulk_rock,
+											gv.len_ox					);						
 								
-	/** Get zeros in bulk P and T 					*/				
-	z_b = initialize_bulk_infos(	P, 
-									T				);	
+	/** Get zeros in bulk P and T 											*/				
+	z_b = initialize_bulk_infos(			P, 
+											T							);	
 
+	/** allocate simplex data memory outside the MPI loop 					*/
 	simplex_data 	splx_data;
 
+	init_simplex_A(			   		   	   &splx_data,
+											gv							);
+										
+	init_simplex_B_em(				   	   &splx_data,
+											gv							);
+		
 	/****************************************************************************************/
 	/**                               LAUNCH MINIMIZATION ROUTINE                          **/
 	/****************************************************************************************/
@@ -243,15 +250,15 @@ int runMAGEMin(			int    argc,
 		z_b = reset_z_b(					gv,				
 											bulk_rock,								
 											z_b							);	
-
-		/** allocate memory (it's allocate in the MPI loop because the number of oxides is not necessarely constant)*/
-		init_simplex_A(			   		   &splx_data,
-											gv,
-											z_b							);
+	
+		/** reset simplex memory 													*/
+		reset_simplex_A(			   	   &splx_data,
+											z_b,
+											gv							);
 											
-		init_simplex_B_em(				   &splx_data					);
-			
-
+		reset_simplex_B_em(				   &splx_data,
+											gv							);
+				
 		/** reset considered phases structure 										*/
 		reset_cp(							gv,												
 											z_b,
