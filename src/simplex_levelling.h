@@ -21,12 +21,4 @@ void print_levelling(				struct bulk_info 	z_b,
 									
 									PP_ref 			   *PP_ref_db,
 									SS_ref 			   *SS_ref_db			);
-
-void swap_PGE_pseudocompounds(		struct bulk_info 	z_b,
-									simplex_data 	   *splx_data,
-									global_variable 	gv,
-									
-									PP_ref 			   *PP_ref_db,
-									SS_ref 			   *SS_ref_db			);
-
 #endif
