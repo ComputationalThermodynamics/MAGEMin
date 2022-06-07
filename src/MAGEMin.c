@@ -191,8 +191,8 @@ int runMAGEMin(			int    argc,
 											gv.len_ox 					);
 
 	/* Override P,T & bulk with command-line options, if there is no file parsed: */
-	if (Pres    > 0.0){ P = Pres 			;}
-	if (Temp    > 0.0){ T = Temp + 273.15	;}
+	if (Pres    > 0.0){ P = Pres 										;}
+	if (Temp    > 0.0){ T = Temp + 273.15								;}
 	
 	if (Bulk[0] > 0.0) {
 		for (i = 0; i < gv.len_ox; i++){ bulk_rock[i] = Bulk[i];}

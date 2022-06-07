@@ -998,6 +998,39 @@ global_variable PGE(	struct bulk_info 	z_b,
 										cp					); 
 		}
 
+		/**
+		   Here the linear programming method is used after the PGE step to get a new Gibbs hyper-plane
+		*/
+		run_simplex_PGE_pseudocompounds(	z_b,
+											splx_data,
+											gv,
+												
+											PP_ref_db,
+											SS_ref_db		);
+
+		// 2BM
+		// simplex_data *d  = (simplex_data *) splx_data;
+		// for (int i = 0; i < d->n_Ox; i++){
+		// 	printf("%+10f ",d->gamma_tot[i]);
+		// }
+		// printf("\n");
+		// for (int i = 0; i < d->n_Ox; i++){
+		// 	if (d->ph_id_A[i][0] == 1){
+		// 		printf("\t['%5s' %+10f  %+10f  %5d ]", gv.PP_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+		// 		printf("\n");
+		// 	}
+		// 	if (d->ph_id_A[i][0] == 2){
+		// 		printf("\t['%5s' %+10f  %+10f  %5d ]\n", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+		// 	}
+		// 	if (d->ph_id_A[i][0] == 3){
+		// 		printf("\t['%5s' %+10f  %+10f  %5d ]", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+		// 		for (int ii = 0; ii < SS_ref_db[d->ph_id_A[i][1]].n_xeos; ii++){
+		// 			printf(" %+10f", SS_ref_db[d->ph_id_A[i][1]].xeos_Ppc[d->ph_id_A[i][3]][ii] );
+		// 		}
+		// 		printf("\n");
+		// 	}
+		// }
+
 		/* Increment global iteration value */
 		gv.global_ite += 1;
 
@@ -1052,7 +1085,6 @@ global_variable PGE(	struct bulk_info 	z_b,
 	// 		printf("\n");
 	// 	}
 	// }
-
 
 	if (gv.verbose == 1){
 		gv = check_PC_driving_force( 	z_b,							/** bulk rock constraint 				*/ 

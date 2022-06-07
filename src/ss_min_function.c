@@ -211,7 +211,7 @@ void copy_to_Ppc(		int 				 i,
 
 		/* get unrotated minimized point informations */
 		double G 	= (*SS_objective[ph_id])(	SS_ref_db[ph_id].n_xeos,
-												SS_ref_db[ph_id].xeos,
+												SS_ref_db[ph_id].iguess,
 												NULL,
 												&SS_ref_db[ph_id]			);
 

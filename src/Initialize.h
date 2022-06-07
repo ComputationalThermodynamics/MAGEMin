@@ -792,6 +792,10 @@ void init_simplex_A( 	simplex_data 		*splx_data,
 						global_variable 	 gv
 ){
 	simplex_data *d  = (simplex_data *) splx_data;
+
+	/* prescribe tolerance parameters */
+	d->dG_B_tol	   = -1e-6;
+	d->min_F_tol   =  1e6;
 	
 	/* allocate reference assemblage memory */
 	d->A           = malloc ((gv.len_ox*gv.len_ox)  * sizeof(double));

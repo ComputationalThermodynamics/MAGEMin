@@ -200,8 +200,8 @@ void generate_pseudocompounds(	int 		 		 ss,
 				for (j = 0; j < nEl; j++){
 					SS_ref_db[ss].ss_comp[j] = 0.0;
 					for (i = 0; i < SS_ref_db[ss].n_em; i++){
-					SS_ref_db[ss].ss_comp[j] += SS_ref_db[ss].Comp[i][j]*SS_ref_db[ss].p[i]*SS_ref_db[ss].z_em[i];
-				} 
+						SS_ref_db[ss].ss_comp[j] += SS_ref_db[ss].Comp[i][j]*SS_ref_db[ss].p[i]*SS_ref_db[ss].z_em[i];
+					} 
 				}
 
 				if (SS_ref_db[ss].id_pc >= SS_ref_db[ss].n_pc){ SS_ref_db[ss].id_pc = 0; printf("MAXIMUM STORAGE SPACE FOR PC IS REACHED, INCREASED #PC_MAX\n");}
@@ -579,7 +579,7 @@ void run_simplex_levelling(				struct bulk_info 	 z_b,
 	int i, k, iss;
 
 	/** copy A onto A1 in order to inverse it using LAPACKE */
-	for (k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k];}
+	for (k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k]	;}
 
 	/** inverse guessed assemblage stoechiometry matrix */
 	inverseMatrix(						d->A1, 
@@ -768,7 +768,6 @@ global_variable run_levelling_function(		struct bulk_info 	 z_b,
 		printf("\t[---------------------------------------]\n");
 		printf("\t[  EM  |   EM PROP  |   g0_EM    |  ix  ]\n");
 		printf("\t[---------------------------------------]\n");
-		
 
 		for (int i = 0; i < d->n_Ox; i++){
 			if (d->ph_id_A[i][0] == 1){

@@ -486,9 +486,9 @@ double partial_euclidean_distance(double *array1 ,double *array2 ,int n){
   inverse a matrix using LAPACKE dgetrf and dgetri
 */	
 void inverseMatrix(double *A1, int n){
-	int    ipiv[n];					
+	int    ipiv[n];	
 	int    info;
-	
+
 	/* call lapacke to inverse Matrix */
 	info = LAPACKE_dgetrf(LAPACK_ROW_MAJOR, n, n, A1, n, ipiv); 
 	info = LAPACKE_dgetri(LAPACK_ROW_MAJOR, n, A1, n, ipiv);
@@ -1046,8 +1046,8 @@ void update_dG(	simplex_data *splx_data
 	}
 	
 	d->ph2swp = -1;	
-	if (d->dG_B < -1e-6){	
-		d->min_F  =  1e6;												/** max value for F, tentative here because F can tend to +inf */
+	if (d->dG_B < d->dG_B_tol){	
+		d->min_F  =  d->min_F_tol;												/** max value for F, tentative here because F can tend to +inf */
 		for (int i = 0; i < d->n_Ox; i++){
 			F = (d->n_vec[i])/d->B1[i];
 			if (F < d->min_F && F > minF){
@@ -1075,6 +1075,34 @@ void update_local_gamma(	double *A1,
 			gam[i] += g0_A[j]*A1[k];
 		}
 	}
+};
+
+
+/**
+  update Gamma using LAPACKE dgesv
+*/	
+void update_local_gamma_QR(		double *A, 
+								double *b, 
+								int 	n			){
+
+
+	/* LAPACKE memory allocation */
+	int 	nrhs   = 1;											/** number of rhs columns, 1 is vector*/
+	int 	lda    = n;											/** leading dimesion of A*/
+	int 	ldb    = 1;											/** leading dimension of b*/
+	int 	ipiv[n];										/** pivot indices*/
+	int 	info;												/** get info from lapacke function*/
+					
+	info = LAPACKE_dgesv(		LAPACK_ROW_MAJOR, 
+								n, 
+								nrhs, 
+								A, 
+								lda, 
+								ipiv, 
+								b, 
+								ldb					);
+
+
 };
 
 /**
@@ -1145,7 +1173,6 @@ void swap_pure_phases(				struct bulk_info 	 z_b,
 				
 				/** update phase fractions */
 				MatVecMul(		d->A1,
-								// br,
 								z_b.bulk_rock_cat,
 								d->n_vec,
 								d->n_Ox		);	
@@ -1217,7 +1244,6 @@ void swap_pure_endmembers(				struct bulk_info 	 z_b,
 						
 						/** update phase fractions */
 						MatVecMul(		d->A1,
-										// br,
 										z_b.bulk_rock_cat,
 										d->n_vec,
 										d->n_Ox		);	
@@ -1290,7 +1316,6 @@ void swap_pseudocompounds(				struct bulk_info 	 z_b,
 					
 					/** update phase fractions */
 					MatVecMul(		d->A1,
-									// br,
 									z_b.bulk_rock_cat,
 									d->n_vec,
 									d->n_Ox		);
@@ -1358,10 +1383,9 @@ void swap_PGE_pseudocompounds(			struct bulk_info 	 z_b,
 					/** inverse guessed assemblage stoechiometry matrix */
 					inverseMatrix(	d->A1,
 									d->n_Ox		);
-					
+
 					/** update phase fractions */
 					MatVecMul(		d->A1,
-									// br,
 									z_b.bulk_rock_cat,
 									d->n_vec,
 									d->n_Ox		);
@@ -1369,6 +1393,7 @@ void swap_PGE_pseudocompounds(			struct bulk_info 	 z_b,
 			}
 		}
 	}
+
 }
 
 

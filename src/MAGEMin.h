@@ -63,12 +63,15 @@ typedef struct simplex_datas
 	double  *gamma_ss;		/** chemical potential of oxides (solution phase round) */
 	double  *gamma_tot;		/** update global gamma									*/
 	double  *gamma_delta;	/** delta gamma between two levelling rounds			*/
-	
+
+	double dG_B_tol;		/** This is the minimum driving force under which the PC is considered 		*/
+	double min_F_tol;		
+
 	double   min_F;			/** min F 												*/
 	int      ph2swp;		/** index of phase to swap 								*/
 	int      n_swp;    		/** number of phase added to the reference assemblage 	*/
 	int      swp;       	/** swap occured? 										*/
-	int     *pivot;			/** pivot point when doing RREF toget the rational basis of the null space */
+	int     *pivot;			/** pivot point when doing RREF toget the rational basis of the null space 	*/
 	
 	/* Reference assemblage */
 	double  *A;				/** stoechiometry matrix 								*/
