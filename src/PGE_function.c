@@ -861,7 +861,8 @@ global_variable PGE_inner_loop(		struct bulk_info 	 z_b,
 		u = clock() - u; 
 		gv.inner_PGE_ite_time =(((double)u)/CLOCKS_PER_SEC*1000);
 		PGEi += 1;
-	} 
+	}
+
 		
    return gv;
 };
@@ -1040,6 +1041,19 @@ global_variable PGE(	struct bulk_info 	z_b,
 		gv.ite_time[gv.global_ite] = ((double)t)/CLOCKS_PER_SEC*1000;
 	}
 	
+	// 2BM
+	// for (int i = 0; i < gv.len_ss; i++){
+	// 	printf("\n %s\n",gv.SS_list[i]);
+	// 	for (int j = 0; j < SS_ref_db[i].tot_Ppc; j++){
+	// 		printf(" %+10f |",SS_ref_db[i].G_Ppc[j]);
+	// 		for (int k = 0; k < SS_ref_db[i].n_em; k++){
+	// 			printf(" %+10f",SS_ref_db[i].mu_Ppc[j][k]);
+	// 		}
+	// 		printf("\n");
+	// 	}
+	// }
+
+
 	if (gv.verbose == 1){
 		gv = check_PC_driving_force( 	z_b,							/** bulk rock constraint 				*/ 
 										gv,								/** global variables (e.g. Gamma) 		*/

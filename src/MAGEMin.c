@@ -326,6 +326,12 @@ int runMAGEMin(			int    argc,
 	}
 	/* end of loop over points */
 
+	// 2BM
+	// for (int i = 0; i < splx_data.n_Ox; i++){
+	// printf("%+10f ",splx_data.gamma_tot[i]);
+	// printf("\n");
+	// }
+
 	/* wait for all cores to be finished */
 	MPI_Barrier(MPI_COMM_WORLD);		
 

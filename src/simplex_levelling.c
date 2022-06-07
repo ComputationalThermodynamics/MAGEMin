@@ -720,7 +720,7 @@ void swap_pure_endmembers(				struct bulk_info 	 z_b,
 }
 
 /**
-  function to swp pure phases
+  function to swp solution phase pseudocompounds
 */	
 void swap_pseudocompounds(				struct bulk_info 	 z_b,
 										simplex_data 		*splx_data,
@@ -788,8 +788,79 @@ void swap_pseudocompounds(				struct bulk_info 	 z_b,
 			}
 		}
 	}
-
 }
+
+/**
+  function to swp solution phase pseudocompounds during PGE iterations
+*/	
+void swap_PGE_pseudocompounds(			struct bulk_info 	 z_b,
+										simplex_data 		*splx_data,
+										global_variable 	 gv,
+										
+										PP_ref 				*PP_ref_db,
+										SS_ref 				*SS_ref_db
+){
+	simplex_data *d  = (simplex_data *) splx_data;
+
+	int     k, max_n_Ppc;
+	
+	for (int i = 0; i < gv.len_ss; i++){										/**loop to pass informations from active endmembers */
+		if (SS_ref_db[i].ss_flags[0] == 1){
+
+			max_n_Ppc = get_max_n_pc(SS_ref_db[i].tot_Ppc, SS_ref_db[i].n_Ppc);
+
+			for (int l = 0; l < max_n_Ppc; l++){
+
+				d->g0_B		  = SS_ref_db[i].G_Ppc[l];
+				d->ph_id_B[0] = 3;														/** added phase is a pure species */
+				d->ph_id_B[1] = i;														/** save solution phase index */
+				d->ph_id_B[2] = 0;														/** save pseudocompound index */
+			
+				/* retrieve the composition in the right (reduced) chemical space */
+				for (int j = 0; j < z_b.nzEl_val; j++){
+					d->B[j] = SS_ref_db[i].comp_Ppc[l][z_b.nzEl_array[j]]; 
+				}
+
+				/** update deltaG with respect to G hyperplane */
+				update_dG(splx_data);
+				
+				/** save updated driving force */
+				SS_ref_db[i].DF_Ppc[l] = d->dG_B;
+				
+				/** swap phase */
+				if (d->ph2swp != -1){													/** if the phase can be added */
+					SS_ref_db[i].n_swap[l]   = d->n_swp;
+					d->swp 				 	 = 1;
+					d->n_swp 				+= 1;
+					d->ph_id_A[d->ph2swp][0] = d->ph_id_B[0];
+					d->ph_id_A[d->ph2swp][1] = d->ph_id_B[1];
+					d->ph_id_A[d->ph2swp][2] = d->ph_id_B[2];
+					d->ph_id_A[d->ph2swp][3] = l;									/** save pseudocompound number */
+					d->g0_A[d->ph2swp] 	     = d->g0_B;
+					
+					for (int j = 0; j < d->n_Ox; j++){				
+						int k = d->ph2swp + j*d->n_Ox;
+						d->A[k] = d->B[j];
+					}
+					
+					for (int k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k];}
+
+					/** inverse guessed assemblage stoechiometry matrix */
+					inverseMatrix(	d->A1,
+									d->n_Ox		);
+					
+					/** update phase fractions */
+					MatVecMul(		d->A1,
+									// br,
+									z_b.bulk_rock_cat,
+									d->n_vec,
+									d->n_Ox		);
+				}
+			}
+		}
+	}
+}
+
 
 /**
   function to run simplex linear programming with pseudocompounds only
@@ -815,12 +886,13 @@ void run_simplex_vPC_only(				struct bulk_info 	 z_b,
 											gv,
 											PP_ref_db,
 											SS_ref_db	);	
-											
-		swap_pure_endmembers(				z_b,
-											splx_data,
-											gv,
-											PP_ref_db,
-											SS_ref_db	);	
+
+		// 2BM, here I deactivated the swap of pure endmembers during second levelling stage, this might help to converge to solution -> 2 be fully tested								
+		// swap_pure_endmembers(				z_b,
+		// 									splx_data,
+		// 									gv,
+		// 									PP_ref_db,
+		// 									SS_ref_db	);	
 		
 		swap_pseudocompounds(				z_b,
 											splx_data,
@@ -1135,4 +1207,4 @@ global_variable Levelling(	struct bulk_info 	z_b,
 
 
 	return gv;
-};		
+};
