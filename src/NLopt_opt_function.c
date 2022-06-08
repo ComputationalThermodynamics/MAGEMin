@@ -19,7 +19,7 @@
 #include "toolkit.h"
 
 #define nEl 11						        // max number of non-zeros compoenents
-#define eps_sf -1e-10				      // eps to shift site fraction from zero
+#define eps_sf -1e-12				      // eps to shift site fraction from zero
 
 
 /** 
@@ -1097,7 +1097,9 @@ void pl4T_c(unsigned m, double *result, unsigned n, const double *x, double *gra
 /** 
   local minimization for spinel
 */
-void spn_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+void spn_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *SS_ref_db){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+
     result[0] = ( eps_sf + -2.0/3.0*x[4] + 1.0/3.0*x[3]*x[0] - 1.0/3.0*x[3] + 1.0/3.0*x[0] - 1.0/3.0);
     result[1] = ( eps_sf + -2.0/3.0*x[5] - 1.0/3.0*x[3]*x[0] - 1.0/3.0*x[0]);
     result[2] = ( eps_sf + 2.0/3.0*x[4] + 2.0/3.0*x[5] + 2.0/3.0*x[6] - 2.0/3.0*x[2]*x[1] - 2.0/3.0*x[3]*x[1] + 1.0/3.0*x[3] + 2.0/3.0*x[1] - 2.0/3.0);
@@ -1180,6 +1182,14 @@ void spn_c(unsigned m, double *result, unsigned n, const double *x, double *grad
         grad[67] = 0.0;
         grad[68] = 0.0;
         grad[69] = 0.0;
+
+        // int k = 0;
+        // for (int i = 0; i < d->n_sf; i++){
+        //   for (int j = 0; j < d->n_xeos; j++){
+        //     grad[k] *= d->z_sf[i];
+        //     k       += 1;
+        //   }
+        // }
     }
 
     return;
@@ -1895,7 +1905,7 @@ SS_ref NLopt_opt_spn_function(global_variable gv, SS_ref SS_ref_db){
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
    nlopt_set_min_objective(SS_ref_db.opt, obj_spn, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, spn_c, NULL, SS_ref_db.tol_sf);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, spn_c, &SS_ref_db, SS_ref_db.tol_sf);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    

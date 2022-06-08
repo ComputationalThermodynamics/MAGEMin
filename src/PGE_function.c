@@ -1008,28 +1008,13 @@ global_variable PGE(	struct bulk_info 	z_b,
 											PP_ref_db,
 											SS_ref_db		);
 
-		// 2BM
+
+		/* copy gamma total to the global variables */
 		// simplex_data *d  = (simplex_data *) splx_data;
-		// for (int i = 0; i < d->n_Ox; i++){
-		// 	printf("%+10f ",d->gamma_tot[i]);
+		// for (int i = 0; i < gv.len_ox; i++){
+		// 	gv.gam_tot[i] = d->gamma_tot[i];
 		// }
-		// printf("\n");
-		// for (int i = 0; i < d->n_Ox; i++){
-		// 	if (d->ph_id_A[i][0] == 1){
-		// 		printf("\t['%5s' %+10f  %+10f  %5d ]", gv.PP_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
-		// 		printf("\n");
-		// 	}
-		// 	if (d->ph_id_A[i][0] == 2){
-		// 		printf("\t['%5s' %+10f  %+10f  %5d ]\n", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
-		// 	}
-		// 	if (d->ph_id_A[i][0] == 3){
-		// 		printf("\t['%5s' %+10f  %+10f  %5d ]", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
-		// 		for (int ii = 0; ii < SS_ref_db[d->ph_id_A[i][1]].n_xeos; ii++){
-		// 			printf(" %+10f", SS_ref_db[d->ph_id_A[i][1]].xeos_Ppc[d->ph_id_A[i][3]][ii] );
-		// 		}
-		// 		printf("\n");
-		// 	}
-		// }
+
 
 		/* Increment global iteration value */
 		gv.global_ite += 1;
@@ -1051,6 +1036,7 @@ global_variable PGE(	struct bulk_info 	z_b,
 		gv.PGE_mass_norm[ gv.global_ite] = gv.BR_norm;	/** save norm for the current global iteration */
 		gv.PGE_total_norm[gv.global_ite] = gv.fc_norm_t1;
 
+		//2BM
 		// capture points that fail to converge sufficiently quickly
 		// or have a very large norm after any iteration
 		if ((gv.global_ite > gv.it_slow && gv.BR_norm > gv.br_max_tol*gv.ur_slow) ||

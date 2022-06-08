@@ -123,7 +123,8 @@ void update_local_gamma(				double 				*A1,
 void update_global_gamma( 				struct bulk_info 	z_b,
 										simplex_data 	   *splx_data		);
 
-
+void update_global_gamma_LU( 			struct bulk_info 	z_b,
+										simplex_data 	   *splx_data		);
 void swap_pure_phases(					struct bulk_info 	 z_b,
 										simplex_data 		*splx_data,
 										global_variable 	 gv,

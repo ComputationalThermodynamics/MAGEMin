@@ -676,8 +676,9 @@ void print_cp(		global_variable	 gv,
    rotate G-hyperplane using Gamma
 */
 void print_SS_informations(		global_variable gv,
-								SS_ref SS_ref_db,
-								int		iss					){
+								SS_ref 			SS_ref_db,
+								int				iss		
+){
 	printf(" %4s  | %+10f | %2d | %+10f | %+10f | ",gv.SS_list[iss],SS_ref_db.df,SS_ref_db.sf_ok,SS_ref_db.sum_xi,SS_ref_db.LM_time);
 	for (int k = 0; k < SS_ref_db.n_xeos; k++) {
 		printf(" %+10f",SS_ref_db.xeos[k]);
@@ -686,10 +687,10 @@ void print_SS_informations(		global_variable gv,
 		printf(" %10s","-");
 	}
 
-	printf(" | ");
-	for (int k = 0; k < SS_ref_db.n_xeos; k++) {
-		printf(" %+10f",SS_ref_db.dfx[k]);
-	}
+	// printf(" | ");
+	// for (int k = 0; k < SS_ref_db.n_em; k++) {
+	// 	printf(" %+10f",SS_ref_db.mu[k]);
+	// }
 	printf("\n");
 }
 
@@ -1077,34 +1078,6 @@ void update_local_gamma(	double *A1,
 	}
 };
 
-
-/**
-  update Gamma using LAPACKE dgesv
-*/	
-void update_local_gamma_QR(		double *A, 
-								double *b, 
-								int 	n			){
-
-
-	/* LAPACKE memory allocation */
-	int 	nrhs   = 1;											/** number of rhs columns, 1 is vector*/
-	int 	lda    = n;											/** leading dimesion of A*/
-	int 	ldb    = 1;											/** leading dimension of b*/
-	int 	ipiv[n];										/** pivot indices*/
-	int 	info;												/** get info from lapacke function*/
-					
-	info = LAPACKE_dgesv(		LAPACK_ROW_MAJOR, 
-								n, 
-								nrhs, 
-								A, 
-								lda, 
-								ipiv, 
-								b, 
-								ldb					);
-
-
-};
-
 /**
   update global Gamma 
 */	
@@ -1120,6 +1093,55 @@ void update_global_gamma( 				struct bulk_info 	z_b,
 		d->gamma_tot[z_b.nzEl_array[i]]     = d->gamma_ss[i];
 	}	
 	
+};
+
+/**
+  update global Gamma 
+*/	
+void update_global_gamma_LU( 				struct bulk_info 	z_b,
+											simplex_data 	   *splx_data
+){
+
+	simplex_data *d  = (simplex_data *) splx_data;
+
+	int i,j,k,l;
+
+	/* LAPACKE memory allocation */
+	int 	nrhs   = 1;													/** number of rhs columns, 1 is vector*/
+	int 	lda    = d->n_Ox;											/** leading dimesion of A*/
+	int 	ldb    = 1;													/** leading dimension of b*/
+	int 	ipiv[d->n_Ox];												/** pivot indices*/
+	int 	info;														/** get info from lapacke function*/	
+
+	for (i = 0; i < d->n_Ox;i++){
+		d->gamma_ss[i] = d->g0_A[i];
+	}
+	for (i = 0; i < d->n_Ox;i++){
+		for (j = 0; j < d->n_Ox;j++){
+			k = i + j*d->n_Ox;
+			l = j + i*d->n_Ox;
+			d->Alu[k] = d->A[l];
+		}
+	}
+
+	/**
+		call lapacke to solve system of linear equation using LU 
+	*/
+	info = LAPACKE_dgesv(		LAPACK_ROW_MAJOR, 
+								d->n_Ox, 
+								nrhs, 
+								d->Alu, 
+								lda, 
+								ipiv, 
+								d->gamma_ss, 
+								ldb					);
+
+	/** update gam_tot using solution phase levelling gamma */
+	for (int i = 0; i < d->n_Ox; i++){
+		d->gamma_delta[z_b.nzEl_array[i]] 	= d->gamma_ss[i] - d->gamma_tot[z_b.nzEl_array[i]];
+		d->gamma_tot[z_b.nzEl_array[i]]     = d->gamma_ss[i];
+	}	
+
 };
 
 
@@ -1412,7 +1434,7 @@ void run_simplex_PGE_pseudocompounds(	struct bulk_info 	 z_b,
 	int     k = 0;
 
 	d->swp = 1;
-	while (d->swp == 1){					/** as long as a phase can be added to the guessed assemblage, go on */
+	while (d->swp == 1 && k < 4){					/** as long as a phase can be added to the guessed assemblage, go on */
 		k 		  += 1;
 		d->swp     = 0;
 		
@@ -1421,6 +1443,12 @@ void run_simplex_PGE_pseudocompounds(	struct bulk_info 	 z_b,
 											gv,
 											PP_ref_db,
 											SS_ref_db		);	
+
+		swap_pure_endmembers(				z_b,
+											splx_data,
+											gv,
+											PP_ref_db,
+											SS_ref_db	);	
 
 		swap_PGE_pseudocompounds(			z_b,
 											splx_data,
@@ -1436,7 +1464,7 @@ void run_simplex_PGE_pseudocompounds(	struct bulk_info 	 z_b,
 											d->n_Ox			);
 
 	/* update global variable gamma */
-	update_global_gamma(					z_b,
+	update_global_gamma_LU(					z_b,
 											splx_data		);	
 
 	if (gv.verbose == 1){

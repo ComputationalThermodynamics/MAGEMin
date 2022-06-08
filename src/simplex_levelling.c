@@ -125,7 +125,7 @@ void print_levelling(		struct bulk_info 	 z_b,
 				SS_ref_db[i].DF_pc[l] -= SS_ref_db[i].comp_pc[l][j]*gv.gam_tot[j];
 			}
 			
-			if (SS_ref_db[i].DF_pc[l] < 1.0){
+			// if (SS_ref_db[i].DF_pc[l] < 1.0){
 				printf(" %4s %04d  #swap: %04d #stage %04d | ",gv.SS_list[i],l,SS_ref_db[i].n_swap[l],SS_ref_db[i].info[l]);
 				printf("DF: %+4f | ", SS_ref_db[i].DF_pc[l]);
 				//for (int j = 0; j < SS_ref_db[i].n_xeos; j++){
@@ -154,7 +154,7 @@ void print_levelling(		struct bulk_info 	 z_b,
 				}
 				printf("\n");
 
-			}
+			// }
 		}
 	}
 }
@@ -369,6 +369,44 @@ global_variable update_global_info(		struct bulk_info 	 z_b,
 			gv.len_cp 			   += 1;
 			gv.n_cp_phase 		   += 1;
 			gv.n_phase             += 1;
+
+			// /* get unrotated gbase */
+			// SS_ref_db[ph_id] = non_rot_hyperplane(	gv, 
+			// 										SS_ref_db[ph_id]			);
+
+			// /* get unrotated minimized point informations */
+			// double G 	= (*SS_objective[ph_id])(	SS_ref_db[ph_id].n_xeos,
+			// 										SS_ref_db[ph_id].xeos_pc[pc_id],
+			// 										NULL,
+			// 										&SS_ref_db[ph_id]			);
+
+			// /* check where to add the new phase PC */
+			// if (SS_ref_db[ph_id].id_Ppc >= SS_ref_db[ph_id].n_Ppc){ SS_ref_db[ph_id].id_Ppc = 0; printf("MAXIMUM STORAGE SPACE FOR PC IS REACHED, INCREASED #PC_MAX\n");}
+			
+			// int m_Ppc = SS_ref_db[ph_id].id_Ppc;
+
+			// SS_ref_db[ph_id].info[m_Ppc]       = 0;
+			// SS_ref_db[ph_id].factor_Ppc[m_Ppc] = SS_ref_db[ph_id].factor;
+			// SS_ref_db[ph_id].DF_Ppc[m_Ppc]     = G;
+			
+			// /* get pseudocompound composition */
+			// for (int j = 0; j < gv.len_ox; j++){				
+			// 	SS_ref_db[ph_id].comp_Ppc[m_Ppc][j] = SS_ref_db[ph_id].ss_comp[j]*SS_ref_db[ph_id].factor;	/** composition */
+			// }
+			// for (int j = 0; j < SS_ref_db[ph_id].n_em; j++){												/** save coordinates */
+			// 	SS_ref_db[ph_id].p_Ppc[m_Ppc][j]  = SS_ref_db[ph_id].p[j];												
+			// 	SS_ref_db[ph_id].mu_Ppc[m_Ppc][j] = SS_ref_db[ph_id].mu[j]*SS_ref_db[ph_id].z_em[j];										
+			// }
+			// /* save xeos */
+			// for (int j = 0; j < SS_ref_db[ph_id].n_xeos; j++){		
+			// 	SS_ref_db[ph_id].xeos_Ppc[m_Ppc][j] = SS_ref_db[ph_id].iguess[j];							/** compositional variables */
+			// }	
+			// SS_ref_db[ph_id].G_Ppc[m_Ppc] = G;
+			
+			// /* add increment to the number of considered phases */
+			// SS_ref_db[ph_id].tot_Ppc += 1;
+			// SS_ref_db[ph_id].id_Ppc  += 1;
+
 		}
 		
 		/* solution phase */
@@ -408,6 +446,44 @@ global_variable update_global_info(		struct bulk_info 	 z_b,
 			gv.len_cp 			   += 1;
 			gv.n_cp_phase 		   += 1;
 			gv.n_phase             += 1;
+
+
+		// 	/* get unrotated gbase */
+		// 	SS_ref_db[ph_id] = non_rot_hyperplane(	gv, 
+		// 											SS_ref_db[ph_id]			);
+
+		// 	/* get unrotated minimized point informations */
+		// 	double G 	= (*SS_objective[ph_id])(	SS_ref_db[ph_id].n_xeos,
+		// 											SS_ref_db[ph_id].xeos_pc[pc_id],
+		// 											NULL,
+		// 											&SS_ref_db[ph_id]			);
+
+		// 	/* check where to add the new phase PC */
+		// 	if (SS_ref_db[ph_id].id_Ppc >= SS_ref_db[ph_id].n_Ppc){ SS_ref_db[ph_id].id_Ppc = 0; printf("MAXIMUM STORAGE SPACE FOR PC IS REACHED, INCREASED #PC_MAX\n");}
+			
+		// 	int m_Ppc = SS_ref_db[ph_id].id_Ppc;
+
+		// 	SS_ref_db[ph_id].info[m_Ppc]       = 0;
+		// 	SS_ref_db[ph_id].factor_Ppc[m_Ppc] = SS_ref_db[ph_id].factor;
+		// 	SS_ref_db[ph_id].DF_Ppc[m_Ppc]     = G;
+			
+		// 	/* get pseudocompound composition */
+		// 	for (int j = 0; j < gv.len_ox; j++){				
+		// 		SS_ref_db[ph_id].comp_Ppc[m_Ppc][j] = SS_ref_db[ph_id].ss_comp[j]*SS_ref_db[ph_id].factor;	/** composition */
+		// 	}
+		// 	for (int j = 0; j < SS_ref_db[ph_id].n_em; j++){												/** save coordinates */
+		// 		SS_ref_db[ph_id].p_Ppc[m_Ppc][j]  = SS_ref_db[ph_id].p[j];												
+		// 		SS_ref_db[ph_id].mu_Ppc[m_Ppc][j] = SS_ref_db[ph_id].mu[j]*SS_ref_db[ph_id].z_em[j];										
+		// 	}
+		// 	/* save xeos */
+		// 	for (int j = 0; j < SS_ref_db[ph_id].n_xeos; j++){		
+		// 		SS_ref_db[ph_id].xeos_Ppc[m_Ppc][j] = SS_ref_db[ph_id].iguess[j];							/** compositional variables */
+		// 	}	
+		// 	SS_ref_db[ph_id].G_Ppc[m_Ppc] = G;
+			
+		// 	/* add increment to the number of considered phases */
+		// 	SS_ref_db[ph_id].tot_Ppc += 1;
+		// 	SS_ref_db[ph_id].id_Ppc  += 1;
 		}
 	}
 
@@ -544,11 +620,11 @@ void run_simplex_pseudocompounds(		struct bulk_info 	 z_b,
 											SS_ref_db	);	
 
 		// 2BM, here I deactivated the swap of pure endmembers during second levelling stage, this might help to converge to solution -> 2 be fully tested								
-		// swap_pure_endmembers(				z_b,
-		// 									splx_data,
-		// 									gv,
-		// 									PP_ref_db,
-		// 									SS_ref_db	);	
+		swap_pure_endmembers(				z_b,
+											splx_data,
+											gv,
+											PP_ref_db,
+											SS_ref_db	);	
 		
 		swap_pseudocompounds(				z_b,
 											splx_data,
@@ -759,6 +835,13 @@ global_variable run_levelling_function(		struct bulk_info 	 z_b,
 											cp,
 											SS_objective	);
 
+
+	// print_levelling(						z_b,
+	// 										gv,
+												
+	// 										PP_ref_db,
+	// 										SS_ref_db		);
+
 	if (gv.verbose == 1){
 		printf("\nGet initial guess (Gamma and phase fractions) \n");
 		printf("══════════════════════════════════════════════\n");
@@ -838,12 +921,6 @@ global_variable Levelling(	struct bulk_info 	z_b,
 		printf("\nLevelling (endmembers & solution phase)\n");
 		printf("════════════════════════════════════════\n");
 	}
-
-	/** declare structure to store simplex arrays */
-	// obj_type 		SS_objective[gv.len_ss];	
-	
-	// SS_objective_init_function(				SS_objective,
-	// 										gv				);
 
 	/* pseudosection function to get starting guess */
 	gv = run_levelling_function(	z_b,												/** bulk rock informations    */

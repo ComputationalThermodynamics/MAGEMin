@@ -24,16 +24,18 @@ Function to call solution phase Minimization
 /** 
 Function to update xi and sum_xi during local minimization.
 */
-SS_ref SS_UPDATE_function(		global_variable gv,
-								SS_ref SS_ref_db, 
-								struct bulk_info z_b,
-								char    *name){
+SS_ref SS_UPDATE_function(		global_variable 	 gv,
+								SS_ref 				 SS_ref_db, 
+								struct bulk_info 	 z_b,
+								char    			*name){
 
 	/* sf_ok?*/
 	SS_ref_db.sf_ok = 1;
 	for (int i = 0; i < SS_ref_db.n_sf; i++){
-		if (SS_ref_db.sf[i] <= 0.0 || isnan(SS_ref_db.sf[i]) == 1|| isinf(SS_ref_db.sf[i]) == 1){
-			SS_ref_db.sf_ok = 0;	
+		if (SS_ref_db.sf[i] < 0.0 || isnan(SS_ref_db.sf[i]) == 1|| isinf(SS_ref_db.sf[i]) == 1){
+			SS_ref_db.sf_ok = 0;
+			SS_ref_db.sf_id = i;
+
 			break;
 		}
 	}
@@ -247,12 +249,12 @@ void copy_to_Ppc(		int 				 i,
 /** 
 	Minimization function for PGE 
 */
-void ss_min_PGE(		int 				mode, 
-						int 				i, 
-						global_variable 	gv,
+void ss_min_PGE(		int 				 mode, 
+						int 				 i, 
+						global_variable 	 gv,
 
 						obj_type 			*SS_objective,
-						struct 	bulk_info 	z_b,
+						struct 	bulk_info 	 z_b,
 						SS_ref 			    *SS_ref_db,
 						csd_phase_set  		*cp
 ){
@@ -346,7 +348,7 @@ void ss_min_PGE(		int 				mode,
 	}
 	else{
 		if (gv.verbose == 1){
-			printf(" !> SF not respected for %4s (SS not updated)\n",gv.SS_list[ph_id]);
+			printf(" !> SF [:%d] not respected for %4s (SS not updated)\n",SS_ref_db[ph_id].sf_id,gv.SS_list[ph_id]);
 		}	
 	}
 

@@ -2248,8 +2248,6 @@ SS_ref G_SS_spn_function(SS_ref SS_ref_spn_db, int EM_database, double *bulk_roc
 		SS_ref_spn_db.bounds_ref[1][1] = eps;
 		SS_ref_spn_db.bounds_ref[6][0] = eps;   
 		SS_ref_spn_db.bounds_ref[6][1] = eps;
-		SS_ref_spn_db.z_em[4]          = 0.0;
-		SS_ref_spn_db.z_em[5]          = 0.0;
 	}
 	if (bulk_rock[9] == 0.){ //cr2o3
 		SS_ref_spn_db.z_em[6]          = 0.0;

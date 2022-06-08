@@ -146,7 +146,7 @@ global_variable global_variable_init(){
 	gv.act_varFac_stab	= 5.0e-5;				/** br norm under which liquid is updated using xi to improve convergence 			*/
 	
 	/* levelling parameters */
-	gv.em2ss_shift		= 1e-5;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
+	gv.em2ss_shift		= 1e-6;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
 	gv.bnd_filter_pc    = 10.0;					/** value of driving force the pseudocompound is considered 						*/
 	gv.n_pc				= 7500;
 	gv.max_G_pc         = 5.0;					/** dG under which PC is considered after their generation		 					*/
@@ -799,6 +799,7 @@ void init_simplex_A( 	simplex_data 		*splx_data,
 	
 	/* allocate reference assemblage memory */
 	d->A           = malloc ((gv.len_ox*gv.len_ox)  * sizeof(double));
+	d->Alu         = malloc ((gv.len_ox*gv.len_ox)  * sizeof(double));
 	d->A1  		   = malloc ((gv.len_ox*gv.len_ox)  * sizeof(double));
 	
 	d->ph_id_A     = malloc (gv.len_ox * sizeof(int*));
@@ -900,6 +901,7 @@ void reset_simplex_A( 	simplex_data 		*splx_data,
 		for (int j = 0; j < gv.len_ox; j++){
 			k = i + j*gv.len_ox;
 			d->A[k]  = 0.0;
+			d->Alu[k] = 0.0;
 			d->A1[k] = 0.0;
 		}
 		

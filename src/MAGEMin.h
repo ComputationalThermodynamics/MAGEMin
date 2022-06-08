@@ -75,6 +75,7 @@ typedef struct simplex_datas
 	
 	/* Reference assemblage */
 	double  *A;				/** stoechiometry matrix 								*/
+	double  *Alu;
 	double  *A1;			/** inverse of stoechiometry matrix 					*/
 	int    **ph_id_A;		/** id of phases 										*/
 	
@@ -161,6 +162,7 @@ typedef struct SS_refs {
 	int		 n_v;
 	
 	int 	 sf_ok;				/** site fractions are satisfied? 											*/
+	int      sf_id;				/** id of the violated site fraction 										*/
     double **Comp;    			/** 2d array of endmember composition 										*/
     double  *gbase;        		/** 1d array of gbase 														*/
 
@@ -169,8 +171,9 @@ typedef struct SS_refs {
     double   factor;			/** normalizing factor 														*/
     double **bounds;			/** x-eos bounds 															*/
     double **bounds_ref;		/** x-eos bounds 															*/
+
     double  *z_em; 				/** 1d array to deactivate endmembers when bulk-rock = 0; this part is needed to calculat xi in PGE method */
-    int      n_guess;			/** number of initial guesses used to solve for solvi (or local minimum) 	*/
+   int       n_guess;			/** number of initial guesses used to solve for solvi (or local minimum) 	*/
     double  *iguess;    		/** 2d array of initial guess 												*/
 	double  *dguess;    		/** 2d array of default guess 												*/
 	
