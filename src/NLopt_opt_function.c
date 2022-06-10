@@ -19,7 +19,7 @@
 #include "toolkit.h"
 
 #define nEl 11						        // max number of non-zeros compoenents
-#define eps_sf -1e-12				      // eps to shift site fraction from zero
+#define eps_sf -1e-10				      // eps to shift site fraction from zero
 
 
 /** 

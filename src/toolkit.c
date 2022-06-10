@@ -1422,12 +1422,12 @@ void swap_PGE_pseudocompounds(			struct bulk_info 	 z_b,
 /**
   function to run simplex linear programming during PGE with pseudocompounds 
 */	
-void run_simplex_PGE_pseudocompounds(	struct bulk_info 	 z_b,
-										simplex_data 		*splx_data,
-										global_variable 	 gv,
-										
-										PP_ref 				*PP_ref_db,
-										SS_ref 				*SS_ref_db
+global_variable run_simplex_PGE_pseudocompounds(	struct bulk_info 	 z_b,
+													simplex_data 		*splx_data,
+													global_variable 	 gv,
+													
+													PP_ref 				*PP_ref_db,
+													SS_ref 				*SS_ref_db
 ){
 	simplex_data *d  = (simplex_data *) splx_data;
 
@@ -1471,4 +1471,12 @@ void run_simplex_PGE_pseudocompounds(	struct bulk_info 	 z_b,
 		printf("    (# iterations %d)",k);	
 	}
 
+	/* copy gamma total to the global variables */
+	// if (gv.global_ite % 2 == 0){
+		// for (int i = 0; i < gv.len_ox; i++){
+		// 	gv.gam_tot[i] = d->gamma_tot[i];
+		// }	
+	// }
+
+	return gv;
 }

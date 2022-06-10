@@ -222,7 +222,7 @@ void copy_to_Ppc(		int 				 i,
 		
 		int m_Ppc = SS_ref_db[ph_id].id_Ppc;
 
-		SS_ref_db[ph_id].info[m_Ppc]       = 0;
+		SS_ref_db[ph_id].info_Ppc[m_Ppc]   = 0;
 		SS_ref_db[ph_id].factor_Ppc[m_Ppc] = SS_ref_db[ph_id].factor;
 		SS_ref_db[ph_id].DF_Ppc[m_Ppc]     = G;
 		

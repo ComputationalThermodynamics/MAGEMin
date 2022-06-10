@@ -467,6 +467,9 @@ typedef struct global_variables {
 	int      numPoint; 			/** the number of the current point */
 	int      global_ite;		/** global iteration increment */
 
+	/* OUTPUT LOG */
+	int 	 save_residual_evolution;
+
 	/* LEVELLING */
 	double   LVL_time;			/** time taken for levelling (ms) */
 	double   em2ss_shift;		/** small value to retrieve x-eos from pure endmember after levelling */
@@ -499,8 +502,9 @@ typedef struct global_variables {
 	double   bnd_val;			/** boundary value for x-eos when the fraction of an endmember = 0. */
 
 	/* PARTITIONING GIBBS ENERGY */ 
-	double 	*A_PGE;				/** RHS */
-	double  *b_PGE;				/** LHS */
+	double 	*A_PGE;				/** LHS  */
+	double 	*A0_PGE;			/** First stage of extend Newton method LHS*/
+	double  *b_PGE;				/** RHS  */
 	double 	*dn_cp;
 	double 	*dn_pp;
 	int 	*cp_id;

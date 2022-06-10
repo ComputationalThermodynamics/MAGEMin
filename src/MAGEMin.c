@@ -338,6 +338,10 @@ int runMAGEMin(			int    argc,
 	/* now merge the parallel output files into one*/
 	mergeParallelFiles(gv);
 
+	if (gv.save_residual_evolution == 1){
+		mergeParallel_residual_Files(gv);
+	}
+
 	/* free memory allocated to solution and pure phases */
 	FreeDatabases(gv, DB);
 

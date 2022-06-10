@@ -56,6 +56,15 @@ void dump_init(global_variable gv){
 		loc_min 	= fopen(out_lm, 	"w"); 
 		fprintf(loc_min, "// NUMBER\tSTATUS[S,R1,R2,F]\tP[kbar]\tT[C]\tG_sys[G]\tBR_norm[wt]\tVp[km/s]\tVs[km/s]\tGAMMA[G] PHASE[name]\tMODE[wt]\tRHO[kg.m-3]\tX-EOS\n");
 		fclose(loc_min);	
+
+
+		if (gv.save_residual_evolution == 1){
+			/** OUTPUT RESIDUAL EVOLUTION **/
+			if (numprocs==1){	sprintf(out_lm,	"%s_residual_norm.txt"		,gv.outpath); 		}
+			else 			{	sprintf(out_lm,	"%s_residual_norm.%i.txt"	,gv.outpath, rank); }
+			loc_min 	= fopen(out_lm, 	"w"); 
+			fclose(loc_min);	
+		}
 			
 		/** MODE 2 - LOCAL MINIMA **/
 		if (gv.Mode == 2){
@@ -457,8 +466,6 @@ void dump_results_function(		global_variable 	 gv,
 		fclose(loc_min);	
 	}
 	
-
-	
 	/** ----------------------------------------------------------------------------------------------- **/
 	/** MATLAB GRID OUTPUT **/
 	if (gv.verbose == 0){
@@ -512,7 +519,23 @@ void dump_results_function(		global_variable 	 gv,
 			}
 		}	
 		fprintf(loc_min, "\n");
-		fclose(loc_min);	
+		fclose(loc_min);
+
+		if (gv.save_residual_evolution == 1){
+			/** OUTPUT RESIDUAL EVOLUTION **/
+			if (numprocs==1){	sprintf(out_lm,	"%s_residual_norm.txt"		,gv.outpath); 		}
+			else 			{	sprintf(out_lm,	"%s_residual_norm.%i.txt"	,gv.outpath, rank); }
+
+			loc_min 	= fopen(out_lm, 	"a"); 
+
+			for (int j = 0; j < gv.global_ite; j++){
+				fprintf(loc_min, "%.6f ", gv.PGE_mass_norm[j]);
+			}
+			fprintf(loc_min, "\n");
+
+			fclose(loc_min);
+		}
+
 	}
 };
 
@@ -550,8 +573,44 @@ void mergeParallelFiles(global_variable gv){
 		}
 		fclose(fp1); 
 	}
-   fclose(fp2); 
+   fclose(fp2);
 }
+
+/**
+  Parallel file dump for phase diagrams
+*/
+void mergeParallel_residual_Files(global_variable gv){
+
+	int i, rank, numprocs,  MAX_LINE_LENGTH=2048;
+	char out_lm[255];
+	char in_lm[255];
+	char c; 
+	char buf[MAX_LINE_LENGTH];
+	
+	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	if (numprocs == 1){ return; }
+
+	sprintf(out_lm,	"%s_residual_norm.txt"		,gv.outpath);
+   	FILE *fp2 = fopen(out_lm, "w"); 
+
+	// Open file to be merged 
+	for (i = 0; i < numprocs; i++){
+		// open file
+		sprintf(in_lm,	"%s_residual_norm.%i.txt"		,gv.outpath, i);
+		FILE *fp1 = fopen(in_lm, "r"); 
+		
+		fgets(buf, MAX_LINE_LENGTH, fp1);					// skip first line = comment (we don't want to copy that)
+	
+		// Copy contents of first file to file3.txt 
+		while ((c = fgetc(fp1)) != EOF){ 
+			fputc(c, fp2); 
+		}
+		fclose(fp1); 
+	}
+   fclose(fp2);
+}
+
 
 /**
   Parallel file dump for local minima search

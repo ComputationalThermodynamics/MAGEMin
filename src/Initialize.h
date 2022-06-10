@@ -116,7 +116,9 @@ global_variable global_variable_init(){
 	gv.len_pp      		= 10;	
 	
 	/* Control center... */
-	
+	gv.save_residual_evolution = 1;				/** verbose needs to be set to 0 to save the residual evolution 					*/
+
+
 	/* oxides and solution phases */
 	char   *ox_tmp[] 		= {"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"Cr2O3","H2O"								};
 	char   *PP_tmp[] 		= {"q"		,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"										};
@@ -267,14 +269,15 @@ global_variable global_variable_init(){
 		PGE Matrix and RHS
 	*/
 	/* PGE method matrix and gradient arrays */
-	gv.A_PGE = malloc ((gv.len_ox*gv.len_ox*4) 	* sizeof(double));			
-	gv.b_PGE = malloc ((gv.len_ox*gv.len_ox) 	* sizeof(double));			
+	gv.A_PGE  = malloc ((gv.len_ox*gv.len_ox*4) 	* sizeof(double));			
+	gv.A0_PGE = malloc ((gv.len_ox*gv.len_ox*4) 	* sizeof(double));			
+	gv.b_PGE  = malloc ((gv.len_ox*gv.len_ox) 		* sizeof(double));			
 
-	gv.cp_id = malloc ((gv.len_ox) 				* sizeof(int));			
-	gv.pp_id = malloc ((gv.len_ox) 				* sizeof(int));			
+	gv.cp_id  = malloc ((gv.len_ox) 				* sizeof(int)	);			
+	gv.pp_id  = malloc ((gv.len_ox) 				* sizeof(int)	);			
 
-	gv.dn_cp = malloc ((gv.len_ox) 				* sizeof(double));			
-	gv.dn_pp = malloc ((gv.len_ox) 				* sizeof(double));			
+	gv.dn_cp  = malloc ((gv.len_ox) 				* sizeof(double));			
+	gv.dn_pp  = malloc ((gv.len_ox) 				* sizeof(double));			
 
 	/* stoechiometry matrix */
 	gv.A = malloc ((gv.len_ox) * sizeof(double*));			

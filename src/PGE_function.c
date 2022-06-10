@@ -459,7 +459,7 @@ global_variable check_PC_driving_force(		struct bulk_info 	 z_b,
 /** 
 	function to fill LHS (J)
 */
-void PGE_get_Jacobian( 		double 			    *A,
+void PGE_build_Jacobian( 	double 			    *A,
 							struct bulk_info 	 z_b,
 							global_variable  	 gv,
 							PP_ref 				*PP_ref_db,
@@ -559,7 +559,7 @@ void PGE_get_Jacobian( 		double 			    *A,
 /** 
 	function to fill RHS gradient
 */
-void PGE_get_gradient( 		double				*b,
+void PGE_build_gradient( 	double				*b,
 							struct bulk_info 	 z_b,
 							global_variable  	 gv,
 							PP_ref 				*PP_ref_db,
@@ -649,7 +649,7 @@ global_variable PGE_update_solution(	global_variable  	 gv,
 	max_dnpp 	= norm_vector(gv.dn_pp,gv.n_pp_phase);
 	max_dn 		= ((max_dnss < max_dnpp) ? (max_dnpp) : (max_dnss) );
 	max_dG_ss   = gv.relax_PGE_val*exp(-8.0*pow(gv.BR_norm,0.28))+1.0;
-	
+
 	g_fac       = (gv.max_g_phase/max_dG_ss)/max_dG;
 	n_fac   	= (gv.max_n_phase/max_dG_ss)/max_dn;
 	alpha 		= ((n_fac < g_fac) 	 	? 	(n_fac) 		: (g_fac)	);
@@ -684,7 +684,7 @@ global_variable PGE_update_solution(	global_variable  	 gv,
 /** 
   Partitioning Gibbs Energy function 
 */
-global_variable PGE_function(	int 				PGEi,
+global_variable PGE_solver(		int 				PGEi,
 								struct bulk_info 	z_b,
 								global_variable  	gv,
 
@@ -725,7 +725,7 @@ global_variable PGE_function(	int 				PGEi,
 	/** 
 		function to fill Jacobian
 	*/
-	PGE_get_Jacobian( 			gv.A_PGE,
+	PGE_build_Jacobian( 			gv.A_PGE,
 								z_b,
 								gv,
 
@@ -737,7 +737,7 @@ global_variable PGE_function(	int 				PGEi,
 	/** 
 		function to fill gradient
 	*/
-	PGE_get_gradient( 			gv.b_PGE,
+	PGE_build_gradient( 			gv.b_PGE,
 								z_b,
 								gv,
 
@@ -793,7 +793,7 @@ global_variable PGE_inner_loop(		struct bulk_info 	 z_b,
 	while (PGEi < gv.inner_PGE_ite && delta_fc_norm > 1e-10){
 		u = clock();
 
-		gv =	PGE_function(				PGEi,
+		gv =	PGE_solver(					PGEi,
 											z_b,								/** bulk rock constraint 				*/ 
 											gv,									/** global variables (e.g. Gamma) 		*/
 
@@ -1001,20 +1001,12 @@ global_variable PGE(	struct bulk_info 	z_b,
 		/**
 		   Here the linear programming method is used after the PGE step to get a new Gibbs hyper-plane
 		*/
-		run_simplex_PGE_pseudocompounds(	z_b,
-											splx_data,
-											gv,
+		gv = run_simplex_PGE_pseudocompounds(	z_b,
+												splx_data,
+												gv,
 												
-											PP_ref_db,
-											SS_ref_db		);
-
-
-		/* copy gamma total to the global variables */
-		// simplex_data *d  = (simplex_data *) splx_data;
-		// for (int i = 0; i < gv.len_ox; i++){
-		// 	gv.gam_tot[i] = d->gamma_tot[i];
-		// }
-
+												PP_ref_db,
+												SS_ref_db		);
 
 		/* Increment global iteration value */
 		gv.global_ite += 1;
@@ -1040,9 +1032,9 @@ global_variable PGE(	struct bulk_info 	z_b,
 		// capture points that fail to converge sufficiently quickly
 		// or have a very large norm after any iteration
 		if ((gv.global_ite > gv.it_slow && gv.BR_norm > gv.br_max_tol*gv.ur_slow) ||
-			gv.BR_norm > gv.br_max_tol*gv.ur_break){
-			gv.status = 4;
-			gv.div = 1;	
+			gv.BR_norm  > gv.br_max_tol*gv.ur_break){
+			gv.status 	= 4;
+			gv.div 		= 1;	
 		}
 		for (int i = 0; i < gv.len_cp; i++){
 			if (cp[i].ss_flags[0] == 1){
