@@ -167,7 +167,7 @@ int runMAGEMin(			int    argc,
 	dump_init(gv);
 
 	if (rank==0 && gv.verbose != -1){
-    	printf("Running MAGEMin %5s on %d cores {\n", gv.version, numprocs);
+    	printf("\nRunning MAGEMin %5s on %d cores {\n", gv.version, numprocs);
     	printf("═══════════════════════════════════\n");
 	}
 
@@ -1003,7 +1003,7 @@ void PrintOutput(	global_variable 	gv,
        
  		if (gv.verbose == 1){
  			printf("\n______________________________\n");
-			printf("| Total Time: %.6f (ms) |", time_taken*1000);
+			printf("| Comp. Time: %.6f (ms) |", time_taken*1000);
             printf("\n══════════════════════════════\n");
         }
     }

@@ -826,54 +826,52 @@ global_variable run_levelling_function(		bulk_info 	 z_b,
 
 	if (gv.verbose == 1){
 		printf("\nGet initial guess (Gamma and phase fractions) \n");
-		printf("══════════════════════════════════════════════\n");
-		printf("   STEP 1: Pure species guess\n");
-		printf("   ═══════════════════════════\n\n");
+		printf("══════════════════════════════════════════════\n\n");
 		printf("    P: %+10f T: %+10f\n",z_b.P,z_b.T);
-		printf("\t[----------------------------------------]\n");
-		printf("\t[  EM  |   EM PROP  |   g0_EM    |  ix   ]\n");
-		printf("\t[----------------------------------------]\n");
+		printf(" [----------------------------------------]\n");
+		printf(" [  Ph  |   Ph PROP  |   g0_Ph    |  ix   ]\n");
+		printf(" [----------------------------------------]\n");
 
 		for (int i = 0; i < d->n_Ox; i++){
 			if (d->ph_id_A[i][0] == 1){
-				printf("\t['%5s' %+10f  %+12.4f  %5d ]", gv.PP_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+				printf(" ['%5s' %+10f  %+12.4f  %5d ]", gv.PP_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
 				printf("\n");
 			}
 			if (d->ph_id_A[i][0] == 2){
-				printf("\t['%5s' %+10f  %+12.4f  %5d ]\n", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+				printf(" ['%5s' %+10f  %+12.4f  %5d ]\n", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
 			}
 			if (d->ph_id_A[i][0] == 3){
-				printf("\t['%5s' %+10f  %+12.4f  %5d ]", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+				printf(" ['%5s' %+10f  %+12.4f  %5d ]", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
 				for (int ii = 0; ii < SS_ref_db[d->ph_id_A[i][1]].n_xeos; ii++){
 					printf(" %+10f", SS_ref_db[d->ph_id_A[i][1]].xeos_pc[d->ph_id_A[i][3]][ii] );
 				}
 				printf("\n");
 			}
 		}
-		printf("\t[----------------------------------------]\n");
-		printf("\t[  OXIDE      GAMMA_EM        GAMMA_PC   ]\n");
-		printf("\t[----------------------------------------]\n");
+		printf(" [----------------------------------------]\n");
+		printf(" [  OXIDE      GAMMA_EM        GAMMA_PC   ]\n");
+		printf(" [----------------------------------------]\n");
 		for (int i = 0; i < d->n_Ox; i++){
-			printf("\t[ %5s %+15f %+15f  ]\n", gv.ox[z_b.nzEl_array[i]], d->gamma_ps[i], d->gamma_tot[z_b.nzEl_array[i]]);
+			printf(" [ %5s %+15f %+15f  ]\n", gv.ox[z_b.nzEl_array[i]], d->gamma_ps[i], d->gamma_tot[z_b.nzEl_array[i]]);
 		}
-		printf("\t[----------------------------------------]\n");
-		printf("\t[            %4d swaps                  ]\n", d->n_swp);
-		printf("\t[----------------------------------------]\n");
+		printf(" [----------------------------------------]\n");
+		printf(" [            %4d swaps                  ]\n", d->n_swp);
+		printf(" [----------------------------------------]\n");
 		
-		printf("\n\t[----------------------------------------]\n");
-		printf("\t[           ACTIVE PHASES                ]\n");
-		printf("\t[----------------------------------------]\n");
+		printf("\n [----------------------------------------]\n");
+		printf(" [           ACTIVE PHASES                ]\n");
+		printf(" [----------------------------------------]\n");
 		for (int i = 0; i < gv.len_ss; i++){
 			if (SS_ref_db[i].ss_flags[0] == 1){
-				printf("\t[                 %5s                  ]\n",gv.SS_list[i]);
+				printf(" [                 %5s                  ]\n",gv.SS_list[i]);
 			}
 		}
-		printf("\t[----------------------------------------]\n");
-		printf("\t[           UNACTIVE PHASES              ]\n");
-		printf("\t[----------------------------------------]\n");
+		printf(" [----------------------------------------]\n");
+		printf(" [           UNACTIVE PHASES              ]\n");
+		printf(" [----------------------------------------]\n");
 		for (int i = 0; i < gv.len_ss; i++){
 			if (SS_ref_db[i].ss_flags[0] == 0){
-				printf("\t[                %5s                  ]\n",gv.SS_list[i]);
+				printf(" [                %5s                  ]\n",gv.SS_list[i]);
 			}
 		}
 	}
@@ -913,8 +911,8 @@ global_variable Levelling(	bulk_info 	z_b,
 									SS_ref_db,											/** solution phase database */
 									cp				);
 	if (gv.verbose == 1){
-		printf("\t[    Levelling time  %+12f ms     ]\n",gv.LVL_time);
-		printf("\t[----------------------------------------]\n\n\n");
+		printf(" [    Levelling time  %+12f ms     ]\n",gv.LVL_time);
+		printf(" [----------------------------------------]\n\n\n");
 	}
 
 

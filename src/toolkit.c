@@ -687,10 +687,6 @@ void print_SS_informations(		global_variable gv,
 		printf(" %10s","-");
 	}
 
-	// printf(" | ");
-	// for (int k = 0; k < SS_ref_db.n_em; k++) {
-	// 	printf(" %+10f",SS_ref_db.mu[k]);
-	// }
 	printf("\n");
 }
 
@@ -1474,24 +1470,21 @@ global_variable run_LP_with_PGE_phase(				bulk_info 			 z_b,
 											splx_data		);	
 
 	if (gv.verbose == 1){
-		printf(" Total number of iterations: %d\n",k);	
-
-		printf("\n LP prediction (Gamma and phase fractions) \n");
-		printf("══════════════════════════════════════════════\n\n");
-		printf("\t[----------------------------------------]\n");
-		printf("\t[  Ph  |   Ph PROP  |   g0_Ph    |  ix   ]\n");
-		printf("\t[----------------------------------------]\n");
+		printf(" Total number of LP iterations: %d\n",k);	
+		printf(" [----------------------------------------]\n");
+		printf(" [  Ph  |   Ph PROP  |   g0_Ph    |  ix   ]\n");
+		printf(" [----------------------------------------]\n");
 
 		for (int i = 0; i < d->n_Ox; i++){
 			if (d->ph_id_A[i][0] == 1){
-				printf("\t['%5s' %+10f  %+12.4f  %5d ]", gv.PP_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+				printf(" ['%5s' %+10f  %+12.4f  %5d ]", gv.PP_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
 				printf("\n");
 			}
 			if (d->ph_id_A[i][0] == 2){
-				printf("\t['%5s' %+10f  %+12.4f  %5d ]\n", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+				printf(" ['%5s' %+10f  %+12.4f  %5d ]\n", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
 			}
 			if (d->ph_id_A[i][0] == 3){
-				printf("\t['%5s' %+10f  %+12.4f  %5d ]", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+				printf(" ['%5s' %+10f  %+12.4f  %5d ]", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
 				if (d->stage[i] == 1){
 					for (int ii = 0; ii < SS_ref_db[d->ph_id_A[i][1]].n_xeos; ii++){
 						printf(" %+10f", SS_ref_db[d->ph_id_A[i][1]].xeos_Ppc[d->ph_id_A[i][3]][ii] );
@@ -1505,18 +1498,16 @@ global_variable run_LP_with_PGE_phase(				bulk_info 			 z_b,
 				printf("\n");
 			}
 		}
-		printf("\t[----------------------------------------]\n");
-		printf("\t[  OXIDE      GAMMA                      ]\n");
-		printf("\t[----------------------------------------]\n");
+		printf(" [----------------------------------------]\n");
+		printf(" [  OXIDE      GAMMA                      ]\n");
+		printf(" [----------------------------------------]\n");
 		for (int i = 0; i < d->n_Ox; i++){
-			printf("\t[ %5s %+15f                  ]\n", gv.ox[z_b.nzEl_array[i]], d->gamma_tot[z_b.nzEl_array[i]]);
+			printf(" [ %5s %+15f                  ]\n", gv.ox[z_b.nzEl_array[i]], d->gamma_tot[z_b.nzEl_array[i]]);
 		}
-		printf("\t[----------------------------------------]\n");
-		printf("\t[             %4d swaps                 ]\n", d->n_swp);
-		printf("\t[----------------------------------------]\n");
+		printf(" [----------------------------------------]\n");
+		printf(" [             %4d swaps                 ]\n", d->n_swp);
+		printf(" [----------------------------------------]\n");
 		
-
-
 	}
 
 	return gv;
@@ -1669,7 +1660,6 @@ global_variable init_PGE_using_LP(					bulk_info 	 		 z_b,
 											gv.SS_list[ph_id] 		);
 											
 			strcpy(cp[id_cp].name,gv.SS_list[ph_id]);				/* get phase name */	
-			printf("%s\n",cp[id_cp].name);
 			cp[id_cp].split 		= 0;							
 			cp[id_cp].id 			= ph_id;						/* get phase id */
 			cp[id_cp].n_xeos		= SS_ref_db[ph_id].n_xeos;		/* get number of compositional variables */

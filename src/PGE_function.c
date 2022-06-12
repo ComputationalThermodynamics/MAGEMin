@@ -1127,8 +1127,10 @@ global_variable PGE(	bulk_info 	z_b,
 										PP_ref_db,						/** pure phase database 				*/ 
 										SS_ref_db,
 										cp						); 		
-		
-		printf("\n\n\n\n ite  | duration   |  Mass norm |  move ave  | Gamma norm\n");
+		printf("\n\n\n═════════════════════════════════════════════════════════\n");
+		printf("[                  COMPUTATION SUMMARY                  ]\n");
+		printf("═════════════════════════════════════════════════════════\n\n");
+		printf(" ite  | duration   |   PGE norm |  move ave  | Gamma norm\n");
 		printf("═════════════════════════════════════════════════════════\n");
 
 		for (int i = 0; i < gv.global_ite; i++){	
