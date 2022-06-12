@@ -99,7 +99,7 @@ int cmp_int(const void *a, const void *b)
 /**
   Merge solution phase routine 
 */			
-global_variable phase_merge_function(		struct bulk_info 	z_b,
+global_variable phase_merge_function(		bulk_info 			z_b,
 											global_variable 	gv,
 
 											PP_ref 				*PP_ref_db,
@@ -111,7 +111,6 @@ global_variable phase_merge_function(		struct bulk_info 	z_b,
 		printf("\nMerge Compositionally close solution phases\n");
 		printf("════════════════════════════════════════════\n");
 		printf(" phase |  #cp > #cp | Euclidian distance\n");
-		printf("══════════════════════════════════════════\n");
 	}
 	
 	int phid, i, j, k, l, iss, phA, phB;
@@ -222,7 +221,7 @@ global_variable phase_merge_function(		struct bulk_info 	z_b,
 /**
 	from active to hold function
 */
-global_variable phase_act2hold(			struct bulk_info 	z_b,
+global_variable phase_act2hold(			bulk_info 	z_b,
 										global_variable 	gv,
 
 										PP_ref 				*PP_ref_db,
@@ -263,7 +262,7 @@ global_variable phase_act2hold(			struct bulk_info 	z_b,
 /**
 	from active to hold function
 */
-global_variable phase_hold2rmv(			struct bulk_info 	z_b,
+global_variable phase_hold2rmv(			bulk_info 	z_b,
 										global_variable 	gv,
 
 										PP_ref 				*PP_ref_db,
@@ -302,7 +301,7 @@ global_variable phase_hold2rmv(			struct bulk_info 	z_b,
 /**
 	from active to hold function
 */
-global_variable phase_hold2act(		struct bulk_info 		z_b,
+global_variable phase_hold2act(		bulk_info 		z_b,
 									global_variable 		gv,
 
 									PP_ref 					*PP_ref_db,
@@ -476,7 +475,7 @@ global_variable phase_hold2act(		struct bulk_info 		z_b,
 /**
   main phase update routine 
 */			
-global_variable phase_update_function(		struct bulk_info 	z_b,
+global_variable phase_update_function(		bulk_info 	z_b,
 											global_variable 	gv,
 
 											PP_ref 				*PP_ref_db,

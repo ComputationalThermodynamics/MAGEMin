@@ -26,7 +26,7 @@ Function to update xi and sum_xi during local minimization.
 */
 SS_ref SS_UPDATE_function(		global_variable 	 gv,
 								SS_ref 				 SS_ref_db, 
-								struct bulk_info 	 z_b,
+								bulk_info 	 		 z_b,
 								char    			*name){
 
 	/* sf_ok?*/
@@ -66,7 +66,7 @@ NOTE: When the phase is "liq", the normalization factor is also updated as it de
 csd_phase_set CP_UPDATE_function(		global_variable 	gv,
 										SS_ref 				SS_ref_db,
 										csd_phase_set  		cp, 
-										struct bulk_info 	z_b			){
+										bulk_info 	z_b			){
 
 	/* sf_ok?*/
 	cp.sf_ok = 1;
@@ -246,6 +246,8 @@ void copy_to_Ppc(		int 				 i,
 
 }
 
+
+
 /** 
 	Minimization function for PGE 
 */
@@ -254,7 +256,7 @@ void ss_min_PGE(		int 				 mode,
 						global_variable 	 gv,
 
 						obj_type 			*SS_objective,
-						struct 	bulk_info 	 z_b,
+						bulk_info 	 		 z_b,
 						SS_ref 			    *SS_ref_db,
 						csd_phase_set  		*cp
 ){
@@ -268,8 +270,9 @@ void ss_min_PGE(		int 				 mode,
 	*/
 	for (int k = 0; k < cp[i].n_xeos; k++) {
 		SS_ref_db[ph_id].iguess[k] = cp[i].xeos[k];
+		SS_ref_db[ph_id].dguess[k] = cp[i].xeos[k];
 	}
-	
+
 	/**
 		Rotate G-base hyperplane
 	*/
@@ -309,9 +312,18 @@ void ss_min_PGE(		int 				 mode,
 	/**
 		establish a set of conditions to update initial guess for next round of local minimization 
 	*/
-	for (int k = 0; k < cp[i].n_xeos; k++) {
-		SS_ref_db[ph_id].iguess[k]  = SS_ref_db[ph_id].xeos[k];
-	}	
+
+	if (gv.BR_norm < 1e-2){
+		for (int k = 0; k < cp[i].n_xeos; k++) {
+			SS_ref_db[ph_id].iguess[k]   = SS_ref_db[ph_id].dguess[k] + (SS_ref_db[ph_id].xeos[k]-SS_ref_db[ph_id].dguess[k])/1.5;
+		}
+	}
+	else{
+		for (int k = 0; k < cp[i].n_xeos; k++) {
+			SS_ref_db[ph_id].iguess[k]  = SS_ref_db[ph_id].xeos[k];
+		}
+	}
+	
 
 	SS_ref_db[ph_id] = PC_function(				gv,
 												SS_ref_db[ph_id], 
@@ -322,6 +334,15 @@ void ss_min_PGE(		int 				 mode,
 												SS_ref_db[ph_id], 
 												z_b, 
 												gv.SS_list[ph_id]		);
+
+	/** 
+		print solution phase informations (print has to occur before saving PC)
+	*/
+	if (gv.verbose == 1){
+		print_SS_informations(  gv,
+								SS_ref_db[ph_id],
+								ph_id									);
+	}
 
 
 	/* if site fractions are respected then save the minimized point */
@@ -352,21 +373,14 @@ void ss_min_PGE(		int 				 mode,
 		}	
 	}
 
-	/** 
-		print solution phase informations 
-	*/
-	if (gv.verbose == 1){
-		print_SS_informations(  gv,
-								SS_ref_db[ph_id],
-								ph_id									);
-	}
+
 };
 
 /**
   initialize solution phase database
 **/
 global_variable init_ss_db(		int 				 EM_database,
-								struct bulk_info 	 z_b,
+								bulk_info 	 z_b,
 								global_variable 	 gv,
 								SS_ref 				*SS_ref_db
 ){

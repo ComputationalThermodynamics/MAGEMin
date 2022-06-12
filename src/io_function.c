@@ -219,7 +219,7 @@ void FreeOutput(out_data output)
  * NOTE: we likely need a cleanup struct for this as well, as we do malloc and julia will likely not release 
 **/
 void AddResults_output_struct(		global_variable 	gv,
-									struct bulk_info 	z_b,
+									bulk_info 			z_b,
 									Databases 			DB, 
 									out_data 			output		)
 {

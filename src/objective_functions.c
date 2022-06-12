@@ -2086,7 +2086,7 @@ SS_ref PC_DPDX_function(	SS_ref SS_ref_db,
 
 SS_ref P2X(		global_variable gv,
 				SS_ref SS_ref_db, 
-				struct bulk_info z_b,
+				bulk_info z_b,
 				char    *name				){
 
 	double eps = gv.bnd_val;
@@ -2143,7 +2143,7 @@ SS_ref P2X(		global_variable gv,
 
 SS_ref PC_function(		global_variable 	 gv,
 						SS_ref 				 SS_ref_db, 
-						struct bulk_info 	 z_b,
+						bulk_info 	 z_b,
 						char    			*name				){
 
 	double G0 = 0.0;

@@ -3,7 +3,16 @@
 
 #include "MAGEMin.h"
 
-global_variable PGE(			struct bulk_info 	z_b,
+global_variable PGE(			bulk_info 			z_b,
+								global_variable 	gv,
+								
+								obj_type 			*SS_objective,
+								simplex_data	    *splx_data,
+								PP_ref 				*PP_ref_db,
+								SS_ref 				*SS_ref_db,
+								csd_phase_set  		*cp					);
+
+global_variable LP_PGE(			bulk_info 			z_b,
 								global_variable 	gv,
 								
 								obj_type 			*SS_objective,

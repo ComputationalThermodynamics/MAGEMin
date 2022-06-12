@@ -2264,7 +2264,7 @@ SS_ref G_SS_spn_function(SS_ref SS_ref_spn_db, int EM_database, double *bulk_roc
 SS_ref G_SS_EM_function(		global_variable 	 gv,
 								SS_ref 				 SS_ref_db, 
 								int 				 EM_database, 
-								struct 	bulk_info 	 z_b, 
+								bulk_info 	 		 z_b, 
 								char   				*name				){
 									  
 	double eps 		   	= gv.bnd_val;

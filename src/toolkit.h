@@ -89,10 +89,10 @@ void 	freeMatrix(TMATRIX oMatrix);
 void 	cleanUpMatrix(TMATRIX stoeMat,  double tolerance);
 
 /* function related to update on global variables structure */
-global_variable get_pp_id(			global_variable  	 gv		);
+global_variable get_pp_id(			global_variable  	 gv								);
 
 global_variable get_ss_id(			global_variable  	 gv,
-									csd_phase_set  		*cp		);
+									csd_phase_set  		*cp								);
 
 /* Melt-fraction correction for P-wave and S-wave velocities */		
 void wave_melt_correction( 	 double  Kb_L,
@@ -104,63 +104,71 @@ void wave_melt_correction( 	 double  Kb_L,
 							 double  Vs0,
 							 double  meltFrac,
 							 double  aspectRatio,
-							 double *V_cor						);
+							 double *V_cor												);
 
 /* This routine computes a correction of P-wave and S-wave velocities using melt fraction reduction.  */
 double anelastic_correction( int 	 water,
 							 double  Vs0,
 							 double  P,
-							 double  T 							);
+							 double  T 													);
 
 /* simplex levelling declaration part */
-void update_dG(						simplex_data 	   *splx_data			);
+void update_dG(						simplex_data 	   *splx_data						);
 
 void update_local_gamma(				double 				*A1, 
 										double 				*g0_A, 
 										double 				*gam, 
-										int 				 n				);
+										int 				 n							);
 
-void update_global_gamma( 				struct bulk_info 	z_b,
-										simplex_data 	   *splx_data		);
+void update_global_gamma( 				bulk_info 			 z_b,
+										simplex_data 	    *splx_data					);
 
-void update_global_gamma_LU( 			struct bulk_info 	z_b,
-										simplex_data 	   *splx_data		);
-void swap_pure_phases(					struct bulk_info 	 z_b,
+void update_global_gamma_LU( 			bulk_info 			 z_b,
+										simplex_data 	    *splx_data					);
+void swap_pure_phases(					bulk_info 	 		 z_b,
 										simplex_data 		*splx_data,
 										global_variable 	 gv,
 									
 										PP_ref 				*PP_ref_db,
-										SS_ref 				*SS_ref_db		);
+										SS_ref 				*SS_ref_db					);
 
-void swap_pure_endmembers(				struct bulk_info 	 z_b,
+void swap_pure_endmembers(				bulk_info 	 		 z_b,
 										simplex_data 		*splx_data,
 										global_variable 	 gv,
 										
 										PP_ref 				*PP_ref_db,
-										SS_ref 				*SS_ref_db		);
+										SS_ref 				*SS_ref_db					);
 
 
-void swap_pseudocompounds(				struct bulk_info 	 z_b,
+void swap_pseudocompounds(				bulk_info 	 		 z_b,
 										simplex_data 		*splx_data,
 										global_variable 	 gv,
 										
 										PP_ref 				*PP_ref_db,
-										SS_ref 				*SS_ref_db		);
+										SS_ref 				*SS_ref_db					);
 
-void swap_PGE_pseudocompounds(			struct bulk_info 	 z_b,
+void swap_PGE_pseudocompounds(			bulk_info 	 		 z_b,
 										simplex_data 	    *splx_data,
 										global_variable 	 gv,
 									
 										PP_ref 			    *PP_ref_db,
-										SS_ref 			    *SS_ref_db		);
+										SS_ref 			    *SS_ref_db					);
 
 
-global_variable run_simplex_PGE_pseudocompounds(	struct bulk_info 	 z_b,
+global_variable run_LP_with_PGE_phase(				bulk_info 	 		 z_b,
 													simplex_data 		*splx_data,
 													global_variable 	 gv,
 													
 													PP_ref 				*PP_ref_db,
 													SS_ref 				*SS_ref_db		);
 
+
+global_variable init_PGE_using_LP(					bulk_info 	 		 z_b,
+													simplex_data 		*splx_data,
+													global_variable 	 gv,
+													
+													PP_ref 				*PP_ref_db,
+													SS_ref 				*SS_ref_db,
+													csd_phase_set  		*cp				);
 
 #endif

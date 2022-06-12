@@ -3,7 +3,7 @@
 
 #include "MAGEMin.h"
 
-global_variable phase_update_function(		struct bulk_info 	z_b,
+global_variable phase_update_function(		bulk_info 			z_b,
 											global_variable 	gv,
 											
 											PP_ref 				*PP_ref_db,
@@ -11,7 +11,7 @@ global_variable phase_update_function(		struct bulk_info 	z_b,
 											csd_phase_set  		*cp 
 );
 
-global_variable phase_merge_function(		struct bulk_info 	z_b,
+global_variable phase_merge_function(		bulk_info 			z_b,
 											global_variable 	gv,
 
 											PP_ref 				*PP_ref_db,

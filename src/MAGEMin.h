@@ -31,11 +31,6 @@ struct EM_db Access_EM_DB(					int id,
 
 /** Function to retrieve the endmember names from the database **/
 char** get_EM_DB_names(						int EM_database			);
-
-/** Return the number of zero element in the bulk-rock, position of zeros and non zeros elements **/
-struct bulk_info initialize_bulk_infos(		double P, 
-											double T				);
-
 /*---------------------------------------------------------------------------*/ 
 /* structure declaration */
 /** store endmember database **/
@@ -82,6 +77,7 @@ typedef struct simplex_datas
 	double  *g0_A;			/** save reference gibbs energy of pseudocompound 		*/
 	double  *dG_A;			/** driving force matrix 								*/
 	double  *n_vec;			/** phase fractions 									*/
+	int     *stage;	
 	int    	 n_Ox;			/** number of active oxides 							*/
 
 	/* Potential candidates */
@@ -94,8 +90,7 @@ typedef struct simplex_datas
 	
 	double   g0_B;			/** save reference gibbs energy of pseudocompound 		*/
 	double   dG_B;			/** driving force matrix 								*/
-	int      n_B;			/** number of pseudocompounds 							*/
-	
+
 	int 	 n_local_min;
 	int 	 n_filter;
 	
@@ -260,7 +255,7 @@ typedef struct OUTDATA {
 } out_data;
 
 /* structure to store position of zeros and non-zeros positions in bulk_rock composition */
-struct bulk_info {
+typedef struct bulk_infos {
 	double   P;					/** store pressure 										*/
 	double   T;					/** store temperature 									*/
 	double   R;
@@ -271,9 +266,14 @@ struct bulk_info {
     int     *nzEl_array;   		/** position of non zero entries in the bulk 			*/
     int     *zEl_array;    	 	/** position of zero entries in the bulk 				*/
     double  *apo;				/** atom per oxide 										*/
-    double   fbc;				/** atom per oxide 										*/
-    double  *masspo;			/** atom per oxide 										*/
-};
+    double   fbc;				/** number of atom for the bulk	rock composition		*/
+    double  *masspo;			/** Molar mass per oxide 								*/
+
+} bulk_info;
+
+/** Return the number of zero element in the bulk-rock, position of zeros and non zeros elements **/
+bulk_info initialize_bulk_infos(			double P, 
+											double T				);
 
 /* structure to informations about the considered set of phases during  minimization 	*/
 typedef struct csd_phase_sets {
@@ -290,6 +290,7 @@ typedef struct csd_phase_sets {
 	int    *ss_flags;		
 	
 	double 	ss_n;
+	double 	ss_n_0;
 	double  delta_ss_n;
 	double 	df;
 	double 	factor;
@@ -299,7 +300,7 @@ typedef struct csd_phase_sets {
 
 	double *p_em;
 	double *xi_em;
-	double *lvlxeos;
+	double *xeos_0;
 	double *dguess;
 	double *xeos;
 	double **dpdx; 				/** This one is needed for the back2feasible system function */
@@ -451,7 +452,7 @@ typedef struct global_variables {
 	int 	 len_cp;
 	char   **ox;				/** component names (for outputing purpose only) */
 	double  *gam_tot;     		/** chemical potential of components (gamma) */
-	double  *del_gam_tot;     	/** chemical potential of components (gamma) */
+	double  *gam_tot_0;     	/** chemical potential of components (gamma) */
 	double  *delta_gam_tot;     /** chemical potential of components (gamma) */
 				
 	int      n_flags;			/** number of column in the flag array */
@@ -459,6 +460,7 @@ typedef struct global_variables {
 	char   **SS_list;			/** solution phase list */
 	
 	double  *pp_n;				/** fraction of pure phase in estimated phase assemblage */
+	double  *pp_n_0;				/** fraction of pure phase in estimated phase assemblage */
 	double  *pp_xi;				/** penalty term -> distance from G-hyperplane */
 	double  *delta_pp_n;		/** fraction of pure phase in estimated phase assemblage */
 	double  *delta_pp_xi;		/** penalty term -> distance from G-hyperplane*/
@@ -603,7 +605,7 @@ void FreeDatabases(							global_variable 	 gv,
 global_variable ComputeEquilibrium_Point(	int 				 EM_database,
 											io_data 			 input_data,
 											int 				 Mode,
-											struct bulk_info 	 z_b,
+											bulk_info 	 		 z_b,
 											global_variable 	 gv,
 
 											obj_type 		    *SS_objective,
@@ -613,7 +615,7 @@ global_variable ComputeEquilibrium_Point(	int 				 EM_database,
 											csd_phase_set  		*cp					);
 											
 global_variable ComputePostProcessing(		int 				 EM_database,
-											struct bulk_info 	 z_b,
+											bulk_info 	 z_b,
 											global_variable 	 gv,
 											PP_ref  			*PP_ref_db,
 											SS_ref  			*SS_ref_db,
@@ -642,7 +644,7 @@ void PrintOutput(							global_variable 	gv,
 											int 				l, 
 											Databases 			DB, 
 											double 				time_taken, 
-											struct bulk_info 	z_b					);
+											bulk_info 	z_b					);
 
 /* function converting the solver status code to human-readable text and printing it to screen */
 void PrintStatus(	int status );

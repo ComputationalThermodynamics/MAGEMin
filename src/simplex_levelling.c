@@ -80,7 +80,7 @@ void SS_objective_init_function(	obj_type 			*SS_objective,
 /**
   function to run simplex linear programming 
 */	
-void fill_simplex_arrays_A(				struct bulk_info 	 z_b,
+void fill_simplex_arrays_A(				bulk_info 	 		 z_b,
 										simplex_data 		*splx_data,
 										global_variable 	 gv,
 										
@@ -103,7 +103,7 @@ void fill_simplex_arrays_A(				struct bulk_info 	 z_b,
 /**
 	print levelling informations 
 */
-void print_levelling(		struct bulk_info 	 z_b,
+void print_levelling(		bulk_info 	 		 z_b,
 							global_variable 	 gv,
 							
 							PP_ref 				*PP_ref_db,
@@ -163,7 +163,7 @@ void print_levelling(		struct bulk_info 	 z_b,
 	Generate pseudocompounds
 */
 void generate_pseudocompounds(	int 		 		 ss,
-								struct bulk_info 	 z_b,
+								bulk_info 	 		 z_b,
 								global_variable 	 gv,
 								SS_ref 				*SS_ref_db,
 								PC_ref 				*SS_PC_xeos,
@@ -269,7 +269,7 @@ void reduce_ss_list( SS_ref 			*SS_ref_db,
 	}				 
 }
 
-global_variable update_global_info(		struct bulk_info 	 z_b,
+global_variable update_global_info(		bulk_info 	 		 z_b,
 										simplex_data 		*splx_data,
 										global_variable 	 gv,
 										
@@ -277,8 +277,7 @@ global_variable update_global_info(		struct bulk_info 	 z_b,
 										SS_ref 				*SS_ref_db,
 										csd_phase_set  		*cp,
 										obj_type 			*SS_objective
-){
-	
+){	
 	simplex_data *d  = (simplex_data *) splx_data;
 
 	/* copy gamma total to the global variables */
@@ -361,7 +360,6 @@ global_variable update_global_info(		struct bulk_info 	 z_b,
 			}
 			for (ii = 0; ii < SS_ref_db[ph_id].n_xeos; ii++){
 				cp[id_cp].dguess[ii]  = SS_ref_db[ph_id].iguess[ii];
-				cp[id_cp].lvlxeos[ii] = SS_ref_db[ph_id].iguess[ii];
 				cp[id_cp].xeos[ii]    = SS_ref_db[ph_id].iguess[ii];
 			}
 	
@@ -431,7 +429,6 @@ global_variable update_global_info(		struct bulk_info 	 z_b,
 			for (int ii = 0; ii < SS_ref_db[ph_id].n_xeos; ii++){
 				cp[id_cp].dguess[ii]  = SS_ref_db[ph_id].xeos_pc[pc_id][ii];
 				cp[id_cp].xeos[ii]    = SS_ref_db[ph_id].xeos_pc[pc_id][ii];
-				cp[id_cp].lvlxeos[ii] = SS_ref_db[ph_id].xeos_pc[pc_id][ii];
 			}
 
 			gv.id_solvi[ph_id][gv.n_solvi[ph_id]] = id_cp;
@@ -515,7 +512,6 @@ global_variable update_global_info(		struct bulk_info 	 z_b,
 				for (int ii = 0; ii < SS_ref_db[ph_id].n_xeos; ii++){
 					cp[id_cp].dguess[ii]  = SS_ref_db[ph_id].xeos_pc[pc_id][ii];
 					cp[id_cp].xeos[ii]    = SS_ref_db[ph_id].xeos_pc[pc_id][ii];
-					cp[id_cp].lvlxeos[ii] = SS_ref_db[ph_id].xeos_pc[pc_id][ii];
 				}
 				
 				gv.id_solvi[ph_id][gv.n_solvi[ph_id]] = id_cp;
@@ -583,7 +579,7 @@ global_variable update_global_info(		struct bulk_info 	 z_b,
 /**
   function to run simplex linear programming with pseudocompounds only
 */	
-void run_simplex_pseudocompounds(		struct bulk_info 	 z_b,
+void run_simplex_pseudocompounds(		bulk_info 	 z_b,
 										simplex_data 		*splx_data,
 										global_variable 	 gv,
 										
@@ -627,7 +623,7 @@ void run_simplex_pseudocompounds(		struct bulk_info 	 z_b,
 /**
   function to run simplex linear programming with pseudocompounds
 */	
-void run_simplex_levelling(				struct bulk_info 	 z_b,
+void run_simplex_levelling(				bulk_info 	 z_b,
 										simplex_data 		*splx_data,
 										
 										global_variable 	 gv,
@@ -772,7 +768,7 @@ void destroy_simplex_B(
   Part A: Reference assemblage against which candidates are tested
   Part B: Candidate phases
 */	
-global_variable run_levelling_function(		struct bulk_info 	 z_b,
+global_variable run_levelling_function(		bulk_info 	 z_b,
 											global_variable 	 gv,
 
 											obj_type			*SS_objective,	
@@ -834,53 +830,52 @@ global_variable run_levelling_function(		struct bulk_info 	 z_b,
 		printf("   STEP 1: Pure species guess\n");
 		printf("   ═══════════════════════════\n\n");
 		printf("    P: %+10f T: %+10f\n",z_b.P,z_b.T);
-		printf("\t[---------------------------------------]\n");
-		printf("\t[  EM  |   EM PROP  |   g0_EM    |  ix  ]\n");
-		printf("\t[---------------------------------------]\n");
+		printf("\t[----------------------------------------]\n");
+		printf("\t[  EM  |   EM PROP  |   g0_EM    |  ix   ]\n");
+		printf("\t[----------------------------------------]\n");
 
 		for (int i = 0; i < d->n_Ox; i++){
 			if (d->ph_id_A[i][0] == 1){
-				printf("\t['%5s' %+10f  %+10f  %5d ]", gv.PP_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+				printf("\t['%5s' %+10f  %+12.4f  %5d ]", gv.PP_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
 				printf("\n");
 			}
 			if (d->ph_id_A[i][0] == 2){
-				printf("\t['%5s' %+10f  %+10f  %5d ]\n", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+				printf("\t['%5s' %+10f  %+12.4f  %5d ]\n", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
 			}
 			if (d->ph_id_A[i][0] == 3){
-				printf("\t['%5s' %+10f  %+10f  %5d ]", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+				printf("\t['%5s' %+10f  %+12.4f  %5d ]", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
 				for (int ii = 0; ii < SS_ref_db[d->ph_id_A[i][1]].n_xeos; ii++){
 					printf(" %+10f", SS_ref_db[d->ph_id_A[i][1]].xeos_pc[d->ph_id_A[i][3]][ii] );
 				}
 				printf("\n");
 			}
 		}
-		printf("\t[---------------------------------------]\n");
-		printf("\t[  OXIDE      GAMMA_EM        GAMMA_PC  ]\n");
-		printf("\t[---------------------------------------]\n");
+		printf("\t[----------------------------------------]\n");
+		printf("\t[  OXIDE      GAMMA_EM        GAMMA_PC   ]\n");
+		printf("\t[----------------------------------------]\n");
 		for (int i = 0; i < d->n_Ox; i++){
-			printf("\t[ %5s %+15f %+15f ]\n", gv.ox[z_b.nzEl_array[i]], d->gamma_ps[i], d->gamma_tot[z_b.nzEl_array[i]]);
+			printf("\t[ %5s %+15f %+15f  ]\n", gv.ox[z_b.nzEl_array[i]], d->gamma_ps[i], d->gamma_tot[z_b.nzEl_array[i]]);
 		}
-		printf("\t[---------------------------------------]\n");
-		printf("\t[            %4d swaps                 ]\n", d->n_swp);
-		printf("\t[---------------------------------------]\n");
+		printf("\t[----------------------------------------]\n");
+		printf("\t[            %4d swaps                  ]\n", d->n_swp);
+		printf("\t[----------------------------------------]\n");
 		
-		printf("\n\t[---------------------------------------]\n");
-		printf("\t[           ACTIVE PHASES               ]\n");
-		printf("\t[---------------------------------------]\n");
+		printf("\n\t[----------------------------------------]\n");
+		printf("\t[           ACTIVE PHASES                ]\n");
+		printf("\t[----------------------------------------]\n");
 		for (int i = 0; i < gv.len_ss; i++){
 			if (SS_ref_db[i].ss_flags[0] == 1){
-				printf("\t[                %5s                  ]\n",gv.SS_list[i]);
+				printf("\t[                 %5s                  ]\n",gv.SS_list[i]);
 			}
 		}
-		printf("\t[---------------------------------------]\n");
-		printf("\t[           UNACTIVE PHASES             ]\n");
-		printf("\t[---------------------------------------]\n");
+		printf("\t[----------------------------------------]\n");
+		printf("\t[           UNACTIVE PHASES              ]\n");
+		printf("\t[----------------------------------------]\n");
 		for (int i = 0; i < gv.len_ss; i++){
 			if (SS_ref_db[i].ss_flags[0] == 0){
 				printf("\t[                %5s                  ]\n",gv.SS_list[i]);
 			}
 		}
-		printf("\t[---------------------------------------]\n");
 	}
 
 	t 			= clock() - t; 
@@ -893,7 +888,7 @@ global_variable run_levelling_function(		struct bulk_info 	 z_b,
 /**
   main levelling routine
 */ 
-global_variable Levelling(	struct bulk_info 	z_b,
+global_variable Levelling(	bulk_info 	z_b,
 							global_variable 	gv,
 
 							obj_type 		   *SS_objective,
@@ -918,8 +913,8 @@ global_variable Levelling(	struct bulk_info 	z_b,
 									SS_ref_db,											/** solution phase database */
 									cp				);
 	if (gv.verbose == 1){
-		printf("    [    Levelling time  %+12f ms    ]\n",gv.LVL_time);
-		printf("    [---------------------------------------]\n\n\n");
+		printf("\t[    Levelling time  %+12f ms     ]\n",gv.LVL_time);
+		printf("\t[----------------------------------------]\n\n\n");
 	}
 
 

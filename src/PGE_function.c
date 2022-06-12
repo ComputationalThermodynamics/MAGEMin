@@ -30,23 +30,17 @@ The routine is the core of MAGEMin algorithm and is constructed around the Gibbs
 /** 
   Partitioning Gibbs Energy function 
 */
-void PGE_print(					struct bulk_info 		z_b,
+void PGE_print(					bulk_info 				z_b,
 								global_variable  		gv,
 
 								PP_ref 					*PP_ref_db,
 								SS_ref 					*SS_ref_db,
 								csd_phase_set  			*cp
 ){
-	printf("\n\nUnder-relaxing factor: %g\n",gv.alpha);
 
-	printf(" [          GAMMA       ]\n");
-	for (int i = 0; i < z_b.nzEl_val; i++){		
-		printf(" [ %6s\t%.4f \t]\n",gv.ox[z_b.nzEl_array[i]],gv.gam_tot[z_b.nzEl_array[i]]);
-	}
-	printf("\n");
-	printf("\n ___________________________________\n");
-	printf("           PHASE ASSEMBLAGE         \n");
-	printf(" ═══════════════════════════════════\n\n");
+	printf("\n _________________________________________________________________\n");
+	printf("                          PHASE ASSEMBLAGE                        \n");
+	printf(" ═════════════════════════════════════════════════════════════════\n\n");
 	printf("ON | phase |  Fraction |  delta_G   |  factor   |   sum_xi   |    Pi - Xi...\n");
 	printf("═══════════════════════════════════════════════════════════════════════════════════════\n");
 
@@ -103,7 +97,14 @@ void PGE_print(					struct bulk_info 		z_b,
 			printf(" %d | %4s     | %+10f | %+10f | \n",0,gv.PP_list[i],gv.pp_n[i],PP_ref_db[i].gb_lvl*PP_ref_db[i].factor);
 		}
 	}
-	printf("\n\n\n");
+	printf("\n");
+	printf("  Oxide   | Chemical potential\n");
+	printf("═══════════════════════════════\n");
+	for (int i = 0; i < z_b.nzEl_val; i++){		
+		printf(" %6s   |  %+12.4f \n",gv.ox[z_b.nzEl_array[i]],gv.gam_tot[z_b.nzEl_array[i]]);
+	}
+
+	printf("\n");
 	printf(" [GIBBS SYSTEM (Gibbs-Duhem) %.8f (with mu %.8f)]\n",gv.G_system,gv.G_system_mu);
 	printf(" [MASS RESIDUAL NORM  = %+.8f ]\n",gv.BR_norm);
 };
@@ -111,7 +112,7 @@ void PGE_print(					struct bulk_info 		z_b,
 /** 
   Partitioning Gibbs Energy function 
 */
-global_variable PGE_residual_update_function(	struct bulk_info 		z_b,
+global_variable PGE_residual_update_function(	bulk_info 		z_b,
 												global_variable  		gv,
 
 												PP_ref 					*PP_ref_db,
@@ -167,7 +168,7 @@ global_variable PGE_residual_update_function(	struct bulk_info 		z_b,
 /** 
   Function to update chemical potential of endmembers (mui)
 */
-global_variable PGE_update_mu(		struct bulk_info 	z_b,
+global_variable PGE_update_mu(		bulk_info 	z_b,
 									global_variable  	gv,
 
 									PP_ref 				*PP_ref_db,
@@ -198,7 +199,7 @@ global_variable PGE_update_mu(		struct bulk_info 	z_b,
 /** 
   Partitioning Gibbs Energy function 
 */
-global_variable PGE_update_pi(		struct bulk_info 	z_b,
+global_variable PGE_update_pi(		bulk_info 	z_b,
 									global_variable  	gv,
 
 									PP_ref 				*PP_ref_db,
@@ -251,7 +252,7 @@ global_variable PGE_update_pi(		struct bulk_info 	z_b,
 /** 
   Partitioning Gibbs Energy function 
 */
-global_variable PGE_update_xi(		struct bulk_info 	z_b,
+global_variable PGE_update_xi(		bulk_info 	z_b,
 									global_variable  	gv,
 
 									PP_ref 				*PP_ref_db,
@@ -277,7 +278,7 @@ global_variable PGE_update_xi(		struct bulk_info 	z_b,
 /**
 	check PC driving force and add phase if below hyperplane
 */
-global_variable check_EM(					struct bulk_info 	 z_b,
+global_variable check_EM(					bulk_info 	 z_b,
 											global_variable  	 gv,
 
 											PP_ref 				*PP_ref_db,
@@ -314,7 +315,7 @@ global_variable check_EM(					struct bulk_info 	 z_b,
 /**
 	check PC driving force and add phase if below hyperplane
 */
-global_variable check_PC(					struct bulk_info 	 z_b,
+global_variable check_PC(					bulk_info 	 z_b,
 											global_variable  	 gv,
 
 											PP_ref 				*PP_ref_db,
@@ -393,7 +394,6 @@ global_variable check_PC(					struct bulk_info 	 z_b,
 				
 				for (k = 0; k < SS_ref_db[i].n_xeos; k++){
 					cp[id_cp].dguess[k]    = SS_ref_db[i].xeos_pc[min_df_id][k];
-					cp[id_cp].lvlxeos[k]   = SS_ref_db[i].xeos_pc[min_df_id][k];
 					cp[id_cp].xeos[k]      = SS_ref_db[i].xeos_pc[min_df_id][k];
 				}
 				for (k = 0; k < SS_ref_db[i].n_xeos; k++){
@@ -416,7 +416,7 @@ global_variable check_PC(					struct bulk_info 	 z_b,
 /**
 	checks if the pseudocompounds generated during the levelling stage yield a negative driving force
 */
-global_variable check_PC_driving_force(		struct bulk_info 	 z_b,
+global_variable check_PC_driving_force(		bulk_info 	 z_b,
 											global_variable  	 gv,
 
 											PP_ref 				*PP_ref_db,
@@ -456,11 +456,72 @@ global_variable check_PC_driving_force(		struct bulk_info 	 z_b,
 	return gv;
 };
 
+
+/**
+	save initial conditions for the extended Newton method
+*/
+global_variable save_ini_conditions(		global_variable  	 gv,
+											SS_ref 				*SS_ref_db,
+											csd_phase_set  		*cp				
+){
+	for (int ii = 0; ii < gv.len_ox; ii++){
+		gv.gam_tot_0[ii] = gv.gam_tot[ii];
+	}
+
+	/* Update pure phase (PP) fractions */
+	if (gv.n_pp_phase > 0){
+		for (int ii = 0; ii < gv.n_pp_phase; ii++){
+			gv.pp_n_0[gv.pp_id[ii]]  = gv.pp_n[gv.pp_id[ii]];
+		}
+	}
+
+	int ph_id;
+	for (int iss = 0; iss < gv.len_cp; iss++){ 
+		ph_id = cp[iss].id;
+		if (cp[iss].ss_flags[0] == 1){
+			cp[iss].ss_n_0 = cp[iss].ss_n;
+
+			for (int ii = 0; ii < cp[iss].n_xeos; ii++){
+				cp[iss].xeos_0[ii]	= cp[iss].xeos[ii];
+			}
+		}
+	}
+
+	return gv;
+}
+
+
+/**
+	save initial conditions for the extended Newton method
+*/
+global_variable load_ini_conditions(		global_variable  	 gv,
+											SS_ref 				*SS_ref_db,
+											csd_phase_set  		*cp				
+){
+
+	int ph_id;
+	for (int iss = 0; iss < gv.len_cp; iss++){ 
+		ph_id = cp[iss].id;
+		if (cp[iss].ss_flags[0] == 1){
+			cp[iss].ss_n_0 = cp[iss].ss_n;
+
+			for (int ii = 0; ii < cp[iss].n_xeos; ii++){
+				cp[iss].xeos[ii] = cp[iss].xeos_0[ii];
+			}
+		}
+	}
+
+	return gv;
+}
+
+
+
+
 /** 
 	function to fill LHS (J)
 */
 void PGE_build_Jacobian( 	double 			    *A,
-							struct bulk_info 	 z_b,
+							bulk_info 	 z_b,
 							global_variable  	 gv,
 							PP_ref 				*PP_ref_db,
 							SS_ref 				*SS_ref_db,
@@ -540,27 +601,13 @@ void PGE_build_Jacobian( 	double 			    *A,
 			A[ix0] = A[ix];
 		}
 	}
-	
-	//debug print
-	//if (0==1){
-		//for (i = 0; i < nEntry; i++){
-			//for (j = 0; j < nEntry; j++){
-				//ix = i*nEntry + j;
-				//printf(" %+5f",A[ix]);
-			//}
-			//printf("\n");
-		//}
-		//printf("\n");
-	//}
-	
-	
 }
 
 /** 
 	function to fill RHS gradient
 */
 void PGE_build_gradient( 	double				*b,
-							struct bulk_info 	 z_b,
+							bulk_info 	 z_b,
 							global_variable  	 gv,
 							PP_ref 				*PP_ref_db,
 							SS_ref 				*SS_ref_db,
@@ -568,6 +615,7 @@ void PGE_build_gradient( 	double				*b,
 							int 				 nEntry
 ){
 	int i,j,k,l,v,x,ph,ss;
+	double fac = -1.0;
 
 	/* 1) fill the Top Left corner of the matrix with: fv = sum(nl*sum(a_ij*a_iv*xi_l)) [nzEl_val * nzEl_val entries] */
 	for (v = 0; v < z_b.nzEl_val; v++){
@@ -586,7 +634,7 @@ void PGE_build_gradient( 	double				*b,
 			ph = gv.pp_id[k];
 			b[v] 	    += PP_ref_db[ph].Comp[z_b.nzEl_array[v]] * PP_ref_db[ph].factor * gv.pp_n[ph] ;
 		}
-		b[v] *= -1.0;
+		b[v] *= fac;
 	}
 
 	/* 2) fill the Middle Left part of the matrix with: hl = sum(a_ij*xi_l)) [n_ss_phase * nzEl_val entries] */
@@ -599,7 +647,7 @@ void PGE_build_gradient( 	double				*b,
 		for (i = 0; i < cp[ph].n_em; i++){
 			b[l+z_b.nzEl_val]    +=  (cp[ph].p_em[i]*cp[ph].xi_em[i])* SS_ref_db[ss].z_em[i];
 		}
-		b[l+z_b.nzEl_val] *= -1.0;
+		b[l+z_b.nzEl_val] *= fac;
 	}
 
 	/* 3) fill the Bottom Left part of the matrix with: qk = a_ik [n_pp_phase * nzEl_val entries] */
@@ -611,7 +659,7 @@ void PGE_build_gradient( 	double				*b,
 		for (v = 0; v < z_b.nzEl_val; v++){ 
 			b[k+z_b.nzEl_val+gv.n_cp_phase]   += PP_ref_db[ph].Comp[z_b.nzEl_array[v]] * gv.gam_tot[z_b.nzEl_array[v]];
 		}
-		b[k+z_b.nzEl_val+gv.n_cp_phase]  *= -1.0;
+		b[k+z_b.nzEl_val+gv.n_cp_phase]  *= fac;
 	}
 }
 
@@ -619,7 +667,7 @@ void PGE_build_gradient( 	double				*b,
   Partitioning Gibbs Energy function 
 */
 global_variable PGE_update_solution(	global_variable  	 gv,
-										struct bulk_info 	 z_b,
+										bulk_info 	 z_b,
 										csd_phase_set  		*cp	){
 	int 	i, j, k, ph;										
 	double 	n_fac, 
@@ -684,9 +732,8 @@ global_variable PGE_update_solution(	global_variable  	 gv,
 /** 
   Partitioning Gibbs Energy function 
 */
-global_variable PGE_solver(		int 				PGEi,
-								struct bulk_info 	z_b,
-								global_variable  	gv,
+global_variable PGE_solver(		bulk_info 	 z_b,
+								global_variable  	 gv,
 
 								PP_ref 				*PP_ref_db,
 								SS_ref 				*SS_ref_db,
@@ -725,7 +772,7 @@ global_variable PGE_solver(		int 				PGEi,
 	/** 
 		function to fill Jacobian
 	*/
-	PGE_build_Jacobian( 			gv.A_PGE,
+	PGE_build_Jacobian( 		gv.A_PGE,
 								z_b,
 								gv,
 
@@ -737,7 +784,7 @@ global_variable PGE_solver(		int 				PGEi,
 	/** 
 		function to fill gradient
 	*/
-	PGE_build_gradient( 			gv.b_PGE,
+	PGE_build_gradient( 		gv.b_PGE,
 								z_b,
 								gv,
 
@@ -777,7 +824,7 @@ global_variable PGE_solver(		int 				PGEi,
 /** 
   Partitioning Gibbs Energy function 
 */
-global_variable PGE_inner_loop(		struct bulk_info 	 z_b,
+global_variable PGE_inner_loop(		bulk_info 	 z_b,
 									global_variable  	 gv,
 
 									PP_ref 				*PP_ref_db,
@@ -788,13 +835,12 @@ global_variable PGE_inner_loop(		struct bulk_info 	 z_b,
 	int 	PGEi   			= 0;
 	double 	fc_norm_t0 		= 0.0;
 	double 	delta_fc_norm 	= 1.0;
-
+	int 	stage 			= 1;
 	/* transform to while if delta_phase fraction < val */
 	while (PGEi < gv.inner_PGE_ite && delta_fc_norm > 1e-10){
 		u = clock();
 
-		gv =	PGE_solver(					PGEi,
-											z_b,								/** bulk rock constraint 				*/ 
+		gv =	PGE_solver(					z_b,								/** bulk rock constraint 				*/ 
 											gv,									/** global variables (e.g. Gamma) 		*/
 
 											PP_ref_db,							/** pure phase database 				*/ 
@@ -869,10 +915,12 @@ global_variable PGE_inner_loop(		struct bulk_info 	 z_b,
 
 
 
+
+
 /**
   Main PGE routine
 */ 
-global_variable PGE(	struct bulk_info 	z_b,
+global_variable PGE(	bulk_info 	z_b,
 						global_variable 	gv,
 
 						obj_type 			*SS_objective,
@@ -894,8 +942,8 @@ global_variable PGE(	struct bulk_info 	z_b,
 									cp
 	); 			
 				
-	//for (int gi = 0; gi < 1; gi++){
-	while (gv.BR_norm > gv.br_max_tol || gv.global_ite < gv.outter_PGE_ite){
+	for (int gi = 0; gi < 2; gi++){
+	// while (gv.BR_norm > gv.br_max_tol || gv.global_ite < gv.outter_PGE_ite){
 
 		t = clock();
 		if (gv.verbose == 1){
@@ -969,18 +1017,35 @@ global_variable PGE(	struct bulk_info 	z_b,
 		/**
 			Merge instances of the same solution phase that are compositionnally close 
 		*/
-		gv = 	phase_merge_function(	z_b,							/** bulk rock constraint 				*/
+		gv = phase_merge_function(		z_b,							/** bulk rock constraint 				*/
 										gv,								/** global variables (e.g. Gamma) 		*/
 
 										PP_ref_db,						/** pure phase database 				*/
 										SS_ref_db,						/** solution phase database 			*/ 
-										cp
-		); 
-	
+										cp					); 
+
+		/**
+		   Here the linear programming method is used after the PGE step to get a new Gibbs hyper-plane
+		*/
+		gv = run_LP_with_PGE_phase(		z_b,
+										splx_data,
+										gv,
+												
+										PP_ref_db,
+										SS_ref_db			);
+
+		gv = init_PGE_using_LP(			z_b,
+										splx_data,
+										gv,
+										
+										PP_ref_db,
+										SS_ref_db,
+										cp					);	
+
 		/**
 			Actual Partitioning Gibbs Energy stage 
 		/*/
-		gv =	PGE_inner_loop(			z_b,							/** bulk rock constraint 				*/ 
+		gv = PGE_inner_loop(			z_b,							/** bulk rock constraint 				*/ 
 										gv,								/** global variables (e.g. Gamma) 		*/
 
 										PP_ref_db,						/** pure phase database 				*/ 
@@ -998,15 +1063,6 @@ global_variable PGE(	struct bulk_info 	z_b,
 										cp					); 
 		}
 
-		/**
-		   Here the linear programming method is used after the PGE step to get a new Gibbs hyper-plane
-		*/
-		gv = run_simplex_PGE_pseudocompounds(	z_b,
-												splx_data,
-												gv,
-												
-												PP_ref_db,
-												SS_ref_db		);
 
 		/* Increment global iteration value */
 		gv.global_ite += 1;
@@ -1028,7 +1084,7 @@ global_variable PGE(	struct bulk_info 	z_b,
 		gv.PGE_mass_norm[ gv.global_ite] = gv.BR_norm;	/** save norm for the current global iteration */
 		gv.PGE_total_norm[gv.global_ite] = gv.fc_norm_t1;
 
-		//2BM
+		// 2BM
 		// capture points that fail to converge sufficiently quickly
 		// or have a very large norm after any iteration
 		if ((gv.global_ite > gv.it_slow && gv.BR_norm > gv.br_max_tol*gv.ur_slow) ||
@@ -1083,3 +1139,4 @@ global_variable PGE(	struct bulk_info 	z_b,
 	
 	return gv;
 };		
+

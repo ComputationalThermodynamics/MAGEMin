@@ -1291,7 +1291,7 @@ void cd_c(unsigned m, double *result, unsigned n, const double *x, double *grad,
 
 typedef struct global_min_datas {
 	global_variable 	 gv; 
-	struct bulk_info 	 z_b;
+	bulk_info 	 z_b;
 	obj_type 			*SS_objective;
 	sf_type 			*SS_sf;
 	PP_ref 				*PP_ref_db;

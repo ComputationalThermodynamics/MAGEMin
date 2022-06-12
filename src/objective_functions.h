@@ -43,12 +43,12 @@ SS_ref PC_PX_function(		SS_ref 				 SS_ref_db,
 													
 SS_ref PC_function(			global_variable 	 gv,
 							SS_ref 				 SS_ref_db, 
-							struct bulk_info 	 z_b,
+							bulk_info 	 		 z_b,
 							char    			*name					);
 													
 SS_ref P2X(					global_variable 	 gv,
 							SS_ref 				 SS_ref_db, 
-							struct bulk_info 	 z_b,
+							bulk_info 	 		 z_b,
 							char    			*name					);	
 							
 int get_phase_id(			global_variable 	 gv,

@@ -3,7 +3,7 @@
 
 #include "MAGEMin.h"
 
-global_variable Levelling(			struct bulk_info 	z_b,
+global_variable Levelling(			bulk_info 			z_b,
 									global_variable 	gv,
 
 									obj_type 		   *SS_objective,
@@ -16,7 +16,7 @@ void destroy_simplex_A(				simplex_data 	   *splx_data			);
 
 void destroy_simplex_B(				simplex_data 	   *splx_data			);
 
-void print_levelling(				struct bulk_info 	z_b,
+void print_levelling(				bulk_info 			z_b,
 									global_variable 	gv,
 									
 									PP_ref 			   *PP_ref_db,

@@ -112,7 +112,7 @@ int runMAGEMin(			int    argc,
 	DB = InitializeDatabases(gv, EM_database);
 	
 	/** Declare bulk info structure */
-	struct bulk_info z_b;
+	bulk_info z_b;
 
 	/* Default conditions */
 	double *bulk_rock = malloc ((gv.len_ox) * sizeof (double) ); 
@@ -366,7 +366,7 @@ int runMAGEMin(			int    argc,
   Compute stable equilibrium at given P/T/C point
 */
 	global_variable ComputePostProcessing(			int 				 EM_database,
-													struct bulk_info 	 z_b,
+													bulk_info 	 z_b,
 													global_variable 	 gv,
 													PP_ref  			*PP_ref_db,
 													SS_ref  			*SS_ref_db,
@@ -615,7 +615,7 @@ int runMAGEMin(			int    argc,
 global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 												io_data 			 input_data,
 												int 				 Mode,
-												struct bulk_info 	 z_b,
+												bulk_info 	 z_b,
 												global_variable 	 gv,
 
 												obj_type 			*SS_objective,
@@ -988,7 +988,7 @@ void PrintOutput(	global_variable 	gv,
 					int 				l,
 					Databases 			DB,
 					double 				time_taken,
-					struct bulk_info 	z_b				){
+					bulk_info 			z_b				){
 						
 	int i;
 	if (gv.Mode==0 && gv.verbose !=-1){

@@ -65,9 +65,9 @@ char** get_EM_DB_names(int EM_database) {
 }
 
 /* get position of zeros and non-zeros values in the bulk */
-struct bulk_info initialize_bulk_infos(		double  P, 
+bulk_info initialize_bulk_infos(		double  P, 
 											double  T			){
-	struct bulk_info z_b;
+	bulk_info z_b;
 	
 	int i, j, k;
 	z_b.P 			= P;
@@ -139,9 +139,11 @@ global_variable global_variable_init(){
 	/* residual tolerance */
 	gv.br_max_tol       = 1.0e-5;				/** value under which the solution is accepted to satisfy the mass constraint 		*/
 	
+
+	//1e-3,128
 	/* under-relaxing factors */
-	gv.relax_PGE		= 1.0e-3;				/** br norm under which the xeos box is restricted 									*/
-	gv.relax_PGE_val    = 128.0;				/** restricting factor 																*/
+	gv.relax_PGE		= 1.0e-2;				/** br norm under which the xeos box is restricted 									*/
+	gv.relax_PGE_val    = 196.0;				/** restricting factor 																*/
 	gv.PC_check_val		= 1.0e-4;				/** br norm under which PC are tested for potential candidate to be added 			*/
 	gv.PC_min_dist 		= 1.0;					/** factor multiplying the diagonal of the hyperbox of xeos step 					*/
 	gv.PC_df_add		= 4.0;					/** min value of df under which the PC is added 									*/
@@ -180,9 +182,9 @@ global_variable global_variable_init(){
 	gv.it_1             = 200;                  /** first critical iteration                                                        */
 	gv.ur_1             = 4.;                   /** under relaxing factor on mass constraint if iteration is bigger than it_1       */
 	gv.it_2             = 300;                  /** second critical iteration                                                       */
-	gv.ur_2             = 10.;                  /** under relaxing factor on mass constraint if iteration is bigger than it_2       */
+	gv.ur_2             = 8.;                   /** under relaxing factor on mass constraint if iteration is bigger than it_2       */
 	gv.it_3             = 400;                  /** third critical iteration                                                        */
-	gv.ur_3             = 20.;                  /** under relaxing factor on mass constraint if iteration is bigger than it_3       */
+	gv.ur_3             = 16.;                  /** under relaxing factor on mass constraint if iteration is bigger than it_3       */
 	gv.it_f             = 500;                  /** gives back failure when the number of iteration is bigger than it_f             */
 	gv.it_slow          = 256;                  /** critical iteration for slow convergence                                         */
 	gv.ur_slow          = 1e3;                	/** under relaxing factor on mass constraint defining overly slow convergence       */
@@ -220,7 +222,7 @@ global_variable global_variable_init(){
 	gv.dGamma 			= malloc (gv.len_ox * sizeof(double)	);
 	gv.ox 				= malloc (gv.len_ox * sizeof(char*)		);
 	gv.gam_tot  		= malloc (gv.len_ox * sizeof (double) 	); 
-	gv.del_gam_tot  	= malloc (gv.len_ox * sizeof (double) 	); 
+	gv.gam_tot_0		= malloc (gv.len_ox * sizeof (double) 	); 
 	gv.delta_gam_tot  	= malloc (gv.len_ox * sizeof (double) 	); 
 	gv.mass_residual 	= malloc (gv.len_ox * sizeof(double)	);	
 
@@ -253,6 +255,7 @@ global_variable global_variable_init(){
 
 	/* allocate memory for pure and solution phase fractions */
 	gv.pp_n    			= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
+	gv.pp_n_0 			= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
 	gv.pp_xi    		= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
 	gv.delta_pp_n 		= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
 	gv.delta_pp_xi 		= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
@@ -434,7 +437,7 @@ void get_bulk(double *bulk_rock, int test, int n_El) {
   reset global variable for parallel calculations 
 */
 global_variable reset_gv(					global_variable 	 gv,
-											struct bulk_info 	 z_b,
+											bulk_info 	 z_b,
 											PP_ref 				*PP_ref_db,
 											SS_ref 				*SS_ref_db
 ){
@@ -451,6 +454,7 @@ global_variable reset_gv(					global_variable 	 gv,
 	/* reset pure phases fractions and xi */
 	for (int i = 0; i < gv.len_pp; i++){		
 		gv.pp_n[i] 		  = 0.0;
+		gv.pp_n_0[i]	  = 0.0;
 		gv.delta_pp_n[i]  = 0.0;
 		gv.pp_xi[i] 	  = 0.0;
 		gv.delta_pp_xi[i] = 0.0;
@@ -526,7 +530,7 @@ global_variable reset_gv(					global_variable 	 gv,
     for (i = 0; i < gv.len_ox; i++){	
         gv.mass_residual[i] = 0.0;
         gv.gam_tot[i]     	= 0.0;
-        gv.del_gam_tot[i]   = 0.0;
+        gv.gam_tot_0[i]   	= 0.0;
         gv.delta_gam_tot[i] = 0.0;
 		gv.mass_residual[i] = 0.0;	
     }
@@ -591,9 +595,9 @@ void reset_sp(						global_variable 	 gv,
 /**
   reset bulk rock composition informations (needed if the bulk-rock is not constant during parallel computation)
 */
-struct bulk_info reset_z_b(			global_variable 	 gv,
+bulk_info reset_z_b(			global_variable 	 gv,
 									double 				*bulk,
-									struct bulk_info 	 z_b
+									bulk_info 	 z_b
 ){
 	int i, j, k;
 
@@ -650,12 +654,12 @@ struct bulk_info reset_z_b(			global_variable 	 gv,
   reset considered phases entries
 */
 void reset_cp(						global_variable 	 gv,
-									struct bulk_info 	 z_b,
+									bulk_info 	 z_b,
 									csd_phase_set  		*cp
 ){
 	
 	for (int i = 0; i < gv.max_n_cp; i++){		
-		strcpy(cp[i].name,"");					/* get phase name */	
+		strcpy(cp[i].name,"");						/* get phase name */	
 		cp[i].in_iter			=  0;
 		cp[i].split				=  0;
 		cp[i].id 				= -1;				/* get phaseid */
@@ -670,6 +674,7 @@ void reset_cp(						global_variable 	 gv,
 		}
 
 		cp[i].ss_n        		= 0.0;				/* get initial phase fraction */
+		cp[i].ss_n_0      		= 0.0;				/* get initial phase fraction */
 		cp[i].delta_ss_n    	= 0.0;				/* get initial phase fraction */
 		
 		for (int ii = 0; ii < gv.len_ox + 1; ii++){
@@ -677,7 +682,7 @@ void reset_cp(						global_variable 	 gv,
 			cp[i].xi_em[ii]     = 0.0;
 			cp[i].dguess[ii]    = 0.0;
 			cp[i].xeos[ii]      = 0.0;
-			cp[i].lvlxeos[ii]   = 0.0;
+			cp[i].xeos_0[ii]    = 0.0;
 			cp[i].delta_mu[ii]  = 0.0;
 			cp[i].dfx[ii]       = 0.0;
 			cp[i].mu[ii]        = 0.0;
@@ -701,7 +706,7 @@ void reset_cp(						global_variable 	 gv,
   reset compositional variables (xeos) when something goes wrong during minimization 
 */
 void reset_SS(						global_variable 	 gv,
-									struct bulk_info 	 z_b,
+									bulk_info 	 z_b,
 									SS_ref 				*SS_ref_db
 ){
 	/* reset solution phases */
@@ -814,6 +819,8 @@ void init_simplex_A( 	simplex_data 		*splx_data,
 	d->g0_A   	   = malloc ((gv.len_ox) * sizeof(double));
 	d->dG_A   	   = malloc ((gv.len_ox) * sizeof(double));
 	d->n_vec   	   = malloc ((gv.len_ox) * sizeof(double));
+	d->stage   	   = malloc ((gv.len_ox) * sizeof(int));
+
 	d->gamma_ps	   = malloc ((gv.len_ox) * sizeof(double));
 	d->gamma_ss	   = malloc ((gv.len_ox) * sizeof(double));
 	d->gamma_tot   = malloc ((gv.len_ox) * sizeof(double));
@@ -874,7 +881,7 @@ void init_simplex_B_em(				simplex_data 		 *splx_data,
   function to allocate memory for simplex linear programming (A)
 */	
 void reset_simplex_A( 	simplex_data 		*splx_data,
- 						struct bulk_info 	 z_b,
+ 						bulk_info 	 		 z_b,
 						global_variable 	 gv
 ){
 	simplex_data *d  = (simplex_data *) splx_data;
@@ -898,6 +905,7 @@ void reset_simplex_A( 	simplex_data 		*splx_data,
 		d->g0_A[i]     = 0.0;
 		d->dG_A[i]     = 0.0;
 		d->n_vec[i]    = 0.0;
+		d->stage[i]    = 0;
 		d->gamma_ps[i] = 0.0;
 		d->gamma_ss[i] = 0.0;
 		
