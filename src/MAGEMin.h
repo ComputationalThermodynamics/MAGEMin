@@ -437,6 +437,9 @@ typedef struct global_variables {
 	int      status;			/** status of the minimization */
 	
 	/* GENERAL PARAMETERS */
+	int 	 LP;				/** linear programming stage flag*/
+	int 	 PGE;				/** PGE stage flag				 */
+
 	double   relax_PGE;
 	double   relax_PGE_val;
 	double   PC_df_add;
@@ -541,7 +544,6 @@ typedef struct global_variables {
 	double	*dGamma;			/** array to store gamma change */
 	
 	double  *PGE_mass_norm;		/** save the evolution of the norm */
-	double  *PGE_total_norm;	/** save the evolution of the moving norm */
 	double  *gamma_norm;		/** save the evolution of the gamma norm */
 	double  *ite_time;
 	double   G_system;      	/** Gibbs energy of the system */

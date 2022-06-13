@@ -171,4 +171,12 @@ global_variable init_PGE_using_LP(					bulk_info 	 		 z_b,
 													SS_ref 				*SS_ref_db,
 													csd_phase_set  		*cp				);
 
+global_variable get_solution_phase_infos( 			io_data 			 input_data,
+													bulk_info 	 		 z_b,
+													global_variable 	 gv,
+
+													PP_ref  			*PP_ref_db,
+													SS_ref  			*SS_ref_db,
+													csd_phase_set  		*cp				);
+
 #endif

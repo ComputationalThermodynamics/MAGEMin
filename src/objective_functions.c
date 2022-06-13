@@ -1975,9 +1975,9 @@ double obj_spn(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 	return d->df;
 };
 
-SS_ref PC_PX_function(		SS_ref SS_ref_db, 
-							double  *x,
-							char    *name){
+SS_ref PC_PX_function(		SS_ref 		 SS_ref_db, 
+							double  	*x,
+							char    	*name			){
 
 	/* Associate the right solid-solution data */
 	if 	(strcmp( name, "bi") == 0 ){
@@ -2029,9 +2029,9 @@ SS_ref PC_PX_function(		SS_ref SS_ref_db,
 	return SS_ref_db;
 };
 
-SS_ref PC_DPDX_function(	SS_ref SS_ref_db, 
-							double  *x,
-							char    *name){
+SS_ref PC_DPDX_function(	SS_ref 			 SS_ref_db, 
+							double  		*x,
+							char    		*name				){
 
 	/* Associate the right solid-solution data */
 	if 	(strcmp( name, "bi") == 0 ){
@@ -2084,10 +2084,10 @@ SS_ref PC_DPDX_function(	SS_ref SS_ref_db,
 };
 
 
-SS_ref P2X(		global_variable gv,
-				SS_ref SS_ref_db, 
-				bulk_info z_b,
-				char    *name				){
+SS_ref P2X(					global_variable 	 gv,
+							SS_ref 				 SS_ref_db, 
+							bulk_info 			 z_b,
+							char    			*name				){
 
 	double eps = gv.bnd_val;
 
@@ -2177,19 +2177,19 @@ SS_ref PC_function(		global_variable 	 gv,
 		G0 = obj_liq(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}
 	else if (strcmp( name, "mu")  == 0){
-		G0 = obj_mu(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_mu(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}	
 	else if (strcmp( name, "ol")  == 0){
-		G0 = obj_ol(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_ol(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}
 	else if (strcmp( name, "opx") == 0){
-		G0 = obj_opx(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_opx(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}
 	else if (strcmp( name, "pl4T")  == 0){
-		G0 = obj_pl4T(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_pl4T(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}	
 	else if (strcmp( name, "spn") == 0){	
-		G0 = obj_spn(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_spn(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}
 	else{
 		printf("\nsolid solution '%s' is not in the database\n",name);		

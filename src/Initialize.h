@@ -142,8 +142,8 @@ global_variable global_variable_init(){
 
 	//1e-3,128
 	/* under-relaxing factors */
-	gv.relax_PGE		= 1.0e-2;				/** br norm under which the xeos box is restricted 									*/
-	gv.relax_PGE_val    = 196.0;				/** restricting factor 																*/
+	gv.relax_PGE		= 1.0e-3;				/** br norm under which the xeos box is restricted 									*/
+	gv.relax_PGE_val    = 128.0;				/** restricting factor 																*/
 	gv.PC_check_val		= 1.0e-4;				/** br norm under which PC are tested for potential candidate to be added 			*/
 	gv.PC_min_dist 		= 1.0;					/** factor multiplying the diagonal of the hyperbox of xeos step 					*/
 	gv.PC_df_add		= 4.0;					/** min value of df under which the PC is added 									*/
@@ -205,7 +205,6 @@ global_variable global_variable_init(){
 
 	/* declare chemical system */
 	gv.PGE_mass_norm  	= malloc (gv.it_f * sizeof (double) 	); 
-	gv.PGE_total_norm  	= malloc (gv.it_f * sizeof (double) 	); 
 	gv.gamma_norm  		= malloc (gv.it_f * sizeof (double) 	); 
 	gv.ite_time  		= malloc (gv.it_f * sizeof (double) 	); 
 	
@@ -485,7 +484,6 @@ global_variable reset_gv(					global_variable 	 gv,
 		}
 	}
 
-
 	gv.melt_fraction	  = 0.;
 	gv.melt_density       = 0.;
 	gv.melt_bulkModulus   = 0.;
@@ -521,7 +519,6 @@ global_variable reset_gv(					global_variable 	 gv,
 	/* reset iteration record */
 	for (i = 0; i < gv.it_f; i++){	
 		gv.PGE_mass_norm[i] 	= 0.0;
-		gv.PGE_total_norm[i] 	= 0.0;
 		gv.gamma_norm[i] 		= 0.0;	
 		gv.ite_time[i] 			= 0.0;
 	}

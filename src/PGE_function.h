@@ -12,7 +12,7 @@ global_variable PGE(			bulk_info 			z_b,
 								SS_ref 				*SS_ref_db,
 								csd_phase_set  		*cp					);
 
-global_variable LP_PGE(			bulk_info 			z_b,
+global_variable LP(				bulk_info 			z_b,
 								global_variable 	gv,
 								
 								obj_type 			*SS_objective,
@@ -20,6 +20,7 @@ global_variable LP_PGE(			bulk_info 			z_b,
 								PP_ref 				*PP_ref_db,
 								SS_ref 				*SS_ref_db,
 								csd_phase_set  		*cp					);
+
 
 double norm_vector(double *array ,int n);
 

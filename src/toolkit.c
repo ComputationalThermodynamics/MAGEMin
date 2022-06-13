@@ -1248,7 +1248,7 @@ void swap_pure_endmembers(				bulk_info 	 z_b,
 						d->ph_id_A[d->ph2swp][1] = d->ph_id_B[1];
 						d->ph_id_A[d->ph2swp][2] = d->ph_id_B[2];
 						d->ph_id_A[d->ph2swp][3] = l;	
-						d->g0_A[d->ph2swp] 	   = d->g0_B;
+						d->g0_A[d->ph2swp] 	   	 = d->g0_B;
 						
 						for (int j = 0; j < d->n_Ox; j++){				
 							int k = d->ph2swp + j*d->n_Ox;
@@ -1482,14 +1482,14 @@ global_variable run_LP_with_PGE_phase(				bulk_info 			 z_b,
 
 		for (int i = 0; i < d->n_Ox; i++){
 			if (d->ph_id_A[i][0] == 1){
-				printf(" ['%5s' %+10f  %+12.4f  %5d ]", gv.PP_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+				printf(" ['%5s' %+10f  %+12.4f  %2d %2d ]", gv.PP_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0], d->stage[i]);
 				printf("\n");
 			}
 			if (d->ph_id_A[i][0] == 2){
-				printf(" ['%5s' %+10f  %+12.4f  %5d ]\n", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+				printf(" ['%5s' %+10f  %+12.4f  %2d %2d ]\n", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0], d->stage[i]);
 			}
 			if (d->ph_id_A[i][0] == 3){
-				printf(" ['%5s' %+10f  %+12.4f  %5d ]", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+				printf(" ['%5s' %+10f  %+12.4f  %2d %2d ]", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0], d->stage[i]);
 				if (d->stage[i] == 1){
 					for (int ii = 0; ii < SS_ref_db[d->ph_id_A[i][1]].n_xeos; ii++){
 						printf(" %+10f", SS_ref_db[d->ph_id_A[i][1]].xeos_Ppc[d->ph_id_A[i][3]][ii] );
@@ -1775,5 +1775,95 @@ global_variable init_PGE_using_LP(					bulk_info 	 		 z_b,
 
 
 
+	return gv;
+}
+
+
+
+global_variable get_solution_phase_infos( 		io_data 			 input_data,
+												bulk_info 	 		 z_b,
+												global_variable 	 gv,
+
+												PP_ref  			*PP_ref_db,
+												SS_ref  			*SS_ref_db,
+												csd_phase_set  		*cp						){
+
+	printf("\n");
+	printf("  Spit out Solution model informations for given input\n");
+	printf("  ════════════════════════════════════════════════════\n");
+	int id_cp = 0;
+	for (int i = 0; i < input_data.n_phase; i++){
+		/* simple function to get the array index of the given solution phase */
+		int ss = get_phase_id(		gv,
+									input_data.phase_names[i]	);
+		
+		for (int j = 0; j < SS_ref_db[ss].n_xeos; j++){
+			SS_ref_db[ss].iguess[j] =  input_data.phase_xeos[i][j];
+		}
+		SS_ref_db[ss] = raw_hyperplane(		gv, 
+											SS_ref_db[ss],
+											SS_ref_db[ss].gbase		);
+		
+		SS_ref_db[ss] = PC_function(	gv,
+										SS_ref_db[ss], 
+										z_b,
+										gv.SS_list[ss] 				);
+										
+		strcpy(cp[id_cp].name,gv.SS_list[ss]);				/* get phase name */	
+		
+		cp[id_cp].split 		= 0;							
+		cp[id_cp].id 			= ss;						/* get phase id */
+		cp[id_cp].n_xeos		= SS_ref_db[ss].n_xeos;		/* get number of compositional variables */
+		cp[id_cp].n_em			= SS_ref_db[ss].n_em;		/* get number of endmembers */
+		cp[id_cp].n_sf			= SS_ref_db[ss].n_sf;		/* get number of site fractions */
+		
+		cp[id_cp].df			= SS_ref_db[ss].df_raw;
+		cp[id_cp].factor		= SS_ref_db[ss].factor;	
+		
+		cp[id_cp].ss_flags[0] 	= 1;							/* set flags */
+		cp[id_cp].ss_flags[1] 	= 1;
+		cp[id_cp].ss_flags[2] 	= 0;
+		
+		cp[id_cp].ss_n          = 1.0;			/* get initial phase fraction */
+		
+		for (int ii = 0; ii < cp[id_cp].n_xeos; ii++){
+			cp[id_cp].xeos[ii]		= SS_ref_db[ss].iguess[ii]; 
+			cp[id_cp].dfx[ii]		= SS_ref_db[ss].dfx[ii]; 
+		}
+		
+		for (int ii = 0; ii < cp[id_cp].n_em; ii++){
+			cp[id_cp].p_em[ii]		= SS_ref_db[ss].p[ii];
+			cp[id_cp].xi_em[ii]		= SS_ref_db[ss].xi_em[ii];
+			cp[id_cp].mu[ii]		= SS_ref_db[ss].mu[ii];
+			cp[id_cp].gbase[ii]		= SS_ref_db[ss].gbase[ii];
+		}
+		for (int ii = 0; ii < SS_ref_db[ss].n_em; ii++){
+			for (int jj = 0; jj < SS_ref_db[ss].n_xeos; jj++){
+				cp[id_cp].dpdx[ii][jj] = SS_ref_db[ss].dp_dx[ii][jj];
+			}
+		}
+		for (int ii = 0; ii < gv.len_ox; ii++){
+			cp[id_cp].ss_comp[ii]	= SS_ref_db[ss].ss_comp[ii];
+		}
+		for (int ii = 0; ii < cp[id_cp].n_sf; ii++){
+			cp[id_cp].sf[ii]		= SS_ref_db[ss].sf[ii];
+		}	
+		
+		gv.id_solvi[ss][gv.n_solvi[ss]] = id_cp;
+		gv.n_solvi[ss] 	   	   += 1;
+		id_cp 				   += 1;
+		gv.len_cp 			   += 1;
+		gv.n_cp_phase 		   += 1;
+		gv.n_phase             += 1;
+	
+		if (gv.verbose ==1){
+			printf("   -> reading in %4s %+10f|",gv.SS_list[ss],SS_ref_db[ss].df);
+			for (int j = 0; j < SS_ref_db[ss].n_xeos; j++){
+				printf(" %+12.5f", input_data.phase_xeos[i][j]);
+			}
+			printf("\n");
+		}
+		
+	}
 	return gv;
 }
