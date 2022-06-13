@@ -871,7 +871,7 @@ global_variable run_levelling_function(		bulk_info 	 z_b,
 		printf(" [----------------------------------------]\n");
 		for (int i = 0; i < gv.len_ss; i++){
 			if (SS_ref_db[i].ss_flags[0] == 0){
-				printf(" [                %5s                  ]\n",gv.SS_list[i]);
+				printf(" [                 %5s                  ]\n",gv.SS_list[i]);
 			}
 		}
 	}

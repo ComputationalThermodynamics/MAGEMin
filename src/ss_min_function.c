@@ -280,21 +280,22 @@ void ss_min_PGE(		int 				 mode,
 											SS_ref_db[ph_id]			);
 
 	double relax, norm;
-	if (cp[i].in_iter > 0 && abs(cp[i].in_iter - gv.global_ite) <= 8){
-		relax = 1.0;
-	}
-	else{
-		relax = 64.0;
-	}
+	// if (cp[i].in_iter > 0 && abs(cp[i].in_iter - gv.global_ite) <= 8){
+	// 	relax = 1.0;
+	// }
+	// else{
+	// 	relax = 64.0;
+	// }
 
+	// norm = 1.0;
+	// if (gv.BR_norm < gv.relax_PGE){
+	// 	norm = norm_vector(cp[i].mu,cp[i].n_em)/relax;
+	// 	if (norm > 1.0){ 
+	// 		norm = 1.0;
+	// 	}
+	// }
 	norm = 1.0;
-	if (gv.BR_norm < gv.relax_PGE){
-		norm = norm_vector(cp[i].mu,cp[i].n_em)/relax;
-		if (norm > 1.0){ 
-			norm = 1.0;
-		}
-	}
-
+	
 	/**
 		Define a sub-hypervolume for the solution phases bounds
 	*/
@@ -324,7 +325,6 @@ void ss_min_PGE(		int 				 mode,
 		}
 	}
 	
-
 	SS_ref_db[ph_id] = PC_function(				gv,
 												SS_ref_db[ph_id], 
 												z_b,

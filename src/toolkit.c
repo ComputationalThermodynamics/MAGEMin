@@ -1041,7 +1041,7 @@ void update_dG(	simplex_data *splx_data
 	for (int j = 0; j < d->n_Ox; j++){
 		d->dG_B -= d->B1[j]*d->g0_A[j];
 	}
-	
+
 	d->ph2swp = -1;	
 	if (d->dG_B < d->dG_B_tol){	
 		d->min_F  =  d->min_F_tol;												/** max value for F, tentative here because F can tend to +inf */
@@ -1346,7 +1346,7 @@ void swap_pseudocompounds(				bulk_info 	 		 z_b,
 /**
   function to swp solution phase pseudocompounds during PGE iterations
 */	
-void swap_PGE_pseudocompounds(			bulk_info 	 z_b,
+void swap_PGE_pseudocompounds(			bulk_info 	 		 z_b,
 										simplex_data 		*splx_data,
 										global_variable 	 gv,
 										
@@ -1469,8 +1469,13 @@ global_variable run_LP_with_PGE_phase(				bulk_info 			 z_b,
 	update_global_gamma_LU(					z_b,
 											splx_data		);	
 
+	/* copy gamma total to the global variables */
+	for (int i = 0; i < gv.len_ox; i++){
+		gv.gam_tot[i] = d->gamma_tot[i];
+	}
+
 	if (gv.verbose == 1){
-		printf(" Total number of LP iterations: %d\n",k);	
+		printf("\n Total number of LP iterations: %d\n",k);	
 		printf(" [----------------------------------------]\n");
 		printf(" [  Ph  |   Ph PROP  |   g0_Ph    |  ix   ]\n");
 		printf(" [----------------------------------------]\n");
@@ -1528,11 +1533,6 @@ global_variable init_PGE_using_LP(					bulk_info 	 		 z_b,
 ){
 	simplex_data *d  = (simplex_data *) splx_data;
 
-	/* copy gamma total to the global variables */
-	for (int i = 0; i < gv.len_ox; i++){
-		gv.gam_tot[i] = d->gamma_tot[i];
-	}
-
 	double distance;
 	double min_distance;
 	double mid_dG;
@@ -1546,18 +1546,24 @@ global_variable init_PGE_using_LP(					bulk_info 	 		 z_b,
 	int i, j, k, ii;
 	int m_pc;
 	
+	// /**
+	//    reset variables
+	// */
+	// for (k = 0; k < gv.n_flags; k++){
+	// 	for (i = 0; i < gv.len_pp; i++){
+	// 		gv.pp_flags[i][k]   = 0;
+	// 	}
+	// 	for (i = 0; i < gv.len_ss; i++){ 
+	// 		SS_ref_db[i].ss_flags[k]   = 0;
+	// 	}
+	// }
 	/**
 	   reset variables
 	*/
-	for (k = 0; k < gv.n_flags; k++){
-		for (i = 0; i < gv.len_pp; i++){
-			gv.pp_flags[i][k]   = 0;
-		}
-		for (i = 0; i < gv.len_ss; i++){ 
-			SS_ref_db[i].ss_flags[k]   = 0;
-		}
+	for (i = 0; i < gv.len_pp; i++){
+		gv.pp_flags[i][1]   = 0;
 	}
-	
+
 	/* reset pure phases fractions and xi */
 	for (i = 0; i < gv.len_pp; i++){		
 		gv.pp_n[i] 		  = 0.0;
@@ -1659,7 +1665,8 @@ global_variable init_PGE_using_LP(					bulk_info 	 		 z_b,
 											z_b,
 											gv.SS_list[ph_id] 		);
 											
-			strcpy(cp[id_cp].name,gv.SS_list[ph_id]);				/* get phase name */	
+			strcpy(cp[id_cp].name,gv.SS_list[ph_id]);				/* get phase name */
+
 			cp[id_cp].split 		= 0;							
 			cp[id_cp].id 			= ph_id;						/* get phase id */
 			cp[id_cp].n_xeos		= SS_ref_db[ph_id].n_xeos;		/* get number of compositional variables */

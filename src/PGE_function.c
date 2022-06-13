@@ -850,8 +850,7 @@ global_variable PGE_inner_loop(		bulk_info 	 z_b,
 								
 		delta_fc_norm 	= fabs(gv.fc_norm_t1 - fc_norm_t0);
 		fc_norm_t0 		= gv.fc_norm_t1;
-		
-							
+
 		/**
 		calculate delta_G of pure phases 
 		*/
@@ -942,7 +941,7 @@ global_variable PGE(	bulk_info 	z_b,
 									cp
 	); 			
 				
-	for (int gi = 0; gi < 2; gi++){
+	for (int gi = 0; gi < 3; gi++){
 	// while (gv.BR_norm > gv.br_max_tol || gv.global_ite < gv.outter_PGE_ite){
 
 		t = clock();
@@ -954,7 +953,7 @@ global_variable PGE(	bulk_info 	z_b,
 		
 		/* calculate delta_G of solution phases (including local minimization) */
 		if (gv.verbose == 1){
-			printf("Minimize solution phases\n");
+			printf("\nMinimize solution phases\n");
 			printf("═════════════════════════\n");
 			printf(" phase |  delta_G   | SF |   sum_xi   | time(ms)   |   x-eos ...\n");
 			printf("══════════════════════════════════════════════════════════════════\n");
@@ -1013,16 +1012,6 @@ global_variable PGE(	bulk_info 	z_b,
 										cp 					);	
 			}
 		}
-		
-		/**
-			Merge instances of the same solution phase that are compositionnally close 
-		*/
-		gv = phase_merge_function(		z_b,							/** bulk rock constraint 				*/
-										gv,								/** global variables (e.g. Gamma) 		*/
-
-										PP_ref_db,						/** pure phase database 				*/
-										SS_ref_db,						/** solution phase database 			*/ 
-										cp					); 
 
 		/**
 		   Here the linear programming method is used after the PGE step to get a new Gibbs hyper-plane
@@ -1042,6 +1031,19 @@ global_variable PGE(	bulk_info 	z_b,
 										SS_ref_db,
 										cp					);	
 
+
+		/**
+			Merge instances of the same solution phase that are compositionnally close 
+		*/
+		gv = phase_merge_function(		z_b,							/** bulk rock constraint 				*/
+										gv,								/** global variables (e.g. Gamma) 		*/
+
+										PP_ref_db,						/** pure phase database 				*/
+										SS_ref_db,						/** solution phase database 			*/ 
+										cp					); 
+
+
+
 		/**
 			Actual Partitioning Gibbs Energy stage 
 		/*/
@@ -1051,6 +1053,31 @@ global_variable PGE(	bulk_info 	z_b,
 										PP_ref_db,						/** pure phase database 				*/ 
 										SS_ref_db,						/** solution phase database 			*/
 										cp					); 
+
+		
+		// printf(" \n\n ---PRINT INFOS FOR DEBUG\n");
+		// for (int i = 0; i < gv.len_ss; i++){
+		// 	int max_n_Ppc = get_max_n_pc(SS_ref_db[i].tot_Ppc, SS_ref_db[i].n_Ppc);
+		// 	printf("SS = %4s |max n Ppc = %d\n",gv.SS_list[i] ,max_n_Ppc);
+		// 	for (int k = 0; k < max_n_Ppc; k++){
+		// 		printf(" %d | %+10f %+10f |",k,SS_ref_db[i].DF_Ppc[k],SS_ref_db[i].G_Ppc[k]);
+		// 		for (int j = 0; j < SS_ref_db[i].n_xeos; j++){
+		// 			printf(" %+10f",SS_ref_db[i].xeos_Ppc[k][j]);
+		// 		}
+		// 		// printf(" | ");
+		// 		// for (int j = 0; j < gv.len_ox; j++){
+		// 		// 	printf(" %+10f",SS_ref_db[i].comp_Ppc[k][j]);
+		// 		// }
+		// 		printf("\n");
+		// 	}
+		// }
+		// simplex_data *d  = (simplex_data *) splx_data;
+		// for (int j = 0; j < d->n_Ox; j++){
+		// 	printf("g0_A: %+10f\n",d->g0_A[j]);
+		// }
+		// printf(" ---\n");
+
+
 										
 		/* dump & print */
 		if (gv.verbose == 1){
@@ -1062,7 +1089,6 @@ global_variable PGE(	bulk_info 	z_b,
 										SS_ref_db,						/** solution phase database 			*/
 										cp					); 
 		}
-
 
 		/* Increment global iteration value */
 		gv.global_ite += 1;
