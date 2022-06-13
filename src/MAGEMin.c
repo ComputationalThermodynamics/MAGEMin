@@ -654,9 +654,6 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 		/****************************************************************************************/
 		/**                               LINEAR PROGRAMMING                                   **/
 		/****************************************************************************************/	
-		gv.LP 	= 1;
-		gv.PGE 	= 0;
-
 		gv 		= LP(			z_b,									/** bulk rock informations 			*/
 								gv,										/** global variables (e.g. Gamma) 	*/
 
@@ -671,8 +668,6 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 		/****************************************************************************************/
 		/**                            PARTITIONING GIBBS ENERGY                               **/
 		/****************************************************************************************/
-		// gv.LP 	= 0;
-		// gv.PGE 	= 1;
 		// gv 		= PGE(			z_b,									/** bulk rock constraint 			*/ 
 		// 						gv,										/** global variables (e.g. Gamma) 	*/
 

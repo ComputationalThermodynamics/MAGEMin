@@ -686,7 +686,6 @@ void print_SS_informations(		global_variable gv,
 	for (int k = SS_ref_db.n_xeos; k < 11; k++){
 		printf(" %10s","-");
 	}
-
 	printf("\n");
 }
 

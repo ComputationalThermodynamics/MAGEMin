@@ -963,6 +963,28 @@ global_variable PGE_inner_loop(		bulk_info 			 z_b,
    return gv;
 };
 
+
+global_variable compute_xi_SD(				global_variable  		 gv,
+											csd_phase_set  			*cp				){
+	gv.mean_sum_xi 	= 0.0;
+	gv.sigma_sum_xi = 0.0;
+	for (int iss = 0; iss < gv.len_cp; iss++){ 
+		if (cp[iss].ss_flags[0] == 1){
+			gv.mean_sum_xi += cp[iss].sum_xi/gv.n_cp_phase;
+		}
+	}
+	for (int iss = 0; iss < gv.len_cp; iss++){ 
+		if (cp[iss].ss_flags[0] == 1){
+			gv.sigma_sum_xi += pow(cp[iss].sum_xi-gv.mean_sum_xi,2.0);
+		}
+	}
+	gv.sigma_sum_xi = sqrt(gv.sigma_sum_xi/gv.mean_sum_xi);
+	printf("\n mean sum_xi: %+10f [sd: %+10f]\n",gv.mean_sum_xi,gv.sigma_sum_xi);
+	
+	return gv;
+}
+
+
 /**
   Main PGE routine
 */ 
@@ -976,6 +998,9 @@ global_variable LP(		bulk_info 			z_b,
 						csd_phase_set  		*cp					){
 		
 	clock_t t; 	
+	gv.LP 	= 1;
+	gv.PGE 	= 0;
+
 	int mode = 1;
 	/**
 		First merge instances of the same solution phase that are compositionnally close 
@@ -988,7 +1013,7 @@ global_variable LP(		bulk_info 			z_b,
 									cp
 	); 			
 				
-	// int test = 64; for (int gi = 0; gi < test; gi++){
+	// int test = 32; for (int gi = 0; gi < test; gi++){
 	simplex_data *d  = (simplex_data *) splx_data;
 	d->n_swp = 1e6;
 	while (d->n_swp > 0){
@@ -1019,7 +1044,9 @@ global_variable LP(		bulk_info 			z_b,
 		/**
 			check driving force of PC when getting close to convergence
 		*/
-		if (d->n_swp < 3 && gv.check_PC == 0){
+		// if (d->n_swp < 6 && gv.check_PC == 0){
+		// if (gi == 14 && gv.check_PC == 0){
+		if (gv.sigma_sum_xi < 1e-2 && gv.check_PC == 0){
 			if (gv.verbose == 1){
 				printf(" Checking PC driving force\n");	
 				printf("═══════════════════════════\n");	
@@ -1040,6 +1067,7 @@ global_variable LP(		bulk_info 			z_b,
 			update delta_G of solution phases as function of updated Gamma
 		*/
 		for (int iss = 0; iss < gv.len_cp; iss++){ 
+
 			if (cp[iss].ss_flags[0] == 1){
 
 				/**
@@ -1061,7 +1089,11 @@ global_variable LP(		bulk_info 			z_b,
 										cp 					);	
 			}
 		}
-		
+
+		gv = compute_xi_SD(				gv,
+										cp					);
+
+
 		/**
 		   Here the linear programming method is used after the PGE step to get a new Gibbs hyper-plane
 		*/
@@ -1203,6 +1235,9 @@ global_variable PGE(	bulk_info 			z_b,
 						csd_phase_set  		*cp					){
 		
 	clock_t t; 	
+	gv.LP 	= 0;
+	gv.PGE 	= 1;
+
 	int mode = 1;
 	/**
 		First merge instances of the same solution phase that are compositionnally close 

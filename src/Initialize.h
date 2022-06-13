@@ -140,7 +140,6 @@ global_variable global_variable_init(){
 	gv.br_max_tol       = 1.0e-5;				/** value under which the solution is accepted to satisfy the mass constraint 		*/
 	
 
-	//1e-3,128
 	/* under-relaxing factors */
 	gv.relax_PGE		= 1.0e-3;				/** br norm under which the xeos box is restricted 									*/
 	gv.relax_PGE_val    = 128.0;				/** restricting factor 																*/
@@ -198,6 +197,8 @@ global_variable global_variable_init(){
 	gv.gb_T_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
 
 	/* initialize other values */
+	gv.mean_sum_xi		= 1.0;
+	gv.sigma_sum_xi		= 1.0;
 	gv.alpha        	= gv.max_fac;				/** active under-relaxing factor 													*/
 	gv.len_ss          	= (int)(sizeof(n_SS_PC_tmp) / sizeof(n_SS_PC_tmp[0] ));					/** number of solution phases taken into accounnt									*/
 	gv.maxeval		    = gv.maxeval_mode_1;
