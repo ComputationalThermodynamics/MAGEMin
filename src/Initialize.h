@@ -149,7 +149,7 @@ global_variable global_variable_init(){
 	gv.act_varFac_stab	= 5.0e-5;				/** br norm under which liquid is updated using xi to improve convergence 			*/
 	
 	/* levelling parameters */
-	gv.em2ss_shift		= 1e-5;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
+	gv.em2ss_shift		= 1e-6;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
 	gv.bnd_filter_pc    = 10.0;					/** value of driving force the pseudocompound is considered 						*/
 	gv.n_pc				= 7500;
 	gv.max_G_pc         = 5.0;					/** dG under which PC is considered after their generation		 					*/
@@ -170,7 +170,7 @@ global_variable global_variable_init(){
 	gv.maxeval_mode_1   = 1024;					/** max number of evaluation of the obj function for mode 1 (PGE)					*/
 
 	/* Partitioning Gibbs Energy */
-	gv.outter_PGE_ite   = 1;					/** minimum number of outter PGE iterations, before a solution can be accepted 		*/
+	gv.outter_PGE_ite   = 2;					/** minimum number of outter PGE iterations, before a solution can be accepted 		*/
 	gv.inner_PGE_ite    = 32;					/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
 	gv.max_n_phase  	= 0.025;				/** maximum mol% phase change during one PGE iteration in wt% 						*/
 	gv.max_g_phase  	= 2.5;					/** maximum delta_G of reference change during PGE 									*/
@@ -556,6 +556,12 @@ global_variable reset_gv(					global_variable 	 gv,
 void reset_sp(						global_variable 	 gv,
 									stb_system  		*sp
 ){
+
+	sp[0].frac_S_wt						= 0.0;
+	sp[0].frac_M_wt						= 0.0;
+	sp[0].frac_F_wt						= 0.0;
+
+
 	/* reset system */
 	for (int i = 0; i < gv.len_ox; i++){
 		strcpy(sp[0].ph[i],"");	
@@ -564,7 +570,9 @@ void reset_sp(						global_variable 	 gv,
 		sp[0].bulk_S[i] 				= 0.0;
 		sp[0].bulk_M[i] 				= 0.0;
 		sp[0].bulk_F[i] 				= 0.0;
-
+		sp[0].bulk_S_wt[i] 				= 0.0;
+		sp[0].bulk_M_wt[i] 				= 0.0;
+		sp[0].bulk_F_wt[i] 				= 0.0;
 		sp[0].ph_type[i] 				= -1;
 		sp[0].ph_id[i] 					=  0;
 		sp[0].ph_frac[i] 				=  0.0;

@@ -79,8 +79,6 @@ void PGE_print(					bulk_info 				z_b,
 						
 		}
 	}
-	
-
 
 	if (gv.n_pp_phase > 0){
 		printf("\n");
@@ -189,7 +187,6 @@ global_variable PGE_residual_update_function(	bulk_info 				z_b,
 	else {
 		printf(" Wrong combination of LP and PGE, check called sub-routines...\n");
 	}
-
 
 	gv.BR_norm    = norm_vector(	gv.mass_residual,
 									z_b.nzEl_val				);
@@ -985,7 +982,6 @@ global_variable compute_xi_SD(				global_variable  		 gv,
 	
 	return gv;
 }
-
 
 /**
   Main PGE routine

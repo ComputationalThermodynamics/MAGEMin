@@ -318,7 +318,7 @@ void ss_min_PGE(		int 				 mode,
 
 	if (gv.BR_norm < 1e-2){
 		for (int k = 0; k < cp[i].n_xeos; k++) {
-			SS_ref_db[ph_id].iguess[k]   = SS_ref_db[ph_id].dguess[k] + (SS_ref_db[ph_id].xeos[k]-SS_ref_db[ph_id].dguess[k])/1.25;
+			SS_ref_db[ph_id].iguess[k]   = SS_ref_db[ph_id].dguess[k] + (SS_ref_db[ph_id].xeos[k]-SS_ref_db[ph_id].dguess[k])/1.5;
 		}
 	}
 	else{

@@ -349,6 +349,9 @@ typedef struct stb_SS_phases {
 	double  *emFrac;
 	double  *emChemPot;
 	double **emComp;
+
+	double  *Comp_wt;
+	double **emComp_wt;
 	
 	//double  *siteFrac;
 	
@@ -371,7 +374,8 @@ typedef struct stb_PP_phases {
 	double   Vs;	
 	
 	double  *Comp;
-	
+	double  *Comp_wt;
+
 } stb_PP_phase;
 
 /* structure to store informations of stable phase equilibria */
@@ -389,7 +393,8 @@ typedef struct stb_systems {
 	double  P;
 	double  T;
 	double *bulk;
-	
+	double *bulk_wt;
+
 	double *gamma;
 	double  G;
 	double  rho;
@@ -410,12 +415,18 @@ typedef struct stb_systems {
 	double *bulk_M; double frac_M; double rho_M; 	/* Melt system informations 												*/
 	double *bulk_F; double frac_F; double rho_F; 	/* Fluid system informations 												*/
 	
+	double *bulk_S_wt; double frac_S_wt;   			/* Solid system informations 												*/
+	double *bulk_M_wt; double frac_M_wt;  			/* Melt system informations 												*/
+	double *bulk_F_wt; double frac_F_wt;  			/* Fluid system informations 												*/
+	
+
 	int     n_ph;									/* number of predicted stable phases 										*/
 	int     n_PP;									/* number of predicted stable pure phases 									*/
 	int     n_SS;									/* number of predicted stable solution phases 								*/
 
 	char  **ph;										/* phases names 															*/
 	double *ph_frac; 								/* phase fractions															*/
+	double *ph_frac_wt;								/* phase fractions in wt fraction											*/
 	int    *ph_type; 								/* 0 -> Solution phases; 1 -> Pure phases									*/
 	int    *ph_id;									/* position in the related stb_SS_phase or stb_PP_phase structure arrays	*/
 	

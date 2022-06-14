@@ -96,8 +96,14 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 	sp.bulk_S 				= malloc(gv.len_ox 	* sizeof(double)			);	
 	sp.bulk_M 				= malloc(gv.len_ox 	* sizeof(double)			);	
 	sp.bulk_F 				= malloc(gv.len_ox 	* sizeof(double)			);	
+
+	sp.bulk_wt 				= malloc(gv.len_ox  * sizeof(double)			);	
+	sp.bulk_S_wt 			= malloc(gv.len_ox 	* sizeof(double)			);	
+	sp.bulk_M_wt 			= malloc(gv.len_ox 	* sizeof(double)			);	
+	sp.bulk_F_wt 			= malloc(gv.len_ox 	* sizeof(double)			);	
 	sp.ph 	     			= malloc(gv.len_ox  * sizeof(char*)				);
 	sp.ph_frac 	     		= malloc(gv.len_ox  * sizeof(double)			);
+	sp.ph_frac_wt     		= malloc(gv.len_ox  * sizeof(double)			);
 	for (int i = 0; i < gv.len_ox; i++){
 		sp.ph[i] 			= malloc(20 * sizeof(char));	
 	}
@@ -109,15 +115,19 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 	for (int n = 0; n< gv.len_ox; n++){
 		sp.PP[n].Comp 			= malloc(gv.len_ox 	* sizeof(double)		);
 		sp.SS[n].Comp 			= malloc(gv.len_ox 	* sizeof(double)		);
+		sp.PP[n].Comp_wt 		= malloc(gv.len_ox 	* sizeof(double)		);
+		sp.SS[n].Comp_wt 		= malloc(gv.len_ox 	* sizeof(double)		);
 		sp.SS[n].compVariables	= malloc(gv.len_ox 	* sizeof(double)		);
 		sp.SS[n].emFrac			= malloc((gv.len_ox+1) * sizeof(double)		);
 		sp.SS[n].emChemPot		= malloc((gv.len_ox+1) * sizeof(double)		);
 		sp.SS[n].emNames 	    = malloc((gv.len_ox+1) * sizeof(char*)		);
 		sp.SS[n].emComp 	    = malloc((gv.len_ox+1) * sizeof(double*)	);
-		
+		sp.SS[n].emComp_wt 	    = malloc((gv.len_ox+1) * sizeof(double*)	);
+
 		for (int i = 0; i < gv.len_ox+1; i++){
-			sp.SS[n].emNames[i]	= malloc(20 * sizeof(char)					);
-			sp.SS[n].emComp[i]	= malloc(gv.len_ox * sizeof(double)			);		
+			sp.SS[n].emNames[i]		= malloc(20 * sizeof(char)				);
+			sp.SS[n].emComp[i]		= malloc(gv.len_ox * sizeof(double)		);		
+			sp.SS[n].emComp_wt[i]	= malloc(gv.len_ox * sizeof(double)		);		
 		}
 
 	}
