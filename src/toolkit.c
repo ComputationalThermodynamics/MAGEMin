@@ -1426,9 +1426,12 @@ global_variable run_LP_with_PGE_phase(				bulk_info 			 z_b,
 													SS_ref 				*SS_ref_db
 ){
 
-	printf("\n");
-	printf("Linear-Programming stage [PGE pseudocompounds]\n");	
-	printf("══════════════════════════════════════════════\n");	
+	if (gv.verbose == 1){
+		printf("\n");
+		printf("Linear-Programming stage [PGE pseudocompounds]\n");	
+		printf("══════════════════════════════════════════════\n");	
+	}
+
 
 	simplex_data *d  = (simplex_data *) splx_data;
 

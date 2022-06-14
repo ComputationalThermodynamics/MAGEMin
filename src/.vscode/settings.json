@@ -1,6 +1,7 @@
 {
     "C_Cpp.errorSquiggles": "Disabled",
     "files.associations": {
-        "complex": "c"
+        "complex": "c",
+        "typeinfo": "c"
     }
 }

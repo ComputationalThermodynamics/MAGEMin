@@ -439,7 +439,7 @@ typedef struct global_variables {
 	/* GENERAL PARAMETERS */
 	int 	 LP;				/** linear programming stage flag*/
 	int 	 PGE;				/** PGE stage flag				 */
-
+	int      LP_PGE_switch;
 	double   mean_sum_xi;
 	double   sigma_sum_xi;
 	

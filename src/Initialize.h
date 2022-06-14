@@ -149,7 +149,7 @@ global_variable global_variable_init(){
 	gv.act_varFac_stab	= 5.0e-5;				/** br norm under which liquid is updated using xi to improve convergence 			*/
 	
 	/* levelling parameters */
-	gv.em2ss_shift		= 1e-6;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
+	gv.em2ss_shift		= 1e-5;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
 	gv.bnd_filter_pc    = 10.0;					/** value of driving force the pseudocompound is considered 						*/
 	gv.n_pc				= 7500;
 	gv.max_G_pc         = 5.0;					/** dG under which PC is considered after their generation		 					*/
@@ -170,8 +170,8 @@ global_variable global_variable_init(){
 	gv.maxeval_mode_1   = 1024;					/** max number of evaluation of the obj function for mode 1 (PGE)					*/
 
 	/* Partitioning Gibbs Energy */
-	gv.outter_PGE_ite   = 24;					/** minimum number of outter PGE iterations, before a solution can be accepted 		*/
-	gv.inner_PGE_ite    = 8;					/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
+	gv.outter_PGE_ite   = 1;					/** minimum number of outter PGE iterations, before a solution can be accepted 		*/
+	gv.inner_PGE_ite    = 32;					/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
 	gv.max_n_phase  	= 0.025;				/** maximum mol% phase change during one PGE iteration in wt% 						*/
 	gv.max_g_phase  	= 2.5;					/** maximum delta_G of reference change during PGE 									*/
 	gv.max_fac          = 1.0;					/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
@@ -485,6 +485,7 @@ global_variable reset_gv(					global_variable 	 gv,
 		}
 	}
 
+	gv.LP_PGE_switch	  = 0;
 	gv.melt_fraction	  = 0.;
 	gv.melt_density       = 0.;
 	gv.melt_bulkModulus   = 0.;

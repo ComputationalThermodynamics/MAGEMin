@@ -168,7 +168,7 @@ int runMAGEMin(			int    argc,
 
 	if (rank==0 && gv.verbose != -1){
     	printf("\nRunning MAGEMin %5s on %d cores {\n", gv.version, numprocs);
-    	printf("═══════════════════════════════════\n");
+    	printf("═══════════════════════════════════════════════\n");
 	}
 
 	/****************************************************************************************/
@@ -668,14 +668,14 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 		/****************************************************************************************/
 		/**                            PARTITIONING GIBBS ENERGY                               **/
 		/****************************************************************************************/
-		// gv 		= PGE(			z_b,									/** bulk rock constraint 			*/ 
-		// 						gv,										/** global variables (e.g. Gamma) 	*/
+		gv 		= PGE(			z_b,									/** bulk rock constraint 			*/ 
+								gv,										/** global variables (e.g. Gamma) 	*/
 
-		// 						SS_objective,
-		// 					    splx_data,
-		// 						PP_ref_db,								/** pure phase database 			*/
-		// 						SS_ref_db,								/** solution phase database 		*/
-		// 						cp					);
+								SS_objective,
+							    splx_data,
+								PP_ref_db,								/** pure phase database 			*/
+								SS_ref_db,								/** solution phase database 		*/
+								cp					);
 
 
 	}
@@ -948,15 +948,21 @@ void PrintOutput(	global_variable 	gv,
 		for (i = 0; i < z_b.nzEl_val; i++){
 			printf("%+8f,",gv.gam_tot[z_b.nzEl_array[i]]);
 		}
-		printf("]\n");
+		printf("]\n\n");
+		printf(" Phase | Mode    |  xeos...\n\n");
 		for (int i = 0; i < gv.len_cp; i++){
 			if (DB.cp[i].ss_flags[1] == 1){
-				printf("%4s \t %.5f \n", DB.cp[i].name, DB.cp[i].ss_n);
+				printf(" %5s | %.5f |", DB.cp[i].name, DB.cp[i].ss_n);
+
+				for (int j = 0; j < DB.cp[i].n_xeos; j++){
+					printf(" %+10f",DB.cp[i].xeos[j]);
+				}
+				printf("\n");
 			}
 		}
 		for (int i = 0; i < gv.len_pp; i++){
 			if (gv.pp_flags[i][1] == 1){
-				printf("%4s \t %.5f \n", gv.PP_list[i], gv.pp_n[i]);
+				printf(" %5s | %.5f\n", gv.PP_list[i], gv.pp_n[i]);
 			}
 		}	
 	}

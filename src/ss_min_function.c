@@ -281,22 +281,22 @@ void ss_min_PGE(		int 				 mode,
 
 	double relax, norm;
 	norm = 1.0;
-	if (gv.PGE == 1){
-		if (cp[i].in_iter > 0 && abs(cp[i].in_iter - gv.global_ite) <= 8){
-			relax = 1.0;
-		}
-		else{
-			relax = 64.0;
-		}
+	// if (gv.PGE == 1){
+	// 	if (cp[i].in_iter > 0 && abs(cp[i].in_iter - gv.global_ite) <= 8){
+	// 		relax = 1.0;
+	// 	}
+	// 	else{
+	// 		relax = 64.0;
+	// 	}
 
-		norm = 1.0;
-		if (gv.BR_norm < gv.relax_PGE){
-			norm = norm_vector(cp[i].mu,cp[i].n_em)/relax;
-			if (norm > 1.0){ 
-				norm = 1.0;
-			}
-		}
-	}
+	// 	norm = 1.0;
+	// 	if (gv.BR_norm < gv.relax_PGE){
+	// 		norm = norm_vector(cp[i].mu,cp[i].n_em)/relax;
+	// 		if (norm > 1.0){ 
+	// 			norm = 1.0;
+	// 		}
+	// 	}
+	// }
 	
 	/**
 		Define a sub-hypervolume for the solution phases bounds
@@ -318,7 +318,7 @@ void ss_min_PGE(		int 				 mode,
 
 	if (gv.BR_norm < 1e-2){
 		for (int k = 0; k < cp[i].n_xeos; k++) {
-			SS_ref_db[ph_id].iguess[k]   = SS_ref_db[ph_id].dguess[k] + (SS_ref_db[ph_id].xeos[k]-SS_ref_db[ph_id].dguess[k])/1.5;
+			SS_ref_db[ph_id].iguess[k]   = SS_ref_db[ph_id].dguess[k] + (SS_ref_db[ph_id].xeos[k]-SS_ref_db[ph_id].dguess[k])/1.25;
 		}
 	}
 	else{
