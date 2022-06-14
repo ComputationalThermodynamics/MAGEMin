@@ -412,6 +412,16 @@ void dump_results_function(		global_variable 	 gv,
 				fprintf(loc_min, "\n");
 			}
 		}
+
+		for (int i = 0; i < gv.len_pp; i++){ 
+			if (gv.pp_flags[i][1] == 1){
+				fprintf(loc_min, 	" %5s", gv.PP_list[i]);
+				for (int j = 0; j < gv.len_ox; j++){
+					fprintf(loc_min, "%10.5f ", PP_ref_db[i].Comp[j]*PP_ref_db[i].factor);
+				}
+				fprintf(loc_min, "\n");
+			}
+		}
 		
 		double G;
 		fprintf(loc_min, "\n");	
