@@ -132,7 +132,7 @@ void PGE_print(					bulk_info 				z_b,
 /** 
   Ipdate mass-constraint residual
 */
-global_variable PGE_residual_update_function(	bulk_info 				z_b,
+global_variable PGE_residual_update(			bulk_info 				z_b,
 												global_variable  		gv,
 
 												PP_ref 					*PP_ref_db,
@@ -256,7 +256,7 @@ global_variable PGE_update_pi(		bulk_info 	z_b,
 	int ss,ph,i,j,k,x,v;	
 	
 	for (ph = 0; ph < gv.len_cp; ph++){
-		//if (cp[ph].ss_flags[1] == 1 && strcmp(gv.SS_list[cp[ph].id], "liq") == 0){
+
 		if (cp[ph].ss_flags[1] == 1 && SS_ref_db[cp[ph].id].CstFactor == 0){
 			ss = cp[ph].id;
 
@@ -265,7 +265,7 @@ global_variable PGE_update_pi(		bulk_info 	z_b,
 				dp[k] = (cp[ph].p_em[k]-cp[ph].xi_em[k]*cp[ph].p_em[k])*SS_ref_db[ss].z_em[k];
 			}
 
-			if (norm_vector(dp ,cp[ph].n_em) > 1e-4){
+			// if (norm_vector(dp ,cp[ph].n_em) > 1e-4){
 				for (k = 0; k < cp[ph].n_em; k++){
 					SS_ref_db[ss].p[k] = cp[ph].p_em[k]*cp[ph].xi_em[k];
 				}
@@ -274,22 +274,23 @@ global_variable PGE_update_pi(		bulk_info 	z_b,
 												SS_ref_db[ss],
 												z_b,
 												gv.SS_list[ss]				);
-											
-											
+					
+				for (j = 0; j < cp[ph].n_xeos; j++){
+					SS_ref_db[ss].iguess[j] = cp[ph].xeos[j]*gv.xi_em_cor + SS_ref_db[ss].iguess[j]*(1.0 - gv.xi_em_cor); 
+				}												
+																		
 				SS_ref_db[ss] = PC_function(	gv,
 												SS_ref_db[ss], 
 												z_b,
 												gv.SS_list[ss] 				);
 														
-				if (SS_ref_db[ss].sf_ok == 1){	
-					double x   = 0.75;						
+				if (SS_ref_db[ss].sf_ok == 1){						
 					for (j = 0; j < cp[ph].n_xeos; j++){
-						cp[ph].xeos[j] = cp[ph].xeos[j]*x + SS_ref_db[ss].iguess[j]*(1.0 - x); 
+						cp[ph].xeos[j] =  SS_ref_db[ss].iguess[j]; 
 					}
 
 				}
-			}
-			
+			// }
 		}
 	}
 
@@ -710,6 +711,8 @@ void PGE_build_gradient( 	double				*b,
 	}
 }
 
+
+
 /** 
   Partitioning Gibbs Energy function 
 */
@@ -918,23 +921,20 @@ global_variable PGE_inner_loop(		bulk_info 			 z_b,
 											cp						); 
 
 		/* Update mu and xi of solution phase  */
-		// if (gv.BR_norm < gv.act_varFac_stab){
-		// 	gv =	PGE_update_pi(			z_b,								/** bulk rock constraint 				*/ 
-		// 									gv,									/** global variables (e.g. Gamma) 		*/
 
-		// 									PP_ref_db,							/** pure phase database 				*/ 
-		// 									SS_ref_db,							/** solution phase database 			*/
-		// 									cp						);  
-		// }	
-		// else{
-			gv =	PGE_update_xi(			z_b,								/** bulk rock constraint 				*/ 
+		gv =	PGE_update_pi(				z_b,								/** bulk rock constraint 				*/ 
 											gv,									/** global variables (e.g. Gamma) 		*/
 
 											PP_ref_db,							/** pure phase database 				*/ 
 											SS_ref_db,							/** solution phase database 			*/
 											cp						);  
-											
-		// }
+
+		gv =	PGE_update_xi(				z_b,								/** bulk rock constraint 				*/ 
+											gv,									/** global variables (e.g. Gamma) 		*/
+
+											PP_ref_db,							/** pure phase database 				*/ 
+											SS_ref_db,							/** solution phase database 			*/
+											cp						);  
 
 		gv = 	phase_update_function(		z_b,								/** bulk rock constraint 				*/
 											gv,									/** global variables (e.g. Gamma) 		*/
@@ -942,10 +942,11 @@ global_variable PGE_inner_loop(		bulk_info 			 z_b,
 											PP_ref_db,							/** pure phase database 				*/
 											SS_ref_db,							/** solution phase database 			*/ 
 											cp						); 
+
 		/** 
 			Update mass constraint residual
 		*/
-		gv = PGE_residual_update_function(	z_b,								/** bulk rock constraint 				*/ 
+		gv = PGE_residual_update(			z_b,								/** bulk rock constraint 				*/ 
 											gv,									/** global variables (e.g. Gamma) 		*/
 
 											PP_ref_db,							/** pure phase database 				*/ 
@@ -997,22 +998,12 @@ global_variable LP(		bulk_info 			z_b,
 		
 	clock_t t; 	
 
-	gv.LP 	 = 1;
-	gv.PGE 	 = 0;
+	gv.LP 	 = 1;	gv.PGE 	 = 0;
 
 	int mode = 1;
-	/**
-		First merge instances of the same solution phase that are compositionnally close 
-	*/
-	gv = 	phase_merge_function(	z_b,								/** bulk rock constraint 				*/
-									gv,									/** global variables (e.g. Gamma) 		*/
 
-									PP_ref_db,							/** pure phase database 				*/
-									SS_ref_db,							/** solution phase database 			*/ 
-									cp
-	); 			
-				
-	while (gv.sigma_sum_xi > 1e-2){
+	for (int gi = 0; gi < 16; gi++){				
+	// while ( gv.global_ite < 128 ){
 
 		t = clock();
 		if (gv.verbose == 1){
@@ -1028,60 +1019,41 @@ global_variable LP(		bulk_info 			z_b,
 			printf(" phase |  delta_G   | SF |   sum_xi   | time(ms)   |   x-eos ...\n");
 			printf("══════════════════════════════════════════════════════════════════\n");
 		}
-		
+
+		gv = check_PC( 					z_b,						/** bulk rock constraint 				*/ 
+										gv,							/** global variables (e.g. Gamma) 		*/
+
+										PP_ref_db,					/** pure phase database 				*/ 
+										SS_ref_db,
+										cp					); 		
+
+
 		/** 
 			update delta_G of pure phases as function of updated Gamma
 		*/
 		pp_min_function(				gv,
 										z_b,
-										PP_ref_db			);
-			
+										PP_ref_db			);		
+
 		/**
-			check driving force of PC when getting close to convergence
+			Local minimization of the solution phases
 		*/
-		// if (gv.sigma_sum_xi < 1e-2 && gv.check_PC == 0){
-		// 	if (gv.verbose == 1){
-		// 		printf(" Checking PC driving force\n");	
-		// 		printf("═══════════════════════════\n");	
-					
-		// 	}
-		// 	gv = check_PC( 					z_b,						/** bulk rock constraint 				*/ 
-		// 									gv,							/** global variables (e.g. Gamma) 		*/
-
-		// 									PP_ref_db,					/** pure phase database 				*/ 
-		// 									SS_ref_db,
-		// 									cp				); 					
-			
-		// 	gv.check_PC 		= 1;
-		// 	gv.check_PC_ite 	= gv.global_ite;					
-		// }
-		
-		/** 
-			update delta_G of solution phases as function of updated Gamma
-		*/
-		for (int iss = 0; iss < gv.len_cp; iss++){ 
-
-			if (cp[iss].ss_flags[0] == 1){
-
-				/**
-					Split phase if the current xeos is far away from the initial one 
-				*/
-				gv = split_cp(			iss,
-										gv, 							/** global variables (e.g. Gamma) 		*/
-										SS_ref_db,						/** solution phase database 			*/	
-										cp 					);		
-				/**
-					Local minimization of the solution phases
-				*/
-				ss_min_PGE(				mode, iss,
+		ss_min_LP(						mode,
 										gv, 							/** global variables (e.g. Gamma) 		*/
 
 										SS_objective,							
 										z_b,							/** bulk-rock, pressure and temperature conditions */
 										SS_ref_db,						/** solution phase database 			*/	
 										cp 					);	
-			}
-		}
+		/**
+			Merge instances of the same solution phase that are compositionnally close 
+		*/
+		gv = phase_merge_function(		z_b,							/** bulk rock constraint 				*/
+										gv,								/** global variables (e.g. Gamma) 		*/
+
+										PP_ref_db,						/** pure phase database 				*/
+										SS_ref_db,						/** solution phase database 			*/ 
+										cp					); 
 
 		gv = compute_xi_SD(				gv,
 										cp					);
@@ -1097,6 +1069,7 @@ global_variable LP(		bulk_info 			z_b,
 										PP_ref_db,
 										SS_ref_db			);
 
+
 		gv = init_PGE_using_LP(			z_b,
 										splx_data,
 										gv,
@@ -1104,44 +1077,31 @@ global_variable LP(		bulk_info 			z_b,
 										PP_ref_db,
 										SS_ref_db,
 										cp					);	
+		if (gv.verbose == 1){
+			/* Partitioning Gibbs Energy */
+			PGE_print(					z_b,							/** bulk rock constraint 				*/ 
+										gv,								/** global variables (e.g. Gamma) 		*/
+
+										PP_ref_db,						/** pure phase database 				*/ 
+										SS_ref_db,						/** solution phase database 			*/
+										cp					); 
+		}
 		/** 
 			Update mass constraint residual
 		*/
-		gv = PGE_residual_update_function(	z_b,								/** bulk rock constraint 				*/ 
-											gv,									/** global variables (e.g. Gamma) 		*/
+		gv = PGE_residual_update(		z_b,							/** bulk rock constraint 				*/ 
+										gv,								/** global variables (e.g. Gamma) 		*/
 
-											PP_ref_db,							/** pure phase database 				*/ 
-											SS_ref_db,							/** solution phase database 			*/
-											cp					);  
-		
-		// printf(" \n\n ---PRINT INFOS FOR DEBUG\n");
-		// for (int i = 0; i < gv.len_ss; i++){
-		// 	int max_n_Ppc = get_max_n_pc(SS_ref_db[i].tot_Ppc, SS_ref_db[i].n_Ppc);
-		// 	printf("SS = %4s |max n Ppc = %d\n",gv.SS_list[i] ,max_n_Ppc);
-		// 	for (int k = 0; k < max_n_Ppc; k++){
-		// 		printf(" %d | %+10f %+10f |",k,SS_ref_db[i].DF_Ppc[k],SS_ref_db[i].G_Ppc[k]);
-		// 		for (int j = 0; j < SS_ref_db[i].n_xeos; j++){
-		// 			printf(" %+10f",SS_ref_db[i].xeos_Ppc[k][j]);
-		// 		}
-		// 		// printf(" | ");
-		// 		// for (int j = 0; j < gv.len_ox; j++){
-		// 		// 	printf(" %+10f",SS_ref_db[i].comp_Ppc[k][j]);
-		// 		// }
-		// 		printf("\n");
-		// 	}
-		// }
-		// simplex_data *d  = (simplex_data *) splx_data;
-		// for (int j = 0; j < d->n_Ox; j++){
-		// 	printf("g0_A: %+10f\n",d->g0_A[j]);
-		// }
-		// printf(" ---\n");
-						
+										PP_ref_db,						/** pure phase database 				*/ 
+										SS_ref_db,						/** solution phase database 			*/
+										cp					);  
+					
 		/* Increment global iteration value */
 		gv.global_ite += 1;
 
 		/* check evolution of mass constraint residual */
-		gv.PGE_mass_norm[ gv.global_ite] = gv.BR_norm;	/** save norm for the current global iteration */
-		
+		gv.PGE_mass_norm[gv.global_ite]  = gv.BR_norm;	/** save norm for the current global iteration */
+		gv.Alg[gv.global_ite] 			 = 0;
 		for (int i = 0; i < gv.len_cp; i++){
 			if (cp[i].ss_flags[0] == 1){
 				if (isnan(cp[i].df) == 1 || isinf(cp[i].df) == 1){
@@ -1178,21 +1138,10 @@ global_variable PGE(	bulk_info 			z_b,
 	clock_t t; 	
 
 	gv.LP_PGE_switch = gv.global_ite;
-	gv.LP 	= 0;
-	gv.PGE 	= 1;
+	gv.LP 	= 0;	gv.PGE 	= 1;
 
 	int mode = 1;
-	/**
-		First merge instances of the same solution phase that are compositionnally close 
-	*/
-	gv = 	phase_merge_function(	z_b,								/** bulk rock constraint 				*/
-									gv,									/** global variables (e.g. Gamma) 		*/
-
-									PP_ref_db,							/** pure phase database 				*/
-									SS_ref_db,							/** solution phase database 			*/ 
-									cp
-	); 			
-				
+	// for (int gi = 0; gi < 1; gi++){	
 	while (gv.BR_norm > gv.br_max_tol || gv.outter_PGE_ite > (gv.global_ite - gv.LP_PGE_switch)){
 
 		t = clock();
@@ -1222,9 +1171,8 @@ global_variable PGE(	bulk_info 			z_b,
 			check driving force of PC when getting close to convergence
 		*/
 		if (gv.BR_norm < gv.PC_check_val && gv.check_PC == 0){
-		// if (gi == test-1){
 			if (gv.verbose == 1){
-				printf(" Checking PC driving force\n");	
+				printf("\n Checking PC driving force\n");	
 				printf("═══════════════════════════\n");	
 					
 			}
@@ -1235,35 +1183,26 @@ global_variable PGE(	bulk_info 			z_b,
 											SS_ref_db,
 											cp				); 					
 			
-			gv.check_PC 		= 1;
-			gv.check_PC_ite 	= gv.global_ite;					
+			gv.check_PC 		= 1;					
 		}
 		
-		/** 
-			update delta_G of solution phases as function of updated Gamma
+
+		/**
+			Split phase if the current xeos is far away from the initial one 
 		*/
-		for (int iss = 0; iss < gv.len_cp; iss++){ 
-			if (cp[iss].ss_flags[0] == 1){
+		gv = split_cp(						gv, 						/** global variables (e.g. Gamma) 		*/
+											SS_ref_db,					/** solution phase database 			*/	
+											cp 				);		
+		/**
+			Local minimization of the solution phases
+		*/
+		ss_min_PGE(							mode,
+											gv, 						/** global variables (e.g. Gamma) 		*/
 
-				/**
-					Split phase if the current xeos is far away from the initial one 
-				*/
-				gv = split_cp(			iss,
-										gv, 							/** global variables (e.g. Gamma) 		*/
-										SS_ref_db,						/** solution phase database 			*/	
-										cp 					);		
-				/**
-					Local minimization of the solution phases
-				*/
-				ss_min_PGE(				mode, iss,
-										gv, 							/** global variables (e.g. Gamma) 		*/
-
-										SS_objective,							
-										z_b,							/** bulk-rock, pressure and temperature conditions */
-										SS_ref_db,						/** solution phase database 			*/	
-										cp 					);	
-			}
-		}
+											SS_objective,							
+											z_b,						/** bulk-rock, pressure and temperature conditions */
+											SS_ref_db,					/** solution phase database 			*/	
+											cp 				);	
 
 		/**
 			Merge instances of the same solution phase that are compositionnally close 
@@ -1296,75 +1235,66 @@ global_variable PGE(	bulk_info 			z_b,
 										cp					); 
 		}
 
-		/* Increment global iteration value */
-		gv.global_ite += 1;
 
-	    /**
-	     * Solver status
-	     * 0: success
-	     * 1: under-relaxed
-	     * 2: more under-relaxed
-	     * 3: reached max iterations (failed)
-	     * 4: terminated due to slow convergence or a very large residual (failed)
-    	**/
-		if (gv.global_ite > gv.it_1 && gv.BR_norm < gv.br_max_tol*gv.ur_1){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_1, gv.ur_1);}; gv.status = 1; break;}
-		if (gv.global_ite > gv.it_2 && gv.BR_norm < gv.br_max_tol*gv.ur_2){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_2, gv.ur_2);}; gv.status = 2; break;}
-		if (gv.global_ite > gv.it_3 && gv.BR_norm < gv.br_max_tol*gv.ur_3){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_3, gv.ur_3);}; gv.status = 2; break;}
-		if (gv.global_ite > gv.it_f){											if (gv.verbose != -1){printf(" >%d iterations, did not converge  !!!\n\n", gv.it_f);}; gv.status = 3; break;}
 
-		/* check evolution of mass constraint residual */
-		gv.PGE_mass_norm[ gv.global_ite] = gv.BR_norm;	/** save norm for the current global iteration */
-		
-		// 2BM
-		// capture points that fail to converge sufficiently quickly
-		// or have a very large norm after any iteration
-		if ((gv.global_ite > gv.it_slow && gv.BR_norm > gv.br_max_tol*gv.ur_slow) ||
-			gv.BR_norm  > gv.br_max_tol*gv.ur_break){
-			gv.status 	= 4;
-			gv.div 		= 1;	
+		if (gv.BR_norm <=  gv.br_max_tol && gv.check_PC_final == 0 ){
+
+			if (gv.verbose == 1){
+				printf(" Checking PC driving force\n");	
+				printf("═══════════════════════════\n");	
+					
+			}
+			gv = check_PC( 					z_b,						/** bulk rock constraint 				*/ 
+											gv,							/** global variables (e.g. Gamma) 		*/
+
+											PP_ref_db,					/** pure phase database 				*/ 
+											SS_ref_db,
+											cp				); 					
+			gv.BR_norm 			= 0.1;
+			gv.check_PC_final 	= 1;
 		}
-		for (int i = 0; i < gv.len_cp; i++){
-			if (cp[i].ss_flags[0] == 1){
-				if (isnan(cp[i].df) == 1 || isinf(cp[i].df) == 1){
-					gv.div = 1;	
+		else{
+			/**
+			 * Solver status
+			 * 0: success
+			 * 1: under-relaxed
+			 * 2: more under-relaxed
+			 * 3: reached max iterations (failed)
+			 * 4: terminated due to slow convergence or a very large residual (failed)
+			**/
+			if (gv.global_ite > gv.it_1 && gv.BR_norm < gv.br_max_tol*gv.ur_1){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_1, gv.ur_1);}; gv.status = 1; break;}
+			if (gv.global_ite > gv.it_2 && gv.BR_norm < gv.br_max_tol*gv.ur_2){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_2, gv.ur_2);}; gv.status = 2; break;}
+			if (gv.global_ite > gv.it_3 && gv.BR_norm < gv.br_max_tol*gv.ur_3){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_3, gv.ur_3);}; gv.status = 2; break;}
+			if (gv.global_ite > gv.it_f){											if (gv.verbose != -1){printf(" >%d iterations, did not converge  !!!\n\n", gv.it_f);}; gv.status = 3; break;}
+
+			if ((gv.global_ite > gv.it_slow && gv.BR_norm > gv.br_max_tol*gv.ur_slow) ||
+				gv.BR_norm  > gv.br_max_tol*gv.ur_break){
+				gv.status 	= 4;
+				gv.div 		= 1;	
+			}
+			for (int i = 0; i < gv.len_cp; i++){
+				if (cp[i].ss_flags[0] == 1){
+					if (isnan(cp[i].df) == 1 || isinf(cp[i].df) == 1){
+						gv.div = 1;	
+					}
 				}
 			}
+			if (gv.div == 1){ gv.status = 4; break; }
 		}
-		if (gv.div == 1){ gv.status = 4; break; }
 
 		t = clock() - t; 
 		if (gv.verbose == 1){
 			printf("\n __ iteration duration: %+4f ms __\n\n\n",((double)t)/CLOCKS_PER_SEC*1000);
 		}
-		gv.ite_time[gv.global_ite] = ((double)t)/CLOCKS_PER_SEC*1000;
+
+		/* check evolution of mass constraint residual */
+		gv.PGE_mass_norm[gv.global_ite]  = gv.BR_norm;				/** save norm for the current global iteration */
+		gv.Alg[gv.global_ite] 			 = 1;
+		gv.ite_time[gv.global_ite] 		 = ((double)t)/CLOCKS_PER_SEC*1000;
+		gv.global_ite 			  		+= 1;
+
 	}
 
-	if (gv.verbose == 1){
-		gv = check_PC_driving_force( 	z_b,							/** bulk rock constraint 				*/ 
-										gv,								/** global variables (e.g. Gamma) 		*/
-
-										PP_ref_db,						/** pure phase database 				*/ 
-										SS_ref_db,
-										cp						); 	
-		printf("\n\n\n");									
-		printf("╔════════════════════════════════════════════════╗\n");
-		printf("║               COMPUTATION SUMMARY              ║\n");
-		printf("╚════════════════════════════════════════════════╝\n\n");
-		printf(" Alg | ite  | duration   |  MASS norm | Gamma norm\n");
-		printf("══════════════════════════════════════════════════\n");
-
-		for (int i = 0; i < gv.LP_PGE_switch; i++){	
-			printf(" LP  | %4d | %+10f | %+10f | %+10f\n",i,gv.ite_time[i],gv.PGE_mass_norm[i],gv.gamma_norm[i]);
-		}
-		printf("--------------------------------------------------\n");
-		printf("               SWITCH FROM LP TO PGE              \n");
-		printf("--------------------------------------------------\n");
-		for (int i = gv.LP_PGE_switch; i < gv.global_ite; i++){	
-			printf(" PGE | %4d | %+10f | %+10f | %+10f\n",i,gv.ite_time[i],gv.PGE_mass_norm[i],gv.gamma_norm[i]);
-		}
-		printf("\n");
-	}
-	
 	return gv;
 };		
 

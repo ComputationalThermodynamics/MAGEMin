@@ -125,8 +125,8 @@ global_variable global_variable_init(){
 	char   *SS_tmp[]     	= {"spn"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"hb"	,"ilm"	,"liq"	,"mu"	,"ol"	,"opx"	,"pl4T"	,"fl"		};
 	/* next entry is a flag to check for wrong local minimum/solvus when getting close to solution */
 	int     verifyPC_tmp[]	= {1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1			};
-	int 	n_SS_PC_tmp[]   = {4996		,2587	,121	,4529	,110	,972	,6801	,420	,3099	,2376	,222	,1735	,231	,1			};
-	double 	SS_PC_stp_tmp[] = {0.199	,0.124	,0.098	,0.249	,0.049	,0.198	,0.329	,0.0499	,0.198	,0.198	,0.098	,0.249	,0.049	,1.0 		};
+	int 	n_SS_PC_tmp[]   = {4996		,2587	,121	,4529	,110	,972	,3063	,420	,3099	,2376	,222	,1735	,231	,1			};
+	double 	SS_PC_stp_tmp[] = {0.199	,0.124	,0.098	,0.249	,0.049	,0.198	,0.249	,0.0499	,0.198	,0.198	,0.098	,0.249	,0.049	,1.0 		};
 
 	/* system parameters */
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
@@ -139,15 +139,13 @@ global_variable global_variable_init(){
 	/* residual tolerance */
 	gv.br_max_tol       = 1.0e-5;				/** value under which the solution is accepted to satisfy the mass constraint 		*/
 	
-
 	/* under-relaxing factors */
 	gv.relax_PGE		= 1.0e-3;				/** br norm under which the xeos box is restricted 									*/
 	gv.relax_PGE_val    = 128.0;				/** restricting factor 																*/
-	gv.PC_check_val		= 1.0e-4;				/** br norm under which PC are tested for potential candidate to be added 			*/
+	gv.PC_check_val		= 1.0e-2;				/** br norm under which PC are tested for potential candidate to be added 			*/
 	gv.PC_min_dist 		= 1.0;					/** factor multiplying the diagonal of the hyperbox of xeos step 					*/
 	gv.PC_df_add		= 4.0;					/** min value of df under which the PC is added 									*/
-	gv.act_varFac_stab	= 5.0e-5;				/** br norm under which liquid is updated using xi to improve convergence 			*/
-	
+
 	/* levelling parameters */
 	gv.em2ss_shift		= 1e-6;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
 	gv.bnd_filter_pc    = 10.0;					/** value of driving force the pseudocompound is considered 						*/
@@ -157,7 +155,7 @@ global_variable global_variable_init(){
 													don't put it too high as it will conflict with bounds of x-eos					*/
 
 	/* PGE LP pseudocompounds parameters */
-	gv.n_Ppc			= 1024;
+	gv.n_Ppc			= 2048;
 
 	/* solvus tolerance */
 	gv.merge_value      = 5e-2;					/** max norm distance between two instances of a solution phase						*/	
@@ -170,8 +168,9 @@ global_variable global_variable_init(){
 	gv.maxeval_mode_1   = 1024;					/** max number of evaluation of the obj function for mode 1 (PGE)					*/
 
 	/* Partitioning Gibbs Energy */
-	gv.outter_PGE_ite   = 2;					/** minimum number of outter PGE iterations, before a solution can be accepted 		*/
-	gv.inner_PGE_ite    = 32;					/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
+	gv.xi_em_cor   		= 0.99;	
+	gv.outter_PGE_ite   = 1;					/** minimum number of outter PGE iterations, before a solution can be accepted 		*/
+	gv.inner_PGE_ite    = 8;					/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
 	gv.max_n_phase  	= 0.025;				/** maximum mol% phase change during one PGE iteration in wt% 						*/
 	gv.max_g_phase  	= 2.5;					/** maximum delta_G of reference change during PGE 									*/
 	gv.max_fac          = 1.0;					/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
@@ -206,6 +205,7 @@ global_variable global_variable_init(){
 
 	/* declare chemical system */
 	gv.PGE_mass_norm  	= malloc (gv.it_f * sizeof (double) 	); 
+	gv.Alg  			= malloc (gv.it_f * sizeof (int) 		); 
 	gv.gamma_norm  		= malloc (gv.it_f * sizeof (double) 	); 
 	gv.ite_time  		= malloc (gv.it_f * sizeof (double) 	); 
 	
@@ -426,6 +426,21 @@ void get_bulk(double *bulk_rock, int test, int n_El) {
 		bulk_rock[9]  = 0.0100;
 		bulk_rock[10] =	5.4364;
 	}
+	else if (test == 7){
+		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
+		/* Bulk rock composition of test 8 */
+		bulk_rock[0] = 52.42;	
+		bulk_rock[1] = 7.95;	
+		bulk_rock[2] = 11.13;	
+		bulk_rock[3] = 17.88;	
+		bulk_rock[4] = 7.49;	
+		bulk_rock[5] = 0.37;
+		bulk_rock[6]  = 2.13;
+		bulk_rock[7]  = 0.63;
+		bulk_rock[8]  = 0.4;
+		bulk_rock[9]  = 0.01;
+		bulk_rock[10] =	0.0;
+	}
 	else{
 		printf("Unknown test %i - please specify a different test! \n", test);
 	 	exit(EXIT_FAILURE);
@@ -503,7 +518,7 @@ global_variable reset_gv(					global_variable 	 gv,
 	gv.system_Vs 		  = 0.;
 	gv.V_cor[0]			  = 0.;
 	gv.V_cor[1]			  = 0.;
-	gv.check_PC_ite		  = 0;
+	gv.check_PC_final	  = 0;
 	gv.check_PC			  = 0;
 	gv.maxeval		      = gv.maxeval_mode_1;
 	gv.len_cp 		  	  = 0;
@@ -520,6 +535,7 @@ global_variable reset_gv(					global_variable 	 gv,
 
 	/* reset iteration record */
 	for (i = 0; i < gv.it_f; i++){	
+		gv.Alg[i] 				= 0;
 		gv.PGE_mass_norm[i] 	= 0.0;
 		gv.gamma_norm[i] 		= 0.0;	
 		gv.ite_time[i] 			= 0.0;

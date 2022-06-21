@@ -2143,7 +2143,7 @@ SS_ref P2X(					global_variable 	 gv,
 
 SS_ref PC_function(		global_variable 	 gv,
 						SS_ref 				 SS_ref_db, 
-						bulk_info 	 z_b,
+						bulk_info 	 		 z_b,
 						char    			*name				){
 
 	double G0 = 0.0;

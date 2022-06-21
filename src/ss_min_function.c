@@ -100,63 +100,70 @@ csd_phase_set CP_UPDATE_function(		global_variable 	gv,
 	- Drifting occurs when tilting of the hyperplane moves the x-eos far away from their initial guess
 	- Note that each instance of the phase, initialized during levelling can only be split once
 */
-global_variable split_cp(		int 				 i, 
-								global_variable 	 gv,
+global_variable split_cp(		global_variable 	 gv,
 								SS_ref 			    *SS_ref_db,
 								csd_phase_set  		*cp
 ){
 	int id_cp;
-	int ph_id = cp[i].id;
+	int ph_id;
 	double distance;
 
-	distance 	= euclidean_distance( cp[i].xeos, cp[i].dguess, SS_ref_db[ph_id].n_xeos);
+	for (int i = 0; i < gv.len_cp; i++){ 
+		if (cp[i].ss_flags[0] == 1){
 
-	if (distance > 2.0*gv.SS_PC_stp[ph_id]*pow((double)SS_ref_db[ph_id].n_xeos,0.5) && cp[i].split == 0){
-		id_cp 					= gv.len_cp;
+			ph_id= cp[i].id;
+			
+			distance 	= euclidean_distance( cp[i].xeos, cp[i].dguess, SS_ref_db[ph_id].n_xeos);
+
+			if (distance > 2.0*gv.SS_PC_stp[ph_id]*pow((double)SS_ref_db[ph_id].n_xeos,0.5) && cp[i].split == 0){
+				id_cp 					= gv.len_cp;
+						
+				cp[id_cp].split 		= 1;							/* set split number to one */
+				cp[i].split 			= 1;							/* set split number to one */
+
+				strcpy(cp[id_cp].name,gv.SS_list[ph_id]);				/* get phase name */	
 				
-		cp[id_cp].split 		= 1;							/* set split number to one */
-		cp[i].split 			= 1;							/* set split number to one */
-
-		strcpy(cp[id_cp].name,gv.SS_list[ph_id]);				/* get phase name */	
-		
-		cp[id_cp].id 			= ph_id;						/* get phaseid */
-		cp[id_cp].n_xeos		= SS_ref_db[ph_id].n_xeos;		/* get number of compositional variables */
-		cp[id_cp].n_em			= SS_ref_db[ph_id].n_em;		/* get number of endmembers */
-		cp[id_cp].n_sf			= SS_ref_db[ph_id].n_sf;		/* get number of site fractions */
-		
-		cp[id_cp].df			= 0.0;
-		cp[id_cp].factor		= 0.0;	
-		
-		cp[id_cp].ss_flags[0] 	= 1;							/* set flags */
-		cp[id_cp].ss_flags[1] 	= 0;
-		cp[id_cp].ss_flags[2] 	= 1;
-		
-		cp[id_cp].ss_n          = 0.0;							/* get initial phase fraction */
-		
-		for (int ii = 0; ii < SS_ref_db[ph_id].n_em; ii++){
-			cp[id_cp].p_em[ii]      = 0.0;
-		}
-		for (int ii = 0; ii < SS_ref_db[ph_id].n_xeos; ii++){
-			cp[id_cp].dguess[ii]    = cp[i].dguess[ii];
-			cp[id_cp].xeos[ii]      = cp[i].dguess[ii];
-			cp[i].dguess[ii]    	= cp[i].xeos[ii];
-		}
-		
-		gv.id_solvi[ph_id][gv.n_solvi[ph_id]] = id_cp;
-		gv.n_solvi[ph_id] 	+= 1;
-		gv.len_cp 			+= 1;
-		
-		if (gv.verbose == 1){
-			printf("\n  {FYI} %4s cp#%d is grazing away from its field, a copy has been added (xeos = dguess)\n",gv.SS_list[ph_id],i);
-		}
-		
-		if (gv.len_cp == gv.max_n_cp){
-			printf(" !! Maxmimum number of allowed phases under consideration reached !!\n    -> check your problem and potentially increase gv.max_n_cp\n");
-		}
-		
+				cp[id_cp].id 			= ph_id;						/* get phaseid */
+				cp[id_cp].n_xeos		= SS_ref_db[ph_id].n_xeos;		/* get number of compositional variables */
+				cp[id_cp].n_em			= SS_ref_db[ph_id].n_em;		/* get number of endmembers */
+				cp[id_cp].n_sf			= SS_ref_db[ph_id].n_sf;		/* get number of site fractions */
+				
+				cp[id_cp].df			= 0.0;
+				cp[id_cp].factor		= 0.0;	
+				
+				cp[id_cp].ss_flags[0] 	= 1;							/* set flags */
+				cp[id_cp].ss_flags[1] 	= 0;
+				cp[id_cp].ss_flags[2] 	= 1;
+				
+				cp[id_cp].ss_n          = 0.0;							/* get initial phase fraction */
+				
+				for (int ii = 0; ii < SS_ref_db[ph_id].n_em; ii++){
+					cp[id_cp].p_em[ii]      = 0.0;
+				}
+				for (int ii = 0; ii < SS_ref_db[ph_id].n_xeos; ii++){
+					cp[id_cp].dguess[ii]    = cp[i].dguess[ii];
+					cp[id_cp].xeos[ii]      = cp[i].dguess[ii];
+					cp[i].dguess[ii]    	= cp[i].xeos[ii];
+				}
+				
+				gv.id_solvi[ph_id][gv.n_solvi[ph_id]] = id_cp;
+				gv.n_solvi[ph_id] 	+= 1;
+				gv.len_cp 			+= 1;
+				
+				if (gv.verbose == 1){
+					printf("\n  {FYI} %4s cp#%d is grazing away from its field, a copy has been added (xeos = dguess)\n",gv.SS_list[ph_id],i);
+				}
+				
+				if (gv.len_cp == gv.max_n_cp){
+					printf(" !! Maxmimum number of allowed phases under consideration reached !!\n    -> check your problem and potentially increase gv.max_n_cp\n");
+				}
+				
+			}
+		}	
 	}
-	
 	return gv;
+
+
 };
 
 /**
@@ -207,12 +214,15 @@ void copy_to_Ppc(		int 				 i,
 						SS_ref 			    *SS_ref_db,
 						csd_phase_set  		*cp					){
 
+		double G;
+		int    m_Ppc;
+
 		/* get unrotated gbase */
 		SS_ref_db[ph_id] = non_rot_hyperplane(	gv, 
 												SS_ref_db[ph_id]			);
 
 		/* get unrotated minimized point informations */
-		double G 	= (*SS_objective[ph_id])(	SS_ref_db[ph_id].n_xeos,
+		G 	=		 (*SS_objective[ph_id])(	SS_ref_db[ph_id].n_xeos,
 												SS_ref_db[ph_id].iguess,
 												NULL,
 												&SS_ref_db[ph_id]			);
@@ -220,7 +230,7 @@ void copy_to_Ppc(		int 				 i,
 		/* check where to add the new phase PC */
 		if (SS_ref_db[ph_id].id_Ppc >= SS_ref_db[ph_id].n_Ppc){ SS_ref_db[ph_id].id_Ppc = 0; printf("MAXIMUM STORAGE SPACE FOR PC IS REACHED, INCREASED #PC_MAX\n");}
 		
-		int m_Ppc = SS_ref_db[ph_id].id_Ppc;
+		m_Ppc = SS_ref_db[ph_id].id_Ppc;
 
 		SS_ref_db[ph_id].info_Ppc[m_Ppc]   = 0;
 		SS_ref_db[ph_id].factor_Ppc[m_Ppc] = SS_ref_db[ph_id].factor;
@@ -243,7 +253,6 @@ void copy_to_Ppc(		int 				 i,
 		/* add increment to the number of considered phases */
 		SS_ref_db[ph_id].tot_Ppc += 1;
 		SS_ref_db[ph_id].id_Ppc  += 1;
-
 }
 
 
@@ -252,7 +261,6 @@ void copy_to_Ppc(		int 				 i,
 	Minimization function for PGE 
 */
 void ss_min_PGE(		int 				 mode, 
-						int 				 i, 
 						global_variable 	 gv,
 
 						obj_type 			*SS_objective,
@@ -260,123 +268,217 @@ void ss_min_PGE(		int 				 mode,
 						SS_ref 			    *SS_ref_db,
 						csd_phase_set  		*cp
 ){
-	int 	ph_id = cp[i].id;
-	cp[i].min_time		  		= 0.0;								/** reset local minimization time to 0.0 */
-	SS_ref_db[ph_id].min_mode 	= mode;								/** send the right mode to the local minimizer */
-	gv.maxeval   		  		= gv.maxeval_mode_1;
+	int 	ph_id;
+	for (int i = 0; i < gv.len_cp; i++){ 
+		if (cp[i].ss_flags[0] == 1){
 
-	/**
-		set the iguess of the solution phase to the one of the considered phase 
-	*/
-	for (int k = 0; k < cp[i].n_xeos; k++) {
-		SS_ref_db[ph_id].iguess[k] = cp[i].xeos[k];
-		SS_ref_db[ph_id].dguess[k] = cp[i].xeos[k];
-	}
 
-	/**
-		Rotate G-base hyperplane
-	*/
-	SS_ref_db[ph_id] = rotate_hyperplane(	gv, 
-											SS_ref_db[ph_id]			);
+			ph_id = cp[i].id;
+			cp[i].min_time		  		= 0.0;								/** reset local minimization time to 0.0 */
+			SS_ref_db[ph_id].min_mode 	= mode;								/** send the right mode to the local minimizer */
+			gv.maxeval   		  		= gv.maxeval_mode_1;
 
-	double relax, norm;
-	norm = 1.0;
-	// if (gv.PGE == 1){
-	// 	if (cp[i].in_iter > 0 && abs(cp[i].in_iter - gv.global_ite) <= 8){
-	// 		relax = 1.0;
-	// 	}
-	// 	else{
-	// 		relax = 64.0;
-	// 	}
+			/**
+				set the iguess of the solution phase to the one of the considered phase 
+			*/
+			for (int k = 0; k < cp[i].n_xeos; k++) {
+				SS_ref_db[ph_id].iguess[k] = cp[i].xeos[k];
+				SS_ref_db[ph_id].dguess[k] = cp[i].xeos[k];
+			}
 
-	// 	norm = 1.0;
-	// 	if (gv.BR_norm < gv.relax_PGE){
-	// 		norm = norm_vector(cp[i].mu,cp[i].n_em)/relax;
-	// 		if (norm > 1.0){ 
-	// 			norm = 1.0;
-	// 		}
-	// 	}
-	// }
-	
-	/**
-		Define a sub-hypervolume for the solution phases bounds
-	*/
-	SS_ref_db[ph_id] = restrict_SS_HyperVolume(	gv, 
-												SS_ref_db[ph_id],
-												gv.box_size_mode_1*norm	);
-	
-	/**
-		call to NLopt for non-linear + inequality constraints optimization
-	*/
-	SS_ref_db[ph_id] = NLopt_opt_function(		gv, 
-												SS_ref_db[ph_id], 
-												ph_id					);
-	
-	/**
-		establish a set of conditions to update initial guess for next round of local minimization 
-	*/
+			/**
+				Rotate G-base hyperplane
+			*/
+			SS_ref_db[ph_id] = rotate_hyperplane(	gv, 
+													SS_ref_db[ph_id]			);
 
-	if (gv.BR_norm < 1e-2){
-		for (int k = 0; k < cp[i].n_xeos; k++) {
-			SS_ref_db[ph_id].iguess[k]   = SS_ref_db[ph_id].dguess[k] + (SS_ref_db[ph_id].xeos[k]-SS_ref_db[ph_id].dguess[k])/1.5;
+			double relax, norm;
+			norm = 1.0;
+			// if (gv.PGE == 1){
+			// 	if (cp[i].in_iter > 0 && abs(cp[i].in_iter - gv.global_ite) <= 8){
+			// 		relax = 1.0;
+			// 	}
+			// 	else{
+			// 		relax = 64.0;
+			// 	}
+
+			// 	norm = 1.0;
+			// 	if (gv.BR_norm < gv.relax_PGE){
+			// 		norm = norm_vector(cp[i].mu,cp[i].n_em)/relax;
+			// 		if (norm > 1.0){ 
+			// 			norm = 1.0;
+			// 		}
+			// 	}
+			// }
+			
+			/**
+				Define a sub-hypervolume for the solution phases bounds
+			*/
+			SS_ref_db[ph_id] = restrict_SS_HyperVolume(	gv, 
+														SS_ref_db[ph_id],
+														gv.box_size_mode_1*norm	);
+			
+			/**
+				call to NLopt for non-linear + inequality constraints optimization
+			*/
+			SS_ref_db[ph_id] = NLopt_opt_function(		gv, 
+														SS_ref_db[ph_id], 
+														ph_id					);
+			
+			/**
+				establish a set of conditions to update initial guess for next round of local minimization 
+			*/
+			for (int k = 0; k < cp[i].n_xeos; k++) {
+				SS_ref_db[ph_id].iguess[k]   =  SS_ref_db[ph_id].xeos[k];
+			}
+			
+			SS_ref_db[ph_id] = PC_function(				gv,
+														SS_ref_db[ph_id], 
+														z_b,
+														gv.SS_list[ph_id] 		);
+													
+			SS_ref_db[ph_id] = SS_UPDATE_function(		gv, 
+														SS_ref_db[ph_id], 
+														z_b, 
+														gv.SS_list[ph_id]		);
+
+			/** 
+				print solution phase informations (print has to occur before saving PC)
+			*/
+			if (gv.verbose == 1){
+				print_SS_informations(  				gv,
+														SS_ref_db[ph_id],
+														ph_id					);
+			}
+
+
+			/* if site fractions are respected then save the minimized point */
+			if (SS_ref_db[ph_id].sf_ok == 1){
+				/**
+					copy the minimized phase informations to cp structure
+				*/
+				copy_to_cp(								i, 
+														ph_id,
+														gv,
+														SS_ref_db,
+														cp						);				
+			}
+			else{
+				if (gv.verbose == 1){
+					printf(" !> SF [:%d] not respected for %4s (SS not updated)\n",SS_ref_db[ph_id].sf_id,gv.SS_list[ph_id]);
+				}	
+			}
 		}
 	}
-	else{
-		for (int k = 0; k < cp[i].n_xeos; k++) {
-			SS_ref_db[ph_id].iguess[k]  = SS_ref_db[ph_id].xeos[k];
-		}
-	}
-	
-	SS_ref_db[ph_id] = PC_function(				gv,
-												SS_ref_db[ph_id], 
-												z_b,
-												gv.SS_list[ph_id] 		);
-											
-	SS_ref_db[ph_id] = SS_UPDATE_function(		gv, 
-												SS_ref_db[ph_id], 
-												z_b, 
-												gv.SS_list[ph_id]		);
-
-	/** 
-		print solution phase informations (print has to occur before saving PC)
-	*/
-	if (gv.verbose == 1){
-		print_SS_informations(  gv,
-								SS_ref_db[ph_id],
-								ph_id									);
-	}
-
-
-	/* if site fractions are respected then save the minimized point */
-	if (SS_ref_db[ph_id].sf_ok == 1){
-		/**
-			copy the minimized phase informations to cp structure
-		*/
-		copy_to_cp(								i, 
-												ph_id,
-												gv,
-												SS_ref_db,
-												cp						);				
-
-		/**
-			add minimized phase to LP PGE pseudocompound list 
-		*/
-		copy_to_Ppc(							i, 
-												ph_id,
-												gv,
-
-												SS_objective,
-												SS_ref_db,
-												cp						);	
-	}
-	else{
-		if (gv.verbose == 1){
-			printf(" !> SF [:%d] not respected for %4s (SS not updated)\n",SS_ref_db[ph_id].sf_id,gv.SS_list[ph_id]);
-		}	
-	}
-
 
 };
+
+
+/** 
+	Minimization function for PGE 
+*/
+void ss_min_LP(			int 				 mode, 
+						global_variable 	 gv,
+
+						obj_type 			*SS_objective,
+						bulk_info 	 		 z_b,
+						SS_ref 			    *SS_ref_db,
+						csd_phase_set  		*cp
+){
+	int 	ph_id;
+	for (int i = 0; i < gv.len_cp; i++){ 
+		if (cp[i].ss_flags[0] == 1){
+
+			ph_id = cp[i].id;
+			cp[i].min_time		  		= 0.0;								/** reset local minimization time to 0.0 */
+			SS_ref_db[ph_id].min_mode 	= mode;								/** send the right mode to the local minimizer */
+			gv.maxeval   		  		= gv.maxeval_mode_1;
+
+			/**
+				set the iguess of the solution phase to the one of the considered phase 
+			*/
+			for (int k = 0; k < cp[i].n_xeos; k++) {
+				SS_ref_db[ph_id].iguess[k] = cp[i].xeos[k];
+				SS_ref_db[ph_id].dguess[k] = cp[i].xeos[k];
+			}
+
+			/**
+				Rotate G-base hyperplane
+			*/
+			SS_ref_db[ph_id] = rotate_hyperplane(		gv, 
+														SS_ref_db[ph_id]		);
+
+			/**
+				Define a sub-hypervolume for the solution phases bounds
+			*/
+			SS_ref_db[ph_id] = restrict_SS_HyperVolume(	gv, 
+														SS_ref_db[ph_id],
+														gv.box_size_mode_1		);
+			
+			/**
+				call to NLopt for non-linear + inequality constraints optimization
+			*/
+			SS_ref_db[ph_id] = NLopt_opt_function(		gv, 
+														SS_ref_db[ph_id], 
+														ph_id					);
+			
+			/**
+				establish a set of conditions to update initial guess for next round of local minimization 
+			*/
+			for (int k = 0; k < cp[i].n_xeos; k++) {
+				SS_ref_db[ph_id].iguess[k]   =  SS_ref_db[ph_id].xeos[k];
+			}
+			// for (int k = 0; k < cp[i].n_xeos; k++) {
+			// 	SS_ref_db[ph_id].iguess[k]   = SS_ref_db[ph_id].dguess[k]*0.75 + SS_ref_db[ph_id].xeos[k]*0.25;
+			// }
+			SS_ref_db[ph_id] = PC_function(				gv,
+														SS_ref_db[ph_id], 
+														z_b,
+														gv.SS_list[ph_id] 		);
+													
+			SS_ref_db[ph_id] = SS_UPDATE_function(		gv, 
+														SS_ref_db[ph_id], 
+														z_b, 
+														gv.SS_list[ph_id]		);
+
+			/** 
+				print solution phase informations (print has to occur before saving PC)
+			*/
+			if (gv.verbose == 1){
+				print_SS_informations(  				gv,
+														SS_ref_db[ph_id],
+														ph_id					);
+			}
+
+			/**
+				add minimized phase to LP PGE pseudocompound list 
+			*/
+			if (SS_ref_db[ph_id].sf_ok == 1){
+				// copy_to_cp(								i, 
+				// 										ph_id,
+				// 										gv,
+				// 										SS_ref_db,
+				// 										cp						);				
+
+				copy_to_Ppc(							i, 
+														ph_id,
+														gv,
+
+														SS_objective,
+														SS_ref_db,
+														cp						);	
+			}
+			else{
+				if (gv.verbose == 1){
+					printf(" !> SF [:%d] not respected for %4s (SS not updated)\n",SS_ref_db[ph_id].sf_id,gv.SS_list[ph_id]);
+				}	
+			}
+
+		}
+	}
+
+};
+
 
 /**
   initialize solution phase database

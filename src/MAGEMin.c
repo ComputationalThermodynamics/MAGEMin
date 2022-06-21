@@ -383,11 +383,16 @@ int runMAGEMin(			int    argc,
 	double dGdTPP, dGdTMP, dG2dT2, dGdP, dG2dP2;
 
 	double density[gv.len_ox];
-
+	int not_only_liq = 0;
 	int ss;
 	/** calculate mass, volume and densities */
 	for (int i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1){
+
+			if (strcmp( cp[i].name, "liq") != 0){
+				not_only_liq = 1;
+			}
+
 			ss = cp[i].id;	
 			
 			for (int k = 0; k < cp[i].n_xeos; k++) {
@@ -591,6 +596,30 @@ int runMAGEMin(			int    argc,
 	gv.solid_Vp 	= sqrt((gv.solid_bulkModulus +4.0/3.0*gv.solid_shearModulus)/(gv.solid_density/1e3));
 	gv.solid_Vs 	= sqrt(gv.solid_shearModulus/(gv.solid_density/1e3));
 
+
+	// gv.solid_Vs = anelastic_correction( 0,
+	// 									gv.solid_Vs,
+	// 									z_b.P,
+	// 									z_b.T 		);
+
+	// gv.V_cor[0] = gv.solid_Vp;
+	// gv.V_cor[1] = gv.solid_Vs;
+
+	// if (gv.melt_fraction > 0.0){
+	// 	wave_melt_correction(  	gv.melt_bulkModulus,
+	// 							gv.solid_bulkModulus,
+	// 							gv.solid_shearModulus,
+	// 							gv.melt_density,
+	// 							gv.solid_density,
+	// 							gv.solid_Vp,	
+	// 							gv.solid_Vs,
+	// 							gv.melt_fraction,
+	// 							0.1,
+	// 							gv.V_cor				);
+
+	// }
+
+	printf("\n");
 	if (gv.verbose != -1){
 		printf("\nSystem information\n");
 		printf("═══════════════════\n");
@@ -602,8 +631,15 @@ int runMAGEMin(			int    argc,
 
 		printf(" Shear modulus      : %+12.5f\t [GPa]\n",gv.system_shearModulus);
 		printf(" Vp           (VRH) : %+12.5f\t [km/s]\n",gv.system_Vp);
-		printf(" Vs           (VRH) : %+12.5f\t [km/s]\n",gv.system_Vs);
-		printf(" Vp/Vs        (VRH) : %+12.5f\t [km/s]\n\n",gv.system_Vp/gv.system_Vs);
+
+		if (not_only_liq == 1){
+			printf(" Vs           (VRH) : %+12.5f\t [km/s]\n",gv.system_Vs);
+			printf(" Vp/Vs        (VRH) : %+12.5f\t [km/s]\n",gv.system_Vp/gv.system_Vs);
+			// printf("\n Vp_Melt_cor        : %+12.5f\t [km/s]\n",  gv.V_cor[0]);
+			// printf(" Vs_Melt_cor        : %+12.5f\t [km/s]\n",	gv.V_cor[1]);
+			// printf(" Vp/Vs_Melt_cor     : %+12.5f\t [km/s]\n\n",gv.V_cor[0]/gv.V_cor[1]);
+		}
+
 	}
 
 	return gv;
@@ -628,7 +664,7 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 	gv = init_em_db(		EM_database,
 							z_b,										/** bulk rock informations 			*/
 							gv,											/** global variables (e.g. Gamma) 	*/
-							PP_ref_db				);
+							PP_ref_db						);
 
 	/* Calculate solution phase data at given P-T conditions (G0 based on G0 of endmembers) */
 	gv = init_ss_db(		EM_database,
@@ -649,22 +685,20 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 							    splx_data,
 								PP_ref_db,								/** pure phase database 			*/
 								SS_ref_db,								/** solution phase database 		*/
-								cp					);
-		
+								cp							);
+
 		/****************************************************************************************/
 		/**                               LINEAR PROGRAMMING                                   **/
 		/****************************************************************************************/	
-		gv 		= LP(			z_b,									/** bulk rock informations 			*/
-								gv,										/** global variables (e.g. Gamma) 	*/
+		// gv 		= LP(			z_b,									/** bulk rock informations 			*/
+		// 						gv,										/** global variables (e.g. Gamma) 	*/
 
-								SS_objective,
-							    splx_data,
-								PP_ref_db,								/** pure phase database 			*/
-								SS_ref_db,								/** solution phase database 		*/
-								cp					);
-		
-
-
+		// 						SS_objective,
+		// 					    splx_data,
+		// 						PP_ref_db,								/** pure phase database 			*/
+		// 						SS_ref_db,								/** solution phase database 		*/
+		// 						cp							);
+	
 		/****************************************************************************************/
 		/**                            PARTITIONING GIBBS ENERGY                               **/
 		/****************************************************************************************/
@@ -675,8 +709,45 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 							    splx_data,
 								PP_ref_db,								/** pure phase database 			*/
 								SS_ref_db,								/** solution phase database 		*/
-								cp					);
+								cp							);
 
+
+		if (gv.verbose == 1){
+			gv = check_PC_driving_force( 	z_b,						/** bulk rock constraint 			*/ 
+											gv,							/** global variables (e.g. Gamma) 	*/
+
+											PP_ref_db,					/** pure phase database 			*/ 
+											SS_ref_db,
+											cp				); 	
+			printf("\n\n\n");									
+			printf("╔════════════════════════════════════════════════╗\n");
+			printf("║               COMPUTATION SUMMARY              ║\n");
+			printf("╚════════════════════════════════════════════════╝\n\n");
+			printf(" Alg | ite  | duration   |  MASS norm | Gamma norm\n");
+			printf("══════════════════════════════════════════════════\n");
+
+			for (int i = 0; i < gv.global_ite; i++){	
+				if (gv.Alg[i] == 0){
+					printf(" LP  | %4d | %+10f | %+10f | %+10f\n",i,gv.ite_time[i],gv.PGE_mass_norm[i],gv.gamma_norm[i]);
+				}
+				if (gv.Alg[i] == 1){
+					printf(" PGE | %4d | %+10f | %+10f | %+10f\n",i,gv.ite_time[i],gv.PGE_mass_norm[i],gv.gamma_norm[i]);
+				}	
+				if (gv.Alg[i+1] - gv.Alg[i] == 1){
+					printf("--------------------------------------------------\n");
+					printf("               SWITCH FROM LP TO PGE              \n");
+					printf("--------------------------------------------------\n");
+				}
+				if (gv.Alg[i+1] - gv.Alg[i] == -1 && i < gv.global_ite - 1){
+					printf("--------------------------------------------------\n");
+					printf("               SWITCH FROM PGE TO LP              \n");
+					printf("--------------------------------------------------\n");
+				}					
+			}
+
+
+			printf("\n");
+		}
 
 	}
 	/* if Mode = 1, spit out Gibbs energy and reference values with given compositional variables */
@@ -697,14 +768,14 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 	/* if Mode = 3, perform first stage levelling only */
 	else if (Mode == 3){
 		/* when Mode = 3, only first stage of levelling is activated */
-		gv = Levelling(			z_b,									/** bulk rock informations 			*/
-								gv,										/** global variables (e.g. Gamma) 	*/
+		gv = Levelling(						z_b,						/** bulk rock informations 			*/
+											gv,							/** global variables (e.g. Gamma) 	*/
 
-								SS_objective,
-							    splx_data,
-								PP_ref_db,								/** pure phase database */
-								SS_ref_db,								/** solution phase database */
-								cp						);
+											SS_objective,
+							    			splx_data,
+											PP_ref_db,					/** pure phase database 			*/
+											SS_ref_db,					/** solution phase database 		*/
+											cp					);
 	}
 
 	return gv;

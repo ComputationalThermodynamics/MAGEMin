@@ -12,19 +12,24 @@ csd_phase_set CP_UPDATE_function(		global_variable 	 gv,
 										csd_phase_set  		 cp, 
 										bulk_info 	 		 z_b			);		
 
-global_variable split_cp(				int 				 i, 
-										global_variable 	 gv,
+global_variable split_cp(				global_variable 	 gv,
 										SS_ref 			    *SS_ref_db,
 										csd_phase_set  		*cp				);
 
 void ss_min_PGE(						int 				 mode, 
-										int 				 i,
 										global_variable 	 gv,
 										obj_type 			*SS_objective,
 										bulk_info 	 		 z_b,
 										SS_ref 				*SS_ref_db,
 										csd_phase_set  		*cp				);
-									
+										
+void ss_min_LP(							int 				 mode, 
+										global_variable 	 gv,
+										obj_type 			*SS_objective,
+										bulk_info 	 		 z_b,
+										SS_ref 				*SS_ref_db,
+										csd_phase_set  		*cp				);
+										
 global_variable init_ss_db(				int 				 EM_database,
 										bulk_info 	 		 z_b,
 										global_variable 	 gv,

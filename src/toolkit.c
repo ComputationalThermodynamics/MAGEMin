@@ -1544,21 +1544,9 @@ global_variable init_PGE_using_LP(					bulk_info 	 		 z_b,
 	int pc_id;
 	int em_id;
 	int add_phase;
-	int phase_on[gv.len_ss];
 	int i, j, k, ii;
 	int m_pc;
 	
-	// /**
-	//    reset variables
-	// */
-	// for (k = 0; k < gv.n_flags; k++){
-	// 	for (i = 0; i < gv.len_pp; i++){
-	// 		gv.pp_flags[i][k]   = 0;
-	// 	}
-	// 	for (i = 0; i < gv.len_ss; i++){ 
-	// 		SS_ref_db[i].ss_flags[k]   = 0;
-	// 	}
-	// }
 	/**
 	   reset variables
 	*/
@@ -1647,9 +1635,10 @@ global_variable init_PGE_using_LP(					bulk_info 	 		 z_b,
 			gv.n_pp_phase		   += 1;
 			gv.n_phase 			   += 1;
 		}
-		/* pure endmembers as solution phase */
-		if (d->ph_id_A[i][0] == 2){
-			phase_on[ph_id] 		= 1;
+		else {
+			
+			/* pure endmembers as solution phase */
+			if (d->ph_id_A[i][0] == 2){
 			em_id 					= d->ph_id_A[i][3];
 
 			for (j = 0; j < SS_ref_db[ph_id].n_em; j++) {	
@@ -1661,12 +1650,40 @@ global_variable init_PGE_using_LP(					bulk_info 	 		 z_b,
 											SS_ref_db[ph_id],
 											z_b,
 											gv.SS_list[ph_id]		);
+			}
+		
+			/* solution phase */
+			if (d->ph_id_A[i][0] == 3 && d->stage[i] == 1){
+				pc_id 					= d->ph_id_A[i][3];
 
-			SS_ref_db[ph_id] = PC_function(	gv,
-											SS_ref_db[ph_id], 
-											z_b,
-											gv.SS_list[ph_id] 		);
-											
+				for (int ii = 0; ii < SS_ref_db[ph_id].n_xeos; ii++){
+					SS_ref_db[ph_id].iguess[ii]  = SS_ref_db[ph_id].xeos_Ppc[pc_id][ii];
+				}
+			}
+			if (d->ph_id_A[i][0] == 3 && d->stage[i] == 0){
+				pc_id 					= d->ph_id_A[i][3];
+
+				for (int ii = 0; ii < SS_ref_db[ph_id].n_xeos; ii++){
+					SS_ref_db[ph_id].iguess[ii]  = SS_ref_db[ph_id].xeos_pc[pc_id][ii];
+				}
+			}
+
+			/**
+				Rotate G-base hyperplane
+			*/
+			SS_ref_db[ph_id] = rotate_hyperplane(	gv, 
+													SS_ref_db[ph_id]			);
+
+			SS_ref_db[ph_id] = PC_function(			gv,
+													SS_ref_db[ph_id], 
+													z_b,
+													gv.SS_list[ph_id] 			);
+
+			SS_ref_db[ph_id] = SS_UPDATE_function(	gv, 
+													SS_ref_db[ph_id], 
+													z_b, 
+													gv.SS_list[ph_id]			);
+
 			strcpy(cp[id_cp].name,gv.SS_list[ph_id]);				/* get phase name */
 
 			cp[id_cp].split 		= 0;							
@@ -1686,86 +1703,25 @@ global_variable init_PGE_using_LP(					bulk_info 	 		 z_b,
 			
 			for (ii = 0; ii < SS_ref_db[ph_id].n_em; ii++){
 				cp[id_cp].p_em[ii]  = SS_ref_db[ph_id].p[ii];
+				cp[i].xi_em[ii]		= SS_ref_db[ph_id].xi_em[ii];
+				cp[i].mu[ii]		= SS_ref_db[ph_id].mu[ii];
 			}
 			for (ii = 0; ii < SS_ref_db[ph_id].n_xeos; ii++){
 				cp[id_cp].dguess[ii]  = SS_ref_db[ph_id].iguess[ii];
 				cp[id_cp].xeos[ii]    = SS_ref_db[ph_id].iguess[ii];
 			}
-	
-			gv.id_solvi[ph_id][gv.n_solvi[ph_id]] = id_cp;
-			gv.n_solvi[ph_id] 	   += 1;
-			id_cp 				   += 1;
-			gv.len_cp 			   += 1;
-			gv.n_cp_phase 		   += 1;
-			gv.n_phase             += 1;
-		}
-		
-		/* solution phase */
-		if (d->ph_id_A[i][0] == 3 && d->stage[i] == 1){
-			pc_id 					= d->ph_id_A[i][3];
-			phase_on[ph_id] 		= 1;
-			
-			strcpy(cp[id_cp].name,gv.SS_list[ph_id]);				/* get phase name */	
-			
-			cp[id_cp].split 		= 0;							
-			cp[id_cp].id 			= ph_id;						/* get phase id */
-			cp[id_cp].n_xeos		= SS_ref_db[ph_id].n_xeos;		/* get number of compositional variables */
-			cp[id_cp].n_em			= SS_ref_db[ph_id].n_em;		/* get number of endmembers */
-			cp[id_cp].n_sf			= SS_ref_db[ph_id].n_sf;		/* get number of site fractions */
-			
-			cp[id_cp].df			= SS_ref_db[ph_id].DF_Ppc[pc_id];
-			cp[id_cp].factor		= SS_ref_db[ph_id].factor_Ppc[pc_id];	
-			
-			cp[id_cp].ss_flags[0] 	= 1;							/* set flags */
-			cp[id_cp].ss_flags[1] 	= 1;
-			cp[id_cp].ss_flags[2] 	= 0;
-			
-			cp[id_cp].ss_n          = d->n_vec[i];			/* get initial phase fraction */
-			
 			for (int ii = 0; ii < SS_ref_db[ph_id].n_em; ii++){
-				cp[id_cp].p_em[ii]  = SS_ref_db[ph_id].p_Ppc[pc_id][ii];
+				for (int jj = 0; jj < SS_ref_db[ph_id].n_xeos; jj++){
+					cp[i].dpdx[ii][jj] = SS_ref_db[ph_id].dp_dx[ii][jj];
+				}
 			}
-			for (int ii = 0; ii < SS_ref_db[ph_id].n_xeos; ii++){
-				cp[id_cp].dguess[ii]  = SS_ref_db[ph_id].xeos_Ppc[pc_id][ii];
-				cp[id_cp].xeos[ii]    = SS_ref_db[ph_id].xeos_Ppc[pc_id][ii];
+			for (int ii = 0; ii < gv.len_ox; ii++){
+				cp[i].ss_comp[ii]	= SS_ref_db[ph_id].ss_comp[ii];
 			}
-
-			gv.id_solvi[ph_id][gv.n_solvi[ph_id]] = id_cp;
-			gv.n_solvi[ph_id] 	   += 1;
-			id_cp 				   += 1;
-			gv.len_cp 			   += 1;
-			gv.n_cp_phase 		   += 1;
-			gv.n_phase             += 1;
-		}
-		if (d->ph_id_A[i][0] == 3 && d->stage[i] == 0){
-			pc_id 					= d->ph_id_A[i][3];
-			phase_on[ph_id] 		= 1;
 			
-			strcpy(cp[id_cp].name,gv.SS_list[ph_id]);				/* get phase name */	
-			
-			cp[id_cp].split 		= 0;							
-			cp[id_cp].id 			= ph_id;						/* get phase id */
-			cp[id_cp].n_xeos		= SS_ref_db[ph_id].n_xeos;		/* get number of compositional variables */
-			cp[id_cp].n_em			= SS_ref_db[ph_id].n_em;		/* get number of endmembers */
-			cp[id_cp].n_sf			= SS_ref_db[ph_id].n_sf;		/* get number of site fractions */
-			
-			cp[id_cp].df			= SS_ref_db[ph_id].DF_pc[pc_id];
-			cp[id_cp].factor		= SS_ref_db[ph_id].factor_pc[pc_id];	
-			
-			cp[id_cp].ss_flags[0] 	= 1;							/* set flags */
-			cp[id_cp].ss_flags[1] 	= 1;
-			cp[id_cp].ss_flags[2] 	= 0;
-			
-			cp[id_cp].ss_n          = d->n_vec[i];			/* get initial phase fraction */
-			
-			for (int ii = 0; ii < SS_ref_db[ph_id].n_em; ii++){
-				cp[id_cp].p_em[ii]  = SS_ref_db[ph_id].p_pc[pc_id][ii];
+			for (int ii = 0; ii < cp[i].n_sf; ii++){
+				cp[i].sf[ii]		= SS_ref_db[ph_id].sf[ii];
 			}
-			for (int ii = 0; ii < SS_ref_db[ph_id].n_xeos; ii++){
-				cp[id_cp].dguess[ii]  = SS_ref_db[ph_id].xeos_pc[pc_id][ii];
-				cp[id_cp].xeos[ii]    = SS_ref_db[ph_id].xeos_pc[pc_id][ii];
-			}
-
 			gv.id_solvi[ph_id][gv.n_solvi[ph_id]] = id_cp;
 			gv.n_solvi[ph_id] 	   += 1;
 			id_cp 				   += 1;
@@ -1774,8 +1730,6 @@ global_variable init_PGE_using_LP(					bulk_info 	 		 z_b,
 			gv.n_phase             += 1;
 		}
 	}
-
-
 
 	return gv;
 }

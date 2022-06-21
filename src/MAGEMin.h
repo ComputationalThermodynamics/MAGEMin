@@ -460,8 +460,7 @@ typedef struct global_variables {
 	double   PC_min_dist;
 	double	 PC_check_val;
 	int	     check_PC;
-	int 	 check_PC_ite;
-	double   act_varFac_stab;
+	int 	 check_PC_final;
 	int      len_pp;			/** initial number of active pure phases */
 	int      len_ss;			/** initial number of active solution phases */
 	int      len_ox;			/** number of components (number of oxides in the chemical system) */
@@ -532,6 +531,7 @@ typedef struct global_variables {
 	int      outter_PGE_ite;    /** number of PGE outter iterations */
 	int      inner_PGE_ite;     /** number of PGE outter iterations */
 	double   inner_PGE_ite_time;
+	double 	 xi_em_cor;
 	
 	int      n_phase;			/** number of estimated stable phases */	
 	int 	 n_pp_phase;		/** number of active pure phases */
@@ -558,6 +558,7 @@ typedef struct global_variables {
 	double	*dGamma;			/** array to store gamma change */
 	
 	double  *PGE_mass_norm;		/** save the evolution of the norm */
+	int     *Alg;				/** algorithm: 0-> PGE, LP->1 */	
 	double  *gamma_norm;		/** save the evolution of the gamma norm */
 	double  *ite_time;
 	double   G_system;      	/** Gibbs energy of the system */

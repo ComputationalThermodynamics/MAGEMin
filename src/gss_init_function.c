@@ -166,7 +166,7 @@ SS_ref G_SS_cpx_init_function(SS_ref SS_ref_db, int EM_database, global_variable
 	SS_ref_cpx_db.n_v       = 10;
 	SS_ref_cpx_db.n_w       = 45;
 	SS_ref_cpx_db.n_xeos    = 9;	
-	SS_ref_cpx_db.CstFactor = 1;		  
+	SS_ref_cpx_db.CstFactor = 0;		  
 		
 	return SS_ref_cpx_db;
 }
@@ -200,7 +200,7 @@ SS_ref G_SS_ep_init_function(SS_ref SS_ref_db, int EM_database, global_variable 
 	SS_ref_ep_db.n_em       = 3;
 	SS_ref_ep_db.n_w        = 3;
 	SS_ref_ep_db.n_xeos     = 2;
-	SS_ref_ep_db.CstFactor  = 1;
+	SS_ref_ep_db.CstFactor  = 0;
   
   
 	return SS_ref_ep_db;	
@@ -236,7 +236,7 @@ SS_ref G_SS_g_init_function(SS_ref SS_ref_db, int EM_database, global_variable g
 	SS_ref_g_db.n_v         = 6;
 	SS_ref_g_db.n_w         = 15;
 	SS_ref_g_db.n_xeos      = 5;
-	SS_ref_g_db.CstFactor   = 1;
+	SS_ref_g_db.CstFactor   = 0;
 
 	return SS_ref_g_db;
 }
@@ -272,7 +272,7 @@ SS_ref G_SS_ilm_init_function(SS_ref SS_ref_db, int EM_database, global_variable
 	SS_ref_ilm_db.n_em      = 3;
 	SS_ref_ilm_db.n_w       = 3;
 	SS_ref_ilm_db.n_xeos    = 2; 
-	SS_ref_ilm_db.CstFactor = 1;
+	SS_ref_ilm_db.CstFactor = 0;
 
 
 	return SS_ref_ilm_db;										  
@@ -309,7 +309,7 @@ SS_ref G_SS_mu_init_function(SS_ref SS_ref_db, int EM_database, global_variable 
 	SS_ref_mu_db.n_v        = 6;
 	SS_ref_mu_db.n_w        = 15;
 	SS_ref_mu_db.n_xeos     = 5;
-	SS_ref_mu_db.CstFactor  = 1;
+	SS_ref_mu_db.CstFactor  = 0;
 
 	
 	return SS_ref_mu_db;
@@ -327,7 +327,7 @@ SS_ref G_SS_ol_init_function(SS_ref SS_ref_db, int EM_database, global_variable 
 	SS_ref_ol_db.n_em       = 4;
 	SS_ref_ol_db.n_w        = 6;
 	SS_ref_ol_db.n_xeos     = 3;
-	SS_ref_ol_db.CstFactor  = 1;
+	SS_ref_ol_db.CstFactor  = 0;
 
 	
 	return SS_ref_ol_db;
@@ -346,7 +346,7 @@ SS_ref G_SS_opx_init_function(SS_ref SS_ref_db, int EM_database, global_variable
 	SS_ref_opx_db.n_v       = 9;
 	SS_ref_opx_db.n_w       = 36;
 	SS_ref_opx_db.n_xeos    = 8;
-	SS_ref_opx_db.CstFactor = 1;
+	SS_ref_opx_db.CstFactor = 0;
 
  	
 	return SS_ref_opx_db;
@@ -365,7 +365,7 @@ SS_ref G_SS_pl4T_init_function(SS_ref SS_ref_db, int EM_database, global_variabl
 	SS_ref_pl4T_db.n_v        = 3;
 	SS_ref_pl4T_db.n_w        = 3;
 	SS_ref_pl4T_db.n_xeos     = 2;
-	SS_ref_pl4T_db.CstFactor  = 1;
+	SS_ref_pl4T_db.CstFactor  = 0;
 		  		  
 	return SS_ref_pl4T_db;										  
 }
@@ -382,7 +382,7 @@ SS_ref G_SS_spn_init_function(SS_ref SS_ref_db, int EM_database, global_variable
 	SS_ref_spn_db.n_em      = 8;
 	SS_ref_spn_db.n_w       = 28;
 	SS_ref_spn_db.n_xeos    = 7;
-	SS_ref_spn_db.CstFactor = 1;
+	SS_ref_spn_db.CstFactor = 0;
 	
 	return SS_ref_spn_db;
 }

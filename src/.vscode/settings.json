@@ -2,6 +2,13 @@
     "C_Cpp.errorSquiggles": "Disabled",
     "files.associations": {
         "complex": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "array": "c",
+        "*.tcc": "c",
+        "memory": "c",
+        "istream": "c",
+        "tuple": "c",
+        "utility": "c",
+        "iterator": "c"
     }
 }

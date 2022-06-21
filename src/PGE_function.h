@@ -21,7 +21,12 @@ global_variable LP(				bulk_info 			z_b,
 								SS_ref 				*SS_ref_db,
 								csd_phase_set  		*cp					);
 
+global_variable check_PC_driving_force(		bulk_info 	 z_b,
+											global_variable  	 gv,
 
+											PP_ref 				*PP_ref_db,
+											SS_ref 				*SS_ref_db,
+											csd_phase_set  		*cp			);
 double norm_vector(double *array ,int n);
 
 #endif

@@ -2320,8 +2320,8 @@ SS_ref G_SS_EM_function(		global_variable 	 gv,
 			}
 			SS_ref_db  = G_SS_ilm_function(SS_ref_db, EM_database, z_b.bulk_rock, P, T, eps);	}
 		else if (strcmp( name, "liq") == 0){
-			/* turn of liquid when T < 500°C) */
-			if ( T < 773.0){
+			/* turn of liquid when T < 600°C) */
+			if ( T < 873.0){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db = G_SS_liq_function(SS_ref_db, EM_database, z_b.bulk_rock, P, T, eps);	}
