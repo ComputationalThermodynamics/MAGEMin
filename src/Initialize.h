@@ -125,8 +125,8 @@ global_variable global_variable_init(){
 	char   *SS_tmp[]     	= {"spn"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"hb"	,"ilm"	,"liq"	,"mu"	,"ol"	,"opx"	,"pl4T"	,"fl"		};
 	/* next entry is a flag to check for wrong local minimum/solvus when getting close to solution */
 	int     verifyPC_tmp[]	= {1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1			};
-	int 	n_SS_PC_tmp[]   = {4996		,2587	,121	,4529	,110	,972	,3063	,420	,3099	,2376	,222	,1735	,231	,1			};
-	double 	SS_PC_stp_tmp[] = {0.199	,0.124	,0.098	,0.249	,0.049	,0.198	,0.249	,0.0499	,0.198	,0.198	,0.098	,0.249	,0.049	,1.0 		};
+	int 	n_SS_PC_tmp[]   = {1521		,1612	,121	,4574	,110	,972	,4950	,420	,3099	,2376	,222	,1735	,231	,1			};
+	double 	SS_PC_stp_tmp[] = {0.249	,0.124	,0.098	,0.249	,0.049	,0.198	,0.249	,0.0499	,0.198	,0.198	,0.098	,0.249	,0.049	,1.0 		};
 
 	/* system parameters */
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
@@ -149,7 +149,7 @@ global_variable global_variable_init(){
 	/* levelling parameters */
 	gv.em2ss_shift		= 1e-6;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
 	gv.bnd_filter_pc    = 10.0;					/** value of driving force the pseudocompound is considered 						*/
-	gv.n_pc				= 7500;
+	gv.n_pc				= 5000;
 	gv.max_G_pc         = 5.0;					/** dG under which PC is considered after their generation		 					*/
 	gv.eps_sf_pc		= 1e-10;				/** Minimum value of site fraction under which PC is rejected, 
 													don't put it too high as it will conflict with bounds of x-eos					*/
@@ -164,7 +164,7 @@ global_variable global_variable_init(){
 	gv.bnd_val          = 1.0e-10;				/** boundary value for x-eos when the fraction of an endmember = 0. 				*/
 	gv.obj_tol			= 1e-7;
 	gv.ineq_res  	 	= 0.0;
-	gv.box_size_mode_1	= 0.25;					/** edge size of the xeos hyperdensity used during PGE local minimization 			*/
+	gv.box_size_mode_1	= 0.2;					/** edge size of the xeos hyperdensity used during PGE local minimization 			*/
 	gv.maxeval_mode_1   = 1024;					/** max number of evaluation of the obj function for mode 1 (PGE)					*/
 
 	/* Partitioning Gibbs Energy */

@@ -1002,8 +1002,8 @@ global_variable LP(		bulk_info 			z_b,
 
 	int mode = 1;
 
-	for (int gi = 0; gi < 16; gi++){				
-	// while ( gv.global_ite < 128 ){
+	// for (int gi = 0; gi < 4; gi++){				
+	while ( gv.global_ite < 128 ){
 
 		t = clock();
 		if (gv.verbose == 1){
@@ -1044,16 +1044,19 @@ global_variable LP(		bulk_info 			z_b,
 										SS_objective,							
 										z_b,							/** bulk-rock, pressure and temperature conditions */
 										SS_ref_db,						/** solution phase database 			*/	
-										cp 					);	
-		/**
-			Merge instances of the same solution phase that are compositionnally close 
-		*/
-		gv = phase_merge_function(		z_b,							/** bulk rock constraint 				*/
-										gv,								/** global variables (e.g. Gamma) 		*/
+										cp 					);
 
-										PP_ref_db,						/** pure phase database 				*/
-										SS_ref_db,						/** solution phase database 			*/ 
-										cp					); 
+
+		// /**
+		// 	Merge instances of the same solution phase that are compositionnally close 
+		// */
+		// gv = phase_merge_function(		z_b,							/** bulk rock constraint 				*/
+		// 								gv,								/** global variables (e.g. Gamma) 		*/
+
+		// 								PP_ref_db,						/** pure phase database 				*/
+		// 								SS_ref_db,						/** solution phase database 			*/ 
+		// 								cp					); 
+
 
 		gv = compute_xi_SD(				gv,
 										cp					);
@@ -1086,6 +1089,7 @@ global_variable LP(		bulk_info 			z_b,
 										SS_ref_db,						/** solution phase database 			*/
 										cp					); 
 		}
+
 		/** 
 			Update mass constraint residual
 		*/

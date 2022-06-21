@@ -292,31 +292,12 @@ void ss_min_PGE(		int 				 mode,
 			SS_ref_db[ph_id] = rotate_hyperplane(	gv, 
 													SS_ref_db[ph_id]			);
 
-			double relax, norm;
-			norm = 1.0;
-			// if (gv.PGE == 1){
-			// 	if (cp[i].in_iter > 0 && abs(cp[i].in_iter - gv.global_ite) <= 8){
-			// 		relax = 1.0;
-			// 	}
-			// 	else{
-			// 		relax = 64.0;
-			// 	}
-
-			// 	norm = 1.0;
-			// 	if (gv.BR_norm < gv.relax_PGE){
-			// 		norm = norm_vector(cp[i].mu,cp[i].n_em)/relax;
-			// 		if (norm > 1.0){ 
-			// 			norm = 1.0;
-			// 		}
-			// 	}
-			// }
-			
 			/**
 				Define a sub-hypervolume for the solution phases bounds
 			*/
 			SS_ref_db[ph_id] = restrict_SS_HyperVolume(	gv, 
 														SS_ref_db[ph_id],
-														gv.box_size_mode_1*norm	);
+														gv.box_size_mode_1	);
 			
 			/**
 				call to NLopt for non-linear + inequality constraints optimization

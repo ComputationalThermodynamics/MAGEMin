@@ -990,7 +990,8 @@ double anelastic_correction(  	int 	water,
     double V       = 1.2e-5;               	//m3*mol (activation volume)
 
     // using remaining values from Cobden et al., 2018
-    double omega   = 0.01;                 	//Hz (frequency to match for studied seismic system)
+    // double omega   = 0.01;                 	//Hz (frequency to match for studied seismic system)
+    double omega   = 3.0;                 	//Hz (frequency for Toba)
     double d       = 1e-2;                 	//m (grain size)
     
     if (water == 0){
@@ -1010,11 +1011,8 @@ double anelastic_correction(  	int 	water,
 	}
 
     double B       = B0*pow(dref,G-Gref)*pow(COH/COHref,rH) * exp(((E+Pref*V)-(Eref + Pref*Vref))/(R*T));
-
     double Qinv    = pow( B*pow(d,(-G))*(1.0/omega) * exp(- (E+Pref*V)/(R*T)) ,alpha);
-
     double Vs_anel = Vs0*(1.0 - (Qinv)/(2.0*tan(3.141592*alpha/2.0) ) );
-
 
     return Vs_anel;
 
