@@ -1037,13 +1037,13 @@ void PrintOutput(	global_variable 	gv,
 			printf("%+8f,",gv.gam_tot[z_b.nzEl_array[i]]);
 		}
 		printf("]\n\n");
-		printf(" Phase | Mode    |  xeos...\n\n");
+		printf(" Phase | Mode    |  mu...\n\n");
 		for (int i = 0; i < gv.len_cp; i++){
 			if (DB.cp[i].ss_flags[1] == 1){
 				printf(" %5s | %.5f |", DB.cp[i].name, DB.cp[i].ss_n);
 
-				for (int j = 0; j < DB.cp[i].n_xeos; j++){
-					printf(" %+10f",DB.cp[i].xeos[j]);
+				for (int j = 0; j < DB.cp[i].n_em; j++){
+					printf(" %+10f",DB.cp[i].mu[j]);
 				}
 				printf("\n");
 			}

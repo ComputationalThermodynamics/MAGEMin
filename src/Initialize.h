@@ -501,7 +501,7 @@ global_variable reset_gv(					global_variable 	 gv,
 			gv.pp_flags[i][3] = 0;
 		}
 	}
-	// gv.solver 			  = 0;
+	gv.solver 			  = 0;
 	gv.LP_PGE_switch	  = 0;
 	gv.melt_fraction	  = 0.;
 	gv.melt_density       = 0.;

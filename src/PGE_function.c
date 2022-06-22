@@ -45,7 +45,7 @@ void PGE_print(					bulk_info 				z_b,
 	printf("═══════════════════════════════════════════════════════════════════════════════════════\n");
 
 	for (int i = 0; i < gv.len_cp; i++){
-		if (cp[i].ss_flags[0] == 1 && cp[i].ss_flags[1] == 1 ){
+		if (cp[i].ss_flags[1] == 1 ){
 
 			printf(" %d | %4s | %+10f | %+10f | %+10f | %+10f | ",cp[i].ss_flags[1],cp[i].name,cp[i].ss_n,cp[i].df,cp[i].factor,cp[i].sum_xi);
 
@@ -1028,13 +1028,14 @@ global_variable LP(		bulk_info 			z_b,
 			printf("══════════════════════════════════════════════════════════════════\n");
 		}
 
-		gv = check_PC( 					z_b,						/** bulk rock constraint 				*/ 
+		if (gv.global_ite == 64){
+			gv = check_PC( 				z_b,						/** bulk rock constraint 				*/ 
 										gv,							/** global variables (e.g. Gamma) 		*/
 
 										PP_ref_db,					/** pure phase database 				*/ 
 										SS_ref_db,
-										cp					); 		
-
+										cp					); 
+		}
 
 		/** 
 			update delta_G of pure phases as function of updated Gamma
@@ -1055,19 +1056,15 @@ global_variable LP(		bulk_info 			z_b,
 										cp 					);
 
 
-		// /**
-		// 	Merge instances of the same solution phase that are compositionnally close 
-		// */
-		// gv = phase_merge_function(		z_b,						/** bulk rock constraint 				*/
-		// 								gv,								/** global variables (e.g. Gamma) 		*/
+		/**
+			Merge instances of the same solution phase that are compositionnally close 
+		*/
+		gv = phase_merge_function(		z_b,						/** bulk rock constraint 				*/
+										gv,								/** global variables (e.g. Gamma) 		*/
 
-		// 								PP_ref_db,						/** pure phase database 				*/
-		// 								SS_ref_db,						/** solution phase database 			*/ 
-		// 								cp					); 
-
-
-		gv = compute_xi_SD(				gv,
-										cp					);
+										PP_ref_db,						/** pure phase database 				*/
+										SS_ref_db,						/** solution phase database 			*/ 
+										cp					); 
 
 
 		/**
@@ -1088,6 +1085,13 @@ global_variable LP(		bulk_info 			z_b,
 										PP_ref_db,
 										SS_ref_db,
 										cp					);	
+
+
+		gv = compute_xi_SD(				gv,
+										cp					);
+
+
+
 		if (gv.verbose == 1){
 			/* Partitioning Gibbs Energy */
 			PGE_print(					z_b,							/** bulk rock constraint 				*/ 

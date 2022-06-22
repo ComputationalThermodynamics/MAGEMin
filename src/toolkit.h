@@ -183,6 +183,7 @@ global_variable update_cp_after_LP(					bulk_info 	 		 z_b,
 													PP_ref 				*PP_ref_db,
 													SS_ref 				*SS_ref_db,
 													csd_phase_set  		*cp				);
+													
 global_variable get_solution_phase_infos( 			io_data 			 input_data,
 													bulk_info 	 		 z_b,
 													global_variable 	 gv,

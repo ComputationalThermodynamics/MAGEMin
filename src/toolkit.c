@@ -1740,28 +1740,29 @@ global_variable init_PGE_using_LP(					bulk_info 	 		 z_b,
 			cp[id_cp].ss_flags[1] 	= 1;
 			cp[id_cp].ss_flags[2] 	= 0;
 			
-			cp[id_cp].ss_n          = d->n_vec[i];					
-			cp[id_cp].sum_xi        = SS_ref_db[ph_id].sum_xi;
+			cp[id_cp].ss_n          = d->n_vec[i];			/* get initial phase fraction */
+			cp[id_cp].sum_xi		= SS_ref_db[ph_id].sum_xi;
 			for (ii = 0; ii < SS_ref_db[ph_id].n_em; ii++){
 				cp[id_cp].p_em[ii]  = SS_ref_db[ph_id].p[ii];
-				cp[i].xi_em[ii]		= SS_ref_db[ph_id].xi_em[ii];
-				cp[i].mu[ii]		= SS_ref_db[ph_id].mu[ii];
+				cp[id_cp].xi_em[ii]		= SS_ref_db[ph_id].xi_em[ii];
+				cp[id_cp].mu[ii]		= SS_ref_db[ph_id].mu[ii];
 			}
+
 			for (ii = 0; ii < SS_ref_db[ph_id].n_xeos; ii++){
 				cp[id_cp].dguess[ii]  = SS_ref_db[ph_id].iguess[ii];
 				cp[id_cp].xeos[ii]    = SS_ref_db[ph_id].iguess[ii];
 			}
 			for (int ii = 0; ii < SS_ref_db[ph_id].n_em; ii++){
 				for (int jj = 0; jj < SS_ref_db[ph_id].n_xeos; jj++){
-					cp[i].dpdx[ii][jj] = SS_ref_db[ph_id].dp_dx[ii][jj];
+					cp[id_cp].dpdx[ii][jj] = SS_ref_db[ph_id].dp_dx[ii][jj];
 				}
 			}
 			for (int ii = 0; ii < gv.len_ox; ii++){
-				cp[i].ss_comp[ii]	= SS_ref_db[ph_id].ss_comp[ii];
+				cp[id_cp].ss_comp[ii]	= SS_ref_db[ph_id].ss_comp[ii];
 			}
 			
-			for (int ii = 0; ii < cp[i].n_sf; ii++){
-				cp[i].sf[ii]		= SS_ref_db[ph_id].sf[ii];
+			for (int ii = 0; ii < SS_ref_db[ph_id].n_sf; ii++){
+				cp[id_cp].sf[ii]		= SS_ref_db[ph_id].sf[ii];
 			}
 			gv.id_solvi[ph_id][gv.n_solvi[ph_id]] = id_cp;
 			gv.n_solvi[ph_id] 	   += 1;
