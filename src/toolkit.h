@@ -154,7 +154,13 @@ void swap_PGE_pseudocompounds(			bulk_info 	 		 z_b,
 										PP_ref 			    *PP_ref_db,
 										SS_ref 			    *SS_ref_db					);
 
-
+void add_PGE_pseudocompounds(			bulk_info 	 		 z_b,
+										simplex_data 		*splx_data,
+										global_variable 	 gv,
+										
+										PP_ref 				*PP_ref_db,
+										SS_ref 				*SS_ref_db					);
+										
 global_variable run_LP_with_PGE_phase(				bulk_info 	 		 z_b,
 													simplex_data 		*splx_data,
 													global_variable 	 gv,

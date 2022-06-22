@@ -876,6 +876,7 @@ global_variable PGE_solver(		bulk_info 	 		 z_b,
   Partitioning Gibbs Energy function 
 */
 global_variable PGE_inner_loop(		bulk_info 			 z_b,
+									simplex_data	    *splx_data,
 									global_variable  	 gv,
 
 									PP_ref 				*PP_ref_db,
@@ -935,6 +936,13 @@ global_variable PGE_inner_loop(		bulk_info 			 z_b,
 											PP_ref_db,							/** pure phase database 				*/ 
 											SS_ref_db,							/** solution phase database 			*/
 											cp						);  
+
+		// add_PGE_pseudocompounds(			z_b,
+		// 									splx_data,
+		// 									gv,
+												
+		// 									PP_ref_db,
+		// 									SS_ref_db				);
 
 		gv = 	phase_update_function(		z_b,								/** bulk rock constraint 				*/
 											gv,									/** global variables (e.g. Gamma) 		*/
@@ -1002,8 +1010,8 @@ global_variable LP(		bulk_info 			z_b,
 
 	int mode = 1;
 
-	// for (int gi = 0; gi < 4; gi++){				
-	while ( gv.global_ite < 128 ){
+	for (int gi = 0; gi < 1; gi++){				
+	// while ( gv.global_ite < 128 ){
 
 		t = clock();
 		if (gv.verbose == 1){
@@ -1145,7 +1153,7 @@ global_variable PGE(	bulk_info 			z_b,
 	gv.LP 	= 0;	gv.PGE 	= 1;
 
 	int mode = 1;
-	// for (int gi = 0; gi < 1; gi++){	
+	// for (int gi = 0; gi < 32; gi++){	
 	while (gv.BR_norm > gv.br_max_tol || gv.outter_PGE_ite > (gv.global_ite - gv.LP_PGE_switch)){
 
 		t = clock();
@@ -1222,6 +1230,7 @@ global_variable PGE(	bulk_info 			z_b,
 			Actual Partitioning Gibbs Energy stage 
 		/*/
 		gv = PGE_inner_loop(			z_b,							/** bulk rock constraint 				*/ 
+										splx_data,
 										gv,								/** global variables (e.g. Gamma) 		*/
 
 										PP_ref_db,						/** pure phase database 				*/ 

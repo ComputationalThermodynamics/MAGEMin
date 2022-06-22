@@ -142,7 +142,7 @@ global_variable global_variable_init(){
 	/* under-relaxing factors */
 	gv.relax_PGE		= 1.0e-3;				/** br norm under which the xeos box is restricted 									*/
 	gv.relax_PGE_val    = 128.0;				/** restricting factor 																*/
-	gv.PC_check_val		= 1.0e-2;				/** br norm under which PC are tested for potential candidate to be added 			*/
+	gv.PC_check_val		= 1.0e-3;				/** br norm under which PC are tested for potential candidate to be added 			*/
 	gv.PC_min_dist 		= 1.0;					/** factor multiplying the diagonal of the hyperbox of xeos step 					*/
 	gv.PC_df_add		= 4.0;					/** min value of df under which the PC is added 									*/
 
@@ -189,7 +189,7 @@ global_variable global_variable_init(){
 	gv.ur_break         = 1e6;             		/** under relaxing factor on mass constraint defining a breaking iteration          */
 
 	/* phase update options */
-	gv.re_in_n          = 1e-6;					/** fraction of phase when being reintroduce.  										*/
+	gv.re_in_n          = 1e-2;					/** fraction of phase when being reintroduce.  										*/
 
 	/* density calculation */
 	gv.gb_P_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
@@ -201,7 +201,6 @@ global_variable global_variable_init(){
 	gv.alpha        	= gv.max_fac;				/** active under-relaxing factor 													*/
 	gv.len_ss          	= (int)(sizeof(n_SS_PC_tmp) / sizeof(n_SS_PC_tmp[0] ));					/** number of solution phases taken into accounnt									*/
 	gv.maxeval		    = gv.maxeval_mode_1;
-	gv.newly_added      = malloc (4 * sizeof (int) );
 
 	/* declare chemical system */
 	gv.PGE_mass_norm  	= malloc (gv.it_f * sizeof (double) 	); 

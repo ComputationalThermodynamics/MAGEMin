@@ -513,7 +513,6 @@ typedef struct global_variables {
 	double   ineq_res;			/** relative residual for local minimization (inequality constraints)*/
 	double   obj_tol;			/** relative residual for local minimization */
 
-	int     *newly_added;       /** index of the newly added solution phase */
 	double   box_size_mode_1;	/** edge size of the hyperdensity used during local minimization */
 	int   	 maxeval;			/** maximum number of objective function evaluations during local minimization */
 	int   	 maxeval_mode_1;	/** maximum number of objective function evaluations during local minimization for mode 1 */

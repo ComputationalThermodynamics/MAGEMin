@@ -915,6 +915,10 @@ global_variable Levelling(	bulk_info 	z_b,
 		printf(" [----------------------------------------]\n\n\n");
 	}
 
+	/* copy gamma total to the global variables */
+	// for (int i = 0; i < gv.len_ox; i++){
+	// 	gv.gam_tot[i] -= 1.0;
+	// }
 
 	return gv;
 };

@@ -342,7 +342,16 @@ void ss_min_PGE(		int 				 mode,
 														ph_id,
 														gv,
 														SS_ref_db,
-														cp						);				
+														cp						);	
+
+				// copy_to_Ppc(							i, 
+				// 										ph_id,
+				// 										gv,
+
+				// 										SS_objective,
+				// 										SS_ref_db,
+				// 										cp						);
+
 			}
 			else{
 				if (gv.verbose == 1){

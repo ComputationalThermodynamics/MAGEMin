@@ -1414,6 +1414,49 @@ void swap_PGE_pseudocompounds(			bulk_info 	 		 z_b,
 
 
 /**
+  function to add solution phase pseudocompounds during PGE iterations
+*/	
+void add_PGE_pseudocompounds(			bulk_info 	 		 z_b,
+										simplex_data 		*splx_data,
+										global_variable 	 gv,
+										
+										PP_ref 				*PP_ref_db,
+										SS_ref 				*SS_ref_db
+){
+	simplex_data *d  = (simplex_data *) splx_data;
+
+	int     k, max_n_Ppc;
+	
+	for (int i = 0; i < gv.len_ss; i++){										/**loop to pass informations from active endmembers */
+		if (SS_ref_db[i].ss_flags[0] == 1){
+
+			max_n_Ppc = get_max_n_pc(SS_ref_db[i].tot_Ppc, SS_ref_db[i].n_Ppc);
+
+			for (int l = 0; l < max_n_Ppc; l++){
+
+
+				SS_ref_db[i].DF_Ppc[l] = SS_ref_db[i].G_Ppc[l];
+
+
+				for (int j = 0; j < z_b.nzEl_val; j++){
+					SS_ref_db[i].DF_Ppc[l] -= SS_ref_db[i].comp_Ppc[l][z_b.nzEl_array[j]]*gv.gam_tot[z_b.nzEl_array[j]]; 
+				}
+
+				
+
+
+				/** add phase */
+				if (SS_ref_db[i].DF_Ppc[l] < 0.0){													/** if the phase can be added */
+					printf("PC needs to be added during inner PGE: %4s %+10f\n",gv.SS_list[i],SS_ref_db[i].DF_Ppc[l]);
+				}
+			}
+		}
+	}
+
+}
+
+
+/**
   function to run simplex linear programming during PGE with pseudocompounds 
 */	
 global_variable run_LP_with_PGE_phase(				bulk_info 			 z_b,

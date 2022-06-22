@@ -312,8 +312,6 @@ global_variable phase_hold2act(		bulk_info 		z_b,
 	double 	max_df    	= 0.0;				/** max driving force under which a phase can be considered to be added 				*/
 	double 	min_sumxi 	= 1.0;				/** min sum of xi fractions over which a solution phase can be considered to be added 	*/
 	
-	for (int i = 0; i < 4; i++) {gv.newly_added[i] = -1;}				/** initialize with impossible index						*/
-
 	/* get number of hold phase for pure phases */
 	int n_pp_hld = 0;
 	int pp_act[gv.len_ox];
@@ -393,8 +391,6 @@ global_variable phase_hold2act(		bulk_info 		z_b,
 				gv.n_cp_phase    				 += 1;						/** set new number of active SS 														*/
 				gv.n_phase      				 += 1;						/** set new number of total active phases 												*/
 				gv.ph_change 					  = 1;						/** a phase change has been achieved during the iteration 								*/
-				gv.newly_added[0]				  = 1;						/** phase is a solution phase 															*/
-				gv.newly_added[1]				  = ixs;					/** record the index of the solution phase 												*/
 			}
 		}
 	}
@@ -433,8 +429,6 @@ global_variable phase_hold2act(		bulk_info 		z_b,
 					gv.n_pp_phase    	+= 1;							/** set new number of active PP 														*/
 					gv.n_phase      	+= 1;							/** set new number of total active phases 												*/
 					gv.ph_change 		 = 1;							/** a phase change has been achieved during the iteration 								*/
-					gv.newly_added[0]	 = 0;							/** phase is a solution phase 															*/
-					gv.newly_added[1]	 = ixp;							/** record the index of the solution phase 												*/
 				}
 				else{
 					if (PP_ref_db[ixp].gb_lvl < PP_ref_db[id_polymorph].gb_lvl){
@@ -446,8 +440,6 @@ global_variable phase_hold2act(		bulk_info 		z_b,
 						gv.pp_flags[id_polymorph][3]          = 1;		/** remove initial polymorph 															*/
 						gv.pp_n[id_polymorph]                 = 0.0;	/** reset initial polymorph fraction to 0.0 											*/
 						gv.ph_change 						  = 1;		/** a phase change has been achieved during the iteration 								*/
-						gv.newly_added[0]	 = 0;						/** phase is a solution phase 															*/
-						gv.newly_added[1]	 = ixp;						/** record the index of the solution phase 												*/
 					}
 					else{
 						gv.pp_flags[ixp][1]  = 0;						/** set to inactive 																	*/
@@ -463,8 +455,6 @@ global_variable phase_hold2act(		bulk_info 		z_b,
 				gv.n_pp_phase    	+= 1;								/** set new number of active PP 														*/
 				gv.n_phase      	+= 1;								/** set new number of total active phases 												*/
 				gv.ph_change 		 = 1;								/** a phase change has been achieved during the iteration 								*/
-				gv.newly_added[0]	 = 0;								/** phase is a solution phase 															*/
-				gv.newly_added[1]	 = ixp;								/** record the index of the solution phase 												*/
 			}
 		}
 	}
