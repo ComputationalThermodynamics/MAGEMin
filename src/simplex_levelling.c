@@ -799,7 +799,7 @@ global_variable run_levelling_function(		bulk_info 	 z_b,
 											SS_objective	);	
 			
 	/* update global variable gamma */
-	update_global_gamma(					z_b,
+	update_global_gamma_LU(					z_b,
 											splx_data		);	
 	
 										

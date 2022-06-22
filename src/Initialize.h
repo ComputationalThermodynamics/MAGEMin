@@ -125,7 +125,7 @@ global_variable global_variable_init(){
 	char   *SS_tmp[]     	= {"spn"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"hb"	,"ilm"	,"liq"	,"mu"	,"ol"	,"opx"	,"pl4T"	,"fl"		};
 	/* next entry is a flag to check for wrong local minimum/solvus when getting close to solution */
 	int     verifyPC_tmp[]	= {1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1			};
-	int 	n_SS_PC_tmp[]   = {1521		,1612	,121	,4574	,110	,972	,4950	,420	,3099	,2376	,222	,1735	,231	,1			};
+	int 	n_SS_PC_tmp[]   = {1521		,1612	,121	,4014	,110	,972	,4950	,420	,3099	,2376	,222	,1735	,231	,1			};
 	double 	SS_PC_stp_tmp[] = {0.249	,0.124	,0.098	,0.249	,0.049	,0.198	,0.249	,0.0499	,0.198	,0.198	,0.098	,0.249	,0.049	,1.0 		};
 
 	/* system parameters */
@@ -150,7 +150,7 @@ global_variable global_variable_init(){
 	gv.em2ss_shift		= 1e-6;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
 	gv.bnd_filter_pc    = 10.0;					/** value of driving force the pseudocompound is considered 						*/
 	gv.n_pc				= 5000;
-	gv.max_G_pc         = 5.0;					/** dG under which PC is considered after their generation		 					*/
+	gv.max_G_pc         = 4.0;					/** dG under which PC is considered after their generation		 					*/
 	gv.eps_sf_pc		= 1e-10;				/** Minimum value of site fraction under which PC is rejected, 
 													don't put it too high as it will conflict with bounds of x-eos					*/
 
@@ -171,7 +171,7 @@ global_variable global_variable_init(){
 	gv.xi_em_cor   		= 0.99;	
 	gv.outter_PGE_ite   = 1;					/** minimum number of outter PGE iterations, before a solution can be accepted 		*/
 	gv.inner_PGE_ite    = 8;					/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
-	gv.max_n_phase  	= 0.025;				/** maximum mol% phase change during one PGE iteration in wt% 						*/
+	gv.max_n_phase  	= 0.05;				/** maximum mol% phase change during one PGE iteration in wt% 						*/
 	gv.max_g_phase  	= 2.5;					/** maximum delta_G of reference change during PGE 									*/
 	gv.max_fac          = 1.0;					/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
 	gv.max_br			= 0.25;
@@ -194,6 +194,9 @@ global_variable global_variable_init(){
 	/* density calculation */
 	gv.gb_P_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
 	gv.gb_T_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
+
+
+
 
 	/* initialize other values */
 	gv.mean_sum_xi		= 1.0;
