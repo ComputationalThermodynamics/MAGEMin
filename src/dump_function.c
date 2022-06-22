@@ -620,8 +620,8 @@ void dump_results_function(		global_variable 	 gv,
 			fprintf(loc_min," %0.10f", gv.gam_tot[i]);
 		}
 
-		fprintf(loc_min, " %.10f %.10f",gv.system_Vp,gv.system_Vs);
-		// fprintf(loc_min, " %.10f %.10f",gv.V_cor[0],gv.V_cor[1]);
+		// fprintf(loc_min, " %.10f %.10f",gv.system_Vp,gv.system_Vs);
+		fprintf(loc_min, " %.10f %.10f",gv.V_cor[0],gv.V_cor[1]);
 		fprintf(loc_min, "\n");
 		for (int i = 0; i < gv.len_cp; i++){ 
 			if (cp[i].ss_flags[1] == 1){

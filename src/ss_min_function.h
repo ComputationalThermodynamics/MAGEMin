@@ -30,6 +30,12 @@ void ss_min_LP(							int 				 mode,
 										SS_ref 				*SS_ref_db,
 										csd_phase_set  		*cp				);
 										
+void copy_to_cp(						int 				 i, 
+										int 				 ph_id,
+										global_variable 	 gv,
+										SS_ref 			    *SS_ref_db,
+										csd_phase_set  		*cp				);
+
 global_variable init_ss_db(				int 				 EM_database,
 										bulk_info 	 		 z_b,
 										global_variable 	 gv,

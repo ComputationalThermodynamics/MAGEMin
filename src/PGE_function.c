@@ -1010,8 +1010,8 @@ global_variable LP(		bulk_info 			z_b,
 
 	int mode = 1;
 
-	for (int gi = 0; gi < 1; gi++){				
-	// while ( gv.global_ite < 128 ){
+	// for (int gi = 0; gi < 1; gi++){				
+	while ( gv.global_ite < 128 ){
 
 		t = clock();
 		if (gv.verbose == 1){
@@ -1058,7 +1058,7 @@ global_variable LP(		bulk_info 			z_b,
 		// /**
 		// 	Merge instances of the same solution phase that are compositionnally close 
 		// */
-		// gv = phase_merge_function(		z_b,							/** bulk rock constraint 				*/
+		// gv = phase_merge_function(		z_b,						/** bulk rock constraint 				*/
 		// 								gv,								/** global variables (e.g. Gamma) 		*/
 
 		// 								PP_ref_db,						/** pure phase database 				*/
@@ -1129,6 +1129,23 @@ global_variable LP(		bulk_info 			z_b,
 		}
 		gv.ite_time[gv.global_ite] = ((double)t)/CLOCKS_PER_SEC*1000;
 	}
+
+		/**
+			Merge instances of the same solution phase that are compositionnally close 
+		*/
+		gv = phase_merge_function(		z_b,							/** bulk rock constraint 				*/
+										gv,								/** global variables (e.g. Gamma) 		*/
+
+										PP_ref_db,						/** pure phase database 				*/
+										SS_ref_db,						/** solution phase database 			*/ 
+										cp					); 
+
+		gv = update_cp_after_LP(		z_b,
+										gv,
+										
+										PP_ref_db,
+										SS_ref_db,
+										cp					);	
 	
 	return gv;
 };		

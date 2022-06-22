@@ -597,27 +597,27 @@ int runMAGEMin(			int    argc,
 	gv.solid_Vs 	= sqrt(gv.solid_shearModulus/(gv.solid_density/1e3));
 
 
-	// gv.solid_Vs = anelastic_correction( 0,
-	// 									gv.solid_Vs,
-	// 									z_b.P,
-	// 									z_b.T 		);
+	gv.solid_Vs = anelastic_correction( 0,
+										gv.solid_Vs,
+										z_b.P,
+										z_b.T 		);
 
-	// gv.V_cor[0] = gv.solid_Vp;
-	// gv.V_cor[1] = gv.solid_Vs;
+	gv.V_cor[0] = gv.solid_Vp;
+	gv.V_cor[1] = gv.solid_Vs;
 
-	// if (gv.melt_fraction > 0.0){
-	// 	wave_melt_correction(  	gv.melt_bulkModulus,
-	// 							gv.solid_bulkModulus,
-	// 							gv.solid_shearModulus,
-	// 							gv.melt_density,
-	// 							gv.solid_density,
-	// 							gv.solid_Vp,	
-	// 							gv.solid_Vs,
-	// 							gv.melt_fraction,
-	// 							0.1,
-	// 							gv.V_cor				);
+	if (gv.melt_fraction > 0.0){
+		wave_melt_correction(  	gv.melt_bulkModulus,
+								gv.solid_bulkModulus,
+								gv.solid_shearModulus,
+								gv.melt_density,
+								gv.solid_density,
+								gv.solid_Vp,	
+								gv.solid_Vs,
+								gv.melt_fraction,
+								0.1,
+								gv.V_cor				);
 
-	// }
+	}
 
 	printf("\n");
 	if (gv.verbose != -1){
@@ -635,9 +635,9 @@ int runMAGEMin(			int    argc,
 		if (not_only_liq == 1){
 			printf(" Vs           (VRH) : %+12.5f\t [km/s]\n",gv.system_Vs);
 			printf(" Vp/Vs        (VRH) : %+12.5f\t [km/s]\n",gv.system_Vp/gv.system_Vs);
-			// printf("\n Vp_Melt_cor        : %+12.5f\t [km/s]\n",  gv.V_cor[0]);
-			// printf(" Vs_Melt_cor        : %+12.5f\t [km/s]\n",	gv.V_cor[1]);
-			// printf(" Vp/Vs_Melt_cor     : %+12.5f\t [km/s]\n\n",gv.V_cor[0]/gv.V_cor[1]);
+			printf("\n Vp_Melt_cor        : %+12.5f\t [km/s]\n",  gv.V_cor[0]);
+			printf(" Vs_Melt_cor        : %+12.5f\t [km/s]\n",	gv.V_cor[1]);
+			printf(" Vp/Vs_Melt_cor     : %+12.5f\t [km/s]\n\n",gv.V_cor[0]/gv.V_cor[1]);
 		}
 
 	}
@@ -690,19 +690,7 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 		/****************************************************************************************/
 		/**                               LINEAR PROGRAMMING                                   **/
 		/****************************************************************************************/	
-		// gv 		= LP(			z_b,									/** bulk rock informations 			*/
-		// 						gv,										/** global variables (e.g. Gamma) 	*/
-
-		// 						SS_objective,
-		// 					    splx_data,
-		// 						PP_ref_db,								/** pure phase database 			*/
-		// 						SS_ref_db,								/** solution phase database 		*/
-		// 						cp							);
-	
-		/****************************************************************************************/
-		/**                            PARTITIONING GIBBS ENERGY                               **/
-		/****************************************************************************************/
-		gv 		= PGE(			z_b,									/** bulk rock constraint 			*/ 
+		gv 		= LP(			z_b,									/** bulk rock informations 			*/
 								gv,										/** global variables (e.g. Gamma) 	*/
 
 								SS_objective,
@@ -710,6 +698,18 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 								PP_ref_db,								/** pure phase database 			*/
 								SS_ref_db,								/** solution phase database 		*/
 								cp							);
+	
+		/****************************************************************************************/
+		/**                            PARTITIONING GIBBS ENERGY                               **/
+		/****************************************************************************************/
+		// gv 		= PGE(			z_b,									/** bulk rock constraint 			*/ 
+		// 						gv,										/** global variables (e.g. Gamma) 	*/
+
+		// 						SS_objective,
+		// 					    splx_data,
+		// 						PP_ref_db,								/** pure phase database 			*/
+		// 						SS_ref_db,								/** solution phase database 		*/
+		// 						cp							);
 
 
 		if (gv.verbose == 1){

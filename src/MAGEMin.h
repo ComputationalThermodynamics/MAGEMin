@@ -50,6 +50,7 @@ typedef double (*obj_type) (		unsigned  		 n,
 									const double 	*x,
 									double 			*grad,
 									void 			*SS_ref_db			);
+									
  
 typedef struct simplex_datas
 {

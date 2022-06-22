@@ -1740,8 +1740,8 @@ global_variable init_PGE_using_LP(					bulk_info 	 		 z_b,
 			cp[id_cp].ss_flags[1] 	= 1;
 			cp[id_cp].ss_flags[2] 	= 0;
 			
-			cp[id_cp].ss_n          = d->n_vec[i];			/* get initial phase fraction */
-			
+			cp[id_cp].ss_n          = d->n_vec[i];					
+			cp[id_cp].sum_xi        = SS_ref_db[ph_id].sum_xi;
 			for (ii = 0; ii < SS_ref_db[ph_id].n_em; ii++){
 				cp[id_cp].p_em[ii]  = SS_ref_db[ph_id].p[ii];
 				cp[i].xi_em[ii]		= SS_ref_db[ph_id].xi_em[ii];
@@ -1775,6 +1775,77 @@ global_variable init_PGE_using_LP(					bulk_info 	 		 z_b,
 	return gv;
 }
 
+
+/**
+  function to run simplex linear programming during PGE with pseudocompounds 
+*/	
+global_variable update_cp_after_LP(					bulk_info 	 		 z_b,
+													global_variable 	 gv,
+													
+													PP_ref 				*PP_ref_db,
+													SS_ref 				*SS_ref_db,
+													csd_phase_set  		*cp	
+){
+	int 	ph_id;
+	for (int i = 0; i < gv.len_cp; i++){ 
+		if (cp[i].ss_flags[1] == 1){
+
+			ph_id = cp[i].id;
+
+			/**
+				Rotate G-base hyperplane
+			*/
+			SS_ref_db[ph_id] = rotate_hyperplane(		gv, 
+														SS_ref_db[ph_id]		);
+
+			/**
+				establish a set of conditions to update initial guess for next round of local minimization 
+			*/
+			for (int k = 0; k < cp[i].n_xeos; k++) {
+				SS_ref_db[ph_id].iguess[k]   =  cp[i].xeos[k];
+			}
+			
+			SS_ref_db[ph_id] = PC_function(				gv,
+														SS_ref_db[ph_id], 
+														z_b,
+														gv.SS_list[ph_id] 		);
+													
+			SS_ref_db[ph_id] = SS_UPDATE_function(		gv, 
+														SS_ref_db[ph_id], 
+														z_b, 
+														gv.SS_list[ph_id]		);
+
+			/** 
+				print solution phase informations (print has to occur before saving PC)
+			*/
+			if (gv.verbose == 1){
+				print_SS_informations(  				gv,
+														SS_ref_db[ph_id],
+														ph_id					);
+			}
+
+
+			/* if site fractions are respected then save the minimized point */
+			if (SS_ref_db[ph_id].sf_ok == 1){
+				/**
+					copy the minimized phase informations to cp structure
+				*/
+				copy_to_cp(								i, 
+														ph_id,
+														gv,
+														SS_ref_db,
+														cp						);
+			}
+			else{
+				if (gv.verbose == 1){
+					printf(" !> SF [:%d] not respected for %4s (SS not updated)\n",SS_ref_db[ph_id].sf_id,gv.SS_list[ph_id]);
+				}	
+			}
+		}
+	}
+
+	return gv;
+}
 
 
 global_variable get_solution_phase_infos( 		io_data 			 input_data,
