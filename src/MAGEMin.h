@@ -447,7 +447,7 @@ typedef struct global_variables {
 	double **numDiff;
 	int      n_Diff;
 	int      status;			/** status of the minimization */
-	
+	int      solver;
 	/* GENERAL PARAMETERS */
 	int 	 LP;				/** linear programming stage flag*/
 	int 	 PGE;				/** PGE stage flag				 */
@@ -653,7 +653,8 @@ global_variable ReadCommandLineOptions(		global_variable   gv,
 											char 			  Phase[50], 
 											int 			 *maxeval_out, 
 											int     		 *get_version_out,
-											int 			 *get_help				);
+											int 			 *get_help,
+											int				 *solver_out				);
 
 /* function that prints output */
 void PrintOutput(							global_variable 	gv, 

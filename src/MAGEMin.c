@@ -125,6 +125,7 @@ int runMAGEMin(			int    argc,
 	int 	test 		=  0;
 	int 	Verb 		= -1;
 	int     Mode 		=  0;
+	int     solver 		=  0;
 	int     n_points 	=  1;
 	
 	int 	maxeval		= -1;
@@ -140,7 +141,7 @@ int runMAGEMin(			int    argc,
 	*/
 	gv = ReadCommandLineOptions(	 gv,
 									 argc, 
-									 argv,  
+									 argv,
 									&Mode, 
 									&Verb, 
 									&test, 
@@ -153,11 +154,16 @@ int runMAGEMin(			int    argc,
 									 Phase, 
 									&maxeval,
 									&get_version,
-									&get_help		); 
+									&get_help,
+									&solver			); 
 									
 
 	gv.verbose 	= Verb;
 	gv.Mode 	= Mode;
+
+	if (solver == 1){
+		gv.solver = 1;
+	}
 
     if (maxeval>-1){
         gv.maxeval = maxeval;   // otherwise we use default. Note that 0 = no limit
@@ -687,6 +693,8 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 								SS_ref_db,								/** solution phase database 		*/
 								cp							);
 
+
+		if (gv.solver == 1){
 		/****************************************************************************************/
 		/**                               LINEAR PROGRAMMING                                   **/
 		/****************************************************************************************/	
@@ -699,17 +707,22 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 								SS_ref_db,								/** solution phase database 		*/
 								cp							);
 	
+		}
+		else{
 		/****************************************************************************************/
 		/**                            PARTITIONING GIBBS ENERGY                               **/
 		/****************************************************************************************/
-		// gv 		= PGE(			z_b,									/** bulk rock constraint 			*/ 
-		// 						gv,										/** global variables (e.g. Gamma) 	*/
+		gv 		= PGE(			z_b,									/** bulk rock constraint 			*/ 
+								gv,										/** global variables (e.g. Gamma) 	*/
 
-		// 						SS_objective,
-		// 					    splx_data,
-		// 						PP_ref_db,								/** pure phase database 			*/
-		// 						SS_ref_db,								/** solution phase database 		*/
-		// 						cp							);
+								SS_objective,
+							    splx_data,
+								PP_ref_db,								/** pure phase database 			*/
+								SS_ref_db,								/** solution phase database 		*/
+								cp							);
+
+		}
+
 
 
 		if (gv.verbose == 1){
@@ -799,7 +812,8 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 										char 				 Phase[50], 
 										int 				*maxeval_out,
 										int 				*get_version_out,
-										int					*get_help		
+										int					*get_help,
+										int					*solver_out	
 ){
 	int i;
 	static ko_longopt_t longopts[] = {
@@ -817,6 +831,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
         { "maxeval",    ko_optional_argument, 313 },
         { "version",    ko_optional_argument, 314 },
         { "help",    	ko_optional_argument, 315 },
+        { "solver",    	ko_optional_argument, 316 },
     	{ NULL, 0, 0 }
 	};
 	ketopt_t opt = KETOPT_INIT;
@@ -828,7 +843,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 	int    n_points =  1;
 	int    n_pc     =  2;		/** number of pseudocompounds for Mode 2 */
 	int    maxeval  = -1;
-
+	int    solver   =  0;
 	double Temp , Pres;
 	Temp   = 1100.0;
 	Pres   = 12.0;
@@ -846,11 +861,12 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		else if (c == 315){ print_help( gv ); 					  exit(0); }	
         else if	(c == 301){ Verb     = atoi(opt.arg	);}
 		else if (c == 302){ Mode     = atoi(opt.arg);			if (Verb == 1){		printf("--Mode        : Mode                     = %i \n", 	 	   		Mode		);}}																		
+		else if (c == 316){ solver   = atoi(opt.arg);			if (Verb == 1){		printf("--solver      : solver                   = %i \n", 	 	   		solver		);}}																		
 		else if (c == 303){ strcpy(File,opt.arg);		 		if (Verb == 1){		printf("--File        : File                     = %s \n", 	 	   		File		);}}
 		else if (c == 304){ n_points = atoi(opt.arg); 	 		if (Verb == 1){		printf("--n_points    : n_points                 = %i \n", 	 	   		n_points	);}}
 		else if (c == 305){ test     = atoi(opt.arg); 		 	if (Verb == 1){		printf("--test        : Test                     = %i \n", 	 	  		test		);}}
-		else if (c == 306){ Temp     = strtof(opt.arg,NULL); 	if (Verb == 1){		printf("--Temp        : Temperature              = %f C \n",             Temp		);}}
-		else if (c == 307){ Pres     = strtof(opt.arg,NULL); 	if (Verb == 1){		printf("--Pres        : Pressure                 = %f kbar \n", 			Pres		);}}
+		else if (c == 306){ Temp     = strtof(opt.arg,NULL); 	if (Verb == 1){		printf("--Temp        : Temperature              = %f C \n",            Temp		);}}
+		else if (c == 307){ Pres     = strtof(opt.arg,NULL); 	if (Verb == 1){		printf("--Pres        : Pressure                 = %f kbar \n", 		Pres		);}}
 		else if (c == 308){ strcpy(Phase,opt.arg);		 		if (Verb == 1){		printf("--Phase       : Phase name               = %s \n", 	   			Phase		);}}
 		else if (c == 313){ maxeval  = strtof(opt.arg,NULL); 	if (Verb == 1){
             if (maxeval==0){        printf("--maxeval     : Max. # of local iter.    = infinite  \n"		); }
@@ -897,6 +913,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 	*T        		= 	Temp;
 	*n_points_out 	= 	n_points;
     *maxeval_out    =   maxeval;
+	*solver_out     = 	solver;
 	
 	return gv;
 } 
