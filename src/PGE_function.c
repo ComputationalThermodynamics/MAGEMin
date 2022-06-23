@@ -411,7 +411,7 @@ global_variable check_PC(					bulk_info 	 z_b,
 			}
 			
 			/* if there is a possible solvus */
-			if (min_df < gv.PC_df_add && min_df_id != -1 && phase_add == 0){
+			if (min_df < gv.PC_df_add && min_df_id != -1 && phase_add < 2){
 				if (gv.verbose == 1){
 					printf("  - %4s %5d added [PC DF check]\n",gv.SS_list[i],min_df_id);
 					
@@ -450,7 +450,7 @@ global_variable check_PC(					bulk_info 	 z_b,
 
 				gv.n_solvi[i] 	       	   += 1;
 				gv.id_solvi[i][gv.n_solvi[i]] = id_cp;
-				phase_add				    = 1;
+				phase_add				   += 1;
 			}
 			
 		}
@@ -1028,7 +1028,7 @@ global_variable LP(		bulk_info 			z_b,
 			printf("══════════════════════════════════════════════════════════════════\n");
 		}
 
-		if (gv.global_ite == 64){
+		if (gv.global_ite == 60 || gv.global_ite == 120){
 			gv = check_PC( 				z_b,						/** bulk rock constraint 				*/ 
 										gv,							/** global variables (e.g. Gamma) 		*/
 
@@ -1054,18 +1054,6 @@ global_variable LP(		bulk_info 			z_b,
 										z_b,							/** bulk-rock, pressure and temperature conditions */
 										SS_ref_db,						/** solution phase database 			*/	
 										cp 					);
-
-
-		/**
-			Merge instances of the same solution phase that are compositionnally close 
-		*/
-		gv = phase_merge_function(		z_b,						/** bulk rock constraint 				*/
-										gv,								/** global variables (e.g. Gamma) 		*/
-
-										PP_ref_db,						/** pure phase database 				*/
-										SS_ref_db,						/** solution phase database 			*/ 
-										cp					); 
-
 
 		/**
 		   Here the linear programming method is used after the PGE step to get a new Gibbs hyper-plane

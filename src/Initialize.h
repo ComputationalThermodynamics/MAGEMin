@@ -147,10 +147,10 @@ global_variable global_variable_init(){
 	gv.PC_df_add		= 4.0;					/** min value of df under which the PC is added 									*/
 
 	/* levelling parameters */
-	gv.em2ss_shift		= 1e-6;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
+	gv.em2ss_shift		= 1e-4;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
 	gv.bnd_filter_pc    = 10.0;					/** value of driving force the pseudocompound is considered 						*/
 	gv.n_pc				= 5000;
-	gv.max_G_pc         = 4.0;					/** dG under which PC is considered after their generation		 					*/
+	gv.max_G_pc         = 5.0;					/** dG under which PC is considered after their generation		 					*/
 	gv.eps_sf_pc		= 1e-10;				/** Minimum value of site fraction under which PC is rejected, 
 													don't put it too high as it will conflict with bounds of x-eos					*/
 
@@ -158,7 +158,7 @@ global_variable global_variable_init(){
 	gv.n_Ppc			= 2048;
 
 	/* solvus tolerance */
-	gv.merge_value      = 5e-2;					/** max norm distance between two instances of a solution phase						*/	
+	gv.merge_value      = 1e-1;					/** max norm distance between two instances of a solution phase						*/	
 	
 	/* local minimizer options */
 	gv.bnd_val          = 1.0e-10;				/** boundary value for x-eos when the fraction of an endmember = 0. 				*/
@@ -171,7 +171,7 @@ global_variable global_variable_init(){
 	gv.xi_em_cor   		= 0.99;	
 	gv.outter_PGE_ite   = 1;					/** minimum number of outter PGE iterations, before a solution can be accepted 		*/
 	gv.inner_PGE_ite    = 8;					/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
-	gv.max_n_phase  	= 0.05;				/** maximum mol% phase change during one PGE iteration in wt% 						*/
+	gv.max_n_phase  	= 0.025;				/** maximum mol% phase change during one PGE iteration in wt% 						*/
 	gv.max_g_phase  	= 2.5;					/** maximum delta_G of reference change during PGE 									*/
 	gv.max_fac          = 1.0;					/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
 	gv.max_br			= 0.25;
@@ -430,7 +430,22 @@ void get_bulk(double *bulk_rock, int test, int n_El) {
 	}
 	else if (test == 7){
 		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
-		/* Bulk rock composition of test 8 */
+		/* Kl3 */
+		bulk_rock[0] = 79.11;	
+		bulk_rock[1] = 9.09;	
+		bulk_rock[2] = 2.27;	
+		bulk_rock[3] = 0.94;	
+		bulk_rock[4] = 1.64;	
+		bulk_rock[5] = 3.47;
+		bulk_rock[6]  = 3.28;
+		bulk_rock[7]  = 0.18;
+		bulk_rock[8]  = 0.1;
+		bulk_rock[9]  = 0.01;
+		bulk_rock[10] =	25;
+	}
+	else if (test == 8){
+		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
+		/* Kl3 */
 		bulk_rock[0] = 52.42;	
 		bulk_rock[1] = 7.95;	
 		bulk_rock[2] = 11.13;	
