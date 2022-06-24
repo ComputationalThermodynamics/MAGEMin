@@ -250,7 +250,21 @@ global_variable phase_act2hold(			bulk_info 	z_b,
 	
 	for (int i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1  && gv.ph_change == 0){
-			if (cp[i].ss_n < 0.0){
+			if (cp[i].ss_n <= 0.0){
+				cp[i].ss_flags[1] = 0;
+				cp[i].ss_flags[2] = 1;
+				cp[i].ss_n        = 0.0;
+				gv.n_cp_phase    -= 1;
+				gv.n_phase       -= 1;		
+				gv.ph_change      = 1;																	/** phase has been removed, then do not add phase during this iteration */
+			}
+		}
+	}
+
+	for (int i = 0; i < gv.len_cp; i++){
+		if (cp[i].ss_flags[1] == 1  && gv.ph_change == 0){
+
+			if (cp[i].ss_n < 1e-3 && cp[i].df > 1e-3 && cp[i].sum_xi < 1.0){
 				cp[i].ss_flags[1] = 0;
 				cp[i].ss_flags[2] = 1;
 				cp[i].ss_n        = 0.0;

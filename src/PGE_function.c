@@ -371,14 +371,28 @@ global_variable check_PC(					bulk_info 	 z_b,
 											csd_phase_set  		*cp				
 ){
 	double 	min_df, xeos_dist, norm;
-	int 	max_n_pc, phase_add, id_cp, min_df_id, dist, ph;
-	int 	i,j,k,l;
-	
+	int 	max_n_pc, phase_add, id_cp, dist, ph;
+	int 	i,j,k,l,c,m;
+
+	int 	n_candidate = 8;
+	int     pc_candidate[n_candidate];
+	int     pc_added[n_candidate];
+	double  df_candidate[n_candidate];
+	int     id_c;
+
+
+
 	for (i = 0; i < gv.len_ss; i++){
-		min_df_id = -1;						// unreallistic index to start with
 		min_df    =  1e6;					// high starting value as it is expected to go down
 		phase_add =  0;
-		
+		id_c 	  =  0;
+
+		for (k = 0; k < n_candidate; k++){
+			pc_candidate[k] = -1;
+			pc_added[k] 	= -1;
+			df_candidate[k] = 0.0;
+		}
+
 		if (SS_ref_db[i].ss_flags[0] == 1  && gv.verifyPC[i] == 1){
 			
 			max_n_pc  = ((SS_ref_db[i].tot_pc >= SS_ref_db[i].n_pc) ? (SS_ref_db[i].n_pc) : (SS_ref_db[i].tot_pc));
@@ -395,7 +409,8 @@ global_variable check_PC(					bulk_info 	 z_b,
 						if (xeos_dist < gv.PC_min_dist*gv.SS_PC_stp[i]*sqrt((double)SS_ref_db[i].n_xeos) ){
 							 dist = 0;
 						} 
-					}	
+					}
+
 				}
 				if (dist == 1){
 					SS_ref_db[i].DF_pc[l] = SS_ref_db[i].G_pc[l];
@@ -403,58 +418,213 @@ global_variable check_PC(					bulk_info 	 z_b,
 						SS_ref_db[i].DF_pc[l] -= SS_ref_db[i].comp_pc[l][j]*gv.gam_tot[j];
 					}
 
-					if (SS_ref_db[i].DF_pc[l] < min_df){	
+					if (SS_ref_db[i].DF_pc[l] < min_df){
+
+						if (id_c == n_candidate){ id_c = 0;}
+						pc_candidate[id_c] = l;
+						df_candidate[id_c] = SS_ref_db[i].DF_pc[l];
+						id_c 			  += 1;
+
 						min_df 		= SS_ref_db[i].DF_pc[l];
-						min_df_id 	= l;
 					}
 				}
 			}
-			
-			/* if there is a possible solvus */
-			if (min_df < gv.PC_df_add && min_df_id != -1 && phase_add < 2){
-				if (gv.verbose == 1){
-					printf("  - %4s %5d added [PC DF check]\n",gv.SS_list[i],min_df_id);
-					
-					for (int k = 0; k < SS_ref_db[i].n_xeos; k++) {
-						SS_ref_db[i].iguess[k] = SS_ref_db[i].xeos_pc[min_df_id][k];
-					}								
+			id_c -= 1;
+			if (id_c == -1){ id_c = n_candidate-1;}
+
+			for (int c = 0; c < n_candidate; c++){
+				if (id_c == n_candidate){ id_c = 0;}
+
+				if (df_candidate[id_c] < gv.PC_df_add && pc_candidate[id_c] != -1){
+
+					if(phase_add == 0){
+
+						if (gv.verbose == 1){
+							printf("  - %4s %5d added [PC DF check]\n",gv.SS_list[i],pc_candidate[id_c]);
+							
+							for (int k = 0; k < SS_ref_db[i].n_xeos; k++) {
+								SS_ref_db[i].iguess[k] = SS_ref_db[i].xeos_pc[pc_candidate[id_c]][k];
+							}								
+						}
+											
+						/**
+							copy the minimized phase informations to cp structure
+						*/
+						gv.len_cp				   += 1;
+						id_cp 		 				= gv.len_cp-1;
+						strcpy(cp[id_cp].name,gv.SS_list[i]);				/* get phase name */				
+						cp[id_cp].in_iter			= gv.global_ite;
+						cp[id_cp].ss_flags[0] 		= 1;						/* set flags */
+						cp[id_cp].ss_flags[1] 		= 0;
+						cp[id_cp].ss_flags[2] 		= 1;
+						cp[id_cp].split 			= 0;							
+						cp[id_cp].id 				= i;						/* get phase id */
+						cp[id_cp].n_xeos			= SS_ref_db[i].n_xeos;		/* get number of compositional variables */
+						cp[id_cp].n_em				= SS_ref_db[i].n_em;		/* get number of endmembers */
+						cp[id_cp].n_sf				= SS_ref_db[i].n_sf;		/* get number of site fractions */
+						
+						for (k = 0; k < SS_ref_db[i].n_xeos; k++){
+							cp[id_cp].dguess[k]     = SS_ref_db[i].xeos_pc[pc_candidate[id_c]][k];
+							cp[id_cp].xeos[k]       = SS_ref_db[i].xeos_pc[pc_candidate[id_c]][k];
+						}
+						for (k = 0; k < SS_ref_db[i].n_xeos; k++){
+							cp[id_cp].mu[k]    		=  0.0;
+						}
+
+						gv.n_solvi[i] 	       	   += 1;
+						gv.id_solvi[i][gv.n_solvi[i]] = id_cp;
+						pc_added[phase_add] 		= pc_candidate[id_c];
+
+						phase_add				   += 1;	
+
+						id_c += 1;
+					}
+					else{
+						dist = 1;
+
+						for (m = 0; m < phase_add; m++){
+							xeos_dist = euclidean_distance(SS_ref_db[i].xeos_pc[pc_candidate[id_c]], SS_ref_db[i].xeos_pc[pc_added[m]], SS_ref_db[i].n_xeos);
+							if (xeos_dist < gv.PC_min_dist*gv.SS_PC_stp[i]*sqrt((double)SS_ref_db[i].n_xeos) ){
+								dist = 0;
+							} 
+						}
+
+						if (dist == 1){
+
+							if (gv.verbose == 1){
+								printf("  - %4s %5d added [PC DF check]\n",gv.SS_list[i],pc_candidate[id_c]);
+								
+								for (int k = 0; k < SS_ref_db[i].n_xeos; k++) {
+									SS_ref_db[i].iguess[k] = SS_ref_db[i].xeos_pc[pc_candidate[id_c]][k];
+								}								
+							}
+						
+							/**
+								copy the minimized phase informations to cp structure
+							*/
+							gv.len_cp				   += 1;
+							id_cp 		 				= gv.len_cp-1;
+							strcpy(cp[id_cp].name,gv.SS_list[i]);				/* get phase name */				
+							cp[id_cp].in_iter			= gv.global_ite;
+							cp[id_cp].ss_flags[0] 		= 1;						/* set flags */
+							cp[id_cp].ss_flags[1] 		= 0;
+							cp[id_cp].ss_flags[2] 		= 1;
+							cp[id_cp].split 			= 0;							
+							cp[id_cp].id 				= i;						/* get phase id */
+							cp[id_cp].n_xeos			= SS_ref_db[i].n_xeos;		/* get number of compositional variables */
+							cp[id_cp].n_em				= SS_ref_db[i].n_em;		/* get number of endmembers */
+							cp[id_cp].n_sf				= SS_ref_db[i].n_sf;		/* get number of site fractions */
+							
+							for (k = 0; k < SS_ref_db[i].n_xeos; k++){
+								cp[id_cp].dguess[k]     = SS_ref_db[i].xeos_pc[pc_candidate[id_c]][k];
+								cp[id_cp].xeos[k]       = SS_ref_db[i].xeos_pc[pc_candidate[id_c]][k];
+							}
+							for (k = 0; k < SS_ref_db[i].n_xeos; k++){
+								cp[id_cp].mu[k]    		=  0.0;
+							}
+
+							gv.n_solvi[i] 	       	   += 1;
+							gv.id_solvi[i][gv.n_solvi[i]] = id_cp;
+							pc_added[phase_add] 		= pc_candidate[id_c];
+
+							phase_add				   += 1;	
+
+							id_c += 1;
+
+						}
+						// printf("dist: %d\n",dist);
+						
+					}
+
 				}
 
-				for (k = 0; k < SS_ref_db[i].n_xeos; k++) {
-					SS_ref_db[i].iguess[k] = SS_ref_db[i].xeos_pc[min_df_id][k];
-				}
-				 												 
-				/**
-					copy the minimized phase informations to cp structure
-				*/
-				gv.len_cp				   += 1;
-				id_cp 		 				= gv.len_cp-1;
-				strcpy(cp[id_cp].name,gv.SS_list[i]);				/* get phase name */				
-				cp[id_cp].in_iter			= gv.global_ite;
-				cp[id_cp].ss_flags[0] 		= 1;						/* set flags */
-				cp[id_cp].ss_flags[1] 		= 0;
-				cp[id_cp].ss_flags[2] 		= 1;
-				cp[id_cp].split 			= 0;							
-				cp[id_cp].id 				= i;						/* get phase id */
-				cp[id_cp].n_xeos			= SS_ref_db[i].n_xeos;		/* get number of compositional variables */
-				cp[id_cp].n_em				= SS_ref_db[i].n_em;		/* get number of endmembers */
-				cp[id_cp].n_sf				= SS_ref_db[i].n_sf;		/* get number of site fractions */
-				
-				for (k = 0; k < SS_ref_db[i].n_xeos; k++){
-					cp[id_cp].dguess[k]     = SS_ref_db[i].xeos_pc[min_df_id][k];
-					cp[id_cp].xeos[k]       = SS_ref_db[i].xeos_pc[min_df_id][k];
-				}
-				for (k = 0; k < SS_ref_db[i].n_xeos; k++){
-					cp[id_cp].mu[k]    		=  0.0;
-				}
 
-				gv.n_solvi[i] 	       	   += 1;
-				gv.id_solvi[i][gv.n_solvi[i]] = id_cp;
-				phase_add				   += 1;
 			}
 			
 		}
 	}
+	
+	// for (i = 0; i < gv.len_ss; i++){
+	// 	min_df_id = -1;						// unreallistic index to start with
+	// 	min_df    =  1e6;					// high starting value as it is expected to go down
+	// 	phase_add =  0;
+		
+	// 	if (SS_ref_db[i].ss_flags[0] == 1  && gv.verifyPC[i] == 1){
+			
+	// 		max_n_pc  = ((SS_ref_db[i].tot_pc >= SS_ref_db[i].n_pc) ? (SS_ref_db[i].n_pc) : (SS_ref_db[i].tot_pc));
+			
+	// 		for (l = 0; l < max_n_pc; l++){
+
+	// 			dist =  1;
+	// 			if (gv.n_solvi[i] > 0){
+
+	// 				for (k = 0; k < gv.n_solvi[i]; k++){  /* go through the upper triangle of the matrix (avoiding diagonal)*/
+	// 					ph = SS_ref_db[i].solvus_id[k];
+
+	// 					xeos_dist = euclidean_distance(cp[ph].xeos, SS_ref_db[i].xeos_pc[l], SS_ref_db[i].n_xeos);
+	// 					if (xeos_dist < gv.PC_min_dist*gv.SS_PC_stp[i]*sqrt((double)SS_ref_db[i].n_xeos) ){
+	// 						 dist = 0;
+	// 					} 
+	// 				}	
+	// 			}
+	// 			if (dist == 1){
+	// 				SS_ref_db[i].DF_pc[l] = SS_ref_db[i].G_pc[l];
+	// 				for (j = 0; j < gv.len_ox; j++) {
+	// 					SS_ref_db[i].DF_pc[l] -= SS_ref_db[i].comp_pc[l][j]*gv.gam_tot[j];
+	// 				}
+
+	// 				if (SS_ref_db[i].DF_pc[l] < min_df){	
+	// 					min_df 		= SS_ref_db[i].DF_pc[l];
+	// 					min_df_id 	= l;
+	// 				}
+	// 			}
+	// 		}
+			
+	// 		/* if there is a possible solvus */
+	// 		if (min_df < gv.PC_df_add && min_df_id != -1 && phase_add < 2){
+	// 			if (gv.verbose == 1){
+	// 				printf("  - %4s %5d added [PC DF check]\n",gv.SS_list[i],min_df_id);
+					
+	// 				for (int k = 0; k < SS_ref_db[i].n_xeos; k++) {
+	// 					SS_ref_db[i].iguess[k] = SS_ref_db[i].xeos_pc[min_df_id][k];
+	// 				}								
+	// 			}
+
+	// 			for (k = 0; k < SS_ref_db[i].n_xeos; k++) {
+	// 				SS_ref_db[i].iguess[k] = SS_ref_db[i].xeos_pc[min_df_id][k];
+	// 			}
+				 												 
+	// 			/**
+	// 				copy the minimized phase informations to cp structure
+	// 			*/
+	// 			gv.len_cp				   += 1;
+	// 			id_cp 		 				= gv.len_cp-1;
+	// 			strcpy(cp[id_cp].name,gv.SS_list[i]);				/* get phase name */				
+	// 			cp[id_cp].in_iter			= gv.global_ite;
+	// 			cp[id_cp].ss_flags[0] 		= 1;						/* set flags */
+	// 			cp[id_cp].ss_flags[1] 		= 0;
+	// 			cp[id_cp].ss_flags[2] 		= 1;
+	// 			cp[id_cp].split 			= 0;							
+	// 			cp[id_cp].id 				= i;						/* get phase id */
+	// 			cp[id_cp].n_xeos			= SS_ref_db[i].n_xeos;		/* get number of compositional variables */
+	// 			cp[id_cp].n_em				= SS_ref_db[i].n_em;		/* get number of endmembers */
+	// 			cp[id_cp].n_sf				= SS_ref_db[i].n_sf;		/* get number of site fractions */
+				
+	// 			for (k = 0; k < SS_ref_db[i].n_xeos; k++){
+	// 				cp[id_cp].dguess[k]     = SS_ref_db[i].xeos_pc[min_df_id][k];
+	// 				cp[id_cp].xeos[k]       = SS_ref_db[i].xeos_pc[min_df_id][k];
+	// 			}
+	// 			for (k = 0; k < SS_ref_db[i].n_xeos; k++){
+	// 				cp[id_cp].mu[k]    		=  0.0;
+	// 			}
+
+	// 			gv.n_solvi[i] 	       	   += 1;
+	// 			gv.id_solvi[i][gv.n_solvi[i]] = id_cp;
+	// 			phase_add				   += 1;
+	// 		}
+			
+	// 	}
+	// }
 
 	return gv;
 };
@@ -746,13 +916,14 @@ global_variable PGE_update_solution(	global_variable  	 gv,
 	max_dnss 	= norm_vector(gv.dn_cp,gv.n_cp_phase);
 	max_dnpp 	= norm_vector(gv.dn_pp,gv.n_pp_phase);
 	max_dn 		= ((max_dnss < max_dnpp) ? (max_dnpp) : (max_dnss) );
-	max_dG_ss   = gv.relax_PGE_val*exp(-8.0*pow(gv.BR_norm,0.28))+1.0;
+	max_dG_ss   = gv.relax_PGE_val*exp(-8.0*pow(gv.BR_norm,0.29))+1.0;
 
 	g_fac       = (gv.max_g_phase/max_dG_ss)/max_dG;
 	n_fac   	= (gv.max_n_phase/max_dG_ss)/max_dn;
 	alpha 		= ((n_fac < g_fac) 	 	? 	(n_fac) 		: (g_fac)	);
 	alpha 		= ((alpha > gv.max_fac) ? 	(gv.max_fac) 	: (alpha)	);
-	gv.alpha	= alpha; 		
+
+	gv.alpha	= alpha;
 	
 	/* Update Gamma */
 	for (i = 0; i < z_b.nzEl_val; i++){
@@ -1010,8 +1181,8 @@ global_variable LP(		bulk_info 			z_b,
 
 	int mode = 1;
 
-	// for (int gi = 0; gi < 1; gi++){				
-	while ( gv.global_ite < 128 ){
+	// for (int gi = 0; gi < 32; gi++){				
+	while ( gv.global_ite < 32 ){
 
 		t = clock();
 		if (gv.verbose == 1){
@@ -1028,7 +1199,7 @@ global_variable LP(		bulk_info 			z_b,
 			printf("══════════════════════════════════════════════════════════════════\n");
 		}
 
-		if (gv.global_ite == 60 || gv.global_ite == 120){
+		if (gv.global_ite == 12 || gv.global_ite == 24){
 			gv = check_PC( 				z_b,						/** bulk rock constraint 				*/ 
 										gv,							/** global variables (e.g. Gamma) 		*/
 
@@ -1162,7 +1333,7 @@ global_variable PGE(	bulk_info 			z_b,
 	gv.LP 	= 0;	gv.PGE 	= 1;
 
 	int mode = 1;
-	// for (int gi = 0; gi < 32; gi++){	
+	// for (int gi = 0; gi < 1; gi++){	
 	while (gv.BR_norm > gv.br_max_tol || gv.outter_PGE_ite > (gv.global_ite - gv.LP_PGE_switch)){
 
 		t = clock();
@@ -1191,10 +1362,10 @@ global_variable PGE(	bulk_info 			z_b,
 		/**
 			check driving force of PC when getting close to convergence
 		*/
-		if (gv.BR_norm < gv.PC_check_val && gv.check_PC == 0){
+		if (gv.BR_norm < gv.PC_check_val1 && gv.check_PC1 == 0){
 			if (gv.verbose == 1){
-				printf("\n Checking PC driving force\n");	
-				printf("═══════════════════════════\n");	
+				printf("\n Checking PC driving force 1\n");	
+				printf("═════════════════════════════\n");	
 					
 			}
 			gv = check_PC( 					z_b,						/** bulk rock constraint 				*/ 
@@ -1204,9 +1375,26 @@ global_variable PGE(	bulk_info 			z_b,
 											SS_ref_db,
 											cp				); 					
 			
-			gv.check_PC 		= 1;					
+			gv.check_PC1 		= 1;					
 		}
-		
+		/**
+			check driving force of PC when getting close to convergence
+		*/
+		if (gv.BR_norm < gv.PC_check_val2 && gv.check_PC2 == 0){
+			if (gv.verbose == 1){
+				printf("\n Checking PC driving force 2\n");	
+				printf("═════════════════════════════\n");	
+					
+			}
+			gv = check_PC( 					z_b,						/** bulk rock constraint 				*/ 
+											gv,							/** global variables (e.g. Gamma) 		*/
+
+											PP_ref_db,					/** pure phase database 				*/ 
+											SS_ref_db,
+											cp				); 					
+			
+			gv.check_PC2 		= 1;					
+		}	
 
 		/**
 			Split phase if the current xeos is far away from the initial one 
@@ -1257,52 +1445,27 @@ global_variable PGE(	bulk_info 			z_b,
 										cp					); 
 		}
 
+		/**
+		 * Solver status
+		 * 0: success
+		 * 1: under-relaxed
+		 * 2: more under-relaxed
+		 * 3: reached max iterations (failed)
+		 * 4: terminated due to slow convergence or a very large residual (failed)
+		**/
+		if (gv.global_ite > gv.it_1 && gv.BR_norm < gv.br_max_tol*gv.ur_1){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_1, gv.ur_1);}; gv.status = 1; break;}
+		if (gv.global_ite > gv.it_2 && gv.BR_norm < gv.br_max_tol*gv.ur_2){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_2, gv.ur_2);}; gv.status = 2; break;}
+		if (gv.global_ite > gv.it_3 && gv.BR_norm < gv.br_max_tol*gv.ur_3){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_3, gv.ur_3);}; gv.status = 2; break;}
+		if (gv.global_ite > gv.it_f){											if (gv.verbose != -1){printf(" >%d iterations, did not converge  !!!\n\n", gv.it_f);}; gv.status = 3; break;}
 
-
-		if (gv.BR_norm <=  gv.br_max_tol && gv.check_PC_final == 0 ){
-
-			if (gv.verbose == 1){
-				printf(" Checking PC driving force\n");	
-				printf("═══════════════════════════\n");	
-					
-			}
-			gv = check_PC( 					z_b,						/** bulk rock constraint 				*/ 
-											gv,							/** global variables (e.g. Gamma) 		*/
-
-											PP_ref_db,					/** pure phase database 				*/ 
-											SS_ref_db,
-											cp				); 					
-			gv.BR_norm 			= 0.1;
-			gv.check_PC_final 	= 1;
-		}
-		else{
-			/**
-			 * Solver status
-			 * 0: success
-			 * 1: under-relaxed
-			 * 2: more under-relaxed
-			 * 3: reached max iterations (failed)
-			 * 4: terminated due to slow convergence or a very large residual (failed)
-			**/
-			if (gv.global_ite > gv.it_1 && gv.BR_norm < gv.br_max_tol*gv.ur_1){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_1, gv.ur_1);}; gv.status = 1; break;}
-			if (gv.global_ite > gv.it_2 && gv.BR_norm < gv.br_max_tol*gv.ur_2){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_2, gv.ur_2);}; gv.status = 2; break;}
-			if (gv.global_ite > gv.it_3 && gv.BR_norm < gv.br_max_tol*gv.ur_3){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_3, gv.ur_3);}; gv.status = 2; break;}
-			if (gv.global_ite > gv.it_f){											if (gv.verbose != -1){printf(" >%d iterations, did not converge  !!!\n\n", gv.it_f);}; gv.status = 3; break;}
-
-			if ((gv.global_ite > gv.it_slow && gv.BR_norm > gv.br_max_tol*gv.ur_slow) ||
-				gv.BR_norm  > gv.br_max_tol*gv.ur_break){
-				gv.status 	= 4;
-				gv.div 		= 1;	
-			}
-			for (int i = 0; i < gv.len_cp; i++){
-				if (cp[i].ss_flags[0] == 1){
-					if (isnan(cp[i].df) == 1 || isinf(cp[i].df) == 1){
-						gv.div = 1;	
-					}
+		for (int i = 0; i < gv.len_cp; i++){
+			if (cp[i].ss_flags[0] == 1){
+				if (isnan(cp[i].df) == 1 || isinf(cp[i].df) == 1){
+					gv.div = 1;	
 				}
 			}
-			if (gv.div == 1){ gv.status = 4; break; }
 		}
+		if (gv.div == 1){ gv.status = 4; break; }
 
 		t = clock() - t; 
 		if (gv.verbose == 1){

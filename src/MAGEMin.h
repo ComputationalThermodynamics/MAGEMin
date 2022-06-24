@@ -455,13 +455,13 @@ typedef struct global_variables {
 	double   mean_sum_xi;
 	double   sigma_sum_xi;
 	
-	double   relax_PGE;
 	double   relax_PGE_val;
 	double   PC_df_add;
 	double   PC_min_dist;
-	double	 PC_check_val;
-	int	     check_PC;
-	int 	 check_PC_final;
+	double	 PC_check_val1;
+	double	 PC_check_val2;
+	int	     check_PC1;
+	int	     check_PC2;
 	int      len_pp;			/** initial number of active pure phases */
 	int      len_ss;			/** initial number of active solution phases */
 	int      len_ox;			/** number of components (number of oxides in the chemical system) */
@@ -541,7 +541,6 @@ typedef struct global_variables {
 	double   max_g_phase;		/** maximum Gamma change during PGE iteration */
 	double   br_liq_x;
 	double   max_fac;			/** max updating factor */
-	double 	 max_br;
 	int      it_1;              /** first critical iteration                                                      */
 	double   ur_1;              /** under relaxing factor on mass constraint if iteration is bigger than it_1     */
 	int      it_2;              /** second critical iteration                                                     */
@@ -549,9 +548,6 @@ typedef struct global_variables {
 	int      it_3;              /** third critical iteration                                                      */
 	double   ur_3;              /** under relaxing factor on mass constraint if iteration is bigger than it_3     */
 	int      it_f;              /** send a failed message when the number of iteration is greater than this value */
-	int      it_slow;           /** critical iteration for slow convergence                                       */
-	double   ur_slow;           /** under relaxing factor on mass constraint defining overly slow convergence     */
-	double   ur_break;          /** under relaxing factor on mass constraint defining a breaking iteration        */
 	int      div;               /** send status of divergence */
 
 	/* DECLARE ARRAY FOR PGE CALCULATION */	
@@ -625,7 +621,6 @@ global_variable ComputeEquilibrium_Point(	int 				 EM_database,
 											bulk_info 	 		 z_b,
 											global_variable 	 gv,
 
-											obj_type 		    *SS_objective,
 											simplex_data	    *splx_data,
 											PP_ref  			*PP_ref_db,
 											SS_ref  			*SS_ref_db,
@@ -654,7 +649,8 @@ global_variable ReadCommandLineOptions(		global_variable   gv,
 											int 			 *maxeval_out, 
 											int     		 *get_version_out,
 											int 			 *get_help,
-											int				 *solver_out				);
+											int				 *solver_out,
+											char			  sys_in[5]				);
 
 /* function that prints output */
 void PrintOutput(							global_variable 	gv, 

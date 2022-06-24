@@ -134,7 +134,7 @@ int runMAGEMin(			int    argc,
 	int		get_help;
 	
 	double	Gam[11],  Bulk[11], InitEM_Prop[15];
-	char    File[50], Phase[50];
+	char    File[50], Phase[50], sys_in[5];
 
 	/** 
 	Read command-line arguments and set default parameters
@@ -155,9 +155,9 @@ int runMAGEMin(			int    argc,
 									&maxeval,
 									&get_version,
 									&get_help,
-									&solver			); 
+									&solver,
+									 sys_in			); 
 									
-
 	gv.verbose 	= Verb;
 	gv.Mode 	= Mode;
 
@@ -200,17 +200,43 @@ int runMAGEMin(			int    argc,
 	if (Pres    > 0.0){ P = Pres 										;}
 	if (Temp    > 0.0){ T = Temp + 273.15								;}
 	
+	/** Get zeros in bulk P and T 											*/				
+	z_b = initialize_bulk_infos(			P, 
+											T							);	
+
 	if (Bulk[0] > 0.0) {
 		for (i = 0; i < gv.len_ox; i++){ bulk_rock[i] = Bulk[i];}
+
+		if (gv.verbose == 1){
+			printf("\n");
+			printf("   - Minimization using provided bulk-rock composition\n");	
+			if (strcmp( sys_in, "mol") == 0){	
+				printf("   - input system composition   : mol fraction\n"	);
+			}
+			else if (strcmp( sys_in, "wt") == 0){	
+				printf("   - input system composition: wt fraction\n"	);
+				for (i = 0; i < gv.len_ox; i++){ bulk_rock[i] *= z_b.masspo[i];}
+			}
+			else{
+				printf("   - input system composition   : unknown! [mol or wt]\n");
+			}
+			printf("\n\n");
+		}
 	}
-	
+	else{
+		if (gv.verbose == 1){
+			printf("\n");
+			printf("   - Minimization using test case : %d\n",test);			
+			printf("   - input system composition     : mol fraction\n");
+			printf("\n\n");
+		}
+	}
+
+
 	/** Normalize composition to sum to 1. 									*/
 	norm_array(								bulk_rock,
 											gv.len_ox					);						
 								
-	/** Get zeros in bulk P and T 											*/				
-	z_b = initialize_bulk_infos(			P, 
-											T							);	
 
 	/** allocate simplex data memory outside the MPI loop 					*/
 	simplex_data 							splx_data;
@@ -220,13 +246,7 @@ int runMAGEMin(			int    argc,
 										
 	init_simplex_B_em(				   	   &splx_data,
 											gv							);
-
-	/** pointer array to objective functions 								*/
-	obj_type 								SS_objective[gv.len_ss];	
-	
-	SS_objective_init_function(				SS_objective,
-											gv							);
-								
+						
 		
 	/****************************************************************************************/
 	/**                               LAUNCH MINIMIZATION ROUTINE                          **/
@@ -294,8 +314,7 @@ int runMAGEMin(			int    argc,
 											Mode,
 											z_b,											/** bulk rock informations 			*/
 											gv,												/** global variables (e.g. Gamma) 	*/
-
-											SS_objective,
+											
 										   &splx_data,
 											DB.PP_ref_db,									/** pure phase database 			*/
 											DB.SS_ref_db,									/** solid solution database 		*/
@@ -602,16 +621,15 @@ int runMAGEMin(			int    argc,
 	gv.solid_Vp 	= sqrt((gv.solid_bulkModulus +4.0/3.0*gv.solid_shearModulus)/(gv.solid_density/1e3));
 	gv.solid_Vs 	= sqrt(gv.solid_shearModulus/(gv.solid_density/1e3));
 
+	gv.solid_Vs 	= anelastic_correction( 0,
+											gv.solid_Vs,
+											z_b.P,
+											z_b.T 		);
 
-	gv.solid_Vs = anelastic_correction( 0,
-										gv.solid_Vs,
-										z_b.P,
-										z_b.T 		);
+	gv.V_cor[0] 	= gv.solid_Vp;
+	gv.V_cor[1] 	= gv.solid_Vs;
 
-	gv.V_cor[0] = gv.solid_Vp;
-	gv.V_cor[1] = gv.solid_Vs;
-
-	if (gv.melt_fraction > 0.0){
+	if (gv.melt_fraction > 0.0 && gv.V_cor[1] > 0.0){
 		wave_melt_correction(  	gv.melt_bulkModulus,
 								gv.solid_bulkModulus,
 								gv.solid_shearModulus,
@@ -622,10 +640,8 @@ int runMAGEMin(			int    argc,
 								gv.melt_fraction,
 								0.1,
 								gv.V_cor				);
-
 	}
 
-	printf("\n");
 	if (gv.verbose != -1){
 		printf("\nSystem information\n");
 		printf("═══════════════════\n");
@@ -641,7 +657,8 @@ int runMAGEMin(			int    argc,
 		if (not_only_liq == 1){
 			printf(" Vs           (VRH) : %+12.5f\t [km/s]\n",gv.system_Vs);
 			printf(" Vp/Vs        (VRH) : %+12.5f\t [km/s]\n",gv.system_Vp/gv.system_Vs);
-			printf("\n Vp_Melt_cor        : %+12.5f\t [km/s]\n",  gv.V_cor[0]);
+			printf("\n");
+			printf(" Vp_Melt_cor        : %+12.5f\t [km/s]\n",  gv.V_cor[0]);
 			printf(" Vs_Melt_cor        : %+12.5f\t [km/s]\n",	gv.V_cor[1]);
 			printf(" Vp/Vs_Melt_cor     : %+12.5f\t [km/s]\n\n",gv.V_cor[0]/gv.V_cor[1]);
 		}
@@ -660,11 +677,18 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 												bulk_info 	 z_b,
 												global_variable 	 gv,
 
-												obj_type 			*SS_objective,
+												// obj_type 			*SS_objective,
 												simplex_data	    *splx_data,
 												PP_ref  			*PP_ref_db,
 												SS_ref  			*SS_ref_db,
 												csd_phase_set  		*cp						){
+
+	/** pointer array to objective functions 								*/
+	obj_type 								SS_objective[gv.len_ss];	
+	
+	SS_objective_init_function(				SS_objective,
+											gv							);
+
 
 	/* initialize endmember database for given P-T point */
 	gv = init_em_db(		EM_database,
@@ -720,7 +744,6 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 								PP_ref_db,								/** pure phase database 			*/
 								SS_ref_db,								/** solution phase database 		*/
 								cp							);
-
 		}
 
 
@@ -813,7 +836,8 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 										int 				*maxeval_out,
 										int 				*get_version_out,
 										int					*get_help,
-										int					*solver_out	
+										int					*solver_out,
+										char 				 sys_in[5]
 ){
 	int i;
 	static ko_longopt_t longopts[] = {
@@ -832,6 +856,8 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
         { "version",    ko_optional_argument, 314 },
         { "help",    	ko_optional_argument, 315 },
         { "solver",    	ko_optional_argument, 316 },
+        { "sys_in",    	ko_optional_argument, 317 },
+		
     	{ NULL, 0, 0 }
 	};
 	ketopt_t opt = KETOPT_INIT;
@@ -855,6 +881,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 
 
 	strcpy(File,"none"); // Filename to be read to have multiple P-T-bulk conditions to solve
+	strcpy(sys_in,"mol"); // Filename to be read to have multiple P-T-bulk conditions to solve
 
 	while ((c = ketopt(&opt, argc, argv, 1, "", longopts)) >= 0) {
 		if 		(c == 314){ printf("MAGEMin %20s\n",gv.version ); exit(0); }	
@@ -863,6 +890,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		else if (c == 302){ Mode     = atoi(opt.arg);			if (Verb == 1){		printf("--Mode        : Mode                     = %i \n", 	 	   		Mode		);}}																		
 		else if (c == 316){ solver   = atoi(opt.arg);			if (Verb == 1){		printf("--solver      : solver                   = %i \n", 	 	   		solver		);}}																		
 		else if (c == 303){ strcpy(File,opt.arg);		 		if (Verb == 1){		printf("--File        : File                     = %s \n", 	 	   		File		);}}
+		else if (c == 317){ strcpy(sys_in,opt.arg);		 		if (Verb == 1){		printf("--sys_in      : sys_in                   = %s \n", 	 	   		sys_in		);}}
 		else if (c == 304){ n_points = atoi(opt.arg); 	 		if (Verb == 1){		printf("--n_points    : n_points                 = %i \n", 	 	   		n_points	);}}
 		else if (c == 305){ test     = atoi(opt.arg); 		 	if (Verb == 1){		printf("--test        : Test                     = %i \n", 	 	  		test		);}}
 		else if (c == 306){ Temp     = strtof(opt.arg,NULL); 	if (Verb == 1){		printf("--Temp        : Temperature              = %f C \n",            Temp		);}}

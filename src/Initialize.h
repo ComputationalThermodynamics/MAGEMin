@@ -133,16 +133,16 @@ global_variable global_variable_init(){
 	strcpy(gv.version,"1.1.1 [06/05/2022]");	/** MAGEMin version 																*/
 
 	gv.len_ox           = 11;					/** number of components in the system 												*/
-	gv.max_n_cp 		= 64;					/** number of considered solution phases 											*/									
+	gv.max_n_cp 		= 128;					/** number of considered solution phases 											*/									
 	gv.verbose          = 0;					/** verbose: -1, no verbose; 0, light verbose; 1, full verbose 										*/
 
 	/* residual tolerance */
 	gv.br_max_tol       = 1.0e-5;				/** value under which the solution is accepted to satisfy the mass constraint 		*/
 	
 	/* under-relaxing factors */
-	gv.relax_PGE		= 1.0e-3;				/** br norm under which the xeos box is restricted 									*/
 	gv.relax_PGE_val    = 128.0;				/** restricting factor 																*/
-	gv.PC_check_val		= 1.0e-3;				/** br norm under which PC are tested for potential candidate to be added 			*/
+	gv.PC_check_val1	= 1.0e-2;				/** br norm under which PC are tested for potential candidate to be added 			*/
+	gv.PC_check_val2	= 1.0e-4;				/** br norm under which PC are tested for potential candidate to be added 			*/
 	gv.PC_min_dist 		= 1.0;					/** factor multiplying the diagonal of the hyperbox of xeos step 					*/
 	gv.PC_df_add		= 4.0;					/** min value of df under which the PC is added 									*/
 
@@ -161,10 +161,10 @@ global_variable global_variable_init(){
 	gv.merge_value      = 1e-1;					/** max norm distance between two instances of a solution phase						*/	
 	
 	/* local minimizer options */
-	gv.bnd_val          = 1.0e-10;				/** boundary value for x-eos when the fraction of an endmember = 0. 				*/
+	gv.bnd_val          = 1.0e-10;				/** boundary value for x-eos 										 				*/
 	gv.obj_tol			= 1e-7;
 	gv.ineq_res  	 	= 0.0;
-	gv.box_size_mode_1	= 0.2;					/** edge size of the xeos hyperdensity used during PGE local minimization 			*/
+	gv.box_size_mode_1	= 0.25;					/** edge size of the xeos hyperdensity used during PGE local minimization 			*/
 	gv.maxeval_mode_1   = 1024;					/** max number of evaluation of the obj function for mode 1 (PGE)					*/
 
 	/* Partitioning Gibbs Energy */
@@ -174,19 +174,15 @@ global_variable global_variable_init(){
 	gv.max_n_phase  	= 0.025;				/** maximum mol% phase change during one PGE iteration in wt% 						*/
 	gv.max_g_phase  	= 2.5;					/** maximum delta_G of reference change during PGE 									*/
 	gv.max_fac          = 1.0;					/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
-	gv.max_br			= 0.25;
 
 	/* set of parameters to record the evolution of the norm of the mass constraint                                                 */
-	gv.it_1             = 200;                  /** first critical iteration                                                        */
+	gv.it_1             = 128;                  /** first critical iteration                                                        */
 	gv.ur_1             = 4.;                   /** under relaxing factor on mass constraint if iteration is bigger than it_1       */
-	gv.it_2             = 300;                  /** second critical iteration                                                       */
+	gv.it_2             = 160;                  /** second critical iteration                                                       */
 	gv.ur_2             = 8.;                   /** under relaxing factor on mass constraint if iteration is bigger than it_2       */
-	gv.it_3             = 400;                  /** third critical iteration                                                        */
+	gv.it_3             = 192;                  /** third critical iteration                                                        */
 	gv.ur_3             = 16.;                  /** under relaxing factor on mass constraint if iteration is bigger than it_3       */
-	gv.it_f             = 500;                  /** gives back failure when the number of iteration is bigger than it_f             */
-	gv.it_slow          = 256;                  /** critical iteration for slow convergence                                         */
-	gv.ur_slow          = 1e3;                	/** under relaxing factor on mass constraint defining overly slow convergence       */
-	gv.ur_break         = 1e6;             		/** under relaxing factor on mass constraint defining a breaking iteration          */
+	gv.it_f             = 256;                  /** gives back failure when the number of iteration is bigger than it_f             */
 
 	/* phase update options */
 	gv.re_in_n          = 1e-2;					/** fraction of phase when being reintroduce.  										*/
@@ -194,9 +190,6 @@ global_variable global_variable_init(){
 	/* density calculation */
 	gv.gb_P_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
 	gv.gb_T_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
-
-
-
 
 	/* initialize other values */
 	gv.mean_sum_xi		= 1.0;
@@ -446,16 +439,16 @@ void get_bulk(double *bulk_rock, int test, int n_El) {
 	else if (test == 8){
 		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
 		/* Kl3 */
-		bulk_rock[0] = 52.42;	
-		bulk_rock[1] = 7.95;	
-		bulk_rock[2] = 11.13;	
-		bulk_rock[3] = 17.88;	
-		bulk_rock[4] = 7.49;	
-		bulk_rock[5] = 0.37;
-		bulk_rock[6]  = 2.13;
-		bulk_rock[7]  = 0.63;
+		bulk_rock[0] = 54.65;	
+		bulk_rock[1] = 9.04;	
+		bulk_rock[2] = 10.69;	
+		bulk_rock[3] = 13.9;	
+		bulk_rock[4] = 7.63;	
+		bulk_rock[5] = 0.51;
+		bulk_rock[6]  = 2.62;
+		bulk_rock[7]  = 0.71;
 		bulk_rock[8]  = 0.4;
-		bulk_rock[9]  = 0.01;
+		bulk_rock[9]  = 0.1;
 		bulk_rock[10] =	0.0;
 	}
 	else{
@@ -473,6 +466,8 @@ global_variable reset_gv(					global_variable 	 gv,
 											PP_ref 				*PP_ref_db,
 											SS_ref 				*SS_ref_db
 ){
+	gv.solver 			  = 0;
+
 	int i,j,k;
 	for (k = 0; k < gv.n_flags; k++){
 		for (i = 0; i < gv.len_pp; i++){
@@ -516,7 +511,7 @@ global_variable reset_gv(					global_variable 	 gv,
 			gv.pp_flags[i][3] = 0;
 		}
 	}
-	gv.solver 			  = 0;
+
 	gv.LP_PGE_switch	  = 0;
 	gv.melt_fraction	  = 0.;
 	gv.melt_density       = 0.;
@@ -535,8 +530,8 @@ global_variable reset_gv(					global_variable 	 gv,
 	gv.system_Vs 		  = 0.;
 	gv.V_cor[0]			  = 0.;
 	gv.V_cor[1]			  = 0.;
-	gv.check_PC_final	  = 0;
-	gv.check_PC			  = 0;
+	gv.check_PC1		  = 0;
+	gv.check_PC2		  = 0;
 	gv.maxeval		      = gv.maxeval_mode_1;
 	gv.len_cp 		  	  = 0;
 	gv.ph_change  	      = 0;

@@ -77,12 +77,14 @@ csd_phase_set CP_UPDATE_function(		global_variable 	gv,
 		}
 	}
 
-	/* xi calculation (phase fraction expression for PGE) */
+
 	cp.sum_xi 	= 0.0;	
 	for (int i = 0; i < cp.n_em; i++){ 
 		cp.xi_em[i] = exp(-cp.mu[i]/(SS_ref_db.R*SS_ref_db.T));
 		cp.sum_xi  += cp.xi_em[i]*cp.p_em[i]*SS_ref_db.z_em[i];
 	}
+
+
 
 	/* get composition of solution phase */
 	for (int j = 0; j < nEl; j++){
