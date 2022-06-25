@@ -52,7 +52,7 @@ Imported libraries
 #include "objective_functions.h"
 #include "NLopt_opt_function.h"
 #include "simplex_levelling.h"
-#include "Initialize.h"
+#include "initialize.h"
 #include "ss_min_function.h"
 #include "pp_min_function.h"
 #include "dump_function.h"

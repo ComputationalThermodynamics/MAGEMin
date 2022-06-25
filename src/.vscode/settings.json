@@ -11,6 +11,15 @@
         "utility": "c",
         "iterator": "c",
         "gem_function.h": "c",
-        "toolkit.h": "c"
+        "toolkit.h": "c",
+        "complex.h": "c",
+        "endmembers_tc-ds634.h": "c",
+        "uthash.h": "c",
+        "nlopt_opt_function.h": "c",
+        "initialize.h": "c",
+        "objective_functions.h": "c",
+        "phase_update_function.h": "c",
+        "gss_init_function.h": "c",
+        "io_function.h": "c"
     }
 }

@@ -65,7 +65,7 @@ char** get_EM_DB_names(int EM_database) {
 }
 
 /* get position of zeros and non-zeros values in the bulk */
-bulk_info initialize_bulk_infos(		double  P, 
+bulk_info initialize_bulk_infos(			double  P, 
 											double  T			){
 	bulk_info z_b;
 	
@@ -466,7 +466,7 @@ global_variable reset_gv(					global_variable 	 gv,
 											PP_ref 				*PP_ref_db,
 											SS_ref 				*SS_ref_db
 ){
-	gv.solver 			  = 1;
+	gv.solver 			  = 0;
 
 	int i,j,k;
 	for (k = 0; k < gv.n_flags; k++){
@@ -491,7 +491,7 @@ global_variable reset_gv(					global_variable 	 gv,
 	char liq_tail[] = "L";
 	for (int i = 0; i < gv.len_pp; i++){
 		if ( EndsWithTail(gv.PP_list[i], liq_tail) == 1 ){
-			if (z_b.T < 773.0){
+			if (z_b.T < 873.0){
 				gv.pp_flags[i][0] = 0;
 				gv.pp_flags[i][1] = 0;
 				gv.pp_flags[i][2] = 0;
