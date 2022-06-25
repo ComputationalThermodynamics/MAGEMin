@@ -466,7 +466,7 @@ global_variable reset_gv(					global_variable 	 gv,
 											PP_ref 				*PP_ref_db,
 											SS_ref 				*SS_ref_db
 ){
-	gv.solver 			  = 0;
+	gv.solver 			  = 1;
 
 	int i,j,k;
 	for (k = 0; k < gv.n_flags; k++){

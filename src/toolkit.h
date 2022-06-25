@@ -111,85 +111,13 @@ double anelastic_correction( int 	 water,
 							 double  Vs0,
 							 double  P,
 							 double  T 													);
-
-/* simplex levelling declaration part */
-void update_dG(						simplex_data 	   *splx_data						);
-
-void update_local_gamma(				double 				*A1, 
-										double 				*g0_A, 
-										double 				*gam, 
-										int 				 n							);
-
-void update_global_gamma( 				bulk_info 			 z_b,
-										simplex_data 	    *splx_data					);
-
-void update_global_gamma_LU( 			bulk_info 			 z_b,
-										simplex_data 	    *splx_data					);
-void swap_pure_phases(					bulk_info 	 		 z_b,
-										simplex_data 		*splx_data,
+																																	
+global_variable get_sol_phase_infos( 	io_data 			 input_data,
+										bulk_info 	 		 z_b,
 										global_variable 	 gv,
-									
-										PP_ref 				*PP_ref_db,
-										SS_ref 				*SS_ref_db					);
 
-void swap_pure_endmembers(				bulk_info 	 		 z_b,
-										simplex_data 		*splx_data,
-										global_variable 	 gv,
-										
-										PP_ref 				*PP_ref_db,
-										SS_ref 				*SS_ref_db					);
-
-
-void swap_pseudocompounds(				bulk_info 	 		 z_b,
-										simplex_data 		*splx_data,
-										global_variable 	 gv,
-										
-										PP_ref 				*PP_ref_db,
-										SS_ref 				*SS_ref_db					);
-
-void swap_PGE_pseudocompounds(			bulk_info 	 		 z_b,
-										simplex_data 	    *splx_data,
-										global_variable 	 gv,
-									
-										PP_ref 			    *PP_ref_db,
-										SS_ref 			    *SS_ref_db					);
-
-void add_PGE_pseudocompounds(			bulk_info 	 		 z_b,
-										simplex_data 		*splx_data,
-										global_variable 	 gv,
-										
-										PP_ref 				*PP_ref_db,
-										SS_ref 				*SS_ref_db					);
-										
-global_variable run_LP_with_PGE_phase(				bulk_info 	 		 z_b,
-													simplex_data 		*splx_data,
-													global_variable 	 gv,
-													
-													PP_ref 				*PP_ref_db,
-													SS_ref 				*SS_ref_db		);
-
-
-global_variable init_PGE_using_LP(					bulk_info 	 		 z_b,
-													simplex_data 		*splx_data,
-													global_variable 	 gv,
-													
-													PP_ref 				*PP_ref_db,
-													SS_ref 				*SS_ref_db,
-													csd_phase_set  		*cp				);
-													
-global_variable update_cp_after_LP(					bulk_info 	 		 z_b,
-													global_variable 	 gv,
-													
-													PP_ref 				*PP_ref_db,
-													SS_ref 				*SS_ref_db,
-													csd_phase_set  		*cp				);
-													
-global_variable get_solution_phase_infos( 			io_data 			 input_data,
-													bulk_info 	 		 z_b,
-													global_variable 	 gv,
-
-													PP_ref  			*PP_ref_db,
-													SS_ref  			*SS_ref_db,
-													csd_phase_set  		*cp				);
+										PP_ref  			*PP_ref_db,
+										SS_ref  			*SS_ref_db,
+										csd_phase_set  		*cp							);
 
 #endif

@@ -3,6 +3,22 @@
 
 #include "MAGEMin.h"
 
+global_variable check_PC(					bulk_info 	 z_b,
+											global_variable  	 gv,
+
+											PP_ref 				*PP_ref_db,
+											SS_ref 				*SS_ref_db,
+											csd_phase_set  		*cp				
+);
+
+global_variable check_PC_driving_force(		bulk_info 	 z_b,
+											global_variable  	 gv,
+
+											PP_ref 				*PP_ref_db,
+											SS_ref 				*SS_ref_db,
+											csd_phase_set  		*cp			
+);
+
 global_variable phase_update_function(		bulk_info 			z_b,
 											global_variable 	gv,
 											

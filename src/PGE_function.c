@@ -17,6 +17,7 @@ The routine is the core of MAGEMin algorithm and is constructed around the Gibbs
 #include <lapacke.h> 
 
 #include "MAGEMin.h"
+#include "simplex_levelling.h"
 #include "toolkit.h"
 #include "gem_function.h"
 #include "gss_function.h"
@@ -322,417 +323,6 @@ global_variable PGE_update_xi(		bulk_info 	z_b,
 
    return gv;
 };
-
-/**
-	check PC driving force and add phase if below hyperplane
-*/
-global_variable check_EM(					bulk_info 	 z_b,
-											global_variable  	 gv,
-
-											PP_ref 				*PP_ref_db,
-											SS_ref 				*SS_ref_db,
-											csd_phase_set  		*cp				
-){
-	double df, factor;
-	for (int i = 0; i < gv.len_ss; i++){												/**loop to pass informations from active endmembers */
-		if (SS_ref_db[i].ss_flags[0] == 1){														/** if SS is not filtered out then continue */
-
-			for (int l = 0; l < SS_ref_db[i].n_em; l++){	
-				/** if bulk-rock satisfy the compositions of endmembers, retrieve their informations */
-				if (SS_ref_db[i].z_em[l] == 1.0){
-					
-					/* update normalizing factor for solution models than need it */
-					factor 	= z_b.fbc/SS_ref_db[i].ape[l];	
-
-					df = SS_ref_db[i].gbase[l];
-					for (int j = 0; j < gv.len_ox; j++) {
-						df -= SS_ref_db[i].Comp[l][j]*gv.gam_tot[j];
-					}
-					
-					if (df*factor < 0.0){
-						printf("WARN: %4s %d %+10f\n",gv.SS_list[i],l,df*factor);
-					}
-				}
-			}
-		}
-	}
-	
-	return gv;
-}
-
-/**
-	check PC driving force and add phase if below hyperplane
-*/
-global_variable check_PC(					bulk_info 	 z_b,
-											global_variable  	 gv,
-
-											PP_ref 				*PP_ref_db,
-											SS_ref 				*SS_ref_db,
-											csd_phase_set  		*cp				
-){
-	double 	min_df, xeos_dist, norm;
-	int 	max_n_pc, phase_add, id_cp, dist, ph;
-	int 	i,j,k,l,c,m;
-
-	int 	n_candidate = 8;
-	int     pc_candidate[n_candidate];
-	int     pc_added[n_candidate];
-	double  df_candidate[n_candidate];
-	int     id_c;
-
-
-
-	for (i = 0; i < gv.len_ss; i++){
-		min_df    =  1e6;					// high starting value as it is expected to go down
-		phase_add =  0;
-		id_c 	  =  0;
-
-		for (k = 0; k < n_candidate; k++){
-			pc_candidate[k] = -1;
-			pc_added[k] 	= -1;
-			df_candidate[k] = 0.0;
-		}
-
-		if (SS_ref_db[i].ss_flags[0] == 1  && gv.verifyPC[i] == 1){
-			
-			max_n_pc  = ((SS_ref_db[i].tot_pc >= SS_ref_db[i].n_pc) ? (SS_ref_db[i].n_pc) : (SS_ref_db[i].tot_pc));
-			
-			for (l = 0; l < max_n_pc; l++){
-
-				dist =  1;
-				if (gv.n_solvi[i] > 0){
-
-					for (k = 0; k < gv.n_solvi[i]; k++){  /* go through the upper triangle of the matrix (avoiding diagonal)*/
-						ph = SS_ref_db[i].solvus_id[k];
-
-						xeos_dist = euclidean_distance(cp[ph].xeos, SS_ref_db[i].xeos_pc[l], SS_ref_db[i].n_xeos);
-						if (xeos_dist < gv.PC_min_dist*gv.SS_PC_stp[i]*sqrt((double)SS_ref_db[i].n_xeos) ){
-							 dist = 0;
-						} 
-					}
-
-				}
-				if (dist == 1){
-					SS_ref_db[i].DF_pc[l] = SS_ref_db[i].G_pc[l];
-					for (j = 0; j < gv.len_ox; j++) {
-						SS_ref_db[i].DF_pc[l] -= SS_ref_db[i].comp_pc[l][j]*gv.gam_tot[j];
-					}
-
-					if (SS_ref_db[i].DF_pc[l] < min_df){
-
-						if (id_c == n_candidate){ id_c = 0;}
-						pc_candidate[id_c] = l;
-						df_candidate[id_c] = SS_ref_db[i].DF_pc[l];
-						id_c 			  += 1;
-
-						min_df 		= SS_ref_db[i].DF_pc[l];
-					}
-				}
-			}
-			id_c -= 1;
-			if (id_c == -1){ id_c = n_candidate-1;}
-
-			for (int c = 0; c < n_candidate; c++){
-				if (id_c == n_candidate){ id_c = 0;}
-
-				if (df_candidate[id_c] < gv.PC_df_add && pc_candidate[id_c] != -1){
-
-					if(phase_add == 0){
-
-						if (gv.verbose == 1){
-							printf("  - %4s %5d added [PC DF check]\n",gv.SS_list[i],pc_candidate[id_c]);
-							
-							for (int k = 0; k < SS_ref_db[i].n_xeos; k++) {
-								SS_ref_db[i].iguess[k] = SS_ref_db[i].xeos_pc[pc_candidate[id_c]][k];
-							}								
-						}
-											
-						/**
-							copy the minimized phase informations to cp structure
-						*/
-						gv.len_cp				   += 1;
-						id_cp 		 				= gv.len_cp-1;
-						strcpy(cp[id_cp].name,gv.SS_list[i]);				/* get phase name */				
-						cp[id_cp].in_iter			= gv.global_ite;
-						cp[id_cp].ss_flags[0] 		= 1;						/* set flags */
-						cp[id_cp].ss_flags[1] 		= 0;
-						cp[id_cp].ss_flags[2] 		= 1;
-						cp[id_cp].split 			= 0;							
-						cp[id_cp].id 				= i;						/* get phase id */
-						cp[id_cp].n_xeos			= SS_ref_db[i].n_xeos;		/* get number of compositional variables */
-						cp[id_cp].n_em				= SS_ref_db[i].n_em;		/* get number of endmembers */
-						cp[id_cp].n_sf				= SS_ref_db[i].n_sf;		/* get number of site fractions */
-						
-						for (k = 0; k < SS_ref_db[i].n_xeos; k++){
-							cp[id_cp].dguess[k]     = SS_ref_db[i].xeos_pc[pc_candidate[id_c]][k];
-							cp[id_cp].xeos[k]       = SS_ref_db[i].xeos_pc[pc_candidate[id_c]][k];
-						}
-						for (k = 0; k < SS_ref_db[i].n_xeos; k++){
-							cp[id_cp].mu[k]    		=  0.0;
-						}
-
-						gv.n_solvi[i] 	       	   += 1;
-						gv.id_solvi[i][gv.n_solvi[i]] = id_cp;
-						pc_added[phase_add] 		= pc_candidate[id_c];
-
-						phase_add				   += 1;	
-
-						id_c += 1;
-					}
-					else{
-						dist = 1;
-
-						for (m = 0; m < phase_add; m++){
-							xeos_dist = euclidean_distance(SS_ref_db[i].xeos_pc[pc_candidate[id_c]], SS_ref_db[i].xeos_pc[pc_added[m]], SS_ref_db[i].n_xeos);
-							if (xeos_dist < gv.PC_min_dist*gv.SS_PC_stp[i]*sqrt((double)SS_ref_db[i].n_xeos) ){
-								dist = 0;
-							} 
-						}
-
-						if (dist == 1){
-
-							if (gv.verbose == 1){
-								printf("  - %4s %5d added [PC DF check]\n",gv.SS_list[i],pc_candidate[id_c]);
-								
-								for (int k = 0; k < SS_ref_db[i].n_xeos; k++) {
-									SS_ref_db[i].iguess[k] = SS_ref_db[i].xeos_pc[pc_candidate[id_c]][k];
-								}								
-							}
-						
-							/**
-								copy the minimized phase informations to cp structure
-							*/
-							gv.len_cp				   += 1;
-							id_cp 		 				= gv.len_cp-1;
-							strcpy(cp[id_cp].name,gv.SS_list[i]);				/* get phase name */				
-							cp[id_cp].in_iter			= gv.global_ite;
-							cp[id_cp].ss_flags[0] 		= 1;						/* set flags */
-							cp[id_cp].ss_flags[1] 		= 0;
-							cp[id_cp].ss_flags[2] 		= 1;
-							cp[id_cp].split 			= 0;							
-							cp[id_cp].id 				= i;						/* get phase id */
-							cp[id_cp].n_xeos			= SS_ref_db[i].n_xeos;		/* get number of compositional variables */
-							cp[id_cp].n_em				= SS_ref_db[i].n_em;		/* get number of endmembers */
-							cp[id_cp].n_sf				= SS_ref_db[i].n_sf;		/* get number of site fractions */
-							
-							for (k = 0; k < SS_ref_db[i].n_xeos; k++){
-								cp[id_cp].dguess[k]     = SS_ref_db[i].xeos_pc[pc_candidate[id_c]][k];
-								cp[id_cp].xeos[k]       = SS_ref_db[i].xeos_pc[pc_candidate[id_c]][k];
-							}
-							for (k = 0; k < SS_ref_db[i].n_xeos; k++){
-								cp[id_cp].mu[k]    		=  0.0;
-							}
-
-							gv.n_solvi[i] 	       	   += 1;
-							gv.id_solvi[i][gv.n_solvi[i]] = id_cp;
-							pc_added[phase_add] 		= pc_candidate[id_c];
-
-							phase_add				   += 1;	
-
-							id_c += 1;
-
-						}
-						// printf("dist: %d\n",dist);
-						
-					}
-
-				}
-
-
-			}
-			
-		}
-	}
-	
-	// for (i = 0; i < gv.len_ss; i++){
-	// 	min_df_id = -1;						// unreallistic index to start with
-	// 	min_df    =  1e6;					// high starting value as it is expected to go down
-	// 	phase_add =  0;
-		
-	// 	if (SS_ref_db[i].ss_flags[0] == 1  && gv.verifyPC[i] == 1){
-			
-	// 		max_n_pc  = ((SS_ref_db[i].tot_pc >= SS_ref_db[i].n_pc) ? (SS_ref_db[i].n_pc) : (SS_ref_db[i].tot_pc));
-			
-	// 		for (l = 0; l < max_n_pc; l++){
-
-	// 			dist =  1;
-	// 			if (gv.n_solvi[i] > 0){
-
-	// 				for (k = 0; k < gv.n_solvi[i]; k++){  /* go through the upper triangle of the matrix (avoiding diagonal)*/
-	// 					ph = SS_ref_db[i].solvus_id[k];
-
-	// 					xeos_dist = euclidean_distance(cp[ph].xeos, SS_ref_db[i].xeos_pc[l], SS_ref_db[i].n_xeos);
-	// 					if (xeos_dist < gv.PC_min_dist*gv.SS_PC_stp[i]*sqrt((double)SS_ref_db[i].n_xeos) ){
-	// 						 dist = 0;
-	// 					} 
-	// 				}	
-	// 			}
-	// 			if (dist == 1){
-	// 				SS_ref_db[i].DF_pc[l] = SS_ref_db[i].G_pc[l];
-	// 				for (j = 0; j < gv.len_ox; j++) {
-	// 					SS_ref_db[i].DF_pc[l] -= SS_ref_db[i].comp_pc[l][j]*gv.gam_tot[j];
-	// 				}
-
-	// 				if (SS_ref_db[i].DF_pc[l] < min_df){	
-	// 					min_df 		= SS_ref_db[i].DF_pc[l];
-	// 					min_df_id 	= l;
-	// 				}
-	// 			}
-	// 		}
-			
-	// 		/* if there is a possible solvus */
-	// 		if (min_df < gv.PC_df_add && min_df_id != -1 && phase_add < 2){
-	// 			if (gv.verbose == 1){
-	// 				printf("  - %4s %5d added [PC DF check]\n",gv.SS_list[i],min_df_id);
-					
-	// 				for (int k = 0; k < SS_ref_db[i].n_xeos; k++) {
-	// 					SS_ref_db[i].iguess[k] = SS_ref_db[i].xeos_pc[min_df_id][k];
-	// 				}								
-	// 			}
-
-	// 			for (k = 0; k < SS_ref_db[i].n_xeos; k++) {
-	// 				SS_ref_db[i].iguess[k] = SS_ref_db[i].xeos_pc[min_df_id][k];
-	// 			}
-				 												 
-	// 			/**
-	// 				copy the minimized phase informations to cp structure
-	// 			*/
-	// 			gv.len_cp				   += 1;
-	// 			id_cp 		 				= gv.len_cp-1;
-	// 			strcpy(cp[id_cp].name,gv.SS_list[i]);				/* get phase name */				
-	// 			cp[id_cp].in_iter			= gv.global_ite;
-	// 			cp[id_cp].ss_flags[0] 		= 1;						/* set flags */
-	// 			cp[id_cp].ss_flags[1] 		= 0;
-	// 			cp[id_cp].ss_flags[2] 		= 1;
-	// 			cp[id_cp].split 			= 0;							
-	// 			cp[id_cp].id 				= i;						/* get phase id */
-	// 			cp[id_cp].n_xeos			= SS_ref_db[i].n_xeos;		/* get number of compositional variables */
-	// 			cp[id_cp].n_em				= SS_ref_db[i].n_em;		/* get number of endmembers */
-	// 			cp[id_cp].n_sf				= SS_ref_db[i].n_sf;		/* get number of site fractions */
-				
-	// 			for (k = 0; k < SS_ref_db[i].n_xeos; k++){
-	// 				cp[id_cp].dguess[k]     = SS_ref_db[i].xeos_pc[min_df_id][k];
-	// 				cp[id_cp].xeos[k]       = SS_ref_db[i].xeos_pc[min_df_id][k];
-	// 			}
-	// 			for (k = 0; k < SS_ref_db[i].n_xeos; k++){
-	// 				cp[id_cp].mu[k]    		=  0.0;
-	// 			}
-
-	// 			gv.n_solvi[i] 	       	   += 1;
-	// 			gv.id_solvi[i][gv.n_solvi[i]] = id_cp;
-	// 			phase_add				   += 1;
-	// 		}
-			
-	// 	}
-	// }
-
-	return gv;
-};
-
-
-
-/**
-	checks if the pseudocompounds generated during the levelling stage yield a negative driving force
-*/
-global_variable check_PC_driving_force(		bulk_info 	 z_b,
-											global_variable  	 gv,
-
-											PP_ref 				*PP_ref_db,
-											SS_ref 				*SS_ref_db,
-											csd_phase_set  		*cp				
-){
-
-	int max_n_pc, n_em;
-	printf("\n");
-	for (int i = 0; i < gv.len_ss; i++){
-		if (SS_ref_db[i].ss_flags[0] == 1){
-				
-			n_em 	 = SS_ref_db[i].n_em;
-			max_n_pc = ((SS_ref_db[i].tot_pc >= SS_ref_db[i].n_pc) ? (SS_ref_db[i].n_pc) : (SS_ref_db[i].tot_pc));
-			
-			for (int l = 0; l < max_n_pc; l++){
-				SS_ref_db[i].DF_pc[l] = SS_ref_db[i].G_pc[l];
-				for (int j = 0; j < gv.len_ox; j++) {
-					SS_ref_db[i].DF_pc[l] -= SS_ref_db[i].comp_pc[l][j]*gv.gam_tot[j];
-				}
-				
-				if (SS_ref_db[i].DF_pc[l] < -1e-10){
-					printf("%4s #%4d | %+10f | ",gv.SS_list[i],l,SS_ref_db[i].DF_pc[l]);
-					for (int k = 0; k < SS_ref_db[i].n_xeos; k++) {
-						printf(" %+10f",SS_ref_db[i].xeos_pc[l][k]);
-					}
-					for (int k = SS_ref_db[i].n_xeos; k < 11; k++){
-						printf(" %10s","-");
-					}
-
-					printf("\n");
-				}
-			}	
-		}
-	}
-
-	return gv;
-};
-
-
-/**
-	save initial conditions for the extended Newton method
-*/
-global_variable save_ini_conditions(		global_variable  	 gv,
-											SS_ref 				*SS_ref_db,
-											csd_phase_set  		*cp				
-){
-	for (int ii = 0; ii < gv.len_ox; ii++){
-		gv.gam_tot_0[ii] = gv.gam_tot[ii];
-	}
-
-	/* Update pure phase (PP) fractions */
-	if (gv.n_pp_phase > 0){
-		for (int ii = 0; ii < gv.n_pp_phase; ii++){
-			gv.pp_n_0[gv.pp_id[ii]]  = gv.pp_n[gv.pp_id[ii]];
-		}
-	}
-
-	int ph_id;
-	for (int iss = 0; iss < gv.len_cp; iss++){ 
-		ph_id = cp[iss].id;
-		if (cp[iss].ss_flags[0] == 1){
-			cp[iss].ss_n_0 = cp[iss].ss_n;
-
-			for (int ii = 0; ii < cp[iss].n_xeos; ii++){
-				cp[iss].xeos_0[ii]	= cp[iss].xeos[ii];
-			}
-		}
-	}
-
-	return gv;
-}
-
-
-/**
-	save initial conditions for the extended Newton method
-*/
-global_variable load_ini_conditions(		global_variable  	 gv,
-											SS_ref 				*SS_ref_db,
-											csd_phase_set  		*cp				
-){
-
-	int ph_id;
-	for (int iss = 0; iss < gv.len_cp; iss++){ 
-		ph_id = cp[iss].id;
-		if (cp[iss].ss_flags[0] == 1){
-			cp[iss].ss_n_0 = cp[iss].ss_n;
-
-			for (int ii = 0; ii < cp[iss].n_xeos; ii++){
-				cp[iss].xeos[ii] = cp[iss].xeos_0[ii];
-			}
-		}
-	}
-
-	return gv;
-}
-
-
 
 
 /** 
@@ -1108,13 +698,6 @@ global_variable PGE_inner_loop(		bulk_info 			 z_b,
 											SS_ref_db,							/** solution phase database 			*/
 											cp						);  
 
-		// add_PGE_pseudocompounds(			z_b,
-		// 									splx_data,
-		// 									gv,
-												
-		// 									PP_ref_db,
-		// 									SS_ref_db				);
-
 		gv = 	phase_update_function(		z_b,								/** bulk rock constraint 				*/
 											gv,									/** global variables (e.g. Gamma) 		*/
 
@@ -1163,8 +746,402 @@ global_variable compute_xi_SD(				global_variable  		 gv,
 	return gv;
 }
 
+
 /**
-  Main PGE routine
+  function to run simplex linear programming during PGE with pseudocompounds 
+*/	
+global_variable run_LP_with_PGE_phase(				bulk_info 			 z_b,
+													simplex_data 		*splx_data,
+													global_variable 	 gv,
+													
+													PP_ref 				*PP_ref_db,
+													SS_ref 				*SS_ref_db
+){
+
+	if (gv.verbose == 1){
+		printf("\n");
+		printf("Linear-Programming stage [PGE pseudocompounds]\n");	
+		printf("══════════════════════════════════════════════\n");	
+	}
+
+
+	simplex_data *d  = (simplex_data *) splx_data;
+
+	int     k 	= 0;
+	d->swp 		= 1;
+	d->n_swp 	= 0;
+	while (d->swp == 1 && k < 4){					/** as long as a phase can be added to the guessed assemblage, go on */
+		k 		  += 1;
+		d->swp     = 0;
+		
+		swap_pure_phases(					z_b,
+											splx_data,
+											gv,
+											PP_ref_db,
+											SS_ref_db		);	
+
+		swap_pure_endmembers(				z_b,
+											splx_data,
+											gv,
+											PP_ref_db,
+											SS_ref_db	);	
+
+		swap_PGE_pseudocompounds(			z_b,
+											splx_data,
+											gv,
+											PP_ref_db,
+											SS_ref_db		);				
+	}
+
+	/* update gamma of SS */
+	update_local_gamma(						d->A1,
+											d->g0_A,
+											d->gamma_ss,
+											d->n_Ox			);
+
+	/* update global variable gamma */
+	update_global_gamma_LU(					z_b,
+											splx_data		);	
+
+	/* copy gamma total to the global variables */
+	for (int i = 0; i < gv.len_ox; i++){
+		gv.gam_tot[i] = d->gamma_tot[i];
+	}
+
+	if (gv.verbose == 1){
+		printf("\n Total number of LP iterations: %d\n",k);	
+		printf(" [----------------------------------------]\n");
+		printf(" [  Ph  |   Ph PROP  |   g0_Ph    |  ix   ]\n");
+		printf(" [----------------------------------------]\n");
+
+		for (int i = 0; i < d->n_Ox; i++){
+			if (d->ph_id_A[i][0] == 1){
+				printf(" ['%5s' %+10f  %+12.4f  %2d %2d ]", gv.PP_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0], d->stage[i]);
+				printf("\n");
+			}
+			if (d->ph_id_A[i][0] == 2){
+				printf(" ['%5s' %+10f  %+12.4f  %2d %2d ]\n", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0], d->stage[i]);
+			}
+			if (d->ph_id_A[i][0] == 3){
+				printf(" ['%5s' %+10f  %+12.4f  %2d %2d ]", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0], d->stage[i]);
+				if (d->stage[i] == 1){
+					for (int ii = 0; ii < SS_ref_db[d->ph_id_A[i][1]].n_xeos; ii++){
+						printf(" %+10f", SS_ref_db[d->ph_id_A[i][1]].xeos_Ppc[d->ph_id_A[i][3]][ii] );
+					}
+				}
+				else{
+					for (int ii = 0; ii < SS_ref_db[d->ph_id_A[i][1]].n_xeos; ii++){
+						printf(" %+10f", SS_ref_db[d->ph_id_A[i][1]].xeos_pc[d->ph_id_A[i][3]][ii] );
+					}
+				}
+				printf("\n");
+			}
+		}
+		printf(" [----------------------------------------]\n");
+		printf(" [  OXIDE      GAMMA                      ]\n");
+		printf(" [----------------------------------------]\n");
+		for (int i = 0; i < d->n_Ox; i++){
+			printf(" [ %5s %+15f                  ]\n", gv.ox[z_b.nzEl_array[i]], d->gamma_tot[z_b.nzEl_array[i]]);
+		}
+		printf(" [----------------------------------------]\n");
+		printf(" [             %4d swaps                 ]\n", d->n_swp);
+		printf(" [----------------------------------------]\n");
+		
+	}
+
+	return gv;
+}
+
+
+/**
+  function to run simplex linear programming during PGE with pseudocompounds 
+*/	
+global_variable init_PGE_using_LP(					bulk_info 	 		 z_b,
+													simplex_data 		*splx_data,
+													global_variable 	 gv,
+													
+													PP_ref 				*PP_ref_db,
+													SS_ref 				*SS_ref_db,
+													csd_phase_set  		*cp	
+){
+	simplex_data *d  = (simplex_data *) splx_data;
+
+	double distance;
+	double min_distance;
+	double mid_dG;
+	
+	int ph_id, npc, id, id_min_distance;
+	int id_cp = 0;
+	int pc_id;
+	int em_id;
+	int add_phase;
+	int i, j, k, ii;
+	int m_pc;
+	
+	/**
+	   reset variables
+	*/
+	for (i = 0; i < gv.len_pp; i++){
+		gv.pp_flags[i][1]   = 0;
+	}
+
+	/* reset pure phases fractions and xi */
+	for (i = 0; i < gv.len_pp; i++){		
+		gv.pp_n[i] 		  = 0.0;
+		gv.pp_n_0[i]	  = 0.0;
+		gv.delta_pp_n[i]  = 0.0;
+		gv.pp_xi[i] 	  = 0.0;
+		gv.delta_pp_xi[i] = 0.0;
+	}
+
+	gv.len_cp 		  	  = 0;
+	gv.ph_change  	      = 0;
+	gv.n_cp_phase         = 0;					/** reset the number of ss phases to start with */
+	gv.n_pp_phase         = 0;					/** reset the number of pp phases to start with */
+	gv.n_phase            = 0;
+
+	/* reset solvi */
+    for (i = 0; i < gv.len_ss; i++){	
+        gv.n_solvi[i] = 0;
+		for (k = 0; k < gv.max_n_cp; k++){	
+			gv.id_solvi[i][k] = 0;
+		} 
+    }
+
+	for (int i = 0; i < gv.max_n_cp; i++){		
+		strcpy(cp[i].name,"");						/* get phase name */	
+		cp[i].in_iter			=  0;
+		cp[i].split				=  0;
+		cp[i].id 				= -1;				/* get phaseid */
+		cp[i].n_xeos			=  0;				/* get number of compositional variables */
+		cp[i].n_em				=  0;				/* get number of endmembers */
+		cp[i].n_sf				=  0;			
+		cp[i].df 				=  0.0;
+		cp[i].factor 			=  0.0;
+		
+		for (int ii = 0; ii < gv.n_flags; ii++){
+			cp[i].ss_flags[ii] 	= 0;
+		}
+
+		cp[i].ss_n        		= 0.0;				/* get initial phase fraction */
+		cp[i].ss_n_0      		= 0.0;				/* get initial phase fraction */
+		cp[i].delta_ss_n    	= 0.0;				/* get initial phase fraction */
+		
+		for (int ii = 0; ii < gv.len_ox + 1; ii++){
+			cp[i].p_em[ii]      = 0.0;
+			cp[i].xi_em[ii]     = 0.0;
+			cp[i].dguess[ii]    = 0.0;
+			cp[i].xeos[ii]      = 0.0;
+			cp[i].xeos_0[ii]    = 0.0;
+			cp[i].delta_mu[ii]  = 0.0;
+			cp[i].dfx[ii]       = 0.0;
+			cp[i].mu[ii]        = 0.0;
+			cp[i].gbase[ii]     = 0.0;
+			cp[i].mu0[ii]       = 0.0;
+			cp[i].ss_comp[ii]   = 0.0;
+		}
+		 
+		for (int ii = 0; ii < (gv.len_ox + 1)*2; ii++){
+			cp[i].sf[ii]    	= 0.0;
+		}
+		cp[i].mass 				= 0.0;
+		cp[i].volume 			= 0.0;
+		cp[i].phase_density 	= 0.0;
+		cp[i].phase_cp 			= 0.0;
+	}
+
+
+	/** 
+		get initial conditions for active phases
+	*/
+	for (i = 0; i < d->n_Ox; i++){
+		add_phase 	= 0;
+		ph_id 		= d->ph_id_A[i][1];
+			
+		/* if phase is a pure species */
+		if (d->ph_id_A[i][0] == 1 ){
+			gv.pp_flags[ph_id][1] 	= 1;
+			gv.pp_flags[ph_id][2] 	= 0;
+			gv.pp_n[ph_id]          = d->n_vec[i];
+			gv.n_pp_phase		   += 1;
+			gv.n_phase 			   += 1;
+		}
+		else {
+			
+			/* pure endmembers as solution phase */
+			if (d->ph_id_A[i][0] == 2){
+			em_id 					= d->ph_id_A[i][3];
+
+			for (j = 0; j < SS_ref_db[ph_id].n_em; j++) {	
+				SS_ref_db[ph_id].p[j] = gv.em2ss_shift;
+			}
+			SS_ref_db[ph_id].p[em_id] = 1.0 - gv.em2ss_shift*SS_ref_db[ph_id].n_em;
+			
+			SS_ref_db[ph_id] = P2X(			gv,
+											SS_ref_db[ph_id],
+											z_b,
+											gv.SS_list[ph_id]		);
+			}
+		
+			/* solution phase */
+			if (d->ph_id_A[i][0] == 3 && d->stage[i] == 1){
+				pc_id 					= d->ph_id_A[i][3];
+
+				for (int ii = 0; ii < SS_ref_db[ph_id].n_xeos; ii++){
+					SS_ref_db[ph_id].iguess[ii]  = SS_ref_db[ph_id].xeos_Ppc[pc_id][ii];
+				}
+			}
+			if (d->ph_id_A[i][0] == 3 && d->stage[i] == 0){
+				pc_id 					= d->ph_id_A[i][3];
+
+				for (int ii = 0; ii < SS_ref_db[ph_id].n_xeos; ii++){
+					SS_ref_db[ph_id].iguess[ii]  = SS_ref_db[ph_id].xeos_pc[pc_id][ii];
+				}
+			}
+
+			/**
+				Rotate G-base hyperplane
+			*/
+			SS_ref_db[ph_id] = rotate_hyperplane(	gv, 
+													SS_ref_db[ph_id]			);
+
+			SS_ref_db[ph_id] = PC_function(			gv,
+													SS_ref_db[ph_id], 
+													z_b,
+													gv.SS_list[ph_id] 			);
+
+			SS_ref_db[ph_id] = SS_UPDATE_function(	gv, 
+													SS_ref_db[ph_id], 
+													z_b, 
+													gv.SS_list[ph_id]			);
+
+			strcpy(cp[id_cp].name,gv.SS_list[ph_id]);				/* get phase name */
+
+			cp[id_cp].split 		= 0;							
+			cp[id_cp].id 			= ph_id;						/* get phase id */
+			cp[id_cp].n_xeos		= SS_ref_db[ph_id].n_xeos;		/* get number of compositional variables */
+			cp[id_cp].n_em			= SS_ref_db[ph_id].n_em;		/* get number of endmembers */
+			cp[id_cp].n_sf			= SS_ref_db[ph_id].n_sf;		/* get number of site fractions */
+			
+			cp[id_cp].df			= 0.0;
+			cp[id_cp].factor		= SS_ref_db[ph_id].factor;	
+			
+			cp[id_cp].ss_flags[0] 	= 1;							/* set flags */
+			cp[id_cp].ss_flags[1] 	= 1;
+			cp[id_cp].ss_flags[2] 	= 0;
+			
+			cp[id_cp].ss_n          = d->n_vec[i];			/* get initial phase fraction */
+			cp[id_cp].sum_xi		= SS_ref_db[ph_id].sum_xi;
+			for (ii = 0; ii < SS_ref_db[ph_id].n_em; ii++){
+				cp[id_cp].p_em[ii]  = SS_ref_db[ph_id].p[ii];
+				cp[id_cp].xi_em[ii]		= SS_ref_db[ph_id].xi_em[ii];
+				cp[id_cp].mu[ii]		= SS_ref_db[ph_id].mu[ii];
+			}
+
+			for (ii = 0; ii < SS_ref_db[ph_id].n_xeos; ii++){
+				cp[id_cp].dguess[ii]  = SS_ref_db[ph_id].iguess[ii];
+				cp[id_cp].xeos[ii]    = SS_ref_db[ph_id].iguess[ii];
+			}
+			for (int ii = 0; ii < SS_ref_db[ph_id].n_em; ii++){
+				for (int jj = 0; jj < SS_ref_db[ph_id].n_xeos; jj++){
+					cp[id_cp].dpdx[ii][jj] = SS_ref_db[ph_id].dp_dx[ii][jj];
+				}
+			}
+			for (int ii = 0; ii < gv.len_ox; ii++){
+				cp[id_cp].ss_comp[ii]	= SS_ref_db[ph_id].ss_comp[ii];
+			}
+			
+			for (int ii = 0; ii < SS_ref_db[ph_id].n_sf; ii++){
+				cp[id_cp].sf[ii]		= SS_ref_db[ph_id].sf[ii];
+			}
+			gv.id_solvi[ph_id][gv.n_solvi[ph_id]] = id_cp;
+			gv.n_solvi[ph_id] 	   += 1;
+			id_cp 				   += 1;
+			gv.len_cp 			   += 1;
+			gv.n_cp_phase 		   += 1;
+			gv.n_phase             += 1;
+		}
+	}
+
+	return gv;
+}
+
+
+
+/**
+  function to run simplex linear programming during PGE with pseudocompounds 
+*/	
+global_variable update_cp_after_LP(					bulk_info 	 		 z_b,
+													global_variable 	 gv,
+													
+													PP_ref 				*PP_ref_db,
+													SS_ref 				*SS_ref_db,
+													csd_phase_set  		*cp	
+){
+	int 	ph_id;
+	for (int i = 0; i < gv.len_cp; i++){ 
+		if (cp[i].ss_flags[1] == 1){
+
+			ph_id = cp[i].id;
+
+			/**
+				Rotate G-base hyperplane
+			*/
+			SS_ref_db[ph_id] = rotate_hyperplane(		gv, 
+														SS_ref_db[ph_id]		);
+
+			/**
+				establish a set of conditions to update initial guess for next round of local minimization 
+			*/
+			for (int k = 0; k < cp[i].n_xeos; k++) {
+				SS_ref_db[ph_id].iguess[k]   =  cp[i].xeos[k];
+			}
+			
+			SS_ref_db[ph_id] = PC_function(				gv,
+														SS_ref_db[ph_id], 
+														z_b,
+														gv.SS_list[ph_id] 		);
+													
+			SS_ref_db[ph_id] = SS_UPDATE_function(		gv, 
+														SS_ref_db[ph_id], 
+														z_b, 
+														gv.SS_list[ph_id]		);
+
+			/** 
+				print solution phase informations (print has to occur before saving PC)
+			*/
+			if (gv.verbose == 1){
+				print_SS_informations(  				gv,
+														SS_ref_db[ph_id],
+														ph_id					);
+			}
+
+
+			/* if site fractions are respected then save the minimized point */
+			if (SS_ref_db[ph_id].sf_ok == 1){
+				/**
+					copy the minimized phase informations to cp structure
+				*/
+				copy_to_cp(								i, 
+														ph_id,
+														gv,
+														SS_ref_db,
+														cp						);
+			}
+			else{
+				if (gv.verbose == 1){
+					printf(" !> SF [:%d] not respected for %4s (SS not updated)\n",SS_ref_db[ph_id].sf_id,gv.SS_list[ph_id]);
+				}	
+			}
+		}
+	}
+
+	return gv;
+}
+
+
+/**
+  Main LP routine
 */ 
 global_variable LP(		bulk_info 			z_b,
 						global_variable 	gv,

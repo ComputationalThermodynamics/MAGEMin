@@ -96,6 +96,238 @@ int cmp_int(const void *a, const void *b)
 		return 0;
 }
 
+
+/**
+	check PC driving force and add phase if below hyperplane
+*/
+global_variable check_PC(					bulk_info 	 z_b,
+											global_variable  	 gv,
+
+											PP_ref 				*PP_ref_db,
+											SS_ref 				*SS_ref_db,
+											csd_phase_set  		*cp				
+){
+	double 	min_df, xeos_dist, norm;
+	int 	max_n_pc, phase_add, id_cp, dist, ph;
+	int 	i,j,k,l,c,m;
+
+	int 	n_candidate = 8;
+	int     pc_candidate[n_candidate];
+	int     pc_added[n_candidate];
+	double  df_candidate[n_candidate];
+	int     id_c;
+
+
+
+	for (i = 0; i < gv.len_ss; i++){
+		min_df    =  1e6;					// high starting value as it is expected to go down
+		phase_add =  0;
+		id_c 	  =  0;
+
+		for (k = 0; k < n_candidate; k++){
+			pc_candidate[k] = -1;
+			pc_added[k] 	= -1;
+			df_candidate[k] = 0.0;
+		}
+
+		if (SS_ref_db[i].ss_flags[0] == 1  && gv.verifyPC[i] == 1){
+			
+			max_n_pc  = ((SS_ref_db[i].tot_pc >= SS_ref_db[i].n_pc) ? (SS_ref_db[i].n_pc) : (SS_ref_db[i].tot_pc));
+			
+			for (l = 0; l < max_n_pc; l++){
+
+				dist =  1;
+				if (gv.n_solvi[i] > 0){
+
+					for (k = 0; k < gv.n_solvi[i]; k++){  /* go through the upper triangle of the matrix (avoiding diagonal)*/
+						ph = SS_ref_db[i].solvus_id[k];
+
+						xeos_dist = euclidean_distance(cp[ph].xeos, SS_ref_db[i].xeos_pc[l], SS_ref_db[i].n_xeos);
+						if (xeos_dist < gv.PC_min_dist*gv.SS_PC_stp[i]*sqrt((double)SS_ref_db[i].n_xeos) ){
+							 dist = 0;
+						} 
+					}
+
+				}
+				if (dist == 1){
+					SS_ref_db[i].DF_pc[l] = SS_ref_db[i].G_pc[l];
+					for (j = 0; j < gv.len_ox; j++) {
+						SS_ref_db[i].DF_pc[l] -= SS_ref_db[i].comp_pc[l][j]*gv.gam_tot[j];
+					}
+
+					if (SS_ref_db[i].DF_pc[l] < min_df){
+
+						if (id_c == n_candidate){ id_c = 0;}
+						pc_candidate[id_c] = l;
+						df_candidate[id_c] = SS_ref_db[i].DF_pc[l];
+						id_c 			  += 1;
+
+						min_df 		= SS_ref_db[i].DF_pc[l];
+					}
+				}
+			}
+			id_c -= 1;
+			if (id_c == -1){ id_c = n_candidate-1;}
+
+			for (int c = 0; c < n_candidate; c++){
+				if (id_c == n_candidate){ id_c = 0;}
+
+				if (df_candidate[id_c] < gv.PC_df_add && pc_candidate[id_c] != -1){
+
+					if(phase_add == 0){
+
+						if (gv.verbose == 1){
+							printf("  - %4s %5d added [PC DF check]\n",gv.SS_list[i],pc_candidate[id_c]);
+							
+							for (int k = 0; k < SS_ref_db[i].n_xeos; k++) {
+								SS_ref_db[i].iguess[k] = SS_ref_db[i].xeos_pc[pc_candidate[id_c]][k];
+							}								
+						}
+											
+						/**
+							copy the minimized phase informations to cp structure
+						*/
+						gv.len_cp				   += 1;
+						id_cp 		 				= gv.len_cp-1;
+						strcpy(cp[id_cp].name,gv.SS_list[i]);				/* get phase name */				
+						cp[id_cp].in_iter			= gv.global_ite;
+						cp[id_cp].ss_flags[0] 		= 1;						/* set flags */
+						cp[id_cp].ss_flags[1] 		= 0;
+						cp[id_cp].ss_flags[2] 		= 1;
+						cp[id_cp].split 			= 0;							
+						cp[id_cp].id 				= i;						/* get phase id */
+						cp[id_cp].n_xeos			= SS_ref_db[i].n_xeos;		/* get number of compositional variables */
+						cp[id_cp].n_em				= SS_ref_db[i].n_em;		/* get number of endmembers */
+						cp[id_cp].n_sf				= SS_ref_db[i].n_sf;		/* get number of site fractions */
+						
+						for (k = 0; k < SS_ref_db[i].n_xeos; k++){
+							cp[id_cp].dguess[k]     = SS_ref_db[i].xeos_pc[pc_candidate[id_c]][k];
+							cp[id_cp].xeos[k]       = SS_ref_db[i].xeos_pc[pc_candidate[id_c]][k];
+						}
+						for (k = 0; k < SS_ref_db[i].n_xeos; k++){
+							cp[id_cp].mu[k]    		=  0.0;
+						}
+
+						gv.n_solvi[i] 	       	   += 1;
+						gv.id_solvi[i][gv.n_solvi[i]] = id_cp;
+						pc_added[phase_add] 		= pc_candidate[id_c];
+
+						phase_add				   += 1;	
+
+						id_c += 1;
+					}
+					else{
+						dist = 1;
+
+						for (m = 0; m < phase_add; m++){
+							xeos_dist = euclidean_distance(SS_ref_db[i].xeos_pc[pc_candidate[id_c]], SS_ref_db[i].xeos_pc[pc_added[m]], SS_ref_db[i].n_xeos);
+							if (xeos_dist < gv.PC_min_dist*gv.SS_PC_stp[i]*sqrt((double)SS_ref_db[i].n_xeos) ){
+								dist = 0;
+							} 
+						}
+
+						if (dist == 1){
+
+							if (gv.verbose == 1){
+								printf("  - %4s %5d added [PC DF check]\n",gv.SS_list[i],pc_candidate[id_c]);
+								
+								for (int k = 0; k < SS_ref_db[i].n_xeos; k++) {
+									SS_ref_db[i].iguess[k] = SS_ref_db[i].xeos_pc[pc_candidate[id_c]][k];
+								}								
+							}
+						
+							/**
+								copy the minimized phase informations to cp structure
+							*/
+							gv.len_cp				   += 1;
+							id_cp 		 				= gv.len_cp-1;
+							strcpy(cp[id_cp].name,gv.SS_list[i]);				/* get phase name */				
+							cp[id_cp].in_iter			= gv.global_ite;
+							cp[id_cp].ss_flags[0] 		= 1;						/* set flags */
+							cp[id_cp].ss_flags[1] 		= 0;
+							cp[id_cp].ss_flags[2] 		= 1;
+							cp[id_cp].split 			= 0;							
+							cp[id_cp].id 				= i;						/* get phase id */
+							cp[id_cp].n_xeos			= SS_ref_db[i].n_xeos;		/* get number of compositional variables */
+							cp[id_cp].n_em				= SS_ref_db[i].n_em;		/* get number of endmembers */
+							cp[id_cp].n_sf				= SS_ref_db[i].n_sf;		/* get number of site fractions */
+							
+							for (k = 0; k < SS_ref_db[i].n_xeos; k++){
+								cp[id_cp].dguess[k]     = SS_ref_db[i].xeos_pc[pc_candidate[id_c]][k];
+								cp[id_cp].xeos[k]       = SS_ref_db[i].xeos_pc[pc_candidate[id_c]][k];
+							}
+							for (k = 0; k < SS_ref_db[i].n_xeos; k++){
+								cp[id_cp].mu[k]    		=  0.0;
+							}
+
+							gv.n_solvi[i] 	       	   += 1;
+							gv.id_solvi[i][gv.n_solvi[i]] = id_cp;
+							pc_added[phase_add] 		= pc_candidate[id_c];
+
+							phase_add				   += 1;	
+
+							id_c += 1;
+
+						}
+
+					}
+
+				}
+
+
+			}
+			
+		}
+	}
+
+	return gv;
+};
+
+
+/**
+	checks if the pseudocompounds generated during the levelling stage yield a negative driving force
+*/
+global_variable check_PC_driving_force(		bulk_info 	 z_b,
+											global_variable  	 gv,
+
+											PP_ref 				*PP_ref_db,
+											SS_ref 				*SS_ref_db,
+											csd_phase_set  		*cp				
+){
+
+	int max_n_pc, n_em;
+	printf("\n");
+	for (int i = 0; i < gv.len_ss; i++){
+		if (SS_ref_db[i].ss_flags[0] == 1){
+				
+			n_em 	 = SS_ref_db[i].n_em;
+			max_n_pc = ((SS_ref_db[i].tot_pc >= SS_ref_db[i].n_pc) ? (SS_ref_db[i].n_pc) : (SS_ref_db[i].tot_pc));
+			
+			for (int l = 0; l < max_n_pc; l++){
+				SS_ref_db[i].DF_pc[l] = SS_ref_db[i].G_pc[l];
+				for (int j = 0; j < gv.len_ox; j++) {
+					SS_ref_db[i].DF_pc[l] -= SS_ref_db[i].comp_pc[l][j]*gv.gam_tot[j];
+				}
+				
+				if (SS_ref_db[i].DF_pc[l] < -1e-10){
+					printf("%4s #%4d | %+10f | ",gv.SS_list[i],l,SS_ref_db[i].DF_pc[l]);
+					for (int k = 0; k < SS_ref_db[i].n_xeos; k++) {
+						printf(" %+10f",SS_ref_db[i].xeos_pc[l][k]);
+					}
+					for (int k = SS_ref_db[i].n_xeos; k < 11; k++){
+						printf(" %10s","-");
+					}
+
+					printf("\n");
+				}
+			}	
+		}
+	}
+
+	return gv;
+};
+
+
 /**
   Merge solution phase routine 
 */			

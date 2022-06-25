@@ -788,7 +788,7 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 	}
 	/* if Mode = 1, spit out Gibbs energy and reference values with given compositional variables */
 	else if (Mode == 1){
-		gv = get_solution_phase_infos(		input_data,
+		gv = get_sol_phase_infos(			input_data,
 											z_b,						/** bulk rock constraint 			*/ 
 											gv,							/** global variables (e.g. Gamma) 	*/
 

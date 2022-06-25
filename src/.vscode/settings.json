@@ -9,6 +9,8 @@
         "istream": "c",
         "tuple": "c",
         "utility": "c",
-        "iterator": "c"
+        "iterator": "c",
+        "gem_function.h": "c",
+        "toolkit.h": "c"
     }
 }
