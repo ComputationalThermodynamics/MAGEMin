@@ -103,7 +103,6 @@ bulk_info initialize_bulk_infos(			double  P,
 	z_b.bulk_rock_cat  	= malloc (nEl * sizeof (double) ); 
 	z_b.bulk_rock  		= malloc (nEl * sizeof (double) ); 
 
-
 	return z_b;
 }
 
@@ -117,7 +116,6 @@ global_variable global_variable_init(){
 	
 	/* Control center... */
 	gv.save_residual_evolution = 1;				/** verbose needs to be set to 0 to save the residual evolution 					*/
-
 
 	/* oxides and solution phases */
 	char   *ox_tmp[] 		= {"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"Cr2O3","H2O"								};
@@ -491,7 +489,7 @@ global_variable reset_gv(					global_variable 	 gv,
 	char liq_tail[] = "L";
 	for (int i = 0; i < gv.len_pp; i++){
 		if ( EndsWithTail(gv.PP_list[i], liq_tail) == 1 ){
-			if (z_b.T < 873.0){
+			if (z_b.T < 773.0){
 				gv.pp_flags[i][0] = 0;
 				gv.pp_flags[i][1] = 0;
 				gv.pp_flags[i][2] = 0;
@@ -630,9 +628,9 @@ void reset_sp(						global_variable 	 gv,
 /**
   reset bulk rock composition informations (needed if the bulk-rock is not constant during parallel computation)
 */
-bulk_info reset_z_b(			global_variable 	 gv,
+bulk_info reset_z_b_bulk(			global_variable 	 gv,
 									double 				*bulk,
-									bulk_info 	 z_b
+									bulk_info 	 		 z_b
 ){
 	int i, j, k;
 
@@ -811,6 +809,7 @@ void reset_SS(						global_variable 	 gv,
 		for (int k = 0; k < SS_ref_db[iss].n_xeos; k++) {					/** initialize initial guess using default thermocalc guess	*/ 
 			SS_ref_db[iss].iguess[k]     = 0.0;
 			SS_ref_db[iss].dguess[k]     = 0.0;
+			SS_ref_db[iss].mguess[k]     = 0.0;
 			SS_ref_db[iss].xeos[k]       = 0.0;
 			SS_ref_db[iss].bounds[k][0]  = SS_ref_db[iss].bounds_ref[k][0];
 			SS_ref_db[iss].bounds[k][1]  = SS_ref_db[iss].bounds_ref[k][1];

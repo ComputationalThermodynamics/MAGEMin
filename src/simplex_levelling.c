@@ -997,8 +997,7 @@ void run_simplex_pseudocompounds(		bulk_info 	 z_b,
 											gv,
 											PP_ref_db,
 											SS_ref_db	);	
-
-		// 2BM, here I deactivated the swap of pure endmembers during second levelling stage, this might help to converge to solution -> 2 be fully tested								
+							
 		swap_pure_endmembers(				z_b,
 											splx_data,
 											gv,

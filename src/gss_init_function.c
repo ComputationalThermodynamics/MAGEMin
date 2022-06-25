@@ -475,6 +475,7 @@ SS_ref G_SS_INIT_EM_function(SS_ref SS_ref_db, int EM_database, char *name, glob
 	SS_ref_db.density 		= malloc (n_em   	 	* sizeof (double) ); 
 	SS_ref_db.dguess 		= malloc (n_xeos 		* sizeof (double) );
 	SS_ref_db.iguess  		= malloc (n_xeos   	  	* sizeof (double) );
+	SS_ref_db.mguess  		= malloc (n_xeos   	  	* sizeof (double) );
 	SS_ref_db.p       		= malloc (n_em       	* sizeof (double) ); 
 	SS_ref_db.ElShearMod    = malloc (n_em       	* sizeof (double) ); 
 	SS_ref_db.ape      		= malloc (n_em       	* sizeof (double) ); 

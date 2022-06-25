@@ -164,7 +164,8 @@ global_variable PGE_residual_update(			bulk_info 				z_b,
 			}
 		}	
 	}
-	else if(gv.LP == 0 && gv.PGE == 1){
+	
+	if(gv.LP == 0 && gv.PGE == 1){
 		for (int j = 0; j < gv.len_ox; j++){
 		gv.mass_residual[j] = -z_b.bulk_rock[j];
 			for (int i = 0; i < gv.len_pp; i++){
@@ -184,9 +185,6 @@ global_variable PGE_residual_update(			bulk_info 				z_b,
 				}
 			}
 		}
-	}
-	else {
-		printf(" Wrong combination of LP and PGE, check called sub-routines...\n");
 	}
 
 	gv.BR_norm    = norm_vector(	gv.mass_residual,
@@ -506,7 +504,7 @@ global_variable PGE_update_solution(	global_variable  	 gv,
 	max_dnss 	= norm_vector(gv.dn_cp,gv.n_cp_phase);
 	max_dnpp 	= norm_vector(gv.dn_pp,gv.n_pp_phase);
 	max_dn 		= ((max_dnss < max_dnpp) ? (max_dnpp) : (max_dnss) );
-	max_dG_ss   = gv.relax_PGE_val*exp(-8.0*pow(gv.BR_norm,0.29))+1.0;
+	max_dG_ss   = gv.relax_PGE_val*exp(-8.0*pow(gv.BR_norm,0.28))+1.0;
 
 	g_fac       = (gv.max_g_phase/max_dG_ss)/max_dG;
 	n_fac   	= (gv.max_n_phase/max_dG_ss)/max_dn;

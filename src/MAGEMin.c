@@ -122,7 +122,7 @@ int runMAGEMin(			int    argc,
 	double 	P 			=  0.0;
 	double 	T 			=  0.0;
 	
-	int 	test 		=  0;
+	int 	test 		= -1;
 	int 	Verb 		= -1;
 	int     Mode 		=  0;
 	int     solver 		=  0;
@@ -191,52 +191,13 @@ int runMAGEMin(			int    argc,
 	/****************************************************************************************/
 	/**                       DEFINE SOME TEST BULK-ROCK COMPOSITIONS                      **/
 	/****************************************************************************************/
-	/* get bulk rock composition parsed from args 							*/
-	get_bulk(								bulk_rock,
-											test,
-											gv.len_ox 					);
-
 	/* Override P,T & bulk with command-line options, if there is no file parsed: */
 	if (Pres    > 0.0){ P = Pres 										;}
 	if (Temp    > 0.0){ T = Temp + 273.15								;}
 	
 	/** Get zeros in bulk P and T 											*/				
 	z_b = initialize_bulk_infos(			P, 
-											T							);	
-
-	if (Bulk[0] > 0.0) {
-		for (i = 0; i < gv.len_ox; i++){ bulk_rock[i] = Bulk[i];}
-
-		if (gv.verbose == 1){
-			printf("\n");
-			printf("   - Minimization using provided bulk-rock composition\n");	
-			if (strcmp( sys_in, "mol") == 0){	
-				printf("   - input system composition   : mol fraction\n"	);
-			}
-			else if (strcmp( sys_in, "wt") == 0){	
-				printf("   - input system composition: wt fraction\n"	);
-				for (i = 0; i < gv.len_ox; i++){ bulk_rock[i] *= z_b.masspo[i];}
-			}
-			else{
-				printf("   - input system composition   : unknown! [mol or wt]\n");
-			}
-			printf("\n\n");
-		}
-	}
-	else{
-		if (gv.verbose == 1){
-			printf("\n");
-			printf("   - Minimization using test case : %d\n",test);			
-			printf("   - input system composition     : mol fraction\n");
-			printf("\n\n");
-		}
-	}
-
-
-	/** Normalize composition to sum to 1. 									*/
-	norm_array(								bulk_rock,
-											gv.len_ox					);						
-								
+											T							);							
 
 	/** allocate simplex data memory outside the MPI loop 					*/
 	simplex_data 							splx_data;
@@ -247,7 +208,19 @@ int runMAGEMin(			int    argc,
 	init_simplex_B_em(				   	   &splx_data,
 											gv							);
 						
-		
+
+	/* get bulk rock composition parsed from args 							*/
+	if (test != -1){
+		get_bulk(								bulk_rock,
+												test,
+												gv.len_ox 					);
+		if (gv.verbose == 1){
+			printf("\n");
+			printf("   - Minimization using in-built bulk-rock  : test %2d\n",test);	
+		}							
+	}
+
+
 	/****************************************************************************************/
 	/**                               LAUNCH MINIMIZATION ROUTINE                          **/
 	/****************************************************************************************/
@@ -257,21 +230,19 @@ int runMAGEMin(			int    argc,
 		t              = clock();									/** reset loop timer 				*/
 		gv.numPoint    = sgleP; 									/** the number of the current point */
 
-		/* If we read input from file: */
-		if (strcmp( File, "none") != 0){						
-			z_b.P = input_data[sgleP].P;
-			z_b.T = input_data[sgleP].T + 273.15;					/** K to C 		*/
+		z_b = retrieve_bulk_PT(				gv,
+											sys_in,
+											File,
+											input_data,
+											test,
+											sgleP,
+											Bulk,
+											z_b,		
+											bulk_rock					);
 
-			for (int i = 0; i < gv.len_ox; i++){
-				gv.gam_tot[i] = input_data[sgleP].in_gam[i];					
-			}
-			// if (input_data[sgleP].bulk_rock[i] > 0.0){
-			// 	for (int i = 0; i < gv.len_ox; i++){
-			// 		bulk_rock[i] = input_data[sgleP].bulk_rock[i];					
-			// 	}	
-			// }
-		}
-		
+		/** Normalize composition to sum to 1. 										*/
+		norm_array(							bulk_rock,
+											gv.len_ox					);		
 
 		/* reset global variables flags 											*/
 		gv = reset_gv(						gv,
@@ -280,7 +251,7 @@ int runMAGEMin(			int    argc,
 											DB.SS_ref_db				);
 
 		/** reset bulk rock information (needed for parallel point calculation) 	*/
-		z_b = reset_z_b(					gv,				
+		z_b = reset_z_b_bulk(				gv,				
 											bulk_rock,								
 											z_b							);	
 	
@@ -350,12 +321,6 @@ int runMAGEMin(			int    argc,
 		PrintOutput(gv, rank, sgleP, DB, time_taken, z_b);									/* print output on screen 			*/
 	}
 	/* end of loop over points */
-
-	// 2BM
-	// for (int i = 0; i < splx_data.n_Ox; i++){
-	// printf("%+10f ",splx_data.gamma_tot[i]);
-	// printf("\n");
-	// }
 
 	/* wait for all cores to be finished */
 	MPI_Barrier(MPI_COMM_WORLD);		

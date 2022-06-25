@@ -88,6 +88,80 @@ void print_help(	global_variable gv	){
 }
 
 /**
+ * retrieve bulk rock composition and PT compositions
+ */
+bulk_info retrieve_bulk_PT(				global_variable      gv,
+										char 				*sys_in,
+										char    			 File[50],
+										io_data 		    *input_data,
+										int 				 test,
+										int					 sgleP,
+										double				*Bulk,
+										bulk_info 			 z_b,		
+										double 				*bulk_rock			){
+
+
+	if ((input_data[sgleP].in_bulk[0] > 0.0 || Bulk[0] > 0.0) && test != -1){
+		printf("WARNING: an in-built has been selected, but either an arg or input bulk is also provided\n");
+		printf("   -> priority given to arg/input-file bulk \n");
+	}
+	/* set of warning messages for conflicting bulk */
+	if (input_data[sgleP].in_bulk[0] > 0.0 && Bulk[0] > 0.0){
+		printf("WARNING: bulk is given both as arg and from input-file\n");
+		printf("   -> priority given to input-file bulk\n");
+	}
+
+	/* bulk from command line arguments */
+	if (Bulk[0] > 0.0) {
+		if (gv.verbose == 1){
+			printf("\n");
+			printf("   - Minimization using bulk-rock composition from arg\n");	
+		}	
+		for (int i = 0; i < gv.len_ox; i++){ bulk_rock[i] = Bulk[i];}
+	}
+	/* bulk from file */
+	if (strcmp( File, "none") != 0){				
+		z_b.P = input_data[sgleP].P;
+		z_b.T = input_data[sgleP].T + 273.15;					/** K to C 		*/
+
+		if (input_data[sgleP].in_bulk[0] > 0.0){
+			if (gv.verbose == 1){
+				printf("\n");
+				printf("   - Minimization using bulk-rock composition from input file\n");	
+			}	
+			for (int i = 0; i < gv.len_ox; i++){
+				bulk_rock[i] = input_data[sgleP].in_bulk[i];					
+			}
+		}
+	}
+
+	/* transform bulk from wt% to mol% for minimiation */
+	if (strcmp( sys_in, "wt") == 0){	
+		for (int i = 0; i < gv.len_ox; i++){ bulk_rock[i] *= z_b.masspo[i];}
+	}
+
+
+	if (gv.verbose == 1){	
+		if (strcmp( sys_in, "mol") == 0){	
+			printf("   - input system composition   : mol fraction\n"	);
+		}
+		else if (strcmp( sys_in, "wt") == 0){	
+			printf("   - input system composition   : wt fraction\n"	);
+		}
+		else{
+			printf("   - input system composition   : unknown! [has to be mol or wt]\n");
+		}
+		printf("\n\n");
+	}	
+
+
+
+	return z_b;
+};
+
+
+
+/**
   Get the number of max_pc
 */
 int get_max_n_pc(int tot_pc, int n_pc){

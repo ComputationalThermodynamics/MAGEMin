@@ -169,9 +169,10 @@ typedef struct SS_refs {
     double **bounds_ref;		/** x-eos bounds 															*/
 
     double  *z_em; 				/** 1d array to deactivate endmembers when bulk-rock = 0; this part is needed to calculat xi in PGE method */
-   int       n_guess;			/** number of initial guesses used to solve for solvi (or local minimum) 	*/
+    int      n_guess;			/** number of initial guesses used to solve for solvi (or local minimum) 	*/
     double  *iguess;    		/** 2d array of initial guess 												*/
 	double  *dguess;    		/** 2d array of default guess 												*/
+	double  *mguess;    		/** 2d array of default guess 												*/
 	
     /** data needed for local minimization **/
     double   check_df;			/** driving force from PC, stored for mode 3								*/
@@ -222,8 +223,7 @@ typedef struct IODATA {
 	int 	 n_phase;			/** number of phase for which x-eos has to be loaded 	*/
 	double 	 P;					/** prescribed pressure 								*/
 	double 	 T;					/** prescribed temperature 								*/
-	double  *bulk;				/** bulk rock composition if no test has been given 	*/
-	double  *in_gam;			/** provided gamma from input file 						*/
+	double  *in_bulk;				/** bulk rock composition if no test has been given 	*/
 	char   **phase_names;		/** solution phase names  								*/
 	double **phase_xeos;		/** solution phases compositional variables	 			*/
 	double **phase_emp;			/** solution phases endmember proportion	 			*/

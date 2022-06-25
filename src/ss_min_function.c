@@ -77,14 +77,11 @@ csd_phase_set CP_UPDATE_function(		global_variable 	gv,
 		}
 	}
 
-
 	cp.sum_xi 	= 0.0;	
 	for (int i = 0; i < cp.n_em; i++){ 
 		cp.xi_em[i] = exp(-cp.mu[i]/(SS_ref_db.R*SS_ref_db.T));
 		cp.sum_xi  += cp.xi_em[i]*cp.p_em[i]*SS_ref_db.z_em[i];
 	}
-
-
 
 	/* get composition of solution phase */
 	for (int j = 0; j < nEl; j++){
@@ -377,6 +374,7 @@ void ss_min_LP(			int 				 mode,
 						SS_ref 			    *SS_ref_db,
 						csd_phase_set  		*cp
 ){
+	
 	int 	ph_id;
 	for (int i = 0; i < gv.len_cp; i++){ 
 		if (cp[i].ss_flags[0] == 1){
@@ -421,7 +419,7 @@ void ss_min_LP(			int 				 mode,
 				SS_ref_db[ph_id].iguess[k]   =  SS_ref_db[ph_id].xeos[k];
 			}
 			// for (int k = 0; k < cp[i].n_xeos; k++) {
-			// 	SS_ref_db[ph_id].iguess[k]   = SS_ref_db[ph_id].dguess[k]*0.75 + SS_ref_db[ph_id].xeos[k]*0.25;
+			// 	SS_ref_db[ph_id].iguess[k]   = SS_ref_db[ph_id].dguess[k]*0.05 + SS_ref_db[ph_id].xeos[k]*0.95;
 			// }
 			SS_ref_db[ph_id] = PC_function(				gv,
 														SS_ref_db[ph_id], 

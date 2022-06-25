@@ -28,26 +28,26 @@ void read_in_data(
 			/* if this is the first line belonging to a PT point to take into account */
 			if (l == 0){
 				/* first allocate memory to fill gamma array */
-				input_data[k].in_gam      = malloc (gv.len_ox * sizeof (double) ); 
+				input_data[k].in_bulk      = malloc (gv.len_ox * sizeof (double) ); 
 				for (int z = 0; z < gv.len_ox; z++){
-					input_data[k].in_gam[z] = 0.0; 
+					input_data[k].in_bulk[z] = 0.0; 
 				}
 
 				sscanf(line, "%i %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf", 
 					&input_data[k].n_phase, 
 					&input_data[k].P, 
 					&input_data[k].T,
-					&input_data[k].in_gam[0],
-					&input_data[k].in_gam[1],
-					&input_data[k].in_gam[2],
-					&input_data[k].in_gam[3],
-					&input_data[k].in_gam[4],
-					&input_data[k].in_gam[5],
-					&input_data[k].in_gam[6],
-					&input_data[k].in_gam[7],
-					&input_data[k].in_gam[8],
-					&input_data[k].in_gam[9],
-					&input_data[k].in_gam[10]	);
+					&input_data[k].in_bulk[0],
+					&input_data[k].in_bulk[1],
+					&input_data[k].in_bulk[2],
+					&input_data[k].in_bulk[3],
+					&input_data[k].in_bulk[4],
+					&input_data[k].in_bulk[5],
+					&input_data[k].in_bulk[6],
+					&input_data[k].in_bulk[7],
+					&input_data[k].in_bulk[8],
+					&input_data[k].in_bulk[9],
+					&input_data[k].in_bulk[10]	);
 				
 				/* allocate memory depending on the number of provided solution phases */
 				input_data[k].phase_names = malloc(input_data[k].n_phase * sizeof(char*));
