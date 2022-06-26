@@ -268,6 +268,7 @@ void ss_min_PGE(		int 				 mode,
 						csd_phase_set  		*cp
 ){
 	int 	ph_id;
+
 	for (int i = 0; i < gv.len_cp; i++){ 
 		if (cp[i].ss_flags[0] == 1){
 
@@ -281,8 +282,8 @@ void ss_min_PGE(		int 				 mode,
 				set the iguess of the solution phase to the one of the considered phase 
 			*/
 			for (int k = 0; k < cp[i].n_xeos; k++) {
+				// SS_ref_db[ph_id].dguess[k] = cp[i].xeos[k];
 				SS_ref_db[ph_id].iguess[k] = cp[i].xeos[k];
-				SS_ref_db[ph_id].dguess[k] = cp[i].xeos[k];
 			}
 
 			/**
@@ -355,7 +356,7 @@ void ss_min_PGE(		int 				 mode,
 			else{
 				if (gv.verbose == 1){
 					printf(" !> SF [:%d] not respected for %4s (SS not updated)\n",SS_ref_db[ph_id].sf_id,gv.SS_list[ph_id]);
-				}	
+				}											
 			}
 		}
 	}
@@ -418,9 +419,7 @@ void ss_min_LP(			int 				 mode,
 			for (int k = 0; k < cp[i].n_xeos; k++) {
 				SS_ref_db[ph_id].iguess[k]   =  SS_ref_db[ph_id].xeos[k];
 			}
-			// for (int k = 0; k < cp[i].n_xeos; k++) {
-			// 	SS_ref_db[ph_id].iguess[k]   = SS_ref_db[ph_id].dguess[k]*0.05 + SS_ref_db[ph_id].xeos[k]*0.95;
-			// }
+
 			SS_ref_db[ph_id] = PC_function(				gv,
 														SS_ref_db[ph_id], 
 														z_b,

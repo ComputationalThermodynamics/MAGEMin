@@ -133,8 +133,14 @@ int runMAGEMin(			int    argc,
 	int		get_version;
 	int		get_help;
 	
-	double	Gam[11],  Bulk[11], InitEM_Prop[15];
+	double	Gam[gv.len_ox],  Bulk[gv.len_ox], InitEM_Prop[gv.len_ox];
 	char    File[50], Phase[50], sys_in[5];
+
+	for (int i =0; i < gv.len_ox; i++){
+		InitEM_Prop[i]  = 0.0;
+		Gam[i]  		= 0.0;
+		Bulk[i] 		= 0.0;
+	}
 
 	/** 
 	Read command-line arguments and set default parameters
@@ -711,8 +717,6 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 								cp							);
 		}
 
-
-
 		if (gv.verbose == 1){
 			gv = check_PC_driving_force( 	z_b,						/** bulk rock constraint 			*/ 
 											gv,							/** global variables (e.g. Gamma) 	*/
@@ -830,7 +834,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 	int    c;
 	int    Mode     =  0;
 	int    Verb     =  gv.verbose;
-	int    test     =  0;
+	int    test     = -1;
 	int    n_points =  1;
 	int    n_pc     =  2;		/** number of pseudocompounds for Mode 2 */
 	int    maxeval  = -1;

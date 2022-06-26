@@ -123,7 +123,7 @@ global_variable global_variable_init(){
 	char   *SS_tmp[]     	= {"spn"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"hb"	,"ilm"	,"liq"	,"mu"	,"ol"	,"opx"	,"pl4T"	,"fl"		};
 	/* next entry is a flag to check for wrong local minimum/solvus when getting close to solution */
 	int     verifyPC_tmp[]	= {1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1			};
-	int 	n_SS_PC_tmp[]   = {1521		,1612	,121	,4014	,110	,972	,4950	,420	,3099	,2376	,222	,1735	,231	,1			};
+	int 	n_SS_PC_tmp[]   = {1521		,1645	,121	,4384	,110	,1124	,6252	,465	,3099	,2376	,222	,1735	,231	,1			};
 	double 	SS_PC_stp_tmp[] = {0.249	,0.124	,0.098	,0.249	,0.049	,0.198	,0.249	,0.0499	,0.198	,0.198	,0.098	,0.249	,0.049	,1.0 		};
 
 	/* system parameters */
@@ -147,7 +147,7 @@ global_variable global_variable_init(){
 	/* levelling parameters */
 	gv.em2ss_shift		= 1e-4;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
 	gv.bnd_filter_pc    = 10.0;					/** value of driving force the pseudocompound is considered 						*/
-	gv.n_pc				= 5000;
+	gv.n_pc				= 7000;
 	gv.max_G_pc         = 5.0;					/** dG under which PC is considered after their generation		 					*/
 	gv.eps_sf_pc		= 1e-10;				/** Minimum value of site fraction under which PC is rejected, 
 													don't put it too high as it will conflict with bounds of x-eos					*/
@@ -422,17 +422,17 @@ void get_bulk(double *bulk_rock, int test, int n_El) {
 	else if (test == 7){
 		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
 		/* Kl3 */
-		bulk_rock[0] = 79.11;	
-		bulk_rock[1] = 9.09;	
-		bulk_rock[2] = 2.27;	
-		bulk_rock[3] = 0.94;	
-		bulk_rock[4] = 1.64;	
-		bulk_rock[5] = 3.47;
-		bulk_rock[6]  = 3.28;
-		bulk_rock[7]  = 0.18;
-		bulk_rock[8]  = 0.1;
+		bulk_rock[0] = 63.242;	
+		bulk_rock[1] = 7.267;	
+		bulk_rock[2] = 1.815;	
+		bulk_rock[3] = 0.751;	
+		bulk_rock[4] = 1.311;	
+		bulk_rock[5] = 2.774;
+		bulk_rock[6]  = 2.622;
+		bulk_rock[7]  = 0.144;
+		bulk_rock[8]  = 0.5;
 		bulk_rock[9]  = 0.01;
-		bulk_rock[10] =	25;
+		bulk_rock[10] =	19.986;
 	}
 	else if (test == 8){
 		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */

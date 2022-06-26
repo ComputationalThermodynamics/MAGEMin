@@ -16,7 +16,11 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 										bulk_info 			 z_b,		
 										double 				*bulk_rock			);
 
-
+void convert_system_comp(				global_variable      gv,
+										char 				*sys_in,
+										bulk_info 			 z_b,		
+										double 				*bulk_rock			);
+										
 void 	_DCDCT_fct(int *id, double *result, double **A, int n_act_sf, int n_xeos);
 void 	_DC_Null_fct(int *id, double *result, double **A, double *B, int n_xeos, int n_act_sf);
 void 	_Epsilon_C_fct(int *id, double *result, double *A, double *b, int n_xeos, int n_sf);

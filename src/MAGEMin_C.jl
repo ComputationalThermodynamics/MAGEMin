@@ -8,5 +8,4 @@ export LibMAGEMin
 include("../julia/MAGEMin_wrappers.jl")
 
 
-
 end # module

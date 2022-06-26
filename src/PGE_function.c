@@ -806,6 +806,19 @@ global_variable run_LP_with_PGE_phase(				bulk_info 			 z_b,
 		gv.gam_tot[i] = d->gamma_tot[i];
 	}
 
+		// printf("\ngamPGE(%d,:) = [",gv.global_ite+1);
+		// for (int i = 0; i < gv.len_ox; i++){
+		// 	printf(" %+10f",gv.gam_tot[i]);
+		// }
+		// printf("];\n");
+		// printf("gamLP(%d,:) = [",gv.global_ite+1);
+		// for (int i = 0; i < gv.len_ox; i++){
+		// 	printf(" %+10f",d->gamma_tot[i]);
+		// }
+		// printf("];\n");
+
+
+
 	if (gv.verbose == 1){
 		printf("\n Total number of LP iterations: %d\n",k);	
 		printf(" [----------------------------------------]\n");
@@ -1027,13 +1040,13 @@ global_variable init_PGE_using_LP(					bulk_info 	 		 z_b,
 			cp[id_cp].ss_flags[0] 	= 1;							/* set flags */
 			cp[id_cp].ss_flags[1] 	= 1;
 			cp[id_cp].ss_flags[2] 	= 0;
-			
+			cp[id_cp].sum_xi		= SS_ref_db[ph_id].sum_xi;		
 			cp[id_cp].ss_n          = d->n_vec[i];			/* get initial phase fraction */
-			cp[id_cp].sum_xi		= SS_ref_db[ph_id].sum_xi;
+
 			for (ii = 0; ii < SS_ref_db[ph_id].n_em; ii++){
 				cp[id_cp].p_em[ii]  = SS_ref_db[ph_id].p[ii];
-				cp[id_cp].xi_em[ii]		= SS_ref_db[ph_id].xi_em[ii];
-				cp[id_cp].mu[ii]		= SS_ref_db[ph_id].mu[ii];
+				cp[id_cp].xi_em[ii]	= SS_ref_db[ph_id].xi_em[ii];
+				cp[id_cp].mu[ii]	= SS_ref_db[ph_id].mu[ii];
 			}
 
 			for (ii = 0; ii < SS_ref_db[ph_id].n_xeos; ii++){
@@ -1374,19 +1387,19 @@ global_variable PGE(	bulk_info 			z_b,
 		/**
 			Split phase if the current xeos is far away from the initial one 
 		*/
-		gv = split_cp(						gv, 						/** global variables (e.g. Gamma) 		*/
-											SS_ref_db,					/** solution phase database 			*/	
-											cp 				);		
+		gv = split_cp(					gv, 						/** global variables (e.g. Gamma) 		*/
+										SS_ref_db,					/** solution phase database 			*/	
+										cp 					);		
 		/**
 			Local minimization of the solution phases
 		*/
-		ss_min_PGE(							mode,
-											gv, 						/** global variables (e.g. Gamma) 		*/
+		ss_min_PGE(						mode,
+										gv, 						/** global variables (e.g. Gamma) 		*/
 
-											SS_objective,							
-											z_b,						/** bulk-rock, pressure and temperature conditions */
-											SS_ref_db,					/** solution phase database 			*/	
-											cp 				);	
+										SS_objective,							
+										z_b,						/** bulk-rock, pressure and temperature conditions */
+										SS_ref_db,					/** solution phase database 			*/	
+										cp 					);	
 
 		/**
 			Merge instances of the same solution phase that are compositionnally close 
@@ -1408,7 +1421,8 @@ global_variable PGE(	bulk_info 			z_b,
 										PP_ref_db,						/** pure phase database 				*/ 
 										SS_ref_db,						/** solution phase database 			*/
 										cp					); 
-						
+
+
 		/* dump & print */
 		if (gv.verbose == 1){
 			/* Partitioning Gibbs Energy */

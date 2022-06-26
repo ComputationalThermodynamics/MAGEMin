@@ -101,7 +101,8 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 										double 				*bulk_rock			){
 
 
-	if ((input_data[sgleP].in_bulk[0] > 0.0 || Bulk[0] > 0.0) && test != -1){
+	if ( (input_data[sgleP].in_bulk[0] > 1e-6 || Bulk[0] > 1e-6) && test != -1){
+		printf(" %+10f +%10f %d\n",input_data[sgleP].in_bulk[0],Bulk[0],test);
 		printf("WARNING: an in-built has been selected, but either an arg or input bulk is also provided\n");
 		printf("   -> priority given to arg/input-file bulk \n");
 	}
@@ -120,7 +121,8 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 		for (int i = 0; i < gv.len_ox; i++){ bulk_rock[i] = Bulk[i];}
 	}
 	/* bulk from file */
-	if (strcmp( File, "none") != 0){				
+	if (strcmp( File, "none") != 0){
+
 		z_b.P = input_data[sgleP].P;
 		z_b.T = input_data[sgleP].T + 273.15;					/** K to C 		*/
 
@@ -160,6 +162,21 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 };
 
 
+/**
+ * retrieve bulk rock composition and PT compositions
+ * This function is not used in the C version of MAGEMin, but can be called via the Julia wrapper MAGEMin_C to normalize the composition
+ */
+void convert_system_comp(				global_variable      gv,
+										char 				*sys_in,
+										bulk_info 			 z_b,		
+										double 				*bulk_rock			){
+
+	/* transform bulk from wt% to mol% for minimiation */
+	if (strcmp( sys_in, "wt") == 0){	
+		for (int i = 0; i < gv.len_ox; i++){ bulk_rock[i] *= z_b.masspo[i];}
+	}
+
+};
 
 /**
   Get the number of max_pc
@@ -819,8 +836,8 @@ SS_ref raw_hyperplane(		global_variable  gv,
    restrict solution phase hyper volume for local minimization
 */
 SS_ref restrict_SS_HyperVolume(		global_variable gv, 
-									SS_ref SS_ref_db,
-									double box_size		){
+									SS_ref 			SS_ref_db,
+									double 			box_size		){
 									
 	for (int j = 0; j < SS_ref_db.n_xeos; j++){
 		SS_ref_db.bounds[j][0] = SS_ref_db.iguess[j] - box_size;

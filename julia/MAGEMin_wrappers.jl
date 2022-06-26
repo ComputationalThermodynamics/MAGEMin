@@ -37,50 +37,56 @@ end
 Returns the pre-defined bulk rock composition of a given test
 
 """
-function get_bulk_rock(gv, test=0)
-
-    bulk_rock =  zeros(gv.len_ox)
+function get_bulk_rock(gv, test)
+    bulk_rock   = zeros(gv.len_ox)
     LibMAGEMin.get_bulk(bulk_rock, test, gv.len_ox)
 
     return bulk_rock
-
 end
 
 """
-    point_wise_minimization(P::Float64,T::Float64, bulk_rock::Vector{Float64}, gv::LibMAGEMin.global_variables, DB::LibMAGEMin.Database)
+    point_wise_minimization(sys_in::String,P::Float64,T::Float64, bulk_rock::Vector{Float64}, gv::LibMAGEMin.global_variables, DB::LibMAGEMin.Database)
     
 Computes the stable assemblage at P[kbar], T[C] and for bulk rock composition bulk_rock
     
 """
-function point_wise_minimization(P::Float64,T::Float64, bulk_rock::Vector{Float64}, gv, DB)
-    
-    LibMAGEMin.norm_array(bulk_rock, gv.len_ox);	                    # normalize bulk_rock
+function point_wise_minimization(sys_in::String,P::Float64,T::Float64, bulk_rock::Vector{Float64}, gv, DB)
     
     input_data      =   LibMAGEMin.io_data();                           # zero (not used actually)
-    z_b             =   LibMAGEMin.zeros_in_bulk(	bulk_rock, P, T);
+	z_b             =   LibMAGEMin.initialize_bulk_infos(P, T);
 
     z_b.T           =   T + 273.15    # in K
     z_b.P           =   P
-    
+
     Mode            = 0;
     gv.Mode         = Mode;
     gv.BR_norm      = 1.0; 								# reset bulk rock norm 			*/
     gv.global_ite   = 0;              					# reset global iteration 			*/
     gv.numPoint     = 1; 							    # the number of the current point */
 
-    EM_database = 0
-    
-    # Initialize EM & SS databases: 
-    gv = LibMAGEMin.init_em_db(EM_database, z_b, gv, DB.PP_ref_db)
-    gv = LibMAGEMin.init_ss_db(EM_database, z_b, gv, DB.SS_ref_db)
+    EM_database     = 0
+ 
+    # Declare LP structures
+    splx_data       =   LibMAGEMin.simplex_data(); 
+
+    LibMAGEMin.init_simplex_A( pointer_from_objref(splx_data), gv)
+    LibMAGEMin.init_simplex_B_em( pointer_from_objref(splx_data), gv)
+
+    LibMAGEMin.convert_system_comp(gv,sys_in,z_b,bulk_rock)
+    LibMAGEMin.norm_array(bulk_rock, gv.len_ox)
 
     # Perform the point-wise minimization after resetting variables
     gv      = LibMAGEMin.reset_gv(gv,z_b, DB.PP_ref_db, DB.SS_ref_db)
+    z_b     = LibMAGEMin.reset_z_b_bulk(	gv,	 bulk_rock,	z_b	   )	
+
+    LibMAGEMin.reset_simplex_A(pointer_from_objref(splx_data), z_b, gv)
+    LibMAGEMin.reset_simplex_B_em(pointer_from_objref(splx_data), gv)
+
     LibMAGEMin.reset_cp(gv,z_b, DB.cp)
     LibMAGEMin.reset_SS(gv,z_b, DB.SS_ref_db)
     LibMAGEMin.reset_sp(gv, DB.sp)
-    
-    time = @elapsed  gv      = LibMAGEMin.ComputeEquilibrium_Point(EM_database, input_data, Mode, z_b,gv,	DB.PP_ref_db,DB.SS_ref_db,DB.cp);
+
+    time = @elapsed  gv      = LibMAGEMin.ComputeEquilibrium_Point(EM_database, input_data, Mode, z_b,gv, pointer_from_objref(splx_data),	DB.PP_ref_db,DB.SS_ref_db,DB.cp);
 
     # Postprocessing (NOTE: we should switch off printing if gv.verbose=0)
     gv = LibMAGEMin.ComputePostProcessing(0, z_b, gv, DB.PP_ref_db, DB.SS_ref_db, DB.cp)
@@ -99,9 +105,9 @@ function point_wise_minimization(P::Float64,T::Float64, bulk_rock::Vector{Float6
     return out
 end
 
-point_wise_minimization(P::Integer, T::Integer, bulk_rock::Vector{Float64}, gv, DB) = point_wise_minimization(Float64(P),Float64(T), bulk_rock::Vector{Float64}, gv, DB)
-point_wise_minimization(P::Float64, T::Integer, bulk_rock::Vector{Float64}, gv, DB) = point_wise_minimization(Float64(P),Float64(T), bulk_rock::Vector{Float64}, gv, DB)
-point_wise_minimization(P::Integer, T::Float64, bulk_rock::Vector{Float64}, gv, DB) = point_wise_minimization(Float64(P),Float64(T), bulk_rock::Vector{Float64}, gv, DB)
+point_wise_minimization(sys_in::String,P::Integer, T::Integer, bulk_rock::Vector{Float64}, gv, DB) = point_wise_minimization(String(sys_in),Float64(P),Float64(T), bulk_rock::Vector{Float64}, gv, DB)
+point_wise_minimization(sys_in::String,P::Float64, T::Integer, bulk_rock::Vector{Float64}, gv, DB) = point_wise_minimization(String(sys_in),Float64(P),Float64(T), bulk_rock::Vector{Float64}, gv, DB)
+point_wise_minimization(sys_in::String,P::Integer, T::Float64, bulk_rock::Vector{Float64}, gv, DB) = point_wise_minimization(String(sys_in),Float64(P),Float64(T), bulk_rock::Vector{Float64}, gv, DB)
 
 """
     structure that holds the result of the pointwise minisation 

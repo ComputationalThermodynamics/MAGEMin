@@ -11,19 +11,21 @@ using MAGEMin_C    # load MAGEMin (needs to be loaded from main directory to pic
 # Initialize database 
 gv, DB = init_MAGEMin();
 
-test = 0;
+test        = 0;
+sys_in      = "mol"     #default is mol, if wt is provided conversion be done internally (MAGEMin works on mol basis)
 bulk_rock   = get_bulk_rock(gv, test)
-        
+
 # Call optimization routine for given P & T & bulk_rock
-P           = 8.
-T           = 800.
+P           = 8.0
+T           = 800.0
 gv.verbose  = -1    # switch off any verbose
-out         = point_wise_minimization(P,T, bulk_rock, gv, DB);
+out         = point_wise_minimization(sys_in, P,T, bulk_rock, gv, DB);
 @show out
 
 @test out.G_system ≈ -797.7491824869334
-@test out.ph == [ "opx", "spn", "ol", "cpx"]
-@test all(abs.(out.ph_frac - [ 0.24226960158631541, 0.027991246529842587, 0.5880694152724345, 0.1416697366114075])  .< 1e-4)
+@test out.ph == [ "opx", "cpx", "ol", "spn"]
+
+@test all(abs.(out.ph_frac - [ 0.24226960158631541, 0.1416697366114075, 0.5880694152724345, 0.027991246529842587])  .< 1e-4)
 
 # print more detailed info about this point:
 print_info(out)
@@ -44,9 +46,10 @@ finalize_MAGEMin(gv,DB)
 
 # Automatic testing of all points
 function TestPoints(list, gv, DB)
+
     for i=1:size(list,1)
         bulk_rock   = get_bulk_rock(gv, list[i].test)
-        out         = point_wise_minimization(list[i].P,list[i].T, bulk_rock, gv, DB)
+        out         = point_wise_minimization(sys_in,list[i].P,list[i].T, bulk_rock, gv, DB)
 
         # We need to sort the phases (sometimes they are ordered differently)
         ind_sol = sortperm(list[i].ph)

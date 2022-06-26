@@ -6,6 +6,8 @@ using MAGEMin
 
 gv, DB = init_MAGEMin();
 
+sys_in = "mol"
+
 mutable struct outP{ _T  } 
     P           ::  _T
     T           ::  _T 
@@ -33,7 +35,7 @@ for i=Pmin:Pstep:Pmax
     for j=Tmin:Tstep:Tmax
 
         bulk_rock   = get_bulk_rock(gv, test)
-        out         = point_wise_minimization(i,j, bulk_rock, gv, DB)
+        out         = point_wise_minimization(sys_in,i,j, bulk_rock, gv, DB)
     
         push!(outList,outP(i,j,test,out.G_system,out.ph,out.ph_frac[:]))
         print(out)
