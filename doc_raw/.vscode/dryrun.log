@@ -1,0 +1,5 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/home/seph/Master_release_MAGEMin/doc_raw'
+sphinx-build -M help "." "_build"  
+make: Leaving directory '/home/seph/Master_release_MAGEMin/doc_raw'
+ 
