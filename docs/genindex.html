@@ -36,11 +36,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">In development:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="news.html">Seismic velocity calculation</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="stp.html">Linux-based system</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="stp/Linux.html">External libraries</a></li>
@@ -92,7 +88,15 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="ckbk.html#data-output">Data output</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="ckbk/out_struct.html">As a nested structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ckbk/out_struct.html">THERMOCALC-like output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ckbk/out_struct.html#as-a-nested-structure">As a nested structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ckbk/out_struct.html#computation-information">Computation information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ckbk/out_struct.html#system-information">System information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ckbk/out_struct.html#phase-proportions">Phase proportions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ckbk/out_struct.html#solution-phases-information">Solution phases information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ckbk/out_struct.html#id1">Solution phases information</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="ckbk.html#pseudosection-generator">Pseudosection generator</a><ul>
@@ -131,6 +135,20 @@
 <li class="toctree-l3"><a class="reference internal" href="julia/Run.html#access-output-structure">Access output structure</a></li>
 </ul>
 </li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Known issues &amp; Tips!</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="issues.html">Quick tips!</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="issues.html#minimum-pressure">Minimum pressure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="issues.html#reduced-chemical-system">Reduced chemical system</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="issues.html#known-problems">Known problems</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="issues.html#reduced-chemical-systems">Reduced chemical systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="issues.html#low-temperature-stabilitzation">Low temperature stabilitzation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="issues.html#hp-lt-melt-prediction">HP-LT melt prediction</a></li>
 </ul>
 </li>
 </ul>
@@ -233,6 +251,7 @@
  | <a href="#S"><strong>S</strong></a>
  | <a href="#U"><strong>U</strong></a>
  | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
  
 </div>
 <h2 id="A">A</h2>
@@ -264,11 +283,9 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/NLopt_opt_function.html#c.cd_c">cd_c (C function)</a>
 </li>
-      <li><a href="src/PGE_function.html#c.check_EM">check_EM (C function)</a>
+      <li><a href="src/phase_update_function.html#c.check_PC">check_PC (C function)</a>
 </li>
-      <li><a href="src/PGE_function.html#c.check_PC">check_PC (C function)</a>
-</li>
-      <li><a href="src/PGE_function.html#c.check_PC_driving_force">check_PC_driving_force (C function)</a>
+      <li><a href="src/phase_update_function.html#c.check_PC_driving_force">check_PC_driving_force (C function)</a>
 </li>
       <li><a href="src/toolkit.html#c.check_sign">check_sign (C function)</a>
 </li>
@@ -276,11 +293,17 @@
 </li>
       <li><a href="src/toolkit.html#c.cleanUpMatrix">cleanUpMatrix (C function)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/phase_update_function.html#c.cmp_dbl">cmp_dbl (C function)</a>
 </li>
       <li><a href="src/phase_update_function.html#c.cmp_int">cmp_int (C function)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src/toolkit.html#c.convert_system_comp">convert_system_comp (C function)</a>
+</li>
+      <li><a href="src/ss_min_function.html#c.copy_to_cp">copy_to_cp (C function)</a>
+</li>
+      <li><a href="src/ss_min_function.html#c.copy_to_Ppc">copy_to_Ppc (C function)</a>
 </li>
       <li><a href="src/ss_min_function.html#c.CP_destroy">CP_destroy (C function)</a>
 </li>
@@ -362,11 +385,9 @@
 </li>
       <li><a href="src/dump_function.html#c.fill_output_struct">fill_output_struct (C function)</a>
 </li>
-      <li><a href="src/simplex_levelling.html#c.fill_simplex_arrays_A">fill_simplex_arrays_A (C function)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/simplex_levelling.html#c.filter_hld_PC">filter_hld_PC (C function)</a>
+      <li><a href="src/simplex_levelling.html#c.fill_simplex_arrays_A">fill_simplex_arrays_A (C function)</a>
 </li>
       <li><a href="src/NLopt_opt_function.html#c.fl_c">fl_c (C function)</a>
 </li>
@@ -418,12 +439,12 @@
 </li>
       <li><a href="src/gss_init_function.html#c.G_SS_INIT_EM_function">G_SS_INIT_EM_function (C function)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/gss_function.html#c.G_SS_liq_function">G_SS_liq_function (C function)</a>
 </li>
       <li><a href="src/gss_init_function.html#c.G_SS_liq_init_function">G_SS_liq_init_function (C function)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/gss_function.html#c.G_SS_mu_function">G_SS_mu_function (C function)</a>
 </li>
       <li><a href="src/gss_init_function.html#c.G_SS_mu_init_function">G_SS_mu_init_function (C function)</a>
@@ -450,7 +471,7 @@
 </li>
       <li><a href="src/gss_function.html#c.get_gb_comp">get_gb_comp (C function)</a>
 </li>
-      <li><a href="src/simplex_levelling.html#c.get_max_n_pc">get_max_n_pc (C function)</a>
+      <li><a href="src/toolkit.html#c.get_max_n_pc">get_max_n_pc (C function)</a>
 </li>
       <li><a href="src/toolkit.html#c.get_pp_id">get_pp_id (C function)</a>
 </li>
@@ -461,12 +482,6 @@
       <li><a href="src/toolkit.html#c.getActiveSPhaseN">getActiveSPhaseN (C function)</a>
 </li>
       <li><a href="src/toolkit.html#c.getValue">getValue (C function)</a>
-</li>
-      <li><a href="src/NLopt_opt_function.html#c.GM_eq">GM_eq (C function)</a>
-</li>
-      <li><a href="src/NLopt_opt_function.html#c.GM_ineq">GM_ineq (C function)</a>
-</li>
-      <li><a href="src/NLopt_opt_function.html#c.GM_obj">GM_obj (C function)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -486,11 +501,9 @@
 </li>
       <li><a href="src/pp_min_function.html#c.init_em_db">init_em_db (C function)</a>
 </li>
-      <li><a href="src/simplex_levelling.html#c.init_simplex_A">init_simplex_A (C function)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/simplex_levelling.html#c.init_simplex_B_em">init_simplex_B_em (C function)</a>
+      <li><a href="src/PGE_function.html#c.init_PGE_using_LP">init_PGE_using_LP (C function)</a>
 </li>
       <li><a href="src/ss_min_function.html#c.init_ss_db">init_ss_db (C function)</a>
 </li>
@@ -508,6 +521,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/NLopt_opt_function.html#c.liq_c">liq_c (C function)</a>
 </li>
+      <li><a href="src/PGE_function.html#c.LP">LP (C function)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -520,9 +535,11 @@
 </li>
       <li><a href="src/dump_function.html#c.mergeParallel_LevellingGamma_Files">mergeParallel_LevellingGamma_Files (C function)</a>
 </li>
+      <li><a href="src/dump_function.html#c.mergeParallel_LocalMinima_Files">mergeParallel_LocalMinima_Files (C function)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/dump_function.html#c.mergeParallel_LocalMinima_Files">mergeParallel_LocalMinima_Files (C function)</a>
+      <li><a href="src/dump_function.html#c.mergeParallel_residual_Files">mergeParallel_residual_Files (C function)</a>
 </li>
       <li><a href="src/dump_function.html#c.mergeParallelFiles">mergeParallelFiles (C function)</a>
 </li>
@@ -536,11 +553,11 @@
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/NLopt_opt_function.html#c.NLopt_global_opt_function">NLopt_global_opt_function (C function)</a>
+      <li><a href="src/NLopt_opt_function.html#c.NLopt_opt_function">NLopt_opt_function (C function)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/NLopt_opt_function.html#c.NLopt_opt_function">NLopt_opt_function (C function)</a>
+      <li><a href="src/toolkit.html#c.non_rot_hyperplane">non_rot_hyperplane (C function)</a>
 </li>
       <li><a href="src/toolkit.html#c.norm_vector">norm_vector (C function)</a>
 </li>
@@ -620,17 +637,17 @@
 </li>
       <li><a href="src/PGE_function.html#c.PGE">PGE (C function)</a>
 </li>
-      <li><a href="src/PGE_function.html#c.PGE_function">PGE_function (C function)</a>
+      <li><a href="src/PGE_function.html#c.PGE_build_gradient">PGE_build_gradient (C function)</a>
 </li>
-      <li><a href="src/PGE_function.html#c.PGE_get_gradient">PGE_get_gradient (C function)</a>
-</li>
-      <li><a href="src/PGE_function.html#c.PGE_get_Jacobian">PGE_get_Jacobian (C function)</a>
+      <li><a href="src/PGE_function.html#c.PGE_build_Jacobian">PGE_build_Jacobian (C function)</a>
 </li>
       <li><a href="src/PGE_function.html#c.PGE_inner_loop">PGE_inner_loop (C function)</a>
 </li>
       <li><a href="src/PGE_function.html#c.PGE_print">PGE_print (C function)</a>
 </li>
-      <li><a href="src/PGE_function.html#c.PGE_residual_update_function">PGE_residual_update_function (C function)</a>
+      <li><a href="src/PGE_function.html#c.PGE_residual_update">PGE_residual_update (C function)</a>
+</li>
+      <li><a href="src/PGE_function.html#c.PGE_solver">PGE_solver (C function)</a>
 </li>
       <li><a href="src/PGE_function.html#c.PGE_update_mu">PGE_update_mu (C function)</a>
 </li>
@@ -704,29 +721,25 @@
 </li>
       <li><a href="src/simplex_levelling.html#c.reduce_ss_list">reduce_ss_list (C function)</a>
 </li>
-      <li><a href="src/ss_min_function.html#c.reset_cp">reset_cp (C function)</a>
-</li>
-      <li><a href="src/ss_min_function.html#c.reset_gv">reset_gv (C function)</a>
-</li>
-      <li><a href="src/ss_min_function.html#c.reset_sp">reset_sp (C function)</a>
-</li>
-      <li><a href="src/ss_min_function.html#c.reset_SS">reset_SS (C function)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/toolkit.html#c.restrict_SS_HyperVolume">restrict_SS_HyperVolume (C function)</a>
+</li>
+      <li><a href="src/toolkit.html#c.retrieve_bulk_PT">retrieve_bulk_PT (C function)</a>
 </li>
       <li><a href="src/toolkit.html#c.RootBracketed">RootBracketed (C function)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/toolkit.html#c.rotate_hyperplane">rotate_hyperplane (C function)</a>
 </li>
       <li><a href="src/toolkit.html#c.rref">rref (C function)</a>
 </li>
       <li><a href="src/simplex_levelling.html#c.run_levelling_function">run_levelling_function (C function)</a>
 </li>
-      <li><a href="src/simplex_levelling.html#c.run_simplex_vPC_only">run_simplex_vPC_only (C function)</a>
+      <li><a href="src/PGE_function.html#c.run_LP_with_PGE_phase">run_LP_with_PGE_phase (C function)</a>
 </li>
-      <li><a href="src/simplex_levelling.html#c.run_simplex_vPC_stage1">run_simplex_vPC_stage1 (C function)</a>
+      <li><a href="src/simplex_levelling.html#c.run_simplex_levelling">run_simplex_levelling (C function)</a>
+</li>
+      <li><a href="src/simplex_levelling.html#c.run_simplex_pseudocompounds">run_simplex_pseudocompounds (C function)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -742,6 +755,8 @@
 </li>
       <li><a href="src/NLopt_opt_function.html#c.spn_c">spn_c (C function)</a>
 </li>
+      <li><a href="src/ss_min_function.html#c.ss_min_LP">ss_min_LP (C function)</a>
+</li>
       <li><a href="src/ss_min_function.html#c.ss_min_PGE">ss_min_PGE (C function)</a>
 </li>
       <li><a href="src/simplex_levelling.html#c.SS_objective_init_function">SS_objective_init_function (C function)</a>
@@ -756,6 +771,8 @@
 </li>
       <li><a href="src/toolkit.html#c.sum_array">sum_array (C function)</a>
 </li>
+      <li><a href="src/simplex_levelling.html#c.swap_PGE_pseudocompounds">swap_PGE_pseudocompounds (C function)</a>
+</li>
       <li><a href="src/simplex_levelling.html#c.swap_pseudocompounds">swap_pseudocompounds (C function)</a>
 </li>
       <li><a href="src/simplex_levelling.html#c.swap_pure_endmembers">swap_pure_endmembers (C function)</a>
@@ -768,11 +785,15 @@
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src/PGE_function.html#c.update_cp_after_LP">update_cp_after_LP (C function)</a>
+</li>
       <li><a href="src/simplex_levelling.html#c.update_dG">update_dG (C function)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/simplex_levelling.html#c.update_global_gamma">update_global_gamma (C function)</a>
+</li>
+      <li><a href="src/simplex_levelling.html#c.update_global_gamma_LU">update_global_gamma_LU (C function)</a>
 </li>
       <li><a href="src/simplex_levelling.html#c.update_local_gamma">update_local_gamma (C function)</a>
 </li>
@@ -787,6 +808,14 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/toolkit.html#c.VecVecMul">VecVecMul (C function)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src/toolkit.html#c.wave_melt_correction">wave_melt_correction (C function)</a>
 </li>
   </ul></td>
 </tr></table>

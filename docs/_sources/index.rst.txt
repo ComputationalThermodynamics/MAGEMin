@@ -37,12 +37,6 @@ Imported libraries
   
 .. toctree::
    :maxdepth: 2
-   :caption: In development:
-   
-   news
-   
-.. toctree::
-   :maxdepth: 2
    :caption: Installation:
    
    stp
@@ -64,6 +58,13 @@ Imported libraries
    :caption: Julia interface:
    
    julia
+   
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Known issues & Tips!
+   
+   issues
    
 .. toctree::
    :maxdepth: 2

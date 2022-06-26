@@ -36,11 +36,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">In development:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../news.html">Seismic velocity calculation</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../stp.html">Linux-based system</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../stp/Linux.html">External libraries</a></li>
@@ -92,7 +88,15 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ckbk.html#data-output">Data output</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../ckbk/out_struct.html">As a nested structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/out_struct.html">THERMOCALC-like output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/out_struct.html#as-a-nested-structure">As a nested structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#computation-information">Computation information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#system-information">System information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#phase-proportions">Phase proportions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#solution-phases-information">Solution phases information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#id1">Solution phases information</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ckbk.html#pseudosection-generator">Pseudosection generator</a><ul>
@@ -131,6 +135,20 @@
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#access-output-structure">Access output structure</a></li>
 </ul>
 </li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Known issues &amp; Tips!</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../issues.html">Quick tips!</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#minimum-pressure">Minimum pressure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#reduced-chemical-system">Reduced chemical system</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../issues.html#known-problems">Known problems</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#reduced-chemical-systems">Reduced chemical systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#low-temperature-stabilitzation">Low temperature stabilitzation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#hp-lt-melt-prediction">HP-LT melt prediction</a></li>
 </ul>
 </li>
 </ul>
@@ -1311,7 +1329,9 @@
 <div class="viewcode-block" id="c.spn_c"><a class="viewcode-back" href="../src/NLopt_opt_function.html#c.spn_c">[docs]</a><span class="cm">/** </span>
 <span class="cm">  local minimization for spinel</span>
 <span class="cm">*/</span><span class="w"></span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">spn_c</span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">grad</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">){</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">spn_c</span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">grad</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">SS_ref_db</span><span class="p">){</span><span class="w"></span>
+<span class="w">    </span><span class="n">SS_ref</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">SS_ref</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">;</span><span class="w"></span>
+
 <span class="w">    </span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">eps_sf</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">-2.0</span><span class="o">/</span><span class="mf">3.0</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1.0</span><span class="o">/</span><span class="mf">3.0</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1.0</span><span class="o">/</span><span class="mf">3.0</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1.0</span><span class="o">/</span><span class="mf">3.0</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1.0</span><span class="o">/</span><span class="mf">3.0</span><span class="p">);</span><span class="w"></span>
 <span class="w">    </span><span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">eps_sf</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">-2.0</span><span class="o">/</span><span class="mf">3.0</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1.0</span><span class="o">/</span><span class="mf">3.0</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1.0</span><span class="o">/</span><span class="mf">3.0</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span><span class="w"></span>
 <span class="w">    </span><span class="n">result</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">eps_sf</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">2.0</span><span class="o">/</span><span class="mf">3.0</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">2.0</span><span class="o">/</span><span class="mf">3.0</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">2.0</span><span class="o">/</span><span class="mf">3.0</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">2.0</span><span class="o">/</span><span class="mf">3.0</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">2.0</span><span class="o">/</span><span class="mf">3.0</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1.0</span><span class="o">/</span><span class="mf">3.0</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">2.0</span><span class="o">/</span><span class="mf">3.0</span><span class="o">*</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">2.0</span><span class="o">/</span><span class="mf">3.0</span><span class="p">);</span><span class="w"></span>
@@ -1394,6 +1414,14 @@
 <span class="w">        </span><span class="n">grad</span><span class="p">[</span><span class="mi">67</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
 <span class="w">        </span><span class="n">grad</span><span class="p">[</span><span class="mi">68</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
 <span class="w">        </span><span class="n">grad</span><span class="p">[</span><span class="mi">69</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">        </span><span class="c1">// int k = 0;</span>
+<span class="w">        </span><span class="c1">// for (int i = 0; i &lt; d-&gt;n_sf; i++){</span>
+<span class="w">        </span><span class="c1">//   for (int j = 0; j &lt; d-&gt;n_xeos; j++){</span>
+<span class="w">        </span><span class="c1">//     grad[k] *= d-&gt;z_sf[i];</span>
+<span class="w">        </span><span class="c1">//     k       += 1;</span>
+<span class="w">        </span><span class="c1">//   }</span>
+<span class="w">        </span><span class="c1">// }</span>
 <span class="w">    </span><span class="p">}</span><span class="w"></span>
 
 <span class="w">    </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
@@ -1495,7 +1523,7 @@
 
 <div class="viewcode-block" id="c.global_min_datas"><div class="viewcode-block" id="c.global_min_data"><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span> <span class="nc">global_min_datas</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <div class="viewcode-block" id="c.global_min_datas.gv"><div class="viewcode-block" id="c.global_min_data.gv"><span class="w">	</span><span class="n">global_variable</span><span class="w"> 	 </span><span class="n">gv</span><span class="p">;</span><span class="w"> </span></div></div>
-<div class="viewcode-block" id="c.global_min_datas.z_b"><div class="viewcode-block" id="c.global_min_data.z_b"><span class="w">	</span><span class="k">struct</span> <span class="nc">bulk_info</span><span class="w"> 	 </span><span class="n">z_b</span><span class="p">;</span><span class="w"></span></div></div>
+<div class="viewcode-block" id="c.global_min_datas.z_b"><div class="viewcode-block" id="c.global_min_data.z_b"><span class="w">	</span><span class="n">bulk_info</span><span class="w"> 	 </span><span class="n">z_b</span><span class="p">;</span><span class="w"></span></div></div>
 <div class="viewcode-block" id="c.global_min_datas.SS_objective"><div class="viewcode-block" id="c.global_min_data.SS_objective"><span class="w">	</span><span class="n">obj_type</span><span class="w"> 			</span><span class="o">*</span><span class="n">SS_objective</span><span class="p">;</span><span class="w"></span></div></div>
 <div class="viewcode-block" id="c.global_min_datas.SS_sf"><div class="viewcode-block" id="c.global_min_data.SS_sf"><span class="w">	</span><span class="n">sf_type</span><span class="w"> 			</span><span class="o">*</span><span class="n">SS_sf</span><span class="p">;</span><span class="w"></span></div></div>
 <div class="viewcode-block" id="c.global_min_datas.PP_ref_db"><div class="viewcode-block" id="c.global_min_data.PP_ref_db"><span class="w">	</span><span class="n">PP_ref</span><span class="w"> 				</span><span class="o">*</span><span class="n">PP_ref_db</span><span class="p">;</span><span class="w"></span></div></div>
@@ -1545,358 +1573,6 @@
 <span class="w">			</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">solid solution &#39;%s&#39; is not in the database, cannot be initiated</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">SS_list</span><span class="p">[</span><span class="n">iss</span><span class="p">]);</span><span class="w">	</span>
 <span class="w">		</span><span class="p">}</span><span class="w">	</span>
 <span class="w">	</span><span class="p">};</span><span class="w">			</span>
-<span class="p">}</span><span class="w"></span></div>
-
-<div class="viewcode-block" id="c.GM_eq"><a class="viewcode-back" href="../src/NLopt_opt_function.html#c.GM_eq">[docs]</a><span class="cm">/**</span>
-<span class="cm">  Equality constraint for AUGLAG global minimization approach</span>
-<span class="cm">*/</span><span class="w"></span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">GM_eq</span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">grad</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">GM_db</span><span class="p">){</span><span class="w"></span>
-<span class="w">	</span><span class="n">global_min_data</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">global_min_data</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">GM_db</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">ph</span><span class="p">,</span><span class="w"> </span><span class="n">ss</span><span class="p">,</span><span class="w"> </span><span class="n">sf</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">ix</span><span class="p">,</span><span class="w"> </span><span class="n">iy</span><span class="p">,</span><span class="w"> </span><span class="n">iz</span><span class="p">,</span><span class="w"> </span><span class="n">sf_ok</span><span class="p">;</span><span class="w"></span>
-<span class="w">		</span>
-<span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">Gph</span><span class="p">,</span><span class="w"> </span><span class="n">alpha</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span>
-<span class="w">	</span><span class="n">iy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="cm">/** loop through every non-zero components of the bulk-rock composition */</span><span class="w"></span>
-<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">z_b</span><span class="p">.</span><span class="n">nzEl_val</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">		</span><span class="n">ix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">		</span>
-
-<span class="w">		</span><span class="n">result</span><span class="p">[</span><span class="n">iy</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">z_b</span><span class="p">.</span><span class="n">bulk_rock</span><span class="p">[</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">z_b</span><span class="p">.</span><span class="n">nzEl_array</span><span class="p">[</span><span class="n">k</span><span class="p">]];</span><span class="w"></span>
-<span class="w">		</span>
-<span class="w">		</span><span class="cm">/** loop through all the solution models considered in the assemblage */</span><span class="w"></span>
-<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">gv</span><span class="p">.</span><span class="n">n_cp_phase</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">			</span><span class="n">ph</span><span class="w"> 	  </span><span class="o">=</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">gv</span><span class="p">.</span><span class="n">cp_id</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
-<span class="w">			</span><span class="n">ss</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">cp</span><span class="p">[</span><span class="n">ph</span><span class="p">].</span><span class="n">id</span><span class="p">;</span><span class="w"></span>
-<span class="w">			</span>
-<span class="w">			</span><span class="n">alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="p">[</span><span class="n">ix</span><span class="p">];</span><span class="w"></span>
-<span class="w">			</span>
-<span class="w">			</span><span class="cm">/* get initial guess */</span><span class="w"></span>
-<span class="w">			</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">cp</span><span class="p">[</span><span class="n">ph</span><span class="p">].</span><span class="n">n_xeos</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">				</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">iguess</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="p">[</span><span class="n">ix</span><span class="o">+</span><span class="mi">1</span><span class="o">+</span><span class="n">j</span><span class="p">];</span><span class="w"></span>
-<span class="w">			</span><span class="p">}</span><span class="w">	</span>
-<span class="w">			</span>
-<span class="w">			</span><span class="cm">/* retrieve phase data at given set of compositional variables */</span><span class="w"></span>
-<span class="w">			</span><span class="n">Gph</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_objective</span><span class="p">[</span><span class="n">ss</span><span class="p">])(</span><span class="w">		 		 </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">cp</span><span class="p">[</span><span class="n">ph</span><span class="p">].</span><span class="n">n_xeos</span><span class="p">,</span><span class="w"></span>
-<span class="w">														 </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">iguess</span><span class="p">,</span><span class="w"> </span>
-<span class="w">														 </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">dfx</span><span class="p">,</span><span class="w"> </span>
-<span class="w">														</span><span class="o">&amp;</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">]</span><span class="w">				</span><span class="p">);</span><span class="w"></span>
-<span class="w">			</span>
-<span class="w">			</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">n_em</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">				</span><span class="n">result</span><span class="p">[</span><span class="n">iy</span><span class="p">]</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">alpha</span><span class="o">*</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">p</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">*</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">Comp</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">z_b</span><span class="p">.</span><span class="n">nzEl_array</span><span class="p">[</span><span class="n">k</span><span class="p">]]</span><span class="o">*</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">factor</span><span class="o">*</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">z_em</span><span class="p">[</span><span class="n">j</span><span class="p">];</span><span class="w"></span>
-<span class="w">			</span><span class="p">}</span><span class="w"></span>
-<span class="w">			</span>
-<span class="w">			</span><span class="n">ix</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">n_em</span><span class="p">;</span><span class="w"></span>
-<span class="w">		</span><span class="p">}</span><span class="w">	</span>
-<span class="w">		</span><span class="cm">/** loop though pure phase */</span><span class="w"></span>
-<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">gv</span><span class="p">.</span><span class="n">n_pp_phase</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">			</span><span class="n">ph</span><span class="w"> 	  </span><span class="o">=</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">gv</span><span class="p">.</span><span class="n">pp_id</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
-<span class="w">			</span>
-<span class="w">			</span><span class="n">alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="p">[</span><span class="n">ix</span><span class="p">];</span><span class="w"></span>
-<span class="w">			</span>
-<span class="w">			</span><span class="n">result</span><span class="p">[</span><span class="n">iy</span><span class="p">]</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">alpha</span><span class="o">*</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">PP_ref_db</span><span class="p">[</span><span class="n">ph</span><span class="p">].</span><span class="n">Comp</span><span class="p">[</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">z_b</span><span class="p">.</span><span class="n">nzEl_array</span><span class="p">[</span><span class="n">k</span><span class="p">]]</span><span class="o">*</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">PP_ref_db</span><span class="p">[</span><span class="n">ph</span><span class="p">].</span><span class="n">factor</span><span class="p">;</span><span class="w"></span>
-<span class="w">			</span>
-<span class="w">			</span><span class="n">ix</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
-<span class="w">			</span><span class="c1">//Gph   = d-&gt;PP_ref_db[ph].gb_lvl;</span>
-<span class="w">		</span><span class="p">}</span><span class="w"></span>
-<span class="w">		</span><span class="n">iy</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="p">}</span><span class="w"></span>
-<span class="w"> </span>
-<span class="w">	</span>
-<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">z_b</span><span class="p">.</span><span class="n">nzEl_val</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; %+10f&quot;</span><span class="p">,</span><span class="n">result</span><span class="p">[</span><span class="n">k</span><span class="p">]);</span><span class="w"></span>
-<span class="w">	</span><span class="p">}</span><span class="w"></span>
-<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span></div>
-
-<div class="viewcode-block" id="c.GM_ineq"><a class="viewcode-back" href="../src/NLopt_opt_function.html#c.GM_ineq">[docs]</a><span class="cm">/**</span>
-<span class="cm">  Sets inequality constraints for the global minimization approach</span>
-<span class="cm">*/</span><span class="w"></span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">GM_ineq</span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">grad</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">GM_db</span><span class="p">){</span><span class="w"></span>
-<span class="w">	</span><span class="n">global_min_data</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">global_min_data</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">GM_db</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">ph</span><span class="p">,</span><span class="w"> </span><span class="n">ss</span><span class="p">,</span><span class="w"> </span><span class="n">sf</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">ix</span><span class="p">,</span><span class="w"> </span><span class="n">iy</span><span class="p">,</span><span class="w"> </span><span class="n">iz</span><span class="p">,</span><span class="w"> </span><span class="n">sf_ok</span><span class="p">;</span><span class="w"></span>
-<span class="w">		</span>
-<span class="w">	</span><span class="n">ix</span><span class="w"> 		  </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="n">iy</span><span class="w">		  </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="n">iz</span><span class="w">		  </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">gv</span><span class="p">.</span><span class="n">n_cp_phase</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">		</span><span class="n">ph</span><span class="w"> 	  </span><span class="o">=</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">gv</span><span class="p">.</span><span class="n">cp_id</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
-<span class="w">		</span><span class="n">ss</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">cp</span><span class="p">[</span><span class="n">ph</span><span class="p">].</span><span class="n">id</span><span class="p">;</span><span class="w"></span>
-<span class="w">		</span>
-<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">n_xeos</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">			</span><span class="c1">//d-&gt;SS_ref_db[ss].iguess[j] = x[ix+1+j];</span>
-<span class="w">			</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">iguess</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="p">[</span><span class="n">ix</span><span class="o">+</span><span class="n">j</span><span class="p">];</span><span class="w"></span>
-<span class="w">		</span><span class="p">}</span><span class="w">	</span>
-
-<span class="w">		</span><span class="p">(</span><span class="o">*</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_sf</span><span class="p">[</span><span class="n">ss</span><span class="p">])(</span><span class="w">		</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">n_sf</span><span class="p">,</span><span class="w"> </span>
-<span class="w">								</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">sf</span><span class="p">,</span><span class="w"> </span>
-<span class="w">								</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">n_xeos</span><span class="p">,</span><span class="w"> </span>
-<span class="w">								</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">iguess</span><span class="p">,</span><span class="w"> </span>
-<span class="w">								</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">dsf</span><span class="p">,</span><span class="w"> </span>
-<span class="w">								</span><span class="nb">NULL</span><span class="w">							</span><span class="p">);</span><span class="w"></span>
-<span class="w">								</span>
-<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">n_sf</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">			</span><span class="n">result</span><span class="p">[</span><span class="n">iy</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">sf</span><span class="p">[</span><span class="n">j</span><span class="p">];</span><span class="w"></span>
-<span class="w">			</span><span class="n">iy</span><span class="w">        </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
-<span class="w">		</span><span class="p">}</span><span class="w"></span>
-<span class="w">		</span>
-<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">grad</span><span class="p">){</span><span class="w"></span>
-<span class="w">			</span><span class="n">sf</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">													</span><span class="c1">//increment for site fraction index</span>
-<span class="w">			</span><span class="c1">//iz 	 += 1;		</span>
-<span class="w">			</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">n_sf</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">				</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">n_xeos</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="o">++</span><span class="p">){</span><span class="w">	</span>
-<span class="w">					</span><span class="n">grad</span><span class="p">[</span><span class="n">iz</span><span class="o">+</span><span class="n">k</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">dsf</span><span class="p">[</span><span class="n">sf</span><span class="p">];</span><span class="w"></span>
-<span class="w">					</span><span class="n">sf</span><span class="w">   </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
-<span class="w">				</span><span class="p">}</span><span class="w"></span>
-<span class="w">				</span><span class="n">iz</span><span class="w">		 </span><span class="o">+=</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"></span>
-<span class="w">			</span><span class="p">}</span><span class="w"></span>
-<span class="w">			</span><span class="n">iz</span><span class="w">		 </span><span class="o">+=</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">n_xeos</span><span class="p">;</span><span class="w"></span>
-<span class="w">		</span><span class="p">}</span><span class="w"></span>
-<span class="w">		</span>
-<span class="w">		</span><span class="c1">//ix += d-&gt;SS_ref_db[ss].n_em;</span>
-<span class="w">		</span><span class="n">ix</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">n_xeos</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="p">}</span><span class="w"></span>
-
-<span class="w">    </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span></div>
-
-<div class="viewcode-block" id="c.GM_obj"><a class="viewcode-back" href="../src/NLopt_opt_function.html#c.GM_obj">[docs]</a><span class="cm">/** </span>
-<span class="cm">  objective function constructor for generalized iminization with Augmented Lagrangian approach</span>
-<span class="cm">*/</span><span class="w"></span>
-<span class="kt">double</span><span class="w"> </span><span class="nf">GM_obj</span><span class="p">(</span><span class="w">		</span><span class="kt">unsigned</span><span class="w">  		 </span><span class="n">n</span><span class="p">,</span><span class="w"> </span>
-<span class="w">					</span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> 	</span><span class="o">*</span><span class="n">x</span><span class="p">,</span><span class="w"> </span>
-<span class="w">					</span><span class="kt">double</span><span class="w"> 			</span><span class="o">*</span><span class="n">grad</span><span class="p">,</span><span class="w"> </span>
-<span class="w">					</span><span class="kt">void</span><span class="w"> 			</span><span class="o">*</span><span class="n">GM_db</span><span class="w">		</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w">			</span>
-<span class="w">	</span><span class="n">global_min_data</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">global_min_data</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">GM_db</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">ph</span><span class="p">,</span><span class="w"> </span><span class="n">ss</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">ix</span><span class="p">,</span><span class="w"> </span><span class="n">sf_ok</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span>
-<span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">Gsys</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">Gph</span><span class="p">,</span><span class="w"> </span><span class="n">alpha</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="n">ix</span><span class="w"> 		  </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">gv</span><span class="p">.</span><span class="n">n_cp_phase</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">		</span><span class="n">ph</span><span class="w"> 	  </span><span class="o">=</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">gv</span><span class="p">.</span><span class="n">cp_id</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
-<span class="w">		</span><span class="n">ss</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">cp</span><span class="p">[</span><span class="n">ph</span><span class="p">].</span><span class="n">id</span><span class="p">;</span><span class="w"></span>
-
-<span class="w">		</span><span class="c1">//alpha = x[ix];</span>
-<span class="w">		</span><span class="n">alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">cp</span><span class="p">[</span><span class="n">ph</span><span class="p">].</span><span class="n">ss_n</span><span class="p">;</span><span class="w"></span>
-<span class="w">		</span>
-<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">cp</span><span class="p">[</span><span class="n">ph</span><span class="p">].</span><span class="n">n_xeos</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">			</span><span class="c1">//d-&gt;SS_ref_db[ss].iguess[j] = x[ix+1+j];</span>
-<span class="w">			</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">iguess</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="p">[</span><span class="n">ix</span><span class="o">+</span><span class="n">j</span><span class="p">];</span><span class="w"></span>
-<span class="w">		</span><span class="p">}</span><span class="w">	</span>
-<span class="w">		</span>
-<span class="w">		</span><span class="n">Gph</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_objective</span><span class="p">[</span><span class="n">ss</span><span class="p">])(</span><span class="w">		 		 </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">cp</span><span class="p">[</span><span class="n">ph</span><span class="p">].</span><span class="n">n_xeos</span><span class="p">,</span><span class="w"></span>
-<span class="w">													 </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">iguess</span><span class="p">,</span><span class="w"> </span>
-<span class="w">													 </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">dfx</span><span class="p">,</span><span class="w"> </span>
-<span class="w">													</span><span class="o">&amp;</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">]</span><span class="w">				</span><span class="p">);</span><span class="w"></span>
-<span class="w">		</span><span class="n">Gsys</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">alpha</span><span class="o">*</span><span class="n">Gph</span><span class="p">;</span><span class="w"></span>
-<span class="w">		</span>
-<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; [%4s %+12.5f %+12.5f]&quot;</span><span class="p">,</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">gv</span><span class="p">.</span><span class="n">SS_list</span><span class="p">[</span><span class="n">ss</span><span class="p">],</span><span class="n">Gph</span><span class="p">,</span><span class="n">alpha</span><span class="p">);</span><span class="w"></span>
-<span class="w">		</span>
-<span class="w">		</span><span class="n">sf_ok</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
-<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">cp</span><span class="p">[</span><span class="n">ph</span><span class="p">].</span><span class="n">n_sf</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">sf</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0.0</span><span class="p">){</span><span class="w"> </span><span class="n">sf_ok</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;};</span><span class="w"></span>
-<span class="w">		</span><span class="p">}</span><span class="w"></span>
-<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;SFOK? %d |&quot;</span><span class="p">,</span><span class="n">sf_ok</span><span class="p">);</span><span class="w"></span>
-<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">cp</span><span class="p">[</span><span class="n">ph</span><span class="p">].</span><span class="n">n_xeos</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">			</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; %+12.5f&quot;</span><span class="p">,</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">iguess</span><span class="p">[</span><span class="n">j</span><span class="p">]);</span><span class="w"></span>
-<span class="w">		</span><span class="p">}</span><span class="w"></span>
-<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">		</span>
-<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">grad</span><span class="p">){</span><span class="w"></span>
-<span class="w">			</span><span class="c1">//grad[ix] = Gph;</span>
-<span class="w">			</span><span class="c1">//ix 		+= 1;</span>
-<span class="w">			</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">cp</span><span class="p">[</span><span class="n">ph</span><span class="p">].</span><span class="n">n_xeos</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">				</span><span class="n">grad</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">alpha</span><span class="o">*</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">dfx</span><span class="p">[</span><span class="n">j</span><span class="p">];</span><span class="w"></span>
-<span class="w">				</span><span class="n">ix</span><span class="w">      </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
-<span class="w">			</span><span class="p">}</span><span class="w"></span>
-<span class="w">		</span><span class="p">}</span><span class="w"></span>
-<span class="w">	</span><span class="p">}</span><span class="w"></span>
-
-<span class="w">	</span><span class="c1">//for (i = 0; i &lt; d-&gt;gv.n_pp_phase; i++){</span>
-<span class="w">		</span><span class="c1">//ph 	  = d-&gt;gv.pp_id[i];</span>
-<span class="w">		</span>
-<span class="w">		</span><span class="c1">//alpha = x[ix];</span>
-<span class="w">		</span>
-<span class="w">		</span><span class="c1">//Gph   = d-&gt;PP_ref_db[ph].gb_lvl;</span>
-<span class="w">		</span><span class="c1">//Gsys += Gph*alpha;</span>
-<span class="w">		</span><span class="c1">//printf(&quot; [%4s %+12.5f %+12.5f]\n&quot;,d-&gt;gv.PP_list[ph],Gph,x[ix]);</span>
-<span class="w">		</span><span class="c1">//if (grad){</span>
-<span class="w">			</span><span class="c1">//grad[ix] = Gph;</span>
-<span class="w">			</span><span class="c1">//ix 		+= 1;</span>
-<span class="w">		</span><span class="c1">//}</span>
-<span class="w">	</span><span class="c1">//}</span>
-<span class="w">	</span>
-<span class="w">	</span><span class="c1">//for (i = 0; i &lt; n; i++){</span>
-<span class="w">		</span><span class="c1">//printf(&quot; %+10f&quot;,grad[i]);</span>
-<span class="w">	</span><span class="c1">//}</span>
-<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; Gsys: %+12.5f</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">Gsys</span><span class="p">);</span><span class="w"></span>
-
-<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">Gsys</span><span class="p">;</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span></div>
-
-<div class="viewcode-block" id="c.NLopt_global_opt_function"><a class="viewcode-back" href="../src/NLopt_opt_function.html#c.NLopt_global_opt_function">[docs]</a><span class="cm">/** </span>
-<span class="cm">	global minimization given fixed phase assemblage</span>
-<span class="cm">	n: number of variables in the objective function (phase fractions + compositional variables)</span>
-<span class="cm">	m: number of inequality constraints (site-fractions)</span>
-<span class="cm">	l: number of equality constraints (active number of components)</span>
-<span class="cm">*/</span><span class="w"></span>
-<span class="n">global_variable</span><span class="w"> </span><span class="nf">NLopt_global_opt_function</span><span class="p">(</span><span class="w">	</span><span class="k">struct</span> <span class="nc">bulk_info</span><span class="w"> 	</span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
-<span class="w">											</span><span class="n">global_variable</span><span class="w"> 	 </span><span class="n">gv</span><span class="p">,</span><span class="w"> </span>
-<span class="w">											</span><span class="n">PP_ref</span><span class="w"> 				</span><span class="o">*</span><span class="n">PP_ref_db</span><span class="p">,</span><span class="w"></span>
-<span class="w">											</span><span class="n">SS_ref</span><span class="w"> 				</span><span class="o">*</span><span class="n">SS_ref_db</span><span class="p">,</span><span class="w"></span>
-<span class="w">	 										</span><span class="n">csd_phase_set</span><span class="w">  		</span><span class="o">*</span><span class="n">cp</span><span class="w"></span>
-<span class="p">){</span><span class="w"></span>
-<span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">ph</span><span class="p">,</span><span class="w"> </span><span class="n">ss</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">;</span><span class="w"> </span>
-<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="n">ix</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span>
-<span class="w">	</span><span class="cm">/**</span>
-<span class="cm">	   create objective function array to be send to NLopt</span>
-<span class="cm">	*/</span><span class="w"></span>
-<span class="w">	</span><span class="n">obj_type</span><span class="w"> 		</span><span class="n">SS_objective</span><span class="p">[</span><span class="n">gv</span><span class="p">.</span><span class="n">len_ss</span><span class="p">];</span><span class="w"></span>
-<span class="w">	</span><span class="n">sf_type</span><span class="w"> 		</span><span class="n">SS_sf</span><span class="p">[</span><span class="n">gv</span><span class="p">.</span><span class="n">len_ss</span><span class="p">];</span><span class="w"></span>
-<span class="w">	</span>
-<span class="w">	</span><span class="n">SS_objective_init_function</span><span class="p">(</span><span class="w">			</span><span class="n">SS_objective</span><span class="p">,</span><span class="w"></span>
-<span class="w">										</span><span class="n">gv</span><span class="w">				</span><span class="p">);</span><span class="w"></span>
-
-<span class="w">	</span><span class="n">SS_sf_init_function</span><span class="p">(</span><span class="w">				</span><span class="n">SS_sf</span><span class="p">,</span><span class="w"></span>
-<span class="w">										</span><span class="n">gv</span><span class="w">				</span><span class="p">);</span><span class="w"></span>
-
-<span class="w">	</span><span class="cm">/** create and fill data structure to be send to the objective function */</span><span class="w">								</span>
-<span class="w">	</span><span class="n">global_min_data</span><span class="w"> </span><span class="n">GM_db</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span>
-<span class="w">	</span><span class="n">GM_db</span><span class="p">.</span><span class="n">gv</span><span class="w"> 			</span><span class="o">=</span><span class="w"> </span><span class="n">gv</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="n">GM_db</span><span class="p">.</span><span class="n">z_b</span><span class="w">			</span><span class="o">=</span><span class="w"> </span><span class="n">z_b</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="n">GM_db</span><span class="p">.</span><span class="n">SS_objective</span><span class="w"> 	</span><span class="o">=</span><span class="w"> </span><span class="n">SS_objective</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="n">GM_db</span><span class="p">.</span><span class="n">SS_sf</span><span class="w">  	 	</span><span class="o">=</span><span class="w"> </span><span class="n">SS_sf</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="n">GM_db</span><span class="p">.</span><span class="n">PP_ref_db</span><span class="w"> 	</span><span class="o">=</span><span class="w"> </span><span class="n">PP_ref_db</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="n">GM_db</span><span class="p">.</span><span class="n">SS_ref_db</span><span class="w"> 	</span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="n">GM_db</span><span class="p">.</span><span class="n">cp</span><span class="w"> 			</span><span class="o">=</span><span class="w"> </span><span class="n">cp</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span>
-<span class="w">	</span><span class="cm">/** get id of active phases */</span><span class="w"></span>
-<span class="w">	</span><span class="c1">//gv = get_pp_id(			gv					);</span>
-<span class="w">	</span>
-<span class="w">	</span><span class="n">gv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_ss_id</span><span class="p">(</span><span class="w">			</span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
-<span class="w">							</span><span class="n">cp</span><span class="w">					</span><span class="p">);</span><span class="w"></span>
-<span class="w">	</span>
-<span class="w">	</span><span class="c1">//n  = gv.n_pp_phase;</span>
-<span class="w">	</span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">	</span>
-<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">n_cp_phase</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">		</span><span class="n">ph</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">cp_id</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"> </span>
-<span class="w">		</span><span class="c1">//n  += cp[ph].n_em;</span>
-<span class="w">		</span><span class="n">n</span><span class="w">  </span><span class="o">+=</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">ph</span><span class="p">].</span><span class="n">n_xeos</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="p">}</span><span class="w"></span>
-
-<span class="w">	</span><span class="cm">/** get the number of equality constraints */</span><span class="w"></span>
-<span class="w">	</span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">z_b</span><span class="p">.</span><span class="n">nzEl_val</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span>
-<span class="w">	</span><span class="cm">/** declare solution array 2BM */</span><span class="w">    </span>
-<span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">x</span><span class="p">[</span><span class="n">n</span><span class="p">];</span><span class="w"> </span>
-<span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">lb</span><span class="p">[</span><span class="n">n</span><span class="p">];</span><span class="w"> </span>
-<span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">ub</span><span class="p">[</span><span class="n">n</span><span class="p">];</span><span class="w"> </span>
-
-<span class="w">	</span><span class="cm">/**	initialize x array */</span><span class="w"></span>
-<span class="w">	</span><span class="n">ix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="n">m</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">n_cp_phase</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">		</span><span class="n">ph</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">cp_id</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"> </span>
-<span class="w">		</span><span class="n">ss</span><span class="w">	   </span><span class="o">=</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">ph</span><span class="p">].</span><span class="n">id</span><span class="p">;</span><span class="w"></span>
-<span class="w">		</span><span class="n">m</span><span class="w"> 	  </span><span class="o">+=</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">ph</span><span class="p">].</span><span class="n">n_sf</span><span class="p">;</span><span class="w"></span>
-
-<span class="w">		</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rotate_hyperplane</span><span class="p">(</span><span class="w">	</span><span class="n">gv</span><span class="p">,</span><span class="w"> </span>
-<span class="w">											</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">]</span><span class="w">	</span><span class="p">);</span><span class="w"></span>
-<span class="w">											</span>
-<span class="w">		</span><span class="c1">//x[ix]  = cp[ph].ss_n;</span>
-<span class="w">		</span><span class="c1">//lb[ix] = 0.0;</span>
-<span class="w">		</span><span class="c1">//ub[ix] = 1.0;</span>
-<span class="w">		</span>
-<span class="w">		</span><span class="c1">//ix    += 1;</span>
-<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">n_xeos</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">			</span><span class="n">x</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">ph</span><span class="p">].</span><span class="n">xeos</span><span class="p">[</span><span class="n">j</span><span class="p">];</span><span class="w"></span>
-<span class="w">			</span>
-<span class="w">			</span><span class="n">lb</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">bounds_ref</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">];</span><span class="w"></span>
-<span class="w">			</span><span class="n">ub</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">bounds_ref</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">1</span><span class="p">];</span><span class="w"></span>
-<span class="w">			</span><span class="n">ix</span><span class="w">    </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
-<span class="w">		</span><span class="p">}</span><span class="w"></span>
-<span class="w">	</span><span class="p">}</span><span class="w"></span>
-<span class="w">	</span><span class="c1">//for (i = 0; i &lt; gv.n_pp_phase; i++){</span>
-<span class="w">		</span><span class="c1">//ph     = gv.pp_id[i];</span>
-<span class="w">		</span><span class="c1">//x[ix]  = gv.pp_n[ph];</span>
-<span class="w">		</span><span class="c1">//lb[ix] = 0.0;</span>
-<span class="w">		</span><span class="c1">//ub[ix] = 1.0;</span>
-<span class="w">		</span><span class="c1">//ix    += 1;</span>
-<span class="w">	</span><span class="c1">//}</span>
-
-<span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">tol_sf</span><span class="p">[</span><span class="n">m</span><span class="p">];</span><span class="w"></span>
-<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">m</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">		</span><span class="n">tol_sf</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="p">}</span><span class="w"></span>
-
-<span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">tol_eq</span><span class="p">[</span><span class="n">l</span><span class="p">];</span><span class="w"></span>
-<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">l</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">		</span><span class="n">tol_eq</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1e-8</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="p">}</span><span class="w"></span>
-<span class="w">   </span>
-<span class="w">   </span>
-<span class="w">	</span><span class="c1">//double minf;</span>
-
-<span class="w">	</span><span class="c1">//nlopt_opt opt_auglag = nlopt_create(NLOPT_AUGLAG, n);</span>
-<span class="w">	</span><span class="c1">//nlopt_set_lower_bounds(opt_auglag, lb);</span>
-<span class="w">	</span><span class="c1">//nlopt_set_upper_bounds(opt_auglag, ub);</span>
-<span class="w">	</span><span class="c1">//nlopt_set_min_objective(opt_auglag, GM_obj, &amp;GM_db);</span>
-<span class="w">	</span><span class="c1">//nlopt_add_equality_mconstraint(opt_auglag, l, GM_eq, &amp;GM_db, tol_eq);</span>
-<span class="w">	</span><span class="c1">//nlopt_add_inequality_mconstraint(opt_auglag, m, GM_ineq, &amp;GM_db, tol_sf);</span>
-<span class="w">	</span><span class="c1">//nlopt_set_ftol_rel(opt_auglag, gv.obj_tol);</span>
-<span class="w">	</span><span class="c1">//nlopt_set_maxeval(opt_auglag, 0);</span>
-
-<span class="w">	</span><span class="c1">//nlopt_opt opt = nlopt_create(NLOPT_LD_CCSAQ, n);</span>
-<span class="w">	</span><span class="c1">//nlopt_set_lower_bounds(opt, lb);</span>
-<span class="w">	</span><span class="c1">//nlopt_set_upper_bounds(opt, ub);</span>
-<span class="w">	</span><span class="c1">//nlopt_set_min_objective(opt, GM_obj, &amp;GM_db);</span>
-
-<span class="w">	</span><span class="c1">//nlopt_set_ftol_rel(opt, gv.obj_tol);</span>
-<span class="w">	</span><span class="c1">//nlopt_set_maxeval(opt, 0);</span>
-
-<span class="w">	</span><span class="c1">//nlopt_set_local_optimizer(opt_auglag, opt);</span>
-<span class="w">	</span>
-<span class="w">	</span><span class="c1">//int status = nlopt_optimize(opt_auglag, x, &amp;minf);</span>
-<span class="w">	</span><span class="c1">//printf(&quot;Solution of global minimization: %+10f, status %d\n&quot;,minf,status);</span>
-<span class="w">	</span><span class="c1">//for (i = 0; i &lt; n; i++){</span>
-<span class="w">		</span><span class="c1">//printf(&quot; %+10f&quot;,x[i]);</span>
-<span class="w">	</span><span class="c1">//}</span>
-<span class="w">	</span><span class="c1">//printf(&quot;\n&quot;);</span>
-
-<span class="w">	</span><span class="c1">//nlopt_destroy(opt_auglag);</span>
-<span class="w">	</span><span class="c1">//nlopt_destroy(opt);</span>
-<span class="w">	</span>
-<span class="w">	</span>
-<span class="w">	</span>
-
-<span class="w">	</span><span class="n">nlopt_opt</span><span class="w"> </span><span class="n">opt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nlopt_create</span><span class="p">(</span><span class="n">NLOPT_LD_CCSAQ</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">);</span><span class="w"></span>
-<span class="w">	</span><span class="n">nlopt_set_lower_bounds</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span><span class="w"> </span><span class="n">lb</span><span class="p">);</span><span class="w"></span>
-<span class="w">	</span><span class="n">nlopt_set_upper_bounds</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span><span class="w"> </span><span class="n">ub</span><span class="p">);</span><span class="w"></span>
-<span class="w">	</span><span class="n">nlopt_set_min_objective</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span><span class="w"> </span><span class="n">GM_obj</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">GM_db</span><span class="p">);</span><span class="w"></span>
-<span class="w">	</span><span class="n">nlopt_add_inequality_mconstraint</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">GM_ineq</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">GM_db</span><span class="p">,</span><span class="w"> </span><span class="n">tol_sf</span><span class="p">);</span><span class="w"></span>
-<span class="w">	</span><span class="c1">//nlopt_add_equality_mconstraint(opt, l, GM_eq,   &amp;GM_db, tol_eq);</span>
-<span class="w">	</span><span class="n">nlopt_set_ftol_rel</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">obj_tol</span><span class="p">);</span><span class="w"></span>
-<span class="w">	</span><span class="n">nlopt_set_maxeval</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
-
-<span class="w">	</span><span class="c1">//nlopt_set_maxeval(opt, gv.maxeval);</span>
-
-<span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">minf</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nlopt_optimize</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">minf</span><span class="p">);</span><span class="w"></span>
-<span class="w">	</span>
-<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Solution of global minimization: %+10f, status %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">minf</span><span class="p">,</span><span class="n">status</span><span class="p">);</span><span class="w"></span>
-<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; %+10f&quot;</span><span class="p">,</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span><span class="w"></span>
-<span class="w">	</span><span class="p">}</span><span class="w"></span>
-<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
-
-<span class="w">	</span><span class="n">nlopt_destroy</span><span class="p">(</span><span class="n">opt</span><span class="p">);</span><span class="w"></span>
-
-
-<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">gv</span><span class="p">;</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span></div>
 
 <div class="viewcode-block" id="c.NLopt_opt_bi_function"><span class="n">SS_ref</span><span class="w"> </span><span class="nf">NLopt_opt_bi_function</span><span class="p">(</span><span class="n">global_variable</span><span class="w"> </span><span class="n">gv</span><span class="p">,</span><span class="w"> </span><span class="n">SS_ref</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">){</span><span class="w"></span>
@@ -2461,7 +2137,7 @@
 <span class="w">   </span><span class="n">nlopt_set_lower_bounds</span><span class="p">(</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">opt</span><span class="p">,</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">lb</span><span class="p">);</span><span class="w"></span>
 <span class="w">   </span><span class="n">nlopt_set_upper_bounds</span><span class="p">(</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">opt</span><span class="p">,</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">ub</span><span class="p">);</span><span class="w"></span>
 <span class="w">   </span><span class="n">nlopt_set_min_objective</span><span class="p">(</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">opt</span><span class="p">,</span><span class="w"> </span><span class="n">obj_spn</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">SS_ref_db</span><span class="p">);</span><span class="w"></span>
-<span class="w">   </span><span class="n">nlopt_add_inequality_mconstraint</span><span class="p">(</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">opt</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">spn_c</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">tol_sf</span><span class="p">);</span><span class="w"></span>
+<span class="w">   </span><span class="n">nlopt_add_inequality_mconstraint</span><span class="p">(</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">opt</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">spn_c</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">SS_ref_db</span><span class="p">,</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">tol_sf</span><span class="p">);</span><span class="w"></span>
 <span class="w">   </span><span class="n">nlopt_set_ftol_rel</span><span class="p">(</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">opt</span><span class="p">,</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">obj_tol</span><span class="p">);</span><span class="w"></span>
 <span class="w">   </span><span class="n">nlopt_set_maxeval</span><span class="p">(</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">opt</span><span class="p">,</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">maxeval</span><span class="p">);</span><span class="w"></span>
 <span class="w">   </span>

@@ -19,7 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="As a nested structure" href="out_struct.html" />
+    <link rel="next" title="THERMOCALC-like output" href="out_struct.html" />
     <link rel="prev" title="Command line minimization" href="../ckbk.html" /> 
 </head>
 
@@ -39,11 +39,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">In development:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../news.html">Seismic velocity calculation</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../stp.html">Linux-based system</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../stp/Linux.html">External libraries</a></li>
@@ -95,7 +91,15 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ckbk.html#data-output">Data output</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="out_struct.html">As a nested structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="out_struct.html">THERMOCALC-like output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="out_struct.html#as-a-nested-structure">As a nested structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="out_struct.html#computation-information">Computation information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="out_struct.html#system-information">System information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="out_struct.html#phase-proportions">Phase proportions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="out_struct.html#solution-phases-information">Solution phases information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="out_struct.html#id1">Solution phases information</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ckbk.html#pseudosection-generator">Pseudosection generator</a><ul>
@@ -134,6 +138,20 @@
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#access-output-structure">Access output structure</a></li>
 </ul>
 </li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Known issues &amp; Tips!</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../issues.html">Quick tips!</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#minimum-pressure">Minimum pressure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#reduced-chemical-system">Reduced chemical system</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../issues.html#known-problems">Known problems</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#reduced-chemical-systems">Reduced chemical systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#low-temperature-stabilitzation">Low temperature stabilitzation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#hp-lt-melt-prediction">HP-LT melt prediction</a></li>
 </ul>
 </li>
 </ul>
@@ -231,6 +249,12 @@
 </tr>
 </thead>
 <tbody>
+<tr class="row-even"><td><p>--version</p></td>
+<td><p>Displays MAGEMin version</p></td>
+</tr>
+<tr class="row-odd"><td><p>--help</p></td>
+<td><p>Displays help</p></td>
+</tr>
 <tr class="row-even"><td><p>--Verb=x</p></td>
 <td><p>Verbose option, 0. inactive, 1. active</p></td>
 </tr>
@@ -255,6 +279,9 @@
 <tr class="row-odd"><td><p>--Gam=[y]</p></td>
 <td><p>Gamma, when a guess of gamma is known</p></td>
 </tr>
+<tr class="row-even"><td><p>--sys_in=””</p></td>
+<td><p>system comp “mol” or “wt”, default is “mol”</p></td>
+</tr>
 </tbody>
 </table>
 <p>where <em>x</em> is an <code class="docutils literal notranslate"><span class="pre">integer</span></code>, <em>y</em> a <code class="docutils literal notranslate"><span class="pre">float</span></code>/<code class="docutils literal notranslate"><span class="pre">double</span></code> and <em>[]</em> a comma-separated list of size <em>number of oxydes</em>.</p>
@@ -262,15 +289,15 @@
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 10%" />
-<col style="width: 12%" />
+<col style="width: 11%" />
 <col style="width: 8%" />
 <col style="width: 8%" />
-<col style="width: 8%" />
+<col style="width: 10%" />
 <col style="width: 8%" />
 <col style="width: 10%" />
 <col style="width: 10%" />
 <col style="width: 5%" />
-<col style="width: 12%" />
+<col style="width: 11%" />
 <col style="width: 8%" />
 </colgroup>
 <tbody>
@@ -278,7 +305,7 @@
 <td><p>Al2O3</p></td>
 <td><p>CaO</p></td>
 <td><p>MgO</p></td>
-<td><p>FeO</p></td>
+<td><p>FeOt</p></td>
 <td><p>K2O</p></td>
 <td><p>Na2O</p></td>
 <td><p>TiO2</p></td>
@@ -288,6 +315,7 @@
 </tr>
 </tbody>
 </table>
+<p>Note that FeOt is the total iron!</p>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
@@ -299,6 +327,10 @@
 </pre></div>
 </div>
 <p>Here, the verbose is active and the bulk rock composition of <em>test 0</em> is selected. The output of the verbose is saved as a log file <em>log.txt</em>.</p>
+<p>If you want to do a computation using a different bulk rock composition you can pass the custom bulk such as:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./MAGEMin --Verb<span class="o">=</span><span class="m">1</span> --Temp<span class="o">=</span><span class="m">488</span>.750 --Pres<span class="o">=</span><span class="m">3</span>.5000 --Bulk<span class="o">=</span><span class="m">41</span>.49,1.57,3.824,50.56,5.88,0.01,0.25,0.10,0.1,0.0 --sys_in<span class="o">=</span>mol
+</pre></div>
+</div>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
@@ -324,18 +356,18 @@
 <tr class="row-odd"><td><p>Mode(0-1)</p></td>
 <td><p>Pressure(kbar)</p></td>
 <td><p>Temperature(C)</p></td>
-<td><p>Gamma_1</p></td>
-<td><p>Gamma_2</p></td>
+<td><p>Bulk_1</p></td>
+<td><p>Bulk_2</p></td>
 <td><p>…</p></td>
-<td><p>Gamma_n</p></td>
+<td><p>Bulk_n</p></td>
 </tr>
 </tbody>
 </table>
 <ul class="simple">
 <li><p>mode = 0 for global minimization</p></li>
-<li><p>“Gamma_n” is the array of oxide chemical potential (defining the Gibbs-hyperplane). This functionality is in development and will be used in a future update to provide an initial guess of the Gibbs-hyperplane to improve performances.</p></li>
+<li><p>“Bulk_n” is the bulk rock composition in oxides (mol or wt fraction).</p></li>
 </ul>
-<p>A valid list of points is for instance:</p>
+<p>A valid list of points for an in-built test is given by is for instance:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>MAGEMin_input.dat:
 
 <span class="m">0</span> <span class="m">0</span>.0 <span class="m">800</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0 <span class="m">0</span>.0
@@ -345,6 +377,24 @@
 <span class="o">(</span>...<span class="o">)</span>
 </pre></div>
 </div>
+<p>You can compute the list of points using:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./MAGEMin --Verb<span class="o">=</span><span class="m">1</span> --File<span class="o">=</span>/path_to_file/MAGEMin_input.dat --n_points<span class="o">=</span><span class="m">4</span> --test<span class="o">=</span><span class="m">0</span>
+</pre></div>
+</div>
+<p>To compute a custom liast of bulk-rock compositions you have to provide the oxide composition and replace the “0.0” such as:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>MAGEMin_input.dat:
+
+<span class="m">0</span> <span class="m">0</span>.0 <span class="m">800</span>.0 <span class="m">41</span>.49 <span class="m">1</span>.57 <span class="m">4</span>.824 <span class="m">52</span>.56 <span class="m">5</span>.88 <span class="m">0</span>.01 <span class="m">0</span>.25 <span class="m">0</span>.10 <span class="m">0</span>.1 <span class="m">0</span>.0
+<span class="m">0</span> <span class="m">4</span>.0 <span class="m">800</span>.0 <span class="m">44</span>.49 <span class="m">1</span>.56 <span class="m">3</span>.24 <span class="m">48</span>.56 <span class="m">5</span>.2 <span class="m">0</span>.01 <span class="m">0</span>.25 <span class="m">0</span>.10 <span class="m">0</span>.1 <span class="m">0</span>.0
+<span class="m">0</span> <span class="m">8</span>.0 <span class="m">800</span>.0 <span class="m">42</span>.49 <span class="m">1</span>.27 <span class="m">3</span>.84 <span class="m">51</span>.56 <span class="m">4</span>.28 <span class="m">0</span>.01 <span class="m">0</span>.25 <span class="m">0</span>.10 <span class="m">0</span>.1 <span class="m">0</span>.0
+<span class="m">0</span> <span class="m">8</span>.0 <span class="m">800</span>.0 <span class="m">40</span>.49 <span class="m">1</span>.87 <span class="m">1</span>.824 <span class="m">50</span>.56 <span class="m">6</span>.08 <span class="m">0</span>.01 <span class="m">0</span>.25 <span class="m">0</span>.10 <span class="m">0</span>.1 <span class="m">0</span>.0
+<span class="o">(</span>...<span class="o">)</span>
+</pre></div>
+</div>
+<p>Then compute the list of points while indicating the system composition unit (<code class="docutils literal notranslate"><span class="pre">mol</span></code> or <code class="docutils literal notranslate"><span class="pre">wt</span></code> fraction):</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./MAGEMin --Verb<span class="o">=</span><span class="m">1</span> --File<span class="o">=</span>/path_to_file/MAGEMin_input.dat --n_points<span class="o">=</span><span class="m">4</span> --sys_in<span class="o">=</span>mol
+</pre></div>
+</div>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
@@ -352,11 +402,11 @@
 <section id="multiple-points-in-parallel">
 <h1>Multiple points in parallel<a class="headerlink" href="#multiple-points-in-parallel" title="Permalink to this headline"></a></h1>
 <p>To run a list of points in parallel, you simply need to call “MPI” before MAGEMin and give the number of cores you want to use. Valid calls using previously defined input file are for instance:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mpirun -np <span class="m">8</span> ./MAGEMin --Verb<span class="o">=</span><span class="m">1</span> --File<span class="o">=</span>/path_to_file/MAGEMin_input.dat --n_points<span class="o">=</span><span class="m">4</span>
-mpiexec -n <span class="m">8</span> ./MAGEMin --Verb<span class="o">=</span><span class="m">1</span> --File<span class="o">=</span>/path_to_file/MAGEMin_input.dat --n_points<span class="o">=</span><span class="m">4</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mpirun -np <span class="m">8</span> ./MAGEMin --Verb<span class="o">=</span><span class="m">1</span> --File<span class="o">=</span>/path_to_file/MAGEMin_input.dat --n_points<span class="o">=</span><span class="m">4</span> --test<span class="o">=</span><span class="m">0</span>
+mpiexec -n <span class="m">8</span> ./MAGEMin --Verb<span class="o">=</span><span class="m">1</span> --File<span class="o">=</span>/path_to_file/MAGEMin_input.dat --n_points<span class="o">=</span><span class="m">4</span> --test<span class="o">=</span><span class="m">0</span>
 </pre></div>
 </div>
-<p>where “y” is the desired number of cores.</p>
+<p>where 8 is the desired number of cores.</p>
 </section>
 
 
@@ -364,7 +414,7 @@ mpiexec -n <span class="m">8</span> ./MAGEMin --Verb<span class="o">=</span><spa
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../ckbk.html" class="btn btn-neutral float-left" title="Command line minimization" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="out_struct.html" class="btn btn-neutral float-right" title="As a nested structure" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="out_struct.html" class="btn btn-neutral float-right" title="THERMOCALC-like output" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

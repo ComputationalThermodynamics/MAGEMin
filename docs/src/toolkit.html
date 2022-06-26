@@ -39,11 +39,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">In development:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../news.html">Seismic velocity calculation</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../stp.html">Linux-based system</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../stp/Linux.html">External libraries</a></li>
@@ -95,7 +91,15 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ckbk.html#data-output">Data output</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../ckbk/out_struct.html">As a nested structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/out_struct.html">THERMOCALC-like output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/out_struct.html#as-a-nested-structure">As a nested structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#computation-information">Computation information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#system-information">System information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#phase-proportions">Phase proportions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#solution-phases-information">Solution phases information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#id1">Solution phases information</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ckbk.html#pseudosection-generator">Pseudosection generator</a><ul>
@@ -134,6 +138,20 @@
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#access-output-structure">Access output structure</a></li>
 </ul>
 </li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Known issues &amp; Tips!</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../issues.html">Quick tips!</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#minimum-pressure">Minimum pressure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#reduced-chemical-system">Reduced chemical system</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../issues.html#known-problems">Known problems</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#reduced-chemical-systems">Reduced chemical systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#low-temperature-stabilitzation">Low temperature stabilitzation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#hp-lt-melt-prediction">HP-LT melt prediction</a></li>
 </ul>
 </li>
 </ul>
@@ -222,6 +240,25 @@
 <dt class="sig sig-object c" id="c.print_help">
 <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">print_help</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.print_help" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.print_help"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>function to print help and give command line parameters</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.retrieve_bulk_PT">
+<span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">retrieve_bulk_PT</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">sys_in</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="n"><span class="pre">File</span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">50</span></span><span class="p"><span class="pre">]</span></span>, <span class="n"><span class="pre">io_data</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">input_data</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">test</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">sgleP</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">Bulk</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">bulk_rock</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.retrieve_bulk_PT" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.retrieve_bulk_PT"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>retrieve bulk rock composition and PT compositions</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.convert_system_comp">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">convert_system_comp</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">sys_in</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">bulk_rock</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.convert_system_comp" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.convert_system_comp"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>retrieve bulk rock composition and PT compositions
+This function is not used in the C version of MAGEMin, but can be called via the Julia wrapper MAGEMin_C to normalize the composition</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.get_max_n_pc">
+<span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_max_n_pc</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">tot_pc</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">n_pc</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.get_max_n_pc" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.get_max_n_pc"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Get the number of max_pc</p>
 </dd></dl>
 
 <dl class="c function">
@@ -378,6 +415,12 @@
 </dd></dl>
 
 <dl class="c function">
+<dt class="sig sig-object c" id="c.non_rot_hyperplane">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">non_rot_hyperplane</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.non_rot_hyperplane" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.non_rot_hyperplane"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>non rotated G-hyperplane</p>
+</dd></dl>
+
+<dl class="c function">
 <dt class="sig sig-object c" id="c.raw_hyperplane">
 <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">raw_hyperplane</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">gb</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.raw_hyperplane" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.raw_hyperplane"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>raw G-hyperplane using Gamma</p>
@@ -417,6 +460,45 @@
 <dt class="sig sig-object c" id="c.get_ss_id">
 <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_ss_id</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">csd_phase_set</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">cp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.get_ss_id" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.get_ss_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>get id of active solution phases</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.wave_melt_correction">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">wave_melt_correction</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">Kb_L</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">Kb_S</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">Ks_S</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">rhoL</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">rhoS</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">Vp0</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">Vs0</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">meltFrac</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">aspectRatio</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">V_cor</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.wave_melt_correction" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.wave_melt_correction"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Melt-fraction correction for P-wave and S-wave velocities
+The routine uses the reduction formulation of Clark et al., (2017) and is based on the equilibrium geometry model for the solid skeleton of Takei et al., 1997.
+* aspectRatio:  Coefficient defining the geometry of the solid framework (contiguity): 0.0 (layered melt distributed) &lt; 0.1 (grain boundary melt) &lt; 1.0 (melt in separated bubble pockets)</p>
+<blockquote>
+<div><p>printf(” Vp_Sol      (harm) : %+12.5ft [km/s]n”,gv.solid_Vp);
+printf(” Vs_Sol      (harm) : %+12.5ft [km/s]n”,gv.solid_Vs);
+gv.solid_Vs = anelastic_correction( 0,</p>
+<blockquote>
+<div><p>gv.solid_Vs,
+z_b.P,
+z_b.T           );</p>
+</div></blockquote>
+<p>printf(” Vs_Sol      (anel) : %+12.5ft [km/s]n”,gv.solid_Vs);
+if (gv.melt_fraction &gt; 0.0){</p>
+<blockquote>
+<div><dl class="simple">
+<dt>wave_melt_correction(   gv.melt_bulkModulus,</dt><dd><p>gv.solid_bulkModulus,
+gv.solid_shearModulus,
+gv.melt_density,
+gv.solid_density,
+gv.solid_Vp,
+gv.solid_Vs,
+gv.melt_fraction,
+0.1,
+gv.V_cor                                );</p>
+</dd>
+</dl>
+<p>printf(”n Vp_Melt_cor        : %+12.5ft [km/s]n”,  gv.V_cor[0]);
+printf(” Vs_Melt_cor        : %+12.5ft [km/s]n”,      gv.V_cor[1]);
+printf(” Vp/Vs_Melt_cor     : %+12.5ft [km/s]n”,gv.V_cor[0]/gv.V_cor[1]);</p>
+</div></blockquote>
+<p>}
+printf(”n”);</p>
+</div></blockquote>
 </dd></dl>
 
 </section>

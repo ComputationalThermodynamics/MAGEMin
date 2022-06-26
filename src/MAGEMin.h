@@ -420,7 +420,6 @@ typedef struct stb_systems {
 	double *bulk_M_wt; double frac_M_wt;  			/* Melt system informations 												*/
 	double *bulk_F_wt; double frac_F_wt;  			/* Fluid system informations 												*/
 	
-
 	int     n_ph;									/* number of predicted stable phases 										*/
 	int     n_PP;									/* number of predicted stable pure phases 									*/
 	int     n_SS;									/* number of predicted stable solution phases 								*/

@@ -5,8 +5,8 @@
 #include <string.h>
 #include <complex.h> 
 #include <lapacke.h> 
-
 #include "MAGEMin.h"
+
 #include "gem_function.h"
 #include "gss_function.h"
 #include "NLopt_opt_function.h"
@@ -88,8 +88,8 @@ void print_help(	global_variable gv	){
 }
 
 /**
- * retrieve bulk rock composition and PT compositions
- */
+  retrieve bulk rock composition and PT compositions
+*/
 bulk_info retrieve_bulk_PT(				global_variable      gv,
 										char 				*sys_in,
 										char    			 File[50],
@@ -163,8 +163,8 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 
 
 /**
- * retrieve bulk rock composition and PT compositions
- * This function is not used in the C version of MAGEMin, but can be called via the Julia wrapper MAGEMin_C to normalize the composition
+  retrieve bulk rock composition and PT compositions
+  This function is not used in the C version of MAGEMin, but can be called via the Julia wrapper MAGEMin_C to normalize the composition
  */
 void convert_system_comp(				global_variable      gv,
 										char 				*sys_in,
