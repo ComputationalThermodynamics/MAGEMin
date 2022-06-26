@@ -128,7 +128,7 @@ global_variable global_variable_init(){
 
 	/* system parameters */
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.1.1 [06/05/2022]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.2.0 [26/06/2022]");	/** MAGEMin version 																*/
 
 	gv.len_ox           = 11;					/** number of components in the system 												*/
 	gv.max_n_cp 		= 128;					/** number of considered solution phases 											*/									
@@ -145,7 +145,7 @@ global_variable global_variable_init(){
 	gv.PC_df_add		= 4.0;					/** min value of df under which the PC is added 									*/
 
 	/* levelling parameters */
-	gv.em2ss_shift		= 1e-4;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
+	gv.em2ss_shift		= 1e-6;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
 	gv.bnd_filter_pc    = 10.0;					/** value of driving force the pseudocompound is considered 						*/
 	gv.n_pc				= 7000;
 	gv.max_G_pc         = 5.0;					/** dG under which PC is considered after their generation		 					*/
