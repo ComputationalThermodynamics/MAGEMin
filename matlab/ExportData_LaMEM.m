@@ -46,8 +46,10 @@ Rho_sol(isnan(Rho_sol)) =   min(Rho_sol(ind));
 
 Rho_liq                 =   PseudoSectionData.Rho_liq;
 ind                     =   find(Rho_liq>0);
-Rho_liq(Rho_liq==0)     =   min(Rho_liq(ind));
-Rho_liq(isnan(Rho_liq)) =   min(Rho_liq(ind));
+if ~isempty(ind)
+    Rho_liq(Rho_liq==0)     =   min(Rho_liq(ind));
+    Rho_liq(isnan(Rho_liq)) =   min(Rho_liq(ind));
+end
 
 % shift bounds slightly to avoid NaN's
 Pi      = P;   Pi(end,:) = Pi(end,:) - 1e-6; Pi(1,:) = Pi(1,:) + 1e-6;
@@ -115,10 +117,12 @@ for i=1:length(Chem)
     fprintf(fid,'%8s %10.8f \n',Chem{i,1},Chem{i,2});
 end
 
-for i=1:13
+for i=1:12
     fprintf(fid,'  \n');    
 end
 
+
+fprintf(fid,'[meltRho, rho,kg/m^3] [meltFrac, wtPercent, NoUnits] [rockRho, rho,kg/m^3] [Temperature, T, K] [Pressure, P, bar] [Vp, vp,km/s] [Vs, vs,km/s] [VpVs, vp/vs, NoUnits] \n');
 fprintf(fid,'%f \n', Tmin);
 fprintf(fid,'%f \n', dT);
 fprintf(fid,'%i \n', nt);
@@ -144,7 +148,7 @@ fclose(fid);
 rho         =   reshape(rho_sol,np,nt);
 rho_fluid   =   reshape(rho_liq,np,nt);
 melt        =   reshape(melt   ,np,nt);
-T           =   reshape(T_K    ,np,nt);       % degree C
+T           =   reshape(T_K    ,np,nt) - 273.15;       % degree C
 P           =   reshape(P_bar  ,np,nt)./1e3;  % kbar  - LaMEM input must be bar!
 
 
