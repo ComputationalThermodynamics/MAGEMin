@@ -57,6 +57,13 @@ Ti      = T;   Ti(:,end) = Ti(:,end) - 1e-6; Ti(:,1) = Ti(:,1) + 1e-6;
 rho_sol = Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.TP_vec, Rho_sol,               Ti, Pi);
 rho_liq = Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.TP_vec, Rho_liq,               Ti, Pi);
 melt    = Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.TP_vec, PseudoSectionData.liq, Ti, Pi);
+Vp      = Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.TP_vec, PseudoSectionData.Vp,  Ti, Pi);
+Vs      = Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.TP_vec, PseudoSectionData.Vs,  Ti, Pi);
+
+VpVs      = Vp./Vs;
+ind       = find(VpVs>3);
+VpVs(ind) = NaN;
+
 
 %========================================================= 
 % Transfer to format that LaMEM expects
@@ -76,13 +83,13 @@ dT      =   dT*1;
 fid = fopen([FileDir,filesep,FileName],'w+');
 
 % Write header info
-fprintf(fid,'5 \n');
+fprintf(fid,'8 \n');
 fprintf(fid,'  \n');
-fprintf(fid,'Phase diagram version: 0.1 \n');
+fprintf(fid,'Phase diagram version: 0.11 \n');
 fprintf(fid,'DATA:  \n');
 fprintf(fid,'Phase diagram always needs this 5 columns: \n');
-fprintf(fid,'1                     2              3         4       5  \n');
-fprintf(fid,'rho_fluid [kg/m3]   melt []    rho [kg/m3]   T [K]   P [bar] \n');
+fprintf(fid,'1                     2              3         4       5         6        7      8      \n');
+fprintf(fid,'rho_fluid [kg/m3]   melt []    rho [kg/m3]   T [K]   P [bar]  Vp[km/s] Vs[km/s] Vp/Vs[] \n');
 fprintf(fid,'  \n');
 fprintf(fid,'  \n');
 fprintf(fid,'LINES:    \n'); 
@@ -125,7 +132,7 @@ melt    =   melt(:);
 rho_sol =   rho_sol(:);
 
 for i=1:length(T_K)
-    fprintf(fid,'%1.2f %1.5f %1.2f %1.4f %1.3f \n', rho_liq(i), melt(i), rho_sol(i), T_K(i), P_bar(i));
+    fprintf(fid,'%1.2f %1.5f %1.2f %1.4f %1.3f %1.2f %1.2f %1.2f\n', rho_liq(i), melt(i), rho_sol(i), T_K(i), P_bar(i), Vp(i), Vs(i), VpVs(i));
 end
 fclose(fid);
 
@@ -184,7 +191,30 @@ colorbar
 
     
 
+figure(2),clf
+subplot(221)
+pcolor(T,P,Vp)
+shading interp
+colorbar
+ylabel('P [kbar]')
+xlabel('T [Celcius]')
+title('Vp [km/s]')
 
+subplot(222)
+pcolor(T,P,Vs)
+shading interp
+colorbar
+ylabel('P [kbar]')
+xlabel('T [Celcius]')
+title('Vs [km/s]')
+
+subplot(223)
+pcolor(T,P,VpVs)
+shading interp
+colorbar
+ylabel('P [kbar]')
+xlabel('T [Celcius]')
+title('Vp/Vs []')
 
 
 
