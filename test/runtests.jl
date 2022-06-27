@@ -4,21 +4,21 @@ using Test
 cur_dir = pwd();    
 
 if  cur_dir[end-3:end]=="test"
-    cd("../")       # change to main directory if we are in /test
+    cd("../")           # change to main directory if we are in /test
 end
-using MAGEMin_C    # load MAGEMin (needs to be loaded from main directory to pick up correct library in case it is locally compiled)
+using MAGEMin_C         # load MAGEMin (needs to be loaded from main directory to pick up correct library in case it is locally compiled)
 
 # Initialize database 
-gv, DB = init_MAGEMin();
+gv, DB      = init_MAGEMin();
 
 test        = 0;
-sys_in      = "mol"     #default is mol, if wt is provided conversion be done internally (MAGEMin works on mol basis)
+sys_in      = "mol"     #default is mol, if wt is provided conversion will be done internally (MAGEMin works on mol basis)
 bulk_rock   = get_bulk_rock(gv, test)
 
 # Call optimization routine for given P & T & bulk_rock
 P           = 8.0
 T           = 800.0
-gv.verbose  = -1    # switch off any verbose
+gv.verbose  = -1        # switch off any verbose
 out         = point_wise_minimization(sys_in, P,T, bulk_rock, gv, DB);
 @show out
 

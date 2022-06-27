@@ -124,12 +124,21 @@ struct gmin_struct{T,I}
     bulk_M::Vector{T}   
     bulk_S::Vector{T}   
     bulk_F::Vector{T}   
+
+    bulk_wt::Vector{T}   
+    bulk_M_wt::Vector{T}   
+    bulk_S_wt::Vector{T}   
+    bulk_F_wt::Vector{T}   
     
     # Fractions:
     # Solid, melt, fluid fractions
     frac_M::T   
     frac_S::T
     frac_F::T
+
+    frac_M_wt::T   
+    frac_S_wt::T
+    frac_F_wt::T
  
     # Solid, melt, fluid densities
     rho::T
@@ -142,6 +151,7 @@ struct gmin_struct{T,I}
     n_SS::Int64                 # number of solid solutions
     
     ph_frac::Vector{T}          # phase fractions
+    ph_frac_wt::Vector{T}          # phase fractions
     ph_type::Vector{I}      # type of phase (SS or PP)
     ph_id::Vector{I}        # id of phase
     ph::Vector{String}          # Name of phase
@@ -183,11 +193,21 @@ function create_gmin_struct(DB, gv, time)
     bulk_M   = unsafe_wrap(Vector{Cdouble},stb.bulk_M, gv.len_ox)
     bulk_S   = unsafe_wrap(Vector{Cdouble},stb.bulk_S, gv.len_ox)
     bulk_F   = unsafe_wrap(Vector{Cdouble},stb.bulk_F, gv.len_ox)
+
+    # Bulk rock info (total, melt, solid, fluid)
+    bulk_wt     = unsafe_wrap(Vector{Cdouble},stb.bulk_wt,   gv.len_ox)
+    bulk_M_wt   = unsafe_wrap(Vector{Cdouble},stb.bulk_M_wt, gv.len_ox)
+    bulk_S_wt   = unsafe_wrap(Vector{Cdouble},stb.bulk_S_wt, gv.len_ox)
+    bulk_F_wt   = unsafe_wrap(Vector{Cdouble},stb.bulk_F_wt, gv.len_ox)
     
     # Solid, melt, fluid fractions
     frac_M   = stb.frac_M      
     frac_S   = stb.frac_S
     frac_F   = stb.frac_F
+    # Solid, melt, fluid fractions
+    frac_M_wt   = stb.frac_M_wt     
+    frac_S_wt   = stb.frac_S_wt
+    frac_F_wt   = stb.frac_F_wt
 
     # Solid, melt, fluid densities
     rho     = stb.rho
@@ -201,6 +221,7 @@ function create_gmin_struct(DB, gv, time)
     n_SS     =  stb.n_SS        # number of solid solutions
     
     ph_frac  =  unsafe_wrap(Vector{Cdouble},stb.ph_frac,   n_ph)
+    ph_frac_wt  =  unsafe_wrap(Vector{Cdouble},stb.ph_frac_wt,   n_ph)
     ph_type  =  unsafe_wrap(Vector{Cint},   stb.ph_type,   n_ph)
     ph_id    =  unsafe_wrap(Vector{Cint},   stb.ph_id  ,   n_ph)
     ph       =  unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, stb.ph, n_ph)) # stable phases
@@ -208,7 +229,6 @@ function create_gmin_struct(DB, gv, time)
     # extract info about compositional variables of the solution models:
     SS_vec  = convert.(LibMAGEMin.SS_data, unsafe_wrap(Vector{LibMAGEMin.stb_SS_phase},stb.SS,n_SS))
     
-
     # Info about the endmembers:
     PP_vec  = convert.(LibMAGEMin.PP_data, unsafe_wrap(Vector{LibMAGEMin.stb_PP_phase},stb.PP,n_PP))    
 
@@ -222,11 +242,13 @@ function create_gmin_struct(DB, gv, time)
 
     # Store all in output struct 
     out = gmin_struct{Float64,Int64}( G_system, Gamma, P_kbar, T_C, 
-                bulk, bulk_M, bulk_S, bulk_F, 
+                bulk, bulk_M, bulk_S, bulk_F,
+                bulk_wt, bulk_M_wt, bulk_S_wt, bulk_F_wt,  
                 frac_M, frac_S, frac_F, 
+                frac_M_wt, frac_S_wt, frac_F_wt, 
                 rho, rho_M, rho_S, rho_F,   
                 n_PP, n_SS,
-                ph_frac, ph_type, ph_id, ph,
+                ph_frac, ph_frac_wt, ph_type, ph_id, ph,
                 SS_vec,  PP_vec, 
                 oxides,  
                 stb.Vp, stb.Vs, stb.bulkMod, stb.shearMod,
@@ -244,6 +266,9 @@ function show(io::IO, g::gmin_struct)
     println(io, "     Stable phase | Fraction ")  
     for i=1:length(g.ph)
         println(io, "   $(lpad(g.ph[i],14," "))   $( round(g.ph_frac[i], digits=5)) ")  
+    end
+    for i=1:length(g.ph)
+        println(io, "   $(lpad(g.ph[i],14," "))   $( round(g.ph_frac_wt[i], digits=5)) ")  
     end
     println(io, "Gibbs free energy : $(round(g.G_system,digits=6))  ($(g.iter) iterations; $(round(g.time_ms,digits=2)) ms)")  
     if g.status>0
@@ -307,7 +332,7 @@ function print_info(g::gmin_struct)
           print("$(lpad(round(g.bulk[i],digits=5),8," ")) ")  
       end
       print("\n")
-  
+
       for i=1:g.n_SS
           print("$(lpad(g.ph[i],15," ")) ")  
           for j=1:length(g.oxides)
@@ -315,17 +340,57 @@ function print_info(g::gmin_struct)
           end
           print("\n")
       end
+
       for i=1:g.n_PP
         print("$(lpad(g.ph[i],15," ")) ")  
         for j=1:length(g.oxides)
             print("$(lpad(round(g.PP_vec[i].Comp[j],digits=5),8," ")) ")  
         end
         print("\n")
-    end
+      end
       print("\n")
+
       # ==
-      
     # ==
+
+    # ==
+      # ==
+      println("Oxide compositions [wt%] (normalized):")
+      print("                ")    
+      for i=1:length(g.oxides)
+          print("$(lpad(g.oxides[i],8," ")) ")  
+      end
+      print("\n")
+  
+      print("$(lpad("SYS",15)) ")  
+      for i=1:length(g.oxides)
+          print("$(lpad(round(g.bulk_wt[i],digits=5),8," ")) ")  
+      end
+      print("\n")
+
+      for i=1:g.n_SS
+        print("$(lpad(g.ph[i],15," ")) ")  
+        for j=1:length(g.oxides)
+            print("$(lpad(round(g.SS_vec[i].Comp_wt[j],digits=5),8," ")) ")  
+        end
+        print("\n")
+    end
+
+      print("\n")
+      for i=1:g.n_PP
+        print("$(lpad(g.ph[i],15," ")) ")  
+        for j=1:length(g.oxides)
+            print("$(lpad(round(g.PP_vec[i].Comp_wt[j],digits=5),8," ")) ")  
+        end
+        print("\n")
+      end
+      print("\n")
+
+      # ==
+    # ==
+    
+
+
     println("Stable mineral assemblage:")
     println("          phase     mode        f           G        V       Cp  rho[kg/m3]  Thermal_Exp BulkMod[GPa] ShearMod[GPa]   Vp[km/s]   Vs[km/s]    ")
     for i=1:g.n_SS
