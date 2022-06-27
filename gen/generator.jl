@@ -2,7 +2,7 @@ using Clang.Generators
 using Clang.LibClang.Clang_jll
 using Pkg
 using Pkg.Artifacts
-using MAGEMin_jll
+#using MAGEMin_jll
 using NLopt_jll
 using MPICH_jll
 
