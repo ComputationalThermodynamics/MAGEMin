@@ -141,6 +141,7 @@
 <p class="caption" role="heading"><span class="caption-text">Known issues &amp; Tips!</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../issues.html">Quick tips!</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#compiler">Compiler</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#minimum-pressure">Minimum pressure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#reduced-chemical-system">Reduced chemical system</a></li>
 </ul>
@@ -922,7 +923,6 @@
 <span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">id_cp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">pc_id</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">em_id</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">add_phase</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">phase_on</span><span class="p">[</span><span class="n">gv</span><span class="p">.</span><span class="n">len_ss</span><span class="p">];</span><span class="w"></span>
 <span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">ii</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">m_pc</span><span class="p">;</span><span class="w"></span>
@@ -936,7 +936,6 @@
 <span class="cm">		get initial conditions for active phases</span>
 <span class="cm">	*/</span><span class="w"></span>
 <span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_Ox</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">		</span><span class="n">add_phase</span><span class="w"> 	</span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
 <span class="w">		</span><span class="n">ph_id</span><span class="w"> 		</span><span class="o">=</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">ph_id_A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">];</span><span class="w"></span>
 <span class="w">			</span>
 <span class="w">		</span><span class="cm">/* if phase is a pure species */</span><span class="w"></span>
