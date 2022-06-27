@@ -123,7 +123,7 @@ global_variable global_variable_init(){
 	char   *SS_tmp[]     	= {"spn"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"hb"	,"ilm"	,"liq"	,"mu"	,"ol"	,"opx"	,"pl4T"	,"fl"		};
 	/* next entry is a flag to check for wrong local minimum/solvus when getting close to solution */
 	int     verifyPC_tmp[]	= {1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1			};
-	int 	n_SS_PC_tmp[]   = {1521		,1645	,121	,4384	,110	,1124	,6252	,465	,3099	,2376	,222	,1735	,231	,1			};
+	int 	n_SS_PC_tmp[]   = {1521		,1645	,121	,4574	,110	,1124	,4950	,420	,3099	,2376	,222	,1735	,231	,1			};
 	double 	SS_PC_stp_tmp[] = {0.249	,0.124	,0.098	,0.249	,0.049	,0.198	,0.249	,0.0499	,0.198	,0.198	,0.098	,0.249	,0.049	,1.0 		};
 
 	/* system parameters */
@@ -145,9 +145,9 @@ global_variable global_variable_init(){
 	gv.PC_df_add		= 4.0;					/** min value of df under which the PC is added 									*/
 
 	/* levelling parameters */
-	gv.em2ss_shift		= 1e-6;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
+	gv.em2ss_shift		= 1e-5;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
 	gv.bnd_filter_pc    = 10.0;					/** value of driving force the pseudocompound is considered 						*/
-	gv.n_pc				= 7000;
+	gv.n_pc				= 5000;
 	gv.max_G_pc         = 5.0;					/** dG under which PC is considered after their generation		 					*/
 	gv.eps_sf_pc		= 1e-10;				/** Minimum value of site fraction under which PC is rejected, 
 													don't put it too high as it will conflict with bounds of x-eos					*/
@@ -183,7 +183,7 @@ global_variable global_variable_init(){
 	gv.it_f             = 256;                  /** gives back failure when the number of iteration is bigger than it_f             */
 
 	/* phase update options */
-	gv.re_in_n          = 1e-2;					/** fraction of phase when being reintroduce.  										*/
+	gv.re_in_n          = 1e-3;					/** fraction of phase when being reintroduce.  										*/
 
 	/* density calculation */
 	gv.gb_P_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
