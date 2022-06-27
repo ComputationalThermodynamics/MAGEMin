@@ -7,10 +7,10 @@
 Quick tips!
 ===========
 
-Compiler
-********
+Compiler (Linux)
+****************
 
-When using the C version of MAGEMin on linux, the :literal:`gcc` compiler yields slightly better performances (5-10% faster) over the :literal:`clang`.
+* When using the C version of MAGEMin on linux, the :literal:`gcc` compiler yields slightly better performances (5-10% faster) over the :literal:`clang`.
 
 Minimum pressure
 ****************
