@@ -225,6 +225,15 @@ int runMAGEMin(			int    argc,
 			printf("   - Minimization using in-built bulk-rock  : test %2d\n",test);	
 		}							
 	}
+	else{
+		get_bulk(								bulk_rock,
+												0,
+												gv.len_ox 					);
+		if (gv.verbose == 1){
+			printf("\n");
+			printf("   - No input conditions provided -> run test point: KLB-1, 1100°C, 12kbar\n");	
+		}		
+	}
 
 
 	/****************************************************************************************/
