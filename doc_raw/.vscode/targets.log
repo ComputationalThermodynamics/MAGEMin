@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sun Jun 26 23:37:59 2022
+# Make data base, printed on Mon Jun 27 07:08:12 2022
 
 # Variables
 
@@ -43,6 +43,7 @@ SHELL = /bin/sh
 # environment
 VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupport":true}
 # environment
+ 
 _ = /usr/share/code/code
 # environment
 XDG_CONFIG_DIRS = /etc/xdg/xdg-ubuntu:/etc/xdg
@@ -101,7 +102,7 @@ XDG_SESSION_DESKTOP = ubuntu
 # environment
 SSH_AUTH_SOCK = /run/user/1000/keyring/ssh
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 2820
+GIO_LAUNCHED_DESKTOP_FILE_PID = 5776
 # automatic
 %F = $(notdir $%)
 # environment
@@ -157,7 +158,7 @@ SHLVL = 1
 # environment
 GNOME_SHELL_SESSION_MODE = ubuntu
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-29d39cf5-ec6e-4dd6-8d43-9a399b10d794.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-39653484-05ce-4c7b-b692-8bf8b2eae983.sock
 # environment
 XDG_SESSION_ID = 2
 # environment
@@ -213,6 +214,7 @@ LC_ALL = C
 # environment
 QT4_IM_MODULE = xim
 # environment
+ 
 GJS_DEBUG_TOPICS = JS ERROR;JS LOG
 # automatic
 ^F = $(notdir $^)
@@ -235,10 +237,12 @@ LANG = C
 # makefile (from 'Makefile', line 8)
 SOURCEDIR = .
 # environment
-VSCODE_PID = 2820
+VSCODE_PID = 5776
 # variable set hash-table stats:
+ 
 # Load=113/1024=11%, Rehash=0, Collisions=19/148=13%
 
+ 
 # Pattern-specific Variable Values
 
 # No pattern-specific variable values.
@@ -257,6 +261,7 @@ VSCODE_PID = 2820
 
 # 1 implicit rules, 0 (0.0%) terminal.
 
+ 
 # Files
 
 all: Makefile
@@ -279,7 +284,6 @@ all: Makefile
 # automatic
 # < := Makefile
 # automatic
- 
 # ^ := Makefile
 # automatic
 # ? := Makefile
@@ -302,6 +306,7 @@ Makefile:
 
 help:
 #  Phony target (prerequisite of .PHONY).
+ 
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
@@ -320,6 +325,7 @@ help:
 
 # No 'vpath' search paths.
 
+ 
 # No general ('VPATH' variable) search path.
 
 # strcache buffers: 1 (0) / strings = 31 / storage = 228 B / avg = 7 B
@@ -328,6 +334,6 @@ help:
 # strcache performance: lookups = 43 / hit rate = 27%
 # hash-table stats:
 # Load=31/8192=0%, Rehash=0, Collisions=1/43=2%
-# Finished Make data base on Sun Jun 26 23:37:59 2022
+# Finished Make data base on Mon Jun 27 07:08:12 2022
 
  

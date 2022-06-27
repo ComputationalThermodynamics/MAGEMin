@@ -1,7 +1,7 @@
 .. MAGEMin documentation
 
 .. image:: /figs/arg.png
-   :width: 120
+   :width: 80
    :align: right
 
 Command line minimization
@@ -14,7 +14,7 @@ Command line minimization
 
 
 .. image:: /figs/dataout.png
-   :width: 120
+   :width: 80
    :align: right
   
 Data output

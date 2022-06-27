@@ -1,7 +1,7 @@
 .. MAGEMin documentation
 
 .. image:: /figs/tips.png
-   :width: 120
+   :width: 80
    :align: right
 
 Quick tips!
@@ -23,7 +23,7 @@ Reduced chemical system
 |
 
 .. image:: /figs/wip.png
-   :width: 120
+   :width: 80
    :align: right
 
 Known problems
