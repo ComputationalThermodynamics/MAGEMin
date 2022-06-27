@@ -100,18 +100,6 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 										bulk_info 			 z_b,		
 										double 				*bulk_rock			){
 
-
-	if ( (input_data[sgleP].in_bulk[0] > 1e-6 || Bulk[0] > 1e-6) && test != -1){
-		printf(" %+10f +%10f %d\n",input_data[sgleP].in_bulk[0],Bulk[0],test);
-		printf("WARNING: an in-built has been selected, but either an arg or input bulk is also provided\n");
-		printf("   -> priority given to arg/input-file bulk \n");
-	}
-	/* set of warning messages for conflicting bulk */
-	if (input_data[sgleP].in_bulk[0] > 0.0 && Bulk[0] > 0.0){
-		printf("WARNING: bulk is given both as arg and from input-file\n");
-		printf("   -> priority given to input-file bulk\n");
-	}
-
 	/* bulk from command line arguments */
 	if (Bulk[0] > 0.0) {
 		if (gv.verbose == 1){

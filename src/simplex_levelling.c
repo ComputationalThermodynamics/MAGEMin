@@ -690,7 +690,6 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 	int id_cp = 0;
 	int pc_id;
 	int em_id;
-	int add_phase;
 	int phase_on[gv.len_ss];
 	int i, j, k, ii;
 	int m_pc;
@@ -704,7 +703,6 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 		get initial conditions for active phases
 	*/
 	for (i = 0; i < d->n_Ox; i++){
-		add_phase 	= 0;
 		ph_id 		= d->ph_id_A[i][1];
 			
 		/* if phase is a pure species */
