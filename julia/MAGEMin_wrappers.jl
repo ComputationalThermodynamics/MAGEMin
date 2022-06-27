@@ -263,10 +263,11 @@ function show(io::IO, g::gmin_struct)
     println(io, "Pressure          : $(g.P_kbar)      [kbar]")  
     println(io, "Temperature       : $(round(g.T_C,digits=4))    [Celcius]")  
     
-    println(io, "     Stable phase | Fraction ")  
+    println(io, "     Stable phase | Fraction (mol 1 atom basis) ")  
     for i=1:length(g.ph)
         println(io, "   $(lpad(g.ph[i],14," "))   $( round(g.ph_frac[i], digits=5)) ")  
     end
+    println(io, "     Stable phase | Fraction (wt fraction) ")  
     for i=1:length(g.ph)
         println(io, "   $(lpad(g.ph[i],14," "))   $( round(g.ph_frac_wt[i], digits=5)) ")  
     end
@@ -320,7 +321,7 @@ function print_info(g::gmin_struct)
     print("\n")
     # ==
       # ==
-      println("Oxide compositions [mol%] (normalized):")
+      println("Oxide compositions [mol% 1 atom basis] (normalized):")
       print("                ")    
       for i=1:length(g.oxides)
           print("$(lpad(g.oxides[i],8," ")) ")  
@@ -392,10 +393,11 @@ function print_info(g::gmin_struct)
 
 
     println("Stable mineral assemblage:")
-    println("          phase     mode        f           G        V       Cp  rho[kg/m3]  Thermal_Exp BulkMod[GPa] ShearMod[GPa]   Vp[km/s]   Vs[km/s]    ")
+    println("          phase  mode[mol1at] mode[wt]        f           G        V       Cp  rho[kg/m3]  Thermal_Exp BulkMod[GPa] ShearMod[GPa]   Vp[km/s]   Vs[km/s]    ")
     for i=1:g.n_SS
         print("$(lpad(g.ph[i],15," ")) ")  
-        print("$(lpad(round(g.ph_frac[i],digits=5),8," ")) ")  
+        print("$(lpad(round(g.ph_frac[i],digits=5),13," ")) ")  
+        print("$(lpad(round(g.ph_frac_wt[i],digits=5),8," ")) ")  
         print("$(lpad(round(g.SS_vec[i].f,digits=5),8," ")) ")  
         print("$(lpad(round(g.SS_vec[i].G,digits=5),8," ")) ")  
         print("$(lpad(round(g.SS_vec[i].V,digits=5),8," ")) ")  
@@ -411,7 +413,8 @@ function print_info(g::gmin_struct)
     end
     for i=1:g.n_PP
         print("$(lpad(g.ph[i],15," ")) ")  
-        print("$(lpad(round(g.ph_frac[i],digits=5),8," ")) ")  
+        print("$(lpad(round(g.ph_frac[i],digits=5),13," ")) ")  
+        print("$(lpad(round(g.ph_frac_wt[i],digits=5),8," ")) ") 
         print("$(lpad(round(g.PP_vec[i].f,digits=5),8," ")) ")  
         print("$(lpad(round(g.PP_vec[i].G,digits=5),8," ")) ")  
         print("$(lpad(round(g.PP_vec[i].V,digits=5),8," ")) ")  
@@ -427,8 +430,9 @@ function print_info(g::gmin_struct)
     end
     
     print("$(lpad("SYS",15," ")) ")  
-    print("$(lpad(round(sum(g.ph_frac),digits=5),4," ")) ")  
-    print("$(lpad(round(g.G_system,digits=5),24," ")) ")  
+    print("$(lpad(round(sum(g.ph_frac),digits=5),13," ")) ")  
+    print("$(lpad(round(sum(g.ph_frac_wt),digits=5),8," ")) ")  
+    print("$(lpad(round(g.G_system,digits=5),20," ")) ")  
     print("$(lpad(round(g.rho,digits=5),29," ")) ")  
     print("$(lpad(round(g.bulkMod,digits=5),25," ")) ")  
     print("$(lpad(round(g.shearMod,digits=5),13," ")) ")  
