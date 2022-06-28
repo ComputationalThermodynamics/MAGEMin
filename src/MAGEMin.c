@@ -347,7 +347,7 @@ int runMAGEMin(			int    argc,
 	if (gv.verbose != -1){
 		time_taken = ((double)u)/(CLOCKS_PER_SEC); 				/** in seconds */
 		if (rank==0){
-			printf("__________________________________\n");
+			printf("___________________________________\n");
 			printf("MAGEMin comp time: %+3f ms }\n", time_taken*1000.);
 		}
 	}
@@ -610,24 +610,6 @@ int runMAGEMin(			int    argc,
 								gv.solid_fraction,
 								0.1,
 								gv.V_cor				);
-	}
-
-	if (gv.verbose != -1){
-		printf("\nSystem information\n");
-		printf("═══════════════════\n");
-
-		printf(" Mass residual      : %+12.5e\n\n",gv.BR_norm);
-
-		printf(" Volume             : %+12.5f\n",sum_volume);
-		printf(" Density            : %+12.5f\n\n",gv.system_density);
-
-		printf(" Shear modulus      : %+12.5f\t [GPa]\n",gv.system_shearModulus);
-		printf(" Vp           (VRH) : %+12.5f\t [km/s]\n",gv.system_Vp);
-
-		if (not_only_liq == 1){
-			printf(" Vs           (VRH) : %+12.5f\t [km/s]\n",gv.system_Vs);
-			printf(" Vp/Vs        (VRH) : %+12.5f\t [km/s]\n",gv.system_Vp/gv.system_Vs);
-		}
 	}
 
 	return gv;
@@ -986,7 +968,7 @@ void PrintOutput(	global_variable 	gv,
 		printf(" Status             : %12i ",gv.status);
 		if (gv.verbose == 1){PrintStatus(gv.status);}
 		printf("\n");
-
+		printf(" Mass residual      : %+12.5e\n",gv.BR_norm);
     	printf(" Rank               : %12i \n",rank);
     	printf(" Point              : %12i \n",l);
     	printf(" Temperature        : %+12.5f\t [C] \n",   z_b.T - 273.15);
@@ -1000,28 +982,39 @@ void PrintOutput(	global_variable 	gv,
     }
 
 	if ((gv.verbose != -1) &&  (gv.Mode==0)){
-		printf("\nSOLUTION: [G = %.3f] (%i iterations, %.2f ms)\n",gv.G_system,gv.global_ite,time_taken*1000.0);
-		printf("[");
-		for (i = 0; i < z_b.nzEl_val; i++){
+		printf("\n");
+		printf(" SOL = [G: %.3f] (%i iterations, %.2f ms)\n",gv.G_system,gv.global_ite,time_taken*1000.0);
+		printf(" GAM = [");
+		for (i = 0; i < z_b.nzEl_val-1; i++){
 			printf("%+8f,",gv.gam_tot[z_b.nzEl_array[i]]);
 		}
+		printf("%+8f",gv.gam_tot[z_b.nzEl_val-1]);
 		printf("]\n\n");
-		printf(" Phase | Mode    |  x-eos...\n\n");
+
+		printf(" Phase : ");
 		for (int i = 0; i < gv.len_cp; i++){
 			if (DB.cp[i].ss_flags[1] == 1){
-				printf(" %5s | %.5f |", DB.cp[i].name, DB.cp[i].ss_n);
-
-				for (int j = 0; j < DB.cp[i].n_xeos; j++){
-					printf(" %+10f",DB.cp[i].xeos[j]);
-				}
-				printf("\n");
+				printf(" %7s ", DB.cp[i].name);
 			}
 		}
 		for (int i = 0; i < gv.len_pp; i++){
 			if (gv.pp_flags[i][1] == 1){
-				printf(" %5s | %.5f\n", gv.PP_list[i], gv.pp_n[i]);
+				printf(" %7s ", gv.PP_list[i]);
 			}
-		}	
+		}
+		printf("\n");
+		printf(" Mode  : ");
+		for (int i = 0; i < gv.len_cp; i++){
+			if (DB.cp[i].ss_flags[1] == 1){
+				printf(" %.5f ", DB.cp[i].ss_n);
+			}
+		}
+		for (int i = 0; i < gv.len_pp; i++){
+			if (gv.pp_flags[i][1] == 1){
+				printf(" %.5f ", gv.pp_n[i]);
+			}
+		}
+		printf("\n");	
 	}
 }
 

@@ -1142,7 +1142,7 @@ global_variable LP(		bulk_info 			z_b,
 	int mode = 1;
 
 	// while ( gv.global_ite < 32 ){
-	for (int gi = 0; gi < 32; gi++){
+	for (int gi = 0; gi < 16; gi++){
 
 		t = clock();
 
