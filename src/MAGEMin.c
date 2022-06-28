@@ -192,7 +192,6 @@ int runMAGEMin(			int    argc,
 		read_in_data(gv, input_data, File, n_points);			
 	}
 
-
 	/** allocate simplex data memory outside the MPI loop */
 	simplex_data 							splx_data;
 
@@ -207,7 +206,7 @@ int runMAGEMin(			int    argc,
 	if (test != -1){
 		get_bulk(								bulk_rock,
 												test,
-												gv.len_ox 					);
+												gv.len_ox 				);
 		if (gv.verbose == 1){
 			printf("\n");
 			printf("   - Minimization using in-built bulk-rock  : test %2d\n",test);	
@@ -216,7 +215,7 @@ int runMAGEMin(			int    argc,
 	else{
 		get_bulk(								bulk_rock,
 												0,
-												gv.len_ox 					);
+												gv.len_ox 				);
 		if (gv.verbose == 1){
 			printf("\n");
 			printf("   - No input conditions provided -> run test point: KLB-1, 1100°C, 12kbar\n");	
@@ -279,8 +278,6 @@ int runMAGEMin(			int    argc,
 		reset_sp(							gv,
 											DB.sp						);
 		
-
-
 		/* Perform calculation for a single point 									*/	
 		gv = ComputeEquilibrium_Point(		EM_database, 
 											input_data[sgleP],
@@ -630,19 +627,14 @@ int runMAGEMin(			int    argc,
 		if (not_only_liq == 1){
 			printf(" Vs           (VRH) : %+12.5f\t [km/s]\n",gv.system_Vs);
 			printf(" Vp/Vs        (VRH) : %+12.5f\t [km/s]\n",gv.system_Vp/gv.system_Vs);
-			printf("\n");
-			printf(" Vp_Melt_cor        : %+12.5f\t [km/s]\n",  gv.V_cor[0]);
-			printf(" Vs_Melt_cor        : %+12.5f\t [km/s]\n",	gv.V_cor[1]);
-			printf(" Vp/Vs_Melt_cor     : %+12.5f\t [km/s]\n\n",gv.V_cor[0]/gv.V_cor[1]);
 		}
-
 	}
 
 	return gv;
 }
 
 /** 
-  Compute stable equilibrium at given P/T/C point
+  Compute stable equilibrium at given Pressure, Temperature and bulk-rock composition
 */
 global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 												io_data 			 input_data,
@@ -690,22 +682,6 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 								SS_ref_db,								/** solution phase database 		*/
 								cp							);
 
-
-		if (gv.solver == 1){
-		/****************************************************************************************/
-		/**                               LINEAR PROGRAMMING                                   **/
-		/****************************************************************************************/	
-		gv 		= LP(			z_b,									/** bulk rock informations 			*/
-								gv,										/** global variables (e.g. Gamma) 	*/
-
-								SS_objective,
-							    splx_data,
-								PP_ref_db,								/** pure phase database 			*/
-								SS_ref_db,								/** solution phase database 		*/
-								cp							);
-	
-		}
-		else{
 		/****************************************************************************************/
 		/**                            PARTITIONING GIBBS ENERGY                               **/
 		/****************************************************************************************/
@@ -717,7 +693,6 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 								PP_ref_db,								/** pure phase database 			*/
 								SS_ref_db,								/** solution phase database 		*/
 								cp							);
-		}
 
 		if (gv.verbose == 1){
 			gv = check_PC_driving_force( 	z_b,						/** bulk rock constraint 			*/ 

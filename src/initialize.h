@@ -132,7 +132,8 @@ global_variable global_variable_init(){
 
 	gv.len_ox           = 11;					/** number of components in the system 												*/
 	gv.max_n_cp 		= 128;					/** number of considered solution phases 											*/									
-	gv.verbose          = 0;					/** verbose: -1, no verbose; 0, light verbose; 1, full verbose 										*/
+	gv.verbose          = 0;					/** verbose: -1, no verbose; 0, light verbose; 1, full verbose 						*/
+	gv.solver 			= 1;					/** activate legacy solver if PGE solver fails (LP solver, Teriak style)			*/
 
 	/* residual tolerance */
 	gv.br_max_tol       = 1.0e-5;				/** value under which the solution is accepted to satisfy the mass constraint 		*/
@@ -197,10 +198,10 @@ global_variable global_variable_init(){
 	gv.maxeval		    = gv.maxeval_mode_1;
 
 	/* declare chemical system */
-	gv.PGE_mass_norm  	= malloc (gv.it_f * sizeof (double) 	); 
-	gv.Alg  			= malloc (gv.it_f * sizeof (int) 		); 
-	gv.gamma_norm  		= malloc (gv.it_f * sizeof (double) 	); 
-	gv.ite_time  		= malloc (gv.it_f * sizeof (double) 	); 
+	gv.PGE_mass_norm  	= malloc (gv.it_f*2 * sizeof (double) 	); 
+	gv.Alg  			= malloc (gv.it_f*2 * sizeof (int) 		); 
+	gv.gamma_norm  		= malloc (gv.it_f*2 * sizeof (double) 	); 
+	gv.ite_time  		= malloc (gv.it_f*2 * sizeof (double) 	); 
 	
 	/* store values for numerical differentiation */
 	gv.n_Diff = 7;
@@ -211,6 +212,7 @@ global_variable global_variable_init(){
 	gv.numDiff[0][0] = 0.0;	gv.numDiff[0][1] = 0.0;		gv.numDiff[0][2] = 1.0;	gv.numDiff[0][3] = 1.0;		gv.numDiff[0][4] = 2.0;	gv.numDiff[0][5] = 1.0;	gv.numDiff[0][6] = 0.0;
 	gv.numDiff[1][0] = 1.0;	gv.numDiff[1][1] = -1.0;	gv.numDiff[1][2] = 1.0;	gv.numDiff[1][3] = -1.0;	gv.numDiff[1][4] = 0.0;	gv.numDiff[1][5] = 0.0;	gv.numDiff[1][6] = 0.0;
 	gv.V_cor = malloc (2 * sizeof(double));
+
 	/* declare size of chemical potential (gamma) vector */
 	gv.dGamma 			= malloc (gv.len_ox * sizeof(double)	);
 	gv.ox 				= malloc (gv.len_ox * sizeof(char*)		);
@@ -464,8 +466,6 @@ global_variable reset_gv(					global_variable 	 gv,
 											PP_ref 				*PP_ref_db,
 											SS_ref 				*SS_ref_db
 ){
-	gv.solver 			  = 0;
-
 	int i,j,k;
 	for (k = 0; k < gv.n_flags; k++){
 		for (i = 0; i < gv.len_pp; i++){

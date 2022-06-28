@@ -703,7 +703,6 @@ struct csd_phase_sets
     sum_dxi::Cdouble
     p_em::Ptr{Cdouble}
     xi_em::Ptr{Cdouble}
-    xeos_0::Ptr{Cdouble}
     dguess::Ptr{Cdouble}
     xeos::Ptr{Cdouble}
     dpdx::Ptr{Ptr{Cdouble}}
@@ -938,6 +937,7 @@ mutable struct global_variables
     melt_density::Cdouble
     melt_bulkModulus::Cdouble
     melt_fraction::Cdouble
+    solid_fraction::Cdouble
     solid_density::Cdouble
     solid_bulkModulus::Cdouble
     solid_shearModulus::Cdouble
@@ -1007,8 +1007,8 @@ function PGE(z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
     ccall((:PGE, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{obj_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
 end
 
-function run_LP_with_PGE_phase(z_b, splx_data, gv, PP_ref_db, SS_ref_db)
-    ccall((:run_LP_with_PGE_phase, libMAGEMin), global_variable, (bulk_info, Ptr{simplex_data}, global_variable, Ptr{PP_ref}, Ptr{SS_ref}), z_b, splx_data, gv, PP_ref_db, SS_ref_db)
+function run_LP(z_b, splx_data, gv, PP_ref_db, SS_ref_db)
+    ccall((:run_LP, libMAGEMin), global_variable, (bulk_info, Ptr{simplex_data}, global_variable, Ptr{PP_ref}, Ptr{SS_ref}), z_b, splx_data, gv, PP_ref_db, SS_ref_db)
 end
 
 function LP(z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
@@ -1465,14 +1465,6 @@ function init_ss_db(EM_database, z_b, gv, SS_ref_db)
     ccall((:init_ss_db, libMAGEMin), global_variable, (Cint, bulk_info, global_variable, Ptr{SS_ref}), EM_database, z_b, gv, SS_ref_db)
 end
 
-function SS_ref_destroy(gv, SS_ref_db)
-    ccall((:SS_ref_destroy, libMAGEMin), Cvoid, (global_variable, Ptr{SS_ref}), gv, SS_ref_db)
-end
-
-function CP_destroy(gv, cp)
-    ccall((:CP_destroy, libMAGEMin), Cvoid, (global_variable, Ptr{csd_phase_set}), gv, cp)
-end
-
 function print_help(gv)
     ccall((:print_help, libMAGEMin), Cvoid, (global_variable,), gv)
 end
@@ -1650,8 +1642,8 @@ function get_ss_id(gv, cp)
     ccall((:get_ss_id, libMAGEMin), global_variable, (global_variable, Ptr{csd_phase_set}), gv, cp)
 end
 
-function wave_melt_correction(Kb_L, Kb_S, Ks_S, rhoL, rhoS, Vp0, Vs0, meltFrac, aspectRatio, V_cor)
-    ccall((:wave_melt_correction, libMAGEMin), Cvoid, (Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Ptr{Cdouble}), Kb_L, Kb_S, Ks_S, rhoL, rhoS, Vp0, Vs0, meltFrac, aspectRatio, V_cor)
+function wave_melt_correction(Kb_L, Kb_S, Ks_S, rhoL, rhoS, Vp0, Vs0, meltFrac, solFrac, aspectRatio, V_cor)
+    ccall((:wave_melt_correction, libMAGEMin), Cvoid, (Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Ptr{Cdouble}), Kb_L, Kb_S, Ks_S, rhoL, rhoS, Vp0, Vs0, meltFrac, solFrac, aspectRatio, V_cor)
 end
 
 function anelastic_correction(water, Vs0, P, T)
@@ -1697,6 +1689,8 @@ const ko_optional_argument = 2
 #
 # START OF EPILOGUE
 #
+
+
 
 
 struct SS_data

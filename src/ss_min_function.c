@@ -254,8 +254,6 @@ void copy_to_Ppc(		int 				 i,
 		SS_ref_db[ph_id].id_Ppc  += 1;
 }
 
-
-
 /** 
 	Minimization function for PGE 
 */
@@ -272,7 +270,6 @@ void ss_min_PGE(		int 				 mode,
 	for (int i = 0; i < gv.len_cp; i++){ 
 		if (cp[i].ss_flags[0] == 1){
 
-
 			ph_id = cp[i].id;
 			cp[i].min_time		  		= 0.0;								/** reset local minimization time to 0.0 */
 			SS_ref_db[ph_id].min_mode 	= mode;								/** send the right mode to the local minimizer */
@@ -282,7 +279,6 @@ void ss_min_PGE(		int 				 mode,
 				set the iguess of the solution phase to the one of the considered phase 
 			*/
 			for (int k = 0; k < cp[i].n_xeos; k++) {
-				// SS_ref_db[ph_id].dguess[k] = cp[i].xeos[k];
 				SS_ref_db[ph_id].iguess[k] = cp[i].xeos[k];
 			}
 
@@ -351,7 +347,6 @@ void ss_min_PGE(		int 				 mode,
 														SS_objective,
 														SS_ref_db,
 														cp						);
-
 			}
 			else{
 				if (gv.verbose == 1){
@@ -390,7 +385,6 @@ void ss_min_LP(			int 				 mode,
 			*/
 			for (int k = 0; k < cp[i].n_xeos; k++) {
 				SS_ref_db[ph_id].iguess[k] = cp[i].xeos[k];
-				SS_ref_db[ph_id].dguess[k] = cp[i].xeos[k];
 			}
 
 			/**
