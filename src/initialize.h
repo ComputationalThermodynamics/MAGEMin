@@ -115,7 +115,7 @@ global_variable global_variable_init(){
 	gv.len_pp      		= 10;	
 	
 	/* Control center... */
-	gv.save_residual_evolution = 1;				/** verbose needs to be set to 0 to save the residual evolution 					*/
+	gv.save_residual_evolution = 0;				/** verbose needs to be set to 0 to save the residual evolution 					*/
 
 	/* oxides and solution phases */
 	char   *ox_tmp[] 		= {"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"Cr2O3","H2O"								};
@@ -512,6 +512,7 @@ global_variable reset_gv(					global_variable 	 gv,
 
 	gv.LP_PGE_switch	  = 0;
 	gv.melt_fraction	  = 0.;
+	gv.solid_fraction	  = 0.;
 	gv.melt_density       = 0.;
 	gv.melt_bulkModulus   = 0.;
 
@@ -587,11 +588,15 @@ void reset_sp(						global_variable 	 gv,
 	sp[0].frac_M_wt						= 0.0;
 	sp[0].frac_F_wt						= 0.0;
 
+	sp[0].frac_S						= 0.0;
+	sp[0].frac_M						= 0.0;
+	sp[0].frac_F						= 0.0;
 
 	/* reset system */
 	for (int i = 0; i < gv.len_ox; i++){
 		strcpy(sp[0].ph[i],"");	
 		sp[0].bulk[i] 					= 0.0;
+		sp[0].bulk_wt[i] 				= 0.0;
 		sp[0].gamma[i] 					= 0.0;
 		sp[0].bulk_S[i] 				= 0.0;
 		sp[0].bulk_M[i] 				= 0.0;
@@ -602,6 +607,7 @@ void reset_sp(						global_variable 	 gv,
 		sp[0].ph_type[i] 				= -1;
 		sp[0].ph_id[i] 					=  0;
 		sp[0].ph_frac[i] 				=  0.0;
+		sp[0].ph_frac_wt[i] 			=  0.0;
 	}
 
 	/* reset phases */
@@ -609,6 +615,8 @@ void reset_sp(						global_variable 	 gv,
 		for (int i = 0; i < gv.len_ox; i++){
 			sp[0].PP[n].Comp[i] 			= 0.0;
 			sp[0].SS[n].Comp[i] 			= 0.0;
+			sp[0].PP[n].Comp_wt[i] 			= 0.0;
+			sp[0].SS[n].Comp_wt[i] 			= 0.0;
 			sp[0].SS[n].compVariables[i] 	= 0.0;
 		}
 		for (int i = 0; i < gv.len_ox+1; i++){
@@ -619,6 +627,7 @@ void reset_sp(						global_variable 	 gv,
 
 			for (int j = 0; j < gv.len_ox; j++){
 				sp[0].SS[n].emComp[i][j]	= 0.0;
+				sp[0].SS[n].emComp_wt[i][j]	= 0.0;
 			}
 		}
 	}
@@ -715,7 +724,6 @@ void reset_cp(						global_variable 	 gv,
 			cp[i].xi_em[ii]     = 0.0;
 			cp[i].dguess[ii]    = 0.0;
 			cp[i].xeos[ii]      = 0.0;
-			cp[i].xeos_0[ii]    = 0.0;
 			cp[i].delta_mu[ii]  = 0.0;
 			cp[i].dfx[ii]       = 0.0;
 			cp[i].mu[ii]        = 0.0;

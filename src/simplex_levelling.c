@@ -1130,18 +1130,28 @@ void destroy_simplex_A(		simplex_data *splx_data
     for (int i = 0; i < d->n_Ox; i++){
 		free(d->ph_id_A[i]);
 	}
-	free(d->A);
-	free(d->pivot);
-	free(d->A1);
 	free(d->ph_id_A);
+
+	free(d->A);
+	free(d->A1);
+	free(d->Alu);
+
+	free(d->pivot);
+
 	free(d->g0_A);
 	free(d->dG_A);
+	
 	free(d->n_vec);
+
 	free(d->gamma_ps);
 	free(d->gamma_ss);
 	free(d->gamma_tot);
 	free(d->gamma_delta);
+
+	free(d->stage);
 };
+
+
 
 /**
   function to deallocte memory of simplex linear programming (B)

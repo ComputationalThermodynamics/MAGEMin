@@ -87,10 +87,11 @@ int main(		int    argc,
 int runMAGEMin(			int    argc, 
 						char **argv
 ){
-	int i,j, k;
-	int rank, numprocs;
-	int EM_database;
-	double time_taken;
+	int 	i,j,k;
+	int 	rank, numprocs;
+	int 	EM_database;
+	
+	double 	time_taken;
 
 	Databases DB;
 	
@@ -143,7 +144,7 @@ int runMAGEMin(			int    argc,
 	}
 
 	/** 
-	Read command-line arguments and set default parameters
+		Read command-line arguments and set default parameters
 	*/
 	gv = ReadCommandLineOptions(	 gv,
 									 argc, 
@@ -163,49 +164,36 @@ int runMAGEMin(			int    argc,
 									&get_help,
 									&solver,
 									 sys_in			); 
-									
-	gv.verbose 	= Verb;
-	gv.Mode 	= Mode;
-
-	if (solver == 1){
-		gv.solver = 1;
-	}
-
-    if (maxeval>-1){
-        gv.maxeval = maxeval;   // otherwise we use default. Note that 0 = no limit
-    }
-
-	/* initial dumping logs and output */
-	dump_init(gv);
 
 	if (rank==0 && gv.verbose != -1){
     	printf("\nRunning MAGEMin %5s on %d cores {\n", gv.version, numprocs);
     	printf("═══════════════════════════════════════════════\n");
 	}
+	
+	gv.verbose 	= Verb;
+	gv.Mode 	= Mode;
 
-	/****************************************************************************************/
-	/**              READ INPUT FILE FOR MULTIPLE P-T CONDITIONS, IF IT EXISTS             **/
-	/****************************************************************************************/
-	/* 	allocate space to store input data, P,T,X, gam, x-eos etc. */
-	io_data input_data[n_points]; 
+	if (solver == 1){ 	gv.solver = 1;			}
+    if (maxeval >-1){   gv.maxeval = maxeval; 	}
+
+	dump_init(gv);										//initialize output			
+
+	io_data input_data[n_points]; 						//allocate input data
+
+	if (Pres    > 0.0){ P = Pres 			   ;}		//get pressure from arg
+	if (Temp    > 0.0){ T = Temp + 273.15	   ;}		//get temperature from arg
+
+	/** initialize bulk-rock informations */				
+	z_b = initialize_bulk_infos(			P, 
+											T	);							
 
 	/* get data from input file */
 	if (strcmp( File, "none") != 0){	
 		read_in_data(gv, input_data, File, n_points);			
 	}
-	
-	/****************************************************************************************/
-	/**                       DEFINE SOME TEST BULK-ROCK COMPOSITIONS                      **/
-	/****************************************************************************************/
-	/* Override P,T & bulk with command-line options, if there is no file parsed: */
-	if (Pres    > 0.0){ P = Pres 										;}
-	if (Temp    > 0.0){ T = Temp + 273.15								;}
-	
-	/** Get zeros in bulk P and T 											*/				
-	z_b = initialize_bulk_infos(			P, 
-											T							);							
 
-	/** allocate simplex data memory outside the MPI loop 					*/
+
+	/** allocate simplex data memory outside the MPI loop */
 	simplex_data 							splx_data;
 
 	init_simplex_A(			   		   	   &splx_data,
@@ -215,7 +203,7 @@ int runMAGEMin(			int    argc,
 											gv							);
 						
 
-	/* get bulk rock composition parsed from args 							*/
+	/* get bulk rock composition parsed from args */
 	if (test != -1){
 		get_bulk(								bulk_rock,
 												test,
@@ -234,7 +222,6 @@ int runMAGEMin(			int    argc,
 			printf("   - No input conditions provided -> run test point: KLB-1, 1100°C, 12kbar\n");	
 		}		
 	}
-
 
 	/****************************************************************************************/
 	/**                               LAUNCH MINIMIZATION ROUTINE                          **/
@@ -350,9 +337,12 @@ int runMAGEMin(			int    argc,
 	/* free memory allocated to solution and pure phases */
 	FreeDatabases(gv, DB);
 
-	/** deallocate memory */
-	destroy_simplex_A(&splx_data);
-	destroy_simplex_B(&splx_data);
+	// destroy_simplex_A(&splx_data);
+	// destroy_simplex_B(&splx_data);
+
+
+	// free(input_data);
+	free(bulk_rock);
 
 	/* print the time */
 	u = clock() - u; 
@@ -475,7 +465,8 @@ int runMAGEMin(			int    argc,
 			sum_volume += cp[i].volume*cp[i].ss_n*cp[i].factor;
 
 			if (strcmp( cp[i].name, "liq") != 0 && strcmp( cp[i].name, "fl") != 0){
-				sum_volume_sol += cp[i].volume*cp[i].ss_n*cp[i].factor;
+				sum_volume_sol 		+= cp[i].volume*cp[i].ss_n*cp[i].factor;
+				gv.solid_fraction 	+= cp[i].ss_n;
 			}
 
 		}
@@ -532,8 +523,9 @@ int runMAGEMin(			int    argc,
 			PP_ref_db[i].phase_bulkModulus	= -dGdP/( dG2dP2 + pow(((dGdTPP-dGdTMP)/(gv.gb_P_eps)),2.0)/dG2dT2 );
 	
 			/** get sum of volume*fraction*factor to calculate vol% from mol% */
-			sum_volume 		+= PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor;
-			sum_volume_sol 	+= PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor;
+			sum_volume 			+= PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor;
+			sum_volume_sol 		+= PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor;
+			gv.solid_fraction 	+= gv.pp_n[i];
 		}
 	}
 
@@ -618,6 +610,7 @@ int runMAGEMin(			int    argc,
 								gv.solid_Vp,	
 								gv.solid_Vs,
 								gv.melt_fraction,
+								gv.solid_fraction,
 								0.1,
 								gv.V_cor				);
 	}
@@ -758,11 +751,8 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 					printf("--------------------------------------------------\n");
 				}					
 			}
-
-
 			printf("\n");
 		}
-
 	}
 	/* if Mode = 1, spit out Gibbs energy and reference values with given compositional variables */
 	else if (Mode == 1){
@@ -995,17 +985,15 @@ Databases InitializeDatabases(	global_variable gv,
 void FreeDatabases(		global_variable gv, 
 						Databases 		DB	){
 
-	CP_destroy(			gv, 
-						DB.cp				);
-	
-	free(DB.cp);
-	
 	for (int i = 0; i < n_em_db; i++) {
 		free(DB.EM_names[i]);
 	}
-	
 	free(DB.EM_names);
 	free(DB.PP_ref_db);
+	free(DB.SS_ref_db);
+	free(DB.sp);
+	free(DB.cp);
+	// free(gv);
 }
 
 /** 
@@ -1043,13 +1031,13 @@ void PrintOutput(	global_variable 	gv,
 			printf("%+8f,",gv.gam_tot[z_b.nzEl_array[i]]);
 		}
 		printf("]\n\n");
-		printf(" Phase | Mode    |  mu...\n\n");
+		printf(" Phase | Mode    |  x-eos...\n\n");
 		for (int i = 0; i < gv.len_cp; i++){
 			if (DB.cp[i].ss_flags[1] == 1){
 				printf(" %5s | %.5f |", DB.cp[i].name, DB.cp[i].ss_n);
 
-				for (int j = 0; j < DB.cp[i].n_em; j++){
-					printf(" %+10f",DB.cp[i].mu[j]);
+				for (int j = 0; j < DB.cp[i].n_xeos; j++){
+					printf(" %+10f",DB.cp[i].xeos[j]);
 				}
 				printf("\n");
 			}

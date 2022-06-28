@@ -997,9 +997,15 @@ void wave_melt_correction( 	 double  Kb_L,
 							 double  Vp0,
 							 double  Vs0,
 							 double  meltFrac,
+							 double  solFrac,
 							 double  aspectRatio,
 							 double *V_cor		)
 {
+
+	double sum 	 =  meltFrac + solFrac;
+	solFrac		/= sum;
+	meltFrac	/= sum;
+
 	double poisson = 0.25;
 
     double aij[3][4] ={ {0.318, 6.780, 57.560, 0.182},

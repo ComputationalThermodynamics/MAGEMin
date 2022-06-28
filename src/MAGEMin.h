@@ -301,7 +301,6 @@ typedef struct csd_phase_sets {
 
 	double *p_em;
 	double *xi_em;
-	double *xeos_0;
 	double *dguess;
 	double *xeos;
 	double **dpdx; 				/** This one is needed for the back2feasible system function */
@@ -587,6 +586,7 @@ typedef struct global_variables {
 	double   melt_density;
 	double   melt_bulkModulus;
 	double   melt_fraction;
+	double   solid_fraction;
 
 	double   solid_density;
 	double   solid_bulkModulus;
@@ -601,10 +601,10 @@ typedef struct global_variables {
 global_variable global_variable_init(void);
 
 /** Stores databases **/
-typedef struct Database {	PP_ref     		*PP_ref_db;			/** Pure phases 											*/
-							SS_ref     		*SS_ref_db;			/** Solid solution phases phases 							*/
-							csd_phase_set   *cp;				/** considered solution phases (solvus setup) 				*/
-							stb_system      *sp;				/** structure holding the informations of the stable phases */
+typedef struct Database {	PP_ref     		 *PP_ref_db;			/** Pure phases 											*/
+							SS_ref     		 *SS_ref_db;			/** Solid solution phases phases 							*/
+							csd_phase_set    *cp;				/** considered solution phases (solvus setup) 				*/
+							stb_system       *sp;				/** structure holding the informations of the stable phases */
 							char 	  		**EM_names;			/** Names of endmembers 									*/
 } Databases;
 

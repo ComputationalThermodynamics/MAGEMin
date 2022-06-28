@@ -40,11 +40,4 @@ global_variable init_ss_db(				int 				 EM_database,
 										bulk_info 	 		 z_b,
 										global_variable 	 gv,
 										SS_ref 				*SS_ref_db		);
-
-void SS_ref_destroy(					global_variable 	 gv, 
-										SS_ref 				*SS_ref_db		);
-
-void CP_destroy(						global_variable 	 gv, 
-										csd_phase_set 		*cp				);
-
 #endif

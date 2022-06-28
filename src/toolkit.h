@@ -119,6 +119,7 @@ void wave_melt_correction( 	 double  Kb_L,
 							 double  Vp0,
 							 double  Vs0,
 							 double  meltFrac,
+							 double  solFrac,
 							 double  aspectRatio,
 							 double *V_cor												);
 

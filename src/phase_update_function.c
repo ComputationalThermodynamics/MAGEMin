@@ -654,7 +654,7 @@ global_variable phase_hold2act(		bulk_info 		z_b,
 					
 		/* list through pure phases ordered by increasing dG */
 		if (hld_pp_sort[i].value < 0.0){									/** if driving force is negative, phase can be potentially added to the system and decrease Gibbs */
-			//if (gv.ph_change == 0 ){										/** if phase can be potentially added to the system 									*/
+			if (gv.ph_change == 0 ){										/** if phase can be potentially added to the system 									*/
 			if (gv.n_pp_phase > 0){											/** if a pure phase is already in the active set of phases 								*/
 				/* check if pure phase to add is a polymorph of one of active pure phase */
 				for (int k = 0; k < gv.len_pp; k++){
@@ -707,6 +707,7 @@ global_variable phase_hold2act(		bulk_info 		z_b,
 				gv.n_phase      	+= 1;								/** set new number of total active phases 												*/
 				gv.ph_change 		 = 1;								/** a phase change has been achieved during the iteration 								*/
 			}
+		}
 		}
 	}
 

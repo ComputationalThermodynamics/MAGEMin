@@ -806,19 +806,6 @@ global_variable run_LP_with_PGE_phase(				bulk_info 			 z_b,
 		gv.gam_tot[i] = d->gamma_tot[i];
 	}
 
-		// printf("\ngamPGE(%d,:) = [",gv.global_ite+1);
-		// for (int i = 0; i < gv.len_ox; i++){
-		// 	printf(" %+10f",gv.gam_tot[i]);
-		// }
-		// printf("];\n");
-		// printf("gamLP(%d,:) = [",gv.global_ite+1);
-		// for (int i = 0; i < gv.len_ox; i++){
-		// 	printf(" %+10f",d->gamma_tot[i]);
-		// }
-		// printf("];\n");
-
-
-
 	if (gv.verbose == 1){
 		printf("\n Total number of LP iterations: %d\n",k);	
 		printf(" [----------------------------------------]\n");
@@ -943,7 +930,6 @@ global_variable init_PGE_using_LP(					bulk_info 	 		 z_b,
 			cp[i].xi_em[ii]     = 0.0;
 			cp[i].dguess[ii]    = 0.0;
 			cp[i].xeos[ii]      = 0.0;
-			cp[i].xeos_0[ii]    = 0.0;
 			cp[i].delta_mu[ii]  = 0.0;
 			cp[i].dfx[ii]       = 0.0;
 			cp[i].mu[ii]        = 0.0;
@@ -1169,8 +1155,8 @@ global_variable LP(		bulk_info 			z_b,
 
 	int mode = 1;
 
-	// for (int gi = 0; gi < 32; gi++){				
-	while ( gv.global_ite < 32 ){
+	for (int gi = 0; gi < 32; gi++){				
+	// while ( gv.global_ite < 32 ){
 
 		t = clock();
 		if (gv.verbose == 1){
@@ -1320,9 +1306,11 @@ global_variable PGE(	bulk_info 			z_b,
 	gv.LP_PGE_switch = gv.global_ite;
 	gv.LP 	= 0;	gv.PGE 	= 1;
 
-	int mode = 1;
+	int mode 	= 1;
+	int iterate = 1;
+
 	// for (int gi = 0; gi < 1; gi++){	
-	while (gv.BR_norm > gv.br_max_tol || gv.outter_PGE_ite > (gv.global_ite - gv.LP_PGE_switch)){
+	while (iterate == 1){
 
 		t = clock();
 		if (gv.verbose == 1){
@@ -1434,28 +1422,6 @@ global_variable PGE(	bulk_info 			z_b,
 										cp					); 
 		}
 
-		/**
-		 * Solver status
-		 * 0: success
-		 * 1: under-relaxed
-		 * 2: more under-relaxed
-		 * 3: reached max iterations (failed)
-		 * 4: terminated due to slow convergence or a very large residual (failed)
-		**/
-		if (gv.global_ite > gv.it_1 && gv.BR_norm < gv.br_max_tol*gv.ur_1){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_1, gv.ur_1);}; gv.status = 1; break;}
-		if (gv.global_ite > gv.it_2 && gv.BR_norm < gv.br_max_tol*gv.ur_2){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_2, gv.ur_2);}; gv.status = 2; break;}
-		if (gv.global_ite > gv.it_3 && gv.BR_norm < gv.br_max_tol*gv.ur_3){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_3, gv.ur_3);}; gv.status = 2; break;}
-		if (gv.global_ite > gv.it_f){											if (gv.verbose != -1){printf(" >%d iterations, did not converge  !!!\n\n", gv.it_f);}; gv.status = 3; break;}
-
-		for (int i = 0; i < gv.len_cp; i++){
-			if (cp[i].ss_flags[0] == 1){
-				if (isnan(cp[i].df) == 1 || isinf(cp[i].df) == 1){
-					gv.div = 1;	
-				}
-			}
-		}
-		if (gv.div == 1){ gv.status = 4; break; }
-
 		t = clock() - t; 
 		if (gv.verbose == 1){
 			printf("\n __ iteration duration: %+4f ms __\n\n\n",((double)t)/CLOCKS_PER_SEC*1000);
@@ -1467,7 +1433,40 @@ global_variable PGE(	bulk_info 			z_b,
 		gv.ite_time[gv.global_ite] 		 = ((double)t)/CLOCKS_PER_SEC*1000;
 		gv.global_ite 			  		+= 1;
 
+		/*********************************************************/
+		/**               CHECK MINIMIZATION STATUS              */
+		/*********************************************************/
+
+		/* checks for full convergence  */
+		if (gv.BR_norm < gv.br_max_tol){ gv.status = 1;	iterate = 0;}
+		
+		/* checks for dampened convergence  */
+		if (gv.global_ite > gv.it_1 && gv.BR_norm < gv.br_max_tol*gv.ur_1){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_1, gv.ur_1);}; 	gv.status = 1; iterate = 0;}
+		if (gv.global_ite > gv.it_2 && gv.BR_norm < gv.br_max_tol*gv.ur_2){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_2, gv.ur_2);}; 	gv.status = 2; iterate = 0;}
+		if (gv.global_ite > gv.it_3 && gv.BR_norm < gv.br_max_tol*gv.ur_3){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_3, gv.ur_3);}; 	gv.status = 3; iterate = 0;}
+		
+		/* checks for not diverging but non converging cases  */
+		if (gv.global_ite >= gv.it_f){  										if (gv.verbose != -1){printf(" >%d iterations, not diverging but not converging\n\n",gv.it_f);}	gv.div = 1; gv.status = 4; iterate = 0;}
+
+		/* checks for divergence */
+		if ((log10(gv.BR_norm) > -1.5 && gv.global_ite > 64)){	gv.div = 1;	iterate = 0;}
+		if ((log10(gv.BR_norm) > -2.5 && gv.global_ite > 128)){	gv.div = 1;	iterate = 0;}
+
 	}
+
+	// if (gv.div == 1){
+	// 	printf("\n[PGE failed -> legacy solver...]\n");
+	// 	gv.div 		= 0;
+	// 	gv.status 	= 0;
+	// 	gv 			= LP(		z_b,									/** bulk rock informations 			*/
+	// 							gv,										/** global variables (e.g. Gamma) 	*/
+
+	// 							SS_objective,
+	// 							splx_data,
+	// 							PP_ref_db,								/** pure phase database 			*/
+	// 							SS_ref_db,								/** solution phase database 		*/
+	// 							cp							);
+	// }
 
 	return gv;
 };		

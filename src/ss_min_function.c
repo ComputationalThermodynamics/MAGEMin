@@ -344,13 +344,13 @@ void ss_min_PGE(		int 				 mode,
 														SS_ref_db,
 														cp						);	
 
-				// copy_to_Ppc(							i, 
-				// 										ph_id,
-				// 										gv,
+				copy_to_Ppc(							i, 
+														ph_id,
+														gv,
 
-				// 										SS_objective,
-				// 										SS_ref_db,
-				// 										cp						);
+														SS_objective,
+														SS_ref_db,
+														cp						);
 
 			}
 			else{
@@ -468,7 +468,6 @@ void ss_min_LP(			int 				 mode,
 
 };
 
-
 /**
   initialize solution phase database
 **/
@@ -493,83 +492,4 @@ global_variable init_ss_db(		int 				 EM_database,
 	}
 
 	return gv;
-};
-
-/**
-Function to destroy allocated memory of solution phase structure
-*/
-void SS_ref_destroy(	global_variable gv, 
-						SS_ref *SS_ref_db		){	
-											  
-	for (int i = 0; i < gv.len_ss; i++){
-		
-		free(SS_ref_db[i].ss_flags);
-		for (int j = 0; j < SS_ref_db[i].n_em; j++) {
-			free(SS_ref_db[i].dp_dx[j]);
-			free(SS_ref_db[i].Comp[j]);
-		}
-		free(SS_ref_db[i].dp_dx);
-		free(SS_ref_db[i].Comp);
-		
-		free(SS_ref_db[i].gbase);
-		free(SS_ref_db[i].gb_lvl);
-		free(SS_ref_db[i].z_em);
-		free(SS_ref_db[i].density);
-		free(SS_ref_db[i].dguess);
-		free(SS_ref_db[i].iguess);
-		free(SS_ref_db[i].p);
-		free(SS_ref_db[i].mat_phi);
-		free(SS_ref_db[i].mu_Gex);
-		free(SS_ref_db[i].sf);
-		free(SS_ref_db[i].mu);
-		free(SS_ref_db[i].dfx);
-		free(SS_ref_db[i].ss_comp);
-		free(SS_ref_db[i].xi_em);	
-		free(SS_ref_db[i].xeos);
-		free(SS_ref_db[i].dsf);
-
-		/** destroy box bounds */
-		for (int j = 0; j< SS_ref_db[i].n_xeos; j++) {
-			free(SS_ref_db[i].bounds[j]);
-			free(SS_ref_db[i].bounds_ref[j]);
-		}
-		free(SS_ref_db[i].bounds_ref);			
-		free(SS_ref_db[i].bounds);
-		
-		/** free pseudocompound related memory */
-		for (int j = 0; j< SS_ref_db[i].n_pc; j++) {
-			free(SS_ref_db[i].comp_pc[j]);
-			free(SS_ref_db[i].p_pc[j]);
-			free(SS_ref_db[i].xeos_pc[j]);
-		}
-		free(SS_ref_db[i].comp_pc);
-		free(SS_ref_db[i].n_swap);
-		free(SS_ref_db[i].info);
-		free(SS_ref_db[i].xeos_pc);
-		free(SS_ref_db[i].p_pc);
-		free(SS_ref_db[i].G_pc);
-		free(SS_ref_db[i].factor_pc);
-		free(SS_ref_db[i].DF_pc);
-		free(SS_ref_db[i].xeos_sf_ok);
-	}
-};
-
-/**
-	Function to destroy allocated memory of considered phase structure
-*/
-void CP_destroy(		global_variable gv, 
-						csd_phase_set  *cp		){	
-											  
-	for (int i = 0; i < gv.max_n_cp; i++){
-		free(cp[i].name);
-		free(cp[i].p_em);
-		free(cp[i].xi_em);
-		free(cp[i].dguess);
-		free(cp[i].xeos);
-		free(cp[i].ss_flags);
-		free(cp[i].ss_comp);
-		free(cp[i].dfx);
-		free(cp[i].sf);
-		free(cp[i].mu);
-	}
 };
