@@ -118,6 +118,7 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 		sp.SS[n].Comp_wt 		= malloc(gv.len_ox 	* sizeof(double)		);
 		sp.SS[n].compVariables	= malloc(gv.len_ox 	* sizeof(double)		);
 		sp.SS[n].emFrac			= malloc((gv.len_ox+1) * sizeof(double)		);
+		sp.SS[n].emFrac_wt		= malloc((gv.len_ox+1) * sizeof(double)		);
 		sp.SS[n].emChemPot		= malloc((gv.len_ox+1) * sizeof(double)		);
 		sp.SS[n].emNames 	    = malloc((gv.len_ox+1) * sizeof(char*)		);
 		sp.SS[n].emComp 	    = malloc((gv.len_ox+1) * sizeof(double*)	);

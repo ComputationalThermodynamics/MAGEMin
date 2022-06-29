@@ -399,12 +399,6 @@
 
 <span class="p">};</span><span class="w"></span></div>
 
-<div class="viewcode-block" id="c.get_max_n_pc"><a class="viewcode-back" href="../src/toolkit.html#c.get_max_n_pc">[docs]</a><span class="cm">/**</span>
-<span class="cm">  Get the number of max_pc</span>
-<span class="cm">*/</span><span class="w"></span>
-<span class="kt">int</span><span class="w"> </span><span class="nf">get_max_n_pc</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">tot_pc</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n_pc</span><span class="p">){</span><span class="w"></span>
-<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="p">((</span><span class="n">tot_pc</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">n_pc</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">(</span><span class="n">n_pc</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="n">tot_pc</span><span class="p">));</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span></div>
 
 <span class="cm">/* Normalize array to sum to 1 */</span><span class="w"></span>
 <div class="viewcode-block" id="c.norm_array"><span class="kt">double</span><span class="o">*</span><span class="w"> </span><span class="nf">norm_array</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">array</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -1230,9 +1224,15 @@
 <span class="w">							 </span><span class="kt">double</span><span class="w">  </span><span class="n">Vp0</span><span class="p">,</span><span class="w"></span>
 <span class="w">							 </span><span class="kt">double</span><span class="w">  </span><span class="n">Vs0</span><span class="p">,</span><span class="w"></span>
 <span class="w">							 </span><span class="kt">double</span><span class="w">  </span><span class="n">meltFrac</span><span class="p">,</span><span class="w"></span>
+<span class="w">							 </span><span class="kt">double</span><span class="w">  </span><span class="n">solFrac</span><span class="p">,</span><span class="w"></span>
 <span class="w">							 </span><span class="kt">double</span><span class="w">  </span><span class="n">aspectRatio</span><span class="p">,</span><span class="w"></span>
 <span class="w">							 </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">V_cor</span><span class="w">		</span><span class="p">)</span><span class="w"></span>
 <span class="p">{</span><span class="w"></span>
+
+<span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">sum</span><span class="w"> 	 </span><span class="o">=</span><span class="w">  </span><span class="n">meltFrac</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">solFrac</span><span class="p">;</span><span class="w"></span>
+<span class="w">	</span><span class="n">solFrac</span><span class="w">		</span><span class="o">/=</span><span class="w"> </span><span class="n">sum</span><span class="p">;</span><span class="w"></span>
+<span class="w">	</span><span class="n">meltFrac</span><span class="w">	</span><span class="o">/=</span><span class="w"> </span><span class="n">sum</span><span class="p">;</span><span class="w"></span>
+
 <span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">poisson</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.25</span><span class="p">;</span><span class="w"></span>
 
 <span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">aij</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">4</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="p">{</span><span class="w"> </span><span class="p">{</span><span class="mf">0.318</span><span class="p">,</span><span class="w"> </span><span class="mf">6.780</span><span class="p">,</span><span class="w"> </span><span class="mf">57.560</span><span class="p">,</span><span class="w"> </span><span class="mf">0.182</span><span class="p">},</span><span class="w"></span>

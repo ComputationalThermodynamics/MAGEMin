@@ -539,7 +539,6 @@ struct SS_refs
     n_pc::Cint
     tot_pc::Cint
     id_pc::Cint
-    n_swap::Ptr{Cint}
     info::Ptr{Cint}
     G_pc::Ptr{Cdouble}
     DF_pc::Ptr{Cdouble}
@@ -551,7 +550,6 @@ struct SS_refs
     n_Ppc::Cint
     tot_Ppc::Cint
     id_Ppc::Cint
-    n_swap_Ppc::Ptr{Cint}
     info_Ppc::Ptr{Cint}
     G_Ppc::Ptr{Cdouble}
     DF_Ppc::Ptr{Cdouble}
@@ -743,6 +741,7 @@ struct stb_SS_phases
     compVariables::Ptr{Cdouble}
     emNames::Ptr{Ptr{Cchar}}
     emFrac::Ptr{Cdouble}
+    emFrac_wt::Ptr{Cdouble}
     emChemPot::Ptr{Cdouble}
     emComp::Ptr{Ptr{Cdouble}}
     Comp_wt::Ptr{Cdouble}
@@ -869,11 +868,11 @@ mutable struct global_variables
     LVL_time::Cdouble
     em2ss_shift::Cdouble
     bnd_filter_pc::Cdouble
-    n_pc::Cint
     max_G_pc::Cdouble
     n_SS_PC::Ptr{Cint}
     SS_PC_stp::Ptr{Cdouble}
     eps_sf_pc::Cdouble
+    n_pc::Cint
     n_Ppc::Cint
     verifyPC::Ptr{Cint}
     n_solvi::Ptr{Cint}
@@ -1527,10 +1526,6 @@ function pseudo_inverse(matrix, B, m, n)
     ccall((:pseudo_inverse, libMAGEMin), Cvoid, (Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint), matrix, B, m, n)
 end
 
-function get_max_n_pc(tot_pc, n_pc)
-    ccall((:get_max_n_pc, libMAGEMin), Cint, (Cint, Cint), tot_pc, n_pc)
-end
-
 function get_act_sf(A, n)
     ccall((:get_act_sf, libMAGEMin), Cint, (Ptr{Cdouble}, Cint), A, n)
 end
@@ -1712,6 +1707,7 @@ struct SS_data
     compVariables::Vector{Cdouble}
     emNames::Vector{String}
     emFrac::Vector{Cdouble}
+    emFrac_wt::Vector{Cdouble}
     emChemPot::Vector{Cdouble}
     emComp::Vector{Vector{Float64}}
     emComp_wt::Vector{Vector{Float64}}
@@ -1726,6 +1722,7 @@ function Base.convert(::Type{SS_data}, a::stb_SS_phases)
                                     unsafe_wrap( Vector{Cdouble},        a.compVariables,    a.n_xeos),
                     unsafe_string.( unsafe_wrap( Vector{Ptr{Int8}},      a.emNames,          a.n_em)),
                                     unsafe_wrap( Vector{Cdouble},        a.emFrac,           a.n_em),
+                                    unsafe_wrap( Vector{Cdouble},        a.emFrac_wt,        a.n_em),
                                     unsafe_wrap( Vector{Cdouble},        a.emChemPot,        a.n_em),
       unsafe_wrap.(Vector{Cdouble}, unsafe_wrap( Vector{Ptr{Cdouble}},   a.emComp, a.n_em),  a.nOx),
       unsafe_wrap.(Vector{Cdouble}, unsafe_wrap( Vector{Ptr{Cdouble}},   a.emComp_wt, a.n_em),  a.nOx)   )

@@ -345,6 +345,7 @@ typedef struct stb_SS_phases {
 	
 	char   **emNames;
 	double  *emFrac;
+	double  *emFrac_wt;
 	double  *emChemPot;
 	double **emComp;
 

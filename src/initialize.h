@@ -627,6 +627,7 @@ void reset_sp(						global_variable 	 gv,
 			strcpy(sp[0].SS[n].emNames[i],"");	
 			
 			sp[0].SS[n].emFrac[i] 			= 0.0;
+			sp[0].SS[n].emFrac_wt[i] 		= 0.0;
 			sp[0].SS[n].emChemPot[i] 		= 0.0;
 
 			for (int j = 0; j < gv.len_ox; j++){
