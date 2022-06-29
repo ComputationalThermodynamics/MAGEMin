@@ -158,8 +158,6 @@ void cpx_c(unsigned m, double *result, unsigned n, const double *x, double *grad
         grad[114] = 0.0;
         grad[115] = 0.0;
         grad[116] = 0.0;
-
-        for (int i = 0; i < 117; i++){grad[i]/=4.0;}
     }
 
     return;
@@ -581,8 +579,6 @@ void hb_c(unsigned m, double *result, unsigned n, const double *x, double *grad,
         grad[167] = 1.0;
         grad[168] = 0.0;
         grad[169] = 0.0;
-
-        for (int i = 0; i < 170; i++){grad[i]/=4.0;}
     }
 
     return;
@@ -1186,8 +1182,6 @@ void spn_c(unsigned m, double *result, unsigned n, const double *x, double *grad
         grad[67] = 0.0;
         grad[68] = 0.0;
         grad[69] = 0.0;
-
-        for (int i = 0; i < 70; i++){grad[i]/=4.0;}
     }
 
     return;
