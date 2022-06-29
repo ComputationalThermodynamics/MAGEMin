@@ -333,12 +333,6 @@ int runMAGEMin(			int    argc,
 
 	/* free memory allocated to solution and pure phases */
 	FreeDatabases(gv, DB);
-
-	// destroy_simplex_A(&splx_data);
-	// destroy_simplex_B(&splx_data);
-
-
-	// free(input_data);
 	free(bulk_rock);
 
 	/* print the time */
@@ -956,7 +950,6 @@ void FreeDatabases(		global_variable gv,
 	free(DB.SS_ref_db);
 	free(DB.sp);
 	free(DB.cp);
-	// free(gv);
 }
 
 /** 

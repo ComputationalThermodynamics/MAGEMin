@@ -117,8 +117,6 @@ global_variable check_PC(					bulk_info 	 z_b,
 	double  df_candidate[n_candidate];
 	int     id_c;
 
-
-
 	for (i = 0; i < gv.len_ss; i++){
 		min_df    =  1e6;					// high starting value as it is expected to go down
 		phase_add =  0;
@@ -131,8 +129,7 @@ global_variable check_PC(					bulk_info 	 z_b,
 		}
 
 		if (SS_ref_db[i].ss_flags[0] == 1  && gv.verifyPC[i] == 1){
-			
-			for (l = 0; l < SS_ref_db[i].n_pc; l++){
+			for (l = 0; l < SS_ref_db[i].tot_pc; l++){
 
 				dist =  1;
 				if (gv.n_solvi[i] > 0){
@@ -141,6 +138,7 @@ global_variable check_PC(					bulk_info 	 z_b,
 						ph = SS_ref_db[i].solvus_id[k];
 
 						xeos_dist = euclidean_distance(cp[ph].xeos, SS_ref_db[i].xeos_pc[l], SS_ref_db[i].n_xeos);
+
 						if (xeos_dist < gv.PC_min_dist*gv.SS_PC_stp[i]*sqrt((double)SS_ref_db[i].n_xeos) ){
 							 dist = 0;
 						} 
@@ -168,6 +166,7 @@ global_variable check_PC(					bulk_info 	 z_b,
 			if (id_c == -1){ id_c = n_candidate-1;}
 
 			for (int c = 0; c < n_candidate; c++){
+
 				if (id_c == n_candidate){ id_c = 0;}
 
 				if (df_candidate[id_c] < gv.PC_df_add && pc_candidate[id_c] != -1){
@@ -300,7 +299,7 @@ global_variable check_PC_driving_force(		bulk_info 	 z_b,
 				
 			n_em 	 = SS_ref_db[i].n_em;
 
-			for (int l = 0; l < SS_ref_db[i].n_pc; l++){
+			for (int l = 0; l < SS_ref_db[i].tot_pc; l++){
 				SS_ref_db[i].DF_pc[l] = SS_ref_db[i].G_pc[l];
 				for (int j = 0; j < gv.len_ox; j++) {
 					SS_ref_db[i].DF_pc[l] -= SS_ref_db[i].comp_pc[l][j]*gv.gam_tot[j];
@@ -342,7 +341,7 @@ global_variable phase_merge_function(		bulk_info 			z_b,
 		printf(" phase |  #cp > #cp | Euclidian distance\n");
 	}
 	
-	int phid, i, j, k, l, iss, phA, phB;
+	int ph_id, i, j, k, l, iss, phA, phB;
 	double distance;
 
 	/* reinitialize the number of SS instances */
@@ -352,10 +351,10 @@ global_variable phase_merge_function(		bulk_info 			z_b,
 
 	/* get number of duplicated phases and their cp id */
 	for (i = 0; i < gv.len_cp; i++){
-		phid = cp[i].id;
+		ph_id = cp[i].id;
 		if (cp[i].ss_flags[0] == 1 ){
-			SS_ref_db[phid].solvus_id[gv.n_solvi[phid]] = i;
-			gv.n_solvi[phid] += 1;
+			SS_ref_db[ph_id].solvus_id[gv.n_solvi[ph_id]] = i;
+			gv.n_solvi[ph_id] += 1;
 		}
 	}
 
@@ -442,10 +441,10 @@ global_variable phase_merge_function(		bulk_info 			z_b,
 
 	/* get number of duplicated phases and their cp id */
 	for (i = 0; i < gv.len_cp; i++){
-		phid = cp[i].id;
+		ph_id = cp[i].id;
 		if (cp[i].ss_flags[0] == 1 ){
-			SS_ref_db[phid].solvus_id[gv.n_solvi[phid]] = i;
-			gv.n_solvi[phid] += 1;
+			SS_ref_db[ph_id].solvus_id[gv.n_solvi[ph_id]] = i;
+			gv.n_solvi[ph_id] += 1;
 		}
 	}
 	

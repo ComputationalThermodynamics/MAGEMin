@@ -143,7 +143,7 @@ SS_ref G_SS_bi_init_function(SS_ref SS_ref_db, int EM_database, global_variable 
 	
 	SS_ref_bi_db.is_liq    = 0;	
 	SS_ref_bi_db.symmetry  = 1;	
-	SS_ref_bi_db.n_sf      = 10;
+	SS_ref_bi_db.n_sf      = 11;
 	SS_ref_bi_db.n_em      = 6;
 	SS_ref_bi_db.n_w       = 15;
 	SS_ref_bi_db.n_xeos    = 5;
@@ -516,11 +516,11 @@ SS_ref G_SS_INIT_EM_function(		int			 		 ph_id,
 	/**
 		Allocate memory for levelling pseudocompounds 
 	*/
+	// SS_ref_db.n_pc   	= gv.n_pc;
 	SS_ref_db.n_pc   	= gv.n_SS_PC[ph_id];
 	SS_ref_db.G_pc   	= malloc ((SS_ref_db.n_pc) * sizeof (double) ); 
 	SS_ref_db.DF_pc 	= malloc ((SS_ref_db.n_pc) * sizeof (double) ); 
 	SS_ref_db.factor_pc = malloc ((SS_ref_db.n_pc) * sizeof (double) ); 
-	SS_ref_db.n_swap 	= malloc ((SS_ref_db.n_pc) * sizeof (int) 	 ); 
 	SS_ref_db.info  	= malloc ((SS_ref_db.n_pc) * sizeof (int) 	 ); 
 	SS_ref_db.p_pc 		= malloc ((SS_ref_db.n_pc) * sizeof (double*)); 
 	SS_ref_db.mu_pc 	= malloc ((SS_ref_db.n_pc) * sizeof (double*)); 
@@ -545,7 +545,6 @@ SS_ref G_SS_INIT_EM_function(		int			 		 ph_id,
 	SS_ref_db.G_Ppc   	= malloc ((SS_ref_db.n_Ppc) * sizeof (double) ); 
 	SS_ref_db.DF_Ppc 	= malloc ((SS_ref_db.n_Ppc) * sizeof (double) ); 
 	SS_ref_db.factor_Ppc= malloc ((SS_ref_db.n_Ppc) * sizeof (double) ); 
-	SS_ref_db.n_swap_Ppc= malloc ((SS_ref_db.n_Ppc) * sizeof (int) 	 ); 
 	SS_ref_db.info_Ppc 	= malloc ((SS_ref_db.n_Ppc) * sizeof (int) 	 ); 
 	SS_ref_db.p_Ppc 	= malloc ((SS_ref_db.n_Ppc) * sizeof (double*)); 
 	SS_ref_db.mu_Ppc 	= malloc ((SS_ref_db.n_Ppc) * sizeof (double*)); 
@@ -562,7 +561,6 @@ SS_ref G_SS_INIT_EM_function(		int			 		 ph_id,
 	for (int i = 0; i < (SS_ref_db.n_Ppc); i++){
 		SS_ref_db.xeos_Ppc[i] = malloc ((n_xeos)  * sizeof (double) 	);
 	}	
-
 
 	/* initiliazes eye matrix as there is no need to redo it afterward */
 	for (int i = 0; i < n_em; i++){

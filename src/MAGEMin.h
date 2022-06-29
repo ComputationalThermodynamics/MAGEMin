@@ -115,7 +115,6 @@ typedef struct SS_refs {
 	int      n_pc;				/** maximum number of pseudocompounds to store 								*/
 	int      tot_pc;			/** total number of pseudocompounds  										*/
 	int      id_pc;				/** total number of pseudocompounds  										*/
-	int     *n_swap;			/** number of time PC has been added to the assemblage 						*/
 	int     *info;				/** store some infos for debugging 											*/
 	double  *G_pc;				/** array to store the gibbs energy of the pseudocompounds 					*/
 	double  *DF_pc;				/** array to store the final driving force of the pseudocompounds 			*/
@@ -129,7 +128,6 @@ typedef struct SS_refs {
 	int      n_Ppc;				/** maximum number of pseudocompounds to store 								*/
 	int      tot_Ppc;			/** total number of pseudocompounds  										*/
 	int      id_Ppc;			/** total number of pseudocompounds  										*/
-	int     *n_swap_Ppc;		/** number of time PC has been added to the assemblage 						*/
 	int     *info_Ppc;			/** store some infos for debugging 											*/
 	double  *G_Ppc;				/** array to store the gibbs energy of the pseudocompounds 					*/
 	double  *DF_Ppc;			/** array to store the final driving force of the pseudocompounds 			*/
@@ -496,12 +494,11 @@ typedef struct global_variables {
 	
 	/* PSEUDOCOMPOUNDS */
 	double   bnd_filter_pc;     /** value of driving force the pseudocompound is considered to reduce the compositional space */
-	int  	 n_pc;
 	double 	 max_G_pc;
 	int     *n_SS_PC;
 	double  *SS_PC_stp;
 	double   eps_sf_pc;	
-	
+	int      n_pc;				/** maximum number of pseudocompounds to store 								*/
 	/*linear programming during PGE */
 	int  	 n_Ppc;
 

@@ -384,7 +384,7 @@ void ss_min_LP(			int 				 mode,
 			*/
 			for (int k = 0; k < cp[i].n_xeos; k++) {
 				SS_ref_db[ph_id].iguess[k] = cp[i].xeos[k];
-				SS_ref_db[ph_id].dguess[k] = cp[i].xeos[k];			//dguess can be used of LP, it is used for PGE to check for drifting
+				// SS_ref_db[ph_id].dguess[k] = cp[i].xeos[k];			//dguess can be used of LP, it is used for PGE to check for drifting
 			}
 
 			/**
@@ -398,7 +398,7 @@ void ss_min_LP(			int 				 mode,
 			*/
 			SS_ref_db[ph_id] = restrict_SS_HyperVolume(	gv, 
 														SS_ref_db[ph_id],
-														gv.box_size_mode_1		);
+														0.1		);
 			
 			/**
 				call to NLopt for non-linear + inequality constraints optimization
@@ -407,88 +407,39 @@ void ss_min_LP(			int 				 mode,
 														SS_ref_db[ph_id], 
 														ph_id					);
 			
-			/**
-				establish a set of conditions to update initial guess for next round of local minimization 
-			*/
-			// double stp[8] = {0.5,0.4,0.3,0.2,0.1,0.05,0.01,0.0};
-			double stp[12] = {0.1,0.05,0.025,0.1,0.05,0.025,0.01,0.005,0.0025,0.001,0.0005,0.0};
 
-			for (int n = 0; n < 8; n++){
-
-				for (int k = 0; k < cp[i].n_xeos; k++) {
-					SS_ref_db[ph_id].iguess[k]   =  SS_ref_db[ph_id].dguess[k]*stp[n] + SS_ref_db[ph_id].xeos[k]*(1.0 - stp[n]);
-				}
-
-
-				SS_ref_db[ph_id] = PC_function(				gv,
-															SS_ref_db[ph_id], 
-															z_b,
-															gv.SS_list[ph_id] 		);
-														
-				SS_ref_db[ph_id] = SS_UPDATE_function(		gv, 
-															SS_ref_db[ph_id], 
-															z_b, 
-															gv.SS_list[ph_id]		);
-
-				/**
-					add minimized phase to LP PGE pseudocompound list 
-				*/
-				if (SS_ref_db[ph_id].sf_ok == 1){
-					copy_to_Ppc(							i, 
-															ph_id,
-															gv,
-
-															SS_objective,
-															SS_ref_db,
-															cp						);	
-				}
-				else{
-					if (gv.verbose == 1){
-						printf(" !> SF [:%d] not respected for %4s (SS not updated)\n",SS_ref_db[ph_id].sf_id,gv.SS_list[ph_id]);
-					}	
-				}
+			for (int k = 0; k < cp[i].n_xeos; k++) {
+				SS_ref_db[ph_id].iguess[k]   =  SS_ref_db[ph_id].xeos[k];
 			}
 
-			// for (int k = 0; k < cp[i].n_xeos; k++) {
-			// 	SS_ref_db[ph_id].iguess[k]   =  SS_ref_db[ph_id].xeos[k];
-			// }
 
-			// SS_ref_db[ph_id] = PC_function(				gv,
-			// 											SS_ref_db[ph_id], 
-			// 											z_b,
-			// 											gv.SS_list[ph_id] 		);
+			SS_ref_db[ph_id] = PC_function(				gv,
+														SS_ref_db[ph_id], 
+														z_b,
+														gv.SS_list[ph_id] 		);
 													
-			// SS_ref_db[ph_id] = SS_UPDATE_function(		gv, 
-			// 											SS_ref_db[ph_id], 
-			// 											z_b, 
-			// 											gv.SS_list[ph_id]		);
+			SS_ref_db[ph_id] = SS_UPDATE_function(		gv, 
+														SS_ref_db[ph_id], 
+														z_b, 
+														gv.SS_list[ph_id]		);
 
-			// /** 
-			// 	print solution phase informations (print has to occur before saving PC)
-			// */
-			// if (gv.verbose == 1){
-			// 	print_SS_informations(  				gv,
-			// 											SS_ref_db[ph_id],
-			// 											ph_id					);
-			// }
+			/**
+				add minimized phase to LP PGE pseudocompound list 
+			*/
+			if (SS_ref_db[ph_id].sf_ok == 1){
+				copy_to_Ppc(							i, 
+														ph_id,
+														gv,
 
-			// /**
-			// 	add minimized phase to LP PGE pseudocompound list 
-			// */
-			// if (SS_ref_db[ph_id].sf_ok == 1){
-			// 	copy_to_Ppc(							i, 
-			// 											ph_id,
-			// 											gv,
-
-			// 											SS_objective,
-			// 											SS_ref_db,
-			// 											cp						);	
-			// }
-			// else{
-			// 	if (gv.verbose == 1){
-			// 		printf(" !> SF [:%d] not respected for %4s (SS not updated)\n",SS_ref_db[ph_id].sf_id,gv.SS_list[ph_id]);
-			// 	}	
-			// }
+														SS_objective,
+														SS_ref_db,
+														cp						);	
+			}
+			else{
+				if (gv.verbose == 1){
+					printf(" !> SF [:%d] not respected for %4s (SS not updated)\n",SS_ref_db[ph_id].sf_id,gv.SS_list[ph_id]);
+				}	
+			}
 
 		}
 	}

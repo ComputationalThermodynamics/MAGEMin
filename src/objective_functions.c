@@ -856,13 +856,13 @@ double obj_bi(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
     sf[7]           = -0.5*x[2] - 0.5*x[1] + 0.5;
     sf[8]           = 0.5*x[2] + 0.5*x[1] + 0.5;
     sf[9]           = 1.0 - x[3];
-    sf[10]           = x[3];
+    sf[10]          = x[3];
 
 	mu[0]          = R*T*creal(clog( 4.0*sf[0]*pow(sf[5], 2.0)*sf[7]*sf[8]*pow(sf[9], 2.0))) + gb[0] + mu_Gex[0];
 	mu[1]          = R*T*creal(clog( 4.0*sf[1]*pow(sf[6], 2.0)*sf[7]*sf[8]*pow(sf[9], 2.0))) + gb[1] + mu_Gex[1];
 	mu[2]          = R*T*creal(clog( 4.0*sf[1]*pow(sf[5], 2.0)*sf[7]*sf[8]*pow(sf[9], 2.0))) + gb[2] + mu_Gex[2];
 	mu[3]          = R*T*creal(clog( sf[4]*pow(sf[5], 2.0)*pow(sf[8], 2.0)*pow(sf[9], 2.0))) + gb[3] + mu_Gex[3];
-	mu[4]          = R*T*creal(clog( 4.0*pow(sf[3], 2.0)*sf[3]*pow(sf[5], 2.0)*sf[7]*sf[8])) + gb[4] + mu_Gex[4];
+	mu[4]          = R*T*creal(clog( 4.0*sf[3]*pow(sf[5], 2.0)*sf[7]*sf[8])* pow(sf[10], 2.0)) + gb[4] + mu_Gex[4];
 	mu[5]          = R*T*creal(clog( sf[2]*pow(sf[5], 2.0)*pow(sf[8], 2.0)*pow(sf[9], 2.0))) + gb[5] + mu_Gex[5];
 
 	d->sum_apep = 0.0;

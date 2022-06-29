@@ -157,6 +157,7 @@ global_variable global_variable_init(){
 													don't put it too high as it will conflict with bounds of x-eos					*/
 
 	/* PGE LP pseudocompounds parameters */
+	gv.n_pc 			= 5000;
 	gv.n_Ppc			= 2048;
 
 	/* solvus tolerance 		*/
@@ -768,8 +769,7 @@ void reset_SS(						global_variable 	 gv,
 		}
 
 		/* reset levelling pseudocompounds */
-		for (int i = 0; i < (SS_ref_db[iss].n_pc); i++){
-			SS_ref_db[iss].n_swap[i] = 0;
+		for (int i = 0; i < (SS_ref_db[iss].tot_pc); i++){
 			SS_ref_db[iss].info[i]   = 0;
 			SS_ref_db[iss].G_pc[i]   = 0.0;
 			SS_ref_db[iss].DF_pc[i]  = 0.0;
@@ -790,7 +790,6 @@ void reset_SS(						global_variable 	 gv,
 		SS_ref_db[iss].tot_Ppc 	= 0;
 		SS_ref_db[iss].id_Ppc  	= 0;
 		for (int i = 0; i < (SS_ref_db[iss].n_Ppc); i++){
-			SS_ref_db[iss].n_swap_Ppc[i] = 0;
 			SS_ref_db[iss].info_Ppc[i]   = 0;
 			SS_ref_db[iss].G_Ppc[i]      = 0.0;
 			SS_ref_db[iss].DF_Ppc[i]     = 0.0;
@@ -847,7 +846,7 @@ void init_simplex_A( 	simplex_data 		*splx_data,
 	simplex_data *d  = (simplex_data *) splx_data;
 
 	/* prescribe tolerance parameters */
-	d->dG_B_tol	   = -1e-6;
+	d->dG_B_tol	   = -1e-10;
 	d->min_F_tol   =  1e6;
 	
 	/* allocate reference assemblage memory */
