@@ -358,7 +358,6 @@ void ss_min_PGE(		int 				 mode,
 
 };
 
-
 /** 
 	Minimization function for PGE 
 */
@@ -412,7 +411,7 @@ void ss_min_LP(			int 				 mode,
 				establish a set of conditions to update initial guess for next round of local minimization 
 			*/
 			// double stp[8] = {0.5,0.4,0.3,0.2,0.1,0.05,0.01,0.0};
-			double stp[12] = {0.2,0.1,0.05,0.025,0.1,0.05,0.025,0.01,0.005,0.0025,0.001,0.0};
+			double stp[12] = {0.1,0.05,0.025,0.1,0.05,0.025,0.01,0.005,0.0025,0.001,0.0005,0.0};
 
 			for (int n = 0; n < 8; n++){
 

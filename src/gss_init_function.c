@@ -389,7 +389,11 @@ SS_ref G_SS_spn_init_function(SS_ref SS_ref_db, int EM_database, global_variable
 /**
   attributes the right solution phase to the solution phase array
 */
-SS_ref G_SS_INIT_EM_function(SS_ref SS_ref_db, int EM_database, char *name, global_variable gv){
+SS_ref G_SS_INIT_EM_function(		int			 		 ph_id,
+									SS_ref 		 		 SS_ref_db, 
+									int 		 		 EM_database, 
+									char 				*name, 
+									global_variable 	 gv					){
 								  
 	/** if (EM_database == _tc_ds633_) { **/	
 	//"bi","cd","cpx","ep","fl","g","hb","ilm","liq","mu","ol","opx","pl4T","spn"	
@@ -512,7 +516,7 @@ SS_ref G_SS_INIT_EM_function(SS_ref SS_ref_db, int EM_database, char *name, glob
 	/**
 		Allocate memory for levelling pseudocompounds 
 	*/
-	SS_ref_db.n_pc   	= gv.n_pc;								/** maximum number of pseudocompounds to store */
+	SS_ref_db.n_pc   	= gv.n_SS_PC[ph_id];
 	SS_ref_db.G_pc   	= malloc ((SS_ref_db.n_pc) * sizeof (double) ); 
 	SS_ref_db.DF_pc 	= malloc ((SS_ref_db.n_pc) * sizeof (double) ); 
 	SS_ref_db.factor_pc = malloc ((SS_ref_db.n_pc) * sizeof (double) ); 

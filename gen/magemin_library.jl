@@ -831,11 +831,13 @@ mutable struct global_variables
     n_Diff::Cint
     status::Cint
     solver::Cint
+    calc_seismic_cor::Cint
     LP::Cint
     PGE::Cint
     LP_PGE_switch::Cint
     mean_sum_xi::Cdouble
     sigma_sum_xi::Cdouble
+    min_melt_T::Cdouble
     relax_PGE_val::Cdouble
     PC_df_add::Cdouble
     PC_min_dist::Cdouble
@@ -1066,8 +1068,8 @@ function G_SS_EM_function(gv, SS_ref_db, EM_database, z_b, name)
     ccall((:G_SS_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_database, z_b, name)
 end
 
-function G_SS_INIT_EM_function(SS_ref_db, EM_database, name, gv)
-    ccall((:G_SS_INIT_EM_function, libMAGEMin), SS_ref, (SS_ref, Cint, Ptr{Cchar}, global_variable), SS_ref_db, EM_database, name, gv)
+function G_SS_INIT_EM_function(ph_id, SS_ref_db, EM_database, name, gv)
+    ccall((:G_SS_INIT_EM_function, libMAGEMin), SS_ref, (Cint, SS_ref, Cint, Ptr{Cchar}, global_variable), ph_id, SS_ref_db, EM_database, name, gv)
 end
 
 function CP_INIT_function(cp, gv)

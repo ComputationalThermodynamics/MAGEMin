@@ -394,7 +394,7 @@ void fill_output_struct(		global_variable 	 gv,
   Save final result of minimization
 */
 void dump_results_function(		global_variable 	 gv,
-								bulk_info 	 z_b,
+								bulk_info 	 		 z_b,
 
 								PP_ref 				*PP_ref_db,
 								SS_ref 				*SS_ref_db,

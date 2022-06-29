@@ -587,30 +587,36 @@ int runMAGEMin(			int    argc,
 	gv.system_Vp 	= sqrt((gv.system_bulkModulus +4.0/3.0*gv.system_shearModulus)/(gv.system_density/1e3));
 	gv.system_Vs 	= sqrt(gv.system_shearModulus/(gv.system_density/1e3));
 
-	gv.solid_Vp 	= sqrt((gv.solid_bulkModulus +4.0/3.0*gv.solid_shearModulus)/(gv.solid_density/1e3));
-	gv.solid_Vs 	= sqrt(gv.solid_shearModulus/(gv.solid_density/1e3));
-
-	gv.solid_Vs 	= anelastic_correction( 0,
-											gv.solid_Vs,
-											z_b.P,
-											z_b.T 		);
-
 	gv.V_cor[0] 	= gv.solid_Vp;
 	gv.V_cor[1] 	= gv.solid_Vs;
 
-	if (gv.melt_fraction > 0.0 && gv.V_cor[1] > 0.0){
-		wave_melt_correction(  	gv.melt_bulkModulus,
-								gv.solid_bulkModulus,
-								gv.solid_shearModulus,
-								gv.melt_density,
-								gv.solid_density,
-								gv.solid_Vp,	
-								gv.solid_Vs,
-								gv.melt_fraction,
-								gv.solid_fraction,
-								0.1,
-								gv.V_cor				);
+	if (gv.calc_seismic_cor == 1){
+		gv.solid_Vp 	= sqrt((gv.solid_bulkModulus +4.0/3.0*gv.solid_shearModulus)/(gv.solid_density/1e3));
+		gv.solid_Vs 	= sqrt(gv.solid_shearModulus/(gv.solid_density/1e3));
+
+		gv.solid_Vs 	= anelastic_correction( 0,
+												gv.solid_Vs,
+												z_b.P,
+												z_b.T 		);
+
+		gv.V_cor[0] 	= gv.solid_Vp;
+		gv.V_cor[1] 	= gv.solid_Vs;
+
+		if (gv.melt_fraction > 0.0 && gv.V_cor[1] > 0.0){
+			wave_melt_correction(  	gv.melt_bulkModulus,
+									gv.solid_bulkModulus,
+									gv.solid_shearModulus,
+									gv.melt_density,
+									gv.solid_density,
+									gv.solid_Vp,	
+									gv.solid_Vs,
+									gv.melt_fraction,
+									gv.solid_fraction,
+									0.1,
+									gv.V_cor				);
+		}
 	}
+
 
 	return gv;
 }
@@ -621,10 +627,9 @@ int runMAGEMin(			int    argc,
 global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 												io_data 			 input_data,
 												int 				 Mode,
-												bulk_info 	 z_b,
+												bulk_info 	 		 z_b,
 												global_variable 	 gv,
 
-												// obj_type 			*SS_objective,
 												simplex_data	    *splx_data,
 												PP_ref  			*PP_ref_db,
 												SS_ref  			*SS_ref_db,
@@ -895,7 +900,8 @@ Databases InitializeDatabases(	global_variable gv,
 
 	/* Allocate memory for each solution phase according to their specificities (n_em, sf etc) */
 	for (i = 0; i < gv.len_ss; i++){
-		DB.SS_ref_db[i] = G_SS_INIT_EM_function(		DB.SS_ref_db[i], 
+		DB.SS_ref_db[i] = G_SS_INIT_EM_function(		i,	
+														DB.SS_ref_db[i], 
 														EM_database, 
 														gv.SS_list[i], 
 														gv						);

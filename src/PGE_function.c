@@ -1417,9 +1417,10 @@ global_variable PGE(	bulk_info 			z_b,
 		/* checks for not diverging but non converging cases  */
 		if (gv.global_ite >= gv.it_f){  										if (gv.verbose != -1){printf(" >%d iterations, not diverging but not converging\n\n",gv.it_f);}	gv.div = 1; gv.status = 4; iterate = 0;}
 
-		/* checks for divergence */
+		/* checks for non convergence */
 		if ((log10(gv.BR_norm) > -1.5 && gv.global_ite > 64)){	gv.div = 1;	iterate = 0;}
 		if ((log10(gv.BR_norm) > -2.5 && gv.global_ite > 128)){	gv.div = 1;	iterate = 0;}
+		if ((log10(gv.BR_norm) > -3.5 && gv.global_ite > 192)){	gv.div = 1;	iterate = 0;}
 	}
 
 	/**
@@ -1429,7 +1430,6 @@ global_variable PGE(	bulk_info 			z_b,
 		printf("\n[PGE failed -> legacy solver...]\n");
 		gv.div 		= 0;
 		gv.status 	= 0;
-
 
 		gv = init_LP(			z_b,
 								splx_data,

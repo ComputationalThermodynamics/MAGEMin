@@ -126,29 +126,32 @@ global_variable global_variable_init(){
 	int 	n_SS_PC_tmp[]   = {1521		,1645	,121	,4124	,110	,1224	,4950	,420	,3099	,2376	,222	,1735	,231	,1			};
 	double 	SS_PC_stp_tmp[] = {0.249	,0.124	,0.098	,0.249	,0.049	,0.199	,0.249	,0.0499	,0.198	,0.198	,0.098	,0.249	,0.049	,1.0 		};
 
-	/* system parameters */
+	/* system parameters 		*/
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.2.0 [26/06/2022]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.2.0 [29/06/2022]");	/** MAGEMin version 																*/
 
 	gv.len_ox           = 11;					/** number of components in the system 												*/
 	gv.max_n_cp 		= 128;					/** number of considered solution phases 											*/									
 	gv.verbose          = 0;					/** verbose: -1, no verbose; 0, light verbose; 1, full verbose 						*/
-	gv.solver 			= 1;					/** activate legacy solver if PGE solver fails (LP solver, Teriak style)			*/
 
-	/* residual tolerance */
+	/* generate options        	*/
+	gv.calc_seismic_cor = 1;					/** compute seismic velocity corrections (melt and anelastic)						*/
+	gv.solver 			= 1;					/** activate legacy solver if PGE solver fails (LP solver, Theriak style)			*/
+	gv.min_melt_T       = 773.0;				/** minimum temperature above which melt is considered 								*/
+
+	/* residual tolerance 		*/
 	gv.br_max_tol       = 1.0e-5;				/** value under which the solution is accepted to satisfy the mass constraint 		*/
 	
-	/* under-relaxing factors */
+	/* Magic PGE under-relaxing numbers */
 	gv.relax_PGE_val    = 128.0;				/** restricting factor 																*/
 	gv.PC_check_val1	= 1.0e-2;				/** br norm under which PC are tested for potential candidate to be added 			*/
 	gv.PC_check_val2	= 1.0e-4;				/** br norm under which PC are tested for potential candidate to be added 			*/
 	gv.PC_min_dist 		= 1.0;					/** factor multiplying the diagonal of the hyperbox of xeos step 					*/
 	gv.PC_df_add		= 4.0;					/** min value of df under which the PC is added 									*/
 
-	/* levelling parameters */
+	/* levelling parameters 	*/
 	gv.em2ss_shift		= 1e-6;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
 	gv.bnd_filter_pc    = 10.0;					/** value of driving force the pseudocompound is considered 						*/
-	gv.n_pc				= 5000;
 	gv.max_G_pc         = 5.0;					/** dG under which PC is considered after their generation		 					*/
 	gv.eps_sf_pc		= 1e-10;				/** Minimum value of site fraction under which PC is rejected, 
 													don't put it too high as it will conflict with bounds of x-eos					*/
@@ -156,14 +159,14 @@ global_variable global_variable_init(){
 	/* PGE LP pseudocompounds parameters */
 	gv.n_Ppc			= 2048;
 
-	/* solvus tolerance */
+	/* solvus tolerance 		*/
 	gv.merge_value      = 1e-1;					/** max norm distance between two instances of a solution phase						*/	
 	
-	/* local minimizer options */
+	/* local minimizer options 	*/
 	gv.bnd_val          = 1.0e-10;				/** boundary value for x-eos 										 				*/
 	gv.obj_tol			= 1e-7;
 	gv.ineq_res  	 	= 0.0;
-	gv.box_size_mode_1	= 0.25;					/** edge size of the xeos hyperdensity used during PGE local minimization 			*/
+	gv.box_size_mode_1	= 0.25;					/** box edge size of the compositional variables used during PGE local minimization */
 	gv.maxeval_mode_1   = 1024;					/** max number of evaluation of the obj function for mode 1 (PGE)					*/
 
 	/* Partitioning Gibbs Energy */
@@ -174,7 +177,7 @@ global_variable global_variable_init(){
 	gv.max_g_phase  	= 2.5;					/** maximum delta_G of reference change during PGE 									*/
 	gv.max_fac          = 1.0;					/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
 
-	/* set of parameters to record the evolution of the norm of the mass constraint                                                 */
+	/* set of parameters to record the evolution of the norm of the mass constraint */
 	gv.it_1             = 128;                  /** first critical iteration                                                        */
 	gv.ur_1             = 4.;                   /** under relaxing factor on mass constraint if iteration is bigger than it_1       */
 	gv.it_2             = 160;                  /** second critical iteration                                                       */
@@ -183,14 +186,14 @@ global_variable global_variable_init(){
 	gv.ur_3             = 16.;                  /** under relaxing factor on mass constraint if iteration is bigger than it_3       */
 	gv.it_f             = 256;                  /** gives back failure when the number of iteration is bigger than it_f             */
 
-	/* phase update options */
+	/* phase update options 	*/
 	gv.re_in_n          = 1e-3;					/** fraction of phase when being reintroduce.  										*/
 
-	/* density calculation */
+	/* density calculation 		*/
 	gv.gb_P_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
 	gv.gb_T_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
 
-	/* initialize other values */
+	/* initialize other values 	*/
 	gv.mean_sum_xi		= 1.0;
 	gv.sigma_sum_xi		= 1.0;
 	gv.alpha        	= gv.max_fac;				/** active under-relaxing factor 													*/
@@ -489,7 +492,7 @@ global_variable reset_gv(					global_variable 	 gv,
 	char liq_tail[] = "L";
 	for (int i = 0; i < gv.len_pp; i++){
 		if ( EndsWithTail(gv.PP_list[i], liq_tail) == 1 ){
-			if (z_b.T < 773.0){
+			if (z_b.T < gv.min_melt_T){
 				gv.pp_flags[i][0] = 0;
 				gv.pp_flags[i][1] = 0;
 				gv.pp_flags[i][2] = 0;
