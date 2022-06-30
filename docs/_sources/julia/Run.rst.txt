@@ -20,6 +20,7 @@ Set P-T-X (pressure temperature and bulk rock composition)
 
    P           = 8.
    T           = 800.
+   sys_in      = "mol"     # wt or mol, default is mol
    test        = 0;
    bulk_rock   = get_bulk_rock(gv, test)
 
@@ -40,7 +41,7 @@ Call optimization routine for given P-T-X
 .. code-block:: shell   
 
    gv.verbose  = -1    # switch off any verbose
-   out         = point_wise_minimization(P,T, bulk_rock, gv, DB);
+   out         = point_wise_minimization(sys_in,P,T, bulk_rock, gv, DB);
 
 Display minimized point
 ************************

@@ -10,14 +10,16 @@
 
 |
 
-Mineral Assemblage Gibbs Energy Minimization (MAGEMin)		  
-======================================================
+**MAGEMin v1.2.0**
+==================
                                           
-MAGEMin is written as a parallel C library callable from any petrological/geodynamic tool. For a given set of pressure, temperature and bulk-rock composition MAGEMin uses a combination of linear programming, extended Partitioning Gibbs free Energy and gradient-based local minimization to compute the most stable mineral assemblage     
-      
+MAGEMin (Mineral Assemblage Gibbs Energy Minimization) is written as a parallel C library callable from any petrological/geodynamic tool. For a given set of pressure, temperature and bulk-rock composition MAGEMin uses a combination of linear programming, extended Partitioning Gibbs free Energy and gradient-based local minimization to compute the most stable mineral assemblage     
+ 
+|
+     
 Available thermodynamic dataset                       
 ================================
- 
+
 Igneous thermodynamic dataset
 *****************************
                     
@@ -35,12 +37,6 @@ Imported libraries
 - uthash (https://troydhanson.github.io/uthash/)        
 - ketopt (https://github.com/attractivechaos/klib/blob/master/ketopt.h) 
   
-.. toctree::
-   :maxdepth: 2
-   :caption: In development:
-   
-   news
-   
 .. toctree::
    :maxdepth: 2
    :caption: Installation:
@@ -64,6 +60,13 @@ Imported libraries
    :caption: Julia interface:
    
    julia
+   
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Known issues & Tips!
+   
+   issues
    
 .. toctree::
    :maxdepth: 2

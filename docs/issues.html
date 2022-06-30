@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Seismic velocity calculation &mdash; MAGEMin 2022 documentation</title>
+  <title>Quick tips! &mdash; MAGEMin 2022 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -19,8 +19,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Linux-based system" href="stp.html" />
-    <link rel="prev" title="Mineral Assemblage Gibbs Energy Minimization (MAGEMin)" href="index.html" /> 
+    <link rel="next" title="Firewall warning (Apple M1)" href="faq.html" />
+    <link rel="prev" title="Single point calculation" href="julia/Run.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -39,11 +39,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">In development:</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Seismic velocity calculation</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="stp.html">Linux-based system</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="stp/Linux.html">External libraries</a></li>
@@ -95,7 +91,15 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="ckbk.html#data-output">Data output</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="ckbk/out_struct.html">As a nested structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ckbk/out_struct.html">THERMOCALC-like output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ckbk/out_struct.html#as-a-nested-structure">As a nested structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ckbk/out_struct.html#computation-information">Computation information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ckbk/out_struct.html#system-information">System information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ckbk/out_struct.html#phase-proportions">Phase proportions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ckbk/out_struct.html#solution-phases-information">Solution phases information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ckbk/out_struct.html#id1">Solution phases information</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="ckbk.html#pseudosection-generator">Pseudosection generator</a><ul>
@@ -134,6 +138,21 @@
 <li class="toctree-l3"><a class="reference internal" href="julia/Run.html#access-output-structure">Access output structure</a></li>
 </ul>
 </li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Known issues &amp; Tips!</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick tips!</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#compiler-linux">Compiler (Linux)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#minimum-pressure">Minimum pressure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reduced-chemical-system">Reduced chemical system</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#known-problems">Known problems</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#reduced-chemical-systems">Reduced chemical systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#low-temperature-stabilitzation">Low temperature stabilitzation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hp-lt-melt-prediction">HP-LT melt prediction</a></li>
 </ul>
 </li>
 </ul>
@@ -205,9 +224,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Seismic velocity calculation</li>
+      <li>Quick tips!</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/news.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/issues.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -215,23 +234,66 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="seismic-velocity-calculation">
-<h1>Seismic velocity calculation<a class="headerlink" href="#seismic-velocity-calculation" title="Permalink to this headline"></a></h1>
-<p>We are working on adding the calculation of seismic velocities using the method described in Connolly and Kerrick (2002) such as</p>
-<div class="math">
-<p><img src="_images/math/e296e42ed3016d7e63f8f58e4c194323102db0c3.svg" alt="v_p = \sqrt{ \frac{K_s + 4 \mu / 3}{\rho}}"/></p>
-</div><p>and</p>
-<div class="math">
-<p><img src="_images/math/3c7b859c551577bcc436580254f31cf661f0d6f2.svg" alt="v_s = \sqrt{ \frac{\mu}{\rho}}"/></p>
-</div><p>where <img class="math" src="_images/math/322c023ed2656c17c7a1c58ed3d3b486126753fb.svg" alt="\rho"/> is the density, <img class="math" src="_images/math/560f0cbdc8826eaa1f530443d32e5370b88680b0.svg" alt="K_s"/> is the adiabatic shear modulus and <img class="math" src="_images/math/27f71248400d47ef18272c712f6aa22e756e0562.svg" alt="\mu"/> is the shear modulus.</p>
+  <a class="reference internal image-reference" href="_images/tips.png"><img alt="_images/tips.png" class="align-right" src="_images/tips.png" style="width: 80px;" /></a>
+<section id="quick-tips">
+<h1>Quick tips!<a class="headerlink" href="#quick-tips" title="Permalink to this headline"></a></h1>
+<section id="compiler-linux">
+<h2>Compiler (Linux)<a class="headerlink" href="#compiler-linux" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>When using the C version of MAGEMin on linux, the <code class="docutils literal notranslate"><span class="pre">gcc</span></code> compiler yields slightly better performances (5-10% faster) over the <code class="docutils literal notranslate"><span class="pre">clang</span></code>.</p></li>
+</ul>
+</section>
+<section id="minimum-pressure">
+<h2>Minimum pressure<a class="headerlink" href="#minimum-pressure" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>Minimum pressure for phase equilibrium calculation should be set to 0.01 kbar. A choosen pressure of 0.0 will lead to failed minimization in some cases.</p></li>
+</ul>
+</section>
+<section id="reduced-chemical-system">
+<h2>Reduced chemical system<a class="headerlink" href="#reduced-chemical-system" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>While <code class="docutils literal notranslate"><span class="pre">H2O</span></code> can be set to 0.0, other system components should be set to low value to ensure stable and efficient computation.</p></li>
+<li><p>We recommend a minimum value of 0.01 <code class="docutils literal notranslate"><span class="pre">[mol%]</span></code> (0.0001 <code class="docutils literal notranslate"><span class="pre">[mol</span> <span class="pre">fraction]</span></code>)</p></li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<a class="reference internal image-reference" href="_images/wip.png"><img alt="_images/wip.png" class="align-right" src="_images/wip.png" style="width: 80px;" /></a>
+</section>
+</section>
+<section id="known-problems">
+<h1>Known problems<a class="headerlink" href="#known-problems" title="Permalink to this headline"></a></h1>
+<section id="reduced-chemical-systems">
+<h2>Reduced chemical systems<a class="headerlink" href="#reduced-chemical-systems" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>While <code class="docutils literal notranslate"><span class="pre">H2O</span></code> can be prescribed to 0.0 without impacting the efficiency of the minimization we found out that <code class="docutils literal notranslate"><span class="pre">Cr2O3</span></code>, <code class="docutils literal notranslate"><span class="pre">TiO2</span></code>, <code class="docutils literal notranslate"><span class="pre">O</span></code> etc. should not be set to 0.0 without strongly degrading the stability of the minimization.</p></li>
+<li><p>Instead setting a small amount of 0.01 mol% stabilizes the minimization and yields the expected results.</p></li>
+<li><p>This also applies when an oxide has to be turned off e.g., during the computing liquid line of descent</p></li>
+<li><p>The current implementation of the solution phase models (EOS) from Holland et al. (2018) do not allow removing several oxides such as <code class="docutils literal notranslate"><span class="pre">MgO</span></code> and <code class="docutils literal notranslate"><span class="pre">CaO</span></code>. This would lead to ill-defined solution phases models such as for olivine and plagioclase.</p></li>
+</ul>
+</section>
+<section id="low-temperature-stabilitzation">
+<h2>Low temperature stabilitzation<a class="headerlink" href="#low-temperature-stabilitzation" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>In a number of cases, mainly water under-saturated cases, and at temperature below 600-650°C, the current version of the solver fails to provide consistent minimizations. We are working on an algorithm upgrade in order to fix this issue.</p></li>
+<li><p>While a working alternative approach is already being tested, we are further improving the performances before releasing it.</p></li>
+</ul>
+</section>
+<section id="hp-lt-melt-prediction">
+<h2>HP-LT melt prediction<a class="headerlink" href="#hp-lt-melt-prediction" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>For water-saturated composition, we found that at pressure &gt; 20 kbar and temperature &lt; 650°C melt is predicted to be stable.</p></li>
+<li><p>This is a known problem from the THERMOCALC developer community, and a fix should be provided in the following versions of the igenous thermodynamic dataset.</p></li>
+</ul>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Mineral Assemblage Gibbs Energy Minimization (MAGEMin)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="stp.html" class="btn btn-neutral float-right" title="Linux-based system" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="julia/Run.html" class="btn btn-neutral float-left" title="Single point calculation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="faq.html" class="btn btn-neutral float-right" title="Firewall warning (Apple M1)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -10,7 +10,7 @@ typedef void (*sf_type) (		unsigned  		 m,
 								void 			*data		);
 
 	
-global_variable NLopt_global_opt_function(	struct bulk_info 	z_b,
+global_variable NLopt_global_opt_function(	bulk_info 			 z_b,
 											global_variable 	 gv, 
 											PP_ref 				*PP_ref_db,
 											SS_ref 				*SS_ref_db,

@@ -20,7 +20,7 @@ This function simply update the driving forces of pure phase each time the G-hyp
   main pure phase minimization routine
 */
 void pp_min_function(		global_variable 	 gv,
-							struct bulk_info 	 z_b,
+							bulk_info 	 		 z_b,
 							PP_ref 				*PP_ref_db
 ){
 	// update delta_G of pure phases using Gamma
@@ -42,7 +42,7 @@ void pp_min_function(		global_variable 	 gv,
 /** 
   initialize pure phase database */
 global_variable init_em_db(		int 				EM_database,
-								struct bulk_info 	z_b,
+								bulk_info 	z_b,
 								global_variable 	gv,
 								PP_ref 			   *PP_ref_db
 ){

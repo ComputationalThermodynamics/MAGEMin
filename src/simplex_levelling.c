@@ -34,29 +34,6 @@ Levelling occurs in two stages:
 #include "PGE_function.h"
 #include "SS_xeos_PC.h"
 
-/**
-  Get the number of max_pc
-*/
-int get_max_n_pc(int tot_pc, int n_pc){
-	return ((tot_pc >= n_pc) ? (n_pc) : (tot_pc));
-};
-
-/**
-  update Gamma using LAPACKE dgesv
-*/	
-void update_local_gamma(	double *A1, 
-							double *g0_A, 
-							double *gam, 
-							int 	n			){
-	int k;
-	for (int i = 0; i < n; i++){
-		gam[i] = 0.0;
-		for (int j = 0; j < n; j++){
-			k = i + j*n;
-			gam[i] += g0_A[j]*A1[k];
-		}
-	}
-};
 
 /**
 	associate the array of pointer with the right solution phase
@@ -100,169 +77,428 @@ void SS_objective_init_function(	obj_type 			*SS_objective,
 	};			
 }
 
-/**
-  update global Gamma 
-*/	
-simplex_data update_global_gamma( 		struct bulk_info 	z_b,
-										simplex_data 		splx_data
-){
-	/** update gam_tot using solultion phase levelling gamma */
-	for (int i = 0; i < splx_data.n_Ox; i++){
-		splx_data.gamma_delta[z_b.nzEl_array[i]] 	= splx_data.gamma_ss[i] - splx_data.gamma_tot[z_b.nzEl_array[i]];
-		splx_data.gamma_tot[z_b.nzEl_array[i]]     	= splx_data.gamma_ss[i];
-	}	
-	
-	return splx_data;
-};
 
 /**
   function to calculate delta G (position of potential phases with current G hyperplane*)
 */
-simplex_data update_dG(	simplex_data splx_data
+void update_dG(	simplex_data *splx_data
 ){
+
+	simplex_data *d  = (simplex_data *) splx_data;
 	double F;
 	double minF = 0.0;
 
-	VecMatMul(	splx_data.B1,
-				splx_data.A1,
-				splx_data.B,
-				splx_data.n_Ox	);
+	VecMatMul(	d->B1,
+				d->A1,
+				d->B,
+				d->n_Ox	);
 	
-	splx_data.dG_B = splx_data.g0_B;
-	for (int j = 0; j < splx_data.n_Ox; j++){
-		splx_data.dG_B -= splx_data.B1[j]*splx_data.g0_A[j];
+	d->dG_B = d->g0_B;
+	for (int j = 0; j < d->n_Ox; j++){
+		d->dG_B -= d->B1[j]*d->g0_A[j];
 	}
-	
-	splx_data.ph2swp = -1;	
-	if (splx_data.dG_B < -1e-6){	
-		splx_data.min_F  =  1e6;												/** max value for F, tentative here because F can tend to +inf */
-		for (int i = 0; i < splx_data.n_Ox; i++){
-			F = (splx_data.n_vec[i])/splx_data.B1[i];
-			if (F < splx_data.min_F && F > minF){
-				splx_data.min_F  = F;
-				splx_data.ph2swp = i;
+
+	d->ph2swp = -1;	
+	if (d->dG_B < d->dG_B_tol){	
+		d->min_F  =  d->min_F_tol;												/** max value for F, tentative here because F can tend to +inf */
+		for (int i = 0; i < d->n_Ox; i++){
+			F = (d->n_vec[i])/d->B1[i];
+			if (F < d->min_F && F > minF){
+				d->min_F  = F;
+				d->ph2swp = i;
 			}
 		}
 	}
-
-	return splx_data;
 }
 
-/**
-  function to allocate memory for simplex linear programming (A)
-*/	
-void init_simplex_A( 	void 				*splx_data,
-						global_variable 	 gv,
-						struct bulk_info 	 z_b
-){
-	simplex_data *d  = (simplex_data *) splx_data;
-	
-	/* allocate reference assemblage memory */
-	d->n_local_min =  0;
-	d->n_filter    =  0;
-	d->ph2swp      = -1;
-	d->n_swp       =  0;
-	d->swp         =  0;
-	d->n_Ox        =  z_b.nzEl_val;
-	d->len_ox      =  gv.len_ox;
-	
-	d->A           = malloc ((d->n_Ox*d->n_Ox)  * sizeof(double));
-	d->A1  		   = malloc ((d->n_Ox*d->n_Ox)  * sizeof(double));
-	
-	d->ph_id_A     = malloc (d->n_Ox * sizeof(int*));
-    for (int i = 0; i < d->n_Ox; i++){
-		d->ph_id_A[i] = malloc ((d->n_Ox*4)  * sizeof(int));
-	}
-	
-	d->pivot   	   = malloc ((d->n_Ox) * sizeof(int));
-	d->g0_A   	   = malloc ((d->n_Ox) * sizeof(double));
-	d->dG_A   	   = malloc ((d->n_Ox) * sizeof(double));
-	d->n_vec   	   = malloc ((d->n_Ox) * sizeof(double));
-	d->gamma_ps	   = malloc ((d->n_Ox) * sizeof(double));
-	d->gamma_ss	   = malloc ((d->n_Ox) * sizeof(double));
-	d->gamma_tot   = malloc ((d->len_ox) * sizeof(double));
-	d->gamma_delta = malloc ((d->len_ox) * sizeof(double));
-	
-	/* initialize arrays */
-    for (int i = 0; i < d->len_ox; i++){
-		d->gamma_tot[i] 		= 0.0;
-		d->gamma_delta[i] 	= 0.0;
-	}
-	int k;
-    for (int i = 0; i < d->n_Ox; i++){
-		d->pivot[i]	  = 0;
-		d->g0_A[i]     = 0.0;
-		d->dG_A[i]     = 0.0;
-		d->n_vec[i]    = 0.0;
-		d->gamma_ps[i] = 0.0;
-		d->gamma_ss[i] = 0.0;
-		
-		for (int j = 0; j < d->n_Ox; j++){
-			k = i + j*d->n_Ox;
-			d->A[k]  = 0.0;
-			d->A1[k] = 0.0;
-		}
-		
-		for (int j = 0; j < 4; j++){
-			d->ph_id_A[i][j] = 0;
-		}
-	}
 
+
+
+/**
+  update Gamma using LAPACKE dgesv
+*/	
+void update_local_gamma(	double *A1, 
+							double *g0_A, 
+							double *gam, 
+							int 	n			){
+	int k;
+	for (int i = 0; i < n; i++){
+		gam[i] = 0.0;
+		for (int j = 0; j < n; j++){
+			k = i + j*n;
+			gam[i] += g0_A[j]*A1[k];
+		}
+	}
 };
 
 /**
-  function to allocate memory for simplex linear programming (B)
+  update global Gamma 
 */	
-void init_simplex_B_em(				void 		 		*splx_data,
-									global_variable 	 gv,
-									struct bulk_info 	 z_b,
+void update_global_gamma( 				bulk_info 			z_b,
+										simplex_data 	   *splx_data
+){
 
+	simplex_data *d  = (simplex_data *) splx_data;
+
+	/** update gam_tot using solution phase levelling gamma */
+	for (int i = 0; i < d->n_Ox; i++){
+		d->gamma_delta[z_b.nzEl_array[i]] 	= d->gamma_ss[i] - d->gamma_tot[z_b.nzEl_array[i]];
+		d->gamma_tot[z_b.nzEl_array[i]]     = d->gamma_ss[i];
+	}	
+	
+};
+
+/**
+  update global Gamma 
+*/	
+void update_global_gamma_LU( 				bulk_info 			z_b,
+											simplex_data 	   *splx_data
+){
+
+	simplex_data *d  = (simplex_data *) splx_data;
+
+	int i,j,k,l;
+
+	/* LAPACKE memory allocation */
+	int 	nrhs   = 1;													/** number of rhs columns, 1 is vector*/
+	int 	lda    = d->n_Ox;											/** leading dimesion of A*/
+	int 	ldb    = 1;													/** leading dimension of b*/
+	int 	ipiv[d->n_Ox];												/** pivot indices*/
+	int 	info;														/** get info from lapacke function*/	
+
+	for (i = 0; i < d->n_Ox;i++){
+		d->gamma_ss[i] = d->g0_A[i];
+	}
+	for (i = 0; i < d->n_Ox;i++){
+		for (j = 0; j < d->n_Ox;j++){
+			k = i + j*d->n_Ox;
+			l = j + i*d->n_Ox;
+			d->Alu[k] = d->A[l];
+		}
+	}
+
+	/**
+		call lapacke to solve system of linear equation using LU 
+	*/
+	info = LAPACKE_dgesv(		LAPACK_ROW_MAJOR, 
+								d->n_Ox, 
+								nrhs, 
+								d->Alu, 
+								lda, 
+								ipiv, 
+								d->gamma_ss, 
+								ldb					);
+
+	/** update gam_tot using solution phase levelling gamma */
+	for (int i = 0; i < d->n_Ox; i++){
+		d->gamma_delta[z_b.nzEl_array[i]] 	= d->gamma_ss[i] - d->gamma_tot[z_b.nzEl_array[i]];
+		d->gamma_tot[z_b.nzEl_array[i]]     = d->gamma_ss[i];
+	}	
+
+};
+
+
+/**
+  function to swp pure phases
+*/	
+void swap_pure_phases(				bulk_info 	 z_b,
+									simplex_data 		*splx_data,
+									global_variable 	 gv,
+									
 									PP_ref 				*PP_ref_db,
 									SS_ref 				*SS_ref_db
 ){
 	simplex_data *d  = (simplex_data *) splx_data;
+	int     k;
 	
-	d->ph_id_B    = malloc (3  * sizeof(int));
-	d->B   	 	  = malloc ((d->n_Ox) * sizeof(double));
-	d->B1   	  = malloc ((d->n_Ox) * sizeof(double));
+	for (int i = 0; i < gv.len_pp; i++){
+		if (gv.pp_flags[i][0] == 1){
+			
+			d->g0_B 		= PP_ref_db[i].gbase*PP_ref_db[i].factor;
+			d->ph_id_B[0]  	= 1;															/** added phase is a pure species */
+			d->ph_id_B[1]	= i;															/** save pure species index */
+		
+			/* retrieve the composition in the right (reduced) chemical space */
+			for (int j = 0; j < z_b.nzEl_val; j++){
+				d->B[j] = PP_ref_db[i].Comp[z_b.nzEl_array[j]]*PP_ref_db[i].factor; 
+			}
+			
+			/** update deltaG with respect to G hyperplane */
+			update_dG(splx_data);
+			
+			/** swap phase */
+			if (d->ph2swp != -1){															/** if the phase can be added */
+				d->swp 						   = 1;
+				d->n_swp 					  += 1;
+				d->ph_id_A[d->ph2swp][0] = d->ph_id_B[0];
+				d->ph_id_A[d->ph2swp][1] = d->ph_id_B[1];
+				d->ph_id_A[d->ph2swp][2] = d->ph_id_B[2];
+				d->g0_A[d->ph2swp] 	   = d->g0_B;
+				
+				for (int j = 0; j < d->n_Ox; j++){				
+					k = d->ph2swp + j*d->n_Ox;
+					d->A[k] = d->B[j];
+				}
+				
+				for (int k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k];}
 
-	/** initialize arrays */
-	for (int j = 0; j < 3; j++){
-		d->ph_id_B[j] = 0;
+				/** inverse guessed assemblage stoechiometry matrix */
+				inverseMatrix(	d->A1,
+								d->n_Ox		);
+				
+				/** update phase fractions */
+				MatVecMul(		d->A1,
+								z_b.bulk_rock_cat,
+								d->n_vec,
+								d->n_Ox		);	
+			}
+		}
 	}
-
-	for (int j = 0; j < d->n_Ox; j++){
-		d->B[j]   = 0.0;	
-		d->B1[j]  = 0.0;	
-	}
-
-};
+	
+}
 
 /**
-  function to run simplex linear programming 
+  function to swp pure endmembers
 */	
-simplex_data fill_simplex_arrays_A(		struct bulk_info 	 z_b,
-										simplex_data 		 splx_data,
+void swap_pure_endmembers(				bulk_info 	 z_b,
+										simplex_data 		*splx_data,
 										global_variable 	 gv,
 										
 										PP_ref 				*PP_ref_db,
 										SS_ref 				*SS_ref_db
 ){
-	/* fill reference assemblage */
-	for (int k = 0; k < z_b.nzEl_val; k++) {
-		splx_data.g0_A[k]    		  = 1e10;								/** penalty G */
-		splx_data.ph_id_A[k][0]  	  = 0;									/** phase_id for penalty phase */
-		splx_data.A[k+k*z_b.nzEl_val] = 1.0;								/** eye matrix for stoechiometry */
-		splx_data.n_vec[k] 			  = z_b.bulk_rock[z_b.nzEl_array[k]];	/** initial phase fraction simply corresponds to the bulk rock composition Ax = br */
+
+	simplex_data *d  = (simplex_data *) splx_data;
+
+	int     k;
+	double factor;
+
+	for (int i = 0; i < gv.len_ss; i++){												/**loop to pass informations from active endmembers */
+		if (SS_ref_db[i].ss_flags[0] == 1){														/** if SS is not filtered out then continue */
+
+			for (int l = 0; l < SS_ref_db[i].n_em; l++){	
+				/** if bulk-rock satisfy the compositions of endmembers, retrieve their informations */
+				if (SS_ref_db[i].z_em[l] == 1.0){ 
+					
+					/* update normalizing factor for solution models than need it */
+					factor 	= z_b.fbc/SS_ref_db[i].ape[l];	
+
+
+					d->g0_B		 = SS_ref_db[i].gbase[l]*factor;
+					d->ph_id_B[0] = 2;														/** added phase is a pure species */
+					d->ph_id_B[1] = i;														/** save pure species index */
+					d->ph_id_B[2] = 0;														/** save used initial guess */	
+					
+					/** retrieve the composition in the right (reduced) chemical space */
+					for (int j = 0; j < z_b.nzEl_val; j++){
+						d->B[j] 	 = SS_ref_db[i].Comp[l][z_b.nzEl_array[j]]*factor; 
+					}
+
+					/** update deltaG with respect to G hyperplane */
+					update_dG(splx_data);
+									
+					/** swap phase */
+					if (d->ph2swp != -1){													/** if the phase can be added */
+						d->swp 						   = 1;
+						d->n_swp 					  += 1;
+						d->ph_id_A[d->ph2swp][0] = d->ph_id_B[0];
+						d->ph_id_A[d->ph2swp][1] = d->ph_id_B[1];
+						d->ph_id_A[d->ph2swp][2] = d->ph_id_B[2];
+						d->ph_id_A[d->ph2swp][3] = l;	
+						d->g0_A[d->ph2swp] 	   	 = d->g0_B;
+						
+						for (int j = 0; j < d->n_Ox; j++){				
+							int k = d->ph2swp + j*d->n_Ox;
+							d->A[k] = d->B[j];
+						}
+						for (int k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k];}
+
+						/** inverse guessed assemblage stoechiometry matrix */
+						inverseMatrix(	d->A1,
+										d->n_Ox		);
+						
+						/** update phase fractions */
+						MatVecMul(		d->A1,
+										z_b.bulk_rock_cat,
+										d->n_vec,
+										d->n_Ox		);	
+					}
+				}
+			}
+		}
+	}
+	
+}
+
+/**
+  function to swp solution phase pseudocompounds
+*/	
+void swap_pseudocompounds(				bulk_info 	 		 z_b,
+										simplex_data 		*splx_data,
+										global_variable 	 gv,
+										
+										PP_ref 				*PP_ref_db,
+										SS_ref 				*SS_ref_db
+){
+	simplex_data *d  = (simplex_data *) splx_data;
+
+	int     k, max_n_pc;
+	
+	for (int i = 0; i < gv.len_ss; i++){										/**loop to pass informations from active endmembers */
+		if (SS_ref_db[i].ss_flags[0] == 1){
+
+			max_n_pc = SS_ref_db[i].tot_pc;
+
+			for (int l = 0; l < max_n_pc; l++){
+
+				d->g0_B		  = SS_ref_db[i].G_pc[l];
+				d->ph_id_B[0] = 3;														/** added phase is a pure species */
+				d->ph_id_B[1] = i;														/** save solution phase index */
+				d->ph_id_B[2] = 0;														/** save pseudocompound index */
+			
+				/* retrieve the composition in the right (reduced) chemical space */
+				for (int j = 0; j < z_b.nzEl_val; j++){
+					d->B[j] = SS_ref_db[i].comp_pc[l][z_b.nzEl_array[j]]; 
+				}
+
+				/** update deltaG with respect to G hyperplane */
+				update_dG(splx_data);
+				
+				/** save updated driving force */
+				SS_ref_db[i].DF_pc[l] = d->dG_B;
+				
+				/** swap phase */
+				if (d->ph2swp != -1){													/** if the phase can be added */
+					d->swp 				 	 = 1;
+					d->n_swp 				+= 1;
+					d->ph_id_A[d->ph2swp][0] = d->ph_id_B[0];
+					d->ph_id_A[d->ph2swp][1] = d->ph_id_B[1];
+					d->ph_id_A[d->ph2swp][2] = d->ph_id_B[2];
+					d->ph_id_A[d->ph2swp][3] = l;									/** save pseudocompound number */
+					d->g0_A[d->ph2swp] 	     = d->g0_B;
+					
+					for (int j = 0; j < d->n_Ox; j++){				
+						int k = d->ph2swp + j*d->n_Ox;
+						d->A[k] = d->B[j];
+					}
+					
+					for (int k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k];}
+
+					/** inverse guessed assemblage stoechiometry matrix */
+					inverseMatrix(	d->A1,
+									d->n_Ox		);
+					
+					/** update phase fractions */
+					MatVecMul(		d->A1,
+									z_b.bulk_rock_cat,
+									d->n_vec,
+									d->n_Ox		);
+				}
+			}
+		}
+	}
+}
+
+/**
+  function to swp solution phase pseudocompounds during PGE iterations
+*/	
+void swap_PGE_pseudocompounds(			bulk_info 	 		 z_b,
+										simplex_data 		*splx_data,
+										global_variable 	 gv,
+										
+										PP_ref 				*PP_ref_db,
+										SS_ref 				*SS_ref_db
+){
+	simplex_data *d  = (simplex_data *) splx_data;
+
+	int     k, max_n_Ppc;
+	
+	for (int i = 0; i < gv.len_ss; i++){										/**loop to pass informations from active endmembers */
+		if (SS_ref_db[i].ss_flags[0] == 1){
+
+			max_n_Ppc = SS_ref_db[i].tot_Ppc;
+
+			for (int l = 0; l < max_n_Ppc; l++){
+
+				d->g0_B		  = SS_ref_db[i].G_Ppc[l];
+				d->ph_id_B[0] = 3;														/** added phase is a pure species */
+				d->ph_id_B[1] = i;														/** save solution phase index */
+				d->ph_id_B[2] = 0;														/** save pseudocompound index */
+			
+				/* retrieve the composition in the right (reduced) chemical space */
+				for (int j = 0; j < z_b.nzEl_val; j++){
+					d->B[j] = SS_ref_db[i].comp_Ppc[l][z_b.nzEl_array[j]]; 
+				}
+
+				/** update deltaG with respect to G hyperplane */
+				update_dG(splx_data);
+				
+				/** save updated driving force */
+				SS_ref_db[i].DF_Ppc[l] = d->dG_B;
+				
+				/** swap phase */
+				if (d->ph2swp != -1){													/** if the phase can be added */
+					d->swp 				 	 = 1;
+					d->n_swp 				+= 1;
+					d->ph_id_A[d->ph2swp][0] = d->ph_id_B[0];
+					d->ph_id_A[d->ph2swp][1] = d->ph_id_B[1];
+					d->ph_id_A[d->ph2swp][2] = d->ph_id_B[2];
+					d->ph_id_A[d->ph2swp][3] = l;										/** save pseudocompound number */
+					d->g0_A[d->ph2swp] 	     = d->g0_B;
+					d->stage[d->ph2swp] 	 = 1;										/** just to indicate that the phase belongs to stage 2 of LP */
+					
+					for (int j = 0; j < d->n_Ox; j++){				
+						int k = d->ph2swp + j*d->n_Ox;
+						d->A[k] = d->B[j];
+					}
+					
+					for (int k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k];}
+
+					/** inverse guessed assemblage stoechiometry matrix */
+					inverseMatrix(	d->A1,
+									d->n_Ox		);
+
+					/** update phase fractions */
+					MatVecMul(		d->A1,
+									z_b.bulk_rock_cat,
+									d->n_vec,
+									d->n_Ox		);
+				}
+			}
+		}
 	}
 
-	return splx_data;
+}
+
+
+
+/**
+  function to run simplex linear programming 
+*/	
+void fill_simplex_arrays_A(				bulk_info 	 		 z_b,
+										simplex_data 		*splx_data,
+										global_variable 	 gv,
+										
+										PP_ref 				*PP_ref_db,
+										SS_ref 				*SS_ref_db
+){
+
+	simplex_data *d  = (simplex_data *) splx_data;
+	/* fill reference assemblage */
+
+	for (int k = 0; k < z_b.nzEl_val; k++) {
+		d->g0_A[k]    		   = 1e10;								/** penalty G */
+		d->ph_id_A[k][0]  	   = 0;									/** phase_id for penalty phase */
+		d->A[k+k*z_b.nzEl_val] = 1.0;								/** eye matrix for stoechiometry */
+		d->n_vec[k] 		   = z_b.bulk_rock[z_b.nzEl_array[k]];	/** initial phase fraction simply corresponds to the bulk rock composition Ax = br */
+	}
+
 }
 
 /**
 	print levelling informations 
 */
-void print_levelling(		struct bulk_info 	 z_b,
+void print_levelling(		bulk_info 	 		 z_b,
 							global_variable 	 gv,
 							
 							PP_ref 				*PP_ref_db,
@@ -276,7 +512,7 @@ void print_levelling(		struct bulk_info 	 z_b,
 	for (int i = 0; i < gv.len_ss; i++){
 
 		int n_em = SS_ref_db[i].n_em;
-		max_n_pc = get_max_n_pc(SS_ref_db[i].tot_pc, SS_ref_db[i].n_pc);	
+		max_n_pc = SS_ref_db[i].tot_pc;	
 
 		for (int l = 0; l < max_n_pc; l++){
 			SS_ref_db[i].DF_pc[l] = SS_ref_db[i].G_pc[l];
@@ -284,8 +520,8 @@ void print_levelling(		struct bulk_info 	 z_b,
 				SS_ref_db[i].DF_pc[l] -= SS_ref_db[i].comp_pc[l][j]*gv.gam_tot[j];
 			}
 			
-			if (SS_ref_db[i].DF_pc[l] < 1.0){
-				printf(" %4s %04d  #swap: %04d #stage %04d | ",gv.SS_list[i],l,SS_ref_db[i].n_swap[l],SS_ref_db[i].info[l]);
+			// if (SS_ref_db[i].DF_pc[l] < 1.0){
+				printf(" %4s %04d #stage %04d | ",gv.SS_list[i],l,SS_ref_db[i].info[l]);
 				printf("DF: %+4f | ", SS_ref_db[i].DF_pc[l]);
 				//for (int j = 0; j < SS_ref_db[i].n_xeos; j++){
 					//printf(" %+4f",SS_ref_db[i].xeos_pc[l][j]);
@@ -313,7 +549,7 @@ void print_levelling(		struct bulk_info 	 z_b,
 				}
 				printf("\n");
 
-			}
+			// }
 		}
 	}
 }
@@ -322,13 +558,12 @@ void print_levelling(		struct bulk_info 	 z_b,
 	Generate pseudocompounds
 */
 void generate_pseudocompounds(	int 		 		 ss,
-								simplex_data 		 splx_data,
-								struct bulk_info 	 z_b,
+								bulk_info 	 		 z_b,
 								global_variable 	 gv,
 								SS_ref 				*SS_ref_db,
 								PC_ref 				*SS_PC_xeos,
 								obj_type 			*SS_objective				){
-											
+
 	struct ss_pc get_ss_pv;							
 	double sum, G, df, ape;
 	int i,j,k,l,p,swp;
@@ -357,39 +592,35 @@ void generate_pseudocompounds(	int 		 		 ss,
 			for (j = 0; j < nEl; j++){
 				SS_ref_db[ss].ss_comp[j] = 0.0;
 				for (i = 0; i < SS_ref_db[ss].n_em; i++){
-				   SS_ref_db[ss].ss_comp[j] += SS_ref_db[ss].Comp[i][j]*SS_ref_db[ss].p[i]*SS_ref_db[ss].z_em[i];
-			   } 
+					SS_ref_db[ss].ss_comp[j] += SS_ref_db[ss].Comp[i][j]*SS_ref_db[ss].p[i]*SS_ref_db[ss].z_em[i];
+				} 
 			}
 
-			swp     = 0;
-			while (swp == 0){
-
-				if (SS_ref_db[ss].id_pc >= SS_ref_db[ss].n_pc){ SS_ref_db[ss].id_pc = 0; printf("MAXIMUM STORAGE SPACE FOR PC IS REACHED, INCREASED #PC_MAX\n");}
-				m_pc = SS_ref_db[ss].id_pc;
-				SS_ref_db[ss].info[m_pc]      = 0;
-				SS_ref_db[ss].factor_pc[m_pc] = SS_ref_db[ss].factor;
-				SS_ref_db[ss].DF_pc[m_pc]     = G;
-				
-				/* get pseudocompound composition */
-				for ( j = 0; j < gv.len_ox; j++){				
-					SS_ref_db[ss].comp_pc[m_pc][j] = SS_ref_db[ss].ss_comp[j]*SS_ref_db[ss].factor;	/** composition */
-				}
-				for ( j = 0; j < SS_ref_db[ss].n_em; j++){												/** save coordinates */
-					SS_ref_db[ss].p_pc[m_pc][j]  = SS_ref_db[ss].p[j];												
-					SS_ref_db[ss].mu_pc[m_pc][j] = SS_ref_db[ss].mu[j]*SS_ref_db[ss].z_em[j];										
-				}
-				/* save xeos */
-				for ( j = 0; j < SS_ref_db[ss].n_xeos; j++){		
-					SS_ref_db[ss].xeos_pc[m_pc][j] = get_ss_pv.xeos_pc[j];							/** compositional variables */
-				}	
-				
-				SS_ref_db[ss].G_pc[m_pc] = G;
-				
-				/* add increment to the number of considered phases */
-				SS_ref_db[ss].tot_pc += 1;
-				SS_ref_db[ss].id_pc  += 1;
-				swp = 1;	
+			// if (SS_ref_db[ss].id_pc >= SS_ref_db[ss].n_pc){ SS_ref_db[ss].id_pc = 0; printf("MAXIMUM STORAGE SPACE FOR PC IS REACHED, INCREASED #PC_MAX\n");}
+			m_pc = SS_ref_db[ss].id_pc;
+			SS_ref_db[ss].info[m_pc]      = 0;
+			SS_ref_db[ss].factor_pc[m_pc] = SS_ref_db[ss].factor;
+			SS_ref_db[ss].DF_pc[m_pc]     = G;
+			
+			/* get pseudocompound composition */
+			for ( j = 0; j < gv.len_ox; j++){				
+				SS_ref_db[ss].comp_pc[m_pc][j] = SS_ref_db[ss].ss_comp[j]*SS_ref_db[ss].factor;	/** composition */
+			}
+			for ( j = 0; j < SS_ref_db[ss].n_em; j++){												/** save coordinates */
+				SS_ref_db[ss].p_pc[m_pc][j]  = SS_ref_db[ss].p[j];												
+				SS_ref_db[ss].mu_pc[m_pc][j] = SS_ref_db[ss].mu[j]*SS_ref_db[ss].z_em[j];										
+			}
+			/* save xeos */
+			for ( j = 0; j < SS_ref_db[ss].n_xeos; j++){		
+				SS_ref_db[ss].xeos_pc[m_pc][j] = get_ss_pv.xeos_pc[j];							/** compositional variables */
 			}	
+			
+			SS_ref_db[ss].G_pc[m_pc] = G;
+			
+			/* add increment to the number of considered phases */
+			SS_ref_db[ss].tot_pc += 1;
+			SS_ref_db[ss].id_pc  += 1;
+
 		}
 	}
 }
@@ -407,7 +638,7 @@ void reduce_ss_list( SS_ref 			*SS_ref_db,
 		if (SS_ref_db[iss].ss_flags[0] == 1){
 			phase_on = 0;
 			
-			max_n_pc = get_max_n_pc(SS_ref_db[iss].tot_pc, SS_ref_db[iss].n_pc);
+			max_n_pc = SS_ref_db[iss].tot_pc;
 			
 			for (int l = 0; l < max_n_pc; l++){
 				/* if the driving force of the pseudocompound is lower to the filter then consider it */
@@ -429,60 +660,20 @@ void reduce_ss_list( SS_ref 			*SS_ref_db,
 	}				 
 }
 
-
-/**
-  function to filter PC compositionnaly close
-*/	
-simplex_data filter_hld_PC(			int 				refine_lvl,
-									struct bulk_info 	z_b,
-									simplex_data 		splx_data,
-									global_variable 	gv,
-									SS_ref 			   *SS_ref_db					
-){
-	if (gv.verbose == 1){
-		printf("   [Filter nearly idendical PC]\n");
-	}
-	int i,j,k,l;
-	int max_n_pc;
-	double distance;
-
-	for (i = 0; i < gv.len_ss; i++){
-		if (SS_ref_db[i].ss_flags[0] == 1){
-			max_n_pc = get_max_n_pc(	SS_ref_db[i].tot_pc,
-										SS_ref_db[i].n_pc		);
-										
-			for (k = 0; k < max_n_pc; k++){
-				for (l = k+1; l < max_n_pc; l++){
-					if (SS_ref_db[i].info[k] != -1 && SS_ref_db[i].info[l] != -1){
-						distance 	= partial_euclidean_distance( SS_ref_db[i].xeos_pc[k], SS_ref_db[i].xeos_pc[l], SS_ref_db[i].n_xeos);
-						if (distance < 1e-2){
-							SS_ref_db[i].info[k] = -1;
-							splx_data.n_filter += 1;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return splx_data;
-}
-
-
-
-global_variable update_global_info(		struct bulk_info 	 z_b,
-										simplex_data 		 splx_data,
+global_variable update_global_info(		bulk_info 	 		 z_b,
+										simplex_data 		*splx_data,
 										global_variable 	 gv,
 										
 										PP_ref 				*PP_ref_db,
 										SS_ref 				*SS_ref_db,
 										csd_phase_set  		*cp,
 										obj_type 			*SS_objective
-){
-	
+){	
+	simplex_data *d  = (simplex_data *) splx_data;
+
 	/* copy gamma total to the global variables */
 	for (int i = 0; i < gv.len_ox; i++){
-		gv.gam_tot[i] = splx_data.gamma_tot[i];
+		gv.gam_tot[i] = d->gamma_tot[i];
 	}
 
 	double distance;
@@ -493,35 +684,35 @@ global_variable update_global_info(		struct bulk_info 	 z_b,
 	int id_cp = 0;
 	int pc_id;
 	int em_id;
-	int add_phase;
 	int phase_on[gv.len_ss];
+	int i, j, k, ii;
+	int m_pc;
 	
 	/* initialiaze phase active in the considered assemblage */
-	for (int i = 0; i < gv.len_ss; i++){
+	for (i = 0; i < gv.len_ss; i++){
 		phase_on[i] = 0;
 	}
 
 	/** 
 		get initial conditions for active phases
 	*/
-	for (int i = 0; i < splx_data.n_Ox; i++){
-		add_phase 	= 0;
-		ph_id 		= splx_data.ph_id_A[i][1];
+	for (i = 0; i < d->n_Ox; i++){
+		ph_id 		= d->ph_id_A[i][1];
 			
 		/* if phase is a pure species */
-		if (splx_data.ph_id_A[i][0] == 1 ){
+		if (d->ph_id_A[i][0] == 1 ){
 			gv.pp_flags[ph_id][1] 	= 1;
 			gv.pp_flags[ph_id][2] 	= 0;
-			gv.pp_n[ph_id]          = splx_data.n_vec[i];
+			gv.pp_n[ph_id]          = d->n_vec[i];
 			gv.n_pp_phase		   += 1;
 			gv.n_phase 			   += 1;
 		}
 		/* pure endmembers as solution phase */
-		if (splx_data.ph_id_A[i][0] == 2){
+		if (d->ph_id_A[i][0] == 2){
 			phase_on[ph_id] 		= 1;
-			em_id 					= splx_data.ph_id_A[i][3];
+			em_id 					= d->ph_id_A[i][3];
 
-			for (int j = 0; j < SS_ref_db[ph_id].n_em; j++) {	
+			for (j = 0; j < SS_ref_db[ph_id].n_em; j++) {	
 				SS_ref_db[ph_id].p[j] = gv.em2ss_shift;
 			}
 			SS_ref_db[ph_id].p[em_id] = 1.0 - gv.em2ss_shift*SS_ref_db[ph_id].n_em;
@@ -551,14 +742,13 @@ global_variable update_global_info(		struct bulk_info 	 z_b,
 			cp[id_cp].ss_flags[1] 	= 1;
 			cp[id_cp].ss_flags[2] 	= 0;
 			
-			cp[id_cp].ss_n          = splx_data.n_vec[i];			/* get initial phase fraction */
+			cp[id_cp].ss_n          = d->n_vec[i];			/* get initial phase fraction */
 			
-			for (int ii = 0; ii < SS_ref_db[ph_id].n_em; ii++){
+			for (ii = 0; ii < SS_ref_db[ph_id].n_em; ii++){
 				cp[id_cp].p_em[ii]  = SS_ref_db[ph_id].p[ii];
 			}
-			for (int ii = 0; ii < SS_ref_db[ph_id].n_xeos; ii++){
+			for (ii = 0; ii < SS_ref_db[ph_id].n_xeos; ii++){
 				cp[id_cp].dguess[ii]  = SS_ref_db[ph_id].iguess[ii];
-				cp[id_cp].lvlxeos[ii] = SS_ref_db[ph_id].iguess[ii];
 				cp[id_cp].xeos[ii]    = SS_ref_db[ph_id].iguess[ii];
 			}
 	
@@ -568,11 +758,41 @@ global_variable update_global_info(		struct bulk_info 	 z_b,
 			gv.len_cp 			   += 1;
 			gv.n_cp_phase 		   += 1;
 			gv.n_phase             += 1;
+
+			/** 
+			   add PC to Ppc list 
+			*/
+			if (SS_ref_db[ph_id].id_Ppc >= SS_ref_db[ph_id].n_Ppc){ SS_ref_db[ph_id].id_Ppc = 0; printf("MAXIMUM STORAGE SPACE FOR PC IS REACHED, INCREASED #PC_MAX\n");}
+			m_pc = SS_ref_db[ph_id].id_Ppc;
+
+			SS_ref_db[ph_id].info_Ppc[m_pc]   = 2;
+			SS_ref_db[ph_id].factor_Ppc[m_pc] = SS_ref_db[ph_id].factor;
+			SS_ref_db[ph_id].DF_Ppc[m_pc]     = SS_ref_db[ph_id].df;
+			
+			/* get pseudocompound composition */
+			for ( j = 0; j < gv.len_ox; j++){				
+				SS_ref_db[ph_id].comp_Ppc[m_pc][j] = SS_ref_db[ph_id].ss_comp[j]*SS_ref_db[ph_id].factor;	/** composition */
+			}
+			for ( j = 0; j < SS_ref_db[ph_id].n_em; j++){												/** save coordinates */
+				SS_ref_db[ph_id].p_Ppc[m_pc][j]    = SS_ref_db[ph_id].p[j];										
+				SS_ref_db[ph_id].mu_Ppc[m_pc][j]   = SS_ref_db[ph_id].mu[j];										
+			}
+			/* save xeos */
+			for ( j = 0; j < SS_ref_db[ph_id].n_xeos; j++){		
+				SS_ref_db[ph_id].xeos_Ppc[m_pc][j] = SS_ref_db[ph_id].iguess[j];							/** compositional variables */
+			}	
+			SS_ref_db[ph_id].G_Ppc[m_pc] = SS_ref_db[ph_id].df;
+			
+			/* add increment to the number of considered phases */
+			SS_ref_db[ph_id].tot_Ppc += 1;
+			SS_ref_db[ph_id].id_Ppc  += 1;
+
+
 		}
 		
 		/* solution phase */
-		if (splx_data.ph_id_A[i][0] == 3){
-			pc_id 					= splx_data.ph_id_A[i][3];
+		if (d->ph_id_A[i][0] == 3){
+			pc_id 					= d->ph_id_A[i][3];
 			phase_on[ph_id] 		= 1;
 			
 			strcpy(cp[id_cp].name,gv.SS_list[ph_id]);				/* get phase name */	
@@ -590,7 +810,7 @@ global_variable update_global_info(		struct bulk_info 	 z_b,
 			cp[id_cp].ss_flags[1] 	= 1;
 			cp[id_cp].ss_flags[2] 	= 0;
 			
-			cp[id_cp].ss_n          = splx_data.n_vec[i];			/* get initial phase fraction */
+			cp[id_cp].ss_n          = d->n_vec[i];			/* get initial phase fraction */
 			
 			for (int ii = 0; ii < SS_ref_db[ph_id].n_em; ii++){
 				cp[id_cp].p_em[ii]  = SS_ref_db[ph_id].p_pc[pc_id][ii];
@@ -598,7 +818,6 @@ global_variable update_global_info(		struct bulk_info 	 z_b,
 			for (int ii = 0; ii < SS_ref_db[ph_id].n_xeos; ii++){
 				cp[id_cp].dguess[ii]  = SS_ref_db[ph_id].xeos_pc[pc_id][ii];
 				cp[id_cp].xeos[ii]    = SS_ref_db[ph_id].xeos_pc[pc_id][ii];
-				cp[id_cp].lvlxeos[ii] = SS_ref_db[ph_id].xeos_pc[pc_id][ii];
 			}
 
 			gv.id_solvi[ph_id][gv.n_solvi[ph_id]] = id_cp;
@@ -607,6 +826,36 @@ global_variable update_global_info(		struct bulk_info 	 z_b,
 			gv.len_cp 			   += 1;
 			gv.n_cp_phase 		   += 1;
 			gv.n_phase             += 1;
+
+
+			/** 
+			   add PC to Ppc list 
+			*/
+			if (SS_ref_db[ph_id].id_Ppc >= SS_ref_db[ph_id].n_Ppc){ SS_ref_db[ph_id].id_Ppc = 0; printf("MAXIMUM STORAGE SPACE FOR PC IS REACHED, INCREASED #PC_MAX\n");}
+			m_pc = SS_ref_db[ph_id].id_Ppc;
+
+			SS_ref_db[ph_id].info_Ppc[m_pc]   = SS_ref_db[ph_id].info[pc_id];
+			SS_ref_db[ph_id].factor_Ppc[m_pc] = SS_ref_db[ph_id].factor_pc[pc_id];
+			SS_ref_db[ph_id].DF_Ppc[m_pc]     = SS_ref_db[ph_id].DF_pc[pc_id];
+			
+			/* get pseudocompound composition */
+			for ( j = 0; j < gv.len_ox; j++){				
+				SS_ref_db[ph_id].comp_Ppc[m_pc][j] = SS_ref_db[ph_id].comp_pc[pc_id][j];	/** composition */
+			}
+			for ( j = 0; j < SS_ref_db[ph_id].n_em; j++){												/** save coordinates */
+				SS_ref_db[ph_id].p_Ppc[m_pc][j]  = SS_ref_db[ph_id].p_pc[pc_id][j];										
+				SS_ref_db[ph_id].mu_Ppc[m_pc][j] = SS_ref_db[ph_id].mu_pc[pc_id][j];										
+			}
+			/* save xeos */
+			for ( j = 0; j < SS_ref_db[ph_id].n_xeos; j++){		
+				SS_ref_db[ph_id].xeos_Ppc[m_pc][j] = SS_ref_db[ph_id].xeos_pc[pc_id][j];							/** compositional variables */
+			}	
+			SS_ref_db[ph_id].G_Ppc[m_pc] = SS_ref_db[ph_id].G_pc[pc_id];
+			
+			/* add increment to the number of considered phases */
+			SS_ref_db[ph_id].tot_Ppc += 1;
+			SS_ref_db[ph_id].id_Ppc  += 1;
+
 		}
 	}
 
@@ -620,7 +869,7 @@ global_variable update_global_info(		struct bulk_info 	 z_b,
 		if (phase_on[i] == 0 && SS_ref_db[i].ss_flags[0] == 1){
 			pc_id	 = -1;
 			pc_df 	 = 1e6;
-			max_n_pc = get_max_n_pc(SS_ref_db[i].tot_pc, SS_ref_db[i].n_pc);
+			max_n_pc = SS_ref_db[i].tot_pc;
 			
 			for (int l = 0; l < max_n_pc; l++){
 				if (SS_ref_db[i].DF_pc[l]*SS_ref_db[i].factor_pc[l] < pc_df){
@@ -647,12 +896,11 @@ global_variable update_global_info(		struct bulk_info 	 z_b,
 				cp[id_cp].ss_n          = 0.0;							/* get initial phase fraction */
 				
 				for (int ii = 0; ii < SS_ref_db[ph_id].n_em; ii++){
-					cp[id_cp].p_em[ii]      = SS_ref_db[ph_id].p_pc[pc_id][ii];
+					cp[id_cp].p_em[ii]    = SS_ref_db[ph_id].p_pc[pc_id][ii];
 				}
 				for (int ii = 0; ii < SS_ref_db[ph_id].n_xeos; ii++){
-					cp[id_cp].dguess[ii]    = SS_ref_db[ph_id].xeos_pc[pc_id][ii];
-					cp[id_cp].xeos[ii]      = SS_ref_db[ph_id].xeos_pc[pc_id][ii];
-					cp[id_cp].lvlxeos[ii]   = SS_ref_db[ph_id].xeos_pc[pc_id][ii];
+					cp[id_cp].dguess[ii]  = SS_ref_db[ph_id].xeos_pc[pc_id][ii];
+					cp[id_cp].xeos[ii]    = SS_ref_db[ph_id].xeos_pc[pc_id][ii];
 				}
 				
 				gv.id_solvi[ph_id][gv.n_solvi[ph_id]] = id_cp;
@@ -665,39 +913,6 @@ global_variable update_global_info(		struct bulk_info 	 z_b,
 					break;
 				}
 			}
-		}
-	}
-
-	if(0 == 1){
-		for (int i = 0; i < gv.len_cp; i++){
-				int ss = cp[i].id;
-
-				for (int j = 0; j < SS_ref_db[ss].n_xeos; j++) {	
-					SS_ref_db[ss].iguess[j] = cp[i].xeos[j];
-				}
-
-				/**
-					Rotate G-base hyperplane
-				*/
-				SS_ref_db[ss] = rotate_hyperplane(			gv, 
-															SS_ref_db[ss]		);
-
-								
-				SS_ref_db[ss] = PC_function(				gv,
-															SS_ref_db[ss], 
-															z_b,
-															gv.SS_list[ss] 			);
-																			
-				SS_ref_db[ss] = SS_UPDATE_function(			gv, 
-															SS_ref_db[ss], 
-															z_b, 
-															gv.SS_list[ss]			);	
-												
-				for (int v = 0; v < cp[i].n_em; v++){
-					cp[i].xi_em[v]		= SS_ref_db[ss].xi_em[v];
-					cp[i].mu[v]			= SS_ref_db[ss].mu[v];
-				}
-				cp[i].sum_xi			= SS_ref_db[ss].sum_xi;
 		}
 	}
 
@@ -749,261 +964,39 @@ global_variable update_global_info(		struct bulk_info 	 z_b,
 	return gv;
 }
 
-/**
-  function to swp pure phases
-*/	
-simplex_data swap_pure_phases(		struct bulk_info 	 z_b,
-									simplex_data 		 splx_data,
-									global_variable 	 gv,
-									
-									PP_ref 				*PP_ref_db,
-									SS_ref 				*SS_ref_db
-){
-	int     k;
-	double  br[splx_data.n_Ox];
-	
-	/** get a local copy of the bulk rock composition, without zero values */
-	for (int i = 0; i < splx_data.n_Ox; i++){
-		br[i] = z_b.bulk_rock[z_b.nzEl_array[i]];
-	}
-	
-	for (int i = 0; i < gv.len_pp; i++){
-		if (gv.pp_flags[i][0] == 1){
-			
-			splx_data.g0_B 			= PP_ref_db[i].gbase*PP_ref_db[i].factor;
-			splx_data.ph_id_B[0]  	= 1;															/** added phase is a pure species */
-			splx_data.ph_id_B[1]	= i;															/** save pure species index */
-		
-			/* retrieve the composition in the right (reduced) chemical space */
-			for (int j = 0; j < z_b.nzEl_val; j++){
-				splx_data.B[j] = PP_ref_db[i].Comp[z_b.nzEl_array[j]]*PP_ref_db[i].factor; 
-			}
-			
-			/** update deltaG with respect to G hyperplane */
-			splx_data = update_dG(splx_data);
-			
-			/** swap phase */
-			if (splx_data.ph2swp != -1){															/** if the phase can be added */
-				splx_data.swp 						   = 1;
-				splx_data.n_swp 					  += 1;
-				splx_data.ph_id_A[splx_data.ph2swp][0] = splx_data.ph_id_B[0];
-				splx_data.ph_id_A[splx_data.ph2swp][1] = splx_data.ph_id_B[1];
-				splx_data.ph_id_A[splx_data.ph2swp][2] = splx_data.ph_id_B[2];
-				splx_data.g0_A[splx_data.ph2swp] 	   = splx_data.g0_B;
-				
-				for (int j = 0; j < splx_data.n_Ox; j++){				
-					k = splx_data.ph2swp + j*splx_data.n_Ox;
-					splx_data.A[k] = splx_data.B[j];
-				}
-				
-				for (int k = 0; k < splx_data.n_Ox*splx_data.n_Ox; k++){ splx_data.A1[k] = splx_data.A[k];}
-
-				/** inverse guessed assemblage stoechiometry matrix */
-				inverseMatrix(	splx_data.A1,
-								splx_data.n_Ox		);
-				
-				/** update phase fractions */
-				MatVecMul(		splx_data.A1,
-								br,
-								splx_data.n_vec,
-								splx_data.n_Ox		);	
-			}
-		}
-	}
-	
-	return splx_data;
-}
-
-/**
-  function to swp pure endmembers
-*/	
-simplex_data swap_pure_endmembers(		struct bulk_info 	 z_b,
-										simplex_data 		 splx_data,
-										global_variable 	 gv,
-										
-										PP_ref 				*PP_ref_db,
-										SS_ref 				*SS_ref_db
-){
-	int     k;
-	double  br[splx_data.n_Ox];
-	double factor;
-	
-	/** get a local copy of the bulk rock composition, without zero values */
-	for (int i = 0; i < splx_data.n_Ox; i++){
-		br[i] = z_b.bulk_rock[z_b.nzEl_array[i]];
-	}
-	
-	for (int i = 0; i < gv.len_ss; i++){												/**loop to pass informations from active endmembers */
-		if (SS_ref_db[i].ss_flags[0] == 1){														/** if SS is not filtered out then continue */
-
-			for (int l = 0; l < SS_ref_db[i].n_em; l++){	
-				/** if bulk-rock satisfy the compositions of endmembers, retrieve their informations */
-				if (SS_ref_db[i].z_em[l] == 1.0){ 
-					
-					/* update normalizing factor for solution models than need it */
-					factor 	= z_b.fbc/SS_ref_db[i].ape[l];	
-
-
-					splx_data.g0_B		 = SS_ref_db[i].gbase[l]*factor;
-					splx_data.ph_id_B[0] = 2;														/** added phase is a pure species */
-					splx_data.ph_id_B[1] = i;														/** save pure species index */
-					splx_data.ph_id_B[2] = 0;														/** save used initial guess */	
-					
-					/** retrieve the composition in the right (reduced) chemical space */
-					for (int j = 0; j < z_b.nzEl_val; j++){
-						splx_data.B[j] 	 = SS_ref_db[i].Comp[l][z_b.nzEl_array[j]]*factor; 
-					}
-
-					/** update deltaG with respect to G hyperplane */
-					splx_data = update_dG(splx_data);
-									
-					/** swap phase */
-					if (splx_data.ph2swp != -1){													/** if the phase can be added */
-						splx_data.swp 						   = 1;
-						splx_data.n_swp 					  += 1;
-						splx_data.ph_id_A[splx_data.ph2swp][0] = splx_data.ph_id_B[0];
-						splx_data.ph_id_A[splx_data.ph2swp][1] = splx_data.ph_id_B[1];
-						splx_data.ph_id_A[splx_data.ph2swp][2] = splx_data.ph_id_B[2];
-						splx_data.ph_id_A[splx_data.ph2swp][3] = l;	
-						splx_data.g0_A[splx_data.ph2swp] 	   = splx_data.g0_B;
-						
-						for (int j = 0; j < splx_data.n_Ox; j++){				
-							int k = splx_data.ph2swp + j*splx_data.n_Ox;
-							splx_data.A[k] = splx_data.B[j];
-						}
-						for (int k = 0; k < splx_data.n_Ox*splx_data.n_Ox; k++){ splx_data.A1[k] = splx_data.A[k];}
-
-						/** inverse guessed assemblage stoechiometry matrix */
-						inverseMatrix(	splx_data.A1,
-										splx_data.n_Ox		);
-						
-						/** update phase fractions */
-						MatVecMul(		splx_data.A1,
-										br,
-										splx_data.n_vec,
-										splx_data.n_Ox		);	
-					}
-				}
-			}
-		}
-	}
-	
-	return splx_data;
-}
-
-/**
-  function to swp pure phases
-*/	
-simplex_data swap_pseudocompounds(		struct bulk_info 	 z_b,
-										simplex_data 		 splx_data,
-										global_variable 	gv,
-										
-										PP_ref 				*PP_ref_db,
-										SS_ref 				*SS_ref_db
-){
-	int     k, max_n_pc;
-	double  br[splx_data.n_Ox];
-	
-	/** get a local copy of the bulk rock composition, without zero values */
-	for (int i = 0; i < splx_data.n_Ox; i++){
-		br[i] = z_b.bulk_rock[z_b.nzEl_array[i]];
-	}
-	
-	for (int i = 0; i < gv.len_ss; i++){										/**loop to pass informations from active endmembers */
-		if (SS_ref_db[i].ss_flags[0] == 1){
-
-			max_n_pc = get_max_n_pc(SS_ref_db[i].tot_pc, SS_ref_db[i].n_pc);
-
-			for (int l = 0; l < max_n_pc; l++){
-
-				splx_data.g0_B		 = SS_ref_db[i].G_pc[l];
-				splx_data.ph_id_B[0] = 3;														/** added phase is a pure species */
-				splx_data.ph_id_B[1] = i;														/** save solution phase index */
-				splx_data.ph_id_B[2] = 0;														/** save pseudocompound index */
-			
-				/* retrieve the composition in the right (reduced) chemical space */
-				for (int j = 0; j < z_b.nzEl_val; j++){
-					splx_data.B[j] = SS_ref_db[i].comp_pc[l][z_b.nzEl_array[j]]; 
-				}
-
-				/** update deltaG with respect to G hyperplane */
-				splx_data = update_dG(splx_data);
-				
-				/** save updated driving force */
-				SS_ref_db[i].DF_pc[l] = splx_data.dG_B;
-				
-				/** swap phase */
-				if (splx_data.ph2swp != -1){													/** if the phase can be added */
-					SS_ref_db[i].n_swap[l]       		   = splx_data.n_swp;
-					splx_data.swp 				 		   = 1;
-					splx_data.n_swp 					  += 1;
-					splx_data.ph_id_A[splx_data.ph2swp][0] = splx_data.ph_id_B[0];
-					splx_data.ph_id_A[splx_data.ph2swp][1] = splx_data.ph_id_B[1];
-					splx_data.ph_id_A[splx_data.ph2swp][2] = splx_data.ph_id_B[2];
-					splx_data.ph_id_A[splx_data.ph2swp][3] = l;									/** save pseudocompound number */
-					splx_data.g0_A[splx_data.ph2swp] 	   = splx_data.g0_B;
-					
-					for (int j = 0; j < splx_data.n_Ox; j++){				
-						int k = splx_data.ph2swp + j*splx_data.n_Ox;
-						splx_data.A[k] = splx_data.B[j];
-					}
-					
-					for (int k = 0; k < splx_data.n_Ox*splx_data.n_Ox; k++){ splx_data.A1[k] = splx_data.A[k];}
-
-					/** inverse guessed assemblage stoechiometry matrix */
-					inverseMatrix(	splx_data.A1,
-									splx_data.n_Ox		);
-					
-					/** update phase fractions */
-					MatVecMul(		splx_data.A1,
-									br,
-									splx_data.n_vec,
-									splx_data.n_Ox		);
-				}
-			}
-		}
-	}
-	
-	return splx_data;
-}
 
 /**
   function to run simplex linear programming with pseudocompounds only
 */	
-simplex_data run_simplex_vPC_only(		struct bulk_info 	 z_b,
-										simplex_data 		 splx_data,
+void run_simplex_pseudocompounds(		bulk_info 	 z_b,
+										simplex_data 		*splx_data,
 										global_variable 	 gv,
 										
 										PP_ref 				*PP_ref_db,
 										SS_ref 				*SS_ref_db
 ){
+	simplex_data *d  = (simplex_data *) splx_data;
 
 	int     k = 0;
-	double  br[splx_data.n_Ox];
-	
-	/** get a local copy of the bulk rock composition, without zero values */
-	for (int i = 0; i < splx_data.n_Ox; i++){
-		br[i] = z_b.bulk_rock[z_b.nzEl_array[i]];
-	}
-	
-	splx_data.swp = 1;
-	while (splx_data.swp == 1){																			/** as long as a phase can be added to the guessed assemblage, go on */
-		k 				 += 1;
-		splx_data.swp     = 0;
+
+	d->swp = 1;
+	while (d->swp == 1){					/** as long as a phase can be added to the guessed assemblage, go on */
+		k 		   += 1;
+		d->swp     = 0;
 		
-		splx_data = swap_pure_phases(		z_b,
+		swap_pure_phases(					z_b,
 											splx_data,
 											gv,
 											PP_ref_db,
 											SS_ref_db	);	
-											
-		splx_data = swap_pure_endmembers(	z_b,
+							
+		swap_pure_endmembers(				z_b,
 											splx_data,
 											gv,
 											PP_ref_db,
 											SS_ref_db	);	
 		
-		splx_data = swap_pseudocompounds(	z_b,
+		swap_pseudocompounds(				z_b,
 											splx_data,
 											gv,
 											PP_ref_db,
@@ -1012,16 +1005,14 @@ simplex_data run_simplex_vPC_only(		struct bulk_info 	 z_b,
 	if (gv.verbose == 1){
 		printf("    (# iterations %d)",k);	
 	}
-	
-	return splx_data;
-}
 
+}
 
 /**
   function to run simplex linear programming with pseudocompounds
 */	
-simplex_data run_simplex_vPC_stage1(	struct bulk_info 	 z_b,
-										simplex_data 		 splx_data,
+void run_simplex_levelling(				bulk_info 	 z_b,
+										simplex_data 		*splx_data,
 										
 										global_variable 	 gv,
 										
@@ -1029,42 +1020,38 @@ simplex_data run_simplex_vPC_stage1(	struct bulk_info 	 z_b,
 										SS_ref 				*SS_ref_db,
 										obj_type			*SS_objective
 ){
+	simplex_data *d  = (simplex_data *) splx_data;
+
 	int i, k, iss;
-	
-	/** get a local copy of the bulk rock composition, without zero values */
-	double  br[splx_data.n_Ox];
-	for (int i = 0; i < splx_data.n_Ox; i++){
-		br[i] = z_b.bulk_rock[z_b.nzEl_array[i]];
-	}
 
 	/** copy A onto A1 in order to inverse it using LAPACKE */
-	for (k = 0; k < splx_data.n_Ox*splx_data.n_Ox; k++){ splx_data.A1[k] = splx_data.A[k];}
+	for (k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k]	;}
 
 	/** inverse guessed assemblage stoechiometry matrix */
-	inverseMatrix(						splx_data.A1, 
-										splx_data.n_Ox			);
+	inverseMatrix(						d->A1, 
+										d->n_Ox					);
 	
-	splx_data = swap_pure_phases(		z_b,
+	swap_pure_phases(					z_b,
 										splx_data,
 										gv,
 										PP_ref_db,
 										SS_ref_db				);	
 										
-	splx_data = swap_pure_endmembers(	z_b,
+	swap_pure_endmembers(				z_b,
 										splx_data,
 										gv,
 										PP_ref_db,
 										SS_ref_db				);	
 	
-	update_local_gamma(					splx_data.A1,
-										splx_data.g0_A,
-										splx_data.gamma_ps,
-										splx_data.n_Ox			);
+	update_local_gamma(					d->A1,
+										d->g0_A,
+										d->gamma_ps,
+										d->n_Ox					);
 
 
 	/** update gam_tot using pure species levelling gamma */
-	for (i = 0; i < splx_data.n_Ox; i++){
-		splx_data.gamma_tot[z_b.nzEl_array[i]] = splx_data.gamma_ps[i];
+	for (i = 0; i < d->n_Ox; i++){
+		d->gamma_tot[z_b.nzEl_array[i]] = d->gamma_ps[i];
 	}
 
 	/** 
@@ -1089,7 +1076,6 @@ simplex_data run_simplex_vPC_stage1(	struct bulk_info 	 z_b,
 		if (SS_ref_db[iss].ss_flags[0] == 1){
 
 			generate_pseudocompounds(	iss,
-										splx_data,
 										z_b,
 										gv,
 										SS_ref_db,
@@ -1109,55 +1095,69 @@ simplex_data run_simplex_vPC_stage1(	struct bulk_info 	 z_b,
 	t = clock();
 	
 	/** run linear programming with simplex approach */
-	splx_data = run_simplex_vPC_only(	z_b,
+	run_simplex_pseudocompounds(		z_b,
 										splx_data,
 										gv,
 										PP_ref_db,
 										SS_ref_db				);
 				
 	/* update gamma of SS */
-	update_local_gamma(					splx_data.A1,
-										splx_data.g0_A,
-										splx_data.gamma_ss,
-										splx_data.n_Ox			);
+	update_local_gamma(					d->A1,
+										d->g0_A,
+										d->gamma_ss,
+										d->n_Ox			);
 										
 	t = clock() - t; 
 	time_taken  = ((double)t)/CLOCKS_PER_SEC;
 	if (gv.verbose == 1){ printf("\n [time to swap SS time (ms) %.8f]\n",time_taken*1000);	}
 	
-	return splx_data;
 };
 
 /**
   function to deallocte memory of simplex linear programming (A)
 */	
-void destroy_simplex_A(		simplex_data splx_data
+void destroy_simplex_A(		simplex_data *splx_data
 ){
-    for (int i = 0; i < splx_data.n_Ox; i++){
-		free(splx_data.ph_id_A[i]);
+
+	simplex_data *d  = (simplex_data *) splx_data;
+
+    for (int i = 0; i < d->n_Ox; i++){
+		free(d->ph_id_A[i]);
 	}
-	free(splx_data.A);
-	free(splx_data.pivot);
-	free(splx_data.A1);
-	free(splx_data.ph_id_A);
-	free(splx_data.g0_A);
-	free(splx_data.dG_A);
-	free(splx_data.n_vec);
-	free(splx_data.gamma_ps);
-	free(splx_data.gamma_ss);
-	free(splx_data.gamma_tot);
-	free(splx_data.gamma_delta);
+	free(d->ph_id_A);
+
+	free(d->A);
+	free(d->A1);
+	free(d->Alu);
+
+	free(d->pivot);
+
+	free(d->g0_A);
+	free(d->dG_A);
+	
+	free(d->n_vec);
+
+	free(d->gamma_ps);
+	free(d->gamma_ss);
+	free(d->gamma_tot);
+	free(d->gamma_delta);
+
+	free(d->stage);
 };
+
+
 
 /**
   function to deallocte memory of simplex linear programming (B)
 */	
 void destroy_simplex_B(
-	simplex_data splx_data
+	simplex_data *splx_data
 ){
-	free(splx_data.ph_id_B);
-	free(splx_data.B);
-	free(splx_data.B1);
+	simplex_data *d  = (simplex_data *) splx_data;
+
+	free(d->ph_id_B);
+	free(d->B);
+	free(d->B1);
 };
 
 /**
@@ -1166,61 +1166,38 @@ void destroy_simplex_B(
   Part A: Reference assemblage against which candidates are tested
   Part B: Candidate phases
 */	
-global_variable run_levelling_function(		struct bulk_info 	 z_b,
+global_variable run_levelling_function(		bulk_info 	 z_b,
 											global_variable 	 gv,
 
+											obj_type			*SS_objective,	
+											simplex_data		*splx_data,
 											PP_ref 				*PP_ref_db,
 											SS_ref 				*SS_ref_db,
 											csd_phase_set  		*cp
 ){
-	
+	simplex_data *d  = (simplex_data *) splx_data;
+
 	clock_t t; 
 	double time_taken;
 	t = clock();
-	
-	/** declare structure to storesimplex arrays */
-	simplex_data 	splx_data;
-	obj_type 		SS_objective[gv.len_ss];	
-	
-	SS_objective_init_function(				SS_objective,
-											gv				);
-
-	/** allocate memory */
-	init_simplex_A(			   			   &splx_data,
-											gv,
-											z_b				);
-										
-								
-	init_simplex_B_em(					   &splx_data,
-											gv,
-											z_b,
-											PP_ref_db,
-											SS_ref_db		);
 
 	/** fill matrices */
-	splx_data = fill_simplex_arrays_A(		z_b,
-											splx_data,
+	fill_simplex_arrays_A(					z_b,
+										    splx_data,
 											gv,
 											PP_ref_db,
 											SS_ref_db		);
 
 	/** run linear programming with simplex approach */
-	splx_data = run_simplex_vPC_stage1(		z_b,
-											splx_data,
+	run_simplex_levelling(					z_b,
+										    splx_data,
 											gv,
 											PP_ref_db,
 											SS_ref_db,
 											SS_objective	);	
 			
-	/** run linear programming with simplex approach */
-	//splx_data = run_simplex_vPC_stage2(		z_b,
-											//splx_data,
-											//gv,
-											//PP_ref_db,
-											//SS_ref_db		);					
-
 	/* update global variable gamma */
-	splx_data = update_global_gamma(		z_b,
+	update_global_gamma_LU(					z_b,
 											splx_data		);	
 	
 										
@@ -1238,74 +1215,57 @@ global_variable run_levelling_function(		struct bulk_info 	 z_b,
 											cp,
 											SS_objective	);
 
-	//if (gv.verbose == 1){
-		//print_levelling(				z_b,
-										//gv,
-										//PP_ref_db,
-										//SS_ref_db			);											
-	//}
-
 	if (gv.verbose == 1){
 		printf("\nGet initial guess (Gamma and phase fractions) \n");
-		printf("══════════════════════════════════════════════\n");
-		printf("   STEP 1: Pure species guess\n");
-		printf("   ═══════════════════════════\n\n");
+		printf("══════════════════════════════════════════════\n\n");
 		printf("    P: %+10f T: %+10f\n",z_b.P,z_b.T);
-		printf("\t[---------------------------------------]\n");
-		printf("\t[  EM  |   EM PROP  |   g0_EM    |  ix  ]\n");
-		printf("\t[---------------------------------------]\n");
-		
-		double sum_prop = 0.0;
-		for (int i = 0; i < splx_data.n_Ox; i++){
-			sum_prop += splx_data.n_vec[i];
-			
-			if (splx_data.ph_id_A[i][0] == 1){
-				printf("\t['%5s' %+10f  %+10f  %5d ]", gv.PP_list[splx_data.ph_id_A[i][1]], splx_data.n_vec[i], splx_data.g0_A[i], splx_data.ph_id_A[i][0]);
+		printf(" [----------------------------------------]\n");
+		printf(" [  Ph  |   Ph PROP  |   g0_Ph    |  ix   ]\n");
+		printf(" [----------------------------------------]\n");
+
+		for (int i = 0; i < d->n_Ox; i++){
+			if (d->ph_id_A[i][0] == 1){
+				printf(" ['%5s' %+10f  %+12.4f  %5d ]", gv.PP_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
 				printf("\n");
 			}
-			if (splx_data.ph_id_A[i][0] == 2){
-				printf("\t['%5s' %+10f  %+10f  %5d ]\n", gv.SS_list[splx_data.ph_id_A[i][1]], splx_data.n_vec[i], splx_data.g0_A[i], splx_data.ph_id_A[i][0]);
+			if (d->ph_id_A[i][0] == 2){
+				printf(" ['%5s' %+10f  %+12.4f  %5d ]\n", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
 			}
-			if (splx_data.ph_id_A[i][0] == 3){
-				printf("\t['%5s' %+10f  %+10f  %5d ]", gv.SS_list[splx_data.ph_id_A[i][1]], splx_data.n_vec[i], splx_data.g0_A[i], splx_data.ph_id_A[i][0]);
-				for (int ii = 0; ii < SS_ref_db[splx_data.ph_id_A[i][1]].n_xeos; ii++){
-					printf(" %+10f", SS_ref_db[splx_data.ph_id_A[i][1]].xeos_pc[splx_data.ph_id_A[i][3]][ii] );
+			if (d->ph_id_A[i][0] == 3){
+				printf(" ['%5s' %+10f  %+12.4f  %5d ]", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+				for (int ii = 0; ii < SS_ref_db[d->ph_id_A[i][1]].n_xeos; ii++){
+					printf(" %+10f", SS_ref_db[d->ph_id_A[i][1]].xeos_pc[d->ph_id_A[i][3]][ii] );
 				}
 				printf("\n");
 			}
 		}
-		printf("\t[---------------------------------------]\n");
-		printf("\t[  OXIDE      GAMMA_EM        GAMMA_PC  ]\n");
-		printf("\t[---------------------------------------]\n");
-		for (int i = 0; i < splx_data.n_Ox; i++){
-			printf("\t[ %5s %+15f %+15f ]\n", gv.ox[z_b.nzEl_array[i]], splx_data.gamma_ps[i], splx_data.gamma_tot[z_b.nzEl_array[i]]);
+		printf(" [----------------------------------------]\n");
+		printf(" [  OXIDE      GAMMA_EM        GAMMA_PC   ]\n");
+		printf(" [----------------------------------------]\n");
+		for (int i = 0; i < d->n_Ox; i++){
+			printf(" [ %5s %+15f %+15f  ]\n", gv.ox[z_b.nzEl_array[i]], d->gamma_ps[i], d->gamma_tot[z_b.nzEl_array[i]]);
 		}
-		printf("\t[---------------------------------------]\n");
-		printf("\t[            %4d swaps                 ]\n", splx_data.n_swp);
-		printf("\t[---------------------------------------]\n");
+		printf(" [----------------------------------------]\n");
+		printf(" [            %4d swaps                  ]\n", d->n_swp);
+		printf(" [----------------------------------------]\n");
 		
-		printf("\n\t[---------------------------------------]\n");
-		printf("\t[           ACTIVE PHASES               ]\n");
-		printf("\t[---------------------------------------]\n");
+		printf("\n [----------------------------------------]\n");
+		printf(" [           ACTIVE PHASES                ]\n");
+		printf(" [----------------------------------------]\n");
 		for (int i = 0; i < gv.len_ss; i++){
 			if (SS_ref_db[i].ss_flags[0] == 1){
-				printf("\t[                %5s                  ]\n",gv.SS_list[i]);
+				printf(" [                 %5s                  ]\n",gv.SS_list[i]);
 			}
 		}
-		printf("\t[---------------------------------------]\n");
-		printf("\t[           UNACTIVE PHASES             ]\n");
-		printf("\t[---------------------------------------]\n");
+		printf(" [----------------------------------------]\n");
+		printf(" [           UNACTIVE PHASES              ]\n");
+		printf(" [----------------------------------------]\n");
 		for (int i = 0; i < gv.len_ss; i++){
 			if (SS_ref_db[i].ss_flags[0] == 0){
-				printf("\t[                %5s                  ]\n",gv.SS_list[i]);
+				printf(" [                 %5s                  ]\n",gv.SS_list[i]);
 			}
 		}
-		printf("\t[---------------------------------------]\n");
 	}
-
-	/** deallocate memory */
-	destroy_simplex_A(splx_data);
-	destroy_simplex_B(splx_data);
 
 	t 			= clock() - t; 
 	time_taken  = ((double)t)/CLOCKS_PER_SEC; // in seconds 
@@ -1317,9 +1277,11 @@ global_variable run_levelling_function(		struct bulk_info 	 z_b,
 /**
   main levelling routine
 */ 
-global_variable Levelling(	struct bulk_info 	z_b,
+global_variable Levelling(	bulk_info 	z_b,
 							global_variable 	gv,
 
+							obj_type 		   *SS_objective,
+							simplex_data	   *splx_data,
 							PP_ref 			   *PP_ref_db,
 							SS_ref 			   *SS_ref_db,
 							csd_phase_set  	   *cp
@@ -1329,19 +1291,25 @@ global_variable Levelling(	struct bulk_info 	z_b,
 		printf("\nLevelling (endmembers & solution phase)\n");
 		printf("════════════════════════════════════════\n");
 	}
-			
+
 	/* pseudosection function to get starting guess */
 	gv = run_levelling_function(	z_b,												/** bulk rock informations    */
 									gv,													/** global variables (e.g. Gamma) */
-										
+
+									SS_objective,
+								    splx_data,
 									PP_ref_db,											/** pure phase database */
 									SS_ref_db,											/** solution phase database */
 									cp				);
 	if (gv.verbose == 1){
-		printf("    [    Levelling time  %+12f ms    ]\n",gv.LVL_time);
-		printf("    [---------------------------------------]\n\n\n");
+		printf(" [    Levelling time  %+12f ms     ]\n",gv.LVL_time);
+		printf(" [----------------------------------------]\n\n\n");
 	}
 
+	/* copy gamma total to the global variables */
+	// for (int i = 0; i < gv.len_ox; i++){
+	// 	gv.gam_tot[i] -= 1.0;
+	// }
 
 	return gv;
-};		
+};

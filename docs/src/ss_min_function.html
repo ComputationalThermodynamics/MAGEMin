@@ -39,11 +39,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">In development:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../news.html">Seismic velocity calculation</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../stp.html">Linux-based system</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../stp/Linux.html">External libraries</a></li>
@@ -95,7 +91,15 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ckbk.html#data-output">Data output</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../ckbk/out_struct.html">As a nested structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/out_struct.html">THERMOCALC-like output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/out_struct.html#as-a-nested-structure">As a nested structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#computation-information">Computation information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#system-information">System information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#phase-proportions">Phase proportions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#solution-phases-information">Solution phases information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#id1">Solution phases information</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ckbk.html#pseudosection-generator">Pseudosection generator</a><ul>
@@ -134,6 +138,21 @@
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#access-output-structure">Access output structure</a></li>
 </ul>
 </li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Known issues &amp; Tips!</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../issues.html">Quick tips!</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#compiler-linux">Compiler (Linux)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#minimum-pressure">Minimum pressure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#reduced-chemical-system">Reduced chemical system</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../issues.html#known-problems">Known problems</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#reduced-chemical-systems">Reduced chemical systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#low-temperature-stabilitzation">Low temperature stabilitzation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#hp-lt-melt-prediction">HP-LT melt prediction</a></li>
 </ul>
 </li>
 </ul>
@@ -221,71 +240,53 @@
 <p>Function to call solution phase Minimization</p>
 <dl class="c function">
 <dt class="sig sig-object c" id="c.SS_UPDATE_function">
-<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SS_UPDATE_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">name</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.SS_UPDATE_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/ss_min_function.c.html#c.SS_UPDATE_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SS_UPDATE_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">name</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.SS_UPDATE_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/ss_min_function.c.html#c.SS_UPDATE_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Function to update xi and sum_xi during local minimization.</p>
 </dd></dl>
 
 <dl class="c function">
 <dt class="sig sig-object c" id="c.CP_UPDATE_function">
-<span class="n"><span class="pre">csd_phase_set</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">CP_UPDATE_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="n"><span class="pre">csd_phase_set</span></span><span class="w"> </span><span class="n"><span class="pre">cp</span></span>, <span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.CP_UPDATE_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/ss_min_function.c.html#c.CP_UPDATE_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<span class="n"><span class="pre">csd_phase_set</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">CP_UPDATE_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="n"><span class="pre">csd_phase_set</span></span><span class="w"> </span><span class="n"><span class="pre">cp</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.CP_UPDATE_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/ss_min_function.c.html#c.CP_UPDATE_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Function to update xi and sum_xi for the considered phases list (during the inner loop of the PGE stage).
 NOTE: When the phase is “liq”, the normalization factor is also updated as it depends on the endmember fractions</p>
 </dd></dl>
 
 <dl class="c function">
 <dt class="sig sig-object c" id="c.split_cp">
-<span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">split_cp</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">i</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="n"><span class="pre">csd_phase_set</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">cp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.split_cp" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/ss_min_function.c.html#c.split_cp"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">split_cp</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="n"><span class="pre">csd_phase_set</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">cp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.split_cp" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/ss_min_function.c.html#c.split_cp"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>This function ensures that if we drift away from the set of x-eos obtained during levelling, a copy will of the phase will be added to the considered set of phase
 - Drifting occurs when tilting of the hyperplane moves the x-eos far away from their initial guess
 - Note that each instance of the phase, initialized during levelling can only be split once</p>
 </dd></dl>
 
 <dl class="c function">
+<dt class="sig sig-object c" id="c.copy_to_cp">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">copy_to_cp</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">i</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">ph_id</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="n"><span class="pre">csd_phase_set</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">cp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.copy_to_cp" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/ss_min_function.c.html#c.copy_to_cp"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>copy the minimized phase informations to cp structure, if the site fractions are respected</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.copy_to_Ppc">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">copy_to_Ppc</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">i</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">ph_id</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">obj_type</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_objective</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="n"><span class="pre">csd_phase_set</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">cp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.copy_to_Ppc" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/ss_min_function.c.html#c.copy_to_Ppc"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>add minimized phase to LP PGE pseudocompound list</p>
+</dd></dl>
+
+<dl class="c function">
 <dt class="sig sig-object c" id="c.ss_min_PGE">
-<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ss_min_PGE</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">mode</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">i</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="n"><span class="pre">csd_phase_set</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">cp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.ss_min_PGE" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/ss_min_function.c.html#c.ss_min_PGE"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ss_min_PGE</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">mode</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">obj_type</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_objective</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="n"><span class="pre">csd_phase_set</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">cp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.ss_min_PGE" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/ss_min_function.c.html#c.ss_min_PGE"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Minimization function for PGE</p>
 </dd></dl>
 
 <dl class="c function">
-<dt class="sig sig-object c" id="c.reset_gv">
-<span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reset_gv</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="n"><span class="pre">PP_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">PP_ref_db</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.reset_gv" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/ss_min_function.c.html#c.reset_gv"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>reset global variable for parallel calculations</p>
+<dt class="sig sig-object c" id="c.ss_min_LP">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ss_min_LP</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">mode</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">obj_type</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_objective</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="n"><span class="pre">csd_phase_set</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">cp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.ss_min_LP" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/ss_min_function.c.html#c.ss_min_LP"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Minimization function for PGE</p>
 </dd></dl>
 
 <dl class="c function">
 <dt class="sig sig-object c" id="c.init_ss_db">
-<span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init_ss_db</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.init_ss_db" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/ss_min_function.c.html#c.init_ss_db"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">init_ss_db</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.init_ss_db" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/ss_min_function.c.html#c.init_ss_db"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>initialize solution phase database</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.reset_sp">
-<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reset_sp</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">stb_system</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">sp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.reset_sp" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/ss_min_function.c.html#c.reset_sp"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>reset stable phases entries</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.reset_cp">
-<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reset_cp</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="n"><span class="pre">csd_phase_set</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">cp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.reset_cp" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/ss_min_function.c.html#c.reset_cp"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>reset considered phases entries</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.reset_SS">
-<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reset_SS</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.reset_SS" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/ss_min_function.c.html#c.reset_SS"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>reset compositional variables (xeos) when something goes wrong during minimization</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.SS_ref_destroy">
-<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SS_ref_destroy</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.SS_ref_destroy" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/ss_min_function.c.html#c.SS_ref_destroy"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>Function to destroy allocated memory of solution phase structure</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.CP_destroy">
-<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">CP_destroy</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">csd_phase_set</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">cp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.CP_destroy" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/ss_min_function.c.html#c.CP_destroy"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>Function to destroy allocated memory of considered phase structure</p>
 </dd></dl>
 
 </section>

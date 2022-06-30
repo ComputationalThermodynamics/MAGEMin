@@ -36,11 +36,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">In development:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../news.html">Seismic velocity calculation</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../stp.html">Linux-based system</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../stp/Linux.html">External libraries</a></li>
@@ -92,7 +88,15 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ckbk.html#data-output">Data output</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../ckbk/out_struct.html">As a nested structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/out_struct.html">THERMOCALC-like output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/out_struct.html#as-a-nested-structure">As a nested structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#computation-information">Computation information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#system-information">System information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#phase-proportions">Phase proportions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#solution-phases-information">Solution phases information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#id1">Solution phases information</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ckbk.html#pseudosection-generator">Pseudosection generator</a><ul>
@@ -131,6 +135,21 @@
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#access-output-structure">Access output structure</a></li>
 </ul>
 </li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Known issues &amp; Tips!</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../issues.html">Quick tips!</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#compiler-linux">Compiler (Linux)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#minimum-pressure">Minimum pressure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#reduced-chemical-system">Reduced chemical system</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../issues.html#known-problems">Known problems</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#reduced-chemical-systems">Reduced chemical systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#low-temperature-stabilitzation">Low temperature stabilitzation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#hp-lt-melt-prediction">HP-LT melt prediction</a></li>
 </ul>
 </li>
 </ul>
@@ -2462,8 +2481,6 @@
 <span class="w">		</span><span class="n">SS_ref_spn_db</span><span class="p">.</span><span class="n">bounds_ref</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eps</span><span class="p">;</span><span class="w"></span>
 <span class="w">		</span><span class="n">SS_ref_spn_db</span><span class="p">.</span><span class="n">bounds_ref</span><span class="p">[</span><span class="mi">6</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eps</span><span class="p">;</span><span class="w">   </span>
 <span class="w">		</span><span class="n">SS_ref_spn_db</span><span class="p">.</span><span class="n">bounds_ref</span><span class="p">[</span><span class="mi">6</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">eps</span><span class="p">;</span><span class="w"></span>
-<span class="w">		</span><span class="n">SS_ref_spn_db</span><span class="p">.</span><span class="n">z_em</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
-<span class="w">		</span><span class="n">SS_ref_spn_db</span><span class="p">.</span><span class="n">z_em</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span><span class="p">}</span><span class="w"></span>
 <span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bulk_rock</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mf">0.</span><span class="p">){</span><span class="w"> </span><span class="c1">//cr2o3</span>
 <span class="w">		</span><span class="n">SS_ref_spn_db</span><span class="p">.</span><span class="n">z_em</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
@@ -2480,7 +2497,7 @@
 <span class="n">SS_ref</span><span class="w"> </span><span class="nf">G_SS_EM_function</span><span class="p">(</span><span class="w">		</span><span class="n">global_variable</span><span class="w"> 	 </span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
 <span class="w">								</span><span class="n">SS_ref</span><span class="w"> 				 </span><span class="n">SS_ref_db</span><span class="p">,</span><span class="w"> </span>
 <span class="w">								</span><span class="kt">int</span><span class="w"> 				 </span><span class="n">EM_database</span><span class="p">,</span><span class="w"> </span>
-<span class="w">								</span><span class="k">struct</span> 	<span class="nc">bulk_info</span><span class="w"> 	 </span><span class="n">z_b</span><span class="p">,</span><span class="w"> </span>
+<span class="w">								</span><span class="n">bulk_info</span><span class="w"> 	 		 </span><span class="n">z_b</span><span class="p">,</span><span class="w"> </span>
 <span class="w">								</span><span class="kt">char</span><span class="w">   				</span><span class="o">*</span><span class="n">name</span><span class="w">				</span><span class="p">){</span><span class="w"></span>
 <span class="w">									  </span>
 <span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">eps</span><span class="w"> 		   	</span><span class="o">=</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">bnd_val</span><span class="p">;</span><span class="w"></span>
@@ -2536,8 +2553,8 @@
 <span class="w">			</span><span class="p">}</span><span class="w"></span>
 <span class="w">			</span><span class="n">SS_ref_db</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">G_SS_ilm_function</span><span class="p">(</span><span class="n">SS_ref_db</span><span class="p">,</span><span class="w"> </span><span class="n">EM_database</span><span class="p">,</span><span class="w"> </span><span class="n">z_b</span><span class="p">.</span><span class="n">bulk_rock</span><span class="p">,</span><span class="w"> </span><span class="n">P</span><span class="p">,</span><span class="w"> </span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="n">eps</span><span class="p">);</span><span class="w">	</span><span class="p">}</span><span class="w"></span>
 <span class="w">		</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">strcmp</span><span class="p">(</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;liq&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">){</span><span class="w"></span>
-<span class="w">			</span><span class="cm">/* turn of liquid when T &lt; 500°C) */</span><span class="w"></span>
-<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">773.0</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="cm">/* turn of liquid when T &lt; 600°C) */</span><span class="w"></span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">min_melt_T</span><span class="p">){</span><span class="w"></span>
 <span class="w">				</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
 <span class="w">			</span><span class="p">}</span><span class="w"></span>
 <span class="w">			</span><span class="n">SS_ref_db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_SS_liq_function</span><span class="p">(</span><span class="n">SS_ref_db</span><span class="p">,</span><span class="w"> </span><span class="n">EM_database</span><span class="p">,</span><span class="w"> </span><span class="n">z_b</span><span class="p">.</span><span class="n">bulk_rock</span><span class="p">,</span><span class="w"> </span><span class="n">P</span><span class="p">,</span><span class="w"> </span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="n">eps</span><span class="p">);</span><span class="w">	</span><span class="p">}</span><span class="w"></span>

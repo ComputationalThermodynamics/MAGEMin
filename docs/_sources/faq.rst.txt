@@ -2,6 +2,10 @@
 
 |
 
+.. image:: /figs/faq.png
+   :width: 80
+   :align: right
+
 This section reports encountered issues with MAGEMin and provide a way to fix these problems. If your problem is not listed here, please open an issue on:
 https://github.com/ComputationalThermodynamics/MAGEMin
 

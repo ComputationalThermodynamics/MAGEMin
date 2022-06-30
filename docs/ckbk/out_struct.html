@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>As a nested structure &mdash; MAGEMin 2022 documentation</title>
+  <title>THERMOCALC-like output &mdash; MAGEMin 2022 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
@@ -39,11 +39,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">In development:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../news.html">Seismic velocity calculation</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../stp.html">Linux-based system</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../stp/Linux.html">External libraries</a></li>
@@ -95,7 +91,15 @@
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="../ckbk.html#data-output">Data output</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">As a nested structure</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">THERMOCALC-like output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#as-a-nested-structure">As a nested structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#computation-information">Computation information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#system-information">System information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#phase-proportions">Phase proportions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#solution-phases-information">Solution phases information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Solution phases information</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ckbk.html#pseudosection-generator">Pseudosection generator</a><ul>
@@ -134,6 +138,21 @@
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#access-output-structure">Access output structure</a></li>
 </ul>
 </li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Known issues &amp; Tips!</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../issues.html">Quick tips!</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#compiler-linux">Compiler (Linux)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#minimum-pressure">Minimum pressure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#reduced-chemical-system">Reduced chemical system</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../issues.html#known-problems">Known problems</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#reduced-chemical-systems">Reduced chemical systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#low-temperature-stabilitzation">Low temperature stabilitzation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#hp-lt-melt-prediction">HP-LT melt prediction</a></li>
 </ul>
 </li>
 </ul>
@@ -206,7 +225,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../ckbk.html">Command line minimization</a> &raquo;</li>
-      <li>As a nested structure</li>
+      <li>THERMOCALC-like output</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/ckbk/out_struct.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -216,10 +235,23 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="as-a-nested-structure">
+  <section id="thermocalc-like-output">
+<h1>THERMOCALC-like output<a class="headerlink" href="#thermocalc-like-output" title="Permalink to this headline"></a></h1>
+<p>If <code class="docutils literal notranslate"><span class="pre">verbose</span></code> is set to 1:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>--Verb<span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+<p>a file named <code class="docutils literal notranslate"><span class="pre">_thermocalc_style_output</span></code> containing the information of the stable phase equilibrium is saved in <code class="docutils literal notranslate"><span class="pre">./output/</span></code> directory.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="as-a-nested-structure">
 <h1>As a nested structure<a class="headerlink" href="#as-a-nested-structure" title="Permalink to this headline"></a></h1>
 <p>Stable phase equilibrium and related thermodynamically derived parameters such as density are automatically saved as a nested structure containing the information about the system.</p>
 <p>The nested structure is defined as a <code class="docutils literal notranslate"><span class="pre">stb_systems</span></code> type and contains the following informations</p>
+<section id="computation-information">
+<h2>Computation information<a class="headerlink" href="#computation-information" title="Permalink to this headline"></a></h2>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 14%" />
@@ -241,93 +273,216 @@
 <td><p>nOx</p></td>
 <td><p>number of oxides</p></td>
 </tr>
+<tr class="row-odd"><td><p>int</p></td>
+<td><p>n_iterations</p></td>
+<td><p>number of iterations</p></td>
+</tr>
+<tr class="row-even"><td><p>double</p></td>
+<td><p>bulk_res_norm</p></td>
+<td><p>system mass constraint residual norm</p></td>
+</tr>
 <tr class="row-odd"><td><p>char **</p></td>
 <td><p>oxides</p></td>
 <td><p>oxide names</p></td>
 </tr>
 <tr class="row-even"><td><p>double</p></td>
 <td><p>P</p></td>
-<td><p>Pressure (kbar)</p></td>
+<td><p>Pressure <code class="docutils literal notranslate"><span class="pre">[kbar]</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p>double</p></td>
 <td><p>T</p></td>
-<td><p>Temperature (C)</p></td>
+<td><p>Temperature <code class="docutils literal notranslate"><span class="pre">[C]</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p>double *</p></td>
 <td><p>bulk</p></td>
-<td><p>system bulk composition</p></td>
+<td><p>system bulk composition  <code class="docutils literal notranslate"><span class="pre">[mol</span> <span class="pre">fraction]</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>double *</p></td>
+<td><p>bulk_wt</p></td>
+<td><p>system bulk composition  <code class="docutils literal notranslate"><span class="pre">[wt</span> <span class="pre">fraction]</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="system-information">
+<h2>System information<a class="headerlink" href="#system-information" title="Permalink to this headline"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 18%" />
+<col style="width: 69%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p><code class="docutils literal notranslate"><span class="pre">sb</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>data type</strong></p></td>
+<td><p><strong>variable name</strong></p></td>
+<td><p><strong>definition</strong></p></td>
 </tr>
 <tr class="row-odd"><td><p>double *</p></td>
 <td><p>gamma</p></td>
-<td><p>system chemical potential of the pure components (Gibbs hyperplane)</p></td>
+<td><p>chemical potential of the pure components <code class="docutils literal notranslate"><span class="pre">[Gibbs</span> <span class="pre">hyperplane]</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p>double</p></td>
 <td><p>G</p></td>
 <td><p>system Gibbs energy</p></td>
 </tr>
 <tr class="row-odd"><td><p>double</p></td>
-<td><p>bulk_res_norm</p></td>
-<td><p>system mass constraint residual norm</p></td>
-</tr>
-<tr class="row-even"><td><p>double</p></td>
 <td><p>rho</p></td>
 <td><p>system density</p></td>
 </tr>
-<tr class="row-odd"><td><p>double *</p></td>
+<tr class="row-even"><td><p>double *</p></td>
 <td><p>bulk_S</p></td>
-<td><p>solid agregate bulk composition</p></td>
+<td><p>solid agregate bulk composition  <code class="docutils literal notranslate"><span class="pre">[molar</span> <span class="pre">1</span> <span class="pre">atom</span> <span class="pre">basis]</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>double *</p></td>
+<td><p>bulk_S_wt</p></td>
+<td><p>solid agregate bulk composition  <code class="docutils literal notranslate"><span class="pre">[wt</span> <span class="pre">fraction]</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p>double</p></td>
 <td><p>frac_S</p></td>
-<td><p>solid agregate fraction</p></td>
+<td><p>solid agregate fraction  <code class="docutils literal notranslate"><span class="pre">[molar</span> <span class="pre">1</span> <span class="pre">atom</span> <span class="pre">basis]</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p>double</p></td>
+<td><p>frac_S_wt</p></td>
+<td><p>solid agregate fraction  <code class="docutils literal notranslate"><span class="pre">[wt</span> <span class="pre">fraction]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>double</p></td>
 <td><p>rho_S</p></td>
 <td><p>solid agregate density</p></td>
 </tr>
-<tr class="row-even"><td><p>double *</p></td>
+<tr class="row-odd"><td><p>double *</p></td>
 <td><p>bulk_M</p></td>
-<td><p>melt bulk composition</p></td>
+<td><p>melt bulk composition  <code class="docutils literal notranslate"><span class="pre">[molar</span> <span class="pre">1</span> <span class="pre">atom</span> <span class="pre">basis]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>double *</p></td>
+<td><p>bulk_M_wt</p></td>
+<td><p>melt bulk composition  <code class="docutils literal notranslate"><span class="pre">[wt</span> <span class="pre">fraction]</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p>double</p></td>
 <td><p>frac_M</p></td>
-<td><p>melt fraction</p></td>
+<td><p>melt fraction  <code class="docutils literal notranslate"><span class="pre">[molar</span> <span class="pre">1</span> <span class="pre">atom</span> <span class="pre">basis]</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p>double</p></td>
+<td><p>frac_M_wt</p></td>
+<td><p>melt fraction  <code class="docutils literal notranslate"><span class="pre">[wt</span> <span class="pre">fraction]</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>double</p></td>
 <td><p>rho_M</p></td>
 <td><p>melt density</p></td>
 </tr>
-<tr class="row-odd"><td><p>double *</p></td>
+<tr class="row-even"><td><p>double *</p></td>
 <td><p>bulk_F</p></td>
-<td><p>fluid bulk composition</p></td>
+<td><p>fluid bulk composition <code class="docutils literal notranslate"><span class="pre">[molar</span> <span class="pre">1</span> <span class="pre">atom</span> <span class="pre">basis]</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>double *</p></td>
+<td><p>bulk_F_wt</p></td>
+<td><p>fluid bulk composition  <code class="docutils literal notranslate"><span class="pre">[wt</span> <span class="pre">fraction]</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p>double</p></td>
 <td><p>frac_F</p></td>
-<td><p>fluid fraction</p></td>
+<td><p>fluid fraction  <code class="docutils literal notranslate"><span class="pre">[molar</span> <span class="pre">1</span> <span class="pre">atom</span> <span class="pre">basis]</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p>double</p></td>
+<td><p>frac_F_wt</p></td>
+<td><p>fluid fraction  <code class="docutils literal notranslate"><span class="pre">[wt</span> <span class="pre">fraction]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>double</p></td>
 <td><p>rho_F</p></td>
 <td><p>fluid density</p></td>
 </tr>
-<tr class="row-even"><td><p>int</p></td>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 18%" />
+<col style="width: 69%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p><code class="docutils literal notranslate"><span class="pre">sb</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>data type</strong></p></td>
+<td><p><strong>variable name</strong></p></td>
+<td><p><strong>definition</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>double</p></td>
+<td><p>bulkMod</p></td>
+<td><p>system bulk modulus  <code class="docutils literal notranslate"><span class="pre">[GPa]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>double</p></td>
+<td><p>shearMod</p></td>
+<td><p>system shear modulus  <code class="docutils literal notranslate"><span class="pre">[GPa]</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>double</p></td>
+<td><p>bulkModulus_M</p></td>
+<td><p>melt bulk modulus  <code class="docutils literal notranslate"><span class="pre">[GPa]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>double</p></td>
+<td><p>bulkModulus_S</p></td>
+<td><p>solid bulk modulus  <code class="docutils literal notranslate"><span class="pre">[GPa]</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>double</p></td>
+<td><p>shearModulus_S</p></td>
+<td><p>solid shear modulus  <code class="docutils literal notranslate"><span class="pre">[GPa]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>double</p></td>
+<td><p>Vp</p></td>
+<td><p>system P-wave velocity  <code class="docutils literal notranslate"><span class="pre">[km/s]</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>double</p></td>
+<td><p>Vs</p></td>
+<td><p>system S-wave velocity  <code class="docutils literal notranslate"><span class="pre">[km/s]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>double</p></td>
+<td><p>Vp_S</p></td>
+<td><p>solid P-wave velocity  <code class="docutils literal notranslate"><span class="pre">[km/s]</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>double</p></td>
+<td><p>Vs_S</p></td>
+<td><p>solid S-wave velocity  <code class="docutils literal notranslate"><span class="pre">[km/s]</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="phase-proportions">
+<h2>Phase proportions<a class="headerlink" href="#phase-proportions" title="Permalink to this headline"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 18%" />
+<col style="width: 69%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p><code class="docutils literal notranslate"><span class="pre">sb</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>data type</strong></p></td>
+<td><p><strong>variable name</strong></p></td>
+<td><p><strong>definition</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>int</p></td>
 <td><p>n_ph</p></td>
 <td><p>total number of predicted stable phases</p></td>
 </tr>
-<tr class="row-odd"><td><p>int</p></td>
+<tr class="row-even"><td><p>int</p></td>
 <td><p>n_PP</p></td>
 <td><p>number of predicted pure phases</p></td>
 </tr>
-<tr class="row-even"><td><p>int</p></td>
+<tr class="row-odd"><td><p>int</p></td>
 <td><p>n_SS</p></td>
 <td><p>number of predicted solution phases</p></td>
 </tr>
-<tr class="row-odd"><td><p>char **</p></td>
+<tr class="row-even"><td><p>char **</p></td>
 <td><p>ph</p></td>
 <td><p>stable phases names</p></td>
 </tr>
-<tr class="row-even"><td><p>double *</p></td>
+<tr class="row-odd"><td><p>double *</p></td>
 <td><p>ph_frac</p></td>
-<td><p>stable phases fractions</p></td>
+<td><p>stable phases fractions  <code class="docutils literal notranslate"><span class="pre">[molar</span> <span class="pre">1</span> <span class="pre">atom</span> <span class="pre">basis]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>double *</p></td>
+<td><p>ph_frac_wt</p></td>
+<td><p>stable phases fractions  <code class="docutils literal notranslate"><span class="pre">[wt</span> <span class="pre">fraction]</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p>int *</p></td>
 <td><p>ph_type</p></td>
@@ -335,7 +490,7 @@
 </tr>
 <tr class="row-even"><td><p>int *</p></td>
 <td><p>ph_id</p></td>
-<td><p>stable phase id (to retrieve individual phase properties)</p></td>
+<td><p>stable phase id <code class="docutils literal notranslate"><span class="pre">[to</span> <span class="pre">retrieve</span> <span class="pre">individual</span> <span class="pre">phase</span> <span class="pre">properties]</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p>stb_SS_phase</p></td>
 <td><p>SS</p></td>
@@ -347,6 +502,183 @@
 </tr>
 </tbody>
 </table>
+</section>
+<section id="solution-phases-information">
+<h2>Solution phases information<a class="headerlink" href="#solution-phases-information" title="Permalink to this headline"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 18%" />
+<col style="width: 69%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p><code class="docutils literal notranslate"><span class="pre">sp[0].SS[n_SS].</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>data type</strong></p></td>
+<td><p><strong>variable name</strong></p></td>
+<td><p><strong>definition</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>int</p></td>
+<td><p>n_xeos</p></td>
+<td><p>number of compositional variables</p></td>
+</tr>
+<tr class="row-even"><td><p>int</p></td>
+<td><p>n_em</p></td>
+<td><p>number of end-members</p></td>
+</tr>
+<tr class="row-odd"><td><p>double</p></td>
+<td><p>f</p></td>
+<td><p>normalization factor</p></td>
+</tr>
+<tr class="row-even"><td><p>double</p></td>
+<td><p>G</p></td>
+<td><p>Gibbs energy of solution phase</p></td>
+</tr>
+<tr class="row-odd"><td><p>double</p></td>
+<td><p>deltaG</p></td>
+<td><p>ΔG between solution phase and Gibbs-hyperplane</p></td>
+</tr>
+<tr class="row-even"><td><p>double</p></td>
+<td><p>V</p></td>
+<td><p>Volume of the solution phase</p></td>
+</tr>
+<tr class="row-odd"><td><p>double</p></td>
+<td><p>alpha</p></td>
+<td><p>thermal expansivity  <code class="docutils literal notranslate"><span class="pre">[1/K]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>double</p></td>
+<td><p>cp</p></td>
+<td><p>heat capacity  <code class="docutils literal notranslate"><span class="pre">[J/K]</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>double</p></td>
+<td><p>rho</p></td>
+<td><p>density  <code class="docutils literal notranslate"><span class="pre">[kg/m3]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>double</p></td>
+<td><p>bulkMod</p></td>
+<td><p>bulk modulus  <code class="docutils literal notranslate"><span class="pre">[GPa]</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>double</p></td>
+<td><p>shearMod</p></td>
+<td><p>shear modulus  <code class="docutils literal notranslate"><span class="pre">[GPa]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>double</p></td>
+<td><p>Vp</p></td>
+<td><p>P-wave velocity  <code class="docutils literal notranslate"><span class="pre">[km/s]</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>double</p></td>
+<td><p>Vs</p></td>
+<td><p>S-wave velocity  <code class="docutils literal notranslate"><span class="pre">[km/s]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>double *</p></td>
+<td><p>compVariables</p></td>
+<td><p>compositional variables</p></td>
+</tr>
+<tr class="row-odd"><td><p>double *</p></td>
+<td><p>Comp</p></td>
+<td><p>solution phase composition <code class="docutils literal notranslate"><span class="pre">[molar</span> <span class="pre">1</span> <span class="pre">atom</span> <span class="pre">basis]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>double *</p></td>
+<td><p>Comp_wt</p></td>
+<td><p>solution phase composition <code class="docutils literal notranslate"><span class="pre">[wt</span> <span class="pre">fraction]</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>char **</p></td>
+<td><p>emNames</p></td>
+<td><p>end-members name</p></td>
+</tr>
+<tr class="row-even"><td><p>double *</p></td>
+<td><p>emFrac</p></td>
+<td><p>end-members fractions <code class="docutils literal notranslate"><span class="pre">[molar</span> <span class="pre">1</span> <span class="pre">atom</span> <span class="pre">basis]</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>double *</p></td>
+<td><p>emFrac_wt</p></td>
+<td><p>end-members fractions <code class="docutils literal notranslate"><span class="pre">[wt</span> <span class="pre">fraction]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>double *</p></td>
+<td><p>emChemPot</p></td>
+<td><p>end-members chemical potential</p></td>
+</tr>
+<tr class="row-odd"><td><p>double **</p></td>
+<td><p>emComp</p></td>
+<td><p>end-members composition <code class="docutils literal notranslate"><span class="pre">[molar</span> <span class="pre">1</span> <span class="pre">atom</span> <span class="pre">basis]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>double **</p></td>
+<td><p>emComp_wt</p></td>
+<td><p>end-members composition <code class="docutils literal notranslate"><span class="pre">[wt</span> <span class="pre">fraction]</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id1">
+<h2>Solution phases information<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 18%" />
+<col style="width: 69%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td colspan="3"><p><code class="docutils literal notranslate"><span class="pre">sp[0].PP[n_PP].</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>data type</strong></p></td>
+<td><p><strong>variable name</strong></p></td>
+<td><p><strong>definition</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>double</p></td>
+<td><p>f</p></td>
+<td><p>normalization factor</p></td>
+</tr>
+<tr class="row-even"><td><p>double</p></td>
+<td><p>G</p></td>
+<td><p>Gibbs energy of pure phase</p></td>
+</tr>
+<tr class="row-odd"><td><p>double</p></td>
+<td><p>deltaG</p></td>
+<td><p>ΔG between pure phase and Gibbs-hyperplane</p></td>
+</tr>
+<tr class="row-even"><td><p>double</p></td>
+<td><p>V</p></td>
+<td><p>Volume of the solution phase</p></td>
+</tr>
+<tr class="row-odd"><td><p>double</p></td>
+<td><p>alpha</p></td>
+<td><p>thermal expansivity  <code class="docutils literal notranslate"><span class="pre">[1/K]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>double</p></td>
+<td><p>cp</p></td>
+<td><p>heat capacity  <code class="docutils literal notranslate"><span class="pre">[J/K]</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>double</p></td>
+<td><p>rho</p></td>
+<td><p>density  <code class="docutils literal notranslate"><span class="pre">[kg/m3]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>double</p></td>
+<td><p>bulkMod</p></td>
+<td><p>bulk modulus  <code class="docutils literal notranslate"><span class="pre">[GPa]</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>double</p></td>
+<td><p>shearMod</p></td>
+<td><p>shear modulus  <code class="docutils literal notranslate"><span class="pre">[GPa]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>double</p></td>
+<td><p>Vp</p></td>
+<td><p>P-wave velocity  <code class="docutils literal notranslate"><span class="pre">[km/s]</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>double</p></td>
+<td><p>Vs</p></td>
+<td><p>S-wave velocity  <code class="docutils literal notranslate"><span class="pre">[km/s]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>double *</p></td>
+<td><p>Comp</p></td>
+<td><p>pure phase composition <code class="docutils literal notranslate"><span class="pre">[molar</span> <span class="pre">1</span> <span class="pre">atom</span> <span class="pre">basis]</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>double *</p></td>
+<td><p>Comp_wt</p></td>
+<td><p>pure phase composition <code class="docutils literal notranslate"><span class="pre">[wt</span> <span class="pre">fraction]</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
 </section>
 
 

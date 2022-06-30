@@ -1,10 +1,14 @@
 # This script helps to generate a lsit of points for testing MAGEMin using reference built-in bulk-rock compositions
 
-cd("../")       # change to main directory
-
-using MAGEMin
+cur_dir = pwd();    
+if  cur_dir[end-3:end]=="test"
+    cd("../")           # change to main directory if we are in /test
+end
+using MAGEMin_C
 
 gv, DB = init_MAGEMin();
+
+sys_in = "mol"
 
 mutable struct outP{ _T  } 
     P           ::  _T
@@ -33,8 +37,8 @@ for i=Pmin:Pstep:Pmax
     for j=Tmin:Tstep:Tmax
 
         bulk_rock   = get_bulk_rock(gv, test)
-        out         = point_wise_minimization(i,j, bulk_rock, gv, DB)
-    
+        out         = point_wise_minimization(sys_in,i,j, bulk_rock, gv, DB)
+
         push!(outList,outP(i,j,test,out.G_system,out.ph,out.ph_frac[:]))
         print(out)
     end

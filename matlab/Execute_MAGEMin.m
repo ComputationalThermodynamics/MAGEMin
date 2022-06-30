@@ -1,4 +1,4 @@
-function Execute_MAGEMin(Computation, VerboseLevel, n_points, Test, MolProp)
+function Execute_MAGEMin(Computation, VerboseLevel, n_points, Test, OxProp, sys_in)
 % This executes MAGEMin, either on the local machine (on 1 or more MPI
 % threads), or on a remote, more powerful, server.
 % 
@@ -13,9 +13,8 @@ RemoteServer=   Computation.RemoteServer;
 % Retrieve name of executable
 exe = MAGEMin_exe(Computation);
 
-
 % Setup the general execution command
-command = [exe, ' --Verb=',num2str(VerboseLevel),' --File=MAGEMin_input.dat --n_points=',num2str(n_points)];
+command = [exe, ' --Verb=',num2str(VerboseLevel),' --sys_in=',sys_in,' --File=MAGEMin_input.dat --n_points=',num2str(n_points)];
 
 if ~isnan(Test)
     % employ a prededined test
@@ -23,8 +22,8 @@ if ~isnan(Test)
 else
     % employ specified chemistry
     command = [command, ' --Bulk='];
-    for iTable=1:size(MolProp,1)
-        command = [command,num2str(table2array(MolProp(iTable,2))),','];
+    for iTable=1:size(OxProp,1)
+        command = [command,num2str(table2array(OxProp(iTable,2))),','];
     end
 end
 

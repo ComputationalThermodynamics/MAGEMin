@@ -2248,8 +2248,6 @@ SS_ref G_SS_spn_function(SS_ref SS_ref_spn_db, int EM_database, double *bulk_roc
 		SS_ref_spn_db.bounds_ref[1][1] = eps;
 		SS_ref_spn_db.bounds_ref[6][0] = eps;   
 		SS_ref_spn_db.bounds_ref[6][1] = eps;
-		SS_ref_spn_db.z_em[4]          = 0.0;
-		SS_ref_spn_db.z_em[5]          = 0.0;
 	}
 	if (bulk_rock[9] == 0.){ //cr2o3
 		SS_ref_spn_db.z_em[6]          = 0.0;
@@ -2266,7 +2264,7 @@ SS_ref G_SS_spn_function(SS_ref SS_ref_spn_db, int EM_database, double *bulk_roc
 SS_ref G_SS_EM_function(		global_variable 	 gv,
 								SS_ref 				 SS_ref_db, 
 								int 				 EM_database, 
-								struct 	bulk_info 	 z_b, 
+								bulk_info 	 		 z_b, 
 								char   				*name				){
 									  
 	double eps 		   	= gv.bnd_val;
@@ -2322,8 +2320,8 @@ SS_ref G_SS_EM_function(		global_variable 	 gv,
 			}
 			SS_ref_db  = G_SS_ilm_function(SS_ref_db, EM_database, z_b.bulk_rock, P, T, eps);	}
 		else if (strcmp( name, "liq") == 0){
-			/* turn of liquid when T < 500°C) */
-			if ( T < 773.0){
+			/* turn of liquid when T < 600°C) */
+			if ( T < gv.min_melt_T){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db = G_SS_liq_function(SS_ref_db, EM_database, z_b.bulk_rock, P, T, eps);	}

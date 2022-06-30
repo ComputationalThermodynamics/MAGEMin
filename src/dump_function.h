@@ -5,7 +5,7 @@
 void dump_init(global_variable gv);
 
 void fill_output_struct(		global_variable 	gv,
-								struct bulk_info 	z_b,
+								bulk_info 			z_b,
 
 								PP_ref 				*PP_ref_db,
 								SS_ref 				*SS_ref_db,
@@ -15,13 +15,15 @@ void fill_output_struct(		global_variable 	gv,
 
 
 void dump_results_function(		global_variable 	gv,
-								struct bulk_info 	z_b,
+								bulk_info 			z_b,
 								PP_ref 				*PP_ref_db,
 								SS_ref 				*SS_ref_db,
 								csd_phase_set  		*cp
 );
 
 void mergeParallelFiles(global_variable gv);
+
+void mergeParallel_residual_Files(global_variable gv);
 
 void mergeParallel_LocalMinima_Files(global_variable gv);
 

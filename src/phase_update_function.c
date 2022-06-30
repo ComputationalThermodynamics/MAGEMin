@@ -96,10 +96,238 @@ int cmp_int(const void *a, const void *b)
 		return 0;
 }
 
+
+/**
+	check PC driving force and add phase if below hyperplane
+*/
+global_variable check_PC(					bulk_info 	 z_b,
+											global_variable  	 gv,
+
+											PP_ref 				*PP_ref_db,
+											SS_ref 				*SS_ref_db,
+											csd_phase_set  		*cp				
+){
+	double 	min_df, xeos_dist, norm;
+	int 	max_n_pc, phase_add, id_cp, dist, ph;
+	int 	i,j,k,l,c,m;
+
+	int 	n_candidate = 8;
+	int     pc_candidate[n_candidate];
+	int     pc_added[n_candidate];
+	double  df_candidate[n_candidate];
+	int     id_c;
+
+	for (i = 0; i < gv.len_ss; i++){
+		min_df    =  1e6;					// high starting value as it is expected to go down
+		phase_add =  0;
+		id_c 	  =  0;
+
+		for (k = 0; k < n_candidate; k++){
+			pc_candidate[k] = -1;
+			pc_added[k] 	= -1;
+			df_candidate[k] = 0.0;
+		}
+
+		if (SS_ref_db[i].ss_flags[0] == 1  && gv.verifyPC[i] == 1){
+			for (l = 0; l < SS_ref_db[i].tot_pc; l++){
+
+				dist =  1;
+				if (gv.n_solvi[i] > 0){
+
+					for (k = 0; k < gv.n_solvi[i]; k++){  /* go through the upper triangle of the matrix (avoiding diagonal)*/
+						ph = SS_ref_db[i].solvus_id[k];
+
+						xeos_dist = euclidean_distance(cp[ph].xeos, SS_ref_db[i].xeos_pc[l], SS_ref_db[i].n_xeos);
+
+						if (xeos_dist < gv.PC_min_dist*gv.SS_PC_stp[i]*sqrt((double)SS_ref_db[i].n_xeos) ){
+							 dist = 0;
+						} 
+					}
+
+				}
+				if (dist == 1){
+					SS_ref_db[i].DF_pc[l] = SS_ref_db[i].G_pc[l];
+					for (j = 0; j < gv.len_ox; j++) {
+						SS_ref_db[i].DF_pc[l] -= SS_ref_db[i].comp_pc[l][j]*gv.gam_tot[j];
+					}
+
+					if (SS_ref_db[i].DF_pc[l] < min_df){
+
+						if (id_c == n_candidate){ id_c = 0;}
+						pc_candidate[id_c] = l;
+						df_candidate[id_c] = SS_ref_db[i].DF_pc[l];
+						id_c 			  += 1;
+
+						min_df 		= SS_ref_db[i].DF_pc[l];
+					}
+				}
+			}
+			id_c -= 1;
+			if (id_c == -1){ id_c = n_candidate-1;}
+
+			for (int c = 0; c < n_candidate; c++){
+
+				if (id_c == n_candidate){ id_c = 0;}
+
+				if (df_candidate[id_c] < gv.PC_df_add && pc_candidate[id_c] != -1){
+
+					if(phase_add == 0){
+
+						if (gv.verbose == 1){
+							printf("  - %4s %5d added [PC DF check]\n",gv.SS_list[i],pc_candidate[id_c]);
+							
+							for (int k = 0; k < SS_ref_db[i].n_xeos; k++) {
+								SS_ref_db[i].iguess[k] = SS_ref_db[i].xeos_pc[pc_candidate[id_c]][k];
+							}								
+						}
+											
+						/**
+							copy the minimized phase informations to cp structure
+						*/
+						gv.len_cp				   += 1;
+						id_cp 		 				= gv.len_cp-1;
+						strcpy(cp[id_cp].name,gv.SS_list[i]);				/* get phase name */				
+						cp[id_cp].in_iter			= gv.global_ite;
+						cp[id_cp].ss_flags[0] 		= 1;						/* set flags */
+						cp[id_cp].ss_flags[1] 		= 0;
+						cp[id_cp].ss_flags[2] 		= 1;
+						cp[id_cp].split 			= 0;							
+						cp[id_cp].id 				= i;						/* get phase id */
+						cp[id_cp].n_xeos			= SS_ref_db[i].n_xeos;		/* get number of compositional variables */
+						cp[id_cp].n_em				= SS_ref_db[i].n_em;		/* get number of endmembers */
+						cp[id_cp].n_sf				= SS_ref_db[i].n_sf;		/* get number of site fractions */
+						
+						for (k = 0; k < SS_ref_db[i].n_xeos; k++){
+							cp[id_cp].dguess[k]     = SS_ref_db[i].xeos_pc[pc_candidate[id_c]][k];
+							cp[id_cp].xeos[k]       = SS_ref_db[i].xeos_pc[pc_candidate[id_c]][k];
+						}
+						for (k = 0; k < SS_ref_db[i].n_xeos; k++){
+							cp[id_cp].mu[k]    		=  0.0;
+						}
+
+						gv.n_solvi[i] 	       	   += 1;
+						gv.id_solvi[i][gv.n_solvi[i]] = id_cp;
+						pc_added[phase_add] 		= pc_candidate[id_c];
+
+						phase_add				   += 1;	
+
+						id_c += 1;
+					}
+					else{
+						dist = 1;
+
+						for (m = 0; m < phase_add; m++){
+							xeos_dist = euclidean_distance(SS_ref_db[i].xeos_pc[pc_candidate[id_c]], SS_ref_db[i].xeos_pc[pc_added[m]], SS_ref_db[i].n_xeos);
+							if (xeos_dist < gv.PC_min_dist*gv.SS_PC_stp[i]*sqrt((double)SS_ref_db[i].n_xeos) ){
+								dist = 0;
+							} 
+						}
+
+						if (dist == 1){
+
+							if (gv.verbose == 1){
+								printf("  - %4s %5d added [PC DF check]\n",gv.SS_list[i],pc_candidate[id_c]);
+								
+								for (int k = 0; k < SS_ref_db[i].n_xeos; k++) {
+									SS_ref_db[i].iguess[k] = SS_ref_db[i].xeos_pc[pc_candidate[id_c]][k];
+								}								
+							}
+						
+							/**
+								copy the minimized phase informations to cp structure
+							*/
+							gv.len_cp				   += 1;
+							id_cp 		 				= gv.len_cp-1;
+							strcpy(cp[id_cp].name,gv.SS_list[i]);				/* get phase name */				
+							cp[id_cp].in_iter			= gv.global_ite;
+							cp[id_cp].ss_flags[0] 		= 1;						/* set flags */
+							cp[id_cp].ss_flags[1] 		= 0;
+							cp[id_cp].ss_flags[2] 		= 1;
+							cp[id_cp].split 			= 0;							
+							cp[id_cp].id 				= i;						/* get phase id */
+							cp[id_cp].n_xeos			= SS_ref_db[i].n_xeos;		/* get number of compositional variables */
+							cp[id_cp].n_em				= SS_ref_db[i].n_em;		/* get number of endmembers */
+							cp[id_cp].n_sf				= SS_ref_db[i].n_sf;		/* get number of site fractions */
+							
+							for (k = 0; k < SS_ref_db[i].n_xeos; k++){
+								cp[id_cp].dguess[k]     = SS_ref_db[i].xeos_pc[pc_candidate[id_c]][k];
+								cp[id_cp].xeos[k]       = SS_ref_db[i].xeos_pc[pc_candidate[id_c]][k];
+							}
+							for (k = 0; k < SS_ref_db[i].n_xeos; k++){
+								cp[id_cp].mu[k]    		=  0.0;
+							}
+
+							gv.n_solvi[i] 	       	   += 1;
+							gv.id_solvi[i][gv.n_solvi[i]] = id_cp;
+							pc_added[phase_add] 		= pc_candidate[id_c];
+
+							phase_add				   += 1;	
+
+							id_c += 1;
+
+						}
+
+					}
+
+				}
+
+
+			}
+			
+		}
+	}
+
+	return gv;
+};
+
+
+/**
+	checks if the pseudocompounds generated during the levelling stage yield a negative driving force
+*/
+global_variable check_PC_driving_force(		bulk_info 	 z_b,
+											global_variable  	 gv,
+
+											PP_ref 				*PP_ref_db,
+											SS_ref 				*SS_ref_db,
+											csd_phase_set  		*cp				
+){
+
+	int max_n_pc, n_em;
+	printf("\n");
+	for (int i = 0; i < gv.len_ss; i++){
+		if (SS_ref_db[i].ss_flags[0] == 1){
+				
+			n_em 	 = SS_ref_db[i].n_em;
+
+			for (int l = 0; l < SS_ref_db[i].tot_pc; l++){
+				SS_ref_db[i].DF_pc[l] = SS_ref_db[i].G_pc[l];
+				for (int j = 0; j < gv.len_ox; j++) {
+					SS_ref_db[i].DF_pc[l] -= SS_ref_db[i].comp_pc[l][j]*gv.gam_tot[j];
+				}
+				
+				if (SS_ref_db[i].DF_pc[l] < -1e-10){
+					printf("%4s #%4d | %+10f | ",gv.SS_list[i],l,SS_ref_db[i].DF_pc[l]);
+					for (int k = 0; k < SS_ref_db[i].n_xeos; k++) {
+						printf(" %+10f",SS_ref_db[i].xeos_pc[l][k]);
+					}
+					for (int k = SS_ref_db[i].n_xeos; k < 11; k++){
+						printf(" %10s","-");
+					}
+
+					printf("\n");
+				}
+			}	
+		}
+	}
+
+	return gv;
+};
+
+
 /**
   Merge solution phase routine 
 */			
-global_variable phase_merge_function(		struct bulk_info 	z_b,
+global_variable phase_merge_function(		bulk_info 			z_b,
 											global_variable 	gv,
 
 											PP_ref 				*PP_ref_db,
@@ -111,10 +339,9 @@ global_variable phase_merge_function(		struct bulk_info 	z_b,
 		printf("\nMerge Compositionally close solution phases\n");
 		printf("════════════════════════════════════════════\n");
 		printf(" phase |  #cp > #cp | Euclidian distance\n");
-		printf("══════════════════════════════════════════\n");
 	}
 	
-	int phid, i, j, k, l, iss, phA, phB;
+	int ph_id, i, j, k, l, iss, phA, phB;
 	double distance;
 
 	/* reinitialize the number of SS instances */
@@ -124,10 +351,10 @@ global_variable phase_merge_function(		struct bulk_info 	z_b,
 
 	/* get number of duplicated phases and their cp id */
 	for (i = 0; i < gv.len_cp; i++){
-		phid = cp[i].id;
+		ph_id = cp[i].id;
 		if (cp[i].ss_flags[0] == 1 ){
-			SS_ref_db[phid].solvus_id[gv.n_solvi[phid]] = i;
-			gv.n_solvi[phid] += 1;
+			SS_ref_db[ph_id].solvus_id[gv.n_solvi[ph_id]] = i;
+			gv.n_solvi[ph_id] += 1;
 		}
 	}
 
@@ -160,6 +387,11 @@ global_variable phase_merge_function(		struct bulk_info 	z_b,
 								/* in case both phases are active, add phase B fraction on phase A */
 								if(cp[phA].ss_flags[1] == 1 && cp[phB].ss_flags[1] == 1){
 									cp[phA].ss_n 		  	+=  cp[phB].ss_n;
+									/* merge compositional variables at mid point */
+									for (i = 0; i < cp[phA].n_xeos; i++){
+										cp[phA].xeos[i] = (cp[phA].xeos[i] + cp[phB].xeos[i])/2.0;
+									}
+
 									gv.n_cp_phase 		  	-=  1;
 									gv.n_phase            	-=  1;
 								}
@@ -209,10 +441,10 @@ global_variable phase_merge_function(		struct bulk_info 	z_b,
 
 	/* get number of duplicated phases and their cp id */
 	for (i = 0; i < gv.len_cp; i++){
-		phid = cp[i].id;
+		ph_id = cp[i].id;
 		if (cp[i].ss_flags[0] == 1 ){
-			SS_ref_db[phid].solvus_id[gv.n_solvi[phid]] = i;
-			gv.n_solvi[phid] += 1;
+			SS_ref_db[ph_id].solvus_id[gv.n_solvi[ph_id]] = i;
+			gv.n_solvi[ph_id] += 1;
 		}
 	}
 	
@@ -222,7 +454,7 @@ global_variable phase_merge_function(		struct bulk_info 	z_b,
 /**
 	from active to hold function
 */
-global_variable phase_act2hold(			struct bulk_info 	z_b,
+global_variable phase_act2hold(			bulk_info 	z_b,
 										global_variable 	gv,
 
 										PP_ref 				*PP_ref_db,
@@ -246,7 +478,21 @@ global_variable phase_act2hold(			struct bulk_info 	z_b,
 	
 	for (int i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1  && gv.ph_change == 0){
-			if (cp[i].ss_n < 0.0){
+			if (cp[i].ss_n <= 0.0){
+				cp[i].ss_flags[1] = 0;
+				cp[i].ss_flags[2] = 1;
+				cp[i].ss_n        = 0.0;
+				gv.n_cp_phase    -= 1;
+				gv.n_phase       -= 1;		
+				gv.ph_change      = 1;																	/** phase has been removed, then do not add phase during this iteration */
+			}
+		}
+	}
+
+	for (int i = 0; i < gv.len_cp; i++){
+		if (cp[i].ss_flags[1] == 1  && gv.ph_change == 0){
+
+			if (cp[i].ss_n < 1e-3 && cp[i].df > 1e-3 && cp[i].sum_xi < 1.0){
 				cp[i].ss_flags[1] = 0;
 				cp[i].ss_flags[2] = 1;
 				cp[i].ss_n        = 0.0;
@@ -263,7 +509,7 @@ global_variable phase_act2hold(			struct bulk_info 	z_b,
 /**
 	from active to hold function
 */
-global_variable phase_hold2rmv(			struct bulk_info 	z_b,
+global_variable phase_hold2rmv(			bulk_info 	z_b,
 										global_variable 	gv,
 
 										PP_ref 				*PP_ref_db,
@@ -302,7 +548,7 @@ global_variable phase_hold2rmv(			struct bulk_info 	z_b,
 /**
 	from active to hold function
 */
-global_variable phase_hold2act(		struct bulk_info 		z_b,
+global_variable phase_hold2act(		bulk_info 		z_b,
 									global_variable 		gv,
 
 									PP_ref 					*PP_ref_db,
@@ -313,8 +559,6 @@ global_variable phase_hold2act(		struct bulk_info 		z_b,
 	double 	max_df    	= 0.0;				/** max driving force under which a phase can be considered to be added 				*/
 	double 	min_sumxi 	= 1.0;				/** min sum of xi fractions over which a solution phase can be considered to be added 	*/
 	
-	for (int i = 0; i < 4; i++) {gv.newly_added[i] = -1;}				/** initialize with impossible index						*/
-
 	/* get number of hold phase for pure phases */
 	int n_pp_hld = 0;
 	int pp_act[gv.len_ox];
@@ -394,8 +638,6 @@ global_variable phase_hold2act(		struct bulk_info 		z_b,
 				gv.n_cp_phase    				 += 1;						/** set new number of active SS 														*/
 				gv.n_phase      				 += 1;						/** set new number of total active phases 												*/
 				gv.ph_change 					  = 1;						/** a phase change has been achieved during the iteration 								*/
-				gv.newly_added[0]				  = 1;						/** phase is a solution phase 															*/
-				gv.newly_added[1]				  = ixs;					/** record the index of the solution phase 												*/
 			}
 		}
 	}
@@ -408,64 +650,59 @@ global_variable phase_hold2act(		struct bulk_info 		z_b,
 					
 		/* list through pure phases ordered by increasing dG */
 		if (hld_pp_sort[i].value < 0.0){									/** if driving force is negative, phase can be potentially added to the system and decrease Gibbs */
-			//if (gv.ph_change == 0 ){										/** if phase can be potentially added to the system 									*/
-			if (gv.n_pp_phase > 0){											/** if a pure phase is already in the active set of phases 								*/
-				/* check if pure phase to add is a polymorph of one of active pure phase */
-				for (int k = 0; k < gv.len_pp; k++){
-					if (gv.pp_flags[k][1] == 1 ){							/** compare pure phase to add with pure phase in the active set 						*/
-						is_polymorph  = 0;
-						for (int l = 0; l < gv.len_ox; l++){
-							if (PP_ref_db[k].Comp[l] != PP_ref_db[ixp].Comp[l]){
-								is_polymorph = 1;
+			if (gv.ph_change == 0 ){										/** if phase can be potentially added to the system 									*/
+				if (gv.n_pp_phase > 0){											/** if a pure phase is already in the active set of phases 								*/
+					/* check if pure phase to add is a polymorph of one of active pure phase */
+					for (int k = 0; k < gv.len_pp; k++){
+						if (gv.pp_flags[k][1] == 1 ){							/** compare pure phase to add with pure phase in the active set 						*/
+							is_polymorph  = 0;
+							for (int l = 0; l < gv.len_ox; l++){
+								if (PP_ref_db[k].Comp[l] != PP_ref_db[ixp].Comp[l]){
+									is_polymorph = 1;
+									break;
+								}
+							}
+							if (is_polymorph == 0){
+								id_polymorph  = k;
 								break;
 							}
-						}
-						if (is_polymorph == 0){
-							id_polymorph  = k;
-							break;
-						}
-					}						
-				}
-				
-				if (is_polymorph != 0){									/** if the pure phase to add is not a polymorph to an active phase, then just add it 	*/
-					gv.pp_flags[ixp][1]  = 1;							/** set to active 																		*/
-					gv.pp_flags[ixp][2]  = 0;							/** reset hold 																			*/
-					gv.pp_n[ixp]         = gv.re_in_n;					/** set initial fraction 																*/
-					gv.n_pp_phase    	+= 1;							/** set new number of active PP 														*/
-					gv.n_phase      	+= 1;							/** set new number of total active phases 												*/
-					gv.ph_change 		 = 1;							/** a phase change has been achieved during the iteration 								*/
-					gv.newly_added[0]	 = 0;							/** phase is a solution phase 															*/
-					gv.newly_added[1]	 = ixp;							/** record the index of the solution phase 												*/
-				}
-				else{
-					if (PP_ref_db[ixp].gb_lvl < PP_ref_db[id_polymorph].gb_lvl){
-						gv.pp_flags[ixp][1]  = 1;						/** set to active 																		*/
-						gv.pp_flags[ixp][2]  = 0;						/** reset hold 																			*/
-						gv.pp_n[ixp]         = gv.pp_n[id_polymorph];	/** set initial fraction to initial polymorph 											*/
-						gv.pp_flags[id_polymorph][1]          = 0;		/** set initial polymorph to inactive 													*/
-						gv.pp_flags[id_polymorph][2]          = 0;		/** reset hold 																			*/
-						gv.pp_flags[id_polymorph][3]          = 1;		/** remove initial polymorph 															*/
-						gv.pp_n[id_polymorph]                 = 0.0;	/** reset initial polymorph fraction to 0.0 											*/
-						gv.ph_change 						  = 1;		/** a phase change has been achieved during the iteration 								*/
-						gv.newly_added[0]	 = 0;						/** phase is a solution phase 															*/
-						gv.newly_added[1]	 = ixp;						/** record the index of the solution phase 												*/
+						}						
+					}
+					
+					if (is_polymorph != 0){									/** if the pure phase to add is not a polymorph to an active phase, then just add it 	*/
+						gv.pp_flags[ixp][1]  = 1;							/** set to active 																		*/
+						gv.pp_flags[ixp][2]  = 0;							/** reset hold 																			*/
+						gv.pp_n[ixp]         = gv.re_in_n;					/** set initial fraction 																*/
+						gv.n_pp_phase    	+= 1;							/** set new number of active PP 														*/
+						gv.n_phase      	+= 1;							/** set new number of total active phases 												*/
+						gv.ph_change 		 = 1;							/** a phase change has been achieved during the iteration 								*/
 					}
 					else{
-						gv.pp_flags[ixp][1]  = 0;						/** set to inactive 																	*/
-						gv.pp_flags[ixp][2]  = 0;						/** reset hold 																			*/
-						gv.pp_flags[ixp][3]  = 1;						/** remove initial polymorph 															*/
-					}
-				}	
-			}
-			else{														/** if no pure phase are in the active set of phases 									*/
-				gv.pp_flags[ixp][1]  = 1;								/** set to active 																		*/
-				gv.pp_flags[ixp][2]  = 0;								/** reset hold 																			*/
-				gv.pp_n[ixp]         = gv.re_in_n;						/** set initial fraction 																*/
-				gv.n_pp_phase    	+= 1;								/** set new number of active PP 														*/
-				gv.n_phase      	+= 1;								/** set new number of total active phases 												*/
-				gv.ph_change 		 = 1;								/** a phase change has been achieved during the iteration 								*/
-				gv.newly_added[0]	 = 0;								/** phase is a solution phase 															*/
-				gv.newly_added[1]	 = ixp;								/** record the index of the solution phase 												*/
+						if (PP_ref_db[ixp].gb_lvl < PP_ref_db[id_polymorph].gb_lvl){
+							gv.pp_flags[ixp][1]  = 1;						/** set to active 																		*/
+							gv.pp_flags[ixp][2]  = 0;						/** reset hold 																			*/
+							gv.pp_n[ixp]         = gv.pp_n[id_polymorph];	/** set initial fraction to initial polymorph 											*/
+							gv.pp_flags[id_polymorph][1]          = 0;		/** set initial polymorph to inactive 													*/
+							gv.pp_flags[id_polymorph][2]          = 0;		/** reset hold 																			*/
+							gv.pp_flags[id_polymorph][3]          = 1;		/** remove initial polymorph 															*/
+							gv.pp_n[id_polymorph]                 = 0.0;	/** reset initial polymorph fraction to 0.0 											*/
+							gv.ph_change 						  = 1;		/** a phase change has been achieved during the iteration 								*/
+						}
+						else{
+							gv.pp_flags[ixp][1]  = 0;						/** set to inactive 																	*/
+							gv.pp_flags[ixp][2]  = 0;						/** reset hold 																			*/
+							gv.pp_flags[ixp][3]  = 1;						/** remove initial polymorph 															*/
+						}
+					}	
+				}
+				else{														/** if no pure phase are in the active set of phases 									*/
+					gv.pp_flags[ixp][1]  = 1;								/** set to active 																		*/
+					gv.pp_flags[ixp][2]  = 0;								/** reset hold 																			*/
+					gv.pp_n[ixp]         = gv.re_in_n;						/** set initial fraction 																*/
+					gv.n_pp_phase    	+= 1;								/** set new number of active PP 														*/
+					gv.n_phase      	+= 1;								/** set new number of total active phases 												*/
+					gv.ph_change 		 = 1;								/** a phase change has been achieved during the iteration 								*/
+				}
 			}
 		}
 	}
@@ -476,7 +713,7 @@ global_variable phase_hold2act(		struct bulk_info 		z_b,
 /**
   main phase update routine 
 */			
-global_variable phase_update_function(		struct bulk_info 	z_b,
+global_variable phase_update_function(		bulk_info 	z_b,
 											global_variable 	gv,
 
 											PP_ref 				*PP_ref_db,
