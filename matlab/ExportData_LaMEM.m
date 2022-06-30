@@ -112,7 +112,7 @@ fprintf(fid,'Phase diagram name         :  %s \n',PseudoSectionData.Name);
 fprintf(fid,'This file generated on     :  %s \n',date);
 fprintf(fid,'Chemistry:  \n');
 
-Chem = table2cell(PseudoSectionData.Chemistry.MolProp);
+Chem = table2cell(PseudoSectionData.Chemistry.OxProp);
 for i=1:length(Chem)
     fprintf(fid,'%8s %10.8f \n',Chem{i,1},Chem{i,2});
 end

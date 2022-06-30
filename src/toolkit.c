@@ -127,7 +127,7 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 
 	/* transform bulk from wt% to mol% for minimiation */
 	if (strcmp( sys_in, "wt") == 0){	
-		for (int i = 0; i < gv.len_ox; i++){ bulk_rock[i] *= z_b.masspo[i];}
+		for (int i = 0; i < gv.len_ox; i++){ bulk_rock[i] /= z_b.masspo[i];}
 	}
 
 
