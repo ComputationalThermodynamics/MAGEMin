@@ -131,6 +131,17 @@ fprintf(fid,'%f \n', dP);
 fprintf(fid,'%i \n', np);
 
 
+% Transpose them all 
+rho_liq = rho_liq';
+melt = melt';
+rho_sol = rho_sol';
+T_K = T_K';
+P_bar = P_bar';
+Vp = Vp';
+Vs = Vs';
+VpVs = VpVs';
+
+
 rho_liq =   rho_liq(:);
 melt    =   melt(:);
 rho_sol =   rho_sol(:);
@@ -145,11 +156,11 @@ fclose(fid);
 %========================================================= 
 % Plot (using same as usual plotting routine)
 %========================================================= 
-rho         =   reshape(rho_sol,np,nt);
-rho_fluid   =   reshape(rho_liq,np,nt);
-melt        =   reshape(melt   ,np,nt);
-T           =   reshape(T_K    ,np,nt) - 273.15;       % degree C
-P           =   reshape(P_bar  ,np,nt)./1e3;  % kbar  - LaMEM input must be bar!
+rho         =   reshape(rho_sol,nt,np)';
+rho_fluid   =   reshape(rho_liq,nt,np)';
+melt        =   reshape(melt   ,nt,np)';
+T           =   reshape(T_K    ,nt,np)' - 273.15;       % degree C
+P           =   reshape(P_bar  ,nt,np)'./1e3;  % kbar  - LaMEM input must be bar!
 
 
 
@@ -192,7 +203,9 @@ colorbar
 
  
 
-
+Vp = Vp';
+Vs = Vs';
+VpVs = VpVs';
     
 
 figure(2),clf
