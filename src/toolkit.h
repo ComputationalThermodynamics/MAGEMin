@@ -37,7 +37,6 @@ void 	pseudo_inverse(	double *matrix,
 						int m,
 						int n				);
 
-int 	get_max_n_pc(int tot_pc, int n_pc);
 int 	get_act_sf(double *A, int n);
 int 	get_active_em(double *array, int n);
 int 	EndsWithTail(char *name, char* tail);	

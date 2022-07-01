@@ -757,30 +757,28 @@ global_variable run_LP(								bulk_info 			 z_b,
 
 	simplex_data *d  = (simplex_data *) splx_data;
 
-	int     k 	= 0;
+	int  k 		= 0;
 	d->swp 		= 1;
 	d->n_swp 	= 0;
-	while (d->swp == 1 && k < 4){					/** as long as a phase can be added to the guessed assemblage, go on */
+	while (d->swp == 1 && k < 8){					/** as long as a phase can be added to the guessed assemblage, go on */
 		k 		  += 1;
 		d->swp     = 0;
-		
-		swap_pure_phases(					z_b,
-											splx_data,
-											gv,
-											PP_ref_db,
-											SS_ref_db		);	
-
-		swap_pure_endmembers(				z_b,
-											splx_data,
-											gv,
-											PP_ref_db,
-											SS_ref_db	);	
 
 		swap_PGE_pseudocompounds(			z_b,
 											splx_data,
 											gv,
 											PP_ref_db,
-											SS_ref_db		);				
+											SS_ref_db		);	
+		
+		swap_pure_phases(					z_b,
+											splx_data,
+											gv,
+											PP_ref_db,
+											SS_ref_db		);											
+	}
+	if (gv.verbose == 1){
+		printf("\n");
+		printf("  -> number of swap loops: %d\n",k);	
 	}
 
 	/* update gamma of SS */
@@ -1049,6 +1047,20 @@ global_variable init_LP(							bulk_info 	 		 z_b,
 		}
 	}
 
+	/* reinitialize the number of SS instances */
+	for (i = 0; i < gv.len_ss; i++){
+		gv.n_solvi[i] = 0;
+	}
+
+	/* get number of duplicated phases and their cp id */
+	for (i = 0; i < gv.len_cp; i++){
+		ph_id = cp[i].id;
+		if (cp[i].ss_flags[0] == 1 ){
+			SS_ref_db[ph_id].solvus_id[gv.n_solvi[ph_id]] = i;
+			gv.n_solvi[ph_id] += 1;
+		}
+	}
+
 	return gv;
 }
 
@@ -1136,13 +1148,15 @@ global_variable LP(		bulk_info 			z_b,
 						csd_phase_set  		*cp					){
 		
 	clock_t t; 	
+	simplex_data *d  = (simplex_data *) splx_data;
 
 	gv.LP 	 = 1;	gv.PGE 	 = 0;
 
-	int mode = 1;
+	int    mode = 1;
+	int    gi   = 0;
+	int iterate = 1;
 
-	// while ( gv.global_ite < 32 ){
-	for (int gi = 0; gi < 32; gi++){
+	while (iterate == 1){
 
 		t = clock();
 
@@ -1157,7 +1171,7 @@ global_variable LP(		bulk_info 			z_b,
 			printf("══════════════════════════════════════════════════════════════════\n");
 		}
 
-		if (gi == 12 || gi == 24){
+		if (gi == 12 || gi == 24 ){
 			gv = check_PC( 				z_b,						/** bulk rock constraint 				*/ 
 										gv,							/** global variables (e.g. Gamma) 		*/
 
@@ -1227,6 +1241,7 @@ global_variable LP(		bulk_info 			z_b,
 					
 		/* Increment global iteration value */
 		gv.global_ite += 1;
+		gi            += 1;
 
 		/* check evolution of mass constraint residual */
 		gv.PGE_mass_norm[gv.global_ite]  = gv.BR_norm;	/** save norm for the current global iteration */
@@ -1237,6 +1252,8 @@ global_variable LP(		bulk_info 			z_b,
 			printf("\n __ iteration duration: %+4f ms __\n\n\n",((double)t)/CLOCKS_PER_SEC*1000);
 		}
 		gv.ite_time[gv.global_ite] 		 = ((double)t)/CLOCKS_PER_SEC*1000;
+
+		if (gi >= 32){ 		iterate = 0;}
 	}
 
 	/**
@@ -1417,9 +1434,10 @@ global_variable PGE(	bulk_info 			z_b,
 		/* checks for not diverging but non converging cases  */
 		if (gv.global_ite >= gv.it_f){  										if (gv.verbose != -1){printf(" >%d iterations, not diverging but not converging\n\n",gv.it_f);}	gv.div = 1; gv.status = 4; iterate = 0;}
 
-		/* checks for divergence */
+		/* checks for non convergence */
 		if ((log10(gv.BR_norm) > -1.5 && gv.global_ite > 64)){	gv.div = 1;	iterate = 0;}
 		if ((log10(gv.BR_norm) > -2.5 && gv.global_ite > 128)){	gv.div = 1;	iterate = 0;}
+		if ((log10(gv.BR_norm) > -3.5 && gv.global_ite > 192)){	gv.div = 1;	iterate = 0;}
 	}
 
 	/**
@@ -1429,7 +1447,6 @@ global_variable PGE(	bulk_info 			z_b,
 		printf("\n[PGE failed -> legacy solver...]\n");
 		gv.div 		= 0;
 		gv.status 	= 0;
-
 
 		gv = init_LP(			z_b,
 								splx_data,

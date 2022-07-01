@@ -190,6 +190,8 @@ Solution phases information
 +---------------+-------------------+--------------------------------------------------------------------------+
 | double *      | emFrac            | end-members fractions :literal:`[molar 1 atom basis]`                    |
 +---------------+-------------------+--------------------------------------------------------------------------+
+| double *      | emFrac_wt         | end-members fractions :literal:`[wt fraction]`                           |
++---------------+-------------------+--------------------------------------------------------------------------+
 | double *      | emChemPot         | end-members chemical potential                                           |
 +---------------+-------------------+--------------------------------------------------------------------------+
 | double **     | emComp            | end-members composition :literal:`[molar 1 atom basis]`                  |

@@ -304,7 +304,7 @@ function print_info(g::gmin_struct)
     # ==
 
     # ==
-    println("End-members fraction (solution phase):")
+    println("End-members fraction [mol% 1 atom basis](solution phase):")
     for i=1:g.n_SS
 
         print("                ")
@@ -315,6 +315,22 @@ function print_info(g::gmin_struct)
         print("$(lpad(g.ph[i],15," ")) ")  
         for j=1:length(g.SS_vec[i].emFrac)
             print("$(lpad(round(g.SS_vec[i].emFrac[j],digits=5),8," ")) ")  
+        end
+        print("\n")
+    end
+    print("\n")
+    # ==
+    println("End-members fraction [wt%](solution phase):")
+    for i=1:g.n_SS
+
+        print("                ")
+        for j=1:length(g.SS_vec[i].emNames)
+            print("$(lpad(g.SS_vec[i].emNames[j],8," ")) ")  
+        end
+        print("\n")
+        print("$(lpad(g.ph[i],15," ")) ")  
+        for j=1:length(g.SS_vec[i].emFrac_wt)
+            print("$(lpad(round(g.SS_vec[i].emFrac_wt[j],digits=5),8," ")) ")  
         end
         print("\n")
     end

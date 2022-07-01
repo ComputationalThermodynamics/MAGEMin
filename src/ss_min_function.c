@@ -340,13 +340,13 @@ void ss_min_PGE(		int 				 mode,
 														SS_ref_db,
 														cp						);	
 
-				copy_to_Ppc(							i, 
-														ph_id,
-														gv,
+				// copy_to_Ppc(							i, 
+				// 										ph_id,
+				// 										gv,
 
-														SS_objective,
-														SS_ref_db,
-														cp						);
+				// 										SS_objective,
+				// 										SS_ref_db,
+				// 										cp						);
 			}
 			else{
 				if (gv.verbose == 1){
@@ -357,7 +357,6 @@ void ss_min_PGE(		int 				 mode,
 	}
 
 };
-
 
 /** 
 	Minimization function for PGE 
@@ -385,6 +384,7 @@ void ss_min_LP(			int 				 mode,
 			*/
 			for (int k = 0; k < cp[i].n_xeos; k++) {
 				SS_ref_db[ph_id].iguess[k] = cp[i].xeos[k];
+				// SS_ref_db[ph_id].dguess[k] = cp[i].xeos[k];			//dguess can be used of LP, it is used for PGE to check for drifting
 			}
 
 			/**
@@ -398,7 +398,7 @@ void ss_min_LP(			int 				 mode,
 			*/
 			SS_ref_db[ph_id] = restrict_SS_HyperVolume(	gv, 
 														SS_ref_db[ph_id],
-														gv.box_size_mode_1		);
+														0.1		);
 			
 			/**
 				call to NLopt for non-linear + inequality constraints optimization
@@ -407,12 +407,11 @@ void ss_min_LP(			int 				 mode,
 														SS_ref_db[ph_id], 
 														ph_id					);
 			
-			/**
-				establish a set of conditions to update initial guess for next round of local minimization 
-			*/
+
 			for (int k = 0; k < cp[i].n_xeos; k++) {
 				SS_ref_db[ph_id].iguess[k]   =  SS_ref_db[ph_id].xeos[k];
 			}
+
 
 			SS_ref_db[ph_id] = PC_function(				gv,
 														SS_ref_db[ph_id], 
@@ -424,25 +423,10 @@ void ss_min_LP(			int 				 mode,
 														z_b, 
 														gv.SS_list[ph_id]		);
 
-			/** 
-				print solution phase informations (print has to occur before saving PC)
-			*/
-			if (gv.verbose == 1){
-				print_SS_informations(  				gv,
-														SS_ref_db[ph_id],
-														ph_id					);
-			}
-
 			/**
 				add minimized phase to LP PGE pseudocompound list 
 			*/
 			if (SS_ref_db[ph_id].sf_ok == 1){
-				// copy_to_cp(								i, 
-				// 										ph_id,
-				// 										gv,
-				// 										SS_ref_db,
-				// 										cp						);				
-
 				copy_to_Ppc(							i, 
 														ph_id,
 														gv,

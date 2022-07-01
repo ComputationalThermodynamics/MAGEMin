@@ -333,12 +333,6 @@ int runMAGEMin(			int    argc,
 
 	/* free memory allocated to solution and pure phases */
 	FreeDatabases(gv, DB);
-
-	// destroy_simplex_A(&splx_data);
-	// destroy_simplex_B(&splx_data);
-
-
-	// free(input_data);
 	free(bulk_rock);
 
 	/* print the time */
@@ -347,7 +341,7 @@ int runMAGEMin(			int    argc,
 	if (gv.verbose != -1){
 		time_taken = ((double)u)/(CLOCKS_PER_SEC); 				/** in seconds */
 		if (rank==0){
-			printf("__________________________________\n");
+			printf("___________________________________\n");
 			printf("MAGEMin comp time: %+3f ms }\n", time_taken*1000.);
 		}
 	}
@@ -587,48 +581,36 @@ int runMAGEMin(			int    argc,
 	gv.system_Vp 	= sqrt((gv.system_bulkModulus +4.0/3.0*gv.system_shearModulus)/(gv.system_density/1e3));
 	gv.system_Vs 	= sqrt(gv.system_shearModulus/(gv.system_density/1e3));
 
-	gv.solid_Vp 	= sqrt((gv.solid_bulkModulus +4.0/3.0*gv.solid_shearModulus)/(gv.solid_density/1e3));
-	gv.solid_Vs 	= sqrt(gv.solid_shearModulus/(gv.solid_density/1e3));
-
-	gv.solid_Vs 	= anelastic_correction( 0,
-											gv.solid_Vs,
-											z_b.P,
-											z_b.T 		);
-
 	gv.V_cor[0] 	= gv.solid_Vp;
 	gv.V_cor[1] 	= gv.solid_Vs;
 
-	if (gv.melt_fraction > 0.0 && gv.V_cor[1] > 0.0){
-		wave_melt_correction(  	gv.melt_bulkModulus,
-								gv.solid_bulkModulus,
-								gv.solid_shearModulus,
-								gv.melt_density,
-								gv.solid_density,
-								gv.solid_Vp,	
-								gv.solid_Vs,
-								gv.melt_fraction,
-								gv.solid_fraction,
-								0.1,
-								gv.V_cor				);
-	}
+	if (gv.calc_seismic_cor == 1){
+		gv.solid_Vp 	= sqrt((gv.solid_bulkModulus +4.0/3.0*gv.solid_shearModulus)/(gv.solid_density/1e3));
+		gv.solid_Vs 	= sqrt(gv.solid_shearModulus/(gv.solid_density/1e3));
 
-	if (gv.verbose != -1){
-		printf("\nSystem information\n");
-		printf("═══════════════════\n");
+		gv.solid_Vs 	= anelastic_correction( 0,
+												gv.solid_Vs,
+												z_b.P,
+												z_b.T 		);
 
-		printf(" Mass residual      : %+12.5e\n\n",gv.BR_norm);
+		gv.V_cor[0] 	= gv.solid_Vp;
+		gv.V_cor[1] 	= gv.solid_Vs;
 
-		printf(" Volume             : %+12.5f\n",sum_volume);
-		printf(" Density            : %+12.5f\n\n",gv.system_density);
-
-		printf(" Shear modulus      : %+12.5f\t [GPa]\n",gv.system_shearModulus);
-		printf(" Vp           (VRH) : %+12.5f\t [km/s]\n",gv.system_Vp);
-
-		if (not_only_liq == 1){
-			printf(" Vs           (VRH) : %+12.5f\t [km/s]\n",gv.system_Vs);
-			printf(" Vp/Vs        (VRH) : %+12.5f\t [km/s]\n",gv.system_Vp/gv.system_Vs);
+		if (gv.melt_fraction > 0.0 && gv.V_cor[1] > 0.0){
+			wave_melt_correction(  	gv.melt_bulkModulus,
+									gv.solid_bulkModulus,
+									gv.solid_shearModulus,
+									gv.melt_density,
+									gv.solid_density,
+									gv.solid_Vp,	
+									gv.solid_Vs,
+									gv.melt_fraction,
+									gv.solid_fraction,
+									0.1,
+									gv.V_cor				);
 		}
 	}
+
 
 	return gv;
 }
@@ -639,10 +621,9 @@ int runMAGEMin(			int    argc,
 global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 												io_data 			 input_data,
 												int 				 Mode,
-												bulk_info 	 z_b,
+												bulk_info 	 		 z_b,
 												global_variable 	 gv,
 
-												// obj_type 			*SS_objective,
 												simplex_data	    *splx_data,
 												PP_ref  			*PP_ref_db,
 												SS_ref  			*SS_ref_db,
@@ -913,7 +894,8 @@ Databases InitializeDatabases(	global_variable gv,
 
 	/* Allocate memory for each solution phase according to their specificities (n_em, sf etc) */
 	for (i = 0; i < gv.len_ss; i++){
-		DB.SS_ref_db[i] = G_SS_INIT_EM_function(		DB.SS_ref_db[i], 
+		DB.SS_ref_db[i] = G_SS_INIT_EM_function(		i,	
+														DB.SS_ref_db[i], 
 														EM_database, 
 														gv.SS_list[i], 
 														gv						);
@@ -968,7 +950,6 @@ void FreeDatabases(		global_variable gv,
 	free(DB.SS_ref_db);
 	free(DB.sp);
 	free(DB.cp);
-	// free(gv);
 }
 
 /** 
@@ -986,7 +967,7 @@ void PrintOutput(	global_variable 	gv,
 		printf(" Status             : %12i ",gv.status);
 		if (gv.verbose == 1){PrintStatus(gv.status);}
 		printf("\n");
-
+		printf(" Mass residual      : %+12.5e\n",gv.BR_norm);
     	printf(" Rank               : %12i \n",rank);
     	printf(" Point              : %12i \n",l);
     	printf(" Temperature        : %+12.5f\t [C] \n",   z_b.T - 273.15);
@@ -1000,28 +981,39 @@ void PrintOutput(	global_variable 	gv,
     }
 
 	if ((gv.verbose != -1) &&  (gv.Mode==0)){
-		printf("\nSOLUTION: [G = %.3f] (%i iterations, %.2f ms)\n",gv.G_system,gv.global_ite,time_taken*1000.0);
-		printf("[");
-		for (i = 0; i < z_b.nzEl_val; i++){
+		printf("\n");
+		printf(" SOL = [G: %.3f] (%i iterations, %.2f ms)\n",gv.G_system,gv.global_ite,time_taken*1000.0);
+		printf(" GAM = [");
+		for (i = 0; i < z_b.nzEl_val-1; i++){
 			printf("%+8f,",gv.gam_tot[z_b.nzEl_array[i]]);
 		}
+		printf("%+8f",gv.gam_tot[z_b.nzEl_val-1]);
 		printf("]\n\n");
-		printf(" Phase | Mode    |  x-eos...\n\n");
+
+		printf(" Phase : ");
 		for (int i = 0; i < gv.len_cp; i++){
 			if (DB.cp[i].ss_flags[1] == 1){
-				printf(" %5s | %.5f |", DB.cp[i].name, DB.cp[i].ss_n);
-
-				for (int j = 0; j < DB.cp[i].n_xeos; j++){
-					printf(" %+10f",DB.cp[i].xeos[j]);
-				}
-				printf("\n");
+				printf(" %7s ", DB.cp[i].name);
 			}
 		}
 		for (int i = 0; i < gv.len_pp; i++){
 			if (gv.pp_flags[i][1] == 1){
-				printf(" %5s | %.5f\n", gv.PP_list[i], gv.pp_n[i]);
+				printf(" %7s ", gv.PP_list[i]);
 			}
-		}	
+		}
+		printf("\n");
+		printf(" Mode  : ");
+		for (int i = 0; i < gv.len_cp; i++){
+			if (DB.cp[i].ss_flags[1] == 1){
+				printf(" %.5f ", DB.cp[i].ss_n);
+			}
+		}
+		for (int i = 0; i < gv.len_pp; i++){
+			if (gv.pp_flags[i][1] == 1){
+				printf(" %.5f ", gv.pp_n[i]);
+			}
+		}
+		printf("\n");	
 	}
 }
 
