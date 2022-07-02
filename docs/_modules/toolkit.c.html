@@ -141,6 +141,7 @@
 <p class="caption" role="heading"><span class="caption-text">Known issues &amp; Tips!</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../issues.html">Quick tips!</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#compiler-linux">Compiler (Linux)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#minimum-pressure">Minimum pressure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#reduced-chemical-system">Reduced chemical system</a></li>
 </ul>
@@ -332,18 +333,6 @@
 <span class="w">										</span><span class="n">bulk_info</span><span class="w"> 			 </span><span class="n">z_b</span><span class="p">,</span><span class="w">		</span>
 <span class="w">										</span><span class="kt">double</span><span class="w"> 				</span><span class="o">*</span><span class="n">bulk_rock</span><span class="w">			</span><span class="p">){</span><span class="w"></span>
 
-
-<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="n">input_data</span><span class="p">[</span><span class="n">sgleP</span><span class="p">].</span><span class="n">in_bulk</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">1e-6</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">Bulk</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">1e-6</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">test</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">-1</span><span class="p">){</span><span class="w"></span>
-<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; %+10f +%10f %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">input_data</span><span class="p">[</span><span class="n">sgleP</span><span class="p">].</span><span class="n">in_bulk</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">Bulk</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">test</span><span class="p">);</span><span class="w"></span>
-<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;WARNING: an in-built has been selected, but either an arg or input bulk is also provided</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;   -&gt; priority given to arg/input-file bulk </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">	</span><span class="p">}</span><span class="w"></span>
-<span class="w">	</span><span class="cm">/* set of warning messages for conflicting bulk */</span><span class="w"></span>
-<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">input_data</span><span class="p">[</span><span class="n">sgleP</span><span class="p">].</span><span class="n">in_bulk</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0.0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">Bulk</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0.0</span><span class="p">){</span><span class="w"></span>
-<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;WARNING: bulk is given both as arg and from input-file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;   -&gt; priority given to input-file bulk</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">	</span><span class="p">}</span><span class="w"></span>
-
 <span class="w">	</span><span class="cm">/* bulk from command line arguments */</span><span class="w"></span>
 <span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Bulk</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0.0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">verbose</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
@@ -410,12 +399,6 @@
 
 <span class="p">};</span><span class="w"></span></div>
 
-<div class="viewcode-block" id="c.get_max_n_pc"><a class="viewcode-back" href="../src/toolkit.html#c.get_max_n_pc">[docs]</a><span class="cm">/**</span>
-<span class="cm">  Get the number of max_pc</span>
-<span class="cm">*/</span><span class="w"></span>
-<span class="kt">int</span><span class="w"> </span><span class="nf">get_max_n_pc</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">tot_pc</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n_pc</span><span class="p">){</span><span class="w"></span>
-<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="p">((</span><span class="n">tot_pc</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">n_pc</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">(</span><span class="n">n_pc</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="n">tot_pc</span><span class="p">));</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span></div>
 
 <span class="cm">/* Normalize array to sum to 1 */</span><span class="w"></span>
 <div class="viewcode-block" id="c.norm_array"><span class="kt">double</span><span class="o">*</span><span class="w"> </span><span class="nf">norm_array</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">array</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -1241,9 +1224,15 @@
 <span class="w">							 </span><span class="kt">double</span><span class="w">  </span><span class="n">Vp0</span><span class="p">,</span><span class="w"></span>
 <span class="w">							 </span><span class="kt">double</span><span class="w">  </span><span class="n">Vs0</span><span class="p">,</span><span class="w"></span>
 <span class="w">							 </span><span class="kt">double</span><span class="w">  </span><span class="n">meltFrac</span><span class="p">,</span><span class="w"></span>
+<span class="w">							 </span><span class="kt">double</span><span class="w">  </span><span class="n">solFrac</span><span class="p">,</span><span class="w"></span>
 <span class="w">							 </span><span class="kt">double</span><span class="w">  </span><span class="n">aspectRatio</span><span class="p">,</span><span class="w"></span>
 <span class="w">							 </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">V_cor</span><span class="w">		</span><span class="p">)</span><span class="w"></span>
 <span class="p">{</span><span class="w"></span>
+
+<span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">sum</span><span class="w"> 	 </span><span class="o">=</span><span class="w">  </span><span class="n">meltFrac</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">solFrac</span><span class="p">;</span><span class="w"></span>
+<span class="w">	</span><span class="n">solFrac</span><span class="w">		</span><span class="o">/=</span><span class="w"> </span><span class="n">sum</span><span class="p">;</span><span class="w"></span>
+<span class="w">	</span><span class="n">meltFrac</span><span class="w">	</span><span class="o">/=</span><span class="w"> </span><span class="n">sum</span><span class="p">;</span><span class="w"></span>
+
 <span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">poisson</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.25</span><span class="p">;</span><span class="w"></span>
 
 <span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">aij</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">4</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="p">{</span><span class="w"> </span><span class="p">{</span><span class="mf">0.318</span><span class="p">,</span><span class="w"> </span><span class="mf">6.780</span><span class="p">,</span><span class="w"> </span><span class="mf">57.560</span><span class="p">,</span><span class="w"> </span><span class="mf">0.182</span><span class="p">},</span><span class="w"></span>

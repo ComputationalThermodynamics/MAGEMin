@@ -94,7 +94,7 @@ fprintf(str)
 %==========================================================================
 function has_H2O = Write_TC_file(Data,File_out, ComputeLine, Line)
 
-Chem=table2array(Data.Chemistry.MolProp(:,2));
+Chem=table2array(Data.Chemistry.OxProp(:,2));
 if Chem(end)>0
     has_H2O = true;
 else
@@ -168,7 +168,7 @@ end
 fprintf(fid,'\n');
 fprintf(fid,'%% ------------------------------------------------  \n');
 
-Chem=table2array(Data.Chemistry.MolProp(:,2));
+Chem=table2array(Data.Chemistry.OxProp(:,2));
 if has_H2O
     % with H2O
     fprintf(fid,'bulk H2O SiO2 Al2O3   CaO    MgO      FeOt  K2O    Na2O    TiO2   O       Cr2O3  \n');

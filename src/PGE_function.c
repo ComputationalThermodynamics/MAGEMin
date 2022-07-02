@@ -38,7 +38,6 @@ void PGE_print(					bulk_info 				z_b,
 								SS_ref 					*SS_ref_db,
 								csd_phase_set  			*cp
 ){
-
 	printf("\n _________________________________________________________________\n");
 	printf("                          PHASE ASSEMBLAGE                        \n");
 	printf(" ═════════════════════════════════════════════════════════════════\n\n");
@@ -264,32 +263,31 @@ global_variable PGE_update_pi(		bulk_info 	z_b,
 				dp[k] = (cp[ph].p_em[k]-cp[ph].xi_em[k]*cp[ph].p_em[k])*SS_ref_db[ss].z_em[k];
 			}
 
-			// if (norm_vector(dp ,cp[ph].n_em) > 1e-4){
-				for (k = 0; k < cp[ph].n_em; k++){
-					SS_ref_db[ss].p[k] = cp[ph].p_em[k]*cp[ph].xi_em[k];
-				}
+			for (k = 0; k < cp[ph].n_em; k++){
+				SS_ref_db[ss].p[k] = cp[ph].p_em[k]*cp[ph].xi_em[k];
+			}
+			
+			SS_ref_db[ss] = P2X(			gv,
+											SS_ref_db[ss],
+											z_b,
+											gv.SS_list[ss]				);
 				
-				SS_ref_db[ss] = P2X(			gv,
-												SS_ref_db[ss],
-												z_b,
-												gv.SS_list[ss]				);
-					
+			for (j = 0; j < cp[ph].n_xeos; j++){
+				SS_ref_db[ss].iguess[j] = cp[ph].xeos[j]*gv.xi_em_cor + SS_ref_db[ss].iguess[j]*(1.0 - gv.xi_em_cor); 
+			}												
+																	
+			SS_ref_db[ss] = PC_function(	gv,
+											SS_ref_db[ss], 
+											z_b,
+											gv.SS_list[ss] 				);
+													
+			if (SS_ref_db[ss].sf_ok == 1){						
 				for (j = 0; j < cp[ph].n_xeos; j++){
-					SS_ref_db[ss].iguess[j] = cp[ph].xeos[j]*gv.xi_em_cor + SS_ref_db[ss].iguess[j]*(1.0 - gv.xi_em_cor); 
-				}												
-																		
-				SS_ref_db[ss] = PC_function(	gv,
-												SS_ref_db[ss], 
-												z_b,
-												gv.SS_list[ss] 				);
-														
-				if (SS_ref_db[ss].sf_ok == 1){						
-					for (j = 0; j < cp[ph].n_xeos; j++){
-						cp[ph].xeos[j] =  SS_ref_db[ss].iguess[j]; 
-					}
-
+					cp[ph].xeos[j] =  SS_ref_db[ss].iguess[j]; 
 				}
-			// }
+
+			}
+
 		}
 	}
 
@@ -321,7 +319,6 @@ global_variable PGE_update_xi(		bulk_info 	z_b,
 
    return gv;
 };
-
 
 /** 
 	function to fill LHS (J)
@@ -468,8 +465,6 @@ void PGE_build_gradient( 	double				*b,
 		b[k+z_b.nzEl_val+gv.n_cp_phase]  *= fac;
 	}
 }
-
-
 
 /** 
   Partitioning Gibbs Energy function 
@@ -721,7 +716,6 @@ global_variable PGE_inner_loop(		bulk_info 			 z_b,
    return gv;
 };
 
-
 global_variable compute_xi_SD(				global_variable  		 gv,
 											csd_phase_set  			*cp				){
 	gv.mean_sum_xi 	= 0.0;
@@ -744,11 +738,10 @@ global_variable compute_xi_SD(				global_variable  		 gv,
 	return gv;
 }
 
-
 /**
   function to run simplex linear programming during PGE with pseudocompounds 
 */	
-global_variable run_LP_with_PGE_phase(				bulk_info 			 z_b,
+global_variable run_LP(								bulk_info 			 z_b,
 													simplex_data 		*splx_data,
 													global_variable 	 gv,
 													
@@ -762,33 +755,30 @@ global_variable run_LP_with_PGE_phase(				bulk_info 			 z_b,
 		printf("══════════════════════════════════════════════\n");	
 	}
 
-
 	simplex_data *d  = (simplex_data *) splx_data;
 
-	int     k 	= 0;
+	int  k 		= 0;
 	d->swp 		= 1;
 	d->n_swp 	= 0;
-	while (d->swp == 1 && k < 4){					/** as long as a phase can be added to the guessed assemblage, go on */
+	while (d->swp == 1 && k < 8){					/** as long as a phase can be added to the guessed assemblage, go on */
 		k 		  += 1;
 		d->swp     = 0;
-		
-		swap_pure_phases(					z_b,
-											splx_data,
-											gv,
-											PP_ref_db,
-											SS_ref_db		);	
-
-		swap_pure_endmembers(				z_b,
-											splx_data,
-											gv,
-											PP_ref_db,
-											SS_ref_db	);	
 
 		swap_PGE_pseudocompounds(			z_b,
 											splx_data,
 											gv,
 											PP_ref_db,
-											SS_ref_db		);				
+											SS_ref_db		);	
+		
+		swap_pure_phases(					z_b,
+											splx_data,
+											gv,
+											PP_ref_db,
+											SS_ref_db		);											
+	}
+	if (gv.verbose == 1){
+		printf("\n");
+		printf("  -> number of swap loops: %d\n",k);	
 	}
 
 	/* update gamma of SS */
@@ -805,19 +795,6 @@ global_variable run_LP_with_PGE_phase(				bulk_info 			 z_b,
 	for (int i = 0; i < gv.len_ox; i++){
 		gv.gam_tot[i] = d->gamma_tot[i];
 	}
-
-		// printf("\ngamPGE(%d,:) = [",gv.global_ite+1);
-		// for (int i = 0; i < gv.len_ox; i++){
-		// 	printf(" %+10f",gv.gam_tot[i]);
-		// }
-		// printf("];\n");
-		// printf("gamLP(%d,:) = [",gv.global_ite+1);
-		// for (int i = 0; i < gv.len_ox; i++){
-		// 	printf(" %+10f",d->gamma_tot[i]);
-		// }
-		// printf("];\n");
-
-
 
 	if (gv.verbose == 1){
 		printf("\n Total number of LP iterations: %d\n",k);	
@@ -863,11 +840,10 @@ global_variable run_LP_with_PGE_phase(				bulk_info 			 z_b,
 	return gv;
 }
 
-
 /**
   function to run simplex linear programming during PGE with pseudocompounds 
 */	
-global_variable init_PGE_using_LP(					bulk_info 	 		 z_b,
+global_variable init_LP(							bulk_info 	 		 z_b,
 													simplex_data 		*splx_data,
 													global_variable 	 gv,
 													
@@ -943,7 +919,6 @@ global_variable init_PGE_using_LP(					bulk_info 	 		 z_b,
 			cp[i].xi_em[ii]     = 0.0;
 			cp[i].dguess[ii]    = 0.0;
 			cp[i].xeos[ii]      = 0.0;
-			cp[i].xeos_0[ii]    = 0.0;
 			cp[i].delta_mu[ii]  = 0.0;
 			cp[i].dfx[ii]       = 0.0;
 			cp[i].mu[ii]        = 0.0;
@@ -961,7 +936,6 @@ global_variable init_PGE_using_LP(					bulk_info 	 		 z_b,
 		cp[i].phase_cp 			= 0.0;
 	}
 
-
 	/** 
 		get initial conditions for active phases
 	*/
@@ -978,7 +952,6 @@ global_variable init_PGE_using_LP(					bulk_info 	 		 z_b,
 			gv.n_phase 			   += 1;
 		}
 		else {
-			
 			/* pure endmembers as solution phase */
 			if (d->ph_id_A[i][0] == 2){
 			em_id 					= d->ph_id_A[i][3];
@@ -1074,9 +1047,22 @@ global_variable init_PGE_using_LP(					bulk_info 	 		 z_b,
 		}
 	}
 
+	/* reinitialize the number of SS instances */
+	for (i = 0; i < gv.len_ss; i++){
+		gv.n_solvi[i] = 0;
+	}
+
+	/* get number of duplicated phases and their cp id */
+	for (i = 0; i < gv.len_cp; i++){
+		ph_id = cp[i].id;
+		if (cp[i].ss_flags[0] == 1 ){
+			SS_ref_db[ph_id].solvus_id[gv.n_solvi[ph_id]] = i;
+			gv.n_solvi[ph_id] += 1;
+		}
+	}
+
 	return gv;
 }
-
 
 
 /**
@@ -1127,7 +1113,6 @@ global_variable update_cp_after_LP(					bulk_info 	 		 z_b,
 														ph_id					);
 			}
 
-
 			/* if site fractions are respected then save the minimized point */
 			if (SS_ref_db[ph_id].sf_ok == 1){
 				/**
@@ -1150,7 +1135,6 @@ global_variable update_cp_after_LP(					bulk_info 	 		 z_b,
 	return gv;
 }
 
-
 /**
   Main LP routine
 */ 
@@ -1164,30 +1148,30 @@ global_variable LP(		bulk_info 			z_b,
 						csd_phase_set  		*cp					){
 		
 	clock_t t; 	
+	simplex_data *d  = (simplex_data *) splx_data;
 
 	gv.LP 	 = 1;	gv.PGE 	 = 0;
 
-	int mode = 1;
+	int    mode = 1;
+	int    gi   = 0;
+	int iterate = 1;
 
-	// for (int gi = 0; gi < 32; gi++){				
-	while ( gv.global_ite < 32 ){
+	while (iterate == 1){
 
 		t = clock();
+
+		/* calculate delta_G of solution phases (including local minimization) */
 		if (gv.verbose == 1){
 			printf("\n__________________________________________ ‿︵MAGEMin‿︵ "); printf("_ %5s _",gv.version);
 			printf("\n                     GLOBAL ITERATION %i\n",gv.global_ite);
 			printf("═════════════════════════════════════════════════════════════════\n");
-		}
-		
-		/* calculate delta_G of solution phases (including local minimization) */
-		if (gv.verbose == 1){
 			printf("\nMinimize solution phases\n");
 			printf("═════════════════════════\n");
 			printf(" phase |  delta_G   | SF |   sum_xi   | time(ms)   |   x-eos ...\n");
 			printf("══════════════════════════════════════════════════════════════════\n");
 		}
 
-		if (gv.global_ite == 12 || gv.global_ite == 24){
+		if (gi == 12 || gi == 24 ){
 			gv = check_PC( 				z_b,						/** bulk rock constraint 				*/ 
 										gv,							/** global variables (e.g. Gamma) 		*/
 
@@ -1217,15 +1201,14 @@ global_variable LP(		bulk_info 			z_b,
 		/**
 		   Here the linear programming method is used after the PGE step to get a new Gibbs hyper-plane
 		*/
-		gv = run_LP_with_PGE_phase(		z_b,
+		gv = run_LP(					z_b,
 										splx_data,
 										gv,
 												
 										PP_ref_db,
 										SS_ref_db			);
 
-
-		gv = init_PGE_using_LP(			z_b,
+		gv = init_LP(					z_b,
 										splx_data,
 										gv,
 										
@@ -1233,11 +1216,8 @@ global_variable LP(		bulk_info 			z_b,
 										SS_ref_db,
 										cp					);	
 
-
 		gv = compute_xi_SD(				gv,
 										cp					);
-
-
 
 		if (gv.verbose == 1){
 			/* Partitioning Gibbs Energy */
@@ -1261,47 +1241,40 @@ global_variable LP(		bulk_info 			z_b,
 					
 		/* Increment global iteration value */
 		gv.global_ite += 1;
+		gi            += 1;
 
 		/* check evolution of mass constraint residual */
 		gv.PGE_mass_norm[gv.global_ite]  = gv.BR_norm;	/** save norm for the current global iteration */
 		gv.Alg[gv.global_ite] 			 = 0;
-		for (int i = 0; i < gv.len_cp; i++){
-			if (cp[i].ss_flags[0] == 1){
-				if (isnan(cp[i].df) == 1 || isinf(cp[i].df) == 1){
-					gv.div = 1;	
-				}
-			}
-		}
-		if (gv.div == 1){ gv.status = 4; break; }
+		t 								 = clock() - t; 
 
-		t = clock() - t; 
 		if (gv.verbose == 1){
 			printf("\n __ iteration duration: %+4f ms __\n\n\n",((double)t)/CLOCKS_PER_SEC*1000);
 		}
-		gv.ite_time[gv.global_ite] = ((double)t)/CLOCKS_PER_SEC*1000;
+		gv.ite_time[gv.global_ite] 		 = ((double)t)/CLOCKS_PER_SEC*1000;
+
+		if (gi >= 32){ 		iterate = 0;}
 	}
 
-		/**
-			Merge instances of the same solution phase that are compositionnally close 
-		*/
-		gv = phase_merge_function(		z_b,							/** bulk rock constraint 				*/
-										gv,								/** global variables (e.g. Gamma) 		*/
+	/**
+		Merge instances of the same solution phase that are compositionnally close 
+	*/
+	gv = phase_merge_function(		z_b,							/** bulk rock constraint 				*/
+									gv,								/** global variables (e.g. Gamma) 		*/
 
-										PP_ref_db,						/** pure phase database 				*/
-										SS_ref_db,						/** solution phase database 			*/ 
-										cp					); 
+									PP_ref_db,						/** pure phase database 				*/
+									SS_ref_db,						/** solution phase database 			*/ 
+									cp					); 
 
-		gv = update_cp_after_LP(		z_b,
-										gv,
-										
-										PP_ref_db,
-										SS_ref_db,
-										cp					);	
+	gv = update_cp_after_LP(		z_b,
+									gv,
+									
+									PP_ref_db,
+									SS_ref_db,
+									cp					);
 	
 	return gv;
 };		
-
-
 
 /**
   Main PGE routine
@@ -1318,11 +1291,14 @@ global_variable PGE(	bulk_info 			z_b,
 	clock_t t; 	
 
 	gv.LP_PGE_switch = gv.global_ite;
-	gv.LP 	= 0;	gv.PGE 	= 1;
+	gv.LP 			 = 0;	
+	gv.PGE 			 = 1;
 
-	int mode = 1;
+	int mode 	= 1;
+	int iterate = 1;
+
 	// for (int gi = 0; gi < 1; gi++){	
-	while (gv.BR_norm > gv.br_max_tol || gv.outter_PGE_ite > (gv.global_ite - gv.LP_PGE_switch)){
+	while (iterate == 1){
 
 		t = clock();
 		if (gv.verbose == 1){
@@ -1345,7 +1321,6 @@ global_variable PGE(	bulk_info 			z_b,
 		pp_min_function(				gv,
 										z_b,
 										PP_ref_db			);
-			
 			
 		/**
 			check driving force of PC when getting close to convergence
@@ -1422,7 +1397,6 @@ global_variable PGE(	bulk_info 			z_b,
 										SS_ref_db,						/** solution phase database 			*/
 										cp					); 
 
-
 		/* dump & print */
 		if (gv.verbose == 1){
 			/* Partitioning Gibbs Energy */
@@ -1433,28 +1407,6 @@ global_variable PGE(	bulk_info 			z_b,
 										SS_ref_db,						/** solution phase database 			*/
 										cp					); 
 		}
-
-		/**
-		 * Solver status
-		 * 0: success
-		 * 1: under-relaxed
-		 * 2: more under-relaxed
-		 * 3: reached max iterations (failed)
-		 * 4: terminated due to slow convergence or a very large residual (failed)
-		**/
-		if (gv.global_ite > gv.it_1 && gv.BR_norm < gv.br_max_tol*gv.ur_1){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_1, gv.ur_1);}; gv.status = 1; break;}
-		if (gv.global_ite > gv.it_2 && gv.BR_norm < gv.br_max_tol*gv.ur_2){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_2, gv.ur_2);}; gv.status = 2; break;}
-		if (gv.global_ite > gv.it_3 && gv.BR_norm < gv.br_max_tol*gv.ur_3){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_3, gv.ur_3);}; gv.status = 2; break;}
-		if (gv.global_ite > gv.it_f){											if (gv.verbose != -1){printf(" >%d iterations, did not converge  !!!\n\n", gv.it_f);}; gv.status = 3; break;}
-
-		for (int i = 0; i < gv.len_cp; i++){
-			if (cp[i].ss_flags[0] == 1){
-				if (isnan(cp[i].df) == 1 || isinf(cp[i].df) == 1){
-					gv.div = 1;	
-				}
-			}
-		}
-		if (gv.div == 1){ gv.status = 4; break; }
 
 		t = clock() - t; 
 		if (gv.verbose == 1){
@@ -1467,6 +1419,25 @@ global_variable PGE(	bulk_info 			z_b,
 		gv.ite_time[gv.global_ite] 		 = ((double)t)/CLOCKS_PER_SEC*1000;
 		gv.global_ite 			  		+= 1;
 
+		/*********************************************************/
+		/**               CHECK MINIMIZATION STATUS              */
+		/*********************************************************/
+
+		/* checks for full convergence  */
+		if (gv.BR_norm < gv.br_max_tol){ gv.status = 0;	iterate = 0;}
+		
+		/* checks for dampened convergence  */
+		if (gv.global_ite > gv.it_1 && gv.BR_norm < gv.br_max_tol*gv.ur_1){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_1, gv.ur_1);}; 	gv.status = 1; iterate = 0;}
+		if (gv.global_ite > gv.it_2 && gv.BR_norm < gv.br_max_tol*gv.ur_2){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_2, gv.ur_2);}; 	gv.status = 2; iterate = 0;}
+		if (gv.global_ite > gv.it_3 && gv.BR_norm < gv.br_max_tol*gv.ur_3){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_3, gv.ur_3);}; 	gv.status = 3; iterate = 0;}
+		
+		/* checks for not diverging but non converging cases  */
+		if (gv.global_ite >= gv.it_f){  										if (gv.verbose != -1){printf(" >%d iterations, not diverging but not converging\n\n",gv.it_f);}	gv.div = 1; gv.status = 4; iterate = 0;}
+
+		/* checks for non convergence */
+		if ((log10(gv.BR_norm) > -1.5 && gv.global_ite > 64)){	gv.div = 1;	iterate = 0;}
+		if ((log10(gv.BR_norm) > -2.5 && gv.global_ite > 128)){	gv.div = 1;	iterate = 0;}
+		if ((log10(gv.BR_norm) > -3.5 && gv.global_ite > 192)){	gv.div = 1;	iterate = 0;}
 	}
 
 	return gv;

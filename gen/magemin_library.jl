@@ -539,7 +539,6 @@ struct SS_refs
     n_pc::Cint
     tot_pc::Cint
     id_pc::Cint
-    n_swap::Ptr{Cint}
     info::Ptr{Cint}
     G_pc::Ptr{Cdouble}
     DF_pc::Ptr{Cdouble}
@@ -551,7 +550,6 @@ struct SS_refs
     n_Ppc::Cint
     tot_Ppc::Cint
     id_Ppc::Cint
-    n_swap_Ppc::Ptr{Cint}
     info_Ppc::Ptr{Cint}
     G_Ppc::Ptr{Cdouble}
     DF_Ppc::Ptr{Cdouble}
@@ -703,7 +701,6 @@ struct csd_phase_sets
     sum_dxi::Cdouble
     p_em::Ptr{Cdouble}
     xi_em::Ptr{Cdouble}
-    xeos_0::Ptr{Cdouble}
     dguess::Ptr{Cdouble}
     xeos::Ptr{Cdouble}
     dpdx::Ptr{Ptr{Cdouble}}
@@ -744,6 +741,7 @@ struct stb_SS_phases
     compVariables::Ptr{Cdouble}
     emNames::Ptr{Ptr{Cchar}}
     emFrac::Ptr{Cdouble}
+    emFrac_wt::Ptr{Cdouble}
     emChemPot::Ptr{Cdouble}
     emComp::Ptr{Ptr{Cdouble}}
     Comp_wt::Ptr{Cdouble}
@@ -832,11 +830,13 @@ mutable struct global_variables
     n_Diff::Cint
     status::Cint
     solver::Cint
+    calc_seismic_cor::Cint
     LP::Cint
     PGE::Cint
     LP_PGE_switch::Cint
     mean_sum_xi::Cdouble
     sigma_sum_xi::Cdouble
+    min_melt_T::Cdouble
     relax_PGE_val::Cdouble
     PC_df_add::Cdouble
     PC_min_dist::Cdouble
@@ -868,11 +868,11 @@ mutable struct global_variables
     LVL_time::Cdouble
     em2ss_shift::Cdouble
     bnd_filter_pc::Cdouble
-    n_pc::Cint
     max_G_pc::Cdouble
     n_SS_PC::Ptr{Cint}
     SS_PC_stp::Ptr{Cdouble}
     eps_sf_pc::Cdouble
+    n_pc::Cint
     n_Ppc::Cint
     verifyPC::Ptr{Cint}
     n_solvi::Ptr{Cint}
@@ -938,6 +938,7 @@ mutable struct global_variables
     melt_density::Cdouble
     melt_bulkModulus::Cdouble
     melt_fraction::Cdouble
+    solid_fraction::Cdouble
     solid_density::Cdouble
     solid_bulkModulus::Cdouble
     solid_shearModulus::Cdouble
@@ -1007,8 +1008,8 @@ function PGE(z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
     ccall((:PGE, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{obj_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
 end
 
-function run_LP_with_PGE_phase(z_b, splx_data, gv, PP_ref_db, SS_ref_db)
-    ccall((:run_LP_with_PGE_phase, libMAGEMin), global_variable, (bulk_info, Ptr{simplex_data}, global_variable, Ptr{PP_ref}, Ptr{SS_ref}), z_b, splx_data, gv, PP_ref_db, SS_ref_db)
+function run_LP(z_b, splx_data, gv, PP_ref_db, SS_ref_db)
+    ccall((:run_LP, libMAGEMin), global_variable, (bulk_info, Ptr{simplex_data}, global_variable, Ptr{PP_ref}, Ptr{SS_ref}), z_b, splx_data, gv, PP_ref_db, SS_ref_db)
 end
 
 function LP(z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
@@ -1066,8 +1067,8 @@ function G_SS_EM_function(gv, SS_ref_db, EM_database, z_b, name)
     ccall((:G_SS_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_database, z_b, name)
 end
 
-function G_SS_INIT_EM_function(SS_ref_db, EM_database, name, gv)
-    ccall((:G_SS_INIT_EM_function, libMAGEMin), SS_ref, (SS_ref, Cint, Ptr{Cchar}, global_variable), SS_ref_db, EM_database, name, gv)
+function G_SS_INIT_EM_function(ph_id, SS_ref_db, EM_database, name, gv)
+    ccall((:G_SS_INIT_EM_function, libMAGEMin), SS_ref, (Cint, SS_ref, Cint, Ptr{Cchar}, global_variable), ph_id, SS_ref_db, EM_database, name, gv)
 end
 
 function CP_INIT_function(cp, gv)
@@ -1465,14 +1466,6 @@ function init_ss_db(EM_database, z_b, gv, SS_ref_db)
     ccall((:init_ss_db, libMAGEMin), global_variable, (Cint, bulk_info, global_variable, Ptr{SS_ref}), EM_database, z_b, gv, SS_ref_db)
 end
 
-function SS_ref_destroy(gv, SS_ref_db)
-    ccall((:SS_ref_destroy, libMAGEMin), Cvoid, (global_variable, Ptr{SS_ref}), gv, SS_ref_db)
-end
-
-function CP_destroy(gv, cp)
-    ccall((:CP_destroy, libMAGEMin), Cvoid, (global_variable, Ptr{csd_phase_set}), gv, cp)
-end
-
 function print_help(gv)
     ccall((:print_help, libMAGEMin), Cvoid, (global_variable,), gv)
 end
@@ -1531,10 +1524,6 @@ end
 
 function pseudo_inverse(matrix, B, m, n)
     ccall((:pseudo_inverse, libMAGEMin), Cvoid, (Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint), matrix, B, m, n)
-end
-
-function get_max_n_pc(tot_pc, n_pc)
-    ccall((:get_max_n_pc, libMAGEMin), Cint, (Cint, Cint), tot_pc, n_pc)
 end
 
 function get_act_sf(A, n)
@@ -1650,8 +1639,8 @@ function get_ss_id(gv, cp)
     ccall((:get_ss_id, libMAGEMin), global_variable, (global_variable, Ptr{csd_phase_set}), gv, cp)
 end
 
-function wave_melt_correction(Kb_L, Kb_S, Ks_S, rhoL, rhoS, Vp0, Vs0, meltFrac, aspectRatio, V_cor)
-    ccall((:wave_melt_correction, libMAGEMin), Cvoid, (Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Ptr{Cdouble}), Kb_L, Kb_S, Ks_S, rhoL, rhoS, Vp0, Vs0, meltFrac, aspectRatio, V_cor)
+function wave_melt_correction(Kb_L, Kb_S, Ks_S, rhoL, rhoS, Vp0, Vs0, meltFrac, solFrac, aspectRatio, V_cor)
+    ccall((:wave_melt_correction, libMAGEMin), Cvoid, (Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Ptr{Cdouble}), Kb_L, Kb_S, Ks_S, rhoL, rhoS, Vp0, Vs0, meltFrac, solFrac, aspectRatio, V_cor)
 end
 
 function anelastic_correction(water, Vs0, P, T)
@@ -1699,6 +1688,8 @@ const ko_optional_argument = 2
 #
 
 
+
+
 struct SS_data
     f::Cdouble
     G::Cdouble
@@ -1716,6 +1707,7 @@ struct SS_data
     compVariables::Vector{Cdouble}
     emNames::Vector{String}
     emFrac::Vector{Cdouble}
+    emFrac_wt::Vector{Cdouble}
     emChemPot::Vector{Cdouble}
     emComp::Vector{Vector{Float64}}
     emComp_wt::Vector{Vector{Float64}}
@@ -1730,6 +1722,7 @@ function Base.convert(::Type{SS_data}, a::stb_SS_phases)
                                     unsafe_wrap( Vector{Cdouble},        a.compVariables,    a.n_xeos),
                     unsafe_string.( unsafe_wrap( Vector{Ptr{Int8}},      a.emNames,          a.n_em)),
                                     unsafe_wrap( Vector{Cdouble},        a.emFrac,           a.n_em),
+                                    unsafe_wrap( Vector{Cdouble},        a.emFrac_wt,        a.n_em),
                                     unsafe_wrap( Vector{Cdouble},        a.emChemPot,        a.n_em),
       unsafe_wrap.(Vector{Cdouble}, unsafe_wrap( Vector{Ptr{Cdouble}},   a.emComp, a.n_em),  a.nOx),
       unsafe_wrap.(Vector{Cdouble}, unsafe_wrap( Vector{Ptr{Cdouble}},   a.emComp_wt, a.n_em),  a.nOx)   )

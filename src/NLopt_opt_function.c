@@ -1182,14 +1182,6 @@ void spn_c(unsigned m, double *result, unsigned n, const double *x, double *grad
         grad[67] = 0.0;
         grad[68] = 0.0;
         grad[69] = 0.0;
-
-        // int k = 0;
-        // for (int i = 0; i < d->n_sf; i++){
-        //   for (int j = 0; j < d->n_xeos; j++){
-        //     grad[k] *= d->z_sf[i];
-        //     k       += 1;
-        //   }
-        // }
     }
 
     return;
@@ -1199,27 +1191,28 @@ void spn_c(unsigned m, double *result, unsigned n, const double *x, double *grad
   local minimization for biotite
 */
 void bi_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
-    result[0] = ( eps_sf + -x[2]*x[0] + x[2] + 2.0/3.0*x[4] - x[3]*x[0] + x[3] - x[0]*x[1] + x[0] + x[1] - 1.0);
-    result[1] = ( eps_sf +  x[2]*x[0] - 2.0/3.0*x[4] + x[3]*x[0] + x[0]*x[1] - x[0]);
-    result[2] = ( eps_sf + -x[2]);
-    result[3] = ( eps_sf + -x[3]);
-    result[4] = ( eps_sf + -x[1]);
-    result[5] = ( eps_sf + -1.0/3.0*x[4] + x[0] - 1.0);
-    result[6] = ( eps_sf + 1.0/3.0*x[4] - x[0]);
+    result[0] = ( eps_sf + -1.0*x[2]*x[0] + 1.0*x[2] + 2.0/3.0*x[4] - 1.0*x[3]*x[0] + 1.0*x[3] - 1.0*x[0]*x[1] + 1.0*x[0] + 1.0*x[1] - 1.0);
+    result[1] = ( eps_sf + 1.0*x[2]*x[0] - 2.0/3.0*x[4] + 1.0*x[3]*x[0] + 1.0*x[0]*x[1] - 1.0*x[0]);
+    result[2] = ( eps_sf + -1.0*x[2]);
+    result[3] = ( eps_sf + -1.0*x[3]);
+    result[4] = ( eps_sf + -1.0*x[1]);
+    result[5] = ( eps_sf + -1.0/3.0*x[4] + 1.0*x[0] - 1.0);
+    result[6] = ( eps_sf + 1.0/3.0*x[4] - 1.0*x[0]);
     result[7] = ( eps_sf + 0.5*x[2] + 0.5*x[1] - 0.5);
     result[8] = ( eps_sf + -0.5*x[2] - 0.5*x[1] - 0.5);
-    result[9] = ( eps_sf + x[3] - 1.0);
+    result[9] = ( eps_sf + 1.0*x[3] - 1.0);
+    result[10] = ( eps_sf + -1.0*x[3]);
 
     if (grad) {
-        grad[0] = -x[2] - x[3] - x[1] + 1.0;
-        grad[1] = 1.0 - x[0];
-        grad[2] = 1.0 - x[0];
-        grad[3] = 1.0 - x[0];
+        grad[0] = -1.0*x[2] - 1.0*x[3] - 1.0*x[1] + 1.0;
+        grad[1] = 1.0 - 1.0*x[0];
+        grad[2] = 1.0 - 1.0*x[0];
+        grad[3] = 1.0 - 1.0*x[0];
         grad[4] = 2.0/3.0;
-        grad[5] = x[2] + x[3] + x[1] - 1.0;
-        grad[6] = x[0];
-        grad[7] = x[0];
-        grad[8] = x[0];
+        grad[5] = 1.0*x[2] + 1.0*x[3] + 1.0*x[1] - 1.0;
+        grad[6] = 1.0*x[0];
+        grad[7] = 1.0*x[0];
+        grad[8] = 1.0*x[0];
         grad[9] = -2.0/3.0;
         grad[10] = 0.0;
         grad[11] = 0.0;
@@ -1247,13 +1240,13 @@ void bi_c(unsigned m, double *result, unsigned n, const double *x, double *grad,
         grad[33] = 0.0;
         grad[34] = 1.0/3.0;
         grad[35] = 0.0;
-        grad[36] = 0.50;
-        grad[37] = 0.50;
+        grad[36] = 0.5;
+        grad[37] = 0.5;
         grad[38] = 0.0;
         grad[39] = 0.0;
         grad[40] = 0.0;
-        grad[41] = -0.50;
-        grad[42] = -0.50;
+        grad[41] = -0.5;
+        grad[42] = -0.5;
         grad[43] = 0.0;
         grad[44] = 0.0;
         grad[45] = 0.0;
@@ -1261,6 +1254,11 @@ void bi_c(unsigned m, double *result, unsigned n, const double *x, double *grad,
         grad[47] = 0.0;
         grad[48] = 1.0;
         grad[49] = 0.0;
+        grad[50] = 0.0;
+        grad[51] = 0.0;
+        grad[52] = 0.0;
+        grad[53] = -1.0;
+        grad[54] = 0.0;
     }
 
     return;
@@ -1291,11 +1289,11 @@ void cd_c(unsigned m, double *result, unsigned n, const double *x, double *grad,
 
 typedef struct global_min_datas {
 	global_variable 	 gv; 
-	bulk_info 	 z_b;
-	obj_type 			*SS_objective;
-	sf_type 			*SS_sf;
-	PP_ref 				*PP_ref_db;
-	SS_ref 				*SS_ref_db;
+	bulk_info 	       z_b;
+	obj_type 			    *SS_objective;
+	sf_type 			    *SS_sf;
+	PP_ref 				    *PP_ref_db;
+	SS_ref 				    *SS_ref_db;
 	csd_phase_set  		*cp;
 	
 } global_min_data;

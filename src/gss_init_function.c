@@ -58,7 +58,6 @@ csd_phase_set CP_INIT_function(csd_phase_set cp, global_variable gv){
 	cp.p_em   		= malloc (n  * sizeof (double) 		);
 	cp.xi_em  		= malloc (n  * sizeof (double) 		);
 	cp.dguess 		= malloc (n  * sizeof (double) 		);
-	cp.xeos_0 		= malloc (n  * sizeof (double) 		);
 	cp.xeos   		= malloc (n  * sizeof (double) 		);
 	cp.delta_mu		= malloc (n  * sizeof (double) 		);
 	cp.dfx   		= malloc (n  * sizeof (double) 		);
@@ -119,6 +118,7 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 		sp.SS[n].Comp_wt 		= malloc(gv.len_ox 	* sizeof(double)		);
 		sp.SS[n].compVariables	= malloc(gv.len_ox 	* sizeof(double)		);
 		sp.SS[n].emFrac			= malloc((gv.len_ox+1) * sizeof(double)		);
+		sp.SS[n].emFrac_wt		= malloc((gv.len_ox+1) * sizeof(double)		);
 		sp.SS[n].emChemPot		= malloc((gv.len_ox+1) * sizeof(double)		);
 		sp.SS[n].emNames 	    = malloc((gv.len_ox+1) * sizeof(char*)		);
 		sp.SS[n].emComp 	    = malloc((gv.len_ox+1) * sizeof(double*)	);
@@ -144,7 +144,7 @@ SS_ref G_SS_bi_init_function(SS_ref SS_ref_db, int EM_database, global_variable 
 	
 	SS_ref_bi_db.is_liq    = 0;	
 	SS_ref_bi_db.symmetry  = 1;	
-	SS_ref_bi_db.n_sf      = 10;
+	SS_ref_bi_db.n_sf      = 11;
 	SS_ref_bi_db.n_em      = 6;
 	SS_ref_bi_db.n_w       = 15;
 	SS_ref_bi_db.n_xeos    = 5;
@@ -390,7 +390,11 @@ SS_ref G_SS_spn_init_function(SS_ref SS_ref_db, int EM_database, global_variable
 /**
   attributes the right solution phase to the solution phase array
 */
-SS_ref G_SS_INIT_EM_function(SS_ref SS_ref_db, int EM_database, char *name, global_variable gv){
+SS_ref G_SS_INIT_EM_function(		int			 		 ph_id,
+									SS_ref 		 		 SS_ref_db, 
+									int 		 		 EM_database, 
+									char 				*name, 
+									global_variable 	 gv					){
 								  
 	/** if (EM_database == _tc_ds633_) { **/	
 	//"bi","cd","cpx","ep","fl","g","hb","ilm","liq","mu","ol","opx","pl4T","spn"	
@@ -513,11 +517,11 @@ SS_ref G_SS_INIT_EM_function(SS_ref SS_ref_db, int EM_database, char *name, glob
 	/**
 		Allocate memory for levelling pseudocompounds 
 	*/
-	SS_ref_db.n_pc   	= gv.n_pc;								/** maximum number of pseudocompounds to store */
+	// SS_ref_db.n_pc   	= gv.n_pc;
+	SS_ref_db.n_pc   	= gv.n_SS_PC[ph_id];
 	SS_ref_db.G_pc   	= malloc ((SS_ref_db.n_pc) * sizeof (double) ); 
 	SS_ref_db.DF_pc 	= malloc ((SS_ref_db.n_pc) * sizeof (double) ); 
 	SS_ref_db.factor_pc = malloc ((SS_ref_db.n_pc) * sizeof (double) ); 
-	SS_ref_db.n_swap 	= malloc ((SS_ref_db.n_pc) * sizeof (int) 	 ); 
 	SS_ref_db.info  	= malloc ((SS_ref_db.n_pc) * sizeof (int) 	 ); 
 	SS_ref_db.p_pc 		= malloc ((SS_ref_db.n_pc) * sizeof (double*)); 
 	SS_ref_db.mu_pc 	= malloc ((SS_ref_db.n_pc) * sizeof (double*)); 
@@ -542,7 +546,6 @@ SS_ref G_SS_INIT_EM_function(SS_ref SS_ref_db, int EM_database, char *name, glob
 	SS_ref_db.G_Ppc   	= malloc ((SS_ref_db.n_Ppc) * sizeof (double) ); 
 	SS_ref_db.DF_Ppc 	= malloc ((SS_ref_db.n_Ppc) * sizeof (double) ); 
 	SS_ref_db.factor_Ppc= malloc ((SS_ref_db.n_Ppc) * sizeof (double) ); 
-	SS_ref_db.n_swap_Ppc= malloc ((SS_ref_db.n_Ppc) * sizeof (int) 	 ); 
 	SS_ref_db.info_Ppc 	= malloc ((SS_ref_db.n_Ppc) * sizeof (int) 	 ); 
 	SS_ref_db.p_Ppc 	= malloc ((SS_ref_db.n_Ppc) * sizeof (double*)); 
 	SS_ref_db.mu_Ppc 	= malloc ((SS_ref_db.n_Ppc) * sizeof (double*)); 
@@ -559,7 +562,6 @@ SS_ref G_SS_INIT_EM_function(SS_ref SS_ref_db, int EM_database, char *name, glob
 	for (int i = 0; i < (SS_ref_db.n_Ppc); i++){
 		SS_ref_db.xeos_Ppc[i] = malloc ((n_xeos)  * sizeof (double) 	);
 	}	
-
 
 	/* initiliazes eye matrix as there is no need to redo it afterward */
 	for (int i = 0; i < n_em; i++){

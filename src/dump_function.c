@@ -101,7 +101,9 @@ void fill_output_struct(		global_variable 	 gv,
 ){
 	double G = 0.0;
 	double sum;
-
+	double sum_wt;
+	double sum_em_wt;
+	double sum_ph_mass;
 
 	double sum_Molar_mass_bulk;
 	double atp2wt;
@@ -200,20 +202,27 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].SS[m].n_em 	 = cp[i].n_em;
 
 			/* solution phase composition */
-			sum = 0.0;
+			sum_wt = 0.0;
 			for (j = 0; j < gv.len_ox; j++){
 				sp[0].SS[m].Comp[j]				= cp[i].ss_comp[j]*cp[i].factor;
 				sp[0].SS[m].Comp_wt[j]			= sp[0].SS[m].Comp[j]*z_b.masspo[j];
-				sum 						   += sp[0].SS[m].Comp_wt[j];
+				sum_wt 						   += sp[0].SS[m].Comp_wt[j];
 			}
 			for (j = 0; j < gv.len_ox; j++){
-				sp[0].SS[m].Comp_wt[j]		   /= sum;
+				sp[0].SS[m].Comp_wt[j]		   /= sum_wt;
 			}
 	
 			for (j = 0; j < cp[i].n_xeos; j++){	
 				sp[0].SS[m].compVariables[j] 	= cp[i].xeos[j];
 			}
+			sum_ph_mass = 0.0;
 			for (j = 0; j < cp[i].n_em; j++){
+				sum_em_wt = 0.0;
+				for (k = 0; k < gv.len_ox; k++){
+					sum_em_wt += SS_ref_db[cp[i].id].Comp[j][k]*cp[i].p_em[j]*z_b.masspo[k];
+				}
+				sp[0].SS[m].emFrac_wt[j] 		= sum_em_wt/sum_wt;
+				sum_ph_mass					   += sp[0].SS[m].emFrac_wt[j];
 				strcpy(sp[0].SS[m].emNames[j],SS_ref_db[cp[i].id].EM_list[j]);	
 				sp[0].SS[m].emFrac[j] 			= cp[i].p_em[j];
 				sp[0].SS[m].emChemPot[j] 		= cp[i].mu[j];
@@ -227,6 +236,10 @@ void fill_output_struct(		global_variable 	 gv,
 				for (k = 0; k < gv.len_ox; k++){
 					sp[0].SS[m].emComp_wt[j][k]/= sum;
 				}
+			}
+			for (j = 0; j < cp[i].n_em; j++){
+				sp[0].SS[m].emFrac_wt[j] 	   /= sum_ph_mass;
+
 			}
 
 			if (strcmp( cp[i].name, "liq") == 0 || strcmp( cp[i].name, "fl") == 0 ){
@@ -358,6 +371,12 @@ void fill_output_struct(		global_variable 	 gv,
 				printf(" %+10f", sp[0].SS[m].Comp_wt[j]);
 			}
 			printf("\n");
+
+			for (int k = 0; k < sp[0].SS[m].n_em; k++){
+				printf(" %+10f",sp[0].SS[m].emFrac_wt[k]);
+			}
+			printf("\n");
+
 		}
 		n = 0;
 		for (int m = gv.n_cp_phase; m < gv.n_phase; m++){
@@ -394,7 +413,7 @@ void fill_output_struct(		global_variable 	 gv,
   Save final result of minimization
 */
 void dump_results_function(		global_variable 	 gv,
-								bulk_info 	 z_b,
+								bulk_info 	 		 z_b,
 
 								PP_ref 				*PP_ref_db,
 								SS_ref 				*SS_ref_db,
@@ -620,8 +639,12 @@ void dump_results_function(		global_variable 	 gv,
 			fprintf(loc_min," %0.10f", gv.gam_tot[i]);
 		}
 
-		// fprintf(loc_min, " %.10f %.10f",gv.system_Vp,gv.system_Vs);
-		fprintf(loc_min, " %.10f %.10f",gv.V_cor[0],gv.V_cor[1]);
+		// fprintf(loc_min, " %.10f %.10f",gv.V_cor[0],gv.V_cor[1]);
+		fprintf(loc_min, " %.10f %.10f",gv.system_Vp,gv.system_Vs);
+		fprintf(loc_min, " %.10f %.10f",gv.solid_Vp,gv.solid_Vs);
+		fprintf(loc_min, " %.10f %.10f",gv.melt_density,gv.solid_density);
+		fprintf(loc_min, " %.10f %.10f",gv.melt_bulkModulus,gv.solid_bulkModulus);
+		fprintf(loc_min, " %.10f %.10f",gv.melt_fraction,gv.solid_shearModulus);
 		fprintf(loc_min, "\n");
 		for (int i = 0; i < gv.len_cp; i++){ 
 			if (cp[i].ss_flags[1] == 1){

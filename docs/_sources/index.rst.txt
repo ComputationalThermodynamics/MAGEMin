@@ -10,14 +10,16 @@
 
 |
 
-Mineral Assemblage Gibbs Energy Minimization (MAGEMin)		  
-======================================================
+**MAGEMin v1.2.0**
+==================
                                           
-MAGEMin is written as a parallel C library callable from any petrological/geodynamic tool. For a given set of pressure, temperature and bulk-rock composition MAGEMin uses a combination of linear programming, extended Partitioning Gibbs free Energy and gradient-based local minimization to compute the most stable mineral assemblage     
-      
+MAGEMin (Mineral Assemblage Gibbs Energy Minimization) is written as a parallel C library callable from any petrological/geodynamic tool. For a given set of pressure, temperature and bulk-rock composition MAGEMin uses a combination of linear programming, extended Partitioning Gibbs free Energy and gradient-based local minimization to compute the most stable mineral assemblage     
+ 
+|
+     
 Available thermodynamic dataset                       
 ================================
- 
+
 Igneous thermodynamic dataset
 *****************************
                     

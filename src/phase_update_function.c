@@ -117,8 +117,6 @@ global_variable check_PC(					bulk_info 	 z_b,
 	double  df_candidate[n_candidate];
 	int     id_c;
 
-
-
 	for (i = 0; i < gv.len_ss; i++){
 		min_df    =  1e6;					// high starting value as it is expected to go down
 		phase_add =  0;
@@ -131,10 +129,7 @@ global_variable check_PC(					bulk_info 	 z_b,
 		}
 
 		if (SS_ref_db[i].ss_flags[0] == 1  && gv.verifyPC[i] == 1){
-			
-			max_n_pc  = ((SS_ref_db[i].tot_pc >= SS_ref_db[i].n_pc) ? (SS_ref_db[i].n_pc) : (SS_ref_db[i].tot_pc));
-			
-			for (l = 0; l < max_n_pc; l++){
+			for (l = 0; l < SS_ref_db[i].tot_pc; l++){
 
 				dist =  1;
 				if (gv.n_solvi[i] > 0){
@@ -143,6 +138,7 @@ global_variable check_PC(					bulk_info 	 z_b,
 						ph = SS_ref_db[i].solvus_id[k];
 
 						xeos_dist = euclidean_distance(cp[ph].xeos, SS_ref_db[i].xeos_pc[l], SS_ref_db[i].n_xeos);
+
 						if (xeos_dist < gv.PC_min_dist*gv.SS_PC_stp[i]*sqrt((double)SS_ref_db[i].n_xeos) ){
 							 dist = 0;
 						} 
@@ -170,6 +166,7 @@ global_variable check_PC(					bulk_info 	 z_b,
 			if (id_c == -1){ id_c = n_candidate-1;}
 
 			for (int c = 0; c < n_candidate; c++){
+
 				if (id_c == n_candidate){ id_c = 0;}
 
 				if (df_candidate[id_c] < gv.PC_df_add && pc_candidate[id_c] != -1){
@@ -301,9 +298,8 @@ global_variable check_PC_driving_force(		bulk_info 	 z_b,
 		if (SS_ref_db[i].ss_flags[0] == 1){
 				
 			n_em 	 = SS_ref_db[i].n_em;
-			max_n_pc = ((SS_ref_db[i].tot_pc >= SS_ref_db[i].n_pc) ? (SS_ref_db[i].n_pc) : (SS_ref_db[i].tot_pc));
-			
-			for (int l = 0; l < max_n_pc; l++){
+
+			for (int l = 0; l < SS_ref_db[i].tot_pc; l++){
 				SS_ref_db[i].DF_pc[l] = SS_ref_db[i].G_pc[l];
 				for (int j = 0; j < gv.len_ox; j++) {
 					SS_ref_db[i].DF_pc[l] -= SS_ref_db[i].comp_pc[l][j]*gv.gam_tot[j];
@@ -345,7 +341,7 @@ global_variable phase_merge_function(		bulk_info 			z_b,
 		printf(" phase |  #cp > #cp | Euclidian distance\n");
 	}
 	
-	int phid, i, j, k, l, iss, phA, phB;
+	int ph_id, i, j, k, l, iss, phA, phB;
 	double distance;
 
 	/* reinitialize the number of SS instances */
@@ -355,10 +351,10 @@ global_variable phase_merge_function(		bulk_info 			z_b,
 
 	/* get number of duplicated phases and their cp id */
 	for (i = 0; i < gv.len_cp; i++){
-		phid = cp[i].id;
+		ph_id = cp[i].id;
 		if (cp[i].ss_flags[0] == 1 ){
-			SS_ref_db[phid].solvus_id[gv.n_solvi[phid]] = i;
-			gv.n_solvi[phid] += 1;
+			SS_ref_db[ph_id].solvus_id[gv.n_solvi[ph_id]] = i;
+			gv.n_solvi[ph_id] += 1;
 		}
 	}
 
@@ -445,10 +441,10 @@ global_variable phase_merge_function(		bulk_info 			z_b,
 
 	/* get number of duplicated phases and their cp id */
 	for (i = 0; i < gv.len_cp; i++){
-		phid = cp[i].id;
+		ph_id = cp[i].id;
 		if (cp[i].ss_flags[0] == 1 ){
-			SS_ref_db[phid].solvus_id[gv.n_solvi[phid]] = i;
-			gv.n_solvi[phid] += 1;
+			SS_ref_db[ph_id].solvus_id[gv.n_solvi[ph_id]] = i;
+			gv.n_solvi[ph_id] += 1;
 		}
 	}
 	
@@ -654,58 +650,59 @@ global_variable phase_hold2act(		bulk_info 		z_b,
 					
 		/* list through pure phases ordered by increasing dG */
 		if (hld_pp_sort[i].value < 0.0){									/** if driving force is negative, phase can be potentially added to the system and decrease Gibbs */
-			//if (gv.ph_change == 0 ){										/** if phase can be potentially added to the system 									*/
-			if (gv.n_pp_phase > 0){											/** if a pure phase is already in the active set of phases 								*/
-				/* check if pure phase to add is a polymorph of one of active pure phase */
-				for (int k = 0; k < gv.len_pp; k++){
-					if (gv.pp_flags[k][1] == 1 ){							/** compare pure phase to add with pure phase in the active set 						*/
-						is_polymorph  = 0;
-						for (int l = 0; l < gv.len_ox; l++){
-							if (PP_ref_db[k].Comp[l] != PP_ref_db[ixp].Comp[l]){
-								is_polymorph = 1;
+			if (gv.ph_change == 0 ){										/** if phase can be potentially added to the system 									*/
+				if (gv.n_pp_phase > 0){											/** if a pure phase is already in the active set of phases 								*/
+					/* check if pure phase to add is a polymorph of one of active pure phase */
+					for (int k = 0; k < gv.len_pp; k++){
+						if (gv.pp_flags[k][1] == 1 ){							/** compare pure phase to add with pure phase in the active set 						*/
+							is_polymorph  = 0;
+							for (int l = 0; l < gv.len_ox; l++){
+								if (PP_ref_db[k].Comp[l] != PP_ref_db[ixp].Comp[l]){
+									is_polymorph = 1;
+									break;
+								}
+							}
+							if (is_polymorph == 0){
+								id_polymorph  = k;
 								break;
 							}
-						}
-						if (is_polymorph == 0){
-							id_polymorph  = k;
-							break;
-						}
-					}						
-				}
-				
-				if (is_polymorph != 0){									/** if the pure phase to add is not a polymorph to an active phase, then just add it 	*/
-					gv.pp_flags[ixp][1]  = 1;							/** set to active 																		*/
-					gv.pp_flags[ixp][2]  = 0;							/** reset hold 																			*/
-					gv.pp_n[ixp]         = gv.re_in_n;					/** set initial fraction 																*/
-					gv.n_pp_phase    	+= 1;							/** set new number of active PP 														*/
-					gv.n_phase      	+= 1;							/** set new number of total active phases 												*/
-					gv.ph_change 		 = 1;							/** a phase change has been achieved during the iteration 								*/
-				}
-				else{
-					if (PP_ref_db[ixp].gb_lvl < PP_ref_db[id_polymorph].gb_lvl){
-						gv.pp_flags[ixp][1]  = 1;						/** set to active 																		*/
-						gv.pp_flags[ixp][2]  = 0;						/** reset hold 																			*/
-						gv.pp_n[ixp]         = gv.pp_n[id_polymorph];	/** set initial fraction to initial polymorph 											*/
-						gv.pp_flags[id_polymorph][1]          = 0;		/** set initial polymorph to inactive 													*/
-						gv.pp_flags[id_polymorph][2]          = 0;		/** reset hold 																			*/
-						gv.pp_flags[id_polymorph][3]          = 1;		/** remove initial polymorph 															*/
-						gv.pp_n[id_polymorph]                 = 0.0;	/** reset initial polymorph fraction to 0.0 											*/
-						gv.ph_change 						  = 1;		/** a phase change has been achieved during the iteration 								*/
+						}						
+					}
+					
+					if (is_polymorph != 0){									/** if the pure phase to add is not a polymorph to an active phase, then just add it 	*/
+						gv.pp_flags[ixp][1]  = 1;							/** set to active 																		*/
+						gv.pp_flags[ixp][2]  = 0;							/** reset hold 																			*/
+						gv.pp_n[ixp]         = gv.re_in_n;					/** set initial fraction 																*/
+						gv.n_pp_phase    	+= 1;							/** set new number of active PP 														*/
+						gv.n_phase      	+= 1;							/** set new number of total active phases 												*/
+						gv.ph_change 		 = 1;							/** a phase change has been achieved during the iteration 								*/
 					}
 					else{
-						gv.pp_flags[ixp][1]  = 0;						/** set to inactive 																	*/
-						gv.pp_flags[ixp][2]  = 0;						/** reset hold 																			*/
-						gv.pp_flags[ixp][3]  = 1;						/** remove initial polymorph 															*/
-					}
-				}	
-			}
-			else{														/** if no pure phase are in the active set of phases 									*/
-				gv.pp_flags[ixp][1]  = 1;								/** set to active 																		*/
-				gv.pp_flags[ixp][2]  = 0;								/** reset hold 																			*/
-				gv.pp_n[ixp]         = gv.re_in_n;						/** set initial fraction 																*/
-				gv.n_pp_phase    	+= 1;								/** set new number of active PP 														*/
-				gv.n_phase      	+= 1;								/** set new number of total active phases 												*/
-				gv.ph_change 		 = 1;								/** a phase change has been achieved during the iteration 								*/
+						if (PP_ref_db[ixp].gb_lvl < PP_ref_db[id_polymorph].gb_lvl){
+							gv.pp_flags[ixp][1]  = 1;						/** set to active 																		*/
+							gv.pp_flags[ixp][2]  = 0;						/** reset hold 																			*/
+							gv.pp_n[ixp]         = gv.pp_n[id_polymorph];	/** set initial fraction to initial polymorph 											*/
+							gv.pp_flags[id_polymorph][1]          = 0;		/** set initial polymorph to inactive 													*/
+							gv.pp_flags[id_polymorph][2]          = 0;		/** reset hold 																			*/
+							gv.pp_flags[id_polymorph][3]          = 1;		/** remove initial polymorph 															*/
+							gv.pp_n[id_polymorph]                 = 0.0;	/** reset initial polymorph fraction to 0.0 											*/
+							gv.ph_change 						  = 1;		/** a phase change has been achieved during the iteration 								*/
+						}
+						else{
+							gv.pp_flags[ixp][1]  = 0;						/** set to inactive 																	*/
+							gv.pp_flags[ixp][2]  = 0;						/** reset hold 																			*/
+							gv.pp_flags[ixp][3]  = 1;						/** remove initial polymorph 															*/
+						}
+					}	
+				}
+				else{														/** if no pure phase are in the active set of phases 									*/
+					gv.pp_flags[ixp][1]  = 1;								/** set to active 																		*/
+					gv.pp_flags[ixp][2]  = 0;								/** reset hold 																			*/
+					gv.pp_n[ixp]         = gv.re_in_n;						/** set initial fraction 																*/
+					gv.n_pp_phase    	+= 1;								/** set new number of active PP 														*/
+					gv.n_phase      	+= 1;								/** set new number of total active phases 												*/
+					gv.ph_change 		 = 1;								/** a phase change has been achieved during the iteration 								*/
+				}
 			}
 		}
 	}

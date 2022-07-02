@@ -347,7 +347,7 @@ void swap_pseudocompounds(				bulk_info 	 		 z_b,
 	for (int i = 0; i < gv.len_ss; i++){										/**loop to pass informations from active endmembers */
 		if (SS_ref_db[i].ss_flags[0] == 1){
 
-			max_n_pc = get_max_n_pc(SS_ref_db[i].tot_pc, SS_ref_db[i].n_pc);
+			max_n_pc = SS_ref_db[i].tot_pc;
 
 			for (int l = 0; l < max_n_pc; l++){
 
@@ -369,7 +369,6 @@ void swap_pseudocompounds(				bulk_info 	 		 z_b,
 				
 				/** swap phase */
 				if (d->ph2swp != -1){													/** if the phase can be added */
-					SS_ref_db[i].n_swap[l]   = d->n_swp;
 					d->swp 				 	 = 1;
 					d->n_swp 				+= 1;
 					d->ph_id_A[d->ph2swp][0] = d->ph_id_B[0];
@@ -417,7 +416,7 @@ void swap_PGE_pseudocompounds(			bulk_info 	 		 z_b,
 	for (int i = 0; i < gv.len_ss; i++){										/**loop to pass informations from active endmembers */
 		if (SS_ref_db[i].ss_flags[0] == 1){
 
-			max_n_Ppc = get_max_n_pc(SS_ref_db[i].tot_Ppc, SS_ref_db[i].n_Ppc);
+			max_n_Ppc = SS_ref_db[i].tot_Ppc;
 
 			for (int l = 0; l < max_n_Ppc; l++){
 
@@ -439,7 +438,6 @@ void swap_PGE_pseudocompounds(			bulk_info 	 		 z_b,
 				
 				/** swap phase */
 				if (d->ph2swp != -1){													/** if the phase can be added */
-					SS_ref_db[i].n_swap[l]   = d->n_swp;
 					d->swp 				 	 = 1;
 					d->n_swp 				+= 1;
 					d->ph_id_A[d->ph2swp][0] = d->ph_id_B[0];
@@ -514,7 +512,7 @@ void print_levelling(		bulk_info 	 		 z_b,
 	for (int i = 0; i < gv.len_ss; i++){
 
 		int n_em = SS_ref_db[i].n_em;
-		max_n_pc = get_max_n_pc(SS_ref_db[i].tot_pc, SS_ref_db[i].n_pc);	
+		max_n_pc = SS_ref_db[i].tot_pc;	
 
 		for (int l = 0; l < max_n_pc; l++){
 			SS_ref_db[i].DF_pc[l] = SS_ref_db[i].G_pc[l];
@@ -523,7 +521,7 @@ void print_levelling(		bulk_info 	 		 z_b,
 			}
 			
 			// if (SS_ref_db[i].DF_pc[l] < 1.0){
-				printf(" %4s %04d  #swap: %04d #stage %04d | ",gv.SS_list[i],l,SS_ref_db[i].n_swap[l],SS_ref_db[i].info[l]);
+				printf(" %4s %04d #stage %04d | ",gv.SS_list[i],l,SS_ref_db[i].info[l]);
 				printf("DF: %+4f | ", SS_ref_db[i].DF_pc[l]);
 				//for (int j = 0; j < SS_ref_db[i].n_xeos; j++){
 					//printf(" %+4f",SS_ref_db[i].xeos_pc[l][j]);
@@ -590,43 +588,39 @@ void generate_pseudocompounds(	int 		 		 ss,
 		/** store pseudocompound */
 		if ( G < gv.max_G_pc ){
 
-			swp     = 0;
-			while (swp == 0){
+			/* get composition of solution phase */
+			for (j = 0; j < nEl; j++){
+				SS_ref_db[ss].ss_comp[j] = 0.0;
+				for (i = 0; i < SS_ref_db[ss].n_em; i++){
+					SS_ref_db[ss].ss_comp[j] += SS_ref_db[ss].Comp[i][j]*SS_ref_db[ss].p[i]*SS_ref_db[ss].z_em[i];
+				} 
+			}
 
-				/* get composition of solution phase */
-				for (j = 0; j < nEl; j++){
-					SS_ref_db[ss].ss_comp[j] = 0.0;
-					for (i = 0; i < SS_ref_db[ss].n_em; i++){
-						SS_ref_db[ss].ss_comp[j] += SS_ref_db[ss].Comp[i][j]*SS_ref_db[ss].p[i]*SS_ref_db[ss].z_em[i];
-					} 
-				}
-
-				if (SS_ref_db[ss].id_pc >= SS_ref_db[ss].n_pc){ SS_ref_db[ss].id_pc = 0; printf("MAXIMUM STORAGE SPACE FOR PC IS REACHED, INCREASED #PC_MAX\n");}
-				m_pc = SS_ref_db[ss].id_pc;
-				SS_ref_db[ss].info[m_pc]      = 0;
-				SS_ref_db[ss].factor_pc[m_pc] = SS_ref_db[ss].factor;
-				SS_ref_db[ss].DF_pc[m_pc]     = G;
-				
-				/* get pseudocompound composition */
-				for ( j = 0; j < gv.len_ox; j++){				
-					SS_ref_db[ss].comp_pc[m_pc][j] = SS_ref_db[ss].ss_comp[j]*SS_ref_db[ss].factor;	/** composition */
-				}
-				for ( j = 0; j < SS_ref_db[ss].n_em; j++){												/** save coordinates */
-					SS_ref_db[ss].p_pc[m_pc][j]  = SS_ref_db[ss].p[j];												
-					SS_ref_db[ss].mu_pc[m_pc][j] = SS_ref_db[ss].mu[j]*SS_ref_db[ss].z_em[j];										
-				}
-				/* save xeos */
-				for ( j = 0; j < SS_ref_db[ss].n_xeos; j++){		
-					SS_ref_db[ss].xeos_pc[m_pc][j] = get_ss_pv.xeos_pc[j];							/** compositional variables */
-				}	
-				
-				SS_ref_db[ss].G_pc[m_pc] = G;
-				
-				/* add increment to the number of considered phases */
-				SS_ref_db[ss].tot_pc += 1;
-				SS_ref_db[ss].id_pc  += 1;
-				swp = 1;	
+			// if (SS_ref_db[ss].id_pc >= SS_ref_db[ss].n_pc){ SS_ref_db[ss].id_pc = 0; printf("MAXIMUM STORAGE SPACE FOR PC IS REACHED, INCREASED #PC_MAX\n");}
+			m_pc = SS_ref_db[ss].id_pc;
+			SS_ref_db[ss].info[m_pc]      = 0;
+			SS_ref_db[ss].factor_pc[m_pc] = SS_ref_db[ss].factor;
+			SS_ref_db[ss].DF_pc[m_pc]     = G;
+			
+			/* get pseudocompound composition */
+			for ( j = 0; j < gv.len_ox; j++){				
+				SS_ref_db[ss].comp_pc[m_pc][j] = SS_ref_db[ss].ss_comp[j]*SS_ref_db[ss].factor;	/** composition */
+			}
+			for ( j = 0; j < SS_ref_db[ss].n_em; j++){												/** save coordinates */
+				SS_ref_db[ss].p_pc[m_pc][j]  = SS_ref_db[ss].p[j];												
+				SS_ref_db[ss].mu_pc[m_pc][j] = SS_ref_db[ss].mu[j]*SS_ref_db[ss].z_em[j];										
+			}
+			/* save xeos */
+			for ( j = 0; j < SS_ref_db[ss].n_xeos; j++){		
+				SS_ref_db[ss].xeos_pc[m_pc][j] = get_ss_pv.xeos_pc[j];							/** compositional variables */
 			}	
+			
+			SS_ref_db[ss].G_pc[m_pc] = G;
+			
+			/* add increment to the number of considered phases */
+			SS_ref_db[ss].tot_pc += 1;
+			SS_ref_db[ss].id_pc  += 1;
+
 		}
 	}
 }
@@ -644,7 +638,7 @@ void reduce_ss_list( SS_ref 			*SS_ref_db,
 		if (SS_ref_db[iss].ss_flags[0] == 1){
 			phase_on = 0;
 			
-			max_n_pc = get_max_n_pc(SS_ref_db[iss].tot_pc, SS_ref_db[iss].n_pc);
+			max_n_pc = SS_ref_db[iss].tot_pc;
 			
 			for (int l = 0; l < max_n_pc; l++){
 				/* if the driving force of the pseudocompound is lower to the filter then consider it */
@@ -875,7 +869,7 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 		if (phase_on[i] == 0 && SS_ref_db[i].ss_flags[0] == 1){
 			pc_id	 = -1;
 			pc_df 	 = 1e6;
-			max_n_pc = get_max_n_pc(SS_ref_db[i].tot_pc, SS_ref_db[i].n_pc);
+			max_n_pc = SS_ref_db[i].tot_pc;
 			
 			for (int l = 0; l < max_n_pc; l++){
 				if (SS_ref_db[i].DF_pc[l]*SS_ref_db[i].factor_pc[l] < pc_df){
@@ -1130,18 +1124,28 @@ void destroy_simplex_A(		simplex_data *splx_data
     for (int i = 0; i < d->n_Ox; i++){
 		free(d->ph_id_A[i]);
 	}
-	free(d->A);
-	free(d->pivot);
-	free(d->A1);
 	free(d->ph_id_A);
+
+	free(d->A);
+	free(d->A1);
+	free(d->Alu);
+
+	free(d->pivot);
+
 	free(d->g0_A);
 	free(d->dG_A);
+	
 	free(d->n_vec);
+
 	free(d->gamma_ps);
 	free(d->gamma_ss);
 	free(d->gamma_tot);
 	free(d->gamma_delta);
+
+	free(d->stage);
 };
+
+
 
 /**
   function to deallocte memory of simplex linear programming (B)

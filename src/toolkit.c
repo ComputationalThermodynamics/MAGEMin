@@ -127,7 +127,7 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 
 	/* transform bulk from wt% to mol% for minimiation */
 	if (strcmp( sys_in, "wt") == 0){	
-		for (int i = 0; i < gv.len_ox; i++){ bulk_rock[i] *= z_b.masspo[i];}
+		for (int i = 0; i < gv.len_ox; i++){ bulk_rock[i] /= z_b.masspo[i];}
 	}
 
 
@@ -166,12 +166,6 @@ void convert_system_comp(				global_variable      gv,
 
 };
 
-/**
-  Get the number of max_pc
-*/
-int get_max_n_pc(int tot_pc, int n_pc){
-	return ((tot_pc >= n_pc) ? (n_pc) : (tot_pc));
-};
 
 /* Normalize array to sum to 1 */
 double* norm_array(double *array, int size) {
@@ -989,62 +983,122 @@ global_variable get_ss_id(	global_variable  	 gv,
 	printf("\n");
 
 */
-void wave_melt_correction( 	 double  Kb_L,
-							 double  Kb_S,
-							 double  Ks_S,
-							 double  rhoL,
-							 double  rhoS,
-							 double  Vp0,
-							 double  Vs0,
-							 double  meltFrac,
-							 double  aspectRatio,
-							 double *V_cor		)
+global_variable wave_melt_correction( 	global_variable     gv,
+										bulk_info 			z_b,	
+										double  			aspectRatio		)
 {
-	double poisson = 0.25;
 
-    double aij[3][4] ={ {0.318, 6.780, 57.560, 0.182},
-						{0.164, 4.290, 26.658, 0.464},
-						{1.549, 4.814, 8.777, -0.290}   };
+	if (gv.melt_fraction > 0.0 && gv.V_cor[1] > 0.0){
+		double sum 	 =  gv.melt_fraction + gv.solid_fraction;
+		gv.solid_fraction		/= sum;
+		gv.melt_fraction	/= sum;
 
-    double bij[2][2] ={  {-0.3238, 0.2341},
-            			 {-0.1819, 0.5103}  			};
+		double poisson = 0.25;
 
-    double a[3];
-	double b[2];
+		double aij[3][4] ={ {0.318, 6.780, 57.560, 0.182},
+							{0.164, 4.290, 26.658, 0.464},
+							{1.549, 4.814, 8.777, -0.290}   };
 
-	for (int i = 0; i < 3; i++){
-		a[i] = aij[i][0]*exp( aij[i][1]*(poisson-0.25) + aij[i][2]*pow(poisson - 0.25,3.0) ) + aij[i][3];
+		double bij[2][2] ={  {-0.3238, 0.2341},
+							{-0.1819, 0.5103}  			};
+
+		double a[3];
+		double b[2];
+
+		for (int i = 0; i < 3; i++){
+			a[i] = aij[i][0]*exp( aij[i][1]*(poisson-0.25) + aij[i][2]*pow(poisson - 0.25,3.0) ) + aij[i][3];
+		}
+		for (int i = 0; i < 2; i++){
+			b[i] = bij[i][0]*poisson + bij[i][1];
+		}
+		
+		double nk      = a[0]*aspectRatio + a[1]*(1.0 - aspectRatio) + a[2]*aspectRatio*(1.0 - aspectRatio)*(0.5 - aspectRatio);
+		double nmu     = b[0]*aspectRatio + b[1]*(1.0 - aspectRatio);
+
+		double ksk_k   = pow(aspectRatio,nk);
+		double musk_mu = pow(aspectRatio,nmu);
+
+		double ksk     = ksk_k*gv.solid_bulkModulus;
+		double musk    = musk_mu*gv.solid_shearModulus;
+
+		double kb      = (1.0-gv.melt_fraction)*ksk;
+		double mu      = (1.0-gv.melt_fraction)*musk;
+
+		double LambdaK = gv.solid_bulkModulus/kb;
+		double LambdaG = gv.solid_shearModulus/mu;
+
+		double beta    = gv.solid_bulkModulus/gv.melt_bulkModulus;
+		double gamma   = gv.solid_shearModulus/gv.solid_bulkModulus;
+
+		double deltaVp = (((((beta -1.0)*LambdaK) / ((beta-1.0) + LambdaK) + 4.0/3.0*gamma*LambdaG ) / ( 1.0 + 4.0/3.0*gamma)) - (1.0 - gv.melt_density/gv.solid_density) )*(gv.melt_fraction/2.0);
+		double deltaVs = ( LambdaG - (1.0 - gv.melt_density/gv.solid_density) )*(gv.melt_fraction/2.0);
+
+		gv.V_cor[0] = gv.solid_Vp - deltaVp*gv.solid_Vp;
+		gv.V_cor[1] = gv.solid_Vs - deltaVs*gv.solid_Vs;
+
+		if (gv.V_cor[0] < 0.0){ gv.V_cor[0] = 0.0;}
+		if (gv.V_cor[1] < 0.0){ gv.V_cor[1] = 0.0;}
+
 	}
-	for (int i = 0; i < 2; i++){
-		b[i] = bij[i][0]*poisson + bij[i][1];
-	}
+
+
+	if (gv.melt_fraction == 0.0){
+		//aspect ratio has been choosen by hand to fit Vs = 2.0km/s at surface.
+		aspectRatio 				= 0.25;
+		double poisson 			 	= 0.25;
+
+		double depth_m 				= z_b.P*1e5/(2600.0*9.81);
+		double porosity_fraction 	= 0.474/pow(1.0+0.071*depth_m,5.989);
+
+		double solid_fraction    	= 1.0 - porosity_fraction;
+		double porosity_density  	= 1000.0;
+		double porosity_bulkModulus = 2.9;
+		double aij[3][4] ={ {0.318, 6.780, 57.560, 0.182},
+							{0.164, 4.290, 26.658, 0.464},
+							{1.549, 4.814, 8.777, -0.290}   };
+
+		double bij[2][2] ={  {-0.3238, 0.2341},
+							{-0.1819, 0.5103}  			};
+
+		double a[3];
+		double b[2];
+
+		for (int i = 0; i < 3; i++){
+			a[i] = aij[i][0]*exp( aij[i][1]*(poisson-0.25) + aij[i][2]*pow(poisson - 0.25,3.0) ) + aij[i][3];
+		}
+		for (int i = 0; i < 2; i++){
+			b[i] = bij[i][0]*poisson + bij[i][1];
+		}
 	
-    double nk      = a[0]*aspectRatio + a[1]*(1.0 - aspectRatio) + a[2]*aspectRatio*(1.0 - aspectRatio)*(0.5 - aspectRatio);
-    double nmu     = b[0]*aspectRatio + b[1]*(1.0 - aspectRatio);
+		double nk      = a[0]*aspectRatio + a[1]*(1.0 - aspectRatio) + a[2]*aspectRatio*(1.0 - aspectRatio)*(0.5 - aspectRatio);
+		double nmu     = b[0]*aspectRatio + b[1]*(1.0 - aspectRatio);
 
-    double ksk_k   = pow(aspectRatio,nk);
-    double musk_mu = pow(aspectRatio,nmu);
+		double ksk_k   = pow(aspectRatio,nk);
+		double musk_mu = pow(aspectRatio,nmu);
 
-    double ksk     = ksk_k*Kb_S;
-    double musk    = musk_mu*Ks_S;
+		double ksk     = ksk_k*gv.solid_bulkModulus;
+		double musk    = musk_mu*gv.solid_shearModulus;
 
-    double kb      = (1.0-meltFrac)*ksk;
-    double mu      = (1.0-meltFrac)*musk;
+		double kb      = (1.0-porosity_fraction)*ksk;
+		double mu      = (1.0-porosity_fraction)*musk;
 
-    double LambdaK = Kb_S/kb;
-    double LambdaG = Ks_S/mu;
+		double LambdaK = gv.solid_bulkModulus/kb;
+		double LambdaG = gv.solid_shearModulus/mu;
 
-    double beta    = Kb_S/Kb_L;
-    double gamma   = Ks_S/Kb_S;
+		double beta    = gv.solid_bulkModulus/porosity_bulkModulus;
+		double gamma   = gv.solid_shearModulus/gv.solid_bulkModulus;
 
-	double deltaVp = (((((beta -1.0)*LambdaK) / ((beta-1.0) + LambdaK) + 4.0/3.0*gamma*LambdaG ) / ( 1.0 + 4.0/3.0*gamma)) - (1.0 - rhoL/rhoS) )*(meltFrac/2.0);
-	double deltaVs = ( LambdaG - (1.0 - rhoL/rhoS) )*(meltFrac/2.0);
+		// double deltaVp = (((((beta -1.0)*LambdaK) / ((beta-1.0) + LambdaK) + 4.0/3.0*gamma*LambdaG ) / ( 1.0 + 4.0/3.0*gamma)) - (1.0 - porosity_density/gv.solid_density) )*(porosity_fraction/2.0);
+		double deltaVs = ( LambdaG - (1.0 - porosity_density/gv.solid_density) )*(porosity_fraction/2.0);
 
-    V_cor[0] = Vp0 - deltaVp*Vp0;
-    V_cor[1] = Vs0 - deltaVs*Vs0;
+		// gv.V_cor[0] = gv.solid_Vp - deltaVp*gv.solid_Vp;
+		gv.V_cor[1] = gv.solid_Vs - deltaVs*gv.solid_Vs;
 
-	if (V_cor[0] < 0.0){ V_cor[0] = 0.0;}
-	if (V_cor[1] < 0.0){ V_cor[1] = 0.0;}
+		// if (gv.V_cor[0] < 0.0){ gv.V_cor[0] = 0.0;}
+		if (gv.V_cor[1] < 0.0){ gv.V_cor[1] = 0.0;}	
+
+	}
+	return gv;
 
 }	
 

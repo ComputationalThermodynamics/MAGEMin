@@ -37,7 +37,6 @@ void 	pseudo_inverse(	double *matrix,
 						int m,
 						int n				);
 
-int 	get_max_n_pc(int tot_pc, int n_pc);
 int 	get_act_sf(double *A, int n);
 int 	get_active_em(double *array, int n);
 int 	EndsWithTail(char *name, char* tail);	
@@ -111,17 +110,10 @@ global_variable get_ss_id(			global_variable  	 gv,
 									csd_phase_set  		*cp								);
 
 /* Melt-fraction correction for P-wave and S-wave velocities */		
-void wave_melt_correction( 	 double  Kb_L,
-							 double  Kb_S,
-							 double  Ks_S,
-							 double  rhoL,
-							 double  rhoS,
-							 double  Vp0,
-							 double  Vs0,
-							 double  meltFrac,
-							 double  aspectRatio,
-							 double *V_cor												);
-
+global_variable wave_melt_correction( 	global_variable     gv,
+										bulk_info 			z_b,	
+										double  			aspectRatio					);
+										
 /* This routine computes a correction of P-wave and S-wave velocities using melt fraction reduction.  */
 double anelastic_correction( int 	 water,
 							 double  Vs0,
