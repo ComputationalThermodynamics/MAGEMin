@@ -36,6 +36,22 @@ dT      =   (Tmax-Tmin)/(nt-1);
 dP      =   (Pmax-Pmin)/(np-1);
 [T,P]   =   meshgrid(Tmin:dT:Tmax, Pmin:dP:Pmax);
 
+
+% retrieve data to be saved to disk
+PhaseData         =   PseudoSectionData.PhaseData;
+solid_Vp          =   zeros(length(PhaseData),1);
+solid_Vs          =   zeros(length(PhaseData),1);
+melt_bulkModulus  =   zeros(length(PhaseData),1);
+solid_bulkModulus =   zeros(length(PhaseData),1);
+solid_shearModulus=   zeros(length(PhaseData),1);
+for i=1:length(PhaseData)
+    solid_Vp(i)       =   PhaseData{i}.solid_Vp;
+    solid_Vs(i)       =   PhaseData{i}.solid_Vs;
+    melt_bulkModulus(i)  =   PhaseData{i}.melt_bulkModulus;
+    solid_bulkModulus(i) =   PhaseData{i}.solid_bulkModulus;
+    solid_shearModulus(i)=   PhaseData{i}.solid_shearModulus;
+end
+
 %========================================================= 
 % Interpolate to regular grid 
 %========================================================= 
@@ -59,13 +75,19 @@ Ti      = T;   Ti(:,end) = Ti(:,end) - 1e-6; Ti(:,1) = Ti(:,1) + 1e-6;
 rho_sol = Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.TP_vec, Rho_sol,               Ti, Pi);
 rho_liq = Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.TP_vec, Rho_liq,               Ti, Pi);
 melt    = Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.TP_vec, PseudoSectionData.liq, Ti, Pi);
+
+% few additional fields related to seismic velocity & elastic properties:
 Vp      = Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.TP_vec, PseudoSectionData.Vp,  Ti, Pi);
 Vs      = Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.TP_vec, PseudoSectionData.Vs,  Ti, Pi);
+solid_Vp           = Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.TP_vec, solid_Vp,  Ti, Pi);
+solid_Vs           = Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.TP_vec, solid_Vs,  Ti, Pi);
+melt_bulkModulus   = Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.TP_vec, melt_bulkModulus,  Ti, Pi);
+solid_shearModulus = Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.TP_vec, solid_shearModulus,  Ti, Pi);
+solid_bulkModulus  = Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.TP_vec, solid_bulkModulus,  Ti, Pi);
 
 VpVs      = Vp./Vs;
 ind       = find(VpVs>3);
 VpVs(ind) = NaN;
-
 
 %========================================================= 
 % Transfer to format that LaMEM expects
@@ -77,21 +99,19 @@ dP      =   dP*1e3;
 Tmin    =   Tmin+273.15;
 dT      =   dT*1;
 
-
-
 %========================================================= 
 % Write output 
 %========================================================= 
 fid = fopen([FileDir,filesep,FileName],'w+');
 
 % Write header info
-fprintf(fid,'8 \n');
+fprintf(fid,'13 \n');
 fprintf(fid,'  \n');
-fprintf(fid,'Phase diagram version: 0.11 \n');
+fprintf(fid,'Phase diagram version: 0.12 \n');
 fprintf(fid,'DATA:  \n');
-fprintf(fid,'Phase diagram always needs this 5 columns: \n');
-fprintf(fid,'1                     2              3         4       5         6        7      8      \n');
-fprintf(fid,'rho_fluid [kg/m3]   melt []    rho [kg/m3]   T [K]   P [bar]  Vp[km/s] Vs[km/s] Vp/Vs[] \n');
+fprintf(fid,'Phase diagram always needs this 5 columns (others are optional): \n');
+fprintf(fid,'1                     2              3         4       5         \n');
+fprintf(fid,'rho_fluid [kg/m3]   melt []    rho [kg/m3]   T [K]   P [bar]     \n');
 fprintf(fid,'  \n');
 fprintf(fid,'  \n');
 fprintf(fid,'LINES:    \n'); 
@@ -101,7 +121,6 @@ fprintf(fid,'50:    Lowest T [K] \n');
 fprintf(fid,'51:    T increment     \n');
 fprintf(fid,'52:    # of T values     \n');
 fprintf(fid,'53-55: Same for pressure \n');
-
 
 % Write some specific info
 for i=1:5
@@ -122,7 +141,7 @@ for i=1:12
 end
 
 
-fprintf(fid,'[meltRho, rho,kg/m^3] [meltFrac, wtPercent, NoUnits] [rockRho, rho,kg/m^3] [Temperature, T, K] [Pressure, P, bar] [Vp, vp,km/s] [Vs, vs,km/s] [VpVs, vp/vs, NoUnits] \n');
+fprintf(fid,'[meltRho, rho,kg/m^3] [meltFrac, wtPercent, NoUnits] [rockRho, rho,kg/m^3] [Temperature, T, K] [Pressure, P, bar] [Vp, vp,km/s] [Vs, vs,km/s] [VpVs, vp/vs, NoUnits] [solid_Vp, solid_Vp, km/s] [solid_Vs, solid_Vs, km/s] [melt_bulkModulus, melt_bulkModulus, GPa] [solid_bulkModulus, solid_bulkModulus, GPa] [solid_shearModulus, solid_shearModulus, GPa] \n');
 fprintf(fid,'%f \n', Tmin);
 fprintf(fid,'%f \n', dT);
 fprintf(fid,'%i \n', nt);
@@ -130,24 +149,14 @@ fprintf(fid,'%f \n', Pmin);
 fprintf(fid,'%f \n', dP);
 fprintf(fid,'%i \n', np);
 
-
-% Transpose them all 
-rho_liq = rho_liq';
-melt = melt';
-rho_sol = rho_sol';
-T_K = T_K';
-P_bar = P_bar';
-Vp = Vp';
-Vs = Vs';
-VpVs = VpVs';
-
-
 rho_liq =   rho_liq(:);
 melt    =   melt(:);
 rho_sol =   rho_sol(:);
 
 for i=1:length(T_K)
-    fprintf(fid,'%1.2f %1.5f %1.2f %1.4f %1.3f %1.2f %1.2f %1.2f\n', rho_liq(i), melt(i), rho_sol(i), T_K(i), P_bar(i), Vp(i), Vs(i), VpVs(i));
+    fprintf(fid,'%1.2f %1.5f %1.2f %1.4f %1.3f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f\n', ...
+            rho_liq(i), melt(i), rho_sol(i), T_K(i), P_bar(i), Vp(i), Vs(i), VpVs(i), ...
+            solid_Vp(i), solid_Vs(i), melt_bulkModulus(i), solid_bulkModulus(i), solid_shearModulus(i));
 end
 fclose(fid);
 
@@ -156,11 +165,11 @@ fclose(fid);
 %========================================================= 
 % Plot (using same as usual plotting routine)
 %========================================================= 
-rho         =   reshape(rho_sol,nt,np)';
-rho_fluid   =   reshape(rho_liq,nt,np)';
-melt        =   reshape(melt   ,nt,np)';
-T           =   reshape(T_K    ,nt,np)' - 273.15;       % degree C
-P           =   reshape(P_bar  ,nt,np)'./1e3;  % kbar  - LaMEM input must be bar!
+rho         =   reshape(rho_sol,np,nt);
+rho_fluid   =   reshape(rho_liq,np,nt);
+melt        =   reshape(melt   ,np,nt);
+T           =   reshape(T_K    ,np,nt) - 273.15;       % degree C
+P           =   reshape(P_bar  ,np,nt)./1e3;  % kbar  - LaMEM input must be bar!
 
 
 
@@ -201,11 +210,11 @@ colorbar
 
 
 
- 
-
-Vp = Vp';
-Vs = Vs';
-VpVs = VpVs';
+%  
+% 
+% Vp = Vp';
+% Vs = Vs';
+% VpVs = VpVs';
     
 
 figure(2),clf
@@ -233,5 +242,44 @@ ylabel('P [kbar]')
 xlabel('T [Celcius]')
 title('Vp/Vs []')
 
+subplot(223)
+pcolor(T,P,solid_Vp)
+shading interp
+colorbar
+ylabel('P [kbar]')
+xlabel('T [Celcius]')
+title('solid\_Vp [km/s]')
 
+figure(3),clf
+subplot(221)
+pcolor(T,P,solid_Vs)
+shading interp
+colorbar
+ylabel('P [kbar]')
+xlabel('T [Celcius]')
+title('solid\_Vs [km/s]')
+
+subplot(222)
+pcolor(T,P,melt_bulkModulus)
+shading interp
+colorbar
+ylabel('P [kbar]')
+xlabel('T [Celcius]')
+title('melt\_bulkModulus [GPa]')
+
+subplot(223)
+pcolor(T,P,solid_bulkModulus)
+shading interp
+colorbar
+ylabel('P [kbar]')
+xlabel('T [Celcius]')
+title('solid\_bulkModulus [GPa]')
+
+subplot(224)
+pcolor(T,P,solid_shearModulus)
+shading interp
+colorbar
+ylabel('P [kbar]')
+xlabel('T [Celcius]')
+title('solid\_shearModulus [GPa]')
 
