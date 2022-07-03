@@ -581,35 +581,28 @@ int runMAGEMin(			int    argc,
 	gv.system_Vp 	= sqrt((gv.system_bulkModulus +4.0/3.0*gv.system_shearModulus)/(gv.system_density/1e3));
 	gv.system_Vs 	= sqrt(gv.system_shearModulus/(gv.system_density/1e3));
 
-	gv.V_cor[0] 	= gv.solid_Vp;
-	gv.V_cor[1] 	= gv.solid_Vs;
+	gv.solid_Vp 	= sqrt((gv.solid_bulkModulus +4.0/3.0*gv.solid_shearModulus)/(gv.solid_density/1e3));
+	gv.solid_Vs 	= sqrt(gv.solid_shearModulus/(gv.solid_density/1e3));
 
-	if (gv.calc_seismic_cor == 1){
-		gv.solid_Vp 	= sqrt((gv.solid_bulkModulus +4.0/3.0*gv.solid_shearModulus)/(gv.solid_density/1e3));
-		gv.solid_Vs 	= sqrt(gv.solid_shearModulus/(gv.solid_density/1e3));
+	// gv.V_cor[0] 	= gv.solid_Vp;
+	// gv.V_cor[1] 	= gv.solid_Vs;
 
-		gv.solid_Vs 	= anelastic_correction( 0,
-												gv.solid_Vs,
-												z_b.P,
-												z_b.T 		);
+	// if (gv.calc_seismic_cor == 1){
 
-		gv.V_cor[0] 	= gv.solid_Vp;
-		gv.V_cor[1] 	= gv.solid_Vs;
 
-		if (gv.melt_fraction > 0.0 && gv.V_cor[1] > 0.0){
-			wave_melt_correction(  	gv.melt_bulkModulus,
-									gv.solid_bulkModulus,
-									gv.solid_shearModulus,
-									gv.melt_density,
-									gv.solid_density,
-									gv.solid_Vp,	
-									gv.solid_Vs,
-									gv.melt_fraction,
-									gv.solid_fraction,
-									0.1,
-									gv.V_cor				);
-		}
-	}
+	// 	gv.solid_Vs 	= anelastic_correction( 0,
+	// 											gv.solid_Vs,
+	// 											z_b.P,
+	// 											z_b.T 		);
+
+	// 	gv.V_cor[0] 	= gv.solid_Vp;
+	// 	gv.V_cor[1] 	= gv.solid_Vs;
+
+	// 	gv = wave_melt_correction(  	gv,
+	// 									z_b,
+	// 									0.1				);
+
+	// }
 
 
 	return gv;
@@ -666,14 +659,45 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 		/****************************************************************************************/
 		/**                            PARTITIONING GIBBS ENERGY                               **/
 		/****************************************************************************************/
-		gv 		= PGE(			z_b,									/** bulk rock constraint 			*/ 
-								gv,										/** global variables (e.g. Gamma) 	*/
+		if (z_b.T > 773.){
+			gv 		= PGE(			z_b,									/** bulk rock constraint 			*/ 
+									gv,										/** global variables (e.g. Gamma) 	*/
 
-								SS_objective,
-							    splx_data,
-								PP_ref_db,								/** pure phase database 			*/
-								SS_ref_db,								/** solution phase database 		*/
-								cp							);
+									SS_objective,
+									splx_data,
+									PP_ref_db,								/** pure phase database 			*/
+									SS_ref_db,								/** solution phase database 		*/
+									cp							);
+
+		}
+
+		/**
+			Launch legacy solver (LP, Theriak-like algorithm)
+		*/ 
+		if ((gv.div == 1 || z_b.T <= 773. ) && gv.solver == 1){
+		// if (gv.div == 1  && gv.solver == 1){	
+			printf("\n[PGE failed -> legacy solver...]\n");
+			gv.div 		= 0;
+			gv.status 	= 0;
+
+			gv = init_LP(			z_b,
+									splx_data,
+									gv,
+											
+									PP_ref_db,
+									SS_ref_db,
+									cp						);	
+
+			gv = LP(				z_b,									/** bulk rock informations 			*/
+									gv,										/** global variables (e.g. Gamma) 	*/
+
+									SS_objective,
+									splx_data,
+									PP_ref_db,								/** pure phase database 			*/
+									SS_ref_db,								/** solution phase database 		*/
+									cp						);
+		}
+
 
 		if (gv.verbose == 1){
 			gv = check_PC_driving_force( 	z_b,						/** bulk rock constraint 			*/ 

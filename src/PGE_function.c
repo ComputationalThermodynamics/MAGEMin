@@ -1440,32 +1440,6 @@ global_variable PGE(	bulk_info 			z_b,
 		if ((log10(gv.BR_norm) > -3.5 && gv.global_ite > 192)){	gv.div = 1;	iterate = 0;}
 	}
 
-	/**
-	   Launch legacy solver (LP, Theriak-like algorithm)
-	*/ 
-	if (gv.div == 1 && gv.solver == 1){
-		printf("\n[PGE failed -> legacy solver...]\n");
-		gv.div 		= 0;
-		gv.status 	= 0;
-
-		gv = init_LP(			z_b,
-								splx_data,
-								gv,
-										
-								PP_ref_db,
-								SS_ref_db,
-								cp						);	
-
-		gv = LP(				z_b,									/** bulk rock informations 			*/
-								gv,										/** global variables (e.g. Gamma) 	*/
-
-								SS_objective,
-								splx_data,
-								PP_ref_db,								/** pure phase database 			*/
-								SS_ref_db,								/** solution phase database 		*/
-								cp						);
-	}
-
 	return gv;
 };		
 
