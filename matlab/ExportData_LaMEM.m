@@ -89,9 +89,26 @@ VpVs      = Vp./Vs;
 ind       = find(VpVs>3);
 VpVs(ind) = NaN;
 
+
 %========================================================= 
 % Transfer to format that LaMEM expects
 %========================================================= 
+T = reshape_to_vec(T);
+P = reshape_to_vec(P);
+
+rho_sol = reshape_to_vec(rho_sol);
+rho_liq = reshape_to_vec(rho_liq);
+melt    = reshape_to_vec(melt);
+Vp      = reshape_to_vec(Vp);
+Vs      = reshape_to_vec(Vs);
+VpVs    = reshape_to_vec(VpVs);
+solid_Vp= reshape_to_vec(solid_Vp);
+solid_Vs= reshape_to_vec(solid_Vs);
+melt_bulkModulus = reshape_to_vec(melt_bulkModulus);
+solid_shearModulus = reshape_to_vec(solid_shearModulus);
+solid_bulkModulus = reshape_to_vec(solid_bulkModulus);
+
+
 T_K     =   T(:)+273.15;    % in K
 P_bar   =   P(:)*1e3;       % in bar
 Pmin    =   Pmin*1e3;
@@ -165,13 +182,11 @@ fclose(fid);
 %========================================================= 
 % Plot (using same as usual plotting routine)
 %========================================================= 
-rho         =   reshape(rho_sol,np,nt);
-rho_fluid   =   reshape(rho_liq,np,nt);
-melt        =   reshape(melt   ,np,nt);
-T           =   reshape(T_K    ,np,nt) - 273.15;       % degree C
-P           =   reshape(P_bar  ,np,nt)./1e3;  % kbar  - LaMEM input must be bar!
-
-
+rho         =   reshape(rho_sol,nt,np)';
+rho_fluid   =   reshape(rho_liq,nt,np)';
+melt        =   reshape(melt   ,nt,np)';
+T           =   reshape(T_K    ,nt,np)' - 273.15;       % degree C
+P           =   reshape(P_bar  ,nt,np)'./1e3;  % kbar  - LaMEM input must be bar!
 
 figure(1),clf
 subplot(221)
@@ -216,6 +231,14 @@ colorbar
 % Vs = Vs';
 % VpVs = VpVs';
     
+Vp          =   reshape(Vp,nt,np)';
+Vs          =   reshape(Vs,nt,np)';
+VpVs        =   reshape(VpVs,nt,np)';
+solid_Vp    =   reshape(solid_Vp,nt,np)';
+solid_Vs    =   reshape(solid_Vs,nt,np)';
+melt_bulkModulus    = reshape(melt_bulkModulus,nt,np)';
+solid_bulkModulus   = reshape(solid_bulkModulus,nt,np)';
+solid_shearModulus  = reshape(solid_shearModulus,nt,np)';
 
 figure(2),clf
 subplot(221)
@@ -282,4 +305,13 @@ colorbar
 ylabel('P [kbar]')
 xlabel('T [Celcius]')
 title('solid\_shearModulus [GPa]')
+
+end
+
+
+function data = reshape_to_vec(data)
+
+data = data'; 
+data = data(:);
+end
 
