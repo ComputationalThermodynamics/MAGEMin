@@ -19,7 +19,7 @@ bulk_rock   = get_bulk_rock(gv, test)
 P           = 8.0
 T           = 800.0
 gv.verbose  = -1        # switch off any verbose
-out         = point_wise_minimization(sys_in, P,T, bulk_rock, gv, DB);
+out         = point_wise_minimization(P,T, bulk_rock, gv, DB,sys_in);
 @show out
 
 @test out.G_system ≈ -797.7491824869334
@@ -49,7 +49,7 @@ function TestPoints(list, gv, DB)
 
     for i=1:size(list,1)
         bulk_rock   = get_bulk_rock(gv, list[i].test)
-        out         = point_wise_minimization(sys_in,list[i].P,list[i].T, bulk_rock, gv, DB)
+        out         = point_wise_minimization(list[i].P,list[i].T, bulk_rock, gv, DB)
 
         # We need to sort the phases (sometimes they are ordered differently)
         ind_sol = sortperm(list[i].ph)
