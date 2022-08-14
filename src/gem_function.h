@@ -16,6 +16,8 @@ typedef struct PP_refs {
     double  phase_shearModulus;		/** molar density of the phase */
     double  phase_cp;			/** molar cp of the phase */
 	double  phase_expansivity;
+	double  phase_entropy;
+	double  phase_enthalpy;
 	double  phase_bulkModulus;
     double  volume;				/** molar volume of the phase */
     double  mass;				/** molar mass of the phase */

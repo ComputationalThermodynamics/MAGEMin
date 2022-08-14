@@ -527,6 +527,8 @@ global_variable reset_gv(					global_variable 	 gv,
 	gv.solid_Vs 		  = 0.;
 
 	gv.system_density     = 0.;
+	gv.system_entropy     = 0.;
+	gv.system_enthalpy    = 0.;
 	gv.system_bulkModulus = 0.;
 	gv.system_shearModulus= 0.;
 	gv.system_Vp 		  = 0.;

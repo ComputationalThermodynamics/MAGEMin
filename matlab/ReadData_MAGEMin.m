@@ -30,8 +30,8 @@ fgetl(fid);     % skip comment line
 
 for iPoint=1:length(newPoints)
     % Read line with P/T and Gamma
-    line = fgetl(fid);
-    A       = sscanf(line,'%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f');
+    line    = fgetl(fid);
+    A       = sscanf(line,'%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f');
     
     % Retrieve info from first (numeric) line
     numPoint= A(1); % the number of the calculation point (in parallel, this may get mixed up)
@@ -43,15 +43,6 @@ for iPoint=1:length(newPoints)
     Gamma   = A(7:17);
     Vp      = A(18);
     Vs      = A(19);
-
-    solid_Vp            = A(20);
-    solid_Vs            = A(21);   
-    melt_density        = A(22);
-    solid_density       = A(23);
-    melt_bulkModulus    = A(24);
-    solid_bulkModulus   = A(25);
-    melt_fraction       = A(26);
-    solid_shearModulus  = A(27);
 
     % Read stable assemblage
     StableSolutions =   [];
@@ -178,15 +169,6 @@ for iPoint=1:length(newPoints)
     PhaseData{newPoints(numPoint)}.Gamma            =   Gamma;
     PhaseData{newPoints(numPoint)}.Vp               =   Vp;
     PhaseData{newPoints(numPoint)}.Vs               =   Vs;
-
-    PhaseData{newPoints(numPoint)}.solid_Vp             =   solid_Vp;
-    PhaseData{newPoints(numPoint)}.solid_Vs             =   solid_Vs;
-    PhaseData{newPoints(numPoint)}.melt_density         =   melt_density;
-    PhaseData{newPoints(numPoint)}.solid_density        =   solid_density;
-    PhaseData{newPoints(numPoint)}.melt_bulkModulus     =   melt_bulkModulus;
-    PhaseData{newPoints(numPoint)}.solid_bulkModulus    =   solid_bulkModulus;
-    PhaseData{newPoints(numPoint)}.melt_fraction        =   melt_fraction;
-    PhaseData{newPoints(numPoint)}.solid_shearModulus   =   solid_shearModulus;
 
     PhaseData{newPoints(numPoint)}.StableSolutions  =   StableSolutions;
     PhaseData{newPoints(numPoint)}.StableFractions  =   StableFractions;

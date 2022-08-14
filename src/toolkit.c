@@ -159,9 +159,9 @@ void convert_system_comp(				global_variable      gv,
 										bulk_info 			 z_b,		
 										double 				*bulk_rock			){
 
-	/* transform bulk from wt% to mol% for minimiation */
+	/* transform bulk from wt% to mol% for minimization */
 	if (strcmp( sys_in, "wt") == 0){	
-		for (int i = 0; i < gv.len_ox; i++){ bulk_rock[i] *= z_b.masspo[i];}
+		for (int i = 0; i < gv.len_ox; i++){ bulk_rock[i] /= z_b.masspo[i];}
 	}
 
 };

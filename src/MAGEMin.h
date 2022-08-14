@@ -318,7 +318,8 @@ typedef struct csd_phase_sets {
 	double  phase_expansivity;
 	double  phase_bulkModulus;
 	double  phase_shearModulus;
-
+	double  phase_entropy;
+	double  phase_enthalpy;
 } csd_phase_set;
 
 /* hold information of solution phases */
@@ -331,6 +332,8 @@ typedef struct stb_SS_phases {
 	double   V;
 	double   alpha;
 	double   cp;
+	double   entropy;
+	double   enthalpy;	
 	double   rho;
 	double   bulkMod;
 	double   shearMod;
@@ -366,6 +369,8 @@ typedef struct stb_PP_phases {
 	double   V;
 	double   alpha;
 	double   cp;
+	double   entropy;
+	double   enthalpy;	
 	double   rho;
 	double   bulkMod;
 	double   shearMod;
@@ -398,6 +403,9 @@ typedef struct stb_systems {
 	double  G;
 	double  rho;
 	
+	double  entropy;
+	double  enthalpy;
+
 	double  bulkMod;
 	double  shearMod;
 
@@ -578,6 +586,8 @@ typedef struct global_variables {
 	double   gb_P_eps;			/** small value to calculate V using finite difference: V = dG/dP */
 	double   gb_T_eps;			/** small value to calculate V using finite difference: V = dG/dP */
 	double   system_density;
+	double   system_entropy;
+	double   system_enthalpy;
 	double   system_bulkModulus;
 	double   system_shearModulus;
 	double   system_Vp;
