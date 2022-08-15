@@ -450,6 +450,8 @@ struct PP_refs
     phase_shearModulus::Cdouble
     phase_cp::Cdouble
     phase_expansivity::Cdouble
+    phase_entropy::Cdouble
+    phase_enthalpy::Cdouble
     phase_bulkModulus::Cdouble
     volume::Cdouble
     mass::Cdouble
@@ -718,6 +720,8 @@ struct csd_phase_sets
     phase_expansivity::Cdouble
     phase_bulkModulus::Cdouble
     phase_shearModulus::Cdouble
+    phase_entropy::Cdouble
+    phase_enthalpy::Cdouble
 end
 
 const csd_phase_set = csd_phase_sets
@@ -730,6 +734,8 @@ struct stb_SS_phases
     V::Cdouble
     alpha::Cdouble
     cp::Cdouble
+    entropy::Cdouble
+    enthalpy::Cdouble
     rho::Cdouble
     bulkMod::Cdouble
     shearMod::Cdouble
@@ -758,6 +764,8 @@ struct stb_PP_phases
     V::Cdouble
     alpha::Cdouble
     cp::Cdouble
+    entropy::Cdouble
+    enthalpy::Cdouble
     rho::Cdouble
     bulkMod::Cdouble
     shearMod::Cdouble
@@ -783,6 +791,8 @@ struct stb_systems
     gamma::Ptr{Cdouble}
     G::Cdouble
     rho::Cdouble
+    entropy::Cdouble
+    enthalpy::Cdouble
     bulkMod::Cdouble
     shearMod::Cdouble
     bulkModulus_M::Cdouble
@@ -931,6 +941,8 @@ mutable struct global_variables
     gb_P_eps::Cdouble
     gb_T_eps::Cdouble
     system_density::Cdouble
+    system_entropy::Cdouble
+    system_enthalpy::Cdouble
     system_bulkModulus::Cdouble
     system_shearModulus::Cdouble
     system_Vp::Cdouble
@@ -1006,6 +1018,10 @@ end
 
 function PGE(z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
     ccall((:PGE, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{obj_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
+end
+
+function init_LP(z_b, splx_data, gv, PP_ref_db, SS_ref_db, cp)
+    ccall((:init_LP, libMAGEMin), global_variable, (bulk_info, Ptr{simplex_data}, global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, splx_data, gv, PP_ref_db, SS_ref_db, cp)
 end
 
 function run_LP(z_b, splx_data, gv, PP_ref_db, SS_ref_db)
@@ -1639,8 +1655,8 @@ function get_ss_id(gv, cp)
     ccall((:get_ss_id, libMAGEMin), global_variable, (global_variable, Ptr{csd_phase_set}), gv, cp)
 end
 
-function wave_melt_correction(Kb_L, Kb_S, Ks_S, rhoL, rhoS, Vp0, Vs0, meltFrac, solFrac, aspectRatio, V_cor)
-    ccall((:wave_melt_correction, libMAGEMin), Cvoid, (Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Cdouble, Ptr{Cdouble}), Kb_L, Kb_S, Ks_S, rhoL, rhoS, Vp0, Vs0, meltFrac, solFrac, aspectRatio, V_cor)
+function wave_melt_correction(gv, z_b, aspectRatio)
+    ccall((:wave_melt_correction, libMAGEMin), global_variable, (global_variable, bulk_info, Cdouble), gv, z_b, aspectRatio)
 end
 
 function anelastic_correction(water, Vs0, P, T)
@@ -1702,6 +1718,8 @@ struct SS_data
     shearMod::Cdouble
     Vp::Cdouble
     Vs::Cdouble
+    entropy::Cdouble
+    enthalpy::Cdouble 
     Comp::Vector{Cdouble}
     Comp_wt::Vector{Cdouble}
     compVariables::Vector{Cdouble}
@@ -1716,7 +1734,7 @@ end
 
 
 function Base.convert(::Type{SS_data}, a::stb_SS_phases) 
-    return SS_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
+    return SS_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs, a.entropy, a.enthalpy,
                                     unsafe_wrap( Vector{Cdouble},        a.Comp,             a.nOx),
                                     unsafe_wrap( Vector{Cdouble},        a.Comp_wt,             a.nOx),
                                     unsafe_wrap( Vector{Cdouble},        a.compVariables,    a.n_xeos),
@@ -1740,12 +1758,14 @@ struct PP_data
     shearMod::Cdouble
     Vp::Cdouble
     Vs::Cdouble
+    entropy::Cdouble
+    enthalpy::Cdouble
     Comp::Vector{Cdouble}
     Comp_wt::Vector{Cdouble}
 end
 
 function Base.convert(::Type{PP_data}, a::stb_PP_phases) 
-    return PP_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
+    return PP_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs, a.entropy, a.enthalpy,
                     unsafe_wrap(Vector{Cdouble},a.Comp, a.nOx),
                     unsafe_wrap(Vector{Cdouble},a.Comp_wt, a.nOx))
 end
