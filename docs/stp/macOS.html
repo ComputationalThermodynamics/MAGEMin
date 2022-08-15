@@ -39,11 +39,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">In development:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../news.html">Seismic velocity calculation</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Installation:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../stp.html">Linux-based system</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="Linux.html">External libraries</a></li>
@@ -95,7 +91,15 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ckbk.html#data-output">Data output</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../ckbk/out_struct.html">As a nested structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/out_struct.html">THERMOCALC-like output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/out_struct.html#as-a-nested-structure">As a nested structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#computation-information">Computation information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#system-information">System information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#phase-proportions">Phase proportions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#solution-phases-information">Solution phases information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#id1">Solution phases information</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ckbk.html#pseudosection-generator">Pseudosection generator</a><ul>
@@ -112,6 +116,43 @@
 <li class="toctree-l3"><a class="reference internal" href="../ckbk/gui.html#save-pseudosection-data">Save pseudosection data</a></li>
 </ul>
 </li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Julia interface:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html">Julia interface to MAGEMin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html#installation">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Installation.html">MAGEMin_C.jll installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Installation.html#install-julia">Install Julia</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Installation.html#install-magemin-c">Install MAGEMin_C</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html#use-magemin-c">Use MAGEMin_C</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html">Single point calculation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#initialize-database">Initialize database</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-p-t-x-pressure-temperature-and-bulk-rock-composition">Set P-T-X (pressure temperature and bulk rock composition)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-the-level-of-verbose-1-0-1">Set the level of verbose <code class="docutils literal notranslate"><span class="pre">[-1,0,1]</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#call-optimization-routine-for-given-p-t-x">Call optimization routine for given P-T-X</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#display-minimized-point">Display minimized point</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#access-output-structure">Access output structure</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Known issues &amp; Tips!</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../issues.html">Quick tips!</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#compiler-linux">Compiler (Linux)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#minimum-pressure">Minimum pressure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#reduced-chemical-system">Reduced chemical system</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../issues.html#known-problems">Known problems</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#reduced-chemical-systems">Reduced chemical systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#low-temperature-stabilitzation">Low temperature stabilitzation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#hp-lt-melt-prediction">HP-LT melt prediction</a></li>
 </ul>
 </li>
 </ul>

@@ -1,7 +1,25 @@
 #ifndef __PHASE_UPDATE_FUNCTION_H_
 #define __PHASE_UPDATE_FUNCTION_H_
 
-global_variable phase_update_function(		struct bulk_info 	z_b,
+#include "MAGEMin.h"
+
+global_variable check_PC(					bulk_info 	 z_b,
+											global_variable  	 gv,
+
+											PP_ref 				*PP_ref_db,
+											SS_ref 				*SS_ref_db,
+											csd_phase_set  		*cp				
+);
+
+global_variable check_PC_driving_force(		bulk_info 	 z_b,
+											global_variable  	 gv,
+
+											PP_ref 				*PP_ref_db,
+											SS_ref 				*SS_ref_db,
+											csd_phase_set  		*cp			
+);
+
+global_variable phase_update_function(		bulk_info 			z_b,
 											global_variable 	gv,
 											
 											PP_ref 				*PP_ref_db,
@@ -9,7 +27,7 @@ global_variable phase_update_function(		struct bulk_info 	z_b,
 											csd_phase_set  		*cp 
 );
 
-global_variable phase_merge_function(		struct bulk_info 	z_b,
+global_variable phase_merge_function(		bulk_info 			z_b,
 											global_variable 	gv,
 
 											PP_ref 				*PP_ref_db,

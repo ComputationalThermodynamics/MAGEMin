@@ -1,5 +1,5 @@
 /**
-List of objective functions used for non-linear minimization and to generate pseudocompounds
+	List of objective functions used for non-linear minimization and to generate pseudocompounds
 */
 
 #include <math.h>
@@ -31,15 +31,15 @@ void p2x_bi(void *SS_ref_db, double eps){
 	d->iguess[4]  = 3.0*( (d->p[0]-2.0*d->p[1]+d->p[5]+d->p[4]+d->p[3] -1.0)/(d->p[3]+d->p[4]+d->p[5]-3.0) -d->p[1]);
 
 
-	if (d->z_em[4]  == 0){ d->iguess[3]  = eps;}
-	if (d->z_em[5]  == 0){ d->iguess[2]  = eps;}
+	if (d->z_em[4]  == 0.0){ d->iguess[3]  = eps;}
+	if (d->z_em[5]  == 0.0){ d->iguess[2]  = eps;}
 		
 	for (int i = 0; i < d->n_xeos; i++){
-		if (d->iguess[i] < d->box_bounds[i][0]){
-			d->iguess[i] = d->box_bounds[i][0];
+		if (d->iguess[i] < d->bounds[i][0]){
+			d->iguess[i] = d->bounds[i][0];
 		}
-		if (d->iguess[i] > d->box_bounds[i][1]){
-			d->iguess[i] = d->box_bounds[i][1];
+		if (d->iguess[i] > d->bounds[i][1]){
+			d->iguess[i] = d->bounds[i][1];
 		}
 	}
 }
@@ -53,14 +53,14 @@ void p2x_cd(void *SS_ref_db, double eps){
 	d->iguess[0]  = d->p[1];
 	d->iguess[1]  = d->p[2];
 	
-	if (d->z_em[2]  == 0){ d->iguess[1]  = eps;}
+	if (d->z_em[2]  == 0.0){ d->iguess[1]  = eps;}
 		
 	for (int i = 0; i < d->n_xeos; i++){
-		if (d->iguess[i] < d->box_bounds[i][0]){
-			d->iguess[i] = d->box_bounds[i][0];
+		if (d->iguess[i] < d->bounds[i][0]){
+			d->iguess[i] = d->bounds[i][0];
 		}
-		if (d->iguess[i] > d->box_bounds[i][1]){
-			d->iguess[i] = d->box_bounds[i][1];
+		if (d->iguess[i] > d->bounds[i][1]){
+			d->iguess[i] = d->bounds[i][1];
 		}
 	}
 }
@@ -81,16 +81,16 @@ void p2x_cpx(void *SS_ref_db, double eps){
 	d->iguess[7]  = d->p[5]/2.0;	
 	d->iguess[8]  = d->p[9];	
 
-	if (d->z_em[3]  == 0){ d->iguess[6]  = eps;}
-	if (d->z_em[4]  == 0){ d->iguess[5]  = eps;}
-	if (d->z_em[5]  == 0){ d->iguess[7]  = eps;}
+	if (d->z_em[3]  == 0.0){ d->iguess[6]  = eps;}
+	if (d->z_em[4]  == 0.0){ d->iguess[5]  = eps;}
+	if (d->z_em[5]  == 0.0){ d->iguess[7]  = eps;}
 		
 	for (int i = 0; i < d->n_xeos; i++){
-		if (d->iguess[i] < d->box_bounds[i][0]){
-			d->iguess[i] = d->box_bounds[i][0];
+		if (d->iguess[i] < d->bounds[i][0]){
+			d->iguess[i] = d->bounds[i][0];
 		}
-		if (d->iguess[i] > d->box_bounds[i][1]){
-			d->iguess[i] = d->box_bounds[i][1];
+		if (d->iguess[i] > d->bounds[i][1]){
+			d->iguess[i] = d->bounds[i][1];
 		}
 	}
 }
@@ -105,11 +105,11 @@ void p2x_ep(void *SS_ref_db, double eps){
 	d->iguess[1]  = d->p[1]/2.0;
 
 	for (int i = 0; i < d->n_xeos; i++){
-		if (d->iguess[i] < d->box_bounds[i][0]){
-			d->iguess[i] = d->box_bounds[i][0];
+		if (d->iguess[i] < d->bounds[i][0]){
+			d->iguess[i] = d->bounds[i][0];
 		}
-		if (d->iguess[i] > d->box_bounds[i][1]){
-			d->iguess[i] = d->box_bounds[i][1];
+		if (d->iguess[i] > d->bounds[i][1]){
+			d->iguess[i] = d->bounds[i][1];
 		}
 	}
 }
@@ -131,17 +131,17 @@ void p2x_fl(void *SS_ref_db, double eps){
 	d->iguess[8]  = d->p[9];
 	d->iguess[9]  = d->p[10];
 	
-	if (d->z_em[10] == 0){ d->iguess[9] = eps;}
-	if (d->z_em[7]  == 0){ d->iguess[6]  = eps;}
-	if (d->z_em[6]  == 0){ d->iguess[5]  = eps;}
-	if (d->z_em[8]  == 0){ d->iguess[7]  = eps;}
+	if (d->z_em[10] == 0.0){ d->iguess[9]  = eps;}
+	if (d->z_em[7]  == 0.0){ d->iguess[6]  = eps;}
+	if (d->z_em[6]  == 0.0){ d->iguess[5]  = eps;}
+	if (d->z_em[8]  == 0.0){ d->iguess[7]  = eps;}
 		
 	for (int i = 0; i < d->n_xeos; i++){
-		if (d->iguess[i] < d->box_bounds[i][0]){
-			d->iguess[i] = d->box_bounds[i][0];
+		if (d->iguess[i] < d->bounds[i][0]){
+			d->iguess[i] = d->bounds[i][0];
 		}
-		if (d->iguess[i] > d->box_bounds[i][1]){
-			d->iguess[i] = d->box_bounds[i][1];
+		if (d->iguess[i] > d->bounds[i][1]){
+			d->iguess[i] = d->bounds[i][1];
 		}
 	}
 }
@@ -158,16 +158,16 @@ void p2x_g(void *SS_ref_db, double eps){
 	d->iguess[3] = d->p[4];
 	d->iguess[4] = d->p[5]/4.0;
 
-	if (d->z_em[3]  == 0){ d->iguess[2]  = eps;}
-	if (d->z_em[4]  == 0){ d->iguess[3]  = eps;}
-	if (d->z_em[5]  == 0){ d->iguess[4]  = eps;}
+	if (d->z_em[3]  == 0.0){ d->iguess[2]  = eps;}
+	if (d->z_em[4]  == 0.0){ d->iguess[3]  = eps;}
+	if (d->z_em[5]  == 0.0){ d->iguess[4]  = eps;}
 		
 	for (int i = 0; i < d->n_xeos; i++){
-		if (d->iguess[i] < d->box_bounds[i][0]){
-			d->iguess[i] = d->box_bounds[i][0];
+		if (d->iguess[i] < d->bounds[i][0]){
+			d->iguess[i] = d->bounds[i][0];
 		}
-		if (d->iguess[i] > d->box_bounds[i][1]){
-			d->iguess[i] = d->box_bounds[i][1];
+		if (d->iguess[i] > d->bounds[i][1]){
+			d->iguess[i] = d->bounds[i][1];
 		}
 	}
 }
@@ -193,11 +193,11 @@ void p2x_hb(void *SS_ref_db, double eps){
 	if (d->z_em[10] == 0){ d->iguess[7]  = eps;}
 		
 	for (int i = 0; i < d->n_xeos; i++){
-		if (d->iguess[i] < d->box_bounds[i][0]){
-			d->iguess[i] = d->box_bounds[i][0];
+		if (d->iguess[i] < d->bounds[i][0]){
+			d->iguess[i] = d->bounds[i][0];
 		}
-		if (d->iguess[i] > d->box_bounds[i][1]){
-			d->iguess[i] = d->box_bounds[i][1];
+		if (d->iguess[i] > d->bounds[i][1]){
+			d->iguess[i] = d->bounds[i][1];
 		}
 	}
 }
@@ -213,11 +213,11 @@ void p2x_ilm(void *SS_ref_db, double eps){
 	d->iguess[1] = d->p[0];
 		
 	for (int i = 0; i < d->n_xeos; i++){
-		if (d->iguess[i] < d->box_bounds[i][0]){
-			d->iguess[i] = d->box_bounds[i][0];
+		if (d->iguess[i] < d->bounds[i][0]){
+			d->iguess[i] = d->bounds[i][0];
 		}
-		if (d->iguess[i] > d->box_bounds[i][1]){
-			d->iguess[i] = d->box_bounds[i][1];
+		if (d->iguess[i] > d->bounds[i][1]){
+			d->iguess[i] = d->bounds[i][1];
 		}
 	}
 }
@@ -241,17 +241,17 @@ void p2x_liq(void *SS_ref_db, double eps){
 	d->iguess[9]  = d->p[10];
 	d->iguess[10] = d->p[11]/(1.0+3./4.*d->p[10]);
 		
-	if (d->z_em[11] == 0){ d->iguess[10] = eps;}
-	if (d->z_em[8]  == 0){ d->iguess[7]  = eps;}
-	if (d->z_em[7]  == 0){ d->iguess[6]  = eps;}
-	if (d->z_em[6]  == 0){ d->iguess[5]  = eps;}
+	if (d->z_em[11] == 0.0){ d->iguess[10] = eps;}
+	if (d->z_em[8]  == 0.0){ d->iguess[7]  = eps;}
+	if (d->z_em[7]  == 0.0){ d->iguess[6]  = eps;}
+	if (d->z_em[6]  == 0.0){ d->iguess[5]  = eps;}
 		
 	for (int i = 0; i < d->n_xeos; i++){
-		if (d->iguess[i] < d->box_bounds[i][0]){
-			d->iguess[i] = d->box_bounds[i][0];
+		if (d->iguess[i] < d->bounds[i][0]){
+			d->iguess[i] = d->bounds[i][0];
 		}
-		if (d->iguess[i] > d->box_bounds[i][1]){
-			d->iguess[i] = d->box_bounds[i][1];
+		if (d->iguess[i] > d->bounds[i][1]){
+			d->iguess[i] = d->bounds[i][1];
 		}
 	}
 }
@@ -268,14 +268,14 @@ void p2x_mu(void *SS_ref_db, double eps){
 	d->iguess[3]  = d->p[3];
 	d->iguess[4]  = d->p[4];
 
-	if (d->z_em[5]  == 0){ d->iguess[2]  = eps;}
+	if (d->z_em[5]  == 0.0){ d->iguess[2]  = eps;}
 		
 	for (int i = 0; i < d->n_xeos; i++){
-		if (d->iguess[i] < d->box_bounds[i][0]){
-			d->iguess[i] = d->box_bounds[i][0];
+		if (d->iguess[i] < d->bounds[i][0]){
+			d->iguess[i] = d->bounds[i][0];
 		}
-		if (d->iguess[i] > d->box_bounds[i][1]){
-			d->iguess[i] = d->box_bounds[i][1];
+		if (d->iguess[i] > d->bounds[i][1]){
+			d->iguess[i] = d->bounds[i][1];
 		}
 	}
 }
@@ -291,11 +291,11 @@ void p2x_ol(void *SS_ref_db, double eps){
 	d->iguess[2]  = -d->p[0] - d->p[2] + 1.0 + (d->p[0] - 1.0)*(2.0*d->p[1] + d->p[3])/(2.0 - d->p[0]);
 	
 	for (int i = 0; i < d->n_xeos; i++){
-		if (d->iguess[i] < d->box_bounds[i][0]){
-			d->iguess[i] = d->box_bounds[i][0];
+		if (d->iguess[i] < d->bounds[i][0]){
+			d->iguess[i] = d->bounds[i][0];
 		}
-		if (d->iguess[i] > d->box_bounds[i][1]){
-			d->iguess[i] = d->box_bounds[i][1];
+		if (d->iguess[i] > d->bounds[i][1]){
+			d->iguess[i] = d->bounds[i][1];
 		}
 	}
 }
@@ -315,16 +315,16 @@ void p2x_opx(void *SS_ref_db, double eps){
 	d->iguess[6] = d->p[5];
 	d->iguess[7] = d->p[8];
 	
-	if (d->z_em[5]  == 0){ d->iguess[6]  = eps;}
-	if (d->z_em[4]  == 0){ d->iguess[4]  = eps;}
-	if (d->z_em[6]  == 0){ d->iguess[5]  = eps;}
+	if (d->z_em[5]  == 0.0){ d->iguess[6]  = eps;}
+	if (d->z_em[4]  == 0.0){ d->iguess[4]  = eps;}
+	if (d->z_em[6]  == 0.0){ d->iguess[5]  = eps;}
 		
 	for (int i = 0; i < d->n_xeos; i++){
-		if (d->iguess[i] < d->box_bounds[i][0]){
-			d->iguess[i] = d->box_bounds[i][0];
+		if (d->iguess[i] < d->bounds[i][0]){
+			d->iguess[i] = d->bounds[i][0];
 		}
-		if (d->iguess[i] > d->box_bounds[i][1]){
-			d->iguess[i] = d->box_bounds[i][1];
+		if (d->iguess[i] > d->bounds[i][1]){
+			d->iguess[i] = d->bounds[i][1];
 		}
 	}
 
@@ -340,11 +340,11 @@ void p2x_pl4T(void *SS_ref_db, double eps){
 	d->iguess[1] = d->p[2];
 		
 	for (int i = 0; i < d->n_xeos; i++){
-		if (d->iguess[i] < d->box_bounds[i][0]){
-			d->iguess[i] = d->box_bounds[i][0];
+		if (d->iguess[i] < d->bounds[i][0]){
+			d->iguess[i] = d->bounds[i][0];
 		}
-		if (d->iguess[i] > d->box_bounds[i][1]){
-			d->iguess[i] = d->box_bounds[i][1];
+		if (d->iguess[i] > d->bounds[i][1]){
+			d->iguess[i] = d->bounds[i][1];
 		}
 	}
 }
@@ -363,19 +363,19 @@ void p2x_spn(void *SS_ref_db, double eps){
 	d->iguess[5]  = ((1.0 - d->p[6] - d->p[7] - d->p[0] - d->p[1])/(d->p[7] + 1.0))*(d->p[7] + 1.0) - 3./2.*d->p[3] - 3./2.*d->p[5];
 	d->iguess[6]  = -3./2.*d->p[4] + ((d->p[4] + d->p[5])/(1.0 - d->p[6] - d->p[7]))*(1./2. -1./2.*d->p[6] - 1./2.*d->p[7]);
 
-	if (d->z_em[6]  == 0){ d->iguess[2]  = eps;}
-	if (d->z_em[7]  == 0){ d->iguess[3]  = eps;}
-	if (d->z_em[4]  == 0){ d->iguess[6]  = eps;}
-	if (d->z_em[5]  == 0){ d->iguess[6]  = eps;}
-	if (d->z_em[4]  == 0){ d->iguess[1]  = eps;}
-	if (d->z_em[5]  == 0){ d->iguess[1]  = eps;}
+	if (d->z_em[6]  == 0.0){ d->iguess[2]  = eps;}
+	if (d->z_em[7]  == 0.0){ d->iguess[3]  = eps;}
+	if (d->z_em[4]  == 0.0){ d->iguess[6]  = eps;}
+	if (d->z_em[5]  == 0.0){ d->iguess[6]  = eps;}
+	if (d->z_em[4]  == 0.0){ d->iguess[1]  = eps;}
+	if (d->z_em[5]  == 0.0){ d->iguess[1]  = eps;}
 	
 	for (int i = 0; i < d->n_xeos; i++){
-		if (d->iguess[i] < d->box_bounds[i][0]){
-			d->iguess[i] = d->box_bounds[i][0];
+		if (d->iguess[i] < d->bounds[i][0]){
+			d->iguess[i] = d->bounds[i][0];
 		}
-		if (d->iguess[i] > d->box_bounds[i][1]){
-			d->iguess[i] = d->box_bounds[i][1];
+		if (d->iguess[i] > d->bounds[i][1]){
+			d->iguess[i] = d->bounds[i][1];
 		}
 	}
 
@@ -856,13 +856,13 @@ double obj_bi(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
     sf[7]           = -0.5*x[2] - 0.5*x[1] + 0.5;
     sf[8]           = 0.5*x[2] + 0.5*x[1] + 0.5;
     sf[9]           = 1.0 - x[3];
-    sf[10]           = x[3];
+    sf[10]          = x[3];
 
 	mu[0]          = R*T*creal(clog( 4.0*sf[0]*pow(sf[5], 2.0)*sf[7]*sf[8]*pow(sf[9], 2.0))) + gb[0] + mu_Gex[0];
 	mu[1]          = R*T*creal(clog( 4.0*sf[1]*pow(sf[6], 2.0)*sf[7]*sf[8]*pow(sf[9], 2.0))) + gb[1] + mu_Gex[1];
 	mu[2]          = R*T*creal(clog( 4.0*sf[1]*pow(sf[5], 2.0)*sf[7]*sf[8]*pow(sf[9], 2.0))) + gb[2] + mu_Gex[2];
 	mu[3]          = R*T*creal(clog( sf[4]*pow(sf[5], 2.0)*pow(sf[8], 2.0)*pow(sf[9], 2.0))) + gb[3] + mu_Gex[3];
-	mu[4]          = R*T*creal(clog( 4.0*pow(sf[3], 2.0)*sf[3]*pow(sf[5], 2.0)*sf[7]*sf[8])) + gb[4] + mu_Gex[4];
+	mu[4]          = R*T*creal(clog( 4.0*sf[3]*pow(sf[5], 2.0)*sf[7]*sf[8])* pow(sf[10], 2.0)) + gb[4] + mu_Gex[4];
 	mu[5]          = R*T*creal(clog( sf[2]*pow(sf[5], 2.0)*pow(sf[8], 2.0)*pow(sf[9], 2.0))) + gb[5] + mu_Gex[5];
 
 	d->sum_apep = 0.0;
@@ -1519,14 +1519,14 @@ double obj_liq(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 	sf[7]           = 0.75*x[8]*x[9] + x[8];
 	sf[8]           = x[9];
 	sf[9]           = x[3] + x[2] + 0.75*x[9]*(x[3] + x[2]);
-	sf[10]           = -0.75*x[10]*x[9] - x[10] + 1.0;
-	sf[11]           = 4.0*x[2];
-	sf[12]           = 4.0*x[3];
-	sf[13]           = x[0];
-	sf[14]           = x[1];
-	sf[15]           = 4.0*x[3] + 4.0*x[2] + x[1] + x[0];
-	sf[16]           = x[10];
-	sf[17]           = 1.0 - x[10];
+	sf[10]          = -0.75*x[10]*x[9] - x[10] + 1.0;
+	sf[11]          = 4.0*x[2];
+	sf[12]          = 4.0*x[3];
+	sf[13]          = x[0];
+	sf[14]          = x[1];
+	sf[15]          = 4.0*x[3] + 4.0*x[2] + x[1] + x[0];
+	sf[16]          = x[10];
+	sf[17]          = 1.0 - x[10];
 
 	mu[0]         = R*T*creal(clog( sf[0]*1.0/sf[10]*pow(sf[17], 2.0))) 					+ gb[0] + mu_Gex[0];
 	mu[1]         = R*T*creal(clog( 1.0/sf[10]*sf[14]*1.0/sf[15]*pow(sf[17], 2.0)*sf[1])) 	+ gb[1] + mu_Gex[1];
@@ -1975,9 +1975,9 @@ double obj_spn(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 	return d->df;
 };
 
-SS_ref PC_PX_function(		SS_ref SS_ref_db, 
-							double  *x,
-							char    *name){
+SS_ref PC_PX_function(		SS_ref 		 SS_ref_db, 
+							double  	*x,
+							char    	*name			){
 
 	/* Associate the right solid-solution data */
 	if 	(strcmp( name, "bi") == 0 ){
@@ -2029,9 +2029,9 @@ SS_ref PC_PX_function(		SS_ref SS_ref_db,
 	return SS_ref_db;
 };
 
-SS_ref PC_DPDX_function(	SS_ref SS_ref_db, 
-							double  *x,
-							char    *name){
+SS_ref PC_DPDX_function(	SS_ref 			 SS_ref_db, 
+							double  		*x,
+							char    		*name				){
 
 	/* Associate the right solid-solution data */
 	if 	(strcmp( name, "bi") == 0 ){
@@ -2084,10 +2084,10 @@ SS_ref PC_DPDX_function(	SS_ref SS_ref_db,
 };
 
 
-SS_ref P2X(		global_variable gv,
-				SS_ref SS_ref_db, 
-				struct bulk_info z_b,
-				char    *name				){
+SS_ref P2X(					global_variable 	 gv,
+							SS_ref 				 SS_ref_db, 
+							bulk_info 			 z_b,
+							char    			*name				){
 
 	double eps = gv.bnd_val;
 
@@ -2143,7 +2143,7 @@ SS_ref P2X(		global_variable gv,
 
 SS_ref PC_function(		global_variable 	 gv,
 						SS_ref 				 SS_ref_db, 
-						struct bulk_info 	 z_b,
+						bulk_info 	 		 z_b,
 						char    			*name				){
 
 	double G0 = 0.0;
@@ -2177,19 +2177,19 @@ SS_ref PC_function(		global_variable 	 gv,
 		G0 = obj_liq(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}
 	else if (strcmp( name, "mu")  == 0){
-		G0 = obj_mu(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_mu(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}	
 	else if (strcmp( name, "ol")  == 0){
-		G0 = obj_ol(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_ol(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}
 	else if (strcmp( name, "opx") == 0){
-		G0 = obj_opx(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_opx(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}
 	else if (strcmp( name, "pl4T")  == 0){
-		G0 = obj_pl4T(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_pl4T(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}	
 	else if (strcmp( name, "spn") == 0){	
-		G0 = obj_spn(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_spn(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}
 	else{
 		printf("\nsolid solution '%s' is not in the database\n",name);		
