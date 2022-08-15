@@ -128,7 +128,7 @@ global_variable global_variable_init(){
 
 	/* system parameters 		*/
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.2.0 [29/06/2022]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.2.1 [14/08/2022]");	/** MAGEMin version 																*/
 
 	gv.len_ox           = 11;					/** number of components in the system 												*/
 	gv.max_n_cp 		= 128;					/** number of considered solution phases 											*/									
@@ -527,6 +527,8 @@ global_variable reset_gv(					global_variable 	 gv,
 	gv.solid_Vs 		  = 0.;
 
 	gv.system_density     = 0.;
+	gv.system_entropy     = 0.;
+	gv.system_enthalpy    = 0.;
 	gv.system_bulkModulus = 0.;
 	gv.system_shearModulus= 0.;
 	gv.system_Vp 		  = 0.;

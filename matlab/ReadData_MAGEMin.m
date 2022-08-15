@@ -30,7 +30,7 @@ fgetl(fid);     % skip comment line
 
 for iPoint=1:length(newPoints)
     % Read line with P/T and Gamma
-    line = fgetl(fid);
+    line    = fgetl(fid);
     A       = sscanf(line,'%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f');
     
     % Retrieve info from first (numeric) line
@@ -169,6 +169,7 @@ for iPoint=1:length(newPoints)
     PhaseData{newPoints(numPoint)}.Gamma            =   Gamma;
     PhaseData{newPoints(numPoint)}.Vp               =   Vp;
     PhaseData{newPoints(numPoint)}.Vs               =   Vs;
+
     PhaseData{newPoints(numPoint)}.StableSolutions  =   StableSolutions;
     PhaseData{newPoints(numPoint)}.StableFractions  =   StableFractions;
     PhaseData{newPoints(numPoint)}.EMlist  			=   EMlist;

@@ -398,7 +398,7 @@ void ss_min_LP(			int 				 mode,
 			*/
 			SS_ref_db[ph_id] = restrict_SS_HyperVolume(	gv, 
 														SS_ref_db[ph_id],
-														0.1		);
+														gv.box_size_mode_1		);
 			
 			/**
 				call to NLopt for non-linear + inequality constraints optimization

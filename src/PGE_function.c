@@ -1156,7 +1156,7 @@ global_variable LP(		bulk_info 			z_b,
 	int    gi   = 0;
 	int iterate = 1;
 
-	while (iterate == 1){
+	for (int gi = 0; gi < 32; gi++){
 
 		t = clock();
 
@@ -1241,7 +1241,6 @@ global_variable LP(		bulk_info 			z_b,
 					
 		/* Increment global iteration value */
 		gv.global_ite += 1;
-		gi            += 1;
 
 		/* check evolution of mass constraint residual */
 		gv.PGE_mass_norm[gv.global_ite]  = gv.BR_norm;	/** save norm for the current global iteration */
@@ -1252,8 +1251,6 @@ global_variable LP(		bulk_info 			z_b,
 			printf("\n __ iteration duration: %+4f ms __\n\n\n",((double)t)/CLOCKS_PER_SEC*1000);
 		}
 		gv.ite_time[gv.global_ite] 		 = ((double)t)/CLOCKS_PER_SEC*1000;
-
-		if (gi >= 32){ 		iterate = 0;}
 	}
 
 	/**
@@ -1438,32 +1435,6 @@ global_variable PGE(	bulk_info 			z_b,
 		if ((log10(gv.BR_norm) > -1.5 && gv.global_ite > 64)){	gv.div = 1;	iterate = 0;}
 		if ((log10(gv.BR_norm) > -2.5 && gv.global_ite > 128)){	gv.div = 1;	iterate = 0;}
 		if ((log10(gv.BR_norm) > -3.5 && gv.global_ite > 192)){	gv.div = 1;	iterate = 0;}
-	}
-
-	/**
-	   Launch legacy solver (LP, Theriak-like algorithm)
-	*/ 
-	if (gv.div == 1 && gv.solver == 1){
-		printf("\n[PGE failed -> legacy solver...]\n");
-		gv.div 		= 0;
-		gv.status 	= 0;
-
-		gv = init_LP(			z_b,
-								splx_data,
-								gv,
-										
-								PP_ref_db,
-								SS_ref_db,
-								cp						);	
-
-		gv = LP(				z_b,									/** bulk rock informations 			*/
-								gv,										/** global variables (e.g. Gamma) 	*/
-
-								SS_objective,
-								splx_data,
-								PP_ref_db,								/** pure phase database 			*/
-								SS_ref_db,								/** solution phase database 		*/
-								cp						);
 	}
 
 	return gv;

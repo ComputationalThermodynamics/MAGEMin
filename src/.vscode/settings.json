@@ -20,6 +20,7 @@
         "objective_functions.h": "c",
         "phase_update_function.h": "c",
         "gss_init_function.h": "c",
-        "io_function.h": "c"
+        "io_function.h": "c",
+        "magemin.h": "c"
     }
 }

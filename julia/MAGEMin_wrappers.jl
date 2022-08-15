@@ -45,12 +45,12 @@ function get_bulk_rock(gv, test)
 end
 
 """
-    point_wise_minimization(sys_in::String,P::Float64,T::Float64, bulk_rock::Vector{Float64}, gv::LibMAGEMin.global_variables, DB::LibMAGEMin.Database)
+    point_wise_minimization(P::Float64,T::Float64, bulk_rock::Vector{Float64}, gv::LibMAGEMin.global_variables, DB::LibMAGEMin.Database,sys_in::String="mol")
     
 Computes the stable assemblage at P[kbar], T[C] and for bulk rock composition bulk_rock
     
 """
-function point_wise_minimization(sys_in::String,P::Float64,T::Float64, bulk_rock::Vector{Float64}, gv, DB)
+function point_wise_minimization(P::Float64,T::Float64, bulk_rock::Vector{Float64}, gv, DB, sys_in::String="mol")
     
     input_data      =   LibMAGEMin.io_data();                           # zero (not used actually)
 	z_b             =   LibMAGEMin.initialize_bulk_infos(P, T);

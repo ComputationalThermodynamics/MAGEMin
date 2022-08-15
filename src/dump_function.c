@@ -119,6 +119,9 @@ void fill_output_struct(		global_variable 	 gv,
 	
 	sp[0].nOx					 = gv.len_ox;
 	sp[0].rho					 = gv.system_density;
+	sp[0].entropy				 = gv.system_entropy;
+	sp[0].enthalpy				 = gv.system_enthalpy;
+
 	sp[0].bulkMod				 = gv.system_bulkModulus;
 	sp[0].shearMod				 = gv.system_shearModulus;
 	sp[0].Vp					 = gv.system_Vp;
@@ -193,6 +196,8 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].SS[m].cp 		 = cp[i].phase_cp;
 			sp[0].SS[m].rho 	 = cp[i].phase_density;
 			sp[0].SS[m].alpha 	 = cp[i].phase_expansivity;
+			sp[0].SS[m].entropy  = cp[i].phase_entropy;
+			sp[0].SS[m].enthalpy = cp[i].phase_enthalpy;
 			sp[0].SS[m].bulkMod  = cp[i].phase_bulkModulus/10.;
 			sp[0].SS[m].shearMod = cp[i].phase_shearModulus/10.;
 			sp[0].SS[m].Vp 		 = sqrt((cp[i].phase_bulkModulus/10. + 4.0/3.0*cp[i].phase_shearModulus/10.)/(cp[i].phase_density/1e3));
@@ -313,6 +318,8 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].PP[m].cp 		 = PP_ref_db[i].phase_cp;
 			sp[0].PP[m].rho 	 = PP_ref_db[i].phase_density;
 			sp[0].PP[m].alpha 	 = PP_ref_db[i].phase_expansivity;
+			sp[0].PP[m].entropy  = PP_ref_db[i].phase_entropy;
+			sp[0].PP[m].enthalpy = PP_ref_db[i].phase_enthalpy;
 			sp[0].PP[m].bulkMod  = PP_ref_db[i].phase_bulkModulus/10.;
 			sp[0].PP[m].shearMod = PP_ref_db[i].phase_shearModulus/10.;
 			sp[0].PP[m].Vp 		 = sqrt((PP_ref_db[i].phase_bulkModulus/10. + 4.0/3.0*PP_ref_db[i].phase_shearModulus/10.)/(PP_ref_db[i].phase_density/1e3));
@@ -566,7 +573,7 @@ void dump_results_function(		global_variable 	 gv,
 		double G;
 		fprintf(loc_min, "\n");	
 		fprintf(loc_min, "Stable mineral assemblage:\n");	
-		fprintf(loc_min, "%6s%12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n","phase","mode","f","G" ,"V" ,"Cp","rho","Thermal_Exp","BulkMod[GPa]","ShearMod[GPa]","Vp[km/s]","Vs[km/s]");
+		fprintf(loc_min, "%6s%12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n","phase","mode","f","G" ,"V" ,"Cp","rho","Thermal_Exp","Entropy[J/K]","Enthalpy[J]","BulkMod[GPa]","ShearMod[GPa]","Vp[km/s]","Vs[km/s]");
 					
 		for (int i = 0; i < gv.len_cp; i++){
 			if (cp[i].ss_flags[1] == 1){
@@ -582,7 +589,18 @@ void dump_results_function(		global_variable 	 gv,
 				}
 
 				fprintf(loc_min, "%6s", cp[i].name);
-				fprintf(loc_min, "%+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.2f %+12.2f %+12.2f %+12.2f",cp[i].ss_n,cp[i].factor,G,cp[i].volume,cp[i].phase_cp,cp[i].phase_density,cp[i].phase_expansivity,cp[i].phase_bulkModulus/10.,cp[i].phase_shearModulus/10.,sqrt((cp[i].phase_bulkModulus/10. +4.0/3.0*cp[i].phase_shearModulus/10.)/(cp[i].phase_density/1e3)),sqrt(cp[i].phase_shearModulus/10.0/(cp[i].phase_density/1e3)) );
+				fprintf(loc_min, "%+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.6f %+12.6f %+12.2f %+12.2f %+12.2f %+12.2f",
+							cp[i].ss_n,cp[i].factor,
+							G,
+							cp[i].volume,
+							cp[i].phase_cp,cp[i].phase_density,
+							cp[i].phase_expansivity,
+							cp[i].phase_entropy,cp[i].phase_enthalpy,
+							cp[i].phase_bulkModulus/10.,
+							cp[i].phase_shearModulus/10.,
+							sqrt((cp[i].phase_bulkModulus/10. +4.0/3.0*cp[i].phase_shearModulus/10.)/(cp[i].phase_density/1e3)),
+							sqrt(cp[i].phase_shearModulus/10.0/(cp[i].phase_density/1e3)) 
+						);
 				fprintf(loc_min, "\n");
 			}
 		}
@@ -590,7 +608,21 @@ void dump_results_function(		global_variable 	 gv,
 		for (int i = 0; i < gv.len_pp; i++){
 			if (gv.pp_flags[i][1] == 1){ 
 				fprintf(loc_min, "%6s", gv.PP_list[i]);
-				fprintf(loc_min, "%+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.2f %+12.2f %+12.2f %+12.2f",gv.pp_n[i],PP_ref_db[i].factor,PP_ref_db[i].gbase,PP_ref_db[i].volume,PP_ref_db[i].phase_cp,PP_ref_db[i].phase_density,PP_ref_db[i].phase_expansivity,PP_ref_db[i].phase_bulkModulus/10.,PP_ref_db[i].phase_shearModulus/10.,sqrt((PP_ref_db[i].phase_bulkModulus/10. +4.0/3.0*PP_ref_db[i].phase_shearModulus/10.)/(PP_ref_db[i].phase_density/1e3)),sqrt(PP_ref_db[i].phase_shearModulus/10.0/(PP_ref_db[i].phase_density/1e3)));
+				fprintf(loc_min, "%+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.6f %+12.6f %+12.2f %+12.2f %+12.2f %+12.2f",
+						gv.pp_n[i],
+						PP_ref_db[i].factor,
+						PP_ref_db[i].gbase,
+						PP_ref_db[i].volume,
+						PP_ref_db[i].phase_cp,
+						PP_ref_db[i].phase_density,
+						PP_ref_db[i].phase_expansivity,
+						PP_ref_db[i].phase_entropy,
+						PP_ref_db[i].phase_enthalpy,
+						PP_ref_db[i].phase_bulkModulus/10.,
+						PP_ref_db[i].phase_shearModulus/10.,
+						sqrt((PP_ref_db[i].phase_bulkModulus/10. +4.0/3.0*PP_ref_db[i].phase_shearModulus/10.)/(PP_ref_db[i].phase_density/1e3)),
+						sqrt(PP_ref_db[i].phase_shearModulus/10.0/(PP_ref_db[i].phase_density/1e3))
+					);
 				fprintf(loc_min, "\n");
 			}
 		}
@@ -599,7 +631,20 @@ void dump_results_function(		global_variable 	 gv,
 		for (int j = 0; j < gv.len_ox; j++){
 			G += z_b.bulk_rock[j]*gv.gam_tot[j];
 		}
-		fprintf(loc_min, "%6s %24s %+12.5f %25s %+12.5f %12s %+12.5f %+12.5f %+12.5f %+12.5f\n","SYS"," ",G," ",gv.system_density," ",gv.system_bulkModulus,gv.system_shearModulus,gv.system_Vp,gv.system_Vs);
+		fprintf(loc_min, "%6s %24s %+12.5f %25s %+12.5f %12s %+12.6f %+12.6f %+12.5f %+12.5f %+12.5f %+12.5f\n",
+				"SYS",
+				" ",
+				G,
+				" ",
+				gv.system_density,
+				" ",
+				gv.system_entropy,
+				gv.system_enthalpy,
+				gv.system_bulkModulus,
+				gv.system_shearModulus,
+				gv.system_Vp,
+				gv.system_Vs
+		);
 		
 		/* output solution phase composition */ 	
 		fprintf(loc_min, "\nGamma (chemical potential of oxides):\n");
@@ -638,9 +683,8 @@ void dump_results_function(		global_variable 	 gv,
 		for (i = 0; i < gv.len_ox; i++){
 			fprintf(loc_min," %0.10f", gv.gam_tot[i]);
 		}
+		fprintf(loc_min, " %.10f %.10f",gv.system_Vp,gv.system_Vs);
 
-		// fprintf(loc_min, " %.10f %.10f",gv.system_Vp,gv.system_Vs);
-		fprintf(loc_min, " %.10f %.10f",gv.V_cor[0],gv.V_cor[1]);
 		fprintf(loc_min, "\n");
 		for (int i = 0; i < gv.len_cp; i++){ 
 			if (cp[i].ss_flags[1] == 1){

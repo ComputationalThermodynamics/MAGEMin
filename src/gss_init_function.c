@@ -70,7 +70,9 @@ csd_phase_set CP_INIT_function(csd_phase_set cp, global_variable gv){
 	cp.phase_density  		= 0.0;
 	cp.phase_cp				= 0.0;
 	cp.phase_expansivity	= 0.0;
-	
+	cp.phase_entropy		= 0.0;
+	cp.phase_enthalpy		= 0.0;
+		
 	cp.dpdx 		= malloc ((gv.len_ox+1) * sizeof (double*) 		); 
 	for (int i = 0; i < (gv.len_ox+1); i++){
 		cp.dpdx[i] 	= malloc ((gv.len_ox) * sizeof (double) 		);
