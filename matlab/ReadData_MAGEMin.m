@@ -30,8 +30,8 @@ fgetl(fid);     % skip comment line
 
 for iPoint=1:length(newPoints)
     % Read line with P/T and Gamma
-    line = fgetl(fid);
-    A       = sscanf(line,'%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f');
+    line    = fgetl(fid);
+    A       = sscanf(line,'%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f');
     
     % Retrieve info from first (numeric) line
     numPoint= A(1); % the number of the calculation point (in parallel, this may get mixed up)
@@ -40,8 +40,10 @@ for iPoint=1:length(newPoints)
     T       = A(4);
     Gibbs   = A(5);
     br_norm = A(6);
-    Gamma   = A(7:end);
-    
+    Gamma   = A(7:17);
+    Vp      = A(18);
+    Vs      = A(19);
+
     % Read stable assemblage
     StableSolutions =   [];
     StableFractions =   [];
@@ -165,6 +167,9 @@ for iPoint=1:length(newPoints)
     PhaseData{newPoints(numPoint)}.Density_liq      =   Density_liq;
     PhaseData{newPoints(numPoint)}.br_norm          =   br_norm;
     PhaseData{newPoints(numPoint)}.Gamma            =   Gamma;
+    PhaseData{newPoints(numPoint)}.Vp               =   Vp;
+    PhaseData{newPoints(numPoint)}.Vs               =   Vs;
+
     PhaseData{newPoints(numPoint)}.StableSolutions  =   StableSolutions;
     PhaseData{newPoints(numPoint)}.StableFractions  =   StableFractions;
     PhaseData{newPoints(numPoint)}.EMlist  			=   EMlist;

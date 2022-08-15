@@ -6,7 +6,7 @@ function Data_interp = Interpolate_AMR_grid(elements, TP_vec, Data, Ti, Pi)
 % triangulate AMR grid:
 tri1        =   elements(:,1:3);
 tri2        =   elements(:,[1 3 4]);
-tri3        =   elements(:,[2 3 4]);
+% tri3        =   elements(:,[2 3 4]);
 tri         =   [tri1; tri2];  
 pts         =   TP_vec; 
 
@@ -84,14 +84,17 @@ N(:,1)=((x2-xi).*(y3-yi) - (x3-xi).*(y2-yi))./A2;
 N(tinan,:)=0;           % give zero weight to nan data
 
 Z_input = z;
-Z_output = zeros(length(xi),size(z,2));
-for i=1:size(Z_input,2)
+% Z_output = zeros(length(xi),size(z,2));
+% for i=1:size(Z_input,2)
+    i=1;
     z = Z_input(:,i); z = z';
     zi = sum(z(tri).*N,2);  % interpolate
     zi(tinan)=nan;          % poke in nans where needed
-    zi=reshape(zi,zisiz);   % reshape output to match xi and yi input
+%     zi=reshape(zi,zisiz);   % reshape output to match xi and yi input
+%     Z_output(:,i) = zi;
     
-    Z_output(:,i) = zi;
-end
+    Z_output=reshape(zi,zisiz);   % reshape output to match xi and yi input
+    
+% end
 
 

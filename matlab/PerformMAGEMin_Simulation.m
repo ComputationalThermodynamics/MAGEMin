@@ -8,12 +8,12 @@ if ComputeAllPoints
 else
     Mode = Mode{2};
 end
-
+sys_in              =   Chemistry.sys_in;               % predefined chemical composition
 Test                =   Chemistry.Predefined;
 if isnan(Test)
-    MolProp         =   Chemistry.MolProp;    % we do not employ a predefined test, but specify mol proportions insteadMolProp
+    OxProp         =   Chemistry.OxProp;    % we do not employ a predefined test, but specify mol proportions insteadOxProp
 else
-    MolProp         =   [];
+    OxProp         =   [];
 end
 
 Use_xEOS            =   Computation.Use_xEOS;
@@ -75,8 +75,8 @@ switch Mode
 %         else
 %             % employ specified chemistry
 %             command = [command, ' --Bulk='];
-%             for iTable=1:size(MolProp,1)
-%                 command = [command,num2str(table2array(MolProp(iTable,2))),','];
+%             for iTable=1:size(OxProp,1)
+%                 command = [command,num2str(table2array(OxProp(iTable,2))),','];
 %             end
 %         end
 %         system('killall MAGEMin 2>&1')
@@ -85,7 +85,7 @@ switch Mode
 %         
         
         tic
-        Execute_MAGEMin(Computation, VerboseLevel, n_points, Test, MolProp)
+        Execute_MAGEMin(Computation, VerboseLevel, n_points, Test, OxProp, sys_in)
         ForwardSimulation_Time = toc
         
         if dlg.CancelRequested
@@ -119,8 +119,8 @@ switch Mode
             else
                 % employ specified chemistry
                 command = [command, ' --Bulk='];
-                for iTable=1:size(MolProp,1)
-                    command = [command,num2str(table2array(MolProp(iTable,2))),','];
+                for iTable=1:size(OxProp,1)
+                    command = [command,num2str(table2array(OxProp(iTable,2))),','];
                 end
             end
             % store this data for debugging later (so we can reconstruct how
@@ -137,7 +137,7 @@ switch Mode
             n_points = Write_MAGEMin_InputFile(id, TP_vec, PhaseData, UseGammaEstimation, Use_xEOS, Use_EMFrac);
            
             Computation.NumRanks=1; % makes no sense to do a single calculation on >1 core 
-            Execute_MAGEMin(Computation, VerboseLevel, n_points, Test, MolProp)
+            Execute_MAGEMin(Computation, VerboseLevel, n_points, Test, OxProp, sys_in)
             
             ForwardSimulation_Time = ForwardSimulation_Time + toc;
             disp(['Percentage finished ',num2str(iPoint/length(newPoints)*100),'% ; total forward computational time = ',num2str(ForwardSimulation_Time),'s'])

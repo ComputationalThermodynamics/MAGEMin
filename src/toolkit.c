@@ -5,8 +5,8 @@
 #include <string.h>
 #include <complex.h> 
 #include <lapacke.h> 
-
 #include "MAGEMin.h"
+
 #include "gem_function.h"
 #include "gss_function.h"
 #include "NLopt_opt_function.h"
@@ -17,6 +17,168 @@
 
 #define FALSE  0
 #define TRUE   1
+
+/**
+  function to print help and give command line parameters
+*/
+void print_help(	global_variable gv	){
+	
+	printf("\n");
+	printf(" +---------------+-----------------------+\n");
+	printf(" |    MAGEMin    |   %15s  |\n",gv.version);
+	printf(" +---------------+-----------------------+\n");
+	printf("\n");
+	printf(" List of valid arguments:\n");
+	printf(" ------------------------\n");	
+	printf("\n");
+	printf("  --version           : Sends back the called version of MAGEMin\n");	
+	printf("  --Verb=     [int]   : Verbose option, 0. inactive, 1. active\n");	
+	printf("  --File=     [str]   : File name containing multiple point calculation\n");
+	printf("  --n_points= [int]   : Number of points when using 'File' argument\n");
+	printf("  --test=     [int]   : Number of points when using 'File' argument\n");
+	printf("  --Pres=     [float] : Pressure in kilobar\n");
+	printf("  --Temp=     [float] : Temperature in Celsius\n");
+	printf("  --Bulk=     [float] : Bulk rock composition in [mol] or [wt] fraction*\n");
+	printf("  --Gam=      [float] : Chemical potential of oxides (pure components)*\n");
+	printf("  --sys_in=   [str]   : inputed system composition, [mol](default) or [wt]\n");
+	printf("\n");
+	printf(" *the list of oxides must be given as follow:\n");
+	printf("  SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3, H2O\n");
+	printf("\n");
+	printf(" Note that FeOt (total iron) is used here!\n");	
+	printf("\n\n");
+	printf(" Example of single point calculation:\n");
+	printf(" ------------------------------------\n");	
+	printf("\n");
+    printf("  ./MAGEMin --Verb=1 --Temp=718.750 --Pres=30.5000 --test=0 >&log.txt\n");
+    printf("\n");
+	printf(" Here, the verbose is active and the bulk rock composition of 'test 0' is selected. The output of the verbose is saved as a log file 'log.txt'\n");
+    printf(" Note that you don't have to use a test bulk composition, you can provide you own using arg '--Bulk='\n");
+	printf("\n\n");
+	printf(" Example multiple points calculation:\n");
+	printf(" ------------------------------------\n");	
+    printf("\n");
+	printf(" To run multiple points at once you can pass an input file containing the list of points such as\n");
+    printf("\n");
+    printf("  ./MAGEMin --Verb=1 --File='path_to_file' --n_points=x\n");
+    printf("\n");
+	printf(" where 'path_to_file' is the location of the file and 'x' is an integer corresponding to the total number of points contained in the file. The file must have one point per line using the following structure\n");
+    printf("\n");
+	printf("  Mode(0-1), Pressure(kbar), Temperature(C), Gam1, Gam2, ..., Gamn\n");
+    printf("\n");
+	printf(" *Mode = 0 for global minimization\n");
+    printf("\n");
+	printf(" A valid list of points is for instance (MAGEMin_input.dat):\n");
+    printf("\n");	
+    printf("  0 0.0 800.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0\n");
+    printf("  0 4.0 800.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0\n");
+    printf("  0 7.0 800.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0\n");
+    printf("  0 7.0 700.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0\n");	
+    printf("\n");	
+	printf(" Example of parallel points calculation:\n");
+	printf(" ---------------------------------------\n");	
+    printf("\n");	
+    printf(" Simply call 'MPI' before MAGEMin and give the number of cores you want to use. Valid calls using previously defined input file are for instance\n");	
+    printf("\n");	
+    printf("  mpirun -np 8 ./MAGEMin --Verb=1 --File=/path_to_file/MAGEMin_input.dat --n_points=4\n");
+    printf("  mpiexec -n 8 ./MAGEMin --Verb=1 --File=/path_to_file/MAGEMin_input.dat --n_points=4\n");	   
+    printf("\n");	 
+    printf("\n");	 
+
+}
+
+/**
+  retrieve bulk rock composition and PT compositions
+*/
+bulk_info retrieve_bulk_PT(				global_variable      gv,
+										char 				*sys_in,
+										char    			 File[50],
+										io_data 		    *input_data,
+										int 				 test,
+										int					 sgleP,
+										double				*Bulk,
+										bulk_info 			 z_b,		
+										double 				*bulk_rock			){
+
+	/* bulk from command line arguments */
+	if (Bulk[0] > 0.0) {
+		if (gv.verbose == 1){
+			printf("\n");
+			printf("   - Minimization using bulk-rock composition from arg\n");	
+		}	
+		for (int i = 0; i < gv.len_ox; i++){ bulk_rock[i] = Bulk[i];}
+	}
+	/* bulk from file */
+	if (strcmp( File, "none") != 0){
+
+		z_b.P = input_data[sgleP].P;
+		z_b.T = input_data[sgleP].T + 273.15;					/** K to C 		*/
+
+		if (input_data[sgleP].in_bulk[0] > 0.0){
+			if (gv.verbose == 1){
+				printf("\n");
+				printf("   - Minimization using bulk-rock composition from input file\n");	
+			}	
+			for (int i = 0; i < gv.len_ox; i++){
+				bulk_rock[i] = input_data[sgleP].in_bulk[i];					
+			}
+		}
+	}
+
+	/* transform bulk from wt% to mol% for minimiation */
+	if (strcmp( sys_in, "wt") == 0){	
+		for (int i = 0; i < gv.len_ox; i++){ bulk_rock[i] /= z_b.masspo[i];}
+	}
+
+
+	if (gv.verbose == 1){	
+		if (strcmp( sys_in, "mol") == 0){	
+			printf("   - input system composition   : mol fraction\n"	);
+		}
+		else if (strcmp( sys_in, "wt") == 0){	
+			printf("   - input system composition   : wt fraction\n"	);
+		}
+		else{
+			printf("   - input system composition   : unknown! [has to be mol or wt]\n");
+		}
+		printf("\n\n");
+	}	
+
+
+
+	return z_b;
+};
+
+
+/**
+  retrieve bulk rock composition and PT compositions
+  This function is not used in the C version of MAGEMin, but can be called via the Julia wrapper MAGEMin_C to normalize the composition
+ */
+void convert_system_comp(				global_variable      gv,
+										char 				*sys_in,
+										bulk_info 			 z_b,		
+										double 				*bulk_rock			){
+
+	/* transform bulk from wt% to mol% for minimization */
+	if (strcmp( sys_in, "wt") == 0){	
+		for (int i = 0; i < gv.len_ox; i++){ bulk_rock[i] /= z_b.masspo[i];}
+	}
+
+};
+
+
+/* Normalize array to sum to 1 */
+double* norm_array(double *array, int size) {
+	int i;
+	double sum = 0.0;
+	for (i = 0; i < size; i++) {
+		sum += array[i];
+	}
+	for (i = 0; i < size; i++) {
+		array[i] /= sum;
+	}	
+	return array;
+}
 
 /**
   test function for Brent method
@@ -105,17 +267,18 @@ double Maximum(double a,double b) {
 /**
   main Brent root finding routine 
 */
-double BrentRoots(  double x1, 
-					double x2, 
+double BrentRoots(  double  x1, 
+					double  x2, 
 					double *data,
-					double Tolerance,
+					double  Tolerance,
 					
-					int mode,
-					int maxIterations,
+					int 	mode,
+					int 	maxIterations,
 					double *valueAtRoot,
 					
-					int *niter, 
-					int *error )  {
+					int 	*niter, 
+					int 	*error 			
+){
 
   double FPP = 1e-11, nearzero = 1e-40;
 
@@ -401,9 +564,9 @@ double partial_euclidean_distance(double *array1 ,double *array2 ,int n){
   inverse a matrix using LAPACKE dgetrf and dgetri
 */	
 void inverseMatrix(double *A1, int n){
-	int    ipiv[n];					
+	int    ipiv[n];	
 	int    info;
-	
+
 	/* call lapacke to inverse Matrix */
 	info = LAPACKE_dgetrf(LAPACK_ROW_MAJOR, n, n, A1, n, ipiv); 
 	info = LAPACKE_dgetri(LAPACK_ROW_MAJOR, n, A1, n, ipiv);
@@ -525,9 +688,8 @@ void print_vector_norm( char* desc, int m, int n, double* a, int lda ) {
 /**
 	function to print out considered phases structure 
 */
-void print_cp(
-	global_variable gv,
-	csd_phase_set  *cp
+void print_cp(		global_variable	 gv,
+					csd_phase_set  	*cp
 ){
 	printf("PRINT CONSIDERED PHASES\n");
 	printf("------------------------\n\n");
@@ -557,10 +719,6 @@ void print_cp(
 		}
 		printf("\n");
 		printf(" SS_mode:  %+10f\n", cp[i].ss_n);
-	 	printf(" SS_z_em:  ");
-		for (int ii = 0; ii < cp[i].n_em; ii++){
-			printf("%+10f ",cp[i].z_em[ii]);
-		}
 		printf("\n");
 	 	printf(" SS_p_em:  ");
 		for (int ii = 0; ii < cp[i].n_em; ii++){
@@ -596,8 +754,9 @@ void print_cp(
    rotate G-hyperplane using Gamma
 */
 void print_SS_informations(		global_variable gv,
-								SS_ref SS_ref_db,
-								int		iss					){
+								SS_ref 			SS_ref_db,
+								int				iss		
+){
 	printf(" %4s  | %+10f | %2d | %+10f | %+10f | ",gv.SS_list[iss],SS_ref_db.df,SS_ref_db.sf_ok,SS_ref_db.sum_xi,SS_ref_db.LM_time);
 	for (int k = 0; k < SS_ref_db.n_xeos; k++) {
 		printf(" %+10f",SS_ref_db.xeos[k]);
@@ -605,24 +764,6 @@ void print_SS_informations(		global_variable gv,
 	for (int k = SS_ref_db.n_xeos; k < 11; k++){
 		printf(" %10s","-");
 	}
-	//printf(" | ");
-	//for (int k = 0; k < SS_ref_db.n_em; k++) {
-		//printf(" %+10f",SS_ref_db.p[k]);
-	//}
-	//for (int k = SS_ref_db.n_em; k < 12; k++){
-		//printf(" %10s","-");
-	//}
-	//printf(" | ");
-	//for (int k = 0; k < gv.len_ox; k++){
-		//printf(" %+10f",SS_ref_db.ss_comp[k]*SS_ref_db.factor);
-	//}
-	printf(" | ");
-	for (int k = 0; k < SS_ref_db.n_xeos; k++) {
-		printf(" %+10f",SS_ref_db.dfx[k]);
-	}
-	//for (int k = SS_ref_db.n_em; k < 12; k++){
-		//printf(" %10s","-");
-	//}
 	printf("\n");
 }
 
@@ -630,7 +771,7 @@ void print_SS_informations(		global_variable gv,
    rotate G-hyperplane using Gamma
 */
 SS_ref rotate_hyperplane(	global_variable gv,
-							SS_ref SS_ref_db		){
+							SS_ref 			SS_ref_db		){
 	
 	/** rotate gbase with respect to the G-hyperplane (change of base) */
 	for (int k = 0; k < SS_ref_db.n_em; k++) {
@@ -638,6 +779,20 @@ SS_ref rotate_hyperplane(	global_variable gv,
 		for (int j = 0; j < gv.len_ox; j++) {
 			SS_ref_db.gb_lvl[k] -= SS_ref_db.Comp[k][j]*gv.gam_tot[j];
 		}
+	}	
+	
+	return SS_ref_db;
+}
+
+/**
+   non rotated G-hyperplane
+*/
+SS_ref non_rot_hyperplane(	global_variable gv,
+							SS_ref 			SS_ref_db		){
+	
+	/** rotate gbase with respect to the G-hyperplane (change of base) */
+	for (int k = 0; k < SS_ref_db.n_em; k++) {
+		SS_ref_db.gb_lvl[k] = SS_ref_db.gbase[k];
 	}	
 	
 	return SS_ref_db;
@@ -663,24 +818,23 @@ SS_ref raw_hyperplane(		global_variable  gv,
    restrict solution phase hyper volume for local minimization
 */
 SS_ref restrict_SS_HyperVolume(		global_variable gv, 
-									SS_ref SS_ref_db,
-									double box_size		){
+									SS_ref 			SS_ref_db,
+									double 			box_size		){
 									
 	for (int j = 0; j < SS_ref_db.n_xeos; j++){
-		SS_ref_db.box_bounds[j][0] = SS_ref_db.iguess[j] - box_size;
-		SS_ref_db.box_bounds[j][1] = SS_ref_db.iguess[j] + box_size;
+		SS_ref_db.bounds[j][0] = SS_ref_db.iguess[j] - box_size;
+		SS_ref_db.bounds[j][1] = SS_ref_db.iguess[j] + box_size;
 		
-		if (SS_ref_db.box_bounds[j][0] < SS_ref_db.box_bounds_default[j][0]){
-			SS_ref_db.box_bounds[j][0] = SS_ref_db.box_bounds_default[j][0];
+		if (SS_ref_db.bounds[j][0] < SS_ref_db.bounds_ref[j][0]){
+			SS_ref_db.bounds[j][0] = SS_ref_db.bounds_ref[j][0];
 		}
-		if (SS_ref_db.box_bounds[j][1] > SS_ref_db.box_bounds_default[j][1]){
-			SS_ref_db.box_bounds[j][1] = SS_ref_db.box_bounds_default[j][1];
+		if (SS_ref_db.bounds[j][1] > SS_ref_db.bounds_ref[j][1]){
+			SS_ref_db.bounds[j][1] = SS_ref_db.bounds_ref[j][1];
 		}
 	}
 						
 	return SS_ref_db;										
 }
-
 
 /**
    check bounds
@@ -689,18 +843,16 @@ SS_ref check_SS_bounds(		global_variable gv,
 							SS_ref SS_ref_db					){
 									
 	for (int j = 0; j < SS_ref_db.n_xeos; j++){
-		if (SS_ref_db.iguess[j] < SS_ref_db.box_bounds_default[j][0]){
-			SS_ref_db.iguess[j] = SS_ref_db.box_bounds_default[j][0];
+		if (SS_ref_db.iguess[j] < SS_ref_db.bounds_ref[j][0]){
+			SS_ref_db.iguess[j] = SS_ref_db.bounds_ref[j][0];
 		}
-		if (SS_ref_db.iguess[j] > SS_ref_db.box_bounds_default[j][1]){
-			SS_ref_db.iguess[j] = SS_ref_db.box_bounds_default[j][1];
+		if (SS_ref_db.iguess[j] > SS_ref_db.bounds_ref[j][1]){
+			SS_ref_db.iguess[j] = SS_ref_db.bounds_ref[j][1];
 		}
 	}
 						
 	return SS_ref_db;										
 }
-
-
 
 /**
    retrieve the number of solution phase that are active 
@@ -798,5 +950,296 @@ global_variable get_ss_id(	global_variable  	 gv,
 		printf("   !WARNING! n_ss_phase %i; sum(ss_flag[1]) %i;\n\n",gv.n_cp_phase,k);
 	}
 	
+	return gv;
+}
+
+/**
+  Melt-fraction correction for P-wave and S-wave velocities
+  The routine uses the reduction formulation of Clark et al., (2017) and is based on the equilibrium geometry model for the solid skeleton of Takei et al., 1997.
+  * aspectRatio:  Coefficient defining the geometry of the solid framework (contiguity): 0.0 (layered melt distributed) < 0.1 (grain boundary melt) < 1.0 (melt in separated bubble pockets)
+  
+	printf(" Vp_Sol      (harm) : %+12.5f\t [km/s]\n",gv.solid_Vp);
+	printf(" Vs_Sol      (harm) : %+12.5f\t [km/s]\n",gv.solid_Vs);
+	gv.solid_Vs = anelastic_correction( 0,
+										gv.solid_Vs,
+										z_b.P,
+										z_b.T 		);
+	printf(" Vs_Sol      (anel) : %+12.5f\t [km/s]\n",gv.solid_Vs);
+	if (gv.melt_fraction > 0.0){
+		wave_melt_correction(  	gv.melt_bulkModulus,
+								gv.solid_bulkModulus,
+								gv.solid_shearModulus,
+								gv.melt_density,
+								gv.solid_density,
+								gv.solid_Vp,	
+								gv.solid_Vs,
+								gv.melt_fraction,
+								0.1,
+								gv.V_cor				);
+		printf("\n Vp_Melt_cor        : %+12.5f\t [km/s]\n",  gv.V_cor[0]);
+		printf(" Vs_Melt_cor        : %+12.5f\t [km/s]\n",	gv.V_cor[1]);
+		printf(" Vp/Vs_Melt_cor     : %+12.5f\t [km/s]\n",gv.V_cor[0]/gv.V_cor[1]);
+	}
+	printf("\n");
+
+*/
+global_variable wave_melt_correction( 	global_variable     gv,
+										bulk_info 			z_b,	
+										double  			aspectRatio		)
+{
+
+	if (gv.melt_fraction > 0.0 && gv.V_cor[1] > 0.0){
+		double sum 	 =  gv.melt_fraction + gv.solid_fraction;
+		gv.solid_fraction		/= sum;
+		gv.melt_fraction	/= sum;
+
+		double poisson = 0.25;
+
+		double aij[3][4] ={ {0.318, 6.780, 57.560, 0.182},
+							{0.164, 4.290, 26.658, 0.464},
+							{1.549, 4.814, 8.777, -0.290}   };
+
+		double bij[2][2] ={  {-0.3238, 0.2341},
+							{-0.1819, 0.5103}  			};
+
+		double a[3];
+		double b[2];
+
+		for (int i = 0; i < 3; i++){
+			a[i] = aij[i][0]*exp( aij[i][1]*(poisson-0.25) + aij[i][2]*pow(poisson - 0.25,3.0) ) + aij[i][3];
+		}
+		for (int i = 0; i < 2; i++){
+			b[i] = bij[i][0]*poisson + bij[i][1];
+		}
+		
+		double nk      = a[0]*aspectRatio + a[1]*(1.0 - aspectRatio) + a[2]*aspectRatio*(1.0 - aspectRatio)*(0.5 - aspectRatio);
+		double nmu     = b[0]*aspectRatio + b[1]*(1.0 - aspectRatio);
+
+		double ksk_k   = pow(aspectRatio,nk);
+		double musk_mu = pow(aspectRatio,nmu);
+
+		double ksk     = ksk_k*gv.solid_bulkModulus;
+		double musk    = musk_mu*gv.solid_shearModulus;
+
+		double kb      = (1.0-gv.melt_fraction)*ksk;
+		double mu      = (1.0-gv.melt_fraction)*musk;
+
+		double LambdaK = gv.solid_bulkModulus/kb;
+		double LambdaG = gv.solid_shearModulus/mu;
+
+		double beta    = gv.solid_bulkModulus/gv.melt_bulkModulus;
+		double gamma   = gv.solid_shearModulus/gv.solid_bulkModulus;
+
+		double deltaVp = (((((beta -1.0)*LambdaK) / ((beta-1.0) + LambdaK) + 4.0/3.0*gamma*LambdaG ) / ( 1.0 + 4.0/3.0*gamma)) - (1.0 - gv.melt_density/gv.solid_density) )*(gv.melt_fraction/2.0);
+		double deltaVs = ( LambdaG - (1.0 - gv.melt_density/gv.solid_density) )*(gv.melt_fraction/2.0);
+
+		gv.V_cor[0] = gv.solid_Vp - deltaVp*gv.solid_Vp;
+		gv.V_cor[1] = gv.solid_Vs - deltaVs*gv.solid_Vs;
+
+		if (gv.V_cor[0] < 0.0){ gv.V_cor[0] = 0.0;}
+		if (gv.V_cor[1] < 0.0){ gv.V_cor[1] = 0.0;}
+
+	}
+
+
+	if (gv.melt_fraction == 0.0){
+		//aspect ratio has been choosen by hand to fit Vs = 2.0km/s at surface.
+		aspectRatio 				= 0.25;
+		double poisson 			 	= 0.25;
+
+		double depth_m 				= z_b.P*1e5/(2600.0*9.81);
+		double porosity_fraction 	= 0.474/pow(1.0+0.071*depth_m,5.989);
+
+		double solid_fraction    	= 1.0 - porosity_fraction;
+		double porosity_density  	= 1000.0;
+		double porosity_bulkModulus = 2.9;
+		double aij[3][4] ={ {0.318, 6.780, 57.560, 0.182},
+							{0.164, 4.290, 26.658, 0.464},
+							{1.549, 4.814, 8.777, -0.290}   };
+
+		double bij[2][2] ={  {-0.3238, 0.2341},
+							{-0.1819, 0.5103}  			};
+
+		double a[3];
+		double b[2];
+
+		for (int i = 0; i < 3; i++){
+			a[i] = aij[i][0]*exp( aij[i][1]*(poisson-0.25) + aij[i][2]*pow(poisson - 0.25,3.0) ) + aij[i][3];
+		}
+		for (int i = 0; i < 2; i++){
+			b[i] = bij[i][0]*poisson + bij[i][1];
+		}
+	
+		double nk      = a[0]*aspectRatio + a[1]*(1.0 - aspectRatio) + a[2]*aspectRatio*(1.0 - aspectRatio)*(0.5 - aspectRatio);
+		double nmu     = b[0]*aspectRatio + b[1]*(1.0 - aspectRatio);
+
+		double ksk_k   = pow(aspectRatio,nk);
+		double musk_mu = pow(aspectRatio,nmu);
+
+		double ksk     = ksk_k*gv.solid_bulkModulus;
+		double musk    = musk_mu*gv.solid_shearModulus;
+
+		double kb      = (1.0-porosity_fraction)*ksk;
+		double mu      = (1.0-porosity_fraction)*musk;
+
+		double LambdaK = gv.solid_bulkModulus/kb;
+		double LambdaG = gv.solid_shearModulus/mu;
+
+		double beta    = gv.solid_bulkModulus/porosity_bulkModulus;
+		double gamma   = gv.solid_shearModulus/gv.solid_bulkModulus;
+
+		// double deltaVp = (((((beta -1.0)*LambdaK) / ((beta-1.0) + LambdaK) + 4.0/3.0*gamma*LambdaG ) / ( 1.0 + 4.0/3.0*gamma)) - (1.0 - porosity_density/gv.solid_density) )*(porosity_fraction/2.0);
+		double deltaVs = ( LambdaG - (1.0 - porosity_density/gv.solid_density) )*(porosity_fraction/2.0);
+
+		// gv.V_cor[0] = gv.solid_Vp - deltaVp*gv.solid_Vp;
+		gv.V_cor[1] = gv.solid_Vs - deltaVs*gv.solid_Vs;
+
+		// if (gv.V_cor[0] < 0.0){ gv.V_cor[0] = 0.0;}
+		if (gv.V_cor[1] < 0.0){ gv.V_cor[1] = 0.0;}	
+
+	}
+	return gv;
+
+}	
+
+double anelastic_correction(  	int 	water,
+								double 	Vs0,
+								double 	P,
+								double 	T 		)
+{
+	double rH = 0.0, COH = 0.0;
+    double kbar2pa = 100.0e3;
+
+    double Pref    = P*kbar2pa;            	//pa
+    double R       = 8.31446261815324;
+
+    // values based on fitting experimental constraints (Behn et al., 2009)
+    double alpha   = 0.27;
+    double B0      = 1.28e8;               	//m/s
+    double dref    = 1.24e-5;             	//m
+    double COHref  = 50.0/1e6;             	//50H/1e6Si
+
+    double Gref    = 1.09;
+    double Eref    = 505.0e3;              	//J/mol
+    double Vref    = 1.2e-5;               	//m3*mol
+
+    double G       = 1.00;
+    double E       = 420.0e3;              	//J/mol (activation energy)
+    double V       = 1.2e-5;               	//m3*mol (activation volume)
+
+    // using remaining values from Cobden et al., 2018
+    // double omega   = 0.01;                 	//Hz (frequency to match for studied seismic system)
+    double omega   = 3.0;                 	//Hz (frequency for Toba)
+    double d       = 1e-2;                 	//m (grain size)
+    
+    if (water == 0){
+        COH     = 50.0/1e6;             	//for dry mantle
+        rH      = 0.0;                  	//for dry mantle
+	}
+	else if(water == 1){
+        COH     = 1000.0/1e6;          	 	//for damp mantle    
+        rH      = 1.0;                	  	//for damp mantle
+	}
+	else if(water == 2){
+        COH     = 3000.0/1e6;           	//for wet mantle (saturated water)
+        rH      = 2.0;                  	//for wet mantle
+	}
+	else{
+        printf("WARN: water mode is not implemented. Valid values are 0 (dry),1 (dampened) and 2 (wet)\n");	
+	}
+
+    double B       = B0*pow(dref,G-Gref)*pow(COH/COHref,rH) * exp(((E+Pref*V)-(Eref + Pref*Vref))/(R*T));
+    double Qinv    = pow( B*pow(d,(-G))*(1.0/omega) * exp(- (E+Pref*V)/(R*T)) ,alpha);
+    double Vs_anel = Vs0*(1.0 - (Qinv)/(2.0*tan(3.141592*alpha/2.0) ) );
+
+    return Vs_anel;
+
+}
+
+global_variable get_sol_phase_infos( 		io_data 			 input_data,
+											bulk_info 	 		 z_b,
+											global_variable 	 gv,
+
+											PP_ref  			*PP_ref_db,
+											SS_ref  			*SS_ref_db,
+											csd_phase_set  		*cp						){
+
+	printf("\n");
+	printf("  Spit out Solution model informations for given input\n");
+	printf("  ════════════════════════════════════════════════════\n");
+	int id_cp = 0;
+	for (int i = 0; i < input_data.n_phase; i++){
+		/* simple function to get the array index of the given solution phase */
+		int ss = get_phase_id(		gv,
+									input_data.phase_names[i]	);
+		
+		for (int j = 0; j < SS_ref_db[ss].n_xeos; j++){
+			SS_ref_db[ss].iguess[j] =  input_data.phase_xeos[i][j];
+		}
+		SS_ref_db[ss] = raw_hyperplane(		gv, 
+											SS_ref_db[ss],
+											SS_ref_db[ss].gbase		);
+		
+		SS_ref_db[ss] = PC_function(	gv,
+										SS_ref_db[ss], 
+										z_b,
+										gv.SS_list[ss] 				);
+										
+		strcpy(cp[id_cp].name,gv.SS_list[ss]);				/* get phase name */	
+		
+		cp[id_cp].split 		= 0;							
+		cp[id_cp].id 			= ss;						/* get phase id */
+		cp[id_cp].n_xeos		= SS_ref_db[ss].n_xeos;		/* get number of compositional variables */
+		cp[id_cp].n_em			= SS_ref_db[ss].n_em;		/* get number of endmembers */
+		cp[id_cp].n_sf			= SS_ref_db[ss].n_sf;		/* get number of site fractions */
+		
+		cp[id_cp].df			= SS_ref_db[ss].df_raw;
+		cp[id_cp].factor		= SS_ref_db[ss].factor;	
+		
+		cp[id_cp].ss_flags[0] 	= 1;							/* set flags */
+		cp[id_cp].ss_flags[1] 	= 1;
+		cp[id_cp].ss_flags[2] 	= 0;
+		
+		cp[id_cp].ss_n          = 1.0;			/* get initial phase fraction */
+		
+		for (int ii = 0; ii < cp[id_cp].n_xeos; ii++){
+			cp[id_cp].xeos[ii]		= SS_ref_db[ss].iguess[ii]; 
+			cp[id_cp].dfx[ii]		= SS_ref_db[ss].dfx[ii]; 
+		}
+		
+		for (int ii = 0; ii < cp[id_cp].n_em; ii++){
+			cp[id_cp].p_em[ii]		= SS_ref_db[ss].p[ii];
+			cp[id_cp].xi_em[ii]		= SS_ref_db[ss].xi_em[ii];
+			cp[id_cp].mu[ii]		= SS_ref_db[ss].mu[ii];
+			cp[id_cp].gbase[ii]		= SS_ref_db[ss].gbase[ii];
+		}
+		for (int ii = 0; ii < SS_ref_db[ss].n_em; ii++){
+			for (int jj = 0; jj < SS_ref_db[ss].n_xeos; jj++){
+				cp[id_cp].dpdx[ii][jj] = SS_ref_db[ss].dp_dx[ii][jj];
+			}
+		}
+		for (int ii = 0; ii < gv.len_ox; ii++){
+			cp[id_cp].ss_comp[ii]	= SS_ref_db[ss].ss_comp[ii];
+		}
+		for (int ii = 0; ii < cp[id_cp].n_sf; ii++){
+			cp[id_cp].sf[ii]		= SS_ref_db[ss].sf[ii];
+		}	
+		
+		gv.id_solvi[ss][gv.n_solvi[ss]] = id_cp;
+		gv.n_solvi[ss] 	   	   += 1;
+		id_cp 				   += 1;
+		gv.len_cp 			   += 1;
+		gv.n_cp_phase 		   += 1;
+		gv.n_phase             += 1;
+	
+		if (gv.verbose ==1){
+			printf("   -> reading in %4s %+10f|",gv.SS_list[ss],SS_ref_db[ss].df);
+			for (int j = 0; j < SS_ref_db[ss].n_xeos; j++){
+				printf(" %+12.5f", input_data.phase_xeos[i][j]);
+			}
+			printf("\n");
+		}
+		
+	}
 	return gv;
 }

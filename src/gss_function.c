@@ -27,10 +27,23 @@ typedef struct get_datas{
 	double comp[nEl];
 } get_data;
 
+void init_data(	void *comp_array ){
+	get_data *d  = (get_data *) comp_array;
+	for (int i = 0; i < nEl; i++){
+		d->comp[i] = 0.0;
+	}
+}
+
+void init_pp( void *PP_db ){
+	PP_ref *d  = (PP_ref *) PP_db;
+	for (int i = 0; i < nEl; i++){
+		d->Comp[i] = 0.0;
+	}
+}
 /** 
   function to easely get gb and comp in order to define solid solutions
 */
-get_data get_gb_comp(	double 		*density, 
+get_data get_gb_comp(	double 		*ElShearMod, 
 						double 		*gb_tmp,
 						PP_ref 		 PP_db,
 						get_data 	 data, 
@@ -41,8 +54,9 @@ get_data get_gb_comp(	double 		*density,
 						char 		*name, 
 						char 		*state		){
 					 
-	PP_db  = G_EM_function(EM_database, bulk_rock, P, T, name, state);
-   *gb_tmp = PP_db.gbase;
+	PP_db   	= G_EM_function(EM_database, bulk_rock, P, T, name, state);
+   *ElShearMod  = PP_db.phase_shearModulus;
+   *gb_tmp  	= PP_db.gbase;
 
 	for (int i = 0; i < nEl; i++){
 		data.comp[i] = PP_db.Comp[i];
@@ -56,21 +70,21 @@ get_data get_gb_comp(	double 		*density,
 SS_ref G_SS_bi_function(SS_ref SS_ref_bi_db, int EM_database, double *bulk_rock, double P, 
 								  double T, double eps){	
 								
-	char   *EM_tmp[] 		= {"phl","annm","obi","east","tbi","fbi"};	
+	char   *EM_tmp[]   = {"phl","annm","obi","east","tbi","fbi"};	
 	for (int i = 0; i < SS_ref_bi_db.n_em; i++){ 
 		strcpy(SS_ref_bi_db.EM_list[i],EM_tmp[i]);			
 	}
 									  
-    SS_ref_bi_db.W[0] = 12.;
-    SS_ref_bi_db.W[1] = 4.;
-    SS_ref_bi_db.W[2] = 10.;
-    SS_ref_bi_db.W[3] = 30.;
-    SS_ref_bi_db.W[4] = 8.;
-    SS_ref_bi_db.W[5] = 8.;
-    SS_ref_bi_db.W[6] = 5.;
-    SS_ref_bi_db.W[7] = 32.;
-    SS_ref_bi_db.W[8] = 13.6;
-    SS_ref_bi_db.W[9] = 7.;
+    SS_ref_bi_db.W[0]  = 12.;
+    SS_ref_bi_db.W[1]  = 4.;
+    SS_ref_bi_db.W[2]  = 10.;
+    SS_ref_bi_db.W[3]  = 30.;
+    SS_ref_bi_db.W[4]  = 8.;
+    SS_ref_bi_db.W[5]  = 8.;
+    SS_ref_bi_db.W[6]  = 5.;
+    SS_ref_bi_db.W[7]  = 32.;
+    SS_ref_bi_db.W[8]  = 13.6;
+    SS_ref_bi_db.W[9]  = 7.;
     SS_ref_bi_db.W[10] = 24.;
     SS_ref_bi_db.W[11] = 5.6;
     SS_ref_bi_db.W[12] = 40.0;
@@ -78,68 +92,87 @@ SS_ref G_SS_bi_function(SS_ref SS_ref_bi_db, int EM_database, double *bulk_rock,
     SS_ref_bi_db.W[14] = 40.0;			  	
 									  								  			  
     PP_ref PP_db;
+	init_pp(&PP_db);
 
 	double gb_tmp;
-    double density;
+    double ElShearMod;
 
     int i,j;
 	
 	int n_em = SS_ref_bi_db.n_em;
 	
-	get_data chem_comp1       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp1, EM_database, bulk_rock, P, T, "phl", "equilibrium");
+	get_data chem_comp1;
+	init_data(&chem_comp1);
+	chem_comp1       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp1, EM_database, bulk_rock, P, T, "phl", "equilibrium");
 	double gb1       = gb_tmp;
-	SS_ref_bi_db.density[0] = density;
+	SS_ref_bi_db.ElShearMod[0] = ElShearMod;
 	
-	get_data chem_comp2       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp2, EM_database, bulk_rock, P, T, "ann", "equilibrium");
+	get_data chem_comp2;
+	init_data(&chem_comp2);
+	chem_comp2       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp2, EM_database, bulk_rock, P, T, "ann", "equilibrium");
 	double gb_ann    = gb_tmp;	
 	double gb2       = gb_ann - 6.;
-	SS_ref_bi_db.density[1] = density;
+	SS_ref_bi_db.ElShearMod[1] = ElShearMod;
 	
-	get_data chem_comp_phl    = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_phl, EM_database, bulk_rock, P, T, "phl", "equilibrium");
+	get_data chem_comp_phl;
+	init_data(&chem_comp_phl);
+	chem_comp_phl    = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_phl, EM_database, bulk_rock, P, T, "phl", "equilibrium");
 	double gb_phl_od  = gb_tmp;	
-	double rho_phl_od = density;
+	double rho_phl_od = ElShearMod;
 	
-	get_data chem_comp_ann    = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_ann, EM_database, bulk_rock, P, T, "ann", "equilibrium");
+	get_data chem_comp_ann;
+	init_data(&chem_comp_ann);
+	chem_comp_ann    = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_ann, EM_database, bulk_rock, P, T, "ann", "equilibrium");
 	double gb_ann_od  = gb_tmp;		
-	double rho_ann_od = density;
+	double rho_ann_od = ElShearMod;
 	
 	double gb3       = (gb_ann_od + gb_phl_od*2.)/3. -6.0;
-	SS_ref_bi_db.density[2] = (rho_ann_od + rho_phl_od*2.)/3.;
+	SS_ref_bi_db.ElShearMod[2] = (rho_ann_od + rho_phl_od*2.)/3.;
 
 	double chem_comp3[nEl];
 	for (i = 0; i < nEl; i++){
 		chem_comp3[i] = (chem_comp2.comp[i] + 2.0*chem_comp1.comp[i])/3.0;
 	}
 	
-	get_data chem_comp4       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp4, EM_database, bulk_rock, P, T, "east", "equilibrium");
+	get_data chem_comp4;
+	init_data(&chem_comp4);
+	chem_comp4       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp4, EM_database, bulk_rock, P, T, "east", "equilibrium");
 	double gb4       = gb_tmp;
-	SS_ref_bi_db.density[3] = density;
+	SS_ref_bi_db.ElShearMod[3] = ElShearMod;
 	
-	get_data chem_comp_br       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_br, EM_database, bulk_rock, P, T, "br", "equilibrium");
+	get_data chem_comp_br;
+	init_data(&chem_comp_br);
+	chem_comp_br       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_br, EM_database, bulk_rock, P, T, "br", "equilibrium");
 	double gb_br       = gb_tmp;	
-	double rho_br      = density;
+	double rho_br      = ElShearMod;
 	
-	get_data chem_comp_ru       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_ru, EM_database, bulk_rock, P, T, "ru", "equilibrium");
+	get_data chem_comp_ru;
+	init_data(&chem_comp_ru);
+	chem_comp_ru       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_ru, EM_database, bulk_rock, P, T, "ru", "equilibrium");
 	double gb_ru       = gb_tmp;	
-	double rho_ru      = density;	
+	double rho_ru      = ElShearMod;	
 	double gb5         = -gb_br + gb1 + gb_ru + 55.0;
-	SS_ref_bi_db.density[4] = -rho_br + SS_ref_bi_db.density[0] + rho_ru;	
+	SS_ref_bi_db.ElShearMod[4] = -rho_br + SS_ref_bi_db.ElShearMod[0] + rho_ru;	
 	
 	double chem_comp5[nEl];
 	for (i = 0; i < nEl; i++){
 		chem_comp5[i] = - chem_comp_br.comp[i] + chem_comp1.comp[i] + chem_comp_ru.comp[i];
 	}
 	
-	get_data chem_comp_gr       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_gr, EM_database, bulk_rock, P, T, "gr", "equilibrium");
+	get_data chem_comp_gr;
+	init_data(&chem_comp_gr);
+	chem_comp_gr       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_gr, EM_database, bulk_rock, P, T, "gr", "equilibrium");
 	double gb_gr       = gb_tmp;
-	double rho_gr      = density;		
+	double rho_gr      = ElShearMod;		
 	
-	get_data chem_comp_andr       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_andr, EM_database, bulk_rock, P, T, "andr", "equilibrium");
-	double gb_andr       = gb_tmp;
-	double rho_andr      = density;
+	get_data chem_comp_andr;
+	init_data(&chem_comp_andr);
+	chem_comp_andr       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_andr, EM_database, bulk_rock, P, T, "andr", "equilibrium");
+	double gb_andr      = gb_tmp;
+	double rho_andr     = ElShearMod;
 	
 	double gb6         = (gb_andr + 2.0*gb4 - gb_gr)/2. - 3.0;
-	SS_ref_bi_db.density[5] = (rho_andr + 2.0*SS_ref_bi_db.density[3] - rho_gr)/2.;
+	SS_ref_bi_db.ElShearMod[5] = (rho_andr + 2.0*SS_ref_bi_db.ElShearMod[3] - rho_gr)/2.;
 	double chem_comp6[nEl];
 	for (i = 0; i < nEl; i++){
 		chem_comp6[i] = (chem_comp_andr.comp[i] + 2.*chem_comp4.comp[i] - chem_comp_gr.comp[i])/2.0;
@@ -166,21 +199,21 @@ SS_ref G_SS_bi_function(SS_ref SS_ref_bi_db, int EM_database, double *bulk_rock,
 		SS_ref_bi_db.z_em[i] = 1.0;
 	}
 
-	SS_ref_bi_db.box_bounds_default[0][0] = 0.+eps;	SS_ref_bi_db.box_bounds_default[0][1] = 1.-eps;
-	SS_ref_bi_db.box_bounds_default[1][0] = 0.+eps;	SS_ref_bi_db.box_bounds_default[1][1] = 1.-eps;
-	SS_ref_bi_db.box_bounds_default[2][0] = 0.+eps; SS_ref_bi_db.box_bounds_default[2][1] = 1.-eps;
-	SS_ref_bi_db.box_bounds_default[3][0] = 0.+eps; SS_ref_bi_db.box_bounds_default[3][1] = 1.-eps;
-	SS_ref_bi_db.box_bounds_default[4][0] = 0.+eps;	SS_ref_bi_db.box_bounds_default[4][1] = 1.-eps;	
+	SS_ref_bi_db.bounds_ref[0][0] = 0.+eps;	SS_ref_bi_db.bounds_ref[0][1] = 1.-eps;
+	SS_ref_bi_db.bounds_ref[1][0] = 0.+eps;	SS_ref_bi_db.bounds_ref[1][1] = 1.-eps;
+	SS_ref_bi_db.bounds_ref[2][0] = 0.+eps; SS_ref_bi_db.bounds_ref[2][1] = 1.-eps;
+	SS_ref_bi_db.bounds_ref[3][0] = 0.+eps; SS_ref_bi_db.bounds_ref[3][1] = 1.-eps;
+	SS_ref_bi_db.bounds_ref[4][0] = 0.+eps;	SS_ref_bi_db.bounds_ref[4][1] = 1.-eps;	
 
 	if (bulk_rock[7] == 0.){
 		SS_ref_bi_db.z_em[4]          = 0.0;
-		SS_ref_bi_db.box_bounds_default[3][0] = eps; 
-		SS_ref_bi_db.box_bounds_default[3][1] = eps;
+		SS_ref_bi_db.bounds_ref[3][0] = eps; 
+		SS_ref_bi_db.bounds_ref[3][1] = eps;
 	}
 	if (bulk_rock[7] == 0.){
 		SS_ref_bi_db.z_em[5]          = 0.0;
-		SS_ref_bi_db.box_bounds_default[2][0] = eps; 
-		SS_ref_bi_db.box_bounds_default[2][1] = eps;
+		SS_ref_bi_db.bounds_ref[2][0] = eps; 
+		SS_ref_bi_db.bounds_ref[2][1] = eps;
 	}
 	
 	return SS_ref_bi_db;
@@ -192,21 +225,21 @@ SS_ref G_SS_bi_function(SS_ref SS_ref_bi_db, int EM_database, double *bulk_rock,
 SS_ref G_SS_cpx_function(SS_ref SS_ref_cpx_db, int EM_database, double *bulk_rock, double P, 
 								  double T, double eps){	
 									  	
-	char   *EM_tmp[] 		= {"di","cfs","cats","crdi","cess","cbuf","jd","cen","cfm","kjd"};	
+	char   *EM_tmp[] 	= {"di","cfs","cats","crdi","cess","cbuf","jd","cen","cfm","kjd"};	
 	for (int i = 0; i < SS_ref_cpx_db.n_em; i++){ 
 		strcpy(SS_ref_cpx_db.EM_list[i],EM_tmp[i]);			
 	}
 		
-    SS_ref_cpx_db.W[0] = 25.8;
-    SS_ref_cpx_db.W[1] = 13.0 - 0.06*P;
-    SS_ref_cpx_db.W[2] = 8.0;
-    SS_ref_cpx_db.W[3] = 8.0;
-    SS_ref_cpx_db.W[4] = 8.0;
-    SS_ref_cpx_db.W[5] = 26.0;
-    SS_ref_cpx_db.W[6] = 29.8;
-    SS_ref_cpx_db.W[7] = 20.6;
-    SS_ref_cpx_db.W[8] = 26.0;
-    SS_ref_cpx_db.W[9] = 25.0 - 0.10*P;
+    SS_ref_cpx_db.W[0]  = 25.8;
+    SS_ref_cpx_db.W[1]  = 13.0 - 0.06*P;
+    SS_ref_cpx_db.W[2]  = 8.0;
+    SS_ref_cpx_db.W[3]  = 8.0;
+    SS_ref_cpx_db.W[4]  = 8.0;
+    SS_ref_cpx_db.W[5]  = 26.0;
+    SS_ref_cpx_db.W[6]  = 29.8;
+    SS_ref_cpx_db.W[7]  = 20.6;
+    SS_ref_cpx_db.W[8]  = 26.0;
+    SS_ref_cpx_db.W[9]  = 25.0 - 0.10*P;
     SS_ref_cpx_db.W[10] = 38.3;
     SS_ref_cpx_db.W[11] = 43.3;
     SS_ref_cpx_db.W[12] = 24.0;
@@ -242,110 +275,137 @@ SS_ref G_SS_cpx_function(SS_ref SS_ref_cpx_db, int EM_database, double *bulk_roc
     SS_ref_cpx_db.W[42] = 4.0;
     SS_ref_cpx_db.W[43] = 40.0;
     SS_ref_cpx_db.W[44] = 40.0;
-    SS_ref_cpx_db.v[0] = 1.20;
-    SS_ref_cpx_db.v[1] = 1.00;
-    SS_ref_cpx_db.v[2] = 1.90;
-    SS_ref_cpx_db.v[3] = 1.90;
-    SS_ref_cpx_db.v[4] = 1.90;
-    SS_ref_cpx_db.v[5] = 1.90;
-    SS_ref_cpx_db.v[6] = 1.20;
-    SS_ref_cpx_db.v[7] = 1.00;
-    SS_ref_cpx_db.v[8] = 1.00;
-    SS_ref_cpx_db.v[9] = 1.20;
+    SS_ref_cpx_db.v[0]  = 1.20;
+    SS_ref_cpx_db.v[1]  = 1.00;
+    SS_ref_cpx_db.v[2]  = 1.90;
+    SS_ref_cpx_db.v[3]  = 1.90;
+    SS_ref_cpx_db.v[4]  = 1.90;
+    SS_ref_cpx_db.v[5]  = 1.90;
+    SS_ref_cpx_db.v[6]  = 1.20;
+    SS_ref_cpx_db.v[7]  = 1.00;
+    SS_ref_cpx_db.v[8]  = 1.00;
+    SS_ref_cpx_db.v[9]  = 1.20;
 
     PP_ref PP_db;
+	init_pp(&PP_db);
 
 	double gb_tmp;
-    double density;
+    double ElShearMod;
     int i,j;
 	
 	int n_em  = SS_ref_cpx_db.n_em;
 
-	get_data chem_comp1       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp1, EM_database, bulk_rock, P, T, "di", "equilibrium");
+	get_data chem_comp1;
+	init_data(&chem_comp1);
+	chem_comp1       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp1, EM_database, bulk_rock, P, T, "di", "equilibrium");
 	double gb1       = gb_tmp;	
-	SS_ref_cpx_db.density[0] = density;
+	SS_ref_cpx_db.ElShearMod[0] = ElShearMod;
 	
-	get_data chem_comp2       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp2, EM_database, bulk_rock, P, T, "fs", "equilibrium");
+	get_data chem_comp2;
+	init_data(&chem_comp2);
+	chem_comp2       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp2, EM_database, bulk_rock, P, T, "fs", "equilibrium");
 	double gb_fs     = gb_tmp;
 	double gb2       = gb_fs + 2.1 - 0.002*T + 0.045*P;
-	SS_ref_cpx_db.density[1] = density;
+	SS_ref_cpx_db.ElShearMod[1] = ElShearMod;
 
-	get_data chem_comp3       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp3, EM_database, bulk_rock, P, T, "cats", "equilibrium");
+	get_data chem_comp3;
+	init_data(&chem_comp3);
+	chem_comp3       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp3, EM_database, bulk_rock, P, T, "cats", "equilibrium");
 	double gb3       = gb_tmp;	
-	SS_ref_cpx_db.density[2] = density;	
+	SS_ref_cpx_db.ElShearMod[2] = ElShearMod;	
 	
-	get_data chem_comp_cats_d = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_cats_d, EM_database, bulk_rock, P, T, "cats", "disordered");
+	get_data chem_comp_cats_d;
+	init_data(&chem_comp_cats_d);
+	chem_comp_cats_d = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_cats_d, EM_database, bulk_rock, P, T, "cats", "disordered");
 	double gb_cats_d = gb_tmp;	
-	double rho_cats_d = density;	
+	double rho_cats_d = ElShearMod;	
 	
-	get_data chem_comp7       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp7, EM_database, bulk_rock, P, T, "jd", "equilibrium");
+	get_data chem_comp7;
+	init_data(&chem_comp7);
+	chem_comp7       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp7, EM_database, bulk_rock, P, T, "jd", "equilibrium");
 	double gb7       = gb_tmp;	
-	SS_ref_cpx_db.density[6] = density;
+	SS_ref_cpx_db.ElShearMod[6] = ElShearMod;
 
-	get_data chem_comp_kos    = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_kos, EM_database, bulk_rock, P, T, "kos", "equilibrium");
+	get_data chem_comp_kos;
+	init_data(&chem_comp_kos);
+	chem_comp_kos    = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_kos, EM_database, bulk_rock, P, T, "kos", "equilibrium");
 	double gb_kos    = gb_tmp;	
-	double rho_kos   = density;
+	double rho_kos   = ElShearMod;
 	double gb4       = gb_cats_d + gb_kos - gb7 - 4.9;
-	SS_ref_cpx_db.density[3] = rho_cats_d + rho_kos- SS_ref_cpx_db.density[6];
+	SS_ref_cpx_db.ElShearMod[3] = rho_cats_d + rho_kos- SS_ref_cpx_db.ElShearMod[6];
 	
 	double chem_comp4[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp4[i] = chem_comp_cats_d.comp[i] + chem_comp_kos.comp[i] - chem_comp7.comp[i];
 	}
 
-	get_data chem_comp_acm    = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_acm, EM_database, bulk_rock, P, T, "acm", "equilibrium");
+	get_data chem_comp_acm;
+	init_data(&chem_comp_acm);
+	chem_comp_acm    = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_acm, EM_database, bulk_rock, P, T, "acm", "equilibrium");
 	double gb_acm    = gb_tmp;	
-	double rho_acm   = density;
+	double rho_acm   = ElShearMod;
 	double gb5       = gb_cats_d + gb_acm - gb7 - 3.45;
-	SS_ref_cpx_db.density[4] = rho_cats_d + rho_acm - SS_ref_cpx_db.density[6];
+	SS_ref_cpx_db.ElShearMod[4] = rho_cats_d + rho_acm - SS_ref_cpx_db.ElShearMod[6];
 
 	double chem_comp5[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp5[i] = chem_comp_cats_d.comp[i] + chem_comp_acm.comp[i] - chem_comp7.comp[i];
 	}
 
-	get_data chem_comp_per     = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_per, EM_database, bulk_rock, P, T, "per", "equilibrium");
+	get_data chem_comp_per;
+	init_data(&chem_comp_per);
+	chem_comp_per     = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_per, EM_database, bulk_rock, P, T, "per", "equilibrium");
 	double gb_per     = gb_tmp;	
-	double rho_per    = density;
+	double rho_per    = ElShearMod;
 	
-	get_data chem_comp_ru     = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_ru, EM_database, bulk_rock, P, T, "ru", "equilibrium");
+	get_data chem_comp_ru;
+	init_data(&chem_comp_ru);
+	chem_comp_ru     = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_ru, EM_database, bulk_rock, P, T, "ru", "equilibrium");
 	double gb_ru     = gb_tmp;	
-	double rho_ru    = density;
+	double rho_ru    = ElShearMod;
 
-	get_data chem_comp_cor    = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_cor, EM_database, bulk_rock, P, T, "cor", "equilibrium");
+	get_data chem_comp_cor;
+	init_data(&chem_comp_cor);
+	chem_comp_cor    = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_cor, EM_database, bulk_rock, P, T, "cor", "equilibrium");
 	double gb_cor    = gb_tmp;	
-	double rho_cor   = density;
+	double rho_cor   = ElShearMod;
 	
 	double gb6       = gb_cats_d + (gb_per+gb_ru-gb_cor)/2. -16.2 -0.0012*T -0.005*P;
-	SS_ref_cpx_db.density[5] = rho_cats_d + (rho_per+rho_ru-rho_cor)/2.;
+	SS_ref_cpx_db.ElShearMod[5] = rho_cats_d + (rho_per+rho_ru-rho_cor)/2.;
 	double chem_comp6[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp6[i] = chem_comp_cats_d.comp[i] + (chem_comp_per.comp[i] + chem_comp_ru.comp[i] - chem_comp_cor.comp[i])/2.0;
 	}
 
-	get_data chem_comp8    = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp8, EM_database, bulk_rock, P, T, "en", "equilibrium");
+	get_data chem_comp8;
+	init_data(&chem_comp8);
+	chem_comp8    = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp8, EM_database, bulk_rock, P, T, "en", "equilibrium");
 	double gb_en  = gb_tmp;	
-	double rho_en = density;
+	double rho_en = ElShearMod;
 	double gb8    = gb_en + 3.5 - 0.002*T + 0.048*P;
-	SS_ref_cpx_db.density[7] = rho_en;
+	SS_ref_cpx_db.ElShearMod[7] = rho_en;
 	
 	double gb9    = (gb_en + gb_fs)/2. - 1.60 - 0.002*T + 0.0465*P;
-	SS_ref_cpx_db.density[8] = (rho_en + SS_ref_cpx_db.density[1])/2.;
+	SS_ref_cpx_db.ElShearMod[8] = (rho_en + SS_ref_cpx_db.ElShearMod[1])/2.;
 	
 	double chem_comp9[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp9[i] = (chem_comp8.comp[i] + chem_comp2.comp[i])/2.0;
 	}
 	
-	get_data chem_comp_abh    = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_abh, EM_database, bulk_rock, P, T, "abh", "equilibrium");
+	get_data chem_comp_abh;
+	init_data(&chem_comp_abh);
+	chem_comp_abh    = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_abh, EM_database, bulk_rock, P, T, "abh", "equilibrium");
 	double gb_abh    = gb_tmp;	
-	double rho_abh   = density;
+	double rho_abh   = ElShearMod;
 	
-	get_data chem_comp_san    = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_san, EM_database, bulk_rock, P, T, "san", "equilibrium");
+	get_data chem_comp_san;
+	init_data(&chem_comp_san);
+	chem_comp_san    = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_san, EM_database, bulk_rock, P, T, "san", "equilibrium");
 	double gb_san    = gb_tmp;		
-	double rho_san   = density;
+	double rho_san   = ElShearMod;
 	double gb10      = gb7 - gb_abh + gb_san + 11.7 + 0.6*P;
-	SS_ref_cpx_db.density[9] = SS_ref_cpx_db.density[6] - rho_abh + rho_san;
+	SS_ref_cpx_db.ElShearMod[9] = SS_ref_cpx_db.ElShearMod[6] - rho_abh + rho_san;
 	
 	double chem_comp10[nEl];	
 	for (i = 0; i < nEl; i++){
@@ -381,30 +441,30 @@ SS_ref G_SS_cpx_function(SS_ref SS_ref_cpx_db, int EM_database, double *bulk_roc
 		SS_ref_cpx_db.z_em[i] = 1.0;
 	}
 
-	SS_ref_cpx_db.box_bounds_default[0][0] = 0.+eps;  SS_ref_cpx_db.box_bounds_default[0][1] = 1.-eps;
-	SS_ref_cpx_db.box_bounds_default[1][0] = 0.+eps;  SS_ref_cpx_db.box_bounds_default[1][1] = 2.-eps;
-	SS_ref_cpx_db.box_bounds_default[2][0] = 0.+eps;  SS_ref_cpx_db.box_bounds_default[2][1] = 1.-eps;
-	SS_ref_cpx_db.box_bounds_default[3][0] = 0.+eps;  SS_ref_cpx_db.box_bounds_default[3][1] = 1.-eps;
-	SS_ref_cpx_db.box_bounds_default[4][0] = -1.+eps; SS_ref_cpx_db.box_bounds_default[4][1] = 1.-eps;	
-	SS_ref_cpx_db.box_bounds_default[5][0] = 0.+eps;  SS_ref_cpx_db.box_bounds_default[5][1] = 1.-eps;
-	SS_ref_cpx_db.box_bounds_default[6][0] = 0.+eps;  SS_ref_cpx_db.box_bounds_default[6][1] = 1.-eps;
-	SS_ref_cpx_db.box_bounds_default[7][0] = 0.+eps;  SS_ref_cpx_db.box_bounds_default[7][1] = 1.-eps;
-	SS_ref_cpx_db.box_bounds_default[8][0] = 0.+eps;  SS_ref_cpx_db.box_bounds_default[8][1] = 1.-eps;	
+	SS_ref_cpx_db.bounds_ref[0][0] = 0.+eps;  SS_ref_cpx_db.bounds_ref[0][1] = 1.-eps;
+	SS_ref_cpx_db.bounds_ref[1][0] = 0.+eps;  SS_ref_cpx_db.bounds_ref[1][1] = 2.-eps;
+	SS_ref_cpx_db.bounds_ref[2][0] = 0.+eps;  SS_ref_cpx_db.bounds_ref[2][1] = 1.-eps;
+	SS_ref_cpx_db.bounds_ref[3][0] = 0.+eps;  SS_ref_cpx_db.bounds_ref[3][1] = 1.-eps;
+	SS_ref_cpx_db.bounds_ref[4][0] = -1.+eps; SS_ref_cpx_db.bounds_ref[4][1] = 1.-eps;	
+	SS_ref_cpx_db.bounds_ref[5][0] = 0.+eps;  SS_ref_cpx_db.bounds_ref[5][1] = 1.-eps;
+	SS_ref_cpx_db.bounds_ref[6][0] = 0.+eps;  SS_ref_cpx_db.bounds_ref[6][1] = 1.-eps;
+	SS_ref_cpx_db.bounds_ref[7][0] = 0.+eps;  SS_ref_cpx_db.bounds_ref[7][1] = 1.-eps;
+	SS_ref_cpx_db.bounds_ref[8][0] = 0.+eps;  SS_ref_cpx_db.bounds_ref[8][1] = 1.-eps;	
 	
 	if (bulk_rock[7] == 0.){	//TiO2
 		SS_ref_cpx_db.z_em[5]          = 0.0;
-		SS_ref_cpx_db.box_bounds_default[7][0] = eps;  
-		SS_ref_cpx_db.box_bounds_default[7][1] = eps;
+		SS_ref_cpx_db.bounds_ref[7][0] = eps;  
+		SS_ref_cpx_db.bounds_ref[7][1] = eps;
 	}
 	if (bulk_rock[8] == 0.){ 		//O
 		SS_ref_cpx_db.z_em[4]          = 0.0;
-		SS_ref_cpx_db.box_bounds_default[5][0] = eps; 
-		SS_ref_cpx_db.box_bounds_default[5][1] = eps;
+		SS_ref_cpx_db.bounds_ref[5][0] = eps; 
+		SS_ref_cpx_db.bounds_ref[5][1] = eps;
 	}
 	if (bulk_rock[9] == 0.){ 	//Cr2O3
 		SS_ref_cpx_db.z_em[3]          = 0.0;
-		SS_ref_cpx_db.box_bounds_default[6][0] = eps;  
-		SS_ref_cpx_db.box_bounds_default[6][1] = eps;
+		SS_ref_cpx_db.bounds_ref[6][0] = eps;  
+		SS_ref_cpx_db.bounds_ref[6][1] = eps;
 	}
 
 	return SS_ref_cpx_db;
@@ -417,7 +477,7 @@ SS_ref G_SS_cpx_function(SS_ref SS_ref_cpx_db, int EM_database, double *bulk_roc
 SS_ref G_SS_cd_function(SS_ref SS_ref_cd_db, int EM_database, double *bulk_rock, double P, 
 								  double T, double eps){
 		
-	char   *EM_tmp[] 		= {"crd","fcrd","hcrd"};	
+	char   *EM_tmp[]  = {"crd","fcrd","hcrd"};	
 	for (int i = 0; i < SS_ref_cd_db.n_em; i++){ 
 		strcpy(SS_ref_cd_db.EM_list[i],EM_tmp[i]);			
 	}
@@ -427,24 +487,31 @@ SS_ref G_SS_cd_function(SS_ref SS_ref_cd_db, int EM_database, double *bulk_rock,
     SS_ref_cd_db.W[2] = 0.;  
     
     PP_ref PP_db;
+	init_pp(&PP_db);
 
 	double gb_tmp;
-    double density;
+    double ElShearMod;
     int i,j;
 	
 	int n_em = SS_ref_cd_db.n_em;
 	
-	get_data chem_comp1       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp1, EM_database, bulk_rock, P, T, "crd", "equilibrium");
+	get_data chem_comp1;
+	init_data(&chem_comp1);
+	chem_comp1       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp1, EM_database, bulk_rock, P, T, "crd", "equilibrium");
 	double gb1       = gb_tmp;	
-	SS_ref_cd_db.density[0] = density;
+	SS_ref_cd_db.ElShearMod[0] = ElShearMod;
 	
-	get_data chem_comp2       = get_gb_comp(&density, &gb_tmp, PP_db,chem_comp2,  EM_database, bulk_rock, P, T, "fcrd", "equilibrium");
+	get_data chem_comp2;
+	init_data(&chem_comp2);
+	chem_comp2       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db,chem_comp2,  EM_database, bulk_rock, P, T, "fcrd", "equilibrium");
 	double gb2       = gb_tmp;		
-	SS_ref_cd_db.density[1] = density;
+	SS_ref_cd_db.ElShearMod[1] = ElShearMod;
 	
-	get_data chem_comp3       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp3, EM_database, bulk_rock, P, T, "hcrd", "equilibrium");
+	get_data chem_comp3;
+	init_data(&chem_comp3);
+	chem_comp3       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp3, EM_database, bulk_rock, P, T, "hcrd", "equilibrium");
 	double gb3       = gb_tmp;	
-	SS_ref_cd_db.density[2] = density;
+	SS_ref_cd_db.ElShearMod[2] = ElShearMod;
 	
 	SS_ref_cd_db.gbase[0] = gb1;
 	SS_ref_cd_db.gbase[1] = gb2;
@@ -462,13 +529,13 @@ SS_ref G_SS_cd_function(SS_ref SS_ref_cd_db, int EM_database, double *bulk_rock,
 	}
 
 	/* define box bounds */
-	SS_ref_cd_db.box_bounds_default[0][0] = 0.+eps;	SS_ref_cd_db.box_bounds_default[0][1] = 1.-eps;
-	SS_ref_cd_db.box_bounds_default[1][0] = 0.+eps;	SS_ref_cd_db.box_bounds_default[1][1] = 1.-eps;
+	SS_ref_cd_db.bounds_ref[0][0] = 0.+eps;	SS_ref_cd_db.bounds_ref[0][1] = 1.-eps;
+	SS_ref_cd_db.bounds_ref[1][0] = 0.+eps;	SS_ref_cd_db.bounds_ref[1][1] = 1.-eps;
 
 	if (bulk_rock[10] == 0.){
 		SS_ref_cd_db.z_em[2]          = 0.0;
-		SS_ref_cd_db.box_bounds_default[1][0] = eps;	
-		SS_ref_cd_db.box_bounds_default[1][1] = eps;
+		SS_ref_cd_db.bounds_ref[1][0] = eps;	
+		SS_ref_cd_db.bounds_ref[1][1] = eps;
 	}
 	
 	return SS_ref_cd_db;	
@@ -480,7 +547,7 @@ SS_ref G_SS_cd_function(SS_ref SS_ref_cd_db, int EM_database, double *bulk_rock,
 SS_ref G_SS_ep_function(SS_ref SS_ref_ep_db, int EM_database, double *bulk_rock, double P, 
 								  double T, double eps){
 									  	
-	char   *EM_tmp[] 		= {"cz","ep","fep"};	
+	char   *EM_tmp[]  = {"cz","ep","fep"};	
 	for (int i = 0; i < SS_ref_ep_db.n_em; i++){ 
 		strcpy(SS_ref_ep_db.EM_list[i],EM_tmp[i]);			
 	}
@@ -490,24 +557,31 @@ SS_ref G_SS_ep_function(SS_ref SS_ref_ep_db, int EM_database, double *bulk_rock,
     SS_ref_ep_db.W[2] = 1.; 
 		
     PP_ref PP_db;
+	init_pp(&PP_db);
 
 	double gb_tmp;
-    double density;
+    double ElShearMod;
     int i,j;
 	
 	int n_em = SS_ref_ep_db.n_em;
 	
-	get_data chem_comp1       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp1, EM_database, bulk_rock, P, T, "cz", "equilibrium");
+	get_data chem_comp1;
+	init_data(&chem_comp1);
+	chem_comp1       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp1, EM_database, bulk_rock, P, T, "cz", "equilibrium");
 	double gb1       = gb_tmp;	
-	SS_ref_ep_db.density[0] = density;
+	SS_ref_ep_db.ElShearMod[0] = ElShearMod;
 	
-	get_data chem_comp2       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp2, EM_database, bulk_rock, P, T, "ep", "equilibrium"); //ordered?
+	get_data chem_comp2;
+	init_data(&chem_comp2);
+	chem_comp2       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp2, EM_database, bulk_rock, P, T, "ep", "equilibrium"); //ordered?
 	double gb2       = gb_tmp;		
-	SS_ref_ep_db.density[1] = density;
+	SS_ref_ep_db.ElShearMod[1] = ElShearMod;
 	
-	get_data chem_comp3       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp3, EM_database, bulk_rock, P, T, "fep", "equilibrium");
+	get_data chem_comp3;
+	init_data(&chem_comp3);
+	chem_comp3       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp3, EM_database, bulk_rock, P, T, "fep", "equilibrium");
 	double gb3       = gb_tmp;	
-	SS_ref_ep_db.density[2] = density;
+	SS_ref_ep_db.ElShearMod[2] = ElShearMod;
 	
 	SS_ref_ep_db.gbase[0] = gb1;
 	SS_ref_ep_db.gbase[1] = gb2;
@@ -525,8 +599,8 @@ SS_ref G_SS_ep_function(SS_ref SS_ref_ep_db, int EM_database, double *bulk_rock,
 	}
 
 	/* define box bounds */
-	SS_ref_ep_db.box_bounds_default[0][0] = 0.+eps;	SS_ref_ep_db.box_bounds_default[0][1] = 1.-eps;
-	SS_ref_ep_db.box_bounds_default[1][0] = 0.+eps;	SS_ref_ep_db.box_bounds_default[1][1] = 0.5-eps;
+	SS_ref_ep_db.bounds_ref[0][0] = 0.+eps;	SS_ref_ep_db.bounds_ref[0][1] = 1.-eps;
+	SS_ref_ep_db.bounds_ref[1][0] = 0.+eps;	SS_ref_ep_db.bounds_ref[1][1] = 0.5-eps;
 
 
 	return SS_ref_ep_db;	
@@ -538,21 +612,21 @@ SS_ref G_SS_ep_function(SS_ref SS_ref_ep_db, int EM_database, double *bulk_rock,
 SS_ref G_SS_fl_function(SS_ref SS_ref_fl_db, int EM_database, double *bulk_rock, double P, 
 								  double T, double eps){
 									  	
-	char   *EM_tmp[] 		= {"qfL","slfL","wofL","fofL","fafL","jdfL","hmfL","ekfL","tifL","kjfL","h2o"};	
+	char   *EM_tmp[]   = {"qfL","slfL","wofL","fofL","fafL","jdfL","hmfL","ekfL","tifL","kjfL","h2o"};	
 	for (int i = 0; i < SS_ref_fl_db.n_em; i++){ 
 		strcpy(SS_ref_fl_db.EM_list[i],EM_tmp[i]);			
 	}
 							  
-    SS_ref_fl_db.W[0] = 0.0;
-    SS_ref_fl_db.W[1] = 0.0;
-    SS_ref_fl_db.W[2] = 0.0;
-    SS_ref_fl_db.W[3] = 0.0;
-    SS_ref_fl_db.W[4] = 0.0;
-    SS_ref_fl_db.W[5] = 0.0;
-    SS_ref_fl_db.W[6] = 0.0;
-    SS_ref_fl_db.W[7] = 0.0;
-    SS_ref_fl_db.W[8] = 0.0;
-    SS_ref_fl_db.W[9] = 59.0 - 0.82*P;
+    SS_ref_fl_db.W[0]  = 0.0;
+    SS_ref_fl_db.W[1]  = 0.0;
+    SS_ref_fl_db.W[2]  = 0.0;
+    SS_ref_fl_db.W[3]  = 0.0;
+    SS_ref_fl_db.W[4]  = 0.0;
+    SS_ref_fl_db.W[5]  = 0.0;
+    SS_ref_fl_db.W[6]  = 0.0;
+    SS_ref_fl_db.W[7]  = 0.0;
+    SS_ref_fl_db.W[8]  = 0.0;
+    SS_ref_fl_db.W[9]  = 59.0 - 0.82*P;
     SS_ref_fl_db.W[10] = 0.0;
     SS_ref_fl_db.W[11] = 0.0;
     SS_ref_fl_db.W[12] = 0.0;
@@ -599,100 +673,122 @@ SS_ref G_SS_fl_function(SS_ref SS_ref_fl_db, int EM_database, double *bulk_rock,
     SS_ref_fl_db.W[53] = 75.0 - 0.67*P;
     SS_ref_fl_db.W[54] = 44.9 - 1.19*P;
 
-		
     PP_ref PP_db;
+	init_pp(&PP_db);
 
 	double gb_tmp;
-    double density;
+    double ElShearMod;
     int i,j;
 	
 	int n_em = SS_ref_fl_db.n_em;
 
-	get_data chem_comp_qL     = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_qL, EM_database, bulk_rock, P, T, "qL", "equilibrium");
+	get_data chem_comp_qL;
+	init_data(&chem_comp_qL);
+	chem_comp_qL     = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_qL, EM_database, bulk_rock, P, T, "qL", "equilibrium");
 	double gb_qL     = gb_tmp;
-	double rho_qL    = density;
+	double rho_qL    = ElShearMod;
 	double gb1       = 4.*gb_qL + 2.10 - 0.051*P;	
-	SS_ref_fl_db.density[0] = rho_qL;
+	SS_ref_fl_db.ElShearMod[0] = rho_qL;
 	
 	double chem_comp1[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp1[i] = 4.*chem_comp_qL.comp[i];
 	}	
 	
-	get_data chem_comp2       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp2, EM_database, bulk_rock, P, T, "silL", "equilibrium");
+	get_data chem_comp2;
+	init_data(&chem_comp2);
+	chem_comp2       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp2, EM_database, bulk_rock, P, T, "silL", "equilibrium");
 	double gb_silL   = gb_tmp;
 	double gb2       = gb_silL + 6.72 - 0.313*P;
-	SS_ref_fl_db.density[1] = density;
+	SS_ref_fl_db.ElShearMod[1] = ElShearMod;
 	
-	get_data chem_comp3       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp3, EM_database, bulk_rock, P, T, "woL", "equilibrium");
+	get_data chem_comp3;
+	init_data(&chem_comp3);
+	chem_comp3       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp3, EM_database, bulk_rock, P, T, "woL", "equilibrium");
 	double gb_woL    = gb_tmp;
 	double gb3       = gb_woL + 0.22 - 0.120*P;
-	SS_ref_fl_db.density[2] = density;
+	SS_ref_fl_db.ElShearMod[2] = ElShearMod;
 	
-	get_data chem_comp_foL    = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_foL, EM_database, bulk_rock, P, T, "foL", "equilibrium");
+	get_data chem_comp_foL;
+	init_data(&chem_comp_foL);
+	chem_comp_foL    = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_foL, EM_database, bulk_rock, P, T, "foL", "equilibrium");
 	double gb_foL    = gb_tmp;	
 	double gb4       = 2.*gb_foL + 8.59 - 0.136*P;
-	SS_ref_fl_db.density[3] = density;
+	SS_ref_fl_db.ElShearMod[3] = ElShearMod;
 	double chem_comp4[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp4[i] = 4.*chem_comp_foL.comp[i];
 	}	
 
-	get_data chem_comp_faL    = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_faL, EM_database, bulk_rock, P, T, "faL", "equilibrium");
+	get_data chem_comp_faL;
+	init_data(&chem_comp_faL);
+	chem_comp_faL    = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_faL, EM_database, bulk_rock, P, T, "faL", "equilibrium");
 	double gb_faL    = gb_tmp;	
 	double gb5       = 2.*gb_faL + 13.56 - 0.052*P;
-	SS_ref_fl_db.density[4] = density;
+	SS_ref_fl_db.ElShearMod[4] = ElShearMod;
 	double chem_comp5[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp5[i] = 4.*chem_comp_faL.comp[i];
 	}	
 	
-	get_data chem_comp_abL    = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_abL, EM_database, bulk_rock, P, T, "abL", "equilibrium");
+	get_data chem_comp_abL;
+	init_data(&chem_comp_abL);
+	chem_comp_abL    = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_abL, EM_database, bulk_rock, P, T, "abL", "equilibrium");
 	double gb_abL    = gb_tmp;
-	double rho_abL   = density;	
+	double rho_abL   = ElShearMod;	
 	double gb6       = gb_abL - gb_qL + 12.32 - 0.099*P;
-	SS_ref_fl_db.density[5] = rho_abL - rho_qL;
+	SS_ref_fl_db.ElShearMod[5] = rho_abL - rho_qL;
 	double chem_comp6[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp6[i] = chem_comp_abL.comp[i] - chem_comp_qL.comp[i];
 	}	
 	
-	get_data chem_comp_hemL   = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_hemL, EM_database, bulk_rock, P, T, "hemL", "equilibrium");
+	get_data chem_comp_hemL;
+	init_data(&chem_comp_hemL);
+	chem_comp_hemL   = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_hemL, EM_database, bulk_rock, P, T, "hemL", "equilibrium");
 	double gb_hemL   = gb_tmp;	
 	double gb7       = gb_hemL/2. + 4.05 - 0.077*P;
-	SS_ref_fl_db.density[6] = density;
+	SS_ref_fl_db.ElShearMod[6] = ElShearMod;
 	double chem_comp7[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp7[i] = chem_comp_hemL.comp[i]/2.;
 	}	
 	
-	get_data chem_comp_eskL   = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_eskL, EM_database, bulk_rock, P, T, "eskL", "equilibrium");
+	get_data chem_comp_eskL;
+	init_data(&chem_comp_eskL);
+	chem_comp_eskL   = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_eskL, EM_database, bulk_rock, P, T, "eskL", "equilibrium");
 	double gb_eskL   = gb_tmp;	
 	double gb8       = gb_eskL/2. + 24.75 + 0.245*P;
-	SS_ref_fl_db.density[7] = density;
+	SS_ref_fl_db.ElShearMod[7] = ElShearMod;
 	double chem_comp8[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp8[i] = chem_comp_eskL.comp[i]/2.;
 	}	
 	
-	get_data chem_comp9       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp9, EM_database, bulk_rock, P, T, "ruL", "equilibrium");
+	get_data chem_comp9;
+	init_data(&chem_comp9);
+	chem_comp9       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp9, EM_database, bulk_rock, P, T, "ruL", "equilibrium");
 	double gb_tiL    = gb_tmp;	
 	double gb9       = gb_tiL + 5.60 - 0.489*P;
-	SS_ref_fl_db.density[8] = density;
+	SS_ref_fl_db.ElShearMod[8] = ElShearMod;
 	
-	get_data chem_comp_kspL   = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_kspL, EM_database, bulk_rock, P, T, "kspL", "equilibrium");
+	get_data chem_comp_kspL;
+	init_data(&chem_comp_kspL);
+	chem_comp_kspL   = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_kspL, EM_database, bulk_rock, P, T, "kspL", "equilibrium");
 	double gb_kspL   = gb_tmp;	
-	double rho_kspL  = density;
+	double rho_kspL  = ElShearMod;
 	double gb10      = gb_kspL - gb_qL + 12.88 - 0.227*P;
-	SS_ref_fl_db.density[9] = rho_kspL - rho_qL;
+	SS_ref_fl_db.ElShearMod[9] = rho_kspL - rho_qL;
 	double chem_comp10[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp10[i] = chem_comp_kspL.comp[i] - chem_comp_qL.comp[i];
 	}	
 	
-	get_data chem_comp11      = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp11, EM_database, bulk_rock, P, T, "H2O", "equilibrium");
+	get_data chem_comp11;
+	init_data(&chem_comp11);
+	chem_comp11      = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp11, EM_database, bulk_rock, P, T, "H2O", "equilibrium");
 	double gb11      = gb_tmp;
-	SS_ref_fl_db.density[10] = density;
+	SS_ref_fl_db.ElShearMod[10] = ElShearMod;
 
 	SS_ref_fl_db.gbase[0] = gb1;
 	SS_ref_fl_db.gbase[1] = gb2;
@@ -725,36 +821,36 @@ SS_ref G_SS_fl_function(SS_ref SS_ref_fl_db, int EM_database, double *bulk_rock,
 		SS_ref_fl_db.z_em[i] = 1.0;
 	}		
 
-	SS_ref_fl_db.box_bounds_default[0][0] = 0.+eps;  SS_ref_fl_db.box_bounds_default[0][1] = 1.-eps;
-	SS_ref_fl_db.box_bounds_default[1][0] = 0.+eps;  SS_ref_fl_db.box_bounds_default[1][1] = 1.-eps;
-	SS_ref_fl_db.box_bounds_default[2][0] = 0.+eps;  SS_ref_fl_db.box_bounds_default[2][1] = 1.-eps;
-	SS_ref_fl_db.box_bounds_default[3][0] = 0.+eps;  SS_ref_fl_db.box_bounds_default[3][1] = 1.-eps;
-	SS_ref_fl_db.box_bounds_default[4][0] = 0.+eps;  SS_ref_fl_db.box_bounds_default[4][1] = 1.-eps;	
-	SS_ref_fl_db.box_bounds_default[5][0] = 0.+eps;  SS_ref_fl_db.box_bounds_default[5][1] = 1.-eps;
-	SS_ref_fl_db.box_bounds_default[6][0] = 0.+eps;  SS_ref_fl_db.box_bounds_default[6][1] = 1.-eps;
-	SS_ref_fl_db.box_bounds_default[7][0] = 0.+eps;  SS_ref_fl_db.box_bounds_default[7][1] = 1.-eps;
-	SS_ref_fl_db.box_bounds_default[8][0] = 0.+eps;  SS_ref_fl_db.box_bounds_default[8][1] = 1.-eps;	
-	SS_ref_fl_db.box_bounds_default[9][0] = 0.+eps;  SS_ref_fl_db.box_bounds_default[9][1] = 1.-eps;	
+	SS_ref_fl_db.bounds_ref[0][0] = 0.+eps;  SS_ref_fl_db.bounds_ref[0][1] = 1.-eps;
+	SS_ref_fl_db.bounds_ref[1][0] = 0.+eps;  SS_ref_fl_db.bounds_ref[1][1] = 1.-eps;
+	SS_ref_fl_db.bounds_ref[2][0] = 0.+eps;  SS_ref_fl_db.bounds_ref[2][1] = 1.-eps;
+	SS_ref_fl_db.bounds_ref[3][0] = 0.+eps;  SS_ref_fl_db.bounds_ref[3][1] = 1.-eps;
+	SS_ref_fl_db.bounds_ref[4][0] = 0.+eps;  SS_ref_fl_db.bounds_ref[4][1] = 1.-eps;	
+	SS_ref_fl_db.bounds_ref[5][0] = 0.+eps;  SS_ref_fl_db.bounds_ref[5][1] = 1.-eps;
+	SS_ref_fl_db.bounds_ref[6][0] = 0.+eps;  SS_ref_fl_db.bounds_ref[6][1] = 1.-eps;
+	SS_ref_fl_db.bounds_ref[7][0] = 0.+eps;  SS_ref_fl_db.bounds_ref[7][1] = 1.-eps;
+	SS_ref_fl_db.bounds_ref[8][0] = 0.+eps;  SS_ref_fl_db.bounds_ref[8][1] = 1.-eps;	
+	SS_ref_fl_db.bounds_ref[9][0] = 0.+eps;  SS_ref_fl_db.bounds_ref[9][1] = 1.-eps;	
 
 	if (bulk_rock[7] == 0.){
 		SS_ref_fl_db.z_em[8]          = 0.0;
-		SS_ref_fl_db.box_bounds_default[7][0] = eps;  
-		SS_ref_fl_db.box_bounds_default[7][1] = eps;
+		SS_ref_fl_db.bounds_ref[7][0] = eps;  
+		SS_ref_fl_db.bounds_ref[7][1] = eps;
 	}
 	if (bulk_rock[8] == 0.){
 		SS_ref_fl_db.z_em[6]          = 0.0;
-		SS_ref_fl_db.box_bounds_default[5][0] = eps;  
-		SS_ref_fl_db.box_bounds_default[5][1] = eps;
+		SS_ref_fl_db.bounds_ref[5][0] = eps;  
+		SS_ref_fl_db.bounds_ref[5][1] = eps;
 	}
 	if (bulk_rock[9] == 0.){
 		SS_ref_fl_db.z_em[7]          = 0.0;
-		SS_ref_fl_db.box_bounds_default[6][0] = eps;  
-		SS_ref_fl_db.box_bounds_default[6][1] = eps;
+		SS_ref_fl_db.bounds_ref[6][0] = eps;  
+		SS_ref_fl_db.bounds_ref[6][1] = eps;
 	}
 	if (bulk_rock[10] == 0.){
 		SS_ref_fl_db.z_em[10]         = 0.0;
-		SS_ref_fl_db.box_bounds_default[9][0] = eps;  
-		SS_ref_fl_db.box_bounds_default[9][1] = eps;	
+		SS_ref_fl_db.bounds_ref[9][0] = eps;  
+		SS_ref_fl_db.bounds_ref[9][1] = eps;	
 	}
 
 	return SS_ref_fl_db;
@@ -766,21 +862,21 @@ SS_ref G_SS_fl_function(SS_ref SS_ref_fl_db, int EM_database, double *bulk_rock,
 SS_ref G_SS_g_function(SS_ref SS_ref_g_db, int EM_database, double *bulk_rock, double P, 
 								  double T, double eps){
 									  	
-	char   *EM_tmp[] 		= {"py","alm","gr","andr","knom","tig"};	
+	char   *EM_tmp[]  = {"py","alm","gr","andr","knom","tig"};	
 	for (int i = 0; i < SS_ref_g_db.n_em; i++){ 
 		strcpy(SS_ref_g_db.EM_list[i],EM_tmp[i]);			
 	}
 		
-    SS_ref_g_db.W[0] = 4.0 + 0.10*P;
-    SS_ref_g_db.W[1] = 45.4 - 0.010*T + 0.04*P;
-    SS_ref_g_db.W[2] = 107.0 - 0.010*T - 0.036*P;
-    SS_ref_g_db.W[3] = 2.0;
-    SS_ref_g_db.W[4] = 0.0;
-    SS_ref_g_db.W[5] = 17.0 - 0.010*T + 0.10*P;
-    SS_ref_g_db.W[6] = 65.0 - 0.010*T + 0.039*P;
-    SS_ref_g_db.W[7] = 6.0 + 0.01*P;
-    SS_ref_g_db.W[8] = 0.0;
-    SS_ref_g_db.W[9] = 2.0;
+    SS_ref_g_db.W[0]  = 4.0 + 0.10*P;
+    SS_ref_g_db.W[1]  = 45.4 - 0.010*T + 0.04*P;
+    SS_ref_g_db.W[2]  = 107.0 - 0.010*T - 0.036*P;
+    SS_ref_g_db.W[3]  = 2.0;
+    SS_ref_g_db.W[4]  = 0.0;
+    SS_ref_g_db.W[5]  = 17.0 - 0.010*T + 0.10*P;
+    SS_ref_g_db.W[6]  = 65.0 - 0.010*T + 0.039*P;
+    SS_ref_g_db.W[7]  = 6.0 + 0.01*P;
+    SS_ref_g_db.W[8]  = 0.0;
+    SS_ref_g_db.W[9]  = 2.0;
     SS_ref_g_db.W[10] = 1.0 - 0.010*T + 0.18*P;
     SS_ref_g_db.W[11] = 0.0;
     SS_ref_g_db.W[12] = 63.0 - 0.010*T + 0.10*P;
@@ -795,47 +891,64 @@ SS_ref G_SS_g_function(SS_ref SS_ref_g_db, int EM_database, double *bulk_rock, d
     SS_ref_g_db.v[5] = 1.00;
 				
     PP_ref PP_db;
+	init_pp(&PP_db);
 
 	double gb_tmp;
-    double density;
+    double ElShearMod;
     int i,j;
 	
 	int n_em = SS_ref_g_db.n_em;
 
-	get_data chem_comp1       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp1, EM_database, bulk_rock, P, T, "py", "equilibrium");
+	get_data chem_comp1;
+	init_data(&chem_comp1);
+	chem_comp1       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp1, EM_database, bulk_rock, P, T, "py", "equilibrium");
 	double gb1       = gb_tmp;
-	SS_ref_g_db.density[0] = density;
+	SS_ref_g_db.ElShearMod[0] = ElShearMod;
 	
-	get_data chem_comp2       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp2, EM_database, bulk_rock, P, T, "alm", "equilibrium");
+	get_data chem_comp2;
+	init_data(&chem_comp2);
+	chem_comp2       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp2, EM_database, bulk_rock, P, T, "alm", "equilibrium");
 	double gb2       = gb_tmp;
-	SS_ref_g_db.density[1] = density;
+	SS_ref_g_db.ElShearMod[1] = ElShearMod;
 	
-	get_data chem_comp3       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp3, EM_database, bulk_rock, P, T, "gr", "equilibrium");
+	get_data chem_comp3;
+	init_data(&chem_comp3);
+	chem_comp3       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp3, EM_database, bulk_rock, P, T, "gr", "equilibrium");
 	double gb3       = gb_tmp;
-	SS_ref_g_db.density[2] = density;
+	SS_ref_g_db.ElShearMod[2] = ElShearMod;
 	
-	get_data chem_comp4       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp4, EM_database, bulk_rock, P, T, "andr", "equilibrium");
+	get_data chem_comp4;
+	init_data(&chem_comp4);
+	chem_comp4       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp4, EM_database, bulk_rock, P, T, "andr", "equilibrium");
 	double gb4       = gb_tmp;
-	SS_ref_g_db.density[3] = density;
+	SS_ref_g_db.ElShearMod[3] = ElShearMod;
 	
-	get_data chem_comp5       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp5, EM_database, bulk_rock, P, T, "knor", "equilibrium");
+	get_data chem_comp5;
+	init_data(&chem_comp5);
+	chem_comp5       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp5, EM_database, bulk_rock, P, T, "knor", "equilibrium");
 	double gb5       = gb_tmp;
 	gb5             += 18.2;
-	SS_ref_g_db.density[4] = density;
+	SS_ref_g_db.ElShearMod[4] = ElShearMod;
 	
-	get_data chem_comp_per     = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_per, EM_database, bulk_rock, P, T, "per", "equilibrium");
+	get_data chem_comp_per;
+	init_data(&chem_comp_per);
+	chem_comp_per     = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_per, EM_database, bulk_rock, P, T, "per", "equilibrium");
 	double gb_per     = gb_tmp;	
-	double rho_per    = density;
+	double rho_per    = ElShearMod;
 	
-	get_data chem_comp_ru     = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_ru, EM_database, bulk_rock, P, T, "ru", "equilibrium");
+	get_data chem_comp_ru;
+	init_data(&chem_comp_ru);
+	chem_comp_ru     = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_ru, EM_database, bulk_rock, P, T, "ru", "equilibrium");
 	double gb_ru     = gb_tmp;	
-	double rho_ru    = density;
+	double rho_ru    = ElShearMod;
 	
-	get_data chem_comp_cor    = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_cor, EM_database, bulk_rock, P, T, "cor", "equilibrium");
+	get_data chem_comp_cor;
+	init_data(&chem_comp_cor);
+	chem_comp_cor    = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_cor, EM_database, bulk_rock, P, T, "cor", "equilibrium");
 	double gb_cor    = gb_tmp;	
-	double rho_cor   = density;
+	double rho_cor   = ElShearMod;
 	double gb6       = gb1 + (gb_per+gb_ru-gb_cor)/2. + 46.70 - 0.0173*T;
-	SS_ref_g_db.density[5] = SS_ref_g_db.density[0] + (rho_per+rho_ru-rho_cor)/2.;
+	SS_ref_g_db.ElShearMod[5] = SS_ref_g_db.ElShearMod[0] + (rho_per+rho_ru-rho_cor)/2.;
 
 	double chem_comp6[nEl];	
 	for (i = 0; i < nEl; i++){
@@ -863,26 +976,26 @@ SS_ref G_SS_g_function(SS_ref SS_ref_g_db, int EM_database, double *bulk_rock, d
 		SS_ref_g_db.z_em[i] = 1.0;
 	}
 	
-	SS_ref_g_db.box_bounds_default[0][0] = 0.+eps;	SS_ref_g_db.box_bounds_default[0][1] = 1.-eps;
-	SS_ref_g_db.box_bounds_default[1][0] = 0.+eps;	SS_ref_g_db.box_bounds_default[1][1] = 1.-eps;
-	SS_ref_g_db.box_bounds_default[2][0] = 0.+eps;  SS_ref_g_db.box_bounds_default[2][1] = 1.-eps;
-	SS_ref_g_db.box_bounds_default[3][0] = 0.+eps;  SS_ref_g_db.box_bounds_default[3][1] = 1.-eps;
-	SS_ref_g_db.box_bounds_default[4][0] = 0.+eps;	SS_ref_g_db.box_bounds_default[4][1] = 1.-eps;	
+	SS_ref_g_db.bounds_ref[0][0] = 0.+eps;	SS_ref_g_db.bounds_ref[0][1] = 1.-eps;
+	SS_ref_g_db.bounds_ref[1][0] = 0.+eps;	SS_ref_g_db.bounds_ref[1][1] = 1.-eps;
+	SS_ref_g_db.bounds_ref[2][0] = 0.+eps;  SS_ref_g_db.bounds_ref[2][1] = 1.-eps;
+	SS_ref_g_db.bounds_ref[3][0] = 0.+eps;  SS_ref_g_db.bounds_ref[3][1] = 1.-eps;
+	SS_ref_g_db.bounds_ref[4][0] = 0.+eps;	SS_ref_g_db.bounds_ref[4][1] = 1.-eps;	
 
 	if (bulk_rock[8] == 0.){
 		SS_ref_g_db.z_em[3]          = 0.0;
-		SS_ref_g_db.box_bounds_default[2][0] = eps;  
-		SS_ref_g_db.box_bounds_default[2][1] = eps;
+		SS_ref_g_db.bounds_ref[2][0] = eps;  
+		SS_ref_g_db.bounds_ref[2][1] = eps;
 	}
 	if (bulk_rock[9] == 0.){
 		SS_ref_g_db.z_em[4]          = 0.0;
-		SS_ref_g_db.box_bounds_default[3][0] = eps;  
-		SS_ref_g_db.box_bounds_default[3][1] = eps;
+		SS_ref_g_db.bounds_ref[3][0] = eps;  
+		SS_ref_g_db.bounds_ref[3][1] = eps;
 	}
 	if (bulk_rock[7] == 0.){
 		SS_ref_g_db.z_em[5]          = 0.0;
-		SS_ref_g_db.box_bounds_default[4][0] = eps;	
-		SS_ref_g_db.box_bounds_default[4][1] = eps;	
+		SS_ref_g_db.bounds_ref[4][0] = eps;	
+		SS_ref_g_db.bounds_ref[4][1] = eps;	
 	}
 
 	return SS_ref_g_db;
@@ -968,43 +1081,56 @@ SS_ref G_SS_hb_function(SS_ref SS_ref_hb_db, int EM_database, double *bulk_rock,
     SS_ref_hb_db.v[10] = 1.50;
 
     PP_ref PP_db;
+	init_pp(&PP_db);
 
 	double gb_tmp;
-    double density;
+    double ElShearMod;
     int i,j;
 	
 	int n_em = SS_ref_hb_db.n_em;
 	
-	get_data chem_comp1       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp1, EM_database, bulk_rock, P, T, "tr", "equilibrium");
+	get_data chem_comp1;
+	init_data(&chem_comp1);
+	chem_comp1       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp1, EM_database, bulk_rock, P, T, "tr", "equilibrium");
 	double gb1       = gb_tmp;
-	SS_ref_hb_db.density[0] = density;
+	SS_ref_hb_db.ElShearMod[0] = ElShearMod;
 	
-	get_data chem_comp2       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp2, EM_database, bulk_rock, P, T, "ts", "equilibrium");
+	get_data chem_comp2;
+	init_data(&chem_comp2);
+	chem_comp2       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp2, EM_database, bulk_rock, P, T, "ts", "equilibrium");
 	double gb_ts     = gb_tmp;
 	double gb2       = gb_ts + 10.0;
-	SS_ref_hb_db.density[1] = density;
+	SS_ref_hb_db.ElShearMod[1] = ElShearMod;
 	
-	get_data chem_comp3       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp3, EM_database, bulk_rock, P, T, "parg", "equilibrium");
+	get_data chem_comp3;
+	init_data(&chem_comp3);
+	chem_comp3       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp3, EM_database, bulk_rock, P, T, "parg", "equilibrium");
 	double gb_parg   = gb_tmp;
 	double gb3       = gb_parg - 10.0;
-	SS_ref_hb_db.density[2] = density;
+	SS_ref_hb_db.ElShearMod[2] = ElShearMod;
 
-	get_data chem_comp4       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp4, EM_database, bulk_rock, P, T, "gl", "equilibrium");
+	get_data chem_comp4;
+	init_data(&chem_comp4);
+	chem_comp4       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp4, EM_database, bulk_rock, P, T, "gl", "equilibrium");
 	double gb_gl   = gb_tmp;
 	double gb4       = gb_gl - 3.0;	
-	SS_ref_hb_db.density[3] = density;
+	SS_ref_hb_db.ElShearMod[3] = ElShearMod;
 
-	get_data chem_comp5       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp5, EM_database, bulk_rock, P, T, "cumm", "equilibrium");
+	get_data chem_comp5;
+	init_data(&chem_comp5);
+	chem_comp5       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp5, EM_database, bulk_rock, P, T, "cumm", "equilibrium");
 	double gb5       = gb_tmp;
-	SS_ref_hb_db.density[4] = density;
+	SS_ref_hb_db.ElShearMod[4] = ElShearMod;
 
-	get_data chem_comp6       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp6, EM_database, bulk_rock, P, T, "grun", "equilibrium");
+	get_data chem_comp6;
+	init_data(&chem_comp6);
+	chem_comp6       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp6, EM_database, bulk_rock, P, T, "grun", "equilibrium");
 	double gb_grun   = gb_tmp;
 	double gb6       = gb_grun - 3.0;	
-	SS_ref_hb_db.density[5] = density;
+	SS_ref_hb_db.ElShearMod[5] = ElShearMod;
 
 	double gb7       = (3.0*gb5+4.0*gb_grun)/7.0 - 11.2;
-	SS_ref_hb_db.density[6] = (3.0*SS_ref_hb_db.density[4]+4.0*SS_ref_hb_db.density[5])/7.0;
+	SS_ref_hb_db.ElShearMod[6] = (3.0*SS_ref_hb_db.ElShearMod[4]+4.0*SS_ref_hb_db.ElShearMod[5])/7.0;
 
 	
 	double chem_comp7[nEl];	
@@ -1013,51 +1139,64 @@ SS_ref G_SS_hb_function(SS_ref SS_ref_hb_db, int EM_database, double *bulk_rock,
 	}	
 	
 	double gb8       = (2.0*gb5+5.0*gb_grun)/7.0 - 13.8;
-	SS_ref_hb_db.density[7]   = (2.0*SS_ref_hb_db.density[4]+5.0*SS_ref_hb_db.density[5])/7.0 - 13.8;
+	SS_ref_hb_db.ElShearMod[7]   = (2.0*SS_ref_hb_db.ElShearMod[4]+5.0*SS_ref_hb_db.ElShearMod[5])/7.0 - 13.8;
 	
 	double chem_comp8[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp8[i] = (2.0*chem_comp5.comp[i] + 5.0*chem_comp6.comp[i])/7.0;
 	}	
 	
-	get_data chem_comp_gr       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_gr, EM_database, bulk_rock, P, T, "gr", "equilibrium");
+	get_data chem_comp_gr;
+	init_data(&chem_comp_gr);
+	chem_comp_gr       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_gr, EM_database, bulk_rock, P, T, "gr", "equilibrium");
 	double gb_gr       = gb_tmp;
-	double rho_gr      = density;
-	get_data chem_comp_andr     = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_andr, EM_database, bulk_rock, P, T, "andr", "equilibrium");
+	double rho_gr      = ElShearMod;
+	
+	get_data chem_comp_andr;
+	init_data(&chem_comp_andr);
+	chem_comp_andr     = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_andr, EM_database, bulk_rock, P, T, "andr", "equilibrium");
 	double gb_andr     = gb_tmp;
-	double rho_andr    = density;
+	double rho_andr    = ElShearMod;
 	
 	double gb9         = gb_gl - gb_gr + gb_andr;
-	SS_ref_hb_db.density[8] = SS_ref_hb_db.density[3] - rho_gr + rho_andr;
+	SS_ref_hb_db.ElShearMod[8] = SS_ref_hb_db.ElShearMod[3] - rho_gr + rho_andr;
 	double chem_comp9[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp9[i] = chem_comp4.comp[i] - chem_comp_gr.comp[i] + chem_comp_andr.comp[i];
 	}	
 	
-	get_data chem_comp_mu       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_mu, EM_database, bulk_rock, P, T, "mu", "equilibrium");
+	get_data chem_comp_mu;
+	init_data(&chem_comp_mu);
+	chem_comp_mu       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_mu, EM_database, bulk_rock, P, T, "mu", "equilibrium");
 	double gb_mu       = gb_tmp;
-	double rho_mu      = density;
+	double rho_mu      = ElShearMod;
 	
-	get_data chem_comp_pa     = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_pa, EM_database, bulk_rock, P, T, "pa", "equilibrium");
+	get_data chem_comp_pa;
+	init_data(&chem_comp_pa);
+	chem_comp_pa     = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_pa, EM_database, bulk_rock, P, T, "pa", "equilibrium");
 	double gb_pa     = gb_tmp;
-	double rho_pa    = density;
+	double rho_pa    = ElShearMod;
 	
 	double gb10      = gb_mu - gb_pa + gb_parg - 7.06 + 0.020*T;
-	SS_ref_hb_db.density[9]  = rho_mu - rho_pa + SS_ref_hb_db.density[2];
+	SS_ref_hb_db.ElShearMod[9]  = rho_mu - rho_pa + SS_ref_hb_db.ElShearMod[2];
 	double chem_comp10[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp10[i] = chem_comp_mu.comp[i] - chem_comp_pa.comp[i] + chem_comp3.comp[i];
 	}	
 	
-	get_data chem_comp_dsp       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_dsp, EM_database, bulk_rock, P, T, "dsp", "equilibrium");
+	get_data chem_comp_dsp;
+	init_data(&chem_comp_dsp);
+	chem_comp_dsp       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_dsp, EM_database, bulk_rock, P, T, "dsp", "equilibrium");
 	double gb_dsp       = gb_tmp;
-	double rho_dsp      = density;
+	double rho_dsp      = ElShearMod;
 	
-	get_data chem_comp_ru       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_ru, EM_database, bulk_rock, P, T, "ru", "equilibrium");
+	get_data chem_comp_ru;
+	init_data(&chem_comp_ru);
+	chem_comp_ru       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_ru, EM_database, bulk_rock, P, T, "ru", "equilibrium");
 	double gb_ru       = gb_tmp;
-	double rho_ru      = density;
+	double rho_ru      = ElShearMod;
 	double gb11        = -2.*gb_dsp + 2.0*gb_ru + gb_ts + 95.00;
-	SS_ref_hb_db.density[10]  = -2.0*rho_dsp + 2.0*rho_ru + SS_ref_hb_db.density[1];
+	SS_ref_hb_db.ElShearMod[10]  = -2.0*rho_dsp + 2.0*rho_ru + SS_ref_hb_db.ElShearMod[1];
 	double chem_comp11[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp11[i] = -2.0*chem_comp_dsp.comp[i] + 2.0*chem_comp_ru.comp[i] + chem_comp2.comp[i];
@@ -1095,26 +1234,26 @@ SS_ref G_SS_hb_function(SS_ref SS_ref_hb_db, int EM_database, double *bulk_rock,
 	}		
 
 	/* define box bounds according to bulk-rock */
-	SS_ref_hb_db.box_bounds_default[0][0] = 0.+eps;   SS_ref_hb_db.box_bounds_default[0][1] = 1.-eps;
-	SS_ref_hb_db.box_bounds_default[1][0] = 0.+eps;   SS_ref_hb_db.box_bounds_default[1][1] = 1.-eps;
-	SS_ref_hb_db.box_bounds_default[2][0] = 0.+eps;   SS_ref_hb_db.box_bounds_default[2][1] = 1.-eps;
-	SS_ref_hb_db.box_bounds_default[3][0] = 0.+eps;   SS_ref_hb_db.box_bounds_default[3][1] = 1.-eps;
-	SS_ref_hb_db.box_bounds_default[4][0] = 0.+eps;   SS_ref_hb_db.box_bounds_default[4][1] = 1.-eps;	
-	SS_ref_hb_db.box_bounds_default[5][0] = 0.+eps;   SS_ref_hb_db.box_bounds_default[5][1] = 1.-eps;
-	SS_ref_hb_db.box_bounds_default[6][0] = 0.+eps;   SS_ref_hb_db.box_bounds_default[6][1] = 1.-eps;
-	SS_ref_hb_db.box_bounds_default[7][0] = 0.+eps;   SS_ref_hb_db.box_bounds_default[7][1] = 1.-eps;
-	SS_ref_hb_db.box_bounds_default[8][0] = -1.+eps;  SS_ref_hb_db.box_bounds_default[8][1] = 1.-eps;	
-	SS_ref_hb_db.box_bounds_default[9][0] = -1.+eps;  SS_ref_hb_db.box_bounds_default[9][1] = 1.-eps;
+	SS_ref_hb_db.bounds_ref[0][0] = 0.+eps;   SS_ref_hb_db.bounds_ref[0][1] = 1.-eps;
+	SS_ref_hb_db.bounds_ref[1][0] = 0.+eps;   SS_ref_hb_db.bounds_ref[1][1] = 1.-eps;
+	SS_ref_hb_db.bounds_ref[2][0] = 0.+eps;   SS_ref_hb_db.bounds_ref[2][1] = 1.-eps;
+	SS_ref_hb_db.bounds_ref[3][0] = 0.+eps;   SS_ref_hb_db.bounds_ref[3][1] = 1.-eps;
+	SS_ref_hb_db.bounds_ref[4][0] = 0.+eps;   SS_ref_hb_db.bounds_ref[4][1] = 1.-eps;	
+	SS_ref_hb_db.bounds_ref[5][0] = 0.+eps;   SS_ref_hb_db.bounds_ref[5][1] = 1.-eps;
+	SS_ref_hb_db.bounds_ref[6][0] = 0.+eps;   SS_ref_hb_db.bounds_ref[6][1] = 1.-eps;
+	SS_ref_hb_db.bounds_ref[7][0] = 0.+eps;   SS_ref_hb_db.bounds_ref[7][1] = 1.-eps;
+	SS_ref_hb_db.bounds_ref[8][0] = -1.+eps;  SS_ref_hb_db.bounds_ref[8][1] = 1.-eps;	
+	SS_ref_hb_db.bounds_ref[9][0] = -1.+eps;  SS_ref_hb_db.bounds_ref[9][1] = 1.-eps;
 
 	if (bulk_rock[7] == 0.){
 		SS_ref_hb_db.z_em[10]         = 0.0;
-		SS_ref_hb_db.box_bounds_default[7][0] = eps;   
-		SS_ref_hb_db.box_bounds_default[7][1] = eps;
+		SS_ref_hb_db.bounds_ref[7][0] = eps;   
+		SS_ref_hb_db.bounds_ref[7][1] = eps;
 	}
 	if (bulk_rock[8] == 0.){
 		SS_ref_hb_db.z_em[8]          = 0.0;
-		SS_ref_hb_db.box_bounds_default[6][0] = eps;   
-		SS_ref_hb_db.box_bounds_default[6][1] = eps;
+		SS_ref_hb_db.bounds_ref[6][0] = eps;   
+		SS_ref_hb_db.bounds_ref[6][1] = eps;
 	}
 
 	return SS_ref_hb_db;	
@@ -1136,24 +1275,31 @@ SS_ref G_SS_ilm_function(SS_ref SS_ref_ilm_db, int EM_database, double *bulk_roc
     SS_ref_ilm_db.W[2] = 7.25;    						  
 					
     PP_ref PP_db;
+	init_pp(&PP_db);
 
 	double gb_tmp;
-    double density;
+    double ElShearMod;
     int i,j;
 	
 	int n_em = SS_ref_ilm_db.n_em;
 	
-	get_data chem_comp1       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp1, EM_database, bulk_rock, P, T, "ilm", "ordered");
+	get_data chem_comp1;
+	init_data(&chem_comp1);
+	chem_comp1       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp1, EM_database, bulk_rock, P, T, "ilm", "ordered");
 	double gb1       = gb_tmp;	
-	SS_ref_ilm_db.density[0] = density;			  
+	SS_ref_ilm_db.ElShearMod[0] = ElShearMod;			  
 	
-	get_data chem_comp2       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp2, EM_database, bulk_rock, P, T, "ilm", "disordered");
+	get_data chem_comp2;
+	init_data(&chem_comp2);
+	chem_comp2       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp2, EM_database, bulk_rock, P, T, "ilm", "disordered");
 	double gb2       = gb_tmp;	
-	SS_ref_ilm_db.density[1] = density;			  
+	SS_ref_ilm_db.ElShearMod[1] = ElShearMod;			  
 
-	get_data chem_comp3       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp3, EM_database, bulk_rock, P, T, "hem", "equilibrium");
+	get_data chem_comp3;
+	init_data(&chem_comp3);
+	chem_comp3       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp3, EM_database, bulk_rock, P, T, "hem", "equilibrium");
 	double gb3       = gb_tmp;	
-	SS_ref_ilm_db.density[2] = density;			  
+	SS_ref_ilm_db.ElShearMod[2] = ElShearMod;			  
 	
 	SS_ref_ilm_db.gbase[0] = gb1;
 	SS_ref_ilm_db.gbase[1] = gb2;
@@ -1170,8 +1316,8 @@ SS_ref G_SS_ilm_function(SS_ref SS_ref_ilm_db, int EM_database, double *bulk_roc
 		SS_ref_ilm_db.z_em[i] = 1.0;
 	}
 	
-	SS_ref_ilm_db.box_bounds_default[0][0] =  0. 	+eps;	SS_ref_ilm_db.box_bounds_default[0][1] = 1.0  - eps;
-	SS_ref_ilm_db.box_bounds_default[1][0] =  -0.99 +eps;	SS_ref_ilm_db.box_bounds_default[1][1] = 0.99  - eps;
+	SS_ref_ilm_db.bounds_ref[0][0] =  0. 	+eps;	SS_ref_ilm_db.bounds_ref[0][1] = 1.0  - eps;
+	SS_ref_ilm_db.bounds_ref[1][0] =  -0.99 +eps;	SS_ref_ilm_db.bounds_ref[1][1] = 0.99  - eps;
 
 	return SS_ref_ilm_db;										  
 }
@@ -1182,21 +1328,21 @@ SS_ref G_SS_ilm_function(SS_ref SS_ref_ilm_db, int EM_database, double *bulk_roc
 SS_ref G_SS_liq_function(SS_ref SS_ref_liq_db, int EM_database, double *bulk_rock, double P, 
 								  double T, double eps){
 									  	
-	char   *EM_tmp[] 		= {"q4L","sl1L","wo1L","fo2L","fa2L","jdL","hmL","ekL","tiL","kjL","ctL","h2o1L"};	
+	char   *EM_tmp[] 	= {"q4L","sl1L","wo1L","fo2L","fa2L","jdL","hmL","ekL","tiL","kjL","ctL","h2o1L"};	
 	for (int i = 0; i < SS_ref_liq_db.n_em; i++){ 
 		strcpy(SS_ref_liq_db.EM_list[i],EM_tmp[i]);			
 	}
 		  
-    SS_ref_liq_db.W[0] = 9.5 - 0.10*P;
-    SS_ref_liq_db.W[1] = -10.3;
-    SS_ref_liq_db.W[2] = -26.5 - 3.12*P;
-    SS_ref_liq_db.W[3] = -12.0 - 0.55*P;
-    SS_ref_liq_db.W[4] = -15.1 - 0.13*P;
-    SS_ref_liq_db.W[5] = 20.0;
-    SS_ref_liq_db.W[6] = 0.0;
-    SS_ref_liq_db.W[7] = 24.6;
-    SS_ref_liq_db.W[8] = -17.8 - 0.05*P;
-    SS_ref_liq_db.W[9] = -14.6;
+    SS_ref_liq_db.W[0]  = 9.5 - 0.10*P;
+    SS_ref_liq_db.W[1]  = -10.3;
+    SS_ref_liq_db.W[2]  = -26.5 - 3.12*P;
+    SS_ref_liq_db.W[3]  = -12.0 - 0.55*P;
+    SS_ref_liq_db.W[4]  = -15.1 - 0.13*P;
+    SS_ref_liq_db.W[5]  = 20.0;
+    SS_ref_liq_db.W[6]  = 0.0;
+    SS_ref_liq_db.W[7]  = 24.6;
+    SS_ref_liq_db.W[8]  = -17.8 - 0.05*P;
+    SS_ref_liq_db.W[9]  = -14.6;
     SS_ref_liq_db.W[10] = 17.8 - 0.61*P;
     SS_ref_liq_db.W[11] = -26.5 + 0.85*P;
     SS_ref_liq_db.W[12] = 2.2;
@@ -1254,127 +1400,151 @@ SS_ref G_SS_liq_function(SS_ref SS_ref_liq_db, int EM_database, double *bulk_roc
     SS_ref_liq_db.W[64] = -0.1 + 0.22*P;
     SS_ref_liq_db.W[65] = 17.3 + 0.05*P;
 
-    SS_ref_liq_db.v[0] = 100.00;
-    SS_ref_liq_db.v[1] = 120.00;
-    SS_ref_liq_db.v[2] = 140.00;
-    SS_ref_liq_db.v[3] = 240.00;
-    SS_ref_liq_db.v[4] = 100.00;
-    SS_ref_liq_db.v[5] = 120.00;
-    SS_ref_liq_db.v[6] = 100.00;
-    SS_ref_liq_db.v[7] = 100.00;
-    SS_ref_liq_db.v[8] = 100.00;
-    SS_ref_liq_db.v[9] = 100.00;
+    SS_ref_liq_db.v[0]  = 100.00;
+    SS_ref_liq_db.v[1]  = 120.00;
+    SS_ref_liq_db.v[2]  = 140.00;
+    SS_ref_liq_db.v[3]  = 240.00;
+    SS_ref_liq_db.v[4]  = 100.00;
+    SS_ref_liq_db.v[5]  = 120.00;
+    SS_ref_liq_db.v[6]  = 100.00;
+    SS_ref_liq_db.v[7]  = 100.00;
+    SS_ref_liq_db.v[8]  = 100.00;
+    SS_ref_liq_db.v[9]  = 100.00;
     SS_ref_liq_db.v[10] = 100.00;
     SS_ref_liq_db.v[11] = 100.00;  
 		  
     PP_ref PP_db;
+	init_pp(&PP_db);
 
 	double gb_tmp;
-    double density;
+    double ElShearMod;
     int i,j;
 	
 	int n_em = SS_ref_liq_db.n_em;
 	
-	get_data chem_comp_qL       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_qL, EM_database, bulk_rock, P, T, "qL", "equilibrium");
+	get_data chem_comp_qL;
+	init_data(&chem_comp_qL);
+	chem_comp_qL       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_qL, EM_database, bulk_rock, P, T, "qL", "equilibrium");
 	double gb_qL       = gb_tmp;
-	double rho_qL      = density;
+	double rho_qL      = ElShearMod;
 	double gb1         = 4.*gb_qL + 0.22 - 0.059*P;
-	SS_ref_liq_db.density[0] = rho_qL;
+	SS_ref_liq_db.ElShearMod[0] = rho_qL;
 	
 	double chem_comp1[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp1[i] = 4.0*chem_comp_qL.comp[i];
 	}
-	get_data chem_comp2       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp2, EM_database, bulk_rock, P, T, "silL", "equilibrium");
+	
+	get_data chem_comp2;
+	init_data(&chem_comp2);
+	chem_comp2       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp2, EM_database, bulk_rock, P, T, "silL", "equilibrium");
 	double gb_silL   = gb_tmp;
-	double rho_silL  = density;
+	double rho_silL  = ElShearMod;
 	double gb2       = gb_silL + 6.20 - 0.318*P;
-	SS_ref_liq_db.density[1] = rho_silL;
+	SS_ref_liq_db.ElShearMod[1] = rho_silL;
 
 	
-	get_data chem_comp3       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp3, EM_database, bulk_rock, P, T, "woL", "equilibrium");
+	get_data chem_comp3;
+	init_data(&chem_comp3);
+	chem_comp3       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp3, EM_database, bulk_rock, P, T, "woL", "equilibrium");
 	double gb_woL   = gb_tmp;
-	double rho_woL  = density;
+	double rho_woL  = ElShearMod;
 	double gb3      = gb_woL - 0.45 - 0.114*P;
-	SS_ref_liq_db.density[2] = rho_woL;
+	SS_ref_liq_db.ElShearMod[2] = rho_woL;
 
 
-	get_data chem_comp_foL       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_foL, EM_database, bulk_rock, P, T, "foL", "equilibrium");
+	get_data chem_comp_foL;
+	init_data(&chem_comp_foL);
+	chem_comp_foL       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_foL, EM_database, bulk_rock, P, T, "foL", "equilibrium");
 	double gb_foL    = gb_tmp;
-	double rho_foL   = density;
+	double rho_foL   = ElShearMod;
 	double gb4       = 2.0*gb_foL + 8.67 - 0.131*P;	
-	SS_ref_liq_db.density[3] = rho_foL;
+	SS_ref_liq_db.ElShearMod[3] = rho_foL;
 	double chem_comp4[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp4[i] = 2.0*chem_comp_foL.comp[i];
 	}
 	
-	get_data chem_comp_faL       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_faL, EM_database, bulk_rock, P, T, "faL", "equilibrium");
+	get_data chem_comp_faL;
+	init_data(&chem_comp_faL);
+	chem_comp_faL       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_faL, EM_database, bulk_rock, P, T, "faL", "equilibrium");
 	double gb_faL    = gb_tmp;
-	double rho_faL   = density;
+	double rho_faL   = ElShearMod;
 	double gb5       = 2.0*gb_faL + 13.70 - 0.055*P;	
-	SS_ref_liq_db.density[4] = rho_faL;
+	SS_ref_liq_db.ElShearMod[4] = rho_faL;
 	double chem_comp5[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp5[i] = 2.0*chem_comp_faL.comp[i];
 	}
 	
-	get_data chem_comp_abL    = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_abL, EM_database, bulk_rock, P, T, "abL", "equilibrium");
+	get_data chem_comp_abL;
+	init_data(&chem_comp_abL);
+	chem_comp_abL    = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_abL, EM_database, bulk_rock, P, T, "abL", "equilibrium");
 	double gb_abL    = gb_tmp;
-	double rho_abL   = density;
+	double rho_abL   = ElShearMod;
 	double gb6       = gb_abL - gb_qL + 12.19 -0.089*P;
-	SS_ref_liq_db.density[5] = rho_abL - rho_qL;
+	SS_ref_liq_db.ElShearMod[5] = rho_abL - rho_qL;
 	double chem_comp6[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp6[i] = chem_comp_abL.comp[i] - chem_comp_qL.comp[i];
 	}
 
-	get_data chem_comp_hemL    = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_hemL, EM_database, bulk_rock, P, T, "hemL", "equilibrium");
+	get_data chem_comp_hemL;
+	init_data(&chem_comp_hemL);
+	chem_comp_hemL    = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_hemL, EM_database, bulk_rock, P, T, "hemL", "equilibrium");
 	double gb_hemL    = gb_tmp;
-	double rho_hemL   = density;	
+	double rho_hemL   = ElShearMod;	
 	double gb7        = gb_hemL/2.0 + 3.30 - 0.032*P;
-	SS_ref_liq_db.density[6] = rho_hemL;
+	SS_ref_liq_db.ElShearMod[6] = rho_hemL;
 	double chem_comp7[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp7[i] = chem_comp_hemL.comp[i]/2.0;
 	}
 	
-	get_data chem_comp_eskL    = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_eskL, EM_database, bulk_rock, P, T, "eskL", "equilibrium");
+	get_data chem_comp_eskL;
+	init_data(&chem_comp_eskL);
+	chem_comp_eskL    = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_eskL, EM_database, bulk_rock, P, T, "eskL", "equilibrium");
 	double gb_eskL    = gb_tmp;		
-	double rho_eskL   = density;
+	double rho_eskL   = ElShearMod;
 	double gb8        = gb_eskL/2.0 + 24.85 + 0.245*P;
-	SS_ref_liq_db.density[7] = rho_eskL;
+	SS_ref_liq_db.ElShearMod[7] = rho_eskL;
 	double chem_comp8[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp8[i] = chem_comp_eskL.comp[i]/2.0;
 	}
 	
-	get_data chem_comp9        = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp9, EM_database, bulk_rock, P, T, "ruL", "equilibrium");
+	get_data chem_comp9;
+	init_data(&chem_comp9);
+	chem_comp9        = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp9, EM_database, bulk_rock, P, T, "ruL", "equilibrium");
 	double gb_tiL     = gb_tmp;	
 	double gb9        = gb_tiL + 5.58 - 0.489*P;
-	SS_ref_liq_db.density[8] = density;
+	SS_ref_liq_db.ElShearMod[8] = ElShearMod;
 
-	get_data chem_comp_kspL    = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_kspL, EM_database, bulk_rock, P, T, "kspL", "equilibrium");
+	get_data chem_comp_kspL;
+	init_data(&chem_comp_kspL);
+	chem_comp_kspL    = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_kspL, EM_database, bulk_rock, P, T, "kspL", "equilibrium");
 	double gb_kspL    = gb_tmp;	
-	double rho_kspL   = density;
+	double rho_kspL   = ElShearMod;
 	double gb10       = gb_kspL - gb_qL + 11.98 - 0.210*P;
-	SS_ref_liq_db.density[9] = rho_kspL - rho_qL;
+	SS_ref_liq_db.ElShearMod[9] = rho_kspL - rho_qL;
 	double chem_comp10[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp10[i] = chem_comp_kspL.comp[i] - chem_comp_qL.comp[i];
 	}
 	
 	double gb11       = gb_woL + gb_silL - gb_qL - 108.30 + 0.055*T + 0.053*P;
-	SS_ref_liq_db.density[10] = rho_woL + rho_silL - rho_qL;
+	SS_ref_liq_db.ElShearMod[10] = rho_woL + rho_silL - rho_qL;
 	double chem_comp11[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp11[i] = chem_comp3.comp[i] + chem_comp2.comp[i] - chem_comp_qL.comp[i];
 	}
 	
-	get_data chem_comp12    = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp12, EM_database, bulk_rock, P, T, "h2oL", "equilibrium");
+	get_data chem_comp12;
+	init_data(&chem_comp12);
+	chem_comp12    = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp12, EM_database, bulk_rock, P, T, "h2oL", "equilibrium");
 	double gb_h2oL    = gb_tmp;		
 	double gb12       = gb_h2oL + 3.20 - 0.0039*T + 0.00087*P;
-	SS_ref_liq_db.density[11] = density;
+	SS_ref_liq_db.ElShearMod[11] = ElShearMod;
 	
 	SS_ref_liq_db.gbase[0]  = gb1;
 	SS_ref_liq_db.gbase[1]  = gb2;
@@ -1409,37 +1579,37 @@ SS_ref G_SS_liq_function(SS_ref SS_ref_liq_db, int EM_database, double *bulk_roc
 		SS_ref_liq_db.z_em[i] = 1.0;
 	}		
 
-	SS_ref_liq_db.box_bounds_default[0][0]  = 0.+eps;   SS_ref_liq_db.box_bounds_default[0][1]  = 1.-eps;
-	SS_ref_liq_db.box_bounds_default[1][0]  = 0.+eps;   SS_ref_liq_db.box_bounds_default[1][1]  = 1.-eps;
-	SS_ref_liq_db.box_bounds_default[2][0]  = 0.+eps;   SS_ref_liq_db.box_bounds_default[2][1]  = 1.-eps;
-	SS_ref_liq_db.box_bounds_default[3][0]  = 0.+eps;   SS_ref_liq_db.box_bounds_default[3][1]  = 1.-eps;
-	SS_ref_liq_db.box_bounds_default[4][0]  = 0.+eps;   SS_ref_liq_db.box_bounds_default[4][1]  = 1.-eps;	
-	SS_ref_liq_db.box_bounds_default[5][0]  = 0.+eps;   SS_ref_liq_db.box_bounds_default[5][1]  = 1.-eps;
-	SS_ref_liq_db.box_bounds_default[6][0]  = 0.+eps;   SS_ref_liq_db.box_bounds_default[6][1]  = 1.-eps;
-	SS_ref_liq_db.box_bounds_default[7][0]  = 0.+eps;   SS_ref_liq_db.box_bounds_default[7][1]  = 1.-eps;
-	SS_ref_liq_db.box_bounds_default[8][0]  = 0.+eps;   SS_ref_liq_db.box_bounds_default[8][1]  = 1.-eps;	
-	SS_ref_liq_db.box_bounds_default[9][0]  = 0.+eps;   SS_ref_liq_db.box_bounds_default[9][1]  = 1.-eps;	
-	SS_ref_liq_db.box_bounds_default[10][0] = 0.+eps;   SS_ref_liq_db.box_bounds_default[10][1] = 1.-eps;	
+	SS_ref_liq_db.bounds_ref[0][0]  = 0.+eps;   SS_ref_liq_db.bounds_ref[0][1]  = 1.-eps;
+	SS_ref_liq_db.bounds_ref[1][0]  = 0.+eps;   SS_ref_liq_db.bounds_ref[1][1]  = 1.-eps;
+	SS_ref_liq_db.bounds_ref[2][0]  = 0.+eps;   SS_ref_liq_db.bounds_ref[2][1]  = 1.-eps;
+	SS_ref_liq_db.bounds_ref[3][0]  = 0.+eps;   SS_ref_liq_db.bounds_ref[3][1]  = 1.-eps;
+	SS_ref_liq_db.bounds_ref[4][0]  = 0.+eps;   SS_ref_liq_db.bounds_ref[4][1]  = 1.-eps;	
+	SS_ref_liq_db.bounds_ref[5][0]  = 0.+eps;   SS_ref_liq_db.bounds_ref[5][1]  = 1.-eps;
+	SS_ref_liq_db.bounds_ref[6][0]  = 0.+eps;   SS_ref_liq_db.bounds_ref[6][1]  = 1.-eps;
+	SS_ref_liq_db.bounds_ref[7][0]  = 0.+eps;   SS_ref_liq_db.bounds_ref[7][1]  = 1.-eps;
+	SS_ref_liq_db.bounds_ref[8][0]  = 0.+eps;   SS_ref_liq_db.bounds_ref[8][1]  = 1.-eps;	
+	SS_ref_liq_db.bounds_ref[9][0]  = 0.+eps;   SS_ref_liq_db.bounds_ref[9][1]  = 1.-eps;	
+	SS_ref_liq_db.bounds_ref[10][0] = 0.+eps;   SS_ref_liq_db.bounds_ref[10][1] = 1.-eps;	
 
 	if (bulk_rock[7] == 0.){
 		SS_ref_liq_db.z_em[8]          = 0.0;
-		SS_ref_liq_db.box_bounds_default[7][0] = eps; 
-		SS_ref_liq_db.box_bounds_default[7][1] = eps;	
+		SS_ref_liq_db.bounds_ref[7][0] = eps; 
+		SS_ref_liq_db.bounds_ref[7][1] = eps;	
 	}
 	if (bulk_rock[8] == 0.){					// eps seems to give bad results, uses 0.0 instead
 		SS_ref_liq_db.z_em[6]          = 0.0;
-		SS_ref_liq_db.box_bounds_default[5][0] = eps; 
-		SS_ref_liq_db.box_bounds_default[5][1] = eps;	
+		SS_ref_liq_db.bounds_ref[5][0] = eps; 
+		SS_ref_liq_db.bounds_ref[5][1] = eps;	
 	}
 	if (bulk_rock[9] == 0.){
 		SS_ref_liq_db.z_em[7]          = 0.0;
-		SS_ref_liq_db.box_bounds_default[6][0] = eps; 
-		SS_ref_liq_db.box_bounds_default[6][1] = eps;	
+		SS_ref_liq_db.bounds_ref[6][0] = eps; 
+		SS_ref_liq_db.bounds_ref[6][1] = eps;	
 	}
 	if (bulk_rock[10] == 0.){ 					// no h2o, cannot be 0 for this xeos
 		SS_ref_liq_db.z_em[11]          = 0.0;
-		SS_ref_liq_db.box_bounds_default[10][0] = eps; 
-		SS_ref_liq_db.box_bounds_default[10][1] = eps;	
+		SS_ref_liq_db.bounds_ref[10][0] = eps; 
+		SS_ref_liq_db.bounds_ref[10][1] = eps;	
 	}
 
 	return SS_ref_liq_db;	
@@ -1451,70 +1621,85 @@ SS_ref G_SS_liq_function(SS_ref SS_ref_liq_db, int EM_database, double *bulk_roc
 SS_ref G_SS_mu_function(SS_ref SS_ref_mu_db, int EM_database, double *bulk_rock, double P, 
 								  double T, double eps){		
 									  	
-	char   *EM_tmp[] 		= {"mu","cel","fcel","pa","mam","fmu"};	
+	char   *EM_tmp[]   = {"mu","cel","fcel","pa","mam","fmu"};	
 	for (int i = 0; i < SS_ref_mu_db.n_em; i++){ 
 		strcpy(SS_ref_mu_db.EM_list[i],EM_tmp[i]);			
 	}
 						
-    SS_ref_mu_db.W[0] = 0. + 0.20*P;
-    SS_ref_mu_db.W[1] = 0. + 0.20*P;
-    SS_ref_mu_db.W[2] = 10.12 + 0.0034*T + 0.353*P;
-    SS_ref_mu_db.W[3] = 35.0;
-    SS_ref_mu_db.W[4] = 0.;
-    SS_ref_mu_db.W[5] = 0.;
-    SS_ref_mu_db.W[6] = 45.0 + 0.25*P;
-    SS_ref_mu_db.W[7] = 50.0;
-    SS_ref_mu_db.W[8] = 0.;
-    SS_ref_mu_db.W[9] = 45.0 + 0.25*P;
+    SS_ref_mu_db.W[0]  = 0.20*P;
+    SS_ref_mu_db.W[1]  = 0.20*P;
+    SS_ref_mu_db.W[2]  = 10.12 + 0.0034*T + 0.353*P;
+    SS_ref_mu_db.W[3]  = 35.0;
+    SS_ref_mu_db.W[4]  = 0.;
+    SS_ref_mu_db.W[5]  = 0.;
+    SS_ref_mu_db.W[6]  = 45.0 + 0.25*P;
+    SS_ref_mu_db.W[7]  = 50.0;
+    SS_ref_mu_db.W[8]  = 0.;
+    SS_ref_mu_db.W[9]  = 45.0 + 0.25*P;
     SS_ref_mu_db.W[10] = 50.0;
     SS_ref_mu_db.W[11] = 0.;
     SS_ref_mu_db.W[12] = 15.0;
     SS_ref_mu_db.W[13] = 30.0;
     SS_ref_mu_db.W[14] = 35.0;
-    SS_ref_mu_db.v[0] = 0.63;
-    SS_ref_mu_db.v[1] = 0.63;
-    SS_ref_mu_db.v[2] = 0.63;
-    SS_ref_mu_db.v[3] = 0.37;
-    SS_ref_mu_db.v[4] = 0.63;
-    SS_ref_mu_db.v[5] = 0.63;
+    SS_ref_mu_db.v[0]  = 0.63;
+    SS_ref_mu_db.v[1]  = 0.63;
+    SS_ref_mu_db.v[2]  = 0.63;
+    SS_ref_mu_db.v[3]  = 0.37;
+    SS_ref_mu_db.v[4]  = 0.63;
+    SS_ref_mu_db.v[5]  = 0.63;
 					
     PP_ref PP_db;
+	init_pp(&PP_db);
 
 	double gb_tmp;
-    double density;
+    double ElShearMod;
     int i,j;
 	
 	int n_em = SS_ref_mu_db.n_em;
 	
-	get_data chem_comp1       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp1, EM_database, bulk_rock, P, T, "mu", "equilibrium");
+	get_data chem_comp1;
+	init_data(&chem_comp1);
+	chem_comp1       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp1, EM_database, bulk_rock, P, T, "mu", "equilibrium");
 	double gb1       = gb_tmp;
-	SS_ref_mu_db.density[0] = density;
+	SS_ref_mu_db.ElShearMod[0] = ElShearMod;
 	
-	get_data chem_comp2       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp2, EM_database, bulk_rock, P, T, "cel", "equilibrium");
+	get_data chem_comp2;
+	init_data(&chem_comp2);
+	chem_comp2       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp2, EM_database, bulk_rock, P, T, "cel", "equilibrium");
 	double gb2       = gb_tmp;	
-	SS_ref_mu_db.density[1] = density;
+	SS_ref_mu_db.ElShearMod[1] = ElShearMod;
 	
-	get_data chem_comp3       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp3, EM_database, bulk_rock, P, T, "fcel", "equilibrium");
+	get_data chem_comp3;
+	init_data(&chem_comp3);
+	chem_comp3       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp3, EM_database, bulk_rock, P, T, "fcel", "equilibrium");
 	double gb3       = gb_tmp;
-	SS_ref_mu_db.density[2] = density;
+	SS_ref_mu_db.ElShearMod[2] = ElShearMod;
 	
-	get_data chem_comp4       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp4, EM_database, bulk_rock, P, T, "pa", "equilibrium");
+	get_data chem_comp4;
+	init_data(&chem_comp4);
+	chem_comp4       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp4, EM_database, bulk_rock, P, T, "pa", "equilibrium");
 	double gb4       = gb_tmp;
-	SS_ref_mu_db.density[3] = density;
+	SS_ref_mu_db.ElShearMod[3] = ElShearMod;
 	
-	get_data chem_comp5       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp5, EM_database, bulk_rock, P, T, "ma", "equilibrium");
+	get_data chem_comp5;
+	init_data(&chem_comp5);
+	chem_comp5       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp5, EM_database, bulk_rock, P, T, "ma", "equilibrium");
 	double gb5       = gb_tmp + 6.5;
-	SS_ref_mu_db.density[4] = density;
+	SS_ref_mu_db.ElShearMod[4] = ElShearMod;
 	
-	get_data chem_comp_gr       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_gr, EM_database, bulk_rock, P, T, "gr", "equilibrium");
+	get_data chem_comp_gr;
+	init_data(&chem_comp_gr);
+	chem_comp_gr       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_gr, EM_database, bulk_rock, P, T, "gr", "equilibrium");
 	double gb_gr       = gb_tmp;
-	double rho_gr      = density;
+	double rho_gr      = ElShearMod;
 	
-	get_data chem_comp_andr     = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_andr, EM_database, bulk_rock, P, T, "andr", "equilibrium");
+	get_data chem_comp_andr;
+	init_data(&chem_comp_andr);
+	chem_comp_andr     = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_andr, EM_database, bulk_rock, P, T, "andr", "equilibrium");
 	double gb_andr     = gb_tmp;	
-	double rho_andr    = density;
+	double rho_andr    = ElShearMod;
 	double gb6         = (gb_andr - gb_gr)/2.0 + gb1 + 25.0;
-	SS_ref_mu_db.density[5] = (rho_andr - rho_gr)/2.0;
+	SS_ref_mu_db.ElShearMod[5] = (rho_andr - rho_gr)/2.0;
 	
 	double chem_comp6[nEl];
 	for (i = 0; i < nEl; i++){
@@ -1537,11 +1722,11 @@ SS_ref G_SS_mu_function(SS_ref SS_ref_mu_db, int EM_database, double *bulk_rock,
 		SS_ref_mu_db.Comp[5][i] = chem_comp6[i];
 	}
 	
-	SS_ref_mu_db.box_bounds_default[0][0] = 0.+eps;	SS_ref_mu_db.box_bounds_default[0][1] = 1.0 - eps;
-	SS_ref_mu_db.box_bounds_default[1][0] = 0.+eps;	SS_ref_mu_db.box_bounds_default[1][1] = 1.0 - eps;
-	SS_ref_mu_db.box_bounds_default[2][0] = 0.+eps; SS_ref_mu_db.box_bounds_default[2][1] = 1.0 - eps;
-	SS_ref_mu_db.box_bounds_default[3][0] = 0.+eps; SS_ref_mu_db.box_bounds_default[3][1] = 1.0 - eps;
-	SS_ref_mu_db.box_bounds_default[4][0] = 0.+eps;	SS_ref_mu_db.box_bounds_default[4][1] = 1.0 - eps;	
+	SS_ref_mu_db.bounds_ref[0][0] = 0.+eps;	SS_ref_mu_db.bounds_ref[0][1] = 1.0 - eps;
+	SS_ref_mu_db.bounds_ref[1][0] = 0.+eps;	SS_ref_mu_db.bounds_ref[1][1] = 1.0 - eps;
+	SS_ref_mu_db.bounds_ref[2][0] = 0.+eps; SS_ref_mu_db.bounds_ref[2][1] = 1.0 - eps;
+	SS_ref_mu_db.bounds_ref[3][0] = 0.+eps; SS_ref_mu_db.bounds_ref[3][1] = 1.0 - eps;
+	SS_ref_mu_db.bounds_ref[4][0] = 0.+eps;	SS_ref_mu_db.bounds_ref[4][1] = 1.0 - eps;	
 
 	/* define endmembers to be deactivated when bulk-rock composition equal zero */
 	for (i = 0; i < n_em; i++){
@@ -1551,8 +1736,8 @@ SS_ref G_SS_mu_function(SS_ref SS_ref_mu_db, int EM_database, double *bulk_rock,
 	/* define box bounds according to bulk-rock */
 	if (bulk_rock[8] == 0.){
 		SS_ref_mu_db.z_em[5]          = 0.0;
-		SS_ref_mu_db.box_bounds_default[2][0] = eps;
-		SS_ref_mu_db.box_bounds_default[2][1] = eps;
+		SS_ref_mu_db.bounds_ref[2][0] = eps;
+		SS_ref_mu_db.bounds_ref[2][1] = eps;
 	}
 
 	return SS_ref_mu_db;
@@ -1564,7 +1749,7 @@ SS_ref G_SS_mu_function(SS_ref SS_ref_mu_db, int EM_database, double *bulk_rock,
 SS_ref G_SS_ol_function(SS_ref SS_ref_ol_db, int EM_database, double *bulk_rock, double P, 
 								  double T, double eps){		
 									  	
-	char   *EM_tmp[] 		= {"mont","fa","fo","cfm"};	
+	char   *EM_tmp[]  = {"mont","fa","fo","cfm"};	
 	for (int i = 0; i < SS_ref_ol_db.n_em; i++){ 
 		strcpy(SS_ref_ol_db.EM_list[i],EM_tmp[i]);			
 	}
@@ -1577,27 +1762,34 @@ SS_ref G_SS_ol_function(SS_ref SS_ref_ol_db, int EM_database, double *bulk_rock,
     SS_ref_ol_db.W[5] = 4.5;    
 			
     PP_ref PP_db;
+	init_pp(&PP_db);
 
 	double gb_tmp;
-    double density;
+    double ElShearMod;
     int i,j;
 	
 	int n_em = SS_ref_ol_db.n_em;
 	
-	get_data chem_comp1       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp1, EM_database, bulk_rock, P, T, "mont", "equilibrium");
+	get_data chem_comp1;
+	init_data(&chem_comp1);
+	chem_comp1       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp1, EM_database, bulk_rock, P, T, "mont", "equilibrium");
 	double gb1       = gb_tmp;
-	SS_ref_ol_db.density[0] = density;
+	SS_ref_ol_db.ElShearMod[0] = ElShearMod;
 	
-	get_data chem_comp2       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp2, EM_database, bulk_rock, P, T, "fa", "equilibrium");
+	get_data chem_comp2;
+	init_data(&chem_comp2);
+	chem_comp2       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp2, EM_database, bulk_rock, P, T, "fa", "equilibrium");
 	double gb2       = gb_tmp;
-	SS_ref_ol_db.density[1] = density;
+	SS_ref_ol_db.ElShearMod[1] = ElShearMod;
 	
-	get_data chem_comp3       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp3, EM_database, bulk_rock, P, T, "fo", "equilibrium");
+	get_data chem_comp3;
+	init_data(&chem_comp3);
+	chem_comp3       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp3, EM_database, bulk_rock, P, T, "fo", "equilibrium");
 	double gb3       = gb_tmp;
-	SS_ref_ol_db.density[2] = density;
+	SS_ref_ol_db.ElShearMod[2] = ElShearMod;
 	
 	double gb4       = (gb2+gb3)/2.;
-	SS_ref_ol_db.density[3] = (SS_ref_ol_db.density[1] + SS_ref_ol_db.density[2])/2.0;
+	SS_ref_ol_db.ElShearMod[3] = (SS_ref_ol_db.ElShearMod[1] + SS_ref_ol_db.ElShearMod[2])/2.0;
 	
 	double chem_comp4[nEl];
 	for (i = 0; i < nEl; i++){
@@ -1617,9 +1809,9 @@ SS_ref G_SS_ol_function(SS_ref SS_ref_ol_db, int EM_database, double *bulk_rock,
 	}
 
 	/* define box bounds according to bulk-rock */
-	SS_ref_ol_db.box_bounds_default[0][0] = 0. + eps;	SS_ref_ol_db.box_bounds_default[0][1] = 1. - eps;
-	SS_ref_ol_db.box_bounds_default[1][0] = 0. + eps;	SS_ref_ol_db.box_bounds_default[1][1] = 1. - eps;
-	SS_ref_ol_db.box_bounds_default[2][0] = 0. + eps; 	SS_ref_ol_db.box_bounds_default[2][1] = 1. - eps;
+	SS_ref_ol_db.bounds_ref[0][0] = 0. + eps;	SS_ref_ol_db.bounds_ref[0][1] = 1. - eps;
+	SS_ref_ol_db.bounds_ref[1][0] = 0. + eps;	SS_ref_ol_db.bounds_ref[1][1] = 1. - eps;
+	SS_ref_ol_db.bounds_ref[2][0] = 0. + eps; 	SS_ref_ol_db.bounds_ref[2][1] = 1. - eps;
 
 	/* define endmembers to be deactivated when bulk-rock composition equal zero */
 	for (i = 0; i < n_em; i++){
@@ -1635,21 +1827,21 @@ SS_ref G_SS_ol_function(SS_ref SS_ref_ol_db, int EM_database, double *bulk_rock,
 SS_ref G_SS_opx_function(SS_ref SS_ref_opx_db, int EM_database, double *bulk_rock, double P, 
 								  double T, double eps){		
 									  	
-	char   *EM_tmp[] 		= {"en","fs","fm","odi","mgts","cren","obuf","mess","ojd"};	
+	char   *EM_tmp[] 	= {"en","fs","fm","odi","mgts","cren","obuf","mess","ojd"};	
 	for (int i = 0; i < SS_ref_opx_db.n_em; i++){ 
 		strcpy(SS_ref_opx_db.EM_list[i],EM_tmp[i]);			
 	}
 		
-    SS_ref_opx_db.W[0] = 7.0;
-    SS_ref_opx_db.W[1] = 4.0;
-    SS_ref_opx_db.W[2] = 29.4;
-    SS_ref_opx_db.W[3] = 12.5 - 0.04*P;
-    SS_ref_opx_db.W[4] = 8.0;
-    SS_ref_opx_db.W[5] = 6.0;
-    SS_ref_opx_db.W[6] = 8.0;
-    SS_ref_opx_db.W[7] = 35.0;
-    SS_ref_opx_db.W[8] = 4.0;
-    SS_ref_opx_db.W[9] = 21.5 + 0.08*P;
+    SS_ref_opx_db.W[0]  = 7.0;
+    SS_ref_opx_db.W[1]  = 4.0;
+    SS_ref_opx_db.W[2]  = 29.4;
+    SS_ref_opx_db.W[3]  = 12.5 - 0.04*P;
+    SS_ref_opx_db.W[4]  = 8.0;
+    SS_ref_opx_db.W[5]  = 6.0;
+    SS_ref_opx_db.W[6]  = 8.0;
+    SS_ref_opx_db.W[7]  = 35.0;
+    SS_ref_opx_db.W[8]  = 4.0;
+    SS_ref_opx_db.W[9]  = 21.5 + 0.08*P;
     SS_ref_opx_db.W[10] = 11.0 - 0.15*P;
     SS_ref_opx_db.W[11] = 10.0;
     SS_ref_opx_db.W[12] = 7.0;
@@ -1677,89 +1869,110 @@ SS_ref G_SS_opx_function(SS_ref SS_ref_opx_db, int EM_database, double *bulk_roc
     SS_ref_opx_db.W[34] = 20.0;
     SS_ref_opx_db.W[35] = -11.0;
     
-    SS_ref_opx_db.v[0] = 1.00;
-    SS_ref_opx_db.v[1] = 1.00;
-    SS_ref_opx_db.v[2] = 1.00;
-    SS_ref_opx_db.v[3] = 1.20;
-    SS_ref_opx_db.v[4] = 1.00;
-    SS_ref_opx_db.v[5] = 1.00;
-    SS_ref_opx_db.v[6] = 1.00;
-    SS_ref_opx_db.v[7] = 1.00;
-    SS_ref_opx_db.v[8] = 1.20;
+    SS_ref_opx_db.v[0]  = 1.00;
+    SS_ref_opx_db.v[1]  = 1.00;
+    SS_ref_opx_db.v[2]  = 1.00;
+    SS_ref_opx_db.v[3]  = 1.20;
+    SS_ref_opx_db.v[4]  = 1.00;
+    SS_ref_opx_db.v[5]  = 1.00;
+    SS_ref_opx_db.v[6]  = 1.00;
+    SS_ref_opx_db.v[7]  = 1.00;
+    SS_ref_opx_db.v[8]  = 1.20;
 					
     PP_ref PP_db;
-
+	init_pp(&PP_db);
+	
 	double gb_tmp;
-    double density;
+    double ElShearMod;
     int i,j;
 	
 	int n_em = SS_ref_opx_db.n_em;
 	
-	get_data chem_comp1       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp1, EM_database, bulk_rock, P, T, "en", "equilibrium");
+	get_data chem_comp1;
+	init_data(&chem_comp1);
+	chem_comp1       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp1, EM_database, bulk_rock, P, T, "en", "equilibrium");
 	double gb1       = gb_tmp;	
-	SS_ref_opx_db.density[0] = density;
+	SS_ref_opx_db.ElShearMod[0] = ElShearMod;
 
-	get_data chem_comp2       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp2, EM_database, bulk_rock, P, T, "fs", "equilibrium");
+	get_data chem_comp2;
+	init_data(&chem_comp2);
+	chem_comp2       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp2, EM_database, bulk_rock, P, T, "fs", "equilibrium");
 	double gb2       = gb_tmp;
-	SS_ref_opx_db.density[1] = density;
+	SS_ref_opx_db.ElShearMod[1] = ElShearMod;
 	
 	double gb3       = (gb1 + gb2)/2. - 6.6;
-	SS_ref_opx_db.density[2] = (SS_ref_opx_db.density[0] + SS_ref_opx_db.density[1])/2.;
+	SS_ref_opx_db.ElShearMod[2] = (SS_ref_opx_db.ElShearMod[0] + SS_ref_opx_db.ElShearMod[1])/2.;
 	
 	double chem_comp3[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp3[i] = (chem_comp1.comp[i] + chem_comp2.comp[i])/2.0;
 	}
 	
-	get_data chem_comp4       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp4, EM_database, bulk_rock, P, T, "di", "equilibrium");
+	get_data chem_comp4;
+	init_data(&chem_comp4);
+	chem_comp4       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp4, EM_database, bulk_rock, P, T, "di", "equilibrium");
 	double gb4       = gb_tmp + 2.8 + 0.005*P;	
-	SS_ref_opx_db.density[3] = density;
+	SS_ref_opx_db.ElShearMod[3] = ElShearMod;
 	
-	get_data chem_comp5       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp5, EM_database, bulk_rock, P, T, "mgts", "equilibrium");
+	get_data chem_comp5;
+	init_data(&chem_comp5);
+	chem_comp5       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp5, EM_database, bulk_rock, P, T, "mgts", "equilibrium");
 	double gb5       = gb_tmp;	
-	SS_ref_opx_db.density[4] = density;
+	SS_ref_opx_db.ElShearMod[4] = ElShearMod;
 	
-	get_data chem_comp_kos    = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_kos, EM_database, bulk_rock, P, T, "kos", "equilibrium");
+	get_data chem_comp_kos;
+	init_data(&chem_comp_kos);
+	chem_comp_kos    = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_kos, EM_database, bulk_rock, P, T, "kos", "equilibrium");
 	double gb_kos    = gb_tmp;	
-	double rho_kos   = density;
+	double rho_kos   = ElShearMod;
 	
-	get_data chem_comp_jd     = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_jd, EM_database, bulk_rock, P, T, "jd", "equilibrium");
+	get_data chem_comp_jd;
+	init_data(&chem_comp_jd);
+	chem_comp_jd     = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_jd, EM_database, bulk_rock, P, T, "jd", "equilibrium");
 	double gb_jd     = gb_tmp;	
-	double rho_jd    = density;
+	double rho_jd    = ElShearMod;
 	
 	double gb6       = gb5 + gb_kos - gb_jd + (-25.9 + 0.0155*T + 0.05*P);
-	SS_ref_opx_db.density[5] = SS_ref_opx_db.density[4] + rho_kos - rho_jd;
+	SS_ref_opx_db.ElShearMod[5] = SS_ref_opx_db.ElShearMod[4] + rho_kos - rho_jd;
 	double chem_comp6[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp6[i] = chem_comp5.comp[i] + chem_comp_kos.comp[i] - chem_comp_jd.comp[i];
 	}
 	
-	get_data chem_comp_per     = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_per, EM_database, bulk_rock, P, T, "per", "equilibrium");
+	get_data chem_comp_per;
+	init_data(&chem_comp_per);
+	chem_comp_per     = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_per, EM_database, bulk_rock, P, T, "per", "equilibrium");
 	double gb_per     = gb_tmp;	
-	double rho_per    = density;
+	double rho_per    = ElShearMod;
 	
-	get_data chem_comp_ru     = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_ru, EM_database, bulk_rock, P, T, "ru", "equilibrium");
+	get_data chem_comp_ru;
+	init_data(&chem_comp_ru);
+	chem_comp_ru     = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_ru, EM_database, bulk_rock, P, T, "ru", "equilibrium");
 	double gb_ru     = gb_tmp;	
-	double rho_ru    = density;
+	double rho_ru    = ElShearMod;
 	
-	get_data chem_comp_cor    = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_cor, EM_database, bulk_rock, P, T, "cor", "equilibrium");
+	get_data chem_comp_cor;
+	init_data(&chem_comp_cor);
+	chem_comp_cor    = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_cor, EM_database, bulk_rock, P, T, "cor", "equilibrium");
 	double gb_cor    = gb_tmp;	
-	double rho_cor   = density;
+	double rho_cor   = ElShearMod;
 	
 	double gb7       = gb5 + (gb_per + gb_ru - gb_cor)/2.0 + (-5.0 - 0.0051*T - 0.0061*P);
-	SS_ref_opx_db.density[6] = SS_ref_opx_db.density[4] + (rho_per + rho_ru - rho_cor)/2.0;
+	SS_ref_opx_db.ElShearMod[6] = SS_ref_opx_db.ElShearMod[4] + (rho_per + rho_ru - rho_cor)/2.0;
 	
 	double chem_comp7[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp7[i] = chem_comp5.comp[i] + (chem_comp_per.comp[i] + chem_comp_ru.comp[i] - chem_comp_cor.comp[i])/2.0;
 	}
 	
-	get_data chem_comp_acm    = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp_acm, EM_database, bulk_rock, P, T, "acm", "equilibrium");
+	get_data chem_comp_acm;
+	init_data(&chem_comp_acm);
+	chem_comp_acm    = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp_acm, EM_database, bulk_rock, P, T, "acm", "equilibrium");
 	double gb_acm    = gb_tmp;
-	double rho_acm   = density;	
+	double rho_acm   = ElShearMod;	
 	
 	double gb8       = gb5 + gb_acm - gb_jd + (4.80 - 0.089*P);
-	SS_ref_opx_db.density[7] = SS_ref_opx_db.density[4] + rho_acm - rho_jd;
+	SS_ref_opx_db.ElShearMod[7] = SS_ref_opx_db.ElShearMod[4] + rho_acm - rho_jd;
 	
 	double chem_comp8[nEl];	
 	for (i = 0; i < nEl; i++){
@@ -1767,7 +1980,7 @@ SS_ref G_SS_opx_function(SS_ref SS_ref_opx_db, int EM_database, double *bulk_roc
 	}
 	
 	double gb9       = gb_jd + 18.80;
-	SS_ref_opx_db.density[8] = rho_jd;
+	SS_ref_opx_db.ElShearMod[8] = rho_jd;
 	double chem_comp9[nEl];	
 	for (i = 0; i < nEl; i++){
 		chem_comp9[i] = chem_comp_jd.comp[i];
@@ -1800,29 +2013,29 @@ SS_ref G_SS_opx_function(SS_ref SS_ref_opx_db, int EM_database, double *bulk_roc
 		SS_ref_opx_db.z_em[i] = 1.0;
 	}
 	
-	SS_ref_opx_db.box_bounds_default[0][0] = 0.+eps;  SS_ref_opx_db.box_bounds_default[0][1] = 1.-eps;
-	SS_ref_opx_db.box_bounds_default[1][0] = 0.+eps;  SS_ref_opx_db.box_bounds_default[1][1] = 2.-eps;
-	SS_ref_opx_db.box_bounds_default[2][0] = 0.+eps;  SS_ref_opx_db.box_bounds_default[2][1] = 1.-eps;
-	SS_ref_opx_db.box_bounds_default[3][0] = -1.+eps; SS_ref_opx_db.box_bounds_default[3][1] = 1.-eps;
-	SS_ref_opx_db.box_bounds_default[4][0] = 0.+eps;  SS_ref_opx_db.box_bounds_default[4][1] = 1.-eps;	
-	SS_ref_opx_db.box_bounds_default[5][0] = 0.+eps;  SS_ref_opx_db.box_bounds_default[5][1] = 1.-eps;
-	SS_ref_opx_db.box_bounds_default[6][0] = 0.+eps;  SS_ref_opx_db.box_bounds_default[6][1] = 1.-eps;
-	SS_ref_opx_db.box_bounds_default[7][0] = 0.+eps;  SS_ref_opx_db.box_bounds_default[7][1] = 1.-eps;
+	SS_ref_opx_db.bounds_ref[0][0] = 0.+eps;  SS_ref_opx_db.bounds_ref[0][1] = 1.-eps;
+	SS_ref_opx_db.bounds_ref[1][0] = 0.+eps;  SS_ref_opx_db.bounds_ref[1][1] = 2.-eps;
+	SS_ref_opx_db.bounds_ref[2][0] = 0.+eps;  SS_ref_opx_db.bounds_ref[2][1] = 1.-eps;
+	SS_ref_opx_db.bounds_ref[3][0] = -1.+eps; SS_ref_opx_db.bounds_ref[3][1] = 1.-eps;
+	SS_ref_opx_db.bounds_ref[4][0] = 0.+eps;  SS_ref_opx_db.bounds_ref[4][1] = 1.-eps;	
+	SS_ref_opx_db.bounds_ref[5][0] = 0.+eps;  SS_ref_opx_db.bounds_ref[5][1] = 1.-eps;
+	SS_ref_opx_db.bounds_ref[6][0] = 0.+eps;  SS_ref_opx_db.bounds_ref[6][1] = 1.-eps;
+	SS_ref_opx_db.bounds_ref[7][0] = 0.+eps;  SS_ref_opx_db.bounds_ref[7][1] = 1.-eps;
 
 	if (bulk_rock[7] == 0.){ //tio2
 		SS_ref_opx_db.z_em[6]          = 0.0;
-		SS_ref_opx_db.box_bounds_default[5][1] = eps;
-		SS_ref_opx_db.box_bounds_default[5][0] = eps;
+		SS_ref_opx_db.bounds_ref[5][1] = eps;
+		SS_ref_opx_db.bounds_ref[5][0] = eps;
 	}
 	if (bulk_rock[8] == 0.){ //o
 		SS_ref_opx_db.z_em[7]          = 0.0;
-		SS_ref_opx_db.box_bounds_default[4][0] = eps;  
-		SS_ref_opx_db.box_bounds_default[4][1] = eps;	
+		SS_ref_opx_db.bounds_ref[4][0] = eps;  
+		SS_ref_opx_db.bounds_ref[4][1] = eps;	
 	}
 	if (bulk_rock[9] == 0.){ //cr2o3
 		SS_ref_opx_db.z_em[5]          = 0.0;
-		SS_ref_opx_db.box_bounds_default[6][0] = eps;  
-		SS_ref_opx_db.box_bounds_default[6][1] = eps;
+		SS_ref_opx_db.bounds_ref[6][0] = eps;  
+		SS_ref_opx_db.bounds_ref[6][1] = eps;
 	}
 
 	return SS_ref_opx_db;
@@ -1834,38 +2047,45 @@ SS_ref G_SS_opx_function(SS_ref SS_ref_opx_db, int EM_database, double *bulk_roc
 SS_ref G_SS_pl4T_function(SS_ref SS_ref_pl4T_db, int EM_database, double *bulk_rock, double P, 
 								  double T, double eps){
 									  	
-	char   *EM_tmp[] 		= {"ab","an","san"};	
+	char   *EM_tmp[] 	= {"ab","an","san"};	
 	for (int i = 0; i < SS_ref_pl4T_db.n_em; i++){ 
 		strcpy(SS_ref_pl4T_db.EM_list[i],EM_tmp[i]);			
 	}
 			
-    SS_ref_pl4T_db.W[0]    = 14.6 - 0.00935*T - 0.04*P;
-    SS_ref_pl4T_db.W[1]    = 24.1 - 0.00957*T + 0.338*P;
-    SS_ref_pl4T_db.W[2]    = 48.5 - 0.13*P;
+    SS_ref_pl4T_db.W[0] = 14.6 - 0.00935*T - 0.04*P;
+    SS_ref_pl4T_db.W[1] = 24.1 - 0.00957*T + 0.338*P;
+    SS_ref_pl4T_db.W[2] = 48.5 - 0.13*P;
     
-    SS_ref_pl4T_db.v[0]    = 0.674;
-    SS_ref_pl4T_db.v[1]    = 0.55;
-    SS_ref_pl4T_db.v[2]    = 1.0;
+    SS_ref_pl4T_db.v[0] = 0.674;
+    SS_ref_pl4T_db.v[1] = 0.55;
+    SS_ref_pl4T_db.v[2] = 1.0;
 							  
     PP_ref PP_db;
-
+	init_pp(&PP_db);
+	
 	double gb_tmp;
-    double density;
+    double ElShearMod;
     int i,j;
 	
 	int n_em = SS_ref_pl4T_db.n_em;
 
-	get_data chem_comp1       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp1, EM_database, bulk_rock, P, T, "ab", "equilibrium");
+	get_data chem_comp1;
+	init_data(&chem_comp1);
+	chem_comp1       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp1, EM_database, bulk_rock, P, T, "ab", "equilibrium");
 	double gb1       = gb_tmp;	
-	SS_ref_pl4T_db.density[0] = density;
+	SS_ref_pl4T_db.ElShearMod[0] = ElShearMod;
 
-	get_data chem_comp2       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp2, EM_database, bulk_rock, P, T, "an", "equilibrium");
+	get_data chem_comp2;
+	init_data(&chem_comp2);
+	chem_comp2       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp2, EM_database, bulk_rock, P, T, "an", "equilibrium");
 	double gb2       = gb_tmp;	
-	SS_ref_pl4T_db.density[1] = density;
+	SS_ref_pl4T_db.ElShearMod[1] = ElShearMod;
 						  
-	get_data chem_comp3       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp3, EM_database, bulk_rock, P, T, "san", "equilibrium");
+	get_data chem_comp3;
+	init_data(&chem_comp3);
+	chem_comp3       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp3, EM_database, bulk_rock, P, T, "san", "equilibrium");
 	double gb3       = gb_tmp;	
-	SS_ref_pl4T_db.density[2] = density;
+	SS_ref_pl4T_db.ElShearMod[2] = ElShearMod;
 
 	SS_ref_pl4T_db.gbase[0] = gb1;
 	SS_ref_pl4T_db.gbase[1] = gb2;
@@ -1878,8 +2098,8 @@ SS_ref G_SS_pl4T_function(SS_ref SS_ref_pl4T_db, int EM_database, double *bulk_r
 	}
 	
 	/* define box bounds */
-	SS_ref_pl4T_db.box_bounds_default[0][0] = 0.+eps;	SS_ref_pl4T_db.box_bounds_default[0][1] = 1.-eps;
-	SS_ref_pl4T_db.box_bounds_default[1][0] = 0.+eps;	SS_ref_pl4T_db.box_bounds_default[1][1] = 1.-eps;
+	SS_ref_pl4T_db.bounds_ref[0][0] = 0.+eps;	SS_ref_pl4T_db.bounds_ref[0][1] = 1.-eps;
+	SS_ref_pl4T_db.bounds_ref[1][0] = 0.+eps;	SS_ref_pl4T_db.bounds_ref[1][1] = 1.-eps;
 
 	/* define endmembers to be deactivated when bulk-rock composition equal zero */
 	for (i = 0; i < n_em; i++){
@@ -1895,21 +2115,21 @@ SS_ref G_SS_pl4T_function(SS_ref SS_ref_pl4T_db, int EM_database, double *bulk_r
 SS_ref G_SS_spn_function(SS_ref SS_ref_spn_db, int EM_database, double *bulk_rock, double P, 
 								  double T, double eps){	
 									  	
-	char   *EM_tmp[] 		= {"nsp","isp","nhc","ihc","nmt","imt","pcr","qndm"};	
+	char   *EM_tmp[] 	= {"nsp","isp","nhc","ihc","nmt","imt","pcr","qndm"};	
 	for (int i = 0; i < SS_ref_spn_db.n_em; i++){ 
 		strcpy(SS_ref_spn_db.EM_list[i],EM_tmp[i]);			
 	}
 									  
-    SS_ref_spn_db.W[0] = -8.2;
-    SS_ref_spn_db.W[1] = 3.5;
-    SS_ref_spn_db.W[2] = -13.0;
-    SS_ref_spn_db.W[3] = 43.2;
-    SS_ref_spn_db.W[4] = 49.1;
-    SS_ref_spn_db.W[5] = -5.0;
-    SS_ref_spn_db.W[6] = 22.5;
-    SS_ref_spn_db.W[7] = 4.4;
-    SS_ref_spn_db.W[8] = -6.0;
-    SS_ref_spn_db.W[9] = 36.8;
+    SS_ref_spn_db.W[0]  = -8.2;
+    SS_ref_spn_db.W[1]  = 3.5;
+    SS_ref_spn_db.W[2]  = -13.0;
+    SS_ref_spn_db.W[3]  = 43.2;
+    SS_ref_spn_db.W[4]  = 49.1;
+    SS_ref_spn_db.W[5]  = -5.0;
+    SS_ref_spn_db.W[6]  = 22.5;
+    SS_ref_spn_db.W[7]  = 4.4;
+    SS_ref_spn_db.W[8]  = -6.0;
+    SS_ref_spn_db.W[9]  = 36.8;
     SS_ref_spn_db.W[10] = 20.0;
     SS_ref_spn_db.W[11] = 14.0;
     SS_ref_spn_db.W[12] = 21.5;
@@ -1930,44 +2150,61 @@ SS_ref G_SS_spn_function(SS_ref SS_ref_spn_db, int EM_database, double *bulk_roc
     SS_ref_spn_db.W[27] = 60.0;					  	
 									  
     PP_ref PP_db;
-
+	init_pp(&PP_db);
+	
 	double gb_tmp;
-    double density;
+    double ElShearMod;
     int i,j;
 	
 	int n_em = SS_ref_spn_db.n_em;
 	
-	get_data chem_comp1       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp1, EM_database, bulk_rock, P, T, "sp", "ordered");
+	get_data chem_comp1;
+	init_data(&chem_comp1);
+	chem_comp1       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp1, EM_database, bulk_rock, P, T, "sp", "ordered");
 	double gb1       = gb_tmp;	
-	SS_ref_spn_db.density[0] = density;
+	SS_ref_spn_db.ElShearMod[0] = ElShearMod;
 	
-	get_data chem_comp2       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp2, EM_database, bulk_rock, P, T, "sp", "ordered");
+	get_data chem_comp2;
+	init_data(&chem_comp2);
+	chem_comp2       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp2, EM_database, bulk_rock, P, T, "sp", "ordered");
 	double gb2       = gb_tmp + 23.6 - 0.00576303*T;
-	SS_ref_spn_db.density[1] = density;
+	SS_ref_spn_db.ElShearMod[1] = ElShearMod;
 	
-	get_data chem_comp3       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp3, EM_database, bulk_rock, P, T, "herc", "ordered");
+	get_data chem_comp3;
+	init_data(&chem_comp3);
+	chem_comp3       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp3, EM_database, bulk_rock, P, T, "herc", "ordered");
 	double gb3       = gb_tmp;
-	SS_ref_spn_db.density[2] = density;
+	SS_ref_spn_db.ElShearMod[2] = ElShearMod;
 		
-	get_data chem_comp4       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp4, EM_database, bulk_rock, P, T, "herc", "ordered");
+	get_data chem_comp4;
+	init_data(&chem_comp4);
+	chem_comp4       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp4, EM_database, bulk_rock, P, T, "herc", "ordered");
 	double gb4       = gb_tmp + 23.60 - 0.00576303*T;		
-	SS_ref_spn_db.density[3] = density;
+	SS_ref_spn_db.ElShearMod[3] = ElShearMod;
 		
-	get_data chem_comp5       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp5, EM_database, bulk_rock, P, T, "mt", "equilibrium");
+	get_data chem_comp5;
+	init_data(&chem_comp5);
+	chem_comp5       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp5, EM_database, bulk_rock, P, T, "mt", "equilibrium");
 	double gb5       = gb_tmp + 0.00576303*T;	
-	SS_ref_spn_db.density[4] = density;	
+	SS_ref_spn_db.ElShearMod[4] = ElShearMod;	
 	
-	get_data chem_comp6       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp6, EM_database, bulk_rock, P, T, "mt", "equilibrium");
+	get_data chem_comp6;
+	init_data(&chem_comp6);
+	chem_comp6       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp6, EM_database, bulk_rock, P, T, "mt", "equilibrium");
 	double gb6       = gb_tmp + 0.3;
-	SS_ref_spn_db.density[5] = density;
+	SS_ref_spn_db.ElShearMod[5] = ElShearMod;
 	
-	get_data chem_comp7       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp7, EM_database, bulk_rock, P, T, "picr", "equilibrium"); //ordered
+	get_data chem_comp7;
+	init_data(&chem_comp7);
+	chem_comp7       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp7, EM_database, bulk_rock, P, T, "picr", "equilibrium"); //ordered
 	double gb7       = gb_tmp;	
-	SS_ref_spn_db.density[6] = density;
+	SS_ref_spn_db.ElShearMod[6] = ElShearMod;
 	
-	get_data chem_comp8       = get_gb_comp(&density, &gb_tmp, PP_db, chem_comp8, EM_database, bulk_rock, P, T, "qnd", "equilibrium");
+	get_data chem_comp8;
+	init_data(&chem_comp8);
+	chem_comp8       = get_gb_comp(&ElShearMod, &gb_tmp, PP_db, chem_comp8, EM_database, bulk_rock, P, T, "qnd", "equilibrium");
 	double gb8       = gb_tmp -30.0;			
-	SS_ref_spn_db.density[7] = density;
+	SS_ref_spn_db.ElShearMod[7] = ElShearMod;
 	
 	SS_ref_spn_db.gbase[0] = gb1;
 	SS_ref_spn_db.gbase[1] = gb2;
@@ -1993,31 +2230,29 @@ SS_ref G_SS_spn_function(SS_ref SS_ref_spn_db, int EM_database, double *bulk_roc
 	for (i = 0; i < n_em; i++){
 		SS_ref_spn_db.z_em[i] = 1.0;
 	}
-	SS_ref_spn_db.box_bounds_default[0][0] =  0.0 +eps;   SS_ref_spn_db.box_bounds_default[0][1] = 1.0 -eps;
-	SS_ref_spn_db.box_bounds_default[1][0] =  0.0 +eps;   SS_ref_spn_db.box_bounds_default[1][1] = 1.0 -eps;
-	SS_ref_spn_db.box_bounds_default[2][0] =  0.0 +eps;   SS_ref_spn_db.box_bounds_default[2][1] = 1.0 -eps;
-	SS_ref_spn_db.box_bounds_default[3][0] =  0.0 +eps;   SS_ref_spn_db.box_bounds_default[3][1] = 1.0 -eps;
-	SS_ref_spn_db.box_bounds_default[4][0] = -1.0 +eps;   SS_ref_spn_db.box_bounds_default[4][1] = 1.0 -eps;	
-	SS_ref_spn_db.box_bounds_default[5][0] = -1.0 +eps;   SS_ref_spn_db.box_bounds_default[5][1] = 1.0 -eps;
-	SS_ref_spn_db.box_bounds_default[6][0] = -1.0 +eps;   SS_ref_spn_db.box_bounds_default[6][1] = 1.0 -eps;
+	SS_ref_spn_db.bounds_ref[0][0] =  0.0 +eps;   SS_ref_spn_db.bounds_ref[0][1] = 1.0 -eps;
+	SS_ref_spn_db.bounds_ref[1][0] =  0.0 +eps;   SS_ref_spn_db.bounds_ref[1][1] = 1.0 -eps;
+	SS_ref_spn_db.bounds_ref[2][0] =  0.0 +eps;   SS_ref_spn_db.bounds_ref[2][1] = 1.0 -eps;
+	SS_ref_spn_db.bounds_ref[3][0] =  0.0 +eps;   SS_ref_spn_db.bounds_ref[3][1] = 1.0 -eps;
+	SS_ref_spn_db.bounds_ref[4][0] = -1.0 +eps;   SS_ref_spn_db.bounds_ref[4][1] = 1.0 -eps;	
+	SS_ref_spn_db.bounds_ref[5][0] = -1.0 +eps;   SS_ref_spn_db.bounds_ref[5][1] = 1.0 -eps;
+	SS_ref_spn_db.bounds_ref[6][0] = -1.0 +eps;   SS_ref_spn_db.bounds_ref[6][1] = 1.0 -eps;
 
 	if (bulk_rock[7] == 0.){ //tio2
 		SS_ref_spn_db.z_em[7]          = 0.0;
-		SS_ref_spn_db.box_bounds_default[3][0] = eps; 
-		SS_ref_spn_db.box_bounds_default[3][1] = eps;
+		SS_ref_spn_db.bounds_ref[3][0] = eps; 
+		SS_ref_spn_db.bounds_ref[3][1] = eps;
 	}
 	if (bulk_rock[8] == 0.){ //fe2o3
-		SS_ref_spn_db.box_bounds_default[1][0] = eps;   
-		SS_ref_spn_db.box_bounds_default[1][1] = eps;
-		SS_ref_spn_db.box_bounds_default[6][0] = eps;   
-		SS_ref_spn_db.box_bounds_default[6][1] = eps;
-		SS_ref_spn_db.z_em[4]          = 0.0;
-		SS_ref_spn_db.z_em[5]          = 0.0;
+		SS_ref_spn_db.bounds_ref[1][0] = eps;   
+		SS_ref_spn_db.bounds_ref[1][1] = eps;
+		SS_ref_spn_db.bounds_ref[6][0] = eps;   
+		SS_ref_spn_db.bounds_ref[6][1] = eps;
 	}
 	if (bulk_rock[9] == 0.){ //cr2o3
 		SS_ref_spn_db.z_em[6]          = 0.0;
-		SS_ref_spn_db.box_bounds_default[2][0] = eps;  
-		SS_ref_spn_db.box_bounds_default[2][1] = eps;
+		SS_ref_spn_db.bounds_ref[2][0] = eps;  
+		SS_ref_spn_db.bounds_ref[2][1] = eps;
 	}
 
 	return SS_ref_spn_db;
@@ -2029,7 +2264,7 @@ SS_ref G_SS_spn_function(SS_ref SS_ref_spn_db, int EM_database, double *bulk_roc
 SS_ref G_SS_EM_function(		global_variable 	 gv,
 								SS_ref 				 SS_ref_db, 
 								int 				 EM_database, 
-								struct 	bulk_info 	 z_b, 
+								bulk_info 	 		 z_b, 
 								char   				*name				){
 									  
 	double eps 		   	= gv.bnd_val;
@@ -2085,8 +2320,8 @@ SS_ref G_SS_EM_function(		global_variable 	 gv,
 			}
 			SS_ref_db  = G_SS_ilm_function(SS_ref_db, EM_database, z_b.bulk_rock, P, T, eps);	}
 		else if (strcmp( name, "liq") == 0){
-			/* turn of liquid when T < 500°C) */
-			if ( T < 773.0){
+			/* turn of liquid when T < 600°C) */
+			if ( T < gv.min_melt_T){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db = G_SS_liq_function(SS_ref_db, EM_database, z_b.bulk_rock, P, T, eps);	}
@@ -2113,8 +2348,8 @@ SS_ref G_SS_EM_function(		global_variable 	 gv,
 	}
 
 	for (int j = 0; j < SS_ref_db.n_xeos; j++){
-		SS_ref_db.box_bounds[j][0] = SS_ref_db.box_bounds_default[j][0];
-		SS_ref_db.box_bounds[j][1] = SS_ref_db.box_bounds_default[j][1];
+		SS_ref_db.bounds[j][0] = SS_ref_db.bounds_ref[j][0];
+		SS_ref_db.bounds[j][1] = SS_ref_db.bounds_ref[j][1];
 	}
 
 	/* Calculate the number of atoms in the bulk-rock composition */
@@ -2135,16 +2370,17 @@ SS_ref G_SS_EM_function(		global_variable 	 gv,
 	
 	if (gv.verbose == 1){
 		printf(" %4s:",name);
+
+		/* display Gibbs free energy of reference? */
 		for (int j = 0; j < SS_ref_db.n_em; j++){
 			printf(" %+12.5f",SS_ref_db.gbase[j]);
 		}
-		for (int j = SS_ref_db.n_em; j < gv.len_ox; j++){
+		for (int j = SS_ref_db.n_em; j < gv.len_ox+1; j++){
 			printf("%13s","-");
 		}
 		printf("\n");
 	}
-				
-		
+
 	return SS_ref_db;
 };
 
