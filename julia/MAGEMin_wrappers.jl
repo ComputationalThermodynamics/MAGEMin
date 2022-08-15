@@ -167,6 +167,10 @@ struct gmin_struct{T,I}
     bulkMod::T          # Elastic bulk modulus
     shearMod::T         # Elastic shear modulus
 
+    # thermodynamic properties
+    entropy::T          # entropy
+    enthalpy::T         # enthalpy
+
     # Numerics:
     iter::I             # number of iterations required
     bulk_res_norm::T    # bulk residual norm
@@ -204,6 +208,7 @@ function create_gmin_struct(DB, gv, time)
     frac_M   = stb.frac_M      
     frac_S   = stb.frac_S
     frac_F   = stb.frac_F
+
     # Solid, melt, fluid fractions
     frac_M_wt   = stb.frac_M_wt     
     frac_S_wt   = stb.frac_S_wt
@@ -214,6 +219,10 @@ function create_gmin_struct(DB, gv, time)
     rho_M   = stb.rho_M      
     rho_S   = stb.rho_S
     rho_F   = stb.rho_F
+
+    # thermodynamic properties
+    entropy = stb.entropy
+    enthalpy= stb.enthalpy
 
     # Stable assemblage info
     n_ph     =  stb.n_ph        # total # of stable phases
@@ -252,6 +261,7 @@ function create_gmin_struct(DB, gv, time)
                 SS_vec,  PP_vec, 
                 oxides,  
                 stb.Vp, stb.Vs, stb.bulkMod, stb.shearMod,
+                entropy, enthalpy,
                 iter, bulk_res_norm, time_ms, stb.status)
     
    return out
@@ -409,7 +419,7 @@ function print_info(g::gmin_struct)
 
 
     println("Stable mineral assemblage:")
-    println("          phase  mode[mol1at] mode[wt]        f           G        V       Cp  rho[kg/m3]  Thermal_Exp BulkMod[GPa] ShearMod[GPa]   Vp[km/s]   Vs[km/s]    ")
+    println("          phase  mode[mol1at] mode[wt]        f           G        V       Cp  rho[kg/m3]  Thermal_Exp Entropy[J/K] Enthalpy[J] BulkMod[GPa] ShearMod[GPa]   Vp[km/s]   Vs[km/s]    ")
     for i=1:g.n_SS
         print("$(lpad(g.ph[i],15," ")) ")  
         print("$(lpad(round(g.ph_frac[i],digits=5),13," ")) ")  
@@ -420,6 +430,8 @@ function print_info(g::gmin_struct)
         print("$(lpad(round(g.SS_vec[i].cp,digits=5),8," ")) ")  
         print("$(lpad(round(g.SS_vec[i].rho,digits=5),11," "))   ")  
         print("$(lpad(round(g.SS_vec[i].alpha,digits=5),8," "))   ")  
+        print("$(lpad(round(g.SS_vec[i].entropy,digits=5),8," "))   ")  
+        print("$(lpad(round(g.SS_vec[i].enthalpy,digits=5),8," "))   ")  
         print("$(lpad(round(g.SS_vec[i].bulkMod,digits=5),12," ")) ")  
         print("$(lpad(round(g.SS_vec[i].shearMod,digits=5),13," ")) ")  
         print("$(lpad(round(g.SS_vec[i].Vp,digits=5),10," ")) ")  
@@ -437,6 +449,8 @@ function print_info(g::gmin_struct)
         print("$(lpad(round(g.PP_vec[i].cp,digits=5),8," ")) ")  
         print("$(lpad(round(g.PP_vec[i].rho,digits=5),11," "))   ")  
         print("$(lpad(round(g.PP_vec[i].alpha,digits=5),8," "))   ")  
+        print("$(lpad(round(g.PP_vec[i].entropy,digits=5),8," "))   ")  
+        print("$(lpad(round(g.PP_vec[i].enthalpy,digits=5),8," "))   ")  
         print("$(lpad(round(g.PP_vec[i].bulkMod,digits=5),12," ")) ")  
         print("$(lpad(round(g.PP_vec[i].shearMod,digits=5),13," ")) ")  
         print("$(lpad(round(g.PP_vec[i].Vp,digits=5),10," ")) ")  
@@ -449,8 +463,10 @@ function print_info(g::gmin_struct)
     print("$(lpad(round(sum(g.ph_frac),digits=5),13," ")) ")  
     print("$(lpad(round(sum(g.ph_frac_wt),digits=5),8," ")) ")  
     print("$(lpad(round(g.G_system,digits=5),20," ")) ")  
-    print("$(lpad(round(g.rho,digits=5),29," ")) ")  
-    print("$(lpad(round(g.bulkMod,digits=5),25," ")) ")  
+    print("$(lpad(round(g.rho,digits=5),29," ")) ") 
+    print("$(lpad(round(g.entropy,digits=5),21," ")) ")  
+    print("$(lpad(round(g.enthalpy,digits=5),13," ")) ")  
+    print("$(lpad(round(g.bulkMod,digits=5),13," ")) ")  
     print("$(lpad(round(g.shearMod,digits=5),13," ")) ")  
     print("$(lpad(round(g.Vp,digits=5),10," ")) ")  
     print("$(lpad(round(g.Vs,digits=5),10," ")) ")  
