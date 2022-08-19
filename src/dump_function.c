@@ -40,15 +40,22 @@ void dump_init(global_variable gv){
     	mkdir(gv.outpath, 0700);
 	}
 
-	/** ----------------------------------------------------------------------------------------------- **/
-	/** THERMOCALC LIKE FINAL OUTPUT **/
-	if (gv.verbose == 1  || gv.output_matlab == 1){
+
+	/** THERMOCALC-LIKE OUTPUT **/
+	if (gv.verbose == 1 && gv.output_matlab == 0){
 		sprintf(out_lm,	"%s_thermocalc_style_output.txt"		,gv.outpath); 
 		loc_min 	= fopen(out_lm, 	"w"); 
 		fprintf(loc_min, "\n");
 		fclose(loc_min);	
 	}
-	/** ----------------------------------------------------------------------------------------------- **/
+	/** OUTPUT FOR MATLAB, print out wt and mol fractions instead of TC atom basis **/
+	if (gv.output_matlab == 1){
+		sprintf(out_lm,	"%s_matlab_output.txt"		,gv.outpath); 
+		loc_min 	= fopen(out_lm, 	"w"); 
+		fprintf(loc_min, "\n");
+		fclose(loc_min);	
+	}
+
 	if (gv.verbose == 0){
 		/** MATLAB GRID OUTPUT **/
 		if (numprocs==1){	sprintf(out_lm,	"%s_pseudosection_output.txt"		,gv.outpath); 		}
@@ -436,58 +443,210 @@ void dump_results_function(		global_variable 	 gv,
 	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-	/** ----------------------------------------------------------------------------------------------- **/
+if (gv.output_matlab == 1){
+
+		/* output active phase fraction*/
+		if (numprocs==1){	sprintf(out_lm,	"%s_matlab_output.txt"		,gv.outpath); 	}
+		else 			{	sprintf(out_lm,	"%s_matlab_output.%i.txt"		,gv.outpath, rank); 	}
+
+		loc_min 	= fopen(out_lm, 	"a"); 
+		fprintf(loc_min, "============================================================\n");
+		
+		for (int i = 0; i < gv.len_cp; i++){
+			if ( cp[i].ss_flags[1] == 1){
+				fprintf(loc_min, 	"%4s ", cp[i].name);
+			}
+		}
+		for (int i = 0; i < gv.len_pp; i++){
+			if (gv.pp_flags[i][1] == 1){
+				fprintf(loc_min, 	"%4s ", gv.PP_list[i]);
+			}
+		}	
+		fprintf(loc_min, " {%10.5f, %10.5f} kbar/°C\n\n",z_b.P,z_b.T-273.15);
+		
+		fprintf(loc_min, "\nEnd-members fractions[wt fr]\n");	
+
+		for (int m = 0; m < gv.n_cp_phase; m++){
+			fprintf(loc_min, 	" %5s", "");
+			for (j = 0; j < sp[0].SS[m].n_em; j++){
+				fprintf(loc_min, 	"%10s ", sp[0].SS[m].emNames[j]);
+			}
+			for (int k = j; k < gv.len_ox; k++){
+				fprintf(loc_min, 	"%10s ", "-");
+			}	
+			fprintf(loc_min, "\n");
+
+			fprintf(loc_min, 	" %5s", sp[0].ph[m]);
+			for (j = 0; j < sp[0].SS[m].n_em; j++){
+				fprintf(loc_min, 	"%10.5f ", sp[0].SS[m].emFrac_wt[j]);
+			}
+			for (int k = j; k < gv.len_ox; k++){
+				fprintf(loc_min, 	"%10s ", "-");
+			}		
+			fprintf(loc_min, "\n");	
+		}
+
+		fprintf(loc_min, "\n\nSite fractions:\n");		
+		for (int i = 0; i < gv.len_cp; i++){
+			if (cp[i].ss_flags[1] == 1){
+				fprintf(loc_min, 	" %5s", cp[i].name);
+				for (j = 0; j < (cp[i].n_sf); j++){
+					fprintf(loc_min, 	"%10.5f ", cp[i].sf[j]); // *-1.0 because inequality are given as -x <= 0 in NLopt
+				}
+				for (int k = j; k < gv.len_ox; k++){
+					fprintf(loc_min, 	"%10s ", "-");
+				}		
+				fprintf(loc_min, "\n");	
+			}
+		}
+		
+		fprintf(loc_min, "\n\nOxide compositions [wt fr]:\n");	
+		fprintf(loc_min, "%5s"," ");
+		for (i = 0; i < gv.len_ox; i++){
+			fprintf(loc_min, " %10s", gv.ox[i]);
+		}
+		fprintf(loc_min, "\n %5s","SYS");
+		for (int i = 0; i < gv.len_ox; i++){
+			fprintf(loc_min, "%10.5f ",sp[0].bulk_wt[i]);
+		}
+		fprintf(loc_min, "\n");	
+
+		for (int m = 0; m < gv.n_cp_phase; m++){
+			fprintf(loc_min, 	" %5s", sp[0].ph[m]);
+			for (int j = 0; j < gv.len_ox; j++){
+				fprintf(loc_min, "%10.5f ", sp[0].SS[m].Comp_wt[j]);
+			}
+			fprintf(loc_min, "\n");
+		}
+		int n = 0;
+		for (int m = gv.n_cp_phase; m < gv.n_phase; m++){
+			fprintf(loc_min, 	" %5s", sp[0].ph[m]);
+			for (int j = 0; j < gv.len_ox; j++){
+				fprintf(loc_min, "%10.5f ", sp[0].PP[n].Comp_wt[j]);
+			}
+			fprintf(loc_min, "\n");
+			n += 1;
+		}
+
+		fprintf(loc_min, "\n\nEnd-members compositions[wt fr]\n");	
+		fprintf(loc_min, "%5s %5s", "SS", "EM");
+		for (i = 0; i < gv.len_ox; i++){
+			fprintf(loc_min, " %10s", gv.ox[i]);
+		}
+		fprintf(loc_min, "\n");
+		for (int m = 0; m < gv.n_cp_phase; m++){
+			for (j = 0; j < sp[0].SS[m].n_em; j++){
+				fprintf(loc_min, 	"%5s ", sp[0].ph[m]);
+				fprintf(loc_min, 	"%5s ", sp[0].SS[m].emNames[j]);
+				for (int k = 0; k < gv.len_ox; k++){
+					fprintf(loc_min, 	"%10.5f ", sp[0].SS[m].emComp_wt[j][k]);
+				}	
+				fprintf(loc_min, "\n");
+			}
+			fprintf(loc_min, "\n");
+		}
+
+		double G;
+		fprintf(loc_min, "\n");	
+		fprintf(loc_min, "Stable mineral assemblage:\n");	
+		fprintf(loc_min, "%6s%15s %13s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n","phase","mode[wt fr]","G[J]" ,"V[cm3]" ,"Cp[kJ/K]","Rho[kg/m3]","Alpha[1/K]","Entropy[J/K]","Enthalpy[J]","BulkMod[GPa]","ShearMod[GPa]","Vp[km/s]","Vs[km/s]");
+
+
+		n = 0;		
+		for (int i = 0; i < gv.len_cp; i++){
+			if (cp[i].ss_flags[1] == 1){
+				
+				if (gv.Mode == 1){
+					G = cp[i].df;
+				}
+				else{
+					G = 0.0;
+					for (int j = 0; j < gv.len_ox; j++){
+						G += cp[i].ss_comp[j]*gv.gam_tot[j];
+					}
+				}
+
+				fprintf(loc_min, "%6s", cp[i].name);
+				fprintf(loc_min, "%+15.5f %+13.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.6f %+12.6f %+12.2f %+12.2f %+12.2f %+12.2f",
+							sp[0].ph_frac_wt[n],
+							G,
+							cp[i].volume/10.0,
+							cp[i].phase_cp,
+							cp[i].phase_density,
+							cp[i].phase_expansivity,
+							cp[i].phase_entropy,
+							cp[i].phase_enthalpy,
+							cp[i].phase_bulkModulus/10.,
+							cp[i].phase_shearModulus/10.,
+							sqrt((cp[i].phase_bulkModulus/10. +4.0/3.0*cp[i].phase_shearModulus/10.)/(cp[i].phase_density/1e3)),
+							sqrt(cp[i].phase_shearModulus/10.0/(cp[i].phase_density/1e3)) 
+						);
+				fprintf(loc_min, "\n");
+				n += 1;
+			}
+		}
+		
+		for (int i = 0; i < gv.len_pp; i++){
+			if (gv.pp_flags[i][1] == 1){ 
+				fprintf(loc_min, "%6s", gv.PP_list[i]);
+				fprintf(loc_min, "%+15.5f %+13.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.6f %+12.6f %+12.2f %+12.2f %+12.2f %+12.2f",
+						sp[0].ph_frac_wt[n],
+						PP_ref_db[i].gbase,
+						PP_ref_db[i].volume/10.0,
+						PP_ref_db[i].phase_cp,
+						PP_ref_db[i].phase_density,
+						PP_ref_db[i].phase_expansivity,
+						PP_ref_db[i].phase_entropy,
+						PP_ref_db[i].phase_enthalpy,
+						PP_ref_db[i].phase_bulkModulus/10.,
+						PP_ref_db[i].phase_shearModulus/10.,
+						sqrt((PP_ref_db[i].phase_bulkModulus/10. +4.0/3.0*PP_ref_db[i].phase_shearModulus/10.)/(PP_ref_db[i].phase_density/1e3)),
+						sqrt(PP_ref_db[i].phase_shearModulus/10.0/(PP_ref_db[i].phase_density/1e3))
+					);
+				fprintf(loc_min, "\n");
+				n+=1;
+			}
+		}
+		
+		G = 0.0;
+		for (int j = 0; j < gv.len_ox; j++){
+			G += z_b.bulk_rock[j]*gv.gam_tot[j];
+		}
+		fprintf(loc_min, "%6s %14s %+13.5f %25s %+12.5f %12s %+12.6f %+12.6f %+12.5f %+12.5f %+12.5f %+12.5f\n",
+				"SYS",
+				" ",
+				G,
+				" ",
+				gv.system_density,
+				" ",
+				gv.system_entropy,
+				gv.system_enthalpy,
+				gv.system_bulkModulus,
+				gv.system_shearModulus,
+				gv.system_Vp,
+				gv.system_Vs
+		);
+		
+		/* output solution phase composition */ 	
+		fprintf(loc_min, "\n\nGamma[J] (chemical potential of oxides):\n");
+		for (i = 0; i < gv.len_ox; i++){
+			fprintf(loc_min, "%6s %+12.5f\n", gv.ox[i], gv.gam_tot[i]);
+		}
+		fprintf(loc_min, "\n\nG-hyperplane distance[J]:\n");
+		for (int i = 0; i < gv.len_cp; i++){
+			if (cp[i].ss_flags[1] == 1){
+				fprintf(loc_min, 	"%5s %+10e\n", cp[i].name,cp[i].df);
+			}
+		}
+		fprintf(loc_min, "\n\n");
+		fclose(loc_min);	
+	}
+
+
+
 	/** THERMOCALC LIKE FINAL OUTPUT **/
 
-	// debug print
-	// if (1 == 0){
-	// 	for (int m = 0; m < gv.n_phase; m++){
-	// 		printf(" %4s %+10f\n",sp[0].ph[m],sp[0].ph_frac_wt[m]);
-	// 	}
-	// 	printf("\n");
-	// 	for (int m = 0; m < gv.n_cp_phase; m++){
-	// 		printf(" %4s composition [wt]\n",sp[0].ph[m]);
-	// 		for (j = 0; j < gv.len_ox; j++){
-	// 			printf(" %+10f", sp[0].SS[m].Comp_wt[j]);
-	// 		}
-	// 		printf("\n");
-
-	// 		for (int k = 0; k < sp[0].SS[m].n_em; k++){
-	// 			printf(" %+10f",sp[0].SS[m].emFrac_wt[k]);
-	// 		}
-	// 		printf("\n");
-
-	// 	}
-	// 	n = 0;
-	// 	for (int m = gv.n_cp_phase; m < gv.n_phase; m++){
-	// 		printf(" %4s composition [wt]\n",sp[0].ph[m]);
-	// 		for (j = 0; j < gv.len_ox; j++){
-	// 			printf(" %+10f", sp[0].PP[n].Comp_wt[j]);
-	// 		}
-	// 		n += 1;
-	// 		printf("\n");
-	// 	}
-
-	// 	printf("Bulk solid:\n  %+10f |",sp[0].frac_S_wt );
-	// 	for (j = 0; j < gv.len_ox; j++){
-	// 		printf(" %+10f", sp[0].bulk_S_wt[j]);
-	// 	}
-	// 	printf("\n");
-
-	// 	printf("Bulk melt:\n  %+10f |",sp[0].frac_M_wt );
-	// 	for (j = 0; j < gv.len_ox; j++){
-	// 		printf(" %+10f", sp[0].bulk_M_wt[j]);
-	// 	}
-	// 	printf("\n");
-
-	// 	printf("Bulk fluid:\n  %+10f |",sp[0].frac_F_wt );
-	// 	for (j = 0; j < gv.len_ox; j++){
-	// 		printf(" %+10f", sp[0].bulk_F_wt[j]);
-	// 	}
-	// 	printf("\n");
-	// }
-
-	if (gv.verbose == 1 || gv.output_matlab == 1){
+	if (gv.verbose == 1 && gv.output_matlab == 0){
 		/* output active phase fraction*/
 		if (numprocs==1){	sprintf(out_lm,	"%s_thermocalc_style_output.txt"		,gv.outpath); 	}
 		else 			{	sprintf(out_lm,	"%s_thermocalc_style_output.%i.txt"		,gv.outpath, rank); 	}
@@ -699,7 +858,7 @@ void dump_results_function(		global_variable 	 gv,
 		);
 		
 		/* output solution phase composition */ 	
-		fprintf(loc_min, "\nGamma (chemical potential of oxides):\n");
+		fprintf(loc_min, "\nGamma[J] (chemical potential of oxides):\n");
 		for (i = 0; i < gv.len_ox; i++){
 			fprintf(loc_min, "%6s %+12.5f\n", gv.ox[i], gv.gam_tot[i]);
 		}
