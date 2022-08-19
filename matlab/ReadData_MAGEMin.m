@@ -43,6 +43,7 @@ for iPoint=1:length(newPoints)
     Gamma   = A(7:17);
     Vp      = A(18);
     Vs      = A(19);
+    entropy = A(20);
 
     % Read stable assemblage
     StableSolutions =   [];
@@ -169,6 +170,7 @@ for iPoint=1:length(newPoints)
     PhaseData{newPoints(numPoint)}.Gamma            =   Gamma;
     PhaseData{newPoints(numPoint)}.Vp               =   Vp;
     PhaseData{newPoints(numPoint)}.Vs               =   Vs;
+    PhaseData{newPoints(numPoint)}.entropy          =   entropy;
 
     PhaseData{newPoints(numPoint)}.StableSolutions  =   StableSolutions;
     PhaseData{newPoints(numPoint)}.StableFractions  =   StableFractions;
@@ -182,7 +184,6 @@ for iPoint=1:length(newPoints)
     % Store info of all phases, included the ones that are discarded
     % because of small mass fraction:
     PhaseData{newPoints(numPoint)}.FullInfo         =   FullInfo;
-    
     Status(numPoint)                                =   STATUS;
 end
 

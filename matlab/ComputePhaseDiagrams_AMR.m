@@ -16,7 +16,6 @@ else
     fig = uifigure;
 end
 
-
 % Generate initial (coarse) mesh
 P_dat                           =   PseudoSectionData.CoarseGrid.P;
 T_dat                           =   PseudoSectionData.CoarseGrid.T;
@@ -159,14 +158,13 @@ for iter=1:PseudoSectionData.Computation.RefinementLevels
         ylabel('Pressure [kbar]','Fontsize',15)
         colorbar, title('# of stable phases')
     end
-    
-    
+       
     % Store data in structure, which we will later use in the GUI
     PseudoSectionData.TP_vec            =   TP_vec;
     PseudoSectionData.elements          =   elements;
     PseudoSectionData.PhaseData         =   PhaseData;
     PseudoSectionData.FailedSimulations =   FailedSimulations;
-    
+
     pause(1)
 end
 
