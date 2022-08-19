@@ -491,10 +491,10 @@ if (gv.output_matlab == 1){
 			if (cp[i].ss_flags[1] == 1){
 				fprintf(loc_min, 	" %5s", cp[i].name);
 				for (j = 0; j < (cp[i].n_sf); j++){
-					fprintf(loc_min, 	"%10.5f ", cp[i].sf[j]); // *-1.0 because inequality are given as -x <= 0 in NLopt
+					fprintf(loc_min, 	"%8.5f ", cp[i].sf[j]); // *-1.0 because inequality are given as -x <= 0 in NLopt
 				}
-				for (int k = j; k < gv.len_ox; k++){
-					fprintf(loc_min, 	"%10s ", "-");
+				for (int k = j; k < 18; k++){
+					fprintf(loc_min, 	"%8s ", "-");
 				}		
 				fprintf(loc_min, "\n");	
 			}
