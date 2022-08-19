@@ -128,6 +128,7 @@ int runMAGEMin(			int    argc,
 	int     Mode 		=  0;
 	int     solver 		=  0;
 	int     n_points 	=  1;
+	int     out_matlab  =  0;
 	
 	int 	maxeval		= -1;
 	
@@ -163,6 +164,7 @@ int runMAGEMin(			int    argc,
 									&get_version,
 									&get_help,
 									&solver,
+									&out_matlab,
 									 sys_in			); 
 
 	if (rank==0 && gv.verbose != -1){
@@ -170,8 +172,9 @@ int runMAGEMin(			int    argc,
     	printf("═══════════════════════════════════════════════\n");
 	}
 	
-	gv.verbose 	= Verb;
-	gv.Mode 	= Mode;
+	gv.verbose 			= Verb;
+	gv.Mode 			= Mode;
+	gv.output_matlab 	= out_matlab;
 
 	if (solver == 1){ 	gv.solver = 1;			}
     if (maxeval >-1){   gv.maxeval = maxeval; 	}
@@ -311,7 +314,8 @@ int runMAGEMin(			int    argc,
 											z_b,											/** bulk-rock informations 			*/
 											DB.PP_ref_db,									/** pure phase database 			*/
 											DB.SS_ref_db,									/** solution phase database 		*/
-											DB.cp						);
+											DB.cp,
+											DB.sp						);
 
 
 		/* Print output to screen 													*/
@@ -817,6 +821,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 										int 				*get_version_out,
 										int					*get_help,
 										int					*solver_out,
+										int					*out_matlab_out,
 										char 				 sys_in[5]
 ){
 	int i;
@@ -836,6 +841,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
         { "version",    ko_optional_argument, 314 },
         { "help",    	ko_optional_argument, 315 },
         { "solver",    	ko_optional_argument, 316 },
+        { "out_matlab", ko_optional_argument, 318 },
         { "sys_in",    	ko_optional_argument, 317 },
 		
     	{ NULL, 0, 0 }
@@ -843,13 +849,15 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 	ketopt_t opt = KETOPT_INIT;
 	
 	int    c;
-	int    Mode     =  0;
-	int    Verb     =  gv.verbose;
-	int    test     = -1;
-	int    n_points =  1;
-	int    n_pc     =  2;		/** number of pseudocompounds for Mode 2 */
-	int    maxeval  = -1;
-	int    solver   =  0;
+	int    Mode     	=  0;
+	int    Verb     	=  gv.verbose;
+	int    test     	= -1;
+	int    n_points 	=  1;
+	int    n_pc     	=  2;		/** number of pseudocompounds for Mode 2 */
+	int    maxeval  	= -1;
+	int    solver   	=  0;
+	int    out_matlab 	= 0;
+
 	double Temp , Pres;
 	Temp   = 1100.0;
 	Pres   = 12.0;
@@ -858,7 +866,6 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		Bulk[i] = 0.0;
 		Gam[i]  = 0.0;
 	}
-
 
 	strcpy(File,"none"); // Filename to be read to have multiple P-T-bulk conditions to solve
 	strcpy(sys_in,"mol"); // Filename to be read to have multiple P-T-bulk conditions to solve
@@ -869,6 +876,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
         else if	(c == 301){ Verb     = atoi(opt.arg	);}
 		else if (c == 302){ Mode     = atoi(opt.arg);			if (Verb == 1){		printf("--Mode        : Mode                     = %i \n", 	 	   		Mode		);}}																		
 		else if (c == 316){ solver   = atoi(opt.arg);			if (Verb == 1){		printf("--solver      : solver                   = %i \n", 	 	   		solver		);}}																		
+		else if (c == 318){ out_matlab   = atoi(opt.arg);		if (Verb == 1){		printf("--out_matlab  : out_matlab               = %i \n", 	 	   		out_matlab	);}}																		
 		else if (c == 303){ strcpy(File,opt.arg);		 		if (Verb == 1){		printf("--File        : File                     = %s \n", 	 	   		File		);}}
 		else if (c == 317){ strcpy(sys_in,opt.arg);		 		if (Verb == 1){		printf("--sys_in      : sys_in                   = %s \n", 	 	   		sys_in		);}}
 		else if (c == 304){ n_points = atoi(opt.arg); 	 		if (Verb == 1){		printf("--n_points    : n_points                 = %i \n", 	 	   		n_points	);}}
@@ -922,7 +930,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 	*n_points_out 	= 	n_points;
     *maxeval_out    =   maxeval;
 	*solver_out     = 	solver;
-	
+	*out_matlab_out = 	out_matlab;	
 	return gv;
 } 
 

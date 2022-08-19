@@ -454,6 +454,7 @@ typedef struct global_variables {
 	int      status;			/** status of the minimization */
 	int      solver;
 	int 	 calc_seismic_cor;
+	int 	 output_matlab;
 
 	/* GENERAL PARAMETERS */
 	int 	 LP;				/** linear programming stage flag*/
@@ -659,6 +660,7 @@ global_variable ReadCommandLineOptions(		global_variable   gv,
 											int     		 *get_version_out,
 											int 			 *get_help,
 											int				 *solver_out,
+											int				 *out_matlab_out,
 											char			  sys_in[5]				);
 
 /* function that prints output */

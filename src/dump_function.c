@@ -42,7 +42,7 @@ void dump_init(global_variable gv){
 
 	/** ----------------------------------------------------------------------------------------------- **/
 	/** THERMOCALC LIKE FINAL OUTPUT **/
-	if (gv.verbose == 1){
+	if (gv.verbose == 1  || gv.output_matlab == 1){
 		sprintf(out_lm,	"%s_thermocalc_style_output.txt"		,gv.outpath); 
 		loc_min 	= fopen(out_lm, 	"w"); 
 		fprintf(loc_min, "\n");
@@ -424,7 +424,8 @@ void dump_results_function(		global_variable 	 gv,
 
 								PP_ref 				*PP_ref_db,
 								SS_ref 				*SS_ref_db,
-								csd_phase_set  		*cp
+								csd_phase_set  		*cp,
+								stb_system  		*sp
 ){
 	
 	FILE *loc_min;
@@ -437,7 +438,56 @@ void dump_results_function(		global_variable 	 gv,
 
 	/** ----------------------------------------------------------------------------------------------- **/
 	/** THERMOCALC LIKE FINAL OUTPUT **/
-	if (gv.verbose == 1){
+
+	// debug print
+	// if (1 == 0){
+	// 	for (int m = 0; m < gv.n_phase; m++){
+	// 		printf(" %4s %+10f\n",sp[0].ph[m],sp[0].ph_frac_wt[m]);
+	// 	}
+	// 	printf("\n");
+	// 	for (int m = 0; m < gv.n_cp_phase; m++){
+	// 		printf(" %4s composition [wt]\n",sp[0].ph[m]);
+	// 		for (j = 0; j < gv.len_ox; j++){
+	// 			printf(" %+10f", sp[0].SS[m].Comp_wt[j]);
+	// 		}
+	// 		printf("\n");
+
+	// 		for (int k = 0; k < sp[0].SS[m].n_em; k++){
+	// 			printf(" %+10f",sp[0].SS[m].emFrac_wt[k]);
+	// 		}
+	// 		printf("\n");
+
+	// 	}
+	// 	n = 0;
+	// 	for (int m = gv.n_cp_phase; m < gv.n_phase; m++){
+	// 		printf(" %4s composition [wt]\n",sp[0].ph[m]);
+	// 		for (j = 0; j < gv.len_ox; j++){
+	// 			printf(" %+10f", sp[0].PP[n].Comp_wt[j]);
+	// 		}
+	// 		n += 1;
+	// 		printf("\n");
+	// 	}
+
+	// 	printf("Bulk solid:\n  %+10f |",sp[0].frac_S_wt );
+	// 	for (j = 0; j < gv.len_ox; j++){
+	// 		printf(" %+10f", sp[0].bulk_S_wt[j]);
+	// 	}
+	// 	printf("\n");
+
+	// 	printf("Bulk melt:\n  %+10f |",sp[0].frac_M_wt );
+	// 	for (j = 0; j < gv.len_ox; j++){
+	// 		printf(" %+10f", sp[0].bulk_M_wt[j]);
+	// 	}
+	// 	printf("\n");
+
+	// 	printf("Bulk fluid:\n  %+10f |",sp[0].frac_F_wt );
+	// 	for (j = 0; j < gv.len_ox; j++){
+	// 		printf(" %+10f", sp[0].bulk_F_wt[j]);
+	// 	}
+	// 	printf("\n");
+	// }
+
+	if (gv.verbose == 1 || gv.output_matlab == 1){
 		/* output active phase fraction*/
 		if (numprocs==1){	sprintf(out_lm,	"%s_thermocalc_style_output.txt"		,gv.outpath); 	}
 		else 			{	sprintf(out_lm,	"%s_thermocalc_style_output.%i.txt"		,gv.outpath, rank); 	}
@@ -573,7 +623,7 @@ void dump_results_function(		global_variable 	 gv,
 		double G;
 		fprintf(loc_min, "\n");	
 		fprintf(loc_min, "Stable mineral assemblage:\n");	
-		fprintf(loc_min, "%6s%12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n","phase","mode","f","G" ,"V" ,"Cp","rho","Thermal_Exp","Entropy[J/K]","Enthalpy[J]","BulkMod[GPa]","ShearMod[GPa]","Vp[km/s]","Vs[km/s]");
+		fprintf(loc_min, "%6s%12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n","phase","mode","f","G[J]" ,"V[cm3]" ,"Cp[kJ/K]","Rho[kg/m3]","Alpha[1/K]","Entropy[J/K]","Enthalpy[J]","BulkMod[GPa]","ShearMod[GPa]","Vp[km/s]","Vs[km/s]");
 					
 		for (int i = 0; i < gv.len_cp; i++){
 			if (cp[i].ss_flags[1] == 1){
@@ -592,10 +642,12 @@ void dump_results_function(		global_variable 	 gv,
 				fprintf(loc_min, "%+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.6f %+12.6f %+12.2f %+12.2f %+12.2f %+12.2f",
 							cp[i].ss_n,cp[i].factor,
 							G,
-							cp[i].volume,
-							cp[i].phase_cp,cp[i].phase_density,
+							cp[i].volume/10.0,
+							cp[i].phase_cp,
+							cp[i].phase_density,
 							cp[i].phase_expansivity,
-							cp[i].phase_entropy,cp[i].phase_enthalpy,
+							cp[i].phase_entropy,
+							cp[i].phase_enthalpy,
 							cp[i].phase_bulkModulus/10.,
 							cp[i].phase_shearModulus/10.,
 							sqrt((cp[i].phase_bulkModulus/10. +4.0/3.0*cp[i].phase_shearModulus/10.)/(cp[i].phase_density/1e3)),
@@ -612,7 +664,7 @@ void dump_results_function(		global_variable 	 gv,
 						gv.pp_n[i],
 						PP_ref_db[i].factor,
 						PP_ref_db[i].gbase,
-						PP_ref_db[i].volume,
+						PP_ref_db[i].volume/10.0,
 						PP_ref_db[i].phase_cp,
 						PP_ref_db[i].phase_density,
 						PP_ref_db[i].phase_expansivity,
@@ -651,7 +703,7 @@ void dump_results_function(		global_variable 	 gv,
 		for (i = 0; i < gv.len_ox; i++){
 			fprintf(loc_min, "%6s %+12.5f\n", gv.ox[i], gv.gam_tot[i]);
 		}
-		fprintf(loc_min, "\ndelta Gibbs energy (G-hyperplane distance):\n");
+		fprintf(loc_min, "\nG-hyperplane distance[J]:\n");
 		for (int i = 0; i < gv.len_cp; i++){
 			if (cp[i].ss_flags[1] == 1){
 				fprintf(loc_min, 	"%5s %+10e\n", cp[i].name,cp[i].df);

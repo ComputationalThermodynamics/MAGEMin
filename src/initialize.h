@@ -197,9 +197,10 @@ global_variable global_variable_init(){
 	/* initialize other values 	*/
 	gv.mean_sum_xi		= 1.0;
 	gv.sigma_sum_xi		= 1.0;
-	gv.alpha        	= gv.max_fac;				/** active under-relaxing factor 													*/
+	gv.alpha        	= gv.max_fac;			/** active under-relaxing factor 													*/
 	gv.len_ss          	= (int)(sizeof(n_SS_PC_tmp) / sizeof(n_SS_PC_tmp[0] ));					/** number of solution phases taken into accounnt									*/
 	gv.maxeval		    = gv.maxeval_mode_1;
+	gv.output_matlab 	= 0;					/** default output for matlab is deactivated 										*/
 
 	/* declare chemical system */
 	gv.PGE_mass_norm  	= malloc (gv.it_f*2 * sizeof (double) 	); 
@@ -470,6 +471,7 @@ global_variable reset_gv(					global_variable 	 gv,
 											PP_ref 				*PP_ref_db,
 											SS_ref 				*SS_ref_db
 ){
+
 	int i,j,k;
 	for (k = 0; k < gv.n_flags; k++){
 		for (i = 0; i < gv.len_pp; i++){
