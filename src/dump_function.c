@@ -50,10 +50,11 @@ void dump_init(global_variable gv){
 	}
 	/** OUTPUT FOR MATLAB, print out wt and mol fractions instead of TC atom basis **/
 	if (gv.output_matlab == 1){
-		sprintf(out_lm,	"%s_matlab_output.txt"		,gv.outpath); 
+		if (numprocs==1){	sprintf(out_lm,	"%s_matlab_output.txt"		,gv.outpath); 		}
+		else 			{	sprintf(out_lm,	"%s_matlab_output.%i.txt"	,gv.outpath, rank); }
 		loc_min 	= fopen(out_lm, 	"w"); 
 		fprintf(loc_min, "\n");
-		fclose(loc_min);	
+		fclose(loc_min);
 	}
 
 	if (gv.verbose == 0){
@@ -528,23 +529,23 @@ if (gv.output_matlab == 1){
 			n += 1;
 		}
 
-		fprintf(loc_min, "\n\nEnd-members compositions[wt fr]\n");	
-		fprintf(loc_min, "%5s %5s", "SS", "EM");
-		for (i = 0; i < gv.len_ox; i++){
-			fprintf(loc_min, " %10s", gv.ox[i]);
-		}
-		fprintf(loc_min, "\n");
-		for (int m = 0; m < gv.n_cp_phase; m++){
-			for (j = 0; j < sp[0].SS[m].n_em; j++){
-				fprintf(loc_min, 	"%5s ", sp[0].ph[m]);
-				fprintf(loc_min, 	"%5s ", sp[0].SS[m].emNames[j]);
-				for (int k = 0; k < gv.len_ox; k++){
-					fprintf(loc_min, 	"%10.5f ", sp[0].SS[m].emComp_wt[j][k]);
-				}	
-				fprintf(loc_min, "\n");
-			}
-			fprintf(loc_min, "\n");
-		}
+		// fprintf(loc_min, "\n\nEnd-members compositions[wt fr]\n");	
+		// fprintf(loc_min, "%5s %5s", "SS", "EM");
+		// for (i = 0; i < gv.len_ox; i++){
+		// 	fprintf(loc_min, " %10s", gv.ox[i]);
+		// }
+		// fprintf(loc_min, "\n");
+		// for (int m = 0; m < gv.n_cp_phase; m++){
+		// 	for (j = 0; j < sp[0].SS[m].n_em; j++){
+		// 		fprintf(loc_min, 	"%5s ", sp[0].ph[m]);
+		// 		fprintf(loc_min, 	"%5s ", sp[0].SS[m].emNames[j]);
+		// 		for (int k = 0; k < gv.len_ox; k++){
+		// 			fprintf(loc_min, 	"%10.5f ", sp[0].SS[m].emComp_wt[j][k]);
+		// 		}	
+		// 		fprintf(loc_min, "\n");
+		// 	}
+		// 	fprintf(loc_min, "\n");
+		// }
 
 		double G;
 		fprintf(loc_min, "\n");	
@@ -982,6 +983,43 @@ void mergeParallelFiles(global_variable gv){
 	}
    fclose(fp2);
 }
+
+
+/**
+  Parallel file dump for phase diagrams
+*/
+void mergeParallel_matlab(global_variable gv){
+
+	int i, rank, numprocs,  MAX_LINE_LENGTH=200;
+	char out_lm[255];
+	char in_lm[255];
+	char c; 
+	char buf[MAX_LINE_LENGTH];
+	
+	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	if (numprocs == 1){ return; }
+
+	sprintf(out_lm,	"%s_matlab_output.txt"		,gv.outpath);
+   	FILE *fp2 = fopen(out_lm, "w"); 
+
+	// Open file to be merged 
+	for (i = 0; i < numprocs; i++){
+		// open file
+		sprintf(in_lm,	"%s_matlab_output.%i.txt"		,gv.outpath, i);
+		FILE *fp1 = fopen(in_lm, "r"); 
+		
+		fgets(buf, MAX_LINE_LENGTH, fp1);					// skip first line = comment (we don't want to copy that)
+	
+		// Copy contents of first file to file3.txt 
+		while ((c = fgetc(fp1)) != EOF){ 
+			fputc(c, fp2); 
+		}
+		fclose(fp1); 
+	}
+   fclose(fp2);
+}
+
 
 /**
   Parallel file dump for phase diagrams

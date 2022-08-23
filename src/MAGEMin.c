@@ -335,6 +335,9 @@ int runMAGEMin(			int    argc,
 		mergeParallel_residual_Files(gv);
 	}
 
+	if (gv.output_matlab == 1){
+		mergeParallel_matlab(gv);
+	}
 	/* free memory allocated to solution and pure phases */
 	FreeDatabases(gv, DB);
 	free(bulk_rock);
