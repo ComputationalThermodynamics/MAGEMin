@@ -528,28 +528,10 @@ if (gv.output_matlab == 1){
 			n += 1;
 		}
 
-		fprintf(loc_min, "\n\nEnd-members compositions[wt fr]\n");	
-		fprintf(loc_min, "%5s %5s", "SS", "EM");
-		for (i = 0; i < gv.len_ox; i++){
-			fprintf(loc_min, " %10s", gv.ox[i]);
-		}
-		fprintf(loc_min, "\n");
-		for (int m = 0; m < gv.n_cp_phase; m++){
-			for (j = 0; j < sp[0].SS[m].n_em; j++){
-				fprintf(loc_min, 	"%5s ", sp[0].ph[m]);
-				fprintf(loc_min, 	"%5s ", sp[0].SS[m].emNames[j]);
-				for (int k = 0; k < gv.len_ox; k++){
-					fprintf(loc_min, 	"%10.5f ", sp[0].SS[m].emComp_wt[j][k]);
-				}	
-				fprintf(loc_min, "\n");
-			}
-			fprintf(loc_min, "\n");
-		}
-
 		double G;
-		fprintf(loc_min, "\n");	
+		fprintf(loc_min, "\n\n");	
 		fprintf(loc_min, "Stable mineral assemblage:\n");	
-		fprintf(loc_min, "%6s%15s %13s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n","phase","mode[wt fr]","G[J]" ,"V[cm3]" ,"Cp[kJ/K]","Rho[kg/m3]","Alpha[1/K]","Entropy[J/K]","Enthalpy[J]","BulkMod[GPa]","ShearMod[GPa]","Vp[km/s]","Vs[km/s]");
+		fprintf(loc_min, "%6s%15s %13s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n","phase","fraction[wt]","G[J]" ,"V[cm3]" ,"Cp[kJ/K]","Rho[kg/m3]","Alpha[1/K]","Entropy[J/K]","Enthalpy[J]","BulkMod[GPa]","ShearMod[GPa]","Vp[km/s]","Vs[km/s]");
 
 
 		n = 0;		
