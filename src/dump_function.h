@@ -24,6 +24,8 @@ void dump_results_function(		global_variable 	gv,
 
 void mergeParallelFiles(global_variable gv);
 
+void mergeParallel_matlab(global_variable gv);
+
 void mergeParallel_residual_Files(global_variable gv);
 
 void mergeParallel_LocalMinima_Files(global_variable gv);
