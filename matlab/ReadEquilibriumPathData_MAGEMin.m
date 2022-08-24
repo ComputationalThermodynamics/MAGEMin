@@ -39,8 +39,8 @@ for iPoint=1:length(newPoints)
     i = i+1;
 
     % extract solution phases
-    StableSolutions  = StablePhases(~strcmp(StablePhases,'ru') & ~strcmp(StablePhases,'q'));
-    StablePurePhases = StablePhases( strcmp(StablePhases,'ru') |  strcmp(StablePhases,'q'));
+    StableSolutions  = StablePhases(~ismember(StablePhases,{'q' 'crst' 'trd' 'coe' 'stv' 'ky' 'sill' 'and' 'ru' 'sph'}));
+    StablePurePhases = StablePhases( ismember(StablePhases,{'q' 'crst' 'trd' 'coe' 'stv' 'ky' 'sill' 'and' 'ru' 'sph'}));
 
     % retrieve info from first (numeric) line
     P       = str2double(A{i}(1:end-1)); i = i+1;  % read pressure
