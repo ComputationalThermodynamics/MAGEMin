@@ -39,7 +39,8 @@ for iPoint=1:length(newPoints)
     i = i+1;
 
     % extract solution phases
-    StableSolutions = StablePhases(~strcmp(StablePhases,'ru') & ~strcmp(StablePhases,'q'));
+    StableSolutions  = StablePhases(~strcmp(StablePhases,'ru') & ~strcmp(StablePhases,'q'));
+    StablePurePhases = StablePhases( strcmp(StablePhases,'ru') |  strcmp(StablePhases,'q'));
 
     % retrieve info from first (numeric) line
     P       = str2double(A{i}(1:end-1)); i = i+1;  % read pressure
@@ -232,6 +233,8 @@ for iPoint=1:length(newPoints)
     % Save output to structure
     OUT.numStablePhases(numPoint)   =  length(StablePhases);
     OUT.StablePhases(numPoint,1:length(StablePhases))  =  StablePhases;  clear StablePhases;
+    OUT.StableSolutions(numPoint,1:length(StableSolutions))  =  StableSolutions;
+    OUT.StablePurePhases(numPoint,1:length(StablePurePhases))  =  StablePurePhases; clear StablePurePhases;
     OUT.P(numPoint)                 =  P;              clear P;
     OUT.T(numPoint)                 =  T;              clear T;
     OUT.OxideList(numPoint,:)       =  OxideList;      clear OxideList;
@@ -243,15 +246,15 @@ for iPoint=1:length(newPoints)
     OUT.DeltaGibbsList(numPoint,1:length(StableSolutions))  =  StableSolutions;
     OUT.DeltaGibbs(numPoint,1:length(StableSolutions))      =  DeltaGibbs;     clear DeltaGibbs; clear StableSolutions;
 
-    flds = fieldnames(PhaseFractions); for ifld = 1:length(flds); OUT.PhaseFractions.(flds{ifld})(numPoint,:)  =   PhaseFractions.(flds{ifld}); end; clear PhaseFractions;
-    flds = fieldnames(Density       ); for ifld = 1:length(flds); OUT.Density       .(flds{ifld})(numPoint,:)  =   Density       .(flds{ifld}); end; clear Density;
-    flds = fieldnames(Viscosity     ); for ifld = 1:length(flds); OUT.Viscosity     .(flds{ifld})(numPoint,:)  =   Viscosity     .(flds{ifld}); end; clear Viscosity;
-    flds = fieldnames(EMList            ); for ifld = 1:length(flds); OUT.EMList            .(flds{ifld})(numPoint,:)  =   EMList            .(flds{ifld}); end; clear EMList;
-    flds = fieldnames(EMFractions       ); for ifld = 1:length(flds); OUT.EMFractions       .(flds{ifld})(numPoint,:)  =   EMFractions       .(flds{ifld}); end; clear EMFractions;
-    flds = fieldnames(SiteFractions     ); for ifld = 1:length(flds); OUT.SiteFractions     .(flds{ifld})(numPoint,:)  =   SiteFractions     .(flds{ifld}); end; clear SiteFractions;
-    flds = fieldnames(OxideFractions    ); for ifld = 1:length(flds); OUT.OxideFractions    .(flds{ifld})(numPoint,:)  =   OxideFractions    .(flds{ifld}); end; clear OxideFractions;
-    flds = fieldnames(OxideFractions_mol); for ifld = 1:length(flds); OUT.OxideFractions_mol.(flds{ifld})(numPoint,:)  =   OxideFractions_mol.(flds{ifld}); end; clear OxideFractions_mol;
-    flds = fieldnames(PhaseProps        ); for ifld = 1:length(flds); OUT.PhaseProps        .(flds{ifld})(numPoint,:)  =   PhaseProps        .(flds{ifld}); end; clear PhaseProps;
+    flds = fieldnames(PhaseFractions    ); for ifld = 1:length(flds); OUT.PhaseFractions    .(flds{ifld})(numPoint,:)  =  PhaseFractions    .(flds{ifld}); end; clear PhaseFractions;
+    flds = fieldnames(Density           ); for ifld = 1:length(flds); OUT.Density           .(flds{ifld})(numPoint,:)  =  Density           .(flds{ifld}); end; clear Density;
+    flds = fieldnames(Viscosity         ); for ifld = 1:length(flds); OUT.Viscosity         .(flds{ifld})(numPoint,:)  =  Viscosity         .(flds{ifld}); end; clear Viscosity;
+    flds = fieldnames(EMList            ); for ifld = 1:length(flds); OUT.EMList            .(flds{ifld})(numPoint,:)  =  EMList            .(flds{ifld}); end; clear EMList;
+    flds = fieldnames(EMFractions       ); for ifld = 1:length(flds); OUT.EMFractions       .(flds{ifld})(numPoint,:)  =  EMFractions       .(flds{ifld}); end; clear EMFractions;
+    flds = fieldnames(SiteFractions     ); for ifld = 1:length(flds); OUT.SiteFractions     .(flds{ifld})(numPoint,:)  =  SiteFractions     .(flds{ifld}); end; clear SiteFractions;
+    flds = fieldnames(OxideFractions    ); for ifld = 1:length(flds); OUT.OxideFractions    .(flds{ifld})(numPoint,:)  =  OxideFractions    .(flds{ifld}); end; clear OxideFractions;
+    flds = fieldnames(OxideFractions_mol); for ifld = 1:length(flds); OUT.OxideFractions_mol.(flds{ifld})(numPoint,:)  =  OxideFractions_mol.(flds{ifld}); end; clear OxideFractions_mol;
+    flds = fieldnames(PhaseProps        ); for ifld = 1:length(flds); OUT.PhaseProps        .(flds{ifld})(numPoint,:)  =  PhaseProps        .(flds{ifld}); end; clear PhaseProps;
 
 
 %     PhaseData{newPoints(numPoint)}.P                    =   P; clear P;
