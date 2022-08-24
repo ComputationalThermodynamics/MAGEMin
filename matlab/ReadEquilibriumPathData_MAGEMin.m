@@ -129,7 +129,7 @@ for iPoint=1:length(newPoints)
     SYSPropsList = PhasePropsList([2 5 7:end]);
 
     % retrieve chemical potential of oxides
-    fgetl(fid); fgetl(fid);  fgetl(fid);  % skip section header
+    fgetl(fid); fgetl(fid); fgetl(fid);  % skip section header
     GammaList = [];
     Gamma     = [];
     i = 1;
@@ -142,17 +142,19 @@ for iPoint=1:length(newPoints)
     end
 
     % retrieve delta Gibbs energy, append to phase properties struct
-    fgetl(fid);  % skip section header
-    A = fgetl(fid);
-    PhasePropsList = [PhasePropsList A];
+    fgetl(fid); fgetl(fid);  % skip section header
+    DeltaGibbsList = [];
+    DeltaGibbs     = [];
     i = 1;
-    A = split(fgetl(fid));
-    while length(A)>1         % read phase data
-        PhaseProps.(A{2}) = [PhaseProps.(A{2}) str2double(A{3})];
+    A = split(fgetl(fid));       % read phase data
+    while length(A)>1
+        DeltaGibbsList{i} = A{2};
+        DeltaGibbs(i)     = str2double(A{3});
         A = split(fgetl(fid));
         i = i+1;
     end
-    
+    fgetl(fid);
+
     % normalise phase fractions to unity sum
     sumphs = 0;
     for iph = 1:length(StablePhases)
@@ -213,7 +215,6 @@ for iPoint=1:length(newPoints)
     % Calculate mol from wt fractions
     mw  = [ 60.0843, 101.961276, 56.0774, 40.3044, 71.8444, 94.1960, 61.97894, 79.8658, 15.999, 151.99, 18.01528]; % molar weights
     phs = [StablePhases{:} {'sol' 'SYS'}];
-%     if ~any(strcmp(phs,'liq')); phs = [phs{:} {'liq'}]; end
     for iph = 1:length(phs)
         OxideFractions_mol.(phs{iph}) = OxideFractions.(phs{iph}) ./ mw;
         OxideFractions_mol.(phs{iph}) = OxideFractions_mol.(phs{iph}) ./ sum(OxideFractions_mol.(phs{iph}));
@@ -225,28 +226,34 @@ for iPoint=1:length(newPoints)
         PhaseProps.(phs{iph}) = [PhaseProps.(phs{iph}),OxideFractions_mol.(phs{iph})(4) ./ (OxideFractions_mol.(phs{iph})(4)+OxideFractions_mol.(phs{iph})(5))];
     end
     PhasePropsList = [PhasePropsList 'Mg#'];
+    SYSProps = [SYSProps,OxideFractions_mol.SYS(4) ./ (OxideFractions_mol.SYS(4)+OxideFractions_mol.SYS(5))];
+    SYSPropsList = [SYSPropsList 'Mg#'];
 
     % Save output to structure
-    OUT.P(numPoint)  =  P; clear P;
-    OUT.T(numPoint)  =  T; clear T;
-    flds = fieldnames(PhaseFractions); for ifld = 1:length(flds); OUT.PhaseFractions.(flds{ifld})(numPoint,:)  =   PhaseFractions.(flds{ifld}); end; clear PhaseFractions;
-    flds = fieldnames(Density       ); for ifld = 1:length(flds); OUT.Density       .(flds{ifld})(numPoint,:)  =   Density       .(flds{ifld}); end; clear PhaseFractions;
-    flds = fieldnames(Viscosity     ); for ifld = 1:length(flds); OUT.Viscosity     .(flds{ifld})(numPoint,:)  =   Viscosity     .(flds{ifld}); end; clear PhaseFractions;
+    OUT.numStablePhases(numPoint)   =  length(StablePhases);
+    OUT.StablePhases(numPoint,1:length(StablePhases))  =  StablePhases;  clear StablePhases;
+    OUT.P(numPoint)                 =  P;              clear P;
+    OUT.T(numPoint)                 =  T;              clear T;
+    OUT.OxideList(numPoint,:)       =  OxideList;      clear OxideList;
+    OUT.PhasePropsList(numPoint,:)  =  PhasePropsList; clear PhasePropsList;
+    OUT.SYSPropsList(numPoint,:)    =  SYSPropsList;   clear SYSPropsList;
+    OUT.SYSProps(numPoint,:)        =  SYSProps;       clear SYSPropsList;
+    OUT.GammaList(numPoint,:)       =  GammaList;      clear GammaList;
+    OUT.Gamma(numPoint,:)           =  Gamma;          clear Gamma;
+    OUT.DeltaGibbsList(numPoint,1:length(StableSolutions))  =  StableSolutions;
+    OUT.DeltaGibbs(numPoint,1:length(StableSolutions))      =  DeltaGibbs;     clear DeltaGibbs; clear StableSolutions;
 
-    OUT.numStablePhases      =   length(StablePhases);
-    OUT.StablePhases         =   StablePhases; clear StablePhases
-    OUT.EMList  			    =   EMList; clear EMList
-    OUT.EMFractions		    =   EMFractions; clear EMFractions
-    OUT.SiteFractions        =   SiteFractions; clear SiteFractions
-    OUT.OxideList  		    =   OxideList; clear OxideList
-    OUT.OxideFractions	    =   OxideFractions; clear OxideFractions
-    OUT.OxideFractions_mol   =   OxideFractions_mol; clear OxideFractions_mol
-    OUT.PhasePropsList  	    =   PhasePropsList; clear PhasePropsList
-    OUT.PhaseProps	        =   PhaseProps; clear PhaseProps
-    OUT.SYSPropsList  	    =   SYSPropsList; clear SYSPropsList
-    OUT.SYSProps	            =   SYSProps; clear SYSProps
-    OUT.GammaList        	=   GammaList; clear GammaList
-    OUT.Gamma	            =   Gamma; clear Gamma
+    flds = fieldnames(PhaseFractions); for ifld = 1:length(flds); OUT.PhaseFractions.(flds{ifld})(numPoint,:)  =   PhaseFractions.(flds{ifld}); end; clear PhaseFractions;
+    flds = fieldnames(Density       ); for ifld = 1:length(flds); OUT.Density       .(flds{ifld})(numPoint,:)  =   Density       .(flds{ifld}); end; clear Density;
+    flds = fieldnames(Viscosity     ); for ifld = 1:length(flds); OUT.Viscosity     .(flds{ifld})(numPoint,:)  =   Viscosity     .(flds{ifld}); end; clear Viscosity;
+    flds = fieldnames(EMList            ); for ifld = 1:length(flds); OUT.EMList            .(flds{ifld})(numPoint,:)  =   EMList            .(flds{ifld}); end; clear EMList;
+    flds = fieldnames(EMFractions       ); for ifld = 1:length(flds); OUT.EMFractions       .(flds{ifld})(numPoint,:)  =   EMFractions       .(flds{ifld}); end; clear EMFractions;
+    flds = fieldnames(SiteFractions     ); for ifld = 1:length(flds); OUT.SiteFractions     .(flds{ifld})(numPoint,:)  =   SiteFractions     .(flds{ifld}); end; clear SiteFractions;
+    flds = fieldnames(OxideFractions    ); for ifld = 1:length(flds); OUT.OxideFractions    .(flds{ifld})(numPoint,:)  =   OxideFractions    .(flds{ifld}); end; clear OxideFractions;
+    flds = fieldnames(OxideFractions_mol); for ifld = 1:length(flds); OUT.OxideFractions_mol.(flds{ifld})(numPoint,:)  =   OxideFractions_mol.(flds{ifld}); end; clear OxideFractions_mol;
+    flds = fieldnames(PhaseProps        ); for ifld = 1:length(flds); OUT.PhaseProps        .(flds{ifld})(numPoint,:)  =   PhaseProps        .(flds{ifld}); end; clear PhaseProps;
+
+
 %     PhaseData{newPoints(numPoint)}.P                    =   P; clear P;
 %     PhaseData{newPoints(numPoint)}.T                    =   T; clear T;
 %     PhaseData{newPoints(numPoint)}.PhaseFractions       =   PhaseFractions; clear PhaseFractions;
@@ -268,7 +275,7 @@ for iPoint=1:length(newPoints)
 %     PhaseData{newPoints(numPoint)}.GammaList        	=   GammaList; clear GammaList
 %     PhaseData{newPoints(numPoint)}.Gamma	            =   Gamma; clear Gamma
     
-    fgetl(fid);     % skip comment line
+    
 end
 
 fclose(fid);
