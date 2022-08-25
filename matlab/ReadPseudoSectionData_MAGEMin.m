@@ -1,4 +1,4 @@
-function [PhaseData, Status] = ReadData_MAGEMin(varargin)
+function [PhaseData, Status] = ReadPseudoSectionData_MAGEMin(varargin)
 % This reads the output of a MAGEMin simulation (a file) & stores it in a structure
 
 if nargin==0

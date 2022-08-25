@@ -548,9 +548,9 @@ if (gv.output_matlab == 1){
 		// }
 
 		double G;
-		fprintf(loc_min, "\n");	
+		fprintf(loc_min, "\n\n");	
 		fprintf(loc_min, "Stable mineral assemblage:\n");	
-		fprintf(loc_min, "%6s%15s %13s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n","phase","mode[wt fr]","G[J]" ,"V[cm3]" ,"Cp[kJ/K]","Rho[kg/m3]","Alpha[1/K]","Entropy[J/K]","Enthalpy[J]","BulkMod[GPa]","ShearMod[GPa]","Vp[km/s]","Vs[km/s]");
+		fprintf(loc_min, "%6s%15s %13s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n","phase","fraction[wt]","G[J]" ,"V[cm3]" ,"Cp[kJ/K]","Rho[kg/m3]","Alpha[1/K]","Entropy[J/K]","Enthalpy[J]","BulkMod[GPa]","ShearMod[GPa]","Vp[km/s]","Vs[km/s]");
 
 
 		n = 0;		
