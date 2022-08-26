@@ -127,7 +127,7 @@ for iPoint=1:length(newPoints)
         SYSProps(i-2) = str2double(B{i});
         i = i+1; if i>length(B); break; end
     end
-    SYSPropsList = PhasePropsList([2 5 7:end]);
+    SYSPropsList = PhasePropsList([2 4 6 8:end]);
 
     % retrieve chemical potential of oxides
     fgetl(fid); fgetl(fid); fgetl(fid);  % skip section header
