@@ -499,7 +499,7 @@ int runMAGEMin(			int    argc,
 
 			if (strcmp( cp[i].name, "liq") == 0){
 				gv.melt_density   	= cp[i].phase_density;
-				gv.melt_fraction  	= cp[i].ss_n;
+				gv.melt_fraction  	= cp[i].ss_n_mol;
 				gv.melt_bulkModulus = cp[i].phase_bulkModulus/10.0;
 			}
 
@@ -624,7 +624,6 @@ int runMAGEMin(			int    argc,
 	/* calculate density of the system */
 	for (int i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1){
-			gv.system_volume  += cp[i].volume*cp[i].ss_n_mol*cp[i].factor;
 			gv.system_density += cp[i].phase_density*((cp[i].volume*cp[i].ss_n_mol*cp[i].factor)/sum_volume);
 			gv.system_entropy += cp[i].phase_entropy*cp[i].ss_n_mol*cp[i].factor;
 			if (strcmp( cp[i].name, "liq") != 0 && strcmp( cp[i].name, "fl") != 0){
@@ -634,13 +633,14 @@ int runMAGEMin(			int    argc,
 	}
 	for (int i = 0; i < gv.len_pp; i++){
 		if (gv.pp_flags[i][1] == 1){
-			gv.system_volume  += PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor;
 			gv.system_density += PP_ref_db[i].phase_density*((PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor)/sum_volume);
 			gv.system_entropy += PP_ref_db[i].phase_entropy*gv.pp_n_mol[i]*PP_ref_db[i].factor;			
 			gv.solid_density  += PP_ref_db[i].phase_density*((PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor)/sum_volume_sol);
 		}
 	}
 
+
+	gv.system_volume = sum_volume;
 	G = 0.0;
 	for (int j = 0; j < gv.len_ox; j++){
 		G += z_b.bulk_rock[j]*gv.gam_tot[j];
