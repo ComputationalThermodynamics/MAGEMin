@@ -550,7 +550,7 @@ if (gv.output_matlab == 1){
 		double G;
 		fprintf(loc_min, "\n\n");	
 		fprintf(loc_min, "Stable mineral assemblage:\n");	
-		fprintf(loc_min, "%6s%15s %13s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n","phase","fraction[wt]","G[J]" ,"V[cm3/mol]" ,"Cp[kJ/K]","Rho[kg/m3]","Alpha[1/K]","Entropy[J/K]","Enthalpy[J]","BulkMod[GPa]","ShearMod[GPa]","Vp[km/s]","Vs[km/s]");
+		fprintf(loc_min, "%6s%15s %13s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n","phase","fraction[wt]","G[J]" ,"V[cm3/mol]","V[cm3]" ,"Cp[kJ/K]","Rho[kg/m3]","Alpha[1/K]","Entropy[J/K]","Enthalpy[J]","BulkMod[GPa]","ShearMod[GPa]","Vp[km/s]","Vs[km/s]");
 
 		n = 0;		
 		for (int i = 0; i < gv.len_cp; i++){
@@ -567,10 +567,11 @@ if (gv.output_matlab == 1){
 				}
 
 				fprintf(loc_min, "%6s", cp[i].name);
-				fprintf(loc_min, "%+15.5f %+13.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.6f %+12.6f %+12.2f %+12.2f %+12.2f %+12.2f",
+				fprintf(loc_min, "%+15.5f %+13.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.6f %+12.6f %+12.2f %+12.2f %+12.2f %+12.2f",
 							sp[0].ph_frac_wt[n],
 							G,
 							cp[i].volume*10.,
+							cp[i].volume*10.*cp[i].ss_n_mol,
 							cp[i].phase_cp,
 							cp[i].phase_density,
 							cp[i].phase_expansivity,
@@ -589,10 +590,11 @@ if (gv.output_matlab == 1){
 		for (int i = 0; i < gv.len_pp; i++){
 			if (gv.pp_flags[i][1] == 1){ 
 				fprintf(loc_min, "%6s", gv.PP_list[i]);
-				fprintf(loc_min, "%+15.5f %+13.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.6f %+12.6f %+12.2f %+12.2f %+12.2f %+12.2f",
+				fprintf(loc_min, "%+15.5f %+13.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.6f %+12.6f %+12.2f %+12.2f %+12.2f %+12.2f",
 						sp[0].ph_frac_wt[n],
 						PP_ref_db[i].gbase,
 						PP_ref_db[i].volume*10.,
+						PP_ref_db[i].volume*10.*gv.pp_n[i],
 						PP_ref_db[i].phase_cp,
 						PP_ref_db[i].phase_density,
 						PP_ref_db[i].phase_expansivity,
@@ -612,10 +614,11 @@ if (gv.output_matlab == 1){
 		for (int j = 0; j < gv.len_ox; j++){
 			G += z_b.bulk_rock[j]*gv.gam_tot[j];
 		}
-		fprintf(loc_min, "%6s %14s %+13.5f %25s %+12.5f %12s %+12.6f %+12.6f %+12.5f %+12.5f %+12.5f %+12.5f\n",
+		fprintf(loc_min, "%6s %14s %+13.5f %+12.5f %25s %+12.5f %12s %+12.6f %+12.6f %+12.5f %+12.5f %+12.5f %+12.5f\n",
 				"SYS",
 				" ",
 				G,
+				gv.system_volume*10.,
 				" ",
 				gv.system_density,
 				" ",
@@ -782,7 +785,7 @@ if (gv.output_matlab == 1){
 		double G;
 		fprintf(loc_min, "\n");	
 		fprintf(loc_min, "Stable mineral assemblage:\n");	
-		fprintf(loc_min, "%6s%12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n","phase","mode","f","G[J]" ,"V[cm3/mol]" ,"Cp[kJ/K]","Rho[kg/m3]","Alpha[1/K]","Entropy[J/K]","Enthalpy[J]","BulkMod[GPa]","ShearMod[GPa]","Vp[km/s]","Vs[km/s]");
+		fprintf(loc_min, "%6s%12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n","phase","mod[mol fr]","f","G[J]" ,"V[cm3/mol]" ,"Cp[kJ/K]","Rho[kg/m3]","Alpha[1/K]","Entropy[J/K]","Enthalpy[J]","BulkMod[GPa]","ShearMod[GPa]","Vp[km/s]","Vs[km/s]");
 					
 		for (int i = 0; i < gv.len_cp; i++){
 			if (cp[i].ss_flags[1] == 1){
@@ -799,7 +802,7 @@ if (gv.output_matlab == 1){
 
 				fprintf(loc_min, "%6s", cp[i].name);
 				fprintf(loc_min, "%+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.6f %+12.6f %+12.2f %+12.2f %+12.2f %+12.2f",
-							cp[i].ss_n,cp[i].factor,
+							cp[i].ss_n_mol,cp[i].factor,
 							G,
 							cp[i].volume*10.,
 							cp[i].phase_cp,
@@ -820,7 +823,7 @@ if (gv.output_matlab == 1){
 			if (gv.pp_flags[i][1] == 1){ 
 				fprintf(loc_min, "%6s", gv.PP_list[i]);
 				fprintf(loc_min, "%+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.6f %+12.6f %+12.2f %+12.2f %+12.2f %+12.2f",
-						gv.pp_n[i],
+						gv.pp_n_mol[i],
 						PP_ref_db[i].factor,
 						PP_ref_db[i].gbase,
 						PP_ref_db[i].volume*10.,
@@ -842,10 +845,11 @@ if (gv.output_matlab == 1){
 		for (int j = 0; j < gv.len_ox; j++){
 			G += z_b.bulk_rock[j]*gv.gam_tot[j];
 		}
-		fprintf(loc_min, "%6s %24s %+12.5f %25s %+12.5f %12s %+12.6f %+12.6f %+12.5f %+12.5f %+12.5f %+12.5f\n",
+		fprintf(loc_min, "%6s %24s %+12.5f %+12.5f %12s %+12.5f %12s %+12.6f %+12.6f %+12.5f %+12.5f %+12.5f %+12.5f\n",
 				"SYS",
 				" ",
 				G,
+				gv.system_volume*10.,
 				" ",
 				gv.system_density,
 				" ",

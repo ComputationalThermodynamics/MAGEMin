@@ -255,7 +255,7 @@ global_variable global_variable_init(){
 
 	/* allocate memory for pure and solution phase fractions */
 	gv.pp_n    			= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
-	gv.pp_n_0 			= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
+	gv.pp_n_mol 		= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
 	gv.pp_xi    		= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
 	gv.delta_pp_n 		= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
 	gv.delta_pp_xi 		= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
@@ -485,7 +485,7 @@ global_variable reset_gv(					global_variable 	 gv,
 	/* reset pure phases fractions and xi */
 	for (int i = 0; i < gv.len_pp; i++){		
 		gv.pp_n[i] 		  = 0.0;
-		gv.pp_n_0[i]	  = 0.0;
+		gv.pp_n_mol[i]	  = 0.0;
 		gv.delta_pp_n[i]  = 0.0;
 		gv.pp_xi[i] 	  = 0.0;
 		gv.delta_pp_xi[i] = 0.0;
@@ -536,6 +536,7 @@ global_variable reset_gv(					global_variable 	 gv,
 	gv.system_shearModulus= 0.;
 	gv.system_Vp 		  = 0.;
 	gv.system_Vs 		  = 0.;
+	gv.system_volume	  = 0.;
 	gv.V_cor[0]			  = 0.;
 	gv.V_cor[1]			  = 0.;
 	gv.check_PC1		  = 0;
@@ -726,7 +727,7 @@ void reset_cp(						global_variable 	 gv,
 		}
 
 		cp[i].ss_n        		= 0.0;				/* get initial phase fraction */
-		cp[i].ss_n_0      		= 0.0;				/* get initial phase fraction */
+		cp[i].ss_n_mol      	= 0.0;				/* get initial phase fraction */
 		cp[i].delta_ss_n    	= 0.0;				/* get initial phase fraction */
 		
 		for (int ii = 0; ii < gv.len_ox + 1; ii++){
