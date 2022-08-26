@@ -378,6 +378,28 @@ int runMAGEMin(			int    argc,
 	double density[gv.len_ox];
 	int not_only_liq = 0;
 	int ss;
+
+
+	/** calculate oxygen fugacity */
+	// mu_O2 = G0_O2 + RTlog(fO2)
+	// double G0_O;
+	// for (int i = 0; i < gv.len_pp; i++){
+	// 	printf(" %4s %+10f\n",gv.PP_list[i],PP_ref_db[i].gbase*PP_ref_db[i].factor);
+	// 	// if	(strcmp( gv.PP_list[i], "O2") != 0){
+	// 	// 	G0_O = PP_ref_db[i].gbase*PP_ref_db[i].factor;
+	// 	// }
+	// 	// else{
+	// 	// 	G0_O = 0.0;
+	// 	// }
+	// }
+	// printf("\n");
+	// printf(" Gamma_O2   = %+10f\n",gv.gam_tot[8]);
+	// // printf(" G_O2 = %+10f\n",G0_O);
+
+	// printf(" fO2 = %+10f\n", z_b.R*z_b.T); //exp(gv.gam_tot[0]-G0_O))
+	// printf("\n");
+
+
 	/** calculate mass, volume and densities */
 	for (int i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1){

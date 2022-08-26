@@ -550,7 +550,7 @@ if (gv.output_matlab == 1){
 		double G;
 		fprintf(loc_min, "\n\n");	
 		fprintf(loc_min, "Stable mineral assemblage:\n");	
-		fprintf(loc_min, "%6s%15s %13s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n","phase","fraction[wt]","G[J]" ,"V[cm3]" ,"Cp[kJ/K]","Rho[kg/m3]","Alpha[1/K]","Entropy[J/K]","Enthalpy[J]","BulkMod[GPa]","ShearMod[GPa]","Vp[km/s]","Vs[km/s]");
+		fprintf(loc_min, "%6s%15s %13s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n","phase","fraction[wt]","G[J]" ,"V[J/bar]" ,"Cp[kJ/K]","Rho[kg/m3]","Alpha[1/K]","Entropy[J/K]","Enthalpy[J]","BulkMod[GPa]","ShearMod[GPa]","Vp[km/s]","Vs[km/s]");
 
 
 		n = 0;		
@@ -571,7 +571,7 @@ if (gv.output_matlab == 1){
 				fprintf(loc_min, "%+15.5f %+13.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.6f %+12.6f %+12.2f %+12.2f %+12.2f %+12.2f",
 							sp[0].ph_frac_wt[n],
 							G,
-							cp[i].volume/10.0,
+							cp[i].volume,
 							cp[i].phase_cp,
 							cp[i].phase_density,
 							cp[i].phase_expansivity,
@@ -783,7 +783,7 @@ if (gv.output_matlab == 1){
 		double G;
 		fprintf(loc_min, "\n");	
 		fprintf(loc_min, "Stable mineral assemblage:\n");	
-		fprintf(loc_min, "%6s%12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n","phase","mode","f","G[J]" ,"V[cm3]" ,"Cp[kJ/K]","Rho[kg/m3]","Alpha[1/K]","Entropy[J/K]","Enthalpy[J]","BulkMod[GPa]","ShearMod[GPa]","Vp[km/s]","Vs[km/s]");
+		fprintf(loc_min, "%6s%12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n","phase","mode","f","G[J]" ,"V[J/bar]" ,"Cp[kJ/K]","Rho[kg/m3]","Alpha[1/K]","Entropy[J/K]","Enthalpy[J]","BulkMod[GPa]","ShearMod[GPa]","Vp[km/s]","Vs[km/s]");
 					
 		for (int i = 0; i < gv.len_cp; i++){
 			if (cp[i].ss_flags[1] == 1){
@@ -802,7 +802,7 @@ if (gv.output_matlab == 1){
 				fprintf(loc_min, "%+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.6f %+12.6f %+12.2f %+12.2f %+12.2f %+12.2f",
 							cp[i].ss_n,cp[i].factor,
 							G,
-							cp[i].volume/10.0,
+							cp[i].volume,
 							cp[i].phase_cp,
 							cp[i].phase_density,
 							cp[i].phase_expansivity,

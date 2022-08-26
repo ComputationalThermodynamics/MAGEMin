@@ -594,6 +594,8 @@ typedef struct global_variables {
 	double   system_Vp;
 	double   system_Vs;
 
+	double 	 system_fO2;
+
 	double   melt_density;
 	double   melt_bulkModulus;
 	double   melt_fraction;

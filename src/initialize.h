@@ -112,14 +112,14 @@ global_variable global_variable_init(){
 	
 	gv.outpath 			= malloc(100 * sizeof(char));
 	gv.version 			= malloc(50  * sizeof(char));
-	gv.len_pp      		= 10;	
+	gv.len_pp      		= 11;	
 	
 	/* Control center... */
 	gv.save_residual_evolution = 0;				/** verbose needs to be set to 0 to save the residual evolution 					*/
 
 	/* oxides and solution phases */
 	char   *ox_tmp[] 		= {"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"Cr2O3","H2O"								};
-	char   *PP_tmp[] 		= {"q"		,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"										};
+	char   *PP_tmp[] 		= {"q"		,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph", "O2"										};
 	char   *SS_tmp[]     	= {"spn"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"hb"	,"ilm"	,"liq"	,"mu"	,"ol"	,"opx"	,"pl4T"	,"fl"		};
 	/* next entry is a flag to check for wrong local minimum/solvus when getting close to solution */
 	int     verifyPC_tmp[]	= {1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1			};
@@ -528,6 +528,7 @@ global_variable reset_gv(					global_variable 	 gv,
 	gv.solid_Vp 		  = 0.;
 	gv.solid_Vs 		  = 0.;
 
+	gv.system_fO2 		  = 0.;
 	gv.system_density     = 0.;
 	gv.system_entropy     = 0.;
 	gv.system_enthalpy    = 0.;
