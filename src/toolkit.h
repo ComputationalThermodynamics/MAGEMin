@@ -128,4 +128,9 @@ global_variable get_sol_phase_infos( 	io_data 			 input_data,
 										SS_ref  			*SS_ref_db,
 										csd_phase_set  		*cp							);
 
+global_variable compute_phase_mol_fraction(			global_variable 	 gv,
+													PP_ref  			*PP_ref_db,
+													SS_ref  			*SS_ref_db,
+													csd_phase_set  		*cp					);
+
 #endif

@@ -94,7 +94,7 @@ PP_ref G_EM_function(		int 		 EM_database,
 		vv    = volume;
 	}
 	
-	if (strcmp( name, "H2O") != 0 ){
+	if (strcmp( name, "H2O") != 0 ){ //(strcmp( name, "O2") != 0 )|| 
 		ta     = (1. + kappa0p)/(1. + kappa0p + kappa0 * kappa0pp);
 		tb     = (kappa0p + pow(kappa0p,2.0) - (kappa0 * kappa0pp))/(kappa0 * (1. + kappa0p));
 		tc     = (1. + kappa0p + kappa0 * kappa0pp)/(kappa0p + pow(kappa0p,2.0) - kappa0 * kappa0pp);

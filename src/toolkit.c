@@ -1243,3 +1243,38 @@ global_variable get_sol_phase_infos( 		io_data 			 input_data,
 	}
 	return gv;
 }
+
+/** 
+   This routine convert the molar fraction on 1 atom basis to mol fraction 
+*/
+global_variable compute_phase_mol_fraction(			global_variable 	 gv,
+													PP_ref  			*PP_ref_db,
+													SS_ref  			*SS_ref_db,
+													csd_phase_set  		*cp					){
+
+	
+
+	double sum;
+	// solution phases
+	for (int i = 0; i < gv.len_cp; i++){
+		if (cp[i].ss_flags[1] == 1){
+			sum = 0.0;
+			for (int j = 0; j < gv.len_ox; j++){
+				sum += cp[i].ss_comp[j]*cp[i].factor;
+			}
+			cp[i].ss_n_mol = sum*cp[i].ss_n;
+		}
+	}
+	// pure phases
+	for (int i = 0; i < gv.len_pp; i++){
+		if (gv.pp_flags[i][1] == 1){
+			sum = 0.0;
+			for (int j = 0; j < gv.len_ox; j++){
+				sum += PP_ref_db[i].Comp[j]*PP_ref_db[i].factor;
+			}
+			gv.pp_n_mol[i] = sum*gv.pp_n[i];
+		}
+	}
+
+	return gv;										
+}

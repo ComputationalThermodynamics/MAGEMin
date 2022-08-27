@@ -112,14 +112,14 @@ global_variable global_variable_init(){
 	
 	gv.outpath 			= malloc(100 * sizeof(char));
 	gv.version 			= malloc(50  * sizeof(char));
-	gv.len_pp      		= 10;	
+	gv.len_pp      		= 11;	
 	
 	/* Control center... */
 	gv.save_residual_evolution = 0;				/** verbose needs to be set to 0 to save the residual evolution 					*/
 
 	/* oxides and solution phases */
 	char   *ox_tmp[] 		= {"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"Cr2O3","H2O"								};
-	char   *PP_tmp[] 		= {"q"		,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"										};
+	char   *PP_tmp[] 		= {"q"		,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph", "O2"										};
 	char   *SS_tmp[]     	= {"spn"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"hb"	,"ilm"	,"liq"	,"mu"	,"ol"	,"opx"	,"pl4T"	,"fl"		};
 	/* next entry is a flag to check for wrong local minimum/solvus when getting close to solution */
 	int     verifyPC_tmp[]	= {1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1			};
@@ -197,9 +197,10 @@ global_variable global_variable_init(){
 	/* initialize other values 	*/
 	gv.mean_sum_xi		= 1.0;
 	gv.sigma_sum_xi		= 1.0;
-	gv.alpha        	= gv.max_fac;				/** active under-relaxing factor 													*/
+	gv.alpha        	= gv.max_fac;			/** active under-relaxing factor 													*/
 	gv.len_ss          	= (int)(sizeof(n_SS_PC_tmp) / sizeof(n_SS_PC_tmp[0] ));					/** number of solution phases taken into accounnt									*/
 	gv.maxeval		    = gv.maxeval_mode_1;
+	gv.output_matlab 	= 0;					/** default output for matlab is deactivated 										*/
 
 	/* declare chemical system */
 	gv.PGE_mass_norm  	= malloc (gv.it_f*2 * sizeof (double) 	); 
@@ -254,7 +255,7 @@ global_variable global_variable_init(){
 
 	/* allocate memory for pure and solution phase fractions */
 	gv.pp_n    			= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
-	gv.pp_n_0 			= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
+	gv.pp_n_mol 		= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
 	gv.pp_xi    		= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
 	gv.delta_pp_n 		= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
 	gv.delta_pp_xi 		= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
@@ -470,6 +471,7 @@ global_variable reset_gv(					global_variable 	 gv,
 											PP_ref 				*PP_ref_db,
 											SS_ref 				*SS_ref_db
 ){
+
 	int i,j,k;
 	for (k = 0; k < gv.n_flags; k++){
 		for (i = 0; i < gv.len_pp; i++){
@@ -483,7 +485,7 @@ global_variable reset_gv(					global_variable 	 gv,
 	/* reset pure phases fractions and xi */
 	for (int i = 0; i < gv.len_pp; i++){		
 		gv.pp_n[i] 		  = 0.0;
-		gv.pp_n_0[i]	  = 0.0;
+		gv.pp_n_mol[i]	  = 0.0;
 		gv.delta_pp_n[i]  = 0.0;
 		gv.pp_xi[i] 	  = 0.0;
 		gv.delta_pp_xi[i] = 0.0;
@@ -526,6 +528,7 @@ global_variable reset_gv(					global_variable 	 gv,
 	gv.solid_Vp 		  = 0.;
 	gv.solid_Vs 		  = 0.;
 
+	gv.system_fO2 		  = 0.;
 	gv.system_density     = 0.;
 	gv.system_entropy     = 0.;
 	gv.system_enthalpy    = 0.;
@@ -533,6 +536,7 @@ global_variable reset_gv(					global_variable 	 gv,
 	gv.system_shearModulus= 0.;
 	gv.system_Vp 		  = 0.;
 	gv.system_Vs 		  = 0.;
+	gv.system_volume	  = 0.;
 	gv.V_cor[0]			  = 0.;
 	gv.V_cor[1]			  = 0.;
 	gv.check_PC1		  = 0;
@@ -723,7 +727,7 @@ void reset_cp(						global_variable 	 gv,
 		}
 
 		cp[i].ss_n        		= 0.0;				/* get initial phase fraction */
-		cp[i].ss_n_0      		= 0.0;				/* get initial phase fraction */
+		cp[i].ss_n_mol      	= 0.0;				/* get initial phase fraction */
 		cp[i].delta_ss_n    	= 0.0;				/* get initial phase fraction */
 		
 		for (int ii = 0; ii < gv.len_ox + 1; ii++){

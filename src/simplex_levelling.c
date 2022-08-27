@@ -648,7 +648,7 @@ void reduce_ss_list( SS_ref 			*SS_ref_db,
 			}
 			/* if no generated pseudocompound are close to the hyperplane then turn off the solution phase */
 			if (phase_on == 0){
-				if (gv.verbose != -1){
+				if (gv.verbose > 0){
 					printf("  -> deleted = %s\n",gv.SS_list[iss]);
 				}
 				SS_ref_db[iss].ss_flags[0] = 0;

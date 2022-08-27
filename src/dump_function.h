@@ -18,10 +18,13 @@ void dump_results_function(		global_variable 	gv,
 								bulk_info 			z_b,
 								PP_ref 				*PP_ref_db,
 								SS_ref 				*SS_ref_db,
-								csd_phase_set  		*cp
+								csd_phase_set  		*cp,
+								stb_system  		*sp
 );
 
 void mergeParallelFiles(global_variable gv);
+
+void mergeParallel_matlab(global_variable gv);
 
 void mergeParallel_residual_Files(global_variable gv);
 
