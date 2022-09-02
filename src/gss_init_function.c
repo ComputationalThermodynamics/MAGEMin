@@ -63,7 +63,6 @@ csd_phase_set CP_INIT_function(csd_phase_set cp, global_variable gv){
 	cp.dfx   		= malloc (n  * sizeof (double) 		);
 	cp.mu    		= malloc (n  * sizeof (double) 		);
 	cp.gbase    	= malloc (n  * sizeof (double) 		);
-	cp.mu0    		= malloc (n  * sizeof (double) 		);
 	cp.ss_comp		= malloc (n  * sizeof (double) 		);
 	cp.sf			= malloc ((n*2)  * sizeof (double) 	);
 	
@@ -151,7 +150,7 @@ SS_ref G_SS_bi_init_function(SS_ref SS_ref_db, int EM_database, global_variable 
 	SS_ref_bi_db.n_w       = 15;
 	SS_ref_bi_db.n_xeos    = 5;
 	SS_ref_bi_db.CstFactor = 0;
-	
+
 	return SS_ref_bi_db;
 }
 
@@ -169,7 +168,7 @@ SS_ref G_SS_cpx_init_function(SS_ref SS_ref_db, int EM_database, global_variable
 	SS_ref_cpx_db.n_w       = 45;
 	SS_ref_cpx_db.n_xeos    = 9;	
 	SS_ref_cpx_db.CstFactor = 0;		  
-		
+
 	return SS_ref_cpx_db;
 }
 
@@ -186,7 +185,7 @@ SS_ref G_SS_cd_init_function(SS_ref SS_ref_db, int EM_database, global_variable 
 	SS_ref_cd_db.n_w       = 3;
 	SS_ref_cd_db.n_xeos    = 2;
 	SS_ref_cd_db.CstFactor = 0;
-	
+
 	return SS_ref_cd_db;	
 }
 
@@ -203,7 +202,6 @@ SS_ref G_SS_ep_init_function(SS_ref SS_ref_db, int EM_database, global_variable 
 	SS_ref_ep_db.n_w        = 3;
 	SS_ref_ep_db.n_xeos     = 2;
 	SS_ref_ep_db.CstFactor  = 0;
-  
   
 	return SS_ref_ep_db;	
 }
@@ -257,8 +255,7 @@ SS_ref G_SS_hb_init_function(SS_ref SS_ref_db, int EM_database, global_variable 
 	SS_ref_hb_db.n_w        = 55;
 	SS_ref_hb_db.n_xeos     = 10;
 	SS_ref_hb_db.CstFactor  = 0;
-	
-			  
+		  
 	return SS_ref_hb_db;	
 }
 
@@ -275,7 +272,7 @@ SS_ref G_SS_ilm_init_function(SS_ref SS_ref_db, int EM_database, global_variable
 	SS_ref_ilm_db.n_w       = 3;
 	SS_ref_ilm_db.n_xeos    = 2; 
 	SS_ref_ilm_db.CstFactor = 0;
-
+	SS_ref_ilm_db.has_doubled_em = 1;
 
 	return SS_ref_ilm_db;										  
 }
@@ -313,7 +310,6 @@ SS_ref G_SS_mu_init_function(SS_ref SS_ref_db, int EM_database, global_variable 
 	SS_ref_mu_db.n_xeos     = 5;
 	SS_ref_mu_db.CstFactor  = 0;
 
-	
 	return SS_ref_mu_db;
 }
 
@@ -331,7 +327,6 @@ SS_ref G_SS_ol_init_function(SS_ref SS_ref_db, int EM_database, global_variable 
 	SS_ref_ol_db.n_xeos     = 3;
 	SS_ref_ol_db.CstFactor  = 0;
 
-	
 	return SS_ref_ol_db;
 }
 
@@ -350,7 +345,6 @@ SS_ref G_SS_opx_init_function(SS_ref SS_ref_db, int EM_database, global_variable
 	SS_ref_opx_db.n_xeos    = 8;
 	SS_ref_opx_db.CstFactor = 0;
 
- 	
 	return SS_ref_opx_db;
 }
 
@@ -368,7 +362,7 @@ SS_ref G_SS_pl4T_init_function(SS_ref SS_ref_db, int EM_database, global_variabl
 	SS_ref_pl4T_db.n_w        = 3;
 	SS_ref_pl4T_db.n_xeos     = 2;
 	SS_ref_pl4T_db.CstFactor  = 0;
-		  		  
+
 	return SS_ref_pl4T_db;										  
 }
 
@@ -385,7 +379,8 @@ SS_ref G_SS_spn_init_function(SS_ref SS_ref_db, int EM_database, global_variable
 	SS_ref_spn_db.n_w       = 28;
 	SS_ref_spn_db.n_xeos    = 7;
 	SS_ref_spn_db.CstFactor = 0;
-	
+	SS_ref_spn_db.has_doubled_em = 3;
+
 	return SS_ref_spn_db;
 }
 
@@ -439,6 +434,10 @@ SS_ref G_SS_INIT_EM_function(		int			 		 ph_id,
 	int n_xeos = SS_ref_db.n_xeos;
 	int n_sf   = SS_ref_db.n_sf;
 	int sym    = SS_ref_db.symmetry;
+
+	if (SS_ref_db.has_doubled_em > 0){
+		// printf("  Duplicated endmember composition for %s\n",name);
+	}
 	
 	SS_ref_db.EM_list 		 = malloc ((n_em) * sizeof (char*)	);
 	for (int i = 0; i < n_em; i++){ 

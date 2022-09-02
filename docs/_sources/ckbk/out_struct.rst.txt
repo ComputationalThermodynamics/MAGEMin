@@ -9,7 +9,25 @@ If ``verbose`` is set to 1:
 
    --Verb=1
 
-a file named ``_thermocalc_style_output`` containing the information of the stable phase equilibrium is saved in ``./output/`` directory. 
+a file named ``_thermocalc_style_output.txt`` containing the information of the stable phase equilibrium is saved in ``./output/`` directory. 
+
+|
+
+
+MATLAB output	  
+=============
+
+If:
+
+.. code-block:: shell
+
+   --out_matlab=1
+
+a file named ``_matlab_output.txt`` containing the information of the stable phase equilibrium is saved in ``./output/`` directory. 
+This file, although similar to ``_thermocalc_style_output.txt`` in structure, this option saves the result of the minimization in more human friendly units: 
+phase fraction and composition are expressed in :literal:`[wt fraction]`.
+
+Note that this output is used by the Matlab notebook ``MAGEMin_EquilibriumPath.mlx`` developped by Dr. Tobias Keller (tobias.keller@erdw.ethz.ch) and added to MAGEMin in version v1.2.4.
 
 |
 

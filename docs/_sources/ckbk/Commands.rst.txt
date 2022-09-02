@@ -7,31 +7,33 @@ MAGEMin is run by using command line arguments when executing the binary file.
 
 The list of valid command line arguments is the following
 
-+---------------+-----------------------------------------------+
-|  Arguments    |                Application                    | 
-+===============+===============================================+
-| -\-version    | Displays MAGEMin version                      |
-+---------------+-----------------------------------------------+
-| -\-help       | Displays help                                 |
-+---------------+-----------------------------------------------+
-| -\-Verb=x     | Verbose option, 0. inactive, 1. active        |
-+---------------+-----------------------------------------------+
-| -\-File=path  | Given file for multiple point calculation     |
-+---------------+-----------------------------------------------+
-| -\-n_points=x | Number of points when using *File* argument   |
-+---------------+-----------------------------------------------+
-| -\-test=x     | Run calculation on included test compositions |
-+---------------+-----------------------------------------------+
-| -\-Pres=y     | Pressure in kilobar                           |
-+---------------+-----------------------------------------------+
-| -\-Temp=y     | Temperature in Celsius                        |
-+---------------+-----------------------------------------------+
-| -\-Bulk=[y]   | Bulk rock composition in molar amount         |
-+---------------+-----------------------------------------------+
-| -\-Gam=[y]    | Gamma, when a guess of gamma is known         |
-+---------------+-----------------------------------------------+
-| -\-sys_in=""  | system comp "mol" or "wt", default is "mol"   |
-+---------------+-----------------------------------------------+
++-----------------+-----------------------------------------------+
+|  Arguments      |                Application                    | 
++=================+===============================================+
+| -\-version      | Displays MAGEMin version                      |
++-----------------+-----------------------------------------------+
+| -\-help         | Displays help                                 |
++-----------------+-----------------------------------------------+
+| -\-Verb=x       | Verbose option, 0. inactive, 1. active        |
++-----------------+-----------------------------------------------+
+| -\-File=path    | Given file for multiple point calculation     |
++-----------------+-----------------------------------------------+
+| -\-n_points=x   | Number of points when using *File* argument   |
++-----------------+-----------------------------------------------+
+| -\-test=x       | Run calculation on included test compositions |
++-----------------+-----------------------------------------------+
+| -\-Pres=y       | Pressure in kilobar                           |
++-----------------+-----------------------------------------------+
+| -\-Temp=y       | Temperature in Celsius                        |
++-----------------+-----------------------------------------------+
+| -\-Bulk=[y]     | Bulk rock composition in molar amount         |
++-----------------+-----------------------------------------------+
+| -\-Gam=[y]      | Gamma, when a guess of gamma is known         |
++-----------------+-----------------------------------------------+
+| -\-sys_in=""    | system comp "mol" or "wt", default is "mol"   |
++-----------------+-----------------------------------------------+
+| -\-out_matlab=x | Matlab output, 0. inactive, 1. active         |
++-----------------+-----------------------------------------------+
 
 where *x* is an ``integer``, *y* a ``float``/``double`` and *[]* a comma-separated list of size *number of oxydes*. 
 

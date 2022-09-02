@@ -310,7 +310,7 @@ int runMAGEMin(			int    argc,
 											DB.sp						);
 
 		/* Dump final results to files 												*/
-		dump_results_function(				gv,												/** global variables (e.g. Gamma) 	*/
+		save_results_function(				gv,												/** global variables (e.g. Gamma) 	*/
 											z_b,											/** bulk-rock informations 			*/
 											DB.PP_ref_db,									/** pure phase database 			*/
 											DB.SS_ref_db,									/** solution phase database 		*/
@@ -515,7 +515,6 @@ int runMAGEMin(			int    argc,
 	}
 
 	for (int i = 0; i < gv.len_pp; i++){
-
 		/* if pure phase is active or on hold (PP cannot be removed from consideration */
 		if (gv.pp_flags[i][1] == 1){
 
@@ -549,7 +548,6 @@ int runMAGEMin(			int    argc,
 			dGdTMP 		= (muE-muW)/(2.0*gv.gb_T_eps);
 			dGdP		= (muN-muC)/(gv.gb_P_eps);
 
-			
 
 			/* Calculate volume  per pure phase */
 			PP_ref_db[i].volume  	   		= dGdP; 
@@ -728,7 +726,7 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 		/****************************************************************************************/
 		/**                            PARTITIONING GIBBS ENERGY                               **/
 		/****************************************************************************************/
-		if (z_b.T > 873.){
+		if (z_b.T > 673.){
 			gv 		= PGE(			z_b,									/** bulk rock constraint 			*/ 
 									gv,										/** global variables (e.g. Gamma) 	*/
 
@@ -743,7 +741,7 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 		/**
 			Launch legacy solver (LP, Theriak-like algorithm)
 		*/ 
-		if ((gv.div == 1 || z_b.T <= 873. ) && gv.solver == 1){
+		if ((gv.div == 1 || z_b.T <= 673. ) && gv.solver == 1){
 		// if (gv.div == 1  && gv.solver == 1){	
 			printf("\n[PGE failed -> legacy solver...]\n");
 			gv.div 		= 0;

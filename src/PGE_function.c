@@ -179,7 +179,6 @@ global_variable PGE_residual_update(			bulk_info 				z_b,
 					ss = cp[i].id;
 					for (int k = 0; k < cp[i].n_em; k++){
 						gv.mass_residual[j] += SS_ref_db[ss].Comp[k][j]*cp[i].factor*cp[i].p_em[k]*cp[i].xi_em[k]*SS_ref_db[ss].z_em[k]*cp[i].ss_n;
-
 					}
 				}
 			}
@@ -305,7 +304,6 @@ global_variable PGE_update_xi(		bulk_info 	z_b,
 									csd_phase_set  		*cp
 ){
 	int ss;
-
 	for (int i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[0] == 1 && (cp[i].ss_flags[1] == 1 || cp[i].ss_flags[2] == 1)){
 			ss = cp[i].id;
@@ -923,7 +921,6 @@ global_variable init_LP(							bulk_info 	 		 z_b,
 			cp[i].dfx[ii]       = 0.0;
 			cp[i].mu[ii]        = 0.0;
 			cp[i].gbase[ii]     = 0.0;
-			cp[i].mu0[ii]       = 0.0;
 			cp[i].ss_comp[ii]   = 0.0;
 		}
 		 

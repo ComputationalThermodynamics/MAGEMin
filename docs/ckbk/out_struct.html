@@ -92,6 +92,7 @@
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="../ckbk.html#data-output">Data output</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">THERMOCALC-like output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#matlab-output">MATLAB output</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#as-a-nested-structure">As a nested structure</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#computation-information">Computation information</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#system-information">System information</a></li>
@@ -241,7 +242,21 @@
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>--Verb<span class="o">=</span><span class="m">1</span>
 </pre></div>
 </div>
-<p>a file named <code class="docutils literal notranslate"><span class="pre">_thermocalc_style_output</span></code> containing the information of the stable phase equilibrium is saved in <code class="docutils literal notranslate"><span class="pre">./output/</span></code> directory.</p>
+<p>a file named <code class="docutils literal notranslate"><span class="pre">_thermocalc_style_output.txt</span></code> containing the information of the stable phase equilibrium is saved in <code class="docutils literal notranslate"><span class="pre">./output/</span></code> directory.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="matlab-output">
+<h1>MATLAB output<a class="headerlink" href="#matlab-output" title="Permalink to this headline"></a></h1>
+<p>If:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>--out_matlab<span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+<p>a file named <code class="docutils literal notranslate"><span class="pre">_matlab_output.txt</span></code> containing the information of the stable phase equilibrium is saved in <code class="docutils literal notranslate"><span class="pre">./output/</span></code> directory.
+This file, although similar to <code class="docutils literal notranslate"><span class="pre">_thermocalc_style_output.txt</span></code> in structure, this option saves the result of the minimization in more human friendly units:
+phase fraction and composition are expressed in <code class="docutils literal notranslate"><span class="pre">[wt</span> <span class="pre">fraction]</span></code>.</p>
+<p>Note that this output is used by the Matlab notebook <code class="docutils literal notranslate"><span class="pre">MAGEMin_EquilibriumPath.mlx</span></code> developped by Dr. Tobias Keller (<a class="reference external" href="mailto:tobias&#46;keller&#37;&#52;&#48;erdw&#46;ethz&#46;ch">tobias<span>&#46;</span>keller<span>&#64;</span>erdw<span>&#46;</span>ethz<span>&#46;</span>ch</a>) and added to MAGEMin in version v1.2.4.</p>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>

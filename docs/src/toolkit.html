@@ -92,6 +92,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ckbk.html#data-output">Data output</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/out_struct.html">THERMOCALC-like output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/out_struct.html#matlab-output">MATLAB output</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/out_struct.html#as-a-nested-structure">As a nested structure</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#computation-information">Computation information</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../ckbk/out_struct.html#system-information">System information</a></li>
@@ -494,6 +495,12 @@ printf(” Vp/Vs_Melt_cor     : %+12.5ft [km/s]n”,gv.V_cor[0]/gv.V_cor[1]);</p
 <p>}
 printf(”n”);</p>
 </div></blockquote>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.compute_phase_mol_fraction">
+<span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">compute_phase_mol_fraction</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">PP_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">PP_ref_db</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="n"><span class="pre">csd_phase_set</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">cp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.compute_phase_mol_fraction" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.compute_phase_mol_fraction"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>This routine convert the molar fraction on 1 atom basis to mol fraction</p>
 </dd></dl>
 
 </section>

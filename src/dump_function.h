@@ -14,7 +14,7 @@ void fill_output_struct(		global_variable 	gv,
 );
 
 
-void dump_results_function(		global_variable 	gv,
+void save_results_function(		global_variable 	gv,
 								bulk_info 			z_b,
 								PP_ref 				*PP_ref_db,
 								SS_ref 				*SS_ref_db,

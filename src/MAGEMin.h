@@ -143,6 +143,7 @@ typedef struct SS_refs {
 	/** data needed for levelling and/or PGE **/
 	int	     min_mode;			/** flag of the minimization mode 											*/
 	int		 is_liq;			/** check if phase is "liq" 												*/
+	int		 has_doubled_em;	/** flag to indicate if the solution phase has endmembers with the same composition */
 	int      symmetry;			/** solution phase symmetry  												*/
 	int      n_em;				/** number od endmembers 													*/
 	int 	 n_xeos;			/** number of compositional variables 										*/
@@ -305,7 +306,6 @@ typedef struct csd_phase_sets {
 	
 	double *dfx;
 	double *mu;
-	double *mu0;	
 	double *delta_mu;
 	double *sf;
 	double *ss_comp;
@@ -320,6 +320,7 @@ typedef struct csd_phase_sets {
 	double  phase_shearModulus;
 	double  phase_entropy;
 	double  phase_enthalpy;
+	
 } csd_phase_set;
 
 /* hold information of solution phases */
@@ -594,7 +595,7 @@ typedef struct global_variables {
 	double   system_Vp;
 	double   system_Vs;
 	double   system_volume;
-	
+
 	double 	 system_fO2;
 
 	double   melt_density;
