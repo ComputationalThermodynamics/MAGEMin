@@ -563,6 +563,7 @@ struct SS_refs
     solvus_id::Ptr{Cint}
     min_mode::Cint
     is_liq::Cint
+    has_doubled_em::Cint
     symmetry::Cint
     n_em::Cint
     n_xeos::Cint
@@ -694,7 +695,7 @@ struct csd_phase_sets
     sf_ok::Cint
     ss_flags::Ptr{Cint}
     ss_n::Cdouble
-    ss_n_0::Cdouble
+    ss_n_mol::Cdouble
     delta_ss_n::Cdouble
     df::Cdouble
     factor::Cdouble
@@ -708,7 +709,6 @@ struct csd_phase_sets
     dpdx::Ptr{Ptr{Cdouble}}
     dfx::Ptr{Cdouble}
     mu::Ptr{Cdouble}
-    mu0::Ptr{Cdouble}
     delta_mu::Ptr{Cdouble}
     sf::Ptr{Cdouble}
     ss_comp::Ptr{Cdouble}
@@ -841,6 +841,7 @@ mutable struct global_variables
     status::Cint
     solver::Cint
     calc_seismic_cor::Cint
+    output_matlab::Cint
     LP::Cint
     PGE::Cint
     LP_PGE_switch::Cint
@@ -867,7 +868,7 @@ mutable struct global_variables
     PP_list::Ptr{Ptr{Cchar}}
     SS_list::Ptr{Ptr{Cchar}}
     pp_n::Ptr{Cdouble}
-    pp_n_0::Ptr{Cdouble}
+    pp_n_mol::Ptr{Cdouble}
     pp_xi::Ptr{Cdouble}
     delta_pp_n::Ptr{Cdouble}
     delta_pp_xi::Ptr{Cdouble}
@@ -947,6 +948,8 @@ mutable struct global_variables
     system_shearModulus::Cdouble
     system_Vp::Cdouble
     system_Vs::Cdouble
+    system_volume::Cdouble
+    system_fO2::Cdouble
     melt_density::Cdouble
     melt_bulkModulus::Cdouble
     melt_fraction::Cdouble
@@ -993,8 +996,8 @@ function ComputePostProcessing(EM_database, z_b, gv, PP_ref_db, SS_ref_db, cp)
     ccall((:ComputePostProcessing, libMAGEMin), global_variable, (Cint, bulk_info, global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), EM_database, z_b, gv, PP_ref_db, SS_ref_db, cp)
 end
 
-function ReadCommandLineOptions(gv, argc, argv, Mode_out, Verb_out, test_out, n_points_out, P, T, Bulk, Gam, File, Phase, maxeval_out, get_version_out, get_help, solver_out, sys_in)
-    ccall((:ReadCommandLineOptions, libMAGEMin), global_variable, (global_variable, Cint, Ptr{Ptr{Cchar}}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cchar}, Ptr{Cchar}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cchar}), gv, argc, argv, Mode_out, Verb_out, test_out, n_points_out, P, T, Bulk, Gam, File, Phase, maxeval_out, get_version_out, get_help, solver_out, sys_in)
+function ReadCommandLineOptions(gv, argc, argv, Mode_out, Verb_out, test_out, n_points_out, P, T, Bulk, Gam, File, Phase, maxeval_out, get_version_out, get_help, solver_out, out_matlab_out, sys_in)
+    ccall((:ReadCommandLineOptions, libMAGEMin), global_variable, (global_variable, Cint, Ptr{Ptr{Cchar}}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cchar}, Ptr{Cchar}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cchar}), gv, argc, argv, Mode_out, Verb_out, test_out, n_points_out, P, T, Bulk, Gam, File, Phase, maxeval_out, get_version_out, get_help, solver_out, out_matlab_out, sys_in)
 end
 
 function PrintOutput(gv, rank, l, DB, time_taken, z_b)
@@ -1059,12 +1062,16 @@ function fill_output_struct(gv, z_b, PP_ref_db, SS_ref_db, cp, sp)
     ccall((:fill_output_struct, libMAGEMin), Cvoid, (global_variable, bulk_info, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}, Ptr{stb_system}), gv, z_b, PP_ref_db, SS_ref_db, cp, sp)
 end
 
-function dump_results_function(gv, z_b, PP_ref_db, SS_ref_db, cp)
-    ccall((:dump_results_function, libMAGEMin), Cvoid, (global_variable, bulk_info, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, z_b, PP_ref_db, SS_ref_db, cp)
+function save_results_function(gv, z_b, PP_ref_db, SS_ref_db, cp, sp)
+    ccall((:save_results_function, libMAGEMin), Cvoid, (global_variable, bulk_info, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}, Ptr{stb_system}), gv, z_b, PP_ref_db, SS_ref_db, cp, sp)
 end
 
 function mergeParallelFiles(gv)
     ccall((:mergeParallelFiles, libMAGEMin), Cvoid, (global_variable,), gv)
+end
+
+function mergeParallel_matlab(gv)
+    ccall((:mergeParallel_matlab, libMAGEMin), Cvoid, (global_variable,), gv)
 end
 
 function mergeParallel_residual_Files(gv)
@@ -1667,6 +1674,10 @@ function get_sol_phase_infos(input_data, z_b, gv, PP_ref_db, SS_ref_db, cp)
     ccall((:get_sol_phase_infos, libMAGEMin), global_variable, (io_data, bulk_info, global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), input_data, z_b, gv, PP_ref_db, SS_ref_db, cp)
 end
 
+function compute_phase_mol_fraction(gv, PP_ref_db, SS_ref_db, cp)
+    ccall((:compute_phase_mol_fraction, libMAGEMin), global_variable, (global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, PP_ref_db, SS_ref_db, cp)
+end
+
 const n_em_db = 291
 
 const nEl = 11
@@ -1704,22 +1715,20 @@ const ko_optional_argument = 2
 #
 
 
-
-
 struct SS_data
     f::Cdouble
     G::Cdouble
     deltaG::Cdouble
     V::Cdouble
     alpha::Cdouble
+    entropy::Cdouble
+    enthalpy::Cdouble
     cp::Cdouble
     rho::Cdouble
     bulkMod::Cdouble
     shearMod::Cdouble
     Vp::Cdouble
     Vs::Cdouble
-    entropy::Cdouble
-    enthalpy::Cdouble 
     Comp::Vector{Cdouble}
     Comp_wt::Vector{Cdouble}
     compVariables::Vector{Cdouble}
@@ -1734,7 +1743,7 @@ end
 
 
 function Base.convert(::Type{SS_data}, a::stb_SS_phases) 
-    return SS_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs, a.entropy, a.enthalpy,
+    return SS_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
                                     unsafe_wrap( Vector{Cdouble},        a.Comp,             a.nOx),
                                     unsafe_wrap( Vector{Cdouble},        a.Comp_wt,             a.nOx),
                                     unsafe_wrap( Vector{Cdouble},        a.compVariables,    a.n_xeos),
@@ -1752,20 +1761,20 @@ struct PP_data
     deltaG::Cdouble
     V::Cdouble
     alpha::Cdouble
+    entropy::Cdouble
+    enthalpy::Cdouble
     cp::Cdouble
     rho::Cdouble
     bulkMod::Cdouble
     shearMod::Cdouble
     Vp::Cdouble
     Vs::Cdouble
-    entropy::Cdouble
-    enthalpy::Cdouble
     Comp::Vector{Cdouble}
     Comp_wt::Vector{Cdouble}
 end
 
 function Base.convert(::Type{PP_data}, a::stb_PP_phases) 
-    return PP_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs, a.entropy, a.enthalpy,
+    return PP_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
                     unsafe_wrap(Vector{Cdouble},a.Comp, a.nOx),
                     unsafe_wrap(Vector{Cdouble},a.Comp_wt, a.nOx))
 end

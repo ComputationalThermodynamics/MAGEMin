@@ -19,7 +19,7 @@ bulk_rock   = get_bulk_rock(gv, test)
 P           = 8.0
 T           = 800.0
 gv.verbose  = -1        # switch off any verbose
-out         = point_wise_minimization(P,T, bulk_rock, gv, DB,sys_in);
+out         = point_wise_minimization(P,T, bulk_rock, gv, DB, sys_in);
 @show out
 
 @test out.G_system ≈ -797.7491824869334

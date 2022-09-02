@@ -40,21 +40,29 @@ void dump_init(global_variable gv){
     	mkdir(gv.outpath, 0700);
 	}
 
-	/** ----------------------------------------------------------------------------------------------- **/
-	/** THERMOCALC LIKE FINAL OUTPUT **/
-	if (gv.verbose == 1){
+
+	/** THERMOCALC-LIKE OUTPUT **/
+	if (gv.verbose == 1 && gv.output_matlab == 0){
 		sprintf(out_lm,	"%s_thermocalc_style_output.txt"		,gv.outpath); 
 		loc_min 	= fopen(out_lm, 	"w"); 
 		fprintf(loc_min, "\n");
 		fclose(loc_min);	
 	}
-	/** ----------------------------------------------------------------------------------------------- **/
+	/** OUTPUT FOR MATLAB, print out wt and mol fractions instead of TC atom basis **/
+	if (gv.output_matlab == 1){
+		if (numprocs==1){	sprintf(out_lm,	"%s_matlab_output.txt"		,gv.outpath); 		}
+		else 			{	sprintf(out_lm,	"%s_matlab_output.%i.txt"	,gv.outpath, rank); }
+		loc_min 	= fopen(out_lm, 	"w"); 
+		fprintf(loc_min, "\n");
+		fclose(loc_min);
+	}
+
 	if (gv.verbose == 0){
 		/** MATLAB GRID OUTPUT **/
 		if (numprocs==1){	sprintf(out_lm,	"%s_pseudosection_output.txt"		,gv.outpath); 		}
 		else 			{	sprintf(out_lm,	"%s_pseudosection_output.%i.txt"	,gv.outpath, rank); }
 		loc_min 	= fopen(out_lm, 	"w"); 
-		fprintf(loc_min, "// NUMBER\tSTATUS[S,R1,R2,F]\tP[kbar]\tT[C]\tG_sys[G]\tBR_norm[wt]\tVp[km/s]\tVs[km/s]\tGAMMA[G] PHASE[name]\tMODE[wt]\tRHO[kg.m-3]\tX-EOS\n");
+		fprintf(loc_min, "// {number status[] P[kbar] T[C] G_sys[G] BR_norm[wt] Gamma[G] Vp[km/s] Vs[km/s] entropy[J/K]} nextline {Phase[name] mode[wt] density[kg.m-3] x-eos}\n");
 		fclose(loc_min);	
 
 
@@ -416,15 +424,627 @@ void fill_output_struct(		global_variable 	 gv,
 	
 }
 
+
 /**
-  Save final result of minimization
+ 	thermocalc like output
 */
-void dump_results_function(		global_variable 	 gv,
+void output_thermocalc(			global_variable 	 gv,
 								bulk_info 	 		 z_b,
 
 								PP_ref 				*PP_ref_db,
 								SS_ref 				*SS_ref_db,
-								csd_phase_set  		*cp
+								csd_phase_set  		*cp,
+								stb_system  		*sp
+){
+	FILE *loc_min;
+	char out_lm[255];
+	
+	int rank, numprocs;
+	
+	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+	int i,j,m,n,k;
+
+	/* output active phase fraction*/
+	if (numprocs==1){	sprintf(out_lm,	"%s_thermocalc_style_output.txt"		,gv.outpath); 	}
+	else 			{	sprintf(out_lm,	"%s_thermocalc_style_output.%i.txt"		,gv.outpath, rank); 	}
+
+	loc_min 	= fopen(out_lm, 	"a"); 
+	fprintf(loc_min, "============================================================\n");
+	
+	for (i = 0; i < gv.len_cp; i++){
+		if ( cp[i].ss_flags[1] == 1){
+			fprintf(loc_min, 	"%4s ", cp[i].name);
+
+		}
+	}
+	for (i = 0; i < gv.len_pp; i++){
+		if (gv.pp_flags[i][1] == 1){
+			fprintf(loc_min, 	"%4s ", gv.PP_list[i]);
+		}
+	}	
+	fprintf(loc_min, " {%10.5f, %10.5f} kbar/°C\n\n",z_b.P,z_b.T-273.15);
+	
+	fprintf(loc_min, "Compositional variables (solution phase):\n");		
+	for (i = 0; i < gv.len_cp; i++){
+		if (cp[i].ss_flags[1] == 1){
+			fprintf(loc_min, 	" %5s", cp[i].name);
+			for (j = 0; j < cp[i].n_xeos; j++){
+				fprintf(loc_min, 	"%10.5f ", cp[i].xeos[j]);
+			}
+			for (k = j; k < gv.len_ox; k++){
+				fprintf(loc_min, 	"%10s ", "-");
+			}		
+			fprintf(loc_min, "\n");	
+		}
+	}
+	
+	fprintf(loc_min, "\nEnd-members fraction (solution phase):\n");		
+	for (i = 0; i < gv.len_cp; i++){
+		if (cp[i].ss_flags[1] == 1){
+			
+			fprintf(loc_min, 	" %5s", "");
+			for (j = 0; j < cp[i].n_em; j++){
+				fprintf(loc_min, 	"%10s ", SS_ref_db[cp[i].id].EM_list[j]);
+			}
+			for (k = j; k < gv.len_ox; k++){
+				fprintf(loc_min, 	"%10s ", "-");
+			}		
+			fprintf(loc_min, "\n");	
+			
+			fprintf(loc_min, 	" %5s", cp[i].name);
+			for (j = 0; j < cp[i].n_em; j++){
+				fprintf(loc_min, 	"%10.5f ", cp[i].p_em[j]);
+			}
+			for (k = j; k < gv.len_ox; k++){
+				fprintf(loc_min, 	"%10s ", "-");
+			}		
+			fprintf(loc_min, "\n");	
+		}
+	}
+
+	fprintf(loc_min, "\nEnd-members PGE expression [exp(-mu/(RT))]:\n");		
+	for (i = 0; i < gv.len_cp; i++){
+		if (cp[i].ss_flags[1] == 1){
+			
+			fprintf(loc_min, 	" %5s", "");
+			for (j = 0; j < cp[i].n_em; j++){
+				fprintf(loc_min, 	"%10s ", SS_ref_db[cp[i].id].EM_list[j]);
+			}
+			for (k = j; k < gv.len_ox; k++){
+				fprintf(loc_min, 	"%10s ", "-");
+			}		
+			fprintf(loc_min, "\n");	
+			
+			fprintf(loc_min, 	" %5s", cp[i].name);
+			for (j = 0; j < cp[i].n_em; j++){
+				fprintf(loc_min, 	"%10.5f ", cp[i].xi_em[j]);
+			}
+			for (k = j; k < gv.len_ox; k++){
+				fprintf(loc_min, 	"%10s ", "-");
+			}		
+			fprintf(loc_min, "\n");	
+		}
+	}
+
+	fprintf(loc_min, "\nEnd-members delta_mu:\n");		
+	for (i = 0; i < gv.len_cp; i++){
+		if (cp[i].ss_flags[1] == 1){
+			
+			fprintf(loc_min, 	" %5s", "");
+			for (j = 0; j < cp[i].n_em; j++){
+				fprintf(loc_min, 	"%10s ", SS_ref_db[cp[i].id].EM_list[j]);
+			}
+			for (k = j; k < gv.len_ox; k++){
+				fprintf(loc_min, 	"%10s ", "-");
+			}		
+			fprintf(loc_min, "\n");	
+			
+			fprintf(loc_min, 	" %5s", cp[i].name);
+			for (j = 0; j < cp[i].n_em; j++){
+				fprintf(loc_min, 	"%10.5f ", cp[i].mu[j]);
+			}
+			for (k = j; k < gv.len_ox; k++){
+				fprintf(loc_min, 	"%10s ", "-");
+			}		
+			fprintf(loc_min, "\n");	
+		}
+	}
+
+	if (gv.Mode == 1){
+		fprintf(loc_min, "\nGibbs energy of reference G0 (solution phase):\n");		
+		for (i = 0; i < gv.len_cp; i++){
+			if (cp[i].ss_flags[1] == 1){
+				fprintf(loc_min, 	" %5s", cp[i].name);
+				for (j = 0; j < cp[i].n_em; j++){
+					fprintf(loc_min, 	"%14.6f ", cp[i].gbase[j]);
+				}
+				for (k = j; k < gv.len_ox; k++){
+					fprintf(loc_min, 	"%14s ", "-");
+				}		
+				fprintf(loc_min, "\n");	
+			}
+		}
+				
+		fprintf(loc_min, "\nChemical potentials [J] (solution phase):\n");		
+		for (i = 0; i < gv.len_cp; i++){
+			if (cp[i].ss_flags[1] == 1){
+				fprintf(loc_min, 	" %5s", cp[i].name);
+				for (j = 0; j < cp[i].n_em; j++){
+					fprintf(loc_min, 	"%14.6f ", cp[i].mu[j]);
+				}
+				for (k = j; k < gv.len_ox; k++){
+					fprintf(loc_min, 	"%14s ", "-");
+				}		
+				fprintf(loc_min, "\n");	
+			}
+		}
+	}
+
+	fprintf(loc_min, "\nSite fractions:\n");		
+	for (i = 0; i < gv.len_cp; i++){
+		if (cp[i].ss_flags[1] == 1){
+			fprintf(loc_min, 	" %5s", cp[i].name);
+			for (j = 0; j < (cp[i].n_sf); j++){
+				fprintf(loc_min, 	"%10.5f ", cp[i].sf[j]); // *-1.0 because inequality are given as -x <= 0 in NLopt
+			}
+			for (k = j; k < gv.len_ox; k++){
+				fprintf(loc_min, 	"%10s ", "-");
+			}		
+			fprintf(loc_min, "\n");	
+		}
+	}
+	
+	fprintf(loc_min, "\nOxide compositions [mol fraction] (normalized on 1 atom basis):\n");	
+	fprintf(loc_min, "%5s"," ");
+	for (i = 0; i < gv.len_ox; i++){
+		fprintf(loc_min, " %10s", gv.ox[i]);
+	}
+	fprintf(loc_min, "\n %5s","SYS");	
+	for (i = 0; i < gv.len_ox; i++){
+		fprintf(loc_min, "%10.5f ",z_b.bulk_rock[i]);
+	}
+	fprintf(loc_min, "\n");	
+	for (i = 0; i < gv.len_cp; i++){
+		if (cp[i].ss_flags[1] == 1){
+			fprintf(loc_min, 	" %5s", cp[i].name);
+			for (j = 0; j < gv.len_ox; j++){
+				fprintf(loc_min, "%10.5f ", cp[i].ss_comp[j]*cp[i].factor);
+			}
+			fprintf(loc_min, "\n");
+		}
+	}
+
+	for (i = 0; i < gv.len_pp; i++){ 
+		if (gv.pp_flags[i][1] == 1){
+			fprintf(loc_min, 	" %5s", gv.PP_list[i]);
+			for (j = 0; j < gv.len_ox; j++){
+				fprintf(loc_min, "%10.5f ", PP_ref_db[i].Comp[j]*PP_ref_db[i].factor);
+			}
+			fprintf(loc_min, "\n");
+		}
+	}
+	
+	double G;
+	fprintf(loc_min, "\n");	
+	fprintf(loc_min, "Stable mineral assemblage:\n");	
+	fprintf(loc_min, "%6s%12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n","phase","mod[mol fr]","f","G[J]" ,"V[cm3/mol]" ,"Cp[kJ/K]","Rho[kg/m3]","Alpha[1/K]","Entropy[J/K]","Enthalpy[J]","BulkMod[GPa]","ShearMod[GPa]","Vp[km/s]","Vs[km/s]");
+				
+	for (i = 0; i < gv.len_cp; i++){
+		if (cp[i].ss_flags[1] == 1){
+			
+			if (gv.Mode == 1){
+				G = cp[i].df;
+			}
+			else{
+				G = 0.0;
+				for (j = 0; j < gv.len_ox; j++){
+					G += cp[i].ss_comp[j]*gv.gam_tot[j];
+				}
+			}
+
+			fprintf(loc_min, "%6s", cp[i].name);
+			fprintf(loc_min, "%+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.6f %+12.6f %+12.2f %+12.2f %+12.2f %+12.2f",
+						cp[i].ss_n_mol,cp[i].factor,
+						G,
+						cp[i].volume*10.,
+						cp[i].phase_cp,
+						cp[i].phase_density,
+						cp[i].phase_expansivity,
+						cp[i].phase_entropy,
+						cp[i].phase_enthalpy,
+						cp[i].phase_bulkModulus/10.,
+						cp[i].phase_shearModulus/10.,
+						sqrt((cp[i].phase_bulkModulus/10. +4.0/3.0*cp[i].phase_shearModulus/10.)/(cp[i].phase_density/1e3)),
+						sqrt(cp[i].phase_shearModulus/10.0/(cp[i].phase_density/1e3)) 
+					);
+			fprintf(loc_min, "\n");
+		}
+	}
+	
+	for (i = 0; i < gv.len_pp; i++){
+		if (gv.pp_flags[i][1] == 1){ 
+			fprintf(loc_min, "%6s", gv.PP_list[i]);
+			fprintf(loc_min, "%+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.6f %+12.6f %+12.2f %+12.2f %+12.2f %+12.2f",
+					gv.pp_n_mol[i],
+					PP_ref_db[i].factor,
+					PP_ref_db[i].gbase,
+					PP_ref_db[i].volume*10.,
+					PP_ref_db[i].phase_cp,
+					PP_ref_db[i].phase_density,
+					PP_ref_db[i].phase_expansivity,
+					PP_ref_db[i].phase_entropy,
+					PP_ref_db[i].phase_enthalpy,
+					PP_ref_db[i].phase_bulkModulus/10.,
+					PP_ref_db[i].phase_shearModulus/10.,
+					sqrt((PP_ref_db[i].phase_bulkModulus/10. +4.0/3.0*PP_ref_db[i].phase_shearModulus/10.)/(PP_ref_db[i].phase_density/1e3)),
+					sqrt(PP_ref_db[i].phase_shearModulus/10.0/(PP_ref_db[i].phase_density/1e3))
+				);
+			fprintf(loc_min, "\n");
+		}
+	}
+	
+	G = 0.0;
+	for (j = 0; j < gv.len_ox; j++){
+		G += z_b.bulk_rock[j]*gv.gam_tot[j];
+	}
+	fprintf(loc_min, "%6s %24s %+12.5f %+12.5f %12s %+12.5f %12s %+12.6f %+12.6f %+12.5f %+12.5f %+12.5f %+12.5f\n",
+			"SYS",
+			" ",
+			G,
+			gv.system_volume*10.,
+			" ",
+			gv.system_density,
+			" ",
+			gv.system_entropy,
+			gv.system_enthalpy,
+			gv.system_bulkModulus,
+			gv.system_shearModulus,
+			gv.system_Vp,
+			gv.system_Vs
+	);
+	
+	/* output solution phase composition */ 	
+	fprintf(loc_min, "\nGamma[J] (chemical potential of oxides):\n");
+	for (i = 0; i < gv.len_ox; i++){
+		fprintf(loc_min, "%6s %+12.5f\n", gv.ox[i], gv.gam_tot[i]);
+	}
+	fprintf(loc_min, "\nG-hyperplane distance[J]:\n");
+	for (i = 0; i < gv.len_cp; i++){
+		if (cp[i].ss_flags[1] == 1){
+			fprintf(loc_min, 	"%5s %+10e\n", cp[i].name,cp[i].df);
+		}
+	}
+	fprintf(loc_min, "\n\n");
+	fclose(loc_min);
+
+}
+
+/**
+ 	output used for the graphic user interface
+*/
+void output_gui(				global_variable 	 gv,
+								bulk_info 	 		 z_b,
+
+								PP_ref 				*PP_ref_db,
+								SS_ref 				*SS_ref_db,
+								csd_phase_set  		*cp,
+								stb_system  		*sp
+){
+	FILE *loc_min;
+	char out_lm[255];
+	
+	int rank, numprocs;
+	
+	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+	int i,j,m,n,k;
+
+	if (numprocs==1){	sprintf(out_lm,	"%s_pseudosection_output.txt"		,gv.outpath); 		}
+	else 			{	sprintf(out_lm,	"%s_pseudosection_output.%i.txt"	,gv.outpath, rank); }
+	/* get number of repeated phases for the solvi */
+	int n_solvi[gv.len_ss];
+	for (i = 0; i < gv.len_ss; i++){
+		n_solvi[i] = 0;
+	}
+	for (i = 0; i < gv.len_cp; i++){
+		if (cp[i].ss_flags[1] == 1){
+			n_solvi[cp[i].id] += 1;
+		}
+	}
+
+	loc_min 	= fopen(out_lm, 	"a"); 
+	fprintf(loc_min, "%i %i %.10f %.10f %.10f %.10f", gv.numPoint+1, gv.status, z_b.P, z_b.T-273.15, gv.G_system,gv.BR_norm);
+
+	for (i = 0; i < gv.len_ox; i++){
+		fprintf(loc_min," %0.10f", gv.gam_tot[i]);
+	}
+	fprintf(loc_min, " %.10f %.10f %.10f",gv.system_Vp,gv.system_Vs,gv.system_entropy);
+
+	fprintf(loc_min, "\n");
+	for (i = 0; i < gv.len_cp; i++){ 
+		if (cp[i].ss_flags[1] == 1){
+			
+			
+			if (n_solvi[cp[i].id] > 1){
+				fprintf(loc_min, 	"%s_%d \t %.10f \t %.10f \t", cp[i].name,n_solvi[cp[i].id], cp[i].ss_n, cp[i].phase_density);
+			}
+			else{
+				fprintf(loc_min, 	"%s \t %.10f \t %.10f \t", cp[i].name, cp[i].ss_n, cp[i].phase_density);
+			}
+
+			fprintf(loc_min, 	"%d ", cp[i].n_xeos);
+			for (j = 0; j < (cp[i].n_xeos); j++){
+				fprintf(loc_min, 	"%.10f ", cp[i].xeos[j]);
+			}
+			for (j = 0; j < (cp[i].n_em); j++){
+				fprintf(loc_min, 	"%10s ",  SS_ref_db[cp[i].id].EM_list[j]);	
+				fprintf(loc_min, 	"%.10f ", cp[i].p_em[j]);
+			}
+			fprintf(loc_min, "\n");
+		}
+	}	
+	for (i = 0; i < gv.len_pp; i++){
+		if (gv.pp_flags[i][1] == 1){
+			fprintf(loc_min, 	"%s \t %.10f \t %.10f \t", gv.PP_list[i], gv.pp_n[i], PP_ref_db[i].phase_density);
+			fprintf(loc_min, "\n");
+		}
+	}	
+	fprintf(loc_min, "\n");
+	fclose(loc_min);
+
+	if (gv.save_residual_evolution == 1){
+		/** OUTPUT RESIDUAL EVOLUTION **/
+		if (numprocs==1){	sprintf(out_lm,	"%s_residual_norm.txt"		,gv.outpath); 		}
+		else 			{	sprintf(out_lm,	"%s_residual_norm.%i.txt"	,gv.outpath, rank); }
+
+		loc_min 	= fopen(out_lm, 	"a"); 
+
+		for (j = 0; j < gv.global_ite; j++){
+			fprintf(loc_min, "%.6f ", gv.PGE_mass_norm[j]);
+		}
+		fprintf(loc_min, "\n");
+
+		fclose(loc_min);
+	}
+}
+
+
+/**
+ 	output used for the matlab interface
+*/
+void output_matlab(				global_variable 	 gv,
+								bulk_info 	 		 z_b,
+
+								PP_ref 				*PP_ref_db,
+								SS_ref 				*SS_ref_db,
+								csd_phase_set  		*cp,
+								stb_system  		*sp
+){
+	FILE *loc_min;
+	char out_lm[255];
+	
+	int rank, numprocs;
+	
+	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+	int i,j,m,n,k;
+
+	/* output active phase fraction*/
+	if (numprocs==1){	sprintf(out_lm,	"%s_matlab_output.txt"		,gv.outpath); 	}
+	else 			{	sprintf(out_lm,	"%s_matlab_output.%i.txt"		,gv.outpath, rank); 	}
+
+	loc_min 	= fopen(out_lm, 	"a"); 
+	fprintf(loc_min, "============================================================\n");
+	
+	for (i = 0; i < gv.len_cp; i++){
+		if ( cp[i].ss_flags[1] == 1){
+			fprintf(loc_min, 	"%4s ", cp[i].name);
+		}
+	}
+	for (i = 0; i < gv.len_pp; i++){
+		if (gv.pp_flags[i][1] == 1){
+			fprintf(loc_min, 	"%4s ", gv.PP_list[i]);
+		}
+	}	
+	fprintf(loc_min, " {%10.5f, %10.5f} kbar/°C\n\n",z_b.P,z_b.T-273.15);
+	
+	fprintf(loc_min, "\nEnd-members fractions[wt fr]\n");	
+
+	for (m = 0; m < gv.n_cp_phase; m++){
+		fprintf(loc_min, 	" %5s", "");
+		for (j = 0; j < sp[0].SS[m].n_em; j++){
+			fprintf(loc_min, 	"%10s ", sp[0].SS[m].emNames[j]);
+		}
+		for (k = j; k < gv.len_ox; k++){
+			fprintf(loc_min, 	"%10s ", "-");
+		}	
+		fprintf(loc_min, "\n");
+
+		fprintf(loc_min, 	" %5s", sp[0].ph[m]);
+		for (j = 0; j < sp[0].SS[m].n_em; j++){
+			fprintf(loc_min, 	"%10.5f ", sp[0].SS[m].emFrac_wt[j]);
+		}
+		for (k = j; k < gv.len_ox; k++){
+			fprintf(loc_min, 	"%10s ", "-");
+		}		
+		fprintf(loc_min, "\n");	
+	}
+
+	fprintf(loc_min, "\n\nSite fractions:\n");		
+	for (i = 0; i < gv.len_cp; i++){
+		if (cp[i].ss_flags[1] == 1){
+			fprintf(loc_min, 	" %5s", cp[i].name);
+			for (j = 0; j < (cp[i].n_sf); j++){
+				fprintf(loc_min, 	"%8.5f ", cp[i].sf[j]); // *-1.0 because inequality are given as -x <= 0 in NLopt
+			}
+			for (k = j; k < 18; k++){
+				fprintf(loc_min, 	"%8s ", "-");
+			}		
+			fprintf(loc_min, "\n");	
+		}
+	}
+	
+	fprintf(loc_min, "\n\nOxide compositions [wt fr]:\n");	
+	fprintf(loc_min, "%5s"," ");
+	for (i = 0; i < gv.len_ox; i++){
+		fprintf(loc_min, " %10s", gv.ox[i]);
+	}
+	fprintf(loc_min, "\n %5s","SYS");
+	for (int i = 0; i < gv.len_ox; i++){
+		fprintf(loc_min, "%10.5f ",sp[0].bulk_wt[i]);
+	}
+	fprintf(loc_min, "\n");	
+
+	for (int m = 0; m < gv.n_cp_phase; m++){
+		fprintf(loc_min, 	" %5s", sp[0].ph[m]);
+		for (int j = 0; j < gv.len_ox; j++){
+			fprintf(loc_min, "%10.5f ", sp[0].SS[m].Comp_wt[j]);
+		}
+		fprintf(loc_min, "\n");
+	}
+	n = 0;
+	for (m = gv.n_cp_phase; m < gv.n_phase; m++){
+		fprintf(loc_min, 	" %5s", sp[0].ph[m]);
+		for (j = 0; j < gv.len_ox; j++){
+			fprintf(loc_min, "%10.5f ", sp[0].PP[n].Comp_wt[j]);
+		}
+		fprintf(loc_min, "\n");
+		n += 1;
+	}
+
+	// fprintf(loc_min, "\n\nEnd-members compositions[wt fr]\n");	
+	// fprintf(loc_min, "%5s %5s", "SS", "EM");
+	// for (i = 0; i < gv.len_ox; i++){
+	// 	fprintf(loc_min, " %10s", gv.ox[i]);
+	// }
+	// fprintf(loc_min, "\n");
+	// for (int m = 0; m < gv.n_cp_phase; m++){
+	// 	for (j = 0; j < sp[0].SS[m].n_em; j++){
+	// 		fprintf(loc_min, 	"%5s ", sp[0].ph[m]);
+	// 		fprintf(loc_min, 	"%5s ", sp[0].SS[m].emNames[j]);
+	// 		for (int k = 0; k < gv.len_ox; k++){
+	// 			fprintf(loc_min, 	"%10.5f ", sp[0].SS[m].emComp_wt[j][k]);
+	// 		}	
+	// 		fprintf(loc_min, "\n");
+	// 	}
+	// 	fprintf(loc_min, "\n");
+	// }
+
+	double G;
+	fprintf(loc_min, "\n\n");	
+	fprintf(loc_min, "Stable mineral assemblage:\n");	
+	fprintf(loc_min, "%6s%15s %13s %17s %17s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n","phase","fraction[wt]","G[J]" ,"V_molar[cm3/mol]","V_partial[cm3]" ,"Cp[kJ/K]","Rho[kg/m3]","Alpha[1/K]","Entropy[J/K]","Enthalpy[J]","BulkMod[GPa]","ShearMod[GPa]","Vp[km/s]","Vs[km/s]");
+
+	n = 0;		
+	for (i = 0; i < gv.len_cp; i++){
+		if (cp[i].ss_flags[1] == 1){
+			
+			if (gv.Mode == 1){
+				G = cp[i].df;
+			}
+			else{
+				G = 0.0;
+				for (j = 0; j < gv.len_ox; j++){
+					G += cp[i].ss_comp[j]*gv.gam_tot[j];
+				}
+			}
+
+			fprintf(loc_min, "%6s", cp[i].name);
+			fprintf(loc_min, "%+15.5f %+13.5f %+17.5f %+17.5f %+12.5f %+12.5f %+12.8f %+12.6f %+14.4f %+12.2f %+12.2f %+12.2f %+12.2f",
+						sp[0].ph_frac_wt[n],
+						G,
+						cp[i].volume*10.,
+						cp[i].volume*10.*cp[i].ss_n_mol*cp[i].factor,
+						cp[i].phase_cp,
+						cp[i].phase_density,
+						cp[i].phase_expansivity,
+						cp[i].phase_entropy,
+						cp[i].phase_enthalpy,
+						cp[i].phase_bulkModulus/10.,
+						cp[i].phase_shearModulus/10.,
+						sqrt((cp[i].phase_bulkModulus/10. +4.0/3.0*cp[i].phase_shearModulus/10.)/(cp[i].phase_density/1e3)),
+						sqrt(cp[i].phase_shearModulus/10.0/(cp[i].phase_density/1e3)) 
+					);
+			fprintf(loc_min, "\n");
+			n += 1;
+		}
+	}
+	
+	for (i = 0; i < gv.len_pp; i++){
+		if (gv.pp_flags[i][1] == 1){ 
+			fprintf(loc_min, "%6s", gv.PP_list[i]);
+			fprintf(loc_min, "%+15.5f %+13.5f %+17.5f %+17.5f %+12.5f %+12.5f %+12.8f %+12.6f %+14.4f %+12.2f %+12.2f %+12.2f %+12.2f",
+					sp[0].ph_frac_wt[n],
+					PP_ref_db[i].gbase,
+					PP_ref_db[i].volume*10.,
+					PP_ref_db[i].volume*10.*gv.pp_n[i]*PP_ref_db[i].factor,
+					PP_ref_db[i].phase_cp,
+					PP_ref_db[i].phase_density,
+					PP_ref_db[i].phase_expansivity,
+					PP_ref_db[i].phase_entropy,
+					PP_ref_db[i].phase_enthalpy,
+					PP_ref_db[i].phase_bulkModulus/10.,
+					PP_ref_db[i].phase_shearModulus/10.,
+					sqrt((PP_ref_db[i].phase_bulkModulus/10. +4.0/3.0*PP_ref_db[i].phase_shearModulus/10.)/(PP_ref_db[i].phase_density/1e3)),
+					sqrt(PP_ref_db[i].phase_shearModulus/10.0/(PP_ref_db[i].phase_density/1e3))
+				);
+			fprintf(loc_min, "\n");
+			n+=1;
+		}
+	}
+	
+	G = 0.0;
+	for (j = 0; j < gv.len_ox; j++){
+		G += z_b.bulk_rock[j]*gv.gam_tot[j];
+	}
+	fprintf(loc_min, "%6s %14s %+13.5f %17s %+17.5f %12s %+12.5f %12s %+12.6f %+14.4f %+12.5f %+12.5f %+12.5f %+12.5f\n",
+			"SYS",
+			" ",
+			G,
+			" ",
+			gv.system_volume*10.,
+			" ",
+			gv.system_density,
+			" ",
+			gv.system_entropy,
+			gv.system_enthalpy,
+			gv.system_bulkModulus,
+			gv.system_shearModulus,
+			gv.system_Vp,
+			gv.system_Vs
+	);
+	
+	/* output solution phase composition */ 	
+	fprintf(loc_min, "\n\nGamma[J] (chemical potential of oxides):\n");
+	for (i = 0; i < gv.len_ox; i++){
+		fprintf(loc_min, "%6s %+12.5f\n", gv.ox[i], gv.gam_tot[i]);
+	}
+	fprintf(loc_min, "\n\nG-hyperplane distance[J]:\n");
+	for (i = 0; i < gv.len_cp; i++){
+		if (cp[i].ss_flags[1] == 1){
+			fprintf(loc_min, 	"%5s %+10e\n", cp[i].name,cp[i].df);
+		}
+	}
+	fprintf(loc_min, "\n\n");
+	fclose(loc_min);	
+}
+
+
+
+/**
+  Save final result of minimization
+*/
+void save_results_function(		global_variable 	 gv,
+								bulk_info 	 		 z_b,
+
+								PP_ref 				*PP_ref_db,
+								SS_ref 				*SS_ref_db,
+								csd_phase_set  		*cp,
+								stb_system  		*sp
 ){
 	
 	FILE *loc_min;
@@ -435,303 +1055,33 @@ void dump_results_function(		global_variable 	 gv,
 	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-	/** ----------------------------------------------------------------------------------------------- **/
-	/** THERMOCALC LIKE FINAL OUTPUT **/
-	if (gv.verbose == 1){
-		/* output active phase fraction*/
-		if (numprocs==1){	sprintf(out_lm,	"%s_thermocalc_style_output.txt"		,gv.outpath); 	}
-		else 			{	sprintf(out_lm,	"%s_thermocalc_style_output.%i.txt"		,gv.outpath, rank); 	}
+	if (gv.output_matlab == 1){
+		output_matlab(					gv,											/** global variables (e.g. Gamma) 	*/
+										z_b,										/** bulk-rock informations 			*/
+										PP_ref_db,									/** pure phase database 			*/
+										SS_ref_db,									/** solution phase database 		*/
+										cp,
+										sp						);
+	}
 
-		loc_min 	= fopen(out_lm, 	"a"); 
-		fprintf(loc_min, "============================================================\n");
-		
-		for (int i = 0; i < gv.len_cp; i++){
-			if ( cp[i].ss_flags[1] == 1){
-				fprintf(loc_min, 	"%4s ", cp[i].name);
-
-			}
-		}
-		for (int i = 0; i < gv.len_pp; i++){
-			if (gv.pp_flags[i][1] == 1){
-				fprintf(loc_min, 	"%4s ", gv.PP_list[i]);
-			}
-		}	
-		fprintf(loc_min, " {%10.5f, %10.5f} kbar/°C\n\n",z_b.P,z_b.T-273.15);
-		
-		fprintf(loc_min, "Compositional variables (solution phase):\n");		
-		for (i = 0; i < gv.len_cp; i++){
-			if (cp[i].ss_flags[1] == 1){
-				fprintf(loc_min, 	" %5s", cp[i].name);
-				for (j = 0; j < cp[i].n_xeos; j++){
-					fprintf(loc_min, 	"%10.5f ", cp[i].xeos[j]);
-				}
-				for (int k = j; k < gv.len_ox; k++){
-					fprintf(loc_min, 	"%10s ", "-");
-				}		
-				fprintf(loc_min, "\n");	
-			}
-		}
-		
-		fprintf(loc_min, "\nEnd-members fraction (solution phase):\n");		
-		for (i = 0; i < gv.len_cp; i++){
-			if (cp[i].ss_flags[1] == 1){
-				
-				fprintf(loc_min, 	" %5s", "");
-				for (j = 0; j < cp[i].n_em; j++){
-					fprintf(loc_min, 	"%10s ", SS_ref_db[cp[i].id].EM_list[j]);
-				}
-				for (int k = j; k < gv.len_ox; k++){
-					fprintf(loc_min, 	"%10s ", "-");
-				}		
-				fprintf(loc_min, "\n");	
-				
-				fprintf(loc_min, 	" %5s", cp[i].name);
-				for (j = 0; j < cp[i].n_em; j++){
-					fprintf(loc_min, 	"%10.5f ", cp[i].p_em[j]);
-				}
-				for (int k = j; k < gv.len_ox; k++){
-					fprintf(loc_min, 	"%10s ", "-");
-				}		
-				fprintf(loc_min, "\n");	
-			}
-		}
-		
-		if (gv.Mode == 1){
-			fprintf(loc_min, "\nGibbs energy of reference G0 (solution phase):\n");		
-			for (i = 0; i < gv.len_cp; i++){
-				if (cp[i].ss_flags[1] == 1){
-					fprintf(loc_min, 	" %5s", cp[i].name);
-					for (j = 0; j < cp[i].n_em; j++){
-						fprintf(loc_min, 	"%14.6f ", cp[i].gbase[j]);
-					}
-					for (int k = j; k < gv.len_ox; k++){
-						fprintf(loc_min, 	"%14s ", "-");
-					}		
-					fprintf(loc_min, "\n");	
-				}
-			}
-					
-			fprintf(loc_min, "\nChemical potentials [J] (solution phase):\n");		
-			for (i = 0; i < gv.len_cp; i++){
-				if (cp[i].ss_flags[1] == 1){
-					fprintf(loc_min, 	" %5s", cp[i].name);
-					for (j = 0; j < cp[i].n_em; j++){
-						fprintf(loc_min, 	"%14.6f ", cp[i].mu[j]);
-					}
-					for (int k = j; k < gv.len_ox; k++){
-						fprintf(loc_min, 	"%14s ", "-");
-					}		
-					fprintf(loc_min, "\n");	
-				}
-			}
-		}
-
-		fprintf(loc_min, "\nSite fractions:\n");		
-		for (int i = 0; i < gv.len_cp; i++){
-			if (cp[i].ss_flags[1] == 1){
-				fprintf(loc_min, 	" %5s", cp[i].name);
-				for (j = 0; j < (cp[i].n_sf); j++){
-					fprintf(loc_min, 	"%10.5f ", cp[i].sf[j]); // *-1.0 because inequality are given as -x <= 0 in NLopt
-				}
-				for (int k = j; k < gv.len_ox; k++){
-					fprintf(loc_min, 	"%10s ", "-");
-				}		
-				fprintf(loc_min, "\n");	
-			}
-		}
-		
-		fprintf(loc_min, "\nOxide compositions [mol%%] (normalized on 1 atom basis):\n");	
-		fprintf(loc_min, "%5s"," ");
-		for (i = 0; i < gv.len_ox; i++){
-			fprintf(loc_min, " %10s", gv.ox[i]);
-		}
-		fprintf(loc_min, "\n %5s","SYS");	
-		for (int i = 0; i < gv.len_ox; i++){
-			fprintf(loc_min, "%10.5f ",z_b.bulk_rock[i]);
-		}
-		fprintf(loc_min, "\n");	
-		for (int i = 0; i < gv.len_cp; i++){
-			if (cp[i].ss_flags[1] == 1){
-				fprintf(loc_min, 	" %5s", cp[i].name);
-				for (int j = 0; j < gv.len_ox; j++){
-					fprintf(loc_min, "%10.5f ", cp[i].ss_comp[j]*cp[i].factor);
-				}
-				fprintf(loc_min, "\n");
-			}
-		}
-
-		for (int i = 0; i < gv.len_pp; i++){ 
-			if (gv.pp_flags[i][1] == 1){
-				fprintf(loc_min, 	" %5s", gv.PP_list[i]);
-				for (int j = 0; j < gv.len_ox; j++){
-					fprintf(loc_min, "%10.5f ", PP_ref_db[i].Comp[j]*PP_ref_db[i].factor);
-				}
-				fprintf(loc_min, "\n");
-			}
-		}
-		
-		double G;
-		fprintf(loc_min, "\n");	
-		fprintf(loc_min, "Stable mineral assemblage:\n");	
-		fprintf(loc_min, "%6s%12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n","phase","mode","f","G" ,"V" ,"Cp","rho","Thermal_Exp","Entropy[J/K]","Enthalpy[J]","BulkMod[GPa]","ShearMod[GPa]","Vp[km/s]","Vs[km/s]");
-					
-		for (int i = 0; i < gv.len_cp; i++){
-			if (cp[i].ss_flags[1] == 1){
-				
-				if (gv.Mode == 1){
-					G = cp[i].df;
-				}
-				else{
-					G = 0.0;
-					for (int j = 0; j < gv.len_ox; j++){
-						G += cp[i].ss_comp[j]*gv.gam_tot[j];
-					}
-				}
-
-				fprintf(loc_min, "%6s", cp[i].name);
-				fprintf(loc_min, "%+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.6f %+12.6f %+12.2f %+12.2f %+12.2f %+12.2f",
-							cp[i].ss_n,cp[i].factor,
-							G,
-							cp[i].volume,
-							cp[i].phase_cp,cp[i].phase_density,
-							cp[i].phase_expansivity,
-							cp[i].phase_entropy,cp[i].phase_enthalpy,
-							cp[i].phase_bulkModulus/10.,
-							cp[i].phase_shearModulus/10.,
-							sqrt((cp[i].phase_bulkModulus/10. +4.0/3.0*cp[i].phase_shearModulus/10.)/(cp[i].phase_density/1e3)),
-							sqrt(cp[i].phase_shearModulus/10.0/(cp[i].phase_density/1e3)) 
-						);
-				fprintf(loc_min, "\n");
-			}
-		}
-		
-		for (int i = 0; i < gv.len_pp; i++){
-			if (gv.pp_flags[i][1] == 1){ 
-				fprintf(loc_min, "%6s", gv.PP_list[i]);
-				fprintf(loc_min, "%+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.6f %+12.6f %+12.2f %+12.2f %+12.2f %+12.2f",
-						gv.pp_n[i],
-						PP_ref_db[i].factor,
-						PP_ref_db[i].gbase,
-						PP_ref_db[i].volume,
-						PP_ref_db[i].phase_cp,
-						PP_ref_db[i].phase_density,
-						PP_ref_db[i].phase_expansivity,
-						PP_ref_db[i].phase_entropy,
-						PP_ref_db[i].phase_enthalpy,
-						PP_ref_db[i].phase_bulkModulus/10.,
-						PP_ref_db[i].phase_shearModulus/10.,
-						sqrt((PP_ref_db[i].phase_bulkModulus/10. +4.0/3.0*PP_ref_db[i].phase_shearModulus/10.)/(PP_ref_db[i].phase_density/1e3)),
-						sqrt(PP_ref_db[i].phase_shearModulus/10.0/(PP_ref_db[i].phase_density/1e3))
-					);
-				fprintf(loc_min, "\n");
-			}
-		}
-		
-		G = 0.0;
-		for (int j = 0; j < gv.len_ox; j++){
-			G += z_b.bulk_rock[j]*gv.gam_tot[j];
-		}
-		fprintf(loc_min, "%6s %24s %+12.5f %25s %+12.5f %12s %+12.6f %+12.6f %+12.5f %+12.5f %+12.5f %+12.5f\n",
-				"SYS",
-				" ",
-				G,
-				" ",
-				gv.system_density,
-				" ",
-				gv.system_entropy,
-				gv.system_enthalpy,
-				gv.system_bulkModulus,
-				gv.system_shearModulus,
-				gv.system_Vp,
-				gv.system_Vs
-		);
-		
-		/* output solution phase composition */ 	
-		fprintf(loc_min, "\nGamma (chemical potential of oxides):\n");
-		for (i = 0; i < gv.len_ox; i++){
-			fprintf(loc_min, "%6s %+12.5f\n", gv.ox[i], gv.gam_tot[i]);
-		}
-		fprintf(loc_min, "\ndelta Gibbs energy (G-hyperplane distance):\n");
-		for (int i = 0; i < gv.len_cp; i++){
-			if (cp[i].ss_flags[1] == 1){
-				fprintf(loc_min, 	"%5s %+10e\n", cp[i].name,cp[i].df);
-			}
-		}
-		fprintf(loc_min, "\n\n");
-		fclose(loc_min);	
+	if (gv.verbose == 1 && gv.output_matlab == 0){
+		output_thermocalc(				gv,											/** global variables (e.g. Gamma) 	*/
+										z_b,										/** bulk-rock informations 			*/
+										PP_ref_db,									/** pure phase database 			*/
+										SS_ref_db,									/** solution phase database 		*/
+										cp,
+										sp						);
 	}
 	
 	/** ----------------------------------------------------------------------------------------------- **/
 	/** MATLAB GRID OUTPUT **/
 	if (gv.verbose == 0){
-		if (numprocs==1){	sprintf(out_lm,	"%s_pseudosection_output.txt"		,gv.outpath); 		}
-		else 			{	sprintf(out_lm,	"%s_pseudosection_output.%i.txt"	,gv.outpath, rank); }
-		/* get number of repeated phases for the solvi */
-		int n_solvi[gv.len_ss];
-		for (int i = 0; i < gv.len_ss; i++){
-			n_solvi[i] = 0;
-		}
-		for (int i = 0; i < gv.len_cp; i++){
-			if (cp[i].ss_flags[1] == 1){
-				n_solvi[cp[i].id] += 1;
-			}
-		}
-	
-		loc_min 	= fopen(out_lm, 	"a"); 
-		fprintf(loc_min, "%i %i %.10f %.10f %.10f %.10f", gv.numPoint+1, gv.status, z_b.P, z_b.T-273.15, gv.G_system,gv.BR_norm);
-
-		for (i = 0; i < gv.len_ox; i++){
-			fprintf(loc_min," %0.10f", gv.gam_tot[i]);
-		}
-		fprintf(loc_min, " %.10f %.10f",gv.system_Vp,gv.system_Vs);
-
-		fprintf(loc_min, "\n");
-		for (int i = 0; i < gv.len_cp; i++){ 
-			if (cp[i].ss_flags[1] == 1){
-				
-				
-				if (n_solvi[cp[i].id] > 1){
-					fprintf(loc_min, 	"%s_%d \t %.10f \t %.10f \t", cp[i].name,n_solvi[cp[i].id], cp[i].ss_n, cp[i].phase_density);
-				}
-				else{
-					fprintf(loc_min, 	"%s \t %.10f \t %.10f \t", cp[i].name, cp[i].ss_n, cp[i].phase_density);
-				}
-
-				fprintf(loc_min, 	"%d ", cp[i].n_xeos);
-				for (int j = 0; j < (cp[i].n_xeos); j++){
-					fprintf(loc_min, 	"%.10f ", cp[i].xeos[j]);
-				}
-				for (int j = 0; j < (cp[i].n_em); j++){
-					fprintf(loc_min, 	"%10s ",  SS_ref_db[cp[i].id].EM_list[j]);	
-					fprintf(loc_min, 	"%.10f ", cp[i].p_em[j]);
-				}
-				fprintf(loc_min, "\n");
-			}
-		}	
-		for (int i = 0; i < gv.len_pp; i++){
-			if (gv.pp_flags[i][1] == 1){
-				fprintf(loc_min, 	"%s \t %.10f \t %.10f \t", gv.PP_list[i], gv.pp_n[i], PP_ref_db[i].phase_density);
-				fprintf(loc_min, "\n");
-			}
-		}	
-		fprintf(loc_min, "\n");
-		fclose(loc_min);
-
-		if (gv.save_residual_evolution == 1){
-			/** OUTPUT RESIDUAL EVOLUTION **/
-			if (numprocs==1){	sprintf(out_lm,	"%s_residual_norm.txt"		,gv.outpath); 		}
-			else 			{	sprintf(out_lm,	"%s_residual_norm.%i.txt"	,gv.outpath, rank); }
-
-			loc_min 	= fopen(out_lm, 	"a"); 
-
-			for (int j = 0; j < gv.global_ite; j++){
-				fprintf(loc_min, "%.6f ", gv.PGE_mass_norm[j]);
-			}
-			fprintf(loc_min, "\n");
-
-			fclose(loc_min);
-		}
-
+		output_gui(						gv,											/** global variables (e.g. Gamma) 	*/
+										z_b,										/** bulk-rock informations 			*/
+										PP_ref_db,									/** pure phase database 			*/
+										SS_ref_db,									/** solution phase database 		*/
+										cp,
+										sp						);
 	}
 };
 
@@ -771,6 +1121,43 @@ void mergeParallelFiles(global_variable gv){
 	}
    fclose(fp2);
 }
+
+
+/**
+  Parallel file dump for phase diagrams
+*/
+void mergeParallel_matlab(global_variable gv){
+
+	int i, rank, numprocs,  MAX_LINE_LENGTH=200;
+	char out_lm[255];
+	char in_lm[255];
+	char c; 
+	char buf[MAX_LINE_LENGTH];
+	
+	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	if (numprocs == 1){ return; }
+
+	sprintf(out_lm,	"%s_matlab_output.txt"		,gv.outpath);
+   	FILE *fp2 = fopen(out_lm, "w"); 
+
+	// Open file to be merged 
+	for (i = 0; i < numprocs; i++){
+		// open file
+		sprintf(in_lm,	"%s_matlab_output.%i.txt"		,gv.outpath, i);
+		FILE *fp1 = fopen(in_lm, "r"); 
+		
+		fgets(buf, MAX_LINE_LENGTH, fp1);					// skip first line = comment (we don't want to copy that)
+	
+		// Copy contents of first file to file3.txt 
+		while ((c = fgetc(fp1)) != EOF){ 
+			fputc(c, fp2); 
+		}
+		fclose(fp1); 
+	}
+   fclose(fp2);
+}
+
 
 /**
   Parallel file dump for phase diagrams
