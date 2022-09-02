@@ -31,16 +31,17 @@ void print_help(	global_variable gv	){
 	printf(" List of valid arguments:\n");
 	printf(" ------------------------\n");	
 	printf("\n");
-	printf("  --version           : Sends back the called version of MAGEMin\n");	
-	printf("  --Verb=     [int]   : Verbose option, 0. inactive, 1. active\n");	
-	printf("  --File=     [str]   : File name containing multiple point calculation\n");
-	printf("  --n_points= [int]   : Number of points when using 'File' argument\n");
-	printf("  --test=     [int]   : Number of points when using 'File' argument\n");
-	printf("  --Pres=     [float] : Pressure in kilobar\n");
-	printf("  --Temp=     [float] : Temperature in Celsius\n");
-	printf("  --Bulk=     [float] : Bulk rock composition in [mol] or [wt] fraction*\n");
-	printf("  --Gam=      [float] : Chemical potential of oxides (pure components)*\n");
-	printf("  --sys_in=   [str]   : inputed system composition, [mol](default) or [wt]\n");
+	printf("  --version             : Sends back the called version of MAGEMin\n");	
+	printf("  --Verb=       [int]   : Verbose option, 0. inactive, 1. active\n");	
+	printf("  --File=       [str]   : File name containing multiple point calculation\n");
+	printf("  --n_points=   [int]   : Number of points when using 'File' argument\n");
+	printf("  --test=       [int]   : Number of points when using 'File' argument\n");
+	printf("  --Pres=       [float] : Pressure in kilobar\n");
+	printf("  --Temp=       [float] : Temperature in Celsius\n");
+	printf("  --Bulk=       [float] : Bulk rock composition in [mol] or [wt] fraction*\n");
+	printf("  --Gam=        [float] : Chemical potential of oxides (pure components)*\n");
+	printf("  --sys_in=     [str]   : inputed system composition, [mol](default) or [wt]\n");
+	printf("  --out_matlab= [int]   : Matlab text file output, 0. inactive, 1. active\n");
 	printf("\n");
 	printf(" *the list of oxides must be given as follow:\n");
 	printf("  SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3, H2O\n");
@@ -1242,4 +1243,39 @@ global_variable get_sol_phase_infos( 		io_data 			 input_data,
 		
 	}
 	return gv;
+}
+
+/** 
+   This routine convert the molar fraction on 1 atom basis to mol fraction 
+*/
+global_variable compute_phase_mol_fraction(			global_variable 	 gv,
+													PP_ref  			*PP_ref_db,
+													SS_ref  			*SS_ref_db,
+													csd_phase_set  		*cp					){
+
+	
+
+	double sum;
+	// solution phases
+	for (int i = 0; i < gv.len_cp; i++){
+		if (cp[i].ss_flags[1] == 1){
+			sum = 0.0;
+			for (int j = 0; j < gv.len_ox; j++){
+				sum += cp[i].ss_comp[j]*cp[i].factor;
+			}
+			cp[i].ss_n_mol = sum*cp[i].ss_n;
+		}
+	}
+	// pure phases
+	for (int i = 0; i < gv.len_pp; i++){
+		if (gv.pp_flags[i][1] == 1){
+			sum = 0.0;
+			for (int j = 0; j < gv.len_ox; j++){
+				sum += PP_ref_db[i].Comp[j]*PP_ref_db[i].factor;
+			}
+			gv.pp_n_mol[i] = sum*gv.pp_n[i];
+		}
+	}
+
+	return gv;										
 }

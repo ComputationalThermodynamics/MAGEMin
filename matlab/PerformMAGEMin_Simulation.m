@@ -94,7 +94,11 @@ switch Mode
         
         % Read data of all points
         tic
-        [PhaseData, Status] = ReadData_MAGEMin(newPoints, PhaseData, Computation.MinPhaseFraction);
+        if Computation.MatlabOut
+            [PhaseData, Status] = ReadEquilibriumPathData_MAGEMin(newPoints, PhaseData);
+        else
+            [PhaseData, Status] = ReadPseudoSectionData_MAGEMin(newPoints, PhaseData, Computation.MinPhaseFraction);
+        end
         ReadData_Time = toc
         
     case 'SinglePoint'

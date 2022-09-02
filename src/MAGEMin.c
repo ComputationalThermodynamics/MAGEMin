@@ -128,6 +128,7 @@ int runMAGEMin(			int    argc,
 	int     Mode 		=  0;
 	int     solver 		=  0;
 	int     n_points 	=  1;
+	int     out_matlab  =  0;
 	
 	int 	maxeval		= -1;
 	
@@ -163,6 +164,7 @@ int runMAGEMin(			int    argc,
 									&get_version,
 									&get_help,
 									&solver,
+									&out_matlab,
 									 sys_in			); 
 
 	if (rank==0 && gv.verbose != -1){
@@ -170,8 +172,9 @@ int runMAGEMin(			int    argc,
     	printf("═══════════════════════════════════════════════\n");
 	}
 	
-	gv.verbose 	= Verb;
-	gv.Mode 	= Mode;
+	gv.verbose 			= Verb;
+	gv.Mode 			= Mode;
+	gv.output_matlab 	= out_matlab;
 
 	if (solver == 1){ 	gv.solver = 1;			}
     if (maxeval >-1){   gv.maxeval = maxeval; 	}
@@ -307,11 +310,12 @@ int runMAGEMin(			int    argc,
 											DB.sp						);
 
 		/* Dump final results to files 												*/
-		dump_results_function(				gv,												/** global variables (e.g. Gamma) 	*/
+		save_results_function(				gv,												/** global variables (e.g. Gamma) 	*/
 											z_b,											/** bulk-rock informations 			*/
 											DB.PP_ref_db,									/** pure phase database 			*/
 											DB.SS_ref_db,									/** solution phase database 		*/
-											DB.cp						);
+											DB.cp,
+											DB.sp						);
 
 
 		/* Print output to screen 													*/
@@ -331,6 +335,9 @@ int runMAGEMin(			int    argc,
 		mergeParallel_residual_Files(gv);
 	}
 
+	if (gv.output_matlab == 1){
+		mergeParallel_matlab(gv);
+	}
 	/* free memory allocated to solution and pure phases */
 	FreeDatabases(gv, DB);
 	free(bulk_rock);
@@ -352,7 +359,7 @@ int runMAGEMin(			int    argc,
   Compute stable equilibrium at given P/T/C point
 */
 	global_variable ComputePostProcessing(			int 				 EM_database,
-													bulk_info 	 z_b,
+													bulk_info 	 		 z_b,
 													global_variable 	 gv,
 													PP_ref  			*PP_ref_db,
 													SS_ref  			*SS_ref_db,
@@ -371,6 +378,34 @@ int runMAGEMin(			int    argc,
 	double density[gv.len_ox];
 	int not_only_liq = 0;
 	int ss;
+
+
+	gv = compute_phase_mol_fraction(	gv,
+										PP_ref_db,
+										SS_ref_db,
+										cp				);
+
+
+	/** calculate oxygen fugacity */
+	// mu_O2 = G0_O2 + RTlog(fO2)
+	// double G0_O;
+	// for (int i = 0; i < gv.len_pp; i++){
+	// 	printf(" %4s %+10f\n",gv.PP_list[i],PP_ref_db[i].gbase*PP_ref_db[i].factor);
+	// 	// if	(strcmp( gv.PP_list[i], "O2") != 0){
+	// 	// 	G0_O = PP_ref_db[i].gbase*PP_ref_db[i].factor;
+	// 	// }
+	// 	// else{
+	// 	// 	G0_O = 0.0;
+	// 	// }
+	// }
+	// printf("\n");
+	// printf(" Gamma_O2   = %+10f\n",gv.gam_tot[8]);
+	// // printf(" G_O2 = %+10f\n",G0_O);
+
+	// printf(" fO2 = %+10f\n", z_b.R*z_b.T); //exp(gv.gam_tot[0]-G0_O))
+	// printf("\n");
+
+
 	/** calculate mass, volume and densities */
 	for (int i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1){
@@ -464,23 +499,22 @@ int runMAGEMin(			int    argc,
 
 			if (strcmp( cp[i].name, "liq") == 0){
 				gv.melt_density   	= cp[i].phase_density;
-				gv.melt_fraction  	= cp[i].ss_n;
+				gv.melt_fraction  	= cp[i].ss_n_mol;
 				gv.melt_bulkModulus = cp[i].phase_bulkModulus/10.0;
 			}
 
 			/** get sum of volume*fraction*factor to calculate vol% from mol% */
-			sum_volume += cp[i].volume*cp[i].ss_n*cp[i].factor;
+			sum_volume += cp[i].volume*cp[i].ss_n_mol*cp[i].factor;
 
 			if (strcmp( cp[i].name, "liq") != 0 && strcmp( cp[i].name, "fl") != 0){
-				sum_volume_sol 		+= cp[i].volume*cp[i].ss_n*cp[i].factor;
-				gv.solid_fraction 	+= cp[i].ss_n;
+				sum_volume_sol 		+= cp[i].volume*cp[i].ss_n_mol*cp[i].factor;
+				gv.solid_fraction 	+= cp[i].ss_n_mol;
 			}
 
 		}
 	}
 
 	for (int i = 0; i < gv.len_pp; i++){
-
 		/* if pure phase is active or on hold (PP cannot be removed from consideration */
 		if (gv.pp_flags[i][1] == 1){
 
@@ -514,7 +548,6 @@ int runMAGEMin(			int    argc,
 			dGdTMP 		= (muE-muW)/(2.0*gv.gb_T_eps);
 			dGdP		= (muN-muC)/(gv.gb_P_eps);
 
-			
 
 			/* Calculate volume  per pure phase */
 			PP_ref_db[i].volume  	   		= dGdP; 
@@ -538,9 +571,9 @@ int runMAGEMin(			int    argc,
 			PP_ref_db[i].phase_bulkModulus	= -dGdP/( dG2dP2 + pow(((dGdTPP-dGdTMP)/(gv.gb_P_eps)),2.0)/dG2dT2 );
 	
 			/** get sum of volume*fraction*factor to calculate vol% from mol% */
-			sum_volume 			+= PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor;
-			sum_volume_sol 		+= PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor;
-			gv.solid_fraction 	+= gv.pp_n[i];
+			sum_volume 			+= PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor;
+			sum_volume_sol 		+= PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor;
+			gv.solid_fraction 	+= gv.pp_n_mol[i];
 		}
 	}
 
@@ -552,30 +585,30 @@ int runMAGEMin(			int    argc,
 
 	for (int i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1){
-			s1 +=  cp[i].volume*cp[i].ss_n*cp[i].factor/sum_volume *  (cp[i].phase_shearModulus/10.0);
-			s2 += (cp[i].volume*cp[i].ss_n*cp[i].factor/sum_volume) / (cp[i].phase_shearModulus/10.0);
-			b1 +=  cp[i].volume*cp[i].ss_n*cp[i].factor/sum_volume *  (cp[i].phase_bulkModulus /10.0);
-			b2 += (cp[i].volume*cp[i].ss_n*cp[i].factor/sum_volume) / (cp[i].phase_bulkModulus /10.0);
+			s1 +=  cp[i].volume*cp[i].ss_n_mol*cp[i].factor/sum_volume *  (cp[i].phase_shearModulus/10.0);
+			s2 += (cp[i].volume*cp[i].ss_n_mol*cp[i].factor/sum_volume) / (cp[i].phase_shearModulus/10.0);
+			b1 +=  cp[i].volume*cp[i].ss_n_mol*cp[i].factor/sum_volume *  (cp[i].phase_bulkModulus /10.0);
+			b2 += (cp[i].volume*cp[i].ss_n_mol*cp[i].factor/sum_volume) / (cp[i].phase_bulkModulus /10.0);
 			if (strcmp( cp[i].name, "liq") != 0 && strcmp( cp[i].name, "fl") != 0){
-				s1S +=  cp[i].volume*cp[i].ss_n*cp[i].factor/sum_volume_sol *  (cp[i].phase_shearModulus/10.0);
-				s2S += (cp[i].volume*cp[i].ss_n*cp[i].factor/sum_volume_sol) / (cp[i].phase_shearModulus/10.0);
-				b1S +=  cp[i].volume*cp[i].ss_n*cp[i].factor/sum_volume_sol *  (cp[i].phase_bulkModulus /10.0);
-				b2S += (cp[i].volume*cp[i].ss_n*cp[i].factor/sum_volume_sol) / (cp[i].phase_bulkModulus /10.0);
+				s1S +=  cp[i].volume*cp[i].ss_n_mol*cp[i].factor/sum_volume_sol *  (cp[i].phase_shearModulus/10.0);
+				s2S += (cp[i].volume*cp[i].ss_n_mol*cp[i].factor/sum_volume_sol) / (cp[i].phase_shearModulus/10.0);
+				b1S +=  cp[i].volume*cp[i].ss_n_mol*cp[i].factor/sum_volume_sol *  (cp[i].phase_bulkModulus /10.0);
+				b2S += (cp[i].volume*cp[i].ss_n_mol*cp[i].factor/sum_volume_sol) / (cp[i].phase_bulkModulus /10.0);
 			}
 
 		}
 	}
 	for (int i = 0; i < gv.len_pp; i++){
 		if (gv.pp_flags[i][1] == 1){
-			s1 +=  PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor/sum_volume *  (PP_ref_db[i].phase_shearModulus/10.0);
-			s2 += (PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor/sum_volume) / (PP_ref_db[i].phase_shearModulus/10.0);
-			b1 +=  PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor/sum_volume *  (PP_ref_db[i].phase_bulkModulus /10.0);
-			b2 += (PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor/sum_volume) / (PP_ref_db[i].phase_bulkModulus /10.0);
+			s1 +=  PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor/sum_volume *  (PP_ref_db[i].phase_shearModulus/10.0);
+			s2 += (PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor/sum_volume) / (PP_ref_db[i].phase_shearModulus/10.0);
+			b1 +=  PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor/sum_volume *  (PP_ref_db[i].phase_bulkModulus /10.0);
+			b2 += (PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor/sum_volume) / (PP_ref_db[i].phase_bulkModulus /10.0);
 
-			s1S +=  PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor/sum_volume_sol *  (PP_ref_db[i].phase_shearModulus/10.0);
-			s2S += (PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor/sum_volume_sol) / (PP_ref_db[i].phase_shearModulus/10.0);
-			b1S +=  PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor/sum_volume_sol *  (PP_ref_db[i].phase_bulkModulus /10.0);
-			b2S += (PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor/sum_volume_sol) / (PP_ref_db[i].phase_bulkModulus /10.0);
+			s1S +=  PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor/sum_volume_sol *  (PP_ref_db[i].phase_shearModulus/10.0);
+			s2S += (PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor/sum_volume_sol) / (PP_ref_db[i].phase_shearModulus/10.0);
+			b1S +=  PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor/sum_volume_sol *  (PP_ref_db[i].phase_bulkModulus /10.0);
+			b2S += (PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor/sum_volume_sol) / (PP_ref_db[i].phase_bulkModulus /10.0);
 		}
 	}
 
@@ -589,21 +622,23 @@ int runMAGEMin(			int    argc,
 	/* calculate density of the system */
 	for (int i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1){
-			gv.system_density += cp[i].phase_density*((cp[i].volume*cp[i].ss_n*cp[i].factor)/sum_volume);
-			gv.system_entropy += cp[i].phase_entropy*cp[i].ss_n*cp[i].factor;
+			gv.system_density += cp[i].phase_density*((cp[i].volume*cp[i].ss_n_mol*cp[i].factor)/sum_volume);
+			gv.system_entropy += cp[i].phase_entropy*cp[i].ss_n_mol*cp[i].factor;
 			if (strcmp( cp[i].name, "liq") != 0 && strcmp( cp[i].name, "fl") != 0){
-				gv.solid_density += cp[i].phase_density*((cp[i].volume*cp[i].ss_n*cp[i].factor)/sum_volume_sol);
+				gv.solid_density += cp[i].phase_density*((cp[i].volume*cp[i].ss_n_mol*cp[i].factor)/sum_volume_sol);
 			}
 		}
 	}
 	for (int i = 0; i < gv.len_pp; i++){
 		if (gv.pp_flags[i][1] == 1){
-			gv.system_density += PP_ref_db[i].phase_density*((PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor)/sum_volume);
-			gv.system_entropy += PP_ref_db[i].phase_entropy*gv.pp_n[i]*PP_ref_db[i].factor;			
-			gv.solid_density  += PP_ref_db[i].phase_density*((PP_ref_db[i].volume*gv.pp_n[i]*PP_ref_db[i].factor)/sum_volume_sol);
+			gv.system_density += PP_ref_db[i].phase_density*((PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor)/sum_volume);
+			gv.system_entropy += PP_ref_db[i].phase_entropy*gv.pp_n_mol[i]*PP_ref_db[i].factor;			
+			gv.solid_density  += PP_ref_db[i].phase_density*((PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor)/sum_volume_sol);
 		}
 	}
 
+
+	gv.system_volume = sum_volume;
 	G = 0.0;
 	for (int j = 0; j < gv.len_ox; j++){
 		G += z_b.bulk_rock[j]*gv.gam_tot[j];
@@ -691,7 +726,7 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 		/****************************************************************************************/
 		/**                            PARTITIONING GIBBS ENERGY                               **/
 		/****************************************************************************************/
-		if (z_b.T > 873.){
+		if (z_b.T > 673.){
 			gv 		= PGE(			z_b,									/** bulk rock constraint 			*/ 
 									gv,										/** global variables (e.g. Gamma) 	*/
 
@@ -706,7 +741,7 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 		/**
 			Launch legacy solver (LP, Theriak-like algorithm)
 		*/ 
-		if ((gv.div == 1 || z_b.T <= 873. ) && gv.solver == 1){
+		if ((gv.div == 1 || z_b.T <= 673. ) && gv.solver == 1){
 		// if (gv.div == 1  && gv.solver == 1){	
 			printf("\n[PGE failed -> legacy solver...]\n");
 			gv.div 		= 0;
@@ -817,6 +852,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 										int 				*get_version_out,
 										int					*get_help,
 										int					*solver_out,
+										int					*out_matlab_out,
 										char 				 sys_in[5]
 ){
 	int i;
@@ -836,6 +872,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
         { "version",    ko_optional_argument, 314 },
         { "help",    	ko_optional_argument, 315 },
         { "solver",    	ko_optional_argument, 316 },
+        { "out_matlab", ko_optional_argument, 318 },
         { "sys_in",    	ko_optional_argument, 317 },
 		
     	{ NULL, 0, 0 }
@@ -843,13 +880,15 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 	ketopt_t opt = KETOPT_INIT;
 	
 	int    c;
-	int    Mode     =  0;
-	int    Verb     =  gv.verbose;
-	int    test     = -1;
-	int    n_points =  1;
-	int    n_pc     =  2;		/** number of pseudocompounds for Mode 2 */
-	int    maxeval  = -1;
-	int    solver   =  0;
+	int    Mode     	=  0;
+	int    Verb     	=  gv.verbose;
+	int    test     	= -1;
+	int    n_points 	=  1;
+	int    n_pc     	=  2;		/** number of pseudocompounds for Mode 2 */
+	int    maxeval  	= -1;
+	int    solver   	=  0;
+	int    out_matlab 	= 0;
+
 	double Temp , Pres;
 	Temp   = 1100.0;
 	Pres   = 12.0;
@@ -858,7 +897,6 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		Bulk[i] = 0.0;
 		Gam[i]  = 0.0;
 	}
-
 
 	strcpy(File,"none"); // Filename to be read to have multiple P-T-bulk conditions to solve
 	strcpy(sys_in,"mol"); // Filename to be read to have multiple P-T-bulk conditions to solve
@@ -869,6 +907,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
         else if	(c == 301){ Verb     = atoi(opt.arg	);}
 		else if (c == 302){ Mode     = atoi(opt.arg);			if (Verb == 1){		printf("--Mode        : Mode                     = %i \n", 	 	   		Mode		);}}																		
 		else if (c == 316){ solver   = atoi(opt.arg);			if (Verb == 1){		printf("--solver      : solver                   = %i \n", 	 	   		solver		);}}																		
+		else if (c == 318){ out_matlab   = atoi(opt.arg);		if (Verb == 1){		printf("--out_matlab  : out_matlab               = %i \n", 	 	   		out_matlab	);}}																		
 		else if (c == 303){ strcpy(File,opt.arg);		 		if (Verb == 1){		printf("--File        : File                     = %s \n", 	 	   		File		);}}
 		else if (c == 317){ strcpy(sys_in,opt.arg);		 		if (Verb == 1){		printf("--sys_in      : sys_in                   = %s \n", 	 	   		sys_in		);}}
 		else if (c == 304){ n_points = atoi(opt.arg); 	 		if (Verb == 1){		printf("--n_points    : n_points                 = %i \n", 	 	   		n_points	);}}
@@ -922,7 +961,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 	*n_points_out 	= 	n_points;
     *maxeval_out    =   maxeval;
 	*solver_out     = 	solver;
-	
+	*out_matlab_out = 	out_matlab;	
 	return gv;
 } 
 

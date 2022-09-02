@@ -143,6 +143,7 @@ typedef struct SS_refs {
 	/** data needed for levelling and/or PGE **/
 	int	     min_mode;			/** flag of the minimization mode 											*/
 	int		 is_liq;			/** check if phase is "liq" 												*/
+	int		 has_doubled_em;	/** flag to indicate if the solution phase has endmembers with the same composition */
 	int      symmetry;			/** solution phase symmetry  												*/
 	int      n_em;				/** number od endmembers 													*/
 	int 	 n_xeos;			/** number of compositional variables 										*/
@@ -289,7 +290,7 @@ typedef struct csd_phase_sets {
 	int    *ss_flags;		
 	
 	double 	ss_n;
-	double 	ss_n_0;
+	double 	ss_n_mol;
 	double  delta_ss_n;
 	double 	df;
 	double 	factor;
@@ -305,7 +306,6 @@ typedef struct csd_phase_sets {
 	
 	double *dfx;
 	double *mu;
-	double *mu0;	
 	double *delta_mu;
 	double *sf;
 	double *ss_comp;
@@ -320,6 +320,7 @@ typedef struct csd_phase_sets {
 	double  phase_shearModulus;
 	double  phase_entropy;
 	double  phase_enthalpy;
+	
 } csd_phase_set;
 
 /* hold information of solution phases */
@@ -454,6 +455,7 @@ typedef struct global_variables {
 	int      status;			/** status of the minimization */
 	int      solver;
 	int 	 calc_seismic_cor;
+	int 	 output_matlab;
 
 	/* GENERAL PARAMETERS */
 	int 	 LP;				/** linear programming stage flag*/
@@ -485,7 +487,7 @@ typedef struct global_variables {
 	char   **SS_list;			/** solution phase list */
 	
 	double  *pp_n;				/** fraction of pure phase in estimated phase assemblage */
-	double  *pp_n_0;				/** fraction of pure phase in estimated phase assemblage */
+	double  *pp_n_mol;			/** fraction of pure phase in estimated phase assemblage */
 	double  *pp_xi;				/** penalty term -> distance from G-hyperplane */
 	double  *delta_pp_n;		/** fraction of pure phase in estimated phase assemblage */
 	double  *delta_pp_xi;		/** penalty term -> distance from G-hyperplane*/
@@ -592,6 +594,9 @@ typedef struct global_variables {
 	double   system_shearModulus;
 	double   system_Vp;
 	double   system_Vs;
+	double   system_volume;
+
+	double 	 system_fO2;
 
 	double   melt_density;
 	double   melt_bulkModulus;
@@ -659,6 +664,7 @@ global_variable ReadCommandLineOptions(		global_variable   gv,
 											int     		 *get_version_out,
 											int 			 *get_help,
 											int				 *solver_out,
+											int				 *out_matlab_out,
 											char			  sys_in[5]				);
 
 /* function that prints output */
