@@ -164,8 +164,13 @@ struct gmin_struct{T,I}
     # Seismic velocity info
     Vp::T               # P-wave velocity
     Vs::T               # S-wave velocity
+    Vp_S::T               # P-wave velocity of solid aggregate
+    Vs_S::T               # S-wave velocity of solid aggregate
     bulkMod::T          # Elastic bulk modulus
     shearMod::T         # Elastic shear modulus
+    bulkModulus_M::T          # Elastic bulk modulus
+    bulkModulus_S::T          # Elastic bulk modulus
+    shearModulus_S::T         # Elastic shear modulus
 
     # thermodynamic properties
     entropy::T          # entropy
@@ -260,7 +265,7 @@ function create_gmin_struct(DB, gv, time)
                 ph_frac, ph_frac_wt, ph_type, ph_id, ph,
                 SS_vec,  PP_vec, 
                 oxides,  
-                stb.Vp, stb.Vs, stb.bulkMod, stb.shearMod,
+                stb.Vp, stb.Vs, stb.Vp_S, stb.Vs_S, stb.bulkMod, stb.shearMod, stb.bulkModulus_M,  stb.bulkModulus_S, stb.shearModulus_S,
                 entropy, enthalpy,
                 iter, bulk_res_norm, time_ms, stb.status)
     
@@ -419,7 +424,7 @@ function print_info(g::gmin_struct)
 
 
     println("Stable mineral assemblage:")
-    println("          phase  mode[mol1at] mode[wt]        f           G        V       Cp  rho[kg/m3]  Thermal_Exp Entropy[J/K] Enthalpy[J] BulkMod[GPa] ShearMod[GPa]   Vp[km/s]   Vs[km/s]    ")
+    println("          phase  mode[mol1at] mode[wt]        f           G        V       Cp  rho[kg/m3]  Thermal_Exp Entropy[J/K] Enthalpy[J] BulkMod[GPa] ShearMod[GPa]   Vp[km/s]   Vs[km/s]")
     for i=1:g.n_SS
         print("$(lpad(g.ph[i],15," ")) ")  
         print("$(lpad(round(g.ph_frac[i],digits=5),13," ")) ")  
@@ -470,7 +475,6 @@ function print_info(g::gmin_struct)
     print("$(lpad(round(g.shearMod,digits=5),13," ")) ")  
     print("$(lpad(round(g.Vp,digits=5),10," ")) ")  
     print("$(lpad(round(g.Vs,digits=5),10," ")) ")  
-    
     print("\n")
     print("\n")
     # ==
