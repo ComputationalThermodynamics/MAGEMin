@@ -29,24 +29,30 @@ out         = point_wise_minimization(P,T, bulk_rock, gv, DB, sys_in);
 
 # print more detailed info about this point:
 print_info(out)
-
+finalize_MAGEMin(gv,DB)
 
 @testset "test Seismic velocities & modulus" begin
     # Call optimization routine for given P & T & bulk_rock
+    gv, DB      = init_MAGEMin();
+    test        = 0;
+    sys_in      = "mol"     #default is mol, if wt is provided conversion will be done internally (MAGEMin works on mol basis)
+    bulk_rock   = get_bulk_rock(gv, test)
+    
     P           = 8.0
     T           = 1200.0
     gv.verbose  = -1        # switch off any verbose
     out         = point_wise_minimization(P,T, bulk_rock, gv, DB, sys_in);
     
-    @test out.bulkMod ≈ 95.35156982676044  
-    @test out.shearMod ≈ 29.907783119841802
-    @test out.Vs ≈ 3.056247603037347
-    @test out.Vp ≈ 6.49876335520168
-    @test out.Vs_S ≈ 4.308724593917528
-    @test out.Vp_S ≈ 7.392158807491793
-    @test out.bulkModulus_M ≈ 27.26498870206578
-    @test out.bulkModulus_S ≈ 95.74359647084364
-    @test out.shearModulus_S ≈ 59.46665635095883
+    @test out.bulkMod ≈ 95.35222421341481  
+    @test out.shearMod ≈ 29.907907390690557
+    @test out.Vs ≈ 3.056253320843246
+    @test out.Vp ≈ 6.498781717400121
+    @test out.Vs_S ≈ 4.30872049030154
+    @test out.Vp_S ≈ 7.392153167537697
+    @test out.bulkModulus_M ≈ 27.260603902167567
+    @test out.bulkModulus_S ≈ 95.74343528580735
+    @test out.shearModulus_S ≈ 59.4665150508297
+    finalize_MAGEMin(gv,DB)
 end
 
 
@@ -62,7 +68,6 @@ mutable struct outP{ _T  }
 end
 
 print_error_msg(i,out) = println("ERROR for point $i with test=$(out.test); P=$(out.P); T=$(out.T); stable phases=$(out.ph), fractions=$(out.ph_frac)")
-finalize_MAGEMin(gv,DB)
 
 # Automatic testing of all points
 function TestPoints(list, gv, DB)
