@@ -43,15 +43,15 @@ finalize_MAGEMin(gv,DB)
     gv.verbose  = -1        # switch off any verbose
     out         = point_wise_minimization(P,T, bulk_rock, gv, DB, sys_in);
     
-    @test out.bulkMod ≈ 95.35222421341481  
-    @test out.shearMod ≈ 29.907907390690557
-    @test out.Vs ≈ 3.056253320843246
-    @test out.Vp ≈ 6.498781717400121
-    @test out.Vs_S ≈ 4.30872049030154
-    @test out.Vp_S ≈ 7.392153167537697
-    @test out.bulkModulus_M ≈ 27.260603902167567
-    @test out.bulkModulus_S ≈ 95.74343528580735
-    @test out.shearModulus_S ≈ 59.4665150508297
+    @test out.bulkMod ≈ 95.352
+    @test out.shearMod ≈ 29.907
+    @test out.Vs ≈ 3.056
+    @test out.Vp ≈ 6.498
+    @test out.Vs_S ≈ 4.308
+    @test out.Vp_S ≈ 7.392
+    @test out.bulkModulus_M ≈ 27.260
+    @test out.bulkModulus_S ≈ 95.743
+    @test out.shearModulus_S ≈ 59.466
     finalize_MAGEMin(gv,DB)
 end
 
