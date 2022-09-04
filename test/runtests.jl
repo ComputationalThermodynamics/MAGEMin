@@ -30,6 +30,26 @@ out         = point_wise_minimization(P,T, bulk_rock, gv, DB, sys_in);
 # print more detailed info about this point:
 print_info(out)
 
+
+@testset "test Seismic velocities & modulus" begin
+    # Call optimization routine for given P & T & bulk_rock
+    P           = 8.0
+    T           = 1200.0
+    gv.verbose  = -1        # switch off any verbose
+    out         = point_wise_minimization(P,T, bulk_rock, gv, DB, sys_in);
+    
+    @test out.bulkMod ≈ 95.35156982676044  
+    @test out.shearMod ≈ 29.907783119841802
+    @test out.Vs ≈ 3.056247603037347
+    @test out.Vp ≈ 6.49876335520168
+    @test out.Vs_S ≈ 4.308724593917528
+    @test out.Vp_S ≈ 7.392158807491793
+    @test out.bulkModulus_M ≈ 27.26498870206578
+    @test out.bulkModulus_S ≈ 95.74359647084364
+    @test out.shearModulus_S ≈ 59.46665635095883
+end
+
+
 # Stores data of tests
 mutable struct outP{ _T  } 
     P           ::  _T
