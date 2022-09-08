@@ -2,6 +2,8 @@
 CC=clang 
 
 UNAME_S := $(shell uname -s)
+EXE_NAME:= MAGEMin
+
 ifeq ($(UNAME_S),Darwin)
 	CCFLAGS = -Wall -O3 -g -fPIC -Wno-unused-variable -Wno-unused-but-set-variable
 	
@@ -10,12 +12,12 @@ ifeq ($(UNAME_S),Darwin)
 	# LIBS    = -lm -framework Accelerate /opt/homebrew/opt/lapack/lib/liblapacke.dylib /opt/homebrew/lib/libnlopt.dylib /opt/homebrew/lib/libmpich.dylib
 	# INC     = -I/opt/homebrew/opt/lapack/include -I/opt/homebrew/include 
 
-	LIBS   = -lm -framework Accelerate /usr/local/opt/lapack/lib/liblapacke.dylib /usr/local/lib/libnlopt.dylib /usr/local/lib/libmpich.dylib
-	INC    = -I/usr/local/opt/lapack/include -I/usr/local/include
+	#LIBS   = -lm -framework Accelerate /usr/local/opt/lapack/lib/liblapacke.dylib /usr/local/lib/libnlopt.dylib /usr/local/lib/libmpich.dylib
+	#INC    = -I/usr/local/opt/lapack/include -I/usr/local/include
 
 	# This is for a Mac, where we employ the build-in CBLAS and LAPACKE from MacPorts
-	# LIBS    = -lm -framework Accelerate /opt/local/lib/lapack/liblapacke.dylib /usr/local/lib/libnlopt.dylib ~/Software/mpich-3.3.2/mpich-install/lib/libmpich.dylib
-	# INC     = -I/opt/local/include/lapack -I/usr/local/include -I/Users/kausb/Software/mpich-3.3.2/mpich-install/include
+	 LIBS    = -lm -framework Accelerate /opt/local/lib/lapack/liblapacke.dylib /usr/local/lib/libnlopt.dylib ~/Software/mpich-3.3.2/mpich-install/lib/libmpich.dylib
+	 INC     = -I/opt/local/include/lapack -I/usr/local/include -I/Users/kausb/Software/mpich-3.3.2/mpich-install/include
 endif
 ifeq ($(UNAME_S),Linux)
 	 # This is for a Linux:	
@@ -31,7 +33,7 @@ ifeq ($(UNAME_S),Linux)
 	#  LIBS   += -lm -L/local/home/nriel/lapack-3.10.0 -llapacke -llapack -lrefblas -lgfortran -L/local/home/nriel/nlopt_install/install/lib -lnlopt -g -L/opt/mpich3/lib -lmpi
 	#  INC     = -I/opt/mpich3/include -I/local/home/nriel/lapack-3.10.0/LAPACKE/include -I/local/home/nriel/nlopt_install/install/include
 endif
-
+	EXE_NAME = MAGEMin
 
 SOURCES=src/MAGEMin.c 					\
 		src/toolkit.c					\
@@ -54,7 +56,7 @@ OBJECTS=$(SOURCES:.c=.o)
 	$(CC) $(CCFLAGS) -c $< -o $@ $(INC)
  
 all: $(OBJECTS)
-	$(CC)  -o MAGEMin $(OBJECTS) $(INC) $(LIBS) 
+	$(CC)  -o $(EXE_NAME) $(OBJECTS) $(INC) $(LIBS) 
 	rm src/*.o
 
 lib: $(OBJECTS)
