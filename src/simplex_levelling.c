@@ -1239,6 +1239,11 @@ global_variable run_levelling_function(		bulk_info 	 z_b,
 				printf("\n");
 			}
 		}
+		printf("\n");
+		for (int i = 0; i < d->n_Ox; i++){
+			printf(" %g", d->gamma_tot[z_b.nzEl_array[i]]);
+		}
+		printf("\n");
 		printf(" [----------------------------------------]\n");
 		printf(" [  OXIDE      GAMMA_EM        GAMMA_PC   ]\n");
 		printf(" [----------------------------------------]\n");

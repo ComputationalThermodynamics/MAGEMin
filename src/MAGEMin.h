@@ -403,6 +403,7 @@ typedef struct stb_systems {
 	double *gamma;
 	double  G;
 	double  rho;
+	double  fO2;
 	
 	double  entropy;
 	double  enthalpy;
