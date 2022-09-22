@@ -31,8 +31,9 @@ for iPoint=1:length(newPoints)
      % retrieve stable phases
     i = 1;
     while isempty(A{1}); A = A(2:end); end
+    p = 1; % counter for multiple instances of stable phase
     while ~strcmp(A{i},'{')
-        if i>1; if any(strcmp(StablePhases,A{i})); A{i} = [A{i} '2']; end; end
+        if i>1; if any(strcmp(StablePhases,A{i})); p=p+1; A{i} = [A{i} int2str(p)]; end; end
         StablePhases{i} = A{i}; 
         i = i+1;
     end
@@ -48,6 +49,7 @@ for iPoint=1:length(newPoints)
 
     % retrieve endmember fractions
     fgetl(fid); fgetl(fid); fgetl(fid);  % skip section header
+    p = 1;
     for iph = 1:length(StableSolutions)
         A = split(fgetl(fid));    % read and split line
         EMList.(A{2}) = [];
@@ -57,7 +59,7 @@ for iPoint=1:length(newPoints)
             i = i+1; if i>length(A); break; end
         end
         B = split(fgetl(fid));    % read and split line
-        if iph>1; if isfield(EMFractions,B{2}); B{2} = [B{2} '2']; end; end
+        if iph>1; if isfield(EMFractions,B{2}); p=p+1; B{2} = [B{2} int2str(p)]; end; end
         EMFractions.(B{2}) = [];
         i = 3;                    % read phase data
         while ~strcmp(B{i},'-') && ~isempty(B{i})
@@ -70,9 +72,10 @@ for iPoint=1:length(newPoints)
 
     % retrieve site fractions
     fgetl(fid); fgetl(fid); fgetl(fid);  % skip section header
+    p = 1;
     for iph = 1:length(StableSolutions)
         A = split(fgetl(fid));    % read and split line
-        if iph>1; if isfield(SiteFractions,A{2}); A{2} = [A{2} '2']; end; end
+        if iph>1; if isfield(SiteFractions,A{2}); p=p+1; A{2} = [A{2} int2str(p)]; end; end
         SiteFractions.(A{2}) = [];
         i = 3;                    % read phase data
         while ~strcmp(A{i},'-') && ~isempty(A{i})
@@ -90,9 +93,10 @@ for iPoint=1:length(newPoints)
         OxideList{i-1} = A{i};
         i = i+1; if i>length(A); break; end
     end
+    p = 1;
     for iph = 1:length(StablePhases)+1
         B = split(fgetl(fid));    % read and split line
-        if iph>1; if isfield(OxideFractions,B{2}); B{2} = [B{2} '2']; end; end
+        if iph>1; if isfield(OxideFractions,B{2}); p=p+1; B{2} = [B{2} int2str(p)]; end; end
         OxideFractions.(B{2}) = [];
         i = 3;                    % read phase data
         while ~strcmp(B{i},'-') && ~isempty(B{i})
@@ -110,9 +114,10 @@ for iPoint=1:length(newPoints)
         PhasePropsList{i-2} = A{i};
         i = i+1; if i>length(A); break; end
     end
+    p = 1;
     for iph = 1:length(StablePhases)
         B = split(fgetl(fid));    % read and split line
-        if iph>1; if isfield(PhaseProps,B{2}); B{2} = [B{2} '2']; end; end
+        if iph>1; if isfield(PhaseProps,B{2}); p=p+1; B{2} = [B{2} int2str(p)]; end; end
         PhaseProps.(B{2}) = [];
         i = 3;                    % read phase data
         while ~strcmp(B{i},'-') && ~isempty(B{i})
@@ -165,29 +170,37 @@ for iPoint=1:length(newPoints)
         PhaseProps.(StablePhases{iph})(strcmp(PhasePropsList,'fraction[wt]')) = PhaseProps.(StablePhases{iph})(strcmp(PhasePropsList,'fraction[wt]'))./sumphs;
     end
 
-    % Extract phase fractions in wt, vol
+    % Extract phase wt fraction
     if isfield(PhaseProps,'liq')
         PhaseFractions.liq_wt  = PhaseProps.liq(strcmp(PhasePropsList,'fraction[wt]'));
-        PhaseFractions.liq_vol = PhaseProps.liq(strcmp(PhasePropsList,'fraction[wt]')) .* SYSProps(strcmp(SYSPropsList,'Rho[kg/m3]'))./PhaseProps.liq(strcmp(PhasePropsList,'Rho[kg/m3]'));
     else
         PhaseFractions.liq_wt  = 0;
-        PhaseFractions.liq_vol = 0;
     end
-    PhaseFractions.sol_wt  = 1-PhaseFractions.liq_wt;
-    PhaseFractions.sol_vol = 1-PhaseFractions.liq_vol;
+    if isfield(PhaseProps,'fl')
+        PhaseFractions.fld_wt  = PhaseProps.fl(strcmp(PhasePropsList,'fraction[wt]'));
+    else
+        PhaseFractions.fld_wt  = 0;
+    end
+    PhaseFractions.sol_wt = 1-PhaseFractions.liq_wt-PhaseFractions.fld_wt;
 
-    % Extract mixture, melt, solid densities
+    % Extract mixture, melt, solid, fluid densities, oxide compositions
     if isfield(PhaseProps,'liq')
         Density.liq = PhaseProps.liq(strcmp(PhasePropsList,'Rho[kg/m3]'));
     else
         Density.liq = nan;
         OxideFractions.liq = nan(size(OxideFractions.(StablePhases{1})));
     end
-    if PhaseFractions.sol_wt>1e-6
+    if isfield(PhaseProps,'fl')
+        Density.fld = PhaseProps.fl(strcmp(PhasePropsList,'Rho[kg/m3]'));
+    else
+        Density.fld = nan;
+        OxideFractions.fld = nan(size(OxideFractions.(StablePhases{1})));
+    end
+    if PhaseFractions.sol_wt>1e-9
         Density.sol = 0;
         OxideFractions.sol = zeros(size(OxideFractions.(StablePhases{1})));
         for iph = 1:length(StablePhases)
-            if ~strcmp(StablePhases{iph},'liq')
+            if ~strcmp(StablePhases{iph},'liq') && ~strcmp(StablePhases{iph},'fl')
                 Density.sol = Density.sol + PhaseProps.(StablePhases{iph})(strcmp(PhasePropsList,'fraction[wt]')) ./ PhaseProps.(StablePhases{iph})(strcmp(PhasePropsList,'Rho[kg/m3]'));
                 OxideFractions.sol = OxideFractions.sol + PhaseProps.(StablePhases{iph})(strcmp(PhasePropsList,'fraction[wt]')) .* OxideFractions.(StablePhases{iph});
             end
@@ -197,8 +210,17 @@ for iPoint=1:length(newPoints)
     else
         Density.sol = nan;
         OxideFractions.sol(:) = nan(size(OxideFractions.(StablePhases{1})));
+        PhaseFractions.sol_wt = 0;
     end
-    Density.SYS = SYSProps(strcmp(SYSPropsList,'Rho[kg/m3]'));
+    Density.SYS = 0;
+    for iph = 1:length(StablePhases)
+        Density.SYS = Density.SYS + PhaseProps.(StablePhases{iph})(strcmp(PhasePropsList,'fraction[wt]')) ./ PhaseProps.(StablePhases{iph})(strcmp(PhasePropsList,'Rho[kg/m3]'));
+    end
+    Density.SYS = 1./Density.SYS;
+    SYSProps(strcmp(SYSPropsList,'Rho[kg/m3]')) = Density.SYS; % overwrite system density as it appears to be inconsistent in output file
+
+    PhaseFractions.liq_vol = PhaseFractions.liq_wt .* Density.SYS./Density.liq;
+    PhaseFractions.sol_vol = 1-PhaseFractions.liq_vol;
 
     % Calculate melt viscosity in [Pas] using Giordano et al., 2008
     % sort oxides from/to

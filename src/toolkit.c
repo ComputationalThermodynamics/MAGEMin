@@ -88,6 +88,19 @@ void print_help(	global_variable gv	){
 
 }
 
+/* Normalize array to sum to 1 */
+double* norm_array(double *array, int size) {
+	int i;
+	double sum = 0.0;
+	for (i = 0; i < size; i++) {
+		sum += array[i];
+	}
+	for (i = 0; i < size; i++) {
+		array[i] /= sum;
+	}	
+	return array;
+}
+
 /**
   retrieve bulk rock composition and PT compositions
 */
@@ -142,10 +155,29 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 		else{
 			printf("   - input system composition   : unknown! [has to be mol or wt]\n");
 		}
-		printf("\n\n");
+		printf("\n");
 	}	
 
+	/** Normalize composition to sum to 1. 										*/
+	norm_array(							bulk_rock,
+										gv.len_ox					);		
 
+	/** here we check if the normalized mol fraction is < 1e-4 for oxides != H2O */
+	/** if it is, then the fraction is set to 1e-4 -> this is a current limitation of system component reduction */
+	int renorm = 0;
+	for (int i = 0; i < gv.len_ox; i++){ 
+		if (strcmp( gv.ox[i], "H2O") != 0 &&  bulk_rock[i] < 1.0e-4){
+			bulk_rock[i] = 1.0e-4;
+			renorm = 1;
+			if (gv.verbose == 1){
+				printf("  - mol fraction of %4s is < 1e-4 -> set back to 1e-4 to avoid minimization issues\n\n",gv.ox[i]	);
+			}	
+		}
+	}
+	if (renorm == 1){
+		norm_array(							bulk_rock,
+											gv.len_ox					);						
+	}
 
 	return z_b;
 };
@@ -167,19 +199,6 @@ void convert_system_comp(				global_variable      gv,
 
 };
 
-
-/* Normalize array to sum to 1 */
-double* norm_array(double *array, int size) {
-	int i;
-	double sum = 0.0;
-	for (i = 0; i < size; i++) {
-		sum += array[i];
-	}
-	for (i = 0; i < size; i++) {
-		array[i] /= sum;
-	}	
-	return array;
-}
 
 /**
   test function for Brent method

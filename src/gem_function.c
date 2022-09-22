@@ -48,8 +48,8 @@ PP_ref G_EM_function(		int 		 EM_database,
 	double enthalpy, 	entropy, volume;
 	double cpa, cpb, cpc, cpd;
 	double alpha0, kappa0, kappa0p, kappa0pp, dkappa0dT;
-	double cpterms, vterm, n;
-	
+	double cpterms, n;
+	double vterm = 0.0;
 	double ta = 0.0;
 	double tb = 0.0;
 	double tc = 0.0;
@@ -94,13 +94,7 @@ PP_ref G_EM_function(		int 		 EM_database,
 		vv    = volume;
 	}
 	
-	if (strcmp( name, "H2O") != 0 ){ //(strcmp( name, "O2") != 0 )|| 
-		ta     = (1. + kappa0p)/(1. + kappa0p + kappa0 * kappa0pp);
-		tb     = (kappa0p + pow(kappa0p,2.0) - (kappa0 * kappa0pp))/(kappa0 * (1. + kappa0p));
-		tc     = (1. + kappa0p + kappa0 * kappa0pp)/(kappa0p + pow(kappa0p,2.0) - kappa0 * kappa0pp);
-		vterm  = vv*((P-p0)*(1.-ta)+ta*(-pow(1.+tb*(P-pth),(1.0-tc))+pow(1.0 + tb * (p0 - pth),(1.0 - tc)))/(tb* (tc - 1.)))/((1. - ta) + ta* pow(1. + tb * p0,(-tc)));
-	}
-	else {
+	if (strcmp( name, "H2O") == 0 ){ //(strcmp( name, "O2") != 0 )|| 
 		double p_bar = 1000.*P; //in bar
 		double c1  =  0.24657688*1e6 / T + 0.51359951*1e2;
 		double c2  =  0.58638965*1e0 / T - 0.28646939*1e-2 + 0.31375577*1e-4 * T;
@@ -131,6 +125,34 @@ PP_ref G_EM_function(		int 		 EM_database,
 		double r      =   1.0/vsub;
 		double Ares   =   R1*T*( c1*r + (1.0/(c2 + c3*r + c4*pow(r, 2.0) + c5*pow(r, 3.0) + c6*pow(r, 4.0)) - 1.0/c2) - c7/c8*(exp(-c8*r) - 1.0) - c9/c10*(exp(-c10*r) - 1.0) );
 		vterm         =   (Ares + p_bar*vsub + R1*T*(log( R1*T / vsub ) - 1.0)) * 1e-4;	
+	}
+	/* here we use the CORK EOS to calculate G_O2 (see Holland & Powell, 1991) */
+	else if(strcmp( name, "O2") == 0){
+		
+		double a0 	  =  5.45963e-5;
+		double a1     = -8.63920e-6;
+		double b0     =  9.18301e-4;
+		double c0     = -3.30558e-5;
+		double c1 	  =  2.30524e-6;
+		double d0     =  6.93054e-7;
+		double d1     = -8.38293e-8;
+
+		double Tc     =  154.75;												//critical T constant for O2
+		double Pc     =  0.05;													//critical P constant for O2
+		
+		double a	  = a0*pow(Tc,5.0/2.0)/Pc + a1*pow(Tc,3.0/2.0)/Pc*T;
+		double b      = b0*Tc/Pc;
+		double c      = c0*Tc/pow(Pc,3.0/2.0) + c1/pow(Pc,3.0/2.0)*T;
+		double d      = d0*Tc/pow(Pc,2.0) + d1/pow(Pc,2.0)*T;
+		
+		vterm 		  = R*T/P + b - (a*R*sqrt(T))/((R*T+b*P)*(R*T + 2*b*P)) + c*sqrt(P) + d*P; 
+	}
+	else {
+		ta     = (1. + kappa0p)/(1. + kappa0p + kappa0 * kappa0pp);
+		tb     = (kappa0p + pow(kappa0p,2.0) - (kappa0 * kappa0pp))/(kappa0 * (1. + kappa0p));
+		tc     = (1. + kappa0p + kappa0 * kappa0pp)/(kappa0p + pow(kappa0p,2.0) - kappa0 * kappa0pp);
+		vterm  = vv*((P-p0)*(1.-ta)+ta*(-pow(1.+tb*(P-pth),(1.0-tc))+pow(1.0 + tb * (p0 - pth),(1.0 - tc)))/(tb* (tc - 1.)))/((1. - ta) + ta* pow(1. + tb * p0,(-tc)));
+
 	}
 	double gbase = (enthalpy - T*entropy + cpterms + vterm);	
 	

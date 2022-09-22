@@ -322,6 +322,19 @@
 
 <span class="p">}</span><span class="w"></span></div>
 
+<span class="cm">/* Normalize array to sum to 1 */</span><span class="w"></span>
+<div class="viewcode-block" id="c.norm_array"><span class="kt">double</span><span class="o">*</span><span class="w"> </span><span class="nf">norm_array</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">array</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">;</span><span class="w"></span>
+<span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">		</span><span class="n">sum</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">array</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+<span class="w">	</span><span class="p">}</span><span class="w"></span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">		</span><span class="n">array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">sum</span><span class="p">;</span><span class="w"></span>
+<span class="w">	</span><span class="p">}</span><span class="w">	</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">array</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span></div>
+
 <div class="viewcode-block" id="c.retrieve_bulk_PT"><a class="viewcode-back" href="../src/toolkit.html#c.retrieve_bulk_PT">[docs]</a><span class="cm">/**</span>
 <span class="cm">  retrieve bulk rock composition and PT compositions</span>
 <span class="cm">*/</span><span class="w"></span>
@@ -376,10 +389,29 @@
 <span class="w">		</span><span class="k">else</span><span class="p">{</span><span class="w"></span>
 <span class="w">			</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;   - input system composition   : unknown! [has to be mol or wt]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">		</span><span class="p">}</span><span class="w"></span>
-<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">	</span><span class="p">}</span><span class="w">	</span>
 
+<span class="w">	</span><span class="cm">/** Normalize composition to sum to 1. 										*/</span><span class="w"></span>
+<span class="w">	</span><span class="n">norm_array</span><span class="p">(</span><span class="w">							</span><span class="n">bulk_rock</span><span class="p">,</span><span class="w"></span>
+<span class="w">										</span><span class="n">gv</span><span class="p">.</span><span class="n">len_ox</span><span class="w">					</span><span class="p">);</span><span class="w">		</span>
 
+<span class="w">	</span><span class="cm">/** here we check if the normalized mol fraction is &lt; 1e-4 for oxides != H2O */</span><span class="w"></span>
+<span class="w">	</span><span class="cm">/** if it is, then the fraction is set to 1e-4 -&gt; this is a current limitation of system component reduction */</span><span class="w"></span>
+<span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">renorm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ox</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"> </span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">strcmp</span><span class="p">(</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">ox</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="s">&quot;H2O&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w">  </span><span class="n">bulk_rock</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">1.0e-4</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="n">bulk_rock</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0e-4</span><span class="p">;</span><span class="w"></span>
+<span class="w">			</span><span class="n">renorm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">verbose</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
+<span class="w">				</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  - mol fraction of %4s is &lt; 1e-4 -&gt; set back to 1e-4 to avoid minimization issues</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">ox</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w">	</span><span class="p">);</span><span class="w"></span>
+<span class="w">			</span><span class="p">}</span><span class="w">	</span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">	</span><span class="p">}</span><span class="w"></span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">renorm</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
+<span class="w">		</span><span class="n">norm_array</span><span class="p">(</span><span class="w">							</span><span class="n">bulk_rock</span><span class="p">,</span><span class="w"></span>
+<span class="w">											</span><span class="n">gv</span><span class="p">.</span><span class="n">len_ox</span><span class="w">					</span><span class="p">);</span><span class="w">						</span>
+<span class="w">	</span><span class="p">}</span><span class="w"></span>
 
 <span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">z_b</span><span class="p">;</span><span class="w"></span>
 <span class="p">};</span><span class="w"></span></div>
@@ -401,19 +433,6 @@
 
 <span class="p">};</span><span class="w"></span></div>
 
-
-<span class="cm">/* Normalize array to sum to 1 */</span><span class="w"></span>
-<div class="viewcode-block" id="c.norm_array"><span class="kt">double</span><span class="o">*</span><span class="w"> </span><span class="nf">norm_array</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">array</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">		</span><span class="n">sum</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">array</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
-<span class="w">	</span><span class="p">}</span><span class="w"></span>
-<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">		</span><span class="n">array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="n">sum</span><span class="p">;</span><span class="w"></span>
-<span class="w">	</span><span class="p">}</span><span class="w">	</span>
-<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">array</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span></div>
 
 <div class="viewcode-block" id="c.AFunction"><a class="viewcode-back" href="../src/toolkit.html#c.AFunction">[docs]</a><span class="cm">/**</span>
 <span class="cm">  test function for Brent method</span>
