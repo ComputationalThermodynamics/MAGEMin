@@ -11,6 +11,8 @@ struct SS_data
     deltaG::Cdouble
     V::Cdouble
     alpha::Cdouble
+    entropy::Cdouble
+    enthalpy::Cdouble
     cp::Cdouble
     rho::Cdouble
     bulkMod::Cdouble
@@ -31,7 +33,7 @@ end
 
 
 function Base.convert(::Type{SS_data}, a::stb_SS_phases) 
-    return SS_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
+    return SS_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
                                     unsafe_wrap( Vector{Cdouble},        a.Comp,             a.nOx),
                                     unsafe_wrap( Vector{Cdouble},        a.Comp_wt,             a.nOx),
                                     unsafe_wrap( Vector{Cdouble},        a.compVariables,    a.n_xeos),
@@ -49,6 +51,8 @@ struct PP_data
     deltaG::Cdouble
     V::Cdouble
     alpha::Cdouble
+    entropy::Cdouble
+    enthalpy::Cdouble
     cp::Cdouble
     rho::Cdouble
     bulkMod::Cdouble
@@ -60,7 +64,7 @@ struct PP_data
 end
 
 function Base.convert(::Type{PP_data}, a::stb_PP_phases) 
-    return PP_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
+    return PP_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
                     unsafe_wrap(Vector{Cdouble},a.Comp, a.nOx),
                     unsafe_wrap(Vector{Cdouble},a.Comp_wt, a.nOx))
 end

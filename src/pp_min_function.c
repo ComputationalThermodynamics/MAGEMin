@@ -58,6 +58,10 @@ global_variable init_em_db(		int 				EM_database,
 											gv.PP_list[i], 
 											state				);
 
+
+			if (gv.verbose==1){
+				printf(" %4s:  %+10f\n",gv.PP_list[i],PP_ref_db[i].gbase);
+			}
 			sum_zel = 0;
 			for (int j = 0; j < z_b.zEl_val; j++){
 				
@@ -81,6 +85,8 @@ global_variable init_em_db(		int 				EM_database,
 				}
 			}
 		}
-		
+		if (gv.verbose==1){
+			printf("\n");
+		}		
 		return gv;
 };

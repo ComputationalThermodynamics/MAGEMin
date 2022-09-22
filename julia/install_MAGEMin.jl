@@ -1,3 +1,8 @@
+using InteractiveUtils
+
+# show detailed version of julia (helps debugging if things go wrong) 
+versioninfo()
+
 # This installs the precompiled MAGEMin_jll binary to the current working directory
 import Pkg
 try 

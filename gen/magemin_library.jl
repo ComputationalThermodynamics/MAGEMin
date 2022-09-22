@@ -791,6 +791,7 @@ struct stb_systems
     gamma::Ptr{Cdouble}
     G::Cdouble
     rho::Cdouble
+    fO2::Cdouble
     entropy::Cdouble
     enthalpy::Cdouble
     bulkMod::Cdouble
@@ -1715,6 +1716,8 @@ const ko_optional_argument = 2
 #
 
 
+
+
 struct SS_data
     f::Cdouble
     G::Cdouble
@@ -1739,8 +1742,6 @@ struct SS_data
     emComp::Vector{Vector{Float64}}
     emComp_wt::Vector{Vector{Float64}}
 end
-
-
 
 function Base.convert(::Type{SS_data}, a::stb_SS_phases) 
     return SS_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,

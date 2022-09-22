@@ -127,6 +127,7 @@ void fill_output_struct(		global_variable 	 gv,
 	
 	sp[0].nOx					 = gv.len_ox;
 	sp[0].rho					 = gv.system_density;
+	sp[0].fO2					 = gv.system_fO2;
 	sp[0].entropy				 = gv.system_entropy;
 	sp[0].enthalpy				 = gv.system_enthalpy;
 
@@ -1023,6 +1024,10 @@ void output_matlab(				global_variable 	 gv,
 	for (i = 0; i < gv.len_ox; i++){
 		fprintf(loc_min, "%6s %+12.5f\n", gv.ox[i], gv.gam_tot[i]);
 	}
+
+	fprintf(loc_min, "\n\nSystem fugacity:\n");
+	fprintf(loc_min, 	"%6s %+10e\n", "fO2",gv.system_fO2);
+
 	fprintf(loc_min, "\n\nG-hyperplane distance[J]:\n");
 	for (i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1){
