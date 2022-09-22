@@ -7,7 +7,7 @@ if nargin>=3
     Data = varargin{3};
 else
     % Read MAGEMin Data from disk
-    [PhaseData, Status] = ReadData_MAGEMin(1,[],0);
+    [PhaseData, Status] = ReadPseudoSectionData_MAGEMin(1,[],0);
     Data =  PhaseData{1};
 end
 if nargin>=4
