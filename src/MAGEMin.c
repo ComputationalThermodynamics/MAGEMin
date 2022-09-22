@@ -244,10 +244,6 @@ int runMAGEMin(			int    argc,
 											z_b,		
 											bulk_rock					);
 
-		/** Normalize composition to sum to 1. 										*/
-		norm_array(							bulk_rock,
-											gv.len_ox					);		
-
 		/* reset global variables flags 											*/
 		gv = reset_gv(						gv,
 											z_b,

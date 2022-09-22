@@ -146,6 +146,9 @@ struct gmin_struct{T,I}
     rho_S::T
     rho_F::T
 
+    # Oxygen fugacity
+    fO2::T
+
     # Phase fractions and type:
     n_PP::Int64                 # number of pure phases
     n_SS::Int64                 # number of solid solutions
@@ -225,6 +228,9 @@ function create_gmin_struct(DB, gv, time)
     rho_S   = stb.rho_S
     rho_F   = stb.rho_F
 
+    # Oxygen fugacity
+    fO2     = stb.fO2
+
     # thermodynamic properties
     entropy = stb.entropy
     enthalpy= stb.enthalpy
@@ -260,7 +266,8 @@ function create_gmin_struct(DB, gv, time)
                 bulk_wt, bulk_M_wt, bulk_S_wt, bulk_F_wt,  
                 frac_M, frac_S, frac_F, 
                 frac_M_wt, frac_S_wt, frac_F_wt, 
-                rho, rho_M, rho_S, rho_F,   
+                rho, rho_M, rho_S, rho_F,  
+                fO2, 
                 n_PP, n_SS,
                 ph_frac, ph_frac_wt, ph_type, ph_id, ph,
                 SS_vec,  PP_vec, 
@@ -290,6 +297,8 @@ function show(io::IO, g::gmin_struct)
     if g.status>0
         println(io, "WARNING: calculation did not converge ----------------------------")  
     end
+    println(io, "Oxygen fugacity          : $(g.fO2)")  
+
     
 end
 

@@ -478,10 +478,6 @@
 <span class="w">											</span><span class="n">z_b</span><span class="p">,</span><span class="w">		</span>
 <span class="w">											</span><span class="n">bulk_rock</span><span class="w">					</span><span class="p">);</span><span class="w"></span>
 
-<span class="w">		</span><span class="cm">/** Normalize composition to sum to 1. 										*/</span><span class="w"></span>
-<span class="w">		</span><span class="n">norm_array</span><span class="p">(</span><span class="w">							</span><span class="n">bulk_rock</span><span class="p">,</span><span class="w"></span>
-<span class="w">											</span><span class="n">gv</span><span class="p">.</span><span class="n">len_ox</span><span class="w">					</span><span class="p">);</span><span class="w">		</span>
-
 <span class="w">		</span><span class="cm">/* reset global variables flags 											*/</span><span class="w"></span>
 <span class="w">		</span><span class="n">gv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reset_gv</span><span class="p">(</span><span class="w">						</span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
 <span class="w">											</span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
@@ -620,25 +616,32 @@
 <span class="w">										</span><span class="n">cp</span><span class="w">				</span><span class="p">);</span><span class="w"></span>
 
 
-<span class="w">	</span><span class="cm">/** calculate oxygen fugacity */</span><span class="w"></span>
-<span class="w">	</span><span class="c1">// mu_O2 = G0_O2 + RTlog(fO2)</span>
-<span class="w">	</span><span class="c1">// double G0_O;</span>
-<span class="w">	</span><span class="c1">// for (int i = 0; i &lt; gv.len_pp; i++){</span>
-<span class="w">	</span><span class="c1">// 	printf(&quot; %4s %+10f\n&quot;,gv.PP_list[i],PP_ref_db[i].gbase*PP_ref_db[i].factor);</span>
-<span class="w">	</span><span class="c1">// 	// if	(strcmp( gv.PP_list[i], &quot;O2&quot;) != 0){</span>
-<span class="w">	</span><span class="c1">// 	// 	G0_O = PP_ref_db[i].gbase*PP_ref_db[i].factor;</span>
-<span class="w">	</span><span class="c1">// 	// }</span>
-<span class="w">	</span><span class="c1">// 	// else{</span>
-<span class="w">	</span><span class="c1">// 	// 	G0_O = 0.0;</span>
-<span class="w">	</span><span class="c1">// 	// }</span>
-<span class="w">	</span><span class="c1">// }</span>
-<span class="w">	</span><span class="c1">// printf(&quot;\n&quot;);</span>
-<span class="w">	</span><span class="c1">// printf(&quot; Gamma_O2   = %+10f\n&quot;,gv.gam_tot[8]);</span>
-<span class="w">	</span><span class="c1">// // printf(&quot; G_O2 = %+10f\n&quot;,G0_O);</span>
+<span class="w">	</span><span class="cm">/** calculate oxygen fugacity: mu_O2 = G0_O2 + RTlog(fO2) */</span><span class="w"></span>
+<span class="w">	</span><span class="cm">/* get O2 Gibbs energy of reference */</span><span class="w"></span>
+<span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">G0_O</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_pp</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">		</span><span class="k">if</span><span class="w">	</span><span class="p">(</span><span class="n">strcmp</span><span class="p">(</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">PP_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="s">&quot;O2&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="n">G0_O</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PP_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">gbase</span><span class="o">*</span><span class="n">PP_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">factor</span><span class="p">;</span><span class="w"></span>
+<span class="w">			</span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">	</span><span class="p">}</span><span class="w"></span>
+<span class="w">	</span><span class="cm">/* get chemical potential of Oxygen (index)*/</span><span class="w"></span>
+<span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">O_ix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"></span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ox</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">		</span><span class="k">if</span><span class="w">	</span><span class="p">(</span><span class="n">strcmp</span><span class="p">(</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">ox</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="s">&quot;O&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="n">O_ix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="p">;</span><span class="w"></span>
+<span class="w">			</span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">	</span><span class="p">}</span><span class="w"></span>
 
-<span class="w">	</span><span class="c1">// printf(&quot; fO2 = %+10f\n&quot;, z_b.R*z_b.T); //exp(gv.gam_tot[0]-G0_O))</span>
-<span class="w">	</span><span class="c1">// printf(&quot;\n&quot;);</span>
-
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">O_ix</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">-1</span><span class="p">){</span><span class="w"></span>
+<span class="w">		</span><span class="n">gv</span><span class="p">.</span><span class="n">system_fO2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">exp</span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">gam_tot</span><span class="p">[</span><span class="n">O_ix</span><span class="p">]</span><span class="o">*</span><span class="mf">2.0</span><span class="o">-</span><span class="n">G0_O</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">z_b</span><span class="p">.</span><span class="n">R</span><span class="o">*</span><span class="n">z_b</span><span class="p">.</span><span class="n">T</span><span class="p">));</span><span class="w"></span>
+<span class="w">	</span><span class="p">}</span><span class="w"></span>
+<span class="w">	</span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">verbose</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Oxygen fugacity could not be calculated, is O2 endmember included? Is pressure = 0.0?</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">	</span><span class="p">}</span><span class="w"></span>
 
 <span class="w">	</span><span class="cm">/** calculate mass, volume and densities */</span><span class="w"></span>
 <span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_cp</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
