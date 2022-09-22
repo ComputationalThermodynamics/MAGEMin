@@ -110,7 +110,7 @@ Line.P = TP_bound(:,2);
         system(command);
         
         % Read data
-        [PhaseData] = ReadData_MAGEMin();
+        [PhaseData] = ReadPseudoSectionData_MAGEMin();
         
         % Stable Solutions
         StableSol = PhaseData{1}.StableSolutions;
