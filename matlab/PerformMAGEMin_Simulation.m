@@ -149,11 +149,11 @@ switch Mode
             
             % Read data for this point
             if iPoint>1
-                PhaseData_in1   = ReadData_MAGEMin(1:2,[],Computation.MinPhaseFraction);
+                PhaseData_in1   = ReadPseudoSectionData_MAGEMin(1:2,[],Computation.MinPhaseFraction);
                 PhaseData_in{1} = PhaseData_in1{2};
                 id = id(2);
             else
-                PhaseData_in   = ReadData_MAGEMin(1,[],Computation.MinPhaseFraction);
+                PhaseData_in   = ReadPseudoSectionData_MAGEMin(1,[],Computation.MinPhaseFraction);
             end
 
             PhaseData{id}  = PhaseData_in{:};
