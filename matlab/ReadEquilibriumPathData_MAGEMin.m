@@ -147,8 +147,14 @@ for iPoint=1:length(newPoints)
         i = i+1;
     end
 
+    % retrieve system oxygen fugacity
+    fgetl(fid); fgetl(fid);      % skip section header
+    A = split(fgetl(fid));       % read phase data
+    fO2 = str2double(A{3});
+    
+
     % retrieve delta Gibbs energy, append to phase properties struct
-    fgetl(fid); fgetl(fid);  % skip section header
+    fgetl(fid); fgetl(fid); fgetl(fid);  % skip section header
     DeltaGibbsList = [];
     DeltaGibbs     = [];
     i = 1;
@@ -267,6 +273,7 @@ for iPoint=1:length(newPoints)
     OUT.Gamma(numPoint,:)           =  Gamma;          clear Gamma;
     OUT.DeltaGibbsList(numPoint,1:length(StableSolutions))  =  StableSolutions;
     OUT.DeltaGibbs(numPoint,1:length(StableSolutions))      =  DeltaGibbs;     clear DeltaGibbs; clear StableSolutions;
+    OUT.fO2(numPoint,:)             =  fO2;            clear fO2;
 
     flds = fieldnames(PhaseFractions    ); for ifld = 1:length(flds); OUT.PhaseFractions    .(flds{ifld})(numPoint,:)  =  PhaseFractions    .(flds{ifld}); end; clear PhaseFractions;
     flds = fieldnames(Density           ); for ifld = 1:length(flds); OUT.Density           .(flds{ifld})(numPoint,:)  =  Density           .(flds{ifld}); end; clear Density;
@@ -277,30 +284,7 @@ for iPoint=1:length(newPoints)
     flds = fieldnames(OxideFractions    ); for ifld = 1:length(flds); OUT.OxideFractions    .(flds{ifld})(numPoint,:)  =  OxideFractions    .(flds{ifld}); end; clear OxideFractions;
     flds = fieldnames(OxideFractions_mol); for ifld = 1:length(flds); OUT.OxideFractions_mol.(flds{ifld})(numPoint,:)  =  OxideFractions_mol.(flds{ifld}); end; clear OxideFractions_mol;
     flds = fieldnames(PhaseProps        ); for ifld = 1:length(flds); OUT.PhaseProps        .(flds{ifld})(numPoint,:)  =  PhaseProps        .(flds{ifld}); end; clear PhaseProps;
-
-
-%     PhaseData{newPoints(numPoint)}.P                    =   P; clear P;
-%     PhaseData{newPoints(numPoint)}.T                    =   T; clear T;
-%     PhaseData{newPoints(numPoint)}.PhaseFractions       =   PhaseFractions; clear PhaseFractions;
-%     PhaseData{newPoints(numPoint)}.Density              =   Density; clear Density;
-%     PhaseData{newPoints(numPoint)}.Viscosity            =   Viscosity; clear Viscosity
-% 
-%     PhaseData{newPoints(numPoint)}.numStablePhases      =   length(StablePhases);
-%     PhaseData{newPoints(numPoint)}.StablePhases         =   StablePhases; clear StablePhases
-%     PhaseData{newPoints(numPoint)}.EMList  			    =   EMList; clear EMList
-%     PhaseData{newPoints(numPoint)}.EMFractions		    =   EMFractions; clear EMFractions
-%     PhaseData{newPoints(numPoint)}.SiteFractions        =   SiteFractions; clear SiteFractions
-%     PhaseData{newPoints(numPoint)}.OxideList  		    =   OxideList; clear OxideList
-%     PhaseData{newPoints(numPoint)}.OxideFractions	    =   OxideFractions; clear OxideFractions
-%     PhaseData{newPoints(numPoint)}.OxideFractions_mol   =   OxideFractions_mol; clear OxideFractions_mol
-%     PhaseData{newPoints(numPoint)}.PhasePropsList  	    =   PhasePropsList; clear PhasePropsList
-%     PhaseData{newPoints(numPoint)}.PhaseProps	        =   PhaseProps; clear PhaseProps
-%     PhaseData{newPoints(numPoint)}.SYSPropsList  	    =   SYSPropsList; clear SYSPropsList
-%     PhaseData{newPoints(numPoint)}.SYSProps	            =   SYSProps; clear SYSProps
-%     PhaseData{newPoints(numPoint)}.GammaList        	=   GammaList; clear GammaList
-%     PhaseData{newPoints(numPoint)}.Gamma	            =   Gamma; clear Gamma
-    
-    
+  
 end
 
 fclose(fid);
