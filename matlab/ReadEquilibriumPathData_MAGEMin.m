@@ -194,13 +194,13 @@ for iPoint=1:length(newPoints)
         Density.liq = PhaseProps.liq(strcmp(PhasePropsList,'Rho[kg/m3]'));
     else
         Density.liq = nan;
-        OxideFractions.liq = nan(size(OxideFractions.(StablePhases{1})));
+        OxideFractions.liq = zeros(size(OxideFractions.(StablePhases{1})));
     end
     if isfield(PhaseProps,'fl')
         Density.fld = PhaseProps.fl(strcmp(PhasePropsList,'Rho[kg/m3]'));
     else
         Density.fld = nan;
-        OxideFractions.fld = nan(size(OxideFractions.(StablePhases{1})));
+        OxideFractions.fld = zeros(size(OxideFractions.(StablePhases{1})));
     end
     if PhaseFractions.sol_wt>1e-9
         Density.sol = 0;
@@ -215,7 +215,7 @@ for iPoint=1:length(newPoints)
         OxideFractions.sol = OxideFractions.sol./PhaseFractions.sol_wt;
     else
         Density.sol = nan;
-        OxideFractions.sol(:) = nan(size(OxideFractions.(StablePhases{1})));
+        OxideFractions.sol(:) = zeros(size(OxideFractions.(StablePhases{1})));
         PhaseFractions.sol_wt = 0;
     end
     Density.SYS = 0;
@@ -226,6 +226,7 @@ for iPoint=1:length(newPoints)
     SYSProps(strcmp(SYSPropsList,'Rho[kg/m3]')) = Density.SYS; % overwrite system density as it appears to be inconsistent in output file
 
     PhaseFractions.liq_vol = PhaseFractions.liq_wt .* Density.SYS./Density.liq;
+    PhaseFractions.liq_vol(isnan(PhaseFractions.liq_vol)) = 0;
     PhaseFractions.sol_vol = 1-PhaseFractions.liq_vol;
 
     % Calculate melt viscosity in [Pas] using Giordano et al., 2008
@@ -260,7 +261,7 @@ for iPoint=1:length(newPoints)
 
     % Save output to structure
     OUT.numStablePhases(numPoint)   =  length(StablePhases);
-    OUT.StablePhases(numPoint,1:length(StablePhases))  =  StablePhases;  clear StablePhases;
+    OUT.StablePhases(numPoint,1:length(StablePhases))  =  StablePhases;
     OUT.StableSolutions(numPoint,1:length(StableSolutions))  =  StableSolutions;
     OUT.StablePurePhases(numPoint,1:length(StablePurePhases))  =  StablePurePhases; clear StablePurePhases;
     OUT.P(numPoint,1)               =  P;              clear P;
@@ -278,13 +279,18 @@ for iPoint=1:length(newPoints)
     flds = fieldnames(PhaseFractions    ); for ifld = 1:length(flds); OUT.PhaseFractions    .(flds{ifld})(numPoint,:)  =  PhaseFractions    .(flds{ifld}); end; clear PhaseFractions;
     flds = fieldnames(Density           ); for ifld = 1:length(flds); OUT.Density           .(flds{ifld})(numPoint,:)  =  Density           .(flds{ifld}); end; clear Density;
     flds = fieldnames(Viscosity         ); for ifld = 1:length(flds); OUT.Viscosity         .(flds{ifld})(numPoint,:)  =  Viscosity         .(flds{ifld}); end; clear Viscosity;
-    flds = fieldnames(EMList            ); for ifld = 1:length(flds); OUT.EMList            .(flds{ifld})(numPoint,:)  =  EMList            .(flds{ifld}); end; clear EMList;
+    flds = fieldnames(EMList            ); for ifld = 1:length(flds); OUT.EMList            .(flds{ifld})              =  EMList            .(flds{ifld}); end; clear EMList;
     flds = fieldnames(EMFractions       ); for ifld = 1:length(flds); OUT.EMFractions       .(flds{ifld})(numPoint,:)  =  EMFractions       .(flds{ifld}); end; clear EMFractions;
     flds = fieldnames(SiteFractions     ); for ifld = 1:length(flds); OUT.SiteFractions     .(flds{ifld})(numPoint,:)  =  SiteFractions     .(flds{ifld}); end; clear SiteFractions;
     flds = fieldnames(OxideFractions    ); for ifld = 1:length(flds); OUT.OxideFractions    .(flds{ifld})(numPoint,:)  =  OxideFractions    .(flds{ifld}); end; clear OxideFractions;
     flds = fieldnames(OxideFractions_mol); for ifld = 1:length(flds); OUT.OxideFractions_mol.(flds{ifld})(numPoint,:)  =  OxideFractions_mol.(flds{ifld}); end; clear OxideFractions_mol;
     flds = fieldnames(PhaseProps        ); for ifld = 1:length(flds); OUT.PhaseProps        .(flds{ifld})(numPoint,:)  =  PhaseProps        .(flds{ifld}); end; clear PhaseProps;
-  
+    
+    % pad phases that are no longer stable with zeros
+    flds = fieldnames(OUT.PhaseProps    ); for ifld = 1:length(flds); if ~ismember(flds{ifld},StablePhases); OUT.OxideFractions    .(flds{ifld})(numPoint,:)  = 0; end; end
+    flds = fieldnames(OUT.PhaseProps    ); for ifld = 1:length(flds); if ~ismember(flds{ifld},StablePhases); OUT.OxideFractions_mol.(flds{ifld})(numPoint,:)  = 0; end; end
+    flds = fieldnames(OUT.PhaseProps    ); for ifld = 1:length(flds); if ~ismember(flds{ifld},StablePhases); OUT.PhaseProps        .(flds{ifld})(numPoint,:)  = 0; end; end
+    clear StablePhases; 
 end
 
 fclose(fid);
