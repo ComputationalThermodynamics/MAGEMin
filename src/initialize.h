@@ -509,6 +509,12 @@ global_variable reset_gv(					global_variable 	 gv,
 				gv.pp_flags[i][3] = 0;
 			}
 		}
+		// else if(strcmp( gv.PP_list[i], "O2") == 0){
+		// 	gv.pp_flags[i][0] = 0;
+		// 	gv.pp_flags[i][1] = 0;
+		// 	gv.pp_flags[i][2] = 0;
+		// 	gv.pp_flags[i][3] = 1;
+		// }
 		else{
 			gv.pp_flags[i][0] = 1;
 			gv.pp_flags[i][1] = 0;

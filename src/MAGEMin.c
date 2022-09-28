@@ -375,7 +375,6 @@ int runMAGEMin(			int    argc,
 	int not_only_liq = 0;
 	int ss;
 
-
 	gv = compute_phase_mol_fraction(	gv,
 										PP_ref_db,
 										SS_ref_db,
@@ -399,7 +398,6 @@ int runMAGEMin(			int    argc,
 			break;
 		}
 	}
-
 	if (O_ix != -1){
 		gv.system_fO2 = exp( (gv.gam_tot[O_ix]*2.0-G0_O) / (z_b.R*z_b.T));
 	}

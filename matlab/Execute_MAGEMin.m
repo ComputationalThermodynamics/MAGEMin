@@ -25,7 +25,7 @@ else
     % employ specified chemistry
     command = [command, ' --Bulk='];
     for iTable=1:size(OxProp,1)
-        command = [command,num2str(table2array(OxProp(iTable,2))),','];
+        command = [command,num2str(table2array(OxProp(iTable,2)),'%.8f'),','];
     end
 end
 
