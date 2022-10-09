@@ -457,6 +457,7 @@ typedef struct global_variables {
 	int      solver;
 	int 	 calc_seismic_cor;
 	int 	 output_matlab;
+	int 	*ipiv;
 
 	/* GENERAL PARAMETERS */
 	int 	 LP;				/** linear programming stage flag*/

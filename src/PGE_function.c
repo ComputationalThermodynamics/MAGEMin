@@ -551,7 +551,6 @@ global_variable PGE_solver(		bulk_info 	 		 z_b,
 	int 	nrhs   = 1;													/** number of rhs columns, 1 is vector*/
 	int 	lda    = nEntry;											/** leading dimesion of A*/
 	int 	ldb    = 1;													/** leading dimension of b*/
-	int 	ipiv[nEntry];												/** pivot indices*/
 	int 	info;														/** get info from lapacke function*/
 
 	for (i = 0; i < z_b.nzEl_val;  i++){ gv.dGamma[i] 	= 0.0;	}		/** initialize dGamma to 0.0 */
@@ -610,7 +609,7 @@ global_variable PGE_solver(		bulk_info 	 		 z_b,
 								nrhs, 
 								gv.A_PGE, 
 								lda, 
-								ipiv, 
+								gv.ipiv, 
 								gv.b_PGE, 
 								ldb					);
 

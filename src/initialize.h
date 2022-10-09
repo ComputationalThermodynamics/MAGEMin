@@ -231,7 +231,7 @@ global_variable global_variable_init(){
 		gv.ox[i] 			= malloc(20 * sizeof(char));	
 		strcpy(gv.ox[i],ox_tmp[i]);	
 	}
-
+	gv.ipiv     		= malloc ((gv.len_ox*3) * sizeof (int) 	);
 	gv.n_SS_PC     		= malloc ((gv.len_ss) * sizeof (int) 	);
 	gv.verifyPC  		= malloc ((gv.len_ss) * sizeof (int) 	);
 	gv.SS_PC_stp     	= malloc ((gv.len_ss) * sizeof (double) );

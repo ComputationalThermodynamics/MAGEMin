@@ -201,7 +201,7 @@ void update_global_gamma_LU( 				bulk_info 			z_b,
 /**
   function to swp pure phases
 */	
-void swap_pure_phases(				bulk_info 	 z_b,
+void swap_pure_phases(				bulk_info 	 		 z_b,
 									simplex_data 		*splx_data,
 									global_variable 	 gv,
 									
@@ -243,7 +243,8 @@ void swap_pure_phases(				bulk_info 	 z_b,
 				for (int k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k];}
 
 				/** inverse guessed assemblage stoechiometry matrix */
-				inverseMatrix(	d->A1,
+				inverseMatrix(	gv.ipiv,
+								d->A1,
 								d->n_Ox		);
 				
 				/** update phase fractions */
@@ -260,7 +261,7 @@ void swap_pure_phases(				bulk_info 	 z_b,
 /**
   function to swp pure endmembers
 */	
-void swap_pure_endmembers(				bulk_info 	 z_b,
+void swap_pure_endmembers(				bulk_info 	 		 z_b,
 										simplex_data 		*splx_data,
 										global_variable 	 gv,
 										
@@ -314,7 +315,8 @@ void swap_pure_endmembers(				bulk_info 	 z_b,
 						for (int k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k];}
 
 						/** inverse guessed assemblage stoechiometry matrix */
-						inverseMatrix(	d->A1,
+						inverseMatrix(	gv.ipiv,
+										d->A1,
 										d->n_Ox		);
 						
 						/** update phase fractions */
@@ -385,7 +387,8 @@ void swap_pseudocompounds(				bulk_info 	 		 z_b,
 					for (int k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k];}
 
 					/** inverse guessed assemblage stoechiometry matrix */
-					inverseMatrix(	d->A1,
+					inverseMatrix(	gv.ipiv,
+									d->A1,
 									d->n_Ox		);
 					
 					/** update phase fractions */
@@ -455,7 +458,8 @@ void swap_PGE_pseudocompounds(			bulk_info 	 		 z_b,
 					for (int k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k];}
 
 					/** inverse guessed assemblage stoechiometry matrix */
-					inverseMatrix(	d->A1,
+					inverseMatrix(	gv.ipiv,
+									d->A1,
 									d->n_Ox		);
 
 					/** update phase fractions */
@@ -1011,7 +1015,7 @@ void run_simplex_pseudocompounds(		bulk_info 	 z_b,
 /**
   function to run simplex linear programming with pseudocompounds
 */	
-void run_simplex_levelling(				bulk_info 	 z_b,
+void run_simplex_levelling(				bulk_info 	 		 z_b,
 										simplex_data 		*splx_data,
 										
 										global_variable 	 gv,
@@ -1028,7 +1032,8 @@ void run_simplex_levelling(				bulk_info 	 z_b,
 	for (k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k]	;}
 
 	/** inverse guessed assemblage stoechiometry matrix */
-	inverseMatrix(						d->A1, 
+	inverseMatrix(						gv.ipiv,
+										d->A1, 
 										d->n_Ox					);
 	
 	swap_pure_phases(					z_b,
