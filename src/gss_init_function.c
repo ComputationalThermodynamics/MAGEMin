@@ -525,11 +525,11 @@ SS_ref G_SS_INIT_EM_function(		int			 		 ph_id,
 	SS_ref_db.factor_pc = malloc ((SS_ref_db.n_pc) * sizeof (double) ); 
 	SS_ref_db.info  	= malloc ((SS_ref_db.n_pc) * sizeof (int) 	 ); 
 	SS_ref_db.p_pc 		= malloc ((SS_ref_db.n_pc) * sizeof (double*)); 
-	SS_ref_db.mu_pc 	= malloc ((SS_ref_db.n_pc) * sizeof (double*)); 
+	// SS_ref_db.mu_pc 	= malloc ((SS_ref_db.n_pc) * sizeof (double*)); 
 	
 	for (int i = 0; i < (SS_ref_db.n_pc); i++){
 		SS_ref_db.p_pc[i] 	 = malloc ((n_em) * sizeof (double) 	);
-		SS_ref_db.mu_pc[i] 	 = malloc ((n_em) * sizeof (double) 	);
+		// SS_ref_db.mu_pc[i] 	 = malloc ((n_em) * sizeof (double) 	);
 	}
 	SS_ref_db.comp_pc = malloc ((SS_ref_db.n_pc) * sizeof (double*) ); 
 	for (int i = 0; i < (SS_ref_db.n_pc); i++){

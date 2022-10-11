@@ -197,7 +197,6 @@ void update_global_gamma_LU( 				bulk_info 			z_b,
 
 };
 
-
 /**
   function to swp pure phases
 */	
@@ -233,7 +232,7 @@ void swap_pure_phases(				bulk_info 	 		 z_b,
 				d->ph_id_A[d->ph2swp][0] = d->ph_id_B[0];
 				d->ph_id_A[d->ph2swp][1] = d->ph_id_B[1];
 				d->ph_id_A[d->ph2swp][2] = d->ph_id_B[2];
-				d->g0_A[d->ph2swp] 	   = d->g0_B;
+				d->g0_A[d->ph2swp] 	     = d->g0_B;
 				
 				for (int j = 0; j < d->n_Ox; j++){				
 					k = d->ph2swp + j*d->n_Ox;
@@ -245,8 +244,10 @@ void swap_pure_phases(				bulk_info 	 		 z_b,
 				/** inverse guessed assemblage stoechiometry matrix */
 				inverseMatrix(	gv.ipiv,
 								d->A1,
-								d->n_Ox		);
-				
+								d->n_Ox,
+								gv.work,
+								gv.lwork		);
+
 				/** update phase fractions */
 				MatVecMul(		d->A1,
 								z_b.bulk_rock_cat,
@@ -284,8 +285,7 @@ void swap_pure_endmembers(				bulk_info 	 		 z_b,
 					/* update normalizing factor for solution models than need it */
 					factor 	= z_b.fbc/SS_ref_db[i].ape[l];	
 
-
-					d->g0_B		 = SS_ref_db[i].gbase[l]*factor;
+					d->g0_B		  = SS_ref_db[i].gbase[l]*factor;
 					d->ph_id_B[0] = 2;														/** added phase is a pure species */
 					d->ph_id_B[1] = i;														/** save pure species index */
 					d->ph_id_B[2] = 0;														/** save used initial guess */	
@@ -317,7 +317,9 @@ void swap_pure_endmembers(				bulk_info 	 		 z_b,
 						/** inverse guessed assemblage stoechiometry matrix */
 						inverseMatrix(	gv.ipiv,
 										d->A1,
-										d->n_Ox		);
+										d->n_Ox,
+										gv.work,
+										gv.lwork	);
 						
 						/** update phase fractions */
 						MatVecMul(		d->A1,
@@ -389,8 +391,10 @@ void swap_pseudocompounds(				bulk_info 	 		 z_b,
 					/** inverse guessed assemblage stoechiometry matrix */
 					inverseMatrix(	gv.ipiv,
 									d->A1,
-									d->n_Ox		);
-					
+									d->n_Ox,
+									gv.work,
+									gv.lwork	);
+
 					/** update phase fractions */
 					MatVecMul(		d->A1,
 									z_b.bulk_rock_cat,
@@ -460,7 +464,9 @@ void swap_PGE_pseudocompounds(			bulk_info 	 		 z_b,
 					/** inverse guessed assemblage stoechiometry matrix */
 					inverseMatrix(	gv.ipiv,
 									d->A1,
-									d->n_Ox		);
+									d->n_Ox,
+									gv.work,
+									gv.lwork	);
 
 					/** update phase fractions */
 					MatVecMul(		d->A1,
@@ -491,10 +497,11 @@ void fill_simplex_arrays_A(				bulk_info 	 		 z_b,
 	/* fill reference assemblage */
 
 	for (int k = 0; k < z_b.nzEl_val; k++) {
-		d->g0_A[k]    		   = 1e10;								/** penalty G */
-		d->ph_id_A[k][0]  	   = 0;									/** phase_id for penalty phase */
-		d->A[k+k*z_b.nzEl_val] = 1.0;								/** eye matrix for stoechiometry */
-		d->n_vec[k] 		   = z_b.bulk_rock[z_b.nzEl_array[k]];	/** initial phase fraction simply corresponds to the bulk rock composition Ax = br */
+		d->g0_A[k]    		    = 1e10;								/** penalty G */
+		d->ph_id_A[k][0]  	    = 0;									/** phase_id for penalty phase */
+		d->A[k+k*z_b.nzEl_val]  = 1.0;								/** eye matrix for stoichiometry */
+		d->A1[k+k*z_b.nzEl_val] = 1.0;
+		d->n_vec[k] 		    = z_b.bulk_rock[z_b.nzEl_array[k]];	/** initial phase fraction simply corresponds to the bulk rock composition Ax = br */
 	}
 
 }
@@ -535,12 +542,12 @@ void print_levelling(		bulk_info 	 		 z_b,
 				//}
 				//printf(" | ");
 
-				for (int j = 0; j < SS_ref_db[i].n_em; j++){
-					//for (int k = 0; k < gv.len_ox; k++) {
-						//SS_ref_db[i].mu_pc[l][j] -= SS_ref_db[i].comp_pc[l][k]*gv.gam_tot[k];
-					//}
-					printf(" %+4f",SS_ref_db[i].mu_pc[l][j]);
-				}
+				// for (int j = 0; j < SS_ref_db[i].n_em; j++){
+				// 	for (int k = 0; k < gv.len_ox; k++) {
+				// 		SS_ref_db[i].mu_pc[l][j] -= SS_ref_db[i].comp_pc[l][k]*gv.gam_tot[k];
+				// 	}
+				// 	printf(" %+4f",SS_ref_db[i].mu_pc[l][j]);
+				// }
 				for (int k = SS_ref_db[i].n_em; k < 11; k++){
 					printf(" %4s","-");
 				}
@@ -612,7 +619,7 @@ void generate_pseudocompounds(	int 		 		 ss,
 			}
 			for ( j = 0; j < SS_ref_db[ss].n_em; j++){												/** save coordinates */
 				SS_ref_db[ss].p_pc[m_pc][j]  = SS_ref_db[ss].p[j];												
-				SS_ref_db[ss].mu_pc[m_pc][j] = SS_ref_db[ss].mu[j]*SS_ref_db[ss].z_em[j];										
+				// SS_ref_db[ss].mu_pc[m_pc][j] = SS_ref_db[ss].mu[j]*SS_ref_db[ss].z_em[j];										
 			}
 			/* save xeos */
 			for ( j = 0; j < SS_ref_db[ss].n_xeos; j++){		
@@ -848,7 +855,7 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 			}
 			for ( j = 0; j < SS_ref_db[ph_id].n_em; j++){												/** save coordinates */
 				SS_ref_db[ph_id].p_Ppc[m_pc][j]  = SS_ref_db[ph_id].p_pc[pc_id][j];										
-				SS_ref_db[ph_id].mu_Ppc[m_pc][j] = SS_ref_db[ph_id].mu_pc[pc_id][j];										
+				// SS_ref_db[ph_id].mu_Ppc[m_pc][j] = SS_ref_db[ph_id].mu_pc[pc_id][j];										
 			}
 			/* save xeos */
 			for ( j = 0; j < SS_ref_db[ph_id].n_xeos; j++){		
@@ -987,19 +994,19 @@ void run_simplex_pseudocompounds(		bulk_info 	 z_b,
 	while (d->swp == 1){					/** as long as a phase can be added to the guessed assemblage, go on */
 		k 		   += 1;
 		d->swp     = 0;
-		
+
+		swap_pure_endmembers(				z_b,
+											splx_data,
+											gv,
+											PP_ref_db,
+											SS_ref_db	);	
+
 		swap_pure_phases(					z_b,
 											splx_data,
 											gv,
 											PP_ref_db,
 											SS_ref_db	);	
 							
-		swap_pure_endmembers(				z_b,
-											splx_data,
-											gv,
-											PP_ref_db,
-											SS_ref_db	);	
-		
 		swap_pseudocompounds(				z_b,
 											splx_data,
 											gv,
@@ -1027,27 +1034,19 @@ void run_simplex_levelling(				bulk_info 	 		 z_b,
 	simplex_data *d  = (simplex_data *) splx_data;
 
 	int i, k, iss;
-
-	/** copy A onto A1 in order to inverse it using LAPACKE */
-	for (k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k]	;}
-
-	/** inverse guessed assemblage stoechiometry matrix */
-	inverseMatrix(						gv.ipiv,
-										d->A1, 
-										d->n_Ox					);
-	
-	swap_pure_phases(					z_b,
-										splx_data,
-										gv,
-										PP_ref_db,
-										SS_ref_db				);	
 										
 	swap_pure_endmembers(				z_b,
 										splx_data,
 										gv,
 										PP_ref_db,
 										SS_ref_db				);	
-	
+
+	swap_pure_phases(					z_b,
+										splx_data,
+										gv,
+										PP_ref_db,
+										SS_ref_db				);	
+
 	update_local_gamma(					d->A1,
 										d->g0_A,
 										d->gamma_ps,

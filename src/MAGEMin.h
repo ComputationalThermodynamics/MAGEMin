@@ -120,7 +120,7 @@ typedef struct SS_refs {
 	double  *DF_pc;				/** array to store the final driving force of the pseudocompounds 			*/
 	double **comp_pc;			/** compositional array of the pseudocompounds 								*/
 	double **p_pc;				/** compositional array of the pseudocompounds 								*/
-	double **mu_pc;				/** compositional array of the pseudocompounds 								*/
+	// double **mu_pc;				/** compositional array of the pseudocompounds 								*/
 	double **xeos_pc;			/** x-eos array of the pseudocompounds 										*/
 	double  *factor_pc;			/** normalization factor of each PC, mainly useful for liquid 				*/
 
@@ -457,7 +457,11 @@ typedef struct global_variables {
 	int      solver;
 	int 	 calc_seismic_cor;
 	int 	 output_matlab;
+
+	/* lapacke bedroom */
 	int 	*ipiv;
+	int 	 lwork;
+	double  *work;
 
 	/* GENERAL PARAMETERS */
 	int 	 LP;				/** linear programming stage flag*/
@@ -579,7 +583,7 @@ typedef struct global_variables {
 	double   remove_dG_val; 	/** delta_G value at which a phase can be removed */ 
 	double   remove_sum_xi;		/** sum xi value at which a phase can be removed */
 	int      ph_change;
-
+	double 	 min_df;
 	/* LEAST SQUARE OPTIMIZATION */
 	double **A;					/** save stoechiometry matrix to pass to least square optimization */
 	double  *b;					/** save bulk rock to pass to least square optimization */

@@ -162,7 +162,7 @@ global_variable global_variable_init(){
 	gv.n_Ppc			= 2048;
 
 	/* solvus tolerance 		*/
-	gv.merge_value      = 1e-1;					/** max norm distance between two instances of a solution phase						*/	
+	gv.merge_value      = 2e-1;					/** max norm distance between two instances of a solution phase						*/	
 	
 	/* local minimizer options 	*/
 	gv.bnd_val          = 1.0e-10;				/** boundary value for x-eos 										 				*/
@@ -189,8 +189,8 @@ global_variable global_variable_init(){
 	gv.it_f             = 256;                  /** gives back failure when the number of iteration is bigger than it_f             */
 
 	/* phase update options 	*/
-	gv.re_in_n          = 1e-3;					/** fraction of phase when being reintroduce.  										*/
-
+	gv.re_in_n          = 1e-3;				/** fraction of phase when being reintroduce.  										*/
+	gv.min_df 			= -1e-4;				/** value under which a phase in hold is reintroduced */
 	/* density calculation 		*/
 	gv.gb_P_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
 	gv.gb_T_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
@@ -231,7 +231,9 @@ global_variable global_variable_init(){
 		gv.ox[i] 			= malloc(20 * sizeof(char));	
 		strcpy(gv.ox[i],ox_tmp[i]);	
 	}
+	gv.lwork 			= 64;
 	gv.ipiv     		= malloc ((gv.len_ox*3) * sizeof (int) 	);
+	gv.work     		= malloc ((gv.len_ox*gv.lwork) * sizeof (double) 	);
 	gv.n_SS_PC     		= malloc ((gv.len_ss) * sizeof (int) 	);
 	gv.verifyPC  		= malloc ((gv.len_ss) * sizeof (int) 	);
 	gv.SS_PC_stp     	= malloc ((gv.len_ss) * sizeof (double) );
@@ -572,6 +574,7 @@ global_variable reset_gv(					global_variable 	 gv,
 	/* reset norm and residuals */
     for (i = 0; i < gv.len_ox; i++){	
         gv.mass_residual[i] = 0.0;
+		gv.dGamma[i]     	= 0.0;
         gv.gam_tot[i]     	= 0.0;
         gv.gam_tot_0[i]   	= 0.0;
         gv.delta_gam_tot[i] = 0.0;
@@ -791,7 +794,6 @@ void reset_SS(						global_variable 	 gv,
 			}
 			for (int j = 0; j < SS_ref_db[iss].n_em; j++){
 				SS_ref_db[iss].p_pc[i][j]  = 0.0;	
-				SS_ref_db[iss].mu_pc[i][j] = 0.0;	
 			}
 			for (int j = 0; j < (SS_ref_db[iss].n_xeos); j++){
 				SS_ref_db[iss].xeos_pc[i][j]  = 0.0;

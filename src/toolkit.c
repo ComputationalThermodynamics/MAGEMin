@@ -583,12 +583,12 @@ double partial_euclidean_distance(double *array1 ,double *array2 ,int n){
 /**
   inverse a matrix using LAPACKE dgetrf and dgetri
 */	
-void inverseMatrix(int *ipiv, double *A1, int n){	
+void inverseMatrix(int *ipiv, double *A1, int n, double *work, int lwork){	
 	int    info;
 
 	/* call lapacke to inverse Matrix */
 	info = LAPACKE_dgetrf(LAPACK_ROW_MAJOR, n, n, A1, n, ipiv); 
-	info = LAPACKE_dgetri(LAPACK_ROW_MAJOR, n, A1, n, ipiv);
+	info = LAPACKE_dgetri_work(LAPACK_ROW_MAJOR, n, A1, n, ipiv, work, lwork);
 };
 
 /**
