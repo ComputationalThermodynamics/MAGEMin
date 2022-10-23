@@ -322,7 +322,7 @@ global_variable PGE_update_xi(		bulk_info 	z_b,
 	function to fill LHS (J)
 */
 void PGE_build_Jacobian( 	double 			    *A,
-							bulk_info 	 z_b,
+							bulk_info 	 		 z_b,
 							global_variable  	 gv,
 							PP_ref 				*PP_ref_db,
 							SS_ref 				*SS_ref_db,

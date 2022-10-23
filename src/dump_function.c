@@ -65,15 +65,6 @@ void dump_init(global_variable gv){
 		fprintf(loc_min, "// {number status[] P[kbar] T[C] G_sys[G] BR_norm[wt] Gamma[G] Vp[km/s] Vs[km/s] entropy[J/K]} nextline {Phase[name] mode[wt] density[kg.m-3] x-eos}\n");
 		fclose(loc_min);	
 
-
-		if (gv.save_residual_evolution == 1){
-			/** OUTPUT RESIDUAL EVOLUTION **/
-			if (numprocs==1){	sprintf(out_lm,	"%s_residual_norm.txt"		,gv.outpath); 		}
-			else 			{	sprintf(out_lm,	"%s_residual_norm.%i.txt"	,gv.outpath, rank); }
-			loc_min 	= fopen(out_lm, 	"w"); 
-			fclose(loc_min);	
-		}
-			
 		/** MODE 2 - LOCAL MINIMA **/
 		if (gv.Mode == 2){
 			if (numprocs==1){	 sprintf(out_lm,	"%s__LOCAL_MINIMA.txt"		,gv.outpath); 	   }
@@ -796,20 +787,6 @@ void output_gui(				global_variable 	 gv,
 	fprintf(loc_min, "\n");
 	fclose(loc_min);
 
-	if (gv.save_residual_evolution == 1){
-		/** OUTPUT RESIDUAL EVOLUTION **/
-		if (numprocs==1){	sprintf(out_lm,	"%s_residual_norm.txt"		,gv.outpath); 		}
-		else 			{	sprintf(out_lm,	"%s_residual_norm.%i.txt"	,gv.outpath, rank); }
-
-		loc_min 	= fopen(out_lm, 	"a"); 
-
-		for (j = 0; j < gv.global_ite; j++){
-			fprintf(loc_min, "%.6f ", gv.PGE_mass_norm[j]);
-		}
-		fprintf(loc_min, "\n");
-
-		fclose(loc_min);
-	}
 }
 
 

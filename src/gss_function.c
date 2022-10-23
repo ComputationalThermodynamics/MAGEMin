@@ -2276,8 +2276,8 @@ SS_ref G_SS_EM_function(		global_variable 	 gv,
 	/* Associate the right solid-solution data */
 	for (int FD = 0; FD < gv.n_Diff; FD++){				/* cycle twice in order to get gb_P_eps to calculate densities later on */
 		
-		P = z_b.P + gv.gb_P_eps*gv.numDiff[0][FD];
-		T = z_b.T + gv.gb_T_eps*gv.numDiff[1][FD];
+		P = z_b.P + gv.gb_P_eps*gv.pdev[0][FD];
+		T = z_b.T + gv.gb_T_eps*gv.pdev[1][FD];
 
 		if (strcmp( name, "bi") == 0 ){
 			// if no H2O, deactivate
@@ -2380,7 +2380,7 @@ SS_ref G_SS_EM_function(		global_variable 	 gv,
 		}
 		printf("\n");
 
-		if (1 == 0){
+		if (1 == 1){
 			/* display molar composition */
 			for (int i = 0; i < SS_ref_db.n_em; i++){
 				for (int j = 0; j < gv.len_ox; j++){

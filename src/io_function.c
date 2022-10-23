@@ -15,12 +15,11 @@
 void read_in_data(
 	global_variable gv,
 	io_data *input_data,												/** input data structure */
-	char    *file_name,
 	int      n_points
 ){
 	char line[1000];
-	FILE* input_file = fopen(file_name,"rt");	
-	if (file_name != NULL && input_file != NULL){						/** if input file is provided and exists */
+	FILE* input_file = fopen(gv.File,"rt");	
+	if (gv.File != NULL && input_file != NULL){						/** if input file is provided and exists */
 		int k = 0;
 		int l = 0;
 		/* loop through all the lines of the input file making sure that the number of points is not exceeded */

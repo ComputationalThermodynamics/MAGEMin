@@ -5,7 +5,6 @@
 
 void read_in_data(		global_variable 				gv,
 						io_data 					   *input_data,
-						char    					   *file_name,
 						int      			 			n_points	);
 
 /**

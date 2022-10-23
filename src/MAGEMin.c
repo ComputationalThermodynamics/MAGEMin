@@ -93,156 +93,94 @@ int runMAGEMin(			int    argc,
 	
 	double 	time_taken;
 
-	Databases DB;
-	
 	/* Select the endmember database */
    	EM_database = _tc_ds634_;
    	
-	clock_t t,u; 
-	t = clock();
-	u = clock();
-	
+	clock_t t = clock(),u = clock(); 
+
+	/*
+	  initialize MPI communicators 
+	*/
 	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-	/* initialize global structure to store shared variables (e.g. Gamma, SS and PP list, ...) */
+
+	/*
+	  initialize global structure to store shared variables (e.g. Gamma, SS and PP list, ...) 
+	*/
 	global_variable gv;
 	gv = global_variable_init();
 
-	/* Allocate both pure and solid-solution databases */
+
+	/* 
+	  Allocate both pure and solid-solution databases 
+	*/
+	Databases DB;
 	DB = InitializeDatabases(gv, EM_database);
 	
-	/** Declare bulk info structure */
-	bulk_info z_b;
 
-	/* Default conditions */
-	double *bulk_rock = malloc ((gv.len_ox) * sizeof (double) ); 
-	double 	Pres;
-	double 	Temp;
-	
-	double 	P 			=  0.0;
-	double 	T 			=  0.0;
-	
-	int 	test 		= -1;
-	int 	Verb 		= -1;
-	int     Mode 		=  0;
-	int     solver 		=  0;
-	int     n_points 	=  1;
-	int     out_matlab  =  0;
-	
-	int 	maxeval		= -1;
-	
-	int		get_version;
-	int		get_help;
-	
-	double	Gam[gv.len_ox],  Bulk[gv.len_ox], InitEM_Prop[gv.len_ox];
-	char    File[50], Phase[50], sys_in[5];
+	/*
+	  initialize bulk-rock informations 
+	*/	
+	bulk_info z_b;	
+	z_b = initialize_bulk_infos();							
 
-	for (int i =0; i < gv.len_ox; i++){
-		InitEM_Prop[i]  = 0.0;
-		Gam[i]  		= 0.0;
-		Bulk[i] 		= 0.0;
-	}
+
+	/*
+	  initialize simplex (levelling stage using pseudocompounds) 
+	*/
+	simplex_data 					 splx_data;
+
+	init_simplex_A(			   		&splx_data,
+									 gv				);
+	init_simplex_B_em(				&splx_data,
+								 	 gv				);
 
 	/** 
 		Read command-line arguments and set default parameters
 	*/
 	gv = ReadCommandLineOptions(	 gv,
-									 argc, 
-									 argv,
-									&Mode, 
-									&Verb, 
-									&test, 
-									&n_points, 
-									&Pres, 
-									&Temp,
-									 Bulk, 
-									 Gam, 
-									 File, 
-									 Phase, 
-									&maxeval,
-									&get_version,
-									&get_help,
-									&solver,
-									&out_matlab,
-									 sys_in			); 
+									&z_b,
+									 argc,
+									 argv			); 
 
-	if (rank==0 && gv.verbose != -1){
-    	printf("\nRunning MAGEMin %5s on %d cores {\n", gv.version, numprocs);
-    	printf("═══════════════════════════════════════════════\n");
+	/*
+	  initialize output	
+	*/
+	dump_init( gv );	
+
+	/* 
+	  get data from input file 
+	*/
+	io_data input_data[gv.n_points]; 						//allocate input data
+	if (strcmp( gv.File, "none") != 0){	
+		read_in_data(gv, input_data, gv.n_points);			
 	}
+
+	/* 
+	  get bulk rock composition parsed from args 
+	*/
+	gv = get_bulk( gv );
 	
-	gv.verbose 			= Verb;
-	gv.Mode 			= Mode;
-	gv.output_matlab 	= out_matlab;
 
-	if (solver == 1){ 	gv.solver = 1;			}
-    if (maxeval >-1){   gv.maxeval = maxeval; 	}
-
-	dump_init(gv);										//initialize output			
-
-	io_data input_data[n_points]; 						//allocate input data
-
-	if (Pres    > 0.0){ P = Pres 			   ;}		//get pressure from arg
-	if (Temp    > 0.0){ T = Temp + 273.15	   ;}		//get temperature from arg
-
-	/** initialize bulk-rock informations */				
-	z_b = initialize_bulk_infos(			P, 
-											T	);							
-
-	/* get data from input file */
-	if (strcmp( File, "none") != 0){	
-		read_in_data(gv, input_data, File, n_points);			
-	}
-
-	/** allocate simplex data memory outside the MPI loop */
-	simplex_data 							splx_data;
-
-	init_simplex_A(			   		   	   &splx_data,
-											gv							);
-										
-	init_simplex_B_em(				   	   &splx_data,
-											gv							);
-						
-
-	/* get bulk rock composition parsed from args */
-	if (test != -1){
-		get_bulk(								bulk_rock,
-												test,
-												gv.len_ox 				);
-		if (gv.verbose == 1){
-			printf("\n");
-			printf("   - Minimization using in-built bulk-rock  : test %2d\n",test);	
-		}							
-	}
-	else{
-		get_bulk(								bulk_rock,
-												0,
-												gv.len_ox 				);
-		if (gv.verbose == 1){
-			printf("\n");
-			printf("   - No input conditions provided -> run test point: KLB-1, 1100°C, 12kbar\n");	
-		}		
-	}
 
 	/****************************************************************************************/
 	/**                               LAUNCH MINIMIZATION ROUTINE                          **/
 	/****************************************************************************************/
-	for (int sgleP = 0; sgleP < n_points; sgleP++){
-        if ((Mode==0) && (sgleP % numprocs != rank)) continue;   	/** this ensures that, in parallel, not every point is computed by every processor (instead only every numprocs point). Only applied to Mode==0 */
+	if (rank==0 && gv.verbose != -1){
+    	printf("\nRunning MAGEMin %5s on %d cores {\n", gv.version, numprocs);
+    	printf("═══════════════════════════════════════════════\n");
+	}
+	for (int point = 0; point < gv.n_points; point++){
+        if ((gv.Mode==0) && (point % numprocs != rank)) continue;   	/** this ensures that, in parallel, not every point is computed by every processor (instead only every numprocs point). Only applied to Mode==0 */
 
-		t              = clock();									/** reset loop timer 				*/
-		gv.numPoint    = sgleP; 									/** the number of the current point */
+		t              = clock();										/** reset loop timer 				*/
+		gv.numPoint    = point; 										/** the number of the current point */
 
 		z_b = retrieve_bulk_PT(				gv,
-											sys_in,
-											File,
 											input_data,
-											test,
-											sgleP,
-											Bulk,
-											z_b,		
-											bulk_rock					);
+											point,
+											z_b							);
 
 		/* reset global variables flags 											*/
 		gv = reset_gv(						gv,
@@ -252,7 +190,6 @@ int runMAGEMin(			int    argc,
 
 		/** reset bulk rock information (needed for parallel point calculation) 	*/
 		z_b = reset_z_b_bulk(				gv,				
-											bulk_rock,								
 											z_b							);	
 	
 		/** reset simplex memory 													*/
@@ -279,8 +216,7 @@ int runMAGEMin(			int    argc,
 		
 		/* Perform calculation for a single point 									*/	
 		gv = ComputeEquilibrium_Point(		EM_database, 
-											input_data[sgleP],
-											Mode,
+											input_data[point],
 											z_b,											/** bulk rock informations 			*/
 											gv,												/** global variables (e.g. Gamma) 	*/
 											
@@ -317,7 +253,7 @@ int runMAGEMin(			int    argc,
 		/* Print output to screen 													*/
 		t 			= clock() - t; 
 		time_taken 	= ((double)t)/CLOCKS_PER_SEC; 											/* in seconds 	 					*/
-		PrintOutput(gv, rank, sgleP, DB, time_taken, z_b);									/* print output on screen 			*/
+		PrintOutput(gv, rank, point, DB, time_taken, z_b);									/* print output on screen 			*/
 	}
 	/* end of loop over points */
 
@@ -327,16 +263,11 @@ int runMAGEMin(			int    argc,
 	/* now merge the parallel output files into one*/
 	mergeParallelFiles(gv);
 
-	if (gv.save_residual_evolution == 1){
-		mergeParallel_residual_Files(gv);
-	}
-
 	if (gv.output_matlab == 1){
 		mergeParallel_matlab(gv);
 	}
 	/* free memory allocated to solution and pure phases */
 	FreeDatabases(gv, DB);
-	free(bulk_rock);
 
 	/* print the time */
 	u = clock() - u; 
@@ -424,8 +355,8 @@ int runMAGEMin(			int    argc,
 			/* Associate the right solid-solution data */
 			for (int FD = 0; FD < 7; FD++){
 
-				z_b.P 		= P + gv.gb_P_eps*gv.numDiff[0][FD];
-				z_b.T 		= T + gv.gb_T_eps*gv.numDiff[1][FD];
+				z_b.P 		= P + gv.gb_P_eps*gv.pdev[0][FD];
+				z_b.T 		= T + gv.gb_T_eps*gv.pdev[1][FD];
 						
 				SS_ref_db[ss] = raw_hyperplane(		gv, 
 													SS_ref_db[ss],
@@ -681,7 +612,6 @@ int runMAGEMin(			int    argc,
 */
 global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 												io_data 			 input_data,
-												int 				 Mode,
 												bulk_info 	 		 z_b,
 												global_variable 	 gv,
 
@@ -711,7 +641,7 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 
 
 	/* if Mode is 0, perform normal minimization with PGE */
-	if (Mode == 0){
+	if (gv.Mode == 0){
 		/****************************************************************************************/
 		/**                                   LEVELLING                                        **/
 		/****************************************************************************************/	
@@ -803,7 +733,7 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 		}
 	}
 	/* if Mode = 1, spit out Gibbs energy and reference values with given compositional variables */
-	else if (Mode == 1){
+	else if (gv.Mode == 1){
 		gv = get_sol_phase_infos(			input_data,
 											z_b,						/** bulk rock constraint 			*/ 
 											gv,							/** global variables (e.g. Gamma) 	*/
@@ -814,11 +744,11 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 
 	}
 	/* if Mode = 2, perform search of local minima for given solution phase */
-	else if (Mode == 2){
+	else if (gv.Mode == 2){
 		printf("function has been deleted\n");
 	}
 	/* if Mode = 3, perform first stage levelling only */
-	else if (Mode == 3){
+	else if (gv.Mode == 3){
 		/* when Mode = 3, only first stage of levelling is activated */
 		gv = Levelling(						z_b,						/** bulk rock informations 			*/
 											gv,							/** global variables (e.g. Gamma) 	*/
@@ -836,25 +766,10 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 /** 
   	Get command line options
 */
-global_variable ReadCommandLineOptions(	global_variable 	 gv,		
+global_variable ReadCommandLineOptions(	global_variable 	 gv,
+										bulk_info 			*z_b,		
 										int 				 argc, 
-										char 			   **argv, 	
-										int 				*Mode_out, 
-										int 				*Verb_out, 
-										int 				*test_out, 
-										int 				*n_points_out, 
-										double 				*P, 
-										double 				*T, 
-										double 				 Bulk[11], 
-										double 				 Gam[11], 
-										char 				 File[50], 
-										char 				 Phase[50], 
-										int 				*maxeval_out,
-										int 				*get_version_out,
-										int					*get_help,
-										int					*solver_out,
-										int					*out_matlab_out,
-										char 				 sys_in[5]
+										char 			   **argv
 ){
 	int i;
 	static ko_longopt_t longopts[] = {
@@ -866,7 +781,6 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		{ "Temp", 		ko_optional_argument, 306 },
 		{ "Pres",  		ko_optional_argument, 307 },
 		{ "Phase",  	ko_optional_argument, 308 },
-		{ "n_pc", 		ko_optional_argument, 309 },
 		{ "Gam",  		ko_optional_argument, 310 },
 		{ "Bulk", 		ko_optional_argument, 311 },
         { "maxeval",    ko_optional_argument, 313 },
@@ -880,58 +794,56 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 	};
 	ketopt_t opt = KETOPT_INIT;
 	
-	int    c;
-	int    Mode     	=  0;
-	int    Verb     	=  gv.verbose;
-	int    test     	= -1;
-	int    n_points 	=  1;
-	int    n_pc     	=  2;		/** number of pseudocompounds for Mode 2 */
-	int    maxeval  	= -1;
-	int    solver   	=  0;
-	int    out_matlab 	= 0;
+	gv.n_points 		=  1;
+	gv.maxeval  		= -1;
+	gv.solver   		=  0;
+	gv.verbose 			=  0;
+	gv.Mode 			=  0;
+	gv.output_matlab 	=  0;
+	gv.test     		= -1;
 
-	double Temp , Pres;
-	Temp   = 1100.0;
-	Pres   = 12.0;
-	 
+	z_b->P = 12.0;		
+	z_b->T = 1100.0 + 273.15;		
+ 
 	for (i = 0; i < nEl; i++) {
-		Bulk[i] = 0.0;
-		Gam[i]  = 0.0;
+		gv.arg_bulk[i] = 0.0;
+		gv.arg_gamma[i]  = 0.0;
 	}
 
-	strcpy(File,"none"); // Filename to be read to have multiple P-T-bulk conditions to solve
-	strcpy(sys_in,"mol"); // Filename to be read to have multiple P-T-bulk conditions to solve
+	strcpy(gv.File,"none"); // Filename to be read to have multiple P-T-bulk conditions to solve
+	strcpy(gv.sys_in,"mol"); // Filename to be read to have multiple P-T-bulk conditions to solve
 
+	int    c;
 	while ((c = ketopt(&opt, argc, argv, 1, "", longopts)) >= 0) {
 		if 		(c == 314){ printf("MAGEMin %20s\n",gv.version ); exit(0); }	
 		else if (c == 315){ print_help( gv ); 					  exit(0); }	
-        else if	(c == 301){ Verb     = atoi(opt.arg	);}
-		else if (c == 302){ Mode     = atoi(opt.arg);			if (Verb == 1){		printf("--Mode        : Mode                     = %i \n", 	 	   		Mode		);}}																		
-		else if (c == 316){ solver   = atoi(opt.arg);			if (Verb == 1){		printf("--solver      : solver                   = %i \n", 	 	   		solver		);}}																		
-		else if (c == 318){ out_matlab   = atoi(opt.arg);		if (Verb == 1){		printf("--out_matlab  : out_matlab               = %i \n", 	 	   		out_matlab	);}}																		
-		else if (c == 303){ strcpy(File,opt.arg);		 		if (Verb == 1){		printf("--File        : File                     = %s \n", 	 	   		File		);}}
-		else if (c == 317){ strcpy(sys_in,opt.arg);		 		if (Verb == 1){		printf("--sys_in      : sys_in                   = %s \n", 	 	   		sys_in		);}}
-		else if (c == 304){ n_points = atoi(opt.arg); 	 		if (Verb == 1){		printf("--n_points    : n_points                 = %i \n", 	 	   		n_points	);}}
-		else if (c == 305){ test     = atoi(opt.arg); 		 	if (Verb == 1){		printf("--test        : Test                     = %i \n", 	 	  		test		);}}
-		else if (c == 306){ Temp     = strtof(opt.arg,NULL); 	if (Verb == 1){		printf("--Temp        : Temperature              = %f C \n",            Temp		);}}
-		else if (c == 307){ Pres     = strtof(opt.arg,NULL); 	if (Verb == 1){		printf("--Pres        : Pressure                 = %f kbar \n", 		Pres		);}}
-		else if (c == 308){ strcpy(Phase,opt.arg);		 		if (Verb == 1){		printf("--Phase       : Phase name               = %s \n", 	   			Phase		);}}
-		else if (c == 313){ maxeval  = strtof(opt.arg,NULL); 	if (Verb == 1){
-            if (maxeval==0){        printf("--maxeval     : Max. # of local iter.    = infinite  \n"		); }
-            else{                   printf("--maxeval     : Max. # of local iter.    = %i  \n", maxeval		);}
+        else if	(c == 301){ gv.verbose     = atoi(opt.arg				);}
+		else if (c == 302){ gv.Mode  = atoi(opt.arg);			if (gv.verbose == 1){		printf("--Mode        : Mode                 = %i \n", 	 	   		gv.Mode				);}}																		
+		else if (c == 316){ gv.solver   = atoi(opt.arg);		if (gv.verbose == 1){		printf("--solver      : solver               = %i \n", 	 	   		gv.solver			);}}																		
+		else if (c == 318){ gv.output_matlab   = atoi(opt.arg); if (gv.verbose == 1){		printf("--out_matlab  : out_matlab           = %i \n", 	 	   		gv.output_matlab	);}}																		
+		else if (c == 303){ strcpy(gv.File,opt.arg);		 	if (gv.verbose == 1){		printf("--File        : File                 = %s \n", 	 	   		gv.File				);}}
+		else if (c == 317){ strcpy(gv.sys_in,opt.arg);		 	if (gv.verbose == 1){		printf("--sys_in      : sys_in               = %s \n", 	 	   		gv.sys_in			);}}
+		else if (c == 304){ gv.n_points = atoi(opt.arg); 	 	if (gv.verbose == 1){		printf("--n_points    : n_points             = %i \n", 	 	   		gv.n_points			);}}
+		else if (c == 305){ gv.test  = atoi(opt.arg); 		 	if (gv.verbose == 1){		printf("--test        : Test                 = %i \n", 	 	  		gv.test				);}}
+		else if (c == 306){ z_b->T     = strtof(opt.arg,NULL); 	if (gv.verbose == 1){		printf("--Temp        : Temperature          = %f C \n",            z_b->T				);}}
+		else if (c == 307){ z_b->P     = strtof(opt.arg,NULL); 	if (gv.verbose == 1){		printf("--Pres        : Pressure             = %f kbar \n", 		z_b->P				);}}
+		else if (c == 308){ strcpy(gv.Phase,opt.arg);		 	if (gv.verbose == 1){		printf("--Phase       : Phase name           = %s \n", 	   			gv.Phase			);}}
+		else if (c == 313){ gv.maxeval  = strtof(opt.arg,NULL); if (gv.verbose == 1){
+            if (gv.maxeval==0){     printf("--maxeval     : Max. # of local iter.    = infinite  \n"		); }
+            else{                   printf("--maxeval     : Max. # of local iter.    = %i  \n", gv.maxeval		);}
             }
         }
 		else if (c == 310){
 			char *p = strtok(opt.arg,",");
 			size_t i = 0;
 			while(p && i<11) {
-					Gam[i++] = atof(p);
+					gv.arg_gamma[i++] = atof(p);
 					p = strtok(NULL, ",");
 			}
-			if (Verb == 1){
+			if (gv.verbose == 1){
 				printf("--Gam  	      : Gamma           = ");
 				for (int j = 0; j < 11; j++){
-					printf("%g ", Gam[j]);	
+					printf("%g ", gv.arg_gamma[j]);	
 				} 
 				printf(" dG \n");
 			}
@@ -940,29 +852,19 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 			char *p  = strtok(opt.arg,",");
 			size_t i = 0;
 			while(p && i<11) {
-					Bulk[i++] = atof(p);
+					gv.arg_bulk[i++] = atof(p);
 					p = strtok(NULL, ",");
 			}
-			if (Verb == 1){
+			if (gv.verbose == 1){
 				printf("--Bulk  	 : Bulk         = ");
 				for (int j = 0; j < 11; j++){
-					printf("%g ", Bulk[j]);	
+					printf("%g ", gv.arg_bulk[j]);	
 				} 
 				printf(" \n");
 			}
 		 }
 	}
 
-	/** Output */
-	*Verb_out 		= 	Verb;
-	*Mode_out 		= 	Mode;
-	*test_out	 	= 	test;
-	*P        		= 	Pres;
-	*T        		= 	Temp;
-	*n_points_out 	= 	n_points;
-    *maxeval_out    =   maxeval;
-	*solver_out     = 	solver;
-	*out_matlab_out = 	out_matlab;	
 	return gv;
 } 
 

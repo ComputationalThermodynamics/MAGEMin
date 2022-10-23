@@ -65,13 +65,12 @@ char** get_EM_DB_names(int EM_database) {
 }
 
 /* get position of zeros and non-zeros values in the bulk */
-bulk_info initialize_bulk_infos(			double  P, 
-											double  T			){
+bulk_info initialize_bulk_infos(){
 	bulk_info z_b;
 	
 	int i, j, k;
-	z_b.P 			= P;
-	z_b.T 			= T;
+	z_b.P 			= 0.0;
+	z_b.T 			= 0.0;
 	z_b.R 			= 0.0083144;
 	
 	z_b.apo     	= malloc (nEl * sizeof (double) ); 
@@ -113,9 +112,6 @@ global_variable global_variable_init(){
 	gv.outpath 			= malloc(100 * sizeof(char));
 	gv.version 			= malloc(50  * sizeof(char));
 	gv.len_pp      		= 11;	
-	
-	/* Control center... */
-	gv.save_residual_evolution = 0;				/** verbose needs to be set to 0 to save the residual evolution 					*/
 
 	/* oxides and solution phases */
 	char   *ox_tmp[] 		= {"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"Cr2O3","H2O"								};
@@ -153,7 +149,7 @@ global_variable global_variable_init(){
 	/* levelling parameters 	*/
 	gv.em2ss_shift		= 1e-6;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
 	gv.bnd_filter_pc    = 10.0;					/** value of driving force the pseudocompound is considered 						*/
-	gv.max_G_pc         = 5.0;					/** dG under which PC is considered after their generation		 					*/
+	gv.max_G_pc         = 0.0;					/** dG under which PC is considered after their generation		 					*/
 	gv.eps_sf_pc		= 1e-10;				/** Minimum value of site fraction under which PC is rejected, 
 													don't put it too high as it will conflict with bounds of x-eos					*/
 
@@ -189,9 +185,10 @@ global_variable global_variable_init(){
 	gv.it_f             = 256;                  /** gives back failure when the number of iteration is bigger than it_f             */
 
 	/* phase update options 	*/
-	gv.re_in_n          = 1e-3;				/** fraction of phase when being reintroduce.  										*/
-	gv.min_df 			= -1e-4;				/** value under which a phase in hold is reintroduced */
-	/* density calculation 		*/
+	gv.re_in_n          =  1e-3;				/** fraction of phase when being reintroduce.  										*/
+	gv.min_df 			= -1e-6;				/** value under which a phase in hold is reintroduced */
+
+	/* numerical derivatives P,T steps (same value as TC) */
 	gv.gb_P_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
 	gv.gb_T_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
 
@@ -203,7 +200,20 @@ global_variable global_variable_init(){
 	gv.maxeval		    = gv.maxeval_mode_1;
 	gv.output_matlab 	= 0;					/** default output for matlab is deactivated 										*/
 
-	/* declare chemical system */
+
+
+
+	/**
+	   ALLOCATE MEMORY OF OTHER GLOBAL VARIABLES
+	*/
+	gv.n_points 		= 0;
+	gv.bulk_rock 		= malloc (gv.len_ox * sizeof(double)	);
+	gv.arg_bulk 		= malloc (gv.len_ox * sizeof(double)	);
+	gv.arg_gamma 		= malloc (gv.len_ox * sizeof(double)	);
+	gv.File 			= malloc (50 * sizeof(char)				);
+	gv.Phase 			= malloc (50 * sizeof(char)				);
+	gv.sys_in 			= malloc (5 * sizeof(char)				);
+
 	gv.PGE_mass_norm  	= malloc (gv.it_f*2 * sizeof (double) 	); 
 	gv.Alg  			= malloc (gv.it_f*2 * sizeof (int) 		); 
 	gv.gamma_norm  		= malloc (gv.it_f*2 * sizeof (double) 	); 
@@ -211,12 +221,25 @@ global_variable global_variable_init(){
 	
 	/* store values for numerical differentiation */
 	gv.n_Diff = 7;
-	gv.numDiff = malloc (2 * sizeof(double*));			
+	gv.pdev = malloc (2 * sizeof(double*));			
     for (int i = 0; i < 2; i++){
-		gv.numDiff[i] = malloc (gv.n_Diff * sizeof(double));
+		gv.pdev[i] = malloc (gv.n_Diff * sizeof(double));
 	}
-	gv.numDiff[0][0] = 0.0;	gv.numDiff[0][1] = 0.0;		gv.numDiff[0][2] = 1.0;	gv.numDiff[0][3] = 1.0;		gv.numDiff[0][4] = 2.0;	gv.numDiff[0][5] = 1.0;	gv.numDiff[0][6] = 0.0;
-	gv.numDiff[1][0] = 1.0;	gv.numDiff[1][1] = -1.0;	gv.numDiff[1][2] = 1.0;	gv.numDiff[1][3] = -1.0;	gv.numDiff[1][4] = 0.0;	gv.numDiff[1][5] = 0.0;	gv.numDiff[1][6] = 0.0;
+	gv.pdev[0][0] =  0.0;	
+	gv.pdev[0][1] =  0.0;	
+	gv.pdev[0][2] =  1.0;	
+	gv.pdev[0][3] =  1.0;	
+	gv.pdev[0][4] =  2.0;	
+	gv.pdev[0][5] =  1.0;	
+	gv.pdev[0][6] =  0.0;
+	gv.pdev[1][0] =  1.0;	
+	gv.pdev[1][1] = -1.0;	
+	gv.pdev[1][2] =  1.0;	
+	gv.pdev[1][3] = -1.0;	
+	gv.pdev[1][4] =  0.0;	
+	gv.pdev[1][5] =  0.0;	
+	gv.pdev[1][6] =  0.0;
+
 	gv.V_cor = malloc (2 * sizeof(double));
 
 	/* declare size of chemical potential (gamma) vector */
@@ -241,16 +264,14 @@ global_variable global_variable_init(){
 	gv.n_solvi			= malloc ((gv.len_ss) * sizeof (int) 	);
     gv.id_solvi 		= malloc ((gv.len_ss) * sizeof (int*)	);
     
-	for (int i = 0; i < (gv.len_ss); i++){	
-		gv.id_solvi[i]   	= malloc (gv.max_n_cp  * sizeof(int));
-	}
-	
 	for (int i = 0; i < gv.len_ss; i++){ 
+		gv.id_solvi[i]   	= malloc (gv.max_n_cp  * sizeof(int));
+		gv.SS_list[i] 		= malloc(20 * sizeof(char)		);
+		strcpy(gv.SS_list[i],SS_tmp[i]);
+
 		gv.verifyPC[i]      = verifyPC_tmp[i]; 
 		gv.n_SS_PC[i] 		= n_SS_PC_tmp[i]; 
-		gv.SS_PC_stp[i] 	= SS_PC_stp_tmp[i]; 
-		gv.SS_list[i] 		= malloc(20 * sizeof(char)		);
-		strcpy(gv.SS_list[i],SS_tmp[i]);			
+		gv.SS_PC_stp[i] 	= SS_PC_stp_tmp[i]; 	
 	}
 	
 	/* size of the flag array */
@@ -298,7 +319,7 @@ global_variable global_variable_init(){
 }
 
 /* Get benchmark bulk rock composition given by Holland et al., 2018*/
-void get_bulk(double *bulk_rock, int test, int n_El) {
+global_variable get_bulk( global_variable gv) {
 	/*
 	We implement the BR compositions, based on an email from Eleanor Green: 
 
@@ -321,148 +342,161 @@ void get_bulk(double *bulk_rock, int test, int n_El) {
 		60.00  25.00  25.00   0     0       0     0     0      0      0      % 11 anorthite + quartz
 		% ---------------------------------------------------------------------
  	*/
-
-	if (test == 0){
+ 	if (gv.test != -1){
+		if (gv.verbose == 1){
+			printf("\n");
+			printf("   - Minimization using in-built bulk-rock  : test %2d\n",gv.test);	
+		}							
+	}
+	else{
+		gv.test = 0;
+		if (gv.verbose == 1){
+			printf("\n");
+			printf("   - No input conditions provided -> run test point: KLB-1, 1100°C, 12kbar\n");	
+		}	
+	}
+	if (gv.test == 0){
 		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
 		/* Bulk rock composition of Peridotite from Holland et al., 2018, given by E. Green */
-		bulk_rock[0]  = 38.494 ;	/** SiO2 */
-		bulk_rock[1]  = 1.776;		/** Al2O2 */
-		bulk_rock[2]  = 2.824;		/** CaO  */
-		bulk_rock[3]  = 50.566;		/** MgO */
-		bulk_rock[4]  = 5.886;		/** FeO */
-		bulk_rock[5]  = 0.01;		/** K2O	 */
-		bulk_rock[6]  = 0.250;		/** Na2O */
-		bulk_rock[7]  = 0.10;		/** TiO2 */
-		bulk_rock[8]  = 0.096;		/** O */
-		bulk_rock[9]  = 0.109;		/** Cr2O3 */
-		bulk_rock[10] =	0.0;	
+		gv.bulk_rock[0]  = 38.494 ;	/** SiO2 */
+		gv.bulk_rock[1]  = 1.776;		/** Al2O2 */
+		gv.bulk_rock[2]  = 2.824;		/** CaO  */
+		gv.bulk_rock[3]  = 50.566;		/** MgO */
+		gv.bulk_rock[4]  = 5.886;		/** FeO */
+		gv.bulk_rock[5]  = 0.01;		/** K2O	 */
+		gv.bulk_rock[6]  = 0.250;		/** Na2O */
+		gv.bulk_rock[7]  = 0.10;		/** TiO2 */
+		gv.bulk_rock[8]  = 0.096;		/** O */
+		gv.bulk_rock[9]  = 0.109;		/** Cr2O3 */
+		gv.bulk_rock[10] =	0.0;	
 	}
 	
-	else if (test == 1){
+	else if (gv.test == 1){
 		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
 		/* Bulk rock composition of RE46 - Icelandic basalt -Yang et al., 1996, given by E. Green */
 		/*   50.72   9.16  15.21  16.25  7.06   0.01  1.47   0.39   0.35   0.01  */
-		bulk_rock[0] = 50.72;	
-		bulk_rock[1] = 9.16;	
-		bulk_rock[2] = 15.21;	
-		bulk_rock[3] = 16.25;	
-		bulk_rock[4] = 7.06;	
-		bulk_rock[5] = 0.01;	
-		bulk_rock[6]  = 1.47;
-		bulk_rock[7]  = 0.39;
-		bulk_rock[8]  = 0.35;
-		bulk_rock[9]  = 0.01;
-		bulk_rock[10] =	0.0;
+		gv.bulk_rock[0] = 50.72;	
+		gv.bulk_rock[1] = 9.16;	
+		gv.bulk_rock[2] = 15.21;	
+		gv.bulk_rock[3] = 16.25;	
+		gv.bulk_rock[4] = 7.06;	
+		gv.bulk_rock[5] = 0.01;	
+		gv.bulk_rock[6]  = 1.47;
+		gv.bulk_rock[7]  = 0.39;
+		gv.bulk_rock[8]  = 0.35;
+		gv.bulk_rock[9]  = 0.01;
+		gv.bulk_rock[10] =	0.0;
 	}
-	else if (test == 2){
+	else if (gv.test == 2){
 		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
 		/* N_MORB, Gale et al., 2013, given by E. Green */
-		bulk_rock[0] = 53.21;	
-		bulk_rock[1] = 9.41;	
-		bulk_rock[2] = 12.21;	
-		bulk_rock[3] = 12.21;	
-		bulk_rock[4] = 8.65;	
-		bulk_rock[5] = 0.09;	
-		bulk_rock[6]  = 2.90;
-		bulk_rock[7]  = 1.21;
-		bulk_rock[8]  = 0.69;
-		bulk_rock[9]  = 0.02;
-		bulk_rock[10] =	0.0;
+		gv.bulk_rock[0] = 53.21;	
+		gv.bulk_rock[1] = 9.41;	
+		gv.bulk_rock[2] = 12.21;	
+		gv.bulk_rock[3] = 12.21;	
+		gv.bulk_rock[4] = 8.65;	
+		gv.bulk_rock[5] = 0.09;	
+		gv.bulk_rock[6]  = 2.90;
+		gv.bulk_rock[7]  = 1.21;
+		gv.bulk_rock[8]  = 0.69;
+		gv.bulk_rock[9]  = 0.02;
+		gv.bulk_rock[10] =	0.0;
 	}
-	else if (test == 3){
+	else if (gv.test == 3){
 		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
 		/* MIX1-G, Hirschmann et al., 2003, given by E. Green */
-		bulk_rock[0] = 45.25;	
-		bulk_rock[1] = 8.89;	
-		bulk_rock[2] = 12.22;	
-		bulk_rock[3] = 24.68;	
-		bulk_rock[4] = 6.45;	
-		bulk_rock[5] = 0.03;	
-		bulk_rock[6]  = 1.39;
-		bulk_rock[7]  = 0.67;
-		bulk_rock[8]  = 0.11;
-		bulk_rock[9]  = 0.02;
-		bulk_rock[10] =	0.0;
+		gv.bulk_rock[0] = 45.25;	
+		gv.bulk_rock[1] = 8.89;	
+		gv.bulk_rock[2] = 12.22;	
+		gv.bulk_rock[3] = 24.68;	
+		gv.bulk_rock[4] = 6.45;	
+		gv.bulk_rock[5] = 0.03;	
+		gv.bulk_rock[6]  = 1.39;
+		gv.bulk_rock[7]  = 0.67;
+		gv.bulk_rock[8]  = 0.11;
+		gv.bulk_rock[9]  = 0.02;
+		gv.bulk_rock[10] =	0.0;
 	}
-	else if (test == 4){
+	else if (gv.test == 4){
 		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
 		/* High Al basalt Baker 1983 */
-		bulk_rock[0] = 54.40;	
-		bulk_rock[1] = 12.96;	
-		bulk_rock[2] = 11.31;	
-		bulk_rock[3] = 7.68;	
-		bulk_rock[4] = 8.63;	
-		bulk_rock[5] = 0.54;	
-		bulk_rock[6]  = 3.93;
-		bulk_rock[7]  = 0.79;
-		bulk_rock[8]  = 0.41;
-		bulk_rock[9]  = 0.01;
-		bulk_rock[10] =	0.0;
+		gv.bulk_rock[0] = 54.40;	
+		gv.bulk_rock[1] = 12.96;	
+		gv.bulk_rock[2] = 11.31;	
+		gv.bulk_rock[3] = 7.68;	
+		gv.bulk_rock[4] = 8.63;	
+		gv.bulk_rock[5] = 0.54;	
+		gv.bulk_rock[6]  = 3.93;
+		gv.bulk_rock[7]  = 0.79;
+		gv.bulk_rock[8]  = 0.41;
+		gv.bulk_rock[9]  = 0.01;
+		gv.bulk_rock[10] =	0.0;
 	}	
-	else if (test == 5){
+	else if (gv.test == 5){
 		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
 		/* Tonalite 101 */
-		bulk_rock[0] = 66.01;	
-		bulk_rock[1] = 11.98;	
-		bulk_rock[2] = 7.06;	
-		bulk_rock[3] = 4.16;	
-		bulk_rock[4] = 5.30;	
-		bulk_rock[5] = 1.57;	
-		bulk_rock[6]  = 4.12;
-		bulk_rock[7]  = 0.66;
-		bulk_rock[8]  = 0.97;
-		bulk_rock[9]  = 0.01;
-		bulk_rock[10] =	50.0;
+		gv.bulk_rock[0] = 66.01;	
+		gv.bulk_rock[1] = 11.98;	
+		gv.bulk_rock[2] = 7.06;	
+		gv.bulk_rock[3] = 4.16;	
+		gv.bulk_rock[4] = 5.30;	
+		gv.bulk_rock[5] = 1.57;	
+		gv.bulk_rock[6]  = 4.12;
+		gv.bulk_rock[7]  = 0.66;
+		gv.bulk_rock[8]  = 0.97;
+		gv.bulk_rock[9]  = 0.01;
+		gv.bulk_rock[10] =	50.0;
 	}		
-	else if (test == 6){
+	else if (gv.test == 6){
 		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
 		/* Bulk rock composition of test 8 */
-		bulk_rock[0] = 50.0810;	
-		bulk_rock[1] = 8.6901;	
-		bulk_rock[2] = 11.6698;	
-		bulk_rock[3] = 12.1438;	
-		bulk_rock[4] = 7.7832;	
-		bulk_rock[5] = 0.2150;
-		bulk_rock[6]  = 2.4978;
-		bulk_rock[7]  = 1.0059;
-		bulk_rock[8]  = 0.4670;
-		bulk_rock[9]  = 0.0100;
-		bulk_rock[10] =	5.4364;
+		gv.bulk_rock[0] = 50.0810;	
+		gv.bulk_rock[1] = 8.6901;	
+		gv.bulk_rock[2] = 11.6698;	
+		gv.bulk_rock[3] = 12.1438;	
+		gv.bulk_rock[4] = 7.7832;	
+		gv.bulk_rock[5] = 0.2150;
+		gv.bulk_rock[6]  = 2.4978;
+		gv.bulk_rock[7]  = 1.0059;
+		gv.bulk_rock[8]  = 0.4670;
+		gv.bulk_rock[9]  = 0.0100;
+		gv.bulk_rock[10] =	5.4364;
 	}
-	else if (test == 7){
+	else if (gv.test == 7){
 		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
 		/* Kl3 */
-		bulk_rock[0] = 63.242;	
-		bulk_rock[1] = 7.267;	
-		bulk_rock[2] = 1.815;	
-		bulk_rock[3] = 0.751;	
-		bulk_rock[4] = 1.311;	
-		bulk_rock[5] = 2.774;
-		bulk_rock[6]  = 2.622;
-		bulk_rock[7]  = 0.144;
-		bulk_rock[8]  = 0.5;
-		bulk_rock[9]  = 0.01;
-		bulk_rock[10] =	19.986;
+		gv.bulk_rock[0] = 63.242;	
+		gv.bulk_rock[1] = 7.267;	
+		gv.bulk_rock[2] = 1.815;	
+		gv.bulk_rock[3] = 0.751;	
+		gv.bulk_rock[4] = 1.311;	
+		gv.bulk_rock[5] = 2.774;
+		gv.bulk_rock[6]  = 2.622;
+		gv.bulk_rock[7]  = 0.144;
+		gv.bulk_rock[8]  = 0.5;
+		gv.bulk_rock[9]  = 0.01;
+		gv.bulk_rock[10] =	19.986;
 	}
-	else if (test == 8){
+	else if (gv.test == 8){
 		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
 		/* Kl3 */
-		bulk_rock[0] = 54.65;	
-		bulk_rock[1] = 9.04;	
-		bulk_rock[2] = 10.69;	
-		bulk_rock[3] = 13.9;	
-		bulk_rock[4] = 7.63;	
-		bulk_rock[5] = 0.51;
-		bulk_rock[6]  = 2.62;
-		bulk_rock[7]  = 0.71;
-		bulk_rock[8]  = 0.4;
-		bulk_rock[9]  = 0.1;
-		bulk_rock[10] =	0.0;
+		gv.bulk_rock[0] = 54.65;	
+		gv.bulk_rock[1] = 9.04;	
+		gv.bulk_rock[2] = 10.69;	
+		gv.bulk_rock[3] = 13.9;	
+		gv.bulk_rock[4] = 7.63;	
+		gv.bulk_rock[5] = 0.51;
+		gv.bulk_rock[6]  = 2.62;
+		gv.bulk_rock[7]  = 0.71;
+		gv.bulk_rock[8]  = 0.4;
+		gv.bulk_rock[9]  = 0.1;
+		gv.bulk_rock[10] =	0.0;
 	}
 	else{
-		printf("Unknown test %i - please specify a different test! \n", test);
+		printf("Unknown test %i - please specify a different test! \n", gv.test);
 	 	exit(EXIT_FAILURE);
 	}
+	return gv;
 }
 
 
@@ -659,15 +693,14 @@ void reset_sp(						global_variable 	 gv,
   reset bulk rock composition informations (needed if the bulk-rock is not constant during parallel computation)
 */
 bulk_info reset_z_b_bulk(			global_variable 	 gv,
-									double 				*bulk,
 									bulk_info 	 		 z_b
 ){
 	int i, j, k;
 
 	int sum = 0;
 	for (i = 0; i < nEl; i++) {
-		z_b.bulk_rock[i] = bulk[i];
-		if (bulk[i] > 0.0){
+		z_b.bulk_rock[i] = gv.bulk_rock[i];
+		if (gv.bulk_rock[i] > 0.0){
 			sum += 1;
 		}
 	}
@@ -686,7 +719,7 @@ bulk_info reset_z_b_bulk(			global_variable 	 gv,
 		z_b.zEl_array   = malloc (z_b.zEl_val * sizeof (int) ); 
 		j = 0; k = 0;
 		for (i = 0; i < nEl; i++){
-			if (bulk[i] == 0.){
+			if (gv.bulk_rock[i] == 0.){
 				z_b.zEl_array[j] = i;
 				j += 1;
 			}
@@ -886,12 +919,10 @@ void init_simplex_A( 	simplex_data 		*splx_data,
 	d->gamma_delta = malloc ((gv.len_ox) * sizeof(double));
 
 	/* initialize arrays */
+	int k;
     for (int i = 0; i < gv.len_ox; i++){
 		d->gamma_tot[i] 	= 0.0;
 		d->gamma_delta[i] 	= 0.0;
-	}
-	int k;
-    for (int i = 0; i < gv.len_ox; i++){
 		d->pivot[i]	   = 0;
 		d->g0_A[i]     = 0.0;
 		d->dG_A[i]     = 0.0;
@@ -954,12 +985,10 @@ void reset_simplex_A( 	simplex_data 		*splx_data,
 	d->n_Ox        =  z_b.nzEl_val;
 
 	/* initialize arrays */
+	int k;
     for (int i = 0; i < gv.len_ox; i++){
 		d->gamma_tot[i] 	= 0.0;
 		d->gamma_delta[i] 	= 0.0;
-	}
-	int k;
-    for (int i = 0; i < gv.len_ox; i++){
 		d->pivot[i]	  = 0;
 		d->g0_A[i]     = 0.0;
 		d->dG_A[i]     = 0.0;

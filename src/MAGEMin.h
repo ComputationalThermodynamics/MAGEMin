@@ -20,11 +20,6 @@ int runMAGEMin(								int argc,
 /* Function declaration from Initialize.h file */
 int find_EM_id(								char* em_tag			);
 
-/** declare function to get benchmark bulk rock composition **/
-void get_bulk(								double *bulk_rock, 
-											int test, 
-											int n_El				);
-
 /** Function to retrieve database structure **/
 struct EM_db Access_EM_DB(					int id, 
 											int EM_database			);
@@ -272,8 +267,7 @@ typedef struct bulk_infos {
 } bulk_info;
 
 /** Return the number of zero element in the bulk-rock, position of zeros and non zeros elements **/
-bulk_info initialize_bulk_infos(			double P, 
-											double T				);
+bulk_info initialize_bulk_infos();
 
 /* structure to informations about the considered set of phases during  minimization 	*/
 typedef struct csd_phase_sets {
@@ -451,12 +445,22 @@ typedef struct global_variables {
 	int      verbose;			/** verbose variable: 0, none; 1, all */
 	char    *outpath;			/** output path */
 	int      Mode;				/** calcultion mode, 0 = full minimization, 1 = extract solution phases informations, 2 = local minimization */
-	double **numDiff;
+	double **pdev;
 	int      n_Diff;
-	int      status;			/** status of the minimization */
+	int      status;			/** status of the minimization 		*/
 	int      solver;
 	int 	 calc_seismic_cor;
 	int 	 output_matlab;
+
+	/* GET STARTING CONDITIONS (args) */
+	int 	 test;
+	double  *bulk_rock;
+	double  *arg_bulk;			/** bulk provided by command line 	*/
+	double  *arg_gamma;			/** gamma provided by command line 	*/
+	int 	 n_points;			/** number of parallel points 		*/
+	char 	*File;
+	char 	*Phase;
+	char 	*sys_in;
 
 	/* lapacke bedroom */
 	int 	*ipiv;
@@ -464,8 +468,8 @@ typedef struct global_variables {
 	double  *work;
 
 	/* GENERAL PARAMETERS */
-	int 	 LP;				/** linear programming stage flag*/
-	int 	 PGE;				/** PGE stage flag				 */
+	int 	 LP;				/** linear programming stage flag	*/
+	int 	 PGE;				/** PGE stage flag				 	*/
 	int      LP_PGE_switch;
 	double   mean_sum_xi;
 	double   sigma_sum_xi;
@@ -502,9 +506,6 @@ typedef struct global_variables {
 	int      numPoint; 			/** the number of the current point */
 	int      global_ite;		/** global iteration increment */
 
-	/* OUTPUT LOG */
-	int 	 save_residual_evolution;
-
 	/* LEVELLING */
 	double   LVL_time;			/** time taken for levelling (ms) */
 	double   em2ss_shift;		/** small value to retrieve x-eos from pure endmember after levelling */
@@ -516,6 +517,7 @@ typedef struct global_variables {
 	double  *SS_PC_stp;
 	double   eps_sf_pc;	
 	int      n_pc;				/** maximum number of pseudocompounds to store 								*/
+
 	/*linear programming during PGE */
 	int  	 n_Ppc;
 
@@ -621,23 +623,26 @@ typedef struct global_variables {
 
 global_variable global_variable_init(void);
 
+/** declare function to get benchmark bulk rock composition **/
+global_variable get_bulk(	global_variable  gv					);
+
+
 /** Stores databases **/
-typedef struct Database {	PP_ref     		 *PP_ref_db;			/** Pure phases 											*/
-							SS_ref     		 *SS_ref_db;			/** Solid solution phases phases 							*/
+typedef struct Database {	PP_ref     		 *PP_ref_db;		/** Pure phases 											*/
+							SS_ref     		 *SS_ref_db;		/** Solid solution phases phases 							*/
 							csd_phase_set    *cp;				/** considered solution phases (solvus setup) 				*/
 							stb_system       *sp;				/** structure holding the informations of the stable phases */
 							char 	  		**EM_names;			/** Names of endmembers 									*/
 } Databases;
 
 Databases InitializeDatabases(				global_variable 	 gv, 
-											int 				 EM_database			);
+											int 				 EM_database		);
 
 void FreeDatabases(							global_variable 	 gv, 
 											Databases			 DB					);
 
 global_variable ComputeEquilibrium_Point(	int 				 EM_database,
 											io_data 			 input_data,
-											int 				 Mode,
 											bulk_info 	 		 z_b,
 											global_variable 	 gv,
 
@@ -647,31 +652,16 @@ global_variable ComputeEquilibrium_Point(	int 				 EM_database,
 											csd_phase_set  		*cp					);
 											
 global_variable ComputePostProcessing(		int 				 EM_database,
-											bulk_info 	 z_b,
+											bulk_info 	 		 z_b,
 											global_variable 	 gv,
 											PP_ref  			*PP_ref_db,
 											SS_ref  			*SS_ref_db,
 											csd_phase_set  		*cp					);											
 
 global_variable ReadCommandLineOptions(		global_variable   gv,
+											bulk_info 	 	 *z_b,
 											int 			  argc, 
-											char 			**argv, 
-											int 			 *Mode_out, 
-											int 			 *Verb_out, 
-											int 			 *test_out, 
-											int 			 *n_points_out, 
-											double 			 *P, 
-											double 			 *T, 
-											double 			  Bulk[11], 
-											double 			  Gam[11], 
-											char 			  File[50], 
-											char 			  Phase[50], 
-											int 			 *maxeval_out, 
-											int     		 *get_version_out,
-											int 			 *get_help,
-											int				 *solver_out,
-											int				 *out_matlab_out,
-											char			  sys_in[5]				);
+											char 			**argv					);
 
 /* function that prints output */
 void PrintOutput(							global_variable 	gv, 
@@ -679,7 +669,7 @@ void PrintOutput(							global_variable 	gv,
 											int 				l, 
 											Databases 			DB, 
 											double 				time_taken, 
-											bulk_info 	z_b					);
+											bulk_info 	z_b							);
 
 /* function converting the solver status code to human-readable text and printing it to screen */
 void PrintStatus(	int status );

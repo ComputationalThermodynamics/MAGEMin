@@ -830,8 +830,6 @@ double obj_bi(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	double *mu_Gex = d->mu_Gex;
 	double *sf     = d->sf;
 	double *mu     = d->mu;
-	double *dfx    = d->dfx;
-	double **dp_dx = d->dp_dx;
 
 	px_bi(SS_ref_db,x);
 
@@ -878,6 +876,8 @@ double obj_bi(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	d->df = d->df_raw * d->factor;
 	
 	if (grad){
+	double *dfx    = d->dfx;
+	double **dp_dx = d->dp_dx;
 		dpdx_bi(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
@@ -898,8 +898,7 @@ double obj_cd(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
-	int sf_ok  = 1;
-	
+
 	int n_em   = d->n_em;
 	double P   = d->P;
 	double T   = d->T;
@@ -909,8 +908,6 @@ double obj_cd(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	double *mu_Gex = d->mu_Gex;
 	double *sf     = d->sf;
 	double *mu     = d->mu;
-	double *dfx    = d->dfx;
-	double **dp_dx = d->dp_dx;
 
 	px_cd(SS_ref_db,x);
 
@@ -947,6 +944,8 @@ double obj_cd(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	d->df = d->df_raw * d->factor;
 	
 	if (grad){
+	double *dfx    = d->dfx;
+	double **dp_dx = d->dp_dx;
 		dpdx_cd(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
@@ -967,8 +966,7 @@ double obj_cpx(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
-	int sf_ok  = 1;
-	
+
 	int n_em   = d->n_em;
 	double P   = d->P;
 	double T   = d->T;
@@ -980,8 +978,6 @@ double obj_cpx(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 	double *mu_Gex = d->mu_Gex;
 	double *sf     = d->sf;
 	double *mu     = d->mu;
-	double *dfx    = d->dfx;
-	double **dp_dx = d->dp_dx;
 
 	px_cpx(SS_ref_db,x);
 
@@ -1042,6 +1038,8 @@ double obj_cpx(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 	d->df = d->df_raw * d->factor;
 	
 	if (grad){
+	double *dfx    = d->dfx;
+	double **dp_dx = d->dp_dx;
 		dpdx_cpx(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
@@ -1062,8 +1060,7 @@ double obj_ep(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
-	int sf_ok  = 1;
-	
+
 	int n_em   = d->n_em;
 	double P   = d->P;
 	double T   = d->T;
@@ -1074,8 +1071,6 @@ double obj_ep(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	double *mu_Gex = d->mu_Gex;
 	double *sf     = d->sf;
 	double *mu     = d->mu;
-	double *dfx    = d->dfx;
-	double **dp_dx = d->dp_dx;
 
 	px_ep(SS_ref_db,x);
 
@@ -1112,6 +1107,8 @@ double obj_ep(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	d->df = d->df_raw * d->factor;
 	
 	if (grad){
+	double *dfx    = d->dfx;
+	double **dp_dx = d->dp_dx;
 		dpdx_ep(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
@@ -1132,8 +1129,7 @@ double obj_fl(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
-	int sf_ok  = 1;
-	
+
 	int n_em   = d->n_em;
 	double P   = d->P;
 	double T   = d->T;
@@ -1144,8 +1140,6 @@ double obj_fl(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	double *mu_Gex = d->mu_Gex;
 	double *sf     = d->sf;
 	double *mu     = d->mu;
-	double *dfx    = d->dfx;
-	double **dp_dx = d->dp_dx;
 
 	px_fl(SS_ref_db,x);
 
@@ -1198,6 +1192,8 @@ double obj_fl(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	d->df = d->df_raw * d->factor;
 	
 	if (grad){
+	double *dfx    = d->dfx;
+	double **dp_dx = d->dp_dx;
 		dpdx_fl(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
@@ -1218,8 +1214,7 @@ double obj_g(unsigned   n, const double *x, double *grad, void *SS_ref_db) {
 
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
-	int sf_ok  = 1;
-	
+
 	int n_em   = d->n_em;
 	double P   = d->P;
 	double T   = d->T;
@@ -1230,8 +1225,6 @@ double obj_g(unsigned   n, const double *x, double *grad, void *SS_ref_db) {
 	double *mu_Gex = d->mu_Gex;
 	double *sf     = d->sf;
 	double *mu     = d->mu;
-	double *dfx    = d->dfx;
-	double **dp_dx = d->dp_dx;
 
 	px_g(SS_ref_db,x);
 
@@ -1282,6 +1275,8 @@ double obj_g(unsigned   n, const double *x, double *grad, void *SS_ref_db) {
 	d->df = d->df_raw * d->factor;
 	
 	if (grad){
+	double *dfx    = d->dfx;
+	double **dp_dx = d->dp_dx;
 		dpdx_g(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
@@ -1302,8 +1297,7 @@ double obj_hb(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
-	int sf_ok  = 1;
-	
+
 	int n_em   = d->n_em;
 	double P   = d->P;
 	double T   = d->T;
@@ -1314,8 +1308,6 @@ double obj_hb(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	double *mu_Gex = d->mu_Gex;
 	double *sf     = d->sf;
 	double *mu     = d->mu;
-	double *dfx    = d->dfx;
-	double **dp_dx = d->dp_dx;
 
 	px_hb(SS_ref_db,x);
 	
@@ -1381,6 +1373,8 @@ double obj_hb(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	d->df = d->df_raw * d->factor;
 	
 	if (grad){
+	double *dfx    = d->dfx;
+	double **dp_dx = d->dp_dx;
 		dpdx_hb(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
@@ -1401,8 +1395,7 @@ double obj_ilm(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
-	int sf_ok  = 1;
-	
+
 	int n_em   = d->n_em;
 	double P   = d->P;
 	double T   = d->T;
@@ -1413,8 +1406,6 @@ double obj_ilm(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 	double *mu_Gex = d->mu_Gex;
 	double *sf     = d->sf;
 	double *mu     = d->mu;
-	double *dfx    = d->dfx;
-	double **dp_dx = d->dp_dx;
 
 	px_ilm(SS_ref_db,x);
 
@@ -1453,6 +1444,8 @@ double obj_ilm(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 	d->df = d->df_raw * d->factor;
 	
 	if (grad){
+	double *dfx    = d->dfx;
+	double **dp_dx = d->dp_dx;
 		dpdx_ilm(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
@@ -1473,8 +1466,7 @@ double obj_liq(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
-	int sf_ok  = 1;
-	
+
 	int n_em   = d->n_em;
 	double P   = d->P;
 	double T   = d->T;
@@ -1485,8 +1477,6 @@ double obj_liq(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 	double *mu_Gex = d->mu_Gex;
 	double *sf     = d->sf;
 	double *mu     = d->mu;
-	double *dfx    = d->dfx;
-	double **dp_dx = d->dp_dx;
 
 	px_liq(SS_ref_db,x);
 	
@@ -1554,6 +1544,8 @@ double obj_liq(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 	d->df = d->df_raw * d->factor;
 	
 	if (grad){
+	double *dfx    = d->dfx;
+	double **dp_dx = d->dp_dx;
 		dpdx_liq(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
@@ -1574,8 +1566,7 @@ double obj_mu(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
-	int sf_ok  = 1;
-	
+
 	int n_em   = d->n_em;
 	double P   = d->P;
 	double T   = d->T;
@@ -1586,8 +1577,6 @@ double obj_mu(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	double *mu_Gex = d->mu_Gex;
 	double *sf     = d->sf;
 	double *mu     = d->mu;
-	double *dfx    = d->dfx;
-	double **dp_dx = d->dp_dx;
 
 	px_mu(SS_ref_db,x);
 
@@ -1641,6 +1630,8 @@ double obj_mu(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	d->df = d->df_raw * d->factor;
 	
 	if (grad){
+	double *dfx    = d->dfx;
+	double **dp_dx = d->dp_dx;
 		dpdx_mu(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
@@ -1661,8 +1652,7 @@ double obj_ol(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
-	int sf_ok  = 1;
-	
+
 	int n_em   = d->n_em;
 	double P   = d->P;
 	double T   = d->T;
@@ -1673,8 +1663,6 @@ double obj_ol(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	double *mu_Gex = d->mu_Gex;
 	double *sf     = d->sf;
 	double *mu     = d->mu;
-	double *dfx    = d->dfx;
-	double **dp_dx = d->dp_dx;
 
 	px_ol(SS_ref_db,x);
 
@@ -1712,6 +1700,8 @@ double obj_ol(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	d->df = d->df_raw * d->factor;
 	
 	if (grad){
+	double *dfx    = d->dfx;
+	double **dp_dx = d->dp_dx;
 		dpdx_ol(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
@@ -1732,8 +1722,7 @@ double obj_opx(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
-	int sf_ok  = 1;
-	
+
 	int n_em   = d->n_em;
 	double P   = d->P;
 	double T   = d->T;
@@ -1744,8 +1733,6 @@ double obj_opx(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 	double *mu_Gex = d->mu_Gex;
 	double *sf     = d->sf;
 	double *mu     = d->mu;
-	double *dfx    = d->dfx;
-	double **dp_dx = d->dp_dx;
 
 	px_opx(SS_ref_db,x);
 
@@ -1804,6 +1791,8 @@ double obj_opx(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 	d->df = d->df_raw * d->factor;
 	
 	if (grad){
+	double *dfx    = d->dfx;
+	double **dp_dx = d->dp_dx;
 		dpdx_opx(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
@@ -1824,8 +1813,7 @@ double obj_pl4T(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
-	int sf_ok  = 1;
-	
+
 	int n_em   = d->n_em;
 	double P   = d->P;
 	double T   = d->T;
@@ -1836,8 +1824,6 @@ double obj_pl4T(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	double *mu_Gex = d->mu_Gex;
 	double *sf     = d->sf;
 	double *mu     = d->mu;
-	double *dfx    = d->dfx;
-	double **dp_dx = d->dp_dx;
 
 	px_pl4T(SS_ref_db,x);
 
@@ -1883,6 +1869,8 @@ double obj_pl4T(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	d->df = d->df_raw * d->factor;
 	
 	if (grad){
+	double *dfx    = d->dfx;
+	double **dp_dx = d->dp_dx;
 		dpdx_pl4T(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
@@ -1913,8 +1901,6 @@ double obj_spn(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 	double *mu_Gex = d->mu_Gex;
 	double *sf     = d->sf;
 	double *mu     = d->mu;
-	double *dfx    = d->dfx;
-	double **dp_dx = d->dp_dx;
 
 	px_spn(SS_ref_db,x);
 
@@ -1962,6 +1948,8 @@ double obj_spn(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 	d->df = d->df_raw * d->factor;
 	
 	if (grad){
+	double *dfx    = d->dfx;
+	double **dp_dx = d->dp_dx;
 		dpdx_spn(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
