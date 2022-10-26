@@ -148,6 +148,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#compiler-linux">Compiler (Linux)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#minimum-pressure">Minimum pressure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#reduced-chemical-system">Reduced chemical system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#set-oxygen-content">Set Oxygen content</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../issues.html#known-problems">Known problems</a><ul>
@@ -268,7 +269,7 @@ This is where you can pass your own bulk-rock and P-T conditions by directly ass
 <section id="call-optimization-routine-for-given-p-t-x">
 <h2>Call optimization routine for given P-T-X<a class="headerlink" href="#call-optimization-routine-for-given-p-t-x" title="Permalink to this headline"></a></h2>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>gv.verbose  <span class="o">=</span> -1    <span class="c1"># switch off any verbose</span>
-<span class="nv">out</span>         <span class="o">=</span> point_wise_minimization<span class="o">(</span>sys_in,P,T, bulk_rock, gv, DB<span class="o">)</span><span class="p">;</span>
+<span class="nv">out</span>         <span class="o">=</span> point_wise_minimization<span class="o">(</span>P,T, bulk_rock, gv, DB, sys_in<span class="o">)</span><span class="p">;</span>
 </pre></div>
 </div>
 </section>

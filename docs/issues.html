@@ -148,6 +148,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#compiler-linux">Compiler (Linux)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#minimum-pressure">Minimum pressure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#reduced-chemical-system">Reduced chemical system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#set-oxygen-content">Set Oxygen content</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="#known-problems">Known problems</a><ul>
@@ -255,6 +256,13 @@
 <ul class="simple">
 <li><p>While <code class="docutils literal notranslate"><span class="pre">H2O</span></code> can be set to 0.0, other system components should be set to low value to ensure stable and efficient computation.</p></li>
 <li><p>We recommend a minimum value of 0.01 <code class="docutils literal notranslate"><span class="pre">[mol%]</span></code> (0.0001 <code class="docutils literal notranslate"><span class="pre">[mol</span> <span class="pre">fraction]</span></code>)</p></li>
+</ul>
+</section>
+<section id="set-oxygen-content">
+<h2>Set Oxygen content<a class="headerlink" href="#set-oxygen-content" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>Such like in THERMOCALC, the oxygen content <code class="docutils literal notranslate"><span class="pre">O</span></code> is set as <code class="docutils literal notranslate"><span class="pre">O</span> <span class="pre">[mol%]</span></code> = <code class="docutils literal notranslate"><span class="pre">Fe2O3</span> <span class="pre">[mol%]</span></code>.</p></li>
+<li><p>If the <code class="docutils literal notranslate"><span class="pre">Fe2O3</span></code>-content is not available you can turn off <code class="docutils literal notranslate"><span class="pre">O</span></code> by setting it to 0.01 <code class="docutils literal notranslate"><span class="pre">[mol%]</span></code>.</p></li>
 </ul>
 <div class="line-block">
 <div class="line"><br /></div>
