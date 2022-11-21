@@ -787,6 +787,17 @@ void output_gui(				global_variable 	 gv,
 	fprintf(loc_min, "\n");
 	fclose(loc_min);
 
+
+	// FILE *tot_min;
+	// char tot_lm[255];
+	
+	// if (numprocs==1){	sprintf(tot_lm,	"%s_min_time_output.txt"		,gv.outpath); 		}
+	// else 			{	sprintf(tot_lm,	"%s_min_time_output.%i.txt"		,gv.outpath, rank); }
+
+	// tot_min 	= fopen(tot_lm, 	"a"); 
+	// fprintf(tot_min, "%.4f %.4f %.4f %.4f %.4f\n", z_b.P, z_b.T-273.15,gv.LVL_time, gv.tot_min_time, gv.tot_time);
+	// fclose(tot_min);
+
 }
 
 
@@ -1102,6 +1113,34 @@ void mergeParallelFiles(global_variable gv){
 		fclose(fp1); 
 	}
    fclose(fp2);
+
+
+// 	char tot_out_lm[255];
+// 	char tot_in_lm[255];
+
+// 	if (numprocs == 1){ return; }
+
+// 	sprintf(tot_out_lm,	"%s_min_time_output.txt"		,gv.outpath);
+//    	FILE *fp2a = fopen(tot_out_lm, "w"); 
+
+// 	fprintf(fp2a, "// P[kbar]\tT[C]\ttot_min_time\n");
+
+// 	// Open file to be merged 
+// 	for (i = 0; i < numprocs; i++){
+// 		// open file
+// 		sprintf(tot_in_lm,	"%s_min_time_output.%i.txt"		,gv.outpath, i);
+// 		FILE *fp1a = fopen(tot_in_lm, "r"); 
+		
+// 		fgets(buf, MAX_LINE_LENGTH, fp1a);					// skip first line = comment (we don't want to copy that)
+	
+// 		// Copy contents of first file to file3.txt 
+// 		while ((c = fgetc(fp1a)) != EOF){ 
+// 			fputc(c, fp2a); 
+// 		}
+// 		fclose(fp1a); 
+// 	}
+//    fclose(fp2a);
+
 }
 
 

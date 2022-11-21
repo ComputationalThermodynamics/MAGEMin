@@ -43,6 +43,7 @@ Imported libraries
 #include "ketopt.h"
 #include "nlopt.h"                  // requires specifying this in the makefile
 #include "mpi.h"
+#include "Endmembers_tc-ds62.h"
 #include "Endmembers_tc-ds634.h"
 #include "toolkit.h"
 #include "io_function.h"
@@ -61,7 +62,7 @@ Imported libraries
 #include "MAGEMin.h"
 #include "simplex_levelling.h"
 
-#define n_em_db 291
+// #define n_em_db 291
 
 /** 
   Main routine
@@ -89,12 +90,10 @@ int runMAGEMin(			int    argc,
 ){
 	int 	i,j,k;
 	int 	rank, numprocs;
-	int 	EM_database;
-	
+
 	double 	time_taken;
 
 	/* Select the endmember database */
-   	EM_database = _tc_ds634_;
    	
 	clock_t t = clock(),u = clock(); 
 
@@ -104,37 +103,18 @@ int runMAGEMin(			int    argc,
 	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-
 	/*
-	  initialize global structure to store shared variables (e.g. Gamma, SS and PP list, ...) 
+		initiliaze structures
 	*/
 	global_variable gv;
-	gv = global_variable_init();
-
-
-	/* 
-	  Allocate both pure and solid-solution databases 
-	*/
-	Databases DB;
-	DB = InitializeDatabases(gv, EM_database);
-	
+	bulk_info 		z_b;	
+	Databases 		DB;
 
 	/*
-	  initialize bulk-rock informations 
+	  allocate global variables 
 	*/	
-	bulk_info z_b;	
-	z_b = initialize_bulk_infos();							
-
-
-	/*
-	  initialize simplex (levelling stage using pseudocompounds) 
-	*/
-	simplex_data 					 splx_data;
-
-	init_simplex_A(			   		&splx_data,
-									 gv				);
-	init_simplex_B_em(				&splx_data,
-								 	 gv				);
+	gv = global_variable_alloc(		&z_b );
+	
 
 	/** 
 		Read command-line arguments and set default parameters
@@ -142,7 +122,32 @@ int runMAGEMin(			int    argc,
 	gv = ReadCommandLineOptions(	 gv,
 									&z_b,
 									 argc,
-									 argv			); 
+									 argv			);
+
+
+	/*
+	  initialize global structure to store shared variables (e.g. Gamma, SS and PP list, ...) 
+	*/
+	gv = global_variable_init( 		 gv,
+									&z_b 			);
+
+
+	/* 
+	  Allocate both pure and solid-solution databases 
+	*/
+	DB = InitializeDatabases(		 gv,
+									 gv.EM_database	);
+	
+
+	/*
+	  initialize simplex (levelling stage using pseudocompounds) 
+	*/
+	simplex_data 					 splx_data;
+	init_simplex_A(			   		&splx_data,
+									 gv				);
+	init_simplex_B_em(				&splx_data,
+								 	 gv				);
+
 
 	/*
 	  initialize output	
@@ -152,7 +157,7 @@ int runMAGEMin(			int    argc,
 	/* 
 	  get data from input file 
 	*/
-	io_data input_data[gv.n_points]; 						//allocate input data
+	io_data input_data[gv.n_points];
 	if (strcmp( gv.File, "none") != 0){	
 		read_in_data(gv, input_data, gv.n_points);			
 	}
@@ -162,7 +167,6 @@ int runMAGEMin(			int    argc,
 	*/
 	gv = get_bulk( gv );
 	
-
 
 	/****************************************************************************************/
 	/**                               LAUNCH MINIMIZATION ROUTINE                          **/
@@ -215,7 +219,7 @@ int runMAGEMin(			int    argc,
 											DB.sp						);
 		
 		/* Perform calculation for a single point 									*/	
-		gv = ComputeEquilibrium_Point(		EM_database, 
+		gv = ComputeEquilibrium_Point(		gv.EM_database, 
 											input_data[point],
 											z_b,											/** bulk rock informations 			*/
 											gv,												/** global variables (e.g. Gamma) 	*/
@@ -226,7 +230,7 @@ int runMAGEMin(			int    argc,
 											DB.cp						);
 
 		/* Perform calculation for a single point 									*/	
-		gv = ComputePostProcessing(			EM_database,
+		gv = ComputePostProcessing(			gv.EM_database,
 											z_b,											/** bulk rock informations 			*/
 											gv,												/** global variables (e.g. Gamma) 	*/
 											DB.PP_ref_db,									/** pure phase database 			*/
@@ -241,6 +245,10 @@ int runMAGEMin(			int    argc,
 											DB.cp,
 											DB.sp						);
 
+		t 			= clock() - t; 
+		time_taken 	= ((double)t)/CLOCKS_PER_SEC;
+		gv.tot_time = time_taken*1000.0;
+
 		/* Dump final results to files 												*/
 		save_results_function(				gv,												/** global variables (e.g. Gamma) 	*/
 											z_b,											/** bulk-rock informations 			*/
@@ -250,9 +258,7 @@ int runMAGEMin(			int    argc,
 											DB.sp						);
 
 
-		/* Print output to screen 													*/
-		t 			= clock() - t; 
-		time_taken 	= ((double)t)/CLOCKS_PER_SEC; 											/* in seconds 	 					*/
+		/* Print output to screen 													*/									/* in seconds 	 					*/
 		PrintOutput(gv, rank, point, DB, time_taken, z_b);									/* print output on screen 			*/
 	}
 	/* end of loop over points */
@@ -276,7 +282,7 @@ int runMAGEMin(			int    argc,
 		time_taken = ((double)u)/(CLOCKS_PER_SEC); 				/** in seconds */
 		if (rank==0){
 			printf("___________________________________\n");
-			printf("MAGEMin comp time: %+3f ms }\n", time_taken*1000.);
+			printf("MAGEMin comp time: %+3f ms }\n", time_taken*1000.0);
 		}
 	}
     return 0;
@@ -351,27 +357,7 @@ int runMAGEMin(			int    argc,
 			for (int k = 0; k < cp[i].n_xeos; k++) {
 				SS_ref_db[ss].iguess[k] = cp[i].xeos[k];
 			}
-			
-			/* Associate the right solid-solution data */
-			for (int FD = 0; FD < 7; FD++){
-
-				z_b.P 		= P + gv.gb_P_eps*gv.pdev[0][FD];
-				z_b.T 		= T + gv.gb_T_eps*gv.pdev[1][FD];
-						
-				SS_ref_db[ss] = raw_hyperplane(		gv, 
-													SS_ref_db[ss],
-													SS_ref_db[ss].mu_array[FD]	);
-				
-				SS_ref_db[ss] = PC_function(		gv,
-													SS_ref_db[ss], 
-													z_b,
-													gv.SS_list[ss] 				);
-													
-				for (int j = 0; j < SS_ref_db[ss].n_em; j++){ 
-					SS_ref_db[ss].mu_array[FD][j] = SS_ref_db[ss].mu[j];
-				}
-			}		
-													
+										
 			/** calculate Molar Mass of solution phase */
 			cp[i].mass = 0.0;
 			for (int k = 0; k < gv.len_ox; k++){
@@ -451,26 +437,26 @@ int runMAGEMin(			int    argc,
 		if (gv.pp_flags[i][1] == 1){
 
 			/* calculate phase volume as V = dG/dP */
-			PP_db    	 = G_EM_function(EM_database, z_b.bulk_rock, z_b.P, z_b.T, gv.PP_list[i], "equilibrium");
+			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T, gv.PP_list[i], "equilibrium");
 			muC	 	 	 = PP_db.gbase;
-			PP_db    	 = G_EM_function(EM_database, z_b.bulk_rock, z_b.P + gv.gb_P_eps, z_b.T, gv.PP_list[i], "equilibrium");
+			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps, z_b.T, gv.PP_list[i], "equilibrium");
 			muN 	 	 = PP_db.gbase;
-			PP_db    	 = G_EM_function(EM_database, z_b.bulk_rock, z_b.P + gv.gb_P_eps*2.0, z_b.T, gv.PP_list[i], "equilibrium");
+			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps*2.0, z_b.T, gv.PP_list[i], "equilibrium");
 			muNN 	 	 = PP_db.gbase;
 		
-			PP_db    	 = G_EM_function(EM_database, z_b.bulk_rock, z_b.P, z_b.T + gv.gb_T_eps, gv.PP_list[i], "equilibrium");
+			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T + gv.gb_T_eps, gv.PP_list[i], "equilibrium");
 			muE	 		 = PP_db.gbase;
-			PP_db    	 = G_EM_function(EM_database, z_b.bulk_rock, z_b.P, z_b.T - gv.gb_T_eps, gv.PP_list[i], "equilibrium");			
+			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T - gv.gb_T_eps, gv.PP_list[i], "equilibrium");			
 			muW	 		 = PP_db.gbase;
 
-			PP_db    	 = G_EM_function(EM_database, z_b.bulk_rock, z_b.P + gv.gb_P_eps, z_b.T + gv.gb_T_eps, gv.PP_list[i], "equilibrium");
+			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps, z_b.T + gv.gb_T_eps, gv.PP_list[i], "equilibrium");
 			muNE	 	 = PP_db.gbase;
-			PP_db    	 = G_EM_function(EM_database, z_b.bulk_rock, z_b.P + gv.gb_P_eps, z_b.T - gv.gb_T_eps, gv.PP_list[i], "equilibrium");			
+			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps, z_b.T - gv.gb_T_eps, gv.PP_list[i], "equilibrium");			
 			muNW	 	 = PP_db.gbase;
 
 			/* Calculate mass per pure phase */
 			PP_ref_db[i].mass = 0.0;
-			for (int j = 0; j< nEl; j++){
+			for (int j = 0; j< gv.len_ox; j++){
 				PP_ref_db[i].mass += PP_ref_db[i].Comp[j]*z_b.masspo[j];
 			}
 
@@ -610,7 +596,7 @@ int runMAGEMin(			int    argc,
 /** 
   Compute stable equilibrium at given Pressure, Temperature and bulk-rock composition
 */
-global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
+	global_variable ComputeEquilibrium_Point( 	int 				 EM_database,
 												io_data 			 input_data,
 												bulk_info 	 		 z_b,
 												global_variable 	 gv,
@@ -623,14 +609,16 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 	/** pointer array to objective functions 								*/
 	obj_type 								SS_objective[gv.len_ss];	
 	
-	SS_objective_init_function(				SS_objective,
-											gv							);
+	if (EM_database == 2){			// Igneous database //
+		SS_ig_objective_init_function(			SS_objective,
+												gv							);
+	}
 
 
 	/* initialize endmember database for given P-T point */
 	gv = init_em_db(		EM_database,
-							z_b,										/** bulk rock informations 			*/
-							gv,											/** global variables (e.g. Gamma) 	*/
+							z_b,											/** bulk rock informations 			*/
+							gv,												/** global variables (e.g. Gamma) 	*/
 							PP_ref_db						);
 
 	/* Calculate solution phase data at given P-T conditions (G0 based on G0 of endmembers) */
@@ -645,13 +633,13 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 		/****************************************************************************************/
 		/**                                   LEVELLING                                        **/
 		/****************************************************************************************/	
-		gv = Levelling(			z_b,									/** bulk rock informations 			*/
-								gv,										/** global variables (e.g. Gamma) 	*/
+		gv = Levelling(			z_b,										/** bulk rock informations 			*/
+								gv,											/** global variables (e.g. Gamma) 	*/
 
 								SS_objective,
 							    splx_data,
-								PP_ref_db,								/** pure phase database 			*/
-								SS_ref_db,								/** solution phase database 		*/
+								PP_ref_db,									/** pure phase database 			*/
+								SS_ref_db,									/** solution phase database 		*/
 								cp							);
 
 		/****************************************************************************************/
@@ -698,10 +686,10 @@ global_variable ComputeEquilibrium_Point( 		int 				 EM_database,
 
 
 		if (gv.verbose == 1){
-			gv = check_PC_driving_force( 	z_b,						/** bulk rock constraint 			*/ 
-											gv,							/** global variables (e.g. Gamma) 	*/
+			gv = check_PC_driving_force( 	z_b,							/** bulk rock constraint 			*/ 
+											gv,								/** global variables (e.g. Gamma) 	*/
 
-											PP_ref_db,					/** pure phase database 			*/ 
+											PP_ref_db,						/** pure phase database 			*/ 
 											SS_ref_db,
 											cp				); 	
 			printf("\n\n\n");									
@@ -793,40 +781,21 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
     	{ NULL, 0, 0 }
 	};
 	ketopt_t opt = KETOPT_INIT;
-	
-	gv.n_points 		=  1;
-	gv.maxeval  		= -1;
-	gv.solver   		=  0;
-	gv.verbose 			=  0;
-	gv.Mode 			=  0;
-	gv.output_matlab 	=  0;
-	gv.test     		= -1;
-
-	z_b->P = 12.0;		
-	z_b->T = 1100.0 + 273.15;		
- 
-	for (i = 0; i < nEl; i++) {
-		gv.arg_bulk[i] = 0.0;
-		gv.arg_gamma[i]  = 0.0;
-	}
-
-	strcpy(gv.File,"none"); // Filename to be read to have multiple P-T-bulk conditions to solve
-	strcpy(gv.sys_in,"mol"); // Filename to be read to have multiple P-T-bulk conditions to solve
 
 	int    c;
 	while ((c = ketopt(&opt, argc, argv, 1, "", longopts)) >= 0) {
 		if 		(c == 314){ printf("MAGEMin %20s\n",gv.version ); exit(0); }	
 		else if (c == 315){ print_help( gv ); 					  exit(0); }	
-        else if	(c == 301){ gv.verbose     = atoi(opt.arg				);}
-		else if (c == 302){ gv.Mode  = atoi(opt.arg);			if (gv.verbose == 1){		printf("--Mode        : Mode                 = %i \n", 	 	   		gv.Mode				);}}																		
+        else if	(c == 301){ gv.verbose  = atoi(opt.arg					); }
+		else if (c == 302){ gv.Mode  	= atoi(opt.arg);		if (gv.verbose == 1){		printf("--Mode        : Mode                 = %i \n", 	 	   		gv.Mode				);}}																		
 		else if (c == 316){ gv.solver   = atoi(opt.arg);		if (gv.verbose == 1){		printf("--solver      : solver               = %i \n", 	 	   		gv.solver			);}}																		
 		else if (c == 318){ gv.output_matlab   = atoi(opt.arg); if (gv.verbose == 1){		printf("--out_matlab  : out_matlab           = %i \n", 	 	   		gv.output_matlab	);}}																		
 		else if (c == 303){ strcpy(gv.File,opt.arg);		 	if (gv.verbose == 1){		printf("--File        : File                 = %s \n", 	 	   		gv.File				);}}
 		else if (c == 317){ strcpy(gv.sys_in,opt.arg);		 	if (gv.verbose == 1){		printf("--sys_in      : sys_in               = %s \n", 	 	   		gv.sys_in			);}}
 		else if (c == 304){ gv.n_points = atoi(opt.arg); 	 	if (gv.verbose == 1){		printf("--n_points    : n_points             = %i \n", 	 	   		gv.n_points			);}}
-		else if (c == 305){ gv.test  = atoi(opt.arg); 		 	if (gv.verbose == 1){		printf("--test        : Test                 = %i \n", 	 	  		gv.test				);}}
-		else if (c == 306){ z_b->T     = strtof(opt.arg,NULL); 	if (gv.verbose == 1){		printf("--Temp        : Temperature          = %f C \n",            z_b->T				);}}
-		else if (c == 307){ z_b->P     = strtof(opt.arg,NULL); 	if (gv.verbose == 1){		printf("--Pres        : Pressure             = %f kbar \n", 		z_b->P				);}}
+		else if (c == 305){ gv.test  	= atoi(opt.arg); 		if (gv.verbose == 1){		printf("--test        : Test                 = %i \n", 	 	  		gv.test				);}}
+		else if (c == 306){ z_b->T=strtof(opt.arg,NULL)+273.15; if (gv.verbose == 1){		printf("--Temp        : Temperature          = %f C \n",            z_b->T				);}}
+		else if (c == 307){ z_b->P = strtof(opt.arg,NULL); 		if (gv.verbose == 1){		printf("--Pres        : Pressure             = %f kbar \n", 		z_b->P				);}}
 		else if (c == 308){ strcpy(gv.Phase,opt.arg);		 	if (gv.verbose == 1){		printf("--Phase       : Phase name           = %s \n", 	   			gv.Phase			);}}
 		else if (c == 313){ gv.maxeval  = strtof(opt.arg,NULL); if (gv.verbose == 1){
             if (gv.maxeval==0){     printf("--maxeval     : Max. # of local iter.    = infinite  \n"		); }
@@ -890,14 +859,19 @@ Databases InitializeDatabases(	global_variable gv,
 	/* Allocate memory of the considered set of phases 								*/
 	DB.sp 		 = malloc (1 	* sizeof(stb_system)); 
 
-	/* Allocate memory for each solution phase according to their specificities (n_em, sf etc) */
-	for (i = 0; i < gv.len_ss; i++){
-		DB.SS_ref_db[i] = G_SS_INIT_EM_function(		i,	
-														DB.SS_ref_db[i], 
-														EM_database, 
-														gv.SS_list[i], 
-														gv						);
+	/** 
+		Allocate memory for each solution phase according to their specificities (n_em, sf etc) 
+	*/
+	if (EM_database == 2){ 		// IGNEOUS DATABASE //
+		for (i = 0; i < gv.len_ss; i++){
+			DB.SS_ref_db[i] = G_SS_ig_init_EM_function(		i,	
+															DB.SS_ref_db[i], 
+															EM_database, 
+															gv.SS_list[i], 
+															gv						);
+		}
 	}
+
 	
 	/* Allocate memory of the considered set of phases 								*/
 	for (i = 0; i < gv.max_n_cp; i++){
@@ -906,14 +880,15 @@ Databases InitializeDatabases(	global_variable gv,
 	}
 	
 	/* Allocate memory for the stable phase equilibrium 							*/
-	DB.sp[0] = SP_INIT_function(		DB.sp[0], gv							);
+	DB.sp[0] 	 = SP_INIT_function(		DB.sp[0], gv						);
 
 	/* Endmember names */
-	DB.EM_names  =	get_EM_DB_names(EM_database);
+	DB.EM_names  =	get_EM_DB_names(		gv									);
 
 	/* Create endmember Hashtable */
 	struct EM2id *p_s, *tmp_p;
 	struct EM_db EM_return;
+	int n_em_db = gv.n_em_db;
     for (int i = 0; i < n_em_db; ++i) {
 		char EM_name[20];
         p_s = (struct EM2id *)malloc(sizeof *p_s);
@@ -940,6 +915,7 @@ Databases InitializeDatabases(	global_variable gv,
 void FreeDatabases(		global_variable gv, 
 						Databases 		DB	){
 
+	int n_em_db = gv.n_em_db;
 	for (int i = 0; i < n_em_db; i++) {
 		free(DB.EM_names[i]);
 	}
@@ -973,7 +949,8 @@ void PrintOutput(	global_variable 	gv,
        
  		if (gv.verbose == 1){
  			printf("\n______________________________\n");
-			printf("| Comp. Time: %.6f (ms) |", time_taken*1000);
+			printf("| Comp. Time: %.6f (ms) |\n", time_taken*1000);
+			printf("| Min.  Time: %.6f (ms) |", gv.tot_min_time);
             printf("\n══════════════════════════════\n");
         }
     }

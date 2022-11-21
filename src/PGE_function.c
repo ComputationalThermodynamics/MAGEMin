@@ -222,7 +222,7 @@ global_variable PGE_update_mu(		bulk_info 	z_b,
 	int 	ss;
 	double  cv;
 	for (int i = 0; i < gv.len_cp; i++){
-		if (cp[i].ss_flags[0] == 1 && (cp[i].ss_flags[1] == 1 || cp[i].ss_flags[2] == 1)){
+		if (cp[i].ss_flags[0] == 1){
 			ss  = cp[i].id;
 
 			/** rotate gbase with respect to the G-hyperplane (change of base) */
@@ -305,7 +305,7 @@ global_variable PGE_update_xi(		bulk_info 	z_b,
 ){
 	int ss;
 	for (int i = 0; i < gv.len_cp; i++){
-		if (cp[i].ss_flags[0] == 1 && (cp[i].ss_flags[1] == 1 || cp[i].ss_flags[2] == 1)){
+		if (cp[i].ss_flags[0] == 1){
 			ss = cp[i].id;
 
 			cp[i] = CP_UPDATE_function(			gv, 
@@ -468,7 +468,7 @@ void PGE_build_gradient( 	double				*b,
   Partitioning Gibbs Energy function 
 */
 global_variable PGE_update_solution(	global_variable  	 gv,
-										bulk_info 	 z_b,
+										bulk_info 	 		 z_b,
 										csd_phase_set  		*cp	){
 	int 	i, j, k, ph;										
 	double 	n_fac, 
@@ -653,7 +653,6 @@ global_variable PGE_inner_loop(		bulk_info 			 z_b,
 								
 		delta_fc_norm 	= fabs(gv.fc_norm_t1 - fc_norm_t0);
 		fc_norm_t0 		= gv.fc_norm_t1;
-		
 							
 		/**
 		calculate delta_G of pure phases 
@@ -673,7 +672,6 @@ global_variable PGE_inner_loop(		bulk_info 			 z_b,
 											cp						); 
 
 		/* Update mu and xi of solution phase  */
-
 		gv =	PGE_update_pi(				z_b,								/** bulk rock constraint 				*/ 
 											gv,									/** global variables (e.g. Gamma) 		*/
 
@@ -1281,7 +1279,7 @@ global_variable PGE(	bulk_info 			z_b,
 						SS_ref 				*SS_ref_db,
 						csd_phase_set  		*cp					){
 		
-	clock_t t; 	
+	clock_t t, v; 	
 
 	gv.LP_PGE_switch = gv.global_ite;
 	gv.LP 			 = 0;	
@@ -1318,6 +1316,7 @@ global_variable PGE(	bulk_info 			z_b,
 		/**
 			check driving force of PC when getting close to convergence
 		*/
+		v = clock();
 		if (gv.BR_norm < gv.PC_check_val1 && gv.check_PC1 == 0){
 			if (gv.verbose == 1){
 				printf("\n Checking PC driving force 1\n");	
@@ -1361,6 +1360,7 @@ global_variable PGE(	bulk_info 			z_b,
 		/**
 			Local minimization of the solution phases
 		*/
+
 		ss_min_PGE(						mode,
 										gv, 						/** global variables (e.g. Gamma) 		*/
 
@@ -1368,6 +1368,8 @@ global_variable PGE(	bulk_info 			z_b,
 										z_b,						/** bulk-rock, pressure and temperature conditions */
 										SS_ref_db,					/** solution phase database 			*/	
 										cp 					);	
+		v = clock() - v; 
+		gv.tot_min_time += ((double)v)/CLOCKS_PER_SEC*1000;
 
 		/**
 			Merge instances of the same solution phase that are compositionnally close 

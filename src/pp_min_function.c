@@ -42,7 +42,7 @@ void pp_min_function(		global_variable 	 gv,
 /** 
   initialize pure phase database */
 global_variable init_em_db(		int 				EM_database,
-								bulk_info 	z_b,
+								bulk_info 			z_b,
 								global_variable 	gv,
 								PP_ref 			   *PP_ref_db
 ){
@@ -52,7 +52,9 @@ global_variable init_em_db(		int 				EM_database,
 		for (int i = 0; i < gv.len_pp; i++){
 
 			PP_ref_db[i] = G_EM_function(	EM_database, 
+											gv.len_ox,
 											z_b.bulk_rock, 
+											z_b.apo, 
 											z_b.P, 
 											z_b.T, 
 											gv.PP_list[i], 

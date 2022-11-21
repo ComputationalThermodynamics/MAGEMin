@@ -11,17 +11,10 @@
 #include "nlopt.h"
 #include "MAGEMin.h"
 
-/**
-  function to make sure we don't get a NaN out of the log function 
-*/
-double fct_log(double a){
-	return log(fabs(a));
-};
-
 /** 
   endmembers to xeos (biotite)
 */
-void p2x_bi(void *SS_ref_db, double eps){
+void p2x_ig_bi(void *SS_ref_db, double eps){
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
 	d->iguess[0]  = (d->p[0]-2.0*d->p[1]+d->p[5]+d->p[4]+d->p[3] -1.0)/(d->p[3]+d->p[4]+d->p[5]-3.0);
@@ -47,7 +40,7 @@ void p2x_bi(void *SS_ref_db, double eps){
 /** 
   endmembers to xeos (cordierite)
 */
-void p2x_cd(void *SS_ref_db, double eps){
+void p2x_ig_cd(void *SS_ref_db, double eps){
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 	
 	d->iguess[0]  = d->p[1];
@@ -68,7 +61,7 @@ void p2x_cd(void *SS_ref_db, double eps){
 /** 
   endmembers to xeos (clinopyroxene)
 */
-void p2x_cpx(void *SS_ref_db, double eps){
+void p2x_ig_cpx(void *SS_ref_db, double eps){
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
 	d->iguess[0]  = (2.0*d->p[1] + d->p[8])/(d->p[1] - d->p[2] - d->p[3] - d->p[4] - 0.5*d->p[5] - d->p[6] + d->p[7] + d->p[8] - d->p[9] + 1.0);	
@@ -98,7 +91,7 @@ void p2x_cpx(void *SS_ref_db, double eps){
 /** 
   endmembers to xeos (epidote)
 */
-void p2x_ep(void *SS_ref_db, double eps){
+void p2x_ig_ep(void *SS_ref_db, double eps){
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
 	d->iguess[0]  = d->p[2] + d->p[1]/2.0;
@@ -117,7 +110,7 @@ void p2x_ep(void *SS_ref_db, double eps){
 /** 
   endmembers to xeos (fluid)
 */
-void p2x_fl(void *SS_ref_db, double eps){
+void p2x_ig_fl(void *SS_ref_db, double eps){
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 	
 	d->iguess[0]  = d->p[2];
@@ -149,7 +142,7 @@ void p2x_fl(void *SS_ref_db, double eps){
 /** 
   endmembers to xeos (garnet)
 */
-void p2x_g(void *SS_ref_db, double eps){
+void p2x_ig_g(void *SS_ref_db, double eps){
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
 	d->iguess[0] = (d->p[0]+d->p[4]+d->p[5]+d->p[2]+d->p[3]-1.0)/(-1.0+d->p[2]+d->p[3]);
@@ -175,7 +168,7 @@ void p2x_g(void *SS_ref_db, double eps){
 /** 
   endmembers to xeos (hornblende)
 */
-void p2x_hb(void *SS_ref_db, double eps){
+void p2x_ig_hb(void *SS_ref_db, double eps){
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
 	d->iguess[0] = (-3.5*d->p[5] - 2.0*d->p[6] - 2.5*d->p[7])/(-0.5*d->p[0] + 0.5*d->p[1] + 0.5*d->p[10] + 0.5*d->p[3] - 1.5*d->p[4] - 1.5*d->p[5] - 1.5*d->p[6] - 1.5*d->p[7] + 0.5*d->p[8] - 2.0);
@@ -206,7 +199,7 @@ void p2x_hb(void *SS_ref_db, double eps){
   endmembers to xeos (ilm)
 */
 /** DEPRECATED */
-void p2x_ilm(void *SS_ref_db, double eps){
+void p2x_ig_ilm(void *SS_ref_db, double eps){
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
 	d->iguess[0] = d->p[1]+d->p[0];
@@ -226,7 +219,7 @@ void p2x_ilm(void *SS_ref_db, double eps){
 /** 
   endmembers to xeos (liquid)
 */
-void p2x_liq(void *SS_ref_db, double eps){
+void p2x_ig_liq(void *SS_ref_db, double eps){
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 		
 	d->iguess[0]  = (d->p[2]+d->p[10])/(1.0+3./4.*d->p[10]);	
@@ -259,7 +252,7 @@ void p2x_liq(void *SS_ref_db, double eps){
 /** 
   endmembers to xeos (muscovite)
 */
-void p2x_mu(void *SS_ref_db, double eps){
+void p2x_ig_mu(void *SS_ref_db, double eps){
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
 	d->iguess[0]  = d->p[2]/(1-(d->p[0]+d->p[4]+d->p[5]+d->p[3]));
@@ -283,7 +276,7 @@ void p2x_mu(void *SS_ref_db, double eps){
 /** 
   endmembers to xeos (olivine)
 */
-void p2x_ol(void *SS_ref_db, double eps){
+void p2x_ig_ol(void *SS_ref_db, double eps){
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
 	d->iguess[0]  = (2.0*d->p[1]+d->p[3])/(2.0-d->p[0]);
@@ -303,7 +296,7 @@ void p2x_ol(void *SS_ref_db, double eps){
 /** 
   endmembers to xeos (orthopyroxene)
 */
-void p2x_opx(void *SS_ref_db, double eps){
+void p2x_ig_opx(void *SS_ref_db, double eps){
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
 	d->iguess[0] = (2.0*d->p[1] + d->p[2])/(d->p[0] + d->p[1] + d->p[2] + 0.5*d->p[6] - d->p[8] + 1.0);
@@ -333,7 +326,7 @@ void p2x_opx(void *SS_ref_db, double eps){
 /** 
   endmembers to xeos (plagioclase)
 */
-void p2x_pl4T(void *SS_ref_db, double eps){
+void p2x_ig_pl4T(void *SS_ref_db, double eps){
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 	
 	d->iguess[0] = d->p[1];
@@ -352,7 +345,7 @@ void p2x_pl4T(void *SS_ref_db, double eps){
 /** 
   endmembers to xeos (spinel)
 */
-void p2x_spn(void *SS_ref_db, double eps){
+void p2x_ig_spn(void *SS_ref_db, double eps){
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
 	d->iguess[0]  = (1.0 - d->p[6] - d->p[7] - d->p[0] - d->p[1])/(d->p[7] + 1.0);
@@ -384,7 +377,7 @@ void p2x_spn(void *SS_ref_db, double eps){
 /** 
   update dpdpx matrix (biotite)
 */
-void dpdx_bi(void *SS_ref_db, const double *x){
+void dpdx_ig_bi(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double **dp_dx = d->dp_dx;
 
@@ -399,7 +392,7 @@ void dpdx_bi(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (cordierite)
 */
-void dpdx_cd(void *SS_ref_db, const double *x){
+void dpdx_ig_cd(void *SS_ref_db, const double *x){
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
 	double **dp_dx = d->dp_dx;
@@ -412,7 +405,7 @@ void dpdx_cd(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (clinopyroxene)
 */
-void dpdx_cpx(void *SS_ref_db, const double *x){
+void dpdx_ig_cpx(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double **dp_dx = d->dp_dx;
 
@@ -431,7 +424,7 @@ void dpdx_cpx(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (epidote)
 */
-void dpdx_ep(void *SS_ref_db, const double *x){
+void dpdx_ig_ep(void *SS_ref_db, const double *x){
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
 	double **dp_dx = d->dp_dx;
@@ -444,7 +437,7 @@ void dpdx_ep(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (fluid)
 */
-void dpdx_fl(void *SS_ref_db, const double *x){
+void dpdx_ig_fl(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double **dp_dx = d->dp_dx;
 
@@ -464,7 +457,7 @@ void dpdx_fl(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (garnet)
 */
-void dpdx_g(void *SS_ref_db, const double *x){
+void dpdx_ig_g(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double **dp_dx = d->dp_dx;
 
@@ -479,7 +472,7 @@ void dpdx_g(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (hornblende)
 */
-void dpdx_hb(void *SS_ref_db, const double *x){
+void dpdx_ig_hb(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double **dp_dx = d->dp_dx;
 
@@ -499,7 +492,7 @@ void dpdx_hb(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (ilm)
 */
-void dpdx_ilm(void *SS_ref_db, const double *x){
+void dpdx_ig_ilm(void *SS_ref_db, const double *x){
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 	double **dp_dx = d->dp_dx;
 	
@@ -511,7 +504,7 @@ void dpdx_ilm(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (liquid)
 */
-void dpdx_liq(void *SS_ref_db, const double *x){
+void dpdx_ig_liq(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double **dp_dx = d->dp_dx;
 
@@ -531,7 +524,7 @@ void dpdx_liq(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (muscovite)
 */ 
-void dpdx_mu(void *SS_ref_db, const double *x){
+void dpdx_ig_mu(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double **dp_dx = d->dp_dx;
 
@@ -546,7 +539,7 @@ void dpdx_mu(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (olivine)
 */
-void dpdx_ol(void *SS_ref_db, const double *x){
+void dpdx_ig_ol(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double **dp_dx = d->dp_dx;
 
@@ -559,7 +552,7 @@ void dpdx_ol(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (orthopyroxene)
 */
-void dpdx_opx(void *SS_ref_db, const double *x){
+void dpdx_ig_opx(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double **dp_dx = d->dp_dx;
 
@@ -577,7 +570,7 @@ void dpdx_opx(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (plagioclase)
 */
-void dpdx_pl4T(void *SS_ref_db, const double *x){
+void dpdx_ig_pl4T(void *SS_ref_db, const double *x){
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
 	double **dp_dx = d->dp_dx;
@@ -590,7 +583,7 @@ void dpdx_pl4T(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (spinel)
 */
-void dpdx_spn(void *SS_ref_db, const double *x){
+void dpdx_ig_spn(void *SS_ref_db, const double *x){
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 	
 	double **dp_dx = d->dp_dx;
@@ -608,7 +601,7 @@ void dpdx_spn(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (biotite)
 */
-void px_bi(void *SS_ref_db, const double *x){
+void px_ig_bi(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
         p[0]           = -2.*x[4]/3.0 + x[2]*x[0] - x[2] + x[3]*x[0] - x[3] + x[0]*x[1] - x[0] - x[1] + 1.0;
@@ -622,7 +615,7 @@ void px_bi(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (cordierite)
 */
-void px_cd(void *SS_ref_db, const double *x){
+void px_ig_cd(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
         p[0]           = -x[1] - x[0] + 1.0;
@@ -633,7 +626,7 @@ void px_cd(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (clinopyroxene)
 */
-void px_cpx(void *SS_ref_db, const double *x){
+void px_ig_cpx(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
         p[0]           = - x[8] - x[3] - x[2] - x[1] + 1.0;
@@ -651,7 +644,7 @@ void px_cpx(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (epidote)
 */
-void px_ep(void *SS_ref_db, const double *x){
+void px_ig_ep(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
         p[0]           = - x[1] - x[0] + 1.0;
@@ -662,7 +655,7 @@ void px_ep(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (fluid)
 */
-void px_fl(void *SS_ref_db, const double *x){
+void px_ig_fl(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
         p[0]           = - x[6] - x[3] - x[2] - x[9] - x[5] - x[4] - x[8] - x[1] - x[7] - x[0] + 1.0;
@@ -681,7 +674,7 @@ void px_fl(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (garnet)
 */
-void px_g(void *SS_ref_db, const double *x){
+void px_ig_g(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
         p[0]           = x[1]*x[0] - x[1] - x[3] - 4.0*x[4] - x[0] + 1.0;
@@ -695,7 +688,7 @@ void px_g(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (hornblende)
 */
-void px_hb(void *SS_ref_db, const double *x){
+void px_ig_hb(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
         p[0]           = -0.5*x[3] + x[5] - x[6] - x[7] - x[1] + x[2];
@@ -714,7 +707,7 @@ void px_hb(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (ilm)
 */
-void px_ilm(void *SS_ref_db, const double *x){
+void px_ig_ilm(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
         p[0]           = x[1];
@@ -725,7 +718,7 @@ void px_ilm(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (liquid)
 */
-void px_liq(void *SS_ref_db, const double *x){
+void px_ig_liq(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
         p[0]           = - x[6] - x[3] - x[2] - x[10] - x[5] - x[4] - x[8] - x[1] - x[7] - x[0] + 0.25*x[9]*(-3.0*x[6] - 3.0*x[3] - 3.0*x[2] - 3.0*x[10] - 3.0*x[5] - 3.0*x[4] - 3.0*x[8] - 3.0*x[1] - 3.0*x[7] - 3.0*x[0] + 4.0) + 1.0;
@@ -745,7 +738,7 @@ void px_liq(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (muscovite)
 */
-void px_mu(void *SS_ref_db, const double *x){
+void px_ig_mu(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
         p[0]           = - x[4] - x[2] - x[3] + x[1];
@@ -759,7 +752,7 @@ void px_mu(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (olivine)
 */
-void px_ol(void *SS_ref_db, const double *x){
+void px_ig_ol(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
         p[0]           = x[1];
@@ -771,7 +764,7 @@ void px_ol(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (orthopyroxene)
 */
-void px_opx(void *SS_ref_db, const double *x){
+void px_ig_opx(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
         p[0]           = - x[3]*x[7] + x[3]*x[5] - x[3]*x[1] + x[3] + x[2]*x[0] - x[2] + x[7]*x[0] - x[7] - x[0] - x[1] + 1.0;
@@ -788,7 +781,7 @@ void px_opx(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (plagioclase 4T)
 */
-void px_pl4T(void *SS_ref_db, const double *x){
+void px_ig_pl4T(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
         p[0]           = - x[0] - x[1] + 1.0;
@@ -799,7 +792,7 @@ void px_pl4T(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (spinel)
 */
-void px_spn(void *SS_ref_db, const double *x){
+void px_ig_spn(void *SS_ref_db, const double *x){
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 	double *p = d->p;
 
@@ -816,7 +809,7 @@ void px_spn(void *SS_ref_db, const double *x){
 /** 
   objective function of biotite
 */
-double obj_bi(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
+double obj_ig_bi(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
 	
@@ -831,7 +824,7 @@ double obj_bi(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	double *sf     = d->sf;
 	double *mu     = d->mu;
 
-	px_bi(SS_ref_db,x);
+	px_ig_bi(SS_ref_db,x);
 
 	for (int i = 0; i < d->n_em; i++){
 		mu_Gex[i] = 0.0;
@@ -878,7 +871,7 @@ double obj_bi(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	if (grad){
 	double *dfx    = d->dfx;
 	double **dp_dx = d->dp_dx;
-		dpdx_bi(SS_ref_db,x);
+		dpdx_ig_bi(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
 		   for (int j = 0; j < n_em; j++){
@@ -894,7 +887,7 @@ double obj_bi(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 /** 
   objective function of cordierite
 */
-double obj_cd(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
+double obj_ig_cd(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
@@ -909,7 +902,7 @@ double obj_cd(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	double *sf     = d->sf;
 	double *mu     = d->mu;
 
-	px_cd(SS_ref_db,x);
+	px_ig_cd(SS_ref_db,x);
 
 	for (int i = 0; i < d->n_em; i++){
 		mu_Gex[i] = 0.0;
@@ -946,7 +939,7 @@ double obj_cd(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	if (grad){
 	double *dfx    = d->dfx;
 	double **dp_dx = d->dp_dx;
-		dpdx_cd(SS_ref_db,x);
+		dpdx_ig_cd(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
 		   for (int j = 0; j < n_em; j++){
@@ -962,7 +955,7 @@ double obj_cd(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 /** 
   objective function of clinopyroxene
 */
-double obj_cpx(unsigned n, const double *x, double *grad, void *SS_ref_db) {
+double obj_ig_cpx(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
@@ -979,7 +972,7 @@ double obj_cpx(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 	double *sf     = d->sf;
 	double *mu     = d->mu;
 
-	px_cpx(SS_ref_db,x);
+	px_ig_cpx(SS_ref_db,x);
 
 	d->sum_v = 0.0;
 	for (int i = 0; i < d->n_em; i++){
@@ -1040,7 +1033,7 @@ double obj_cpx(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 	if (grad){
 	double *dfx    = d->dfx;
 	double **dp_dx = d->dp_dx;
-		dpdx_cpx(SS_ref_db,x);
+		dpdx_ig_cpx(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
 		   for (int j = 0; j < n_em; j++){
@@ -1056,7 +1049,7 @@ double obj_cpx(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 /** 
   objective function of epidote
 */
-double obj_ep(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
+double obj_ig_ep(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
@@ -1072,7 +1065,7 @@ double obj_ep(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	double *sf     = d->sf;
 	double *mu     = d->mu;
 
-	px_ep(SS_ref_db,x);
+	px_ig_ep(SS_ref_db,x);
 
 	for (int i = 0; i < d->n_em; i++){
 		mu_Gex[i] = 0.0;
@@ -1109,7 +1102,7 @@ double obj_ep(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	if (grad){
 	double *dfx    = d->dfx;
 	double **dp_dx = d->dp_dx;
-		dpdx_ep(SS_ref_db,x);
+		dpdx_ig_ep(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
 		   for (int j = 0; j < n_em; j++){
@@ -1125,7 +1118,7 @@ double obj_ep(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 /** 
   objective function of fluid
 */
-double obj_fl(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
+double obj_ig_fl(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
@@ -1141,7 +1134,7 @@ double obj_fl(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	double *sf     = d->sf;
 	double *mu     = d->mu;
 
-	px_fl(SS_ref_db,x);
+	px_ig_fl(SS_ref_db,x);
 
 	for (int i = 0; i < d->n_em; i++){
 		mu_Gex[i] = 0.0;
@@ -1194,7 +1187,7 @@ double obj_fl(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	if (grad){
 	double *dfx    = d->dfx;
 	double **dp_dx = d->dp_dx;
-		dpdx_fl(SS_ref_db,x);
+		dpdx_ig_fl(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
 		   for (int j = 0; j < n_em; j++){
@@ -1210,7 +1203,7 @@ double obj_fl(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 /** 
   objective function of garnet
 */
-double obj_g(unsigned   n, const double *x, double *grad, void *SS_ref_db) {
+double obj_ig_g(unsigned   n, const double *x, double *grad, void *SS_ref_db) {
 
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
@@ -1226,7 +1219,7 @@ double obj_g(unsigned   n, const double *x, double *grad, void *SS_ref_db) {
 	double *sf     = d->sf;
 	double *mu     = d->mu;
 
-	px_g(SS_ref_db,x);
+	px_ig_g(SS_ref_db,x);
 
 	d->sum_v = 0.0;
 	for (int i = 0; i < d->n_em; i++){
@@ -1277,7 +1270,7 @@ double obj_g(unsigned   n, const double *x, double *grad, void *SS_ref_db) {
 	if (grad){
 	double *dfx    = d->dfx;
 	double **dp_dx = d->dp_dx;
-		dpdx_g(SS_ref_db,x);
+		dpdx_ig_g(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
 		   for (int j = 0; j < n_em; j++){
@@ -1293,7 +1286,7 @@ double obj_g(unsigned   n, const double *x, double *grad, void *SS_ref_db) {
 /** 
   objective function of hornblende
 */
-double obj_hb(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
+double obj_ig_hb(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
@@ -1309,7 +1302,7 @@ double obj_hb(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	double *sf     = d->sf;
 	double *mu     = d->mu;
 
-	px_hb(SS_ref_db,x);
+	px_ig_hb(SS_ref_db,x);
 	
 	d->sum_v = 0.0;
 	for (int i = 0; i < d->n_em; i++){
@@ -1375,7 +1368,7 @@ double obj_hb(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	if (grad){
 	double *dfx    = d->dfx;
 	double **dp_dx = d->dp_dx;
-		dpdx_hb(SS_ref_db,x);
+		dpdx_ig_hb(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
 		   for (int j = 0; j < n_em; j++){
@@ -1391,7 +1384,7 @@ double obj_hb(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 /** 
   objective function of ilmenite
 */
-double obj_ilm(unsigned n, const double *x, double *grad, void *SS_ref_db) {
+double obj_ig_ilm(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
@@ -1407,7 +1400,7 @@ double obj_ilm(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 	double *sf     = d->sf;
 	double *mu     = d->mu;
 
-	px_ilm(SS_ref_db,x);
+	px_ig_ilm(SS_ref_db,x);
 
 	for (int i = 0; i < d->n_em; i++){
 		mu_Gex[i] = 0.0;
@@ -1446,7 +1439,7 @@ double obj_ilm(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 	if (grad){
 	double *dfx    = d->dfx;
 	double **dp_dx = d->dp_dx;
-		dpdx_ilm(SS_ref_db,x);
+		dpdx_ig_ilm(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
 		   for (int j = 0; j < n_em; j++){
@@ -1462,7 +1455,7 @@ double obj_ilm(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 /** 
   objective function of liquid
 */
-double obj_liq(unsigned n, const double *x, double *grad, void *SS_ref_db) {
+double obj_ig_liq(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
@@ -1478,7 +1471,7 @@ double obj_liq(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 	double *sf     = d->sf;
 	double *mu     = d->mu;
 
-	px_liq(SS_ref_db,x);
+	px_ig_liq(SS_ref_db,x);
 	
 	d->sum_v = 0.0;
 	for (int i = 0; i < d->n_em; i++){
@@ -1546,7 +1539,7 @@ double obj_liq(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 	if (grad){
 	double *dfx    = d->dfx;
 	double **dp_dx = d->dp_dx;
-		dpdx_liq(SS_ref_db,x);
+		dpdx_ig_liq(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
 		   for (int j = 0; j < n_em; j++){
@@ -1562,7 +1555,7 @@ double obj_liq(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 /** 
   objective function of muscovite
 */
-double obj_mu(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
+double obj_ig_mu(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
@@ -1578,7 +1571,7 @@ double obj_mu(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	double *sf     = d->sf;
 	double *mu     = d->mu;
 
-	px_mu(SS_ref_db,x);
+	px_ig_mu(SS_ref_db,x);
 
 	d->sum_v = 0.0;
 	for (int i = 0; i < d->n_em; i++){
@@ -1632,7 +1625,7 @@ double obj_mu(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	if (grad){
 	double *dfx    = d->dfx;
 	double **dp_dx = d->dp_dx;
-		dpdx_mu(SS_ref_db,x);
+		dpdx_ig_mu(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
 		   for (int j = 0; j < n_em; j++){
@@ -1648,7 +1641,7 @@ double obj_mu(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 /** 
   objective function of olivine
 */
-double obj_ol(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
+double obj_ig_ol(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
@@ -1664,7 +1657,7 @@ double obj_ol(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	double *sf     = d->sf;
 	double *mu     = d->mu;
 
-	px_ol(SS_ref_db,x);
+	px_ig_ol(SS_ref_db,x);
 
 	for (int i = 0; i < d->n_em; i++){
 		mu_Gex[i] = 0.0;
@@ -1702,7 +1695,7 @@ double obj_ol(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	if (grad){
 	double *dfx    = d->dfx;
 	double **dp_dx = d->dp_dx;
-		dpdx_ol(SS_ref_db,x);
+		dpdx_ig_ol(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
 		   for (int j = 0; j < n_em; j++){
@@ -1718,7 +1711,7 @@ double obj_ol(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 /** 
   objective function of orthopyroxene
 */
-double obj_opx(unsigned n, const double *x, double *grad, void *SS_ref_db) {
+double obj_ig_opx(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
@@ -1734,7 +1727,7 @@ double obj_opx(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 	double *sf     = d->sf;
 	double *mu     = d->mu;
 
-	px_opx(SS_ref_db,x);
+	px_ig_opx(SS_ref_db,x);
 
 	d->sum_v = 0.0;
 	for (int i = 0; i < d->n_em; i++){
@@ -1793,7 +1786,7 @@ double obj_opx(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 	if (grad){
 	double *dfx    = d->dfx;
 	double **dp_dx = d->dp_dx;
-		dpdx_opx(SS_ref_db,x);
+		dpdx_ig_opx(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
 		   for (int j = 0; j < n_em; j++){
@@ -1809,7 +1802,7 @@ double obj_opx(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 /** 
   objective function of plagioclase 4T
 */
-double obj_pl4T(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
+double obj_ig_pl4T(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
@@ -1825,7 +1818,7 @@ double obj_pl4T(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	double *sf     = d->sf;
 	double *mu     = d->mu;
 
-	px_pl4T(SS_ref_db,x);
+	px_ig_pl4T(SS_ref_db,x);
 
 	d->sum_v = 0.0;
 	for (int i = 0; i < d->n_em; i++){
@@ -1871,7 +1864,7 @@ double obj_pl4T(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 	if (grad){
 	double *dfx    = d->dfx;
 	double **dp_dx = d->dp_dx;
-		dpdx_pl4T(SS_ref_db,x);
+		dpdx_ig_pl4T(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
 		   for (int j = 0; j < n_em; j++){
@@ -1887,7 +1880,7 @@ double obj_pl4T(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 /** 
   objective function of spinel
 */
-double obj_spn(unsigned n, const double *x, double *grad, void *SS_ref_db) {
+double obj_ig_spn(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
@@ -1902,7 +1895,7 @@ double obj_spn(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 	double *sf     = d->sf;
 	double *mu     = d->mu;
 
-	px_spn(SS_ref_db,x);
+	px_ig_spn(SS_ref_db,x);
 
 	for (int i = 0; i < d->n_em; i++){
 		mu_Gex[i] = 0.0;
@@ -1950,7 +1943,7 @@ double obj_spn(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 	if (grad){
 	double *dfx    = d->dfx;
 	double **dp_dx = d->dp_dx;
-		dpdx_spn(SS_ref_db,x);
+		dpdx_ig_spn(SS_ref_db,x);
 		for (int i = 0; i < (d->n_xeos); i++){
 		   dfx[i] = 0.0;
 		   for (int j = 0; j < n_em; j++){
@@ -1963,115 +1956,6 @@ double obj_spn(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 	return d->df;
 };
 
-SS_ref PC_PX_function(		SS_ref 		 SS_ref_db, 
-							double  	*x,
-							char    	*name			){
-
-	/* Associate the right solid-solution data */
-	if 	(strcmp( name, "bi") == 0 ){
-		px_bi(&SS_ref_db,x);	
-	}
-	else if (strcmp( name, "cd")  == 0){
-		px_cd(&SS_ref_db,x);	
-	}
-	else if (strcmp( name, "cpx") == 0){
-		px_cpx(&SS_ref_db,x);
-	}	
-	else if (strcmp( name, "ep")  == 0){
-		px_ep(&SS_ref_db,x);
-	}
-	else if (strcmp( name, "fl")  == 0){
-		px_fl(&SS_ref_db,x);
-	}		
-	else if (strcmp( name, "g")   == 0){
-		px_g(&SS_ref_db,x);
-	}
-	else if (strcmp( name, "hb")  == 0){
-		px_hb(&SS_ref_db,x);
-	}	
-	else if (strcmp( name, "ilm") == 0){
-		px_ilm(&SS_ref_db,x);
-	}
-	else if (strcmp( name, "liq") == 0){
-		px_liq(&SS_ref_db,x);
-	}
-	else if (strcmp( name, "mu")  == 0){
-		px_mu(&SS_ref_db,x);	
-	}	
-	else if (strcmp( name, "ol")  == 0){
-		px_ol(&SS_ref_db,x);
-	}
-	else if (strcmp( name, "opx") == 0){
-		px_opx(&SS_ref_db,x);
-	}
-	else if (strcmp( name, "pl4T")  == 0){
-		px_pl4T(&SS_ref_db,x);
-	}	
-	else if (strcmp( name, "spn") == 0){
-		px_spn(&SS_ref_db,x);	
-	}
-	else{
-		printf("\nsolid solution '%s' is not in the database\n",name);		
-	}	
-	
-	return SS_ref_db;
-};
-
-SS_ref PC_DPDX_function(	SS_ref 			 SS_ref_db, 
-							double  		*x,
-							char    		*name				){
-
-	/* Associate the right solid-solution data */
-	if 	(strcmp( name, "bi") == 0 ){
-		dpdx_bi(&SS_ref_db,x);	
-	}
-	else if (strcmp( name, "cd")  == 0){
-		dpdx_cd(&SS_ref_db,x);	
-	}
-	else if (strcmp( name, "cpx") == 0){
-		dpdx_cpx(&SS_ref_db,x);
-	}	
-	else if (strcmp( name, "ep")  == 0){
-		dpdx_ep(&SS_ref_db,x);
-	}
-	else if (strcmp( name, "fl")  == 0){
-		dpdx_fl(&SS_ref_db,x);
-	}		
-	else if (strcmp( name, "g")   == 0){
-		dpdx_g(&SS_ref_db,x);
-	}
-	else if (strcmp( name, "hb")  == 0){
-		dpdx_hb(&SS_ref_db,x);
-	}	
-	else if (strcmp( name, "ilm") == 0){
-		dpdx_ilm(&SS_ref_db,x);
-	}
-	else if (strcmp( name, "liq") == 0){
-		dpdx_liq(&SS_ref_db,x);
-	}
-	else if (strcmp( name, "mu")  == 0){
-		dpdx_mu(&SS_ref_db,x);	
-	}	
-	else if (strcmp( name, "ol")  == 0){
-		dpdx_ol(&SS_ref_db,x);
-	}
-	else if (strcmp( name, "opx") == 0){
-		dpdx_opx(&SS_ref_db,x);
-	}
-	else if (strcmp( name, "pl4T")  == 0){
-		dpdx_pl4T(&SS_ref_db,x);
-	}	
-	else if (strcmp( name, "spn") == 0){
-		dpdx_spn(&SS_ref_db,x);	
-	}
-	else{
-		printf("\nsolid solution '%s' is not in the database\n",name);		
-	}	
-	
-	return SS_ref_db;
-};
-
-
 SS_ref P2X(					global_variable 	 gv,
 							SS_ref 				 SS_ref_db, 
 							bulk_info 			 z_b,
@@ -2081,46 +1965,46 @@ SS_ref P2X(					global_variable 	 gv,
 
 	/* Associate the right solid-solution data */
 	if 	(strcmp( name, "bi") == 0 ){
-		p2x_bi(&SS_ref_db, eps);	
+		p2x_ig_bi(&SS_ref_db, eps);	
 	}
 	else if (strcmp( name, "cd")  == 0){
-		p2x_cd(&SS_ref_db, eps);	
+		p2x_ig_cd(&SS_ref_db, eps);	
 	}
 	else if (strcmp( name, "cpx") == 0){
-		p2x_cpx(&SS_ref_db, eps);
+		p2x_ig_cpx(&SS_ref_db, eps);
 	}	
 	else if (strcmp( name, "ep")  == 0){
-		p2x_ep(&SS_ref_db, eps);
+		p2x_ig_ep(&SS_ref_db, eps);
 	}
 	else if (strcmp( name, "fl")  == 0){
-		p2x_fl(&SS_ref_db, eps);
+		p2x_ig_fl(&SS_ref_db, eps);
 	}		
 	else if (strcmp( name, "g")   == 0){
-		p2x_g(&SS_ref_db, eps);
+		p2x_ig_g(&SS_ref_db, eps);
 	}
 	else if (strcmp( name, "hb")  == 0){
-		p2x_hb(&SS_ref_db, eps);
+		p2x_ig_hb(&SS_ref_db, eps);
 	}	
 	else if (strcmp( name, "ilm") == 0){
-		p2x_ilm(&SS_ref_db, eps);
+		p2x_ig_ilm(&SS_ref_db, eps);
 	}
 	else if (strcmp( name, "liq") == 0){
-		p2x_liq(&SS_ref_db, eps);
+		p2x_ig_liq(&SS_ref_db, eps);
 	}
 	else if (strcmp( name, "mu")  == 0){
-		p2x_mu(&SS_ref_db, eps);	
+		p2x_ig_mu(&SS_ref_db, eps);	
 	}	
 	else if (strcmp( name, "ol")  == 0){
-		p2x_ol(&SS_ref_db, eps);
+		p2x_ig_ol(&SS_ref_db, eps);
 	}
 	else if (strcmp( name, "opx") == 0){
-		p2x_opx(&SS_ref_db, eps);
+		p2x_ig_opx(&SS_ref_db, eps);
 	}
 	else if (strcmp( name, "pl4T")  == 0){
-		p2x_pl4T(&SS_ref_db, eps);
+		p2x_ig_pl4T(&SS_ref_db, eps);
 	}	
 	else if (strcmp( name, "spn") == 0){
-		p2x_spn(&SS_ref_db, eps);	
+		p2x_ig_spn(&SS_ref_db, eps);	
 	}
 	else{
 		printf("\nsolid solution '%s' is not in the database\n",name);		
@@ -2138,46 +2022,46 @@ SS_ref PC_function(		global_variable 	 gv,
 
 	/* Associate the right solid-solution data */
 	if 	(strcmp( name, "bi") == 0 ){
-		G0 = obj_bi(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_ig_bi(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}
 	else if (strcmp( name, "cd")  == 0){
-		G0 = obj_cd(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_ig_cd(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}
 	else if (strcmp( name, "cpx") == 0){	
-		G0 = obj_cpx(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_ig_cpx(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
 			}	
 	else if (strcmp( name, "ep")  == 0){
-		G0 = obj_ep(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_ig_ep(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}
 	else if (strcmp( name, "fl")  == 0){
-		G0 = obj_fl(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_ig_fl(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}		
 	else if (strcmp( name, "g")   == 0){
-		G0 = obj_g(SS_ref_db.n_xeos, SS_ref_db.iguess, 		SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_ig_g(SS_ref_db.n_xeos, SS_ref_db.iguess, 		SS_ref_db.dfx, &SS_ref_db);
 	}
 	else if (strcmp( name, "hb")  == 0){
-		G0 = obj_hb(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_ig_hb(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}	
 	else if (strcmp( name, "ilm") == 0){
-		G0 = obj_ilm(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_ig_ilm(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}	
 	else if (strcmp( name, "liq") == 0){
-		G0 = obj_liq(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_ig_liq(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}
 	else if (strcmp( name, "mu")  == 0){
-		G0 = obj_mu(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_ig_mu(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}	
 	else if (strcmp( name, "ol")  == 0){
-		G0 = obj_ol(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_ig_ol(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}
 	else if (strcmp( name, "opx") == 0){
-		G0 = obj_opx(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_ig_opx(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}
 	else if (strcmp( name, "pl4T")  == 0){
-		G0 = obj_pl4T(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_ig_pl4T(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}	
 	else if (strcmp( name, "spn") == 0){	
-		G0 = obj_spn(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_ig_spn(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}
 	else{
 		printf("\nsolid solution '%s' is not in the database\n",name);		
@@ -2187,7 +2071,7 @@ SS_ref PC_function(		global_variable 	 gv,
 	SS_ref_db.df = G0;
 	
 	/** initialize composition */
-	for (int j = 0; j < nEl; j++){
+	for (int j = 0; j < gv.len_ox; j++){
 	   SS_ref_db.ss_comp[j] = 0.0;
 	}
 	
@@ -2198,7 +2082,7 @@ SS_ref PC_function(		global_variable 	 gv,
 	
 	/* find solution phase composition*/
 	for (int i = 0; i < SS_ref_db.n_em; i++){
-	   for (int j = 0; j < nEl; j++){
+	   for (int j = 0; j < gv.len_ox; j++){
 		   SS_ref_db.ss_comp[j] += SS_ref_db.Comp[i][j]*SS_ref_db.p[i]*SS_ref_db.z_em[i];
 	   } 
 	}

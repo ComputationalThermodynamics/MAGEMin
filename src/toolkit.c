@@ -142,13 +142,13 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 
 	if (gv.verbose == 1){	
 		if (strcmp( gv.sys_in, "mol") == 0){	
-			printf("   - input system composition   : mol fraction\n"	);
+			printf("  - input system composition   : mol fraction\n"	);
 		}
 		else if (strcmp( gv.sys_in, "wt") == 0){	
-			printf("   - input system composition   : wt fraction\n"	);
+			printf("  - input system composition   : wt fraction\n"	);
 		}
 		else{
-			printf("   - input system composition   : unknown! [has to be mol or wt]\n");
+			printf("  - input system composition   : unknown! [has to be mol or wt]\n");
 		}
 		printf("\n");
 	}	
@@ -779,6 +779,13 @@ void print_SS_informations(		global_variable gv,
 		printf(" %10s","-");
 	}
 	printf("\n");
+	// for (int k = 0; k < SS_ref_db.n_xeos; k++) {
+	// 	printf(" %+10f",SS_ref_db.dfx[k]);
+	// }
+	// for (int k = SS_ref_db.n_xeos; k < 12; k++){
+	// 	printf(" %10s","-");
+	// }
+	// printf("\n");
 }
 
 /**

@@ -38,39 +38,39 @@ Levelling occurs in two stages:
 /**
 	associate the array of pointer with the right solution phase
 */
-void SS_objective_init_function(	obj_type 			*SS_objective,
+void SS_ig_objective_init_function(	obj_type 			*SS_objective,
 									global_variable 	 gv				){	
 						 
 	for (int iss = 0; iss < gv.len_ss; iss++){
 
 		if      (strcmp( gv.SS_list[iss], "bi")  == 0 ){
-			SS_objective[iss]  = obj_bi; 		}
+			SS_objective[iss]  = obj_ig_bi; 		}
 		else if (strcmp( gv.SS_list[iss], "cd")  == 0){
-			SS_objective[iss]  = obj_cd; 		}
+			SS_objective[iss]  = obj_ig_cd; 		}
 		else if (strcmp( gv.SS_list[iss], "cpx") == 0){
-			SS_objective[iss]  = obj_cpx; 		}
+			SS_objective[iss]  = obj_ig_cpx; 		}
 		else if (strcmp( gv.SS_list[iss], "ep")  == 0){
-			SS_objective[iss]  = obj_ep; 		}
+			SS_objective[iss]  = obj_ig_ep; 		}
 		else if (strcmp( gv.SS_list[iss], "fl")  == 0){
-			SS_objective[iss]  = obj_fl; 		}
+			SS_objective[iss]  = obj_ig_fl; 		}
 		else if (strcmp( gv.SS_list[iss], "g")   == 0){
-			SS_objective[iss]  = obj_g; 		}
+			SS_objective[iss]  = obj_ig_g; 		}
 		else if (strcmp( gv.SS_list[iss], "hb")  == 0){
-			SS_objective[iss]  = obj_hb; 		}
+			SS_objective[iss]  = obj_ig_hb; 		}
 		else if (strcmp( gv.SS_list[iss], "ilm") == 0){
-			SS_objective[iss]  = obj_ilm; 		}
+			SS_objective[iss]  = obj_ig_ilm; 		}
 		else if (strcmp( gv.SS_list[iss], "liq") == 0){
-			SS_objective[iss]  = obj_liq; 		}
+			SS_objective[iss]  = obj_ig_liq; 		}
 		else if (strcmp( gv.SS_list[iss], "mu")  == 0){
-			SS_objective[iss]  = obj_mu; 		}
+			SS_objective[iss]  = obj_ig_mu; 		}
 		else if (strcmp( gv.SS_list[iss], "ol")  == 0){
-			SS_objective[iss]  = obj_ol; 		}
+			SS_objective[iss]  = obj_ig_ol; 		}
 		else if (strcmp( gv.SS_list[iss], "opx") == 0){
-			SS_objective[iss]  = obj_opx; 		}
+			SS_objective[iss]  = obj_ig_opx; 		}
 		else if (strcmp( gv.SS_list[iss], "pl4T") == 0){
-			SS_objective[iss]  = obj_pl4T; 		}
+			SS_objective[iss]  = obj_ig_pl4T; 		}
 		else if (strcmp( gv.SS_list[iss], "spn") == 0){
-			SS_objective[iss]  = obj_spn; 		}
+			SS_objective[iss]  = obj_ig_spn; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	
@@ -572,7 +572,7 @@ void generate_pseudocompounds(	int 		 		 ss,
 								bulk_info 	 		 z_b,
 								global_variable 	 gv,
 								SS_ref 				*SS_ref_db,
-								PC_ref 				*SS_PC_xeos,
+								PC_ref 				*SS_pc_xeos,
 								obj_type 			*SS_objective				){
 
 	struct ss_pc get_ss_pv;							
@@ -586,7 +586,7 @@ void generate_pseudocompounds(	int 		 		 ss,
 	}
 						
 	for (int k = 0; k < gv.n_SS_PC[ss]; k++){
-		get_ss_pv = SS_PC_xeos[ss].ss_pc_xeos[k]; 
+		get_ss_pv = SS_pc_xeos[ss].ss_pc_xeos[k]; 
 		
 		/* TMP, not so elegant way to deal with cases were an oxide of the bulk rock composition = 0.0 */	
 		for (int i = 0; i < SS_ref_db[ss].n_xeos; i++){
@@ -600,7 +600,7 @@ void generate_pseudocompounds(	int 		 		 ss,
 		if ( G < gv.max_G_pc ){
 
 			/* get composition of solution phase */
-			for (j = 0; j < nEl; j++){
+			for (j = 0; j < gv.len_ox; j++){
 				SS_ref_db[ss].ss_comp[j] = 0.0;
 				for (i = 0; i < SS_ref_db[ss].n_em; i++){
 					SS_ref_db[ss].ss_comp[j] += SS_ref_db[ss].Comp[i][j]*SS_ref_db[ss].p[i]*SS_ref_db[ss].z_em[i];
@@ -1068,14 +1068,16 @@ void run_simplex_levelling(				bulk_info 	 		 z_b,
 	/** generate the pseudocompounds -> stored in the SS_ref_db structure */
 	if (gv.verbose == 1){ printf(" Generate pseudocompounds:\n"); }
 	
-	PC_ref 			SS_PC_xeos[gv.len_ss];
-	
-	for (iss = 0; iss < gv.len_ss; iss++){
-		SS_PC_init_function(			SS_PC_xeos, 
-										iss,
-										gv.SS_list[iss]				);
+	PC_ref 			SS_pc_xeos[gv.len_ss];
+
+	if (gv.EM_database == 2){
+		for (iss = 0; iss < gv.len_ss; iss++){
+			SS_ig_pc_init_function(			SS_pc_xeos, 
+											iss,
+											gv.SS_list[iss]				);
+		}
 	}
-	
+
 	for (iss = 0; iss < gv.len_ss; iss++){
 		if (SS_ref_db[iss].ss_flags[0] == 1){
 
@@ -1083,7 +1085,7 @@ void run_simplex_levelling(				bulk_info 	 		 z_b,
 										z_b,
 										gv,
 										SS_ref_db,
-										SS_PC_xeos,
+										SS_pc_xeos,
 										SS_objective				);
 
 			if (gv.verbose == 1){

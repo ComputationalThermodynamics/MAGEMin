@@ -12,14 +12,15 @@
 #include "gem_function.h"
 #include "toolkit.h"
 
-#define nEl 11
 #define eps 1e-8
 
 /**
   compute the Gibbs Free energy from the thermodynamic database
 */
 PP_ref G_EM_function(		int 		 EM_database, 
+							int 		 len_ox,
 							double 		*bulk_rock, 
+							double 		*apo, 
 							double 		 P, 
 							double 		 T, 
 							char 		*name, 
@@ -31,8 +32,8 @@ PP_ref G_EM_function(		int 		 EM_database,
 	EM_return   = Access_EM_DB(p_id, EM_database);
 	
 	/* Get composition (in molar amount) */
-	double composition[nEl];
-	for (i = 0; i < nEl; i ++){
+	double composition[len_ox];
+	for (i = 0; i < len_ox; i ++){
 		composition[i] = EM_return.Comp[i];
 	}
 	
@@ -79,7 +80,7 @@ PP_ref G_EM_function(		int 		 EM_database,
                                + cpb* (T - t0) - 
 							   cpc/2.0* (pow(T,-2.) - pow(t0,-2.0)) - 2.0* cpd* (pow(T,-0.5) - pow(t0,-0.5)));
 							   
-	n        = EM_return.Comp[nEl];
+	n        = EM_return.Comp[len_ox];
 	
 	char liq_tail[] = "L";
 	if ( EndsWithTail(name, liq_tail) == 1 ) {
@@ -276,18 +277,17 @@ PP_ref G_EM_function(		int 		 EM_database,
 	PP_ref PP_ref_db;
 	
 	/* Calculate normalizing factor using bulk-rock composition */
-	double apo[11] = {3.0,5.0,2.0,2.0,2.0,3.0,3.0,3.0,1.0,5.0,3.0};
 	double factor  = 0.0;
 	
 	/* Calculate the number of atoms in the bulk-rock composition */
 	double fbc     = 0.0;
-	for (i = 0; i < nEl; i++){
+	for (i = 0; i < len_ox; i++){
 		fbc += bulk_rock[i]*apo[i];
 	}
 	
 	/* Calculate the number of atom in the solution */
 	double ape = 0.0;
-	for (i = 0; i < nEl; i++){
+	for (i = 0; i < len_ox; i++){
 		ape += composition[i]*apo[i];
 	}
 	
@@ -295,7 +295,7 @@ PP_ref G_EM_function(		int 		 EM_database,
 	factor = fbc/ape;
 
 	strcpy(PP_ref_db.Name, name);
-	for (i = 0; i < nEl; i++){
+	for (i = 0; i < len_ox; i++){
 		PP_ref_db.Comp[i] = composition[i];
 	}
 	PP_ref_db.gbase   =  gbase;

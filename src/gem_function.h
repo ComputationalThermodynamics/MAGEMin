@@ -24,6 +24,13 @@ typedef struct PP_refs {
     
 } PP_ref;
 
-PP_ref G_EM_function(int EM_database, double *bulk_rock, double P, double T, char *name, char *state);
+PP_ref G_EM_function(   int          EM_database, 
+                        int          len_ox,
+                        double      *bulk_rock, 
+                        double      *apo,
+                        double       P, 
+                        double       T, 
+                        char        *name, 
+                        char        *state          );
 
 #endif
