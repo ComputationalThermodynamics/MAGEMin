@@ -41,7 +41,7 @@ Call optimization routine for given P-T-X
 .. code-block:: shell   
 
    gv.verbose  = -1    # switch off any verbose
-   out         = point_wise_minimization(sys_in,P,T, bulk_rock, gv, DB);
+   out         = point_wise_minimization(P,T, bulk_rock, gv, DB, sys_in);
 
 Display minimized point
 ************************

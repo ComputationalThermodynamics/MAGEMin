@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Mon Jun 27 07:08:12 2022
+# Make data base, printed on Wed Oct 26 16:18:03 2022
 
 # Variables
 
@@ -22,8 +22,6 @@ DESKTOP_SESSION = ubuntu
 .SHELLFLAGS := -c
 # environment
 XDG_SESSION_TYPE = x11
-# environment
-VSCODE_LOG_NATIVE = false
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
@@ -37,13 +35,12 @@ GDMSESSION = ubuntu
 # environment
 XMODIFIERS = @im=ibus
 # makefile
-CURDIR := /home/seph/Master_release_MAGEMin/doc_raw
+CURDIR := /home/seph/MAGEMin_dev/doc_raw
 # makefile
 SHELL = /bin/sh
 # environment
 VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupport":true}
 # environment
- 
 _ = /usr/share/code/code
 # environment
 XDG_CONFIG_DIRS = /etc/xdg/xdg-ubuntu:/etc/xdg
@@ -61,8 +58,6 @@ MAKELEVEL := 0
 XDG_DATA_DIRS = /usr/share/ubuntu:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop
 # environment
 DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus
-# environment
-VSCODE_VERBOSE_LOGGING = true
 # makefile (from 'Makefile', line 9)
 BUILDDIR = _build
 # environment
@@ -82,15 +77,13 @@ GPG_AGENT_INFO = /run/user/1000/gnupg/S.gpg-agent:0:1
 # environment
 GJS_DEBUG_OUTPUT = stderr
 # environment
-SESSION_MANAGER = local/seph-VirtualBox:@/tmp/.ICE-unix/2044,unix/seph-VirtualBox:/tmp/.ICE-unix/2044
+SESSION_MANAGER = local/seph-VirtualBox:@/tmp/.ICE-unix/18753,unix/seph-VirtualBox:/tmp/.ICE-unix/18753
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
 TEXTDOMAIN = im-config
 # environment
 XDG_MENU_PREFIX = gnome-
-# environment
-VSCODE_LOG_STACK = false
 # environment
 ELECTRON_RUN_AS_NODE = 1
 # default
@@ -102,7 +95,7 @@ XDG_SESSION_DESKTOP = ubuntu
 # environment
 SSH_AUTH_SOCK = /run/user/1000/keyring/ssh
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 5776
+GIO_LAUNCHED_DESKTOP_FILE_PID = 22488
 # automatic
 %F = $(notdir $%)
 # environment
@@ -110,13 +103,11 @@ DISPLAY = :0
 # environment
 GTK_IM_MODULE = ibus
 # environment
-VSCODE_PIPE_LOGGING = true
-# environment
-PWD = /home/seph/Master_release_MAGEMin/doc_raw
+PWD = /home/seph/MAGEMin_dev/doc_raw
 # environment
 XDG_SEAT = seat0
 # environment
-SSH_AGENT_PID = 2186
+SSH_AGENT_PID = 18888
 # environment
 ORIGINAL_XDG_CURRENT_DESKTOP = ubuntu:GNOME
 # environment
@@ -128,11 +119,9 @@ HOME = /home/seph
 # environment
 LESSCLOSE = /usr/bin/lesspipe %s %s
 # environment
-VSCODE_CODE_CACHE_PATH = /home/seph/.config/Code/CachedData/c3511e6c69bb39013c4a4b7b9566ec1ca73fc4d5
+VSCODE_CODE_CACHE_PATH = /home/seph/.config/Code/CachedData/d045a5eda657f4d7b676dedbfa7aab8207f8a075
 # environment
 LOGNAME = seph
-# environment
-APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
 # automatic
 +F = $(notdir $+)
 # environment
@@ -158,8 +147,6 @@ SHLVL = 1
 # environment
 GNOME_SHELL_SESSION_MODE = ubuntu
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-39653484-05ce-4c7b-b692-8bf8b2eae983.sock
-# environment
 XDG_SESSION_ID = 2
 # environment
 USER = seph
@@ -182,7 +169,7 @@ MAKE_COMMAND := make
 # automatic
 *F = $(notdir $*)
 # environment
-VSCODE_IPC_HOOK = /run/user/1000/vscode-c16b96de-1.67.2-main.sock
+VSCODE_IPC_HOOK = /run/user/1000/vscode-c16b96de-1.72.2-main.sock
 # makefile
 MAKEFLAGS = pqrR
 # environment
@@ -214,7 +201,6 @@ LC_ALL = C
 # environment
 QT4_IM_MODULE = xim
 # environment
- 
 GJS_DEBUG_TOPICS = JS ERROR;JS LOG
 # automatic
 ^F = $(notdir $^)
@@ -237,19 +223,17 @@ LANG = C
 # makefile (from 'Makefile', line 8)
 SOURCEDIR = .
 # environment
-VSCODE_PID = 5776
+VSCODE_PID = 22488
 # variable set hash-table stats:
- 
-# Load=113/1024=11%, Rehash=0, Collisions=19/148=13%
+# Load=107/1024=10%, Rehash=0, Collisions=18/142=13%
 
- 
 # Pattern-specific Variable Values
 
 # No pattern-specific variable values.
 
 # Directories
 
-# . (device 2049, inode 2659110): 23 files, no impossibilities.
+# . (device 2049, inode 2116680): 23 files, no impossibilities.
 
 # 23 files, no impossibilities in 1 directories.
 
@@ -261,7 +245,6 @@ VSCODE_PID = 5776
 
 # 1 implicit rules, 0 (0.0%) terminal.
 
- 
 # Files
 
 all: Makefile
@@ -296,6 +279,7 @@ all: Makefile
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
+ 
 
 Makefile:
 #  Phony target (prerequisite of .PHONY).
@@ -306,7 +290,6 @@ Makefile:
 
 help:
 #  Phony target (prerequisite of .PHONY).
- 
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
@@ -325,7 +308,6 @@ help:
 
 # No 'vpath' search paths.
 
- 
 # No general ('VPATH' variable) search path.
 
 # strcache buffers: 1 (0) / strings = 31 / storage = 228 B / avg = 7 B
@@ -334,6 +316,6 @@ help:
 # strcache performance: lookups = 43 / hit rate = 27%
 # hash-table stats:
 # Load=31/8192=0%, Rehash=0, Collisions=1/43=2%
-# Finished Make data base on Mon Jun 27 07:08:12 2022
+# Finished Make data base on Wed Oct 26 16:18:03 2022
 
  

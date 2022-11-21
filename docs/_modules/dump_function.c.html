@@ -145,6 +145,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#compiler-linux">Compiler (Linux)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#minimum-pressure">Minimum pressure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#reduced-chemical-system">Reduced chemical system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#set-oxygen-content">Set Oxygen content</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../issues.html#known-problems">Known problems</a><ul>
@@ -299,15 +300,6 @@
 <span class="w">		</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;// {number status[] P[kbar] T[C] G_sys[G] BR_norm[wt] Gamma[G] Vp[km/s] Vs[km/s] entropy[J/K]} nextline {Phase[name] mode[wt] density[kg.m-3] x-eos}</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">		</span><span class="n">fclose</span><span class="p">(</span><span class="n">loc_min</span><span class="p">);</span><span class="w">	</span>
 
-
-<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">save_residual_evolution</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
-<span class="w">			</span><span class="cm">/** OUTPUT RESIDUAL EVOLUTION **/</span><span class="w"></span>
-<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">numprocs</span><span class="o">==</span><span class="mi">1</span><span class="p">){</span><span class="w">	</span><span class="n">sprintf</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w">	</span><span class="s">&quot;%s_residual_norm.txt&quot;</span><span class="w">		</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">outpath</span><span class="p">);</span><span class="w"> 		</span><span class="p">}</span><span class="w"></span>
-<span class="w">			</span><span class="k">else</span><span class="w"> 			</span><span class="p">{</span><span class="w">	</span><span class="n">sprintf</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w">	</span><span class="s">&quot;%s_residual_norm.%i.txt&quot;</span><span class="w">	</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">outpath</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">);</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
-<span class="w">			</span><span class="n">loc_min</span><span class="w"> 	</span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot;w&quot;</span><span class="p">);</span><span class="w"> </span>
-<span class="w">			</span><span class="n">fclose</span><span class="p">(</span><span class="n">loc_min</span><span class="p">);</span><span class="w">	</span>
-<span class="w">		</span><span class="p">}</span><span class="w"></span>
-<span class="w">			</span>
 <span class="w">		</span><span class="cm">/** MODE 2 - LOCAL MINIMA **/</span><span class="w"></span>
 <span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">Mode</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">){</span><span class="w"></span>
 <span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">numprocs</span><span class="o">==</span><span class="mi">1</span><span class="p">){</span><span class="w">	 </span><span class="n">sprintf</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w">	</span><span class="s">&quot;%s__LOCAL_MINIMA.txt&quot;</span><span class="w">		</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">outpath</span><span class="p">);</span><span class="w"> 	   </span><span class="p">}</span><span class="w"></span>
@@ -1030,20 +1022,6 @@
 <span class="w">	</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">	</span><span class="n">fclose</span><span class="p">(</span><span class="n">loc_min</span><span class="p">);</span><span class="w"></span>
 
-<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">save_residual_evolution</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
-<span class="w">		</span><span class="cm">/** OUTPUT RESIDUAL EVOLUTION **/</span><span class="w"></span>
-<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">numprocs</span><span class="o">==</span><span class="mi">1</span><span class="p">){</span><span class="w">	</span><span class="n">sprintf</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w">	</span><span class="s">&quot;%s_residual_norm.txt&quot;</span><span class="w">		</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">outpath</span><span class="p">);</span><span class="w"> 		</span><span class="p">}</span><span class="w"></span>
-<span class="w">		</span><span class="k">else</span><span class="w"> 			</span><span class="p">{</span><span class="w">	</span><span class="n">sprintf</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w">	</span><span class="s">&quot;%s_residual_norm.%i.txt&quot;</span><span class="w">	</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">outpath</span><span class="p">,</span><span class="w"> </span><span class="n">rank</span><span class="p">);</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
-
-<span class="w">		</span><span class="n">loc_min</span><span class="w"> 	</span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="n">out_lm</span><span class="p">,</span><span class="w"> 	</span><span class="s">&quot;a&quot;</span><span class="p">);</span><span class="w"> </span>
-
-<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">global_ite</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">			</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%.6f &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">PGE_mass_norm</span><span class="p">[</span><span class="n">j</span><span class="p">]);</span><span class="w"></span>
-<span class="w">		</span><span class="p">}</span><span class="w"></span>
-<span class="w">		</span><span class="n">fprintf</span><span class="p">(</span><span class="n">loc_min</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
-
-<span class="w">		</span><span class="n">fclose</span><span class="p">(</span><span class="n">loc_min</span><span class="p">);</span><span class="w"></span>
-<span class="w">	</span><span class="p">}</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span></div>
 
 
