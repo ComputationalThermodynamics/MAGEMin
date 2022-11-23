@@ -186,6 +186,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	/* numerical derivatives P,T steps (same value as TC) */
 	gv.gb_P_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
 	gv.gb_T_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
+	gv.poisson_ratio 	= 0.3;					/** poisson ratio to compute elastic shear modulus 									*/
 
 	/* initialize other values 			*/
 	gv.mean_sum_xi		= 1.0;
@@ -199,9 +200,8 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.EM_database  	=  2; 					/** 0, metapelite; 1 metabasite; 2 igneous											*/
 	gv.n_points 		=  1;
 	gv.maxeval  		= -1;
-	gv.solver   		=  0;
+	gv.solver   		=  1;
 	gv.verbose 			=  0;
-	gv.Mode 			=  0;
 	gv.output_matlab 	=  0;
 	gv.test     		= -1;
 
@@ -244,7 +244,7 @@ igneous_dataset igneous_db = {
 	{"spn"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"hb"	,"ilm"	,"liq"	,"mu"	,"ol"	,"opx"	,"pl4T"	,"fl"		},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1			},
-	{1521	,1645	,121	,4124	,110	,1224	,4950	,420	,3099	,2376	,222	,1735	,231	,1			},
+	{1521	,1645	,121	,4124	,110	,1224	,4950	,420	,3099	,2376	,222	,2495	,231	,1			},
 	{0.249	,0.124	,0.098	,0.249	,0.049	,0.199	,0.249	,0.0499	,0.198	,0.198	,0.098	,0.249	,0.049	,1.0 		}
 };
 
@@ -296,25 +296,23 @@ global_variable global_variable_init( 	global_variable  	 gv,
 	gv.ite_time  		= malloc (gv.it_f*2 * sizeof (double) 	); 
 	
 	/* store values for numerical differentiation */
-	gv.n_Diff = 7;
+	/* The last entries MUST be [0-1][end] = 0.0  */
+	gv.n_Diff = 11;
 	gv.pdev = malloc (2 * sizeof(double*));			
     for (i = 0; i < 2; i++){
 		gv.pdev[i] = malloc (gv.n_Diff * sizeof(double));
 	}
-	gv.pdev[0][0] =  0.0;	
-	gv.pdev[0][1] =  0.0;	
-	gv.pdev[0][2] =  1.0;	
-	gv.pdev[0][3] =  1.0;	
-	gv.pdev[0][4] =  2.0;	
-	gv.pdev[0][5] =  1.0;	
-	gv.pdev[0][6] =  0.0;
-	gv.pdev[1][0] =  1.0;	
-	gv.pdev[1][1] = -1.0;	
-	gv.pdev[1][2] =  1.0;	
-	gv.pdev[1][3] = -1.0;	
-	gv.pdev[1][4] =  0.0;	
-	gv.pdev[1][5] =  0.0;	
-	gv.pdev[1][6] =  0.0;
+	gv.pdev[0][0]  =  0.0;	gv.pdev[1][0]  =  1.0;	
+	gv.pdev[0][1]  =  0.0;	gv.pdev[1][1]  = -1.0;	
+	gv.pdev[0][2]  =  1.0;	gv.pdev[1][2]  =  1.0;	
+	gv.pdev[0][3]  =  1.0;	gv.pdev[1][3]  = -1.0;	
+	gv.pdev[0][4]  =  2.0;	gv.pdev[1][4]  =  0.0;
+	gv.pdev[0][5]  =  1.0;	gv.pdev[1][5]  =  0.0;	
+	gv.pdev[0][6]  =  0.0;	gv.pdev[1][6]  =  0.0;
+	gv.pdev[0][7]  =  3.0;	gv.pdev[1][7]  =  0.0;
+	gv.pdev[0][8]  =  1.0;	gv.pdev[1][8]  =  0.0;
+	gv.pdev[0][9]  =  0.0;	gv.pdev[1][9]  =  0.0;
+	gv.pdev[0][10] =  0.0;	gv.pdev[1][10] =  0.0;
 
 	gv.V_cor = malloc (2 * sizeof(double));
 
@@ -704,7 +702,8 @@ global_variable reset_gv(					global_variable 	 gv,
 		} 
     }
 
-	for (i = 0; i < (gv.len_ox); i++){ gv.b[i] = 0.0;
+	for (i = 0; i < (gv.len_ox); i++){ 
+		gv.b[i] = 0.0;
 		for (j = 0; j < gv.len_ox; j++){
 			gv.A[i][j] = 0.0;
 		}
@@ -938,6 +937,8 @@ void reset_SS(						global_variable 	 gv,
 
 		/* reset solution phase model parameters */
 		for (int j = 0; j < SS_ref_db[iss].n_em; j++){
+			SS_ref_db[iss].gb_lvl[j]     = 0.0;
+			SS_ref_db[iss].gbase[j]      = 0.0;
 			SS_ref_db[iss].xi_em[j]      = 0.0;
 			SS_ref_db[iss].z_em[j]       = 1.0;
 			SS_ref_db[iss].mu[j] 	     = 0.0;

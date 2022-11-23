@@ -170,7 +170,9 @@ typedef struct global_variables {
 	double  *mass_residual;		/** bulk rock residual */
 	double   BR_norm;			/** norm of bulk rock residual  */
 	
-	/* DENSITY/CP MODULUS CALC */
+	/* DENSITY/CP MODULUS CALC */	
+	double	 poisson_ratio;	 
+
 	double   gb_P_eps;			/** small value to calculate V using finite difference: V = dG/dP */
 	double   gb_T_eps;			/** small value to calculate V using finite difference: V = dG/dP */
 	double   system_density;
@@ -497,7 +499,11 @@ typedef struct csd_phase_sets {
 	double  phase_cp;
 	double  phase_expansivity;
 	double  phase_bulkModulus;
+	double  phase_isoTbulkModulus;
+	double  volume_P0;
+	double  thetaExp;
 	double  phase_shearModulus;
+	double  phase_shearModulus_v;
 	double  phase_entropy;
 	double  phase_enthalpy;
 	

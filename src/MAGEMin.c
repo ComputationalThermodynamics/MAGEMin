@@ -176,7 +176,7 @@ int runMAGEMin(			int    argc,
     	printf("═══════════════════════════════════════════════\n");
 	}
 	for (int point = 0; point < gv.n_points; point++){
-        if ((gv.Mode==0) && (point % numprocs != rank)) continue;   	/** this ensures that, in parallel, not every point is computed by every processor (instead only every numprocs point). Only applied to Mode==0 */
+        if ( (point % numprocs != rank)) continue;   	/** this ensures that, in parallel, not every point is computed by every processor (instead only every numprocs point). Only applied to Mode==0 */
 
 		t              = clock();										/** reset loop timer 				*/
 		gv.numPoint    = point; 										/** the number of the current point */
@@ -300,13 +300,15 @@ int runMAGEMin(			int    argc,
 								
 	PP_ref PP_db;					
 								
-	double muC, muN, muE, muW, muNN, muNE, muNW, G;
+	double muC, muN, muE, muW, muNN, muNNN, muNE, muNW, G, muN0, muC0;
 	
 	double P 			  = z_b.P;					/** PC function uses the z_b structure this is why the Pressure is saved here */
 	double T 			  = z_b.T;					/** PC function uses the z_b structure this is why the Pressure is saved here */
 	double sum_volume     = 0.0;
 	double sum_volume_sol = 0.0;
-	double dGdTPP, dGdTMP, dG2dT2, dGdP, dG2dP2;
+	double dGdTPP, dGdTMP, dG2dT2, dGdP, dGdP_P0, dG2dP2, dG2dP2_N, dGdP_N;
+	double mut, mut_N;
+	double phase_isoTbulkModulus_P1;
 
 	double density[gv.len_ox];
 	int not_only_liq = 0;
@@ -372,20 +374,29 @@ int runMAGEMin(			int    argc,
 			cp[i].phase_shearModulus = 0.0;
 			cp[i].phase_entropy  	 = 0.0;
 			cp[i].phase_enthalpy 	 = 0.0;
+			cp[i].phase_isoTbulkModulus = 0.0;
+			cp[i].volume_P0 		 = 0.0;
+			cp[i].thetaExp 			 = 0.0;
+			phase_isoTbulkModulus_P1 = 0.0;
 
 			for (int j = 0; j < cp[i].n_em; j++){ 
 				if (SS_ref_db[ss].z_em[j] == 1.0){
 					dG2dT2 					 = (SS_ref_db[ss].mu_array[0][j]-2.0*SS_ref_db[ss].mu_array[6][j]+SS_ref_db[ss].mu_array[1][j])/(gv.gb_T_eps*gv.gb_T_eps);
 					dG2dP2 					 = (SS_ref_db[ss].mu_array[4][j]-2.0*SS_ref_db[ss].mu_array[5][j]+SS_ref_db[ss].mu_array[6][j])/(gv.gb_P_eps*gv.gb_P_eps);
+					dG2dP2_N				 = (SS_ref_db[ss].mu_array[7][j]-2.0*SS_ref_db[ss].mu_array[4][j]+SS_ref_db[ss].mu_array[5][j])/(gv.gb_P_eps*gv.gb_P_eps);
 					dGdTPP 					 = (SS_ref_db[ss].mu_array[2][j]-SS_ref_db[ss].mu_array[3][j])/(2.0*gv.gb_T_eps);
 					dGdTMP 					 = (SS_ref_db[ss].mu_array[0][j]-SS_ref_db[ss].mu_array[1][j])/(2.0*gv.gb_T_eps);
 					dGdP					 = (SS_ref_db[ss].mu_array[5][j]-SS_ref_db[ss].mu_array[6][j])/(gv.gb_P_eps);
-
+					dGdP_N 					 = (SS_ref_db[ss].mu_array[4][j]-SS_ref_db[ss].mu_array[5][j])/(gv.gb_P_eps);
+					dGdP_P0 				 = (SS_ref_db[ss].mu_array[8][j]-SS_ref_db[ss].mu_array[9][j])/(gv.gb_P_eps);
 					/* heat capacity 	*/
 					cp[i].phase_cp    		+= -T*(dG2dT2)*cp[i].p_em[j];
 					
 					/* volume 			*/
 					cp[i].volume    		+= (dGdP)*cp[i].p_em[j];
+
+					/* volume 			*/
+					cp[i].volume_P0    		+= (dGdP_P0)*cp[i].p_em[j];
 
 					/* entropy   		*/
 					cp[i].phase_entropy 	+= -(dGdTMP)*cp[i].p_em[j];
@@ -395,25 +406,33 @@ int runMAGEMin(			int    argc,
 					
 					/* bulk modulus	*/
 					cp[i].phase_bulkModulus += -dGdP/( dG2dP2 + pow(((dGdTPP-dGdTMP)/(gv.gb_P_eps)),2.0)/dG2dT2 ) * cp[i].p_em[j];
-					
+
+					/* iso bulk modulus	*/
+					cp[i].phase_isoTbulkModulus += -dGdP/( dG2dP2 ) 	* cp[i].p_em[j];
+					phase_isoTbulkModulus_P1	+= -dGdP_N/( dG2dP2_N ) * cp[i].p_em[j];
+							
 					/* shear modulus	*/
 					cp[i].phase_shearModulus += SS_ref_db[ss].ElShearMod[j] * cp[i].p_em[j];
 				}
 			}	
-			if (gv.Mode == 1){
-				G = cp[i].df;
+
+			G = 0.0;
+			for (int j = 0; j < gv.len_ox; j++){
+				G += cp[i].ss_comp[j]*gv.gam_tot[j];
 			}
-			else{
-				G = 0.0;
-				for (int j = 0; j < gv.len_ox; j++){
-					G += cp[i].ss_comp[j]*gv.gam_tot[j];
-				}
-			}
+
 			/* enthalpy   		*/
-			cp[i].phase_enthalpy 	= cp[i].phase_entropy*T + G;
+			cp[i].phase_enthalpy = cp[i].phase_entropy*T + G;
 	
 			/** calculate density from volume */
-			cp[i].phase_density = (cp[i].mass*1000.0)/(cp[i].volume*10.0);
+			cp[i].phase_density  = (cp[i].mass*1000.0)/(cp[i].volume*10.0);
+
+			mut 				 = (3.0*cp[i].phase_isoTbulkModulus - 6.0*cp[i].phase_isoTbulkModulus*gv.poisson_ratio) / (2. + 2.0*gv.poisson_ratio)/10.0;
+			mut_N 				 = (3.0*phase_isoTbulkModulus_P1 	- 6.0*phase_isoTbulkModulus_P1*gv.poisson_ratio) 	/ (2. + 2.0*gv.poisson_ratio)/10.0;
+
+			cp[i].thetaExp 		 = (mut_N - mut)/gv.gb_P_eps - (cp[i].phase_bulkModulus*cp[i].phase_expansivity)/(cp[i].phase_cp*cp[i].phase_density);
+
+			// printf(" %s: volR: %+10f mut: %+10f, mut_N: %+10f, thetaExp: %+10f\n",cp[i].name,cp[i].volume/cp[i].volume_P0,mut,mut_N,cp[i].thetaExp);
 
 			if (strcmp( cp[i].name, "liq") == 0){
 				gv.melt_density   	= cp[i].phase_density;
@@ -437,20 +456,33 @@ int runMAGEMin(			int    argc,
 		if (gv.pp_flags[i][1] == 1){
 
 			/* calculate phase volume as V = dG/dP */
+			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, 1., z_b.T, gv.PP_list[i], "equilibrium");
+			muC0	 	 = PP_db.gbase;
+
+			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, 1. + gv.gb_P_eps, z_b.T, gv.PP_list[i], "equilibrium");
+			muN0 	 	 = PP_db.gbase;
+
 			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T, gv.PP_list[i], "equilibrium");
 			muC	 	 	 = PP_db.gbase;
+
 			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps, z_b.T, gv.PP_list[i], "equilibrium");
 			muN 	 	 = PP_db.gbase;
+
 			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps*2.0, z_b.T, gv.PP_list[i], "equilibrium");
 			muNN 	 	 = PP_db.gbase;
-		
+
+			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps*3.0, z_b.T, gv.PP_list[i], "equilibrium");
+			muNNN 	 	 = PP_db.gbase;
+
 			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T + gv.gb_T_eps, gv.PP_list[i], "equilibrium");
 			muE	 		 = PP_db.gbase;
+
 			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T - gv.gb_T_eps, gv.PP_list[i], "equilibrium");			
 			muW	 		 = PP_db.gbase;
 
 			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps, z_b.T + gv.gb_T_eps, gv.PP_list[i], "equilibrium");
 			muNE	 	 = PP_db.gbase;
+
 			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps, z_b.T - gv.gb_T_eps, gv.PP_list[i], "equilibrium");			
 			muNW	 	 = PP_db.gbase;
 
@@ -460,15 +492,20 @@ int runMAGEMin(			int    argc,
 				PP_ref_db[i].mass += PP_ref_db[i].Comp[j]*z_b.masspo[j];
 			}
 
-			dG2dT2 		= (muE-2.0*muC+muW)/(gv.gb_T_eps*gv.gb_T_eps);
-			dG2dP2 		= (muNN-2.0*muN+muC)/(gv.gb_P_eps*gv.gb_P_eps);
-			dGdTPP 		= (muNE-muNW)/(2.0*gv.gb_T_eps);
-			dGdTMP 		= (muE-muW)/(2.0*gv.gb_T_eps);
-			dGdP		= (muN-muC)/(gv.gb_P_eps);
-
-
+			dG2dT2 		= (muE-2.0*muC+muW)		/(gv.gb_T_eps*gv.gb_T_eps);
+			dG2dP2 		= (muNN-2.0*muN+muC)	/(gv.gb_P_eps*gv.gb_P_eps);
+			dG2dP2_N	= (muNNN-2.0*muNN+muN)	/(gv.gb_P_eps*gv.gb_P_eps);
+			dGdTPP 		= (muNE-muNW)			/(2.0*gv.gb_T_eps);
+			dGdTMP 		= (muE-muW)				/(2.0*gv.gb_T_eps);
+			dGdP		= (muN-muC)				/(gv.gb_P_eps);
+			dGdP_N		= (muNN-muN)			/(gv.gb_P_eps);
+			dGdP_P0 	= (muN0-muC0)			/(gv.gb_P_eps);
+			
 			/* Calculate volume  per pure phase */
 			PP_ref_db[i].volume  	   		= dGdP; 
+
+			/* Calculate volume  per pure phase */
+			PP_ref_db[i].volume_P0  	    = dGdP_P0; 
 			
 			/* Calculate density per pure phase */
 			PP_ref_db[i].phase_density 		= (1000.0*PP_ref_db[i].mass)/(PP_ref_db[i].volume*10.0);
@@ -488,6 +525,18 @@ int runMAGEMin(			int    argc,
 			/* shear modulus	*/
 			PP_ref_db[i].phase_bulkModulus	= -dGdP/( dG2dP2 + pow(((dGdTPP-dGdTMP)/(gv.gb_P_eps)),2.0)/dG2dT2 );
 	
+			/* shear modulus	*/
+			PP_ref_db[i].phase_isoTbulkModulus	= -dGdP/( dG2dP2  );
+			phase_isoTbulkModulus_P1			= -dGdP_N/( dG2dP2_N  );
+	
+
+			mut 				 = (3.0*PP_ref_db[i].phase_isoTbulkModulus - 6.0*PP_ref_db[i].phase_isoTbulkModulus*gv.poisson_ratio) / (2. + 2.0*gv.poisson_ratio)/10.0;
+			mut_N 				 = (3.0*phase_isoTbulkModulus_P1 	- 6.0*phase_isoTbulkModulus_P1*gv.poisson_ratio) 	/ (2. + 2.0*gv.poisson_ratio)/10.0;
+
+			PP_ref_db[i].thetaExp= (mut_N - mut)/gv.gb_P_eps - (PP_ref_db[i].phase_bulkModulus*PP_ref_db[i].phase_expansivity)/(PP_ref_db[i].phase_cp*PP_ref_db[i].phase_density);
+
+			// printf(" %s: volR: %+10f mut: %+10f, mut_N: %+10f, thetaExp: %+10f\n",gv.PP_list[i],PP_ref_db[i].volume/PP_ref_db[i].volume_P0,mut,mut_N,PP_ref_db[i].thetaExp);
+
 			/** get sum of volume*fraction*factor to calculate vol% from mol% */
 			sum_volume 			+= PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor;
 			sum_volume_sol 		+= PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor;
@@ -628,124 +677,95 @@ int runMAGEMin(			int    argc,
 							SS_ref_db						);
 
 
-	/* if Mode is 0, perform normal minimization with PGE */
-	if (gv.Mode == 0){
-		/****************************************************************************************/
-		/**                                   LEVELLING                                        **/
-		/****************************************************************************************/	
-		gv = Levelling(			z_b,										/** bulk rock informations 			*/
-								gv,											/** global variables (e.g. Gamma) 	*/
+	/****************************************************************************************/
+	/**                                   LEVELLING                                        **/
+	/****************************************************************************************/	
+	gv = Levelling(			z_b,										/** bulk rock informations 			*/
+							gv,											/** global variables (e.g. Gamma) 	*/
+
+							SS_objective,
+							splx_data,
+							PP_ref_db,									/** pure phase database 			*/
+							SS_ref_db,									/** solution phase database 		*/
+							cp							);
+
+
+	/****************************************************************************************/
+	/**                            PARTITIONING GIBBS ENERGY                               **/
+	/****************************************************************************************/
+	if (z_b.T > 673.){
+		gv 		= PGE(			z_b,									/** bulk rock constraint 			*/ 
+								gv,										/** global variables (e.g. Gamma) 	*/
 
 								SS_objective,
-							    splx_data,
-								PP_ref_db,									/** pure phase database 			*/
-								SS_ref_db,									/** solution phase database 		*/
+								splx_data,
+								PP_ref_db,								/** pure phase database 			*/
+								SS_ref_db,								/** solution phase database 		*/
 								cp							);
 
-		/****************************************************************************************/
-		/**                            PARTITIONING GIBBS ENERGY                               **/
-		/****************************************************************************************/
-		if (z_b.T > 673.){
-			gv 		= PGE(			z_b,									/** bulk rock constraint 			*/ 
-									gv,										/** global variables (e.g. Gamma) 	*/
+	}
 
-									SS_objective,
-									splx_data,
-									PP_ref_db,								/** pure phase database 			*/
-									SS_ref_db,								/** solution phase database 		*/
-									cp							);
+	/**
+		Launch legacy solver (LP, Theriak-like algorithm)
+	*/ 
+	if ((gv.div == 1 || z_b.T <= 673. ) && gv.solver == 1){
+	// if (gv.div == 1  && gv.solver == 1){	
+		printf("\n[PGE failed -> legacy solver...]\n");
+		gv.div 		= 0;
+		gv.status 	= 0;
 
-		}
+		gv = init_LP(			z_b,
+								splx_data,
+								gv,
+										
+								PP_ref_db,
+								SS_ref_db,
+								cp						);	
 
-		/**
-			Launch legacy solver (LP, Theriak-like algorithm)
-		*/ 
-		if ((gv.div == 1 || z_b.T <= 673. ) && gv.solver == 1){
-		// if (gv.div == 1  && gv.solver == 1){	
-			printf("\n[PGE failed -> legacy solver...]\n");
-			gv.div 		= 0;
-			gv.status 	= 0;
+		gv = LP(				z_b,									/** bulk rock informations 			*/
+								gv,										/** global variables (e.g. Gamma) 	*/
 
-			gv = init_LP(			z_b,
-									splx_data,
-									gv,
-											
-									PP_ref_db,
-									SS_ref_db,
-									cp						);	
-
-			gv = LP(				z_b,									/** bulk rock informations 			*/
-									gv,										/** global variables (e.g. Gamma) 	*/
-
-									SS_objective,
-									splx_data,
-									PP_ref_db,								/** pure phase database 			*/
-									SS_ref_db,								/** solution phase database 		*/
-									cp						);
-		}
+								SS_objective,
+								splx_data,
+								PP_ref_db,								/** pure phase database 			*/
+								SS_ref_db,								/** solution phase database 		*/
+								cp						);
+	}
 
 
-		if (gv.verbose == 1){
-			gv = check_PC_driving_force( 	z_b,							/** bulk rock constraint 			*/ 
-											gv,								/** global variables (e.g. Gamma) 	*/
+	if (gv.verbose == 1){
+		gv = check_PC_driving_force( 	z_b,							/** bulk rock constraint 			*/ 
+										gv,								/** global variables (e.g. Gamma) 	*/
 
-											PP_ref_db,						/** pure phase database 			*/ 
-											SS_ref_db,
-											cp				); 	
-			printf("\n\n\n");									
-			printf("╔════════════════════════════════════════════════╗\n");
-			printf("║               COMPUTATION SUMMARY              ║\n");
-			printf("╚════════════════════════════════════════════════╝\n\n");
-			printf(" Alg | ite  | duration   |  MASS norm | Gamma norm\n");
-			printf("══════════════════════════════════════════════════\n");
+										PP_ref_db,						/** pure phase database 			*/ 
+										SS_ref_db,
+										cp				); 	
+		printf("\n\n\n");									
+		printf("╔════════════════════════════════════════════════╗\n");
+		printf("║               COMPUTATION SUMMARY              ║\n");
+		printf("╚════════════════════════════════════════════════╝\n\n");
+		printf(" Alg | ite  | duration   |  MASS norm | Gamma norm\n");
+		printf("══════════════════════════════════════════════════\n");
 
-			for (int i = 0; i < gv.global_ite; i++){	
-				if (gv.Alg[i] == 0){
-					printf(" LP  | %4d | %+10f | %+10f | %+10f\n",i,gv.ite_time[i],gv.PGE_mass_norm[i],gv.gamma_norm[i]);
-				}
-				if (gv.Alg[i] == 1){
-					printf(" PGE | %4d | %+10f | %+10f | %+10f\n",i,gv.ite_time[i],gv.PGE_mass_norm[i],gv.gamma_norm[i]);
-				}	
-				if (gv.Alg[i+1] - gv.Alg[i] == 1){
-					printf("--------------------------------------------------\n");
-					printf("               SWITCH FROM LP TO PGE              \n");
-					printf("--------------------------------------------------\n");
-				}
-				if (gv.Alg[i+1] - gv.Alg[i] == -1 && i < gv.global_ite - 1){
-					printf("--------------------------------------------------\n");
-					printf("               SWITCH FROM PGE TO LP              \n");
-					printf("--------------------------------------------------\n");
-				}					
+		for (int i = 0; i < gv.global_ite; i++){	
+			if (gv.Alg[i] == 0){
+				printf(" LP  | %4d | %+10f | %+10f | %+10f\n",i,gv.ite_time[i],gv.PGE_mass_norm[i],gv.gamma_norm[i]);
 			}
-			printf("\n");
+			if (gv.Alg[i] == 1){
+				printf(" PGE | %4d | %+10f | %+10f | %+10f\n",i,gv.ite_time[i],gv.PGE_mass_norm[i],gv.gamma_norm[i]);
+			}	
+			if (gv.Alg[i+1] - gv.Alg[i] == 1){
+				printf("--------------------------------------------------\n");
+				printf("               SWITCH FROM LP TO PGE              \n");
+				printf("--------------------------------------------------\n");
+			}
+			if (gv.Alg[i+1] - gv.Alg[i] == -1 && i < gv.global_ite - 1){
+				printf("--------------------------------------------------\n");
+				printf("               SWITCH FROM PGE TO LP              \n");
+				printf("--------------------------------------------------\n");
+			}					
 		}
-	}
-	/* if Mode = 1, spit out Gibbs energy and reference values with given compositional variables */
-	else if (gv.Mode == 1){
-		gv = get_sol_phase_infos(			input_data,
-											z_b,						/** bulk rock constraint 			*/ 
-											gv,							/** global variables (e.g. Gamma) 	*/
-
-											PP_ref_db,					/** pure phase database 			*/
-											SS_ref_db,					/** solution phase database		 	*/
-											cp					);
-
-	}
-	/* if Mode = 2, perform search of local minima for given solution phase */
-	else if (gv.Mode == 2){
-		printf("function has been deleted\n");
-	}
-	/* if Mode = 3, perform first stage levelling only */
-	else if (gv.Mode == 3){
-		/* when Mode = 3, only first stage of levelling is activated */
-		gv = Levelling(						z_b,						/** bulk rock informations 			*/
-											gv,							/** global variables (e.g. Gamma) 	*/
-
-											SS_objective,
-							    			splx_data,
-											PP_ref_db,					/** pure phase database 			*/
-											SS_ref_db,					/** solution phase database 		*/
-											cp					);
+		printf("\n");
 	}
 
 	return gv;
@@ -762,7 +782,6 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 	int i;
 	static ko_longopt_t longopts[] = {
 		{ "Verb", 		ko_optional_argument, 301 },
-		{ "Mode", 		ko_optional_argument, 302 },
 		{ "File", 		ko_optional_argument, 303 },
 		{ "n_points ",	ko_optional_argument, 304 },
 		{ "test",  		ko_optional_argument, 305 },
@@ -787,14 +806,13 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		if 		(c == 314){ printf("MAGEMin %20s\n",gv.version ); exit(0); }	
 		else if (c == 315){ print_help( gv ); 					  exit(0); }	
         else if	(c == 301){ gv.verbose  = atoi(opt.arg					); }
-		else if (c == 302){ gv.Mode  	= atoi(opt.arg);		if (gv.verbose == 1){		printf("--Mode        : Mode                 = %i \n", 	 	   		gv.Mode				);}}																		
 		else if (c == 316){ gv.solver   = atoi(opt.arg);		if (gv.verbose == 1){		printf("--solver      : solver               = %i \n", 	 	   		gv.solver			);}}																		
 		else if (c == 318){ gv.output_matlab   = atoi(opt.arg); if (gv.verbose == 1){		printf("--out_matlab  : out_matlab           = %i \n", 	 	   		gv.output_matlab	);}}																		
 		else if (c == 303){ strcpy(gv.File,opt.arg);		 	if (gv.verbose == 1){		printf("--File        : File                 = %s \n", 	 	   		gv.File				);}}
 		else if (c == 317){ strcpy(gv.sys_in,opt.arg);		 	if (gv.verbose == 1){		printf("--sys_in      : sys_in               = %s \n", 	 	   		gv.sys_in			);}}
 		else if (c == 304){ gv.n_points = atoi(opt.arg); 	 	if (gv.verbose == 1){		printf("--n_points    : n_points             = %i \n", 	 	   		gv.n_points			);}}
 		else if (c == 305){ gv.test  	= atoi(opt.arg); 		if (gv.verbose == 1){		printf("--test        : Test                 = %i \n", 	 	  		gv.test				);}}
-		else if (c == 306){ z_b->T=strtof(opt.arg,NULL)+273.15; if (gv.verbose == 1){		printf("--Temp        : Temperature          = %f C \n",            z_b->T				);}}
+		else if (c == 306){ z_b->T=strtof(opt.arg,NULL)+273.15; if (gv.verbose == 1){		printf("--Temp        : Temperature          = %f C \n",            z_b->T-273.15		);}}
 		else if (c == 307){ z_b->P = strtof(opt.arg,NULL); 		if (gv.verbose == 1){		printf("--Pres        : Pressure             = %f kbar \n", 		z_b->P				);}}
 		else if (c == 308){ strcpy(gv.Phase,opt.arg);		 	if (gv.verbose == 1){		printf("--Phase       : Phase name           = %s \n", 	   			gv.Phase			);}}
 		else if (c == 313){ gv.maxeval  = strtof(opt.arg,NULL); if (gv.verbose == 1){
@@ -862,17 +880,14 @@ Databases InitializeDatabases(	global_variable gv,
 	/** 
 		Allocate memory for each solution phase according to their specificities (n_em, sf etc) 
 	*/
-	if (EM_database == 2){ 		// IGNEOUS DATABASE //
-		for (i = 0; i < gv.len_ss; i++){
-			DB.SS_ref_db[i] = G_SS_ig_init_EM_function(		i,	
-															DB.SS_ref_db[i], 
-															EM_database, 
-															gv.SS_list[i], 
-															gv						);
-		}
+	for (i = 0; i < gv.len_ss; i++){
+		DB.SS_ref_db[i] = G_SS_init_EM_function(		i,	
+														DB.SS_ref_db[i], 
+														EM_database, 
+														gv.SS_list[i], 
+														gv						);
 	}
 
-	
 	/* Allocate memory of the considered set of phases 								*/
 	for (i = 0; i < gv.max_n_cp; i++){
 		DB.cp[i] = CP_INIT_function(		DB.cp[i], 
@@ -937,7 +952,7 @@ void PrintOutput(	global_variable 	gv,
 					bulk_info 			z_b				){
 						
 	int i;
-	if (gv.Mode==0 && gv.verbose !=-1){
+	if (gv.verbose !=-1){
 		printf(" Status             : %12i ",gv.status);
 		if (gv.verbose == 1){PrintStatus(gv.status);}
 		printf("\n");
@@ -955,7 +970,7 @@ void PrintOutput(	global_variable 	gv,
         }
     }
 
-	if ((gv.verbose != -1) &&  (gv.Mode==0)){
+	if (gv.verbose != -1){
 		printf("\n");
 		printf(" SOL = [G: %.3f] (%i iterations, %.2f ms)\n",gv.G_system,gv.global_ite,time_taken*1000.0);
 		printf(" GAM = [");

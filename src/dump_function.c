@@ -58,32 +58,12 @@ void dump_init(global_variable gv){
 	}
 
 	if (gv.verbose == 0){
-		/** MATLAB GRID OUTPUT **/
+		/**GUI OUTPUT **/
 		if (numprocs==1){	sprintf(out_lm,	"%s_pseudosection_output.txt"		,gv.outpath); 		}
 		else 			{	sprintf(out_lm,	"%s_pseudosection_output.%i.txt"	,gv.outpath, rank); }
 		loc_min 	= fopen(out_lm, 	"w"); 
 		fprintf(loc_min, "// {number status[] P[kbar] T[C] G_sys[G] BR_norm[wt] Gamma[G] Vp[km/s] Vs[km/s] entropy[J/K]} nextline {Phase[name] mode[wt] density[kg.m-3] x-eos}\n");
 		fclose(loc_min);	
-
-		/** MODE 2 - LOCAL MINIMA **/
-		if (gv.Mode == 2){
-			if (numprocs==1){	 sprintf(out_lm,	"%s__LOCAL_MINIMA.txt"		,gv.outpath); 	   }
-			else 			{	 sprintf(out_lm,	"%s__LOCAL_MINIMA.%i.txt"	,gv.outpath, rank);}
-			loc_min 	= fopen(out_lm, 	"w"); 
-			fprintf(loc_min, "// PHASE_NAME[char]\tN_x-eos[n]\tN_POINTS\tGAMMA[G]\n");
-			fprintf(loc_min, "// NUMBER\t INITIAL ENDMEMBER PROPORTIONS[n+1]\tINITIAL_GUESS_x_eos[n]\tFINAL_x-eos[n]\tFINAL ENDMEMBER PROPORTIONS[n+1]\tDRIVING_FORCE[dG]\n");
-		
-			fclose(loc_min);	
-		}
-		/** MODE 2 - LEVELLING_GAMMA **/
-		if (gv.Mode == 3){
-			if (numprocs==1){	 sprintf(out_lm,	"%s__LEVELLING_GAMMA.txt"		,gv.outpath); 	   }
-			else 			{	 sprintf(out_lm,	"%s__LEVELLING_GAMMA.%i.txt"	,gv.outpath, rank);}
-			loc_min 	= fopen(out_lm, 	"w"); 
-			fprintf(loc_min, "// BULK-ROCK[len_ox]\tP[kbar]\tT[°C]\tGAMMA[G]\n");
-
-			fclose(loc_min);	
-		}
 	}
 }
 
@@ -544,36 +524,6 @@ void output_thermocalc(			global_variable 	 gv,
 		}
 	}
 
-	if (gv.Mode == 1){
-		fprintf(loc_min, "\nGibbs energy of reference G0 (solution phase):\n");		
-		for (i = 0; i < gv.len_cp; i++){
-			if (cp[i].ss_flags[1] == 1){
-				fprintf(loc_min, 	" %5s", cp[i].name);
-				for (j = 0; j < cp[i].n_em; j++){
-					fprintf(loc_min, 	"%14.6f ", cp[i].gbase[j]);
-				}
-				for (k = j; k < gv.len_ox; k++){
-					fprintf(loc_min, 	"%14s ", "-");
-				}		
-				fprintf(loc_min, "\n");	
-			}
-		}
-				
-		fprintf(loc_min, "\nChemical potentials [J] (solution phase):\n");		
-		for (i = 0; i < gv.len_cp; i++){
-			if (cp[i].ss_flags[1] == 1){
-				fprintf(loc_min, 	" %5s", cp[i].name);
-				for (j = 0; j < cp[i].n_em; j++){
-					fprintf(loc_min, 	"%14.6f ", cp[i].mu[j]);
-				}
-				for (k = j; k < gv.len_ox; k++){
-					fprintf(loc_min, 	"%14s ", "-");
-				}		
-				fprintf(loc_min, "\n");	
-			}
-		}
-	}
-
 	fprintf(loc_min, "\nSite fractions:\n");		
 	for (i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1){
@@ -626,15 +576,12 @@ void output_thermocalc(			global_variable 	 gv,
 	for (i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1){
 			
-			if (gv.Mode == 1){
-				G = cp[i].df;
+
+			G = 0.0;
+			for (j = 0; j < gv.len_ox; j++){
+				G += cp[i].ss_comp[j]*gv.gam_tot[j];
 			}
-			else{
-				G = 0.0;
-				for (j = 0; j < gv.len_ox; j++){
-					G += cp[i].ss_comp[j]*gv.gam_tot[j];
-				}
-			}
+
 
 			fprintf(loc_min, "%6s", cp[i].name);
 			fprintf(loc_min, "%+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.6f %+12.6f %+12.2f %+12.2f %+12.2f %+12.2f",
@@ -932,15 +879,11 @@ void output_matlab(				global_variable 	 gv,
 	for (i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1){
 			
-			if (gv.Mode == 1){
-				G = cp[i].df;
+			G = 0.0;
+			for (j = 0; j < gv.len_ox; j++){
+				G += cp[i].ss_comp[j]*gv.gam_tot[j];
 			}
-			else{
-				G = 0.0;
-				for (j = 0; j < gv.len_ox; j++){
-					G += cp[i].ss_comp[j]*gv.gam_tot[j];
-				}
-			}
+
 
 			fprintf(loc_min, "%6s", cp[i].name);
 			fprintf(loc_min, "%+15.5f %+13.5f %+17.5f %+17.5f %+12.5f %+12.5f %+12.8f %+12.6f %+14.4f %+12.2f %+12.2f %+12.2f %+12.2f",

@@ -2025,8 +2025,14 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
 	/* Associate the right solid-solution data */
 	for (int FD = 0; FD < gv.n_Diff; FD++){				/* cycle twice in order to get gb_P_eps to calculate densities later on */
 		
-		z_b.P = P + gv.gb_P_eps*gv.pdev[0][FD];
-		z_b.T = T + gv.gb_T_eps*gv.pdev[1][FD];
+		if (FD == 8 || FD == 9){				// dG/dP0 to get Volume at P = 1bar
+			z_b.P = 1.+ gv.gb_P_eps*gv.pdev[0][FD];
+			z_b.T = T + gv.gb_T_eps*gv.pdev[1][FD];
+		}
+		else{
+			z_b.P = P + gv.gb_P_eps*gv.pdev[0][FD];
+			z_b.T = T + gv.gb_T_eps*gv.pdev[1][FD];
+		}
 
 		if (strcmp( name, "bi") == 0 ){
 			// if no H2O, deactivate
