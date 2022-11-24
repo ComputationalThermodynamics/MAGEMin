@@ -130,7 +130,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.max_n_cp 		= 128;					/** number of considered solution phases 											*/									
 	gv.calc_seismic_cor = 1;					/** compute seismic velocity corrections (melt and anelastic)						*/
 	gv.min_melt_T       = 773.0;				/** minimum temperature above which melt is considered 								*/
-
+	gv.solver_switch_T  = 673.15;
 	/* residual tolerance 				*/
 	gv.br_max_tol       = 1.0e-5;				/** value under which the solution is accepted to satisfy the mass constraint 		*/
 	

@@ -24,6 +24,7 @@ typedef struct global_variables {
 	int      n_Diff;
 	int      status;			/** status of the minimization 		*/
 	int      solver;
+	double   solver_switch_T;
 	int 	 calc_seismic_cor;
 	int 	 output_matlab;
 	double 	 tot_min_time;

@@ -693,7 +693,7 @@ int runMAGEMin(			int    argc,
 	/****************************************************************************************/
 	/**                            PARTITIONING GIBBS ENERGY                               **/
 	/****************************************************************************************/
-	if (z_b.T > 673.){
+	if (z_b.T > gv.solver_switch_T){
 		gv 		= PGE(			z_b,									/** bulk rock constraint 			*/ 
 								gv,										/** global variables (e.g. Gamma) 	*/
 
@@ -708,7 +708,7 @@ int runMAGEMin(			int    argc,
 	/**
 		Launch legacy solver (LP, Theriak-like algorithm)
 	*/ 
-	if ((gv.div == 1 || z_b.T <= 673. ) && gv.solver == 1){
+	if ((gv.div == 1 || z_b.T <= gv.solver_switch_T ) && gv.solver == 1){
 	// if (gv.div == 1  && gv.solver == 1){	
 		printf("\n[PGE failed -> legacy solver...]\n");
 		gv.div 		= 0;

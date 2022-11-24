@@ -735,15 +735,34 @@ void output_gui(				global_variable 	 gv,
 	fclose(loc_min);
 
 
-	// FILE *tot_min;
-	// char tot_lm[255];
+	/**
+	 * @brief output parameters to calculate seismic wave velocity correction
+	 * 
+	 */
+	FILE *tot_min;
+	char tot_lm[255];
 	
-	// if (numprocs==1){	sprintf(tot_lm,	"%s_min_time_output.txt"		,gv.outpath); 		}
-	// else 			{	sprintf(tot_lm,	"%s_min_time_output.%i.txt"		,gv.outpath, rank); }
+	if (numprocs==1){	sprintf(tot_lm,	"%s_wave_output.txt"		,gv.outpath); 		}
+	else 			{	sprintf(tot_lm,	"%s_wave_output.%i.txt"		,gv.outpath, rank); }
 
-	// tot_min 	= fopen(tot_lm, 	"a"); 
-	// fprintf(tot_min, "%.4f %.4f %.4f %.4f %.4f\n", z_b.P, z_b.T-273.15,gv.LVL_time, gv.tot_min_time, gv.tot_time);
-	// fclose(tot_min);
+	tot_min 	= fopen(tot_lm, 	"a"); 
+	
+	if (sp[0].frac_M < 1.0){
+		if (sp[0].frac_M > 0.0){
+		fprintf(tot_min, "%.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f \n", z_b.P, z_b.T-273.15,sp[0].Vs_S,sp[0].Vp_S,sp[0].bulkModulus_S,sp[0].shearModulus_S,sp[0].bulkModulus_M,sp[0].rho_M,sp[0].rho_S,sp[0].frac_M,
+																											sp[0].bulk_S_wt[2]+sp[0].bulk_S_wt[3],sp[0].bulk_M_wt[2]+sp[0].bulk_M_wt[3], sp[0].bulk_S_wt[0], sp[0].bulk_M_wt[0]);
+		}
+		else{
+		fprintf(tot_min, "%.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f \n", z_b.P, z_b.T-273.15,sp[0].Vs_S,sp[0].Vp_S,sp[0].bulkModulus_S,sp[0].shearModulus_S,sp[0].bulkModulus_M,sp[0].rho_M,sp[0].rho_S,sp[0].frac_M,
+																											sp[0].bulk_S_wt[2]+sp[0].bulk_S_wt[3],0.0, sp[0].bulk_S_wt[0], 0.0);
+		}
+	}
+	else{
+		fprintf(tot_min, "%.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f \n", z_b.P, z_b.T-273.15, 0.0, 0.0, 0.0, 0.0, sp[0].bulkModulus_M, 0.0, 0.0,sp[0].frac_M,
+																											0.0,sp[0].bulk_M_wt[2]+sp[0].bulk_M_wt[3],0.0, sp[0].bulk_M_wt[0]);
+	}
+	
+	fclose(tot_min);
 
 }
 
@@ -1058,31 +1077,31 @@ void mergeParallelFiles(global_variable gv){
    fclose(fp2);
 
 
-// 	char tot_out_lm[255];
-// 	char tot_in_lm[255];
+	char tot_out_lm[255];
+	char tot_in_lm[255];
 
-// 	if (numprocs == 1){ return; }
+	if (numprocs == 1){ return; }
 
-// 	sprintf(tot_out_lm,	"%s_min_time_output.txt"		,gv.outpath);
-//    	FILE *fp2a = fopen(tot_out_lm, "w"); 
+	sprintf(tot_out_lm,	"%s_wave_output.txt"		,gv.outpath);
+   	FILE *fp2a = fopen(tot_out_lm, "w"); 
 
-// 	fprintf(fp2a, "// P[kbar]\tT[C]\ttot_min_time\n");
+	fprintf(fp2a, "// P[kbar]\t T[C]\t Vs0[km/s]\t Vp0[km/s]\t Kb_S[GPa]\t Ks_S[GPa]\t Kb_L[GPa]\t rhoL[kg/m3]\t rhoS[kg/m3]\t frac_melt\t FeMg_S[wt]\t FeMg_M[wt]\t Si_S[wt]\t Si_M[wt] \n");
 
-// 	// Open file to be merged 
-// 	for (i = 0; i < numprocs; i++){
-// 		// open file
-// 		sprintf(tot_in_lm,	"%s_min_time_output.%i.txt"		,gv.outpath, i);
-// 		FILE *fp1a = fopen(tot_in_lm, "r"); 
+	// Open file to be merged 
+	for (i = 0; i < numprocs; i++){
+		// open file
+		sprintf(tot_in_lm,	"%s_wave_output.%i.txt"		,gv.outpath, i);
+		FILE *fp1a = fopen(tot_in_lm, "r"); 
 		
-// 		fgets(buf, MAX_LINE_LENGTH, fp1a);					// skip first line = comment (we don't want to copy that)
+		fgets(buf, MAX_LINE_LENGTH, fp1a);					// skip first line = comment (we don't want to copy that)
 	
-// 		// Copy contents of first file to file3.txt 
-// 		while ((c = fgetc(fp1a)) != EOF){ 
-// 			fputc(c, fp2a); 
-// 		}
-// 		fclose(fp1a); 
-// 	}
-//    fclose(fp2a);
+		// Copy contents of first file to file3.txt 
+		while ((c = fgetc(fp1a)) != EOF){ 
+			fputc(c, fp2a); 
+		}
+		fclose(fp1a); 
+	}
+   fclose(fp2a);
 
 }
 
