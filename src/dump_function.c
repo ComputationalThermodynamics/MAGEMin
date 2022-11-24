@@ -1085,7 +1085,7 @@ void mergeParallelFiles(global_variable gv){
 	sprintf(tot_out_lm,	"%s_wave_output.txt"		,gv.outpath);
    	FILE *fp2a = fopen(tot_out_lm, "w"); 
 
-	fprintf(fp2a, "# P[kbar]\t T[C]\t Vs0[km/s]\t Vp0[km/s]\t Kb_S[GPa]\t Ks_S[GPa]\t Kb_L[GPa]\t rhoL[kg/m3]\t rhoS[kg/m3]\t frac_melt\t FeMg_S[wt]\t FeMg_M[wt]\t Si_S[wt]\t Si_M[wt] \n");
+	fprintf(fp2a, "Number P[kbar]\t T[C]\t Vs0[km/s]\t Vp0[km/s]\t Kb_S[GPa]\t Ks_S[GPa]\t Kb_L[GPa]\t rhoL[kg/m3]\t rhoS[kg/m3]\t frac_melt\t FeMg_S[wt]\t FeMg_M[wt]\t Si_S[wt]\t Si_M[wt] \n");
 
 	// Open file to be merged 
 	for (i = 0; i < numprocs; i++){
