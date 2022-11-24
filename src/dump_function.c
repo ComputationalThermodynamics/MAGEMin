@@ -749,16 +749,16 @@ void output_gui(				global_variable 	 gv,
 	
 	if (sp[0].frac_M < 1.0){
 		if (sp[0].frac_M > 0.0){
-		fprintf(tot_min, "%.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f \n", z_b.P, z_b.T-273.15,sp[0].Vs_S,sp[0].Vp_S,sp[0].bulkModulus_S,sp[0].shearModulus_S,sp[0].bulkModulus_M,sp[0].rho_M,sp[0].rho_S,sp[0].frac_M,
+		fprintf(tot_min, "%i %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f \n",gv.numPoint+1, z_b.P, z_b.T-273.15,sp[0].Vs_S,sp[0].Vp_S,sp[0].bulkModulus_S,sp[0].shearModulus_S,sp[0].bulkModulus_M,sp[0].rho_M,sp[0].rho_S,sp[0].frac_M,
 																											sp[0].bulk_S_wt[2]+sp[0].bulk_S_wt[3],sp[0].bulk_M_wt[2]+sp[0].bulk_M_wt[3], sp[0].bulk_S_wt[0], sp[0].bulk_M_wt[0]);
 		}
 		else{
-		fprintf(tot_min, "%.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f \n", z_b.P, z_b.T-273.15,sp[0].Vs_S,sp[0].Vp_S,sp[0].bulkModulus_S,sp[0].shearModulus_S,sp[0].bulkModulus_M,sp[0].rho_M,sp[0].rho_S,sp[0].frac_M,
+		fprintf(tot_min, "%i %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f \n", gv.numPoint+1, z_b.P, z_b.T-273.15,sp[0].Vs_S,sp[0].Vp_S,sp[0].bulkModulus_S,sp[0].shearModulus_S,sp[0].bulkModulus_M,sp[0].rho_M,sp[0].rho_S,sp[0].frac_M,
 																											sp[0].bulk_S_wt[2]+sp[0].bulk_S_wt[3],0.0, sp[0].bulk_S_wt[0], 0.0);
 		}
 	}
 	else{
-		fprintf(tot_min, "%.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f \n", z_b.P, z_b.T-273.15, 0.0, 0.0, 0.0, 0.0, sp[0].bulkModulus_M, 0.0, 0.0,sp[0].frac_M,
+		fprintf(tot_min, "%i %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f \n", gv.numPoint+1, z_b.P, z_b.T-273.15, 0.0, 0.0, 0.0, 0.0, sp[0].bulkModulus_M, 0.0, 0.0,sp[0].frac_M,
 																											0.0,sp[0].bulk_M_wt[2]+sp[0].bulk_M_wt[3],0.0, sp[0].bulk_M_wt[0]);
 	}
 	
@@ -1085,16 +1085,14 @@ void mergeParallelFiles(global_variable gv){
 	sprintf(tot_out_lm,	"%s_wave_output.txt"		,gv.outpath);
    	FILE *fp2a = fopen(tot_out_lm, "w"); 
 
-	fprintf(fp2a, "// P[kbar]\t T[C]\t Vs0[km/s]\t Vp0[km/s]\t Kb_S[GPa]\t Ks_S[GPa]\t Kb_L[GPa]\t rhoL[kg/m3]\t rhoS[kg/m3]\t frac_melt\t FeMg_S[wt]\t FeMg_M[wt]\t Si_S[wt]\t Si_M[wt] \n");
+	fprintf(fp2a, "# P[kbar]\t T[C]\t Vs0[km/s]\t Vp0[km/s]\t Kb_S[GPa]\t Ks_S[GPa]\t Kb_L[GPa]\t rhoL[kg/m3]\t rhoS[kg/m3]\t frac_melt\t FeMg_S[wt]\t FeMg_M[wt]\t Si_S[wt]\t Si_M[wt] \n");
 
 	// Open file to be merged 
 	for (i = 0; i < numprocs; i++){
 		// open file
 		sprintf(tot_in_lm,	"%s_wave_output.%i.txt"		,gv.outpath, i);
 		FILE *fp1a = fopen(tot_in_lm, "r"); 
-		
-		fgets(buf, MAX_LINE_LENGTH, fp1a);					// skip first line = comment (we don't want to copy that)
-	
+			
 		// Copy contents of first file to file3.txt 
 		while ((c = fgetc(fp1a)) != EOF){ 
 			fputc(c, fp2a); 
