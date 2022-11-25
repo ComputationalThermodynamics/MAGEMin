@@ -3690,16 +3690,16 @@ SS_ref PC_function(		global_variable 	 gv,
 		G0 = obj_ig_fl(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}		
 	else if (strcmp( name, "g")   == 0){
-		G0 = obj_ig_g(SS_ref_db.n_xeos, SS_ref_db.iguess, 		SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_ig_g(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}
 	else if (strcmp( name, "hb")  == 0){
 		G0 = obj_ig_hb(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}	
 	else if (strcmp( name, "ilm") == 0){
-		G0 = obj_ig_ilm(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_ig_ilm(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
 	}	
 	else if (strcmp( name, "liq") == 0){
-		G0 = obj_ig_liq(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_ig_liq(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
 	}
 	else if (strcmp( name, "mu")  == 0){
 		G0 = obj_ig_mu(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
@@ -3708,13 +3708,13 @@ SS_ref PC_function(		global_variable 	 gv,
 		G0 = obj_ig_ol(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 	}
 	else if (strcmp( name, "opx") == 0){
-		G0 = obj_ig_opx(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_ig_opx(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
 	}
 	else if (strcmp( name, "pl4T")  == 0){
-		G0 = obj_ig_pl4T(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_ig_pl4T(SS_ref_db.n_xeos, SS_ref_db.iguess,SS_ref_db.dfx, &SS_ref_db);
 	}	
 	else if (strcmp( name, "spn") == 0){	
-		G0 = obj_ig_spn(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		G0 = obj_ig_spn(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
 	}
 	else{
 		printf("\nsolid solution '%s' is not in the database\n",name);		

@@ -432,7 +432,7 @@ global_variable get_bulk( global_variable gv) {
 		gv.test = 0;
 		if (gv.verbose == 1){
 			printf("\n");
-			printf("   - No input conditions provided -> run test point: KLB-1, 1100°C, 12kbar\n");	
+			printf("   - No predefined bulk provided -> user custom bulk (if none provided, will run default KLB1)\n");	
 		}	
 	}
 	if (gv.test == 0){
