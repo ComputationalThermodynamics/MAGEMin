@@ -12,10 +12,9 @@
 /** 
   read in input data from file 
 */
-void read_in_data(
-	global_variable gv,
-	io_data *input_data,												/** input data structure */
-	int      n_points
+void read_in_data(		global_variable 	 gv,
+						io_data 			*input_data,												/** input data structure */
+						int      			 n_points
 ){
 	char line[1000];
 	FILE* input_file = fopen(gv.File,"rt");	
