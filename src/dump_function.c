@@ -754,12 +754,12 @@ void output_gui(				global_variable 	 gv,
 		}
 		else{
 		fprintf(tot_min, "%i %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f \n", gv.numPoint+1, z_b.P, z_b.T-273.15,sp[0].Vs_S,sp[0].Vp_S,sp[0].bulkModulus_S,sp[0].shearModulus_S,sp[0].bulkModulus_M,sp[0].rho_M,sp[0].rho_S,sp[0].frac_M,
-																											sp[0].bulk_S_wt[5]+sp[0].bulk_S_wt[6],0.0, sp[0].bulk_S_wt[0], 0.0);
+																											sp[0].bulk_S_wt[5]+sp[0].bulk_S_wt[6],0.0/0.0, sp[0].bulk_S_wt[0], 0.0/0.0);
 		}
 	}
 	else{
-		fprintf(tot_min, "%i %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f \n", gv.numPoint+1, z_b.P, z_b.T-273.15, 0.0, 0.0, 0.0, 0.0, sp[0].bulkModulus_M, 0.0, 0.0,sp[0].frac_M,
-																											0.0,sp[0].bulk_M_wt[5]+sp[0].bulk_M_wt[6],0.0, sp[0].bulk_M_wt[0]);
+		fprintf(tot_min, "%i %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f \n", gv.numPoint+1, z_b.P, z_b.T-273.15, 0.0/0.0, 0.0/0.0, 0.0/0.0, 0.0/0.0, sp[0].bulkModulus_M, 0.0/0.0, 0.0/0.0,sp[0].frac_M,
+																											0.0/0.0,sp[0].bulk_M_wt[5]+sp[0].bulk_M_wt[6],0.0/0.0, sp[0].bulk_M_wt[0]);
 	}
 	
 	fclose(tot_min);
