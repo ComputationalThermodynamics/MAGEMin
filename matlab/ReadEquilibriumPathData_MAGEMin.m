@@ -40,8 +40,8 @@ for iPoint=1:length(newPoints)
     i = i+1;
 
     % extract solution phases
-    StableSolutions  = StablePhases(~ismember(StablePhases,{'q' 'crst' 'trd' 'coe' 'stv' 'ky' 'sill' 'and' 'ru' 'sph'}));
-    StablePurePhases = StablePhases( ismember(StablePhases,{'q' 'crst' 'trd' 'coe' 'stv' 'ky' 'sill' 'and' 'ru' 'sph'}));
+    StableSolutions  = StablePhases(~ismember(StablePhases,{'q' 'crst' 'trd' 'coe' 'stv' 'ky' 'sill' 'and' 'ru' 'sph' 'O2'}));
+    StablePurePhases = StablePhases( ismember(StablePhases,{'q' 'crst' 'trd' 'coe' 'stv' 'ky' 'sill' 'and' 'ru' 'sph' 'O2'}));
 
     % retrieve info from first (numeric) line
     P       = str2double(A{i}(1:end-1)); i = i+1;  % read pressure
@@ -226,8 +226,10 @@ for iPoint=1:length(newPoints)
     SYSProps(strcmp(SYSPropsList,'Rho[kg/m3]')) = Density.SYS; % overwrite system density as it appears to be inconsistent in output file
 
     PhaseFractions.liq_vol = PhaseFractions.liq_wt .* Density.SYS./Density.liq;
+    PhaseFractions.fld_vol = PhaseFractions.fld_wt .* Density.SYS./Density.fld;
     PhaseFractions.liq_vol(isnan(PhaseFractions.liq_vol)) = 0;
-    PhaseFractions.sol_vol = 1-PhaseFractions.liq_vol;
+    PhaseFractions.fld_vol(isnan(PhaseFractions.fld_vol)) = 0;
+    PhaseFractions.sol_vol = 1-PhaseFractions.liq_vol-PhaseFractions.fld_vol;
 
     % Calculate melt viscosity in [Pas] using Giordano et al., 2008
     % sort oxides from/to
