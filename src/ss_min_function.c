@@ -48,7 +48,7 @@ SS_ref SS_UPDATE_function(		global_variable 	 gv,
 	}
 
 	/* get composition of solution phase */
-	for (int j = 0; j < nEl; j++){
+	for (int j = 0; j < gv.len_ox; j++){
 		SS_ref_db.ss_comp[j] = 0.0;
 		for (int i = 0; i < SS_ref_db.n_em; i++){
 		   SS_ref_db.ss_comp[j] += SS_ref_db.Comp[i][j]*SS_ref_db.p[i]*SS_ref_db.z_em[i];
@@ -84,7 +84,7 @@ csd_phase_set CP_UPDATE_function(		global_variable 	gv,
 	}
 
 	/* get composition of solution phase */
-	for (int j = 0; j < nEl; j++){
+	for (int j = 0; j < gv.len_ox; j++){
 		cp.ss_comp[j] = 0.0;
 		for (int i = 0; i < cp.n_em; i++){
 		   cp.ss_comp[j] += SS_ref_db.Comp[i][j]*cp.p_em[i]*SS_ref_db.z_em[i];
@@ -450,23 +450,25 @@ void ss_min_LP(			int 				 mode,
   initialize solution phase database
 **/
 global_variable init_ss_db(		int 				 EM_database,
-								bulk_info 	 z_b,
+								bulk_info 	 		 z_b,
 								global_variable 	 gv,
 								SS_ref 				*SS_ref_db
 ){
 	double R  = 0.0083144; 
-	for (int i = 0; i < gv.len_ss; i++){
-	
-		SS_ref_db[i]    = G_SS_EM_function(		gv, 
-												SS_ref_db[i], 
-												EM_database, 
-												z_b, 
-												gv.SS_list[i]		);
-										 
-		SS_ref_db[i].P  = z_b.P;									/** needed to pass to local minimizer, allows for P variation for liq/sol */
-		SS_ref_db[i].T  = z_b.T;		
-		SS_ref_db[i].R  = R;										/** can become a global variable instead */
 
+	if (EM_database == 2){
+		for (int i = 0; i < gv.len_ss; i++){
+		
+			SS_ref_db[i]    = G_SS_ig_EM_function(	gv, 
+													SS_ref_db[i], 
+													EM_database, 
+													z_b, 
+													gv.SS_list[i]		);
+											
+			SS_ref_db[i].P  = z_b.P;									/** needed to pass to local minimizer, allows for P variation for liq/sol */
+			SS_ref_db[i].T  = z_b.T;		
+			SS_ref_db[i].R  = R;										/** can become a global variable instead */
+		}
 	}
 
 	return gv;

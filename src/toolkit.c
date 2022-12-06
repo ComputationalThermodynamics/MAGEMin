@@ -105,25 +105,20 @@ double* norm_array(double *array, int size) {
   retrieve bulk rock composition and PT compositions
 */
 bulk_info retrieve_bulk_PT(				global_variable      gv,
-										char 				*sys_in,
-										char    			 File[50],
 										io_data 		    *input_data,
-										int 				 test,
 										int					 sgleP,
-										double				*Bulk,
-										bulk_info 			 z_b,		
-										double 				*bulk_rock			){
+										bulk_info 			 z_b			){
 
 	/* bulk from command line arguments */
-	if (Bulk[0] > 0.0) {
+	if (gv.arg_bulk[0] > 0.0) {
 		if (gv.verbose == 1){
 			printf("\n");
 			printf("   - Minimization using bulk-rock composition from arg\n");	
 		}	
-		for (int i = 0; i < gv.len_ox; i++){ bulk_rock[i] = Bulk[i];}
+		for (int i = 0; i < gv.len_ox; i++){ gv.bulk_rock[i] = gv.arg_bulk[i];}
 	}
 	/* bulk from file */
-	if (strcmp( File, "none") != 0){
+	if (strcmp( gv.File, "none") != 0){
 
 		z_b.P = input_data[sgleP].P;
 		z_b.T = input_data[sgleP].T + 273.15;					/** K to C 		*/
@@ -134,40 +129,40 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 				printf("   - Minimization using bulk-rock composition from input file\n");	
 			}	
 			for (int i = 0; i < gv.len_ox; i++){
-				bulk_rock[i] = input_data[sgleP].in_bulk[i];					
+				gv.bulk_rock[i] = input_data[sgleP].in_bulk[i];					
 			}
 		}
 	}
 
 	/* transform bulk from wt% to mol% for minimiation */
-	if (strcmp( sys_in, "wt") == 0){	
-		for (int i = 0; i < gv.len_ox; i++){ bulk_rock[i] /= z_b.masspo[i];}
+	if (strcmp( gv.sys_in, "wt") == 0){	
+		for (int i = 0; i < gv.len_ox; i++){ gv.bulk_rock[i] /= z_b.masspo[i];}
 	}
 
 
 	if (gv.verbose == 1){	
-		if (strcmp( sys_in, "mol") == 0){	
-			printf("   - input system composition   : mol fraction\n"	);
+		if (strcmp( gv.sys_in, "mol") == 0){	
+			printf("  - input system composition   : mol fraction\n"	);
 		}
-		else if (strcmp( sys_in, "wt") == 0){	
-			printf("   - input system composition   : wt fraction\n"	);
+		else if (strcmp( gv.sys_in, "wt") == 0){	
+			printf("  - input system composition   : wt fraction\n"	);
 		}
 		else{
-			printf("   - input system composition   : unknown! [has to be mol or wt]\n");
+			printf("  - input system composition   : unknown! [has to be mol or wt]\n");
 		}
 		printf("\n");
 	}	
 
 	/** Normalize composition to sum to 1. 										*/
-	norm_array(							bulk_rock,
+	norm_array(							gv.bulk_rock,
 										gv.len_ox					);		
 
 	/** here we check if the normalized mol fraction is < 1e-4 for oxides != H2O */
 	/** if it is, then the fraction is set to 1e-4 -> this is a current limitation of system component reduction */
 	int renorm = 0;
 	for (int i = 0; i < gv.len_ox; i++){ 
-		if (strcmp( gv.ox[i], "H2O") != 0 &&  bulk_rock[i] < 1.0e-4){
-			bulk_rock[i] = 1.0e-4;
+		if (strcmp( gv.ox[i], "H2O") != 0 &&  gv.bulk_rock[i] < 1.0e-4){
+			gv.bulk_rock[i] = 1.0e-4;
 			renorm = 1;
 			if (gv.verbose == 1){
 				printf("  - mol fraction of %4s is < 1e-4 -> set back to 1e-4 to avoid minimization issues\n\n",gv.ox[i]	);
@@ -175,7 +170,7 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 		}
 	}
 	if (renorm == 1){
-		norm_array(							bulk_rock,
+		norm_array(							gv.bulk_rock,
 											gv.len_ox					);						
 	}
 
@@ -583,13 +578,12 @@ double partial_euclidean_distance(double *array1 ,double *array2 ,int n){
 /**
   inverse a matrix using LAPACKE dgetrf and dgetri
 */	
-void inverseMatrix(double *A1, int n){
-	int    ipiv[n];	
+void inverseMatrix(int *ipiv, double *A1, int n, double *work, int lwork){	
 	int    info;
 
 	/* call lapacke to inverse Matrix */
 	info = LAPACKE_dgetrf(LAPACK_ROW_MAJOR, n, n, A1, n, ipiv); 
-	info = LAPACKE_dgetri(LAPACK_ROW_MAJOR, n, A1, n, ipiv);
+	info = LAPACKE_dgetri_work(LAPACK_ROW_MAJOR, n, A1, n, ipiv, work, lwork);
 };
 
 /**
@@ -785,6 +779,13 @@ void print_SS_informations(		global_variable gv,
 		printf(" %10s","-");
 	}
 	printf("\n");
+	// for (int k = 0; k < SS_ref_db.n_xeos; k++) {
+	// 	printf(" %+10f",SS_ref_db.dfx[k]);
+	// }
+	// for (int k = SS_ref_db.n_xeos; k < 12; k++){
+	// 	printf(" %10s","-");
+	// }
+	// printf("\n");
 }
 
 /**

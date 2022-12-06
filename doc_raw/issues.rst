@@ -25,6 +25,13 @@ Reduced chemical system
 * We recommend a minimum value of 0.01 :literal:`[mol%]` (0.0001 :literal:`[mol fraction]`)
 
 
+Set Oxygen content
+******************
+
+* Such like in THERMOCALC, the oxygen content :literal:`O` is set as :literal:`O [mol%]` = :literal:`Fe2O3 [mol%]`. 
+
+* If the :literal:`Fe2O3`-content is not available you can turn off :literal:`O` by setting it to 0.01 :literal:`[mol%]`.
+
 |
 
 .. image:: /figs/wip.png

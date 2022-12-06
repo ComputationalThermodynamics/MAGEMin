@@ -3,7 +3,7 @@
 
 #include "MAGEMin.h"
 
-SS_ref G_SS_INIT_EM_function(		int				ph_id,
+SS_ref G_SS_init_EM_function(		int				ph_id,
 									SS_ref 			SS_ref_db, 
 									int 			EM_database, 
 									char 		   *name, 

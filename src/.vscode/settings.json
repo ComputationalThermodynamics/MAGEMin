@@ -23,6 +23,7 @@
         "io_function.h": "c",
         "magemin.h": "c",
         "nlopt.h": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "simplex_levelling.h": "c"
     }
 }

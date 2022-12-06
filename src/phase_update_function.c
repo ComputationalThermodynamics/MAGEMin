@@ -548,15 +548,14 @@ global_variable phase_hold2rmv(			bulk_info 	z_b,
 /**
 	from active to hold function
 */
-global_variable phase_hold2act(		bulk_info 		z_b,
+global_variable phase_hold2act(		bulk_info 				z_b,
 									global_variable 		gv,
 
 									PP_ref 					*PP_ref_db,
 									SS_ref 					*SS_ref_db,
 									csd_phase_set  			*cp 
 ){
-	double 	dnorm     	= 0.0;
-	double 	max_df    	= 0.0;				/** max driving force under which a phase can be considered to be added 				*/
+	double 	dnorm     	= 0.0;			/** max driving force under which a phase can be considered to be added 				*/
 	double 	min_sumxi 	= 1.0;				/** min sum of xi fractions over which a solution phase can be considered to be added 	*/
 	
 	/* get number of hold phase for pure phases */
@@ -568,7 +567,7 @@ global_variable phase_hold2act(		bulk_info 		z_b,
 			pp_act[inc] = i;
 			inc        +=1;
 		}
-		if (gv.pp_flags[i][2] == 1 && PP_ref_db[i].gb_lvl*PP_ref_db[i].factor < max_df){
+		if (gv.pp_flags[i][2] == 1 && PP_ref_db[i].gb_lvl*PP_ref_db[i].factor < gv.min_df){
 			n_pp_hld += 1;
 		}
 	}
@@ -584,7 +583,7 @@ global_variable phase_hold2act(		bulk_info 		z_b,
 			cp_act[inc]            = i;
 			inc                   += 1;
 		}
-		if (cp[i].ss_flags[2] == 1 && cp[i].df*cp[i].factor < max_df && cp[i].sf_ok == 1){
+		if (cp[i].ss_flags[2] == 1 && cp[i].df*cp[i].factor < gv.min_df && cp[i].sf_ok == 1){
 			n_cp_hld              += 1;
 		}		
 	}
@@ -596,7 +595,7 @@ global_variable phase_hold2act(		bulk_info 		z_b,
 	
 	inc = 0;
 	for (int i = 0; i < gv.len_cp; i++){
-		if (cp[i].ss_flags[2] == 1 && cp[i].df*cp[i].factor < max_df && cp[i].sf_ok == 1){	
+		if (cp[i].ss_flags[2] == 1 && cp[i].df*cp[i].factor < gv.min_df && cp[i].sf_ok == 1){	
 			hld_cp_sort[inc].value  = cp[i].df*cp[i].factor;
 			hld_cp_sort[inc].index  = i;
 			inc += 1;
@@ -609,7 +608,7 @@ global_variable phase_hold2act(		bulk_info 		z_b,
 	
 	inc = 0;
 	for (int i = 0; i < gv.len_pp; i++){
-		if (gv.pp_flags[i][2] == 1 && PP_ref_db[i].gb_lvl*PP_ref_db[i].factor < max_df){	
+		if (gv.pp_flags[i][2] == 1 && PP_ref_db[i].gb_lvl*PP_ref_db[i].factor < gv.min_df){	
 			hld_pp_sort[inc].value = PP_ref_db[i].gb_lvl*PP_ref_db[i].factor;
 			hld_pp_sort[inc].index = i;
 			inc += 1;
