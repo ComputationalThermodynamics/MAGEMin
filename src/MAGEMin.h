@@ -85,6 +85,9 @@ typedef struct global_variables {
 	int      numPoint; 			/** the number of the current point */
 	int      global_ite;		/** global iteration increment */
 
+	/* SPECIAL CASES */
+	double   melt_pressure;
+
 	/* LEVELLING */
 	double   LVL_time;			/** time taken for levelling (ms) */
 	double   em2ss_shift;		/** small value to retrieve x-eos from pure endmember after levelling */
