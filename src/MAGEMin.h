@@ -25,7 +25,7 @@ typedef struct global_variables {
 	int      status;			/** status of the minimization 		*/
 	int      solver;
 	double   solver_switch_T;
-	int 	 calc_seismic_cor;
+	// int 	 calc_seismic_cor;
 	int 	 output_matlab;
 	double 	 tot_min_time;
 	double 	 tot_time;
@@ -86,7 +86,7 @@ typedef struct global_variables {
 	int      global_ite;		/** global iteration increment */
 
 	/* SPECIAL CASES */
-	double   melt_pressure;
+	// double   melt_pressure;
 
 	/* LEVELLING */
 	double   LVL_time;			/** time taken for levelling (ms) */

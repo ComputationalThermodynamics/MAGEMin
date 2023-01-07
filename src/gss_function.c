@@ -2314,16 +2314,16 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
 		}
 		printf("\n");
 
-		// if (1 == 1){
-		// 	/* display molar composition */
-		// 	for (int i = 0; i < SS_ref_db.n_em; i++){
-		// 		for (int j = 0; j < gv.len_ox; j++){
-		// 			printf(" %+10f",SS_ref_db.Comp[i][j]);
-		// 		}
-		// 		printf("\n");
-		// 	}
-		// 	printf("\n");
-		// }
+		if (1 == 1){
+			/* display molar composition */
+			for (int i = 0; i < SS_ref_db.n_em; i++){
+				for (int j = 0; j < gv.len_ox; j++){
+					printf(" %+10f",SS_ref_db.Comp[i][j]);
+				}
+				printf("\n");
+			}
+			printf("\n");
+		}
 
 	}
 

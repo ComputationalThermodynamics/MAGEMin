@@ -462,9 +462,9 @@ global_variable init_ss_db(		int 				 EM_database,
 			SS_ref_db[i].T  = z_b.T;		
 			SS_ref_db[i].R  = 0.0083144;
 
-			if (SS_ref_db[i].is_liq == 1){
-				SS_ref_db[i].P  = z_b.P + gv.melt_pressure;
-			}
+			// if (SS_ref_db[i].is_liq == 1){
+			// 	SS_ref_db[i].P  = z_b.P + gv.melt_pressure;
+			// }
 
 			SS_ref_db[i]    = G_SS_ig_EM_function(	gv, 
 													SS_ref_db[i], 

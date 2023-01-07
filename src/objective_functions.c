@@ -2957,25 +2957,25 @@ double obj_ig_hb(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 
 	px_ig_hb(SS_ref_db,x);
 	
-	d->sum_v = 0.0;
-	for (int i = 0; i < d->n_em; i++){
-		d->sum_v += d->p[i]*d->v[i];
-	}
-	for (int i = 0; i < d->n_em; i++){
-		d->mat_phi[i] = (d->p[i]*d->v[i])/d->sum_v;
-	}
+    d->sum_v = 0.0;
+    for (int i = 0; i < d->n_em; i++){
+        d->sum_v += d->p[i]*d->v[i];
+    }
+    for (int i = 0; i < d->n_em; i++){
+        d->mat_phi[i] = (d->p[i]*d->v[i])/d->sum_v;
+    }
 
-	for (int i = 0; i < d->n_em; i++){
-		mu_Gex[i] = 0.0;
-		int it = 0;
-		for (int j = 0; j < d->n_xeos; j++){
-			for (int k = j+1; k < d->n_em; k++){
-				mu_Gex[i] -= (d->eye[i][j] - d->mat_phi[j])*(d->eye[i][k] - d->mat_phi[k])*(d->W[it]*2.0*d->v[i]/(d->v[j]+d->v[k]));
-				it += 1;
-			}
-		}
-	}
-	
+    for (int i = 0; i < d->n_em; i++){
+        mu_Gex[i] = 0.0;
+        int it = 0;
+        for (int j = 0; j < d->n_xeos; j++){
+            for (int k = j+1; k < d->n_em; k++){
+                mu_Gex[i] -= (d->eye[i][j] - d->mat_phi[j])*(d->eye[i][k] - d->mat_phi[k])*(d->W[it]*2.0*d->v[i]/(d->v[j]+d->v[k]));
+                it += 1;
+            }
+        }
+    }
+
     sf[0]           = 1.0 - x[3];
     sf[1]           = -x[3]*x[4] + x[3];
     sf[2]           = x[3]*x[4];
@@ -3112,7 +3112,7 @@ double obj_ig_liq(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
-
+    double muGex;
 	int n_em   = d->n_em;
 	double P   = d->P;
 	double T   = d->T;
@@ -3135,14 +3135,15 @@ double obj_ig_liq(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 	}
 
 	for (int i = 0; i < d->n_em; i++){
-		mu_Gex[i] = 0.0;
+		muGex = 0.0;
 		int it = 0;
 		for (int j = 0; j < d->n_xeos; j++){
 			for (int k = j+1; k < d->n_em; k++){
-				mu_Gex[i] -= (d->eye[i][j] - d->mat_phi[j])*(d->eye[i][k] - d->mat_phi[k])*(d->W[it]*2.0*d->v[i]/(d->v[j]+d->v[k]));
+				muGex -= (d->eye[i][j] - d->mat_phi[j])*(d->eye[i][k] - d->mat_phi[k])*(d->W[it]*2.0*d->v[i]/(d->v[j]+d->v[k]));
 				it += 1;
 			}
 		}
+        mu_Gex[i] = muGex;
 	}
 
 	sf[0]           = -x[6] - x[3] - x[2] - x[10] - x[5] - x[4] - x[8] - x[1] - x[7] - x[0] + 0.25*x[9]*(-3.0*x[6] - 3.0*x[3] - 3.0*x[2] - 3.0*x[10] - 3.0*x[5] - 3.0*x[4] - 3.0*x[8] - 3.0*x[1] - 3.0*x[7] - 3.0*x[0] + 4.0) + 1.0;
@@ -3617,51 +3618,54 @@ SS_ref P2X(					global_variable 	 gv,
 	double eps = gv.bnd_val;
 
 	/* Associate the right solid-solution data */
-	if 	(strcmp( name, "bi") == 0 ){
-		p2x_ig_bi(&SS_ref_db, eps);	
+	if(gv.EM_database == 2){
+		if 	(strcmp( name, "bi") == 0 ){
+			p2x_ig_bi(&SS_ref_db, eps);	
+		}
+		else if (strcmp( name, "cd")  == 0){
+			p2x_ig_cd(&SS_ref_db, eps);	
+		}
+		else if (strcmp( name, "cpx") == 0){
+			p2x_ig_cpx(&SS_ref_db, eps);
+		}	
+		else if (strcmp( name, "ep")  == 0){
+			p2x_ig_ep(&SS_ref_db, eps);
+		}
+		else if (strcmp( name, "fl")  == 0){
+			p2x_ig_fl(&SS_ref_db, eps);
+		}		
+		else if (strcmp( name, "g")   == 0){
+			p2x_ig_g(&SS_ref_db, eps);
+		}
+		else if (strcmp( name, "hb")  == 0){
+			p2x_ig_hb(&SS_ref_db, eps);
+		}	
+		else if (strcmp( name, "ilm") == 0){
+			p2x_ig_ilm(&SS_ref_db, eps);
+		}
+		else if (strcmp( name, "liq") == 0){
+			p2x_ig_liq(&SS_ref_db, eps);
+		}
+		else if (strcmp( name, "mu")  == 0){
+			p2x_ig_mu(&SS_ref_db, eps);	
+		}	
+		else if (strcmp( name, "ol")  == 0){
+			p2x_ig_ol(&SS_ref_db, eps);
+		}
+		else if (strcmp( name, "opx") == 0){
+			p2x_ig_opx(&SS_ref_db, eps);
+		}
+		else if (strcmp( name, "pl4T")  == 0){
+			p2x_ig_pl4T(&SS_ref_db, eps);
+		}	
+		else if (strcmp( name, "spn") == 0){
+			p2x_ig_spn(&SS_ref_db, eps);	
+		}
+		else{
+			printf("\nsolid solution '%s' is not in the database\n",name);		
+		}	
 	}
-	else if (strcmp( name, "cd")  == 0){
-		p2x_ig_cd(&SS_ref_db, eps);	
-	}
-	else if (strcmp( name, "cpx") == 0){
-		p2x_ig_cpx(&SS_ref_db, eps);
-	}	
-	else if (strcmp( name, "ep")  == 0){
-		p2x_ig_ep(&SS_ref_db, eps);
-	}
-	else if (strcmp( name, "fl")  == 0){
-		p2x_ig_fl(&SS_ref_db, eps);
-	}		
-	else if (strcmp( name, "g")   == 0){
-		p2x_ig_g(&SS_ref_db, eps);
-	}
-	else if (strcmp( name, "hb")  == 0){
-		p2x_ig_hb(&SS_ref_db, eps);
-	}	
-	else if (strcmp( name, "ilm") == 0){
-		p2x_ig_ilm(&SS_ref_db, eps);
-	}
-	else if (strcmp( name, "liq") == 0){
-		p2x_ig_liq(&SS_ref_db, eps);
-	}
-	else if (strcmp( name, "mu")  == 0){
-		p2x_ig_mu(&SS_ref_db, eps);	
-	}	
-	else if (strcmp( name, "ol")  == 0){
-		p2x_ig_ol(&SS_ref_db, eps);
-	}
-	else if (strcmp( name, "opx") == 0){
-		p2x_ig_opx(&SS_ref_db, eps);
-	}
-	else if (strcmp( name, "pl4T")  == 0){
-		p2x_ig_pl4T(&SS_ref_db, eps);
-	}	
-	else if (strcmp( name, "spn") == 0){
-		p2x_ig_spn(&SS_ref_db, eps);	
-	}
-	else{
-		printf("\nsolid solution '%s' is not in the database\n",name);		
-	}	
+
 
 	return SS_ref_db;
 };
@@ -3674,51 +3678,54 @@ SS_ref PC_function(		global_variable 	 gv,
 	double G0 = 0.0;
 
 	/* Associate the right solid-solution data */
-	if 	(strcmp( name, "bi") == 0 ){
-		G0 = obj_ig_bi(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+	if(gv.EM_database == 2){
+		if 	(strcmp( name, "bi") == 0 ){
+			G0 = obj_ig_bi(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		}
+		else if (strcmp( name, "cd")  == 0){
+			G0 = obj_ig_cd(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		}
+		else if (strcmp( name, "cpx") == 0){	
+			G0 = obj_ig_cpx(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
+				}	
+		else if (strcmp( name, "ep")  == 0){
+			G0 = obj_ig_ep(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		}
+		else if (strcmp( name, "fl")  == 0){
+			G0 = obj_ig_fl(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		}		
+		else if (strcmp( name, "g")   == 0){
+			G0 = obj_ig_g(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		}
+		else if (strcmp( name, "hb")  == 0){
+			G0 = obj_ig_hb(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		}	
+		else if (strcmp( name, "ilm") == 0){
+			G0 = obj_ig_ilm(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
+		}	
+		else if (strcmp( name, "liq") == 0){
+			G0 = obj_ig_liq(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
+		}
+		else if (strcmp( name, "mu")  == 0){
+			G0 = obj_ig_mu(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		}	
+		else if (strcmp( name, "ol")  == 0){
+			G0 = obj_ig_ol(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		}
+		else if (strcmp( name, "opx") == 0){
+			G0 = obj_ig_opx(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
+		}
+		else if (strcmp( name, "pl4T")  == 0){
+			G0 = obj_ig_pl4T(SS_ref_db.n_xeos, SS_ref_db.iguess,SS_ref_db.dfx, &SS_ref_db);
+		}	
+		else if (strcmp( name, "spn") == 0){	
+			G0 = obj_ig_spn(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
+		}
+		else{
+			printf("\nsolid solution '%s' is not in the database\n",name);		
+		}	
 	}
-	else if (strcmp( name, "cd")  == 0){
-		G0 = obj_ig_cd(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
-	}
-	else if (strcmp( name, "cpx") == 0){	
-		G0 = obj_ig_cpx(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
-			}	
-	else if (strcmp( name, "ep")  == 0){
-		G0 = obj_ig_ep(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
-	}
-	else if (strcmp( name, "fl")  == 0){
-		G0 = obj_ig_fl(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
-	}		
-	else if (strcmp( name, "g")   == 0){
-		G0 = obj_ig_g(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
-	}
-	else if (strcmp( name, "hb")  == 0){
-		G0 = obj_ig_hb(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
-	}	
-	else if (strcmp( name, "ilm") == 0){
-		G0 = obj_ig_ilm(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
-	}	
-	else if (strcmp( name, "liq") == 0){
-		G0 = obj_ig_liq(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
-	}
-	else if (strcmp( name, "mu")  == 0){
-		G0 = obj_ig_mu(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
-	}	
-	else if (strcmp( name, "ol")  == 0){
-		G0 = obj_ig_ol(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
-	}
-	else if (strcmp( name, "opx") == 0){
-		G0 = obj_ig_opx(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
-	}
-	else if (strcmp( name, "pl4T")  == 0){
-		G0 = obj_ig_pl4T(SS_ref_db.n_xeos, SS_ref_db.iguess,SS_ref_db.dfx, &SS_ref_db);
-	}	
-	else if (strcmp( name, "spn") == 0){	
-		G0 = obj_ig_spn(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
-	}
-	else{
-		printf("\nsolid solution '%s' is not in the database\n",name);		
-	}	
+
 	
 	/** get driving force for simplex pseudocompounds */
 	SS_ref_db.df = G0;
