@@ -1034,18 +1034,19 @@ void run_simplex_levelling(				bulk_info 	 		 z_b,
 	simplex_data *d  = (simplex_data *) splx_data;
 
 	int i, k, iss;
-										
-	swap_pure_endmembers(				z_b,
-										splx_data,
-										gv,
-										PP_ref_db,
-										SS_ref_db				);	
 
 	swap_pure_phases(					z_b,
 										splx_data,
 										gv,
 										PP_ref_db,
 										SS_ref_db				);	
+
+	swap_pure_endmembers(				z_b,
+										splx_data,
+										gv,
+										PP_ref_db,
+										SS_ref_db				);	
+
 
 	update_local_gamma(					d->A1,
 										d->g0_A,
@@ -1385,6 +1386,10 @@ global_variable run_levelling_function(		bulk_info 	 z_b,
 		printf(" [----------------------------------------]\n");
 
 		for (int i = 0; i < d->n_Ox; i++){
+			if (d->ph_id_A[i][0] == 0){
+				printf(" ['%5s' %+10f  %+12.4f  %5d ]", "F.OX", d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+				printf("\n");
+			}
 			if (d->ph_id_A[i][0] == 1){
 				printf(" ['%5s' %+10f  %+12.4f  %5d ]", gv.PP_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
 				printf("\n");

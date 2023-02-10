@@ -303,7 +303,7 @@ double BrentRoots(  double  x1,
   EE 		= 0.0;
   CC 		= 0.0;
 
-  i = 0; done = FALSE;   error = 0;
+  i = 0; done = FALSE;   *error = 0;
   AA = x1;  BB = x2;  FA = AFunction(mode,AA,data); FB = AFunction(mode,BB,data);
 
   if (!(RootBracketed(FA,FB))) 

@@ -145,8 +145,8 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 
 	/* levelling parameters 			*/
 	gv.em2ss_shift		= 1e-6;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
-	gv.bnd_filter_pc    = 10.0;					/** value of driving force the pseudocompound is considered 						*/
-	gv.max_G_pc         = 0.0;					/** dG under which PC is considered after their generation		 					*/
+	gv.bnd_filter_pc    = 5.0;					/** value of driving force the pseudocompound is considered 						*/
+	gv.max_G_pc         = 5.0;					/** dG under which PC is considered after their generation		 					*/
 	gv.eps_sf_pc		= 1e-10;				/** Minimum value of site fraction under which PC is rejected, 
 													don't put it too high as it will conflict with bounds of x-eos					*/
 
@@ -183,7 +183,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 
 	/* phase update options 			*/
 	gv.re_in_n          = 1e-3;					/** fraction of phase when being reintroduce.  										*/
-	gv.min_df 			=-1e-6;					/** value under which a phase in hold is reintroduced */
+	gv.min_df 			= 0.0;					/** value under which a phase in hold is reintroduced */
 
 	/* numerical derivatives P,T steps (same value as TC) */
 	gv.gb_P_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
@@ -202,7 +202,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.EM_database  	=  2; 					/** 0, metapelite; 1 metabasite; 2 igneous											*/
 	gv.n_points 		=  1;
 	gv.maxeval  		= -1;
-	gv.solver   		=  1;
+	gv.solver   		=  1;					/* 1 = PGE+Legacy, 2 = Legacy only */
 	gv.verbose 			=  0;
 	gv.output_matlab 	=  0;
 	gv.test     		= -1;
@@ -227,7 +227,7 @@ typedef struct igneous_datasets {
 	int 	n_pp;
 	int 	n_ss;
 	char    ox[11][20];
-	char    PP[11][20];
+	char    PP[14][20];
 	char    SS[14][20];
 
 	int 	verifyPC[14];
@@ -239,10 +239,10 @@ typedef struct igneous_datasets {
 igneous_dataset igneous_db = {
 	291,						/* number of endmembers */
 	11,							/* number of oxides */			
-	11,							/* number of pure phases */
+	14,							/* number of pure phases */
 	14,							/* number of solution phases */
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"Cr2O3","H2O"								},
-	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2"								},
+	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"wo"	,"pswo"	,"ne"	,"O2"		},
 	{"spn"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"hb"	,"ilm"	,"liq"	,"mu"	,"ol"	,"opx"	,"pl4T"	,"fl"		},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1			},
