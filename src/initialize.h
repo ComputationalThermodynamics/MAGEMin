@@ -124,7 +124,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.3.0 [01/12/2022]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.2.8 [14/02/2023]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	gv.max_n_cp 		= 128;					/** number of considered solution phases 											*/									
@@ -543,36 +543,6 @@ global_variable get_bulk( global_variable gv) {
 		gv.bulk_rock[8]  = 0.4670;
 		gv.bulk_rock[9]  = 0.0100;
 		gv.bulk_rock[10] =	5.4364;
-	}
-	else if (gv.test == 7){
-		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
-		/* Kl3 */
-		gv.bulk_rock[0] = 63.242;	
-		gv.bulk_rock[1] = 7.267;	
-		gv.bulk_rock[2] = 1.815;	
-		gv.bulk_rock[3] = 0.751;	
-		gv.bulk_rock[4] = 1.311;	
-		gv.bulk_rock[5] = 2.774;
-		gv.bulk_rock[6]  = 2.622;
-		gv.bulk_rock[7]  = 0.144;
-		gv.bulk_rock[8]  = 0.5;
-		gv.bulk_rock[9]  = 0.01;
-		gv.bulk_rock[10] =	19.986;
-	}
-	else if (gv.test == 8){
-		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
-		/* Kl3 */
-		gv.bulk_rock[0] = 54.65;	
-		gv.bulk_rock[1] = 9.04;	
-		gv.bulk_rock[2] = 10.69;	
-		gv.bulk_rock[3] = 13.9;	
-		gv.bulk_rock[4] = 7.63;	
-		gv.bulk_rock[5] = 0.51;
-		gv.bulk_rock[6]  = 2.62;
-		gv.bulk_rock[7]  = 0.71;
-		gv.bulk_rock[8]  = 0.4;
-		gv.bulk_rock[9]  = 0.1;
-		gv.bulk_rock[10] =	0.0;
 	}
 	else{
 		printf("Unknown test %i - please specify a different test! \n", gv.test);

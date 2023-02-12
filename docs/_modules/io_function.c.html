@@ -247,10 +247,9 @@
 <div class="viewcode-block" id="c.read_in_data"><a class="viewcode-back" href="../src/io_function.html#c.read_in_data">[docs]</a><span class="cm">/** </span>
 <span class="cm">  read in input data from file </span>
 <span class="cm">*/</span><span class="w"></span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">read_in_data</span><span class="p">(</span><span class="w"></span>
-<span class="w">	</span><span class="n">global_variable</span><span class="w"> </span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
-<span class="w">	</span><span class="n">io_data</span><span class="w"> </span><span class="o">*</span><span class="n">input_data</span><span class="p">,</span><span class="w">												</span><span class="cm">/** input data structure */</span><span class="w"></span>
-<span class="w">	</span><span class="kt">int</span><span class="w">      </span><span class="n">n_points</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">read_in_data</span><span class="p">(</span><span class="w">		</span><span class="n">global_variable</span><span class="w"> 	 </span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
+<span class="w">						</span><span class="n">io_data</span><span class="w"> 			</span><span class="o">*</span><span class="n">input_data</span><span class="p">,</span><span class="w">												</span><span class="cm">/** input data structure */</span><span class="w"></span>
+<span class="w">						</span><span class="kt">int</span><span class="w">      			 </span><span class="n">n_points</span><span class="w"></span>
 <span class="p">){</span><span class="w"></span>
 <span class="w">	</span><span class="kt">char</span><span class="w"> </span><span class="n">line</span><span class="p">[</span><span class="mi">1000</span><span class="p">];</span><span class="w"></span>
 <span class="w">	</span><span class="kt">FILE</span><span class="o">*</span><span class="w"> </span><span class="n">input_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">File</span><span class="p">,</span><span class="s">&quot;rt&quot;</span><span class="p">);</span><span class="w">	</span>

@@ -457,7 +457,7 @@
 <span class="w">	</span><span class="kt">int</span><span class="w"> 	</span><span class="n">ss</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span><span class="kt">double</span><span class="w">  </span><span class="n">cv</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_cp</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)){</span><span class="w"></span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
 <span class="w">			</span><span class="n">ss</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">id</span><span class="p">;</span><span class="w"></span>
 
 <span class="w">			</span><span class="cm">/** rotate gbase with respect to the G-hyperplane (change of base) */</span><span class="w"></span>
@@ -540,7 +540,7 @@
 <span class="p">){</span><span class="w"></span>
 <span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">ss</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_cp</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)){</span><span class="w"></span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
 <span class="w">			</span><span class="n">ss</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">id</span><span class="p">;</span><span class="w"></span>
 
 <span class="w">			</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CP_UPDATE_function</span><span class="p">(</span><span class="w">			</span><span class="n">gv</span><span class="p">,</span><span class="w"> </span>
@@ -703,7 +703,7 @@
 <span class="cm">  Partitioning Gibbs Energy function </span>
 <span class="cm">*/</span><span class="w"></span>
 <span class="n">global_variable</span><span class="w"> </span><span class="nf">PGE_update_solution</span><span class="p">(</span><span class="w">	</span><span class="n">global_variable</span><span class="w">  	 </span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
-<span class="w">										</span><span class="n">bulk_info</span><span class="w"> 	 </span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
+<span class="w">										</span><span class="n">bulk_info</span><span class="w"> 	 		 </span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
 <span class="w">										</span><span class="n">csd_phase_set</span><span class="w">  		</span><span class="o">*</span><span class="n">cp</span><span class="w">	</span><span class="p">){</span><span class="w"></span>
 <span class="w">	</span><span class="kt">int</span><span class="w"> 	</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">ph</span><span class="p">;</span><span class="w">										</span>
 <span class="w">	</span><span class="kt">double</span><span class="w"> 	</span><span class="n">n_fac</span><span class="p">,</span><span class="w"> </span>
@@ -888,7 +888,6 @@
 <span class="w">								</span>
 <span class="w">		</span><span class="n">delta_fc_norm</span><span class="w"> 	</span><span class="o">=</span><span class="w"> </span><span class="n">fabs</span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">fc_norm_t1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">fc_norm_t0</span><span class="p">);</span><span class="w"></span>
 <span class="w">		</span><span class="n">fc_norm_t0</span><span class="w"> 		</span><span class="o">=</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">fc_norm_t1</span><span class="p">;</span><span class="w"></span>
-<span class="w">		</span>
 <span class="w">							</span>
 <span class="w">		</span><span class="cm">/**</span>
 <span class="cm">		calculate delta_G of pure phases </span>
@@ -908,7 +907,6 @@
 <span class="w">											</span><span class="n">cp</span><span class="w">						</span><span class="p">);</span><span class="w"> </span>
 
 <span class="w">		</span><span class="cm">/* Update mu and xi of solution phase  */</span><span class="w"></span>
-
 <span class="w">		</span><span class="n">gv</span><span class="w"> </span><span class="o">=</span><span class="w">	</span><span class="n">PGE_update_pi</span><span class="p">(</span><span class="w">				</span><span class="n">z_b</span><span class="p">,</span><span class="w">								</span><span class="cm">/** bulk rock constraint 				*/</span><span class="w"> </span>
 <span class="w">											</span><span class="n">gv</span><span class="p">,</span><span class="w">									</span><span class="cm">/** global variables (e.g. Gamma) 		*/</span><span class="w"></span>
 
@@ -1516,7 +1514,7 @@
 <span class="w">						</span><span class="n">SS_ref</span><span class="w"> 				</span><span class="o">*</span><span class="n">SS_ref_db</span><span class="p">,</span><span class="w"></span>
 <span class="w">						</span><span class="n">csd_phase_set</span><span class="w">  		</span><span class="o">*</span><span class="n">cp</span><span class="w">					</span><span class="p">){</span><span class="w"></span>
 <span class="w">		</span>
-<span class="w">	</span><span class="kt">clock_t</span><span class="w"> </span><span class="n">t</span><span class="p">;</span><span class="w"> 	</span>
+<span class="w">	</span><span class="kt">clock_t</span><span class="w"> </span><span class="n">t</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">;</span><span class="w"> 	</span>
 
 <span class="w">	</span><span class="n">gv</span><span class="p">.</span><span class="n">LP_PGE_switch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">global_ite</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span><span class="n">gv</span><span class="p">.</span><span class="n">LP</span><span class="w"> 			 </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">	</span>
@@ -1553,6 +1551,7 @@
 <span class="w">		</span><span class="cm">/**</span>
 <span class="cm">			check driving force of PC when getting close to convergence</span>
 <span class="cm">		*/</span><span class="w"></span>
+<span class="w">		</span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">clock</span><span class="p">();</span><span class="w"></span>
 <span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">BR_norm</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">PC_check_val1</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">check_PC1</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">){</span><span class="w"></span>
 <span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">verbose</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
 <span class="w">				</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s"> Checking PC driving force 1</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">	</span>
@@ -1596,6 +1595,7 @@
 <span class="w">		</span><span class="cm">/**</span>
 <span class="cm">			Local minimization of the solution phases</span>
 <span class="cm">		*/</span><span class="w"></span>
+
 <span class="w">		</span><span class="n">ss_min_PGE</span><span class="p">(</span><span class="w">						</span><span class="n">mode</span><span class="p">,</span><span class="w"></span>
 <span class="w">										</span><span class="n">gv</span><span class="p">,</span><span class="w"> 						</span><span class="cm">/** global variables (e.g. Gamma) 		*/</span><span class="w"></span>
 
@@ -1603,6 +1603,8 @@
 <span class="w">										</span><span class="n">z_b</span><span class="p">,</span><span class="w">						</span><span class="cm">/** bulk-rock, pressure and temperature conditions */</span><span class="w"></span>
 <span class="w">										</span><span class="n">SS_ref_db</span><span class="p">,</span><span class="w">					</span><span class="cm">/** solution phase database 			*/</span><span class="w">	</span>
 <span class="w">										</span><span class="n">cp</span><span class="w"> 					</span><span class="p">);</span><span class="w">	</span>
+<span class="w">		</span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">clock</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">v</span><span class="p">;</span><span class="w"> </span>
+<span class="w">		</span><span class="n">gv</span><span class="p">.</span><span class="n">tot_min_time</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="p">((</span><span class="kt">double</span><span class="p">)</span><span class="n">v</span><span class="p">)</span><span class="o">/</span><span class="n">CLOCKS_PER_SEC</span><span class="o">*</span><span class="mi">1000</span><span class="p">;</span><span class="w"></span>
 
 <span class="w">		</span><span class="cm">/**</span>
 <span class="cm">			Merge instances of the same solution phase that are compositionnally close </span>

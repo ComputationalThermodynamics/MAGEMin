@@ -1,4 +1,4 @@
-#CC=gcc
+# CC=gcc
 CC=clang 
 
 UNAME_S := $(shell uname -s)
