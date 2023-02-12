@@ -326,9 +326,71 @@ run PlotPseudosection.mlapp
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
+<ul>
+<li><p>To load a custom bulk-rock composition you first need to create a file <code class="docutils literal notranslate"><span class="pre">your_bulk.dat</span></code>. The name of the file <code class="docutils literal notranslate"><span class="pre">your_bulk</span></code> will be used for the name of the pseudosection. The file has to be structured as follow:</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">your_bulk.dat</span></code>:</p>
+</div></blockquote>
+</li>
+</ul>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 9%" />
+<col style="width: 11%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 11%" />
+<col style="width: 8%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 11%" />
+<col style="width: 8%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>SiO2</p></td>
+<td><p>Al2O3</p></td>
+<td><p>CaO</p></td>
+<td><p>MgO</p></td>
+<td><p>FeO</p></td>
+<td><p>Fe2O3</p></td>
+<td><p>K2O</p></td>
+<td><p>Na2O</p></td>
+<td><p>TiO2</p></td>
+<td><p>Cr2O3</p></td>
+<td><p>H2O</p></td>
+</tr>
+<tr class="row-even"><td><p>48.43</p></td>
+<td><p>15.19</p></td>
+<td><p>11.57</p></td>
+<td><p>10.13</p></td>
+<td><p>6.65</p></td>
+<td><p>1.64</p></td>
+<td><p>0.59</p></td>
+<td><p>1.87</p></td>
+<td><p>0.68</p></td>
+<td><p>0.1</p></td>
+<td><p>3.0</p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p>An example of custom bulk-rock composition is provided in <code class="docutils literal notranslate"><span class="pre">/examples/bulk1.dat</span></code>.</p></li>
+<li><p>Note that instead of <code class="docutils literal notranslate"><span class="pre">Fe2O3</span></code>, you can directly provide <code class="docutils literal notranslate"><span class="pre">O</span></code>. If you provide <code class="docutils literal notranslate"><span class="pre">Fe2O3</span></code> the GUI will internally convert it to <code class="docutils literal notranslate"><span class="pre">FeOt</span></code> and <code class="docutils literal notranslate"><span class="pre">O</span></code>.</p></li>
+</ul>
+<a class="reference internal image-reference" href="../_images/GUI_custom_bulk.png"><img alt="../_images/GUI_custom_bulk.png" class="align-center" src="../_images/GUI_custom_bulk.png" style="width: 240px;" /></a>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul class="simple">
+<li><p>Once the file is created you can load it using the button <code class="docutils literal notranslate"><span class="pre">Load</span> <span class="pre">from</span> <span class="pre">file</span></code>. Note that before loading your bulk-rock composition you first need to select the right system unit <code class="docutils literal notranslate"><span class="pre">[mol</span> <span class="pre">or</span> <span class="pre">wt]</span></code>. If the bulk-rock composition you provided is in <code class="docutils literal notranslate"><span class="pre">[wt]</span></code> it will be automatically converted to <code class="docutils literal notranslate"><span class="pre">[mol]</span></code>, the system unit used in MAGEMin.</p></li>
+</ul>
 <ol class="arabic simple">
-<li><p>Use default option “pre-defined test 0” (KLB-1 peridotite)</p></li>
+<li><p>For for this tutorial, we will the use default option “pre-defined test 0” (KLB-1 peridotite)</p></li>
 </ol>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
 </section>
 <section id="compute-pseudosection">
 <h2>Compute pseudosection<a class="headerlink" href="#compute-pseudosection" title="Permalink to this headline"></a></h2>
