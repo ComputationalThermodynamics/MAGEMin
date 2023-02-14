@@ -3,7 +3,7 @@
 
 import Base.show
 
-export  init_MAGEMin, finalize_MAGEMin, point_wise_minimization, get_bulk_rock, create_output,
+export  init_MAGEMin, finalize_MAGEMin, point_wise_minimization, use_predefined_bulk_rock, define_bulk_rock,create_output,
         print_info, create_gmin_struct
 
 
@@ -12,12 +12,21 @@ export  init_MAGEMin, finalize_MAGEMin, point_wise_minimization, get_bulk_rock, 
 
 Initializes MAGEMin (including setting global options) and loads the Database.
 """
-function  init_MAGEMin(;EM_database=0)
+function  init_MAGEMin(;EM_database=2)
 
-    gv = LibMAGEMin.global_variable_init();
-    DB = LibMAGEMin.InitializeDatabases(gv, EM_database)
+    z_b         = LibMAGEMin.bulk_infos()
+    gv          = LibMAGEMin.global_variables()
+    splx_data   = LibMAGEMin.simplex_data(); 
+    DB          = LibMAGEMin.Database()
 
-    return gv, DB
+    gv          = LibMAGEMin.global_variable_alloc( pointer_from_objref(z_b))
+    gv          = LibMAGEMin.global_variable_init(gv, pointer_from_objref(z_b))
+    DB          = LibMAGEMin.InitializeDatabases(gv, EM_database)
+
+    LibMAGEMin.init_simplex_A( pointer_from_objref(splx_data), gv)
+    LibMAGEMin.init_simplex_B_em( pointer_from_objref(splx_data), gv)
+
+    return gv, z_b, DB, splx_data
 end
 
 """
@@ -27,57 +36,52 @@ Cleans up the memory
 function  finalize_MAGEMin(gv,DB)
     LibMAGEMin.FreeDatabases(gv, DB)
 
+
     nothing
 end
 
 
 """
-    bulk_rock = get_bulk_rock(gv, test=0)
+    bulk_rock = use_predefined_bulk_rock(gv, test=-1)
 
 Returns the pre-defined bulk rock composition of a given test
 
 """
-function get_bulk_rock(gv, test)
-    bulk_rock   = zeros(gv.len_ox)
-    LibMAGEMin.get_bulk(bulk_rock, test, gv.len_ox)
+function use_predefined_bulk_rock(gv, test=0)
+    gv.test = test
+    gv = LibMAGEMin.get_bulk(gv)
+    LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
 
-    return bulk_rock
+    return gv
 end
 
+function define_bulk_rock(gv, bulk_rock)
+    gv.bulk_rock = pointer(bulk_rock)
+    LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
+
+    return gv
+end
+
+# gv.bulk_rock = pointer(b)
+
 """
-    point_wise_minimization(P::Float64,T::Float64, bulk_rock::Vector{Float64}, gv::LibMAGEMin.global_variables, DB::LibMAGEMin.Database,sys_in::String="mol")
+point_wise_minimization(P::Float64,T::Float64, gv, z_b, DB, splx_data, sys_in::String="mol")
     
 Computes the stable assemblage at P[kbar], T[C] and for bulk rock composition bulk_rock
     
 """
-function point_wise_minimization(P::Float64,T::Float64, bulk_rock::Vector{Float64}, gv, DB, sys_in::String="mol")
+function point_wise_minimization(P::Float64,T::Float64, gv, z_b, DB, splx_data, sys_in::String="mol")
     
     input_data      =   LibMAGEMin.io_data();                           # zero (not used actually)
-	z_b             =   LibMAGEMin.initialize_bulk_infos(P, T);
 
     z_b.T           =   T + 273.15    # in K
     z_b.P           =   P
 
-    Mode            = 0;
-    gv.Mode         = Mode;
-    gv.BR_norm      = 1.0; 								# reset bulk rock norm 			*/
-    gv.global_ite   = 0;              					# reset global iteration 			*/
     gv.numPoint     = 1; 							    # the number of the current point */
-
-    EM_database     = 0
- 
-    # Declare LP structures
-    splx_data       =   LibMAGEMin.simplex_data(); 
-
-    LibMAGEMin.init_simplex_A( pointer_from_objref(splx_data), gv)
-    LibMAGEMin.init_simplex_B_em( pointer_from_objref(splx_data), gv)
-
-    LibMAGEMin.convert_system_comp(gv,sys_in,z_b,bulk_rock)
-    LibMAGEMin.norm_array(bulk_rock, gv.len_ox)
 
     # Perform the point-wise minimization after resetting variables
     gv      = LibMAGEMin.reset_gv(gv,z_b, DB.PP_ref_db, DB.SS_ref_db)
-    z_b     = LibMAGEMin.reset_z_b_bulk(	gv,	 bulk_rock,	z_b	   )	
+    z_b     = LibMAGEMin.reset_z_b_bulk(	gv,	z_b	   )	
 
     LibMAGEMin.reset_simplex_A(pointer_from_objref(splx_data), z_b, gv)
     LibMAGEMin.reset_simplex_B_em(pointer_from_objref(splx_data), gv)
@@ -86,7 +90,7 @@ function point_wise_minimization(P::Float64,T::Float64, bulk_rock::Vector{Float6
     LibMAGEMin.reset_SS(gv,z_b, DB.SS_ref_db)
     LibMAGEMin.reset_sp(gv, DB.sp)
 
-    time = @elapsed  gv      = LibMAGEMin.ComputeEquilibrium_Point(EM_database, input_data, Mode, z_b,gv, pointer_from_objref(splx_data),	DB.PP_ref_db,DB.SS_ref_db,DB.cp);
+    time = @elapsed  gv      = LibMAGEMin.ComputeEquilibrium_Point(gv.EM_database, input_data, z_b, gv, pointer_from_objref(splx_data),	DB.PP_ref_db,DB.SS_ref_db,DB.cp);
 
     # Postprocessing (NOTE: we should switch off printing if gv.verbose=0)
     gv = LibMAGEMin.ComputePostProcessing(0, z_b, gv, DB.PP_ref_db, DB.SS_ref_db, DB.cp)

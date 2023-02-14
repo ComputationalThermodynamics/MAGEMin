@@ -8,40 +8,46 @@ if  cur_dir[end-3:end]=="test"
 end
 using MAGEMin_C         # load MAGEMin (needs to be loaded from main directory to pick up correct library in case it is locally compiled)
 
-# Initialize database 
-gv, DB      = init_MAGEMin();
+# # Initialize database 
 
-test        = 0;
+
+gv, z_b, DB, splx_data      = init_MAGEMin();
+
+
 sys_in      = "mol"     #default is mol, if wt is provided conversion will be done internally (MAGEMin works on mol basis)
-bulk_rock   = get_bulk_rock(gv, test)
+test        = 0         #KLB1
+gv          = use_predefined_bulk_rock(gv, test)
+
+# bulk_rock   = [0.38451319035870185, 0.017740308257833806, 0.028208688355924924, 0.5050993397328966, 0.0587947378409965, 9.988912307338855e-5, 0.0024972280768347137, 0.0009988912307338856, 0.0009589355815045301, 0.0010887914414999351, 0.0]
+# gv          = define_bulk_rock(gv, bulk_rock)
 
 # Call optimization routine for given P & T & bulk_rock
 P           = 8.0
 T           = 800.0
 gv.verbose  = -1        # switch off any verbose
-out         = point_wise_minimization(P,T, bulk_rock, gv, DB, sys_in);
+out         = point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in)
 @show out
 
-@test out.G_system ≈ -797.7491824869334
-@test out.ph == [ "opx", "cpx", "ol", "spn"]
-
-@test all(abs.(out.ph_frac - [ 0.24226960158631541, 0.1416697366114075, 0.5880694152724345, 0.027991246529842587])  .< 1e-4)
+@test out.G_system ≈ -797.7491947356159
+@test out.ph == ["opx", "ol", "cpx", "spn"]
+@test all(abs.(out.ph_frac - [ 0.24226960158631541, 0.5880694152724345, 0.1416697366114075,  0.027991246529842587])  .< 1e-4)
 
 # print more detailed info about this point:
 print_info(out)
 finalize_MAGEMin(gv,DB)
 
+
 @testset "test Seismic velocities & modulus" begin
     # Call optimization routine for given P & T & bulk_rock
-    gv, DB      = init_MAGEMin();
+    gv, z_b, DB, splx_data      = init_MAGEMin();
     test        = 0;
     sys_in      = "mol"     #default is mol, if wt is provided conversion will be done internally (MAGEMin works on mol basis)
-    bulk_rock   = get_bulk_rock(gv, test)
+    gv          = use_predefined_bulk_rock(gv, test)
     
     P           = 8.0
     T           = 1200.0
     gv.verbose  = -1        # switch off any verbose
-    out         = point_wise_minimization(P,T, bulk_rock, gv, DB, sys_in);
+    out         = point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in)
     
     
     tol = 1e-2;
@@ -73,11 +79,11 @@ end
 print_error_msg(i,out) = println("ERROR for point $i with test=$(out.test); P=$(out.P); T=$(out.T); stable phases=$(out.ph), fractions=$(out.ph_frac)")
 
 # Automatic testing of all points
-function TestPoints(list, gv, DB)
+function TestPoints(list, gv, z_b, DB, splx_data)
 
     for i=1:size(list,1)
-        bulk_rock   = get_bulk_rock(gv, list[i].test)
-        out         = point_wise_minimization(list[i].P,list[i].T, bulk_rock, gv, DB)
+        gv          = use_predefined_bulk_rock(gv, list[i].test)
+        out         = point_wise_minimization(list[i].P,list[i].T, gv, z_b, DB, splx_data, sys_in)
 
         # We need to sort the phases (sometimes they are ordered differently)
         ind_sol = sortperm(list[i].ph)
@@ -99,29 +105,29 @@ end
 println("Testing points from the reference diagrams:")
 @testset verbose = true "Total tests" begin
     println("  Starting KLB-1 peridotite tests")
-    gv, DB = init_MAGEMin();
+    gv, z_b, DB, splx_data      = init_MAGEMin();
     gv.verbose=-1;
     @testset "KLB-1 peridotite tests" begin
         include("test_diagram_test0.jl")
-        TestPoints(list, gv, DB)
+        TestPoints(list, gv, z_b, DB, splx_data)
     end
     finalize_MAGEMin(gv,DB)
 
     println("  Starting RE-46 icelandic basalt tests")
-    gv, DB = init_MAGEMin();
+    gv, z_b, DB, splx_data      = init_MAGEMin();
     gv.verbose=-1;
     @testset "RE-46 icelandic basalt tests" begin
         include("test_diagram_test1.jl")
-        TestPoints(list, gv, DB)
+        TestPoints(list, gv, z_b, DB, splx_data)
     end
     finalize_MAGEMin(gv,DB)
 
     println("  Starting Wet MORB tests")
-    gv, DB = init_MAGEMin();
+    gv, z_b, DB, splx_data      = init_MAGEMin();
     gv.verbose=-1;
     @testset "Wet MORB tests" begin
         include("test_diagram_test6.jl")
-        TestPoints(list, gv, DB)
+        TestPoints(list, gv, z_b, DB, splx_data)
     end
     finalize_MAGEMin(gv,DB)
 end

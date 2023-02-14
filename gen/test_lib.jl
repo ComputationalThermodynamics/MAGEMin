@@ -1,23 +1,13 @@
 using MAGEMin_C
 
-# Initialize database 
-gv, DB = init_MAGEMin();
+gv, z_b, DB, splx_data      = init_MAGEMin();
 
-# Bulk rock composition for a particular test 
-test      = 0;
-bulk_rock = get_bulk_rock(gv, test)
+test        = 0;
+sys_in      = "mol"     #default is mol, if wt is provided conversion will be done internally (MAGEMin works on mol basis)
+gv          = use_predefined_bulk_rock(gv, test)
 
-# Call optimization routine for given P & T
-P       = 8.0;
-T       = 800.0;
-gv.verbose = -1;
-out     = point_wise_minimization(P,T, bulk_rock, gv, DB);
-
-
-#sgleP =0
-#rank=0;
-#gv.verbose=0
-#LibMAGEMin.PrintOutput(gv, rank, sgleP, DB, out.time_ms/1e3, z_b);	
-
-
-
+# Call optimization routine for given P & T & bulk_rock
+P           = 8.0
+T           = 800.0
+gv.verbose  = -1        # switch off any verbose
+out         = point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in)
