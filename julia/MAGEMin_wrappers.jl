@@ -167,9 +167,8 @@ function point_wise_minimization(P::Float64,T::Float64, gv, z_b, DB, splx_data, 
     return out
 end
 
-point_wise_minimization(sys_in::String,P::Integer, T::Integer, bulk_rock::Vector{Float64}, gv, DB) = point_wise_minimization(String(sys_in),Float64(P),Float64(T), bulk_rock::Vector{Float64}, gv, DB)
-point_wise_minimization(sys_in::String,P::Float64, T::Integer, bulk_rock::Vector{Float64}, gv, DB) = point_wise_minimization(String(sys_in),Float64(P),Float64(T), bulk_rock::Vector{Float64}, gv, DB)
-point_wise_minimization(sys_in::String,P::Integer, T::Float64, bulk_rock::Vector{Float64}, gv, DB) = point_wise_minimization(String(sys_in),Float64(P),Float64(T), bulk_rock::Vector{Float64}, gv, DB)
+point_wise_minimization(P::Number,T::Number, gv, z_b, DB, splx_data, sys_in::String="mol") = point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data, sys_in)
+
 
 """
     structure that holds the result of the pointwise minisation 

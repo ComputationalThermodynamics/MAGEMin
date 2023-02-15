@@ -29,9 +29,21 @@ out         = point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in)
 @test out.ph == ["opx", "ol", "cpx", "spn"]
 @test all(abs.(out.ph_frac - [ 0.24226960158631541, 0.5880694152724345, 0.1416697366114075,  0.027991246529842587])  .< 1e-4)
 
+# same but with int
+P           = 8
+T           = 800
+gv.verbose  = -1        # switch off any verbose
+out         = point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in)
+
+@test out.G_system ≈ -797.7491947356159
+@test out.ph == ["opx", "ol", "cpx", "spn"]
+@test all(abs.(out.ph_frac - [ 0.24226960158631541, 0.5880694152724345, 0.1416697366114075,  0.027991246529842587])  .< 1e-4)
+
 # print more detailed info about this point:
 print_info(out)
 finalize_MAGEMin(gv,DB)
+
+
 
 
 @testset "test Seismic velocities & modulus" begin
