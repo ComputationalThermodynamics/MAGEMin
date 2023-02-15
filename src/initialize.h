@@ -207,6 +207,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.output_matlab 	=  0;
 	gv.test     		= -1;
 
+	/* default PT conditions for test */
 	z_b->P 				= 12.0;		
 	z_b->T 				= 1100.0 + 273.15;		
 	z_b->R 				= 0.0083144;

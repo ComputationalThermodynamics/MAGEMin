@@ -53,7 +53,7 @@ Reduced chemical systems
 * The current implementation of the solution phase models (EOS) from Holland et al. (2018) do not allow removing several oxides such as :literal:`MgO` and :literal:`CaO`. This would lead to ill-defined solution phases models such as for olivine and plagioclase.
 
 
-Low temperature stabilitzation
+Low temperature stabilization
 ******************************
 
 * In a number of cases, mainly water under-saturated cases, and at temperature below 600-650°C, the current version of the solver fails to provide consistent minimizations. We are working on an algorithm upgrade in order to fix this issue. 

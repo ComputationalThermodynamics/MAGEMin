@@ -1,9 +1,8 @@
 # The full functionality of MAGEMin is wrapped in ../gen/magemin_library.jl
 # Yet, the routines here make it more convenient to use this from julia
-
 import Base.show
 
-export  init_MAGEMin, finalize_MAGEMin, point_wise_minimization, use_predefined_bulk_rock, define_bulk_rock,create_output,
+export  init_MAGEMin, finalize_MAGEMin, point_wise_minimization, convertBulk4MAGEMin, use_predefined_bulk_rock, define_bulk_rock,create_output,
         print_info, create_gmin_struct
 
 
@@ -35,8 +34,6 @@ Cleans up the memory
 """
 function  finalize_MAGEMin(gv,DB)
     LibMAGEMin.FreeDatabases(gv, DB)
-
-
     nothing
 end
 
@@ -62,7 +59,68 @@ function define_bulk_rock(gv, bulk_rock)
     return gv
 end
 
-# gv.bulk_rock = pointer(b)
+
+function normalize(vector::Vector{Float64})
+    return vector ./ sum(vector)
+end
+
+
+"""
+convertBulk4MAGEMin( bulk_in, bulk_in_ox, sys_in)
+    
+receives bulk-rock composition in [mol,wt] fraction and associated oxide list and sends back bulk-rock composition converted for MAGEMin use
+    
+"""
+function convertBulk4MAGEMin(bulk_in::Vector{Float64},bulk_in_ox::Vector{String},sys_in::String);
+
+	ref_ox          = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "H2O"];
+	ref_MolarMass   = [60.08; 101.96; 56.08; 40.30; 71.85; 79.85; 94.2; 61.98; 79.88; 16.0; 151.99; 18.015];      #Molar mass of oxides
+
+	MAGEMin_ox      = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "H2O"];
+	MAGEMin_bulk    = zeros(11);
+    bulk            = zeros(11);
+	# convert to mol, if system unit = wt
+	if sys_in == "wt"
+		for i=1:length(bulk_in_ox)
+            id = findall(ref_ox .== bulk_in_ox[i]);
+			bulk[i] = bulk_in[i]/ref_MolarMass[id[1]];
+		end
+	end
+	bulk = normalize(bulk); 
+
+	for i=1:length(MAGEMin_ox)
+        id = findall(bulk_in_ox .== MAGEMin_ox[i]);
+		if isempty(id) == 0
+			MAGEMin_bulk[i] = bulk[id[1]];
+		end
+	end
+    idFe2O3 = findall(bulk_in_ox .== "Fe2O3");
+
+    if isempty(idFe2O3) == 0
+        idFeO = findall(MAGEMin_ox .== "FeO");
+        MAGEMin_bulk[idFeO[1]] += bulk[idFe2O3[1]]*2.0;
+
+        idO = findall(MAGEMin_ox .== "O");
+        MAGEMin_bulk[idO[1]] += bulk[idFe2O3[1]];
+    end
+
+    MAGEMin_bulk .= normalize(MAGEMin_bulk);
+
+    idNonH2O = findall(MAGEMin_ox .!= "H2O");
+
+    id0 = findall(MAGEMin_bulk[idNonH2O] .== 0.0)
+    if isempty(id0) == 0
+        MAGEMin_bulk[id0] .= 1e-4;
+    end
+
+    MAGEMin_bulk .= normalize(MAGEMin_bulk)*100.0;
+
+    return MAGEMin_bulk;
+end
+
+
+
+
 
 """
 point_wise_minimization(P::Float64,T::Float64, gv, z_b, DB, splx_data, sys_in::String="mol")

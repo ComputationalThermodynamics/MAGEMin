@@ -18,9 +18,6 @@ sys_in      = "mol"     #default is mol, if wt is provided conversion will be do
 test        = 0         #KLB1
 gv          = use_predefined_bulk_rock(gv, test)
 
-# bulk_rock   = [0.38451319035870185, 0.017740308257833806, 0.028208688355924924, 0.5050993397328966, 0.0587947378409965, 9.988912307338855e-5, 0.0024972280768347137, 0.0009988912307338856, 0.0009589355815045301, 0.0010887914414999351, 0.0]
-# gv          = define_bulk_rock(gv, bulk_rock)
-
 # Call optimization routine for given P & T & bulk_rock
 P           = 8.0
 T           = 800.0
