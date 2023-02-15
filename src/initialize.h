@@ -167,7 +167,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	/* Partitioning Gibbs Energy 		*/
 	gv.xi_em_cor   		= 0.99;	
 	gv.outter_PGE_ite   = 1;					/** minimum number of outter PGE iterations, before a solution can be accepted 		*/
-	gv.inner_PGE_ite    = 16;					/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
+	gv.inner_PGE_ite    = 8;					/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
 	gv.max_n_phase  	= 0.025;				/** maximum mol% phase change during one PGE iteration in wt% 						*/
 	gv.max_g_phase  	= 2.5;					/** maximum delta_G of reference change during PGE 									*/
 	gv.max_fac          = 1.0;					/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
