@@ -10,13 +10,13 @@ NumRanks     =   Computation.NumRanks;
 MPI_dir      =   Computation.MPI_dir;
 RemoteServer =   Computation.RemoteServer;
 MatlabOut    =   Computation.MatlabOut;
-
+solver    	 =   Computation.solver;
 
 % Retrieve name of executable
 exe = MAGEMin_exe(Computation);
 
 % Setup the general execution command
-command = [exe,' --out_matlab=',num2str(MatlabOut),' --Verb=',num2str(VerboseLevel),' --sys_in=',sys_in,' --File=MAGEMin_input.dat --n_points=',num2str(n_points)];
+command = [exe,' --out_matlab=',num2str(MatlabOut),' --solver=',num2str(solver),' --Verb=',num2str(VerboseLevel),' --sys_in=',sys_in,' --File=MAGEMin_input.dat --n_points=',num2str(n_points)];
 
 if ~isnan(Test)
     % employ a prededined test

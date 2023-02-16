@@ -148,6 +148,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#compiler-linux">Compiler (Linux)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#minimum-pressure">Minimum pressure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#reduced-chemical-system">Reduced chemical system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#set-oxygen-content">Set Oxygen content</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../issues.html#known-problems">Known problems</a><ul>
@@ -281,10 +282,13 @@
 <tr class="row-odd"><td><p>--Gam=[y]</p></td>
 <td><p>Gamma, when a guess of gamma is known</p></td>
 </tr>
-<tr class="row-even"><td><p>--sys_in=””</p></td>
+<tr class="row-even"><td><p>--solver=x</p></td>
+<td><p>Legacy, 0. PGE, 1 (default)</p></td>
+</tr>
+<tr class="row-odd"><td><p>--sys_in=””</p></td>
 <td><p>system comp “mol” or “wt”, default is “mol”</p></td>
 </tr>
-<tr class="row-odd"><td><p>--out_matlab=x</p></td>
+<tr class="row-even"><td><p>--out_matlab=x</p></td>
 <td><p>Matlab output, 0. inactive, 1. active</p></td>
 </tr>
 </tbody>
@@ -383,10 +387,10 @@
 </pre></div>
 </div>
 <p>You can compute the list of points using:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./MAGEMin --Verb<span class="o">=</span><span class="m">1</span> --File<span class="o">=</span>/path_to_file/MAGEMin_input.dat --n_points<span class="o">=</span><span class="m">4</span> --test<span class="o">=</span><span class="m">0</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./MAGEMin --File<span class="o">=</span>/path_to_file/MAGEMin_input.dat --n_points<span class="o">=</span><span class="m">4</span> --test<span class="o">=</span><span class="m">0</span>
 </pre></div>
 </div>
-<p>To compute a custom liast of bulk-rock compositions you have to provide the oxide composition and replace the “0.0” such as:</p>
+<p>Note that verbose should be deactivated in parallel (–Verb=0 or –Verb=-1), however matlab output can be generated in parallel (–out_matlab=1). To compute a custom list of bulk-rock compositions you have to provide the oxide composition and replace the “0.0” such as:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>MAGEMin_input.dat:
 
 <span class="m">0</span> <span class="m">0</span>.0 <span class="m">800</span>.0 <span class="m">41</span>.49 <span class="m">1</span>.57 <span class="m">4</span>.824 <span class="m">52</span>.56 <span class="m">5</span>.88 <span class="m">0</span>.01 <span class="m">0</span>.25 <span class="m">0</span>.10 <span class="m">0</span>.1 <span class="m">0</span>.0
@@ -397,7 +401,7 @@
 </pre></div>
 </div>
 <p>Then compute the list of points while indicating the system composition unit (<code class="docutils literal notranslate"><span class="pre">mol</span></code> or <code class="docutils literal notranslate"><span class="pre">wt</span></code> fraction):</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./MAGEMin --Verb<span class="o">=</span><span class="m">1</span> --File<span class="o">=</span>/path_to_file/MAGEMin_input.dat --n_points<span class="o">=</span><span class="m">4</span> --sys_in<span class="o">=</span>mol
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./MAGEMin --File<span class="o">=</span>/path_to_file/MAGEMin_input.dat --n_points<span class="o">=</span><span class="m">4</span> --sys_in<span class="o">=</span>mol
 </pre></div>
 </div>
 <div class="line-block">
@@ -407,11 +411,11 @@
 <section id="multiple-points-in-parallel">
 <h1>Multiple points in parallel<a class="headerlink" href="#multiple-points-in-parallel" title="Permalink to this headline"></a></h1>
 <p>To run a list of points in parallel, you simply need to call “MPI” before MAGEMin and give the number of cores you want to use. Valid calls using previously defined input file are for instance:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mpirun -np <span class="m">8</span> ./MAGEMin --Verb<span class="o">=</span><span class="m">1</span> --File<span class="o">=</span>/path_to_file/MAGEMin_input.dat --n_points<span class="o">=</span><span class="m">4</span> --test<span class="o">=</span><span class="m">0</span>
-mpiexec -n <span class="m">8</span> ./MAGEMin --Verb<span class="o">=</span><span class="m">1</span> --File<span class="o">=</span>/path_to_file/MAGEMin_input.dat --n_points<span class="o">=</span><span class="m">4</span> --test<span class="o">=</span><span class="m">0</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mpirun -np <span class="m">8</span> ./MAGEMin --File<span class="o">=</span>/path_to_file/MAGEMin_input.dat --n_points<span class="o">=</span><span class="m">4</span> --test<span class="o">=</span><span class="m">0</span> --out_matlab<span class="o">=</span><span class="m">1</span>
+mpiexec -n <span class="m">8</span> ./MAGEMin --File<span class="o">=</span>/path_to_file/MAGEMin_input.dat --n_points<span class="o">=</span><span class="m">4</span> --test<span class="o">=</span><span class="m">0</span> --out_matlab<span class="o">=</span><span class="m">1</span>
 </pre></div>
 </div>
-<p>where 8 is the desired number of cores.</p>
+<p>where 8 is the desired number of cores. Here the results will be stored in an output file gathering the results of all points (see <a class="reference internal" href="out_struct.html#matlab-target"><span class="std std-ref">MATLAB output</span></a>).</p>
 </section>
 
 

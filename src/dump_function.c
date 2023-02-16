@@ -58,41 +58,12 @@ void dump_init(global_variable gv){
 	}
 
 	if (gv.verbose == 0){
-		/** MATLAB GRID OUTPUT **/
+		/**GUI OUTPUT **/
 		if (numprocs==1){	sprintf(out_lm,	"%s_pseudosection_output.txt"		,gv.outpath); 		}
 		else 			{	sprintf(out_lm,	"%s_pseudosection_output.%i.txt"	,gv.outpath, rank); }
 		loc_min 	= fopen(out_lm, 	"w"); 
 		fprintf(loc_min, "// {number status[] P[kbar] T[C] G_sys[G] BR_norm[wt] Gamma[G] Vp[km/s] Vs[km/s] entropy[J/K]} nextline {Phase[name] mode[wt] density[kg.m-3] x-eos}\n");
 		fclose(loc_min);	
-
-
-		if (gv.save_residual_evolution == 1){
-			/** OUTPUT RESIDUAL EVOLUTION **/
-			if (numprocs==1){	sprintf(out_lm,	"%s_residual_norm.txt"		,gv.outpath); 		}
-			else 			{	sprintf(out_lm,	"%s_residual_norm.%i.txt"	,gv.outpath, rank); }
-			loc_min 	= fopen(out_lm, 	"w"); 
-			fclose(loc_min);	
-		}
-			
-		/** MODE 2 - LOCAL MINIMA **/
-		if (gv.Mode == 2){
-			if (numprocs==1){	 sprintf(out_lm,	"%s__LOCAL_MINIMA.txt"		,gv.outpath); 	   }
-			else 			{	 sprintf(out_lm,	"%s__LOCAL_MINIMA.%i.txt"	,gv.outpath, rank);}
-			loc_min 	= fopen(out_lm, 	"w"); 
-			fprintf(loc_min, "// PHASE_NAME[char]\tN_x-eos[n]\tN_POINTS\tGAMMA[G]\n");
-			fprintf(loc_min, "// NUMBER\t INITIAL ENDMEMBER PROPORTIONS[n+1]\tINITIAL_GUESS_x_eos[n]\tFINAL_x-eos[n]\tFINAL ENDMEMBER PROPORTIONS[n+1]\tDRIVING_FORCE[dG]\n");
-		
-			fclose(loc_min);	
-		}
-		/** MODE 2 - LEVELLING_GAMMA **/
-		if (gv.Mode == 3){
-			if (numprocs==1){	 sprintf(out_lm,	"%s__LEVELLING_GAMMA.txt"		,gv.outpath); 	   }
-			else 			{	 sprintf(out_lm,	"%s__LEVELLING_GAMMA.%i.txt"	,gv.outpath, rank);}
-			loc_min 	= fopen(out_lm, 	"w"); 
-			fprintf(loc_min, "// BULK-ROCK[len_ox]\tP[kbar]\tT[°C]\tGAMMA[G]\n");
-
-			fclose(loc_min);	
-		}
 	}
 }
 
@@ -553,36 +524,6 @@ void output_thermocalc(			global_variable 	 gv,
 		}
 	}
 
-	if (gv.Mode == 1){
-		fprintf(loc_min, "\nGibbs energy of reference G0 (solution phase):\n");		
-		for (i = 0; i < gv.len_cp; i++){
-			if (cp[i].ss_flags[1] == 1){
-				fprintf(loc_min, 	" %5s", cp[i].name);
-				for (j = 0; j < cp[i].n_em; j++){
-					fprintf(loc_min, 	"%14.6f ", cp[i].gbase[j]);
-				}
-				for (k = j; k < gv.len_ox; k++){
-					fprintf(loc_min, 	"%14s ", "-");
-				}		
-				fprintf(loc_min, "\n");	
-			}
-		}
-				
-		fprintf(loc_min, "\nChemical potentials [J] (solution phase):\n");		
-		for (i = 0; i < gv.len_cp; i++){
-			if (cp[i].ss_flags[1] == 1){
-				fprintf(loc_min, 	" %5s", cp[i].name);
-				for (j = 0; j < cp[i].n_em; j++){
-					fprintf(loc_min, 	"%14.6f ", cp[i].mu[j]);
-				}
-				for (k = j; k < gv.len_ox; k++){
-					fprintf(loc_min, 	"%14s ", "-");
-				}		
-				fprintf(loc_min, "\n");	
-			}
-		}
-	}
-
 	fprintf(loc_min, "\nSite fractions:\n");		
 	for (i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1){
@@ -635,15 +576,12 @@ void output_thermocalc(			global_variable 	 gv,
 	for (i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1){
 			
-			if (gv.Mode == 1){
-				G = cp[i].df;
+
+			G = 0.0;
+			for (j = 0; j < gv.len_ox; j++){
+				G += cp[i].ss_comp[j]*gv.gam_tot[j];
 			}
-			else{
-				G = 0.0;
-				for (j = 0; j < gv.len_ox; j++){
-					G += cp[i].ss_comp[j]*gv.gam_tot[j];
-				}
-			}
+
 
 			fprintf(loc_min, "%6s", cp[i].name);
 			fprintf(loc_min, "%+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.6f %+12.6f %+12.2f %+12.2f %+12.2f %+12.2f",
@@ -796,20 +734,36 @@ void output_gui(				global_variable 	 gv,
 	fprintf(loc_min, "\n");
 	fclose(loc_min);
 
-	if (gv.save_residual_evolution == 1){
-		/** OUTPUT RESIDUAL EVOLUTION **/
-		if (numprocs==1){	sprintf(out_lm,	"%s_residual_norm.txt"		,gv.outpath); 		}
-		else 			{	sprintf(out_lm,	"%s_residual_norm.%i.txt"	,gv.outpath, rank); }
 
-		loc_min 	= fopen(out_lm, 	"a"); 
+	/**
+	 * @brief output parameters to calculate seismic wave velocity correction
+	 * 
+	 */
+	// FILE *tot_min;
+	// char tot_lm[255];
+	
+	// if (numprocs==1){	sprintf(tot_lm,	"%s_wave_output.txt"		,gv.outpath); 		}
+	// else 			{	sprintf(tot_lm,	"%s_wave_output.%i.txt"		,gv.outpath, rank); }
 
-		for (j = 0; j < gv.global_ite; j++){
-			fprintf(loc_min, "%.6f ", gv.PGE_mass_norm[j]);
-		}
-		fprintf(loc_min, "\n");
+	// tot_min 	= fopen(tot_lm, 	"a"); 
+	
+	// if (sp[0].frac_M < 1.0){
+	// 	if (sp[0].frac_M > 0.0){
+	// 	fprintf(tot_min, "%i %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f \n",gv.numPoint+1, z_b.P, z_b.T-273.15,sp[0].Vs_S,sp[0].Vp_S,sp[0].bulkModulus_S,sp[0].shearModulus_S,sp[0].bulkModulus_M,sp[0].rho_M,sp[0].rho_S,sp[0].frac_M,
+	// 																										sp[0].bulk_S_wt[5]+sp[0].bulk_S_wt[6],sp[0].bulk_M_wt[5]+sp[0].bulk_M_wt[6], sp[0].bulk_S_wt[0], sp[0].bulk_M_wt[0], sp[0].bulk_M_wt[10]);
+	// 	}
+	// 	else{
+	// 	fprintf(tot_min, "%i %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f \n", gv.numPoint+1, z_b.P, z_b.T-273.15,sp[0].Vs_S,sp[0].Vp_S,sp[0].bulkModulus_S,sp[0].shearModulus_S,sp[0].bulkModulus_M,sp[0].rho_M,sp[0].rho_S,sp[0].frac_M,
+	// 																										sp[0].bulk_S_wt[5]+sp[0].bulk_S_wt[6],0.0/0.0, sp[0].bulk_S_wt[0], 0.0/0.0, 0.0/0.0);
+	// 	}
+	// }
+	// else{
+	// 	fprintf(tot_min, "%i %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f \n", gv.numPoint+1, z_b.P, z_b.T-273.15, 0.0/0.0, 0.0/0.0, 0.0/0.0, 0.0/0.0, sp[0].bulkModulus_M, 0.0/0.0, 0.0/0.0,sp[0].frac_M,
+	// 																										0.0/0.0,sp[0].bulk_M_wt[5]+sp[0].bulk_M_wt[6],0.0/0.0, sp[0].bulk_M_wt[0], sp[0].bulk_M_wt[10]);
+	// }
+	
+	// fclose(tot_min);
 
-		fclose(loc_min);
-	}
 }
 
 
@@ -944,15 +898,11 @@ void output_matlab(				global_variable 	 gv,
 	for (i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1){
 			
-			if (gv.Mode == 1){
-				G = cp[i].df;
+			G = 0.0;
+			for (j = 0; j < gv.len_ox; j++){
+				G += cp[i].ss_comp[j]*gv.gam_tot[j];
 			}
-			else{
-				G = 0.0;
-				for (j = 0; j < gv.len_ox; j++){
-					G += cp[i].ss_comp[j]*gv.gam_tot[j];
-				}
-			}
+
 
 			fprintf(loc_min, "%6s", cp[i].name);
 			fprintf(loc_min, "%+15.5f %+13.5f %+17.5f %+17.5f %+12.5f %+12.5f %+12.8f %+12.6f %+14.4f %+12.2f %+12.2f %+12.2f %+12.2f",
@@ -1125,6 +1075,32 @@ void mergeParallelFiles(global_variable gv){
 		fclose(fp1); 
 	}
    fclose(fp2);
+
+
+// 	char tot_out_lm[255];
+// 	char tot_in_lm[255];
+
+// 	if (numprocs == 1){ return; }
+
+// 	sprintf(tot_out_lm,	"%s_wave_output.txt"		,gv.outpath);
+//    	FILE *fp2a = fopen(tot_out_lm, "w"); 
+
+// 	fprintf(fp2a, "Number P[kbar]\t T[C]\t Vs0[km/s]\t Vp0[km/s]\t Kb_S[GPa]\t Ks_S[GPa]\t Kb_L[GPa]\t rhoL[kg/m3]\t rhoS[kg/m3]\t frac_melt\t NaK_S[wt]\t NaK_M[wt]\t Si_S[wt]\t Si_M[wt]\t H_M[wt]\n");
+
+// 	// Open file to be merged 
+// 	for (i = 0; i < numprocs; i++){
+// 		// open file
+// 		sprintf(tot_in_lm,	"%s_wave_output.%i.txt"		,gv.outpath, i);
+// 		FILE *fp1a = fopen(tot_in_lm, "r"); 
+			
+// 		// Copy contents of first file to file3.txt 
+// 		while ((c = fgetc(fp1a)) != EOF){ 
+// 			fputc(c, fp2a); 
+// 		}
+// 		fclose(fp1a); 
+// 	}
+//    fclose(fp2a);
+
 }
 
 

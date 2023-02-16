@@ -18,14 +18,12 @@
 #include "NLopt_opt_function.h"
 #include "toolkit.h"
 
-#define nEl 11						        // max number of non-zeros compoenents
 #define eps_sf -1e-10				      // eps to shift site fraction from zero
-
 
 /** 
   local minimization for clinopyroxene
 */
-void cpx_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+void cpx_ig_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = ( eps_sf + -x[8]*x[4] - x[8]*x[0] + x[8] - x[3]*x[4] - x[3]*x[0] + x[3] + x[4]*x[7] - x[4]*x[1] + x[4] + x[7]*x[0] - x[7] - x[0]*x[1] + x[0] + x[1] - 1.0);
     result[1] = ( eps_sf + x[8]*x[4] + x[8]*x[0] + x[3]*x[4] + x[3]*x[0] - x[4]*x[7] + x[4]*x[1] - x[4] - x[7]*x[0] + x[0]*x[1] - x[0]);
     result[2] = ( eps_sf + x[6] + x[5] - x[8] - x[3] + 2.0*x[7] - x[1]);
@@ -167,7 +165,7 @@ void cpx_c(unsigned m, double *result, unsigned n, const double *x, double *grad
 /** 
   local minimization for epidote
 */
-void ep_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+void ep_ig_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = ( eps_sf + -x[0] + x[1]);
     result[1] = ( eps_sf + x[0] - x[1] - 1.0);
     result[2] = ( eps_sf + -x[0] - x[1]);
@@ -191,7 +189,7 @@ void ep_c(unsigned m, double *result, unsigned n, const double *x, double *grad,
 /** 
   local minimization for fluid
 */
-void fl_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+void fl_ig_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = ( eps_sf + x[6] + x[3] + x[2] + x[9] + x[5] + x[4] + x[8] + x[1] + x[7] + x[0] - 1.0);
     result[1] = ( eps_sf + -x[1]);
     result[2] = ( eps_sf + -x[0]);
@@ -335,7 +333,7 @@ void fl_c(unsigned m, double *result, unsigned n, const double *x, double *grad,
 /** 
   local minimization for garnet
 */
-void g_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+void g_ig_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = ( eps_sf + -x[1]*x[0] + x[1] + x[0] - 1.0);
     result[1] = ( eps_sf + x[1]*x[0] - x[0]);
     result[2] = ( eps_sf + -x[1]);
@@ -389,7 +387,7 @@ void g_c(unsigned m, double *result, unsigned n, const double *x, double *grad, 
 /** 
   local minimization for hornblende
 */
-void hb_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+void hb_ig_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = ( eps_sf + x[3] - 1.0);
     result[1] = ( eps_sf + x[3]*x[4] - x[3]);
     result[2] = ( eps_sf + -x[3]*x[4]);
@@ -588,7 +586,7 @@ void hb_c(unsigned m, double *result, unsigned n, const double *x, double *grad,
 /** 
   local minimization for ilmenite
 */
-void ilm_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+void ilm_ig_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = ( eps_sf + -0.5*x[0] - 0.5*x[1]);
     result[1] = ( eps_sf + -0.5*x[0] + 0.5*x[1]);
     result[2] = ( eps_sf + x[0] - 1.0);
@@ -618,7 +616,7 @@ void ilm_c(unsigned m, double *result, unsigned n, const double *x, double *grad
 /** 
   local minimization for liquid (melt)
 */
-void liq_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+void liq_ig_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = ( eps_sf + x[6] + x[3] + x[2] + x[10] + x[5] + x[4] + x[8] + x[1] + x[7] + x[0] - 0.25*x[9]*(-3.0*x[6] - 3.0*x[3] - 3.0*x[2] - 3.0*x[10] - 3.0*x[5] - 3.0*x[4] - 3.0*x[8] - 3.0*x[1] - 3.0*x[7] - 3.0*x[0] + 4.0) - 1.0);
     result[1] = ( eps_sf + -0.75*x[1]*x[9] - x[1] + x[9]);
     result[2] = ( eps_sf + -0.75*x[0]*x[9] - x[0] + x[9]);
@@ -846,7 +844,7 @@ void liq_c(unsigned m, double *result, unsigned n, const double *x, double *grad
 /** 
   local minimization for muscovite
 */
-void mu_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+void mu_ig_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = ( eps_sf + x[4] + x[3] - 1.0);
     result[1] = ( eps_sf + -x[3]);
     result[2] = ( eps_sf + -x[4]);
@@ -918,7 +916,7 @@ void mu_c(unsigned m, double *result, unsigned n, const double *x, double *grad,
 /** 
   local minimization for olivine
 */
-void ol_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+void ol_ig_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = ( eps_sf + -x[2] + x[0] - 1.0);
     result[1] = ( eps_sf + x[2] - x[0]);
     result[2] = ( eps_sf + -x[1]*x[0] + x[1] + x[2] + x[0] - 1.0);
@@ -950,7 +948,7 @@ void ol_c(unsigned m, double *result, unsigned n, const double *x, double *grad,
 /** 
   local minimization for orthopyroxene
 */
-void opx_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+void opx_ig_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = ( eps_sf + -x[7]*x[3] - x[7]*x[0] + x[7] + x[3]*x[5] - x[3]*x[1] + x[3] + x[5]*x[0] - x[5] - x[0]*x[1] + x[0] + x[1] - 1.0);
     result[1] = ( eps_sf + x[7]*x[3] + x[7]*x[0] - x[3]*x[5] + x[3]*x[1] - x[3] - x[5]*x[0] + x[0]*x[1] - x[0]);
     result[2] = ( eps_sf + x[6] + x[4] - x[7] + 2.0*x[5] - x[1]);
@@ -1070,7 +1068,7 @@ void opx_c(unsigned m, double *result, unsigned n, const double *x, double *grad
 /** 
   local minimization for felsdpar
 */
-void pl4T_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+void pl4T_ig_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = ( eps_sf + x[0] + x[1] - 1.0);
     result[1] = ( eps_sf + -x[0]);
     result[2] = ( eps_sf + -x[1]);
@@ -1097,7 +1095,7 @@ void pl4T_c(unsigned m, double *result, unsigned n, const double *x, double *gra
 /** 
   local minimization for spinel
 */
-void spn_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *SS_ref_db){
+void spn_ig_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *SS_ref_db){
     SS_ref *d  = (SS_ref *) SS_ref_db;
 
     result[0] = ( eps_sf + -2.0/3.0*x[4] + 1.0/3.0*x[3]*x[0] - 1.0/3.0*x[3] + 1.0/3.0*x[0] - 1.0/3.0);
@@ -1190,7 +1188,7 @@ void spn_c(unsigned m, double *result, unsigned n, const double *x, double *grad
 /** 
   local minimization for biotite
 */
-void bi_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+void bi_ig_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = ( eps_sf + -1.0*x[2]*x[0] + 1.0*x[2] + 2.0/3.0*x[4] - 1.0*x[3]*x[0] + 1.0*x[3] - 1.0*x[0]*x[1] + 1.0*x[0] + 1.0*x[1] - 1.0);
     result[1] = ( eps_sf + 1.0*x[2]*x[0] - 2.0/3.0*x[4] + 1.0*x[3]*x[0] + 1.0*x[0]*x[1] - 1.0*x[0]);
     result[2] = ( eps_sf + -1.0*x[2]);
@@ -1267,7 +1265,7 @@ void bi_c(unsigned m, double *result, unsigned n, const double *x, double *grad,
 /** 
   local minimization for cordierite
 */
-void cd_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+void cd_ig_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = ( eps_sf + -x[0]);
     result[1] = ( eps_sf + x[0] - 1.0);
     result[2] = ( eps_sf + -x[1]);
@@ -1299,49 +1297,7 @@ typedef struct global_min_datas {
 } global_min_data;
 
 
-/**
-	associate the array of pointer with the right solution phase
-*/
-void SS_sf_init_function(	sf_type 			*SS_sf,
-							global_variable 	 gv				){	
-
-	for (int iss = 0; iss < gv.len_ss; iss++){
-
-		if      (strcmp( gv.SS_list[iss], "bi")  == 0 ){
-			SS_sf[iss]  = bi_c; 		}
-		else if (strcmp( gv.SS_list[iss], "cd")  == 0){
-			SS_sf[iss]  = cd_c; 		}
-		else if (strcmp( gv.SS_list[iss], "cpx") == 0){
-			SS_sf[iss]  = cpx_c; 		}
-		else if (strcmp( gv.SS_list[iss], "ep")  == 0){
-			SS_sf[iss]  = ep_c; 		}
-		else if (strcmp( gv.SS_list[iss], "fl")  == 0){
-			SS_sf[iss]  = fl_c; 		}
-		else if (strcmp( gv.SS_list[iss], "g")   == 0){
-			SS_sf[iss]  = g_c; 			}
-		else if (strcmp( gv.SS_list[iss], "hb")  == 0){
-			SS_sf[iss]  = hb_c; 		}
-		else if (strcmp( gv.SS_list[iss], "ilm") == 0){
-			SS_sf[iss]  = ilm_c; 		}
-		else if (strcmp( gv.SS_list[iss], "liq") == 0){
-			SS_sf[iss]  = liq_c; 		}
-		else if (strcmp( gv.SS_list[iss], "mu")  == 0){
-			SS_sf[iss]  = mu_c; 		}
-		else if (strcmp( gv.SS_list[iss], "ol")  == 0){
-			SS_sf[iss]  = ol_c; 		}
-		else if (strcmp( gv.SS_list[iss], "opx") == 0){
-			SS_sf[iss]  = opx_c; 		}
-		else if (strcmp( gv.SS_list[iss], "pl4T") == 0){
-			SS_sf[iss]  = pl4T_c; 		}
-		else if (strcmp( gv.SS_list[iss], "spn") == 0){
-			SS_sf[iss]  = spn_c; 		}
-		else{
-			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
-		}	
-	};			
-}
-
-SS_ref NLopt_opt_bi_function(global_variable gv, SS_ref SS_ref_db){
+SS_ref NLopt_opt_ig_bi_function(global_variable gv, SS_ref SS_ref_db){
 
    int    n_em     = SS_ref_db.n_em;
    unsigned int n  = SS_ref_db.n_xeos;
@@ -1357,15 +1313,15 @@ SS_ref NLopt_opt_bi_function(global_variable gv, SS_ref SS_ref_db){
    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n));
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
-   nlopt_set_min_objective(SS_ref_db.opt, obj_bi, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, bi_c, NULL, SS_ref_db.tol_sf);
+   nlopt_set_min_objective(SS_ref_db.opt, obj_ig_bi, &SS_ref_db);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, bi_ig_c, NULL, SS_ref_db.tol_sf);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
    double minf;
    if (gv.maxeval==1){  
      // we are only interested in evaluating the objective function  
-     minf = obj_bi(n, x, NULL, &SS_ref_db); 
+     minf = obj_ig_bi(n, x, NULL, &SS_ref_db); 
    }
    else{
      // do optimization
@@ -1382,7 +1338,7 @@ SS_ref NLopt_opt_bi_function(global_variable gv, SS_ref SS_ref_db){
    return SS_ref_db;
 };
 
-SS_ref NLopt_opt_cd_function(global_variable gv, SS_ref SS_ref_db){
+SS_ref NLopt_opt_ig_cd_function(global_variable gv, SS_ref SS_ref_db){
 
 	int    n_em     = SS_ref_db.n_em;
  	unsigned int n  = SS_ref_db.n_xeos;	
@@ -1398,15 +1354,15 @@ SS_ref NLopt_opt_cd_function(global_variable gv, SS_ref SS_ref_db){
     SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n)); 
 	nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
 	nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
-	nlopt_set_min_objective(SS_ref_db.opt, obj_cd, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, cd_c, NULL, SS_ref_db.tol_sf);
+	nlopt_set_min_objective(SS_ref_db.opt, obj_ig_cd, &SS_ref_db);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, cd_ig_c, NULL, SS_ref_db.tol_sf);
 	nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
 	double minf;
 	if (gv.maxeval==1){  
           // we are only interested in evaluating the objective function  
-          minf = obj_cd(n, x, NULL, &SS_ref_db); 
+          minf = obj_ig_cd(n, x, NULL, &SS_ref_db); 
      }
      else{
           // do optimization
@@ -1424,7 +1380,7 @@ SS_ref NLopt_opt_cd_function(global_variable gv, SS_ref SS_ref_db){
    return SS_ref_db;
 };
 
-SS_ref NLopt_opt_cpx_function(global_variable gv, SS_ref SS_ref_db){
+SS_ref NLopt_opt_ig_ig_cpx_function(global_variable gv, SS_ref SS_ref_db){
 
    int    n_em     = SS_ref_db.n_em;
    unsigned int n  = SS_ref_db.n_xeos;
@@ -1441,15 +1397,15 @@ SS_ref NLopt_opt_cpx_function(global_variable gv, SS_ref SS_ref_db){
    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n)); 
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
-   nlopt_set_min_objective(SS_ref_db.opt, obj_cpx, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, cpx_c, NULL, SS_ref_db.tol_sf);
+   nlopt_set_min_objective(SS_ref_db.opt, obj_ig_cpx, &SS_ref_db);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, cpx_ig_c, NULL, SS_ref_db.tol_sf);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
    double minf;
    if (gv.maxeval==1){  
      // we are only interested in evaluating the objective function  
-     minf = obj_cpx(n, x, NULL, &SS_ref_db); 
+     minf = obj_ig_cpx(n, x, NULL, &SS_ref_db); 
    }
    else{
      // do optimization
@@ -1467,7 +1423,7 @@ SS_ref NLopt_opt_cpx_function(global_variable gv, SS_ref SS_ref_db){
    return SS_ref_db;
 };
 
-SS_ref NLopt_opt_ep_function(global_variable gv, SS_ref SS_ref_db){
+SS_ref NLopt_opt_ig_ep_function(global_variable gv, SS_ref SS_ref_db){
 
    int    n_em     = SS_ref_db.n_em;
    unsigned int n  = SS_ref_db.n_xeos;
@@ -1483,15 +1439,15 @@ SS_ref NLopt_opt_ep_function(global_variable gv, SS_ref SS_ref_db){
    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n)); 
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
-   nlopt_set_min_objective(SS_ref_db.opt, obj_ep, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ep_c, NULL, SS_ref_db.tol_sf);
+   nlopt_set_min_objective(SS_ref_db.opt, obj_ig_ep, &SS_ref_db);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ep_ig_c, NULL, SS_ref_db.tol_sf);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
    double minf;
    if (gv.maxeval==1){  
      // we are only interested in evaluating the objective function  
-     minf = obj_ep(n, x, NULL, &SS_ref_db); 
+     minf = obj_ig_ep(n, x, NULL, &SS_ref_db); 
    }
    else{
      // do optimization
@@ -1509,7 +1465,7 @@ SS_ref NLopt_opt_ep_function(global_variable gv, SS_ref SS_ref_db){
    return SS_ref_db;
 };
 
-SS_ref NLopt_opt_fl_function(global_variable gv, SS_ref SS_ref_db){
+SS_ref NLopt_opt_ig_fl_function(global_variable gv, SS_ref SS_ref_db){
 
    int    n_em     = SS_ref_db.n_em;
    unsigned int n  = SS_ref_db.n_xeos;
@@ -1525,15 +1481,15 @@ SS_ref NLopt_opt_fl_function(global_variable gv, SS_ref SS_ref_db){
    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n)); 
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
-   nlopt_set_min_objective(SS_ref_db.opt, obj_fl, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, fl_c, NULL, SS_ref_db.tol_sf);
+   nlopt_set_min_objective(SS_ref_db.opt, obj_ig_fl, &SS_ref_db);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, fl_ig_c, NULL, SS_ref_db.tol_sf);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
    double minf;
    if (gv.maxeval==1){  
      // we are only interested in evaluating the objective function  
-     minf = obj_fl(n, x, NULL, &SS_ref_db); 
+     minf = obj_ig_fl(n, x, NULL, &SS_ref_db); 
    }
    else{
      // do optimization
@@ -1551,7 +1507,7 @@ SS_ref NLopt_opt_fl_function(global_variable gv, SS_ref SS_ref_db){
    return SS_ref_db;
 };
 
-SS_ref NLopt_opt_g_function(global_variable gv, SS_ref SS_ref_db){
+SS_ref NLopt_opt_ig_g_function(global_variable gv, SS_ref SS_ref_db){
     
    int    n_em     = SS_ref_db.n_em;
    unsigned int n  = SS_ref_db.n_xeos;
@@ -1567,15 +1523,15 @@ SS_ref NLopt_opt_g_function(global_variable gv, SS_ref SS_ref_db){
    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n)); 
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
-   nlopt_set_min_objective(SS_ref_db.opt, obj_g, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, g_c, NULL, SS_ref_db.tol_sf);
+   nlopt_set_min_objective(SS_ref_db.opt, obj_ig_g, &SS_ref_db);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, g_ig_c, NULL, SS_ref_db.tol_sf);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
    double minf;
    if (gv.maxeval==1){  
      // we are only interested in evaluating the objective function  
-     minf = obj_g(n, x, NULL, &SS_ref_db); 
+     minf = obj_ig_g(n, x, NULL, &SS_ref_db); 
    }
    else{
      // do optimization
@@ -1593,7 +1549,7 @@ SS_ref NLopt_opt_g_function(global_variable gv, SS_ref SS_ref_db){
    return SS_ref_db;
 };
 
-SS_ref NLopt_opt_hb_function(global_variable gv, SS_ref SS_ref_db){
+SS_ref NLopt_opt_ig_hb_function(global_variable gv, SS_ref SS_ref_db){
 
    int    n_em     = SS_ref_db.n_em;
    unsigned int n  = SS_ref_db.n_xeos;
@@ -1609,15 +1565,15 @@ SS_ref NLopt_opt_hb_function(global_variable gv, SS_ref SS_ref_db){
    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n)); 
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
-   nlopt_set_min_objective(SS_ref_db.opt, obj_hb, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, hb_c, NULL, SS_ref_db.tol_sf);
+   nlopt_set_min_objective(SS_ref_db.opt, obj_ig_hb, &SS_ref_db);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, hb_ig_c, NULL, SS_ref_db.tol_sf);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
    double minf;
    if (gv.maxeval==1){  
      // we are only interested in evaluating the objective function  
-     minf = obj_hb(n, x, NULL, &SS_ref_db); 
+     minf = obj_ig_hb(n, x, NULL, &SS_ref_db); 
    }
    else{
      // do optimization
@@ -1635,7 +1591,7 @@ SS_ref NLopt_opt_hb_function(global_variable gv, SS_ref SS_ref_db){
    return SS_ref_db;
 };
 
-SS_ref NLopt_opt_ilm_function(global_variable gv, SS_ref SS_ref_db){
+SS_ref NLopt_opt_ig_ilm_function(global_variable gv, SS_ref SS_ref_db){
 
    int    n_em     = SS_ref_db.n_em;
    unsigned int n  = SS_ref_db.n_xeos;
@@ -1651,15 +1607,15 @@ SS_ref NLopt_opt_ilm_function(global_variable gv, SS_ref SS_ref_db){
    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n)); 
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
-   nlopt_set_min_objective(SS_ref_db.opt, obj_ilm, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ilm_c, NULL, SS_ref_db.tol_sf);
+   nlopt_set_min_objective(SS_ref_db.opt, obj_ig_ilm, &SS_ref_db);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ilm_ig_c, NULL, SS_ref_db.tol_sf);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
    double minf;
    if (gv.maxeval==1){  
      // we are only interested in evaluating the objective function  
-     minf = obj_ilm(n, x, NULL, &SS_ref_db); 
+     minf = obj_ig_ilm(n, x, NULL, &SS_ref_db); 
    }
    else{
      // do optimization
@@ -1677,7 +1633,7 @@ SS_ref NLopt_opt_ilm_function(global_variable gv, SS_ref SS_ref_db){
    return SS_ref_db;
 };
 
-SS_ref NLopt_opt_liq_function(global_variable gv, SS_ref SS_ref_db){
+SS_ref NLopt_opt_ig_liq_function(global_variable gv, SS_ref SS_ref_db){
 
    int    n_em     = SS_ref_db.n_em;
    unsigned int n  = SS_ref_db.n_xeos;
@@ -1693,15 +1649,15 @@ SS_ref NLopt_opt_liq_function(global_variable gv, SS_ref SS_ref_db){
    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n)); 
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
-   nlopt_set_min_objective(SS_ref_db.opt, obj_liq, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, liq_c, NULL, SS_ref_db.tol_sf);
+   nlopt_set_min_objective(SS_ref_db.opt, obj_ig_liq, &SS_ref_db);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, liq_ig_c, NULL, SS_ref_db.tol_sf);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
    double minf;
    if (gv.maxeval==1){  
      // we are only interested in evaluating the objective function  
-     minf = obj_liq(n, x, NULL, &SS_ref_db); 
+     minf = obj_ig_liq(n, x, NULL, &SS_ref_db); 
    }
    else{
      // do optimization
@@ -1718,7 +1674,7 @@ SS_ref NLopt_opt_liq_function(global_variable gv, SS_ref SS_ref_db){
    return SS_ref_db;
 };
 
-SS_ref NLopt_opt_mu_function(global_variable gv, SS_ref SS_ref_db){
+SS_ref NLopt_opt_ig_mu_function(global_variable gv, SS_ref SS_ref_db){
 
    int    n_em     = SS_ref_db.n_em;
    unsigned int n  = SS_ref_db.n_xeos;
@@ -1734,15 +1690,15 @@ SS_ref NLopt_opt_mu_function(global_variable gv, SS_ref SS_ref_db){
    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n)); 
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
-   nlopt_set_min_objective(SS_ref_db.opt, obj_mu, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, mu_c, NULL, SS_ref_db.tol_sf);
+   nlopt_set_min_objective(SS_ref_db.opt, obj_ig_mu, &SS_ref_db);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, mu_ig_c, NULL, SS_ref_db.tol_sf);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
    double minf;
    if (gv.maxeval==1){  
      // we are only interested in evaluating the objective function  
-     minf = obj_mu(n, x, NULL, &SS_ref_db); 
+     minf = obj_ig_mu(n, x, NULL, &SS_ref_db); 
    }
    else{
      // do optimization
@@ -1760,7 +1716,7 @@ SS_ref NLopt_opt_mu_function(global_variable gv, SS_ref SS_ref_db){
    return SS_ref_db;
 };
 
-SS_ref NLopt_opt_ol_function(global_variable gv, SS_ref SS_ref_db){
+SS_ref NLopt_opt_ig_ol_function(global_variable gv, SS_ref SS_ref_db){
    
    int    n_em     = SS_ref_db.n_em;
    unsigned int n  = SS_ref_db.n_xeos;
@@ -1776,15 +1732,15 @@ SS_ref NLopt_opt_ol_function(global_variable gv, SS_ref SS_ref_db){
    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n)); 
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
-   nlopt_set_min_objective(SS_ref_db.opt, obj_ol, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ol_c, NULL, SS_ref_db.tol_sf);
+   nlopt_set_min_objective(SS_ref_db.opt, obj_ig_ol, &SS_ref_db);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ol_ig_c, NULL, SS_ref_db.tol_sf);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
    double minf;
    if (gv.maxeval==1){  
      // we are only interested in evaluating the objective function  
-     minf = obj_ol(n, x, NULL, &SS_ref_db); 
+     minf = obj_ig_ol(n, x, NULL, &SS_ref_db); 
    }
    else{
      // do optimization
@@ -1802,7 +1758,7 @@ SS_ref NLopt_opt_ol_function(global_variable gv, SS_ref SS_ref_db){
    return SS_ref_db;
 };
 
-SS_ref NLopt_opt_opx_function(global_variable gv, SS_ref SS_ref_db){
+SS_ref NLopt_opt_ig_opx_function(global_variable gv, SS_ref SS_ref_db){
     
    int    n_em     = SS_ref_db.n_em;
    unsigned int n  = SS_ref_db.n_xeos;
@@ -1818,15 +1774,15 @@ SS_ref NLopt_opt_opx_function(global_variable gv, SS_ref SS_ref_db){
    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n)); 
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
-   nlopt_set_min_objective(SS_ref_db.opt, obj_opx, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, opx_c, NULL, SS_ref_db.tol_sf);
+   nlopt_set_min_objective(SS_ref_db.opt, obj_ig_opx, &SS_ref_db);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, opx_ig_c, NULL, SS_ref_db.tol_sf);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
    double minf;
    if (gv.maxeval==1){  
      // we are only interested in evaluating the objective function  
-     minf = obj_opx(n, x, NULL, &SS_ref_db); 
+     minf = obj_ig_opx(n, x, NULL, &SS_ref_db); 
    }
    else{
      // do optimization
@@ -1844,7 +1800,7 @@ SS_ref NLopt_opt_opx_function(global_variable gv, SS_ref SS_ref_db){
    return SS_ref_db;
 };
 
-SS_ref NLopt_opt_pl4T_function(global_variable gv, SS_ref SS_ref_db){
+SS_ref NLopt_opt_ig_pl4T_function(global_variable gv, SS_ref SS_ref_db){
    
    int    n_em     = SS_ref_db.n_em;
    unsigned int n  = SS_ref_db.n_xeos;
@@ -1860,15 +1816,15 @@ SS_ref NLopt_opt_pl4T_function(global_variable gv, SS_ref SS_ref_db){
    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n)); 
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
-   nlopt_set_min_objective(SS_ref_db.opt, obj_pl4T, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, pl4T_c, NULL, SS_ref_db.tol_sf);
+   nlopt_set_min_objective(SS_ref_db.opt, obj_ig_pl4T, &SS_ref_db);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, pl4T_ig_c, NULL, SS_ref_db.tol_sf);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
    double minf;
    if (gv.maxeval==1){  
      // we are only interested in evaluating the objective function  
-     minf = obj_pl4T(n, x, NULL, &SS_ref_db); 
+     minf = obj_ig_pl4T(n, x, NULL, &SS_ref_db); 
    }
    else{
      // do optimization
@@ -1886,7 +1842,7 @@ SS_ref NLopt_opt_pl4T_function(global_variable gv, SS_ref SS_ref_db){
    return SS_ref_db;
 };
 
-SS_ref NLopt_opt_spn_function(global_variable gv, SS_ref SS_ref_db){
+SS_ref NLopt_opt_ig_spn_function(global_variable gv, SS_ref SS_ref_db){
 
    int    n_em     = SS_ref_db.n_em;
    unsigned int n  = SS_ref_db.n_xeos;
@@ -1902,8 +1858,8 @@ SS_ref NLopt_opt_spn_function(global_variable gv, SS_ref SS_ref_db){
    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n));
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
-   nlopt_set_min_objective(SS_ref_db.opt, obj_spn, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, spn_c, &SS_ref_db, SS_ref_db.tol_sf);
+   nlopt_set_min_objective(SS_ref_db.opt, obj_ig_spn, &SS_ref_db);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, spn_ig_c, &SS_ref_db, SS_ref_db.tol_sf);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
@@ -1911,7 +1867,7 @@ SS_ref NLopt_opt_spn_function(global_variable gv, SS_ref SS_ref_db){
 
    if (gv.maxeval==1){  
      // we are only interested in evaluating the objective function  
-     minf = obj_spn(n, x, NULL, &SS_ref_db); 
+     minf = obj_ig_spn(n, x, NULL, &SS_ref_db); 
    }
    else{
      // do optimization
@@ -1931,49 +1887,49 @@ SS_ref NLopt_opt_spn_function(global_variable gv, SS_ref SS_ref_db){
 /** 
   attributes the right solution phase to the solution phase array and calculates xi
 */
-SS_ref NLopt_opt_function(		global_variable gv,
-								SS_ref 			SS_ref_db, 
-								int     		index			){
+SS_ref NLopt_opt_function(		global_variable   gv,
+								              SS_ref 			      SS_ref_db, 
+								              int     		      index			){
 								
 	clock_t t; 
 	t = clock();
 
 	/* Associate the right solid-solution data */
 	if 		(strcmp( gv.SS_list[index], "bi") == 0 ){
-		SS_ref_db  = NLopt_opt_bi_function( gv, SS_ref_db);	}
+		SS_ref_db  = NLopt_opt_ig_bi_function( gv, SS_ref_db);	}
 	else if (strcmp( gv.SS_list[index], "cd")  == 0){
-		SS_ref_db  = NLopt_opt_cd_function( gv, SS_ref_db);	}
+		SS_ref_db  = NLopt_opt_ig_cd_function( gv, SS_ref_db);	}
 	else if (strcmp( gv.SS_list[index], "cpx") == 0){
-		SS_ref_db  = NLopt_opt_cpx_function( gv, SS_ref_db);}	
+		SS_ref_db  = NLopt_opt_ig_ig_cpx_function( gv, SS_ref_db);}	
 	else if (strcmp( gv.SS_list[index], "ep")  == 0){
-		SS_ref_db  = NLopt_opt_ep_function( gv, SS_ref_db);	}
+		SS_ref_db  = NLopt_opt_ig_ep_function( gv, SS_ref_db);	}
 	else if (strcmp( gv.SS_list[index], "fl")  == 0){
-		SS_ref_db  = NLopt_opt_fl_function( gv, SS_ref_db);	}		
+		SS_ref_db  = NLopt_opt_ig_fl_function( gv, SS_ref_db);	}		
 	else if (strcmp( gv.SS_list[index], "g")   == 0){
-		SS_ref_db  = NLopt_opt_g_function(  gv, SS_ref_db);	}
+		SS_ref_db  = NLopt_opt_ig_g_function(  gv, SS_ref_db);	}
 	else if (strcmp( gv.SS_list[index], "hb")  == 0){
-		SS_ref_db  = NLopt_opt_hb_function( gv, SS_ref_db);	}	
+		SS_ref_db  = NLopt_opt_ig_hb_function( gv, SS_ref_db);	}	
 	else if (strcmp( gv.SS_list[index], "ilm") == 0){
-		SS_ref_db  = NLopt_opt_ilm_function( gv, SS_ref_db);}
+		SS_ref_db  = NLopt_opt_ig_ilm_function( gv, SS_ref_db);}
 	else if (strcmp( gv.SS_list[index], "liq") == 0){
-		SS_ref_db  = NLopt_opt_liq_function( gv, SS_ref_db);}
+		SS_ref_db  = NLopt_opt_ig_liq_function( gv, SS_ref_db);}
 	else if (strcmp( gv.SS_list[index], "mu")  == 0){
-		SS_ref_db  = NLopt_opt_mu_function( gv, SS_ref_db);	}	
+		SS_ref_db  = NLopt_opt_ig_mu_function( gv, SS_ref_db);	}	
 	else if (strcmp( gv.SS_list[index], "ol")  == 0){
-		SS_ref_db  = NLopt_opt_ol_function( gv, SS_ref_db);	}
+		SS_ref_db  = NLopt_opt_ig_ol_function( gv, SS_ref_db);	}
 	else if (strcmp( gv.SS_list[index], "opx") == 0){
-		SS_ref_db  = NLopt_opt_opx_function( gv, SS_ref_db);}	
+		SS_ref_db  = NLopt_opt_ig_opx_function( gv, SS_ref_db);}	
 	else if (strcmp( gv.SS_list[index], "pl4T")  == 0){
-		SS_ref_db  = NLopt_opt_pl4T_function( gv, SS_ref_db);	}	
+		SS_ref_db  = NLopt_opt_ig_pl4T_function( gv, SS_ref_db);	}	
 	else if (strcmp( gv.SS_list[index], "spn") == 0){
-		SS_ref_db  = NLopt_opt_spn_function( gv, SS_ref_db);	
+		SS_ref_db  = NLopt_opt_ig_spn_function( gv, SS_ref_db);	
 		}
 	else{
 		printf("\nsolid solution '%s index %d' is not in the database\n",gv.SS_list[index], index);	}	
 		
    t = clock() - t; 
    SS_ref_db.LM_time = ((double)t)/CLOCKS_PER_SEC*1000; // in seconds 
-   
+
 	return SS_ref_db;
 };
 

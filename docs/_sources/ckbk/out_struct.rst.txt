@@ -14,6 +14,8 @@ a file named ``_thermocalc_style_output.txt`` containing the information of the 
 |
 
 
+..  _MATLAB-target:
+
 MATLAB output	  
 =============
 

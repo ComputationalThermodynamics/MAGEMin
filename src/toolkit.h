@@ -7,19 +7,13 @@
 void 	print_help(global_variable gv);
 
 bulk_info retrieve_bulk_PT(				global_variable      gv,
-										char 				*sys_in,
-										char    			 File[50],
 										io_data 		    *input_data,
-										int 				 test,
 										int					 sgleP,
-										double				*Bulk,
-										bulk_info 			 z_b,		
-										double 				*bulk_rock			);
+										bulk_info 			 z_b			);
 
 void convert_system_comp(				global_variable      gv,
 										char 				*sys_in,
-										bulk_info 			 z_b,		
-										double 				*bulk_rock			);
+										bulk_info 			 z_b			);
 										
 void 	_DCDCT_fct(int *id, double *result, double **A, int n_act_sf, int n_xeos);
 void 	_DC_Null_fct(int *id, double *result, double **A, double *B, int n_xeos, int n_act_sf);
@@ -28,7 +22,7 @@ void 	_Epsilon_J_fct(double *result, double *A, double *b, int n_xeos);
 void 	_I_DC_Null_fct(int *id, double *result, double *A, double **B, double *eye, int n_act_sf, int n_xeos);
 void 	_FillEyeMatrix(double *A, int n);
 void 	get_act_sf_id(int *result, double *A, int n);
-void 	inverseMatrix(double *A1, int n);
+void 	inverseMatrix(int *ipiv, double *A1, int n, double *work, int lwork);
 void 	MatMatMul( double **A, int nrowA, double **B, int ncolB, int common, double **C);
 void 	VecMatMul(double *B1, double *A1, double *B, int n);
 void 	MatVecMul(double *A1, double *br, double *n_vec, int n);

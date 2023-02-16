@@ -132,7 +132,8 @@
 <li class="toctree-l1"><a class="reference internal" href="julia.html#use-magemin-c">Use MAGEMin_C</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="julia/Run.html">Single point calculation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="julia/Run.html#initialize-database">Initialize database</a></li>
-<li class="toctree-l3"><a class="reference internal" href="julia/Run.html#set-p-t-x-pressure-temperature-and-bulk-rock-composition">Set P-T-X (pressure temperature and bulk rock composition)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="julia/Run.html#set-p-t-pressure-temperature">Set P-T-(pressure temperature)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="julia/Run.html#set-bulk-rock-composition">Set bulk-rock composition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="julia/Run.html#set-the-level-of-verbose-1-0-1">Set the level of verbose <code class="docutils literal notranslate"><span class="pre">[-1,0,1]</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="julia/Run.html#call-optimization-routine-for-given-p-t-x">Call optimization routine for given P-T-X</a></li>
 <li class="toctree-l3"><a class="reference internal" href="julia/Run.html#display-minimized-point">Display minimized point</a></li>
@@ -148,11 +149,12 @@
 <li class="toctree-l2"><a class="reference internal" href="#compiler-linux">Compiler (Linux)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#minimum-pressure">Minimum pressure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#reduced-chemical-system">Reduced chemical system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#set-oxygen-content">Set Oxygen content</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="#known-problems">Known problems</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#reduced-chemical-systems">Reduced chemical systems</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#low-temperature-stabilitzation">Low temperature stabilitzation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#low-temperature-stabilization">Low temperature stabilization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#hp-lt-melt-prediction">HP-LT melt prediction</a></li>
 </ul>
 </li>
@@ -256,6 +258,13 @@
 <li><p>While <code class="docutils literal notranslate"><span class="pre">H2O</span></code> can be set to 0.0, other system components should be set to low value to ensure stable and efficient computation.</p></li>
 <li><p>We recommend a minimum value of 0.01 <code class="docutils literal notranslate"><span class="pre">[mol%]</span></code> (0.0001 <code class="docutils literal notranslate"><span class="pre">[mol</span> <span class="pre">fraction]</span></code>)</p></li>
 </ul>
+</section>
+<section id="set-oxygen-content">
+<h2>Set Oxygen content<a class="headerlink" href="#set-oxygen-content" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>Such like in THERMOCALC, the oxygen content <code class="docutils literal notranslate"><span class="pre">O</span></code> is set as <code class="docutils literal notranslate"><span class="pre">O</span> <span class="pre">[mol%]</span></code> = <code class="docutils literal notranslate"><span class="pre">Fe2O3</span> <span class="pre">[mol%]</span></code>.</p></li>
+<li><p>If the <code class="docutils literal notranslate"><span class="pre">Fe2O3</span></code>-content is not available you can turn off <code class="docutils literal notranslate"><span class="pre">O</span></code> by setting it to 0.01 <code class="docutils literal notranslate"><span class="pre">[mol%]</span></code>.</p></li>
+</ul>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
@@ -273,8 +282,8 @@
 <li><p>The current implementation of the solution phase models (EOS) from Holland et al. (2018) do not allow removing several oxides such as <code class="docutils literal notranslate"><span class="pre">MgO</span></code> and <code class="docutils literal notranslate"><span class="pre">CaO</span></code>. This would lead to ill-defined solution phases models such as for olivine and plagioclase.</p></li>
 </ul>
 </section>
-<section id="low-temperature-stabilitzation">
-<h2>Low temperature stabilitzation<a class="headerlink" href="#low-temperature-stabilitzation" title="Permalink to this headline"></a></h2>
+<section id="low-temperature-stabilization">
+<h2>Low temperature stabilization<a class="headerlink" href="#low-temperature-stabilization" title="Permalink to this headline"></a></h2>
 <ul class="simple">
 <li><p>In a number of cases, mainly water under-saturated cases, and at temperature below 600-650°C, the current version of the solver fails to provide consistent minimizations. We are working on an algorithm upgrade in order to fix this issue.</p></li>
 <li><p>While a working alternative approach is already being tested, we are further improving the performances before releasing it.</p></li>

@@ -12,14 +12,15 @@
 #include "gem_function.h"
 #include "toolkit.h"
 
-#define nEl 11
 #define eps 1e-8
 
 /**
   compute the Gibbs Free energy from the thermodynamic database
 */
 PP_ref G_EM_function(		int 		 EM_database, 
+							int 		 len_ox,
 							double 		*bulk_rock, 
+							double 		*apo, 
 							double 		 P, 
 							double 		 T, 
 							char 		*name, 
@@ -31,8 +32,8 @@ PP_ref G_EM_function(		int 		 EM_database,
 	EM_return   = Access_EM_DB(p_id, EM_database);
 	
 	/* Get composition (in molar amount) */
-	double composition[nEl];
-	for (i = 0; i < nEl; i ++){
+	double composition[len_ox];
+	for (i = 0; i < len_ox; i ++){
 		composition[i] = EM_return.Comp[i];
 	}
 	
@@ -79,7 +80,7 @@ PP_ref G_EM_function(		int 		 EM_database,
                                + cpb* (T - t0) - 
 							   cpc/2.0* (pow(T,-2.) - pow(t0,-2.0)) - 2.0* cpd* (pow(T,-0.5) - pow(t0,-0.5)));
 							   
-	n        = EM_return.Comp[nEl];
+	n        = EM_return.Comp[len_ox];
 	
 	char liq_tail[] = "L";
 	if ( EndsWithTail(name, liq_tail) == 1 ) {
@@ -93,19 +94,37 @@ PP_ref G_EM_function(		int 		 EM_database,
 		pth   = theta* alpha0* kappa0 / (exp(theta/t0) * pow(theta/t0,2.0) / pow(exp(theta/t0) - 1.,2.0)) * (1./(exp(theta/(T)) - 1.) - 1./(exp(theta/t0) - 1.));
 		vv    = volume;
 	}
-	
-	if (strcmp( name, "H2O") == 0 ){ //(strcmp( name, "O2") != 0 )|| 
+	/* EOS After Pitzer and Sterner, 1994 - API, The Journal of Chemical Physics */
+	if (strcmp( name, "H2O") == 0 || strcmp( name, "CO2") == 0 ){
+
 		double p_bar = 1000.*P; //in bar
-		double c1  =  0.24657688*1e6 / T + 0.51359951*1e2;
-		double c2  =  0.58638965*1e0 / T - 0.28646939*1e-2 + 0.31375577*1e-4 * T;
-		double c3  = -0.62783840*1e1 / T + 0.14791599*1e-1 + 0.35779579*1e-3 * T +  0.15432925*1e-7 * pow(T,2.0);
-		double c4  = -0.42719875*1e0 - 0.16325155*1e-4 * T;
-		double c5  =  0.56654978*1e4 / T - 0.16580167*1e2 + 0.76560762*1e-1 * T;
-		double c6  =  0.10917883*1e0;
-		double c7  =  0.38878656*1e13 / pow(T,4.0) - 0.13494878*1e9 / pow(T,2.0) + 0.30916564*1e6 / T + 0.75591105*1e1;
-		double c8  = -0.65537898*1e5 / T + 0.18810675*1e3;
-		double c9  = -0.14182435*1e14 / pow(T,4.0) + 0.18165390*1e9 / pow(T,2.0) - 0.19769068*1e6 / T - 0.23530318*1e2;
-		double c10 =  0.92093375*1e5 / T + 0.12246777*1e3;
+		double c1, c2, c3, c4, c5, c6, c7, c8, c9, c10; 
+
+		if (strcmp( name, "H2O") == 0){
+			c1  =  0.24657688e6 / T + 0.51359951e2;
+			c2  =  0.58638965e0 / T - 0.28646939e-2 + 0.31375577e-4 * T;
+			c3  = -0.62783840e1 / T + 0.14791599e-1 + 0.35779579e-3 * T +  0.15432925e-7 * pow(T,2.0);
+			c4  = -0.42719875e0 - 0.16325155e-4 * T;
+			c5  =  0.56654978e4 / T - 0.16580167e2 + 0.76560762e-1 * T;
+			c6  =  0.10917883e0;
+			c7  =  0.38878656e13 / pow(T,4.0) - 0.13494878e9 / pow(T,2.0) + 0.30916564e6 / T + 0.75591105e1;
+			c8  = -0.65537898e5 / T + 0.18810675e3;
+			c9  = -0.14182435e14 / pow(T,4.0) + 0.18165390e9 / pow(T,2.0) - 0.19769068e6 / T - 0.23530318e2;
+			c10 =  0.92093375e5 / T + 0.12246777e3;
+		}
+		else {	// can only be CO2
+			c1  =  0.18261340e7 / T + 	0.79224365e2;
+			c2  =  						0.66560660e-4 	+ 0.57152798e-5 * T + 0.30222363e-9 * pow(T,2.0);
+			c3 	= 						0.59957845e-2 	+ 0.71669631e-4 * T + 0.62416103e-8 * pow(T,2.0);
+			c4  = -0.13270279e1 / T +  -0.15210731e0  	+ 0.53654244e-3 * T - 0.71115142e-7 * pow(T,2.0);
+			c5  =  0.12456776e0 / T +   0.49045367e1    + 0.98220560e-2 * T + 0.55962121e-5 * pow(T,2.0);
+			c6  = 				     	0.75522299e0;
+			c7  = -0.39344644e+12 / pow(T,4.0) + 0.90918237e8 / pow(T,2.0) + 0.42776716e6 / T - 0.22347856e2;
+			c8 	=  0.40282608e3 / T +   0.11971627e3;
+			c9  =  0.22995650e8 / pow(T,2.0) - 0.78971817e5 / T - 0.63376456e2;
+			c10 =  0.95029765e5 / T + 0.18038071e2;
+		}
+
 		
 		/* solve for volume at P, T */
 		int    err,  k;
@@ -276,18 +295,17 @@ PP_ref G_EM_function(		int 		 EM_database,
 	PP_ref PP_ref_db;
 	
 	/* Calculate normalizing factor using bulk-rock composition */
-	double apo[11] = {3.0,5.0,2.0,2.0,2.0,3.0,3.0,3.0,1.0,5.0,3.0};
 	double factor  = 0.0;
 	
 	/* Calculate the number of atoms in the bulk-rock composition */
 	double fbc     = 0.0;
-	for (i = 0; i < nEl; i++){
+	for (i = 0; i < len_ox; i++){
 		fbc += bulk_rock[i]*apo[i];
 	}
 	
 	/* Calculate the number of atom in the solution */
 	double ape = 0.0;
-	for (i = 0; i < nEl; i++){
+	for (i = 0; i < len_ox; i++){
 		ape += composition[i]*apo[i];
 	}
 	
@@ -295,13 +313,20 @@ PP_ref G_EM_function(		int 		 EM_database,
 	factor = fbc/ape;
 
 	strcpy(PP_ref_db.Name, name);
-	for (i = 0; i < nEl; i++){
+	for (i = 0; i < len_ox; i++){
 		PP_ref_db.Comp[i] = composition[i];
 	}
 	PP_ref_db.gbase   =  gbase;
 	PP_ref_db.factor  =  factor;
 	PP_ref_db.phase_shearModulus  =  (EM_return.input_4[0]*kbar2bar + (P - p0)*(EM_return.input_4[1])*kbar2bar + (T - t0)*(EM_return.input_4[2]))/kbar2bar;
+
+
 	// printf(" %4s %+10f\n",name,PP_ref_db.gbase);
+	// for (i = 0; i < len_ox; i++){
+	// 	printf("%+10f",PP_ref_db.Comp[i]*PP_ref_db.factor); 
+	// }
+	// printf("\n");
+
 	return (PP_ref_db);
 }
 
