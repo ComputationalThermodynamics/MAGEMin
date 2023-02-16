@@ -313,7 +313,7 @@ This extracts the output of a pointwise MAGEMin optimization and adds it into a 
 """
 function create_gmin_struct(DB, gv, time)
 
-    stb     =  unsafe_wrap(Vector{LibMAGEMin.stb_systems},DB.sp,1)[1]
+    stb      = unsafe_load(DB.sp)
 
     G_system = stb.G;
     Gamma    = unsafe_wrap(Vector{Cdouble},stb.gamma,gv.len_ox)
