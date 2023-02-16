@@ -8,9 +8,7 @@ if  cur_dir[end-3:end]=="test"
 end
 using MAGEMin_C         # load MAGEMin (needs to be loaded from main directory to pick up correct library in case it is locally compiled)
 
-# # Initialize database 
-
-
+# Initialize database 
 gv, z_b, DB, splx_data      = init_MAGEMin();
 
 
@@ -29,21 +27,50 @@ out         = point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in)
 @test out.ph == ["opx", "ol", "cpx", "spn"]
 @test all(abs.(out.ph_frac - [ 0.24226960158631541, 0.5880694152724345, 0.1416697366114075,  0.027991246529842587])  .< 1e-4)
 
-# same but with int
-P           = 8
-T           = 800
-gv.verbose  = -1        # switch off any verbose
-out         = point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in)
-
-@test out.G_system ≈ -797.7491947356159
-@test out.ph == ["opx", "ol", "cpx", "spn"]
-@test all(abs.(out.ph_frac - [ 0.24226960158631541, 0.5880694152724345, 0.1416697366114075,  0.027991246529842587])  .< 1e-4)
-
 # print more detailed info about this point:
 print_info(out)
+
+@testset "pointwise tests  " begin
+
+    for i=1:100
+        # same but with int
+        P           = 8
+        T           = 800
+        gv.verbose  = -1        # switch off any verbose
+        out         = point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in)
+
+        @test out.G_system ≈ -797.7491947356159
+        @test out.ph == ["opx", "ol", "cpx", "spn"]
+        @test all(abs.(out.ph_frac - [ 0.24226960158631541, 0.5880694152724345, 0.1416697366114075,  0.027991246529842587])  .< 1e-4)
+    end
+end
 finalize_MAGEMin(gv,DB)
 
 
+@testset "specify bulk rock" begin
+    using MAGEMin_C
+    gv, z_b, DB, splx_data      = init_MAGEMin();
+    bulk_in_ox = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
+    bulk_in    = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
+    sys_in     = "wt"
+    bulk_rock  = convertBulk4MAGEMin(bulk_in,bulk_in_ox,sys_in);
+    gv         = define_bulk_rock(gv, bulk_rock);
+    P,T         = 10.0, 1100.0;
+    gv.verbose  = -1;        # switch off any verbose
+    out         = point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in)
+    finalize_MAGEMin(gv,DB)
+
+    @test out.G_system ≈ -907.2788704076264
+end
+
+@testset "convert bulk rock" begin
+    bulk_in_ox = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
+    bulk_in    = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
+    bulk_rock  = convertBulk4MAGEMin(bulk_in,bulk_in_ox,"wt");
+
+    @test bulk_rock ≈ [45.322438151798686, 8.376385705825816, 11.59989542303507, 14.132959653999844, 7.5133873577293135, 0.3521517320409561, 1.696362856414661, 0.4786296255318463, 1.1547757294831036, 0.009999000099990002, 9.36301476404072]
+
+end
 
 
 @testset "test Seismic velocities & modulus" begin
