@@ -41,6 +41,7 @@ void print_help(	global_variable gv	){
 	printf("  --Bulk=       [float] : Bulk rock composition in [mol] or [wt] fraction*\n");
 	printf("  --Gam=        [float] : Chemical potential of oxides (pure components)*\n");
 	printf("  --sys_in=     [str]   : inputed system composition, [mol](default) or [wt]\n");
+	printf("  --solver=     [int]   : solver: 0 for legacy and 1 for PGE (default)\n");
 	printf("  --out_matlab= [int]   : Matlab text file output, 0. inactive, 1. active\n");
 	printf("\n");
 	printf(" *the list of oxides must be given as follow:\n");
@@ -81,8 +82,13 @@ void print_help(	global_variable gv	){
     printf("\n");	
     printf(" Simply call 'MPI' before MAGEMin and give the number of cores you want to use. Valid calls using previously defined input file are for instance\n");	
     printf("\n");	
-    printf("  mpirun -np 8 ./MAGEMin --Verb=1 --File=/path_to_file/MAGEMin_input.dat --n_points=4\n");
-    printf("  mpiexec -n 8 ./MAGEMin --Verb=1 --File=/path_to_file/MAGEMin_input.dat --n_points=4\n");	   
+    printf("  mpirun -np 8 ./MAGEMin --File=/path_to_file/MAGEMin_input.dat --n_points=4\n");
+    printf("  mpiexec -n 8 ./MAGEMin --File=/path_to_file/MAGEMin_input.dat --n_points=4\n");	
+    printf("\n");	
+	printf(" Other useful information:\n");
+	printf(" -------------------------\n");	
+    printf("\n");	 
+	printf(" Bulk-rock composition (wt or mol) expressed as FeO and Fe2O3 can be converted using the Matlab GUI to MAGEMin format ( [wt,mol] -> [mol], [FeO and Fe2O3] -> [FeOt and O])\n");
     printf("\n");	 
     printf("\n");	 
 
@@ -105,25 +111,20 @@ double* norm_array(double *array, int size) {
   retrieve bulk rock composition and PT compositions
 */
 bulk_info retrieve_bulk_PT(				global_variable      gv,
-										char 				*sys_in,
-										char    			 File[50],
 										io_data 		    *input_data,
-										int 				 test,
 										int					 sgleP,
-										double				*Bulk,
-										bulk_info 			 z_b,		
-										double 				*bulk_rock			){
+										bulk_info 			 z_b			){
 
 	/* bulk from command line arguments */
-	if (Bulk[0] > 0.0) {
+	if (gv.arg_bulk[0] > 0.0) {
 		if (gv.verbose == 1){
 			printf("\n");
 			printf("   - Minimization using bulk-rock composition from arg\n");	
 		}	
-		for (int i = 0; i < gv.len_ox; i++){ bulk_rock[i] = Bulk[i];}
+		for (int i = 0; i < gv.len_ox; i++){ gv.bulk_rock[i] = gv.arg_bulk[i];}
 	}
 	/* bulk from file */
-	if (strcmp( File, "none") != 0){
+	if (strcmp( gv.File, "none") != 0){
 
 		z_b.P = input_data[sgleP].P;
 		z_b.T = input_data[sgleP].T + 273.15;					/** K to C 		*/
@@ -134,40 +135,40 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 				printf("   - Minimization using bulk-rock composition from input file\n");	
 			}	
 			for (int i = 0; i < gv.len_ox; i++){
-				bulk_rock[i] = input_data[sgleP].in_bulk[i];					
+				gv.bulk_rock[i] = input_data[sgleP].in_bulk[i];					
 			}
 		}
 	}
 
 	/* transform bulk from wt% to mol% for minimiation */
-	if (strcmp( sys_in, "wt") == 0){	
-		for (int i = 0; i < gv.len_ox; i++){ bulk_rock[i] /= z_b.masspo[i];}
+	if (strcmp( gv.sys_in, "wt") == 0){	
+		for (int i = 0; i < gv.len_ox; i++){ gv.bulk_rock[i] /= z_b.masspo[i];}
 	}
 
 
 	if (gv.verbose == 1){	
-		if (strcmp( sys_in, "mol") == 0){	
-			printf("   - input system composition   : mol fraction\n"	);
+		if (strcmp( gv.sys_in, "mol") == 0){	
+			printf("  - input system composition   : mol fraction\n"	);
 		}
-		else if (strcmp( sys_in, "wt") == 0){	
-			printf("   - input system composition   : wt fraction\n"	);
+		else if (strcmp( gv.sys_in, "wt") == 0){	
+			printf("  - input system composition   : wt fraction\n"	);
 		}
 		else{
-			printf("   - input system composition   : unknown! [has to be mol or wt]\n");
+			printf("  - input system composition   : unknown! [has to be mol or wt]\n");
 		}
 		printf("\n");
 	}	
 
 	/** Normalize composition to sum to 1. 										*/
-	norm_array(							bulk_rock,
+	norm_array(							gv.bulk_rock,
 										gv.len_ox					);		
 
 	/** here we check if the normalized mol fraction is < 1e-4 for oxides != H2O */
 	/** if it is, then the fraction is set to 1e-4 -> this is a current limitation of system component reduction */
 	int renorm = 0;
 	for (int i = 0; i < gv.len_ox; i++){ 
-		if (strcmp( gv.ox[i], "H2O") != 0 &&  bulk_rock[i] < 1.0e-4){
-			bulk_rock[i] = 1.0e-4;
+		if (strcmp( gv.ox[i], "H2O") != 0 &&  gv.bulk_rock[i] < 1.0e-4){
+			gv.bulk_rock[i] = 1.0e-4;
 			renorm = 1;
 			if (gv.verbose == 1){
 				printf("  - mol fraction of %4s is < 1e-4 -> set back to 1e-4 to avoid minimization issues\n\n",gv.ox[i]	);
@@ -175,7 +176,7 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 		}
 	}
 	if (renorm == 1){
-		norm_array(							bulk_rock,
+		norm_array(							gv.bulk_rock,
 											gv.len_ox					);						
 	}
 
@@ -308,7 +309,7 @@ double BrentRoots(  double  x1,
   EE 		= 0.0;
   CC 		= 0.0;
 
-  i = 0; done = FALSE;   error = 0;
+  i = 0; done = FALSE;   *error = 0;
   AA = x1;  BB = x2;  FA = AFunction(mode,AA,data); FB = AFunction(mode,BB,data);
 
   if (!(RootBracketed(FA,FB))) 
@@ -583,13 +584,12 @@ double partial_euclidean_distance(double *array1 ,double *array2 ,int n){
 /**
   inverse a matrix using LAPACKE dgetrf and dgetri
 */	
-void inverseMatrix(double *A1, int n){
-	int    ipiv[n];	
+void inverseMatrix(int *ipiv, double *A1, int n, double *work, int lwork){	
 	int    info;
 
 	/* call lapacke to inverse Matrix */
 	info = LAPACKE_dgetrf(LAPACK_ROW_MAJOR, n, n, A1, n, ipiv); 
-	info = LAPACKE_dgetri(LAPACK_ROW_MAJOR, n, A1, n, ipiv);
+	info = LAPACKE_dgetri_work(LAPACK_ROW_MAJOR, n, A1, n, ipiv, work, lwork);
 };
 
 /**
@@ -785,6 +785,13 @@ void print_SS_informations(		global_variable gv,
 		printf(" %10s","-");
 	}
 	printf("\n");
+	// for (int k = 0; k < SS_ref_db.n_xeos; k++) {
+	// 	printf(" %+10f",SS_ref_db.dfx[k]);
+	// }
+	// for (int k = SS_ref_db.n_xeos; k < 12; k++){
+	// 	printf(" %10s","-");
+	// }
+	// printf("\n");
 }
 
 /**

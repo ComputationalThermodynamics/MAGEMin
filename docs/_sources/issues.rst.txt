@@ -25,6 +25,13 @@ Reduced chemical system
 * We recommend a minimum value of 0.01 :literal:`[mol%]` (0.0001 :literal:`[mol fraction]`)
 
 
+Set Oxygen content
+******************
+
+* Such like in THERMOCALC, the oxygen content :literal:`O` is set as :literal:`O [mol%]` = :literal:`Fe2O3 [mol%]`. 
+
+* If the :literal:`Fe2O3`-content is not available you can turn off :literal:`O` by setting it to 0.01 :literal:`[mol%]`.
+
 |
 
 .. image:: /figs/wip.png
@@ -46,7 +53,7 @@ Reduced chemical systems
 * The current implementation of the solution phase models (EOS) from Holland et al. (2018) do not allow removing several oxides such as :literal:`MgO` and :literal:`CaO`. This would lead to ill-defined solution phases models such as for olivine and plagioclase.
 
 
-Low temperature stabilitzation
+Low temperature stabilization
 ******************************
 
 * In a number of cases, mainly water under-saturated cases, and at temperature below 600-650°C, the current version of the solver fails to provide consistent minimizations. We are working on an algorithm upgrade in order to fix this issue. 

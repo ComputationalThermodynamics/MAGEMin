@@ -104,7 +104,34 @@ Choose bulk-rock composition
    
 |
  
-#. Use default option "pre-defined test 0" (KLB-1 peridotite)
+
+- To load a custom bulk-rock composition you first need to create a file :literal:`your_bulk.dat`. The name of the file :literal:`your_bulk` will be used for the name of the pseudosection. The file has to be structured as follow:
+
+	:literal:`your_bulk.dat`:
+	
++------+-------+-----+-----+-----+-------+-----+------+------+-------+-----+
+| SiO2 | Al2O3 | CaO | MgO | FeO | Fe2O3 | K2O | Na2O | TiO2 | Cr2O3 | H2O |
++------+-------+-----+-----+-----+-------+-----+------+------+-------+-----+
+|48.43 | 15.19 |11.57|10.13| 6.65| 1.64  | 0.59| 1.87 |0.68  |0.1    | 3.0 |
++------+-------+-----+-----+-----+-------+-----+------+------+-------+-----+
+
+- An example of custom bulk-rock composition is provided in :literal:`/examples/bulk1.dat`.
+
+- Note that instead of :literal:`Fe2O3`, you can directly provide :literal:`O`. If you provide :literal:`Fe2O3` the GUI will internally convert it to :literal:`FeOt` and :literal:`O`.
+
+.. image:: /figs/GUI_custom_bulk.png
+   :width: 240
+   :align: center
+   
+|
+
+- Once the file is created you can load it using the button :literal:`Load from file`. Note that before loading your bulk-rock composition you first need to select the right system unit :literal:`[mol or wt]`. If the bulk-rock composition you provided is in :literal:`[wt]` it will be automatically converted to :literal:`[mol]`, the system unit used in MAGEMin.
+
+
+#. For for this tutorial, we will the use default option "pre-defined test 0" (KLB-1 peridotite)
+
+|
+
 
 Compute pseudosection
 *********************

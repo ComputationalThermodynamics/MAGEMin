@@ -7,11 +7,204 @@
 #define mkdir(path,mode) _mkdir(path) 
 #endif
 
-#define n_em_db 291
-#define nEl 11
-
 #include "nlopt.h"
 #include "gem_function.h"
+
+/* structure to store global variables */
+typedef struct global_variables {
+	
+	/* GLOBAL PARAMETERS */
+	char    *version;			/** MAGEMin version */
+	int      verbose;			/** verbose variable: 0, none; 1, all */
+	char    *outpath;			/** output path */
+	int      Mode;				/** calcultion mode, 0 = full minimization, 1 = extract solution phases informations, 2 = local minimization */
+	double **pdev;
+	int 	 n_em_db;
+	int 	 EM_database;
+	int      n_Diff;
+	int      status;			/** status of the minimization 		*/
+	int      solver;
+	double   solver_switch_T;
+	// int 	 calc_seismic_cor;
+	int 	 output_matlab;
+	double 	 tot_min_time;
+	double 	 tot_time;
+	
+	/* GET STARTING CONDITIONS (args) */
+	int 	 test;
+	double  *bulk_rock;
+	double  *arg_bulk;			/** bulk provided by command line 	*/
+	double  *arg_gamma;			/** gamma provided by command line 	*/
+	int 	 n_points;			/** number of parallel points 		*/
+	char 	*File;
+	char 	*Phase;
+	char 	*sys_in;
+
+	/* lapacke bedroom */
+	int 	*ipiv;
+	int 	 lwork;
+	double  *work;
+
+	/* GENERAL PARAMETERS */
+	int 	 LP;				/** linear programming stage flag	*/
+	int 	 PGE;				/** PGE stage flag				 	*/
+	int      LP_PGE_switch;
+	double   mean_sum_xi;
+	double   sigma_sum_xi;
+	double   min_melt_T;
+	
+	double   relax_PGE_val;
+	double   PC_df_add;
+	double   PC_min_dist;
+	double	 PC_check_val1;
+	double	 PC_check_val2;
+	int	     check_PC1;
+	int	     check_PC2;
+	int      len_pp;			/** initial number of active pure phases */
+	int      len_ss;			/** initial number of active solution phases */
+	int      len_ox;			/** number of components (number of oxides in the chemical system) */
+	int 	 maxlen_ox;			/** max number of oxides (depends on the database)*/
+	int 	 max_n_cp;			/** number of considered solution phases */
+	int 	 len_cp;
+	char   **ox;				/** component names (for outputing purpose only) */
+	double  *gam_tot;     		/** chemical potential of components (gamma) */
+	double  *gam_tot_0;     	/** chemical potential of components (gamma) */
+	double  *delta_gam_tot;     /** chemical potential of components (gamma) */
+				
+	int      n_flags;			/** number of column in the flag array */
+	char   **PP_list;			/** pure phase list */
+	char   **SS_list;			/** solution phase list */
+	
+	double  *pp_n;				/** fraction of pure phase in estimated phase assemblage */
+	double  *pp_n_mol;			/** fraction of pure phase in estimated phase assemblage */
+	double  *pp_xi;				/** penalty term -> distance from G-hyperplane */
+	double  *delta_pp_n;		/** fraction of pure phase in estimated phase assemblage */
+	double  *delta_pp_xi;		/** penalty term -> distance from G-hyperplane*/
+	int    **pp_flags;			/** integer table for pure phase list */	
+
+	int      numPoint; 			/** the number of the current point */
+	int      global_ite;		/** global iteration increment */
+
+	/* SPECIAL CASES */
+	// double   melt_pressure;
+
+	/* LEVELLING */
+	double   LVL_time;			/** time taken for levelling (ms) */
+	double   em2ss_shift;		/** small value to retrieve x-eos from pure endmember after levelling */
+	
+	/* PSEUDOCOMPOUNDS */
+	double   bnd_filter_pc;     /** value of driving force the pseudocompound is considered to reduce the compositional space */
+	double 	 max_G_pc;
+	int     *n_SS_PC;
+	double  *SS_PC_stp;
+	double   eps_sf_pc;	
+	int      n_pc;				/** maximum number of pseudocompounds to store 								*/
+
+	/*linear programming during PGE */
+	int  	 n_Ppc;
+
+	/* SOLVI */
+	int     *verifyPC;			/** allow to check for solvi */
+	int 	*n_solvi;			/** number of phase considered for solvi */
+	int    **id_solvi;			/** cp id of the phases considered for solvi */
+			
+	/* LOCAL MINIMIZATION */
+	double   ineq_res;			/** relative residual for local minimization (inequality constraints)*/
+	double   obj_tol;			/** relative residual for local minimization */
+
+	double   box_size_mode_1;	/** edge size of the hyperdensity used during local minimization */
+	int   	 maxeval;			/** maximum number of objective function evaluations during local minimization */
+	int   	 maxeval_mode_1;	/** maximum number of objective function evaluations during local minimization for mode 1 */
+	double   bnd_val;			/** boundary value for x-eos when the fraction of an endmember = 0. */
+
+	/* PARTITIONING GIBBS ENERGY */ 
+	double 	*A_PGE;				/** LHS  */
+	double 	*A0_PGE;			/** First stage of extend Newton method LHS*/
+	double  *b_PGE;				/** RHS  */
+	double 	*dn_cp;
+	double 	*dn_pp;
+	int 	*cp_id;
+	int 	*pp_id;	
+	double   fc_norm_t1;
+	int      outter_PGE_ite;    /** number of PGE outter iterations */
+	int      inner_PGE_ite;     /** number of PGE outter iterations */
+	double   inner_PGE_ite_time;
+	double 	 xi_em_cor;
+	
+	int      n_phase;			/** number of estimated stable phases */	
+	int 	 n_pp_phase;		/** number of active pure phases */
+	int 	 n_cp_phase;		/** number of considered solution phases */
+
+	double   max_n_phase;		/** maximum wt% change during PGE iteration     */
+	double   max_g_phase;		/** maximum Gamma change during PGE iteration */
+	double   br_liq_x;
+	double   max_fac;			/** max updating factor */
+	int      it_1;              /** first critical iteration                                                      */
+	double   ur_1;              /** under relaxing factor on mass constraint if iteration is bigger than it_1     */
+	int      it_2;              /** second critical iteration                                                     */
+	double   ur_2;              /** under relaxing factor on mass constraint if iteration is bigger than it_2     */
+	int      it_3;              /** third critical iteration                                                      */
+	double   ur_3;              /** under relaxing factor on mass constraint if iteration is bigger than it_3     */
+	int      it_f;              /** send a failed message when the number of iteration is greater than this value */
+	int      div;               /** send status of divergence */
+
+	/* DECLARE ARRAY FOR PGE CALCULATION */	
+	double	*dGamma;			/** array to store gamma change */
+	
+	double  *PGE_mass_norm;		/** save the evolution of the norm */
+	int     *Alg;				/** algorithm: 0-> PGE, LP->1 */	
+	double  *gamma_norm;		/** save the evolution of the gamma norm */
+	double  *ite_time;
+	double   G_system;      	/** Gibbs energy of the system */
+	double   G_system_mu;		/** Gibbs energy of the system based on fraction and chemical potential of phases **/
+
+	double   br_max_tol;    	/** max residual on mass-constraint */
+	double   alpha;				/** active under-relaxing factor of PGE, used to check if a phase can be reintroduced */
+	
+	/* PHASE UPDATE */ 
+	double   merge_value;		/** norm distance between two instance of a solution phase under which the instances are merged into 1 */
+	double   re_in_n;			/** fraction of phase when being reintroduce.  */
+	double   remove_dG_val; 	/** delta_G value at which a phase can be removed */ 
+	double   remove_sum_xi;		/** sum xi value at which a phase can be removed */
+	int      ph_change;
+	double 	 min_df;
+	/* LEAST SQUARE OPTIMIZATION */
+	double **A;					/** save stoechiometry matrix to pass to least square optimization */
+	double  *b;					/** save bulk rock to pass to least square optimization */
+	double  *mass_residual;		/** bulk rock residual */
+	double   BR_norm;			/** norm of bulk rock residual  */
+	
+	/* DENSITY/CP MODULUS CALC */	
+	double	 poisson_ratio;	 
+
+	double   gb_P_eps;			/** small value to calculate V using finite difference: V = dG/dP */
+	double   gb_T_eps;			/** small value to calculate V using finite difference: V = dG/dP */
+	double   system_density;
+	double   system_entropy;
+	double   system_enthalpy;
+	double   system_bulkModulus;
+	double   system_shearModulus;
+	double   system_Vp;
+	double   system_Vs;
+	double   system_volume;
+
+	double 	 system_fO2;
+
+	double   melt_density;
+	double   melt_bulkModulus;
+	double   melt_fraction;
+	double   solid_fraction;
+
+	double   solid_density;
+	double   solid_bulkModulus;
+	double   solid_shearModulus;
+	double   solid_Vp;
+	double   solid_Vs;
+
+	double  *V_cor;
+
+} global_variable;
+
 
 /*---------------------------------------------------------------------------*/ 
 int runMAGEMin(								int argc, 
@@ -20,19 +213,14 @@ int runMAGEMin(								int argc,
 /* Function declaration from Initialize.h file */
 int find_EM_id(								char* em_tag			);
 
-/** declare function to get benchmark bulk rock composition **/
-void get_bulk(								double *bulk_rock, 
-											int test, 
-											int n_El				);
-
 /** Function to retrieve database structure **/
 struct EM_db Access_EM_DB(					int id, 
 											int EM_database			);
 
 /** Function to retrieve the endmember names from the database **/
-char** get_EM_DB_names(						int EM_database			);
-/*---------------------------------------------------------------------------*/ 
-/* structure declaration */
+char** get_EM_DB_names(						global_variable gv		);
+
+
 /** store endmember database **/
 struct EM_db {
 	char   Name[20];			/** pure species name 														*/
@@ -120,7 +308,7 @@ typedef struct SS_refs {
 	double  *DF_pc;				/** array to store the final driving force of the pseudocompounds 			*/
 	double **comp_pc;			/** compositional array of the pseudocompounds 								*/
 	double **p_pc;				/** compositional array of the pseudocompounds 								*/
-	double **mu_pc;				/** compositional array of the pseudocompounds 								*/
+	// double **mu_pc;				/** compositional array of the pseudocompounds 								*/
 	double **xeos_pc;			/** x-eos array of the pseudocompounds 										*/
 	double  *factor_pc;			/** normalization factor of each PC, mainly useful for liquid 				*/
 
@@ -143,7 +331,6 @@ typedef struct SS_refs {
 	/** data needed for levelling and/or PGE **/
 	int	     min_mode;			/** flag of the minimization mode 											*/
 	int		 is_liq;			/** check if phase is "liq" 												*/
-	int		 has_doubled_em;	/** flag to indicate if the solution phase has endmembers with the same composition */
 	int      symmetry;			/** solution phase symmetry  												*/
 	int      n_em;				/** number od endmembers 													*/
 	int 	 n_xeos;			/** number of compositional variables 										*/
@@ -193,7 +380,6 @@ typedef struct SS_refs {
 	double  *mat_phi;
 	double  *mu_Gex;			/** excess energy 															*/
 	double  *sf;				/** site fractions 															*/
-	double  *dsf;				/** jacobian of site fraction												*/
 	double  *mu;				/** chemical potentials 													*/
 	double  *dfx;				/** gradient of objective function 											*/
 	double **dp_dx;				/** partial derivative of endmember fraction as function of compositional variables */
@@ -256,6 +442,10 @@ typedef struct OUTDATA {
 
 /* structure to store position of zeros and non-zeros positions in bulk_rock composition */
 typedef struct bulk_infos {
+	char   **oxName;
+	double  *oxMass;
+	int     *atPerOx;
+
 	double   P;					/** store pressure 										*/
 	double   T;					/** store temperature 									*/
 	double   R;
@@ -270,10 +460,6 @@ typedef struct bulk_infos {
     double  *masspo;			/** Molar mass per oxide 								*/
 
 } bulk_info;
-
-/** Return the number of zero element in the bulk-rock, position of zeros and non zeros elements **/
-bulk_info initialize_bulk_infos(			double P, 
-											double T				);
 
 /* structure to informations about the considered set of phases during  minimization 	*/
 typedef struct csd_phase_sets {
@@ -317,7 +503,11 @@ typedef struct csd_phase_sets {
 	double  phase_cp;
 	double  phase_expansivity;
 	double  phase_bulkModulus;
+	double  phase_isoTbulkModulus;
+	double  volume_P0;
+	double  thetaExp;
 	double  phase_shearModulus;
+	double  phase_shearModulus_v;
 	double  phase_entropy;
 	double  phase_enthalpy;
 	
@@ -443,196 +633,31 @@ typedef struct stb_systems {
 
 } stb_system;
 
-/* structure to store global variables */
-typedef struct global_variables {
-	
-	/* GLOBAL PARAMETERS */
-	char    *version;			/** MAGEMin version */
-	int      verbose;			/** verbose variable: 0, none; 1, all */
-	char    *outpath;			/** output path */
-	int      Mode;				/** calcultion mode, 0 = full minimization, 1 = extract solution phases informations, 2 = local minimization */
-	double **numDiff;
-	int      n_Diff;
-	int      status;			/** status of the minimization */
-	int      solver;
-	int 	 calc_seismic_cor;
-	int 	 output_matlab;
+global_variable global_variable_alloc(	bulk_info 			*z_b);
 
-	/* GENERAL PARAMETERS */
-	int 	 LP;				/** linear programming stage flag*/
-	int 	 PGE;				/** PGE stage flag				 */
-	int      LP_PGE_switch;
-	double   mean_sum_xi;
-	double   sigma_sum_xi;
-	double   min_melt_T;
-	
-	double   relax_PGE_val;
-	double   PC_df_add;
-	double   PC_min_dist;
-	double	 PC_check_val1;
-	double	 PC_check_val2;
-	int	     check_PC1;
-	int	     check_PC2;
-	int      len_pp;			/** initial number of active pure phases */
-	int      len_ss;			/** initial number of active solution phases */
-	int      len_ox;			/** number of components (number of oxides in the chemical system) */
-	int 	 max_n_cp;			/** number of considered solution phases */
-	int 	 len_cp;
-	char   **ox;				/** component names (for outputing purpose only) */
-	double  *gam_tot;     		/** chemical potential of components (gamma) */
-	double  *gam_tot_0;     	/** chemical potential of components (gamma) */
-	double  *delta_gam_tot;     /** chemical potential of components (gamma) */
-				
-	int      n_flags;			/** number of column in the flag array */
-	char   **PP_list;			/** pure phase list */
-	char   **SS_list;			/** solution phase list */
-	
-	double  *pp_n;				/** fraction of pure phase in estimated phase assemblage */
-	double  *pp_n_mol;			/** fraction of pure phase in estimated phase assemblage */
-	double  *pp_xi;				/** penalty term -> distance from G-hyperplane */
-	double  *delta_pp_n;		/** fraction of pure phase in estimated phase assemblage */
-	double  *delta_pp_xi;		/** penalty term -> distance from G-hyperplane*/
-	int    **pp_flags;			/** integer table for pure phase list */	
+global_variable global_variable_init( 	global_variable  	 gv,
+										bulk_info 			*z_b 	);
 
-	int      numPoint; 			/** the number of the current point */
-	int      global_ite;		/** global iteration increment */
+/** declare function to get benchmark bulk rock composition **/
+global_variable get_bulk(	global_variable  gv					);
 
-	/* OUTPUT LOG */
-	int 	 save_residual_evolution;
-
-	/* LEVELLING */
-	double   LVL_time;			/** time taken for levelling (ms) */
-	double   em2ss_shift;		/** small value to retrieve x-eos from pure endmember after levelling */
-	
-	/* PSEUDOCOMPOUNDS */
-	double   bnd_filter_pc;     /** value of driving force the pseudocompound is considered to reduce the compositional space */
-	double 	 max_G_pc;
-	int     *n_SS_PC;
-	double  *SS_PC_stp;
-	double   eps_sf_pc;	
-	int      n_pc;				/** maximum number of pseudocompounds to store 								*/
-	/*linear programming during PGE */
-	int  	 n_Ppc;
-
-	/* SOLVI */
-	int     *verifyPC;			/** allow to check for solvi */
-	int 	*n_solvi;			/** number of phase considered for solvi */
-	int    **id_solvi;			/** cp id of the phases considered for solvi */
-			
-	/* LOCAL MINIMIZATION */
-	double   ineq_res;			/** relative residual for local minimization (inequality constraints)*/
-	double   obj_tol;			/** relative residual for local minimization */
-
-	double   box_size_mode_1;	/** edge size of the hyperdensity used during local minimization */
-	int   	 maxeval;			/** maximum number of objective function evaluations during local minimization */
-	int   	 maxeval_mode_1;	/** maximum number of objective function evaluations during local minimization for mode 1 */
-	double   bnd_val;			/** boundary value for x-eos when the fraction of an endmember = 0. */
-
-	/* PARTITIONING GIBBS ENERGY */ 
-	double 	*A_PGE;				/** LHS  */
-	double 	*A0_PGE;			/** First stage of extend Newton method LHS*/
-	double  *b_PGE;				/** RHS  */
-	double 	*dn_cp;
-	double 	*dn_pp;
-	int 	*cp_id;
-	int 	*pp_id;	
-	double   fc_norm_t1;
-	int      outter_PGE_ite;    /** number of PGE outter iterations */
-	int      inner_PGE_ite;     /** number of PGE outter iterations */
-	double   inner_PGE_ite_time;
-	double 	 xi_em_cor;
-	
-	int      n_phase;			/** number of estimated stable phases */	
-	int 	 n_pp_phase;		/** number of active pure phases */
-	int 	 n_cp_phase;		/** number of considered solution phases */
-
-	double   max_n_phase;		/** maximum wt% change during PGE iteration     */
-	double   max_g_phase;		/** maximum Gamma change during PGE iteration */
-	double   br_liq_x;
-	double   max_fac;			/** max updating factor */
-	int      it_1;              /** first critical iteration                                                      */
-	double   ur_1;              /** under relaxing factor on mass constraint if iteration is bigger than it_1     */
-	int      it_2;              /** second critical iteration                                                     */
-	double   ur_2;              /** under relaxing factor on mass constraint if iteration is bigger than it_2     */
-	int      it_3;              /** third critical iteration                                                      */
-	double   ur_3;              /** under relaxing factor on mass constraint if iteration is bigger than it_3     */
-	int      it_f;              /** send a failed message when the number of iteration is greater than this value */
-	int      div;               /** send status of divergence */
-
-	/* DECLARE ARRAY FOR PGE CALCULATION */	
-	double	*dGamma;			/** array to store gamma change */
-	
-	double  *PGE_mass_norm;		/** save the evolution of the norm */
-	int     *Alg;				/** algorithm: 0-> PGE, LP->1 */	
-	double  *gamma_norm;		/** save the evolution of the gamma norm */
-	double  *ite_time;
-	double   G_system;      	/** Gibbs energy of the system */
-	double   G_system_mu;		/** Gibbs energy of the system based on fraction and chemical potential of phases **/
-
-	double   br_max_tol;    	/** max residual on mass-constraint */
-	double   alpha;				/** active under-relaxing factor of PGE, used to check if a phase can be reintroduced */
-	
-	/* PHASE UPDATE */ 
-	double   merge_value;		/** norm distance between two instance of a solution phase under which the instances are merged into 1 */
-	double   re_in_n;			/** fraction of phase when being reintroduce.  */
-	double   remove_dG_val; 	/** delta_G value at which a phase can be removed */ 
-	double   remove_sum_xi;		/** sum xi value at which a phase can be removed */
-	int      ph_change;
-
-	/* LEAST SQUARE OPTIMIZATION */
-	double **A;					/** save stoechiometry matrix to pass to least square optimization */
-	double  *b;					/** save bulk rock to pass to least square optimization */
-	double  *mass_residual;		/** bulk rock residual */
-	double   BR_norm;			/** norm of bulk rock residual  */
-	
-	/* DENSITY/CP MODULUS CALC */
-	double   gb_P_eps;			/** small value to calculate V using finite difference: V = dG/dP */
-	double   gb_T_eps;			/** small value to calculate V using finite difference: V = dG/dP */
-	double   system_density;
-	double   system_entropy;
-	double   system_enthalpy;
-	double   system_bulkModulus;
-	double   system_shearModulus;
-	double   system_Vp;
-	double   system_Vs;
-	double   system_volume;
-
-	double 	 system_fO2;
-
-	double   melt_density;
-	double   melt_bulkModulus;
-	double   melt_fraction;
-	double   solid_fraction;
-
-	double   solid_density;
-	double   solid_bulkModulus;
-	double   solid_shearModulus;
-	double   solid_Vp;
-	double   solid_Vs;
-
-	double  *V_cor;
-
-} global_variable;
-
-global_variable global_variable_init(void);
 
 /** Stores databases **/
-typedef struct Database {	PP_ref     		 *PP_ref_db;			/** Pure phases 											*/
-							SS_ref     		 *SS_ref_db;			/** Solid solution phases phases 							*/
+typedef struct Database {	PP_ref     		 *PP_ref_db;		/** Pure phases 											*/
+							SS_ref     		 *SS_ref_db;		/** Solid solution phases phases 							*/
 							csd_phase_set    *cp;				/** considered solution phases (solvus setup) 				*/
 							stb_system       *sp;				/** structure holding the informations of the stable phases */
 							char 	  		**EM_names;			/** Names of endmembers 									*/
 } Databases;
 
 Databases InitializeDatabases(				global_variable 	 gv, 
-											int 				 EM_database			);
+											int 				 EM_database		);
 
 void FreeDatabases(							global_variable 	 gv, 
 											Databases			 DB					);
 
 global_variable ComputeEquilibrium_Point(	int 				 EM_database,
 											io_data 			 input_data,
-											int 				 Mode,
 											bulk_info 	 		 z_b,
 											global_variable 	 gv,
 
@@ -642,31 +667,16 @@ global_variable ComputeEquilibrium_Point(	int 				 EM_database,
 											csd_phase_set  		*cp					);
 											
 global_variable ComputePostProcessing(		int 				 EM_database,
-											bulk_info 	 z_b,
+											bulk_info 	 		 z_b,
 											global_variable 	 gv,
 											PP_ref  			*PP_ref_db,
 											SS_ref  			*SS_ref_db,
 											csd_phase_set  		*cp					);											
 
 global_variable ReadCommandLineOptions(		global_variable   gv,
+											bulk_info 	 	 *z_b,
 											int 			  argc, 
-											char 			**argv, 
-											int 			 *Mode_out, 
-											int 			 *Verb_out, 
-											int 			 *test_out, 
-											int 			 *n_points_out, 
-											double 			 *P, 
-											double 			 *T, 
-											double 			  Bulk[11], 
-											double 			  Gam[11], 
-											char 			  File[50], 
-											char 			  Phase[50], 
-											int 			 *maxeval_out, 
-											int     		 *get_version_out,
-											int 			 *get_help,
-											int				 *solver_out,
-											int				 *out_matlab_out,
-											char			  sys_in[5]				);
+											char 			**argv					);
 
 /* function that prints output */
 void PrintOutput(							global_variable 	gv, 
@@ -674,7 +684,7 @@ void PrintOutput(							global_variable 	gv,
 											int 				l, 
 											Databases 			DB, 
 											double 				time_taken, 
-											bulk_info 	z_b					);
+											bulk_info 	z_b							);
 
 /* function converting the solver status code to human-readable text and printing it to screen */
 void PrintStatus(	int status );

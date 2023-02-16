@@ -30,6 +30,8 @@ The list of valid command line arguments is the following
 +-----------------+-----------------------------------------------+
 | -\-Gam=[y]      | Gamma, when a guess of gamma is known         |
 +-----------------+-----------------------------------------------+
+| -\-solver=x     | Legacy, 0. PGE, 1 (default)                   |
++-----------------+-----------------------------------------------+
 | -\-sys_in=""    | system comp "mol" or "wt", default is "mol"   |
 +-----------------+-----------------------------------------------+
 | -\-out_matlab=x | Matlab output, 0. inactive, 1. active         |
@@ -100,9 +102,9 @@ You can compute the list of points using:
 
 .. code-block:: shell
 
-	./MAGEMin --Verb=1 --File=/path_to_file/MAGEMin_input.dat --n_points=4 --test=0
+	./MAGEMin --File=/path_to_file/MAGEMin_input.dat --n_points=4 --test=0
 
-To compute a custom liast of bulk-rock compositions you have to provide the oxide composition and replace the "0.0" such as:
+Note that verbose should be deactivated in parallel (--Verb=0 or --Verb=-1), however matlab output can be generated in parallel (--out_matlab=1). To compute a custom list of bulk-rock compositions you have to provide the oxide composition and replace the "0.0" such as:
 
 .. code-block:: shell
 
@@ -118,9 +120,7 @@ Then compute the list of points while indicating the system composition unit (:l
 
 .. code-block:: shell
 
-	./MAGEMin --Verb=1 --File=/path_to_file/MAGEMin_input.dat --n_points=4 --sys_in=mol
-
-
+	./MAGEMin --File=/path_to_file/MAGEMin_input.dat --n_points=4 --sys_in=mol 
 |
 
 Multiple points in parallel 
@@ -130,7 +130,8 @@ To run a list of points in parallel, you simply need to call "MPI" before MAGEMi
 
 .. code-block:: shell
 
-	mpirun -np 8 ./MAGEMin --Verb=1 --File=/path_to_file/MAGEMin_input.dat --n_points=4 --test=0
-	mpiexec -n 8 ./MAGEMin --Verb=1 --File=/path_to_file/MAGEMin_input.dat --n_points=4 --test=0
+	mpirun -np 8 ./MAGEMin --File=/path_to_file/MAGEMin_input.dat --n_points=4 --test=0 --out_matlab=1
+	mpiexec -n 8 ./MAGEMin --File=/path_to_file/MAGEMin_input.dat --n_points=4 --test=0 --out_matlab=1
 
-where 8 is the desired number of cores.
+where 8 is the desired number of cores. Here the results will be stored in an output file gathering the results of all points (see :ref:`MATLAB output <MATLAB-target>`).
+

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Single point calculation &mdash; MAGEMin 2022 documentation</title>
+  <title>Single point calculation Tutorial &mdash; MAGEMin 2022 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
@@ -130,13 +130,19 @@
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="../julia.html#use-magemin-c">Use MAGEMin_C</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Single point calculation</a><ul>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Single point calculation Tutorial</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#initialize-database">Initialize database</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#set-p-t-x-pressure-temperature-and-bulk-rock-composition">Set P-T-X (pressure temperature and bulk rock composition)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#set-p-t-pressure-temperature">Set P-T-(pressure temperature)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#set-bulk-rock-composition">Set bulk-rock composition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#set-the-level-of-verbose-1-0-1">Set the level of verbose <code class="docutils literal notranslate"><span class="pre">[-1,0,1]</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#call-optimization-routine-for-given-p-t-x">Call optimization routine for given P-T-X</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#display-minimized-point">Display minimized point</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#access-output-structure">Access output structure</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#provide-custom-bulk-rock-composition">Provide custom bulk rock composition</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#magemin-system-unit">MAGEMin system unit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variable-system-unit">Variable system unit</a></li>
 </ul>
 </li>
 </ul>
@@ -148,11 +154,12 @@
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#compiler-linux">Compiler (Linux)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#minimum-pressure">Minimum pressure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#reduced-chemical-system">Reduced chemical system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#set-oxygen-content">Set Oxygen content</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../issues.html#known-problems">Known problems</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#reduced-chemical-systems">Reduced chemical systems</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../issues.html#low-temperature-stabilitzation">Low temperature stabilitzation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#low-temperature-stabilization">Low temperature stabilization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#hp-lt-melt-prediction">HP-LT melt prediction</a></li>
 </ul>
 </li>
@@ -226,7 +233,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../julia.html">Julia interface to MAGEMin</a> &raquo;</li>
-      <li>Single point calculation</li>
+      <li>Single point calculation Tutorial</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/julia/Run.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -236,27 +243,43 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="single-point-calculation">
-<h1>Single point calculation<a class="headerlink" href="#single-point-calculation" title="Permalink to this headline"></a></h1>
+  <section id="single-point-calculation-tutorial">
+<h1>Single point calculation Tutorial<a class="headerlink" href="#single-point-calculation-tutorial" title="Permalink to this headline"></a></h1>
 <p>First open a terminal and execute Julia, then type <code class="docutils literal notranslate"><span class="pre">using</span> <span class="pre">MAGEMin_C</span></code> to load the package.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
 <section id="initialize-database">
 <h2>Initialize database<a class="headerlink" href="#initialize-database" title="Permalink to this headline"></a></h2>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>gv, <span class="nv">DB</span> <span class="o">=</span> init_MAGEMin<span class="o">()</span><span class="p">;</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>gv, z_b, DB, <span class="nv">splx_data</span>      <span class="o">=</span> init_MAGEMin<span class="o">()</span><span class="p">;</span>
 </pre></div>
 </div>
 <p>This initiatizes the global variables and the Database.</p>
 </section>
-<section id="set-p-t-x-pressure-temperature-and-bulk-rock-composition">
-<h2>Set P-T-X (pressure temperature and bulk rock composition)<a class="headerlink" href="#set-p-t-x-pressure-temperature-and-bulk-rock-composition" title="Permalink to this headline"></a></h2>
+<section id="set-p-t-pressure-temperature">
+<h2>Set P-T-(pressure temperature)<a class="headerlink" href="#set-p-t-pressure-temperature" title="Permalink to this headline"></a></h2>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">P</span>           <span class="o">=</span> <span class="m">8</span>.
 <span class="nv">T</span>           <span class="o">=</span> <span class="m">800</span>.
 <span class="nv">sys_in</span>      <span class="o">=</span> <span class="s2">&quot;mol&quot;</span>     <span class="c1"># wt or mol, default is mol</span>
 <span class="nb">test</span>        <span class="o">=</span> <span class="m">0</span><span class="p">;</span>
-<span class="nv">bulk_rock</span>   <span class="o">=</span> get_bulk_rock<span class="o">(</span>gv, <span class="nb">test</span><span class="o">)</span>
+<span class="nv">gv</span>          <span class="o">=</span> use_predefined_bulk_rock<span class="o">(</span>gv, <span class="nb">test</span><span class="o">)</span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">get_bulk_rock</span></code> retrieves the saved bulk-rock composition 0, which corresponds to KLB-1 peridotite.
-This is where you can pass your own bulk-rock and P-T conditions by directly assigning <code class="docutils literal notranslate"><span class="pre">bulk_rock</span> <span class="pre">=</span> <span class="pre">[...]</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">get_bulk_rock</span></code> retrieves the saved bulk-rock composition 0, which corresponds to KLB-1 peridotite.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="set-bulk-rock-composition">
+<h2>Set bulk-rock composition<a class="headerlink" href="#set-bulk-rock-composition" title="Permalink to this headline"></a></h2>
+<p>Use a pre-defined bulk-rock “test” composition</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">test</span>        <span class="o">=</span> <span class="m">0</span><span class="p">;</span>
+<span class="nv">gv</span>          <span class="o">=</span> use_predefined_bulk_rock<span class="o">(</span>gv, <span class="nb">test</span><span class="o">)</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
 </section>
 <section id="set-the-level-of-verbose-1-0-1">
 <h2>Set the level of verbose <code class="docutils literal notranslate"><span class="pre">[-1,0,1]</span></code><a class="headerlink" href="#set-the-level-of-verbose-1-0-1" title="Permalink to this headline"></a></h2>
@@ -264,12 +287,18 @@ This is where you can pass your own bulk-rock and P-T conditions by directly ass
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">-1</span></code>, none; <code class="docutils literal notranslate"><span class="pre">0</span></code>, stable phase assemblage; <code class="docutils literal notranslate"><span class="pre">1</span></code>, full verbose. By default <code class="docutils literal notranslate"><span class="pre">gv.verbose</span></code> = 0.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
 </section>
 <section id="call-optimization-routine-for-given-p-t-x">
 <h2>Call optimization routine for given P-T-X<a class="headerlink" href="#call-optimization-routine-for-given-p-t-x" title="Permalink to this headline"></a></h2>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>gv.verbose  <span class="o">=</span> -1    <span class="c1"># switch off any verbose</span>
-<span class="nv">out</span>         <span class="o">=</span> point_wise_minimization<span class="o">(</span>sys_in,P,T, bulk_rock, gv, DB<span class="o">)</span><span class="p">;</span>
+<span class="nv">out</span>         <span class="o">=</span> point_wise_minimization<span class="o">(</span>P,T, gv, z_b, DB, splx_data, sys_in<span class="o">)</span>
 </pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
 </div>
 </section>
 <section id="display-minimized-point">
@@ -299,6 +328,111 @@ This is where you can pass your own bulk-rock and P-T conditions by directly ass
 </pre></div>
 </div>
 <p>The full description of what contains the output structure is given in the CookBook: <a class="reference internal" href="../ckbk/out_struct.html"><span class="doc">THERMOCALC-like output</span></a>.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+</section>
+<section id="provide-custom-bulk-rock-composition">
+<h1>Provide custom bulk rock composition<a class="headerlink" href="#provide-custom-bulk-rock-composition" title="Permalink to this headline"></a></h1>
+<p>Bulk-rock composition can be provided either by using the system unit of MAGEMin or by using other system unit and converting them.</p>
+<section id="magemin-system-unit">
+<h2>MAGEMin system unit<a class="headerlink" href="#magemin-system-unit" title="Permalink to this headline"></a></h2>
+<p>To define and use your own bulk rock composition you can provide it directly in the format used in MAGEMin: <code class="docutils literal notranslate"><span class="pre">[mol,wt]</span></code> fraction using the following chemical system i.e.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 9%" />
+<col style="width: 11%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>SiO2</p></td>
+<td><p>Al2O3</p></td>
+<td><p>CaO</p></td>
+<td><p>MgO</p></td>
+<td><p>FeOt</p></td>
+<td><p>K2O</p></td>
+<td><p>Na2O</p></td>
+<td><p>TiO2</p></td>
+<td><p>O</p></td>
+<td><p>Cr2O3</p></td>
+<td><p>H2O</p></td>
+</tr>
+</tbody>
+</table>
+<p>For instance:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">bulk_rock</span>   <span class="o">=</span> <span class="o">[</span><span class="m">0</span>.38451319035870185, <span class="m">0</span>.017740308257833806, <span class="m">0</span>.028208688355924924, <span class="m">0</span>.5050993397328966, <span class="m">0</span>.0587947378409965, <span class="m">9</span>.988912307338855e-5, <span class="m">0</span>.0024972280768347137, <span class="m">0</span>.0009988912307338856, <span class="m">0</span>.0009589355815045301, <span class="m">0</span>.0010887914414999351, <span class="m">0</span>.0<span class="o">]</span>
+<span class="nv">gv</span>          <span class="o">=</span> define_bulk_rock<span class="o">(</span>gv, bulk_rock<span class="o">)</span>
+</pre></div>
+</div>
+</section>
+<section id="variable-system-unit">
+<h2>Variable system unit<a class="headerlink" href="#variable-system-unit" title="Permalink to this headline"></a></h2>
+<p>However, measured bulk-rock compositions usually provide <code class="docutils literal notranslate"><span class="pre">FeO</span></code> and <code class="docutils literal notranslate"><span class="pre">Fe2O3</span></code> instead of <code class="docutils literal notranslate"><span class="pre">FeOt</span></code> and <code class="docutils literal notranslate"><span class="pre">O</span></code>. Therefore, we provide an additional routine that convert bulk-rock composition into the right MAGEMin format:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">bulk_in_ox</span> <span class="o">=</span> <span class="o">[</span><span class="s2">&quot;SiO2&quot;</span><span class="p">;</span> <span class="s2">&quot;Al2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;CaO&quot;</span><span class="p">;</span> <span class="s2">&quot;MgO&quot;</span><span class="p">;</span> <span class="s2">&quot;FeO&quot;</span><span class="p">;</span> <span class="s2">&quot;Fe2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;K2O&quot;</span><span class="p">;</span> <span class="s2">&quot;Na2O&quot;</span><span class="p">;</span> <span class="s2">&quot;TiO2&quot;</span><span class="p">;</span> <span class="s2">&quot;Cr2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;H2O&quot;</span><span class="o">]</span>
+<span class="nv">bulk_in</span>    <span class="o">=</span> <span class="o">[</span><span class="m">48</span>.43<span class="p">;</span> <span class="m">15</span>.19<span class="p">;</span> <span class="m">11</span>.57<span class="p">;</span> <span class="m">10</span>.13<span class="p">;</span> <span class="m">6</span>.65<span class="p">;</span> <span class="m">1</span>.64<span class="p">;</span> <span class="m">0</span>.59<span class="p">;</span> <span class="m">1</span>.87<span class="p">;</span> <span class="m">0</span>.68<span class="p">;</span> <span class="m">0</span>.0<span class="p">;</span> <span class="m">3</span>.0<span class="o">]</span>
+<span class="nv">sys_in</span>     <span class="o">=</span> <span class="s2">&quot;wt&quot;</span>
+
+<span class="nv">bulk_rock</span>   <span class="o">=</span> convertBulk4MAGEMin<span class="o">(</span>bulk_in,bulk_in_ox,sys_in<span class="o">)</span>
+<span class="nv">gv</span>          <span class="o">=</span> define_bulk_rock<span class="o">(</span>gv, bulk_rock<span class="o">)</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">bulk_in_ox</span></code> is a <code class="docutils literal notranslate"><span class="pre">Vector(String)</span></code> containing the oxide names and <code class="docutils literal notranslate"><span class="pre">bulk_in</span></code> is a <code class="docutils literal notranslate"><span class="pre">Vector(Float)</span></code> of the <code class="docutils literal notranslate"><span class="pre">[mol,wt]</span></code> fraction of the bulk-rock composition. The function</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">bulk_rock</span>   <span class="o">=</span> convertBulk4MAGEMin<span class="o">(</span>bulk_in,bulk_in_ox,sys_in<span class="o">)</span><span class="sb">`</span>
+</pre></div>
+</div>
+<p>converts</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">SiO2</span></code>, …, <code class="docutils literal notranslate"><span class="pre">FeO</span></code> and <code class="docutils literal notranslate"><span class="pre">Fe2O3</span></code> in system unit <code class="docutils literal notranslate"><span class="pre">[mol,wt]</span></code></p>
+</div></blockquote>
+<p>to:</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">SiO2</span></code>, …, <code class="docutils literal notranslate"><span class="pre">FeOt</span></code> and <code class="docutils literal notranslate"><span class="pre">O</span></code> in system unit <code class="docutils literal notranslate"><span class="pre">[mol]</span></code>.</p>
+</div></blockquote>
+<p>Note that if the provided bulk-rock composition includes more oxides than supported, they will be ignored and the composition will be renormalized accordingly. Moreover, if both <code class="docutils literal notranslate"><span class="pre">Fe2O3</span></code> and <code class="docutils literal notranslate"><span class="pre">O</span></code> are provided, <code class="docutils literal notranslate"><span class="pre">O</span></code> will be recalculated as function of <code class="docutils literal notranslate"><span class="pre">Fe2O3</span></code>. Thus, if you want to prescribe a different <code class="docutils literal notranslate"><span class="pre">O</span></code> content, do not define <code class="docutils literal notranslate"><span class="pre">Fe2O3</span></code>!</p>
+<p>A full Julia script demonstrating how to use this function is provided below:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1">#load MAGEMin</span>
+using MAGEMin_C
+
+<span class="c1">#initialize</span>
+gv, z_b, DB, <span class="nv">splx_data</span>      <span class="o">=</span> init_MAGEMin<span class="o">()</span><span class="p">;</span>
+
+<span class="c1"># provide bulk-rock composition</span>
+<span class="nv">bulk_in_ox</span> <span class="o">=</span> <span class="o">[</span><span class="s2">&quot;SiO2&quot;</span><span class="p">;</span> <span class="s2">&quot;Al2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;CaO&quot;</span><span class="p">;</span> <span class="s2">&quot;MgO&quot;</span><span class="p">;</span> <span class="s2">&quot;FeO&quot;</span><span class="p">;</span> <span class="s2">&quot;Fe2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;K2O&quot;</span><span class="p">;</span> <span class="s2">&quot;Na2O&quot;</span><span class="p">;</span> <span class="s2">&quot;TiO2&quot;</span><span class="p">;</span> <span class="s2">&quot;Cr2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;H2O&quot;</span><span class="o">]</span>
+<span class="nv">bulk_in</span>    <span class="o">=</span> <span class="o">[</span><span class="m">48</span>.43<span class="p">;</span> <span class="m">15</span>.19<span class="p">;</span> <span class="m">11</span>.57<span class="p">;</span> <span class="m">10</span>.13<span class="p">;</span> <span class="m">6</span>.65<span class="p">;</span> <span class="m">1</span>.64<span class="p">;</span> <span class="m">0</span>.59<span class="p">;</span> <span class="m">1</span>.87<span class="p">;</span> <span class="m">0</span>.68<span class="p">;</span> <span class="m">0</span>.0<span class="p">;</span> <span class="m">3</span>.0<span class="o">]</span>
+<span class="nv">sys_in</span>     <span class="o">=</span> <span class="s2">&quot;wt&quot;</span>
+
+<span class="c1"># convert bulk rock</span>
+<span class="nv">bulk_rock</span>  <span class="o">=</span> convertBulk4MAGEMin<span class="o">(</span>bulk_in,bulk_in_ox,sys_in<span class="o">)</span>
+
+<span class="c1"># send bulk-rock to MAGEMin</span>
+<span class="nv">gv</span>         <span class="o">=</span> define_bulk_rock<span class="o">(</span>gv, bulk_rock<span class="o">)</span>
+
+<span class="c1"># provide pressure and temperature conditions</span>
+<span class="nv">P</span>          <span class="o">=</span> <span class="m">10</span>.0
+<span class="nv">T</span>          <span class="o">=</span> <span class="m">1100</span>.0
+
+<span class="c1"># switch off any verbose</span>
+gv.verbose <span class="o">=</span> -1
+
+<span class="c1"># perform minimization</span>
+<span class="nv">out</span>        <span class="o">=</span> point_wise_minimization<span class="o">(</span>P,T, gv, z_b, DB, splx_data, sys_in<span class="o">)</span>
+
+<span class="c1"># print output</span>
+print_info<span class="o">(</span>out<span class="o">)</span>
+
+<span class="c1"># free memory</span>
+finalize_MAGEMin<span class="o">(</span>gv,DB<span class="o">)</span>
+</pre></div>
+</div>
 </section>
 </section>
 

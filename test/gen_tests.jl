@@ -36,7 +36,7 @@ Pstep       = 5.0
 for i=Pmin:Pstep:Pmax
     for j=Tmin:Tstep:Tmax
 
-        bulk_rock   = get_bulk_rock(gv, test)
+        bulk_rock   = use_predefined_bulk_rock(gv, test)
         out         = point_wise_minimization(sys_in,i,j, bulk_rock, gv, DB)
 
         push!(outList,outP(i,j,test,out.G_system,out.ph,out.ph_frac[:]))

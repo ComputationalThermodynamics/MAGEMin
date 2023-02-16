@@ -1,13 +1,16 @@
-#ifndef __ENDMEMBER_DATABASE_H_
-#define __ENDMEMBER_DATABASE_H_
+#ifndef __ENDMEMBER_DATABASE_TS634_H_
+#define __ENDMEMBER_DATABASE_TS634_H_
 
 #include "MAGEMin.h"
 
-#define n_em_db 291            	/* size of pure endmember database     */
-
 /* Thermodynamic endmembers of the THERMOCALC database                 */
 /** Create structure to store endmember thermodynamic database        **/
- struct EM_db arr_em_db_tc_ds634[n_em_db] = {
+
+/**
+ * @brief TC-ds634 database for igneous database
+ * 
+ */
+ struct EM_db arr_em_db_tc_ds634[291] = {
     {
         "fo",
         {1.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 7.0},

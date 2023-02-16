@@ -38,39 +38,39 @@ Levelling occurs in two stages:
 /**
 	associate the array of pointer with the right solution phase
 */
-void SS_objective_init_function(	obj_type 			*SS_objective,
+void SS_ig_objective_init_function(	obj_type 			*SS_objective,
 									global_variable 	 gv				){	
 						 
 	for (int iss = 0; iss < gv.len_ss; iss++){
 
 		if      (strcmp( gv.SS_list[iss], "bi")  == 0 ){
-			SS_objective[iss]  = obj_bi; 		}
+			SS_objective[iss]  = obj_ig_bi; 		}
 		else if (strcmp( gv.SS_list[iss], "cd")  == 0){
-			SS_objective[iss]  = obj_cd; 		}
+			SS_objective[iss]  = obj_ig_cd; 		}
 		else if (strcmp( gv.SS_list[iss], "cpx") == 0){
-			SS_objective[iss]  = obj_cpx; 		}
+			SS_objective[iss]  = obj_ig_cpx; 		}
 		else if (strcmp( gv.SS_list[iss], "ep")  == 0){
-			SS_objective[iss]  = obj_ep; 		}
+			SS_objective[iss]  = obj_ig_ep; 		}
 		else if (strcmp( gv.SS_list[iss], "fl")  == 0){
-			SS_objective[iss]  = obj_fl; 		}
+			SS_objective[iss]  = obj_ig_fl; 		}
 		else if (strcmp( gv.SS_list[iss], "g")   == 0){
-			SS_objective[iss]  = obj_g; 		}
+			SS_objective[iss]  = obj_ig_g; 		}
 		else if (strcmp( gv.SS_list[iss], "hb")  == 0){
-			SS_objective[iss]  = obj_hb; 		}
+			SS_objective[iss]  = obj_ig_hb; 		}
 		else if (strcmp( gv.SS_list[iss], "ilm") == 0){
-			SS_objective[iss]  = obj_ilm; 		}
+			SS_objective[iss]  = obj_ig_ilm; 		}
 		else if (strcmp( gv.SS_list[iss], "liq") == 0){
-			SS_objective[iss]  = obj_liq; 		}
+			SS_objective[iss]  = obj_ig_liq; 		}
 		else if (strcmp( gv.SS_list[iss], "mu")  == 0){
-			SS_objective[iss]  = obj_mu; 		}
+			SS_objective[iss]  = obj_ig_mu; 		}
 		else if (strcmp( gv.SS_list[iss], "ol")  == 0){
-			SS_objective[iss]  = obj_ol; 		}
+			SS_objective[iss]  = obj_ig_ol; 		}
 		else if (strcmp( gv.SS_list[iss], "opx") == 0){
-			SS_objective[iss]  = obj_opx; 		}
+			SS_objective[iss]  = obj_ig_opx; 		}
 		else if (strcmp( gv.SS_list[iss], "pl4T") == 0){
-			SS_objective[iss]  = obj_pl4T; 		}
+			SS_objective[iss]  = obj_ig_pl4T; 		}
 		else if (strcmp( gv.SS_list[iss], "spn") == 0){
-			SS_objective[iss]  = obj_spn; 		}
+			SS_objective[iss]  = obj_ig_spn; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	
@@ -197,11 +197,10 @@ void update_global_gamma_LU( 				bulk_info 			z_b,
 
 };
 
-
 /**
   function to swp pure phases
 */	
-void swap_pure_phases(				bulk_info 	 z_b,
+void swap_pure_phases(				bulk_info 	 		 z_b,
 									simplex_data 		*splx_data,
 									global_variable 	 gv,
 									
@@ -233,7 +232,7 @@ void swap_pure_phases(				bulk_info 	 z_b,
 				d->ph_id_A[d->ph2swp][0] = d->ph_id_B[0];
 				d->ph_id_A[d->ph2swp][1] = d->ph_id_B[1];
 				d->ph_id_A[d->ph2swp][2] = d->ph_id_B[2];
-				d->g0_A[d->ph2swp] 	   = d->g0_B;
+				d->g0_A[d->ph2swp] 	     = d->g0_B;
 				
 				for (int j = 0; j < d->n_Ox; j++){				
 					k = d->ph2swp + j*d->n_Ox;
@@ -243,9 +242,12 @@ void swap_pure_phases(				bulk_info 	 z_b,
 				for (int k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k];}
 
 				/** inverse guessed assemblage stoechiometry matrix */
-				inverseMatrix(	d->A1,
-								d->n_Ox		);
-				
+				inverseMatrix(	gv.ipiv,
+								d->A1,
+								d->n_Ox,
+								gv.work,
+								gv.lwork		);
+
 				/** update phase fractions */
 				MatVecMul(		d->A1,
 								z_b.bulk_rock_cat,
@@ -260,7 +262,7 @@ void swap_pure_phases(				bulk_info 	 z_b,
 /**
   function to swp pure endmembers
 */	
-void swap_pure_endmembers(				bulk_info 	 z_b,
+void swap_pure_endmembers(				bulk_info 	 		 z_b,
 										simplex_data 		*splx_data,
 										global_variable 	 gv,
 										
@@ -283,8 +285,7 @@ void swap_pure_endmembers(				bulk_info 	 z_b,
 					/* update normalizing factor for solution models than need it */
 					factor 	= z_b.fbc/SS_ref_db[i].ape[l];	
 
-
-					d->g0_B		 = SS_ref_db[i].gbase[l]*factor;
+					d->g0_B		  = SS_ref_db[i].gbase[l]*factor;
 					d->ph_id_B[0] = 2;														/** added phase is a pure species */
 					d->ph_id_B[1] = i;														/** save pure species index */
 					d->ph_id_B[2] = 0;														/** save used initial guess */	
@@ -314,8 +315,11 @@ void swap_pure_endmembers(				bulk_info 	 z_b,
 						for (int k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k];}
 
 						/** inverse guessed assemblage stoechiometry matrix */
-						inverseMatrix(	d->A1,
-										d->n_Ox		);
+						inverseMatrix(	gv.ipiv,
+										d->A1,
+										d->n_Ox,
+										gv.work,
+										gv.lwork	);
 						
 						/** update phase fractions */
 						MatVecMul(		d->A1,
@@ -385,9 +389,12 @@ void swap_pseudocompounds(				bulk_info 	 		 z_b,
 					for (int k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k];}
 
 					/** inverse guessed assemblage stoechiometry matrix */
-					inverseMatrix(	d->A1,
-									d->n_Ox		);
-					
+					inverseMatrix(	gv.ipiv,
+									d->A1,
+									d->n_Ox,
+									gv.work,
+									gv.lwork	);
+
 					/** update phase fractions */
 					MatVecMul(		d->A1,
 									z_b.bulk_rock_cat,
@@ -455,8 +462,11 @@ void swap_PGE_pseudocompounds(			bulk_info 	 		 z_b,
 					for (int k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k];}
 
 					/** inverse guessed assemblage stoechiometry matrix */
-					inverseMatrix(	d->A1,
-									d->n_Ox		);
+					inverseMatrix(	gv.ipiv,
+									d->A1,
+									d->n_Ox,
+									gv.work,
+									gv.lwork	);
 
 					/** update phase fractions */
 					MatVecMul(		d->A1,
@@ -487,10 +497,11 @@ void fill_simplex_arrays_A(				bulk_info 	 		 z_b,
 	/* fill reference assemblage */
 
 	for (int k = 0; k < z_b.nzEl_val; k++) {
-		d->g0_A[k]    		   = 1e10;								/** penalty G */
-		d->ph_id_A[k][0]  	   = 0;									/** phase_id for penalty phase */
-		d->A[k+k*z_b.nzEl_val] = 1.0;								/** eye matrix for stoechiometry */
-		d->n_vec[k] 		   = z_b.bulk_rock[z_b.nzEl_array[k]];	/** initial phase fraction simply corresponds to the bulk rock composition Ax = br */
+		d->g0_A[k]    		    = 1e10;								/** penalty G */
+		d->ph_id_A[k][0]  	    = 0;									/** phase_id for penalty phase */
+		d->A[k+k*z_b.nzEl_val]  = 1.0;								/** eye matrix for stoichiometry */
+		d->A1[k+k*z_b.nzEl_val] = 1.0;
+		d->n_vec[k] 		    = z_b.bulk_rock[z_b.nzEl_array[k]];	/** initial phase fraction simply corresponds to the bulk rock composition Ax = br */
 	}
 
 }
@@ -531,12 +542,12 @@ void print_levelling(		bulk_info 	 		 z_b,
 				//}
 				//printf(" | ");
 
-				for (int j = 0; j < SS_ref_db[i].n_em; j++){
-					//for (int k = 0; k < gv.len_ox; k++) {
-						//SS_ref_db[i].mu_pc[l][j] -= SS_ref_db[i].comp_pc[l][k]*gv.gam_tot[k];
-					//}
-					printf(" %+4f",SS_ref_db[i].mu_pc[l][j]);
-				}
+				// for (int j = 0; j < SS_ref_db[i].n_em; j++){
+				// 	for (int k = 0; k < gv.len_ox; k++) {
+				// 		SS_ref_db[i].mu_pc[l][j] -= SS_ref_db[i].comp_pc[l][k]*gv.gam_tot[k];
+				// 	}
+				// 	printf(" %+4f",SS_ref_db[i].mu_pc[l][j]);
+				// }
 				for (int k = SS_ref_db[i].n_em; k < 11; k++){
 					printf(" %4s","-");
 				}
@@ -561,7 +572,7 @@ void generate_pseudocompounds(	int 		 		 ss,
 								bulk_info 	 		 z_b,
 								global_variable 	 gv,
 								SS_ref 				*SS_ref_db,
-								PC_ref 				*SS_PC_xeos,
+								PC_ref 				*SS_pc_xeos,
 								obj_type 			*SS_objective				){
 
 	struct ss_pc get_ss_pv;							
@@ -575,7 +586,7 @@ void generate_pseudocompounds(	int 		 		 ss,
 	}
 						
 	for (int k = 0; k < gv.n_SS_PC[ss]; k++){
-		get_ss_pv = SS_PC_xeos[ss].ss_pc_xeos[k]; 
+		get_ss_pv = SS_pc_xeos[ss].ss_pc_xeos[k]; 
 		
 		/* TMP, not so elegant way to deal with cases were an oxide of the bulk rock composition = 0.0 */	
 		for (int i = 0; i < SS_ref_db[ss].n_xeos; i++){
@@ -589,7 +600,7 @@ void generate_pseudocompounds(	int 		 		 ss,
 		if ( G < gv.max_G_pc ){
 
 			/* get composition of solution phase */
-			for (j = 0; j < nEl; j++){
+			for (j = 0; j < gv.len_ox; j++){
 				SS_ref_db[ss].ss_comp[j] = 0.0;
 				for (i = 0; i < SS_ref_db[ss].n_em; i++){
 					SS_ref_db[ss].ss_comp[j] += SS_ref_db[ss].Comp[i][j]*SS_ref_db[ss].p[i]*SS_ref_db[ss].z_em[i];
@@ -608,7 +619,7 @@ void generate_pseudocompounds(	int 		 		 ss,
 			}
 			for ( j = 0; j < SS_ref_db[ss].n_em; j++){												/** save coordinates */
 				SS_ref_db[ss].p_pc[m_pc][j]  = SS_ref_db[ss].p[j];												
-				SS_ref_db[ss].mu_pc[m_pc][j] = SS_ref_db[ss].mu[j]*SS_ref_db[ss].z_em[j];										
+				// SS_ref_db[ss].mu_pc[m_pc][j] = SS_ref_db[ss].mu[j]*SS_ref_db[ss].z_em[j];										
 			}
 			/* save xeos */
 			for ( j = 0; j < SS_ref_db[ss].n_xeos; j++){		
@@ -844,7 +855,7 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 			}
 			for ( j = 0; j < SS_ref_db[ph_id].n_em; j++){												/** save coordinates */
 				SS_ref_db[ph_id].p_Ppc[m_pc][j]  = SS_ref_db[ph_id].p_pc[pc_id][j];										
-				SS_ref_db[ph_id].mu_Ppc[m_pc][j] = SS_ref_db[ph_id].mu_pc[pc_id][j];										
+				// SS_ref_db[ph_id].mu_Ppc[m_pc][j] = SS_ref_db[ph_id].mu_pc[pc_id][j];										
 			}
 			/* save xeos */
 			for ( j = 0; j < SS_ref_db[ph_id].n_xeos; j++){		
@@ -983,19 +994,19 @@ void run_simplex_pseudocompounds(		bulk_info 	 z_b,
 	while (d->swp == 1){					/** as long as a phase can be added to the guessed assemblage, go on */
 		k 		   += 1;
 		d->swp     = 0;
-		
+
+		swap_pure_endmembers(				z_b,
+											splx_data,
+											gv,
+											PP_ref_db,
+											SS_ref_db	);	
+
 		swap_pure_phases(					z_b,
 											splx_data,
 											gv,
 											PP_ref_db,
 											SS_ref_db	);	
 							
-		swap_pure_endmembers(				z_b,
-											splx_data,
-											gv,
-											PP_ref_db,
-											SS_ref_db	);	
-		
 		swap_pseudocompounds(				z_b,
 											splx_data,
 											gv,
@@ -1011,7 +1022,7 @@ void run_simplex_pseudocompounds(		bulk_info 	 z_b,
 /**
   function to run simplex linear programming with pseudocompounds
 */	
-void run_simplex_levelling(				bulk_info 	 z_b,
+void run_simplex_levelling(				bulk_info 	 		 z_b,
 										simplex_data 		*splx_data,
 										
 										global_variable 	 gv,
@@ -1024,25 +1035,19 @@ void run_simplex_levelling(				bulk_info 	 z_b,
 
 	int i, k, iss;
 
-	/** copy A onto A1 in order to inverse it using LAPACKE */
-	for (k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k]	;}
-
-	/** inverse guessed assemblage stoechiometry matrix */
-	inverseMatrix(						d->A1, 
-										d->n_Ox					);
-	
 	swap_pure_phases(					z_b,
 										splx_data,
 										gv,
 										PP_ref_db,
 										SS_ref_db				);	
-										
+
 	swap_pure_endmembers(				z_b,
 										splx_data,
 										gv,
 										PP_ref_db,
 										SS_ref_db				);	
-	
+
+
 	update_local_gamma(					d->A1,
 										d->g0_A,
 										d->gamma_ps,
@@ -1064,14 +1069,16 @@ void run_simplex_levelling(				bulk_info 	 z_b,
 	/** generate the pseudocompounds -> stored in the SS_ref_db structure */
 	if (gv.verbose == 1){ printf(" Generate pseudocompounds:\n"); }
 	
-	PC_ref 			SS_PC_xeos[gv.len_ss];
-	
-	for (iss = 0; iss < gv.len_ss; iss++){
-		SS_PC_init_function(			SS_PC_xeos, 
-										iss,
-										gv.SS_list[iss]				);
+	PC_ref 			SS_pc_xeos[gv.len_ss];
+
+	if (gv.EM_database == 2){
+		for (iss = 0; iss < gv.len_ss; iss++){
+			SS_ig_pc_init_function(			SS_pc_xeos, 
+											iss,
+											gv.SS_list[iss]				);
+		}
 	}
-	
+
 	for (iss = 0; iss < gv.len_ss; iss++){
 		if (SS_ref_db[iss].ss_flags[0] == 1){
 
@@ -1079,7 +1086,7 @@ void run_simplex_levelling(				bulk_info 	 z_b,
 										z_b,
 										gv,
 										SS_ref_db,
-										SS_PC_xeos,
+										SS_pc_xeos,
 										SS_objective				);
 
 			if (gv.verbose == 1){
@@ -1112,6 +1119,153 @@ void run_simplex_levelling(				bulk_info 	 z_b,
 	if (gv.verbose == 1){ printf("\n [time to swap SS time (ms) %.8f]\n",time_taken*1000);	}
 	
 };
+
+
+void run_localMinimization(				bulk_info 	 		 z_b,
+										simplex_data 		*splx_data,
+										
+										global_variable 	 gv,
+										
+										PP_ref 				*PP_ref_db,
+										SS_ref 				*SS_ref_db,
+										obj_type			*SS_objective
+){
+	simplex_data *d  = (simplex_data *) splx_data;
+
+	int i, j, k, ss, l, p, swp;
+										
+	clock_t t,u; 
+	double time_taken;
+	t = clock();
+
+	/** generate the pseudocompounds -> stored in the SS_ref_db structure */
+	if (gv.verbose == 1){ printf(" Generate pseudocompounds:\n"); }
+	
+	PC_ref 			SS_pc_xeos[gv.len_ss];
+
+	if (gv.EM_database == 2){
+		for (ss = 0; ss < gv.len_ss; ss++){
+			SS_ig_pc_init_function(			SS_pc_xeos, 
+											ss,
+											gv.SS_list[ss]				);
+		}
+	}
+
+	// ss = 6; // hb index of the solution phase to fully minimize
+	ss = 3; // spn index of the solution phase to fully minimize
+
+	struct ss_pc get_ss_pv;		
+
+	// gv.gam_tot[0]  = -960.9655;	
+	// gv.gam_tot[1]  = -1768.2476;	
+	// gv.gam_tot[2]  = -788.4474;	
+	// gv.gam_tot[3]  = -678.9683;	
+	// gv.gam_tot[4]  = -355.2975;	
+	// gv.gam_tot[5]  = -914.9708;	
+	// gv.gam_tot[6]  = -839.9561;
+	// gv.gam_tot[7]  = -1008.3630;
+	// gv.gam_tot[8]  = -263.7269;
+	// gv.gam_tot[9]  = -1262.6087;
+	// gv.gam_tot[10] = -368.4674;
+
+	// SS_ref_db[ss].gbase[0]  = -13012.62073;	
+	// SS_ref_db[ss].gbase[1]  = -13235.27114;	
+	// SS_ref_db[ss].gbase[2]  = -13472.30496;	
+	// SS_ref_db[ss].gbase[3]  = -12644.70794;	
+	// SS_ref_db[ss].gbase[4]  = -12762.02635;	
+	// SS_ref_db[ss].gbase[5]  = -10496.70590;	
+	// SS_ref_db[ss].gbase[6]  = -11477.04324;
+	// SS_ref_db[ss].gbase[7]  = -11155.59746;
+	// SS_ref_db[ss].gbase[8]  = -11828.15800;
+	// SS_ref_db[ss].gbase[9]  = -13495.08535;
+	// SS_ref_db[ss].gbase[10] = -13063.17373;
+
+	// SS_ref_db[ss].gbase[0]  = -2515.94540;	
+	// SS_ref_db[ss].gbase[1]  = -2500.25887;	
+	// SS_ref_db[ss].gbase[2]  = -2217.27620;	
+	// SS_ref_db[ss].gbase[3]  = -2201.58966;	
+	// SS_ref_db[ss].gbase[4]  = -1452.03460;	
+	// SS_ref_db[ss].gbase[5]  = -1459.64806;	
+	// SS_ref_db[ss].gbase[6]  = -2033.47165;
+	// SS_ref_db[ss].gbase[7]  = -2445.48343;
+
+	SS_ref_db[ss].gbase[0]  = -3532.74915;	
+	SS_ref_db[ss].gbase[1]  = -2793.12846;	
+	SS_ref_db[ss].gbase[2]  = -3635.49886;	
+	SS_ref_db[ss].gbase[3]  = -3384.95041;	
+	SS_ref_db[ss].gbase[4]  = -3250.67812;	
+	SS_ref_db[ss].gbase[5]  = -3606.43710;	
+	SS_ref_db[ss].gbase[6]  = -3345.42582;
+	SS_ref_db[ss].gbase[7]  = -3408.36774;
+	SS_ref_db[ss].gbase[8]  = -3105.14810;
+	SS_ref_db[ss].gbase[9]  = -3360.74459;
+
+
+	gv.gam_tot[0]  = -1011.909631;	
+	gv.gam_tot[1]  = -1829.092564;	
+	gv.gam_tot[2]  = -819.264126;	
+	gv.gam_tot[3]  = -695.467358;	
+	gv.gam_tot[4]  = -412.948568;	
+	gv.gam_tot[5]  = -971.890270;	
+	gv.gam_tot[6]  = -876.544354;
+	gv.gam_tot[7]  = -1073.640927;
+	gv.gam_tot[8]  = -276.590707;
+	gv.gam_tot[9]  = -1380.299631;
+	gv.gam_tot[10] = 0.0;
+
+
+	/** rotate gbase with respect to the G-hyperplane (change of base) */
+	for (int k = 0; k < SS_ref_db[ss].n_em; k++) {
+		SS_ref_db[ss].gb_lvl[k] = SS_ref_db[ss].gbase[k];
+		for (int j = 0; j < gv.len_ox; j++) {
+			SS_ref_db[ss].gb_lvl[k] -= SS_ref_db[ss].Comp[k][j]*gv.gam_tot[j];
+		}
+	}	
+
+	printf("minG = [");				
+	for (int k = 0; k < gv.n_SS_PC[ss]; k++){
+		u = clock();
+		get_ss_pv = SS_pc_xeos[ss].ss_pc_xeos[k]; 
+		
+		for (int i = 0; i < SS_ref_db[ss].n_xeos; i++){
+			SS_ref_db[ss].iguess[i] = get_ss_pv.xeos_pc[i];
+		}
+
+		SS_ref_db[ss] = 	NLopt_opt_function(		gv, 
+													SS_ref_db[ss], 
+													ss					);
+
+		u = clock() - u; 
+		time_taken  = ((double)u)/CLOCKS_PER_SEC; 
+		printf(" %.14f", SS_ref_db[ss].df);
+	}
+	printf("]\n");	
+
+	printf("tms = [");				
+	for (int k = 0; k < gv.n_SS_PC[ss]; k++){
+		u = clock();
+		get_ss_pv = SS_pc_xeos[ss].ss_pc_xeos[k]; 
+		
+		for (int i = 0; i < SS_ref_db[ss].n_xeos; i++){
+			SS_ref_db[ss].iguess[i] = get_ss_pv.xeos_pc[i];
+		}
+
+		SS_ref_db[ss] = 	NLopt_opt_function(		gv, 
+													SS_ref_db[ss], 
+													ss					);
+
+		u = clock() - u; 
+		time_taken  = ((double)u)/CLOCKS_PER_SEC; 
+		printf(" %.8f", time_taken );
+	}
+	printf("]\n");	
+
+	t = clock() - t; 
+	time_taken  = ((double)t)/CLOCKS_PER_SEC; 
+	if (gv.verbose == 1){ printf("\n [time to local minimization PC time (ms) %.8f]\n",time_taken*1000);	}
+	
+};
+
 
 /**
   function to deallocte memory of simplex linear programming (A)
@@ -1195,6 +1349,14 @@ global_variable run_levelling_function(		bulk_info 	 z_b,
 											PP_ref_db,
 											SS_ref_db,
 											SS_objective	);	
+
+	// /** run local minimization tests */
+	// run_localMinimization(					z_b,
+	// 									    splx_data,
+	// 										gv,
+	// 										PP_ref_db,
+	// 										SS_ref_db,
+	// 										SS_objective	);	
 			
 	/* update global variable gamma */
 	update_global_gamma_LU(					z_b,
@@ -1224,6 +1386,10 @@ global_variable run_levelling_function(		bulk_info 	 z_b,
 		printf(" [----------------------------------------]\n");
 
 		for (int i = 0; i < d->n_Ox; i++){
+			if (d->ph_id_A[i][0] == 0){
+				printf(" ['%5s' %+10f  %+12.4f  %5d ]", "F.OX", d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+				printf("\n");
+			}
 			if (d->ph_id_A[i][0] == 1){
 				printf(" ['%5s' %+10f  %+12.4f  %5d ]", gv.PP_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
 				printf("\n");

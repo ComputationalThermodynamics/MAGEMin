@@ -127,13 +127,19 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="julia.html#use-magemin-c">Use MAGEMin_C</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="julia/Run.html">Single point calculation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="julia/Run.html">Single point calculation Tutorial</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="julia/Run.html#initialize-database">Initialize database</a></li>
-<li class="toctree-l3"><a class="reference internal" href="julia/Run.html#set-p-t-x-pressure-temperature-and-bulk-rock-composition">Set P-T-X (pressure temperature and bulk rock composition)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="julia/Run.html#set-p-t-pressure-temperature">Set P-T-(pressure temperature)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="julia/Run.html#set-bulk-rock-composition">Set bulk-rock composition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="julia/Run.html#set-the-level-of-verbose-1-0-1">Set the level of verbose <code class="docutils literal notranslate"><span class="pre">[-1,0,1]</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="julia/Run.html#call-optimization-routine-for-given-p-t-x">Call optimization routine for given P-T-X</a></li>
 <li class="toctree-l3"><a class="reference internal" href="julia/Run.html#display-minimized-point">Display minimized point</a></li>
 <li class="toctree-l3"><a class="reference internal" href="julia/Run.html#access-output-structure">Access output structure</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="julia/Run.html#provide-custom-bulk-rock-composition">Provide custom bulk rock composition</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="julia/Run.html#magemin-system-unit">MAGEMin system unit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="julia/Run.html#variable-system-unit">Variable system unit</a></li>
 </ul>
 </li>
 </ul>
@@ -145,11 +151,12 @@
 <li class="toctree-l2"><a class="reference internal" href="issues.html#compiler-linux">Compiler (Linux)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="issues.html#minimum-pressure">Minimum pressure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="issues.html#reduced-chemical-system">Reduced chemical system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="issues.html#set-oxygen-content">Set Oxygen content</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="issues.html#known-problems">Known problems</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="issues.html#reduced-chemical-systems">Reduced chemical systems</a></li>
-<li class="toctree-l2"><a class="reference internal" href="issues.html#low-temperature-stabilitzation">Low temperature stabilitzation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="issues.html#low-temperature-stabilization">Low temperature stabilization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="issues.html#hp-lt-melt-prediction">HP-LT melt prediction</a></li>
 </ul>
 </li>
@@ -271,7 +278,7 @@
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/NLopt_opt_function.html#c.bi_c">bi_c (C function)</a>
+      <li><a href="src/NLopt_opt_function.html#c.bi_ig_c">bi_ig_c (C function)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -283,7 +290,7 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/NLopt_opt_function.html#c.cd_c">cd_c (C function)</a>
+      <li><a href="src/NLopt_opt_function.html#c.cd_ig_c">cd_ig_c (C function)</a>
 </li>
       <li><a href="src/phase_update_function.html#c.check_PC">check_PC (C function)</a>
 </li>
@@ -313,7 +320,7 @@
 </li>
       <li><a href="src/ss_min_function.html#c.CP_UPDATE_function">CP_UPDATE_function (C function)</a>
 </li>
-      <li><a href="src/NLopt_opt_function.html#c.cpx_c">cpx_c (C function)</a>
+      <li><a href="src/NLopt_opt_function.html#c.cpx_ig_c">cpx_ig_c (C function)</a>
 </li>
       <li><a href="src/toolkit.html#c.createMatrix">createMatrix (C function)</a>
 </li>
@@ -327,35 +334,67 @@
 </li>
       <li><a href="src/simplex_levelling.html#c.destroy_simplex_B">destroy_simplex_B (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.dpdx_bi">dpdx_bi (C function)</a>
+      <li><a href="src/objective_functions.html#c.dpdx_ig_bi">dpdx_ig_bi (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.dpdx_cd">dpdx_cd (C function)</a>
+      <li><a href="src/objective_functions.html#c.dpdx_ig_cd">dpdx_ig_cd (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.dpdx_cpx">dpdx_cpx (C function)</a>
+      <li><a href="src/objective_functions.html#c.dpdx_ig_cpx">dpdx_ig_cpx (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.dpdx_ep">dpdx_ep (C function)</a>
+      <li><a href="src/objective_functions.html#c.dpdx_ig_ep">dpdx_ig_ep (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.dpdx_fl">dpdx_fl (C function)</a>
+      <li><a href="src/objective_functions.html#c.dpdx_ig_fl">dpdx_ig_fl (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.dpdx_g">dpdx_g (C function)</a>
+      <li><a href="src/objective_functions.html#c.dpdx_ig_g">dpdx_ig_g (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.dpdx_ig_hb">dpdx_ig_hb (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.dpdx_ig_ilm">dpdx_ig_ilm (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.dpdx_ig_liq">dpdx_ig_liq (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.dpdx_ig_mu">dpdx_ig_mu (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.dpdx_ig_ol">dpdx_ig_ol (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.dpdx_ig_opx">dpdx_ig_opx (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.dpdx_ig_pl4T">dpdx_ig_pl4T (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.dpdx_ig_spn">dpdx_ig_spn (C function)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/objective_functions.html#c.dpdx_hb">dpdx_hb (C function)</a>
+      <li><a href="src/objective_functions.html#c.dpdx_mp_bi">dpdx_mp_bi (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.dpdx_ilm">dpdx_ilm (C function)</a>
+      <li><a href="src/objective_functions.html#c.dpdx_mp_cd">dpdx_mp_cd (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.dpdx_liq">dpdx_liq (C function)</a>
+      <li><a href="src/objective_functions.html#c.dpdx_mp_chl">dpdx_mp_chl (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.dpdx_mu">dpdx_mu (C function)</a>
+      <li><a href="src/objective_functions.html#c.dpdx_mp_ctd">dpdx_mp_ctd (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.dpdx_ol">dpdx_ol (C function)</a>
+      <li><a href="src/objective_functions.html#c.dpdx_mp_ep">dpdx_mp_ep (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.dpdx_opx">dpdx_opx (C function)</a>
+      <li><a href="src/objective_functions.html#c.dpdx_mp_g">dpdx_mp_g (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.dpdx_pl4T">dpdx_pl4T (C function)</a>
+      <li><a href="src/objective_functions.html#c.dpdx_mp_ilm">dpdx_mp_ilm (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.dpdx_spn">dpdx_spn (C function)</a>
+      <li><a href="src/objective_functions.html#c.dpdx_mp_liq">dpdx_mp_liq (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.dpdx_mp_ma">dpdx_mp_ma (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.dpdx_mp_mt">dpdx_mp_mt (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.dpdx_mp_mu">dpdx_mp_mu (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.dpdx_mp_opx">dpdx_mp_opx (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.dpdx_mp_pl4tr">dpdx_mp_pl4tr (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.dpdx_mp_sa">dpdx_mp_sa (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.dpdx_mp_sp">dpdx_mp_sp (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.dpdx_mp_st">dpdx_mp_st (C function)</a>
 </li>
       <li><a href="src/dump_function.html#c.dump_init">dump_init (C function)</a>
 </li>
@@ -367,7 +406,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/toolkit.html#c.EndsWithTail">EndsWithTail (C function)</a>
 </li>
-      <li><a href="src/NLopt_opt_function.html#c.ep_c">ep_c (C function)</a>
+      <li><a href="src/NLopt_opt_function.html#c.ep_ig_c">ep_ig_c (C function)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -381,15 +420,13 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/objective_functions.html#c.fct_log">fct_log (C function)</a>
-</li>
       <li><a href="src/dump_function.html#c.fill_output_struct">fill_output_struct (C function)</a>
+</li>
+      <li><a href="src/simplex_levelling.html#c.fill_simplex_arrays_A">fill_simplex_arrays_A (C function)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/simplex_levelling.html#c.fill_simplex_arrays_A">fill_simplex_arrays_A (C function)</a>
-</li>
-      <li><a href="src/NLopt_opt_function.html#c.fl_c">fl_c (C function)</a>
+      <li><a href="src/NLopt_opt_function.html#c.fl_ig_c">fl_ig_c (C function)</a>
 </li>
       <li><a href="src/toolkit.html#c.freeMatrix">freeMatrix (C function)</a>
 </li>
@@ -399,77 +436,107 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/NLopt_opt_function.html#c.g_c">g_c (C function)</a>
-</li>
       <li><a href="src/gem_function.html#c.G_EM_function">G_EM_function (C function)</a>
 </li>
-      <li><a href="src/gss_function.html#c.G_SS_bi_function">G_SS_bi_function (C function)</a>
+      <li><a href="src/NLopt_opt_function.html#c.g_ig_c">g_ig_c (C function)</a>
 </li>
-      <li><a href="src/gss_init_function.html#c.G_SS_bi_init_function">G_SS_bi_init_function (C function)</a>
+      <li><a href="src/gss_function.html#c.G_SS_ig_bi_function">G_SS_ig_bi_function (C function)</a>
 </li>
-      <li><a href="src/gss_function.html#c.G_SS_cd_function">G_SS_cd_function (C function)</a>
+      <li><a href="src/gss_init_function.html#c.G_SS_ig_bi_init_function">G_SS_ig_bi_init_function (C function)</a>
 </li>
-      <li><a href="src/gss_init_function.html#c.G_SS_cd_init_function">G_SS_cd_init_function (C function)</a>
+      <li><a href="src/gss_function.html#c.G_SS_ig_cd_function">G_SS_ig_cd_function (C function)</a>
 </li>
-      <li><a href="src/gss_function.html#c.G_SS_cpx_function">G_SS_cpx_function (C function)</a>
+      <li><a href="src/gss_init_function.html#c.G_SS_ig_cd_init_function">G_SS_ig_cd_init_function (C function)</a>
 </li>
-      <li><a href="src/gss_init_function.html#c.G_SS_cpx_init_function">G_SS_cpx_init_function (C function)</a>
+      <li><a href="src/gss_function.html#c.G_SS_ig_cpx_function">G_SS_ig_cpx_function (C function)</a>
 </li>
-      <li><a href="src/gss_function.html#c.G_SS_EM_function">G_SS_EM_function (C function)</a>
+      <li><a href="src/gss_init_function.html#c.G_SS_ig_cpx_init_function">G_SS_ig_cpx_init_function (C function)</a>
 </li>
-      <li><a href="src/gss_function.html#c.G_SS_ep_function">G_SS_ep_function (C function)</a>
+      <li><a href="src/gss_function.html#c.G_SS_ig_EM_function">G_SS_ig_EM_function (C function)</a>
 </li>
-      <li><a href="src/gss_init_function.html#c.G_SS_ep_init_function">G_SS_ep_init_function (C function)</a>
+      <li><a href="src/gss_function.html#c.G_SS_ig_ep_function">G_SS_ig_ep_function (C function)</a>
 </li>
-      <li><a href="src/gss_function.html#c.G_SS_fl_function">G_SS_fl_function (C function)</a>
+      <li><a href="src/gss_init_function.html#c.G_SS_ig_ep_init_function">G_SS_ig_ep_init_function (C function)</a>
 </li>
-      <li><a href="src/gss_init_function.html#c.G_SS_fl_init_function">G_SS_fl_init_function (C function)</a>
+      <li><a href="src/gss_function.html#c.G_SS_ig_fl_function">G_SS_ig_fl_function (C function)</a>
 </li>
-      <li><a href="src/gss_function.html#c.G_SS_g_function">G_SS_g_function (C function)</a>
+      <li><a href="src/gss_init_function.html#c.G_SS_ig_fl_init_function">G_SS_ig_fl_init_function (C function)</a>
 </li>
-      <li><a href="src/gss_init_function.html#c.G_SS_g_init_function">G_SS_g_init_function (C function)</a>
+      <li><a href="src/gss_function.html#c.G_SS_ig_g_function">G_SS_ig_g_function (C function)</a>
 </li>
-      <li><a href="src/gss_function.html#c.G_SS_hb_function">G_SS_hb_function (C function)</a>
+      <li><a href="src/gss_init_function.html#c.G_SS_ig_g_init_function">G_SS_ig_g_init_function (C function)</a>
 </li>
-      <li><a href="src/gss_init_function.html#c.G_SS_hb_init_function">G_SS_hb_init_function (C function)</a>
+      <li><a href="src/gss_function.html#c.G_SS_ig_hb_function">G_SS_ig_hb_function (C function)</a>
 </li>
-      <li><a href="src/gss_function.html#c.G_SS_ilm_function">G_SS_ilm_function (C function)</a>
+      <li><a href="src/gss_init_function.html#c.G_SS_ig_hb_init_function">G_SS_ig_hb_init_function (C function)</a>
 </li>
-      <li><a href="src/gss_init_function.html#c.G_SS_ilm_init_function">G_SS_ilm_init_function (C function)</a>
+      <li><a href="src/gss_function.html#c.G_SS_ig_ilm_function">G_SS_ig_ilm_function (C function)</a>
 </li>
-      <li><a href="src/gss_init_function.html#c.G_SS_INIT_EM_function">G_SS_INIT_EM_function (C function)</a>
+      <li><a href="src/gss_init_function.html#c.G_SS_ig_ilm_init_function">G_SS_ig_ilm_init_function (C function)</a>
+</li>
+      <li><a href="src/gss_function.html#c.G_SS_ig_liq_function">G_SS_ig_liq_function (C function)</a>
+</li>
+      <li><a href="src/gss_init_function.html#c.G_SS_ig_liq_init_function">G_SS_ig_liq_init_function (C function)</a>
+</li>
+      <li><a href="src/gss_function.html#c.G_SS_ig_mu_function">G_SS_ig_mu_function (C function)</a>
+</li>
+      <li><a href="src/gss_init_function.html#c.G_SS_ig_mu_init_function">G_SS_ig_mu_init_function (C function)</a>
+</li>
+      <li><a href="src/gss_function.html#c.G_SS_ig_ol_function">G_SS_ig_ol_function (C function)</a>
+</li>
+      <li><a href="src/gss_init_function.html#c.G_SS_ig_ol_init_function">G_SS_ig_ol_init_function (C function)</a>
+</li>
+      <li><a href="src/gss_function.html#c.G_SS_ig_opx_function">G_SS_ig_opx_function (C function)</a>
+</li>
+      <li><a href="src/gss_init_function.html#c.G_SS_ig_opx_init_function">G_SS_ig_opx_init_function (C function)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/gss_function.html#c.G_SS_liq_function">G_SS_liq_function (C function)</a>
+      <li><a href="src/gss_function.html#c.G_SS_ig_pl4T_function">G_SS_ig_pl4T_function (C function)</a>
 </li>
-      <li><a href="src/gss_init_function.html#c.G_SS_liq_init_function">G_SS_liq_init_function (C function)</a>
+      <li><a href="src/gss_init_function.html#c.G_SS_ig_pl4T_init_function">G_SS_ig_pl4T_init_function (C function)</a>
 </li>
-      <li><a href="src/gss_function.html#c.G_SS_mu_function">G_SS_mu_function (C function)</a>
+      <li><a href="src/gss_function.html#c.G_SS_ig_spn_function">G_SS_ig_spn_function (C function)</a>
 </li>
-      <li><a href="src/gss_init_function.html#c.G_SS_mu_init_function">G_SS_mu_init_function (C function)</a>
+      <li><a href="src/gss_init_function.html#c.G_SS_ig_spn_init_function">G_SS_ig_spn_init_function (C function)</a>
 </li>
-      <li><a href="src/gss_function.html#c.G_SS_ol_function">G_SS_ol_function (C function)</a>
+      <li><a href="src/gss_init_function.html#c.G_SS_init_EM_function">G_SS_init_EM_function (C function)</a>
 </li>
-      <li><a href="src/gss_init_function.html#c.G_SS_ol_init_function">G_SS_ol_init_function (C function)</a>
+      <li><a href="src/gss_init_function.html#c.G_SS_mp_bi_init_function">G_SS_mp_bi_init_function (C function)</a>
 </li>
-      <li><a href="src/gss_function.html#c.G_SS_opx_function">G_SS_opx_function (C function)</a>
+      <li><a href="src/gss_init_function.html#c.G_SS_mp_cd_init_function">G_SS_mp_cd_init_function (C function)</a>
 </li>
-      <li><a href="src/gss_init_function.html#c.G_SS_opx_init_function">G_SS_opx_init_function (C function)</a>
+      <li><a href="src/gss_init_function.html#c.G_SS_mp_chl_init_function">G_SS_mp_chl_init_function (C function)</a>
 </li>
-      <li><a href="src/gss_function.html#c.G_SS_pl4T_function">G_SS_pl4T_function (C function)</a>
+      <li><a href="src/gss_init_function.html#c.G_SS_mp_ctd_init_function">G_SS_mp_ctd_init_function (C function)</a>
 </li>
-      <li><a href="src/gss_init_function.html#c.G_SS_pl4T_init_function">G_SS_pl4T_init_function (C function)</a>
+      <li><a href="src/gss_init_function.html#c.G_SS_mp_ep_init_function">G_SS_mp_ep_init_function (C function)</a>
 </li>
-      <li><a href="src/gss_function.html#c.G_SS_spn_function">G_SS_spn_function (C function)</a>
+      <li><a href="src/gss_init_function.html#c.G_SS_mp_g_init_function">G_SS_mp_g_init_function (C function)</a>
 </li>
-      <li><a href="src/gss_init_function.html#c.G_SS_spn_init_function">G_SS_spn_init_function (C function)</a>
+      <li><a href="src/gss_init_function.html#c.G_SS_mp_ilm_init_function">G_SS_mp_ilm_init_function (C function)</a>
+</li>
+      <li><a href="src/gss_init_function.html#c.G_SS_mp_liq_init_function">G_SS_mp_liq_init_function (C function)</a>
+</li>
+      <li><a href="src/gss_init_function.html#c.G_SS_mp_ma_init_function">G_SS_mp_ma_init_function (C function)</a>
+</li>
+      <li><a href="src/gss_init_function.html#c.G_SS_mp_mt_init_function">G_SS_mp_mt_init_function (C function)</a>
+</li>
+      <li><a href="src/gss_init_function.html#c.G_SS_mp_mu_init_function">G_SS_mp_mu_init_function (C function)</a>
+</li>
+      <li><a href="src/gss_init_function.html#c.G_SS_mp_opx_init_function">G_SS_mp_opx_init_function (C function)</a>
+</li>
+      <li><a href="src/gss_init_function.html#c.G_SS_mp_pl4tr_init_function">G_SS_mp_pl4tr_init_function (C function)</a>
+</li>
+      <li><a href="src/gss_init_function.html#c.G_SS_mp_sa_init_function">G_SS_mp_sa_init_function (C function)</a>
+</li>
+      <li><a href="src/gss_init_function.html#c.G_SS_mp_sp_init_function">G_SS_mp_sp_init_function (C function)</a>
+</li>
+      <li><a href="src/gss_init_function.html#c.G_SS_mp_st_init_function">G_SS_mp_st_init_function (C function)</a>
 </li>
       <li><a href="src/simplex_levelling.html#c.generate_pseudocompounds">generate_pseudocompounds (C function)</a>
 </li>
       <li><a href="src/toolkit.html#c.get_active_em">get_active_em (C function)</a>
-</li>
-      <li><a href="src/gss_function.html#c.get_gb_comp">get_gb_comp (C function)</a>
 </li>
       <li><a href="src/toolkit.html#c.get_pp_id">get_pp_id (C function)</a>
 </li>
@@ -487,7 +554,7 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/NLopt_opt_function.html#c.hb_c">hb_c (C function)</a>
+      <li><a href="src/NLopt_opt_function.html#c.hb_ig_c">hb_ig_c (C function)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -495,7 +562,7 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/NLopt_opt_function.html#c.ilm_c">ilm_c (C function)</a>
+      <li><a href="src/NLopt_opt_function.html#c.ilm_ig_c">ilm_ig_c (C function)</a>
 </li>
       <li><a href="src/pp_min_function.html#c.init_em_db">init_em_db (C function)</a>
 </li>
@@ -517,7 +584,7 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/NLopt_opt_function.html#c.liq_c">liq_c (C function)</a>
+      <li><a href="src/NLopt_opt_function.html#c.liq_ig_c">liq_ig_c (C function)</a>
 </li>
       <li><a href="src/PGE_function.html#c.LP">LP (C function)</a>
 </li>
@@ -545,7 +612,7 @@
 </li>
       <li><a href="src/toolkit.html#c.Minimum">Minimum (C function)</a>
 </li>
-      <li><a href="src/NLopt_opt_function.html#c.mu_c">mu_c (C function)</a>
+      <li><a href="src/NLopt_opt_function.html#c.mu_ig_c">mu_ig_c (C function)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -567,39 +634,71 @@
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/objective_functions.html#c.obj_bi">obj_bi (C function)</a>
+      <li><a href="src/objective_functions.html#c.obj_ig_bi">obj_ig_bi (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.obj_cd">obj_cd (C function)</a>
+      <li><a href="src/objective_functions.html#c.obj_ig_cd">obj_ig_cd (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.obj_cpx">obj_cpx (C function)</a>
+      <li><a href="src/objective_functions.html#c.obj_ig_cpx">obj_ig_cpx (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.obj_ep">obj_ep (C function)</a>
+      <li><a href="src/objective_functions.html#c.obj_ig_ep">obj_ig_ep (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.obj_fl">obj_fl (C function)</a>
+      <li><a href="src/objective_functions.html#c.obj_ig_fl">obj_ig_fl (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.obj_g">obj_g (C function)</a>
+      <li><a href="src/objective_functions.html#c.obj_ig_g">obj_ig_g (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.obj_hb">obj_hb (C function)</a>
+      <li><a href="src/objective_functions.html#c.obj_ig_hb">obj_ig_hb (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.obj_ilm">obj_ilm (C function)</a>
+      <li><a href="src/objective_functions.html#c.obj_ig_ilm">obj_ig_ilm (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.obj_liq">obj_liq (C function)</a>
+      <li><a href="src/objective_functions.html#c.obj_ig_liq">obj_ig_liq (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.obj_ig_mu">obj_ig_mu (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.obj_ig_ol">obj_ig_ol (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.obj_ig_opx">obj_ig_opx (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.obj_ig_pl4T">obj_ig_pl4T (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.obj_ig_spn">obj_ig_spn (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.obj_mp_bi">obj_mp_bi (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.obj_mp_cd">obj_mp_cd (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.obj_mp_chl">obj_mp_chl (C function)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/objective_functions.html#c.obj_mu">obj_mu (C function)</a>
+      <li><a href="src/objective_functions.html#c.obj_mp_ctd">obj_mp_ctd (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.obj_ol">obj_ol (C function)</a>
+      <li><a href="src/objective_functions.html#c.obj_mp_ep">obj_mp_ep (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.obj_opx">obj_opx (C function)</a>
+      <li><a href="src/objective_functions.html#c.obj_mp_g">obj_mp_g (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.obj_pl4T">obj_pl4T (C function)</a>
+      <li><a href="src/objective_functions.html#c.obj_mp_ilm">obj_mp_ilm (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.obj_spn">obj_spn (C function)</a>
+      <li><a href="src/objective_functions.html#c.obj_mp_liq">obj_mp_liq (C function)</a>
 </li>
-      <li><a href="src/NLopt_opt_function.html#c.ol_c">ol_c (C function)</a>
+      <li><a href="src/objective_functions.html#c.obj_mp_ma">obj_mp_ma (C function)</a>
 </li>
-      <li><a href="src/NLopt_opt_function.html#c.opx_c">opx_c (C function)</a>
+      <li><a href="src/objective_functions.html#c.obj_mp_mt">obj_mp_mt (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.obj_mp_mu">obj_mp_mu (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.obj_mp_opx">obj_mp_opx (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.obj_mp_pl4tr">obj_mp_pl4tr (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.obj_mp_sa">obj_mp_sa (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.obj_mp_sp">obj_mp_sp (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.obj_mp_st">obj_mp_st (C function)</a>
+</li>
+      <li><a href="src/NLopt_opt_function.html#c.ol_ig_c">ol_ig_c (C function)</a>
+</li>
+      <li><a href="src/NLopt_opt_function.html#c.opx_ig_c">opx_ig_c (C function)</a>
 </li>
       <li><a href="src/dump_function.html#c.output_gui">output_gui (C function)</a>
 </li>
@@ -613,33 +712,33 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/objective_functions.html#c.p2x_bi">p2x_bi (C function)</a>
+      <li><a href="src/objective_functions.html#c.p2x_ig_bi">p2x_ig_bi (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.p2x_cd">p2x_cd (C function)</a>
+      <li><a href="src/objective_functions.html#c.p2x_ig_cd">p2x_ig_cd (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.p2x_cpx">p2x_cpx (C function)</a>
+      <li><a href="src/objective_functions.html#c.p2x_ig_cpx">p2x_ig_cpx (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.p2x_ep">p2x_ep (C function)</a>
+      <li><a href="src/objective_functions.html#c.p2x_ig_ep">p2x_ig_ep (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.p2x_fl">p2x_fl (C function)</a>
+      <li><a href="src/objective_functions.html#c.p2x_ig_fl">p2x_ig_fl (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.p2x_g">p2x_g (C function)</a>
+      <li><a href="src/objective_functions.html#c.p2x_ig_g">p2x_ig_g (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.p2x_hb">p2x_hb (C function)</a>
+      <li><a href="src/objective_functions.html#c.p2x_ig_hb">p2x_ig_hb (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.p2x_ilm">p2x_ilm (C function)</a>
+      <li><a href="src/objective_functions.html#c.p2x_ig_ilm">p2x_ig_ilm (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.p2x_liq">p2x_liq (C function)</a>
+      <li><a href="src/objective_functions.html#c.p2x_ig_liq">p2x_ig_liq (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.p2x_mu">p2x_mu (C function)</a>
+      <li><a href="src/objective_functions.html#c.p2x_ig_mu">p2x_ig_mu (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.p2x_ol">p2x_ol (C function)</a>
+      <li><a href="src/objective_functions.html#c.p2x_ig_ol">p2x_ig_ol (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.p2x_opx">p2x_opx (C function)</a>
+      <li><a href="src/objective_functions.html#c.p2x_ig_opx">p2x_ig_opx (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.p2x_pl4T">p2x_pl4T (C function)</a>
+      <li><a href="src/objective_functions.html#c.p2x_ig_pl4T">p2x_ig_pl4T (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.p2x_spn">p2x_spn (C function)</a>
+      <li><a href="src/objective_functions.html#c.p2x_ig_spn">p2x_ig_spn (C function)</a>
 </li>
       <li><a href="src/PGE_function.html#c.PGE">PGE (C function)</a>
 </li>
@@ -663,8 +762,6 @@
 </li>
       <li><a href="src/PGE_function.html#c.PGE_update_xi">PGE_update_xi (C function)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/phase_update_function.html#c.phase_act2hold">phase_act2hold (C function)</a>
 </li>
       <li><a href="src/phase_update_function.html#c.phase_hold2act">phase_hold2act (C function)</a>
@@ -675,45 +772,79 @@
 </li>
       <li><a href="src/phase_update_function.html#c.phase_update_function">phase_update_function (C function)</a>
 </li>
-      <li><a href="src/NLopt_opt_function.html#c.pl4T_c">pl4T_c (C function)</a>
+      <li><a href="src/NLopt_opt_function.html#c.pl4T_ig_c">pl4T_ig_c (C function)</a>
 </li>
       <li><a href="src/pp_min_function.html#c.pp_min_function">pp_min_function (C function)</a>
 </li>
       <li><a href="src/toolkit.html#c.print_cp">print_cp (C function)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/toolkit.html#c.print_help">print_help (C function)</a>
 </li>
       <li><a href="src/simplex_levelling.html#c.print_levelling">print_levelling (C function)</a>
 </li>
       <li><a href="src/toolkit.html#c.print_SS_informations">print_SS_informations (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.px_bi">px_bi (C function)</a>
+      <li><a href="src/objective_functions.html#c.px_ig_bi">px_ig_bi (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.px_cd">px_cd (C function)</a>
+      <li><a href="src/objective_functions.html#c.px_ig_cd">px_ig_cd (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.px_cpx">px_cpx (C function)</a>
+      <li><a href="src/objective_functions.html#c.px_ig_cpx">px_ig_cpx (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.px_ep">px_ep (C function)</a>
+      <li><a href="src/objective_functions.html#c.px_ig_ep">px_ig_ep (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.px_fl">px_fl (C function)</a>
+      <li><a href="src/objective_functions.html#c.px_ig_fl">px_ig_fl (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.px_g">px_g (C function)</a>
+      <li><a href="src/objective_functions.html#c.px_ig_g">px_ig_g (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.px_hb">px_hb (C function)</a>
+      <li><a href="src/objective_functions.html#c.px_ig_hb">px_ig_hb (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.px_ilm">px_ilm (C function)</a>
+      <li><a href="src/objective_functions.html#c.px_ig_ilm">px_ig_ilm (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.px_liq">px_liq (C function)</a>
+      <li><a href="src/objective_functions.html#c.px_ig_liq">px_ig_liq (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.px_mu">px_mu (C function)</a>
+      <li><a href="src/objective_functions.html#c.px_ig_mu">px_ig_mu (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.px_ol">px_ol (C function)</a>
+      <li><a href="src/objective_functions.html#c.px_ig_ol">px_ig_ol (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.px_opx">px_opx (C function)</a>
+      <li><a href="src/objective_functions.html#c.px_ig_opx">px_ig_opx (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.px_pl4T">px_pl4T (C function)</a>
+      <li><a href="src/objective_functions.html#c.px_ig_pl4T">px_ig_pl4T (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.px_spn">px_spn (C function)</a>
+      <li><a href="src/objective_functions.html#c.px_ig_spn">px_ig_spn (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.px_mp_bi">px_mp_bi (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.px_mp_cd">px_mp_cd (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.px_mp_chl">px_mp_chl (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.px_mp_ctd">px_mp_ctd (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.px_mp_ep">px_mp_ep (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.px_mp_g">px_mp_g (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.px_mp_ilm">px_mp_ilm (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.px_mp_liq">px_mp_liq (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.px_mp_ma">px_mp_ma (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.px_mp_mt">px_mp_mt (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.px_mp_mu">px_mp_mu (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.px_mp_opx">px_mp_opx (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.px_mp_pl4tr">px_mp_pl4tr (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.px_mp_sa">px_mp_sa (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.px_mp_sp">px_mp_sp (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.px_mp_st">px_mp_st (C function)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -761,17 +892,15 @@
 </li>
       <li><a href="src/ss_min_function.html#c.split_cp">split_cp (C function)</a>
 </li>
-      <li><a href="src/NLopt_opt_function.html#c.spn_c">spn_c (C function)</a>
+      <li><a href="src/NLopt_opt_function.html#c.spn_ig_c">spn_ig_c (C function)</a>
+</li>
+      <li><a href="src/simplex_levelling.html#c.SS_ig_objective_init_function">SS_ig_objective_init_function (C function)</a>
 </li>
       <li><a href="src/ss_min_function.html#c.ss_min_LP">ss_min_LP (C function)</a>
 </li>
-      <li><a href="src/ss_min_function.html#c.ss_min_PGE">ss_min_PGE (C function)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/simplex_levelling.html#c.SS_objective_init_function">SS_objective_init_function (C function)</a>
-</li>
-      <li><a href="src/NLopt_opt_function.html#c.SS_sf_init_function">SS_sf_init_function (C function)</a>
+      <li><a href="src/ss_min_function.html#c.ss_min_PGE">ss_min_PGE (C function)</a>
 </li>
       <li><a href="src/ss_min_function.html#c.SS_UPDATE_function">SS_UPDATE_function (C function)</a>
 </li>

@@ -1,9 +1,8 @@
 # The full functionality of MAGEMin is wrapped in ../gen/magemin_library.jl
 # Yet, the routines here make it more convenient to use this from julia
-
 import Base.show
 
-export  init_MAGEMin, finalize_MAGEMin, point_wise_minimization, get_bulk_rock, create_output,
+export  init_MAGEMin, finalize_MAGEMin, point_wise_minimization, convertBulk4MAGEMin, use_predefined_bulk_rock, define_bulk_rock,create_output,
         print_info, create_gmin_struct
 
 
@@ -12,12 +11,21 @@ export  init_MAGEMin, finalize_MAGEMin, point_wise_minimization, get_bulk_rock, 
 
 Initializes MAGEMin (including setting global options) and loads the Database.
 """
-function  init_MAGEMin(;EM_database=0)
+function  init_MAGEMin(;EM_database=2)
 
-    gv = LibMAGEMin.global_variable_init();
-    DB = LibMAGEMin.InitializeDatabases(gv, EM_database)
+    z_b         = LibMAGEMin.bulk_infos()
+    gv          = LibMAGEMin.global_variables()
+    splx_data   = LibMAGEMin.simplex_data(); 
+    DB          = LibMAGEMin.Database()
 
-    return gv, DB
+    gv          = LibMAGEMin.global_variable_alloc( pointer_from_objref(z_b))
+    gv          = LibMAGEMin.global_variable_init(gv, pointer_from_objref(z_b))
+    DB          = LibMAGEMin.InitializeDatabases(gv, EM_database)
+
+    LibMAGEMin.init_simplex_A( pointer_from_objref(splx_data), gv)
+    LibMAGEMin.init_simplex_B_em( pointer_from_objref(splx_data), gv)
+
+    return gv, z_b, DB, splx_data
 end
 
 """
@@ -26,58 +34,171 @@ Cleans up the memory
 """
 function  finalize_MAGEMin(gv,DB)
     LibMAGEMin.FreeDatabases(gv, DB)
-
     nothing
 end
 
 
 """
-    bulk_rock = get_bulk_rock(gv, test=0)
+    bulk_rock = use_predefined_bulk_rock(gv, test=-1)
 
 Returns the pre-defined bulk rock composition of a given test
-
 """
-function get_bulk_rock(gv, test)
-    bulk_rock   = zeros(gv.len_ox)
-    LibMAGEMin.get_bulk(bulk_rock, test, gv.len_ox)
+function use_predefined_bulk_rock(gv, test=0)
+    gv.test = test
+    gv = LibMAGEMin.get_bulk(gv)
+    LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
 
-    return bulk_rock
+    return gv
 end
 
+function define_bulk_rock(gv, bulk_rock)
+    gv.bulk_rock = pointer(bulk_rock)
+    LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
+
+    return gv
+end
+
+
+function normalize(vector::Vector{Float64})
+    return vector ./ sum(vector)
+end
+
+
 """
-    point_wise_minimization(P::Float64,T::Float64, bulk_rock::Vector{Float64}, gv::LibMAGEMin.global_variables, DB::LibMAGEMin.Database,sys_in::String="mol")
+convertBulk4MAGEMin( bulk_in, bulk_in_ox, sys_in)
     
-Computes the stable assemblage at P[kbar], T[C] and for bulk rock composition bulk_rock
+receives bulk-rock composition in [mol,wt] fraction and associated oxide list and sends back bulk-rock composition converted for MAGEMin use
     
 """
-function point_wise_minimization(P::Float64,T::Float64, bulk_rock::Vector{Float64}, gv, DB, sys_in::String="mol")
+function convertBulk4MAGEMin(bulk_in::Vector{Float64},bulk_in_ox::Vector{String},sys_in::String);
+
+	ref_ox          = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "H2O"];
+	ref_MolarMass   = [60.08; 101.96; 56.08; 40.30; 71.85; 79.85; 94.2; 61.98; 79.88; 16.0; 151.99; 18.015];      #Molar mass of oxides
+
+	MAGEMin_ox      = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "H2O"];
+	MAGEMin_bulk    = zeros(11);
+    bulk            = zeros(11);
+	# convert to mol, if system unit = wt
+	if sys_in == "wt"
+		for i=1:length(bulk_in_ox)
+            id = findall(ref_ox .== bulk_in_ox[i]);
+			bulk[i] = bulk_in[i]/ref_MolarMass[id[1]];
+		end
+	end
+	bulk = normalize(bulk); 
+
+	for i=1:length(MAGEMin_ox)
+        id = findall(bulk_in_ox .== MAGEMin_ox[i]);
+		if isempty(id) == 0
+			MAGEMin_bulk[i] = bulk[id[1]];
+		end
+	end
+    idFe2O3 = findall(bulk_in_ox .== "Fe2O3");
+
+    if isempty(idFe2O3) == 0
+        idFeO = findall(MAGEMin_ox .== "FeO");
+        MAGEMin_bulk[idFeO[1]] += bulk[idFe2O3[1]]*2.0;
+
+        idO = findall(MAGEMin_ox .== "O");
+        MAGEMin_bulk[idO[1]] += bulk[idFe2O3[1]];
+    end
+
+    MAGEMin_bulk .= normalize(MAGEMin_bulk);
+
+    idNonH2O = findall(MAGEMin_ox .!= "H2O");
+
+    id0 = findall(MAGEMin_bulk[idNonH2O] .== 0.0)
+    if isempty(id0) == 0
+        MAGEMin_bulk[id0] .= 1e-4;
+    end
+
+    MAGEMin_bulk .= normalize(MAGEMin_bulk)*100.0;
+
+    return MAGEMin_bulk;
+end
+
+
+
+
+
+"""
+    point_wise_minimization(P::Float64,T::Float64, gv, z_b, DB, splx_data, sys_in::String="mol")
+    
+Computes the stable assemblage at `P` [kbar], `T` [C] and for a given bulk rock composition
+    
+
+# Example 1
+
+This is an example of how to use it for a predefined bulk rock composition:
+```julia
+julia> gv, z_b, DB, splx_data      = init_MAGEMin();
+julia> test        = 0;
+julia> sys_in      = "mol"     #default is mol, if wt is provided conversion will be done internally (MAGEMin works on mol basis)
+julia> gv          = use_predefined_bulk_rock(gv, test);
+julia> P           = 8.0;
+julia> T           = 800.0;
+julia> gv.verbose  = -1;        # switch off any verbose
+julia> out         = point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in)
+Pressure          : 8.0      [kbar]
+Temperature       : 800.0    [Celcius]
+     Stable phase | Fraction (mol 1 atom basis) 
+              opx   0.24229 
+               ol   0.58808 
+              cpx   0.14165 
+              spn   0.02798 
+     Stable phase | Fraction (wt fraction) 
+              opx   0.23908 
+               ol   0.58673 
+              cpx   0.14583 
+              spn   0.02846 
+Gibbs free energy : -797.749183  (26 iterations; 94.95 ms)
+Oxygen fugacity          : 9.645393319147175e-12
+```
+
+# Example 2
+And here a case in which you specify your own bulk rock composition. 
+We convert that in the correct format, using the `convertBulk4MAGEMin` function. 
+```julia
+julia> using MAGEMin_C
+julia> gv, z_b, DB, splx_data      = init_MAGEMin();
+julia> bulk_in_ox = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
+julia> bulk_in    = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
+julia> sys_in     = "wt"
+julia> bulk_rock  = convertBulk4MAGEMin(bulk_in,bulk_in_ox,sys_in);
+julia> gv         = define_bulk_rock(gv, bulk_rock);
+julia> P,T         = 10.0, 1100.0;
+julia> gv.verbose  = -1;        # switch off any verbose
+julia> out         = point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in)
+Pressure          : 10.0      [kbar]
+Temperature       : 1100.0    [Celcius]
+     Stable phase | Fraction (mol 1 atom basis) 
+             pl4T   0.01114 
+              liq   0.74789 
+              cpx   0.21862 
+              opx   0.02154 
+     Stable phase | Fraction (wt fraction) 
+             pl4T   0.01168 
+              liq   0.72576 
+              cpx   0.23872 
+              opx   0.02277 
+Gibbs free energy : -907.27887  (47 iterations; 187.11 ms)
+Oxygen fugacity          : 0.02411835177808492
+julia> finalize_MAGEMin(gv,DB)
+```
+
+"""
+function point_wise_minimization(P::Float64,T::Float64, gv, z_b, DB, splx_data, sys_in::String="mol")
     
     input_data      =   LibMAGEMin.io_data();                           # zero (not used actually)
-	z_b             =   LibMAGEMin.initialize_bulk_infos(P, T);
 
     z_b.T           =   T + 273.15    # in K
     z_b.P           =   P
 
-    Mode            = 0;
-    gv.Mode         = Mode;
-    gv.BR_norm      = 1.0; 								# reset bulk rock norm 			*/
-    gv.global_ite   = 0;              					# reset global iteration 			*/
     gv.numPoint     = 1; 							    # the number of the current point */
-
-    EM_database     = 0
- 
-    # Declare LP structures
-    splx_data       =   LibMAGEMin.simplex_data(); 
-
-    LibMAGEMin.init_simplex_A( pointer_from_objref(splx_data), gv)
-    LibMAGEMin.init_simplex_B_em( pointer_from_objref(splx_data), gv)
-
-    LibMAGEMin.convert_system_comp(gv,sys_in,z_b,bulk_rock)
-    LibMAGEMin.norm_array(bulk_rock, gv.len_ox)
 
     # Perform the point-wise minimization after resetting variables
     gv      = LibMAGEMin.reset_gv(gv,z_b, DB.PP_ref_db, DB.SS_ref_db)
-    z_b     = LibMAGEMin.reset_z_b_bulk(	gv,	 bulk_rock,	z_b	   )	
+    z_b     = LibMAGEMin.reset_z_b_bulk(	gv,	z_b	   )	
 
     LibMAGEMin.reset_simplex_A(pointer_from_objref(splx_data), z_b, gv)
     LibMAGEMin.reset_simplex_B_em(pointer_from_objref(splx_data), gv)
@@ -86,7 +207,7 @@ function point_wise_minimization(P::Float64,T::Float64, bulk_rock::Vector{Float6
     LibMAGEMin.reset_SS(gv,z_b, DB.SS_ref_db)
     LibMAGEMin.reset_sp(gv, DB.sp)
 
-    time = @elapsed  gv      = LibMAGEMin.ComputeEquilibrium_Point(EM_database, input_data, Mode, z_b,gv, pointer_from_objref(splx_data),	DB.PP_ref_db,DB.SS_ref_db,DB.cp);
+    time = @elapsed  gv      = LibMAGEMin.ComputeEquilibrium_Point(gv.EM_database, input_data, z_b, gv, pointer_from_objref(splx_data),	DB.PP_ref_db,DB.SS_ref_db,DB.cp);
 
     # Postprocessing (NOTE: we should switch off printing if gv.verbose=0)
     gv = LibMAGEMin.ComputePostProcessing(0, z_b, gv, DB.PP_ref_db, DB.SS_ref_db, DB.cp)
@@ -105,9 +226,8 @@ function point_wise_minimization(P::Float64,T::Float64, bulk_rock::Vector{Float6
     return out
 end
 
-point_wise_minimization(sys_in::String,P::Integer, T::Integer, bulk_rock::Vector{Float64}, gv, DB) = point_wise_minimization(String(sys_in),Float64(P),Float64(T), bulk_rock::Vector{Float64}, gv, DB)
-point_wise_minimization(sys_in::String,P::Float64, T::Integer, bulk_rock::Vector{Float64}, gv, DB) = point_wise_minimization(String(sys_in),Float64(P),Float64(T), bulk_rock::Vector{Float64}, gv, DB)
-point_wise_minimization(sys_in::String,P::Integer, T::Float64, bulk_rock::Vector{Float64}, gv, DB) = point_wise_minimization(String(sys_in),Float64(P),Float64(T), bulk_rock::Vector{Float64}, gv, DB)
+point_wise_minimization(P::Number,T::Number, gv, z_b, DB, splx_data, sys_in::String="mol") = point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data, sys_in)
+
 
 """
     structure that holds the result of the pointwise minisation 
