@@ -123,9 +123,38 @@ end
 
 
 """
-point_wise_minimization(P::Float64,T::Float64, gv, z_b, DB, splx_data, sys_in::String="mol")
+out = point\\_wise\\_minimization(P::Float64,T::Float64, gv, z\\_b, DB, splx\\_data, sys\\_in::String="mol")
     
-Computes the stable assemblage at P[kbar], T[C] and for bulk rock composition bulk_rock
+Computes the stable assemblage at P[kbar], T[C] and for bulk-rock composition
+
+_The bulk-rock composition can be provided in different ways:_
+
+1) *Using a pre-defined bulk-rock example:*
+
+    test        = 0; #KLB1 peridotite
+
+    sys\\_in      = "mol"     #default is mol, if wt is provided conversion will be done internally (MAGEMin works on mol basis)
+
+    gv          = use\\_predefined\\_bulk\\_rock(gv, test)
+
+2) *Using a custom bulk-rock provided in the MAGEMin format:*
+
+    bulk\\_rock   = [0.38451319035870185, 0.017740308257833806, 0.028208688355924924, 0.5050993397328966, 0.0587947378409965, 9.988912307338855e-5, 0.0024972280768347137, 0.0009988912307338856, 0.0009589355815045301, 0.0010887914414999351, 0.0]
+
+    gv          = define\\_bulk\\_rock(gv, bulk\\_rock)
+
+3) *Using a custom bulk-rock when "Fe2O3" is given (instead of "O"):*
+
+    bulk\\_in\\_ox = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"]
+
+    bulk\\_in    = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0]
+
+    sys\\_in     = "wt"
+
+    bulk\\_rock   = convertBulk4MAGEMin(bulk\\_in,bulk\\_in\\_ox,sys\\_in)
+
+    gv          = define\\_bulk\\_rock(gv, bulk\\_rock)
+
     
 """
 function point_wise_minimization(P::Float64,T::Float64, gv, z_b, DB, splx_data, sys_in::String="mol")
