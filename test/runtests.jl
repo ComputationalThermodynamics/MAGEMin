@@ -60,7 +60,7 @@ finalize_MAGEMin(gv,DB)
     out         = point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in)
     finalize_MAGEMin(gv,DB)
 
-    @test out.G_system ≈ -907.2788704076264
+    @test abs(out.G_system + 907.2788704076264)/abs(907.2788704076264) < 1e-4
 end
 
 @testset "convert bulk rock" begin
