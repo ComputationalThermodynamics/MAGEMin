@@ -127,13 +127,19 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../julia.html#use-magemin-c">Use MAGEMin_C</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html">Single point calculation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html">Single point calculation Tutorial</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#initialize-database">Initialize database</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-p-t-x-pressure-temperature-and-bulk-rock-composition">Set P-T-X (pressure temperature and bulk rock composition)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-p-t-pressure-temperature">Set P-T-(pressure temperature)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-bulk-rock-composition">Set bulk-rock composition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-the-level-of-verbose-1-0-1">Set the level of verbose <code class="docutils literal notranslate"><span class="pre">[-1,0,1]</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#call-optimization-routine-for-given-p-t-x">Call optimization routine for given P-T-X</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#display-minimized-point">Display minimized point</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#access-output-structure">Access output structure</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html#provide-custom-bulk-rock-composition">Provide custom bulk rock composition</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#magemin-system-unit">MAGEMin system unit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#variable-system-unit">Variable system unit</a></li>
 </ul>
 </li>
 </ul>
@@ -150,7 +156,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../issues.html#known-problems">Known problems</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#reduced-chemical-systems">Reduced chemical systems</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../issues.html#low-temperature-stabilitzation">Low temperature stabilitzation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#low-temperature-stabilization">Low temperature stabilization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#hp-lt-melt-prediction">HP-LT melt prediction</a></li>
 </ul>
 </li>
@@ -277,7 +283,7 @@
 <div class="viewcode-block" id="c.init_em_db"><a class="viewcode-back" href="../src/pp_min_function.html#c.init_em_db">[docs]</a><span class="cm">/** </span>
 <span class="cm">  initialize pure phase database */</span><span class="w"></span>
 <span class="n">global_variable</span><span class="w"> </span><span class="nf">init_em_db</span><span class="p">(</span><span class="w">		</span><span class="kt">int</span><span class="w"> 				</span><span class="n">EM_database</span><span class="p">,</span><span class="w"></span>
-<span class="w">								</span><span class="n">bulk_info</span><span class="w"> 	</span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
+<span class="w">								</span><span class="n">bulk_info</span><span class="w"> 			</span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
 <span class="w">								</span><span class="n">global_variable</span><span class="w"> 	</span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
 <span class="w">								</span><span class="n">PP_ref</span><span class="w"> 			   </span><span class="o">*</span><span class="n">PP_ref_db</span><span class="w"></span>
 <span class="p">){</span><span class="w"></span>
@@ -287,7 +293,9 @@
 <span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_pp</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
 
 <span class="w">			</span><span class="n">PP_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_EM_function</span><span class="p">(</span><span class="w">	</span><span class="n">EM_database</span><span class="p">,</span><span class="w"> </span>
+<span class="w">											</span><span class="n">gv</span><span class="p">.</span><span class="n">len_ox</span><span class="p">,</span><span class="w"></span>
 <span class="w">											</span><span class="n">z_b</span><span class="p">.</span><span class="n">bulk_rock</span><span class="p">,</span><span class="w"> </span>
+<span class="w">											</span><span class="n">z_b</span><span class="p">.</span><span class="n">apo</span><span class="p">,</span><span class="w"> </span>
 <span class="w">											</span><span class="n">z_b</span><span class="p">.</span><span class="n">P</span><span class="p">,</span><span class="w"> </span>
 <span class="w">											</span><span class="n">z_b</span><span class="p">.</span><span class="n">T</span><span class="p">,</span><span class="w"> </span>
 <span class="w">											</span><span class="n">gv</span><span class="p">.</span><span class="n">PP_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span>

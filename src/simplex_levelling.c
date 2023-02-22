@@ -1034,18 +1034,19 @@ void run_simplex_levelling(				bulk_info 	 		 z_b,
 	simplex_data *d  = (simplex_data *) splx_data;
 
 	int i, k, iss;
-										
-	swap_pure_endmembers(				z_b,
-										splx_data,
-										gv,
-										PP_ref_db,
-										SS_ref_db				);	
 
 	swap_pure_phases(					z_b,
 										splx_data,
 										gv,
 										PP_ref_db,
 										SS_ref_db				);	
+
+	swap_pure_endmembers(				z_b,
+										splx_data,
+										gv,
+										PP_ref_db,
+										SS_ref_db				);	
+
 
 	update_local_gamma(					d->A1,
 										d->g0_A,
@@ -1118,6 +1119,153 @@ void run_simplex_levelling(				bulk_info 	 		 z_b,
 	if (gv.verbose == 1){ printf("\n [time to swap SS time (ms) %.8f]\n",time_taken*1000);	}
 	
 };
+
+
+void run_localMinimization(				bulk_info 	 		 z_b,
+										simplex_data 		*splx_data,
+										
+										global_variable 	 gv,
+										
+										PP_ref 				*PP_ref_db,
+										SS_ref 				*SS_ref_db,
+										obj_type			*SS_objective
+){
+	simplex_data *d  = (simplex_data *) splx_data;
+
+	int i, j, k, ss, l, p, swp;
+										
+	clock_t t,u; 
+	double time_taken;
+	t = clock();
+
+	/** generate the pseudocompounds -> stored in the SS_ref_db structure */
+	if (gv.verbose == 1){ printf(" Generate pseudocompounds:\n"); }
+	
+	PC_ref 			SS_pc_xeos[gv.len_ss];
+
+	if (gv.EM_database == 2){
+		for (ss = 0; ss < gv.len_ss; ss++){
+			SS_ig_pc_init_function(			SS_pc_xeos, 
+											ss,
+											gv.SS_list[ss]				);
+		}
+	}
+
+	// ss = 6; // hb index of the solution phase to fully minimize
+	ss = 3; // spn index of the solution phase to fully minimize
+
+	struct ss_pc get_ss_pv;		
+
+	// gv.gam_tot[0]  = -960.9655;	
+	// gv.gam_tot[1]  = -1768.2476;	
+	// gv.gam_tot[2]  = -788.4474;	
+	// gv.gam_tot[3]  = -678.9683;	
+	// gv.gam_tot[4]  = -355.2975;	
+	// gv.gam_tot[5]  = -914.9708;	
+	// gv.gam_tot[6]  = -839.9561;
+	// gv.gam_tot[7]  = -1008.3630;
+	// gv.gam_tot[8]  = -263.7269;
+	// gv.gam_tot[9]  = -1262.6087;
+	// gv.gam_tot[10] = -368.4674;
+
+	// SS_ref_db[ss].gbase[0]  = -13012.62073;	
+	// SS_ref_db[ss].gbase[1]  = -13235.27114;	
+	// SS_ref_db[ss].gbase[2]  = -13472.30496;	
+	// SS_ref_db[ss].gbase[3]  = -12644.70794;	
+	// SS_ref_db[ss].gbase[4]  = -12762.02635;	
+	// SS_ref_db[ss].gbase[5]  = -10496.70590;	
+	// SS_ref_db[ss].gbase[6]  = -11477.04324;
+	// SS_ref_db[ss].gbase[7]  = -11155.59746;
+	// SS_ref_db[ss].gbase[8]  = -11828.15800;
+	// SS_ref_db[ss].gbase[9]  = -13495.08535;
+	// SS_ref_db[ss].gbase[10] = -13063.17373;
+
+	// SS_ref_db[ss].gbase[0]  = -2515.94540;	
+	// SS_ref_db[ss].gbase[1]  = -2500.25887;	
+	// SS_ref_db[ss].gbase[2]  = -2217.27620;	
+	// SS_ref_db[ss].gbase[3]  = -2201.58966;	
+	// SS_ref_db[ss].gbase[4]  = -1452.03460;	
+	// SS_ref_db[ss].gbase[5]  = -1459.64806;	
+	// SS_ref_db[ss].gbase[6]  = -2033.47165;
+	// SS_ref_db[ss].gbase[7]  = -2445.48343;
+
+	SS_ref_db[ss].gbase[0]  = -3532.74915;	
+	SS_ref_db[ss].gbase[1]  = -2793.12846;	
+	SS_ref_db[ss].gbase[2]  = -3635.49886;	
+	SS_ref_db[ss].gbase[3]  = -3384.95041;	
+	SS_ref_db[ss].gbase[4]  = -3250.67812;	
+	SS_ref_db[ss].gbase[5]  = -3606.43710;	
+	SS_ref_db[ss].gbase[6]  = -3345.42582;
+	SS_ref_db[ss].gbase[7]  = -3408.36774;
+	SS_ref_db[ss].gbase[8]  = -3105.14810;
+	SS_ref_db[ss].gbase[9]  = -3360.74459;
+
+
+	gv.gam_tot[0]  = -1011.909631;	
+	gv.gam_tot[1]  = -1829.092564;	
+	gv.gam_tot[2]  = -819.264126;	
+	gv.gam_tot[3]  = -695.467358;	
+	gv.gam_tot[4]  = -412.948568;	
+	gv.gam_tot[5]  = -971.890270;	
+	gv.gam_tot[6]  = -876.544354;
+	gv.gam_tot[7]  = -1073.640927;
+	gv.gam_tot[8]  = -276.590707;
+	gv.gam_tot[9]  = -1380.299631;
+	gv.gam_tot[10] = 0.0;
+
+
+	/** rotate gbase with respect to the G-hyperplane (change of base) */
+	for (int k = 0; k < SS_ref_db[ss].n_em; k++) {
+		SS_ref_db[ss].gb_lvl[k] = SS_ref_db[ss].gbase[k];
+		for (int j = 0; j < gv.len_ox; j++) {
+			SS_ref_db[ss].gb_lvl[k] -= SS_ref_db[ss].Comp[k][j]*gv.gam_tot[j];
+		}
+	}	
+
+	printf("minG = [");				
+	for (int k = 0; k < gv.n_SS_PC[ss]; k++){
+		u = clock();
+		get_ss_pv = SS_pc_xeos[ss].ss_pc_xeos[k]; 
+		
+		for (int i = 0; i < SS_ref_db[ss].n_xeos; i++){
+			SS_ref_db[ss].iguess[i] = get_ss_pv.xeos_pc[i];
+		}
+
+		SS_ref_db[ss] = 	NLopt_opt_function(		gv, 
+													SS_ref_db[ss], 
+													ss					);
+
+		u = clock() - u; 
+		time_taken  = ((double)u)/CLOCKS_PER_SEC; 
+		printf(" %.14f", SS_ref_db[ss].df);
+	}
+	printf("]\n");	
+
+	printf("tms = [");				
+	for (int k = 0; k < gv.n_SS_PC[ss]; k++){
+		u = clock();
+		get_ss_pv = SS_pc_xeos[ss].ss_pc_xeos[k]; 
+		
+		for (int i = 0; i < SS_ref_db[ss].n_xeos; i++){
+			SS_ref_db[ss].iguess[i] = get_ss_pv.xeos_pc[i];
+		}
+
+		SS_ref_db[ss] = 	NLopt_opt_function(		gv, 
+													SS_ref_db[ss], 
+													ss					);
+
+		u = clock() - u; 
+		time_taken  = ((double)u)/CLOCKS_PER_SEC; 
+		printf(" %.8f", time_taken );
+	}
+	printf("]\n");	
+
+	t = clock() - t; 
+	time_taken  = ((double)t)/CLOCKS_PER_SEC; 
+	if (gv.verbose == 1){ printf("\n [time to local minimization PC time (ms) %.8f]\n",time_taken*1000);	}
+	
+};
+
 
 /**
   function to deallocte memory of simplex linear programming (A)
@@ -1201,6 +1349,14 @@ global_variable run_levelling_function(		bulk_info 	 z_b,
 											PP_ref_db,
 											SS_ref_db,
 											SS_objective	);	
+
+	// /** run local minimization tests */
+	// run_localMinimization(					z_b,
+	// 									    splx_data,
+	// 										gv,
+	// 										PP_ref_db,
+	// 										SS_ref_db,
+	// 										SS_objective	);	
 			
 	/* update global variable gamma */
 	update_global_gamma_LU(					z_b,
@@ -1230,6 +1386,10 @@ global_variable run_levelling_function(		bulk_info 	 z_b,
 		printf(" [----------------------------------------]\n");
 
 		for (int i = 0; i < d->n_Ox; i++){
+			if (d->ph_id_A[i][0] == 0){
+				printf(" ['%5s' %+10f  %+12.4f  %5d ]", "F.OX", d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+				printf("\n");
+			}
 			if (d->ph_id_A[i][0] == 1){
 				printf(" ['%5s' %+10f  %+12.4f  %5d ]", gv.PP_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
 				printf("\n");

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MAGEMin v1.2.7 &mdash; MAGEMin 2022 documentation</title>
+  <title>MAGEMin v1.2.8 &mdash; MAGEMin 2022 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
@@ -129,13 +129,19 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="julia.html#use-magemin-c">Use MAGEMin_C</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="julia/Run.html">Single point calculation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="julia/Run.html">Single point calculation Tutorial</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="julia/Run.html#initialize-database">Initialize database</a></li>
-<li class="toctree-l3"><a class="reference internal" href="julia/Run.html#set-p-t-x-pressure-temperature-and-bulk-rock-composition">Set P-T-X (pressure temperature and bulk rock composition)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="julia/Run.html#set-p-t-pressure-temperature">Set P-T-(pressure temperature)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="julia/Run.html#set-bulk-rock-composition">Set bulk-rock composition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="julia/Run.html#set-the-level-of-verbose-1-0-1">Set the level of verbose <code class="docutils literal notranslate"><span class="pre">[-1,0,1]</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="julia/Run.html#call-optimization-routine-for-given-p-t-x">Call optimization routine for given P-T-X</a></li>
 <li class="toctree-l3"><a class="reference internal" href="julia/Run.html#display-minimized-point">Display minimized point</a></li>
 <li class="toctree-l3"><a class="reference internal" href="julia/Run.html#access-output-structure">Access output structure</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="julia/Run.html#provide-custom-bulk-rock-composition">Provide custom bulk rock composition</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="julia/Run.html#magemin-system-unit">MAGEMin system unit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="julia/Run.html#variable-system-unit">Variable system unit</a></li>
 </ul>
 </li>
 </ul>
@@ -152,7 +158,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="issues.html#known-problems">Known problems</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="issues.html#reduced-chemical-systems">Reduced chemical systems</a></li>
-<li class="toctree-l2"><a class="reference internal" href="issues.html#low-temperature-stabilitzation">Low temperature stabilitzation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="issues.html#low-temperature-stabilization">Low temperature stabilization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="issues.html#hp-lt-melt-prediction">HP-LT melt prediction</a></li>
 </ul>
 </li>
@@ -225,7 +231,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home"></a> &raquo;</li>
-      <li><strong>MAGEMin v1.2.7</strong></li>
+      <li><strong>MAGEMin v1.2.8</strong></li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -240,8 +246,8 @@
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-<section id="magemin-v1-2-7">
-<h1><strong>MAGEMin v1.2.7</strong><a class="headerlink" href="#magemin-v1-2-7" title="Permalink to this headline"></a></h1>
+<section id="magemin-v1-2-8">
+<h1><strong>MAGEMin v1.2.8</strong><a class="headerlink" href="#magemin-v1-2-8" title="Permalink to this headline"></a></h1>
 <p>MAGEMin (Mineral Assemblage Gibbs Energy Minimization) is a parallel C library callable from any petrological/geodynamic tool. For a given set of pressure, temperature and bulk-rock composition MAGEMin uses a combination of linear programming, extended Partitioning Gibbs free Energy and gradient-based local minimization to compute the most stable mineral assemblage</p>
 <p>A full description of the minimization approach used in MAGEMin is given in:</p>
 <p>Riel, N., Kaus, B. J. P., Green, E. C. R., &amp; Berlie, N. (2022). MAGEMin, an efficient Gibbs energy minimizer: Application to igneous systems. Geochemistry, Geophysics, Geosystems, 23, e2022GC010427. <a class="reference external" href="https://doi.org/10.1029/2022GC010427">https://doi.org/10.1029/2022GC010427</a></p>
@@ -350,7 +356,8 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="julia.html#use-magemin-c">Use MAGEMin_C</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="julia/Run.html">Single point calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="julia/Run.html">Single point calculation Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="julia/Run.html#provide-custom-bulk-rock-composition">Provide custom bulk rock composition</a></li>
 </ul>
 </li>
 </ul>
@@ -367,7 +374,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="issues.html#known-problems">Known problems</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="issues.html#reduced-chemical-systems">Reduced chemical systems</a></li>
-<li class="toctree-l2"><a class="reference internal" href="issues.html#low-temperature-stabilitzation">Low temperature stabilitzation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="issues.html#low-temperature-stabilization">Low temperature stabilization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="issues.html#hp-lt-melt-prediction">HP-LT melt prediction</a></li>
 </ul>
 </li>

@@ -124,13 +124,15 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.3.0 [01/12/2022]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.2.8 [16/02/2023]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	gv.max_n_cp 		= 128;					/** number of considered solution phases 											*/									
-	gv.calc_seismic_cor = 1;					/** compute seismic velocity corrections (melt and anelastic)						*/
+	// gv.calc_seismic_cor = 1;					/** compute seismic velocity corrections (melt and anelastic)						*/
 	gv.min_melt_T       = 773.0;				/** minimum temperature above which melt is considered 								*/
 	gv.solver_switch_T  = 673.15;
+	// gv.melt_pressure 	= 0.0;					/** [kbar] pressure shift in case of modelling melt pressure 						*/
+
 	/* residual tolerance 				*/
 	gv.br_max_tol       = 1.0e-5;				/** value under which the solution is accepted to satisfy the mass constraint 		*/
 	
@@ -143,8 +145,8 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 
 	/* levelling parameters 			*/
 	gv.em2ss_shift		= 1e-6;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
-	gv.bnd_filter_pc    = 10.0;					/** value of driving force the pseudocompound is considered 						*/
-	gv.max_G_pc         = 0.0;					/** dG under which PC is considered after their generation		 					*/
+	gv.bnd_filter_pc    = 5.0;					/** value of driving force the pseudocompound is considered 						*/
+	gv.max_G_pc         = 5.0;					/** dG under which PC is considered after their generation		 					*/
 	gv.eps_sf_pc		= 1e-10;				/** Minimum value of site fraction under which PC is rejected, 
 													don't put it too high as it will conflict with bounds of x-eos					*/
 
@@ -165,7 +167,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	/* Partitioning Gibbs Energy 		*/
 	gv.xi_em_cor   		= 0.99;	
 	gv.outter_PGE_ite   = 1;					/** minimum number of outter PGE iterations, before a solution can be accepted 		*/
-	gv.inner_PGE_ite    = 16;					/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
+	gv.inner_PGE_ite    = 8;					/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
 	gv.max_n_phase  	= 0.025;				/** maximum mol% phase change during one PGE iteration in wt% 						*/
 	gv.max_g_phase  	= 2.5;					/** maximum delta_G of reference change during PGE 									*/
 	gv.max_fac          = 1.0;					/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
@@ -181,7 +183,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 
 	/* phase update options 			*/
 	gv.re_in_n          = 1e-3;					/** fraction of phase when being reintroduce.  										*/
-	gv.min_df 			=-1e-6;					/** value under which a phase in hold is reintroduced */
+	gv.min_df 			= 0.0;					/** value under which a phase in hold is reintroduced */
 
 	/* numerical derivatives P,T steps (same value as TC) */
 	gv.gb_P_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
@@ -200,11 +202,12 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.EM_database  	=  2; 					/** 0, metapelite; 1 metabasite; 2 igneous											*/
 	gv.n_points 		=  1;
 	gv.maxeval  		= -1;
-	gv.solver   		=  1;
+	gv.solver   		=  1;					/* 1 = PGE+Legacy, 2 = Legacy only */
 	gv.verbose 			=  0;
 	gv.output_matlab 	=  0;
 	gv.test     		= -1;
 
+	/* default PT conditions for test */
 	z_b->P 				= 12.0;		
 	z_b->T 				= 1100.0 + 273.15;		
 	z_b->R 				= 0.0083144;
@@ -225,7 +228,7 @@ typedef struct igneous_datasets {
 	int 	n_pp;
 	int 	n_ss;
 	char    ox[11][20];
-	char    PP[11][20];
+	char    PP[14][20];
 	char    SS[14][20];
 
 	int 	verifyPC[14];
@@ -237,10 +240,10 @@ typedef struct igneous_datasets {
 igneous_dataset igneous_db = {
 	291,						/* number of endmembers */
 	11,							/* number of oxides */			
-	11,							/* number of pure phases */
+	14,							/* number of pure phases */
 	14,							/* number of solution phases */
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"Cr2O3","H2O"								},
-	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2"								},
+	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"wo"	,"pswo"	,"ne"	,"O2"		},
 	{"spn"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"hb"	,"ilm"	,"liq"	,"mu"	,"ol"	,"opx"	,"pl4T"	,"fl"		},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1			},
@@ -542,36 +545,6 @@ global_variable get_bulk( global_variable gv) {
 		gv.bulk_rock[9]  = 0.0100;
 		gv.bulk_rock[10] =	5.4364;
 	}
-	else if (gv.test == 7){
-		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
-		/* Kl3 */
-		gv.bulk_rock[0] = 63.242;	
-		gv.bulk_rock[1] = 7.267;	
-		gv.bulk_rock[2] = 1.815;	
-		gv.bulk_rock[3] = 0.751;	
-		gv.bulk_rock[4] = 1.311;	
-		gv.bulk_rock[5] = 2.774;
-		gv.bulk_rock[6]  = 2.622;
-		gv.bulk_rock[7]  = 0.144;
-		gv.bulk_rock[8]  = 0.5;
-		gv.bulk_rock[9]  = 0.01;
-		gv.bulk_rock[10] =	19.986;
-	}
-	else if (gv.test == 8){
-		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
-		/* Kl3 */
-		gv.bulk_rock[0] = 54.65;	
-		gv.bulk_rock[1] = 9.04;	
-		gv.bulk_rock[2] = 10.69;	
-		gv.bulk_rock[3] = 13.9;	
-		gv.bulk_rock[4] = 7.63;	
-		gv.bulk_rock[5] = 0.51;
-		gv.bulk_rock[6]  = 2.62;
-		gv.bulk_rock[7]  = 0.71;
-		gv.bulk_rock[8]  = 0.4;
-		gv.bulk_rock[9]  = 0.1;
-		gv.bulk_rock[10] =	0.0;
-	}
 	else{
 		printf("Unknown test %i - please specify a different test! \n", gv.test);
 	 	exit(EXIT_FAILURE);
@@ -652,6 +625,7 @@ global_variable reset_gv(					global_variable 	 gv,
 	gv.solid_Vp 		  = 0.;
 	gv.solid_Vs 		  = 0.;
 
+	// gv.melt_pressure 	  = 0.;
 	gv.system_fO2 		  = 0.;
 	gv.system_density     = 0.;
 	gv.system_entropy     = 0.;

@@ -100,7 +100,7 @@ int cmp_int(const void *a, const void *b)
 /**
 	check PC driving force and add phase if below hyperplane
 */
-global_variable check_PC(					bulk_info 	 z_b,
+global_variable check_PC(					bulk_info 	 		 z_b,
 											global_variable  	 gv,
 
 											PP_ref 				*PP_ref_db,

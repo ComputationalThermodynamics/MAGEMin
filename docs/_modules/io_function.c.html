@@ -127,13 +127,19 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../julia.html#use-magemin-c">Use MAGEMin_C</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html">Single point calculation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html">Single point calculation Tutorial</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#initialize-database">Initialize database</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-p-t-x-pressure-temperature-and-bulk-rock-composition">Set P-T-X (pressure temperature and bulk rock composition)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-p-t-pressure-temperature">Set P-T-(pressure temperature)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-bulk-rock-composition">Set bulk-rock composition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-the-level-of-verbose-1-0-1">Set the level of verbose <code class="docutils literal notranslate"><span class="pre">[-1,0,1]</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#call-optimization-routine-for-given-p-t-x">Call optimization routine for given P-T-X</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#display-minimized-point">Display minimized point</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#access-output-structure">Access output structure</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html#provide-custom-bulk-rock-composition">Provide custom bulk rock composition</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#magemin-system-unit">MAGEMin system unit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#variable-system-unit">Variable system unit</a></li>
 </ul>
 </li>
 </ul>
@@ -150,7 +156,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../issues.html#known-problems">Known problems</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#reduced-chemical-systems">Reduced chemical systems</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../issues.html#low-temperature-stabilitzation">Low temperature stabilitzation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#low-temperature-stabilization">Low temperature stabilization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#hp-lt-melt-prediction">HP-LT melt prediction</a></li>
 </ul>
 </li>
@@ -247,10 +253,9 @@
 <div class="viewcode-block" id="c.read_in_data"><a class="viewcode-back" href="../src/io_function.html#c.read_in_data">[docs]</a><span class="cm">/** </span>
 <span class="cm">  read in input data from file </span>
 <span class="cm">*/</span><span class="w"></span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">read_in_data</span><span class="p">(</span><span class="w"></span>
-<span class="w">	</span><span class="n">global_variable</span><span class="w"> </span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
-<span class="w">	</span><span class="n">io_data</span><span class="w"> </span><span class="o">*</span><span class="n">input_data</span><span class="p">,</span><span class="w">												</span><span class="cm">/** input data structure */</span><span class="w"></span>
-<span class="w">	</span><span class="kt">int</span><span class="w">      </span><span class="n">n_points</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">read_in_data</span><span class="p">(</span><span class="w">		</span><span class="n">global_variable</span><span class="w"> 	 </span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
+<span class="w">						</span><span class="n">io_data</span><span class="w"> 			</span><span class="o">*</span><span class="n">input_data</span><span class="p">,</span><span class="w">												</span><span class="cm">/** input data structure */</span><span class="w"></span>
+<span class="w">						</span><span class="kt">int</span><span class="w">      			 </span><span class="n">n_points</span><span class="w"></span>
 <span class="p">){</span><span class="w"></span>
 <span class="w">	</span><span class="kt">char</span><span class="w"> </span><span class="n">line</span><span class="p">[</span><span class="mi">1000</span><span class="p">];</span><span class="w"></span>
 <span class="w">	</span><span class="kt">FILE</span><span class="o">*</span><span class="w"> </span><span class="n">input_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">File</span><span class="p">,</span><span class="s">&quot;rt&quot;</span><span class="p">);</span><span class="w">	</span>

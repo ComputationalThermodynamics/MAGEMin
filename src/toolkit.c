@@ -41,6 +41,7 @@ void print_help(	global_variable gv	){
 	printf("  --Bulk=       [float] : Bulk rock composition in [mol] or [wt] fraction*\n");
 	printf("  --Gam=        [float] : Chemical potential of oxides (pure components)*\n");
 	printf("  --sys_in=     [str]   : inputed system composition, [mol](default) or [wt]\n");
+	printf("  --solver=     [int]   : solver: 0 for legacy and 1 for PGE (default)\n");
 	printf("  --out_matlab= [int]   : Matlab text file output, 0. inactive, 1. active\n");
 	printf("\n");
 	printf(" *the list of oxides must be given as follow:\n");
@@ -81,8 +82,13 @@ void print_help(	global_variable gv	){
     printf("\n");	
     printf(" Simply call 'MPI' before MAGEMin and give the number of cores you want to use. Valid calls using previously defined input file are for instance\n");	
     printf("\n");	
-    printf("  mpirun -np 8 ./MAGEMin --Verb=1 --File=/path_to_file/MAGEMin_input.dat --n_points=4\n");
-    printf("  mpiexec -n 8 ./MAGEMin --Verb=1 --File=/path_to_file/MAGEMin_input.dat --n_points=4\n");	   
+    printf("  mpirun -np 8 ./MAGEMin --File=/path_to_file/MAGEMin_input.dat --n_points=4\n");
+    printf("  mpiexec -n 8 ./MAGEMin --File=/path_to_file/MAGEMin_input.dat --n_points=4\n");	
+    printf("\n");	
+	printf(" Other useful information:\n");
+	printf(" -------------------------\n");	
+    printf("\n");	 
+	printf(" Bulk-rock composition (wt or mol) expressed as FeO and Fe2O3 can be converted using the Matlab GUI to MAGEMin format ( [wt,mol] -> [mol], [FeO and Fe2O3] -> [FeOt and O])\n");
     printf("\n");	 
     printf("\n");	 
 
@@ -303,7 +309,7 @@ double BrentRoots(  double  x1,
   EE 		= 0.0;
   CC 		= 0.0;
 
-  i = 0; done = FALSE;   error = 0;
+  i = 0; done = FALSE;   *error = 0;
   AA = x1;  BB = x2;  FA = AFunction(mode,AA,data); FB = AFunction(mode,BB,data);
 
   if (!(RootBracketed(FA,FB))) 

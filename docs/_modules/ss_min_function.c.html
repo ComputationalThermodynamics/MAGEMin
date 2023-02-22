@@ -127,13 +127,19 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../julia.html#use-magemin-c">Use MAGEMin_C</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html">Single point calculation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html">Single point calculation Tutorial</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#initialize-database">Initialize database</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-p-t-x-pressure-temperature-and-bulk-rock-composition">Set P-T-X (pressure temperature and bulk rock composition)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-p-t-pressure-temperature">Set P-T-(pressure temperature)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-bulk-rock-composition">Set bulk-rock composition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-the-level-of-verbose-1-0-1">Set the level of verbose <code class="docutils literal notranslate"><span class="pre">[-1,0,1]</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#call-optimization-routine-for-given-p-t-x">Call optimization routine for given P-T-X</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#display-minimized-point">Display minimized point</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#access-output-structure">Access output structure</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html#provide-custom-bulk-rock-composition">Provide custom bulk rock composition</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#magemin-system-unit">MAGEMin system unit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#variable-system-unit">Variable system unit</a></li>
 </ul>
 </li>
 </ul>
@@ -150,7 +156,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../issues.html#known-problems">Known problems</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#reduced-chemical-systems">Reduced chemical systems</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../issues.html#low-temperature-stabilitzation">Low temperature stabilitzation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#low-temperature-stabilization">Low temperature stabilization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#hp-lt-melt-prediction">HP-LT melt prediction</a></li>
 </ul>
 </li>
@@ -283,7 +289,7 @@
 <span class="w">	</span><span class="p">}</span><span class="w"></span>
 
 <span class="w">	</span><span class="cm">/* get composition of solution phase */</span><span class="w"></span>
-<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">nEl</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ox</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
 <span class="w">		</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">ss_comp</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
 <span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">n_em</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
 <span class="w">		   </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">ss_comp</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">Comp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">*</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">z_em</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
@@ -319,7 +325,7 @@
 <span class="w">	</span><span class="p">}</span><span class="w"></span>
 
 <span class="w">	</span><span class="cm">/* get composition of solution phase */</span><span class="w"></span>
-<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">nEl</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ox</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
 <span class="w">		</span><span class="n">cp</span><span class="p">.</span><span class="n">ss_comp</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
 <span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">cp</span><span class="p">.</span><span class="n">n_em</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
 <span class="w">		   </span><span class="n">cp</span><span class="p">.</span><span class="n">ss_comp</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">Comp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">*</span><span class="n">cp</span><span class="p">.</span><span class="n">p_em</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">SS_ref_db</span><span class="p">.</span><span class="n">z_em</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
@@ -685,23 +691,30 @@
 <span class="cm">  initialize solution phase database</span>
 <span class="cm">**/</span><span class="w"></span>
 <span class="n">global_variable</span><span class="w"> </span><span class="nf">init_ss_db</span><span class="p">(</span><span class="w">		</span><span class="kt">int</span><span class="w"> 				 </span><span class="n">EM_database</span><span class="p">,</span><span class="w"></span>
-<span class="w">								</span><span class="n">bulk_info</span><span class="w"> 	 </span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
+<span class="w">								</span><span class="n">bulk_info</span><span class="w"> 	 		 </span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
 <span class="w">								</span><span class="n">global_variable</span><span class="w"> 	 </span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
 <span class="w">								</span><span class="n">SS_ref</span><span class="w"> 				</span><span class="o">*</span><span class="n">SS_ref_db</span><span class="w"></span>
 <span class="p">){</span><span class="w"></span>
-<span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">R</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0083144</span><span class="p">;</span><span class="w"> </span>
-<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ss</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">	</span>
-<span class="w">		</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">G_SS_EM_function</span><span class="p">(</span><span class="w">		</span><span class="n">gv</span><span class="p">,</span><span class="w"> </span>
-<span class="w">												</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span>
-<span class="w">												</span><span class="n">EM_database</span><span class="p">,</span><span class="w"> </span>
-<span class="w">												</span><span class="n">z_b</span><span class="p">,</span><span class="w"> </span>
-<span class="w">												</span><span class="n">gv</span><span class="p">.</span><span class="n">SS_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w">		</span><span class="p">);</span><span class="w"></span>
-<span class="w">										 </span>
-<span class="w">		</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">P</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">z_b</span><span class="p">.</span><span class="n">P</span><span class="p">;</span><span class="w">									</span><span class="cm">/** needed to pass to local minimizer, allows for P variation for liq/sol */</span><span class="w"></span>
-<span class="w">		</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">T</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">z_b</span><span class="p">.</span><span class="n">T</span><span class="p">;</span><span class="w">		</span>
-<span class="w">		</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">R</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">R</span><span class="p">;</span><span class="w">										</span><span class="cm">/** can become a global variable instead */</span><span class="w"></span>
 
+
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">EM_database</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">){</span><span class="w"></span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ss</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">P</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">z_b</span><span class="p">.</span><span class="n">P</span><span class="p">;</span><span class="w">									</span><span class="cm">/** needed to pass to local minimizer, allows for P variation for liq/sol */</span><span class="w"></span>
+<span class="w">			</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">T</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">z_b</span><span class="p">.</span><span class="n">T</span><span class="p">;</span><span class="w">		</span>
+<span class="w">			</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">R</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0083144</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">			</span><span class="c1">// if (SS_ref_db[i].is_liq == 1){</span>
+<span class="w">			</span><span class="c1">// 	SS_ref_db[i].P  = z_b.P + gv.melt_pressure;</span>
+<span class="w">			</span><span class="c1">// }</span>
+
+<span class="w">			</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">G_SS_ig_EM_function</span><span class="p">(</span><span class="w">	</span><span class="n">gv</span><span class="p">,</span><span class="w"> </span>
+<span class="w">													</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span>
+<span class="w">													</span><span class="n">EM_database</span><span class="p">,</span><span class="w"> </span>
+<span class="w">													</span><span class="n">z_b</span><span class="p">,</span><span class="w"> </span>
+<span class="w">													</span><span class="n">gv</span><span class="p">.</span><span class="n">SS_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w">		</span><span class="p">);</span><span class="w"></span>
+<span class="w">											</span>
+<span class="w">										</span><span class="cm">/** can become a global variable instead */</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
 <span class="w">	</span><span class="p">}</span><span class="w"></span>
 
 <span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">gv</span><span class="p">;</span><span class="w"></span>

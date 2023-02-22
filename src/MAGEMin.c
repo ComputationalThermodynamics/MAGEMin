@@ -693,24 +693,9 @@ int runMAGEMin(			int    argc,
 	/****************************************************************************************/
 	/**                            PARTITIONING GIBBS ENERGY                               **/
 	/****************************************************************************************/
-	if (z_b.T > gv.solver_switch_T){
-		gv 		= PGE(			z_b,									/** bulk rock constraint 			*/ 
-								gv,										/** global variables (e.g. Gamma) 	*/
+	
+	if (gv.solver == 0){ 		/* Legacy solver only */
 
-								SS_objective,
-								splx_data,
-								PP_ref_db,								/** pure phase database 			*/
-								SS_ref_db,								/** solution phase database 		*/
-								cp							);
-
-	}
-
-	/**
-		Launch legacy solver (LP, Theriak-like algorithm)
-	*/ 
-	if ((gv.div == 1 || z_b.T <= gv.solver_switch_T ) && gv.solver == 1){
-	// if (gv.div == 1  && gv.solver == 1){	
-		printf("\n[PGE failed -> legacy solver...]\n");
 		gv.div 		= 0;
 		gv.status 	= 0;
 
@@ -730,7 +715,54 @@ int runMAGEMin(			int    argc,
 								PP_ref_db,								/** pure phase database 			*/
 								SS_ref_db,								/** solution phase database 		*/
 								cp						);
+
 	}
+	else if (gv.solver == 1){	/* PGE + Legacy solver */
+
+		if (z_b.T > gv.solver_switch_T){
+			gv 		= PGE(			z_b,									/** bulk rock constraint 			*/ 
+									gv,										/** global variables (e.g. Gamma) 	*/
+
+									SS_objective,
+									splx_data,
+									PP_ref_db,								/** pure phase database 			*/
+									SS_ref_db,								/** solution phase database 		*/
+									cp							);
+
+		}
+
+		/**
+			Launch legacy solver (LP, Theriak-Domino like algorithm)
+		*/ 
+		if ((gv.div == 1 || z_b.T <= gv.solver_switch_T ) && gv.solver == 1){
+		// if (gv.div == 1  && gv.solver == 1){	
+			printf("\n[PGE failed -> legacy solver...]\n");
+			gv.div 		= 0;
+			gv.status 	= 0;
+
+			gv = init_LP(			z_b,
+									splx_data,
+									gv,
+											
+									PP_ref_db,
+									SS_ref_db,
+									cp						);	
+
+			gv = LP(				z_b,									/** bulk rock informations 			*/
+									gv,										/** global variables (e.g. Gamma) 	*/
+
+									SS_objective,
+									splx_data,
+									PP_ref_db,								/** pure phase database 			*/
+									SS_ref_db,								/** solution phase database 		*/
+									cp						);
+		}
+
+	}
+	else {
+		printf("  Wrong solver option: should be 0 (legacy) or 1 (PGE & legacy)");
+	}
+
 
 
 	if (gv.verbose == 1){
