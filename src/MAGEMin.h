@@ -37,6 +37,7 @@ typedef struct global_variables {
 	double  *arg_gamma;			/** gamma provided by command line 	*/
 	int 	 n_points;			/** number of parallel points 		*/
 	char 	*File;
+	char 	*db;
 	char 	*Phase;
 	char 	*sys_in;
 

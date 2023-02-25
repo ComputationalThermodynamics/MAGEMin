@@ -112,6 +112,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.outpath 			= malloc (100 	* sizeof(char)			);
 	gv.version 			= malloc (50  	* sizeof(char)			);
 	gv.File 			= malloc (50 	* sizeof(char)			);
+	gv.db 				= malloc (5 	* sizeof(char)			);
 	gv.Phase 			= malloc (50 	* sizeof(char)			);
 	gv.sys_in 			= malloc (5 	* sizeof(char)			);
 
@@ -124,7 +125,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.2.8 [16/02/2023]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.2.9 [01/03/2023]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	gv.max_n_cp 		= 128;					/** number of considered solution phases 											*/									
@@ -190,7 +191,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.tot_time 		= 0.0;
 
 	/* set default parameters (overwritten later from args)*/
-	gv.EM_database  	=  0; 					/** 0, metapelite; 1 metabasite; 2 igneous											*/
+	gv.EM_database  	=  2; 					/** 0, metapelite; 1 metabasite; 2 igneous											*/
 	gv.n_points 		=  1;
 	gv.maxeval  		= -1;
 	gv.solver   		=  1;					/* 1 = PGE+Legacy, 2 = Legacy only */
@@ -555,7 +556,22 @@ global_variable get_bulk_metapelite( global_variable gv) {
 		gv.bulk_rock[8]  = 0.1;			/** O */
 		gv.bulk_rock[9]  = 0.075;		/** MnO */
 		gv.bulk_rock[10] = 40.000;		/** H2O */
-	}				    
+	}		
+	if (gv.test == 1){ 			//FPWorldMedian pelite !! WATER UNDER SATURATED!!
+		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O MnO H2O 	*/
+		/* Forshaw, J. B., & Pattison, D. R. (2023) 		*/
+		gv.bulk_rock[0]  = 71.00;		/** SiO2 */
+		gv.bulk_rock[1]  = 12.81;		/** Al2O2 */
+		gv.bulk_rock[2]  = 0.77;		/** CaO  */
+		gv.bulk_rock[3]  = 3.98;		/** MgO */
+		gv.bulk_rock[4]  = 6.34;		/** FeO */
+		gv.bulk_rock[5]  = 2.79;		/** K2O	 */
+		gv.bulk_rock[6]  = 1.48;		/** Na2O */
+		gv.bulk_rock[7]  = 0.76;		/** TiO2 */
+		gv.bulk_rock[8]  = 0.1;			/** O */
+		gv.bulk_rock[9]  = 0.075;		/** MnO */
+		gv.bulk_rock[10] = 5.000;		/** H2O */
+	}		    
 	else{
 		printf("Unknown test %i - pl ease specify a different test! \n", gv.test);
 	 	exit(EXIT_FAILURE);
