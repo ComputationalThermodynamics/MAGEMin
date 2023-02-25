@@ -517,22 +517,22 @@ global_variable phase_hold2rmv(			bulk_info 	z_b,
 										csd_phase_set  		*cp 
 ){
 
-	/** REMOVE AND DELETE PHASES FROM CONSIDERATION IF FRACTION < 0.0**/
-	for (int i = 0; i < gv.len_pp; i++){
-		if (gv.pp_flags[i][2] == 1){
-			if (PP_ref_db[i].gb_lvl*PP_ref_db[i].factor > gv.bnd_filter_pc){				
-				gv.pp_flags[i][0] = 0;
-				gv.pp_flags[i][1] = 0;
-				gv.pp_flags[i][2] = 0;
-				gv.pp_flags[i][3] = 1;
-				gv.pp_n[i]        = 0.0;															/** put to 0 if you want to allow multiple phase removal on top of 1 phase addition */
-			}
-		}
-	}
+	/** REMOVE AND DELETE PHASES FROM CONSIDERATION IF DELTA G IS GETTING TOO LARGE**/
+	// for (int i = 0; i < gv.len_pp; i++){
+	// 	if (gv.pp_flags[i][2] == 1){
+	// 		if (PP_ref_db[i].gb_lvl*PP_ref_db[i].factor > gv.bnd_filter_pc){				
+	// 			gv.pp_flags[i][0] = 0;
+	// 			gv.pp_flags[i][1] = 0;
+	// 			gv.pp_flags[i][2] = 0;
+	// 			gv.pp_flags[i][3] = 1;
+	// 			gv.pp_n[i]        = 0.0;															/** put to 0 if you want to allow multiple phase removal on top of 1 phase addition */
+	// 		}
+	// 	}
+	// }
 	
 	for (int i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[2] == 1){
-			if (cp[i].df*cp[i].factor > gv.bnd_filter_pc){
+			if (cp[i].df*cp[i].factor > gv.bnd_filter_pge){
 				cp[i].ss_flags[0] = 0;
 				cp[i].ss_flags[1] = 0;
 				cp[i].ss_flags[2] = 0;

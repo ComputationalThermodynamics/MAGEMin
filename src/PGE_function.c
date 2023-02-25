@@ -97,7 +97,7 @@ void PGE_print(					bulk_info 				z_b,
 	for (int i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[0] == 1 && cp[i].ss_flags[2] == 1){
 
-			printf(" %d | %4s | %+10f | %+10f | %+10f | %+10f | ",cp[i].ss_flags[1],cp[i].name,cp[i].ss_n,cp[i].df,cp[i].factor,cp[i].sum_xi);
+			printf(" %d | %4s | %+10f | %+10f | %+10f | %+10f | ",cp[i].ss_flags[1],cp[i].name,cp[i].ss_n,cp[i].df*cp[i].factor,cp[i].factor,cp[i].sum_xi);
 
 			for (int k = 0; k < cp[i].n_em; k++) {
 				printf(" %+10f",(cp[i].p_em[k]-cp[i].xi_em[k]*cp[i].p_em[k])*SS_ref_db[cp[i].id].z_em[k]);
@@ -257,14 +257,12 @@ global_variable PGE_update_pi(		bulk_info 	z_b,
 		if (cp[ph].ss_flags[1] == 1 && SS_ref_db[cp[ph].id].CstFactor == 0){
 			ss = cp[ph].id;
 
-			double dp[cp[ph].n_em];
-			for (k = 0; k < cp[ph].n_em; k++){
-				dp[k] = (cp[ph].p_em[k]-cp[ph].xi_em[k]*cp[ph].p_em[k])*SS_ref_db[ss].z_em[k];
-			}
-
 			for (k = 0; k < cp[ph].n_em; k++){
 				SS_ref_db[ss].p[k] = cp[ph].p_em[k]*cp[ph].xi_em[k];
 			}
+
+			norm_array(						SS_ref_db[ss].p,
+											cp[ph].n_em					);						
 			
 			SS_ref_db[ss] = P2X(			gv,
 											SS_ref_db[ss],

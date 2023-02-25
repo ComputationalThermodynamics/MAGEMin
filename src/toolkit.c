@@ -44,7 +44,7 @@ void print_help(	global_variable gv	){
 	printf("  --solver=     [int]   : solver: 0 for legacy and 1 for PGE (default)\n");
 	printf("  --out_matlab= [int]   : Matlab text file output, 0. inactive, 1. active\n");
 	printf("\n");
-	printf(" *the list of oxides must be given as follow:\n");
+	printf(" *the list of oxides must be provided as follow:\n");
 	printf("  SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3, H2O\n");
 	printf("\n");
 	printf(" Note that FeOt (total iron) is used here!\n");	

@@ -94,6 +94,7 @@ typedef struct global_variables {
 	
 	/* PSEUDOCOMPOUNDS */
 	double   bnd_filter_pc;     /** value of driving force the pseudocompound is considered to reduce the compositional space */
+	double   bnd_filter_pge;     /** value of driving force the pseudocompound is considered to reduce the compositional space */
 	double 	 max_G_pc;
 	int     *n_SS_PC;
 	double  *SS_PC_stp;
@@ -633,14 +634,16 @@ typedef struct stb_systems {
 
 } stb_system;
 
-global_variable global_variable_alloc(	bulk_info 			*z_b);
+global_variable global_variable_alloc(	bulk_info 			*z_b	);
 
 global_variable global_variable_init( 	global_variable  	 gv,
 										bulk_info 			*z_b 	);
 
 /** declare function to get benchmark bulk rock composition **/
-global_variable get_bulk(	global_variable  gv					);
+global_variable get_bulk_igneous(		global_variable  gv				);
 
+/** declare function to get benchmark bulk rock composition **/
+global_variable get_bulk_metapelite(	global_variable  gv				);
 
 /** Stores databases **/
 typedef struct Database {	PP_ref     		 *PP_ref_db;		/** Pure phases 											*/

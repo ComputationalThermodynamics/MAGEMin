@@ -148,7 +148,6 @@ int runMAGEMin(			int    argc,
 	init_simplex_B_em(				&splx_data,
 								 	 gv				);
 
-
 	/*
 	  initialize output	
 	*/
@@ -165,9 +164,16 @@ int runMAGEMin(			int    argc,
 	/* 
 	  get bulk rock composition parsed from args 
 	*/
-	gv = get_bulk( gv );
+	if (gv.EM_database == 0){
+		gv = get_bulk_metapelite( gv );
+	}
+	else if (gv.EM_database == 2){
+		gv = get_bulk_igneous( gv );
+	}
+	else{
+		printf(" Wrong database...\n");
+	}
 	
-
 	/****************************************************************************************/
 	/**                               LAUNCH MINIMIZATION ROUTINE                          **/
 	/****************************************************************************************/
@@ -657,8 +663,12 @@ int runMAGEMin(			int    argc,
 
 	/** pointer array to objective functions 								*/
 	obj_type 								SS_objective[gv.len_ss];	
-	
-	if (EM_database == 2){			// Igneous database //
+
+	if (EM_database == 0){			// Igneous database //
+		SS_mp_objective_init_function(			SS_objective,
+												gv							);
+	}
+	else if (EM_database == 2){			// Igneous database //
 		SS_ig_objective_init_function(			SS_objective,
 												gv							);
 	}
