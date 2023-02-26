@@ -130,7 +130,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	/* generate parameters        		*/
 	gv.max_n_cp 		= 128;					/** number of considered solution phases 											*/									
 	// gv.calc_seismic_cor = 1;					/** compute seismic velocity corrections (melt and anelastic)						*/
-	// gv.melt_pressure 	= 0.0;					/** [kbar] pressure shift in case of modelling melt pressure 						*/
+	// gv.melt_pressure 	= 0.0;				/** [kbar] pressure shift in case of modelling melt pressure 						*/
 
 	/* residual tolerance 				*/
 	gv.br_max_tol       = 1.0e-5;				/** value under which the solution is accepted to satisfy the mass constraint 		*/
@@ -204,8 +204,9 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	z_b->T 				= 1100.0 + 273.15;		
 	z_b->R 				= 0.0083144;
 
-	strcpy(gv.File,		"none"); 	// Filename to be read to have multiple P-T-bulk conditions to solve
-	strcpy(gv.sys_in,	"mol"); 	// Filename to be read to have multiple P-T-bulk conditions to solve
+	strcpy(gv.File,		"none"); 	/** Filename to be read to have multiple P-T-bulk conditions to solve 	*/
+	strcpy(gv.sys_in,	"mol"); 	/** system unit 														*/
+	strcpy(gv.db,		"ig"); 		/** database 															*/
 
 	return gv;
 }
@@ -236,7 +237,7 @@ typedef struct metapelite_datasets {
 	double  max_g_phase;				/** maximum delta_G of reference change during PGE 									*/
 	double 	max_fac;					/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
 
-	double  merge_value;					/** max norm distance between two instances of a solution phase						*/	
+	double  merge_value;				/** max norm distance between two instances of a solution phase						*/	
 	
 } metapelite_dataset;
 
@@ -290,7 +291,7 @@ typedef struct igneous_datasets {
 	double  max_g_phase;				/** maximum delta_G of reference change during PGE 									*/
 	double 	max_fac;					/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
 
-	double  merge_value;					/** max norm distance between two instances of a solution phase						*/	
+	double  merge_value;				/** max norm distance between two instances of a solution phase						*/	
 	
 } igneous_dataset;
 
@@ -557,7 +558,7 @@ global_variable get_bulk_metapelite( global_variable gv) {
 		gv.bulk_rock[9]  = 0.075;		/** MnO */
 		gv.bulk_rock[10] = 40.000;		/** H2O */
 	}		
-	if (gv.test == 1){ 			//FPWorldMedian pelite !! WATER UNDER SATURATED!!
+	else if (gv.test == 1){ 			//FPWorldMedian pelite !! WATER UNDER SATURATED!!
 		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O MnO H2O 	*/
 		/* Forshaw, J. B., & Pattison, D. R. (2023) 		*/
 		gv.bulk_rock[0]  = 71.00;		/** SiO2 */
@@ -571,9 +572,39 @@ global_variable get_bulk_metapelite( global_variable gv) {
 		gv.bulk_rock[8]  = 0.1;			/** O */
 		gv.bulk_rock[9]  = 0.075;		/** MnO */
 		gv.bulk_rock[10] = 5.000;		/** H2O */
+	}	
+	else if (gv.test == 2){ 			//Pelite 
+		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O MnO H2O 	*/
+		/* White et al., 2014, Fig 8. water oversaturated 	*/
+		gv.bulk_rock[0]  = 64.578;		/** SiO2 */
+		gv.bulk_rock[1]  = 13.651;		/** Al2O2 */
+		gv.bulk_rock[2]  = 1.586;		/** CaO  */
+		gv.bulk_rock[3]  = 5.529;		/** MgO */
+		gv.bulk_rock[4]  = 8.025;		/** FeO */
+		gv.bulk_rock[5]  = 2.943;		/** K2O	 */
+		gv.bulk_rock[6]  = 2.000;		/** Na2O */
+		gv.bulk_rock[7]  = 0.907;		/** TiO2 */
+		gv.bulk_rock[8]  = 0.65;		/** O */
+		gv.bulk_rock[9]  = 0.175;		/** MnO */
+		gv.bulk_rock[10] = 40.000;		/** H2O */
+	}	
+	else if (gv.test == 3){ 			//Pelite 
+		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O MnO H2O 	*/
+		/* White et al., 2014, Fig 8. water undersaturated 	*/
+		gv.bulk_rock[0]  = 64.578;		/** SiO2 */
+		gv.bulk_rock[1]  = 13.651;		/** Al2O2 */
+		gv.bulk_rock[2]  = 1.586;		/** CaO  */
+		gv.bulk_rock[3]  = 5.529;		/** MgO */
+		gv.bulk_rock[4]  = 8.025;		/** FeO */
+		gv.bulk_rock[5]  = 2.943;		/** K2O	 */
+		gv.bulk_rock[6]  = 2.000;		/** Na2O */
+		gv.bulk_rock[7]  = 0.907;		/** TiO2 */
+		gv.bulk_rock[8]  = 0.65;		/** O */
+		gv.bulk_rock[9]  = 0.175;		/** MnO */
+		gv.bulk_rock[10] = 6.244;		/** H2O */
 	}		    
 	else{
-		printf("Unknown test %i - pl ease specify a different test! \n", gv.test);
+		printf("Unknown test %i - please specify a different test! \n", gv.test);
 	 	exit(EXIT_FAILURE);
 	}
 	return gv;

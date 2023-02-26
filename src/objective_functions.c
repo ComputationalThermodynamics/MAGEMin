@@ -33,6 +33,7 @@ void dpdx_mp_liq(void *SS_ref_db, const double *x){
     dp_dx[7][0] = 0.0;      dp_dx[7][1] = 0.0;      dp_dx[7][2] = 0.0;      dp_dx[7][3] = 0.0;      dp_dx[7][4] = 0.0;      dp_dx[7][5] = 0.0;      dp_dx[7][6] = 1.0;      
 }
 
+
 /**
     Update dpdx matrix of pl4tr_mp
 */
@@ -44,6 +45,7 @@ void dpdx_mp_pl4tr(void *SS_ref_db, const double *x){
     dp_dx[1][0] = 1.0;      dp_dx[1][1] = 0.0;      
     dp_dx[2][0] = 0.0;      dp_dx[2][1] = 1.0;      
 }
+
 
 /**
     Update dpdx matrix of bi_mp
@@ -272,7 +274,6 @@ void px_mp_pl4tr(void *SS_ref_db, const double *x){
         p[1]           = x[0];
         p[2]           = x[1];
 }
-    
 /**
     Endmember fraction of bi_mp
 */

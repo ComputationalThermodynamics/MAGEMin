@@ -1398,7 +1398,7 @@ SS_ref G_SS_mp_pl4tr_function(SS_ref SS_ref_db, int EM_database, int len_ox, bul
     int i, j;
     int n_em = SS_ref_db.n_em;
     
-    char   *EM_tmp[] 		= {"ab","san","an"};
+    char   *EM_tmp[] 		= {"ab","an","san"};
     for (int i = 0; i < SS_ref_db.n_em; i++){
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
     };
@@ -1420,14 +1420,6 @@ SS_ref G_SS_mp_pl4tr_function(SS_ref SS_ref_db, int EM_database, int len_ox, bul
     										"ab", 
     										"equilibrium"	);
     
-    em_data san_eq 		= get_em_data(		EM_database, 
-    										len_ox,
-    										z_b,
-    										SS_ref_db.P,
-    										SS_ref_db.T,
-    										"san", 
-    										"equilibrium"	);
-    
     em_data an_eq 		= get_em_data(		EM_database, 
     										len_ox,
     										z_b,
@@ -1436,18 +1428,26 @@ SS_ref G_SS_mp_pl4tr_function(SS_ref SS_ref_db, int EM_database, int len_ox, bul
     										"an", 
     										"equilibrium"	);
     
+    em_data san_eq 		= get_em_data(		EM_database, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"san", 
+    										"equilibrium"	);
+    
     SS_ref_db.gbase[0] 		= ab_eq.gb;
-    SS_ref_db.gbase[1] 		= san_eq.gb;
-    SS_ref_db.gbase[2] 		= an_eq.gb;
+    SS_ref_db.gbase[1] 		= an_eq.gb;
+    SS_ref_db.gbase[2] 		= san_eq.gb;
     
     SS_ref_db.ElShearMod[0] 	= ab_eq.ElShearMod;
-    SS_ref_db.ElShearMod[1] 	= san_eq.ElShearMod;
-    SS_ref_db.ElShearMod[2] 	= an_eq.ElShearMod;
+    SS_ref_db.ElShearMod[1] 	= an_eq.ElShearMod;
+    SS_ref_db.ElShearMod[2] 	= san_eq.ElShearMod;
     
     for (i = 0; i < len_ox; i++){
         SS_ref_db.Comp[0][i] 	= ab_eq.C[i];
-        SS_ref_db.Comp[1][i] 	= san_eq.C[i];
-        SS_ref_db.Comp[2][i] 	= an_eq.C[i];
+        SS_ref_db.Comp[1][i] 	= an_eq.C[i];
+        SS_ref_db.Comp[2][i] 	= san_eq.C[i];
     }
     
     for (i = 0; i < n_em; i++){
@@ -3988,22 +3988,19 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
 		for (int j = 0; j < SS_ref_db.n_em; j++){
 			printf(" %+12.5f",SS_ref_db.gbase[j]);
 		}
-		for (int j = SS_ref_db.n_em; j < gv.len_ox+1; j++){
-			printf("%13s","-");
-		}
 		printf("\n");
 
 		if (1 == 1){
 			/* display molar composition */
+            printf("\n S A C M F K N T O C H\n");
 			for (int i = 0; i < SS_ref_db.n_em; i++){
 				for (int j = 0; j < gv.len_ox; j++){
-					printf(" %+10f",SS_ref_db.Comp[i][j]);
+					printf(" %.0f",SS_ref_db.Comp[i][j]);
 				}
 				printf("\n");
 			}
 			printf("\n");
 		}
-
 	}
 
 	return SS_ref_db;
@@ -4137,22 +4134,20 @@ SS_ref G_SS_mp_EM_function(		global_variable 	 gv,
 		for (int j = 0; j < SS_ref_db.n_em; j++){
 			printf(" %+12.5f",SS_ref_db.gbase[j]);
 		}
-		for (int j = SS_ref_db.n_em; j < gv.len_ox+1; j++){
-			printf("%13s","-");
-		}
+
 		printf("\n");
 
 		if (1 == 1){
 			/* display molar composition */
+            printf("\n S A C M F K N T O M H\n");
 			for (int i = 0; i < SS_ref_db.n_em; i++){
 				for (int j = 0; j < gv.len_ox; j++){
-					printf(" %+10f",SS_ref_db.Comp[i][j]);
+					printf(" %.0f",SS_ref_db.Comp[i][j]);
 				}
 				printf("\n");
 			}
 			printf("\n");
 		}
-
 	}
 
 	return SS_ref_db;

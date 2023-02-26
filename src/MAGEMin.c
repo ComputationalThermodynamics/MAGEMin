@@ -852,7 +852,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		else if (c == 316){ gv.solver   = atoi(opt.arg);		if (gv.verbose == 1){		printf("--solver      : solver               = %i \n", 	 	   		gv.solver			);}}																		
 		else if (c == 318){ gv.output_matlab   = atoi(opt.arg); if (gv.verbose == 1){		printf("--out_matlab  : out_matlab           = %i \n", 	 	   		gv.output_matlab	);}}																		
 		else if (c == 303){ strcpy(gv.File,opt.arg);		 	if (gv.verbose == 1){		printf("--File        : File                 = %s \n", 	 	   		gv.File				);}}
-		else if (c == 303){ strcpy(gv.db,opt.arg);		 		if (gv.verbose == 1){		printf("--db          : db                   = %s \n", 	 	   		gv.File				);}}
+		else if (c == 302){ strcpy(gv.db,opt.arg);		 		if (gv.verbose == 1){		printf("--db          : db                   = %s \n", 	 	   		gv.db				);}}
 		else if (c == 317){ strcpy(gv.sys_in,opt.arg);		 	if (gv.verbose == 1){		printf("--sys_in      : sys_in               = %s \n", 	 	   		gv.sys_in			);}}
 		else if (c == 304){ gv.n_points = atoi(opt.arg); 	 	if (gv.verbose == 1){		printf("--n_points    : n_points             = %i \n", 	 	   		gv.n_points			);}}
 		else if (c == 305){ gv.test  	= atoi(opt.arg); 		if (gv.verbose == 1){		printf("--test        : Test                 = %i \n", 	 	  		gv.test				);}}
@@ -896,6 +896,17 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		 }
 	}
 
+	/* set-up database acronym here*/
+	if (strcmp(gv.db, "mp") == 0){
+		gv.EM_database = 0;
+	}
+	else if (strcmp(gv.db, "ig") == 0){
+		gv.EM_database = 2;
+	}
+	else {
+		printf(" No or wrong database acronym has been provided, using default (Igneous [ig])\n");
+		gv.EM_database = 2;
+	}
 	return gv;
 } 
 

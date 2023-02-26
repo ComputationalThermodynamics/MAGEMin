@@ -146,17 +146,25 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 	}
 
 
+
 	if (gv.verbose == 1){	
+
+		if (gv.EM_database == 0){
+			printf("  - Database                  : Metapelite (White et al., 2014)\n"	);
+		}
+		else if (gv.EM_database == 2){
+			printf("  - Database                  : Igneous (Holland et al., 2018)\n"	);
+		}
+
 		if (strcmp( gv.sys_in, "mol") == 0){	
-			printf("  - input system composition   : mol fraction\n"	);
+			printf("  - input system composition  : mol fraction\n"	);
 		}
 		else if (strcmp( gv.sys_in, "wt") == 0){	
-			printf("  - input system composition   : wt fraction\n"	);
+			printf("  - input system composition  : wt fraction\n"	);
 		}
 		else{
-			printf("  - input system composition   : unknown! [has to be mol or wt]\n");
+			printf("  - input system composition  : unknown! [has to be mol or wt]\n");
 		}
-		printf("\n");
 	}	
 
 	/** Normalize composition to sum to 1. 										*/
@@ -171,10 +179,13 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 			gv.bulk_rock[i] = 1.0e-4;
 			renorm = 1;
 			if (gv.verbose == 1){
-				printf("  - mol fraction of %4s is < 1e-4 -> set back to 1e-4 to avoid minimization issues\n\n",gv.ox[i]	);
+				printf("  - mol of %4s < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i]	);
 			}	
 		}
 	}
+		if (gv.verbose == 1){
+			printf("\n");
+		}
 	if (renorm == 1){
 		norm_array(							gv.bulk_rock,
 											gv.len_ox					);						

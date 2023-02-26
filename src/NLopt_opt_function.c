@@ -256,11 +256,12 @@ void pl4tr_mp_c(unsigned m, double *result, unsigned n, const double *x, double 
         grad[3] = 0.0;
         grad[4] = 0.0;
         grad[5] = -1.0;
-        grad[6] = -0.250;
+        grad[6] = -0.25;
         grad[7] = 0.0;
-        grad[8] = 0.250;
+        grad[8] = 0.25;
         grad[9] = 0.0;
     }
+
     return;
 };
 
