@@ -746,7 +746,7 @@ int runMAGEMin(			int    argc,
 		*/ 
 		if ((gv.div == 1 || z_b.T <= gv.solver_switch_T ) && gv.solver == 1){
 		// if (gv.div == 1  && gv.solver == 1){	
-			printf("\n[PGE failed -> legacy solver...]\n");
+			printf("\n[PGE failed (residual: %+.4f, PT: [%+.5f,%+.5f])-> legacy solver...]\n",gv.BR_norm,z_b.P,z_b.T-273.15);
 			gv.div 		= 0;
 			gv.status 	= 0;
 
@@ -856,8 +856,8 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		else if (c == 317){ strcpy(gv.sys_in,opt.arg);		 	if (gv.verbose == 1){		printf("--sys_in      : sys_in               = %s \n", 	 	   		gv.sys_in			);}}
 		else if (c == 304){ gv.n_points = atoi(opt.arg); 	 	if (gv.verbose == 1){		printf("--n_points    : n_points             = %i \n", 	 	   		gv.n_points			);}}
 		else if (c == 305){ gv.test  	= atoi(opt.arg); 		if (gv.verbose == 1){		printf("--test        : Test                 = %i \n", 	 	  		gv.test				);}}
-		else if (c == 306){ z_b->T=strtof(opt.arg,NULL)+273.15; if (gv.verbose == 1){		printf("--Temp        : Temperature          = %f C \n",            z_b->T-273.15		);}}
-		else if (c == 307){ z_b->P = strtof(opt.arg,NULL); 		if (gv.verbose == 1){		printf("--Pres        : Pressure             = %f kbar \n", 		z_b->P				);}}
+		else if (c == 306){ z_b->T=strtold(opt.arg,NULL)+273.15;if (gv.verbose == 1){		printf("--Temp        : Temperature          = %f C \n",           z_b->T-273.15000	);}}
+		else if (c == 307){ z_b->P = strtold(opt.arg,NULL); 	if (gv.verbose == 1){		printf("--Pres        : Pressure             = %f kbar \n", 		z_b->P				);}}
 		else if (c == 308){ strcpy(gv.Phase,opt.arg);		 	if (gv.verbose == 1){		printf("--Phase       : Phase name           = %s \n", 	   			gv.Phase			);}}
 		else if (c == 313){ gv.maxeval  = strtof(opt.arg,NULL); if (gv.verbose == 1){
             if (gv.maxeval==0){     printf("--maxeval     : Max. # of local iter.    = infinite  \n"		); }

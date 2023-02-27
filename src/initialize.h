@@ -174,7 +174,6 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.it_f             = 256;                  /** gives back failure when the number of iteration is bigger than it_f             */
 
 	/* phase update options 			*/
-	gv.re_in_n          = 1e-3;					/** fraction of phase when being reintroduce.  										*/
 	gv.min_df 			= 0.0;					/** value under which a phase in hold is reintroduced */
 
 	/* numerical derivatives P,T steps (same value as TC) */
@@ -238,7 +237,8 @@ typedef struct metapelite_datasets {
 	double 	max_fac;					/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
 
 	double  merge_value;				/** max norm distance between two instances of a solution phase						*/	
-	
+	double 	re_in_n;					/** fraction of phase when being reintroduce.  										*/
+
 } metapelite_dataset;
 
 metapelite_dataset metapelite_db = {
@@ -251,19 +251,20 @@ metapelite_dataset metapelite_db = {
 	{"liq"	,"pl4tr","bi"	,"g"	,"ep"	,"ma"	,"mu"	,"opx"	,"sa"	,"cd"	,"st"	,"chl"	,"ctd"	,"sp"  ,"ilm"  ,"mt"		},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1			},  // allow solvus?
-	{2450	,45 	,981	,756	,12 	,1875	,1875	,1277	,230	,216	,540	,2270	,216	,75 	,140 	,27			},  // # of pseudocompound
-	{0.249	,0.124	,0.19	,0.19	,0.19	,0.19	,0.19	,0.249	,0.19	,0.19	,0.19	,0.249	,0.19	,0.249 	,0.19 	,0.19 		},  // discretization step
+	{2450	,231 	,981	,756	,110 	,1875	,1875	,1277	,230	,216	,540	,2270	,216	,405 	,140 	,27			},  // # of pseudocompound
+	{0.249	,0.049	,0.19	,0.19	,0.049	,0.19	,0.19	,0.249	,0.19	,0.19	,0.19	,0.249	,0.19	,0.124 	,0.19 	,0.19 		},  // discretization step
 
-	2.5, 						/* max dG under which a phase is considered to be reintroduced  					*/
+	2.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
 	473.15,						/* max temperature above which PGE solver is active 								*/
 	873.15,						/** minimum temperature above which melt is considered 								*/
 
 	8,							/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
-	0.025,						/** maximum mol% phase change during one PGE iteration in wt% 						*/
+	0.05,						/** maximum mol% phase change during one PGE iteration in wt% 						*/
 	2.5,						/** maximum delta_G of reference change during PGE 									*/
 	1.0,						/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
 
-	2e-1
+	1e-1,						/** merge instances of solution phase if norm < val 								*/
+	1e-4						/** fraction of solution phase when re-introduced 									*/
 };
 
 /** 
@@ -292,7 +293,8 @@ typedef struct igneous_datasets {
 	double 	max_fac;					/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
 
 	double  merge_value;				/** max norm distance between two instances of a solution phase						*/	
-	
+	double 	re_in_n;					/** fraction of phase when being reintroduce.  										*/
+
 } igneous_dataset;
 
 igneous_dataset igneous_db = {
@@ -317,7 +319,8 @@ igneous_dataset igneous_db = {
 	2.5,						/** maximum delta_G of reference change during PGE 									*/
 	1.0,						/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
 
-	2e-1
+	2e-1,						/** merge instances of solution phase if norm < val 								*/
+	1e-3						/** fraction of solution phase when re-introduced 									*/
 };
 
 
@@ -335,16 +338,17 @@ global_variable global_variable_init( 	global_variable  	 gv,
 		gv.len_ss  			= db.n_ss;
 		gv.len_ox  			= db.n_ox;
 
-		gv.PC_df_add		= db.PC_df_add;				/** min value of df under which the PC is added 									*/
+		gv.PC_df_add		= db.PC_df_add;					/** min value of df under which the PC is added 									*/
 		gv.solver_switch_T  = db.solver_switch_T;
-		gv.min_melt_T       = db.min_melt_T ;			/** minimum temperature above which melt is considered 								*/
+		gv.min_melt_T       = db.min_melt_T ;				/** minimum temperature above which melt is considered 								*/
 
-		gv.inner_PGE_ite    = db.inner_PGE_ite;						/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
-		gv.max_n_phase  	= db.max_n_phase;					/** maximum mol% phase change during one PGE iteration in wt% 						*/
-		gv.max_g_phase  	= db.max_g_phase;						/** maximum delta_G of reference change during PGE 									*/
-		gv.max_fac          = db.max_fac;						/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
+		gv.inner_PGE_ite    = db.inner_PGE_ite;				/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
+		gv.max_n_phase  	= db.max_n_phase;				/** maximum mol% phase change during one PGE iteration in wt% 						*/
+		gv.max_g_phase  	= db.max_g_phase;				/** maximum delta_G of reference change during PGE 									*/
+		gv.max_fac          = db.max_fac;					/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
 
-		gv.merge_value		= db.merge_value;	
+		gv.merge_value		= db.merge_value;				/** merge instances of solution phase if norm < val 								*/
+		gv.re_in_n          = db.re_in_n;					/** fraction of phase when being reintroduce.  										*/
 
 		/* alloc */
 		gv.ox 				= malloc (gv.len_ox * sizeof(char*)		);
@@ -379,16 +383,17 @@ global_variable global_variable_init( 	global_variable  	 gv,
 		gv.len_ss  			= db.n_ss;
 		gv.len_ox  			= db.n_ox;
 
-		gv.PC_df_add		= db.PC_df_add;				/** min value of df under which the PC is added 									*/
+		gv.PC_df_add		= db.PC_df_add;					/** min value of df under which the PC is added 									*/
 		gv.solver_switch_T  = db.solver_switch_T;
-		gv.min_melt_T       = db.min_melt_T;			/** minimum temperature above which melt is considered 								*/
+		gv.min_melt_T       = db.min_melt_T;				/** minimum temperature above which melt is considered 								*/
 
-		gv.inner_PGE_ite    = db.inner_PGE_ite;						/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
-		gv.max_n_phase  	= db.max_n_phase;					/** maximum mol% phase change during one PGE iteration in wt% 						*/
-		gv.max_g_phase  	= db.max_g_phase;						/** maximum delta_G of reference change during PGE 									*/
-		gv.max_fac          = db.max_fac;						/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
+		gv.inner_PGE_ite    = db.inner_PGE_ite;				/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
+		gv.max_n_phase  	= db.max_n_phase;				/** maximum mol% phase change during one PGE iteration in wt% 						*/
+		gv.max_g_phase  	= db.max_g_phase;				/** maximum delta_G of reference change during PGE 									*/
+		gv.max_fac          = db.max_fac;					/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
 
-		gv.merge_value		= db.merge_value;	
+		gv.merge_value		= db.merge_value;				/** merge instances of solution phase if norm < val 								*/
+		gv.re_in_n          = db.re_in_n;					/** fraction of phase when being reintroduce.  										*/
 
 		gv.ox 				= malloc (gv.len_ox * sizeof(char*)		);
 		for (i = 0; i < gv.len_ox; i++){
@@ -554,7 +559,7 @@ global_variable get_bulk_metapelite( global_variable gv) {
 		gv.bulk_rock[5]  = 2.79;		/** K2O	 */
 		gv.bulk_rock[6]  = 1.48;		/** Na2O */
 		gv.bulk_rock[7]  = 0.76;		/** TiO2 */
-		gv.bulk_rock[8]  = 0.1;			/** O */
+		gv.bulk_rock[8]  = 0.73;		/** O */
 		gv.bulk_rock[9]  = 0.075;		/** MnO */
 		gv.bulk_rock[10] = 40.000;		/** H2O */
 	}		
@@ -569,7 +574,7 @@ global_variable get_bulk_metapelite( global_variable gv) {
 		gv.bulk_rock[5]  = 2.79;		/** K2O	 */
 		gv.bulk_rock[6]  = 1.48;		/** Na2O */
 		gv.bulk_rock[7]  = 0.76;		/** TiO2 */
-		gv.bulk_rock[8]  = 0.1;			/** O */
+		gv.bulk_rock[8]  = 0.73;		/** O */
 		gv.bulk_rock[9]  = 0.075;		/** MnO */
 		gv.bulk_rock[10] = 5.000;		/** H2O */
 	}	

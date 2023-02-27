@@ -1416,8 +1416,9 @@ global_variable PGE(	bulk_info 			z_b,
 		/**               CHECK MINIMIZATION STATUS              */
 		/*********************************************************/
 
-		/* checks for full convergence  */
-		if (gv.BR_norm < gv.br_max_tol){ gv.status = 0;	iterate = 0;}
+		/* checks for full convergence  						 */
+		/* the second term checks if solution phase have been tested in case convergence is too fast */
+		if (gv.BR_norm < gv.br_max_tol && gv.check_PC2 == 1){ gv.status = 0;	iterate = 0;}
 		
 		/* checks for dampened convergence  */
 		if (gv.global_ite > gv.it_1 && gv.BR_norm < gv.br_max_tol*gv.ur_1){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_1, gv.ur_1);}; 	gv.status = 1; iterate = 0;}
