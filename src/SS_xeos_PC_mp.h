@@ -3,16 +3,6 @@
 
 #include "MAGEMin.h"
 
-struct ss_pc{
-    double xeos_pc[11];
-};
-
-typedef struct PC_refs {
-	struct ss_pc *ss_pc_xeos;
-
-} PC_ref;
-
-
 struct ss_pc mp_bi_pc_xeos[981] = {
 {{0.000100,0.000100,0.000100,0.000100,0.000100,0.000100}},
 {{0.000100,0.000100,0.000100,0.000100,0.190100,0.000100}},

@@ -745,8 +745,12 @@ int runMAGEMin(			int    argc,
 			Launch legacy solver (LP, Theriak-Domino like algorithm)
 		*/ 
 		if ((gv.div == 1 || z_b.T <= gv.solver_switch_T ) && gv.solver == 1){
-		// if (gv.div == 1  && gv.solver == 1){	
-			printf("\n[PGE failed (residual: %+.4f, PT: [%+.5f,%+.5f])-> legacy solver...]\n",gv.BR_norm,z_b.P,z_b.T-273.15);
+			if (gv.div == 1){	
+				printf("\n[PGE failed (residual: %+.4f, PT: [%+.5f,%+.5f])-> legacy solver...]\n",gv.BR_norm,z_b.P,z_b.T-273.15);
+			}
+			if (z_b.T <= gv.solver_switch_T){	
+				printf("\n Low Temperature conditions (T < %+5f) -> legacy solver...",gv.solver_switch_T);
+			}
 			gv.div 		= 0;
 			gv.status 	= 0;
 

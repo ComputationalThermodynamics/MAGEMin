@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Firewall warning (Apple M1)" href="faq.html" />
-    <link rel="prev" title="Single point calculation" href="julia/Run.html" /> 
+    <link rel="prev" title="Single point calculation Tutorial" href="julia/Run.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -130,7 +130,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="julia.html#use-magemin-c">Use MAGEMin_C</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="julia/Run.html">Single point calculation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="julia/Run.html">Single point calculation Tutorial</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="julia/Run.html#initialize-database">Initialize database</a></li>
 <li class="toctree-l3"><a class="reference internal" href="julia/Run.html#set-p-t-pressure-temperature">Set P-T-(pressure temperature)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="julia/Run.html#set-bulk-rock-composition">Set bulk-rock composition</a></li>
@@ -140,6 +140,7 @@
 <li class="toctree-l3"><a class="reference internal" href="julia/Run.html#access-output-structure">Access output structure</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="julia/Run.html#provide-custom-bulk-rock-composition">Provide custom bulk rock composition</a></li>
 </ul>
 </li>
 </ul>
@@ -285,15 +286,16 @@
 <section id="low-temperature-stabilization">
 <h2>Low temperature stabilization<a class="headerlink" href="#low-temperature-stabilization" title="Permalink to this headline"></a></h2>
 <ul class="simple">
-<li><p>In a number of cases, mainly water under-saturated cases, and at temperature below 600-650°C, the current version of the solver fails to provide consistent minimizations. We are working on an algorithm upgrade in order to fix this issue.</p></li>
-<li><p>While a working alternative approach is already being tested, we are further improving the performances before releasing it.</p></li>
+<li><p>In a number of cases using the Igneous database, mainly water under-saturated cases, and at temperature below 600-650°C, the PGE solver fails to provide consistent minimizations.</p></li>
+<li><p>In nearly all of these cases, the Gibbs-Duhem constraint cannot be enforced by the PGE (which relies on being able to enforce it), and an alternative “legacy” has now been added. The “legacy” solver uses the approach presented by de Capitani &amp; Brown (1987). This approach enforces the Gibbs-Duhem constraint only on the effective composition of the solution phase and not on each constitutive endmember of the solution phase such as in the PGE. When the PGE method fails the “legacy” solution can be seen as a relaxed Gibbs-Duhem constraint solution.</p></li>
+<li><p>Note that in the cases of non PGE failure, the PGE and the “legacy” solvers yield identical results, which points out to thermodynamic database limitation outside calibration range.</p></li>
 </ul>
 </section>
 <section id="hp-lt-melt-prediction">
 <h2>HP-LT melt prediction<a class="headerlink" href="#hp-lt-melt-prediction" title="Permalink to this headline"></a></h2>
 <ul class="simple">
 <li><p>For water-saturated composition, we found that at pressure &gt; 20 kbar and temperature &lt; 650°C melt is predicted to be stable.</p></li>
-<li><p>This is a known problem from the THERMOCALC developer community, and a fix should be provided in the following versions of the igenous thermodynamic dataset.</p></li>
+<li><p>This is a known problem from the THERMOCALC developer community, and a fix should be provided in a future version of the igneous thermodynamic dataset.</p></li>
 </ul>
 </section>
 </section>
@@ -302,7 +304,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="julia/Run.html" class="btn btn-neutral float-left" title="Single point calculation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="julia/Run.html" class="btn btn-neutral float-left" title="Single point calculation Tutorial" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="faq.html" class="btn btn-neutral float-right" title="Firewall warning (Apple M1)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

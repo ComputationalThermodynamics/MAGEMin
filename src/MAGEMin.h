@@ -10,6 +10,16 @@
 #include "nlopt.h"
 #include "gem_function.h"
 
+struct ss_pc{
+    double xeos_pc[11];
+};
+
+typedef struct PC_refs {
+	struct ss_pc *ss_pc_xeos;
+
+} PC_ref;
+
+
 /* structure to store global variables */
 typedef struct global_variables {
 	

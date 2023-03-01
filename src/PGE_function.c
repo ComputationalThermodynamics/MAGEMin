@@ -512,7 +512,7 @@ global_variable PGE_update_solution(	global_variable  	 gv,
 	
 	gv.gamma_norm[gv.global_ite] = norm_vector(gv.dGamma, z_b.nzEl_val);
 
-	/* Update solusion phase (SS) fractions */
+	/* Update solution phase (SS) fractions */
 	for (i = 0; i < gv.n_cp_phase; i++){
 		 cp[gv.cp_id[i]].delta_ss_n  = gv.dn_cp[i]*alpha;
 		 cp[gv.cp_id[i]].ss_n 		+= gv.dn_cp[i]*alpha;
@@ -653,7 +653,7 @@ global_variable PGE_inner_loop(		bulk_info 			 z_b,
 		fc_norm_t0 		= gv.fc_norm_t1;
 							
 		/**
-		calculate delta_G of pure phases 
+			calculate delta_G of pure phases 
 		*/
 		pp_min_function(					gv,
 											z_b,

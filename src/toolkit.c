@@ -179,7 +179,7 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 			gv.bulk_rock[i] = 1.0e-4;
 			renorm = 1;
 			if (gv.verbose == 1){
-				printf("  - mol of %4s < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i]	);
+				printf("  - mol of %4s = %+.5f < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i],gv.bulk_rock[i]);
 			}	
 		}
 	}
