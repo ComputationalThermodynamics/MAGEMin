@@ -1,16 +1,21 @@
-function bulk_in = loadBulkFromFile(sysunit,file,path);
+function bulk_in = loadBulkFromFile(sysunit,file,path,db);
 
 	data    = importdata(strcat(path,file), ' ');
+
 
 	bulk        = data.data;
 	bulk_ox     = data.colheaders;
 
-	ref_ox          = {'SiO2', 'Al2O3', 'CaO', 'MgO' ,'FeO', 'Fe2O3', 'K2O','Na2O', 'TiO2', 'O', 'Cr2O3', 'H2O'};
-	ref_MolarMass   = [60.08 101.96 56.08 40.30 71.85 79.85 94.2 61.98 79.88 16.0 151.99,18.015];      %Molar mass of oxides
+	ref_ox          = {'SiO2', 'Al2O3', 'CaO', 'MgO' ,'FeO', 'Fe2O3', 'K2O','Na2O', 'TiO2', 'O', 'Cr2O3', 'MnO', 'H2O'};
+	ref_MolarMass   = [60.08 101.96 56.08 40.30 71.85 79.85 94.2 61.98 79.88 16.0 151.99,70.94,18.015];      %Molar mass of oxides
 
-	MAGEMin_ox      = {'SiO2', 'Al2O3', 'CaO', 'MgO' ,'FeO', 'K2O','Na2O', 'TiO2', 'O', 'Cr2O3', 'H2O'};
-	MAGEMin_bulk    = zeros(11,1);
-
+	if db == "ig"
+		MAGEMin_ox      = {'SiO2', 'Al2O3', 'CaO', 'MgO' ,'FeO', 'K2O','Na2O', 'TiO2', 'O', 'Cr2O3', 'H2O'};
+		MAGEMin_bulk    = zeros(11,1);
+	else if db == "mp"
+		MAGEMin_ox      = {'SiO2', 'Al2O3', 'CaO', 'MgO' ,'FeO', 'K2O','Na2O', 'TiO2', 'O', 'MnO', 'H2O'};
+		MAGEMin_bulk    = zeros(11,1);
+	end
 	% convert to mol, if system unit = wt
 	if strcmp(sysunit, 'wt')
 		for i=1:length(bulk_ox)

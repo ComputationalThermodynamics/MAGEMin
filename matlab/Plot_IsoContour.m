@@ -1,4 +1,4 @@
-function h = Plot_IsoContour(UIAxes,PseudoSectionData, data)
+function [h,cap] = Plot_IsoContour(UIAxes,PseudoSectionData, data)
 
     if isfield(PseudoSectionData,'PhaseData')
         if string(data.mode) == "mode"
@@ -36,6 +36,8 @@ function h = Plot_IsoContour(UIAxes,PseudoSectionData, data)
             v    = str2num(data.min) + 1e-10:str2num(data.stp):str2num(data.max) + 1e-10;
 
             [c,h]  = contour(UIAxes,Tx,Px,Xx,v, data.style,'ShowText','on');
+            clabel(c,h,'FontSize',str2num(data.FtSize),'Color',data.lblC);
+            cap = phase_in;
         elseif string(data.mode) == "em frac"
             np = length(PseudoSectionData.PhaseData);
             P = zeros(np,1);
@@ -77,7 +79,10 @@ function h = Plot_IsoContour(UIAxes,PseudoSectionData, data)
             v    = str2num(data.min) + 1e-10:str2num(data.stp):str2num(data.max) + 1e-10;
 
             [c,h]  = contour(UIAxes,Tx,Px,Xx,v, data.style,'ShowText','on');
+            clabel(c,h,'FontSize',str2num(data.FtSize),'Color',data.lblC);
+            cap = phase_in+'.'+em_in;
         end 
+        cap = string(cap);
     else
         disp("!!! perform a simulation before trying to plot isocontours");
     end

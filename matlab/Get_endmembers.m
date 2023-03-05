@@ -1,8 +1,8 @@
 function em_names = Get_endmembers(UIAxes,PseudoSectionData, phase_in)
     em_names = {};
     if isfield(PseudoSectionData,'PhaseData')
-        found   = 0
-        n       = 1
+        found   = 0;
+        n       = 1;
         np      = length(PseudoSectionData.PhaseData);
         while found == 0 & n <= np
             for j=1:length(PseudoSectionData.PhaseData{1, n}.StableFractions)
