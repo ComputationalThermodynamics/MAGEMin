@@ -11,7 +11,7 @@ export  init_MAGEMin, finalize_MAGEMin, point_wise_minimization, convertBulk4MAG
 
 Initializes MAGEMin (including setting global options) and loads the Database.
 """
-function  init_MAGEMin(;EM_database=2)
+function  init_MAGEMin(db="ig")
 
     z_b         = LibMAGEMin.bulk_infos()
     gv          = LibMAGEMin.global_variables()
@@ -19,8 +19,17 @@ function  init_MAGEMin(;EM_database=2)
     DB          = LibMAGEMin.Database()
 
     gv          = LibMAGEMin.global_variable_alloc( pointer_from_objref(z_b))
+    
+    if db == "ig"
+        gv.EM_database = 2
+    elseif db == "mp"
+        gv.EM_database = 0
+    else
+        print("Database not implemented...\n")
+    end
+
     gv          = LibMAGEMin.global_variable_init(gv, pointer_from_objref(z_b))
-    DB          = LibMAGEMin.InitializeDatabases(gv, EM_database)
+    DB          = LibMAGEMin.InitializeDatabases(gv, gv.EM_database)
 
     LibMAGEMin.init_simplex_A( pointer_from_objref(splx_data), gv)
     LibMAGEMin.init_simplex_B_em( pointer_from_objref(splx_data), gv)
@@ -43,16 +52,28 @@ end
 
 Returns the pre-defined bulk rock composition of a given test
 """
-function use_predefined_bulk_rock(gv, test=0)
-    gv.test = test
-    gv = LibMAGEMin.get_bulk(gv)
-    LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
+function use_predefined_bulk_rock(gv, test=0, db="ig")
+
+    if db == "ig"
+        gv.test = test
+        gv = LibMAGEMin.get_bulk_igneous(gv)
+        LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
+    elseif db == "mp"
+        gv.test = test
+        gv = LibMAGEMin.get_bulk_metapelite(gv)
+        LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
+    else
+        print("Database not implemented...\n")
+    end
 
     return gv
 end
 
-function define_bulk_rock(gv, bulk_rock)
-    gv.bulk_rock = pointer(bulk_rock)
+function define_bulk_rock(gv, bulk_in, bulk_in_ox, sys_in,db)
+
+    bulk_rock       = convertBulk4MAGEMin(bulk_in,bulk_in_ox,sys_in,db)    # conversion changes the system unit to mol
+    gv.bulk_rock    = pointer(bulk_rock)                                # copy the bulk-rock
+
     LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
 
     return gv
@@ -70,12 +91,19 @@ convertBulk4MAGEMin( bulk_in, bulk_in_ox, sys_in)
 receives bulk-rock composition in [mol,wt] fraction and associated oxide list and sends back bulk-rock composition converted for MAGEMin use
     
 """
-function convertBulk4MAGEMin(bulk_in::Vector{Float64},bulk_in_ox::Vector{String},sys_in::String);
+function convertBulk4MAGEMin(bulk_in::Vector{Float64},bulk_in_ox::Vector{String},sys_in::String,db::String);
 
-	ref_ox          = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "H2O"];
-	ref_MolarMass   = [60.08; 101.96; 56.08; 40.30; 71.85; 79.85; 94.2; 61.98; 79.88; 16.0; 151.99; 18.015];      #Molar mass of oxides
+	ref_ox          = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "MnO"; "H2O"];
+	ref_MolarMass   = [60.08; 101.96; 56.08; 40.30; 71.85; 79.85; 94.2; 61.98; 79.88; 16.0; 151.99; 70.937; 18.015];      #Molar mass of oxides
 
-	MAGEMin_ox      = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "H2O"];
+    if db == "ig"
+	    MAGEMin_ox      = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "H2O"];
+    elseif db == "mp"
+        MAGEMin_ox      = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "MnO"; "H2O"];
+    else
+        print("Database not implemented...\n")
+    end
+    
 	MAGEMin_bulk    = zeros(11);
     bulk            = zeros(11);
 	# convert to mol, if system unit = wt
@@ -131,10 +159,11 @@ Computes the stable assemblage at `P` [kbar], `T` [C] and for a given bulk rock 
 
 This is an example of how to use it for a predefined bulk rock composition:
 ```julia
-julia> gv, z_b, DB, splx_data      = init_MAGEMin();
+julia> db          = "ig"  # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b)
+julia> gv, z_b, DB, splx_data      = init_MAGEMin(db);
 julia> test        = 0;
 julia> sys_in      = "mol"     #default is mol, if wt is provided conversion will be done internally (MAGEMin works on mol basis)
-julia> gv          = use_predefined_bulk_rock(gv, test);
+julia> gv          = use_predefined_bulk_rock(gv, test, db)
 julia> P           = 8.0;
 julia> T           = 800.0;
 julia> gv.verbose  = -1;        # switch off any verbose
@@ -159,13 +188,12 @@ Oxygen fugacity          : 9.645393319147175e-12
 And here a case in which you specify your own bulk rock composition. 
 We convert that in the correct format, using the `convertBulk4MAGEMin` function. 
 ```julia
-julia> using MAGEMin_C
-julia> gv, z_b, DB, splx_data      = init_MAGEMin();
+julia> db          = "ig"  # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b)
+julia> gv, z_b, DB, splx_data      = init_MAGEMin(db);
 julia> bulk_in_ox = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
 julia> bulk_in    = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
 julia> sys_in     = "wt"
-julia> bulk_rock  = convertBulk4MAGEMin(bulk_in,bulk_in_ox,sys_in);
-julia> gv         = define_bulk_rock(gv, bulk_rock);
+julia> gv         = define_bulk_rock(gv, bulk_in, bulk_in_ox, sys_in, db);
 julia> P,T         = 10.0, 1100.0;
 julia> gv.verbose  = -1;        # switch off any verbose
 julia> out         = point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in)

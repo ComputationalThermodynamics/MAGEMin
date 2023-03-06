@@ -32,8 +32,8 @@ Levelling occurs in two stages:
 #include "nlopt.h"
 #include "toolkit.h"
 #include "PGE_function.h"
-#include "SS_xeos_PC.h"
-
+#include "SS_xeos_PC_mp.h" 				//mp is first, it contains the structure definition
+#include "SS_xeos_PC_ig.h"
 
 /**
 	associate the array of pointer with the right solution phase
@@ -77,7 +77,48 @@ void SS_ig_objective_init_function(	obj_type 			*SS_objective,
 	};			
 }
 
+void SS_mp_objective_init_function(	obj_type 			*SS_objective,
+									global_variable 	 gv				){	
+						 
+	for (int iss = 0; iss < gv.len_ss; iss++){
 
+		if      (strcmp( gv.SS_list[iss], "liq")   == 0 ){
+			SS_objective[iss]  = obj_mp_liq; 		}
+		else if (strcmp( gv.SS_list[iss], "pl4tr") == 0){
+			SS_objective[iss]  = obj_mp_pl4tr; 		}
+		else if (strcmp( gv.SS_list[iss], "bi")    == 0){
+			SS_objective[iss]  = obj_mp_bi; 		}
+		else if (strcmp( gv.SS_list[iss], "g")     == 0){
+			SS_objective[iss]  = obj_mp_g; 			}
+		else if (strcmp( gv.SS_list[iss], "ep")    == 0){
+			SS_objective[iss]  = obj_mp_ep; 		}
+		else if (strcmp( gv.SS_list[iss], "ma")    == 0){
+			SS_objective[iss]  = obj_mp_ma; 		}
+		else if (strcmp( gv.SS_list[iss], "mu")    == 0){
+			SS_objective[iss]  = obj_mp_mu; 		}
+		else if (strcmp( gv.SS_list[iss], "opx")   == 0){
+			SS_objective[iss]  = obj_mp_opx; 		}
+		else if (strcmp( gv.SS_list[iss], "sa")    == 0){
+			SS_objective[iss]  = obj_mp_sa; 		}
+		else if (strcmp( gv.SS_list[iss], "cd")    == 0){
+			SS_objective[iss]  = obj_mp_cd; 		}
+		else if (strcmp( gv.SS_list[iss], "st")    == 0){
+			SS_objective[iss]  = obj_mp_st; 		}
+		else if (strcmp( gv.SS_list[iss], "chl")   == 0){
+			SS_objective[iss]  = obj_mp_chl; 		}
+		else if (strcmp( gv.SS_list[iss], "ctd")   == 0){
+			SS_objective[iss]  = obj_mp_ctd; 		}
+		else if (strcmp( gv.SS_list[iss], "sp")    == 0){
+			SS_objective[iss]  = obj_mp_sp; 		}
+		else if (strcmp( gv.SS_list[iss], "ilm")   == 0){
+			SS_objective[iss]  = obj_mp_ilm; 		}
+		else if (strcmp( gv.SS_list[iss], "mt")    == 0){
+			SS_objective[iss]  = obj_mp_mt; 		}
+		else{
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
+		}	
+	};			
+}
 /**
   function to calculate delta G (position of potential phases with current G hyperplane*)
 */
@@ -1071,7 +1112,15 @@ void run_simplex_levelling(				bulk_info 	 		 z_b,
 	
 	PC_ref 			SS_pc_xeos[gv.len_ss];
 
-	if (gv.EM_database == 2){
+
+	if (gv.EM_database == 0){
+		for (iss = 0; iss < gv.len_ss; iss++){
+			SS_mp_pc_init_function(			SS_pc_xeos, 
+											iss,
+											gv.SS_list[iss]				);
+		}
+	}
+	else if (gv.EM_database == 2){
 		for (iss = 0; iss < gv.len_ss; iss++){
 			SS_ig_pc_init_function(			SS_pc_xeos, 
 											iss,
@@ -1143,7 +1192,14 @@ void run_localMinimization(				bulk_info 	 		 z_b,
 	
 	PC_ref 			SS_pc_xeos[gv.len_ss];
 
-	if (gv.EM_database == 2){
+	if (gv.EM_database == 0){
+		for (ss = 0; ss < gv.len_ss; ss++){
+			SS_mp_pc_init_function(			SS_pc_xeos, 
+											ss,
+											gv.SS_list[ss]				);
+		}
+	}
+	else if (gv.EM_database == 2){
 		for (ss = 0; ss < gv.len_ss; ss++){
 			SS_ig_pc_init_function(			SS_pc_xeos, 
 											ss,

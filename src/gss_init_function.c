@@ -166,9 +166,10 @@ SS_ref G_SS_mp_liq_init_function(SS_ref SS_ref_db, int EM_database, global_varia
 SS_ref G_SS_mp_pl4tr_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
     
     SS_ref_db.is_liq    = 0;
-    SS_ref_db.symmetry  = 1;
+    SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 5;
     SS_ref_db.n_em      = 3;
+	SS_ref_db.n_v       = 3;
     SS_ref_db.n_w       = 3;
     SS_ref_db.n_xeos    = 2;
     SS_ref_db.CstFactor = 0;
@@ -331,7 +332,7 @@ SS_ref G_SS_mp_chl_init_function(SS_ref SS_ref_db, int EM_database, global_varia
     
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
-    SS_ref_db.n_sf      = 13;
+    SS_ref_db.n_sf      = 12;
     SS_ref_db.n_em      = 8;
     SS_ref_db.n_w       = 28;
     SS_ref_db.n_xeos    = 7;
@@ -379,7 +380,7 @@ SS_ref G_SS_mp_ilm_init_function(SS_ref SS_ref_db, int EM_database, global_varia
     
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
-    SS_ref_db.n_sf      = 8;
+    SS_ref_db.n_sf      = 6;
     SS_ref_db.n_em      = 5;
     SS_ref_db.n_w       = 10;
     SS_ref_db.n_xeos    = 4;
@@ -668,6 +669,8 @@ SS_ref G_SS_init_EM_function(		int			 		 ph_id,
 			SS_ref_db  = G_SS_mp_mu_init_function(SS_ref_db, EM_database, gv); 		}
 		else if (strcmp( name, "opx")  == 0){
 			SS_ref_db  = G_SS_mp_opx_init_function(SS_ref_db, EM_database, gv); 	}
+		else if (strcmp( name, "sa")  == 0){
+			SS_ref_db  = G_SS_mp_sa_init_function(SS_ref_db, EM_database, gv); 		}
 		else if (strcmp( name, "cd")  == 0){
 			SS_ref_db  = G_SS_mp_cd_init_function(SS_ref_db, EM_database, gv); 		}
 		else if (strcmp( name, "st")  == 0){

@@ -4,11 +4,14 @@
 <img src="./pics/GUI.png" alt="drawing" width="640" alt="centered image"/>
 
 # Mineral Assemblage Gibbs Energy Minimization (MAGEMin)
-MAGEMin is a Gibbs energy minimization solver package, which computes the thermodynamically most stable assemblage for a given bulk rock composition and pressure/temperature condition. It also returns parameters such as melt fraction or density, which can be combined with geodynamic/petrological tools to simulate, for example, the evolving chemistry of a crystallising melt.
+`MAGEMin` is a Gibbs energy minimization solver package, which computes the thermodynamically most stable assemblage for a given bulk rock composition and pressure/temperature condition. It also returns parameters such as melt fraction or density, which can be combined with geodynamic/petrological tools to simulate, for example, the evolving chemistry of a crystallising melt.
 
-MAGEMin is written as a parallel C library and uses a combination of linear programming, the extended Partitioning Gibbs free Energy approach and gradient-based local minimization to compute the most stable mineral assemblage. In this, it differs from existing approaches which makes it particularly suitable to utilize modern multicore processors.
+`MAGEMin` is written as a parallel C library and uses a combination of linear programming, the extended Partitioning Gibbs free Energy approach and gradient-based local minimization to compute the most stable mineral assemblage. In this, it differs from existing approaches which makes it particularly suitable to utilize modern multicore processors.
 
 We also provide a MATLAB-based graphical user interface to help computing pseudosections for given bulk rock composition and a [julia interface].
+
+## Documentation
+Full support to install and use MAGEMin is available here: https://computationalthermodynamics.github.io/MAGEMin/index.html
 
 ## Installing MAGEMin
 
@@ -24,7 +27,7 @@ Follow these steps:
 
 **Julia interface**
 
-To make it easier to interface MAGEMin with other (geodynamic) codes, we provide a [julia interface](https://github.com/ComputationalThermodynamics/MAGEMin_C.jl) to the MAGEMin C library, with which you can perform pointwise calculations. 
+To make it easier to interface `MAGEMin` with other (geodynamic) codes, we provide a [julia interface](https://github.com/ComputationalThermodynamics/MAGEMin_C.jl) to the `MAGEMin` C library, with which you can perform pointwise calculations. 
 
 **Manual compilation**
 
@@ -32,15 +35,19 @@ if you wish, you can also compile MAGEMin yourself, which requires you to instal
 - MPICH (to allow parallel computations)
 - LAPACKE (C version of LAPACK)
 - NLopt (https://nlopt.readthedocs.io/)
-  
+
+Details and guidelines are given in the extended documentation: https://computationalthermodynamics.github.io/MAGEMin/index.html  
+
 In addition, we make use of [uthash](https://troydhanson.github.io/uthash/) and [ketopt](https://github.com/attractivechaos/klib/blob/master/ketopt.h).
 
-## Documentation
-Full support to install and use MAGEMin is available here: https://computationalthermodynamics.github.io/MAGEMin/index.html
+
+## Available thermodynamic datasets
+The MAGEMin algorithm is general and can be used with any thermodynamic database that are hardcoded for speed reasons. Presently the igneous (Holland et al., 2018) and the metapelite (White et al., 2014) database are available.
 
 
-## Available thermodynamic dataset
-The MAGEMin algorithm is general and can in principle be used with any thermodynamic database. Yet, for speed reasons, the current implementation hardcoded the hydrous mafic melting model of Holland et al. 2018 which is callibrated for hydrous mafic melts and can be used to simulate the fractional crystallisation from a hydrous basalt to a felsic melt. 
+**Igneous database**
+
+The hydrous mafic melting model of Holland et al. 2018 can be used to simulate the fractional crystallisation from a hydrous basalt to a felsic melt. 
 
 The details of this thermodynamic solid solution and endmember database are:
 - Holland et al., 2018 (see http://hpxeosandthermocalc.org)
@@ -50,7 +57,19 @@ The details of this thermodynamic solid solution and endmember database are:
 	- Solution phases spinel (spn), biotite (bi), cordierite (cd), clinopyroxene (cpx), orthopyroxene (opx), epidote (ep), garnet (g), hornblende (hb), ilmenite (ilm), silicate melt (liq), muscovite (mu), olivine (ol), ternary feldspar (pl4T), and aqueous fluid (fl).
 
 
-Please keep in mind that the dataset we use is only calibrated for a limited range of `P`,`T` and `bulk rock` conditions. If you go too far outside those ranges, `MAGEMin` (or most other thermodynamic software packages for that matter) may not converge or give bogus results. 
+**Metapelite database**
+
+The metapelitic model (extended with MnO, White et al., 2014) allows to compute the mineral assemblage from low temperature to supra-solidus conditions.
+
+- Added March 2023, `MAGEMin v1.3.0` 
+- White et al., 2014a, 2014b (see http://hpxeosandthermocalc.org)
+- K2O-Na2O-CaO-FeO-MgO-Al2O3-SiO2-H2O-TiO2-O-MnO chemical system
+- Equations of state for
+	- Pure stoichiometric phases quartz (q), cristobalite (crst), tridymite (trd), coesite (coe), stishovite (stv), kyanite (ky), sillimanite (sill), andalusite (and), rutile (ru) and sphene (sph). 
+	- Solution phases spinel (spn), biotite (bi), cordierite (cd), orthopyroxene (opx), epidote (ep), garnet (g),  ilmenite (ilm), silicate melt (liq), muscovite (mu),  ternary feldspar (pl4T), sapphirine (sa), staurolite (st), magnetite (mt), chlorite (chl), chloritoid (ctd) and margarite (ma).
+
+
+Please keep in mind that the datasets are only calibrated for a limited range of `P`,`T` and `bulk rock` conditions. If you go too far outside those ranges, `MAGEMin` (or most other thermodynamic software packages for that matter) may not converge or give bogus results. 
 Developing new, more widely applicable, thermodynamic datasets is a huge research topic, which will require funding to develop the models themselves, as well as to perform targeted experiments to calibrate those models.
 
 ## Citation

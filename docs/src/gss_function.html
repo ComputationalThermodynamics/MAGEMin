@@ -130,15 +130,17 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../julia.html#use-magemin-c">Use MAGEMin_C</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html">Single point calculation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html">Single point calculation Tutorial</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#initialize-database">Initialize database</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-p-t-x-pressure-temperature-and-bulk-rock-composition">Set P-T-X (pressure temperature and bulk rock composition)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-p-t-pressure-temperature">Set P-T-(pressure temperature)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-bulk-rock-composition">Set bulk-rock composition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-the-level-of-verbose-1-0-1">Set the level of verbose <code class="docutils literal notranslate"><span class="pre">[-1,0,1]</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#call-optimization-routine-for-given-p-t-x">Call optimization routine for given P-T-X</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#display-minimized-point">Display minimized point</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#access-output-structure">Access output structure</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html#provide-custom-bulk-rock-composition">Provide custom bulk rock composition</a></li>
 </ul>
 </li>
 </ul>
@@ -153,7 +155,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../issues.html#known-problems">Known problems</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#reduced-chemical-systems">Reduced chemical systems</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../issues.html#low-temperature-stabilitzation">Low temperature stabilitzation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#low-temperature-stabilization">Low temperature stabilization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#hp-lt-melt-prediction">HP-LT melt prediction</a></li>
 </ul>
 </li>
@@ -244,6 +246,102 @@
 Igneous dataset to use with tc-ds633.txt
 “bi”,”cpx”,”cd”,”ep”,”fl”,”g”,”hb”,”ilm”,”liq”,”mu”, “ol”, “opx”,”pl4T”,”spn”</p>
 <dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mp_liq_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mp_liq_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">len_ox</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mp_liq_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_function.c.html#c.G_SS_mp_liq_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>retrieve reference thermodynamic data for mp_liq</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mp_bi_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mp_bi_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">len_ox</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mp_bi_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_function.c.html#c.G_SS_mp_bi_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>retrieve reference thermodynamic data for mp_bi</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mp_cd_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mp_cd_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">len_ox</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mp_cd_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_function.c.html#c.G_SS_mp_cd_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>retrieve reference thermodynamic data for mp_cd</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mp_chl_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mp_chl_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">len_ox</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mp_chl_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_function.c.html#c.G_SS_mp_chl_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>retrieve reference thermodynamic data for mp_chl</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mp_ctd_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mp_ctd_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">len_ox</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mp_ctd_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_function.c.html#c.G_SS_mp_ctd_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>retrieve reference thermodynamic data for mp_ctd</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mp_ep_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mp_ep_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">len_ox</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mp_ep_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_function.c.html#c.G_SS_mp_ep_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>retrieve reference thermodynamic data for mp_ep</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mp_g_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mp_g_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">len_ox</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mp_g_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_function.c.html#c.G_SS_mp_g_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>retrieve reference thermodynamic data for mp_g</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mp_ilm_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mp_ilm_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">len_ox</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mp_ilm_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_function.c.html#c.G_SS_mp_ilm_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>retrieve reference thermodynamic data for mp_ilm</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mp_ma_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mp_ma_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">len_ox</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mp_ma_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_function.c.html#c.G_SS_mp_ma_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>retrieve reference thermodynamic data for mp_ma</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mp_mt_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mp_mt_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">len_ox</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mp_mt_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_function.c.html#c.G_SS_mp_mt_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>retrieve reference thermodynamic data for mp_mt</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mp_mu_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mp_mu_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">len_ox</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mp_mu_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_function.c.html#c.G_SS_mp_mu_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>retrieve reference thermodynamic data for mp_mu</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mp_opx_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mp_opx_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">len_ox</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mp_opx_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_function.c.html#c.G_SS_mp_opx_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>retrieve reference thermodynamic data for mp_opx</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mp_pl4tr_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mp_pl4tr_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">len_ox</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mp_pl4tr_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_function.c.html#c.G_SS_mp_pl4tr_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>retrieve reference thermodynamic data for mp_pl4tr</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mp_sa_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mp_sa_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">len_ox</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mp_sa_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_function.c.html#c.G_SS_mp_sa_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>retrieve reference thermodynamic data for mp_sa</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mp_sp_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mp_sp_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">len_ox</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mp_sp_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_function.c.html#c.G_SS_mp_sp_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>retrieve reference thermodynamic data for mp_sp</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mp_st_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mp_st_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">len_ox</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mp_st_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_function.c.html#c.G_SS_mp_st_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>retrieve reference thermodynamic data for mp_st</p>
+</dd></dl>
+
+<dl class="c function">
 <dt class="sig sig-object c" id="c.G_SS_ig_bi_function">
 <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_ig_bi_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">len_ox</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_ig_bi_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_function.c.html#c.G_SS_ig_bi_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>retrieve reference thermodynamic data for biotite</p>
@@ -330,6 +428,12 @@ Igneous dataset to use with tc-ds633.txt
 <dl class="c function">
 <dt class="sig sig-object c" id="c.G_SS_ig_EM_function">
 <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_ig_EM_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">name</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_ig_EM_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_function.c.html#c.G_SS_ig_EM_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>checks if it can satisfy the mass constraint</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mp_EM_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mp_EM_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span>, <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">name</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mp_EM_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_function.c.html#c.G_SS_mp_EM_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>checks if it can satisfy the mass constraint</p>
 </dd></dl>
 

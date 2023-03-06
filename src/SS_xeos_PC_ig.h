@@ -1,11 +1,8 @@
-#ifndef __PC_XEOS_H_
-#define __PC_XEOS_H_
+#ifndef __PC_XEOS_IG_H_
+#define __PC_XEOS_IG_H_
 
 #include "MAGEMin.h"
 
-struct ss_pc{
-    double xeos_pc[11];
-};
 
 struct ss_pc ig_pl4T_pc_xeos[231] = {
 {{0.0001,0.0001}},
@@ -22573,12 +22570,6 @@ struct ss_pc ig_spn_pc_xeos[1521] = {
 {{0.9970,0.9970,0.2500,0.0010,0.0000,0.2490,0.0000}},
 {{0.9970,0.9970,0.2500,0.4990,0.0000,0.2490,0.2490}},
 {{0.9970,0.9970,0.4990,0.0010,0.0000,0.2490,0.2490}}};
-
-typedef struct PC_refs {
-	struct ss_pc *ss_pc_xeos;
-
-} PC_ref;
-
 
 void SS_ig_pc_init_function(	PC_ref 	*SS_pc_xeos,
 							    int 	 iss,

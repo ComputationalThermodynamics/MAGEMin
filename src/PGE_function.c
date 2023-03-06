@@ -97,7 +97,7 @@ void PGE_print(					bulk_info 				z_b,
 	for (int i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[0] == 1 && cp[i].ss_flags[2] == 1){
 
-			printf(" %d | %4s | %+10f | %+10f | %+10f | %+10f | ",cp[i].ss_flags[1],cp[i].name,cp[i].ss_n,cp[i].df,cp[i].factor,cp[i].sum_xi);
+			printf(" %d | %4s | %+10f | %+10f | %+10f | %+10f | ",cp[i].ss_flags[1],cp[i].name,cp[i].ss_n,cp[i].df*cp[i].factor,cp[i].factor,cp[i].sum_xi);
 
 			for (int k = 0; k < cp[i].n_em; k++) {
 				printf(" %+10f",(cp[i].p_em[k]-cp[i].xi_em[k]*cp[i].p_em[k])*SS_ref_db[cp[i].id].z_em[k]);
@@ -257,14 +257,12 @@ global_variable PGE_update_pi(		bulk_info 	z_b,
 		if (cp[ph].ss_flags[1] == 1 && SS_ref_db[cp[ph].id].CstFactor == 0){
 			ss = cp[ph].id;
 
-			double dp[cp[ph].n_em];
-			for (k = 0; k < cp[ph].n_em; k++){
-				dp[k] = (cp[ph].p_em[k]-cp[ph].xi_em[k]*cp[ph].p_em[k])*SS_ref_db[ss].z_em[k];
-			}
-
 			for (k = 0; k < cp[ph].n_em; k++){
 				SS_ref_db[ss].p[k] = cp[ph].p_em[k]*cp[ph].xi_em[k];
 			}
+
+			norm_array(						SS_ref_db[ss].p,
+											cp[ph].n_em					);						
 			
 			SS_ref_db[ss] = P2X(			gv,
 											SS_ref_db[ss],
@@ -514,7 +512,7 @@ global_variable PGE_update_solution(	global_variable  	 gv,
 	
 	gv.gamma_norm[gv.global_ite] = norm_vector(gv.dGamma, z_b.nzEl_val);
 
-	/* Update solusion phase (SS) fractions */
+	/* Update solution phase (SS) fractions */
 	for (i = 0; i < gv.n_cp_phase; i++){
 		 cp[gv.cp_id[i]].delta_ss_n  = gv.dn_cp[i]*alpha;
 		 cp[gv.cp_id[i]].ss_n 		+= gv.dn_cp[i]*alpha;
@@ -655,7 +653,7 @@ global_variable PGE_inner_loop(		bulk_info 			 z_b,
 		fc_norm_t0 		= gv.fc_norm_t1;
 							
 		/**
-		calculate delta_G of pure phases 
+			calculate delta_G of pure phases 
 		*/
 		pp_min_function(					gv,
 											z_b,
@@ -1418,8 +1416,9 @@ global_variable PGE(	bulk_info 			z_b,
 		/**               CHECK MINIMIZATION STATUS              */
 		/*********************************************************/
 
-		/* checks for full convergence  */
-		if (gv.BR_norm < gv.br_max_tol){ gv.status = 0;	iterate = 0;}
+		/* checks for full convergence  						 */
+		/* the second term checks if solution phase have been tested in case convergence is too fast */
+		if (gv.BR_norm < gv.br_max_tol && gv.check_PC2 == 1){ gv.status = 0;	iterate = 0;}
 		
 		/* checks for dampened convergence  */
 		if (gv.global_ite > gv.it_1 && gv.BR_norm < gv.br_max_tol*gv.ur_1){		if (gv.verbose != -1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_1, gv.ur_1);}; 	gv.status = 1; iterate = 0;}

@@ -137,11 +137,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#access-output-structure">Access output structure</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html#provide-custom-bulk-rock-composition">Provide custom bulk rock composition</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#magemin-system-unit">MAGEMin system unit</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#variable-system-unit">Variable system unit</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html#provide-custom-bulk-rock-composition">Provide custom bulk rock composition</a></li>
 </ul>
 </li>
 </ul>
@@ -758,22 +754,22 @@
 <span class="w">										</span><span class="n">csd_phase_set</span><span class="w">  		</span><span class="o">*</span><span class="n">cp</span><span class="w"> </span>
 <span class="p">){</span><span class="w"></span>
 
-<span class="w">	</span><span class="cm">/** REMOVE AND DELETE PHASES FROM CONSIDERATION IF FRACTION &lt; 0.0**/</span><span class="w"></span>
-<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_pp</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">pp_flags</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
-<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">PP_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">gb_lvl</span><span class="o">*</span><span class="n">PP_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">factor</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">bnd_filter_pc</span><span class="p">){</span><span class="w">				</span>
-<span class="w">				</span><span class="n">gv</span><span class="p">.</span><span class="n">pp_flags</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
-<span class="w">				</span><span class="n">gv</span><span class="p">.</span><span class="n">pp_flags</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
-<span class="w">				</span><span class="n">gv</span><span class="p">.</span><span class="n">pp_flags</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
-<span class="w">				</span><span class="n">gv</span><span class="p">.</span><span class="n">pp_flags</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
-<span class="w">				</span><span class="n">gv</span><span class="p">.</span><span class="n">pp_n</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w">															</span><span class="cm">/** put to 0 if you want to allow multiple phase removal on top of 1 phase addition */</span><span class="w"></span>
-<span class="w">			</span><span class="p">}</span><span class="w"></span>
-<span class="w">		</span><span class="p">}</span><span class="w"></span>
-<span class="w">	</span><span class="p">}</span><span class="w"></span>
+<span class="w">	</span><span class="cm">/** REMOVE AND DELETE PHASES FROM CONSIDERATION IF DELTA G IS GETTING TOO LARGE**/</span><span class="w"></span>
+<span class="w">	</span><span class="c1">// for (int i = 0; i &lt; gv.len_pp; i++){</span>
+<span class="w">	</span><span class="c1">// 	if (gv.pp_flags[i][2] == 1){</span>
+<span class="w">	</span><span class="c1">// 		if (PP_ref_db[i].gb_lvl*PP_ref_db[i].factor &gt; gv.bnd_filter_pc){				</span>
+<span class="w">	</span><span class="c1">// 			gv.pp_flags[i][0] = 0;</span>
+<span class="w">	</span><span class="c1">// 			gv.pp_flags[i][1] = 0;</span>
+<span class="w">	</span><span class="c1">// 			gv.pp_flags[i][2] = 0;</span>
+<span class="w">	</span><span class="c1">// 			gv.pp_flags[i][3] = 1;</span>
+<span class="w">	</span><span class="c1">// 			gv.pp_n[i]        = 0.0;															/** put to 0 if you want to allow multiple phase removal on top of 1 phase addition */</span>
+<span class="w">	</span><span class="c1">// 		}</span>
+<span class="w">	</span><span class="c1">// 	}</span>
+<span class="w">	</span><span class="c1">// }</span>
 <span class="w">	</span>
 <span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_cp</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
 <span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
-<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">df</span><span class="o">*</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">factor</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">bnd_filter_pc</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">df</span><span class="o">*</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">factor</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">bnd_filter_pge</span><span class="p">){</span><span class="w"></span>
 <span class="w">				</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
 <span class="w">				</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
 <span class="w">				</span><span class="n">cp</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>

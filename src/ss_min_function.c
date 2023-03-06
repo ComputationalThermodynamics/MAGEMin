@@ -369,7 +369,6 @@ void ss_min_LP(			int 				 mode,
 						SS_ref 			    *SS_ref_db,
 						csd_phase_set  		*cp
 ){
-	
 	int 	ph_id;
 	for (int i = 0; i < gv.len_cp; i++){ 
 		if (cp[i].ss_flags[0] == 1){
@@ -399,7 +398,7 @@ void ss_min_LP(			int 				 mode,
 			SS_ref_db[ph_id] = restrict_SS_HyperVolume(	gv, 
 														SS_ref_db[ph_id],
 														gv.box_size_mode_1		);
-			
+
 			/**
 				call to NLopt for non-linear + inequality constraints optimization
 			*/
@@ -456,7 +455,26 @@ global_variable init_ss_db(		int 				 EM_database,
 ){
 
 
-	if (EM_database == 2){
+	if (EM_database == 0){
+		for (int i = 0; i < gv.len_ss; i++){
+			SS_ref_db[i].P  = z_b.P;									/** needed to pass to local minimizer, allows for P variation for liq/sol */
+			SS_ref_db[i].T  = z_b.T;		
+			SS_ref_db[i].R  = 0.0083144;
+
+			// if (SS_ref_db[i].is_liq == 1){
+			// 	SS_ref_db[i].P  = z_b.P + gv.melt_pressure;
+			// }
+
+			SS_ref_db[i]    = G_SS_mp_EM_function(	gv, 
+													SS_ref_db[i], 
+													EM_database, 
+													z_b, 
+													gv.SS_list[i]		);
+											
+										/** can become a global variable instead */
+		}
+	}
+	else if (EM_database == 2){
 		for (int i = 0; i < gv.len_ss; i++){
 			SS_ref_db[i].P  = z_b.P;									/** needed to pass to local minimizer, allows for P variation for liq/sol */
 			SS_ref_db[i].T  = z_b.T;		
