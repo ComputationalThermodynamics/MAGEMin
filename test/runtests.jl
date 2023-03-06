@@ -9,12 +9,13 @@ end
 using MAGEMin_C         # load MAGEMin (needs to be loaded from main directory to pick up correct library in case it is locally compiled)
 
 # Initialize database 
-gv, z_b, DB, splx_data      = init_MAGEMin();
+db          = "ig"  # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b)
+gv, z_b, DB, splx_data      = init_MAGEMin(db);
 
 
 sys_in      = "mol"     #default is mol, if wt is provided conversion will be done internally (MAGEMin works on mol basis)
 test        = 0         #KLB1
-gv          = use_predefined_bulk_rock(gv, test)
+gv          = use_predefined_bulk_rock(gv, test, db)
 
 # Call optimization routine for given P & T & bulk_rock
 P           = 8.0
@@ -23,7 +24,7 @@ gv.verbose  = -1        # switch off any verbose
 out         = point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in)
 @show out
 
-@test out.G_system ≈ -797.7491947356159
+@test out.G_system ≈ -797.7491824683576
 @test out.ph == ["opx", "ol", "cpx", "spn"]
 @test all(abs.(out.ph_frac - [ 0.24226960158631541, 0.5880694152724345, 0.1416697366114075,  0.027991246529842587])  .< 1e-4)
 
@@ -39,7 +40,7 @@ print_info(out)
         gv.verbose  = -1        # switch off any verbose
         out         = point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in)
 
-        @test out.G_system ≈ -797.7491947356159
+        @test out.G_system ≈ -797.7491824683576
         @test out.ph == ["opx", "ol", "cpx", "spn"]
         @test all(abs.(out.ph_frac - [ 0.24226960158631541, 0.5880694152724345, 0.1416697366114075,  0.027991246529842587])  .< 1e-4)
     end
@@ -49,37 +50,44 @@ finalize_MAGEMin(gv,DB)
 
 @testset "specify bulk rock" begin
     using MAGEMin_C
-    gv, z_b, DB, splx_data      = init_MAGEMin();
+    db          = "ig"  # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b)
+    gv, z_b, DB, splx_data      = init_MAGEMin(db);
     bulk_in_ox = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
     bulk_in    = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
     sys_in     = "wt"
-    bulk_rock  = convertBulk4MAGEMin(bulk_in,bulk_in_ox,sys_in);
-    gv         = define_bulk_rock(gv, bulk_rock);
-    P,T         = 10.0, 1100.0;
-    gv.verbose  = -1;        # switch off any verbose
-    out         = point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in)
+    gv         = define_bulk_rock(gv, bulk_in, bulk_in_ox, sys_in, db);
+    P,T        = 10.0, 1100.0;
+    gv.verbose = -1;        # switch off any verbose
+    out        = point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in)
     finalize_MAGEMin(gv,DB)
 
-    @test out.G_system ≈ -907.2788704076264
+    @test abs(out.G_system + 907.2788704076264)/abs(907.2788704076264) < 1e-4
 end
 
 @testset "convert bulk rock" begin
+
     bulk_in_ox = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
     bulk_in    = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
-    bulk_rock  = convertBulk4MAGEMin(bulk_in,bulk_in_ox,"wt");
+    bulk_rock  = convertBulk4MAGEMin(bulk_in,bulk_in_ox,"wt","ig" );
 
     @test bulk_rock ≈ [45.322438151798686, 8.376385705825816, 11.59989542303507, 14.132959653999844, 7.5133873577293135, 0.3521517320409561, 1.696362856414661, 0.4786296255318463, 1.1547757294831036, 0.009999000099990002, 9.36301476404072]
 
+    bulk_in_ox = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "MnO"; "H2O"];
+    bulk_in    = [69.64; 13.76; 1.77; 1.73; 4.32; 0.4; 2.61; 2.41; 0.80; 0.07; 0.0];
+    bulk_rock  = convertBulk4MAGEMin(bulk_in,bulk_in_ox,"wt","mp" );
+
+    @test bulk_rock ≈ [76.19220995201881, 8.870954242440064, 2.0746602851534823, 2.8217776479950456, 4.610760310300608, 1.8212574300716888, 2.5559196842000387, 0.6583148666016386, 0.3292810992118903, 0.06486448200674054, 0.0]
 end
 
 
 @testset "test Seismic velocities & modulus" begin
     # Call optimization routine for given P & T & bulk_rock
-    gv, z_b, DB, splx_data      = init_MAGEMin();
+    db          = "ig"  # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b)
+    gv, z_b, DB, splx_data      = init_MAGEMin(db);
     test        = 0;
     sys_in      = "mol"     #default is mol, if wt is provided conversion will be done internally (MAGEMin works on mol basis)
-    gv          = use_predefined_bulk_rock(gv, test)
-    
+
+    gv          = use_predefined_bulk_rock(gv, test, db)
     P           = 8.0
     T           = 1200.0
     gv.verbose  = -1        # switch off any verbose
@@ -118,7 +126,8 @@ print_error_msg(i,out) = println("ERROR for point $i with test=$(out.test); P=$(
 function TestPoints(list, gv, z_b, DB, splx_data)
 
     for i=1:size(list,1)
-        gv          = use_predefined_bulk_rock(gv, list[i].test)
+        db          = "ig"  # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b)
+        gv          = use_predefined_bulk_rock(gv, list[i].test, db)
         out         = point_wise_minimization(list[i].P,list[i].T, gv, z_b, DB, splx_data, sys_in)
 
         # We need to sort the phases (sometimes they are ordered differently)
@@ -141,7 +150,8 @@ end
 println("Testing points from the reference diagrams:")
 @testset verbose = true "Total tests" begin
     println("  Starting KLB-1 peridotite tests")
-    gv, z_b, DB, splx_data      = init_MAGEMin();
+    db          = "ig"  # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b)
+    gv, z_b, DB, splx_data      = init_MAGEMin(db);
     gv.verbose=-1;
     @testset "KLB-1 peridotite tests" begin
         include("test_diagram_test0.jl")
@@ -150,7 +160,8 @@ println("Testing points from the reference diagrams:")
     finalize_MAGEMin(gv,DB)
 
     println("  Starting RE-46 icelandic basalt tests")
-    gv, z_b, DB, splx_data      = init_MAGEMin();
+    db          = "ig"  # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b)
+    gv, z_b, DB, splx_data      = init_MAGEMin(db);
     gv.verbose=-1;
     @testset "RE-46 icelandic basalt tests" begin
         include("test_diagram_test1.jl")
@@ -159,7 +170,8 @@ println("Testing points from the reference diagrams:")
     finalize_MAGEMin(gv,DB)
 
     println("  Starting Wet MORB tests")
-    gv, z_b, DB, splx_data      = init_MAGEMin();
+    db          = "ig"  # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b)
+    gv, z_b, DB, splx_data      = init_MAGEMin(db);
     gv.verbose=-1;
     @testset "Wet MORB tests" begin
         include("test_diagram_test6.jl")

@@ -148,7 +148,6 @@ int runMAGEMin(			int    argc,
 	init_simplex_B_em(				&splx_data,
 								 	 gv				);
 
-
 	/*
 	  initialize output	
 	*/
@@ -165,9 +164,16 @@ int runMAGEMin(			int    argc,
 	/* 
 	  get bulk rock composition parsed from args 
 	*/
-	gv = get_bulk( gv );
+	if (gv.EM_database == 0){
+		gv = get_bulk_metapelite( gv );
+	}
+	else if (gv.EM_database == 2){
+		gv = get_bulk_igneous( gv );
+	}
+	else{
+		printf(" Wrong database...\n");
+	}
 	
-
 	/****************************************************************************************/
 	/**                               LAUNCH MINIMIZATION ROUTINE                          **/
 	/****************************************************************************************/
@@ -657,8 +663,12 @@ int runMAGEMin(			int    argc,
 
 	/** pointer array to objective functions 								*/
 	obj_type 								SS_objective[gv.len_ss];	
-	
-	if (EM_database == 2){			// Igneous database //
+
+	if (EM_database == 0){			// Igneous database //
+		SS_mp_objective_init_function(			SS_objective,
+												gv							);
+	}
+	else if (EM_database == 2){			// Igneous database //
 		SS_ig_objective_init_function(			SS_objective,
 												gv							);
 	}
@@ -735,8 +745,12 @@ int runMAGEMin(			int    argc,
 			Launch legacy solver (LP, Theriak-Domino like algorithm)
 		*/ 
 		if ((gv.div == 1 || z_b.T <= gv.solver_switch_T ) && gv.solver == 1){
-		// if (gv.div == 1  && gv.solver == 1){	
-			printf("\n[PGE failed -> legacy solver...]\n");
+			if (gv.div == 1){	
+				printf("\n[PGE failed (residual: %+.4f, PT: [%+.5f,%+.5f])-> legacy solver...]\n",gv.BR_norm,z_b.P,z_b.T-273.15);
+			}
+			if (z_b.T <= gv.solver_switch_T){	
+				printf("\n Low Temperature conditions (T < %+5f) -> legacy solver...",gv.solver_switch_T);
+			}
 			gv.div 		= 0;
 			gv.status 	= 0;
 
@@ -814,6 +828,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 	int i;
 	static ko_longopt_t longopts[] = {
 		{ "Verb", 		ko_optional_argument, 301 },
+		{ "db", 		ko_optional_argument, 302 },
 		{ "File", 		ko_optional_argument, 303 },
 		{ "n_points ",	ko_optional_argument, 304 },
 		{ "test",  		ko_optional_argument, 305 },
@@ -841,11 +856,12 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		else if (c == 316){ gv.solver   = atoi(opt.arg);		if (gv.verbose == 1){		printf("--solver      : solver               = %i \n", 	 	   		gv.solver			);}}																		
 		else if (c == 318){ gv.output_matlab   = atoi(opt.arg); if (gv.verbose == 1){		printf("--out_matlab  : out_matlab           = %i \n", 	 	   		gv.output_matlab	);}}																		
 		else if (c == 303){ strcpy(gv.File,opt.arg);		 	if (gv.verbose == 1){		printf("--File        : File                 = %s \n", 	 	   		gv.File				);}}
+		else if (c == 302){ strcpy(gv.db,opt.arg);		 		if (gv.verbose == 1){		printf("--db          : db                   = %s \n", 	 	   		gv.db				);}}
 		else if (c == 317){ strcpy(gv.sys_in,opt.arg);		 	if (gv.verbose == 1){		printf("--sys_in      : sys_in               = %s \n", 	 	   		gv.sys_in			);}}
 		else if (c == 304){ gv.n_points = atoi(opt.arg); 	 	if (gv.verbose == 1){		printf("--n_points    : n_points             = %i \n", 	 	   		gv.n_points			);}}
 		else if (c == 305){ gv.test  	= atoi(opt.arg); 		if (gv.verbose == 1){		printf("--test        : Test                 = %i \n", 	 	  		gv.test				);}}
-		else if (c == 306){ z_b->T=strtof(opt.arg,NULL)+273.15; if (gv.verbose == 1){		printf("--Temp        : Temperature          = %f C \n",            z_b->T-273.15		);}}
-		else if (c == 307){ z_b->P = strtof(opt.arg,NULL); 		if (gv.verbose == 1){		printf("--Pres        : Pressure             = %f kbar \n", 		z_b->P				);}}
+		else if (c == 306){ z_b->T=strtold(opt.arg,NULL)+273.15;if (gv.verbose == 1){		printf("--Temp        : Temperature          = %f C \n",           z_b->T-273.15000	);}}
+		else if (c == 307){ z_b->P = strtold(opt.arg,NULL); 	if (gv.verbose == 1){		printf("--Pres        : Pressure             = %f kbar \n", 		z_b->P				);}}
 		else if (c == 308){ strcpy(gv.Phase,opt.arg);		 	if (gv.verbose == 1){		printf("--Phase       : Phase name           = %s \n", 	   			gv.Phase			);}}
 		else if (c == 313){ gv.maxeval  = strtof(opt.arg,NULL); if (gv.verbose == 1){
             if (gv.maxeval==0){     printf("--maxeval     : Max. # of local iter.    = infinite  \n"		); }
@@ -884,6 +900,17 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		 }
 	}
 
+	/* set-up database acronym here*/
+	if (strcmp(gv.db, "mp") == 0){
+		gv.EM_database = 0;
+	}
+	else if (strcmp(gv.db, "ig") == 0){
+		gv.EM_database = 2;
+	}
+	else {
+		printf(" No or wrong database acronym has been provided, using default (Igneous [ig])\n");
+		gv.EM_database = 2;
+	}
 	return gv;
 } 
 

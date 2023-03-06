@@ -56,9 +56,11 @@ Reduced chemical systems
 Low temperature stabilization
 ******************************
 
-* In a number of cases, mainly water under-saturated cases, and at temperature below 600-650°C, the current version of the solver fails to provide consistent minimizations. We are working on an algorithm upgrade in order to fix this issue. 
+* In a number of cases using the Igneous database, mainly water under-saturated cases, and at temperature below 600-650°C, the PGE solver fails to provide consistent minimizations. 
 
-* While a working alternative approach is already being tested, we are further improving the performances before releasing it.
+* In nearly all of these cases, the Gibbs-Duhem constraint cannot be enforced by the PGE (which relies on being able to enforce it), and an alternative "legacy" has now been added. The "legacy" solver uses the approach presented by de Capitani & Brown (1987). This approach enforces the Gibbs-Duhem constraint only on the effective composition of the solution phase and not on each constitutive endmember of the solution phase such as in the PGE. When the PGE method fails the "legacy" solution can be seen as a relaxed Gibbs-Duhem constraint solution. 
+
+* Note that in the cases of non PGE failure, the PGE and the "legacy" solvers yield identical results, which points out to thermodynamic database limitation outside calibration range.
 
 
 HP-LT melt prediction
@@ -66,4 +68,4 @@ HP-LT melt prediction
 
 * For water-saturated composition, we found that at pressure > 20 kbar and temperature < 650°C melt is predicted to be stable. 
 
-* This is a known problem from the THERMOCALC developer community, and a fix should be provided in the following versions of the igenous thermodynamic dataset.
+* This is a known problem from the THERMOCALC developer community, and a fix should be provided in a future version of the igneous thermodynamic dataset.

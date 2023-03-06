@@ -130,15 +130,17 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../julia.html#use-magemin-c">Use MAGEMin_C</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html">Single point calculation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html">Single point calculation Tutorial</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#initialize-database">Initialize database</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-p-t-x-pressure-temperature-and-bulk-rock-composition">Set P-T-X (pressure temperature and bulk rock composition)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-p-t-pressure-temperature">Set P-T-(pressure temperature)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-bulk-rock-composition">Set bulk-rock composition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-the-level-of-verbose-1-0-1">Set the level of verbose <code class="docutils literal notranslate"><span class="pre">[-1,0,1]</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#call-optimization-routine-for-given-p-t-x">Call optimization routine for given P-T-X</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#display-minimized-point">Display minimized point</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#access-output-structure">Access output structure</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html#provide-custom-bulk-rock-composition">Provide custom bulk rock composition</a></li>
 </ul>
 </li>
 </ul>
@@ -153,7 +155,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../issues.html#known-problems">Known problems</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#reduced-chemical-systems">Reduced chemical systems</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../issues.html#low-temperature-stabilitzation">Low temperature stabilitzation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../issues.html#low-temperature-stabilization">Low temperature stabilization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../issues.html#hp-lt-melt-prediction">HP-LT melt prediction</a></li>
 </ul>
 </li>
@@ -620,6 +622,102 @@
 <dt class="sig sig-object c" id="c.p2x_ig_spn">
 <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_ig_spn</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_ig_spn" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_ig_spn"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>endmembers to xeos (spinel)</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_mp_bi">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_mp_bi</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_mp_bi" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_mp_bi"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for bi_mp</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_mp_cd">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_mp_cd</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_mp_cd" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_mp_cd"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for cd_mp</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_mp_chl">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_mp_chl</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_mp_chl" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_mp_chl"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for chl_mp</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_mp_ctd">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_mp_ctd</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_mp_ctd" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_mp_ctd"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for ctd_mp</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_mp_ep">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_mp_ep</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_mp_ep" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_mp_ep"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for ep_mp</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_mp_g">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_mp_g</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_mp_g" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_mp_g"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for g_mp</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_mp_ilm">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_mp_ilm</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_mp_ilm" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_mp_ilm"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for ilm_mp</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_mp_liq">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_mp_liq</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_mp_liq" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_mp_liq"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for liq_mp</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_mp_ma">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_mp_ma</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_mp_ma" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_mp_ma"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for ma_mp</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_mp_mt">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_mp_mt</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_mp_mt" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_mp_mt"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for mt_mp</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_mp_mu">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_mp_mu</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_mp_mu" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_mp_mu"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for mu_mp</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_mp_opx">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_mp_opx</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_mp_opx" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_mp_opx"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for opx_mp</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_mp_pl4tr">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_mp_pl4tr</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_mp_pl4tr" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_mp_pl4tr"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for pl4tr_mp</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_mp_sa">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_mp_sa</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_mp_sa" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_mp_sa"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for sa_mp</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_mp_sp">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_mp_sp</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_mp_sp" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_mp_sp"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for sp_mp</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_mp_st">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_mp_st</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_mp_st" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_mp_st"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for st_mp</p>
 </dd></dl>
 
 <dl class="c function">

@@ -44,7 +44,7 @@ void print_help(	global_variable gv	){
 	printf("  --solver=     [int]   : solver: 0 for legacy and 1 for PGE (default)\n");
 	printf("  --out_matlab= [int]   : Matlab text file output, 0. inactive, 1. active\n");
 	printf("\n");
-	printf(" *the list of oxides must be given as follow:\n");
+	printf(" *the list of oxides must be provided as follow:\n");
 	printf("  SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3, H2O\n");
 	printf("\n");
 	printf(" Note that FeOt (total iron) is used here!\n");	
@@ -146,17 +146,25 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 	}
 
 
+
 	if (gv.verbose == 1){	
+
+		if (gv.EM_database == 0){
+			printf("  - Database                  : Metapelite (White et al., 2014)\n"	);
+		}
+		else if (gv.EM_database == 2){
+			printf("  - Database                  : Igneous (Holland et al., 2018)\n"	);
+		}
+
 		if (strcmp( gv.sys_in, "mol") == 0){	
-			printf("  - input system composition   : mol fraction\n"	);
+			printf("  - input system composition  : mol fraction\n"	);
 		}
 		else if (strcmp( gv.sys_in, "wt") == 0){	
-			printf("  - input system composition   : wt fraction\n"	);
+			printf("  - input system composition  : wt fraction\n"	);
 		}
 		else{
-			printf("  - input system composition   : unknown! [has to be mol or wt]\n");
+			printf("  - input system composition  : unknown! [has to be mol or wt]\n");
 		}
-		printf("\n");
 	}	
 
 	/** Normalize composition to sum to 1. 										*/
@@ -171,10 +179,13 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 			gv.bulk_rock[i] = 1.0e-4;
 			renorm = 1;
 			if (gv.verbose == 1){
-				printf("  - mol fraction of %4s is < 1e-4 -> set back to 1e-4 to avoid minimization issues\n\n",gv.ox[i]	);
+				printf("  - mol of %4s = %+.5f < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i],gv.bulk_rock[i]);
 			}	
 		}
 	}
+		if (gv.verbose == 1){
+			printf("\n");
+		}
 	if (renorm == 1){
 		norm_array(							gv.bulk_rock,
 											gv.len_ox					);						

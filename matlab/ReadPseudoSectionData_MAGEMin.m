@@ -157,7 +157,7 @@ for iPoint=1:length(newPoints)
     EMFractions                                     =   EMFractions(iS);
     StableFractions                                 =   StableFractions(iS);
     Density                                         =   Density(iS);
-
+    EMlist                                          =   EMlist(iS);
     % Save output to structure
     PhaseData{newPoints(numPoint)}.Status           =   STATUS;
     PhaseData{newPoints(numPoint)}.P                =   P;

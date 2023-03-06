@@ -32,6 +32,8 @@ The list of valid command line arguments is the following
 +-----------------+-----------------------------------------------+
 | -\-solver=x     | Legacy, 0. PGE, 1 (default)                   |
 +-----------------+-----------------------------------------------+
+| -\-db=""        | database, "ig" or "mp", default is ig         |
++-----------------+-----------------------------------------------+
 | -\-sys_in=""    | system comp "mol" or "wt", default is "mol"   |
 +-----------------+-----------------------------------------------+
 | -\-out_matlab=x | Matlab output, 0. inactive, 1. active         |
@@ -56,15 +58,15 @@ Using previously defined arguments, a valid command to run a single point calcul
 
 .. code-block:: shell
 
-	./MAGEMin --Verb=1 --Temp=718.750 --Pres=30.5000 --test=0 >&log.txt
+	./MAGEMin --Verb=1 --Temp=718.750 --Pres=30.5000 --db=ig --test=0 >&log.txt
 
-Here, the verbose is active and the bulk rock composition of *test 0* is selected. The output of the verbose is saved as a log file *log.txt*.
+Here, the verbose is active, the selected database is "ig" (Igneous) and the bulk rock composition of *test 0* is selected. The output of the verbose is saved as a log file *log.txt*.
 
 If you want to do a computation using a different bulk rock composition you can pass the custom bulk such as:
 
 .. code-block:: shell
 
-	./MAGEMin --Verb=1 --Temp=488.750 --Pres=3.5000 --Bulk=41.49,1.57,3.824,50.56,5.88,0.01,0.25,0.10,0.1,0.0 --sys_in=mol
+	./MAGEMin --Verb=1 --Temp=488.750 --Pres=3.5000 --db=ig --Bulk=41.49,1.57,3.824,50.56,5.88,0.01,0.25,0.10,0.1,0.0 --sys_in=mol
 	
 |
 
@@ -75,7 +77,7 @@ To run multiple points at once you can pass an input file containing the list of
 
 .. code-block:: shell
 
-	./MAGEMin --Verb=1 --File=path_to_file --n_points=x
+	./MAGEMin --Verb=1 --File=path_to_file --n_points=x --db=ig 
 	
 where "path_to_file" is the location of the file and "x" is an integer corresponding to the total number of points contained in the file. The file must have one point per line using the following structure
 
@@ -102,7 +104,7 @@ You can compute the list of points using:
 
 .. code-block:: shell
 
-	./MAGEMin --File=/path_to_file/MAGEMin_input.dat --n_points=4 --test=0
+	./MAGEMin --File=/path_to_file/MAGEMin_input.dat --n_points=4 --test=0 --db=ig 
 
 Note that verbose should be deactivated in parallel (--Verb=0 or --Verb=-1), however matlab output can be generated in parallel (--out_matlab=1). To compute a custom list of bulk-rock compositions you have to provide the oxide composition and replace the "0.0" such as:
 
@@ -120,7 +122,7 @@ Then compute the list of points while indicating the system composition unit (:l
 
 .. code-block:: shell
 
-	./MAGEMin --File=/path_to_file/MAGEMin_input.dat --n_points=4 --sys_in=mol 
+	./MAGEMin --File=/path_to_file/MAGEMin_input.dat --n_points=4 --sys_in=mol  --db=ig 
 |
 
 Multiple points in parallel 
@@ -130,8 +132,8 @@ To run a list of points in parallel, you simply need to call "MPI" before MAGEMi
 
 .. code-block:: shell
 
-	mpirun -np 8 ./MAGEMin --File=/path_to_file/MAGEMin_input.dat --n_points=4 --test=0 --out_matlab=1
-	mpiexec -n 8 ./MAGEMin --File=/path_to_file/MAGEMin_input.dat --n_points=4 --test=0 --out_matlab=1
+	mpirun -np 8 ./MAGEMin --File=/path_to_file/MAGEMin_input.dat --n_points=4 --db=ig --test=0 --out_matlab=1
+	mpiexec -n 8 ./MAGEMin --File=/path_to_file/MAGEMin_input.dat --n_points=4 --db=ig --test=0 --out_matlab=1
 
 where 8 is the desired number of cores. Here the results will be stored in an output file gathering the results of all points (see :ref:`MATLAB output <MATLAB-target>`).
 

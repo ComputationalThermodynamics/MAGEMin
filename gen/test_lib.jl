@@ -1,12 +1,13 @@
 using MAGEMin_C
 
-gv, z_b, DB, splx_data      = init_MAGEMin();
+db          = "ig"
+gv, z_b, DB, splx_data      = init_MAGEMin(db);
 
 
 # Call optimization routine for given P & T & test 0
 test        = 0;
 sys_in      = "mol"     #default is mol, if wt is provided conversion will be done internally (MAGEMin works on mol basis)
-gv          = use_predefined_bulk_rock(gv, test);
+gv          = use_predefined_bulk_rock(gv, test, db);
 
 P           = 8.0;
 T           = 800.0;
@@ -18,7 +19,8 @@ finalize_MAGEMin(gv,DB)
 
 # Call optimization routine for given P & T & bulk_rock
 using MAGEMin_C
-gv, z_b, DB, splx_data      = init_MAGEMin();
+db          = "ig"
+gv, z_b, DB, splx_data      = init_MAGEMin(db);
 
 # Specify the bulk rock composition
 bulk_in_ox = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
