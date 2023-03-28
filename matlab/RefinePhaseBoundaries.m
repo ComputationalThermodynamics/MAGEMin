@@ -1,4 +1,4 @@
-function [refine_Elements, React_output, PhaseData] = RefinePhaseBoundaries(PhaseData, TP_vec, elements, NumAssemblage)
+function [refine_Elements, React_output, PhaseData] = RefinePhaseBoundaries(PhaseData, XY_vec, elements, NumAssemblage)
 % This computes finds elements in which a phase boundary occurs
 
 
@@ -21,7 +21,7 @@ for iReact = 1:length(Reactions_number_CELL)
     Reac = Reactions_number_CELL(iReact);
     ind  = find(Reactions_number==Reac);
     id   = elements4(ind);      % points
-    Loc  = TP_vec(id,:);
+    Loc  = XY_vec(id,:);
     
     
     % NOTE: there is somewhere a bug, so I do not compute mid-points for

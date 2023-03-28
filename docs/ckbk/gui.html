@@ -117,6 +117,18 @@
 <li class="toctree-l3"><a class="reference internal" href="#save-pseudosection-data">Save pseudosection data</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#p-x-and-t-x-diagrams">P-X and T-X diagrams</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#select-diagram-type">Select diagram type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#select-compositional-range-x">Select compositional range (X)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#save-single-point-output">Save single point output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#display-iso-contours">Display iso-contours</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#display-phase-fraction-mode">Display phase fraction (mode)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#display-end-member-fraction">Display end-member fraction</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#save-figure-vector">Save figure (vector)</a></li>
 </ul>
 </li>
 </ul>
@@ -497,6 +509,99 @@ run PlotPseudosection.mlapp
 <li><p>If you close and relaunch the GUI, you can load the saved pseudosection by entering its name in the “Filename” window and click on “load”. Note that loading can potentially take a long time if the pseudosection you saved contains a large number of points</p></li>
 </ol>
 </section>
+</section>
+<section id="p-x-and-t-x-diagrams">
+<h1>P-X and T-X diagrams<a class="headerlink" href="#p-x-and-t-x-diagrams" title="Permalink to this headline"></a></h1>
+<ul class="simple">
+<li><p>The objective of an P,T-X diagrams is to fix pressure or temperature and vary one or more components of the bulk-rock composition. This section shows how this can be achieved using the GUI of MAGEMin.</p></li>
+</ul>
+<section id="select-diagram-type">
+<h2>Select diagram type<a class="headerlink" href="#select-diagram-type" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>P-X and T-X diagrams can be computed by changing the default option in the top-left corner of the GUI (following snapshot). The fixed pressure can be changed as shown in the bottom-left corner of the following snapshot:</p></li>
+</ul>
+<a class="reference internal image-reference" href="../_images/TX_fig.png"><img alt="../_images/TX_fig.png" class="align-center" src="../_images/TX_fig.png" style="width: 240px;" /></a>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="select-compositional-range-x">
+<h2>Select compositional range (X)<a class="headerlink" href="#select-compositional-range-x" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>The compositional range to be explored in a T-X phase diagram can be changed such as:</p></li>
+</ul>
+<a class="reference internal image-reference" href="../_images/X_fig.png"><img alt="../_images/X_fig.png" class="align-center" src="../_images/X_fig.png" style="width: 480px;" /></a>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul class="simple">
+<li><p>Here, the <code class="docutils literal notranslate"><span class="pre">TX</span></code> diagram type is first selected, then the <code class="docutils literal notranslate"><span class="pre">Metapelite</span></code> database is selected. Using <code class="docutils literal notranslate"><span class="pre">Preset</span> <span class="pre">bulk</span></code> the predefined test 4 has been activated, then <code class="docutils literal notranslate"><span class="pre">Custom</span> <span class="pre">bulk</span></code> is instead selected to enable changing the composition of the bulk. Finally the water-content of the first column (Fraction) is changed to 0.0.</p></li>
+<li><p>Setting the desired fixed pressure and temperature range, adjusting the number of refinements to 6, and performing the computation results in:</p></li>
+</ul>
+<a class="reference internal image-reference" href="../_images/TX_diag.png"><img alt="../_images/TX_diag.png" class="align-center" src="../_images/TX_diag.png" style="width: 640px;" /></a>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>Note that labeling and iso-contouring works in the same way as for <code class="docutils literal notranslate"><span class="pre">PT</span></code> diagrams.</p>
+</section>
+</section>
+<section id="save-single-point-output">
+<h1>Save single point output<a class="headerlink" href="#save-single-point-output" title="Permalink to this headline"></a></h1>
+<ul class="simple">
+<li><p>If one wants to save the exhaustive informations of one computed grid point this can be achieved (after clicking on a grid point) by clicking on <code class="docutils literal notranslate"><span class="pre">Save</span> <span class="pre">equilibrium</span> <span class="pre">data</span></code> in the information panel. Doing so opens a window allowing you to save the full output as a text file.</p></li>
+</ul>
+<a class="reference internal image-reference" href="../_images/save_data.png"><img alt="../_images/save_data.png" class="align-center" src="../_images/save_data.png" style="width: 480px;" /></a>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>Note that everytime you save the full information about a data point a single calculation is performed and the output format style is the same as for the arg <code class="docutils literal notranslate"><span class="pre">--matlab_out=1</span></code></p>
+</section>
+<section id="display-iso-contours">
+<h1>Display iso-contours<a class="headerlink" href="#display-iso-contours" title="Permalink to this headline"></a></h1>
+<ul class="simple">
+<li><p>Often it is useful to be able to track the lines of constant mineral fraction or end-member proportions. This can be achieved by selecting the <code class="docutils literal notranslate"><span class="pre">Isocontour</span></code> panel in the bottom-right of the GUI.</p></li>
+</ul>
+<a class="reference internal image-reference" href="../_images/iso_panel.png"><img alt="../_images/iso_panel.png" class="align-center" src="../_images/iso_panel.png" style="width: 240px;" /></a>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<section id="display-phase-fraction-mode">
+<h2>Display phase fraction (mode)<a class="headerlink" href="#display-phase-fraction-mode" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>To display isocontours of solution phase fraction first enter the acronym of the desired phase, for instance <code class="docutils literal notranslate"><span class="pre">liq</span></code> in the <code class="docutils literal notranslate"><span class="pre">phase</span></code> cell. Then select <code class="docutils literal notranslate"><span class="pre">mode</span></code> and the desired min, range and max values. Finally hitting <code class="docutils literal notranslate"><span class="pre">display</span> <span class="pre">isocontour</span></code> will yield:</p></li>
+</ul>
+<a class="reference internal image-reference" href="../_images/iso_mode_phase.png"><img alt="../_images/iso_mode_phase.png" class="align-center" src="../_images/iso_mode_phase.png" style="width: 640px;" /></a>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>Multiple isocontour can be added in a similar manner, and deleted using <code class="docutils literal notranslate"><span class="pre">remove</span> <span class="pre">last(s)</span></code> and <code class="docutils literal notranslate"><span class="pre">remove</span> <span class="pre">all</span></code> buttons.</p>
+</section>
+<section id="display-end-member-fraction">
+<h2>Display end-member fraction<a class="headerlink" href="#display-end-member-fraction" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>To display isocontours of the end-member fraction of a solution phase, simply select <code class="docutils literal notranslate"><span class="pre">em</span> <span class="pre">frac</span></code> instead of <code class="docutils literal notranslate"><span class="pre">mode</span></code>. Doing so will open a side panel from which you can select the end-member list. This gives for <code class="docutils literal notranslate"><span class="pre">liq</span></code>:</p></li>
+</ul>
+<a class="reference internal image-reference" href="../_images/iso_emFrac.png"><img alt="../_images/iso_emFrac.png" class="align-center" src="../_images/iso_emFrac.png" style="width: 240px;" /></a>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>Changing range and color results in:</p>
+<a class="reference internal image-reference" href="../_images/iso_both.png"><img alt="../_images/iso_both.png" class="align-center" src="../_images/iso_both.png" style="width: 640px;" /></a>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+</section>
+<section id="save-figure-vector">
+<h1>Save figure (vector)<a class="headerlink" href="#save-figure-vector" title="Permalink to this headline"></a></h1>
+<ul class="simple">
+<li><p>Computed pahse diagrams including label and isocontour can be saved using the bottom-left <code class="docutils literal notranslate"><span class="pre">Export</span> <span class="pre">figure</span></code> button:</p></li>
+</ul>
+<a class="reference internal image-reference" href="../_images/export_fig.png"><img alt="../_images/export_fig.png" class="align-center" src="../_images/export_fig.png" style="width: 240px;" /></a>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>This will save the figure in semi-vectorized format, i.e., that lines labels and contours can be be modified afterward while the colorfield is a bitmap.</p>
 </section>
 
 

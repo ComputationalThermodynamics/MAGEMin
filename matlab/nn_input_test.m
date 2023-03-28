@@ -27,11 +27,11 @@ Gamma_Cr2O3 =   Gamma(:,10);
 Gamma_H2O   =   Gamma(:,11);
 
 
-TP_vec = PseudoSectionData.TP_vec;
+XY_vec = PseudoSectionData.XY_vec;
 
 
 indT     =  find(TC);
-TPvec_TC =  PseudoSectionData.TP_vec(indT,:);
+TPvec_TC =  PseudoSectionData.XY_vec(indT,:);
 Gibbs_TC =  PseudoSectionData.Gibbs(indT);
 Gamma_TC =  PseudoSectionData.Gamma(:,indT)';
 
@@ -48,16 +48,16 @@ if Train_NN
 
 
         % Train the shallow NN
-        x = TP_vec';
+        x = XY_vec';
 %         t = Gamma(:,i)';
         
         % Test: first fit a plane through the data and only train the NN on
         % the deviation of this plane
-        DM      =   [TP_vec, ones(size(TP_vec(:,1)))]; 
+        DM      =   [XY_vec, ones(size(XY_vec(:,1)))]; 
         Coeff   =   DM\Gamma(:,i);                                % coefficients of the plane that has Gamma_Lin = Coeff(1)*T + Coeff(2)*P + Coeff(3);
         
         % Subtract plane from data
-        t       =   Gamma(:,i)-(TP_vec(:,1)*Coeff(1) + TP_vec(:,2)*Coeff(2) + Coeff(3));
+        t       =   Gamma(:,i)-(XY_vec(:,1)*Coeff(1) + XY_vec(:,2)*Coeff(2) + Coeff(3));
         t       = t'; 
            
         

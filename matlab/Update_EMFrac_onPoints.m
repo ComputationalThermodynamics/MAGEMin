@@ -1,4 +1,4 @@
-function PhaseData = Update_EMFrac_onPoints(PhaseData,TP_vec, newPoints,PrPts,Computation)
+function PhaseData = Update_EMFrac_onPoints(PhaseData,XY_vec, newPoints,PrPts,Computation)
 % This updates the EM fraction for new points based on previous calculations.
 % Four different methods are available:
 %       1) Use a previously trained neural network to estimate x-eos for
@@ -24,13 +24,13 @@ switch Computation.EMFrac_Method
         PreviousSolutions = false;
       
         % Loop over points
-        [EM_Fractions,SolidSolutions]  = EM_Fraction_From_NN(TP_vec(newPoints,2), TP_vec(newPoints,1));
+        [EM_Fractions,SolidSolutions]  = EM_Fraction_From_NN(XY_vec(newPoints,2), XY_vec(newPoints,1));
         
         for i=1:length(newPoints)
             iPoint = newPoints(i);
         
-            PhaseData{iPoint}.StartingValues_EMFraction.T = TP_vec(iPoint,1);
-            PhaseData{iPoint}.StartingValues_EMFraction.P = TP_vec(iPoint,2);
+            PhaseData{iPoint}.StartingValues_EMFraction.T = XY_vec(iPoint,1);
+            PhaseData{iPoint}.StartingValues_EMFraction.P = XY_vec(iPoint,2);
             PhaseData{newPoints(i)}.StartingValues_EMFraction.EMFractions       = EM_Fractions{i};
             PhaseData{newPoints(i)}.StartingValues_EMFraction.SolutionModels    = SolidSolutions{i};
             
@@ -59,7 +59,7 @@ switch Computation.EMFrac_Method
         
     case 'Average surrounding points'
      
-        TP_norm = max(TP_vec)-min(TP_vec);
+        TP_norm = max(XY_vec)-min(XY_vec);
         
         oldPoints = 1:length(PhaseData);
         rmPoints = [];
@@ -85,7 +85,7 @@ switch Computation.EMFrac_Method
             idx = [];
             r   = 0.05;
             while length(idx)<num_Neighbours
-                [idx]   =   nearestneighbour([TP_vec(id,:)./TP_norm]', [TP_vec(oldPoints(:),:)./TP_norm]','n',num_Neighbours,'r',r);
+                [idx]   =   nearestneighbour([XY_vec(id,:)./TP_norm]', [XY_vec(oldPoints(:),:)./TP_norm]','n',num_Neighbours,'r',r);
                 r       =   r+0.05;     % increase the search radius until we have sufficient points
             end
             

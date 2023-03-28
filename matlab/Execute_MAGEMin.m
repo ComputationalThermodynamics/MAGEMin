@@ -50,10 +50,10 @@ if ~RemoteServer
      
     disp(command)
     if Computation.Julia_MAGEMin_binary==true
-        command = add_dynamic_libs(command, Computation)
+        command = add_dynamic_libs(command, Computation);
     end
     if isunix
-        system('killall MAGEMin 2>&1')
+        system('killall MAGEMin 2>&1');
     end
     system(command);
     

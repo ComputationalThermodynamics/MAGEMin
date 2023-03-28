@@ -220,6 +220,12 @@ SS_ref G_SS_mp_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.bounds_ref[5][0] = 0.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
     SS_ref_db.bounds_ref[6][0] = 0.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
     
+	if (z_b.bulk_rock[10] == 0.){ 					// no h2o, cannot be 0 for this xeos
+		SS_ref_db.z_em[7]          = 0.0;
+		SS_ref_db.bounds_ref[6][0] = eps; 
+		SS_ref_db.bounds_ref[6][1] = eps;	
+	}
+
     return SS_ref_db;
 }
 
@@ -4072,6 +4078,10 @@ SS_ref G_SS_mp_EM_function(		global_variable 	 gv,
 		else if (strcmp( name, "sa") == 0){
 			SS_ref_db  = G_SS_mp_sa_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	    }
 		else if (strcmp( name, "cd") == 0){
+			// if no H2O, deactivate
+			if (z_b.bulk_rock[10] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
 			SS_ref_db  = G_SS_mp_cd_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	    }
         else if (strcmp( name, "st") == 0 ){
 			// if no H2O, deactivate

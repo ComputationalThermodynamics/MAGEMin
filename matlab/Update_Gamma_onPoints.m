@@ -1,4 +1,4 @@
-function PhaseData = Update_Gamma_onPoints(PhaseData,TP_vec, elements, newPoints,PrPts,Computation)
+function PhaseData = Update_Gamma_onPoints(PhaseData,XY_vec, elements, newPoints,PrPts,Computation)
 % This updates the Gamma for new points based on previous calculations.
 % Two different methods are available:
 %       1) Average from coarser mesh, which is known if we employ AMR
@@ -44,12 +44,12 @@ switch Method
         
         
         
-        TP_vec_old  = TP_vec(oldPoints,:);
-        Ti          = TP_vec(newPoints,1);
-        Pi          = TP_vec(newPoints,2);
+        XY_vec_old  = XY_vec(oldPoints,:);
+        Ti          = XY_vec(newPoints,1);
+        Pi          = XY_vec(newPoints,2);
         
         % update Gamma
-        Gamma_new = Interpolate_AMR_grid(elements, TP_vec_old, Gamma_vec, Ti, Pi);
+        Gamma_new = Interpolate_AMR_grid(elements, XY_vec_old, Gamma_vec, Ti, Pi);
         Gamma_new(isnan(Gamma_new))=0;
         
         for i=1:length(newPoints)
@@ -61,7 +61,7 @@ switch Method
         
     case 'Average surrounding points'
         
-        TP_norm = max(TP_vec)-min(TP_vec);
+        TP_norm = max(XY_vec)-min(XY_vec);
         
         oldPoints = 1:length(PhaseData);
         rmPoints = [];
@@ -84,7 +84,7 @@ switch Method
             end
             
             % Get closest points to this one
-            [idx] = nearestneighbour([TP_vec(id,:)./TP_norm]', [TP_vec(oldPoints(:),:)./TP_norm]','n',num_Neighbours);
+            [idx] = nearestneighbour([XY_vec(id,:)./TP_norm]', [XY_vec(oldPoints(:),:)./TP_norm]','n',num_Neighbours);
             
             %             if idx(1)==id
             %                 idx(1)  =   [];
@@ -107,7 +107,7 @@ switch Method
     case 'Neural Network 1'
         
         % Estimate Gamma from a NN
-        Gamma = Gamma_estimation_NN1(TP_vec(newPoints,1), TP_vec(newPoints,2)); 
+        Gamma = Gamma_estimation_NN1(XY_vec(newPoints,1), XY_vec(newPoints,2)); 
         
          for i=1:length(newPoints)
             id = newPoints(i);

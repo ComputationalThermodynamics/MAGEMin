@@ -1,4 +1,4 @@
-function Data_interp = Interpolate_AMR_grid(elements, TP_vec, Data, Ti, Pi)
+function Data_interp = Interpolate_AMR_grid(elements, XY_vec, Data, Ti, Pi)
 % This interpolates from an AMR mesh to an arbitrary point (assuming it is
 % within the mesh)
 
@@ -8,7 +8,7 @@ tri1        =   elements(:,1:3);
 tri2        =   elements(:,[1 3 4]);
 % tri3        =   elements(:,[2 3 4]);
 tri         =   [tri1; tri2];  
-pts         =   TP_vec; 
+pts         =   XY_vec; 
 
 % Interpolate
 Data_interp = interptri(tri,pts(:,1),pts(:,2), Data, Ti, Pi);

@@ -3,7 +3,7 @@ function [PseudoSectionData, CancelCalculation] = RecomputePoints_TC(dlg,newPoin
 
 % Extract data
 PhaseData               =   PseudoSectionData.PhaseData;
-TP_vec                  =	PseudoSectionData.TP_vec;
+XY_vec                  =	PseudoSectionData.XY_vec;
 Computation             =   PseudoSectionData.Computation;
 Chemistry               =   PseudoSectionData.Chemistry;
 
@@ -26,7 +26,7 @@ for iPoint=1:length(newPoints)
     Computation.Method          =   'Average surrounding points';
     Computation.num_Neighbours  =   300;
     Computation.EOS_Method      =   Computation.Method;
-    PhaseData                   =   Update_xEOS_onPoints(PhaseData,TP_vec, newPoints(iPoint),[],Computation);
+    PhaseData                   =   Update_xEOS_onPoints(PhaseData,XY_vec, newPoints(iPoint),[],Computation);
     xEOS                        =   PhaseData{id}.StartingValues_xEOS;
     
     % Set solution models & x-EOS as TC input
