@@ -15,13 +15,13 @@ gv, z_b, DB, splx_data      = init_MAGEMin(db);
 
 sys_in      = "mol"     #default is mol, if wt is provided conversion will be done internally (MAGEMin works on mol basis)
 test        = 0         #KLB1
-gv          = use_predefined_bulk_rock(gv, test, db)
+gv          = use_predefined_bulk_rock(gv, test, db);
 
 # Call optimization routine for given P & T & bulk_rock
 P           = 8.0
 T           = 800.0
 gv.verbose  = -1        # switch off any verbose
-out         = point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in)
+out         = point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in);
 @show out
 
 @test out.G_system ≈ -797.7491824683576
