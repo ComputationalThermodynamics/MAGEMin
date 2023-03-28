@@ -1,8 +1,8 @@
-function [PhaseData, TP_vec, FailedSimulations, CancelComputation]  = 	PerformMAGEMin_Simulation(PhaseData, newPoints, TP_vec, VerboseLevel, Chemistry, dlg, ComputeAllPoints, UseGammaEstimation, Computation);
+function [PhaseData, XY_vec, FailedSimulations, CancelComputation]  = 	PerformMAGEMin_Simulation(PseudoSectionData,PhaseData, newPoints, XY_vec, VerboseLevel, Chemistry, dlg, ComputeAllPoints, UseGammaEstimation, Computation);
 % This performs a MAGEMin simulation for a bunch of points
 
-
-Mode = {'AllPoints','SinglePoint'};
+DiagramType = Computation.DiagramType;
+Mode        = {'AllPoints','SinglePoint'};
 if ComputeAllPoints
     Mode = Mode{1};
 else
@@ -31,7 +31,7 @@ switch Mode
     case 'AllPoints'
         
         % Write all points to be processed to a single file
-        n_points = Write_MAGEMin_InputFile(newPoints, TP_vec, PhaseData, UseGammaEstimation, Use_xEOS, Use_EMFrac);
+        n_points = Write_MAGEMin_InputFile(newPoints, XY_vec, PhaseData, UseGammaEstimation, Use_xEOS, Use_EMFrac, OxProp, DiagramType,PseudoSectionData);
         if ~isempty(PhaseData)
             for i=1:length(newPoints)
                 
@@ -110,8 +110,8 @@ switch Mode
             disp(['SinglePoint;  iPoint=',num2str(iPoint)])
             id  = newPoints(iPoint);
             
-            T   = TP_vec(id,1);
-            P   = TP_vec(id,2);
+            T   = XY_vec(id,1);
+            P   = XY_vec(id,2);
             
             tic;
             
@@ -138,7 +138,7 @@ switch Mode
                 id = newPoints(iPoint-1:iPoint);
             end
             
-            n_points = Write_MAGEMin_InputFile(id, TP_vec, PhaseData, UseGammaEstimation, Use_xEOS, Use_EMFrac);
+            n_points = Write_MAGEMin_InputFile(id, XY_vec, PhaseData, UseGammaEstimation, Use_xEOS, Use_EMFrac, OxProp, DiagramType, PseudoSectionData);
            
             Computation.NumRanks=1; % makes no sense to do a single calculation on >1 core 
             Execute_MAGEMin(Computation, VerboseLevel, n_points, Test, OxProp, sys_in)
@@ -191,16 +191,33 @@ end
 
 %--------------------------------------------------------------------------
 % Write input file for MAGEMin
-function n_points = Write_MAGEMin_InputFile(newPoints, TP_vec, PhaseData, Use_Gamma, Use_xEOS, Use_EMFrac)
+function n_points = Write_MAGEMin_InputFile(newPoints, XY_vec, PhaseData, Use_Gamma, Use_xEOS, Use_EMFrac, OxProp, DiagramType, PseudoSectionData)
 
 fid         = fopen('MAGEMin_input.dat','w');
 n_points    = length(newPoints);
 for i=1:n_points
     % Read line with P/T and Gamma
-    id      =   newPoints(i);
-    T       =   TP_vec(id,1);
-    P       =   TP_vec(id,2);
+
+    % in case PX or TX diagram is selected the bulk is set
+    Bulk   =   zeros(1,11);
+
+    if DiagramType == 'PT'
+        id      =   newPoints(i);
+        T       =   XY_vec(id,1);
+        P       =   XY_vec(id,2);
+    elseif DiagramType == 'PX'
+        id      =   newPoints(i)
+        P       =   XY_vec(id,2)
+        T       =   (PseudoSectionData.FixedTemperature)
+        Bulk    =   table2array(PseudoSectionData.Chemistry.OxProp(:,2))*(1.-XY_vec(id,1)) + table2array(PseudoSectionData.Chemistry.OxProp(:,3))*(XY_vec(id,1));
+    elseif DiagramType == 'TX'
+        id      =   newPoints(i);
+        T       =   XY_vec(id,2);
+        P       =   PseudoSectionData.FixedPressure;
+        Bulk    =   table2array(PseudoSectionData.Chemistry.OxProp(:,2))*(1.-XY_vec(id,1)) + table2array(PseudoSectionData.Chemistry.OxProp(:,3))*(XY_vec(id,1));
+    end
     
+
     % if we do not use the previous Gamma
     Gamma   =   zeros(1,11);
     if Use_Gamma
@@ -262,7 +279,7 @@ for i=1:n_points
             n_phases = 0;
         end
     end
-    fprintf(fid,'%i %f %f %f %f %f %f %f %f %f %f %f %f %f\n',n_phases, P,T,Gamma);
+    fprintf(fid,'%i %f %f %f %f %f %f %f %f %f %f %f %f %f\n',n_phases, P,T,Bulk);
     
     if (Use_xEOS | Use_EMFrac) & n_phases>0
         % Add compositional variable guesses

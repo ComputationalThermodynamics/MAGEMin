@@ -49,6 +49,6 @@ function bulk_in = loadBulkFromFile(sysunit,file,path,db);
 	MAGEMin_bulk(find(MAGEMin_bulk(idNonH2O) == 0)) = 1e-4;
 	MAGEMin_bulk = normalize(MAGEMin_bulk,'norm',1)*100.0;
 	
-	bulk_in = table(MAGEMin_ox',MAGEMin_bulk,'VariableNames',{'Oxide','mol %'});
+	bulk_in = table(MAGEMin_ox',MAGEMin_bulk,MAGEMin_bulk,'VariableNames',{'Oxide','mol %','mol2 %'});
 
 end

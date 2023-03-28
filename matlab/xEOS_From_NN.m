@@ -1,4 +1,4 @@
-function [xEOS] = xEOS_From_NN(SS,TP_vec)
+function [xEOS] = xEOS_From_NN(SS,XY_vec)
 % This returns the xEOS of a solution model as cmputed by a NN for a given
 % list of T,P points (and later chemistry)
 %
@@ -9,34 +9,34 @@ load('NN_test1');
 % Compute NN
 switch SS
     case 'spn'
-        xEOS    = net_spn([TP_vec]')';
+        xEOS    = net_spn([XY_vec]')';
         lb      =   [0 0 0 0 -1 -1 -1];
         ub      =   [1 1 1 1  1  1  1];
     case 'cpx'
-        xEOS    =   net_cpx([TP_vec]')';
+        xEOS    =   net_cpx([XY_vec]')';
         lb      =   [0 0 0 0 -1 0 0 0 0];
         ub      =   [1 2 1 1  1 1 1 1 1];
 
     case 'opx'  
-        xEOS    =   net_opx([TP_vec]')';
+        xEOS    =   net_opx([XY_vec]')';
         lb      =   [0 0 0 -1 0 0 0 0];
         ub      =   [1 1 1 2  1 1 1 1];
     case 'pli'
-        xEOS    =   net_pli([TP_vec]')';
+        xEOS    =   net_pli([XY_vec]')';
         lb      =   [0 0];
         ub      =   [1 1];
         
     case 'g'
-        xEOS    =   net_g([TP_vec]')';
+        xEOS    =   net_g([XY_vec]')';
         lb      =   [0 0 0 0 0];
         ub      =   [1 1 1 1 1];
         
     case 'ol'
-        xEOS    =   net_ol([TP_vec]')';
+        xEOS    =   net_ol([XY_vec]')';
         lb      =   [0 0 0];
         ub      =   [1 1 1];
     case 'liq'
-        xEOS    =   net_liq([TP_vec]')';
+        xEOS    =   net_liq([XY_vec]')';
         lb      =   [0 0 0 0 0 0 0 0 0 0 0];
         ub      =   [1 1 1 1 1 1 1 1 1 1 1];
         

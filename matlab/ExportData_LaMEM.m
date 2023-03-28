@@ -27,10 +27,10 @@ np      =   GridResolution(2); % # of grid points P
 %========================================================= 
 % Create regular T,P grid
 %========================================================= 
-Tmin    =   min(PseudoSectionData.TP_vec(:,1));
-Pmin    =   min(PseudoSectionData.TP_vec(:,2));
-Tmax    =   max(PseudoSectionData.TP_vec(:,1));
-Pmax    =   max(PseudoSectionData.TP_vec(:,2));
+Tmin    =   min(PseudoSectionData.XY_vec(:,1));
+Pmin    =   min(PseudoSectionData.XY_vec(:,2));
+Tmax    =   max(PseudoSectionData.XY_vec(:,1));
+Pmax    =   max(PseudoSectionData.XY_vec(:,2));
 
 dT      =   (Tmax-Tmin)/(nt-1);
 dP      =   (Pmax-Pmin)/(np-1);
@@ -56,11 +56,11 @@ Pi      = P;   Pi(end,:) = Pi(end,:) - 1e-6; Pi(1,:) = Pi(1,:) + 1e-6;
 Ti      = T;   Ti(:,end) = Ti(:,end) - 1e-6; Ti(:,1) = Ti(:,1) + 1e-6;
 
 % Interpolate:
-rho_sol = Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.TP_vec, Rho_sol,               Ti, Pi);
-rho_liq = Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.TP_vec, Rho_liq,               Ti, Pi);
-melt    = Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.TP_vec, PseudoSectionData.liq, Ti, Pi);
-Vp      = Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.TP_vec, PseudoSectionData.Vp,  Ti, Pi);
-Vs      = Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.TP_vec, PseudoSectionData.Vs,  Ti, Pi);
+rho_sol = Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.XY_vec, Rho_sol,               Ti, Pi);
+rho_liq = Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.XY_vec, Rho_liq,               Ti, Pi);
+melt    = Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.XY_vec, PseudoSectionData.liq, Ti, Pi);
+Vp      = Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.XY_vec, PseudoSectionData.Vp,  Ti, Pi);
+Vs      = Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.XY_vec, PseudoSectionData.Vs,  Ti, Pi);
 
 VpVs      = Vp./Vs;
 ind       = find(VpVs>3);

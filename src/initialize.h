@@ -975,14 +975,14 @@ bulk_info reset_z_b_bulk(			global_variable 	 gv,
 		}
 	}
 
-	/** calculate fbc to be used for normalization factor of liq */
+	/** calculate fbc to be used for normalization factor of solution phases */
 	z_b.fbc			= 0.0; 
 	for (i = 0; i < gv.len_ox; i++){
 		z_b.fbc += z_b.bulk_rock[i]*z_b.apo[i];
 	}
 	
-	z_b.nzEl_val = sum;					/** store number of non zero values */
-	z_b.zEl_val  = gv.len_ox - sum;			/** store number of zero values */
+	z_b.nzEl_val = sum;						/** store number of non zero values */
+	z_b.zEl_val  = gv.len_ox - sum;			/** store number of zero values 	*/
 	
 	z_b.nzEl_array  = malloc (z_b.nzEl_val * sizeof (int) ); 
 	if (z_b.zEl_val > 0){

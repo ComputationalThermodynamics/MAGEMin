@@ -10,8 +10,8 @@ data = PseudoSectionData
 
 % determine 
 NumAssemblage = data.NumAssemblage;
-T             = data.TP_vec(:,1);
-P             = data.TP_vec(:,2);
+T             = data.XY_vec(:,1);
+P             = data.XY_vec(:,2);
 
 % Every AMR element in the Phase diagram grid is ordered as:
 %
