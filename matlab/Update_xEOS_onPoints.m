@@ -1,4 +1,4 @@
-function PhaseData = Update_xEOS_onPoints(PhaseData,TP_vec, newPoints,PrPts,Computation)
+function PhaseData = Update_xEOS_onPoints(PhaseData,XY_vec, newPoints,PrPts,Computation)
 % This updates the xEOS for new points based on previous calculations.
 % Four different methods are available:
 %       1) Use a previously trained neural network to estimate x-eos for
@@ -27,7 +27,7 @@ switch Computation.EOS_Method
 %         SolutionModels = {'spn';'ol';'cpx'; 'opx'; 'pli';'g'; 'liq'};
         
         for iSS = 1:length(SolutionModels)
-           CompositionalVar_NN{iSS}  = xEOS_From_NN(SolutionModels{iSS},TP_vec(newPoints,:));
+           CompositionalVar_NN{iSS}  = xEOS_From_NN(SolutionModels{iSS},XY_vec(newPoints,:));
         end
         
         % Loop over points
@@ -39,8 +39,8 @@ switch Computation.EOS_Method
                 Data        = [];
             end
             
-            Data.T               = TP_vec(iPoint,1);
-            Data.P               = TP_vec(iPoint,2);
+            Data.T               = XY_vec(iPoint,1);
+            Data.P               = XY_vec(iPoint,2);
             
             % Specify stable solutions from NN
             Data.StableSolutions = SolutionModels;
@@ -83,7 +83,7 @@ switch Computation.EOS_Method
         
     case 'Average surrounding points'
      
-        TP_norm = max(TP_vec)-min(TP_vec);
+        TP_norm = max(XY_vec)-min(XY_vec);
         
         oldPoints = 1:length(PhaseData);
         rmPoints = [];
@@ -109,7 +109,7 @@ switch Computation.EOS_Method
             idx = [];
             r   = 0.05;
             while length(idx)<num_Neighbours
-                [idx]   =   nearestneighbour([TP_vec(id,:)./TP_norm]', [TP_vec(oldPoints(:),:)./TP_norm]','n',num_Neighbours,'r',r);
+                [idx]   =   nearestneighbour([XY_vec(id,:)./TP_norm]', [XY_vec(oldPoints(:),:)./TP_norm]','n',num_Neighbours,'r',r);
                 r       =   r+0.05;     % increase the search radius until we have sufficient points
             end
             

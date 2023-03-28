@@ -5,7 +5,7 @@ function [Line] = Extract_Reactions_MAGEMin(LineData, PhaseBound)
 % % Extract boundary of domain from the points of the field.
 % %  NOTE:this requires a continuous field, not two at different locations!
 % ind       = find(PseudoSectionData.NumAssemblage==Data.NumAssemblage);
-% TP_points = PseudoSectionData.TP_vec(ind,:);
+% TP_points = PseudoSectionData.XY_vec(ind,:);
 % id        = boundary(TP_points(:,1),TP_points(:,2));
 % TP_bound  = TP_points(id,:);
 % 

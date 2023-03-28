@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Wed Oct 26 16:18:03 2022
+# Make data base, printed on Tue Mar 28 13:29:51 2023
 
 # Variables
 
@@ -20,6 +20,8 @@ GNUMAKEFLAGS :=
 DESKTOP_SESSION = ubuntu
 # default
 .SHELLFLAGS := -c
+# environment
+VSCODE_CRASH_REPORTER_PROCESS_TYPE = extensionHost
 # environment
 XDG_SESSION_TYPE = x11
 # automatic
@@ -65,23 +67,23 @@ CLUTTER_IM_MODULE = xim
 # environment
 LESSOPEN = | /usr/bin/lesspipe %s
 # environment
-LC_NAME = de_DE.UTF-8
+LC_NAME = fr_FR.UTF-8
 # environment
 VSCODE_CWD = /home/seph
 # default
 MAKE_HOST := x86_64-pc-linux-gnu
 # environment
-PATH = /home/seph/.local/bin:/home/seph/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+PATH = /home/seph/.local/bin:/home/seph/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/lib/x86_64-linux-gnu/gmt
 # environment
 GPG_AGENT_INFO = /run/user/1000/gnupg/S.gpg-agent:0:1
 # environment
-GJS_DEBUG_OUTPUT = stderr
-# environment
-SESSION_MANAGER = local/seph-VirtualBox:@/tmp/.ICE-unix/18753,unix/seph-VirtualBox:/tmp/.ICE-unix/18753
+SESSION_MANAGER = local/seph-VirtualBox:@/tmp/.ICE-unix/2864,unix/seph-VirtualBox:/tmp/.ICE-unix/2864
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
 TEXTDOMAIN = im-config
+# environment
+PETSC_OPT = /home/seph/petsc-3.16.6
 # environment
 XDG_MENU_PREFIX = gnome-
 # environment
@@ -89,17 +91,15 @@ ELECTRON_RUN_AS_NODE = 1
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
-LS_COLORS = 
-# environment
 XDG_SESSION_DESKTOP = ubuntu
 # environment
 SSH_AUTH_SOCK = /run/user/1000/keyring/ssh
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 22488
+GIO_LAUNCHED_DESKTOP_FILE_PID = 3490
 # automatic
 %F = $(notdir $%)
 # environment
-DISPLAY = :0
+DISPLAY = :1
 # environment
 GTK_IM_MODULE = ibus
 # environment
@@ -107,7 +107,7 @@ PWD = /home/seph/MAGEMin_dev/doc_raw
 # environment
 XDG_SEAT = seat0
 # environment
-SSH_AGENT_PID = 18888
+SSH_AGENT_PID = 3001
 # environment
 ORIGINAL_XDG_CURRENT_DESKTOP = ubuntu:GNOME
 # environment
@@ -119,9 +119,11 @@ HOME = /home/seph
 # environment
 LESSCLOSE = /usr/bin/lesspipe %s %s
 # environment
-VSCODE_CODE_CACHE_PATH = /home/seph/.config/Code/CachedData/d045a5eda657f4d7b676dedbfa7aab8207f8a075
+VSCODE_CODE_CACHE_PATH = /home/seph/.config/Code/CachedData/ee2b180d582a7f601fa6ecfdad8d9fd269ab1884
 # environment
 LOGNAME = seph
+# environment
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
 # automatic
 +F = $(notdir $+)
 # environment
@@ -135,7 +137,7 @@ GNOME_DESKTOP_SESSION_ID = this-is-deprecated
 # environment
 XDG_VTNR = 2
 # environment
-LC_TIME = de_DE.UTF-8
+LC_TIME = fr_FR.UTF-8
 # default
 MAKE = $(MAKE_COMMAND)
 # default
@@ -151,7 +153,7 @@ XDG_SESSION_ID = 2
 # environment
 USER = seph
 # environment
-LC_MONETARY = de_DE.UTF-8
+LC_MONETARY = fr_FR.UTF-8
 # makefile
 .DEFAULT_GOAL := help
 # environment
@@ -161,7 +163,7 @@ XDG_CURRENT_DESKTOP = Unity
 # makefile (from 'Makefile', line 6)
 SPHINXOPTS = 
 # environment
-LC_TELEPHONE = de_DE.UTF-8
+LC_TELEPHONE = fr_FR.UTF-8
 # default
 MAKE_COMMAND := make
 # default
@@ -169,7 +171,9 @@ MAKE_COMMAND := make
 # automatic
 *F = $(notdir $*)
 # environment
-VSCODE_IPC_HOOK = /run/user/1000/vscode-c16b96de-1.72.2-main.sock
+VSCODE_IPC_HOOK = /run/user/1000/vscode-c16b96de-1.76-main.sock
+# environment
+PYTHONPATH = :/home/seph/sciath
 # makefile
 MAKEFLAGS = pqrR
 # environment
@@ -183,7 +187,9 @@ SPHINXBUILD = sphinx-build
 # environment
 GDK_BACKEND = x11
 # environment
-LC_PAPER = de_DE.UTF-8
+LC_PAPER = fr_FR.UTF-8
+# environment
+LC_IDENTIFICATION = fr_FR.UTF-8
 # environment
 QT_ACCESSIBILITY = 1
 # environment
@@ -191,11 +197,11 @@ TEXTDOMAINDIR = /usr/share/locale/
 # default
 MAKEFILES := 
 # environment
-LC_NUMERIC = de_DE.UTF-8
+LC_NUMERIC = fr_FR.UTF-8
 # automatic
 <F = $(notdir $<)
 # environment
-LC_MEASUREMENT = de_DE.UTF-8
+LC_MEASUREMENT = fr_FR.UTF-8
 # environment
 LC_ALL = C
 # environment
@@ -213,19 +219,21 @@ WINDOWPATH = 2
 # default
 .INCLUDE_DIRS = /usr/include /usr/local/include /usr/include
 # environment
-LC_IDENTIFICATION = de_DE.UTF-8
+GJS_DEBUG_OUTPUT = stderr
+# environment
+JULIA_PKG_SERVER_REGISTRY_PREFERENCE = eager
 # default
 .RECIPEPREFIX := 
 # environment
-LC_ADDRESS = de_DE.UTF-8
+LC_ADDRESS = fr_FR.UTF-8
 # environment
 LANG = C
 # makefile (from 'Makefile', line 8)
 SOURCEDIR = .
 # environment
-VSCODE_PID = 22488
+VSCODE_PID = 3490
 # variable set hash-table stats:
-# Load=107/1024=10%, Rehash=0, Collisions=18/142=13%
+# Load=111/1024=11%, Rehash=0, Collisions=18/146=12%
 
 # Pattern-specific Variable Values
 
@@ -233,7 +241,7 @@ VSCODE_PID = 22488
 
 # Directories
 
-# . (device 2049, inode 2116680): 23 files, no impossibilities.
+# . (device 2049, inode 3685106): 23 files, no impossibilities.
 
 # 23 files, no impossibilities in 1 directories.
 
@@ -279,12 +287,12 @@ all: Makefile
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
- 
 
 Makefile:
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
+ 
 #  File has been updated.
 #  Successfully updated.
 
@@ -316,6 +324,6 @@ help:
 # strcache performance: lookups = 43 / hit rate = 27%
 # hash-table stats:
 # Load=31/8192=0%, Rehash=0, Collisions=1/43=2%
-# Finished Make data base on Wed Oct 26 16:18:03 2022
+# Finished Make data base on Tue Mar 28 13:29:51 2023
 
  

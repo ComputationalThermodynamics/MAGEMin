@@ -80,7 +80,7 @@ end
 
 % Default values
 newPoints           =   1;
-TP_vec              =   [Data.T, Data.P];
+XY_vec              =   [Data.T, Data.P];
 Chemistry           =   Data.Chemistry;
 dlg.CancelRequested =   false;
 ComputeAllPoints    =   logical(0);
@@ -93,7 +93,7 @@ Computation.MinPhaseFraction = 0;
 PhaseData_in{1} = Data;
 
 % Perform computation and retrieve result 
-[Data_new, TP_vec, FailedSimulations]  = 	PerformMAGEMin_Simulation(PhaseData_in, newPoints, TP_vec, VerboseLevel, Chemistry, dlg, ComputeAllPoints, UseGammaEstimation, Computation);
+[Data_new, XY_vec, FailedSimulations]  = 	PerformMAGEMin_Simulation(PhaseData_in, newPoints, XY_vec, VerboseLevel, Chemistry, dlg, ComputeAllPoints, UseGammaEstimation, Computation);
 
 Data_new = Data_new{1};
 Data_new.Chemistry = Data.Chemistry;

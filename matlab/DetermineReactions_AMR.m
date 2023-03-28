@@ -41,7 +41,7 @@ for i=1:length(array)
 end
 
 % Generate a new refined mesh
-TP_vec      =   PseudoSectionData.TP_vec;
+XY_vec      =   PseudoSectionData.XY_vec;
 elements    =   PseudoSectionData.elements;
 newPoints   =   [];
 PrPts0      =   [];

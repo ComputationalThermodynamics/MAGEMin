@@ -250,3 +250,123 @@ Save pseudosection data
 2. If you close and relaunch the GUI, you can load the saved pseudosection by entering its name in the "Filename" window and click on "load". Note that loading can potentially take a long time if the pseudosection you saved contains a large number of points
 
 
+
+
+
+P-X and T-X diagrams
+====================
+
+- The objective of an P,T-X diagrams is to fix pressure or temperature and vary one or more components of the bulk-rock composition. This section shows how this can be achieved using the GUI of MAGEMin.
+
+Select diagram type
+*******************
+
+- P-X and T-X diagrams can be computed by changing the default option in the top-left corner of the GUI (following snapshot). The fixed pressure can be changed as shown in the bottom-left corner of the following snapshot:
+
+
+.. image:: /figs/TX_fig.png
+	:width: 240
+	:align: center
+   
+|
+
+Select compositional range (X)
+******************************
+
+- The compositional range to be explored in a T-X phase diagram can be changed such as:
+
+
+.. image:: /figs/X_fig.png
+	:width: 480
+	:align: center
+   
+|
+
+- Here, the :literal:`TX` diagram type is first selected, then the :literal:`Metapelite` database is selected. Using :literal:`Preset bulk` the predefined test 4 has been activated, then :literal:`Custom bulk` is instead selected to enable changing the composition of the bulk. Finally the water-content of the first column (Fraction) is changed to 0.0.
+
+- Setting the desired fixed pressure and temperature range, adjusting the number of refinements to 6, and performing the computation results in:
+
+
+.. image:: /figs/TX_diag.png
+	:width: 640
+	:align: center
+   
+|
+
+Note that labeling and iso-contouring works in the same way as for :literal:`PT` diagrams.
+
+
+Save single point output
+========================
+
+- If one wants to save the exhaustive informations of one computed grid point this can be achieved (after clicking on a grid point) by clicking on :literal:`Save equilibrium data` in the information panel. Doing so opens a window allowing you to save the full output as a text file.
+
+.. image:: /figs/save_data.png
+	:width: 480
+	:align: center
+   
+|
+
+Note that everytime you save the full information about a data point a single calculation is performed and the output format style is the same as for the arg :literal:`--matlab_out=1` 
+
+Display iso-contours
+====================
+
+- Often it is useful to be able to track the lines of constant mineral fraction or end-member proportions. This can be achieved by selecting the :literal:`Isocontour` panel in the bottom-right of the GUI.
+
+
+.. image:: /figs/iso_panel.png
+	:width: 240
+	:align: center
+   
+|
+
+Display phase fraction (mode)
+*****************************
+
+- To display isocontours of solution phase fraction first enter the acronym of the desired phase, for instance :literal:`liq` in the :literal:`phase` cell. Then select :literal:`mode` and the desired min, range and max values. Finally hitting :literal:`display isocontour` will yield:
+
+
+.. image:: /figs/iso_mode_phase.png
+	:width: 640
+	:align: center
+   
+|
+
+Multiple isocontour can be added in a similar manner, and deleted using :literal:`remove last(s)` and :literal:`remove all` buttons.
+
+Display end-member fraction
+***************************
+
+- To display isocontours of the end-member fraction of a solution phase, simply select :literal:`em frac` instead of :literal:`mode`. Doing so will open a side panel from which you can select the end-member list. This gives for :literal:`liq`:
+
+
+.. image:: /figs/iso_emFrac.png
+	:width: 240
+	:align: center
+   
+|
+
+Changing range and color results in:
+
+.. image:: /figs/iso_both.png
+	:width: 640
+	:align: center
+   
+|
+
+Save figure (vector)
+====================
+
+- Computed pahse diagrams including label and isocontour can be saved using the bottom-left :literal:`Export figure` button:
+
+
+.. image:: /figs/export_fig.png
+	:width: 240
+	:align: center
+   
+|
+
+This will save the figure in semi-vectorized format, i.e., that lines labels and contours can be be modified afterward while the colorfield is a bitmap.
+
+

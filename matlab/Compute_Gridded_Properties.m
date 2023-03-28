@@ -16,26 +16,26 @@ end
 
 
 % 2D grid
-Tmin        = min(PseudoSectionData.TP_vec(:,1));
-Tmax        = max(PseudoSectionData.TP_vec(:,1));
+Tmin        = min(PseudoSectionData.XY_vec(:,1));
+Tmax        = max(PseudoSectionData.XY_vec(:,1));
 dT          = (Tmax-Tmin)/(nT-1);
 
-Pmin        = min(PseudoSectionData.TP_vec(:,2));
-Pmax        = max(PseudoSectionData.TP_vec(:,2));
+Pmin        = min(PseudoSectionData.XY_vec(:,2));
+Pmax        = max(PseudoSectionData.XY_vec(:,2));
 dP          = (Pmax-Pmin)/(nP-1);
 
 [T2D,P2D]   = meshgrid(Tmin:dT:Tmax,Pmin:dP:Pmax);
 
 % Interpolate data on grid
-Rho         =   Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.TP_vec, PseudoSectionData.Rho_tot, T2D(:), P2D(:));
+Rho         =   Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.XY_vec, PseudoSectionData.Rho_tot, T2D(:), P2D(:));
 Rho         =   reshape(Rho,size(T2D));
 
-Gibbs       =   Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.TP_vec, PseudoSectionData.Gibbs,     T2D(:), P2D(:));
+Gibbs       =   Interpolate_AMR_grid(PseudoSectionData.elements, PseudoSectionData.XY_vec, PseudoSectionData.Gibbs,     T2D(:), P2D(:));
 Gibbs       =   reshape(Gibbs,size(T2D));
 
 ind         =   find(isnan(Gibbs));
 if ~isempty(ind)
-%     Gibbs(ind)  =   griddata(PseudoSectionData.TP_vec(:,1), PseudoSectionData.TP_vec(:,2), PseudoSectionData.Gibbs,     T2D(ind), P2D(ind));
+%     Gibbs(ind)  =   griddata(PseudoSectionData.XY_vec(:,1), PseudoSectionData.XY_vec(:,2), PseudoSectionData.Gibbs,     T2D(ind), P2D(ind));
 end
 
 

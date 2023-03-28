@@ -9,7 +9,7 @@ VerboseLevel                    =   PseudoSectionData.Computation.Verbose;      
 
 Chemistry                    	=   PseudoSectionData.Chemistry;               % predefined chemical composition
 PseudoSectionData0              =   PseudoSectionData;
-
+DiagramType                     =   PseudoSectionData.Computation.DiagramType;
 if isfield(PseudoSectionData,'fig')
     fig = PseudoSectionData.fig;
 else
@@ -17,14 +17,24 @@ else
 end
 
 % Generate initial (coarse) mesh
-P_dat                           =   PseudoSectionData.CoarseGrid.P;
-T_dat                           =   PseudoSectionData.CoarseGrid.T;
 
-P_vec1D                         =   P_dat(1):P_dat(3):P_dat(2);
-T_vec1D                         =   T_dat(1):T_dat(3):T_dat(2);
+if DiagramType == "PT";
+    Y_dat                           =   PseudoSectionData.CoarseGrid.P;
+    X_dat                           =   PseudoSectionData.CoarseGrid.T;
+elseif DiagramType == "PX";
+    Y_dat                           =   PseudoSectionData.CoarseGrid.P;
+    X_dat                           =   PseudoSectionData.CoarseGrid.X;
+elseif DiagramType == "TX";
+    Y_dat                           =   PseudoSectionData.CoarseGrid.T;
+    X_dat                           =   PseudoSectionData.CoarseGrid.X;
+end
+
+
+Y_vec1D                         =   Y_dat(1):Y_dat(3):Y_dat(2);
+X_vec1D                         =   X_dat(1):X_dat(3):X_dat(2);
 numPoints                       =   0;
-[TP_vec, elements, irregular]   =   GenerateRegularMesh_AMR(T_vec1D,P_vec1D);
-newPoints                       =   numPoints+1:size(TP_vec,1);             % newly added points
+[XY_vec, elements, irregular]   =   GenerateRegularMesh_AMR(X_vec1D,Y_vec1D);
+newPoints                       =   numPoints+1:size(XY_vec,1);             % newly added points
 
 PhaseData                       =   [];
 FailedSimulations               =   [];
@@ -39,32 +49,32 @@ for iter=1:PseudoSectionData.Computation.RefinementLevels
         [refine_Elements]                   =   DetermineReactions_AMR(PseudoSectionData);
         
         % refine mesh
-        numPoints                           =   length(TP_vec);
+        numPoints                           =   length(XY_vec);
         elements_old                        =   elements;
-        [TP_vec,elements,irregular, PrPts]  =   QrefineR(TP_vec,elements,irregular,refine_Elements);
-        newPoints                           =   numPoints+1:size(TP_vec,1); % newly added points
+        [XY_vec,elements,irregular, PrPts]  =   QrefineR(XY_vec,elements,irregular,refine_Elements);
+        newPoints                           =   numPoints+1:size(XY_vec,1); % newly added points
         
         % Update Gamma on the new Points
         if PseudoSectionData.Computation.UseGammaEstimation
-            PhaseData = Update_Gamma_onPoints(PhaseData,TP_vec, elements_old, newPoints,PrPts,PseudoSectionData.Computation);
+            PhaseData = Update_Gamma_onPoints(PhaseData,XY_vec, elements_old, newPoints,PrPts,PseudoSectionData.Computation);
         end
         
         % Update x-EOS on new points from coarse mesh:
         if PseudoSectionData.Computation.Use_xEOS
-            PhaseData = Update_xEOS_onPoints(PhaseData,TP_vec, newPoints,PrPts,PseudoSectionData.Computation);
+            PhaseData = Update_xEOS_onPoints(PhaseData,XY_vec, newPoints,PrPts,PseudoSectionData.Computation);
         end
         
         % Update EM Fractions on new points from coarse mesh:
         if PseudoSectionData.Computation.Use_EMFrac
-            PhaseData = Update_EMFrac_onPoints(PhaseData,TP_vec, newPoints,PrPts,PseudoSectionData.Computation);
+            PhaseData = Update_EMFrac_onPoints(PhaseData,XY_vec, newPoints,PrPts,PseudoSectionData.Computation);
         end
         
         
         if DisplayPlots
             figure(2), clf
-            patch('Faces', elements, 'Vertices', TP_vec, 'Facecolor','none')
+            patch('Faces', elements, 'Vertices', XY_vec, 'Facecolor','none')
             hold on
-            plot(TP_vec(newPoints,1),TP_vec(newPoints,2),'ro')
+            plot(XY_vec(newPoints,1),XY_vec(newPoints,2),'ro')
             title(['requires computation of ',num2str(length(newPoints)),' new points (red)'])
             drawnow
         end
@@ -80,7 +90,7 @@ for iter=1:PseudoSectionData.Computation.RefinementLevels
                 otherwise
                     elements_old                        =   elements;
                     PrPts=[];
-                    PhaseData = Update_Gamma_onPoints(PhaseData,TP_vec, elements_old, newPoints,PrPts,PseudoSectionData.Computation);
+                    PhaseData = Update_Gamma_onPoints(PhaseData,XY_vec, elements_old, newPoints,PrPts,PseudoSectionData.Computation);
                     
             end
         end
@@ -90,7 +100,7 @@ for iter=1:PseudoSectionData.Computation.RefinementLevels
             switch PseudoSectionData.Computation.EOS_Method
                 case 'Neural Network'
                     PrPts     = [];
-                    PhaseData = Update_xEOS_onPoints(PhaseData,TP_vec, newPoints,PrPts,PseudoSectionData.Computation);
+                    PhaseData = Update_xEOS_onPoints(PhaseData,XY_vec, newPoints,PrPts,PseudoSectionData.Computation);
                     
                 otherwise
                     % nope, no info about xEOS yet
@@ -103,7 +113,7 @@ for iter=1:PseudoSectionData.Computation.RefinementLevels
             switch PseudoSectionData.Computation.EMFrac_Method
                 case 'Neural Network'
                     PrPts     = [];
-                    PhaseData = Update_EMFrac_onPoints(PhaseData,TP_vec, newPoints,PrPts,PseudoSectionData.Computation);
+                    PhaseData = Update_EMFrac_onPoints(PhaseData,XY_vec, newPoints,PrPts,PseudoSectionData.Computation);
                     
                 otherwise
                     % nope, no info about xEOS yet
@@ -120,7 +130,7 @@ for iter=1:PseudoSectionData.Computation.RefinementLevels
     UseGammaEstimation  =   PseudoSectionData.Computation.UseGammaEstimation; 
     Computation         =   PseudoSectionData.Computation;
     
-    [PhaseData, TP_vec, FailedSimulations, CancelComputation] = PerformMAGEMin_Simulation(PhaseData, newPoints, TP_vec, VerboseLevel, Chemistry, dlg, ComputeAllPoints, UseGammaEstimation, Computation);
+    [PhaseData, XY_vec, FailedSimulations, CancelComputation] = PerformMAGEMin_Simulation(PseudoSectionData,PhaseData, newPoints, XY_vec, VerboseLevel, Chemistry, dlg, ComputeAllPoints, UseGammaEstimation, Computation);
     
     if CancelComputation
         break
@@ -145,22 +155,40 @@ for iter=1:PseudoSectionData.Computation.RefinementLevels
         col         =   liq;
         
         figure(1), clf
-        h = patch('Faces', elements, 'Vertices', TP_vec,'FaceVertexCData',col(:),'FaceColor','interp');
-        xlabel('Temperature [C]','Fontsize',15)
-        ylabel('Pressure [kbar]','Fontsize',15)
+        h = patch('Faces', elements, 'Vertices', XY_vec,'FaceVertexCData',col(:),'FaceColor','interp');
+
+        if DiagramType == "PT";
+            xlabel('Temperature [C]','Fontsize',15)
+            ylabel('Pressure [kbar]','Fontsize',15)
+        elseif DiagramType == "PX";
+            xlabel('Composition [frac]','Fontsize',15)
+            ylabel('Pressure [kbar]','Fontsize',15)
+        elseif DiagramType == "TX";
+            xlabel('Composition [frac]','Fontsize',15)
+            ylabel('Temperature [C]','Fontsize',15)
+        end
+
         colorbar, title('melt fraction')
         
         
         col         =   numPhase;
         figure(3), clf
-        h = patch('Faces', elements, 'Vertices', TP_vec,'FaceVertexCData',col(:),'FaceColor','interp');
-        xlabel('Temperature [C]','Fontsize',15)
-        ylabel('Pressure [kbar]','Fontsize',15)
+        h = patch('Faces', elements, 'Vertices', XY_vec,'FaceVertexCData',col(:),'FaceColor','interp');
+        if DiagramType == "PT";
+            xlabel('Temperature [C]','Fontsize',15)
+            ylabel('Pressure [kbar]','Fontsize',15)
+        elseif DiagramType == "PX";
+            xlabel('Composition [frac]','Fontsize',15)
+            ylabel('Pressure [kbar]','Fontsize',15)
+        elseif DiagramType == "TX";
+            xlabel('Composition [frac]','Fontsize',15)
+            ylabel('Temperature [C]','Fontsize',15)
+        end
         colorbar, title('# of stable phases')
     end
        
     % Store data in structure, which we will later use in the GUI
-    PseudoSectionData.TP_vec            =   TP_vec;
+    PseudoSectionData.XY_vec            =   XY_vec;
     PseudoSectionData.elements          =   elements;
     PseudoSectionData.PhaseData         =   PhaseData;
     PseudoSectionData.FailedSimulations =   FailedSimulations;
