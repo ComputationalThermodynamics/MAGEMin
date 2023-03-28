@@ -1207,34 +1207,35 @@ void run_localMinimization(				bulk_info 	 		 z_b,
 		}
 	}
 
-	// ss = 6; // hb index of the solution phase to fully minimize
-	ss = 3; // spn index of the solution phase to fully minimize
+	ss = 6; // hb index of the solution phase to fully minimize
+	// ss = 0; // spn index of the solution phase to fully minimize
+	// ss = 3; // cpx index of the solution phase to fully minimize
 
 	struct ss_pc get_ss_pv;		
 
-	// gv.gam_tot[0]  = -960.9655;	
-	// gv.gam_tot[1]  = -1768.2476;	
-	// gv.gam_tot[2]  = -788.4474;	
-	// gv.gam_tot[3]  = -678.9683;	
-	// gv.gam_tot[4]  = -355.2975;	
-	// gv.gam_tot[5]  = -914.9708;	
-	// gv.gam_tot[6]  = -839.9561;
-	// gv.gam_tot[7]  = -1008.3630;
-	// gv.gam_tot[8]  = -263.7269;
-	// gv.gam_tot[9]  = -1262.6087;
-	// gv.gam_tot[10] = -368.4674;
+	gv.gam_tot[0]  = -960.9655;	
+	gv.gam_tot[1]  = -1768.2476;	
+	gv.gam_tot[2]  = -788.4474;	
+	gv.gam_tot[3]  = -678.9683;	
+	gv.gam_tot[4]  = -355.2975;	
+	gv.gam_tot[5]  = -914.9708;	
+	gv.gam_tot[6]  = -839.9561;
+	gv.gam_tot[7]  = -1008.3630;
+	gv.gam_tot[8]  = -263.7269;
+	gv.gam_tot[9]  = -1262.6087;
+	gv.gam_tot[10] = -368.4674;
 
-	// SS_ref_db[ss].gbase[0]  = -13012.62073;	
-	// SS_ref_db[ss].gbase[1]  = -13235.27114;	
-	// SS_ref_db[ss].gbase[2]  = -13472.30496;	
-	// SS_ref_db[ss].gbase[3]  = -12644.70794;	
-	// SS_ref_db[ss].gbase[4]  = -12762.02635;	
-	// SS_ref_db[ss].gbase[5]  = -10496.70590;	
-	// SS_ref_db[ss].gbase[6]  = -11477.04324;
-	// SS_ref_db[ss].gbase[7]  = -11155.59746;
-	// SS_ref_db[ss].gbase[8]  = -11828.15800;
-	// SS_ref_db[ss].gbase[9]  = -13495.08535;
-	// SS_ref_db[ss].gbase[10] = -13063.17373;
+	SS_ref_db[ss].gbase[0]  = -13012.62073;	
+	SS_ref_db[ss].gbase[1]  = -13235.27114;	
+	SS_ref_db[ss].gbase[2]  = -13472.30496;	
+	SS_ref_db[ss].gbase[3]  = -12644.70794;	
+	SS_ref_db[ss].gbase[4]  = -12762.02635;	
+	SS_ref_db[ss].gbase[5]  = -10496.70590;	
+	SS_ref_db[ss].gbase[6]  = -11477.04324;
+	SS_ref_db[ss].gbase[7]  = -11155.59746;
+	SS_ref_db[ss].gbase[8]  = -11828.15800;
+	SS_ref_db[ss].gbase[9]  = -13495.08535;
+	SS_ref_db[ss].gbase[10] = -13063.17373;
 
 	// SS_ref_db[ss].gbase[0]  = -2515.94540;	
 	// SS_ref_db[ss].gbase[1]  = -2500.25887;	
@@ -1245,29 +1246,29 @@ void run_localMinimization(				bulk_info 	 		 z_b,
 	// SS_ref_db[ss].gbase[6]  = -2033.47165;
 	// SS_ref_db[ss].gbase[7]  = -2445.48343;
 
-	SS_ref_db[ss].gbase[0]  = -3532.74915;	
-	SS_ref_db[ss].gbase[1]  = -2793.12846;	
-	SS_ref_db[ss].gbase[2]  = -3635.49886;	
-	SS_ref_db[ss].gbase[3]  = -3384.95041;	
-	SS_ref_db[ss].gbase[4]  = -3250.67812;	
-	SS_ref_db[ss].gbase[5]  = -3606.43710;	
-	SS_ref_db[ss].gbase[6]  = -3345.42582;
-	SS_ref_db[ss].gbase[7]  = -3408.36774;
-	SS_ref_db[ss].gbase[8]  = -3105.14810;
-	SS_ref_db[ss].gbase[9]  = -3360.74459;
+	// SS_ref_db[ss].gbase[0]  = -3532.74915;	
+	// SS_ref_db[ss].gbase[1]  = -2793.12846;	
+	// SS_ref_db[ss].gbase[2]  = -3635.49886;	
+	// SS_ref_db[ss].gbase[3]  = -3384.95041;	
+	// SS_ref_db[ss].gbase[4]  = -3250.67812;	
+	// SS_ref_db[ss].gbase[5]  = -3606.43710;	
+	// SS_ref_db[ss].gbase[6]  = -3345.42582;
+	// SS_ref_db[ss].gbase[7]  = -3408.36774;
+	// SS_ref_db[ss].gbase[8]  = -3105.14810;
+	// SS_ref_db[ss].gbase[9]  = -3360.74459;
 
 
-	gv.gam_tot[0]  = -1011.909631;	
-	gv.gam_tot[1]  = -1829.092564;	
-	gv.gam_tot[2]  = -819.264126;	
-	gv.gam_tot[3]  = -695.467358;	
-	gv.gam_tot[4]  = -412.948568;	
-	gv.gam_tot[5]  = -971.890270;	
-	gv.gam_tot[6]  = -876.544354;
-	gv.gam_tot[7]  = -1073.640927;
-	gv.gam_tot[8]  = -276.590707;
-	gv.gam_tot[9]  = -1380.299631;
-	gv.gam_tot[10] = 0.0;
+	// gv.gam_tot[0]  = -1011.909631;	
+	// gv.gam_tot[1]  = -1829.092564;	
+	// gv.gam_tot[2]  = -819.264126;	
+	// gv.gam_tot[3]  = -695.467358;	
+	// gv.gam_tot[4]  = -412.948568;	
+	// gv.gam_tot[5]  = -971.890270;	
+	// gv.gam_tot[6]  = -876.544354;
+	// gv.gam_tot[7]  = -1073.640927;
+	// gv.gam_tot[8]  = -276.590707;
+	// gv.gam_tot[9]  = -1380.299631;
+	// gv.gam_tot[10] = 0.0;
 
 
 	/** rotate gbase with respect to the G-hyperplane (change of base) */
@@ -1406,7 +1407,7 @@ global_variable run_levelling_function(		bulk_info 	 z_b,
 											SS_ref_db,
 											SS_objective	);	
 
-	// /** run local minimization tests */
+	/** run local minimization tests */
 	// run_localMinimization(					z_b,
 	// 									    splx_data,
 	// 										gv,
