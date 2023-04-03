@@ -367,6 +367,6 @@ Save figure (vector)
    
 |
 
-This will save the figure in semi-vectorized format, i.e., that lines labels and contours can be be modified afterward while the colorfield is a bitmap.
+This will save the figure in semi-vectorized format (eps), i.e., that lines labels and contours can be be modified afterward while the colorfield is a bitmap.
 
 
