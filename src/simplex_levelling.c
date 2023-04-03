@@ -232,7 +232,7 @@ void update_global_gamma_LU( 				bulk_info 			z_b,
 	ldb    = d->n_Ox;
 
 	// Factorisation
-	dgetrf(&d->n_Ox, &d->n_Ox, d->Alu, &lda, &ipiv, &info);
+	dgetrf(&d->n_Ox, &d->n_Ox, d->Alu, &lda, ipiv, &info);
 
 	char T = 'T';
 	dgetrs(						&T,
