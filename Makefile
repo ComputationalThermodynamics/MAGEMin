@@ -7,10 +7,10 @@ EXE_NAME:= MAGEMin
 ifeq ($(UNAME_S),Darwin)
 	CCFLAGS = -Wall -O3 -g -fPIC -Wno-unused-variable -Wno-unused-but-set-variable
 	
-	# These are the flags to be used ou followed the instructions on the webpage and installed MPICH, LAPACKE and NLopt all through homebrew 
-	# 
-	LIBS    = -lm -framework Accelerate /opt/homebrew/opt/lapack/lib/liblapacke.dylib /opt/homebrew/lib/libnlopt.dylib /opt/homebrew/lib/libmpi.dylib
-	INC     = -I/opt/homebrew/opt/lapack/include -I/opt/homebrew/include 
+	# These are the flags to be used if you followed the instructions on the webpage and installed MPICH and NLopt all through homebrew 
+	# Note that we use the apple Accelerate framework to call Lapack routines
+	LIBS    = -lm -framework Accelerate /opt/homebrew/lib/libnlopt.dylib /opt/homebrew/lib/libmpi.dylib
+	INC     = -I/opt/homebrew/include 
 
 	#LIBS   = -lm -framework Accelerate /usr/local/opt/lapack/lib/liblapacke.dylib /usr/local/lib/libnlopt.dylib /usr/local/lib/libmpich.dylib
 	#INC    = -I/usr/local/opt/lapack/include -I/usr/local/include

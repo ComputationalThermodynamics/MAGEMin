@@ -17,7 +17,13 @@ Levelling occurs in two stages:
 #include <time.h>
 #include <string.h>
 #include <complex.h> 
-#include <lapacke.h> 
+#if __APPLE__
+	extern void dgetrf( int* M, int* N, double* A, int* lda, int* ipiv, int* info);
+	extern void dgetrs(char* T, int* N, int* nrhs, double* A, int* lda, int* ipiv, double* B, int* ldb, int* info);
+#else
+	#include <lapacke.h> 
+#endif 
+
 #include "mpi.h"
 
 #include "MAGEMin.h"
@@ -221,6 +227,25 @@ void update_global_gamma_LU( 				bulk_info 			z_b,
 	/**
 		call lapacke to solve system of linear equation using LU 
 	*/
+#if __APPLE__
+	lda    = d->n_Ox;											/** leading dimension of A*/
+	ldb    = d->n_Ox;
+
+	// Factorisation
+	dgetrf(&d->n_Ox, &d->n_Ox, d->Alu, &lda, &ipiv, &info);
+
+	char T = 'T';
+	dgetrs(						&T,
+								&d->n_Ox, 
+								&nrhs, 
+								d->Alu, 
+								&lda, 
+								ipiv, 
+								d->gamma_ss, 
+								&ldb,
+								&info				);
+
+#else	
 	info = LAPACKE_dgesv(		LAPACK_ROW_MAJOR, 
 								d->n_Ox, 
 								nrhs, 
@@ -229,7 +254,7 @@ void update_global_gamma_LU( 				bulk_info 			z_b,
 								ipiv, 
 								d->gamma_ss, 
 								ldb					);
-
+#endif
 	/** update gam_tot using solution phase levelling gamma */
 	for (int i = 0; i < d->n_Ox; i++){
 		d->gamma_delta[z_b.nzEl_array[i]] 	= d->gamma_ss[i] - d->gamma_tot[z_b.nzEl_array[i]];
@@ -361,7 +386,7 @@ void swap_pure_endmembers(				bulk_info 	 		 z_b,
 										d->n_Ox,
 										gv.work,
 										gv.lwork	);
-						
+
 						/** update phase fractions */
 						MatVecMul(		d->A1,
 										z_b.bulk_rock_cat,
