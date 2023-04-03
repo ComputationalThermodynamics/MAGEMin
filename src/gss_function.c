@@ -12,8 +12,6 @@ Igneous dataset to use with tc-ds633.txt
 #include <time.h>
 #include <string.h>
 #include <complex.h> 
-#include <lapacke.h> 
-
 #include "MAGEMin.h"
 #include "gem_function.h"
 #include "gss_function.h"

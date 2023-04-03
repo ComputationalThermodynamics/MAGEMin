@@ -48,7 +48,6 @@ NOTES:
 #include <time.h>
 #include <string.h>
 #include <complex.h> 
-#include <lapacke.h> 
 
 #include "MAGEMin.h"
 #include "gem_function.h"
