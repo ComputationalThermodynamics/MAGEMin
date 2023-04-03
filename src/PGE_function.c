@@ -609,35 +609,35 @@ global_variable PGE_solver(		bulk_info 	 		 z_b,
 	/**
 		call lapacke to solve system of linear equation using LU 
 	*/
-#if __APPLE__
-			lda    = nEntry;											/** leading dimesion of A*/
-			ldb    = nEntry;
-	
-			// Factorisation
-			dgetrf(&nEntry, &nEntry, gv.A_PGE, &lda, gv.ipiv, &info);
+	#if __APPLE__
+				lda    = nEntry;											/** leading dimesion of A*/
+				ldb    = nEntry;
+		
+				// Factorisation
+				dgetrf(&nEntry, &nEntry, gv.A_PGE, &lda, gv.ipiv, &info);
 
-			// Solution (with transpose!)
-			char T = 'T';
-			dgetrs(						&T,
-										&nEntry, 
-										&nrhs, 
-										gv.A_PGE,
-										&lda, 
-										gv.ipiv, 
-										gv.b_PGE, 
-										&nEntry,
-										&info	);
+				// Solution (with transpose!)
+				char T = 'T';
+				dgetrs(						&T,
+											&nEntry, 
+											&nrhs, 
+											gv.A_PGE,
+											&lda, 
+											gv.ipiv, 
+											gv.b_PGE, 
+											&nEntry,
+											&info	);
 
-#else
-	info = LAPACKE_dgesv(		LAPACK_ROW_MAJOR, 
-								nEntry, 
-								nrhs, 
-								gv.A_PGE, 
-								lda, 
-								gv.ipiv, 
-								gv.b_PGE, 
-								ldb					);
-#endif
+	#else
+		info = LAPACKE_dgesv(		LAPACK_ROW_MAJOR, 
+									nEntry, 
+									nrhs, 
+									gv.A_PGE, 
+									lda, 
+									gv.ipiv, 
+									gv.b_PGE, 
+									ldb					);
+	#endif
 	/**
 		get solution and max values for the set of variables
 	*/

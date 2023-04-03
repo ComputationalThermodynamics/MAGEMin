@@ -606,28 +606,14 @@ void inverseMatrix(int *ipiv, double *A1, int n, double *work, int lwork){
 	int    info;
 
 	/* call lapacke to inverse Matrix */
-#if __APPLE__	
-		dgetrf(&n, &n, A1, &n, ipiv, &info); 
-	
-		/*
-		printf("dgetrf: n=%i,  info=%i \n",n, info);
-		for (int i=0; i<n; i++){
-			for (int j=0; j<n; j++){
-				printf("A[%i,%i]=%f  \n",i,j,A1[i,j]);
-			}
-		}
-		*/
+	#if __APPLE__	
+			dgetrf(&n, &n, A1, &n, ipiv, &info); 
+			dgetri(&n, A1, &n, ipiv, work, &lwork, &info);
 
-
-		dgetri(&n, A1, &n, ipiv, work, &lwork, &info);
-		//printf("dgetri: n=%i,  info=%i \n",n, info);
-	
-		//perror("stop here");
-		//exit(-1);
-#else
-	info = LAPACKE_dgetrf(LAPACK_ROW_MAJOR, n, n, A1, n, ipiv); 
-	info = LAPACKE_dgetri_work(LAPACK_ROW_MAJOR, n, A1, n, ipiv, work, lwork);
-#endif 
+	#else
+		info = LAPACKE_dgetrf(LAPACK_ROW_MAJOR, n, n, A1, n, ipiv); 
+		info = LAPACKE_dgetri_work(LAPACK_ROW_MAJOR, n, A1, n, ipiv, work, lwork);
+	#endif 
 
 };
 
