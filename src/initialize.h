@@ -191,9 +191,8 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	/* set default parameters (overwritten later from args)*/
 	gv.EM_database  	=  2; 					/** 0, metapelite; 1 metabasite; 2 igneous											*/
 	gv.n_points 		=  1;
-	gv.maxeval  		= -1;
 	gv.solver   		=  1;					/* 1 = PGE+Legacy, 2 = Legacy only */
-	gv.verbose 			=  0;
+	gv.verbose 		=  0;
 	gv.output_matlab 	=  0;
 	gv.test     		= -1;
 
