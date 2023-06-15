@@ -238,10 +238,10 @@ void update_global_gamma_LU( 				bulk_info 			z_b,
 	 							&d->n_Ox, 
 	 							&nrhs, 
 	 							d->Alu, 
-	 							&lda, 
+	 							&d->n_Ox, 
 	 							ipiv, 
 	 							d->gamma_ss, 
-	 							&ldb,
+	 							&d->n_Ox,
 	 							&info				);
 
 #else	
