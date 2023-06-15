@@ -228,32 +228,22 @@ void update_global_gamma_LU( 				bulk_info 			z_b,
 		call lapacke to solve system of linear equation using LU 
 	*/
 #if __APPLE__
-	// lda    = d->n_Ox;											/** leading dimension of A*/
-	// ldb    = d->n_Ox;
-	// // Factorisation
-	// dgetrf(&d->n_Ox, &d->n_Ox, d->Alu, &lda, ipiv, &info);
+
+	// Factorisation
+	dgetrf(&d->n_Ox, &d->n_Ox, d->Alu, &lda, ipiv, &info);
 
 	char T = 'T';
 
-	// dgetrs(						&T,
-	// 							&d->n_Ox, 
-	// 							&nrhs, 
-	// 							d->Alu, 
-	// 							&lda, 
-	// 							ipiv, 
-	// 							d->gamma_ss, 
-	// 							&ldb,
-	// 							&info				);
+	dgetrs(							&T,
+	 							&d->n_Ox, 
+	 							&nrhs, 
+	 							d->Alu, 
+	 							&lda, 
+	 							ipiv, 
+	 							d->gamma_ss, 
+	 							&ldb,
+	 							&info				);
 
-	dgesv(							&T,
-								&lda, 
-								&nrhs, 
-								d->Alu,
-								&lda, 
-								gv.ipiv, 
-								d->gamma_ss, 
-								&ldb,
-								&info	);
 #else	
 	info = LAPACKE_dgesv(		LAPACK_ROW_MAJOR, 
 								d->n_Ox, 
