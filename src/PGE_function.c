@@ -611,7 +611,7 @@ global_variable PGE_solver(		bulk_info 	 		 z_b,
 	*/
 	#if __APPLE__
 		// Factorisation
-		dgetrf(&nEntry, &nEntry, gv.A_PGE, &lda, gv.ipiv, &info);
+		dgetrf(&nEntry, &nEntry, gv.A_PGE, &nEntry, gv.ipiv, &info);
 
 		// Solution (with transpose!)
 		char T = 'T';
@@ -619,10 +619,10 @@ global_variable PGE_solver(		bulk_info 	 		 z_b,
 								&nEntry, 
 								&nrhs, 
 								gv.A_PGE,
-								&lda, 
+								&nEntry, 
 								gv.ipiv, 
 								gv.b_PGE, 
-								&ldb,
+								&nEntry,
 								&info	);
 	#else
 		info = LAPACKE_dgesv(		LAPACK_ROW_MAJOR, 
