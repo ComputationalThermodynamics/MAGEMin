@@ -97,7 +97,7 @@ switch Mode
         if Computation.MatlabOut
             [PhaseData, Status] = ReadEquilibriumPathData_MAGEMin(newPoints, PhaseData);
         else
-            [PhaseData, Status] = ReadPseudoSectionData_MAGEMin(newPoints, PhaseData, Computation.MinPhaseFraction);
+            [PhaseData, Status] = ReadPseudoSectionData_MAGEMin(newPoints, PhaseData, Computation.MinPhaseFraction,Computation.labelstyle,Computation.db);
         end
         ReadData_Time = toc
         
@@ -149,11 +149,11 @@ switch Mode
             
             % Read data for this point
             if iPoint>1
-                PhaseData_in1   = ReadPseudoSectionData_MAGEMin(1:2,[],Computation.MinPhaseFraction);
+                PhaseData_in1   = ReadPseudoSectionData_MAGEMin(1:2,[],Computation.MinPhaseFraction,Computation.labelstyle,Computation.db);
                 PhaseData_in{1} = PhaseData_in1{2};
                 id = id(2);
             else
-                PhaseData_in   = ReadPseudoSectionData_MAGEMin(1,[],Computation.MinPhaseFraction);
+                PhaseData_in   = ReadPseudoSectionData_MAGEMin(1,[],Computation.MinPhaseFraction,Computation.labelstyle,Computation.db);
             end
 
             PhaseData{id}  = PhaseData_in{:};
@@ -199,7 +199,8 @@ for i=1:n_points
     % Read line with P/T and Gamma
 
     % in case PX or TX diagram is selected the bulk is set
-    Bulk   =   zeros(1,11);
+    nox    = size(PseudoSectionData.Chemistry.OxProp(:,2),1);
+    Bulk   =   zeros(1,nox);
 
     if DiagramType == 'PT'
         id      =   newPoints(i);
@@ -279,8 +280,16 @@ for i=1:n_points
             n_phases = 0;
         end
     end
-    fprintf(fid,'%i %f %f %f %f %f %f %f %f %f %f %f %f %f\n',n_phases, P,T,Bulk);
-    
+
+    if nox == 11
+        fprintf(fid,'%i %f %f %f %f %f %f %f %f %f %f %f %f %f\n',n_phases, P,T,Bulk);
+    elseif nox == 10
+        fprintf(fid,'%i %f %f %f %f %f %f %f %f %f %f %f %f\n',n_phases, P,T,Bulk); 
+    elseif nox == 7
+        fprintf(fid,'%i %f %f %f %f %f %f %f %f %f\n',n_phases, P,T,Bulk); 
+    elseif nox == 8
+        fprintf(fid,'%i %f %f %f %f %f %f %f %f %f %f\n',n_phases, P,T,Bulk); 
+    end
     if (Use_xEOS | Use_EMFrac) & n_phases>0
         % Add compositional variable guesses
         for i=1:n_phases

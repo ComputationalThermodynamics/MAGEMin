@@ -5,8 +5,11 @@ PhaseData   =   PseudoSectionData.PhaseData;
 
 for i=1:length(PhaseData)
     array(i).StableSolutions = PhaseData{i}.StableSolutions;
+    % disp(array(i).StableSolutions);
+    % disp('\n');
 end
-            
+    
+
 % 1) Give every solid solution and pure phase a number
 % 1a) Create a list with all stable phases/solutions in the diagram
 StableSol = PhaseData{1}.StableSolutions;

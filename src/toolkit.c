@@ -42,24 +42,32 @@ void print_help(	global_variable gv	){
 	printf("  --Verb=       [int]   : Verbose option, 0. inactive, 1. active\n");	
 	printf("  --File=       [str]   : File name containing multiple point calculation\n");
 	printf("  --n_points=   [int]   : Number of points when using 'File' argument\n");
+	printf("  --db=         [str]   : Database, can be 'mp', 'ig, 'igd' or 'um'*\n");
 	printf("  --test=       [int]   : Number of points when using 'File' argument\n");
 	printf("  --Pres=       [float] : Pressure in kilobar\n");
 	printf("  --Temp=       [float] : Temperature in Celsius\n");
-	printf("  --Bulk=       [float] : Bulk rock composition in [mol] or [wt] fraction*\n");
-	printf("  --Gam=        [float] : Chemical potential of oxides (pure components)*\n");
+	printf("  --Bulk=x,y,z, [float] : Bulk rock composition in [mol] or [wt] fraction**\n");
+	printf("  --Gam=        [float] : Chemical potential of oxides (pure components)**\n");
 	printf("  --sys_in=     [str]   : inputed system composition, [mol](default) or [wt]\n");
 	printf("  --solver=     [int]   : solver: 0 for legacy and 1 for PGE (default)\n");
 	printf("  --out_matlab= [int]   : Matlab text file output, 0. inactive, 1. active\n");
+	printf("  --qfm=        [int]   : Activate QFM buffering. 0, Inactive. 1, Active\\n");
+	printf("  --qfm_n=      [float] : Factor multiplying QFM buffer\n");
+	printf("  --limitCaOpx= [int]   : 0, Inactive. 1, Active\n");
 	printf("\n");
-	printf(" *the list of oxides must be provided as follow:\n");
-	printf("  SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3, H2O\n");
+	printf(" * 'mp': metapelite, 'ig': igneous H18->G23, 'igd': igneous T21->G23, 'alk': igneous alkaline, 'um': ultramafic\n");
+	printf("\n");
+	printf(" **the list of oxides must be provided as follow:\n");
+	printf("  'ig', 'igd', 'alk': SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3, H2O\n");
+	printf("  'mp':               SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, MnO, H2O\n");
+	printf("  'um':               SiO2, Al2O3, MgO, FeOt, O, H2O, S\n");
 	printf("\n");
 	printf(" Note that FeOt (total iron) is used here!\n");	
 	printf("\n\n");
 	printf(" Example of single point calculation:\n");
 	printf(" ------------------------------------\n");	
 	printf("\n");
-    printf("  ./MAGEMin --Verb=1 --Temp=718.750 --Pres=30.5000 --test=0 >&log.txt\n");
+    printf("  ./MAGEMin --Verb=1 --db=ig --Temp=718.750 --Pres=30.5000 --test=0 >&log.txt\n");
     printf("\n");
 	printf(" Here, the verbose is active and the bulk rock composition of 'test 0' is selected. The output of the verbose is saved as a log file 'log.txt'\n");
     printf(" Note that you don't have to use a test bulk composition, you can provide you own using arg '--Bulk='\n");
@@ -69,11 +77,11 @@ void print_help(	global_variable gv	){
     printf("\n");
 	printf(" To run multiple points at once you can pass an input file containing the list of points such as\n");
     printf("\n");
-    printf("  ./MAGEMin --Verb=1 --File='path_to_file' --n_points=x\n");
+    printf("  ./MAGEMin --Verb=1 --db=ig  --File='path_to_file' --n_points=x\n");
     printf("\n");
 	printf(" where 'path_to_file' is the location of the file and 'x' is an integer corresponding to the total number of points contained in the file. The file must have one point per line using the following structure\n");
     printf("\n");
-	printf("  Mode(0-1), Pressure(kbar), Temperature(C), Gam1, Gam2, ..., Gamn\n");
+	printf(" Pressure(kbar), Temperature(C), Gam1, Gam2, ..., Gamn\n");
     printf("\n");
 	printf(" *Mode = 0 for global minimization\n");
     printf("\n");
@@ -89,8 +97,8 @@ void print_help(	global_variable gv	){
     printf("\n");	
     printf(" Simply call 'MPI' before MAGEMin and give the number of cores you want to use. Valid calls using previously defined input file are for instance\n");	
     printf("\n");	
-    printf("  mpirun -np 8 ./MAGEMin --File=/path_to_file/MAGEMin_input.dat --n_points=4\n");
-    printf("  mpiexec -n 8 ./MAGEMin --File=/path_to_file/MAGEMin_input.dat --n_points=4\n");	
+    printf("  mpirun -np 8 ./MAGEMin --db=ig --File=/path_to_file/MAGEMin_input.dat --n_points=4\n");
+    printf("  mpiexec -n 8 ./MAGEMin --db=ig --File=/path_to_file/MAGEMin_input.dat --n_points=4\n");	
     printf("\n");	
 	printf(" Other useful information:\n");
 	printf(" -------------------------\n");	
@@ -126,9 +134,11 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 	if (gv.arg_bulk[0] > 0.0) {
 		if (gv.verbose == 1){
 			printf("\n");
-			printf("   - Minimization using bulk-rock composition from arg\n");	
+			printf("  - Minimization using bulk-rock composition from arg\n");	
 		}	
-		for (int i = 0; i < gv.len_ox; i++){ gv.bulk_rock[i] = gv.arg_bulk[i];}
+		for (int i = 0; i < gv.len_ox; i++){ 
+			gv.bulk_rock[i] = gv.arg_bulk[i];
+		}
 	}
 	/* bulk from file */
 	if (strcmp( gv.File, "none") != 0){
@@ -152,15 +162,22 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 		for (int i = 0; i < gv.len_ox; i++){ gv.bulk_rock[i] /= z_b.masspo[i];}
 	}
 
-
-
 	if (gv.verbose == 1){	
 
 		if (gv.EM_database == 0){
 			printf("  - Database                  : Metapelite (White et al., 2014)\n"	);
 		}
 		else if (gv.EM_database == 2){
-			printf("  - Database                  : Igneous (Holland et al., 2018)\n"	);
+			printf("  - Database                  : Igneous (Holland et al., 2018 -> Green et al., 2023)\n"	);
+		}
+		else if (gv.EM_database == 3){
+			printf("  - Database                  : Igneous dry (Tomlinson & Holland, 2021 -> Green et al., 2023)\n"	);
+		}
+		else if (gv.EM_database == 4 ){
+			printf("  - Database                  : Ultramafic (Evans & Frost, 2021)\n"	);
+		}
+		else if (gv.EM_database == 6){
+			printf("  - Database                  : Igneous alkaline (Weller et al., 2023)\n"	);
 		}
 
 		if (strcmp( gv.sys_in, "mol") == 0){	
@@ -182,17 +199,32 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 	/** if it is, then the fraction is set to 1e-4 -> this is a current limitation of system component reduction */
 	int renorm = 0;
 	for (int i = 0; i < gv.len_ox; i++){ 
-		if (strcmp( gv.ox[i], "H2O") != 0 &&  gv.bulk_rock[i] < 1.0e-4){
-			gv.bulk_rock[i] = 1.0e-4;
-			renorm = 1;
-			if (gv.verbose == 1){
-				printf("  - mol of %4s = %+.5f < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i],gv.bulk_rock[i]);
-			}	
+		if (gv.bulk_rock[i] < 1.0e-4){
+
+			if (gv.EM_database == 4){ 			//if database is ultramafic, do not allow to remove O
+				if(strcmp( gv.ox[i], "H2O") != 0){
+					gv.bulk_rock[i] = 1.0e-4;
+					renorm = 1;
+					if (gv.verbose == 1){
+						printf("  - mol of %4s = %+.5f < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i],gv.bulk_rock[i]);
+					}	
+				}
+			}
+			else{
+				if(strcmp( gv.ox[i], "H2O") != 0 && strcmp( gv.ox[i], "Cr2O3") != 0 && strcmp( gv.ox[i], "O") != 0){
+					gv.bulk_rock[i] = 1.0e-4;
+					renorm = 1;
+					if (gv.verbose == 1){
+						printf("  - mol of %4s = %+.5f < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i],gv.bulk_rock[i]);
+					}	
+				}
+			}
+
 		}
 	}
-		if (gv.verbose == 1){
-			printf("\n");
-		}
+	if (gv.verbose == 1){
+		printf("\n");
+	}
 	if (renorm == 1){
 		norm_array(							gv.bulk_rock,
 											gv.len_ox					);						
@@ -804,10 +836,7 @@ void print_SS_informations(		global_variable gv,
 ){
 	printf(" %4s  | %+10f | %2d | %+10f | %+10f | ",gv.SS_list[iss],SS_ref_db.df,SS_ref_db.sf_ok,SS_ref_db.sum_xi,SS_ref_db.LM_time);
 	for (int k = 0; k < SS_ref_db.n_xeos; k++) {
-		printf(" %+10f",SS_ref_db.xeos[k]);
-	}
-	for (int k = SS_ref_db.n_xeos; k < 11; k++){
-		printf(" %10s","-");
+		printf(" %+6f",SS_ref_db.xeos[k]);
 	}
 	printf("\n");
 	// for (int k = 0; k < SS_ref_db.n_xeos; k++) {

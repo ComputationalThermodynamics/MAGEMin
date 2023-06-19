@@ -700,6 +700,9 @@ void output_gui(				global_variable 	 gv,
 	for (i = 0; i < gv.len_ox; i++){
 		fprintf(loc_min," %0.10f", gv.gam_tot[i]);
 	}
+	for (i = gv.len_ox; i < 11; i++){
+		fprintf(loc_min," %0.10f", 0.0);
+	}
 	fprintf(loc_min, " %.10f %.10f %.10f",gv.system_Vp,gv.system_Vs,gv.system_entropy);
 
 	fprintf(loc_min, "\n");

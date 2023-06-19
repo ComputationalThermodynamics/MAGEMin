@@ -13,12 +13,13 @@
 #include "toolkit.h"
 
 #define eps 1e-8
-
+#define max_ox 14
 /**
   compute the Gibbs Free energy from the thermodynamic database
 */
 PP_ref G_EM_function(		int 		 EM_database, 
 							int 		 len_ox,
+							int         *id,
 							double 		*bulk_rock, 
 							double 		*apo, 
 							double 		 P, 
@@ -34,7 +35,7 @@ PP_ref G_EM_function(		int 		 EM_database,
 	/* Get composition (in molar amount) */
 	double composition[len_ox];
 	for (i = 0; i < len_ox; i ++){
-		composition[i] = EM_return.Comp[i];
+		composition[i] = EM_return.Comp[id[i]];
 	}
 	
 	/**
@@ -43,44 +44,44 @@ PP_ref G_EM_function(		int 		 EM_database,
 		routine depending on the EM_database.
     */
 
-	/** if (EM_database == _tc_ds633_) { **/
 	double t0, 	p0, 	R;
 	double pth, theta, 	vv;
 	double enthalpy, 	entropy, volume;
 	double cpa, cpb, cpc, cpd;
 	double alpha0, kappa0, kappa0p, kappa0pp, dkappa0dT;
 	double cpterms, n;
-	double vterm = 0.0;
-	double ta = 0.0;
-	double tb = 0.0;
-	double tc = 0.0;
+	double vterm 	= 0.0;
+	double ta 		= 0.0;
+	double tb 		= 0.0;
+	double tc 		= 0.0;
 	double kbar2bar = 1e3;
-	t0 = 298.15;
-	p0 = 0.001;
-	R  = 0.0083144; 
+	double RTlnf 	= 0.0;
+	t0 				= 298.15;
+	p0 				= 0.001;
+	R  				= 0.0083144; 
 	
-	enthalpy = EM_return.input_1[0];
-	entropy  = EM_return.input_1[1];
-	volume   = EM_return.input_1[2];
+	enthalpy 		= EM_return.input_1[0];
+	entropy  		= EM_return.input_1[1];
+	volume   		= EM_return.input_1[2];
 	
-	cpa      = EM_return.input_2[0];
-	cpb      = EM_return.input_2[1];
-	cpc      = EM_return.input_2[2];
-	cpd      = EM_return.input_2[3];
+	cpa      		= EM_return.input_2[0];
+	cpb      		= EM_return.input_2[1];
+	cpc      		= EM_return.input_2[2];
+	cpd      		= EM_return.input_2[3];
 	
-	alpha0   = EM_return.input_3[0];
-	kappa0   = EM_return.input_3[1];
-	kappa0p  = EM_return.input_3[2];
-	kappa0pp = EM_return.input_3[3];	
+	alpha0   		= EM_return.input_3[0];
+	kappa0   		= EM_return.input_3[1];
+	kappa0p  		= EM_return.input_3[2];
+	kappa0pp 		= EM_return.input_3[3];	
 
-	cpterms  = cpa* (T - t0) +          cpb* (pow(T,2.0) - pow(t0,2.0))/2.0 - 
+	cpterms  		= cpa* (T - t0) +   cpb* (pow(T,2.0) - pow(t0,2.0))/2.0 - 
                                         cpc* (1.0/T - 1.0/t0) + 
                                    2.0* cpd* (pow(T,0.5) - pow(t0,0.5))     - 
 							   T* (2.0* cpa* (log(pow(T,0.5)) - log(pow(t0,0.5))) 
                                + cpb* (T - t0) - 
 							   cpc/2.0* (pow(T,-2.) - pow(t0,-2.0)) - 2.0* cpd* (pow(T,-0.5) - pow(t0,-0.5)));
 							   
-	n        = EM_return.Comp[len_ox];
+	n        		= EM_return.Comp[max_ox];
 	
 	char liq_tail[] = "L";
 	if ( EndsWithTail(name, liq_tail) == 1 ) {
@@ -125,7 +126,6 @@ PP_ref G_EM_function(		int 		 EM_database,
 			c10 =  0.95029765e5 / T + 0.18038071e2;
 		}
 
-		
 		/* solve for volume at P, T */
 		int    err,  k;
 		double vsub, yr;
@@ -145,9 +145,21 @@ PP_ref G_EM_function(		int 		 EM_database,
 		double Ares   =   R1*T*( c1*r + (1.0/(c2 + c3*r + c4*pow(r, 2.0) + c5*pow(r, 3.0) + c6*pow(r, 4.0)) - 1.0/c2) - c7/c8*(exp(-c8*r) - 1.0) - c9/c10*(exp(-c10*r) - 1.0) );
 		vterm         =   (Ares + p_bar*vsub + R1*T*(log( R1*T / vsub ) - 1.0)) * 1e-4;	
 	}
-	/* here we use the CORK EOS to calculate G_O2 (see Holland & Powell, 1991) */
-	else if(strcmp( name, "O2") == 0){
-		
+	/**
+	 	here we use the CORK EOS to calculate G_O2 (see Holland & Powell, 1991) 
+		Critical Temperature and pressures are taken from Holland & Powell 1991 for H2
+	*/
+	else if(strcmp( name, "O2") == 0 || strcmp( name, "H2") == 0){
+		double Tc, Pc;
+		if(strcmp( name, "O2") == 0){
+			Tc     =  154.75;
+			Pc     =  0.05;	
+		}
+		else{ //(strcmp( name, "H2") == 0){	
+			Tc     =  41.2;
+			Pc     =  0.0211;	
+		}
+
 		double a0 	  =  5.45963e-5;
 		double a1     = -8.63920e-6;
 		double b0     =  9.18301e-4;
@@ -156,15 +168,18 @@ PP_ref G_EM_function(		int 		 EM_database,
 		double d0     =  6.93054e-7;
 		double d1     = -8.38293e-8;
 
-		double Tc     =  154.75;												//critical T constant for O2
-		double Pc     =  0.05;													//critical P constant for O2
-		
 		double a	  = a0*pow(Tc,5.0/2.0)/Pc + a1*pow(Tc,3.0/2.0)/Pc*T;
 		double b      = b0*Tc/Pc;
 		double c      = c0*Tc/pow(Pc,3.0/2.0) + c1/pow(Pc,3.0/2.0)*T;
 		double d      = d0*Tc/pow(Pc,2.0) + d1/pow(Pc,2.0)*T;
+
+		double ha 	  = (c0 * tc + c1 * T) / (Pc * sqrt(Pc));
+    	double hb 	  = (d0 * tc + d1 * T) / (sqrt(Pc));
 		
-		vterm 		  = R*T/P + b - (a*R*sqrt(T))/((R*T+b*P)*(R*T + 2*b*P)) + c*sqrt(P) + d*P; 
+		// vterm 		  = R*T/P + b - (a*R*sqrt(T))/((R*T+b*P)*(R*T + 2.0*b*P)) + c*sqrt(P) + d*P; 
+
+		RTlnf        = R*T*log(1000.0 * P) + b*P+ a*((log(R*T+b*P)) - log(R*T+2.0*b*P))/(b*sqrt(T)) + 2.0/3.0 *ha*P*sqrt(P) +hb/2.0*sqrt(P);
+
 	}
 	else {
 		ta     = (1. + kappa0p)/(1. + kappa0p + kappa0 * kappa0pp);
@@ -173,7 +188,7 @@ PP_ref G_EM_function(		int 		 EM_database,
 		vterm  = vv*((P-p0)*(1.-ta)+ta*(-pow(1.+tb*(P-pth),(1.0-tc))+pow(1.0 + tb * (p0 - pth),(1.0 - tc)))/(tb* (tc - 1.)))/((1. - ta) + ta* pow(1. + tb * p0,(-tc)));
 
 	}
-	double gbase = (enthalpy - T*entropy + cpterms + vterm);	
+	double gbase = (enthalpy - T*entropy + cpterms + vterm + RTlnf);	
 	
 	double landaut, smax, vmax, sfdh, sfdhv, sfw, sfwv, sfn, sffac; 
 	double god, sod, q, v;
@@ -199,7 +214,6 @@ PP_ref G_EM_function(		int 		 EM_database,
 			sfdh = EM_return.input_3[5]; sfdhv = EM_return.input_3[6]; sfw = EM_return.input_3[7];
 			sfwv = EM_return.input_3[8]; sfn   = EM_return.input_3[9]; sffac = EM_return.input_3[10];
 		}
-		//printf(" %4s %+10f\n",name,sfn);
 		if (sfn > 0.){
 			if (strcmp( state, "ordered") == 0 ){
 				god = 0.;
@@ -319,7 +333,6 @@ PP_ref G_EM_function(		int 		 EM_database,
 	PP_ref_db.gbase   =  gbase;
 	PP_ref_db.factor  =  factor;
 	PP_ref_db.phase_shearModulus  =  (EM_return.input_4[0]*kbar2bar + (P - p0)*(EM_return.input_4[1])*kbar2bar + (T - t0)*(EM_return.input_4[2]))/kbar2bar;
-
 
 	// printf(" %4s %+10f\n",name,PP_ref_db.gbase);
 	// for (i = 0; i < len_ox; i++){

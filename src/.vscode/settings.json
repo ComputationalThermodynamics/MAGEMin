@@ -1,30 +1,7 @@
 {
     "C_Cpp.errorSquiggles": "Disabled",
     "files.associations": {
-        "complex": "c",
-        "typeinfo": "c",
-        "array": "c",
-        "*.tcc": "c",
-        "memory": "c",
-        "istream": "c",
-        "tuple": "c",
-        "utility": "c",
-        "iterator": "c",
-        "gem_function.h": "c",
-        "toolkit.h": "c",
-        "complex.h": "c",
-        "endmembers_tc-ds634.h": "c",
-        "uthash.h": "c",
-        "nlopt_opt_function.h": "c",
-        "initialize.h": "c",
-        "objective_functions.h": "c",
-        "phase_update_function.h": "c",
-        "gss_init_function.h": "c",
-        "io_function.h": "c",
-        "magemin.h": "c",
-        "nlopt.h": "c",
-        "string.h": "c",
-        "simplex_levelling.h": "c",
-        "ss_xeos_pc_ig.h": "c"
+        "ss_xeos_pc_alk.h": "c",
+        "typeinfo": "c"
     }
 }

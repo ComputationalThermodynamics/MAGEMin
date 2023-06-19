@@ -40,6 +40,9 @@ Levelling occurs in two stages:
 #include "PGE_function.h"
 #include "SS_xeos_PC_mp.h" 				//mp is first, it contains the structure definition
 #include "SS_xeos_PC_ig.h"
+#include "SS_xeos_PC_igd.h"
+#include "SS_xeos_PC_alk.h"
+#include "SS_xeos_PC_um.h"
 
 /**
 	associate the array of pointer with the right solution phase
@@ -82,7 +85,121 @@ void SS_ig_objective_init_function(	obj_type 			*SS_objective,
 		}	
 	};			
 }
+/**
+	associate the array of pointer with the right solution phase
+*/
+void SS_igd_objective_init_function(obj_type 			*SS_objective,
+									global_variable 	 gv				){	
+						 
+   for (int iss = 0; iss < gv.len_ss; iss++){
+      if (strcmp( gv.SS_list[iss], "liq")  == 0){
+         SS_objective[iss]  = obj_igd_liq;
+      }
+      else if (strcmp( gv.SS_list[iss], "fl")  == 0){
+         SS_objective[iss]  = obj_igd_fl;
+      }
+      else if (strcmp( gv.SS_list[iss], "fsp")  == 0){
+         SS_objective[iss]  = obj_igd_fsp;
+      }
+      else if (strcmp( gv.SS_list[iss], "spn")  == 0){
+         SS_objective[iss]  = obj_igd_spn;
+      }
+      else if (strcmp( gv.SS_list[iss], "g")  == 0){
+         SS_objective[iss]  = obj_igd_g;
+      }
+      else if (strcmp( gv.SS_list[iss], "ol")  == 0){
+         SS_objective[iss]  = obj_igd_ol;
+      }
+      else if (strcmp( gv.SS_list[iss], "opx")  == 0){
+         SS_objective[iss]  = obj_igd_opx;
+      }
+      else if (strcmp( gv.SS_list[iss], "cpx")  == 0){
+         SS_objective[iss]  = obj_igd_cpx;
+      }
+      else if (strcmp( gv.SS_list[iss], "ilm")  == 0){
+         SS_objective[iss]  = obj_igd_ilm;
+      }
+      else if (strcmp( gv.SS_list[iss], "hb")  == 0){
+         SS_objective[iss]  = obj_igd_hb;
+      }
+      else if (strcmp( gv.SS_list[iss], "bi")  == 0){
+         SS_objective[iss]  = obj_igd_bi;
+      }
+      else if (strcmp( gv.SS_list[iss], "ep")  == 0){
+         SS_objective[iss]  = obj_igd_ep;
+      }
+      else if (strcmp( gv.SS_list[iss], "cd")  == 0){
+         SS_objective[iss]  = obj_igd_cd;
+      }
+      else{
+         printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
+      }
+   }		
+}
 
+/**
+	associate the array of pointer with the right solution phase
+*/
+void SS_alk_objective_init_function(obj_type 			*SS_objective,
+									global_variable 	 gv				){	
+						 
+   for (int iss = 0; iss < gv.len_ss; iss++){
+      if (strcmp( gv.SS_list[iss], "liq")  == 0){
+         SS_objective[iss]  = obj_alk_liq;
+      }
+      else if (strcmp( gv.SS_list[iss], "fl")  == 0){
+         SS_objective[iss]  = obj_alk_fl;
+      }
+      else if (strcmp( gv.SS_list[iss], "fsp")  == 0){
+         SS_objective[iss]  = obj_alk_fsp;
+      }
+      else if (strcmp( gv.SS_list[iss], "spn")  == 0){
+         SS_objective[iss]  = obj_alk_spn;
+      }
+      else if (strcmp( gv.SS_list[iss], "g")  == 0){
+         SS_objective[iss]  = obj_alk_g;
+      }
+      else if (strcmp( gv.SS_list[iss], "ol")  == 0){
+         SS_objective[iss]  = obj_alk_ol;
+      }
+      else if (strcmp( gv.SS_list[iss], "opx")  == 0){
+         SS_objective[iss]  = obj_alk_opx;
+      }
+      else if (strcmp( gv.SS_list[iss], "cpx")  == 0){
+         SS_objective[iss]  = obj_alk_cpx;
+      }
+      else if (strcmp( gv.SS_list[iss], "ilm")  == 0){
+         SS_objective[iss]  = obj_alk_ilm;
+      }
+      else if (strcmp( gv.SS_list[iss], "ness")  == 0){
+         SS_objective[iss]  = obj_alk_ness;
+      }
+      else if (strcmp( gv.SS_list[iss], "lct")  == 0){
+         SS_objective[iss]  = obj_alk_lct;
+      }
+      else if (strcmp( gv.SS_list[iss], "kals")  == 0){
+         SS_objective[iss]  = obj_alk_kals;
+      }
+      else if (strcmp( gv.SS_list[iss], "mel")  == 0){
+         SS_objective[iss]  = obj_alk_mel;
+      }
+      else if (strcmp( gv.SS_list[iss], "hb")  == 0){
+         SS_objective[iss]  = obj_alk_hb;
+      }
+      else if (strcmp( gv.SS_list[iss], "bi")  == 0){
+         SS_objective[iss]  = obj_alk_bi;
+      }
+      else if (strcmp( gv.SS_list[iss], "ep")  == 0){
+         SS_objective[iss]  = obj_alk_ep;
+      }
+      else if (strcmp( gv.SS_list[iss], "cd")  == 0){
+         SS_objective[iss]  = obj_alk_cd;
+      }
+      else{
+         printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
+      }
+   }
+}
 void SS_mp_objective_init_function(	obj_type 			*SS_objective,
 									global_variable 	 gv				){	
 						 
@@ -125,6 +242,44 @@ void SS_mp_objective_init_function(	obj_type 			*SS_objective,
 		}	
 	};			
 }
+
+
+void SS_um_objective_init_function(	obj_type 			*SS_objective,
+									global_variable 	 gv				){	
+						 
+	for (int iss = 0; iss < gv.len_ss; iss++){
+
+		if      (strcmp( gv.SS_list[iss], "fluid")  == 0 ){
+			SS_objective[iss]  = obj_um_fluid; 		}
+		else if (strcmp( gv.SS_list[iss], "ol")  == 0){
+			SS_objective[iss]  = obj_um_ol; 		}
+		else if (strcmp( gv.SS_list[iss], "br") == 0){
+			SS_objective[iss]  = obj_um_br; 		}
+		else if (strcmp( gv.SS_list[iss], "ch")  == 0){
+			SS_objective[iss]  = obj_um_ch; 		}
+		else if (strcmp( gv.SS_list[iss], "atg")  == 0){
+			SS_objective[iss]  = obj_um_atg; 		}
+		else if (strcmp( gv.SS_list[iss], "g")   == 0){
+			SS_objective[iss]  = obj_um_g; 		}
+		else if (strcmp( gv.SS_list[iss], "ta")  == 0){
+			SS_objective[iss]  = obj_um_ta; 		}
+		else if (strcmp( gv.SS_list[iss], "chl") == 0){
+			SS_objective[iss]  = obj_um_chl; 		}
+		else if (strcmp( gv.SS_list[iss], "anth") == 0){
+			SS_objective[iss]  = obj_um_anth; 		}
+		else if (strcmp( gv.SS_list[iss], "spi")  == 0){
+			SS_objective[iss]  = obj_um_spi; 		}
+		else if (strcmp( gv.SS_list[iss], "opx") == 0){
+			SS_objective[iss]  = obj_um_opx; 		}
+		else if (strcmp( gv.SS_list[iss], "po") == 0){
+			SS_objective[iss]  = obj_um_po; 		}
+		else{
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
+		}	
+	};			
+}
+
+
 /**
   function to calculate delta G (position of potential phases with current G hyperplane*)
 */
@@ -228,21 +383,18 @@ void update_global_gamma_LU( 				bulk_info 			z_b,
 		call lapacke to solve system of linear equation using LU 
 	*/
 #if __APPLE__
-	lda    = d->n_Ox;											/** leading dimension of A*/
-	ldb    = d->n_Ox;
-
 	// Factorisation
-	dgetrf(&d->n_Ox, &d->n_Ox, d->Alu, &lda, ipiv, &info);
+	dgetrf(&d->n_Ox, &d->n_Ox, d->Alu, &d->n_Ox, ipiv, &info);
 
 	char T = 'T';
 	dgetrs(						&T,
 								&d->n_Ox, 
 								&nrhs, 
 								d->Alu, 
-								&lda, 
+								&d->n_Ox, 
 								ipiv, 
 								d->gamma_ss, 
-								&ldb,
+								&d->n_Ox,
 								&info				);
 
 #else	
@@ -650,16 +802,20 @@ void generate_pseudocompounds(	int 		 		 ss,
 	for (int k = 0; k < SS_ref_db[ss].n_em; k++) {
 		SS_ref_db[ss].gb_lvl[k] = SS_ref_db[ss].gbase[k];
 	}
-						
+
 	for (int k = 0; k < gv.n_SS_PC[ss]; k++){
 		get_ss_pv = SS_pc_xeos[ss].ss_pc_xeos[k]; 
-		
+
 		/* TMP, not so elegant way to deal with cases were an oxide of the bulk rock composition = 0.0 */	
 		for (int i = 0; i < SS_ref_db[ss].n_xeos; i++){
 			if (get_ss_pv.xeos_pc[i] > SS_ref_db[ss].bounds_ref[i][1]){
 				get_ss_pv.xeos_pc[i] = SS_ref_db[ss].bounds_ref[i][1];
 			}
+			if (get_ss_pv.xeos_pc[i] < SS_ref_db[ss].bounds_ref[i][0]){
+				get_ss_pv.xeos_pc[i] = SS_ref_db[ss].bounds_ref[i][0];
+			}
 		}
+
 		G 	= (*SS_objective[ss])(SS_ref_db[ss].n_xeos, get_ss_pv.xeos_pc, 	NULL, &SS_ref_db[ss]);
 
 		/** store pseudocompound */
@@ -750,7 +906,8 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 
 	/* copy gamma total to the global variables */
 	for (int i = 0; i < gv.len_ox; i++){
-		gv.gam_tot[i] = d->gamma_tot[i];
+		gv.gam_tot[i]   = d->gamma_tot[i];
+		gv.gam_tot_0[i] = d->gamma_tot[i];
 	}
 
 	double distance;
@@ -1152,7 +1309,27 @@ void run_simplex_levelling(				bulk_info 	 		 z_b,
 											gv.SS_list[iss]				);
 		}
 	}
-
+	else if (gv.EM_database == 3){
+		for (iss = 0; iss < gv.len_ss; iss++){
+			SS_igd_pc_init_function(		SS_pc_xeos, 
+											iss,
+											gv.SS_list[iss]				);
+		}
+	}
+	else if (gv.EM_database == 6){
+		for (iss = 0; iss < gv.len_ss; iss++){
+			SS_alk_pc_init_function(		SS_pc_xeos, 
+											iss,
+											gv.SS_list[iss]				);
+		}
+	}
+	else if (gv.EM_database == 4){
+		for (iss = 0; iss < gv.len_ss; iss++){
+			SS_um_pc_init_function(			SS_pc_xeos, 
+											iss,
+											gv.SS_list[iss]				);
+		}
+	}
 	for (iss = 0; iss < gv.len_ss; iss++){
 		if (SS_ref_db[iss].ss_flags[0] == 1){
 
@@ -1231,7 +1408,27 @@ void run_localMinimization(				bulk_info 	 		 z_b,
 											gv.SS_list[ss]				);
 		}
 	}
-
+	else if (gv.EM_database == 3){
+		for (ss = 0; ss < gv.len_ss; ss++){
+			SS_igd_pc_init_function(		SS_pc_xeos, 
+											ss,
+											gv.SS_list[ss]				);
+		}
+	}
+	else if (gv.EM_database == 6){
+		for (ss = 0; ss < gv.len_ss; ss++){
+			SS_alk_pc_init_function(		SS_pc_xeos, 
+											ss,
+											gv.SS_list[ss]				);
+		}
+	}
+	else if (gv.EM_database == 4 ||gv.EM_database == 5){
+		for (ss = 0; ss < gv.len_ss; ss++){
+			SS_um_pc_init_function(			SS_pc_xeos, 
+											ss,
+											gv.SS_list[ss]				);
+		}
+	}
 	ss = 6; // hb index of the solution phase to fully minimize
 	// ss = 0; // spn index of the solution phase to fully minimize
 	// ss = 3; // cpx index of the solution phase to fully minimize
