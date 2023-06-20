@@ -8311,46 +8311,7 @@ SS_ref NLopt_opt_function(		global_variable   gv,
         printf("\nsolid solution '%s index %d' is not in the database\n",gv.SS_list[index], index);
     }
   }
-  else if (gv.EM_database == 6){
-      if (strcmp( gv.SS_list[index], "liq")  == 0){
-          SS_ref_db  = NLopt_opt_alk_liq_function( gv, SS_ref_db);}
-      else if (strcmp( gv.SS_list[index], "fl")  == 0){
-          SS_ref_db  = NLopt_opt_alk_fl_function( gv, SS_ref_db);}
-      else if (strcmp( gv.SS_list[index], "fsp")  == 0){
-          SS_ref_db  = NLopt_opt_alk_fsp_function( gv, SS_ref_db);}
-      else if (strcmp( gv.SS_list[index], "spn")  == 0){
-          SS_ref_db  = NLopt_opt_alk_spn_function( gv, SS_ref_db);}
-      else if (strcmp( gv.SS_list[index], "g")  == 0){
-          SS_ref_db  = NLopt_opt_alk_g_function( gv, SS_ref_db);}
-      else if (strcmp( gv.SS_list[index], "ol")  == 0){
-          SS_ref_db  = NLopt_opt_alk_ol_function( gv, SS_ref_db);}
-      else if (strcmp( gv.SS_list[index], "opx")  == 0){
-          SS_ref_db  = NLopt_opt_alk_opx_function( gv, SS_ref_db);}
-      else if (strcmp( gv.SS_list[index], "cpx")  == 0){
-          SS_ref_db  = NLopt_opt_alk_cpx_function( gv, SS_ref_db);}
-      else if (strcmp( gv.SS_list[index], "ilm")  == 0){
-          SS_ref_db  = NLopt_opt_alk_ilm_function( gv, SS_ref_db);}
-      else if (strcmp( gv.SS_list[index], "ness")  == 0){
-          SS_ref_db  = NLopt_opt_alk_ness_function( gv, SS_ref_db);}
-      else if (strcmp( gv.SS_list[index], "lct")  == 0){
-          SS_ref_db  = NLopt_opt_alk_lct_function( gv, SS_ref_db);}
-      else if (strcmp( gv.SS_list[index], "kals")  == 0){
-          SS_ref_db  = NLopt_opt_alk_kals_function( gv, SS_ref_db);}
-      else if (strcmp( gv.SS_list[index], "mel")  == 0){
-          SS_ref_db  = NLopt_opt_alk_mel_function( gv, SS_ref_db);}
-      else if (strcmp( gv.SS_list[index], "hb")  == 0){
-          SS_ref_db  = NLopt_opt_alk_hb_function( gv, SS_ref_db);}
-      else if (strcmp( gv.SS_list[index], "bi")  == 0){
-          SS_ref_db  = NLopt_opt_alk_bi_function( gv, SS_ref_db);}
-      else if (strcmp( gv.SS_list[index], "ep")  == 0){
-          SS_ref_db  = NLopt_opt_alk_ep_function( gv, SS_ref_db);}
-      else if (strcmp( gv.SS_list[index], "cd")  == 0){
-          SS_ref_db  = NLopt_opt_alk_cd_function( gv, SS_ref_db);}
-      else{
-          printf("\nsolid solution '%s index %d' is not in the database\n",gv.SS_list[index], index);
-      }
-    }
-  else if (gv.EM_database == 4 || gv.EM_database == 5){
+  else if (gv.EM_database == 4){
       if (strcmp( gv.SS_list[index], "fluid")  == 0){
          SS_ref_db  = NLopt_opt_um_fluid_function( gv, SS_ref_db);}
       else if (strcmp( gv.SS_list[index], "ol")  == 0){

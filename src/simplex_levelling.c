@@ -41,7 +41,6 @@ Levelling occurs in two stages:
 #include "SS_xeos_PC_mp.h" 				//mp is first, it contains the structure definition
 #include "SS_xeos_PC_ig.h"
 #include "SS_xeos_PC_igd.h"
-#include "SS_xeos_PC_alk.h"
 #include "SS_xeos_PC_um.h"
 
 /**
@@ -1316,13 +1315,6 @@ void run_simplex_levelling(				bulk_info 	 		 z_b,
 											gv.SS_list[iss]				);
 		}
 	}
-	else if (gv.EM_database == 6){
-		for (iss = 0; iss < gv.len_ss; iss++){
-			SS_alk_pc_init_function(		SS_pc_xeos, 
-											iss,
-											gv.SS_list[iss]				);
-		}
-	}
 	else if (gv.EM_database == 4){
 		for (iss = 0; iss < gv.len_ss; iss++){
 			SS_um_pc_init_function(			SS_pc_xeos, 
@@ -1415,14 +1407,7 @@ void run_localMinimization(				bulk_info 	 		 z_b,
 											gv.SS_list[ss]				);
 		}
 	}
-	else if (gv.EM_database == 6){
-		for (ss = 0; ss < gv.len_ss; ss++){
-			SS_alk_pc_init_function(		SS_pc_xeos, 
-											ss,
-											gv.SS_list[ss]				);
-		}
-	}
-	else if (gv.EM_database == 4 ||gv.EM_database == 5){
+	else if (gv.EM_database == 4){
 		for (ss = 0; ss < gv.len_ss; ss++){
 			SS_um_pc_init_function(			SS_pc_xeos, 
 											ss,

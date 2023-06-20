@@ -10,7 +10,7 @@
 
 |
 
-**MAGEMin v1.3.1**
+**MAGEMin v1.3.2**
 ==================
                                           
 MAGEMin (Mineral Assemblage Gibbs Energy Minimization) is a parallel C library callable from any petrological/geodynamic tool. For a given set of pressure, temperature and bulk-rock composition MAGEMin uses a combination of linear programming, extended Partitioning Gibbs free Energy and gradient-based local minimization to compute the most stable mineral assemblage     
@@ -24,14 +24,33 @@ Riel, N., Kaus, B. J. P., Green, E. C. R., & Berlie, N. (2022). MAGEMin, an effi
 Available thermodynamic dataset                       
 ================================
 
-Igneous thermodynamic dataset
-*****************************
+Igneous thermodynamic dataset #1
+********************************
                     
-- Holland et al., 2018 (see http://hpxeosandthermocalc.org)
+- Green et al., 2023 updated after Holland et al., 2018 (see http://hpxeosandthermocalc.org)
 - K2O-Na2O-CaO-FeO-MgO-Al2O3-SiO2-H2O-TiO2-O-Cr2O3 chemical system
 - Equations of state for
 	- Pure stoichiometric phases quartz (q), cristobalite (crst), tridymite (trd), coesite (coe), stishovite (stv), kyanite (ky), sillimanite (sill), andalusite (and), rutile (ru) and sphene (sph). 
 	- Solution phases spinel (spn), biotite (bi), cordierite (cd), clinopyroxene (cpx), orthopyroxene (opx), epidote (ep), garnet (g), hornblende (hb), ilmenite (ilm), silicate melt (liq), muscovite (mu), olivine (ol), ternary feldspar (pl4T), and aqueous fluid (fl).
+- added June 2023
+
+Igneous thermodynamic dataset #2
+********************************
+- Green et al., 2023 updated after Tomlinson et al., 2021 (see http://hpxeosandthermocalc.org)
+- K2O-Na2O-CaO-FeO-MgO-Al2O3-SiO2-H2O-TiO2-O-Cr2O3 chemical system
+- Equations of state for
+	- Pure stoichiometric phases quartz (q), cristobalite (crst), tridymite (trd), coesite (coe), stishovite (stv), kyanite (ky), sillimanite (sill), andalusite (and), rutile (ru) and sphene (sph). 
+	- Solution phases spinel (spn), biotite (bi), cordierite (cd), clinopyroxene (cpx), orthopyroxene (opx), epidote (ep), garnet (g), hornblende (hb), ilmenite (ilm), silicate melt (liq), muscovite (mu), olivine (ol), ternary feldspar (pl4T), and aqueous fluid (fl).
+- added June 2023
+
+Ultramafic thermodynamic dataset
+********************************
+- Evans & Frost, 2021 (see http://hpxeosandthermocalc.org)
+- SiO2-Al2O3MgO-FeO-O-H2O-S chemical system
+- Equations of state for
+	- Pure stoichiometric phases quartz (q), cristobalite (crst), tridymite (trd), coesite (coe), stishovite (stv), kyanite (ky), sillimanite (sill), pyrite (pyr)
+	- Solution phases fluid (fluid), brucite (br), antigorite (atg), garnet (g), talc (t), chlorite (chl), spinel (spi), orthopyroxene (opx), pyrrhotite (po) and anthophylite (anth)
+- added May 2023
 
 Metapelite thermodynamic dataset
 ********************************

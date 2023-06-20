@@ -9569,62 +9569,6 @@ SS_ref P2X(					global_variable 	 gv,
             printf("\nsolid solution '%s' is not in the database\n",name);
         }
     }
-    else if (gv.EM_database == 6){
-        if (strcmp( name, "liq") == 0 ){
-            p2x_alk_liq(&SS_ref_db, eps);
-        }
-        else if (strcmp( name, "fl") == 0 ){
-            p2x_alk_fl(&SS_ref_db, eps);
-        }
-        else if (strcmp( name, "fsp") == 0 ){
-            p2x_alk_fsp(&SS_ref_db, eps);
-        }
-        else if (strcmp( name, "spn") == 0 ){
-            p2x_alk_spn(&SS_ref_db, eps);
-        }
-        else if (strcmp( name, "g") == 0 ){
-            p2x_alk_g(&SS_ref_db, eps);
-        }
-        else if (strcmp( name, "ol") == 0 ){
-            p2x_alk_ol(&SS_ref_db, eps);
-        }
-        else if (strcmp( name, "opx") == 0 ){
-            p2x_alk_opx(&SS_ref_db, eps);
-        }
-        else if (strcmp( name, "cpx") == 0 ){
-            p2x_alk_cpx(&SS_ref_db, eps);
-        }
-        else if (strcmp( name, "ilm") == 0 ){
-            p2x_alk_ilm(&SS_ref_db, eps);
-        }
-        else if (strcmp( name, "ness") == 0 ){
-            p2x_alk_ness(&SS_ref_db, eps);
-        }
-        else if (strcmp( name, "lct") == 0 ){
-            p2x_alk_lct(&SS_ref_db, eps);
-        }
-        else if (strcmp( name, "kals") == 0 ){
-            p2x_alk_kals(&SS_ref_db, eps);
-        }
-        else if (strcmp( name, "mel") == 0 ){
-            p2x_alk_mel(&SS_ref_db, eps);
-        }
-        else if (strcmp( name, "hb") == 0 ){
-            p2x_alk_hb(&SS_ref_db, eps);
-        }
-        else if (strcmp( name, "bi") == 0 ){
-            p2x_alk_bi(&SS_ref_db, eps);
-        }
-        else if (strcmp( name, "ep") == 0 ){
-            p2x_alk_ep(&SS_ref_db, eps);
-        }
-        else if (strcmp( name, "cd") == 0 ){
-            p2x_alk_cd(&SS_ref_db, eps);
-        }
-        else{
-            printf("\nsolid solution '%s' is not in the database\n",name);
-        }
-    }
 	else if(gv.EM_database == 4){
 		if 	(strcmp( name, "fluid") == 0 ){
 			p2x_um_fluid(&SS_ref_db, eps);	
@@ -9822,63 +9766,7 @@ SS_ref PC_function(		global_variable 	 gv,
             printf("\nsolid solution '%s' is not in the database\n",name);
         }
     }
-    else if (gv.EM_database == 6){
-        if (strcmp( name, "liq") == 0 ){
-            G0 = obj_alk_liq(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
-        }
-        else if (strcmp( name, "fl") == 0 ){
-            G0 = obj_alk_fl(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
-        }
-        else if (strcmp( name, "fsp") == 0 ){
-            G0 = obj_alk_fsp(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
-        }
-        else if (strcmp( name, "spn") == 0 ){
-            G0 = obj_alk_spn(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
-        }
-        else if (strcmp( name, "g") == 0 ){
-            G0 = obj_alk_g(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
-        }
-        else if (strcmp( name, "ol") == 0 ){
-            G0 = obj_alk_ol(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
-        }
-        else if (strcmp( name, "opx") == 0 ){
-            G0 = obj_alk_opx(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
-        }
-        else if (strcmp( name, "cpx") == 0 ){
-            G0 = obj_alk_cpx(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
-        }
-        else if (strcmp( name, "ilm") == 0 ){
-            G0 = obj_alk_ilm(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
-        }
-        else if (strcmp( name, "ness") == 0 ){
-            G0 = obj_alk_ness(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
-        }
-        else if (strcmp( name, "lct") == 0 ){
-            G0 = obj_alk_lct(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
-        }
-        else if (strcmp( name, "kals") == 0 ){
-            G0 = obj_alk_kals(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
-        }
-        else if (strcmp( name, "mel") == 0 ){
-            G0 = obj_alk_mel(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
-        }
-        else if (strcmp( name, "hb") == 0 ){
-            G0 = obj_alk_hb(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
-        }
-        else if (strcmp( name, "bi") == 0 ){
-            G0 = obj_alk_bi(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
-        }
-        else if (strcmp( name, "ep") == 0 ){
-            G0 = obj_alk_ep(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
-        }
-        else if (strcmp( name, "cd") == 0 ){
-            G0 = obj_alk_cd(SS_ref_db.n_xeos, SS_ref_db.iguess, SS_ref_db.dfx, &SS_ref_db);
-        }
-        else{
-            printf("\nsolid solution '%s' is not in the database\n",name);
-        }
-    }
-	else if(gv.EM_database == 4 || gv.EM_database == 5){
+	else if(gv.EM_database == 4){
 		if 	(strcmp( name, "fluid") == 0 ){
 			G0 = obj_um_fluid(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 		}

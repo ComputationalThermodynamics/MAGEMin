@@ -368,18 +368,18 @@ SS_ref G_SS_alk_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
     SS_ref_db.bounds_ref[12][0] = 0.0+eps;  SS_ref_db.bounds_ref[12][1] = 1.0-eps;
     SS_ref_db.bounds_ref[13][0] = 0.0+eps;  SS_ref_db.bounds_ref[13][1] = 1.0-eps;
     
-	if (z_b.bulk_rock[10] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[10] == 0.){ 					
 		SS_ref_db.z_em[14]          = 0.0;
 		SS_ref_db.bounds_ref[9][0] = eps; 
 		SS_ref_db.bounds_ref[9][1] = eps;	
 	}
-	if (z_b.bulk_rock[9] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[9] == 0.){ 					
 		SS_ref_db.z_em[7]          = 0.0;
         SS_ref_db.d_em[7]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
 		SS_ref_db.bounds_ref[6][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[6]          = 0.0;
         SS_ref_db.d_em[6]          = 1.0;
 		SS_ref_db.bounds_ref[5][0] = 0.0; 
@@ -678,7 +678,7 @@ SS_ref G_SS_alk_spn_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.z_em[5]          = 0.0;
@@ -825,13 +825,13 @@ SS_ref G_SS_alk_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[9] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[9] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
 		SS_ref_db.bounds_ref[3][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
@@ -1099,14 +1099,14 @@ SS_ref G_SS_alk_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
     SS_ref_db.bounds_ref[6][0] = 0.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
     SS_ref_db.bounds_ref[7][0] = 0.0+eps;  SS_ref_db.bounds_ref[7][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[9] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[9] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
 		SS_ref_db.bounds_ref[6][1] = 0.0;	
 	}
 
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[7]          = 0.0;
         SS_ref_db.d_em[7]          = 1.0;
 		SS_ref_db.bounds_ref[4][0] = 0.0; 
@@ -1333,14 +1333,14 @@ SS_ref G_SS_alk_cpx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
     SS_ref_db.bounds_ref[7][0] = 0.0+eps;  SS_ref_db.bounds_ref[7][1] = 1.0-eps;
     SS_ref_db.bounds_ref[8][0] = 0.0+eps;  SS_ref_db.bounds_ref[8][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[9] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[9] == 0.){ 					
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
 		SS_ref_db.bounds_ref[6][1] = 0.0;	
 	}
 
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[5][0] = 0.0; 
@@ -1444,7 +1444,7 @@ SS_ref G_SS_alk_ilm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
     SS_ref_db.bounds_ref[2][0] = -1.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = -1.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
 		SS_ref_db.bounds_ref[0][0] = 1.0; 
@@ -1572,7 +1572,7 @@ SS_ref G_SS_alk_ness_function(SS_ref SS_ref_db, int EM_database, int len_ox, bul
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
@@ -1818,7 +1818,7 @@ SS_ref G_SS_alk_mel_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
@@ -2059,7 +2059,7 @@ SS_ref G_SS_alk_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.bounds_ref[8][0] = -1.0+eps;  SS_ref_db.bounds_ref[8][1] = 1.0-eps;
     SS_ref_db.bounds_ref[9][0] = -1.0+eps;  SS_ref_db.bounds_ref[9][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[8]          = 0.0;
         SS_ref_db.d_em[8]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
@@ -2188,7 +2188,7 @@ SS_ref G_SS_alk_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
 	SS_ref_db.bounds_ref[4][0] = -0.75+eps;	SS_ref_db.bounds_ref[4][1] = 0.75-eps;	
 
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
@@ -2261,7 +2261,7 @@ SS_ref G_SS_alk_ep_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = -0.5+eps;  SS_ref_db.bounds_ref[1][1] = 0.5-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.bounds_ref[0][0] = 0.0; 
 		SS_ref_db.bounds_ref[0][1] = 0.0;	
 		SS_ref_db.bounds_ref[1][0] = 0.0; 
@@ -2640,18 +2640,18 @@ SS_ref G_SS_igd_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
     SS_ref_db.bounds_ref[12][0] = 0.0+eps;  SS_ref_db.bounds_ref[12][1] = 1.0-eps;
     SS_ref_db.bounds_ref[13][0] = 0.0+eps;  SS_ref_db.bounds_ref[13][1] = 1.0-eps;
     
-	if (z_b.bulk_rock[10] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[10] == 0.){ 					
 		SS_ref_db.z_em[14]          = 0.0;
 		SS_ref_db.bounds_ref[9][0] = eps; 
 		SS_ref_db.bounds_ref[9][1] = eps;	
 	}
-	if (z_b.bulk_rock[9] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[9] == 0.){ 					
 		SS_ref_db.z_em[7]          = 0.0;
         SS_ref_db.d_em[7]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
 		SS_ref_db.bounds_ref[6][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[6]          = 0.0;
         SS_ref_db.d_em[6]          = 1.0;
 		SS_ref_db.bounds_ref[5][0] = 0.0; 
@@ -2954,7 +2954,7 @@ SS_ref G_SS_igd_spn_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.z_em[5]          = 0.0;
@@ -3100,13 +3100,13 @@ SS_ref G_SS_igd_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[9] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[9] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
 		SS_ref_db.bounds_ref[3][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
@@ -3374,13 +3374,13 @@ SS_ref G_SS_igd_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
     SS_ref_db.bounds_ref[6][0] = 0.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
     SS_ref_db.bounds_ref[7][0] = 0.0+eps;  SS_ref_db.bounds_ref[7][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[9] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[9] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
 		SS_ref_db.bounds_ref[6][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[7]          = 0.0;
         SS_ref_db.d_em[7]          = 1.0;
 		SS_ref_db.bounds_ref[4][0] = 0.0; 
@@ -3607,14 +3607,14 @@ SS_ref G_SS_igd_cpx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
     SS_ref_db.bounds_ref[7][0] = 0.0+eps;  SS_ref_db.bounds_ref[7][1] = 1.0-eps;
     SS_ref_db.bounds_ref[8][0] = 0.0+eps;  SS_ref_db.bounds_ref[8][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[9] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[9] == 0.){ 					
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
 		SS_ref_db.bounds_ref[6][1] = 0.0;	
 	}
 
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[5][0] = 0.0; 
@@ -3718,7 +3718,7 @@ SS_ref G_SS_igd_ilm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
     SS_ref_db.bounds_ref[2][0] = -1.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = -1.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
 		SS_ref_db.bounds_ref[0][0] = 1.0; 
@@ -3960,7 +3960,7 @@ SS_ref G_SS_igd_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.bounds_ref[8][0] = -1.0+eps;  SS_ref_db.bounds_ref[8][1] = 1.0-eps;
     SS_ref_db.bounds_ref[9][0] = -1.0+eps;  SS_ref_db.bounds_ref[9][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[8]          = 0.0;
         SS_ref_db.d_em[8]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
@@ -4089,7 +4089,7 @@ SS_ref G_SS_igd_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
 	SS_ref_db.bounds_ref[4][0] = -0.75+eps;	SS_ref_db.bounds_ref[4][1] = 0.75-eps;	
 
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
@@ -4162,7 +4162,7 @@ SS_ref G_SS_igd_ep_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = -0.5+eps;  SS_ref_db.bounds_ref[1][1] = 0.5-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.bounds_ref[0][0] = 0.0; 
 		SS_ref_db.bounds_ref[0][1] = 0.0;	
 		SS_ref_db.bounds_ref[1][0] = 0.0; 
@@ -4390,7 +4390,7 @@ SS_ref G_SS_mp_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.bounds_ref[5][0] = 0.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
     SS_ref_db.bounds_ref[6][0] = 0.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
     
-	if (z_b.bulk_rock[10] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[10] == 0.){ 					
 		SS_ref_db.z_em[7]          = 0.0;
 		SS_ref_db.bounds_ref[6][0] = eps; 
 		SS_ref_db.bounds_ref[6][1] = eps;	
@@ -4535,7 +4535,7 @@ SS_ref G_SS_mp_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
     SS_ref_db.bounds_ref[5][0] = 0.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
@@ -4764,7 +4764,7 @@ SS_ref G_SS_mp_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.bounds_ref[4][0] = -1.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
     SS_ref_db.bounds_ref[5][0] = -1.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
     SS_ref_db.bounds_ref[6][0] = -1.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[6]          = 0.0;
         SS_ref_db.d_em[6]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
@@ -4858,7 +4858,7 @@ SS_ref G_SS_mp_ctd_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
@@ -4930,7 +4930,7 @@ SS_ref G_SS_mp_ep_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 0.5-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.bounds_ref[0][0] = 0.0; 
 		SS_ref_db.bounds_ref[0][1] = 0.0;	
 		SS_ref_db.bounds_ref[1][0] = 0.0; 
@@ -5044,7 +5044,7 @@ SS_ref G_SS_mp_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
@@ -5138,7 +5138,7 @@ SS_ref G_SS_mp_ilm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = -1.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
 		SS_ref_db.bounds_ref[0][0] = 1.0; 
@@ -5272,7 +5272,7 @@ SS_ref G_SS_mp_ma_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
@@ -5336,7 +5336,7 @@ SS_ref G_SS_mp_mt_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[0]          = 0.0;
         SS_ref_db.d_em[0]          = 1.0;
 		SS_ref_db.z_em[1]          = 0.0;
@@ -5475,7 +5475,7 @@ SS_ref G_SS_mp_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
@@ -5620,7 +5620,7 @@ SS_ref G_SS_mp_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
     SS_ref_db.bounds_ref[5][0] = 0.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
@@ -5792,7 +5792,7 @@ SS_ref G_SS_mp_sa_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = -1.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
@@ -5878,7 +5878,7 @@ SS_ref G_SS_mp_sp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
 		SS_ref_db.bounds_ref[1][0] = 0.0; 
@@ -5996,7 +5996,7 @@ SS_ref G_SS_mp_st_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
@@ -6125,7 +6125,7 @@ SS_ref G_SS_ig_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
 	SS_ref_db.bounds_ref[4][0] = -0.75+eps;	SS_ref_db.bounds_ref[4][1] = 0.75-eps;	
 
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
@@ -6352,14 +6352,14 @@ SS_ref G_SS_ig_cpx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.bounds_ref[7][0] = 0.0+eps;  SS_ref_db.bounds_ref[7][1] = 1.0-eps;
     SS_ref_db.bounds_ref[8][0] = 0.0+eps;  SS_ref_db.bounds_ref[8][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[9] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[9] == 0.){ 					
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
 		SS_ref_db.bounds_ref[6][1] = 0.0;	
 	}
 
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[5][0] = 0.0; 
@@ -6502,7 +6502,7 @@ SS_ref G_SS_ig_ep_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = -0.5+eps;  SS_ref_db.bounds_ref[1][1] = 0.5-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.bounds_ref[0][0] = 0.0; 
 		SS_ref_db.bounds_ref[0][1] = 0.0;	
 		SS_ref_db.bounds_ref[1][0] = 0.0; 
@@ -6733,13 +6733,13 @@ SS_ref G_SS_ig_fl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 		SS_ref_db.bounds_ref[9][1] = eps;	
 	}
     
-	if (z_b.bulk_rock[9] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[9] == 0.){ 					
 		SS_ref_db.z_em[7]          = 0.0;
         SS_ref_db.d_em[7]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
 		SS_ref_db.bounds_ref[6][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[6]          = 0.0;
         SS_ref_db.d_em[6]          = 1.0;
 		SS_ref_db.bounds_ref[5][0] = 0.0; 
@@ -6882,13 +6882,13 @@ SS_ref G_SS_ig_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[9] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[9] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
 		SS_ref_db.bounds_ref[3][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
@@ -7129,7 +7129,7 @@ SS_ref G_SS_ig_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.bounds_ref[9][0] = -1.0+eps;  SS_ref_db.bounds_ref[9][1] = 1.0-eps;
     
 
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[8]          = 0.0;
         SS_ref_db.d_em[8]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
@@ -7235,7 +7235,7 @@ SS_ref G_SS_ig_ilm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.bounds_ref[3][0] = -1.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
 
 
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
 		SS_ref_db.bounds_ref[0][0] = 1.0; 
@@ -7484,18 +7484,18 @@ SS_ref G_SS_ig_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.bounds_ref[9][0] = 0.0+eps;  SS_ref_db.bounds_ref[9][1] = 1.0-eps;
     SS_ref_db.bounds_ref[10][0] = 0.0+eps;  SS_ref_db.bounds_ref[10][1] = 1.0-eps;
     
-	if (z_b.bulk_rock[10] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[10] == 0.){ 					
 		SS_ref_db.z_em[11]          = 0.0;
 		SS_ref_db.bounds_ref[10][0] = eps; 
 		SS_ref_db.bounds_ref[10][1] = eps;	
 	}
-	if (z_b.bulk_rock[9] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[9] == 0.){ 					
 		SS_ref_db.z_em[7]          = 0.0;
         SS_ref_db.d_em[7]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
 		SS_ref_db.bounds_ref[6][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[6]          = 0.0;
         SS_ref_db.d_em[6]          = 1.0;
 		SS_ref_db.bounds_ref[5][0] = 0.0; 
@@ -7901,13 +7901,13 @@ SS_ref G_SS_ig_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.bounds_ref[6][0] = 0.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
     SS_ref_db.bounds_ref[7][0] = 0.0+eps;  SS_ref_db.bounds_ref[7][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[9] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[9] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
 		SS_ref_db.bounds_ref[6][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[7]          = 0.0;
         SS_ref_db.d_em[7]          = 1.0;
 		SS_ref_db.bounds_ref[4][0] = 0.0; 
@@ -8127,7 +8127,7 @@ SS_ref G_SS_ig_spn_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[8] == 0.){ 					// no h2o, cannot be 0 for this xeos
+	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.z_em[5]          = 0.0;

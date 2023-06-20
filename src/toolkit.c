@@ -46,14 +46,11 @@ void print_help(	global_variable gv	){
 	printf("  --test=       [int]   : Number of points when using 'File' argument\n");
 	printf("  --Pres=       [float] : Pressure in kilobar\n");
 	printf("  --Temp=       [float] : Temperature in Celsius\n");
-	printf("  --Bulk=x,y,z, [float] : Bulk rock composition in [mol] or [wt] fraction**\n");
+	printf("  --Bulk=       [float] : Bulk rock composition in [mol] or [wt] fraction**\n");
 	printf("  --Gam=        [float] : Chemical potential of oxides (pure components)**\n");
 	printf("  --sys_in=     [str]   : inputed system composition, [mol](default) or [wt]\n");
 	printf("  --solver=     [int]   : solver: 0 for legacy and 1 for PGE (default)\n");
 	printf("  --out_matlab= [int]   : Matlab text file output, 0. inactive, 1. active\n");
-	printf("  --qfm=        [int]   : Activate QFM buffering. 0, Inactive. 1, Active\\n");
-	printf("  --qfm_n=      [float] : Factor multiplying QFM buffer\n");
-	printf("  --limitCaOpx= [int]   : 0, Inactive. 1, Active\n");
 	printf("\n");
 	printf(" * 'mp': metapelite, 'ig': igneous H18->G23, 'igd': igneous T21->G23, 'alk': igneous alkaline, 'um': ultramafic\n");
 	printf("\n");
@@ -81,7 +78,7 @@ void print_help(	global_variable gv	){
     printf("\n");
 	printf(" where 'path_to_file' is the location of the file and 'x' is an integer corresponding to the total number of points contained in the file. The file must have one point per line using the following structure\n");
     printf("\n");
-	printf(" Pressure(kbar), Temperature(C), Gam1, Gam2, ..., Gamn\n");
+	printf("  Mode(0-1), Pressure(kbar), Temperature(C), Gam1, Gam2, ..., Gamn\n");
     printf("\n");
 	printf(" *Mode = 0 for global minimization\n");
     printf("\n");
@@ -176,10 +173,7 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 		else if (gv.EM_database == 4 ){
 			printf("  - Database                  : Ultramafic (Evans & Frost, 2021)\n"	);
 		}
-		else if (gv.EM_database == 6){
-			printf("  - Database                  : Igneous alkaline (Weller et al., 2023)\n"	);
-		}
-
+		
 		if (strcmp( gv.sys_in, "mol") == 0){	
 			printf("  - input system composition  : mol fraction\n"	);
 		}

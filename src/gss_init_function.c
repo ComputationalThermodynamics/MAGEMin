@@ -446,7 +446,7 @@ SS_ref G_SS_alk_cd_init_function(SS_ref SS_ref_db, int EM_database, global_varia
 */
 SS_ref G_SS_igd_liq_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
     
-    SS_ref_db.is_liq    = 0;
+    SS_ref_db.is_liq    = 1;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 21;
     SS_ref_db.n_em      = 15;
@@ -1480,45 +1480,6 @@ SS_ref G_SS_init_EM_function(		int			 		 ph_id,
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", name);	
 		}	
 	}
-    else if (EM_database == 6){
-        if (strcmp( name, "liq") == 0 ){
-            SS_ref_db  = G_SS_alk_liq_init_function(SS_ref_db, EM_database, gv); }
-        else if (strcmp( name, "fl") == 0 ){
-            SS_ref_db  = G_SS_alk_fl_init_function(SS_ref_db, EM_database, gv); }
-        else if (strcmp( name, "fsp") == 0 ){
-            SS_ref_db  = G_SS_alk_fsp_init_function(SS_ref_db, EM_database, gv); }
-        else if (strcmp( name, "spn") == 0 ){
-            SS_ref_db  = G_SS_alk_spn_init_function(SS_ref_db, EM_database, gv); }
-        else if (strcmp( name, "g") == 0 ){
-            SS_ref_db  = G_SS_alk_g_init_function(SS_ref_db, EM_database, gv); }
-        else if (strcmp( name, "ol") == 0 ){
-            SS_ref_db  = G_SS_alk_ol_init_function(SS_ref_db, EM_database, gv); }
-        else if (strcmp( name, "opx") == 0 ){
-            SS_ref_db  = G_SS_alk_opx_init_function(SS_ref_db, EM_database, gv); }
-        else if (strcmp( name, "cpx") == 0 ){
-            SS_ref_db  = G_SS_alk_cpx_init_function(SS_ref_db, EM_database, gv); }
-        else if (strcmp( name, "ilm") == 0 ){
-            SS_ref_db  = G_SS_alk_ilm_init_function(SS_ref_db, EM_database, gv); }
-        else if (strcmp( name, "ness") == 0 ){
-            SS_ref_db  = G_SS_alk_ness_init_function(SS_ref_db, EM_database, gv); }
-        else if (strcmp( name, "lct") == 0 ){
-            SS_ref_db  = G_SS_alk_lct_init_function(SS_ref_db, EM_database, gv); }
-        else if (strcmp( name, "kals") == 0 ){
-            SS_ref_db  = G_SS_alk_kals_init_function(SS_ref_db, EM_database, gv); }
-        else if (strcmp( name, "mel") == 0 ){
-            SS_ref_db  = G_SS_alk_mel_init_function(SS_ref_db, EM_database, gv); }
-        else if (strcmp( name, "hb") == 0 ){
-            SS_ref_db  = G_SS_alk_hb_init_function(SS_ref_db, EM_database, gv); }
-        else if (strcmp( name, "bi") == 0 ){
-            SS_ref_db  = G_SS_alk_bi_init_function(SS_ref_db, EM_database, gv); }
-        else if (strcmp( name, "ep") == 0 ){
-            SS_ref_db  = G_SS_alk_ep_init_function(SS_ref_db, EM_database, gv); }
-        else if (strcmp( name, "cd") == 0 ){
-            SS_ref_db  = G_SS_alk_cd_init_function(SS_ref_db, EM_database, gv); }
-        else{
-            printf("\nsolid solution '%s' is not in the database\n",name);
-        }
-    }
 	else if (EM_database == 4) {
 		if      (strcmp( name, "fluid")  == 0 ){
 			SS_ref_db  = G_SS_um_fluid_init_function(SS_ref_db, EM_database, gv); 	}

@@ -174,9 +174,6 @@ int runMAGEMin(			int    argc,
 	else if (gv.EM_database == 3){
 		gv = get_bulk_igneous( gv );
 	}
-	else if (gv.EM_database == 6){
-		gv = get_bulk_igneous_alk( gv );
-	}
 	else if (gv.EM_database == 4){
 		gv = get_bulk_ultramafic( gv );
 	}
@@ -685,11 +682,7 @@ int runMAGEMin(			int    argc,
 		SS_igd_objective_init_function(			SS_objective,
 												gv							);
 	}
-	else if (EM_database == 6){			// igneous alk database //
-		SS_alk_objective_init_function(			SS_objective,
-												gv							);
-	}
-	else if (EM_database == 4  || EM_database ==  5){			// ultramafic database //
+	else if (EM_database == 4){			// ultramafic database //
 		SS_um_objective_init_function(			SS_objective,
 												gv							);
 	}
@@ -1010,9 +1003,6 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 	}
 	else if (strcmp(gv.db, "igd") == 0){
 		gv.EM_database = 3;
-	}
-	else if (strcmp(gv.db, "alk") == 0){
-		gv.EM_database = 6;
 	}
 	else if (strcmp(gv.db, "um") == 0){
 		gv.EM_database = 4;
