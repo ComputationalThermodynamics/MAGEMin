@@ -42,7 +42,7 @@ In addition, we make use of [uthash](https://troydhanson.github.io/uthash/) and 
 
 
 ## Available thermodynamic datasets
-The MAGEMin algorithm is general and can be used with any thermodynamic database that are hardcoded for speed reasons. Presently the igneous (Holland et al., 2018) and the metapelite (White et al., 2014) database are available.
+The MAGEMin algorithm is general and can be used with any thermodynamic database that are hardcoded for speed reasons. Presently the igneous (Green et al., 2023, updated versions of Holland et al., 2018 and Tomlison et al., 2021), the ultramafic (Evans & Frost, 2021) and the metapelite (White et al., 2014) database are available.
 
 **Igneous thermodynamic dataset #1**
 
