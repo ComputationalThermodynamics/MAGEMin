@@ -529,7 +529,7 @@ SS_ref G_SS_ig_hb_init_function(SS_ref SS_ref_db, int EM_database, global_variab
 
 	SS_ref_db.is_liq     = 0;	
 	SS_ref_db.symmetry   = 0;					  					  
-	SS_ref_db.n_sf       = 18;
+	SS_ref_db.n_sf       = 17;
 	SS_ref_db.n_em       = 11;
 	SS_ref_db.n_v        = 11;
 	SS_ref_db.n_w        = 55;
