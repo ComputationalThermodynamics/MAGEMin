@@ -529,7 +529,7 @@ SS_ref G_SS_ig_hb_init_function(SS_ref SS_ref_db, int EM_database, global_variab
 
 	SS_ref_db.is_liq     = 0;	
 	SS_ref_db.symmetry   = 0;					  					  
-	SS_ref_db.n_sf       = 17;
+	SS_ref_db.n_sf       = 18;
 	SS_ref_db.n_em       = 11;
 	SS_ref_db.n_v        = 11;
 	SS_ref_db.n_w        = 55;
@@ -888,32 +888,32 @@ SS_ref G_SS_init_EM_function(		int			 		 ph_id,
 		}	
 	}							  
 	else if (EM_database == 2) {	 //"bi","cd","cpx","ep","fl","g","hb","ilm","liq","mu","ol","opx","pl4T","spn"	
-		if      (strcmp( name, "bi")  == 0 ){
-			SS_ref_db  = G_SS_ig_bi_init_function(SS_ref_db, EM_database, gv); 		}
-		else if (strcmp( name, "cd")  == 0){
-			SS_ref_db  = G_SS_ig_cd_init_function(SS_ref_db, EM_database, gv); 		}
-		else if (strcmp( name, "cpx") == 0){
-			SS_ref_db  = G_SS_ig_cpx_init_function(SS_ref_db, EM_database, gv); 	}	
-		else if (strcmp( name, "ep")  == 0){
-			SS_ref_db  = G_SS_ig_ep_init_function(SS_ref_db, EM_database, gv); 		}
-		else if (strcmp( name, "fl")  == 0){
-			SS_ref_db  = G_SS_ig_fl_init_function(SS_ref_db, EM_database, gv); 		}		
-		else if (strcmp( name, "g")   == 0){
-			SS_ref_db  = G_SS_ig_g_init_function(SS_ref_db, EM_database, gv); 		}
-		else if (strcmp( name, "hb")  == 0){
-			SS_ref_db  = G_SS_ig_hb_init_function(SS_ref_db, EM_database, gv); 		}	
-		else if (strcmp( name, "ilm") == 0){
-			SS_ref_db  = G_SS_ig_ilm_init_function(SS_ref_db, EM_database, gv); 	}
-		else if (strcmp( name, "liq") == 0){
-			SS_ref_db  = G_SS_ig_liq_init_function(SS_ref_db, EM_database, gv); 	}
-		else if (strcmp( name, "ol")  == 0){
-			SS_ref_db  = G_SS_ig_ol_init_function(SS_ref_db, EM_database, gv); 		}
-		else if (strcmp( name, "opx") == 0){
-			SS_ref_db  = G_SS_ig_opx_init_function(SS_ref_db, EM_database, gv); 	}
-		else if (strcmp( name, "pl4T") == 0){
-			SS_ref_db  = G_SS_ig_pl4T_init_function(SS_ref_db, EM_database, gv); 	}	
-		else if (strcmp( name, "spn") == 0){
-			SS_ref_db  = G_SS_ig_spn_init_function(SS_ref_db, EM_database, gv); 	}
+		if (strcmp( name, "liq") == 0 ){
+			SS_ref_db  = G_SS_ig_liq_init_function(SS_ref_db, EM_database, gv); }
+		else if (strcmp( name, "fl") == 0 ){
+			SS_ref_db  = G_SS_ig_fl_init_function(SS_ref_db, EM_database, gv); }
+		else if (strcmp( name, "pl4T") == 0 ){
+			SS_ref_db  = G_SS_ig_pl4T_init_function(SS_ref_db, EM_database, gv); }
+		else if (strcmp( name, "spn") == 0 ){
+			SS_ref_db  = G_SS_ig_spn_init_function(SS_ref_db, EM_database, gv); }
+		else if (strcmp( name, "g") == 0 ){
+			SS_ref_db  = G_SS_ig_g_init_function(SS_ref_db, EM_database, gv); }
+		else if (strcmp( name, "ol") == 0 ){
+			SS_ref_db  = G_SS_ig_ol_init_function(SS_ref_db, EM_database, gv); }
+		else if (strcmp( name, "opx") == 0 ){
+			SS_ref_db  = G_SS_ig_opx_init_function(SS_ref_db, EM_database, gv); }
+		else if (strcmp( name, "cpx") == 0 ){
+			SS_ref_db  = G_SS_ig_cpx_init_function(SS_ref_db, EM_database, gv); }
+		else if (strcmp( name, "ilm") == 0 ){
+			SS_ref_db  = G_SS_ig_ilm_init_function(SS_ref_db, EM_database, gv); }
+		else if (strcmp( name, "hb") == 0 ){
+			SS_ref_db  = G_SS_ig_hb_init_function(SS_ref_db, EM_database, gv); }
+		else if (strcmp( name, "bi") == 0 ){
+			SS_ref_db  = G_SS_ig_bi_init_function(SS_ref_db, EM_database, gv); }
+		else if (strcmp( name, "ep") == 0 ){
+			SS_ref_db  = G_SS_ig_ep_init_function(SS_ref_db, EM_database, gv); }
+		else if (strcmp( name, "cd") == 0 ){
+			SS_ref_db  = G_SS_ig_cd_init_function(SS_ref_db, EM_database, gv); }
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", name);	
 		}	

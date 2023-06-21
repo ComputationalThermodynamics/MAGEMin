@@ -4738,77 +4738,73 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
 					   
 	SS_ref_db.ss_flags[0]  = 1;
 
-	/* Associate the right solid-solution data */
-	for (int FD = 0; FD < gv.n_Diff; FD++){				/* cycle twice in order to get gb_P_eps to calculate densities later on */
-		
-		if (FD == 8 || FD == 9){				// dG/dP0 to get Volume at P = 1bar
-			SS_ref_db.P = 1.+ gv.gb_P_eps*gv.pdev[0][FD];
-			SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-		}
-		else{
-			SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
-			SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-		}
-
-		if (strcmp( name, "bi") == 0 ){
-			// if no H2O, deactivate
-			if (z_b.bulk_rock[gv.H2O_id] == 0.){
-				SS_ref_db.ss_flags[0]  = 0;
-			}
-			SS_ref_db  = G_SS_ig_bi_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
-		else if (strcmp( name, "cd") == 0){
-			// if no H2O, deactivate
-			if (z_b.bulk_rock[gv.H2O_id] == 0.){
-				SS_ref_db.ss_flags[0]  = 0;
-			}
-			SS_ref_db  = G_SS_ig_cd_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
-		else if (strcmp( name, "cpx") == 0){
-			SS_ref_db  = G_SS_ig_cpx_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}	
-		else if (strcmp( name, "ep") == 0){
-			// if no h2O, deactivate
-			if (z_b.bulk_rock[gv.H2O_id] == 0.){
-				SS_ref_db.ss_flags[0]  = 0;
-			}
-			SS_ref_db  = G_SS_ig_ep_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
-		else if (strcmp( name, "fl") == 0){
-			// if no H2O, deactivate
-			if (z_b.bulk_rock[gv.H2O_id] == 0.){
-				SS_ref_db.ss_flags[0]  = 0;
-			}
-			SS_ref_db  = G_SS_ig_fl_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}		
-		else if (strcmp( name, "g") == 0){
-			SS_ref_db  = G_SS_ig_g_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);		}
-		else if (strcmp( name, "hb") == 0){
-			// if no H2O, deactivate
-			if (z_b.bulk_rock[gv.H2O_id] == 0.){
-				SS_ref_db.ss_flags[0]  = 0;
-			}
-			SS_ref_db  = G_SS_ig_hb_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}	
-		else if (strcmp( name, "ilm") == 0){
-			SS_ref_db  = G_SS_ig_ilm_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
-		else if (strcmp( name, "liq") == 0){
-			/* turn of liquid when T < 600°C) */
+    /* Associate the right solid-solution data */
+    for (int FD = 0; FD < gv.n_Diff; FD++){				/* cycle twice in order to get gb_P_eps to calculate densities later on */
+        if (FD == 8 || FD == 9){				// dG/dP0 to get Volume at P = 1bar
+            SS_ref_db.P = 1.+ gv.gb_P_eps*gv.pdev[0][FD];
+            SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
+        }
+        else{
+            SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
+            SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
+        }
+        if (strcmp( name, "liq") == 0 ){
+            SS_ref_db  = G_SS_ig_liq_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	
 			if ( T < gv.min_melt_T){
 				SS_ref_db.ss_flags[0]  = 0;
-			}
-			SS_ref_db = G_SS_ig_liq_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
-		else if (strcmp( name, "ol") == 0){
-			SS_ref_db  = G_SS_ig_ol_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
-		else if (strcmp( name, "opx") == 0){
-			SS_ref_db  = G_SS_ig_opx_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
-		else if (strcmp( name, "pl4T") == 0){
-			SS_ref_db  = G_SS_ig_pl4T_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}	
-		else if (strcmp( name, "spn") == 0){
-			SS_ref_db  = G_SS_ig_spn_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
-		else{
-			printf("\nsolid solution '%s' is not in the database\n",name);	}	
-		
-		for (int j = 0; j < SS_ref_db.n_em; j++){
-			SS_ref_db.mu_array[FD][j] = SS_ref_db.gbase[j];
-			// printf(" %+10.10f",SS_ref_db.gbase[j]);
-		}
-		// printf("\n");
-	}
+			}}
+        else if (strcmp( name, "fl") == 0 ){
+            SS_ref_db  = G_SS_ig_fl_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	
+			// if no H2O, deactivate
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}}
+        else if (strcmp( name, "pl4T") == 0 ){
+            SS_ref_db  = G_SS_ig_pl4T_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);}
+        else if (strcmp( name, "spn") == 0 ){
+            SS_ref_db  = G_SS_ig_spn_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+        else if (strcmp( name, "g") == 0 ){
+            SS_ref_db  = G_SS_ig_g_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+        else if (strcmp( name, "ol") == 0 ){
+            SS_ref_db  = G_SS_ig_ol_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+        else if (strcmp( name, "opx") == 0 ){
+            SS_ref_db  = G_SS_ig_opx_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+        else if (strcmp( name, "cpx") == 0 ){
+            SS_ref_db  = G_SS_ig_cpx_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+        else if (strcmp( name, "ilm") == 0 ){
+            SS_ref_db  = G_SS_ig_ilm_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+        else if (strcmp( name, "hb") == 0 ){
+            SS_ref_db  = G_SS_ig_hb_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	
+			// if no H2O, deactivate
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}}
+        else if (strcmp( name, "bi") == 0 ){
+            SS_ref_db  = G_SS_ig_bi_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	
+			// if no H2O, deactivate
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}}
+        else if (strcmp( name, "ep") == 0 ){
+            SS_ref_db  = G_SS_ig_ep_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	
+			// if no H2O, deactivate
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}}
+        else if (strcmp( name, "cd") == 0 ){
+            SS_ref_db  = G_SS_ig_cd_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	
+			// if no H2O, deactivate
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}}
+        else{
+            printf("\nsolid solution '%s' is not in the database\n",name);	}
+
+        for (int j = 0; j < SS_ref_db.n_em; j++){
+            SS_ref_db.mu_array[FD][j] = SS_ref_db.gbase[j];
+            // printf(" %+10.10f",SS_ref_db.gbase[j]);
+        }
+    }
 
 	for (int j = 0; j < SS_ref_db.n_xeos; j++){
 		SS_ref_db.bounds[j][0] = SS_ref_db.bounds_ref[j][0];
@@ -4842,7 +4838,7 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
 
 		if (1 == 1){
 			/* display molar composition */
-            printf("\n S   A   C   M   F   K   N   T   O   Cr  H\n");
+            printf("\n S   A   C   M   F   K   N   T   O   Cr  H  \n");
 			for (int i = 0; i < SS_ref_db.n_em; i++){
 				for (int j = 0; j < gv.len_ox; j++){
 					printf(" %.1f",SS_ref_db.Comp[i][j]);
@@ -4855,6 +4851,7 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
 
 	return SS_ref_db;
 };
+
 
 /**
   checks if it can satisfy the mass constraint

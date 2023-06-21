@@ -4618,7 +4618,7 @@ double obj_ig_g(unsigned   n, const double *x, double *grad, void *SS_ref_db) {
   objective function of hornblende
 */
 double obj_ig_hb(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
-    SS_ref *d         = (SS_ref *) SS_ref_db;
+     SS_ref *d         = (SS_ref *) SS_ref_db;
 
     int n_em          = d->n_em;
     double P          = d->P;
@@ -4682,7 +4682,7 @@ double obj_ig_hb(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
     mu[7]          = gb[7] + R*T*creal(clog(sf[0]*cpow(sf[12], 2.0)*sf[14]*cpow(sf[16], 2.0)*cpow(sf[4], 3.0)*cpow(sf[5], 2.0))) + mu_Gex[7];
     mu[8]          = gb[8] + R*T*creal(clog(sf[0]*cpow(sf[13], 2.0)*sf[14]*cpow(sf[16], 2.0)*cpow(sf[3], 3.0)*cpow(sf[8], 2.0) + d_em[8])) + mu_Gex[8];
     mu[9]          = gb[9] + R*T*creal(clog(8.0*cpow(sf[10], 2.0)*sqrt(sf[14])*sqrt(sf[15])*cpow(sf[16], 2.0)*sf[2]*cpow(sf[3], 3.0)*sf[5]*sf[7])) + mu_Gex[9];
-    mu[10]          = gb[10] + R*T*creal(clog(2.0*sf[0]*cpow(sf[10], 2.0)*sqrt(sf[14])*sqrt(sf[15])*cpow(sf[17], 2.0)*cpow(sf[3], 3.0)*cpow(sf[9], 2.0))) + mu_Gex[10];
+    mu[10]         = gb[10] + R*T*creal(clog(2.0*sf[0]*cpow(sf[10], 2.0)*sqrt(sf[14])*sqrt(sf[15])*cpow(sf[17], 2.0)*cpow(sf[3], 3.0)*cpow(sf[9], 2.0))) + mu_Gex[10];
     
     d->sum_apep = 0.0;
     for (int i = 0; i < n_em; i++){
@@ -4710,7 +4710,8 @@ double obj_ig_hb(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
     }
 
     return d->df;
-};
+}
+   
 
   
 /** 
