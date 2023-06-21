@@ -4,6 +4,7 @@
 #include "uthash.h"
 #include "Endmembers_tc-ds62.h"
 #include "Endmembers_tc-ds634.h"
+#include "Endmembers_tc-ds633.h"
 
 /* Select required thermodynamic database */
 struct EM_db Access_EM_DB(int id, int EM_database) {
@@ -16,10 +17,7 @@ struct EM_db Access_EM_DB(int id, int EM_database) {
 	 	Entry_EM = arr_em_db_tc_ds62[id]; 
 	}
 	else if (EM_database == 2){		
-		Entry_EM = arr_em_db_tc_ds635[id]; 
-	}
-	else if (EM_database == 3){		
-		Entry_EM = arr_em_db_tc_ds635[id]; 
+		Entry_EM = arr_em_db_tc_ds634[id]; 
 	}
 	else if (EM_database == 4){		
 		Entry_EM = arr_em_db_tc_ds633[id]; 
@@ -27,7 +25,7 @@ struct EM_db Access_EM_DB(int id, int EM_database) {
 	else{
 		printf(" Wrong database, values should be 0, metapelite; 1, metabasite; 2, igneous; 3, igneousd; 4, ultramafic\n");
 		printf(" -> using default igneous database to avoid ugly crash\n");
-		Entry_EM = arr_em_db_tc_ds635[id]; 
+		Entry_EM = arr_em_db_tc_ds634[id]; 
 	}
 	
 	return Entry_EM;
@@ -323,9 +321,9 @@ igneous_dataset igneous_db = {
 	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"wo"	,"pswo"	,"ne"	,"O2"	,"qfm"	},
 	{"spn"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"hb"	,"ilm"	,"liq"	,"ol"	,"opx"	,"pl4T"	,"fl"					},
 	
-	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1						}, // allow solvus?
-	{1521	,2102	,121	,4124	,210	,1224	,4950	,658	,3088	,381	,2495	,231	,1						}, // # of pseudocompound
-	{0.249	,0.14	,0.098	,0.249	,0.049	,0.199	,0.249	,0.14	,0.198	,0.098	,0.249	,0.049	,1.0 					}, // discretization step
+	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1					}, // allow solvus?
+	{1521	,1645	,121	,4124	,110	,1224	,4950	,420	,3099	,222	,2495	,231	,1					}, // # of pseudocompound
+	{0.249	,0.124	,0.098	,0.249	,0.049	,0.199	,0.249	,0.0499	,0.198	,0.098	,0.249	,0.049	,1.0 				}, // discretization step
 
 	4.0, 						/** max dG under which a phase is considered to be reintroduced  					*/
 	673.15,						/** max temperature above which PGE solver is active 								*/
@@ -340,66 +338,6 @@ igneous_dataset igneous_db = {
 	1e-4,						/** fraction of solution phase when re-introduced 									*/
 	1e-5						/** objective function tolerance 				 									*/
 };
-
-/** 
-	Igneous "dry" after Tomlinson and Holland 2021 database informations 
-**/
-typedef struct igneousd_datasets {
-	int 	n_em_db;
-	int 	n_ox;
-	int 	n_pp;
-	int 	n_ss;
-	char    ox[11][20];
-	char    PP[15][20];
-	char    SS[13][20];
-
-	int 	verifyPC[13];
-	int 	n_SS_PC[13];
-	double 	SS_PC_stp[13];
-
-	double 	PC_df_add;	
-	double  solver_switch_T;
-	double  min_melt_T;
-
-	double  inner_PGE_ite;				/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
-	double  max_n_phase;				/** maximum mol% phase change during one PGE iteration in wt% 						*/
-	double  max_g_phase;				/** maximum delta_G of reference change during PGE 									*/
-	double 	max_fac;					/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
-
-	double  merge_value;				/** max norm distance between two instances of a solution phase						*/	
-	double 	re_in_n;					/** fraction of phase when being reintroduce.  										*/
-
-	double  obj_tol;
-
-} igneousd_dataset;
-
-igneousd_dataset igneousd_db = {
-	291,						/* number of endmembers */
-	11,							/* number of oxides */			
-	15,							/* number of pure phases */
-	13,							/* number of solution phases */
-	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"Cr2O3","H2O"									},
-	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"wo" 	,"pswo"	,"ne"	,"O2"	,"qfm"	},
-	{"spn"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"hb"	,"ilm"	,"liq"	,"ol"	,"opx"	,"fsp"	,"fl"					},
-	
-	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1						}, // allow solvus?
-	{1521	,2102	,121	,4124	,210	,1224	,4950	,658	,2223	,381	,2495	,231	,1						}, // # of pseudocompound
-	{0.249	,0.14	,0.098	,0.249	,0.049	,0.199	,0.249	,0.14	,0.18	,0.098	,0.249	,0.049	,1.0 					}, // discretization step
-
-	4.0, 						/** max dG under which a phase is considered to be reintroduced  					*/
-	673.15,						/** max temperature above which PGE solver is active 								*/
-	873.15,						/** minimum temperature above which melt is considered 								*/
-
-	8,							/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
-	0.025,						/** maximum mol% phase change during one PGE iteration in wt% 						*/
-	2.5,						/** maximum delta_G of reference change during PGE 									*/
-	1.0,						/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
-
-	2e-1,						/** merge instances of solution phase if norm < val 								*/
-	1e-4,						/** fraction of solution phase when re-introduced 									*/
-	1e-5						/** objective function tolerance 				 									*/
-};
-
 
 /** 
 	Evans&Frost,2021 database informations
@@ -521,50 +459,6 @@ global_variable global_variable_init( 	global_variable  	 gv,
 	}
 	else if (gv.EM_database == 2){
 		igneous_dataset db 	= igneous_db;
-		gv.n_em_db 			= db.n_em_db;
-		gv.len_pp   		= db.n_pp;		
-		gv.len_ss  			= db.n_ss;
-		gv.len_ox  			= db.n_ox;
-
-		gv.PC_df_add		= db.PC_df_add;					/** min value of df under which the PC is added 									*/
-		gv.solver_switch_T  = db.solver_switch_T;
-		gv.min_melt_T       = db.min_melt_T;				/** minimum temperature above which melt is considered 								*/
-
-		gv.inner_PGE_ite    = db.inner_PGE_ite;				/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
-		gv.max_n_phase  	= db.max_n_phase;				/** maximum mol% phase change during one PGE iteration in wt% 						*/
-		gv.max_g_phase  	= db.max_g_phase;				/** maximum delta_G of reference change during PGE 									*/
-		gv.max_fac          = db.max_fac;					/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
-
-		gv.merge_value		= db.merge_value;				/** merge instances of solution phase if norm < val 								*/
-		gv.re_in_n          = db.re_in_n;					/** fraction of phase when being reintroduce.  										*/
-		gv.obj_tol 			= db.obj_tol;
-
-		gv.ox 				= malloc (gv.len_ox * sizeof(char*)		);
-		for (i = 0; i < gv.len_ox; i++){
-			gv.ox[i] 		= malloc(20 * sizeof(char));	
-			strcpy(gv.ox[i],db.ox[i]);
-		}
-
-		gv.PP_list 			= malloc (gv.len_pp * sizeof(char*)		);
-		for (i = 0; i < (gv.len_pp); i++){	
-			gv.PP_list[i] 	= malloc(20 * sizeof(char));
-			strcpy(gv.PP_list[i],db.PP[i]);
-		}
-
-		gv.SS_list 			= malloc ((gv.len_ss) * sizeof (char*)	);
-		gv.n_SS_PC     		= malloc ((gv.len_ss) * sizeof (int) 	);
-		gv.verifyPC  		= malloc ((gv.len_ss) * sizeof (int) 	);
-		gv.SS_PC_stp     	= malloc ((gv.len_ss) * sizeof (double) );
-		for (i = 0; i < gv.len_ss; i++){ 
-			gv.SS_list[i] 	= malloc(20 * sizeof(char)				);
-			strcpy(gv.SS_list[i],db.SS[i]);
-			gv.verifyPC[i]  = db.verifyPC[i]; 
-			gv.n_SS_PC[i] 	= db.n_SS_PC[i]; 
-			gv.SS_PC_stp[i] = db.SS_PC_stp[i]; 	
-		}
-	}
-	else if (gv.EM_database == 3){
-		igneousd_dataset db = igneousd_db;
 		gv.n_em_db 			= db.n_em_db;
 		gv.len_pp   		= db.n_pp;		
 		gv.len_ss  			= db.n_ss;
@@ -1011,120 +905,6 @@ global_variable get_bulk_igneous( global_variable gv) {
 	return gv;
 }
 
-
-/* Get benchmark bulk rock composition given by Holland et al., 2018*/
-global_variable get_bulk_igneous_alk( global_variable gv) {
- 	if (gv.test != -1){
-		if (gv.verbose == 1){
-			printf("\n");
-			printf("   - Minimization using in-built bulk-rock  : test %2d\n",gv.test);	
-		}							
-	}
-	else{
-		gv.test = 0;
-		if (gv.verbose == 1){
-			printf("\n");
-			printf("   - No predefined bulk provided -> user custom bulk (if none provided, will run default KLB1)\n");	
-		}	
-	}
-	if (gv.test == 0){ //Ne-syenite
-		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
-		/* Weller et al., 2023: New thermodynamic models for alkaline systems */
-		gv.bulk_rock[0]  = 63.84 ;		/** SiO2 	*/
-		gv.bulk_rock[1]  = 13.72;		/** Al2O2 	*/
-		gv.bulk_rock[2]  = 3.09;		/** CaO  	*/
-		gv.bulk_rock[3]  = 1.55;		/** MgO 	*/
-		gv.bulk_rock[4]  = 5.07;		/** FeOt 	*/
-		gv.bulk_rock[5]  = 4.04;		/** K2O	 	*/
-		gv.bulk_rock[6]  = 9.38;		/** Na2O 	*/
-		gv.bulk_rock[7]  = 0.78;		/** TiO2 	*/
-		gv.bulk_rock[8]  = 1.47;		/** O 		*/
-		gv.bulk_rock[9]  = 0.01;		/** Cr2O3 	*/
-		gv.bulk_rock[10] =	0.0;	
-	}
-	else if (gv.test == 1){ // Syenite
-		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
-		/* Weller et al., 2023: New thermodynamic models for alkaline systems */
-		gv.bulk_rock[0] = 70.06;	
-		gv.bulk_rock[1] = 11.63;	
-		gv.bulk_rock[2] = 2.76;	
-		gv.bulk_rock[3] = 1.50;	
-		gv.bulk_rock[4] = 4.30;	
-		gv.bulk_rock[5] = 3.72;	
-		gv.bulk_rock[6]  = 6.41;
-		gv.bulk_rock[7]  = 0.51;
-		gv.bulk_rock[8]  = 0.89;
-		gv.bulk_rock[9]  = 0.01;
-		gv.bulk_rock[10] = 0.0;
-	}
-	else if (gv.test == 2){ // Ijolite
-		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
-		/* Weller et al., 2023: New thermodynamic models for alkaline systems */
-		gv.bulk_rock[0] = 48.97;	
-		gv.bulk_rock[1] = 12.76;	
-		gv.bulk_rock[2] = 12.87;	
-		gv.bulk_rock[3] = 5.21;	
-		gv.bulk_rock[4] = 7.97;	
-		gv.bulk_rock[5] = 1.66;	
-		gv.bulk_rock[6]  = 10.66;
-		gv.bulk_rock[7]  = 1.36;
-		gv.bulk_rock[8]  = 1.66;
-		gv.bulk_rock[9]  = 0.01;
-		gv.bulk_rock[10] = 0.0;
-	}  
-	else if (gv.test == 3){ // 9418-Fig 3c
-		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
-		/* Weller et al., 2023: New thermodynamic models for alkaline systems */
-		gv.bulk_rock[0] = 53.221;	
-		gv.bulk_rock[1] = 11.671;	
-		gv.bulk_rock[2] = 10.009;	
-		gv.bulk_rock[3] = 6.597;	
-		gv.bulk_rock[4] = 7.053;	
-		gv.bulk_rock[5] = 5.582;	
-		gv.bulk_rock[6]  = 2.956;
-		gv.bulk_rock[7]  = 0.825;
-		gv.bulk_rock[8]  = 1.94;
-		gv.bulk_rock[9]  = 0.146;
-		gv.bulk_rock[10] = 0.0;
-	}  
-	else if (gv.test == 4){ //KLB1
-		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
-		/* Bulk rock composition of Peridotite from Holland et al., 2018, given by E. Green */
-		gv.bulk_rock[0]  = 38.494 ;		/** SiO2 	*/
-		gv.bulk_rock[1]  = 1.776;		/** Al2O2 	*/
-		gv.bulk_rock[2]  = 2.824;		/** CaO  	*/
-		gv.bulk_rock[3]  = 50.566;		/** MgO 	*/
-		gv.bulk_rock[4]  = 5.886;		/** FeO 	*/
-		gv.bulk_rock[5]  = 0.01;		/** K2O	 	*/
-		gv.bulk_rock[6]  = 0.250;		/** Na2O 	*/
-		gv.bulk_rock[7]  = 0.10;		/** TiO2 	*/
-		gv.bulk_rock[8]  = 0.096;		/** O 		*/
-		gv.bulk_rock[9]  = 0.109;		/** Cr2O3 	*/
-		gv.bulk_rock[10] = 0.0;	
-	}  
-	else if (gv.test == 5){ //Wet Ijolite
-		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
-		/* Weller et al., 2023: New thermodynamic models for alkaline systems */
-		gv.bulk_rock[0] = 48.97;	
-		gv.bulk_rock[1] = 12.76;	
-		gv.bulk_rock[2] = 12.87;	
-		gv.bulk_rock[3] = 5.21;	
-		gv.bulk_rock[4] = 7.97;	
-		gv.bulk_rock[5] = 1.66;	
-		gv.bulk_rock[6]  = 10.66;
-		gv.bulk_rock[7]  = 1.36;
-		gv.bulk_rock[8]  = 1.66;
-		gv.bulk_rock[9]  = 0.01;
-		gv.bulk_rock[10] = 20.0;		/** H2O 	*/
-	}    
-	else{
-		printf("Unknown test %i - please specify a different test! \n", gv.test);
-	 	exit(EXIT_FAILURE);
-	}
-	return gv;
-}
-
-
 global_variable get_bulk_ultramafic( global_variable gv) {
  	if (gv.test != -1){
 		if (gv.verbose == 1){
@@ -1167,39 +947,6 @@ global_variable get_bulk_ultramafic( global_variable gv) {
 	return gv;
 }
 
-global_variable get_bulk_ultramafic_jun( global_variable gv) {
- 	if (gv.test != -1){
-		if (gv.verbose == 1){
-			printf("\n");
-			printf("   - Minimization using in-built bulk-rock  : test %2d\n",gv.test);	
-		}							
-	}
-	else{
-		gv.test = 0;
-		if (gv.verbose == 1){
-			printf("\n");
-			printf("   - No predefined bulk provided -> user custom bulk (if none provided, will run default KLB1)\n");	
-		}	
-	}
-	if (gv.test == 0){ //Eberhard, Serpentine + CC + Mgs	
-		gv.bulk_rock[0]  = 51.974 ;		/** SiO2 	*/
-		gv.bulk_rock[1]  = 1.883;		/** Al2O3 	*/
-		gv.bulk_rock[2]  = 19.982;		/** CaO 	*/
-		gv.bulk_rock[3]  = 72.457;		/** MgO 	*/
-		gv.bulk_rock[4]  = 7.683;		/** FeO 	*/
-		gv.bulk_rock[5]  = 0.012;		/** K2O 	*/
-		gv.bulk_rock[6]  = 0.161;		/** Na2O 	*/
-		gv.bulk_rock[7]  = 0.459;		/** O 		*/	
-		gv.bulk_rock[8]  = 61.06;		/** H2O 	*/
-		gv.bulk_rock[9]  = 19.982;	
-	}
-                
-	else{
-		printf("Unknown test %i - please specify a different test! \n", gv.test);
-	 	exit(EXIT_FAILURE);
-	}
-	return gv;
-}
 /**
   reset global variable for parallel calculations 
 */

@@ -149,7 +149,7 @@ global_variable init_em_db(		int 				EM_database,
 				if (EM_database == 0){
 					printf("\n S   A   C   M   F   K   N   T   O   M   H  \n");
 				}
-				else if (EM_database == 2 || EM_database == 3 || EM_database == 6){
+				else if (EM_database == 2 || EM_database == 6){
 					printf("\n S   A   C   M   F   K   N   T   O   Cr  H  \n");
 				}
 				else if (EM_database == 4){

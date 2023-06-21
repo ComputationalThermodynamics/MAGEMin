@@ -42,7 +42,7 @@ void print_help(	global_variable gv	){
 	printf("  --Verb=       [int]   : Verbose option, 0. inactive, 1. active\n");	
 	printf("  --File=       [str]   : File name containing multiple point calculation\n");
 	printf("  --n_points=   [int]   : Number of points when using 'File' argument\n");
-	printf("  --db=         [str]   : Database, can be 'mp', 'ig, 'igd' or 'um'*\n");
+	printf("  --db=         [str]   : Database, can be 'mp', 'ig' or 'um'*\n");
 	printf("  --test=       [int]   : Number of points when using 'File' argument\n");
 	printf("  --Pres=       [float] : Pressure in kilobar\n");
 	printf("  --Temp=       [float] : Temperature in Celsius\n");
@@ -52,12 +52,12 @@ void print_help(	global_variable gv	){
 	printf("  --solver=     [int]   : solver: 0 for legacy and 1 for PGE (default)\n");
 	printf("  --out_matlab= [int]   : Matlab text file output, 0. inactive, 1. active\n");
 	printf("\n");
-	printf(" * 'mp': metapelite, 'ig': igneous H18->G23, 'igd': igneous T21->G23, 'alk': igneous alkaline, 'um': ultramafic\n");
+	printf(" * 'mp': metapelite, 'ig': igneous, 'um': ultramafic\n");
 	printf("\n");
 	printf(" **the list of oxides must be provided as follow:\n");
-	printf("  'ig', 'igd', 'alk': SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3, H2O\n");
-	printf("  'mp':               SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, MnO, H2O\n");
-	printf("  'um':               SiO2, Al2O3, MgO, FeOt, O, H2O, S\n");
+	printf("  'ig': SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3, H2O\n");
+	printf("  'mp': SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, MnO, H2O\n");
+	printf("  'um': SiO2, Al2O3, MgO, FeOt, O, H2O, S\n");
 	printf("\n");
 	printf(" Note that FeOt (total iron) is used here!\n");	
 	printf("\n\n");
@@ -165,10 +165,7 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 			printf("  - Database                  : Metapelite (White et al., 2014)\n"	);
 		}
 		else if (gv.EM_database == 2){
-			printf("  - Database                  : Igneous (Holland et al., 2018 -> Green et al., 2023)\n"	);
-		}
-		else if (gv.EM_database == 3){
-			printf("  - Database                  : Igneous dry (Tomlinson & Holland, 2021 -> Green et al., 2023)\n"	);
+			printf("  - Database                  : Igneous (Holland et al., 2018)\n"	);
 		}
 		else if (gv.EM_database == 4 ){
 			printf("  - Database                  : Ultramafic (Evans & Frost, 2021)\n"	);

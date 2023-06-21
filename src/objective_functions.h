@@ -6,51 +6,13 @@
 
 void SS_ig_objective_init_function(	obj_type 		*SS_objective,
 									global_variable  gv					);
-
-void SS_igd_objective_init_function(obj_type 		*SS_objective,
-									global_variable  gv					);
-
-void SS_alk_objective_init_function(obj_type 		*SS_objective,
-									global_variable  gv					);
-					
+				
 void SS_mp_objective_init_function(	obj_type 		*SS_objective,
 									global_variable  gv					);
 
 void SS_um_objective_init_function(	obj_type 		*SS_objective,
 									global_variable  gv					);
 
-
-void p2x_alk_liq(SS_ref SS_ref_db, double eps);
-void p2x_alk_fl(  SS_ref SS_ref_db, double eps);
-void p2x_alk_fsp( SS_ref SS_ref_db, double eps);
-void p2x_alk_spn( SS_ref SS_ref_db, double eps);
-void p2x_alk_g(   SS_ref SS_ref_db, double eps);
-void p2x_alk_ol(  SS_ref SS_ref_db, double eps);
-void p2x_alk_opx( SS_ref SS_ref_db, double eps);
-void p2x_alk_cpx( SS_ref SS_ref_db, double eps);
-void p2x_alk_ilm( SS_ref SS_ref_db, double eps);
-void p2x_alk_ness(SS_ref SS_ref_db, double eps);
-void p2x_alk_lct( SS_ref SS_ref_db, double eps);
-void p2x_alk_kals(SS_ref SS_ref_db, double eps);
-void p2x_alk_mel( SS_ref SS_ref_db, double eps);
-void p2x_alk_hb(  SS_ref SS_ref_db, double eps);
-void p2x_alk_bi(  SS_ref SS_ref_db, double eps);
-void p2x_alk_ep(  SS_ref SS_ref_db, double eps);
-void p2x_alk_cd(  SS_ref SS_ref_db, double eps);
-
-void p2x_igd_liq( SS_ref SS_ref_db, double eps);
-void p2x_igd_fl(  SS_ref SS_ref_db, double eps);
-void p2x_igd_fsp( SS_ref SS_ref_db, double eps);
-void p2x_igd_spn( SS_ref SS_ref_db, double eps);
-void p2x_igd_g(   SS_ref SS_ref_db, double eps);
-void p2x_igd_ol(  SS_ref SS_ref_db, double eps);
-void p2x_igd_opx( SS_ref SS_ref_db, double eps);
-void p2x_igd_cpx( SS_ref SS_ref_db, double eps);
-void p2x_igd_ilm( SS_ref SS_ref_db, double eps);
-void p2x_igd_hb(  SS_ref SS_ref_db, double eps);
-void p2x_igd_bi(  SS_ref SS_ref_db, double eps);
-void p2x_igd_ep(  SS_ref SS_ref_db, double eps);
-void p2x_igd_cd(  SS_ref SS_ref_db, double eps);
 
 void p2x_ig_bi(  SS_ref SS_ref_db, double eps);
 void p2x_ig_cd(  SS_ref SS_ref_db, double eps);
@@ -61,7 +23,6 @@ void p2x_ig_g(   SS_ref SS_ref_db, double eps);
 void p2x_ig_hb(  SS_ref SS_ref_db, double eps);
 void p2x_ig_ilm( SS_ref SS_ref_db, double eps);
 void p2x_ig_liq( SS_ref SS_ref_db, double eps);
-void p2x_ig_mu(  SS_ref SS_ref_db, double eps);
 void p2x_ig_ol(  SS_ref SS_ref_db, double eps);
 void p2x_ig_opx( SS_ref SS_ref_db, double eps);
 void p2x_ig_pl4T(SS_ref SS_ref_db, double eps);
@@ -97,39 +58,6 @@ void p2x_um_spi(  	SS_ref SS_ref_db, double eps);
 void p2x_um_opx(  	SS_ref SS_ref_db, double eps);
 void p2x_um_po( 	SS_ref SS_ref_db, double eps);
 
-double obj_alk_liq(unsigned n, const double *x, double *grad, void *SS_ref_db);
-double obj_alk_fl(unsigned   n, const double *x, double *grad, void *SS_ref_db);
-double obj_alk_fsp(unsigned  n, const double *x, double *grad, void *SS_ref_db);
-double obj_alk_spn(unsigned  n, const double *x, double *grad, void *SS_ref_db);
-double obj_alk_g(unsigned    n, const double *x, double *grad, void *SS_ref_db);
-double obj_alk_ol(unsigned   n, const double *x, double *grad, void *SS_ref_db);
-double obj_alk_opx(unsigned  n, const double *x, double *grad, void *SS_ref_db);
-double obj_alk_cpx(unsigned  n, const double *x, double *grad, void *SS_ref_db);
-double obj_alk_ilm(unsigned  n, const double *x, double *grad, void *SS_ref_db);
-double obj_alk_ness(unsigned n, const double *x, double *grad, void *SS_ref_db);
-double obj_alk_lct(unsigned  n, const double *x, double *grad, void *SS_ref_db);
-double obj_alk_kals(unsigned n, const double *x, double *grad, void *SS_ref_db);
-double obj_alk_mel(unsigned  n, const double *x, double *grad, void *SS_ref_db);
-double obj_alk_hb(unsigned   n, const double *x, double *grad, void *SS_ref_db);
-double obj_alk_bi(unsigned   n, const double *x, double *grad, void *SS_ref_db);
-double obj_alk_ep(unsigned   n, const double *x, double *grad, void *SS_ref_db);
-double obj_alk_cd(unsigned   n, const double *x, double *grad, void *SS_ref_db);
-
-
-double obj_igd_liq(unsigned n, const double *x, double *grad, void *SS_ref_db);
-double obj_igd_fl(unsigned  n, const double *x, double *grad, void *SS_ref_db);
-double obj_igd_fsp(unsigned n, const double *x, double *grad, void *SS_ref_db);
-double obj_igd_spn(unsigned n, const double *x, double *grad, void *SS_ref_db);
-double obj_igd_g(unsigned   n, const double *x, double *grad, void *SS_ref_db);
-double obj_igd_ol(unsigned  n, const double *x, double *grad, void *SS_ref_db);
-double obj_igd_opx(unsigned n, const double *x, double *grad, void *SS_ref_db);
-double obj_igd_cpx(unsigned n, const double *x, double *grad, void *SS_ref_db);
-double obj_igd_ilm(unsigned n, const double *x, double *grad, void *SS_ref_db);
-double obj_igd_hb(unsigned  n, const double *x, double *grad, void *SS_ref_db);
-double obj_igd_bi(unsigned  n, const double *x, double *grad, void *SS_ref_db);
-double obj_igd_ep(unsigned  n, const double *x, double *grad, void *SS_ref_db);
-double obj_igd_cd(unsigned  n, const double *x, double *grad, void *SS_ref_db);
-
 double obj_ig_bi(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_cd(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_cpx(unsigned  n, const double *x, double *grad, void *SS_ref_db);
@@ -139,7 +67,6 @@ double obj_ig_g(unsigned    n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_hb(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_ilm(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_liq(unsigned  n, const double *x, double *grad, void *SS_ref_db);
-double obj_ig_mu(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_ol(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_opx(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_pl4T(unsigned n, const double *x, double *grad, void *SS_ref_db);

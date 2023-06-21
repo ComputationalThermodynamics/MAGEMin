@@ -171,9 +171,6 @@ int runMAGEMin(			int    argc,
 	else if (gv.EM_database == 2){
 		gv = get_bulk_igneous( gv );
 	}
-	else if (gv.EM_database == 3){
-		gv = get_bulk_igneous( gv );
-	}
 	else if (gv.EM_database == 4){
 		gv = get_bulk_ultramafic( gv );
 	}
@@ -678,10 +675,6 @@ int runMAGEMin(			int    argc,
 		SS_ig_objective_init_function(			SS_objective,
 												gv							);
 	}
-	else if (EM_database == 3){			// igneousd database //
-		SS_igd_objective_init_function(			SS_objective,
-												gv							);
-	}
 	else if (EM_database == 4){			// ultramafic database //
 		SS_um_objective_init_function(			SS_objective,
 												gv							);
@@ -1000,9 +993,6 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 	}
 	else if (strcmp(gv.db, "ig") == 0){
 		gv.EM_database = 2;
-	}
-	else if (strcmp(gv.db, "igd") == 0){
-		gv.EM_database = 3;
 	}
 	else if (strcmp(gv.db, "um") == 0){
 		gv.EM_database = 4;
