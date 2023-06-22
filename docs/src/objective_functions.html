@@ -255,6 +255,294 @@
 <h1>objective_functions<a class="headerlink" href="#objective-functions" title="Permalink to this headline"></a></h1>
 <p>List of objective functions used for non-linear minimization and to generate pseudocompounds</p>
 <dl class="c function">
+<dt class="sig sig-object c" id="c.dpdx_um_fluid">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dpdx_um_fluid</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.dpdx_um_fluid" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.dpdx_um_fluid"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Update dpdx matrix of fluid</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.dpdx_um_ol">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dpdx_um_ol</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.dpdx_um_ol" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.dpdx_um_ol"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Update dpdx matrix of ol</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.dpdx_um_br">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dpdx_um_br</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.dpdx_um_br" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.dpdx_um_br"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Update dpdx matrix of br</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.dpdx_um_ch">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dpdx_um_ch</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.dpdx_um_ch" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.dpdx_um_ch"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Update dpdx matrix of ch</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.dpdx_um_atg">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dpdx_um_atg</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.dpdx_um_atg" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.dpdx_um_atg"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Update dpdx matrix of atg</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.dpdx_um_g">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dpdx_um_g</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.dpdx_um_g" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.dpdx_um_g"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Update dpdx matrix of g</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.dpdx_um_ta">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dpdx_um_ta</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.dpdx_um_ta" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.dpdx_um_ta"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Update dpdx matrix of ta</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.dpdx_um_chl">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dpdx_um_chl</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.dpdx_um_chl" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.dpdx_um_chl"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Update dpdx matrix of chl</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.dpdx_um_anth">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dpdx_um_anth</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.dpdx_um_anth" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.dpdx_um_anth"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Update dpdx matrix of anth</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.dpdx_um_spi">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dpdx_um_spi</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.dpdx_um_spi" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.dpdx_um_spi"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Update dpdx matrix of spi</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.dpdx_um_opx">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dpdx_um_opx</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.dpdx_um_opx" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.dpdx_um_opx"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Update dpdx matrix of opx</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.dpdx_um_po">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dpdx_um_po</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.dpdx_um_po" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.dpdx_um_po"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Update dpdx matrix of po</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.px_um_fluid">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">px_um_fluid</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.px_um_fluid" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.px_um_fluid"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember fraction of fluid</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.px_um_ol">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">px_um_ol</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.px_um_ol" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.px_um_ol"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember fraction of ol</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.px_um_br">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">px_um_br</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.px_um_br" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.px_um_br"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember fraction of br</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.px_um_ch">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">px_um_ch</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.px_um_ch" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.px_um_ch"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember fraction of ch</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.px_um_atg">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">px_um_atg</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.px_um_atg" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.px_um_atg"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember fraction of atg</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.px_um_g">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">px_um_g</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.px_um_g" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.px_um_g"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember fraction of g</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.px_um_ta">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">px_um_ta</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.px_um_ta" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.px_um_ta"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember fraction of ta</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.px_um_chl">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">px_um_chl</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.px_um_chl" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.px_um_chl"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember fraction of chl</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.px_um_anth">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">px_um_anth</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.px_um_anth" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.px_um_anth"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember fraction of anth</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.px_um_spi">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">px_um_spi</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.px_um_spi" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.px_um_spi"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember fraction of spi</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.px_um_opx">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">px_um_opx</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.px_um_opx" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.px_um_opx"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember fraction of opx</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.px_um_po">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">px_um_po</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.px_um_po" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.px_um_po"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember fraction of po</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.obj_um_fluid">
+<span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">obj_um_fluid</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">n</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">grad</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.obj_um_fluid" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.obj_um_fluid"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Objective function of fluid</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.obj_um_ol">
+<span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">obj_um_ol</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">n</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">grad</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.obj_um_ol" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.obj_um_ol"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Objective function of ol</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.obj_um_br">
+<span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">obj_um_br</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">n</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">grad</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.obj_um_br" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.obj_um_br"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Objective function of br</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.obj_um_ch">
+<span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">obj_um_ch</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">n</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">grad</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.obj_um_ch" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.obj_um_ch"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Objective function of ch</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.obj_um_atg">
+<span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">obj_um_atg</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">n</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">grad</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.obj_um_atg" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.obj_um_atg"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Objective function of atg</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.obj_um_g">
+<span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">obj_um_g</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">n</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">grad</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.obj_um_g" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.obj_um_g"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Objective function of g</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.obj_um_ta">
+<span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">obj_um_ta</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">n</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">grad</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.obj_um_ta" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.obj_um_ta"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Objective function of ta</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.obj_um_chl">
+<span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">obj_um_chl</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">n</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">grad</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.obj_um_chl" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.obj_um_chl"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Objective function of chl</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.obj_um_anth">
+<span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">obj_um_anth</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">n</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">grad</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.obj_um_anth" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.obj_um_anth"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Objective function of anth</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.obj_um_spi">
+<span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">obj_um_spi</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">n</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">grad</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.obj_um_spi" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.obj_um_spi"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Objective function of spi</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.obj_um_opx">
+<span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">obj_um_opx</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">n</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">grad</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.obj_um_opx" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.obj_um_opx"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Objective function of opx</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.obj_um_po">
+<span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">obj_um_po</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">n</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">grad</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.obj_um_po" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.obj_um_po"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Objective function of po</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_um_fluid">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_um_fluid</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_um_fluid" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_um_fluid"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for fluid</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_um_ol">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_um_ol</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_um_ol" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_um_ol"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for ol</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_um_br">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_um_br</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_um_br" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_um_br"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for br</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_um_ch">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_um_ch</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_um_ch" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_um_ch"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for ch</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_um_atg">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_um_atg</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_um_atg" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_um_atg"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for atg</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_um_g">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_um_g</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_um_g" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_um_g"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for g</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_um_ta">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_um_ta</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_um_ta" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_um_ta"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for ta</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_um_chl">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_um_chl</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_um_chl" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_um_chl"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for chl</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_um_anth">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_um_anth</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_um_anth" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_um_anth"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for anth</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_um_spi">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_um_spi</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_um_spi" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_um_spi"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for spi</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_um_opx">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_um_opx</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_um_opx" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_um_opx"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for opx</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.p2x_um_po">
+<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_um_po</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_um_po" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_um_po"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Endmember to xeos for po</p>
+</dd></dl>
+
+<dl class="c function">
 <dt class="sig sig-object c" id="c.dpdx_mp_liq">
 <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dpdx_mp_liq</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.dpdx_mp_liq" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.dpdx_mp_liq"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><dl>
@@ -554,7 +842,11 @@
 <dl class="c function">
 <dt class="sig sig-object c" id="c.p2x_ig_bi">
 <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_ig_bi</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_ig_bi" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_ig_bi"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>endmembers to xeos (biotite)</p>
+<dd><dl class="simple">
+<dt>/</dt><dd><p>/</p>
+</dd>
+<dt>IGNEOUS DATABASE (Holland et al., 2018)</dt><dd></dd>
+</dl>
 </dd></dl>
 
 <dl class="c function">
@@ -604,12 +896,6 @@
 <dt class="sig sig-object c" id="c.p2x_ig_liq">
 <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_ig_liq</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_ig_liq" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_ig_liq"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>endmembers to xeos (liquid)</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.p2x_ig_mu">
-<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">p2x_ig_mu</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.p2x_ig_mu" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.p2x_ig_mu"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>endmembers to xeos (muscovite)</p>
 </dd></dl>
 
 <dl class="c function">
@@ -787,12 +1073,6 @@
 </dd></dl>
 
 <dl class="c function">
-<dt class="sig sig-object c" id="c.dpdx_ig_mu">
-<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dpdx_ig_mu</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.dpdx_ig_mu" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.dpdx_ig_mu"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>update dpdpx matrix (muscovite)</p>
-</dd></dl>
-
-<dl class="c function">
 <dt class="sig sig-object c" id="c.dpdx_ig_ol">
 <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dpdx_ig_ol</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.dpdx_ig_ol" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.dpdx_ig_ol"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>update dpdpx matrix (olivine)</p>
@@ -871,12 +1151,6 @@
 </dd></dl>
 
 <dl class="c function">
-<dt class="sig sig-object c" id="c.px_ig_mu">
-<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">px_ig_mu</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.px_ig_mu" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.px_ig_mu"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>update px matrix (muscovite)</p>
-</dd></dl>
-
-<dl class="c function">
 <dt class="sig sig-object c" id="c.px_ig_ol">
 <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">px_ig_ol</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.px_ig_ol" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.px_ig_ol"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>update px matrix (olivine)</p>
@@ -952,12 +1226,6 @@
 <dt class="sig sig-object c" id="c.obj_ig_liq">
 <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">obj_ig_liq</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">n</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">grad</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.obj_ig_liq" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.obj_ig_liq"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>objective function of liquid</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.obj_ig_mu">
-<span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">obj_ig_mu</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">n</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">x</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">grad</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">SS_ref_db</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.obj_ig_mu" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/objective_functions.c.html#c.obj_ig_mu"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>objective function of muscovite</p>
 </dd></dl>
 
 <dl class="c function">

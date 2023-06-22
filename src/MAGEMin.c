@@ -44,7 +44,10 @@ Imported libraries
 #include "nlopt.h"                  // requires specifying this in the makefile
 #include "mpi.h"
 #include "Endmembers_tc-ds62.h"
+#include "Endmembers_tc-ds633.h"
 #include "Endmembers_tc-ds634.h"
+#include "Endmembers_tc-ds635.h"
+#include "Endmembers_tc-ds636.h"
 #include "toolkit.h"
 #include "io_function.h"
 #include "gem_function.h"
@@ -61,8 +64,6 @@ Imported libraries
 #include "phase_update_function.h"
 #include "MAGEMin.h"
 #include "simplex_levelling.h"
-
-// #define n_em_db 291
 
 /** 
   Main routine
@@ -170,6 +171,9 @@ int runMAGEMin(			int    argc,
 	else if (gv.EM_database == 2){
 		gv = get_bulk_igneous( gv );
 	}
+	else if (gv.EM_database == 4){
+		gv = get_bulk_ultramafic( gv );
+	}
 	else{
 		printf(" Wrong database...\n");
 	}
@@ -242,7 +246,7 @@ int runMAGEMin(			int    argc,
 											DB.PP_ref_db,									/** pure phase database 			*/
 											DB.SS_ref_db,									/** solid solution database 		*/
 											DB.cp						);
-					
+		
 		/* Fill structure holding stable phase equilibrium informations 			*/
 		fill_output_struct(					gv,												/** global variables (e.g. Gamma) 	*/
 											z_b,											/** bulk-rock informations 			*/
@@ -262,7 +266,6 @@ int runMAGEMin(			int    argc,
 											DB.SS_ref_db,									/** solution phase database 		*/
 											DB.cp,
 											DB.sp						);
-
 
 		/* Print output to screen 													*/									/* in seconds 	 					*/
 		PrintOutput(gv, rank, point, DB, time_taken, z_b);									/* print output on screen 			*/
@@ -459,37 +462,37 @@ int runMAGEMin(			int    argc,
 
 	for (int i = 0; i < gv.len_pp; i++){
 		/* if pure phase is active or on hold (PP cannot be removed from consideration */
-		if (gv.pp_flags[i][1] == 1){
+		if (gv.pp_flags[i][1] == 1 && (strcmp( gv.PP_list[i], "qfm") != 0)){
 
 			/* calculate phase volume as V = dG/dP */
-			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, 1., z_b.T, gv.PP_list[i], "equilibrium");
+			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, 1., z_b.T, gv.PP_list[i], "equilibrium");
 			muC0	 	 = PP_db.gbase;
 
-			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, 1. + gv.gb_P_eps, z_b.T, gv.PP_list[i], "equilibrium");
+			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, 1. + gv.gb_P_eps, z_b.T, gv.PP_list[i], "equilibrium");
 			muN0 	 	 = PP_db.gbase;
 
-			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T, gv.PP_list[i], "equilibrium");
+			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T, gv.PP_list[i], "equilibrium");
 			muC	 	 	 = PP_db.gbase;
 
-			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps, z_b.T, gv.PP_list[i], "equilibrium");
+			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps, z_b.T, gv.PP_list[i], "equilibrium");
 			muN 	 	 = PP_db.gbase;
 
-			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps*2.0, z_b.T, gv.PP_list[i], "equilibrium");
+			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps*2.0, z_b.T, gv.PP_list[i], "equilibrium");
 			muNN 	 	 = PP_db.gbase;
 
-			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps*3.0, z_b.T, gv.PP_list[i], "equilibrium");
+			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps*3.0, z_b.T, gv.PP_list[i], "equilibrium");
 			muNNN 	 	 = PP_db.gbase;
 
-			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T + gv.gb_T_eps, gv.PP_list[i], "equilibrium");
+			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T + gv.gb_T_eps, gv.PP_list[i], "equilibrium");
 			muE	 		 = PP_db.gbase;
 
-			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T - gv.gb_T_eps, gv.PP_list[i], "equilibrium");			
+			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T - gv.gb_T_eps, gv.PP_list[i], "equilibrium");			
 			muW	 		 = PP_db.gbase;
 
-			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps, z_b.T + gv.gb_T_eps, gv.PP_list[i], "equilibrium");
+			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps, z_b.T + gv.gb_T_eps, gv.PP_list[i], "equilibrium");
 			muNE	 	 = PP_db.gbase;
 
-			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps, z_b.T - gv.gb_T_eps, gv.PP_list[i], "equilibrium");			
+			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps, z_b.T - gv.gb_T_eps, gv.PP_list[i], "equilibrium");			
 			muNW	 	 = PP_db.gbase;
 
 			/* Calculate mass per pure phase */
@@ -572,7 +575,7 @@ int runMAGEMin(			int    argc,
 		}
 	}
 	for (int i = 0; i < gv.len_pp; i++){
-		if (gv.pp_flags[i][1] == 1){
+		if (gv.pp_flags[i][1] == 1 && (strcmp( gv.PP_list[i], "qfm") != 0)){
 			s1 +=  PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor/sum_volume *  (PP_ref_db[i].phase_shearModulus/10.0);
 			s2 += (PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor/sum_volume) / (PP_ref_db[i].phase_shearModulus/10.0);
 			b1 +=  PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor/sum_volume *  (PP_ref_db[i].phase_bulkModulus /10.0);
@@ -603,7 +606,7 @@ int runMAGEMin(			int    argc,
 		}
 	}
 	for (int i = 0; i < gv.len_pp; i++){
-		if (gv.pp_flags[i][1] == 1){
+		if (gv.pp_flags[i][1] == 1 && (strcmp( gv.PP_list[i], "qfm") != 0)){
 			gv.system_density += PP_ref_db[i].phase_density*((PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor)/sum_volume);
 			gv.system_entropy += PP_ref_db[i].phase_entropy*gv.pp_n_mol[i]*PP_ref_db[i].factor;			
 			gv.solid_density  += PP_ref_db[i].phase_density*((PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor)/sum_volume_sol);
@@ -664,16 +667,19 @@ int runMAGEMin(			int    argc,
 	/** pointer array to objective functions 								*/
 	obj_type 								SS_objective[gv.len_ss];	
 
-	if (EM_database == 0){			// Igneous database //
+	if (EM_database == 0){			// metapelite database //
 		SS_mp_objective_init_function(			SS_objective,
 												gv							);
 	}
-	else if (EM_database == 2){			// Igneous database //
+	else if (EM_database == 2){			// igneous database //
 		SS_ig_objective_init_function(			SS_objective,
 												gv							);
 	}
-
-
+	else if (EM_database == 4){			// ultramafic database //
+		SS_um_objective_init_function(			SS_objective,
+												gv							);
+	}
+	
 	/* initialize endmember database for given P-T point */
 	gv = init_em_db(		EM_database,
 							z_b,											/** bulk rock informations 			*/
@@ -708,6 +714,11 @@ int runMAGEMin(			int    argc,
 
 		gv.div 		= 0;
 		gv.status 	= 0;
+
+		/* initialize legacy solver using results of levelling phase */
+		for (int i = 0; i < gv.len_ox; i++){
+			gv.gam_tot[i] = gv.gam_tot_0[i];
+		}	
 
 		gv = init_LP(			z_b,
 								splx_data,
@@ -745,14 +756,20 @@ int runMAGEMin(			int    argc,
 			Launch legacy solver (LP, Theriak-Domino like algorithm)
 		*/ 
 		if ((gv.div == 1 || z_b.T <= gv.solver_switch_T ) && gv.solver == 1){
-			if (gv.div == 1){	
-				printf("\n[PGE failed (residual: %+.4f, PT: [%+.5f,%+.5f])-> legacy solver...]\n",gv.BR_norm,z_b.P,z_b.T-273.15);
-			}
-			if (z_b.T <= gv.solver_switch_T){	
-				printf("\n Low Temperature conditions (T < %+5f) -> legacy solver...",gv.solver_switch_T);
+			if (gv.verbose == 1){
+				if (gv.div == 1){	
+					printf("\n[PGE failed (residual: %+.4f, PT: [%+.5f,%+.5f])-> legacy solver...]\n",gv.BR_norm,z_b.P,z_b.T-273.15);
+				}
+				if (z_b.T <= gv.solver_switch_T){	
+					printf("\n Low Temperature conditions (T < %+5f) -> legacy solver...\n",gv.solver_switch_T);
+				}
 			}
 			gv.div 		= 0;
-			gv.status 	= 0;
+			gv.status 	= -1;
+			/* initialize legacy solver using results of levelling phase */
+			for (int i = 0; i < gv.len_ox; i++){
+				gv.gam_tot[i] = gv.gam_tot_0[i];
+			}	
 
 			gv = init_LP(			z_b,
 									splx_data,
@@ -771,13 +788,78 @@ int runMAGEMin(			int    argc,
 									SS_ref_db,								/** solution phase database 		*/
 									cp						);
 		}
+	}
+	else if (gv.solver == 2){
 
+		gv.div 		= 0;
+		gv.status 	= 0;
+
+		/* initialize legacy solver using results of levelling phase */
+		for (int i = 0; i < gv.len_ox; i++){
+			gv.gam_tot[i] = gv.gam_tot_0[i];
+		}	
+
+		gv = init_LP(			z_b,
+								splx_data,
+								gv,
+										
+								PP_ref_db,
+								SS_ref_db,
+								cp						);	
+
+		gv = LP2(				z_b,									/** bulk rock informations 			*/
+								gv,										/** global variables (e.g. Gamma) 	*/
+
+								SS_objective,
+								splx_data,
+								PP_ref_db,								/** pure phase database 			*/
+								SS_ref_db,								/** solution phase database 		*/
+								cp						);
+
+		gv 		= PGE2(			z_b,									/** bulk rock constraint 			*/ 
+								gv,										/** global variables (e.g. Gamma) 	*/
+
+								SS_objective,
+								splx_data,
+								PP_ref_db,								/** pure phase database 			*/
+								SS_ref_db,								/** solution phase database 		*/
+								cp							);
+
+		/**
+			Launch legacy solver (LP, Theriak-Domino like algorithm)
+		*/ 
+		if (gv.div == 1 ){
+			if (gv.div == 1){	
+				printf("\n[PGE failed (residual: %+.4f, PT: [%+.5f,%+.5f])-> back to legacy solver...]\n",gv.BR_norm,z_b.P,z_b.T-273.15);
+			}
+			gv.div 		= 0;
+			gv.status 	= 0;
+			/* initialize legacy solver using results of levelling phase */
+			// for (int i = 0; i < gv.len_ox; i++){
+			// 	gv.gam_tot[i] = gv.gam_tot_0[i];
+			// }	
+
+			gv = init_LP(			z_b,
+									splx_data,
+									gv,
+											
+									PP_ref_db,
+									SS_ref_db,
+									cp						);	
+
+			gv = LP2(				z_b,									/** bulk rock informations 			*/
+									gv,										/** global variables (e.g. Gamma) 	*/
+
+									SS_objective,
+									splx_data,
+									PP_ref_db,								/** pure phase database 			*/
+									SS_ref_db,								/** solution phase database 		*/
+									cp						);
+		}
 	}
 	else {
 		printf("  Wrong solver option: should be 0 (legacy) or 1 (PGE & legacy)");
 	}
-
-
 
 	if (gv.verbose == 1){
 		gv = check_PC_driving_force( 	z_b,							/** bulk rock constraint 			*/ 
@@ -787,28 +869,28 @@ int runMAGEMin(			int    argc,
 										SS_ref_db,
 										cp				); 	
 		printf("\n\n\n");									
-		printf("╔════════════════════════════════════════════════╗\n");
-		printf("║               COMPUTATION SUMMARY              ║\n");
-		printf("╚════════════════════════════════════════════════╝\n\n");
-		printf(" Alg | ite  | duration   |  MASS norm | Gamma norm\n");
-		printf("══════════════════════════════════════════════════\n");
+		printf("╔═════════════════════════════════════════════════════════════╗\n");
+		printf("║                       COMPUTATION SUMMARY                   ║\n");
+		printf("╚═════════════════════════════════════════════════════════════╝\n\n");
+		printf(" Alg | ite  | duration   |  MASS norm | Gamma norm | Gibbs sys\n");
+		printf("══════════════════════════════════════════════════════════════\n");
 
 		for (int i = 0; i < gv.global_ite; i++){	
 			if (gv.Alg[i] == 0){
-				printf(" LP  | %4d | %+10f | %+10f | %+10f\n",i,gv.ite_time[i],gv.PGE_mass_norm[i],gv.gamma_norm[i]);
+				printf(" LP  | %4d | %+10f | %+10f | %+10f | %+10f\n",i,gv.ite_time[i],gv.PGE_mass_norm[i],gv.gamma_norm[i],gv.gibbs_ev[i]);
 			}
 			if (gv.Alg[i] == 1){
-				printf(" PGE | %4d | %+10f | %+10f | %+10f\n",i,gv.ite_time[i],gv.PGE_mass_norm[i],gv.gamma_norm[i]);
+				printf(" PGE | %4d | %+10f | %+10f | %+10f | %+10f\n",i,gv.ite_time[i],gv.PGE_mass_norm[i],gv.gamma_norm[i],gv.gibbs_ev[i]);
 			}	
 			if (gv.Alg[i+1] - gv.Alg[i] == 1){
-				printf("--------------------------------------------------\n");
-				printf("               SWITCH FROM LP TO PGE              \n");
-				printf("--------------------------------------------------\n");
+				printf("-----------------------------------------------------------------\n");
+				printf("                          SWITCH FROM LP TO PGE                  \n");
+				printf("-----------------------------------------------------------------\n");
 			}
 			if (gv.Alg[i+1] - gv.Alg[i] == -1 && i < gv.global_ite - 1){
-				printf("--------------------------------------------------\n");
-				printf("               SWITCH FROM PGE TO LP              \n");
-				printf("--------------------------------------------------\n");
+				printf("-----------------------------------------------------------------\n");
+				printf("                          SWITCH FROM PGE TO LP                  \n");
+				printf("-----------------------------------------------------------------\n");
 			}					
 		}
 		printf("\n");
@@ -843,7 +925,9 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
         { "solver",    	ko_optional_argument, 316 },
         { "out_matlab", ko_optional_argument, 318 },
         { "sys_in",    	ko_optional_argument, 317 },
-		
+        { "qfm",    	ko_optional_argument, 319 },
+        { "qfm_n",    	ko_optional_argument, 320 },
+     	{ "limitCaOpx", ko_optional_argument, 321 },
     	{ NULL, 0, 0 }
 	};
 	ketopt_t opt = KETOPT_INIT;
@@ -853,6 +937,9 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		if 		(c == 314){ printf("MAGEMin %20s\n",gv.version ); exit(0); }	
 		else if (c == 315){ print_help( gv ); 					  exit(0); }	
         else if	(c == 301){ gv.verbose  = atoi(opt.arg					); }
+		else if (c == 319){ gv.QFM_buffer   = atoi(opt.arg);	if (gv.verbose == 1){		printf("--qfm         : qfm                  = %i \n", 	 	   		gv.QFM_buffer		);}} 	
+		else if (c == 321){ gv.limitCaOpx   = atoi(opt.arg);	if (gv.verbose == 1){		printf("--limitCaOpx  : limitCaOpx           = %i \n", 	 	   		gv.limitCaOpx		);}} 	
+		else if (c == 320){ gv.QFM_n = strtold(opt.arg,NULL); 	if (gv.verbose == 1){		printf("--qfm_n       : qfm_n                = %f \n", 				gv.QFM_n			);}}
 		else if (c == 316){ gv.solver   = atoi(opt.arg);		if (gv.verbose == 1){		printf("--solver      : solver               = %i \n", 	 	   		gv.solver			);}}																		
 		else if (c == 318){ gv.output_matlab   = atoi(opt.arg); if (gv.verbose == 1){		printf("--out_matlab  : out_matlab           = %i \n", 	 	   		gv.output_matlab	);}}																		
 		else if (c == 303){ strcpy(gv.File,opt.arg);		 	if (gv.verbose == 1){		printf("--File        : File                 = %s \n", 	 	   		gv.File				);}}
@@ -906,6 +993,9 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 	}
 	else if (strcmp(gv.db, "ig") == 0){
 		gv.EM_database = 2;
+	}
+	else if (strcmp(gv.db, "um") == 0){
+		gv.EM_database = 4;
 	}
 	else {
 		printf(" No or wrong database acronym has been provided, using default (Igneous [ig])\n");

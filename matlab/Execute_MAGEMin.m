@@ -11,12 +11,15 @@ MPI_dir      =   Computation.MPI_dir;
 RemoteServer =   Computation.RemoteServer;
 MatlabOut    =   Computation.MatlabOut;
 solver    	 =   Computation.solver;
+limitCaOpx   =   Computation.limitCaOpx;
+qfm          =   Computation.qfm;
+qfm_n        =   Computation.qfm_n;
 db    	  	 =   Computation.db;
 % Retrieve name of executable
 exe = MAGEMin_exe(Computation);
 
 % Setup the general execution command
-command = [exe,' --out_matlab=',num2str(MatlabOut),' --solver=',num2str(solver),' --Verb=',num2str(VerboseLevel),' --sys_in=',sys_in,' --db=',db,' --File=MAGEMin_input.dat --n_points=',num2str(n_points)];
+command = [exe,' --out_matlab=',num2str(MatlabOut),' --limitCaOpx=',num2str(limitCaOpx),' --qfm=',num2str(qfm),' --qfm_n=',num2str(qfm_n),' --solver=',num2str(solver),' --Verb=',num2str(VerboseLevel),' --sys_in=',sys_in,' --db=',db,' --File=MAGEMin_input.dat --n_points=',num2str(n_points)];
 
 if ~isnan(Test)
     % employ a prededined test

@@ -7,6 +7,9 @@ function save_EquilibriumData(PseudoSectionData)
     T               =   PseudoSectionData.PhaseData{k}.T;
     sys_in          =   PseudoSectionData.Chemistry.sys_in;               % predefined chemical composition
     Test            =   PseudoSectionData.Chemistry.Predefined;
+    limitCaOpx      =   PseudoSectionData.Computation.limitCaOpx;
+    qfm             =   PseudoSectionData.Computation.qfm;
+    qfm_n           =   PseudoSectionData.Computation.qfm_n;
     
     if isnan(Test)
         OxProp      =  PseudoSectionData.Chemistry.OxProp;    % we do not employ a predefined test, but specify mol proportions insteadOxProp
@@ -16,7 +19,7 @@ function save_EquilibriumData(PseudoSectionData)
 
     exe             = MAGEMin_exe(PseudoSectionData.Computation);
 
-    command         = [exe,' --out_matlab=1 --solver=',num2str(solver),' --Verb=-1 --sys_in=',sys_in,' --db=',db, ' --Pres=',num2str(P), ' --Temp=',num2str(T)];
+    command         = [exe,' --out_matlab=1 --solver=',num2str(solver),' --limitCaOpx=',num2str(limitCaOpx),' --qfm=',num2str(qfm),' --qfm_n=',num2str(qfm_n),' --Verb=-1 --sys_in=',sys_in,' --db=',db, ' --Pres=',num2str(P), ' --Temp=',num2str(T)];
 
 
     if ~isnan(Test)
@@ -44,6 +47,6 @@ function save_EquilibriumData(PseudoSectionData)
     filter = {'*.txt'};
     [file, path] = uiputfile(filter);
 
-    fid = fopen(file,'wt');
+    fid = fopen(file,'a+');
     fprintf(fid, dataOut);
     fclose(fid);
