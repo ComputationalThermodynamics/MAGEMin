@@ -6,9 +6,12 @@ if  cur_dir[end-3:end]=="test"
 end
 using MAGEMin_C
 
-gv, DB = init_MAGEMin();
+# Initialize database 
+db          = "ig"  # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b)
+gv, z_b, DB, splx_data      = init_MAGEMin(db);
 
-sys_in = "mol"
+
+sys_in      = "mol"     #default is mol, if wt is provided conversion will be done internally (MAGEMin works on mol basis)
 
 mutable struct outP{ _T  } 
     P           ::  _T
@@ -23,21 +26,21 @@ end
 outList       = Vector{outP}(undef, 0)
 
 # test 0
-test        = 6
+test        = 0
 gv.verbose  = -1    # switch off any verbose
 
 Tmin        = 800.0
 Tmax        = 1400.0
 Tstep       = 100.0
-Pmin        = 0.0
-Pmax        = 30.0
+Pmin        = 0.01
+Pmax        = 30.01
 Pstep       = 5.0
 
 for i=Pmin:Pstep:Pmax
     for j=Tmin:Tstep:Tmax
 
         bulk_rock   = use_predefined_bulk_rock(gv, test)
-        out         = point_wise_minimization(sys_in,i,j, bulk_rock, gv, DB)
+        out         = point_wise_minimization(i,j, gv, z_b, DB, splx_data, sys_in);
 
         push!(outList,outP(i,j,test,out.G_system,out.ph,out.ph_frac[:]))
         print(out)

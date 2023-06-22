@@ -6,6 +6,8 @@ if nargin==0
     PhaseData           =   [];
     numPoints           =   1;
     MinPhaseFraction    =   0;
+    labelstyle          =   0;
+    db                  =   'ig';
 elseif nargin==1
     newPoints           =   varargin{1};
     PhaseData           =   [];
@@ -14,15 +16,54 @@ elseif nargin==2
     newPoints           =	varargin{1};
     PhaseData           =	varargin{2};
     MinPhaseFraction    =   0;
-elseif nargin==3
+elseif nargin==4
     newPoints           =	varargin{1};
     PhaseData           =	varargin{2};
     MinPhaseFraction    =   varargin{3};
+elseif nargin==5
+    newPoints           =	varargin{1};
+    PhaseData           =	varargin{2};
+    MinPhaseFraction    =   varargin{3};
+    labelstyle          =   varargin{4};
+    db                  =   varargin{5};
 else
     error('wrong number of input parameters')
     
 end
 
+lbl_exist = 0;
+if labelstyle == 0 %then this is default TC style
+    % this part load the labelling option files
+    if strcmp(db,'ig') | strcmp(db,'igd')
+        in = readcell('./matlab/labels/ig.txt','delimiter','');
+        lbl_exist = 1;
+    end
+    if strcmp(db,'alk')
+        in = readcell('./matlab/labels/alk.txt','delimiter','');
+        lbl_exist = 1;
+    end
+
+    if lbl_exist == 1
+        for i=1:length(in)
+            ph{i} = split(in(i),';');
+        end
+
+        j = 1;
+        for i=2:size(ph,2)
+            if str2double(ph{i}(2)) > 1
+                ph_new{j}  = ph{i};
+                ph_name(j) = string(ph{i}(1));
+                j = j + 1;
+            end
+        end
+    else
+        disp(' ');
+        disp(' LABEL ERROR: No file is available for this database, if the file has been created (in ./matlab/labels) you need to add a loading line in the matlab script in ./matlab/ReadPseudoSectionData_MAGEMin.m around line 37');
+        disp(' -> using Only Phase labeling mode...');
+        disp(' ');
+    end
+
+end
 
 % open file
 fid     = fopen('./output/_pseudosection_output.txt');
@@ -96,6 +137,64 @@ for iPoint=1:length(newPoints)
         i       =   i+1;
     end
     
+    % routine to change the name of the phase according to secondary parameters
+    if labelstyle == 0 & lbl_exist == 1     %default thermocalc style of labeling
+        for i=1:size(StableSolutions,1)
+            ps_ph_name = string(StableSolutions{i});
+            ps_ph_name = split(ps_ph_name,'_');
+            % disp(ps_ph_name)
+            if length(ps_ph_name) > 1
+                ps_ph_name = ps_ph_name(1);
+            end
+
+            if any(strcmp(ph_name,ps_ph_name))
+                id = find(strcmp(ph_name,ps_ph_name));
+
+                x = CompositionalVar{i};
+                islabeled = 0;
+
+                maxv = round(str2double(ph_new{id}{2}));
+                k = 0;
+                while islabeled == 0 & k < maxv-1
+                    val = eval(ph_new{id}{3+k});
+                    if val > 0.0
+                        lbl = ph_new{id}{3+maxv+k};
+                        islabeled = 1;
+                    end
+                    k = k + 1;
+
+                end
+                if islabeled == 0
+                    lbl = ph_new{id}{3+maxv*2-1};
+                end 
+                StableSolutions{i} = lbl;
+
+            end
+        end
+    end
+
+    if labelstyle == 2     %label using dominant end-member fraction
+        for i=1:size(StableSolutions,1)
+            % first get the phase name without the suffix for solvii
+            ps_ph_name = string(StableSolutions{i});
+            ps_ph_name = split(ps_ph_name,'_');
+
+            if length(ps_ph_name) > 1
+                ps_ph_name = ps_ph_name(1);
+            end
+
+            p = EMFractions{i};
+
+            if length(p) > 1                                % is this a solution phase
+                id      = find(p == max(p));                % find the id of the dominant endmember
+                em_name = string(EMlist{i}{id});            % get endmember name
+                ph_lbl  = strcat(ps_ph_name,':',em_name);   % create label
+                StableSolutions{i} = ph_lbl{1};                % attribute label
+            end
+
+        end
+    end
+
     % Depending on MinPhaseFraction, we may not take minor phases into account
     % while plotting the diagram, even when they are taken into account in
     % computing the Gibbs energy and Gamma, etc.

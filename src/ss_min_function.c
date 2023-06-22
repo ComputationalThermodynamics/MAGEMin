@@ -70,7 +70,7 @@ csd_phase_set CP_UPDATE_function(		global_variable 	gv,
 	/* sf_ok?*/
 	cp.sf_ok = 1;
 	for (int i = 0; i < cp.n_sf; i++){
-		if (cp.sf[i] <= 0.0 || isnan(cp.sf[i]) == 1|| isinf(cp.sf[i]) == 1){
+		if (cp.sf[i] < 0.0 || isnan(cp.sf[i]) == 1|| isinf(cp.sf[i]) == 1){
 			cp.sf_ok = 0;	
 			break;
 		}
@@ -268,7 +268,6 @@ void ss_min_PGE(		int 				 mode,
 
 	for (int i = 0; i < gv.len_cp; i++){ 
 		if (cp[i].ss_flags[0] == 1){
-
 			ph_id = cp[i].id;
 			cp[i].min_time		  		= 0.0;								/** reset local minimization time to 0.0 */
 			SS_ref_db[ph_id].min_mode 	= mode;								/** send the right mode to the local minimizer */
@@ -338,14 +337,16 @@ void ss_min_PGE(		int 				 mode,
 														gv,
 														SS_ref_db,
 														cp						);	
+				if ( SS_ref_db[ph_id].df < gv.save_Ppc_val ){
+					copy_to_Ppc(							i, 
+															ph_id,
+															gv,
 
-				// copy_to_Ppc(							i, 
-				// 										ph_id,
-				// 										gv,
+															SS_objective,
+															SS_ref_db,
+															cp						);
+				}
 
-				// 										SS_objective,
-				// 										SS_ref_db,
-				// 										cp						);
 			}
 			else{
 				if (gv.verbose == 1){
@@ -408,6 +409,7 @@ void ss_min_LP(			int 				 mode,
 
 			for (int k = 0; k < cp[i].n_xeos; k++) {
 				SS_ref_db[ph_id].iguess[k]   =  SS_ref_db[ph_id].xeos[k];
+				// SS_ref_db[ph_id].iguess[k]   =  SS_ref_db[ph_id].xeos[k]*0.5 + 0.5*SS_ref_db[ph_id].dguess[k];
 			}
 
 
@@ -420,6 +422,14 @@ void ss_min_LP(			int 				 mode,
 														SS_ref_db[ph_id], 
 														z_b, 
 														gv.SS_list[ph_id]		);
+			/** 
+				print solution phase informations (print has to occur before saving PC)
+			*/
+			if (gv.verbose == 1){
+				print_SS_informations(  				gv,
+														SS_ref_db[ph_id],
+														ph_id					);
+			}
 
 			/**
 				add minimized phase to LP PGE pseudocompound list 
@@ -492,6 +502,24 @@ global_variable init_ss_db(		int 				 EM_database,
 										/** can become a global variable instead */
 		}
 	}
+	else if (EM_database == 4 ){
+		for (int i = 0; i < gv.len_ss; i++){
+			SS_ref_db[i].P  = z_b.P;									/** needed to pass to local minimizer, allows for P variation for liq/sol */
+			SS_ref_db[i].T  = z_b.T;		
+			SS_ref_db[i].R  = 0.0083144;
 
+			// if (SS_ref_db[i].is_liq == 1){
+			// 	SS_ref_db[i].P  = z_b.P + gv.melt_pressure;
+			// }
+
+			SS_ref_db[i]    = G_SS_um_EM_function(	gv, 
+													SS_ref_db[i], 
+													EM_database, 
+													z_b, 
+													gv.SS_list[i]		);
+											
+										/** can become a global variable instead */
+		}
+	}
 	return gv;
 };

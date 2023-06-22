@@ -30,6 +30,7 @@ typedef struct PP_refs {
 
 PP_ref G_EM_function(   int          EM_database, 
                         int          len_ox,
+                        int         *id,
                         double      *bulk_rock, 
                         double      *apo,
                         double       P, 

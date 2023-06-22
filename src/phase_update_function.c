@@ -129,7 +129,24 @@ global_variable check_PC(					bulk_info 	 		 z_b,
 
 		if (SS_ref_db[i].ss_flags[0] == 1  && gv.verifyPC[i] == 1){
 			for (l = 0; l < SS_ref_db[i].tot_pc; l++){
-
+				// double tmp = 0.0;
+				// printf(" %4s |",gv.SS_list[i]);
+				// for (int j = 0; j < SS_ref_db[i].n_em; j++){
+				// 	tmp = SS_ref_db[i].mu_pc[l][j];
+				// 	for (int r = 0; r < gv.len_ox; r++) {
+				// 		tmp -= SS_ref_db[i].Comp[j][r]*gv.gam_tot[r];
+				// 	}
+				// 	printf(" %+4f",tmp);
+				// }
+				// printf("\n");
+				// for (int k = 0; k < cp[i].n_em; k++) {
+				// cp[i].delta_mu[k] = 0.0;
+				// for (int j = 0; j < gv.len_ox; j++) {
+				// 	cp[i].delta_mu[k] 	-= SS_ref_db[ss].Comp[k][j]*gv.delta_gam_tot[j];
+				// }
+				// if (SS_ref_db[i].DF_pc[l] < 0.0){
+				// 	printf(" -> %5s %+10f\n",gv.SS_list[i],SS_ref_db[i].DF_pc[l]);
+				// }
 				dist =  1;
 				if (gv.n_solvi[i] > 0){
 
@@ -173,7 +190,7 @@ global_variable check_PC(					bulk_info 	 		 z_b,
 					if(phase_add == 0){
 
 						if (gv.verbose == 1){
-							printf("  - %4s %5d added [PC DF check]\n",gv.SS_list[i],pc_candidate[id_c]);
+							printf("  - %4s %5d, DF: %+10f added [PC DF check]\n",gv.SS_list[i],pc_candidate[id_c],df_candidate[id_c]);
 							
 							for (int k = 0; k < SS_ref_db[i].n_xeos; k++) {
 								SS_ref_db[i].iguess[k] = SS_ref_db[i].xeos_pc[pc_candidate[id_c]][k];
@@ -225,7 +242,7 @@ global_variable check_PC(					bulk_info 	 		 z_b,
 						if (dist == 1){
 
 							if (gv.verbose == 1){
-								printf("  - %4s %5d added [PC DF check]\n",gv.SS_list[i],pc_candidate[id_c]);
+								printf("  - %4s %5d, DF: %+10f added [PC DF check]\n",gv.SS_list[i],pc_candidate[id_c],df_candidate[id_c]);
 								
 								for (int k = 0; k < SS_ref_db[i].n_xeos; k++) {
 									SS_ref_db[i].iguess[k] = SS_ref_db[i].xeos_pc[pc_candidate[id_c]][k];
@@ -625,7 +642,7 @@ global_variable phase_hold2act(		bulk_info 				z_b,
 		double 	df  = hld_cp_sort[i].value;
 																			/** loop through sorted SS in hold 														*/
 		/** if driving force is negative, phase can be potentially added to the system and decrease Gibbs */
-		if (df < 0.0){
+		if (df < gv.min_df){
 			/** if phase was never previously added to the system */
 			if ( gv.ph_change == 0 ){	
 
@@ -743,20 +760,17 @@ global_variable phase_update_function(		bulk_info 	z_b,
 	); 
 
 	/* check if a phase can be added, and add it */
-	if (gv.ph_change == 0){
-		if (gv.n_phase < z_b.nzEl_val){	
-			gv = 	phase_hold2act(	
-					z_b,							/** bulk rock constraint 				*/
-					gv,								/** global variables (e.g. Gamma) 		*/
+	if (gv.n_phase < z_b.nzEl_val){	
+		gv = 	phase_hold2act(	
+				z_b,							/** bulk rock constraint 				*/
+				gv,								/** global variables (e.g. Gamma) 		*/
 
-					PP_ref_db,						/** pure phase database 				*/
-					SS_ref_db,						/** solution phase database 			*/ 
-					cp
-			); 
-		}
+				PP_ref_db,						/** pure phase database 				*/
+				SS_ref_db,						/** solution phase database 			*/ 
+				cp
+		); 
 	}
+
 	
    return gv;
 };
-
-

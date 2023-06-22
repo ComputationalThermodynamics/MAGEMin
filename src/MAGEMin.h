@@ -11,7 +11,7 @@
 #include "gem_function.h"
 
 struct ss_pc{
-    double xeos_pc[11];
+    double xeos_pc[14];
 };
 
 typedef struct PC_refs {
@@ -39,7 +39,11 @@ typedef struct global_variables {
 	int 	 output_matlab;
 	double 	 tot_min_time;
 	double 	 tot_time;
-	
+	int      QFM_buffer;
+	double   QFM_n;
+	int      limitCaOpx;
+
+
 	/* GET STARTING CONDITIONS (args) */
 	int 	 test;
 	double  *bulk_rock;
@@ -59,7 +63,6 @@ typedef struct global_variables {
 	/* GENERAL PARAMETERS */
 	int 	 LP;				/** linear programming stage flag	*/
 	int 	 PGE;				/** PGE stage flag				 	*/
-	int      LP_PGE_switch;
 	double   mean_sum_xi;
 	double   sigma_sum_xi;
 	double   min_melt_T;
@@ -76,6 +79,7 @@ typedef struct global_variables {
 	int      len_ox;			/** number of components (number of oxides in the chemical system) */
 	int 	 maxlen_ox;			/** max number of oxides (depends on the database)*/
 	int 	 max_n_cp;			/** number of considered solution phases */
+	int      max_ss_size_cp;
 	int 	 len_cp;
 	char   **ox;				/** component names (for outputing purpose only) */
 	double  *gam_tot;     		/** chemical potential of components (gamma) */
@@ -95,7 +99,7 @@ typedef struct global_variables {
 
 	int      numPoint; 			/** the number of the current point */
 	int      global_ite;		/** global iteration increment */
-
+	int 	 H2O_id;
 	/* SPECIAL CASES */
 	// double   melt_pressure;
 
@@ -114,6 +118,8 @@ typedef struct global_variables {
 
 	/*linear programming during PGE */
 	int  	 n_Ppc;
+	int      max_LP_ite;
+	double   save_Ppc_val;
 
 	/* SOLVI */
 	int     *verifyPC;			/** allow to check for solvi */
@@ -121,6 +127,7 @@ typedef struct global_variables {
 	int    **id_solvi;			/** cp id of the phases considered for solvi */
 			
 	/* LOCAL MINIMIZATION */
+	double   maxgmTime;
 	double   ineq_res;			/** relative residual for local minimization (inequality constraints)*/
 	double   obj_tol;			/** relative residual for local minimization */
 
@@ -128,6 +135,7 @@ typedef struct global_variables {
 	int   	 maxeval;			/** maximum number of objective function evaluations during local minimization */
 	int   	 maxeval_mode_1;	/** maximum number of objective function evaluations during local minimization for mode 1 */
 	double   bnd_val;			/** boundary value for x-eos when the fraction of an endmember = 0. */
+	double   obj_refine_fac;    /** how much the residual of the objective function is refined during iterations */
 
 	/* PARTITIONING GIBBS ENERGY */ 
 	double 	*A_PGE;				/** LHS  */
@@ -162,7 +170,7 @@ typedef struct global_variables {
 
 	/* DECLARE ARRAY FOR PGE CALCULATION */	
 	double	*dGamma;			/** array to store gamma change */
-	
+	double  *gibbs_ev;
 	double  *PGE_mass_norm;		/** save the evolution of the norm */
 	int     *Alg;				/** algorithm: 0-> PGE, LP->1 */	
 	double  *gamma_norm;		/** save the evolution of the gamma norm */
@@ -176,6 +184,7 @@ typedef struct global_variables {
 	/* PHASE UPDATE */ 
 	double   merge_value;		/** norm distance between two instance of a solution phase under which the instances are merged into 1 */
 	double   re_in_n;			/** fraction of phase when being reintroduce.  */
+	double   re_in_df;			/** driving force under which a phase can be added back to the assemblage */
 	double   remove_dG_val; 	/** delta_G value at which a phase can be removed */ 
 	double   remove_sum_xi;		/** sum xi value at which a phase can be removed */
 	int      ph_change;
@@ -236,7 +245,7 @@ char** get_EM_DB_names(						global_variable gv		);
 /** store endmember database **/
 struct EM_db {
 	char   Name[20];			/** pure species name 														*/
-    double Comp[12];       	 	/** pure species composition [0-10] + number of atom [11] 					*/
+    double Comp[15];       	 	/** pure species composition [0-10] + number of atom [11] 					*/
     double input_1[3];          /** first line of the thermodynamics datable 								*/
     double input_2[4];          /** second line of the thermodynamics datable 								*/
     double input_3[11];         /** third line of the thermodynamics datable 								*/
@@ -320,7 +329,7 @@ typedef struct SS_refs {
 	double  *DF_pc;				/** array to store the final driving force of the pseudocompounds 			*/
 	double **comp_pc;			/** compositional array of the pseudocompounds 								*/
 	double **p_pc;				/** compositional array of the pseudocompounds 								*/
-	// double **mu_pc;				/** compositional array of the pseudocompounds 								*/
+	double **mu_pc;				/** compositional array of the pseudocompounds 								*/
 	double **xeos_pc;			/** x-eos array of the pseudocompounds 										*/
 	double  *factor_pc;			/** normalization factor of each PC, mainly useful for liquid 				*/
 
@@ -364,8 +373,9 @@ typedef struct SS_refs {
     double  *gb_lvl;
     double   factor;			/** normalizing factor 														*/
     double **bounds;			/** x-eos bounds 															*/
-    double **bounds_ref;		/** x-eos bounds 															*/
-
+    double **bounds_ref;		/** x-eos bounds 		
+														*/
+	double  *d_em;
     double  *z_em; 				/** 1d array to deactivate endmembers when bulk-rock = 0; this part is needed to calculat xi in PGE method */
     int      n_guess;			/** number of initial guesses used to solve for solvi (or local minimum) 	*/
     double  *iguess;    		/** 2d array of initial guess 												*/
@@ -467,6 +477,7 @@ typedef struct bulk_infos {
 	int      zEl_val;			/** number of zero entries in the bulk 					*/
     int     *nzEl_array;   		/** position of non zero entries in the bulk 			*/
     int     *zEl_array;    	 	/** position of zero entries in the bulk 				*/
+	int 	*id;				/** id of the oxides used from the total list of oxides */
     double  *apo;				/** atom per oxide 										*/
     double   fbc;				/** number of atom for the bulk	rock composition		*/
     double  *masspo;			/** Molar mass per oxide 								*/
@@ -651,10 +662,9 @@ global_variable global_variable_init( 	global_variable  	 gv,
 										bulk_info 			*z_b 	);
 
 /** declare function to get benchmark bulk rock composition **/
-global_variable get_bulk_igneous(		global_variable  gv				);
-
-/** declare function to get benchmark bulk rock composition **/
-global_variable get_bulk_metapelite(	global_variable  gv				);
+global_variable get_bulk_igneous(			global_variable  gv				);
+global_variable get_bulk_metapelite(		global_variable  gv				);
+global_variable get_bulk_ultramafic(		global_variable  gv				);
 
 /** Stores databases **/
 typedef struct Database {	PP_ref     		 *PP_ref_db;		/** Pure phases 											*/

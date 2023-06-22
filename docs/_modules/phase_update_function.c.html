@@ -378,7 +378,24 @@
 
 <span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w">  </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">verifyPC</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
 <span class="w">			</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">tot_pc</span><span class="p">;</span><span class="w"> </span><span class="n">l</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-
+<span class="w">				</span><span class="c1">// double tmp = 0.0;</span>
+<span class="w">				</span><span class="c1">// printf(&quot; %4s |&quot;,gv.SS_list[i]);</span>
+<span class="w">				</span><span class="c1">// for (int j = 0; j &lt; SS_ref_db[i].n_em; j++){</span>
+<span class="w">				</span><span class="c1">// 	tmp = SS_ref_db[i].mu_pc[l][j];</span>
+<span class="w">				</span><span class="c1">// 	for (int r = 0; r &lt; gv.len_ox; r++) {</span>
+<span class="w">				</span><span class="c1">// 		tmp -= SS_ref_db[i].Comp[j][r]*gv.gam_tot[r];</span>
+<span class="w">				</span><span class="c1">// 	}</span>
+<span class="w">				</span><span class="c1">// 	printf(&quot; %+4f&quot;,tmp);</span>
+<span class="w">				</span><span class="c1">// }</span>
+<span class="w">				</span><span class="c1">// printf(&quot;\n&quot;);</span>
+<span class="w">				</span><span class="c1">// for (int k = 0; k &lt; cp[i].n_em; k++) {</span>
+<span class="w">				</span><span class="c1">// cp[i].delta_mu[k] = 0.0;</span>
+<span class="w">				</span><span class="c1">// for (int j = 0; j &lt; gv.len_ox; j++) {</span>
+<span class="w">				</span><span class="c1">// 	cp[i].delta_mu[k] 	-= SS_ref_db[ss].Comp[k][j]*gv.delta_gam_tot[j];</span>
+<span class="w">				</span><span class="c1">// }</span>
+<span class="w">				</span><span class="c1">// if (SS_ref_db[i].DF_pc[l] &lt; 0.0){</span>
+<span class="w">				</span><span class="c1">// 	printf(&quot; -&gt; %5s %+10f\n&quot;,gv.SS_list[i],SS_ref_db[i].DF_pc[l]);</span>
+<span class="w">				</span><span class="c1">// }</span>
 <span class="w">				</span><span class="n">dist</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
 <span class="w">				</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">n_solvi</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">){</span><span class="w"></span>
 
@@ -422,7 +439,7 @@
 <span class="w">					</span><span class="k">if</span><span class="p">(</span><span class="n">phase_add</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">){</span><span class="w"></span>
 
 <span class="w">						</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">verbose</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
-<span class="w">							</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  - %4s %5d added [PC DF check]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">SS_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">pc_candidate</span><span class="p">[</span><span class="n">id_c</span><span class="p">]);</span><span class="w"></span>
+<span class="w">							</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  - %4s %5d, DF: %+10f added [PC DF check]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">SS_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">pc_candidate</span><span class="p">[</span><span class="n">id_c</span><span class="p">],</span><span class="n">df_candidate</span><span class="p">[</span><span class="n">id_c</span><span class="p">]);</span><span class="w"></span>
 <span class="w">							</span>
 <span class="w">							</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">n_xeos</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">								</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">iguess</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">xeos_pc</span><span class="p">[</span><span class="n">pc_candidate</span><span class="p">[</span><span class="n">id_c</span><span class="p">]][</span><span class="n">k</span><span class="p">];</span><span class="w"></span>
@@ -474,7 +491,7 @@
 <span class="w">						</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">dist</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
 
 <span class="w">							</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">verbose</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
-<span class="w">								</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  - %4s %5d added [PC DF check]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">SS_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">pc_candidate</span><span class="p">[</span><span class="n">id_c</span><span class="p">]);</span><span class="w"></span>
+<span class="w">								</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  - %4s %5d, DF: %+10f added [PC DF check]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">SS_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">pc_candidate</span><span class="p">[</span><span class="n">id_c</span><span class="p">],</span><span class="n">df_candidate</span><span class="p">[</span><span class="n">id_c</span><span class="p">]);</span><span class="w"></span>
 <span class="w">								</span>
 <span class="w">								</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">n_xeos</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">									</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">iguess</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">xeos_pc</span><span class="p">[</span><span class="n">pc_candidate</span><span class="p">[</span><span class="n">id_c</span><span class="p">]][</span><span class="n">k</span><span class="p">];</span><span class="w"></span>
@@ -874,7 +891,7 @@
 <span class="w">		</span><span class="kt">double</span><span class="w"> 	</span><span class="n">df</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">hld_cp_sort</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">value</span><span class="p">;</span><span class="w"></span>
 <span class="w">																			</span><span class="cm">/** loop through sorted SS in hold 														*/</span><span class="w"></span>
 <span class="w">		</span><span class="cm">/** if driving force is negative, phase can be potentially added to the system and decrease Gibbs */</span><span class="w"></span>
-<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">df</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0.0</span><span class="p">){</span><span class="w"></span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">df</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">min_df</span><span class="p">){</span><span class="w"></span>
 <span class="w">			</span><span class="cm">/** if phase was never previously added to the system */</span><span class="w"></span>
 <span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">ph_change</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">){</span><span class="w">	</span>
 
@@ -992,23 +1009,20 @@
 <span class="w">	</span><span class="p">);</span><span class="w"> </span>
 
 <span class="w">	</span><span class="cm">/* check if a phase can be added, and add it */</span><span class="w"></span>
-<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">ph_change</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">){</span><span class="w"></span>
-<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">n_phase</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">z_b</span><span class="p">.</span><span class="n">nzEl_val</span><span class="p">){</span><span class="w">	</span>
-<span class="w">			</span><span class="n">gv</span><span class="w"> </span><span class="o">=</span><span class="w"> 	</span><span class="n">phase_hold2act</span><span class="p">(</span><span class="w">	</span>
-<span class="w">					</span><span class="n">z_b</span><span class="p">,</span><span class="w">							</span><span class="cm">/** bulk rock constraint 				*/</span><span class="w"></span>
-<span class="w">					</span><span class="n">gv</span><span class="p">,</span><span class="w">								</span><span class="cm">/** global variables (e.g. Gamma) 		*/</span><span class="w"></span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">n_phase</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">z_b</span><span class="p">.</span><span class="n">nzEl_val</span><span class="p">){</span><span class="w">	</span>
+<span class="w">		</span><span class="n">gv</span><span class="w"> </span><span class="o">=</span><span class="w"> 	</span><span class="n">phase_hold2act</span><span class="p">(</span><span class="w">	</span>
+<span class="w">				</span><span class="n">z_b</span><span class="p">,</span><span class="w">							</span><span class="cm">/** bulk rock constraint 				*/</span><span class="w"></span>
+<span class="w">				</span><span class="n">gv</span><span class="p">,</span><span class="w">								</span><span class="cm">/** global variables (e.g. Gamma) 		*/</span><span class="w"></span>
 
-<span class="w">					</span><span class="n">PP_ref_db</span><span class="p">,</span><span class="w">						</span><span class="cm">/** pure phase database 				*/</span><span class="w"></span>
-<span class="w">					</span><span class="n">SS_ref_db</span><span class="p">,</span><span class="w">						</span><span class="cm">/** solution phase database 			*/</span><span class="w"> </span>
-<span class="w">					</span><span class="n">cp</span><span class="w"></span>
-<span class="w">			</span><span class="p">);</span><span class="w"> </span>
-<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">				</span><span class="n">PP_ref_db</span><span class="p">,</span><span class="w">						</span><span class="cm">/** pure phase database 				*/</span><span class="w"></span>
+<span class="w">				</span><span class="n">SS_ref_db</span><span class="p">,</span><span class="w">						</span><span class="cm">/** solution phase database 			*/</span><span class="w"> </span>
+<span class="w">				</span><span class="n">cp</span><span class="w"></span>
+<span class="w">		</span><span class="p">);</span><span class="w"> </span>
 <span class="w">	</span><span class="p">}</span><span class="w"></span>
+
 <span class="w">	</span>
 <span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="n">gv</span><span class="p">;</span><span class="w"></span>
 <span class="p">};</span><span class="w"></span></div>
-
-
 </pre></div>
 
            </div>

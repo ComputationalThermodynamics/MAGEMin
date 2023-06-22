@@ -1,0 +1,1491 @@
+#
+ ====================================================================
+
+X-eos for calculating diagrams for
+
+Green, ECR, Powell, R, Holland, TJB, Riel, N and Weller, O
+Corrections to recently published thermodynamic models for silicate melt.
+Journal of Petrology, in prep.
+
+X-eos current 20-04-2023
+
+This file last edited 20-04-2023 (ecrg)
+
+
+Solution phases in this file:
+
+Wet silicate melt            liq_G23Hw       After Holland et al (2018)
+Aqueous fluid                fl_G23H         Modified after Holland et al (2018),
+accompanies liq_G23Hw
+Feldspar (ternary)           fsp_H21         Holland et al (2021) (was pl4tr)
+Spinel (spinel, magnetite,   spn_T21         Tomlinson & Holland (2021)
+Cr-spinel)
+Garnet                       g_G23           This work, after Holland et al (2018)
+Olivine                      ol_H18          Holland et al (2018)
+Orthopyroxene                opx_G23         This work, after Holland (2018)
+Clinopyroxene                cpx_G23         This work, after Holland (2018)
+(augite, pigeonite)
+Ilmenite                     ilm_W23         Weller et al, in prep
+(ilmenite, hematite)
+Clinoamphibole (e.g.         hb_G16          Green et al (2016)
+hornblende, actinolite)
+Biotite                      bi_G23          This work, after White et al (2014)
+Epidote                      ep_H11          Holland & Powell (2011)
+Cordierite                   cd_H18          Holland et al (2018)
+
+
+------
+
+Green, ECR, Powell, R, Holland, TJB, Riel, N and Weller, O
+Corrections to recently published thermodynamic models for silicate melt.
+Journal of Petrology, in prep.
+
+Green, ECR, White, RW, Diener, JFA, Powell, R, Holland, TJB &
+Palin, RM (2016). Activity-composition relations for the calculation of partial
+melting equilibria in metabasic rocks. Journal of Metamorphic Geology, 34, 845-869.
+doi: 10.1111/jmg.12211
+
+Holland, TJB, Green, ECR & Powell, R (2021). A thermodynamic model for feldspars in
+KAlSi3O8-NaAlSi3O8-CaAl2Si2O8 for mineral equilibrium calculations.
+Journal of Metamorphic Geology, 1-14. doi: 10.1111/jmg.12639
+
+Holland, TJB, Green, ECR & Powell, R (2018). Melting of peridotites through to
+granites: a simple thermodynamic model in the system KNCFMASHTOCr.
+Journal of Petrology, 59, 881-900. doi: 10.1093/petrology/egy048
+
+Holland, TJB & Powell, R (2011). An improved and extended internally consistent
+thermodynamic dataset for phases of petrological interest, involving a new equation
+of state for solids. Journal of Metamorphic Geology, 29, 333-383.
+doi: 10.1111/j.1525-1314.2010.00923.x
+
+Tomlinson, EL & Holland, TJB (2021). A thermodynamic model for the subsolidus
+evolution and melting of peridotite. Journal of Petrology, egab012, 1-23.
+doi: 10.1093/petrology/egab012
+
+Weller et al, in prep.
+
+White, RW, Powell, R, Holland, TJB, Johnson, TE & Green, ECR (2014). New mineral
+activity-composition relations for thermodynamic calculations in metapelitic systems.
+Journal of Metamorphic Geology, 32, 261-286. doi: 10.1111/jmg.12071
+
+ ====================================================================
+#
+#
+ =================================================================
+ Green, ECR, Powell, R, Holland, TJB, Riel, N and Weller, O
+ Corrections to recently published thermodynamic models for silicate melt.
+ Journal of Petrology, submitted
+
+ This is an updated calibration of the H2O-bearing "wet" silicate melt x-eos
+ in Holland, TJB, Green, ECR & Powell, R (2018). Melting of peridotites through
+ to granites: a simple thermodynamic model in the system KNCFMASHTOCr.
+ Journal of Petrology 59, 881-900.
+
+ Mixing	Made from dataset	Formula
+ unit		end-members
+ q4L    	4 qL        		4(SiO2)
+ slL    	silL        		Al2SiO5
+ wo1L   	woL         		CaSiO3
+ fo2L   	2 foL       		Mg4Si2O8
+ fa2L   	2 faL       		Fe4Si2O8
+ jdL    	abL - qL    		NaAlSi2O6
+ hmL    	1/2 hemL    		1/2(Fe2O3)
+ ekL   	        1/2 eskL    		1/2(Cr2O3)
+ tiL    	ruL         		TiO2
+ kjL    	kspL - qL   		KAlSi2O6
+ ctL    	woL + silL - qL		CaAl2SiO6
+ h2o1L         h2oL                    H2O
+
+ The composition variables are:
+
+ wo ->  (p(woL) + yct)/(1 + Q)
+ sl ->  (p(sl1L) + yct)/(1 + Q)
+ fo ->  p(fo2L)/(1 + Q)
+ fa ->  p(fa2L)/(1 + Q)
+ jd ->  p(neL)/(1 + Q)
+ hm ->  p(hmL)/(1 + Q)
+ ek ->  p(ekL)/(1 + Q)
+ ti ->  p(tiL)/(1 + Q)
+ kj ->  p(kjL)/(1 + Q)
+ h2o -> p(h2o1L)/(1 + Q)
+
+ with p(z) the proportion of mixing unit z, and using Q = 3/4 yctL
+ where yct = p(ctL).
+ --------------------------------------------------------------------
+#
+
+ starting guesses
+  wo(liq_G23Hw) = 0.20000  range 0 <> 1
+  sl(liq_G23Hw) = 0.20000  range 0 <> 1
+  fo(liq_G23Hw) = 0.10000  range 0 <> 1
+  fa(liq_G23Hw) = 0.10000  range 0 <> 1
+  jd(liq_G23Hw) = 0.050000  range 0 <> 1
+  hm(liq_G23Hw) = 0.0010000  range 0 <> 0.5
+  ek(liq_G23Hw) = 0.0010000  range 0 <> 0.5
+  ti(liq_G23Hw) = 0.0010000  range 0 <> 0.5
+  kj(liq_G23Hw) = 0.0010000  range 0 <> 1
+  yct(liq_G23Hw) = 0.0010000  range 0 <> 1  order variable
+  h2o(liq_G23Hw) = 0.0010000  range 0 <> 0.75
+
+ site fractions
+   pq = 1 - wo - sl - jd - fa - fo - hm - ek - ti - kj - h2o + 1/4*yct*(4 - 3ek - 3fa - 3fo - 3hm - 3jd - 3kj - 3sl - 3ti - 3wo - 3h2o)
+   psl = sl + 3/4*yct*sl + (-yct)
+   pwo = wo + 3/4*yct*wo + (-yct)
+   pjd = jd + 3/4*yct*jd
+   phm = hm + 3/4*yct*hm
+   pek = ek + 3/4*yct*ek
+   pti = ti + 3/4*yct*ti
+   pkj = kj + 3/4*yct*kj
+   pct = yct
+   pol = fo + fa + 3/4*yct*(fo + fa)
+   sumT = 1 - h2o + (-3/4*yct)*h2o
+   mgM = 4fo*(1 + 3/4*yct)
+   feM = 4fa*(1 + 3/4*yct)
+   CaM = wo*(1 + 3/4*yct) + (-yct)
+   AlM = sl*(1 + 3/4*yct) + (-yct)
+   sumM = (4fo + 4fa + sl + wo)*(1 + 3/4*yct) + (-2yct)
+   xh = h2o*(1 + 3/4*yct)
+   xv = 1 - h2o + (-3/4*yct)*h2o
+
+ proportions
+   q4L = 1 - wo - sl - jd - fa - fo - hm - ek - ti - kj - h2o + 1/4*yct*(4 - 3ek - 3fa - 3fo - 3hm - 3jd - 3kj - 3sl - 3ti - 3wo - 3h2o)
+   slL = sl + 3/4*yct*sl + (-yct)
+   wo1L = wo + 3/4*yct*wo + (-yct)
+   fo2L = fo + 3/4*yct*fo
+   fa2L = fa + 3/4*yct*fa
+   jdL = jd + 3/4*yct*jd
+   hmL = hm + 3/4*yct*hm
+   ekL = ek + 3/4*yct*ek
+   tiL = ti + 3/4*yct*ti
+   kjL = kj + 3/4*yct*kj
+   ctL = yct
+   h2o1L = h2o + 3/4*yct*h2o
+
+ ideal mixing activities
+  q4L = xv**2*sumT**-1*pq
+  slL = xv**2*sumT**-1*psl*AlM*sumM**-1
+  wo1L = xv**2*sumT**-1*pwo*CaM*sumM**-1
+  fo2L = xv**2*sumT**-1*pol*mgM**4*sumM**-4
+  fa2L = xv**2*sumT**-1*pol*feM**4*sumM**-4
+  jdL = xv**2*sumT**-1*pjd
+  hmL = xv**2*sumT**-1*phm
+  ekL = xv**2*sumT**-1*pek
+  tiL = xv**2*sumT**-1*pti
+  kjL = xv**2*sumT**-1*pkj
+  ctL = xv**2*sumT**-1*pct
+  h2o1L = xh**2
+
+ non-ideality by van laar
+  W(q4L,slL) = 9.2 - 0.08*P
+  W(q4L,wo1L) = -10.3
+  W(q4L,fo2L) = -47.6 - 4.31*P
+  W(q4L,fa2L) = -13.1 - 0.53*P
+  W(q4L,jdL) = -15.5 - 0.11*P
+  W(q4L,hmL) = 20
+  W(q4L,ekL) = 0
+  W(q4L,tiL) = 24.1
+  W(q4L,kjL) = -20.1 - 0.05*P
+  W(q4L,ctL) = -14.2 + 0.03*P
+  W(q4L,h2o1L) = 18.7 - 0.71*P
+  W(slL,wo1L) = -28.5 + 0.83*P
+  W(slL,fo2L) = 1.2 + 0.1*P
+  W(slL,fa2L) = 2.5
+  W(slL,jdL) = 18.8 + 0.04*P
+  W(slL,hmL) = -5
+  W(slL,ekL) = 0
+  W(slL,tiL) = 16.2 - 0.04*P
+  W(slL,kjL) = 6.9 + 0.1*P
+  W(slL,ctL) = 3.7
+  W(slL,h2o1L) = 24.3 - 0.94*P
+  W(wo1L,fo2L) = 25.9 + 0.07*P
+  W(wo1L,fa2L) = 13.9
+  W(wo1L,jdL) = 0.1 - 0.03*P
+  W(wo1L,hmL) = 0
+  W(wo1L,ekL) = 0
+  W(wo1L,tiL) = 17.9
+  W(wo1L,kjL) = -0.5 + 0.1*P
+  W(wo1L,ctL) = 9.6 - 0.04*P
+  W(wo1L,h2o1L) = 53.2 - 1.1*P
+  W(fo2L,fa2L) = 17.9 + 0.03*P
+  W(fo2L,jdL) = 0.1 + 0.07*P
+  W(fo2L,hmL) = 0
+  W(fo2L,ekL) = 0
+  W(fo2L,tiL) = 9
+  W(fo2L,kjL) = 3.8 + 0.07*P
+  W(fo2L,ctL) = -7.6
+  W(fo2L,h2o1L) = 21 - 1.67*P
+  W(fa2L,jdL) = 8.3 - 0.04*P
+  W(fa2L,hmL) = -30
+  W(fa2L,ekL) = 0
+  W(fa2L,tiL) = -4.1
+  W(fa2L,kjL) = 9.4 + 0.1*P
+  W(fa2L,ctL) = -6.1
+  W(fa2L,h2o1L) = 20.9 - 1.6*P
+  W(jdL,hmL) = 9.8 + 0.01*P
+  W(jdL,ekL) = 0
+  W(jdL,tiL) = 15.4 + 0.14*P
+  W(jdL,kjL) = -4.7 + 0.1*P
+  W(jdL,ctL) = 6.8
+  W(jdL,h2o1L) = -10.1 - 0.06*P
+  W(hmL,ekL) = 0
+  W(hmL,tiL) = 0
+  W(hmL,kjL) = 8.9 + 0.1*P
+  W(hmL,ctL) = 0
+  W(hmL,h2o1L) = 57.4 - 0.66*P
+  W(ekL,tiL) = 0
+  W(ekL,kjL) = 0
+  W(ekL,ctL) = 0
+  W(ekL,h2o1L) = 30 - 0.66*P
+  W(tiL,kjL) = 9.6 + 0.04*P
+  W(tiL,ctL) = 0
+  W(tiL,h2o1L) = 29.2 - 0.6*P
+  W(kjL,ctL) = -5.4
+  W(kjL,h2o1L) = 2 + 0.06*P
+  W(ctL,h2o1L) = 8.9 - 0.03*P
+
+  v(q4L) = 100
+  v(slL) = 120
+  v(wo1L) = 140
+  v(fo2L) = 240
+  v(fa2L) = 100
+  v(jdL) = 120
+  v(hmL) = 100
+  v(ekL) = 100
+  v(tiL) = 100
+  v(kjL) = 100
+  v(ctL) = 100
+  v(h2o1L) = 65
+
+ "make" end-members
+  q4L = 4 qL + 1.3 - 0.033*P  (mod)
+  slL = silL + 6.37 - 0.332*P  (mod)
+  wo1L = woL + 0.62 - 0.127*P  (mod)
+  fo2L = 2 foL + 7.72 - 0.155*P  (mod)
+  fa2L = 2 faL + 13.86 - 0.053*P  (mod)
+  jdL = abL - qL + 11.38 - 0.091*P  (make)
+  hmL = 1/2 hemL + 3 - 0.039*P  (mod)
+  ekL = 1/2 eskL + 25.17 + 0.244*P  (mod)
+  tiL = ruL - 6.41 - 0.224*P  (mod)
+  kjL = kspL - qL + 11.91 - 0.204*P  (make)
+  ctL = woL + silL - qL - 106.74 + 0.055*T + 0.051*P  (make)
+  h2o1L = h2oL + 3.59 - 0.0041*T + 0.00065*P  (mod)
+
+#
+ =================================================================
+ Aqueous fluid: KNCFMASTOCr
+
+ Green, ECR, Powell, R, Holland, TJB, Riel, N and Weller, O
+ Corrections to recently published thermodynamic models for silicate melt.
+ Journal of Petrology, submitted.
+
+ W(x,H2O) and ?G^end-member parameters modified from:
+ Holland, TJB, Green, ECR & Powell, R (2018). Melting of peridotites
+ through to granites: a simple thermodynamic model in the system
+ KNCFMASHTOCr. Journal of Petrology 59, 881-900.
+
+ All end-members except H2O mix together on one "site" as simple
+ molecular mixing units. H2O occupies a second mixing unit with
+ its entropic contribution doubled.
+
+ Compositional variables simply represent the proportions of
+ corresponding mixing units.
+
+ End-members other than H2O are constructed by modifying the
+ properties of "melt end-members". However the model does not allow
+ for complete solution between silicate melt and aqueous fluid.
+ --------------------------------------------------
+#
+
+ starting guesses
+  wo(fl_G23H) = 0.0020000  range 0 <> 1
+  sl(fl_G23H) = 0.0020000  range 0 <> 1
+  fo(fl_G23H) = 0.0020000  range 0 <> 1
+  fa(fl_G23H) = 0.0020000  range 0 <> 1
+  jd(fl_G23H) = 0.0020000  range 0 <> 1
+  hm(fl_G23H) = 0.0010000  range 0 <> 1
+  ek(fl_G23H) = 0.0010000  range 0 <> 1
+  ti(fl_G23H) = 0.0010000  range 0 <> 1
+  kj(fl_G23H) = 0.0020000  range 0 <> 1
+  h2o(fl_G23H) = 0.95000  range 0 <> 1
+
+ site fractions
+   pq = 1 - wo - sl - fo - fa - jd - hm - ek - ti - kj - h2o
+   psl = sl
+   pwo = wo
+   pfo = fo
+   pfa = fa
+   pjd = jd
+   phm = hm
+   pek = ek
+   pti = ti
+   pkj = kj
+   ph2o = h2o
+   fac = 1 - h2o
+
+ proportions
+   qfL = 1 - wo - sl - fo - fa - jd - hm - ek - ti - kj - h2o
+   slfL = sl
+   wofL = wo
+   fofL = fo
+   fafL = fa
+   jdfL = jd
+   hmfL = hm
+   ekfL = ek
+   tifL = ti
+   kjfL = kj
+   H2O = h2o
+
+ ideal mixing activities
+  qfL = fac*pq
+  slfL = fac*psl
+  wofL = fac*pwo
+  fofL = fac*pfo
+  fafL = fac*pfa
+  jdfL = fac*pjd
+  hmfL = fac*phm
+  ekfL = fac*pek
+  tifL = fac*pti
+  kjfL = fac*pkj
+  H2O = ph2o**2
+
+ non-ideality by symmetric formalism
+  W(qfL,slfL) = 0
+  W(qfL,wofL) = 0
+  W(qfL,fofL) = 0
+  W(qfL,fafL) = 0
+  W(qfL,jdfL) = 0
+  W(qfL,hmfL) = 0
+  W(qfL,ekfL) = 0
+  W(qfL,tifL) = 0
+  W(qfL,kjfL) = 0
+  W(qfL,H2O) = 71.5 - 0.89*P
+  W(slfL,wofL) = 0
+  W(slfL,fofL) = 0
+  W(slfL,fafL) = 0
+  W(slfL,jdfL) = 0
+  W(slfL,hmfL) = 0
+  W(slfL,ekfL) = 0
+  W(slfL,tifL) = 0
+  W(slfL,kjfL) = 0
+  W(slfL,H2O) = 55.4 - 0.91*P
+  W(wofL,fofL) = 0
+  W(wofL,fafL) = 0
+  W(wofL,jdfL) = 0
+  W(wofL,hmfL) = 0
+  W(wofL,ekfL) = 0
+  W(wofL,tifL) = 0
+  W(wofL,kjfL) = 0
+  W(wofL,H2O) = 83.7 - 0.61*P
+  W(fofL,fafL) = 0
+  W(fofL,jdfL) = 0
+  W(fofL,hmfL) = 0
+  W(fofL,ekfL) = 0
+  W(fofL,tifL) = 0
+  W(fofL,kjfL) = 0
+  W(fofL,H2O) = 82.9 - 1.26*P
+  W(fafL,jdfL) = 0
+  W(fafL,hmfL) = 0
+  W(fafL,ekfL) = 0
+  W(fafL,tifL) = 0
+  W(fafL,kjfL) = 0
+  W(fafL,H2O) = 77.7 - 1.41*P
+  W(jdfL,hmfL) = 0
+  W(jdfL,ekfL) = 0
+  W(jdfL,tifL) = 0
+  W(jdfL,kjfL) = 0
+  W(jdfL,H2O) = 46.1 - 0.83*P
+  W(hmfL,ekfL) = 0
+  W(hmfL,tifL) = 0
+  W(hmfL,kjfL) = 0
+  W(hmfL,H2O) = 73 - 0.66*P
+  W(ekfL,tifL) = 0
+  W(ekfL,kjfL) = 0
+  W(ekfL,H2O) = 73 - 0.66*P
+  W(tifL,kjfL) = 0
+  W(tifL,H2O) = 75.9 - 0.66*P
+  W(kjfL,H2O) = 49.6 - 1.31*P
+
+ "make" end-members
+  qfL = 4 qL + 2.65 - 0.071*P  (make)
+  slfL = silL + 6.29 - 0.386*P  (make)
+  wofL = woL - 0.2 - 0.161*P  (make)
+  fofL = 2 foL + 7.56 - 0.125*P  (make)
+  fafL = 2 faL + 15.54 - 0.103*P  (make)
+  jdfL = abL - qL + 10.59 - 0.385*P  (make)
+  hmfL = 1/2 hemL + 4.05 - 0.077*P  (make)
+  ekfL = 1/2 eskL + 24.75 + 0.245*P  (make)
+  tifL = ruL + 5.69 - 0.484*P  (make)
+  kjfL = kspL - qL + 12.21 - 0.345*P  (make)
+
+#
+ ====================================================================
+ ternary feldspar, 4TR model, with plagioclase-friendly
+         parameterisation.
+
+ Holland, TJB, Green, ECR & Powell, R (2021). A thermodynamic model
+ for feldspars in KAlSi3O8-NaAlSi3O8-CaAl2Si2O8 for mineral
+ equilibrium calculations. Journal of Metamorphic Geology, 1-14.
+ Published online as DOI 10.1111/jmg.12639
+
+ E-m   Formula        Mixing sites
+                      A                   TB*
+                      Na    Ca    K       Al    Si
+ ab    NaAlSi3O8      1     0     0       1     3
+ san   KAlSi3O8       0     0     1       1     3
+ an    CaAl2Si2O8     0     1     0       2     2
+ *use 1/4 entropy of mixing from TB-sites
+
+ ca -> xCaA
+ k -> xKA
+ --------------------------------------------------
+#
+
+ starting guesses
+  ca(fsp_H21) = 0.80000  range 0 <> 1
+  k(fsp_H21) = 0.030000  range 0 <> 1
+
+ site fractions
+   xNaA = 1 - ca - k
+   xCaA = ca
+   xKA = k
+   xAlTB = 1/4 + 1/4*ca
+   xSiTB = 3/4 - 1/4*ca
+
+ proportions
+   ab = 1 - k - ca
+   an = ca
+   san = k
+
+ ideal mixing activities
+  ab = 1.7548*xNaA*xAlTB**(1/4)*xSiTB**(3/4)
+  an = 2*xCaA*xAlTB**(1/2)*xSiTB**(1/2)
+  san = 1.7548*xKA*xAlTB**(1/4)*xSiTB**(3/4)
+
+ non-ideality by van laar
+  W(ab,an) = 14.6 - 0.00935*T - 0.04*P
+  W(ab,san) = 24.1 - 0.00957*T + 0.338*P
+  W(an,san) = 48.5 - 0.13*P
+
+  v(ab) = 0.674
+  v(an) = 0.55
+  v(san) = 1
+
+#
+ ====================================================================
+ Spinel: FMATOCr
+
+ Tomlinson, EL & Holland, TJB (2021). A thermodynamic model for
+ the subsolidus evolution and melting of peridotite.
+ Journal of Petrology, egab012, 1-23.
+ doi: 10.1093/petrology/egab012
+
+
+ E-m  Formula                          Mixing sites
+                T                         M
+                Mg    Fe    Al    Fe3     Mg    Fe    Al    Fe3   Cr    Ti
+ nsp  MgAl2O4   1     0     0     0       0     0     2     0     0     0    - ordered spinel
+ isp  MgAl2O4   0     0     1     0       1     0     1     0     0     0    - inverse spinel
+ nhc  FeAl2O4   0     1     0     0       0     0     2     0     0     0    - ordered hercynite
+ ihc  FeAl2O4   0     0     1     0       0     1     1     0     0     0    - inverse hercynite
+ nmt  Fe3O4     0     1     0     0       0     0     0     2     0     0    - ordered magnetite
+ imt  Fe3O4     0     0     0     1       0     1     0     1     0     0    - inverse magnetite
+ pcr  MgCr2O4   1     0     0     0       0     0     0     0     2     0    - ordered picrochromite
+ usp  Fe2TiO4   0     1     0     0       0     1     0     0     0     1    - ulvospinel
+
+ x -> (2 xFeM + xFeT)/(2 xFeM + xFeT + 2 xMgM + xMgT)
+ y -> (2 xFe3M + xFe3T)/(2 xAlM + xAlT + 2 xFe3M + xFe3T)
+ c -> xCrM
+ t -> 2 xTiM
+ Q1 -> -xMgM + xMgT    - order variable
+ Q2 -> -xFeM + xFeT    - order variable
+ Q3 -> -xFe3M + xFe3T  - order variable
+ --------------------------------------------------
+#
+
+ starting guesses
+  x(spn_T21) = 0.10000  range 0 <> 1
+  y(spn_T21) = 0.050000  range 0 <> 1
+  c(spn_T21) = 0.050000  range 0 <> 1
+  t(spn_T21) = 0.050000  range 0 <> 1
+  Q1(spn_T21) = 0.20000  range -1 <> 1  order variable
+  Q2(spn_T21) = 0.20000  range -1 <> 1  order variable
+  Q3(spn_T21) = 0.20000  range -1 <> 1  order variable
+
+ site fractions
+   xMgT = 1/3 + 1/3*t - 1/3*x + 2/3*Q1 + (-1/3*t)*x
+   xFeT = 1/3*x + 2/3*Q2 + 1/3*t*x
+   xAlT = 2/3 - 1/3*t - 2/3*Q1 - 2/3*Q2 - 2/3*Q3 - 2/3*y + 2/3*c*y + 2/3*t*y
+   xFe3T = 2/3*Q3 + 2/3*y + (-2/3*c)*y + (-2/3*t)*y
+   xMgM = 1/3 - 1/3*Q1 + 1/3*t - 1/3*x + (-1/3*t)*x
+   xFeM = -1/3*Q2 + 1/3*x + 1/3*t*x
+   xAlM = 2/3 + 1/3*Q1 + 1/3*Q2 + 1/3*Q3 - c - 2/3*y - 5/6*t + 2/3*c*y + 2/3*t*y
+   xFe3M = -1/3*Q3 + 2/3*y + (-2/3*c)*y + (-2/3*t)*y
+   xCrM = c
+   xTiM = 1/2*t
+
+ proportions
+   nsp = 1/3 + 1/3*t - 1/3*x - c + 2/3*Q1 + (-1/3*t)*x
+   isp = 2/3 - 2/3*Q1 + 2/3*t - 2/3*x + (-2/3*t)*x
+   nhc = 1/3*x - 1/3*y - t + 2/3*Q2 + 2/3*Q3 + 1/3*t*x + 1/3*c*y + 1/3*t*y
+   ihc = -t - 2/3*Q2 - 2/3*Q3 + 2/3*x - 2/3*y + 2/3*t*x + 2/3*c*y + 2/3*t*y
+   nmt = 1/3*y - 2/3*Q3 + (-1/3*c)*y + (-1/3*t)*y
+   imt = 2/3*Q3 + 2/3*y + (-2/3*c)*y + (-2/3*t)*y
+   pcr = c
+   usp = t
+
+ ideal mixing activities
+  nsp = xMgT*xAlM
+  isp = 2*xAlT*xMgM**(1/2)*xAlM**(1/2)
+  nhc = xFeT*xAlM
+  ihc = 2*xAlT*xFeM**(1/2)*xAlM**(1/2)
+  nmt = xFeT*xFe3M
+  imt = 2*xFe3T*xFeM**(1/2)*xFe3M**(1/2)
+  pcr = xMgT*xCrM
+  usp = 2*xFeT*xFeM**(1/2)*xTiM**(1/2)
+
+ non-ideality by van laar
+  W(nsp,isp) = -6.7
+  W(nsp,nhc) = 3.6
+  W(nsp,ihc) = -9.8
+  W(nsp,nmt) = 43.2
+  W(nsp,imt) = 49.5
+  W(nsp,pcr) = -38.4 - 0.08*P
+  W(nsp,usp) = 40
+  W(isp,nhc) = 2.7
+  W(isp,ihc) = -3.5
+  W(isp,nmt) = 36.8
+  W(isp,imt) = 20.7
+  W(isp,pcr) = -21.6 - 0.08*P
+  W(isp,usp) = 38.2
+  W(nhc,ihc) = -6
+  W(nhc,nmt) = 17.5
+  W(nhc,imt) = 51.6
+  W(nhc,pcr) = -53.8
+  W(nhc,usp) = 25.7
+  W(ihc,nmt) = -4.1
+  W(ihc,imt) = 10
+  W(ihc,pcr) = -38.8
+  W(ihc,usp) = 21
+  W(nmt,imt) = 18.1
+  W(nmt,pcr) = 12.1
+  W(nmt,usp) = 5.2
+  W(imt,pcr) = -8.7
+  W(imt,usp) = 21.5
+  W(pcr,usp) = 15
+
+  v(nsp) = 1
+  v(isp) = 1
+  v(nhc) = 1
+  v(ihc) = 1
+  v(nmt) = 1
+  v(imt) = 1
+  v(pcr) = 1
+  v(usp) = 0.9
+
+ "make" end-members
+  nsp = o-sp
+  isp = o-sp + 23.5 - 0.005763*T  (od)
+  nhc = o-herc
+  ihc = o-herc + 23.6 - 0.005763*T  (od)
+  nmt = e-mt + 0 + 0.005763*T  (od)
+  imt = e-mt + 0.3  (od)
+  pcr = picr
+
+#
+ =================================================================
+ garnet: CFMASTOCr
+
+ Green, ECR, Powell, R, Holland, TJB, Riel, N and Weller, O
+ Corrections to recently published thermodynamic models for silicate melt.
+ Journal of Petrology, submitted
+
+ After:
+ Holland, TJB, Green, ECR & Powell, R (2018). Melting of peridotites
+ through to granites: a simple thermodynamic model in the system
+ KNCFMASHTOCr. Journal of Petrology, 59, 881-900,
+ with minor modifications to W and ?G^end-member values in Ti- and
+ Cr-bearing subsystems.
+
+ E-m    Formula                     Mixing sites
+                            M1            M2
+                            Mg  Fe  Ca    Al  Cr  Fe3 Mg  Ti
+ py    Mg3Al2Si3O12         3   0   0     2   0   0   0   0
+ alm   Fe3Al2Si3O12         0   3   0     2   0   0   0   0
+ gr    Ca3Al2Si3O12         0   0   3     2   0   0   0   0
+ andr  Ca3Fe2Si3O12         0   0   3     0   0   2   0   0
+ knom  Mg3Cr2Si3O12         3   0   0     0   2   0   0   0
+ tig   Mg3.5AlTi0.5Si3O12   3   0   0     1   0   0   1/2 1/2
+
+ x -> xFeM1/(xFeM1 + xMgM1)
+ c -> xCaM1
+ f -> xFe3M2
+ cr -> xCrM2
+ t -> xTiM2
+ --------------------------------------------------
+#
+
+ starting guesses
+  x(g_G23) = 0.30000  range 0 <> 1
+  c(g_G23) = 0.20000  range 0 <> 1
+  f(g_G23) = 0.010000  range 0 <> 1
+  cr(g_G23) = 0.010000  range 0 <> 1
+  t(g_G23) = 0.0010000  range 0 <> 1
+
+ site fractions
+   xMgM1 = 1 - c - x + c*x
+   xFeM1 = x + (-c)*x
+   xCaM1 = c
+   xAlM2 = 1 - cr - f - 2t
+   xCrM2 = cr
+   xFe3M2 = f
+   xMgM2 = t
+   xTiM2 = t
+
+ proportions
+   py = 1 - c - cr - x - 4t + c*x
+   alm = x + (-c)*x
+   gr = c - f
+   andr = f
+   knr = cr
+   tig = 4t
+
+ ideal mixing activities
+  py = xMgM1**3*xAlM2**2
+  alm = xFeM1**3*xAlM2**2
+  gr = xCaM1**3*xAlM2**2
+  andr = xCaM1**3*xFe3M2**2
+  knr = xMgM1**3*xCrM2**2
+  tig = 8*xMgM1**3*xAlM2*xMgM2**(1/2)*xTiM2**(1/2)
+
+ non-ideality by van laar
+  W(py,alm) = 4 + 0.1*P
+  W(py,gr) = 45.4 - 0.01*T + 0.04*P
+  W(py,andr) = 107 - 0.01*T - 0.036*P
+  W(py,knr) = 2
+  W(py,tig) = 0
+  W(alm,gr) = 17 - 0.01*T + 0.1*P
+  W(alm,andr) = 65 - 0.01*T + 0.039*P
+  W(alm,knr) = 8.2 + 0.01*P
+  W(alm,tig) = 0
+  W(gr,andr) = 2
+  W(gr,knr) = 5 - 0.01*T + 0.18*P
+  W(gr,tig) = 0
+  W(andr,knr) = 63 - 0.01*T + 0.1*P
+  W(andr,tig) = 0
+  W(knr,tig) = 0
+
+  v(py) = 1
+  v(alm) = 1
+  v(gr) = 2.5
+  v(andr) = 2.5
+  v(knr) = 1
+  v(tig) = 1
+
+ "make" end-members
+  knr = knor
+  tig = py + 1/2 per + 1/2 ru - 1/2 cor + 53.5 - 0.0173*T  (make)
+
+#
+ ====================================================================
+ olivine: CFMS
+
+ Holland, TJB, Green, ECR & Powell, R (2018). Melting of peridotites
+ through to granites: a simple thermodynamic model in the system
+ KNCFMASHTOCr. Journal of Petrology, 59, 881-900.
+
+  E-m    Formula	   Mixing sites
+                     M1            M2
+                     Mg    Fe      Mg    Fe    Ca
+ mont    CaMgSiO4    1     0       0     0     1
+ fa      Fe2SiO4     0     1       0     1     0
+ fo      Mg2SiO4     1     0       1     0     0
+ cfm     MgFeSiO4    1     0       0     1     0   - ordered intermediate
+
+ x -> (xFeM1 + xFeM2)/(xFeM1 + xFeM2 + xMgM1 + xMgM2)
+ c -> xCaM2
+ Q -> x - xFeM1/(xFeM1 + xMgM1)   - order variable
+
+ --------------------------------------------------
+#
+
+ starting guesses
+  x(ol_H18) = 0.10000  range 0 <> 1
+  c(ol_H18) = 0.0020000  range 0 <> 1
+  Q(ol_H18) = 0.010000  range 0 <> 1  order variable
+
+ site fractions
+   xMgM1 = 1 + Q - x
+   xFeM1 = -Q + x
+   xMgM2 = 1 - c - Q - x + c*x
+   xFeM2 = Q + x + (-c)*x
+   xCaM2 = c
+
+ proportions
+   mnt = c
+   fa = -Q + x
+   fo = 1 - c - Q - x + c*x
+   cfm = 2Q + (-c)*x
+
+ ideal mixing activities
+  mnt = xMgM1*xCaM2
+  fa = xFeM1*xFeM2
+  fo = xMgM1*xMgM2
+  cfm = xMgM1*xFeM2
+
+ non-ideality by symmetric formalism
+  W(mnt,fa) = 24
+  W(mnt,fo) = 38
+  W(mnt,cfm) = 24
+  W(fa,fo) = 9
+  W(fa,cfm) = 4.5
+  W(fo,cfm) = 4.5
+
+ "make" end-members
+  mnt = mont
+  cfm = 1/2 fa + 1/2 fo
+
+#
+ =================================================================
+ Orthopyroxene: NCFMASTOCr
+
+ Green, ECR, Powell, R, Holland, TJB, Riel, N and Weller, O
+ Corrections to recently published thermodynamic models for silicate melt.
+ Journal of Petrology, submitted
+
+ After:
+ Holland, TJB, Green, ECR & Powell, R (2018). Melting of peridotites
+ through to granites: a simple thermodynamic model in the system
+ KNCFMASHTOCr. Journal of Petrology, 59, 881-900,
+ with minor modifications to W and ?G^end-member values, especially in Ti-
+ and Cr-bearing subsystems.
+
+ E-m   Formula                         Mixing sites
+                        M1                        M2                T*
+                        Mg  Fe  Al  Fe3 Cr  Ti    Mg  Fe  Ca  Na    Si  Al
+ en    Mg2Si2O6         1   0   0   0   0   0     1   0   0   0     2   0
+ fs    Fe2Si2O6         0   1   0   0   0   0     0   1   0   0     2   0
+ fm    MgFeSi2O6        1   0   0   0   0   0     0   1   0   0     2   0   - ordered intermediate
+ odi   CaMgSi2O6        1   0   0   0   0   0     0   0   1   0     2   0
+ mgts  MgAl2SiO6        0   0   1   0   0   0     1   0   0   0     1   1
+ cren  MgCrAlSiO6       0   0   0   0   1   0     1   0   0   0     1   1
+ obuf  Mg1.5AlTi0.5SiO6 1/2 0   0   0   0   1/2   1   0   0   0     1   1
+ mess  MgFeAlSiO6       0   0   0   1   0   0     1   0   0   0     1   1
+ ojd   NaAlSi2O6        0   0   1   0   0   0     0   0   0   1     2   0
+ *use 1/4 entropy of mixing from T-site
+
+ x -> (xFeM1 + xFeM2)/(xFeM1 + xFeM2 + xMgM1 + xMgM2)
+ y -> 2 xAlT
+ c -> xCaM2
+ Q -> -x + xFeM1/(xFeM1 + xMgM1)  - order variable
+ f -> xFe3M1
+ t -> xTiM1
+ cr -> xCrM1
+ j -> xNaM2
+ --------------------------------------------------
+#
+
+ starting guesses
+  x(opx_G23) = 0.050000  range 0 <> 1
+  y(opx_G23) = 0.0060000  range 0 <> 2
+  c(opx_G23) = 0.025000  range 0 <> 1
+  Q(opx_G23) = 0.032000  range -1 <> 1  order variable
+  f(opx_G23) = 0.0010000  range 0 <> 1
+  t(opx_G23) = 0.0010000  range 0 <> 1
+  cr(opx_G23) = 0.0010000  range 0 <> 1
+  j(opx_G23) = 0.0010000  range 0 <> 1
+
+ site fractions
+   xMgM1 = 1 - j - Q + t - x - y + j*Q + (-Q)*t + j*x + (-t)*x + Q*y + x*y
+   xFeM1 = Q + x + (-j)*Q + Q*t + (-j)*x + t*x + (-Q)*y + (-x)*y
+   xAlM1 = -cr - f + j + y - 2t
+   xFe3M1 = f
+   xCrM1 = cr
+   xTiM1 = t
+   xMgM2 = 1 - c - j + Q - x + (-j)*Q + Q*t + c*x + j*x + (-Q)*y
+   xFeM2 = -Q + x + j*Q + (-Q)*t + (-c)*x + (-j)*x + Q*y
+   xCaM2 = c
+   xNaM2 = j
+   xSiT = 1 - 1/2*y
+   xAlT = 1/2*y
+
+ proportions
+   en = 1 - c - j + Q - x - y + (-j)*Q + Q*t + c*x + j*x + (-Q)*y
+   fs = Q + x + (-j)*Q + Q*t + (-j)*x + t*x + (-Q)*y + (-x)*y
+   fm = -2Q + 2j*Q + (-2Q)*t + (-c)*x + (-t)*x + 2Q*y + x*y
+   odi = c
+   mgts = -cr - f + y - 2t
+   cren = cr
+   obuf = 2t
+   mess = f
+   ojd = j
+
+ ideal mixing activities
+  en = xMgM1*xMgM2*xSiT**(1/2)
+  fs = xFeM1*xFeM2*xSiT**(1/2)
+  fm = xMgM1*xFeM2*xSiT**(1/2)
+  odi = xMgM1*xCaM2*xSiT**(1/2)
+  mgts = 1.4142*xAlM1*xMgM2*xSiT**(1/4)*xAlT**(1/4)
+  cren = 1.4142*xCrM1*xMgM2*xSiT**(1/4)*xAlT**(1/4)
+  obuf = 2.8284*xMgM1**(1/2)*xTiM1**(1/2)*xMgM2*xSiT**(1/4)*xAlT**(1/4)
+  mess = 1.4142*xFe3M1*xMgM2*xSiT**(1/4)*xAlT**(1/4)
+  ojd = xAlM1*xNaM2*xSiT**(1/2)
+
+ non-ideality by van laar
+  W(en,fs) = 7
+  W(en,fm) = 3.5
+  W(en,odi) = 29 + 0.15*P
+  W(en,mgts) = 12.5 - 0.04*P
+  W(en,cren) = 8
+  W(en,obuf) = 6
+  W(en,mess) = 8
+  W(en,ojd) = 35
+  W(fs,fm) = 4.5
+  W(fs,odi) = 23 + 0.08*P
+  W(fs,mgts) = 11 - 0.15*P
+  W(fs,cren) = 10
+  W(fs,obuf) = 7
+  W(fs,mess) = 10
+  W(fs,ojd) = 35
+  W(fm,odi) = 19 + 0.08*P
+  W(fm,mgts) = 15 - 0.15*P
+  W(fm,cren) = 12
+  W(fm,obuf) = 8
+  W(fm,mess) = 12
+  W(fm,ojd) = 35
+  W(odi,mgts) = 75.5 - 0.84*P
+  W(odi,cren) = 20
+  W(odi,obuf) = 40
+  W(odi,mess) = 20
+  W(odi,ojd) = 35
+  W(mgts,cren) = 2
+  W(mgts,obuf) = 10
+  W(mgts,mess) = 2
+  W(mgts,ojd) = 7
+  W(cren,obuf) = 6
+  W(cren,mess) = 2
+  W(cren,ojd) = -11
+  W(obuf,mess) = 6
+  W(obuf,ojd) = 20
+  W(mess,ojd) = -11
+
+  v(en) = 1
+  v(fs) = 1
+  v(fm) = 1
+  v(odi) = 1.2
+  v(mgts) = 1
+  v(cren) = 1
+  v(obuf) = 1
+  v(mess) = 1
+  v(ojd) = 1.2
+
+ "make" end-members
+  fm = 1/2 en + 1/2 fs - 6.6  (od)
+  odi = di + 2.8 + 0.005*P  (tran)
+  cren = mgts + kos - jd - 28.64 + 0.0155*T + 0.02*P  (make)
+  obuf = mgts + 1/2 per + 1/2 ru - 1/2 cor - 3.91 - 0.0051*T + 0.37*P  (make)
+  mess = mgts + acm - jd - 0.07 - 0.089*P  (make)
+  ojd = jd + 18.2  (tran)
+
+#
+ =================================================================
+ Clinopyroxene: KNCFMASTOCr
+
+ Green, ECR, Powell, R, Holland, TJB, Riel, N and Weller, O
+ Corrections to recently published thermodynamic models for silicate melt.
+ Journal of Petrology, submitted
+
+ After:
+ Holland, TJB, Green, ECR & Powell, R (2018). Melting of peridotites
+ through to granites: a simple thermodynamic model in the system
+ KNCFMASHTOCr. Journal of Petrology, 59, 881-900,
+ with minor modifications to W and ?G^end-member values, especially in Ti-
+ and Cr-bearing subsystems.
+
+ E-m   Formula                             Mixing sites
+                        M1                        M2                    T*
+                        Mg  Fe  Al  Fe3 Cr  Ti    Mg  Fe  Ca  Na  K     Si  Al
+ di    CaMgSi2O6        1   0   0   0   0   0     0   0   1   0   0     2   0
+ cfs   Fe2Si2O6         0   1   0   0   0   0     0   1   0   0   0     2   0
+ cats  CaAl2SiO6        0   0   1   0   0   0     0   0   1   0   0     1   1
+ crdi  CaCrAlSiO6       0   0   0   0   1   0     0   0   1   0   0     1   1
+ cess  CaFeAlSiO6       0   0   0   1   0   0     0   0   1   0   0     1   1
+ cbuf  Ca1.5AlTi0.5SiO6 1/2 0   0   0   0   1/2   0   0   1   0   0     1   1
+ jd    NaAlSi2O6        0   0   1   0   0   0     0   0   0   1   0     2   0
+ cen   Mg2Si2O6         1   0   0   0   0   0     1   0   0   0   0     2   0
+ cfm   MgFeSi2O6        1   0   0   0   0   0     0   1   0   0   0     2   0     - ordered intermediate
+ kjd   KAlSi2O6         0   0   1   0   0   0     0   0   0   0   1     2   0
+ *use 1/4 entropy of mixing from T-site
+
+ x -> (xFeM1 + xFeM2)/(xFeM1 + xFeM2 + xMgM1 + xMgM2)
+ y -> 2 xAlT
+ o -> xFeM2 + xMgM2
+ n -> xNaM2
+ Q -> -x + xFeM1/(xFeM1 + xMgM1)         - order variable
+ f -> xFe3M1
+ c -> xCrM1
+ t -> xTiM1
+ k -> xKM2
+ --------------------------------------------------
+#
+
+ starting guesses
+  x(cpx_G23) = 0.075000  range 0 <> 1
+  y(cpx_G23) = 0.11200  range 0 <> 2
+  o(cpx_G23) = 0.050000  range 0 <> 1
+  n(cpx_G23) = 0.11000  range 0 <> 1
+  Q(cpx_G23) = -0.00050000  range -1 <> 1  order variable
+  f(cpx_G23) = 0.0010000  range 0 <> 1
+  cr(cpx_G23) = 0.0010000  range 0 <> 1
+  t(cpx_G23) = 0.0010000  range 0 <> 1
+  k(cpx_G23) = 0.0010000  range 0 <> 1
+
+ site fractions
+   xMgM1 = 1 - k - n - Q + t - x - y + k*Q + n*Q + (-Q)*t + k*x + n*x + (-t)*x + Q*y + x*y
+   xFeM1 = Q + x + (-k)*Q + (-n)*Q + Q*t + (-k)*x + (-n)*x + t*x + (-Q)*y + (-x)*y
+   xAlM1 = -cr - f + k + n + y - 2t
+   xFe3M1 = f
+   xCrM1 = cr
+   xTiM1 = t
+   xMgM2 = o + Q + (-k)*Q + (-n)*Q + Q*t + (-o)*x + (-Q)*y
+   xFeM2 = -Q + k*Q + n*Q + (-Q)*t + o*x + Q*y
+   xCaM2 = 1 - k - n - o
+   xNaM2 = n
+   xKM2 = k
+   xSiT = 1 - 1/2*y
+   xAlT = 1/2*y
+
+ proportions
+   di = 1 - k - n - o - y
+   cfs = Q + x + (-k)*Q + (-n)*Q + Q*t + (-k)*x + (-n)*x + t*x + (-Q)*y + (-x)*y
+   cats = -cr - f + y - 2t
+   crdi = cr
+   cess = f
+   cbuf = 2t
+   jd = n
+   cen = o + Q + (-k)*Q + (-n)*Q + Q*t + (-o)*x + (-Q)*y
+   cfm = -x - 2Q + 2k*Q + 2n*Q + (-2Q)*t + k*x + n*x + o*x + (-t)*x + 2Q*y + x*y
+   kjd = k
+
+ ideal mixing activities
+  di = xMgM1*xCaM2*xSiT**(1/2)
+  cfs = xFeM1*xFeM2*xSiT**(1/2)
+  cats = 1.4142*xAlM1*xCaM2*xSiT**(1/4)*xAlT**(1/4)
+  crdi = 1.4142*xCrM1*xCaM2*xSiT**(1/4)*xAlT**(1/4)
+  cess = 1.4142*xFe3M1*xCaM2*xSiT**(1/4)*xAlT**(1/4)
+  cbuf = 2.8284*xMgM1**(1/2)*xTiM1**(1/2)*xCaM2*xSiT**(1/4)*xAlT**(1/4)
+  jd = xAlM1*xNaM2*xSiT**(1/2)
+  cen = xMgM1*xMgM2*xSiT**(1/2)
+  cfm = xMgM1*xFeM2*xSiT**(1/2)
+  kjd = xAlM1*xKM2*xSiT**(1/2)
+
+ non-ideality by van laar
+  W(di,cfs) = 25.8 - 0.03*P
+  W(di,cats) = 13 - 0.06*P
+  W(di,crdi) = 8
+  W(di,cess) = 8
+  W(di,cbuf) = 8
+  W(di,jd) = 26
+  W(di,cen) = 29.8 - 0.03*P
+  W(di,cfm) = 20.6 - 0.03*P
+  W(di,kjd) = 26
+  W(cfs,cats) = 25 - 0.1*P
+  W(cfs,crdi) = 38.3
+  W(cfs,cess) = 43.3
+  W(cfs,cbuf) = 24
+  W(cfs,jd) = 24
+  W(cfs,cen) = 2.3
+  W(cfs,cfm) = 3.5
+  W(cfs,kjd) = 24
+  W(cats,crdi) = 2
+  W(cats,cess) = 2
+  W(cats,cbuf) = 6
+  W(cats,jd) = 6
+  W(cats,cen) = 45.2 - 0.35*P
+  W(cats,cfm) = 27 - 0.1*P
+  W(cats,kjd) = 6
+  W(crdi,cess) = 2
+  W(crdi,cbuf) = 6
+  W(crdi,jd) = 3
+  W(crdi,cen) = 52.3
+  W(crdi,cfm) = 40.3
+  W(crdi,kjd) = 3
+  W(cess,cbuf) = 6
+  W(cess,jd) = 3
+  W(cess,cen) = 57.3
+  W(cess,cfm) = 45.3
+  W(cess,kjd) = 3
+  W(cbuf,jd) = 16
+  W(cbuf,cen) = 24
+  W(cbuf,cfm) = 22
+  W(cbuf,kjd) = 16
+  W(jd,cen) = 40
+  W(jd,cfm) = 26
+  W(jd,kjd) = 28
+  W(cen,cfm) = 4
+  W(cen,kjd) = 40
+  W(cfm,kjd) = 40
+
+  v(di) = 1.2
+  v(cfs) = 1
+  v(cats) = 1.9
+  v(crdi) = 1.9
+  v(cess) = 1.9
+  v(cbuf) = 1.9
+  v(jd) = 1.2
+  v(cen) = 1
+  v(cfm) = 1
+  v(kjd) = 1.2
+
+ "make" end-members
+  cfs = fs + 2.1 - 0.002*T + 0.045*P  (tran)
+  crdi = e-cats + kos - jd + 4.85  (make)
+  cess = e-cats + acm - jd - 3.46  (make)
+  cbuf = e-cats + 1/2 per + 1/2 ru - 1/2 cor - 20.89 - 0.0012*T + 0.248*P  (make)
+  cen = en + 3.5 - 0.002*T + 0.048*P  (tran)
+  cfm = 1/2 en + 1/2 fs - 1.6 - 0.002*T + 0.0465*P  (od)
+  kjd = jd - abh + e-san + 10.82 + 0.6*P  (make)
+
+#
+ ====================================================================
+ ilmenite
+
+ Weller et al 2023 in prep
+
+         A                         B
+         Fe    Ti    Fe3   Mg      Fe    Ti    Fe3   Mg
+ oilm    1     0     0     0       0     1     0     0
+ dilm    1/2   1/2   0     0       1/2   1/2   0     0
+ hem     0     0     1     0       0     0     1     0
+ ogk     0     0     0     1       0     1     0     0
+ dgk     0     1/2   0     1/2     0     1/2   0     1/2
+
+ i -> 1 - xFe3A
+
+             xMgA + xMgB
+ m -> -------------------------
+      xFeA + xFeB + xMgA + xMgB
+
+ Q -> xFeA - xFeB
+
+ Qt -> -xTiA + xTiB
+ -------------------------------------------------
+#
+
+ starting guesses
+  i(ilm_W23) = 0.99000  range 0 <> 1
+  m(ilm_W23) = 0.20000  range 0 <> 1
+  Q(ilm_W23) = 0.40000  range 0 <> 1  order variable
+  Qt(ilm_W23) = 0.40000  range 0 <> 1  order variable
+
+ site fractions
+   xFeA = 1/2*i + 1/2*Q + (-1/2*i)*m
+   xTiA = 1/2*i - 1/2*Qt
+   xFe3A = 1 - i
+   xMgA = -1/2*Q + 1/2*Qt + 1/2*i*m
+   xFeB = 1/2*i - 1/2*Q + (-1/2*i)*m
+   xTiB = 1/2*i + 1/2*Qt
+   xFe3B = 1 - i
+   xMgB = 1/2*Q - 1/2*Qt + 1/2*i*m
+
+ proportions
+   oilm = Q
+   dilm = i - Q + (-i)*m
+   hm = 1 - i
+   ogk = -Q + Qt
+   dgk = Q - Qt + i*m
+
+ ideal mixing activities
+  oilm = xFeA**(1/2)*xTiB**(1/2)
+  dilm = 2*xFeA**(1/4)*xTiA**(1/4)*xFeB**(1/4)*xTiB**(1/4)
+  hm = xFe3A**(1/2)*xFe3B**(1/2)
+  ogk = xMgA**(1/2)*xTiB**(1/2)
+  dgk = 2*xTiA**(1/4)*xMgA**(1/4)*xTiB**(1/4)*xMgB**(1/4)
+
+ non-ideality by symmetric formalism
+  W(oilm,dilm) = 7.05 + 0.13*P
+  W(oilm,hm) = 14.3
+  W(oilm,ogk) = -7.6
+  W(oilm,dgk) = 0.6
+  W(dilm,hm) = 7.25 - 0.13*P
+  W(dilm,ogk) = -5.5
+  W(dilm,dgk) = -2.2
+  W(hm,ogk) = 12.5
+  W(hm,dgk) = 2.7
+  W(ogk,dgk) = 8.3
+
+ "make" end-members
+  oilm = o-ilm
+  dilm = d-ilm
+  hm = e-hem
+  ogk = o-geik
+  dgk = d-geik
+
+#
+ =================================================================
+ clinoamphibole: NCKFMASHTO
+
+ Green, ECR, White, RW, Diener, JFA, Powell, R, Holland, TJB &
+ Palin, RM (2016). Activity-composition relations for the calculation
+ of partial melting equilibria in metabasic rocks.
+ Journal of Metamorphic Geology, 34, 845-869.
+
+ E-m  Formula                                         Mixing sites
+                              A          M13     M2                M4            T1*      V
+                              v  Na K    Mg Fe   Mg Fe Al Fe3 Ti   Ca Mg Fe Na   Si Al   OH O
+ tr   Ca2Mg5Si8O22(OH)2       1  0  0    3  0    2  0  0   0  0    2  0  0  0    4  0    2  0  tremolite
+ tsm  Ca2Mg3Al4Si6O22(OH)2    1  0  0    3  0    0  0  2   0  0    2  0  0  0    2  2    2  0  tschermakite
+ prgm NaCa2Mg4Al3Si6O22(OH)2  0  1  0    3  0    1  0  1   0  0    2  0  0  0    2  2    2  0  pargasite
+ glm  Na2Mg3Al2Si8O22(OH)2    1  0  0    3  0    0  0  2   0  0    0  0  0  2    4  0    2  0  glaucophane
+ cumm Mg7Si8O22(OH)2          1  0  0    3  0    2  0  0   0  0    0  2  0  0    4  0    2  0  cummingtonite
+ grnm Fe7Si8O22(OH)2          1  0  0    0  3    0  2  0   0  0    0  0  2  0    4  0    2  0  grunerite
+ a    Mg3Fe4Si8O22(OH)2       1  0  0    3  0    0  2  0   0  0    0  0  2  0    4  0    2  0  - ordered
+ b    Mg2Fe5Si8O22(OH)2       1  0  0    0  3    2  0  0   0  0    0  0  2  0    4  0    2  0  - ordered
+ mrb  Na2Mg3Fe2Si8O22(OH)2    1  0  0    3  0    0  0  0   2  0    0  0  0  2    4  0    2  0  magnesio-riebekite
+ kprg KCa2Mg4Al3Si6O22(OH)2   0  0  1    3  0    1  0  1   0  0    2  0  0  0    2  2    2  0  K-pargasite
+ tts  Ca2Mg3Al2Ti2Si6O24      1  0  0    3  0    0  0  0   0  2    2  0  0  0    2  2    0  2  Ti-tschermakite
+ *use 1/4 entropy of mixing from T-site
+
+ There is little information with which to estimate delH^formation for
+ any of these end-members in the Holland & Powell dataset. The dataset
+ value for the end-member tr is assumed to be correct, while the values
+ for the other end-members are calibrated relative to this during a-x
+ calibration.
+
+ x -> (3 xFeM13 + 2 xFeM2 + 2 xFeM4)/(3 xFeM13 + 2 xFeM2 + 2 xFeM4 + 3 xMgM13 + 2 xMgM2 + 2 xMgM4)
+ y -> xAlM2
+ z -> xNaM4
+ a -> xKA + xNaA
+ k -> xKA/(xKA + xNaA)
+ c -> xCaM4
+ f -> xFe3M2
+ t -> xTiM2
+ Q1 -> x - xFeM13/(xFeM13 + xMgM13)  - order variable
+ Q2 -> x - xFeM2/(xFeM2 + xMgM2)     - order variable
+ --------------------------------------------------
+#
+
+ starting guesses
+  x(hb_G16) = 0.57500  range 0 <> 1
+  y(hb_G16) = 0.65000  range 0 <> 1
+  z(hb_G16) = 0.35000  range 0 <> 1
+  a(hb_G16) = 0.40000  range 0 <> 1
+  k(hb_G16) = 0.10000  range 0 <> 1
+  c(hb_G16) = 0.65000  range 0 <> 1
+  f(hb_G16) = 0.10000  range 0 <> 1
+  t(hb_G16) = 0.10000  range 0 <> 1
+  Q1(hb_G16) = 0.027600  range -1 <> 1  order variable
+  Q2(hb_G16) = 0.27500  range -1 <> 1  order variable
+
+ site fractions
+   xvA = 1 - a
+   xNaA = a + (-a)*k
+   xKA = a*k
+   xMgM13 = 1 + Q1 - x
+   xFeM13 = -Q1 + x
+   xMgM2 = 1 - f + Q2 - t - x - y + (-f)*Q2 + (-Q2)*t + f*x + t*x + (-Q2)*y + x*y
+   xFeM2 = -Q2 + x + f*Q2 + Q2*t + (-f)*x + (-t)*x + Q2*y + (-x)*y
+   xAlM2 = y
+   xFe3M2 = f
+   xTiM2 = t
+   xCaM4 = c
+   xMgM4 = 1 - c - Q2 - x - z - 3/2*Q1 + f*Q2 + Q2*t + c*x + Q2*y + x*z
+   xFeM4 = Q2 + x + 3/2*Q1 + (-f)*Q2 + (-Q2)*t + (-c)*x + (-Q2)*y + (-x)*z
+   xNaM4 = z
+   xSiT1 = 1 - 1/2*f - 1/2*t - 1/2*y + 1/2*z - 1/4*a
+   xAlT1 = 1/2*f + 1/2*t + 1/2*y - 1/2*z + 1/4*a
+   xOHV = 1 - t
+   xOV = t
+
+ proportions
+   tr = -1/2*a + c - f - t - y + z
+   tsm = -1/2*a + f + y - z
+   prgm = a + (-a)*k
+   glm = -f + z
+   cumm = 1 - c - Q2 - x - z - 3/2*Q1 + f*Q2 + Q2*t + c*x + Q2*y + x*z
+   grnm = x - 2Q2 - 5/2*Q1 + 2f*Q2 + 2Q2*t + c*x + (-f)*x + (-t)*x + 2Q2*y + (-x)*y + x*z
+   a = Q2 + 5/2*Q1 + (-f)*Q2 + (-Q2)*t + (-c)*x + (-Q2)*y + (-x)*z
+   b = 2Q2 + 3/2*Q1 + (-2f)*Q2 + (-2Q2)*t + (-c)*x + f*x + t*x + (-2Q2)*y + x*y + (-x)*z
+   mrb = f
+   kprg = a*k
+   tts = t
+
+ ideal mixing activities
+  tr = xvA*xMgM13**3*xMgM2**2*xCaM4**2*xSiT1*xOHV**2
+  tsm = 2*xvA*xMgM13**3*xAlM2**2*xCaM4**2*xSiT1**(1/2)*xAlT1**(1/2)*xOHV**2
+  prgm = 8*xNaA*xMgM13**3*xMgM2*xAlM2*xCaM4**2*xSiT1**(1/2)*xAlT1**(1/2)*xOHV**2
+  glm = xvA*xMgM13**3*xAlM2**2*xNaM4**2*xSiT1*xOHV**2
+  cumm = xvA*xMgM13**3*xMgM2**2*xMgM4**2*xSiT1*xOHV**2
+  grnm = xvA*xFeM13**3*xFeM2**2*xFeM4**2*xSiT1*xOHV**2
+  a = xvA*xMgM13**3*xFeM2**2*xFeM4**2*xSiT1*xOHV**2
+  b = xvA*xFeM13**3*xMgM2**2*xFeM4**2*xSiT1*xOHV**2
+  mrb = xvA*xMgM13**3*xFe3M2**2*xNaM4**2*xSiT1*xOHV**2
+  kprg = 8*xKA*xMgM13**3*xMgM2*xAlM2*xCaM4**2*xSiT1**(1/2)*xAlT1**(1/2)*xOHV**2
+  tts = 2*xvA*xMgM13**3*xTiM2**2*xCaM4**2*xSiT1**(1/2)*xAlT1**(1/2)*xOV**2
+
+ non-ideality by van laar
+  W(tr,tsm) = 20
+  W(tr,prgm) = 25
+  W(tr,glm) = 65
+  W(tr,cumm) = 45
+  W(tr,grnm) = 75
+  W(tr,a) = 57
+  W(tr,b) = 63
+  W(tr,mrb) = 52
+  W(tr,kprg) = 30
+  W(tr,tts) = 85
+  W(tsm,prgm) = -40
+  W(tsm,glm) = 25
+  W(tsm,cumm) = 70
+  W(tsm,grnm) = 80
+  W(tsm,a) = 70
+  W(tsm,b) = 72.5
+  W(tsm,mrb) = 20
+  W(tsm,kprg) = -40
+  W(tsm,tts) = 35
+  W(prgm,glm) = 50
+  W(prgm,cumm) = 90
+  W(prgm,grnm) = 106.7
+  W(prgm,a) = 94.8
+  W(prgm,b) = 94.8
+  W(prgm,mrb) = 40
+  W(prgm,kprg) = 8
+  W(prgm,tts) = 15
+  W(glm,cumm) = 100
+  W(glm,grnm) = 113.5
+  W(glm,a) = 100
+  W(glm,b) = 111.2
+  W(glm,mrb) = 0
+  W(glm,kprg) = 54
+  W(glm,tts) = 75
+  W(cumm,grnm) = 33
+  W(cumm,a) = 18
+  W(cumm,b) = 23
+  W(cumm,mrb) = 80
+  W(cumm,kprg) = 87
+  W(cumm,tts) = 100
+  W(grnm,a) = 12
+  W(grnm,b) = 8
+  W(grnm,mrb) = 91
+  W(grnm,kprg) = 96
+  W(grnm,tts) = 65
+  W(a,b) = 20
+  W(a,mrb) = 80
+  W(a,kprg) = 94
+  W(a,tts) = 95
+  W(b,mrb) = 90
+  W(b,kprg) = 94
+  W(b,tts) = 95
+  W(mrb,kprg) = 50
+  W(mrb,tts) = 50
+  W(kprg,tts) = 35
+
+  v(tr) = 1
+  v(tsm) = 1.5
+  v(prgm) = 1.7
+  v(glm) = 0.8
+  v(cumm) = 1
+  v(grnm) = 1
+  v(a) = 1
+  v(b) = 1
+  v(mrb) = 0.8
+  v(kprg) = 1.7
+  v(tts) = 1.5
+
+ "make" end-members
+  tsm = ts + 10  (mod)
+  prgm = parg - 10  (mod)
+  glm = gl - 3  (mod)
+  grnm = grun - 3  (mod)
+  a = 3/7 cumm + 4/7 grun - 11.2  (od)
+  b = 2/7 cumm + 5/7 grun - 13.8  (od)
+  mrb = gl - gr + andr
+  kprg = mu - pa + parg - 7.06 + 0.02*T  (make)
+  tts = - 2 dsp + 2 ru + ts + 95  (make)
+
+#
+ =================================================================
+ biotite: KFMASHTO
+
+ Green, ECR, Powell, R, Holland, TJB, Riel, N and Weller, O
+ Corrections to recently published thermodynamic models for silicate melt.
+ Journal of Petrology, submitted
+
+ After:
+ White, RW, Powell, R, Holland, TJB, Johnson, TE &
+ Green, ECR (2014). New mineral activity-composition relations
+ for thermodynamic calculations in metapelitic systems.
+ Journal of Metamorphic Geology, 32, 261-286
+ (some changes to W and delG^end-member values).
+
+
+ E-m    Formula                                      Mixing sites
+                            M3                              M12           T             V
+                            Mg    Fe    Fe3   Ti    Al      Mg    Fe      Si    Al      OH    O
+ phl   KMg3AlSi3O10(OH)2    1     0     0     0     0       2     0       1     1       2     0
+ annm  KFe3AlSi3O10(OH)2    0     1     0     0     0       0     2       1     1       2     0
+ obi   KMg2Fe1AlSi3O10(OH)2 0     1     0     0     0       2     0       1     1       2     0  - ordered intermediate
+ eas   KMg2Al3Si2O10(OH)2   0     0     0     0     1       2     0       0     2       2     0
+ tbi   KMg2AlSi3TiO12       0     0     0     1     0       2     0       1     1       0     2
+ fbi   KMg2Al2FeSi2O10(OH)2 0     0     1     0     0       2     0       0     2       2     0
+
+
+ x -> (2 xFeM12 + xFeM3)/(2 xFeM12 + xFeM3 + 2 xMgM12 + xMgM3)
+ y -> xAlM3
+ f -> xFe3M3
+ t -> xTiM3
+ Q -> 3 (x - xFeM12)  - order variable
+ --------------------------------------------------
+#
+
+ starting guesses
+  x(bi_G23) = 0.35000  range 0 <> 1
+  y(bi_G23) = 0.25000  range 0 <> 1
+  f(bi_G23) = 0.040000  range 0 <> 1
+  t(bi_G23) = 0.17000  range 0 <> 1
+  Q(bi_G23) = 0.25000  range 0 <> 1  order variable
+
+ site fractions
+   xMgM3 = 1 - f - t - x - y - 2/3*Q + f*x + t*x + x*y
+   xFeM3 = x + 2/3*Q + (-f)*x + (-t)*x + (-x)*y
+   xFe3M3 = f
+   xTiM3 = t
+   xAlM3 = y
+   xMgM12 = 1 + 1/3*Q - x
+   xFeM12 = -1/3*Q + x
+   xSiT = 1/2 - 1/2*f - 1/2*y
+   xAlT = 1/2 + 1/2*f + 1/2*y
+   xOHV = 1 - t
+   xOV = t
+
+ proportions
+   phl = 1 - f - t - x - y - 2/3*Q + f*x + t*x + x*y
+   annm = -1/3*Q + x
+   obi = Q + (-f)*x + (-t)*x + (-x)*y
+   eas = y
+   tbi = t
+   fbi = f
+
+ ideal mixing activities
+  phl = 4*xMgM3*xMgM12**2*xSiT*xAlT*xOHV**2
+  annm = 4*xFeM3*xFeM12**2*xSiT*xAlT*xOHV**2
+  obi = 4*xFeM3*xMgM12**2*xSiT*xAlT*xOHV**2
+  eas = xAlM3*xMgM12**2*xAlT**2*xOHV**2
+  tbi = 4*xTiM3*xMgM12**2*xSiT*xAlT*xOV**2
+  fbi = xFe3M3*xMgM12**2*xAlT**2*xOHV**2
+
+ non-ideality by symmetric formalism
+  W(phl,annm) = 12
+  W(phl,obi) = 4
+  W(phl,eas) = 10
+  W(phl,tbi) = 30
+  W(phl,fbi) = 14
+  W(annm,obi) = 8
+  W(annm,eas) = 0
+  W(annm,tbi) = 32
+  W(annm,fbi) = 5
+  W(obi,eas) = 7
+  W(obi,tbi) = 24
+  W(obi,fbi) = 6
+  W(eas,tbi) = 40
+  W(eas,fbi) = 1
+  W(tbi,fbi) = 40
+
+ "make" end-members
+  annm = ann - 3  (mod)
+  obi = 1/3 ann + 2/3 phl - 6  (od)
+  eas = east + 2.2  (mod)
+  tbi = - br + phl + ru + 55  (make)
+  fbi = 1/2 east + acm - jd - 3  (make)
+
+#
+ =================================================================
+ epidote: CFASHO
+
+ Holland, TJB & Powell, R (2011). An improved and
+ extended internally consistent thermodynamic dataset
+ for phases of petrological interest, involving a
+ new equation of state for solids.
+ Journal of Metamorphic Geology, 29, 333-383.
+
+ E-m   Formula                Mixing sites
+                             M1       M3
+                             Al Fe3   Al Fe3
+ cz    Ca2Al3Si3O12(OH)      1   0    1   0
+ ep    Ca2FeAl2Si3O12(OH)    1   0    0   1  - ordered end-member
+ fep   Ca2Fe2AlSi3O12(OH)    0   1    0   1
+
+ f -> (xFe3M1+xFe3M3)/2
+ Q ->  f - xFe3M1   - order variable
+ --------------------------------------------------
+#
+
+ starting guesses
+  f(ep_H11) = 0.10000  range 0 <> 1
+  Q(ep_H11) = 0.20000  range 0 <> 0.5  order variable
+
+ site fractions
+   xFeM1 = f - Q
+   xAlM1 = 1 - f + Q
+   xFeM3 = f + Q
+   xAlM3 = 1 - f - Q
+
+ proportions
+   cz = 1 - f - Q
+   ep = 2Q
+   fep = f - Q
+
+ ideal mixing activities
+  cz = xAlM1*xAlM3
+  ep = xAlM1*xFeM3
+  fep = xFeM1*xFeM3
+
+ non-ideality by symmetric formalism
+  W(cz,ep) = 1
+  W(cz,fep) = 3
+  W(ep,fep) = 1
+
+#
+ =================================================================
+ Cordierite: FMASH
+
+ Holland, TJB, Green, ECR & Powell, R (2018). Melting of peridotites
+ through to granites: a simple thermodynamic model in the system
+ KNCFMASHTOCr. Journal of Petrology, 59, 881-900.
+
+ E-m   Formula                Mixing sites
+                              X             H
+                              Fe    Mg      H2O   v
+ crd   Mg2Al4Si5O18           0     2       0     1
+ fcrd  Fe2Al4Si5O18           2     0       0     1
+ hcrd  Mg2Al4Si5O17(OH)2      0     2       1     0
+
+ x -> xFeX/(xFeX + xMgX)
+ h -> xH2OH
+ --------------------------------------------------
+#
+
+ starting guesses
+  x(cd_H18) = 0.30000  range 0 <> 1
+  h(cd_H18) = 0.70000  range 0 <> 1
+
+ site fractions
+   xFeX = x
+   xMgX = 1 - x
+   xH2OH = h
+   xvH = 1 - h
+
+ proportions
+   crd = 1 - h - x
+   fcrd = x
+   hcrd = h
+
+ ideal mixing activities
+  crd = xMgX**2*xvH
+  fcrd = xFeX**2*xvH
+  hcrd = xMgX**2*xH2OH
+
+ non-ideality by symmetric formalism
+  W(crd,fcrd) = 2.5
+  W(crd,hcrd) = 0
+  W(fcrd,hcrd) = 2
+

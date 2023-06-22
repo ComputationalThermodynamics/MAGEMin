@@ -9,6 +9,8 @@
 
 #include "MAGEMin.h"
 
+
+#define n_ox 11
 /** 
   read in input data from file 
 */
@@ -26,8 +28,8 @@ void read_in_data(		global_variable 	 gv,
 			/* if this is the first line belonging to a PT point to take into account */
 			if (l == 0){
 				/* first allocate memory to fill gamma array */
-				input_data[k].in_bulk      = malloc (gv.len_ox * sizeof (double) ); 
-				for (int z = 0; z < gv.len_ox; z++){
+				input_data[k].in_bulk      = malloc (n_ox * sizeof (double) ); 
+				for (int z = 0; z < n_ox; z++){
 					input_data[k].in_bulk[z] = 0.0; 
 				}
 
@@ -57,11 +59,11 @@ void read_in_data(		global_variable 	 gv,
 				//input_data[k].sum_phase_xeos = malloc(input_data[k].n_phase * sizeof(double));
 				input_data[k].phase_xeos 	 = malloc(input_data[k].n_phase * sizeof(double*));
 				for (int i = 0; i < input_data[k].n_phase; i++){
-					input_data[k].phase_xeos[i] = malloc((gv.len_ox) * sizeof(double));
+					input_data[k].phase_xeos[i] = malloc((n_ox) * sizeof(double));
 				}
 				/* initialize x-eos to zeros in case there is mistake in the input file */
 				for (int i = 0; i < input_data[k].n_phase; i++){
-					for (int j = 0; j < (gv.len_ox); j++){
+					for (int j = 0; j < (n_ox); j++){
 						input_data[k].phase_xeos[i][j] = gv.bnd_val;
 					}
 				}
@@ -70,11 +72,11 @@ void read_in_data(		global_variable 	 gv,
 				//input_data[k].sum_phase_emp = malloc(input_data[k].n_phase * sizeof(double));
 				input_data[k].phase_emp 	= malloc(input_data[k].n_phase * sizeof(double*));
 				for (int i = 0; i < input_data[k].n_phase; i++){
-					input_data[k].phase_emp[i] = malloc((gv.len_ox+1) * sizeof(double));
+					input_data[k].phase_emp[i] = malloc((n_ox+1) * sizeof(double));
 				}
 				/* initialize x-eos to zeros in case there is mistake in the input file */
 				for (int i = 0; i < input_data[k].n_phase; i++){
-					for (int j = 0; j < (gv.len_ox+1); j++){
+					for (int j = 0; j < (n_ox+1); j++){
 						input_data[k].phase_emp[i][j] = 0.0;
 					}
 				}
