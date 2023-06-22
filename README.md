@@ -44,28 +44,17 @@ In addition, we make use of [uthash](https://troydhanson.github.io/uthash/) and 
 ## Available thermodynamic datasets
 The MAGEMin algorithm is general and can be used with any thermodynamic database that are hardcoded for speed reasons. Presently the igneous (Green et al., 2023, updated versions of Holland et al., 2018 and Tomlison et al., 2021), the ultramafic (Evans & Frost, 2021) and the metapelite (White et al., 2014) database are available.
 
-**Igneous thermodynamic dataset #1**
+**Igneous thermodynamic dataset**
 
 The hydrous mafic melting model of Holland et al. 2018 can be used to simulate the fractional crystallisation from a hydrous basalt to a felsic melt.
 
-- Added June 2023, `MAGEMin v1.3.2`                
-- Green et al., 2023 updated after Holland et al., 2018 (see http://hpxeosandthermocalc.org)
+- Added May 2022, `MAGEMin v1.0.0`                
+- Holland et al., 2018 (see http://hpxeosandthermocalc.org)
 - K2O-Na2O-CaO-FeO-MgO-Al2O3-SiO2-H2O-TiO2-O-Cr2O3 chemical system
 - Equations of state for
 	- Pure stoichiometric phases quartz (q), cristobalite (crst), tridymite (trd), coesite (coe), stishovite (stv), kyanite (ky), sillimanite (sill), andalusite (and), rutile (ru) and sphene (sph). 
 	- Solution phases spinel (spn), biotite (bi), cordierite (cd), clinopyroxene (cpx), orthopyroxene (opx), epidote (ep), garnet (g), hornblende (hb), ilmenite (ilm), silicate melt (liq), muscovite (mu), olivine (ol), ternary feldspar (pl4T), and aqueous fluid (fl).
 
-**Igneous thermodynamic dataset #2**
-
-The hydrous mafic melting model of Holland et al. 2018 can be used to simulate the fractional crystallisation from a hydrous basalt to a felsic melt.
-
-- Added June 2023, `MAGEMin v1.3.2` 
-- Green et al., 2023 updated after Tomlinson et al., 2021 (see http://hpxeosandthermocalc.org)
-- K2O-Na2O-CaO-FeO-MgO-Al2O3-SiO2-H2O-TiO2-O-Cr2O3 chemical system
-- Equations of state for
-	- Pure stoichiometric phases quartz (q), cristobalite (crst), tridymite (trd), coesite (coe), stishovite (stv), kyanite (ky), sillimanite (sill), andalusite (and), rutile (ru) and sphene (sph). 
-	- Solution phases spinel (spn), biotite (bi), cordierite (cd), clinopyroxene (cpx), orthopyroxene (opx), epidote (ep), garnet (g), hornblende (hb), ilmenite (ilm), silicate melt (liq), muscovite (mu), olivine (ol), ternary feldspar (pl4T), and aqueous fluid (fl).
-- added June 2023
 
 **Ultramafic thermodynamic dataset**
 

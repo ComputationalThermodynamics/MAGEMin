@@ -93,7 +93,6 @@ end
     gv.verbose  = -1        # switch off any verbose
     out         = point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in)
     
-    
     tol = 2e-2;
     @test abs(out.bulkMod - 95.35222421341481           < tol)
     @test abs(out.shearMod - 29.907907390690557         < tol)
