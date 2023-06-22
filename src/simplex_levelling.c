@@ -272,6 +272,7 @@ void update_global_gamma_LU( 				bulk_info 			z_b,
 	dgetrf(&d->n_Ox, &d->n_Ox, d->Alu, &d->n_Ox, ipiv, &info);
 
 	char T = 'T';
+
 	dgetrs(						&T,
 								&d->n_Ox, 
 								&nrhs, 
