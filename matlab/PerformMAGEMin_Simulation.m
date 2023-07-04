@@ -1,4 +1,4 @@
-function [PhaseData, XY_vec, FailedSimulations, CancelComputation]  = 	PerformMAGEMin_Simulation(PseudoSectionData,PhaseData, newPoints, XY_vec, VerboseLevel, Chemistry, dlg, ComputeAllPoints, UseGammaEstimation, Computation);
+function [PhaseData, XY_vec, FailedSimulations, CancelComputation]  = 	PerformMAGEMin_Simulation(PseudoSectionData, PhaseData, newPoints, XY_vec, VerboseLevel, Chemistry, dlg, ComputeAllPoints, UseGammaEstimation, Computation);
 % This performs a MAGEMin simulation for a bunch of points
 
 DiagramType = Computation.DiagramType;
@@ -11,7 +11,7 @@ end
 sys_in              =   Chemistry.sys_in;               % predefined chemical composition
 Test                =   Chemistry.Predefined;
 if isnan(Test)
-    OxProp         =   Chemistry.OxProp;    % we do not employ a predefined test, but specify mol proportions insteadOxProp
+    OxProp         =   Chemistry.OxProp;    % we do not employ a predefined test, instead specify mol proportions in OxProp
 else
     OxProp         =   [];
 end
@@ -31,7 +31,7 @@ switch Mode
     case 'AllPoints'
         
         % Write all points to be processed to a single file
-        n_points = Write_MAGEMin_InputFile(newPoints, XY_vec, PhaseData, UseGammaEstimation, Use_xEOS, Use_EMFrac, OxProp, DiagramType,PseudoSectionData);
+        n_points = Write_MAGEMin_InputFile(newPoints, XY_vec, PhaseData, UseGammaEstimation, Use_xEOS, Use_EMFrac, OxProp, DiagramType, PseudoSectionData);
         if ~isempty(PhaseData)
             for i=1:length(newPoints)
                 
@@ -199,25 +199,37 @@ for i=1:n_points
     % Read line with P/T and Gamma
 
     % in case PX or TX diagram is selected the bulk is set
-    nox    = size(PseudoSectionData.Chemistry.OxProp(:,2),1);
-    Bulk   =   zeros(1,nox);
+    if ~isempty(PseudoSectionData)
+        nox    = size(PseudoSectionData.Chemistry.OxProp(:,2),1);
+        Bulk   = zeros(1,nox);
 
-    if DiagramType == 'PT'
+        if DiagramType == 'PT'
+            id      =   newPoints(i);
+            T       =   XY_vec(id,1);
+            P       =   XY_vec(id,2);
+        elseif DiagramType == 'PX'
+            id      =   newPoints(i)
+            P       =   XY_vec(id,2)
+            T       =   (PseudoSectionData.FixedTemperature)
+            Bulk    =   table2array(PseudoSectionData.Chemistry.OxProp(:,2))*(1.-XY_vec(id,1)) + table2array(PseudoSectionData.Chemistry.OxProp(:,3))*(XY_vec(id,1));
+        elseif DiagramType == 'TX'
+            id      =   newPoints(i);
+            T       =   XY_vec(id,2);
+            P       =   PseudoSectionData.FixedPressure;
+            Bulk    =   table2array(PseudoSectionData.Chemistry.OxProp(:,2))*(1.-XY_vec(id,1)) + table2array(PseudoSectionData.Chemistry.OxProp(:,3))*(XY_vec(id,1));
+        end
+    else
         id      =   newPoints(i);
         T       =   XY_vec(id,1);
         P       =   XY_vec(id,2);
-    elseif DiagramType == 'PX'
-        id      =   newPoints(i)
-        P       =   XY_vec(id,2)
-        T       =   (PseudoSectionData.FixedTemperature)
-        Bulk    =   table2array(PseudoSectionData.Chemistry.OxProp(:,2))*(1.-XY_vec(id,1)) + table2array(PseudoSectionData.Chemistry.OxProp(:,3))*(XY_vec(id,1));
-    elseif DiagramType == 'TX'
-        id      =   newPoints(i);
-        T       =   XY_vec(id,2);
-        P       =   PseudoSectionData.FixedPressure;
-        Bulk    =   table2array(PseudoSectionData.Chemistry.OxProp(:,2))*(1.-XY_vec(id,1)) + table2array(PseudoSectionData.Chemistry.OxProp(:,3))*(XY_vec(id,1));
+        if ~isempty(OxProp)
+            nox  = size(OxProp(:,2),1);
+            Bulk = table2array(OxProp(:,2));
+        else
+            nox  = 11;
+            Bulk = zeros(1,nox);
+        end
     end
-    
 
     % if we do not use the previous Gamma
     Gamma   =   zeros(1,11);
