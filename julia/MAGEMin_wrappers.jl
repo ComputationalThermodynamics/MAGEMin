@@ -94,7 +94,7 @@ receives bulk-rock composition in [mol,wt] fraction and associated oxide list an
 function convertBulk4MAGEMin(bulk_in::Vector{Float64},bulk_in_ox::Vector{String},sys_in::String,db::String);
 
 	ref_ox          = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "MnO"; "H2O"];
-	ref_MolarMass   = [60.08; 101.96; 56.08; 40.30; 71.85; 79.85; 94.2; 61.98; 79.88; 16.0; 151.99; 70.937; 18.015];      #Molar mass of oxides
+	ref_MolarMass   = [60.08; 101.96; 56.08; 40.30; 71.85; 159.69; 94.2; 61.98; 79.88; 16.0; 151.99; 70.937; 18.015];      #Molar mass of oxides
 
     if db == "ig"
 	    MAGEMin_ox      = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "H2O"];
