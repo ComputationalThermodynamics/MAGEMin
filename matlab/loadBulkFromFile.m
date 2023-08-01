@@ -6,7 +6,7 @@ function bulk_in = loadBulkFromFile(sysunit,file,path,db);
 	bulk_ox     = data.colheaders;
 
 	ref_ox          = {'SiO2', 'Al2O3', 'CaO', 'MgO' ,'FeO', 'Fe2O3', 'K2O','Na2O', 'TiO2', 'O', 'Cr2O3', 'MnO', 'H2O', 'CO2', 'S'};
-	ref_MolarMass   = [60.08, 101.96, 56.08, 	40.30, 71.85,  79.85, 94.2,  61.98,  79.88,  16.0, 151.99, 70.94, 18.015, 44.01,32.06	];      %Molar mass of oxides
+	ref_MolarMass   = [60.08, 101.96, 56.08, 	40.30, 71.85,  159.69, 94.2,  61.98,  79.88,  16.0, 151.99, 70.94, 18.015, 44.01,32.06	];      %Molar mass of oxides
 
 	if strcmp(db,'ig')
 		MAGEMin_bulk    = zeros(11,1);
