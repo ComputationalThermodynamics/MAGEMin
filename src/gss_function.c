@@ -1834,6 +1834,60 @@ SS_ref G_SS_mp_st_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 }
 
 
+
+/**
+   retrieve reference thermodynamic data for igp_fper_S11
+*/
+SS_ref G_SS_ig_fper_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+    
+    int i, j;
+    int n_em = SS_ref_db.n_em;
+    
+    char   *EM_tmp[] 		= {"per","wu"};
+    for (int i = 0; i < SS_ref_db.n_em; i++){
+        strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
+    };
+    
+    SS_ref_db.W[0] = 13.0;
+    
+    
+    em_data per_eq 		= get_em_data(		EM_database, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"per", 
+    										"equilibrium"	);
+    
+    em_data wu_eq 		= get_em_data(		EM_database, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"wu", 
+    										"equilibrium"	);
+    
+    SS_ref_db.gbase[0] 		= per_eq.gb; //tentative correction to fix Stiruxe data
+    SS_ref_db.gbase[1] 		= wu_eq.gb;
+    
+    SS_ref_db.ElShearMod[0] 	= per_eq.ElShearMod;
+    SS_ref_db.ElShearMod[1] 	= wu_eq.ElShearMod;
+    
+    for (i = 0; i < len_ox; i++){
+        SS_ref_db.Comp[0][i] 	= per_eq.C[i];
+        SS_ref_db.Comp[1][i] 	= wu_eq.C[i];
+    }
+    
+    for (i = 0; i < n_em; i++){
+        SS_ref_db.z_em[i] = 1.0;
+    };
+    
+    SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
+    
+    return SS_ref_db;
+}
+
+
 /**
   retrieve reference thermodynamic data for biotite 
 */
@@ -4761,6 +4815,8 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
 			}}
         else if (strcmp( name, "pl4T") == 0 ){
             SS_ref_db  = G_SS_ig_pl4T_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);}
+        else if (strcmp( name, "fper") == 0 ){
+            SS_ref_db  = G_SS_ig_fper_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "spn") == 0 ){
             SS_ref_db  = G_SS_ig_spn_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "g") == 0 ){

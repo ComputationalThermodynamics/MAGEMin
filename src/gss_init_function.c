@@ -422,6 +422,21 @@ SS_ref G_SS_mp_mt_init_function(SS_ref SS_ref_db, int EM_database, global_variab
 /*********************IGNEOUS DATABASE (Holland et al., 2018)**************************/
 /**************************************************************************************/
 /**************************************************************************************/
+/**
+    allocate memory for fper
+*/
+SS_ref G_SS_ig_fper_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 2;
+    SS_ref_db.n_em      = 2;
+    SS_ref_db.n_w       = 1;
+    SS_ref_db.n_xeos    = 1;
+    SS_ref_db.CstFactor = 0;
+    
+    return SS_ref_db;
+}
 
 /** 
   allocate memory for biotite
@@ -910,6 +925,8 @@ SS_ref G_SS_init_EM_function(		int			 		 ph_id,
 			SS_ref_db  = G_SS_ig_hb_init_function(SS_ref_db, EM_database, gv); }
 		else if (strcmp( name, "bi") == 0 ){
 			SS_ref_db  = G_SS_ig_bi_init_function(SS_ref_db, EM_database, gv); }
+		else if (strcmp( name, "fper") == 0 ){
+			SS_ref_db  = G_SS_ig_fper_init_function(SS_ref_db, EM_database, gv); }
 		else if (strcmp( name, "ep") == 0 ){
 			SS_ref_db  = G_SS_ig_ep_init_function(SS_ref_db, EM_database, gv); }
 		else if (strcmp( name, "cd") == 0 ){

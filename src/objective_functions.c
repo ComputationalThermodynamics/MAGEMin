@@ -3056,6 +3056,24 @@ double obj_mp_mt(unsigned n, const double *x, double *grad, void *SS_ref_db){
 /*********************IGNEOUS DATABASE (Holland et al., 2018)**************************/
 /**************************************************************************************/
 /**************************************************************************************/
+/**
+    Endmember to xeos for fper_S11
+*/
+void p2x_ig_fper(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[0]  = d->p[1];
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+
 void p2x_ig_bi(void *SS_ref_db, double eps){
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
@@ -3730,6 +3748,17 @@ void p2x_mp_st(void *SS_ref_db, double eps){
     }
 }
 
+/**
+    Update dpdx matrix of fper_S11
+*/
+void dpdx_ig_fper(void *SS_ref_db, const double *x){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    double **dp_dx = d->dp_dx;
+
+    dp_dx[0][0] = -1.0;      
+    dp_dx[1][0] = 1.0;      
+}
+
 /** 
   update dpdpx matrix (biotite)
 */
@@ -3954,6 +3983,15 @@ void px_ig_bi(void *SS_ref_db, const double *x){
         p[4]           = x[3];
         p[5]           = x[2];
 }
+/**
+    Endmember fraction of fper_S11
+*/
+void px_ig_fper(void *SS_ref_db, const double *x){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    double *p = d->p;
+        p[0]           = 1.0 - 1.0*x[0];
+        p[1]           = x[0];
+}
 
 /** 
   update px matrix (cordierite)
@@ -4134,6 +4172,70 @@ void px_ig_spn(void *SS_ref_db, const double *x){
 	p[6]           =  x[2];
 	p[7]           =  x[3];
 }
+
+   
+/**
+    Objective function of fper_S11
+*/
+double obj_ig_fper(unsigned n, const double *x, double *grad, void *SS_ref_db){
+    SS_ref *d         = (SS_ref *) SS_ref_db;
+
+    int n_em          = d->n_em;
+    double P          = d->P;
+    double T          = d->T;
+    double R          = d->R;
+
+    double *gb        = d->gb_lvl;
+    double *mu_Gex    = d->mu_Gex;
+    double *sf        = d->sf;
+    double *mu        = d->mu;
+    px_ig_fper(SS_ref_db,x);
+
+    for (int i = 0; i < n_em; i++){
+        mu_Gex[i] = 0.0;
+        int it    = 0;
+        for (int j = 0; j < d->n_xeos; j++){
+            for (int k = j+1; k < n_em; k++){
+                mu_Gex[i] -= (d->eye[i][j] - d->p[j])*(d->eye[i][k] - d->p[k])*(d->W[it]);
+                it += 1;
+            }
+        }
+    }
+    
+    sf[0]          = 1.0*x[0];
+    sf[1]          = 1.0 - x[0];
+    
+    mu[0]          = gb[0] + R*T*creal(clog(sf[1])) + mu_Gex[0];
+    mu[1]          = gb[1] + R*T*creal(clog(sf[0])) + mu_Gex[1];
+    
+    d->sum_apep = 0.0;
+    for (int i = 0; i < n_em; i++){
+        d->sum_apep += d->ape[i]*d->p[i];
+    }
+    d->factor = d->fbc/d->sum_apep;
+
+    d->df_raw = 0.0;
+    for (int i = 0; i < n_em; i++){
+        d->df_raw += mu[i]*d->p[i];
+    }
+    d->df = d->df_raw * d->factor;
+
+    if (grad){
+        double *dfx    = d->dfx;
+        double **dp_dx = d->dp_dx;
+        dpdx_ig_fper(SS_ref_db,x);
+        for (int i = 0; i < (d->n_xeos); i++){
+            dfx[i] = 0.0;
+            for (int j = 0; j < n_em; j++){
+                dfx[i] += (mu[j] - (d->ape[j]/d->sum_apep)*d->df_raw)*d->factor*dp_dx[j][i];
+            }
+            grad[i] = creal(dfx[i]);
+        }
+    }
+
+    return d->df;
+}
+
 
 /** 
   objective function of biotite
@@ -5272,6 +5374,9 @@ SS_ref P2X(					global_variable 	 gv,
 		if 	(strcmp( name, "bi") == 0 ){
 			p2x_ig_bi(&SS_ref_db, eps);	
 		}
+		else if (strcmp( name, "fper")  == 0){
+			p2x_ig_fper(&SS_ref_db, eps);	
+		}
 		else if (strcmp( name, "cd")  == 0){
 			p2x_ig_cd(&SS_ref_db, eps);	
 		}
@@ -5421,6 +5526,9 @@ SS_ref PC_function(		global_variable 	 gv,
 	else if(gv.EM_database == 2){
 		if 	(strcmp( name, "bi") == 0 ){
 			G0 = obj_ig_bi(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
+		}
+		else if (strcmp( name, "fper")  == 0){
+			G0 = obj_ig_fper(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 		}
 		else if (strcmp( name, "cd")  == 0){
 			G0 = obj_ig_cd(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);

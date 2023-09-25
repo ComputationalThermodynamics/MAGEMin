@@ -129,7 +129,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.3.2 [06/06/2023]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.3.3 [25/09/2023]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	gv.max_n_cp 		= 128;					/** number of considered solution phases 											*/	
@@ -290,11 +290,11 @@ typedef struct igneous_datasets {
 	int 	n_ss;
 	char    ox[11][20];
 	char    PP[15][20];
-	char    SS[13][20];
+	char    SS[14][20];
 
-	int 	verifyPC[13];
-	int 	n_SS_PC[13];
-	double 	SS_PC_stp[13];
+	int 	verifyPC[14];
+	int 	n_SS_PC[14];
+	double 	SS_PC_stp[14];
 
 	double 	PC_df_add;	
 	double  solver_switch_T;
@@ -316,14 +316,14 @@ igneous_dataset igneous_db = {
 	291,						/* number of endmembers */
 	11,							/* number of oxides */			
 	15,							/* number of pure phases */
-	13,							/* number of solution phases */
+	14,							/* number of solution phases */
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"Cr2O3","H2O"									},
 	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"wo"	,"pswo"	,"ne"	,"O2"	,"qfm"	},
-	{"spn"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"hb"	,"ilm"	,"liq"	,"ol"	,"opx"	,"pl4T"	,"fl"					},
+	{"spn"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"hb"	,"ilm"	,"liq"	,"ol"	,"opx"	,"pl4T"	,"fl", "fper"			},
 	
-	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1					}, // allow solvus?
-	{1521	,1645	,121	,4124	,110	,1224	,4950	,420	,3099	,222	,2495	,231	,1					}, // # of pseudocompound
-	{0.249	,0.124	,0.098	,0.249	,0.049	,0.199	,0.249	,0.0499	,0.198	,0.098	,0.249	,0.049	,1.0 				}, // discretization step
+	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1	  ,1				}, // allow solvus?
+	{1521	,1645	,121	,4124	,110	,1224	,4950	,420	,3099	,222	,2495	,231	,1	  ,20				}, // # of pseudocompound
+	{0.249	,0.124	,0.098	,0.249	,0.049	,0.199	,0.249	,0.0499	,0.198	,0.098	,0.249	,0.049	,1.0  ,0.05				}, // discretization step
 
 	4.0, 						/** max dG under which a phase is considered to be reintroduced  					*/
 	673.15,						/** max temperature above which PGE solver is active 								*/
