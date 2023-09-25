@@ -115,7 +115,7 @@ end
 function single_point_minimization(     P::Float64,
                                         T::Float64,
                                         MAGEMin_db::MAGEMin_Data;  
-                                        test::Int64, # if using a build-in test case
+                                        test::Int64 = 0, # if using a build-in test case
                                         X::Union{Nothing, Vector{_T}, Vector{Vector{_T}}} = nothing,
                                         Xoxides     = Vector{String},
                                         sys_in      = "mol",
