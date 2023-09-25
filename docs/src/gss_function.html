@@ -131,6 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/gui.html#save-figure-vector">Save figure (vector)</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../ckbk.html#predefined-bulk-rocks">Predefined bulk-rocks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/predef.html">List of pre-defined bulk-rock composition</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Julia interface:</span></p>
 <ul>
@@ -142,17 +146,22 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../julia.html#use-magemin-c">Use MAGEMin_C</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html">Single point calculation Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html">Serial point calculation Tutorial</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#initialize-database">Initialize database</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-p-t-pressure-temperature">Set P-T-(pressure temperature)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-bulk-rock-composition">Set bulk-rock composition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-the-level-of-verbose-1-0-1">Set the level of verbose <code class="docutils literal notranslate"><span class="pre">[-1,0,1]</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-the-level-of-verbose-false-true-1">Set the level of verbose <code class="docutils literal notranslate"><span class="pre">[false,true,1]</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#call-optimization-routine-for-given-p-t-x">Call optimization routine for given P-T-X</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#display-minimized-point">Display minimized point</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#access-output-structure">Access output structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#examples-of-serial-point-calculation">Examples of serial point calculation</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html#provide-custom-bulk-rock-composition">Provide custom bulk rock composition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html#parallel-point-calculation-tutorial">Parallel point calculation Tutorial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#id1">Examples of serial point calculation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html#other-examples">Other examples</a></li>
 </ul>
 </li>
 </ul>
@@ -351,6 +360,12 @@ Igneous dataset to use with tc-ds633.txt
 <dt class="sig sig-object c" id="c.G_SS_mp_st_function">
 <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mp_st_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">len_ox</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mp_st_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_function.c.html#c.G_SS_mp_st_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>retrieve reference thermodynamic data for mp_st</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_ig_fper_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_ig_fper_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">len_ox</span></span>, <span class="n"><span class="pre">bulk_info</span></span><span class="w"> </span><span class="n"><span class="pre">z_b</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">eps</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_ig_fper_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_function.c.html#c.G_SS_ig_fper_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>retrieve reference thermodynamic data for igp_fper_S11</p>
 </dd></dl>
 
 <dl class="c function">

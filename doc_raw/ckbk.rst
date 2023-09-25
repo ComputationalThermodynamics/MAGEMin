@@ -37,3 +37,11 @@ Pseudosection generator
    :maxdepth: 2
    
    ckbk/gui
+
+Predefined bulk-rocks
+=====================
+
+.. toctree::
+   :maxdepth: 2
+   
+   ckbk/predef

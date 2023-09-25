@@ -128,6 +128,10 @@
 <li class="toctree-l2"><a class="reference internal" href="ckbk/gui.html#save-figure-vector">Save figure (vector)</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="ckbk.html#predefined-bulk-rocks">Predefined bulk-rocks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ckbk/predef.html">List of pre-defined bulk-rock composition</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Julia interface:</span></p>
 <ul>
@@ -139,17 +143,22 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="julia.html#use-magemin-c">Use MAGEMin_C</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="julia/Run.html">Single point calculation Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="julia/Run.html">Serial point calculation Tutorial</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="julia/Run.html#initialize-database">Initialize database</a></li>
 <li class="toctree-l3"><a class="reference internal" href="julia/Run.html#set-p-t-pressure-temperature">Set P-T-(pressure temperature)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="julia/Run.html#set-bulk-rock-composition">Set bulk-rock composition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="julia/Run.html#set-the-level-of-verbose-1-0-1">Set the level of verbose <code class="docutils literal notranslate"><span class="pre">[-1,0,1]</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="julia/Run.html#set-the-level-of-verbose-false-true-1">Set the level of verbose <code class="docutils literal notranslate"><span class="pre">[false,true,1]</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="julia/Run.html#call-optimization-routine-for-given-p-t-x">Call optimization routine for given P-T-X</a></li>
 <li class="toctree-l3"><a class="reference internal" href="julia/Run.html#display-minimized-point">Display minimized point</a></li>
 <li class="toctree-l3"><a class="reference internal" href="julia/Run.html#access-output-structure">Access output structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="julia/Run.html#examples-of-serial-point-calculation">Examples of serial point calculation</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="julia/Run.html#provide-custom-bulk-rock-composition">Provide custom bulk rock composition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="julia/Run.html#parallel-point-calculation-tutorial">Parallel point calculation Tutorial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="julia/Run.html#id1">Examples of serial point calculation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="julia/Run.html#other-examples">Other examples</a></li>
 </ul>
 </li>
 </ul>
@@ -371,6 +380,8 @@
 </li>
       <li><a href="src/objective_functions.html#c.dpdx_ig_fl">dpdx_ig_fl (C function)</a>
 </li>
+      <li><a href="src/objective_functions.html#c.dpdx_ig_fper">dpdx_ig_fper (C function)</a>
+</li>
       <li><a href="src/objective_functions.html#c.dpdx_ig_g">dpdx_ig_g (C function)</a>
 </li>
       <li><a href="src/objective_functions.html#c.dpdx_ig_hb">dpdx_ig_hb (C function)</a>
@@ -399,10 +410,10 @@
 </li>
       <li><a href="src/objective_functions.html#c.dpdx_mp_g">dpdx_mp_g (C function)</a>
 </li>
-      <li><a href="src/objective_functions.html#c.dpdx_mp_ilm">dpdx_mp_ilm (C function)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src/objective_functions.html#c.dpdx_mp_ilm">dpdx_mp_ilm (C function)</a>
+</li>
       <li><a href="src/objective_functions.html#c.dpdx_mp_liq">dpdx_mp_liq (C function)</a>
 </li>
       <li><a href="src/objective_functions.html#c.dpdx_mp_ma">dpdx_mp_ma (C function)</a>
@@ -475,11 +486,13 @@
 </li>
       <li><a href="src/simplex_levelling.html#c.fill_simplex_arrays_A">fill_simplex_arrays_A (C function)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/NLopt_opt_function.html#c.fl_ig_c">fl_ig_c (C function)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="src/NLopt_opt_function.html#c.fluid_um_c">fluid_um_c (C function)</a>
+</li>
+      <li><a href="src/NLopt_opt_function.html#c.fper_ig_c">fper_ig_c (C function)</a>
 </li>
       <li><a href="src/toolkit.html#c.freeMatrix">freeMatrix (C function)</a>
 </li>
@@ -516,6 +529,10 @@
       <li><a href="src/gss_function.html#c.G_SS_ig_fl_function">G_SS_ig_fl_function (C function)</a>
 </li>
       <li><a href="src/gss_init_function.html#c.G_SS_ig_fl_init_function">G_SS_ig_fl_init_function (C function)</a>
+</li>
+      <li><a href="src/gss_function.html#c.G_SS_ig_fper_function">G_SS_ig_fper_function (C function)</a>
+</li>
+      <li><a href="src/gss_init_function.html#c.G_SS_ig_fper_init_function">G_SS_ig_fper_init_function (C function)</a>
 </li>
       <li><a href="src/gss_function.html#c.G_SS_ig_g_function">G_SS_ig_g_function (C function)</a>
 </li>
@@ -583,10 +600,10 @@
 </li>
       <li><a href="src/gss_function.html#c.G_SS_mp_liq_function">G_SS_mp_liq_function (C function)</a>
 </li>
-      <li><a href="src/gss_init_function.html#c.G_SS_mp_liq_init_function">G_SS_mp_liq_init_function (C function)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="src/gss_init_function.html#c.G_SS_mp_liq_init_function">G_SS_mp_liq_init_function (C function)</a>
+</li>
       <li><a href="src/gss_function.html#c.G_SS_mp_ma_function">G_SS_mp_ma_function (C function)</a>
 </li>
       <li><a href="src/gss_init_function.html#c.G_SS_mp_ma_init_function">G_SS_mp_ma_init_function (C function)</a>
@@ -791,6 +808,8 @@
 </li>
       <li><a href="src/objective_functions.html#c.obj_ig_fl">obj_ig_fl (C function)</a>
 </li>
+      <li><a href="src/objective_functions.html#c.obj_ig_fper">obj_ig_fper (C function)</a>
+</li>
       <li><a href="src/objective_functions.html#c.obj_ig_g">obj_ig_g (C function)</a>
 </li>
       <li><a href="src/objective_functions.html#c.obj_ig_hb">obj_ig_hb (C function)</a>
@@ -887,8 +906,6 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="src/objective_functions.html#c.p2x_ig_bi">p2x_ig_bi (C function)</a>
-</li>
       <li><a href="src/objective_functions.html#c.p2x_ig_cd">p2x_ig_cd (C function)</a>
 </li>
       <li><a href="src/objective_functions.html#c.p2x_ig_cpx">p2x_ig_cpx (C function)</a>
@@ -896,6 +913,8 @@
       <li><a href="src/objective_functions.html#c.p2x_ig_ep">p2x_ig_ep (C function)</a>
 </li>
       <li><a href="src/objective_functions.html#c.p2x_ig_fl">p2x_ig_fl (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.p2x_ig_fper">p2x_ig_fper (C function)</a>
 </li>
       <li><a href="src/objective_functions.html#c.p2x_ig_g">p2x_ig_g (C function)</a>
 </li>
@@ -1032,6 +1051,8 @@
       <li><a href="src/objective_functions.html#c.px_ig_ep">px_ig_ep (C function)</a>
 </li>
       <li><a href="src/objective_functions.html#c.px_ig_fl">px_ig_fl (C function)</a>
+</li>
+      <li><a href="src/objective_functions.html#c.px_ig_fper">px_ig_fper (C function)</a>
 </li>
       <li><a href="src/objective_functions.html#c.px_ig_g">px_ig_g (C function)</a>
 </li>

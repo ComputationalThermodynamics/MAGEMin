@@ -128,6 +128,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/gui.html#save-figure-vector">Save figure (vector)</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../ckbk.html#predefined-bulk-rocks">Predefined bulk-rocks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/predef.html">List of pre-defined bulk-rock composition</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Julia interface:</span></p>
 <ul>
@@ -139,17 +143,22 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../julia.html#use-magemin-c">Use MAGEMin_C</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html">Single point calculation Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html">Serial point calculation Tutorial</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#initialize-database">Initialize database</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-p-t-pressure-temperature">Set P-T-(pressure temperature)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-bulk-rock-composition">Set bulk-rock composition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-the-level-of-verbose-1-0-1">Set the level of verbose <code class="docutils literal notranslate"><span class="pre">[-1,0,1]</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#set-the-level-of-verbose-false-true-1">Set the level of verbose <code class="docutils literal notranslate"><span class="pre">[false,true,1]</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#call-optimization-routine-for-given-p-t-x">Call optimization routine for given P-T-X</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#display-minimized-point">Display minimized point</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#access-output-structure">Access output structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#examples-of-serial-point-calculation">Examples of serial point calculation</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html#provide-custom-bulk-rock-composition">Provide custom bulk rock composition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html#parallel-point-calculation-tutorial">Parallel point calculation Tutorial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../julia/Run.html#id1">Examples of serial point calculation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../julia/Run.html#other-examples">Other examples</a></li>
 </ul>
 </li>
 </ul>
@@ -291,7 +300,7 @@
 <span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  --Verb=       [int]   : Verbose option, 0. inactive, 1. active</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">	</span>
 <span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  --File=       [str]   : File name containing multiple point calculation</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  --n_points=   [int]   : Number of points when using &#39;File&#39; argument</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  --db=         [str]   : Database, can be &#39;mp&#39;, &#39;ig, &#39;igd&#39; or &#39;um&#39;*</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  --db=         [str]   : Database, can be &#39;mp&#39;, &#39;ig&#39; or &#39;um&#39;*</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  --test=       [int]   : Number of points when using &#39;File&#39; argument</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  --Pres=       [float] : Pressure in kilobar</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  --Temp=       [float] : Temperature in Celsius</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
@@ -301,12 +310,12 @@
 <span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  --solver=     [int]   : solver: 0 for legacy and 1 for PGE (default)</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  --out_matlab= [int]   : Matlab text file output, 0. inactive, 1. active</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; * &#39;mp&#39;: metapelite, &#39;ig&#39;: igneous H18-&gt;G23, &#39;igd&#39;: igneous T21-&gt;G23, &#39;alk&#39;: igneous alkaline, &#39;um&#39;: ultramafic</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; * &#39;mp&#39;: metapelite, &#39;ig&#39;: igneous, &#39;um&#39;: ultramafic</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; **the list of oxides must be provided as follow:</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  &#39;ig&#39;, &#39;igd&#39;, &#39;alk&#39;: SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3, H2O</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  &#39;mp&#39;:               SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, MnO, H2O</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  &#39;um&#39;:               SiO2, Al2O3, MgO, FeOt, O, H2O, S</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  &#39;ig&#39;: SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3, H2O</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  &#39;mp&#39;: SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, MnO, H2O</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  &#39;um&#39;: SiO2, Al2O3, MgO, FeOt, O, H2O, S</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; Note that FeOt (total iron) is used here!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w">	</span>
 <span class="w">	</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
@@ -414,18 +423,12 @@
 <span class="w">			</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  - Database                  : Metapelite (White et al., 2014)</span><span class="se">\n</span><span class="s">&quot;</span><span class="w">	</span><span class="p">);</span><span class="w"></span>
 <span class="w">		</span><span class="p">}</span><span class="w"></span>
 <span class="w">		</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">EM_database</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">){</span><span class="w"></span>
-<span class="w">			</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  - Database                  : Igneous (Holland et al., 2018 -&gt; Green et al., 2023)</span><span class="se">\n</span><span class="s">&quot;</span><span class="w">	</span><span class="p">);</span><span class="w"></span>
-<span class="w">		</span><span class="p">}</span><span class="w"></span>
-<span class="w">		</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">EM_database</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="p">){</span><span class="w"></span>
-<span class="w">			</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  - Database                  : Igneous dry (Tomlinson &amp; Holland, 2021 -&gt; Green et al., 2023)</span><span class="se">\n</span><span class="s">&quot;</span><span class="w">	</span><span class="p">);</span><span class="w"></span>
+<span class="w">			</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  - Database                  : Igneous (Holland et al., 2018)</span><span class="se">\n</span><span class="s">&quot;</span><span class="w">	</span><span class="p">);</span><span class="w"></span>
 <span class="w">		</span><span class="p">}</span><span class="w"></span>
 <span class="w">		</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">EM_database</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="p">){</span><span class="w"></span>
 <span class="w">			</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  - Database                  : Ultramafic (Evans &amp; Frost, 2021)</span><span class="se">\n</span><span class="s">&quot;</span><span class="w">	</span><span class="p">);</span><span class="w"></span>
 <span class="w">		</span><span class="p">}</span><span class="w"></span>
-<span class="w">		</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">EM_database</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">6</span><span class="p">){</span><span class="w"></span>
-<span class="w">			</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  - Database                  : Igneous alkaline (Weller et al., 2023)</span><span class="se">\n</span><span class="s">&quot;</span><span class="w">	</span><span class="p">);</span><span class="w"></span>
-<span class="w">		</span><span class="p">}</span><span class="w"></span>
-
+<span class="w">		</span>
 <span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">strcmp</span><span class="p">(</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">sys_in</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;mol&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">){</span><span class="w">	</span>
 <span class="w">			</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  - input system composition  : mol fraction</span><span class="se">\n</span><span class="s">&quot;</span><span class="w">	</span><span class="p">);</span><span class="w"></span>
 <span class="w">		</span><span class="p">}</span><span class="w"></span>

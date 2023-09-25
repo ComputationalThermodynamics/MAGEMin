@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Single point calculation Tutorial &mdash; MAGEMin 2022 documentation</title>
+  <title>Serial point calculation Tutorial &mdash; MAGEMin 2022 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
@@ -131,6 +131,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../ckbk/gui.html#save-figure-vector">Save figure (vector)</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../ckbk.html#predefined-bulk-rocks">Predefined bulk-rocks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ckbk/predef.html">List of pre-defined bulk-rock composition</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Julia interface:</span></p>
 <ul class="current">
@@ -142,17 +146,22 @@
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="../julia.html#use-magemin-c">Use MAGEMin_C</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Single point calculation Tutorial</a><ul>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Serial point calculation Tutorial</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#initialize-database">Initialize database</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#set-p-t-pressure-temperature">Set P-T-(pressure temperature)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#set-bulk-rock-composition">Set bulk-rock composition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#set-the-level-of-verbose-1-0-1">Set the level of verbose <code class="docutils literal notranslate"><span class="pre">[-1,0,1]</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#set-the-level-of-verbose-false-true-1">Set the level of verbose <code class="docutils literal notranslate"><span class="pre">[false,true,1]</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#call-optimization-routine-for-given-p-t-x">Call optimization routine for given P-T-X</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#display-minimized-point">Display minimized point</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#access-output-structure">Access output structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#examples-of-serial-point-calculation">Examples of serial point calculation</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#provide-custom-bulk-rock-composition">Provide custom bulk rock composition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parallel-point-calculation-tutorial">Parallel point calculation Tutorial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Examples of serial point calculation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#other-examples">Other examples</a></li>
 </ul>
 </li>
 </ul>
@@ -241,7 +250,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../julia.html">Julia interface to MAGEMin</a> &raquo;</li>
-      <li>Single point calculation Tutorial</li>
+      <li>Serial point calculation Tutorial</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/julia/Run.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -251,30 +260,31 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="single-point-calculation-tutorial">
-<h1>Single point calculation Tutorial<a class="headerlink" href="#single-point-calculation-tutorial" title="Permalink to this headline"></a></h1>
+  <section id="serial-point-calculation-tutorial">
+<h1>Serial point calculation Tutorial<a class="headerlink" href="#serial-point-calculation-tutorial" title="Permalink to this headline"></a></h1>
 <p>First open a terminal and execute Julia, then type <code class="docutils literal notranslate"><span class="pre">using</span> <span class="pre">MAGEMin_C</span></code> to load the package.</p>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
 <section id="initialize-database">
 <h2>Initialize database<a class="headerlink" href="#initialize-database" title="Permalink to this headline"></a></h2>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">db</span>          <span class="o">=</span> <span class="s2">&quot;ig&quot;</span>  <span class="c1"># database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b)</span>
-gv, z_b, DB, <span class="nv">splx_data</span>      <span class="o">=</span> init_MAGEMin<span class="o">(</span>db<span class="o">)</span><span class="p">;</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize database  - new way</span>
+<span class="nv">db</span>          <span class="o">=</span>   <span class="s2">&quot;ig&quot;</span>  <span class="c1"># database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b); um, ultramafic (Evans &amp; Frost 2021)</span>
+<span class="nv">data</span>        <span class="o">=</span>   Initialize_MAGEMin<span class="o">(</span>db, <span class="nv">verbose</span><span class="o">=</span><span class="nb">true</span><span class="o">)</span><span class="p">;</span>
 </pre></div>
 </div>
 <p>This initiatizes the global variables and the Database.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
 </section>
 <section id="set-p-t-pressure-temperature">
 <h2>Set P-T-(pressure temperature)<a class="headerlink" href="#set-p-t-pressure-temperature" title="Permalink to this headline"></a></h2>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">P</span>           <span class="o">=</span> <span class="m">8</span>.
-<span class="nv">T</span>           <span class="o">=</span> <span class="m">800</span>.
-<span class="nv">sys_in</span>      <span class="o">=</span> <span class="s2">&quot;mol&quot;</span>     <span class="c1"># wt or mol, default is mol</span>
-<span class="nb">test</span>        <span class="o">=</span> <span class="m">0</span><span class="p">;</span>
-<span class="nv">gv</span>          <span class="o">=</span> use_predefined_bulk_rock<span class="o">(</span>gv, test, db<span class="o">)</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">P</span>           <span class="o">=</span>   <span class="m">8</span>.0
+<span class="nv">T</span>           <span class="o">=</span>   <span class="m">800</span>.0
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">get_bulk_rock</span></code> retrieves the saved bulk-rock composition 0, which corresponds to KLB-1 peridotite.</p>
+<p><code class="docutils literal notranslate"><span class="pre">use_predefined_bulk_rock</span></code> retrieves the saved bulk-rock composition 0 from database ig, which corresponds to KLB-1 peridotite.</p>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
@@ -286,26 +296,47 @@ gv, z_b, DB, <span class="nv">splx_data</span>      <span class="o">=</span> ini
 <span class="nv">gv</span>          <span class="o">=</span> use_predefined_bulk_rock<span class="o">(</span>gv, test, db<span class="o">)</span>
 </pre></div>
 </div>
+<p>or a custom bulk-rock composition:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">Xoxides</span> <span class="o">=</span> <span class="o">[</span><span class="s2">&quot;SiO2&quot;</span><span class="p">;</span> <span class="s2">&quot;Al2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;CaO&quot;</span><span class="p">;</span> <span class="s2">&quot;MgO&quot;</span><span class="p">;</span> <span class="s2">&quot;FeO&quot;</span><span class="p">;</span> <span class="s2">&quot;Fe2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;K2O&quot;</span><span class="p">;</span> <span class="s2">&quot;Na2O&quot;</span><span class="p">;</span> <span class="s2">&quot;TiO2&quot;</span><span class="p">;</span> <span class="s2">&quot;Cr2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;H2O&quot;</span><span class="o">]</span><span class="p">;</span>
+<span class="nv">X</span>       <span class="o">=</span> <span class="o">[</span><span class="m">48</span>.43<span class="p">;</span> <span class="m">15</span>.19<span class="p">;</span> <span class="m">11</span>.57<span class="p">;</span> <span class="m">10</span>.13<span class="p">;</span> <span class="m">6</span>.65<span class="p">;</span> <span class="m">1</span>.64<span class="p">;</span> <span class="m">0</span>.59<span class="p">;</span> <span class="m">1</span>.87<span class="p">;</span> <span class="m">0</span>.68<span class="p">;</span> <span class="m">0</span>.0<span class="p">;</span> <span class="m">3</span>.0<span class="o">]</span><span class="p">;</span>
+<span class="nv">sys_in</span>  <span class="o">=</span> <span class="s2">&quot;wt&quot;</span>
+</pre></div>
+</div>
+<p>Note that the system unit <code class="docutils literal notranslate"><span class="pre">[mol,wt]</span></code> has to be provided here.</p>
+<p>where <code class="docutils literal notranslate"><span class="pre">Xoxides</span></code> is a <code class="docutils literal notranslate"><span class="pre">Vector(String)</span></code> containing the oxide names and <code class="docutils literal notranslate"><span class="pre">X</span></code> is a <code class="docutils literal notranslate"><span class="pre">Vector(Float)</span></code> of the <code class="docutils literal notranslate"><span class="pre">[mol,wt]</span></code> fraction of the bulk-rock composition.
+The function converts</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">SiO2</span></code>, …, <code class="docutils literal notranslate"><span class="pre">FeO</span></code> and <code class="docutils literal notranslate"><span class="pre">Fe2O3</span></code> in system unit <code class="docutils literal notranslate"><span class="pre">[mol,wt]</span></code></p>
+</div></blockquote>
+<p>to:</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">SiO2</span></code>, …, <code class="docutils literal notranslate"><span class="pre">FeOt</span></code> and <code class="docutils literal notranslate"><span class="pre">O</span></code> in system unit <code class="docutils literal notranslate"><span class="pre">[mol]</span></code>.</p>
+</div></blockquote>
+<p>Note that if the provided bulk-rock composition includes more oxides than supported, they will be ignored and the composition will be renormalized accordingly. Moreover, if both <code class="docutils literal notranslate"><span class="pre">Fe2O3</span></code> and <code class="docutils literal notranslate"><span class="pre">O</span></code> are provided, <code class="docutils literal notranslate"><span class="pre">O</span></code> will be recalculated as function of <code class="docutils literal notranslate"><span class="pre">Fe2O3</span></code>. Thus, if you want to prescribe a different <code class="docutils literal notranslate"><span class="pre">O</span></code> content, do not define <code class="docutils literal notranslate"><span class="pre">Fe2O3</span></code>!</p>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
 </section>
-<section id="set-the-level-of-verbose-1-0-1">
-<h2>Set the level of verbose <code class="docutils literal notranslate"><span class="pre">[-1,0,1]</span></code><a class="headerlink" href="#set-the-level-of-verbose-1-0-1" title="Permalink to this headline"></a></h2>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>gv.verbose  <span class="o">=</span> -1    <span class="c1"># switch off any verbose</span>
+<section id="set-the-level-of-verbose-false-true-1">
+<h2>Set the level of verbose <code class="docutils literal notranslate"><span class="pre">[false,true,1]</span></code><a class="headerlink" href="#set-the-level-of-verbose-false-true-1" title="Permalink to this headline"></a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>gv.verbose  <span class="o">=</span> <span class="nb">false</span>    <span class="c1"># switch off any verbose</span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">-1</span></code>, none; <code class="docutils literal notranslate"><span class="pre">0</span></code>, stable phase assemblage; <code class="docutils literal notranslate"><span class="pre">1</span></code>, full verbose. By default <code class="docutils literal notranslate"><span class="pre">gv.verbose</span></code> = 0.</p>
+<p><code class="docutils literal notranslate"><span class="pre">false</span></code>, none; <code class="docutils literal notranslate"><span class="pre">true</span></code>, stable phase assemblage; <code class="docutils literal notranslate"><span class="pre">1</span></code>, full verbose. By default <code class="docutils literal notranslate"><span class="pre">gv.verbose</span></code> = true.</p>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
 </section>
 <section id="call-optimization-routine-for-given-p-t-x">
 <h2>Call optimization routine for given P-T-X<a class="headerlink" href="#call-optimization-routine-for-given-p-t-x" title="Permalink to this headline"></a></h2>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>gv.verbose  <span class="o">=</span> -1    <span class="c1"># switch off any verbose</span>
-<span class="nv">out</span>         <span class="o">=</span> point_wise_minimization<span class="o">(</span>P,T, gv, z_b, DB, splx_data, sys_in<span class="o">)</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">out</span>     <span class="o">=</span>   single_point_minimization<span class="o">(</span>P, T, data, <span class="nv">test</span><span class="o">=</span><span class="m">0</span><span class="o">)</span><span class="p">;</span>
 </pre></div>
 </div>
+<p>if a predefined test is used (see <a class="reference internal" href="../ckbk/predef.html"><span class="doc">List of pre-defined bulk-rock composition</span></a>) or:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">out</span>     <span class="o">=</span> single_point_minimization<span class="o">(</span>P, T, data, <span class="nv">X</span><span class="o">=</span>X, <span class="nv">Xoxides</span><span class="o">=</span>Xoxides, <span class="nv">sys_in</span><span class="o">=</span>sys_in<span class="o">)</span>
+</pre></div>
+</div>
+<p>if a custom bulk-rock composition is provided.</p>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
@@ -341,106 +372,105 @@ gv, z_b, DB, <span class="nv">splx_data</span>      <span class="o">=</span> ini
 <div class="line"><br /></div>
 </div>
 </section>
+<section id="examples-of-serial-point-calculation">
+<h2>Examples of serial point calculation<a class="headerlink" href="#examples-of-serial-point-calculation" title="Permalink to this headline"></a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1">#load MAGEMin</span>
+using MAGEMin_C
+
+<span class="nv">data</span>    <span class="o">=</span> Initialize_MAGEMin<span class="o">(</span><span class="s2">&quot;ig&quot;</span>, <span class="nv">verbose</span><span class="o">=</span><span class="nb">false</span><span class="o">)</span><span class="p">;</span>
+
+<span class="c1"># One bulk rock for all points</span>
+P,T     <span class="o">=</span> <span class="m">10</span>.0, <span class="m">1100</span>.0
+<span class="nv">Xoxides</span> <span class="o">=</span> <span class="o">[</span><span class="s2">&quot;SiO2&quot;</span><span class="p">;</span> <span class="s2">&quot;Al2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;CaO&quot;</span><span class="p">;</span> <span class="s2">&quot;MgO&quot;</span><span class="p">;</span> <span class="s2">&quot;FeO&quot;</span><span class="p">;</span> <span class="s2">&quot;Fe2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;K2O&quot;</span><span class="p">;</span> <span class="s2">&quot;Na2O&quot;</span><span class="p">;</span> <span class="s2">&quot;TiO2&quot;</span><span class="p">;</span> <span class="s2">&quot;Cr2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;H2O&quot;</span><span class="o">]</span><span class="p">;</span>
+<span class="nv">X</span>       <span class="o">=</span> <span class="o">[</span><span class="m">48</span>.43<span class="p">;</span> <span class="m">15</span>.19<span class="p">;</span> <span class="m">11</span>.57<span class="p">;</span> <span class="m">10</span>.13<span class="p">;</span> <span class="m">6</span>.65<span class="p">;</span> <span class="m">1</span>.64<span class="p">;</span> <span class="m">0</span>.59<span class="p">;</span> <span class="m">1</span>.87<span class="p">;</span> <span class="m">0</span>.68<span class="p">;</span> <span class="m">0</span>.0<span class="p">;</span> <span class="m">3</span>.0<span class="o">]</span><span class="p">;</span>
+<span class="nv">sys_in</span>  <span class="o">=</span> <span class="s2">&quot;wt&quot;</span>
+<span class="nv">out</span>     <span class="o">=</span> single_point_minimization<span class="o">(</span>P, T, data, <span class="nv">X</span><span class="o">=</span>X, <span class="nv">Xoxides</span><span class="o">=</span>Xoxides, <span class="nv">sys_in</span><span class="o">=</span>sys_in<span class="o">)</span>
+Finalize_MAGEMin<span class="o">(</span>data<span class="o">)</span>
+</pre></div>
+</div>
+<p>for the metapelite database:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1">#load MAGEMin</span>
+using MAGEMin_C
+
+<span class="c1">#initialize</span>
+<span class="nv">data</span>    <span class="o">=</span> Initialize_MAGEMin<span class="o">(</span><span class="s2">&quot;mp&quot;</span>, <span class="nv">verbose</span><span class="o">=</span><span class="nb">false</span><span class="o">)</span><span class="p">;</span>
+
+<span class="c1"># provide bulk-rock composition</span>
+P,T      <span class="o">=</span> <span class="m">2</span>.0, <span class="m">650</span>.0
+<span class="nv">Xoxides</span>  <span class="o">=</span> <span class="o">[</span><span class="s2">&quot;SiO2&quot;</span><span class="p">;</span> <span class="s2">&quot;Al2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;CaO&quot;</span><span class="p">;</span> <span class="s2">&quot;MgO&quot;</span><span class="p">;</span> <span class="s2">&quot;FeO&quot;</span><span class="p">;</span> <span class="s2">&quot;Fe2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;K2O&quot;</span><span class="p">;</span> <span class="s2">&quot;Na2O&quot;</span><span class="p">;</span> <span class="s2">&quot;TiO2&quot;</span><span class="p">;</span> <span class="s2">&quot;MnO&quot;</span><span class="p">;</span> <span class="s2">&quot;H2O&quot;</span><span class="o">]</span>
+<span class="nv">X</span>        <span class="o">=</span> <span class="o">[</span><span class="m">69</span>.64<span class="p">;</span> <span class="m">13</span>.76<span class="p">;</span> <span class="m">1</span>.77<span class="p">;</span> <span class="m">1</span>.73<span class="p">;</span> <span class="m">4</span>.32<span class="p">;</span> <span class="m">0</span>.4<span class="p">;</span> <span class="m">2</span>.61<span class="p">;</span> <span class="m">2</span>.41<span class="p">;</span> <span class="m">0</span>.80<span class="p">;</span> <span class="m">0</span>.07<span class="p">;</span> <span class="m">10</span>.0<span class="o">]</span>
+<span class="nv">sys_in</span>   <span class="o">=</span> <span class="s2">&quot;wt&quot;</span>
+<span class="nv">out</span>      <span class="o">=</span> single_point_minimization<span class="o">(</span>P, T, data, <span class="nv">X</span><span class="o">=</span>X, <span class="nv">Xoxides</span><span class="o">=</span>Xoxides, <span class="nv">sys_in</span><span class="o">=</span>sys_in<span class="o">)</span>
+Finalize_MAGEMin<span class="o">(</span>data<span class="o">)</span>
+</pre></div>
+</div>
+<p>for the ultramafic database:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1">#load MAGEMin</span>
+using MAGEMin_C
+
+<span class="c1">#initialize</span>
+<span class="nv">data</span>    <span class="o">=</span> Initialize_MAGEMin<span class="o">(</span><span class="s2">&quot;um&quot;</span>, <span class="nv">verbose</span><span class="o">=</span><span class="nb">false</span><span class="o">)</span><span class="p">;</span>
+
+<span class="c1"># provide bulk-rock composition</span>
+P,T      <span class="o">=</span> <span class="m">2</span>.0, <span class="m">650</span>.0
+<span class="nv">out</span>      <span class="o">=</span> single_point_minimization<span class="o">(</span>P, T, data, <span class="nv">test</span><span class="o">=</span><span class="m">0</span><span class="o">)</span>
+Finalize_MAGEMin<span class="o">(</span>data<span class="o">)</span>
+</pre></div>
+</div>
 </section>
-<section id="provide-custom-bulk-rock-composition">
-<h1>Provide custom bulk rock composition<a class="headerlink" href="#provide-custom-bulk-rock-composition" title="Permalink to this headline"></a></h1>
-<p>To define and use your own bulk rock composition we provide a routine that converts bulk-rock composition into the right MAGEMin format.</p>
-<ul class="simple">
-<li><p>For the igneous database:</p></li>
-</ul>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">bulk_in_ox</span> <span class="o">=</span> <span class="o">[</span><span class="s2">&quot;SiO2&quot;</span><span class="p">;</span> <span class="s2">&quot;Al2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;CaO&quot;</span><span class="p">;</span> <span class="s2">&quot;MgO&quot;</span><span class="p">;</span> <span class="s2">&quot;FeO&quot;</span><span class="p">;</span> <span class="s2">&quot;Fe2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;K2O&quot;</span><span class="p">;</span> <span class="s2">&quot;Na2O&quot;</span><span class="p">;</span> <span class="s2">&quot;TiO2&quot;</span><span class="p">;</span> <span class="s2">&quot;Cr2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;H2O&quot;</span><span class="o">]</span>
-<span class="nv">bulk_in</span>    <span class="o">=</span> <span class="o">[</span><span class="m">48</span>.43<span class="p">;</span> <span class="m">15</span>.19<span class="p">;</span> <span class="m">11</span>.57<span class="p">;</span> <span class="m">10</span>.13<span class="p">;</span> <span class="m">6</span>.65<span class="p">;</span> <span class="m">1</span>.64<span class="p">;</span> <span class="m">0</span>.59<span class="p">;</span> <span class="m">1</span>.87<span class="p">;</span> <span class="m">0</span>.68<span class="p">;</span> <span class="m">0</span>.0<span class="p">;</span> <span class="m">3</span>.0<span class="o">]</span>
-<span class="nv">sys_in</span>     <span class="o">=</span> <span class="s2">&quot;wt&quot;</span>
-<span class="nv">db</span>         <span class="o">=</span> <span class="s2">&quot;ig&quot;</span>  <span class="c1"># database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b)</span>
-
-<span class="nv">gv</span>         <span class="o">=</span> define_bulk_rock<span class="o">(</span>gv, bulk_in, bulk_in_ox, sys_in, db<span class="o">)</span><span class="p">;</span>
+</section>
+<section id="parallel-point-calculation-tutorial">
+<h1>Parallel point calculation Tutorial<a class="headerlink" href="#parallel-point-calculation-tutorial" title="Permalink to this headline"></a></h1>
+<p>To compute a list of single point calculation in parallel your can use the native Julia multi-threading. To activate multi-threading simply launch the Julia terminal as:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>julia -t <span class="m">4</span>
 </pre></div>
 </div>
-<ul class="simple">
-<li><p>For the metapelite database</p></li>
-</ul>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">bulk_in_ox</span> <span class="o">=</span> <span class="o">[</span><span class="s2">&quot;SiO2&quot;</span><span class="p">;</span> <span class="s2">&quot;Al2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;CaO&quot;</span><span class="p">;</span> <span class="s2">&quot;MgO&quot;</span><span class="p">;</span> <span class="s2">&quot;FeO&quot;</span><span class="p">;</span> <span class="s2">&quot;Fe2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;K2O&quot;</span><span class="p">;</span> <span class="s2">&quot;Na2O&quot;</span><span class="p">;</span> <span class="s2">&quot;TiO2&quot;</span><span class="p">;</span> <span class="s2">&quot;MnO&quot;</span><span class="p">;</span> <span class="s2">&quot;H2O&quot;</span><span class="o">]</span>
-<span class="nv">bulk_in</span>    <span class="o">=</span> <span class="o">[</span><span class="m">69</span>.64<span class="p">;</span> <span class="m">13</span>.76<span class="p">;</span> <span class="m">1</span>.77<span class="p">;</span> <span class="m">1</span>.73<span class="p">;</span> <span class="m">4</span>.32<span class="p">;</span> <span class="m">0</span>.4<span class="p">;</span> <span class="m">2</span>.61<span class="p">;</span> <span class="m">2</span>.41<span class="p">;</span> <span class="m">0</span>.80<span class="p">;</span> <span class="m">0</span>.07<span class="p">;</span> <span class="m">10</span>.0<span class="o">]</span>
-<span class="nv">sys_in</span>     <span class="o">=</span> <span class="s2">&quot;wt&quot;</span>
-<span class="nv">db</span>         <span class="o">=</span> <span class="s2">&quot;mp&quot;</span>  <span class="c1"># database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b)</span>
-
-<span class="nv">gv</span>         <span class="o">=</span> define_bulk_rock<span class="o">(</span>gv, bulk_in, bulk_in_ox, sys_in, db<span class="o">)</span><span class="p">;</span>
+<p>or</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>julia --threads <span class="m">4</span>
 </pre></div>
 </div>
-<p>where <code class="docutils literal notranslate"><span class="pre">bulk_in_ox</span></code> is a <code class="docutils literal notranslate"><span class="pre">Vector(String)</span></code> containing the oxide names and <code class="docutils literal notranslate"><span class="pre">bulk_in</span></code> is a <code class="docutils literal notranslate"><span class="pre">Vector(Float)</span></code> of the <code class="docutils literal notranslate"><span class="pre">[mol,wt]</span></code> fraction of the bulk-rock composition.
-The function converts</p>
-<blockquote>
-<div><p><code class="docutils literal notranslate"><span class="pre">SiO2</span></code>, …, <code class="docutils literal notranslate"><span class="pre">FeO</span></code> and <code class="docutils literal notranslate"><span class="pre">Fe2O3</span></code> in system unit <code class="docutils literal notranslate"><span class="pre">[mol,wt]</span></code></p>
-</div></blockquote>
-<p>to:</p>
-<blockquote>
-<div><p><code class="docutils literal notranslate"><span class="pre">SiO2</span></code>, …, <code class="docutils literal notranslate"><span class="pre">FeOt</span></code> and <code class="docutils literal notranslate"><span class="pre">O</span></code> in system unit <code class="docutils literal notranslate"><span class="pre">[mol]</span></code>.</p>
-</div></blockquote>
-<p>Note that if the provided bulk-rock composition includes more oxides than supported, they will be ignored and the composition will be renormalized accordingly. Moreover, if both <code class="docutils literal notranslate"><span class="pre">Fe2O3</span></code> and <code class="docutils literal notranslate"><span class="pre">O</span></code> are provided, <code class="docutils literal notranslate"><span class="pre">O</span></code> will be recalculated as function of <code class="docutils literal notranslate"><span class="pre">Fe2O3</span></code>. Thus, if you want to prescribe a different <code class="docutils literal notranslate"><span class="pre">O</span></code> content, do not define <code class="docutils literal notranslate"><span class="pre">Fe2O3</span></code>!</p>
-<p>A full Julia script demonstrating how to use this function is provided below:</p>
+<p>where the number of threads depends on your system, generally twice the number of cores.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<section id="id1">
+<h2>Examples of serial point calculation<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h2>
+<p>To run <code class="docutils literal notranslate"><span class="pre">n</span></code> points, using database <code class="docutils literal notranslate"><span class="pre">ig</span></code> and <code class="docutils literal notranslate"><span class="pre">test</span> <span class="pre">0</span></code> (see <a class="reference internal" href="../ckbk/predef.html"><span class="doc">List of pre-defined bulk-rock composition</span></a>):</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1">#load MAGEMin</span>
 using MAGEMin_C
 
 <span class="c1">#initialize</span>
-<span class="nv">db</span>          <span class="o">=</span> <span class="s2">&quot;ig&quot;</span>  <span class="c1"># database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b)</span>
-gv, z_b, DB, <span class="nv">splx_data</span>      <span class="o">=</span> init_MAGEMin<span class="o">(</span>db<span class="o">)</span><span class="p">;</span>
-
-<span class="c1"># provide bulk-rock composition</span>
-<span class="nv">bulk_in_ox</span> <span class="o">=</span> <span class="o">[</span><span class="s2">&quot;SiO2&quot;</span><span class="p">;</span> <span class="s2">&quot;Al2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;CaO&quot;</span><span class="p">;</span> <span class="s2">&quot;MgO&quot;</span><span class="p">;</span> <span class="s2">&quot;FeO&quot;</span><span class="p">;</span> <span class="s2">&quot;Fe2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;K2O&quot;</span><span class="p">;</span> <span class="s2">&quot;Na2O&quot;</span><span class="p">;</span> <span class="s2">&quot;TiO2&quot;</span><span class="p">;</span> <span class="s2">&quot;Cr2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;H2O&quot;</span><span class="o">]</span><span class="p">;</span>
-<span class="nv">bulk_in</span>    <span class="o">=</span> <span class="o">[</span><span class="m">48</span>.43<span class="p">;</span> <span class="m">15</span>.19<span class="p">;</span> <span class="m">11</span>.57<span class="p">;</span> <span class="m">10</span>.13<span class="p">;</span> <span class="m">6</span>.65<span class="p">;</span> <span class="m">1</span>.64<span class="p">;</span> <span class="m">0</span>.59<span class="p">;</span> <span class="m">1</span>.87<span class="p">;</span> <span class="m">0</span>.68<span class="p">;</span> <span class="m">0</span>.0<span class="p">;</span> <span class="m">3</span>.0<span class="o">]</span><span class="p">;</span>
-<span class="nv">sys_in</span>     <span class="o">=</span> <span class="s2">&quot;wt&quot;</span>
-
-<span class="c1"># convert bulk rock</span>
-<span class="nv">gv</span>         <span class="o">=</span> define_bulk_rock<span class="o">(</span>gv, bulk_in, bulk_in_ox, sys_in, db<span class="o">)</span><span class="p">;</span>
-
-<span class="c1"># provide pressure and temperature conditions</span>
-P,T        <span class="o">=</span> <span class="m">10</span>.0, <span class="m">1100</span>.0<span class="p">;</span>
-
-<span class="c1"># switch off any verbose</span>
-gv.verbose <span class="o">=</span> -1
-
-<span class="c1"># perform minimization</span>
-<span class="nv">out</span>        <span class="o">=</span> point_wise_minimization<span class="o">(</span>P,T, gv, z_b, DB, splx_data, sys_in<span class="o">)</span>
-
-<span class="c1"># print output</span>
-print_info<span class="o">(</span>out<span class="o">)</span>
-
-<span class="c1"># free memory</span>
-finalize_MAGEMin<span class="o">(</span>gv,DB<span class="o">)</span>
+<span class="nv">data</span>    <span class="o">=</span>   Initialize_MAGEMin<span class="o">(</span><span class="s2">&quot;ig&quot;</span>, <span class="nv">verbose</span><span class="o">=</span><span class="nb">false</span><span class="o">)</span><span class="p">;</span>
+<span class="nv">n</span>       <span class="o">=</span>   <span class="m">100</span><span class="p">;</span>
+<span class="nv">P</span>       <span class="o">=</span>   fill<span class="o">(</span><span class="m">8</span>.0,n<span class="o">)</span>
+<span class="nv">T</span>       <span class="o">=</span>   fill<span class="o">(</span><span class="m">800</span>.0,n<span class="o">)</span>
+<span class="nv">out</span>     <span class="o">=</span>   multi_point_minimization<span class="o">(</span>P, T, data, <span class="nv">test</span><span class="o">=</span><span class="m">1</span><span class="o">)</span><span class="p">;</span>
+Finalize_MAGEMin<span class="o">(</span>data<span class="o">)</span>
 </pre></div>
 </div>
-<p>of for the metapelite database:</p>
+<p>Here the results are stored in <code class="docutils literal notranslate"><span class="pre">out</span></code> as <code class="docutils literal notranslate"><span class="pre">out[1:end]</span></code>. Various bulk-rock compositions can be prescribed as:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1">#load MAGEMin</span>
 using MAGEMin_C
 
 <span class="c1">#initialize</span>
-<span class="nv">db</span>          <span class="o">=</span> <span class="s2">&quot;mp&quot;</span>  <span class="c1"># database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b)</span>
-gv, z_b, DB, <span class="nv">splx_data</span>      <span class="o">=</span> init_MAGEMin<span class="o">(</span>db<span class="o">)</span><span class="p">;</span>
+<span class="nv">data</span>    <span class="o">=</span> Initialize_MAGEMin<span class="o">(</span><span class="s2">&quot;ig&quot;</span>, <span class="nv">verbose</span><span class="o">=</span><span class="nb">false</span><span class="o">)</span><span class="p">;</span>
 
-<span class="c1"># provide bulk-rock composition</span>
-<span class="nv">bulk_in_ox</span> <span class="o">=</span> <span class="o">[</span><span class="s2">&quot;SiO2&quot;</span><span class="p">;</span> <span class="s2">&quot;Al2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;CaO&quot;</span><span class="p">;</span> <span class="s2">&quot;MgO&quot;</span><span class="p">;</span> <span class="s2">&quot;FeO&quot;</span><span class="p">;</span> <span class="s2">&quot;Fe2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;K2O&quot;</span><span class="p">;</span> <span class="s2">&quot;Na2O&quot;</span><span class="p">;</span> <span class="s2">&quot;TiO2&quot;</span><span class="p">;</span> <span class="s2">&quot;MnO&quot;</span><span class="p">;</span> <span class="s2">&quot;H2O&quot;</span><span class="o">]</span>
-<span class="nv">bulk_in</span>    <span class="o">=</span> <span class="o">[</span><span class="m">69</span>.64<span class="p">;</span> <span class="m">13</span>.76<span class="p">;</span> <span class="m">1</span>.77<span class="p">;</span> <span class="m">1</span>.73<span class="p">;</span> <span class="m">4</span>.32<span class="p">;</span> <span class="m">0</span>.4<span class="p">;</span> <span class="m">2</span>.61<span class="p">;</span> <span class="m">2</span>.41<span class="p">;</span> <span class="m">0</span>.80<span class="p">;</span> <span class="m">0</span>.07<span class="p">;</span> <span class="m">10</span>.0<span class="o">]</span>
-<span class="nv">sys_in</span>     <span class="o">=</span> <span class="s2">&quot;wt&quot;</span>
-
-<span class="c1"># convert bulk rock</span>
-<span class="nv">gv</span>         <span class="o">=</span> define_bulk_rock<span class="o">(</span>gv, bulk_in, bulk_in_ox, sys_in, db<span class="o">)</span><span class="p">;</span>
-
-<span class="c1"># provide pressure and temperature conditions</span>
-P,T        <span class="o">=</span> <span class="m">4</span>.0, <span class="m">800</span>.0<span class="p">;</span>
-
-<span class="c1"># switch off any verbose</span>
-gv.verbose <span class="o">=</span> -1
-
-<span class="c1"># perform minimization</span>
-<span class="nv">out</span>        <span class="o">=</span> point_wise_minimization<span class="o">(</span>P,T, gv, z_b, DB, splx_data, sys_in<span class="o">)</span>
-
-<span class="c1"># print output</span>
-print_info<span class="o">(</span>out<span class="o">)</span>
-
-<span class="c1"># free memory</span>
-finalize_MAGEMin<span class="o">(</span>gv,DB<span class="o">)</span>
+<span class="c1">#set P-T-X conditions</span>
+<span class="nv">P</span>       <span class="o">=</span> <span class="o">[</span><span class="m">10</span>.0, <span class="m">10</span>.0<span class="o">]</span><span class="p">;</span>
+<span class="nv">T</span>       <span class="o">=</span> <span class="o">[</span><span class="m">1100</span>.0, <span class="m">1100</span>.0<span class="o">]</span><span class="p">;</span>
+<span class="nv">Xoxides</span> <span class="o">=</span> <span class="o">[</span><span class="s2">&quot;SiO2&quot;</span><span class="p">;</span> <span class="s2">&quot;Al2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;CaO&quot;</span><span class="p">;</span> <span class="s2">&quot;MgO&quot;</span><span class="p">;</span> <span class="s2">&quot;FeO&quot;</span><span class="p">;</span> <span class="s2">&quot;Fe2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;K2O&quot;</span><span class="p">;</span> <span class="s2">&quot;Na2O&quot;</span><span class="p">;</span> <span class="s2">&quot;TiO2&quot;</span><span class="p">;</span> <span class="s2">&quot;Cr2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;H2O&quot;</span><span class="o">]</span><span class="p">;</span>
+<span class="nv">X1</span>      <span class="o">=</span> <span class="o">[</span><span class="m">48</span>.43<span class="p">;</span> <span class="m">15</span>.19<span class="p">;</span> <span class="m">11</span>.57<span class="p">;</span> <span class="m">10</span>.13<span class="p">;</span> <span class="m">6</span>.65<span class="p">;</span> <span class="m">1</span>.64<span class="p">;</span> <span class="m">0</span>.59<span class="p">;</span> <span class="m">1</span>.87<span class="p">;</span> <span class="m">0</span>.68<span class="p">;</span> <span class="m">0</span>.0<span class="p">;</span> <span class="m">3</span>.0<span class="o">]</span><span class="p">;</span>
+<span class="nv">X2</span>      <span class="o">=</span> <span class="o">[</span><span class="m">49</span>.43<span class="p">;</span> <span class="m">14</span>.19<span class="p">;</span> <span class="m">11</span>.57<span class="p">;</span> <span class="m">10</span>.13<span class="p">;</span> <span class="m">6</span>.65<span class="p">;</span> <span class="m">1</span>.64<span class="p">;</span> <span class="m">0</span>.59<span class="p">;</span> <span class="m">1</span>.87<span class="p">;</span> <span class="m">0</span>.68<span class="p">;</span> <span class="m">0</span>.0<span class="p">;</span> <span class="m">3</span>.0<span class="o">]</span><span class="p">;</span>
+<span class="nv">X</span>       <span class="o">=</span> <span class="o">[</span>X1,X2<span class="o">]</span><span class="p">;</span>
+<span class="nv">sys_in</span>  <span class="o">=</span> <span class="s2">&quot;wt&quot;</span>
+<span class="nv">out</span>     <span class="o">=</span> multi_point_minimization<span class="o">(</span>P, T, data, <span class="nv">X</span><span class="o">=</span>X, <span class="nv">Xoxides</span><span class="o">=</span>Xoxides, <span class="nv">sys_in</span><span class="o">=</span>sys_in<span class="o">)</span>
 </pre></div>
 </div>
+</section>
+</section>
+<section id="other-examples">
+<h1>Other examples<a class="headerlink" href="#other-examples" title="Permalink to this headline"></a></h1>
+<p>Several additional tests are provided in <code class="docutils literal notranslate"><span class="pre">./test/runtests.jl</span></code>.</p>
 </section>
 
 
