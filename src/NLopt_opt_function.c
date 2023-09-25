@@ -899,6 +899,20 @@ void bi_mp_c(unsigned m, double *result, unsigned n, const double *x, double *gr
 };
 
 
+/**
+    Inequality constraints for fper_S11
+*/
+void fper_ig_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+    result[0] = ( eps_sf + -1.0*x[0]);
+    result[1] = ( eps_sf + x[0] - 1.0);
+
+    if (grad) {
+        grad[0] = -1.0;
+        grad[1] = 1.0;
+    }
+
+    return;
+};
 
 /** 
   local minimization for clinopyroxene
@@ -3208,6 +3222,47 @@ SS_ref NLopt_opt_mp_liq_function(global_variable gv, SS_ref SS_ref_db){
     return SS_ref_db;
 };
 
+SS_ref NLopt_opt_ig_fper_function(global_variable gv, SS_ref SS_ref_db){
+    
+    int    n_em     = SS_ref_db.n_em;
+    unsigned int n  = SS_ref_db.n_xeos;
+    unsigned int m  = SS_ref_db.n_sf;
+    
+    double *x  = SS_ref_db.iguess; 
+    
+    for (int i = 0; i < (SS_ref_db.n_xeos); i++){
+       SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+       SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
+    }
+    
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_CCSAQ, (n)); 
+    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
+    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
+    nlopt_set_min_objective(SS_ref_db.opt, obj_ig_fper, &SS_ref_db);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, fper_ig_c, NULL, SS_ref_db.tol_sf);
+    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
+    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
+    
+    double minf;
+    if (gv.maxeval==1){  
+       // we are only interested in evaluating the objective function  
+       minf = obj_ig_fper(n, x, NULL, &SS_ref_db);
+    }
+    else{
+      // do optimization
+      SS_ref_db.status = nlopt_optimize(SS_ref_db.opt, x, &minf);
+    }
+    /* Send back needed local solution parameters */
+    for (int i = 0; i < SS_ref_db.n_xeos; i++){
+       SS_ref_db.xeos[i] = x[i];
+    }
+    
+    SS_ref_db.df   = minf;
+    nlopt_destroy(SS_ref_db.opt);
+    
+    return SS_ref_db;
+};
+
 SS_ref NLopt_opt_ig_bi_function(global_variable gv, SS_ref SS_ref_db){
 
    int    n_em     = SS_ref_db.n_em;
@@ -4316,6 +4371,8 @@ SS_ref NLopt_opt_function(		global_variable   gv,
   else if(gv.EM_database == 2){          // igneous
     if 		(strcmp( gv.SS_list[index], "bi") == 0 ){
       SS_ref_db  = NLopt_opt_ig_bi_function( gv, SS_ref_db);	}
+    else if (strcmp( gv.SS_list[index], "fper")  == 0){
+      SS_ref_db  = NLopt_opt_ig_fper_function( gv, SS_ref_db);	}
     else if (strcmp( gv.SS_list[index], "cd")  == 0){
       SS_ref_db  = NLopt_opt_ig_cd_function( gv, SS_ref_db);	}
     else if (strcmp( gv.SS_list[index], "cpx") == 0){

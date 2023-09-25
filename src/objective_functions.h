@@ -13,7 +13,7 @@ void SS_mp_objective_init_function(	obj_type 		*SS_objective,
 void SS_um_objective_init_function(	obj_type 		*SS_objective,
 									global_variable  gv					);
 
-
+void p2x_ig_fper(SS_ref SS_ref_db, double eps);
 void p2x_ig_bi(  SS_ref SS_ref_db, double eps);
 void p2x_ig_cd(  SS_ref SS_ref_db, double eps);
 void p2x_ig_cpx( SS_ref SS_ref_db, double eps);
@@ -58,6 +58,7 @@ void p2x_um_spi(  	SS_ref SS_ref_db, double eps);
 void p2x_um_opx(  	SS_ref SS_ref_db, double eps);
 void p2x_um_po( 	SS_ref SS_ref_db, double eps);
 
+double obj_ig_fper(unsigned n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_bi(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_cd(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_cpx(unsigned  n, const double *x, double *grad, void *SS_ref_db);

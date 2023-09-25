@@ -1,5 +1,5 @@
 #
-=================================================================
+ ====================================================================
 The 'metapelite set' of x-eos in MnNCKFMASHTO
 
 checked and uploaded 23-01-2022 by ecrg
@@ -64,15 +64,18 @@ chl ctd sp ilmm ilm mt1
  z -> xCaX
  m -> xMnX
  f -> xFe3Y
- -------------------------------------------------
+ --------------------------------------------------------------------
 #
 
  starting guesses
-  x(g) = 0.90000
-  z(g) = 0.10000
-  m(g) = 0.060000
-  f(g) = 0.010000
-
+  x(g) = 0.90000  range 0 <> 1
+  z(g) = 0.10000  range 0 <> 1
+  m(g) = 0.060000  range 0 <> 1
+  f(g) = 0.010000  range 0 <> 1
+  
+ labels (assign first label for which condition is true)
+  garnet : g : true
+  
  site fractions
    xMgX = 1 - m - x - z + m*x + x*z
    xFeX = x + (-m)*x + (-x)*z
@@ -148,18 +151,21 @@ chl ctd sp ilmm ilm mt1
 
   where denom = Si4O8 + NaAlSi3O8 + KAlSi3O8 + CaAl2Si2O8 + 8/5*(Al2SiO5) + Si2O8 + H2O
 
- ------------------------------------------
+ --------------------------------------------------------------------
 #
 
  starting guesses
-  q(L) = 0.18140
-  fsp(L) = 0.34900
-  na(L) = 0.58400
-  an(L) = 0.011040
-  ol(L) = 0.013730
-  x(L) = 0.73330
-  h2o(L) = 0.42760
-
+  q(L) = 0.18140  range 0 <> 1
+  fsp(L) = 0.34900  range 0 <> 1
+  na(L) = 0.58400  range 0 <> 1
+  an(L) = 0.011040  range 0 <> 1
+  ol(L) = 0.013730  range 0 <> 1
+  x(L) = 0.73330  range 0 <> 1
+  h2o(L) = 0.42760  range 0 <> 1
+  
+ labels (assign first label for which condition is true)
+  silicate melt : liq : true
+  
  site fractions
    fac = 1 - h2o
    pq = q
@@ -252,9 +258,12 @@ chl ctd sp ilmm ilm mt1
 #
 
  starting guesses
-  ca(pl4tr) = 0.80000
-  k(pl4tr) = 0.030000
+  ca(pl4tr) = 0.80000  range 0 <> 1
+  k(pl4tr) = 0.030000  range 0 <> 1
 
+ labels (assign first label for which condition is true)
+  feldspar : fsp : true
+  
  site fractions
    xNaA = 1 - ca - k
    xCaA = ca
@@ -305,9 +314,12 @@ chl ctd sp ilmm ilm mt1
 #
 
  starting guesses
-  na(k4tr) = 0.030000
-  ca(k4tr) = 0.80000
+  na(k4tr) = 0.030000  range 0 <> 1
+  ca(k4tr) = 0.80000  range 0 <> 1
 
+ labels (assign first label for which condition is true)
+  feldspar : fsp : true
+  
  site fractions
    xNaA = na
    xCaA = ca
@@ -356,9 +368,12 @@ chl ctd sp ilmm ilm mt1
 #
 
  starting guesses
-  ca(plc) = 0.20000
-  k(plc) = 0.030000
+  ca(plc) = 0.20000  range 0 <> 1
+  k(plc) = 0.030000  range 0 <> 1
 
+ labels (assign first label for which condition is true)
+  plagioclase : pl : true
+  
  site fractions
    x(K) = k
    x(Na) = 1 - k - ca
@@ -410,9 +425,12 @@ chl ctd sp ilmm ilm mt1
 #
 
  starting guesses
-  na(ksp) = 0.10000
-  ca(ksp) = 0.0040000
+  na(ksp) = 0.10000  range 0 <> 1
+  ca(ksp) = 0.0040000  range 0 <> 1
 
+ labels (assign first label for which condition is true)
+  k-feldspar : ksp : true
+  
  site fractions
    xK = 1 - ca - na
    xNa = na
@@ -463,9 +481,12 @@ chl ctd sp ilmm ilm mt1
 #
 
  starting guesses
-  f(ep) = 0.10000
+  f(ep) = 0.10000  range 0 <> 1
   Q(ep) = 0.20000  range 0 <> 0.5  order variable
 
+ labels (assign first label for which condition is true)
+  epidote : ep : true
+  
  site fractions
    xFeM1 = f - Q
    xAlM1 = 1 - f + Q
@@ -515,12 +536,15 @@ chl ctd sp ilmm ilm mt1
 #
 
  starting guesses
-  x(ma) = 0.60000
-  y(ma) = 0.96000
-  f(ma) = 0.0010000
-  n(ma) = 0.050000
-  c(ma) = 0.94000
+  x(ma) = 0.60000  range 0 <> 1
+  y(ma) = 0.96000  range 0 <> 1
+  f(ma) = 0.0010000  range 0 <> 1
+  n(ma) = 0.050000  range 0 <> 1
+  c(ma) = 0.94000  range 0 <> 1
 
+ labels (assign first label for which condition is true)
+  margarite : ma : true
+  
  site fractions
    xKA = 1 - c - n
    xNaA = n
@@ -613,12 +637,15 @@ chl ctd sp ilmm ilm mt1
 #
 
  starting guesses
-  x(mu) = 0.25000
-  y(mu) = 0.60000
-  f(mu) = 0.17000
-  n(mu) = 0.060000
-  c(mu) = 0.0040000
+  x(mu) = 0.25000  range 0 <> 1
+  y(mu) = 0.60000  range 0 <> 1
+  f(mu) = 0.17000  range 0 <> 1
+  n(mu) = 0.060000  range 0 <> 1
+  c(mu) = 0.0040000  range 0 <> 1
 
+ labels (assign first label for which condition is true)
+  muscovite : mu : true
+  
  site fractions
    xKA = 1 - c - n
    xNaA = n
@@ -714,13 +741,16 @@ chl ctd sp ilmm ilm mt1
 #
 
  starting guesses
-  x(bi) = 0.35000
-  m(bi) = 0.030000
-  y(bi) = 0.25000
-  f(bi) = 0.040000
-  t(bi) = 0.17000
-  Q(bi) = 0.25000  order variable
+  x(bi) = 0.35000  range 0 <> 1
+  m(bi) = 0.030000  range 0 <> 1
+  y(bi) = 0.25000  range 0 <> 1
+  f(bi) = 0.040000  range 0 <> 1
+  t(bi) = 0.17000  range 0 <> 1
+  Q(bi) = 0.25000  range 0 <> 1
 
+ labels (assign first label for which condition is true)
+  biotite : bi : true
+  
  site fractions
    xMgM3 = 1 - f - m - t - x - y - 2/3*Q + f*x + 3m*x + t*x + x*y
    xMnM3 = m
@@ -734,7 +764,6 @@ chl ctd sp ilmm ilm mt1
    xSiT = 1/2 - 1/2*f - 1/2*y
    xAlT = 1/2 + 1/2*f + 1/2*y
    xOHV = 1 - t
-   xOV = t
 
  proportions
    phl = 1 - f - m - t - x - y - 2/3*Q + f*x + 3m*x + t*x + x*y
@@ -750,7 +779,7 @@ chl ctd sp ilmm ilm mt1
   annm = 4*xFeM3*xFeM12**2*xSiT*xAlT*xOHV**2
   obi = 4*xFeM3*xMgM12**2*xSiT*xAlT*xOHV**2
   east = xAlM3*xMgM12**2*xAlT**2*xOHV**2
-  tbi = 4*xTiM3*xMgM12**2*xSiT*xAlT*xOV**2
+  tbi = 4*xTiM3*xMgM12**2*xSiT*xAlT*xTiM3**2
   fbi = xFe3M3*xMgM12**2*xAlT**2*xOHV**2
   mmbi = 4*xMnM3*xMnM12**2*xSiT*xAlT*xOHV**2
 
@@ -824,13 +853,16 @@ chl ctd sp ilmm ilm mt1
 #
 
  starting guesses
-  x(opx) = 0.30000
-  m(opx) = 0.020000
-  y(opx) = 0.10000
-  f(opx) = 0.030000
-  c(opx) = 0.050000
-  Q(opx) = 0.40000  order variable
+  x(opx) = 0.30000  range 0 <> 1
+  m(opx) = 0.020000  range 0 <> 1
+  y(opx) = 0.10000  range 0 <> 1
+  f(opx) = 0.030000  range 0 <> 1
+  c(opx) = 0.050000  range 0 <> 1
+  Q(opx) = 0.40000  range 0 <> 1
 
+ labels (assign first label for which condition is true)
+  orthopyroxene : opx : true
+  
  site fractions
    xMgM1 = 1 + 1/2*Q - f - m - x - y + (-1/2*c)*Q + (-1/2*m)*Q + f*x + m*x + x*y
    xFeM1 = -1/2*Q + x + 1/2*c*Q + 1/2*m*Q + (-f)*x + (-m)*x + (-x)*y
@@ -839,7 +871,6 @@ chl ctd sp ilmm ilm mt1
    xAlM1 = y
    xMgM2 = 1 - 1/2*Q - c - m - x + 1/2*c*Q + 1/2*m*Q + c*x + m*x
    xFeM2 = 1/2*Q + x + (-1/2*c)*Q + (-1/2*m)*Q + (-c)*x + (-m)*x
-   xMnM2 = m
    xCaM2 = c
    xSiT = 1 - 1/2*f - 1/2*y
    xAlT = 1/2*f + 1/2*y
@@ -859,7 +890,7 @@ chl ctd sp ilmm ilm mt1
   fm = xMgM1*xFeM2*xSiT**(1/2)
   mgts = 1.4142*xAlM1*xMgM2*xSiT**(1/4)*xAlT**(1/4)
   fopx = 1.4142*xFe3M1*xMgM2*xSiT**(1/4)*xAlT**(1/4)
-  mnopx = xMnM1*xMnM2*xSiT**(1/2)
+  mnopx = xMnM1*xMnM1*xSiT**(1/2)
   odi = xMgM1*xCaM2*xSiT**(1/2)
 
  non-ideality by van laar
@@ -926,11 +957,14 @@ chl ctd sp ilmm ilm mt1
 #
 
  starting guesses
-  x(sa) = 0.10000
-  y(sa) = 0.30000
-  f(sa) = 0.050000
-  Q(sa) = 0.050000  range -1 <> 1  order variable
+  x(sa) = 0.10000  range 0 <> 1
+  y(sa) = 0.30000  range 0 <> 1
+  f(sa) = 0.050000  range 0 <> 1
+  Q(sa) = 0.050000  range -1 <> 1
 
+ labels (assign first label for which condition is true)
+  sapphirine : sa : true
+  
  site fractions
    xMgM3 = 1 - f - x - y + 3/4*Q + f*x + x*y
    xFeM3 = x - 3/4*Q + (-f)*x + (-x)*y
@@ -1005,10 +1039,13 @@ chl ctd sp ilmm ilm mt1
 #
 
  starting guesses
-  x(cd) = 0.30000
-  m(cd) = 0.020000
-  h(cd) = 0.70000
+  x(cd) = 0.30000  range 0 <> 1
+  m(cd) = 0.020000  range 0 <> 1
+  h(cd) = 0.70000  range 0 <> 1
 
+ labels (assign first label for which condition is true)
+  cordierite : cd : true
+  
  site fractions
    xFeX = x + (-m)*x
    xMgX = 1 - m - x + m*x
@@ -1068,11 +1105,14 @@ chl ctd sp ilmm ilm mt1
 #
 
  starting guesses
-  x(st) = 0.88000
-  m(st) = 0.020000
-  f(st) = 0.050000
-  t(st) = 0.040000
+  x(st) = 0.88000  range 0 <> 1
+  m(st) = 0.020000  range 0 <> 1
+  f(st) = 0.050000  range 0 <> 1
+  t(st) = 0.040000  range 0 <> 1
 
+ labels (assign first label for which condition is true)
+  staurolite : st : true
+  
  site fractions
    xMgX = 1 - m - x + m*x
    xFeX = x + (-m)*x
@@ -1156,21 +1196,23 @@ chl ctd sp ilmm ilm mt1
 #
 
  starting guesses
-  x(chl) = 0.30000
-  y(chl) = 0.55000
-  f(chl) = 0.050000
-  m(chl) = 0.030000
-  QAl(chl) = 0.42000  range -1 <> 1  order variable
-  Q1(chl) = -0.18000  range -1 <> 1  order variable
-  Q4(chl) = -0.26000  range -1 <> 1  order variable
-
+  x(chl) = 0.30000  range 0 <> 1
+  y(chl) = 0.55000  range 0 <> 1
+  f(chl) = 0.050000  range 0 <> 1
+  m(chl) = 0.030000  range 0 <> 1
+  QAl(chl) = 0.42000  range -1 <> 1
+  Q1(chl) = -0.18000  range -1 <> 1
+  Q4(chl) = -0.26000  range -1 <> 1
+  
+ labels (assign first label for which condition is true)
+  chlorite : chl : true
+  
  site fractions
    xMgM1 = 1 - m + Q1 + QAl - x - y + (-m)*Q1 + Q1*QAl + m*x + (-QAl)*x + (-Q1)*y + x*y
    xMnM1 = m
    xFeM1 = -Q1 + x + m*Q1 + (-Q1)*QAl + (-m)*x + QAl*x + Q1*y + (-x)*y
    xAlM1 = -QAl + y
    xMgM23 = 1 - 1/4*Q1 - 1/4*Q4 - m - x + 1/4*m*Q1 + 1/4*f*Q4 + (-1/4*Q1)*QAl + 1/4*Q4*QAl + m*x + 1/4*Q1*y + 1/4*Q4*y
-   xMnM23 = m
    xFeM23 = 1/4*Q1 + 1/4*Q4 + x + (-1/4*m)*Q1 + (-1/4*f)*Q4 + 1/4*Q1*QAl + (-1/4*Q4)*QAl + (-m)*x + (-1/4*Q1)*y + (-1/4*Q4)*y
    xMgM4 = 1 - f + Q4 - QAl - x - y + (-f)*Q4 + (-Q4)*QAl + f*x + QAl*x + (-Q4)*y + x*y
    xFeM4 = -Q4 + x + f*Q4 + Q4*QAl + (-f)*x + (-QAl)*x + Q4*y + (-x)*y
@@ -1197,7 +1239,7 @@ chl ctd sp ilmm ilm mt1
   ochl1 = xMgM1*xFeM23**4*xFeM4*xSiT2**2
   ochl4 = xFeM1*xMgM23**4*xMgM4*xSiT2**2
   f3clin = 4*xMgM1*xMgM23**4*xFe3M4*xSiT2*xAlT2
-  mmchl = 4*xMnM1*xMnM23**4*xAlM4*xSiT2*xAlT2
+  mmchl = 4*xMnM1*xMnM1**4*xAlM4*xSiT2*xAlT2
 
  non-ideality by symmetric formalism
   W(clin,afchl) = 17
@@ -1269,10 +1311,13 @@ chl ctd sp ilmm ilm mt1
 #
 
  starting guesses
-  x(ctd) = 0.88000
-  m(ctd) = 0.010000
-  f(ctd) = 0.020000
+  x(ctd) = 0.88000  range 0 <> 1
+  m(ctd) = 0.010000  range 0 <> 1
+  f(ctd) = 0.020000  range 0 <> 1
 
+ labels (assign first label for which condition is true)
+  chloritoid : ctd : true
+  
  site fractions
    xAlM1A = 1 - f
    xFe3M1A = f
@@ -1328,10 +1373,13 @@ chl ctd sp ilmm ilm mt1
 #
 
  starting guesses
-  x(sp) = 0.90000
-  y(sp) = 0.95000
-  z(sp) = 0.010000
+  x(sp) = 0.90000  range 0 <> 1
+  y(sp) = 0.95000  range 0 <> 1
+  z(sp) = 0.010000  range 0 <> 1
 
+ labels (assign first label for which condition is true)
+  spinel : sp : true
+  
  site fractions
    x(Al) = y
    x(Fe3) = 1 - y - z
@@ -1398,11 +1446,14 @@ chl ctd sp ilmm ilm mt1
 #
 
  starting guesses
-  i(ilmm) = 0.90000
-  g(ilmm) = 0.020000
-  m(ilmm) = 0.020000
-  Q(ilmm) = 0.85000  range -1 <> 1  order variable
+  i(ilmm) = 0.90000  range 0 <> 1
+  g(ilmm) = 0.020000  range 0 <> 1
+  m(ilmm) = 0.020000  range 0 <> 1
+  Q(ilmm) = 0.85000  range -1 <> 1 
 
+ labels (assign first label for which condition is true)
+  ilmenite : ilm : true
+  
  site fractions
    xFeA = -1/2*g + 1/2*i - 1/2*m + 1/2*Q
    xTiA = -1/2*g + 1/2*i - 1/2*m - 1/2*Q
@@ -1411,7 +1462,6 @@ chl ctd sp ilmm ilm mt1
    xFe3A = 1 - i
    xFeB = -1/2*g + 1/2*i - 1/2*m - 1/2*Q
    xTiB = 1/2*g + 1/2*i + 1/2*m + 1/2*Q
-   xFe3B = 1 - i
 
  proportions
    oilm = Q
@@ -1423,7 +1473,7 @@ chl ctd sp ilmm ilm mt1
  ideal mixing activities
   oilm = xFeA*xTiB
   dilm = 4*xFeA**(1/2)*xTiA**(1/2)*xFeB**(1/2)*xTiB**(1/2)
-  dhem = xFe3A*xFe3B
+  dhem = xFe3A*xFe3A
   geik = xMgA*xTiB
   pnt = xMnA*xTiB
 
@@ -1467,9 +1517,12 @@ Fe2 Ti Fe3   Fe2 Ti Fe3
 #
 
  starting guesses
-  x(ilm) = 0.80000
-  Q(ilm) = 0.55000  range -0.99 <> 0.99  order variable
+  x(ilm) = 0.80000  range 0 <> 1
+  Q(ilm) = 0.55000  range -0.99 <> 0.99
 
+ labels (assign first label for which condition is true)
+  ilmenite : ilm : true
+  
  site fractions
    xFe2A = 1/2*x + 1/2*Q
    xTiA = 1/2*x - 1/2*Q
@@ -1523,9 +1576,12 @@ Fe2 Ti Fe3   Fe2 Ti Fe3
 #
 
  starting guesses
-  x(mt1) = 0.97040
-  Q(mt1) = 0.74720  order variable
+  x(mt1) = 0.97040  range 0 <> 1
+  Q(mt1) = 0.74720  range 0 <> 1
 
+ labels (assign first label for which condition is true)
+  magnetite : mt : true
+  
  site fractions
    xTiM = 1/2 - 1/2*x
    xFe3M = x - 1/2*Q
@@ -1551,4 +1607,3 @@ Fe2 Ti Fe3   Fe2 Ti Fe3
  "make" end-members
   imt = d-mt - 1.8595 + 0.003166*T  (od)
   dmt = d-mt + 1.3305 - 0.001184*T  (od)
-

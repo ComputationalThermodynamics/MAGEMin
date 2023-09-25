@@ -1,0 +1,30 @@
+title,comments,test,oxide,frac,db
+"FPWorldMedian pelite
+ Water oversaturated","Forshaw, J. B., & Pattison, D. R. (2023)",0,"SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, MnO, H2O","70.999, 12.805, 0.771, 3.978, 6.342, 2.7895, 1.481, 0.758, 0.72933, 0.075, 30.0",mp
+"FPWorldMedian pelite 
+ Water undersaturated","Forshaw, J. B., & Pattison, D. R. (2023)",1,"SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, MnO, H2O","70.999, 12.805, 0.771, 3.978, 6.342, 2.7895, 1.481, 0.758, 0.72933, 0.075, 5.0",mp
+"Pelite
+ Water oversaturated","White et al., 2014, Fig 8",2,"SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, MnO, H2O","64.578, 13.651, 1.586, 5.529, 8.025, 2.943, 2.0, 0.907, 0.65, 0.175, 40.0",mp
+"Pelite 
+ Water
+ undersaturated","White et al., 2014, Fig 8",3,"SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, MnO, H2O","64.578, 13.651, 1.586, 5.529, 8.025, 2.943, 2.0, 0.907, 0.65, 0.175, 6.244",mp
+"Garnet-migmatite
+ AV0832a","Riel et al., 2013",4,"SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, MnO, H2O","73.988, 8.6143, 2.0146, 2.7401, 3.8451, 1.7686, 2.482, 0.6393, 0.11, 0.063, 10.0",mp
+"SM89
+ MORB composition","Sun & McDonough, 1989",0,"SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, H2O","52.47, 9.1, 12.21, 12.71, 8.15, 0.23, 2.61, 1.05, 1.47, 20.0",mb
+"Natural amphibolite
+ LT  Granulite",unpublished,1,"SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, H2O","51.08, 9.68, 13.26, 11.21, 11.66, 0.16, 0.79, 1.37, 0.8, 20.0",mb
+"SQA
+ Synthetic amphibolite","Patino Douce & Beard, 1995",2,"SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, H2O","60.05, 6.62, 8.31, 9.93, 6.57, 0.44, 1.83, 1.27, 0.33, 4.64",mb
+BL478: Sample 478,"Beard & Lofgren, 1991",3,"SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, H2O","53.96, 9.26, 10.15, 8.11, 10.14, 0.11, 2.54, 1.35, 0.98, 3.42",mb
+"KLB1 Peridotite 
+ Anhydrous","Holland et al., 2018",0,"SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3, H2O","38.494, 1.776, 2.824, 50.566, 5.886, 0.01, 0.25, 0.1, 0.096, 0.109, 0.0",ig
+"RE46 
+ Icelandic basalt","Yang et al., 1996",1,"SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3, H2O","50.72, 9.16, 15.21, 16.25, 7.06, 0.01, 1.47, 0.39, 0.35, 0.01, 0.0",ig
+N_MORB - Basalt,"Gale et al., 2013",2,"SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3, H2O","53.21, 9.41, 12.21, 12.21, 8.65, 0.09, 2.9, 1.21, 0.69, 0.02, 0.0",ig
+MIX1-G - Pyroxenite,"Hirschmann et al., 2003",3,"SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3, H2O","45.25, 8.89, 12.22, 24.68, 6.45, 0.03, 1.39, 0.67, 0.11, 0.02, 0.0",ig
+High-Al basalt,"Baker, 1983",4,"SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3, H2O","54.4, 12.96, 11.31, 7.68, 8.63, 0.54, 3.93, 0.79, 0.41, 0.01, 0.0",ig
+Tonalite 101,"Piwinskii, 1968",5,"SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3, H2O","66.01, 11.98, 7.06, 4.16, 5.3, 1.57, 4.12, 0.66, 0.97, 0.01, 50.0",ig
+Wet Basalt,unpublished,6,"SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3, H2O","50.081, 8.6901, 11.6698, 12.1438, 7.7832, 0.215, 2.4978, 1.0059, 0.467, 0.01, 5.4364",ig
+Serpentine oxidized,"Evans & Forst, 2021",0,"SiO2, Al2O3, MgO, FeOt, O, H2O, S","20.044, 0.6256, 29.24, 3.149, 0.7324, 46.755, 0.3",um
+Serpentine reduced,"Evans & Forst, 2021",1,"SiO2, Al2O3, MgO, FeOt, O, H2O, S","20.044, 0.6256, 29.24, 3.149, 0.1324, 46.755, 0.3",um

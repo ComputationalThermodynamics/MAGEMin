@@ -52,6 +52,8 @@ void SS_ig_objective_init_function(	obj_type 			*SS_objective,
 
 		if      (strcmp( gv.SS_list[iss], "bi")  == 0 ){
 			SS_objective[iss]  = obj_ig_bi; 		}
+		else if (strcmp( gv.SS_list[iss], "fper")  == 0){
+			SS_objective[iss]  = obj_ig_fper; 		}
 		else if (strcmp( gv.SS_list[iss], "cd")  == 0){
 			SS_objective[iss]  = obj_ig_cd; 		}
 		else if (strcmp( gv.SS_list[iss], "cpx") == 0){

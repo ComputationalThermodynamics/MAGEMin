@@ -3,6 +3,27 @@
 
 #include "MAGEMin.h"
 
+struct ss_pc ig_fper_pc_xeos[20] = {
+{{0.000000}},
+{{0.050000}},
+{{0.100000}},
+{{0.150000}},
+{{0.200000}},
+{{0.250000}},
+{{0.300000}},
+{{0.350000}},
+{{0.400000}},
+{{0.450000}},
+{{0.500000}},
+{{0.550000}},
+{{0.600000}},
+{{0.650000}},
+{{0.700000}},
+{{0.750000}},
+{{0.800000}},
+{{0.850000}},
+{{0.900000}},
+{{0.950000}}};
 
 struct ss_pc ig_pl4T_pc_xeos[231] = {
 {{0.0001,0.0001}},
@@ -20199,6 +20220,8 @@ void SS_ig_pc_init_function(	PC_ref 	*SS_pc_xeos,
 						 
 	if      (strcmp( name, "bi")  == 0 ){
 		SS_pc_xeos[iss].ss_pc_xeos  = ig_bi_pc_xeos; 		}
+	else if (strcmp( name, "fper")  == 0){
+		SS_pc_xeos[iss].ss_pc_xeos  = ig_fper_pc_xeos; 		}
 	else if (strcmp( name, "cd")  == 0){
 		SS_pc_xeos[iss].ss_pc_xeos  = ig_cd_pc_xeos; 		}
 	else if (strcmp( name, "cpx") == 0){

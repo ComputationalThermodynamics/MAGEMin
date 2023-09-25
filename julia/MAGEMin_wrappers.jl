@@ -1,29 +1,97 @@
 # The full functionality of MAGEMin is wrapped in ../gen/magemin_library.jl
 # Yet, the routines here make it more convenient to use this from julia
 import Base.show
+using Base.Threads: @threads 
+using ProgressMeter
 
-export  init_MAGEMin, finalize_MAGEMin, point_wise_minimization, convertBulk4MAGEMin, use_predefined_bulk_rock, define_bulk_rock,create_output,
-        print_info, create_gmin_struct
+export  init_MAGEMin, finalize_MAGEMin, point_wise_minimization, convertBulk4MAGEMin, use_predefined_bulk_rock, define_bulk_rock, create_output,
+        print_info, create_gmin_struct,
+        single_point_minimization,
+        multi_point_minimization, MAGEMin_Data,
+        Initialize_MAGEMin, Finalize_MAGEMin
+    
+
+"""
+Holds the MAGEMin databases & required structures for every thread
+"""
+struct MAGEMin_Data{TypeGV, TypeZB, TypeDB, TypeSplxData}
+    db :: String
+    gv :: TypeGV
+    z_b :: TypeZB
+    DB  :: TypeDB
+    splx_data :: TypeSplxData
+end
+
+"""
+    Dat = Initialize_MAGEMin(db = "ig"; verbose::Union{Bool, Int64} = true)
+
+Initializes MAGEMin on one or more threads, for the database `db`. You can surpress all output with `verbose=false`. `verbose=true` will give a brief summary of the result, whereas `verbose=1` will give more details about the computations.
+"""
+function Initialize_MAGEMin(db = "ig"; verbose::Union{Int64,Bool} = 0)
+    gv, z_b, DB, splx_data = init_MAGEMin(db);
+
+    nt = Threads.nthreads()
+    list_gv = Vector{typeof(gv)}(undef, nt)
+    list_z_b = Vector{typeof(z_b)}(undef, nt)
+    list_DB = Vector{typeof(DB)}(undef, nt)
+    list_splx_data = Vector{typeof(splx_data)}(undef, nt)
+
+    if isa(verbose,Bool)
+        if verbose
+            verbose=0
+        else
+            verbose=-1
+        end
+    end
+
+    for id in 1:nt
+        gv, z_b, DB, splx_data = init_MAGEMin(db)
+        gv.verbose = verbose
+        list_gv[id] = gv
+        list_z_b[id] = z_b
+        list_DB[id] = DB
+        list_splx_data[id] = splx_data
+    end
+
+    return MAGEMin_Data(db, list_gv, list_z_b, list_DB, list_splx_data)
+end
 
 
 """
-    gv, DB = init_MAGEMin(;EM_database=0)
-
-Initializes MAGEMin (including setting global options) and loads the Database.
+    Finalize_MAGEMin(dat::MAGEMin_Data)
+Finalizes MAGEMin and clears variables
 """
+function Finalize_MAGEMin(dat::MAGEMin_Data)
+    for id in 1:Threads.nthreads()
+        gv = dat.gv[id]
+        DB = dat.DB[id]
+        LibMAGEMin.FreeDatabases(gv, DB)
+
+        # These are indeed not freed yet (same with C-code), which should be added for completion
+        # They are rather small structs compared to the others
+        z_b = dat.z_b[id]
+        splx_data = dat.splx_data[id]
+
+     end
+     return nothing
+end
+
+
+# Left for backwards compatibility
 function  init_MAGEMin(db="ig")
 
     z_b         = LibMAGEMin.bulk_infos()
     gv          = LibMAGEMin.global_variables()
     splx_data   = LibMAGEMin.simplex_data(); 
     DB          = LibMAGEMin.Database()
-
     gv          = LibMAGEMin.global_variable_alloc( pointer_from_objref(z_b))
     
     if db == "ig"
         gv.EM_database = 2
     elseif db == "mp"
         gv.EM_database = 0
+    elseif db == "um"
+        gv.EM_database = 4
     else
         print("Database not implemented...\n")
     end
@@ -37,18 +105,195 @@ function  init_MAGEMin(db="ig")
     return gv, z_b, DB, splx_data
 end
 
-"""
-    finalize_MAGEMin(gv,DB)
-Cleans up the memory 
-"""
-function  finalize_MAGEMin(gv,DB)
-    LibMAGEMin.FreeDatabases(gv, DB)
-    nothing
+# left here for backwards compatibility
+function finalize_MAGEMin(gv,DB)
+    LibMAGEMin.FreeDatabases(gv,DB)
+    return nothing
+end
+
+# wrapper for single point minimization
+function single_point_minimization(     P::Float64,
+                                        T::Float64,
+                                        MAGEMin_db::MAGEMin_Data;  
+                                        test::Int64 = 0, # if using a build-in test case
+                                        X::Union{Nothing, Vector{_T}, Vector{Vector{_T}}} = nothing,
+                                        Xoxides     = Vector{String},
+                                        sys_in      = "mol",
+                                        progressbar = true        # show a progress bar or not?
+                                        ) where _T <: Float64
+
+    P = [P];
+    T = [T];
+    if ~isnothing(X)
+        X = [X]
+    end
+
+
+    Out_PT     =   multi_point_minimization(P,
+                                            T,
+                                            MAGEMin_db,
+                                            test=test,
+                                            X=X,
+                                            Xoxides=Xoxides,
+                                            sys_in=sys_in,
+                                            progressbar=progressbar);
+
+    return Out_PT[1]
 end
 
 
 """
-    bulk_rock = use_predefined_bulk_rock(gv, test=-1)
+    Out_PT = multi_point_minimization(P:Vector{_T}, T::Vector, MAGEMin_db::MAGEMin_Data; sys_in="mol", test=0, X::Union{Nothing, Vector, Vector{Vector}}=nothing, progressbar=true)
+
+Perform (parallel) MAGEMin calculations for a range of points as a function of pressure `P`, temperature `T` and/or composition `X`. The database `MAGEMin_db` must be initialised before calling the routine.
+The bulk-rock composition can either be set to be one of the pre-defined build-in test cases, or can be specified specifically by passing `X`, `Xodides` and `sys_in` (that specifies whether the input is in "mol" or "wt").
+
+Below a few examples:
+
+Example 1 - build-in test vs. pressure and temperature
+===
+```julia
+julia> data = Initialize_MAGEMin("ig", verbose=false);
+julia> n = 10
+julia> P = rand(8:40.0,n)
+julia> T = rand(800:1500.0,n)
+julia> out = multi_point_minimization(P, T, data, test=0)
+julia> Finalize_MAGEMin(data)
+```
+
+Example 2 - Specify constant bulk rock composition for all points:
+===
+```julia
+julia> data = Initialize_MAGEMin("ig", verbose=false);
+julia> n = 10
+julia> P = fill(10.0,n)
+julia> T = fill(1100.0,n)
+julia> Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
+julia> X = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
+julia> sys_in = "wt"    
+julia> out = multi_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+julia> Finalize_MAGEMin(data)
+```
+
+Example 3 - Different bulk rock composition for different points
+===
+```julia
+julia> data = Initialize_MAGEMin("ig", verbose=false);
+julia> P = [10.0, 20.0]
+julia> T = [1100.0, 1200]
+julia> Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
+julia> X1 = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
+julia> X2 = [49.43; 14.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
+julia> X = [X1,X2]
+julia> sys_in = "wt"    
+julia> out = multi_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+julia> Finalize_MAGEMin(data)
+```
+
+Activating multithreading on julia
+===
+
+To take advantage of multithreading, you need to start julia from the terminal with:
+```julia
+\$julia -t auto
+```
+which will automatically use all threads on your machine. Alternatively, use `julia -t 4` to start it on 4 threads.
+If you are interested to see what you can do on your machine type:
+```
+julia> versioninfo()
+``` 
+
+"""
+function multi_point_minimization(  P::Vector{Float64},
+                                    T::Vector{Float64},
+                                    MAGEMin_db::MAGEMin_Data;  
+                                    test        = 0, # if using a build-in test case
+                                    X::Union{Nothing, Vector{_T}, Vector{Vector{_T}}}=nothing,
+                                    Xoxides     = Vector{String},
+                                    sys_in      = "mol",
+                                    progressbar = true        # show a progress bar or not?
+                                    ) where _T <: Float64
+
+    # Set the compositional info 
+    CompositionType::Int64 = 0;
+    if isnothing(X)
+        # Use one of the build-in tests 
+        # Create thread-local data
+        for i in 1:Threads.nthreads()
+            MAGEMin_db.gv[i] = use_predefined_bulk_rock(MAGEMin_db.gv[i], test, MAGEMin_db.db)
+        end
+
+        CompositionType = 0;    # build-in tests
+    else
+        if isa(X,Vector{Float64})
+            # same bulk rock composition for the full diagram
+            @assert length(X) == length(Xoxides)
+
+            # Set the bulk rock composition for all points
+            for i in 1:Threads.nthreads()
+                MAGEMin_db.gv[i] = define_bulk_rock(MAGEMin_db.gv[i], X, Xoxides, sys_in, MAGEMin_db.db);
+            end
+            CompositionType = 1;    # specified bulk composition for all points
+        else
+            @assert length(X) == length(P)
+            CompositionType = 2;    # different bulk rock composition for every point
+        end
+
+    end
+
+    # initialize vectors
+    Out_PT = Vector{MAGEMin_C.gmin_struct{Float64, Int64}}(undef, length(P))
+
+    # Currently, there seem to be some type instabilities or something else so that
+    # some compilation happens in the threaded loop below. This interferes badly
+    # in some weird way with (libsc, p4est, t8code) - in particular on Linux where
+    # we get segfaults. To avoid this, we force serial compilation by calling MAGEMin
+    # once before the loop.
+    let id = 1
+        gv          = MAGEMin_db.gv[id]
+        z_b         = MAGEMin_db.z_b[id]
+        DB          = MAGEMin_db.DB[id]
+        splx_data   = MAGEMin_db.splx_data[id]
+        point_wise_minimization(P[1], T[1], gv, z_b, DB, splx_data, sys_in)
+    end
+
+    # main loop
+    if progressbar
+        progr = Progress(length(P), desc="Computing $(length(P)) points...") # progress meter
+    end
+    @threads :static for i in eachindex(P)
+        # Get thread-local buffers. As of Julia v1.9, a dynamic scheduling of
+        # the threads is the default setting. To avoid task migration and the
+        # resulting concurrency issues, we restrict the loop to static scheduling.
+        id          = Threads.threadid()
+        gv          = MAGEMin_db.gv[id]
+        z_b         = MAGEMin_db.z_b[id]
+        DB          = MAGEMin_db.DB[id]
+        splx_data   = MAGEMin_db.splx_data[id]
+
+        if CompositionType==2
+            # different bulk-rock composition for every point - specify it here
+            gv = define_bulk_rock(gv, X[i], Xoxides, sys_in, MAGEMin_db.db);
+        end
+
+        # compute a new point using a ccall
+        out         = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data)
+        Out_PT[i]   = deepcopy(out)  
+
+        if progressbar
+            next!(progr)
+        end
+    end
+    if progressbar
+        finish!(progr)
+    end
+    return Out_PT
+end
+
+
+
+"""
+    bulk_rock = use_predefined_bulk_rock(gv, test=-1, db="ig")
 
 Returns the pre-defined bulk rock composition of a given test
 """
@@ -62,6 +307,10 @@ function use_predefined_bulk_rock(gv, test=0, db="ig")
         gv.test = test
         gv = LibMAGEMin.get_bulk_metapelite(gv)
         LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
+    elseif db == "um"
+        gv.test = test
+        gv = LibMAGEMin.get_bulk_ultramafic(gv)
+        LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
     else
         print("Database not implemented...\n")
     end
@@ -69,10 +318,23 @@ function use_predefined_bulk_rock(gv, test=0, db="ig")
     return gv
 end
 
+"""
+    data = use_predefined_bulk_rock(data::MAGEMin_Data, test=0)
+Returns the pre-defined bulk rock composition of a given test
+"""
+function use_predefined_bulk_rock(data::MAGEMin_Data, test=0)
+    nt = Threads.nthreads()
+    for id in 1:nt
+        data.gv[id] =  use_predefined_bulk_rock(data.gv[id], test, data.db)
+    end
+    return data
+end
+
+
 function define_bulk_rock(gv, bulk_in, bulk_in_ox, sys_in,db)
 
-    bulk_rock       = convertBulk4MAGEMin(bulk_in,bulk_in_ox,sys_in,db)    # conversion changes the system unit to mol
-    gv.bulk_rock    = pointer(bulk_rock)                                # copy the bulk-rock
+    bulk_rock       = convertBulk4MAGEMin(bulk_in,bulk_in_ox,sys_in,db)     # conversion changes the system unit to mol
+    gv.bulk_rock    = pointer(bulk_rock)                                    # copy the bulk-rock
 
     LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
 
@@ -94,7 +356,7 @@ receives bulk-rock composition in [mol,wt] fraction and associated oxide list an
 function convertBulk4MAGEMin(bulk_in::Vector{Float64},bulk_in_ox::Vector{String},sys_in::String,db::String);
 
 	ref_ox          = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "MnO"; "H2O"];
-	ref_MolarMass   = [60.08; 101.96; 56.08; 40.30; 71.85; 159.69; 94.2; 61.98; 79.88; 16.0; 151.99; 70.937; 18.015];      #Molar mass of oxides
+	ref_MolarMass   = [60.08; 101.96; 56.08; 40.30; 71.85; 79.85; 94.2; 61.98; 79.88; 16.0; 151.99; 70.937; 18.015];      #Molar mass of oxides
 
     if db == "ig"
 	    MAGEMin_ox      = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "H2O"];
@@ -215,7 +477,7 @@ julia> finalize_MAGEMin(gv,DB)
 ```
 
 """
-function point_wise_minimization(P::Float64,T::Float64, gv, z_b, DB, splx_data, sys_in::String="mol")
+function point_wise_minimization(P::Float64,T::Float64, gv, z_b, DB, splx_data)
     
     input_data      =   LibMAGEMin.io_data();                           # zero (not used actually)
 
@@ -254,7 +516,18 @@ function point_wise_minimization(P::Float64,T::Float64, gv, z_b, DB, splx_data, 
     return out
 end
 
-point_wise_minimization(P::Number,T::Number, gv, z_b, DB, splx_data, sys_in::String="mol") = point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data, sys_in)
+point_wise_minimization(P::Number,T::Number, gv, z_b, DB, splx_data) = point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data)
+
+
+point_wise_minimization(P::Number,T::Number, gv::MAGEMin_C.LibMAGEMin.global_variables, z_b::MAGEMin_C.LibMAGEMin.bulk_infos, DB::MAGEMin_C.LibMAGEMin.Database, splx_data::MAGEMin_C.LibMAGEMin.simplex_datas, sys_in::String) = point_wise_minimization(P,T, gv, z_b, DB, splx_data)
+
+"""
+    out = point_wise_minimization(P::Number,T::Number, data::MAGEMin_Data)
+
+Performs a point-wise optimization for a given pressure `P` and temperature `T` foir the data specified in the MAGEMin database `MAGEMin_Data` (where also compoition is specified)
+"""
+point_wise_minimization(P::Number,T::Number, data::MAGEMin_Data) = point_wise_minimization(P,T, data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]) 
+
 
 
 """
@@ -660,6 +933,3 @@ function print_info(g::gmin_struct)
     print("\n")
 
 end
-
-
-
