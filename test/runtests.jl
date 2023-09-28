@@ -72,7 +72,7 @@ end
     sys_in  = "wt"    
     out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
 
-    @test abs(out.G_system + 907.2788704076264)/abs(907.2788704076264) < 2e-4
+    @test abs(out.G_system + 917.008526)/abs(917.008526) < 2e-4
 
 
     # different bulk rock per point
@@ -85,8 +85,8 @@ end
     sys_in  = "wt"    
     out     = multi_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
     
-    @test out[1].G_system ≈ -907.2788704076264 rtol=2e-4
-    @test out[2].G_system ≈ -903.2391213191867 rtol=2e-4
+    @test out[1].G_system ≈ -917.0085258258146 rtol=2e-4
+    @test out[2].G_system ≈ -912.7754865001111 rtol=2e-4
 
     Finalize_MAGEMin(data)
 end
@@ -97,15 +97,14 @@ end
     bulk_in    = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
     bulk_rock  = convertBulk4MAGEMin(bulk_in,bulk_in_ox,"wt","ig" );
 
-    @test bulk_rock ≈ [45.322438151798686, 8.376385705825816, 11.59989542303507, 14.132959653999844, 7.5133873577293135, 0.3521517320409561, 1.696362856414661, 0.4786296255318463, 1.1547757294831036, 0.009999000099990002, 9.36301476404072]
+    @test bulk_rock ≈ [46.12136551106488,8.52404156868422,11.80437413592006,14.382090296468109,6.470772496142926,0.3583593339444149,1.7262657202608955,0.487066733471891,0.5876026409473947,0.009999000099989998,9.528062562995213]
 
     bulk_in_ox = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "MnO"; "H2O"];
     bulk_in    = [69.64; 13.76; 1.77; 1.73; 4.32; 0.4; 2.61; 2.41; 0.80; 0.07; 0.0];
     bulk_rock  = convertBulk4MAGEMin(bulk_in,bulk_in_ox,"wt","mp" );
 
-    @test bulk_rock ≈ [76.19220995201881, 8.870954242440064, 2.0746602851534823, 2.8217776479950456, 4.610760310300608, 1.8212574300716888, 2.5559196842000387, 0.6583148666016386, 0.3292810992118903, 0.06486448200674054, 0.0]
+    @test bulk_rock ≈ [76.57038397179574,8.914984523583415,2.0849576977131403,2.835783318610597,4.30275071755529,1.8302970975627948,2.568605789798099,0.6615823604771729,0.16546809116073818,0.06518643174302832,0.0]
 end
-
 
 @testset "test Seismic velocities & modulus" begin
     # Call optimization routine for given P & T & bulk_rock
