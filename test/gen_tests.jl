@@ -1,21 +1,21 @@
-# This script helps to generate a lsit of points for testing MAGEMin using reference built-in bulk-rock compositions
+# This script helps to generate a list of points for testing MAGEMin using reference built-in bulk-rock compositions
 
-cur_dir = pwd();    
+cur_dir = pwd();
 if  cur_dir[end-3:end]=="test"
     cd("../")           # change to main directory if we are in /test
 end
 using MAGEMin_C
 
-# Initialize database 
+# Initialize database
 db          = "ig"  # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b)
 gv, z_b, DB, splx_data      = init_MAGEMin(db);
 
 
 sys_in      = "mol"     #default is mol, if wt is provided conversion will be done internally (MAGEMin works on mol basis)
 
-mutable struct outP{ _T  } 
+mutable struct outP{ _T  }
     P           ::  _T
-    T           ::  _T 
+    T           ::  _T
     test        ::  Int64
 
     G           ::  _T
