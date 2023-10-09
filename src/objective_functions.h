@@ -3,6 +3,8 @@
 
 #include "MAGEMin.h"
 
+void SS_mb_objective_init_function(	obj_type 		*SS_objective,
+									global_variable  gv					);
 
 void SS_ig_objective_init_function(	obj_type 		*SS_objective,
 									global_variable  gv					);
@@ -12,6 +14,24 @@ void SS_mp_objective_init_function(	obj_type 		*SS_objective,
 
 void SS_um_objective_init_function(	obj_type 		*SS_objective,
 									global_variable  gv					);
+
+void p2x_mb_liq(  SS_ref SS_ref_db, double eps);
+void p2x_mb_hb(  SS_ref SS_ref_db, double eps);
+void p2x_mb_aug(  SS_ref SS_ref_db, double eps);
+void p2x_mb_dio(  SS_ref SS_ref_db, double eps);
+void p2x_mb_opx(  SS_ref SS_ref_db, double eps);
+void p2x_mb_g(  SS_ref SS_ref_db, double eps);
+void p2x_mb_ol(  SS_ref SS_ref_db, double eps);
+void p2x_mb_pl4tr(  SS_ref SS_ref_db, double eps);
+void p2x_mb_abc(  SS_ref SS_ref_db, double eps);
+void p2x_mb_k4tr(  SS_ref SS_ref_db, double eps);
+void p2x_mb_sp(  SS_ref SS_ref_db, double eps);
+void p2x_mb_ilm(  SS_ref SS_ref_db, double eps);
+void p2x_mb_ilmm(  SS_ref SS_ref_db, double eps);
+void p2x_mb_ep(  SS_ref SS_ref_db, double eps);
+void p2x_mb_bi(  SS_ref SS_ref_db, double eps);
+void p2x_mb_mu(  SS_ref SS_ref_db, double eps);
+void p2x_mb_chl(  SS_ref SS_ref_db, double eps);
 
 void p2x_ig_fper(SS_ref SS_ref_db, double eps);
 void p2x_ig_bi(  SS_ref SS_ref_db, double eps);
@@ -90,6 +110,24 @@ double obj_mp_sp(unsigned  	 n, const double *x, double *grad, void *SS_ref_db);
 double obj_mp_ilm(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mp_mt(unsigned  	 n, const double *x, double *grad, void *SS_ref_db);
 	
+
+double obj_mb_liq(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mb_hb(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mb_aug(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mb_dio(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mb_opx(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mb_g(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mb_ol(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mb_pl4tr(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mb_abc(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mb_k4tr(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mb_sp(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mb_ilm(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mb_ilmm(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mb_ep(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mb_bi(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mb_mu(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mb_chl(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 	
 double obj_um_fluid(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 double obj_um_ol(unsigned     n, const double *x, double *grad, void *SS_ref_db);

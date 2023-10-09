@@ -42,7 +42,7 @@ typedef struct global_variables {
 	int      QFM_buffer;
 	double   QFM_n;
 	int      limitCaOpx;
-
+	int      mbCpx;
 
 	/* GET STARTING CONDITIONS (args) */
 	int 	 test;
