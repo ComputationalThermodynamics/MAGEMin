@@ -36,24 +36,36 @@ if you wish, you can also compile MAGEMin yourself, which requires you to instal
 - LAPACKE (C version of LAPACK)
 - NLopt (https://nlopt.readthedocs.io/)
 
-Details and guidelines are given in the extended documentation: https://computationalthermodynamics.github.io/MAGEMin/index.html  
+Details and guidelines are given in the extended documentation: https://computationalthermodynamics.github.io/MAGEMin/index.html
 
 In addition, we make use of [uthash](https://troydhanson.github.io/uthash/) and [ketopt](https://github.com/attractivechaos/klib/blob/master/ketopt.h).
 
 
 ## Available thermodynamic datasets
-The MAGEMin algorithm is general and can be used with any thermodynamic database that are hardcoded for speed reasons. Presently the igneous (Green et al., 2023, updated versions of Holland et al., 2018 and Tomlison et al., 2021), the ultramafic (Evans & Frost, 2021) and the metapelite (White et al., 2014) database are available.
+The MAGEMin algorithm is general and can be used with any thermodynamic database that are hardcoded for speed reasons. Presently the igneous (Holland et al., 2018), the ultramafic (Evans & Frost, 2021), the metabasite (Green et al., 2016) and the metapelite (White et al., 2014) database are available.
 
 **Igneous thermodynamic dataset**
 
 The hydrous mafic melting model of Holland et al. 2018 can be used to simulate the fractional crystallisation from a hydrous basalt to a felsic melt.
 
-- Added May 2022, `MAGEMin v1.0.0`                
+- Added May 2022, `MAGEMin v1.0.0`
 - Holland et al., 2018 (see http://hpxeosandthermocalc.org)
 - K2O-Na2O-CaO-FeO-MgO-Al2O3-SiO2-H2O-TiO2-O-Cr2O3 chemical system
 - Equations of state for
 	- Pure stoichiometric phases quartz (q), cristobalite (crst), tridymite (trd), coesite (coe), stishovite (stv), kyanite (ky), sillimanite (sill), andalusite (and), rutile (ru) and sphene (sph). 
 	- Solution phases spinel (spn), biotite (bi), cordierite (cd), clinopyroxene (cpx), orthopyroxene (opx), epidote (ep), garnet (g), hornblende (hb), ilmenite (ilm), silicate melt (liq), muscovite (mu), olivine (ol), ternary feldspar (pl4T), and aqueous fluid (fl).
+
+
+**Metapelite database**
+
+The metapelitic model (extended with MnO, White et al., 2014) allows to compute the mineral assemblage from low temperature to supra-solidus conditions.
+
+- Added March 2023, `MAGEMin v1.3.0` 
+- White et al., 2014a, 2014b (see http://hpxeosandthermocalc.org)
+- K2O-Na2O-CaO-FeO-MgO-Al2O3-SiO2-H2O-TiO2-O-MnO chemical system
+- Equations of state for
+	- Pure stoichiometric phases quartz (q), cristobalite (crst), tridymite (trd), coesite (coe), stishovite (stv), kyanite (ky), sillimanite (sill), andalusite (and), rutile (ru) and sphene (sph). 
+	- Solution phases spinel (spn), biotite (bi), cordierite (cd), orthopyroxene (opx), epidote (ep), garnet (g),  ilmenite (ilm), silicate melt (liq), muscovite (mu),  ternary feldspar (pl4T), sapphirine (sa), staurolite (st), magnetite (mt), chlorite (chl), chloritoid (ctd) and margarite (ma).
 
 
 **Ultramafic thermodynamic dataset**
@@ -67,17 +79,16 @@ THe ultramafic model allow to compute phase equilibrium in serpentinites
 	- Pure stoichiometric phases quartz (q), cristobalite (crst), tridymite (trd), coesite (coe), stishovite (stv), kyanite (ky), sillimanite (sill), pyrite (pyr)
 	- Solution phases fluid (fluid), brucite (br), antigorite (atg), garnet (g), talc (t), chlorite (chl), spinel (spi), orthopyroxene (opx), pyrrhotite (po) and anthophylite (anth)
 
-
-**Metapelite database**
-
-The metapelitic model (extended with MnO, White et al., 2014) allows to compute the mineral assemblage from low temperature to supra-solidus conditions.
-
-- Added March 2023, `MAGEMin v1.3.0` 
-- White et al., 2014a, 2014b (see http://hpxeosandthermocalc.org)
-- K2O-Na2O-CaO-FeO-MgO-Al2O3-SiO2-H2O-TiO2-O-MnO chemical system
+**Metabasite thermodynamic dataset**
+   
+- added October 2023, `MAGEMin v1.3.5`
+- Green et al., 2016 (see http://hpxeosandthermocalc.org)
+- K2O-Na2O-CaO-FeO-MgO-Al2O3-SiO2-H2O-TiO2-O chemical system
 - Equations of state for
 	- Pure stoichiometric phases quartz (q), cristobalite (crst), tridymite (trd), coesite (coe), stishovite (stv), kyanite (ky), sillimanite (sill), andalusite (and), rutile (ru) and sphene (sph). 
-	- Solution phases spinel (spn), biotite (bi), cordierite (cd), orthopyroxene (opx), epidote (ep), garnet (g),  ilmenite (ilm), silicate melt (liq), muscovite (mu),  ternary feldspar (pl4T), sapphirine (sa), staurolite (st), magnetite (mt), chlorite (chl), chloritoid (ctd) and margarite (ma).
+	- Solution phases spinel (sp), biotite (bi), orthopyroxene (opx), epidote (ep), garnet (g), ilmenite (ilm), silicate melt (liq), muscovite (mu),  ternary feldspar (pl4T), chlorite (chl), Omphacite(omph) and Augite(aug).
+
+	
 
 
 Please keep in mind that the datasets are only calibrated for a limited range of `P`,`T` and `bulk rock` conditions. If you go too far outside those ranges, `MAGEMin` (or most other thermodynamic software packages for that matter) may not converge or give bogus results. 

@@ -10,7 +10,8 @@ function save_EquilibriumData(PseudoSectionData)
     limitCaOpx      =   PseudoSectionData.Computation.limitCaOpx;
     qfm             =   PseudoSectionData.Computation.qfm;
     qfm_n           =   PseudoSectionData.Computation.qfm_n;
-    
+    mbCpx           =   PseudoSectionData.Computation.mbCpx;
+
     if isnan(Test)
         OxProp      =  PseudoSectionData.Chemistry.OxProp;    % we do not employ a predefined test, but specify mol proportions insteadOxProp
     else
@@ -33,6 +34,17 @@ function save_EquilibriumData(PseudoSectionData)
         end
     end
 
+    if strcmp(string(db),"mb") == 1
+        switch mbCpx
+        case 'Omph'
+            command = [command, ' --mbCpx=0']
+        case 'Aug'
+            command = [command, ' --mbCpx=1']
+        otherwise
+            disp('wrong cpx, something is fishy')
+        end
+    end
+    
     disp(command)
     if PseudoSectionData.Computation.Julia_MAGEMin_binary==true
         command = add_dynamic_libs(command, Computation);

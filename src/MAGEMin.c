@@ -168,6 +168,9 @@ int runMAGEMin(			int    argc,
 	if (gv.EM_database == 0){
 		gv = get_bulk_metapelite( gv );
 	}
+	else if (gv.EM_database == 1){
+		gv = get_bulk_metabasite( gv );
+	}
 	else if (gv.EM_database == 2){
 		gv = get_bulk_igneous( gv );
 	}
@@ -671,6 +674,10 @@ int runMAGEMin(			int    argc,
 		SS_mp_objective_init_function(			SS_objective,
 												gv							);
 	}
+	else if (EM_database == 1){			// igneous database //
+		SS_mb_objective_init_function(			SS_objective,
+												gv							);
+	}
 	else if (EM_database == 2){			// igneous database //
 		SS_ig_objective_init_function(			SS_objective,
 												gv							);
@@ -928,6 +935,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
         { "qfm",    	ko_optional_argument, 319 },
         { "qfm_n",    	ko_optional_argument, 320 },
      	{ "limitCaOpx", ko_optional_argument, 321 },
+     	{ "mbCpx",  	ko_optional_argument, 323 },
     	{ NULL, 0, 0 }
 	};
 	ketopt_t opt = KETOPT_INIT;
@@ -939,6 +947,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
         else if	(c == 301){ gv.verbose  = atoi(opt.arg					); }
 		else if (c == 319){ gv.QFM_buffer   = atoi(opt.arg);	if (gv.verbose == 1){		printf("--qfm         : qfm                  = %i \n", 	 	   		gv.QFM_buffer		);}} 	
 		else if (c == 321){ gv.limitCaOpx   = atoi(opt.arg);	if (gv.verbose == 1){		printf("--limitCaOpx  : limitCaOpx           = %i \n", 	 	   		gv.limitCaOpx		);}} 	
+		else if (c == 323){ gv.mbCpx   			= atoi(opt.arg);if (gv.verbose == 1){		printf("--mbCpx       : mbCpx                = %i \n", 	 	   		gv.mbCpx			);}} 	
 		else if (c == 320){ gv.QFM_n = strtold(opt.arg,NULL); 	if (gv.verbose == 1){		printf("--qfm_n       : qfm_n                = %f \n", 				gv.QFM_n			);}}
 		else if (c == 316){ gv.solver   = atoi(opt.arg);		if (gv.verbose == 1){		printf("--solver      : solver               = %i \n", 	 	   		gv.solver			);}}																		
 		else if (c == 318){ gv.output_matlab   = atoi(opt.arg); if (gv.verbose == 1){		printf("--out_matlab  : out_matlab           = %i \n", 	 	   		gv.output_matlab	);}}																		
@@ -990,6 +999,9 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 	/* set-up database acronym here*/
 	if (strcmp(gv.db, "mp") == 0){
 		gv.EM_database = 0;
+	}
+	else if (strcmp(gv.db, "mb") 	== 0){
+		gv.EM_database = 1;
 	}
 	else if (strcmp(gv.db, "ig") == 0){
 		gv.EM_database = 2;

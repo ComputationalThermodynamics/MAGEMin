@@ -85,6 +85,8 @@ function  init_MAGEMin(db="ig")
 
     if db == "ig"
         gv.EM_database = 2
+    elseif db == "mb"
+        gv.EM_database = 1
     elseif db == "mp"
         gv.EM_database = 0
     elseif db == "um"
@@ -303,6 +305,10 @@ function use_predefined_bulk_rock(gv, test=0, db="ig")
     elseif db == "mp"
         gv.test = test
         gv = LibMAGEMin.get_bulk_metapelite(gv)
+        LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
+    elseif db == "mb"
+        gv.test = test
+        gv = LibMAGEMin.get_bulk_metabasite(gv)
         LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
     elseif db == "um"
         gv.test = test

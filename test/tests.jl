@@ -191,7 +191,7 @@ end
 println("Testing points from the reference diagrams:")
 @testset verbose = true "Total tests" begin
     println("  Starting KLB-1 peridotite tests")
-    db  = "ig"  # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b)
+    db  = "ig"  # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b); mb, Metabasite (Green et al., 2016
     data = Initialize_MAGEMin(db, verbose=false);
 
     gv.verbose=-1;
@@ -202,21 +202,38 @@ println("Testing points from the reference diagrams:")
     Finalize_MAGEMin(data)
 
     println("  Starting RE-46 icelandic basalt tests")
-    db          = "ig"  # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b)
+    db          = "ig"  # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b); mb, Metabasite (Green et al., 2016
     data = Initialize_MAGEMin(db, verbose=false);
     gv.verbose=-1;
     @testset "RE-46 icelandic basalt tests" begin
         include("test_diagram_test1.jl")
         TestPoints(list, data)
     end
-
+    Finalize_MAGEMin(data)
 
     println("  Starting Wet MORB tests")
-    db          = "ig"  # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b)
+    db          = "ig"  # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b); mb, Metabasite (Green et al., 2016
     data = Initialize_MAGEMin(db, verbose=false);
     @testset "Wet MORB tests" begin
         include("test_diagram_test6.jl")
         TestPoints(list, data)
     end
     Finalize_MAGEMin(data)
-end
+
+    println("  Starting SM-89 Average MORB tests")
+    db          = "mb"  # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b); mb, Metabasite (Green et al., 2016)
+    data = Initialize_MAGEMin(db, verbose=false);
+    @testset "SM-89 Average MORB tests" begin
+        include("test_diagram_test0_mb.jl")
+        TestPoints(list, data)
+    end
+    Finalize_MAGEMin(data)
+
+    println("  FPWorldMedian pelite tests")
+    db          = "mp"  # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b); mb, Metabasite (Green et al., 2016)
+    data = Initialize_MAGEMin(db, verbose=false);
+    @testset "FPWorldMedian pelite" begin
+        include("test_diagram_test0_mp.jl")
+        TestPoints(list, data)
+    end
+    Finalize_MAGEMin(data)end

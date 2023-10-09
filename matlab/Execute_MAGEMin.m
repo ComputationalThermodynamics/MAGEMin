@@ -12,6 +12,7 @@ RemoteServer =   Computation.RemoteServer;
 MatlabOut    =   Computation.MatlabOut;
 solver    	 =   Computation.solver;
 limitCaOpx   =   Computation.limitCaOpx;
+mbCpx        =   Computation.mbCpx;
 qfm          =   Computation.qfm;
 qfm_n        =   Computation.qfm_n;
 db    	  	 =   Computation.db;
@@ -33,6 +34,16 @@ else
 end
 
 
+if strcmp(string(db),"mb") == 1
+    switch mbCpx
+    case 'Omph'
+        command = [command, ' --mbCpx=0']
+    case 'Aug'
+        command = [command, ' --mbCpx=1']
+    otherwise
+        disp('wrong cpx, something is fishy')
+    end
+end
 
 if ~RemoteServer
     % In case we run it locally:    
