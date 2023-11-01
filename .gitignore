@@ -4,6 +4,7 @@ MAGEMin_input.dat
 output/*
 src/*.o
 julia/output/*
+.vscode/
 
 Manifest.toml
 
