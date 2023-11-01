@@ -1,6 +1,6 @@
 .. MAGEMin documentation
 
-THERMOCALC-like output	  
+THERMOCALC-like output
 ======================
 
 If ``verbose`` is set to 1:
@@ -9,14 +9,14 @@ If ``verbose`` is set to 1:
 
    --Verb=1
 
-a file named ``_thermocalc_style_output.txt`` containing the information of the stable phase equilibrium is saved in ``./output/`` directory. 
+a file named ``_thermocalc_style_output.txt`` containing the information of the stable phase equilibrium is saved in ``./output/`` directory.
 
 |
 
 
 ..  _MATLAB-target:
 
-MATLAB output	  
+MATLAB output
 =============
 
 If:
@@ -25,15 +25,15 @@ If:
 
    --out_matlab=1
 
-a file named ``_matlab_output.txt`` containing the information of the stable phase equilibrium is saved in ``./output/`` directory. 
-This file, although similar to ``_thermocalc_style_output.txt`` in structure, this option saves the result of the minimization in more human friendly units: 
+a file named ``_matlab_output.txt`` containing the information of the stable phase equilibrium is saved in ``./output/`` directory.
+This file, although similar to ``_thermocalc_style_output.txt`` in structure, this option saves the result of the minimization in more human friendly units:
 phase fraction and composition are expressed in :literal:`[wt fraction]`.
 
 Note that this output is used by the Matlab notebook ``MAGEMin_EquilibriumPath.mlx`` developped by Dr. Tobias Keller (tobias.keller@erdw.ethz.ch) and added to MAGEMin in version v1.2.4.
 
 |
 
-As a nested structure		  
+As a nested structure
 =====================
 
 Stable phase equilibrium and related thermodynamically derived parameters such as density are automatically saved as a nested structure containing the information about the system.
@@ -82,31 +82,31 @@ System information
 +---------------+-------------------+--------------------------------------------------------------------------+
 | double        | rho               | system density :literal:`[wt fraction]`                                  |
 +---------------+-------------------+--------------------------------------------------------------------------+
-| double *      | bulk_S            | solid agregate bulk composition  :literal:`[molar 1 atom basis]`         |
-+---------------+-------------------+--------------------------------------------------------------------------+
+| double *      | bulk_S            | solid agregate bulk composition  :literal:`[mol fraction]`               |
++---------------+-------------+--------------------------------------------------------------------------+
 | double *      | bulk_S_wt         | solid agregate bulk composition  :literal:`[wt fraction]`                |
 +---------------+-------------------+--------------------------------------------------------------------------+
-| double        | frac_S            | solid agregate fraction  :literal:`[molar 1 atom basis]`                 |
+| double        | frac_S            | solid agregate fraction  :literal:`[mol fraction]`                       |
 +---------------+-------------------+--------------------------------------------------------------------------+
 | double        | frac_S_wt         | solid agregate fraction  :literal:`[wt fraction]`                        |
 +---------------+-------------------+--------------------------------------------------------------------------+
 | double        | rho_S             | solid agregate density :literal:`[wt fraction]`                          |
 +---------------+-------------------+--------------------------------------------------------------------------+
-| double *      | bulk_M            | melt bulk composition  :literal:`[molar 1 atom basis]`                   |
+| double *      | bulk_M            | melt bulk composition  :literal:`[mol fraction]`                         |
 +---------------+-------------------+--------------------------------------------------------------------------+
 | double *      | bulk_M_wt         | melt bulk composition  :literal:`[wt fraction]`                          |
 +---------------+-------------------+--------------------------------------------------------------------------+
-| double        | frac_M            | melt fraction  :literal:`[molar 1 atom basis]`                           |
+| double        | frac_M            | melt fraction  :literal:`[mol fraction]`                                 |
 +---------------+-------------------+--------------------------------------------------------------------------+
 | double        | frac_M_wt         | melt fraction  :literal:`[wt fraction]`                                  |
 +---------------+-------------------+--------------------------------------------------------------------------+
 | double        | rho_M             | melt density :literal:`[wt fraction]`                                    |
 +---------------+-------------------+--------------------------------------------------------------------------+
-| double *      | bulk_F            | fluid bulk composition :literal:`[molar 1 atom basis]`                   |
+| double *      | bulk_F            | fluid bulk composition :literal:`[mol fraction]`                         |
 +---------------+-------------------+--------------------------------------------------------------------------+
 | double *      | bulk_F_wt         | fluid bulk composition  :literal:`[wt fraction]`                         |
 +---------------+-------------------+--------------------------------------------------------------------------+
-| double        | frac_F            | fluid fraction  :literal:`[molar 1 atom basis]`                          |
+| double        | frac_F            | fluid fraction  :literal:`[mol fraction]`                                |
 +---------------+-------------------+--------------------------------------------------------------------------+
 | double        | frac_F_wt         | fluid fraction  :literal:`[wt fraction]`                                 |
 +---------------+-------------------+--------------------------------------------------------------------------+
@@ -157,11 +157,11 @@ Phase proportions
 +---------------+-------------------+--------------------------------------------------------------------------+
 | char **       | ph                | stable phases names                                                      |
 +---------------+-------------------+--------------------------------------------------------------------------+
-| double *      | ph_frac           | stable phases fractions  :literal:`[molar 1 atom basis]`                 |
+| double *      | ph_frac           | stable phases fractions  :literal:`[mol fraction]`                       |
 +---------------+-------------------+--------------------------------------------------------------------------+
 | double *      | ph_frac_wt        | stable phases fractions  :literal:`[wt fraction]`                        |
 +---------------+-------------------+--------------------------------------------------------------------------+
-| int *         | ph_type           | stable phase type: 0 -> solution phase, 1 -> pure phase                  |
+| int *         | ph_type           | stable phase type: 0 -> pure phase, 1 -> solution phase                  |
 +---------------+-------------------+--------------------------------------------------------------------------+
 | int *         | ph_id             | stable phase id :literal:`[to retrieve individual phase properties]`     |
 +---------------+-------------------+--------------------------------------------------------------------------+
@@ -210,19 +210,19 @@ Solution phases information
 +---------------+-------------------+--------------------------------------------------------------------------+
 | double *      | compVariables     | compositional variables                                                  |
 +---------------+-------------------+--------------------------------------------------------------------------+
-| double *      | Comp              | solution phase composition :literal:`[molar 1 atom basis]`               |
+| double *      | Comp              | solution phase composition :literal:`[mol fraction]`                     |
 +---------------+-------------------+--------------------------------------------------------------------------+
 | double *      | Comp_wt           | solution phase composition :literal:`[wt fraction]`                      |
 +---------------+-------------------+--------------------------------------------------------------------------+
 | char **       | emNames           | end-members name                                                         |
 +---------------+-------------------+--------------------------------------------------------------------------+
-| double *      | emFrac            | end-members fractions :literal:`[molar 1 atom basis]`                    |
+| double *      | emFrac            | end-members fractions :literal:`[mol fraction]`                          |
 +---------------+-------------------+--------------------------------------------------------------------------+
 | double *      | emFrac_wt         | end-members fractions :literal:`[wt fraction]`                           |
 +---------------+-------------------+--------------------------------------------------------------------------+
 | double *      | emChemPot         | end-members chemical potential :literal:`[J]`                            |
 +---------------+-------------------+--------------------------------------------------------------------------+
-| double **     | emComp            | end-members composition :literal:`[molar 1 atom basis]`                  |
+| double **     | emComp            | end-members composition :literal:`[mol fraction]`                        |
 +---------------+-------------------+--------------------------------------------------------------------------+
 | double **     | emComp_wt         | end-members composition :literal:`[wt fraction]`                         |
 +---------------+-------------------+--------------------------------------------------------------------------+
@@ -261,7 +261,7 @@ Solution phases information
 +---------------+-------------------+--------------------------------------------------------------------------+
 | double        | Vs                | S-wave velocity  :literal:`[km/s]`                                       |
 +---------------+-------------------+--------------------------------------------------------------------------+
-| double *      | Comp              | pure phase composition :literal:`[molar 1 atom basis]`                   |
+| double *      | Comp              | pure phase composition :literal:`[mol fraction]`                         |
 +---------------+-------------------+--------------------------------------------------------------------------+
 | double *      | Comp_wt           | pure phase composition :literal:`[wt fraction]`                          |
 +---------------+-------------------+--------------------------------------------------------------------------+
