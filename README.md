@@ -1,5 +1,6 @@
 
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://computationalthermodynamics.github.io/MAGEMin/index.html)
+[![DOI](https://zenodo.org/badge/449732854.svg)](https://zenodo.org/doi/10.5281/zenodo.8070923)
 
 <img src="./pics/GUI.png" alt="drawing" width="640" alt="centered image"/>
 
