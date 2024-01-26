@@ -1,6 +1,6 @@
 
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://computationalthermodynamics.github.io/MAGEMin/index.html)
-
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10573416.svg)](https://doi.org/10.5281/zenodo.10573416)
 <img src="./pics/GUI.png" alt="drawing" width="640" alt="centered image"/>
 
 # Mineral Assemblage Gibbs Energy Minimization (MAGEMin)
@@ -8,7 +8,7 @@
 
 `MAGEMin` is written as a parallel C library and uses a combination of linear programming, the extended Partitioning Gibbs free Energy approach and gradient-based local minimization to compute the most stable mineral assemblage. In this, it differs from existing approaches which makes it particularly suitable to utilize modern multicore processors.
 
-We also provide a MATLAB-based graphical user interface to help computing pseudosections for given bulk rock composition and a [julia interface].
+We also provide a MATLAB-based graphical user interface to help computing pseudosections for given bulk rock composition and a [julia interface](https://github.com/ComputationalThermodynamics/MAGEMin_C.jl).
 
 ## Documentation
 Full support to install and use MAGEMin is available here: https://computationalthermodynamics.github.io/MAGEMin/index.html
