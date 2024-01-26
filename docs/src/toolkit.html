@@ -312,43 +312,6 @@ This function is not used in the C version of MAGEMin, but can be called via the
 </dd></dl>
 
 <dl class="c function">
-<dt class="sig sig-object c" id="c.createMatrix">
-<span class="n"><span class="pre">TMATRIX</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">createMatrix</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">nRows</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">nCols</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.createMatrix" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.createMatrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>create matrix</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.freeMatrix">
-<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">freeMatrix</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TMATRIX</span></span><span class="w"> </span><span class="n"><span class="pre">oMatrix</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.freeMatrix" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.freeMatrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>Remove values less than tolerance</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.cleanUpMatrix">
-<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cleanUpMatrix</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TMATRIX</span></span><span class="w"> </span><span class="n"><span class="pre">oMatrix</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">tolerance</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.cleanUpMatrix" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.cleanUpMatrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>Remove values less than tolerance</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.exchangeRows">
-<span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">exchangeRows</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TMATRIX</span></span><span class="w"> </span><span class="n"><span class="pre">oMatrix</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">r1</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">r2</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.exchangeRows" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.exchangeRows"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>exchange rows in the matrix</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.getValue">
-<span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getValue</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TMATRIX</span></span><span class="w"> </span><span class="n"><span class="pre">oMatrix</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">i</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">j</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.getValue" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.getValue"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>Mainly for debugging, helps spot out of range errors when indexing elements</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.rref">
-<span class="n"><span class="pre">TMATRIX</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">rref</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TMATRIX</span></span><span class="w"> </span><span class="n"><span class="pre">oMatrix</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">pivot</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n"><span class="pre">tolerance</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.rref" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.rref"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>main rref routine (reduced row echelon form)
-- used to calculate the potential reactions between endmembers satisfying the mass constraint</p>
-</dd></dl>
-
-<dl class="c function">
 <dt class="sig sig-object c" id="c.norm_vector">
 <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">norm_vector</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">array</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.norm_vector" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/toolkit.c.html#c.norm_vector"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>function to calculate norm of a vector</p>
