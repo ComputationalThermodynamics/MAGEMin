@@ -12,15 +12,16 @@ RemoteServer =   Computation.RemoteServer;
 MatlabOut    =   Computation.MatlabOut;
 solver    	 =   Computation.solver;
 limitCaOpx   =   Computation.limitCaOpx;
+CaOpxLim     =   Computation.CaOpxLim;
+buffer       =   Computation.buffer;
+buffer_n        =   Computation.buffer_n;
 mbCpx        =   Computation.mbCpx;
-qfm          =   Computation.qfm;
-qfm_n        =   Computation.qfm_n;
 db    	  	 =   Computation.db;
 % Retrieve name of executable
 exe = MAGEMin_exe(Computation);
 
 % Setup the general execution command
-command = [exe,' --out_matlab=',num2str(MatlabOut),' --limitCaOpx=',num2str(limitCaOpx),' --qfm=',num2str(qfm),' --qfm_n=',num2str(qfm_n),' --solver=',num2str(solver),' --Verb=',num2str(VerboseLevel),' --sys_in=',sys_in,' --db=',db,' --File=MAGEMin_input.dat --n_points=',num2str(n_points)];
+command = [exe,' --out_matlab=',num2str(MatlabOut),' --limitCaOpx=',num2str(limitCaOpx), ' --CaOpxLim=',num2str(CaOpxLim),' --buffer=',num2str(buffer),' --buffer_n=',num2str(buffer_n),' --solver=',num2str(solver),' --Verb=',num2str(VerboseLevel),' --sys_in=',sys_in,' --db=',db,' --File=MAGEMin_input.dat --n_points=',num2str(n_points)];
 
 if ~isnan(Test)
     % employ a prededined test
@@ -33,7 +34,6 @@ else
     end
 end
 
-
 if strcmp(string(db),"mb") == 1
     switch mbCpx
     case 'Omph'
@@ -44,6 +44,7 @@ if strcmp(string(db),"mb") == 1
         disp('wrong cpx, something is fishy')
     end
 end
+
 
 if ~RemoteServer
     % In case we run it locally:    
@@ -61,7 +62,7 @@ if ~RemoteServer
     % In case we do NOT use the locally compiled MAGEMin, but instead the
     % automatically downloaded MAGEMin binaries, we need to load the correct
     % directories first:
-     
+
     disp(command)
     if Computation.Julia_MAGEMin_binary==true
         command = add_dynamic_libs(command, Computation);

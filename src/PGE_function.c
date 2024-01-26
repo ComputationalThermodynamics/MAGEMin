@@ -48,13 +48,15 @@ void PGE_print(					bulk_info 				z_b,
 	printf("\n _________________________________________________________________\n");
 	printf("                          PHASE ASSEMBLAGE                        \n");
 	printf(" ═════════════════════════════════════════════════════════════════\n\n");
-	printf("ON | phase |  Fraction |  delta_G   |  factor   |   sum_xi   |    Pi - Xi...\n");
+	printf("ON | phase |  Fraction |  delta_G   |  factor   |   sum_xi   |  N(pi-xi) |    Pi - Xi...\n");
 	printf("═══════════════════════════════════════════════════════════════════════════════════════\n");
 
 	for (int i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1 ){
 
 			printf(" %d | %4s | %+10f | %+10f | %+10f | %+10f | ",cp[i].ss_flags[1],cp[i].name,cp[i].ss_n,cp[i].df,cp[i].factor,cp[i].sum_xi);
+
+			printf(" %+6f |", sum_norm_xipi(cp[i].xi_em,cp[i].p_em,cp[i].n_em) );
 
 			for (int k = 0; k < cp[i].n_em; k++) {
 				printf(" %+6f",(cp[i].p_em[k]-cp[i].xi_em[k]*cp[i].p_em[k])*SS_ref_db[cp[i].id].z_em[k]);
@@ -93,12 +95,14 @@ void PGE_print(					bulk_info 				z_b,
 	}
 
 	printf("\n");
-	printf("OFF| phase |  Fraction |  delta_G   |  factor   |   sum_xi   |    Pi - Xi...\n");
+	printf("OFF| phase |  Fraction |  delta_G   |  factor   |   sum_xi   |  N(pi-xi) |  Pi - Xi...\n");
 	printf("═══════════════════════════════════════════════════════════════════════════════════════\n");
 	for (int i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[0] == 1 && cp[i].ss_flags[2] == 1){
 
 			printf(" %d | %4s | %+10f | %+10f | %+10f | %+10f | ",cp[i].ss_flags[1],cp[i].name,cp[i].ss_n,cp[i].df*cp[i].factor,cp[i].factor,cp[i].sum_xi);
+
+			printf(" %+6f |", sum_norm_xipi(cp[i].xi_em,cp[i].p_em,cp[i].n_em) );
 
 			for (int k = 0; k < cp[i].n_em; k++) {
 				printf(" %+6f",(cp[i].p_em[k]-cp[i].xi_em[k]*cp[i].p_em[k])*SS_ref_db[cp[i].id].z_em[k]);
@@ -111,7 +115,7 @@ void PGE_print(					bulk_info 				z_b,
 	printf("OFF| P. phase |  Fraction  |  delta_G  (< 5.0) | \n");
 	printf("═══════════════════════════════════════════════════════════════════════════════════════\n");
 	for (int i = 0; i < gv.len_pp; i++){ 
-		if (gv.pp_flags[i][2] == 1 && PP_ref_db[i].gb_lvl*PP_ref_db[i].factor < 50.0){
+		if ((gv.pp_flags[i][2] == 1 && PP_ref_db[i].gb_lvl*PP_ref_db[i].factor < 5.0) || (gv.pp_flags[i][2] == 0 && PP_ref_db[i].gb_lvl*PP_ref_db[i].factor > 0.0)){
 			printf(" %d | %4s     | %+10f | %+10f | \n",0,gv.PP_list[i],gv.pp_n[i],PP_ref_db[i].gb_lvl*PP_ref_db[i].factor);
 		}
 	}
@@ -252,57 +256,6 @@ global_variable PGE_update_mu(		bulk_info 	z_b,
 				cp[i].mu[k] += cp[i].delta_mu[k];
 				cp[i].df 	+= cp[i].delta_mu[k]*cp[i].p_em[k];
 			}
-		}
-	}
-
-   return gv;
-};
-
-/** 
-  Partitioning Gibbs Energy function 
-*/
-global_variable PGE_update_pi(		bulk_info 	z_b,
-									global_variable  	gv,
-
-									PP_ref 				*PP_ref_db,
-									SS_ref 				*SS_ref_db,
-									csd_phase_set  		*cp
-){
-	int ss,ph,i,j,k,x,v;	
-	
-	for (ph = 0; ph < gv.len_cp; ph++){
-
-		if (cp[ph].ss_flags[1] == 1 && SS_ref_db[cp[ph].id].CstFactor == 0){
-			ss = cp[ph].id;
-
-			for (k = 0; k < cp[ph].n_em; k++){
-				SS_ref_db[ss].p[k] = cp[ph].p_em[k]*cp[ph].xi_em[k];
-			}
-
-			norm_array(						SS_ref_db[ss].p,
-											cp[ph].n_em					);						
-			
-			SS_ref_db[ss] = P2X(			gv,
-											SS_ref_db[ss],
-											z_b,
-											gv.SS_list[ss]				);
-				
-			for (j = 0; j < cp[ph].n_xeos; j++){
-				SS_ref_db[ss].iguess[j] = cp[ph].xeos[j]*gv.xi_em_cor + SS_ref_db[ss].iguess[j]*(1.0 - gv.xi_em_cor); 
-			}												
-																	
-			SS_ref_db[ss] = PC_function(	gv,
-											SS_ref_db[ss], 
-											z_b,
-											gv.SS_list[ss] 				);
-													
-			if (SS_ref_db[ss].sf_ok == 1){						
-				for (j = 0; j < cp[ph].n_xeos; j++){
-					cp[ph].xeos[j] =  SS_ref_db[ss].iguess[j]; 
-				}
-
-			}
-
 		}
 	}
 
@@ -638,12 +591,9 @@ global_variable PGE_solver(		bulk_info 	 		 z_b,
 	// 		double sum = 0.0;
 	// 		for (j = 0; j < nEntry; j++){
 	// 			ix = v*nEntry + j;
-	// 			sum += gv.A_PGE[ix];
+	// 			printf("%.3f ",gv.A_PGE[ix]);;
 	// 		}
-	// 		printf(" -> sum col: %.6f\n",sum);	
-	// 		// if (sum == 0.0){
-	// 			// printf(" -> ill-conditionned col: %d\n",j);	
-	// 		// }
+	// 		printf(" | %.3f\n",gv.b_PGE[v]);	
 	// 	}
 	// }
 
@@ -664,7 +614,6 @@ global_variable PGE_solver(		bulk_info 	 		 z_b,
 		// Solution (with transpose!)
 		char T = 'T';
 		dgetrs(						&T,
-
 									&nEntry, 
 									&nrhs, 
 									gv.A_PGE,
@@ -742,14 +691,6 @@ global_variable PGE_inner_loop(		bulk_info 			 z_b,
 											SS_ref_db,							/** solution phase database 			*/
 											cp						); 
 
-		/* Update mu and xi of solution phase  */
-		// gv =	PGE_update_pi(				z_b,								/** bulk rock constraint 				*/ 
-		// 									gv,									/** global variables (e.g. Gamma) 		*/
-
-		// 									PP_ref_db,							/** pure phase database 				*/ 
-		// 									SS_ref_db,							/** solution phase database 			*/
-		// 									cp						);  
-
 		gv =	PGE_update_xi(				z_b,								/** bulk rock constraint 				*/ 
 											gv,									/** global variables (e.g. Gamma) 		*/
 
@@ -785,7 +726,7 @@ global_variable PGE_inner_loop(		bulk_info 			 z_b,
 /** 
   Partitioning Gibbs Energy function 
 */
-global_variable PGE_inner_loop2(		bulk_info 			 z_b,
+global_variable PGE_inner_loop2(	bulk_info 			 z_b,
 									simplex_data	    *splx_data,
 									global_variable  	 gv,
 
@@ -829,14 +770,6 @@ global_variable PGE_inner_loop2(		bulk_info 			 z_b,
 											PP_ref_db,							/** pure phase database 				*/ 
 											SS_ref_db,							/** solution phase database 			*/
 											cp						); 
-
-		/* Update mu and xi of solution phase  */
-		gv =	PGE_update_pi(				z_b,								/** bulk rock constraint 				*/ 
-											gv,									/** global variables (e.g. Gamma) 		*/
-
-											PP_ref_db,							/** pure phase database 				*/ 
-											SS_ref_db,							/** solution phase database 			*/
-											cp						);  
 
 		gv =	PGE_update_xi(				z_b,								/** bulk rock constraint 				*/ 
 											gv,									/** global variables (e.g. Gamma) 		*/
@@ -914,15 +847,10 @@ global_variable run_LP(								bulk_info 			 z_b,
 	int  k 		= 0;
 	d->swp 		= 1;
 	d->n_swp 	= 0;
-	while (d->swp == 1 && k < 32){					/** as long as a phase can be added to the guessed assemblage, go on */
+	while (d->swp == 1 && k < 9){					/** as long as a phase can be added to the guessed assemblage, go on */
 		k 		  += 1;
 		d->swp     = 0;
 		
-		swap_pure_endmembers(				z_b,
-											splx_data,
-											gv,
-											PP_ref_db,
-											SS_ref_db	);	
 
 		swap_PGE_pseudocompounds(			z_b,
 											splx_data,
@@ -1053,12 +981,10 @@ global_variable init_LP(							bulk_info 	 		 z_b,
 	/* reset solvi */
     for (i = 0; i < gv.len_ss; i++){	
         gv.n_solvi[i] = 0;
-		for (k = 0; k < gv.max_n_cp; k++){	
-			gv.id_solvi[i][k] = 0;
-		} 
     }
 	
-	for (int i = 0; i < gv.max_n_cp; i++){		
+	// for (int i = 0; i < gv.max_n_cp; i++){		
+		for (int i = 0; i < gv.len_ox; i++){		
 		strcpy(cp[i].name,"");						/* get phase name */	
 		cp[i].in_iter			=  0;
 		cp[i].split				=  0;
@@ -1188,11 +1114,7 @@ global_variable init_LP(							bulk_info 	 		 z_b,
 				cp[id_cp].dguess[ii]  = SS_ref_db[ph_id].iguess[ii];
 				cp[id_cp].xeos[ii]    = SS_ref_db[ph_id].iguess[ii];
 			}
-			for (int ii = 0; ii < SS_ref_db[ph_id].n_em; ii++){
-				for (int jj = 0; jj < SS_ref_db[ph_id].n_xeos; jj++){
-					cp[id_cp].dpdx[ii][jj] = SS_ref_db[ph_id].dp_dx[ii][jj];
-				}
-			}
+
 			for (int ii = 0; ii < gv.len_ox; ii++){
 				cp[id_cp].ss_comp[ii]	= SS_ref_db[ph_id].ss_comp[ii];
 			}
@@ -1200,7 +1122,6 @@ global_variable init_LP(							bulk_info 	 		 z_b,
 			for (int ii = 0; ii < SS_ref_db[ph_id].n_sf; ii++){
 				cp[id_cp].sf[ii]		= SS_ref_db[ph_id].sf[ii];
 			}
-			gv.id_solvi[ph_id][gv.n_solvi[ph_id]] = id_cp;
 			gv.n_solvi[ph_id] 	   += 1;
 			id_cp 				   += 1;
 			gv.len_cp 			   += 1;
@@ -1310,20 +1231,28 @@ global_variable LP(		bulk_info 			z_b,
 						csd_phase_set  		*cp					){
 		
 	clock_t t; 	
-	simplex_data *d  = (simplex_data *) splx_data;
 
-	gv.LP 	 = 1;	gv.PGE 	 = 0;
+	gv.LP 	 = 1;	
+	gv.PGE 	 = 0;
 
-	int    mode = 1;
+	int    mode = 0;
 	int    gi   = 0;
 	int iterate = 1;
 	int nCheck  = 0;
+
+	gv = init_LP(			z_b,
+							splx_data,
+							gv,
+									
+							PP_ref_db,
+							SS_ref_db,
+							cp	);
 
 	while (iterate == 1){
 
 		t = clock();
 
-		if (gv.gamma_norm[gv.global_ite-1] < 1.0 && nCheck < 3){
+		if ((gv.gamma_norm[gv.global_ite-1] < 1.0 && nCheck < 3 && gv.global_ite > 1)){
 			if (gv.verbose == 1){
 				printf(" Checking PC for re-introduction:\n");
 				printf(" ════════════════════════════════\n");
@@ -1340,8 +1269,6 @@ global_variable LP(		bulk_info 			z_b,
 			nCheck += 1;
 		}
 
-
-
 		if (gv.verbose == 1){
 			printf("\n__________________________________________ ‿︵MAGEMin‿︵ "); printf("_ %5s _",gv.version);
 			printf("\n                     GLOBAL ITERATION %i\n",gv.global_ite);
@@ -1361,8 +1288,7 @@ global_variable LP(		bulk_info 			z_b,
 		/**
 			Local minimization of the solution phases
 		*/
-		ss_min_LP(						mode,
-										gv, 							/** global variables (e.g. Gamma) 		*/
+		ss_min_LP(						gv, 							/** global variables (e.g. Gamma) 		*/
 
 										SS_objective,							
 										z_b,							/** bulk-rock, pressure and temperature conditions */
@@ -1424,170 +1350,9 @@ global_variable LP(		bulk_info 			z_b,
 		gv.ite_time[gv.global_ite] 		 = ((double)t)/CLOCKS_PER_SEC*1000;
 		gi += 1;
 
-		if (gv.gamma_norm[gv.global_ite-1] < 1e-4 || gi >= gv.max_LP_ite){
-			if (gi < 4){
-				iterate = 1;
-			}
-			else{
-				iterate = 0;
-			}
+		if ((gv.gamma_norm[gv.global_ite-1] < 1e-4 || gi >= gv.max_LP_ite) && nCheck > 1){
+			iterate = 0;
 		}
-
-	}
-
-	/**
-		Merge instances of the same solution phase that are compositionnally close 
-	*/
-	gv = phase_merge_function(		z_b,							/** bulk rock constraint 				*/
-									gv,								/** global variables (e.g. Gamma) 		*/
-
-									PP_ref_db,						/** pure phase database 				*/
-									SS_ref_db,						/** solution phase database 			*/ 
-									cp					); 
-
-	gv = update_cp_after_LP(		z_b,
-									gv,
-									
-									PP_ref_db,
-									SS_ref_db,
-									cp					);
-	
-	return gv;
-};		
-/**
-  Main LP routine
-*/ 
-global_variable LP2(	bulk_info 			z_b,
-						global_variable 	gv,
-
-						obj_type 			*SS_objective,
-						simplex_data	    *splx_data,
-						PP_ref 				*PP_ref_db,
-						SS_ref 				*SS_ref_db,
-						csd_phase_set  		*cp					){
-		
-	clock_t t; 	
-	simplex_data *d  = (simplex_data *) splx_data;
-
-	gv.LP 	 = 1;	gv.PGE 	 = 0;
-
-	int    mode = 1;
-	int    gi   = 0;
-	int iterate = 1;
-	int nCheck  = 0;
-
-	while (iterate == 1){
-
-		t = clock();
-
-		/* calculate delta_G of solution phases (including local minimization) */
-		if (gv.verbose == 1){
-			printf("\n__________________________________________ ‿︵MAGEMin‿︵ "); printf("_ %5s _",gv.version);
-			printf("\n                     GLOBAL ITERATION %i\n",gv.global_ite);
-			printf("═════════════════════════════════════════════════════════════════\n");
-			printf("\nMinimize solution phases\n");
-			printf("═════════════════════════\n");
-			printf(" phase |  delta_G   | SF |   sum_xi   | time(ms)   |   x-eos ...\n");
-			printf("══════════════════════════════════════════════════════════════════\n");
-		}
-
-		// if (gi == 12 || gi == 24 ){
-		if (gv.gamma_norm[gv.global_ite-1] < 2.0 && nCheck < 3){
-			gv = check_PC( 				z_b,						/** bulk rock constraint 				*/ 
-										gv,							/** global variables (e.g. Gamma) 		*/
-
-										PP_ref_db,					/** pure phase database 				*/ 
-										SS_ref_db,
-										cp					); 
-			nCheck += 1;
-		}
-
-		/** 
-			update delta_G of pure phases as function of updated Gamma
-		*/
-		pp_min_function(				gv,
-										z_b,
-										PP_ref_db			);		
-
-		/**
-			Local minimization of the solution phases
-		*/
-		ss_min_LP(						mode,
-										gv, 							/** global variables (e.g. Gamma) 		*/
-
-										SS_objective,							
-										z_b,							/** bulk-rock, pressure and temperature conditions */
-										SS_ref_db,						/** solution phase database 			*/	
-										cp 					);
-
-		/**
-		   Here the linear programming method is used after the PGE step to get a new Gibbs hyper-plane
-		*/
-		gv = run_LP(					z_b,
-										splx_data,
-										gv,
-												
-										PP_ref_db,
-										SS_ref_db			);
-
-		gv = init_LP(					z_b,
-										splx_data,
-										gv,
-										
-										PP_ref_db,
-										SS_ref_db,
-										cp					);	
-
-		gv = compute_xi_SD(				gv,
-										cp					);
-
-		if (gv.verbose == 1){
-			/* Partitioning Gibbs Energy */
-			PGE_print(					z_b,							/** bulk rock constraint 				*/ 
-										gv,								/** global variables (e.g. Gamma) 		*/
-
-										PP_ref_db,						/** pure phase database 				*/ 
-										SS_ref_db,						/** solution phase database 			*/
-										cp					); 
-		}
-
-		/** 
-			Update mass constraint residual
-		*/
-		gv = PGE_residual_update(		z_b,							/** bulk rock constraint 				*/ 
-										gv,								/** global variables (e.g. Gamma) 		*/
-
-										PP_ref_db,						/** pure phase database 				*/ 
-										SS_ref_db,						/** solution phase database 			*/
-										cp					);  
-		
-		/* Increment global iteration value */
-		gv.global_ite += 1;
-
-		/* check evolution of mass constraint residual */
-		gv.PGE_mass_norm[gv.global_ite]  = gv.BR_norm;	/** save norm for the current global iteration */
-		gv.Alg[gv.global_ite] 			 = 0;
-		t 								 = clock() - t; 
-
-		if (gv.verbose == 1){
-			printf("\n __ iteration duration: %+4f ms __\n\n\n",((double)t)/CLOCKS_PER_SEC*1000);
-		}
-		gv.ite_time[gv.global_ite] 		 = ((double)t)/CLOCKS_PER_SEC*1000;
-
-
-		if (gv.gamma_norm[gv.global_ite-1] < 0.5 || gi >= 24){
-			if (gi < 4){
-				iterate = 1;
-			}
-			else{
-				iterate = 0;
-				if ( nCheck <= 1){
-					iterate = 1;
-				}
-			}
-		}
-
-		gi += 1;
 	}
 
 	/**
@@ -1627,7 +1392,7 @@ global_variable PGE(	bulk_info 			z_b,
 	gv.LP 			 = 0;	
 	gv.PGE 			 = 1;
 
-	int mode 	   = 1;
+	int mode 	   = 0;
 	int iterate    = 1;
 	int pc_checked = 0;
 
@@ -1704,8 +1469,7 @@ global_variable PGE(	bulk_info 			z_b,
 			Local minimization of the solution phases
 		*/
 
-		ss_min_PGE(						mode,
-										gv, 						/** global variables (e.g. Gamma) 		*/
+		ss_min_PGE(						gv, 						/** global variables (e.g. Gamma) 		*/
 
 										SS_objective,							
 										z_b,						/** bulk-rock, pressure and temperature conditions */
@@ -1774,152 +1538,6 @@ global_variable PGE(	bulk_info 			z_b,
 		if (gv.global_ite >= gv.it_f){  										if (gv.verbose == 1){printf(" >%d iterations, not diverging but not converging\n\n",gv.it_f);}	gv.div = 1; gv.status = 4; iterate = 0;}
 
 		if ((log10(gv.BR_norm) > -1.5 && gv.global_ite > 64)	){	gv.div = 1;	iterate = 0;}
-		if ((log10(gv.BR_norm) > -1.5 && gv.global_ite > 64)	){	gv.div = 1;	iterate = 0;}
-		if ((log10(gv.BR_norm) > -2.5 && gv.global_ite > 128)	){	gv.div = 1;	iterate = 0;}
-		if ((log10(gv.BR_norm) > -3.5 && gv.global_ite > 192)	){	gv.div = 1;	iterate = 0;}
-	}
-
-	return gv;
-};		
-
-
-/**
-  Main PGE routine
-*/ 
-global_variable PGE2(	bulk_info 			z_b,
-						global_variable 	gv,
-
-						obj_type 			*SS_objective,
-						simplex_data	    *splx_data,
-						PP_ref 				*PP_ref_db,
-						SS_ref 				*SS_ref_db,
-						csd_phase_set  		*cp					){
-		
-	clock_t t, v; 	
-
-	gv.LP 			 = 0;	
-	gv.PGE 			 = 1;
-
-	int mode 	   = 1;
-	int iterate    = 1;
-
-	while (iterate == 1){
-
-		t = clock();
-		if (gv.verbose == 1){
-			printf("\n__________________________________________ ‿︵MAGEMin‿︵ "); printf("_ %5s _",gv.version);
-			printf("\n                     GLOBAL ITERATION %i\n",gv.global_ite);
-			printf("═════════════════════════════════════════════════════════════════\n");
-		}
-		
-		/* calculate delta_G of solution phases (including local minimization) */
-		if (gv.verbose == 1){
-			printf("\nMinimize solution phases\n");
-			printf("═════════════════════════\n");
-			printf(" phase |  delta_G   | SF |   sum_xi   | time(ms)   |   x-eos ...\n");
-			printf("══════════════════════════════════════════════════════════════════\n");
-		}
-		
-		/** 
-			update delta_G of pure phases as function of updated Gamma
-		*/
-		pp_min_function(				gv,
-										z_b,
-										PP_ref_db			);
-		/**
-			check driving force of PC when getting close to convergence
-		*/
-
-		v = clock();
-		if (gv.BR_norm < gv.PC_check_val1 && gv.check_PC1 == 0){
-			if (gv.verbose == 1){
-				printf("\n Checking PC driving force 1\n");	
-				printf("═════════════════════════════\n");	
-					
-			}
-			gv = check_PC( 					z_b,						/** bulk rock constraint 				*/ 
-											gv,							/** global variables (e.g. Gamma) 		*/
-
-											PP_ref_db,					/** pure phase database 				*/ 
-											SS_ref_db,
-											cp				); 					
-			
-			gv.check_PC1 		= 1;				
-		}
-
-		/**
-			Local minimization of the solution phases
-		*/
-
-		ss_min_PGE(						mode,
-										gv, 						/** global variables (e.g. Gamma) 		*/
-
-										SS_objective,							
-										z_b,						/** bulk-rock, pressure and temperature conditions */
-										SS_ref_db,					/** solution phase database 			*/	
-										cp 					);	
-		v = clock() - v; 
-		gv.tot_min_time += ((double)v)/CLOCKS_PER_SEC*1000;
-
-		/**
-			Merge instances of the same solution phase that are compositionnally close 
-		*/
-		gv = phase_merge_function(		z_b,							/** bulk rock constraint 				*/
-										gv,								/** global variables (e.g. Gamma) 		*/
-
-										PP_ref_db,						/** pure phase database 				*/
-										SS_ref_db,						/** solution phase database 			*/ 
-										cp					); 
-
-		/**
-			Actual Partitioning Gibbs Energy stage 
-		/*/
-		gv = PGE_inner_loop2(			z_b,							/** bulk rock constraint 				*/ 
-										splx_data,
-										gv,								/** global variables (e.g. Gamma) 		*/
-
-										PP_ref_db,						/** pure phase database 				*/ 
-										SS_ref_db,						/** solution phase database 			*/
-										cp					); 
-
-		/* dump & print */
-		if (gv.verbose == 1){
-			/* Partitioning Gibbs Energy */
-			PGE_print(					z_b,							/** bulk rock constraint 				*/ 
-										gv,								/** global variables (e.g. Gamma) 		*/
-
-										PP_ref_db,						/** pure phase database 				*/ 
-										SS_ref_db,						/** solution phase database 			*/
-										cp					); 
-		}
-
-		t = clock() - t; 
-		if (gv.verbose == 1){
-			printf("\n __ iteration duration: %+4f ms __\n\n\n",((double)t)/CLOCKS_PER_SEC*1000);
-		}
-
-		/* check evolution of mass constraint residual */
-		gv.PGE_mass_norm[gv.global_ite]  = gv.BR_norm;				/** save norm for the current global iteration */
-		gv.Alg[gv.global_ite] 			 = 1;
-		gv.ite_time[gv.global_ite] 		 = ((double)t)/CLOCKS_PER_SEC*1000;
-		gv.global_ite 			  		+= 1;
-
-		/*********************************************************/
-		/**               CHECK MINIMIZATION STATUS              */
-		/*********************************************************/
-
-		/* checks for full convergence  						 */
-		/* the second term checks if solution phase have been tested in case convergence is too fast */
-		if (gv.BR_norm < gv.br_max_tol && gv.check_PC1 == 1){ gv.status = 0;	iterate = 0;}
-		
-		/* checks for dampened convergence  */
-		if (gv.global_ite > gv.it_1 && gv.BR_norm < gv.br_max_tol*gv.ur_1){		if (gv.verbose == 1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_1, gv.ur_1);}; 	gv.status = 1; iterate = 0;}
-		if (gv.global_ite > gv.it_2 && gv.BR_norm < gv.br_max_tol*gv.ur_2){		if (gv.verbose == 1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_2, gv.ur_2);}; 	gv.status = 2; iterate = 0;}
-		if (gv.global_ite > gv.it_3 && gv.BR_norm < gv.br_max_tol*gv.ur_3){		if (gv.verbose == 1){printf(" >%d iterations, under-relax mass constraint norm (*%.1f)\n\n", gv.it_3, gv.ur_3);}; 	gv.status = 3; iterate = 0;}
-		
-		/* checks for not diverging but non converging cases  */
-		if (gv.global_ite >= gv.it_f){  										if (gv.verbose == 1){printf(" >%d iterations, not diverging but not converging\n\n",gv.it_f);}	gv.div = 1; gv.status = 4; iterate = 0;}
-
 		if ((log10(gv.BR_norm) > -1.5 && gv.global_ite > 64)	){	gv.div = 1;	iterate = 0;}
 		if ((log10(gv.BR_norm) > -2.5 && gv.global_ite > 128)	){	gv.div = 1;	iterate = 0;}
 		if ((log10(gv.BR_norm) > -3.5 && gv.global_ite > 192)	){	gv.div = 1;	iterate = 0;}

@@ -1,4 +1,4 @@
-function [coordinates,newElements,newIrregular,prPts, varargout] ...
+function [coordinates,newElements,newIrregular,prPts, varargout,r_coor,r_elem] ...
     = QrefineR(coordinates,elements,irregular,varargin)
 
 %QrefineR: local refinement of quadrilateral mesh by red refinement, 
@@ -133,8 +133,6 @@ kdx = find(sum(newNodes,2)~=0);
 [idx,jdx,val] = find(newNodes(kdx,:));
 edx = irregular2edges(kdx(idx)+(jdx-1+1)*size(irregular2edges,1));
 newIrregular = [newIrregular;[edge2nodes(edx(:),:),val(:)]];
-
-
 
 %% Determine duplicate coordinates and remove them (causes plotting issues later)
 indDuplicates         =   1:size(coordinates,1);

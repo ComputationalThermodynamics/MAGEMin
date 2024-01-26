@@ -12,7 +12,7 @@ gv, z_b, DB, splx_data      = init_MAGEMin(db);
 
 
 sys_in      = "mol"     #default is mol, if wt is provided conversion will be done internally (MAGEMin works on mol basis)
-test        = 0         #KLB1
+test        = 4         #KLB1
 gv          = use_predefined_bulk_rock(gv, test, db);
 
 mutable struct outP{ _T  } 
@@ -30,17 +30,18 @@ outList       = Vector{outP}(undef, 0)
 # test 0
 gv.verbose  = -1    # switch off any verbose
 
-Tmin        = 600.0
-Tmax        = 1200.0
+Tmin        = 300.0
+Tmax        = 900.0
 Tstep       = 100.0
 Pmin        = 0.01
-Pmax        = 24.01
-Pstep       = 4.0
+Pmax        = 12.01
+Pstep       = 2.0
 
 for i=Pmin:Pstep:Pmax
     for j=Tmin:Tstep:Tmax
 
         bulk_rock   = use_predefined_bulk_rock(gv, test, db)
+        # out         = point_wise_minimization(sys_in,i,j, bulk_rock, gv, DB)
         out         = point_wise_minimization(i,j, gv, z_b, DB, splx_data, sys_in)
         push!(outList,outP(i,j,test,out.G_system,out.ph,out.ph_frac[:]))
         print(out)
@@ -50,3 +51,4 @@ end
 for i=1:length(outList)
     print(outList[i],",\n")
 end
+

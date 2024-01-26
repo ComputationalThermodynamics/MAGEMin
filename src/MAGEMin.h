@@ -11,7 +11,7 @@
 #include "gem_function.h"
 
 struct ss_pc{
-    double xeos_pc[14];
+    double xeos_pc[25];
 };
 
 typedef struct PC_refs {
@@ -39,10 +39,15 @@ typedef struct global_variables {
 	int 	 output_matlab;
 	double 	 tot_min_time;
 	double 	 tot_time;
-	int      QFM_buffer;
-	double   QFM_n;
+	char*    buffer;
+	double   buffer_n;
 	int      limitCaOpx;
+	double   CaOpxLim;
 	int      mbCpx;
+
+	/* FLUID SPECIATION OPTIONS */
+	int      fluidSpec;			/** activate fluid speciation along with phase equilibrium modelling? */
+	int      n_fs_db;			/** number of fluid species for the database */
 
 	/* GET STARTING CONDITIONS (args) */
 	int 	 test;
@@ -100,6 +105,10 @@ typedef struct global_variables {
 	int      numPoint; 			/** the number of the current point */
 	int      global_ite;		/** global iteration increment */
 	int 	 H2O_id;
+	int 	 O_id;
+	int 	 TiO2_id;
+	int 	 Cr2O3_id;
+	int 	 MnO_id;
 	/* SPECIAL CASES */
 	// double   melt_pressure;
 
@@ -120,20 +129,20 @@ typedef struct global_variables {
 	int  	 n_Ppc;
 	int      max_LP_ite;
 	double   save_Ppc_val;
+	int 	 launch_PGE;
 
 	/* SOLVI */
 	int     *verifyPC;			/** allow to check for solvi */
 	int 	*n_solvi;			/** number of phase considered for solvi */
-	int    **id_solvi;			/** cp id of the phases considered for solvi */
-			
+	
 	/* LOCAL MINIMIZATION */
 	double   maxgmTime;
 	double   ineq_res;			/** relative residual for local minimization (inequality constraints)*/
 	double   obj_tol;			/** relative residual for local minimization */
 
-	double   box_size_mode_1;	/** edge size of the hyperdensity used during local minimization */
+	double   box_size_mode_PGE;	/** edge size of the hyperdensity used during local minimization */
+	double   box_size_mode_LP;	/** edge size of the hyperdensity used during local minimization */
 	int   	 maxeval;			/** maximum number of objective function evaluations during local minimization */
-	int   	 maxeval_mode_1;	/** maximum number of objective function evaluations during local minimization for mode 1 */
 	double   bnd_val;			/** boundary value for x-eos when the fraction of an endmember = 0. */
 	double   obj_refine_fac;    /** how much the residual of the objective function is refined during iterations */
 
@@ -146,18 +155,16 @@ typedef struct global_variables {
 	int 	*cp_id;
 	int 	*pp_id;	
 	double   fc_norm_t1;
-	int      outter_PGE_ite;    /** number of PGE outter iterations */
 	int      inner_PGE_ite;     /** number of PGE outter iterations */
 	double   inner_PGE_ite_time;
-	double 	 xi_em_cor;
-	
+
 	int      n_phase;			/** number of estimated stable phases */	
 	int 	 n_pp_phase;		/** number of active pure phases */
 	int 	 n_cp_phase;		/** number of considered solution phases */
 
 	double   max_n_phase;		/** maximum wt% change during PGE iteration     */
 	double   max_g_phase;		/** maximum Gamma change during PGE iteration */
-	double   br_liq_x;
+
 	double   max_fac;			/** max updating factor */
 	int      it_1;              /** first critical iteration                                                      */
 	double   ur_1;              /** under relaxing factor on mass constraint if iteration is bigger than it_1     */
@@ -203,6 +210,8 @@ typedef struct global_variables {
 	double   system_density;
 	double   system_entropy;
 	double   system_enthalpy;
+	double   system_cp;
+	double   system_expansivity;
 	double   system_bulkModulus;
 	double   system_shearModulus;
 	double   system_Vp;
@@ -210,6 +219,12 @@ typedef struct global_variables {
 	double   system_volume;
 
 	double 	 system_fO2;
+	double   system_aH2O;
+	double   system_aSiO2;
+	double   system_aTiO2;
+	double   system_aAl2O3;
+	double   system_aMgO;
+	double   system_aFeO;
 
 	double   melt_density;
 	double   melt_bulkModulus;
@@ -234,22 +249,40 @@ int runMAGEMin(								int argc,
 /* Function declaration from Initialize.h file */
 int find_EM_id(								char* em_tag			);
 
+/* Function declaration from Initialize.h file */
+int find_FS_id(								char* em_tag			);
+
 /** Function to retrieve database structure **/
 struct EM_db Access_EM_DB(					int id, 
 											int EM_database			);
 
+/** Function to retrieve database structure **/
+struct FS_db Access_FS_DB(					int id					);
+
 /** Function to retrieve the endmember names from the database **/
 char** get_EM_DB_names(						global_variable gv		);
+
+/** Function to retrieve the fluid species names from the database **/
+char** get_FS_DB_names(						global_variable gv		);
 
 
 /** store endmember database **/
 struct EM_db {
 	char   Name[20];			/** pure species name 														*/
-    double Comp[15];       	 	/** pure species composition [0-10] + number of atom [11] 					*/
+    double Comp[16];       	 	/** pure species composition [0-10] + number of atom [11] 					*/
     double input_1[3];          /** first line of the thermodynamics datable 								*/
     double input_2[4];          /** second line of the thermodynamics datable 								*/
     double input_3[11];         /** third line of the thermodynamics datable 								*/
     double input_4[3];         	/** third line of the thermodynamics datable 								*/
+};
+
+/** store endmember database **/
+struct FS_db {
+	char   Name[20];			/** pure species name 														*/
+    double Comp[16];       	 	/** pure species composition [0-10] + number of atom [11] 					*/
+    double input_1[4];          /** first line of the thermodynamics datable 								*/
+    double input_2[7];          /** second line of the thermodynamics datable 								*/
+    double input_3[1];         	/** third line of the thermodynamics datable 								*/
 };
 
 /** 
@@ -307,19 +340,25 @@ typedef struct simplex_datas
 } simplex_data;
 
 /* Declare structures to hold reference gbase, composition and factor for solid solutions */
-/* "bi","cpx","crd","ep","fl","g","hb","ilm","liq","mu","ol","opx","pl4T","spn" */
+/* "bi","cpx","crd","ep","fl","g","hb","ilm","liq","mu","ol","opx","fsp","spn" */
 typedef struct SS_refs {
 	double 	 P;					/** used to pass to local minimizer, would allow to have pressure difference for liq/solid */
 	double 	 T;
 	double 	 R;
+	int      len_ox;
 
+	/** data for fluid speciation */
+	double  *ElEntropy;
+	double   g;
+	double   Z;
+	double   densityW;
+	double   epsilon;
 	/** end-member list */
 	char   **EM_list;			/** solution phase list */
+	char   **CV_list;			/** solution phase list */
 
 	/** flags */
 	int     *ss_flags;			/** integer table for solution phase list 									*/
-	int 	 CstFactor;			/** flag to indicate if the solution model have a p-dependent apf			*/
-
 	/** data needed for levelling and PGE check **/
 	int      n_pc;				/** maximum number of pseudocompounds to store 								*/
 	int      tot_pc;			/** total number of pseudocompounds  										*/
@@ -329,7 +368,7 @@ typedef struct SS_refs {
 	double  *DF_pc;				/** array to store the final driving force of the pseudocompounds 			*/
 	double **comp_pc;			/** compositional array of the pseudocompounds 								*/
 	double **p_pc;				/** compositional array of the pseudocompounds 								*/
-	double **mu_pc;				/** compositional array of the pseudocompounds 								*/
+	// double **mu_pc;				/** compositional array of the pseudocompounds 								*/
 	double **xeos_pc;			/** x-eos array of the pseudocompounds 										*/
 	double  *factor_pc;			/** normalization factor of each PC, mainly useful for liquid 				*/
 
@@ -350,7 +389,6 @@ typedef struct SS_refs {
 	int	    *solvus_id;
 	
 	/** data needed for levelling and/or PGE **/
-	int	     min_mode;			/** flag of the minimization mode 											*/
 	int		 is_liq;			/** check if phase is "liq" 												*/
 	int      symmetry;			/** solution phase symmetry  												*/
 	int      n_em;				/** number od endmembers 													*/
@@ -381,11 +419,11 @@ typedef struct SS_refs {
     double  *iguess;    		/** 2d array of initial guess 												*/
 	double  *dguess;    		/** 2d array of default guess 												*/
 	double  *mguess;    		/** 2d array of default guess 												*/
+
+	int 	 orderVar;			/** activate the reintroduction of symmetric order variables 				*/
+	double 	*idOrderVar;		/* id of the order variables 												*/
 	
     /** data needed for local minimization **/
-    double   check_df;			/** driving force from PC, stored for mode 3								*/
-	int 	 forced_stop;		/** 0-1, check if local minimization left to a forced stop 					*/
-	int      xeos_sf_ok_saved;	/** 0-1, to check if the xeos are saved										*/
 	int      status;			/** status of the local minimization (ideally 0) */
 	int      nlopt_verb; 		/** verbose of NLopt, to show local iterations   							*/
 	double  *tol_sf;			/** array of tolerance for the inequality constraints 						*/
@@ -481,6 +519,7 @@ typedef struct bulk_infos {
     double  *apo;				/** atom per oxide 										*/
     double   fbc;				/** number of atom for the bulk	rock composition		*/
     double  *masspo;			/** Molar mass per oxide 								*/
+    double  *ElEntropy;			/** Molar entropy per oxide 							*/
 
 } bulk_info;
 
@@ -511,8 +550,9 @@ typedef struct csd_phase_sets {
 	double *xi_em;
 	double *dguess;
 	double *xeos;
-	double **dpdx; 				/** This one is needed for the back2feasible system function */
-	
+	double *xeos_0;
+	double *xeos_1;
+
 	double *dfx;
 	double *mu;
 	double *delta_mu;
@@ -559,7 +599,7 @@ typedef struct stb_SS_phases {
 	
 	double  *Comp;
 	double  *compVariables;
-	
+	char   **compVariablesNames;	
 	char   **emNames;
 	double  *emFrac;
 	double  *emFrac_wt;
@@ -617,6 +657,16 @@ typedef struct stb_systems {
 	double  G;
 	double  rho;
 	double  fO2;
+	double  aH2O;
+	double  aSiO2;
+	double  aTiO2;
+	double  aAl2O3;
+	double  aMgO;
+	double  aFeO;
+
+	double  alpha;
+	double  cp;
+	double  V;
 	
 	double  entropy;
 	double  enthalpy;
@@ -672,14 +722,21 @@ typedef struct Database {	PP_ref     		 *PP_ref_db;		/** Pure phases 											
 							csd_phase_set    *cp;				/** considered solution phases (solvus setup) 				*/
 							stb_system       *sp;				/** structure holding the informations of the stable phases */
 							char 	  		**EM_names;			/** Names of endmembers 									*/
+							char 	  		**FS_names;			/** Names of fluid species 									*/
 } Databases;
 
 Databases InitializeDatabases(				global_variable 	 gv, 
 											int 				 EM_database		);
 
 void FreeDatabases(							global_variable 	 gv, 
-											Databases			 DB					);
-
+											Databases			 DB,
+											bulk_info 	 		 z_b				);
+											
+global_variable ComputeG0_point( 			int 				 EM_database,
+											bulk_info 	 		 z_b,
+											global_variable 	 gv,
+											PP_ref  			*PP_ref_db,
+											SS_ref  			*SS_ref_db			);
 global_variable ComputeEquilibrium_Point(	int 				 EM_database,
 											io_data 			 input_data,
 											bulk_info 	 		 z_b,
@@ -690,8 +747,7 @@ global_variable ComputeEquilibrium_Point(	int 				 EM_database,
 											SS_ref  			*SS_ref_db,
 											csd_phase_set  		*cp					);
 											
-global_variable ComputePostProcessing(		int 				 EM_database,
-											bulk_info 	 		 z_b,
+global_variable ComputePostProcessing(		bulk_info 	 		 z_b,
 											global_variable 	 gv,
 											PP_ref  			*PP_ref_db,
 											SS_ref  			*SS_ref_db,

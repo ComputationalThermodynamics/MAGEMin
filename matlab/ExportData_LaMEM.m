@@ -85,7 +85,7 @@ dT      =   dT*1;
 fid = fopen([FileDir,filesep,FileName],'w+');
 
 % Write header info
-fprintf(fid,'8 \n');
+fprintf(fid,'5 \n');
 fprintf(fid,'  \n');
 fprintf(fid,'Phase diagram version: 0.11 \n');
 fprintf(fid,'DATA:  \n');
@@ -133,13 +133,14 @@ fprintf(fid,'%i \n', np);
 
 % Transpose them all 
 rho_liq = rho_liq';
-melt = melt';
+% rho_liq = rho_sol';
+melt    = melt';
 rho_sol = rho_sol';
-T_K = T_K';
-P_bar = P_bar';
-Vp = Vp';
-Vs = Vs';
-VpVs = VpVs';
+T_K     = T_K';
+P_bar   = P_bar';
+Vp      = Vp';
+Vs      = Vs';
+VpVs    = VpVs';
 
 
 rho_liq =   rho_liq(:);
@@ -147,7 +148,8 @@ melt    =   melt(:);
 rho_sol =   rho_sol(:);
 
 for i=1:length(T_K)
-    fprintf(fid,'%1.2f %1.5f %1.2f %1.4f %1.3f %1.2f %1.2f %1.2f\n', rho_liq(i), melt(i), rho_sol(i), T_K(i), P_bar(i), Vp(i), Vs(i), VpVs(i));
+    % fprintf(fid,'%1.2f %1.5f %1.2f %1.4f %1.3f %1.2f %1.2f %1.2f\n', rho_liq(i), melt(i), rho_sol(i), T_K(i), P_bar(i), Vp(i), Vs(i), VpVs(i));
+    fprintf(fid,'%1.2f %1.5f %1.2f %1.4f %1.3f\n', rho_liq(i), melt(i), rho_sol(i), T_K(i), P_bar(i));
 end
 fclose(fid);
 

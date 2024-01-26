@@ -2,6 +2,15 @@
     "C_Cpp.errorSquiggles": "Disabled",
     "files.associations": {
         "ss_xeos_pc_alk.h": "c",
-        "typeinfo": "c"
-    }
+        "typeinfo": "c",
+        "endmembers_tc-ds635.h": "c",
+        "limits": "c",
+        "cmath": "cpp",
+        "complex": "cpp",
+        "ss_xeos_pc_mp.h": "c",
+        "magemin.h": "c",
+        "array": "c",
+        "thread": "c"
+    },
+    "julia.environmentPath": "/home/seph/TC_calibration/src"
 }

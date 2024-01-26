@@ -25,6 +25,7 @@ typedef struct PP_refs {
 	double  phase_bulkModulus;
     double  volume;				    /** molar volume of the phase               */
     double  mass;				    /** molar mass of the phase                 */
+    double  charge;
     
 } PP_ref;
 
@@ -38,4 +39,41 @@ PP_ref G_EM_function(   int          EM_database,
                         char        *name, 
                         char        *state          );
 
+/**
+  compute the Gibbs Free energy from the thermodynamic database
+*/
+typedef struct solvent_properties {
+    double g;
+    double density;
+    double epsilon;
+    double Z;
+} solvent_prop;
+
+/* initialize properties of the solvent, i.e., water in this case */
+PP_ref G_FS_function(   int              len_ox,
+                        solvent_prop    *wat,
+                        int             *id,
+                        double          *bulk_rock, 
+                        double          *ElH,
+                        double          *apo,
+                        double           P, 
+                        double           T, 
+                        char            *name, 
+                        char            *state          );
+
+void propSolvent_JN91_calc(     solvent_prop    *wat,
+                                double           TK       );
+
+void propSolvent_FE97_calc(     solvent_prop    *wat,
+                                double           Pbar,
+                                double           TK       );
+
+void propSolvent_SV14_calc(     solvent_prop    *wat,
+                                double           Pbar,
+                                double           TK       );
+
+void rho_wat_calc(              solvent_prop    *wat,
+                                double           Pbar,
+                                double           TK,
+                                char            *opt      );                                
 #endif

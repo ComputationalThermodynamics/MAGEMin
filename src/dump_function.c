@@ -49,7 +49,7 @@ void dump_init(global_variable gv){
 		fclose(loc_min);	
 	}
 	/** OUTPUT FOR MATLAB, print out wt and mol fractions instead of TC atom basis **/
-	if (gv.output_matlab == 1){
+	if (gv.output_matlab >= 1){
 		if (numprocs==1){	sprintf(out_lm,	"%s_matlab_output.txt"		,gv.outpath); 		}
 		else 			{	sprintf(out_lm,	"%s_matlab_output.%i.txt"	,gv.outpath, rank); }
 		loc_min 	= fopen(out_lm, 	"w"); 
@@ -81,6 +81,7 @@ void fill_output_struct(		global_variable 	 gv,
 	double G = 0.0;
 	double sum;
 	double sum_wt;
+	double sum_mol;
 	double sum_em_wt;
 	double sum_ph_mass;
 
@@ -99,6 +100,16 @@ void fill_output_struct(		global_variable 	 gv,
 	sp[0].nOx					 = gv.len_ox;
 	sp[0].rho					 = gv.system_density;
 	sp[0].fO2					 = gv.system_fO2;
+	sp[0].aH2O					 = gv.system_aH2O;
+	sp[0].aSiO2					 = gv.system_aSiO2;
+	sp[0].aTiO2					 = gv.system_aTiO2;
+	sp[0].aAl2O3				 = gv.system_aAl2O3;
+	sp[0].aMgO					 = gv.system_aMgO;
+	sp[0].aFeO				 	 = gv.system_aFeO;
+
+	sp[0].alpha				 	 = gv.system_expansivity;
+	sp[0].V				 	 	 = gv.system_volume*10.0;	
+	sp[0].cp				 	 = gv.system_cp;	
 	sp[0].entropy				 = gv.system_entropy;
 	sp[0].enthalpy				 = gv.system_enthalpy;
 
@@ -188,18 +199,26 @@ void fill_output_struct(		global_variable 	 gv,
 
 			/* solution phase composition */
 			sum_wt = 0.0;
+			sum_mol = 0.0;
 			for (j = 0; j < gv.len_ox; j++){
 				sp[0].SS[m].Comp[j]				= cp[i].ss_comp[j]*cp[i].factor;
 				sp[0].SS[m].Comp_wt[j]			= sp[0].SS[m].Comp[j]*z_b.masspo[j];
 				sum_wt 						   += sp[0].SS[m].Comp_wt[j];
+				sum_mol 					   += sp[0].SS[m].Comp[j];
 			}
 			for (j = 0; j < gv.len_ox; j++){
 				sp[0].SS[m].Comp_wt[j]		   /= sum_wt;
+				sp[0].SS[m].Comp[j]		   	   /= sum_mol;
 			}
 	
 			for (j = 0; j < cp[i].n_xeos; j++){	
 				sp[0].SS[m].compVariables[j] 	= cp[i].xeos[j];
 			}
+
+			for (j = 0; j < cp[i].n_xeos; j++){	
+				strcpy(sp[0].SS[m].compVariablesNames[j],SS_ref_db[cp[i].id].CV_list[j]);	
+			}
+
 			sum_ph_mass = 0.0;
 			for (j = 0; j < cp[i].n_em; j++){
 				sum_em_wt = 0.0;
@@ -212,14 +231,17 @@ void fill_output_struct(		global_variable 	 gv,
 				sp[0].SS[m].emFrac[j] 			= cp[i].p_em[j];
 				sp[0].SS[m].emChemPot[j] 		= cp[i].mu[j];
 				
-				sum = 0.0;
+				sum_wt  = 0.0;
+				sum_mol = 0.0;
 				for (k = 0; k < gv.len_ox; k++){
 					sp[0].SS[m].emComp[j][k]	= SS_ref_db[cp[i].id].Comp[j][k]*cp[i].factor;
 					sp[0].SS[m].emComp_wt[j][k]	= sp[0].SS[m].emComp[j][k]*z_b.masspo[k];
-					sum 					   += sp[0].SS[m].emComp_wt[j][k];
+					sum_wt 					   += sp[0].SS[m].emComp_wt[j][k];
+					sum_mol 				   += sp[0].SS[m].emComp[j][k];
 				}
 				for (k = 0; k < gv.len_ox; k++){
-					sp[0].SS[m].emComp_wt[j][k]/= sum;
+					sp[0].SS[m].emComp_wt[j][k]	/= sum_wt;
+					sp[0].SS[m].emComp[j][k]	/= sum_mol;
 				}
 			}
 			for (j = 0; j < cp[i].n_em; j++){
@@ -248,13 +270,16 @@ void fill_output_struct(		global_variable 	 gv,
 					sp[0].frac_F 				= cp[i].ss_n;
 					sp[0].rho_F  				= cp[i].phase_density;
 					sum = 0.0;
+					sum_mol = 0.0;
 					for (j = 0; j < gv.len_ox; j++){
 						sp[0].bulk_F[j]	   		= cp[i].ss_comp[j]*cp[i].factor;
 						sp[0].bulk_F_wt[j]	   	= cp[i].ss_comp[j]*cp[i].factor*z_b.masspo[j];
 						sum 				   += sp[0].bulk_F_wt[j];
+						sum_mol		   		   += sp[0].bulk_F[j];
 					}
 					for (j = 0; j < gv.len_ox; j++){
-						sp[0].bulk_F_wt[j]	   /= sum;	
+						sp[0].bulk_F_wt[j]	   /= sum;
+						sp[0].bulk_F[j]	   	   /= sum_mol;	
 					}
 					atp2wt = sum/sum_Molar_mass_bulk;
 					sp[0].frac_F_wt 		    = sp[0].frac_F*atp2wt;
@@ -305,20 +330,32 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].PP[m].Vp 		 = sqrt((PP_ref_db[i].phase_bulkModulus/10. + 4.0/3.0*PP_ref_db[i].phase_shearModulus/10.)/(PP_ref_db[i].phase_density/1e3));
 			sp[0].PP[m].Vs 		 = sqrt(PP_ref_db[i].phase_shearModulus/10.0/(PP_ref_db[i].phase_density/1e3));	
 
-			sum = 0.0;
+			sum_wt = 0.0;
+			sum_mol = 0.0;
 			for (j = 0; j < gv.len_ox; j++){
 				sp[0].PP[m].Comp[j]		 = PP_ref_db[i].Comp[j]*PP_ref_db[i].factor;
 				sp[0].PP[m].Comp_wt[j]   = sp[0].PP[m].Comp[j]*z_b.masspo[j];
-				sum 					+= sp[0].PP[m].Comp_wt[j];
+				sum_wt 					+= sp[0].PP[m].Comp_wt[j];
+				sum_mol					+= sp[0].PP[m].Comp[j];
 			}
 			for (j = 0; j < gv.len_ox; j++){
-				sp[0].PP[m].Comp_wt[j]  /= sum;
+				sp[0].PP[m].Comp_wt[j]  /= sum_wt;
+				sp[0].PP[m].Comp[j]  	/= sum_mol;
 			}
 		
-			sp[0].frac_S 		+= gv.pp_n[i];
-			sp[0].rho_S  		+= gv.pp_n[i]*PP_ref_db[i].phase_density;
-			for (j = 0; j < gv.len_ox; j++){
-				sp[0].bulk_S[j]	+= gv.pp_n[i]*PP_ref_db[i].Comp[j]*PP_ref_db[i].factor;;
+			if  (strcmp( gv.PP_list[i], "H2O") != 0){
+				sp[0].frac_S 		+= gv.pp_n[i];
+				sp[0].rho_S  		+= gv.pp_n[i]*PP_ref_db[i].phase_density;
+				for (j = 0; j < gv.len_ox; j++){
+					sp[0].bulk_S[j]	+= gv.pp_n[i]*PP_ref_db[i].Comp[j]*PP_ref_db[i].factor;;
+				}
+			}
+			if  (strcmp( gv.PP_list[i], "H2O") == 0){
+				sp[0].frac_F 		= gv.pp_n[i];
+				sp[0].rho_F  		= gv.pp_n[i]*PP_ref_db[i].phase_density;
+				for (j = 0; j < gv.len_ox; j++){
+					sp[0].bulk_F[j]	= gv.pp_n[i]*PP_ref_db[i].Comp[j]*PP_ref_db[i].factor;;
+				}
 			}
 			n 			    	+= 1;
 			m 					+= 1;
@@ -344,6 +381,29 @@ void fill_output_struct(		global_variable 	 gv,
 	atp2wt = sum/sum_Molar_mass_bulk;
 	sp[0].frac_S_wt 		    = sp[0].frac_S*atp2wt;
 
+
+	/* normalize rho_F and bulk_F */
+	sp[0].rho_F  				/= sp[0].frac_F;
+
+	for (j = 0; j < gv.len_ox; j++){
+		sp[0].bulk_F[j]	   		/= sp[0].frac_F;
+	}
+
+	sum 	= 0.0;
+	sum_mol = 0.0;
+	for (j = 0; j < gv.len_ox; j++){
+		sp[0].bulk_F_wt[j]	    = sp[0].bulk_F[j]*z_b.masspo[j];
+		sum 				   += sp[0].bulk_F_wt[j];
+		sum_mol 			   += sp[0].bulk_F[j];
+	}
+
+	for (j = 0; j < gv.len_ox; j++){
+		sp[0].bulk_F_wt[j]	   /= sum;
+		sp[0].bulk_F[j] 	   /= sum_mol;
+	}
+
+	atp2wt = sum/sum_Molar_mass_bulk;
+	sp[0].frac_F_wt 		    = sp[0].frac_F*atp2wt;
 
 
 	// debug print
@@ -416,7 +476,7 @@ void output_thermocalc(			global_variable 	 gv,
 	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-	int i,j,m,n,k;
+	int i,j,m,n,k,n_ss;
 
 	/* output active phase fraction*/
 	if (numprocs==1){	sprintf(out_lm,	"%s_thermocalc_style_output.txt"		,gv.outpath); 	}
@@ -425,10 +485,11 @@ void output_thermocalc(			global_variable 	 gv,
 	loc_min 	= fopen(out_lm, 	"a"); 
 	fprintf(loc_min, "============================================================\n");
 	
+	n_ss = 0;
 	for (i = 0; i < gv.len_cp; i++){
 		if ( cp[i].ss_flags[1] == 1){
 			fprintf(loc_min, 	"%4s ", cp[i].name);
-
+			n_ss += 1;
 		}
 	}
 	for (i = 0; i < gv.len_pp; i++){
@@ -582,10 +643,9 @@ void output_thermocalc(			global_variable 	 gv,
 				G += cp[i].ss_comp[j]*gv.gam_tot[j];
 			}
 
-
 			fprintf(loc_min, "%6s", cp[i].name);
 			fprintf(loc_min, "%+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.6f %+12.6f %+12.2f %+12.2f %+12.2f %+12.2f",
-						cp[i].ss_n_mol,cp[i].factor,
+						cp[i].ss_n,cp[i].factor,
 						G,
 						cp[i].volume*10.,
 						cp[i].phase_cp,
@@ -606,7 +666,7 @@ void output_thermocalc(			global_variable 	 gv,
 		if (gv.pp_flags[i][1] == 1){ 
 			fprintf(loc_min, "%6s", gv.PP_list[i]);
 			fprintf(loc_min, "%+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.6f %+12.6f %+12.2f %+12.2f %+12.2f %+12.2f",
-					gv.pp_n_mol[i],
+					gv.pp_n[i],
 					PP_ref_db[i].factor,
 					PP_ref_db[i].gbase,
 					PP_ref_db[i].volume*10.,
@@ -628,12 +688,12 @@ void output_thermocalc(			global_variable 	 gv,
 	for (j = 0; j < gv.len_ox; j++){
 		G += z_b.bulk_rock[j]*gv.gam_tot[j];
 	}
-	fprintf(loc_min, "%6s %24s %+12.5f %+12.5f %12s %+12.5f %12s %+12.6f %+12.6f %+12.5f %+12.5f %+12.5f %+12.5f\n",
+	fprintf(loc_min, "%6s %24s %+12.5f %+12.5f %+12.5f %+12.5f %12s %+12.6f %+12.6f %+12.5f %+12.5f %+12.5f %+12.5f\n",
 			"SYS",
 			" ",
 			G,
 			gv.system_volume*10.,
-			" ",
+			gv.system_cp,
 			gv.system_density,
 			" ",
 			gv.system_entropy,
@@ -656,8 +716,50 @@ void output_thermocalc(			global_variable 	 gv,
 		}
 	}
 	fprintf(loc_min, "\n\n");
-	fclose(loc_min);
 
+	/* save initial guess for THERMOCALC */
+	fprintf(loc_min, "Initial guess for THERMOCALC:\n");
+	fprintf(loc_min, "%% ----------------------------------------------------------\n");
+	fprintf(loc_min, "%% at P =  %12.8f, T = %12.8f, for: ",z_b.P,z_b.T-273.15);
+	for (i = 0; i < gv.len_cp; i++){
+		if ( cp[i].ss_flags[1] == 1){
+			fprintf(loc_min, 	"%s ", cp[i].name);
+
+		}
+	}
+	fprintf(loc_min, "\n");
+	fprintf(loc_min, "%% ----------------------------------------------------------\n");
+	fprintf(loc_min, "ptguess  %12.8f %12.8f\n",z_b.P,z_b.T-273.15);
+	fprintf(loc_min, "%% ----------------------------------------------------------\n");
+	n = 1;
+	for (i = 0; i < gv.len_cp; i++){
+		if ( cp[i].ss_flags[1] == 1){
+			for (j = 0; j < cp[i].n_xeos; j++){
+				if (strlen(cp[i].name) == 1){
+					fprintf(loc_min, 	"xyzguess %5s(%1s) %10f\n", SS_ref_db[cp[i].id].CV_list[j], cp[i].name, cp[i].xeos[j]);
+				}
+				else if (strlen(cp[i].name) == 2){
+					fprintf(loc_min, 	"xyzguess %5s(%2s) %10f\n", SS_ref_db[cp[i].id].CV_list[j], cp[i].name, cp[i].xeos[j]);
+				} 
+				else if (strlen(cp[i].name) == 3){
+					fprintf(loc_min, 	"xyzguess %5s(%3s) %10f\n", SS_ref_db[cp[i].id].CV_list[j], cp[i].name, cp[i].xeos[j]);
+				} 
+				else if (strlen(cp[i].name) == 4){
+					fprintf(loc_min, 	"xyzguess %5s(%4s) %10f\n", SS_ref_db[cp[i].id].CV_list[j], cp[i].name, cp[i].xeos[j]);
+				} 
+				else if (strlen(cp[i].name) == 5){
+					fprintf(loc_min, 	"xyzguess %5s(%5s) %10f\n", SS_ref_db[cp[i].id].CV_list[j], cp[i].name, cp[i].xeos[j]);
+				} 												
+			}	
+			if (n < n_ss){
+				fprintf(loc_min, 	"%% -----------------------------\n");
+			}
+			n += 1;
+		}
+	}
+	fprintf(loc_min, 	"%% —————————————————————————————\n");
+
+	fclose(loc_min);
 }
 
 /**
@@ -706,9 +808,9 @@ void output_gui(				global_variable 	 gv,
 	fprintf(loc_min, " %.10f %.10f %.10f",gv.system_Vp,gv.system_Vs,gv.system_entropy);
 
 	fprintf(loc_min, "\n");
+	m = 0;
 	for (i = 0; i < gv.len_cp; i++){ 
 		if (cp[i].ss_flags[1] == 1){
-			
 			
 			if (n_solvi[cp[i].id] > 1){
 				fprintf(loc_min, 	"%s_%d \t %.10f \t %.10f \t", cp[i].name,n_solvi[cp[i].id], cp[i].ss_n, cp[i].phase_density);
@@ -725,13 +827,32 @@ void output_gui(				global_variable 	 gv,
 				fprintf(loc_min, 	"%10s ",  SS_ref_db[cp[i].id].EM_list[j]);	
 				fprintf(loc_min, 	"%.10f ", cp[i].p_em[j]);
 			}
+			fprintf(loc_min, 	"%d ",   gv.len_ox);
+			for (int j = 0; j < gv.len_ox; j++){
+				fprintf(loc_min, 	"%10s ",   gv.ox[j]);	
+				fprintf(loc_min, 	"%.10f ",  sp[0].SS[m].Comp_wt[j]);	
+				// fprintf(loc_min, 	"%.10f ",  cp[i].ss_comp[j]*cp[i].factor);	
+			}
+			fprintf(loc_min, 	"%.10f ",  sp[0].ph_frac_wt[m]);	
 			fprintf(loc_min, "\n");
+			m += 1;
 		}
 	}	
+	n = 0;
 	for (i = 0; i < gv.len_pp; i++){
 		if (gv.pp_flags[i][1] == 1){
 			fprintf(loc_min, 	"%s \t %.10f \t %.10f \t", gv.PP_list[i], gv.pp_n[i], PP_ref_db[i].phase_density);
+			fprintf(loc_min, 	"%d ",   0);
+			fprintf(loc_min, 	"%d ",   gv.len_ox);
+
+			for (int j = 0; j < gv.len_ox; j++){
+				fprintf(loc_min, 	"%10s ",   gv.ox[j]);	
+				fprintf(loc_min, 	"%.10f ",  sp[0].PP[n].Comp_wt[j]);	
+				// fprintf(loc_min, 	"%.10f ",  PP_ref_db[i].Comp[j]*PP_ref_db[i].factor);	
+			}
+			fprintf(loc_min, 	"%.10f ",  sp[0].ph_frac_wt[m+n]);	
 			fprintf(loc_min, "\n");
+			n += 1;
 		}
 	}	
 	fprintf(loc_min, "\n");
@@ -900,12 +1021,11 @@ void output_matlab(				global_variable 	 gv,
 	n = 0;		
 	for (i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1){
-			
+
 			G = 0.0;
 			for (j = 0; j < gv.len_ox; j++){
 				G += cp[i].ss_comp[j]*gv.gam_tot[j];
 			}
-
 
 			fprintf(loc_min, "%6s", cp[i].name);
 			fprintf(loc_min, "%+15.5f %+13.5f %+17.5f %+17.5f %+12.5f %+12.5f %+12.8f %+12.6f %+14.4f %+12.2f %+12.2f %+12.2f %+12.2f",
@@ -927,7 +1047,7 @@ void output_matlab(				global_variable 	 gv,
 			n += 1;
 		}
 	}
-	
+	int n_ss = n;
 	for (i = 0; i < gv.len_pp; i++){
 		if (gv.pp_flags[i][1] == 1){ 
 			fprintf(loc_min, "%6s", gv.PP_list[i]);
@@ -955,13 +1075,13 @@ void output_matlab(				global_variable 	 gv,
 	for (j = 0; j < gv.len_ox; j++){
 		G += z_b.bulk_rock[j]*gv.gam_tot[j];
 	}
-	fprintf(loc_min, "%6s %14s %+13.5f %17s %+17.5f %12s %+12.5f %12s %+12.6f %+14.4f %+12.5f %+12.5f %+12.5f %+12.5f\n",
+	fprintf(loc_min, "%6s %14s %+13.5f %17s %+17.5f %+12.5f %+12.5f %12s %+12.6f %+14.4f %+12.5f %+12.5f %+12.5f %+12.5f\n",
 			"SYS",
 			" ",
 			G,
 			" ",
 			gv.system_volume*10.,
-			" ",
+			gv.system_cp,
 			gv.system_density,
 			" ",
 			gv.system_entropy,
@@ -981,6 +1101,14 @@ void output_matlab(				global_variable 	 gv,
 	fprintf(loc_min, "\n\nSystem fugacity:\n");
 	fprintf(loc_min, 	"%6s %+10e\n", "fO2",gv.system_fO2);
 
+	fprintf(loc_min, "\n\nSystem activity:\n");
+	fprintf(loc_min, 	"%6s %+10e\n", "aH2O",gv.system_aH2O);
+	fprintf(loc_min, 	"%6s %+10e\n", "aSiO2",gv.system_aSiO2);
+	fprintf(loc_min, 	"%6s %+10e\n", "aTiO2",gv.system_aTiO2);
+	fprintf(loc_min, 	"%6s %+10e\n", "aAl2O3",gv.system_aAl2O3);
+	fprintf(loc_min, 	"%6s %+10e\n", "aMgO",gv.system_aMgO);
+	fprintf(loc_min, 	"%6s %+10e\n", "aFeO",gv.system_aFeO);
+
 	fprintf(loc_min, "\n\nG-hyperplane distance[J]:\n");
 	for (i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1){
@@ -988,6 +1116,86 @@ void output_matlab(				global_variable 	 gv,
 		}
 	}
 	fprintf(loc_min, "\n\n");
+
+	/* save initial guess for THERMOCALC */
+	if (gv.output_matlab == 2){
+		fprintf(loc_min, "Initial guess for THERMOCALC\n");
+		fprintf(loc_min, "%% ----------------------------------------------------------\n");
+		fprintf(loc_min, "%% at P = %10f, T = %10f, for: ",z_b.P,z_b.T-273.15);
+		for (i = 0; i < gv.len_cp; i++){
+			if ( cp[i].ss_flags[1] == 1){
+				if (strlen(cp[i].name) == 1){
+					fprintf(loc_min, 	"%1s ", cp[i].name);
+				}
+				else if (strlen(cp[i].name) == 2){
+					fprintf(loc_min, 	"%2s ", cp[i].name);
+				}
+				else if (strlen(cp[i].name) == 3){
+					fprintf(loc_min, 	"%3s ", cp[i].name);
+				}
+				else if (strlen(cp[i].name) == 4){
+					fprintf(loc_min, 	"%4s ", cp[i].name);
+				}
+				else if (strlen(cp[i].name) == 5){
+					fprintf(loc_min, 	"%5s ", cp[i].name);
+				}
+			}
+		}
+		for (i = 0; i < gv.len_pp; i++){
+			if (gv.pp_flags[i][1] == 1){ 
+				if (strlen(gv.PP_list[i]) == 1){
+					fprintf(loc_min, "%1s ", gv.PP_list[i]);
+				}
+				else if (strlen(gv.PP_list[i]) == 2){
+					fprintf(loc_min, "%2s ", gv.PP_list[i]);
+				}
+				else if (strlen(gv.PP_list[i]) == 3){
+					fprintf(loc_min, "%3s ", gv.PP_list[i]);
+				}
+				else if (strlen(gv.PP_list[i]) == 4){
+					fprintf(loc_min, "%4s ", gv.PP_list[i]);
+				}
+				else if (strlen(gv.PP_list[i]) == 5){
+					fprintf(loc_min, "%5s ", gv.PP_list[i]);
+				}
+			}
+		}
+
+		fprintf(loc_min, "\n");
+		fprintf(loc_min, "%% ----------------------------------------------------------\n");
+		fprintf(loc_min, "ptguess %10f %10f\n",z_b.P,z_b.T-273.15);
+		fprintf(loc_min, "%% ----------------------------------------------------------\n");
+		n = 0;
+		for (i = 0; i < gv.len_cp; i++){
+			if ( cp[i].ss_flags[1] == 1){
+				n +=1;
+				for (j = 0; j < SS_ref_db[cp[i].id].n_xeos; j++){
+					if (strlen(cp[i].name) == 1){
+						fprintf(loc_min, 	"xyzguess %5s(%1s) %10f\n", SS_ref_db[cp[i].id].CV_list[j],cp[i].name, cp[i].xeos[j]);
+					}
+					else if (strlen(cp[i].name) == 2){
+						fprintf(loc_min, 	"xyzguess %5s(%2s) %10f\n", SS_ref_db[cp[i].id].CV_list[j],cp[i].name, cp[i].xeos[j]);
+					}
+					else if (strlen(cp[i].name) == 3){
+						fprintf(loc_min, 	"xyzguess %5s(%3s) %10f\n", SS_ref_db[cp[i].id].CV_list[j],cp[i].name, cp[i].xeos[j]);
+					}
+					else if (strlen(cp[i].name) == 4){
+						fprintf(loc_min, 	"xyzguess %5s(%4s) %10f\n", SS_ref_db[cp[i].id].CV_list[j],cp[i].name, cp[i].xeos[j]);
+					}
+					else if (strlen(cp[i].name) == 5){
+						fprintf(loc_min, 	"xyzguess %5s(%5s) %10f\n", SS_ref_db[cp[i].id].CV_list[j],cp[i].name, cp[i].xeos[j]);
+					}
+				}
+				if (n < n_ss){
+					fprintf(loc_min, "%% -----------------------------\n");
+				}
+				
+			}
+		}
+		fprintf(loc_min, "%% —————————————————————————————\n");
+	}
+
+
 	fclose(loc_min);	
 }
 
@@ -1013,7 +1221,7 @@ void save_results_function(		global_variable 	 gv,
 	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-	if (gv.output_matlab == 1){
+	if (gv.output_matlab >= 1){
 		output_matlab(					gv,											/** global variables (e.g. Gamma) 	*/
 										z_b,										/** bulk-rock informations 			*/
 										PP_ref_db,									/** pure phase database 			*/

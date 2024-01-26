@@ -265,7 +265,7 @@
 <p>Function to allocate memory for solid-solutions</p>
 <p>Holland et al., 2018 - Melting of peridotites through to granites
 Igneous dataset to use with tc-ds633.txt
-“bi”,”cpx”,”cd”,”ep”,”fl”,”g”,”hb”,”ilm”,”liq”,”mu”, “ol”, “opx”,”pl4T”,”spn”</p>
+“bi”,”cpx”,”cd”,”ep”,”fl”,”g”,”hb”,”ilm”,”liq”,”mu”, “ol”, “opx”,”fsp”,”spn”</p>
 <section id="pp-ss-flags">
 <h2>PP &amp; SS_flags<a class="headerlink" href="#pp-ss-flags" title="Permalink to this headline"></a></h2>
 <p>Declare flags needed for leveling and pge algorithms</p>
@@ -358,15 +358,123 @@ This means that the max number of the endmembers can be &gt;= n-oxide + 1</p>
 </dd></dl>
 
 <dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_aq17_init_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_aq17_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_aq17_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_aq17_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>/</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mb_liq_init_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_liq_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_liq_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_liq_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>allocate memory for L</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mb_hb_init_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_hb_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_hb_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_hb_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>allocate memory for hb</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mb_aug_init_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_aug_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_aug_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_aug_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>allocate memory for aug</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mb_dio_init_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_dio_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_dio_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_dio_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>allocate memory for dio</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mb_opx_init_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_opx_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_opx_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_opx_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>allocate memory for opx</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mb_g_init_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_g_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_g_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_g_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>allocate memory for g</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mb_ol_init_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_ol_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_ol_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_ol_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>allocate memory for ol</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mb_fsp_init_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_fsp_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_fsp_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_fsp_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>allocate memory for fsp</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mb_abc_init_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_abc_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_abc_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_abc_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>allocate memory for abc</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mb_k4tr_init_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_k4tr_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_k4tr_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_k4tr_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>allocate memory for k4tr</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mb_sp_init_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_sp_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_sp_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_sp_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>allocate memory for sp</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mb_ilm_init_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_ilm_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_ilm_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_ilm_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>allocate memory for ilm</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mb_ilmm_init_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_ilmm_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_ilmm_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_ilmm_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>allocate memory for ilmm</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mb_ep_init_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_ep_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_ep_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_ep_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>allocate memory for ep</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mb_bi_init_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_bi_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_bi_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_bi_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>allocate memory for bi</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mb_mu_init_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_mu_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_mu_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_mu_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>allocate memory for mu</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mb_chl_init_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_chl_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_chl_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_chl_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>allocate memory for chl</p>
+</dd></dl>
+
+<dl class="c function">
 <dt class="sig sig-object c" id="c.G_SS_mp_liq_init_function">
 <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mp_liq_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mp_liq_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mp_liq_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>allocate memory for liq_mp</p>
 </dd></dl>
 
 <dl class="c function">
-<dt class="sig sig-object c" id="c.G_SS_mp_pl4tr_init_function">
-<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mp_pl4tr_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mp_pl4tr_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mp_pl4tr_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>allocate memory for pl4tr_mp</p>
+<dt class="sig sig-object c" id="c.G_SS_mp_fsp_init_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mp_fsp_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mp_fsp_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mp_fsp_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>allocate memory for fsp_mp</p>
 </dd></dl>
 
 <dl class="c function">
@@ -444,115 +552,19 @@ This means that the max number of the endmembers can be &gt;= n-oxide + 1</p>
 <dl class="c function">
 <dt class="sig sig-object c" id="c.G_SS_mp_ilm_init_function">
 <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mp_ilm_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mp_ilm_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mp_ilm_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>allocate memory for ilm_mp</p>
+<dd><p>allocate memory for ilm</p>
+</dd></dl>
+
+<dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_mp_ilmm_init_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mp_ilmm_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mp_ilmm_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mp_ilmm_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>allocate memory for ilmm_mp</p>
 </dd></dl>
 
 <dl class="c function">
 <dt class="sig sig-object c" id="c.G_SS_mp_mt_init_function">
 <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mp_mt_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mp_mt_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mp_mt_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>allocate memory for mt_mp</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.G_SS_mb_liq_init_function">
-<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_liq_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_liq_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_liq_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>allocate memory for L</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.G_SS_mb_hb_init_function">
-<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_hb_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_hb_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_hb_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>allocate memory for hb</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.G_SS_mb_aug_init_function">
-<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_aug_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_aug_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_aug_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>allocate memory for aug</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.G_SS_mb_dio_init_function">
-<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_dio_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_dio_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_dio_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>allocate memory for dio</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.G_SS_mb_opx_init_function">
-<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_opx_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_opx_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_opx_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>allocate memory for opx</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.G_SS_mb_g_init_function">
-<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_g_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_g_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_g_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>allocate memory for g</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.G_SS_mb_ol_init_function">
-<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_ol_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_ol_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_ol_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>allocate memory for ol</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.G_SS_mb_pl4tr_init_function">
-<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_pl4tr_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_pl4tr_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_pl4tr_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>allocate memory for pl4tr</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.G_SS_mb_abc_init_function">
-<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_abc_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_abc_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_abc_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>allocate memory for abc</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.G_SS_mb_k4tr_init_function">
-<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_k4tr_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_k4tr_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_k4tr_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>allocate memory for k4tr</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.G_SS_mb_sp_init_function">
-<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_sp_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_sp_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_sp_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>allocate memory for sp</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.G_SS_mb_ilm_init_function">
-<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_ilm_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_ilm_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_ilm_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>allocate memory for ilm</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.G_SS_mb_ilmm_init_function">
-<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_ilmm_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_ilmm_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_ilmm_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>allocate memory for ilmm</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.G_SS_mb_ep_init_function">
-<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_ep_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_ep_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_ep_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>allocate memory for ep</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.G_SS_mb_bi_init_function">
-<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_bi_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_bi_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_bi_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>allocate memory for bi</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.G_SS_mb_mu_init_function">
-<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_mu_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_mu_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_mu_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>allocate memory for mu</p>
-</dd></dl>
-
-<dl class="c function">
-<dt class="sig sig-object c" id="c.G_SS_mb_chl_init_function">
-<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_chl_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_chl_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_chl_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>allocate memory for chl</p>
 </dd></dl>
 
 <dl class="c function">
@@ -625,6 +637,12 @@ This means that the max number of the endmembers can be &gt;= n-oxide + 1</p>
 </dd></dl>
 
 <dl class="c function">
+<dt class="sig sig-object c" id="c.G_SS_ig_mu_init_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_ig_mu_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_ig_mu_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_ig_mu_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>allocate memory for muscovite</p>
+</dd></dl>
+
+<dl class="c function">
 <dt class="sig sig-object c" id="c.G_SS_ig_ol_init_function">
 <span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_ig_ol_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_ig_ol_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_ig_ol_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>allocate memory for olivine</p>
@@ -637,8 +655,8 @@ This means that the max number of the endmembers can be &gt;= n-oxide + 1</p>
 </dd></dl>
 
 <dl class="c function">
-<dt class="sig sig-object c" id="c.G_SS_ig_pl4T_init_function">
-<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_ig_pl4T_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_ig_pl4T_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_ig_pl4T_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dt class="sig sig-object c" id="c.G_SS_ig_fsp_init_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_ig_fsp_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_ig_fsp_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_ig_fsp_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>allocate memory for plagioclase</p>
 </dd></dl>
 
