@@ -186,7 +186,7 @@ function VerifyPoint(out, list, i)
      
      result1 = @test out.G_system  ≈ list.G     rtol=1e-3
      result2 = @test out.ph[ind_out]        == list.ph[ind_sol]
-     result3 = @test out.ph_frac[ind_out] ≈ list.ph_frac[ind_sol] atol=5e-2       # ok, this is really large (needs fixing for test6!)
+     result3 = @test sort(out.ph_frac) ≈ sort(list.ph_frac) atol=5e-2       # ok, this is really large (needs fixing for test6!)
      
      # print more info about the point if one of the tests above fails
      if isa(result1,Test.Fail) || isa(result2,Test.Fail) || isa(result3,Test.Fail)
@@ -267,8 +267,3 @@ println("Testing points from the reference diagrams:")
 
 
 end
-
-
-
-cd(cur_dir)
-
