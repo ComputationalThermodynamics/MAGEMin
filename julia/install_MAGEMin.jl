@@ -5,11 +5,11 @@ versioninfo()
 
 # This installs the precompiled MAGEMin_jll binary to the current working directory
 import Pkg
-try 
-    Pkg.update("MAGEMin_jll")
-catch
-    Pkg.add("MAGEMin_jll")
-end
+#try 
+#    Pkg.update("MAGEMin_jll")
+#catch
+Pkg.add("MAGEMin_jll")
+#end
 
 # Use MAGEMin_jll
 using MAGEMin_jll
