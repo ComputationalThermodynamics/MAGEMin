@@ -93,10 +93,11 @@ for iPoint=1:length(newPoints)
     CompositionalVar=   [];
     EMFractions     =   [];
     EMlist		    =   [];  	%list of end-members name
-     
+    SScomp_wt       =   [];
+    PHfractions_wt  =   [];
+    SSoxide         =   [];  
     i               =   1;
     line            =   fgetl(fid);
-    
     
     while ~isempty(line)
         out                   = split(line);
@@ -111,7 +112,10 @@ for iPoint=1:length(newPoints)
         CompVar               = [];
         EM_Frac               = [];
         EM_list               = [];
-        if length(out)>4
+        SS_comp_wt            = [];
+        SS_oxide              = [];
+
+        if str2num(out{4}) > 0
             % We have a solution model; read in the compositional variables
             % and their proportions
             
@@ -119,22 +123,49 @@ for iPoint=1:length(newPoints)
             for j=1:n_xeos
                 CompVar(j) =  str2num(out{j+4});
             end
+
+            % load endmember fraction and name
             for j=1:n_xeos+1
                 EM_Frac(j) =  str2num(out{j*2+4+n_xeos});
             end
             for j=1:n_xeos+1
                 EM_list{j} =  out{j*2+4+n_xeos - 1};
             end
-	        
+
+            % load solution phase composition and oxide names
+            len_ox = str2num(out{n_xeos+(n_xeos+1)*2+5});
+            start  = n_xeos+(n_xeos+1)*2 + 5;
+            k = 1;
+            for j=2:2:len_ox*2
+                SS_comp_wt(k)  =  str2num(out{start+j});
+                SS_oxide{k} =  out{start+j - 1};
+                k = k + 1;
+            end
+
+            PH_fractions_wt = str2num(out{start+len_ox*2 + 1});
+
         else
-            n_xeos=0;
+            len_ox  = str2num(out{5});
+            k = 1;
+            for j=2:2:len_ox*2
+                SS_comp_wt(k)  =  str2num(out{5+j});
+                SS_oxide{k} =  out{5+j - 1};
+                k = k + 1;
+            end
+
+            id      = 5 + len_ox*2 + 1;
+            PH_fractions_wt = str2num(out{id});
+            n_xeos  = 0;
         end
 
-        CompositionalVar{i} = CompVar; % the compositional variables for this file
-        EMFractions{i} 		= EM_Frac; % the compositional variables for this file
-        EMlist{i}  			= EM_list;
-        line	=   fgetl(fid);
-        i       =   i+1;
+        CompositionalVar{i} =  CompVar; % the compositional variables for this file
+        EMFractions{i} 		=  EM_Frac; % the compositional variables for this file
+        EMlist{i}  			=  EM_list;
+        SScomp_wt{i}        =  SS_comp_wt;
+        PHfractions_wt{i}   =  PH_fractions_wt;
+        SSoxide{i}          =  SS_oxide;
+        line	            =  fgetl(fid);
+        i                   =  i+1;
     end
     
     % routine to change the name of the phase according to secondary parameters
@@ -207,8 +238,11 @@ for iPoint=1:length(newPoints)
     FullInfo.CompositionalVar	= CompositionalVar;
     FullInfo.EMFractions        = EMFractions;
     FullInfo.Density            = Density;
-    
-    
+    FullInfo.SScomp_wt    		= SScomp_wt;
+    FullInfo.SSoxide    	    = SSoxide;
+    FullInfo.PHfractions_wt     = PHfractions_wt;
+
+
     ind                         =   find(StableFractions>MinPhaseFraction);
     StableFractions             =   StableFractions(ind);
     EMlist             			=   EMlist(ind);
@@ -216,24 +250,42 @@ for iPoint=1:length(newPoints)
     CompositionalVar            =   CompositionalVar(ind);
     EMFractions                 =   EMFractions(ind);
     Density                     =   Density(ind);
-    
-    
+    SScomp_wt             		=   SScomp_wt(ind);
+    SSoxide             		=   SSoxide(ind);
+    PHfractions_wt              =   PHfractions_wt(ind);
+
+    liq                         =   0;
+    Density_liq                 =   0;
+
     % Extract melt fraction
     ind_liq = find(ismember(StableSolutions,'liq'));
-    if ~isempty(ind_liq)>0
+    if ~isempty(ind_liq) > 0
         liq = StableFractions(ind_liq(1));
-    else
-        liq = 0;
+        solvus = 0;
+    end
+
+    ind_liq2 = find(ismember(StableSolutions,'liq_2'));
+    if ~isempty(ind_liq2) > 0
+        liq = sum(StableFractions(ind_liq2));
+        solvus = 1;
     end
     
+
+
     % Compute average Density of full assemblage
     Density_total           =   sum(StableFractions.*Density);
     
     % Compute Density of liq
     if liq>0
-        Density_liq         =   Density(ind_liq(1));
-        
-        ind_sol             =   find(~ismember(StableSolutions,'liq'));
+
+        if solvus == 0
+            Density_liq         =   Density(ind_liq(1));
+            ind_sol             =   find(~ismember(StableSolutions,'liq'));
+        elseif solvus == 1
+            Density_liq         =   mean(Density(ind_liq2));
+            ind_sol             =   find(~ismember(StableSolutions,'liq_2'));
+        end
+
         if length(ind_sol)>0
             Density_sol     	=   sum(StableFractions(ind_sol).*Density(ind_sol))/sum(StableFractions(ind_sol));
         else
@@ -241,7 +293,7 @@ for iPoint=1:length(newPoints)
         end
         
     else
-        Density_liq         =   0;
+        Density_liq         =   2000;
         Density_sol         =   Density_total;
     end
     
@@ -257,6 +309,10 @@ for iPoint=1:length(newPoints)
     StableFractions                                 =   StableFractions(iS);
     Density                                         =   Density(iS);
     EMlist                                          =   EMlist(iS);
+    SScomp_wt                                       =   SScomp_wt(iS);
+    SSoxide                                         =   SSoxide(iS);
+    PHfractions_wt                                  =   PHfractions_wt(iS);
+
     % Save output to structure
     PhaseData{newPoints(numPoint)}.Status           =   STATUS;
     PhaseData{newPoints(numPoint)}.P                =   P;
@@ -280,6 +336,9 @@ for iPoint=1:length(newPoints)
     PhaseData{newPoints(numPoint)}.liq              =   liq;
     PhaseData{newPoints(numPoint)}.numStablePhases  =   length(StableFractions);
     
+    PhaseData{newPoints(numPoint)}.SScomp_wt        =   SScomp_wt;
+    PhaseData{newPoints(numPoint)}.PHfractions_wt   =   PHfractions_wt;
+    PhaseData{newPoints(numPoint)}.SSoxide          =   SSoxide;
     % Store info of all phases, included the ones that are discarded
     % because of small mass fraction:
     PhaseData{newPoints(numPoint)}.FullInfo         =   FullInfo;

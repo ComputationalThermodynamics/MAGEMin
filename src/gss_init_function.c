@@ -4,7 +4,7 @@ Function to allocate memory for solid-solutions
 
 Holland et al., 2018 - Melting of peridotites through to granites                 
 Igneous dataset to use with tc-ds633.txt                                          
-"bi","cpx","cd","ep","fl","g","hb","ilm","liq","mu", "ol", "opx","pl4T","spn" 
+"bi","cpx","cd","ep","fl","g","hb","ilm","liq","mu", "ol", "opx","fsp","spn" 
  
 PP & SS_flags
 -------------
@@ -61,18 +61,19 @@ csd_phase_set CP_INIT_function(csd_phase_set cp, global_variable gv){
 	
 	/* initialize fractions flags and cycle arrays with zeros */
 	cp.ss_flags 	= malloc (gv.n_flags  * sizeof(int));
-	
-	cp.name   		= malloc (20 * sizeof (char)		);
-	cp.p_em   		= malloc (n  * sizeof (double) 		);
-	cp.xi_em  		= malloc (n  * sizeof (double) 		);
-	cp.dguess 		= malloc (n  * sizeof (double) 		);
-	cp.xeos   		= malloc (n  * sizeof (double) 		);
-	cp.delta_mu		= malloc (n  * sizeof (double) 		);
-	cp.dfx   		= malloc (n  * sizeof (double) 		);
-	cp.mu    		= malloc (n  * sizeof (double) 		);
-	cp.gbase    	= malloc (n  * sizeof (double) 		);
-	cp.ss_comp		= malloc (n  * sizeof (double) 		);
-	cp.sf			= malloc ((n*2)  * sizeof (double) 	);
+	cp.name   		= malloc (20 * sizeof(char)		    );
+	cp.p_em   		= malloc (n  * sizeof(double) 		);
+	cp.xi_em  		= malloc (n  * sizeof(double) 		);
+	cp.dguess 		= malloc (n  * sizeof(double) 		);
+	cp.xeos   		= malloc (n  * sizeof(double) 		);
+	cp.xeos_0   	= malloc (n  * sizeof(double) 		);
+	cp.xeos_1   	= malloc (n  * sizeof(double) 		);
+	cp.delta_mu		= malloc (n  * sizeof(double) 		);
+	cp.dfx   		= malloc (n  * sizeof(double) 		);
+	cp.mu    		= malloc (n  * sizeof(double) 		);
+	cp.gbase    	= malloc (n  * sizeof(double) 		);
+	cp.ss_comp		= malloc (n  * sizeof(double) 		);
+	cp.sf			= malloc ((n*2)  * sizeof(double) 	);
 	
 	cp.phase_density  		= 0.0;
 	cp.phase_cp				= 0.0;
@@ -80,11 +81,6 @@ csd_phase_set CP_INIT_function(csd_phase_set cp, global_variable gv){
 	cp.phase_entropy		= 0.0;
 	cp.phase_enthalpy		= 0.0;
 		
-	cp.dpdx 		= malloc ((n) * sizeof (double*) 		); 
-	for (int i = 0; i < (n); i++){
-		cp.dpdx[i] 	= malloc ((n-1) * sizeof (double) 		);
-	}
-	
 	return cp;
 }
 
@@ -125,15 +121,17 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 		sp.SS[n].Comp 			= malloc(gv.len_ox 	* sizeof(double)		);
 		sp.PP[n].Comp_wt 		= malloc(gv.len_ox 	* sizeof(double)		);
 		sp.SS[n].Comp_wt 		= malloc(gv.len_ox 	* sizeof(double)		);
-		sp.SS[n].compVariables	= malloc(gv.len_ox 	* sizeof(double)		);
-		sp.SS[n].emFrac			= malloc((gv.len_ox+5) * sizeof(double)		);
-		sp.SS[n].emFrac_wt		= malloc((gv.len_ox+5) * sizeof(double)		);
-		sp.SS[n].emChemPot		= malloc((gv.len_ox+5) * sizeof(double)		);
-		sp.SS[n].emNames 	    = malloc((gv.len_ox+5) * sizeof(char*)		);
-		sp.SS[n].emComp 	    = malloc((gv.len_ox+5) * sizeof(double*)	);
-		sp.SS[n].emComp_wt 	    = malloc((gv.len_ox+5) * sizeof(double*)	);
+		sp.SS[n].compVariables	= malloc(gv.len_ox*3   * sizeof(double)	    );
+		sp.SS[n].emFrac			= malloc((gv.len_ox*3) * sizeof(double)		);
+		sp.SS[n].emFrac_wt		= malloc((gv.len_ox*3) * sizeof(double)		);
+		sp.SS[n].emChemPot		= malloc((gv.len_ox*3) * sizeof(double)		);
+		sp.SS[n].compVariablesNames	= malloc(gv.len_ox*3 	* sizeof(char*)	);
+		sp.SS[n].emNames 	    = malloc((gv.len_ox*3) * sizeof(char*)		);
+		sp.SS[n].emComp 	    = malloc((gv.len_ox*3) * sizeof(double*)	);
+		sp.SS[n].emComp_wt 	    = malloc((gv.len_ox*3) * sizeof(double*)	);
 
-		for (int i = 0; i < gv.len_ox+5; i++){
+		for (int i = 0; i < gv.len_ox*3; i++){
+            sp.SS[n].compVariablesNames[i]		= malloc(20 * sizeof(char)	);
 			sp.SS[n].emNames[i]		= malloc(20 * sizeof(char)				);
 			sp.SS[n].emComp[i]		= malloc(gv.len_ox * sizeof(double)		);		
 			sp.SS[n].emComp_wt[i]	= malloc(gv.len_ox * sizeof(double)		);		
@@ -145,6 +143,302 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 }
 
 
+
+
+
+/**************************************************************************************/
+/* Import text file extracted from Miron et al. (2017) database:                      */
+/* aq17-thermofun.json from db.thermohub.org, v. 17.07.2021 16:49:29                  */
+/*--------------------------------------------------------------------------          */
+/* Miron, G. D., Wagner, T., Kulik, D. A., & Lothenbach, B. (2017). An                */
+/* internally consistent thermodynamic dataset for aqueous species in the             */
+/* system Ca-Mg-Na-K-Al-Si-OHC-Cl to 800 C and 5 kbar. American Journal               */
+/* of Science, 317(7), 755-806.                                                       */
+/* DOI: https://doi.org/10.2475/07.2017.01                                            */
+/**************************************************************************************/
+
+
+SS_ref G_SS_aq17_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 25;
+    SS_ref_db.n_em      = 25;//44;
+    // SS_ref_db.n_v       = 15;
+    // SS_ref_db.n_w       = 105;
+    SS_ref_db.n_xeos    = 25;//44;
+    
+    return SS_ref_db;
+}
+
+/**************************************************************************************/
+/**************************************************************************************/
+/**********************METABASITE DATABASE (Gree et al., 2016)*************************/
+/**************************************************************************************/
+/**************************************************************************************/
+
+/**
+    allocate memory for L
+*/
+SS_ref G_SS_mb_liq_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
+    
+    SS_ref_db.is_liq    = 1;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 11;
+    SS_ref_db.n_em      = 9;
+    SS_ref_db.n_w       = 36;
+    SS_ref_db.n_xeos    = 8;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for hb
+*/
+SS_ref G_SS_mb_hb_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 18;
+    SS_ref_db.n_em      = 11;
+    SS_ref_db.n_v       = 11;
+    SS_ref_db.n_w       = 55;
+    SS_ref_db.n_xeos    = 10;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for aug
+*/
+SS_ref G_SS_mb_aug_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 12;
+    SS_ref_db.n_em      = 8;
+    SS_ref_db.n_v       = 8;
+    SS_ref_db.n_w       = 28;
+    SS_ref_db.n_xeos    = 7;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for dio
+*/
+SS_ref G_SS_mb_dio_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 12;
+    SS_ref_db.n_em      = 7;
+    SS_ref_db.n_w       = 21;
+    SS_ref_db.n_xeos    = 6;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for opx
+*/
+SS_ref G_SS_mb_opx_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 9;
+    SS_ref_db.n_em      = 6;
+    SS_ref_db.n_v       = 6;
+    SS_ref_db.n_w       = 15;
+    SS_ref_db.n_xeos    = 5;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for g
+*/
+SS_ref G_SS_mb_g_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 5;
+    SS_ref_db.n_em      = 4;
+    SS_ref_db.n_v       = 4;
+    SS_ref_db.n_w       = 6;
+    SS_ref_db.n_xeos    = 3;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for ol
+*/
+SS_ref G_SS_mb_ol_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 2;
+    SS_ref_db.n_em      = 2;
+    SS_ref_db.n_w       = 1;
+    SS_ref_db.n_xeos    = 1;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for fsp
+*/
+SS_ref G_SS_mb_fsp_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 5;
+    SS_ref_db.n_em      = 3;
+    SS_ref_db.n_v       = 3;
+    SS_ref_db.n_w       = 3;
+    SS_ref_db.n_xeos    = 2;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for abc
+*/
+SS_ref G_SS_mb_abc_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 2;
+    SS_ref_db.n_em      = 2;
+    SS_ref_db.n_v       = 2;
+    SS_ref_db.n_w       = 1;
+    SS_ref_db.n_xeos    = 1;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for k4tr
+*/
+SS_ref G_SS_mb_k4tr_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 5;
+    SS_ref_db.n_em      = 3;
+    SS_ref_db.n_v       = 3;
+    SS_ref_db.n_w       = 3;
+    SS_ref_db.n_xeos    = 2;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for sp
+*/
+SS_ref G_SS_mb_sp_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 5;
+    SS_ref_db.n_em      = 4;
+    SS_ref_db.n_w       = 6;
+    SS_ref_db.n_xeos    = 3;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for ilm
+*/
+SS_ref G_SS_mb_ilm_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 6;
+    SS_ref_db.n_em      = 3;
+    SS_ref_db.n_w       = 3;
+    SS_ref_db.n_xeos    = 2;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for ilmm
+*/
+SS_ref G_SS_mb_ilmm_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 7;
+    SS_ref_db.n_em      = 4;
+    SS_ref_db.n_w       = 6;
+    SS_ref_db.n_xeos    = 3;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for ep
+*/
+SS_ref G_SS_mb_ep_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 4;
+    SS_ref_db.n_em      = 3;
+    SS_ref_db.n_w       = 3;
+    SS_ref_db.n_xeos    = 2;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for bi
+*/
+SS_ref G_SS_mb_bi_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 11;
+    SS_ref_db.n_em      = 6;
+    SS_ref_db.n_w       = 15;
+    SS_ref_db.n_xeos    = 5;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for mu
+*/
+SS_ref G_SS_mb_mu_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 10;
+    SS_ref_db.n_em      = 6;
+    SS_ref_db.n_v       = 6;
+    SS_ref_db.n_w       = 15;
+    SS_ref_db.n_xeos    = 5;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for chl
+*/
+SS_ref G_SS_mb_chl_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 11;
+    SS_ref_db.n_em      = 7;
+    SS_ref_db.n_w       = 21;
+    SS_ref_db.n_xeos    = 6;
+    
+    return SS_ref_db;
+}
 
 
 /**************************************************************************************/
@@ -165,15 +459,14 @@ SS_ref G_SS_mp_liq_init_function(SS_ref SS_ref_db, int EM_database, global_varia
     SS_ref_db.n_em      = 8;
     SS_ref_db.n_w       = 28;
     SS_ref_db.n_xeos    = 7;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
 
 /**
-    allocate memory for pl4tr_mp
+    allocate memory for fsp_mp
 */
-SS_ref G_SS_mp_pl4tr_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
+SS_ref G_SS_mp_fsp_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
     
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
@@ -182,7 +475,6 @@ SS_ref G_SS_mp_pl4tr_init_function(SS_ref SS_ref_db, int EM_database, global_var
 	SS_ref_db.n_v       = 3;
     SS_ref_db.n_w       = 3;
     SS_ref_db.n_xeos    = 2;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -198,7 +490,6 @@ SS_ref G_SS_mp_bi_init_function(SS_ref SS_ref_db, int EM_database, global_variab
     SS_ref_db.n_em      = 7;
     SS_ref_db.n_w       = 21;
     SS_ref_db.n_xeos    = 6;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -215,7 +506,6 @@ SS_ref G_SS_mp_g_init_function(SS_ref SS_ref_db, int EM_database, global_variabl
     SS_ref_db.n_v       = 5;
     SS_ref_db.n_w       = 10;
     SS_ref_db.n_xeos    = 4;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -231,7 +521,6 @@ SS_ref G_SS_mp_ep_init_function(SS_ref SS_ref_db, int EM_database, global_variab
     SS_ref_db.n_em      = 3;
     SS_ref_db.n_w       = 3;
     SS_ref_db.n_xeos    = 2;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -248,7 +537,6 @@ SS_ref G_SS_mp_ma_init_function(SS_ref SS_ref_db, int EM_database, global_variab
     SS_ref_db.n_v       = 6;
     SS_ref_db.n_w       = 15;
     SS_ref_db.n_xeos    = 5;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -265,7 +553,6 @@ SS_ref G_SS_mp_mu_init_function(SS_ref SS_ref_db, int EM_database, global_variab
     SS_ref_db.n_v       = 6;
     SS_ref_db.n_w       = 15;
     SS_ref_db.n_xeos    = 5;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -282,7 +569,6 @@ SS_ref G_SS_mp_opx_init_function(SS_ref SS_ref_db, int EM_database, global_varia
     SS_ref_db.n_v       = 7;
     SS_ref_db.n_w       = 21;
     SS_ref_db.n_xeos    = 6;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -298,7 +584,6 @@ SS_ref G_SS_mp_sa_init_function(SS_ref SS_ref_db, int EM_database, global_variab
     SS_ref_db.n_em      = 5;
     SS_ref_db.n_w       = 10;
     SS_ref_db.n_xeos    = 4;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -314,7 +599,6 @@ SS_ref G_SS_mp_cd_init_function(SS_ref SS_ref_db, int EM_database, global_variab
     SS_ref_db.n_em      = 4;
     SS_ref_db.n_w       = 6;
     SS_ref_db.n_xeos    = 3;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -330,7 +614,6 @@ SS_ref G_SS_mp_st_init_function(SS_ref SS_ref_db, int EM_database, global_variab
     SS_ref_db.n_em      = 5;
     SS_ref_db.n_w       = 10;
     SS_ref_db.n_xeos    = 4;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -346,7 +629,6 @@ SS_ref G_SS_mp_chl_init_function(SS_ref SS_ref_db, int EM_database, global_varia
     SS_ref_db.n_em      = 8;
     SS_ref_db.n_w       = 28;
     SS_ref_db.n_xeos    = 7;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -362,7 +644,6 @@ SS_ref G_SS_mp_ctd_init_function(SS_ref SS_ref_db, int EM_database, global_varia
     SS_ref_db.n_em      = 4;
     SS_ref_db.n_w       = 6;
     SS_ref_db.n_xeos    = 3;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -378,23 +659,35 @@ SS_ref G_SS_mp_sp_init_function(SS_ref SS_ref_db, int EM_database, global_variab
     SS_ref_db.n_em      = 4;
     SS_ref_db.n_w       = 6;
     SS_ref_db.n_xeos    = 3;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
 
 /**
-    allocate memory for ilm_mp
+    allocate memory for ilm
 */
 SS_ref G_SS_mp_ilm_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
     
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 6;
+    SS_ref_db.n_em      = 3;
+    SS_ref_db.n_w       = 3;
+    SS_ref_db.n_xeos    = 2;
+    
+    return SS_ref_db;
+}
+/**
+    allocate memory for ilmm_mp
+*/
+SS_ref G_SS_mp_ilmm_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 7;
     SS_ref_db.n_em      = 5;
     SS_ref_db.n_w       = 10;
     SS_ref_db.n_xeos    = 4;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -410,297 +703,10 @@ SS_ref G_SS_mp_mt_init_function(SS_ref SS_ref_db, int EM_database, global_variab
     SS_ref_db.n_em      = 3;
     SS_ref_db.n_w       = 3;
     SS_ref_db.n_xeos    = 2;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
 
-
-/**************************************************************************************/
-/**************************************************************************************/
-/**********************METABASITE DATABASE (Gree et al., 2016)*************************/
-/**************************************************************************************/
-/**************************************************************************************/
-
-/**
-    allocate memory for L
-*/
-SS_ref G_SS_mb_liq_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
-    
-    SS_ref_db.is_liq    = 1;
-    SS_ref_db.symmetry  = 1;
-    SS_ref_db.n_sf      = 11;
-    SS_ref_db.n_em      = 9;
-    SS_ref_db.n_w       = 36;
-    SS_ref_db.n_xeos    = 8;
-    SS_ref_db.CstFactor = 0;
-    
-    return SS_ref_db;
-}
-
-/**
-    allocate memory for hb
-*/
-SS_ref G_SS_mb_hb_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
-    
-    SS_ref_db.is_liq    = 0;
-    SS_ref_db.symmetry  = 0;
-    SS_ref_db.n_sf      = 18;
-    SS_ref_db.n_em      = 11;
-    SS_ref_db.n_v       = 11;
-    SS_ref_db.n_w       = 55;
-    SS_ref_db.n_xeos    = 10;
-    SS_ref_db.CstFactor = 0;
-    
-    return SS_ref_db;
-}
-
-/**
-    allocate memory for aug
-*/
-SS_ref G_SS_mb_aug_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
-    
-    SS_ref_db.is_liq    = 0;
-    SS_ref_db.symmetry  = 0;
-    SS_ref_db.n_sf      = 12;
-    SS_ref_db.n_em      = 8;
-    SS_ref_db.n_v       = 8;
-    SS_ref_db.n_w       = 28;
-    SS_ref_db.n_xeos    = 7;
-    SS_ref_db.CstFactor = 0;
-    
-    return SS_ref_db;
-}
-
-/**
-    allocate memory for dio
-*/
-SS_ref G_SS_mb_dio_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
-    
-    SS_ref_db.is_liq    = 0;
-    SS_ref_db.symmetry  = 1;
-    SS_ref_db.n_sf      = 12;
-    SS_ref_db.n_em      = 7;
-    SS_ref_db.n_w       = 21;
-    SS_ref_db.n_xeos    = 6;
-    SS_ref_db.CstFactor = 0;
-    
-    return SS_ref_db;
-}
-
-/**
-    allocate memory for opx
-*/
-SS_ref G_SS_mb_opx_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
-    
-    SS_ref_db.is_liq    = 0;
-    SS_ref_db.symmetry  = 0;
-    SS_ref_db.n_sf      = 9;
-    SS_ref_db.n_em      = 6;
-    SS_ref_db.n_v       = 6;
-    SS_ref_db.n_w       = 15;
-    SS_ref_db.n_xeos    = 5;
-    SS_ref_db.CstFactor = 0;
-    
-    return SS_ref_db;
-}
-
-/**
-    allocate memory for g
-*/
-SS_ref G_SS_mb_g_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
-    
-    SS_ref_db.is_liq    = 0;
-    SS_ref_db.symmetry  = 0;
-    SS_ref_db.n_sf      = 5;
-    SS_ref_db.n_em      = 4;
-    SS_ref_db.n_v       = 4;
-    SS_ref_db.n_w       = 6;
-    SS_ref_db.n_xeos    = 3;
-    SS_ref_db.CstFactor = 0;
-    
-    return SS_ref_db;
-}
-
-/**
-    allocate memory for ol
-*/
-SS_ref G_SS_mb_ol_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
-    
-    SS_ref_db.is_liq    = 0;
-    SS_ref_db.symmetry  = 1;
-    SS_ref_db.n_sf      = 2;
-    SS_ref_db.n_em      = 2;
-    SS_ref_db.n_w       = 1;
-    SS_ref_db.n_xeos    = 1;
-    SS_ref_db.CstFactor = 0;
-    
-    return SS_ref_db;
-}
-
-/**
-    allocate memory for pl4tr
-*/
-SS_ref G_SS_mb_pl4tr_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
-    
-    SS_ref_db.is_liq    = 0;
-    SS_ref_db.symmetry  = 0;
-    SS_ref_db.n_sf      = 5;
-    SS_ref_db.n_em      = 3;
-    SS_ref_db.n_v       = 3;
-    SS_ref_db.n_w       = 3;
-    SS_ref_db.n_xeos    = 2;
-    SS_ref_db.CstFactor = 0;
-    
-    return SS_ref_db;
-}
-
-/**
-    allocate memory for abc
-*/
-SS_ref G_SS_mb_abc_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
-    
-    SS_ref_db.is_liq    = 0;
-    SS_ref_db.symmetry  = 0;
-    SS_ref_db.n_sf      = 2;
-    SS_ref_db.n_em      = 2;
-    SS_ref_db.n_v       = 2;
-    SS_ref_db.n_w       = 1;
-    SS_ref_db.n_xeos    = 1;
-    SS_ref_db.CstFactor = 0;
-    
-    return SS_ref_db;
-}
-
-/**
-    allocate memory for k4tr
-*/
-SS_ref G_SS_mb_k4tr_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
-    
-    SS_ref_db.is_liq    = 0;
-    SS_ref_db.symmetry  = 0;
-    SS_ref_db.n_sf      = 5;
-    SS_ref_db.n_em      = 3;
-    SS_ref_db.n_v       = 3;
-    SS_ref_db.n_w       = 3;
-    SS_ref_db.n_xeos    = 2;
-    SS_ref_db.CstFactor = 0;
-    
-    return SS_ref_db;
-}
-
-/**
-    allocate memory for sp
-*/
-SS_ref G_SS_mb_sp_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
-    
-    SS_ref_db.is_liq    = 0;
-    SS_ref_db.symmetry  = 1;
-    SS_ref_db.n_sf      = 5;
-    SS_ref_db.n_em      = 4;
-    SS_ref_db.n_w       = 6;
-    SS_ref_db.n_xeos    = 3;
-    SS_ref_db.CstFactor = 0;
-    
-    return SS_ref_db;
-}
-
-/**
-    allocate memory for ilm
-*/
-SS_ref G_SS_mb_ilm_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
-    
-    SS_ref_db.is_liq    = 0;
-    SS_ref_db.symmetry  = 1;
-    SS_ref_db.n_sf      = 6;
-    SS_ref_db.n_em      = 3;
-    SS_ref_db.n_w       = 3;
-    SS_ref_db.n_xeos    = 2;
-    SS_ref_db.CstFactor = 0;
-    
-    return SS_ref_db;
-}
-
-/**
-    allocate memory for ilmm
-*/
-SS_ref G_SS_mb_ilmm_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
-    
-    SS_ref_db.is_liq    = 0;
-    SS_ref_db.symmetry  = 1;
-    SS_ref_db.n_sf      = 7;
-    SS_ref_db.n_em      = 4;
-    SS_ref_db.n_w       = 6;
-    SS_ref_db.n_xeos    = 3;
-    SS_ref_db.CstFactor = 0;
-    
-    return SS_ref_db;
-}
-
-/**
-    allocate memory for ep
-*/
-SS_ref G_SS_mb_ep_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
-    
-    SS_ref_db.is_liq    = 0;
-    SS_ref_db.symmetry  = 1;
-    SS_ref_db.n_sf      = 4;
-    SS_ref_db.n_em      = 3;
-    SS_ref_db.n_w       = 3;
-    SS_ref_db.n_xeos    = 2;
-    SS_ref_db.CstFactor = 0;
-    
-    return SS_ref_db;
-}
-
-/**
-    allocate memory for bi
-*/
-SS_ref G_SS_mb_bi_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
-    
-    SS_ref_db.is_liq    = 0;
-    SS_ref_db.symmetry  = 1;
-    SS_ref_db.n_sf      = 11;
-    SS_ref_db.n_em      = 6;
-    SS_ref_db.n_w       = 15;
-    SS_ref_db.n_xeos    = 5;
-    SS_ref_db.CstFactor = 0;
-    
-    return SS_ref_db;
-}
-
-/**
-    allocate memory for mu
-*/
-SS_ref G_SS_mb_mu_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
-    
-    SS_ref_db.is_liq    = 0;
-    SS_ref_db.symmetry  = 0;
-    SS_ref_db.n_sf      = 10;
-    SS_ref_db.n_em      = 6;
-    SS_ref_db.n_v       = 6;
-    SS_ref_db.n_w       = 15;
-    SS_ref_db.n_xeos    = 5;
-    SS_ref_db.CstFactor = 0;
-    
-    return SS_ref_db;
-}
-
-/**
-    allocate memory for chl
-*/
-SS_ref G_SS_mb_chl_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
-    
-    SS_ref_db.is_liq    = 0;
-    SS_ref_db.symmetry  = 1;
-    SS_ref_db.n_sf      = 11;
-    SS_ref_db.n_em      = 7;
-    SS_ref_db.n_w       = 21;
-    SS_ref_db.n_xeos    = 6;
-    SS_ref_db.CstFactor = 0;
-    
-    return SS_ref_db;
-}
 
 
 /**************************************************************************************/
@@ -719,7 +725,6 @@ SS_ref G_SS_ig_fper_init_function(SS_ref SS_ref_db, int EM_database, global_vari
     SS_ref_db.n_em      = 2;
     SS_ref_db.n_w       = 1;
     SS_ref_db.n_xeos    = 1;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -735,7 +740,6 @@ SS_ref G_SS_ig_bi_init_function(SS_ref SS_ref_db, int EM_database, global_variab
 	SS_ref_db.n_em      = 6;
 	SS_ref_db.n_w       = 15;
 	SS_ref_db.n_xeos    = 5;
-	SS_ref_db.CstFactor = 0;
 
 	return SS_ref_db;
 }
@@ -752,7 +756,6 @@ SS_ref G_SS_ig_cpx_init_function(SS_ref SS_ref_db, int EM_database, global_varia
 	SS_ref_db.n_v       = 10;
 	SS_ref_db.n_w       = 45;
 	SS_ref_db.n_xeos    = 9;	
-	SS_ref_db.CstFactor = 0;		  
 
 	return SS_ref_db;
 }
@@ -768,7 +771,6 @@ SS_ref G_SS_ig_cd_init_function(SS_ref SS_ref_db, int EM_database, global_variab
 	SS_ref_db.n_em      = 3;
 	SS_ref_db.n_w       = 3;
 	SS_ref_db.n_xeos    = 2;
-	SS_ref_db.CstFactor = 0;
 
 	return SS_ref_db;	
 }
@@ -784,7 +786,6 @@ SS_ref G_SS_ig_ep_init_function(SS_ref SS_ref_db, int EM_database, global_variab
 	SS_ref_db.n_em       = 3;
 	SS_ref_db.n_w        = 3;
 	SS_ref_db.n_xeos     = 2;
-	SS_ref_db.CstFactor  = 0;
   
 	return SS_ref_db;	
 }
@@ -800,7 +801,6 @@ SS_ref G_SS_ig_fl_init_function(SS_ref SS_ref_db, int EM_database, global_variab
     SS_ref_db.n_em      = 11;
     SS_ref_db.n_w       = 55;
     SS_ref_db.n_xeos    = 10;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -813,12 +813,11 @@ SS_ref G_SS_ig_g_init_function(SS_ref SS_ref_db, int EM_database, global_variabl
 
 	SS_ref_db.is_liq      = 0;	
 	SS_ref_db.symmetry    = 0;						  					  
-	SS_ref_db.n_sf        = 7;
+	SS_ref_db.n_sf        = 8;
 	SS_ref_db.n_em        = 6;
 	SS_ref_db.n_v         = 6;
 	SS_ref_db.n_w         = 15;
 	SS_ref_db.n_xeos      = 5;
-	SS_ref_db.CstFactor   = 0;
 
 	return SS_ref_db;
 }
@@ -830,12 +829,11 @@ SS_ref G_SS_ig_hb_init_function(SS_ref SS_ref_db, int EM_database, global_variab
 
 	SS_ref_db.is_liq     = 0;	
 	SS_ref_db.symmetry   = 0;					  					  
-	SS_ref_db.n_sf       = 17;
+	SS_ref_db.n_sf       = 18;
 	SS_ref_db.n_em       = 11;
 	SS_ref_db.n_v        = 11;
 	SS_ref_db.n_w        = 55;
 	SS_ref_db.n_xeos     = 10;
-	SS_ref_db.CstFactor  = 0;
 		  
 	return SS_ref_db;	
 }
@@ -852,10 +850,10 @@ SS_ref G_SS_ig_ilm_init_function(SS_ref SS_ref_db, int EM_database, global_varia
 	SS_ref_db.n_em      = 3;
 	SS_ref_db.n_w       = 3;
 	SS_ref_db.n_xeos    = 2; 
-	SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
+
 
 
 /**
@@ -870,9 +868,24 @@ SS_ref G_SS_ig_liq_init_function(SS_ref SS_ref_db, int EM_database, global_varia
     SS_ref_db.n_v       = 12;
     SS_ref_db.n_w       = 66;
     SS_ref_db.n_xeos    = 11;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
+}
+
+/** 
+  allocate memory for muscovite
+*/
+SS_ref G_SS_ig_mu_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){		
+
+	SS_ref_db.is_liq     = 0;	
+	SS_ref_db.symmetry   = 0;						  					  
+	SS_ref_db.n_sf       = 10;
+	SS_ref_db.n_em       = 6;
+	SS_ref_db.n_v        = 6;
+	SS_ref_db.n_w        = 15;
+	SS_ref_db.n_xeos     = 5;
+
+	return SS_ref_db;
 }
 
 /** 
@@ -886,7 +899,6 @@ SS_ref G_SS_ig_ol_init_function(SS_ref SS_ref_db, int EM_database, global_variab
 	SS_ref_db.n_em       = 4;
 	SS_ref_db.n_w        = 6;
 	SS_ref_db.n_xeos     = 3;
-	SS_ref_db.CstFactor  = 0;
 
 	return SS_ref_db;
 }
@@ -903,7 +915,6 @@ SS_ref G_SS_ig_opx_init_function(SS_ref SS_ref_db, int EM_database, global_varia
 	SS_ref_db.n_v       = 9;
 	SS_ref_db.n_w       = 36;
 	SS_ref_db.n_xeos    = 8;
-	SS_ref_db.CstFactor = 0;
 
 	return SS_ref_db;
 }
@@ -911,7 +922,7 @@ SS_ref G_SS_ig_opx_init_function(SS_ref SS_ref_db, int EM_database, global_varia
 /** 
   allocate memory for plagioclase
 */
-SS_ref G_SS_ig_pl4T_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
+SS_ref G_SS_ig_fsp_init_function(SS_ref SS_ref_db, int EM_database, global_variable gv){
 
 	SS_ref_db.is_liq     = 0;
 	SS_ref_db.symmetry   = 0;
@@ -920,7 +931,6 @@ SS_ref G_SS_ig_pl4T_init_function(SS_ref SS_ref_db, int EM_database, global_vari
 	SS_ref_db.n_v        = 3;
 	SS_ref_db.n_w        = 3;
 	SS_ref_db.n_xeos     = 2;
-	SS_ref_db.CstFactor  = 0;
 
 	return SS_ref_db;										  
 }
@@ -937,12 +947,9 @@ SS_ref G_SS_ig_spn_init_function(SS_ref SS_ref_db, int EM_database, global_varia
     SS_ref_db.n_v       = 8;
     SS_ref_db.n_w       = 28;
     SS_ref_db.n_xeos    = 7;
-    SS_ref_db.CstFactor = 0;
-    
+
 	return SS_ref_db;
 }
-
-
 
 
 /**************************************************************************************/
@@ -961,7 +968,6 @@ SS_ref G_SS_um_fluid_init_function(SS_ref SS_ref_db, int EM_database, global_var
     SS_ref_db.n_sf      = 2;
     SS_ref_db.n_em      = 2;
     SS_ref_db.n_xeos    = 1;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -977,7 +983,6 @@ SS_ref G_SS_um_ol_init_function(SS_ref SS_ref_db, int EM_database, global_variab
     SS_ref_db.n_em      = 2;
     SS_ref_db.n_w       = 1;
     SS_ref_db.n_xeos    = 1;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -992,7 +997,6 @@ SS_ref G_SS_um_br_init_function(SS_ref SS_ref_db, int EM_database, global_variab
     SS_ref_db.n_sf      = 2;
     SS_ref_db.n_em      = 2;
     SS_ref_db.n_xeos    = 1;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -1008,7 +1012,6 @@ SS_ref G_SS_um_ch_init_function(SS_ref SS_ref_db, int EM_database, global_variab
     SS_ref_db.n_em      = 2;
     SS_ref_db.n_w       = 1;
     SS_ref_db.n_xeos    = 1;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -1024,7 +1027,6 @@ SS_ref G_SS_um_atg_init_function(SS_ref SS_ref_db, int EM_database, global_varia
     SS_ref_db.n_em      = 5;
     SS_ref_db.n_w       = 10;
     SS_ref_db.n_xeos    = 4;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -1040,7 +1042,6 @@ SS_ref G_SS_um_g_init_function(SS_ref SS_ref_db, int EM_database, global_variabl
     SS_ref_db.n_em      = 2;
     SS_ref_db.n_w       = 1;
     SS_ref_db.n_xeos    = 1;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -1056,7 +1057,6 @@ SS_ref G_SS_um_ta_init_function(SS_ref SS_ref_db, int EM_database, global_variab
     SS_ref_db.n_em      = 6;
     SS_ref_db.n_w       = 15;
     SS_ref_db.n_xeos    = 5;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -1072,7 +1072,6 @@ SS_ref G_SS_um_chl_init_function(SS_ref SS_ref_db, int EM_database, global_varia
     SS_ref_db.n_em      = 7;
     SS_ref_db.n_w       = 21;
     SS_ref_db.n_xeos    = 6;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -1089,7 +1088,6 @@ SS_ref G_SS_um_anth_init_function(SS_ref SS_ref_db, int EM_database, global_vari
     SS_ref_db.n_v       = 5;
     SS_ref_db.n_w       = 10;
     SS_ref_db.n_xeos    = 4;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -1105,7 +1103,6 @@ SS_ref G_SS_um_spi_init_function(SS_ref SS_ref_db, int EM_database, global_varia
     SS_ref_db.n_em      = 3;
     SS_ref_db.n_w       = 3;
     SS_ref_db.n_xeos    = 2;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -1121,7 +1118,6 @@ SS_ref G_SS_um_opx_init_function(SS_ref SS_ref_db, int EM_database, global_varia
     SS_ref_db.n_em      = 5;
     SS_ref_db.n_w       = 10;
     SS_ref_db.n_xeos    = 4;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -1137,7 +1133,6 @@ SS_ref G_SS_um_po_init_function(SS_ref SS_ref_db, int EM_database, global_variab
     SS_ref_db.n_em      = 2;
     SS_ref_db.n_w       = 1;
     SS_ref_db.n_xeos    = 1;
-    SS_ref_db.CstFactor = 0;
     
     return SS_ref_db;
 }
@@ -1150,11 +1145,11 @@ SS_ref G_SS_init_EM_function(		int			 		 ph_id,
 									int 		 		 EM_database, 
 									char 				*name, 
 									global_variable 	 gv					){
-	if (EM_database == 0) {	 //"bi","cd","cpx","ep","fl","g","hb","ilm","liq","mu","ol","opx","pl4T","spn"	
+	if (EM_database == 0) {	 //"bi","cd","cpx","ep","fl","g","hb","ilm","liq","mu","ol","opx","fsp","spn"	
 		if      (strcmp( name, "liq")  == 0 ){
 			SS_ref_db  = G_SS_mp_liq_init_function(SS_ref_db, EM_database, gv); 	}
-		else if (strcmp( name, "pl4tr")  == 0){
-			SS_ref_db  = G_SS_mp_pl4tr_init_function(SS_ref_db, EM_database, gv); 	}
+		else if (strcmp( name, "fsp")  == 0){
+			SS_ref_db  = G_SS_mp_fsp_init_function(SS_ref_db, EM_database, gv); 	}
 		else if (strcmp( name, "bi")  == 0){
 			SS_ref_db  = G_SS_mp_bi_init_function(SS_ref_db, EM_database, gv); 		}
 		else if (strcmp( name, "g")  == 0){
@@ -1181,14 +1176,18 @@ SS_ref G_SS_init_EM_function(		int			 		 ph_id,
 			SS_ref_db  = G_SS_mp_sp_init_function(SS_ref_db, EM_database, gv); 		}
 		else if (strcmp( name, "ilm")  == 0){
 			SS_ref_db  = G_SS_mp_ilm_init_function(SS_ref_db, EM_database, gv); 	}
+		else if (strcmp( name, "ilmm")  == 0){
+			SS_ref_db  = G_SS_mp_ilmm_init_function(SS_ref_db, EM_database, gv); 	}
 		else if (strcmp( name, "mt")  == 0){
 			SS_ref_db  = G_SS_mp_mt_init_function(SS_ref_db, EM_database, gv); 		}
+		else if (strcmp( name, "aq17")  == 0){
+			SS_ref_db  = G_SS_aq17_init_function(SS_ref_db, EM_database, gv); 		}
 
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", name);	
 		}	
-	}
-	else if (EM_database == 1){
+	}	
+    else if (EM_database == 1){
       if (strcmp( name, "liq") == 0 ){
          SS_ref_db  = G_SS_mb_liq_init_function(SS_ref_db, EM_database, gv); }
       else if (strcmp( name, "hb") == 0 ){
@@ -1203,8 +1202,8 @@ SS_ref G_SS_init_EM_function(		int			 		 ph_id,
          SS_ref_db  = G_SS_mb_g_init_function(SS_ref_db, EM_database, gv); }
       else if (strcmp( name, "ol") == 0 ){
          SS_ref_db  = G_SS_mb_ol_init_function(SS_ref_db, EM_database, gv); }
-      else if (strcmp( name, "pl4tr") == 0 ){
-         SS_ref_db  = G_SS_mb_pl4tr_init_function(SS_ref_db, EM_database, gv); }
+      else if (strcmp( name, "fsp") == 0 ){
+         SS_ref_db  = G_SS_mb_fsp_init_function(SS_ref_db, EM_database, gv); }
       else if (strcmp( name, "abc") == 0 ){
          SS_ref_db  = G_SS_mb_abc_init_function(SS_ref_db, EM_database, gv); }
       else if (strcmp( name, "k4tr") == 0 ){
@@ -1226,36 +1225,38 @@ SS_ref G_SS_init_EM_function(		int			 		 ph_id,
       else{
          printf("\nsolid solution '%s' is not in the database\n",name);
       }
-   }								  
-	else if (EM_database == 2) {	 //"bi","cd","cpx","ep","fl","g","hb","ilm","liq","mu","ol","opx","pl4T","spn"	
-		if (strcmp( name, "liq") == 0 ){
-			SS_ref_db  = G_SS_ig_liq_init_function(SS_ref_db, EM_database, gv); }
-		else if (strcmp( name, "fl") == 0 ){
-			SS_ref_db  = G_SS_ig_fl_init_function(SS_ref_db, EM_database, gv); }
-		else if (strcmp( name, "pl4T") == 0 ){
-			SS_ref_db  = G_SS_ig_pl4T_init_function(SS_ref_db, EM_database, gv); }
-		else if (strcmp( name, "spn") == 0 ){
-			SS_ref_db  = G_SS_ig_spn_init_function(SS_ref_db, EM_database, gv); }
-		else if (strcmp( name, "g") == 0 ){
-			SS_ref_db  = G_SS_ig_g_init_function(SS_ref_db, EM_database, gv); }
-		else if (strcmp( name, "ol") == 0 ){
-			SS_ref_db  = G_SS_ig_ol_init_function(SS_ref_db, EM_database, gv); }
-		else if (strcmp( name, "opx") == 0 ){
-			SS_ref_db  = G_SS_ig_opx_init_function(SS_ref_db, EM_database, gv); }
-		else if (strcmp( name, "cpx") == 0 ){
-			SS_ref_db  = G_SS_ig_cpx_init_function(SS_ref_db, EM_database, gv); }
-		else if (strcmp( name, "ilm") == 0 ){
-			SS_ref_db  = G_SS_ig_ilm_init_function(SS_ref_db, EM_database, gv); }
-		else if (strcmp( name, "hb") == 0 ){
-			SS_ref_db  = G_SS_ig_hb_init_function(SS_ref_db, EM_database, gv); }
-		else if (strcmp( name, "bi") == 0 ){
-			SS_ref_db  = G_SS_ig_bi_init_function(SS_ref_db, EM_database, gv); }
+   }						  
+	else if (EM_database == 2) {	 //"bi","cd","cpx","ep","fl","g","hb","ilm","liq","mu","ol","opx","fsp","spn"	
+		if      (strcmp( name, "bi")  == 0 ){
+			SS_ref_db  = G_SS_ig_bi_init_function(SS_ref_db, EM_database, gv); 		}
 		else if (strcmp( name, "fper") == 0 ){
 			SS_ref_db  = G_SS_ig_fper_init_function(SS_ref_db, EM_database, gv); }
-		else if (strcmp( name, "ep") == 0 ){
-			SS_ref_db  = G_SS_ig_ep_init_function(SS_ref_db, EM_database, gv); }
-		else if (strcmp( name, "cd") == 0 ){
-			SS_ref_db  = G_SS_ig_cd_init_function(SS_ref_db, EM_database, gv); }
+		else if (strcmp( name, "cd")  == 0){
+			SS_ref_db  = G_SS_ig_cd_init_function(SS_ref_db, EM_database, gv); 		}
+		else if (strcmp( name, "cpx") == 0){
+			SS_ref_db  = G_SS_ig_cpx_init_function(SS_ref_db, EM_database, gv); 	}	
+		else if (strcmp( name, "ep")  == 0){
+			SS_ref_db  = G_SS_ig_ep_init_function(SS_ref_db, EM_database, gv); 		}
+		else if (strcmp( name, "fl")  == 0){
+			SS_ref_db  = G_SS_ig_fl_init_function(SS_ref_db, EM_database, gv); 		}		
+		else if (strcmp( name, "g")   == 0){
+			SS_ref_db  = G_SS_ig_g_init_function(SS_ref_db, EM_database, gv); 		}
+		else if (strcmp( name, "hb")  == 0){
+			SS_ref_db  = G_SS_ig_hb_init_function(SS_ref_db, EM_database, gv); 		}	
+		else if (strcmp( name, "ilm") == 0){
+			SS_ref_db  = G_SS_ig_ilm_init_function(SS_ref_db, EM_database, gv); 	}
+		else if (strcmp( name, "liq") == 0){
+			SS_ref_db  = G_SS_ig_liq_init_function(SS_ref_db, EM_database, gv); 	}
+		else if (strcmp( name, "mu")  == 0){
+			SS_ref_db  = G_SS_ig_mu_init_function(SS_ref_db, EM_database, gv); 		}	
+		else if (strcmp( name, "ol")  == 0){
+			SS_ref_db  = G_SS_ig_ol_init_function(SS_ref_db, EM_database, gv); 		}
+		else if (strcmp( name, "opx") == 0){
+			SS_ref_db  = G_SS_ig_opx_init_function(SS_ref_db, EM_database, gv); 	}
+		else if (strcmp( name, "fsp") == 0){
+			SS_ref_db  = G_SS_ig_fsp_init_function(SS_ref_db, EM_database, gv); 	}	
+		else if (strcmp( name, "spn") == 0){
+			SS_ref_db  = G_SS_ig_spn_init_function(SS_ref_db, EM_database, gv); 	}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", name);	
 		}	
@@ -1297,12 +1298,17 @@ SS_ref G_SS_init_EM_function(		int			 		 ph_id,
 	int n_xeos = SS_ref_db.n_xeos;
 	int n_sf   = SS_ref_db.n_sf;
 	int sym    = SS_ref_db.symmetry;
+
+    SS_ref_db.orderVar       = 0;
 	
 	SS_ref_db.EM_list 		 = malloc ((n_em) * sizeof (char*)	);
 	for (int i = 0; i < n_em; i++){ 
 		SS_ref_db.EM_list[i] = malloc(20 * sizeof(char)		);		
 	}
-
+	SS_ref_db.CV_list 		 = malloc ((n_xeos) * sizeof (char*)	);
+	for (int i = 0; i < n_xeos; i++){ 
+		SS_ref_db.CV_list[i] = malloc(20 * sizeof(char)		);		
+	}
 	if (sym == 0){
 		SS_ref_db.W   		= malloc (SS_ref_db.n_w * sizeof (double) ); 
 		SS_ref_db.v   		= malloc (SS_ref_db.n_v * sizeof (double) ); 
@@ -1312,11 +1318,8 @@ SS_ref G_SS_init_EM_function(		int			 		 ph_id,
 	}
 	
 	/* initialize fractions flags and cycle arrays with zeros */
-	SS_ref_db.ss_flags   = malloc (gv.n_flags  * sizeof(int));
-
-	for (int i = 0; i < gv.len_ox; i++){
-		SS_ref_db.solvus_id = malloc (gv.len_ox * sizeof (int)  	);
-	}
+	SS_ref_db.ss_flags      = malloc (gv.n_flags  * sizeof(int));
+    SS_ref_db.solvus_id     = malloc (gv.len_ss   * sizeof (int)  	);
 
 	/* dynamic memory allocation of data to send to NLopt */
 	SS_ref_db.bounds 	= malloc (n_xeos * sizeof (double*)  ); 
@@ -1341,6 +1344,8 @@ SS_ref G_SS_init_EM_function(		int			 		 ph_id,
 	SS_ref_db.dguess 		= malloc (n_xeos 		* sizeof (double) );
 	SS_ref_db.iguess  		= malloc (n_xeos   	  	* sizeof (double) );
 	SS_ref_db.mguess  		= malloc (n_xeos   	  	* sizeof (double) );
+	SS_ref_db.idOrderVar  	= malloc (n_xeos   	  	* sizeof (double) );
+    
 	SS_ref_db.p       		= malloc (n_em       	* sizeof (double) ); 
 	SS_ref_db.ElShearMod    = malloc (n_em       	* sizeof (double) ); 
 	SS_ref_db.ape      		= malloc (n_em       	* sizeof (double) ); 
@@ -1350,6 +1355,7 @@ SS_ref G_SS_init_EM_function(		int			 		 ph_id,
 	SS_ref_db.mu      		= malloc (n_em       	* sizeof (double) ); 
 	SS_ref_db.dfx    		= malloc (n_xeos     	* sizeof (double) ); 
 	SS_ref_db.ss_comp		= malloc (gv.len_ox  	* sizeof (double) ); 
+	SS_ref_db.ElEntropy		= malloc (gv.len_ox  	* sizeof (double) );     
 	SS_ref_db.xi_em   		= malloc (n_em   	 	* sizeof (double) ); 
 	SS_ref_db.xeos    		= malloc (n_xeos     	* sizeof (double) ); 	
 	SS_ref_db.xeos_sf_ok 	= malloc ((n_xeos) 		* sizeof (double) );
@@ -1434,6 +1440,12 @@ SS_ref G_SS_init_EM_function(		int			 		 ph_id,
 	for (int j = 0; j < n_em; j++){
 		SS_ref_db.eye[j][j]= 1.0;
 	}
+
+	for (int j = 0; j < n_xeos; j++){
+		SS_ref_db.idOrderVar[j]= 1.0;
+	}
+    
+
 
 	return SS_ref_db;
 };

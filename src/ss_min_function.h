@@ -16,15 +16,19 @@ global_variable split_cp(				global_variable 	 gv,
 										SS_ref 			    *SS_ref_db,
 										csd_phase_set  		*cp				);
 
-void ss_min_PGE(						int 				 mode, 
-										global_variable 	 gv,
+void init_PGE_from_LP(					global_variable 	 gv,
+										obj_type 			*SS_objective,
+										bulk_info 	 		 z_b,
+										SS_ref 			    *SS_ref_db,
+										csd_phase_set  		*cp				);
+
+void ss_min_PGE(						global_variable 	 gv,
 										obj_type 			*SS_objective,
 										bulk_info 	 		 z_b,
 										SS_ref 				*SS_ref_db,
 										csd_phase_set  		*cp				);
 										
-void ss_min_LP(							int 				 mode, 
-										global_variable 	 gv,
+void ss_min_LP(							global_variable 	 gv,
 										obj_type 			*SS_objective,
 										bulk_info 	 		 z_b,
 										SS_ref 				*SS_ref_db,

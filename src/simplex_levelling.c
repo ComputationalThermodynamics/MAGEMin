@@ -39,9 +39,9 @@ Levelling occurs in two stages:
 #include "toolkit.h"
 #include "PGE_function.h"
 #include "SS_xeos_PC_mp.h" 				//mp is first, it contains the structure definition
+#include "SS_xeos_PC_mb.h" 
 #include "SS_xeos_PC_ig.h"
 #include "SS_xeos_PC_um.h"
-#include "SS_xeos_PC_mb.h"
 
 /**
 	associate the array of pointer with the right solution phase
@@ -71,12 +71,14 @@ void SS_ig_objective_init_function(	obj_type 			*SS_objective,
 			SS_objective[iss]  = obj_ig_ilm; 		}
 		else if (strcmp( gv.SS_list[iss], "liq") == 0){
 			SS_objective[iss]  = obj_ig_liq; 		}
+		else if (strcmp( gv.SS_list[iss], "mu")  == 0){
+			SS_objective[iss]  = obj_ig_mu; 		}
 		else if (strcmp( gv.SS_list[iss], "ol")  == 0){
 			SS_objective[iss]  = obj_ig_ol; 		}
 		else if (strcmp( gv.SS_list[iss], "opx") == 0){
 			SS_objective[iss]  = obj_ig_opx; 		}
-		else if (strcmp( gv.SS_list[iss], "pl4T") == 0){
-			SS_objective[iss]  = obj_ig_pl4T; 		}
+		else if (strcmp( gv.SS_list[iss], "fsp") == 0){
+			SS_objective[iss]  = obj_ig_fsp; 		}
 		else if (strcmp( gv.SS_list[iss], "spn") == 0){
 			SS_objective[iss]  = obj_ig_spn; 		}
 		else{
@@ -84,6 +86,54 @@ void SS_ig_objective_init_function(	obj_type 			*SS_objective,
 		}	
 	};			
 }
+
+void SS_mp_objective_init_function(	obj_type 			*SS_objective,
+									global_variable 	 gv				){	
+						 
+	for (int iss = 0; iss < gv.len_ss; iss++){
+
+		if      (strcmp( gv.SS_list[iss], "liq")   == 0 ){
+			SS_objective[iss]  = obj_mp_liq; 		}
+		else if (strcmp( gv.SS_list[iss], "fsp") == 0){
+			SS_objective[iss]  = obj_mp_fsp; 		}
+		else if (strcmp( gv.SS_list[iss], "bi")    == 0){
+			SS_objective[iss]  = obj_mp_bi; 		}
+		else if (strcmp( gv.SS_list[iss], "g")     == 0){
+			SS_objective[iss]  = obj_mp_g; 			}
+		else if (strcmp( gv.SS_list[iss], "ep")    == 0){
+			SS_objective[iss]  = obj_mp_ep; 		}
+		else if (strcmp( gv.SS_list[iss], "ma")    == 0){
+			SS_objective[iss]  = obj_mp_ma; 		}
+		else if (strcmp( gv.SS_list[iss], "mu")    == 0){
+			SS_objective[iss]  = obj_mp_mu; 		}
+		else if (strcmp( gv.SS_list[iss], "opx")   == 0){
+			SS_objective[iss]  = obj_mp_opx; 		}
+		else if (strcmp( gv.SS_list[iss], "sa")    == 0){
+			SS_objective[iss]  = obj_mp_sa; 		}
+		else if (strcmp( gv.SS_list[iss], "cd")    == 0){
+			SS_objective[iss]  = obj_mp_cd; 		}
+		else if (strcmp( gv.SS_list[iss], "st")    == 0){
+			SS_objective[iss]  = obj_mp_st; 		}
+		else if (strcmp( gv.SS_list[iss], "chl")   == 0){
+			SS_objective[iss]  = obj_mp_chl; 		}
+		else if (strcmp( gv.SS_list[iss], "ctd")   == 0){
+			SS_objective[iss]  = obj_mp_ctd; 		}
+		else if (strcmp( gv.SS_list[iss], "sp")    == 0){
+			SS_objective[iss]  = obj_mp_sp; 		}
+		else if (strcmp( gv.SS_list[iss], "ilm")   == 0){
+			SS_objective[iss]  = obj_mp_ilm; 		}
+		else if (strcmp( gv.SS_list[iss], "ilmm")   == 0){
+			SS_objective[iss]  = obj_mp_ilmm; 		}
+		else if (strcmp( gv.SS_list[iss], "mt")    == 0){
+			SS_objective[iss]  = obj_mp_mt; 		}
+		else if (strcmp( gv.SS_list[iss], "aq17")  == 0){
+			SS_objective[iss]  = obj_aq17; 		}
+		else{
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
+		}	
+	};			
+}
+
 
 void SS_mb_objective_init_function(	obj_type 			*SS_objective,
 									global_variable 	 gv				){	
@@ -111,8 +161,8 @@ void SS_mb_objective_init_function(	obj_type 			*SS_objective,
       else if (strcmp( gv.SS_list[iss], "ol")  == 0){
          SS_objective[iss]  = obj_mb_ol;
       }
-      else if (strcmp( gv.SS_list[iss], "pl4tr")  == 0){
-         SS_objective[iss]  = obj_mb_pl4tr;
+      else if (strcmp( gv.SS_list[iss], "fsp")  == 0){
+         SS_objective[iss]  = obj_mb_fsp;
       }
       else if (strcmp( gv.SS_list[iss], "abc")  == 0){
          SS_objective[iss]  = obj_mb_abc;
@@ -141,52 +191,6 @@ void SS_mb_objective_init_function(	obj_type 			*SS_objective,
       else if (strcmp( gv.SS_list[iss], "chl")  == 0){
          SS_objective[iss]  = obj_mb_chl;
       }
-		else{
-			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
-		}	
-	};			
-}
-
-/**
-	associate the array of pointer with the right solution phase
-*/
-void SS_mp_objective_init_function(	obj_type 			*SS_objective,
-									global_variable 	 gv				){	
-						 
-	for (int iss = 0; iss < gv.len_ss; iss++){
-
-		if      (strcmp( gv.SS_list[iss], "liq")   == 0 ){
-			SS_objective[iss]  = obj_mp_liq; 		}
-		else if (strcmp( gv.SS_list[iss], "pl4tr") == 0){
-			SS_objective[iss]  = obj_mp_pl4tr; 		}
-		else if (strcmp( gv.SS_list[iss], "bi")    == 0){
-			SS_objective[iss]  = obj_mp_bi; 		}
-		else if (strcmp( gv.SS_list[iss], "g")     == 0){
-			SS_objective[iss]  = obj_mp_g; 			}
-		else if (strcmp( gv.SS_list[iss], "ep")    == 0){
-			SS_objective[iss]  = obj_mp_ep; 		}
-		else if (strcmp( gv.SS_list[iss], "ma")    == 0){
-			SS_objective[iss]  = obj_mp_ma; 		}
-		else if (strcmp( gv.SS_list[iss], "mu")    == 0){
-			SS_objective[iss]  = obj_mp_mu; 		}
-		else if (strcmp( gv.SS_list[iss], "opx")   == 0){
-			SS_objective[iss]  = obj_mp_opx; 		}
-		else if (strcmp( gv.SS_list[iss], "sa")    == 0){
-			SS_objective[iss]  = obj_mp_sa; 		}
-		else if (strcmp( gv.SS_list[iss], "cd")    == 0){
-			SS_objective[iss]  = obj_mp_cd; 		}
-		else if (strcmp( gv.SS_list[iss], "st")    == 0){
-			SS_objective[iss]  = obj_mp_st; 		}
-		else if (strcmp( gv.SS_list[iss], "chl")   == 0){
-			SS_objective[iss]  = obj_mp_chl; 		}
-		else if (strcmp( gv.SS_list[iss], "ctd")   == 0){
-			SS_objective[iss]  = obj_mp_ctd; 		}
-		else if (strcmp( gv.SS_list[iss], "sp")    == 0){
-			SS_objective[iss]  = obj_mp_sp; 		}
-		else if (strcmp( gv.SS_list[iss], "ilm")   == 0){
-			SS_objective[iss]  = obj_mp_ilm; 		}
-		else if (strcmp( gv.SS_list[iss], "mt")    == 0){
-			SS_objective[iss]  = obj_mp_mt; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	
@@ -239,6 +243,7 @@ void update_dG(	simplex_data *splx_data
 	simplex_data *d  = (simplex_data *) splx_data;
 	double F;
 	double minF = 0.0;
+	int i,j;
 
 	VecMatMul(	d->B1,
 				d->A1,
@@ -246,14 +251,14 @@ void update_dG(	simplex_data *splx_data
 				d->n_Ox	);
 	
 	d->dG_B = d->g0_B;
-	for (int j = 0; j < d->n_Ox; j++){
+	for ( j = 0; j < d->n_Ox; j++){
 		d->dG_B -= d->B1[j]*d->g0_A[j];
 	}
 
 	d->ph2swp = -1;	
 	if (d->dG_B < d->dG_B_tol){	
 		d->min_F  =  d->min_F_tol;												/** max value for F, tentative here because F can tend to +inf */
-		for (int i = 0; i < d->n_Ox; i++){
+		for ( i = 0; i < d->n_Ox; i++){
 			F = (d->n_vec[i])/d->B1[i];
 			if (F < d->min_F && F > minF){
 				d->min_F  = F;
@@ -337,7 +342,6 @@ void update_global_gamma_LU( 				bulk_info 			z_b,
 	dgetrf(&d->n_Ox, &d->n_Ox, d->Alu, &d->n_Ox, ipiv, &info);
 
 	char T = 'T';
-
 	dgetrs(						&T,
 								&d->n_Ox, 
 								&nrhs, 
@@ -445,7 +449,7 @@ void swap_pure_endmembers(				bulk_info 	 		 z_b,
 	double factor;
 
 	for (int i = 0; i < gv.len_ss; i++){												/**loop to pass informations from active endmembers */
-		if (SS_ref_db[i].ss_flags[0] == 1){														/** if SS is not filtered out then continue */
+		if (SS_ref_db[i].ss_flags[0] == 1 && strcmp( gv.SS_list[i], "aq17") != 0){												/** if SS is not filtered out then continue */
 
 			for (int l = 0; l < SS_ref_db[i].n_em; l++){	
 				/** if bulk-rock satisfy the compositions of endmembers, retrieve their informations */
@@ -515,14 +519,14 @@ void swap_pseudocompounds(				bulk_info 	 		 z_b,
 ){
 	simplex_data *d  = (simplex_data *) splx_data;
 
-	int     k, max_n_pc;
+	int     i,j,k,l, max_n_pc;
 	
-	for (int i = 0; i < gv.len_ss; i++){										/**loop to pass informations from active endmembers */
+	for ( i = 0; i < gv.len_ss; i++){										/**loop to pass informations from active endmembers */
 		if (SS_ref_db[i].ss_flags[0] == 1){
 
 			max_n_pc = SS_ref_db[i].tot_pc;
 
-			for (int l = 0; l < max_n_pc; l++){
+			for ( l = 0; l < max_n_pc; l++){
 
 				d->g0_B		  = SS_ref_db[i].G_pc[l];
 				d->ph_id_B[0] = 3;														/** added phase is a pure species */
@@ -530,7 +534,7 @@ void swap_pseudocompounds(				bulk_info 	 		 z_b,
 				d->ph_id_B[2] = 0;														/** save pseudocompound index */
 			
 				/* retrieve the composition in the right (reduced) chemical space */
-				for (int j = 0; j < z_b.nzEl_val; j++){
+				for ( j = 0; j < z_b.nzEl_val; j++){
 					d->B[j] = SS_ref_db[i].comp_pc[l][z_b.nzEl_array[j]]; 
 				}
 
@@ -550,12 +554,12 @@ void swap_pseudocompounds(				bulk_info 	 		 z_b,
 					d->ph_id_A[d->ph2swp][3] = l;									/** save pseudocompound number */
 					d->g0_A[d->ph2swp] 	     = d->g0_B;
 					
-					for (int j = 0; j < d->n_Ox; j++){				
-						int k = d->ph2swp + j*d->n_Ox;
+					for ( j = 0; j < d->n_Ox; j++){				
+						 k = d->ph2swp + j*d->n_Ox;
 						d->A[k] = d->B[j];
 					}
 					
-					for (int k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k];}
+					for ( k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k];}
 
 					/** inverse guessed assemblage stoechiometry matrix */
 					inverseMatrix(	gv.ipiv,
@@ -767,7 +771,21 @@ void generate_pseudocompounds(	int 		 		 ss,
 			}
 		}
 
-		G 	= (*SS_objective[ss])(SS_ref_db[ss].n_xeos, get_ss_pv.xeos_pc, 	NULL, &SS_ref_db[ss]);
+		// if(strcmp( gv.SS_list[ss], "aq17") == 0){
+		// 	/* get composition of solution phase */
+		// 	for (j = 0; j < gv.len_ox; j++){
+		// 		SS_ref_db[ss].ss_comp[j] = 0.0;
+		// 		for (i = 0; i < SS_ref_db[ss].n_em; i++){
+		// 			SS_ref_db[ss].ss_comp[j] += SS_ref_db[ss].Comp[i][j]*get_ss_pv.xeos_pc[i]*SS_ref_db[ss].z_em[i];
+		// 		} 
+		// 	}
+		// 	double cor = SUPCRT_to_HSC(SS_ref_db[ss].ElEntropy, SS_ref_db[ss].ss_comp, SS_ref_db[ss].len_ox);
+		// 	G 	= (*SS_objective[ss])(SS_ref_db[ss].n_xeos, get_ss_pv.xeos_pc, 	NULL, &SS_ref_db[ss]) + cor;
+		// }
+		// else {
+			G 	= (*SS_objective[ss])(SS_ref_db[ss].n_xeos, get_ss_pv.xeos_pc, 	NULL, &SS_ref_db[ss]);
+		// }
+
 
 		/** store pseudocompound */
 		if ( G < gv.max_G_pc ){
@@ -780,7 +798,6 @@ void generate_pseudocompounds(	int 		 		 ss,
 				} 
 			}
 
-			// if (SS_ref_db[ss].id_pc >= SS_ref_db[ss].n_pc){ SS_ref_db[ss].id_pc = 0; printf("MAXIMUM STORAGE SPACE FOR PC IS REACHED, INCREASED #PC_MAX\n");}
 			m_pc = SS_ref_db[ss].id_pc;
 			SS_ref_db[ss].info[m_pc]      = 0;
 			SS_ref_db[ss].factor_pc[m_pc] = SS_ref_db[ss].factor;
@@ -936,8 +953,7 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 				cp[id_cp].dguess[ii]  = SS_ref_db[ph_id].iguess[ii];
 				cp[id_cp].xeos[ii]    = SS_ref_db[ph_id].iguess[ii];
 			}
-	
-			gv.id_solvi[ph_id][gv.n_solvi[ph_id]] = id_cp;
+
 			gv.n_solvi[ph_id] 	   += 1;
 			id_cp 				   += 1;
 			gv.len_cp 			   += 1;
@@ -1005,7 +1021,6 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 				cp[id_cp].xeos[ii]    = SS_ref_db[ph_id].xeos_pc[pc_id][ii];
 			}
 
-			gv.id_solvi[ph_id][gv.n_solvi[ph_id]] = id_cp;
 			gv.n_solvi[ph_id] 	   += 1;
 			id_cp 				   += 1;
 			gv.len_cp 			   += 1;
@@ -1088,7 +1103,6 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 					cp[id_cp].xeos[ii]    = SS_ref_db[ph_id].xeos_pc[pc_id][ii];
 				}
 				
-				gv.id_solvi[ph_id][gv.n_solvi[ph_id]] = id_cp;
 				gv.n_solvi[ph_id] 	+= 1;
 				gv.len_cp 			+= 1;
 				id_cp 				+= 1;
@@ -1122,6 +1136,7 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 					gv.pp_flags[i][1] = 0;
 					gv.pp_flags[i][2] = 0;
 					gv.pp_flags[i][3] = 1;
+					gv.pp_flags[i][4] = 0;
 				}
 			}
 		}
@@ -1163,12 +1178,13 @@ void run_simplex_pseudocompounds(		bulk_info 	 z_b,
 	simplex_data *d  = (simplex_data *) splx_data;
 
 	int     k = 0;
+	clock_t t = clock();
 
 	d->swp = 1;
 	while (d->swp == 1){					/** as long as a phase can be added to the guessed assemblage, go on */
 		k 		   += 1;
 		d->swp     = 0;
-
+		t 			= clock(); 
 		swap_pure_endmembers(				z_b,
 											splx_data,
 											gv,
@@ -1185,7 +1201,12 @@ void run_simplex_pseudocompounds(		bulk_info 	 z_b,
 											splx_data,
 											gv,
 											PP_ref_db,
-											SS_ref_db	);				
+											SS_ref_db	);		
+		t 			= clock() - t; 
+		if (gv.verbose == 1){
+			double time_taken 	= ((double)t)/CLOCKS_PER_SEC;
+			printf("    iteration %4d: %+10f [ms]\n",k, time_taken*1000.0);	
+		}		
 	}
 	if (gv.verbose == 1){
 		printf("    (# iterations %d)",k);	
@@ -1315,174 +1336,6 @@ void run_simplex_levelling(				bulk_info 	 		 z_b,
 	
 };
 
-
-void run_localMinimization(				bulk_info 	 		 z_b,
-										simplex_data 		*splx_data,
-										
-										global_variable 	 gv,
-										
-										PP_ref 				*PP_ref_db,
-										SS_ref 				*SS_ref_db,
-										obj_type			*SS_objective
-){
-	simplex_data *d  = (simplex_data *) splx_data;
-
-	int i, j, k, ss, l, p, swp;
-										
-	clock_t t,u; 
-	double time_taken;
-	t = clock();
-
-	/** generate the pseudocompounds -> stored in the SS_ref_db structure */
-	if (gv.verbose == 1){ printf(" Generate pseudocompounds:\n"); }
-	
-	PC_ref 			SS_pc_xeos[gv.len_ss];
-
-	if (gv.EM_database == 0){
-		for (ss = 0; ss < gv.len_ss; ss++){
-			SS_mp_pc_init_function(			SS_pc_xeos, 
-											ss,
-											gv.SS_list[ss]				);
-		}
-	}
-	if (gv.EM_database == 1){
-		for (ss = 0; ss < gv.len_ss; ss++){
-			SS_mb_pc_init_function(			SS_pc_xeos, 
-											ss,
-											gv.SS_list[ss]				);
-		}
-	}
-	else if (gv.EM_database == 2){
-		for (ss = 0; ss < gv.len_ss; ss++){
-			SS_ig_pc_init_function(			SS_pc_xeos, 
-											ss,
-											gv.SS_list[ss]				);
-		}
-	}
-	else if (gv.EM_database == 4){
-		for (ss = 0; ss < gv.len_ss; ss++){
-			SS_um_pc_init_function(			SS_pc_xeos, 
-											ss,
-											gv.SS_list[ss]				);
-		}
-	}
-	ss = 6; // hb index of the solution phase to fully minimize
-	// ss = 0; // spn index of the solution phase to fully minimize
-	// ss = 3; // cpx index of the solution phase to fully minimize
-
-	struct ss_pc get_ss_pv;		
-
-	gv.gam_tot[0]  = -960.9655;	
-	gv.gam_tot[1]  = -1768.2476;	
-	gv.gam_tot[2]  = -788.4474;	
-	gv.gam_tot[3]  = -678.9683;	
-	gv.gam_tot[4]  = -355.2975;	
-	gv.gam_tot[5]  = -914.9708;	
-	gv.gam_tot[6]  = -839.9561;
-	gv.gam_tot[7]  = -1008.3630;
-	gv.gam_tot[8]  = -263.7269;
-	gv.gam_tot[9]  = -1262.6087;
-	gv.gam_tot[10] = -368.4674;
-
-	SS_ref_db[ss].gbase[0]  = -13012.62073;	
-	SS_ref_db[ss].gbase[1]  = -13235.27114;	
-	SS_ref_db[ss].gbase[2]  = -13472.30496;	
-	SS_ref_db[ss].gbase[3]  = -12644.70794;	
-	SS_ref_db[ss].gbase[4]  = -12762.02635;	
-	SS_ref_db[ss].gbase[5]  = -10496.70590;	
-	SS_ref_db[ss].gbase[6]  = -11477.04324;
-	SS_ref_db[ss].gbase[7]  = -11155.59746;
-	SS_ref_db[ss].gbase[8]  = -11828.15800;
-	SS_ref_db[ss].gbase[9]  = -13495.08535;
-	SS_ref_db[ss].gbase[10] = -13063.17373;
-
-	// SS_ref_db[ss].gbase[0]  = -2515.94540;	
-	// SS_ref_db[ss].gbase[1]  = -2500.25887;	
-	// SS_ref_db[ss].gbase[2]  = -2217.27620;	
-	// SS_ref_db[ss].gbase[3]  = -2201.58966;	
-	// SS_ref_db[ss].gbase[4]  = -1452.03460;	
-	// SS_ref_db[ss].gbase[5]  = -1459.64806;	
-	// SS_ref_db[ss].gbase[6]  = -2033.47165;
-	// SS_ref_db[ss].gbase[7]  = -2445.48343;
-
-	// SS_ref_db[ss].gbase[0]  = -3532.74915;	
-	// SS_ref_db[ss].gbase[1]  = -2793.12846;	
-	// SS_ref_db[ss].gbase[2]  = -3635.49886;	
-	// SS_ref_db[ss].gbase[3]  = -3384.95041;	
-	// SS_ref_db[ss].gbase[4]  = -3250.67812;	
-	// SS_ref_db[ss].gbase[5]  = -3606.43710;	
-	// SS_ref_db[ss].gbase[6]  = -3345.42582;
-	// SS_ref_db[ss].gbase[7]  = -3408.36774;
-	// SS_ref_db[ss].gbase[8]  = -3105.14810;
-	// SS_ref_db[ss].gbase[9]  = -3360.74459;
-
-
-	// gv.gam_tot[0]  = -1011.909631;	
-	// gv.gam_tot[1]  = -1829.092564;	
-	// gv.gam_tot[2]  = -819.264126;	
-	// gv.gam_tot[3]  = -695.467358;	
-	// gv.gam_tot[4]  = -412.948568;	
-	// gv.gam_tot[5]  = -971.890270;	
-	// gv.gam_tot[6]  = -876.544354;
-	// gv.gam_tot[7]  = -1073.640927;
-	// gv.gam_tot[8]  = -276.590707;
-	// gv.gam_tot[9]  = -1380.299631;
-	// gv.gam_tot[10] = 0.0;
-
-
-	/** rotate gbase with respect to the G-hyperplane (change of base) */
-	for (int k = 0; k < SS_ref_db[ss].n_em; k++) {
-		SS_ref_db[ss].gb_lvl[k] = SS_ref_db[ss].gbase[k];
-		for (int j = 0; j < gv.len_ox; j++) {
-			SS_ref_db[ss].gb_lvl[k] -= SS_ref_db[ss].Comp[k][j]*gv.gam_tot[j];
-		}
-	}	
-
-	printf("minG = [");				
-	for (int k = 0; k < gv.n_SS_PC[ss]; k++){
-		u = clock();
-		get_ss_pv = SS_pc_xeos[ss].ss_pc_xeos[k]; 
-		
-		for (int i = 0; i < SS_ref_db[ss].n_xeos; i++){
-			SS_ref_db[ss].iguess[i] = get_ss_pv.xeos_pc[i];
-		}
-
-		SS_ref_db[ss] = 	NLopt_opt_function(		gv, 
-													SS_ref_db[ss], 
-													ss					);
-
-		u = clock() - u; 
-		time_taken  = ((double)u)/CLOCKS_PER_SEC; 
-		printf(" %.14f", SS_ref_db[ss].df);
-	}
-	printf("]\n");	
-
-	printf("tms = [");				
-	for (int k = 0; k < gv.n_SS_PC[ss]; k++){
-		u = clock();
-		get_ss_pv = SS_pc_xeos[ss].ss_pc_xeos[k]; 
-		
-		for (int i = 0; i < SS_ref_db[ss].n_xeos; i++){
-			SS_ref_db[ss].iguess[i] = get_ss_pv.xeos_pc[i];
-		}
-
-		SS_ref_db[ss] = 	NLopt_opt_function(		gv, 
-													SS_ref_db[ss], 
-													ss					);
-
-		u = clock() - u; 
-		time_taken  = ((double)u)/CLOCKS_PER_SEC; 
-		printf(" %.8f", time_taken );
-	}
-	printf("]\n");	
-
-	t = clock() - t; 
-	time_taken  = ((double)t)/CLOCKS_PER_SEC; 
-	if (gv.verbose == 1){ printf("\n [time to local minimization PC time (ms) %.8f]\n",time_taken*1000);	}
-	
-};
-
-
 /**
   function to deallocte memory of simplex linear programming (A)
 */	
@@ -1565,15 +1418,7 @@ global_variable run_levelling_function(		bulk_info 	 z_b,
 											PP_ref_db,
 											SS_ref_db,
 											SS_objective	);	
-
-	/** run local minimization tests */
-	// run_localMinimization(					z_b,
-	// 									    splx_data,
-	// 										gv,
-	// 										PP_ref_db,
-	// 										SS_ref_db,
-	// 										SS_objective	);	
-			
+	
 	/* update global variable gamma */
 	update_global_gamma_LU(					z_b,
 											splx_data		);	

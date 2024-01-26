@@ -15,12 +15,6 @@ void convert_system_comp(				global_variable      gv,
 										char 				*sys_in,
 										bulk_info 			 z_b			);
 										
-void 	_DCDCT_fct(int *id, double *result, double **A, int n_act_sf, int n_xeos);
-void 	_DC_Null_fct(int *id, double *result, double **A, double *B, int n_xeos, int n_act_sf);
-void 	_Epsilon_C_fct(int *id, double *result, double *A, double *b, int n_xeos, int n_sf);
-void 	_Epsilon_J_fct(double *result, double *A, double *b, int n_xeos);
-void 	_I_DC_Null_fct(int *id, double *result, double *A, double **B, double *eye, int n_act_sf, int n_xeos);
-void 	_FillEyeMatrix(double *A, int n);
 void 	get_act_sf_id(int *result, double *A, int n);
 void 	inverseMatrix(int *ipiv, double *A1, int n, double *work, int lwork);
 void 	MatMatMul( double **A, int nrowA, double **B, int ncolB, int common, double **C);
@@ -36,7 +30,10 @@ int 	get_active_em(double *array, int n);
 int 	EndsWithTail(char *name, char* tail);	
 int    	RootBracketed(double x1,double x2);
 
+double  SUPCRT_to_HSC(double *ElH, double *comp, int size);
+double  HSC_to_SUPCRT(double *ElH, double *comp, int size);
 double* norm_array(double *array, int size);
+double  sum_norm_xipi(double *xi, double *pi, int size);
 double  sign(double x);
 double  AFunction(double x, double *data);
 double  Minimum(double x1,double x2);
@@ -85,18 +82,6 @@ SS_ref restrict_SS_HyperVolume(	global_variable gv,
 SS_ref check_SS_bounds(			global_variable gv, 
 								SS_ref SS_ref_db			);																	
 
-/*	Reduce row echelon form function (should be deleted eventually) */
-typedef struct TMatrix {
-	double **m;
-	int nRows; int nCols;
-} TMATRIX;
-
-TMATRIX createMatrix(int nRows, int nCols);
-TMATRIX rref(TMATRIX stoeMat, int *pivot, double tolerance);
-
-void 	freeMatrix(TMATRIX oMatrix);
-void 	cleanUpMatrix(TMATRIX stoeMat,  double tolerance);
-
 /* function related to update on global variables structure */
 global_variable get_pp_id(			global_variable  	 gv								);
 
@@ -112,19 +97,22 @@ global_variable wave_melt_correction( 	global_variable     gv,
 double anelastic_correction( int 	 water,
 							 double  Vs0,
 							 double  P,
-							 double  T 													);
+							 double  T 												);
 																																	
-global_variable get_sol_phase_infos( 	io_data 			 input_data,
-										bulk_info 	 		 z_b,
-										global_variable 	 gv,
+global_variable compute_phase_mol_fraction(	global_variable 	 gv,
+											PP_ref  			*PP_ref_db,
+											SS_ref  			*SS_ref_db,
+											csd_phase_set  		*cp					);
 
-										PP_ref  			*PP_ref_db,
-										SS_ref  			*SS_ref_db,
-										csd_phase_set  		*cp							);
+global_variable compute_activites(			int					 EM_database,	
+											global_variable 	 gv,
+											PP_ref  			*PP_ref_db,
+											bulk_info 			 z_b				);
 
-global_variable compute_phase_mol_fraction(			global_variable 	 gv,
+global_variable compute_density_volume_modulus(		int 				 EM_database,
+													bulk_info 	 		 z_b,
+													global_variable 	 gv,
 													PP_ref  			*PP_ref_db,
 													SS_ref  			*SS_ref_db,
-													csd_phase_set  		*cp					);
-
+													csd_phase_set  		*cp					);									
 #endif

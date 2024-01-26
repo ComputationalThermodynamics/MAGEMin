@@ -69,7 +69,18 @@ for iter=1:PseudoSectionData.Computation.RefinementLevels
             PhaseData = Update_EMFrac_onPoints(PhaseData,XY_vec, newPoints,PrPts,PseudoSectionData.Computation);
         end
         
-        
+        d = X_dat(3)/(2^(iter-1));
+        r_el = [];
+        for i=1:length(elements)
+            d1 = elements(i,1);
+            d2 = elements(i,3);
+            diag =  abs(XY_vec(d1,1)-XY_vec(d2,1));
+            if abs(diag - d) < 1e-4;
+                r_el = [r_el;elements(i,:)];
+            end
+        end
+        PseudoSectionData.r_elements = r_el;
+
         if DisplayPlots
             figure(2), clf
             patch('Faces', elements, 'Vertices', XY_vec, 'Facecolor','none')
@@ -142,8 +153,6 @@ for iter=1:PseudoSectionData.Computation.RefinementLevels
     liq         = zeros(length(PhaseData),1);
     numPhase    = zeros(length(PhaseData),1);
     for i=1:length(PhaseData)
-       
-        
         liq(i)      =   PhaseData{i}.liq(1);
         numPhase(i) =   PhaseData{i}.numStablePhases;
     end

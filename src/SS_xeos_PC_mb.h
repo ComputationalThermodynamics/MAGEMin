@@ -2672,7 +2672,7 @@ struct ss_pc mb_opx_pc_xeos[1729] = {
 {{0.950000,0.950000,0.000000,0.760000,0.000000}},
 {{0.950000,0.950000,0.000000,0.950000,0.000000}}};
 
-struct ss_pc mb_pl4tr_pc_xeos[231] = {
+struct ss_pc mb_fsp_pc_xeos[231] = {
 {{0.000000,0.000000}},
 {{0.000000,0.049000}},
 {{0.000000,0.098000}},
@@ -25207,8 +25207,8 @@ void SS_mb_pc_init_function(	PC_ref 	*SS_pc_xeos,
 		SS_pc_xeos[iss].ss_pc_xeos  = mb_sp_pc_xeos; 		}
 	else if (strcmp( name, "opx")  == 0){
 		SS_pc_xeos[iss].ss_pc_xeos  = mb_opx_pc_xeos; 		}
-	else if (strcmp( name, "pl4tr")  == 0){
-		SS_pc_xeos[iss].ss_pc_xeos  = mb_pl4tr_pc_xeos; 	}
+	else if (strcmp( name, "fsp")  == 0){
+		SS_pc_xeos[iss].ss_pc_xeos  = mb_fsp_pc_xeos; 	}
 	else if (strcmp( name, "liq")  == 0){
 		SS_pc_xeos[iss].ss_pc_xeos  = mb_liq_pc_xeos; 		}
 	else if (strcmp( name, "mu")  == 0){
