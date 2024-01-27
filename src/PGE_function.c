@@ -1137,8 +1137,9 @@ global_variable init_LP(							bulk_info 	 		 z_b,
 
 	/* get number of duplicated phases and their cp id */
 	for (i = 0; i < gv.len_cp; i++){
-		ph_id = cp[i].id;
+		
 		if (cp[i].ss_flags[0] == 1 ){
+			ph_id = cp[i].id;
 			SS_ref_db[ph_id].solvus_id[gv.n_solvi[ph_id]] = i;
 			gv.n_solvi[ph_id] += 1;
 		}

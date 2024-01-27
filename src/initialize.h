@@ -1604,7 +1604,7 @@ void reset_SS(						global_variable 	 gv,
 
 		SS_ref_db[iss].tot_pc 	= 0;
 		SS_ref_db[iss].id_pc  	= 0;
-		for (int j = 0; j < gv.len_ss; j++){
+		for (int j = 0; j < gv.len_ss*2; j++){
 			SS_ref_db[iss].solvus_id[j] = -1;	
 		}
 
