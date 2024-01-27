@@ -1319,7 +1319,7 @@ SS_ref G_SS_init_EM_function(		int			 		 ph_id,
 	
 	/* initialize fractions flags and cycle arrays with zeros */
 	SS_ref_db.ss_flags      = malloc (gv.n_flags  * sizeof(int));
-    SS_ref_db.solvus_id     = malloc ((gv.len_ss*2)   * sizeof (int)  	);
+    SS_ref_db.solvus_id     = malloc ((gv.len_ss*4)   * sizeof (int)  	);
 
 	/* dynamic memory allocation of data to send to NLopt */
 	SS_ref_db.bounds 	= malloc (n_xeos * sizeof (double*)  ); 
