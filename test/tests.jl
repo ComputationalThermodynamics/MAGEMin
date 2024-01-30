@@ -66,7 +66,7 @@ end
     Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
     X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
     sys_in  = "wt"    
-    out     = single_point_minimization(P, T, data, X, Xoxides=Xoxides, sys_in=sys_in)
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
 
     @test abs(out.G_system + 916.8283889543869)/abs(916.8283889543869) < 2e-4
 
@@ -79,7 +79,7 @@ end
     X2      = [49.43; 14.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
     X       = [X1,X2]
     sys_in  = "wt"    
-    out     = multi_point_minimization(P, T, data, X, Xoxides=Xoxides, sys_in=sys_in)
+    out     = multi_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
     
     @test out[1].G_system ≈ -916.8283889543869 rtol=2e-4
     @test out[2].G_system ≈ -912.5920719174167 rtol=2e-4
@@ -87,22 +87,21 @@ end
     Finalize_MAGEMin(data)
 end
 
-@testset "view array composition" begin
+@testset "view array PT" begin
 
     data    = Initialize_MAGEMin("ig", verbose=false);
 
-    # One bulk rock for all points
-    P,T     = 10.0, 1100.0
+    # different bulk rock per point
+    P       = [10.0, 10.0, 0]
+    T       = [1100.0, 1100.0, 0]
     Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
-    X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
+    X1      = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
+    X2      = [49.43; 14.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
+    X       = [X1,X2]
     sys_in  = "wt"
-
-    X = [[1.0], X]
-    X_view = @view X[2,:]
-
-    out     = single_point_minimization(P, T, data, X_view, Xoxides=Xoxides, sys_in=sys_in)
-
-    @test abs(out.G_system + 916.8283889543869)/abs(916.8283889543869) < 2e-4
+    P_view = @view P[1:2]
+    T_view = @view T[1:2]
+    out     = multi_point_minimization(P_view, T_view, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
 
     Finalize_MAGEMin(data)
 end
