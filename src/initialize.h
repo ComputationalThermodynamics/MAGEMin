@@ -180,7 +180,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.3.6 [26/01/2024]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.3.7 [31/01/2024]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");	
@@ -1424,6 +1424,12 @@ void reset_sp(						global_variable 	 gv,
 	sp[0].aAl2O3  						= 0.0;
 	sp[0].aMgO  						= 0.0;
 	sp[0].aFeO  						= 0.0;
+
+	sp[0].alpha  						= 0.0;
+	sp[0].cp  							= 0.0;
+	sp[0].s_cp  						= 0.0;
+	sp[0].cp_wt  						= 0.0;
+	sp[0].V  							= 0.0;
 
 	sp[0].frac_S_wt						= 0.0;
 	sp[0].frac_M_wt						= 0.0;

@@ -20,6 +20,7 @@ out         =   point_wise_minimization(P,T, data);
 
 @test out.G_system ≈ -797.7491828675325
 @test out.ph == ["spn", "cpx",  "opx", "ol"]
+@test out.s_cp ≈ 1208.466551730128
 @test all(abs.(out.ph_frac - [0.027985692010022857, 0.14166112328585387, 0.24227821491186913, 0.5880749697922566])  .< 1e-2)
 
 # print more detailed info about this point:
@@ -38,6 +39,7 @@ P           =   8.0
 T           =   800.0
 out         =   point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in);
 @test out.G_system ≈ -797.7491828675325
+@test out.s_cp ≈ 1208.466551730128
 @test out.ph == ["spn", "cpx",  "opx", "ol"]
 @test all(abs.(out.ph_frac - [0.027985692010022857, 0.14166112328585387, 0.24227821491186913, 0.5880749697922566])  .< 1e-2)
 finalize_MAGEMin(gv,DB,z_b)
@@ -66,7 +68,7 @@ end
     Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
     X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
     sys_in  = "wt"    
-    out     = single_point_minimization(P, T, data, X, Xoxides=Xoxides, sys_in=sys_in)
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
 
     @test abs(out.G_system + 916.8283889543869)/abs(916.8283889543869) < 2e-4
 
@@ -79,7 +81,7 @@ end
     X2      = [49.43; 14.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
     X       = [X1,X2]
     sys_in  = "wt"    
-    out     = multi_point_minimization(P, T, data, X, Xoxides=Xoxides, sys_in=sys_in)
+    out     = multi_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
     
     @test out[1].G_system ≈ -916.8283889543869 rtol=2e-4
     @test out[2].G_system ≈ -912.5920719174167 rtol=2e-4
@@ -87,22 +89,21 @@ end
     Finalize_MAGEMin(data)
 end
 
-@testset "view array composition" begin
+@testset "view array PT" begin
 
     data    = Initialize_MAGEMin("ig", verbose=false);
 
-    # One bulk rock for all points
-    P,T     = 10.0, 1100.0
+    # different bulk rock per point
+    P       = [10.0, 10.0, 0]
+    T       = [1100.0, 1100.0, 0]
     Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
-    X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
+    X1      = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
+    X2      = [49.43; 14.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
+    X       = [X1,X2]
     sys_in  = "wt"
-
-    X = [[1.0], X]
-    X_view = @view X[2,:]
-
-    out     = single_point_minimization(P, T, data, X_view, Xoxides=Xoxides, sys_in=sys_in)
-
-    @test abs(out.G_system + 916.8283889543869)/abs(916.8283889543869) < 2e-4
+    P_view = @view P[1:2]
+    T_view = @view T[1:2]
+    out     = multi_point_minimization(P_view, T_view, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
 
     Finalize_MAGEMin(data)
 end
@@ -133,16 +134,15 @@ end
     out         = point_wise_minimization(P,T, data)
 
     tol = 1e-2;
-    @test abs(out.bulkMod - 94.98281736576462           < tol)
-
-    @test abs(out.shearMod - 29.850198351666318         < tol)
-    @test abs(out.Vs - 3.053627667084432                < tol)
-    @test abs(out.Vp - 6.488736859059827                < tol)
-    @test abs(out.Vs_S -4.31079634563829                < tol)
-    @test abs(out.Vp_S - 7.394004577684551              < tol)
-    @test abs(out.bulkModulus_M - 27.573539721870425    < tol)
-    @test abs(out.bulkModulus_S - 95.77893514640621     < tol)
-    @test abs(out.shearModulus_S - 59.53889105245078    < tol)
+    @test abs(out.bulkMod - 95.36502708314566           < tol)
+    @test abs(out.shearMod - 29.908982525130096         < tol)
+    @test abs(out.Vs - 3.0562725380891456               < tol)
+    @test abs(out.Vp - 6.499047842613104                < tol)
+    @test abs(out.Vs_S -4.30859321743808                < tol)
+    @test abs(out.Vp_S - 7.392063221476717              < tol)
+    @test abs(out.bulkModulus_M - 27.239361903015595    < tol)
+    @test abs(out.bulkModulus_S - 95.74438231792864     < tol)
+    @test abs(out.shearModulus_S - 59.4633264822083     < tol)
 
     Finalize_MAGEMin(data)
 end
