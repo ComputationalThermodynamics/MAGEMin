@@ -17,7 +17,13 @@ Full support to install and use MAGEMin is available here: https://computational
 
 **Quick start**
 
-The easiest way to use `MAGEMin` is through the MATLAB graphical user interface, which has an installation script to download the correct parallel binaries for your system (created using [BinaryBuilder](https://binarybuilder.org) & [julia](https://julialang.org)).
+**Julia interface**
+
+To make it easier to interface `MAGEMin` with other (geodynamic) codes, we provide a [julia interface](https://github.com/ComputationalThermodynamics/MAGEMin_C.jl) to the `MAGEMin` C library, with which you can perform pointwise calculations. 
+
+**with Matlab using Julia**
+
+You can use `MAGEMin` is through the MATLAB graphical user interface, which has an installation script to download the correct parallel binaries for your system (created using [BinaryBuilder](https://binarybuilder.org) & [julia](https://julialang.org)).
 
 Follow these steps:
 1) Download a zip file with the most recent release of `MAGEMin` (click on the green `Code` button @ the top of this page) and unzip it on your machine.
@@ -25,9 +31,7 @@ Follow these steps:
 3) Follow the binary installation instructions (which requires you to install a recent [julia](https://www.julialang.org) version).
 4) After this you are ready to get started, for example by pushing the `Start new computation` button. 
 
-**Julia interface**
-
-To make it easier to interface `MAGEMin` with other (geodynamic) codes, we provide a [julia interface](https://github.com/ComputationalThermodynamics/MAGEMin_C.jl) to the `MAGEMin` C library, with which you can perform pointwise calculations. 
+Note that the Matlab GUI is not maintained anymore as the primary phase diagram generator is now the Julia app!
 
 **Manual compilation**
 
