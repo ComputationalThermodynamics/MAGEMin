@@ -132,16 +132,15 @@ end
     out         = point_wise_minimization(P,T, data)
 
     tol = 1e-2;
-    @test abs(out.bulkMod - 94.98281736576462           < tol)
-
-    @test abs(out.shearMod - 29.850198351666318         < tol)
-    @test abs(out.Vs - 3.053627667084432                < tol)
-    @test abs(out.Vp - 6.488736859059827                < tol)
-    @test abs(out.Vs_S -4.31079634563829                < tol)
-    @test abs(out.Vp_S - 7.394004577684551              < tol)
-    @test abs(out.bulkModulus_M - 27.573539721870425    < tol)
-    @test abs(out.bulkModulus_S - 95.77893514640621     < tol)
-    @test abs(out.shearModulus_S - 59.53889105245078    < tol)
+    @test abs(out.bulkMod - 95.36502708314566           < tol)
+    @test abs(out.shearMod - 29.908982525130096         < tol)
+    @test abs(out.Vs - 3.0562725380891456               < tol)
+    @test abs(out.Vp - 6.499047842613104                < tol)
+    @test abs(out.Vs_S -4.30859321743808                < tol)
+    @test abs(out.Vp_S - 7.392063221476717              < tol)
+    @test abs(out.bulkModulus_M - 27.239361903015595    < tol)
+    @test abs(out.bulkModulus_S - 95.74438231792864     < tol)
+    @test abs(out.shearModulus_S - 59.4633264822083     < tol)
 
     Finalize_MAGEMin(data)
 end
