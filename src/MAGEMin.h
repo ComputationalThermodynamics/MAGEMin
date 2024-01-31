@@ -666,6 +666,8 @@ typedef struct stb_systems {
 
 	double  alpha;
 	double  cp;
+	double  s_cp;
+	double  cp_wt;
 	double  V;
 	
 	double  entropy;

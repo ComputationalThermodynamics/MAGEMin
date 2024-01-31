@@ -153,6 +153,8 @@ void fill_output_struct(		global_variable 	 gv,
 	sp[0].rho_S				 	 = 0.0;
 	sp[0].rho_M				 	 = 0.0;
 	sp[0].rho_F				 	 = 0.0;
+	sp[0].cp_wt					 = 0.0;
+	sp[0].s_cp					 = 0.0;
 
 	/* copy data from solution phases */
 	n = 0;
@@ -173,7 +175,7 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].ph_type[n]  	 = 1;
 			sp[0].ph_id[n] 		 = m;
 			sp[0].n_SS 			+= 1;
-			
+			sp[0].cp_wt 			+= cp[i].phase_cp * cp[i].ss_n*atp2wt * cp[i].factor;
 			G = 0.0;
 			for (int j = 0; j < gv.len_ox; j++){
 				G += cp[i].ss_comp[j]*gv.gam_tot[j];
@@ -314,7 +316,8 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].ph_type[n]  	 = 0;
 			sp[0].ph_id[n] 		 = m;
 			sp[0].n_PP 			+= 1;
-					
+			sp[0].cp_wt 		+= PP_ref_db[i].phase_cp * gv.pp_n[i]*atp2wt *PP_ref_db[i].factor;
+
 			sp[0].PP[m].nOx 	 = gv.len_ox;
 			sp[0].PP[m].f 		 = PP_ref_db[i].factor;
 			sp[0].PP[m].G 		 = PP_ref_db[i].gbase;
@@ -405,6 +408,13 @@ void fill_output_struct(		global_variable 	 gv,
 	atp2wt = sum/sum_Molar_mass_bulk;
 	sp[0].frac_F_wt 		    = sp[0].frac_F*atp2wt;
 
+
+	/* compute cp as J/K/kg for given bulk-rock composition */
+	double MolarMass_system = 0.0;
+	for (int i = 0; i < gv.len_ox; i++){
+		MolarMass_system += z_b.bulk_rock[i]*(z_b.masspo[i]);
+	}
+	sp[0].s_cp 					= sp[0].cp_wt/MolarMass_system*1e6;
 
 	// debug print
 	if (1 == 0){

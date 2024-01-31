@@ -740,6 +740,7 @@ struct gmin_struct{T,I}
     alpha       :: T
     V           :: T
     cp          :: T
+    s_cp        :: T
     rho         :: T
     rho_M       :: T
     rho_S       :: T
@@ -834,6 +835,7 @@ function create_gmin_struct(DB, gv, time)
     alpha   = stb.alpha
     V       = stb.V
     cp      = stb.cp
+    s_cp    = stb.s_cp
     rho     = stb.rho
     rho_M   = stb.rho_M
     rho_S   = stb.rho_S
@@ -885,7 +887,7 @@ function create_gmin_struct(DB, gv, time)
                 bulk_wt, bulk_M_wt, bulk_S_wt, bulk_F_wt,
                 frac_M, frac_S, frac_F,
                 frac_M_wt, frac_S_wt, frac_F_wt,
-                alpha, V, cp,
+                alpha, V, cp, s_cp,
                 rho, rho_M, rho_S, rho_F,
                 fO2, aH2O, aSiO2, aTiO2, aAl2O3, aMgO, aFeO,
                 n_PP, n_SS,
@@ -1099,6 +1101,7 @@ function print_info(g::gmin_struct)
     print("$(lpad(round(g.G_system,digits=5),20," ")) ")
     print("$(lpad(round(g.alpha,digits=5),29," ")) ")
     print("$(lpad(round(g.cp,digits=5),29," ")) ")
+    print("$(lpad(round(g.s_cp,digits=5),29," ")) ")
     print("$(lpad(round(g.V,digits=5),29," ")) ")
     print("$(lpad(round(g.rho,digits=5),29," ")) ")
     print("$(lpad(round(g.entropy,digits=5),21," ")) ")

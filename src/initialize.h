@@ -1425,6 +1425,12 @@ void reset_sp(						global_variable 	 gv,
 	sp[0].aMgO  						= 0.0;
 	sp[0].aFeO  						= 0.0;
 
+	sp[0].alpha  						= 0.0;
+	sp[0].cp  							= 0.0;
+	sp[0].s_cp  						= 0.0;
+	sp[0].cp_wt  						= 0.0;
+	sp[0].V  							= 0.0;
+
 	sp[0].frac_S_wt						= 0.0;
 	sp[0].frac_M_wt						= 0.0;
 	sp[0].frac_F_wt						= 0.0;

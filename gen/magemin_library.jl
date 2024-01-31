@@ -1048,6 +1048,8 @@ struct stb_systems
     aFeO::Cdouble
     alpha::Cdouble
     cp::Cdouble
+    s_cp::Cdouble
+    cp_wt::Cdouble
     V::Cdouble
     entropy::Cdouble
     enthalpy::Cdouble
