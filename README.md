@@ -1,7 +1,7 @@
 
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://computationalthermodynamics.github.io/MAGEMin/index.html)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10573416.svg)](https://doi.org/10.5281/zenodo.10573416)
-<img src="./pics/readme_pd.png" alt="drawing" width="640" alt="centered image"/>
+<img src="https://raw.githubusercontent.com/ComputationalThermodynamics/repositories_pictures/main/MAGEMinApp/readme_pd.png?raw=true" alt="drawing" width="640" alt="centered image"/>
 
 # Mineral Assemblage Gibbs Energy Minimization (MAGEMin)
 `MAGEMin` is a Gibbs energy minimization solver package, which computes the thermodynamically most stable assemblage for a given bulk rock composition and pressure/temperature condition. It also returns parameters such as melt fraction or density, which can be combined with geodynamic/petrological tools to simulate, for example, the evolving chemistry of a crystallising melt.
@@ -11,7 +11,7 @@
 We also provide a MATLAB-based graphical user interface to help computing pseudosections for given bulk rock composition and a [julia interface](https://github.com/ComputationalThermodynamics/MAGEMin_C.jl).
 
 ## Documentation
-Full support to install and use MAGEMin is available here: https://computationalthermodynamics.github.io/MAGEMin/index.html
+Full support to install and use MAGEMin is available [here](https://computationalthermodynamics.github.io/MAGEMin/index.html)
 
 ## Installing MAGEMin
 
@@ -21,7 +21,31 @@ Full support to install and use MAGEMin is available here: https://computational
 
 To make it easier to interface `MAGEMin` with other (geodynamic) codes, we provide a [julia interface](https://github.com/ComputationalThermodynamics/MAGEMin_C.jl) to the `MAGEMin` C library, with which you can perform pointwise calculations. 
 
-**with Matlab using Julia**
+**MAGEMinApp with Julia (preferred GUI)**
+
+`MAGEMinApp` is a web-browser application ([see repository](https://github.com/ComputationalThermodynamics/MAGEMinApp.jl)) developped in Julia using `Dash.jl` that relies on `MAGEMin_C` to compute phase diagrams (PT, TX and PX) but also fractional melting and crystallization paths.
+
+To install `MAGEMinApp` simply do:
+```julia
+julia> ]
+pkg> add MAGEMinApp
+```
+
+To run the app:
+
+```julia
+julia -t 6 			# here 6 is the number of used threads. You cannot adjust the value to your machine to compute the diagrams faster!
+julia> using MAGEMinApp
+julia> App()
+[ Info: Listening on: 127.0.0.1:8050, thread id: 2
+```
+
+Then copy and paste the address `127.0.0.1:8050` in your web-browser 
+
+<img src="https://raw.githubusercontent.com/ComputationalThermodynamics/repositories_pictures/main/MAGEMinApp/MAGEMin_app.png?raw=true" alt="drawing" width="640" alt="centered image"/>
+
+\
+**With Matlab using Julia (not maintained anymore)**
 
 You can use `MAGEMin` is through the MATLAB graphical user interface, which has an installation script to download the correct parallel binaries for your system (created using [BinaryBuilder](https://binarybuilder.org) & [julia](https://julialang.org)).
 
@@ -46,6 +70,7 @@ In addition, we make use of [uthash](https://troydhanson.github.io/uthash/) and 
 
 
 ## Available thermodynamic datasets
+
 The MAGEMin algorithm is general and can be used with any thermodynamic database that are hardcoded for speed reasons. Presently the igneous (Holland et al., 2018) and the metapelite (White et al., 2014) database are available.
 
 
