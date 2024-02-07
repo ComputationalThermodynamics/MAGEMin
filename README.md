@@ -34,7 +34,7 @@ pkg> add MAGEMinApp
 To run the app:
 
 ```julia
-julia -t 6 			# here 6 is the number of used threads. You cannot adjust the value to your machine to compute the diagrams faster!
+julia -t 6 			# here 6 is the number of used threads. You can adjust the value to your machine to compute the diagrams faster!
 julia> using MAGEMinApp
 julia> App()
 [ Info: Listening on: 127.0.0.1:8050, thread id: 2
