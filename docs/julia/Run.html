@@ -150,7 +150,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#initialize-database">Initialize database</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#set-p-t-pressure-temperature">Set P-T-(pressure temperature)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#set-bulk-rock-composition">Set bulk-rock composition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#set-the-level-of-verbose-false-true-1">Set the level of verbose <code class="docutils literal notranslate"><span class="pre">[false,true,1]</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#call-optimization-routine-for-given-p-t-x">Call optimization routine for given P-T-X</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#display-minimized-point">Display minimized point</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#access-output-structure">Access output structure</a></li>
@@ -269,8 +268,7 @@
 <section id="initialize-database">
 <h2>Initialize database<a class="headerlink" href="#initialize-database" title="Permalink to this headline"></a></h2>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize database  - new way</span>
-<span class="nv">db</span>          <span class="o">=</span>   <span class="s2">&quot;ig&quot;</span>  <span class="c1"># database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b); um, ultramafic (Evans &amp; Frost 2021)</span>
-<span class="nv">data</span>        <span class="o">=</span>   Initialize_MAGEMin<span class="o">(</span>db, <span class="nv">verbose</span><span class="o">=</span><span class="nb">true</span><span class="o">)</span><span class="p">;</span>
+<span class="nv">data</span>        <span class="o">=</span>   Initialize_MAGEMin<span class="o">(</span><span class="s2">&quot;ig&quot;</span>, <span class="nv">verbose</span><span class="o">=</span><span class="nb">true</span><span class="o">)</span><span class="p">;</span> <span class="c1"># database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b); mb, metabasite (Green et al.,2016); um, ultramafic (Evans &amp; Frost 2021)</span>
 </pre></div>
 </div>
 <p>This initiatizes the global variables and the Database.</p>
@@ -292,10 +290,6 @@
 <section id="set-bulk-rock-composition">
 <h2>Set bulk-rock composition<a class="headerlink" href="#set-bulk-rock-composition" title="Permalink to this headline"></a></h2>
 <p>Use a pre-defined bulk-rock “test” composition</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">test</span>        <span class="o">=</span> <span class="m">0</span><span class="p">;</span>
-<span class="nv">gv</span>          <span class="o">=</span> use_predefined_bulk_rock<span class="o">(</span>gv, test, db<span class="o">)</span>
-</pre></div>
-</div>
 <p>or a custom bulk-rock composition:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">Xoxides</span> <span class="o">=</span> <span class="o">[</span><span class="s2">&quot;SiO2&quot;</span><span class="p">;</span> <span class="s2">&quot;Al2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;CaO&quot;</span><span class="p">;</span> <span class="s2">&quot;MgO&quot;</span><span class="p">;</span> <span class="s2">&quot;FeO&quot;</span><span class="p">;</span> <span class="s2">&quot;Fe2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;K2O&quot;</span><span class="p">;</span> <span class="s2">&quot;Na2O&quot;</span><span class="p">;</span> <span class="s2">&quot;TiO2&quot;</span><span class="p">;</span> <span class="s2">&quot;Cr2O3&quot;</span><span class="p">;</span> <span class="s2">&quot;H2O&quot;</span><span class="o">]</span><span class="p">;</span>
 <span class="nv">X</span>       <span class="o">=</span> <span class="o">[</span><span class="m">48</span>.43<span class="p">;</span> <span class="m">15</span>.19<span class="p">;</span> <span class="m">11</span>.57<span class="p">;</span> <span class="m">10</span>.13<span class="p">;</span> <span class="m">6</span>.65<span class="p">;</span> <span class="m">1</span>.64<span class="p">;</span> <span class="m">0</span>.59<span class="p">;</span> <span class="m">1</span>.87<span class="p">;</span> <span class="m">0</span>.68<span class="p">;</span> <span class="m">0</span>.0<span class="p">;</span> <span class="m">3</span>.0<span class="o">]</span><span class="p">;</span>
@@ -317,19 +311,9 @@ The function converts</p>
 <div class="line"><br /></div>
 </div>
 </section>
-<section id="set-the-level-of-verbose-false-true-1">
-<h2>Set the level of verbose <code class="docutils literal notranslate"><span class="pre">[false,true,1]</span></code><a class="headerlink" href="#set-the-level-of-verbose-false-true-1" title="Permalink to this headline"></a></h2>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>gv.verbose  <span class="o">=</span> <span class="nb">false</span>    <span class="c1"># switch off any verbose</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">false</span></code>, none; <code class="docutils literal notranslate"><span class="pre">true</span></code>, stable phase assemblage; <code class="docutils literal notranslate"><span class="pre">1</span></code>, full verbose. By default <code class="docutils literal notranslate"><span class="pre">gv.verbose</span></code> = true.</p>
-<div class="line-block">
-<div class="line"><br /></div>
-</div>
-</section>
 <section id="call-optimization-routine-for-given-p-t-x">
 <h2>Call optimization routine for given P-T-X<a class="headerlink" href="#call-optimization-routine-for-given-p-t-x" title="Permalink to this headline"></a></h2>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">out</span>     <span class="o">=</span>   single_point_minimization<span class="o">(</span>P, T, data, <span class="nv">test</span><span class="o">=</span><span class="m">0</span><span class="o">)</span><span class="p">;</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">out</span>         <span class="o">=</span>   point_wise_minimization<span class="o">(</span>P,T, data<span class="o">)</span><span class="p">;</span>
 </pre></div>
 </div>
 <p>if a predefined test is used (see <a class="reference internal" href="../ckbk/predef.html"><span class="doc">List of pre-defined bulk-rock composition</span></a>) or:</p>
