@@ -13,8 +13,7 @@ Initialize database
 .. code-block:: shell
 
    # Initialize database  - new way
-   db          =   "ig"  # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b); um, ultramafic (Evans & Frost 2021)
-   data        =   Initialize_MAGEMin(db, verbose=true);
+   data        =   Initialize_MAGEMin("ig", verbose=true); # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b); mb, metabasite (Green et al.,2016); um, ultramafic (Evans & Frost 2021)
 
 This initiatizes the global variables and the Database.
 
@@ -37,9 +36,8 @@ Set bulk-rock composition
 Use a pre-defined bulk-rock "test" composition
 
 .. code-block:: shell
-
-   test        = 0;
-   gv          = use_predefined_bulk_rock(gv, test, db)
+   test        =   0         #KLB1
+   data        =   use_predefined_bulk_rock(data, test);
 
 or a custom bulk-rock composition:
 
@@ -47,7 +45,7 @@ or a custom bulk-rock composition:
 
     Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
     X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
-    sys_in  = "wt"    
+    sys_in  = "wt"
 
 Note that the system unit :literal:`[mol,wt]` has to be provided here.
 
@@ -64,21 +62,11 @@ Note that if the provided bulk-rock composition includes more oxides than suppor
 
 |
 
-Set the level of verbose :literal:`[false,true,1]`
-**************************************************
-.. code-block:: shell   
-
-   gv.verbose  = false    # switch off any verbose
-
-:literal:`false`, none; :literal:`true`, stable phase assemblage; :literal:`1`, full verbose. By default :literal:`gv.verbose` = true.
-
-|
-
 Call optimization routine for given P-T-X
 *****************************************
 .. code-block:: shell   
 
-   out     =   single_point_minimization(P, T, data, test=0);
+   out         =   point_wise_minimization(P,T, data);
 
 if a predefined test is used (see :doc:`/ckbk/predef`) or:
 

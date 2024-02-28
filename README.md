@@ -44,6 +44,9 @@ Then copy and paste the address `127.0.0.1:8050` in your web-browser
 
 <img src="https://raw.githubusercontent.com/ComputationalThermodynamics/repositories_pictures/main/MAGEMinApp/MAGEMin_app.png?raw=true" alt="drawing" width="640" alt="centered image"/>
 
+> [!CAUTION]
+> There is some issues with Windows machine (loading `Kaleido`). `] add MAGEMinApp` works well, however when `using MAGEMinApp` it may hang indefinitely. Currently, the current workaround is to cancel `CTRL+C` and try `using MAGEMinApp` a couple of time.
+
 \
 **With Matlab using Julia (not maintained anymore)**
 

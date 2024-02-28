@@ -459,6 +459,7 @@ function convertBulk4MAGEMin(bulk_in::T1,bulk_in_ox::Vector{String},sys_in::Stri
 
 	MAGEMin_bulk    = zeros(length(MAGEMin_ox));
     bulk            = zeros(length(MAGEMin_ox));
+    
 	# convert to mol, if system unit = wt
 	if sys_in == "wt"
 		for i=1:length(bulk_in_ox)
@@ -495,7 +496,7 @@ function convertBulk4MAGEMin(bulk_in::T1,bulk_in_ox::Vector{String},sys_in::Stri
     if db == "ig" || db == "igd" || db == "ige" ||  db == "alk"
         c = findall(MAGEMin_ox .!= "Cr2O3" .&& MAGEMin_ox .!= "TiO2" .&& MAGEMin_ox .!= "O" .&& MAGEMin_ox .!= "H2O");
         d = findall(MAGEMin_ox .== "Cr2O3" .|| MAGEMin_ox .== "TiO2" .|| MAGEMin_ox .== "O");# .|| MAGEMin_ox .== "H2O");
-    elseif db == "mb"               #for the metabasite database it is better to set a low value for H2O as dry system have not been validated
+    elseif db == "mb"               #for the metabasite database it is better to set a low value for H2O as dry system have not been validated by Eleanor
         c = findall(MAGEMin_ox .!= "TiO2" .&& MAGEMin_ox .!= "O");
         d = findall(MAGEMin_ox .== "TiO2" .|| MAGEMin_ox .== "O");
     else
