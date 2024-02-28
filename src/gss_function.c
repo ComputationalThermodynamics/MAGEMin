@@ -4297,6 +4297,14 @@ SS_ref G_SS_ig_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
 	}
+	if (z_b.bulk_rock[7] == 0.){ 					
+		SS_ref_db.z_em[4]          = 0.0;
+        SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0; 
+		SS_ref_db.bounds_ref[3][1] = 0.0;	
+	}
+
+
     /* this lists the index of the order variables */
     SS_ref_db.orderVar      = 1;
     SS_ref_db.idOrderVar[4] = -1.0;
@@ -4545,7 +4553,12 @@ SS_ref G_SS_ig_cpx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 		SS_ref_db.bounds_ref[5][0] = 0.0; 
 		SS_ref_db.bounds_ref[5][1] = 0.0;	
 	}
-    
+  	if (z_b.bulk_rock[7] == 0.){ 					
+		SS_ref_db.z_em[5]          = 0.0;
+        SS_ref_db.d_em[5]          = 1.0;
+		SS_ref_db.bounds_ref[7][0] = 0.0; 
+		SS_ref_db.bounds_ref[7][1] = 0.0;	
+	}  
     return SS_ref_db;
 }
 
@@ -4945,6 +4958,13 @@ SS_ref G_SS_ig_fl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 		SS_ref_db.bounds_ref[5][0] = 0.0; 
 		SS_ref_db.bounds_ref[5][1] = 0.0;	
 	}
+	if (z_b.bulk_rock[7] == 0.){ 					
+		SS_ref_db.z_em[8]          = 0.0;
+        SS_ref_db.d_em[8]          = 1.0;
+		SS_ref_db.bounds_ref[7][0] = 0.0; 
+		SS_ref_db.bounds_ref[7][1] = 0.0;	
+	}
+
 	return SS_ref_db;
 }
 
@@ -5098,6 +5118,12 @@ SS_ref G_SS_ig_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
         SS_ref_db.d_em[3]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
+	}
+	if (z_b.bulk_rock[7] == 0.){ 					
+		SS_ref_db.z_em[5]          = 0.0;
+        SS_ref_db.d_em[5]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0; 
+		SS_ref_db.bounds_ref[4][1] = 0.0;	
 	}
 	return SS_ref_db;
 }
@@ -5344,6 +5370,12 @@ SS_ref G_SS_ig_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
         SS_ref_db.d_em[8]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
 		SS_ref_db.bounds_ref[6][1] = 0.0;	
+	}
+	if (z_b.bulk_rock[7] == 0.){ 					
+		SS_ref_db.z_em[10]          = 0.0;
+        SS_ref_db.d_em[10]          = 1.0;
+		SS_ref_db.bounds_ref[7][0] = 0.0; 
+		SS_ref_db.bounds_ref[7][1] = 0.0;	
 	}
     
 
@@ -5696,6 +5728,12 @@ SS_ref G_SS_ig_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
         SS_ref_db.d_em[6]          = 1.0;
 		SS_ref_db.bounds_ref[5][0] = 0.0; 
 		SS_ref_db.bounds_ref[5][1] = 0.0;	
+	}
+	if (z_b.bulk_rock[7] == 0.){ 					
+		SS_ref_db.z_em[8]          = 0.0;
+        SS_ref_db.d_em[8]          = 1.0;
+		SS_ref_db.bounds_ref[7][0] = 0.0; 
+		SS_ref_db.bounds_ref[7][1] = 0.0;	
 	}
     return SS_ref_db;
 }
@@ -6124,6 +6162,12 @@ SS_ref G_SS_ig_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 		SS_ref_db.bounds_ref[4][0] = 0.0; 
 		SS_ref_db.bounds_ref[4][1] = 0.0;	
 	}
+	if (z_b.bulk_rock[7] == 0.){ 					
+		SS_ref_db.z_em[6]          = 0.0;
+        SS_ref_db.d_em[6]          = 1.0;
+		SS_ref_db.bounds_ref[5][0] = 0.0; 
+		SS_ref_db.bounds_ref[5][1] = 0.0;	
+	}
     
     return SS_ref_db;
 }
@@ -6348,7 +6392,12 @@ SS_ref G_SS_ig_spn_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 		SS_ref_db.bounds_ref[1][0] = 0.0; 
 		SS_ref_db.bounds_ref[1][1] = 0.0;	
 	}
-
+	if (z_b.bulk_rock[7] == 0.){ 					
+		SS_ref_db.z_em[7]          = 0.0;
+        SS_ref_db.d_em[7]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0; 
+		SS_ref_db.bounds_ref[3][1] = 0.0;	
+	}
     /* this lists the index of the order variables */
     SS_ref_db.orderVar      = 1;
     SS_ref_db.idOrderVar[4] = -1.0;
@@ -7383,12 +7432,14 @@ SS_ref G_SS_mb_EM_function(		global_variable 	 gv,
         else if (strcmp( name, "sp") == 0 ){
             SS_ref_db  = G_SS_mb_sp_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "ilm") == 0 ){
-            // if no H2O, deactivate
-			if (z_b.bulk_rock[gv.O_id] == 0. && z_b.bulk_rock[gv.TiO2_id] == 0.){
+			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
             SS_ref_db  = G_SS_mb_ilm_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "ilmm") == 0 ){
+			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
             SS_ref_db  = G_SS_mb_ilmm_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "ep") == 0 ){
             SS_ref_db  = G_SS_mb_ep_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
@@ -7514,6 +7565,9 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
 			}
 			SS_ref_db  = G_SS_ig_hb_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}	
 		else if (strcmp( name, "ilm") == 0){
+			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
 			SS_ref_db  = G_SS_ig_ilm_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "liq") == 0){
 			/* turn of liquid when T < 600°C) */
@@ -7684,8 +7738,14 @@ SS_ref G_SS_mp_EM_function(		global_variable 	 gv,
 		else if (strcmp( name, "sp") == 0){
 			SS_ref_db  = G_SS_mp_sp_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	    }
 		else if (strcmp( name, "ilm") == 0){
+			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
 			SS_ref_db  = G_SS_mp_ilm_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);    }
 		else if (strcmp( name, "ilmm") == 0){
+			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
 			SS_ref_db  = G_SS_mp_ilmm_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);    }
 		else if (strcmp( name, "mt") == 0){
 			SS_ref_db  = G_SS_mp_mt_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	    }
