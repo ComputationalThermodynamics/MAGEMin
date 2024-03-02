@@ -372,18 +372,42 @@ void fill_output_struct(		global_variable 	 gv,
 	}
 
 	sum = 0.0;
+	sum_mol = 0.0;
 	for (j = 0; j < gv.len_ox; j++){
 		sp[0].bulk_S_wt[j]	    = sp[0].bulk_S[j]*z_b.masspo[j];
 		sum 				   += sp[0].bulk_S_wt[j];
+		sum_mol 			   += sp[0].bulk_S[j];
 	}
 
 	for (j = 0; j < gv.len_ox; j++){
 		sp[0].bulk_S_wt[j]	   /= sum;
+		sp[0].bulk_S[j] 	   /= sum_mol;
 	}
 
 	atp2wt = sum/sum_Molar_mass_bulk;
 	sp[0].frac_S_wt 		    = sp[0].frac_S*atp2wt;
 
+	/* normalize bulk_M */
+
+	for (j = 0; j < gv.len_ox; j++){
+		sp[0].bulk_M[j]	   		/= sp[0].frac_M;
+	}
+
+	sum 	= 0.0;
+	sum_mol = 0.0;
+	for (j = 0; j < gv.len_ox; j++){
+		sp[0].bulk_M_wt[j]	    = sp[0].bulk_M[j]*z_b.masspo[j];
+		sum 				   += sp[0].bulk_M_wt[j];
+		sum_mol 			   += sp[0].bulk_M[j];
+	}
+
+	for (j = 0; j < gv.len_ox; j++){
+		sp[0].bulk_M_wt[j]	   /= sum;
+		sp[0].bulk_M[j] 	   /= sum_mol;
+	}
+
+	atp2wt = sum/sum_Molar_mass_bulk;
+	sp[0].frac_M_wt 		    = sp[0].frac_M*atp2wt;
 
 	/* normalize rho_F and bulk_F */
 	sp[0].rho_F  				/= sp[0].frac_F;
