@@ -388,7 +388,6 @@ void fill_output_struct(		global_variable 	 gv,
 	sp[0].frac_S_wt 		    = sp[0].frac_S*atp2wt;
 
 	/* normalize bulk_M */
-
 	for (j = 0; j < gv.len_ox; j++){
 		sp[0].bulk_M[j]	   		/= sp[0].frac_M;
 	}
