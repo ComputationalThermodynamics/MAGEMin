@@ -185,7 +185,7 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].SS[m].f 		 = cp[i].factor;
 			sp[0].SS[m].G 		 = G;
 			sp[0].SS[m].deltaG	 = cp[i].df;
-			sp[0].SS[m].V 		 = cp[i].volume;
+			sp[0].SS[m].V 		 = cp[i].volume*10.;
 			sp[0].SS[m].cp 		 = cp[i].phase_cp;
 			sp[0].SS[m].rho 	 = cp[i].phase_density;
 			sp[0].SS[m].alpha 	 = cp[i].phase_expansivity;
@@ -322,7 +322,7 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].PP[m].f 		 = PP_ref_db[i].factor;
 			sp[0].PP[m].G 		 = PP_ref_db[i].gbase;
 			sp[0].PP[m].deltaG	 = PP_ref_db[i].gb_lvl;
-			sp[0].PP[m].V 		 = PP_ref_db[i].volume;
+			sp[0].PP[m].V 		 = PP_ref_db[i].volume*10.;
 			sp[0].PP[m].cp 		 = PP_ref_db[i].phase_cp;
 			sp[0].PP[m].rho 	 = PP_ref_db[i].phase_density;
 			sp[0].PP[m].alpha 	 = PP_ref_db[i].phase_expansivity;
