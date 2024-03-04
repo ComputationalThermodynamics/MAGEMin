@@ -1455,6 +1455,7 @@ void reset_sp(						global_variable 	 gv,
 		sp[0].ph_id[i] 					=  0;
 		sp[0].ph_frac[i] 				=  0.0;
 		sp[0].ph_frac_wt[i] 			=  0.0;
+		sp[0].ph_frac_vol[i] 			=  0.0;
 	}
 
 	/* reset phases */
