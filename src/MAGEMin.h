@@ -75,6 +75,7 @@ typedef struct global_variables {
 	double   relax_PGE_val;
 	double   PC_df_add;
 	double   PC_min_dist;
+	int 	 PC_checked;
 	double	 PC_check_val1;
 	double	 PC_check_val2;
 	int	     check_PC1;
@@ -126,7 +127,9 @@ typedef struct global_variables {
 	int      n_pc;				/** maximum number of pseudocompounds to store 								*/
 
 	/*linear programming during PGE */
+	double   df_igpc;
 	int  	 n_Ppc;
+	int  	 n_igpc;
 	int      max_LP_ite;
 	double   save_Ppc_val;
 	int 	 launch_PGE;
@@ -385,6 +388,19 @@ typedef struct SS_refs {
 	double **xeos_Ppc;			/** x-eos array of the pseudocompounds 										*/
 	double  *factor_Ppc;		/** normalization factor of each PC, mainly useful for liquid 				*/
 
+	/** data needed for global minimum differentiation **/
+	int      n_igpc;			/** maximum number of pseudocompounds to store 								*/
+	int      tot_igpc;			/** total number of pseudocompounds  										*/
+	int      id_igpc;			/** total number of pseudocompounds  										*/
+	int     *info_igpc;			/** store some infos for debugging 											*/
+	double  *G_igpc;			/** array to store the gibbs energy of the pseudocompounds 					*/
+	double  *DF_igpc;			/** array to store the final driving force of the pseudocompounds 			*/
+	double **comp_igpc;			/** compositional array of the pseudocompounds 								*/
+	double **p_igpc;			/** compositional array of the pseudocompounds 								*/
+	double **mu_igpc;			/** compositional array of the pseudocompounds 								*/
+	double **xeos_igpc;			/** x-eos array of the pseudocompounds 										*/
+	double  *factor_igpc;		/** normalization factor of each PC, mainly useful for liquid 				*/
+
 	/** data needed for phase change and solvus processing **/	
 	int	    *solvus_id;
 	
@@ -407,7 +423,7 @@ typedef struct SS_refs {
     double **Comp;    			/** 2d array of endmember composition 										*/
     double  *gbase;        		/** 1d array of gbase 														*/
 
-    double **mu_array;        	/** 2d array of gbase, including values for numerical differentiation 		*/
+    double **gb_array;        	/** 2d array of gbase, including values for numerical differentiation 		*/
     double  *gb_lvl;
     double   factor;			/** normalizing factor 														*/
     double **bounds;			/** x-eos bounds 															*/

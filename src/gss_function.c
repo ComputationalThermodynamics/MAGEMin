@@ -7400,6 +7400,10 @@ SS_ref G_SS_mb_EM_function(		global_variable 	 gv,
 			SS_ref_db.P = 1.+ gv.gb_P_eps*gv.pdev[0][FD];
 			SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
 		}
+		else if (FD == 10 || FD == 11){				// dG/dP0 to get Volume at P = 1bar
+			SS_ref_db.P = P;
+			SS_ref_db.T = T + gv.pdev[1][FD];
+		}
 		else{
 			SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
 			SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
@@ -7453,7 +7457,7 @@ SS_ref G_SS_mb_EM_function(		global_variable 	 gv,
             printf("\nsolid solution '%s' is not in the database\n",name);	}
 
         for (int j = 0; j < SS_ref_db.n_em; j++){
-            SS_ref_db.mu_array[FD][j] = SS_ref_db.gbase[j];
+            SS_ref_db.gb_array[FD][j] = SS_ref_db.gbase[j];
         }
     }
 
@@ -7596,7 +7600,7 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
 			printf("\nsolid solution '%s' is not in the database\n",name);	}	
 		
 		for (int j = 0; j < SS_ref_db.n_em; j++){
-			SS_ref_db.mu_array[FD][j] = SS_ref_db.gbase[j];
+			SS_ref_db.gb_array[FD][j] = SS_ref_db.gbase[j];
 		}
 	}
 
@@ -7754,7 +7758,7 @@ SS_ref G_SS_mp_EM_function(		global_variable 	 gv,
 		else{
 			printf("\nsolid solution '%s' is not in the database\n",name);	                    }	
 		for (int j = 0; j < SS_ref_db.n_em; j++){
-			SS_ref_db.mu_array[FD][j] = SS_ref_db.gbase[j];
+			SS_ref_db.gb_array[FD][j] = SS_ref_db.gbase[j];
 			// printf(" %+10.10f",SS_ref_db.gbase[j]);
 		}
 		// printf("\n");
@@ -7891,7 +7895,7 @@ SS_ref G_SS_um_EM_function(		global_variable 	 gv,
 			printf("\nsolid solution '%s' is not in the database\n",name);	}	
 		
 		for (int j = 0; j < SS_ref_db.n_em; j++){
-			SS_ref_db.mu_array[FD][j] = SS_ref_db.gbase[j];
+			SS_ref_db.gb_array[FD][j] = SS_ref_db.gbase[j];
 			// printf(" %+10.10f",SS_ref_db.gbase[j]);
 		}
 		// printf("\n");

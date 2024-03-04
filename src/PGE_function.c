@@ -1249,6 +1249,7 @@ global_variable LP(		bulk_info 			z_b,
 							cp	);
 
 	while (iterate == 1){
+		gv.PC_checked = 0;
 
 		t = clock();
 
@@ -1267,6 +1268,7 @@ global_variable LP(		bulk_info 			z_b,
 				printf("\n");
 			}
 			nCheck += 1;
+			gv.PC_checked = 1;
 		}
 
 		if (gv.verbose == 1){
@@ -1397,6 +1399,7 @@ global_variable PGE(	bulk_info 			z_b,
 	int pc_checked = 0;
 
 	while (iterate == 1){
+		gv.PC_checked = 0;
 		pc_checked = 0;
 		t = clock();
 		if (gv.verbose == 1){
@@ -1438,7 +1441,8 @@ global_variable PGE(	bulk_info 			z_b,
 											cp				); 					
 			
 			gv.check_PC1 		= 1;
-			pc_checked 			= 1;				
+			pc_checked 			= 1;	
+			gv.PC_checked 		= 1;			
 		}
 		/**
 			check driving force of PC when getting close to convergence
@@ -1456,7 +1460,8 @@ global_variable PGE(	bulk_info 			z_b,
 											SS_ref_db,
 											cp				); 					
 			
-			gv.check_PC2 		= 1;					
+			gv.check_PC2 		= 1;	
+			gv.PC_checked 		= 1;				
 		}	
 
 		/**
