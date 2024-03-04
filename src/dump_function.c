@@ -82,7 +82,6 @@ void fill_output_struct(		global_variable 	 gv,
 	double sum;
 	double sum_wt;
 	double sum_mol;
-	double sum_vol;
 	double sum_em_wt;
 	double sum_ph_mass;
 
@@ -366,38 +365,6 @@ void fill_output_struct(		global_variable 	 gv,
 		}
 	}
 	
-
-	// compute volume fraction and normalize other fractions
-	sum_vol = 0.0;
-	sum_mol = 0.0;
-	sum_wt  = 0.0;
-	n = 0;
-	for (int i = 0; i < gv.len_cp; i++){
-		if ( cp[i].ss_flags[1] == 1){
-			sp[0].ph_frac_vol[n] = sp[0].ph_frac_wt[n] / sp[0].SS[n].rho;
-			sum_vol += sp[0].ph_frac_vol[n];
-			sum_mol += sp[0].ph_frac[n];
-			sum_wt  += sp[0].ph_frac_wt[n];
-			n+=1;
-		}
-	}
-	m = 0;
-	for (int i = 0; i < gv.len_pp; i++){
-		if (gv.pp_flags[i][1] == 1){
-			sp[0].ph_frac_vol[n] =  sp[0].ph_frac_wt[n] / sp[0].PP[m].rho;
-			sum_vol += sp[0].ph_frac_vol[n];
-			sum_mol += sp[0].ph_frac[n];
-			sum_wt  += sp[0].ph_frac_wt[n];
-			m +=1;
-			n +=1;
-		}
-	}
-	for (int i = 0; i < gv.n_phase; i++){
-		sp[0].ph_frac_vol[i] 	/= sum_vol;
-		sp[0].ph_frac[i] 		/= sum_mol;
-		sp[0].ph_frac_wt[i] 	/= sum_wt;
-	}
-
 	/* normalize rho_S and bulk_S */
 	sp[0].rho_S  				/= sp[0].frac_S;
 	for (j = 0; j < gv.len_ox; j++){
@@ -464,6 +431,7 @@ void fill_output_struct(		global_variable 	 gv,
 	atp2wt = sum/sum_Molar_mass_bulk;
 	sp[0].frac_F_wt 		    = sp[0].frac_F*atp2wt;
 
+
 	/* compute cp as J/K/kg for given bulk-rock composition */
 	double MolarMass_system = 0.0;
 	for (int i = 0; i < gv.len_ox; i++){
@@ -473,12 +441,6 @@ void fill_output_struct(		global_variable 	 gv,
 
 	// debug print
 	if (1 == 0){
-		printf("Phase vol\n");
-		for (int m = 0; m < gv.n_phase; m++){
-			printf(" %4s %+10f\n",sp[0].ph[m],sp[0].ph_frac_vol[m]);
-		}
-		printf("\n");
-		printf("Phase wt\n");
 		for (int m = 0; m < gv.n_phase; m++){
 			printf(" %4s %+10f\n",sp[0].ph[m],sp[0].ph_frac_wt[m]);
 		}

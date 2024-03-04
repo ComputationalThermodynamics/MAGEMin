@@ -6,6 +6,9 @@ using ProgressMeter
 
 const VecOrMat = Union{Nothing, AbstractVector{Float64}, AbstractVector{<:AbstractVector{Float64}}}
 
+# export  init_MAGEMin, finalize_MAGEMin, point_wise_minimization, convertBulk4MAGEMin, use_predefined_bulk_rock, define_bulk_rock,create_output,
+#         print_info, create_gmin_struct, pwm_init, pwm_run
+
 export  init_MAGEMin, finalize_MAGEMin, point_wise_minimization, convertBulk4MAGEMin, use_predefined_bulk_rock, define_bulk_rock, create_output,
         print_info, create_gmin_struct, pwm_init, pwm_run,
         single_point_minimization, multi_point_minimization, MAGEMin_Data, W_Data,
@@ -447,7 +450,7 @@ function convertBulk4MAGEMin(bulk_in::T1,bulk_in_ox::Vector{String},sys_in::Stri
     elseif db == "mb"
         MAGEMin_ox      = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "H2O"];
     elseif db == "um"
-        MAGEMin_ox      = ["SiO2"; "Al2O3"; "MgO"; "FeO"; "O"; "H2O"; "S"];
+        MAGEMin_ox      = ["SiO2"; "Al2O3"; "MgO" ;"FeO"; "O"; "H2O"; "S"];
     elseif db == "mp"
         MAGEMin_ox      = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "MnO"; "H2O"];
     else
@@ -761,7 +764,6 @@ struct gmin_struct{T,I}
 
     ph_frac     :: Vector{T}          # phase fractions
     ph_frac_wt  :: Vector{T}          # phase fractions
-    ph_frac_vol :: Vector{T}          # phase fractions
     ph_type     :: Vector{I}      # type of phase (SS or PP)
     ph_id       :: Vector{I}        # id of phase
     ph          :: Vector{String}          # Name of phase
@@ -862,7 +864,6 @@ function create_gmin_struct(DB, gv, time)
 
     ph_frac  =  unsafe_wrap(Vector{Cdouble},stb.ph_frac,   n_ph)
     ph_frac_wt  =  unsafe_wrap(Vector{Cdouble},stb.ph_frac_wt,   n_ph)
-    ph_frac_vol =  unsafe_wrap(Vector{Cdouble},stb.ph_frac_vol,   n_ph)
     ph_type  =  unsafe_wrap(Vector{Cint},   stb.ph_type,   n_ph)
     ph_id    =  unsafe_wrap(Vector{Cint},   stb.ph_id  ,   n_ph)
     ph       =  unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, stb.ph, n_ph)) # stable phases
@@ -891,7 +892,7 @@ function create_gmin_struct(DB, gv, time)
                 rho, rho_M, rho_S, rho_F,
                 fO2, aH2O, aSiO2, aTiO2, aAl2O3, aMgO, aFeO,
                 n_PP, n_SS,
-                ph_frac, ph_frac_wt, ph_frac_vol, ph_type, ph_id, ph,
+                ph_frac, ph_frac_wt, ph_type, ph_id, ph,
                 SS_vec,  PP_vec,
                 oxides,
                 stb.Vp, stb.Vs, stb.Vp_S, stb.Vs_S, stb.bulkMod, stb.shearMod, stb.bulkModulus_M,  stb.bulkModulus_S, stb.shearModulus_S,
@@ -914,9 +915,6 @@ function show(io::IO, g::gmin_struct)
     println(io, "     Stable phase | Fraction (wt fraction) ")
     for i=1:length(g.ph)
         println(io, "   $(lpad(g.ph[i],14," "))   $( round(g.ph_frac_wt[i], digits=5)) ")
-    end
-    for i=1:length(g.ph)
-        println(io, "   $(lpad(g.ph[i],14," "))   $( round(g.ph_frac_vol[i], digits=5)) ")
     end
     println(io, "Gibbs free energy : $(round(g.G_system,digits=6))  ($(g.iter) iterations; $(round(g.time_ms,digits=2)) ms)")
     if g.status>0
@@ -1063,7 +1061,6 @@ function print_info(g::gmin_struct)
         print("$(lpad(g.ph[i],15," ")) ")
         print("$(lpad(round(g.ph_frac[i],digits=5),13," ")) ")
         print("$(lpad(round(g.ph_frac_wt[i],digits=5),8," ")) ")
-        print("$(lpad(round(g.ph_frac_vol[i],digits=5),8," ")) ")
         print("$(lpad(round(g.SS_vec[i].f,digits=5),8," ")) ")
         print("$(lpad(round(g.SS_vec[i].G,digits=5),8," ")) ")
         print("$(lpad(round(g.SS_vec[i].V,digits=5),8," ")) ")
@@ -1083,7 +1080,6 @@ function print_info(g::gmin_struct)
         print("$(lpad(g.ph[i],15," ")) ")
         print("$(lpad(round(g.ph_frac[i],digits=5),13," ")) ")
         print("$(lpad(round(g.ph_frac_wt[i],digits=5),8," ")) ")
-        print("$(lpad(round(g.ph_frac_vol[i],digits=5),8," ")) ")
         print("$(lpad(round(g.PP_vec[i].f,digits=5),8," ")) ")
         print("$(lpad(round(g.PP_vec[i].G,digits=5),8," ")) ")
         print("$(lpad(round(g.PP_vec[i].V,digits=5),8," ")) ")
@@ -1103,7 +1099,6 @@ function print_info(g::gmin_struct)
     print("$(lpad("SYS",15," ")) ")
     print("$(lpad(round(sum(g.ph_frac),digits=5),13," ")) ")
     print("$(lpad(round(sum(g.ph_frac_wt),digits=5),8," ")) ")
-    print("$(lpad(round(sum(g.ph_frac_vol),digits=5),8," ")) ")
     print("$(lpad(round(g.G_system,digits=5),20," ")) ")
     print("$(lpad(round(g.alpha,digits=5),29," ")) ")
     print("$(lpad(round(g.cp,digits=5),29," ")) ")
