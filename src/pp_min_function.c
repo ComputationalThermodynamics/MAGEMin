@@ -384,10 +384,12 @@ global_variable init_em_db(		int 				EM_database,
 				gv.pp_flags[i][3] = 1;
 			}
 			else{
-				gv.pp_flags[i][0] = 1;
-				gv.pp_flags[i][1] = 0;
-				gv.pp_flags[i][2] = 1;
-				gv.pp_flags[i][3] = 0;
+				if (gv.pp_flags[i][0] != 0){ 			//here  we check if the pure phase is deactivated from the start (O2 for instance)
+					gv.pp_flags[i][0] = 1;
+					gv.pp_flags[i][1] = 0;
+					gv.pp_flags[i][2] = 1;
+					gv.pp_flags[i][3] = 0;
+				}
 			}
 
 			/* If buffer not active then remove it */

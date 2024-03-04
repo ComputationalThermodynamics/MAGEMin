@@ -206,6 +206,7 @@ void copy_to_cp(		int 				 i,
 	add minimized phase to LP PGE pseudocompound list 
 */
 void copy_to_Ppc(		int 				 i, 
+						int 				 pc_check,
 						int 				 ph_id,
 						global_variable 	 gv,
 
@@ -231,7 +232,13 @@ void copy_to_Ppc(		int 				 i,
 		
 		m_Ppc = SS_ref_db[ph_id].id_Ppc;
 
-		SS_ref_db[ph_id].info_Ppc[m_Ppc]   = 0;
+		if (pc_check == 1){
+			SS_ref_db[ph_id].info_Ppc[m_Ppc]   = 9;
+		}
+		else{
+			SS_ref_db[ph_id].info_Ppc[m_Ppc]   = 0;
+		}
+		
 		SS_ref_db[ph_id].factor_Ppc[m_Ppc] = SS_ref_db[ph_id].factor;
 		SS_ref_db[ph_id].DF_Ppc[m_Ppc]     = G;
 		
@@ -265,9 +272,11 @@ void ss_min_PGE(		global_variable 	 gv,
 						csd_phase_set  		*cp
 ){
 	int 	ph_id;
+	int 	pc_check;
 
 	for (int i = 0; i < gv.len_cp; i++){ 
 		if (cp[i].ss_flags[0] == 1){
+			pc_check = gv.PC_checked;
 			ph_id = cp[i].id;
 			cp[i].min_time		  		= 0.0;								/** reset local minimization time to 0.0 */
 
@@ -336,15 +345,19 @@ void ss_min_PGE(		global_variable 	 gv,
 														gv,
 														SS_ref_db,
 														cp						);	
-				// if ( SS_ref_db[ph_id].df < gv.save_Ppc_val ){
-				// 	copy_to_Ppc(							i, 
-				// 											ph_id,
-				// 											gv,
+				if ( pc_check == 1){
+					if (SS_ref_db[ph_id].df_raw < 1e-3 || SS_ref_db[ph_id].df_raw > 0.25){
+						pc_check = 0;
+					}
+					copy_to_Ppc(							i, 
+															pc_check,
+															ph_id,
+															gv,
 
-				// 											SS_objective,
-				// 											SS_ref_db,
-				// 											cp						);
-				// }
+															SS_objective,
+															SS_ref_db,
+															cp						);
+				}
 
 			}
 			else{
@@ -422,7 +435,9 @@ void ss_min_LP(			global_variable 	 gv,
 
 	double r;
 	int 	ph_id;
+	int     pc_check;
 	for (int i = 0; i < gv.len_cp; i++){ 
+		pc_check = gv.PC_checked;
 
 		if (cp[i].ss_flags[0] == 1){
 			ph_id = cp[i].id;
@@ -502,7 +517,11 @@ void ss_min_LP(			global_variable 	 gv,
 					add minimized phase to LP PGE pseudocompound list 
 				*/
 				if (SS_ref_db[ph_id].sf_ok == 1){
+					if (SS_ref_db[ph_id].df_raw < 1e-3 || SS_ref_db[ph_id].df_raw > 0.25 || add != 0){
+						pc_check = 0;
+					}
 					copy_to_Ppc(							i, 
+															pc_check,
 															ph_id,
 															gv,
 
@@ -527,6 +546,7 @@ void ss_min_LP(			global_variable 	 gv,
 																	gv.SS_list[ph_id]		);
 
 						copy_to_Ppc(								i, 
+																	0,
 																	ph_id,
 																	gv,
 

@@ -403,7 +403,7 @@ global_variable check_PC(					bulk_info 	 		 z_b,
 /**
 	checks if the pseudocompounds generated during the levelling stage yield a negative driving force
 */
-global_variable check_PC_driving_force(		bulk_info 	 z_b,
+global_variable check_PC_driving_force(		bulk_info 	 		 z_b,
 											global_variable  	 gv,
 
 											PP_ref 				*PP_ref_db,
@@ -438,6 +438,35 @@ global_variable check_PC_driving_force(		bulk_info 	 z_b,
 			}	
 		}
 	}
+
+	if (1 == 0){
+		for (int i = 0; i < gv.len_ss; i++){
+			if (SS_ref_db[i].ss_flags[0] == 1){
+					
+				n_em 	 = SS_ref_db[i].n_em;
+
+				for (int l = 0; l < SS_ref_db[i].tot_Ppc; l++){
+					SS_ref_db[i].DF_Ppc[l] = SS_ref_db[i].G_Ppc[l];
+					for (int j = 0; j < gv.len_ox; j++) {
+						SS_ref_db[i].DF_Ppc[l] -= SS_ref_db[i].comp_Ppc[l][j]*gv.gam_tot[j];
+					}
+					
+					if (SS_ref_db[i].info_Ppc[l] == 9){
+						printf("%4s #%4d | %+10f | ",gv.SS_list[i],l,SS_ref_db[i].DF_Ppc[l]);
+						for (int k = 0; k < SS_ref_db[i].n_xeos; k++) {
+							printf(" %+10f",SS_ref_db[i].xeos_Ppc[l][k]);
+						}
+						for (int k = SS_ref_db[i].n_xeos; k < 11; k++){
+							printf(" %10s","-");
+						}
+
+						printf("\n");
+					}
+				}	
+			}
+		}
+	}
+	
 
 	return gv;
 };

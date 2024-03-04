@@ -553,6 +553,7 @@ mutable struct global_variables
     PC_min_dist::Cdouble
     PC_check_val1::Cdouble
     PC_check_val2::Cdouble
+    PC_checked::Cint
     check_PC1::Cint
     check_PC2::Cint
     len_pp::Cint

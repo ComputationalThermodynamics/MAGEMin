@@ -77,6 +77,7 @@ typedef struct global_variables {
 	double   PC_min_dist;
 	double	 PC_check_val1;
 	double	 PC_check_val2;
+	int      PC_checked;
 	int	     check_PC1;
 	int	     check_PC2;
 	int      len_pp;			/** initial number of active pure phases */

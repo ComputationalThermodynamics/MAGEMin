@@ -1315,18 +1315,23 @@ global_variable reset_gv(					global_variable 	 gv,
 				gv.pp_flags[i][4] = 0;
 			}
 		}
-		// else if(strcmp( gv.PP_list[i], "O2") == 0){
-		// 	gv.pp_flags[i][0] = 0;
-		// 	gv.pp_flags[i][1] = 0;
-		// 	gv.pp_flags[i][2] = 0;
-		// 	gv.pp_flags[i][3] = 1;
-		// }
 		else{
-			gv.pp_flags[i][0] = 1;
-			gv.pp_flags[i][1] = 0;
-			gv.pp_flags[i][2] = 1;
-			gv.pp_flags[i][3] = 0;
-			gv.pp_flags[i][4] = 0;
+
+			if(strcmp( gv.PP_list[i], "O2") == 0){
+				gv.pp_flags[i][0] = 0;
+				gv.pp_flags[i][1] = 0;
+				gv.pp_flags[i][2] = 0;
+				gv.pp_flags[i][3] = 1;
+				gv.pp_flags[i][4] = 0;
+			}
+			else{
+				gv.pp_flags[i][0] = 1;
+				gv.pp_flags[i][1] = 0;
+				gv.pp_flags[i][2] = 1;
+				gv.pp_flags[i][3] = 0;
+				gv.pp_flags[i][4] = 0;
+			}
+
 		}
 	}
 	gv.tot_time 	  	  = 0.0;
@@ -1364,6 +1369,7 @@ global_variable reset_gv(					global_variable 	 gv,
 	gv.system_Vs 		  = 0.;
 	gv.V_cor[0]			  = 0.;
 	gv.V_cor[1]			  = 0.;
+	gv.PC_checked		  = 0;
 	gv.check_PC1		  = 0;
 	gv.check_PC2		  = 0;
 	gv.len_cp 		  	  = 0;

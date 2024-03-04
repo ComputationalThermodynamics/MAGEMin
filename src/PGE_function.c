@@ -1249,10 +1249,12 @@ global_variable LP(		bulk_info 			z_b,
 							cp	);
 
 	while (iterate == 1){
+		gv.PC_checked = 0;
 
 		t = clock();
 
 		if ((gv.gamma_norm[gv.global_ite-1] < 1.0 && nCheck < 3 && gv.global_ite > 1)){
+			gv.PC_checked = 1;
 			if (gv.verbose == 1){
 				printf(" Checking PC for re-introduction:\n");
 				printf(" ════════════════════════════════\n");
@@ -1397,6 +1399,7 @@ global_variable PGE(	bulk_info 			z_b,
 	int pc_checked = 0;
 
 	while (iterate == 1){
+		gv.PC_checked = 0;
 		pc_checked = 0;
 		t = clock();
 		if (gv.verbose == 1){
@@ -1425,6 +1428,7 @@ global_variable PGE(	bulk_info 			z_b,
 		*/
 		v = clock();
 		if (gv.BR_norm < gv.PC_check_val1 && gv.check_PC1 == 0 && pc_checked == 0){
+			gv.PC_checked = 1;
 			if (gv.verbose == 1){
 				printf("\n Checking PC driving force 1\n");	
 				printf("═════════════════════════════\n");	
@@ -1444,6 +1448,7 @@ global_variable PGE(	bulk_info 			z_b,
 			check driving force of PC when getting close to convergence
 		*/
 		if (gv.BR_norm < gv.PC_check_val2 && gv.check_PC2 == 0 && pc_checked == 0){
+			gv.PC_checked = 1;
 			if (gv.verbose == 1){
 				printf("\n Checking PC driving force 2\n");	
 				printf("═════════════════════════════\n");	
