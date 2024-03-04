@@ -801,7 +801,7 @@ Databases InitializeDatabases(	global_variable gv,
 void FreeDatabases(		global_variable gv, 
 						Databases 		DB,
 						bulk_info 	 	z_b			){
-	int i, j, n_xeos, n_em, n_ox, n_pc, n_Ppc, n_igpc, n_cp, sym, ndif, pp, ss;
+	int i, j, n_xeos, n_em, n_ox, n_pc, n_Ppc, n_cp, sym, ndif, pp, ss;
 
 	/*  ==================== SP ==============================  */
 	n_ox = gv.len_ox;
@@ -890,7 +890,6 @@ void FreeDatabases(		global_variable gv,
 	/*  ==================== SS_ref_db ==============================  */
 	ndif 	= gv.n_Diff;
 	n_Ppc  	= gv.n_Ppc;
-	n_igpc  = gv.n_igpc;
 
 	for (i = 0; i < gv.len_ss; i++) {
 		// printf("SS being freed %s\n",gv.SS_list[i]);
@@ -938,7 +937,7 @@ void FreeDatabases(		global_variable gv,
 			free(DB.SS_ref_db[i].W);
 		}
 
-		for (j = 0; j < ndif; j++) {	free(DB.SS_ref_db[i].gb_array[j]);}	free(DB.SS_ref_db[i].gb_array);
+		for (j = 0; j < ndif; j++) {	free(DB.SS_ref_db[i].mu_array[j]);}	free(DB.SS_ref_db[i].mu_array);
 
 		free(DB.SS_ref_db[i].G_pc);
 		free(DB.SS_ref_db[i].DF_pc);
@@ -994,23 +993,6 @@ void FreeDatabases(		global_variable gv,
 		free(DB.SS_ref_db[i].mu_Ppc);
 		free(DB.SS_ref_db[i].comp_Ppc);
 		free(DB.SS_ref_db[i].xeos_Ppc);
-
-
-		free(DB.SS_ref_db[i].G_igpc);
-		free(DB.SS_ref_db[i].DF_igpc);
-		free(DB.SS_ref_db[i].factor_igpc);
-		free(DB.SS_ref_db[i].info_igpc);
-
-		for (j = 0; j < n_igpc; j++) {
-			free(DB.SS_ref_db[i].p_igpc[j]);
-			free(DB.SS_ref_db[i].mu_igpc[j]);
-			free(DB.SS_ref_db[i].comp_igpc[j]);
-			free(DB.SS_ref_db[i].xeos_igpc[j]);			
-		}
-		free(DB.SS_ref_db[i].p_igpc);
-		free(DB.SS_ref_db[i].mu_igpc);
-		free(DB.SS_ref_db[i].comp_igpc);
-		free(DB.SS_ref_db[i].xeos_igpc);
 	}
 
 	/*  ==================== GV ==============================  */

@@ -551,7 +551,6 @@ mutable struct global_variables
     relax_PGE_val::Cdouble
     PC_df_add::Cdouble
     PC_min_dist::Cdouble
-    PC_checked::Cint
     PC_check_val1::Cdouble
     PC_check_val2::Cdouble
     check_PC1::Cint
@@ -592,9 +591,7 @@ mutable struct global_variables
     SS_PC_stp::Ptr{Cdouble}
     eps_sf_pc::Cdouble
     n_pc::Cint
-    df_igpc::Cdouble
     n_Ppc::Cint
-    n_igpc::Cint
     max_LP_ite::Cint
     save_Ppc_val::Cdouble
     launch_PGE::Cint
@@ -807,17 +804,6 @@ struct SS_refs
     mu_Ppc::Ptr{Ptr{Cdouble}}
     xeos_Ppc::Ptr{Ptr{Cdouble}}
     factor_Ppc::Ptr{Cdouble}
-    n_igpc::Cint
-    tot_igpc::Cint
-    id_igpc::Cint
-    info_igpc::Ptr{Cint}
-    G_igpc::Ptr{Cdouble}
-    DF_igpc::Ptr{Cdouble}
-    comp_igpc::Ptr{Ptr{Cdouble}}
-    p_igpc::Ptr{Ptr{Cdouble}}
-    mu_igpc::Ptr{Ptr{Cdouble}}
-    xeos_igpc::Ptr{Ptr{Cdouble}}
-    factor_igpc::Ptr{Cdouble}
     solvus_id::Ptr{Cint}
     is_liq::Cint
     symmetry::Cint
@@ -834,7 +820,7 @@ struct SS_refs
     sf_id::Cint
     Comp::Ptr{Ptr{Cdouble}}
     gbase::Ptr{Cdouble}
-    gb_array::Ptr{Ptr{Cdouble}}
+    mu_array::Ptr{Ptr{Cdouble}}
     gb_lvl::Ptr{Cdouble}
     factor::Cdouble
     bounds::Ptr{Ptr{Cdouble}}

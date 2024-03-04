@@ -1361,9 +1361,9 @@ SS_ref G_SS_init_EM_function(		int			 		 ph_id,
 	SS_ref_db.xeos_sf_ok 	= malloc ((n_xeos) 		* sizeof (double) );
 
 	/* memory allocation to store all gbase */
-	SS_ref_db.gb_array = malloc ((gv.n_Diff) * sizeof (double*) ); 
+	SS_ref_db.mu_array = malloc ((gv.n_Diff) * sizeof (double*) ); 
 	for (int i = 0; i < (gv.n_Diff); i++){
-		SS_ref_db.gb_array[i] = malloc (n_em * sizeof (double) );
+		SS_ref_db.mu_array[i] = malloc (n_em * sizeof (double) );
 	}	
 	
 	/* dynamic memory allocation of data to send to NLopt */
@@ -1428,32 +1428,6 @@ SS_ref G_SS_init_EM_function(		int			 		 ph_id,
 	for (int i = 0; i < (SS_ref_db.n_Ppc); i++){
 		SS_ref_db.xeos_Ppc[i] = malloc ((n_xeos)  * sizeof (double) 	);
 	}	
-
-
-	/**
-		Allocate memory for PGE pseudocompounds 
-	*/
-	SS_ref_db.n_igpc   	= gv.n_igpc;								/** maximum number of pseudocompounds to store */
-	SS_ref_db.G_igpc   	= malloc ((SS_ref_db.n_igpc) * sizeof (double)  ); 
-	SS_ref_db.DF_igpc 	= malloc ((SS_ref_db.n_igpc) * sizeof (double)  ); 
-	SS_ref_db.factor_igpc= malloc ((SS_ref_db.n_igpc) * sizeof (double) ); 
-	SS_ref_db.info_igpc = malloc ((SS_ref_db.n_igpc) * sizeof (int)     ); 
-	SS_ref_db.p_igpc 	= malloc ((SS_ref_db.n_igpc) * sizeof (double*) ); 
-	SS_ref_db.mu_igpc 	= malloc ((SS_ref_db.n_igpc) * sizeof (double*) ); 
-	
-	for (int i = 0; i < (SS_ref_db.n_igpc); i++){
-		SS_ref_db.p_igpc[i]     = malloc ((n_em) * sizeof (double) 		);
-		SS_ref_db.mu_igpc[i]    = malloc ((n_em) * sizeof (double) 		);
-	}
-	SS_ref_db.comp_igpc = malloc ((SS_ref_db.n_igpc) * sizeof (double*) ); 
-	for (int i = 0; i < (SS_ref_db.n_igpc); i++){
-		SS_ref_db.comp_igpc[i]  = malloc (gv.len_ox * sizeof (double) 	);
-	}
-	SS_ref_db.xeos_igpc = malloc ((SS_ref_db.n_igpc) * sizeof (double*) ); 
-	for (int i = 0; i < (SS_ref_db.n_igpc); i++){
-		SS_ref_db.xeos_igpc[i]  = malloc ((n_xeos)  * sizeof (double) 	);
-	}	
-
 
 	/* initiliazes eye matrix as there is no need to redo it afterward */
 	for (int i = 0; i < n_em; i++){

@@ -1193,15 +1193,14 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 
 			for (int j = 0; j < cp[i].n_em; j++){ 
 				if (SS_ref_db[ss].z_em[j] == 1.0){
-					dG2dT2 					 = (SS_ref_db[ss].gb_array[0][j]-2.0*SS_ref_db[ss].gb_array[6][j]+SS_ref_db[ss].gb_array[1][j])/(gv.gb_T_eps*gv.gb_T_eps);
-					dG2dP2 					 = (SS_ref_db[ss].gb_array[4][j]-2.0*SS_ref_db[ss].gb_array[5][j]+SS_ref_db[ss].gb_array[6][j])/(gv.gb_P_eps*gv.gb_P_eps);
-					dG2dP2_N				 = (SS_ref_db[ss].gb_array[7][j]-2.0*SS_ref_db[ss].gb_array[4][j]+SS_ref_db[ss].gb_array[5][j])/(gv.gb_P_eps*gv.gb_P_eps);
-					dGdTPP 					 = (SS_ref_db[ss].gb_array[2][j]-SS_ref_db[ss].gb_array[3][j])/(2.0*gv.gb_T_eps);
-					dGdTMP 					 = (SS_ref_db[ss].gb_array[0][j]-SS_ref_db[ss].gb_array[1][j])/(2.0*gv.gb_T_eps);
-					dGdP					 = (SS_ref_db[ss].gb_array[5][j]-SS_ref_db[ss].gb_array[6][j])/(gv.gb_P_eps);
-					dGdP_N 					 = (SS_ref_db[ss].gb_array[4][j]-SS_ref_db[ss].gb_array[5][j])/(gv.gb_P_eps);
-					dGdP_P0 				 = (SS_ref_db[ss].gb_array[8][j]-SS_ref_db[ss].gb_array[9][j])/(gv.gb_P_eps);
-					
+					dG2dT2 					 = (SS_ref_db[ss].mu_array[0][j]-2.0*SS_ref_db[ss].mu_array[6][j]+SS_ref_db[ss].mu_array[1][j])/(gv.gb_T_eps*gv.gb_T_eps);
+					dG2dP2 					 = (SS_ref_db[ss].mu_array[4][j]-2.0*SS_ref_db[ss].mu_array[5][j]+SS_ref_db[ss].mu_array[6][j])/(gv.gb_P_eps*gv.gb_P_eps);
+					dG2dP2_N				 = (SS_ref_db[ss].mu_array[7][j]-2.0*SS_ref_db[ss].mu_array[4][j]+SS_ref_db[ss].mu_array[5][j])/(gv.gb_P_eps*gv.gb_P_eps);
+					dGdTPP 					 = (SS_ref_db[ss].mu_array[2][j]-SS_ref_db[ss].mu_array[3][j])/(2.0*gv.gb_T_eps);
+					dGdTMP 					 = (SS_ref_db[ss].mu_array[0][j]-SS_ref_db[ss].mu_array[1][j])/(2.0*gv.gb_T_eps);
+					dGdP					 = (SS_ref_db[ss].mu_array[5][j]-SS_ref_db[ss].mu_array[6][j])/(gv.gb_P_eps);
+					dGdP_N 					 = (SS_ref_db[ss].mu_array[4][j]-SS_ref_db[ss].mu_array[5][j])/(gv.gb_P_eps);
+					dGdP_P0 				 = (SS_ref_db[ss].mu_array[8][j]-SS_ref_db[ss].mu_array[9][j])/(gv.gb_P_eps);
 					/* heat capacity 	*/
 					cp[i].phase_cp    		+= -T*(dG2dT2)*cp[i].p_em[j];
 					

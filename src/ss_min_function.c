@@ -202,8 +202,6 @@ void copy_to_cp(		int 				 i,
 		cp[i].sf[ii]		= SS_ref_db[ph_id].sf[ii];
 	}
 }
-
-
 /**
 	add minimized phase to LP PGE pseudocompound list 
 */
@@ -229,7 +227,7 @@ void copy_to_Ppc(		int 				 i,
 												&SS_ref_db[ph_id]			);
 
 		/* check where to add the new phase PC */
-		if (SS_ref_db[ph_id].id_Ppc >= SS_ref_db[ph_id].n_Ppc){ SS_ref_db[ph_id].id_Ppc = 0; printf("SS_LP, MAXIMUM STORAGE SPACE FOR PPC IS REACHED for %4s, INCREASED #PPC_MAX\n",gv.SS_list[ph_id]);}
+		if (SS_ref_db[ph_id].id_Ppc >= SS_ref_db[ph_id].n_Ppc){ SS_ref_db[ph_id].id_Ppc = 0; printf("SS_LP, MAXIMUM STORAGE SPACE FOR PC IS REACHED for %4s, INCREASED #PC_MAX\n",gv.SS_list[ph_id]);}
 		
 		m_Ppc = SS_ref_db[ph_id].id_Ppc;
 
@@ -254,38 +252,6 @@ void copy_to_Ppc(		int 				 i,
 		/* add increment to the number of considered phases */
 		SS_ref_db[ph_id].tot_Ppc += 1;
 		SS_ref_db[ph_id].id_Ppc  += 1;
-
-		/** Below we saved the pseudocompound as a potential initial guess */
-		if (gv.PC_checked == 1){
-			int    m_igpc;
-			/* check where to add the new phase PC */
-			if (SS_ref_db[ph_id].id_igpc >= SS_ref_db[ph_id].n_igpc){ SS_ref_db[ph_id].id_igpc = 0; printf("SS_LP/SS_PGE, MAXIMUM STORAGE SPACE FOR IGPC IS REACHED for %4s, INCREASED #IGPC_MAX\n",gv.SS_list[ph_id]);}
-			
-			m_igpc = SS_ref_db[ph_id].id_igpc;
-
-			SS_ref_db[ph_id].info_igpc[m_igpc]   = 0;
-			SS_ref_db[ph_id].factor_igpc[m_igpc] = SS_ref_db[ph_id].factor;
-			SS_ref_db[ph_id].DF_igpc[m_igpc]     = G;
-			
-			/* get pseudocompound composition */
-			for (int j = 0; j < gv.len_ox; j++){				
-				SS_ref_db[ph_id].comp_igpc[m_igpc][j] = SS_ref_db[ph_id].ss_comp[j]*SS_ref_db[ph_id].factor;	/** composition */
-			}
-			for (int j = 0; j < SS_ref_db[ph_id].n_em; j++){												/** save coordinates */
-				SS_ref_db[ph_id].p_igpc[m_igpc][j]  = SS_ref_db[ph_id].p[j];												
-				SS_ref_db[ph_id].mu_igpc[m_igpc][j] = SS_ref_db[ph_id].mu[j]*SS_ref_db[ph_id].z_em[j];										
-			}
-			/* save xeos */
-			for (int j = 0; j < SS_ref_db[ph_id].n_xeos; j++){		
-				SS_ref_db[ph_id].xeos_igpc[m_igpc][j] = SS_ref_db[ph_id].iguess[j];							/** compositional variables */
-			}	
-			SS_ref_db[ph_id].G_igpc[m_igpc] = G;
-			
-			/* add increment to the number of considered phases */
-			SS_ref_db[ph_id].tot_igpc += 1;
-			SS_ref_db[ph_id].id_igpc  += 1;
-		}
-
 }
 
 /** 
@@ -362,7 +328,6 @@ void ss_min_PGE(		global_variable 	 gv,
 
 			/* if site fractions are respected then save the minimized point */
 			if (SS_ref_db[ph_id].sf_ok == 1){
-
 				/**
 					copy the minimized phase informations to cp structure
 				*/
@@ -371,18 +336,15 @@ void ss_min_PGE(		global_variable 	 gv,
 														gv,
 														SS_ref_db,
 														cp						);	
-														
-				if (gv.PC_checked == 1 && SS_ref_db[ph_id].df < gv.df_igpc && SS_ref_db[ph_id].df > 1e-3 ){
-										copy_to_Ppc(		i, 
-															ph_id,
-															gv,
+				// if ( SS_ref_db[ph_id].df < gv.save_Ppc_val ){
+				// 	copy_to_Ppc(							i, 
+				// 											ph_id,
+				// 											gv,
 
-															SS_objective,
-															SS_ref_db,
-															cp						);
-				}
-				
-
+				// 											SS_objective,
+				// 											SS_ref_db,
+				// 											cp						);
+				// }
 
 			}
 			else{
@@ -510,6 +472,7 @@ void ss_min_LP(			global_variable 	 gv,
 														ph_id					);
 			}
 
+
 			for (int k = 0; k < cp[i].n_xeos; k++) {
 				cp[i].xeos_1[k] 			 =  SS_ref_db[ph_id].xeos[k];
 			}
@@ -539,13 +502,6 @@ void ss_min_LP(			global_variable 	 gv,
 					add minimized phase to LP PGE pseudocompound list 
 				*/
 				if (SS_ref_db[ph_id].sf_ok == 1){
-
-					if (gv.PC_checked == 1 && SS_ref_db[ph_id].df < gv.df_igpc && SS_ref_db[ph_id].df > 1e-3 ){
-						gv.PC_checked = 1;
-					}
-					else{
-						gv.PC_checked = 0;
-					}
 					copy_to_Ppc(							i, 
 															ph_id,
 															gv,

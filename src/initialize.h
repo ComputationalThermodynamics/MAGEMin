@@ -218,7 +218,6 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.launch_PGE 		= 0;
 	gv.n_pc 			= 8192;
 	gv.n_Ppc			= 15000;
-	gv.n_igpc			= 256;					/** This stores nearly stable phases 												*/
 	gv.max_LP_ite 		= 128;
 	gv.save_Ppc_val     = 0.0; 					/** During PGE iterations, if the driving force is < save_Ppc_val, then the 
 													pseudocompound is added to the Ppc list 										*/
@@ -241,8 +240,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.it_f             = 256;                  /** gives back failure when the number of iteration is bigger than it_f             */
 
 	/* phase update options 			*/
-	gv.df_igpc 			=  0.25;				/** driving force under which the solution phase is added to the list of initial guess */
-	gv.min_df 			= -1e-8;				/** value under which a phase in hold is reintroduced 								*/
+	gv.min_df 			= -1e-8;					/** value under which a phase in hold is reintroduced */
 	gv.re_in_df 		= -1e-8;
 	/* numerical derivatives P,T steps (same value as TC) */
 	gv.gb_P_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
@@ -742,7 +740,7 @@ global_variable global_variable_init( 	global_variable  	 gv,
 	
 	/* store values for numerical differentiation */
 	/* The last entries MUST be [0-1][end] = 0.0  */
-	gv.n_Diff = 13;
+	gv.n_Diff = 11;
 	gv.pdev = malloc (2 * sizeof(double*));			
     for (i = 0; i < 2; i++){
 		gv.pdev[i] = malloc (gv.n_Diff * sizeof(double));
@@ -757,9 +755,7 @@ global_variable global_variable_init( 	global_variable  	 gv,
 	gv.pdev[0][7]  =  3.0;	gv.pdev[1][7]  =  0.0;
 	gv.pdev[0][8]  =  1.0;	gv.pdev[1][8]  =  0.0;
 	gv.pdev[0][9]  =  0.0;	gv.pdev[1][9]  =  0.0;
-	gv.pdev[0][10] =  0.0;	gv.pdev[1][10] =  1.0;
-	gv.pdev[0][11] =  0.0;	gv.pdev[1][11] = -1.0;
-	gv.pdev[0][12] =  0.0;	gv.pdev[1][12] =  0.0;
+	gv.pdev[0][10] =  0.0;	gv.pdev[1][10] =  0.0;
 
 	gv.V_cor = malloc (2 * sizeof(double));
 
@@ -1368,7 +1364,6 @@ global_variable reset_gv(					global_variable 	 gv,
 	gv.system_Vs 		  = 0.;
 	gv.V_cor[0]			  = 0.;
 	gv.V_cor[1]			  = 0.;
-	gv.PC_checked		  = 0;
 	gv.check_PC1		  = 0;
 	gv.check_PC2		  = 0;
 	gv.len_cp 		  	  = 0;
@@ -1655,27 +1650,6 @@ void reset_SS(						global_variable 	 gv,
 			}
 			SS_ref_db[iss].factor_Ppc[i] = 0.0;
 		}
-
-		/* reset LP part of PGE (algo 2.0) */
-		SS_ref_db[iss].tot_igpc 	= 0;
-		SS_ref_db[iss].id_igpc  	= 0;
-		for (int i = 0; i < (SS_ref_db[iss].n_igpc); i++){
-			SS_ref_db[iss].info_igpc[i]   = 0;
-			SS_ref_db[iss].G_igpc[i]      = 0.0;
-			SS_ref_db[iss].DF_igpc[i]     = 0.0;
-			for (int j = 0; j < gv.len_ox; j++){
-				SS_ref_db[iss].comp_igpc[i][j]  = 0.0;
-			}
-			for (int j = 0; j < SS_ref_db[iss].n_em; j++){
-				SS_ref_db[iss].p_igpc[i][j]  = 0;	
-				SS_ref_db[iss].mu_igpc[i][j] = 0;	
-			}
-			for (int j = 0; j < (SS_ref_db[iss].n_xeos); j++){
-				SS_ref_db[iss].xeos_igpc[i][j]  = 0.0;
-			}
-			SS_ref_db[iss].factor_igpc[i] = 0.0;
-		}
-
 
 		/* reset solution phase model parameters */
 		for (int j = 0; j < SS_ref_db[iss].n_em; j++){
