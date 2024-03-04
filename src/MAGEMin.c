@@ -853,6 +853,7 @@ void FreeDatabases(		global_variable gv,
 	free(DB.sp[0].bulk_F_wt);
 	free(DB.sp[0].ph_frac);
 	free(DB.sp[0].ph_frac_wt);
+	free(DB.sp[0].ph_frac_vol);
 
 	free(DB.sp[0].ph_id);
 	free(DB.sp[0].ph_type);

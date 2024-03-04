@@ -108,6 +108,7 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 	sp.ph 	     			= malloc(gv.len_ox  * sizeof(char*)				);
 	sp.ph_frac 	     		= malloc(gv.len_ox  * sizeof(double)			);
 	sp.ph_frac_wt     		= malloc(gv.len_ox  * sizeof(double)			);
+	sp.ph_frac_vol     		= malloc(gv.len_ox  * sizeof(double)			);
 	for (int i = 0; i < gv.len_ox; i++){
 		sp.ph[i] 			= malloc(20 * sizeof(char));	
 	}
