@@ -207,6 +207,7 @@ void copy_to_cp(		int 				 i,
 */
 void copy_to_Ppc(		int 				 i, 
 						int 				 pc_check,
+						int 				 add,
 						int 				 ph_id,
 						global_variable 	 gv,
 
@@ -216,6 +217,11 @@ void copy_to_Ppc(		int 				 i,
 
 		double G;
 		int    m_Ppc;
+
+		if (add != 0 || SS_ref_db[ph_id].df_raw < 1e-3 || SS_ref_db[ph_id].df_raw > 0.25){
+			pc_check = 0;
+		}
+
 
 		/* get unrotated gbase */
 		SS_ref_db[ph_id] = non_rot_hyperplane(	gv, 
@@ -238,8 +244,7 @@ void copy_to_Ppc(		int 				 i,
 		else{
 			SS_ref_db[ph_id].info_Ppc[m_Ppc]   = 0;
 		}
-		
-		SS_ref_db[ph_id].factor_Ppc[m_Ppc] = SS_ref_db[ph_id].factor;
+
 		SS_ref_db[ph_id].DF_Ppc[m_Ppc]     = G;
 		
 		/* get pseudocompound composition */
@@ -346,11 +351,9 @@ void ss_min_PGE(		global_variable 	 gv,
 														SS_ref_db,
 														cp						);	
 				if ( pc_check == 1){
-					if (SS_ref_db[ph_id].df_raw < 1e-3 || SS_ref_db[ph_id].df_raw > 0.25){
-						pc_check = 0;
-					}
 					copy_to_Ppc(							i, 
 															pc_check,
+															1,
 															ph_id,
 															gv,
 
@@ -517,11 +520,9 @@ void ss_min_LP(			global_variable 	 gv,
 					add minimized phase to LP PGE pseudocompound list 
 				*/
 				if (SS_ref_db[ph_id].sf_ok == 1){
-					if (SS_ref_db[ph_id].df_raw < 1e-3 || SS_ref_db[ph_id].df_raw > 0.25 || add != 0){
-						pc_check = 0;
-					}
 					copy_to_Ppc(							i, 
 															pc_check,
+															add,
 															ph_id,
 															gv,
 
@@ -547,6 +548,7 @@ void ss_min_LP(			global_variable 	 gv,
 
 						copy_to_Ppc(								i, 
 																	0,
+																	1,
 																	ph_id,
 																	gv,
 

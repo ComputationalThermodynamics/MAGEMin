@@ -439,7 +439,7 @@ global_variable check_PC_driving_force(		bulk_info 	 		 z_b,
 		}
 	}
 
-	if (1 == 0){
+	if (1 == 1){
 		for (int i = 0; i < gv.len_ss; i++){
 			if (SS_ref_db[i].ss_flags[0] == 1){
 					

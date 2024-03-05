@@ -967,7 +967,6 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 			m_pc = SS_ref_db[ph_id].id_Ppc;
 
 			SS_ref_db[ph_id].info_Ppc[m_pc]   = 2;
-			SS_ref_db[ph_id].factor_Ppc[m_pc] = SS_ref_db[ph_id].factor;
 			SS_ref_db[ph_id].DF_Ppc[m_pc]     = SS_ref_db[ph_id].df;
 			
 			/* get pseudocompound composition */
@@ -1035,7 +1034,6 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 			m_pc = SS_ref_db[ph_id].id_Ppc;
 
 			SS_ref_db[ph_id].info_Ppc[m_pc]   = SS_ref_db[ph_id].info[pc_id];
-			SS_ref_db[ph_id].factor_Ppc[m_pc] = SS_ref_db[ph_id].factor_pc[pc_id];
 			SS_ref_db[ph_id].DF_Ppc[m_pc]     = SS_ref_db[ph_id].DF_pc[pc_id];
 			
 			/* get pseudocompound composition */

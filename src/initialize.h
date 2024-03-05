@@ -1489,6 +1489,18 @@ void reset_sp(						global_variable 	 gv,
 		}
 	}
 
+	/* reset metastable phases */
+	for (int n = 0; n < gv.len_ox*2; n++){
+		strcpy(sp[0].mSS[n].ph_name,"");
+
+		for (int i = 0; i < gv.len_ox; i++){
+			sp[0].mSS[n].comp_Ppc[i] 		= 0.0;
+			sp[0].mSS[n].p_Ppc[i] 			= 0.0;
+			sp[0].mSS[n].mu_Ppc[i] 			= 0.0;
+			sp[0].mSS[n].xeos_Ppc[i] 		= 0.0;
+		}
+	}
+
 }
 
 /**
@@ -1655,7 +1667,6 @@ void reset_SS(						global_variable 	 gv,
 			for (int j = 0; j < (SS_ref_db[iss].n_xeos); j++){
 				SS_ref_db[iss].xeos_Ppc[i][j]  = 0.0;
 			}
-			SS_ref_db[iss].factor_Ppc[i] = 0.0;
 		}
 
 		/* reset solution phase model parameters */

@@ -384,7 +384,6 @@ typedef struct SS_refs {
 	double **p_Ppc;				/** compositional array of the pseudocompounds 								*/
 	double **mu_Ppc;			/** compositional array of the pseudocompounds 								*/
 	double **xeos_Ppc;			/** x-eos array of the pseudocompounds 										*/
-	double  *factor_Ppc;		/** normalization factor of each PC, mainly useful for liquid 				*/
 
 	/** data needed for phase change and solvus processing **/	
 	int	    *solvus_id;
@@ -614,6 +613,27 @@ typedef struct stb_SS_phases {
 	
 } stb_SS_phase;
 
+
+/* hold information of solution phases */
+typedef struct mstb_SS_phases {
+	char    *ph_name;
+	int 	 ph_id;
+
+	int      nOx;
+	int      n_xeos;
+	int      n_em;
+
+	double 	 G_Ppc;
+	double   DF_Ppc;
+	double  *comp_Ppc;
+	double  *p_Ppc;
+	double  *mu_Ppc;
+	double  *xeos_Ppc;
+
+} mstb_SS_phase;
+
+
+
 /* hold information of pure phases */
 typedef struct stb_PP_phases {
 	int    	 nOx;
@@ -701,12 +721,13 @@ typedef struct stb_systems {
 	char  **ph;										/* phases names 															*/
 	double *ph_frac; 								/* phase fractions															*/
 	double *ph_frac_wt;								/* phase fractions in wt fraction											*/
-	double *ph_frac_vol;								/* phase fractions in wt fraction											*/
+	double *ph_frac_vol;							/* phase fractions in wt fraction											*/
 	int    *ph_type; 								/* 0 -> Solution phases; 1 -> Pure phases									*/
 	int    *ph_id;									/* position in the related stb_SS_phase or stb_PP_phase structure arrays	*/
 	
-	stb_SS_phase *SS;
-	stb_PP_phase *PP;
+	stb_SS_phase 	*SS;
+	mstb_SS_phase 	*mSS;							/* metastable phases 														*/
+	stb_PP_phase 	*PP;
 
 } stb_system;
 

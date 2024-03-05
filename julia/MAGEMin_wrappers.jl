@@ -460,11 +460,13 @@ function convertBulk4MAGEMin(bulk_in::T1,bulk_in_ox::Vector{String},sys_in::Stri
 	# convert to mol, if system unit = wt
 	if sys_in == "wt"
 		for i=1:length(bulk_in_ox)
-            id = findall(ref_ox .== bulk_in_ox[i]);
-			bulk[i] = bulk_in[i]/ref_MolarMass[id[1]];
+            id = findall(ref_ox .== bulk_in_ox[i])[1];
+			bulk[i] = bulk_in[i]/ref_MolarMass[id];
 		end
     else
-        bulk .= bulk_in;
+		for i=1:length(bulk_in_ox)
+			bulk[i] = bulk_in[i];
+		end
 	end
 
 	bulk = normalize(bulk);

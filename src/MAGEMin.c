@@ -835,8 +835,18 @@ void FreeDatabases(		global_variable gv,
 		if  (DB.sp[0].SS[i].emComp_wt			!=NULL)  free( DB.sp[0].SS[i].emComp_wt 		);	
 	}
 
+	/* free metastable assemblage */
+	for ( i = 0; i < n_ox*2; i++){
+		if  (DB.sp[0].mSS[i].comp_Ppc		!=NULL)  free( DB.sp[0].mSS[i].comp_Ppc		);
+		if  (DB.sp[0].mSS[i].p_Ppc			!=NULL)  free( DB.sp[0].mSS[i].p_Ppc		);
+		if  (DB.sp[0].mSS[i].mu_Ppc			!=NULL)  free( DB.sp[0].mSS[i].mu_Ppc		);
+		if  (DB.sp[0].mSS[i].xeos_Ppc		!=NULL)  free( DB.sp[0].mSS[i].xeos_Ppc		);
+		if  (DB.sp[0].mSS[i].ph_name		!=NULL)  free( DB.sp[0].mSS[i].ph_name		);
+	}
+
 	free(DB.sp[0].PP);
 	free(DB.sp[0].SS);
+	free(DB.sp[0].mSS);
 
 	free(DB.sp[0].oxides);
 	free(DB.sp[0].ph);
@@ -981,7 +991,6 @@ void FreeDatabases(		global_variable gv,
 
 		free(DB.SS_ref_db[i].G_Ppc);
 		free(DB.SS_ref_db[i].DF_Ppc);
-		free(DB.SS_ref_db[i].factor_Ppc);
 		free(DB.SS_ref_db[i].info_Ppc);
 
 		for (j = 0; j < n_Ppc; j++) {
