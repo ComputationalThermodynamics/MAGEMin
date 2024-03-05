@@ -148,6 +148,7 @@ void fill_output_struct(		global_variable 	 gv,
 	sp[0].n_ph			 		 = gv.n_phase;
 	sp[0].n_PP			 		 = 0;
 	sp[0].n_SS			 		 = 0;
+	sp[0].n_mSS			 		 = 0;
 	sp[0].frac_S				 = 0.0;
 	sp[0].frac_M				 = 0.0;
 	sp[0].frac_F				 = 0.0;
@@ -470,6 +471,53 @@ void fill_output_struct(		global_variable 	 gv,
 		MolarMass_system += z_b.bulk_rock[i]*(z_b.masspo[i]);
 	}
 	sp[0].s_cp 					= sp[0].cp_wt/MolarMass_system*1e6;
+
+
+
+	/* copy metastable phases to sb structure */
+	int n_xeos, n_em;
+
+	m = 0;
+	for (int i = 0; i < gv.len_ss; i++){
+		if (SS_ref_db[i].ss_flags[0] == 1){
+
+			n_em 	 = SS_ref_db[i].n_em;
+			n_xeos 	 = SS_ref_db[i].n_xeos;
+			for (int l = 0; l < SS_ref_db[i].tot_Ppc; l++){
+				if (SS_ref_db[i].info_Ppc[l] == 9 && m < gv.len_ox*2){
+
+					sp[0].n_mSS += 1;
+
+					strcpy(sp[0].mSS[m].ph_name,gv.SS_list[i]);
+					sp[0].mSS[m].ph_id 		= i;
+					sp[0].mSS[m].nOx 		= gv.len_ox;
+					sp[0].mSS[m].n_xeos		= n_xeos;
+					sp[0].mSS[m].n_em 		= n_em;
+
+					sp[0].mSS[m].G_Ppc 		= SS_ref_db[i].G_Ppc[l];
+					sp[0].mSS[m].DF_Ppc 	= SS_ref_db[i].G_Ppc[l];
+
+					for (int j = 0; j < gv.len_ox; j++){
+						sp[0].mSS[m].comp_Ppc[j] = SS_ref_db[i].comp_Ppc[l][j];
+					}
+					for (int j = 0; j < n_em; j++){
+						sp[0].mSS[m].p_Ppc[j] 	= SS_ref_db[i].p_Ppc[l][j];
+						sp[0].mSS[m].mu_Ppc[j] 	= SS_ref_db[i].mu_Ppc[l][j];
+					}
+					for (int j = 0; j < n_xeos; j++){
+						sp[0].mSS[m].xeos_Ppc[j] 	= SS_ref_db[i].xeos_Ppc[l][j];
+					}
+					
+					m += 1;
+				}
+			}
+
+		}
+	}
+	if (m >= gv.len_ox*2){
+		printf("WARNING: maximum number of metastable pseudocompounds has been reached, increase the value in gss_init_function.c (SP_INIT_function)\n");
+	}
+
 
 	// debug print
 	if (1 == 0){

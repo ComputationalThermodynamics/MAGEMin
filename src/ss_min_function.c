@@ -189,11 +189,6 @@ void copy_to_cp(		int 				 i,
 		cp[i].xi_em[ii]		= SS_ref_db[ph_id].xi_em[ii];
 		cp[i].mu[ii]		= SS_ref_db[ph_id].mu[ii];
 	}
-	// for (int ii = 0; ii < SS_ref_db[ph_id].n_em; ii++){
-	// 	for (int jj = 0; jj < SS_ref_db[ph_id].n_xeos; jj++){
-	// 		cp[i].dpdx[ii][jj] = SS_ref_db[ph_id].dp_dx[ii][jj];
-	// 	}
-	// }
 	for (int ii = 0; ii < gv.len_ox; ii++){
 		cp[i].ss_comp[ii]	= SS_ref_db[ph_id].ss_comp[ii];
 	}
@@ -353,7 +348,7 @@ void ss_min_PGE(		global_variable 	 gv,
 				if ( pc_check == 1){
 					copy_to_Ppc(							i, 
 															pc_check,
-															1,
+															0,
 															ph_id,
 															gv,
 

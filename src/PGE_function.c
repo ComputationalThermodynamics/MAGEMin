@@ -1428,7 +1428,6 @@ global_variable PGE(	bulk_info 			z_b,
 		*/
 		v = clock();
 		if (gv.BR_norm < gv.PC_check_val1 && gv.check_PC1 == 0 && pc_checked == 0){
-			gv.PC_checked = 1;
 			if (gv.verbose == 1){
 				printf("\n Checking PC driving force 1\n");	
 				printf("═════════════════════════════\n");	

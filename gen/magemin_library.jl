@@ -804,7 +804,6 @@ struct SS_refs
     p_Ppc::Ptr{Ptr{Cdouble}}
     mu_Ppc::Ptr{Ptr{Cdouble}}
     xeos_Ppc::Ptr{Ptr{Cdouble}}
-    factor_Ppc::Ptr{Cdouble}
     solvus_id::Ptr{Cint}
     is_liq::Cint
     symmetry::Cint
@@ -1005,6 +1004,22 @@ end
 
 const stb_SS_phase = stb_SS_phases
 
+struct mstb_SS_phases
+    ph_name::Ptr{Cchar}
+    ph_id::Cint
+    nOx::Cint
+    n_xeos::Cint
+    n_em::Cint
+    G_Ppc::Cdouble
+    DF_Ppc::Cdouble
+    comp_Ppc::Ptr{Cdouble}
+    p_Ppc::Ptr{Cdouble}
+    mu_Ppc::Ptr{Cdouble}
+    xeos_Ppc::Ptr{Cdouble}
+end
+
+const mstb_SS_phase = mstb_SS_phases
+
 struct stb_PP_phases
     nOx::Cint
     f::Cdouble
@@ -1081,6 +1096,7 @@ struct stb_systems
     n_ph::Cint
     n_PP::Cint
     n_SS::Cint
+    n_mSS::Cint
     ph::Ptr{Ptr{Cchar}}
     ph_frac::Ptr{Cdouble}
     ph_frac_wt::Ptr{Cdouble}
@@ -1088,6 +1104,7 @@ struct stb_systems
     ph_type::Ptr{Cint}
     ph_id::Ptr{Cint}
     SS::Ptr{stb_SS_phase}
+    mSS::Ptr{mstb_SS_phase}
     PP::Ptr{stb_PP_phase}
 end
 
@@ -2379,6 +2396,7 @@ const ko_optional_argument = 2
 # START OF EPILOGUE
 #
 
+# stable phases
 struct SS_data
     f::Cdouble
     G::Cdouble
@@ -2405,8 +2423,6 @@ struct SS_data
     emComp_wt::Vector{Vector{Float64}}
 end
 
-
-
 function Base.convert(::Type{SS_data}, a::stb_SS_phases) 
     return SS_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
                                     unsafe_wrap( Vector{Cdouble},        a.Comp,             a.nOx),
@@ -2421,6 +2437,30 @@ function Base.convert(::Type{SS_data}, a::stb_SS_phases)
       unsafe_wrap.(Vector{Cdouble}, unsafe_wrap( Vector{Ptr{Cdouble}},   a.emComp_wt, a.n_em),  a.nOx)   )
 end
 
+# metastable phases
+struct mSS_data
+    ph_name::String
+    ph_id::Cint
+    n_xeos::Cint
+    n_em::Cint
+    G_Ppc::Cdouble
+    DF_Ppc::Cdouble
+    comp_Ppc::Vector{Cdouble}
+    p_Ppc::Vector{Cdouble}
+    mu_Ppc::Vector{Cdouble}
+    xeos_Ppc::Vector{Cdouble}
+end
+
+function Base.convert(::Type{mSS_data}, a::mstb_SS_phases) 
+    return  mSS_data(   unsafe_string(a.ph_name),
+                        a.ph_id, a.n_xeos, a.n_em, a.G_Ppc, a.DF_Ppc,
+                        unsafe_wrap( Vector{Cdouble},        a.comp_Ppc,           a.nOx),
+                        unsafe_wrap( Vector{Cdouble},        a.p_Ppc,              a.n_em),
+                        unsafe_wrap( Vector{Cdouble},        a.mu_Ppc,             a.n_em),
+                        unsafe_wrap( Vector{Cdouble},        a.xeos_Ppc,           a.n_xeos)    )
+end
+
+# pure phases
 struct PP_data
     f::Cdouble
     G::Cdouble

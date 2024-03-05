@@ -760,6 +760,7 @@ struct gmin_struct{T,I}
     # Phase fractions and type:
     n_PP        :: Int64                 # number of pure phases
     n_SS        :: Int64                 # number of solid solutions
+    n_mSS       :: Int64                 # number of solid solutions
 
     ph_frac     :: Vector{T}          # phase fractions
     ph_frac_wt  :: Vector{T}          # phase fractions
@@ -769,6 +770,7 @@ struct gmin_struct{T,I}
     ph          :: Vector{String}          # Name of phase
 
     SS_vec      :: Vector{LibMAGEMin.SS_data}
+    mSS_vec      :: Vector{LibMAGEMin.mSS_data}
     PP_vec      :: Vector{LibMAGEMin.PP_data}
 
     oxides      :: Vector{String}
@@ -861,6 +863,7 @@ function create_gmin_struct(DB, gv, time)
     n_ph     =  stb.n_ph        # total # of stable phases
     n_PP     =  stb.n_PP        # number of pure phases
     n_SS     =  stb.n_SS        # number of solid solutions
+    n_mSS    =  stb.n_mSS        # number of solid solutions
 
     ph_frac  =  unsafe_wrap(Vector{Cdouble},stb.ph_frac,   n_ph)
     ph_frac_wt  =  unsafe_wrap(Vector{Cdouble},stb.ph_frac_wt,   n_ph)
@@ -871,6 +874,9 @@ function create_gmin_struct(DB, gv, time)
 
     # extract info about compositional variables of the solution models:
     SS_vec  = convert.(LibMAGEMin.SS_data, unsafe_wrap(Vector{LibMAGEMin.stb_SS_phase},stb.SS,n_SS))
+
+    # extract information about metastable solution phases
+    mSS_vec = convert.(LibMAGEMin.mSS_data, unsafe_wrap(Vector{LibMAGEMin.mstb_SS_phase},stb.mSS,n_mSS))
 
     # Info about the endmembers:
     PP_vec  = convert.(LibMAGEMin.PP_data, unsafe_wrap(Vector{LibMAGEMin.stb_PP_phase},stb.PP,n_PP))
@@ -892,9 +898,9 @@ function create_gmin_struct(DB, gv, time)
                 alpha, V, cp, s_cp,
                 rho, rho_M, rho_S, rho_F,
                 fO2, aH2O, aSiO2, aTiO2, aAl2O3, aMgO, aFeO,
-                n_PP, n_SS,
+                n_PP, n_SS, n_mSS,
                 ph_frac, ph_frac_wt, ph_frac_vol, ph_type, ph_id, ph,
-                SS_vec,  PP_vec,
+                SS_vec,  mSS_vec, PP_vec,
                 oxides,
                 stb.Vp, stb.Vs, stb.Vp_S, stb.Vs_S, stb.bulkMod, stb.shearMod, stb.bulkModulus_M,  stb.bulkModulus_S, stb.shearModulus_S,
                 entropy, enthalpy,

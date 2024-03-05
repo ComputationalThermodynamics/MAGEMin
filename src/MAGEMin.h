@@ -717,7 +717,7 @@ typedef struct stb_systems {
 	int     n_ph;									/* number of predicted stable phases 										*/
 	int     n_PP;									/* number of predicted stable pure phases 									*/
 	int     n_SS;									/* number of predicted stable solution phases 								*/
-
+	int 	n_mSS;
 	char  **ph;										/* phases names 															*/
 	double *ph_frac; 								/* phase fractions															*/
 	double *ph_frac_wt;								/* phase fractions in wt fraction											*/
