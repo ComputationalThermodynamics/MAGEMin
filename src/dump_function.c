@@ -495,7 +495,13 @@ void fill_output_struct(		global_variable 	 gv,
 					sp[0].mSS[m].n_em 		= n_em;
 
 					sp[0].mSS[m].G_Ppc 		= SS_ref_db[i].G_Ppc[l];
-					sp[0].mSS[m].DF_Ppc 	= SS_ref_db[i].G_Ppc[l];
+
+					sp[0].mSS[m].DF_Ppc = SS_ref_db[i].G_Ppc[l];
+					for (int j = 0; j < gv.len_ox; j++) {
+						sp[0].mSS[m].DF_Ppc -= SS_ref_db[i].comp_Ppc[l][j]*gv.gam_tot[j];
+					}
+
+					// sp[0].mSS[m].DF_Ppc 	= SS_ref_db[i].G_Ppc[l];
 
 					for (int j = 0; j < gv.len_ox; j++){
 						sp[0].mSS[m].comp_Ppc[j] = SS_ref_db[i].comp_Ppc[l][j];
