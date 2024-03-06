@@ -345,17 +345,18 @@ void ss_min_PGE(		global_variable 	 gv,
 														gv,
 														SS_ref_db,
 														cp						);	
-				if ( pc_check == 1){
-					copy_to_Ppc(							i, 
-															pc_check,
-															0,
-															ph_id,
-															gv,
 
-															SS_objective,
-															SS_ref_db,
-															cp						);
-				}
+				// here we need to save the pseudocompound to have an estimate of the LP Matrix										
+				copy_to_Ppc(							i, 
+														pc_check,
+														0,
+														ph_id,
+														gv,
+
+														SS_objective,
+														SS_ref_db,
+														cp						);
+
 
 			}
 			else{

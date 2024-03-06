@@ -46,6 +46,7 @@ end
 # metastable phases
 struct mSS_data
     ph_name::String
+    info::String
     ph_id::Cint
     n_xeos::Cint
     n_em::Cint
@@ -59,6 +60,7 @@ end
 
 function Base.convert(::Type{mSS_data}, a::mstb_SS_phases) 
     return  mSS_data(   unsafe_string(a.ph_name),
+                        unsafe_string(a.info),
                         a.ph_id, a.n_xeos, a.n_em, a.G_Ppc, a.DF_Ppc,
                         unsafe_wrap( Vector{Cdouble},        a.comp_Ppc,           a.nOx),
                         unsafe_wrap( Vector{Cdouble},        a.p_Ppc,              a.n_em),

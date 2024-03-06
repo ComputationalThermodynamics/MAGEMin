@@ -71,6 +71,7 @@ void dump_init(global_variable gv){
   Save final result of minimization
 */
 void fill_output_struct(		global_variable 	 gv,
+								simplex_data	    *splx_data,
 								bulk_info 	 		 z_b,
 
 								PP_ref 				*PP_ref_db,
@@ -101,6 +102,7 @@ void fill_output_struct(		global_variable 	 gv,
 	sp[0].nOx					 = gv.len_ox;
 	sp[0].rho					 = gv.system_density;
 	sp[0].fO2					 = gv.system_fO2;
+	sp[0].dQFM					 = gv.system_deltaQFM;
 	sp[0].aH2O					 = gv.system_aH2O;
 	sp[0].aSiO2					 = gv.system_aSiO2;
 	sp[0].aTiO2					 = gv.system_aTiO2;
@@ -487,7 +489,7 @@ void fill_output_struct(		global_variable 	 gv,
 				if (SS_ref_db[i].info_Ppc[l] == 9 && m < gv.len_ox*2){
 
 					sp[0].n_mSS += 1;
-
+					strcpy(sp[0].mSS[m].info,"ppc");
 					strcpy(sp[0].mSS[m].ph_name,gv.SS_list[i]);
 					sp[0].mSS[m].ph_id 		= i;
 					sp[0].mSS[m].nOx 		= gv.len_ox;
@@ -500,8 +502,6 @@ void fill_output_struct(		global_variable 	 gv,
 					for (int j = 0; j < gv.len_ox; j++) {
 						sp[0].mSS[m].DF_Ppc -= SS_ref_db[i].comp_Ppc[l][j]*gv.gam_tot[j];
 					}
-
-					// sp[0].mSS[m].DF_Ppc 	= SS_ref_db[i].G_Ppc[l];
 
 					for (int j = 0; j < gv.len_ox; j++){
 						sp[0].mSS[m].comp_Ppc[j] = SS_ref_db[i].comp_Ppc[l][j];

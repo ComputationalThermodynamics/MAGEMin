@@ -203,7 +203,7 @@ void SS_um_objective_init_function(	obj_type 			*SS_objective,
 						 
 	for (int iss = 0; iss < gv.len_ss; iss++){
 
-		if      (strcmp( gv.SS_list[iss], "fluid")  == 0 ){
+		if      (strcmp( gv.SS_list[iss], "fl")  == 0 ){
 			SS_objective[iss]  = obj_um_fluid; 		}
 		else if (strcmp( gv.SS_list[iss], "ol")  == 0){
 			SS_objective[iss]  = obj_um_ol; 		}

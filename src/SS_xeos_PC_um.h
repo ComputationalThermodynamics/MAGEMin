@@ -4828,7 +4828,7 @@ void SS_um_pc_init_function(	PC_ref 	*SS_pc_xeos,
 							    int 	 iss,
 							    char 	*name				){	
 						 
-	if      (strcmp( name, "fluid")  == 0 ){
+	if      (strcmp( name, "fl")  == 0 ){
 		SS_pc_xeos[iss].ss_pc_xeos  = um_fluid_pc_xeos; 	}
 	else if (strcmp( name, "ol")  == 0){
 		SS_pc_xeos[iss].ss_pc_xeos  = um_ol_pc_xeos; 		}

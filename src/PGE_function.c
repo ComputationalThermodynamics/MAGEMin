@@ -929,6 +929,112 @@ global_variable run_LP(								bulk_info 			 z_b,
 	return gv;
 }
 
+
+
+/**
+  function to run simplex linear programming during PGE with pseudocompounds 
+*/	
+global_variable run_LP_ig(							bulk_info 			 z_b,
+													simplex_data 		*splx_data,
+													global_variable 	 gv,
+													
+													PP_ref 				*PP_ref_db,
+													SS_ref 				*SS_ref_db
+){
+
+	if (gv.verbose == 1){
+		printf("\n");
+		printf("Linear-Programming initial guess computation\n");	
+		printf("══════════════════════════════════════════════\n");	
+	}
+
+	simplex_data *d  = (simplex_data *) splx_data;
+
+	int  k 		= 0;
+	d->swp 		= 1;
+	d->n_swp 	= 0;
+	while (d->swp == 1 && k < 9){					/** as long as a phase can be added to the guessed assemblage, go on */
+		k 		  += 1;
+		d->swp     = 0;
+		
+
+		swap_PGE_pseudocompounds(			z_b,
+											splx_data,
+											gv,
+											PP_ref_db,
+											SS_ref_db		);	
+		
+		swap_pure_phases(					z_b,
+											splx_data,
+											gv,
+											PP_ref_db,
+											SS_ref_db		);											
+	}
+	if (gv.verbose == 1){
+		printf("\n");
+		printf("  -> number of swap loops: %d\n",k);	
+	}
+
+	/* update gamma of SS */
+	update_local_gamma(						d->A1,
+											d->g0_A,
+											d->gamma_ss,
+											d->n_Ox			);
+
+	/* update global variable gamma */
+	update_global_gamma_LU(					z_b,
+											splx_data		);	
+
+	/* copy gamma total to the global variables */
+	// for (int i = 0; i < gv.len_ox; i++){
+	// 	gv.dGamma[i]  = d->gamma_tot[i] - gv.gam_tot[i];
+	// 	gv.gam_tot[i] = d->gamma_tot[i];
+	// }
+
+	if (gv.verbose == 1){
+		printf("\n Total number of LP_ig iterations: %d\n",k);	
+		printf(" [----------------------------------------]\n");
+		printf(" [  Ph  |   Ph PROP  |   g0_Ph    |  ix   ]\n");
+		printf(" [----------------------------------------]\n");
+
+		for (int i = 0; i < d->n_Ox; i++){
+			if (d->ph_id_A[i][0] == 1){
+				printf(" ['%5s' %+10f  %+12.4f  %2d %2d ]", gv.PP_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0], d->stage[i]);
+				printf("\n");
+			}
+			if (d->ph_id_A[i][0] == 2){
+				printf(" ['%5s' %+10f  %+12.4f  %2d %2d ]\n", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0], d->stage[i]);
+			}
+			if (d->ph_id_A[i][0] == 3){
+				printf(" ['%5s' %+10f  %+12.4f  %2d %2d ]", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0], d->stage[i]);
+				if (d->stage[i] == 1){
+					for (int ii = 0; ii < SS_ref_db[d->ph_id_A[i][1]].n_xeos; ii++){
+						printf(" %+10f", SS_ref_db[d->ph_id_A[i][1]].xeos_Ppc[d->ph_id_A[i][3]][ii] );
+					}
+				}
+				else{
+					for (int ii = 0; ii < SS_ref_db[d->ph_id_A[i][1]].n_xeos; ii++){
+						printf(" %+10f", SS_ref_db[d->ph_id_A[i][1]].xeos_pc[d->ph_id_A[i][3]][ii] );
+					}
+				}
+				printf("\n");
+			}
+		}
+		printf(" [----------------------------------------]\n");
+		printf(" [  OXIDE      GAMMA IG                   ]\n");
+		printf(" [----------------------------------------]\n");
+		for (int i = 0; i < d->n_Ox; i++){
+			printf(" [ %5s %+15f                  ]\n", gv.ox[z_b.nzEl_array[i]], d->gamma_tot[z_b.nzEl_array[i]]);
+		}
+		printf(" [----------------------------------------]\n");
+		printf(" [             %4d swaps ig              ]\n", d->n_swp);
+		printf(" [----------------------------------------]\n");
+		
+	}
+
+	return gv;
+}
+
 /**
   function to run simplex linear programming during PGE with pseudocompounds 
 */	

@@ -1481,6 +1481,41 @@ global_variable compute_activites(			int					 EM_database,
 	}
 	if (O_ix != -1){
 		gv.system_fO2 = exp( (gv.gam_tot[O_ix]*2.0 - G0_O) / (z_b.R*z_b.T)) ;
+
+		PP_ref q 	= G_EM_function(	EM_database, 
+										gv.len_ox,
+										z_b.id,
+										z_b.bulk_rock, 
+										z_b.apo, 
+										z_b.P, 
+										z_b.T, 
+										"q", 
+										"equilibrium"				);
+		PP_ref fa 	= G_EM_function(	EM_database, 
+										gv.len_ox,
+										z_b.id,
+										z_b.bulk_rock, 
+										z_b.apo, 
+										z_b.P, 
+										z_b.T, 
+										"fa", 
+										"equilibrium"				);
+
+		PP_ref mt 	= G_EM_function(	EM_database, 
+										gv.len_ox,
+										z_b.id,
+										z_b.bulk_rock, 
+										z_b.apo, 
+										z_b.P, 
+										z_b.T, 
+										"mt", 
+										"equilibrium"				);
+
+		double gO_qfm   =  -3.0 * fa.gbase + 3.0*q.gbase + 2.0*mt.gbase;
+
+		// printf("fO2_qfm %g\n",exp( (gv.gam_tot[O_ix]*2.0 - gO_qfm) / (z_b.R*z_b.T)) );
+		// printf("fO2_system %g\n",gv.system_fO2 );
+		// printf("fO2_Dqfm %g\n",exp( (gv.gam_tot[O_ix]*2.0 - (gO_qfm - G0_O)) / (z_b.R*z_b.T)) );
 	}
 	else {
 		if (gv.verbose == 1){

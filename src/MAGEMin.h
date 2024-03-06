@@ -220,6 +220,7 @@ typedef struct global_variables {
 	double   system_volume;
 
 	double 	 system_fO2;
+	double   system_deltaQFM;
 	double   system_aH2O;
 	double   system_aSiO2;
 	double   system_aTiO2;
@@ -617,6 +618,7 @@ typedef struct stb_SS_phases {
 /* hold information of solution phases */
 typedef struct mstb_SS_phases {
 	char    *ph_name;
+	char    *info;
 	int 	 ph_id;
 
 	int      nOx;
@@ -678,6 +680,7 @@ typedef struct stb_systems {
 	double  G;
 	double  rho;
 	double  fO2;
+	double  dQFM;
 	double  aH2O;
 	double  aSiO2;
 	double  aTiO2;

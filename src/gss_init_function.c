@@ -89,7 +89,7 @@ csd_phase_set CP_INIT_function(csd_phase_set cp, global_variable gv){
 */
 stb_system SP_INIT_function(stb_system sp, global_variable gv){
 
-    int n_mstb              = gv.len_ox*2;
+    int n_mstb              = gv.len_ox*3;
 	
 	sp.MAGEMin_ver   		= malloc(50  		* sizeof(char)				);
 	sp.oxides 	     		= malloc(gv.len_ox  * sizeof(char*)				);
@@ -129,7 +129,7 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 		sp.SS[n].emFrac			= malloc((gv.len_ox*3) * sizeof(double)		);
 		sp.SS[n].emFrac_wt		= malloc((gv.len_ox*3) * sizeof(double)		);
 		sp.SS[n].emChemPot		= malloc((gv.len_ox*3) * sizeof(double)		);
-		sp.SS[n].compVariablesNames	= malloc(gv.len_ox*3 	* sizeof(char*)	);
+		sp.SS[n].compVariablesNames	= malloc(gv.len_ox*3 * sizeof(char*)	);
 		sp.SS[n].emNames 	    = malloc((gv.len_ox*3) * sizeof(char*)		);
 		sp.SS[n].emComp 	    = malloc((gv.len_ox*3) * sizeof(double*)	);
 		sp.SS[n].emComp_wt 	    = malloc((gv.len_ox*3) * sizeof(double*)	);
@@ -145,10 +145,11 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
     /** allocate memory for metastable phases len_ox * 2 to be safe?        */
 	for (int n = 0; n< n_mstb; n++){
         sp.mSS[n].ph_name	    = malloc(20 * sizeof(char)	                );
+        sp.mSS[n].info	        = malloc(20 * sizeof(char)	                );
         sp.mSS[n].comp_Ppc 	    = malloc((gv.len_ox) 	* sizeof(double)	);  
-        sp.mSS[n].p_Ppc 	    = malloc((gv.len_ox*3) 	* sizeof(double)	);  
-        sp.mSS[n].mu_Ppc 	    = malloc((gv.len_ox*3) 	* sizeof(double)	);  
-        sp.mSS[n].xeos_Ppc 	    = malloc((gv.len_ox*3) 	* sizeof(double)	);  
+        sp.mSS[n].p_Ppc 	    = malloc((gv.len_ox*2) 	* sizeof(double)	);  
+        sp.mSS[n].mu_Ppc 	    = malloc((gv.len_ox*2) 	* sizeof(double)	);  
+        sp.mSS[n].xeos_Ppc 	    = malloc((gv.len_ox*2) 	* sizeof(double)	);  
 	}
 
 	return sp;
@@ -1274,7 +1275,7 @@ SS_ref G_SS_init_EM_function(		int			 		 ph_id,
 		}	
 	}
 	else if (EM_database == 4) {
-		if      (strcmp( name, "fluid")  == 0 ){
+		if      (strcmp( name, "fl")  == 0 ){
 			SS_ref_db  = G_SS_um_fluid_init_function(SS_ref_db, EM_database, gv); 	}
 		else if (strcmp( name, "ol")  == 0){
 			SS_ref_db  = G_SS_um_ol_init_function(SS_ref_db, EM_database, gv); 		}

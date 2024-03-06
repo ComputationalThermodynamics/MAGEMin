@@ -665,6 +665,7 @@ mutable struct global_variables
     system_Vs::Cdouble
     system_volume::Cdouble
     system_fO2::Cdouble
+    system_deltaQFM::Cdouble
     system_aH2O::Cdouble
     system_aSiO2::Cdouble
     system_aTiO2::Cdouble
@@ -1006,6 +1007,7 @@ const stb_SS_phase = stb_SS_phases
 
 struct mstb_SS_phases
     ph_name::Ptr{Cchar}
+    info::Ptr{Cchar}
     ph_id::Cint
     nOx::Cint
     n_xeos::Cint
@@ -1056,6 +1058,7 @@ struct stb_systems
     G::Cdouble
     rho::Cdouble
     fO2::Cdouble
+    dQFM::Cdouble
     aH2O::Cdouble
     aSiO2::Cdouble
     aTiO2::Cdouble
@@ -1201,6 +1204,10 @@ function run_LP(z_b, splx_data, gv, PP_ref_db, SS_ref_db)
     ccall((:run_LP, libMAGEMin), global_variable, (bulk_info, Ptr{simplex_data}, global_variable, Ptr{PP_ref}, Ptr{SS_ref}), z_b, splx_data, gv, PP_ref_db, SS_ref_db)
 end
 
+function run_LP_ig(z_b, splx_data, gv, PP_ref_db, SS_ref_db)
+    ccall((:run_LP_ig, libMAGEMin), global_variable, (bulk_info, Ptr{simplex_data}, global_variable, Ptr{PP_ref}, Ptr{SS_ref}), z_b, splx_data, gv, PP_ref_db, SS_ref_db)
+end
+
 function LP(z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
     ccall((:LP, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{obj_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
 end
@@ -1233,8 +1240,8 @@ function dump_init(gv)
     ccall((:dump_init, libMAGEMin), Cvoid, (global_variable,), gv)
 end
 
-function fill_output_struct(gv, z_b, PP_ref_db, SS_ref_db, cp, sp)
-    ccall((:fill_output_struct, libMAGEMin), Cvoid, (global_variable, bulk_info, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}, Ptr{stb_system}), gv, z_b, PP_ref_db, SS_ref_db, cp, sp)
+function fill_output_struct(gv, splx_data, z_b, PP_ref_db, SS_ref_db, cp, sp)
+    ccall((:fill_output_struct, libMAGEMin), Cvoid, (global_variable, Ptr{simplex_data}, bulk_info, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}, Ptr{stb_system}), gv, splx_data, z_b, PP_ref_db, SS_ref_db, cp, sp)
 end
 
 function save_results_function(gv, z_b, PP_ref_db, SS_ref_db, cp, sp)
@@ -2440,6 +2447,7 @@ end
 # metastable phases
 struct mSS_data
     ph_name::String
+    info::String
     ph_id::Cint
     n_xeos::Cint
     n_em::Cint
@@ -2453,6 +2461,7 @@ end
 
 function Base.convert(::Type{mSS_data}, a::mstb_SS_phases) 
     return  mSS_data(   unsafe_string(a.ph_name),
+                        unsafe_string(a.info),
                         a.ph_id, a.n_xeos, a.n_em, a.G_Ppc, a.DF_Ppc,
                         unsafe_wrap( Vector{Cdouble},        a.comp_Ppc,           a.nOx),
                         unsafe_wrap( Vector{Cdouble},        a.p_Ppc,              a.n_em),

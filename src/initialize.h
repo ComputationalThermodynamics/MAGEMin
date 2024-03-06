@@ -509,7 +509,7 @@ ultramafic_dataset ultramafic_db = {
 	{"SiO2"	,"Al2O3","MgO"	,"FeO"	,"O"	,"H2O"	,"S"												},
 	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"pyr"	,"O2"  	,
 	 "qfm"	,"qif"	,"nno"	,"hm"	,"cco"	},
-	{"fluid", "ol"  ,"br"	,"ch"	,"atg"	,"g"	,"ta"	,"chl"	,"spi"	,"opx"	,"po"	,"anth" 	},
+	{"fl", "ol"  ,"br"	,"ch"	,"atg"	,"g"	,"ta"	,"chl"	,"spi"	,"opx"	,"po"	,"anth" 	},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1		,1			},  // allow solvus?
 	{11  	,10  	,10 	,10 	,489 	,10  	,985 	,2691	,100	,196	,10		,274		},  // No. of pseudocompound
@@ -1350,6 +1350,7 @@ global_variable reset_gv(					global_variable 	 gv,
 
 	// gv.melt_pressure 	  = 0.;
 	gv.system_fO2 		  = 0.;
+	gv.system_deltaQFM	  = 0.;
 	gv.system_aH2O	  	  = 0.;
 	gv.system_aSiO2	  	  = 0.;
 	gv.system_aTiO2	  	  = 0.;
@@ -1492,6 +1493,7 @@ void reset_sp(						global_variable 	 gv,
 	/* reset metastable phases */
 	for (int n = 0; n < gv.len_ox*2; n++){
 		strcpy(sp[0].mSS[n].ph_name,"");
+		strcpy(sp[0].mSS[n].info,"");
 
 		for (int i = 0; i < gv.len_ox; i++){
 			sp[0].mSS[n].comp_Ppc[i] 		= 0.0;

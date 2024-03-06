@@ -256,6 +256,8 @@ int runMAGEMin(			int    argc,
 
 		/* Fill structure holding stable phase equilibrium informations 			*/
 		fill_output_struct(					gv,												/** global variables (e.g. Gamma) 	*/
+										   &splx_data,
+										   
 											z_b,											/** bulk-rock informations 			*/
 											DB.PP_ref_db,									/** pure phase database 			*/
 											DB.SS_ref_db,									/** solution phase database 		*/
@@ -474,6 +476,14 @@ int runMAGEMin(			int    argc,
 									SS_ref_db,								/** solution phase database 		*/
 									cp						);
 		}
+		else{	// here we compute the LP initial guess
+			gv = run_LP_ig(					z_b,
+											splx_data,
+											gv,
+													
+											PP_ref_db,
+											SS_ref_db			);
+		}
 	}
 	else if (gv.solver == 2){
 		int  i, ph_id;
@@ -541,6 +551,14 @@ int runMAGEMin(			int    argc,
 										PP_ref_db,								/** pure phase database 			*/
 										SS_ref_db,								/** solution phase database 		*/
 										cp						);
+			}
+			else{	// here we compute the LP initial guess
+				gv = run_LP_ig(					z_b,
+												splx_data,
+												gv,
+														
+												PP_ref_db,
+												SS_ref_db			);
 			}
 		}
 		else{

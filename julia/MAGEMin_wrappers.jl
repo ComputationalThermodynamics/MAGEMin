@@ -587,6 +587,11 @@ function point_wise_minimization(P::Float64,T::Float64, gv, z_b, DB, splx_data; 
     gv.buffer_n     =   buffer_n
     input_data      =   LibMAGEMin.io_data();           # zero (not used actually)
     z_b.T           =   T + 273.15                      # in K
+
+    if P < 0.001
+        P = 0.001
+    end
+    
     z_b.P           =   P
     gv.numPoint     =   1; 							    # the number of the current point */
 
@@ -621,7 +626,7 @@ function point_wise_minimization(P::Float64,T::Float64, gv, z_b, DB, splx_data; 
     gv = LibMAGEMin.ComputePostProcessing(z_b, gv, DB.PP_ref_db, DB.SS_ref_db, DB.cp)
 
     # Fill structure
-    LibMAGEMin.fill_output_struct(	gv,	z_b, DB.PP_ref_db,DB.SS_ref_db,	DB.cp, DB.sp );
+    LibMAGEMin.fill_output_struct(gv, pointer_from_objref(splx_data),	z_b, DB.PP_ref_db, DB.SS_ref_db,DB.cp, DB.sp );
 
     # Print output to screen
     LibMAGEMin.PrintOutput(gv, 0, 1, DB, time, z_b);
@@ -687,7 +692,7 @@ function pwm_run(gv, z_b, DB, splx_data)
     gv = LibMAGEMin.ComputePostProcessing(z_b, gv, DB.PP_ref_db, DB.SS_ref_db, DB.cp)
 
     # Fill structure
-    LibMAGEMin.fill_output_struct(	gv,	z_b, DB.PP_ref_db,DB.SS_ref_db,	DB.cp, DB.sp );
+    LibMAGEMin.fill_output_struct(gv, pointer_from_objref(splx_data), z_b, DB.PP_ref_db,DB.SS_ref_db, DB.cp, DB.sp );
 
     # Print output to screen
     LibMAGEMin.PrintOutput(gv, 0, 1, DB, time, z_b);

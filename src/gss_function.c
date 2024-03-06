@@ -7834,7 +7834,7 @@ SS_ref G_SS_um_EM_function(		global_variable 	 gv,
 			SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
 		}
 
-		if (strcmp( name, "fluid") == 0 ){
+		if (strcmp( name, "fl") == 0 ){
 			// if no H2O, deactivate
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
