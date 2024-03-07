@@ -753,6 +753,7 @@ struct gmin_struct{T,I}
 
     # Oxygen fugacity
     fO2         :: T
+    dQFM        :: T
 
     # Activities
     aH2O        :: T
@@ -851,6 +852,7 @@ function create_gmin_struct(DB, gv, time)
 
     # Oxygen fugacity
     fO2     = stb.fO2
+    dQFM    = stb.dQFM
 
     # Activities
     aH2O    = stb.aH2O
@@ -902,7 +904,7 @@ function create_gmin_struct(DB, gv, time)
                 frac_M_wt, frac_S_wt, frac_F_wt,
                 alpha, V, cp, s_cp,
                 rho, rho_M, rho_S, rho_F,
-                fO2, aH2O, aSiO2, aTiO2, aAl2O3, aMgO, aFeO,
+                fO2, dQFM, aH2O, aSiO2, aTiO2, aAl2O3, aMgO, aFeO,
                 n_PP, n_SS, n_mSS,
                 ph_frac, ph_frac_wt, ph_frac_vol, ph_type, ph_id, ph,
                 SS_vec,  mSS_vec, PP_vec,
@@ -936,6 +938,7 @@ function show(io::IO, g::gmin_struct)
         println(io, "WARNING: calculation did not converge ----------------------------")
     end
     println(io, "Oxygen fugacity          : $(g.fO2)")
+    println(io, "Delta QFM                : $(g.dQFM)")
 
 
 end
