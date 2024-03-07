@@ -890,7 +890,7 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 	int i, j, k, ii;
 	int m_pc;
 	
-	/* initialiaze phase active in the considered assemblage */
+	/* initialize phase active in the considered assemblage */
 	for (i = 0; i < gv.len_ss; i++){
 		phase_on[i] = 0;
 	}

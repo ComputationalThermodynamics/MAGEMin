@@ -22,6 +22,7 @@
 #include "MAGEMin.h"
 #include "gem_function.h"
 #include "gss_function.h"
+#include "objective_functions.h"
 #include "toolkit.h"
 
 /**
@@ -91,7 +92,7 @@ void fill_output_struct(		global_variable 	 gv,
 	double atp2wt;
 
 	int nox  = gv.len_ox;
-	int i, j, k, m, n;
+	int i, j, k, m, n, em_id, ph_id, pc_id;
 	
 	strcpy(sp[0].MAGEMin_ver,gv.version);	
 	
@@ -475,18 +476,152 @@ void fill_output_struct(		global_variable 	 gv,
 	sp[0].s_cp 					= sp[0].cp_wt/MolarMass_system*1e6;
 
 
+	/* get LP assemblage */
+	m = 0;
+	simplex_data *d  = (simplex_data *) splx_data;
+
+	for (i = 0; i < d->n_Ox; i++){
+		ph_id 		= d->ph_id_A[i][1];
+			
+		if (d->ph_id_A[i][0] == 1){			/* if phase is a pure species */
+			for (int j = 0; j < gv.len_ox; j++){
+				sp[0].mSS[m].comp_Ppc[j] = PP_ref_db[ph_id].Comp[j]*PP_ref_db[ph_id].factor;
+			}
+
+			sp[0].mSS[m].G_Ppc 	= PP_ref_db[ph_id].gbase*PP_ref_db[ph_id].factor;
+			sp[0].mSS[m].DF_Ppc = sp[0].mSS[m].G_Ppc;
+			for (int j = 0; j < gv.len_ox; j++) {
+				sp[0].mSS[m].DF_Ppc -= sp[0].mSS[m].comp_Ppc[j] *gv.gam_tot[j];
+			}
+
+			strcpy(sp[0].mSS[m].info,"lpig");
+			strcpy(sp[0].mSS[m].ph_name,gv.PP_list[ph_id]);
+			sp[0].mSS[m].ph_id 		= ph_id;
+			sp[0].mSS[m].nOx 		= gv.len_ox;
+			sp[0].mSS[m].n_xeos		= 0;
+			sp[0].mSS[m].n_em 		= 0;
+
+			sp[0].n_mSS += 1;
+			m += 1;
+		}
+		else if (d->ph_id_A[i][0] == 2){ 		/* pure endmembers as solution phase */
+			em_id 					= d->ph_id_A[i][3];
+
+			for (j = 0; j < SS_ref_db[ph_id].n_em; j++) {	
+				SS_ref_db[ph_id].p[j] = gv.em2ss_shift;
+			}
+			SS_ref_db[ph_id].p[em_id] = 1.0 - gv.em2ss_shift*SS_ref_db[ph_id].n_em;
+			
+			SS_ref_db[ph_id] = P2X(			gv,
+											SS_ref_db[ph_id],
+											z_b,
+											gv.SS_list[ph_id]					);
+
+			/* get unrotated gbase */
+			SS_ref_db[ph_id] = non_rot_hyperplane(	gv, 
+													SS_ref_db[ph_id]			);
+
+			SS_ref_db[ph_id] = PC_function(				gv,
+														SS_ref_db[ph_id], 
+														z_b,
+														gv.SS_list[ph_id] 		);
+
+
+			for (j = 0; j < gv.len_ox; j++){
+				sp[0].mSS[m].comp_Ppc[j] = SS_ref_db[ph_id].ss_comp[j]*SS_ref_db[ph_id].factor;
+			}
+											
+			sp[0].mSS[m].G_Ppc 	= SS_ref_db[ph_id].df;
+			sp[0].mSS[m].DF_Ppc = SS_ref_db[ph_id].df;
+			for (j = 0; j < gv.len_ox; j++) {
+				sp[0].mSS[m].DF_Ppc -= sp[0].mSS[m].comp_Ppc[j]*gv.gam_tot[j];
+			}
+
+			strcpy(sp[0].mSS[m].info,"lpig");
+			strcpy(sp[0].mSS[m].ph_name,gv.SS_list[ph_id]);
+			sp[0].mSS[m].ph_id 		= ph_id;
+			sp[0].mSS[m].nOx 		= gv.len_ox;
+			sp[0].mSS[m].n_xeos		= SS_ref_db[ph_id].n_xeos;
+			sp[0].mSS[m].n_em 		= SS_ref_db[ph_id].n_em;
+
+			for (j = 0; j < SS_ref_db[ph_id].n_em; j++){
+				sp[0].mSS[m].p_Ppc[j] 	= SS_ref_db[ph_id].p[j];
+				sp[0].mSS[m].mu_Ppc[j] 	= SS_ref_db[ph_id].mu[j]*SS_ref_db[ph_id].z_em[j];
+			}
+			for (j = 0; j < SS_ref_db[ph_id].n_xeos; j++){
+				sp[0].mSS[m].xeos_Ppc[j] = SS_ref_db[ph_id].iguess[j];	
+			}
+
+			sp[0].n_mSS += 1;
+			m += 1;
+		}
+		else if (d->ph_id_A[i][0] == 3){				/* solution phase */
+			pc_id 					= d->ph_id_A[i][3];
+
+			/* solution phase */
+			if (d->ph_id_A[i][0] == 3 && d->stage[i] == 1){
+				pc_id 					= d->ph_id_A[i][3];
+
+				for (int ii = 0; ii < SS_ref_db[ph_id].n_xeos; ii++){
+					SS_ref_db[ph_id].iguess[ii]  = SS_ref_db[ph_id].xeos_Ppc[pc_id][ii];
+				}
+			}
+			if (d->ph_id_A[i][0] == 3 && d->stage[i] == 0){
+				pc_id 					= d->ph_id_A[i][3];
+
+				for (int ii = 0; ii < SS_ref_db[ph_id].n_xeos; ii++){
+					SS_ref_db[ph_id].iguess[ii]  = SS_ref_db[ph_id].xeos_pc[pc_id][ii];
+				}
+			}
+			
+			/* get unrotated gbase */
+			SS_ref_db[ph_id] = non_rot_hyperplane(	gv, 
+													SS_ref_db[ph_id]			);
+
+			SS_ref_db[ph_id] = PC_function(				gv,
+														SS_ref_db[ph_id], 
+														z_b,
+														gv.SS_list[ph_id] 		);
+											
+			for (j = 0; j < gv.len_ox; j++){
+				sp[0].mSS[m].comp_Ppc[j] = SS_ref_db[ph_id].ss_comp[j]*SS_ref_db[ph_id].factor;
+			}
+
+			sp[0].mSS[m].G_Ppc 	= SS_ref_db[ph_id].df;
+			sp[0].mSS[m].DF_Ppc = SS_ref_db[ph_id].df;
+			for (j = 0; j < gv.len_ox; j++) {
+				sp[0].mSS[m].DF_Ppc -= sp[0].mSS[m].comp_Ppc[j]*gv.gam_tot[j];
+			}
+
+			strcpy(sp[0].mSS[m].info,"lpig");
+			strcpy(sp[0].mSS[m].ph_name,gv.SS_list[ph_id]);
+			sp[0].mSS[m].ph_id 		= ph_id;
+			sp[0].mSS[m].nOx 		= gv.len_ox;
+			sp[0].mSS[m].n_xeos		= SS_ref_db[ph_id].n_xeos;
+			sp[0].mSS[m].n_em 		= SS_ref_db[ph_id].n_em;
+
+			for (int j = 0; j < SS_ref_db[ph_id].n_em; j++){
+				sp[0].mSS[m].p_Ppc[j] 	= SS_ref_db[ph_id].p[j];
+				sp[0].mSS[m].mu_Ppc[j] 	= SS_ref_db[ph_id].mu[j]*SS_ref_db[ph_id].z_em[j];
+			}
+			for (int j = 0; j < SS_ref_db[ph_id].n_xeos; j++){
+				sp[0].mSS[m].xeos_Ppc[j] = SS_ref_db[ph_id].iguess[j];	
+			}
+
+			sp[0].n_mSS += 1;
+			m += 1;
+		}
+	}
 
 	/* copy metastable phases to sb structure */
 	int n_xeos, n_em;
-
-	m = 0;
 	for (int i = 0; i < gv.len_ss; i++){
 		if (SS_ref_db[i].ss_flags[0] == 1){
 
 			n_em 	 = SS_ref_db[i].n_em;
 			n_xeos 	 = SS_ref_db[i].n_xeos;
 			for (int l = 0; l < SS_ref_db[i].tot_Ppc; l++){
-				if (SS_ref_db[i].info_Ppc[l] == 9 && m < gv.len_ox*2){
+				if (SS_ref_db[i].info_Ppc[l] == 9 && m < gv.len_ox*3){
 
 					sp[0].n_mSS += 1;
 					strcpy(sp[0].mSS[m].info,"ppc");
@@ -520,7 +655,7 @@ void fill_output_struct(		global_variable 	 gv,
 
 		}
 	}
-	if (m >= gv.len_ox*2){
+	if (m >= gv.len_ox*3){
 		printf("WARNING: maximum number of metastable pseudocompounds has been reached, increase the value in gss_init_function.c (SP_INIT_function)\n");
 	}
 

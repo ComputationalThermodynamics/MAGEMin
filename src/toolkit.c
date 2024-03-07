@@ -1512,12 +1512,10 @@ global_variable compute_activites(			int					 EM_database,
 										"equilibrium"				);
 
 		double gO_qfm   	=  -3.0 * fa.gbase + 3.0*q.gbase + 2.0*mt.gbase;
-		gv.system_deltaQFM 	= (gO_qfm-G0_O) / (z_b.R*z_b.T);
+		gv.system_deltaQFM 	= exp( (gv.gam_tot[O_ix]*2.0 - gO_qfm) / (z_b.R*z_b.T));
 
-		// printf("fO2_Dqfm %g\n",( (gO_qfm-G0_O) / (z_b.R*z_b.T)) );
 		// double  QFM  =  42.14743 - 27792.8/z_b.T + 104.59*z_b.P/z_b.T - 4.7113*log(z_b.T) + 0.00180*z_b.T;
-		// printf("fO2_Dqfm_an %g\n", log(gv.system_fO2)-QFM);
-
+		// printf("fO2_Dqfm_an %g\n", log10(gv.system_fO2)-QFM);
 
 	}
 	else {
