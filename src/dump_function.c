@@ -102,8 +102,8 @@ void fill_output_struct(		global_variable 	 gv,
 	
 	sp[0].nOx					 = gv.len_ox;
 	sp[0].rho					 = gv.system_density;
-	sp[0].fO2					 = gv.system_fO2;
-	sp[0].dQFM					 = gv.system_deltaQFM;
+	sp[0].fO2					 = log10(gv.system_fO2);
+	sp[0].dQFM					 = log10(gv.system_deltaQFM);
 	sp[0].aH2O					 = gv.system_aH2O;
 	sp[0].aSiO2					 = gv.system_aSiO2;
 	sp[0].aTiO2					 = gv.system_aTiO2;
@@ -1359,7 +1359,8 @@ void output_matlab(				global_variable 	 gv,
 	}
 
 	fprintf(loc_min, "\n\nSystem fugacity:\n");
-	fprintf(loc_min, 	"%6s %+10e\n", "fO2",gv.system_fO2);
+	fprintf(loc_min, 	"%6s %+10e\n", "log10(fO2)",log10(gv.system_fO2));
+	fprintf(loc_min, 	"%6s %+10e\n", "log10(dQFM)",log10(gv.system_deltaQFM));
 
 	fprintf(loc_min, "\n\nSystem activity:\n");
 	fprintf(loc_min, 	"%6s %+10e\n", "aH2O",gv.system_aH2O);
