@@ -495,6 +495,7 @@ void fill_output_struct(		global_variable 	 gv,
 			}
 
 			strcpy(sp[0].mSS[m].info,"lpig");
+			strcpy(sp[0].mSS[m].ph_type,"pp");
 			strcpy(sp[0].mSS[m].ph_name,gv.PP_list[ph_id]);
 			sp[0].mSS[m].ph_id 		= ph_id;
 			sp[0].mSS[m].nOx 		= gv.len_ox;
@@ -538,8 +539,10 @@ void fill_output_struct(		global_variable 	 gv,
 			}
 
 			strcpy(sp[0].mSS[m].info,"lpig");
+			strcpy(sp[0].mSS[m].ph_type,"ss_em");
 			strcpy(sp[0].mSS[m].ph_name,gv.SS_list[ph_id]);
 			sp[0].mSS[m].ph_id 		= ph_id;
+			sp[0].mSS[m].em_id 		= em_id;
 			sp[0].mSS[m].nOx 		= gv.len_ox;
 			sp[0].mSS[m].n_xeos		= SS_ref_db[ph_id].n_xeos;
 			sp[0].mSS[m].n_em 		= SS_ref_db[ph_id].n_em;
@@ -594,6 +597,7 @@ void fill_output_struct(		global_variable 	 gv,
 			}
 
 			strcpy(sp[0].mSS[m].info,"lpig");
+			strcpy(sp[0].mSS[m].ph_type,"ss");
 			strcpy(sp[0].mSS[m].ph_name,gv.SS_list[ph_id]);
 			sp[0].mSS[m].ph_id 		= ph_id;
 			sp[0].mSS[m].nOx 		= gv.len_ox;
@@ -621,10 +625,11 @@ void fill_output_struct(		global_variable 	 gv,
 			n_em 	 = SS_ref_db[i].n_em;
 			n_xeos 	 = SS_ref_db[i].n_xeos;
 			for (int l = 0; l < SS_ref_db[i].tot_Ppc; l++){
-				if (SS_ref_db[i].info_Ppc[l] == 9 && m < gv.len_ox*3){
+				if (SS_ref_db[i].info_Ppc[l] == 9 && m < gv.max_n_mSS){
 
 					sp[0].n_mSS += 1;
 					strcpy(sp[0].mSS[m].info,"ppc");
+					strcpy(sp[0].mSS[m].ph_type,"ss");
 					strcpy(sp[0].mSS[m].ph_name,gv.SS_list[i]);
 					sp[0].mSS[m].ph_id 		= i;
 					sp[0].mSS[m].nOx 		= gv.len_ox;
@@ -655,7 +660,7 @@ void fill_output_struct(		global_variable 	 gv,
 
 		}
 	}
-	if (m >= gv.len_ox*3){
+	if (m >= gv.max_n_mSS){
 		printf("WARNING: maximum number of metastable pseudocompounds has been reached, increase the value in gss_init_function.c (SP_INIT_function)\n");
 	}
 

@@ -611,8 +611,6 @@ function point_wise_minimization(P::Float64,T::Float64, gv, z_b, DB, splx_data; 
     # here we can over-ride default W's
     if ~isnothing(W)
         if gv.EM_database  == W.database    # check if the database fit
-
-
         else
             print(" Wrong database number, please make sure the custom Ws are linked to the right database\n")
         end
@@ -768,12 +766,12 @@ struct gmin_struct{T,I}
     n_SS        :: Int64                 # number of solid solutions
     n_mSS       :: Int64                 # number of solid solutions
 
-    ph_frac     :: Vector{T}          # phase fractions
-    ph_frac_wt  :: Vector{T}          # phase fractions
-    ph_frac_vol :: Vector{T}          # phase fractions
-    ph_type     :: Vector{I}      # type of phase (SS or PP)
-    ph_id       :: Vector{I}        # id of phase
-    ph          :: Vector{String}          # Name of phase
+    ph_frac     :: Vector{T}            # phase fractions
+    ph_frac_wt  :: Vector{T}            # phase fractions
+    ph_frac_vol :: Vector{T}            # phase fractions
+    ph_type     :: Vector{I}            # type of phase (SS or PP)
+    ph_id       :: Vector{I}            # id of phase
+    ph          :: Vector{String}       # Name of phase
 
     SS_vec      :: Vector{LibMAGEMin.SS_data}
     mSS_vec      :: Vector{LibMAGEMin.mSS_data}

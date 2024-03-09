@@ -399,14 +399,29 @@ int runMAGEMin(			int    argc,
 	/****************************************************************************************/
 	/**                                   LEVELLING                                        **/
 	/****************************************************************************************/	
-	gv = Levelling(			z_b,										/** bulk rock informations 			*/
-							gv,											/** global variables (e.g. Gamma) 	*/
+	// leveling mode = 0 is default, without using initial guess
+	// leveling mode = 1 uses initial guess
+	if (gv.leveling_mode == 0){
+		gv = Levelling(			z_b,										/** bulk rock informations 			*/
+								gv,											/** global variables (e.g. Gamma) 	*/
 
-							SS_objective,
-							splx_data,
-							PP_ref_db,									/** pure phase database 			*/
-							SS_ref_db,									/** solution phase database 		*/
-							cp							);
+								SS_objective,
+								splx_data,
+								PP_ref_db,									/** pure phase database 			*/
+								SS_ref_db,									/** solution phase database 		*/
+								cp							);
+
+	}
+	else if (gv.leveling_mode == 1){
+		gv = Initial_guess(		z_b,										/** bulk rock informations 			*/
+								gv,											/** global variables (e.g. Gamma) 	*/
+
+								SS_objective,
+								splx_data,
+								PP_ref_db,									/** pure phase database 			*/
+								SS_ref_db,									/** solution phase database 		*/
+								cp							);
+	}
 
 
 	/****************************************************************************************/
@@ -854,12 +869,13 @@ void FreeDatabases(		global_variable gv,
 	}
 
 	/* free metastable assemblage */
-	for ( i = 0; i < n_ox*2; i++){
+	for ( i = 0; i < gv.max_n_mSS; i++){
 		if  (DB.sp[0].mSS[i].comp_Ppc		!=NULL)  free( DB.sp[0].mSS[i].comp_Ppc		);
 		if  (DB.sp[0].mSS[i].p_Ppc			!=NULL)  free( DB.sp[0].mSS[i].p_Ppc		);
 		if  (DB.sp[0].mSS[i].mu_Ppc			!=NULL)  free( DB.sp[0].mSS[i].mu_Ppc		);
 		if  (DB.sp[0].mSS[i].xeos_Ppc		!=NULL)  free( DB.sp[0].mSS[i].xeos_Ppc		);
 		if  (DB.sp[0].mSS[i].ph_name		!=NULL)  free( DB.sp[0].mSS[i].ph_name		);
+		if  (DB.sp[0].mSS[i].ph_type		!=NULL)  free( DB.sp[0].mSS[i].ph_type		);
 	}
 
 	free(DB.sp[0].PP);
@@ -970,6 +986,8 @@ void FreeDatabases(		global_variable gv,
 
 		free(DB.SS_ref_db[i].G_pc);
 		free(DB.SS_ref_db[i].DF_pc);
+		free(DB.SS_ref_db[i].tot_pc);
+		free(DB.SS_ref_db[i].id_pc);
 		free(DB.SS_ref_db[i].factor_pc);
 		free(DB.SS_ref_db[i].info);
 

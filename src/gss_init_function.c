@@ -89,8 +89,6 @@ csd_phase_set CP_INIT_function(csd_phase_set cp, global_variable gv){
 */
 stb_system SP_INIT_function(stb_system sp, global_variable gv){
 
-    int n_mstb              = gv.len_ox*3;
-	
 	sp.MAGEMin_ver   		= malloc(50  		* sizeof(char)				);
 	sp.oxides 	     		= malloc(gv.len_ox  * sizeof(char*)				);
 	
@@ -118,7 +116,7 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 	sp.ph_id 				= malloc(gv.len_ox 	* sizeof(int)				);	
 	sp.PP 		 			= malloc(gv.len_ox  * sizeof(stb_PP_phase)		); 
 	sp.SS 		 			= malloc(gv.len_ox  * sizeof(stb_SS_phase)		); 
-	sp.mSS 		 			= malloc(n_mstb     * sizeof(mstb_SS_phase)	); 
+	sp.mSS 		 			= malloc(gv.max_n_mSS  * sizeof(mstb_SS_phase)	); 
 
 	for (int n = 0; n< gv.len_ox; n++){
 		sp.PP[n].Comp 			= malloc(gv.len_ox 	* sizeof(double)		);
@@ -143,8 +141,9 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 	}
     
     /** allocate memory for metastable phases len_ox * 2 to be safe?        */
-	for (int n = 0; n< n_mstb; n++){
+	for (int n = 0; n< gv.max_n_mSS; n++){
         sp.mSS[n].ph_name	    = malloc(20 * sizeof(char)	                );
+        sp.mSS[n].ph_type	    = malloc(20 * sizeof(char)	                );
         sp.mSS[n].info	        = malloc(20 * sizeof(char)	                );
         sp.mSS[n].comp_Ppc 	    = malloc((gv.len_ox) 	* sizeof(double)	);  
         sp.mSS[n].p_Ppc 	    = malloc((gv.len_ox*2) 	* sizeof(double)	);  
@@ -1398,6 +1397,8 @@ SS_ref G_SS_init_EM_function(		int			 		 ph_id,
 	*/
 	// SS_ref_db.n_pc   	= gv.n_pc;
 	SS_ref_db.n_pc   	= gv.n_SS_PC[ph_id];
+    SS_ref_db.tot_pc   	= malloc (1 * sizeof (double) ); 
+    SS_ref_db.id_pc   	= malloc (1 * sizeof (double) ); 
 	SS_ref_db.G_pc   	= malloc ((SS_ref_db.n_pc) * sizeof (double) ); 
 	SS_ref_db.DF_pc 	= malloc ((SS_ref_db.n_pc) * sizeof (double) ); 
 	SS_ref_db.factor_pc = malloc ((SS_ref_db.n_pc) * sizeof (double) ); 

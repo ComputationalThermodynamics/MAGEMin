@@ -174,7 +174,7 @@ global_variable check_PC(					bulk_info 	 		 z_b,
 		}
 
 		if (SS_ref_db[i].ss_flags[0] == 1  && gv.verifyPC[i] == 1){
-			for (l = 0; l < SS_ref_db[i].tot_pc; l++){
+			for (l = 0; l < SS_ref_db[i].tot_pc[0]; l++){
 				dist =  1;
 				if (gv.n_solvi[i] > 0){
 
@@ -418,7 +418,7 @@ global_variable check_PC_driving_force(		bulk_info 	 		 z_b,
 				
 			n_em 	 = SS_ref_db[i].n_em;
 
-			for (int l = 0; l < SS_ref_db[i].tot_pc; l++){
+			for (int l = 0; l < SS_ref_db[i].tot_pc[0] ; l++){
 				SS_ref_db[i].DF_pc[l] = SS_ref_db[i].G_pc[l];
 				for (int j = 0; j < gv.len_ox; j++) {
 					SS_ref_db[i].DF_pc[l] -= SS_ref_db[i].comp_pc[l][j]*gv.gam_tot[j];

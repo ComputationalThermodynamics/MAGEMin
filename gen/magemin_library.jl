@@ -518,6 +518,7 @@ mutable struct global_variables
     n_em_db::Cint
     EM_database::Cint
     n_Diff::Cint
+    leveling_mode::Cint
     status::Cint
     solver::Cint
     solver_switch_T::Cdouble
@@ -561,6 +562,7 @@ mutable struct global_variables
     len_ox::Cint
     maxlen_ox::Cint
     max_n_cp::Cint
+    max_n_mSS::Cint
     max_ss_size_cp::Cint
     len_cp::Cint
     ox::Ptr{Ptr{Cchar}}
@@ -786,8 +788,8 @@ struct SS_refs
     CV_list::Ptr{Ptr{Cchar}}
     ss_flags::Ptr{Cint}
     n_pc::Cint
-    tot_pc::Cint
-    id_pc::Cint
+    tot_pc::Ptr{Cint}
+    id_pc::Ptr{Cint}
     info::Ptr{Cint}
     G_pc::Ptr{Cdouble}
     DF_pc::Ptr{Cdouble}
@@ -1007,8 +1009,10 @@ const stb_SS_phase = stb_SS_phases
 
 struct mstb_SS_phases
     ph_name::Ptr{Cchar}
+    ph_type::Ptr{Cchar}
     info::Ptr{Cchar}
     ph_id::Cint
+    em_id::Cint
     nOx::Cint
     n_xeos::Cint
     n_em::Cint
@@ -2171,6 +2175,10 @@ function Levelling(z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
     ccall((:Levelling, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{obj_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
 end
 
+function Initial_guess(z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
+    ccall((:Initial_guess, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{obj_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
+end
+
 function destroy_simplex_A(splx_data)
     ccall((:destroy_simplex_A, libMAGEMin), Cvoid, (Ptr{simplex_data},), splx_data)
 end
@@ -2447,8 +2455,10 @@ end
 # metastable phases
 struct mSS_data
     ph_name::String
+    ph_type::String
     info::String
     ph_id::Cint
+    em_id::Cint
     n_xeos::Cint
     n_em::Cint
     G_Ppc::Cdouble
@@ -2461,8 +2471,9 @@ end
 
 function Base.convert(::Type{mSS_data}, a::mstb_SS_phases) 
     return  mSS_data(   unsafe_string(a.ph_name),
+                        unsafe_string(a.ph_type),
                         unsafe_string(a.info),
-                        a.ph_id, a.n_xeos, a.n_em, a.G_Ppc, a.DF_Ppc,
+                        a.ph_id, a.em_id, a.n_xeos, a.n_em, a.G_Ppc, a.DF_Ppc,
                         unsafe_wrap( Vector{Cdouble},        a.comp_Ppc,           a.nOx),
                         unsafe_wrap( Vector{Cdouble},        a.p_Ppc,              a.n_em),
                         unsafe_wrap( Vector{Cdouble},        a.mu_Ppc,             a.n_em),

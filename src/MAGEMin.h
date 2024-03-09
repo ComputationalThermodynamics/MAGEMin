@@ -32,6 +32,7 @@ typedef struct global_variables {
 	int 	 n_em_db;
 	int 	 EM_database;
 	int      n_Diff;
+	int 	 leveling_mode;
 	int      status;			/** status of the minimization 		*/
 	int      solver;
 	double   solver_switch_T;
@@ -85,6 +86,7 @@ typedef struct global_variables {
 	int      len_ox;			/** number of components (number of oxides in the chemical system) */
 	int 	 maxlen_ox;			/** max number of oxides (depends on the database)*/
 	int 	 max_n_cp;			/** number of considered solution phases */
+	int 	 max_n_mSS;			/** maximum number of metastable solution phases pseudocompound saved */
 	int      max_ss_size_cp;
 	int 	 len_cp;
 	char   **ox;				/** component names (for outputing purpose only) */
@@ -363,8 +365,8 @@ typedef struct SS_refs {
 	int     *ss_flags;			/** integer table for solution phase list 									*/
 	/** data needed for levelling and PGE check **/
 	int      n_pc;				/** maximum number of pseudocompounds to store 								*/
-	int      tot_pc;			/** total number of pseudocompounds  										*/
-	int      id_pc;				/** total number of pseudocompounds  										*/
+	int     *tot_pc;			/** total number of pseudocompounds  										*/
+	int     *id_pc;				/** total number of pseudocompounds  										*/
 	int     *info;				/** store some infos for debugging 											*/
 	double  *G_pc;				/** array to store the gibbs energy of the pseudocompounds 					*/
 	double  *DF_pc;				/** array to store the final driving force of the pseudocompounds 			*/
@@ -618,8 +620,10 @@ typedef struct stb_SS_phases {
 /* hold information of solution phases */
 typedef struct mstb_SS_phases {
 	char    *ph_name;
+	char    *ph_type;
 	char    *info;
 	int 	 ph_id;
+	int 	 em_id;
 
 	int      nOx;
 	int      n_xeos;
