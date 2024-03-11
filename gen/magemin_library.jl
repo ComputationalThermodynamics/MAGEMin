@@ -2175,8 +2175,8 @@ function Levelling(z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
     ccall((:Levelling, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{obj_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
 end
 
-function Initial_guess(z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
-    ccall((:Initial_guess, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{obj_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
+function Initial_guess(z_b, gv, splx_data, PP_ref_db, SS_ref_db, cp)
+    ccall((:Initial_guess, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, splx_data, PP_ref_db, SS_ref_db, cp)
 end
 
 function destroy_simplex_A(splx_data)
