@@ -136,6 +136,7 @@ void fill_output_struct(		global_variable 	 gv,
 
 	sp[0].P 			 		 = z_b.P;
 	sp[0].T 			 		 = z_b.T;
+	sp[0].X 			 		 = 1.0;
 	
 	sum_Molar_mass_bulk = 0.0;
 	for (i = 0; i < nox; i++){

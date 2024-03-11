@@ -677,6 +677,7 @@ typedef struct stb_systems {
 	
 	double  P;
 	double  T;
+	double  X;
 	double *bulk;
 	double *bulk_wt;
 

@@ -1056,6 +1056,7 @@ struct stb_systems
     oxides::Ptr{Ptr{Cchar}}
     P::Cdouble
     T::Cdouble
+    X::Cdouble
     bulk::Ptr{Cdouble}
     bulk_wt::Ptr{Cdouble}
     gamma::Ptr{Cdouble}

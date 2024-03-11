@@ -1213,7 +1213,7 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 /**
   function to run simplex linear programming with pseudocompounds only
 */	
-void run_simplex_pseudocompounds(		bulk_info 	 z_b,
+void run_simplex_pseudocompounds(		bulk_info 	 		z_b,
 										simplex_data 		*splx_data,
 										global_variable 	 gv,
 										

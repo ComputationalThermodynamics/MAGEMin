@@ -1427,7 +1427,8 @@ global_variable reset_gv(					global_variable 	 gv,
 void reset_sp(						global_variable 	 gv,
 									stb_system  		*sp
 ){
-
+	sp[0].X  							= 1.0;
+	
 	sp[0].aH2O	  	  					= 0.0;
 	sp[0].aSiO2	  						= 0.0;
 	sp[0].aTiO2  						= 0.0;
