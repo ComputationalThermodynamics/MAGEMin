@@ -460,7 +460,7 @@
 <span class="w">						 </span>
 <span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">iss</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">iss</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ss</span><span class="p">;</span><span class="w"> </span><span class="n">iss</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
 
-<span class="w">		</span><span class="k">if</span><span class="w">      </span><span class="p">(</span><span class="n">strcmp</span><span class="p">(</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">SS_list</span><span class="p">[</span><span class="n">iss</span><span class="p">],</span><span class="w"> </span><span class="s">&quot;fluid&quot;</span><span class="p">)</span><span class="w">  </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">){</span><span class="w"></span>
+<span class="w">		</span><span class="k">if</span><span class="w">      </span><span class="p">(</span><span class="n">strcmp</span><span class="p">(</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">SS_list</span><span class="p">[</span><span class="n">iss</span><span class="p">],</span><span class="w"> </span><span class="s">&quot;fl&quot;</span><span class="p">)</span><span class="w">  </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">){</span><span class="w"></span>
 <span class="w">			</span><span class="n">SS_objective</span><span class="p">[</span><span class="n">iss</span><span class="p">]</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">obj_um_fluid</span><span class="p">;</span><span class="w"> 		</span><span class="p">}</span><span class="w"></span>
 <span class="w">		</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">strcmp</span><span class="p">(</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">SS_list</span><span class="p">[</span><span class="n">iss</span><span class="p">],</span><span class="w"> </span><span class="s">&quot;ol&quot;</span><span class="p">)</span><span class="w">  </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">){</span><span class="w"></span>
 <span class="w">			</span><span class="n">SS_objective</span><span class="p">[</span><span class="n">iss</span><span class="p">]</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">obj_um_ol</span><span class="p">;</span><span class="w"> 		</span><span class="p">}</span><span class="w"></span>
@@ -627,6 +627,40 @@
 
 <span class="p">};</span><span class="w"></span></div>
 
+
+
+<div class="viewcode-block" id="c.initialize_initial_guess"><a class="viewcode-back" href="../src/simplex_levelling.html#c.initialize_initial_guess">[docs]</a><span class="cm">/**</span>
+<span class="cm">  function to swp pure phases</span>
+<span class="cm">*/</span><span class="w">	</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">initialize_initial_guess</span><span class="p">(</span><span class="w">		</span><span class="n">bulk_info</span><span class="w"> 	 		 </span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
+<span class="w">									</span><span class="n">simplex_data</span><span class="w"> 		</span><span class="o">*</span><span class="n">splx_data</span><span class="p">,</span><span class="w"></span>
+<span class="w">									</span><span class="n">global_variable</span><span class="w"> 	 </span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
+<span class="w">									</span>
+<span class="w">									</span><span class="n">PP_ref</span><span class="w"> 				</span><span class="o">*</span><span class="n">PP_ref_db</span><span class="p">,</span><span class="w"></span>
+<span class="w">									</span><span class="n">SS_ref</span><span class="w"> 				</span><span class="o">*</span><span class="n">SS_ref_db</span><span class="w"></span>
+<span class="p">){</span><span class="w"></span>
+<span class="w">	</span><span class="n">simplex_data</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">simplex_data</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">splx_data</span><span class="p">;</span><span class="w"></span>
+<span class="w">	</span><span class="kt">int</span><span class="w">     </span><span class="n">k</span><span class="p">;</span><span class="w"></span>
+<span class="w">	</span>
+
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_Ox</span><span class="o">*</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_Ox</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="o">++</span><span class="p">){</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">A1</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">];}</span><span class="w"></span>
+
+<span class="w">	</span><span class="cm">/** inverse guessed assemblage stoechiometry matrix */</span><span class="w"></span>
+<span class="w">	</span><span class="n">inverseMatrix</span><span class="p">(</span><span class="w">	</span><span class="n">gv</span><span class="p">.</span><span class="n">ipiv</span><span class="p">,</span><span class="w"></span>
+<span class="w">					</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">A1</span><span class="p">,</span><span class="w"></span>
+<span class="w">					</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_Ox</span><span class="p">,</span><span class="w"></span>
+<span class="w">					</span><span class="n">gv</span><span class="p">.</span><span class="n">work</span><span class="p">,</span><span class="w"></span>
+<span class="w">					</span><span class="n">gv</span><span class="p">.</span><span class="n">lwork</span><span class="w">		</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">	</span><span class="cm">/** update phase fractions */</span><span class="w"></span>
+<span class="w">	</span><span class="n">MatVecMul</span><span class="p">(</span><span class="w">		</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">A1</span><span class="p">,</span><span class="w"></span>
+<span class="w">					</span><span class="n">z_b</span><span class="p">.</span><span class="n">bulk_rock_cat</span><span class="p">,</span><span class="w"></span>
+<span class="w">					</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_vec</span><span class="p">,</span><span class="w"></span>
+<span class="w">					</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_Ox</span><span class="w">		</span><span class="p">);</span><span class="w">	</span>
+
+<span class="p">}</span><span class="w"></span></div>
+
+
 <div class="viewcode-block" id="c.swap_pure_phases"><a class="viewcode-back" href="../src/simplex_levelling.html#c.swap_pure_phases">[docs]</a><span class="cm">/**</span>
 <span class="cm">  function to swp pure phases</span>
 <span class="cm">*/</span><span class="w">	</span>
@@ -781,7 +815,7 @@
 <span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ss</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w">										</span><span class="cm">/**loop to pass informations from active endmembers */</span><span class="w"></span>
 <span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
 
-<span class="w">			</span><span class="n">max_n_pc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">tot_pc</span><span class="p">;</span><span class="w"></span>
+<span class="w">			</span><span class="n">max_n_pc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">tot_pc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="p">;</span><span class="w"></span>
 
 <span class="w">			</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">max_n_pc</span><span class="p">;</span><span class="w"> </span><span class="n">l</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
 
@@ -911,7 +945,6 @@
 <span class="p">}</span><span class="w"></span></div>
 
 
-
 <div class="viewcode-block" id="c.fill_simplex_arrays_A"><a class="viewcode-back" href="../src/simplex_levelling.html#c.fill_simplex_arrays_A">[docs]</a><span class="cm">/**</span>
 <span class="cm">  function to run simplex linear programming </span>
 <span class="cm">*/</span><span class="w">	</span>
@@ -928,7 +961,7 @@
 
 <span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">z_b</span><span class="p">.</span><span class="n">nzEl_val</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">		</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">g0_A</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="w">    		    </span><span class="o">=</span><span class="w"> </span><span class="mf">1e10</span><span class="p">;</span><span class="w">								</span><span class="cm">/** penalty G */</span><span class="w"></span>
-<span class="w">		</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">ph_id_A</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w">  	    </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">									</span><span class="cm">/** phase_id for penalty phase */</span><span class="w"></span>
+<span class="w">		</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">ph_id_A</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w">  	    </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">								</span><span class="cm">/** phase_id for penalty phase */</span><span class="w"></span>
 <span class="w">		</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="n">k</span><span class="o">*</span><span class="n">z_b</span><span class="p">.</span><span class="n">nzEl_val</span><span class="p">]</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span><span class="w">								</span><span class="cm">/** eye matrix for stoichiometry */</span><span class="w"></span>
 <span class="w">		</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">A1</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="n">k</span><span class="o">*</span><span class="n">z_b</span><span class="p">.</span><span class="n">nzEl_val</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span><span class="w"></span>
 <span class="w">		</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_vec</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="w"> 		    </span><span class="o">=</span><span class="w"> </span><span class="n">z_b</span><span class="p">.</span><span class="n">bulk_rock</span><span class="p">[</span><span class="n">z_b</span><span class="p">.</span><span class="n">nzEl_array</span><span class="p">[</span><span class="n">k</span><span class="p">]];</span><span class="w">	</span><span class="cm">/** initial phase fraction simply corresponds to the bulk rock composition Ax = br */</span><span class="w"></span>
@@ -953,7 +986,7 @@
 <span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ss</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
 
 <span class="w">		</span><span class="kt">int</span><span class="w"> </span><span class="n">n_em</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">n_em</span><span class="p">;</span><span class="w"></span>
-<span class="w">		</span><span class="n">max_n_pc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">tot_pc</span><span class="p">;</span><span class="w">	</span>
+<span class="w">		</span><span class="n">max_n_pc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">tot_pc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="p">;</span><span class="w">	</span>
 
 <span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">max_n_pc</span><span class="p">;</span><span class="w"> </span><span class="n">l</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
 <span class="w">			</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">DF_pc</span><span class="p">[</span><span class="n">l</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">G_pc</span><span class="p">[</span><span class="n">l</span><span class="p">];</span><span class="w"></span>
@@ -1001,10 +1034,12 @@
 <span class="kt">void</span><span class="w"> </span><span class="nf">generate_pseudocompounds</span><span class="p">(</span><span class="w">	</span><span class="kt">int</span><span class="w"> 		 		 </span><span class="n">ss</span><span class="p">,</span><span class="w"></span>
 <span class="w">								</span><span class="n">bulk_info</span><span class="w"> 	 		 </span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
 <span class="w">								</span><span class="n">global_variable</span><span class="w"> 	 </span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
+<span class="w">								</span><span class="n">simplex_data</span><span class="w"> 		</span><span class="o">*</span><span class="n">splx_data</span><span class="p">,</span><span class="w"></span>
 <span class="w">								</span><span class="n">SS_ref</span><span class="w"> 				</span><span class="o">*</span><span class="n">SS_ref_db</span><span class="p">,</span><span class="w"></span>
 <span class="w">								</span><span class="n">PC_ref</span><span class="w"> 				</span><span class="o">*</span><span class="n">SS_pc_xeos</span><span class="p">,</span><span class="w"></span>
 <span class="w">								</span><span class="n">obj_type</span><span class="w"> 			</span><span class="o">*</span><span class="n">SS_objective</span><span class="w">				</span><span class="p">){</span><span class="w"></span>
 
+<span class="w">	</span><span class="n">simplex_data</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">simplex_data</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">splx_data</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span><span class="k">struct</span><span class="w"> </span><span class="nc">ss_pc</span><span class="w"> </span><span class="n">get_ss_pv</span><span class="p">;</span><span class="w">							</span>
 <span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">sum</span><span class="p">,</span><span class="w"> </span><span class="n">G</span><span class="p">,</span><span class="w"> </span><span class="n">df</span><span class="p">,</span><span class="w"> </span><span class="n">ape</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">l</span><span class="p">,</span><span class="n">p</span><span class="p">,</span><span class="n">swp</span><span class="p">;</span><span class="w"></span>
@@ -1043,19 +1078,32 @@
 <span class="w">			</span><span class="n">G</span><span class="w"> 	</span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">SS_objective</span><span class="p">[</span><span class="n">ss</span><span class="p">])(</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">n_xeos</span><span class="p">,</span><span class="w"> </span><span class="n">get_ss_pv</span><span class="p">.</span><span class="n">xeos_pc</span><span class="p">,</span><span class="w"> 	</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">]);</span><span class="w"></span>
 <span class="w">		</span><span class="c1">// }</span>
 
+<span class="w">		</span><span class="cm">/* get composition of solution phase */</span><span class="w"></span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ox</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">ss_comp</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
+<span class="w">			</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">n_em</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">				</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">ss_comp</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">Comp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">*</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">z_em</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+<span class="w">			</span><span class="p">}</span><span class="w"> </span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
 
-<span class="w">		</span><span class="cm">/** store pseudocompound */</span><span class="w"></span>
-<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">max_G_pc</span><span class="w"> </span><span class="p">){</span><span class="w"></span>
+<span class="w">		</span><span class="n">df</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G</span><span class="p">;</span><span class="w"></span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_Ox</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">			</span><span class="n">df</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">ss_comp</span><span class="p">[</span><span class="n">z_b</span><span class="p">.</span><span class="n">nzEl_array</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span><span class="o">*</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">gamma_tot</span><span class="p">[</span><span class="n">z_b</span><span class="p">.</span><span class="n">nzEl_array</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span><span class="o">*</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">factor</span><span class="p">;</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+
+<span class="w">		</span><span class="cm">/** store </span>
+<span class="cm">		 * pseudocompound */</span><span class="w"></span>
+<span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">df</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">max_G_pc</span><span class="w"> </span><span class="p">){</span><span class="w"></span>
 
 <span class="w">			</span><span class="cm">/* get composition of solution phase */</span><span class="w"></span>
-<span class="w">			</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ox</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">				</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">ss_comp</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
-<span class="w">				</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">n_em</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
-<span class="w">					</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">ss_comp</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">Comp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">*</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">z_em</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
-<span class="w">				</span><span class="p">}</span><span class="w"> </span>
-<span class="w">			</span><span class="p">}</span><span class="w"></span>
+<span class="w">			</span><span class="c1">// for (j = 0; j &lt; gv.len_ox; j++){</span>
+<span class="w">			</span><span class="c1">// 	SS_ref_db[ss].ss_comp[j] = 0.0;</span>
+<span class="w">			</span><span class="c1">// 	for (i = 0; i &lt; SS_ref_db[ss].n_em; i++){</span>
+<span class="w">			</span><span class="c1">// 		SS_ref_db[ss].ss_comp[j] += SS_ref_db[ss].Comp[i][j]*SS_ref_db[ss].p[i]*SS_ref_db[ss].z_em[i];</span>
+<span class="w">			</span><span class="c1">// 	} </span>
+<span class="w">			</span><span class="c1">// }</span>
 
-<span class="w">			</span><span class="n">m_pc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">id_pc</span><span class="p">;</span><span class="w"></span>
+<span class="w">			</span><span class="n">m_pc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">id_pc</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span><span class="w"></span>
 <span class="w">			</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">info</span><span class="p">[</span><span class="n">m_pc</span><span class="p">]</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
 <span class="w">			</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">factor_pc</span><span class="p">[</span><span class="n">m_pc</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">factor</span><span class="p">;</span><span class="w"></span>
 <span class="w">			</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">DF_pc</span><span class="p">[</span><span class="n">m_pc</span><span class="p">]</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">G</span><span class="p">;</span><span class="w"></span>
@@ -1076,9 +1124,8 @@
 <span class="w">			</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">G_pc</span><span class="p">[</span><span class="n">m_pc</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G</span><span class="p">;</span><span class="w"></span>
 <span class="w">			</span>
 <span class="w">			</span><span class="cm">/* add increment to the number of considered phases */</span><span class="w"></span>
-<span class="w">			</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">tot_pc</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
-<span class="w">			</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">id_pc</span><span class="w">  </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
-
+<span class="w">			</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">tot_pc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">  </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">			</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ss</span><span class="p">].</span><span class="n">id_pc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">  </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
 <span class="w">		</span><span class="p">}</span><span class="w"></span>
 <span class="w">	</span><span class="p">}</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span></div>
@@ -1096,7 +1143,7 @@
 <span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">iss</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
 <span class="w">			</span><span class="n">phase_on</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
 <span class="w">			</span>
-<span class="w">			</span><span class="n">max_n_pc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">iss</span><span class="p">].</span><span class="n">tot_pc</span><span class="p">;</span><span class="w"></span>
+<span class="w">			</span><span class="n">max_n_pc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">iss</span><span class="p">].</span><span class="n">tot_pc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="p">;</span><span class="w"></span>
 <span class="w">			</span>
 <span class="w">			</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">max_n_pc</span><span class="p">;</span><span class="w"> </span><span class="n">l</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
 <span class="w">				</span><span class="cm">/* if the driving force of the pseudocompound is lower to the filter then consider it */</span><span class="w"></span>
@@ -1124,8 +1171,7 @@
 <span class="w">										</span>
 <span class="w">										</span><span class="n">PP_ref</span><span class="w"> 				</span><span class="o">*</span><span class="n">PP_ref_db</span><span class="p">,</span><span class="w"></span>
 <span class="w">										</span><span class="n">SS_ref</span><span class="w"> 				</span><span class="o">*</span><span class="n">SS_ref_db</span><span class="p">,</span><span class="w"></span>
-<span class="w">										</span><span class="n">csd_phase_set</span><span class="w">  		</span><span class="o">*</span><span class="n">cp</span><span class="p">,</span><span class="w"></span>
-<span class="w">										</span><span class="n">obj_type</span><span class="w"> 			</span><span class="o">*</span><span class="n">SS_objective</span><span class="w"></span>
+<span class="w">										</span><span class="n">csd_phase_set</span><span class="w">  		</span><span class="o">*</span><span class="n">cp</span><span class="w"></span>
 <span class="p">){</span><span class="w">	</span>
 <span class="w">	</span><span class="n">simplex_data</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">simplex_data</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">splx_data</span><span class="p">;</span><span class="w"></span>
 
@@ -1147,7 +1193,7 @@
 <span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">ii</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">m_pc</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span>
-<span class="w">	</span><span class="cm">/* initialiaze phase active in the considered assemblage */</span><span class="w"></span>
+<span class="w">	</span><span class="cm">/* initialize phase active in the considered assemblage */</span><span class="w"></span>
 <span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ss</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
 <span class="w">		</span><span class="n">phase_on</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span><span class="p">}</span><span class="w"></span>
@@ -1224,7 +1270,6 @@
 <span class="w">			</span><span class="n">m_pc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ph_id</span><span class="p">].</span><span class="n">id_Ppc</span><span class="p">;</span><span class="w"></span>
 
 <span class="w">			</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ph_id</span><span class="p">].</span><span class="n">info_Ppc</span><span class="p">[</span><span class="n">m_pc</span><span class="p">]</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"></span>
-<span class="w">			</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ph_id</span><span class="p">].</span><span class="n">factor_Ppc</span><span class="p">[</span><span class="n">m_pc</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ph_id</span><span class="p">].</span><span class="n">factor</span><span class="p">;</span><span class="w"></span>
 <span class="w">			</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ph_id</span><span class="p">].</span><span class="n">DF_Ppc</span><span class="p">[</span><span class="n">m_pc</span><span class="p">]</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ph_id</span><span class="p">].</span><span class="n">df</span><span class="p">;</span><span class="w"></span>
 <span class="w">			</span>
 <span class="w">			</span><span class="cm">/* get pseudocompound composition */</span><span class="w"></span>
@@ -1292,7 +1337,6 @@
 <span class="w">			</span><span class="n">m_pc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ph_id</span><span class="p">].</span><span class="n">id_Ppc</span><span class="p">;</span><span class="w"></span>
 
 <span class="w">			</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ph_id</span><span class="p">].</span><span class="n">info_Ppc</span><span class="p">[</span><span class="n">m_pc</span><span class="p">]</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ph_id</span><span class="p">].</span><span class="n">info</span><span class="p">[</span><span class="n">pc_id</span><span class="p">];</span><span class="w"></span>
-<span class="w">			</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ph_id</span><span class="p">].</span><span class="n">factor_Ppc</span><span class="p">[</span><span class="n">m_pc</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ph_id</span><span class="p">].</span><span class="n">factor_pc</span><span class="p">[</span><span class="n">pc_id</span><span class="p">];</span><span class="w"></span>
 <span class="w">			</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ph_id</span><span class="p">].</span><span class="n">DF_Ppc</span><span class="p">[</span><span class="n">m_pc</span><span class="p">]</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">ph_id</span><span class="p">].</span><span class="n">DF_pc</span><span class="p">[</span><span class="n">pc_id</span><span class="p">];</span><span class="w"></span>
 <span class="w">			</span>
 <span class="w">			</span><span class="cm">/* get pseudocompound composition */</span><span class="w"></span>
@@ -1326,7 +1370,7 @@
 <span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">phase_on</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
 <span class="w">			</span><span class="n">pc_id</span><span class="w">	 </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"></span>
 <span class="w">			</span><span class="n">pc_df</span><span class="w"> 	 </span><span class="o">=</span><span class="w"> </span><span class="mf">1e6</span><span class="p">;</span><span class="w"></span>
-<span class="w">			</span><span class="n">max_n_pc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">tot_pc</span><span class="p">;</span><span class="w"></span>
+<span class="w">			</span><span class="n">max_n_pc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">tot_pc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="p">;</span><span class="w"></span>
 <span class="w">			</span>
 <span class="w">			</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">max_n_pc</span><span class="p">;</span><span class="w"> </span><span class="n">l</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
 <span class="w">				</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">DF_pc</span><span class="p">[</span><span class="n">l</span><span class="p">]</span><span class="o">*</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">factor_pc</span><span class="p">[</span><span class="n">l</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">pc_df</span><span class="p">){</span><span class="w"></span>
@@ -1422,10 +1466,11 @@
 <span class="p">}</span><span class="w"></span></div>
 
 
+
 <div class="viewcode-block" id="c.run_simplex_pseudocompounds"><a class="viewcode-back" href="../src/simplex_levelling.html#c.run_simplex_pseudocompounds">[docs]</a><span class="cm">/**</span>
 <span class="cm">  function to run simplex linear programming with pseudocompounds only</span>
 <span class="cm">*/</span><span class="w">	</span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">run_simplex_pseudocompounds</span><span class="p">(</span><span class="w">		</span><span class="n">bulk_info</span><span class="w"> 	 </span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">run_simplex_pseudocompounds</span><span class="p">(</span><span class="w">		</span><span class="n">bulk_info</span><span class="w"> 	 		</span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
 <span class="w">										</span><span class="n">simplex_data</span><span class="w"> 		</span><span class="o">*</span><span class="n">splx_data</span><span class="p">,</span><span class="w"></span>
 <span class="w">										</span><span class="n">global_variable</span><span class="w"> 	 </span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
 <span class="w">										</span>
@@ -1470,6 +1515,108 @@
 <span class="w">	</span><span class="p">}</span><span class="w"></span>
 
 <span class="p">}</span><span class="w"></span></div>
+
+
+
+<div class="viewcode-block" id="c.run_initial_guess_levelling"><a class="viewcode-back" href="../src/simplex_levelling.html#c.run_initial_guess_levelling">[docs]</a><span class="cm">/**</span>
+<span class="cm">  function to run simplex linear programming with pseudocompounds</span>
+<span class="cm">*/</span><span class="w">	</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">run_initial_guess_levelling</span><span class="p">(</span><span class="w">		</span><span class="n">bulk_info</span><span class="w"> 	 		 </span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
+<span class="w">										</span><span class="n">simplex_data</span><span class="w"> 		</span><span class="o">*</span><span class="n">splx_data</span><span class="p">,</span><span class="w"></span>
+<span class="w">										</span><span class="n">global_variable</span><span class="w"> 	 </span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
+<span class="w">										</span>
+<span class="w">										</span><span class="n">PP_ref</span><span class="w"> 				</span><span class="o">*</span><span class="n">PP_ref_db</span><span class="p">,</span><span class="w"></span>
+<span class="w">										</span><span class="n">SS_ref</span><span class="w"> 				</span><span class="o">*</span><span class="n">SS_ref_db</span><span class="w"></span>
+<span class="p">){</span><span class="w"></span>
+<span class="w">	</span><span class="n">simplex_data</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">simplex_data</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">splx_data</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">iss</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">	</span><span class="n">initialize_initial_guess</span><span class="p">(</span><span class="w">			</span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
+<span class="w">										</span><span class="n">splx_data</span><span class="p">,</span><span class="w"></span>
+<span class="w">										</span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
+<span class="w">										</span><span class="n">PP_ref_db</span><span class="p">,</span><span class="w"></span>
+<span class="w">										</span><span class="n">SS_ref_db</span><span class="w">				</span><span class="p">);</span><span class="w">	</span>
+
+<span class="w">	</span><span class="n">update_local_gamma</span><span class="p">(</span><span class="w">					</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">A1</span><span class="p">,</span><span class="w"></span>
+<span class="w">										</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">g0_A</span><span class="p">,</span><span class="w"></span>
+<span class="w">										</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">gamma_ps</span><span class="p">,</span><span class="w"></span>
+<span class="w">										</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_Ox</span><span class="w">					</span><span class="p">);</span><span class="w"></span>
+
+
+<span class="w">	</span><span class="cm">/** update gam_tot using pure species levelling gamma */</span><span class="w"></span>
+<span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_Ox</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">		</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">gamma_tot</span><span class="p">[</span><span class="n">z_b</span><span class="p">.</span><span class="n">nzEl_array</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">gamma_ps</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+<span class="w">	</span><span class="p">}</span><span class="w"></span>
+
+<span class="w">	</span><span class="cm">/** </span>
+<span class="cm">		Pseudocompound levelling with refinement </span>
+<span class="cm">	*/</span><span class="w"></span>
+<span class="w">	</span><span class="kt">clock_t</span><span class="w"> </span><span class="n">t</span><span class="p">;</span><span class="w"> </span>
+<span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">time_taken</span><span class="p">;</span><span class="w"></span>
+<span class="w">	</span><span class="c1">// t = clock();</span>
+
+<span class="w">	</span><span class="c1">// /** generate the pseudocompounds -&gt; stored in the SS_ref_db structure */</span>
+<span class="w">	</span><span class="c1">// if (gv.verbose == 1){ printf(&quot; Generate pseudocompounds:\n&quot;); }</span>
+<span class="w">	</span>
+<span class="w">	</span><span class="c1">// PC_ref 			SS_pc_xeos[gv.len_ss];</span>
+
+
+<span class="w">	</span><span class="c1">// if (gv.EM_database == 0){</span>
+<span class="w">	</span><span class="c1">// 	for (iss = 0; iss &lt; gv.len_ss; iss++){</span>
+<span class="w">	</span><span class="c1">// 		SS_mp_pc_init_function(			SS_pc_xeos, </span>
+<span class="w">	</span><span class="c1">// 										iss,</span>
+<span class="w">	</span><span class="c1">// 										gv.SS_list[iss]				);</span>
+<span class="w">	</span><span class="c1">// 	}</span>
+<span class="w">	</span><span class="c1">// }</span>
+<span class="w">	</span><span class="c1">// if (gv.EM_database == 1){</span>
+<span class="w">	</span><span class="c1">// 	for (iss = 0; iss &lt; gv.len_ss; iss++){</span>
+<span class="w">	</span><span class="c1">// 		SS_mb_pc_init_function(			SS_pc_xeos, </span>
+<span class="w">	</span><span class="c1">// 										iss,</span>
+<span class="w">	</span><span class="c1">// 										gv.SS_list[iss]				);</span>
+<span class="w">	</span><span class="c1">// 	}</span>
+<span class="w">	</span><span class="c1">// }</span>
+<span class="w">	</span><span class="c1">// else if (gv.EM_database == 2){</span>
+<span class="w">	</span><span class="c1">// 	for (iss = 0; iss &lt; gv.len_ss; iss++){</span>
+<span class="w">	</span><span class="c1">// 		SS_ig_pc_init_function(			SS_pc_xeos, </span>
+<span class="w">	</span><span class="c1">// 										iss,</span>
+<span class="w">	</span><span class="c1">// 										gv.SS_list[iss]				);</span>
+<span class="w">	</span><span class="c1">// 	}</span>
+<span class="w">	</span><span class="c1">// }</span>
+<span class="w">	</span><span class="c1">// else if (gv.EM_database == 4){</span>
+<span class="w">	</span><span class="c1">// 	for (iss = 0; iss &lt; gv.len_ss; iss++){</span>
+<span class="w">	</span><span class="c1">// 		SS_um_pc_init_function(			SS_pc_xeos, </span>
+<span class="w">	</span><span class="c1">// 										iss,</span>
+<span class="w">	</span><span class="c1">// 										gv.SS_list[iss]				);</span>
+<span class="w">	</span><span class="c1">// 	}</span>
+<span class="w">	</span><span class="c1">// }</span>
+
+
+<span class="w">	</span><span class="c1">// t = clock() - t; </span>
+<span class="w">	</span><span class="c1">// time_taken  = ((double)t)/CLOCKS_PER_SEC; </span>
+<span class="w">	</span><span class="c1">// if (gv.verbose == 1){ printf(&quot;\n [time to generate PC time (ms) %.8f]\n&quot;,time_taken*1000);	}</span>
+<span class="w">	</span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">clock</span><span class="p">();</span><span class="w"></span>
+<span class="w">	</span>
+<span class="w">	</span><span class="cm">/** run linear programming with simplex approach */</span><span class="w"></span>
+<span class="w">	</span><span class="n">run_simplex_pseudocompounds</span><span class="p">(</span><span class="w">		</span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
+<span class="w">										</span><span class="n">splx_data</span><span class="p">,</span><span class="w"></span>
+<span class="w">										</span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
+<span class="w">										</span><span class="n">PP_ref_db</span><span class="p">,</span><span class="w"></span>
+<span class="w">										</span><span class="n">SS_ref_db</span><span class="w">				</span><span class="p">);</span><span class="w"></span>
+<span class="w">				</span>
+<span class="w">	</span><span class="cm">/* update gamma of SS */</span><span class="w"></span>
+<span class="w">	</span><span class="n">update_local_gamma</span><span class="p">(</span><span class="w">					</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">A1</span><span class="p">,</span><span class="w"></span>
+<span class="w">										</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">g0_A</span><span class="p">,</span><span class="w"></span>
+<span class="w">										</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">gamma_ss</span><span class="p">,</span><span class="w"></span>
+<span class="w">										</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_Ox</span><span class="w">			</span><span class="p">);</span><span class="w"></span>
+<span class="w">										</span>
+<span class="w">	</span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">clock</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t</span><span class="p">;</span><span class="w"> </span>
+<span class="w">	</span><span class="n">time_taken</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">((</span><span class="kt">double</span><span class="p">)</span><span class="n">t</span><span class="p">)</span><span class="o">/</span><span class="n">CLOCKS_PER_SEC</span><span class="p">;</span><span class="w"></span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">verbose</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"> </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s"> [time to swap SS time (ms) %.8f]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">time_taken</span><span class="o">*</span><span class="mi">1000</span><span class="p">);</span><span class="w">	</span><span class="p">}</span><span class="w"></span>
+<span class="w">	</span>
+<span class="p">};</span><span class="w"></span></div>
+
+
 
 <div class="viewcode-block" id="c.run_simplex_levelling"><a class="viewcode-back" href="../src/simplex_levelling.html#c.run_simplex_levelling">[docs]</a><span class="cm">/**</span>
 <span class="cm">  function to run simplex linear programming with pseudocompounds</span>
@@ -1558,12 +1705,13 @@
 <span class="w">			</span><span class="n">generate_pseudocompounds</span><span class="p">(</span><span class="w">	</span><span class="n">iss</span><span class="p">,</span><span class="w"></span>
 <span class="w">										</span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
 <span class="w">										</span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
+<span class="w">										</span><span class="n">splx_data</span><span class="p">,</span><span class="w"></span>
 <span class="w">										</span><span class="n">SS_ref_db</span><span class="p">,</span><span class="w"></span>
 <span class="w">										</span><span class="n">SS_pc_xeos</span><span class="p">,</span><span class="w"></span>
 <span class="w">										</span><span class="n">SS_objective</span><span class="w">				</span><span class="p">);</span><span class="w"></span>
 
 <span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">verbose</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
-<span class="w">				</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; %4s -&gt; %05d active PCs</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">SS_list</span><span class="p">[</span><span class="n">iss</span><span class="p">],</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">iss</span><span class="p">].</span><span class="n">tot_pc</span><span class="p">);</span><span class="w"></span>
+<span class="w">				</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; %4s -&gt; %05d active PCs</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">SS_list</span><span class="p">[</span><span class="n">iss</span><span class="p">],</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">iss</span><span class="p">].</span><span class="n">tot_pc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
 <span class="w">			</span><span class="p">}</span><span class="w"></span>
 <span class="w">		</span><span class="p">}</span><span class="w"></span>
 
@@ -1640,16 +1788,14 @@
 <span class="w">	</span><span class="n">free</span><span class="p">(</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">B1</span><span class="p">);</span><span class="w"></span>
 <span class="p">};</span><span class="w"></span></div>
 
-<div class="viewcode-block" id="c.run_levelling_function"><a class="viewcode-back" href="../src/simplex_levelling.html#c.run_levelling_function">[docs]</a><span class="cm">/**</span>
-<span class="cm">  Levelling function.</span>
-<span class="cm">  Memory allocation and initialization is divided in part A and B.</span>
-<span class="cm">  Part A: Reference assemblage against which candidates are tested</span>
-<span class="cm">  Part B: Candidate phases</span>
+
+
+<div class="viewcode-block" id="c.run_initial_guess_function"><a class="viewcode-back" href="../src/simplex_levelling.html#c.run_initial_guess_function">[docs]</a><span class="cm">/**</span>
+<span class="cm">  Levelling function when using initial guess</span>
 <span class="cm">*/</span><span class="w">	</span>
-<span class="n">global_variable</span><span class="w"> </span><span class="nf">run_levelling_function</span><span class="p">(</span><span class="w">		</span><span class="n">bulk_info</span><span class="w"> 	 </span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
+<span class="n">global_variable</span><span class="w"> </span><span class="nf">run_initial_guess_function</span><span class="p">(</span><span class="w">	</span><span class="n">bulk_info</span><span class="w"> 	 		 </span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
 <span class="w">											</span><span class="n">global_variable</span><span class="w"> 	 </span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
 
-<span class="w">											</span><span class="n">obj_type</span><span class="w">			</span><span class="o">*</span><span class="n">SS_objective</span><span class="p">,</span><span class="w">	</span>
 <span class="w">											</span><span class="n">simplex_data</span><span class="w">		</span><span class="o">*</span><span class="n">splx_data</span><span class="p">,</span><span class="w"></span>
 <span class="w">											</span><span class="n">PP_ref</span><span class="w"> 				</span><span class="o">*</span><span class="n">PP_ref_db</span><span class="p">,</span><span class="w"></span>
 <span class="w">											</span><span class="n">SS_ref</span><span class="w"> 				</span><span class="o">*</span><span class="n">SS_ref_db</span><span class="p">,</span><span class="w"></span>
@@ -1661,20 +1807,13 @@
 <span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">time_taken</span><span class="p">;</span><span class="w"></span>
 <span class="w">	</span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">clock</span><span class="p">();</span><span class="w"></span>
 
-<span class="w">	</span><span class="cm">/** fill matrices */</span><span class="w"></span>
-<span class="w">	</span><span class="n">fill_simplex_arrays_A</span><span class="p">(</span><span class="w">					</span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
-<span class="w">										    </span><span class="n">splx_data</span><span class="p">,</span><span class="w"></span>
-<span class="w">											</span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
-<span class="w">											</span><span class="n">PP_ref_db</span><span class="p">,</span><span class="w"></span>
-<span class="w">											</span><span class="n">SS_ref_db</span><span class="w">		</span><span class="p">);</span><span class="w"></span>
 
 <span class="w">	</span><span class="cm">/** run linear programming with simplex approach */</span><span class="w"></span>
-<span class="w">	</span><span class="n">run_simplex_levelling</span><span class="p">(</span><span class="w">					</span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
+<span class="w">	</span><span class="n">run_initial_guess_levelling</span><span class="p">(</span><span class="w">			</span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
 <span class="w">										    </span><span class="n">splx_data</span><span class="p">,</span><span class="w"></span>
 <span class="w">											</span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
 <span class="w">											</span><span class="n">PP_ref_db</span><span class="p">,</span><span class="w"></span>
-<span class="w">											</span><span class="n">SS_ref_db</span><span class="p">,</span><span class="w"></span>
-<span class="w">											</span><span class="n">SS_objective</span><span class="w">	</span><span class="p">);</span><span class="w">	</span>
+<span class="w">											</span><span class="n">SS_ref_db</span><span class="w">		</span><span class="p">);</span><span class="w">	</span>
 <span class="w">	</span>
 <span class="w">	</span><span class="cm">/* update global variable gamma */</span><span class="w"></span>
 <span class="w">	</span><span class="n">update_global_gamma_LU</span><span class="p">(</span><span class="w">					</span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
@@ -1692,8 +1831,7 @@
 <span class="w">											</span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
 <span class="w">											</span><span class="n">PP_ref_db</span><span class="p">,</span><span class="w"></span>
 <span class="w">											</span><span class="n">SS_ref_db</span><span class="p">,</span><span class="w"></span>
-<span class="w">											</span><span class="n">cp</span><span class="p">,</span><span class="w"></span>
-<span class="w">											</span><span class="n">SS_objective</span><span class="w">	</span><span class="p">);</span><span class="w"></span>
+<span class="w">											</span><span class="n">cp</span><span class="w">				</span><span class="p">);</span><span class="w"></span>
 
 <span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">verbose</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
 <span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Get initial guess (Gamma and phase fractions) </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
@@ -1763,6 +1901,167 @@
 <span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">gv</span><span class="p">;</span><span class="w"></span>
 <span class="p">};</span><span class="w">		</span></div>
 
+
+
+
+<div class="viewcode-block" id="c.run_levelling_function"><a class="viewcode-back" href="../src/simplex_levelling.html#c.run_levelling_function">[docs]</a><span class="cm">/**</span>
+<span class="cm">  Levelling function.</span>
+<span class="cm">  Memory allocation and initialization is divided in part A and B.</span>
+<span class="cm">  Part A: Reference assemblage against which candidates are tested</span>
+<span class="cm">  Part B: Candidate phases</span>
+<span class="cm">*/</span><span class="w">	</span>
+<span class="n">global_variable</span><span class="w"> </span><span class="nf">run_levelling_function</span><span class="p">(</span><span class="w">		</span><span class="n">bulk_info</span><span class="w"> 	 </span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
+<span class="w">											</span><span class="n">global_variable</span><span class="w"> 	 </span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">											</span><span class="n">obj_type</span><span class="w">			</span><span class="o">*</span><span class="n">SS_objective</span><span class="p">,</span><span class="w">	</span>
+<span class="w">											</span><span class="n">simplex_data</span><span class="w">		</span><span class="o">*</span><span class="n">splx_data</span><span class="p">,</span><span class="w"></span>
+<span class="w">											</span><span class="n">PP_ref</span><span class="w"> 				</span><span class="o">*</span><span class="n">PP_ref_db</span><span class="p">,</span><span class="w"></span>
+<span class="w">											</span><span class="n">SS_ref</span><span class="w"> 				</span><span class="o">*</span><span class="n">SS_ref_db</span><span class="p">,</span><span class="w"></span>
+<span class="w">											</span><span class="n">csd_phase_set</span><span class="w">  		</span><span class="o">*</span><span class="n">cp</span><span class="w"></span>
+<span class="p">){</span><span class="w"></span>
+<span class="w">	</span><span class="n">simplex_data</span><span class="w"> </span><span class="o">*</span><span class="n">d</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">simplex_data</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">splx_data</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">	</span><span class="kt">clock_t</span><span class="w"> </span><span class="n">t</span><span class="p">;</span><span class="w"> </span>
+<span class="w">	</span><span class="kt">double</span><span class="w"> </span><span class="n">time_taken</span><span class="p">;</span><span class="w"></span>
+<span class="w">	</span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">clock</span><span class="p">();</span><span class="w"></span>
+
+<span class="w">	</span><span class="cm">/** fill matrices */</span><span class="w"></span>
+<span class="w">	</span><span class="n">fill_simplex_arrays_A</span><span class="p">(</span><span class="w">					</span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
+<span class="w">										    </span><span class="n">splx_data</span><span class="p">,</span><span class="w"></span>
+<span class="w">											</span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
+<span class="w">											</span><span class="n">PP_ref_db</span><span class="p">,</span><span class="w"></span>
+<span class="w">											</span><span class="n">SS_ref_db</span><span class="w">		</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">	</span><span class="cm">/** run linear programming with simplex approach */</span><span class="w"></span>
+<span class="w">	</span><span class="n">run_simplex_levelling</span><span class="p">(</span><span class="w">					</span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
+<span class="w">										    </span><span class="n">splx_data</span><span class="p">,</span><span class="w"></span>
+<span class="w">											</span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
+<span class="w">											</span><span class="n">PP_ref_db</span><span class="p">,</span><span class="w"></span>
+<span class="w">											</span><span class="n">SS_ref_db</span><span class="p">,</span><span class="w"></span>
+<span class="w">											</span><span class="n">SS_objective</span><span class="w">	</span><span class="p">);</span><span class="w">	</span>
+<span class="w">	</span>
+<span class="w">	</span><span class="cm">/* update global variable gamma */</span><span class="w"></span>
+<span class="w">	</span><span class="n">update_global_gamma_LU</span><span class="p">(</span><span class="w">					</span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
+<span class="w">											</span><span class="n">splx_data</span><span class="w">		</span><span class="p">);</span><span class="w">	</span>
+<span class="w">	</span>
+<span class="w">										</span>
+<span class="w">	</span><span class="cm">/* remove solution from consideration when min driving force is &gt; gv.bnd_filter_pc */</span><span class="w"></span>
+<span class="w">	</span><span class="n">reduce_ss_list</span><span class="p">(</span><span class="w"> 						</span><span class="n">SS_ref_db</span><span class="p">,</span><span class="w"> </span>
+<span class="w">											</span><span class="n">gv</span><span class="w"> 				</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span>
+<span class="w">	</span>
+<span class="w">	</span><span class="cm">/* function to send back the updated initial guess, and phases flags */</span><span class="w"></span>
+<span class="w">	</span><span class="n">gv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">update_global_info</span><span class="p">(</span><span class="w">				</span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
+<span class="w">											</span><span class="n">splx_data</span><span class="p">,</span><span class="w"></span>
+<span class="w">											</span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
+<span class="w">											</span><span class="n">PP_ref_db</span><span class="p">,</span><span class="w"></span>
+<span class="w">											</span><span class="n">SS_ref_db</span><span class="p">,</span><span class="w"></span>
+<span class="w">											</span><span class="n">cp</span><span class="w">				</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">verbose</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Get initial guess (Gamma and phase fractions) </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;══════════════════════════════════════════════</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;    P: %+10f T: %+10f</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">z_b</span><span class="p">.</span><span class="n">P</span><span class="p">,</span><span class="n">z_b</span><span class="p">.</span><span class="n">T</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; [----------------------------------------]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; [  Ph  |   Ph PROP  |   g0_Ph    |  ix   ]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; [----------------------------------------]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_Ox</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">ph_id_A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">){</span><span class="w"></span>
+<span class="w">				</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; [&#39;%5s&#39; %+10f  %+12.4f  %5d ]&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;F.OX&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_vec</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">g0_A</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">ph_id_A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]);</span><span class="w"></span>
+<span class="w">				</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">			</span><span class="p">}</span><span class="w"></span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">ph_id_A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
+<span class="w">				</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; [&#39;%5s&#39; %+10f  %+12.4f  %5d ]&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">PP_list</span><span class="p">[</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">ph_id_A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]],</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_vec</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">g0_A</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">ph_id_A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]);</span><span class="w"></span>
+<span class="w">				</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">			</span><span class="p">}</span><span class="w"></span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">ph_id_A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">){</span><span class="w"></span>
+<span class="w">				</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; [&#39;%5s&#39; %+10f  %+12.4f  %5d ]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">SS_list</span><span class="p">[</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">ph_id_A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]],</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_vec</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">g0_A</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">ph_id_A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]);</span><span class="w"></span>
+<span class="w">			</span><span class="p">}</span><span class="w"></span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">ph_id_A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="p">){</span><span class="w"></span>
+<span class="w">				</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; [&#39;%5s&#39; %+10f  %+12.4f  %5d ]&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">SS_list</span><span class="p">[</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">ph_id_A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]],</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_vec</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">g0_A</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">ph_id_A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]);</span><span class="w"></span>
+<span class="w">				</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">ii</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">ii</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">ph_id_A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]].</span><span class="n">n_xeos</span><span class="p">;</span><span class="w"> </span><span class="n">ii</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">					</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; %+10f&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">ph_id_A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]].</span><span class="n">xeos_pc</span><span class="p">[</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">ph_id_A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">3</span><span class="p">]][</span><span class="n">ii</span><span class="p">]</span><span class="w"> </span><span class="p">);</span><span class="w"></span>
+<span class="w">				</span><span class="p">}</span><span class="w"></span>
+<span class="w">				</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">			</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_Ox</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; %g&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">gamma_tot</span><span class="p">[</span><span class="n">z_b</span><span class="p">.</span><span class="n">nzEl_array</span><span class="p">[</span><span class="n">i</span><span class="p">]]);</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; [----------------------------------------]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; [  OXIDE      GAMMA_EM        GAMMA_PC   ]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; [----------------------------------------]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_Ox</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; [ %5s %+15f %+15f  ]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">ox</span><span class="p">[</span><span class="n">z_b</span><span class="p">.</span><span class="n">nzEl_array</span><span class="p">[</span><span class="n">i</span><span class="p">]],</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">gamma_ps</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">gamma_tot</span><span class="p">[</span><span class="n">z_b</span><span class="p">.</span><span class="n">nzEl_array</span><span class="p">[</span><span class="n">i</span><span class="p">]]);</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; [----------------------------------------]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; [            %4d swaps                  ]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="o">-&gt;</span><span class="n">n_swp</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; [----------------------------------------]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s"> [----------------------------------------]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; [           ACTIVE PHASES                ]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; [----------------------------------------]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ss</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
+<span class="w">				</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; [                 %5s                  ]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">SS_list</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span><span class="w"></span>
+<span class="w">			</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; [----------------------------------------]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; [           UNACTIVE PHASES              ]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; [----------------------------------------]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ss</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">SS_ref_db</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">ss_flags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">){</span><span class="w"></span>
+<span class="w">				</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; [                 %5s                  ]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">SS_list</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span><span class="w"></span>
+<span class="w">			</span><span class="p">}</span><span class="w"></span>
+<span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="w">	</span><span class="p">}</span><span class="w"></span>
+
+<span class="w">	</span><span class="n">t</span><span class="w"> 			</span><span class="o">=</span><span class="w"> </span><span class="n">clock</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t</span><span class="p">;</span><span class="w"> </span>
+<span class="w">	</span><span class="n">time_taken</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">((</span><span class="kt">double</span><span class="p">)</span><span class="n">t</span><span class="p">)</span><span class="o">/</span><span class="n">CLOCKS_PER_SEC</span><span class="p">;</span><span class="w"> </span><span class="c1">// in seconds </span>
+<span class="w">	</span><span class="n">gv</span><span class="p">.</span><span class="n">LVL_time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time_taken</span><span class="o">*</span><span class="mi">1000</span><span class="p">;</span><span class="w">	</span>
+<span class="w">	</span>
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">gv</span><span class="p">;</span><span class="w"></span>
+<span class="p">};</span><span class="w">		</span></div>
+
+
+
+<div class="viewcode-block" id="c.Initial_guess"><a class="viewcode-back" href="../src/simplex_levelling.html#c.Initial_guess">[docs]</a><span class="cm">/**</span>
+<span class="cm">  main levelling routine</span>
+<span class="cm">*/</span><span class="w"> </span>
+<span class="n">global_variable</span><span class="w"> </span><span class="nf">Initial_guess</span><span class="p">(</span><span class="w">	</span><span class="n">bulk_info</span><span class="w"> 	</span><span class="n">z_b</span><span class="p">,</span><span class="w"></span>
+<span class="w">								</span><span class="n">global_variable</span><span class="w"> 	</span><span class="n">gv</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">								</span><span class="n">simplex_data</span><span class="w">	   </span><span class="o">*</span><span class="n">splx_data</span><span class="p">,</span><span class="w"></span>
+<span class="w">								</span><span class="n">PP_ref</span><span class="w"> 			   </span><span class="o">*</span><span class="n">PP_ref_db</span><span class="p">,</span><span class="w"></span>
+<span class="w">								</span><span class="n">SS_ref</span><span class="w"> 			   </span><span class="o">*</span><span class="n">SS_ref_db</span><span class="p">,</span><span class="w"></span>
+<span class="w">								</span><span class="n">csd_phase_set</span><span class="w">  	   </span><span class="o">*</span><span class="n">cp</span><span class="w"></span>
+<span class="p">){</span><span class="w"></span>
+
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">verbose</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Levelling (endmembers &amp; solution phase)</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;════════════════════════════════════════</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="p">}</span><span class="w"></span>
+
+<span class="w">	</span><span class="cm">/* pseudosection function to get starting guess */</span><span class="w"></span>
+<span class="w">	</span><span class="n">gv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">run_initial_guess_function</span><span class="p">(</span><span class="w">	</span><span class="n">z_b</span><span class="p">,</span><span class="w">												</span><span class="cm">/** bulk rock informations    */</span><span class="w"></span>
+<span class="w">										</span><span class="n">gv</span><span class="p">,</span><span class="w">													</span><span class="cm">/** global variables (e.g. Gamma) */</span><span class="w"></span>
+
+<span class="w">										</span><span class="n">splx_data</span><span class="p">,</span><span class="w"></span>
+<span class="w">										</span><span class="n">PP_ref_db</span><span class="p">,</span><span class="w">											</span><span class="cm">/** pure phase database */</span><span class="w"></span>
+<span class="w">										</span><span class="n">SS_ref_db</span><span class="p">,</span><span class="w">											</span><span class="cm">/** solution phase database */</span><span class="w"></span>
+<span class="w">										</span><span class="n">cp</span><span class="w">				</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">gv</span><span class="p">.</span><span class="n">verbose</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; [   Initial guess time %+12f ms   ]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">LVL_time</span><span class="p">);</span><span class="w"></span>
+<span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; [----------------------------------------]</span><span class="se">\n\n\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">	</span><span class="p">}</span><span class="w"></span>
+
+<span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">gv</span><span class="p">;</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span></div>
+
+
 <div class="viewcode-block" id="c.Levelling"><a class="viewcode-back" href="../src/simplex_levelling.html#c.Levelling">[docs]</a><span class="cm">/**</span>
 <span class="cm">  main levelling routine</span>
 <span class="cm">*/</span><span class="w"> </span>
@@ -1794,11 +2093,6 @@
 <span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; [    Levelling time  %+12f ms     ]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">gv</span><span class="p">.</span><span class="n">LVL_time</span><span class="p">);</span><span class="w"></span>
 <span class="w">		</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot; [----------------------------------------]</span><span class="se">\n\n\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">	</span><span class="p">}</span><span class="w"></span>
-
-<span class="w">	</span><span class="cm">/* copy gamma total to the global variables */</span><span class="w"></span>
-<span class="w">	</span><span class="c1">// for (int i = 0; i &lt; gv.len_ox; i++){</span>
-<span class="w">	</span><span class="c1">// 	gv.gam_tot[i] -= 1.0;</span>
-<span class="w">	</span><span class="c1">// }</span>
 
 <span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">gv</span><span class="p">;</span><span class="w"></span>
 <span class="p">};</span><span class="w"></span></div>
