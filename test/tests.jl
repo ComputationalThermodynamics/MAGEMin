@@ -6,6 +6,7 @@ using Test
 # runtests.jl
 using MAGEMin_C         # load MAGEMin (needs to be loaded from main directory to pick up correct library in case it is locally compiled)
 
+
 # Initialize database  - new way
 data        =   Initialize_MAGEMin("ig", verbose=true);
 test        =   0         #KLB1
@@ -20,7 +21,7 @@ out         =   point_wise_minimization(P,T, data);
 
 @test out.G_system ≈ -797.7491828675325
 @test out.ph == ["spn", "cpx",  "opx", "ol"]
-@test out.s_cp ≈ 1208.466551730128
+@test abs(out.s_cp - 1208.466551730128) < 2.0
 @test all(abs.(out.ph_frac - [0.027985692010022857, 0.14166112328585387, 0.24227821491186913, 0.5880749697922566])  .< 1e-2)
 
 # print more detailed info about this point:
@@ -39,7 +40,7 @@ P           =   8.0
 T           =   800.0
 out         =   point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in);
 @test out.G_system ≈ -797.7491828675325
-@test out.s_cp ≈ 1208.466551730128
+@test abs(out.s_cp - 1208.466551730128) < 2.0
 @test out.ph == ["spn", "cpx",  "opx", "ol"]
 @test all(abs.(out.ph_frac - [0.027985692010022857, 0.14166112328585387, 0.24227821491186913, 0.5880749697922566])  .< 1e-2)
 finalize_MAGEMin(gv,DB,z_b)

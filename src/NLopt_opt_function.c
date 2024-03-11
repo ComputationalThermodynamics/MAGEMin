@@ -6080,7 +6080,7 @@ SS_ref NLopt_opt_function(		              global_variable     gv,
       }	
   }
   else if (gv.EM_database == 4){
-      if (strcmp( gv.SS_list[index], "fluid")  == 0){
+      if (strcmp( gv.SS_list[index], "fl")  == 0){
          SS_ref_db  = NLopt_opt_um_fluid_function( gv, SS_ref_db);}
       else if (strcmp( gv.SS_list[index], "ol")  == 0){
          SS_ref_db  = NLopt_opt_um_ol_function( gv, SS_ref_db);}

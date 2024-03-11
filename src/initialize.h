@@ -180,10 +180,11 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.3.8 [28/02/2024]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.3.9 [10/03/2024]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");	
+	gv.max_n_mSS		= 128;					/** maximum number of metastable pseudocompounds 									*/
 	gv.max_n_cp 		= 128;					/** number of considered solution phases 											*/	
 	gv.max_ss_size_cp   = 24;					/** maximum size for a solution phase saved in the cp structure                     */
 	gv.buffer_n 		= 0.0;					/** factor for QFM buffer 															*/
@@ -210,7 +211,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.em2ss_shift		= 1e-8;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
 	gv.bnd_filter_pc    = 10.0;					/** value of driving force the pseudocompound is considered 						*/
 	gv.bnd_filter_pge   = 2.5;					/** value of driving force the pseudocompound is considered 						*/
-	gv.max_G_pc         = 5.0;					/** dG under which PC is considered after their generation		 					*/
+	gv.max_G_pc         = 2.5;					/** dG under which PC is considered after their generation		 					*/
 	gv.eps_sf_pc		= 1e-10;				/** Minimum value of site fraction under which PC is rejected, 
 													don't put it too high as it will conflict with bounds of x-eos					*/
 
@@ -258,6 +259,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.EM_database  	=  2; 					
 	gv.n_points 		=  1;
 	gv.solver   		=  2;					/* 0 -> Legacy, 1 = PGE, Hybrid PGE/LP */
+	gv.leveling_mode	=  0;
 	gv.verbose 			=  0;
 	gv.output_matlab 	=  0;
 	gv.test     		= -1;
@@ -509,7 +511,7 @@ ultramafic_dataset ultramafic_db = {
 	{"SiO2"	,"Al2O3","MgO"	,"FeO"	,"O"	,"H2O"	,"S"												},
 	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"pyr"	,"O2"  	,
 	 "qfm"	,"qif"	,"nno"	,"hm"	,"cco"	},
-	{"fluid", "ol"  ,"br"	,"ch"	,"atg"	,"g"	,"ta"	,"chl"	,"spi"	,"opx"	,"po"	,"anth" 	},
+	{"fl", "ol"  ,"br"	,"ch"	,"atg"	,"g"	,"ta"	,"chl"	,"spi"	,"opx"	,"po"	,"anth" 	},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1		,1			},  // allow solvus?
 	{11  	,10  	,10 	,10 	,489 	,10  	,985 	,2691	,100	,196	,10		,274		},  // No. of pseudocompound
@@ -1315,20 +1317,26 @@ global_variable reset_gv(					global_variable 	 gv,
 				gv.pp_flags[i][4] = 0;
 			}
 		}
-		// else if(strcmp( gv.PP_list[i], "O2") == 0){
-		// 	gv.pp_flags[i][0] = 0;
-		// 	gv.pp_flags[i][1] = 0;
-		// 	gv.pp_flags[i][2] = 0;
-		// 	gv.pp_flags[i][3] = 1;
-		// }
 		else{
-			gv.pp_flags[i][0] = 1;
-			gv.pp_flags[i][1] = 0;
-			gv.pp_flags[i][2] = 1;
-			gv.pp_flags[i][3] = 0;
-			gv.pp_flags[i][4] = 0;
+
+			if(strcmp( gv.PP_list[i], "O2") == 0){
+				gv.pp_flags[i][0] = 0;
+				gv.pp_flags[i][1] = 0;
+				gv.pp_flags[i][2] = 0;
+				gv.pp_flags[i][3] = 1;
+				gv.pp_flags[i][4] = 0;
+			}
+			else{
+				gv.pp_flags[i][0] = 1;
+				gv.pp_flags[i][1] = 0;
+				gv.pp_flags[i][2] = 1;
+				gv.pp_flags[i][3] = 0;
+				gv.pp_flags[i][4] = 0;
+			}
+
 		}
 	}
+	gv.leveling_mode	  = 0;
 	gv.tot_time 	  	  = 0.0;
 	gv.tot_min_time 	  = 0.0;
 	gv.melt_fraction	  = 0.;
@@ -1345,6 +1353,7 @@ global_variable reset_gv(					global_variable 	 gv,
 
 	// gv.melt_pressure 	  = 0.;
 	gv.system_fO2 		  = 0.;
+	gv.system_deltaQFM	  = 0.;
 	gv.system_aH2O	  	  = 0.;
 	gv.system_aSiO2	  	  = 0.;
 	gv.system_aTiO2	  	  = 0.;
@@ -1364,6 +1373,7 @@ global_variable reset_gv(					global_variable 	 gv,
 	gv.system_Vs 		  = 0.;
 	gv.V_cor[0]			  = 0.;
 	gv.V_cor[1]			  = 0.;
+	gv.PC_checked		  = 0;
 	gv.check_PC1		  = 0;
 	gv.check_PC2		  = 0;
 	gv.len_cp 		  	  = 0;
@@ -1417,7 +1427,8 @@ global_variable reset_gv(					global_variable 	 gv,
 void reset_sp(						global_variable 	 gv,
 									stb_system  		*sp
 ){
-
+	sp[0].X  							= 1.0;
+	
 	sp[0].aH2O	  	  					= 0.0;
 	sp[0].aSiO2	  						= 0.0;
 	sp[0].aTiO2  						= 0.0;
@@ -1455,6 +1466,7 @@ void reset_sp(						global_variable 	 gv,
 		sp[0].ph_id[i] 					=  0;
 		sp[0].ph_frac[i] 				=  0.0;
 		sp[0].ph_frac_wt[i] 			=  0.0;
+		sp[0].ph_frac_vol[i] 			=  0.0;
 	}
 
 	/* reset phases */
@@ -1479,6 +1491,22 @@ void reset_sp(						global_variable 	 gv,
 				sp[0].SS[n].emComp[i][j]	= 0.0;
 				sp[0].SS[n].emComp_wt[i][j]	= 0.0;
 			}
+		}
+	}
+
+	/* reset metastable phases */
+	for (int n = 0; n < gv.max_n_mSS; n++){
+		strcpy(sp[0].mSS[n].ph_name,"");
+		strcpy(sp[0].mSS[n].ph_type,"");
+		strcpy(sp[0].mSS[n].info,"");
+
+		for (int i = 0; i < gv.len_ox; i++){
+			sp[0].mSS[n].comp_Ppc[i] 		= 0.0;
+		}
+		for (int i = 0; i < gv.len_ox*2; i++){
+			sp[0].mSS[n].p_Ppc[i] 			= 0.0;
+			sp[0].mSS[n].mu_Ppc[i] 			= 0.0;
+			sp[0].mSS[n].xeos_Ppc[i] 		= 0.0;
 		}
 	}
 
@@ -1608,14 +1636,14 @@ void reset_SS(						global_variable 	 gv,
 			SS_ref_db[iss].ss_flags[j]   = 0;
 		}
 
-		SS_ref_db[iss].tot_pc 	= 0;
-		SS_ref_db[iss].id_pc  	= 0;
+		SS_ref_db[iss].tot_pc[0] = 0;
+		SS_ref_db[iss].id_pc[0]  = 0;
 		for (int j = 0; j < gv.len_ss*4; j++){
 			SS_ref_db[iss].solvus_id[j] = -1;	
 		}
 
 		/* reset levelling pseudocompounds */
-		for (int i = 0; i < (SS_ref_db[iss].tot_pc); i++){
+		for (int i = 0; i < (SS_ref_db[iss].tot_pc[0] ); i++){
 			SS_ref_db[iss].info[i]   = 0;
 			SS_ref_db[iss].G_pc[i]   = 0.0;
 			SS_ref_db[iss].DF_pc[i]  = 0.0;
@@ -1648,7 +1676,6 @@ void reset_SS(						global_variable 	 gv,
 			for (int j = 0; j < (SS_ref_db[iss].n_xeos); j++){
 				SS_ref_db[iss].xeos_Ppc[i][j]  = 0.0;
 			}
-			SS_ref_db[iss].factor_Ppc[i] = 0.0;
 		}
 
 		/* reset solution phase model parameters */

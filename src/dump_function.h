@@ -5,6 +5,7 @@
 void dump_init(global_variable gv);
 
 void fill_output_struct(		global_variable 	gv,
+								simplex_data	    *splx_data,
 								bulk_info 			z_b,
 
 								PP_ref 				*PP_ref_db,

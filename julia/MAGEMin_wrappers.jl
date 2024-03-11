@@ -6,9 +6,6 @@ using ProgressMeter
 
 const VecOrMat = Union{Nothing, AbstractVector{Float64}, AbstractVector{<:AbstractVector{Float64}}}
 
-# export  init_MAGEMin, finalize_MAGEMin, point_wise_minimization, convertBulk4MAGEMin, use_predefined_bulk_rock, define_bulk_rock,create_output,
-#         print_info, create_gmin_struct, pwm_init, pwm_run
-
 export  init_MAGEMin, finalize_MAGEMin, point_wise_minimization, convertBulk4MAGEMin, use_predefined_bulk_rock, define_bulk_rock, create_output,
         print_info, create_gmin_struct, pwm_init, pwm_run,
         single_point_minimization, multi_point_minimization, MAGEMin_Data, W_Data,
@@ -450,7 +447,7 @@ function convertBulk4MAGEMin(bulk_in::T1,bulk_in_ox::Vector{String},sys_in::Stri
     elseif db == "mb"
         MAGEMin_ox      = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "H2O"];
     elseif db == "um"
-        MAGEMin_ox      = ["SiO2"; "Al2O3"; "MgO" ;"FeO"; "O"; "H2O"; "S"];
+        MAGEMin_ox      = ["SiO2"; "Al2O3"; "MgO"; "FeO"; "O"; "H2O"; "S"];
     elseif db == "mp"
         MAGEMin_ox      = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "MnO"; "H2O"];
     else
@@ -463,11 +460,13 @@ function convertBulk4MAGEMin(bulk_in::T1,bulk_in_ox::Vector{String},sys_in::Stri
 	# convert to mol, if system unit = wt
 	if sys_in == "wt"
 		for i=1:length(bulk_in_ox)
-            id = findall(ref_ox .== bulk_in_ox[i]);
-			bulk[i] = bulk_in[i]/ref_MolarMass[id[1]];
+            id = findall(ref_ox .== bulk_in_ox[i])[1];
+			bulk[i] = bulk_in[i]/ref_MolarMass[id];
 		end
     else
-        bulk .= bulk_in;
+		for i=1:length(bulk_in_ox)
+			bulk[i] = bulk_in[i];
+		end
 	end
 
 	bulk = normalize(bulk);
@@ -588,6 +587,11 @@ function point_wise_minimization(P::Float64,T::Float64, gv, z_b, DB, splx_data; 
     gv.buffer_n     =   buffer_n
     input_data      =   LibMAGEMin.io_data();           # zero (not used actually)
     z_b.T           =   T + 273.15                      # in K
+
+    if P < 0.001
+        P = 0.001
+    end
+    
     z_b.P           =   P
     gv.numPoint     =   1; 							    # the number of the current point */
 
@@ -607,8 +611,6 @@ function point_wise_minimization(P::Float64,T::Float64, gv, z_b, DB, splx_data; 
     # here we can over-ride default W's
     if ~isnothing(W)
         if gv.EM_database  == W.database    # check if the database fit
-
-
         else
             print(" Wrong database number, please make sure the custom Ws are linked to the right database\n")
         end
@@ -622,7 +624,7 @@ function point_wise_minimization(P::Float64,T::Float64, gv, z_b, DB, splx_data; 
     gv = LibMAGEMin.ComputePostProcessing(z_b, gv, DB.PP_ref_db, DB.SS_ref_db, DB.cp)
 
     # Fill structure
-    LibMAGEMin.fill_output_struct(	gv,	z_b, DB.PP_ref_db,DB.SS_ref_db,	DB.cp, DB.sp );
+    LibMAGEMin.fill_output_struct(gv, pointer_from_objref(splx_data),	z_b, DB.PP_ref_db, DB.SS_ref_db,DB.cp, DB.sp );
 
     # Print output to screen
     LibMAGEMin.PrintOutput(gv, 0, 1, DB, time, z_b);
@@ -688,7 +690,7 @@ function pwm_run(gv, z_b, DB, splx_data)
     gv = LibMAGEMin.ComputePostProcessing(z_b, gv, DB.PP_ref_db, DB.SS_ref_db, DB.cp)
 
     # Fill structure
-    LibMAGEMin.fill_output_struct(	gv,	z_b, DB.PP_ref_db,DB.SS_ref_db,	DB.cp, DB.sp );
+    LibMAGEMin.fill_output_struct(gv, pointer_from_objref(splx_data), z_b, DB.PP_ref_db,DB.SS_ref_db, DB.cp, DB.sp );
 
     # Print output to screen
     LibMAGEMin.PrintOutput(gv, 0, 1, DB, time, z_b);
@@ -715,6 +717,7 @@ struct gmin_struct{T,I}
     Gamma       :: Vector{T}        # Gamma
     P_kbar      :: T               # Pressure in kbar
     T_C         :: T                  # Temperature in Celcius
+    X           :: T
 
     # bulk rock composition:
     bulk        :: Vector{T}
@@ -749,6 +752,7 @@ struct gmin_struct{T,I}
 
     # Oxygen fugacity
     fO2         :: T
+    dQFM        :: T
 
     # Activities
     aH2O        :: T
@@ -761,14 +765,17 @@ struct gmin_struct{T,I}
     # Phase fractions and type:
     n_PP        :: Int64                 # number of pure phases
     n_SS        :: Int64                 # number of solid solutions
+    n_mSS       :: Int64                 # number of solid solutions
 
-    ph_frac     :: Vector{T}          # phase fractions
-    ph_frac_wt  :: Vector{T}          # phase fractions
-    ph_type     :: Vector{I}      # type of phase (SS or PP)
-    ph_id       :: Vector{I}        # id of phase
-    ph          :: Vector{String}          # Name of phase
+    ph_frac     :: Vector{T}            # phase fractions
+    ph_frac_wt  :: Vector{T}            # phase fractions
+    ph_frac_vol :: Vector{T}            # phase fractions
+    ph_type     :: Vector{I}            # type of phase (SS or PP)
+    ph_id       :: Vector{I}            # id of phase
+    ph          :: Vector{String}       # Name of phase
 
     SS_vec      :: Vector{LibMAGEMin.SS_data}
+    mSS_vec      :: Vector{LibMAGEMin.mSS_data}
     PP_vec      :: Vector{LibMAGEMin.PP_data}
 
     oxides      :: Vector{String}
@@ -809,6 +816,7 @@ function create_gmin_struct(DB, gv, time)
     Gamma    = unsafe_wrap(Vector{Cdouble},stb.gamma,gv.len_ox)
     P_kbar   = stb.P
     T_C      = stb.T-273.15
+    X        = stb.X
 
     # Bulk rock info (total, melt, solid, fluid)
     bulk     = unsafe_wrap(Vector{Cdouble},stb.bulk,   gv.len_ox)
@@ -844,6 +852,7 @@ function create_gmin_struct(DB, gv, time)
 
     # Oxygen fugacity
     fO2     = stb.fO2
+    dQFM    = stb.dQFM
 
     # Activities
     aH2O    = stb.aH2O
@@ -861,15 +870,20 @@ function create_gmin_struct(DB, gv, time)
     n_ph     =  stb.n_ph        # total # of stable phases
     n_PP     =  stb.n_PP        # number of pure phases
     n_SS     =  stb.n_SS        # number of solid solutions
+    n_mSS    =  stb.n_mSS        # number of solid solutions
 
     ph_frac  =  unsafe_wrap(Vector{Cdouble},stb.ph_frac,   n_ph)
     ph_frac_wt  =  unsafe_wrap(Vector{Cdouble},stb.ph_frac_wt,   n_ph)
+    ph_frac_vol =  unsafe_wrap(Vector{Cdouble},stb.ph_frac_vol,   n_ph)
     ph_type  =  unsafe_wrap(Vector{Cint},   stb.ph_type,   n_ph)
     ph_id    =  unsafe_wrap(Vector{Cint},   stb.ph_id  ,   n_ph)
     ph       =  unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, stb.ph, n_ph)) # stable phases
 
     # extract info about compositional variables of the solution models:
     SS_vec  = convert.(LibMAGEMin.SS_data, unsafe_wrap(Vector{LibMAGEMin.stb_SS_phase},stb.SS,n_SS))
+
+    # extract information about metastable solution phases
+    mSS_vec = convert.(LibMAGEMin.mSS_data, unsafe_wrap(Vector{LibMAGEMin.mstb_SS_phase},stb.mSS,n_mSS))
 
     # Info about the endmembers:
     PP_vec  = convert.(LibMAGEMin.PP_data, unsafe_wrap(Vector{LibMAGEMin.stb_PP_phase},stb.PP,n_PP))
@@ -883,17 +897,17 @@ function create_gmin_struct(DB, gv, time)
     time_ms         =  time*1000.0
 
     # Store all in output struct
-    out = gmin_struct{Float64,Int64}( MAGEMin_ver, G_system, Gamma, P_kbar, T_C,
+    out = gmin_struct{Float64,Int64}( MAGEMin_ver, G_system, Gamma, P_kbar, T_C, X,
                 bulk, bulk_M, bulk_S, bulk_F,
                 bulk_wt, bulk_M_wt, bulk_S_wt, bulk_F_wt,
                 frac_M, frac_S, frac_F,
                 frac_M_wt, frac_S_wt, frac_F_wt,
                 alpha, V, cp, s_cp,
                 rho, rho_M, rho_S, rho_F,
-                fO2, aH2O, aSiO2, aTiO2, aAl2O3, aMgO, aFeO,
-                n_PP, n_SS,
-                ph_frac, ph_frac_wt, ph_type, ph_id, ph,
-                SS_vec,  PP_vec,
+                fO2, dQFM, aH2O, aSiO2, aTiO2, aAl2O3, aMgO, aFeO,
+                n_PP, n_SS, n_mSS,
+                ph_frac, ph_frac_wt, ph_frac_vol, ph_type, ph_id, ph,
+                SS_vec,  mSS_vec, PP_vec,
                 oxides,
                 stb.Vp, stb.Vs, stb.Vp_S, stb.Vs_S, stb.bulkMod, stb.shearMod, stb.bulkModulus_M,  stb.bulkModulus_S, stb.shearModulus_S,
                 entropy, enthalpy,
@@ -916,11 +930,15 @@ function show(io::IO, g::gmin_struct)
     for i=1:length(g.ph)
         println(io, "   $(lpad(g.ph[i],14," "))   $( round(g.ph_frac_wt[i], digits=5)) ")
     end
+    for i=1:length(g.ph)
+        println(io, "   $(lpad(g.ph[i],14," "))   $( round(g.ph_frac_vol[i], digits=5)) ")
+    end
     println(io, "Gibbs free energy : $(round(g.G_system,digits=6))  ($(g.iter) iterations; $(round(g.time_ms,digits=2)) ms)")
     if g.status>0
         println(io, "WARNING: calculation did not converge ----------------------------")
     end
     println(io, "Oxygen fugacity          : $(g.fO2)")
+    println(io, "Delta QFM                : $(g.dQFM)")
 
 
 end
@@ -1061,6 +1079,7 @@ function print_info(g::gmin_struct)
         print("$(lpad(g.ph[i],15," ")) ")
         print("$(lpad(round(g.ph_frac[i],digits=5),13," ")) ")
         print("$(lpad(round(g.ph_frac_wt[i],digits=5),8," ")) ")
+        print("$(lpad(round(g.ph_frac_vol[i],digits=5),8," ")) ")
         print("$(lpad(round(g.SS_vec[i].f,digits=5),8," ")) ")
         print("$(lpad(round(g.SS_vec[i].G,digits=5),8," ")) ")
         print("$(lpad(round(g.SS_vec[i].V,digits=5),8," ")) ")
@@ -1080,6 +1099,7 @@ function print_info(g::gmin_struct)
         print("$(lpad(g.ph[i],15," ")) ")
         print("$(lpad(round(g.ph_frac[i],digits=5),13," ")) ")
         print("$(lpad(round(g.ph_frac_wt[i],digits=5),8," ")) ")
+        print("$(lpad(round(g.ph_frac_vol[i],digits=5),8," ")) ")
         print("$(lpad(round(g.PP_vec[i].f,digits=5),8," ")) ")
         print("$(lpad(round(g.PP_vec[i].G,digits=5),8," ")) ")
         print("$(lpad(round(g.PP_vec[i].V,digits=5),8," ")) ")
@@ -1099,6 +1119,7 @@ function print_info(g::gmin_struct)
     print("$(lpad("SYS",15," ")) ")
     print("$(lpad(round(sum(g.ph_frac),digits=5),13," ")) ")
     print("$(lpad(round(sum(g.ph_frac_wt),digits=5),8," ")) ")
+    print("$(lpad(round(sum(g.ph_frac_vol),digits=5),8," ")) ")
     print("$(lpad(round(g.G_system,digits=5),20," ")) ")
     print("$(lpad(round(g.alpha,digits=5),29," ")) ")
     print("$(lpad(round(g.cp,digits=5),29," ")) ")

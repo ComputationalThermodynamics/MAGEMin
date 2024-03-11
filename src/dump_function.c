@@ -22,6 +22,7 @@
 #include "MAGEMin.h"
 #include "gem_function.h"
 #include "gss_function.h"
+#include "objective_functions.h"
 #include "toolkit.h"
 
 /**
@@ -71,6 +72,7 @@ void dump_init(global_variable gv){
   Save final result of minimization
 */
 void fill_output_struct(		global_variable 	 gv,
+								simplex_data	    *splx_data,
 								bulk_info 	 		 z_b,
 
 								PP_ref 				*PP_ref_db,
@@ -82,6 +84,7 @@ void fill_output_struct(		global_variable 	 gv,
 	double sum;
 	double sum_wt;
 	double sum_mol;
+	double sum_vol;
 	double sum_em_wt;
 	double sum_ph_mass;
 
@@ -89,7 +92,7 @@ void fill_output_struct(		global_variable 	 gv,
 	double atp2wt;
 
 	int nox  = gv.len_ox;
-	int i, j, k, m, n;
+	int i, j, k, m, n, em_id, ph_id, pc_id;
 	
 	strcpy(sp[0].MAGEMin_ver,gv.version);	
 	
@@ -99,7 +102,8 @@ void fill_output_struct(		global_variable 	 gv,
 	
 	sp[0].nOx					 = gv.len_ox;
 	sp[0].rho					 = gv.system_density;
-	sp[0].fO2					 = gv.system_fO2;
+	sp[0].fO2					 = log10(gv.system_fO2);
+	sp[0].dQFM					 = log10(gv.system_deltaQFM);
 	sp[0].aH2O					 = gv.system_aH2O;
 	sp[0].aSiO2					 = gv.system_aSiO2;
 	sp[0].aTiO2					 = gv.system_aTiO2;
@@ -132,6 +136,7 @@ void fill_output_struct(		global_variable 	 gv,
 
 	sp[0].P 			 		 = z_b.P;
 	sp[0].T 			 		 = z_b.T;
+	sp[0].X 			 		 = 1.0;
 	
 	sum_Molar_mass_bulk = 0.0;
 	for (i = 0; i < nox; i++){
@@ -147,6 +152,7 @@ void fill_output_struct(		global_variable 	 gv,
 	sp[0].n_ph			 		 = gv.n_phase;
 	sp[0].n_PP			 		 = 0;
 	sp[0].n_SS			 		 = 0;
+	sp[0].n_mSS			 		 = 0;
 	sp[0].frac_S				 = 0.0;
 	sp[0].frac_M				 = 0.0;
 	sp[0].frac_F				 = 0.0;
@@ -365,6 +371,38 @@ void fill_output_struct(		global_variable 	 gv,
 		}
 	}
 	
+
+	// compute volume fraction and normalize other fractions
+	sum_vol = 0.0;
+	sum_mol = 0.0;
+	sum_wt  = 0.0;
+	n = 0;
+	for (int i = 0; i < gv.len_cp; i++){
+		if ( cp[i].ss_flags[1] == 1){
+			sp[0].ph_frac_vol[n] = sp[0].ph_frac_wt[n] / sp[0].SS[n].rho;
+			sum_vol += sp[0].ph_frac_vol[n];
+			sum_mol += sp[0].ph_frac[n];
+			sum_wt  += sp[0].ph_frac_wt[n];
+			n+=1;
+		}
+	}
+	m = 0;
+	for (int i = 0; i < gv.len_pp; i++){
+		if (gv.pp_flags[i][1] == 1){
+			sp[0].ph_frac_vol[n] =  sp[0].ph_frac_wt[n] / sp[0].PP[m].rho;
+			sum_vol += sp[0].ph_frac_vol[n];
+			sum_mol += sp[0].ph_frac[n];
+			sum_wt  += sp[0].ph_frac_wt[n];
+			m +=1;
+			n +=1;
+		}
+	}
+	for (int i = 0; i < gv.n_phase; i++){
+		sp[0].ph_frac_vol[i] 	/= sum_vol;
+		sp[0].ph_frac[i] 		/= sum_mol;
+		sp[0].ph_frac_wt[i] 	/= sum_wt;
+	}
+
 	/* normalize rho_S and bulk_S */
 	sp[0].rho_S  				/= sp[0].frac_S;
 	for (j = 0; j < gv.len_ox; j++){
@@ -431,7 +469,6 @@ void fill_output_struct(		global_variable 	 gv,
 	atp2wt = sum/sum_Molar_mass_bulk;
 	sp[0].frac_F_wt 		    = sp[0].frac_F*atp2wt;
 
-
 	/* compute cp as J/K/kg for given bulk-rock composition */
 	double MolarMass_system = 0.0;
 	for (int i = 0; i < gv.len_ox; i++){
@@ -439,8 +476,204 @@ void fill_output_struct(		global_variable 	 gv,
 	}
 	sp[0].s_cp 					= sp[0].cp_wt/MolarMass_system*1e6;
 
+
+	/* get LP assemblage */
+	m = 0;
+	simplex_data *d  = (simplex_data *) splx_data;
+
+	for (i = 0; i < d->n_Ox; i++){
+		ph_id 		= d->ph_id_A[i][1];
+			
+		if (d->ph_id_A[i][0] == 1){			/* if phase is a pure species */
+			for (int j = 0; j < gv.len_ox; j++){
+				sp[0].mSS[m].comp_Ppc[j] = PP_ref_db[ph_id].Comp[j]*PP_ref_db[ph_id].factor;
+			}
+
+			sp[0].mSS[m].G_Ppc 	= PP_ref_db[ph_id].gbase*PP_ref_db[ph_id].factor;
+			sp[0].mSS[m].DF_Ppc = sp[0].mSS[m].G_Ppc;
+			for (int j = 0; j < gv.len_ox; j++) {
+				sp[0].mSS[m].DF_Ppc -= sp[0].mSS[m].comp_Ppc[j] *gv.gam_tot[j];
+			}
+
+			strcpy(sp[0].mSS[m].info,"lpig");
+			strcpy(sp[0].mSS[m].ph_type,"pp");
+			strcpy(sp[0].mSS[m].ph_name,gv.PP_list[ph_id]);
+			sp[0].mSS[m].ph_id 		= ph_id;
+			sp[0].mSS[m].nOx 		= gv.len_ox;
+			sp[0].mSS[m].n_xeos		= 0;
+			sp[0].mSS[m].n_em 		= 0;
+
+			sp[0].n_mSS += 1;
+			m += 1;
+		}
+		else if (d->ph_id_A[i][0] == 2){ 		/* pure endmembers as solution phase */
+			em_id 					= d->ph_id_A[i][3];
+
+			for (j = 0; j < SS_ref_db[ph_id].n_em; j++) {	
+				SS_ref_db[ph_id].p[j] = gv.em2ss_shift;
+			}
+			SS_ref_db[ph_id].p[em_id] = 1.0 - gv.em2ss_shift*SS_ref_db[ph_id].n_em;
+			
+			SS_ref_db[ph_id] = P2X(			gv,
+											SS_ref_db[ph_id],
+											z_b,
+											gv.SS_list[ph_id]					);
+
+			/* get unrotated gbase */
+			SS_ref_db[ph_id] = non_rot_hyperplane(	gv, 
+													SS_ref_db[ph_id]			);
+
+			SS_ref_db[ph_id] = PC_function(				gv,
+														SS_ref_db[ph_id], 
+														z_b,
+														gv.SS_list[ph_id] 		);
+
+
+			for (j = 0; j < gv.len_ox; j++){
+				sp[0].mSS[m].comp_Ppc[j] = SS_ref_db[ph_id].ss_comp[j]*SS_ref_db[ph_id].factor;
+			}
+											
+			sp[0].mSS[m].G_Ppc 	= SS_ref_db[ph_id].df;
+			sp[0].mSS[m].DF_Ppc = SS_ref_db[ph_id].df;
+			for (j = 0; j < gv.len_ox; j++) {
+				sp[0].mSS[m].DF_Ppc -= sp[0].mSS[m].comp_Ppc[j]*gv.gam_tot[j];
+			}
+
+			strcpy(sp[0].mSS[m].info,"lpig");
+			strcpy(sp[0].mSS[m].ph_type,"ss_em");
+			strcpy(sp[0].mSS[m].ph_name,gv.SS_list[ph_id]);
+			sp[0].mSS[m].ph_id 		= ph_id;
+			sp[0].mSS[m].em_id 		= em_id;
+			sp[0].mSS[m].nOx 		= gv.len_ox;
+			sp[0].mSS[m].n_xeos		= SS_ref_db[ph_id].n_xeos;
+			sp[0].mSS[m].n_em 		= SS_ref_db[ph_id].n_em;
+
+			for (j = 0; j < SS_ref_db[ph_id].n_em; j++){
+				sp[0].mSS[m].p_Ppc[j] 	= SS_ref_db[ph_id].p[j];
+				sp[0].mSS[m].mu_Ppc[j] 	= SS_ref_db[ph_id].mu[j]*SS_ref_db[ph_id].z_em[j];
+			}
+			for (j = 0; j < SS_ref_db[ph_id].n_xeos; j++){
+				sp[0].mSS[m].xeos_Ppc[j] = SS_ref_db[ph_id].iguess[j];	
+			}
+
+			sp[0].n_mSS += 1;
+			m += 1;
+		}
+		else if (d->ph_id_A[i][0] == 3){				/* solution phase */
+			pc_id 					= d->ph_id_A[i][3];
+
+			/* solution phase */
+			if (d->ph_id_A[i][0] == 3 && d->stage[i] == 1){
+				pc_id 					= d->ph_id_A[i][3];
+
+				for (int ii = 0; ii < SS_ref_db[ph_id].n_xeos; ii++){
+					SS_ref_db[ph_id].iguess[ii]  = SS_ref_db[ph_id].xeos_Ppc[pc_id][ii];
+				}
+			}
+			if (d->ph_id_A[i][0] == 3 && d->stage[i] == 0){
+				pc_id 					= d->ph_id_A[i][3];
+
+				for (int ii = 0; ii < SS_ref_db[ph_id].n_xeos; ii++){
+					SS_ref_db[ph_id].iguess[ii]  = SS_ref_db[ph_id].xeos_pc[pc_id][ii];
+				}
+			}
+			
+			/* get unrotated gbase */
+			SS_ref_db[ph_id] = non_rot_hyperplane(	gv, 
+													SS_ref_db[ph_id]			);
+
+			SS_ref_db[ph_id] = PC_function(				gv,
+														SS_ref_db[ph_id], 
+														z_b,
+														gv.SS_list[ph_id] 		);
+											
+			for (j = 0; j < gv.len_ox; j++){
+				sp[0].mSS[m].comp_Ppc[j] = SS_ref_db[ph_id].ss_comp[j]*SS_ref_db[ph_id].factor;
+			}
+
+			sp[0].mSS[m].G_Ppc 	= SS_ref_db[ph_id].df;
+			sp[0].mSS[m].DF_Ppc = SS_ref_db[ph_id].df;
+			for (j = 0; j < gv.len_ox; j++) {
+				sp[0].mSS[m].DF_Ppc -= sp[0].mSS[m].comp_Ppc[j]*gv.gam_tot[j];
+			}
+
+			strcpy(sp[0].mSS[m].info,"lpig");
+			strcpy(sp[0].mSS[m].ph_type,"ss");
+			strcpy(sp[0].mSS[m].ph_name,gv.SS_list[ph_id]);
+			sp[0].mSS[m].ph_id 		= ph_id;
+			sp[0].mSS[m].nOx 		= gv.len_ox;
+			sp[0].mSS[m].n_xeos		= SS_ref_db[ph_id].n_xeos;
+			sp[0].mSS[m].n_em 		= SS_ref_db[ph_id].n_em;
+
+			for (int j = 0; j < SS_ref_db[ph_id].n_em; j++){
+				sp[0].mSS[m].p_Ppc[j] 	= SS_ref_db[ph_id].p[j];
+				sp[0].mSS[m].mu_Ppc[j] 	= SS_ref_db[ph_id].mu[j]*SS_ref_db[ph_id].z_em[j];
+			}
+			for (int j = 0; j < SS_ref_db[ph_id].n_xeos; j++){
+				sp[0].mSS[m].xeos_Ppc[j] = SS_ref_db[ph_id].iguess[j];	
+			}
+
+			sp[0].n_mSS += 1;
+			m += 1;
+		}
+	}
+
+	/* copy metastable phases to sb structure */
+	int n_xeos, n_em;
+	for (int i = 0; i < gv.len_ss; i++){
+		if (SS_ref_db[i].ss_flags[0] == 1){
+
+			n_em 	 = SS_ref_db[i].n_em;
+			n_xeos 	 = SS_ref_db[i].n_xeos;
+			for (int l = 0; l < SS_ref_db[i].tot_Ppc; l++){
+				if (SS_ref_db[i].info_Ppc[l] == 9 && m < gv.max_n_mSS){
+
+					sp[0].n_mSS += 1;
+					strcpy(sp[0].mSS[m].info,"ppc");
+					strcpy(sp[0].mSS[m].ph_type,"ss");
+					strcpy(sp[0].mSS[m].ph_name,gv.SS_list[i]);
+					sp[0].mSS[m].ph_id 		= i;
+					sp[0].mSS[m].nOx 		= gv.len_ox;
+					sp[0].mSS[m].n_xeos		= n_xeos;
+					sp[0].mSS[m].n_em 		= n_em;
+
+					sp[0].mSS[m].G_Ppc 		= SS_ref_db[i].G_Ppc[l];
+
+					sp[0].mSS[m].DF_Ppc = SS_ref_db[i].G_Ppc[l];
+					for (int j = 0; j < gv.len_ox; j++) {
+						sp[0].mSS[m].DF_Ppc -= SS_ref_db[i].comp_Ppc[l][j]*gv.gam_tot[j];
+					}
+
+					for (int j = 0; j < gv.len_ox; j++){
+						sp[0].mSS[m].comp_Ppc[j] = SS_ref_db[i].comp_Ppc[l][j];
+					}
+					for (int j = 0; j < n_em; j++){
+						sp[0].mSS[m].p_Ppc[j] 	= SS_ref_db[i].p_Ppc[l][j];
+						sp[0].mSS[m].mu_Ppc[j] 	= SS_ref_db[i].mu_Ppc[l][j];
+					}
+					for (int j = 0; j < n_xeos; j++){
+						sp[0].mSS[m].xeos_Ppc[j] 	= SS_ref_db[i].xeos_Ppc[l][j];
+					}
+					
+					m += 1;
+				}
+			}
+
+		}
+	}
+	if (m >= gv.max_n_mSS){
+		printf("WARNING: maximum number of metastable pseudocompounds has been reached, increase the value in gss_init_function.c (SP_INIT_function)\n");
+	}
+
+
 	// debug print
 	if (1 == 0){
+		printf("Phase vol\n");
+		for (int m = 0; m < gv.n_phase; m++){
+			printf(" %4s %+10f\n",sp[0].ph[m],sp[0].ph_frac_vol[m]);
+		}
+		printf("\n");
+		printf("Phase wt\n");
 		for (int m = 0; m < gv.n_phase; m++){
 			printf(" %4s %+10f\n",sp[0].ph[m],sp[0].ph_frac_wt[m]);
 		}
@@ -1132,7 +1365,8 @@ void output_matlab(				global_variable 	 gv,
 	}
 
 	fprintf(loc_min, "\n\nSystem fugacity:\n");
-	fprintf(loc_min, 	"%6s %+10e\n", "fO2",gv.system_fO2);
+	fprintf(loc_min, 	"%6s %+10e\n", "log10(fO2)",log10(gv.system_fO2));
+	fprintf(loc_min, 	"%6s %+10e\n", "log10(dQFM)",log10(gv.system_deltaQFM));
 
 	fprintf(loc_min, "\n\nSystem activity:\n");
 	fprintf(loc_min, 	"%6s %+10e\n", "aH2O",gv.system_aH2O);

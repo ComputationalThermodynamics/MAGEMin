@@ -518,6 +518,7 @@ mutable struct global_variables
     n_em_db::Cint
     EM_database::Cint
     n_Diff::Cint
+    leveling_mode::Cint
     status::Cint
     solver::Cint
     solver_switch_T::Cdouble
@@ -553,6 +554,7 @@ mutable struct global_variables
     PC_min_dist::Cdouble
     PC_check_val1::Cdouble
     PC_check_val2::Cdouble
+    PC_checked::Cint
     check_PC1::Cint
     check_PC2::Cint
     len_pp::Cint
@@ -560,6 +562,7 @@ mutable struct global_variables
     len_ox::Cint
     maxlen_ox::Cint
     max_n_cp::Cint
+    max_n_mSS::Cint
     max_ss_size_cp::Cint
     len_cp::Cint
     ox::Ptr{Ptr{Cchar}}
@@ -664,6 +667,7 @@ mutable struct global_variables
     system_Vs::Cdouble
     system_volume::Cdouble
     system_fO2::Cdouble
+    system_deltaQFM::Cdouble
     system_aH2O::Cdouble
     system_aSiO2::Cdouble
     system_aTiO2::Cdouble
@@ -784,8 +788,8 @@ struct SS_refs
     CV_list::Ptr{Ptr{Cchar}}
     ss_flags::Ptr{Cint}
     n_pc::Cint
-    tot_pc::Cint
-    id_pc::Cint
+    tot_pc::Ptr{Cint}
+    id_pc::Ptr{Cint}
     info::Ptr{Cint}
     G_pc::Ptr{Cdouble}
     DF_pc::Ptr{Cdouble}
@@ -803,7 +807,6 @@ struct SS_refs
     p_Ppc::Ptr{Ptr{Cdouble}}
     mu_Ppc::Ptr{Ptr{Cdouble}}
     xeos_Ppc::Ptr{Ptr{Cdouble}}
-    factor_Ppc::Ptr{Cdouble}
     solvus_id::Ptr{Cint}
     is_liq::Cint
     symmetry::Cint
@@ -1004,6 +1007,25 @@ end
 
 const stb_SS_phase = stb_SS_phases
 
+struct mstb_SS_phases
+    ph_name::Ptr{Cchar}
+    ph_type::Ptr{Cchar}
+    info::Ptr{Cchar}
+    ph_id::Cint
+    em_id::Cint
+    nOx::Cint
+    n_xeos::Cint
+    n_em::Cint
+    G_Ppc::Cdouble
+    DF_Ppc::Cdouble
+    comp_Ppc::Ptr{Cdouble}
+    p_Ppc::Ptr{Cdouble}
+    mu_Ppc::Ptr{Cdouble}
+    xeos_Ppc::Ptr{Cdouble}
+end
+
+const mstb_SS_phase = mstb_SS_phases
+
 struct stb_PP_phases
     nOx::Cint
     f::Cdouble
@@ -1034,12 +1056,14 @@ struct stb_systems
     oxides::Ptr{Ptr{Cchar}}
     P::Cdouble
     T::Cdouble
+    X::Cdouble
     bulk::Ptr{Cdouble}
     bulk_wt::Ptr{Cdouble}
     gamma::Ptr{Cdouble}
     G::Cdouble
     rho::Cdouble
     fO2::Cdouble
+    dQFM::Cdouble
     aH2O::Cdouble
     aSiO2::Cdouble
     aTiO2::Cdouble
@@ -1080,12 +1104,15 @@ struct stb_systems
     n_ph::Cint
     n_PP::Cint
     n_SS::Cint
+    n_mSS::Cint
     ph::Ptr{Ptr{Cchar}}
     ph_frac::Ptr{Cdouble}
     ph_frac_wt::Ptr{Cdouble}
+    ph_frac_vol::Ptr{Cdouble}
     ph_type::Ptr{Cint}
     ph_id::Ptr{Cint}
     SS::Ptr{stb_SS_phase}
+    mSS::Ptr{mstb_SS_phase}
     PP::Ptr{stb_PP_phase}
 end
 
@@ -1182,6 +1209,10 @@ function run_LP(z_b, splx_data, gv, PP_ref_db, SS_ref_db)
     ccall((:run_LP, libMAGEMin), global_variable, (bulk_info, Ptr{simplex_data}, global_variable, Ptr{PP_ref}, Ptr{SS_ref}), z_b, splx_data, gv, PP_ref_db, SS_ref_db)
 end
 
+function run_LP_ig(z_b, splx_data, gv, PP_ref_db, SS_ref_db)
+    ccall((:run_LP_ig, libMAGEMin), global_variable, (bulk_info, Ptr{simplex_data}, global_variable, Ptr{PP_ref}, Ptr{SS_ref}), z_b, splx_data, gv, PP_ref_db, SS_ref_db)
+end
+
 function LP(z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
     ccall((:LP, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{obj_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
 end
@@ -1214,8 +1245,8 @@ function dump_init(gv)
     ccall((:dump_init, libMAGEMin), Cvoid, (global_variable,), gv)
 end
 
-function fill_output_struct(gv, z_b, PP_ref_db, SS_ref_db, cp, sp)
-    ccall((:fill_output_struct, libMAGEMin), Cvoid, (global_variable, bulk_info, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}, Ptr{stb_system}), gv, z_b, PP_ref_db, SS_ref_db, cp, sp)
+function fill_output_struct(gv, splx_data, z_b, PP_ref_db, SS_ref_db, cp, sp)
+    ccall((:fill_output_struct, libMAGEMin), Cvoid, (global_variable, Ptr{simplex_data}, bulk_info, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}, Ptr{stb_system}), gv, splx_data, z_b, PP_ref_db, SS_ref_db, cp, sp)
 end
 
 function save_results_function(gv, z_b, PP_ref_db, SS_ref_db, cp, sp)
@@ -2145,6 +2176,10 @@ function Levelling(z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
     ccall((:Levelling, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{obj_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
 end
 
+function Initial_guess(z_b, gv, splx_data, PP_ref_db, SS_ref_db, cp)
+    ccall((:Initial_guess, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, splx_data, PP_ref_db, SS_ref_db, cp)
+end
+
 function destroy_simplex_A(splx_data)
     ccall((:destroy_simplex_A, libMAGEMin), Cvoid, (Ptr{simplex_data},), splx_data)
 end
@@ -2377,6 +2412,7 @@ const ko_optional_argument = 2
 # START OF EPILOGUE
 #
 
+# stable phases
 struct SS_data
     f::Cdouble
     G::Cdouble
@@ -2403,8 +2439,6 @@ struct SS_data
     emComp_wt::Vector{Vector{Float64}}
 end
 
-
-
 function Base.convert(::Type{SS_data}, a::stb_SS_phases) 
     return SS_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
                                     unsafe_wrap( Vector{Cdouble},        a.Comp,             a.nOx),
@@ -2419,6 +2453,35 @@ function Base.convert(::Type{SS_data}, a::stb_SS_phases)
       unsafe_wrap.(Vector{Cdouble}, unsafe_wrap( Vector{Ptr{Cdouble}},   a.emComp_wt, a.n_em),  a.nOx)   )
 end
 
+# metastable phases
+struct mSS_data
+    ph_name::String
+    ph_type::String
+    info::String
+    ph_id::Cint
+    em_id::Cint
+    n_xeos::Cint
+    n_em::Cint
+    G_Ppc::Cdouble
+    DF_Ppc::Cdouble
+    comp_Ppc::Vector{Cdouble}
+    p_Ppc::Vector{Cdouble}
+    mu_Ppc::Vector{Cdouble}
+    xeos_Ppc::Vector{Cdouble}
+end
+
+function Base.convert(::Type{mSS_data}, a::mstb_SS_phases) 
+    return  mSS_data(   unsafe_string(a.ph_name),
+                        unsafe_string(a.ph_type),
+                        unsafe_string(a.info),
+                        a.ph_id, a.em_id, a.n_xeos, a.n_em, a.G_Ppc, a.DF_Ppc,
+                        unsafe_wrap( Vector{Cdouble},        a.comp_Ppc,           a.nOx),
+                        unsafe_wrap( Vector{Cdouble},        a.p_Ppc,              a.n_em),
+                        unsafe_wrap( Vector{Cdouble},        a.mu_Ppc,             a.n_em),
+                        unsafe_wrap( Vector{Cdouble},        a.xeos_Ppc,           a.n_xeos)    )
+end
+
+# pure phases
 struct PP_data
     f::Cdouble
     G::Cdouble

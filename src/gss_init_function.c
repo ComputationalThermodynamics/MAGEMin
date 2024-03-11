@@ -88,7 +88,7 @@ csd_phase_set CP_INIT_function(csd_phase_set cp, global_variable gv){
   allocate memory to store considered phases
 */
 stb_system SP_INIT_function(stb_system sp, global_variable gv){
-	
+
 	sp.MAGEMin_ver   		= malloc(50  		* sizeof(char)				);
 	sp.oxides 	     		= malloc(gv.len_ox  * sizeof(char*)				);
 	
@@ -108,6 +108,7 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 	sp.ph 	     			= malloc(gv.len_ox  * sizeof(char*)				);
 	sp.ph_frac 	     		= malloc(gv.len_ox  * sizeof(double)			);
 	sp.ph_frac_wt     		= malloc(gv.len_ox  * sizeof(double)			);
+	sp.ph_frac_vol     		= malloc(gv.len_ox  * sizeof(double)			);
 	for (int i = 0; i < gv.len_ox; i++){
 		sp.ph[i] 			= malloc(20 * sizeof(char));	
 	}
@@ -115,6 +116,7 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 	sp.ph_id 				= malloc(gv.len_ox 	* sizeof(int)				);	
 	sp.PP 		 			= malloc(gv.len_ox  * sizeof(stb_PP_phase)		); 
 	sp.SS 		 			= malloc(gv.len_ox  * sizeof(stb_SS_phase)		); 
+	sp.mSS 		 			= malloc(gv.max_n_mSS  * sizeof(mstb_SS_phase)	); 
 
 	for (int n = 0; n< gv.len_ox; n++){
 		sp.PP[n].Comp 			= malloc(gv.len_ox 	* sizeof(double)		);
@@ -125,7 +127,7 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 		sp.SS[n].emFrac			= malloc((gv.len_ox*3) * sizeof(double)		);
 		sp.SS[n].emFrac_wt		= malloc((gv.len_ox*3) * sizeof(double)		);
 		sp.SS[n].emChemPot		= malloc((gv.len_ox*3) * sizeof(double)		);
-		sp.SS[n].compVariablesNames	= malloc(gv.len_ox*3 	* sizeof(char*)	);
+		sp.SS[n].compVariablesNames	= malloc(gv.len_ox*3 * sizeof(char*)	);
 		sp.SS[n].emNames 	    = malloc((gv.len_ox*3) * sizeof(char*)		);
 		sp.SS[n].emComp 	    = malloc((gv.len_ox*3) * sizeof(double*)	);
 		sp.SS[n].emComp_wt 	    = malloc((gv.len_ox*3) * sizeof(double*)	);
@@ -136,7 +138,17 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 			sp.SS[n].emComp[i]		= malloc(gv.len_ox * sizeof(double)		);		
 			sp.SS[n].emComp_wt[i]	= malloc(gv.len_ox * sizeof(double)		);		
 		}
-
+	}
+    
+    /** allocate memory for metastable phases len_ox * 2 to be safe?        */
+	for (int n = 0; n< gv.max_n_mSS; n++){
+        sp.mSS[n].ph_name	    = malloc(20 * sizeof(char)	                );
+        sp.mSS[n].ph_type	    = malloc(20 * sizeof(char)	                );
+        sp.mSS[n].info	        = malloc(20 * sizeof(char)	                );
+        sp.mSS[n].comp_Ppc 	    = malloc((gv.len_ox) 	* sizeof(double)	);  
+        sp.mSS[n].p_Ppc 	    = malloc((gv.len_ox*2) 	* sizeof(double)	);  
+        sp.mSS[n].mu_Ppc 	    = malloc((gv.len_ox*2) 	* sizeof(double)	);  
+        sp.mSS[n].xeos_Ppc 	    = malloc((gv.len_ox*2) 	* sizeof(double)	);  
 	}
 
 	return sp;
@@ -1262,7 +1274,7 @@ SS_ref G_SS_init_EM_function(		int			 		 ph_id,
 		}	
 	}
 	else if (EM_database == 4) {
-		if      (strcmp( name, "fluid")  == 0 ){
+		if      (strcmp( name, "fl")  == 0 ){
 			SS_ref_db  = G_SS_um_fluid_init_function(SS_ref_db, EM_database, gv); 	}
 		else if (strcmp( name, "ol")  == 0){
 			SS_ref_db  = G_SS_um_ol_init_function(SS_ref_db, EM_database, gv); 		}
@@ -1385,6 +1397,8 @@ SS_ref G_SS_init_EM_function(		int			 		 ph_id,
 	*/
 	// SS_ref_db.n_pc   	= gv.n_pc;
 	SS_ref_db.n_pc   	= gv.n_SS_PC[ph_id];
+    SS_ref_db.tot_pc   	= malloc (1 * sizeof (double) ); 
+    SS_ref_db.id_pc   	= malloc (1 * sizeof (double) ); 
 	SS_ref_db.G_pc   	= malloc ((SS_ref_db.n_pc) * sizeof (double) ); 
 	SS_ref_db.DF_pc 	= malloc ((SS_ref_db.n_pc) * sizeof (double) ); 
 	SS_ref_db.factor_pc = malloc ((SS_ref_db.n_pc) * sizeof (double) ); 
@@ -1411,7 +1425,6 @@ SS_ref G_SS_init_EM_function(		int			 		 ph_id,
 	SS_ref_db.n_Ppc   	= gv.n_Ppc;								/** maximum number of pseudocompounds to store */
 	SS_ref_db.G_Ppc   	= malloc ((SS_ref_db.n_Ppc) * sizeof (double) ); 
 	SS_ref_db.DF_Ppc 	= malloc ((SS_ref_db.n_Ppc) * sizeof (double) ); 
-	SS_ref_db.factor_Ppc= malloc ((SS_ref_db.n_Ppc) * sizeof (double) ); 
 	SS_ref_db.info_Ppc 	= malloc ((SS_ref_db.n_Ppc) * sizeof (int) 	 ); 
 	SS_ref_db.p_Ppc 	= malloc ((SS_ref_db.n_Ppc) * sizeof (double*)); 
 	SS_ref_db.mu_Ppc 	= malloc ((SS_ref_db.n_Ppc) * sizeof (double*)); 

@@ -32,6 +32,7 @@ typedef struct global_variables {
 	int 	 n_em_db;
 	int 	 EM_database;
 	int      n_Diff;
+	int 	 leveling_mode;
 	int      status;			/** status of the minimization 		*/
 	int      solver;
 	double   solver_switch_T;
@@ -77,6 +78,7 @@ typedef struct global_variables {
 	double   PC_min_dist;
 	double	 PC_check_val1;
 	double	 PC_check_val2;
+	int      PC_checked;
 	int	     check_PC1;
 	int	     check_PC2;
 	int      len_pp;			/** initial number of active pure phases */
@@ -84,6 +86,7 @@ typedef struct global_variables {
 	int      len_ox;			/** number of components (number of oxides in the chemical system) */
 	int 	 maxlen_ox;			/** max number of oxides (depends on the database)*/
 	int 	 max_n_cp;			/** number of considered solution phases */
+	int 	 max_n_mSS;			/** maximum number of metastable solution phases pseudocompound saved */
 	int      max_ss_size_cp;
 	int 	 len_cp;
 	char   **ox;				/** component names (for outputing purpose only) */
@@ -219,6 +222,7 @@ typedef struct global_variables {
 	double   system_volume;
 
 	double 	 system_fO2;
+	double   system_deltaQFM;
 	double   system_aH2O;
 	double   system_aSiO2;
 	double   system_aTiO2;
@@ -361,8 +365,8 @@ typedef struct SS_refs {
 	int     *ss_flags;			/** integer table for solution phase list 									*/
 	/** data needed for levelling and PGE check **/
 	int      n_pc;				/** maximum number of pseudocompounds to store 								*/
-	int      tot_pc;			/** total number of pseudocompounds  										*/
-	int      id_pc;				/** total number of pseudocompounds  										*/
+	int     *tot_pc;			/** total number of pseudocompounds  										*/
+	int     *id_pc;				/** total number of pseudocompounds  										*/
 	int     *info;				/** store some infos for debugging 											*/
 	double  *G_pc;				/** array to store the gibbs energy of the pseudocompounds 					*/
 	double  *DF_pc;				/** array to store the final driving force of the pseudocompounds 			*/
@@ -383,7 +387,6 @@ typedef struct SS_refs {
 	double **p_Ppc;				/** compositional array of the pseudocompounds 								*/
 	double **mu_Ppc;			/** compositional array of the pseudocompounds 								*/
 	double **xeos_Ppc;			/** x-eos array of the pseudocompounds 										*/
-	double  *factor_Ppc;		/** normalization factor of each PC, mainly useful for liquid 				*/
 
 	/** data needed for phase change and solvus processing **/	
 	int	    *solvus_id;
@@ -613,6 +616,30 @@ typedef struct stb_SS_phases {
 	
 } stb_SS_phase;
 
+
+/* hold information of solution phases */
+typedef struct mstb_SS_phases {
+	char    *ph_name;
+	char    *ph_type;
+	char    *info;
+	int 	 ph_id;
+	int 	 em_id;
+
+	int      nOx;
+	int      n_xeos;
+	int      n_em;
+
+	double 	 G_Ppc;
+	double   DF_Ppc;
+	double  *comp_Ppc;
+	double  *p_Ppc;
+	double  *mu_Ppc;
+	double  *xeos_Ppc;
+
+} mstb_SS_phase;
+
+
+
 /* hold information of pure phases */
 typedef struct stb_PP_phases {
 	int    	 nOx;
@@ -650,6 +677,7 @@ typedef struct stb_systems {
 	
 	double  P;
 	double  T;
+	double  X;
 	double *bulk;
 	double *bulk_wt;
 
@@ -657,6 +685,7 @@ typedef struct stb_systems {
 	double  G;
 	double  rho;
 	double  fO2;
+	double  dQFM;
 	double  aH2O;
 	double  aSiO2;
 	double  aTiO2;
@@ -696,15 +725,17 @@ typedef struct stb_systems {
 	int     n_ph;									/* number of predicted stable phases 										*/
 	int     n_PP;									/* number of predicted stable pure phases 									*/
 	int     n_SS;									/* number of predicted stable solution phases 								*/
-
+	int 	n_mSS;
 	char  **ph;										/* phases names 															*/
 	double *ph_frac; 								/* phase fractions															*/
 	double *ph_frac_wt;								/* phase fractions in wt fraction											*/
+	double *ph_frac_vol;							/* phase fractions in wt fraction											*/
 	int    *ph_type; 								/* 0 -> Solution phases; 1 -> Pure phases									*/
 	int    *ph_id;									/* position in the related stb_SS_phase or stb_PP_phase structure arrays	*/
 	
-	stb_SS_phase *SS;
-	stb_PP_phase *PP;
+	stb_SS_phase 	*SS;
+	mstb_SS_phase 	*mSS;							/* metastable phases 														*/
+	stb_PP_phase 	*PP;
 
 } stb_system;
 

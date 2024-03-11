@@ -8286,7 +8286,7 @@ SS_ref P2X(					global_variable 	 gv,
 
 	}
 	else if(gv.EM_database == 4){
-		if 	(strcmp( name, "fluid") == 0 ){
+		if 	(strcmp( name, "fl") == 0 ){
 			p2x_um_fluid(&SS_ref_db, eps);	
 		}
 		else if (strcmp( name, "ol")  == 0){
@@ -8504,7 +8504,7 @@ SS_ref PC_function(		global_variable 	 gv,
 		}	
 	}
 	else if(gv.EM_database == 4){
-		if 	(strcmp( name, "fluid") == 0 ){
+		if 	(strcmp( name, "fl") == 0 ){
 			G0 = obj_um_fluid(SS_ref_db.n_xeos, SS_ref_db.iguess, 	SS_ref_db.dfx, &SS_ref_db);
 		}
 		else if (strcmp( name, "ol")  == 0){
