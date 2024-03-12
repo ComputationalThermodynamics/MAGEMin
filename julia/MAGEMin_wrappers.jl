@@ -930,6 +930,7 @@ function show(io::IO, g::gmin_struct)
     for i=1:length(g.ph)
         println(io, "   $(lpad(g.ph[i],14," "))   $( round(g.ph_frac_wt[i], digits=5)) ")
     end
+    println(io, "     Stable phase | Fraction (vol fraction) ")
     for i=1:length(g.ph)
         println(io, "   $(lpad(g.ph[i],14," "))   $( round(g.ph_frac_vol[i], digits=5)) ")
     end
