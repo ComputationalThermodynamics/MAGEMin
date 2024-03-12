@@ -717,7 +717,7 @@ struct gmin_struct{T,I}
     Gamma       :: Vector{T}        # Gamma
     P_kbar      :: T               # Pressure in kbar
     T_C         :: T                  # Temperature in Celcius
-    X           :: T
+    X           :: Vector{T}
 
     # bulk rock composition:
     bulk        :: Vector{T}
@@ -775,7 +775,7 @@ struct gmin_struct{T,I}
     ph          :: Vector{String}       # Name of phase
 
     SS_vec      :: Vector{LibMAGEMin.SS_data}
-    mSS_vec      :: Vector{LibMAGEMin.mSS_data}
+    mSS_vec     :: Vector{LibMAGEMin.mSS_data}
     PP_vec      :: Vector{LibMAGEMin.PP_data}
 
     oxides      :: Vector{String}
@@ -816,7 +816,7 @@ function create_gmin_struct(DB, gv, time)
     Gamma    = unsafe_wrap(Vector{Cdouble},stb.gamma,gv.len_ox)
     P_kbar   = stb.P
     T_C      = stb.T-273.15
-    X        = stb.X
+    X        = [stb.X]
 
     # Bulk rock info (total, melt, solid, fluid)
     bulk     = unsafe_wrap(Vector{Cdouble},stb.bulk,   gv.len_ox)
