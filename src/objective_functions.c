@@ -4384,9 +4384,9 @@ double obj_mp_g(unsigned n, const double *x, double *grad, void *SS_ref_db){
     
     mu[0]          = R*T*creal(clog(cpow(sf[4], 2.0)*cpow(sf[0], 3.0))) + gb[0] + mu_Gex[0];
     mu[1]          = R*T*creal(clog(cpow(sf[4], 2.0)*cpow(sf[1], 3.0))) + gb[1] + mu_Gex[1];
-    mu[2]          = R*T*creal(clog(cpow(sf[4], 2.0)*cpow(sf[2], 3.0))) + gb[2] + mu_Gex[2];
+    mu[2]          = R*T*creal(clog(cpow(sf[4], 2.0)*cpow(sf[2], 3.0) + d_em[2])) + gb[2] + mu_Gex[2];
     mu[3]          = R*T*creal(clog(cpow(sf[4], 2.0)*cpow(sf[3], 3.0))) + gb[3] + mu_Gex[3];
-    mu[4]          = R*T*creal(clog(cpow(sf[5], 2.0)*cpow(sf[0], 3.0)+ d_em[4])) + gb[4] + mu_Gex[4];
+    mu[4]          = R*T*creal(clog(cpow(sf[5], 2.0)*cpow(sf[0], 3.0) + d_em[4])) + gb[4] + mu_Gex[4];
     
 
 	d->sum_apep = 0.0;

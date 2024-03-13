@@ -3081,6 +3081,13 @@ SS_ref G_SS_mp_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
 		SS_ref_db.bounds_ref[3][1] = 0.0;	
 	}
+
+	if (z_b.bulk_rock[9] == 0.){ 					
+		SS_ref_db.z_em[2]          = 0.0;
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0; 
+		SS_ref_db.bounds_ref[2][1] = 0.0;	
+	}
     return SS_ref_db;
 }
 
@@ -3249,7 +3256,6 @@ SS_ref G_SS_mp_ilmm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = -1.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
-
 
 
 	if (z_b.bulk_rock[8] == 0.){ 					
