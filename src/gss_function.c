@@ -2356,8 +2356,9 @@ SS_ref G_SS_mp_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     
 	if (z_b.bulk_rock[10] == 0.){ 					
 		SS_ref_db.z_em[7]          = 0.0;
-		SS_ref_db.bounds_ref[6][0] = eps; 
-		SS_ref_db.bounds_ref[6][1] = eps;	
+		SS_ref_db.d_em[7]          = 1.0;
+		SS_ref_db.bounds_ref[6][0] = 0.0; 
+		SS_ref_db.bounds_ref[6][1] = 0.0;	
 	}
 
     return SS_ref_db;
@@ -2503,13 +2504,27 @@ SS_ref G_SS_mp_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
     SS_ref_db.bounds_ref[5][0] = 0.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
-    
+
+ 	if (z_b.bulk_rock[7] == 0.){ 					
+		SS_ref_db.z_em[4]          = 0.0;
+        SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0; 
+		SS_ref_db.bounds_ref[4][1] = 0.0;	
+	}   
+
 	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
 		SS_ref_db.bounds_ref[3][1] = 0.0;	
 	}
+
+ 	if (z_b.bulk_rock[9] == 0.){ 					
+		SS_ref_db.z_em[6]          = 0.0;
+        SS_ref_db.d_em[6]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0; 
+		SS_ref_db.bounds_ref[1][1] = 0.0;	
+	}   
     return SS_ref_db;
 }
 
@@ -2595,6 +2610,13 @@ SS_ref G_SS_mp_cd_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     
+	if (z_b.bulk_rock[9] == 0.){ 					
+		SS_ref_db.z_em[3]          = 0.0;
+        SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0; 
+		SS_ref_db.bounds_ref[1][1] = 0.0;	
+	}
+
     return SS_ref_db;
 }
 
@@ -2741,13 +2763,19 @@ SS_ref G_SS_mp_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.bounds_ref[4][0] = -1.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
     SS_ref_db.bounds_ref[5][0] = -1.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
     SS_ref_db.bounds_ref[6][0] = -1.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
+
 	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[6]          = 0.0;
         SS_ref_db.d_em[6]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
 	}
-
+	if (z_b.bulk_rock[9] == 0.){ 					
+		SS_ref_db.z_em[7]          = 0.0;
+        SS_ref_db.d_em[7]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0; 
+		SS_ref_db.bounds_ref[3][1] = 0.0;	
+	}
     /* this lists the index of the order variables */
     // SS_ref_db.orderVar      = 1;
     // SS_ref_db.idOrderVar[3] = -1.0;
@@ -2845,11 +2873,19 @@ SS_ref G_SS_mp_ctd_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
+
 	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
+	}
+
+	if (z_b.bulk_rock[9] == 0.){ 					
+		SS_ref_db.z_em[2]          = 0.0;
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0; 
+		SS_ref_db.bounds_ref[1][1] = 0.0;	
 	}
     return SS_ref_db;
 }
@@ -3108,6 +3144,12 @@ SS_ref G_SS_mp_ilm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = -0.99+eps;  SS_ref_db.bounds_ref[1][1] = 0.99-eps;
     
+	if (z_b.bulk_rock[8] == 0.){ 					
+		SS_ref_db.z_em[2]          = 0.0;
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 1.0; 
+		SS_ref_db.bounds_ref[1][1] = 1.0;	
+	}
 
     /* this lists the index of the order variables */
     SS_ref_db.orderVar      = 1;
@@ -3207,6 +3249,9 @@ SS_ref G_SS_mp_ilmm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = -1.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
+
+
+
 	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
@@ -3214,6 +3259,12 @@ SS_ref G_SS_mp_ilmm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
 		SS_ref_db.bounds_ref[0][1] = 1.0;	
 	}
 
+	if (z_b.bulk_rock[9] == 0.){ 					
+		SS_ref_db.z_em[4]          = 0.0;
+        SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0; 
+		SS_ref_db.bounds_ref[2][1] = 0.0;	
+	}
 
     /* this lists the index of the order variables */
     SS_ref_db.orderVar      = 1;
@@ -3351,6 +3402,7 @@ SS_ref G_SS_mp_ma_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
+
 	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
@@ -3418,6 +3470,13 @@ SS_ref G_SS_mp_mt_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+
+	if (z_b.bulk_rock[7] == 0.){ 					
+		SS_ref_db.z_em[2]          = 0.0;
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 1.0; 
+		SS_ref_db.bounds_ref[0][1] = 1.0;	
+	}
 
 	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[0]          = 0.0;
@@ -3562,6 +3621,7 @@ SS_ref G_SS_mp_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
+
 	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
@@ -3635,7 +3695,7 @@ SS_ref G_SS_mp_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"fs", 
     										"equilibrium"	);
     
-    em_data mgts_eq 		= get_em_data(		EM_database, 
+    em_data mgts_eq 	= get_em_data(		EM_database, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3643,7 +3703,7 @@ SS_ref G_SS_mp_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"mgts", 
     										"equilibrium"	);
     
-    em_data andr_eq 		= get_em_data(		EM_database, 
+    em_data andr_eq 	= get_em_data(		EM_database, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3718,6 +3778,12 @@ SS_ref G_SS_mp_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
 		SS_ref_db.bounds_ref[3][1] = 0.0;	
 	}
+ 	if (z_b.bulk_rock[9] == 0.){ 					
+		SS_ref_db.z_em[5]          = 0.0;
+        SS_ref_db.d_em[5]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0; 
+		SS_ref_db.bounds_ref[1][1] = 0.0;	
+	}   
     return SS_ref_db;
 }
 
@@ -3892,6 +3958,7 @@ SS_ref G_SS_mp_sa_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = -1.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
+
 	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
@@ -3983,12 +4050,19 @@ SS_ref G_SS_mp_sp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					
-		SS_ref_db.z_em[2]          = 0.0;
-        SS_ref_db.d_em[2]          = 1.0;
-		SS_ref_db.bounds_ref[1][0] = 0.0; 
-		SS_ref_db.bounds_ref[1][1] = 0.0;	
+	if (z_b.bulk_rock[7] == 0.){ 					
+		SS_ref_db.z_em[3]          = 0.0;
+        SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0; 
+		SS_ref_db.bounds_ref[2][1] = 0.0;	
 	}
+
+	// if (z_b.bulk_rock[8] == 0.){ 					
+	// 	SS_ref_db.z_em[2]          = 0.0;
+    //     SS_ref_db.d_em[2]          = 1.0;
+	// 	SS_ref_db.bounds_ref[1][0] = 0.0; 
+	// 	SS_ref_db.bounds_ref[1][1] = 0.0;	
+	// }
     return SS_ref_db;
 }
 
@@ -4105,11 +4179,24 @@ SS_ref G_SS_mp_st_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
-	if (z_b.bulk_rock[8] == 0.){ 					
+
+  	if (z_b.bulk_rock[7] == 0.){ 					
+		SS_ref_db.z_em[4]          = 0.0;
+        SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0; 
+		SS_ref_db.bounds_ref[3][1] = 0.0;	
+	}  
+  	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
+	}  
+	if (z_b.bulk_rock[9] == 0.){ 					
+		SS_ref_db.z_em[2]          = 0.0;
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0; 
+		SS_ref_db.bounds_ref[1][1] = 0.0;	
 	}
     return SS_ref_db;
 }
@@ -7736,6 +7823,9 @@ SS_ref G_SS_mp_EM_function(		global_variable 	 gv,
 			}
 			SS_ref_db  = G_SS_mp_ctd_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	    }
 		else if (strcmp( name, "sp") == 0){
+			if (z_b.bulk_rock[gv.O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
 			SS_ref_db  = G_SS_mp_sp_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	    }
 		else if (strcmp( name, "ilm") == 0){
 			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
@@ -7748,6 +7838,9 @@ SS_ref G_SS_mp_EM_function(		global_variable 	 gv,
 			}
 			SS_ref_db  = G_SS_mp_ilmm_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);    }
 		else if (strcmp( name, "mt") == 0){
+            if (z_b.bulk_rock[gv.TiO2_id] == 0. && z_b.bulk_rock[gv.MnO_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
 			SS_ref_db  = G_SS_mp_mt_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	    }
 		else if (strcmp( name, "aq17") == 0){
 			SS_ref_db  = G_SS_aq17_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	    }

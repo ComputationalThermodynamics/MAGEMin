@@ -683,6 +683,7 @@ typedef struct stb_systems {
 
 	double *gamma;
 	double  G;
+	double  M_sys;
 	double  rho;
 	double  fO2;
 	double  dQFM;

@@ -1061,6 +1061,7 @@ struct stb_systems
     bulk_wt::Ptr{Cdouble}
     gamma::Ptr{Cdouble}
     G::Cdouble
+    M_sys::Cdouble
     rho::Cdouble
     fO2::Cdouble
     dQFM::Cdouble

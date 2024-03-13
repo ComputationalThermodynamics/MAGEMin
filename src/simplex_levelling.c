@@ -1226,10 +1226,10 @@ void run_simplex_pseudocompounds(		bulk_info 	 		z_b,
 	clock_t t = clock();
 
 	d->swp = 1;
-	while (d->swp == 1){					/** as long as a phase can be added to the guessed assemblage, go on */
+	while (d->swp == 1 && k < 32){					/** as long as a phase can be added to the guessed assemblage, go on */
 		k 		   += 1;
-		d->swp     = 0;
-		t 			= clock(); 
+		d->swp      = 0;
+		t 			= clock();
 		swap_pure_endmembers(				z_b,
 											splx_data,
 											gv,
@@ -1260,6 +1260,49 @@ void run_simplex_pseudocompounds(		bulk_info 	 		z_b,
 }
 
 
+/**
+  function to run simplex linear programming with pseudocompounds only
+*/	
+void run_simplex_pseudocompounds_IG(	bulk_info 	 		z_b,
+										simplex_data 		*splx_data,
+										global_variable 	 gv,
+										
+										PP_ref 				*PP_ref_db,
+										SS_ref 				*SS_ref_db
+){
+	simplex_data *d  = (simplex_data *) splx_data;
+
+	int     k = 0;
+	clock_t t = clock();
+
+	d->swp = 1;
+	while (d->swp == 1 && k < 32){					/** as long as a phase can be added to the guessed assemblage, go on */
+		k 		   += 1;
+		d->swp      = 0;
+		t 			= clock();
+
+		swap_pure_phases(					z_b,
+											splx_data,
+											gv,
+											PP_ref_db,
+											SS_ref_db	);	
+							
+		swap_pseudocompounds(				z_b,
+											splx_data,
+											gv,
+											PP_ref_db,
+											SS_ref_db	);		
+		t 			= clock() - t; 
+		if (gv.verbose == 1){
+			double time_taken 	= ((double)t)/CLOCKS_PER_SEC;
+			printf("    iteration %4d: %+10f [ms]\n",k, time_taken*1000.0);	
+		}		
+	}
+	if (gv.verbose == 1){
+		printf("    (# iterations %d)",k);	
+	}
+
+}
 
 /**
   function to run simplex linear programming with pseudocompounds
@@ -1297,51 +1340,10 @@ void run_initial_guess_levelling(		bulk_info 	 		 z_b,
 	*/
 	clock_t t; 
 	double time_taken;
-	// t = clock();
-
-	// /** generate the pseudocompounds -> stored in the SS_ref_db structure */
-	// if (gv.verbose == 1){ printf(" Generate pseudocompounds:\n"); }
-	
-	// PC_ref 			SS_pc_xeos[gv.len_ss];
-
-
-	// if (gv.EM_database == 0){
-	// 	for (iss = 0; iss < gv.len_ss; iss++){
-	// 		SS_mp_pc_init_function(			SS_pc_xeos, 
-	// 										iss,
-	// 										gv.SS_list[iss]				);
-	// 	}
-	// }
-	// if (gv.EM_database == 1){
-	// 	for (iss = 0; iss < gv.len_ss; iss++){
-	// 		SS_mb_pc_init_function(			SS_pc_xeos, 
-	// 										iss,
-	// 										gv.SS_list[iss]				);
-	// 	}
-	// }
-	// else if (gv.EM_database == 2){
-	// 	for (iss = 0; iss < gv.len_ss; iss++){
-	// 		SS_ig_pc_init_function(			SS_pc_xeos, 
-	// 										iss,
-	// 										gv.SS_list[iss]				);
-	// 	}
-	// }
-	// else if (gv.EM_database == 4){
-	// 	for (iss = 0; iss < gv.len_ss; iss++){
-	// 		SS_um_pc_init_function(			SS_pc_xeos, 
-	// 										iss,
-	// 										gv.SS_list[iss]				);
-	// 	}
-	// }
-
-
-	// t = clock() - t; 
-	// time_taken  = ((double)t)/CLOCKS_PER_SEC; 
-	// if (gv.verbose == 1){ printf("\n [time to generate PC time (ms) %.8f]\n",time_taken*1000);	}
 	t = clock();
 	
 	/** run linear programming with simplex approach */
-	run_simplex_pseudocompounds(		z_b,
+	run_simplex_pseudocompounds_IG(		z_b,
 										splx_data,
 										gv,
 										PP_ref_db,
@@ -1784,7 +1786,7 @@ global_variable Initial_guess(	bulk_info 	z_b,
 ){
 
 	if (gv.verbose == 1){
-		printf("\nLevelling (endmembers & solution phase)\n");
+		printf("\nIG: compute Gamma and phase fractions\n");
 		printf("════════════════════════════════════════\n");
 	}
 
