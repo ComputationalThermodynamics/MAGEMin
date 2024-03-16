@@ -68,6 +68,7 @@ csd_phase_set CP_INIT_function(csd_phase_set cp, global_variable gv){
 	cp.xeos   		= malloc (n  * sizeof(double) 		);
 	cp.xeos_0   	= malloc (n  * sizeof(double) 		);
 	cp.xeos_1   	= malloc (n  * sizeof(double) 		);
+	cp.xeos_r   	= malloc (n  * sizeof(double) 		);
 	cp.delta_mu		= malloc (n  * sizeof(double) 		);
 	cp.dfx   		= malloc (n  * sizeof(double) 		);
 	cp.mu    		= malloc (n  * sizeof(double) 		);

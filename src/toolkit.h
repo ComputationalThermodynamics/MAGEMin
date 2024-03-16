@@ -30,6 +30,7 @@ int 	get_active_em(double *array, int n);
 int 	EndsWithTail(char *name, char* tail);	
 int    	RootBracketed(double x1,double x2);
 
+double  rnd(double a);
 double  SUPCRT_to_HSC(double *ElH, double *comp, int size);
 double  HSC_to_SUPCRT(double *ElH, double *comp, int size);
 double* norm_array(double *array, int size);

@@ -112,6 +112,11 @@ void print_help(	global_variable gv	){
 
 }
 
+/* generate a random double between 0 and a*/
+double rnd(double a){
+ 	double b = ((double)rand()/(double)(RAND_MAX)) * a;
+	return a;
+}
 
 
 double SUPCRT_to_HSC(double *ElH, double *comp, int size){

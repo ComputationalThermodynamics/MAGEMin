@@ -555,6 +555,7 @@ typedef struct csd_phase_sets {
 	double *xeos;
 	double *xeos_0;
 	double *xeos_1;
+	double *xeos_r;
 
 	double *dfx;
 	double *mu;

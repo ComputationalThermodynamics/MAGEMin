@@ -1604,6 +1604,7 @@ void reset_cp(						global_variable 	 gv,
 			cp[i].xeos[ii]      = 0.0;
 			cp[i].xeos_0[ii]    = 0.0;
 			cp[i].xeos_1[ii]    = 0.0;
+			cp[i].xeos_r[ii]    = 0.0;
 			cp[i].delta_mu[ii]  = 0.0;
 			cp[i].dfx[ii]       = 0.0;
 			cp[i].mu[ii]        = 0.0;
