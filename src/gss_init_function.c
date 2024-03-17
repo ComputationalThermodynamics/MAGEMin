@@ -1358,7 +1358,7 @@ SS_ref G_SS_init_EM_function(		int			 		 ph_id,
 	SS_ref_db.iguess  		= malloc (n_xeos   	  	* sizeof (double) );
 	SS_ref_db.mguess  		= malloc (n_xeos   	  	* sizeof (double) );
 	SS_ref_db.idOrderVar  	= malloc (n_xeos   	  	* sizeof (double) );
-    
+
 	SS_ref_db.p       		= malloc (n_em       	* sizeof (double) ); 
 	SS_ref_db.ElShearMod    = malloc (n_em       	* sizeof (double) ); 
 	SS_ref_db.ape      		= malloc (n_em       	* sizeof (double) ); 

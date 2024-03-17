@@ -219,7 +219,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.launch_PGE 		= 0;
 	gv.n_pc 			= 8192;
 	gv.n_Ppc			= 15000;
-	gv.max_LP_ite 		= 128;
+	gv.max_LP_ite 		= 256;
 	gv.save_Ppc_val     = 0.0; 					/** During PGE iterations, if the driving force is < save_Ppc_val, then the 
 													pseudocompound is added to the Ppc list 										*/
 
@@ -569,7 +569,6 @@ global_variable global_variable_init( 	global_variable  	 gv,
 			gv.PP_list[i] 	= malloc(20 * sizeof(char));
 			strcpy(gv.PP_list[i],db.PP[i]);
 		}
-
 		gv.SS_list 			= malloc ((gv.len_ss) * sizeof (char*)	);
 		gv.n_SS_PC     		= malloc ((gv.len_ss) * sizeof (int) 	);
 		gv.verifyPC  		= malloc ((gv.len_ss) * sizeof (int) 	);
@@ -733,6 +732,7 @@ global_variable global_variable_init( 	global_variable  	 gv,
 	/**
 	   ALLOCATE MEMORY OF OTHER GLOBAL VARIABLES
 	*/
+	gv.n_min     		= malloc ((gv.len_ss) * sizeof (int) 	);
 	gv.bulk_rock 		= malloc (gv.len_ox * sizeof(double)	);
 	gv.PGE_mass_norm  	= malloc (gv.it_f*2 * sizeof (double) 	); 
 	gv.Alg  			= malloc (gv.it_f*2 * sizeof (int) 		); 

@@ -1236,7 +1236,8 @@ function point_wise_minimization_with_guess(mSS_vec, P, T, gv, z_b, DB, splx_dat
         elseif mSS_vec[i].ph_type == "ss_em"
             ph_id   = mSS_vec[i].ph_id+1
             em_id   = mSS_vec[i].em_id+1
-            factor 	= z_b.fbc/SS_ref_db[ph_id].ape[em_id]
+            ape     = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].ape, SS_ref_db[ph_id].n_em)
+            factor 	= z_b.fbc/ape[em_id]
             ph      = mSS_vec[i].ph_name
 
             g0_A_jll[i] = SS_ref_db[ph_id].gbase[em_id]*factor;

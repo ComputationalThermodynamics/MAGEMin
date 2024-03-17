@@ -914,6 +914,7 @@ void FreeDatabases(		global_variable gv,
 		free(DB.cp[i].xeos);
 		free(DB.cp[i].xeos_0);
 		free(DB.cp[i].xeos_1);
+		free(DB.cp[i].xeos_r);
 		free(DB.cp[i].delta_mu);
 		free(DB.cp[i].dfx);
 		free(DB.cp[i].mu);
@@ -1065,6 +1066,7 @@ void FreeDatabases(		global_variable gv,
 	for (j = 0; j < n_ox; j++) {free(gv.A[j]);}			free(gv.A);
 
 	free(gv.n_SS_PC);
+	free(gv.n_min);
 	free(gv.verifyPC);
 	free(gv.SS_PC_stp);
 

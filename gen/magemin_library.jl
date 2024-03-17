@@ -544,6 +544,7 @@ mutable struct global_variables
     ipiv::Ptr{Cint}
     lwork::Cint
     work::Ptr{Cdouble}
+    n_min::Ptr{Cint}
     LP::Cint
     PGE::Cint
     mean_sum_xi::Cdouble
@@ -953,6 +954,7 @@ struct csd_phase_sets
     xeos::Ptr{Cdouble}
     xeos_0::Ptr{Cdouble}
     xeos_1::Ptr{Cdouble}
+    xeos_r::Ptr{Cdouble}
     dfx::Ptr{Cdouble}
     mu::Ptr{Cdouble}
     delta_mu::Ptr{Cdouble}
@@ -2275,6 +2277,10 @@ end
 
 function RootBracketed(x1, x2)
     ccall((:RootBracketed, libMAGEMin), Cint, (Cdouble, Cdouble), x1, x2)
+end
+
+function rnd(a)
+    ccall((:rnd, libMAGEMin), Cdouble, (Cdouble,), a)
 end
 
 function SUPCRT_to_HSC(ElH, comp, size)
