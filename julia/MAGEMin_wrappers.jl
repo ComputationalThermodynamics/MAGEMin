@@ -1238,7 +1238,7 @@ function point_wise_minimization_with_guess(mSS_vec, P, T, gv, z_b, DB, splx_dat
             em_id   = mSS_vec[i].em_id+1
             ape     = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].ape, SS_ref_db[ph_id].n_em)
             gbase   = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].gbase, SS_ref_db[ph_id].n_em)
-            comp_ptr= unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].gbase, SS_ref_db[ph_id].n_em)
+            comp_ptr= unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].Comp, SS_ref_db[ph_id].n_em)
             Comp    = unsafe_wrap(Vector{Cdouble},comp_ptr[em_id], gv.len_ox)
             factor 	= z_b.fbc/ape[em_id]
             ph      = mSS_vec[i].ph_name
