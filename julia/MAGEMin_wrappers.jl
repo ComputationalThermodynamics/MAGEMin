@@ -1186,7 +1186,6 @@ function point_wise_minimization_with_guess(mSS_vec, P, T, gv, z_b, DB, splx_dat
     gv, z_b, DB, splx_data = pwm_init(P, T, gv, z_b, DB, splx_data);
     gv.verbose = -1
 
-    pointer_from_objref(splx_data)
     ############################################################################
     # retrieve Pure Phases information
     PP_ref_db   = unsafe_wrap(Vector{LibMAGEMin.PP_ref},DB.PP_ref_db,gv.len_pp);

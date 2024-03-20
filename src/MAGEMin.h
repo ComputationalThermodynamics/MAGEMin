@@ -783,7 +783,17 @@ global_variable ComputeEquilibrium_Point(	int 				 EM_database,
 											PP_ref  			*PP_ref_db,
 											SS_ref  			*SS_ref_db,
 											csd_phase_set  		*cp					);
-											
+										
+global_variable ComputeLevellingOnly( 		int 				 EM_database,
+											io_data 			 input_data,
+											bulk_info 	 		 z_b,
+											global_variable 	 gv,
+
+											simplex_data	    *splx_data,
+											PP_ref  			*PP_ref_db,
+											SS_ref  			*SS_ref_db,
+											csd_phase_set  		*cp					);
+
 global_variable ComputePostProcessing(		bulk_info 	 		 z_b,
 											global_variable 	 gv,
 											PP_ref  			*PP_ref_db,

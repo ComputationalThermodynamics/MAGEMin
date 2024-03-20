@@ -200,8 +200,7 @@ void copy_to_cp(		int 				 i,
 /**
 	add minimized phase to LP PGE pseudocompound list 
 */
-void copy_to_Ppc(		int 				 i, 
-						int 				 pc_check,
+void copy_to_Ppc(		int 				 pc_check,
 						int 				 add,
 						int 				 ph_id,
 						global_variable 	 gv,
@@ -347,8 +346,7 @@ void ss_min_PGE(		global_variable 	 gv,
 														cp						);	
 
 				// here we need to save the pseudocompound to have an estimate of the LP Matrix										
-				copy_to_Ppc(							i, 
-														pc_check,
+				copy_to_Ppc(							pc_check,
 														0,
 														ph_id,
 														gv,
@@ -444,7 +442,7 @@ void compute_cst_dG_Ppc(	global_variable 	 gv,
 	int    	n_em 		= SS_ref_db[ph_id].n_em;
 
 	// printf(" df_raw: %+10f\n",SS_ref_db[ph_id].df);
-	for (i = 1; i < n_em; i++){
+	for (i = 0; i < n_em; i++){
 		for (k = 0; k < cp[cp_id].n_xeos; k++) {
 			cp[i].xeos_r[k] = (rnd(1.0) -0.5) / 100.0;
 		}
@@ -495,8 +493,7 @@ void compute_cst_dG_Ppc(	global_variable 	 gv,
 		}
 
 		if (SS_ref_db[ph_id].sf_ok == 1){
-			copy_to_Ppc(								i, 
-														0,
+			copy_to_Ppc(								0,
 														1,
 														ph_id,
 														gv,
@@ -632,8 +629,7 @@ void ss_min_LP(			global_variable 	 gv,
 						add minimized phase to LP PGE pseudocompound list 
 					*/
 					if (SS_ref_db[ph_id].sf_ok == 1){
-						copy_to_Ppc(							i, 
-																pc_check,
+						copy_to_Ppc(							pc_check,
 																add,
 																ph_id,
 																gv,
@@ -658,8 +654,7 @@ void ss_min_LP(			global_variable 	 gv,
 																		z_b, 
 																		gv.SS_list[ph_id]		);
 
-							copy_to_Ppc(								i, 
-																		0,
+							copy_to_Ppc(								0,
 																		1,
 																		ph_id,
 																		gv,
