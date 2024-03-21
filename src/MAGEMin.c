@@ -362,6 +362,61 @@ int runMAGEMin(			int    argc,
 	return gv;
 }
 
+
+
+/** 
+  Compute to levelling only (for testing)
+*/
+	global_variable ComputeLevellingOnly( 		int 				 EM_database,
+												io_data 			 input_data,
+												bulk_info 	 		 z_b,
+												global_variable 	 gv,
+
+												simplex_data	    *splx_data,
+												PP_ref  			*PP_ref_db,
+												SS_ref  			*SS_ref_db,
+												csd_phase_set  		*cp						){
+
+	/** pointer array to objective functions 								*/
+	obj_type 								SS_objective[gv.len_ss];	
+
+	if (EM_database == 0){				// metapelite database //
+		SS_mp_objective_init_function(			SS_objective,
+												gv							);
+	}
+	if (EM_database == 1){				// metabasite database //
+		SS_mb_objective_init_function(			SS_objective,
+												gv							);
+	}
+	else if (EM_database == 2){			// igneous database //
+		SS_ig_objective_init_function(			SS_objective,
+												gv							);
+	}
+	else if (EM_database == 4){			// ultramafic database //
+		SS_um_objective_init_function(			SS_objective,
+												gv							);
+	}
+	
+	/****************************************************************************************/
+	/**                                   LEVELLING                                        **/
+	/****************************************************************************************/	
+	// leveling mode = 0 is default, without using initial guess
+	// leveling mode = 1 uses initial guess
+
+	gv = Levelling(			z_b,										/** bulk rock informations 			*/
+							gv,											/** global variables (e.g. Gamma) 	*/
+
+							SS_objective,
+							splx_data,
+							PP_ref_db,									/** pure phase database 			*/
+							SS_ref_db,									/** solution phase database 		*/
+							cp							);
+
+	return gv;
+
+	}
+
+
 /** 
   Compute stable equilibrium at given Pressure, Temperature and bulk-rock composition
 */
@@ -914,6 +969,7 @@ void FreeDatabases(		global_variable gv,
 		free(DB.cp[i].xeos);
 		free(DB.cp[i].xeos_0);
 		free(DB.cp[i].xeos_1);
+		free(DB.cp[i].xeos_r);
 		free(DB.cp[i].delta_mu);
 		free(DB.cp[i].dfx);
 		free(DB.cp[i].mu);
@@ -1065,6 +1121,7 @@ void FreeDatabases(		global_variable gv,
 	for (j = 0; j < n_ox; j++) {free(gv.A[j]);}			free(gv.A);
 
 	free(gv.n_SS_PC);
+	free(gv.n_min);
 	free(gv.verifyPC);
 	free(gv.SS_PC_stp);
 

@@ -67,6 +67,8 @@ typedef struct global_variables {
 	double  *work;
 
 	/* GENERAL PARAMETERS */
+	
+	int		*n_min;
 	int 	 LP;				/** linear programming stage flag	*/
 	int 	 PGE;				/** PGE stage flag				 	*/
 	double   mean_sum_xi;
@@ -414,8 +416,8 @@ typedef struct SS_refs {
     double  *gb_lvl;
     double   factor;			/** normalizing factor 														*/
     double **bounds;			/** x-eos bounds 															*/
-    double **bounds_ref;		/** x-eos bounds 		
-														*/
+    double **bounds_ref;		/** x-eos bounds 															*/
+
 	double  *d_em;
     double  *z_em; 				/** 1d array to deactivate endmembers when bulk-rock = 0; this part is needed to calculat xi in PGE method */
     int      n_guess;			/** number of initial guesses used to solve for solvi (or local minimum) 	*/
@@ -555,6 +557,7 @@ typedef struct csd_phase_sets {
 	double *xeos;
 	double *xeos_0;
 	double *xeos_1;
+	double *xeos_r;
 
 	double *dfx;
 	double *mu;
@@ -683,6 +686,7 @@ typedef struct stb_systems {
 
 	double *gamma;
 	double  G;
+	double  M_sys;
 	double  rho;
 	double  fO2;
 	double  dQFM;
@@ -779,7 +783,17 @@ global_variable ComputeEquilibrium_Point(	int 				 EM_database,
 											PP_ref  			*PP_ref_db,
 											SS_ref  			*SS_ref_db,
 											csd_phase_set  		*cp					);
-											
+										
+global_variable ComputeLevellingOnly( 		int 				 EM_database,
+											io_data 			 input_data,
+											bulk_info 	 		 z_b,
+											global_variable 	 gv,
+
+											simplex_data	    *splx_data,
+											PP_ref  			*PP_ref_db,
+											SS_ref  			*SS_ref_db,
+											csd_phase_set  		*cp					);
+
 global_variable ComputePostProcessing(		bulk_info 	 		 z_b,
 											global_variable 	 gv,
 											PP_ref  			*PP_ref_db,

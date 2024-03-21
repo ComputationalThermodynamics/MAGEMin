@@ -180,7 +180,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.3.9 [10/03/2024]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.4.0 [21/03/2024]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");	
@@ -219,7 +219,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.launch_PGE 		= 0;
 	gv.n_pc 			= 8192;
 	gv.n_Ppc			= 15000;
-	gv.max_LP_ite 		= 128;
+	gv.max_LP_ite 		= 256;
 	gv.save_Ppc_val     = 0.0; 					/** During PGE iterations, if the driving force is < save_Ppc_val, then the 
 													pseudocompound is added to the Ppc list 										*/
 
@@ -569,7 +569,6 @@ global_variable global_variable_init( 	global_variable  	 gv,
 			gv.PP_list[i] 	= malloc(20 * sizeof(char));
 			strcpy(gv.PP_list[i],db.PP[i]);
 		}
-
 		gv.SS_list 			= malloc ((gv.len_ss) * sizeof (char*)	);
 		gv.n_SS_PC     		= malloc ((gv.len_ss) * sizeof (int) 	);
 		gv.verifyPC  		= malloc ((gv.len_ss) * sizeof (int) 	);
@@ -733,6 +732,7 @@ global_variable global_variable_init( 	global_variable  	 gv,
 	/**
 	   ALLOCATE MEMORY OF OTHER GLOBAL VARIABLES
 	*/
+	gv.n_min     		= malloc ((gv.len_ss) * sizeof (int) 	);
 	gv.bulk_rock 		= malloc (gv.len_ox * sizeof(double)	);
 	gv.PGE_mass_norm  	= malloc (gv.it_f*2 * sizeof (double) 	); 
 	gv.Alg  			= malloc (gv.it_f*2 * sizeof (int) 		); 
@@ -1428,7 +1428,7 @@ void reset_sp(						global_variable 	 gv,
 									stb_system  		*sp
 ){
 	sp[0].X  							= 1.0;
-	
+	sp[0].M_sys							= 0.0;
 	sp[0].aH2O	  	  					= 0.0;
 	sp[0].aSiO2	  						= 0.0;
 	sp[0].aTiO2  						= 0.0;
@@ -1604,6 +1604,7 @@ void reset_cp(						global_variable 	 gv,
 			cp[i].xeos[ii]      = 0.0;
 			cp[i].xeos_0[ii]    = 0.0;
 			cp[i].xeos_1[ii]    = 0.0;
+			cp[i].xeos_r[ii]    = 0.0;
 			cp[i].delta_mu[ii]  = 0.0;
 			cp[i].dfx[ii]       = 0.0;
 			cp[i].mu[ii]        = 0.0;

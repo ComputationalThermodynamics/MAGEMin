@@ -68,6 +68,7 @@ csd_phase_set CP_INIT_function(csd_phase_set cp, global_variable gv){
 	cp.xeos   		= malloc (n  * sizeof(double) 		);
 	cp.xeos_0   	= malloc (n  * sizeof(double) 		);
 	cp.xeos_1   	= malloc (n  * sizeof(double) 		);
+	cp.xeos_r   	= malloc (n  * sizeof(double) 		);
 	cp.delta_mu		= malloc (n  * sizeof(double) 		);
 	cp.dfx   		= malloc (n  * sizeof(double) 		);
 	cp.mu    		= malloc (n  * sizeof(double) 		);
@@ -1357,7 +1358,7 @@ SS_ref G_SS_init_EM_function(		int			 		 ph_id,
 	SS_ref_db.iguess  		= malloc (n_xeos   	  	* sizeof (double) );
 	SS_ref_db.mguess  		= malloc (n_xeos   	  	* sizeof (double) );
 	SS_ref_db.idOrderVar  	= malloc (n_xeos   	  	* sizeof (double) );
-    
+
 	SS_ref_db.p       		= malloc (n_em       	* sizeof (double) ); 
 	SS_ref_db.ElShearMod    = malloc (n_em       	* sizeof (double) ); 
 	SS_ref_db.ape      		= malloc (n_em       	* sizeof (double) ); 

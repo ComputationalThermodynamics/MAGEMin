@@ -139,7 +139,9 @@ void fill_output_struct(		global_variable 	 gv,
 	sp[0].X 			 		 = 1.0;
 	
 	sum_Molar_mass_bulk = 0.0;
+	sp[0].M_sys  		= 0.0;
 	for (i = 0; i < nox; i++){
+		sp[0].M_sys 			+= z_b.bulk_rock[i]*z_b.masspo[i];
 		sp[0].bulk[i] 	 		 = z_b.bulk_rock[i];
 		sp[0].gamma[i] 	 		 = gv.gam_tot[i];
 		sp[0].bulk_wt[i] 	 	 = z_b.bulk_rock[i]*z_b.masspo[i];
