@@ -2283,6 +2283,10 @@ function RootBracketed(x1, x2)
     ccall((:RootBracketed, libMAGEMin), Cint, (Cdouble, Cdouble), x1, x2)
 end
 
+function print_2D_double_array(nx, ny, array, title)
+    ccall((:print_2D_double_array, libMAGEMin), Cvoid, (Cdouble, Cdouble, Ptr{Ptr{Cdouble}}, Ptr{Cchar}), nx, ny, array, title)
+end
+
 function rnd(a)
     ccall((:rnd, libMAGEMin), Cdouble, (Cdouble,), a)
 end
