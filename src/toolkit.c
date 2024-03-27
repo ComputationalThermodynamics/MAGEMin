@@ -112,6 +112,20 @@ void print_help(	global_variable gv	){
 
 }
 
+
+void print_2D_double_array(double nx, double ny, double **array, char *title){
+	int i,j;
+	printf(" %s:\n",title);
+	for (i = 0; i < nx; i++){
+		for (j = 0; j < ny; j++){
+			printf(" %+10f",array[i][j]);
+		}
+		printf("\n");
+	}
+	printf("\n");
+
+}
+
 /* generate a random double between 0 and a*/
 double rnd(double a){
  	double b = ((double)rand()/(double)(RAND_MAX)) * a;

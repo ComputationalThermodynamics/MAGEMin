@@ -201,6 +201,7 @@ typedef struct global_variables {
 	double   remove_sum_xi;		/** sum xi value at which a phase can be removed */
 	int      ph_change;
 	double 	 min_df;
+	
 	/* LEAST SQUARE OPTIMIZATION */
 	double **A;					/** save stoechiometry matrix to pass to least square optimization */
 	double  *b;					/** save bulk rock to pass to least square optimization */
