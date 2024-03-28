@@ -322,7 +322,7 @@ int runMAGEMin(			int    argc,
 										cp				);
 
 
-	gv = compute_activites (			gv.EM_database,	
+	gv = compute_activities (			gv.EM_database,	
 										gv,
 										PP_ref_db,
 										z_b				);

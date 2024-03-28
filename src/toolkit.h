@@ -106,7 +106,7 @@ global_variable compute_phase_mol_fraction(	global_variable 	 gv,
 											SS_ref  			*SS_ref_db,
 											csd_phase_set  		*cp					);
 
-global_variable compute_activites(			int					 EM_database,	
+global_variable compute_activities(			int					 EM_database,	
 											global_variable 	 gv,
 											PP_ref  			*PP_ref_db,
 											bulk_info 			 z_b				);

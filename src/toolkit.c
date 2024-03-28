@@ -1474,7 +1474,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 }
 
 
-global_variable compute_activites(			int					 EM_database,	
+global_variable compute_activities(			int					 EM_database,	
 											global_variable 	 gv,
 											PP_ref  			*PP_ref_db,
 											bulk_info 			 z_b			){

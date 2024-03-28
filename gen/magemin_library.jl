@@ -2387,8 +2387,8 @@ function compute_phase_mol_fraction(gv, PP_ref_db, SS_ref_db, cp)
     ccall((:compute_phase_mol_fraction, libMAGEMin), global_variable, (global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, PP_ref_db, SS_ref_db, cp)
 end
 
-function compute_activites(EM_database, gv, PP_ref_db, z_b)
-    ccall((:compute_activites, libMAGEMin), global_variable, (Cint, global_variable, Ptr{PP_ref}, bulk_info), EM_database, gv, PP_ref_db, z_b)
+function compute_activities(EM_database, gv, PP_ref_db, z_b)
+    ccall((:compute_activities, libMAGEMin), global_variable, (Cint, global_variable, Ptr{PP_ref}, bulk_info), EM_database, gv, PP_ref_db, z_b)
 end
 
 function compute_density_volume_modulus(EM_database, z_b, gv, PP_ref_db, SS_ref_db, cp)

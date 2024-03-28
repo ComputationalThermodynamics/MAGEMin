@@ -655,7 +655,7 @@ end
 """
     out = point_wise_minimization(P::Number,T::Number, data::MAGEMin_Data)
 
-Performs a point-wise optimization for a given pressure `P` and temperature `T` foir the data specified in the MAGEMin database `MAGEMin_Data` (where also compoition is specified)
+Performs a point-wise optimization for a given pressure `P` and temperature `T` for the data specified in the MAGEMin database `MAGEMin_Data` (where also compoition is specified)
 """
 point_wise_minimization(P::Number,T::Number, gv, z_b, DB, splx_data; buffer_n::Float64 = 0.0, scp::Int64 = 0, W::Union{Nothing, W_Data} = nothing) = point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, scp, W)
 
