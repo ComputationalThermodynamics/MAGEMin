@@ -1118,7 +1118,7 @@ void FreeDatabases(		global_variable gv,
 	for (j = 0; j < ss; j++) {	free(gv.SS_list[j]);} 	free(gv.SS_list);
 	for (j = 0; j < 2; j++) {	free(gv.pdev[j]);}		free(gv.pdev);
 	for (j = 0; j < pp; j++) {	free(gv.pp_flags[j]);}	free(gv.pp_flags);
-	for (j = 0; j < n_ox*2; j++) {free(gv.A[j]);}			free(gv.A);
+	for (j = 0; j < n_ox; j++) {free(gv.A[j]);}			free(gv.A);
 
 	free(gv.n_SS_PC);
 	free(gv.n_min);
@@ -1156,7 +1156,7 @@ void FreeDatabases(		global_variable gv,
 	free(gv.dn_cp);
 	free(gv.dn_pp);
 	free(gv.b);
-
+	free(gv.tmp1);
 	/* ================ z_b ============= */
 	free(z_b.apo);
 	free(z_b.masspo);

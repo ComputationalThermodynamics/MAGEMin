@@ -1336,6 +1336,7 @@ global_variable LP_pc_merge(						bulk_info 			 z_b,
 	int nOcc;
 
 	double sum_n_vec = 0.0;
+	double factor_raw;
 
 	/* loops through active solution phase and store their information */
 	for (k = 0; k < gv.len_ss; k++){
@@ -1374,6 +1375,8 @@ global_variable LP_pc_merge(						bulk_info 			 z_b,
 							for (j = 0; j < n_xeos; j++){
 								gv.A[nOcc][j] = SS_ref_db[ph_id].iguess[j];
 							}
+							gv.b[nOcc] = d->n_vec[i];
+							gv.tmp1[nOcc] = SS_ref_db[ph_id].factor;
 
 							nOcc += 1;
 						}			
@@ -1383,6 +1386,8 @@ global_variable LP_pc_merge(						bulk_info 			 z_b,
 							for (j = 0; j < n_xeos; j++){
 								gv.A[nOcc][j]  = SS_ref_db[ph_id].xeos_Ppc[pc_id][j];
 							}
+							gv.b[nOcc] = d->n_vec[i];
+							gv.tmp1[nOcc] = SS_ref_db[ph_id].factor;
 
 							nOcc += 1;
 						}
@@ -1392,6 +1397,8 @@ global_variable LP_pc_merge(						bulk_info 			 z_b,
 							for (j = 0; j < n_xeos; j++){
 								gv.A[nOcc][j]  = SS_ref_db[ph_id].xeos_pc[pc_id][j];
 							}
+							gv.b[nOcc] = d->n_vec[i];
+							gv.tmp1[nOcc] = SS_ref_db[ph_id].factor;
 
 							nOcc += 1;
 						}
@@ -1401,20 +1408,66 @@ global_variable LP_pc_merge(						bulk_info 			 z_b,
 				}
 			}
 
+			// here we want to update n_vec
+			if (nOcc > 1){
+				// first reset arrays
+				for (j = 0; j < n_xeos; j++){
+					SS_ref_db[ph_id].iguess[j] = 0.0;
+				}
+
+				/* retrieve initial guess */
+				for (i = 0; i < nOcc; i++){
+					gv.b[i] /= sum_n_vec;
+					for (j = 0; j < n_xeos; j++){
+						SS_ref_db[ph_id].iguess[j] += gv.A[i][j]*gv.b[i];
+					}
+				}
+
+				/* retrieve normalization factor for correcting fraction vector */
+				SS_ref_db[ph_id] = PC_function(	gv,
+												SS_ref_db[ph_id], 
+												z_b,
+												gv.SS_list[ph_id] 		);
+
+				factor_raw = SS_ref_db[ph_id].factor;
+
+				/* correct pseudocompounds factors */
+				sum_n_vec = 0.0;
+				for (i = 0; i < nOcc; i++){
+					gv.tmp1[i] *= factor_raw;
+					gv.b[i]    *= gv.tmp1[i];
+					sum_n_vec  += gv.b[i];
+				}
+
+				/* normalized corrected pseudocompounds fractions */
+				for (i = 0; i < nOcc; i++){
+					gv.b[i] /= sum_n_vec;
+				}
+
+				/* retrieve corrected initial guess */
+				for (j = 0; j < n_xeos; j++){
+					SS_ref_db[ph_id].iguess[j] = 0.0;
+				}
+				for (i = 0; i < nOcc; i++){
+					for (j = 0; j < n_xeos; j++){
+						SS_ref_db[ph_id].iguess[j] += gv.A[i][j]*gv.b[i];
+					}
+				}
+
+			}
+			
+
+
+
 			if (gv.verbose == 1){
 				if (nOcc > 1){
 					printf("%s:\n",gv.SS_list[k]);
 					print_2D_double_array(nOcc, SS_ref_db[k].n_xeos, gv.A, "xeos composition");
+					print_1D_double_array(nOcc, gv.b, "normalized corrected phase fraction");
+					print_1D_double_array(n_xeos, SS_ref_db[ph_id].iguess, "corrected initial guess");
 				}
 			}
 
-			
-
-			//  d->sum_apep = 0.0;
-			// 	for (int i = 0; i < n_em; i++){
-			// 		d->sum_apep += d->ape[i]*d->p[i];
-			// 	}
-    		// d->factor = d->fbc/d->sum_apep;
 
 
 	
@@ -1671,13 +1724,13 @@ global_variable LP(		bulk_info 			z_b,
 										SS_ref_db			);
 
 
-		// gv = LP_pc_merge(				z_b,
-		// 								splx_data,
-		// 								gv,
+		gv = LP_pc_merge(				z_b,
+										splx_data,
+										gv,
 
-		// 								SS_objective,	
-		// 								PP_ref_db,
-		// 								SS_ref_db			);		
+										SS_objective,	
+										PP_ref_db,
+										SS_ref_db			);		
 
 
 

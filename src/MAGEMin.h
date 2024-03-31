@@ -205,6 +205,8 @@ typedef struct global_variables {
 	/* LEAST SQUARE OPTIMIZATION */
 	double **A;					/** save stoechiometry matrix to pass to least square optimization */
 	double  *b;					/** save bulk rock to pass to least square optimization */
+	double  *tmp1;				
+	
 	double  *mass_residual;		/** bulk rock residual */
 	double   BR_norm;			/** norm of bulk rock residual  */
 	
