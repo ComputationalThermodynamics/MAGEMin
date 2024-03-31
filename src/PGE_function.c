@@ -1338,7 +1338,7 @@ global_variable LP_pc_merge(						bulk_info 			 z_b,
 	double sum_n_vec = 0.0;
 	double factor_raw;
 
-	/* loops through active solution phase and store their information */
+	/* loops through active solution phases and store their information */
 	for (k = 0; k < gv.len_ss; k++){
 		if (SS_ref_db[k].ss_flags[0] == 1){
 
@@ -1444,15 +1444,18 @@ global_variable LP_pc_merge(						bulk_info 			 z_b,
 					gv.b[i] /= sum_n_vec;
 				}
 
-				/* retrieve corrected initial guess */
+				/* retrieve corrected initial guess (stored in tmp2) */
 				for (j = 0; j < n_xeos; j++){
-					SS_ref_db[ph_id].iguess[j] = 0.0;
+					gv.tmp2[j] = 0.0;
 				}
 				for (i = 0; i < nOcc; i++){
 					for (j = 0; j < n_xeos; j++){
-						SS_ref_db[ph_id].iguess[j] += gv.A[i][j]*gv.b[i];
+						gv.tmp2[j] += gv.A[i][j]*gv.b[i];
 					}
 				}
+
+
+				
 
 			}
 			
@@ -1464,7 +1467,7 @@ global_variable LP_pc_merge(						bulk_info 			 z_b,
 					printf("%s:\n",gv.SS_list[k]);
 					print_2D_double_array(nOcc, SS_ref_db[k].n_xeos, gv.A, "xeos composition");
 					print_1D_double_array(nOcc, gv.b, "normalized corrected phase fraction");
-					print_1D_double_array(n_xeos, SS_ref_db[ph_id].iguess, "corrected initial guess");
+					print_1D_double_array(n_xeos, gv.tmp2, "corrected initial guess");
 				}
 			}
 
