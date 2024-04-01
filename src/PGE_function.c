@@ -474,26 +474,6 @@ global_variable PGE_update_solution(	global_variable  	 gv,
 
 	gv.alpha	= alpha;
 
-	// gsys = 0.0;
-	// gref = 0.0;
-	// for (int i = 0; i < z_b.nzEl_val; i++){ gref += z_b.bulk_rock[i]*gv.gam_tot[z_b.nzEl_array[i]]; }
-
-	// for (int i = 0; i < z_b.nzEl_val; i++){ gsys += z_b.bulk_rock[i]*(gv.gam_tot[z_b.nzEl_array[i]] + gv.dGamma[i]); }
-	// beta = 1.0;
-	// if (gv.global_ite > 0){
-	// 	if (gsys > gref){
-	// 		beta = 0.9;
-	// 		grel = gsys;
-	// 		while (grel > (0.1 + gref)){
-	// 			beta *= 0.5;
-	// 			grel  = 0.0;
-	// 			for (int i = 0; i < z_b.nzEl_val; i++){ grel += z_b.bulk_rock[i]*(gv.gam_tot[z_b.nzEl_array[i]] + gv.dGamma[i]*beta); }
-	// 		}
-	// 		printf("gsys: %+10f relax: %+10f grel: %+10f\n",gsys,beta,grel);
-	// 	}
-	// }
-	// if (gv.alpha > beta){gv.alpha = beta;}
-
 	/* Update Gamma */
 	for (i = 0; i < z_b.nzEl_val; i++){
 		gv.delta_gam_tot[z_b.nzEl_array[i]]  = gv.dGamma[i]*gv.alpha;	
@@ -582,19 +562,19 @@ global_variable PGE_solver(		bulk_info 	 		 z_b,
 								cp,
 								nEntry				);
 
-	// if (gv.verbose == 1){
-	// 	int ix;
-	// 	int v,j;
-	// 	for (v = 0; v < nEntry; v++){
-	// 		/* CONSTRUCT LHS */
-	// 		double sum = 0.0;
-	// 		for (j = 0; j < nEntry; j++){
-	// 			ix = v*nEntry + j;
-	// 			printf("%.3f ",gv.A_PGE[ix]);;
-	// 		}
-	// 		printf(" | %.3f\n",gv.b_PGE[v]);	
-	// 	}
-	// }
+	if (gv.verbose == 1){
+		int ix;
+		int v,j;
+		for (v = 0; v < nEntry; v++){
+			/* CONSTRUCT LHS */
+			double sum = 0.0;
+			for (j = 0; j < nEntry; j++){
+				ix = v*nEntry + j;
+				printf("%.3f ",gv.A_PGE[ix]);;
+			}
+			printf(" | %.3f\n",gv.b_PGE[v]);	
+		}
+	}
 
 	/**
 		save RHS vector 
@@ -611,7 +591,7 @@ global_variable PGE_solver(		bulk_info 	 		 z_b,
 		dgetrf(&nEntry, &nEntry, gv.A_PGE, &nEntry, gv.ipiv, &info);
 
 		// Solution (with transpose!)
-		char T = 'T';
+		char T = "T";
 		dgetrs(						&T,
 									&nEntry, 
 									&nrhs, 
@@ -646,86 +626,6 @@ global_variable PGE_solver(		bulk_info 	 		 z_b,
   Partitioning Gibbs Energy function 
 */
 global_variable PGE_inner_loop(		bulk_info 			 z_b,
-									simplex_data	    *splx_data,
-									global_variable  	 gv,
-
-									PP_ref 				*PP_ref_db,
-									SS_ref 				*SS_ref_db,
-									csd_phase_set  		*cp
-){
-	clock_t u; 
-	int 	PGEi   			= 0;
-	double 	fc_norm_t0 		= 0.0;
-	double 	delta_fc_norm 	= 1.0;
-
-	/* transform to while if delta_phase fraction < val */
-	while (PGEi < gv.inner_PGE_ite && delta_fc_norm > 1e-10){
-		u = clock();
-
-		gv =	PGE_solver(					z_b,								/** bulk rock constraint 				*/ 
-											gv,									/** global variables (e.g. Gamma) 		*/
-
-											PP_ref_db,							/** pure phase database 				*/ 
-											SS_ref_db,							/** solution phase database 			*/
-											cp							); 
-				
-								
-		delta_fc_norm 	= fabs(gv.fc_norm_t1 - fc_norm_t0);
-		fc_norm_t0 		= gv.fc_norm_t1;
-							
-		/**
-			calculate delta_G of pure phases 
-		*/
-		pp_min_function(					gv,
-											z_b,
-											PP_ref_db				);
-										
-										
-							
-		/* Update mu of solution phase  */
-		gv =	PGE_update_mu(				z_b,								/** bulk rock constraint 				*/ 
-											gv,									/** global variables (e.g. Gamma) 		*/
-
-											PP_ref_db,							/** pure phase database 				*/ 
-											SS_ref_db,							/** solution phase database 			*/
-											cp						); 
-
-		gv =	PGE_update_xi(				z_b,								/** bulk rock constraint 				*/ 
-											gv,									/** global variables (e.g. Gamma) 		*/
-
-											PP_ref_db,							/** pure phase database 				*/ 
-											SS_ref_db,							/** solution phase database 			*/
-											cp						);  
-
-		gv = 	phase_update_function(		z_b,								/** bulk rock constraint 				*/
-											gv,									/** global variables (e.g. Gamma) 		*/
-
-											PP_ref_db,							/** pure phase database 				*/
-											SS_ref_db,							/** solution phase database 			*/ 
-											cp						); 
-
-		/** 
-			Update mass constraint residual
-		*/
-		gv = PGE_residual_update(			z_b,								/** bulk rock constraint 				*/ 
-											gv,									/** global variables (e.g. Gamma) 		*/
-
-											PP_ref_db,							/** pure phase database 				*/ 
-											SS_ref_db,							/** solution phase database 			*/
-											cp						);  
-		
-		u = clock() - u; 
-		gv.inner_PGE_ite_time =(((double)u)/CLOCKS_PER_SEC*1000);
-		PGEi += 1;
-	} 
-		
-   return gv;
-};
-
-/** 
-  Partitioning Gibbs Energy function 
-*/
-global_variable PGE_inner_loop2(	bulk_info 			 z_b,
 									simplex_data	    *splx_data,
 									global_variable  	 gv,
 
@@ -1733,13 +1633,13 @@ global_variable LP(		bulk_info 			z_b,
 										SS_ref_db			);
 
 
-		gv = LP_pc_composite(			z_b,
-										splx_data,
-										gv,
+		// gv = LP_pc_composite(			z_b,
+		// 								splx_data,
+		// 								gv,
 
-										SS_objective,	
-										PP_ref_db,
-										SS_ref_db			);		
+		// 								SS_objective,	
+		// 								PP_ref_db,
+		// 								SS_ref_db			);		
 
 
 

@@ -814,7 +814,7 @@ global_variable global_variable_init( 	global_variable  	 gv,
 	gv.b 	= malloc (gv.len_ox * sizeof(double));	
 	gv.tmp1 = malloc (gv.len_ox * sizeof(double));	
 	gv.tmp2 = malloc (gv.len_ox * sizeof(double));	
-
+	gv.n_ss_array = malloc (gv.len_ss* sizeof(double));	
 	/** 
 		allocate oxides informations 						
 	*/	
@@ -1415,6 +1415,7 @@ global_variable reset_gv(					global_variable 	 gv,
 
     for (i = 0; i < gv.len_ss; i++){	
         gv.n_solvi[i] = 0;
+		gv.n_ss_array[i] = 0.0;
     }
 
 	for (i = 0; i < (gv.len_ox); i++){ 

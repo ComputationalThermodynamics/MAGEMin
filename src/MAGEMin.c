@@ -555,40 +555,29 @@ int runMAGEMin(			int    argc,
 		}
 	}
 	else if (gv.solver == 2){
-		int  i, ph_id;
-		int  n_ss_array[gv.len_ss];
-		for (i = 0; i < gv.len_ss; i++){
-			n_ss_array[i] = 0;
+		for (int i = 0; i < gv.len_ss; i++){
+			gv.n_ss_array[i] = 0;
 		}
 
 		double 	ig_liq = 0.0;
 		int 	n_liq  = 0;
 		int 	n_ss   = 0;
 
-		for (i = 0; i < gv.len_cp; i++){ 
+		for (int i = 0; i < gv.len_cp; i++){ 
 			if (cp[i].ss_flags[1] == 1){
-				ph_id = cp[i].id;
-				n_ss_array[ph_id] += 1;
-				if (strcmp( gv.SS_list[ph_id], "liq")  == 0){
+				gv.n_ss_array[cp[i].id] += 1;
+				if (strcmp( gv.SS_list[cp[i].id], "liq")  == 0){
 					ig_liq += cp[i].ss_n;
 					n_liq  += 1;
 				}
 			}
 		}
 
-		for (i = 0; i < gv.len_ss; i++){
-			if (n_ss_array[i] > n_ss){
-				n_ss = n_ss_array[i];
+		for (int i = 0; i < gv.len_ss; i++){
+			if (gv.n_ss_array[i] > n_ss){
+				n_ss = gv.n_ss_array[i];
 			}
 		}
-
-		gv.div 		= 0;
-		gv.status 	= 0;
-
-		/* initialize legacy solver using results of levelling phase */
-		for (i = 0; i < gv.len_ox; i++){
-			gv.gam_tot[i] = gv.gam_tot_0[i];
-		}	
 
 		if (ig_liq > 0.25 || n_liq > 2 || n_ss > 6){
 			gv 		= PGE(			z_b,									/** bulk rock constraint 			*/ 
@@ -622,6 +611,15 @@ int runMAGEMin(			int    argc,
 										cp						);
 			}
 			else{	// here we compute the LP initial guess
+
+				gv.div 		= 0;
+				gv.status 	= 0;
+
+				/* initialize legacy solver using results of levelling phase */
+				for (int i = 0; i < gv.len_ox; i++){
+					gv.gam_tot[i] = gv.gam_tot_0[i];
+				}	
+
 				gv = run_LP_ig(					z_b,
 												splx_data,
 												gv,
@@ -631,6 +629,14 @@ int runMAGEMin(			int    argc,
 			}
 		}
 		else{
+
+			gv.div 		= 0;
+			gv.status 	= 0;
+
+			/* initialize legacy solver using results of levelling phase */
+			for (int i = 0; i < gv.len_ox; i++){
+				gv.gam_tot[i] = gv.gam_tot_0[i];
+			}	
 
 			gv = LP(				z_b,									/** bulk rock informations 			*/
 									gv,										/** global variables (e.g. Gamma) 	*/
@@ -1157,6 +1163,7 @@ void FreeDatabases(		global_variable gv,
 	free(gv.b);
 	free(gv.tmp1);
 	free(gv.tmp2);
+	free(gv.n_ss_array);
 	/* ================ z_b ============= */
 	free(z_b.apo);
 	free(z_b.masspo);

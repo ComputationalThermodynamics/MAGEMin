@@ -642,6 +642,7 @@ mutable struct global_variables
     G_system_mu::Cdouble
     br_max_tol::Cdouble
     alpha::Cdouble
+    n_ss_array::Ptr{Cint}
     ph_change::Cint
     merge_value::Cdouble
     re_in_n::Cdouble

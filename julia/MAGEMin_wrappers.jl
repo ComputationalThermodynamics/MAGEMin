@@ -303,23 +303,6 @@ function multi_point_minimization(P           ::  T2,
     # initialize vectors
     Out_PT = Vector{gmin_struct{Float64, Int64}}(undef, length(P))
 
-    # Currently, there seem to be some type instabilities or something else so that
-    # some compilation happens in the threaded loop below. This interferes badly
-    # in some weird way with (libsc, p4est, t8code) - in particular on Linux where
-    # we get segfaults. To avoid this, we force serial compilation by calling MAGEMin
-    # once before the loop.
-    # let id      = 1
-    #     gv          = MAGEMin_db.gv[id]
-    #     z_b         = MAGEMin_db.z_b[id]
-    #     DB          = MAGEMin_db.DB[id]
-    #     splx_data   = MAGEMin_db.splx_data[id]
-    #     if isnothing(B)
-    #         point_wise_minimization(P[1], T[1], gv, z_b, DB, splx_data, sys_in)
-    #     else
-    #         point_wise_minimization(P[1], T[1], gv, z_b, DB, splx_data, sys_in; buffer_n = B[1])
-    #     end
-    # end
-
     # main loop
     if progressbar
         progr = Progress(length(P), desc="Computing $(length(P)) points...") # progress meter
@@ -414,8 +397,8 @@ end
 
 function define_bulk_rock(gv, bulk_in, bulk_in_ox, sys_in,db)
 
-    bulk_rock, ox   = convertBulk4MAGEMin(bulk_in,bulk_in_ox,sys_in,db)    # conversion changes the system unit to mol
-    gv.bulk_rock    = pointer(bulk_rock)                                    # copy the bulk-rock
+    bulk_rock, ox   = convertBulk4MAGEMin(bulk_in,bulk_in_ox,sys_in,db)     # conversion changes the system unit to mol
+    unsafe_copyto!(gv.bulk_rock, pointer(bulk_rock) , gv.len_ox)            # copy the bulk-rock
 
     LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
 

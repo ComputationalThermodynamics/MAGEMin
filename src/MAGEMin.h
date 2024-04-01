@@ -192,6 +192,7 @@ typedef struct global_variables {
 	double   alpha;				/** active under-relaxing factor of PGE, used to check if a phase can be reintroduced */
 	
 	/* PHASE UPDATE */ 
+	int     *n_ss_array;
 	int      ph_change;
 	double   merge_value;		/** norm distance between two instance of a solution phase under which the instances are merged into 1 */
 	double   re_in_n;			/** fraction of phase when being reintroduce.  */
