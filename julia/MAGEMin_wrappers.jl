@@ -640,12 +640,14 @@ function point_wise_minimization(P::Float64,T::Float64, gv, z_b, DB, splx_data; 
 
     if (scp == 1)
         mSS_vec     = deepcopy(out.mSS_vec)
-        dT          = 2.5;
+        dT          = 2.0;
         W           = point_wise_minimization_with_guess(mSS_vec, P, T-dT, gv, z_b, DB, splx_data)
         E           = point_wise_minimization_with_guess(mSS_vec, P, T+dT, gv, z_b, DB, splx_data)
         hcp         = -(T+273.15)*(E + W - 2.0*out.G_system)/(dT*dT);
         s_cp        = hcp/out.M_sys*1e6;
         out.s_cp   .= s_cp
+
+        # print("E: $E W: $W G: $(out.G_system)\n")
     end
 
     # LibMAGEMin.FreeDatabases(gv, DB, z_b);

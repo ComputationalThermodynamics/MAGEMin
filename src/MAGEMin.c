@@ -1022,11 +1022,9 @@ void FreeDatabases(		global_variable gv,
 		free(DB.SS_ref_db[i].ElEntropy);
 		free(DB.SS_ref_db[i].xi_em);
 		free(DB.SS_ref_db[i].xeos);
-		free(DB.SS_ref_db[i].xeos_sf_ok);
 
 		free(DB.SS_ref_db[i].ub);
 		free(DB.SS_ref_db[i].lb);
-		free(DB.SS_ref_db[i].tol_sf);
 
 		sym    = DB.SS_ref_db[i].symmetry;
 		if (sym == 0){
@@ -1119,6 +1117,7 @@ void FreeDatabases(		global_variable gv,
 	for (j = 0; j < 2; j++) {	free(gv.pdev[j]);}		free(gv.pdev);
 	for (j = 0; j < pp; j++) {	free(gv.pp_flags[j]);}	free(gv.pp_flags);
 	for (j = 0; j < n_ox; j++) {free(gv.A[j]);}			free(gv.A);
+	for (j = 0; j < n_ox; j++) {free(gv.A2[j]);}		free(gv.A2);
 
 	free(gv.n_SS_PC);
 	free(gv.n_min);

@@ -1322,7 +1322,7 @@ global_variable update_cp_after_LP(					bulk_info 	 		 z_b,
 /**
   function to run simplex linear programming during PGE with pseudocompounds 
 */	
-global_variable LP_pc_merge(						bulk_info 			 z_b,
+global_variable LP_pc_composite(					bulk_info 			 z_b,
 													simplex_data 		*splx_data,
 													global_variable 	 gv,
 
@@ -1336,7 +1336,7 @@ global_variable LP_pc_merge(						bulk_info 			 z_b,
 	int nOcc;
 
 	double sum_n_vec = 0.0;
-	double factor_raw;
+	double factor_mean;
 
 	/* loops through active solution phases and store their information */
 	for (k = 0; k < gv.len_ss; k++){
@@ -1408,7 +1408,6 @@ global_variable LP_pc_merge(						bulk_info 			 z_b,
 				}
 			}
 
-			// here we want to update n_vec
 			if (nOcc > 1){
 				// first reset arrays
 				for (j = 0; j < n_xeos; j++){
@@ -1429,13 +1428,13 @@ global_variable LP_pc_merge(						bulk_info 			 z_b,
 												z_b,
 												gv.SS_list[ph_id] 		);
 
-				factor_raw = SS_ref_db[ph_id].factor;
+				factor_mean = SS_ref_db[ph_id].factor;
 
 				/* correct pseudocompounds factors */
 				sum_n_vec = 0.0;
 				for (i = 0; i < nOcc; i++){
-					gv.tmp1[i] *= factor_raw;
-					gv.b[i]    *= gv.tmp1[i];
+					gv.tmp2[i]  = gv.tmp1[i]*factor_mean;
+					gv.b[i]    *= gv.tmp2[i];
 					sum_n_vec  += gv.b[i];
 				}
 
@@ -1454,8 +1453,15 @@ global_variable LP_pc_merge(						bulk_info 			 z_b,
 					}
 				}
 
+				/* At this stage: 
+					xeos_ini 	are stored in gv.A			[nOcc]
+					factor_ini  are stored in gv.tmp1 		[nOcc]
 
-				
+					xeos_mean 	is  stored in gv.tmp2		[n_xeos]
+					factor_mean is  stored in factor_mean	[scalar]
+				*/
+
+
 
 			}
 			
@@ -1727,7 +1733,7 @@ global_variable LP(		bulk_info 			z_b,
 										SS_ref_db			);
 
 
-		gv = LP_pc_merge(				z_b,
+		gv = LP_pc_composite(			z_b,
 										splx_data,
 										gv,
 

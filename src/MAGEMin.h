@@ -67,7 +67,6 @@ typedef struct global_variables {
 	double  *work;
 
 	/* GENERAL PARAMETERS */
-	
 	int		*n_min;
 	int 	 LP;				/** linear programming stage flag	*/
 	int 	 PGE;				/** PGE stage flag				 	*/
@@ -142,7 +141,6 @@ typedef struct global_variables {
 	
 	/* LOCAL MINIMIZATION */
 	double   maxgmTime;
-	double   ineq_res;			/** relative residual for local minimization (inequality constraints)*/
 	double   obj_tol;			/** relative residual for local minimization */
 
 	double   box_size_mode_PGE;	/** edge size of the hyperdensity used during local minimization */
@@ -194,16 +192,16 @@ typedef struct global_variables {
 	double   alpha;				/** active under-relaxing factor of PGE, used to check if a phase can be reintroduced */
 	
 	/* PHASE UPDATE */ 
+	int      ph_change;
 	double   merge_value;		/** norm distance between two instance of a solution phase under which the instances are merged into 1 */
 	double   re_in_n;			/** fraction of phase when being reintroduce.  */
 	double   re_in_df;			/** driving force under which a phase can be added back to the assemblage */
-	double   remove_dG_val; 	/** delta_G value at which a phase can be removed */ 
-	double   remove_sum_xi;		/** sum xi value at which a phase can be removed */
-	int      ph_change;
 	double 	 min_df;
 	
-	/* LEAST SQUARE OPTIMIZATION */
+	/* LP PSEUDOCOMPOUND COMPOSITE */
+	double 	 pc_composite_dist;
 	double **A;					/** save stoechiometry matrix to pass to least square optimization */
+	double **A2;				/** save stoechiometry matrix to pass to least square optimization */
 	double  *b;					/** save bulk rock to pass to least square optimization */
 	double  *tmp1;				
 	double  *tmp2;				
@@ -344,9 +342,6 @@ typedef struct simplex_datas
 	double   g0_B;			/** save reference gibbs energy of pseudocompound 		*/
 	double   dG_B;			/** driving force matrix 								*/
 
-	int 	 n_local_min;
-	int 	 n_filter;
-	
 } simplex_data;
 
 /* Declare structures to hold reference gbase, composition and factor for solid solutions */
@@ -363,12 +358,14 @@ typedef struct SS_refs {
 	double   Z;
 	double   densityW;
 	double   epsilon;
-	/** end-member list */
+
+	/** end-member name list */
 	char   **EM_list;			/** solution phase list */
 	char   **CV_list;			/** solution phase list */
 
 	/** flags */
 	int     *ss_flags;			/** integer table for solution phase list 									*/
+
 	/** data needed for levelling and PGE check **/
 	int      n_pc;				/** maximum number of pseudocompounds to store 								*/
 	int     *tot_pc;			/** total number of pseudocompounds  										*/
@@ -434,8 +431,6 @@ typedef struct SS_refs {
 	
     /** data needed for local minimization **/
 	int      status;			/** status of the local minimization (ideally 0) */
-	int      nlopt_verb; 		/** verbose of NLopt, to show local iterations   							*/
-	double  *tol_sf;			/** array of tolerance for the inequality constraints 						*/
 	double  *lb;				/** array of tolerance for the inequality constraints 						*/
 	double  *ub;				/** array of tolerance for the inequality constraints 						*/
 	
@@ -461,8 +456,7 @@ typedef struct SS_refs {
 	double  *xi_em;				/** endmember fraction calculated for PGE method (depends on exp expression) */
 	double   sum_xi;			/** store sum of xi 									*/
 	double  *xeos; 				/** previous minimized x-eos	 						*/
-	double  *xeos_sf_ok;		/** save xeos that satisfy the SF 						*/
-	
+
 	/* data output */
 	double  *ElShearMod;		/** density of the endmembers 							*/
 	double  *density;			/** density of the endmembers 							*/
@@ -477,14 +471,14 @@ typedef struct IODATA {
 	int 	 n_phase;			/** number of phase for which x-eos has to be loaded 	*/
 	double 	 P;					/** prescribed pressure 								*/
 	double 	 T;					/** prescribed temperature 								*/
-	double  *in_bulk;				/** bulk rock composition if no test has been given 	*/
+	double  *in_bulk;			/** bulk rock composition if no test has been given 	*/
 	char   **phase_names;		/** solution phase names  								*/
 	double **phase_xeos;		/** solution phases compositional variables	 			*/
 	double **phase_emp;			/** solution phases endmember proportion	 			*/
 	
 } io_data;
 
-/* structure to store output data (mostly for use with julia) */
+/* structure to store output data (used for the julia wrapper) */
 typedef struct OUTDATA {
 	int 	 n_phase;			/** number of phase for which x-eos has to be loaded 	*/
 	double 	 P;					/** prescribed pressure 								*/

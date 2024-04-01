@@ -602,7 +602,6 @@ mutable struct global_variables
     verifyPC::Ptr{Cint}
     n_solvi::Ptr{Cint}
     maxgmTime::Cdouble
-    ineq_res::Cdouble
     obj_tol::Cdouble
     box_size_mode_PGE::Cdouble
     box_size_mode_LP::Cdouble
@@ -643,15 +642,17 @@ mutable struct global_variables
     G_system_mu::Cdouble
     br_max_tol::Cdouble
     alpha::Cdouble
+    ph_change::Cint
     merge_value::Cdouble
     re_in_n::Cdouble
     re_in_df::Cdouble
-    remove_dG_val::Cdouble
-    remove_sum_xi::Cdouble
-    ph_change::Cint
     min_df::Cdouble
+    pc_composite_dist::Cdouble
     A::Ptr{Ptr{Cdouble}}
+    A2::Ptr{Ptr{Cdouble}}
     b::Ptr{Cdouble}
+    tmp1::Ptr{Cdouble}
+    tmp2::Ptr{Cdouble}
     mass_residual::Ptr{Cdouble}
     BR_norm::Cdouble
     poisson_ratio::Cdouble
@@ -768,8 +769,6 @@ mutable struct simplex_datas
     ph_id_B::Ptr{Cint}
     g0_B::Cdouble
     dG_B::Cdouble
-    n_local_min::Cint
-    n_filter::Cint
     simplex_datas() = new()
 end
 
@@ -838,8 +837,6 @@ struct SS_refs
     orderVar::Cint
     idOrderVar::Ptr{Cdouble}
     status::Cint
-    nlopt_verb::Cint
-    tol_sf::Ptr{Cdouble}
     lb::Ptr{Cdouble}
     ub::Ptr{Cdouble}
     opt::nlopt_opt
@@ -860,7 +857,6 @@ struct SS_refs
     xi_em::Ptr{Cdouble}
     sum_xi::Cdouble
     xeos::Ptr{Cdouble}
-    xeos_sf_ok::Ptr{Cdouble}
     ElShearMod::Ptr{Cdouble}
     density::Ptr{Cdouble}
     phase_density::Cdouble
@@ -2281,6 +2277,10 @@ end
 
 function RootBracketed(x1, x2)
     ccall((:RootBracketed, libMAGEMin), Cint, (Cdouble, Cdouble), x1, x2)
+end
+
+function print_1D_double_array(nx, array, title)
+    ccall((:print_1D_double_array, libMAGEMin), Cvoid, (Cdouble, Ptr{Cdouble}, Ptr{Cchar}), nx, array, title)
 end
 
 function print_2D_double_array(nx, ny, array, title)
