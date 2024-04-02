@@ -562,19 +562,19 @@ global_variable PGE_solver(		bulk_info 	 		 z_b,
 								cp,
 								nEntry				);
 
-	if (gv.verbose == 1){
-		int ix;
-		int v,j;
-		for (v = 0; v < nEntry; v++){
-			/* CONSTRUCT LHS */
-			double sum = 0.0;
-			for (j = 0; j < nEntry; j++){
-				ix = v*nEntry + j;
-				printf("%.3f ",gv.A_PGE[ix]);;
-			}
-			printf(" | %.3f\n",gv.b_PGE[v]);	
-		}
-	}
+	// if (gv.verbose == 1){
+	// 	int ix;
+	// 	int v,j;
+	// 	for (v = 0; v < nEntry; v++){
+	// 		/* CONSTRUCT LHS */
+	// 		double sum = 0.0;
+	// 		for (j = 0; j < nEntry; j++){
+	// 			ix = v*nEntry + j;
+	// 			printf("%.3f ",gv.A_PGE[ix]);;
+	// 		}
+	// 		printf(" | %.3f\n",gv.b_PGE[v]);	
+	// 	}
+	// }
 
 	/**
 		save RHS vector 
@@ -1232,7 +1232,7 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 ){
 	simplex_data *d  = (simplex_data *) splx_data;
 
-	int i, j, k, em_id, pc_id, ph_id, n_xeos, n_em;
+	int i, j, k, l, m, em_id, pc_id, ph_id, n_xeos, n_em;
 	int nOcc, m_Ppc;
 
 	double factor_mean, factor_composite, G;
@@ -1242,6 +1242,12 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 	double sum_n_vec_cor= 0.0;
 	double shift 		= 1e-3;
 
+	/* temporary */
+	double comp_average[gv.len_ox];
+	double comp_composite[gv.len_ox];
+
+
+
 	/* loops through active solution phases and store their information */
 	for (k = 0; k < gv.len_ss; k++){
 		if (SS_ref_db[k].ss_flags[0] == 1){
@@ -1249,9 +1255,15 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 			sum_n_vec_cor 	= 0.0;
 			nOcc 			= 0;
 
+			/* benchmark part */
+			for (j = 0; j < gv.len_ox; j++){
+				comp_average[j] 	= 0.0;
+				comp_composite[j] 	= 0.0;
+			} 
+
 			for (i = 0; i < d->n_Ox; i++){
 				if (d->ph_id_A[i][0] != 1){
-					gv.pc_id[nOcc] = i;
+
 					ph_id 		= d->ph_id_A[i][1];
 					n_xeos 		=  SS_ref_db[ph_id].n_xeos;
 					n_em 		=  SS_ref_db[ph_id].n_em;
@@ -1283,6 +1295,7 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 							gv.tmp1[nOcc] 	 = SS_ref_db[ph_id].factor;
 							sum_n_vec_cor 	+= gv.b1[nOcc];
 							sum_n_vec 		+= d->n_vec[i];
+							gv.pc_id[nOcc]   = i;
 
 							nOcc += 1;
 						}			
@@ -1303,6 +1316,7 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 							gv.tmp1[nOcc] 	 = SS_ref_db[ph_id].factor;
 							sum_n_vec_cor 	+= gv.b1[nOcc];
 							sum_n_vec 		+= d->n_vec[i];
+							gv.pc_id[nOcc]   = i;
 
 							nOcc += 1;
 						}
@@ -1323,6 +1337,7 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 							gv.tmp1[nOcc] 	 = SS_ref_db[ph_id].factor;
 							sum_n_vec_cor 	+= gv.b1[nOcc];
 							sum_n_vec 		+= d->n_vec[i];
+							gv.pc_id[nOcc]   = i;
 
 							nOcc += 1;
 						}
@@ -1404,7 +1419,21 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 
 					for (j = 0; j < n_xeos; j++){
 						SS_ref_db[ph_id].iguess[j] = gv.A[i][j]*p0 + gv.tmp2[j]*p1;
+						gv.A2[i][j] = SS_ref_db[ph_id].iguess[j];
 					}
+
+					SS_ref_db[ph_id] = PC_function(	gv,
+													SS_ref_db[ph_id], 
+													z_b,
+													gv.SS_list[ph_id] 		);
+					for (j = 0; j < gv.len_ox; j++){
+						comp_composite[j] += SS_ref_db[ph_id].ss_comp[j]*gv.b[i]*SS_ref_db[ph_id].factor;
+					} 
+					printf("Compositition\n");
+					for (j = 0; j < gv.len_ox; j++){
+						printf(" %+10f",SS_ref_db[ph_id].ss_comp[j]*SS_ref_db[ph_id].factor);
+					}
+					printf("\n");
 
 					// /* adding the composite pseudocompound to the Ppc list: here we swap the groupd of initial compound to a compositionally tigher one */
 					// m_Ppc = copy_to_Ppc_composite(	ph_id,
@@ -1421,28 +1450,48 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 					// d->stage[gv.pc_id[i]] 	   = 1;										/** just to indicate that the phase belongs to stage 2 of LP */
 					
 					// for (j = 0; j < d->n_Ox; j++){				
-					// 	k = gv.pc_id[i] + j*d->n_Ox;
-					// 	d->A[k] = SS_ref_db[ph_id].comp_Ppc[m_Ppc][z_b.nzEl_array[j]];
+					// 	l = gv.pc_id[i] + j*d->n_Ox;
+					// 	d->A[l] = SS_ref_db[ph_id].comp_Ppc[m_Ppc][z_b.nzEl_array[j]];
 					// }
 
 				}
 
+				// for (j = 0; j< d->n_Ox*d->n_Ox; j++){ d->A1[j] = d->A[j];}
+
+				// /** inverse guessed assemblage stoechiometry matrix */
+				// inverseMatrix(	gv.ipiv,
+				// 				d->A1,
+				// 				d->n_Ox,
+				// 				gv.work,
+				// 				gv.lwork	);
+
+				/** update phase fractions */
+				// MatVecMul(		d->A1,
+				// 				z_b.bulk_rock_cat,
+				// 				d->n_vec,
+				// 				d->n_Ox		);
+				// printf("Matrix\n");
+				// for (j = 0; j < d->n_Ox; j++){
+				// 	for (l = 0; l < d->n_Ox; l++){
+				// 		m = j + l*d->n_Ox;
+				// 		printf(" %+10f",d->A[m]);
+				// 	}
+				// 	printf("\n");
+				// }
+				// printf("\n");
+				// printf("Inverted Matrix\n");
+				// for (j = 0; j < d->n_Ox; j++){
+				// 	for (l = 0; l < d->n_Ox; l++){
+				// 		m = j + l*d->n_Ox;
+				// 		printf(" %+10f",d->A1[m]);
+				// 	}
+				// 	printf("\n");
+				// }
+				// printf("\n");
+
+
+
 			}
-			
-			// for (k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k];}
-
-			// /** inverse guessed assemblage stoechiometry matrix */
-			// inverseMatrix(	gv.ipiv,
-			// 				d->A1,
-			// 				d->n_Ox,
-			// 				gv.work,
-			// 				gv.lwork	);
-
-			// /** update phase fractions */
-			// MatVecMul(		d->A1,
-			// 				z_b.bulk_rock_cat,
-			// 				d->n_vec,
-			// 				d->n_Ox		);
 
 			// /* update gamma of SS */
 			// update_local_gamma(						d->A1,
@@ -1466,7 +1515,7 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 					print_1D_double_array(n_xeos, gv.tmp2, "corrected initial guess");
 					print_2D_double_array(nOcc, SS_ref_db[k].n_xeos, gv.A2, "xeos composite");
 					// print_1D_double_array(gv.len_ox,comp_average, "average composition");
-					// print_1D_double_array(gv.len_ox, comp_composite, "composite composition");
+					print_1D_double_array(gv.len_ox, comp_composite, "composite composition");
 				}
 			}
 
@@ -1816,6 +1865,8 @@ global_variable PGE(	bulk_info 			z_b,
 		if ((log10(gv.BR_norm) > -1.5 && gv.global_ite > 64)	){	gv.div = 1;	iterate = 0;}
 		if ((log10(gv.BR_norm) > -2.5 && gv.global_ite > 128)	){	gv.div = 1;	iterate = 0;}
 		if ((log10(gv.BR_norm) > -3.5 && gv.global_ite > 192)	){	gv.div = 1;	iterate = 0;}
+		if (gv.gamma_norm[gv.global_ite-1] > 1e8				){	gv.div = 1;	iterate = 0;}
+		
 	}
 
 	return gv;

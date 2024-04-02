@@ -221,8 +221,8 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	/* PGE LP pseudocompounds parameters */
 	gv.launch_PGE 		= 0;
 	gv.n_pc 			= 8192;
-	gv.n_Ppc			= 15000;
-	gv.max_LP_ite 		= 256;
+	gv.n_Ppc			= 16384;
+	gv.max_LP_ite 		= 128;
 	gv.save_Ppc_val     = 0.0; 					/** During PGE iterations, if the driving force is < save_Ppc_val, then the 
 													pseudocompound is added to the Ppc list 										*/
 

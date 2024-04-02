@@ -401,17 +401,17 @@ void ss_min_PGE(		global_variable 	 gv,
 														SS_ref_db,
 														cp						);	
 
-				// here we need to save the pseudocompound to have an estimate of the LP Matrix										
-				copy_to_Ppc(							pc_check,
-														0,
-														ph_id,
-														gv,
+				// here we need to save the pseudocompound to have an estimate of the LP Matrix
+				if (pc_check == 1){
+					copy_to_Ppc(							pc_check,
+															0,
+															ph_id,
+															gv,
 
-														SS_objective,
-														SS_ref_db,
-														cp						);
-
-
+															SS_objective,
+															SS_ref_db,
+															cp						);
+				}					
 			}
 			else{
 				if (gv.verbose == 1){
