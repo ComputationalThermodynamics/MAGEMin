@@ -1235,14 +1235,24 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 	int i, j, k, em_id, pc_id, ph_id, n_xeos, n_em;
 	int nOcc;
 
-	double sum_n_vec = 0.0;
-	double factor_mean;
+	double factor_mean, factor_composite, G;
+	double p0, p1;
+
+	double sum_n_vec 	= 0.0;
+	double sum_n_vec_cor= 0.0;
+	double shift 		= 1e-3;
+
+	/* temporary */
+	double comp_average[gv.len_ox];
+	double comp_composite[gv.len_ox];
+
 
 	/* loops through active solution phases and store their information */
 	for (k = 0; k < gv.len_ss; k++){
 		if (SS_ref_db[k].ss_flags[0] == 1){
-
-			nOcc = 0;
+			sum_n_vec 		= 0.0;
+			sum_n_vec_cor 	= 0.0;
+			nOcc 			= 0;
 
 			for (i = 0; i < d->n_Ox; i++){
 				if (d->ph_id_A[i][0] != 1){
@@ -1267,16 +1277,16 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 															z_b,
 															gv.SS_list[ph_id]		);
 
-							SS_ref_db[ph_id] = PC_function(	gv,
-															SS_ref_db[ph_id], 
-															z_b,
-															gv.SS_list[ph_id] 		);
+							G 	= (*SS_objective[ph_id])(SS_ref_db[ph_id].n_xeos, SS_ref_db[ph_id].iguess, 	NULL, &SS_ref_db[ph_id]);
 
 							for (j = 0; j < n_xeos; j++){
 								gv.A[nOcc][j] = SS_ref_db[ph_id].iguess[j];
 							}
-							gv.b[nOcc] = d->n_vec[i];
-							gv.tmp1[nOcc] = SS_ref_db[ph_id].factor;
+
+							gv.b[nOcc] 		 = d->n_vec[i];
+							gv.tmp1[nOcc] 	 = SS_ref_db[ph_id].factor;
+							sum_n_vec_cor 	+= gv.b1[nOcc];
+							sum_n_vec 		+= d->n_vec[i];
 
 							nOcc += 1;
 						}			
@@ -1284,10 +1294,19 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 							pc_id 					= d->ph_id_A[i][3];
 
 							for (j = 0; j < n_xeos; j++){
-								gv.A[nOcc][j]  = SS_ref_db[ph_id].xeos_Ppc[pc_id][j];
+								SS_ref_db[ph_id].iguess[j] = SS_ref_db[ph_id].xeos_Ppc[pc_id][j];
 							}
-							gv.b[nOcc] = d->n_vec[i];
-							gv.tmp1[nOcc] = SS_ref_db[ph_id].factor;
+							/* then compute the normalization factor for un-corrected xeos */
+							G 	= (*SS_objective[ph_id])(SS_ref_db[ph_id].n_xeos, SS_ref_db[ph_id].iguess, 	NULL, &SS_ref_db[ph_id]);
+
+							for (j = 0; j < n_xeos; j++){
+								gv.A[nOcc][j]  = SS_ref_db[ph_id].iguess[j];
+							}
+
+							gv.b[nOcc] 		 = d->n_vec[i];
+							gv.tmp1[nOcc] 	 = SS_ref_db[ph_id].factor;
+							sum_n_vec_cor 	+= gv.b1[nOcc];
+							sum_n_vec 		+= d->n_vec[i];
 
 							nOcc += 1;
 						}
@@ -1295,15 +1314,24 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 							pc_id 					= d->ph_id_A[i][3];
 
 							for (j = 0; j < n_xeos; j++){
-								gv.A[nOcc][j]  = SS_ref_db[ph_id].xeos_pc[pc_id][j];
+								SS_ref_db[ph_id].iguess[j] = SS_ref_db[ph_id].xeos_pc[pc_id][j];
 							}
-							gv.b[nOcc] = d->n_vec[i];
-							gv.tmp1[nOcc] = SS_ref_db[ph_id].factor;
+							/* then compute the normalization factor for un-corrected xeos */
+							G 	= (*SS_objective[ph_id])(SS_ref_db[ph_id].n_xeos, SS_ref_db[ph_id].iguess, 	NULL, &SS_ref_db[ph_id]);
+
+							for (j = 0; j < n_xeos; j++){
+								gv.A[nOcc][j]  = SS_ref_db[ph_id].iguess[j];
+							}
+							
+							gv.b[nOcc] 		 = d->n_vec[i];
+							gv.tmp1[nOcc] 	 = SS_ref_db[ph_id].factor;
+							sum_n_vec_cor 	+= gv.b1[nOcc];
+							sum_n_vec 		+= d->n_vec[i];
 
 							nOcc += 1;
 						}
 
-						sum_n_vec += d->n_vec[i];
+						
 					}
 				}
 			}
@@ -1316,31 +1344,27 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 
 				/* retrieve initial guess */
 				for (i = 0; i < nOcc; i++){
-					gv.b[i] /= sum_n_vec;
+					gv.b[i] 	/= sum_n_vec;
 					for (j = 0; j < n_xeos; j++){
 						SS_ref_db[ph_id].iguess[j] += gv.A[i][j]*gv.b[i];
 					}
 				}
 
 				/* retrieve normalization factor for correcting fraction vector */
-				SS_ref_db[ph_id] = PC_function(	gv,
-												SS_ref_db[ph_id], 
-												z_b,
-												gv.SS_list[ph_id] 		);
+				G 	= (*SS_objective[ph_id])(SS_ref_db[ph_id].n_xeos, SS_ref_db[ph_id].iguess, 	NULL, &SS_ref_db[ph_id]);
 
 				factor_mean = SS_ref_db[ph_id].factor;
 
 				/* correct pseudocompounds factors */
 				sum_n_vec = 0.0;
 				for (i = 0; i < nOcc; i++){
-					gv.tmp2[i]  = gv.tmp1[i]*factor_mean;
-					gv.b[i]    *= gv.tmp2[i];
-					sum_n_vec  += gv.b[i];
+					gv.b1[i]    = gv.b[i]*gv.tmp1[i]*factor_mean;
+					sum_n_vec  += gv.b1[i];
 				}
 
 				/* normalized corrected pseudocompounds fractions */
 				for (i = 0; i < nOcc; i++){
-					gv.b[i] /= sum_n_vec;
+					gv.b1[i] /= sum_n_vec;
 				}
 
 				/* retrieve corrected initial guess (stored in tmp2) */
@@ -1349,19 +1373,85 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 				}
 				for (i = 0; i < nOcc; i++){
 					for (j = 0; j < n_xeos; j++){
-						gv.tmp2[j] += gv.A[i][j]*gv.b[i];
+						gv.tmp2[j] += gv.A[i][j]*gv.b1[i];
 					}
 				}
 
 				/* At this stage: 
+					n_vec_uncor are stored in gv.b 			[nOcc]
+
 					xeos_ini 	are stored in gv.A			[nOcc]
 					factor_ini  are stored in gv.tmp1 		[nOcc]
 
 					xeos_mean 	is  stored in gv.tmp2		[n_xeos]
 					factor_mean is  stored in factor_mean	[scalar]
+
 				*/
+				for (i = 0; i < nOcc; i++){
+
+					/* First get un-corrected composite xeos */
+					for (j = 0; j < n_xeos; j++){
+						SS_ref_db[ph_id].iguess[j] = gv.A[i][j]*(shift) + gv.tmp2[j] * (1.0 - shift);
+					}
+					/* then compute the normalization factor for un-corrected xeos */
+					G 	= (*SS_objective[ph_id])(SS_ref_db[ph_id].n_xeos, SS_ref_db[ph_id].iguess, 	NULL, &SS_ref_db[ph_id]);
+
+					factor_composite = SS_ref_db[ph_id].factor;
+
+					/* Compute corrected composite xeos */
+					p0 			= shift*(gv.tmp1[i] * factor_composite);
+					p1 			= (1.0 - shift)*(factor_mean * factor_composite);
+
+					sum_n_vec 	= p0+p1;
+					p0 		   /= sum_n_vec;
+					p1 		   /= sum_n_vec;
+
+					for (j = 0; j < n_xeos; j++){
+						SS_ref_db[ph_id].iguess[j] = gv.A[i][j]*p0 + gv.tmp2[j]*p1;
+					}
+					/* compute effective composite pseudocompound information */
+					SS_ref_db[ph_id] = PC_function(	gv,
+													SS_ref_db[ph_id], 
+													z_b,
+													gv.SS_list[ph_id] 		);
+
+					for (j = 0; j < n_xeos; j++){
+						gv.A2[i][j] = SS_ref_db[ph_id].iguess[j];
+					}
+				}
+
+				/* benchmark part */
+				for (j = 0; j < gv.len_ox; j++){
+					comp_average[j] 	= 0.0;
+					comp_composite[j] 	= 0.0;
+				} 
+
+				for (i = 0; i < nOcc; i++){
+					for (j = 0; j < n_xeos; j++){
+						SS_ref_db[ph_id].iguess[j] = gv.A[i][j];
+					} 
+					SS_ref_db[ph_id] = PC_function(	gv,
+													SS_ref_db[ph_id], 
+													z_b,
+													gv.SS_list[ph_id] 		);
+					for (j = 0; j < gv.len_ox; j++){
+						comp_average[j] += SS_ref_db[ph_id].ss_comp[j]*gv.b[i]*SS_ref_db[ph_id].factor;
+					} 
 
 
+					for (j = 0; j < n_xeos; j++){
+						SS_ref_db[ph_id].iguess[j] = gv.A2[i][j];
+					} 
+					SS_ref_db[ph_id] = PC_function(	gv,
+													SS_ref_db[ph_id], 
+													z_b,
+													gv.SS_list[ph_id] 		);
+					for (j = 0; j < gv.len_ox; j++){
+						comp_composite[j] += SS_ref_db[ph_id].ss_comp[j]*gv.b[i]*SS_ref_db[ph_id].factor;
+					} 
+
+				}
+				
 
 			}
 			
@@ -1371,9 +1461,13 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 			if (gv.verbose == 1){
 				if (nOcc > 1){
 					printf("%s:\n",gv.SS_list[k]);
-					print_2D_double_array(nOcc, SS_ref_db[k].n_xeos, gv.A, "xeos composition");
-					print_1D_double_array(nOcc, gv.b, "normalized corrected phase fraction");
+					print_2D_double_array(nOcc, SS_ref_db[k].n_xeos, gv.A, "xeos starting");
+					print_1D_double_array(nOcc, gv.b, "normalized  phase fraction");
+					// print_1D_double_array(nOcc, gv.b1, "initial guess");
 					print_1D_double_array(n_xeos, gv.tmp2, "corrected initial guess");
+					print_2D_double_array(nOcc, SS_ref_db[k].n_xeos, gv.A2, "xeos composite");
+					print_1D_double_array(gv.len_ox,comp_average, "average composition");
+					print_1D_double_array(gv.len_ox, comp_composite, "composite composition");
 				}
 			}
 
@@ -1605,6 +1699,15 @@ global_variable LP(		bulk_info 			z_b,
 			printf(" phase |  delta_G   | SF |   sum_xi   | time(ms)   |   x-eos ...\n");
 			printf("══════════════════════════════════════════════════════════════════\n");
 		}
+
+		// gv = LP_pc_composite(			z_b,
+		// 								splx_data,
+		// 								gv,
+
+		// 								SS_objective,	
+		// 								PP_ref_db,
+		// 								SS_ref_db			);	
+
 		/** 
 			update delta_G of pure phases as function of updated Gamma
 		*/
@@ -1631,17 +1734,6 @@ global_variable LP(		bulk_info 			z_b,
 												
 										PP_ref_db,
 										SS_ref_db			);
-
-
-		// gv = LP_pc_composite(			z_b,
-		// 								splx_data,
-		// 								gv,
-
-		// 								SS_objective,	
-		// 								PP_ref_db,
-		// 								SS_ref_db			);		
-
-
 
 		gv = init_LP(					z_b,
 										splx_data,

@@ -652,8 +652,10 @@ mutable struct global_variables
     A::Ptr{Ptr{Cdouble}}
     A2::Ptr{Ptr{Cdouble}}
     b::Ptr{Cdouble}
+    b1::Ptr{Cdouble}
     tmp1::Ptr{Cdouble}
     tmp2::Ptr{Cdouble}
+    tmp3::Ptr{Cdouble}
     mass_residual::Ptr{Cdouble}
     BR_norm::Cdouble
     poisson_ratio::Cdouble

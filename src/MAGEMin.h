@@ -201,11 +201,13 @@ typedef struct global_variables {
 	
 	/* LP PSEUDOCOMPOUND COMPOSITE */
 	double 	 pc_composite_dist;
-	double **A;					/** save stoechiometry matrix to pass to least square optimization */
-	double **A2;				/** save stoechiometry matrix to pass to least square optimization */
-	double  *b;					/** save bulk rock to pass to least square optimization */
-	double  *tmp1;				
-	double  *tmp2;				
+	double **A;
+	double **A2;
+	double  *b;
+	double  *b1;
+	double  *tmp1;
+	double  *tmp2;
+	double  *tmp3;
 	
 	double  *mass_residual;		/** bulk rock residual */
 	double   BR_norm;			/** norm of bulk rock residual  */

@@ -1161,8 +1161,10 @@ void FreeDatabases(		global_variable gv,
 	free(gv.dn_cp);
 	free(gv.dn_pp);
 	free(gv.b);
+	free(gv.b1);
 	free(gv.tmp1);
 	free(gv.tmp2);
+	free(gv.tmp3);
 	free(gv.n_ss_array);
 	/* ================ z_b ============= */
 	free(z_b.apo);
