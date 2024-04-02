@@ -32,6 +32,8 @@ int    	RootBracketed(double x1,double x2);
 
 void 	print_1D_double_array(double nx, double *array, char *title);
 void 	print_2D_double_array(double nx, double ny, double **array, char *title);
+void 	print_1D_int_array(double nx, int *array, char *title);
+
 double  rnd(double a);
 double  SUPCRT_to_HSC(double *ElH, double *comp, int size);
 double  HSC_to_SUPCRT(double *ElH, double *comp, int size);

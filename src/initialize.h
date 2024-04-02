@@ -810,7 +810,8 @@ global_variable global_variable_init( 	global_variable  	 gv,
     for (i = 0; i < (gv.len_ox); i++){
 		gv.A[i]  = malloc ((gv.len_ox) * sizeof(double));
 		gv.A2[i] = malloc ((gv.len_ox) * sizeof(double));
-	}
+	
+	gv.pc_id= malloc (gv.len_ox * sizeof(int));}
 	gv.b 	= malloc (gv.len_ox * sizeof(double));	
 	gv.b1 	= malloc (gv.len_ox * sizeof(double));	
 	gv.tmp1 = malloc (gv.len_ox * sizeof(double));	
@@ -1421,6 +1422,7 @@ global_variable reset_gv(					global_variable 	 gv,
     }
 
 	for (i = 0; i < (gv.len_ox); i++){ 
+		gv.pc_id[i] = -1;
 		gv.b[i] 	= 0.0;
 		gv.b1[i] 	= 0.0;
 		gv.tmp1[i] 	= 0.0;

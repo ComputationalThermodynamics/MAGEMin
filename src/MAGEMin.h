@@ -208,7 +208,8 @@ typedef struct global_variables {
 	double  *tmp1;
 	double  *tmp2;
 	double  *tmp3;
-	
+	int     *pc_id;
+
 	double  *mass_residual;		/** bulk rock residual */
 	double   BR_norm;			/** norm of bulk rock residual  */
 	

@@ -656,6 +656,7 @@ mutable struct global_variables
     tmp1::Ptr{Cdouble}
     tmp2::Ptr{Cdouble}
     tmp3::Ptr{Cdouble}
+    pc_id::Ptr{Cint}
     mass_residual::Ptr{Cdouble}
     BR_norm::Cdouble
     poisson_ratio::Cdouble
@@ -2222,6 +2223,10 @@ function ss_min_LP(gv, SS_objective, z_b, SS_ref_db, cp)
     ccall((:ss_min_LP, libMAGEMin), Cvoid, (global_variable, Ptr{obj_type}, bulk_info, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, SS_objective, z_b, SS_ref_db, cp)
 end
 
+function copy_to_Ppc_composite(ph_id, gv, SS_objective, SS_ref_db)
+    ccall((:copy_to_Ppc_composite, libMAGEMin), Cint, (Cint, global_variable, Ptr{obj_type}, Ptr{SS_ref}), ph_id, gv, SS_objective, SS_ref_db)
+end
+
 function copy_to_cp(i, ph_id, gv, SS_ref_db, cp)
     ccall((:copy_to_cp, libMAGEMin), Cvoid, (Cint, Cint, global_variable, Ptr{SS_ref}, Ptr{csd_phase_set}), i, ph_id, gv, SS_ref_db, cp)
 end
@@ -2288,6 +2293,10 @@ end
 
 function print_2D_double_array(nx, ny, array, title)
     ccall((:print_2D_double_array, libMAGEMin), Cvoid, (Cdouble, Cdouble, Ptr{Ptr{Cdouble}}, Ptr{Cchar}), nx, ny, array, title)
+end
+
+function print_1D_int_array(nx, array, title)
+    ccall((:print_1D_int_array, libMAGEMin), Cvoid, (Cdouble, Ptr{Cint}, Ptr{Cchar}), nx, array, title)
 end
 
 function rnd(a)

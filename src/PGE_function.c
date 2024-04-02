@@ -1233,7 +1233,7 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 	simplex_data *d  = (simplex_data *) splx_data;
 
 	int i, j, k, em_id, pc_id, ph_id, n_xeos, n_em;
-	int nOcc;
+	int nOcc, m_Ppc;
 
 	double factor_mean, factor_composite, G;
 	double p0, p1;
@@ -1241,11 +1241,6 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 	double sum_n_vec 	= 0.0;
 	double sum_n_vec_cor= 0.0;
 	double shift 		= 1e-3;
-
-	/* temporary */
-	double comp_average[gv.len_ox];
-	double comp_composite[gv.len_ox];
-
 
 	/* loops through active solution phases and store their information */
 	for (k = 0; k < gv.len_ss; k++){
@@ -1256,6 +1251,7 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 
 			for (i = 0; i < d->n_Ox; i++){
 				if (d->ph_id_A[i][0] != 1){
+					gv.pc_id[nOcc] = i;
 					ph_id 		= d->ph_id_A[i][1];
 					n_xeos 		=  SS_ref_db[ph_id].n_xeos;
 					n_em 		=  SS_ref_db[ph_id].n_em;
@@ -1409,65 +1405,68 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 					for (j = 0; j < n_xeos; j++){
 						SS_ref_db[ph_id].iguess[j] = gv.A[i][j]*p0 + gv.tmp2[j]*p1;
 					}
-					/* compute effective composite pseudocompound information */
-					SS_ref_db[ph_id] = PC_function(	gv,
-													SS_ref_db[ph_id], 
-													z_b,
-													gv.SS_list[ph_id] 		);
 
-					for (j = 0; j < n_xeos; j++){
-						gv.A2[i][j] = SS_ref_db[ph_id].iguess[j];
-					}
-				}
+					// /* adding the composite pseudocompound to the Ppc list: here we swap the groupd of initial compound to a compositionally tigher one */
+					// m_Ppc = copy_to_Ppc_composite(	ph_id,
+					// 								gv,
 
-				/* benchmark part */
-				for (j = 0; j < gv.len_ox; j++){
-					comp_average[j] 	= 0.0;
-					comp_composite[j] 	= 0.0;
-				} 
+					// 								SS_objective,
+					// 								SS_ref_db			);	
 
-				for (i = 0; i < nOcc; i++){
-					for (j = 0; j < n_xeos; j++){
-						SS_ref_db[ph_id].iguess[j] = gv.A[i][j];
-					} 
-					SS_ref_db[ph_id] = PC_function(	gv,
-													SS_ref_db[ph_id], 
-													z_b,
-													gv.SS_list[ph_id] 		);
-					for (j = 0; j < gv.len_ox; j++){
-						comp_average[j] += SS_ref_db[ph_id].ss_comp[j]*gv.b[i]*SS_ref_db[ph_id].factor;
-					} 
-
-
-					for (j = 0; j < n_xeos; j++){
-						SS_ref_db[ph_id].iguess[j] = gv.A2[i][j];
-					} 
-					SS_ref_db[ph_id] = PC_function(	gv,
-													SS_ref_db[ph_id], 
-													z_b,
-													gv.SS_list[ph_id] 		);
-					for (j = 0; j < gv.len_ox; j++){
-						comp_composite[j] += SS_ref_db[ph_id].ss_comp[j]*gv.b[i]*SS_ref_db[ph_id].factor;
-					} 
+					// d->ph_id_A[gv.pc_id[i]][0] = 3;
+					// d->ph_id_A[gv.pc_id[i]][1] = ph_id;
+					// d->ph_id_A[gv.pc_id[i]][2] = 0;
+					// d->ph_id_A[gv.pc_id[i]][3] = m_Ppc;										/** save pseudocompound number */
+					// d->g0_A[gv.pc_id[i]] 	   = SS_ref_db[ph_id].G_Ppc[m_Ppc];
+					// d->stage[gv.pc_id[i]] 	   = 1;										/** just to indicate that the phase belongs to stage 2 of LP */
+					
+					// for (j = 0; j < d->n_Ox; j++){				
+					// 	k = gv.pc_id[i] + j*d->n_Ox;
+					// 	d->A[k] = SS_ref_db[ph_id].comp_Ppc[m_Ppc][z_b.nzEl_array[j]];
+					// }
 
 				}
-				
 
 			}
 			
+			// for (k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k];}
+
+			// /** inverse guessed assemblage stoechiometry matrix */
+			// inverseMatrix(	gv.ipiv,
+			// 				d->A1,
+			// 				d->n_Ox,
+			// 				gv.work,
+			// 				gv.lwork	);
+
+			// /** update phase fractions */
+			// MatVecMul(		d->A1,
+			// 				z_b.bulk_rock_cat,
+			// 				d->n_vec,
+			// 				d->n_Ox		);
+
+			// /* update gamma of SS */
+			// update_local_gamma(						d->A1,
+			// 										d->g0_A,
+			// 										d->gamma_ss,
+			// 										d->n_Ox			);
+
+			// /* update global variable gamma */
+			// update_global_gamma_LU(					z_b,
+			// 										splx_data		);	
 
 
 
 			if (gv.verbose == 1){
 				if (nOcc > 1){
 					printf("%s:\n",gv.SS_list[k]);
+					print_1D_int_array(nOcc, gv.pc_id, "pc id (in the simplex A matrix)");
 					print_2D_double_array(nOcc, SS_ref_db[k].n_xeos, gv.A, "xeos starting");
 					print_1D_double_array(nOcc, gv.b, "normalized  phase fraction");
 					// print_1D_double_array(nOcc, gv.b1, "initial guess");
 					print_1D_double_array(n_xeos, gv.tmp2, "corrected initial guess");
 					print_2D_double_array(nOcc, SS_ref_db[k].n_xeos, gv.A2, "xeos composite");
-					print_1D_double_array(gv.len_ox,comp_average, "average composition");
-					print_1D_double_array(gv.len_ox, comp_composite, "composite composition");
+					// print_1D_double_array(gv.len_ox,comp_average, "average composition");
+					// print_1D_double_array(gv.len_ox, comp_composite, "composite composition");
 				}
 			}
 
@@ -1477,162 +1476,6 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 		}
 	}
 
-
-
-	// for (i = 0; i < d->n_Ox; i++){
-	// 	ph_id 		= d->ph_id_A[i][1];
-			
-	// 	/* pure endmembers as solution phase */
-	// 	if (d->ph_id_A[i][0] == 2){
-	// 		em_id 					= d->ph_id_A[i][3];
-
-	// 		for (j = 0; j < SS_ref_db[ph_id].n_em; j++) {	
-	// 			SS_ref_db[ph_id].p[j] = gv.em2ss_shift;
-	// 		}
-	// 		SS_ref_db[ph_id].p[em_id] = 1.0 - gv.em2ss_shift*SS_ref_db[ph_id].n_em;
-			
-	// 		SS_ref_db[ph_id] = P2X(			gv,
-	// 										SS_ref_db[ph_id],
-	// 										z_b,
-	// 										gv.SS_list[ph_id]		);
-
-	// 		SS_ref_db[ph_id] = PC_function(	gv,
-	// 										SS_ref_db[ph_id], 
-	// 										z_b,
-	// 										gv.SS_list[ph_id] 		);
-
-
-
-
-											
-	// 		strcpy(cp[id_cp].name,gv.SS_list[ph_id]);				/* get phase name */	
-			
-	// 		cp[id_cp].split 		= 0;							
-	// 		cp[id_cp].id 			= ph_id;						/* get phase id */
-	// 		cp[id_cp].n_xeos		= SS_ref_db[ph_id].n_xeos;		/* get number of compositional variables */
-	// 		cp[id_cp].n_em			= SS_ref_db[ph_id].n_em;		/* get number of endmembers */
-	// 		cp[id_cp].n_sf			= SS_ref_db[ph_id].n_sf;		/* get number of site fractions */
-			
-	// 		cp[id_cp].df			= 0.0;
-	// 		cp[id_cp].factor		= SS_ref_db[ph_id].factor;	
-			
-	// 		cp[id_cp].ss_flags[0] 	= 1;							/* set flags */
-	// 		cp[id_cp].ss_flags[1] 	= 1;
-	// 		cp[id_cp].ss_flags[2] 	= 0;
-			
-	// 		cp[id_cp].ss_n          = d->n_vec[i];			/* get initial phase fraction */
-			
-	// 		for (ii = 0; ii < SS_ref_db[ph_id].n_em; ii++){
-	// 			cp[id_cp].p_em[ii]  = SS_ref_db[ph_id].p[ii];
-	// 		}
-	// 		for (ii = 0; ii < SS_ref_db[ph_id].n_xeos; ii++){
-	// 			cp[id_cp].dguess[ii]  = SS_ref_db[ph_id].iguess[ii];
-	// 			cp[id_cp].xeos[ii]    = SS_ref_db[ph_id].iguess[ii];
-	// 		}
-
-	// 		gv.n_solvi[ph_id] 	   += 1;
-	// 		id_cp 				   += 1;
-	// 		gv.len_cp 			   += 1;
-	// 		gv.n_cp_phase 		   += 1;
-	// 		gv.n_phase             += 1;
-
-	// 		/** 
-	// 		   add PC to Ppc list 
-	// 		*/
-	// 		if (SS_ref_db[ph_id].id_Ppc >= SS_ref_db[ph_id].n_Ppc){ SS_ref_db[ph_id].id_Ppc = 0; printf("MAXIMUM STORAGE SPACE FOR PC IS REACHED, INCREASED #PC_MAX\n");}
-	// 		m_pc = SS_ref_db[ph_id].id_Ppc;
-
-	// 		SS_ref_db[ph_id].info_Ppc[m_pc]   = 2;
-	// 		SS_ref_db[ph_id].DF_Ppc[m_pc]     = SS_ref_db[ph_id].df;
-			
-	// 		/* get pseudocompound composition */
-	// 		for ( j = 0; j < gv.len_ox; j++){				
-	// 			SS_ref_db[ph_id].comp_Ppc[m_pc][j] = SS_ref_db[ph_id].ss_comp[j]*SS_ref_db[ph_id].factor;	/** composition */
-	// 		}
-	// 		for ( j = 0; j < SS_ref_db[ph_id].n_em; j++){												/** save coordinates */
-	// 			SS_ref_db[ph_id].p_Ppc[m_pc][j]    = SS_ref_db[ph_id].p[j];										
-	// 			SS_ref_db[ph_id].mu_Ppc[m_pc][j]   = SS_ref_db[ph_id].mu[j];										
-	// 		}
-	// 		/* save xeos */
-	// 		for ( j = 0; j < SS_ref_db[ph_id].n_xeos; j++){		
-	// 			SS_ref_db[ph_id].xeos_Ppc[m_pc][j] = SS_ref_db[ph_id].iguess[j];							/** compositional variables */
-	// 		}	
-	// 		SS_ref_db[ph_id].G_Ppc[m_pc] = SS_ref_db[ph_id].df;
-			
-	// 		/* add increment to the number of considered phases */
-	// 		SS_ref_db[ph_id].tot_Ppc += 1;
-	// 		SS_ref_db[ph_id].id_Ppc  += 1;
-
-
-	// 	}
-		
-	// 	/* solution phase */
-	// 	if (d->ph_id_A[i][0] == 3){
-	// 		pc_id 					= d->ph_id_A[i][3];
-			
-	// 		strcpy(cp[id_cp].name,gv.SS_list[ph_id]);				/* get phase name */	
-			
-	// 		cp[id_cp].split 		= 0;							
-	// 		cp[id_cp].id 			= ph_id;						/* get phase id */
-	// 		cp[id_cp].n_xeos		= SS_ref_db[ph_id].n_xeos;		/* get number of compositional variables */
-	// 		cp[id_cp].n_em			= SS_ref_db[ph_id].n_em;		/* get number of endmembers */
-	// 		cp[id_cp].n_sf			= SS_ref_db[ph_id].n_sf;		/* get number of site fractions */
-			
-	// 		cp[id_cp].df			= SS_ref_db[ph_id].DF_pc[pc_id];
-	// 		cp[id_cp].factor		= SS_ref_db[ph_id].factor_pc[pc_id];	
-			
-	// 		cp[id_cp].ss_flags[0] 	= 1;							/* set flags */
-	// 		cp[id_cp].ss_flags[1] 	= 1;
-	// 		cp[id_cp].ss_flags[2] 	= 0;
-			
-	// 		cp[id_cp].ss_n          = d->n_vec[i];			/* get initial phase fraction */
-			
-	// 		for (int ii = 0; ii < SS_ref_db[ph_id].n_em; ii++){
-	// 			cp[id_cp].p_em[ii]  = SS_ref_db[ph_id].p_pc[pc_id][ii];
-	// 		}
-	// 		for (int ii = 0; ii < SS_ref_db[ph_id].n_xeos; ii++){
-	// 			cp[id_cp].dguess[ii]  = SS_ref_db[ph_id].xeos_pc[pc_id][ii];
-	// 			cp[id_cp].xeos[ii]    = SS_ref_db[ph_id].xeos_pc[pc_id][ii];
-	// 		}
-
-	// 		gv.n_solvi[ph_id] 	   += 1;
-	// 		id_cp 				   += 1;
-	// 		gv.len_cp 			   += 1;
-	// 		gv.n_cp_phase 		   += 1;
-	// 		gv.n_phase             += 1;
-
-
-	// 		/** 
-	// 		   add PC to Ppc list 
-	// 		*/
-	// 		if (SS_ref_db[ph_id].id_Ppc >= SS_ref_db[ph_id].n_Ppc){ SS_ref_db[ph_id].id_Ppc = 0; printf("MAXIMUM STORAGE SPACE FOR PC IS REACHED, INCREASED #PC_MAX\n");}
-	// 		m_pc = SS_ref_db[ph_id].id_Ppc;
-
-	// 		SS_ref_db[ph_id].info_Ppc[m_pc]   = SS_ref_db[ph_id].info[pc_id];
-	// 		SS_ref_db[ph_id].DF_Ppc[m_pc]     = SS_ref_db[ph_id].DF_pc[pc_id];
-			
-	// 		/* get pseudocompound composition */
-	// 		for ( j = 0; j < gv.len_ox; j++){				
-	// 			SS_ref_db[ph_id].comp_Ppc[m_pc][j] = SS_ref_db[ph_id].comp_pc[pc_id][j];	/** composition */
-	// 		}
-	// 		for ( j = 0; j < SS_ref_db[ph_id].n_em; j++){												/** save coordinates */
-	// 			SS_ref_db[ph_id].p_Ppc[m_pc][j]  = SS_ref_db[ph_id].p_pc[pc_id][j];										
-	// 			// SS_ref_db[ph_id].mu_Ppc[m_pc][j] = SS_ref_db[ph_id].mu_pc[pc_id][j];										
-	// 		}
-	// 		/* save xeos */
-	// 		for ( j = 0; j < SS_ref_db[ph_id].n_xeos; j++){		
-	// 			SS_ref_db[ph_id].xeos_Ppc[m_pc][j] = SS_ref_db[ph_id].xeos_pc[pc_id][j];							/** compositional variables */
-	// 		}	
-	// 		SS_ref_db[ph_id].G_Ppc[m_pc] = SS_ref_db[ph_id].G_pc[pc_id];
-			
-	// 		/* add increment to the number of considered phases */
-	// 		SS_ref_db[ph_id].tot_Ppc += 1;
-	// 		SS_ref_db[ph_id].id_Ppc  += 1;
-
-	// 	}
-	// }
-
-	
 
 	return gv;
 }

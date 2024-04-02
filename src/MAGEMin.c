@@ -1162,6 +1162,7 @@ void FreeDatabases(		global_variable gv,
 	free(gv.dn_pp);
 	free(gv.b);
 	free(gv.b1);
+	free(gv.pc_id);
 	free(gv.tmp1);
 	free(gv.tmp2);
 	free(gv.tmp3);
