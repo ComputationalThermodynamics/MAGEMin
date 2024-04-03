@@ -197,6 +197,62 @@ void copy_to_cp(		int 				 i,
 		cp[i].sf[ii]		= SS_ref_db[ph_id].sf[ii];
 	}
 }
+
+
+/**
+	add minimized phase to LP PGE pseudocompound list 
+*/
+int copy_to_Ppc_composite(		int 				 ph_id,
+								global_variable 	 gv,
+
+								obj_type 			*SS_objective,
+								SS_ref 			    *SS_ref_db				){
+
+		double G;
+		int    m_Ppc;
+
+		/* get unrotated gbase */
+		SS_ref_db[ph_id] = non_rot_hyperplane(	gv, 
+												SS_ref_db[ph_id]			);
+
+		/* get unrotated minimized point informations */
+		G 	=		 (*SS_objective[ph_id])(	SS_ref_db[ph_id].n_xeos,
+												SS_ref_db[ph_id].iguess,
+												NULL,
+												&SS_ref_db[ph_id]			);
+
+		/* check where to add the new phase PC */
+		if (SS_ref_db[ph_id].id_Ppc >= SS_ref_db[ph_id].n_Ppc){ SS_ref_db[ph_id].id_Ppc = 0; printf("SS_LP, MAXIMUM STORAGE SPACE FOR PC IS REACHED for %4s, INCREASED #PC_MAX\n",gv.SS_list[ph_id]);}
+		
+		m_Ppc = SS_ref_db[ph_id].id_Ppc;
+
+		SS_ref_db[ph_id].info_Ppc[m_Ppc]   = 0;
+
+		SS_ref_db[ph_id].DF_Ppc[m_Ppc]     = G;
+		
+		/* get pseudocompound composition */
+		for (int j = 0; j < gv.len_ox; j++){				
+			SS_ref_db[ph_id].comp_Ppc[m_Ppc][j] = SS_ref_db[ph_id].ss_comp[j]*SS_ref_db[ph_id].factor;	/** composition */
+		}
+		for (int j = 0; j < SS_ref_db[ph_id].n_em; j++){												/** save coordinates */
+			SS_ref_db[ph_id].p_Ppc[m_Ppc][j]  = SS_ref_db[ph_id].p[j];												
+			SS_ref_db[ph_id].mu_Ppc[m_Ppc][j] = SS_ref_db[ph_id].mu[j]*SS_ref_db[ph_id].z_em[j];										
+		}
+		/* save xeos */
+		for (int j = 0; j < SS_ref_db[ph_id].n_xeos; j++){		
+			SS_ref_db[ph_id].xeos_Ppc[m_Ppc][j] = SS_ref_db[ph_id].iguess[j];							/** compositional variables */
+		}	
+		SS_ref_db[ph_id].G_Ppc[m_Ppc] = G;
+		
+		/* add increment to the number of considered phases */
+		SS_ref_db[ph_id].tot_Ppc += 1;
+		SS_ref_db[ph_id].id_Ppc  += 1;
+
+		return m_Ppc;
+}
+
+
+
 /**
 	add minimized phase to LP PGE pseudocompound list 
 */
@@ -345,17 +401,17 @@ void ss_min_PGE(		global_variable 	 gv,
 														SS_ref_db,
 														cp						);	
 
-				// here we need to save the pseudocompound to have an estimate of the LP Matrix										
-				copy_to_Ppc(							pc_check,
-														0,
-														ph_id,
-														gv,
+				// here we need to save the pseudocompound to have an estimate of the LP Matrix
+				if (pc_check == 1){
+					copy_to_Ppc(							pc_check,
+															0,
+															ph_id,
+															gv,
 
-														SS_objective,
-														SS_ref_db,
-														cp						);
-
-
+															SS_objective,
+															SS_ref_db,
+															cp						);
+				}					
 			}
 			else{
 				if (gv.verbose == 1){
@@ -441,7 +497,6 @@ void compute_cst_dG_Ppc(	global_variable 	 gv,
 	int    	n_xeos 		= SS_ref_db[ph_id].n_xeos;
 	int    	n_em 		= SS_ref_db[ph_id].n_em;
 
-	// printf(" df_raw: %+10f\n",SS_ref_db[ph_id].df);
 	for (i = 0; i < n_em; i++){
 		for (k = 0; k < cp[cp_id].n_xeos; k++) {
 			cp[i].xeos_r[k] = (rnd(1.0) -0.5) / 100.0;

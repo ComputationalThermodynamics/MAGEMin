@@ -1099,7 +1099,7 @@ SS_ref NLopt_opt_mb_liq_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mb_liq, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, liq_mb_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, liq_mb_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     
@@ -1133,7 +1133,7 @@ SS_ref NLopt_opt_mb_hb_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mb_hb, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, hb_mb_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, hb_mb_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     
@@ -1167,7 +1167,7 @@ SS_ref NLopt_opt_mb_aug_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mb_aug, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, aug_mb_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, aug_mb_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     
@@ -1200,7 +1200,7 @@ SS_ref NLopt_opt_mb_dio_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mb_dio, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, dio_mb_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, dio_mb_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     
@@ -1234,7 +1234,7 @@ SS_ref NLopt_opt_mb_opx_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mb_opx, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, opx_mb_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, opx_mb_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     
@@ -1268,7 +1268,7 @@ SS_ref NLopt_opt_mb_g_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mb_g, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, g_mb_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, g_mb_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     
@@ -1302,7 +1302,7 @@ SS_ref NLopt_opt_mb_ol_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mb_ol, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ol_mb_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ol_mb_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     
@@ -1336,7 +1336,7 @@ SS_ref NLopt_opt_mb_fsp_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mb_fsp, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, fsp_mb_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, fsp_mb_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     
@@ -1370,7 +1370,7 @@ SS_ref NLopt_opt_mb_abc_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mb_abc, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, abc_mb_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, abc_mb_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     
@@ -1404,7 +1404,7 @@ SS_ref NLopt_opt_mb_k4tr_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mb_k4tr, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, k4tr_mb_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, k4tr_mb_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     
@@ -1438,7 +1438,7 @@ SS_ref NLopt_opt_mb_sp_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mb_sp, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, sp_mb_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, sp_mb_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     
@@ -1472,7 +1472,7 @@ SS_ref NLopt_opt_mb_ilm_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mb_ilm, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ilm_mb_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ilm_mb_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     
@@ -1506,7 +1506,7 @@ SS_ref NLopt_opt_mb_ilmm_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mb_ilmm, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ilmm_mb_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ilmm_mb_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     
@@ -1540,7 +1540,7 @@ SS_ref NLopt_opt_mb_ep_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mb_ep, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ep_mb_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ep_mb_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     
@@ -1574,7 +1574,7 @@ SS_ref NLopt_opt_mb_bi_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mb_bi, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, bi_mb_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, bi_mb_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     
@@ -1608,7 +1608,7 @@ SS_ref NLopt_opt_mb_mu_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mb_mu, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, mu_mb_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, mu_mb_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     
@@ -1642,7 +1642,7 @@ SS_ref NLopt_opt_mb_chl_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mb_chl, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, chl_mb_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, chl_mb_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     
@@ -4331,7 +4331,7 @@ SS_ref NLopt_opt_mp_st_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mp_st, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, st_mp_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, st_mp_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -4367,7 +4367,7 @@ SS_ref NLopt_opt_mp_sp_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mp_sp, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, sp_mp_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, sp_mp_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -4403,7 +4403,7 @@ SS_ref NLopt_opt_mp_sa_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mp_sa, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, sa_mp_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, sa_mp_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -4439,7 +4439,7 @@ SS_ref NLopt_opt_mp_fsp_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mp_fsp, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, fsp_mp_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, fsp_mp_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -4475,7 +4475,7 @@ SS_ref NLopt_opt_mp_opx_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mp_opx, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, opx_mp_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, opx_mp_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -4511,7 +4511,7 @@ SS_ref NLopt_opt_mp_mu_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mp_mu, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, mu_mp_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, mu_mp_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -4547,7 +4547,7 @@ SS_ref NLopt_opt_mp_mt_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mp_mt, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, mt_mp_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, mt_mp_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -4583,7 +4583,7 @@ SS_ref NLopt_opt_mp_ma_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mp_ma, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ma_mp_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ma_mp_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -4618,7 +4618,7 @@ SS_ref NLopt_opt_mp_ilm_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mp_ilm, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ilm_mp_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ilm_mp_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     
@@ -4652,7 +4652,7 @@ SS_ref NLopt_opt_mp_ilmm_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mp_ilmm, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ilmm_mp_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ilmm_mp_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -4688,7 +4688,7 @@ SS_ref NLopt_opt_mp_g_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mp_g, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, g_mp_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, g_mp_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -4724,7 +4724,7 @@ SS_ref NLopt_opt_mp_ep_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mp_ep, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ep_mp_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ep_mp_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -4760,7 +4760,7 @@ SS_ref NLopt_opt_mp_ctd_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mp_ctd, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ctd_mp_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ctd_mp_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -4796,7 +4796,7 @@ SS_ref NLopt_opt_mp_chl_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mp_chl, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, chl_mp_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, chl_mp_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -4832,7 +4832,7 @@ SS_ref NLopt_opt_mp_cd_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mp_cd, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, cd_mp_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, cd_mp_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -4868,7 +4868,7 @@ SS_ref NLopt_opt_mp_bi_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mp_bi, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, bi_mp_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, bi_mp_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -4905,7 +4905,7 @@ SS_ref NLopt_opt_mp_liq_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_mp_liq, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, liq_mp_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, liq_mp_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -4941,7 +4941,7 @@ SS_ref NLopt_opt_ig_fper_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_ig_fper, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, fper_ig_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, fper_ig_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     
@@ -4976,7 +4976,7 @@ SS_ref NLopt_opt_ig_bi_function(global_variable gv, SS_ref SS_ref_db){
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
    nlopt_set_min_objective(SS_ref_db.opt, obj_ig_bi, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, bi_ig_c, NULL, SS_ref_db.tol_sf);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, bi_ig_c, NULL, NULL);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
@@ -5010,7 +5010,7 @@ SS_ref NLopt_opt_ig_cd_function(global_variable gv, SS_ref SS_ref_db){
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
    nlopt_set_min_objective(SS_ref_db.opt, obj_ig_cd, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, cd_ig_c, NULL, SS_ref_db.tol_sf);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, cd_ig_c, NULL, NULL);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
@@ -5046,7 +5046,7 @@ SS_ref NLopt_opt_ig_cpx_function(global_variable gv, SS_ref SS_ref_db){
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
    nlopt_set_min_objective(SS_ref_db.opt, obj_ig_cpx, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, cpx_ig_c, NULL, SS_ref_db.tol_sf);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, cpx_ig_c, NULL, NULL);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
@@ -5081,7 +5081,7 @@ SS_ref NLopt_opt_ig_ep_function(global_variable gv, SS_ref SS_ref_db){
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
    nlopt_set_min_objective(SS_ref_db.opt, obj_ig_ep, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ep_ig_c, NULL, SS_ref_db.tol_sf);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ep_ig_c, NULL, NULL);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
@@ -5116,7 +5116,7 @@ SS_ref NLopt_opt_ig_fl_function(global_variable gv, SS_ref SS_ref_db){
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
    nlopt_set_min_objective(SS_ref_db.opt, obj_ig_fl, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, fl_ig_c, NULL, SS_ref_db.tol_sf);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, fl_ig_c, NULL, NULL);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
@@ -5151,7 +5151,7 @@ SS_ref NLopt_opt_ig_g_function(global_variable gv, SS_ref SS_ref_db){
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
    nlopt_set_min_objective(SS_ref_db.opt, obj_ig_g, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, g_ig_c, NULL, SS_ref_db.tol_sf);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, g_ig_c, NULL, NULL);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
@@ -5186,7 +5186,7 @@ SS_ref NLopt_opt_ig_hb_function(global_variable gv, SS_ref SS_ref_db){
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
    nlopt_set_min_objective(SS_ref_db.opt, obj_ig_hb, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, hb_ig_c, NULL, SS_ref_db.tol_sf);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, hb_ig_c, NULL, NULL);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
@@ -5221,7 +5221,7 @@ SS_ref NLopt_opt_ig_ilm_function(global_variable gv, SS_ref SS_ref_db){
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
    nlopt_set_min_objective(SS_ref_db.opt, obj_ig_ilm, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ilm_ig_c, NULL, SS_ref_db.tol_sf);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ilm_ig_c, NULL, NULL);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
@@ -5256,7 +5256,7 @@ SS_ref NLopt_opt_ig_liq_function(global_variable gv, SS_ref SS_ref_db){
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
    nlopt_set_min_objective(SS_ref_db.opt, obj_ig_liq, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, liq_ig_c, NULL, SS_ref_db.tol_sf);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, liq_ig_c, NULL, NULL);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
@@ -5291,7 +5291,7 @@ SS_ref NLopt_opt_ig_mu_function(global_variable gv, SS_ref SS_ref_db){
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
    nlopt_set_min_objective(SS_ref_db.opt, obj_ig_mu, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, mu_ig_c, NULL, SS_ref_db.tol_sf);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, mu_ig_c, NULL, NULL);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
@@ -5326,7 +5326,7 @@ SS_ref NLopt_opt_ig_ol_function(global_variable gv, SS_ref SS_ref_db){
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
    nlopt_set_min_objective(SS_ref_db.opt, obj_ig_ol, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ol_ig_c, NULL, SS_ref_db.tol_sf);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ol_ig_c, NULL, NULL);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
@@ -5361,7 +5361,7 @@ SS_ref NLopt_opt_ig_opx_function(global_variable gv, SS_ref SS_ref_db){
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
    nlopt_set_min_objective(SS_ref_db.opt, obj_ig_opx, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, opx_ig_c, NULL, SS_ref_db.tol_sf);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, opx_ig_c, NULL, NULL);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
@@ -5396,7 +5396,7 @@ SS_ref NLopt_opt_ig_fsp_function(global_variable gv, SS_ref SS_ref_db){
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
    nlopt_set_min_objective(SS_ref_db.opt, obj_ig_fsp, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, fsp_ig_c, NULL, SS_ref_db.tol_sf);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, fsp_ig_c, NULL, NULL);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
    
@@ -5431,7 +5431,7 @@ SS_ref NLopt_opt_ig_spn_function(global_variable gv, SS_ref SS_ref_db){
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
    nlopt_set_min_objective(SS_ref_db.opt, obj_ig_spn, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, spn_ig_c, &SS_ref_db, SS_ref_db.tol_sf);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, spn_ig_c, &SS_ref_db, NULL);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
 
@@ -5469,7 +5469,7 @@ SS_ref NLopt_opt_um_fluid_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_um_fluid, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, fluid_um_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, fluid_um_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -5505,7 +5505,7 @@ SS_ref NLopt_opt_um_ol_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_um_ol, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ol_um_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ol_um_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -5541,7 +5541,7 @@ SS_ref NLopt_opt_um_br_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_um_br, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, br_um_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, br_um_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -5577,7 +5577,7 @@ SS_ref NLopt_opt_um_ch_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_um_ch, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ch_um_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ch_um_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -5613,7 +5613,7 @@ SS_ref NLopt_opt_um_atg_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_um_atg, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, atg_um_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, atg_um_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -5649,7 +5649,7 @@ SS_ref NLopt_opt_um_g_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_um_g, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, g_um_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, g_um_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -5685,7 +5685,7 @@ SS_ref NLopt_opt_um_ta_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_um_ta, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ta_um_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ta_um_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -5721,7 +5721,7 @@ SS_ref NLopt_opt_um_chl_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_um_chl, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, chl_um_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, chl_um_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -5757,7 +5757,7 @@ SS_ref NLopt_opt_um_anth_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_um_anth, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, anth_um_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, anth_um_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -5793,7 +5793,7 @@ SS_ref NLopt_opt_um_spi_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_um_spi, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, spi_um_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, spi_um_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -5829,7 +5829,7 @@ SS_ref NLopt_opt_um_opx_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_um_opx, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, opx_um_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, opx_um_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -5865,7 +5865,7 @@ SS_ref NLopt_opt_um_po_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_um_po, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, po_um_c, NULL, SS_ref_db.tol_sf);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, po_um_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -5932,7 +5932,7 @@ SS_ref NLopt_opt_aq17_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_aq17, &SS_ref_db);
-    nlopt_add_equality_mconstraint(SS_ref_db.opt, m, aq17_c, &SS_ref_db, SS_ref_db.tol_sf);
+    nlopt_add_equality_mconstraint(SS_ref_db.opt, m, aq17_c, &SS_ref_db, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     // nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);

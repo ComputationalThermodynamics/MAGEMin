@@ -602,7 +602,6 @@ mutable struct global_variables
     verifyPC::Ptr{Cint}
     n_solvi::Ptr{Cint}
     maxgmTime::Cdouble
-    ineq_res::Cdouble
     obj_tol::Cdouble
     box_size_mode_PGE::Cdouble
     box_size_mode_LP::Cdouble
@@ -643,15 +642,21 @@ mutable struct global_variables
     G_system_mu::Cdouble
     br_max_tol::Cdouble
     alpha::Cdouble
+    n_ss_array::Ptr{Cint}
+    ph_change::Cint
     merge_value::Cdouble
     re_in_n::Cdouble
     re_in_df::Cdouble
-    remove_dG_val::Cdouble
-    remove_sum_xi::Cdouble
-    ph_change::Cint
     min_df::Cdouble
+    pc_composite_dist::Cdouble
     A::Ptr{Ptr{Cdouble}}
+    A2::Ptr{Ptr{Cdouble}}
     b::Ptr{Cdouble}
+    b1::Ptr{Cdouble}
+    tmp1::Ptr{Cdouble}
+    tmp2::Ptr{Cdouble}
+    tmp3::Ptr{Cdouble}
+    pc_id::Ptr{Cint}
     mass_residual::Ptr{Cdouble}
     BR_norm::Cdouble
     poisson_ratio::Cdouble
@@ -768,8 +773,6 @@ mutable struct simplex_datas
     ph_id_B::Ptr{Cint}
     g0_B::Cdouble
     dG_B::Cdouble
-    n_local_min::Cint
-    n_filter::Cint
     simplex_datas() = new()
 end
 
@@ -838,8 +841,6 @@ struct SS_refs
     orderVar::Cint
     idOrderVar::Ptr{Cdouble}
     status::Cint
-    nlopt_verb::Cint
-    tol_sf::Ptr{Cdouble}
     lb::Ptr{Cdouble}
     ub::Ptr{Cdouble}
     opt::nlopt_opt
@@ -860,7 +861,6 @@ struct SS_refs
     xi_em::Ptr{Cdouble}
     sum_xi::Cdouble
     xeos::Ptr{Cdouble}
-    xeos_sf_ok::Ptr{Cdouble}
     ElShearMod::Ptr{Cdouble}
     density::Ptr{Cdouble}
     phase_density::Cdouble
@@ -2223,6 +2223,10 @@ function ss_min_LP(gv, SS_objective, z_b, SS_ref_db, cp)
     ccall((:ss_min_LP, libMAGEMin), Cvoid, (global_variable, Ptr{obj_type}, bulk_info, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, SS_objective, z_b, SS_ref_db, cp)
 end
 
+function copy_to_Ppc_composite(ph_id, gv, SS_objective, SS_ref_db)
+    ccall((:copy_to_Ppc_composite, libMAGEMin), Cint, (Cint, global_variable, Ptr{obj_type}, Ptr{SS_ref}), ph_id, gv, SS_objective, SS_ref_db)
+end
+
 function copy_to_cp(i, ph_id, gv, SS_ref_db, cp)
     ccall((:copy_to_cp, libMAGEMin), Cvoid, (Cint, Cint, global_variable, Ptr{SS_ref}, Ptr{csd_phase_set}), i, ph_id, gv, SS_ref_db, cp)
 end
@@ -2283,8 +2287,16 @@ function RootBracketed(x1, x2)
     ccall((:RootBracketed, libMAGEMin), Cint, (Cdouble, Cdouble), x1, x2)
 end
 
+function print_1D_double_array(nx, array, title)
+    ccall((:print_1D_double_array, libMAGEMin), Cvoid, (Cdouble, Ptr{Cdouble}, Ptr{Cchar}), nx, array, title)
+end
+
 function print_2D_double_array(nx, ny, array, title)
     ccall((:print_2D_double_array, libMAGEMin), Cvoid, (Cdouble, Cdouble, Ptr{Ptr{Cdouble}}, Ptr{Cchar}), nx, ny, array, title)
+end
+
+function print_1D_int_array(nx, array, title)
+    ccall((:print_1D_int_array, libMAGEMin), Cvoid, (Cdouble, Ptr{Cint}, Ptr{Cchar}), nx, array, title)
 end
 
 function rnd(a)
@@ -2387,8 +2399,8 @@ function compute_phase_mol_fraction(gv, PP_ref_db, SS_ref_db, cp)
     ccall((:compute_phase_mol_fraction, libMAGEMin), global_variable, (global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, PP_ref_db, SS_ref_db, cp)
 end
 
-function compute_activites(EM_database, gv, PP_ref_db, z_b)
-    ccall((:compute_activites, libMAGEMin), global_variable, (Cint, global_variable, Ptr{PP_ref}, bulk_info), EM_database, gv, PP_ref_db, z_b)
+function compute_activities(EM_database, gv, PP_ref_db, z_b)
+    ccall((:compute_activities, libMAGEMin), global_variable, (Cint, global_variable, Ptr{PP_ref}, bulk_info), EM_database, gv, PP_ref_db, z_b)
 end
 
 function compute_density_volume_modulus(EM_database, z_b, gv, PP_ref_db, SS_ref_db, cp)

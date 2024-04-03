@@ -180,7 +180,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.4.1 [27/03/2024]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.4.2 [02/04/2024]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");	
@@ -200,6 +200,9 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 
 	/* residual tolerance 				*/
 	gv.br_max_tol       = 1.0e-5;				/** value under which the solution is accepted to satisfy the mass constraint 		*/
+
+	/* pc composite parameters */
+	gv.pc_composite_dist= 1e-3;
 	
 	/* Magic PGE under-relaxing numbers */
 	gv.relax_PGE_val    = 128.0;				/** restricting factor 																*/
@@ -218,14 +221,13 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	/* PGE LP pseudocompounds parameters */
 	gv.launch_PGE 		= 0;
 	gv.n_pc 			= 8192;
-	gv.n_Ppc			= 15000;
-	gv.max_LP_ite 		= 256;
+	gv.n_Ppc			= 16384;
+	gv.max_LP_ite 		= 128;
 	gv.save_Ppc_val     = 0.0; 					/** During PGE iterations, if the driving force is < save_Ppc_val, then the 
 													pseudocompound is added to the Ppc list 										*/
 
 	/* local minimizer options 	*/
 	gv.bnd_val          = 1.0e-10;				/** boundary value for x-eos 										 				*/
-	gv.ineq_res  	 	= 0.0;
 	gv.box_size_mode_PGE= 0.25;					/** box edge size of the compositional variables used during PGE local minimization */
 	gv.maxeval   		= 1024;					/** max number of evaluation of the obj function for mode 1 (PGE)					*/
 	gv.maxgmTime        = 0.1; 					/** set a maximum minimization time for the local minimizer (sec)					*/
@@ -803,12 +805,19 @@ global_variable global_variable_init( 	global_variable  	 gv,
 	gv.dn_pp  = malloc ((gv.len_ox) 				* sizeof(double));			
 
 	/* stoechiometry matrix */
-	gv.A = malloc ((gv.len_ox*2) * sizeof(double*));			
-    for (i = 0; i < (gv.len_ox*2); i++){
-		gv.A[i] = malloc ((gv.len_ox*2) * sizeof(double));
-	}
-	gv.b = malloc (gv.len_ox*2 * sizeof(double));	
-
+	gv.A  = malloc ((gv.len_ox) * sizeof(double*));		
+	gv.A2 = malloc ((gv.len_ox) * sizeof(double*));			
+    for (i = 0; i < (gv.len_ox); i++){
+		gv.A[i]  = malloc ((gv.len_ox) * sizeof(double));
+		gv.A2[i] = malloc ((gv.len_ox) * sizeof(double));
+	
+	gv.pc_id= malloc (gv.len_ox * sizeof(int));}
+	gv.b 	= malloc (gv.len_ox * sizeof(double));	
+	gv.b1 	= malloc (gv.len_ox * sizeof(double));	
+	gv.tmp1 = malloc (gv.len_ox * sizeof(double));	
+	gv.tmp2 = malloc (gv.len_ox * sizeof(double));	
+	gv.tmp3 = malloc (gv.len_ox * sizeof(double));	
+	gv.n_ss_array = malloc (gv.len_ss* sizeof(double));	
 	/** 
 		allocate oxides informations 						
 	*/	
@@ -1409,12 +1418,19 @@ global_variable reset_gv(					global_variable 	 gv,
 
     for (i = 0; i < gv.len_ss; i++){	
         gv.n_solvi[i] = 0;
+		gv.n_ss_array[i] = 0.0;
     }
 
 	for (i = 0; i < (gv.len_ox); i++){ 
-		gv.b[i] = 0.0;
+		gv.pc_id[i] = -1;
+		gv.b[i] 	= 0.0;
+		gv.b1[i] 	= 0.0;
+		gv.tmp1[i] 	= 0.0;
+		gv.tmp2[i] 	= 0.0;
+		gv.tmp3[i] 	= 0.0;
 		for (j = 0; j < gv.len_ox; j++){
 			gv.A[i][j] = 0.0;
+			gv.A2[i][j] = 0.0;
 		}
 	}
 
@@ -1699,14 +1715,12 @@ void reset_SS(						global_variable 	 gv,
 			SS_ref_db[iss].xeos[k]       = 0.0;
 			SS_ref_db[iss].bounds[k][0]  = SS_ref_db[iss].bounds_ref[k][0];
 			SS_ref_db[iss].bounds[k][1]  = SS_ref_db[iss].bounds_ref[k][1];
-			SS_ref_db[iss].xeos_sf_ok[k] = 0.0;
 		}
 
 		for (int j = 0; j < SS_ref_db[iss].n_em; j++){
 			SS_ref_db[iss].p[j]     = 0.0;
 			SS_ref_db[iss].ape[j]   = 0.0;
 		}
-		SS_ref_db[iss].nlopt_verb  = 0; // no output by default
 	}
 
 };
@@ -1803,8 +1817,6 @@ void reset_simplex_A( 	simplex_data 		*splx_data,
 	simplex_data *d  = (simplex_data *) splx_data;
 	
 	/* allocate reference assemblage memory */
-	d->n_local_min =  0;
-	d->n_filter    =  0;
 	d->ph2swp      = -1;
 	d->n_swp       =  0;
 	d->swp         =  0;

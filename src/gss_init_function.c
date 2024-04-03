@@ -1371,7 +1371,6 @@ SS_ref G_SS_init_EM_function(		int			 		 ph_id,
 	SS_ref_db.ElEntropy		= malloc (gv.len_ox  	* sizeof (double) );     
 	SS_ref_db.xi_em   		= malloc (n_em   	 	* sizeof (double) ); 
 	SS_ref_db.xeos    		= malloc (n_xeos     	* sizeof (double) ); 	
-	SS_ref_db.xeos_sf_ok 	= malloc ((n_xeos) 		* sizeof (double) );
 
 	/* memory allocation to store all gbase */
 	SS_ref_db.mu_array = malloc ((gv.n_Diff) * sizeof (double*) ); 
@@ -1388,11 +1387,7 @@ SS_ref G_SS_init_EM_function(		int			 		 ph_id,
 	/* dynamic memory allocation of data to send to NLopt */
 	SS_ref_db.ub   		= malloc ((n_xeos) * sizeof (double) ); 
 	SS_ref_db.lb   		= malloc ((n_xeos) * sizeof (double) ); 
-	SS_ref_db.tol_sf   	= malloc ((n_sf) * sizeof (double) ); 
-	for (int j = 0; j < n_sf; j++){
-		SS_ref_db.tol_sf[j] = gv.ineq_res;
-	}
-	
+
 	/**
 		Allocate memory for levelling pseudocompounds 
 	*/

@@ -123,7 +123,25 @@ void print_2D_double_array(double nx, double ny, double **array, char *title){
 		printf("\n");
 	}
 	printf("\n");
+}
 
+void print_1D_double_array(double nx, double *array, char *title){
+	int j;
+	printf(" %s:\n",title);
+	for (j = 0; j < nx; j++){
+		printf(" %+10f",array[j]);
+	}
+	printf("\n");
+}
+
+
+void print_1D_int_array(double nx, int *array, char *title){
+	int j;
+	printf(" %s:\n",title);
+	for (j = 0; j < nx; j++){
+		printf(" %d",array[j]);
+	}
+	printf("\n");
 }
 
 /* generate a random double between 0 and a*/
@@ -1474,7 +1492,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 }
 
 
-global_variable compute_activites(			int					 EM_database,	
+global_variable compute_activities(			int					 EM_database,	
 											global_variable 	 gv,
 											PP_ref  			*PP_ref_db,
 											bulk_info 			 z_b			){

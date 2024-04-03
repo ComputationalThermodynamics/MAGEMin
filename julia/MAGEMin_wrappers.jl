@@ -303,23 +303,6 @@ function multi_point_minimization(P           ::  T2,
     # initialize vectors
     Out_PT = Vector{gmin_struct{Float64, Int64}}(undef, length(P))
 
-    # Currently, there seem to be some type instabilities or something else so that
-    # some compilation happens in the threaded loop below. This interferes badly
-    # in some weird way with (libsc, p4est, t8code) - in particular on Linux where
-    # we get segfaults. To avoid this, we force serial compilation by calling MAGEMin
-    # once before the loop.
-    # let id      = 1
-    #     gv          = MAGEMin_db.gv[id]
-    #     z_b         = MAGEMin_db.z_b[id]
-    #     DB          = MAGEMin_db.DB[id]
-    #     splx_data   = MAGEMin_db.splx_data[id]
-    #     if isnothing(B)
-    #         point_wise_minimization(P[1], T[1], gv, z_b, DB, splx_data, sys_in)
-    #     else
-    #         point_wise_minimization(P[1], T[1], gv, z_b, DB, splx_data, sys_in; buffer_n = B[1])
-    #     end
-    # end
-
     # main loop
     if progressbar
         progr = Progress(length(P), desc="Computing $(length(P)) points...") # progress meter
@@ -414,8 +397,8 @@ end
 
 function define_bulk_rock(gv, bulk_in, bulk_in_ox, sys_in,db)
 
-    bulk_rock, ox   = convertBulk4MAGEMin(bulk_in,bulk_in_ox,sys_in,db)    # conversion changes the system unit to mol
-    gv.bulk_rock    = pointer(bulk_rock)                                    # copy the bulk-rock
+    bulk_rock, ox   = convertBulk4MAGEMin(bulk_in,bulk_in_ox,sys_in,db)     # conversion changes the system unit to mol
+    unsafe_copyto!(gv.bulk_rock, pointer(bulk_rock) , gv.len_ox)            # copy the bulk-rock
 
     LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
 
@@ -640,12 +623,14 @@ function point_wise_minimization(P::Float64,T::Float64, gv, z_b, DB, splx_data; 
 
     if (scp == 1)
         mSS_vec     = deepcopy(out.mSS_vec)
-        dT          = 2.5;
+        dT          = 2.0;
         W           = point_wise_minimization_with_guess(mSS_vec, P, T-dT, gv, z_b, DB, splx_data)
         E           = point_wise_minimization_with_guess(mSS_vec, P, T+dT, gv, z_b, DB, splx_data)
         hcp         = -(T+273.15)*(E + W - 2.0*out.G_system)/(dT*dT);
         s_cp        = hcp/out.M_sys*1e6;
         out.s_cp   .= s_cp
+
+        # print("E: $E W: $W G: $(out.G_system)\n")
     end
 
     # LibMAGEMin.FreeDatabases(gv, DB, z_b);
@@ -655,7 +640,7 @@ end
 """
     out = point_wise_minimization(P::Number,T::Number, data::MAGEMin_Data)
 
-Performs a point-wise optimization for a given pressure `P` and temperature `T` foir the data specified in the MAGEMin database `MAGEMin_Data` (where also compoition is specified)
+Performs a point-wise optimization for a given pressure `P` and temperature `T` for the data specified in the MAGEMin database `MAGEMin_Data` (where also compoition is specified)
 """
 point_wise_minimization(P::Number,T::Number, gv, z_b, DB, splx_data; buffer_n::Float64 = 0.0, scp::Int64 = 0, W::Union{Nothing, W_Data} = nothing) = point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, scp, W)
 

@@ -30,7 +30,10 @@ int 	get_active_em(double *array, int n);
 int 	EndsWithTail(char *name, char* tail);	
 int    	RootBracketed(double x1,double x2);
 
+void 	print_1D_double_array(double nx, double *array, char *title);
 void 	print_2D_double_array(double nx, double ny, double **array, char *title);
+void 	print_1D_int_array(double nx, int *array, char *title);
+
 double  rnd(double a);
 double  SUPCRT_to_HSC(double *ElH, double *comp, int size);
 double  HSC_to_SUPCRT(double *ElH, double *comp, int size);
@@ -106,7 +109,7 @@ global_variable compute_phase_mol_fraction(	global_variable 	 gv,
 											SS_ref  			*SS_ref_db,
 											csd_phase_set  		*cp					);
 
-global_variable compute_activites(			int					 EM_database,	
+global_variable compute_activities(			int					 EM_database,	
 											global_variable 	 gv,
 											PP_ref  			*PP_ref_db,
 											bulk_info 			 z_b				);
