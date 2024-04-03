@@ -20,6 +20,7 @@ Levelling occurs in two stages:
 #if __APPLE__
 	extern void dgetrf( int* M, int* N, double* A, int* lda, int* ipiv, int* info);
 	extern void dgetrs(char* T, int* N, int* nrhs, double* A, int* lda, int* ipiv, double* B, int* ldb, int* info);
+	extern void dgesv( int* n, int* nrhs, double* a, int* lda, int* ipiv, double* b, int* ldb, int* info );
 #else
 	#include <lapacke.h> 
 #endif 
@@ -325,6 +326,7 @@ void update_global_gamma_LU( 				bulk_info 			z_b,
 
 	for (i = 0; i < d->n_Ox;i++){
 		d->gamma_ss[i] = d->g0_A[i];
+		ipiv[i] = 0;
 	}
 	for (i = 0; i < d->n_Ox;i++){
 		for (j = 0; j < d->n_Ox;j++){
@@ -338,6 +340,8 @@ void update_global_gamma_LU( 				bulk_info 			z_b,
 		call lapacke to solve system of linear equation using LU 
 	*/
 #if __APPLE__
+	
+	
 	// Factorisation
 	dgetrf(&d->n_Ox, &d->n_Ox, d->Alu, &d->n_Ox, ipiv, &info);
 
@@ -351,7 +355,18 @@ void update_global_gamma_LU( 				bulk_info 			z_b,
 								d->gamma_ss, 
 								&d->n_Ox,
 								&info				);
-
+	
+	
+	/*
+	dgesv(						&d->n_Ox, 
+								&nrhs, 
+								d->Alu, 
+								&lda, 
+								ipiv, 
+								d->gamma_ss, 
+								&d->n_Ox,
+								&info	);
+	*/
 #else	
 	info = LAPACKE_dgesv(		LAPACK_ROW_MAJOR, 
 								d->n_Ox, 
