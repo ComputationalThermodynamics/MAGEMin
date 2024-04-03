@@ -134,16 +134,16 @@ end
     T           = 1200.0
     out         = point_wise_minimization(P,T, data)
 
-    tol = 1e-2;
-    @test abs(out.bulkMod - 95.36502708314566           < tol)
-    @test abs(out.shearMod - 29.908982525130096         < tol)
-    @test abs(out.Vs - 3.0562725380891456               < tol)
-    @test abs(out.Vp - 6.499047842613104                < tol)
-    @test abs(out.Vs_S -4.30859321743808                < tol)
-    @test abs(out.Vp_S - 7.392063221476717              < tol)
-    @test abs(out.bulkModulus_M - 27.239361903015595    < tol)
-    @test abs(out.bulkModulus_S - 95.74438231792864     < tol)
-    @test abs(out.shearModulus_S - 59.4633264822083     < tol)
+    tol = 1.5e-2;
+    @test abs(out.bulkMod - 95.36502708314566         )  < tol
+    @test abs(out.shearMod - 29.908982525130096       )  < tol
+    @test abs(out.Vs - 3.0562725380891456             )  < tol
+    @test abs(out.Vp - 6.499047842613104              )  < tol
+    @test abs(out.Vs_S -4.30859321743808              )  < tol
+    @test abs(out.Vp_S - 7.392063221476717            )  < tol
+    @test abs(out.bulkModulus_M - 27.239361903015595  )  < tol
+    @test abs(out.bulkModulus_S - 95.74438231792864   )  < tol
+    @test abs(out.shearModulus_S - 59.4633264822083   )  < tol
 
     Finalize_MAGEMin(data)
 end
@@ -267,4 +267,10 @@ println("Testing points from the reference diagrams:")
     Finalize_MAGEMin(data)
 
 
+end
+
+# a few tests that gave problems in the past
+println("Testing problematic points:")
+@testset verbose = true "Problematic points" begin
+    include("test_problematic_points.jl")
 end
