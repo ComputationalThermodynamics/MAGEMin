@@ -16,8 +16,9 @@ The routine is the core of MAGEMin algorithm and is constructed around the Gibbs
 #include <complex.h> 
 
 #if __APPLE__
-	extern void dgetrf( int* M, int* N, double* A, int* lda, int* ipiv, int* info);
-	extern void dgetrs(char* T, int* N, int* nrhs, double* A, int* lda, int* ipiv, double* B, int* ldb, int* info);
+	//extern void dgetrf( int* M, int* N, double* A, int* lda, int* ipiv, int* info);
+	//extern void dgetrs(char* T, int* N, int* nrhs, double* A, int* lda, int* ipiv, double* B, int* ldb, int* info);
+	extern void dgesv( int* n, int* nrhs, double* a, int* lda, int* ipiv, double* b, int* ldb, int* info );
 #else
 	#include <lapacke.h> 
 #endif 
@@ -587,13 +588,7 @@ global_variable PGE_solver(		bulk_info 	 		 z_b,
 		call lapacke to solve system of linear equation using LU 
 	*/
 	#if __APPLE__
-		// Factorisation
-		dgetrf(&nEntry, &nEntry, gv.A_PGE, &nEntry, gv.ipiv, &info);
-
-		// Solution (with transpose!)
-		char T = 'T';
-		dgetrs(						&T,
-									&nEntry, 
+		dgesv(						&nEntry, 
 									&nrhs, 
 									gv.A_PGE,
 									&nEntry, 
