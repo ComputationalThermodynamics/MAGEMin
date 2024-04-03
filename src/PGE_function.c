@@ -591,7 +591,7 @@ global_variable PGE_solver(		bulk_info 	 		 z_b,
 		dgetrf(&nEntry, &nEntry, gv.A_PGE, &nEntry, gv.ipiv, &info);
 
 		// Solution (with transpose!)
-		char T = "T";
+		char T = 'T';
 		dgetrs(						&T,
 									&nEntry, 
 									&nrhs, 
