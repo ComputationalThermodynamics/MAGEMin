@@ -4,7 +4,7 @@ using MAGEMin_C
 
 
 # This gives propblems on an M2 Max:
-data    = Initialize_MAGEMin("ig", verbose=-1, solver=2);
+data    = Initialize_MAGEMin("ig", verbose=0, solver=2);
 
 
 P,T     = 8.42, 705.0
