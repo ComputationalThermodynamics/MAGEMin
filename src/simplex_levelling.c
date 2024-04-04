@@ -18,8 +18,8 @@ Levelling occurs in two stages:
 #include <string.h>
 #include <complex.h> 
 #if __APPLE__
-	extern void dgetrf( int* M, int* N, double* A, int* lda, int* ipiv, int* info);
-	extern void dgetrs(char* T, int* N, int* nrhs, double* A, int* lda, int* ipiv, double* B, int* ldb, int* info);
+	//extern void dgetrf( int* M, int* N, double* A, int* lda, int* ipiv, int* info);
+	//extern void dgetrs(char* T, int* N, int* nrhs, double* A, int* lda, int* ipiv, double* B, int* ldb, int* info);
 	extern void dgesv( int* n, int* nrhs, double* a, int* lda, int* ipiv, double* b, int* ldb, int* info );
 #else
 	#include <lapacke.h> 
@@ -332,7 +332,12 @@ void update_global_gamma_LU( 				bulk_info 			z_b,
 		for (j = 0; j < d->n_Ox;j++){
 			k = i + j*d->n_Ox;
 			l = j + i*d->n_Ox;
-			d->Alu[k] = d->A[l];
+			
+#if __APPLE__			
+			d->Alu[l] = d->A[l];	// apple accelerate uses lapack (colum major) 
+#else
+			d->Alu[k] = d->A[l];	// lapacke can use row major
+#endif
 		}
 	}
 
@@ -341,7 +346,7 @@ void update_global_gamma_LU( 				bulk_info 			z_b,
 	*/
 #if __APPLE__
 	
-	
+	/*
 	// Factorisation
 	dgetrf(&d->n_Ox, &d->n_Ox, d->Alu, &d->n_Ox, ipiv, &info);
 
@@ -355,18 +360,18 @@ void update_global_gamma_LU( 				bulk_info 			z_b,
 								d->gamma_ss, 
 								&d->n_Ox,
 								&info				);
+	*/
 	
 	
-	/*
 	dgesv(						&d->n_Ox, 
 								&nrhs, 
 								d->Alu, 
-								&lda, 
+								&d->n_Ox, 
 								ipiv, 
 								d->gamma_ss, 
 								&d->n_Ox,
 								&info	);
-	*/
+	
 #else	
 	info = LAPACKE_dgesv(		LAPACK_ROW_MAJOR, 
 								d->n_Ox, 
