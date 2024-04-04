@@ -1,4 +1,4 @@
-# This script helps to generate a lsit of points for testing MAGEMin using reference built-in bulk-rock compositions
+# This script helps to generate a list of points for testing MAGEMin using reference built-in bulk-rock compositions
 
 cur_dir = pwd();    
 if  cur_dir[end-3:end]=="test"

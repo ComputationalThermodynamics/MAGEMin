@@ -57,7 +57,7 @@ ss_struct[ss] = LibMAGEMin.PC_function(	gv,
                                         ssName 				);
 
 
-# # run single point calcuation
+# # run single point calculation
 # out = pwm_run(gv, z_b, DB, splx_data);
 
 # print(out.G_system," -> ",out.ph," ",out.ph_frac,"\n");

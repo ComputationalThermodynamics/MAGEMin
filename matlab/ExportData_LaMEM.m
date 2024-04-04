@@ -172,7 +172,7 @@ pcolor(T,P,rho)
 shading interp
 colorbar
 ylabel('P [kbar]')
-xlabel('T [Celcius]')
+xlabel('T [Celsius]')
 title('density rock w/out melt!')
 
 subplot(222)
@@ -180,7 +180,7 @@ pcolor(T,P,melt)
 shading interp
 colorbar
 ylabel('P [kbar]')
-xlabel('T [Celcius]')
+xlabel('T [Celsius]')
 title('Melt content')
 
 subplot(223)
@@ -216,7 +216,7 @@ pcolor(T,P,Vp)
 shading interp
 colorbar
 ylabel('P [kbar]')
-xlabel('T [Celcius]')
+xlabel('T [Celsius]')
 title('Vp [km/s]')
 
 subplot(222)
@@ -224,7 +224,7 @@ pcolor(T,P,Vs)
 shading interp
 colorbar
 ylabel('P [kbar]')
-xlabel('T [Celcius]')
+xlabel('T [Celsius]')
 title('Vs [km/s]')
 
 subplot(223)
@@ -232,7 +232,7 @@ pcolor(T,P,VpVs)
 shading interp
 colorbar
 ylabel('P [kbar]')
-xlabel('T [Celcius]')
+xlabel('T [Celsius]')
 title('Vp/Vs []')
 
 

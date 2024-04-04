@@ -32,7 +32,7 @@ end
 
 write_environmental_variables_file()
 
-println("Succesfully downloaded the MAGEMin_jll package")
+println("Successfully downloaded the MAGEMin_jll package")
 println("And installed the environmental_variables.m file in: $(pwd())")
 
 # Show the version number
