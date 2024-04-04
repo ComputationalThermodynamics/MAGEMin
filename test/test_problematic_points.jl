@@ -5,7 +5,7 @@ using MAGEMin_C
 
 
 # This gives propblems on an M2 Max:
-data    = Initialize_MAGEMin("ig", verbose=1, solver=2);
+data    = Initialize_MAGEMin("ig", verbose=-1, solver=2);
 
 # One bulk rock for all points
 P,T     = 8.42, 705.0
