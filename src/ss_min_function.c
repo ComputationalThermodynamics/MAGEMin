@@ -262,8 +262,7 @@ void copy_to_Ppc(		int 				 pc_check,
 						global_variable 	 gv,
 
 						obj_type 			*SS_objective,
-						SS_ref 			    *SS_ref_db,
-						csd_phase_set  		*cp					){
+						SS_ref 			    *SS_ref_db					){
 
 		double G;
 		int    m_Ppc;
@@ -409,8 +408,7 @@ void ss_min_PGE(		global_variable 	 gv,
 															gv,
 
 															SS_objective,
-															SS_ref_db,
-															cp						);
+															SS_ref_db						);
 				}					
 			}
 			else{
@@ -554,8 +552,7 @@ void compute_cst_dG_Ppc(	global_variable 	 gv,
 														gv,
 
 														SS_objective,
-														SS_ref_db,
-														cp						);	
+														SS_ref_db						);	
 		}
 
 	}
@@ -690,8 +687,7 @@ void ss_min_LP(			global_variable 	 gv,
 																gv,
 
 																SS_objective,
-																SS_ref_db,
-																cp						);	
+																SS_ref_db					);	
 					}
 					else{
 						if (add_def == 0){
@@ -715,8 +711,7 @@ void ss_min_LP(			global_variable 	 gv,
 																		gv,
 
 																		SS_objective,
-																		SS_ref_db,
-																		cp						);	
+																		SS_ref_db					);	
 							add_def = 1;
 						}
 

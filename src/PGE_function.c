@@ -1438,18 +1438,42 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 						gv.A2[i][j] = SS_ref_db[ph_id].iguess[j];
 					}
 
-					SS_ref_db[ph_id] = PC_function(	gv,
-													SS_ref_db[ph_id], 
-													z_b,
-													gv.SS_list[ph_id] 		);
-					for (j = 0; j < gv.len_ox; j++){
-						comp_composite[j] += SS_ref_db[ph_id].ss_comp[j]*gv.b[i]*SS_ref_db[ph_id].factor;
-					} 
-					printf("Compositition\n");
-					for (j = 0; j < gv.len_ox; j++){
-						printf(" %+10f",SS_ref_db[ph_id].ss_comp[j]*SS_ref_db[ph_id].factor);
-					}
-					printf("\n");
+					/* get unrotated gbase */
+					SS_ref_db[ph_id] = non_rot_hyperplane(		gv, 
+																SS_ref_db[ph_id]		);
+
+					SS_ref_db[ph_id] = PC_function(				gv,
+																SS_ref_db[ph_id], 
+																z_b,
+																gv.SS_list[ph_id] 		);
+
+					SS_ref_db[ph_id] = SS_UPDATE_function(		gv, 
+																SS_ref_db[ph_id], 
+																z_b, 
+																gv.SS_list[ph_id]		);
+
+					printf("id Ppc: %d\n",SS_ref_db[ph_id].id_Ppc);
+					copy_to_Ppc(								0,
+																1,
+																ph_id,
+																gv,
+
+																SS_objective,
+																SS_ref_db					);	
+
+
+					// for (j = 0; j < gv.len_ox; j++){
+					// 	comp_composite[j] += SS_ref_db[ph_id].ss_comp[j]*gv.b[i]*SS_ref_db[ph_id].factor;
+					// } 
+					// printf("Compositition\n");
+					// for (j = 0; j < gv.len_ox; j++){
+					// 	printf(" %+10f",SS_ref_db[ph_id].ss_comp[j]*SS_ref_db[ph_id].factor);
+					// }
+					// printf("\n");
+
+					// printf("Driving force\n");
+					// printf(" %+10f\n",SS_ref_db[ph_id].df);
+					// printf("\n");
 
 					// /* adding the composite pseudocompound to the Ppc list: here we swap the groupd of initial compound to a compositionally tigher one */
 					// m_Ppc = copy_to_Ppc_composite(	ph_id,
