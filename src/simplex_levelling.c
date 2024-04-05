@@ -442,7 +442,8 @@ void swap_pure_phases(				bulk_info 	 		 z_b,
 			
 			d->g0_B 		= PP_ref_db[i].gbase*PP_ref_db[i].factor;
 			d->ph_id_B[0]  	= 1;															/** added phase is a pure species */
-			d->ph_id_B[1]	= i;															/** save pure species index */
+			d->ph_id_B[1]	= i;	
+			d->ph_id_B[2]	= 0;															/** save pure species index */
 		
 			/* retrieve the composition in the right (reduced) chemical space */
 			for (int j = 0; j < z_b.nzEl_val; j++){
