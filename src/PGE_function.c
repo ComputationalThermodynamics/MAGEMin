@@ -874,7 +874,6 @@ global_variable run_LP_ig(							bulk_info 			 z_b,
 		k 		  += 1;
 		d->swp     = 0;
 		
-
 		swap_PGE_pseudocompounds(			z_b,
 											splx_data,
 											gv,
@@ -1651,8 +1650,6 @@ global_variable LP(		bulk_info 			z_b,
 										PP_ref_db,
 										SS_ref_db			);
 
-		// if (gv.gamma_norm[gv.global_ite-1] > 10.0){
-
 		gv = LP_pc_composite(			z_b,
 										splx_data,
 										gv,
@@ -1660,7 +1657,6 @@ global_variable LP(		bulk_info 			z_b,
 										SS_objective,	
 										PP_ref_db,
 										SS_ref_db			);	
-		// }
 
 		gv = init_LP(					z_b,
 										splx_data,

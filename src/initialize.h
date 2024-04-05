@@ -243,8 +243,8 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.it_f             = 256;                  /** gives back failure when the number of iteration is bigger than it_f             */
 
 	/* phase update options 			*/
-	gv.min_df 			= -1e-8;					/** value under which a phase in hold is reintroduced */
-	gv.re_in_df 		= -1e-8;
+	gv.min_df 			= -1e-6;					/** value under which a phase in hold is reintroduced */
+	gv.re_in_df 		= -1e-6;
 	/* numerical derivatives P,T steps (same value as TC) */
 	gv.gb_P_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
 	gv.gb_T_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/

@@ -483,7 +483,7 @@ function convertBulk4MAGEMin(bulk_in::T1,bulk_in_ox::Vector{String},sys_in::Stri
         d = findall(MAGEMin_ox .== "Cr2O3" .|| MAGEMin_ox .== "TiO2" .|| MAGEMin_ox .== "O");# .|| MAGEMin_ox .== "H2O");
     elseif db == "mb"               #for the metabasite database it is better to set a low value for H2O as dry system haw not been validated by Eleanor
         c = findall(MAGEMin_ox .!= "TiO2" .&& MAGEMin_ox .!= "O");
-        d = findall(MAGEMin_ox .== "TiO2" .|| MAGEMin_ox .== "O");W
+        d = findall(MAGEMin_ox .== "TiO2" .|| MAGEMin_ox .== "O");
     elseif db == "mp"
         c = findall(MAGEMin_ox .!= "TiO2" .&& MAGEMin_ox .!= "O" .&& MAGEMin_ox .!= "MnO" .&& MAGEMin_ox .!= "H2O");
         d = findall(MAGEMin_ox .== "TiO2" .|| MAGEMin_ox .== "O" .|| MAGEMin_ox .!= "MnO");

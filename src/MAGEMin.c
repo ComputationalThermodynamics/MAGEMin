@@ -579,6 +579,14 @@ int runMAGEMin(			int    argc,
 			}
 		}
 
+		gv.div 		= 0;
+		gv.status 	= 0;
+
+		/* initialize legacy solver using results of levelling phase */
+		for (int i = 0; i < gv.len_ox; i++){
+			gv.gam_tot[i] = gv.gam_tot_0[i];
+		}	
+
 		if (ig_liq > 0.25 || n_liq > 2 || n_ss > 6){
 			gv 		= PGE(			z_b,									/** bulk rock constraint 			*/ 
 									gv,										/** global variables (e.g. Gamma) 	*/
@@ -611,15 +619,6 @@ int runMAGEMin(			int    argc,
 										cp						);
 			}
 			else{	// here we compute the LP initial guess
-
-				gv.div 		= 0;
-				gv.status 	= 0;
-
-				/* initialize legacy solver using results of levelling phase */
-				for (int i = 0; i < gv.len_ox; i++){
-					gv.gam_tot[i] = gv.gam_tot_0[i];
-				}	
-
 				gv = run_LP_ig(					z_b,
 												splx_data,
 												gv,
