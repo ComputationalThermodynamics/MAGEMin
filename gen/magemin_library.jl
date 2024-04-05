@@ -2227,6 +2227,10 @@ function copy_to_Ppc_composite(ph_id, gv, SS_objective, SS_ref_db)
     ccall((:copy_to_Ppc_composite, libMAGEMin), Cint, (Cint, global_variable, Ptr{obj_type}, Ptr{SS_ref}), ph_id, gv, SS_objective, SS_ref_db)
 end
 
+function copy_to_Ppc(pc_check, add, ph_id, gv, SS_objective, SS_ref_db)
+    ccall((:copy_to_Ppc, libMAGEMin), Cvoid, (Cint, Cint, Cint, global_variable, Ptr{obj_type}, Ptr{SS_ref}), pc_check, add, ph_id, gv, SS_objective, SS_ref_db)
+end
+
 function copy_to_cp(i, ph_id, gv, SS_ref_db, cp)
     ccall((:copy_to_cp, libMAGEMin), Cvoid, (Cint, Cint, global_variable, Ptr{SS_ref}, Ptr{csd_phase_set}), i, ph_id, gv, SS_ref_db, cp)
 end

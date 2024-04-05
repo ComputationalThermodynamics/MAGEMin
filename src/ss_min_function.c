@@ -660,7 +660,8 @@ void ss_min_LP(			global_variable 	 gv,
 				double sh_array[] = {0.0,-0.0001,0.0001,0.001,0.01,0.1,0.2,0.3,0.4,0.5,0.75};
 
 				int add_def = 0;
-				for (int add = 0; add < 11; add++){
+				// for (int add = 0; add < 11; add++){
+				for (int add = 0; add < 1; add++){
 					
 					shift = sh_array[add];
 					for (int k = 0; k < cp[i].n_xeos; k++) {

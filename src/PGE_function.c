@@ -1256,14 +1256,16 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 
 	double sum_n_vec 	= 0.0;
 	double sum_n_vec_cor= 0.0;
-	double shift 		= 1e-2;
+	double shift 		= 1e-4;
 
-	printf("\nPseudocompounds collapse (intermediate stage) \n");
-	printf("══════════════════════════════════════════════\n");
+	if (gv.verbose == 1){
+		printf("\nPseudocompounds collapse (intermediate stage) \n");
+		printf("══════════════════════════════════════════════\n");
+	}
 
 	/* loops through active solution phases and store their information */
 	for (ph_id = 0; ph_id < gv.len_ss; ph_id++){
-		if (SS_ref_db[ph_id].ss_flags[0] == 1 && strcmp(gv.SS_list[ph_id],"liq") == 0){
+		if (SS_ref_db[ph_id].ss_flags[0] == 1/* && strcmp(gv.SS_list[ph_id],"liq") == 0*/){
 			sum_n_vec 		= 0.0;
 			sum_n_vec_cor 	= 0.0;
 			nOcc 			= 0;
@@ -1437,19 +1439,19 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 																z_b, 
 																gv.SS_list[ph_id]		);
 
-					m_Ppc = SS_ref_db[ph_id].id_Ppc;
+					// m_Ppc = SS_ref_db[ph_id].id_Ppc;
 
-					d->ph_id_A[gv.pc_id[i]][0] = 3;
-					d->ph_id_A[gv.pc_id[i]][1] = ph_id;
-					d->ph_id_A[gv.pc_id[i]][2] = 0;
-					d->ph_id_A[gv.pc_id[i]][3] = m_Ppc;										/** save pseudocompound number */
-					d->g0_A[gv.pc_id[i]] 	   = SS_ref_db[ph_id].df;
-					d->stage[gv.pc_id[i]] 	   = 1;										/** just to indicate that the phase belongs to stage 2 of LP */
+					// d->ph_id_A[gv.pc_id[i]][0] = 3;
+					// d->ph_id_A[gv.pc_id[i]][1] = ph_id;
+					// d->ph_id_A[gv.pc_id[i]][2] = 0;
+					// d->ph_id_A[gv.pc_id[i]][3] = m_Ppc;										/** save pseudocompound number */
+					// d->g0_A[gv.pc_id[i]] 	   = SS_ref_db[ph_id].df;
+					// d->stage[gv.pc_id[i]] 	   = 1;										/** just to indicate that the phase belongs to stage 2 of LP */
 					
-					for (j = 0; j < d->n_Ox; j++){				
-						l = gv.pc_id[i] + j*d->n_Ox;
-						d->A[l] = SS_ref_db[ph_id].ss_comp[z_b.nzEl_array[j]]*SS_ref_db[ph_id].factor;
-					}
+					// for (j = 0; j < d->n_Ox; j++){				
+					// 	l = gv.pc_id[i] + j*d->n_Ox;
+					// 	d->A[l] = SS_ref_db[ph_id].ss_comp[z_b.nzEl_array[j]]*SS_ref_db[ph_id].factor;
+					// }
 
 					copy_to_Ppc(								0,
 																1,
@@ -1460,70 +1462,69 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 																SS_ref_db					);	
 				}
 
-				for (j = 0; j< d->n_Ox*d->n_Ox; j++){ d->A1[j] = d->A[j];}
+				// for (j = 0; j< d->n_Ox*d->n_Ox; j++){ d->A1[j] = d->A[j];}
 
-				/** inverse guessed assemblage stoechiometry matrix */
-				inverseMatrix(	gv.ipiv,
-								d->A1,
-								d->n_Ox,
-								gv.work,
-								gv.lwork	);
+				// /** inverse guessed assemblage stoechiometry matrix */
+				// inverseMatrix(	gv.ipiv,
+				// 				d->A1,
+				// 				d->n_Ox,
+				// 				gv.work,
+				// 				gv.lwork	);
 
-				/** update phase fractions */
-				MatVecMul(		d->A1,
-								z_b.bulk_rock_cat,
-								d->n_vec,
-								d->n_Ox		);
+				// /** update phase fractions */
+				// MatVecMul(		d->A1,
+				// 				z_b.bulk_rock_cat,
+				// 				d->n_vec,
+				// 				d->n_Ox		);
 
-				/* update gamma of SS */
-				update_local_gamma(						d->A1,
-														d->g0_A,
-														d->gamma_ss,
-														d->n_Ox			);
+				// /* update gamma of SS */
+				// update_local_gamma(						d->A1,
+				// 										d->g0_A,
+				// 										d->gamma_ss,
+				// 										d->n_Ox			);
 
-				/* update global variable gamma */
-				update_global_gamma_LU(					z_b,
-														splx_data		);	
+				// /* update global variable gamma */
+				// update_global_gamma_LU(					z_b,
+				// 										splx_data		);	
 
+				// if (gv.verbose == 1){
+				// 	printf("\n Perform LP composite for %5s\n",gv.SS_list[ph_id]);	
+				// 	printf(" [----------------------------------------]\n");
+				// 	printf(" [  Ph  |   Ph PROP  |   g0_Ph    |  ix   ]\n");
+				// 	printf(" [----------------------------------------]\n");
 
-				if (gv.verbose == 1){
-					printf("\n Perform LP composite for %5s\n",gv.SS_list[ph_id]);	
-					printf(" [----------------------------------------]\n");
-					printf(" [  Ph  |   Ph PROP  |   g0_Ph    |  ix   ]\n");
-					printf(" [----------------------------------------]\n");
-
-					for (int i = 0; i < d->n_Ox; i++){
-						if (d->ph_id_A[i][0] == 1){
-							printf(" ['%5s' %+10f  %+12.4f  %2d %2d ]", gv.PP_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0], d->stage[i]);
-							printf("\n");
-						}
-						if (d->ph_id_A[i][0] == 2){
-							printf(" ['%5s' %+10f  %+12.4f  %2d %2d ]\n", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0], d->stage[i]);
-						}
-						if (d->ph_id_A[i][0] == 3){
-							printf(" ['%5s' %+10f  %+12.4f  %2d %2d ]", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0], d->stage[i]);
-							if (d->stage[i] == 1){
-								for (int ii = 0; ii < SS_ref_db[d->ph_id_A[i][1]].n_xeos; ii++){
-									printf(" %+10f", SS_ref_db[d->ph_id_A[i][1]].xeos_Ppc[d->ph_id_A[i][3]][ii] );
-								}
-							}
-							else{
-								for (int ii = 0; ii < SS_ref_db[d->ph_id_A[i][1]].n_xeos; ii++){
-									printf(" %+10f", SS_ref_db[d->ph_id_A[i][1]].xeos_pc[d->ph_id_A[i][3]][ii] );
-								}
-							}
-							printf("\n");
-						}
-					}
-					printf(" [----------------------------------------]\n");
-					printf(" [  OXIDE      GAMMA                      ]\n");
-					printf(" [----------------------------------------]\n");
-					for (int i = 0; i < d->n_Ox; i++){
-						printf(" [ %5s %+15f                  ]\n", gv.ox[z_b.nzEl_array[i]], d->gamma_tot[z_b.nzEl_array[i]]);
-					}
-					printf(" [----------------------------------------]\n");
+				// 	for (int i = 0; i < d->n_Ox; i++){
+				// 		if (d->ph_id_A[i][0] == 1){
+				// 			printf(" ['%5s' %+10f  %+12.4f  %2d %2d ]", gv.PP_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0], d->stage[i]);
+				// 			printf("\n");
+				// 		}
+				// 		if (d->ph_id_A[i][0] == 2){
+				// 			printf(" ['%5s' %+10f  %+12.4f  %2d %2d ]\n", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0], d->stage[i]);
+				// 		}
+				// 		if (d->ph_id_A[i][0] == 3){
+				// 			printf(" ['%5s' %+10f  %+12.4f  %2d %2d ]", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0], d->stage[i]);
+				// 			if (d->stage[i] == 1){
+				// 				for (int ii = 0; ii < SS_ref_db[d->ph_id_A[i][1]].n_xeos; ii++){
+				// 					printf(" %+10f", SS_ref_db[d->ph_id_A[i][1]].xeos_Ppc[d->ph_id_A[i][3]][ii] );
+				// 				}
+				// 			}
+				// 			else{
+				// 				for (int ii = 0; ii < SS_ref_db[d->ph_id_A[i][1]].n_xeos; ii++){
+				// 					printf(" %+10f", SS_ref_db[d->ph_id_A[i][1]].xeos_pc[d->ph_id_A[i][3]][ii] );
+				// 				}
+				// 			}
+				// 			printf("\n");
+				// 		}
+				// 	}
+				// 	printf(" [----------------------------------------]\n");
+				// 	printf(" [  OXIDE      GAMMA                      ]\n");
+				// 	printf(" [----------------------------------------]\n");
+				// 	for (int i = 0; i < d->n_Ox; i++){
+				// 		printf(" [ %5s %+15f                  ]\n", gv.ox[z_b.nzEl_array[i]], d->gamma_tot[z_b.nzEl_array[i]]);
+				// 	}
+				// 	printf(" [----------------------------------------]\n");
 	
-				}
+				// }
 
 			}
 
@@ -1650,6 +1651,8 @@ global_variable LP(		bulk_info 			z_b,
 										PP_ref_db,
 										SS_ref_db			);
 
+		// if (gv.gamma_norm[gv.global_ite-1] > 10.0){
+
 		gv = LP_pc_composite(			z_b,
 										splx_data,
 										gv,
@@ -1657,7 +1660,7 @@ global_variable LP(		bulk_info 			z_b,
 										SS_objective,	
 										PP_ref_db,
 										SS_ref_db			);	
-			
+		// }
 
 		gv = init_LP(					z_b,
 										splx_data,
