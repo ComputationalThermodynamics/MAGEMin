@@ -5,7 +5,7 @@ output/*
 src/*.o
 julia/output/*
 .vscode/
-
+*.txt
 Manifest.toml
 
 libMAGEMin.dylib
