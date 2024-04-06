@@ -491,9 +491,9 @@ function convertBulk4MAGEMin(bulk_in::T1,bulk_in_ox::Vector{String},sys_in::Stri
         c = findall(MAGEMin_ox .!= "H2O");
     end
 
-    id0 = findall(MAGEMin_bulk[c] .< 2e-5)
+    id0 = findall(MAGEMin_bulk[c] .< 1e-4)
     if ~isempty(id0)
-        MAGEMin_bulk[c[id0]] .= 2e-5;
+        MAGEMin_bulk[c[id0]] .= 1e-4;
     end
 
     id1 = findall(MAGEMin_bulk[d] .< 2e-5)
