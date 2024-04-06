@@ -1255,7 +1255,7 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 
 	double sum_n_vec 	= 0.0;
 	double sum_n_vec_cor= 0.0;
-	double shift 		= 1e-4;
+	double shift 		= 1e-2;
 
 	if (gv.verbose == 1){
 		printf("\nPseudocompounds collapse (intermediate stage) \n");

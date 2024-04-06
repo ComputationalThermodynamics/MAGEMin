@@ -937,7 +937,7 @@ function show(io::IO, g::gmin_struct)
         println(io, "   $(lpad(g.ph[i],14," "))   $( round(g.ph_frac_vol[i], digits=5)) ")
     end
     println(io, "Gibbs free energy : $(round(g.G_system,digits=6))  ($(g.iter) iterations; $(round(g.time_ms,digits=2)) ms)")
-    if g.status>0
+    if g.status == 5
         println(io, "WARNING: calculation did not converge ----------------------------")
     end
     println(io, "Oxygen fugacity          : $(g.fO2)")
