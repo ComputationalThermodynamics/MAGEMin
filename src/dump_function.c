@@ -98,7 +98,7 @@ void fill_output_struct(		global_variable 	 gv,
 	
 	sp[0].bulk_res_norm 		 = gv.BR_norm;
 	sp[0].n_iterations 		     = gv.global_ite;
-	sp[0].status 		         = gv.div;
+	sp[0].status 		         = gv.status;
 	
 	sp[0].nOx					 = gv.len_ox;
 	sp[0].rho					 = gv.system_density;

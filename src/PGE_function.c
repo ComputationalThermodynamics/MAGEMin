@@ -1705,6 +1705,31 @@ global_variable LP(		bulk_info 			z_b,
 
 		if ((gv.gamma_norm[gv.global_ite-1] < 1e-4 || gi >= gv.max_LP_ite) && nCheck > 1){
 			iterate = 0;
+
+			if (gv.gamma_norm[gv.global_ite-1] < 1e-4){
+				gv.status = 0;
+			}
+			if (gi >= gv.max_LP_ite){
+				if (gv.gamma_norm[gv.global_ite-1] < 1e-2){
+					gv.status = 1;
+				}
+				else if ( gv.gamma_norm[gv.global_ite-1] >= 1e-2 && gv.gamma_norm[gv.global_ite-1] < 0.1){
+					gv.status = 2;
+				}
+				else if ( gv.gamma_norm[gv.global_ite-1] >= 0.1 && gv.gamma_norm[gv.global_ite-1] < 1.0){
+					gv.status = 3;
+				}
+				else if ( gv.gamma_norm[gv.global_ite-1] >= 1.0 && gv.gamma_norm[gv.global_ite-1] < 10.0){
+					gv.status = 4;
+				}
+				else{
+					gv.status = 5;
+				}
+			}
+
+			if (gv.BR_norm > 1e-3){
+				gv.status = 5;
+			}
 		}
 	}
 
