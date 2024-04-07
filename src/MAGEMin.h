@@ -130,12 +130,14 @@ typedef struct global_variables {
 	int      n_pc;				/** maximum number of pseudocompounds to store 								*/
 
 	/*linear programming during PGE */
+	double 	 shift_PC;
 	int  	 n_Ppc;
 	int      max_LP_ite;
 	double   save_Ppc_val;
 	int 	 launch_PGE;
 
 	/* SOLVI */
+	int 	*n_ss_ph;
 	int     *verifyPC;			/** allow to check for solvi */
 	int 	*n_solvi;			/** number of phase considered for solvi */
 	

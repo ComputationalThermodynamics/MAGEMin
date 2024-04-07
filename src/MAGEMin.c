@@ -1127,6 +1127,7 @@ void FreeDatabases(		global_variable gv,
 	free(gv.n_SS_PC);
 	free(gv.n_min);
 	free(gv.verifyPC);
+	free(gv.n_ss_ph);
 	free(gv.SS_PC_stp);
 
 	free(gv.PGE_mass_norm);

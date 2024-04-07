@@ -595,10 +595,12 @@ mutable struct global_variables
     SS_PC_stp::Ptr{Cdouble}
     eps_sf_pc::Cdouble
     n_pc::Cint
+    shift_PC::Cdouble
     n_Ppc::Cint
     max_LP_ite::Cint
     save_Ppc_val::Cdouble
     launch_PGE::Cint
+    n_ss_ph::Ptr{Cint}
     verifyPC::Ptr{Cint}
     n_solvi::Ptr{Cint}
     maxgmTime::Cdouble

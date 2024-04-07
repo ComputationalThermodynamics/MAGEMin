@@ -219,6 +219,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 													don't put it too high as it will conflict with bounds of x-eos					*/
 
 	/* PGE LP pseudocompounds parameters */
+	gv.shift_PC			= 1e-2;					/** shift from value to generate pseudocompounds during global minimization			*/
 	gv.launch_PGE 		= 0;
 	gv.n_pc 			= 8192;
 	gv.n_Ppc			= 16384;
@@ -735,6 +736,7 @@ global_variable global_variable_init( 	global_variable  	 gv,
 	   ALLOCATE MEMORY OF OTHER GLOBAL VARIABLES
 	*/
 	gv.n_min     		= malloc ((gv.len_ss) * sizeof (int) 	);
+	gv.n_ss_ph  		= malloc ((gv.len_ss) * sizeof (int) 	);
 	gv.bulk_rock 		= malloc (gv.len_ox * sizeof(double)	);
 	gv.PGE_mass_norm  	= malloc (gv.it_f*2 * sizeof (double) 	); 
 	gv.Alg  			= malloc (gv.it_f*2 * sizeof (int) 		); 
@@ -1735,7 +1737,7 @@ void init_simplex_A( 	simplex_data 		*splx_data,
 
 	/* prescribe tolerance parameters */
 	d->dG_B_tol	   = gv.re_in_df;
-	d->min_F_tol   = 1e6;
+	d->min_F_tol   = 1e9;
 	
 	/* allocate reference assemblage memory */
 	d->A           = malloc ((gv.len_ox*gv.len_ox)  * sizeof(double));
