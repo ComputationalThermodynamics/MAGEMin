@@ -595,7 +595,6 @@ mutable struct global_variables
     SS_PC_stp::Ptr{Cdouble}
     eps_sf_pc::Cdouble
     n_pc::Cint
-    shift_PC::Cdouble
     n_Ppc::Cint
     max_LP_ite::Cint
     save_Ppc_val::Cdouble
@@ -1053,6 +1052,7 @@ const stb_PP_phase = stb_PP_phases
 
 struct stb_systems
     MAGEMin_ver::Ptr{Cchar}
+    dataset::Ptr{Cchar}
     bulk_res_norm::Cdouble
     n_iterations::Cint
     status::Cint

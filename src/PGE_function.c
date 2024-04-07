@@ -1264,7 +1264,7 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 	/* loops through active solution phases and store their information */
 	for (ph_id = 0; ph_id < gv.len_ss; ph_id++){
 		if (SS_ref_db[ph_id].ss_flags[0] == 1/* && strcmp(gv.SS_list[ph_id],"liq") == 0*/){
-			gv.n_ss_ph[ph_id] 	= -1;
+			gv.n_ss_ph[ph_id] 	= 0;
 			sum_n_vec 			= 0.0;
 			sum_n_vec_cor 		= 0.0;
 			nOcc 				= 0;
@@ -1409,7 +1409,7 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 
 					/* First get un-corrected composite xeos */
 					for (j = 0; j < n_xeos; j++){
-						SS_ref_db[ph_id].iguess[j] = gv.A[i][j]*(gv.shift_PC) + gv.tmp2[j] * (1.0 - gv.shift_PC);
+						SS_ref_db[ph_id].iguess[j] = gv.A[i][j]*(gv.pc_composite_dist) + gv.tmp2[j] * (1.0 - gv.pc_composite_dist);
 					}
 					/* then compute the normalization factor for un-corrected xeos */
 					G 	= (*SS_objective[ph_id])(SS_ref_db[ph_id].n_xeos, SS_ref_db[ph_id].iguess, 	NULL, &SS_ref_db[ph_id]);
@@ -1417,8 +1417,8 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 					factor_composite = SS_ref_db[ph_id].factor;
 
 					/* Compute corrected composite xeos */
-					p0 			= gv.shift_PC*(gv.tmp1[i] * factor_composite);
-					p1 			= (1.0 - gv.shift_PC)*(factor_mean * factor_composite);
+					p0 			= gv.pc_composite_dist*(gv.tmp1[i] * factor_composite);
+					p1 			= (1.0 - gv.pc_composite_dist)*(factor_mean * factor_composite);
 
 					sum_n_vec 	= p0+p1;
 					p0 		   /= sum_n_vec;

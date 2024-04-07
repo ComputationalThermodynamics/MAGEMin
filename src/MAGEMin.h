@@ -130,7 +130,6 @@ typedef struct global_variables {
 	int      n_pc;				/** maximum number of pseudocompounds to store 								*/
 
 	/*linear programming during PGE */
-	double 	 shift_PC;
 	int  	 n_Ppc;
 	int      max_LP_ite;
 	double   save_Ppc_val;
@@ -674,6 +673,7 @@ typedef struct stb_PP_phases {
 typedef struct stb_systems {
 	
 	char   *MAGEMin_ver;
+	char   *dataset;
 	
 	double  bulk_res_norm;
 	int     n_iterations;

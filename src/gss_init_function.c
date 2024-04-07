@@ -91,6 +91,7 @@ csd_phase_set CP_INIT_function(csd_phase_set cp, global_variable gv){
 stb_system SP_INIT_function(stb_system sp, global_variable gv){
 
 	sp.MAGEMin_ver   		= malloc(50  		* sizeof(char)				);
+	sp.dataset   		    = malloc(50  		* sizeof(char)				);
 	sp.oxides 	     		= malloc(gv.len_ox  * sizeof(char*)				);
 	
 	for (int i = 0; i < gv.len_ox; i++){

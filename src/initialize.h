@@ -180,7 +180,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.4.3 [02/04/2024]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.4.3 [07/04/2024]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");	
@@ -202,7 +202,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.br_max_tol       = 1.0e-5;				/** value under which the solution is accepted to satisfy the mass constraint 		*/
 
 	/* pc composite parameters */
-	gv.pc_composite_dist= 1e-3;
+	gv.pc_composite_dist= 1e-2;
 	
 	/* Magic PGE under-relaxing numbers */
 	gv.relax_PGE_val    = 128.0;				/** restricting factor 																*/
@@ -219,10 +219,9 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 													don't put it too high as it will conflict with bounds of x-eos					*/
 
 	/* PGE LP pseudocompounds parameters */
-	gv.shift_PC			= 1e-2;					/** shift from value to generate pseudocompounds during global minimization			*/
 	gv.launch_PGE 		= 0;
 	gv.n_pc 			= 8192;
-	gv.n_Ppc			= 16384;
+	gv.n_Ppc			= 8192;
 	gv.max_LP_ite 		= 256;
 	gv.save_Ppc_val     = 0.0; 					/** During PGE iterations, if the driving force is < save_Ppc_val, then the 
 													pseudocompound is added to the Ppc list 										*/
@@ -1737,7 +1736,7 @@ void init_simplex_A( 	simplex_data 		*splx_data,
 
 	/* prescribe tolerance parameters */
 	d->dG_B_tol	   = gv.re_in_df;
-	d->min_F_tol   = 1e9;
+	d->min_F_tol   = 1e6;
 	
 	/* allocate reference assemblage memory */
 	d->A           = malloc ((gv.len_ox*gv.len_ox)  * sizeof(double));
