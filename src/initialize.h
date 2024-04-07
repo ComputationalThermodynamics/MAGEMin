@@ -202,7 +202,8 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.br_max_tol       = 1.0e-5;				/** value under which the solution is accepted to satisfy the mass constraint 		*/
 
 	/* pc composite parameters */
-	gv.pc_composite_dist= 1e-2;
+	gv.pc_composite_dist= 2.5e-3;				/** parameter setting the distance for the pseudocompounds created around a minimized point 
+													this parameter has a big impact on performances, it is advised to not change it */
 	
 	/* Magic PGE under-relaxing numbers */
 	gv.relax_PGE_val    = 128.0;				/** restricting factor 																*/
