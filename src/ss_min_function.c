@@ -199,59 +199,6 @@ void copy_to_cp(		int 				 i,
 }
 
 
-/**
-	add minimized phase to LP PGE pseudocompound list 
-*/
-int copy_to_Ppc_composite(		int 				 ph_id,
-								global_variable 	 gv,
-
-								obj_type 			*SS_objective,
-								SS_ref 			    *SS_ref_db				){
-
-		double G;
-		int    m_Ppc;
-
-		/* get unrotated gbase */
-		SS_ref_db[ph_id] = non_rot_hyperplane(	gv, 
-												SS_ref_db[ph_id]			);
-
-		/* get unrotated minimized point informations */
-		G 	=		 (*SS_objective[ph_id])(	SS_ref_db[ph_id].n_xeos,
-												SS_ref_db[ph_id].iguess,
-												NULL,
-												&SS_ref_db[ph_id]			);
-
-		/* check where to add the new phase PC */
-		if (SS_ref_db[ph_id].id_Ppc >= SS_ref_db[ph_id].n_Ppc){ SS_ref_db[ph_id].id_Ppc = 0; printf("SS_LP, MAXIMUM STORAGE SPACE FOR PC IS REACHED for %4s, INCREASED #PC_MAX\n",gv.SS_list[ph_id]);}
-		
-		m_Ppc = SS_ref_db[ph_id].id_Ppc;
-
-		SS_ref_db[ph_id].info_Ppc[m_Ppc]   = 0;
-
-		SS_ref_db[ph_id].DF_Ppc[m_Ppc]     = G;
-		
-		/* get pseudocompound composition */
-		for (int j = 0; j < gv.len_ox; j++){				
-			SS_ref_db[ph_id].comp_Ppc[m_Ppc][j] = SS_ref_db[ph_id].ss_comp[j]*SS_ref_db[ph_id].factor;	/** composition */
-		}
-		for (int j = 0; j < SS_ref_db[ph_id].n_em; j++){												/** save coordinates */
-			SS_ref_db[ph_id].p_Ppc[m_Ppc][j]  = SS_ref_db[ph_id].p[j];												
-			SS_ref_db[ph_id].mu_Ppc[m_Ppc][j] = SS_ref_db[ph_id].mu[j]*SS_ref_db[ph_id].z_em[j];										
-		}
-		/* save xeos */
-		for (int j = 0; j < SS_ref_db[ph_id].n_xeos; j++){		
-			SS_ref_db[ph_id].xeos_Ppc[m_Ppc][j] = SS_ref_db[ph_id].iguess[j];							/** compositional variables */
-		}	
-		SS_ref_db[ph_id].G_Ppc[m_Ppc] = G;
-		
-		/* add increment to the number of considered phases */
-		SS_ref_db[ph_id].tot_Ppc += 1;
-		SS_ref_db[ph_id].id_Ppc  += 1;
-
-		return m_Ppc;
-}
-
-
 
 /**
 	add minimized phase to LP PGE pseudocompound list 
@@ -552,11 +499,13 @@ void ss_min_LP(			global_variable 	 gv,
 															ph_id					);
 				}
 
-
 				for (int k = 0; k < cp[i].n_xeos; k++) {
 					cp[i].xeos_1[k] 			 =  SS_ref_db[ph_id].xeos[k];
 				}
 
+				/** 
+					Here if the number of phase occurence in the LP matrix is equal to we add 2 pseudocompounds
+				*/
 				if (gv.n_ss_ph[ph_id] == 1){
 					double shift = 0.0;
 					double sh_array[] = {-0.01,0.01};
@@ -588,10 +537,6 @@ void ss_min_LP(			global_variable 	 gv,
 					}
 				}
 					
-
-
-
-
 				for (int k = 0; k < cp[i].n_xeos; k++) {
 					SS_ref_db[ph_id].iguess[k]   =  cp[i].xeos_1[k];
 				}

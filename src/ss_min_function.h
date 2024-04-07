@@ -34,12 +34,6 @@ void ss_min_LP(							global_variable 	 gv,
 										SS_ref 				*SS_ref_db,
 										csd_phase_set  		*cp				);
 
-int	copy_to_Ppc_composite(				int 				 ph_id,
-										global_variable 	 gv,
-
-										obj_type 			*SS_objective,
-										SS_ref 			    *SS_ref_db		);	
-
 void copy_to_Ppc(						int 				 pc_check,
 										int 				 add,
 										int 				 ph_id,

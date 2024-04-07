@@ -2225,10 +2225,6 @@ function ss_min_LP(gv, SS_objective, z_b, SS_ref_db, cp)
     ccall((:ss_min_LP, libMAGEMin), Cvoid, (global_variable, Ptr{obj_type}, bulk_info, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, SS_objective, z_b, SS_ref_db, cp)
 end
 
-function copy_to_Ppc_composite(ph_id, gv, SS_objective, SS_ref_db)
-    ccall((:copy_to_Ppc_composite, libMAGEMin), Cint, (Cint, global_variable, Ptr{obj_type}, Ptr{SS_ref}), ph_id, gv, SS_objective, SS_ref_db)
-end
-
 function copy_to_Ppc(pc_check, add, ph_id, gv, SS_objective, SS_ref_db)
     ccall((:copy_to_Ppc, libMAGEMin), Cvoid, (Cint, Cint, Cint, global_variable, Ptr{obj_type}, Ptr{SS_ref}), pc_check, add, ph_id, gv, SS_objective, SS_ref_db)
 end
