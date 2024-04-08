@@ -16,8 +16,10 @@ The routine is the core of MAGEMin algorithm and is constructed around the Gibbs
 #include <complex.h> 
 
 #if __APPLE__
-	extern void dgetrf( int* M, int* N, double* A, int* lda, int* ipiv, int* info);
-	extern void dgetrs(char* T, int* N, int* nrhs, double* A, int* lda, int* ipiv, double* B, int* ldb, int* info);
+	//extern void dgetrf( int* M, int* N, double* A, int* lda, int* ipiv, int* info);
+	//extern void dgetrs(char* T, int* N, int* nrhs, double* A, int* lda, int* ipiv, double* B, int* ldb, int* info);
+	extern void dgesv( int* n, int* nrhs, double* a, int* lda, int* ipiv, double* b, int* ldb, int* info );
+
 #else
 	#include <lapacke.h> 
 #endif 
@@ -587,6 +589,7 @@ global_variable PGE_solver(		bulk_info 	 		 z_b,
 		call lapacke to solve system of linear equation using LU 
 	*/
 	#if __APPLE__
+		/*
 		// Factorisation
 		dgetrf(&nEntry, &nEntry, gv.A_PGE, &nEntry, gv.ipiv, &info);
 
@@ -601,6 +604,19 @@ global_variable PGE_solver(		bulk_info 	 		 z_b,
 									gv.b_PGE, 
 									&nEntry,
 									&info	);
+		*/			
+
+		// remark: apple accelerate uses column-major ordering, whereas lapacke below uses row-major. 
+		// As long as the matrix is strictly symmetric this is fine; if not we have to reorder gv.A_PGE				
+		dgesv(						&nEntry, 
+									&nrhs, 
+									gv.A_PGE,
+									&nEntry, 
+									gv.ipiv, 
+									gv.b_PGE, 
+									&nEntry,
+									&info	);
+		
 
 	#else
 		info = LAPACKE_dgesv(		LAPACK_ROW_MAJOR, 
@@ -858,7 +874,6 @@ global_variable run_LP_ig(							bulk_info 			 z_b,
 		k 		  += 1;
 		d->swp     = 0;
 		
-
 		swap_PGE_pseudocompounds(			z_b,
 											splx_data,
 											gv,
@@ -1240,114 +1255,106 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 
 	double sum_n_vec 	= 0.0;
 	double sum_n_vec_cor= 0.0;
-	double shift 		= 1e-3;
 
-	/* temporary */
-	double comp_average[gv.len_ox];
-	double comp_composite[gv.len_ox];
-
-
+	if (gv.verbose == 1){
+		printf("\nPseudocompounds collapse (intermediate stage) \n");
+		printf("══════════════════════════════════════════════\n");
+	}
 
 	/* loops through active solution phases and store their information */
-	for (k = 0; k < gv.len_ss; k++){
-		if (SS_ref_db[k].ss_flags[0] == 1){
-			sum_n_vec 		= 0.0;
-			sum_n_vec_cor 	= 0.0;
-			nOcc 			= 0;
+	for (ph_id = 0; ph_id < gv.len_ss; ph_id++){
+		if (SS_ref_db[ph_id].ss_flags[0] == 1/* && strcmp(gv.SS_list[ph_id],"liq") == 0*/){
+			gv.n_ss_ph[ph_id] 	= 0;
+			sum_n_vec 			= 0.0;
+			sum_n_vec_cor 		= 0.0;
+			nOcc 				= 0;
 
-			/* benchmark part */
-			for (j = 0; j < gv.len_ox; j++){
-				comp_average[j] 	= 0.0;
-				comp_composite[j] 	= 0.0;
-			} 
-
+			/* first we retrieve the indexes of the solution phase */
 			for (i = 0; i < d->n_Ox; i++){
-				if (d->ph_id_A[i][0] != 1){
-
-					ph_id 		= d->ph_id_A[i][1];
-					n_xeos 		=  SS_ref_db[ph_id].n_xeos;
-					n_em 		=  SS_ref_db[ph_id].n_em;
-
-					/* if we have the right solution phase */
+				if (d->ph_id_A[i][0] == 2 || d->ph_id_A[i][0] == 3){
+					k 		= d->ph_id_A[i][1];
 					if (ph_id == k){
-
-						/* if this is a pure endmember of a solution phase */
-						if (d->ph_id_A[i][0] == 2){
-							em_id 			= d->ph_id_A[i][3];
-
-							for (j = 0; j < n_em; j++) {	
-								SS_ref_db[ph_id].p[j] = gv.em2ss_shift;
-							}
-							SS_ref_db[ph_id].p[em_id] = 1.0 - gv.em2ss_shift*n_em;
-							
-							SS_ref_db[ph_id] = P2X(			gv,
-															SS_ref_db[ph_id],
-															z_b,
-															gv.SS_list[ph_id]		);
-
-							G 	= (*SS_objective[ph_id])(SS_ref_db[ph_id].n_xeos, SS_ref_db[ph_id].iguess, 	NULL, &SS_ref_db[ph_id]);
-
-							for (j = 0; j < n_xeos; j++){
-								gv.A[nOcc][j] = SS_ref_db[ph_id].iguess[j];
-							}
-
-							gv.b[nOcc] 		 = d->n_vec[i];
-							gv.tmp1[nOcc] 	 = SS_ref_db[ph_id].factor;
-							sum_n_vec_cor 	+= gv.b1[nOcc];
-							sum_n_vec 		+= d->n_vec[i];
-							gv.pc_id[nOcc]   = i;
-
-							nOcc += 1;
-						}			
-						if (d->ph_id_A[i][0] == 3 && d->stage[i] == 1){
-							pc_id 					= d->ph_id_A[i][3];
-
-							for (j = 0; j < n_xeos; j++){
-								SS_ref_db[ph_id].iguess[j] = SS_ref_db[ph_id].xeos_Ppc[pc_id][j];
-							}
-							/* then compute the normalization factor for un-corrected xeos */
-							G 	= (*SS_objective[ph_id])(SS_ref_db[ph_id].n_xeos, SS_ref_db[ph_id].iguess, 	NULL, &SS_ref_db[ph_id]);
-
-							for (j = 0; j < n_xeos; j++){
-								gv.A[nOcc][j]  = SS_ref_db[ph_id].iguess[j];
-							}
-
-							gv.b[nOcc] 		 = d->n_vec[i];
-							gv.tmp1[nOcc] 	 = SS_ref_db[ph_id].factor;
-							sum_n_vec_cor 	+= gv.b1[nOcc];
-							sum_n_vec 		+= d->n_vec[i];
-							gv.pc_id[nOcc]   = i;
-
-							nOcc += 1;
-						}
-						if (d->ph_id_A[i][0] == 3 && d->stage[i] == 0){
-							pc_id 					= d->ph_id_A[i][3];
-
-							for (j = 0; j < n_xeos; j++){
-								SS_ref_db[ph_id].iguess[j] = SS_ref_db[ph_id].xeos_pc[pc_id][j];
-							}
-							/* then compute the normalization factor for un-corrected xeos */
-							G 	= (*SS_objective[ph_id])(SS_ref_db[ph_id].n_xeos, SS_ref_db[ph_id].iguess, 	NULL, &SS_ref_db[ph_id]);
-
-							for (j = 0; j < n_xeos; j++){
-								gv.A[nOcc][j]  = SS_ref_db[ph_id].iguess[j];
-							}
-							
-							gv.b[nOcc] 		 = d->n_vec[i];
-							gv.tmp1[nOcc] 	 = SS_ref_db[ph_id].factor;
-							sum_n_vec_cor 	+= gv.b1[nOcc];
-							sum_n_vec 		+= d->n_vec[i];
-							gv.pc_id[nOcc]   = i;
-
-							nOcc += 1;
-						}
-
-						
+						gv.pc_id[nOcc]   = i;
+						nOcc 			+= 1;
 					}
 				}
 			}
+			gv.n_ss_ph[ph_id] = nOcc;
 
 			if (nOcc > 1){
+
+				/* get unrotated gbase */
+				SS_ref_db[ph_id] = non_rot_hyperplane(		gv, 
+															SS_ref_db[ph_id]		);
+				n_xeos 		=  SS_ref_db[ph_id].n_xeos;
+				n_em 		=  SS_ref_db[ph_id].n_em;
+				
+				/* get information of the pseudocompounds for ph_id */
+				for (i = 0; i < nOcc; i++){
+					k = gv.pc_id[i];
+					if (d->ph_id_A[k][0] == 2){
+						em_id 			= d->ph_id_A[k][3];
+
+						for (j = 0; j < n_em; j++) {	
+							SS_ref_db[ph_id].p[j] = gv.em2ss_shift;
+						}
+						SS_ref_db[ph_id].p[em_id] = 1.0 - gv.em2ss_shift*n_em;
+						
+						SS_ref_db[ph_id] = P2X(			gv,
+														SS_ref_db[ph_id],
+														z_b,
+														gv.SS_list[ph_id]		);
+
+						G 	= (*SS_objective[ph_id])(SS_ref_db[ph_id].n_xeos, SS_ref_db[ph_id].iguess, 	NULL, &SS_ref_db[ph_id]);
+
+						for (j = 0; j < n_xeos; j++){
+							gv.A[i][j] = SS_ref_db[ph_id].iguess[j];
+						}
+
+						gv.b[i] 		 = d->n_vec[k];
+						gv.tmp1[i] 	     = SS_ref_db[ph_id].factor;
+						sum_n_vec_cor 	+= gv.b1[i];
+						sum_n_vec 		+= d->n_vec[k];
+					}			
+					if (d->ph_id_A[k][0] == 3 && d->stage[k] == 1){
+						pc_id 			 = d->ph_id_A[k][3];
+
+						for (j = 0; j < n_xeos; j++){
+							SS_ref_db[ph_id].iguess[j] = SS_ref_db[ph_id].xeos_Ppc[pc_id][j];
+						}
+						/* then compute the normalization factor for un-corrected xeos */
+						G 	= (*SS_objective[ph_id])(SS_ref_db[ph_id].n_xeos, SS_ref_db[ph_id].iguess, 	NULL, &SS_ref_db[ph_id]);
+
+						for (j = 0; j < n_xeos; j++){
+							gv.A[i][j]  = SS_ref_db[ph_id].iguess[j];
+						}
+
+						gv.b[i] 		 = d->n_vec[k];
+						gv.tmp1[i] 	     = SS_ref_db[ph_id].factor;
+						sum_n_vec_cor 	+= gv.b1[i];
+						sum_n_vec 		+= d->n_vec[k];
+					}
+					if (d->ph_id_A[k][0] == 3 && d->stage[k] == 0){
+						pc_id 			 = d->ph_id_A[k][3];
+
+						for (j = 0; j < n_xeos; j++){
+							SS_ref_db[ph_id].iguess[j] = SS_ref_db[ph_id].xeos_pc[pc_id][j];
+						}
+						/* then compute the normalization factor for un-corrected xeos */
+						G 	= (*SS_objective[ph_id])(SS_ref_db[ph_id].n_xeos, SS_ref_db[ph_id].iguess, 	NULL, &SS_ref_db[ph_id]);
+
+						for (j = 0; j < n_xeos; j++){
+							gv.A[i][j]  = SS_ref_db[ph_id].iguess[j];
+						}
+						
+						gv.b[i] 		 = d->n_vec[k];
+						gv.tmp1[i] 	     = SS_ref_db[ph_id].factor;
+						sum_n_vec_cor 	+= gv.b1[i];
+						sum_n_vec 		+= d->n_vec[k];
+
+					}
+				}
+
 				// first reset arrays
 				for (j = 0; j < n_xeos; j++){
 					SS_ref_db[ph_id].iguess[j] = 0.0;
@@ -1402,7 +1409,7 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 
 					/* First get un-corrected composite xeos */
 					for (j = 0; j < n_xeos; j++){
-						SS_ref_db[ph_id].iguess[j] = gv.A[i][j]*(shift) + gv.tmp2[j] * (1.0 - shift);
+						SS_ref_db[ph_id].iguess[j] = gv.A[i][j]*(gv.pc_composite_dist) + gv.tmp2[j] * (1.0 - gv.pc_composite_dist);
 					}
 					/* then compute the normalization factor for un-corrected xeos */
 					G 	= (*SS_objective[ph_id])(SS_ref_db[ph_id].n_xeos, SS_ref_db[ph_id].iguess, 	NULL, &SS_ref_db[ph_id]);
@@ -1410,8 +1417,8 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 					factor_composite = SS_ref_db[ph_id].factor;
 
 					/* Compute corrected composite xeos */
-					p0 			= shift*(gv.tmp1[i] * factor_composite);
-					p1 			= (1.0 - shift)*(factor_mean * factor_composite);
+					p0 			= gv.pc_composite_dist*(gv.tmp1[i] * factor_composite);
+					p1 			= (1.0 - gv.pc_composite_dist)*(factor_mean * factor_composite);
 
 					sum_n_vec 	= p0+p1;
 					p0 		   /= sum_n_vec;
@@ -1422,106 +1429,26 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 						gv.A2[i][j] = SS_ref_db[ph_id].iguess[j];
 					}
 
-					SS_ref_db[ph_id] = PC_function(	gv,
-													SS_ref_db[ph_id], 
-													z_b,
-													gv.SS_list[ph_id] 		);
-					for (j = 0; j < gv.len_ox; j++){
-						comp_composite[j] += SS_ref_db[ph_id].ss_comp[j]*gv.b[i]*SS_ref_db[ph_id].factor;
-					} 
-					printf("Compositition\n");
-					for (j = 0; j < gv.len_ox; j++){
-						printf(" %+10f",SS_ref_db[ph_id].ss_comp[j]*SS_ref_db[ph_id].factor);
-					}
-					printf("\n");
+					SS_ref_db[ph_id] = PC_function(				gv,
+																SS_ref_db[ph_id], 
+																z_b,
+																gv.SS_list[ph_id] 		);
 
-					// /* adding the composite pseudocompound to the Ppc list: here we swap the groupd of initial compound to a compositionally tigher one */
-					// m_Ppc = copy_to_Ppc_composite(	ph_id,
-					// 								gv,
+					SS_ref_db[ph_id] = SS_UPDATE_function(		gv, 
+																SS_ref_db[ph_id], 
+																z_b, 
+																gv.SS_list[ph_id]		);
 
-					// 								SS_objective,
-					// 								SS_ref_db			);	
+					copy_to_Ppc(								0,
+																1,
+																ph_id,
+																gv,
 
-					// d->ph_id_A[gv.pc_id[i]][0] = 3;
-					// d->ph_id_A[gv.pc_id[i]][1] = ph_id;
-					// d->ph_id_A[gv.pc_id[i]][2] = 0;
-					// d->ph_id_A[gv.pc_id[i]][3] = m_Ppc;										/** save pseudocompound number */
-					// d->g0_A[gv.pc_id[i]] 	   = SS_ref_db[ph_id].G_Ppc[m_Ppc];
-					// d->stage[gv.pc_id[i]] 	   = 1;										/** just to indicate that the phase belongs to stage 2 of LP */
-					
-					// for (j = 0; j < d->n_Ox; j++){				
-					// 	l = gv.pc_id[i] + j*d->n_Ox;
-					// 	d->A[l] = SS_ref_db[ph_id].comp_Ppc[m_Ppc][z_b.nzEl_array[j]];
-					// }
-
-				}
-
-				// for (j = 0; j< d->n_Ox*d->n_Ox; j++){ d->A1[j] = d->A[j];}
-
-				// /** inverse guessed assemblage stoechiometry matrix */
-				// inverseMatrix(	gv.ipiv,
-				// 				d->A1,
-				// 				d->n_Ox,
-				// 				gv.work,
-				// 				gv.lwork	);
-
-				/** update phase fractions */
-				// MatVecMul(		d->A1,
-				// 				z_b.bulk_rock_cat,
-				// 				d->n_vec,
-				// 				d->n_Ox		);
-				// printf("Matrix\n");
-				// for (j = 0; j < d->n_Ox; j++){
-				// 	for (l = 0; l < d->n_Ox; l++){
-				// 		m = j + l*d->n_Ox;
-				// 		printf(" %+10f",d->A[m]);
-				// 	}
-				// 	printf("\n");
-				// }
-				// printf("\n");
-				// printf("Inverted Matrix\n");
-				// for (j = 0; j < d->n_Ox; j++){
-				// 	for (l = 0; l < d->n_Ox; l++){
-				// 		m = j + l*d->n_Ox;
-				// 		printf(" %+10f",d->A1[m]);
-				// 	}
-				// 	printf("\n");
-				// }
-				// printf("\n");
-
-
-
-			}
-
-			// /* update gamma of SS */
-			// update_local_gamma(						d->A1,
-			// 										d->g0_A,
-			// 										d->gamma_ss,
-			// 										d->n_Ox			);
-
-			// /* update global variable gamma */
-			// update_global_gamma_LU(					z_b,
-			// 										splx_data		);	
-
-
-
-			if (gv.verbose == 1){
-				if (nOcc > 1){
-					printf("%s:\n",gv.SS_list[k]);
-					print_1D_int_array(nOcc, gv.pc_id, "pc id (in the simplex A matrix)");
-					print_2D_double_array(nOcc, SS_ref_db[k].n_xeos, gv.A, "xeos starting");
-					print_1D_double_array(nOcc, gv.b, "normalized  phase fraction");
-					// print_1D_double_array(nOcc, gv.b1, "initial guess");
-					print_1D_double_array(n_xeos, gv.tmp2, "corrected initial guess");
-					print_2D_double_array(nOcc, SS_ref_db[k].n_xeos, gv.A2, "xeos composite");
-					// print_1D_double_array(gv.len_ox,comp_average, "average composition");
-					print_1D_double_array(gv.len_ox, comp_composite, "composite composition");
+																SS_objective,
+																SS_ref_db				);	
 				}
 			}
-
-
-
-	
+		
 		}
 	}
 
@@ -1550,6 +1477,16 @@ global_variable LP(		bulk_info 			z_b,
 	int    gi   = 0;
 	int iterate = 1;
 	int nCheck  = 0;
+
+
+	gv = LP_pc_composite(			z_b,
+									splx_data,
+									gv,
+
+									SS_objective,	
+									PP_ref_db,
+									SS_ref_db			);	
+
 
 	gv = init_LP(			z_b,
 							splx_data,
@@ -1592,14 +1529,6 @@ global_variable LP(		bulk_info 			z_b,
 			printf("══════════════════════════════════════════════════════════════════\n");
 		}
 
-		// gv = LP_pc_composite(			z_b,
-		// 								splx_data,
-		// 								gv,
-
-		// 								SS_objective,	
-		// 								PP_ref_db,
-		// 								SS_ref_db			);	
-
 		/** 
 			update delta_G of pure phases as function of updated Gamma
 		*/
@@ -1626,6 +1555,14 @@ global_variable LP(		bulk_info 			z_b,
 												
 										PP_ref_db,
 										SS_ref_db			);
+
+		gv = LP_pc_composite(			z_b,
+										splx_data,
+										gv,
+
+										SS_objective,	
+										PP_ref_db,
+										SS_ref_db			);	
 
 		gv = init_LP(					z_b,
 										splx_data,
@@ -1674,6 +1611,31 @@ global_variable LP(		bulk_info 			z_b,
 
 		if ((gv.gamma_norm[gv.global_ite-1] < 1e-4 || gi >= gv.max_LP_ite) && nCheck > 1){
 			iterate = 0;
+
+			if (gv.gamma_norm[gv.global_ite-1] < 1e-4){
+				gv.status = 0;
+			}
+			if (gi >= gv.max_LP_ite){
+				if (gv.gamma_norm[gv.global_ite-1] < 1e-2){
+					gv.status = 1;
+				}
+				else if ( gv.gamma_norm[gv.global_ite-1] >= 1e-2 && gv.gamma_norm[gv.global_ite-1] < 0.1){
+					gv.status = 2;
+				}
+				else if ( gv.gamma_norm[gv.global_ite-1] >= 0.1 && gv.gamma_norm[gv.global_ite-1] < 1.0){
+					gv.status = 3;
+				}
+				else if ( gv.gamma_norm[gv.global_ite-1] >= 1.0 && gv.gamma_norm[gv.global_ite-1] < 10.0){
+					gv.status = 4;
+				}
+				else{
+					gv.status = 5;
+				}
+			}
+
+			if (gv.BR_norm > 1e-3){
+				gv.status = 5;
+			}
 		}
 	}
 

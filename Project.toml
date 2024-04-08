@@ -1,7 +1,7 @@
 name = "MAGEMin_C"
 uuid = "e5d170eb-415a-4524-987b-12f1bce1ddab"
 authors = ["Boris Kaus <kaus@uni-mainz.de> & Nicolas Riel <riel@uni-mainz.de>"]
-version = "1.4.2"
+version = "1.4.3"
 
 [deps]
 CEnum = "fa961155-64e5-5f13-b03f-caf6b980ea82"

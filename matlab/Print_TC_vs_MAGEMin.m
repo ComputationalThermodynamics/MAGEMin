@@ -5,7 +5,7 @@ function Print_TC_vs_MAGEMin(Data,Data_TC)
 
 str = sprintf('=================================================='); disp(str)
 str = sprintf('P:    %- 8.3f   kbar        ', Data.P); disp(str)
-str = sprintf('T:    %- 8.3f  Celcius     ', Data.T); disp(str)
+str = sprintf('T:    %- 8.3f  Celsius     ', Data.T); disp(str)
 disp(' ')
 
 if ~Data_TC.success

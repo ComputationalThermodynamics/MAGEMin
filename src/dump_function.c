@@ -95,10 +95,24 @@ void fill_output_struct(		global_variable 	 gv,
 	int i, j, k, m, n, em_id, ph_id, pc_id;
 	
 	strcpy(sp[0].MAGEMin_ver,gv.version);	
-	
+
+
+	if (gv.EM_database == 0){	
+		strcpy(sp[0].dataset,"tc_ds62");	
+	}
+	else if (gv.EM_database == 1){	
+		strcpy(sp[0].dataset,"tc_ds62");	
+	}
+	else if (gv.EM_database == 2){		
+		strcpy(sp[0].dataset,"tc_ds634");	
+	}
+	else if (gv.EM_database == 4){	
+		strcpy(sp[0].dataset,"tc_ds633");	
+	}
+
 	sp[0].bulk_res_norm 		 = gv.BR_norm;
 	sp[0].n_iterations 		     = gv.global_ite;
-	sp[0].status 		         = gv.div;
+	sp[0].status 		         = gv.status;
 	
 	sp[0].nOx					 = gv.len_ox;
 	sp[0].rho					 = gv.system_density;

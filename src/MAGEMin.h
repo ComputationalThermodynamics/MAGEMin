@@ -136,6 +136,7 @@ typedef struct global_variables {
 	int 	 launch_PGE;
 
 	/* SOLVI */
+	int 	*n_ss_ph;
 	int     *verifyPC;			/** allow to check for solvi */
 	int 	*n_solvi;			/** number of phase considered for solvi */
 	
@@ -672,6 +673,7 @@ typedef struct stb_PP_phases {
 typedef struct stb_systems {
 	
 	char   *MAGEMin_ver;
+	char   *dataset;
 	
 	double  bulk_res_norm;
 	int     n_iterations;

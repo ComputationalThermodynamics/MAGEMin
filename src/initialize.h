@@ -180,7 +180,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.4.2 [02/04/2024]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.4.3 [07/04/2024]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");	
@@ -202,7 +202,8 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.br_max_tol       = 1.0e-5;				/** value under which the solution is accepted to satisfy the mass constraint 		*/
 
 	/* pc composite parameters */
-	gv.pc_composite_dist= 1e-3;
+	gv.pc_composite_dist= 2.5e-3;				/** parameter setting the distance for the pseudocompounds created around a minimized point 
+													this parameter has a big impact on performances, it is advised to not change it */
 	
 	/* Magic PGE under-relaxing numbers */
 	gv.relax_PGE_val    = 128.0;				/** restricting factor 																*/
@@ -221,8 +222,8 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	/* PGE LP pseudocompounds parameters */
 	gv.launch_PGE 		= 0;
 	gv.n_pc 			= 8192;
-	gv.n_Ppc			= 16384;
-	gv.max_LP_ite 		= 128;
+	gv.n_Ppc			= 8192;
+	gv.max_LP_ite 		= 256;
 	gv.save_Ppc_val     = 0.0; 					/** During PGE iterations, if the driving force is < save_Ppc_val, then the 
 													pseudocompound is added to the Ppc list 										*/
 
@@ -243,8 +244,8 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.it_f             = 256;                  /** gives back failure when the number of iteration is bigger than it_f             */
 
 	/* phase update options 			*/
-	gv.min_df 			= -1e-8;					/** value under which a phase in hold is reintroduced */
-	gv.re_in_df 		= -1e-8;
+	gv.min_df 			= -1e-6;					/** value under which a phase in hold is reintroduced */
+	gv.re_in_df 		= -1e-6;
 	/* numerical derivatives P,T steps (same value as TC) */
 	gv.gb_P_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
 	gv.gb_T_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
@@ -735,6 +736,7 @@ global_variable global_variable_init( 	global_variable  	 gv,
 	   ALLOCATE MEMORY OF OTHER GLOBAL VARIABLES
 	*/
 	gv.n_min     		= malloc ((gv.len_ss) * sizeof (int) 	);
+	gv.n_ss_ph  		= malloc ((gv.len_ss) * sizeof (int) 	);
 	gv.bulk_rock 		= malloc (gv.len_ox * sizeof(double)	);
 	gv.PGE_mass_norm  	= malloc (gv.it_f*2 * sizeof (double) 	); 
 	gv.Alg  			= malloc (gv.it_f*2 * sizeof (int) 		); 

@@ -76,7 +76,7 @@ if length(id)>0
     disp(['  ---------------------------------------'])
     disp(['  Results of TC optimizations:'])
     disp(['     P = ',num2str(Data.P),' kbar'])
-    disp(['     T = ',num2str(Data.T),' Celcius'])
+    disp(['     T = ',num2str(Data.T),' Celsius'])
     disp('   ')
     str = '  mode : ';
     for i=1:length(Data.StableSolutions)

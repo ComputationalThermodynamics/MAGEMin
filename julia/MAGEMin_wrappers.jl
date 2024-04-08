@@ -37,7 +37,7 @@ end
 """
     Dat = Initialize_MAGEMin(db = "ig"; verbose::Union{Bool, Int64} = true)
 
-Initializes MAGEMin on one or more threads, for the database `db`. You can surpress all output with `verbose=false`. `verbose=true` will give a brief summary of the result, whereas `verbose=1` will give more details about the computations.
+Initializes MAGEMin on one or more threads, for the database `db`. You can suppress all output with `verbose=false`. `verbose=true` will give a brief summary of the result, whereas `verbose=1` will give more details about the computations.
 """
 function Initialize_MAGEMin(db = "ig";  verbose     ::Union{Int64,Bool} = 0,
                                         limitCaOpx  ::Int64             = 0,
@@ -481,22 +481,22 @@ function convertBulk4MAGEMin(bulk_in::T1,bulk_in_ox::Vector{String},sys_in::Stri
     if db == "ig" || db == "igd" || db == "ige" ||  db == "alk"
         c = findall(MAGEMin_ox .!= "Cr2O3" .&& MAGEMin_ox .!= "TiO2" .&& MAGEMin_ox .!= "O" .&& MAGEMin_ox .!= "H2O");
         d = findall(MAGEMin_ox .== "Cr2O3" .|| MAGEMin_ox .== "TiO2" .|| MAGEMin_ox .== "O");# .|| MAGEMin_ox .== "H2O");
-    elseif db == "mb"               #for the metabasite database it is better to set a low value for H2O as dry system have not been validated by Eleanor
+    elseif db == "mb"               #for the metabasite database it is better to set a low value for H2O as dry system haw not been validated by Eleanor
         c = findall(MAGEMin_ox .!= "TiO2" .&& MAGEMin_ox .!= "O");
         d = findall(MAGEMin_ox .== "TiO2" .|| MAGEMin_ox .== "O");
-    elseif db == "mp"               #for the metabasite database it is better to set a low value for H2O as dry system have not been validated by Eleanor
+    elseif db == "mp"
         c = findall(MAGEMin_ox .!= "TiO2" .&& MAGEMin_ox .!= "O" .&& MAGEMin_ox .!= "MnO" .&& MAGEMin_ox .!= "H2O");
         d = findall(MAGEMin_ox .== "TiO2" .|| MAGEMin_ox .== "O" .|| MAGEMin_ox .!= "MnO");
     else
         c = findall(MAGEMin_ox .!= "H2O");
     end
 
-    id0 = findall(MAGEMin_bulk[c] .< 1e-5)
+    id0 = findall(MAGEMin_bulk[c] .< 1e-4)
     if ~isempty(id0)
-        MAGEMin_bulk[c[id0]] .= 1e-5;
+        MAGEMin_bulk[c[id0]] .= 1e-4;
     end
 
-    id1 = findall(MAGEMin_bulk[d] .< 1e-5)
+    id1 = findall(MAGEMin_bulk[d] .< 2e-5)
     if ~isempty(id1)
         MAGEMin_bulk[d[id1]] .= 0.0;
     end
@@ -713,10 +713,11 @@ end
 """
 struct gmin_struct{T,I}
     MAGEMin_ver :: String
+    dataset     :: String
     G_system    :: T             # G of system
     Gamma       :: Vector{T}        # Gamma
     P_kbar      :: T               # Pressure in kbar
-    T_C         :: T                  # Temperature in Celcius
+    T_C         :: T                  # Temperature in Celsius
     X           :: Vector{T}
     M_sys       :: T
 
@@ -813,6 +814,7 @@ function create_gmin_struct(DB, gv, time)
     stb      = unsafe_load(DB.sp)
 
     MAGEMin_ver = unsafe_string(stb.MAGEMin_ver)
+    dataset  = unsafe_string(stb.dataset)
     G_system = stb.G
     Gamma    = unsafe_wrap(Vector{Cdouble},stb.gamma,gv.len_ox)
     P_kbar   = stb.P
@@ -899,7 +901,7 @@ function create_gmin_struct(DB, gv, time)
     time_ms         =  time*1000.0
 
     # Store all in output struct
-    out = gmin_struct{Float64,Int64}( MAGEMin_ver, G_system, Gamma, P_kbar, T_C, X, M_sys,
+    out = gmin_struct{Float64,Int64}( MAGEMin_ver, dataset, G_system, Gamma, P_kbar, T_C, X, M_sys,
                 bulk, bulk_M, bulk_S, bulk_F,
                 bulk_wt, bulk_M_wt, bulk_S_wt, bulk_F_wt,
                 frac_M, frac_S, frac_F,
@@ -937,7 +939,7 @@ function show(io::IO, g::gmin_struct)
         println(io, "   $(lpad(g.ph[i],14," "))   $( round(g.ph_frac_vol[i], digits=5)) ")
     end
     println(io, "Gibbs free energy : $(round(g.G_system,digits=6))  ($(g.iter) iterations; $(round(g.time_ms,digits=2)) ms)")
-    if g.status>0
+    if g.status == 5
         println(io, "WARNING: calculation did not converge ----------------------------")
     end
     println(io, "Oxygen fugacity          : $(g.fO2)")
