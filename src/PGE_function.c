@@ -1629,7 +1629,7 @@ global_variable LP(		bulk_info 			z_b,
 					gv.status = 4;
 				}
 				else{
-					gv.status = 5;
+					gv.status = -1;
 				}
 			}
 
