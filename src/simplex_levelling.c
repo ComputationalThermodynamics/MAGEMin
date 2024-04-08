@@ -670,7 +670,7 @@ void swap_PGE_pseudocompounds(			bulk_info 	 		 z_b,
 				
 				/** save updated driving force */
 				SS_ref_db[i].DF_Ppc[l] = d->dG_B;
-				
+
 				/** swap phase */
 				if (d->ph2swp != -1){													/** if the phase can be added */
 					d->swp 				 	 = 1;
