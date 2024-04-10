@@ -1634,7 +1634,7 @@ global_variable LP(		bulk_info 			z_b,
 			}
 
 			if (gv.BR_norm > 1e-3){
-				gv.status = 5;
+				gv.status = -1;
 			}
 		}
 	}
