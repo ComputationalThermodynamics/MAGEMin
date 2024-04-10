@@ -763,7 +763,7 @@ global_variable run_LP(								bulk_info 			 z_b,
 	int  k 		= 0;
 	d->swp 		= 1;
 	d->n_swp 	= 0;
-	while (d->swp == 1 && k < 9){					/** as long as a phase can be added to the guessed assemblage, go on */
+	while (d->swp == 1 && k < 32){					/** as long as a phase can be added to the guessed assemblage, go on */
 		k 		  += 1;
 		d->swp     = 0;
 		

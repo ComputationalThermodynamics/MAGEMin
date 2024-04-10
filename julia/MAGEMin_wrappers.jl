@@ -76,22 +76,26 @@ end
     Function to retrieve the list of indexes of the solution phases to be removed from the minimization
 """
 function remove_phases(list,dtb)
-    db_inf = retrieve_solution_phase_information(dtb);
-    rm_list = zeros(Int64,0);
-    for i in list
-        idx = findall(db_inf.ss_name .== i)
-        if ~isempty(idx)
-            rm_list = vcat(rm_list,idx[1]);
-        else
-            print(" \"$i\" is not a proper solid solution phase name, and thus cannot be deactivated")
+    if ~isnothing(list)
+        db_inf = retrieve_solution_phase_information(dtb);
+        rm_list = zeros(Int64,0);
+        for i in list
+            idx = findall(db_inf.ss_name .== i)
+            if ~isempty(idx)
+                rm_list = vcat(rm_list,idx[1]);
+            else
+                print(" \"$i\" is not a proper solid solution phase name, and thus cannot be deactivated")
+            end
         end
-    end
 
-    if isempty(rm_list)
+        if isempty(rm_list)
+            rm_list = nothing
+            print(" The list of phases to be removed appears to be empty...")
+        end
+    else
         rm_list = nothing
-        print(" The list of phases to be removed appears to be empty...")
     end
-
+    
     return rm_list;
 end
 
@@ -233,7 +237,7 @@ function single_point_minimization(     P           ::  T1,
                                         X           ::  VecOrMat                        = nothing,      
                                         B           ::  Union{Nothing, T1, Vector{T1}}  = nothing,
                                         scp         = 0,   
-                                        rm_list     ::  Union{Nothing, Int64}           = nothing,
+                                        rm_list     ::  Union{Nothing, Vector{Int64}}           = nothing,
                                         W           ::  Union{Nothing, W_Data}          = nothing,
                                         Xoxides     = Vector{String},
                                         sys_in      = "mol",
@@ -330,7 +334,7 @@ function multi_point_minimization(P           ::  T2,
                                   T           ::  T2,
                                   MAGEMin_db  ::  MAGEMin_Data;
                                   test        ::  Int64                           = 0, # if using a build-in test case,
-                                  X           ::  VecOrMat=nothing,
+                                  X           ::  VecOrMat                        = nothing,
                                   B           ::  Union{Nothing, T1, Vector{T1}}  = nothing,
                                   scp                                             = 0,
                                   rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
