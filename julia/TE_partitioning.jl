@@ -2,7 +2,7 @@
 # Note that only metapelite, metabasite and igneous database can be used for trace element prediction
 # NR 11/04/2023
 
-using MAGEMin_C  
+# using MAGEMin_C  
 
 """
     Holds the partitioning coefficient database
@@ -36,7 +36,7 @@ end
 """
     Classify the mineral output from MAGEMin to be able to be compared with partitioning coefficient database
 """
-function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Float64, Int64},
+function mineral_classification(    out             :: gmin_struct{Float64, Int64},
                                     dtb             :: String  )
 
     ph      = Array{String}(undef, out.n_SS + out.n_PP) 
@@ -144,7 +144,7 @@ end
     Routine to compute the TE partitioning
 """
 function compute_TE_partitioning(   C0      :: Vector{Float64},
-                                    out     :: MAGEMin_C.gmin_struct{Float64, Int64},
+                                    out     :: gmin_struct{Float64, Int64},
                                     dtb     :: String;
                                     TE_db   :: String = "OL"            )
                                     
@@ -193,15 +193,24 @@ function compute_TE_partitioning(   C0      :: Vector{Float64},
 end
 
 
-dtb         = "mp"
-data        =  Initialize_MAGEMin(dtb, verbose=true);
-test        =  0         #KLB1
-data        =  use_predefined_bulk_rock(data, test);
-P           =  2.0
-T           =  700.0
-out         =  point_wise_minimization(P,T, data);
+TE_db       = get_TE_database("TE_OL_felsic")
+components  = ["SiO2","TiO2","Al2O3","O","FeO","MnO","MgO","CaO","K2O","Na2O","H2O","Li","Be","B","Sc","V","Cr","Ni","Cu","Zn","Rb","Sr","Y","Zr","Nb","Cs","Ba","La","Ce","Pr","Nd","Sm","Eu","Gd","Tb","Dy","Ho","Er","Tm","Yb","Lu","Hf","Ta","Pb","Th","U"]
+Ton	        = [69.20111492,0.385480479,15.36802994,0.08,2.835169639,0.052720082,1.173738821,3.375444597,1.767078881,4.503466421,2,5.524762752,39.87762745,49.26129576,15.04133712,15.15293785,63.74940359,64.5373756,484.5753262,7.459369222,150.2402264,5.430265866,2.474580356,499.0093971,29.06202556,53.78324684,5.797620808,20.54095673,3.317738791,0.961548784,2.418869313,0.315058021,1.593968618,0.296925128,0.799927928,0.128677572,0.713354049,0.133287066,3.95645511,0.722386615,15.17205921,5.69152854,1.064824497]
+Bas         = [50.60777553,0.953497243,13.70435413,0.19,11.28130762,0.202560796,8.496024312,9.502380068,0.700881685,2.07434927,4,29.14258603,0.434482763,29.69200003,38.23663423,257.4346716,529.333066,208.2057375,88.87615683,91.7592182,16.60777308,163.4533209,20.74016207,66.90677472,3.808354064,1.529226981,122.8449739,6.938172601,16.04827796,2.253943183,10.18276823,3.3471043,0.915941652,3.28230146,1.417695298,3.851230952,0.914966282,2.20425,0.343734976,2.136202593,0.323405135,1.841502082,0.330971265,5.452969044,1.074692058,0.290233271]
 
-# here we use a list of concentration based on "MIXB (Qian et al., 2013)", although non measure values have been set to 1.0 !For test only!
-C0          = [42.3, 637.0, 17.3, 24.2, 75.6, 25.0, 39.4, 69.3, 1.0, 38.1, 338.0, 40.4, 75.2, 18.5, 37.1, 38.7, 34.5, 1.0, 35.4, 17.0, 1.0, 16.5, 1.0, 17.8, 16.9, 1200.0, 23.5]
-    
-Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm = compute_TE_partitioning(C0,out,dtb)
+C0_TE_idx   = [findfirst(isequal(x), components) for x in TE_db.element_name]
+C0_TE       = Bas[C0_TE_idx]
+
+# using MAGEMin_C
+# dtb         = "mb"
+# data        =  Initialize_MAGEMin(dtb, verbose=true);
+# test        =  0
+# data        =  use_predefined_bulk_rock(data, test);
+# P           =  10.0
+# T           =  1000.0
+# out         =  point_wise_minimization(P,T, data);
+
+# Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm = compute_TE_partitioning(C0_TE,out,dtb)
+
+# C_zr_liq    = zirconium_saturation( out; 
+#                                     model="CB")

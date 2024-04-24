@@ -12,8 +12,8 @@ export  retrieve_solution_phase_information, remove_phases,
         single_point_minimization, multi_point_minimization, MAGEMin_Data, W_Data,
         Initialize_MAGEMin, Finalize_MAGEMin
 
-
-
+export  get_TE_database, compute_TE_partitioning, zirconium_saturation
+              
 """
     Holds general information about solution phases
 """
@@ -36,7 +36,6 @@ mutable struct db_infos
     data_pp :: Array{String}
 end
         
-
 
 """
     Holds the MAGEMin databases & required structures for every thread
@@ -548,7 +547,10 @@ function convertBulk4MAGEMin(bulk_in::T1,bulk_in_ox::Vector{String},sys_in::Stri
     # check which component can safely be put to 0.0
     d = []
     c = []
-    if db == "ig" || db == "igd" || db == "ige" ||  db == "alk"
+    if db == "ig"
+        c = findall(MAGEMin_ox .!= "K2O" .&& MAGEMin_ox .!= "Cr2O3" .&& MAGEMin_ox .!= "TiO2" .&& MAGEMin_ox .!= "O" .&& MAGEMin_ox .!= "H2O");
+        d = findall(MAGEMin_ox .== "K2O" .|| MAGEMin_ox .== "Cr2O3" .|| MAGEMin_ox .== "TiO2" .|| MAGEMin_ox .== "O");# .|| MAGEMin_ox .== "H2O");
+    elseif db == "ig" || db == "igd" || db == "ige" ||  db == "alk"
         c = findall(MAGEMin_ox .!= "Cr2O3" .&& MAGEMin_ox .!= "TiO2" .&& MAGEMin_ox .!= "O" .&& MAGEMin_ox .!= "H2O");
         d = findall(MAGEMin_ox .== "Cr2O3" .|| MAGEMin_ox .== "TiO2" .|| MAGEMin_ox .== "O");# .|| MAGEMin_ox .== "H2O");
     elseif db == "mb"               #for the metabasite database it is better to set a low value for H2O as dry system haw not been validated by Eleanor
@@ -1397,11 +1399,15 @@ function point_wise_minimization_with_guess(mSS_vec, P, T, gv, z_b, DB, splx_dat
         end
     end
 
-
     gv.leveling_mode = 1
     out = deepcopy(pwm_run(gv, z_b, DB, splx_data))
 
     return out.G_system
 end
 
+
+# The following section add post-processing routines
+
+include("TE_partitioning.jl")
+include("Zircon_saturation.jl")
 

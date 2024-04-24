@@ -582,6 +582,7 @@ mutable struct global_variables
     numPoint::Cint
     global_ite::Cint
     H2O_id::Cint
+    K2O_id::Cint
     O_id::Cint
     TiO2_id::Cint
     Cr2O3_id::Cint
