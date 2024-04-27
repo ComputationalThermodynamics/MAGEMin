@@ -306,7 +306,7 @@ void fill_output_struct(		global_variable 	 gv,
 						sp[0].bulk_F[j]	   	   /= sum_mol;	
 					}
 					atp2wt = sum/sum_Molar_mass_bulk;
-					sp[0].frac_F_wt 		    = sp[0].frac_F*atp2wt;
+					sp[0].frac_F_wt 		    = sp[0].frac_F*atp2wt; 	//HERE
 				}
 			}
 			else {
@@ -449,7 +449,6 @@ void fill_output_struct(		global_variable 	 gv,
 	sum 	= 0.0;
 	sum_mol = 0.0;
 	for (j = 0; j < gv.len_ox; j++){
-		sp[0].bulk_M_wt[j]	    = sp[0].bulk_M[j]*z_b.masspo[j];
 		sum 				   += sp[0].bulk_M_wt[j];
 		sum_mol 			   += sp[0].bulk_M[j];
 	}
@@ -459,12 +458,7 @@ void fill_output_struct(		global_variable 	 gv,
 		sp[0].bulk_M[j] 	   /= sum_mol;
 	}
 
-	atp2wt = sum/sum_Molar_mass_bulk;
-	sp[0].frac_M_wt 		    = sp[0].frac_M*atp2wt;
-
 	/* normalize rho_F and bulk_F */
-	sp[0].rho_F  				/= sp[0].frac_F;
-
 	for (j = 0; j < gv.len_ox; j++){
 		sp[0].bulk_F[j]	   		/= sp[0].frac_F;
 	}
@@ -472,7 +466,6 @@ void fill_output_struct(		global_variable 	 gv,
 	sum 	= 0.0;
 	sum_mol = 0.0;
 	for (j = 0; j < gv.len_ox; j++){
-		sp[0].bulk_F_wt[j]	    = sp[0].bulk_F[j]*z_b.masspo[j];
 		sum 				   += sp[0].bulk_F_wt[j];
 		sum_mol 			   += sp[0].bulk_F[j];
 	}
@@ -482,8 +475,8 @@ void fill_output_struct(		global_variable 	 gv,
 		sp[0].bulk_F[j] 	   /= sum_mol;
 	}
 
-	atp2wt = sum/sum_Molar_mass_bulk;
-	sp[0].frac_F_wt 		    = sp[0].frac_F*atp2wt;
+
+
 
 	/* compute cp as J/K/kg for given bulk-rock composition */
 	double MolarMass_system = 0.0;

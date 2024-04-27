@@ -3,7 +3,7 @@
 
 # include("TE_routine.jl")
 
-using MAGEMin_C  
+# using MAGEMin_C  
 
 function zirconium_saturation(  out     :: gmin_struct{Float64, Int64}; 
                                 model   :: String = "WH"    )
