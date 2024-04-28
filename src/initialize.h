@@ -180,7 +180,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.4.3 [07/04/2024]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.4.4 [28/04/2024]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");	
@@ -838,16 +838,19 @@ global_variable global_variable_init( 	global_variable  	 gv,
 				if (strcmp( gv.ox[i], "H2O") == 0){
 					gv.H2O_id = i;
 				}
-				else if (strcmp( gv.ox[i], "TiO2") == 0){
+				else if (strcmp( gv.ox[i], "K2O") 	== 0){
+					gv.K2O_id = i;
+				}
+				else if (strcmp( gv.ox[i], "TiO2") 	== 0){
 					gv.TiO2_id = i;
 				}
-				else if (strcmp( gv.ox[i], "O") == 0){
+				else if (strcmp( gv.ox[i], "O") 	== 0){
 					gv.O_id = i;
 				}
 				else if (strcmp( gv.ox[i], "Cr2O3") == 0){
 					gv.Cr2O3_id = i;
 				}
-				else if (strcmp( gv.ox[i], "MnO") == 0){
+				else if (strcmp( gv.ox[i], "MnO") 	== 0){
 					gv.MnO_id = i;
 				}												
 				z_b->apo[i]     	= ox_in.atPerOx[j];

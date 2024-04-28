@@ -4651,7 +4651,13 @@ SS_ref G_SS_ig_cpx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[7][0] = 0.0; 
 		SS_ref_db.bounds_ref[7][1] = 0.0;	
-	}  
+	} 
+    if (z_b.bulk_rock[5] == 0.){ 					
+		SS_ref_db.z_em[9]          = 0.0;
+        SS_ref_db.d_em[9]          = 1.0;
+		SS_ref_db.bounds_ref[8][0] = 0.0; 
+		SS_ref_db.bounds_ref[8][1] = 0.0;	
+	}
     return SS_ref_db;
 }
 
@@ -5057,7 +5063,12 @@ SS_ref G_SS_ig_fl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 		SS_ref_db.bounds_ref[7][0] = 0.0; 
 		SS_ref_db.bounds_ref[7][1] = 0.0;	
 	}
-
+	if (z_b.bulk_rock[5] == 0.){ 					
+		SS_ref_db.z_em[9]          = 0.0;
+        SS_ref_db.d_em[9]          = 1.0;
+		SS_ref_db.bounds_ref[8][0] = 0.0; 
+		SS_ref_db.bounds_ref[8][1] = 0.0;	
+	}
 	return SS_ref_db;
 }
 
@@ -5470,7 +5481,12 @@ SS_ref G_SS_ig_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 		SS_ref_db.bounds_ref[7][0] = 0.0; 
 		SS_ref_db.bounds_ref[7][1] = 0.0;	
 	}
-    
+    if (z_b.bulk_rock[5] == 0.){ 					
+		SS_ref_db.z_em[9]          = 0.0;
+        SS_ref_db.d_em[9]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0; 
+		SS_ref_db.bounds_ref[4][1] = 0.0;	
+	}
 
     /* this lists the index of the order variables */
     // SS_ref_db.orderVar      = 1;
@@ -5828,6 +5844,13 @@ SS_ref G_SS_ig_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 		SS_ref_db.bounds_ref[7][0] = 0.0; 
 		SS_ref_db.bounds_ref[7][1] = 0.0;	
 	}
+	if (z_b.bulk_rock[5] == 0.){ 					
+		SS_ref_db.z_em[9]          = 0.0;
+        SS_ref_db.d_em[9]          = 1.0;
+		SS_ref_db.bounds_ref[8][0] = 0.0; 
+		SS_ref_db.bounds_ref[8][1] = 0.0;	
+	}
+
     return SS_ref_db;
 }
 
@@ -6335,7 +6358,13 @@ SS_ref G_SS_ig_fsp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
-    
+
+    if (z_b.bulk_rock[5] == 0.){ 					
+		SS_ref_db.z_em[2]          = 0.0;
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0; 
+		SS_ref_db.bounds_ref[1][1] = 0.0;	
+	}
     return SS_ref_db;
 }
 
@@ -7625,7 +7654,7 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
 
 		if (strcmp( name, "bi") == 0 ){
 			// if no H2O, deactivate
-			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+			if (z_b.bulk_rock[gv.H2O_id] == 0. || z_b.bulk_rock[gv.K2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_ig_bi_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
@@ -7670,7 +7699,7 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
 			SS_ref_db = G_SS_ig_liq_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "mu") == 0){
 			// if no H2O, deactivate
-			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+			if (z_b.bulk_rock[gv.H2O_id] == 0. || z_b.bulk_rock[gv.K2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_ig_mu_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}	

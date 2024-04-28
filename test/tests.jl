@@ -29,6 +29,51 @@ print_info(out)
 Finalize_MAGEMin(data)
 
 
+
+@testset "test normalization" begin
+
+    # Initialize database  - new way
+    data        =   Initialize_MAGEMin("ig", verbose=true);
+    test        =   5         #KLB1
+    data        =   use_predefined_bulk_rock(data, test);
+    P           =   8.0
+    T           =   800.0
+    out         =   point_wise_minimization(P,T, data);
+    @test  out.frac_M    + out.frac_S    + out.frac_F        ≈ 1.0
+    @test  out.frac_M_wt + out.frac_S_wt + out.frac_F_wt     ≈ 1.0
+    @test  sum(out.bulk_M)                                   ≈ 1.0
+    @test  sum(out.bulk_F)                                   ≈ 1.0
+    @test  sum(out.bulk_S)                                   ≈ 1.0
+    @test  sum(out.bulk_M_wt)                                ≈ 1.0
+    @test  sum(out.bulk_F_wt)                                ≈ 1.0
+    @test  sum(out.bulk_S_wt)                                ≈ 1.0
+
+    test        =   0         #KLB1
+    data        =   use_predefined_bulk_rock(data, test);
+
+    P           =   8.0
+    T           =   1500.0
+    out         =   point_wise_minimization(P,T, data);
+    @test  out.frac_M    + out.frac_S    + out.frac_F        ≈ 1.0
+    @test  out.frac_M_wt + out.frac_S_wt + out.frac_F_wt     ≈ 1.0
+    @test  sum(out.bulk_M)                                   ≈ 1.0
+    @test  sum(out.bulk_S)                                   ≈ 1.0
+    @test  sum(out.bulk_M_wt)                                ≈ 1.0
+    @test  sum(out.bulk_S_wt)                                ≈ 1.0
+
+    P           =   8.0
+    T           =   800.0
+    out         =   point_wise_minimization(P,T, data);
+    @test  out.frac_M    + out.frac_S    + out.frac_F        ≈ 1.0
+    @test  out.frac_M_wt + out.frac_S_wt + out.frac_F_wt     ≈ 1.0
+    @test  sum(out.bulk_S)                                   ≈ 1.0
+    @test  sum(out.bulk_S_wt)                                ≈ 1.0
+  
+    Finalize_MAGEMin(data)
+end
+
+
+
 # previous way we defined this (left here for backwards compatibility)
 db          = "ig"
 gv, z_b, DB, splx_data  = init_MAGEMin(db);
@@ -88,6 +133,22 @@ end
     @test out[2].G_system ≈ -912.5920719174167 rtol=2e-4
 
     Finalize_MAGEMin(data)
+end
+
+
+@testset "remove solution phase" begin
+
+    data    = Initialize_MAGEMin("mp", verbose=-1, solver=0);
+
+    rm_list =   remove_phases(["liq"],"mp")
+
+    # One bulk rock for all points
+    P,T     = 10.713125, 1177.34375
+    Xoxides = ["SiO2","Al2O3","CaO","MgO","FeO","K2O","Na2O","TiO2","O","MnO","H2O"]
+    X       = [70.999,12.805,0.771,3.978,6.342,2.7895,1.481,0.758,0.72933,0.075,30.0]
+    sys_in  = "mol"    
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in,rm_list=rm_list)
+    @test sort(out.ph) == sort(["fsp", "sp", "g", "q", "sill", "ru", "H2O"])
 end
 
 @testset "view array PT" begin

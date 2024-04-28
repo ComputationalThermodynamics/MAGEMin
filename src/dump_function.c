@@ -172,6 +172,9 @@ void fill_output_struct(		global_variable 	 gv,
 	sp[0].frac_S				 = 0.0;
 	sp[0].frac_M				 = 0.0;
 	sp[0].frac_F				 = 0.0;
+	sp[0].frac_S_wt				 = 0.0;
+	sp[0].frac_M_wt				 = 0.0;
+	sp[0].frac_F_wt				 = 0.0;
 	sp[0].rho_S				 	 = 0.0;
 	sp[0].rho_M				 	 = 0.0;
 	sp[0].rho_F				 	 = 0.0;
@@ -419,7 +422,8 @@ void fill_output_struct(		global_variable 	 gv,
 		sp[0].ph_frac_wt[i] 	/= sum_wt;
 	}
 
-	/* normalize rho_S and bulk_S */
+	/* The following section normalizes the entries for S (solid), M (melt) and F (fluid) which are entries useful for geodynamic coupling */
+	// normalize rho_S and bulk_S
 	sp[0].rho_S  				/= sp[0].frac_S;
 	for (j = 0; j < gv.len_ox; j++){
 		sp[0].bulk_S[j]	   		/= sp[0].frac_S;
@@ -441,7 +445,7 @@ void fill_output_struct(		global_variable 	 gv,
 	atp2wt = sum/sum_Molar_mass_bulk;
 	sp[0].frac_S_wt 		    = sp[0].frac_S*atp2wt;
 
-	/* normalize bulk_M */
+	// normalize bulk_M
 	for (j = 0; j < gv.len_ox; j++){
 		sp[0].bulk_M[j]	   		/= sp[0].frac_M;
 	}
@@ -449,7 +453,6 @@ void fill_output_struct(		global_variable 	 gv,
 	sum 	= 0.0;
 	sum_mol = 0.0;
 	for (j = 0; j < gv.len_ox; j++){
-		sp[0].bulk_M_wt[j]	    = sp[0].bulk_M[j]*z_b.masspo[j];
 		sum 				   += sp[0].bulk_M_wt[j];
 		sum_mol 			   += sp[0].bulk_M[j];
 	}
@@ -459,12 +462,7 @@ void fill_output_struct(		global_variable 	 gv,
 		sp[0].bulk_M[j] 	   /= sum_mol;
 	}
 
-	atp2wt = sum/sum_Molar_mass_bulk;
-	sp[0].frac_M_wt 		    = sp[0].frac_M*atp2wt;
-
-	/* normalize rho_F and bulk_F */
-	sp[0].rho_F  				/= sp[0].frac_F;
-
+	// normalize rho_F and bulk_F
 	for (j = 0; j < gv.len_ox; j++){
 		sp[0].bulk_F[j]	   		/= sp[0].frac_F;
 	}
@@ -472,7 +470,6 @@ void fill_output_struct(		global_variable 	 gv,
 	sum 	= 0.0;
 	sum_mol = 0.0;
 	for (j = 0; j < gv.len_ox; j++){
-		sp[0].bulk_F_wt[j]	    = sp[0].bulk_F[j]*z_b.masspo[j];
 		sum 				   += sp[0].bulk_F_wt[j];
 		sum_mol 			   += sp[0].bulk_F[j];
 	}
@@ -482,8 +479,18 @@ void fill_output_struct(		global_variable 	 gv,
 		sp[0].bulk_F[j] 	   /= sum_mol;
 	}
 
-	atp2wt = sum/sum_Molar_mass_bulk;
-	sp[0].frac_F_wt 		    = sp[0].frac_F*atp2wt;
+	// Normalize the fraction of S + M + F = 1.0
+	sum = sp[0].frac_F + sp[0].frac_M + sp[0].frac_S;
+	sp[0].frac_F /= sum;
+	sp[0].frac_M /= sum;
+	sp[0].frac_S /= sum;
+
+
+	sum = sp[0].frac_F_wt + sp[0].frac_M_wt + sp[0].frac_S_wt;
+	sp[0].frac_F_wt /= sum;
+	sp[0].frac_M_wt /= sum;
+	sp[0].frac_S_wt /= sum;
+
 
 	/* compute cp as J/K/kg for given bulk-rock composition */
 	double MolarMass_system = 0.0;
@@ -493,7 +500,7 @@ void fill_output_struct(		global_variable 	 gv,
 	sp[0].s_cp 					= sp[0].cp_wt/MolarMass_system*1e6;
 
 
-	/* get LP assemblage */
+	/* get LP assemblage - This routine retrieves the information of the solution phases and pure phase as computed at equilibrium -> to be used as initial guess */
 	m = 0;
 	simplex_data *d  = (simplex_data *) splx_data;
 
