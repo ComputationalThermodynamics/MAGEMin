@@ -29,6 +29,51 @@ print_info(out)
 Finalize_MAGEMin(data)
 
 
+
+@testset "test normalization" begin
+
+    # Initialize database  - new way
+    data        =   Initialize_MAGEMin("ig", verbose=true);
+    test        =   5         #KLB1
+    data        =   use_predefined_bulk_rock(data, test);
+    P           =   8.0
+    T           =   800.0
+    out         =   point_wise_minimization(P,T, data);
+    @test  out.frac_M    + out.frac_S    + out.frac_F        ≈ 1.0
+    @test  out.frac_M_wt + out.frac_S_wt + out.frac_F_wt     ≈ 1.0
+    @test  sum(out.bulk_M)                                   ≈ 1.0
+    @test  sum(out.bulk_F)                                   ≈ 1.0
+    @test  sum(out.bulk_S)                                   ≈ 1.0
+    @test  sum(out.bulk_M_wt)                                ≈ 1.0
+    @test  sum(out.bulk_F_wt)                                ≈ 1.0
+    @test  sum(out.bulk_S_wt)                                ≈ 1.0
+
+    test        =   0         #KLB1
+    data        =   use_predefined_bulk_rock(data, test);
+
+    P           =   8.0
+    T           =   1500.0
+    out         =   point_wise_minimization(P,T, data);
+    @test  out.frac_M    + out.frac_S    + out.frac_F        ≈ 1.0
+    @test  out.frac_M_wt + out.frac_S_wt + out.frac_F_wt     ≈ 1.0
+    @test  sum(out.bulk_M)                                   ≈ 1.0
+    @test  sum(out.bulk_S)                                   ≈ 1.0
+    @test  sum(out.bulk_M_wt)                                ≈ 1.0
+    @test  sum(out.bulk_S_wt)                                ≈ 1.0
+
+    P           =   8.0
+    T           =   800.0
+    out         =   point_wise_minimization(P,T, data);
+    @test  out.frac_M    + out.frac_S    + out.frac_F        ≈ 1.0
+    @test  out.frac_M_wt + out.frac_S_wt + out.frac_F_wt     ≈ 1.0
+    @test  sum(out.bulk_S)                                   ≈ 1.0
+    @test  sum(out.bulk_S_wt)                                ≈ 1.0
+  
+    Finalize_MAGEMin(data)
+end
+
+
+
 # previous way we defined this (left here for backwards compatibility)
 db          = "ig"
 gv, z_b, DB, splx_data  = init_MAGEMin(db);
