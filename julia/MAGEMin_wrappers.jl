@@ -550,7 +550,7 @@ function convertBulk4MAGEMin(bulk_in::T1,bulk_in_ox::Vector{String},sys_in::Stri
     if db == "ig"
         c = findall(MAGEMin_ox .!= "K2O" .&& MAGEMin_ox .!= "Cr2O3" .&& MAGEMin_ox .!= "TiO2" .&& MAGEMin_ox .!= "O" .&& MAGEMin_ox .!= "H2O");
         d = findall(MAGEMin_ox .== "K2O" .|| MAGEMin_ox .== "Cr2O3" .|| MAGEMin_ox .== "TiO2" .|| MAGEMin_ox .== "O");# .|| MAGEMin_ox .== "H2O");
-    elseif db == "ig" || db == "igd" || db == "ige" ||  db == "alk"
+    elseif db == "igd" || db == "ige" ||  db == "alk"
         c = findall(MAGEMin_ox .!= "Cr2O3" .&& MAGEMin_ox .!= "TiO2" .&& MAGEMin_ox .!= "O" .&& MAGEMin_ox .!= "H2O");
         d = findall(MAGEMin_ox .== "Cr2O3" .|| MAGEMin_ox .== "TiO2" .|| MAGEMin_ox .== "O");# .|| MAGEMin_ox .== "H2O");
     elseif db == "mb"               #for the metabasite database it is better to set a low value for H2O as dry system haw not been validated by Eleanor
