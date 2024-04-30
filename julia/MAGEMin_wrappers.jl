@@ -12,7 +12,7 @@ export  retrieve_solution_phase_information, remove_phases,
         single_point_minimization, multi_point_minimization, MAGEMin_Data, W_Data,
         Initialize_MAGEMin, Finalize_MAGEMin
 
-export  get_TE_database, compute_TE_partitioning, zirconium_saturation
+export  get_TE_database, compute_TE_partitioning, zirconium_saturation, adjust_bulk_4_zircon
               
 """
     Holds general information about solution phases
@@ -712,8 +712,6 @@ function point_wise_minimization(P::Float64,T::Float64, gv, z_b, DB, splx_data; 
         hcp         = -(T+273.15)*(E + W - 2.0*out.G_system)/(dT*dT);
         s_cp        = hcp/out.M_sys*1e6;
         out.s_cp   .= s_cp
-
-        # print("E: $E W: $W G: $(out.G_system)\n")
     end
 
     # LibMAGEMin.FreeDatabases(gv, DB, z_b);
