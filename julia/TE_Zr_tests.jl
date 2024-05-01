@@ -19,62 +19,16 @@ db          = "mp"
 sys_in      = "wt"    
 data        = Initialize_MAGEMin(db, verbose=false);
 
-P,T         = 4.0, 750.0
+P,T         = 2.0, 750.0
 Xoxides     = ["SiO2","TiO2","Al2O3","O","FeO","MgO","CaO","K2O","Na2O","H2O"];
 X           = [69.20111492,0.385480479,15.36802994,0.08,2.835169639,1.173738821,3.375444597,1.767078881,4.503466421,2];
 
 
-out, out_te     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in,
-                                        tepm    = 1,
-                                        te_db   = "OL",
-                                        zr_sat  = "CB",
-                                        te_X    = C0_TE,
-                                    )
-
-
-out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in,
-                                        tepm    = 0,
-                                        te_db   = "OL",
-                                        zr_sat  = "CB",
-                                        te_X    = C0_TE,
-                                    )
-
-
-tolerance   = 1e-4
-residual    = 1.0
-zr_wt       = 0.0
-np          = 0
-
-SiO2_id = findall(Xoxides .== "SiO2")[1]
-
-X           = X./sum(X).*100.0
-bulk_act    = copy(X)
-while residual > tolerance && np < 32
-
-    out     = single_point_minimization(P, T, data, X=bulk_act, Xoxides=Xoxides, sys_in=sys_in)
-
-    # out2         = point_wise_minimization_with_guess(out.mSS_vec, P, T, data.gv[1], data.z_b, data.DB, data.splx_data)
-
-    # Then we compute TE partitioning
-    Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr = compute_TE_partitioning(C0_TE,out,db)
-
-    # Then we compute zirconium saturation
-    Sat_zr_liq  = zirconium_saturation( out; 
-                                        model="CB")
-
-    zircon_wt, SiO2_wt, O_wt  = adjust_bulk_4_zircon(Cliq_Zr, Sat_zr_liq)
-
-    residual    = abs(zircon_wt  - zr_wt )
-    zr_wt       = zircon_wt 
-
-    bulk_act    .= X
-    bulk_act[SiO2_id]    = X[SiO2_id] - SiO2_wt 
-
-    bulk_act ./= sum(bulk_act)
-
-    np     += 1
-end
-
+out, out_te     = single_point_minimization(    P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in,
+                                                tepm    = 1,
+                                                te_db   = "OL",
+                                                zr_sat  = "CB",
+                                                te_X    = C0_TE )
 
 
 

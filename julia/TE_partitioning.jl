@@ -149,7 +149,9 @@ function compute_TE_partitioning(   C0      :: Vector{Float64},
                                     TE_db   :: String = "OL"            )
                                     
     if out.frac_M > 0.0 && out.frac_S > 0.0
-        SiO2_M = out.bulk_M_wt[1]
+
+        SiO2_id= findall(out.oxides .== "SiO2")[1]
+        SiO2_M = out.bulk_M_wt[SiO2_id]
         liq_wt = out.frac_M
         if TE_db == "OL"
             if SiO2_M > 63.0
