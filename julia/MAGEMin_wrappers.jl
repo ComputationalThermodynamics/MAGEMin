@@ -356,7 +356,7 @@ function single_point_minimization(     P           ::  T1,
                                         tepm        ::  Int64                           = 0,  
                                         te_db       ::  Union{Nothing,String}           = nothing,
                                         zr_sat      ::  Union{Nothing,String}           = nothing,
-                                        te_X        ::  VecOrMat                        = nothing,  
+                                        te_X        ::  Union{Nothing, Vector{T1}}      = nothing,  
                                         rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                                         W           ::  Union{Nothing, W_Data}          = nothing,
                                         data_in     ::  Union{Nothing, gmin_struct{Float64, Int64}, Vector{gmin_struct{Float64, Int64}}} = nothing,
@@ -488,7 +488,7 @@ function multi_point_minimization(P           ::  T2,
                                   tepm        ::  Int64                           = 0,  
                                   te_db       ::  Union{Nothing,String}           = nothing,
                                   zr_sat      ::  Union{Nothing,String}           = nothing,
-                                  te_X        ::  VecOrMat                        = nothing,      
+                                  te_X        ::  Union{Nothing, Vector{Float64}}      = nothing,         
                                   rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                                   data_in     ::  Union{Nothing, gmin_struct{Float64, Int64}, Vector{gmin_struct{Float64, Int64}}} = nothing,
                                   W           ::  Union{Nothing, W_Data}          = nothing,
@@ -964,8 +964,8 @@ point_wise_minimization(P       ::  Number,
                         dtb     ::  Union{Nothing,String}           = nothing,
                         te_db   ::  Union{Nothing,String}           = nothing,
                         zr_sat  ::  Union{Nothing,String}           = nothing,
-                        te_X    ::  VecOrMat                        = nothing,  
-                        rm_list ::  Union{Nothing, Vector{Int64}} = nothing,
+                        te_X    ::  Union{Nothing, Vector{Float64}} = nothing,     
+                        rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         data_in ::  Union{Nothing, gmin_struct{Float64, Int64}, Vector{gmin_struct{Float64, Int64}}} = nothing,
                         W       ::  Union{Nothing, W_Data} = nothing) = 
                         point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, scp, tepm, dtb, te_db, zr_sat, te_X, rm_list, data_in, W)
@@ -983,11 +983,11 @@ point_wise_minimization(P       ::  Number,
                         dtb     ::  Union{Nothing,String}           = nothing,
                         te_db   ::  Union{Nothing,String}           = nothing,
                         zr_sat  ::  Union{Nothing,String}           = nothing,
-                        te_X    ::  VecOrMat                        = nothing,  
-                        rm_list ::  Union{Nothing, Vector{Int64}} = nothing,
+                        te_X    ::  Union{Nothing, Vector{Float64}} = nothing,  
+                        rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         data_in ::  Union{Nothing, gmin_struct{Float64, Int64}, Vector{gmin_struct{Float64, Int64}}} = nothing,
                         W       ::  Union{Nothing, W_Data} = nothing) = 
-                        point_wise_minimization(P,T, gv, z_b, DB, splx_data; buffer_n, scp, tepm, dtb, te_db, zr_sat, te_X, rm_list, data_in, W)
+                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, scp, tepm, dtb, te_db, zr_sat, te_X, rm_list, data_in, W)
 
 point_wise_minimization(P       ::  Number,
                         T       ::  Number,
@@ -998,11 +998,11 @@ point_wise_minimization(P       ::  Number,
                         dtb     ::  Union{Nothing,String}           = nothing,
                         te_db   ::  Union{Nothing,String}           = nothing,
                         zr_sat  ::  Union{Nothing,String}           = nothing,
-                        te_X    ::  VecOrMat                        = nothing,  
-                        rm_list ::  Union{Nothing, Vector{Int64}} = nothing,
+                        te_X    ::  Union{Nothing, Vector{Float64}} = nothing,  
+                        rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         data_in ::  Union{Nothing, gmin_struct{Float64, Int64}, Vector{gmin_struct{Float64, Int64}}} = nothing,
                         W       ::  Union{Nothing, W_Data} = nothing) = 
-                        point_wise_minimization(P,T, data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]; buffer_n, scp, tepm, dtb, te_db, zr_sat, te_X, rm_list, data_in, W)
+                        point_wise_minimization(Float64(P),Float64(T), data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]; buffer_n, scp, tepm, dtb, te_db, zr_sat, te_X, rm_list, data_in, W)
 
 
 """
