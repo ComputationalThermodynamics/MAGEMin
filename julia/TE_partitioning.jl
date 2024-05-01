@@ -189,9 +189,7 @@ function compute_TE_partitioning(   C0      :: Vector{Float64},
 
         id_Zr       = findall(TE_dtb.element_name .== "Zr")[1]
         Cliq_Zr     = Cliq[id_Zr]
-
-
     end
 
-    return Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr
+    return Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, TE_dtb.element_name
 end
