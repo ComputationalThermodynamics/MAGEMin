@@ -10,57 +10,65 @@ Ton	        = [69.20111492,0.385480479,15.36802994,0.08,2.835169639,0.052720082,
 Bas         = [50.60777553,0.953497243,13.70435413,0.19,11.28130762,0.202560796,8.496024312,9.502380068,0.700881685,2.07434927,4,29.14258603,0.434482763,29.69200003,38.23663423,257.4346716,529.333066,208.2057375,88.87615683,91.7592182,16.60777308,163.4533209,20.74016207,66.90677472,3.808354064,1.529226981,122.8449739,6.938172601,16.04827796,2.253943183,10.18276823,3.3471043,0.915941652,3.28230146,1.417695298,3.851230952,0.914966282,2.20425,0.343734976,2.136202593,0.323405135,1.841502082,0.330971265,5.452969044,1.074692058,0.290233271]
 
 C0_TE_idx   = [findfirst(isequal(x), components) for x in TE_db.element_name]
+
+
 C0_TE       = Bas[C0_TE_idx]
-
-
-
 
 # Then we call MAGENin
 db          = "mb"
 sys_in      = "wt"    
 data        = Initialize_MAGEMin(db, verbose=false);
 
-P,T         = 2.0, 700.0
+P,T         = 4.0, 900.0
 Xoxides     = ["SiO2","TiO2","Al2O3","O","FeO","MgO","CaO","K2O","Na2O","H2O"];
 X           = [69.20111492,0.385480479,15.36802994,0.08,2.835169639,1.173738821,3.375444597,1.767078881,4.503466421,2];
 
 
+out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in,
+                                        tepm    = 1,
+                                        te_db   = "OL",
+                                        zr_sat  = "CB",
+                                        te_X    = C0_TE,
+                                    )
 
-tolerance   = 1e-4
-residual    = 1.0
-zr_wt       = 0.0
-np          = 0
 
-SiO2_id = findall(Xoxides .== "SiO2")[1]
 
-X           = X./sum(X).*100.0
-bulk_act    = copy(X)
-while residual > tolerance && np < 32
 
-    out     = single_point_minimization(P, T, data, X=bulk_act, Xoxides=Xoxides, sys_in=sys_in)
 
-    # Then we compute TE partitioning
-    Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm = compute_TE_partitioning(C0_TE,out,db)
+# tolerance   = 1e-4
+# residual    = 1.0
+# zr_wt       = 0.0
+# np          = 0
 
-    # Then we compute zirconium saturation
-    Sat_zr_liq  = zirconium_saturation( out; 
-                                        model="CB")
+# SiO2_id = findall(Xoxides .== "SiO2")[1]
 
-    id_Zr       = findall(TE_db.element_name .== "Zr")[1]
-    Val_zr      = Cliq[id_Zr]
+# X           = X./sum(X).*100.0
+# bulk_act    = copy(X)
+# while residual > tolerance && np < 32
 
-    zircon_wt ,SiO2_wt ,O_wt  = adjust_bulk_4_zircon(  Val_zr,Sat_zr_liq )
+#     out     = single_point_minimization(P, T, data, X=bulk_act, Xoxides=Xoxides, sys_in=sys_in)
 
-    residual    = abs(zircon_wt  - zr_wt )
-    zr_wt       = zircon_wt 
+#     # out2         = point_wise_minimization_with_guess(out.mSS_vec, P, T, data.gv[1], data.z_b, data.DB, data.splx_data)
 
-    bulk_act    .= X
-    bulk_act[SiO2_id]    = X[SiO2_id] - SiO2_wt 
+#     # Then we compute TE partitioning
+#     Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr = compute_TE_partitioning(C0_TE,out,db)
 
-    bulk_act ./= sum(bulk_act)
+#     # Then we compute zirconium saturation
+#     Sat_zr_liq  = zirconium_saturation( out; 
+#                                         model="CB")
 
-    np     += 1
-end
+#     zircon_wt, SiO2_wt, O_wt  = adjust_bulk_4_zircon(Cliq_Zr, Sat_zr_liq)
+
+#     residual    = abs(zircon_wt  - zr_wt )
+#     zr_wt       = zircon_wt 
+
+#     bulk_act    .= X
+#     bulk_act[SiO2_id]    = X[SiO2_id] - SiO2_wt 
+
+#     bulk_act ./= sum(bulk_act)
+
+#     np     += 1
+# end
 
 
 

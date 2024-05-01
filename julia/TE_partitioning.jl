@@ -187,7 +187,11 @@ function compute_TE_partitioning(   C0      :: Vector{Float64},
             Cmin[i,:] = TE_dtb.Kds[TE_ph_idx[i],:] .* Cliq;
         end
 
+        id_Zr       = findall(TE_dtb.element_name .== "Zr")[1]
+        Cliq_Zr     = Cliq[id_Zr]
+
+
     end
 
-    return Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm
+    return Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr
 end

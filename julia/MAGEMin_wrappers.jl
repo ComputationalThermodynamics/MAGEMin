@@ -13,7 +13,106 @@ export  retrieve_solution_phase_information, remove_phases,
         Initialize_MAGEMin, Finalize_MAGEMin
 
 export  get_TE_database, compute_TE_partitioning, zirconium_saturation, adjust_bulk_4_zircon
-              
+    
+
+"""
+    structure that holds the result of the pointwise minimization
+"""
+struct gmin_struct{T,I}
+    MAGEMin_ver :: String
+    dataset     :: String
+    G_system    :: T             # G of system
+    Gamma       :: Vector{T}        # Gamma
+    P_kbar      :: T               # Pressure in kbar
+    T_C         :: T                  # Temperature in Celsius
+    X           :: Vector{T}
+    M_sys       :: T
+
+    # bulk rock composition:
+    bulk        :: Vector{T}
+    bulk_M      :: Vector{T}
+    bulk_S      :: Vector{T}
+    bulk_F      :: Vector{T}
+
+    bulk_wt     :: Vector{T}
+    bulk_M_wt   :: Vector{T}
+    bulk_S_wt   :: Vector{T}
+    bulk_F_wt   :: Vector{T}
+
+    # Fractions:
+    # Solid, melt, fluid fractions
+    frac_M      :: T
+    frac_S      :: T
+    frac_F      :: T
+
+    frac_M_wt   :: T
+    frac_S_wt   :: T
+    frac_F_wt   :: T
+
+    # Solid, melt, fluid densities
+    alpha       :: T
+    V           :: T
+    cp          :: T
+    s_cp        :: Vector{T}
+    rho         :: T
+    rho_M       :: T
+    rho_S       :: T
+    rho_F       :: T
+
+    # Oxygen fugacity
+    fO2         :: T
+    dQFM        :: T
+
+    # Activities
+    aH2O        :: T
+    aSiO2       :: T
+    aTiO2       :: T
+    aAl2O3      :: T
+    aMgO        :: T
+    aFeO        :: T
+
+    # Phase fractions and type:
+    n_PP        :: Int64                 # number of pure phases
+    n_SS        :: Int64                 # number of solid solutions
+    n_mSS       :: Int64                 # number of solid solutions
+
+    ph_frac     :: Vector{T}            # phase fractions
+    ph_frac_wt  :: Vector{T}            # phase fractions
+    ph_frac_vol :: Vector{T}            # phase fractions
+    ph_type     :: Vector{I}            # type of phase (SS or PP)
+    ph_id       :: Vector{I}            # id of phase
+    ph          :: Vector{String}       # Name of phase
+
+    SS_vec      :: Vector{LibMAGEMin.SS_data}
+    mSS_vec     :: Vector{LibMAGEMin.mSS_data}
+    PP_vec      :: Vector{LibMAGEMin.PP_data}
+
+    oxides      :: Vector{String}
+
+    # Seismic velocity info
+    Vp              :: T                # P-wave velocity
+    Vs              :: T                # S-wave velocity
+    Vp_S            :: T                # P-wave velocity of solid aggregate
+    Vs_S            :: T                # S-wave velocity of solid aggregate
+    bulkMod         :: T                # Elastic bulk modulus
+    shearMod        :: T                # Elastic shear modulus
+    bulkModulus_M   :: T                # Elastic bulk modulus
+    bulkModulus_S   :: T                # Elastic bulk modulus
+    shearModulus_S  :: T                # Elastic shear modulus
+
+    # thermodynamic properties
+    entropy         :: T          # entropy
+    enthalpy        :: T         # enthalpy
+
+    # Numerics:
+    iter            :: I             # number of iterations required
+    bulk_res_norm   :: T    # bulk residual norm
+    time_ms         :: T          # computational time for this point
+    status          :: I           # status of calculations
+end
+
+
+
 """
     Holds general information about solution phases
 """
@@ -235,9 +334,14 @@ function single_point_minimization(     P           ::  T1,
                                         test        ::  Int64                           = 0, # if using a build-in test case,
                                         X           ::  VecOrMat                        = nothing,      
                                         B           ::  Union{Nothing, T1, Vector{T1}}  = nothing,
-                                        scp         = 0,   
-                                        rm_list     ::  Union{Nothing, Vector{Int64}}           = nothing,
+                                        scp         ::  Int64                           = 0,   
+                                        tepm        ::  Int64                           = 0,  
+                                        te_db       ::  Union{Nothing,String}           = nothing,
+                                        zr_sat      ::  Union{Nothing,String}           = nothing,
+                                        te_X        ::  VecOrMat                        = nothing,  
+                                        rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                                         W           ::  Union{Nothing, W_Data}          = nothing,
+                                        data_in     ::  Union{Nothing, gmin_struct{Float64, Int64}, Vector{gmin_struct{Float64, Int64}}} = nothing,
                                         Xoxides     = Vector{String},
                                         sys_in      = "mol",
                                         progressbar = true        # show a progress bar or not?
@@ -256,7 +360,12 @@ function single_point_minimization(     P           ::  T1,
                                                 X           =   X,
                                                 B           =   B,
                                                 scp         =   scp,
+                                                tepm        =   tepm,
+                                                te_db       =   te_db,
+                                                zr_sat      =   zr_sat,
+                                                te_X        =   te_X,
                                                 rm_list     =   rm_list,
+                                                data_in     =   data_in,
                                                 W           =   W,
                                                 Xoxides     =   Xoxides,
                                                 sys_in      =   sys_in,
@@ -335,8 +444,13 @@ function multi_point_minimization(P           ::  T2,
                                   test        ::  Int64                           = 0, # if using a build-in test case,
                                   X           ::  VecOrMat                        = nothing,
                                   B           ::  Union{Nothing, T1, Vector{T1}}  = nothing,
-                                  scp                                             = 0,
+                                  scp         ::  Int64                           = 0,
+                                  tepm        ::  Int64                           = 0,  
+                                  te_db       ::  Union{Nothing,String}           = nothing,
+                                  zr_sat      ::  Union{Nothing,String}           = nothing,
+                                  te_X        ::  VecOrMat                        = nothing,      
                                   rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
+                                  data_in     ::  Union{Nothing, gmin_struct{Float64, Int64}, Vector{gmin_struct{Float64, Int64}}} = nothing,
                                   W           ::  Union{Nothing, W_Data}          = nothing,
                                   Xoxides     = Vector{String},
                                   sys_in      = "mol",
@@ -391,11 +505,12 @@ function multi_point_minimization(P           ::  T2,
             gv = define_bulk_rock(gv, X[i], Xoxides, sys_in, MAGEMin_db.db);
         end
 
-        # compute a new point using a ccall
+        dtb = MAGEMin_db.db
+
         if isnothing(B)
-            out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; scp, rm_list)
+            out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; scp, tepm, dtb, te_db, zr_sat, te_X, rm_list, data_in)
         else
-            out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; buffer_n = B[i], W = W, scp, rm_list)
+            out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; buffer_n = B[i], W = W, scp, tepm, dtb, te_db, zr_sat, te_X, rm_list, data_in)
         end
         Out_PT[i]   = deepcopy(out)
 
@@ -420,34 +535,28 @@ function use_predefined_bulk_rock(gv, test=0, db="ig")
     if db == "ig"
         gv.test = test
         gv = LibMAGEMin.get_bulk_igneous(gv)
-        LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
     elseif db == "igd"
         gv.test = test
         gv = LibMAGEMin.get_bulk_igneous(gv)
-        LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
     elseif db == "ige"
         gv.test = test
         gv = LibMAGEMin.get_bulk_igneous(gv)
-        LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
     elseif db == "mp"
         gv.test = test
         gv = LibMAGEMin.get_bulk_metapelite(gv)
-        LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
     elseif db == "mb"
         gv.test = test
         gv = LibMAGEMin.get_bulk_metabasite(gv)
-        LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
     elseif db == "um"
         gv.test = test
         gv = LibMAGEMin.get_bulk_ultramafic(gv)
-        LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
     elseif db == "alk"
         gv.test = test
         gv = LibMAGEMin.get_bulk_igneous_alk(gv)
-        LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
     else
         print("Database not implemented...\n")
     end
+    LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
 
     return gv
 end
@@ -644,7 +753,23 @@ julia> finalize_MAGEMin(gv,DB)
 ```
 
 """
-function point_wise_minimization(P::Float64,T::Float64, gv, z_b, DB, splx_data; buffer_n = 0.0, scp = 0, rm_list = nothing, W = nothing)
+function point_wise_minimization(   P       ::Float64,
+                                    T       ::Float64,
+                                    gv,
+                                    z_b,
+                                    DB,
+                                    splx_data;
+                                    buffer_n    = 0.0,
+                                    scp         = 0,
+                                    tepm        = 0,
+                                    dtb         = nothing,
+                                    te_db       = nothing,
+                                    zr_sat      = nothing,
+                                    te_X        = nothing,
+                                    rm_list     = nothing,
+                                    data_in     = nothing,
+                                    W           = nothing   )
+
     gv.buffer_n     =   buffer_n;
     input_data      =   LibMAGEMin.io_data();           # zero (not used actually)
     z_b.T           =   T + 273.15;                    # in K
@@ -704,17 +829,53 @@ function point_wise_minimization(P::Float64,T::Float64, gv, z_b, DB, splx_data; 
     # Transform results to a more convenient julia struct
     out = deepcopy(create_gmin_struct(DB, gv, time));
 
+    # here we compute specific heat capacity using reactions
     if (scp == 1)
         mSS_vec     = deepcopy(out.mSS_vec)
         dT          = 2.0;
-        W           = point_wise_minimization_with_guess(mSS_vec, P, T-dT, gv, z_b, DB, splx_data)
-        E           = point_wise_minimization_with_guess(mSS_vec, P, T+dT, gv, z_b, DB, splx_data)
-        hcp         = -(T+273.15)*(E + W - 2.0*out.G_system)/(dT*dT);
+        out_W       = point_wise_minimization_with_guess(mSS_vec, P, T-dT, gv, z_b, DB, splx_data)
+        out_E       = point_wise_minimization_with_guess(mSS_vec, P, T+dT, gv, z_b, DB, splx_data)
+        hcp         = -(T+273.15)*(out_E.G_system + out_W.G_system - 2.0*out.G_system)/(dT*dT);
         s_cp        = hcp/out.M_sys*1e6;
         out.s_cp   .= s_cp
     end
 
-    # LibMAGEMin.FreeDatabases(gv, DB, z_b);
+    # here we compute trace element partitioning and zircon saturation
+    if (tepm == 1 && out.frac_M > 0.0)
+
+        Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr = compute_TE_partitioning(  te_X,
+                                                                                        out,
+                                                                                        dtb;
+                                                                                        TE_db = te_db)
+
+        # Then we compute zirconium saturation
+        Sat_zr_liq  = zirconium_saturation( out; 
+                                            model = zr_sat)     
+
+        zircon_wt, SiO2_wt, O_wt  = adjust_bulk_4_zircon(Cliq_Zr, Sat_zr_liq)
+        SiO2_id     = findall(out.oxides .== "SiO2")[1]
+
+        bulk_act    = copy(out.bulk_wt)
+        bulk_act[SiO2_id]    = out.bulk_wt[SiO2_id] - SiO2_wt 
+        bulk_act  ./= sum(bulk_act)
+        gv          = define_bulk_rock(gv, bulk_act, out.oxides, "wt", dtb);
+        mSS_vec     = deepcopy(out.mSS_vec)
+        out_cor     = point_wise_minimization_with_guess(mSS_vec, P, T, gv, z_b, DB, splx_data)
+
+        Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr = compute_TE_partitioning(  te_X,
+                                                                                        out_cor,
+                                                                                        dtb;
+                                                                                        TE_db = te_db)
+
+        # Then we compute zirconium saturation
+        Sat_zr_liq  = zirconium_saturation( out; 
+                                            model = zr_sat)     
+
+        zircon_wt, SiO2_wt, O_wt  = adjust_bulk_4_zircon(Cliq_Zr, Sat_zr_liq)
+        print("zircon_wt: $zircon_wt\n")
+    end
+
+
     return out
 end
 
@@ -723,11 +884,57 @@ end
 
 Performs a point-wise optimization for a given pressure `P` and temperature `T` for the data specified in the MAGEMin database `MAGEMin_Data` (where also compoition is specified)
 """
-point_wise_minimization(P::Number,T::Number, gv, z_b, DB, splx_data; buffer_n::Float64 = 0.0, scp::Int64 = 0, rm_list::Union{Nothing, Vector{Int64}} = nothing, W::Union{Nothing, W_Data} = nothing) = point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, scp, rm_list, W)
+point_wise_minimization(P       ::  Number,
+                        T       ::  Number,
+                        gv,
+                        z_b,
+                        DB,
+                        splx_data;
+                        buffer_n::  Float64     = 0.0,
+                        scp     ::  Int64       = 0,
+                        tepm    ::  Int64       = 0,
+                        dtb     ::  Union{Nothing,String}           = nothing,
+                        te_db   ::  Union{Nothing,String}           = nothing,
+                        zr_sat  ::  Union{Nothing,String}           = nothing,
+                        te_X    ::  VecOrMat                        = nothing,  
+                        rm_list ::  Union{Nothing, Vector{Int64}} = nothing,
+                        data_in ::  Union{Nothing, gmin_struct{Float64, Int64}, Vector{gmin_struct{Float64, Int64}}} = nothing,
+                        W       ::  Union{Nothing, W_Data} = nothing) = 
+                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, scp, tepm, dtb, te_db, zr_sat, te_X, rm_list, data_in, W)
 
-point_wise_minimization(P::Number,T::Number, gv::LibMAGEMin.global_variables, z_b::LibMAGEMin.bulk_infos, DB::LibMAGEMin.Database, splx_data::LibMAGEMin.simplex_datas, sys_in::String; buffer_n::Float64 = 0.0, scp::Int64 = 0, rm_list::Union{Nothing, Vector{Int64}} = nothing, W::Union{Nothing, W_Data} = nothing) = point_wise_minimization(P,T, gv, z_b, DB, splx_data; buffer_n, scp, rm_list, W)
+point_wise_minimization(P       ::  Number,
+                        T       ::  Number,
+                        gv      ::  LibMAGEMin.global_variables,
+                        z_b     ::  LibMAGEMin.bulk_infos,
+                        DB      ::  LibMAGEMin.Database,
+                        splx_data:: LibMAGEMin.simplex_datas,
+                        sys_in  ::  String;
+                        buffer_n::  Float64     = 0.0,
+                        scp     ::  Int64       = 0,
+                        tepm    ::  Int64       = 0,
+                        dtb     ::  Union{Nothing,String}           = nothing,
+                        te_db   ::  Union{Nothing,String}           = nothing,
+                        zr_sat  ::  Union{Nothing,String}           = nothing,
+                        te_X    ::  VecOrMat                        = nothing,  
+                        rm_list ::  Union{Nothing, Vector{Int64}} = nothing,
+                        data_in ::  Union{Nothing, gmin_struct{Float64, Int64}, Vector{gmin_struct{Float64, Int64}}} = nothing,
+                        W       ::  Union{Nothing, W_Data} = nothing) = 
+                        point_wise_minimization(P,T, gv, z_b, DB, splx_data; buffer_n, scp, tepm, dtb, te_db, zr_sat, te_X, rm_list, data_in, W)
 
-point_wise_minimization(P::Number,T::Number, data::MAGEMin_Data; buffer_n::Float64 = 0.0, scp::Int64 = 0, rm_list::Union{Nothing, Vector{Int64}} = nothing, W::Union{Nothing, W_Data} = nothing) = point_wise_minimization(P,T, data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]; buffer_n, scp, rm_list, W)
+point_wise_minimization(P       ::  Number,
+                        T       ::  Number,
+                        data    ::  MAGEMin_Data;
+                        buffer_n::  Float64     = 0.0,
+                        scp     ::  Int64       = 0,
+                        tepm    ::  Int64       = 0,
+                        dtb     ::  Union{Nothing,String}           = nothing,
+                        te_db   ::  Union{Nothing,String}           = nothing,
+                        zr_sat  ::  Union{Nothing,String}           = nothing,
+                        te_X    ::  VecOrMat                        = nothing,  
+                        rm_list ::  Union{Nothing, Vector{Int64}} = nothing,
+                        data_in ::  Union{Nothing, gmin_struct{Float64, Int64}, Vector{gmin_struct{Float64, Int64}}} = nothing,
+                        W       ::  Union{Nothing, W_Data} = nothing) = 
+                        point_wise_minimization(P,T, data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]; buffer_n, scp, tepm, dtb, te_db, zr_sat, te_X, rm_list, data_in, W)
 
 
 """
@@ -785,105 +992,6 @@ function pwm_run(gv, z_b, DB, splx_data)
 end
 
 # pwm_run(gv, z_b, DB, splx_data) = pwm_run( gv, z_b, DB, splx_data)
-
-
-
-"""
-    structure that holds the result of the pointwise minisation
-
-"""
-struct gmin_struct{T,I}
-    MAGEMin_ver :: String
-    dataset     :: String
-    G_system    :: T             # G of system
-    Gamma       :: Vector{T}        # Gamma
-    P_kbar      :: T               # Pressure in kbar
-    T_C         :: T                  # Temperature in Celsius
-    X           :: Vector{T}
-    M_sys       :: T
-
-    # bulk rock composition:
-    bulk        :: Vector{T}
-    bulk_M      :: Vector{T}
-    bulk_S      :: Vector{T}
-    bulk_F      :: Vector{T}
-
-    bulk_wt     :: Vector{T}
-    bulk_M_wt   :: Vector{T}
-    bulk_S_wt   :: Vector{T}
-    bulk_F_wt   :: Vector{T}
-
-    # Fractions:
-    # Solid, melt, fluid fractions
-    frac_M      :: T
-    frac_S      :: T
-    frac_F      :: T
-
-    frac_M_wt   :: T
-    frac_S_wt   :: T
-    frac_F_wt   :: T
-
-    # Solid, melt, fluid densities
-    alpha       :: T
-    V           :: T
-    cp          :: T
-    s_cp        :: Vector{T}
-    rho         :: T
-    rho_M       :: T
-    rho_S       :: T
-    rho_F       :: T
-
-    # Oxygen fugacity
-    fO2         :: T
-    dQFM        :: T
-
-    # Activities
-    aH2O        :: T
-    aSiO2       :: T
-    aTiO2       :: T
-    aAl2O3      :: T
-    aMgO        :: T
-    aFeO        :: T
-
-    # Phase fractions and type:
-    n_PP        :: Int64                 # number of pure phases
-    n_SS        :: Int64                 # number of solid solutions
-    n_mSS       :: Int64                 # number of solid solutions
-
-    ph_frac     :: Vector{T}            # phase fractions
-    ph_frac_wt  :: Vector{T}            # phase fractions
-    ph_frac_vol :: Vector{T}            # phase fractions
-    ph_type     :: Vector{I}            # type of phase (SS or PP)
-    ph_id       :: Vector{I}            # id of phase
-    ph          :: Vector{String}       # Name of phase
-
-    SS_vec      :: Vector{LibMAGEMin.SS_data}
-    mSS_vec     :: Vector{LibMAGEMin.mSS_data}
-    PP_vec      :: Vector{LibMAGEMin.PP_data}
-
-    oxides      :: Vector{String}
-
-    # Seismic velocity info
-    Vp              :: T                # P-wave velocity
-    Vs              :: T                # S-wave velocity
-    Vp_S            :: T                # P-wave velocity of solid aggregate
-    Vs_S            :: T                # S-wave velocity of solid aggregate
-    bulkMod         :: T                # Elastic bulk modulus
-    shearMod        :: T                # Elastic shear modulus
-    bulkModulus_M   :: T                # Elastic bulk modulus
-    bulkModulus_S   :: T                # Elastic bulk modulus
-    shearModulus_S  :: T                # Elastic shear modulus
-
-    # thermodynamic properties
-    entropy         :: T          # entropy
-    enthalpy        :: T         # enthalpy
-
-    # Numerics:
-    iter            :: I             # number of iterations required
-    bulk_res_norm   :: T    # bulk residual norm
-    time_ms         :: T          # computational time for this point
-    status          :: I           # status of calculations
-end
 
 """
     out = create_gmin_struct(gv, z_b)
@@ -1400,7 +1508,7 @@ function point_wise_minimization_with_guess(mSS_vec, P, T, gv, z_b, DB, splx_dat
     gv.leveling_mode = 1
     out = deepcopy(pwm_run(gv, z_b, DB, splx_data))
 
-    return out.G_system
+    return out
 end
 
 
