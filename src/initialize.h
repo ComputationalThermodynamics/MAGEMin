@@ -838,6 +838,9 @@ global_variable global_variable_init( 	global_variable  	 gv,
 				if (strcmp( gv.ox[i], "H2O") == 0){
 					gv.H2O_id = i;
 				}
+				else if (strcmp( gv.ox[i], "Al2O3") 	== 0){
+					gv.Al2O3_id = i;
+				}
 				else if (strcmp( gv.ox[i], "K2O") 	== 0){
 					gv.K2O_id = i;
 				}

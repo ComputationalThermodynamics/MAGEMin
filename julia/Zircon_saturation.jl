@@ -67,12 +67,10 @@ function adjust_bulk_4_zircon(  zr_liq  ::  Float64,
     zircon_wt       = 0.0             
     zircon_excess   = (zr_liq - sat_liq)/1e4
 
-    # if some zircon is indeed expected to crystallize then compute the amount of SiO2 to be adjusted
-    if zircon_excess > 0.0
-        zircon_wt   = zircon_excess*0.497644
-        SiO2_wt     = (zircon_wt *0.327765)
-        O2_wt       = (zircon_wt *0.174570)
-    end
-    
+    zircon_wt   = zircon_excess*0.497644
+    SiO2_wt     = (zircon_wt *0.327765)
+    O2_wt       = (zircon_wt *0.174570)
+
+
     return zircon_wt ,SiO2_wt ,O2_wt 
 end

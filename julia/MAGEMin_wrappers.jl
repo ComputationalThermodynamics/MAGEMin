@@ -18,19 +18,19 @@ export  get_TE_database, compute_TE_partitioning, zirconium_saturation, adjust_b
 """
     structure that holds the result of the trace element predictive model
 """
-struct tepm_struct{T,I}
-    te          :: Vector{String}       # Name of the trace elements
-    ph          :: Vector{String}       # Name of the phases bearing trace elements
+struct tepm_struct{T}
+    te          :: Vector{String}                   # Name of the trace elements
+    ph          :: Union{Vector{String}, Nothing}   # Name of the phases bearing trace elements
 
-    C0          :: Vector{T}            # starting TE composition
-    Cliq        :: Vector{T}            # partitioned trace element composition for the liquid
-    Cmin        :: Matrix{T}            # partinioned trace element composition for the minerals
+    C0          :: Union{Vector{T}, Nothing}        # starting TE composition
+    Cliq        :: Union{Vector{T}, Nothing}        # partitioned trace element composition for the liquid
+    Cmin        :: Union{Matrix{T}, Nothing}        # partinioned trace element composition for the minerals
 
-    te_pm       :: String               # predictive model used to compute trace elements partitioning
+    te_pm       :: String                           # predictive model used to compute trace elements partitioning
  
-    zr_sat_pm   :: String               # used predictive model to computate zircon saturation
-    zr_liq_sat  :: T                    # zircon saturation in ptr_comp_pc
-    zr_wt_pc    :: T                    # zircon wt crystallized from melt
+    zr_sat_pm   :: String                           # used predictive model to computate zircon saturation
+    zr_liq_sat  :: Union{T, Nothing}                # zircon saturation in ptr_comp_pc
+    zr_wt_pc    :: Union{T, Nothing}                # zircon wt crystallized from melt
 end
 
 """
@@ -356,7 +356,7 @@ function single_point_minimization(     P           ::  T1,
                                         tepm        ::  Int64                           = 0,  
                                         te_db       ::  Union{Nothing,String}           = nothing,
                                         zr_sat      ::  Union{Nothing,String}           = nothing,
-                                        te_X        ::  Union{Nothing, Vector{T1}}      = nothing,  
+                                        te_X        ::  Union{Nothing, Vector{T1}, Vector{Vector{T1}}}      = nothing,  
                                         rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                                         W           ::  Union{Nothing, W_Data}          = nothing,
                                         data_in     ::  Union{Nothing, gmin_struct{Float64, Int64}, Vector{gmin_struct{Float64, Int64}}} = nothing,
@@ -370,7 +370,9 @@ function single_point_minimization(     P           ::  T1,
     if X isa AbstractVector{Float64}
         X = [X]
     end
-
+    if te_X isa Vector{Float64}
+        te_X = [te_X]
+    end
 
     if tepm == 1
         Out_PT,Out_PT_TE     =   multi_point_minimization(  P,
@@ -488,7 +490,7 @@ function multi_point_minimization(P           ::  T2,
                                   tepm        ::  Int64                           = 0,  
                                   te_db       ::  Union{Nothing,String}           = nothing,
                                   zr_sat      ::  Union{Nothing,String}           = nothing,
-                                  te_X        ::  Union{Nothing, Vector{Float64}}      = nothing,         
+                                  te_X        ::  Union{Nothing, Vector{T1}, Vector{Vector{T1}}}      = nothing,         
                                   rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                                   data_in     ::  Union{Nothing, gmin_struct{Float64, Int64}, Vector{gmin_struct{Float64, Int64}}} = nothing,
                                   W           ::  Union{Nothing, W_Data}          = nothing,
@@ -526,7 +528,7 @@ function multi_point_minimization(P           ::  T2,
     # initialize vectors
     Out_PT = Vector{gmin_struct{Float64, Int64}}(undef, length(P))
     if tepm == 1
-        Out_PT_TE = Vector{tepm_struct{Float64, Int64}}(undef, length(P))
+        Out_PT_TE = Vector{tepm_struct{Float64}}(undef, length(P))
     end
 
     # main loop
@@ -534,6 +536,7 @@ function multi_point_minimization(P           ::  T2,
         progr = Progress(length(P), desc="Computing $(length(P)) points...") # progress meter
     end
     @threads :static for i in eachindex(P)
+
         # Get thread-local buffers. As of Julia v1.9, a dynamic scheduling of
         # the threads is the default setting. To avoid task migration and the
         # resulting concurrency issues, we restrict the loop to static scheduling.
@@ -550,20 +553,19 @@ function multi_point_minimization(P           ::  T2,
 
         dtb = MAGEMin_db.db
 
-
         if tepm == 1
             if isnothing(B)
-                out, out_te     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; scp, tepm, dtb, te_db, zr_sat, te_X, rm_list, data_in)
+                out, out_te     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; scp, tepm, dtb, te_db, zr_sat, te_X = te_X[i], rm_list, data_in)
             else
-                out, out_te    = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; buffer_n = B[i], W = W, scp, tepm, dtb, te_db, zr_sat, te_X, rm_list, data_in)
+                out, out_te    = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; buffer_n = B[i], W = W, scp, tepm, dtb, te_db, zr_sat, te_X = te_X[i], rm_list, data_in)
             end
             Out_PT[i]       = deepcopy(out)
             Out_PT_TE[i]    = deepcopy(out_te)
         else
             if isnothing(B)
-                out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; scp, tepm, dtb, te_db, zr_sat, te_X, rm_list, data_in)
+                out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; scp, rm_list, data_in)
             else
-                out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; buffer_n = B[i], W = W, scp, tepm, dtb, te_db, zr_sat, te_X, rm_list, data_in)
+                out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; buffer_n = B[i], W = W, scp, rm_list, data_in)
             end
             Out_PT[i]   = deepcopy(out)
         end
@@ -900,46 +902,73 @@ function point_wise_minimization(   P       ::Float64,
     end
 
     # here we compute trace element partitioning and zircon saturation
-    if (tepm == 1 && out.frac_M > 0.0)
+    if (tepm == 1)
+        if (out.frac_M > 0.0 && out.frac_S > 0.0)
+            Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, te_names  = compute_TE_partitioning(   te_X,
+                                                                                                        out,
+                                                                                                        dtb;
+                                                                                                        TE_db = te_db)
 
-        Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, te_names  = compute_TE_partitioning(   te_X,
-                                                                                                    out,
-                                                                                                    dtb;
-                                                                                                    TE_db = te_db)
+            # Then we compute zirconium saturation
+            Sat_zr_liq  = zirconium_saturation( out; 
+                                                model = zr_sat)   
 
-        # Then we compute zirconium saturation
-        Sat_zr_liq  = zirconium_saturation( out; 
-                                            model = zr_sat)     
+            if Cliq_Zr > Sat_zr_liq
+                zircon_wt, SiO2_wt, O_wt  = adjust_bulk_4_zircon(Cliq_Zr, Sat_zr_liq)
+                SiO2_id     = findall(out.oxides .== "SiO2")[1]
 
-        zircon_wt, SiO2_wt, O_wt  = adjust_bulk_4_zircon(Cliq_Zr, Sat_zr_liq)
-        SiO2_id     = findall(out.oxides .== "SiO2")[1]
+                bulk_act    = copy(out.bulk_wt)
+                bulk_act[SiO2_id]    = out.bulk_wt[SiO2_id] - SiO2_wt 
+                bulk_act  ./= sum(bulk_act)
+                gv          = define_bulk_rock(gv, bulk_act, out.oxides, "wt", dtb);
+                mSS_vec     = deepcopy(out.mSS_vec)
+                out_cor     = point_wise_minimization_with_guess(mSS_vec, P, T, gv, z_b, DB, splx_data)
 
-        bulk_act    = copy(out.bulk_wt)
-        bulk_act[SiO2_id]    = out.bulk_wt[SiO2_id] - SiO2_wt 
-        bulk_act  ./= sum(bulk_act)
-        gv          = define_bulk_rock(gv, bulk_act, out.oxides, "wt", dtb);
-        mSS_vec     = deepcopy(out.mSS_vec)
-        out_cor     = point_wise_minimization_with_guess(mSS_vec, P, T, gv, z_b, DB, splx_data)
+                Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, te_names = compute_TE_partitioning(    te_X,
+                                                                                                            out_cor,
+                                                                                                            dtb;
+                                                                                                            TE_db = te_db)
 
-        Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, te_names = compute_TE_partitioning(    te_X,
-                                                                                                    out_cor,
-                                                                                                    dtb;
-                                                                                                    TE_db = te_db)
+                # Then we compute zirconium saturation
+                Sat_zr_liq  = zirconium_saturation( out; 
+                                                    model = zr_sat)     
 
-        # Then we compute zirconium saturation
-        Sat_zr_liq  = zirconium_saturation( out; 
-                                            model = zr_sat)     
+                zircon_wt, SiO2_wt, O_wt  = adjust_bulk_4_zircon(Cliq_Zr, Sat_zr_liq)
+            else
+                zircon_wt = 0.0;
+            end
 
-        zircon_wt, SiO2_wt, O_wt  = adjust_bulk_4_zircon(Cliq_Zr, Sat_zr_liq)
+        elseif out.frac_M == 1.0
+            TE_dtb      =  get_TE_database("TE_OL_felsic")
 
+            Sat_zr_liq  = zirconium_saturation( out; 
+                                                model = zr_sat)     
 
-        out_te = tepm_struct{Float64,Int64}(    te_names, ph_TE, te_X, Cliq, Cmin,
-                                                te_db, zr_sat, 
-                                                Sat_zr_liq, zircon_wt)
+            zircon_wt, SiO2_wt, O_wt  = adjust_bulk_4_zircon(Cliq_Zr, Sat_zr_liq)
 
-    end
+            te_names    = TE_dtb.element_name
+            ph_TE       = nothing
+            Cliq        = te_X 
+            Cmin        = nothing
+            te_db       = te_db
+            zr_sat      = zr_sat
+        else 
+            TE_dtb      =  get_TE_database("TE_OL_felsic")
 
-    if tepm == 1
+            te_names    = TE_dtb.element_name
+            ph_TE       = nothing
+            Cliq        = nothing 
+            Cmin        = nothing
+            te_db       = te_db
+            zr_sat      = zr_sat
+            Sat_zr_liq  = nothing
+            zircon_wt   = 0.0
+        end
+
+        out_te = tepm_struct{Float64}(  te_names, ph_TE, te_X, Cliq, Cmin,
+                                        te_db, zr_sat, 
+                                        Sat_zr_liq, zircon_wt)
+
         return out, out_te
     else
         return out
@@ -964,7 +993,7 @@ point_wise_minimization(P       ::  Number,
                         dtb     ::  Union{Nothing,String}           = nothing,
                         te_db   ::  Union{Nothing,String}           = nothing,
                         zr_sat  ::  Union{Nothing,String}           = nothing,
-                        te_X    ::  Union{Nothing, Vector{Float64}} = nothing,     
+                        te_X    ::  Union{Nothing, Vector{Float64}, Vector{Vector{Float64}}} = nothing,     
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         data_in ::  Union{Nothing, gmin_struct{Float64, Int64}, Vector{gmin_struct{Float64, Int64}}} = nothing,
                         W       ::  Union{Nothing, W_Data} = nothing) = 
@@ -983,7 +1012,7 @@ point_wise_minimization(P       ::  Number,
                         dtb     ::  Union{Nothing,String}           = nothing,
                         te_db   ::  Union{Nothing,String}           = nothing,
                         zr_sat  ::  Union{Nothing,String}           = nothing,
-                        te_X    ::  Union{Nothing, Vector{Float64}} = nothing,  
+                        te_X    ::  Union{Nothing, Vector{Float64}, Vector{Vector{Float64}}} = nothing,  
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         data_in ::  Union{Nothing, gmin_struct{Float64, Int64}, Vector{gmin_struct{Float64, Int64}}} = nothing,
                         W       ::  Union{Nothing, W_Data} = nothing) = 
@@ -998,7 +1027,7 @@ point_wise_minimization(P       ::  Number,
                         dtb     ::  Union{Nothing,String}           = nothing,
                         te_db   ::  Union{Nothing,String}           = nothing,
                         zr_sat  ::  Union{Nothing,String}           = nothing,
-                        te_X    ::  Union{Nothing, Vector{Float64}} = nothing,  
+                        te_X    ::  Union{Nothing, Vector{Float64}, Vector{Vector{Float64}}} = nothing,  
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         data_in ::  Union{Nothing, gmin_struct{Float64, Int64}, Vector{gmin_struct{Float64, Int64}}} = nothing,
                         W       ::  Union{Nothing, W_Data} = nothing) = 

@@ -15,20 +15,23 @@ C0_TE_idx   = [findfirst(isequal(x), components) for x in TE_db.element_name]
 C0_TE       = Ton[C0_TE_idx]
 
 # Then we call MAGENin
-db          = "mp"
+db          = "ig"
 sys_in      = "wt"    
 data        = Initialize_MAGEMin(db, verbose=false);
 
-P,T         = 2.0, 750.0
+P       = [1.0, 2.0,1.0, 2.0]
+T       = [800.0, 800.0,800.0, 800.0]
 Xoxides     = ["SiO2","TiO2","Al2O3","O","FeO","MgO","CaO","K2O","Na2O","H2O"];
-X           = [69.20111492,0.385480479,15.36802994,0.08,2.835169639,1.173738821,3.375444597,1.767078881,4.503466421,2];
+X1           = [69.20111492,0.385480479,15.36802994,0.08,2.835169639,1.173738821,3.375444597,1.767078881,4.503466421,2];
+X2           = [69.20111492,0.385480479,15.36802994,0.08,2.835169639,1.173738821,3.375444597,1.767078881,4.503466421,2];
+X       = [X1,X2,X1,X2]
+XTE     = [C0_TE,C0_TE,C0_TE,C0_TE]
 
-
-out, out_te     = single_point_minimization(    P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in,
+out, out_te     = multi_point_minimization(    P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, scp=0,
                                                 tepm    = 1,
                                                 te_db   = "OL",
                                                 zr_sat  = "CB",
-                                                te_X    = C0_TE )
+                                                te_X    = XTE )
 
 
 
