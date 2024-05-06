@@ -69,6 +69,15 @@ Finalize_MAGEMin(data)
     @test  sum(out.bulk_S)                                   ≈ 1.0
     @test  sum(out.bulk_S_wt)                                ≈ 1.0
   
+
+    P           =   8.0
+    T           =   1900.0
+    out         =   point_wise_minimization(P,T, data);
+    @test  out.frac_M    + out.frac_S    + out.frac_F        ≈ 1.0
+    @test  out.frac_M_wt + out.frac_S_wt + out.frac_F_wt     ≈ 1.0
+    @test  sum(out.bulk_M)                                   ≈ 1.0
+    @test  sum(out.bulk_M_wt)                                ≈ 1.0
+    
     Finalize_MAGEMin(data)
 end
 

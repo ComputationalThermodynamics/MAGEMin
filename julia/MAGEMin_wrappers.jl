@@ -30,7 +30,7 @@ struct tepm_struct{T,I}
  
     zr_sat_pm   :: String               # used predictive model to computate zircon saturation
     zr_liq_sat  :: T                    # zircon saturation in ptr_comp_pc
-    zr_wt       :: T                    # zircon wt crystallized from melt
+    zr_wt_pc    :: T                    # zircon wt crystallized from melt
 end
 
 """
@@ -1211,7 +1211,7 @@ function show(io::IO, t::tepm_struct)
         println(io, "   $(lpad(t.te[i],14," "))   $( round(t.Cliq[i], digits=5)) ")
     end
     println(io, "   $(lpad("zr liq sat [ppm]",14," "))   $( round(t.zr_liq_sat, digits=5)) ")
-    println(io, "   $(lpad("zrc mode [wt%]",14," "))   $( round(t.zr_wt, digits=5)) ")
+    println(io, "   $(lpad("zrc mode [wt%]",14," "))   $( round(t.zr_wt_pc, digits=5)) ")
 end
 
 
