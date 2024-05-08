@@ -1,7 +1,7 @@
 # Routine to compute zircon saturation and adjust bulk-rock composition when zircon crystallizes
 # NR 12/04/2023
 
-function zirconium_saturation(  out     :: gmin_struct{Float64, Int64}; 
+function zirconium_saturation(  out     :: MAGEMin_C.gmin_struct{Float64, Int64}; 
                                 model   :: String = "WH"    )
 
     if out.frac_M > 0.0                            

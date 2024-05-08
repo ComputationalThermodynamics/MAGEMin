@@ -36,7 +36,7 @@ end
 """
     Classify the mineral output from MAGEMin to be able to be compared with partitioning coefficient database
 """
-function mineral_classification(    out             :: gmin_struct{Float64, Int64},
+function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Float64, Int64},
                                     dtb             :: String  )
 
     ph      = Array{String}(undef, out.n_SS + out.n_PP) 
@@ -131,7 +131,7 @@ end
     Routine to compute the TE partitioning
 """
 function compute_TE_partitioning(   C0      :: Vector{Float64},
-                                    out     :: gmin_struct{Float64, Int64},
+                                    out     :: MAGEMin_C.gmin_struct{Float64, Int64},
                                     dtb     :: String;
                                     TE_db   :: String = "OL"            )
                                     

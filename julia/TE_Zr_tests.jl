@@ -1,5 +1,43 @@
 # tests for TE partitioning and Zircons saturation calculations
 
+using MAGEMin_C
+
+include("julia/TE_partitioning.jl")
+include("julia/Zircon_saturation.jl")
+
+using MAGEMin_C
+
+data    = Initialize_MAGEMin("ig", verbose=0, solver=0);
+P,T     = 10.0, 1500.0
+Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
+X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 0.0];
+sys_in  = "wt"    
+out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+
+X       = [48.4; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 0.0];
+out2     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, data_in = out)
+
+
+
+
+"""
+    structure that holds the result of the trace element predictive model
+"""
+struct tepm_struct{T}
+    te          :: Vector{String}                   # Name of the trace elements
+    ph          :: Union{Vector{String}, Nothing}   # Name of the phases bearing trace elements
+
+    C0          :: Union{Vector{T}, Nothing}        # starting TE composition
+    Cliq        :: Union{Vector{T}, Nothing}        # partitioned trace element composition for the liquid
+    Cmin        :: Union{Matrix{T}, Nothing}        # partinioned trace element composition for the minerals
+
+    te_pm       :: String                           # predictive model used to compute trace elements partitioning
+ 
+    zr_sat_pm   :: String                           # used predictive model to computate zircon saturation
+    zr_liq_sat  :: Union{T, Nothing}                # zircon saturation in ptr_comp_pc
+    zr_wt_pc    :: Union{T, Nothing}                # zircon wt crystallized from melt
+end
+
 
 
 using MAGEMin_C
@@ -36,3 +74,73 @@ out, out_te     = multi_point_minimization(    P, T, data, X=X, Xoxides=Xoxides,
 
 
 
+    # # here we compute trace element partitioning and zircon saturation
+    # if (tepm == 1)
+    #     if (out.frac_M > 0.0 && out.frac_S > 0.0)
+    #         Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, te_names  = compute_TE_partitioning(   te_X,
+    #                                                                                                     out,
+    #                                                                                                     dtb;
+    #                                                                                                     TE_db = te_db)
+
+    #         # Then we compute zirconium saturation
+    #         Sat_zr_liq  = zirconium_saturation( out; 
+    #                                             model = zr_sat)   
+
+    #         if Cliq_Zr > Sat_zr_liq
+    #             zircon_wt, SiO2_wt, O_wt  = adjust_bulk_4_zircon(Cliq_Zr, Sat_zr_liq)
+    #             SiO2_id     = findall(out.oxides .== "SiO2")[1]
+
+    #             bulk_act    = copy(out.bulk_wt)
+    #             bulk_act[SiO2_id]    = out.bulk_wt[SiO2_id] - SiO2_wt 
+    #             bulk_act  ./= sum(bulk_act)
+    #             gv          = define_bulk_rock(gv, bulk_act, out.oxides, "wt", dtb);
+    #             mSS_vec     = deepcopy(out.mSS_vec)
+    #             out_cor     = point_wise_minimization_with_guess(mSS_vec, P, T, gv, z_b, DB, splx_data)
+
+    #             Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, te_names = compute_TE_partitioning(    te_X,
+    #                                                                                                         out_cor,
+    #                                                                                                         dtb;
+    #                                                                                                         TE_db = te_db)
+
+    #             # Then we compute zirconium saturation
+    #             Sat_zr_liq  = zirconium_saturation( out; 
+    #                                                 model = zr_sat)     
+
+    #             zircon_wt, SiO2_wt, O_wt  = adjust_bulk_4_zircon(Cliq_Zr, Sat_zr_liq)
+    #         else
+    #             zircon_wt = 0.0;
+    #         end
+
+    #     elseif out.frac_M == 1.0
+    #         TE_dtb      =  get_TE_database("TE_OL_felsic")
+
+    #         Sat_zr_liq  = zirconium_saturation( out; 
+    #                                             model = zr_sat)     
+
+    #         zircon_wt, SiO2_wt, O_wt  = adjust_bulk_4_zircon(Cliq_Zr, Sat_zr_liq)
+
+    #         te_names    = TE_dtb.element_name
+    #         ph_TE       = nothing
+    #         Cliq        = te_X 
+    #         Cmin        = nothing
+    #         te_db       = te_db
+    #         zr_sat      = zr_sat
+    #     else 
+    #         TE_dtb      =  get_TE_database("TE_OL_felsic")
+
+    #         te_names    = TE_dtb.element_name
+    #         ph_TE       = nothing
+    #         Cliq        = nothing 
+    #         Cmin        = nothing
+    #         te_db       = te_db
+    #         zr_sat      = zr_sat
+    #         Sat_zr_liq  = nothing
+    #         zircon_wt   = 0.0
+    #     end
+
+    #     out_te = tepm_struct{Float64}(  te_names, ph_TE, te_X, Cliq, Cmin,
+    #                                     te_db, zr_sat, 
+    #                                     Sat_zr_liq, zircon_wt)
+
+    #     return out, out_te
+    # else
