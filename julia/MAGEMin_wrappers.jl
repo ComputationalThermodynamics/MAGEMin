@@ -10,9 +10,10 @@ export  retrieve_solution_phase_information, remove_phases,
         init_MAGEMin, finalize_MAGEMin, point_wise_minimization, convertBulk4MAGEMin, use_predefined_bulk_rock, define_bulk_rock, create_output,
         print_info, create_gmin_struct, pwm_init, pwm_run,
         single_point_minimization, multi_point_minimization, MAGEMin_Data, W_Data,
-        Initialize_MAGEMin, Finalize_MAGEMin,
+        Initialize_MAGEMin, Finalize_MAGEMin
 
-# export  get_TE_database, compute_TE_partitioning, zirconium_saturation, adjust_bulk_4_zircon
+export adjust_chemical_system, TE_prediction, get_OL_KDs_database, adjust_bulk_4_zircon
+
     
 
 """
@@ -1668,6 +1669,6 @@ end
 
 # The following section add post-processing routines
 
-# include("TE_partitioning.jl")
-# include("Zircon_saturation.jl")
+include("TE_partitioning.jl")
+include("Zircon_saturation.jl")
 
