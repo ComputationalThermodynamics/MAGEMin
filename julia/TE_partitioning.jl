@@ -117,6 +117,7 @@ end
 
 struct out_tepm
     Cliq        :: Union{Nothing, Vector{Float64}}
+    Csol        :: Union{Nothing, Vector{Float64}}
     Cmin        :: Union{Nothing, Matrix{Float64}}
     ph_TE       :: Union{Nothing, Vector{String}}
     ph_wt_norm  :: Union{Nothing, Vector{Float64}}
@@ -134,13 +135,6 @@ function TE_prediction(     C0         :: Vector{Float64},
                             out        :: MAGEMin_C.gmin_struct{Float64, Int64},
                             dtb        :: String )
 
-    # ox_id = -1                      
-    # for (i, val) in enumerate(out.oxides)
-    #     if string(val) == KDs_dtb.conditions[1]
-    #         ox_id = i
-    #         break
-    #     end
-    # end  
     ox_id   = findfirst(out.oxides .== KDs_dtb.conditions[1])[1]
 
     ox_M    = out.bulk_M_wt[ox_id]
@@ -174,6 +168,7 @@ function TE_prediction(     C0         :: Vector{Float64},
         D           = KDs_dtb.KDs[cond][TE_ph_idx,:]'*ph_wt_norm;
 
         Cliq        = C0 ./ (D .+ liq_wt_norm.*(1.0 .- D));
+        Csol        = (C0 .- Cliq .*  liq_wt_norm) ./ (1.0 .- liq_wt_norm)
         Cmin        = similar(KDs_dtb.KDs[cond][TE_ph_idx,:]); 
 
         for i = 1:length(ph_wt_norm)
@@ -189,14 +184,6 @@ function TE_prediction(     C0         :: Vector{Float64},
         if Cliq_Zr > Sat_zr_liq
             zrc_wt, SiO2_zrc_wt, O_wt       = adjust_bulk_4_zircon(Cliq_Zr, Sat_zr_liq)
 
-
-            # SiO2_id = -1                      
-            # for (i, val) in enumerate(out.oxides)
-            #     if string(val) == "SiO2"
-            #         SiO2_id = i
-            #         break
-            #     end
-            # end  
             SiO2_id                         = findall(out.oxides .== "SiO2")[1]
 
             bulk_cor_wt                     = copy(out.bulk_wt)
@@ -207,17 +194,11 @@ function TE_prediction(     C0         :: Vector{Float64},
         end
 
     elseif liq_wt == 0.0
+        Csol        = C0
         Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt = nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing
     elseif liq_wt == 1.0
         Cliq        = C0
-
-        # id_Zr = -1                      
-        # for (i, val) in enumerate(KDs_dtb.element_name)
-        #     if string(val) == "Zr"
-        #         id_Zr = i
-        #         break
-        #     end
-        # end  
+        Csol        = nothing
         id_Zr       = findfirst(KDs_dtb.element_name .== "Zr")[1]
 
         Cliq_Zr     = Cliq[id_Zr]
@@ -228,13 +209,6 @@ function TE_prediction(     C0         :: Vector{Float64},
         if Cliq_Zr > Sat_zr_liq
             zrc_wt, SiO2_zrc_wt, O_wt       = adjust_bulk_4_zircon(Cliq_Zr, Sat_zr_liq)
 
-            # SiO2_id = -1                      
-            # for (i, val) in enumerate(out.oxides)
-            #     if string(val) == "SiO2"
-            #         SiO2_id = i
-            #         break
-            #     end
-            # end  
             SiO2_id                         = findall(out.oxides .== "SiO2")[1]
 
             bulk_cor_wt                     = copy(out.bulk_wt)
@@ -247,10 +221,10 @@ function TE_prediction(     C0         :: Vector{Float64},
         liq_wt_norm = 1.0
     else
         print("unrecognized case!\n")
-        Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, zrc_wt, bulk_cor_wt = nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing
+        Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, zrc_wt, bulk_cor_wt = nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing
     end
 
-    out_TE = out_tepm(Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt)
+    out_TE = out_tepm(Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt)
 
     return out_TE
 end
