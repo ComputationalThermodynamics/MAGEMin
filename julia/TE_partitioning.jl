@@ -116,6 +116,7 @@ end
 
 
 struct out_tepm
+    elements    :: Union{Nothing, Vector{String}}
     Cliq        :: Union{Nothing, Vector{Float64}}
     Csol        :: Union{Nothing, Vector{Float64}}
     Cmin        :: Union{Nothing, Matrix{Float64}}
@@ -135,12 +136,12 @@ function TE_prediction(     C0         :: Vector{Float64},
                             out        :: MAGEMin_C.gmin_struct{Float64, Int64},
                             dtb        :: String )
 
-    ox_id   = findfirst(out.oxides .== KDs_dtb.conditions[1])[1]
+    ox_id       = findfirst(out.oxides .== KDs_dtb.conditions[1])[1]
 
-    ox_M    = out.bulk_M_wt[ox_id]
-    liq_wt  = out.frac_M_wt
-    sol_wt  = out.frac_S_wt
-
+    ox_M        = out.bulk_M_wt[ox_id]
+    liq_wt      = out.frac_M_wt
+    sol_wt      = out.frac_S_wt
+    elements    = KDs_dtb.element_name
     if liq_wt > 0.0 && liq_wt < 1.0 && sol_wt > 0.0
         n_cond  = length(KDs_dtb.conditions[2])
         cond    = -1
@@ -224,7 +225,7 @@ function TE_prediction(     C0         :: Vector{Float64},
         Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, zrc_wt, bulk_cor_wt = nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing
     end
 
-    out_TE = out_tepm(Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt)
+    out_TE = out_tepm(elements, Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt)
 
     return out_TE
 end
