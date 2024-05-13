@@ -117,9 +117,11 @@ end
 
 struct out_tepm
     elements    :: Union{Nothing, Vector{String}}
+    C0          :: Union{Nothing, Vector{Float64}}
     Cliq        :: Union{Nothing, Vector{Float64}}
     Csol        :: Union{Nothing, Vector{Float64}}
     Cmin        :: Union{Nothing, Matrix{Float64}}
+    Czrc        :: Union{Nothing, Vector{Float64}}
     ph_TE       :: Union{Nothing, Vector{String}}
     ph_wt_norm  :: Union{Nothing, Vector{Float64}}
     liq_wt_norm :: Union{Nothing, Float64}
@@ -225,7 +227,7 @@ function TE_prediction(     C0         :: Vector{Float64},
         Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, zrc_wt, bulk_cor_wt = nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing
     end
 
-    out_TE = out_tepm(elements, Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt)
+    out_TE = out_tepm(elements, C0, Cliq, Csol, Cmin, nothing, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt)
 
     return out_TE
 end
