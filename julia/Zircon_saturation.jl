@@ -12,7 +12,7 @@ function zirconium_saturation(  out     :: MAGEMin_C.gmin_struct{Float64, Int64}
             cation_name = ["Si"; "Al"; "Ca"; "Mg"; "Fe"; "Fe"; "K"; "Na"; "Ti"; "O"; "Cr"; "Mn"; "H"; "S"]
             
             cation_idx  = [findfirst(isequal(x), ref_ox) for x in out.oxides];
-            cation      = out.bulk_M .*ratio_cation[cation_idx];
+            cation      = out.bulk_M_wt .*ratio_cation[cation_idx];
             cation      = cation ./ sum(cation);
 
             Na          = findall(cation_name[cation_idx] .== "Na")[1];
