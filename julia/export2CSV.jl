@@ -78,7 +78,7 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
                             "T[°C]"         => out[k].T_C,
                             "phase"         => "liq",
                             "mode[wt%]"     => out_te[k].liq_wt_norm,
-                            "Zr_sat[μg/g]"  => Sat_zr_liq)
+                            "Zr_sat[μg/g]"  => out_te[k].Sat_zr_liq)
 
             part_2 = Dict(  (out[1].oxides[j]*"_cor[wt%]" => "-")
                             for j in eachindex(out[1].oxides))
