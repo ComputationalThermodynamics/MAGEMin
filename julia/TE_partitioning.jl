@@ -261,7 +261,7 @@ function TE_prediction(     C0         :: Vector{Float64},
         liq_wt_norm = 1.0
     else
         print("unrecognized case!\n")
-        Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, zrc_wt, bulk_cor_wt = nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing
+        Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, zrc_wt, bulk_cor_wt, Sat_zr_liq = nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing
     end
 
     out_TE = out_tepm(elements, C0, Cliq, Csol, Cmin, nothing, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt)
