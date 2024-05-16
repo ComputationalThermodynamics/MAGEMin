@@ -132,6 +132,41 @@ struct out_tepm
 end
 
 
+function compute_partitioning(  cond        :: Int64,
+                                C0          :: Vector{Float64}, 
+                                ph          :: Vector{String}, 
+                                ph_wt       :: Vector{Float64}, 
+                                liq_wt      :: Float64,
+                                KDs_dtb     :: KDs_database)
+
+
+    TE_ph       =  intersect(ph,KDs_dtb.phase_name[cond]);
+
+    # get indexes of the phase with respect to MAGEMin output and TE_database
+    MM_ph_idx   = [findfirst(isequal(x), ph) for x in TE_ph];
+    TE_ph_idx   = [findfirst(isequal(x), KDs_dtb.phase_name[cond]) for x in TE_ph];
+
+    # normalize phase fractions
+    sum_ph_frac = sum(ph_wt[MM_ph_idx]);
+    liq_wt_norm = liq_wt/(sum_ph_frac+liq_wt);
+    ph_wt_norm  = ph_wt[MM_ph_idx]./sum_ph_frac;
+    ph_TE       = ph[MM_ph_idx];
+
+    # compute bulk distributiion coefficient
+    D           = KDs_dtb.KDs[cond][TE_ph_idx,:]'*ph_wt_norm;
+
+    Cliq        = C0 ./ (D .+ liq_wt_norm.*(1.0 .- D));
+    Csol        = (C0 .- Cliq .*  liq_wt_norm) ./ (1.0 .- liq_wt_norm)
+    Cmin        = similar(KDs_dtb.KDs[cond][TE_ph_idx,:]); 
+
+    for i = 1:length(ph_wt_norm)
+        Cmin[i,:] = KDs_dtb.KDs[cond][TE_ph_idx[i],:] .* Cliq;
+    end
+
+    return Cliq, Cmin, Csol, ph_TE, ph_wt_norm, liq_wt_norm
+end
+
+
 function TE_prediction(     C0         :: Vector{Float64},
                             KDs_dtb    :: KDs_database,
                             ZrSat_model:: String,
@@ -155,43 +190,45 @@ function TE_prediction(     C0         :: Vector{Float64},
         end
 
         ph, ph_wt   =  mineral_classification(out, dtb);
-        TE_ph       =  intersect(ph,KDs_dtb.phase_name[cond]);
 
-        # get indexes of the phase with respect to MAGEMin output and TE_database
-        MM_ph_idx   = [findfirst(isequal(x), ph) for x in TE_ph];
-        TE_ph_idx   = [findfirst(isequal(x), KDs_dtb.phase_name[cond]) for x in TE_ph];
-
-        # normalize phase fractions
-        sum_ph_frac = sum(ph_wt[MM_ph_idx]);
-        liq_wt_norm = liq_wt/(sum_ph_frac+liq_wt);
-        ph_wt_norm  = ph_wt[MM_ph_idx]./sum_ph_frac;
-        ph_TE       = ph[MM_ph_idx];
-
-        # compute bulk distributiion coefficient
-        D           = KDs_dtb.KDs[cond][TE_ph_idx,:]'*ph_wt_norm;
-
-        Cliq        = C0 ./ (D .+ liq_wt_norm.*(1.0 .- D));
-        Csol        = (C0 .- Cliq .*  liq_wt_norm) ./ (1.0 .- liq_wt_norm)
-        Cmin        = similar(KDs_dtb.KDs[cond][TE_ph_idx,:]); 
-
-        for i = 1:length(ph_wt_norm)
-            Cmin[i,:] = KDs_dtb.KDs[cond][TE_ph_idx[i],:] .* Cliq;
-        end
+        Cliq, Cmin, Csol, ph_TE, ph_wt_norm, liq_wt_norm,  = compute_partitioning(  cond,
+                                                                                    C0,
+                                                                                    ph, 
+                                                                                    ph_wt, 
+                                                                                    liq_wt,
+                                                                                    KDs_dtb)
 
         id_Zr       = findfirst(KDs_dtb.element_name .== "Zr")[1]
         Cliq_Zr     = Cliq[id_Zr]
 
         Sat_zr_liq  = zirconium_saturation( out; 
                                             model = ZrSat_model)   
-
+                                                                                
         if Cliq_Zr > Sat_zr_liq
             zrc_wt, SiO2_zrc_wt, O_wt       = adjust_bulk_4_zircon(Cliq_Zr, Sat_zr_liq)
+
+            push!(ph,"zrn")
+            push!(ph_wt,zrc_wt/100.0)
+
+            ph_wt = ph_wt ./(sum(ph_wt))
+
+            Cliq, Cmin, Csol, ph_TE, ph_wt_norm, liq_wt_norm,  = compute_partitioning(  cond,
+                                                                                        C0,
+                                                                                        ph, 
+                                                                                        ph_wt, 
+                                                                                        liq_wt,
+                                                                                        KDs_dtb)
+
+            Cliq_Zr     = Cliq[id_Zr]
+            Sat_zr_liq  = zirconium_saturation( out; 
+                                                model = ZrSat_model)   
 
             SiO2_id                         = findall(out.oxides .== "SiO2")[1]
 
             bulk_cor_wt                     = copy(out.bulk_wt)
             bulk_cor_wt[SiO2_id]            = out.bulk_wt[SiO2_id] - SiO2_zrc_wt 
             bulk_cor_wt                   ./= sum(bulk_cor_wt)
+
         else
             zrc_wt, bulk_cor_wt = nothing, nothing
         end

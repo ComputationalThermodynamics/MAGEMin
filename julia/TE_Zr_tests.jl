@@ -16,7 +16,6 @@ bulk_TE     = [50.60777553,0.953497243,13.70435413,0.19,11.28130762,0.202560796,
 
 KDs_dtb     = get_OL_KDs_database();
 
-
 C0          = adjust_chemical_system(    KDs_dtb,bulk_TE,elem_TE);
 
 out_TE      = TE_prediction(C0,KDs_dtb, "CB",out,dtb);
