@@ -237,7 +237,7 @@ function TE_prediction(     C0         :: Vector{Float64},
     elseif liq_wt == 0.0
         Csol        = C0
         Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt = nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing
-    elseif liq_wt == 1.0
+    elseif liq_wt == 1.0 || (sol_wt == 0.0 && liq_wt > 0.0) #latter means there is fluid + melt
         Cliq        = C0
         Csol        = nothing
         id_Zr       = findfirst(KDs_dtb.element_name .== "Zr")[1]
