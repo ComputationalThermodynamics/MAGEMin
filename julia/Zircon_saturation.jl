@@ -1,11 +1,7 @@
 # Routine to compute zircon saturation and adjust bulk-rock composition when zircon crystallizes
 # NR 12/04/2023
 
-# include("TE_routine.jl")
-
-# using MAGEMin_C  
-
-function zirconium_saturation(  out     :: gmin_struct{Float64, Int64}; 
+function zirconium_saturation(  out     :: MAGEMin_C.gmin_struct{Float64, Int64}; 
                                 model   :: String = "WH"    )
 
     if out.frac_M > 0.0                            
@@ -63,16 +59,18 @@ function zirconium_saturation(  out     :: gmin_struct{Float64, Int64};
     return C_zr_liq 
 end
 
+function adjust_bulk_4_zircon(  zr_liq  ::  Float64,
+                                sat_liq ::  Float64 )
+
+    SiO2_wt         = 0.0   
+    O2_wt           = 0.0        
+    zircon_wt       = 0.0             
+    zircon_excess   = (zr_liq - sat_liq)/1e4
+
+    zircon_wt   = zircon_excess*0.497644
+    SiO2_wt     = (zircon_wt *0.327765)
+    O2_wt       = (zircon_wt *0.174570)
 
 
-# dtb         = "ig"
-# data        =  Initialize_MAGEMin(dtb, verbose=true);
-# test        =  0 
-# data        =  use_predefined_bulk_rock(data, test);
-# P           =  2.0
-# T           =  1800.0
-# out         =  point_wise_minimization(P,T, data);
-
-
-# C_zr_liq    = zirconium_saturation( out; 
-#                                     model="CB")
+    return zircon_wt ,SiO2_wt ,O2_wt 
+end

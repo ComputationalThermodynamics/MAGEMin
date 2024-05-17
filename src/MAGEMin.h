@@ -109,6 +109,7 @@ typedef struct global_variables {
 	int      numPoint; 			/** the number of the current point */
 	int      global_ite;		/** global iteration increment */
 	int 	 H2O_id;
+	int 	 Al2O3_id;
 	int 	 K2O_id;
 	int 	 O_id;
 	int 	 TiO2_id;

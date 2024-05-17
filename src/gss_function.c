@@ -7653,36 +7653,34 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
 		}
 
 		if (strcmp( name, "bi") == 0 ){
-			// if no H2O, deactivate
-			if (z_b.bulk_rock[gv.H2O_id] == 0. || z_b.bulk_rock[gv.K2O_id] == 0.){
+			if (z_b.bulk_rock[gv.H2O_id] == 0. || z_b.bulk_rock[gv.K2O_id] == 0. || z_b.bulk_rock[gv.Al2O3_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_ig_bi_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "cd") == 0){
-			// if no H2O, deactivate
-			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+			if (z_b.bulk_rock[gv.H2O_id] == 0.  || z_b.bulk_rock[gv.Al2O3_id] == 0. ){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_ig_cd_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "cpx") == 0){
 			SS_ref_db  = G_SS_ig_cpx_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}	
 		else if (strcmp( name, "ep") == 0){
-			// if no h2O, deactivate
-			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+			if (z_b.bulk_rock[gv.H2O_id] == 0. || z_b.bulk_rock[gv.Al2O3_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_ig_ep_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "fl") == 0){
-			// if no H2O, deactivate
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_ig_fl_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}		
 		else if (strcmp( name, "g") == 0){
+			if (z_b.bulk_rock[gv.Al2O3_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
 			SS_ref_db  = G_SS_ig_g_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);		}
 		else if (strcmp( name, "hb") == 0){
-			// if no H2O, deactivate
-			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+			if (z_b.bulk_rock[gv.H2O_id] == 0.  || z_b.bulk_rock[gv.Al2O3_id] == 0. ){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_ig_hb_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}	
@@ -7692,13 +7690,11 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
 			}
 			SS_ref_db  = G_SS_ig_ilm_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "liq") == 0){
-			/* turn of liquid when T < 600°C) */
 			if ( T < gv.min_melt_T){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db = G_SS_ig_liq_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "mu") == 0){
-			// if no H2O, deactivate
 			if (z_b.bulk_rock[gv.H2O_id] == 0. || z_b.bulk_rock[gv.K2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
@@ -7711,6 +7707,9 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
         else if (strcmp( name, "fper") == 0 ){
             SS_ref_db  = G_SS_ig_fper_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);}
 		else if (strcmp( name, "fsp") == 0){
+			if (z_b.bulk_rock[gv.Al2O3_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
 			SS_ref_db  = G_SS_ig_fsp_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}	
 		else if (strcmp( name, "spn") == 0){
 			SS_ref_db  = G_SS_ig_spn_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}

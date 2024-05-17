@@ -155,11 +155,18 @@ void fill_output_struct(		global_variable 	 gv,
 	sum_Molar_mass_bulk = 0.0;
 	sp[0].M_sys  		= 0.0;
 	for (i = 0; i < nox; i++){
-		sp[0].M_sys 			+= z_b.bulk_rock[i]*z_b.masspo[i];
+		sp[0].M_sys 			+= z_b.bulk_rock[i]*z_b.masspo[i];	
 		sp[0].bulk[i] 	 		 = z_b.bulk_rock[i];
 		sp[0].gamma[i] 	 		 = gv.gam_tot[i];
 		sp[0].bulk_wt[i] 	 	 = z_b.bulk_rock[i]*z_b.masspo[i];
 		sum_Molar_mass_bulk     += sp[0].bulk_wt[i];
+
+		sp[0].bulk_S[i] 	 		 = 0.0;
+		sp[0].bulk_S_wt[i] 	 		 = 0.0;
+		sp[0].bulk_M[i] 	 		 = 0.0;
+		sp[0].bulk_M_wt[i] 	 		 = 0.0;
+		sp[0].bulk_F[i] 	 		 = 0.0;
+		sp[0].bulk_F_wt[i] 	 		 = 0.0;
 	}
 	for (i = 0; i < nox; i++){
 		sp[0].bulk_wt[i] 	 	/= sum_Molar_mass_bulk;
@@ -424,9 +431,11 @@ void fill_output_struct(		global_variable 	 gv,
 
 	/* The following section normalizes the entries for S (solid), M (melt) and F (fluid) which are entries useful for geodynamic coupling */
 	// normalize rho_S and bulk_S
-	sp[0].rho_S  				/= sp[0].frac_S;
-	for (j = 0; j < gv.len_ox; j++){
-		sp[0].bulk_S[j]	   		/= sp[0].frac_S;
+	if (sp[0].frac_S > 0.0){
+		sp[0].rho_S  				/= sp[0].frac_S;
+		for (j = 0; j < gv.len_ox; j++){
+			sp[0].bulk_S[j]	   		/= sp[0].frac_S;
+		}
 	}
 
 	sum = 0.0;
@@ -487,10 +496,10 @@ void fill_output_struct(		global_variable 	 gv,
 
 
 	sum = sp[0].frac_F_wt + sp[0].frac_M_wt + sp[0].frac_S_wt;
+
 	sp[0].frac_F_wt /= sum;
 	sp[0].frac_M_wt /= sum;
 	sp[0].frac_S_wt /= sum;
-
 
 	/* compute cp as J/K/kg for given bulk-rock composition */
 	double MolarMass_system = 0.0;

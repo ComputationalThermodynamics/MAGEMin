@@ -29,6 +29,45 @@ print_info(out)
 Finalize_MAGEMin(data)
 
 
+@testset "test activity buffers" begin
+    # Initialize database  - new way
+    data        =   Initialize_MAGEMin("mp", verbose=true, buffer="aH2O");
+    test        =   0        
+    data        =   use_predefined_bulk_rock(data, test);
+
+    # Call optimization routine for given P & T & bulk_rock
+    P           =   8.0
+    T           =   400.0
+    out         =   point_wise_minimization(P,T, data, buffer_n=0.6);
+    @test sort(out.ph) == ["aH2O", "chl", "ep", "fsp", "mu", "mu", "q", "ru", "sp"]
+    Finalize_MAGEMin(data)
+
+    # Initialize database  - new way
+    data        =   Initialize_MAGEMin("mp", verbose=true, buffer="aTiO2");
+    test        =   0        
+    data        =   use_predefined_bulk_rock(data, test);
+
+    # Call optimization routine for given P & T & bulk_rock
+    P           =   8.0
+    T           =   400.0
+    out         =   point_wise_minimization(P,T, data, buffer_n=0.6);
+    @test sort(out.ph) == ["H2O", "aTiO2", "chl", "ep", "fsp", "ilmm", "mu", "mu", "q"]
+    Finalize_MAGEMin(data)
+
+    # Initialize database  - new way
+    data        =   Initialize_MAGEMin("ig", verbose=true, buffer="aTiO2");
+    test        =   0        
+    data        =   use_predefined_bulk_rock(data, test);
+
+    # Call optimization routine for given P & T & bulk_rock
+    P           =   8.0
+    T           =   1200.0
+    out         =   point_wise_minimization(P,T, data, buffer_n=0.1);
+    @test sort(out.ph) == ["aTiO2", "cpx", "fsp", "liq", "ol", "opx"]
+
+    Finalize_MAGEMin(data)
+end
+
 
 @testset "test normalization" begin
 
@@ -69,6 +108,15 @@ Finalize_MAGEMin(data)
     @test  sum(out.bulk_S)                                   ≈ 1.0
     @test  sum(out.bulk_S_wt)                                ≈ 1.0
   
+
+    P           =   8.0
+    T           =   1900.0
+    out         =   point_wise_minimization(P,T, data);
+    @test  out.frac_M    + out.frac_S    + out.frac_F        ≈ 1.0
+    @test  out.frac_M_wt + out.frac_S_wt + out.frac_F_wt     ≈ 1.0
+    @test  sum(out.bulk_M)                                   ≈ 1.0
+    @test  sum(out.bulk_M_wt)                                ≈ 1.0
+    
     Finalize_MAGEMin(data)
 end
 

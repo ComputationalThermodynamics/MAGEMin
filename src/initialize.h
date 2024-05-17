@@ -180,7 +180,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.4.4 [28/04/2024]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.4.5 [17/05/2024]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");	
@@ -288,7 +288,7 @@ typedef struct metapelite_datasets {
 	int 	n_pp;
 	int 	n_ss;
 	char    ox[11][20];
-	char    PP[17][20];
+	char    PP[23][20];
 	char    SS[16][20];
 
 	int 	verifyPC[16];
@@ -314,11 +314,11 @@ typedef struct metapelite_datasets {
 metapelite_dataset metapelite_db = {
 	256,						/* number of endmembers */
 	11,							/* number of oxides */			
-	17,							/* number of pure phases */
+	23,							/* number of pure phases */
 	15,							/* number of solution phases */
-	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"H2O"													},
+	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"H2O"											},
 	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2"  ,"H2O"	,
-	 "qfm"	,"qif"	,"nno"	,"hm"	,"cco"	},
+	 "qfm"	,"qif"	,"nno"	,"hm"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"								},
 	{"liq"	,"fsp"	,"bi"	,"g"	,"ep"	,"ma"	,"mu"	,"opx"	,"sa"	,"cd"	,"st"	,"chl"	,"ctd"	,"sp"  ,"ilmm"  ,"aq17"	},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1		},  // allow solvus?
@@ -349,7 +349,7 @@ typedef struct metabasite_datasets {
 	int 	n_pp;
 	int 	n_ss;
 	char    ox[10][20];
-	char    PP[18][20];
+	char    PP[24][20];
 
 	char    SS1[14][20];
 	int 	verifyPC1[14];
@@ -381,11 +381,11 @@ typedef struct metabasite_datasets {
 metabasite_dataset metabasite_db = {
 	256,						/* number of endmembers */
 	10,							/* number of oxides */			
-	18,							/* number of pure phases */
+	24,							/* number of pure phases */
 	14,							/* number of solution phases */
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"H2O"													},
 	{"q"	,"crst"	,"trd"	,"coe"	,"law"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"sph"  ,"ab"	,"H2O"	,
-	 "qfm"	,"qif"	,"nno"	,"hm"	,"cco"																							},
+	 "qfm"	,"qif"	,"nno"	,"hm"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"								},
 	{"sp"	,"opx"	,"fsp"	,"liq"	,"mu"	,"ilm"	,"ol"	,"hb"	,"ep"	,"g"	,"chl"	,"bi"	,"dio"	,"abc"  				},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 						},  // allow solvus?
@@ -421,7 +421,7 @@ typedef struct igneous_datasets {
 	int 	n_pp;
 	int 	n_ss;
 	char    ox[11][20];
-	char    PP[17][20];
+	char    PP[23][20];
 	char    SS[15][20];
 
 	int 	verifyPC[15];
@@ -447,11 +447,11 @@ typedef struct igneous_datasets {
 igneous_dataset igneous_db = {
 	291,						/* number of endmembers */
 	11,							/* number of oxides */			
-	17,							/* number of pure phases */
+	23,							/* number of pure phases */
 	15,							/* number of solution phases */
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"Cr2O3","H2O"											},
 	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2"	,
-	 "qfm"	,"mw"	,"qif"	,"nno"	,"hm"	,"cco"																					},
+	 "qfm"	,"mw"	,"qif"	,"nno"	,"hm"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"								},
 	{"spn"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"hb"	,"ilm"	,"liq"	,"ol"	,"opx"	,"fsp"	,"fl"	,"mu"	,"fper"					},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1		,1						}, // allow solvus?
@@ -482,7 +482,7 @@ typedef struct ultramafic_datasets {
 	int 	n_pp;
 	int 	n_ss;
 	char    ox[7][20];
-	char    PP[15][20];
+	char    PP[21][20];
 	char    SS[12][20];
 
 	int 	verifyPC[12];
@@ -509,12 +509,12 @@ typedef struct ultramafic_datasets {
 ultramafic_dataset ultramafic_db = {
 	256,						/* number of endmembers */
 	7,							/* number of oxides */			
-	15,							/* number of pure phases */
+	21,							/* number of pure phases */
 	12,							/* number of solution phases */
 	{"SiO2"	,"Al2O3","MgO"	,"FeO"	,"O"	,"H2O"	,"S"												},
 	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"pyr"	,"O2"  	,
-	 "qfm"	,"qif"	,"nno"	,"hm"	,"cco"	},
-	{"fl", "ol"  ,"br"	,"ch"	,"atg"	,"g"	,"ta"	,"chl"	,"spi"	,"opx"	,"po"	,"anth" 	},
+	 "qfm"	,"qif"	,"nno"	,"hm"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"	},
+	{"fl"	,"ol"  ,"br"	,"ch"	,"atg"	,"g"	,"ta"	,"chl"	,"spi"	,"opx"	,"po"	,"anth" 	},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1		,1			},  // allow solvus?
 	{11  	,10  	,10 	,10 	,489 	,10  	,985 	,2691	,100	,196	,10		,274		},  // No. of pseudocompound
@@ -837,6 +837,9 @@ global_variable global_variable_init( 	global_variable  	 gv,
 			if (strcmp( gv.ox[i], ox_in.oxName[j]) == 0){
 				if (strcmp( gv.ox[i], "H2O") == 0){
 					gv.H2O_id = i;
+				}
+				else if (strcmp( gv.ox[i], "Al2O3") 	== 0){
+					gv.Al2O3_id = i;
 				}
 				else if (strcmp( gv.ox[i], "K2O") 	== 0){
 					gv.K2O_id = i;

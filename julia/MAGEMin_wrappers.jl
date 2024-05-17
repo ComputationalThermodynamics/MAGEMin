@@ -3,6 +3,7 @@
 import Base.show
 using Base.Threads: @threads
 using ProgressMeter
+using DataFrames, Dates, CSV
 
 const VecOrMat = Union{Nothing, AbstractVector{Float64}, AbstractVector{<:AbstractVector{Float64}}}
 
@@ -10,10 +11,111 @@ export  retrieve_solution_phase_information, remove_phases,
         init_MAGEMin, finalize_MAGEMin, point_wise_minimization, convertBulk4MAGEMin, use_predefined_bulk_rock, define_bulk_rock, create_output,
         print_info, create_gmin_struct, pwm_init, pwm_run,
         single_point_minimization, multi_point_minimization, MAGEMin_Data, W_Data,
+        MAGEMin_data2dataframe, MAGEMin_dataTE2dataframe,
         Initialize_MAGEMin, Finalize_MAGEMin
 
-export  get_TE_database, compute_TE_partitioning, zirconium_saturation
-              
+export adjust_chemical_system, TE_prediction, get_OL_KDs_database, adjust_bulk_4_zircon
+
+    
+
+"""
+    structure that holds the result of the pointwise minimization
+"""
+struct gmin_struct{T,I}
+    MAGEMin_ver :: String
+    dataset     :: String
+    G_system    :: T             # G of system
+    Gamma       :: Vector{T}        # Gamma
+    P_kbar      :: T               # Pressure in kbar
+    T_C         :: T                  # Temperature in Celsius
+    X           :: Vector{T}
+    M_sys       :: T
+
+    # bulk rock composition:
+    bulk        :: Vector{T}
+    bulk_M      :: Vector{T}
+    bulk_S      :: Vector{T}
+    bulk_F      :: Vector{T}
+
+    bulk_wt     :: Vector{T}
+    bulk_M_wt   :: Vector{T}
+    bulk_S_wt   :: Vector{T}
+    bulk_F_wt   :: Vector{T}
+
+    # Fractions:
+    # Solid, melt, fluid fractions
+    frac_M      :: T
+    frac_S      :: T
+    frac_F      :: T
+
+    frac_M_wt   :: T
+    frac_S_wt   :: T
+    frac_F_wt   :: T
+
+    # Solid, melt, fluid densities
+    alpha       :: T
+    V           :: T
+    cp          :: T
+    s_cp        :: Vector{T}
+    rho         :: T
+    rho_M       :: T
+    rho_S       :: T
+    rho_F       :: T
+
+    # Oxygen fugacity
+    fO2         :: T
+    dQFM        :: T
+
+    # Activities
+    aH2O        :: T
+    aSiO2       :: T
+    aTiO2       :: T
+    aAl2O3      :: T
+    aMgO        :: T
+    aFeO        :: T
+
+    # Phase fractions and type:
+    n_PP        :: Int64                 # number of pure phases
+    n_SS        :: Int64                 # number of solid solutions
+    n_mSS       :: Int64                 # number of solid solutions
+
+    ph_frac     :: Vector{T}            # phase fractions
+    ph_frac_wt  :: Vector{T}            # phase fractions
+    ph_frac_vol :: Vector{T}            # phase fractions
+    ph_type     :: Vector{I}            # type of phase (SS or PP)
+    ph_id       :: Vector{I}            # id of phase
+    ph          :: Vector{String}       # Name of phase
+
+    SS_vec      :: Vector{LibMAGEMin.SS_data}
+    mSS_vec     :: Vector{LibMAGEMin.mSS_data}
+    PP_vec      :: Vector{LibMAGEMin.PP_data}
+
+    oxides      :: Vector{String}
+
+    # Seismic velocity info
+    Vp              :: T                # P-wave velocity
+    Vs              :: T                # S-wave velocity
+    Vp_S            :: T                # P-wave velocity of solid aggregate
+    Vs_S            :: T                # S-wave velocity of solid aggregate
+    bulkMod         :: T                # Elastic bulk modulus
+    shearMod        :: T                # Elastic shear modulus
+    bulkModulus_M   :: T                # Elastic bulk modulus
+    bulkModulus_S   :: T                # Elastic bulk modulus
+    shearModulus_S  :: T                # Elastic shear modulus
+
+    # thermodynamic properties
+    entropy         :: T          # entropy
+    enthalpy        :: T         # enthalpy
+
+    # Numerics:
+    iter            :: I             # number of iterations required
+    bulk_res_norm   :: T    # bulk residual norm
+    time_ms         :: T          # computational time for this point
+    status          :: I           # status of calculations
+end
+
+
+
 """
     Holds general information about solution phases
 """
@@ -64,7 +166,7 @@ end
 """
 function retrieve_solution_phase_information(dtb)
 
-    db_inf  = db_infos[db_infos("mp", "Metapelite (White et al., 2014)", ss_infos[ss_infos("liq", 8, 7, ["none", "q4L", "abL", "kspL", "anL", "slL", "fo2L", "fa2L", "h2oL"], ["none", "q", "fsp", "na", "an", "ol", "x", "h2o"]), ss_infos("fsp", 3, 2, ["none", "ab", "an", "san"], ["none", "ca", "k"]), ss_infos("bi", 7, 6, ["none", "phl", "annm", "obi", "east", "tbi", "fbi", "mmbi"], ["none", "x", "m", "y", "f", "t", "Q"]), ss_infos("g", 5, 4, ["none", "py", "alm", "spss", "gr", "kho"], ["none", "x", "z", "m", "f"]), ss_infos("ep", 3, 2, ["none", "cz", "ep", "fep"], ["none", "f", "Q"]), ss_infos("ma", 6, 5, ["none", "mut", "celt", "fcelt", "pat", "ma", "fmu"], ["none", "x", "y", "f", "n", "c"]), ss_infos("mu", 6, 5, ["none", "mut", "cel", "fcel", "pat", "ma", "fmu"], ["none", "x", "y", "f", "n", "c"]), ss_infos("opx", 7, 6, ["none", "en", "fs", "fm", "mgts", "fopx", "mnopx", "odi"], ["none", "x", "m", "y", "f", "c", "Q"]), ss_infos("sa", 5, 4, ["none", "spr4", "spr5", "fspm", "spro", "ospr"], ["none", "x", "y", "f", "Q"]), ss_infos("cd", 4, 3, ["none", "crd", "fcrd", "hcrd", "mncd"], ["none", "x", "m", "h"]), ss_infos("st", 5, 4, ["none", "mstm", "fst", "mnstm", "msto", "mstt"], ["none", "x", "m", "f", "t"]), ss_infos("chl", 8, 7, ["none", "clin", "afchl", "ames", "daph", "ochl1", "ochl4", "f3clin", "mmchl"], ["none", "x", "y", "f", "m", "QAl", "Q1", "Q4"]), ss_infos("ctd", 4, 3, ["none", "mctd", "fctd", "mnct", "ctdo"], ["none", "x", "m", "f"]), ss_infos("sp", 4, 3, ["none", "herc", "sp", "mt", "usp"], ["none", "x", "y", "z"]), ss_infos("ilmm", 5, 4, ["none", "oilm", "dilm", "dhem", "geik", "pnt"], ["none", "i", "g", "m", "Q"])], ["liq", "fsp", "bi", "g", "ep", "ma", "mu", "opx", "sa", "cd", "st", "chl", "ctd", "sp", "ilmm"], ["q", "crst", "trd", "coe", "stv", "ky", "sill", "and", "ru", "sph", "O2", "H2O", "qfm", "qif", "nno", "hm", "cco"]), db_infos("mb", "Metabasite (Green et al., 2016)", ss_infos[ss_infos("sp", 4, 3, ["none", "herc", "sp", "mt", "usp"], ["none", "x", "y", "z"]), ss_infos("opx", 6, 5, ["none", "en", "fs", "fm", "mgts", "fopx", "odi"], ["none", "x", "y", "f", "c", "Q"]), ss_infos("fsp", 3, 2, ["none", "ab", "an", "san"], ["none", "ca", "k"]), ss_infos("liq", 9, 8, ["none", "q4L", "abL", "kspL", "wo1L", "sl1L", "fa2L", "fo2L", "watL", "anoL"], ["none", "q", "fsp", "na", "wo", "sil", "ol", "x", "yan"]), ss_infos("mu", 6, 5, ["none", "mu", "cel", "fcel", "pa", "mam", "fmu"], ["none", "x", "y", "f", "n", "c"]), ss_infos("ilm", 3, 2, ["none", "oilm", "dilm", "dhem"], ["none", "x", "Q"]), ss_infos("ol", 2, 1, ["none", "fo", "fa"], ["none", "x"]), ss_infos("hb", 11, 10, ["none", "tr", "tsm", "prgm", "glm", "cumm", "grnm", "a", "b", "mrb", "kprg", "tts"], ["none", "x", "y", "z", "a", "k", "c", "f", "t", "Q1", "Q2"]), ss_infos("ep", 3, 2, ["none", "cz", "ep", "fep"], ["none", "f", "Q"]), ss_infos("g", 4, 3, ["none", "py", "alm", "gr", "kho"], ["none", "x", "z", "f"]), ss_infos("chl", 7, 6, ["none", "clin", "afchl", "ames", "daph", "ochl1", "ochl4", "f3clin"], ["none", "x", "y", "f", "QAl", "Q1", "Q4"]), ss_infos("bi", 6, 5, ["none", "phl", "annm", "obi", "east", "tbi", "fbi"], ["none", "x", "y", "f", "t", "Q"]), ss_infos("dio", 7, 6, ["none", "jd", "di", "hed", "acmm", "om", "cfm", "jac"], ["none", "x", "j", "t", "c", "Qaf", "Qfm"]), ss_infos("abc", 2, 1, ["none", "abm", "anm"], ["none", "ca"])], ["sp", "opx", "fsp", "liq", "mu", "ilm", "ol", "hb", "ep", "g", "chl", "bi", "dio", "abc"], ["q", "crst", "trd", "coe", "law", "ky", "sill", "and", "ru", "sph", "sph", "ab", "H2O", "qfm", "qif", "nno", "hm", "cco"]), db_infos("ig", "Igneous (Holland et al., 2018)", ss_infos[ss_infos("spn", 8, 7, ["none", "nsp", "isp", "nhc", "ihc", "nmt", "imt", "pcr", "qndm"], ["none", "x", "y", "c", "t", "Q1", "Q2", "Q3"]), ss_infos("bi", 6, 5, ["none", "phl", "annm", "obi", "eas", "tbi", "fbi"], ["none", "x", "y", "f", "t", "Q"]), ss_infos("cd", 3, 2, ["none", "crd", "fcrd", "hcrd"], ["none", "x", "h"]), ss_infos("cpx", 10, 9, ["none", "di", "cfs", "cats", "crdi", "cess", "cbuf", "jd", "cen", "cfm", "kjd"], ["none", "x", "y", "o", "n", "Q", "f", "cr", "t", "k"]), ss_infos("ep", 3, 2, ["none", "cz", "ep", "fep"], ["none", "f", "Q"]), ss_infos("g", 6, 5, ["none", "py", "alm", "gr", "andr", "knom", "tig"], ["none", "x", "c", "f", "cr", "t"]), ss_infos("hb", 11, 10, ["none", "tr", "tsm", "prgm", "glm", "cumm", "grnm", "a", "b", "mrb", "kprg", "tts"], ["none", "x", "y", "z", "a", "k", "c", "f", "t", "Q1", "Q2"]), ss_infos("ilm", 3, 2, ["none", "oilm", "dilm", "dhem"], ["none", "x", "Q"]), ss_infos("liq", 12, 11, ["none", "q4L", "slL", "wo1L", "fo2L", "fa2L", "jdL", "hmL", "ekL", "tiL", "kjL", "ctL", "wat1L"], ["none", "wo", "sl", "fo", "fa", "jd", "hm", "ek", "ti", "kj", "yct", "h2o"]), ss_infos("ol", 4, 3, ["none", "mont", "fa", "fo", "cfm"], ["none", "x", "c", "Q"]), ss_infos("opx", 9, 8, ["none", "en", "fs", "fm", "odi", "mgts", "cren", "obuf", "mess", "ojd"], ["none", "x", "y", "c", "Q", "f", "t", "cr", "j"]), ss_infos("fsp", 3, 2, ["none", "ab", "an", "san"], ["none", "ca", "k"]), ss_infos("fl", 11, 10, ["none", "qfL", "slfL", "wofL", "fofL", "fafL", "jdfL", "hmfL", "ekfL", "tifL", "kjfL", "H2O"], ["none", "wo", "sl", "fo", "fa", "jd", "hm", "ek", "ti", "kj", "h2o"]), ss_infos("mu", 6, 5, ["none", "mu", "cel", "fcel", "pa", "mam", "fmu"], ["none", "x", "y", "f", "n", "c"]), ss_infos("fper", 2, 1, ["none", "per", "wu"], ["none", ""])], ["spn", "bi", "cd", "cpx", "ep", "g", "hb", "ilm", "liq", "ol", "opx", "fsp", "fl", "mu", "fper"], ["q", "crst", "trd", "coe", "stv", "ky", "sill", "and", "ru", "sph", "O2", "qfm", "mw", "qif", "nno", "hm", "cco"]), db_infos("um", "Ultramafic (Evans & Frost., 2021)", ss_infos[ss_infos("fl", 2, 1, ["none", "H2", "H2O"], ["none", "x"]), ss_infos("ol", 2, 1, ["none", "fo", "fa"], ["none", "x"]), ss_infos("br", 2, 1, ["none", "br", "fbr"], ["none", "x"]), ss_infos("ch", 2, 1, ["none", "chum", "chuf"], ["none", "x"]), ss_infos("atg", 5, 4, ["none", "atgf", "fatg", "atgo", "aatg", "oatg"], ["none", "x", "y", "f", "t"]), ss_infos("g", 2, 1, ["none", "py", "alm"], ["none", "x"]), ss_infos("ta", 6, 5, ["none", "ta", "fta", "tao", "tats", "ota", "tap"], ["none", "x", "y", "f", "v", "Q"]), ss_infos("chl", 7, 6, ["none", "clin", "afchl", "ames", "daph", "ochl1", "ochl4", "f3clin"], ["none", "x", "y", "f", "m", "t", "QA1"]), ss_infos("spi", 3, 2, ["none", "herc", "sp", "mt"], ["none", "x", "y"]), ss_infos("opx", 5, 4, ["none", "en", "fs", "fm", "mgts", "fopx"], ["none", "x", "y", "f", "Q"]), ss_infos("po", 2, 1, ["none", "trov", "trot"], ["none", "y"]), ss_infos("anth", 5, 4, ["none", "anth", "gedf", "fant", "a", "b"], ["none", "x", "y", "z", "a"])], ["fl", "ol", "br", "ch", "atg", "g", "ta", "chl", "spi", "opx", "po", "anth"], ["q", "crst", "trd", "coe", "stv", "ky", "sill", "and", "pyr", "O2", "qfm", "qif", "nno", "hm", "cco"])]
+    db_inf  = db_infos[db_infos("mp", "Metapelite (White et al., 2014)", ss_infos[ss_infos("liq", 8, 7, ["none", "q4L", "abL", "kspL", "anL", "slL", "fo2L", "fa2L", "h2oL"], ["none", "q", "fsp", "na", "an", "ol", "x", "h2o"]), ss_infos("fsp", 3, 2, ["none", "ab", "an", "san"], ["none", "ca", "k"]), ss_infos("bi", 7, 6, ["none", "phl", "annm", "obi", "east", "tbi", "fbi", "mmbi"], ["none", "x", "m", "y", "f", "t", "Q"]), ss_infos("g", 5, 4, ["none", "py", "alm", "spss", "gr", "kho"], ["none", "x", "z", "m", "f"]), ss_infos("ep", 3, 2, ["none", "cz", "ep", "fep"], ["none", "f", "Q"]), ss_infos("ma", 6, 5, ["none", "mut", "celt", "fcelt", "pat", "ma", "fmu"], ["none", "x", "y", "f", "n", "c"]), ss_infos("mu", 6, 5, ["none", "mut", "cel", "fcel", "pat", "ma", "fmu"], ["none", "x", "y", "f", "n", "c"]), ss_infos("opx", 7, 6, ["none", "en", "fs", "fm", "mgts", "fopx", "mnopx", "odi"], ["none", "x", "m", "y", "f", "c", "Q"]), ss_infos("sa", 5, 4, ["none", "spr4", "spr5", "fspm", "spro", "ospr"], ["none", "x", "y", "f", "Q"]), ss_infos("cd", 4, 3, ["none", "crd", "fcrd", "hcrd", "mncd"], ["none", "x", "m", "h"]), ss_infos("st", 5, 4, ["none", "mstm", "fst", "mnstm", "msto", "mstt"], ["none", "x", "m", "f", "t"]), ss_infos("chl", 8, 7, ["none", "clin", "afchl", "ames", "daph", "ochl1", "ochl4", "f3clin", "mmchl"], ["none", "x", "y", "f", "m", "QAl", "Q1", "Q4"]), ss_infos("ctd", 4, 3, ["none", "mctd", "fctd", "mnct", "ctdo"], ["none", "x", "m", "f"]), ss_infos("sp", 4, 3, ["none", "herc", "sp", "mt", "usp"], ["none", "x", "y", "z"]), ss_infos("ilmm", 5, 4, ["none", "oilm", "dilm", "dhem", "geik", "pnt"], ["none", "i", "g", "m", "Q"])], ["liq", "fsp", "bi", "g", "ep", "ma", "mu", "opx", "sa", "cd", "st", "chl", "ctd", "sp", "ilmm"], ["q", "crst", "trd", "coe", "stv", "ky", "sill", "and", "ru", "sph", "O2", "H2O", "qfm", "qif", "nno", "hm", "cco", "aH2O", "aO2", "aMgO", "aFeO", "aAl2O3", "aTiO2"]), db_infos("mb", "Metabasite (Green et al., 2016)", ss_infos[ss_infos("sp", 4, 3, ["none", "herc", "sp", "mt", "usp"], ["none", "x", "y", "z"]), ss_infos("opx", 6, 5, ["none", "en", "fs", "fm", "mgts", "fopx", "odi"], ["none", "x", "y", "f", "c", "Q"]), ss_infos("fsp", 3, 2, ["none", "ab", "an", "san"], ["none", "ca", "k"]), ss_infos("liq", 9, 8, ["none", "q4L", "abL", "kspL", "wo1L", "sl1L", "fa2L", "fo2L", "watL", "anoL"], ["none", "q", "fsp", "na", "wo", "sil", "ol", "x", "yan"]), ss_infos("mu", 6, 5, ["none", "mu", "cel", "fcel", "pa", "mam", "fmu"], ["none", "x", "y", "f", "n", "c"]), ss_infos("ilm", 3, 2, ["none", "oilm", "dilm", "dhem"], ["none", "x", "Q"]), ss_infos("ol", 2, 1, ["none", "fo", "fa"], ["none", "x"]), ss_infos("hb", 11, 10, ["none", "tr", "tsm", "prgm", "glm", "cumm", "grnm", "a", "b", "mrb", "kprg", "tts"], ["none", "x", "y", "z", "a", "k", "c", "f", "t", "Q1", "Q2"]), ss_infos("ep", 3, 2, ["none", "cz", "ep", "fep"], ["none", "f", "Q"]), ss_infos("g", 4, 3, ["none", "py", "alm", "gr", "kho"], ["none", "x", "z", "f"]), ss_infos("chl", 7, 6, ["none", "clin", "afchl", "ames", "daph", "ochl1", "ochl4", "f3clin"], ["none", "x", "y", "f", "QAl", "Q1", "Q4"]), ss_infos("bi", 6, 5, ["none", "phl", "annm", "obi", "east", "tbi", "fbi"], ["none", "x", "y", "f", "t", "Q"]), ss_infos("dio", 7, 6, ["none", "jd", "di", "hed", "acmm", "om", "cfm", "jac"], ["none", "x", "j", "t", "c", "Qaf", "Qfm"]), ss_infos("abc", 2, 1, ["none", "abm", "anm"], ["none", "ca"])], ["sp", "opx", "fsp", "liq", "mu", "ilm", "ol", "hb", "ep", "g", "chl", "bi", "dio", "abc"], ["q", "crst", "trd", "coe", "law", "ky", "sill", "and", "ru", "sph", "sph", "ab", "H2O", "qfm", "qif", "nno", "hm", "cco", "aH2O", "aO2", "aMgO", "aFeO", "aAl2O3", "aTiO2"]), db_infos("ig", "Igneous (Holland et al., 2018)", ss_infos[ss_infos("spn", 8, 7, ["none", "nsp", "isp", "nhc", "ihc", "nmt", "imt", "pcr", "qndm"], ["none", "x", "y", "c", "t", "Q1", "Q2", "Q3"]), ss_infos("bi", 6, 5, ["none", "phl", "annm", "obi", "eas", "tbi", "fbi"], ["none", "x", "y", "f", "t", "Q"]), ss_infos("cd", 3, 2, ["none", "crd", "fcrd", "hcrd"], ["none", "x", "h"]), ss_infos("cpx", 10, 9, ["none", "di", "cfs", "cats", "crdi", "cess", "cbuf", "jd", "cen", "cfm", "kjd"], ["none", "x", "y", "o", "n", "Q", "f", "cr", "t", "k"]), ss_infos("ep", 3, 2, ["none", "cz", "ep", "fep"], ["none", "f", "Q"]), ss_infos("g", 6, 5, ["none", "py", "alm", "gr", "andr", "knom", "tig"], ["none", "x", "c", "f", "cr", "t"]), ss_infos("hb", 11, 10, ["none", "tr", "tsm", "prgm", "glm", "cumm", "grnm", "a", "b", "mrb", "kprg", "tts"], ["none", "x", "y", "z", "a", "k", "c", "f", "t", "Q1", "Q2"]), ss_infos("ilm", 3, 2, ["none", "oilm", "dilm", "dhem"], ["none", "x", "Q"]), ss_infos("liq", 12, 11, ["none", "q4L", "slL", "wo1L", "fo2L", "fa2L", "jdL", "hmL", "ekL", "tiL", "kjL", "ctL", "wat1L"], ["none", "wo", "sl", "fo", "fa", "jd", "hm", "ek", "ti", "kj", "yct", "h2o"]), ss_infos("ol", 4, 3, ["none", "mont", "fa", "fo", "cfm"], ["none", "x", "c", "Q"]), ss_infos("opx", 9, 8, ["none", "en", "fs", "fm", "odi", "mgts", "cren", "obuf", "mess", "ojd"], ["none", "x", "y", "c", "Q", "f", "t", "cr", "j"]), ss_infos("fsp", 3, 2, ["none", "ab", "an", "san"], ["none", "ca", "k"]), ss_infos("fl", 11, 10, ["none", "qfL", "slfL", "wofL", "fofL", "fafL", "jdfL", "hmfL", "ekfL", "tifL", "kjfL", "H2O"], ["none", "wo", "sl", "fo", "fa", "jd", "hm", "ek", "ti", "kj", "h2o"]), ss_infos("mu", 6, 5, ["none", "mu", "cel", "fcel", "pa", "mam", "fmu"], ["none", "x", "y", "f", "n", "c"]), ss_infos("fper", 2, 1, ["none", "per", "wu"], ["none", ""])], ["spn", "bi", "cd", "cpx", "ep", "g", "hb", "ilm", "liq", "ol", "opx", "fsp", "fl", "mu", "fper"], ["q", "crst", "trd", "coe", "stv", "ky", "sill", "and", "ru", "sph", "O2", "qfm", "mw", "qif", "nno", "hm", "cco", "aH2O", "aO2", "aMgO", "aFeO", "aAl2O3", "aTiO2"]), db_infos("um", "Ultramafic (Evans & Frost., 2021)", ss_infos[ss_infos("fl", 2, 1, ["none", "H2", "H2O"], ["none", "x"]), ss_infos("ol", 2, 1, ["none", "fo", "fa"], ["none", "x"]), ss_infos("br", 2, 1, ["none", "br", "fbr"], ["none", "x"]), ss_infos("ch", 2, 1, ["none", "chum", "chuf"], ["none", "x"]), ss_infos("atg", 5, 4, ["none", "atgf", "fatg", "atgo", "aatg", "oatg"], ["none", "x", "y", "f", "t"]), ss_infos("g", 2, 1, ["none", "py", "alm"], ["none", "x"]), ss_infos("ta", 6, 5, ["none", "ta", "fta", "tao", "tats", "ota", "tap"], ["none", "x", "y", "f", "v", "Q"]), ss_infos("chl", 7, 6, ["none", "clin", "afchl", "ames", "daph", "ochl1", "ochl4", "f3clin"], ["none", "x", "y", "f", "m", "t", "QA1"]), ss_infos("spi", 3, 2, ["none", "herc", "sp", "mt"], ["none", "x", "y"]), ss_infos("opx", 5, 4, ["none", "en", "fs", "fm", "mgts", "fopx"], ["none", "x", "y", "f", "Q"]), ss_infos("po", 2, 1, ["none", "trov", "trot"], ["none", "y"]), ss_infos("anth", 5, 4, ["none", "anth", "gedf", "fant", "a", "b"], ["none", "x", "y", "z", "a"])], ["fl", "ol", "br", "ch", "atg", "g", "ta", "chl", "spi", "opx", "po", "anth"], ["q", "crst", "trd", "coe", "stv", "ky", "sill", "and", "pyr", "O2", "qfm", "qif", "nno", "hm", "cco", "aH2O", "aO2", "aMgO", "aFeO", "aAl2O3", "aTiO2"])]
     dbs     = ["mp","mb","ig","um"]
     id      = findall(dbs .== dtb)[1]
 
@@ -235,9 +337,10 @@ function single_point_minimization(     P           ::  T1,
                                         test        ::  Int64                           = 0, # if using a build-in test case,
                                         X           ::  VecOrMat                        = nothing,      
                                         B           ::  Union{Nothing, T1, Vector{T1}}  = nothing,
-                                        scp         = 0,   
-                                        rm_list     ::  Union{Nothing, Vector{Int64}}           = nothing,
+                                        scp         ::  Int64                           = 0,   
+                                        rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                                         W           ::  Union{Nothing, W_Data}          = nothing,
+                                        data_in     ::  Union{Nothing, gmin_struct{Float64, Int64}, Vector{gmin_struct{Float64, Int64}}} = nothing,
                                         Xoxides     = Vector{String},
                                         sys_in      = "mol",
                                         progressbar = true        # show a progress bar or not?
@@ -249,6 +352,10 @@ function single_point_minimization(     P           ::  T1,
         X = [X]
     end
 
+    if data_in isa gmin_struct{Float64, Int64}
+        data_in = [data_in]
+    end  
+
     Out_PT     =   multi_point_minimization(    P,
                                                 T,
                                                 MAGEMin_db,
@@ -257,12 +364,13 @@ function single_point_minimization(     P           ::  T1,
                                                 B           =   B,
                                                 scp         =   scp,
                                                 rm_list     =   rm_list,
+                                                data_in     =   data_in,
                                                 W           =   W,
                                                 Xoxides     =   Xoxides,
                                                 sys_in      =   sys_in,
                                                 progressbar =   progressbar);
-
     return Out_PT[1]
+
 end
 
 
@@ -335,8 +443,9 @@ function multi_point_minimization(P           ::  T2,
                                   test        ::  Int64                           = 0, # if using a build-in test case,
                                   X           ::  VecOrMat                        = nothing,
                                   B           ::  Union{Nothing, T1, Vector{T1}}  = nothing,
-                                  scp                                             = 0,
+                                  scp         ::  Int64                           = 0,     
                                   rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
+                                  data_in     ::  Union{Nothing, Vector{gmin_struct{Float64, Int64}}} = nothing,
                                   W           ::  Union{Nothing, W_Data}          = nothing,
                                   Xoxides     = Vector{String},
                                   sys_in      = "mol",
@@ -377,6 +486,7 @@ function multi_point_minimization(P           ::  T2,
         progr = Progress(length(P), desc="Computing $(length(P)) points...") # progress meter
     end
     @threads :static for i in eachindex(P)
+
         # Get thread-local buffers. As of Julia v1.9, a dynamic scheduling of
         # the threads is the default setting. To avoid task migration and the
         # resulting concurrency issues, we restrict the loop to static scheduling.
@@ -391,12 +501,21 @@ function multi_point_minimization(P           ::  T2,
             gv = define_bulk_rock(gv, X[i], Xoxides, sys_in, MAGEMin_db.db);
         end
 
-        # compute a new point using a ccall
-        if isnothing(B)
-            out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; scp, rm_list)
+        if ~isnothing(data_in)
+            if isnothing(B)
+                out     = point_wise_minimization_iguess(P[i], T[i], gv, z_b, DB, splx_data; scp, rm_list, data_in = data_in[i])
+            else
+                out     = point_wise_minimization_iguess(P[i], T[i], gv, z_b, DB, splx_data; buffer_n = B[i], W = W, scp, rm_list, data_in = data_in[i])
+            end  
         else
-            out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; buffer_n = B[i], W = W, scp, rm_list)
+            if isnothing(B)
+                out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; scp, rm_list)
+            else
+                out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; buffer_n = B[i], W = W, scp, rm_list)
+            end
         end
+
+
         Out_PT[i]   = deepcopy(out)
 
         if progressbar
@@ -408,6 +527,7 @@ function multi_point_minimization(P           ::  T2,
     end
 
     return Out_PT
+
 end
 
 """
@@ -420,34 +540,28 @@ function use_predefined_bulk_rock(gv, test=0, db="ig")
     if db == "ig"
         gv.test = test
         gv = LibMAGEMin.get_bulk_igneous(gv)
-        LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
     elseif db == "igd"
         gv.test = test
         gv = LibMAGEMin.get_bulk_igneous(gv)
-        LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
     elseif db == "ige"
         gv.test = test
         gv = LibMAGEMin.get_bulk_igneous(gv)
-        LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
     elseif db == "mp"
         gv.test = test
         gv = LibMAGEMin.get_bulk_metapelite(gv)
-        LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
     elseif db == "mb"
         gv.test = test
         gv = LibMAGEMin.get_bulk_metabasite(gv)
-        LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
     elseif db == "um"
         gv.test = test
         gv = LibMAGEMin.get_bulk_ultramafic(gv)
-        LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
     elseif db == "alk"
         gv.test = test
         gv = LibMAGEMin.get_bulk_igneous_alk(gv)
-        LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
     else
         print("Database not implemented...\n")
     end
+    LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
 
     return gv
 end
@@ -644,7 +758,18 @@ julia> finalize_MAGEMin(gv,DB)
 ```
 
 """
-function point_wise_minimization(P::Float64,T::Float64, gv, z_b, DB, splx_data; buffer_n = 0.0, scp = 0, rm_list = nothing, W = nothing)
+function point_wise_minimization(   P       ::Float64,
+                                    T       ::Float64,
+                                    gv,
+                                    z_b,
+                                    DB,
+                                    splx_data;
+                                    buffer_n    = 0.0,
+                                    scp         = 0,
+                                    rm_list     = nothing,
+                                    data_in     = nothing,
+                                    W           = nothing   )
+
     gv.buffer_n     =   buffer_n;
     input_data      =   LibMAGEMin.io_data();           # zero (not used actually)
     z_b.T           =   T + 273.15;                    # in K
@@ -704,32 +829,271 @@ function point_wise_minimization(P::Float64,T::Float64, gv, z_b, DB, splx_data; 
     # Transform results to a more convenient julia struct
     out = deepcopy(create_gmin_struct(DB, gv, time));
 
+    # here we compute specific heat capacity using reactions
     if (scp == 1)
         mSS_vec     = deepcopy(out.mSS_vec)
         dT          = 2.0;
-        W           = point_wise_minimization_with_guess(mSS_vec, P, T-dT, gv, z_b, DB, splx_data)
-        E           = point_wise_minimization_with_guess(mSS_vec, P, T+dT, gv, z_b, DB, splx_data)
-        hcp         = -(T+273.15)*(E + W - 2.0*out.G_system)/(dT*dT);
+        out_W       = point_wise_minimization_with_guess(mSS_vec, P, T-dT, gv, z_b, DB, splx_data)
+        out_E       = point_wise_minimization_with_guess(mSS_vec, P, T+dT, gv, z_b, DB, splx_data)
+        hcp         = -(T+273.15)*(out_E.G_system + out_W.G_system - 2.0*out.G_system)/(dT*dT);
         s_cp        = hcp/out.M_sys*1e6;
         out.s_cp   .= s_cp
-
-        # print("E: $E W: $W G: $(out.G_system)\n")
     end
 
-    # LibMAGEMin.FreeDatabases(gv, DB, z_b);
+    return out
+
+end
+
+
+
+
+
+"""
+    in development
+"""
+function point_wise_minimization_iguess(    P           ::  Number,
+                                            T           ::  Number,
+                                            gv,
+                                            z_b,
+                                            DB,
+                                            splx_data;
+                                            buffer_n    ::  Float64                         = 0.0,
+                                            scp         ::  Int64                           = 0,
+                                            rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
+                                            data_in     ::  Union{Nothing, gmin_struct{Float64, Int64}} = nothing,
+                                            W           ::  Union{Nothing, W_Data}          = nothing )
+
+    mSS_vec     = deepcopy(data_in.mSS_vec)
+
+    gv.buffer_n     =   buffer_n;
+    input_data      =   LibMAGEMin.io_data();           # zero (not used actually)
+    z_b.T           =   T + 273.15;                    # in K
+
+    if P < 0.001
+        P = 0.001
+    end
+    
+    z_b.P           =   P
+    gv.numPoint     =   1; 							    # the number of the current point */
+
+    # Perform the point-wise minimization after resetting variables
+    gv      = LibMAGEMin.reset_gv(gv,z_b, DB.PP_ref_db, DB.SS_ref_db)
+    z_b     = LibMAGEMin.reset_z_b_bulk(	gv,	z_b	   )
+
+    LibMAGEMin.reset_simplex_A(pointer_from_objref(splx_data), z_b, gv)
+    LibMAGEMin.reset_simplex_B_em(pointer_from_objref(splx_data), gv)
+
+    LibMAGEMin.reset_cp(gv,z_b, DB.cp)
+    LibMAGEMin.reset_SS(gv,z_b, DB.SS_ref_db)
+    LibMAGEMin.reset_sp(gv, DB.sp)
+
+    gv      = LibMAGEMin.ComputeG0_point(gv.EM_database, z_b, gv, DB.PP_ref_db,DB.SS_ref_db);
+
+    if ~isnothing(rm_list)
+        SS_ref_db   = unsafe_wrap(Vector{LibMAGEMin.SS_ref},DB.SS_ref_db,gv.len_ss);
+
+        for i in eachindex(rm_list)  
+            flags = zeros(Int32,5);
+            unsafe_copyto!(SS_ref_db[rm_list[i]].ss_flags,pointer(flags), 5)
+        end
+    end
+
+    # here we can over-ride default W's
+    if ~isnothing(W)
+        if gv.EM_database  == W.database    # check if the database fit
+        else
+            print(" Wrong database number, please make sure the custom Ws are linked to the right database\n")
+        end
+    end
+
+    ############################################################################
+    PP_ref_db   = unsafe_wrap(Vector{LibMAGEMin.PP_ref},DB.PP_ref_db,gv.len_pp);
+    SS_ref_db   = unsafe_wrap(Vector{LibMAGEMin.SS_ref},DB.SS_ref_db,gv.len_ss);
+
+    np          = z_b.nzEl_val
+    nzEl_array  = unsafe_wrap(Vector{Cint},z_b.nzEl_array, gv.len_ox) .+ 1
+    nzEl_array  = nzEl_array[1:np]
+
+    # Declare array to be copied in splx_data
+    A_jll       = zeros(np,np)
+    g0_A_jll    = zeros(np)
+    ph_id_A_jll = zeros(Int32,np,4)
+
+    n_pc_ss     = zeros(gv.len_ss)
+
+    # fill the arrays to be copied in splx_data
+    for i = 1:np
+        if mSS_vec[i].ph_type == "pp"
+            ph_id = mSS_vec[i].ph_id+1
+            g0_A_jll[i] = PP_ref_db[ph_id].gbase*PP_ref_db[ph_id].factor
+            A_jll[i,:]  = mSS_vec[i].comp_Ppc[nzEl_array]
+
+            ph_id_A_jll[i,1] = 1
+            ph_id_A_jll[i,2] = ph_id-1
+            ph_id_A_jll[i,3] = 0
+            ph_id_A_jll[i,4] = 0
+        elseif mSS_vec[i].ph_type == "ss"
+            ph_id   = mSS_vec[i].ph_id+1
+            ph      = mSS_vec[i].ph_name
+
+            unsafe_copyto!(SS_ref_db[ph_id].gb_lvl,SS_ref_db[ph_id].gbase, SS_ref_db[ph_id].n_em)
+            unsafe_copyto!(SS_ref_db[ph_id].iguess,pointer(mSS_vec[i].xeos_Ppc), SS_ref_db[ph_id].n_xeos)
+
+            SS_ref_db[ph_id] = LibMAGEMin.PC_function(gv, SS_ref_db[ph_id], z_b, ph)
+
+            g0_A_jll[i] = SS_ref_db[ph_id].df
+            A_jll[i,:]  = mSS_vec[i].comp_Ppc[nzEl_array]
+            ph_id_A_jll[i,1] = 3
+            ph_id_A_jll[i,2] = ph_id-1
+            ph_id_A_jll[i,3] = 0
+            ph_id_A_jll[i,4] = n_pc_ss[ph_id]
+            n_pc_ss[ph_id]  += 1
+        elseif mSS_vec[i].ph_type == "ss_em"
+            ph_id   = mSS_vec[i].ph_id+1
+            em_id   = mSS_vec[i].em_id+1
+            ape     = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].ape, SS_ref_db[ph_id].n_em)
+            gbase   = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].gbase, SS_ref_db[ph_id].n_em)
+            comp_ptr= unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].Comp, SS_ref_db[ph_id].n_em)
+            Comp    = unsafe_wrap(Vector{Cdouble},comp_ptr[em_id], gv.len_ox)
+            factor 	= z_b.fbc/ape[em_id]
+            ph      = mSS_vec[i].ph_name
+
+            g0_A_jll[i] = gbase[em_id]*factor;
+            A_jll[i,:]  = Comp[nzEl_array]*factor
+            ph_id_A_jll[i,1] = 2
+            ph_id_A_jll[i,2] = ph_id-1
+            ph_id_A_jll[i,3] = 0
+            ph_id_A_jll[i,4] = em_id-1
+        end
+    end
+
+    # copy to the appropriate places
+    ph_id_A = unsafe_wrap(Vector{Ptr{Int32}},splx_data.ph_id_A, np)
+
+    for i=1:np
+        unsafe_copyto!(ph_id_A[i],pointer(ph_id_A_jll[i,:]),4)
+    end
+
+    unsafe_copyto!(splx_data.A,pointer(vec(A_jll)),np*np)
+    unsafe_copyto!(splx_data.A1,pointer(vec(A_jll)),np*np)
+    unsafe_copyto!(splx_data.g0_A,pointer(g0_A_jll),np)
+
+    # add pseudocompounds
+    n_mSS = length(mSS_vec)
+    for i = 1:n_mSS
+
+        if mSS_vec[i].ph_type == "ss"
+            ph          = mSS_vec[i].ph_name
+            ph_id       = mSS_vec[i].ph_id+1
+            n_xeos      = SS_ref_db[ph_id].n_xeos
+            n_em        = SS_ref_db[ph_id].n_em
+
+            tot_pc      = unsafe_wrap(Vector{Cint},SS_ref_db[ph_id].tot_pc, 1)
+            id_pc       = unsafe_wrap(Vector{Cint},SS_ref_db[ph_id].id_pc, 1)
+            info        = unsafe_wrap(Vector{Cint},SS_ref_db[ph_id].info, gv.max_n_mSS)
+            factor_pc   = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].factor_pc, gv.max_n_mSS)
+            DF_pc       = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].DF_pc, gv.max_n_mSS)
+            G_pc        = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].G_pc, gv.max_n_mSS)
+
+            m_pc        = id_pc[1]+1;
+            ptr_comp_pc = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].comp_pc,gv.max_n_mSS)
+            ptr_p_pc    = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].p_pc,gv.max_n_mSS)
+            ptr_xeos_pc = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].xeos_pc,gv.max_n_mSS)
+
+            unsafe_copyto!(SS_ref_db[ph_id].gb_lvl,SS_ref_db[ph_id].gbase, SS_ref_db[ph_id].n_em)
+            xeos        = mSS_vec[i].xeos_Ppc
+
+            # retrieve bounds
+            bounds_ref      = zeros( n_xeos,2)
+            ptr_bounds_ref  = unsafe_wrap(Vector{Ptr{Cdouble}}, SS_ref_db[ph_id].bounds_ref, n_xeos)
+
+            for k=1:n_xeos
+                bounds_ref[k,:] = unsafe_wrap(Vector{Cdouble}, ptr_bounds_ref[k], 2)
+                if xeos[k] < bounds_ref[k,1]
+                    xeos[k] = bounds_ref[k,1]
+                elseif xeos[k] > bounds_ref[k,2]
+                    xeos[k] = bounds_ref[k,2]
+                end
+            end
+
+            # get solution phase information for given compositional variables
+            unsafe_copyto!(SS_ref_db[ph_id].iguess,pointer(xeos), n_xeos)
+            SS_ref_db[ph_id] = LibMAGEMin.PC_function(gv, SS_ref_db[ph_id], z_b, ph)
+
+            # copy solution phase composition
+            ss_comp     = unsafe_wrap(Vector{Cdouble}, SS_ref_db[ph_id].ss_comp, gv.len_ox)
+            comp_pc     = unsafe_wrap(Vector{Cdouble}, ptr_comp_pc[m_pc], gv.len_ox)
+            comp_pc    .= ss_comp .* SS_ref_db[ph_id].factor;
+
+            # copy endmember fraction
+            p           = unsafe_wrap(Vector{Cdouble}, SS_ref_db[ph_id].p, n_em)
+            p_pc        = unsafe_wrap(Vector{Cdouble}, ptr_p_pc[m_pc], n_em)
+            p_pc       .= p
+
+            # copy compositional variables
+            xeos_pc     = unsafe_wrap(Vector{Cdouble}, ptr_xeos_pc[m_pc], n_xeos)
+            xeos_pc    .= xeos
+
+            info[m_pc]      = 1;
+            factor_pc[m_pc] = SS_ref_db[ph_id].factor;
+            DF_pc[m_pc]     = SS_ref_db[ph_id].df;
+            G_pc[m_pc]      = SS_ref_db[ph_id].df;
+
+            tot_pc .+= 1;
+            id_pc  .+= 1;
+        end
+    end
+    gv.leveling_mode = 1
+
+    out = deepcopy(pwm_run(gv, z_b, DB, splx_data))
+
     return out
 end
+
+
+
 
 """
     out = point_wise_minimization(P::Number,T::Number, data::MAGEMin_Data)
 
 Performs a point-wise optimization for a given pressure `P` and temperature `T` for the data specified in the MAGEMin database `MAGEMin_Data` (where also compoition is specified)
 """
-point_wise_minimization(P::Number,T::Number, gv, z_b, DB, splx_data; buffer_n::Float64 = 0.0, scp::Int64 = 0, rm_list::Union{Nothing, Vector{Int64}} = nothing, W::Union{Nothing, W_Data} = nothing) = point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, scp, rm_list, W)
+point_wise_minimization(P       ::  Number,
+                        T       ::  Number,
+                        gv,
+                        z_b,
+                        DB,
+                        splx_data;
+                        buffer_n::  Float64     = 0.0,
+                        scp     ::  Int64       = 0,
+                        rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
+                        data_in ::  Union{Nothing, gmin_struct{Float64, Int64}, Vector{gmin_struct{Float64, Int64}}} = nothing,
+                        W       ::  Union{Nothing, W_Data} = nothing) = 
+                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, scp, rm_list, data_in, W)
 
-point_wise_minimization(P::Number,T::Number, gv::LibMAGEMin.global_variables, z_b::LibMAGEMin.bulk_infos, DB::LibMAGEMin.Database, splx_data::LibMAGEMin.simplex_datas, sys_in::String; buffer_n::Float64 = 0.0, scp::Int64 = 0, rm_list::Union{Nothing, Vector{Int64}} = nothing, W::Union{Nothing, W_Data} = nothing) = point_wise_minimization(P,T, gv, z_b, DB, splx_data; buffer_n, scp, rm_list, W)
+point_wise_minimization(P       ::  Number,
+                        T       ::  Number,
+                        gv      ::  LibMAGEMin.global_variables,
+                        z_b     ::  LibMAGEMin.bulk_infos,
+                        DB      ::  LibMAGEMin.Database,
+                        splx_data:: LibMAGEMin.simplex_datas,
+                        sys_in  ::  String;
+                        buffer_n::  Float64     = 0.0,
+                        scp     ::  Int64       = 0,
+                        rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
+                        data_in ::  Union{Nothing, gmin_struct{Float64, Int64}, Vector{gmin_struct{Float64, Int64}}} = nothing,
+                        W       ::  Union{Nothing, W_Data} = nothing) = 
+                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, scp,  rm_list, data_in, W)
 
-point_wise_minimization(P::Number,T::Number, data::MAGEMin_Data; buffer_n::Float64 = 0.0, scp::Int64 = 0, rm_list::Union{Nothing, Vector{Int64}} = nothing, W::Union{Nothing, W_Data} = nothing) = point_wise_minimization(P,T, data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]; buffer_n, scp, rm_list, W)
+point_wise_minimization(P       ::  Number,
+                        T       ::  Number,
+                        data    ::  MAGEMin_Data;
+                        buffer_n::  Float64     = 0.0,
+                        scp     ::  Int64       = 0,
+                        rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
+                        data_in ::  Union{Nothing, gmin_struct{Float64, Int64}, Vector{gmin_struct{Float64, Int64}}} = nothing,
+                        W       ::  Union{Nothing, W_Data} = nothing) = 
+                        point_wise_minimization(Float64(P),Float64(T), data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]; buffer_n, scp, rm_list, data_in, W)
 
 
 """
@@ -787,105 +1151,6 @@ function pwm_run(gv, z_b, DB, splx_data)
 end
 
 # pwm_run(gv, z_b, DB, splx_data) = pwm_run( gv, z_b, DB, splx_data)
-
-
-
-"""
-    structure that holds the result of the pointwise minisation
-
-"""
-struct gmin_struct{T,I}
-    MAGEMin_ver :: String
-    dataset     :: String
-    G_system    :: T             # G of system
-    Gamma       :: Vector{T}        # Gamma
-    P_kbar      :: T               # Pressure in kbar
-    T_C         :: T                  # Temperature in Celsius
-    X           :: Vector{T}
-    M_sys       :: T
-
-    # bulk rock composition:
-    bulk        :: Vector{T}
-    bulk_M      :: Vector{T}
-    bulk_S      :: Vector{T}
-    bulk_F      :: Vector{T}
-
-    bulk_wt     :: Vector{T}
-    bulk_M_wt   :: Vector{T}
-    bulk_S_wt   :: Vector{T}
-    bulk_F_wt   :: Vector{T}
-
-    # Fractions:
-    # Solid, melt, fluid fractions
-    frac_M      :: T
-    frac_S      :: T
-    frac_F      :: T
-
-    frac_M_wt   :: T
-    frac_S_wt   :: T
-    frac_F_wt   :: T
-
-    # Solid, melt, fluid densities
-    alpha       :: T
-    V           :: T
-    cp          :: T
-    s_cp        :: Vector{T}
-    rho         :: T
-    rho_M       :: T
-    rho_S       :: T
-    rho_F       :: T
-
-    # Oxygen fugacity
-    fO2         :: T
-    dQFM        :: T
-
-    # Activities
-    aH2O        :: T
-    aSiO2       :: T
-    aTiO2       :: T
-    aAl2O3      :: T
-    aMgO        :: T
-    aFeO        :: T
-
-    # Phase fractions and type:
-    n_PP        :: Int64                 # number of pure phases
-    n_SS        :: Int64                 # number of solid solutions
-    n_mSS       :: Int64                 # number of solid solutions
-
-    ph_frac     :: Vector{T}            # phase fractions
-    ph_frac_wt  :: Vector{T}            # phase fractions
-    ph_frac_vol :: Vector{T}            # phase fractions
-    ph_type     :: Vector{I}            # type of phase (SS or PP)
-    ph_id       :: Vector{I}            # id of phase
-    ph          :: Vector{String}       # Name of phase
-
-    SS_vec      :: Vector{LibMAGEMin.SS_data}
-    mSS_vec     :: Vector{LibMAGEMin.mSS_data}
-    PP_vec      :: Vector{LibMAGEMin.PP_data}
-
-    oxides      :: Vector{String}
-
-    # Seismic velocity info
-    Vp              :: T                # P-wave velocity
-    Vs              :: T                # S-wave velocity
-    Vp_S            :: T                # P-wave velocity of solid aggregate
-    Vs_S            :: T                # S-wave velocity of solid aggregate
-    bulkMod         :: T                # Elastic bulk modulus
-    shearMod        :: T                # Elastic shear modulus
-    bulkModulus_M   :: T                # Elastic bulk modulus
-    bulkModulus_S   :: T                # Elastic bulk modulus
-    shearModulus_S  :: T                # Elastic shear modulus
-
-    # thermodynamic properties
-    entropy         :: T          # entropy
-    enthalpy        :: T         # enthalpy
-
-    # Numerics:
-    iter            :: I             # number of iterations required
-    bulk_res_norm   :: T    # bulk residual norm
-    time_ms         :: T          # computational time for this point
-    status          :: I           # status of calculations
-end
 
 """
     out = create_gmin_struct(gv, z_b)
@@ -1027,8 +1292,6 @@ function show(io::IO, g::gmin_struct)
     end
     println(io, "Oxygen fugacity          : $(g.fO2)")
     println(io, "Delta QFM                : $(g.dQFM)")
-
-
 end
 
 """
@@ -1402,12 +1665,11 @@ function point_wise_minimization_with_guess(mSS_vec, P, T, gv, z_b, DB, splx_dat
     gv.leveling_mode = 1
     out = deepcopy(pwm_run(gv, z_b, DB, splx_data))
 
-    return out.G_system
+    return out
 end
 
 
 # The following section add post-processing routines
-
 include("TE_partitioning.jl")
 include("Zircon_saturation.jl")
-
+include("export2CSV.jl")
