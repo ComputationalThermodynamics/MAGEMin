@@ -174,8 +174,9 @@ function TE_prediction(     C0         :: Vector{Float64},
                             dtb        :: String )
 
     ox_id       = findfirst(out.oxides .== KDs_dtb.conditions[1])[1]
+    ox_non_H2O       = findall(out.oxides .!= "H2O")
 
-    ox_M        = out.bulk_M_wt[ox_id]
+    ox_M        = out.bulk_M_wt[ox_id]./sum(out.bulk_M_wt[ox_non_H2O])
     liq_wt      = out.frac_M_wt
     sol_wt      = out.frac_S_wt
     elements    = KDs_dtb.element_name
