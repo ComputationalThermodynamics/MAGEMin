@@ -240,7 +240,7 @@ SS_ref G_SS_mb_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     for (int i = 0; i < SS_ref_db.n_xeos; i++){
         strcpy(SS_ref_db.CV_list[i],CV_tmp[i]);
     };
-    char   *SF_tmp[] 		= {"fac","pq","xab","xksp","pwo","psil","pwat","pan","pol","xFe","xMg"};
+    char   *SF_tmp[] 		= {"fac","pq","xab","xksp","pwo","psil","ph2o","pan","pol","xFe","xMg"};
     for (int i = 0; i < SS_ref_db.n_sf; i++){
         strcpy(SS_ref_db.SF_list[i],SF_tmp[i]);
     };
@@ -2287,7 +2287,7 @@ SS_ref G_SS_mp_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     for (int i = 0; i < SS_ref_db.n_xeos; i++){
         strcpy(SS_ref_db.CV_list[i],CV_tmp[i]);
     };
-    char   *SF_tmp[] 		= {"fac","pq","xab","xksp","pan","psil","pol","xFe","xMg","pwat"};
+    char   *SF_tmp[] 		= {"fac","pq","xab","xksp","pan","psil","pol","xFe","xMg","ph2o"};
     for (int i = 0; i < SS_ref_db.n_sf; i++){
         strcpy(SS_ref_db.SF_list[i],SF_tmp[i]);
     };    

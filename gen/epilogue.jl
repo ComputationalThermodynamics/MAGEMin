@@ -21,6 +21,8 @@ struct SS_data
     Comp_wt::Vector{Cdouble}
     compVariables::Vector{Cdouble}
     compVariablesNames::Vector{String}
+    siteFractions::Vector{Cdouble}
+    siteFractionsNames::Vector{String}
     emNames::Vector{String}
     emFrac::Vector{Cdouble}
     emFrac_wt::Vector{Cdouble}
@@ -35,6 +37,8 @@ function Base.convert(::Type{SS_data}, a::stb_SS_phases)
                                     unsafe_wrap( Vector{Cdouble},        a.Comp_wt,          a.nOx),
                                     unsafe_wrap( Vector{Cdouble},        a.compVariables,    a.n_xeos),
                     unsafe_string.( unsafe_wrap( Vector{Ptr{Int8}},      a.compVariablesNames,a.n_xeos)),
+                                    unsafe_wrap( Vector{Cdouble},        a.siteFractions,    a.n_sf),
+                    unsafe_string.( unsafe_wrap( Vector{Ptr{Int8}},      a.siteFractionsNames,a.n_sf)),
                     unsafe_string.( unsafe_wrap( Vector{Ptr{Int8}},      a.emNames,          a.n_em)),
                                     unsafe_wrap( Vector{Cdouble},        a.emFrac,           a.n_em),
                                     unsafe_wrap( Vector{Cdouble},        a.emFrac_wt,        a.n_em),

@@ -230,7 +230,7 @@ void fill_output_struct(		global_variable 	 gv,
 
 			sp[0].SS[m].n_xeos   = cp[i].n_xeos;
 			sp[0].SS[m].n_em 	 = cp[i].n_em;
-
+			sp[0].SS[m].n_sf 	 = cp[i].n_sf;
 			/* solution phase composition */
 			sum_wt = 0.0;
 			sum_mol = 0.0;
@@ -252,6 +252,15 @@ void fill_output_struct(		global_variable 	 gv,
 			for (j = 0; j < cp[i].n_xeos; j++){	
 				strcpy(sp[0].SS[m].compVariablesNames[j],SS_ref_db[cp[i].id].CV_list[j]);	
 			}
+
+			for (j = 0; j < cp[i].n_sf; j++){	
+				sp[0].SS[m].siteFractions[j] 	= cp[i].sf[j];
+			}
+
+			for (j = 0; j < cp[i].n_sf; j++){	
+				strcpy(sp[0].SS[m].siteFractionsNames[j],SS_ref_db[cp[i].id].SF_list[j]);	
+			}
+
 
 			sum_ph_mass = 0.0;
 			for (j = 0; j < cp[i].n_em; j++){
@@ -1263,6 +1272,14 @@ void output_matlab(				global_variable 	 gv,
 	for (i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1){
 			fprintf(loc_min, 	" %5s", cp[i].name);
+			fprintf(loc_min, "\n");	
+			for (j = 0; j < (cp[i].n_sf); j++){
+				fprintf(loc_min, 	"%8s ", SS_ref_db[cp[i].id].SF_list[j]); // *-1.0 because inequality are given as -x <= 0 in NLopt
+			}
+			for (k = j; k < 18; k++){
+				fprintf(loc_min, 	"%8s ", "-");
+			}		
+			fprintf(loc_min, "\n");	
 			for (j = 0; j < (cp[i].n_sf); j++){
 				fprintf(loc_min, 	"%8.5f ", cp[i].sf[j]); // *-1.0 because inequality are given as -x <= 0 in NLopt
 			}

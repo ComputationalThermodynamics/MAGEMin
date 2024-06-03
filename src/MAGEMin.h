@@ -608,6 +608,7 @@ typedef struct stb_SS_phases {
 	
 	int      n_xeos;
 	int      n_em;
+	int      n_sf;
 	
 	double  *Comp;
 	double  *compVariables;
