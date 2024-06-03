@@ -369,6 +369,7 @@ typedef struct SS_refs {
 	/** end-member name list */
 	char   **EM_list;			/** solution phase list */
 	char   **CV_list;			/** solution phase list */
+	char   **SF_list;			/** solution phase list */
 
 	/** flags */
 	int     *ss_flags;			/** integer table for solution phase list 									*/
@@ -607,10 +608,13 @@ typedef struct stb_SS_phases {
 	
 	int      n_xeos;
 	int      n_em;
+	int      n_sf;
 	
 	double  *Comp;
 	double  *compVariables;
 	char   **compVariablesNames;	
+	double  *siteFractions;
+	char   **siteFractionsNames;	
 	char   **emNames;
 	double  *emFrac;
 	double  *emFrac_wt;

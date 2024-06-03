@@ -230,7 +230,7 @@ void fill_output_struct(		global_variable 	 gv,
 
 			sp[0].SS[m].n_xeos   = cp[i].n_xeos;
 			sp[0].SS[m].n_em 	 = cp[i].n_em;
-
+			sp[0].SS[m].n_sf 	 = cp[i].n_sf;
 			/* solution phase composition */
 			sum_wt = 0.0;
 			sum_mol = 0.0;
@@ -252,6 +252,15 @@ void fill_output_struct(		global_variable 	 gv,
 			for (j = 0; j < cp[i].n_xeos; j++){	
 				strcpy(sp[0].SS[m].compVariablesNames[j],SS_ref_db[cp[i].id].CV_list[j]);	
 			}
+
+			for (j = 0; j < cp[i].n_sf; j++){	
+				sp[0].SS[m].siteFractions[j] 	= cp[i].sf[j];
+			}
+
+			for (j = 0; j < cp[i].n_sf; j++){	
+				strcpy(sp[0].SS[m].siteFractionsNames[j],SS_ref_db[cp[i].id].SF_list[j]);	
+			}
+
 
 			sum_ph_mass = 0.0;
 			for (j = 0; j < cp[i].n_em; j++){
@@ -285,7 +294,12 @@ void fill_output_struct(		global_variable 	 gv,
 
 			if (strcmp( cp[i].name, "liq") == 0 || strcmp( cp[i].name, "fl") == 0 ){
 				if (strcmp( cp[i].name, "liq") == 0){
-					sp[0].frac_M 				= cp[i].ss_n;
+					if (gv.n_phase == 1){
+						sp[0].frac_M 				= 1.0;
+					}
+					else{
+						sp[0].frac_M 				= cp[i].ss_n;
+					}
 					sp[0].rho_M  				= cp[i].phase_density;
 					sum = 0.0;
 					for (j = 0; j < gv.len_ox; j++){
@@ -334,7 +348,10 @@ void fill_output_struct(		global_variable 	 gv,
 	/* copy data from pure phases */
 	m = 0;
 	for (int i = 0; i < gv.len_pp; i++){
-		if (gv.pp_flags[i][1] == 1){
+		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 1){
+			strcpy(sp[0].ph[n],gv.PP_list[i]);
+		}
+		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
 			strcpy(sp[0].ph[n],gv.PP_list[i]);
 
 			atp2wt = 0.0;
@@ -414,7 +431,7 @@ void fill_output_struct(		global_variable 	 gv,
 	}
 	m = 0;
 	for (int i = 0; i < gv.len_pp; i++){
-		if (gv.pp_flags[i][1] == 1){
+		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
 			sp[0].ph_frac_vol[n] =  sp[0].ph_frac_wt[n] / sp[0].PP[m].rho;
 			sum_vol += sp[0].ph_frac_vol[n];
 			sum_mol += sp[0].ph_frac[n];
@@ -1255,6 +1272,14 @@ void output_matlab(				global_variable 	 gv,
 	for (i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1){
 			fprintf(loc_min, 	" %5s", cp[i].name);
+			fprintf(loc_min, "\n");	
+			for (j = 0; j < (cp[i].n_sf); j++){
+				fprintf(loc_min, 	"%8s ", SS_ref_db[cp[i].id].SF_list[j]); // *-1.0 because inequality are given as -x <= 0 in NLopt
+			}
+			for (k = j; k < 18; k++){
+				fprintf(loc_min, 	"%8s ", "-");
+			}		
+			fprintf(loc_min, "\n");	
 			for (j = 0; j < (cp[i].n_sf); j++){
 				fprintf(loc_min, 	"%8.5f ", cp[i].sf[j]); // *-1.0 because inequality are given as -x <= 0 in NLopt
 			}

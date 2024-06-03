@@ -793,6 +793,7 @@ struct SS_refs
     epsilon::Cdouble
     EM_list::Ptr{Ptr{Cchar}}
     CV_list::Ptr{Ptr{Cchar}}
+    SF_list::Ptr{Ptr{Cchar}}
     ss_flags::Ptr{Cint}
     n_pc::Cint
     tot_pc::Ptr{Cint}
@@ -998,9 +999,12 @@ struct stb_SS_phases
     Vs::Cdouble
     n_xeos::Cint
     n_em::Cint
+    n_sf::Cint
     Comp::Ptr{Cdouble}
     compVariables::Ptr{Cdouble}
     compVariablesNames::Ptr{Ptr{Cchar}}
+    siteFractions::Ptr{Cdouble}
+    siteFractionsNames::Ptr{Ptr{Cchar}}
     emNames::Ptr{Ptr{Cchar}}
     emFrac::Ptr{Cdouble}
     emFrac_wt::Ptr{Cdouble}
@@ -2462,6 +2466,8 @@ struct SS_data
     Comp_wt::Vector{Cdouble}
     compVariables::Vector{Cdouble}
     compVariablesNames::Vector{String}
+    siteFractions::Vector{Cdouble}
+    siteFractionsNames::Vector{String}
     emNames::Vector{String}
     emFrac::Vector{Cdouble}
     emFrac_wt::Vector{Cdouble}
@@ -2476,6 +2482,8 @@ function Base.convert(::Type{SS_data}, a::stb_SS_phases)
                                     unsafe_wrap( Vector{Cdouble},        a.Comp_wt,          a.nOx),
                                     unsafe_wrap( Vector{Cdouble},        a.compVariables,    a.n_xeos),
                     unsafe_string.( unsafe_wrap( Vector{Ptr{Int8}},      a.compVariablesNames,a.n_xeos)),
+                                    unsafe_wrap( Vector{Cdouble},        a.siteFractions,    a.n_sf),
+                    unsafe_string.( unsafe_wrap( Vector{Ptr{Int8}},      a.siteFractionsNames,a.n_sf)),
                     unsafe_string.( unsafe_wrap( Vector{Ptr{Int8}},      a.emNames,          a.n_em)),
                                     unsafe_wrap( Vector{Cdouble},        a.emFrac,           a.n_em),
                                     unsafe_wrap( Vector{Cdouble},        a.emFrac_wt,        a.n_em),
