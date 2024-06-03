@@ -68,17 +68,17 @@ Finalize_MAGEMin(data)
     Finalize_MAGEMin(data)
 
 
-    # data    = Initialize_MAGEMin("ig", verbose=false, buffer="qfm");
+    data    = Initialize_MAGEMin("ig", verbose=false, buffer="qfm");
     
-    # # One bulk rock for all points
-    # P,T     = 10.0, 1100.0
-    # Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
-    # X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
-    # sys_in  = "wt"    
-    # out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
-    # @test sort(out.ph) == ["aTiO2", "cpx", "fsp", "liq", "ol", "opx"]
+    # One bulk rock for all points
+    P,T     = 10.0, 1100.0
+    Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
+    X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
+    sys_in  = "wt"    
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    @test sort(out.ph) == ["cpx", "liq", "opx", "qfm"]
 
-    # Finalize_MAGEMin(data)
+    Finalize_MAGEMin(data)
 
 end
 
