@@ -793,6 +793,7 @@ struct SS_refs
     epsilon::Cdouble
     EM_list::Ptr{Ptr{Cchar}}
     CV_list::Ptr{Ptr{Cchar}}
+    SF_list::Ptr{Ptr{Cchar}}
     ss_flags::Ptr{Cint}
     n_pc::Cint
     tot_pc::Ptr{Cint}
@@ -1001,6 +1002,8 @@ struct stb_SS_phases
     Comp::Ptr{Cdouble}
     compVariables::Ptr{Cdouble}
     compVariablesNames::Ptr{Ptr{Cchar}}
+    siteFractions::Ptr{Cdouble}
+    siteFractionsNames::Ptr{Ptr{Cchar}}
     emNames::Ptr{Ptr{Cchar}}
     emFrac::Ptr{Cdouble}
     emFrac_wt::Ptr{Cdouble}

@@ -1500,11 +1500,14 @@ void reset_sp(						global_variable 	 gv,
 			sp[0].SS[n].Comp[i] 			= 0.0;
 			sp[0].PP[n].Comp_wt[i] 			= 0.0;
 			sp[0].SS[n].Comp_wt[i] 			= 0.0;
-			sp[0].SS[n].compVariables[i] 	= 0.0;
+
 		}
 		for (int i = 0; i < gv.len_ox*3; i++){
+			sp[0].SS[n].compVariables[i] 	= 0.0;
+			sp[0].SS[n].siteFractions[i] 	= 0.0;
 
 			strcpy(sp[0].SS[n].compVariablesNames[i],"");	
+			strcpy(sp[0].SS[n].siteFractionsNames[i],"");	
 			strcpy(sp[0].SS[n].emNames[i],"");	
 
 			sp[0].SS[n].emFrac[i] 			= 0.0;

@@ -893,7 +893,7 @@ Databases InitializeDatabases(	global_variable gv,
 void FreeDatabases(		global_variable gv, 
 						Databases 		DB,
 						bulk_info 	 	z_b			){
-	int i, j, n_xeos, n_em, n_ox, n_pc, n_Ppc, n_cp, sym, ndif, pp, ss;
+	int i, j, n_xeos, n_em, n_sf, n_ox, n_pc, n_Ppc, n_cp, sym, ndif, pp, ss;
 
 	/*  ==================== SP ==============================  */
 	n_ox = gv.len_ox;
@@ -912,16 +912,19 @@ void FreeDatabases(		global_variable gv,
 		if  (DB.sp[0].SS[i].Comp			!=NULL)  free( DB.sp[0].SS[i].Comp 			);	
 		if  (DB.sp[0].SS[i].Comp_wt			!=NULL)  free( DB.sp[0].SS[i].Comp_wt 		);	
 		if  (DB.sp[0].SS[i].compVariables	!=NULL)  free( DB.sp[0].SS[i].compVariables );	
+		if  (DB.sp[0].SS[i].siteFractions	!=NULL)  free( DB.sp[0].SS[i].siteFractions );	
 		if  (DB.sp[0].SS[i].emFrac			!=NULL)  free( DB.sp[0].SS[i].emFrac 		);	
 		if  (DB.sp[0].SS[i].emFrac_wt		!=NULL)  free( DB.sp[0].SS[i].emFrac_wt 	);	
 		if  (DB.sp[0].SS[i].emChemPot		!=NULL)  free( DB.sp[0].SS[i].emChemPot 	);	
 		for ( j = 0; j < n_ox*3; j++){
 			if  (DB.sp[0].SS[i].compVariablesNames[j]	!=NULL)  free( DB.sp[0].SS[i].compVariablesNames[j] 	);	
+			if  (DB.sp[0].SS[i].siteFractionsNames[j]	!=NULL)  free( DB.sp[0].SS[i].siteFractionsNames[j] 	);	
 			if  (DB.sp[0].SS[i].emNames[j]				!=NULL)  free( DB.sp[0].SS[i].emNames[j] 				);	
 			if  (DB.sp[0].SS[i].emComp[j]				!=NULL)  free( DB.sp[0].SS[i].emComp[j] 				);	
 			if  (DB.sp[0].SS[i].emComp_wt[j]			!=NULL)  free( DB.sp[0].SS[i].emComp_wt[j] 				);	
 		}
 		if  (DB.sp[0].SS[i].compVariablesNames	!=NULL)  free( DB.sp[0].SS[i].compVariablesNames );	
+		if  (DB.sp[0].SS[i].siteFractionsNames	!=NULL)  free( DB.sp[0].SS[i].siteFractionsNames );	
 		if  (DB.sp[0].SS[i].emNames				!=NULL)  free( DB.sp[0].SS[i].emNames 			);	
 		if  (DB.sp[0].SS[i].emComp				!=NULL)  free( DB.sp[0].SS[i].emComp 			);	
 		if  (DB.sp[0].SS[i].emComp_wt			!=NULL)  free( DB.sp[0].SS[i].emComp_wt 		);	
@@ -1001,6 +1004,7 @@ void FreeDatabases(		global_variable gv,
 		// printf("SS being freed %s\n",gv.SS_list[i]);
 		n_pc 	= gv.n_SS_PC[i];
 		n_em 	= DB.SS_ref_db[i].n_em;
+		n_sf 	= DB.SS_ref_db[i].n_sf;
 		n_xeos 	= DB.SS_ref_db[i].n_xeos;
 
 		free(DB.SS_ref_db[i].ss_flags);
@@ -1079,7 +1083,10 @@ void FreeDatabases(		global_variable gv,
 			free(DB.SS_ref_db[i].bounds[j]);
 			free(DB.SS_ref_db[i].bounds_ref[j]);
 		}
-
+		for (j = 0; j < n_sf; j++){ 
+			free(DB.SS_ref_db[i].SF_list[j]);
+		}
+		free(DB.SS_ref_db[i].SF_list);
 		free(DB.SS_ref_db[i].CV_list);
 		free(DB.SS_ref_db[i].bounds);
 		free(DB.SS_ref_db[i].bounds_ref);
