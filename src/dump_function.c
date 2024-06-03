@@ -285,7 +285,12 @@ void fill_output_struct(		global_variable 	 gv,
 
 			if (strcmp( cp[i].name, "liq") == 0 || strcmp( cp[i].name, "fl") == 0 ){
 				if (strcmp( cp[i].name, "liq") == 0){
-					sp[0].frac_M 				= cp[i].ss_n;
+					if (gv.n_phase == 1){
+						sp[0].frac_M 				= 1.0;
+					}
+					else{
+						sp[0].frac_M 				= cp[i].ss_n;
+					}
 					sp[0].rho_M  				= cp[i].phase_density;
 					sum = 0.0;
 					for (j = 0; j < gv.len_ox; j++){
@@ -334,7 +339,10 @@ void fill_output_struct(		global_variable 	 gv,
 	/* copy data from pure phases */
 	m = 0;
 	for (int i = 0; i < gv.len_pp; i++){
-		if (gv.pp_flags[i][1] == 1){
+		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 1){
+			strcpy(sp[0].ph[n],gv.PP_list[i]);
+		}
+		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
 			strcpy(sp[0].ph[n],gv.PP_list[i]);
 
 			atp2wt = 0.0;
@@ -414,7 +422,7 @@ void fill_output_struct(		global_variable 	 gv,
 	}
 	m = 0;
 	for (int i = 0; i < gv.len_pp; i++){
-		if (gv.pp_flags[i][1] == 1){
+		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
 			sp[0].ph_frac_vol[n] =  sp[0].ph_frac_wt[n] / sp[0].PP[m].rho;
 			sum_vol += sp[0].ph_frac_vol[n];
 			sum_mol += sp[0].ph_frac[n];
