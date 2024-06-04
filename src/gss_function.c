@@ -4421,7 +4421,7 @@ SS_ref G_SS_ig_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     for (int i = 0; i < SS_ref_db.n_xeos; i++){
         strcpy(SS_ref_db.CV_list[i],CV_tmp[i]);
     };
-    char   *SF_tmp[] 		= {"xMgM3","xFeM3","xFe3M3","xTiM3","xAlM3","xMgM12","xFeM12","xSiT","xAlT","xOHV"};
+    char   *SF_tmp[] 		= {"xMgM3","xFeM3","xFe3M3","xTiM3","xAlM3","xMgM12","xFeM12","xSiT","xAlT","xOHV","xOV"};
     for (int i = 0; i < SS_ref_db.n_sf; i++){
         strcpy(SS_ref_db.SF_list[i],SF_tmp[i]);
     };    
@@ -5683,7 +5683,7 @@ SS_ref G_SS_ig_ilm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     for (int i = 0; i < SS_ref_db.n_xeos; i++){
         strcpy(SS_ref_db.CV_list[i],CV_tmp[i]);
     };
-    char   *SF_tmp[] 		= {"xFeA","xTiA","xFe3A","xMgA","xFeB","xTiB","xMgB"};
+    char   *SF_tmp[] 		= {"xFeA","xTiA","xFe3A","xFe2B","xTiB","xFe3B"};
     for (int i = 0; i < SS_ref_db.n_sf; i++){
         strcpy(SS_ref_db.SF_list[i],SF_tmp[i]);
     };
