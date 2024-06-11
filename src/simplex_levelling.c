@@ -30,19 +30,14 @@ Levelling occurs in two stages:
 #include "MAGEMin.h"
 #include "simplex_levelling.h"
 #include "gem_function.h"
-#include "gss_function.h"
-#include "NLopt_opt_function.h"
-#include "ss_min_function.h"
 #include "pp_min_function.h"
 #include "dump_function.h"
-#include "objective_functions.h"
 #include "nlopt.h"
 #include "toolkit.h"
 #include "PGE_function.h"
-#include "SS_xeos_PC_mp.h" 				//mp is first, it contains the structure definition
-#include "SS_xeos_PC_mb.h" 
-#include "SS_xeos_PC_ig.h"
-#include "SS_xeos_PC_um.h"
+
+// #include "all_pseudocompounds.h"
+#include "all_solution_phases.h"
 
 /**
 	associate the array of pointer with the right solution phase

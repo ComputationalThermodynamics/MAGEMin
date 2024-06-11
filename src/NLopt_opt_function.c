@@ -13,9 +13,7 @@
 
 #include "nlopt.h"                  // requires specifying this in the makefile
 #include "MAGEMin.h"
-#include "gss_function.h"		    	  // order of header file declaration is important
-#include "objective_functions.h"
-#include "NLopt_opt_function.h"
+#include "all_solution_phases.h"
 #include "toolkit.h"
 
 

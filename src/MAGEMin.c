@@ -43,17 +43,11 @@ Imported libraries
 #include "ketopt.h"
 #include "nlopt.h"                  // requires specifying this in the makefile
 #include "mpi.h"
-#include "Endmembers_tc-ds62.h"
-#include "Endmembers_tc-ds633.h"
-#include "Endmembers_tc-ds634.h"
-#include "Endmembers_M2017.h"
+
 #include "toolkit.h"
 #include "io_function.h"
 #include "gem_function.h"
-#include "gss_init_function.h"
-#include "gss_function.h"
-#include "objective_functions.h"
-#include "NLopt_opt_function.h"
+
 #include "simplex_levelling.h"
 #include "initialize.h"
 #include "ss_min_function.h"
@@ -61,8 +55,8 @@ Imported libraries
 #include "dump_function.h"
 #include "PGE_function.h"
 #include "phase_update_function.h"
+#include "all_solution_phases.h"
 #include "MAGEMin.h"
-#include "simplex_levelling.h"
 
 /** 
   Main routine

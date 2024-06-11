@@ -15,10 +15,8 @@
 #include "MAGEMin.h"
 
 #include "gem_function.h"
-#include "gss_function.h"
-#include "NLopt_opt_function.h"
 #include "simplex_levelling.h"
-#include "objective_functions.h"
+#include "all_solution_phases.h"
 #include "ss_min_function.h"
 #include "nlopt.h"
 

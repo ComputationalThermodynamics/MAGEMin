@@ -2,6 +2,8 @@
 #define __MAGEMIN_H_
 
 #include "MAGEMin.h"
+#include "all_endmembers.h"
+
 
 #ifdef _WIN32
 #define mkdir(path,mode) _mkdir(path) 
@@ -267,12 +269,12 @@ int find_EM_id(								char* em_tag			);
 /* Function declaration from Initialize.h file */
 int find_FS_id(								char* em_tag			);
 
-/** Function to retrieve database structure **/
-struct EM_db Access_EM_DB(					int id, 
-											int EM_database			);
+// /** Function to retrieve database structure **/
+// struct EM_db Access_EM_DB(					int id, 
+// 											int EM_database			);
 
-/** Function to retrieve database structure **/
-struct FS_db Access_FS_DB(					int id					);
+// /** Function to retrieve database structure **/
+// struct FS_db Access_FS_DB(					int id					);
 
 /** Function to retrieve the endmember names from the database **/
 char** get_EM_DB_names(						global_variable gv		);
@@ -281,24 +283,24 @@ char** get_EM_DB_names(						global_variable gv		);
 char** get_FS_DB_names(						global_variable gv		);
 
 
-/** store endmember database **/
-struct EM_db {
-	char   Name[20];			/** pure species name 														*/
-    double Comp[16];       	 	/** pure species composition [0-10] + number of atom [11] 					*/
-    double input_1[3];          /** first line of the thermodynamics datable 								*/
-    double input_2[4];          /** second line of the thermodynamics datable 								*/
-    double input_3[11];         /** third line of the thermodynamics datable 								*/
-    double input_4[3];         	/** third line of the thermodynamics datable 								*/
-};
+// /** store endmember database **/
+// struct EM_db {
+// 	char   Name[20];			/** pure species name 														*/
+//     double Comp[16];       	 	/** pure species composition [0-10] + number of atom [11] 					*/
+//     double input_1[3];          /** first line of the thermodynamics datable 								*/
+//     double input_2[4];          /** second line of the thermodynamics datable 								*/
+//     double input_3[11];         /** third line of the thermodynamics datable 								*/
+//     double input_4[3];         	/** third line of the thermodynamics datable 								*/
+// };
 
-/** store endmember database **/
-struct FS_db {
-	char   Name[20];			/** pure species name 														*/
-    double Comp[16];       	 	/** pure species composition [0-10] + number of atom [11] 					*/
-    double input_1[4];          /** first line of the thermodynamics datable 								*/
-    double input_2[7];          /** second line of the thermodynamics datable 								*/
-    double input_3[1];         	/** third line of the thermodynamics datable 								*/
-};
+// /** store endmember database **/
+// struct FS_db {
+// 	char   Name[20];			/** pure species name 														*/
+//     double Comp[16];       	 	/** pure species composition [0-10] + number of atom [11] 					*/
+//     double input_1[4];          /** first line of the thermodynamics datable 								*/
+//     double input_2[7];          /** second line of the thermodynamics datable 								*/
+//     double input_3[1];         	/** third line of the thermodynamics datable 								*/
+// };
 
 /** 
 	definition of the objective function type in order to associate them with the right solution phase number

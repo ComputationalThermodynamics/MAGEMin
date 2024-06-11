@@ -26,6 +26,33 @@ end
 # END OF PROLOGUE
 #
 
+mutable struct EM_db
+    Name::NTuple{20, Cchar}
+    Comp::NTuple{16, Cdouble}
+    input_1::NTuple{3, Cdouble}
+    input_2::NTuple{4, Cdouble}
+    input_3::NTuple{11, Cdouble}
+    input_4::NTuple{3, Cdouble}
+    EM_db() = new()
+end
+
+mutable struct FS_db
+    Name::NTuple{20, Cchar}
+    Comp::NTuple{16, Cdouble}
+    input_1::NTuple{4, Cdouble}
+    input_2::NTuple{7, Cdouble}
+    input_3::NTuple{1, Cdouble}
+    FS_db() = new()
+end
+
+function Access_EM_DB(id, EM_database)
+    ccall((:Access_EM_DB, libMAGEMin), EM_db, (Cint, Cint), id, EM_database)
+end
+
+function Access_FS_DB(id)
+    ccall((:Access_FS_DB, libMAGEMin), FS_db, (Cint,), id)
+end
+
 # typedef double ( * nlopt_func ) ( unsigned n , const double * x , double * gradient , /* NULL if not needed */ void * func_data )
 const nlopt_func = Ptr{Cvoid}
 
@@ -710,33 +737,6 @@ function find_FS_id(em_tag)
     ccall((:find_FS_id, libMAGEMin), Cint, (Ptr{Cchar},), em_tag)
 end
 
-mutable struct EM_db
-    Name::NTuple{20, Cchar}
-    Comp::NTuple{16, Cdouble}
-    input_1::NTuple{3, Cdouble}
-    input_2::NTuple{4, Cdouble}
-    input_3::NTuple{11, Cdouble}
-    input_4::NTuple{3, Cdouble}
-    EM_db() = new()
-end
-
-function Access_EM_DB(id, EM_database)
-    ccall((:Access_EM_DB, libMAGEMin), EM_db, (Cint, Cint), id, EM_database)
-end
-
-mutable struct FS_db
-    Name::NTuple{20, Cchar}
-    Comp::NTuple{16, Cdouble}
-    input_1::NTuple{4, Cdouble}
-    input_2::NTuple{7, Cdouble}
-    input_3::NTuple{1, Cdouble}
-    FS_db() = new()
-end
-
-function Access_FS_DB(id)
-    ccall((:Access_FS_DB, libMAGEMin), FS_db, (Cint,), id)
-end
-
 function get_EM_DB_names(gv)
     ccall((:get_EM_DB_names, libMAGEMin), Ptr{Ptr{Cchar}}, (global_variable,), gv)
 end
@@ -1240,52 +1240,16 @@ function norm_vector(array, n)
     ccall((:norm_vector, libMAGEMin), Cdouble, (Ptr{Cdouble}, Cint), array, n)
 end
 
-function SS_ig_pc_init_function(SS_pc_xeos, iss, name)
-    ccall((:SS_ig_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
+function G_SS_init_EM_function(ph_id, SS_ref_db, EM_database, name, gv)
+    ccall((:G_SS_init_EM_function, libMAGEMin), SS_ref, (Cint, SS_ref, Cint, Ptr{Cchar}, global_variable), ph_id, SS_ref_db, EM_database, name, gv)
 end
 
-function SS_mb_pc_init_function(SS_pc_xeos, iss, name)
-    ccall((:SS_mb_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
+function CP_INIT_function(cp, gv)
+    ccall((:CP_INIT_function, libMAGEMin), csd_phase_set, (csd_phase_set, global_variable), cp, gv)
 end
 
-function SS_mp_pc_init_function(SS_pc_xeos, iss, name)
-    ccall((:SS_mp_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
-end
-
-function SS_um_pc_init_function(SS_pc_xeos, iss, name)
-    ccall((:SS_um_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
-end
-
-function dump_init(gv)
-    ccall((:dump_init, libMAGEMin), Cvoid, (global_variable,), gv)
-end
-
-function fill_output_struct(gv, splx_data, z_b, PP_ref_db, SS_ref_db, cp, sp)
-    ccall((:fill_output_struct, libMAGEMin), Cvoid, (global_variable, Ptr{simplex_data}, bulk_info, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}, Ptr{stb_system}), gv, splx_data, z_b, PP_ref_db, SS_ref_db, cp, sp)
-end
-
-function save_results_function(gv, z_b, PP_ref_db, SS_ref_db, cp, sp)
-    ccall((:save_results_function, libMAGEMin), Cvoid, (global_variable, bulk_info, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}, Ptr{stb_system}), gv, z_b, PP_ref_db, SS_ref_db, cp, sp)
-end
-
-function mergeParallelFiles(gv)
-    ccall((:mergeParallelFiles, libMAGEMin), Cvoid, (global_variable,), gv)
-end
-
-function mergeParallel_matlab(gv)
-    ccall((:mergeParallel_matlab, libMAGEMin), Cvoid, (global_variable,), gv)
-end
-
-function mergeParallel_residual_Files(gv)
-    ccall((:mergeParallel_residual_Files, libMAGEMin), Cvoid, (global_variable,), gv)
-end
-
-function mergeParallel_LocalMinima_Files(gv)
-    ccall((:mergeParallel_LocalMinima_Files, libMAGEMin), Cvoid, (global_variable,), gv)
-end
-
-function mergeParallel_LevellingGamma_Files(gv)
-    ccall((:mergeParallel_LevellingGamma_Files, libMAGEMin), Cvoid, (global_variable,), gv)
+function SP_INIT_function(sp, gv)
+    ccall((:SP_INIT_function, libMAGEMin), stb_system, (stb_system, global_variable), sp, gv)
 end
 
 function G_SS_mp_EM_function(gv, SS_ref_db, EM_database, z_b, name)
@@ -1320,277 +1284,6 @@ end
 
 function get_fs_data(len_ox, z_b, wat, P, T, name, state)
     ccall((:get_fs_data, libMAGEMin), em_data, (Cint, bulk_info, Ptr{solvent_prop}, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), len_ox, z_b, wat, P, T, name, state)
-end
-
-function G_SS_init_EM_function(ph_id, SS_ref_db, EM_database, name, gv)
-    ccall((:G_SS_init_EM_function, libMAGEMin), SS_ref, (Cint, SS_ref, Cint, Ptr{Cchar}, global_variable), ph_id, SS_ref_db, EM_database, name, gv)
-end
-
-function CP_INIT_function(cp, gv)
-    ccall((:CP_INIT_function, libMAGEMin), csd_phase_set, (csd_phase_set, global_variable), cp, gv)
-end
-
-function SP_INIT_function(sp, gv)
-    ccall((:SP_INIT_function, libMAGEMin), stb_system, (stb_system, global_variable), sp, gv)
-end
-
-struct UT_hash_bucket
-    hh_head::Ptr{Cvoid} # hh_head::Ptr{UT_hash_handle}
-    count::Cuint
-    expand_mult::Cuint
-end
-
-function Base.getproperty(x::UT_hash_bucket, f::Symbol)
-    f === :hh_head && return Ptr{UT_hash_handle}(getfield(x, f))
-    return getfield(x, f)
-end
-
-struct UT_hash_table
-    buckets::Ptr{UT_hash_bucket}
-    num_buckets::Cuint
-    log2_num_buckets::Cuint
-    num_items::Cuint
-    tail::Ptr{Cvoid} # tail::Ptr{UT_hash_handle}
-    hho::Cptrdiff_t
-    ideal_chain_maxlen::Cuint
-    nonideal_items::Cuint
-    ineff_expands::Cuint
-    noexpand::Cuint
-    signature::UInt32
-end
-
-function Base.getproperty(x::UT_hash_table, f::Symbol)
-    f === :tail && return Ptr{UT_hash_handle}(getfield(x, f))
-    return getfield(x, f)
-end
-
-struct UT_hash_handle
-    tbl::Ptr{UT_hash_table}
-    prev::Ptr{Cvoid}
-    next::Ptr{Cvoid}
-    hh_prev::Ptr{UT_hash_handle}
-    hh_next::Ptr{UT_hash_handle}
-    key::Ptr{Cvoid}
-    keylen::Cuint
-    hashv::Cuint
-end
-
-mutable struct EM2id
-    EM_tag::NTuple{20, Cchar}
-    id::Cint
-    hh::UT_hash_handle
-    EM2id() = new()
-end
-
-mutable struct FS2id
-    FS_tag::NTuple{20, Cchar}
-    id::Cint
-    hh::UT_hash_handle
-    FS2id() = new()
-end
-
-mutable struct PP2id
-    PP_tag::NTuple{20, Cchar}
-    id::Cint
-    hh::UT_hash_handle
-    PP2id() = new()
-end
-
-function find_PP_id(PP_tag)
-    ccall((:find_PP_id, libMAGEMin), Cint, (Ptr{Cchar},), PP_tag)
-end
-
-mutable struct oxide_datas
-    n_ox::Cint
-    oxName::NTuple{15, NTuple{20, Cchar}}
-    oxMass::NTuple{15, Cdouble}
-    atPerOx::NTuple{15, Cdouble}
-    ElEntropy::NTuple{15, Cdouble}
-    oxide_datas() = new()
-end
-
-const oxide_data = oxide_datas
-
-mutable struct metapelite_datasets
-    n_em_db::Cint
-    n_ox::Cint
-    n_pp::Cint
-    n_ss::Cint
-    ox::NTuple{11, NTuple{20, Cchar}}
-    PP::NTuple{23, NTuple{20, Cchar}}
-    SS::NTuple{16, NTuple{20, Cchar}}
-    verifyPC::NTuple{16, Cint}
-    n_SS_PC::NTuple{16, Cint}
-    SS_PC_stp::NTuple{16, Cdouble}
-    PC_df_add::Cdouble
-    solver_switch_T::Cdouble
-    min_melt_T::Cdouble
-    inner_PGE_ite::Cdouble
-    max_n_phase::Cdouble
-    max_g_phase::Cdouble
-    max_fac::Cdouble
-    merge_value::Cdouble
-    re_in_n::Cdouble
-    obj_tol::Cdouble
-    metapelite_datasets() = new()
-end
-
-const metapelite_dataset = metapelite_datasets
-
-mutable struct metabasite_datasets
-    n_em_db::Cint
-    n_ox::Cint
-    n_pp::Cint
-    n_ss::Cint
-    ox::NTuple{10, NTuple{20, Cchar}}
-    PP::NTuple{24, NTuple{20, Cchar}}
-    SS1::NTuple{14, NTuple{20, Cchar}}
-    verifyPC1::NTuple{14, Cint}
-    n_SS_PC1::NTuple{14, Cint}
-    SS_PC_stp1::NTuple{14, Cdouble}
-    SS2::NTuple{14, NTuple{20, Cchar}}
-    verifyPC2::NTuple{14, Cint}
-    n_SS_PC2::NTuple{14, Cint}
-    SS_PC_stp2::NTuple{14, Cdouble}
-    PC_df_add::Cdouble
-    solver_switch_T::Cdouble
-    min_melt_T::Cdouble
-    inner_PGE_ite::Cdouble
-    max_n_phase::Cdouble
-    max_g_phase::Cdouble
-    max_fac::Cdouble
-    merge_value::Cdouble
-    re_in_n::Cdouble
-    obj_tol::Cdouble
-    metabasite_datasets() = new()
-end
-
-const metabasite_dataset = metabasite_datasets
-
-mutable struct igneous_datasets
-    n_em_db::Cint
-    n_ox::Cint
-    n_pp::Cint
-    n_ss::Cint
-    ox::NTuple{11, NTuple{20, Cchar}}
-    PP::NTuple{23, NTuple{20, Cchar}}
-    SS::NTuple{15, NTuple{20, Cchar}}
-    verifyPC::NTuple{15, Cint}
-    n_SS_PC::NTuple{15, Cint}
-    SS_PC_stp::NTuple{15, Cdouble}
-    PC_df_add::Cdouble
-    solver_switch_T::Cdouble
-    min_melt_T::Cdouble
-    inner_PGE_ite::Cdouble
-    max_n_phase::Cdouble
-    max_g_phase::Cdouble
-    max_fac::Cdouble
-    merge_value::Cdouble
-    re_in_n::Cdouble
-    obj_tol::Cdouble
-    igneous_datasets() = new()
-end
-
-const igneous_dataset = igneous_datasets
-
-mutable struct ultramafic_datasets
-    n_em_db::Cint
-    n_ox::Cint
-    n_pp::Cint
-    n_ss::Cint
-    ox::NTuple{7, NTuple{20, Cchar}}
-    PP::NTuple{21, NTuple{20, Cchar}}
-    SS::NTuple{12, NTuple{20, Cchar}}
-    verifyPC::NTuple{12, Cint}
-    n_SS_PC::NTuple{12, Cint}
-    SS_PC_stp::NTuple{12, Cdouble}
-    PC_df_add::Cdouble
-    solver_switch_T::Cdouble
-    min_melt_T::Cdouble
-    inner_PGE_ite::Cdouble
-    max_n_phase::Cdouble
-    max_g_phase::Cdouble
-    max_fac::Cdouble
-    merge_value::Cdouble
-    re_in_n::Cdouble
-    obj_tol::Cdouble
-    ultramafic_datasets() = new()
-end
-
-const ultramafic_dataset = ultramafic_datasets
-
-function get_bulk_metabasite(gv)
-    ccall((:get_bulk_metabasite, libMAGEMin), global_variable, (global_variable,), gv)
-end
-
-function get_bulk_ultramafic_jun(gv)
-    ccall((:get_bulk_ultramafic_jun, libMAGEMin), global_variable, (global_variable,), gv)
-end
-
-function reset_gv(gv, z_b, PP_ref_db, SS_ref_db)
-    ccall((:reset_gv, libMAGEMin), global_variable, (global_variable, bulk_info, Ptr{PP_ref}, Ptr{SS_ref}), gv, z_b, PP_ref_db, SS_ref_db)
-end
-
-function reset_sp(gv, sp)
-    ccall((:reset_sp, libMAGEMin), Cvoid, (global_variable, Ptr{stb_system}), gv, sp)
-end
-
-function reset_z_b_bulk(gv, z_b)
-    ccall((:reset_z_b_bulk, libMAGEMin), bulk_info, (global_variable, bulk_info), gv, z_b)
-end
-
-function reset_cp(gv, z_b, cp)
-    ccall((:reset_cp, libMAGEMin), Cvoid, (global_variable, bulk_info, Ptr{csd_phase_set}), gv, z_b, cp)
-end
-
-function reset_SS(gv, z_b, SS_ref_db)
-    ccall((:reset_SS, libMAGEMin), Cvoid, (global_variable, bulk_info, Ptr{SS_ref}), gv, z_b, SS_ref_db)
-end
-
-function init_simplex_A(splx_data, gv)
-    ccall((:init_simplex_A, libMAGEMin), Cvoid, (Ptr{simplex_data}, global_variable), splx_data, gv)
-end
-
-function init_simplex_B_em(splx_data, gv)
-    ccall((:init_simplex_B_em, libMAGEMin), Cvoid, (Ptr{simplex_data}, global_variable), splx_data, gv)
-end
-
-function reset_simplex_A(splx_data, z_b, gv)
-    ccall((:reset_simplex_A, libMAGEMin), Cvoid, (Ptr{simplex_data}, bulk_info, global_variable), splx_data, z_b, gv)
-end
-
-function reset_simplex_B_em(splx_data, gv)
-    ccall((:reset_simplex_B_em, libMAGEMin), Cvoid, (Ptr{simplex_data}, global_variable), splx_data, gv)
-end
-
-function read_in_data(gv, input_data, n_points)
-    ccall((:read_in_data, libMAGEMin), Cvoid, (global_variable, Ptr{io_data}, Cint), gv, input_data, n_points)
-end
-
-mutable struct ketopt_t
-    ind::Cint
-    opt::Cint
-    arg::Ptr{Cchar}
-    longidx::Cint
-    i::Cint
-    pos::Cint
-    n_args::Cint
-    ketopt_t() = new()
-end
-
-mutable struct ko_longopt_t
-    name::Ptr{Cchar}
-    has_arg::Cint
-    val::Cint
-    ko_longopt_t() = new()
-end
-
-function ketopt_permute(argv, j, n)
-    ccall((:ketopt_permute, libMAGEMin), Cvoid, (Ptr{Ptr{Cchar}}, Cint, Cint), argv, j, n)
-end
-
-function ketopt(s, argc, argv, permute, ostr, longopts)
-    ccall((:ketopt, libMAGEMin), Cint, (Ptr{ketopt_t}, Cint, Ptr{Ptr{Cchar}}, Cint, Ptr{Cchar}, Ptr{ko_longopt_t}), s, argc, argv, permute, ostr, longopts)
 end
 
 function SS_mb_objective_init_function(SS_objective, gv)
@@ -2115,6 +1808,313 @@ end
 
 function get_phase_id(gv, name)
     ccall((:get_phase_id, libMAGEMin), Cint, (global_variable, Ptr{Cchar}), gv, name)
+end
+
+function SS_mp_pc_init_function(SS_pc_xeos, iss, name)
+    ccall((:SS_mp_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
+end
+
+function SS_mb_pc_init_function(SS_pc_xeos, iss, name)
+    ccall((:SS_mb_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
+end
+
+function SS_ig_pc_init_function(SS_pc_xeos, iss, name)
+    ccall((:SS_ig_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
+end
+
+function SS_um_pc_init_function(SS_pc_xeos, iss, name)
+    ccall((:SS_um_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
+end
+
+function dump_init(gv)
+    ccall((:dump_init, libMAGEMin), Cvoid, (global_variable,), gv)
+end
+
+function fill_output_struct(gv, splx_data, z_b, PP_ref_db, SS_ref_db, cp, sp)
+    ccall((:fill_output_struct, libMAGEMin), Cvoid, (global_variable, Ptr{simplex_data}, bulk_info, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}, Ptr{stb_system}), gv, splx_data, z_b, PP_ref_db, SS_ref_db, cp, sp)
+end
+
+function save_results_function(gv, z_b, PP_ref_db, SS_ref_db, cp, sp)
+    ccall((:save_results_function, libMAGEMin), Cvoid, (global_variable, bulk_info, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}, Ptr{stb_system}), gv, z_b, PP_ref_db, SS_ref_db, cp, sp)
+end
+
+function mergeParallelFiles(gv)
+    ccall((:mergeParallelFiles, libMAGEMin), Cvoid, (global_variable,), gv)
+end
+
+function mergeParallel_matlab(gv)
+    ccall((:mergeParallel_matlab, libMAGEMin), Cvoid, (global_variable,), gv)
+end
+
+function mergeParallel_residual_Files(gv)
+    ccall((:mergeParallel_residual_Files, libMAGEMin), Cvoid, (global_variable,), gv)
+end
+
+function mergeParallel_LocalMinima_Files(gv)
+    ccall((:mergeParallel_LocalMinima_Files, libMAGEMin), Cvoid, (global_variable,), gv)
+end
+
+function mergeParallel_LevellingGamma_Files(gv)
+    ccall((:mergeParallel_LevellingGamma_Files, libMAGEMin), Cvoid, (global_variable,), gv)
+end
+
+struct UT_hash_bucket
+    hh_head::Ptr{Cvoid} # hh_head::Ptr{UT_hash_handle}
+    count::Cuint
+    expand_mult::Cuint
+end
+
+function Base.getproperty(x::UT_hash_bucket, f::Symbol)
+    f === :hh_head && return Ptr{UT_hash_handle}(getfield(x, f))
+    return getfield(x, f)
+end
+
+struct UT_hash_table
+    buckets::Ptr{UT_hash_bucket}
+    num_buckets::Cuint
+    log2_num_buckets::Cuint
+    num_items::Cuint
+    tail::Ptr{Cvoid} # tail::Ptr{UT_hash_handle}
+    hho::Cptrdiff_t
+    ideal_chain_maxlen::Cuint
+    nonideal_items::Cuint
+    ineff_expands::Cuint
+    noexpand::Cuint
+    signature::UInt32
+end
+
+function Base.getproperty(x::UT_hash_table, f::Symbol)
+    f === :tail && return Ptr{UT_hash_handle}(getfield(x, f))
+    return getfield(x, f)
+end
+
+struct UT_hash_handle
+    tbl::Ptr{UT_hash_table}
+    prev::Ptr{Cvoid}
+    next::Ptr{Cvoid}
+    hh_prev::Ptr{UT_hash_handle}
+    hh_next::Ptr{UT_hash_handle}
+    key::Ptr{Cvoid}
+    keylen::Cuint
+    hashv::Cuint
+end
+
+mutable struct EM2id
+    EM_tag::NTuple{20, Cchar}
+    id::Cint
+    hh::UT_hash_handle
+    EM2id() = new()
+end
+
+mutable struct FS2id
+    FS_tag::NTuple{20, Cchar}
+    id::Cint
+    hh::UT_hash_handle
+    FS2id() = new()
+end
+
+mutable struct PP2id
+    PP_tag::NTuple{20, Cchar}
+    id::Cint
+    hh::UT_hash_handle
+    PP2id() = new()
+end
+
+function find_PP_id(PP_tag)
+    ccall((:find_PP_id, libMAGEMin), Cint, (Ptr{Cchar},), PP_tag)
+end
+
+mutable struct oxide_datas
+    n_ox::Cint
+    oxName::NTuple{15, NTuple{20, Cchar}}
+    oxMass::NTuple{15, Cdouble}
+    atPerOx::NTuple{15, Cdouble}
+    ElEntropy::NTuple{15, Cdouble}
+    oxide_datas() = new()
+end
+
+const oxide_data = oxide_datas
+
+mutable struct metapelite_datasets
+    n_em_db::Cint
+    n_ox::Cint
+    n_pp::Cint
+    n_ss::Cint
+    ox::NTuple{11, NTuple{20, Cchar}}
+    PP::NTuple{23, NTuple{20, Cchar}}
+    SS::NTuple{16, NTuple{20, Cchar}}
+    verifyPC::NTuple{16, Cint}
+    n_SS_PC::NTuple{16, Cint}
+    SS_PC_stp::NTuple{16, Cdouble}
+    PC_df_add::Cdouble
+    solver_switch_T::Cdouble
+    min_melt_T::Cdouble
+    inner_PGE_ite::Cdouble
+    max_n_phase::Cdouble
+    max_g_phase::Cdouble
+    max_fac::Cdouble
+    merge_value::Cdouble
+    re_in_n::Cdouble
+    obj_tol::Cdouble
+    metapelite_datasets() = new()
+end
+
+const metapelite_dataset = metapelite_datasets
+
+mutable struct metabasite_datasets
+    n_em_db::Cint
+    n_ox::Cint
+    n_pp::Cint
+    n_ss::Cint
+    ox::NTuple{10, NTuple{20, Cchar}}
+    PP::NTuple{24, NTuple{20, Cchar}}
+    SS1::NTuple{14, NTuple{20, Cchar}}
+    verifyPC1::NTuple{14, Cint}
+    n_SS_PC1::NTuple{14, Cint}
+    SS_PC_stp1::NTuple{14, Cdouble}
+    SS2::NTuple{14, NTuple{20, Cchar}}
+    verifyPC2::NTuple{14, Cint}
+    n_SS_PC2::NTuple{14, Cint}
+    SS_PC_stp2::NTuple{14, Cdouble}
+    PC_df_add::Cdouble
+    solver_switch_T::Cdouble
+    min_melt_T::Cdouble
+    inner_PGE_ite::Cdouble
+    max_n_phase::Cdouble
+    max_g_phase::Cdouble
+    max_fac::Cdouble
+    merge_value::Cdouble
+    re_in_n::Cdouble
+    obj_tol::Cdouble
+    metabasite_datasets() = new()
+end
+
+const metabasite_dataset = metabasite_datasets
+
+mutable struct igneous_datasets
+    n_em_db::Cint
+    n_ox::Cint
+    n_pp::Cint
+    n_ss::Cint
+    ox::NTuple{11, NTuple{20, Cchar}}
+    PP::NTuple{23, NTuple{20, Cchar}}
+    SS::NTuple{15, NTuple{20, Cchar}}
+    verifyPC::NTuple{15, Cint}
+    n_SS_PC::NTuple{15, Cint}
+    SS_PC_stp::NTuple{15, Cdouble}
+    PC_df_add::Cdouble
+    solver_switch_T::Cdouble
+    min_melt_T::Cdouble
+    inner_PGE_ite::Cdouble
+    max_n_phase::Cdouble
+    max_g_phase::Cdouble
+    max_fac::Cdouble
+    merge_value::Cdouble
+    re_in_n::Cdouble
+    obj_tol::Cdouble
+    igneous_datasets() = new()
+end
+
+const igneous_dataset = igneous_datasets
+
+mutable struct ultramafic_datasets
+    n_em_db::Cint
+    n_ox::Cint
+    n_pp::Cint
+    n_ss::Cint
+    ox::NTuple{7, NTuple{20, Cchar}}
+    PP::NTuple{21, NTuple{20, Cchar}}
+    SS::NTuple{12, NTuple{20, Cchar}}
+    verifyPC::NTuple{12, Cint}
+    n_SS_PC::NTuple{12, Cint}
+    SS_PC_stp::NTuple{12, Cdouble}
+    PC_df_add::Cdouble
+    solver_switch_T::Cdouble
+    min_melt_T::Cdouble
+    inner_PGE_ite::Cdouble
+    max_n_phase::Cdouble
+    max_g_phase::Cdouble
+    max_fac::Cdouble
+    merge_value::Cdouble
+    re_in_n::Cdouble
+    obj_tol::Cdouble
+    ultramafic_datasets() = new()
+end
+
+const ultramafic_dataset = ultramafic_datasets
+
+function get_bulk_metabasite(gv)
+    ccall((:get_bulk_metabasite, libMAGEMin), global_variable, (global_variable,), gv)
+end
+
+function get_bulk_ultramafic_jun(gv)
+    ccall((:get_bulk_ultramafic_jun, libMAGEMin), global_variable, (global_variable,), gv)
+end
+
+function reset_gv(gv, z_b, PP_ref_db, SS_ref_db)
+    ccall((:reset_gv, libMAGEMin), global_variable, (global_variable, bulk_info, Ptr{PP_ref}, Ptr{SS_ref}), gv, z_b, PP_ref_db, SS_ref_db)
+end
+
+function reset_sp(gv, sp)
+    ccall((:reset_sp, libMAGEMin), Cvoid, (global_variable, Ptr{stb_system}), gv, sp)
+end
+
+function reset_z_b_bulk(gv, z_b)
+    ccall((:reset_z_b_bulk, libMAGEMin), bulk_info, (global_variable, bulk_info), gv, z_b)
+end
+
+function reset_cp(gv, z_b, cp)
+    ccall((:reset_cp, libMAGEMin), Cvoid, (global_variable, bulk_info, Ptr{csd_phase_set}), gv, z_b, cp)
+end
+
+function reset_SS(gv, z_b, SS_ref_db)
+    ccall((:reset_SS, libMAGEMin), Cvoid, (global_variable, bulk_info, Ptr{SS_ref}), gv, z_b, SS_ref_db)
+end
+
+function init_simplex_A(splx_data, gv)
+    ccall((:init_simplex_A, libMAGEMin), Cvoid, (Ptr{simplex_data}, global_variable), splx_data, gv)
+end
+
+function init_simplex_B_em(splx_data, gv)
+    ccall((:init_simplex_B_em, libMAGEMin), Cvoid, (Ptr{simplex_data}, global_variable), splx_data, gv)
+end
+
+function reset_simplex_A(splx_data, z_b, gv)
+    ccall((:reset_simplex_A, libMAGEMin), Cvoid, (Ptr{simplex_data}, bulk_info, global_variable), splx_data, z_b, gv)
+end
+
+function reset_simplex_B_em(splx_data, gv)
+    ccall((:reset_simplex_B_em, libMAGEMin), Cvoid, (Ptr{simplex_data}, global_variable), splx_data, gv)
+end
+
+function read_in_data(gv, input_data, n_points)
+    ccall((:read_in_data, libMAGEMin), Cvoid, (global_variable, Ptr{io_data}, Cint), gv, input_data, n_points)
+end
+
+mutable struct ketopt_t
+    ind::Cint
+    opt::Cint
+    arg::Ptr{Cchar}
+    longidx::Cint
+    i::Cint
+    pos::Cint
+    n_args::Cint
+    ketopt_t() = new()
+end
+
+mutable struct ko_longopt_t
+    name::Ptr{Cchar}
+    has_arg::Cint
+    val::Cint
+    ko_longopt_t() = new()
+end
+
+function ketopt_permute(argv, j, n)
+    ccall((:ketopt_permute, libMAGEMin), Cvoid, (Ptr{Ptr{Cchar}}, Cint, Cint), argv, j, n)
+end
+
+function ketopt(s, argc, argv, permute, ostr, longopts)
+    ccall((:ketopt, libMAGEMin), Cint, (Ptr{ketopt_t}, Cint, Ptr{Ptr{Cchar}}, Cint, Ptr{Cchar}, Ptr{ko_longopt_t}), s, argc, argv, permute, ostr, longopts)
 end
 
 function check_PC(z_b, gv, PP_ref_db, SS_ref_db, cp)

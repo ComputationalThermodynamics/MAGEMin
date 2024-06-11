@@ -2,47 +2,8 @@
 #define __INITIALIZE_H_
 
 #include "uthash.h"
-
-#include "Endmembers_M2017.h"
-#include "Endmembers_tc-ds62.h"
-#include "Endmembers_tc-ds633.h"
-#include "Endmembers_tc-ds634.h"
-
-/* Select required thermodynamic database */
-struct EM_db Access_EM_DB(int id, int EM_database) {
-	struct EM_db Entry_EM;
-
-	if (EM_database == 0){	
-	 	Entry_EM = arr_em_db_tc_ds62[id]; 
-	}
-	else if (EM_database == 1){	
-	 	Entry_EM = arr_em_db_tc_ds62[id]; 
-	}
-	else if (EM_database == 2){		
-		Entry_EM = arr_em_db_tc_ds634[id]; 
-	}
-	else if (EM_database == 4){		
-		Entry_EM = arr_em_db_tc_ds633[id]; 
-	}
-	else{
-		printf(" Wrong database, values should be 0, metapelite; 1, metabasite; 2, igneous; 3, igneousd; 4, ultramafic\n");
-		printf(" -> using default igneous database to avoid ugly crash\n");
-		Entry_EM = arr_em_db_tc_ds634[id]; 
-	}
-	
-	return Entry_EM;
-}
-
-/* Select required thermodynamic database */
-struct FS_db Access_FS_DB(int id) {
-	struct FS_db Entry_FS;
-
-	 	Entry_FS = arr_fs_db_Miron2017[id]; 
-
-	return Entry_FS;
-}
-
-
+#include "MAGEMin.h"
+#include "all_endmembers.h"
 
 /*---------------------------------------------------------------------------*/ 
 /*  Hashtable for endmember in thermodynamic database                        */

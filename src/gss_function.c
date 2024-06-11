@@ -13,9 +13,7 @@ Igneous dataset to use with tc-ds633.txt
 #include <string.h>
 #include <complex.h> 
 #include "MAGEMin.h"
-#include "gem_function.h"
-#include "gss_function.h"
-#include "NLopt_opt_function.h"
+#include "all_solution_phases.h"
 #include "simplex_levelling.h"
 #include "toolkit.h"
 // #include "gfs_function.h"

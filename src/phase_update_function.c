@@ -51,7 +51,7 @@ NOTES:
 
 #include "MAGEMin.h"
 #include "gem_function.h"
-#include "gss_function.h"
+#include "all_solution_phases.h"
 #include "toolkit.h"
 
 /**
