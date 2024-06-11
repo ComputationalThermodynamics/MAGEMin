@@ -1197,17 +1197,6 @@ function PrintStatus(status)
     ccall((:PrintStatus, libMAGEMin), Cvoid, (Cint,), status)
 end
 
-# typedef void ( * sf_type ) ( unsigned m , double * result , unsigned n , const double * x , double * grad , void * data )
-const sf_type = Ptr{Cvoid}
-
-function NLopt_global_opt_function(z_b, gv, PP_ref_db, SS_ref_db, cp)
-    ccall((:NLopt_global_opt_function, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, PP_ref_db, SS_ref_db, cp)
-end
-
-function NLopt_opt_function(gv, SS_ref_db, index)
-    ccall((:NLopt_opt_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint), gv, SS_ref_db, index)
-end
-
 function PGE(z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
     ccall((:PGE, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{obj_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
 end
@@ -1808,6 +1797,17 @@ end
 
 function get_phase_id(gv, name)
     ccall((:get_phase_id, libMAGEMin), Cint, (global_variable, Ptr{Cchar}), gv, name)
+end
+
+# typedef void ( * sf_type ) ( unsigned m , double * result , unsigned n , const double * x , double * grad , void * data )
+const sf_type = Ptr{Cvoid}
+
+function NLopt_global_opt_function(z_b, gv, PP_ref_db, SS_ref_db, cp)
+    ccall((:NLopt_global_opt_function, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, PP_ref_db, SS_ref_db, cp)
+end
+
+function NLopt_opt_function(gv, SS_ref_db, index)
+    ccall((:NLopt_opt_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint), gv, SS_ref_db, index)
 end
 
 function SS_mp_pc_init_function(SS_pc_xeos, iss, name)

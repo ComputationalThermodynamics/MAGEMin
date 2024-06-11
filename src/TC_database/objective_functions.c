@@ -8,9 +8,10 @@
 #include <time.h>
 #include <string.h>
 #include <complex.h> 
-#include "nlopt.h"
-#include "MAGEMin.h"
-#include "toolkit.h"
+
+#include "../nlopt.h"
+#include "../MAGEMin.h"
+#include "../toolkit.h"
 
 /**************************************************************************************/
 /**************************************************************************************/

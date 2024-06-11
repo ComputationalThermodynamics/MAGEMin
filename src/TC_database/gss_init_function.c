@@ -41,8 +41,8 @@ Declare flags needed for leveling and pge algorithms
 #include <string.h>
 #include <complex.h> 
 
-#include "MAGEMin.h"
-#include "all_solution_phases.h"
+#include "../MAGEMin.h"
+#include "../all_solution_phases.h"
 
 /** 
   allocate memory to store considered phases

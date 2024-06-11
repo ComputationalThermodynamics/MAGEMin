@@ -35,24 +35,25 @@ ifeq ($(UNAME_S),Linux)
 endif
 	EXE_NAME = MAGEMin
 
-SOURCES=src/MAGEMin.c 					\
+SOURCES=src/MAGEMin.c 							\
+		src/TC_database/TC_init_database.c		\
 		src/TC_database/TC_endmembers.c			\
-		src/toolkit.c					\
-		src/io_function.c				\
-		src/gem_function.c 				\
-		src/gss_init_function.c			\
-		src/gss_function.c				\
-		src/NLopt_opt_function.c 		\
-		src/objective_functions.c		\
-		src/TC_database/SS_xeos_PC_mp.c	\
-		src/TC_database/SS_xeos_PC_mb.c	\
-		src/TC_database/SS_xeos_PC_ig.c	\
-		src/TC_database/SS_xeos_PC_um.c	\
-		src/pp_min_function.c 			\
-		src/ss_min_function.c 			\
-		src/simplex_levelling.c 		\
-		src/PGE_function.c 				\
-		src/phase_update_function.c		\
+		src/toolkit.c							\
+		src/io_function.c						\
+		src/gem_function.c 						\
+		src/TC_database/gss_init_function.c		\
+		src/TC_database/gss_function.c			\
+		src/TC_database/NLopt_opt_function.c 	\
+		src/TC_database/objective_functions.c	\
+		src/TC_database/SS_xeos_PC_mp.c			\
+		src/TC_database/SS_xeos_PC_mb.c			\
+		src/TC_database/SS_xeos_PC_ig.c			\
+		src/TC_database/SS_xeos_PC_um.c			\
+		src/pp_min_function.c 					\
+		src/ss_min_function.c 					\
+		src/simplex_levelling.c 				\
+		src/PGE_function.c 						\
+		src/phase_update_function.c				\
 		src/dump_function.c
 
 OBJECTS=$(SOURCES:.c=.o)

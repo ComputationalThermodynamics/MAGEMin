@@ -12,10 +12,11 @@ Igneous dataset to use with tc-ds633.txt
 #include <time.h>
 #include <string.h>
 #include <complex.h> 
-#include "MAGEMin.h"
-#include "all_solution_phases.h"
-#include "simplex_levelling.h"
-#include "toolkit.h"
+
+#include "../MAGEMin.h"
+#include "../all_solution_phases.h"
+#include "../simplex_levelling.h"
+#include "../toolkit.h"
 // #include "gfs_function.h"
 
 /**

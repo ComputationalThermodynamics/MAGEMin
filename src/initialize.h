@@ -1,9 +1,10 @@
 #ifndef __INITIALIZE_H_
 #define __INITIALIZE_H_
 
-#include "uthash.h"
-#include "MAGEMin.h"
-#include "all_endmembers.h"
+	#include "uthash.h"
+	#include "MAGEMin.h"
+	#include "all_endmembers.h"
+	#include "all_init_database.h"
 
 /*---------------------------------------------------------------------------*/ 
 /*  Hashtable for endmember in thermodynamic database                        */

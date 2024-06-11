@@ -12,9 +12,9 @@
 #include <complex.h> 
 
 #include "nlopt.h"                  // requires specifying this in the makefile
-#include "MAGEMin.h"
-#include "all_solution_phases.h"
-#include "toolkit.h"
+#include "../MAGEMin.h"
+#include "../all_solution_phases.h"
+#include "../toolkit.h"
 
 
 /**************************************************************************************/
@@ -4299,18 +4299,6 @@ void po_um_c(unsigned m, double *result, unsigned n, const double *x, double *gr
 
     return;
 };
-
-typedef struct global_min_datas {
-	global_variable 	 gv; 
-	bulk_info 	       z_b;
-	obj_type 			    *SS_objective;
-	sf_type 			    *SS_sf;
-	PP_ref 				    *PP_ref_db;
-	SS_ref 				    *SS_ref_db;
-	csd_phase_set  		*cp;
-	
-} global_min_data;
-
 
 SS_ref NLopt_opt_mp_st_function(global_variable gv, SS_ref SS_ref_db){
     
