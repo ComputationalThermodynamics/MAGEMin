@@ -25,12 +25,24 @@ global_variable NLopt_global_opt_function(	bulk_info 			 z_b,
 											global_variable 	 gv, 
 											PP_ref 				*PP_ref_db,
 											SS_ref 				*SS_ref_db,
-	 										csd_phase_set  		*cp
-);
+	 										csd_phase_set  		*cp			);
 
-SS_ref NLopt_opt_function(		global_variable 	gv, 
-								SS_ref 				SS_ref_db,  
-								int     			index				);
+typedef SS_ref (*NLopt_type) (		global_variable 	 gv,
+									SS_ref 				 SS_ref_db		);
+	
+
+SS_ref NLopt_opt_function(			global_variable 	gv, 
+									SS_ref 				SS_ref_db,  
+									int     			index			);
+
+void TC_mp_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
+									global_variable 	 gv				);
+void TC_mb_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
+									global_variable 	 gv				);
+void TC_ig_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
+									global_variable 	 gv				);
+void TC_um_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
+									global_variable 	 gv				);
 
 #endif
 

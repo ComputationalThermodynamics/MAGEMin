@@ -12,6 +12,8 @@
 #define __SS_MIN_FUNCTION_H_
 
 #include "MAGEMin.h"
+#include "all_solution_phases.h"
+
 SS_ref SS_UPDATE_function(				global_variable 	 gv,
 										SS_ref 				 SS_ref_db, 
 										bulk_info 	 		 z_b,
@@ -34,12 +36,14 @@ void init_PGE_from_LP(					global_variable 	 gv,
 
 void ss_min_PGE(						global_variable 	 gv,
 										obj_type 			*SS_objective,
+										NLopt_type			*NLopt_opt,
 										bulk_info 	 		 z_b,
 										SS_ref 				*SS_ref_db,
 										csd_phase_set  		*cp				);
 										
 void ss_min_LP(							global_variable 	 gv,
 										obj_type 			*SS_objective,
+										NLopt_type			*NLopt_opt,
 										bulk_info 	 		 z_b,
 										SS_ref 				*SS_ref_db,
 										csd_phase_set  		*cp				);

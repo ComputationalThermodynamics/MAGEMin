@@ -23,6 +23,7 @@
 
 #include "nlopt.h"                  // requires specifying this in the makefile
 #include "../MAGEMin.h"
+#include "NLopt_opt_function.h"
 #include "../all_solution_phases.h"
 #include "../toolkit.h"
 
@@ -6111,3 +6112,170 @@ SS_ref NLopt_opt_function(		              global_variable     gv,
 };
 
 
+
+void TC_mp_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
+									global_variable 	 gv				){	
+						 
+	for (int iss = 0; iss < gv.len_ss; iss++){
+
+		if      (strcmp( gv.SS_list[iss], "liq")   == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_mp_liq_function; 		}
+		else if (strcmp( gv.SS_list[iss], "fsp") == 0){
+			NLopt_opt[iss]  = NLopt_opt_mp_fsp_function; 		}
+		else if (strcmp( gv.SS_list[iss], "bi")    == 0){
+			NLopt_opt[iss]  = NLopt_opt_mp_bi_function; 		}
+		else if (strcmp( gv.SS_list[iss], "g")     == 0){
+			NLopt_opt[iss]  = NLopt_opt_mp_g_function; 			}
+		else if (strcmp( gv.SS_list[iss], "ep")    == 0){
+			NLopt_opt[iss]  = NLopt_opt_mp_ep_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ma")    == 0){
+			NLopt_opt[iss]  = NLopt_opt_mp_ma_function; 		}
+		else if (strcmp( gv.SS_list[iss], "mu")    == 0){
+			NLopt_opt[iss]  = NLopt_opt_mp_mu_function; 		}
+		else if (strcmp( gv.SS_list[iss], "opx")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_mp_opx_function; 		}
+		else if (strcmp( gv.SS_list[iss], "sa")    == 0){
+			NLopt_opt[iss]  = NLopt_opt_mp_sa_function; 		}
+		else if (strcmp( gv.SS_list[iss], "cd")    == 0){
+			NLopt_opt[iss]  = NLopt_opt_mp_cd_function; 		}
+		else if (strcmp( gv.SS_list[iss], "st")    == 0){
+			NLopt_opt[iss]  = NLopt_opt_mp_st_function; 		}
+		else if (strcmp( gv.SS_list[iss], "chl")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_mp_chl_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ctd")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_mp_ctd_function; 		}
+		else if (strcmp( gv.SS_list[iss], "sp")    == 0){
+			NLopt_opt[iss]  = NLopt_opt_mp_sp_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ilm")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_mp_ilm_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ilmm")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_mp_ilmm_function; 		}
+		else if (strcmp( gv.SS_list[iss], "mt")    == 0){
+			NLopt_opt[iss]  = NLopt_opt_mp_mt_function; 		}
+		else if (strcmp( gv.SS_list[iss], "aq17")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_aq17_function; 		    }
+		else{
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
+		}	
+	};			
+}
+
+void TC_mb_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
+									global_variable 	 gv				){	
+						 
+	for (int iss = 0; iss < gv.len_ss; iss++){
+        if (strcmp( gv.SS_list[iss], "liq")  == 0){
+            NLopt_opt[iss]  = NLopt_opt_mb_liq_function;        }
+        else if (strcmp( gv.SS_list[iss], "hb")  == 0){
+            NLopt_opt[iss]  = NLopt_opt_mb_hb_function;         }
+        else if (strcmp( gv.SS_list[iss], "aug")  == 0){
+            NLopt_opt[iss]  = NLopt_opt_mb_aug_function;        }
+        else if (strcmp( gv.SS_list[iss], "dio")  == 0){
+            NLopt_opt[iss]  = NLopt_opt_mb_dio_function;        }
+        else if (strcmp( gv.SS_list[iss], "opx")  == 0){
+            NLopt_opt[iss]  = NLopt_opt_mb_opx_function;        }
+        else if (strcmp( gv.SS_list[iss], "g")  == 0){
+            NLopt_opt[iss]  = NLopt_opt_mb_g_function;          }
+        else if (strcmp( gv.SS_list[iss], "ol")  == 0){
+            NLopt_opt[iss]  = NLopt_opt_mb_ol_function;         }
+        else if (strcmp( gv.SS_list[iss], "fsp")  == 0){
+            NLopt_opt[iss]  = NLopt_opt_mb_fsp_function;        }
+        else if (strcmp( gv.SS_list[iss], "abc")  == 0){
+            NLopt_opt[iss]  = NLopt_opt_mb_abc_function;        }
+        else if (strcmp( gv.SS_list[iss], "k4tr")  == 0){
+            NLopt_opt[iss]  = NLopt_opt_mb_k4tr_function;       }
+        else if (strcmp( gv.SS_list[iss], "sp")  == 0){
+            NLopt_opt[iss]  = NLopt_opt_mb_sp_function;         }
+        else if (strcmp( gv.SS_list[iss], "ilm")  == 0){
+            NLopt_opt[iss]  = NLopt_opt_mb_ilm_function;        }
+        else if (strcmp( gv.SS_list[iss], "ilmm")  == 0){
+            NLopt_opt[iss]  = NLopt_opt_mb_ilmm_function;       }
+        else if (strcmp( gv.SS_list[iss], "ep")  == 0){
+            NLopt_opt[iss]  = NLopt_opt_mb_ep_function;         }
+        else if (strcmp( gv.SS_list[iss], "bi")  == 0){
+            NLopt_opt[iss]  = NLopt_opt_mb_bi_function;         }
+        else if (strcmp( gv.SS_list[iss], "mu")  == 0){
+            NLopt_opt[iss]  = NLopt_opt_mb_mu_function;         }
+        else if (strcmp( gv.SS_list[iss], "chl")  == 0){
+            NLopt_opt[iss]  = NLopt_opt_mb_chl_function;        }
+		else{
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
+		}	
+	};				
+}
+
+void TC_ig_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
+									global_variable 	 gv				){	
+						 
+	for (int iss = 0; iss < gv.len_ss; iss++){
+
+		if      (strcmp( gv.SS_list[iss], "bi")  == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_ig_bi_function; 		}
+		else if (strcmp( gv.SS_list[iss], "fper")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_ig_fper_function; 		}
+		else if (strcmp( gv.SS_list[iss], "cd")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_ig_cd_function; 		}
+		else if (strcmp( gv.SS_list[iss], "cpx") == 0){
+			NLopt_opt[iss]  = NLopt_opt_ig_cpx_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ep")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_ig_ep_function; 		}
+		else if (strcmp( gv.SS_list[iss], "fl")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_ig_fl_function; 		}
+		else if (strcmp( gv.SS_list[iss], "g")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_ig_g_function; 		    }
+		else if (strcmp( gv.SS_list[iss], "hb")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_ig_hb_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ilm") == 0){
+			NLopt_opt[iss]  = NLopt_opt_ig_ilm_function; 		}
+		else if (strcmp( gv.SS_list[iss], "liq") == 0){
+			NLopt_opt[iss]  = NLopt_opt_ig_liq_function; 		}
+		else if (strcmp( gv.SS_list[iss], "mu")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_ig_mu_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ol")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_ig_ol_function; 		}
+		else if (strcmp( gv.SS_list[iss], "opx") == 0){
+			NLopt_opt[iss]  = NLopt_opt_ig_opx_function; 		}
+		else if (strcmp( gv.SS_list[iss], "fsp") == 0){
+			NLopt_opt[iss]  = NLopt_opt_ig_fsp_function; 		}
+		else if (strcmp( gv.SS_list[iss], "spn") == 0){
+			NLopt_opt[iss]  = NLopt_opt_ig_spn_function; 		}
+		else{
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
+		}	
+	};				
+}
+
+void TC_um_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
+									global_variable 	 gv				){	
+						 
+	for (int iss = 0; iss < gv.len_ss; iss++){
+
+		if      (strcmp( gv.SS_list[iss], "fl")  == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_um_fluid_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ol")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_um_ol_function; 		}
+		else if (strcmp( gv.SS_list[iss], "br") == 0){
+			NLopt_opt[iss]  = NLopt_opt_um_br_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ch")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_um_ch_function; 		}
+		else if (strcmp( gv.SS_list[iss], "atg")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_um_atg_function; 		}
+		else if (strcmp( gv.SS_list[iss], "g")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_um_g_function; 		    }
+		else if (strcmp( gv.SS_list[iss], "ta")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_um_ta_function; 		}
+		else if (strcmp( gv.SS_list[iss], "chl") == 0){
+			NLopt_opt[iss]  = NLopt_opt_um_chl_function; 		}
+		else if (strcmp( gv.SS_list[iss], "anth") == 0){
+			NLopt_opt[iss]  = NLopt_opt_um_anth_function; 		}
+		else if (strcmp( gv.SS_list[iss], "spi")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_um_spi_function; 		}
+		else if (strcmp( gv.SS_list[iss], "opx") == 0){
+			NLopt_opt[iss]  = NLopt_opt_um_opx_function; 		}
+		else if (strcmp( gv.SS_list[iss], "po") == 0){
+			NLopt_opt[iss]  = NLopt_opt_um_po_function; 		}
+		else{
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
+		}	
+	};						
+}

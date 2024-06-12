@@ -274,6 +274,7 @@ void copy_to_Ppc(		int 				 pc_check,
 void ss_min_PGE(		global_variable 	 gv,
 
 						obj_type 			*SS_objective,
+						NLopt_type			*NLopt_opt,
 						bulk_info 	 		 z_b,
 						SS_ref 			    *SS_ref_db,
 						csd_phase_set  		*cp
@@ -310,9 +311,12 @@ void ss_min_PGE(		global_variable 	 gv,
 			/**
 				call to NLopt for non-linear + inequality constraints optimization
 			*/
-			SS_ref_db[ph_id] = NLopt_opt_function(		gv, 
-														SS_ref_db[ph_id], 
-														ph_id					);
+			// SS_ref_db[ph_id] = NLopt_opt_function(		gv, 
+			// 											SS_ref_db[ph_id], 
+			// 											ph_id					);
+
+			SS_ref_db[ph_id] = (*NLopt_opt[ph_id])(		gv,
+														SS_ref_db[ph_id]		);										
 			
 			/**
 				establish a set of conditions to update initial guess for next round of local minimization 
@@ -432,6 +436,7 @@ void init_PGE_from_LP(	global_variable 	 gv,
 void ss_min_LP(			global_variable 	 gv,
 
 						obj_type 			*SS_objective,
+						NLopt_type 			*NLopt_opt,
 						bulk_info 	 		 z_b,
 						SS_ref 			    *SS_ref_db,
 						csd_phase_set  		*cp
@@ -488,10 +493,12 @@ void ss_min_LP(			global_variable 	 gv,
 				/**
 					call to NLopt for non-linear + inequality constraints optimization
 				*/
-				SS_ref_db[ph_id] = NLopt_opt_function(		gv, 
-															SS_ref_db[ph_id], 
-															ph_id					);
+				// SS_ref_db[ph_id] = NLopt_opt_function(		gv, 
+				// 											SS_ref_db[ph_id], 
+				// 											ph_id					);
 
+				SS_ref_db[ph_id] = (*NLopt_opt[ph_id])(		gv,
+															SS_ref_db[ph_id]		);			
 				/** 
 					print solution phase informations (print has to occur before saving PC)
 				*/

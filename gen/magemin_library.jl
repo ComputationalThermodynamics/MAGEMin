@@ -1194,165 +1194,6 @@ function PrintStatus(status)
     ccall((:PrintStatus, libMAGEMin), Cvoid, (Cint,), status)
 end
 
-function PGE(z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
-    ccall((:PGE, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{obj_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
-end
-
-function PGE2(z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
-    ccall((:PGE2, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{obj_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
-end
-
-function init_LP(z_b, splx_data, gv, PP_ref_db, SS_ref_db, cp)
-    ccall((:init_LP, libMAGEMin), global_variable, (bulk_info, Ptr{simplex_data}, global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, splx_data, gv, PP_ref_db, SS_ref_db, cp)
-end
-
-function run_LP(z_b, splx_data, gv, PP_ref_db, SS_ref_db)
-    ccall((:run_LP, libMAGEMin), global_variable, (bulk_info, Ptr{simplex_data}, global_variable, Ptr{PP_ref}, Ptr{SS_ref}), z_b, splx_data, gv, PP_ref_db, SS_ref_db)
-end
-
-function run_LP_ig(z_b, splx_data, gv, PP_ref_db, SS_ref_db)
-    ccall((:run_LP_ig, libMAGEMin), global_variable, (bulk_info, Ptr{simplex_data}, global_variable, Ptr{PP_ref}, Ptr{SS_ref}), z_b, splx_data, gv, PP_ref_db, SS_ref_db)
-end
-
-function LP(z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
-    ccall((:LP, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{obj_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
-end
-
-function LP2(z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
-    ccall((:LP2, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{obj_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
-end
-
-function norm_vector(array, n)
-    ccall((:norm_vector, libMAGEMin), Cdouble, (Ptr{Cdouble}, Cint), array, n)
-end
-
-mutable struct oxide_datas
-    n_ox::Cint
-    oxName::NTuple{15, NTuple{20, Cchar}}
-    oxMass::NTuple{15, Cdouble}
-    atPerOx::NTuple{15, Cdouble}
-    ElEntropy::NTuple{15, Cdouble}
-    oxide_datas() = new()
-end
-
-const oxide_data = oxide_datas
-
-mutable struct metapelite_datasets
-    ds_version::Cint
-    n_ox::Cint
-    n_pp::Cint
-    n_ss::Cint
-    ox::NTuple{11, NTuple{20, Cchar}}
-    PP::NTuple{23, NTuple{20, Cchar}}
-    SS::NTuple{16, NTuple{20, Cchar}}
-    verifyPC::NTuple{16, Cint}
-    n_SS_PC::NTuple{16, Cint}
-    SS_PC_stp::NTuple{16, Cdouble}
-    PC_df_add::Cdouble
-    solver_switch_T::Cdouble
-    min_melt_T::Cdouble
-    inner_PGE_ite::Cdouble
-    max_n_phase::Cdouble
-    max_g_phase::Cdouble
-    max_fac::Cdouble
-    merge_value::Cdouble
-    re_in_n::Cdouble
-    obj_tol::Cdouble
-    metapelite_datasets() = new()
-end
-
-const metapelite_dataset = metapelite_datasets
-
-mutable struct metabasite_datasets
-    ds_version::Cint
-    n_ox::Cint
-    n_pp::Cint
-    n_ss::Cint
-    ox::NTuple{10, NTuple{20, Cchar}}
-    PP::NTuple{24, NTuple{20, Cchar}}
-    SS1::NTuple{14, NTuple{20, Cchar}}
-    verifyPC1::NTuple{14, Cint}
-    n_SS_PC1::NTuple{14, Cint}
-    SS_PC_stp1::NTuple{14, Cdouble}
-    SS2::NTuple{14, NTuple{20, Cchar}}
-    verifyPC2::NTuple{14, Cint}
-    n_SS_PC2::NTuple{14, Cint}
-    SS_PC_stp2::NTuple{14, Cdouble}
-    PC_df_add::Cdouble
-    solver_switch_T::Cdouble
-    min_melt_T::Cdouble
-    inner_PGE_ite::Cdouble
-    max_n_phase::Cdouble
-    max_g_phase::Cdouble
-    max_fac::Cdouble
-    merge_value::Cdouble
-    re_in_n::Cdouble
-    obj_tol::Cdouble
-    metabasite_datasets() = new()
-end
-
-const metabasite_dataset = metabasite_datasets
-
-mutable struct igneous_datasets
-    ds_version::Cint
-    n_ox::Cint
-    n_pp::Cint
-    n_ss::Cint
-    ox::NTuple{11, NTuple{20, Cchar}}
-    PP::NTuple{23, NTuple{20, Cchar}}
-    SS::NTuple{15, NTuple{20, Cchar}}
-    verifyPC::NTuple{15, Cint}
-    n_SS_PC::NTuple{15, Cint}
-    SS_PC_stp::NTuple{15, Cdouble}
-    PC_df_add::Cdouble
-    solver_switch_T::Cdouble
-    min_melt_T::Cdouble
-    inner_PGE_ite::Cdouble
-    max_n_phase::Cdouble
-    max_g_phase::Cdouble
-    max_fac::Cdouble
-    merge_value::Cdouble
-    re_in_n::Cdouble
-    obj_tol::Cdouble
-    igneous_datasets() = new()
-end
-
-const igneous_dataset = igneous_datasets
-
-mutable struct ultramafic_datasets
-    ds_version::Cint
-    n_ox::Cint
-    n_pp::Cint
-    n_ss::Cint
-    ox::NTuple{7, NTuple{20, Cchar}}
-    PP::NTuple{21, NTuple{20, Cchar}}
-    SS::NTuple{12, NTuple{20, Cchar}}
-    verifyPC::NTuple{12, Cint}
-    n_SS_PC::NTuple{12, Cint}
-    SS_PC_stp::NTuple{12, Cdouble}
-    PC_df_add::Cdouble
-    solver_switch_T::Cdouble
-    min_melt_T::Cdouble
-    inner_PGE_ite::Cdouble
-    max_n_phase::Cdouble
-    max_g_phase::Cdouble
-    max_fac::Cdouble
-    merge_value::Cdouble
-    re_in_n::Cdouble
-    obj_tol::Cdouble
-    ultramafic_datasets() = new()
-end
-
-const ultramafic_dataset = ultramafic_datasets
-
-function global_variable_TC_init(gv, z_b)
-    ccall((:global_variable_TC_init, libMAGEMin), global_variable, (global_variable, Ptr{bulk_info}), gv, z_b)
-end
-
-function get_bulk_metabasite(gv)
-    ccall((:get_bulk_metabasite, libMAGEMin), global_variable, (global_variable,), gv)
-end
-
 function G_SS_init_EM_function(ph_id, SS_ref_db, EM_database, name, gv)
     ccall((:G_SS_init_EM_function, libMAGEMin), SS_ref, (Cint, SS_ref, Cint, Ptr{Cchar}, global_variable), ph_id, SS_ref_db, EM_database, name, gv)
 end
@@ -1930,8 +1771,27 @@ function NLopt_global_opt_function(z_b, gv, PP_ref_db, SS_ref_db, cp)
     ccall((:NLopt_global_opt_function, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, PP_ref_db, SS_ref_db, cp)
 end
 
+# typedef SS_ref ( * NLopt_type ) ( global_variable gv , SS_ref SS_ref_db )
+const NLopt_type = Ptr{Cvoid}
+
 function NLopt_opt_function(gv, SS_ref_db, index)
     ccall((:NLopt_opt_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint), gv, SS_ref_db, index)
+end
+
+function TC_mp_NLopt_opt_init(NLopt_opt, gv)
+    ccall((:TC_mp_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
+end
+
+function TC_mb_NLopt_opt_init(NLopt_opt, gv)
+    ccall((:TC_mb_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
+end
+
+function TC_ig_NLopt_opt_init(NLopt_opt, gv)
+    ccall((:TC_ig_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
+end
+
+function TC_um_NLopt_opt_init(NLopt_opt, gv)
+    ccall((:TC_um_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
 end
 
 function SS_mp_pc_init_function(SS_pc_xeos, iss, name)
@@ -1948,6 +1808,165 @@ end
 
 function SS_um_pc_init_function(SS_pc_xeos, iss, name)
     ccall((:SS_um_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
+end
+
+function PGE(z_b, gv, SS_objective, NLopt_opt, splx_data, PP_ref_db, SS_ref_db, cp)
+    ccall((:PGE, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{obj_type}, Ptr{NLopt_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, SS_objective, NLopt_opt, splx_data, PP_ref_db, SS_ref_db, cp)
+end
+
+function PGE2(z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
+    ccall((:PGE2, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{obj_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
+end
+
+function init_LP(z_b, splx_data, gv, PP_ref_db, SS_ref_db, cp)
+    ccall((:init_LP, libMAGEMin), global_variable, (bulk_info, Ptr{simplex_data}, global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, splx_data, gv, PP_ref_db, SS_ref_db, cp)
+end
+
+function run_LP(z_b, splx_data, gv, PP_ref_db, SS_ref_db)
+    ccall((:run_LP, libMAGEMin), global_variable, (bulk_info, Ptr{simplex_data}, global_variable, Ptr{PP_ref}, Ptr{SS_ref}), z_b, splx_data, gv, PP_ref_db, SS_ref_db)
+end
+
+function run_LP_ig(z_b, splx_data, gv, PP_ref_db, SS_ref_db)
+    ccall((:run_LP_ig, libMAGEMin), global_variable, (bulk_info, Ptr{simplex_data}, global_variable, Ptr{PP_ref}, Ptr{SS_ref}), z_b, splx_data, gv, PP_ref_db, SS_ref_db)
+end
+
+function LP(z_b, gv, SS_objective, NLopt_opt, splx_data, PP_ref_db, SS_ref_db, cp)
+    ccall((:LP, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{obj_type}, Ptr{NLopt_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, SS_objective, NLopt_opt, splx_data, PP_ref_db, SS_ref_db, cp)
+end
+
+function LP2(z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
+    ccall((:LP2, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{obj_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
+end
+
+function norm_vector(array, n)
+    ccall((:norm_vector, libMAGEMin), Cdouble, (Ptr{Cdouble}, Cint), array, n)
+end
+
+mutable struct oxide_datas
+    n_ox::Cint
+    oxName::NTuple{15, NTuple{20, Cchar}}
+    oxMass::NTuple{15, Cdouble}
+    atPerOx::NTuple{15, Cdouble}
+    ElEntropy::NTuple{15, Cdouble}
+    oxide_datas() = new()
+end
+
+const oxide_data = oxide_datas
+
+mutable struct metapelite_datasets
+    ds_version::Cint
+    n_ox::Cint
+    n_pp::Cint
+    n_ss::Cint
+    ox::NTuple{11, NTuple{20, Cchar}}
+    PP::NTuple{23, NTuple{20, Cchar}}
+    SS::NTuple{16, NTuple{20, Cchar}}
+    verifyPC::NTuple{16, Cint}
+    n_SS_PC::NTuple{16, Cint}
+    SS_PC_stp::NTuple{16, Cdouble}
+    PC_df_add::Cdouble
+    solver_switch_T::Cdouble
+    min_melt_T::Cdouble
+    inner_PGE_ite::Cdouble
+    max_n_phase::Cdouble
+    max_g_phase::Cdouble
+    max_fac::Cdouble
+    merge_value::Cdouble
+    re_in_n::Cdouble
+    obj_tol::Cdouble
+    metapelite_datasets() = new()
+end
+
+const metapelite_dataset = metapelite_datasets
+
+mutable struct metabasite_datasets
+    ds_version::Cint
+    n_ox::Cint
+    n_pp::Cint
+    n_ss::Cint
+    ox::NTuple{10, NTuple{20, Cchar}}
+    PP::NTuple{24, NTuple{20, Cchar}}
+    SS1::NTuple{14, NTuple{20, Cchar}}
+    verifyPC1::NTuple{14, Cint}
+    n_SS_PC1::NTuple{14, Cint}
+    SS_PC_stp1::NTuple{14, Cdouble}
+    SS2::NTuple{14, NTuple{20, Cchar}}
+    verifyPC2::NTuple{14, Cint}
+    n_SS_PC2::NTuple{14, Cint}
+    SS_PC_stp2::NTuple{14, Cdouble}
+    PC_df_add::Cdouble
+    solver_switch_T::Cdouble
+    min_melt_T::Cdouble
+    inner_PGE_ite::Cdouble
+    max_n_phase::Cdouble
+    max_g_phase::Cdouble
+    max_fac::Cdouble
+    merge_value::Cdouble
+    re_in_n::Cdouble
+    obj_tol::Cdouble
+    metabasite_datasets() = new()
+end
+
+const metabasite_dataset = metabasite_datasets
+
+mutable struct igneous_datasets
+    ds_version::Cint
+    n_ox::Cint
+    n_pp::Cint
+    n_ss::Cint
+    ox::NTuple{11, NTuple{20, Cchar}}
+    PP::NTuple{23, NTuple{20, Cchar}}
+    SS::NTuple{15, NTuple{20, Cchar}}
+    verifyPC::NTuple{15, Cint}
+    n_SS_PC::NTuple{15, Cint}
+    SS_PC_stp::NTuple{15, Cdouble}
+    PC_df_add::Cdouble
+    solver_switch_T::Cdouble
+    min_melt_T::Cdouble
+    inner_PGE_ite::Cdouble
+    max_n_phase::Cdouble
+    max_g_phase::Cdouble
+    max_fac::Cdouble
+    merge_value::Cdouble
+    re_in_n::Cdouble
+    obj_tol::Cdouble
+    igneous_datasets() = new()
+end
+
+const igneous_dataset = igneous_datasets
+
+mutable struct ultramafic_datasets
+    ds_version::Cint
+    n_ox::Cint
+    n_pp::Cint
+    n_ss::Cint
+    ox::NTuple{7, NTuple{20, Cchar}}
+    PP::NTuple{21, NTuple{20, Cchar}}
+    SS::NTuple{12, NTuple{20, Cchar}}
+    verifyPC::NTuple{12, Cint}
+    n_SS_PC::NTuple{12, Cint}
+    SS_PC_stp::NTuple{12, Cdouble}
+    PC_df_add::Cdouble
+    solver_switch_T::Cdouble
+    min_melt_T::Cdouble
+    inner_PGE_ite::Cdouble
+    max_n_phase::Cdouble
+    max_g_phase::Cdouble
+    max_fac::Cdouble
+    merge_value::Cdouble
+    re_in_n::Cdouble
+    obj_tol::Cdouble
+    ultramafic_datasets() = new()
+end
+
+const ultramafic_dataset = ultramafic_datasets
+
+function global_variable_TC_init(gv, z_b)
+    ccall((:global_variable_TC_init, libMAGEMin), global_variable, (global_variable, Ptr{bulk_info}), gv, z_b)
+end
+
+function get_bulk_metabasite(gv)
+    ccall((:get_bulk_metabasite, libMAGEMin), global_variable, (global_variable,), gv)
 end
 
 function dump_init(gv)
@@ -2234,12 +2253,12 @@ function init_PGE_from_LP(gv, SS_objective, z_b, SS_ref_db, cp)
     ccall((:init_PGE_from_LP, libMAGEMin), Cvoid, (global_variable, Ptr{obj_type}, bulk_info, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, SS_objective, z_b, SS_ref_db, cp)
 end
 
-function ss_min_PGE(gv, SS_objective, z_b, SS_ref_db, cp)
-    ccall((:ss_min_PGE, libMAGEMin), Cvoid, (global_variable, Ptr{obj_type}, bulk_info, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, SS_objective, z_b, SS_ref_db, cp)
+function ss_min_PGE(gv, SS_objective, NLopt_opt, z_b, SS_ref_db, cp)
+    ccall((:ss_min_PGE, libMAGEMin), Cvoid, (global_variable, Ptr{obj_type}, Ptr{NLopt_type}, bulk_info, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, SS_objective, NLopt_opt, z_b, SS_ref_db, cp)
 end
 
-function ss_min_LP(gv, SS_objective, z_b, SS_ref_db, cp)
-    ccall((:ss_min_LP, libMAGEMin), Cvoid, (global_variable, Ptr{obj_type}, bulk_info, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, SS_objective, z_b, SS_ref_db, cp)
+function ss_min_LP(gv, SS_objective, NLopt_opt, z_b, SS_ref_db, cp)
+    ccall((:ss_min_LP, libMAGEMin), Cvoid, (global_variable, Ptr{obj_type}, Ptr{NLopt_type}, bulk_info, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, SS_objective, NLopt_opt, z_b, SS_ref_db, cp)
 end
 
 function copy_to_Ppc(pc_check, add, ph_id, gv, SS_objective, SS_ref_db)

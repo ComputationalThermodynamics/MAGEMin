@@ -440,6 +440,26 @@ int runMAGEMin(			int    argc,
 												gv							);
 	}
 	
+	/** pointer array to NLopt functions (calls objective function for local minimization) 								*/
+	NLopt_type 								NLopt_opt[gv.len_ss];	
+
+	if (EM_database == 0){				// metapelite database //
+		TC_mp_NLopt_opt_init(	 				NLopt_opt,
+												gv							);
+	}
+	if (EM_database == 1){				// metabasite database //
+		TC_mb_NLopt_opt_init(	 				NLopt_opt,
+												gv							);
+	}
+	else if (EM_database == 2){			// igneous database //
+		TC_ig_NLopt_opt_init(	 				NLopt_opt,
+												gv							);
+	}
+	else if (EM_database == 4){			// ultramafic database //
+		TC_um_NLopt_opt_init(	 				NLopt_opt,
+												gv							);
+	}
+
 
 	/****************************************************************************************/
 	/**                                   LEVELLING                                        **/
@@ -486,6 +506,7 @@ int runMAGEMin(			int    argc,
 								gv,										/** global variables (e.g. Gamma) 	*/
 
 								SS_objective,
+								NLopt_opt,
 								splx_data,
 								PP_ref_db,								/** pure phase database 			*/
 								SS_ref_db,								/** solution phase database 		*/
@@ -499,6 +520,7 @@ int runMAGEMin(			int    argc,
 									gv,										/** global variables (e.g. Gamma) 	*/
 
 									SS_objective,
+									NLopt_opt,
 									splx_data,
 									PP_ref_db,								/** pure phase database 			*/
 									SS_ref_db,								/** solution phase database 		*/
@@ -530,6 +552,7 @@ int runMAGEMin(			int    argc,
 									gv,										/** global variables (e.g. Gamma) 	*/
 
 									SS_objective,
+									NLopt_opt,
 									splx_data,
 									PP_ref_db,								/** pure phase database 			*/
 									SS_ref_db,								/** solution phase database 		*/
@@ -582,6 +605,7 @@ int runMAGEMin(			int    argc,
 									gv,										/** global variables (e.g. Gamma) 	*/
 
 									SS_objective,
+									NLopt_opt,
 									splx_data,
 									PP_ref_db,								/** pure phase database 			*/
 									SS_ref_db,								/** solution phase database 		*/
@@ -603,6 +627,7 @@ int runMAGEMin(			int    argc,
 										gv,										/** global variables (e.g. Gamma) 	*/
 
 										SS_objective,
+										NLopt_opt,
 										splx_data,
 										PP_ref_db,								/** pure phase database 			*/
 										SS_ref_db,								/** solution phase database 		*/
@@ -631,6 +656,7 @@ int runMAGEMin(			int    argc,
 									gv,										/** global variables (e.g. Gamma) 	*/
 
 									SS_objective,
+									NLopt_opt,
 									splx_data,
 									PP_ref_db,								/** pure phase database 			*/
 									SS_ref_db,								/** solution phase database 		*/

@@ -1471,6 +1471,7 @@ global_variable LP(		bulk_info 			z_b,
 						global_variable 	gv,
 
 						obj_type 			*SS_objective,
+						NLopt_type			*NLopt_opt,
 						simplex_data	    *splx_data,
 						PP_ref 				*PP_ref_db,
 						SS_ref 				*SS_ref_db,
@@ -1549,7 +1550,8 @@ global_variable LP(		bulk_info 			z_b,
 		*/
 		ss_min_LP(						gv, 							/** global variables (e.g. Gamma) 		*/
 
-										SS_objective,							
+										SS_objective,	
+										NLopt_opt,						
 										z_b,							/** bulk-rock, pressure and temperature conditions */
 										SS_ref_db,						/** solution phase database 			*/	
 										cp 					);
@@ -1674,6 +1676,7 @@ global_variable PGE(	bulk_info 			z_b,
 						global_variable 	gv,
 
 						obj_type 			*SS_objective,
+						NLopt_type 			*NLopt_opt,
 						simplex_data	    *splx_data,
 						PP_ref 				*PP_ref_db,
 						SS_ref 				*SS_ref_db,
@@ -1765,7 +1768,8 @@ global_variable PGE(	bulk_info 			z_b,
 
 		ss_min_PGE(						gv, 						/** global variables (e.g. Gamma) 		*/
 
-										SS_objective,							
+										SS_objective,
+										NLopt_opt,						
 										z_b,						/** bulk-rock, pressure and temperature conditions */
 										SS_ref_db,					/** solution phase database 			*/	
 										cp 					);	
