@@ -26,24 +26,28 @@ end
 # END OF PROLOGUE
 #
 
-mutable struct EM_db
+mutable struct EM_db_
     Name::NTuple{20, Cchar}
     Comp::NTuple{16, Cdouble}
     input_1::NTuple{3, Cdouble}
     input_2::NTuple{4, Cdouble}
     input_3::NTuple{11, Cdouble}
     input_4::NTuple{3, Cdouble}
-    EM_db() = new()
+    EM_db_() = new()
 end
 
-mutable struct FS_db
+const EM_db = EM_db_
+
+mutable struct FS_db_
     Name::NTuple{20, Cchar}
     Comp::NTuple{16, Cdouble}
     input_1::NTuple{4, Cdouble}
     input_2::NTuple{7, Cdouble}
     input_3::NTuple{1, Cdouble}
-    FS_db() = new()
+    FS_db_() = new()
 end
+
+const FS_db = FS_db_
 
 function Access_EM_DB(id, EM_database)
     ccall((:Access_EM_DB, libMAGEMin), EM_db, (Cint, Cint), id, EM_database)
@@ -737,14 +741,6 @@ function find_FS_id(em_tag)
     ccall((:find_FS_id, libMAGEMin), Cint, (Ptr{Cchar},), em_tag)
 end
 
-function get_EM_DB_names(gv)
-    ccall((:get_EM_DB_names, libMAGEMin), Ptr{Ptr{Cchar}}, (global_variable,), gv)
-end
-
-function get_FS_DB_names(gv)
-    ccall((:get_FS_DB_names, libMAGEMin), Ptr{Ptr{Cchar}}, (global_variable,), gv)
-end
-
 # typedef double ( * obj_type ) ( unsigned n , const double * x , double * grad , void * SS_ref_db )
 const obj_type = Ptr{Cvoid}
 
@@ -1227,6 +1223,129 @@ end
 
 function norm_vector(array, n)
     ccall((:norm_vector, libMAGEMin), Cdouble, (Ptr{Cdouble}, Cint), array, n)
+end
+
+mutable struct oxide_datas
+    n_ox::Cint
+    oxName::NTuple{15, NTuple{20, Cchar}}
+    oxMass::NTuple{15, Cdouble}
+    atPerOx::NTuple{15, Cdouble}
+    ElEntropy::NTuple{15, Cdouble}
+    oxide_datas() = new()
+end
+
+const oxide_data = oxide_datas
+
+mutable struct metapelite_datasets
+    n_em_db::Cint
+    n_ox::Cint
+    n_pp::Cint
+    n_ss::Cint
+    ox::NTuple{11, NTuple{20, Cchar}}
+    PP::NTuple{23, NTuple{20, Cchar}}
+    SS::NTuple{16, NTuple{20, Cchar}}
+    verifyPC::NTuple{16, Cint}
+    n_SS_PC::NTuple{16, Cint}
+    SS_PC_stp::NTuple{16, Cdouble}
+    PC_df_add::Cdouble
+    solver_switch_T::Cdouble
+    min_melt_T::Cdouble
+    inner_PGE_ite::Cdouble
+    max_n_phase::Cdouble
+    max_g_phase::Cdouble
+    max_fac::Cdouble
+    merge_value::Cdouble
+    re_in_n::Cdouble
+    obj_tol::Cdouble
+    metapelite_datasets() = new()
+end
+
+const metapelite_dataset = metapelite_datasets
+
+mutable struct metabasite_datasets
+    n_em_db::Cint
+    n_ox::Cint
+    n_pp::Cint
+    n_ss::Cint
+    ox::NTuple{10, NTuple{20, Cchar}}
+    PP::NTuple{24, NTuple{20, Cchar}}
+    SS1::NTuple{14, NTuple{20, Cchar}}
+    verifyPC1::NTuple{14, Cint}
+    n_SS_PC1::NTuple{14, Cint}
+    SS_PC_stp1::NTuple{14, Cdouble}
+    SS2::NTuple{14, NTuple{20, Cchar}}
+    verifyPC2::NTuple{14, Cint}
+    n_SS_PC2::NTuple{14, Cint}
+    SS_PC_stp2::NTuple{14, Cdouble}
+    PC_df_add::Cdouble
+    solver_switch_T::Cdouble
+    min_melt_T::Cdouble
+    inner_PGE_ite::Cdouble
+    max_n_phase::Cdouble
+    max_g_phase::Cdouble
+    max_fac::Cdouble
+    merge_value::Cdouble
+    re_in_n::Cdouble
+    obj_tol::Cdouble
+    metabasite_datasets() = new()
+end
+
+const metabasite_dataset = metabasite_datasets
+
+mutable struct igneous_datasets
+    n_em_db::Cint
+    n_ox::Cint
+    n_pp::Cint
+    n_ss::Cint
+    ox::NTuple{11, NTuple{20, Cchar}}
+    PP::NTuple{23, NTuple{20, Cchar}}
+    SS::NTuple{15, NTuple{20, Cchar}}
+    verifyPC::NTuple{15, Cint}
+    n_SS_PC::NTuple{15, Cint}
+    SS_PC_stp::NTuple{15, Cdouble}
+    PC_df_add::Cdouble
+    solver_switch_T::Cdouble
+    min_melt_T::Cdouble
+    inner_PGE_ite::Cdouble
+    max_n_phase::Cdouble
+    max_g_phase::Cdouble
+    max_fac::Cdouble
+    merge_value::Cdouble
+    re_in_n::Cdouble
+    obj_tol::Cdouble
+    igneous_datasets() = new()
+end
+
+const igneous_dataset = igneous_datasets
+
+mutable struct ultramafic_datasets
+    n_em_db::Cint
+    n_ox::Cint
+    n_pp::Cint
+    n_ss::Cint
+    ox::NTuple{7, NTuple{20, Cchar}}
+    PP::NTuple{21, NTuple{20, Cchar}}
+    SS::NTuple{12, NTuple{20, Cchar}}
+    verifyPC::NTuple{12, Cint}
+    n_SS_PC::NTuple{12, Cint}
+    SS_PC_stp::NTuple{12, Cdouble}
+    PC_df_add::Cdouble
+    solver_switch_T::Cdouble
+    min_melt_T::Cdouble
+    inner_PGE_ite::Cdouble
+    max_n_phase::Cdouble
+    max_g_phase::Cdouble
+    max_fac::Cdouble
+    merge_value::Cdouble
+    re_in_n::Cdouble
+    obj_tol::Cdouble
+    ultramafic_datasets() = new()
+end
+
+const ultramafic_dataset = ultramafic_datasets
+
+function get_bulk_metabasite(gv)
+    ccall((:get_bulk_metabasite, libMAGEMin), global_variable, (global_variable,), gv)
 end
 
 function G_SS_init_EM_function(ph_id, SS_ref_db, EM_database, name, gv)
@@ -1899,156 +2018,43 @@ struct UT_hash_handle
     hashv::Cuint
 end
 
-mutable struct EM2id
+mutable struct EM2id_
     EM_tag::NTuple{20, Cchar}
     id::Cint
     hh::UT_hash_handle
-    EM2id() = new()
+    EM2id_() = new()
 end
 
-mutable struct FS2id
+const EM2id = EM2id_
+
+mutable struct FS2id_
     FS_tag::NTuple{20, Cchar}
     id::Cint
     hh::UT_hash_handle
-    FS2id() = new()
+    FS2id_() = new()
 end
 
-mutable struct PP2id
+const FS2id = FS2id_
+
+mutable struct PP2id_
     PP_tag::NTuple{20, Cchar}
     id::Cint
     hh::UT_hash_handle
-    PP2id() = new()
+    PP2id_() = new()
 end
+
+const PP2id = PP2id_
 
 function find_PP_id(PP_tag)
     ccall((:find_PP_id, libMAGEMin), Cint, (Ptr{Cchar},), PP_tag)
 end
 
-mutable struct oxide_datas
-    n_ox::Cint
-    oxName::NTuple{15, NTuple{20, Cchar}}
-    oxMass::NTuple{15, Cdouble}
-    atPerOx::NTuple{15, Cdouble}
-    ElEntropy::NTuple{15, Cdouble}
-    oxide_datas() = new()
+function get_EM_DB_names(gv)
+    ccall((:get_EM_DB_names, libMAGEMin), Ptr{Ptr{Cchar}}, (global_variable,), gv)
 end
 
-const oxide_data = oxide_datas
-
-mutable struct metapelite_datasets
-    n_em_db::Cint
-    n_ox::Cint
-    n_pp::Cint
-    n_ss::Cint
-    ox::NTuple{11, NTuple{20, Cchar}}
-    PP::NTuple{23, NTuple{20, Cchar}}
-    SS::NTuple{16, NTuple{20, Cchar}}
-    verifyPC::NTuple{16, Cint}
-    n_SS_PC::NTuple{16, Cint}
-    SS_PC_stp::NTuple{16, Cdouble}
-    PC_df_add::Cdouble
-    solver_switch_T::Cdouble
-    min_melt_T::Cdouble
-    inner_PGE_ite::Cdouble
-    max_n_phase::Cdouble
-    max_g_phase::Cdouble
-    max_fac::Cdouble
-    merge_value::Cdouble
-    re_in_n::Cdouble
-    obj_tol::Cdouble
-    metapelite_datasets() = new()
-end
-
-const metapelite_dataset = metapelite_datasets
-
-mutable struct metabasite_datasets
-    n_em_db::Cint
-    n_ox::Cint
-    n_pp::Cint
-    n_ss::Cint
-    ox::NTuple{10, NTuple{20, Cchar}}
-    PP::NTuple{24, NTuple{20, Cchar}}
-    SS1::NTuple{14, NTuple{20, Cchar}}
-    verifyPC1::NTuple{14, Cint}
-    n_SS_PC1::NTuple{14, Cint}
-    SS_PC_stp1::NTuple{14, Cdouble}
-    SS2::NTuple{14, NTuple{20, Cchar}}
-    verifyPC2::NTuple{14, Cint}
-    n_SS_PC2::NTuple{14, Cint}
-    SS_PC_stp2::NTuple{14, Cdouble}
-    PC_df_add::Cdouble
-    solver_switch_T::Cdouble
-    min_melt_T::Cdouble
-    inner_PGE_ite::Cdouble
-    max_n_phase::Cdouble
-    max_g_phase::Cdouble
-    max_fac::Cdouble
-    merge_value::Cdouble
-    re_in_n::Cdouble
-    obj_tol::Cdouble
-    metabasite_datasets() = new()
-end
-
-const metabasite_dataset = metabasite_datasets
-
-mutable struct igneous_datasets
-    n_em_db::Cint
-    n_ox::Cint
-    n_pp::Cint
-    n_ss::Cint
-    ox::NTuple{11, NTuple{20, Cchar}}
-    PP::NTuple{23, NTuple{20, Cchar}}
-    SS::NTuple{15, NTuple{20, Cchar}}
-    verifyPC::NTuple{15, Cint}
-    n_SS_PC::NTuple{15, Cint}
-    SS_PC_stp::NTuple{15, Cdouble}
-    PC_df_add::Cdouble
-    solver_switch_T::Cdouble
-    min_melt_T::Cdouble
-    inner_PGE_ite::Cdouble
-    max_n_phase::Cdouble
-    max_g_phase::Cdouble
-    max_fac::Cdouble
-    merge_value::Cdouble
-    re_in_n::Cdouble
-    obj_tol::Cdouble
-    igneous_datasets() = new()
-end
-
-const igneous_dataset = igneous_datasets
-
-mutable struct ultramafic_datasets
-    n_em_db::Cint
-    n_ox::Cint
-    n_pp::Cint
-    n_ss::Cint
-    ox::NTuple{7, NTuple{20, Cchar}}
-    PP::NTuple{21, NTuple{20, Cchar}}
-    SS::NTuple{12, NTuple{20, Cchar}}
-    verifyPC::NTuple{12, Cint}
-    n_SS_PC::NTuple{12, Cint}
-    SS_PC_stp::NTuple{12, Cdouble}
-    PC_df_add::Cdouble
-    solver_switch_T::Cdouble
-    min_melt_T::Cdouble
-    inner_PGE_ite::Cdouble
-    max_n_phase::Cdouble
-    max_g_phase::Cdouble
-    max_fac::Cdouble
-    merge_value::Cdouble
-    re_in_n::Cdouble
-    obj_tol::Cdouble
-    ultramafic_datasets() = new()
-end
-
-const ultramafic_dataset = ultramafic_datasets
-
-function get_bulk_metabasite(gv)
-    ccall((:get_bulk_metabasite, libMAGEMin), global_variable, (global_variable,), gv)
-end
-
-function get_bulk_ultramafic_jun(gv)
-    ccall((:get_bulk_ultramafic_jun, libMAGEMin), global_variable, (global_variable,), gv)
+function get_FS_DB_names(gv)
+    ccall((:get_FS_DB_names, libMAGEMin), Ptr{Ptr{Cchar}}, (global_variable,), gv)
 end
 
 function reset_gv(gv, z_b, PP_ref_db, SS_ref_db)

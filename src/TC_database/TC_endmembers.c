@@ -1,3 +1,13 @@
+/*@ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ **
+ **   Project      : MAGEMin
+ **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+ **   Developers   : Nicolas Riel, Boris Kaus
+ **   Contributors : Dominguez, H., Green E., Berlie N., and Rummel L.
+ **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
+ **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
+ **
+ ** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ @*/
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,7 +17,7 @@
 #include "TC_endmembers.h"
 
 /* SiO2:0, Al2O3:1, CaO:2, MgO:3, FeO:4, K2O:5, Na2O:6, TiO2:7, O:8, MnO:9, Cr2O3:10, H2O:11, CO2:12, SO4:13, Cl:12*/
-struct EM_db arr_em_db_tc_ds62[256] = {
+EM_db arr_em_db_tc_ds62[256] = {
     {
         "fo",
         {1.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 7.0},
@@ -2058,7 +2068,7 @@ struct EM_db arr_em_db_tc_ds62[256] = {
     }
 };
 
-struct EM_db arr_em_db_tc_ds633[289] = {
+EM_db arr_em_db_tc_ds633[289] = {
     {
         "fo",
         {1.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 7.0},
@@ -4373,7 +4383,7 @@ struct EM_db arr_em_db_tc_ds633[289] = {
     }
 };
 
-struct EM_db arr_em_db_tc_ds634[291] = {
+EM_db arr_em_db_tc_ds634[291] = {
     {
         "fo",
         {1.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 7.0},
@@ -6704,7 +6714,7 @@ struct EM_db arr_em_db_tc_ds634[291] = {
     }
 };
 
-struct FS_db arr_fs_db_Miron2017[44] = {
+FS_db arr_fs_db_Miron2017[44] = {
 	{
 		"H2O",
 		{0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0},
@@ -7016,8 +7026,8 @@ struct FS_db arr_fs_db_Miron2017[44] = {
 };
 
 /* Select required thermodynamic database */
-struct EM_db Access_EM_DB(int id, int EM_database) {
-	struct EM_db Entry_EM;
+EM_db Access_EM_DB(int id, int EM_database) {
+	EM_db Entry_EM;
 
 	if (EM_database == 0){	
 	 	Entry_EM = arr_em_db_tc_ds62[id]; 
@@ -7041,8 +7051,8 @@ struct EM_db Access_EM_DB(int id, int EM_database) {
 }
 
 /* Select required thermodynamic database */
-struct FS_db Access_FS_DB(int id) {
-	struct FS_db Entry_FS;
+FS_db Access_FS_DB(int id) {
+	FS_db Entry_FS;
 
 	 	Entry_FS = arr_fs_db_Miron2017[id]; 
 

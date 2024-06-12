@@ -36,6 +36,7 @@ endif
 	EXE_NAME = MAGEMin
 
 SOURCES=src/MAGEMin.c 							\
+		src/initialize.c 						\
 		src/TC_database/TC_init_database.c		\
 		src/TC_database/TC_endmembers.c			\
 		src/toolkit.c							\
