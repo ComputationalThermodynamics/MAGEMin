@@ -311,10 +311,6 @@ void ss_min_PGE(		global_variable 	 gv,
 			/**
 				call to NLopt for non-linear + inequality constraints optimization
 			*/
-			// SS_ref_db[ph_id] = NLopt_opt_function(		gv, 
-			// 											SS_ref_db[ph_id], 
-			// 											ph_id					);
-
 			SS_ref_db[ph_id] = (*NLopt_opt[ph_id])(		gv,
 														SS_ref_db[ph_id]		);										
 			
@@ -493,10 +489,6 @@ void ss_min_LP(			global_variable 	 gv,
 				/**
 					call to NLopt for non-linear + inequality constraints optimization
 				*/
-				// SS_ref_db[ph_id] = NLopt_opt_function(		gv, 
-				// 											SS_ref_db[ph_id], 
-				// 											ph_id					);
-
 				SS_ref_db[ph_id] = (*NLopt_opt[ph_id])(		gv,
 															SS_ref_db[ph_id]		);			
 				/** 

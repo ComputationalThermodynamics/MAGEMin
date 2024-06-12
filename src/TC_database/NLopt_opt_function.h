@@ -29,11 +29,6 @@ global_variable NLopt_global_opt_function(	bulk_info 			 z_b,
 
 typedef SS_ref (*NLopt_type) (		global_variable 	 gv,
 									SS_ref 				 SS_ref_db		);
-	
-
-SS_ref NLopt_opt_function(			global_variable 	gv, 
-									SS_ref 				SS_ref_db,  
-									int     			index			);
 
 void TC_mp_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 									global_variable 	 gv				);
