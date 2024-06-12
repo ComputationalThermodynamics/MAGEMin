@@ -263,8 +263,11 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 	}
 	else if (gv.EM_database == 2){
 		igneous_dataset db 	= igneous_db;
-		if (gv.EM_dataset == -1){
-			gv.EM_dataset = db.ds_version;	
+		if (gv.EM_dataset == -1 || gv.EM_dataset == 62){
+			if (gv.EM_dataset == 62 && gv.verbose == 1){
+				printf(" dataset ds62 cannot be used with the igneous database (missing end-members), setting default dataset (ds634)\n");
+			}
+			gv.EM_dataset = db.ds_version;
 		}
 		gv.len_pp   		= db.n_pp;		
 		gv.len_ss  			= db.n_ss;

@@ -51,6 +51,7 @@ void print_help(	global_variable gv	){
 	printf("  --File=       [str]   : File name containing multiple point calculation\n");
 	printf("  --n_points=   [int]   : Number of points when using 'File' argument\n");
 	printf("  --db=         [str]   : Database, can be 'mp', 'ig, or 'um'*\n");
+	printf("  --ds=         [int]   : TC End-member dataset, 62, 633 or 634 (stands for ds6xx) \n");
 	printf("  --test=       [int]   : Number of points when using 'File' argument\n");
 	printf("  --Pres=       [float] : Pressure in kilobar\n");
 	printf("  --Temp=       [float] : Temperature in Celsius\n");
@@ -59,10 +60,8 @@ void print_help(	global_variable gv	){
 	printf("  --sys_in=     [str]   : inputed system composition, [mol](default) or [wt]\n");
 	printf("  --solver=     [int]   : solver: 0 for legacy and 1 for PGE (default)\n");
 	printf("  --out_matlab= [int]   : Matlab text file output, 0. inactive, 1. active\n");
-	printf("  --qfm= 		[int]   : 0. inactive, 1. active\n");
-	printf("  --buffer_n= 		[float] : multiplier with respect to qfm buffer\n");
-	printf("  --mw= 		[int]   : 0. inactive, 1. active\n");
-	printf("  --mw_n= 		[float] : multiplier with respect to mw (Magnetite-Wustite vapor) buffer\n");
+	printf("  --buffer= 	[str]   : choose among O2, qfm, mw, qif, nno, hm, cco, aH2O, aO2, aMgO, aFeO, aAl2O3, aTiO2\n");
+	printf("  --buffer_n= 	[float] : multiplier with respect to qfm buffer\n");
 	printf("  --mbCpx= 		[int]   : 0. omphacite, 1. augite (applies to metabasite database, see Green et al., 2016)\n");
 	printf("\n");
 	printf(" * 'mp': metapelite, 'mb': metabasite, 'ig': igneous H18->G23, 'um': ultramafic\n");
@@ -75,10 +74,11 @@ void print_help(	global_variable gv	){
 	printf("\n");
 	printf(" Note that FeOt (total iron) is used here!\n");	
 	printf("\n\n");
-	printf(" Example of single point calculation:\n");
+	printf(" Examples of single point calculation:\n");
 	printf(" ------------------------------------\n");	
 	printf("\n");
     printf("  ./MAGEMin --Verb=1 --db=ig --Temp=718.750 --Pres=30.5000 --test=0 >&log.txt\n");
+	printf("  ./MAGEMin --Verb=1 --db=mp --ds=633 --Temp=518.750 --Pres=3.5000 --test=2 >&log.txt\n");
     printf("\n");
 	printf(" Here, the verbose is active and the bulk rock composition of 'test 0' is selected. The output of the verbose is saved as a log file 'log.txt'\n");
     printf(" Note that you don't have to use a test bulk composition, you can provide you own using arg '--Bulk='\n");
