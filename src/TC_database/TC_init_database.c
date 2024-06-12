@@ -31,7 +31,7 @@ oxide_data oxide_info = {
 };
 
 metapelite_dataset metapelite_db = {
-	256,						/* number of endmembers */
+	62,						/* Endmember default dataset number */
 	11,							/* number of oxides */			
 	23,							/* number of pure phases */
 	15,							/* number of solution phases */
@@ -59,7 +59,7 @@ metapelite_dataset metapelite_db = {
 };
 
 metabasite_dataset metabasite_db = {
-	256,						/* number of endmembers */
+	62,						/* Endmember default dataset number */
 	10,							/* number of oxides */			
 	24,							/* number of pure phases */
 	14,							/* number of solution phases */
@@ -92,7 +92,7 @@ metabasite_dataset metabasite_db = {
 };
 
 igneous_dataset igneous_db = {
-	291,						/* number of endmembers */
+	634,						/* Endmember default dataset number */
 	11,							/* number of oxides */			
 	23,							/* number of pure phases */
 	15,							/* number of solution phases */
@@ -120,7 +120,7 @@ igneous_dataset igneous_db = {
 };
 
 ultramafic_dataset ultramafic_db = {
-	256,						/* number of endmembers */
+	633,					/* Endmember default dataset number */
 	7,							/* number of oxides */			
 	21,							/* number of pure phases */
 	12,							/* number of solution phases */
@@ -148,14 +148,16 @@ ultramafic_dataset ultramafic_db = {
 };
 
 /* Function to allocate the memory of the data to be used/saved during PGE iterations */
-global_variable global_variable_init( 	global_variable  	 gv,
-										bulk_info 			*z_b 	){
+global_variable global_variable_TC_init( 	global_variable  	 gv,
+											bulk_info 			*z_b 	){
 	int i, j;
 
 	/* load database */
 	if (gv.EM_database == 0){
 		metapelite_dataset db 	= metapelite_db;
-		gv.n_em_db 			= db.n_em_db;
+		if (gv.EM_dataset == -1){
+			gv.EM_dataset = db.ds_version;	
+		}
 		gv.len_pp   		= db.n_pp;		
 		gv.len_ss  			= db.n_ss;
 		gv.len_ox  			= db.n_ox;
@@ -199,7 +201,9 @@ global_variable global_variable_init( 	global_variable  	 gv,
 	}
 	else if (gv.EM_database == 1){
 		metabasite_dataset db 	= metabasite_db;
-		gv.n_em_db 			= db.n_em_db;
+		if (gv.EM_dataset == -1){
+			gv.EM_dataset = db.ds_version;	
+		}
 		gv.len_pp   		= db.n_pp;		
 		gv.len_ss  			= db.n_ss;
 		gv.len_ox  			= db.n_ox;
@@ -259,7 +263,9 @@ global_variable global_variable_init( 	global_variable  	 gv,
 	}
 	else if (gv.EM_database == 2){
 		igneous_dataset db 	= igneous_db;
-		gv.n_em_db 			= db.n_em_db;
+		if (gv.EM_dataset == -1){
+			gv.EM_dataset = db.ds_version;	
+		}
 		gv.len_pp   		= db.n_pp;		
 		gv.len_ss  			= db.n_ss;
 		gv.len_ox  			= db.n_ox;
@@ -303,7 +309,9 @@ global_variable global_variable_init( 	global_variable  	 gv,
 	}
 	else if (gv.EM_database == 4){
 		ultramafic_dataset db = ultramafic_db;
-		gv.n_em_db 			= db.n_em_db;
+		if (gv.EM_dataset == -1){
+			gv.EM_dataset = db.ds_version;	
+		}
 		gv.len_pp   		= db.n_pp;		
 		gv.len_ss  			= db.n_ss;
 		gv.len_ox  			= db.n_ox;
@@ -482,7 +490,17 @@ global_variable global_variable_init( 	global_variable  	 gv,
 	z_b->bulk_rock  	= malloc (gv.len_ox * sizeof (double) ); 
 	z_b->nzEl_array 	= malloc (gv.len_ox * sizeof (int) ); 
 	z_b->zEl_array 		= malloc (gv.len_ox * sizeof (int) ); 
-		
+
+	/* sets end-member dataset information */
+	if (gv.EM_dataset == 62){
+			gv.n_em_db 			= 256;
+	}
+	else if (gv.EM_dataset == 633){
+			gv.n_em_db 			= 289;
+	}
+	else if (gv.EM_dataset == 634){
+			gv.n_em_db 			= 291;
+	}		
 
 	return gv;
 }

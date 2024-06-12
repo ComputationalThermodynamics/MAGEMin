@@ -2966,7 +2966,7 @@ EM_db arr_em_db_tc_ds633[289] = {
         {510.0,0.00062,-108.0}
     },
     {
-        "mu_x",
+        "mu",
         {3.0, 1.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 21.0},
         {-5976.51, 0.292, 14.083},
         {0.7564, -1.984e-05, -2170.0, -6.9792},
@@ -3638,7 +3638,7 @@ EM_db arr_em_db_tc_ds633[289] = {
         {1320.0,0.0017,-170.0}
     },
     {
-        "ilm_x",
+        "ilm",
         {0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 5.0},
         {-1232.32, 0.1075, 3.169},
         {0.1389, 5.081e-06, -1288.8, -0.4637},
@@ -7026,24 +7026,21 @@ FS_db arr_fs_db_Miron2017[44] = {
 };
 
 /* Select required thermodynamic database */
-EM_db Access_EM_DB(int id, int EM_database) {
+EM_db Access_EM_DB(int id, int EM_dataset) {
 	EM_db Entry_EM;
 
-	if (EM_database == 0){	
+	if (EM_dataset == 62){	
 	 	Entry_EM = arr_em_db_tc_ds62[id]; 
 	}
-	else if (EM_database == 1){	
-	 	Entry_EM = arr_em_db_tc_ds62[id]; 
-	}
-	else if (EM_database == 2){		
+	else if (EM_dataset == 634){		
 		Entry_EM = arr_em_db_tc_ds634[id]; 
 	}
-	else if (EM_database == 4){		
+	else if (EM_dataset == 633){		
 		Entry_EM = arr_em_db_tc_ds633[id]; 
 	}
 	else{
-		printf(" Wrong database, values should be 0, metapelite; 1, metabasite; 2, igneous; 3, igneousd; 4, ultramafic\n");
-		printf(" -> using default igneous database to avoid ugly crash\n");
+		printf(" Wrong endmember dataset, values should be 62, 633 or 634\n");
+		printf(" -> using default ds-634 to avoid ugly crash\n");
 		Entry_EM = arr_em_db_tc_ds634[id]; 
 	}
 	

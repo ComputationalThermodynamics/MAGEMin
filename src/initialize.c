@@ -14,6 +14,23 @@
 #include "toolkit.h"
 
 
+/* Function to allocate the memory of the data to be used/saved during PGE iterations */
+global_variable global_variable_init( 	global_variable  	 gv,
+										bulk_info 			*z_b 	){
+
+	/* here we initialize MAGEMin using the THERMOCALC formalism */
+	gv 	=	global_variable_TC_init( 	gv,
+										z_b 	);	
+
+	/* here we initialize MAGEMin using Stixrude formalism */
+	// gv 	=	global_variable_STIX_init( 	gv,
+	// 									z_b 	);
+
+
+	return gv;
+}
+
+
 /**
     Function to retrieve the endmember names from the database 
     Note the size of the array is n_em_db+1, required for the hashtable              
@@ -27,7 +44,7 @@ char** get_EM_DB_names(global_variable gv) {
         names[i] = malloc(20 * sizeof(char));
     }
     for ( i = 0; i < n_em_db; i++){	
-        EM_return = Access_EM_DB(i, gv.EM_database);
+        EM_return = Access_EM_DB(i, gv.EM_dataset);
         strcpy(names[i],EM_return.Name);
     }
     return names;
@@ -86,7 +103,8 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	strcpy(gv.version,"1.4.9 [05/06/2024]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
-	strcpy(gv.buffer,"none");	
+	strcpy(gv.buffer,"none");
+	gv.EM_dataset 		= -1;
 	gv.max_n_mSS		= 128;					/** maximum number of metastable pseudocompounds 									*/
 	gv.max_n_cp 		= 128;					/** number of considered solution phases 											*/	
 	gv.max_ss_size_cp   = 24;					/** maximum size for a solution phase saved in the cp structure                     */
@@ -462,9 +480,7 @@ bulk_info reset_z_b_bulk(			global_variable 	 gv,
 	z_b.nzEl_val = sum;						/** store number of non zero values */
 	z_b.zEl_val  = gv.len_ox - sum;			/** store number of zero values 	*/
 	
-	// z_b.nzEl_array  = malloc (z_b.nzEl_val * sizeof (int) ); 
 	if (z_b.zEl_val > 0){
-		// z_b.zEl_array   = malloc (z_b.zEl_val * sizeof (int) ); 
 		j = 0; k = 0;
 		for (i = 0; i < gv.len_ox; i++){
 			if (gv.bulk_rock[i] == 0.){

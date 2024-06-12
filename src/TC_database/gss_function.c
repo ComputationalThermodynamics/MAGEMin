@@ -54,7 +54,7 @@ void init_pp(int len_ox, void *PP_db ){
 /** 
   function to easely get gb and comp in order to define solid solutions
 */
-em_data get_em_data(	int 		 EM_database, 
+em_data get_em_data(	int 		 EM_dataset, 
 						int          len_ox,
 						bulk_info 	 z_b,
                         double       P,
@@ -63,7 +63,7 @@ em_data get_em_data(	int 		 EM_database,
 						char 		*state		){
 
 	em_data data; 
-	PP_ref PP_db   		= G_EM_function(EM_database, len_ox, z_b.id, z_b.bulk_rock, z_b.apo, P, T, name, state);
+	PP_ref PP_db   		= G_EM_function(EM_dataset, len_ox, z_b.id, z_b.bulk_rock, z_b.apo, P, T, name, state);
    	data.ElShearMod  	= PP_db.phase_shearModulus;
    	data.gb  			= PP_db.gbase;
 
@@ -116,7 +116,7 @@ em_data get_fs_data(	int             len_ox,
 /**************************************************************************************/
 
 
-SS_ref G_SS_aq17_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_aq17_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em    = SS_ref_db.n_em;
@@ -157,7 +157,7 @@ SS_ref G_SS_aq17_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
 
     em_data species;
 
-    species 	= get_em_data(	    EM_database, 
+    species 	= get_em_data(	    EM_dataset, 
                                     len_ox,
                                     z_b,
                                     SS_ref_db.P,
@@ -235,7 +235,7 @@ SS_ref G_SS_aq17_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
 /**
    retrieve reference thermodynamic data for mb_liq
 */
-SS_ref G_SS_mb_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mb_liq_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -294,7 +294,7 @@ SS_ref G_SS_mb_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.W[35] = 9.75 - 0.5*SS_ref_db.P;
     
     
-    em_data qL_eq 		= get_em_data(		EM_database, 
+    em_data qL_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -302,7 +302,7 @@ SS_ref G_SS_mb_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"qL", 
     										"equilibrium"	);
     
-    em_data abL_eq 		= get_em_data(		EM_database, 
+    em_data abL_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -310,7 +310,7 @@ SS_ref G_SS_mb_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"abL", 
     										"equilibrium"	);
     
-    em_data kspL_eq 	= get_em_data(		EM_database, 
+    em_data kspL_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -318,7 +318,7 @@ SS_ref G_SS_mb_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"kspL", 
     										"equilibrium"	);
     
-    em_data woL_eq 		= get_em_data(		EM_database, 
+    em_data woL_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -326,7 +326,7 @@ SS_ref G_SS_mb_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"woL", 
     										"equilibrium"	);
     
-    em_data silL_eq 	= get_em_data(		EM_database, 
+    em_data silL_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -334,7 +334,7 @@ SS_ref G_SS_mb_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"silL", 
     										"equilibrium"	);
     
-    em_data faL_eq 		= get_em_data(		EM_database, 
+    em_data faL_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -342,7 +342,7 @@ SS_ref G_SS_mb_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"faL", 
     										"equilibrium"	);
     
-    em_data foL_eq 		= get_em_data(		EM_database, 
+    em_data foL_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -350,7 +350,7 @@ SS_ref G_SS_mb_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"foL", 
     										"equilibrium"	);
     
-    em_data watL_eq 	= get_em_data(		EM_database, 
+    em_data watL_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -426,7 +426,7 @@ SS_ref G_SS_mb_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 /**
    retrieve reference thermodynamic data for mb_hb
 */
-SS_ref G_SS_mb_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mb_hb_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -515,7 +515,7 @@ SS_ref G_SS_mb_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.v[10] = 1.50;
     
     
-    em_data tr_eq 		= get_em_data(		EM_database, 
+    em_data tr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -523,7 +523,7 @@ SS_ref G_SS_mb_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"tr", 
     										"equilibrium"	);
     
-    em_data ts_eq 		= get_em_data(		EM_database, 
+    em_data ts_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -531,7 +531,7 @@ SS_ref G_SS_mb_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"ts", 
     										"equilibrium"	);
     
-    em_data parg_eq 		= get_em_data(		EM_database, 
+    em_data parg_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -539,7 +539,7 @@ SS_ref G_SS_mb_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"parg", 
     										"equilibrium"	);
     
-    em_data gl_eq 		= get_em_data(		EM_database, 
+    em_data gl_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -547,7 +547,7 @@ SS_ref G_SS_mb_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"gl", 
     										"equilibrium"	);
     
-    em_data cumm_eq 		= get_em_data(		EM_database, 
+    em_data cumm_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -555,7 +555,7 @@ SS_ref G_SS_mb_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"cumm", 
     										"equilibrium"	);
     
-    em_data grun_eq 	= get_em_data(		EM_database, 
+    em_data grun_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -563,7 +563,7 @@ SS_ref G_SS_mb_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"grun", 
     										"equilibrium"	);
     
-    em_data gr_eq 		= get_em_data(		EM_database, 
+    em_data gr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -571,7 +571,7 @@ SS_ref G_SS_mb_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"gr", 
     										"equilibrium"	);
     
-    em_data andr_eq 		= get_em_data(		EM_database, 
+    em_data andr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -579,7 +579,7 @@ SS_ref G_SS_mb_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"andr", 
     										"equilibrium"	);
     
-    em_data mu_eq 		= get_em_data(		EM_database, 
+    em_data mu_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -587,7 +587,7 @@ SS_ref G_SS_mb_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"mu", 
     										"equilibrium"	);
     
-    em_data pa_eq 		= get_em_data(		EM_database, 
+    em_data pa_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -595,7 +595,7 @@ SS_ref G_SS_mb_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"pa", 
     										"equilibrium"	);
     
-    em_data dsp_eq 		= get_em_data(		EM_database, 
+    em_data dsp_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -603,7 +603,7 @@ SS_ref G_SS_mb_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"dsp", 
     										"equilibrium"	);
     
-    em_data ru_eq 		= get_em_data(		EM_database, 
+    em_data ru_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -685,7 +685,7 @@ SS_ref G_SS_mb_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 /**
    retrieve reference thermodynamic data for mb_aug
 */
-SS_ref G_SS_mb_aug_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mb_aug_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -744,7 +744,7 @@ SS_ref G_SS_mb_aug_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.v[7] = 1.00;
     
     
-    em_data di_eq 		= get_em_data(		EM_database, 
+    em_data di_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -752,7 +752,7 @@ SS_ref G_SS_mb_aug_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"di", 
     										"equilibrium"	);
     
-    em_data en_eq 		= get_em_data(		EM_database, 
+    em_data en_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -760,7 +760,7 @@ SS_ref G_SS_mb_aug_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"en", 
     										"equilibrium"	);
     
-    em_data fs_eq 		= get_em_data(		EM_database, 
+    em_data fs_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -768,7 +768,7 @@ SS_ref G_SS_mb_aug_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"fs", 
     										"equilibrium"	);
     
-    em_data jd_eq 		= get_em_data(		EM_database, 
+    em_data jd_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -776,7 +776,7 @@ SS_ref G_SS_mb_aug_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"jd", 
     										"equilibrium"	);
     
-    em_data acm_eq 		= get_em_data(		EM_database, 
+    em_data acm_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -784,7 +784,7 @@ SS_ref G_SS_mb_aug_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"acm", 
     										"equilibrium"	);
     
-    em_data cats_or 	= get_em_data(		EM_database, 
+    em_data cats_or 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -847,7 +847,7 @@ SS_ref G_SS_mb_aug_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 /**
    retrieve reference thermodynamic data for mb_dio
 */
-SS_ref G_SS_mb_dio_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mb_dio_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -890,7 +890,7 @@ SS_ref G_SS_mb_dio_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.W[20] = 24.55;
     
     
-    em_data jd_eq 		= get_em_data(		EM_database, 
+    em_data jd_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -898,7 +898,7 @@ SS_ref G_SS_mb_dio_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"jd", 
     										"equilibrium"	);
     
-    em_data di_eq 		= get_em_data(		EM_database, 
+    em_data di_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -906,7 +906,7 @@ SS_ref G_SS_mb_dio_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"di", 
     										"equilibrium"	);
     
-    em_data hed_eq 		= get_em_data(		EM_database, 
+    em_data hed_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -914,7 +914,7 @@ SS_ref G_SS_mb_dio_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"hed", 
     										"equilibrium"	);
     
-    em_data acm_eq 		= get_em_data(		EM_database, 
+    em_data acm_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -977,7 +977,7 @@ SS_ref G_SS_mb_dio_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 /**
    retrieve reference thermodynamic data for mb_opx
 */
-SS_ref G_SS_mb_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mb_opx_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -1021,7 +1021,7 @@ SS_ref G_SS_mb_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.v[5] = 1.20;
     
     
-    em_data en_eq 		= get_em_data(		EM_database, 
+    em_data en_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1029,7 +1029,7 @@ SS_ref G_SS_mb_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"en", 
     										"equilibrium"	);
     
-    em_data fs_eq 		= get_em_data(		EM_database, 
+    em_data fs_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1037,7 +1037,7 @@ SS_ref G_SS_mb_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"fs", 
     										"equilibrium"	);
     
-    em_data mgts_eq 	= get_em_data(		EM_database, 
+    em_data mgts_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1045,7 +1045,7 @@ SS_ref G_SS_mb_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"mgts", 
     										"equilibrium"	);
     
-    em_data gr_eq 		= get_em_data(		EM_database, 
+    em_data gr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1053,7 +1053,7 @@ SS_ref G_SS_mb_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"gr", 
     										"equilibrium"	);
     
-    em_data andr_eq 	= get_em_data(		EM_database, 
+    em_data andr_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1061,7 +1061,7 @@ SS_ref G_SS_mb_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"andr", 
     										"equilibrium"	);
     
-    em_data di_eq 		= get_em_data(		EM_database, 
+    em_data di_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1116,7 +1116,7 @@ SS_ref G_SS_mb_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 /**
    retrieve reference thermodynamic data for mb_g
 */
-SS_ref G_SS_mb_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mb_g_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -1149,7 +1149,7 @@ SS_ref G_SS_mb_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
     SS_ref_db.v[3] = 1.00;
     
     
-    em_data py_eq 		= get_em_data(		EM_database, 
+    em_data py_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1157,7 +1157,7 @@ SS_ref G_SS_mb_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
     										"py", 
     										"equilibrium"	);
     
-    em_data alm_eq 		= get_em_data(		EM_database, 
+    em_data alm_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1165,7 +1165,7 @@ SS_ref G_SS_mb_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
     										"alm", 
     										"equilibrium"	);
     
-    em_data gr_eq 		= get_em_data(		EM_database, 
+    em_data gr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1173,7 +1173,7 @@ SS_ref G_SS_mb_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
     										"gr", 
     										"equilibrium"	);
     
-    em_data andr_eq 	= get_em_data(		EM_database, 
+    em_data andr_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1220,7 +1220,7 @@ SS_ref G_SS_mb_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
 /**
    retrieve reference thermodynamic data for mb_ol
 */
-SS_ref G_SS_mb_ol_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mb_ol_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -1243,7 +1243,7 @@ SS_ref G_SS_mb_ol_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.W[0] = 9.00;
     
     
-    em_data fo_eq 		= get_em_data(		EM_database, 
+    em_data fo_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1251,7 +1251,7 @@ SS_ref G_SS_mb_ol_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"fo", 
     										"equilibrium"	);
     
-    em_data fa_eq 		= get_em_data(		EM_database, 
+    em_data fa_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1282,7 +1282,7 @@ SS_ref G_SS_mb_ol_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 /**
    retrieve reference thermodynamic data for mb_fsp
 */
-SS_ref G_SS_mb_fsp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mb_fsp_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -1311,7 +1311,7 @@ SS_ref G_SS_mb_fsp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.v[2] = 1.00;
     
     
-    em_data ab_eq 		= get_em_data(		EM_database, 
+    em_data ab_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1319,7 +1319,7 @@ SS_ref G_SS_mb_fsp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"ab", 
     										"equilibrium"	);
     
-    em_data an_eq 		= get_em_data(		EM_database, 
+    em_data an_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1327,7 +1327,7 @@ SS_ref G_SS_mb_fsp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"an", 
     										"equilibrium"	);
     
-    em_data san_eq 		= get_em_data(		EM_database, 
+    em_data san_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1362,7 +1362,7 @@ SS_ref G_SS_mb_fsp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 /**
    retrieve reference thermodynamic data for mb_abc
 */
-SS_ref G_SS_mb_abc_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mb_abc_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -1388,7 +1388,7 @@ SS_ref G_SS_mb_abc_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.v[1] = 1.00;
     
     
-    em_data ab_eq 		= get_em_data(		EM_database, 
+    em_data ab_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1396,7 +1396,7 @@ SS_ref G_SS_mb_abc_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"ab", 
     										"equilibrium"	);
     
-    em_data an_eq 		= get_em_data(		EM_database, 
+    em_data an_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1427,7 +1427,7 @@ SS_ref G_SS_mb_abc_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 /**
    retrieve reference thermodynamic data for mb_k4tr
 */
-SS_ref G_SS_mb_k4tr_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mb_k4tr_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -1456,7 +1456,7 @@ SS_ref G_SS_mb_k4tr_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
     SS_ref_db.v[2] = 1.00;
     
     
-    em_data ab_eq 		= get_em_data(		EM_database, 
+    em_data ab_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1464,7 +1464,7 @@ SS_ref G_SS_mb_k4tr_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
     										"ab", 
     										"equilibrium"	);
     
-    em_data an_eq 		= get_em_data(		EM_database, 
+    em_data an_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1472,7 +1472,7 @@ SS_ref G_SS_mb_k4tr_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
     										"an", 
     										"equilibrium"	);
     
-    em_data san_eq 		= get_em_data(		EM_database, 
+    em_data san_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1507,7 +1507,7 @@ SS_ref G_SS_mb_k4tr_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
 /**
    retrieve reference thermodynamic data for mb_sp
 */
-SS_ref G_SS_mb_sp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mb_sp_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -1535,7 +1535,7 @@ SS_ref G_SS_mb_sp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.W[5] = 0.0;
     
     
-    em_data herc_eq 	= get_em_data(		EM_database, 
+    em_data herc_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1543,7 +1543,7 @@ SS_ref G_SS_mb_sp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"herc", 
     										"equilibrium"	);
     
-    em_data sp_eq 		= get_em_data(		EM_database, 
+    em_data sp_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1551,7 +1551,7 @@ SS_ref G_SS_mb_sp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"sp", 
     										"equilibrium"	);
     
-    em_data mt_eq 		= get_em_data(		EM_database, 
+    em_data mt_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1559,7 +1559,7 @@ SS_ref G_SS_mb_sp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"mt", 
     										"equilibrium"	);
     
-    em_data usp_eq 		= get_em_data(		EM_database, 
+    em_data usp_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1617,7 +1617,7 @@ SS_ref G_SS_mb_sp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 /**
    retrieve reference thermodynamic data for mb_ilm
 */
-SS_ref G_SS_mb_ilm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mb_ilm_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -1642,7 +1642,7 @@ SS_ref G_SS_mb_ilm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.W[2] = 11.0;
     
     
-    em_data ilm_di 		= get_em_data(		EM_database, 
+    em_data ilm_di 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1650,7 +1650,7 @@ SS_ref G_SS_mb_ilm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"ilm", 
     										"disordered"	);
     
-    em_data hem_di 		= get_em_data(		EM_database, 
+    em_data hem_di 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1707,7 +1707,7 @@ SS_ref G_SS_mb_ilm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 /**
    retrieve reference thermodynamic data for mb_ilmm
 */
-SS_ref G_SS_mb_ilmm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mb_ilmm_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -1735,7 +1735,7 @@ SS_ref G_SS_mb_ilmm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
     SS_ref_db.W[5] = 36.0;
     
     
-    em_data ilm_di 		= get_em_data(		EM_database, 
+    em_data ilm_di 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1743,7 +1743,7 @@ SS_ref G_SS_mb_ilmm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
     										"ilm", 
     										"disordered"	);
     
-    em_data hem_di 		= get_em_data(		EM_database, 
+    em_data hem_di 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1751,7 +1751,7 @@ SS_ref G_SS_mb_ilmm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
     										"hem", 
     										"disordered"	);
     
-    em_data geik_eq 		= get_em_data(		EM_database, 
+    em_data geik_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1792,7 +1792,7 @@ SS_ref G_SS_mb_ilmm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
 /**
    retrieve reference thermodynamic data for mb_ep
 */
-SS_ref G_SS_mb_ep_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mb_ep_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -1817,7 +1817,7 @@ SS_ref G_SS_mb_ep_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.W[2] = 1.00;
     
     
-    em_data cz_eq 		= get_em_data(		EM_database, 
+    em_data cz_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1825,7 +1825,7 @@ SS_ref G_SS_mb_ep_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"cz", 
     										"equilibrium"	);
     
-    em_data ep_eq 		= get_em_data(		EM_database, 
+    em_data ep_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1833,7 +1833,7 @@ SS_ref G_SS_mb_ep_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"ep", 
     										"equilibrium"	);
     
-    em_data fep_eq 		= get_em_data(		EM_database, 
+    em_data fep_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1879,7 +1879,7 @@ SS_ref G_SS_mb_ep_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 /**
    retrieve reference thermodynamic data for mb_bi
 */
-SS_ref G_SS_mb_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mb_bi_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -1916,7 +1916,7 @@ SS_ref G_SS_mb_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.W[14] = 40.0;
     
     
-    em_data phl_eq 		= get_em_data(		EM_database, 
+    em_data phl_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1924,7 +1924,7 @@ SS_ref G_SS_mb_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"phl", 
     										"equilibrium"	);
     
-    em_data ann_eq 		= get_em_data(		EM_database, 
+    em_data ann_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1932,7 +1932,7 @@ SS_ref G_SS_mb_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"ann", 
     										"equilibrium"	);
     
-    em_data east_eq 		= get_em_data(		EM_database, 
+    em_data east_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1940,7 +1940,7 @@ SS_ref G_SS_mb_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"east", 
     										"equilibrium"	);
     
-    em_data br_eq 		= get_em_data(		EM_database, 
+    em_data br_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1948,7 +1948,7 @@ SS_ref G_SS_mb_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"br", 
     										"equilibrium"	);
     
-    em_data ru_eq 		= get_em_data(		EM_database, 
+    em_data ru_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1956,7 +1956,7 @@ SS_ref G_SS_mb_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"ru", 
     										"equilibrium"	);
     
-    em_data gr_eq 		= get_em_data(		EM_database, 
+    em_data gr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -1964,7 +1964,7 @@ SS_ref G_SS_mb_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"gr", 
     										"equilibrium"	);
     
-    em_data andr_eq 		= get_em_data(		EM_database, 
+    em_data andr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2023,7 +2023,7 @@ SS_ref G_SS_mb_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 /**
    retrieve reference thermodynamic data for mb_mu
 */
-SS_ref G_SS_mb_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mb_mu_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -2067,7 +2067,7 @@ SS_ref G_SS_mb_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.v[5] = 0.630;
     
     
-    em_data mu_eq 		= get_em_data(		EM_database, 
+    em_data mu_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2075,7 +2075,7 @@ SS_ref G_SS_mb_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"mu", 
     										"equilibrium"	);
     
-    em_data cel_eq 		= get_em_data(		EM_database, 
+    em_data cel_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2083,7 +2083,7 @@ SS_ref G_SS_mb_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"cel", 
     										"equilibrium"	);
     
-    em_data fcel_eq 		= get_em_data(		EM_database, 
+    em_data fcel_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2091,7 +2091,7 @@ SS_ref G_SS_mb_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"fcel", 
     										"equilibrium"	);
     
-    em_data pa_eq 		= get_em_data(		EM_database, 
+    em_data pa_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2099,7 +2099,7 @@ SS_ref G_SS_mb_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"pa", 
     										"equilibrium"	);
     
-    em_data ma_eq 		= get_em_data(		EM_database, 
+    em_data ma_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2107,7 +2107,7 @@ SS_ref G_SS_mb_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"ma", 
     										"equilibrium"	);
     
-    em_data gr_eq 		= get_em_data(		EM_database, 
+    em_data gr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2115,7 +2115,7 @@ SS_ref G_SS_mb_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"gr", 
     										"equilibrium"	);
     
-    em_data andr_eq 		= get_em_data(		EM_database, 
+    em_data andr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2169,7 +2169,7 @@ SS_ref G_SS_mb_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 /**
    retrieve reference thermodynamic data for mb_chl
 */
-SS_ref G_SS_mb_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mb_chl_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -2212,7 +2212,7 @@ SS_ref G_SS_mb_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.W[20] = 19.0;
     
     
-    em_data clin_eq 		= get_em_data(		EM_database, 
+    em_data clin_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2220,7 +2220,7 @@ SS_ref G_SS_mb_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"clin", 
     										"equilibrium"	);
     
-    em_data afchl_eq 		= get_em_data(		EM_database, 
+    em_data afchl_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2228,7 +2228,7 @@ SS_ref G_SS_mb_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"afchl", 
     										"equilibrium"	);
     
-    em_data ames_eq 		= get_em_data(		EM_database, 
+    em_data ames_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2236,7 +2236,7 @@ SS_ref G_SS_mb_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"ames", 
     										"equilibrium"	);
     
-    em_data daph_eq 		= get_em_data(		EM_database, 
+    em_data daph_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2244,7 +2244,7 @@ SS_ref G_SS_mb_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"daph", 
     										"equilibrium"	);
     
-    em_data gr_eq 		= get_em_data(		EM_database, 
+    em_data gr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2252,7 +2252,7 @@ SS_ref G_SS_mb_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"gr", 
     										"equilibrium"	);
     
-    em_data andr_eq 		= get_em_data(		EM_database, 
+    em_data andr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2317,7 +2317,7 @@ SS_ref G_SS_mb_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 /**
    retrieve reference thermodynamic data for mp_liq
 */
-SS_ref G_SS_mp_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mp_liq_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -2367,7 +2367,7 @@ SS_ref G_SS_mp_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.W[27] = 12.0;
     
     
-    em_data qL_eq 		= get_em_data(		EM_database, 
+    em_data qL_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2375,7 +2375,7 @@ SS_ref G_SS_mp_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"qL", 
     										"equilibrium"	);
     
-    em_data abL_eq 		= get_em_data(		EM_database, 
+    em_data abL_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2383,7 +2383,7 @@ SS_ref G_SS_mp_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"abL", 
     										"equilibrium"	);
     
-    em_data kspL_eq 	= get_em_data(		EM_database, 
+    em_data kspL_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2391,7 +2391,7 @@ SS_ref G_SS_mp_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"kspL", 
     										"equilibrium"	);
     
-    em_data anL_eq 		= get_em_data(		EM_database, 
+    em_data anL_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2399,7 +2399,7 @@ SS_ref G_SS_mp_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"anL", 
     										"equilibrium"	);
     
-    em_data silL_eq 	= get_em_data(		EM_database, 
+    em_data silL_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2407,7 +2407,7 @@ SS_ref G_SS_mp_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"silL", 
     										"equilibrium"	);
     
-    em_data foL_eq 		= get_em_data(		EM_database, 
+    em_data foL_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2415,7 +2415,7 @@ SS_ref G_SS_mp_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"foL", 
     										"equilibrium"	);
     
-    em_data faL_eq 		= get_em_data(		EM_database, 
+    em_data faL_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2423,7 +2423,7 @@ SS_ref G_SS_mp_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"faL", 
     										"equilibrium"	);
     
-    em_data h2oL_eq 	= get_em_data(		EM_database, 
+    em_data h2oL_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2485,7 +2485,7 @@ SS_ref G_SS_mp_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 /**
    retrieve reference thermodynamic data for mp_bi
 */
-SS_ref G_SS_mp_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mp_bi_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -2528,7 +2528,7 @@ SS_ref G_SS_mp_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.W[20] = 11.6;
     
     
-    em_data phl_eq 		= get_em_data(		EM_database, 
+    em_data phl_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2536,7 +2536,7 @@ SS_ref G_SS_mp_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"phl", 
     										"equilibrium"	);
     
-    em_data ann_eq 		= get_em_data(		EM_database, 
+    em_data ann_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2544,7 +2544,7 @@ SS_ref G_SS_mp_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"ann", 
     										"equilibrium"	);
     
-    em_data east_eq 		= get_em_data(	EM_database, 
+    em_data east_eq 		= get_em_data(	EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2552,7 +2552,7 @@ SS_ref G_SS_mp_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"east", 
     										"equilibrium"	);
     
-    em_data br_eq 		= get_em_data(		EM_database, 
+    em_data br_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2560,7 +2560,7 @@ SS_ref G_SS_mp_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"br", 
     										"equilibrium"	);
     
-    em_data ru_eq 		= get_em_data(		EM_database, 
+    em_data ru_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2568,7 +2568,7 @@ SS_ref G_SS_mp_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"ru", 
     										"equilibrium"	);
     
-    em_data andr_eq 		= get_em_data(	EM_database, 
+    em_data andr_eq 		= get_em_data(	EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2576,7 +2576,7 @@ SS_ref G_SS_mp_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"andr", 
     										"equilibrium"	);
     
-    em_data gr_eq 		= get_em_data(		EM_database, 
+    em_data gr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2584,7 +2584,7 @@ SS_ref G_SS_mp_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"gr", 
     										"equilibrium"	);
     
-    em_data mnbi_eq 		= get_em_data(	EM_database, 
+    em_data mnbi_eq 		= get_em_data(	EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2655,7 +2655,7 @@ SS_ref G_SS_mp_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 /**
    retrieve reference thermodynamic data for mp_cd
 */
-SS_ref G_SS_mp_cd_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mp_cd_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -2683,7 +2683,7 @@ SS_ref G_SS_mp_cd_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.W[5] = 6.0;
     
     
-    em_data crd_eq 		= get_em_data(		EM_database, 
+    em_data crd_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2691,7 +2691,7 @@ SS_ref G_SS_mp_cd_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"crd", 
     										"equilibrium"	);
     
-    em_data fcrd_eq 		= get_em_data(		EM_database, 
+    em_data fcrd_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2699,7 +2699,7 @@ SS_ref G_SS_mp_cd_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"fcrd", 
     										"equilibrium"	);
     
-    em_data hcrd_eq 		= get_em_data(		EM_database, 
+    em_data hcrd_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2707,7 +2707,7 @@ SS_ref G_SS_mp_cd_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"hcrd", 
     										"equilibrium"	);
     
-    em_data mncrd_eq 		= get_em_data(		EM_database, 
+    em_data mncrd_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2753,7 +2753,7 @@ SS_ref G_SS_mp_cd_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 /**
    retrieve reference thermodynamic data for mp_chl
 */
-SS_ref G_SS_mp_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mp_chl_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -2803,7 +2803,7 @@ SS_ref G_SS_mp_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.W[27] = 8.0;
     
     
-    em_data clin_eq 		= get_em_data(		EM_database, 
+    em_data clin_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2811,7 +2811,7 @@ SS_ref G_SS_mp_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"clin", 
     										"equilibrium"	);
     
-    em_data afchl_eq 		= get_em_data(		EM_database, 
+    em_data afchl_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2819,7 +2819,7 @@ SS_ref G_SS_mp_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"afchl", 
     										"equilibrium"	);
     
-    em_data ames_eq 		= get_em_data(		EM_database, 
+    em_data ames_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2827,7 +2827,7 @@ SS_ref G_SS_mp_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"ames", 
     										"equilibrium"	);
     
-    em_data daph_eq 		= get_em_data(		EM_database, 
+    em_data daph_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2835,7 +2835,7 @@ SS_ref G_SS_mp_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"daph", 
     										"equilibrium"	);
     
-    em_data gr_eq 		= get_em_data(		EM_database, 
+    em_data gr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2843,7 +2843,7 @@ SS_ref G_SS_mp_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"gr", 
     										"equilibrium"	);
     
-    em_data andr_eq 		= get_em_data(		EM_database, 
+    em_data andr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2851,7 +2851,7 @@ SS_ref G_SS_mp_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"andr", 
     										"equilibrium"	);
     
-    em_data mnchl_eq 		= get_em_data(		EM_database, 
+    em_data mnchl_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2923,7 +2923,7 @@ SS_ref G_SS_mp_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 /**
    retrieve reference thermodynamic data for mp_ctd
 */
-SS_ref G_SS_mp_ctd_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mp_ctd_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -2951,7 +2951,7 @@ SS_ref G_SS_mp_ctd_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.W[5] = 4.0;
     
     
-    em_data mctd_eq 		= get_em_data(		EM_database, 
+    em_data mctd_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2959,7 +2959,7 @@ SS_ref G_SS_mp_ctd_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"mctd", 
     										"equilibrium"	);
     
-    em_data fctd_eq 		= get_em_data(		EM_database, 
+    em_data fctd_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2967,7 +2967,7 @@ SS_ref G_SS_mp_ctd_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"fctd", 
     										"equilibrium"	);
     
-    em_data mnctd_eq 		= get_em_data(		EM_database, 
+    em_data mnctd_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2975,7 +2975,7 @@ SS_ref G_SS_mp_ctd_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"mnctd", 
     										"equilibrium"	);
     
-    em_data andr_eq 		= get_em_data(		EM_database, 
+    em_data andr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -2983,7 +2983,7 @@ SS_ref G_SS_mp_ctd_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"andr", 
     										"equilibrium"	);
     
-    em_data gr_eq 		= get_em_data(		EM_database, 
+    em_data gr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3035,7 +3035,7 @@ SS_ref G_SS_mp_ctd_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 /**
    retrieve reference thermodynamic data for mp_ep
 */
-SS_ref G_SS_mp_ep_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mp_ep_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -3060,7 +3060,7 @@ SS_ref G_SS_mp_ep_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.W[2] = 1.0;
     
     
-    em_data cz_eq 		= get_em_data(		EM_database, 
+    em_data cz_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3068,7 +3068,7 @@ SS_ref G_SS_mp_ep_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"cz", 
     										"equilibrium"	);
     
-    em_data ep_eq 		= get_em_data(		EM_database, 
+    em_data ep_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3076,7 +3076,7 @@ SS_ref G_SS_mp_ep_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"ep", 
     										"equilibrium"	);
     
-    em_data fep_eq 		= get_em_data(		EM_database, 
+    em_data fep_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3122,7 +3122,7 @@ SS_ref G_SS_mp_ep_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 /**
    retrieve reference thermodynamic data for mp_g
 */
-SS_ref G_SS_mp_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mp_g_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -3160,7 +3160,7 @@ SS_ref G_SS_mp_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
     SS_ref_db.v[4] = 1.0;
     
     
-    em_data py_eq 		= get_em_data(		EM_database, 
+    em_data py_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3168,7 +3168,7 @@ SS_ref G_SS_mp_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
     										"py", 
     										"equilibrium"	);
     
-    em_data alm_eq 		= get_em_data(		EM_database, 
+    em_data alm_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3176,7 +3176,7 @@ SS_ref G_SS_mp_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
     										"alm", 
     										"equilibrium"	);
     
-    em_data spss_eq 		= get_em_data(	EM_database, 
+    em_data spss_eq 		= get_em_data(	EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3184,7 +3184,7 @@ SS_ref G_SS_mp_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
     										"spss", 
     										"equilibrium"	);
     
-    em_data gr_eq 		= get_em_data(		EM_database, 
+    em_data gr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3192,7 +3192,7 @@ SS_ref G_SS_mp_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
     										"gr", 
     										"equilibrium"	);
     
-    em_data andr_eq 		= get_em_data(	EM_database, 
+    em_data andr_eq 		= get_em_data(	EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3249,7 +3249,7 @@ SS_ref G_SS_mp_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
 /**
    retrieve reference thermodynamic data for mb_ilm
 */
-SS_ref G_SS_mp_ilm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mp_ilm_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -3274,7 +3274,7 @@ SS_ref G_SS_mp_ilm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.W[2] = 11.0;
     
     
-    em_data ilm_di 		= get_em_data(		EM_database, 
+    em_data ilm_di 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3282,7 +3282,7 @@ SS_ref G_SS_mp_ilm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"ilm", 
     										"disordered"	);
     
-    em_data hem_di 		= get_em_data(		EM_database, 
+    em_data hem_di 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3330,7 +3330,7 @@ SS_ref G_SS_mp_ilm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 /**
    retrieve reference thermodynamic data for mp_ilmm
 */
-SS_ref G_SS_mp_ilmm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mp_ilmm_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -3362,7 +3362,7 @@ SS_ref G_SS_mp_ilmm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
     SS_ref_db.W[9] = 4.0;
     
     
-    em_data ilm_di 		= get_em_data(		EM_database, 
+    em_data ilm_di 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3370,7 +3370,7 @@ SS_ref G_SS_mp_ilmm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
     										"ilm", 
     										"disordered"	);
     
-    em_data hem_di 		= get_em_data(		EM_database, 
+    em_data hem_di 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3378,7 +3378,7 @@ SS_ref G_SS_mp_ilmm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
     										"hem", 
     										"disordered"	);
     
-    em_data geik_eq 		= get_em_data(		EM_database, 
+    em_data geik_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3386,7 +3386,7 @@ SS_ref G_SS_mp_ilmm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
     										"geik", 
     										"equilibrium"	);
     
-    em_data pnt_eq 		= get_em_data(		EM_database, 
+    em_data pnt_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3448,7 +3448,7 @@ SS_ref G_SS_mp_ilmm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
 /**
    retrieve reference thermodynamic data for mp_ma
 */
-SS_ref G_SS_mp_ma_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mp_ma_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -3492,7 +3492,7 @@ SS_ref G_SS_mp_ma_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.v[5] = 0.63;
     
     
-    em_data mu_eq 		= get_em_data(		EM_database, 
+    em_data mu_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3500,7 +3500,7 @@ SS_ref G_SS_mp_ma_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"mu", 
     										"equilibrium"	);
     
-    em_data cel_eq 		= get_em_data(		EM_database, 
+    em_data cel_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3508,7 +3508,7 @@ SS_ref G_SS_mp_ma_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"cel", 
     										"equilibrium"	);
     
-    em_data fcel_eq 		= get_em_data(		EM_database, 
+    em_data fcel_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3516,7 +3516,7 @@ SS_ref G_SS_mp_ma_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"fcel", 
     										"equilibrium"	);
     
-    em_data pa_eq 		= get_em_data(		EM_database, 
+    em_data pa_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3524,7 +3524,7 @@ SS_ref G_SS_mp_ma_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"pa", 
     										"equilibrium"	);
     
-    em_data ma_eq 		= get_em_data(		EM_database, 
+    em_data ma_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3532,7 +3532,7 @@ SS_ref G_SS_mp_ma_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"ma", 
     										"equilibrium"	);
     
-    em_data andr_eq 		= get_em_data(		EM_database, 
+    em_data andr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3540,7 +3540,7 @@ SS_ref G_SS_mp_ma_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"andr", 
     										"equilibrium"	);
     
-    em_data gr_eq 		= get_em_data(		EM_database, 
+    em_data gr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3593,7 +3593,7 @@ SS_ref G_SS_mp_ma_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 /**
    retrieve reference thermodynamic data for mp_mt
 */
-SS_ref G_SS_mp_mt_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mp_mt_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -3618,7 +3618,7 @@ SS_ref G_SS_mp_mt_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.W[2] = -5.0;
     
     
-    em_data mt_di 		= get_em_data(		EM_database, 
+    em_data mt_di 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3626,7 +3626,7 @@ SS_ref G_SS_mp_mt_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"mt", 
     										"disordered"	);
     
-    em_data usp_eq 		= get_em_data(		EM_database, 
+    em_data usp_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3679,7 +3679,7 @@ SS_ref G_SS_mp_mt_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 /**
    retrieve reference thermodynamic data for mp_mu
 */
-SS_ref G_SS_mp_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mp_mu_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -3723,7 +3723,7 @@ SS_ref G_SS_mp_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.v[5] = 0.63;
     
     
-    em_data mu_eq 		= get_em_data(		EM_database, 
+    em_data mu_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3731,7 +3731,7 @@ SS_ref G_SS_mp_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"mu", 
     										"equilibrium"	);
     
-    em_data cel_eq 		= get_em_data(		EM_database, 
+    em_data cel_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3739,7 +3739,7 @@ SS_ref G_SS_mp_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"cel", 
     										"equilibrium"	);
     
-    em_data fcel_eq 		= get_em_data(		EM_database, 
+    em_data fcel_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3747,7 +3747,7 @@ SS_ref G_SS_mp_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"fcel", 
     										"equilibrium"	);
     
-    em_data pa_eq 		= get_em_data(		EM_database, 
+    em_data pa_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3755,7 +3755,7 @@ SS_ref G_SS_mp_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"pa", 
     										"equilibrium"	);
     
-    em_data ma_eq 		= get_em_data(		EM_database, 
+    em_data ma_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3763,7 +3763,7 @@ SS_ref G_SS_mp_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"ma", 
     										"equilibrium"	);
     
-    em_data andr_eq 		= get_em_data(		EM_database, 
+    em_data andr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3771,7 +3771,7 @@ SS_ref G_SS_mp_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"andr", 
     										"equilibrium"	);
     
-    em_data gr_eq 		= get_em_data(		EM_database, 
+    em_data gr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3824,7 +3824,7 @@ SS_ref G_SS_mp_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 /**
    retrieve reference thermodynamic data for mp_opx
 */
-SS_ref G_SS_mp_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mp_opx_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -3875,7 +3875,7 @@ SS_ref G_SS_mp_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.v[6] = 1.2;
     
     
-    em_data en_eq 		= get_em_data(		EM_database, 
+    em_data en_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3883,7 +3883,7 @@ SS_ref G_SS_mp_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"en", 
     										"equilibrium"	);
     
-    em_data fs_eq 		= get_em_data(		EM_database, 
+    em_data fs_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3891,7 +3891,7 @@ SS_ref G_SS_mp_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"fs", 
     										"equilibrium"	);
     
-    em_data mgts_eq 	= get_em_data(		EM_database, 
+    em_data mgts_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3899,7 +3899,7 @@ SS_ref G_SS_mp_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"mgts", 
     										"equilibrium"	);
     
-    em_data andr_eq 	= get_em_data(		EM_database, 
+    em_data andr_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3907,7 +3907,7 @@ SS_ref G_SS_mp_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"andr", 
     										"equilibrium"	);
     
-    em_data gr_eq 		= get_em_data(		EM_database, 
+    em_data gr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3915,7 +3915,7 @@ SS_ref G_SS_mp_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"gr", 
     										"equilibrium"	);
     
-    em_data pxmn_eq 		= get_em_data(		EM_database, 
+    em_data pxmn_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3923,7 +3923,7 @@ SS_ref G_SS_mp_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"pxmn", 
     										"equilibrium"	);
     
-    em_data di_eq 		= get_em_data(		EM_database, 
+    em_data di_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3986,7 +3986,7 @@ SS_ref G_SS_mp_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 /**
    retrieve reference thermodynamic data for mp_fsp
 */
-SS_ref G_SS_mp_fsp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mp_fsp_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -4015,7 +4015,7 @@ SS_ref G_SS_mp_fsp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.v[2] = 1.0;
     
     
-    em_data ab_eq 		= get_em_data(		EM_database, 
+    em_data ab_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -4023,7 +4023,7 @@ SS_ref G_SS_mp_fsp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"ab", 
     										"equilibrium"	);
     
-    em_data an_eq 		= get_em_data(		EM_database, 
+    em_data an_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -4031,7 +4031,7 @@ SS_ref G_SS_mp_fsp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"an", 
     										"equilibrium"	);
     
-    em_data san_eq 		= get_em_data(		EM_database, 
+    em_data san_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -4066,7 +4066,7 @@ SS_ref G_SS_mp_fsp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 /**
    retrieve reference thermodynamic data for mp_sa
 */
-SS_ref G_SS_mp_sa_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mp_sa_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -4098,7 +4098,7 @@ SS_ref G_SS_mp_sa_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.W[9] = 20. - 0.02*SS_ref_db.P;
     
     
-    em_data spr4_eq 		= get_em_data(		EM_database, 
+    em_data spr4_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -4106,7 +4106,7 @@ SS_ref G_SS_mp_sa_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"spr4", 
     										"equilibrium"	);
     
-    em_data spr5_eq 		= get_em_data(		EM_database, 
+    em_data spr5_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -4114,7 +4114,7 @@ SS_ref G_SS_mp_sa_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"spr5", 
     										"equilibrium"	);
     
-    em_data fspr_eq 		= get_em_data(		EM_database, 
+    em_data fspr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -4122,7 +4122,7 @@ SS_ref G_SS_mp_sa_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"fspr", 
     										"equilibrium"	);
     
-    em_data gr_eq 		= get_em_data(		EM_database, 
+    em_data gr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -4130,7 +4130,7 @@ SS_ref G_SS_mp_sa_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"gr", 
     										"equilibrium"	);
     
-    em_data andr_eq 		= get_em_data(		EM_database, 
+    em_data andr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -4179,7 +4179,7 @@ SS_ref G_SS_mp_sa_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 /**
    retrieve reference thermodynamic data for mp_sp
 */
-SS_ref G_SS_mp_sp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mp_sp_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -4207,7 +4207,7 @@ SS_ref G_SS_mp_sp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.W[5] = 30.;
     
     
-    em_data herc_eq 	= get_em_data(		EM_database, 
+    em_data herc_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -4215,7 +4215,7 @@ SS_ref G_SS_mp_sp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"herc", 
     										"equilibrium"	);
     
-    em_data sp_eq 		= get_em_data(		EM_database, 
+    em_data sp_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -4223,7 +4223,7 @@ SS_ref G_SS_mp_sp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"sp", 
     										"equilibrium"	);
     
-    em_data mt_eq 		= get_em_data(		EM_database, 
+    em_data mt_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -4231,7 +4231,7 @@ SS_ref G_SS_mp_sp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"mt", 
     										"equilibrium"	);
     
-    em_data usp_eq 		= get_em_data(		EM_database, 
+    em_data usp_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -4283,7 +4283,7 @@ SS_ref G_SS_mp_sp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 /**
    retrieve reference thermodynamic data for mp_st
 */
-SS_ref G_SS_mp_st_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mp_st_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -4315,7 +4315,7 @@ SS_ref G_SS_mp_st_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.W[9] = 30.;
     
     
-    em_data mst_eq 		= get_em_data(		EM_database, 
+    em_data mst_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -4323,7 +4323,7 @@ SS_ref G_SS_mp_st_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"mst", 
     										"equilibrium"	);
     
-    em_data fst_eq 		= get_em_data(		EM_database, 
+    em_data fst_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -4331,7 +4331,7 @@ SS_ref G_SS_mp_st_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"fst", 
     										"equilibrium"	);
     
-    em_data mnst_eq 		= get_em_data(		EM_database, 
+    em_data mnst_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -4339,7 +4339,7 @@ SS_ref G_SS_mp_st_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"mnst", 
     										"equilibrium"	);
     
-    em_data andr_eq 		= get_em_data(		EM_database, 
+    em_data andr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -4347,7 +4347,7 @@ SS_ref G_SS_mp_st_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"andr", 
     										"equilibrium"	);
     
-    em_data gr_eq 		= get_em_data(		EM_database, 
+    em_data gr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -4355,7 +4355,7 @@ SS_ref G_SS_mp_st_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"gr", 
     										"equilibrium"	);
     
-    em_data cor_eq 		= get_em_data(		EM_database, 
+    em_data cor_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -4363,7 +4363,7 @@ SS_ref G_SS_mp_st_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"cor", 
     										"equilibrium"	);
     
-    em_data ru_eq 		= get_em_data(		EM_database, 
+    em_data ru_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -4425,7 +4425,7 @@ SS_ref G_SS_mp_st_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 /**
    retrieve reference thermodynamic data for igp_fper_S11
 */
-SS_ref G_SS_ig_fper_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_ig_fper_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -4448,7 +4448,7 @@ SS_ref G_SS_ig_fper_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
     SS_ref_db.W[0] = 13.0;
 
     
-    em_data per_eq 		= get_em_data(		EM_database, 
+    em_data per_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -4456,7 +4456,7 @@ SS_ref G_SS_ig_fper_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
     										"per", 
     										"equilibrium"	);
     
-    em_data wu_eq 		= get_em_data(		EM_database, 
+    em_data wu_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -4487,7 +4487,7 @@ SS_ref G_SS_ig_fper_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
 /**
   retrieve reference thermodynamic data for biotite 
 */
-SS_ref G_SS_ig_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info  z_b, double eps){	
+SS_ref G_SS_ig_bi_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info  z_b, double eps){	
    
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -4524,7 +4524,7 @@ SS_ref G_SS_ig_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.W[14] = 40.0;		
     
     
-	em_data phl_eq 		= get_em_data(		EM_database, 
+	em_data phl_eq 		= get_em_data(		EM_dataset, 
 											len_ox,
 											z_b,
 											SS_ref_db.P,
@@ -4532,7 +4532,7 @@ SS_ref G_SS_ig_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 											"phl", 
 											"equilibrium"	);
 
-	em_data ann_eq 		= get_em_data(		EM_database, 
+	em_data ann_eq 		= get_em_data(		EM_dataset, 
 											len_ox,
 											z_b,
 											SS_ref_db.P,
@@ -4540,7 +4540,7 @@ SS_ref G_SS_ig_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 											"ann", 
 											"equilibrium"	);
 
-	em_data east_eq 	= get_em_data(		EM_database, 
+	em_data east_eq 	= get_em_data(		EM_dataset, 
 											len_ox,
 											z_b,
 											SS_ref_db.P,
@@ -4548,7 +4548,7 @@ SS_ref G_SS_ig_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 											"east", 
 											"equilibrium"	);
 
-	em_data br_eq 		= get_em_data(		EM_database, 
+	em_data br_eq 		= get_em_data(		EM_dataset, 
 											len_ox,
 											z_b,
 											SS_ref_db.P,
@@ -4556,7 +4556,7 @@ SS_ref G_SS_ig_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 											"br", 
 											"equilibrium"	);
 
-	em_data ru_eq 		= get_em_data(		EM_database, 
+	em_data ru_eq 		= get_em_data(		EM_dataset, 
 											len_ox,
 											z_b,
 											SS_ref_db.P,
@@ -4564,7 +4564,7 @@ SS_ref G_SS_ig_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 											"ru", 
 											"equilibrium"	);
 
-	em_data gr_eq 		= get_em_data(		EM_database, 
+	em_data gr_eq 		= get_em_data(		EM_dataset, 
 											len_ox,
 											z_b,
 											SS_ref_db.P,
@@ -4572,7 +4572,7 @@ SS_ref G_SS_ig_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 											"gr", 
 											"equilibrium"	);
 
-	em_data andr_eq 	= get_em_data(		EM_database, 
+	em_data andr_eq 	= get_em_data(		EM_dataset, 
 											len_ox,
 											z_b,
 											SS_ref_db.P,
@@ -4638,7 +4638,7 @@ SS_ref G_SS_ig_bi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 /**
   retrieve reference thermodynamic data for clinopyroxene 
 */
-SS_ref G_SS_ig_cpx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_ig_cpx_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -4715,7 +4715,7 @@ SS_ref G_SS_ig_cpx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.v[8] = 1.0;
     SS_ref_db.v[9] = 1.2;
   
-    em_data di_eq 		= get_em_data(		EM_database, 
+    em_data di_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -4723,7 +4723,7 @@ SS_ref G_SS_ig_cpx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"di", 
     										"equilibrium"	);
     
-    em_data fs_eq 		= get_em_data(		EM_database, 
+    em_data fs_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -4731,7 +4731,7 @@ SS_ref G_SS_ig_cpx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"fs", 
     										"equilibrium"	);
     
-    em_data cats_eq 	= get_em_data(		EM_database, 
+    em_data cats_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -4739,7 +4739,7 @@ SS_ref G_SS_ig_cpx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"cats", 
     										"equilibrium"	);
     
-    em_data kos_eq 		= get_em_data(		EM_database, 
+    em_data kos_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -4747,7 +4747,7 @@ SS_ref G_SS_ig_cpx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"kos", 
     										"equilibrium"	);
     
-    em_data jd_eq 		= get_em_data(		EM_database, 
+    em_data jd_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -4755,7 +4755,7 @@ SS_ref G_SS_ig_cpx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"jd", 
     										"equilibrium"	);
     
-    em_data cats_di 	= get_em_data(		EM_database, 
+    em_data cats_di 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -4763,7 +4763,7 @@ SS_ref G_SS_ig_cpx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"cats", 
     										"disordered"	);
     
-    em_data acm_eq 		= get_em_data(		EM_database, 
+    em_data acm_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -4771,7 +4771,7 @@ SS_ref G_SS_ig_cpx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"acm", 
     										"equilibrium"	);
     
-    em_data ru_eq 		= get_em_data(		EM_database, 
+    em_data ru_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -4779,7 +4779,7 @@ SS_ref G_SS_ig_cpx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"ru", 
     										"equilibrium"	);
     
-    em_data cor_eq 		= get_em_data(		EM_database, 
+    em_data cor_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -4787,7 +4787,7 @@ SS_ref G_SS_ig_cpx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"cor", 
     										"equilibrium"	);
     
-    em_data per_eq 		= get_em_data(		EM_database, 
+    em_data per_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -4795,7 +4795,7 @@ SS_ref G_SS_ig_cpx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"per", 
     										"equilibrium"	);
     
-    em_data en_eq 		= get_em_data(		EM_database, 
+    em_data en_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -4803,7 +4803,7 @@ SS_ref G_SS_ig_cpx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"en", 
     										"equilibrium"	);
     
-    em_data abh_eq 		= get_em_data(		EM_database, 
+    em_data abh_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -4811,7 +4811,7 @@ SS_ref G_SS_ig_cpx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"abh", 
     										"equilibrium"	);
     
-    em_data san_eq 		= get_em_data(		EM_database, 
+    em_data san_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -4902,7 +4902,7 @@ SS_ref G_SS_ig_cpx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 /**
   retrieve reference thermodynamic data for cordierite 
 */
-SS_ref G_SS_ig_cd_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_ig_cd_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -4927,7 +4927,7 @@ SS_ref G_SS_ig_cd_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.W[2] = 0.0;
     
     
-    em_data crd_eq 		= get_em_data(		EM_database, 
+    em_data crd_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -4935,7 +4935,7 @@ SS_ref G_SS_ig_cd_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"crd", 
     										"equilibrium"	);
     
-    em_data fcrd_eq 	= get_em_data(		EM_database, 
+    em_data fcrd_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -4943,7 +4943,7 @@ SS_ref G_SS_ig_cd_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"fcrd", 
     										"equilibrium"	);
     
-    em_data hcrd_eq 	= get_em_data(		EM_database, 
+    em_data hcrd_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -4981,7 +4981,7 @@ SS_ref G_SS_ig_cd_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 /**
   retrieve reference thermodynamic data for epidote 
 */
-SS_ref G_SS_ig_ep_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_ig_ep_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -5006,7 +5006,7 @@ SS_ref G_SS_ig_ep_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.W[2] = 1.0;
     
     
-    em_data cz_eq 		= get_em_data(		EM_database, 
+    em_data cz_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5014,7 +5014,7 @@ SS_ref G_SS_ig_ep_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"cz", 
     										"equilibrium"	);
     
-    em_data ep_eq 		= get_em_data(		EM_database, 
+    em_data ep_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5022,7 +5022,7 @@ SS_ref G_SS_ig_ep_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"ep", 
     										"equilibrium"	);
     
-    em_data fep_eq 		= get_em_data(		EM_database, 
+    em_data fep_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5071,7 +5071,7 @@ SS_ref G_SS_ig_ep_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 /**
    retrieve reference thermodynamic data for ig_flH
 */
-SS_ref G_SS_ig_fl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_ig_fl_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -5148,7 +5148,7 @@ SS_ref G_SS_ig_fl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.W[54] = 44.9 - 1.19*SS_ref_db.P;
     
     
-    em_data qL_eq 		= get_em_data(		EM_database, 
+    em_data qL_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5156,7 +5156,7 @@ SS_ref G_SS_ig_fl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"qL", 
     										"equilibrium"	);
     
-    em_data silL_eq 	= get_em_data(		EM_database, 
+    em_data silL_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5164,7 +5164,7 @@ SS_ref G_SS_ig_fl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"silL", 
     										"equilibrium"	);
     
-    em_data woL_eq 		= get_em_data(		EM_database, 
+    em_data woL_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5172,7 +5172,7 @@ SS_ref G_SS_ig_fl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"woL", 
     										"equilibrium"	);
     
-    em_data foL_eq 		= get_em_data(		EM_database, 
+    em_data foL_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5180,7 +5180,7 @@ SS_ref G_SS_ig_fl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"foL", 
     										"equilibrium"	);
     
-    em_data faL_eq 		= get_em_data(		EM_database, 
+    em_data faL_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5188,7 +5188,7 @@ SS_ref G_SS_ig_fl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"faL", 
     										"equilibrium"	);
     
-    em_data abL_eq 		= get_em_data(		EM_database, 
+    em_data abL_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5196,7 +5196,7 @@ SS_ref G_SS_ig_fl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"abL", 
     										"equilibrium"	);
     
-    em_data hemL_eq 	= get_em_data(		EM_database, 
+    em_data hemL_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5204,7 +5204,7 @@ SS_ref G_SS_ig_fl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"hemL", 
     										"equilibrium"	);
     
-    em_data eskL_eq 	= get_em_data(		EM_database, 
+    em_data eskL_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5212,7 +5212,7 @@ SS_ref G_SS_ig_fl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"eskL", 
     										"equilibrium"	);
     
-    em_data ruL_eq 		= get_em_data(		EM_database, 
+    em_data ruL_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5220,7 +5220,7 @@ SS_ref G_SS_ig_fl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"ruL", 
     										"equilibrium"	);
     
-    em_data kspL_eq 	= get_em_data(		EM_database, 
+    em_data kspL_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5228,7 +5228,7 @@ SS_ref G_SS_ig_fl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"kspL", 
     										"equilibrium"	);
     
-    em_data H2O_eq 		= get_em_data(		EM_database, 
+    em_data H2O_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5326,7 +5326,7 @@ SS_ref G_SS_ig_fl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 /**
   retrieve reference thermodynamic data for garnet 
 */
-SS_ref G_SS_ig_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_ig_g_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -5370,7 +5370,7 @@ SS_ref G_SS_ig_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
     SS_ref_db.v[5] = 1.0;
     
     
-    em_data py_eq 		= get_em_data(		EM_database, 
+    em_data py_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5378,7 +5378,7 @@ SS_ref G_SS_ig_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
     										"py", 
     										"equilibrium"	);
     
-    em_data alm_eq 		= get_em_data(		EM_database, 
+    em_data alm_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5386,7 +5386,7 @@ SS_ref G_SS_ig_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
     										"alm", 
     										"equilibrium"	);
     
-    em_data gr_eq 		= get_em_data(		EM_database, 
+    em_data gr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5394,7 +5394,7 @@ SS_ref G_SS_ig_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
     										"gr", 
     										"equilibrium"	);
     
-    em_data andr_eq 	= get_em_data(		EM_database, 
+    em_data andr_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5402,7 +5402,7 @@ SS_ref G_SS_ig_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
     										"andr", 
     										"equilibrium"	);
     
-    em_data knor_eq 	= get_em_data(		EM_database, 
+    em_data knor_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5410,7 +5410,7 @@ SS_ref G_SS_ig_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
     										"knor", 
     										"equilibrium"	);
     
-    em_data ru_eq 		= get_em_data(		EM_database, 
+    em_data ru_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5418,7 +5418,7 @@ SS_ref G_SS_ig_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
     										"ru", 
     										"equilibrium"	);
     
-    em_data per_eq 		= get_em_data(		EM_database, 
+    em_data per_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5426,7 +5426,7 @@ SS_ref G_SS_ig_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
     										"per", 
     										"equilibrium"	);
     
-    em_data cor_eq 		= get_em_data(		EM_database, 
+    em_data cor_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5491,7 +5491,7 @@ SS_ref G_SS_ig_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
 /**
   retrieve reference thermodynamic data for horblende 
 */
-SS_ref G_SS_ig_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_ig_hb_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -5580,7 +5580,7 @@ SS_ref G_SS_ig_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.v[10] = 1.5;
     
     
-    em_data tr_eq 		= get_em_data(		EM_database, 
+    em_data tr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5588,7 +5588,7 @@ SS_ref G_SS_ig_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"tr", 
     										"equilibrium"	);
     
-    em_data ts_eq 		= get_em_data(		EM_database, 
+    em_data ts_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5596,7 +5596,7 @@ SS_ref G_SS_ig_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"ts", 
     										"equilibrium"	);
     
-    em_data parg_eq 	= get_em_data(		EM_database, 
+    em_data parg_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5604,7 +5604,7 @@ SS_ref G_SS_ig_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"parg", 
     										"equilibrium"	);
     
-    em_data gl_eq 		= get_em_data(		EM_database, 
+    em_data gl_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5612,7 +5612,7 @@ SS_ref G_SS_ig_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"gl", 
     										"equilibrium"	);
     
-    em_data cumm_eq 	= get_em_data(		EM_database, 
+    em_data cumm_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5620,7 +5620,7 @@ SS_ref G_SS_ig_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"cumm", 
     										"equilibrium"	);
     
-    em_data grun_eq 	= get_em_data(		EM_database, 
+    em_data grun_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5628,7 +5628,7 @@ SS_ref G_SS_ig_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"grun", 
     										"equilibrium"	);
     
-    em_data gr_eq 		= get_em_data(		EM_database, 
+    em_data gr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5636,7 +5636,7 @@ SS_ref G_SS_ig_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"gr", 
     										"equilibrium"	);
     
-    em_data andr_eq 	= get_em_data(		EM_database, 
+    em_data andr_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5644,7 +5644,7 @@ SS_ref G_SS_ig_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"andr", 
     										"equilibrium"	);
     
-    em_data pa_eq 		= get_em_data(		EM_database, 
+    em_data pa_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5652,7 +5652,7 @@ SS_ref G_SS_ig_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"pa", 
     										"equilibrium"	);
     
-    em_data mu_eq 		= get_em_data(		EM_database, 
+    em_data mu_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5660,7 +5660,7 @@ SS_ref G_SS_ig_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"mu", 
     										"equilibrium"	);
     
-    em_data ru_eq 		= get_em_data(		EM_database, 
+    em_data ru_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5668,7 +5668,7 @@ SS_ref G_SS_ig_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"ru", 
     										"equilibrium"	);
     
-    em_data dsp_eq 		= get_em_data(		EM_database, 
+    em_data dsp_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5762,7 +5762,7 @@ SS_ref G_SS_ig_hb_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 /**
    retrieve reference thermodynamic data for ig_ilm
 */
-SS_ref G_SS_ig_ilm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_ig_ilm_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -5789,7 +5789,7 @@ SS_ref G_SS_ig_ilm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.W[2] = 7.25;
     
     
-    em_data ilm_or 		= get_em_data(		EM_database, 
+    em_data ilm_or 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5797,7 +5797,7 @@ SS_ref G_SS_ig_ilm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"ilm", 
     										"ordered"	);
     
-    em_data ilm_di 		= get_em_data(		EM_database, 
+    em_data ilm_di 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5805,7 +5805,7 @@ SS_ref G_SS_ig_ilm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"ilm", 
     										"disordered"	);
     
-    em_data hem_eq 		= get_em_data(		EM_database, 
+    em_data hem_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -5846,7 +5846,7 @@ SS_ref G_SS_ig_ilm_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 /**
    retrieve reference thermodynamic data for ig_liqHw
 */
-SS_ref G_SS_ig_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_ig_liq_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
         
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -5947,7 +5947,7 @@ SS_ref G_SS_ig_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.v[11] = 100.0;
     
     
-    em_data qL_eq 		= get_em_data(		EM_database, 
+    em_data qL_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -5955,7 +5955,7 @@ SS_ref G_SS_ig_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"qL", 
     										"equilibrium"	);
     
-    em_data silL_eq 	= get_em_data(		EM_database, 
+    em_data silL_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -5963,7 +5963,7 @@ SS_ref G_SS_ig_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"silL", 
     										"equilibrium"	);
     
-    em_data woL_eq 		= get_em_data(		EM_database, 
+    em_data woL_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -5971,7 +5971,7 @@ SS_ref G_SS_ig_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"woL", 
     										"equilibrium"	);
     
-    em_data foL_eq 		= get_em_data(		EM_database, 
+    em_data foL_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -5979,7 +5979,7 @@ SS_ref G_SS_ig_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"foL", 
     										"equilibrium"	);
     
-    em_data faL_eq 		= get_em_data(		EM_database, 
+    em_data faL_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -5987,7 +5987,7 @@ SS_ref G_SS_ig_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"faL", 
     										"equilibrium"	);
     
-    em_data abL_eq 		= get_em_data(		EM_database, 
+    em_data abL_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -5995,7 +5995,7 @@ SS_ref G_SS_ig_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"abL", 
     										"equilibrium"	);
     
-    em_data hemL_eq 	= get_em_data(		EM_database, 
+    em_data hemL_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -6003,7 +6003,7 @@ SS_ref G_SS_ig_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"hemL", 
     										"equilibrium"	);
     
-    em_data eskL_eq 	= get_em_data(		EM_database, 
+    em_data eskL_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -6011,7 +6011,7 @@ SS_ref G_SS_ig_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"eskL", 
     										"equilibrium"	);
     
-    em_data ruL_eq 		= get_em_data(		EM_database, 
+    em_data ruL_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -6019,7 +6019,7 @@ SS_ref G_SS_ig_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"ruL", 
     										"equilibrium"	);
     
-    em_data kspL_eq     = get_em_data(		EM_database, 
+    em_data kspL_eq     = get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -6027,7 +6027,7 @@ SS_ref G_SS_ig_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"kspL", 
     										"equilibrium"	);
     
-    em_data h2oL_eq 	= get_em_data(		EM_database, 
+    em_data h2oL_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -6131,7 +6131,7 @@ SS_ref G_SS_ig_liq_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 /**
   retrieve reference thermodynamic data for muscovite
 */
-SS_ref G_SS_ig_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_ig_mu_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -6175,7 +6175,7 @@ SS_ref G_SS_ig_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.v[5] = 0.63;
     
     
-    em_data mu_eq 		= get_em_data(		EM_database, 
+    em_data mu_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6183,7 +6183,7 @@ SS_ref G_SS_ig_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"mu", 
     										"equilibrium"	);
     
-    em_data cel_eq 		= get_em_data(		EM_database, 
+    em_data cel_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6191,7 +6191,7 @@ SS_ref G_SS_ig_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"cel", 
     										"equilibrium"	);
     
-    em_data fcel_eq 	= get_em_data(		EM_database, 
+    em_data fcel_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6199,7 +6199,7 @@ SS_ref G_SS_ig_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"fcel", 
     										"equilibrium"	);
     
-    em_data pa_eq 		= get_em_data(		EM_database, 
+    em_data pa_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6207,7 +6207,7 @@ SS_ref G_SS_ig_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"pa", 
     										"equilibrium"	);
     
-    em_data ma_eq 		= get_em_data(		EM_database, 
+    em_data ma_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6215,7 +6215,7 @@ SS_ref G_SS_ig_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"ma", 
     										"equilibrium"	);
     
-    em_data gr_eq 		= get_em_data(		EM_database, 
+    em_data gr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6223,7 +6223,7 @@ SS_ref G_SS_ig_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"gr", 
     										"equilibrium"	);
     
-    em_data andr_eq 	= get_em_data(		EM_database, 
+    em_data andr_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6277,7 +6277,7 @@ SS_ref G_SS_ig_mu_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 /**
   retrieve reference thermodynamic data for olivine
 */
-SS_ref G_SS_ig_ol_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_ig_ol_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -6305,7 +6305,7 @@ SS_ref G_SS_ig_ol_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.W[5] = 4.5;
     
     
-    em_data mont_eq 	= get_em_data(		EM_database, 
+    em_data mont_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6313,7 +6313,7 @@ SS_ref G_SS_ig_ol_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"mont", 
     										"equilibrium"	);
     
-    em_data fa_eq 		= get_em_data(		EM_database, 
+    em_data fa_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6321,7 +6321,7 @@ SS_ref G_SS_ig_ol_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"fa", 
     										"equilibrium"	);
     
-    em_data fo_eq 		= get_em_data(		EM_database, 
+    em_data fo_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6360,7 +6360,7 @@ SS_ref G_SS_ig_ol_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 /**
   retrieve reference thermodynamic data for orthopyroxene
 */
-SS_ref G_SS_ig_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_ig_opx_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -6428,7 +6428,7 @@ SS_ref G_SS_ig_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.v[8] = 1.2;
     
     
-    em_data en_eq 		= get_em_data(		EM_database, 
+    em_data en_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6436,7 +6436,7 @@ SS_ref G_SS_ig_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"en", 
     										"equilibrium"	);
     
-    em_data fs_eq 		= get_em_data(		EM_database, 
+    em_data fs_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6444,7 +6444,7 @@ SS_ref G_SS_ig_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"fs", 
     										"equilibrium"	);
     
-    em_data di_eq 		= get_em_data(		EM_database, 
+    em_data di_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6452,7 +6452,7 @@ SS_ref G_SS_ig_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"di", 
     										"equilibrium"	);
     
-    em_data mgts_eq 	= get_em_data(		EM_database, 
+    em_data mgts_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6460,7 +6460,7 @@ SS_ref G_SS_ig_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"mgts", 
     										"equilibrium"	);
     
-    em_data kos_eq 		= get_em_data(		EM_database, 
+    em_data kos_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6468,7 +6468,7 @@ SS_ref G_SS_ig_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"kos", 
     										"equilibrium"	);
     
-    em_data jd_eq 		= get_em_data(		EM_database, 
+    em_data jd_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6476,7 +6476,7 @@ SS_ref G_SS_ig_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"jd", 
     										"equilibrium"	);
     
-    em_data ru_eq 		= get_em_data(		EM_database, 
+    em_data ru_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6484,7 +6484,7 @@ SS_ref G_SS_ig_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"ru", 
     										"equilibrium"	);
     
-    em_data cor_eq 		= get_em_data(		EM_database, 
+    em_data cor_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6492,7 +6492,7 @@ SS_ref G_SS_ig_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"cor", 
     										"equilibrium"	);
     
-    em_data per_eq 		= get_em_data(		EM_database, 
+    em_data per_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6500,7 +6500,7 @@ SS_ref G_SS_ig_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"per", 
     										"equilibrium"	);
     
-    em_data acm_eq 		= get_em_data(		EM_database, 
+    em_data acm_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6579,7 +6579,7 @@ SS_ref G_SS_ig_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 /**
   retrieve reference thermodynamic data for plagioclase4T (late 2021 update of TC, given by Eleanor)
 */
-SS_ref G_SS_ig_fsp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_ig_fsp_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -6608,7 +6608,7 @@ SS_ref G_SS_ig_fsp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.v[2] = 1.0;
     
     
-    em_data ab_eq 		= get_em_data(		EM_database, 
+    em_data ab_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6616,7 +6616,7 @@ SS_ref G_SS_ig_fsp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"ab", 
     										"equilibrium"	);
     
-    em_data an_eq 		= get_em_data(		EM_database, 
+    em_data an_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6624,7 +6624,7 @@ SS_ref G_SS_ig_fsp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"an", 
     										"equilibrium"	);
     
-    em_data san_eq 		= get_em_data(		EM_database, 
+    em_data san_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6666,7 +6666,7 @@ SS_ref G_SS_ig_fsp_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 /**
   retrieve reference thermodynamic data for spinel
 */
-SS_ref G_SS_ig_spn_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_ig_spn_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -6716,7 +6716,7 @@ SS_ref G_SS_ig_spn_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.W[27] = 60.0;
     
     
-    em_data sp_or 		= get_em_data(		EM_database, 
+    em_data sp_or 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6724,7 +6724,7 @@ SS_ref G_SS_ig_spn_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"sp", 
     										"ordered"	);
     
-    em_data herc_or 	= get_em_data(		EM_database, 
+    em_data herc_or 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6732,7 +6732,7 @@ SS_ref G_SS_ig_spn_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"herc", 
     										"ordered"	);
     
-    em_data mt_eq 		= get_em_data(		EM_database, 
+    em_data mt_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6740,7 +6740,7 @@ SS_ref G_SS_ig_spn_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"mt", 
     										"equilibrium"	);
     
-    em_data picr_eq 	= get_em_data(		EM_database, 
+    em_data picr_eq 	= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6748,7 +6748,7 @@ SS_ref G_SS_ig_spn_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"picr", 
     										"equilibrium"	);
     
-    em_data qnd_eq 		= get_em_data(		EM_database, 
+    em_data qnd_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
 											SS_ref_db.P,
@@ -6840,7 +6840,7 @@ SS_ref G_SS_ig_spn_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 /**
    retrieve reference thermodynamic data for ev_fluid
 */
-SS_ref G_SS_um_fluid_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_um_fluid_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -6860,7 +6860,7 @@ SS_ref G_SS_um_fluid_function(SS_ref SS_ref_db, int EM_database, int len_ox, bul
     };
     //int si = sizeof(SF_tmp)/sizeof(SF_tmp[0]); printf("sz_tmp: %d n_sf %d\n",si,SS_ref_db.n_sf);
     
-    em_data H2_eq 		= get_em_data(		EM_database, 
+    em_data H2_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -6868,7 +6868,7 @@ SS_ref G_SS_um_fluid_function(SS_ref SS_ref_db, int EM_database, int len_ox, bul
     										"H2", 
     										"equilibrium"	);
     
-    em_data H2O_eq 		= get_em_data(		EM_database, 
+    em_data H2O_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -6899,7 +6899,7 @@ SS_ref G_SS_um_fluid_function(SS_ref SS_ref_db, int EM_database, int len_ox, bul
 /**
    retrieve reference thermodynamic data for ev_ol
 */
-SS_ref G_SS_um_ol_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_um_ol_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -6922,7 +6922,7 @@ SS_ref G_SS_um_ol_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.W[0] = 8.0;
     
     
-    em_data fo_eq 		= get_em_data(		EM_database, 
+    em_data fo_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -6930,7 +6930,7 @@ SS_ref G_SS_um_ol_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"fo", 
     										"equilibrium"	);
     
-    em_data fa_eq 		= get_em_data(		EM_database, 
+    em_data fa_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -6961,7 +6961,7 @@ SS_ref G_SS_um_ol_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 /**
    retrieve reference thermodynamic data for ev_br
 */
-SS_ref G_SS_um_br_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_um_br_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -6981,7 +6981,7 @@ SS_ref G_SS_um_br_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     };
     //int si = sizeof(SF_tmp)/sizeof(SF_tmp[0]); printf("sz_tmp: %d n_sf %d\n",si,SS_ref_db.n_sf);
     
-    em_data br_eq 		= get_em_data(		EM_database, 
+    em_data br_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -6989,7 +6989,7 @@ SS_ref G_SS_um_br_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"br", 
     										"equilibrium"	);
     
-    em_data fo_eq 		= get_em_data(		EM_database, 
+    em_data fo_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -6997,7 +6997,7 @@ SS_ref G_SS_um_br_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"fo", 
     										"equilibrium"	);
     
-    em_data fa_eq 		= get_em_data(		EM_database, 
+    em_data fa_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7028,7 +7028,7 @@ SS_ref G_SS_um_br_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 /**
    retrieve reference thermodynamic data for ev_ch
 */
-SS_ref G_SS_um_ch_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_um_ch_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -7051,7 +7051,7 @@ SS_ref G_SS_um_ch_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.W[0] = 36.000;
     
     
-    em_data chum_eq 		= get_em_data(	EM_database, 
+    em_data chum_eq 		= get_em_data(	EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7059,7 +7059,7 @@ SS_ref G_SS_um_ch_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"chum", 
     										"equilibrium"	);
     
-    em_data fo_eq 		= get_em_data(		EM_database, 
+    em_data fo_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7067,7 +7067,7 @@ SS_ref G_SS_um_ch_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"fo", 
     										"equilibrium"	);
     
-    em_data fa_eq 		= get_em_data(		EM_database, 
+    em_data fa_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7098,7 +7098,7 @@ SS_ref G_SS_um_ch_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 /**
    retrieve reference thermodynamic data for ev_atg
 */
-SS_ref G_SS_um_atg_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_um_atg_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -7130,7 +7130,7 @@ SS_ref G_SS_um_atg_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.W[9] = 2.0;
     
     
-    em_data atg_eq 		= get_em_data(		EM_database, 
+    em_data atg_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7138,7 +7138,7 @@ SS_ref G_SS_um_atg_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"atg", 
     										"equilibrium"	);
     
-    em_data fta_eq 		= get_em_data(		EM_database, 
+    em_data fta_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7146,7 +7146,7 @@ SS_ref G_SS_um_atg_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"fta", 
     										"equilibrium"	);
     
-    em_data ta_eq 		= get_em_data(		EM_database, 
+    em_data ta_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7154,7 +7154,7 @@ SS_ref G_SS_um_atg_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"ta", 
     										"equilibrium"	);
     
-    em_data tats_eq 		= get_em_data(		EM_database, 
+    em_data tats_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7162,7 +7162,7 @@ SS_ref G_SS_um_atg_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"tats", 
     										"equilibrium"	);
     
-    em_data andr_eq 		= get_em_data(		EM_database, 
+    em_data andr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7170,7 +7170,7 @@ SS_ref G_SS_um_atg_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"andr", 
     										"equilibrium"	);
     
-    em_data gr_eq 		= get_em_data(		EM_database, 
+    em_data gr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7213,7 +7213,7 @@ SS_ref G_SS_um_atg_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 /**
    retrieve reference thermodynamic data for ev_g
 */
-SS_ref G_SS_um_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_um_g_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -7236,7 +7236,7 @@ SS_ref G_SS_um_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
     SS_ref_db.W[0] = 0.1*SS_ref_db.P + 4.0;
     
     
-    em_data py_eq 		= get_em_data(		EM_database, 
+    em_data py_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7244,7 +7244,7 @@ SS_ref G_SS_um_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
     										"py", 
     										"equilibrium"	);
     
-    em_data alm_eq 		= get_em_data(		EM_database, 
+    em_data alm_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7276,7 +7276,7 @@ SS_ref G_SS_um_g_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_in
 /**
    retrieve reference thermodynamic data for ev_ta
 */
-SS_ref G_SS_um_ta_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_um_ta_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -7313,7 +7313,7 @@ SS_ref G_SS_um_ta_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.W[14] = 66.500;
     
     
-    em_data ta_eq 		= get_em_data(		EM_database, 
+    em_data ta_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7321,7 +7321,7 @@ SS_ref G_SS_um_ta_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"ta", 
     										"equilibrium"	);
     
-    em_data fta_eq 		= get_em_data(		EM_database, 
+    em_data fta_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7329,7 +7329,7 @@ SS_ref G_SS_um_ta_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"fta", 
     										"equilibrium"	);
     
-    em_data tats_eq 		= get_em_data(	EM_database, 
+    em_data tats_eq 		= get_em_data(	EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7337,7 +7337,7 @@ SS_ref G_SS_um_ta_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"tats", 
     										"equilibrium"	);
     
-    em_data andr_eq 		= get_em_data(	EM_database, 
+    em_data andr_eq 		= get_em_data(	EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7345,7 +7345,7 @@ SS_ref G_SS_um_ta_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"andr", 
     										"equilibrium"	);
     
-    em_data gr_eq 		= get_em_data(		EM_database, 
+    em_data gr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7353,7 +7353,7 @@ SS_ref G_SS_um_ta_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"gr", 
     										"equilibrium"	);
     
-    em_data tap_eq 		= get_em_data(		EM_database, 
+    em_data tap_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7400,7 +7400,7 @@ SS_ref G_SS_um_ta_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 /**
    retrieve reference thermodynamic data for ev_chl
 */
-SS_ref G_SS_um_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_um_chl_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -7443,7 +7443,7 @@ SS_ref G_SS_um_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.W[20] = 19.00;
     
     
-    em_data clin_eq 		= get_em_data(		EM_database, 
+    em_data clin_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7451,7 +7451,7 @@ SS_ref G_SS_um_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"clin", 
     										"equilibrium"	);
     
-    em_data afchl_eq 		= get_em_data(		EM_database, 
+    em_data afchl_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7459,7 +7459,7 @@ SS_ref G_SS_um_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"afchl", 
     										"equilibrium"	);
     
-    em_data ames_eq 		= get_em_data(		EM_database, 
+    em_data ames_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7467,7 +7467,7 @@ SS_ref G_SS_um_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"ames", 
     										"equilibrium"	);
     
-    em_data daph_eq 		= get_em_data(		EM_database, 
+    em_data daph_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7475,7 +7475,7 @@ SS_ref G_SS_um_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"daph", 
     										"equilibrium"	);
     
-    em_data gr_eq 		= get_em_data(		EM_database, 
+    em_data gr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7483,7 +7483,7 @@ SS_ref G_SS_um_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"gr", 
     										"equilibrium"	);
     
-    em_data andr_eq 		= get_em_data(		EM_database, 
+    em_data andr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7535,7 +7535,7 @@ SS_ref G_SS_um_chl_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 /**
    retrieve reference thermodynamic data for ev_anth
 */
-SS_ref G_SS_um_anth_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_um_anth_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -7573,7 +7573,7 @@ SS_ref G_SS_um_anth_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
     SS_ref_db.v[4] = 1.000;
     
     
-    em_data anth_eq 		= get_em_data(	EM_database, 
+    em_data anth_eq 		= get_em_data(	EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7581,7 +7581,7 @@ SS_ref G_SS_um_anth_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
     										"anth", 
     										"equilibrium"	);
     
-    em_data ged_eq 		= get_em_data(		EM_database, 
+    em_data ged_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7589,7 +7589,7 @@ SS_ref G_SS_um_anth_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
     										"ged", 
     										"equilibrium"	);
     
-    em_data fanth_eq 		= get_em_data(	EM_database, 
+    em_data fanth_eq 		= get_em_data(	EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7632,7 +7632,7 @@ SS_ref G_SS_um_anth_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk
 /**
    retrieve reference thermodynamic data for ev_spi
 */
-SS_ref G_SS_um_spi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_um_spi_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -7657,7 +7657,7 @@ SS_ref G_SS_um_spi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.W[2] = 40.000;
     
     
-    em_data herc_eq 		= get_em_data(		EM_database, 
+    em_data herc_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7665,7 +7665,7 @@ SS_ref G_SS_um_spi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"herc", 
     										"equilibrium"	);
     
-    em_data sp_eq 		= get_em_data(		EM_database, 
+    em_data sp_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7673,7 +7673,7 @@ SS_ref G_SS_um_spi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"sp", 
     										"equilibrium"	);
     
-    em_data mt_eq 		= get_em_data(		EM_database, 
+    em_data mt_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7708,7 +7708,7 @@ SS_ref G_SS_um_spi_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 /**
    retrieve reference thermodynamic data for ev_opx
 */
-SS_ref G_SS_um_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_um_opx_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -7740,7 +7740,7 @@ SS_ref G_SS_um_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     SS_ref_db.W[9] = 1.0;
     
     
-    em_data en_eq 		= get_em_data(		EM_database, 
+    em_data en_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7748,7 +7748,7 @@ SS_ref G_SS_um_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"en", 
     										"equilibrium"	);
     
-    em_data fs_eq 		= get_em_data(		EM_database, 
+    em_data fs_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7756,7 +7756,7 @@ SS_ref G_SS_um_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"fs", 
     										"equilibrium"	);
     
-    em_data mgts_eq 		= get_em_data(		EM_database, 
+    em_data mgts_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7764,7 +7764,7 @@ SS_ref G_SS_um_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"mgts", 
     										"equilibrium"	);
     
-    em_data andr_eq 		= get_em_data(		EM_database, 
+    em_data andr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7772,7 +7772,7 @@ SS_ref G_SS_um_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
     										"andr", 
     										"equilibrium"	);
     
-    em_data gr_eq 		= get_em_data(		EM_database, 
+    em_data gr_eq 		= get_em_data(		EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7815,7 +7815,7 @@ SS_ref G_SS_um_opx_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_
 /**
    retrieve reference thermodynamic data for ev_po
 */
-SS_ref G_SS_um_po_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_um_po_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -7838,7 +7838,7 @@ SS_ref G_SS_um_po_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     SS_ref_db.W[0] = -3.190;
     
     
-    em_data trov_eq 		= get_em_data(	EM_database, 
+    em_data trov_eq 		= get_em_data(	EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7846,7 +7846,7 @@ SS_ref G_SS_um_po_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
     										"trov", 
     										"equilibrium"	);
     
-    em_data trot_eq 		= get_em_data(	EM_database, 
+    em_data trot_eq 		= get_em_data(	EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -7876,7 +7876,7 @@ SS_ref G_SS_um_po_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_i
 
 SS_ref G_SS_mb_EM_function(		global_variable 	 gv,
 								SS_ref 				 SS_ref_db, 
-								int 				 EM_database, 
+								int 				 EM_dataset, 
 								bulk_info 	 		 z_b, 
 								char   				*name				){
 									  
@@ -7903,45 +7903,45 @@ SS_ref G_SS_mb_EM_function(		global_variable 	 gv,
 			if ( T < gv.min_melt_T){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-            SS_ref_db  = G_SS_mb_liq_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+            SS_ref_db  = G_SS_mb_liq_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "hb") == 0 ){
-            SS_ref_db  = G_SS_mb_hb_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+            SS_ref_db  = G_SS_mb_hb_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "aug") == 0 ){
-            SS_ref_db  = G_SS_mb_aug_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+            SS_ref_db  = G_SS_mb_aug_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "dio") == 0 ){
-            SS_ref_db  = G_SS_mb_dio_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+            SS_ref_db  = G_SS_mb_dio_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "opx") == 0 ){
-            SS_ref_db  = G_SS_mb_opx_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+            SS_ref_db  = G_SS_mb_opx_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "g") == 0 ){
-            SS_ref_db  = G_SS_mb_g_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+            SS_ref_db  = G_SS_mb_g_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "ol") == 0 ){
-            SS_ref_db  = G_SS_mb_ol_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+            SS_ref_db  = G_SS_mb_ol_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "fsp") == 0 ){
-            SS_ref_db  = G_SS_mb_fsp_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+            SS_ref_db  = G_SS_mb_fsp_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "abc") == 0 ){
-            SS_ref_db  = G_SS_mb_abc_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+            SS_ref_db  = G_SS_mb_abc_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "k4tr") == 0 ){
-            SS_ref_db  = G_SS_mb_k4tr_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+            SS_ref_db  = G_SS_mb_k4tr_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "sp") == 0 ){
-            SS_ref_db  = G_SS_mb_sp_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+            SS_ref_db  = G_SS_mb_sp_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "ilm") == 0 ){
 			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-            SS_ref_db  = G_SS_mb_ilm_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+            SS_ref_db  = G_SS_mb_ilm_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "ilmm") == 0 ){
 			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-            SS_ref_db  = G_SS_mb_ilmm_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+            SS_ref_db  = G_SS_mb_ilmm_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "ep") == 0 ){
-            SS_ref_db  = G_SS_mb_ep_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+            SS_ref_db  = G_SS_mb_ep_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "bi") == 0 ){
-            SS_ref_db  = G_SS_mb_bi_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+            SS_ref_db  = G_SS_mb_bi_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "mu") == 0 ){
-            SS_ref_db  = G_SS_mb_mu_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+            SS_ref_db  = G_SS_mb_mu_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "chl") == 0 ){
-            SS_ref_db  = G_SS_mb_chl_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+            SS_ref_db  = G_SS_mb_chl_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
         else{
             printf("\nsolid solution '%s' is not in the database\n",name);	}
 
@@ -7980,17 +7980,16 @@ SS_ref G_SS_mb_EM_function(		global_variable 	 gv,
 		}
 		printf("\n");
 
-		if (1 == 1){
-			/* display molar composition */
-            printf("\n S   A   C   M   F   K   N   T   O   H\n");
-			for (int i = 0; i < SS_ref_db.n_em; i++){
-				for (int j = 0; j < gv.len_ox; j++){
-					printf(" %.1f",SS_ref_db.Comp[i][j]);
-				}
-				printf("\n");
-			}
-			printf("\n");
-		}
+        /* display molar composition */
+        printf("\n S   A   C   M   F   K   N   T   O   H\n");
+        for (int i = 0; i < SS_ref_db.n_em; i++){
+            for (int j = 0; j < gv.len_ox; j++){
+                printf(" %.1f",SS_ref_db.Comp[i][j]);
+            }
+            printf("\n");
+        }
+        printf("\n");
+	
 	}
 
 	return SS_ref_db;
@@ -8001,7 +8000,7 @@ SS_ref G_SS_mb_EM_function(		global_variable 	 gv,
 */
 SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
 								SS_ref 				 SS_ref_db, 
-								int 				 EM_database, 
+								int 				 EM_dataset, 
 								bulk_info 	 		 z_b, 
 								char   				*name				){
 									  
@@ -8027,63 +8026,63 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
 			if (z_b.bulk_rock[gv.H2O_id] == 0. || z_b.bulk_rock[gv.K2O_id] == 0. || z_b.bulk_rock[gv.Al2O3_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_ig_bi_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+			SS_ref_db  = G_SS_ig_bi_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "cd") == 0){
 			if (z_b.bulk_rock[gv.H2O_id] == 0.  || z_b.bulk_rock[gv.Al2O3_id] == 0. ){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_ig_cd_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+			SS_ref_db  = G_SS_ig_cd_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "cpx") == 0){
-			SS_ref_db  = G_SS_ig_cpx_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}	
+			SS_ref_db  = G_SS_ig_cpx_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}	
 		else if (strcmp( name, "ep") == 0){
 			if (z_b.bulk_rock[gv.H2O_id] == 0. || z_b.bulk_rock[gv.Al2O3_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_ig_ep_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+			SS_ref_db  = G_SS_ig_ep_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "fl") == 0){
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_ig_fl_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}		
+			SS_ref_db  = G_SS_ig_fl_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}		
 		else if (strcmp( name, "g") == 0){
 			if (z_b.bulk_rock[gv.Al2O3_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_ig_g_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);		}
+			SS_ref_db  = G_SS_ig_g_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);		}
 		else if (strcmp( name, "hb") == 0){
 			if (z_b.bulk_rock[gv.H2O_id] == 0.  || z_b.bulk_rock[gv.Al2O3_id] == 0. ){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_ig_hb_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}	
+			SS_ref_db  = G_SS_ig_hb_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}	
 		else if (strcmp( name, "ilm") == 0){
 			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_ig_ilm_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+			SS_ref_db  = G_SS_ig_ilm_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "liq") == 0){
 			if ( T < gv.min_melt_T){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db = G_SS_ig_liq_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+			SS_ref_db = G_SS_ig_liq_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "mu") == 0){
 			if (z_b.bulk_rock[gv.H2O_id] == 0. || z_b.bulk_rock[gv.K2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_ig_mu_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}	
+			SS_ref_db  = G_SS_ig_mu_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}	
 		else if (strcmp( name, "ol") == 0){
-			SS_ref_db  = G_SS_ig_ol_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+			SS_ref_db  = G_SS_ig_ol_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "opx") == 0){
-			SS_ref_db  = G_SS_ig_opx_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	
+			SS_ref_db  = G_SS_ig_opx_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	
         if (gv.limitCaOpx == 1){ SS_ref_db.bounds_ref[2][1] =  gv.CaOpxLim - eps;          }}
         else if (strcmp( name, "fper") == 0 ){
-            SS_ref_db  = G_SS_ig_fper_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);}
+            SS_ref_db  = G_SS_ig_fper_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);}
 		else if (strcmp( name, "fsp") == 0){
 			if (z_b.bulk_rock[gv.Al2O3_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_ig_fsp_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}	
+			SS_ref_db  = G_SS_ig_fsp_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}	
 		else if (strcmp( name, "spn") == 0){
-			SS_ref_db  = G_SS_ig_spn_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+			SS_ref_db  = G_SS_ig_spn_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
 		else{
 			printf("\nsolid solution '%s' is not in the database\n",name);	}	
 		
@@ -8122,17 +8121,16 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
 		}
 		printf("\n");
 
-		if (1 == 1){
-			/* display molar composition */
-            printf("\n S   A   C   M   F   K   N   T   O   Cr  H\n");
-			for (int i = 0; i < SS_ref_db.n_em; i++){
-				for (int j = 0; j < gv.len_ox; j++){
-					printf(" %.1f",SS_ref_db.Comp[i][j]);
-				}
-				printf("\n");
-			}
-			printf("\n");
-		}
+        /* display molar composition */
+        printf("\n S   A   C   M   F   K   N   T   O   Cr  H\n");
+        for (int i = 0; i < SS_ref_db.n_em; i++){
+            for (int j = 0; j < gv.len_ox; j++){
+                printf(" %.1f",SS_ref_db.Comp[i][j]);
+            }
+            printf("\n");
+        }
+        printf("\n");
+		
 	}
 
 	return SS_ref_db;
@@ -8143,7 +8141,7 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
 */
 SS_ref G_SS_mp_EM_function(		global_variable 	 gv,
 								SS_ref 				 SS_ref_db, 
-								int 				 EM_database, 
+								int 				 EM_dataset, 
 								bulk_info 	 		 z_b, 
 								char   				*name				){
 									  
@@ -8170,85 +8168,85 @@ SS_ref G_SS_mp_EM_function(		global_variable 	 gv,
 			if ( T < gv.min_melt_T){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db = G_SS_mp_liq_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	    }
+			SS_ref_db = G_SS_mp_liq_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	    }
         else if (strcmp( name, "bi") == 0 ){
 			// if no H2O, deactivate
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_mp_bi_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	    }
+			SS_ref_db  = G_SS_mp_bi_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	    }
 		else if (strcmp( name, "fsp") == 0){
-			SS_ref_db  = G_SS_mp_fsp_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+			SS_ref_db  = G_SS_mp_fsp_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "g") == 0){
-			SS_ref_db  = G_SS_mp_g_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+			SS_ref_db  = G_SS_mp_g_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "ep") == 0 ){
 			// if no H2O, deactivate
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_mp_ep_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	    }
+			SS_ref_db  = G_SS_mp_ep_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	    }
         else if (strcmp( name, "ma") == 0 ){
 			// if no H2O, deactivate
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_mp_ma_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	    }
+			SS_ref_db  = G_SS_mp_ma_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	    }
         else if (strcmp( name, "mu") == 0 ){
 			// if no H2O, deactivate
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_mp_mu_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	    }
+			SS_ref_db  = G_SS_mp_mu_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	    }
 		else if (strcmp( name, "opx") == 0){
-			SS_ref_db  = G_SS_mp_opx_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	    }
+			SS_ref_db  = G_SS_mp_opx_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	    }
 		else if (strcmp( name, "sa") == 0){
-			SS_ref_db  = G_SS_mp_sa_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	    }
+			SS_ref_db  = G_SS_mp_sa_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	    }
 		else if (strcmp( name, "cd") == 0){
 			// if no H2O, deactivate
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_mp_cd_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	    }
+			SS_ref_db  = G_SS_mp_cd_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	    }
         else if (strcmp( name, "st") == 0 ){
 			// if no H2O, deactivate
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_mp_st_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	    }
+			SS_ref_db  = G_SS_mp_st_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	    }
         else if (strcmp( name, "chl") == 0 ){
 			// if no H2O, deactivate
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_mp_chl_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	    }
+			SS_ref_db  = G_SS_mp_chl_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	    }
         else if (strcmp( name, "ctd") == 0 ){
 			// if no H2O, deactivate
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_mp_ctd_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	    }
+			SS_ref_db  = G_SS_mp_ctd_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	    }
 		else if (strcmp( name, "sp") == 0){
 			if (z_b.bulk_rock[gv.O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_mp_sp_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	    }
+			SS_ref_db  = G_SS_mp_sp_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	    }
 		else if (strcmp( name, "ilm") == 0){
 			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_mp_ilm_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);    }
+			SS_ref_db  = G_SS_mp_ilm_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);    }
 		else if (strcmp( name, "ilmm") == 0){
 			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_mp_ilmm_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);    }
+			SS_ref_db  = G_SS_mp_ilmm_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);    }
 		else if (strcmp( name, "mt") == 0){
             if (z_b.bulk_rock[gv.TiO2_id] == 0. && z_b.bulk_rock[gv.MnO_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_mp_mt_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	    }
+			SS_ref_db  = G_SS_mp_mt_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	    }
 		else if (strcmp( name, "aq17") == 0){
-			SS_ref_db  = G_SS_aq17_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	    }
+			SS_ref_db  = G_SS_aq17_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	    }
 		else{
 			printf("\nsolid solution '%s' is not in the database\n",name);	                    }	
 		for (int j = 0; j < SS_ref_db.n_em; j++){
@@ -8288,17 +8286,16 @@ SS_ref G_SS_mp_EM_function(		global_variable 	 gv,
 		}
 		printf("\n");
 
-		if (1 == 1){
-			/* display molar composition */
-            printf("\n S   A   C   M   F   K   N   T   O   M   H  \n");
-			for (int i = 0; i < SS_ref_db.n_em; i++){
-				for (int j = 0; j < gv.len_ox; j++){
-					printf(" %.1f",SS_ref_db.Comp[i][j]);
-				}
-				printf("\n");
-			}
-			printf("\n");
-		}
+        /* display molar composition */
+        printf("\n S   A   C   M   F   K   N   T   O   M   H  \n");
+        for (int i = 0; i < SS_ref_db.n_em; i++){
+            for (int j = 0; j < gv.len_ox; j++){
+                printf(" %.1f",SS_ref_db.Comp[i][j]);
+            }
+            printf("\n");
+        }
+        printf("\n");
+
 	}
 
 	return SS_ref_db;
@@ -8310,7 +8307,7 @@ SS_ref G_SS_mp_EM_function(		global_variable 	 gv,
 */
 SS_ref G_SS_um_EM_function(		global_variable 	 gv,
 								SS_ref 				 SS_ref_db, 
-								int 				 EM_database, 
+								int 				 EM_dataset, 
 								bulk_info 	 		 z_b, 
 								char   				*name				){
 									  
@@ -8322,7 +8319,7 @@ SS_ref G_SS_um_EM_function(		global_variable 	 gv,
 
 	/* Associate the right solid-solution data */
 	for (int FD = 0; FD < gv.n_Diff; FD++){				/* cycle twice in order to get gb_P_eps to calculate densities later on */
-		//printf("%d %d %s...........\n",FD,EM_database,name);	
+		//printf("%d %d %s...........\n",FD,EM_dataset,name);	
 		if (FD == 8 || FD == 9){				// dG/dP0 to get Volume at P = 1bar
 			SS_ref_db.P = 1.+ gv.gb_P_eps*gv.pdev[0][FD];
 			SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
@@ -8337,54 +8334,54 @@ SS_ref G_SS_um_EM_function(		global_variable 	 gv,
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_um_fluid_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);}
+			SS_ref_db  = G_SS_um_fluid_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);}
 		else if (strcmp( name, "br") == 0){
 			// if no H2O, deactivate
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_um_br_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+			SS_ref_db  = G_SS_um_br_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "ol") == 0){
-			SS_ref_db  = G_SS_um_ol_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}	
+			SS_ref_db  = G_SS_um_ol_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}	
 		else if (strcmp( name, "ch") == 0){
 			// if no h2O, deactivate
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_um_ch_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+			SS_ref_db  = G_SS_um_ch_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "atg") == 0){
 			// if no H2O, deactivate
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_um_atg_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}		
+			SS_ref_db  = G_SS_um_atg_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}		
 		else if (strcmp( name, "g") == 0){
-			SS_ref_db  = G_SS_um_g_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);		}
+			SS_ref_db  = G_SS_um_g_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);		}
 		else if (strcmp( name, "ta") == 0){
 			// if no H2O, deactivate
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_um_ta_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}	
+			SS_ref_db  = G_SS_um_ta_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}	
 		else if (strcmp( name, "po") == 0){
 			// if no S, deactivate
-			SS_ref_db  = G_SS_um_po_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+			SS_ref_db  = G_SS_um_po_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "chl") == 0){
 			// if no H2O, deactivate
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_um_chl_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}	
+			SS_ref_db  = G_SS_um_chl_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}	
 		else if (strcmp( name, "anth") == 0){
 			// if no H2O, deactivate
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_um_anth_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);}
+			SS_ref_db  = G_SS_um_anth_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);}
 		else if (strcmp( name, "opx") == 0){
-			SS_ref_db  = G_SS_um_opx_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+			SS_ref_db  = G_SS_um_opx_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "spi") == 0){
-			SS_ref_db  = G_SS_um_spi_function(SS_ref_db, EM_database, gv.len_ox, z_b, eps);	}
+			SS_ref_db  = G_SS_um_spi_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
 		else{
 			printf("\nsolid solution '%s' is not in the database\n",name);	}	
 		
@@ -8425,19 +8422,17 @@ SS_ref G_SS_um_EM_function(		global_variable 	 gv,
 		}
 		printf("\n");
 
-		if (1 == 1){
-			/* display molar composition */
-            if (EM_database == 4){
-                printf("\n S   A   M   F   O   H   S\n");
+        /* display molar composition */
+        printf("\n S   A   M   F   O   H   S\n");
+
+        for (int i = 0; i < SS_ref_db.n_em; i++){
+            for (int j = 0; j < gv.len_ox; j++){
+                printf(" %.1f",SS_ref_db.Comp[i][j]);
             }
-			for (int i = 0; i < SS_ref_db.n_em; i++){
-				for (int j = 0; j < gv.len_ox; j++){
-					printf(" %.1f",SS_ref_db.Comp[i][j]);
-				}
-				printf("\n");
-			}
-			printf("\n");
-		}
+            printf("\n");
+        }
+        printf("\n");
+
 	}
 
 	return SS_ref_db;

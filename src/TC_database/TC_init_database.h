@@ -29,7 +29,7 @@
 		Metapelite database informations
 	**/
 	typedef struct metapelite_datasets {
-		int 	n_em_db;
+		int 	ds_version;
 		int 	n_ox;
 		int 	n_pp;
 		int 	n_ss;
@@ -61,7 +61,7 @@
 		Metabasite database informations
 	**/
 	typedef struct metabasite_datasets {
-		int 	n_em_db;
+		int 	ds_version;
 		int 	n_ox;
 		int 	n_pp;
 		int 	n_ss;
@@ -98,7 +98,7 @@
 		Igneous database informations 
 	**/
 	typedef struct igneous_datasets {
-		int 	n_em_db;
+		int 	ds_version;
 		int 	n_ox;
 		int 	n_pp;
 		int 	n_ss;
@@ -130,7 +130,7 @@
 		Evans&Frost,2021 database informations
 	**/
 	typedef struct ultramafic_datasets {
-		int 	n_em_db;
+		int 	ds_version;
 		int 	n_ox;
 		int 	n_pp;
 		int 	n_ss;
@@ -158,8 +158,8 @@
 
 	} ultramafic_dataset;
 
-    global_variable global_variable_init( 	global_variable  	 gv,
-                                            bulk_info 			*z_b 	);
+    global_variable global_variable_TC_init( 	global_variable  	 gv,
+                                            	bulk_info 			*z_b 	);
 
     global_variable get_bulk_metapelite( global_variable gv);
     global_variable get_bulk_metabasite( global_variable gv);

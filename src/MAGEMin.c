@@ -699,6 +699,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 	static ko_longopt_t longopts[] = {
 		{ "Verb", 		ko_optional_argument, 301 },
 		{ "db", 		ko_optional_argument, 302 },
+		{ "ds", 		ko_optional_argument, 309 },
 		{ "File", 		ko_optional_argument, 303 },
 		{ "n_points ",	ko_optional_argument, 304 },
 		{ "test",  		ko_optional_argument, 305 },
@@ -729,6 +730,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		else if (c == 315){ print_help( gv ); 					  exit(0); }	
  
         else if	(c == 301){ gv.verbose  		= atoi(opt.arg);				if (gv.verbose == 1){		printf("--verbose     : verbose              = %i \n", 	 	   		gv.verbose			);}} 	
+		else if (c == 309){ gv.EM_dataset		= atoi(opt.arg);		 																															 }
 		else if (c == 321){ gv.limitCaOpx   	= atoi(opt.arg);				if (gv.verbose == 1){		printf("--limitCaOpx  : limitCaOpx           = %i \n", 	 	   		gv.limitCaOpx		);}} 	
 		else if (c == 326){ gv.CaOpxLim	   		= strtold(opt.arg,NULL); 		if (gv.verbose == 1){		printf("--CaOpxLim    : CaOpxLim             = %f \n", 	 	   		gv.CaOpxLim			);}} 	
 		else if (c == 322){ gv.fluidSpec    	= atoi(opt.arg);				if (gv.verbose == 1){		printf("--fluidSpec   : fluidSpec            = %i \n", 	 	   		gv.fluidSpec		);}} 	
@@ -778,6 +780,18 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 			}
 		 }
 	}
+
+	// checks if the end-member dataset option arg is correct, otherwise sets to default
+	if 	(gv.EM_dataset 	== -1 || gv.EM_dataset 	== 62  || gv.EM_dataset	== 633  || gv.EM_dataset == 634){
+		if (gv.verbose == 1){		
+			printf("--ds          : EM_dataset           = %d \n", gv.EM_dataset);
+		}
+	}
+	else{
+		printf("--ds          : EM_dataset           = default 		WARNING: Unknown dataset %d has been provided, setting default one\n",gv.EM_dataset);
+		gv.EM_dataset = -1;
+	}	
+
 
 	/* set-up database acronym here*/
 	if 		(strcmp(gv.db, "mp") 	== 0){

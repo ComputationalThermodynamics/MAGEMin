@@ -624,7 +624,7 @@ global_variable init_ss_db(		int 				 EM_database,
 
 			SS_ref_db[i]    = G_SS_mp_EM_function(	gv, 
 													SS_ref_db[i], 
-													EM_database, 
+													gv.EM_dataset, 
 													z_b, 
 													gv.SS_list[i]		);
 											
@@ -643,7 +643,7 @@ global_variable init_ss_db(		int 				 EM_database,
 
 			SS_ref_db[i]    = G_SS_mb_EM_function(	gv, 
 													SS_ref_db[i], 
-													EM_database, 
+													gv.EM_dataset, 
 													z_b, 
 													gv.SS_list[i]		);
 											
@@ -662,7 +662,7 @@ global_variable init_ss_db(		int 				 EM_database,
 
 			SS_ref_db[i]    = G_SS_ig_EM_function(	gv, 
 													SS_ref_db[i], 
-													EM_database, 
+													gv.EM_dataset, 
 													z_b, 
 													gv.SS_list[i]		);
 											
@@ -681,7 +681,7 @@ global_variable init_ss_db(		int 				 EM_database,
 
 			SS_ref_db[i]    = G_SS_um_EM_function(	gv, 
 													SS_ref_db[i], 
-													EM_database, 
+													gv.EM_dataset, 
 													z_b, 
 													gv.SS_list[i]		);
 											

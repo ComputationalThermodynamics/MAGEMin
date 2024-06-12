@@ -106,18 +106,16 @@ void fill_output_struct(		global_variable 	 gv,
 	strcpy(sp[0].MAGEMin_ver,gv.version);	
 
 
-	if (gv.EM_database == 0){	
+	if (gv.EM_dataset == 62){	
 		strcpy(sp[0].dataset,"tc_ds62");	
 	}
-	else if (gv.EM_database == 1){	
-		strcpy(sp[0].dataset,"tc_ds62");	
-	}
-	else if (gv.EM_database == 2){		
-		strcpy(sp[0].dataset,"tc_ds634");	
-	}
-	else if (gv.EM_database == 4){	
+	else if (gv.EM_dataset == 633){	
 		strcpy(sp[0].dataset,"tc_ds633");	
 	}
+	else if (gv.EM_dataset == 634){		
+		strcpy(sp[0].dataset,"tc_ds634");	
+	}
+
 
 	sp[0].bulk_res_norm 		 = gv.BR_norm;
 	sp[0].n_iterations 		     = gv.global_ite;

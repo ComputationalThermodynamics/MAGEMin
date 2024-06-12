@@ -49,8 +49,8 @@ end
 
 const FS_db = FS_db_
 
-function Access_EM_DB(id, EM_database)
-    ccall((:Access_EM_DB, libMAGEMin), EM_db, (Cint, Cint), id, EM_database)
+function Access_EM_DB(id, EM_dataset)
+    ccall((:Access_EM_DB, libMAGEMin), EM_db, (Cint, Cint), id, EM_dataset)
 end
 
 function Access_FS_DB(id)
@@ -548,6 +548,7 @@ mutable struct global_variables
     pdev::Ptr{Ptr{Cdouble}}
     n_em_db::Cint
     EM_database::Cint
+    EM_dataset::Cint
     n_Diff::Cint
     leveling_mode::Cint
     status::Cint
@@ -1237,7 +1238,7 @@ end
 const oxide_data = oxide_datas
 
 mutable struct metapelite_datasets
-    n_em_db::Cint
+    ds_version::Cint
     n_ox::Cint
     n_pp::Cint
     n_ss::Cint
@@ -1263,7 +1264,7 @@ end
 const metapelite_dataset = metapelite_datasets
 
 mutable struct metabasite_datasets
-    n_em_db::Cint
+    ds_version::Cint
     n_ox::Cint
     n_pp::Cint
     n_ss::Cint
@@ -1293,7 +1294,7 @@ end
 const metabasite_dataset = metabasite_datasets
 
 mutable struct igneous_datasets
-    n_em_db::Cint
+    ds_version::Cint
     n_ox::Cint
     n_pp::Cint
     n_ss::Cint
@@ -1319,7 +1320,7 @@ end
 const igneous_dataset = igneous_datasets
 
 mutable struct ultramafic_datasets
-    n_em_db::Cint
+    ds_version::Cint
     n_ox::Cint
     n_pp::Cint
     n_ss::Cint
@@ -1344,6 +1345,10 @@ end
 
 const ultramafic_dataset = ultramafic_datasets
 
+function global_variable_TC_init(gv, z_b)
+    ccall((:global_variable_TC_init, libMAGEMin), global_variable, (global_variable, Ptr{bulk_info}), gv, z_b)
+end
+
 function get_bulk_metabasite(gv)
     ccall((:get_bulk_metabasite, libMAGEMin), global_variable, (global_variable,), gv)
 end
@@ -1360,20 +1365,20 @@ function SP_INIT_function(sp, gv)
     ccall((:SP_INIT_function, libMAGEMin), stb_system, (stb_system, global_variable), sp, gv)
 end
 
-function G_SS_mp_EM_function(gv, SS_ref_db, EM_database, z_b, name)
-    ccall((:G_SS_mp_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_database, z_b, name)
+function G_SS_mp_EM_function(gv, SS_ref_db, EM_dataset, z_b, name)
+    ccall((:G_SS_mp_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_dataset, z_b, name)
 end
 
-function G_SS_mb_EM_function(gv, SS_ref_db, EM_database, z_b, name)
-    ccall((:G_SS_mb_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_database, z_b, name)
+function G_SS_mb_EM_function(gv, SS_ref_db, EM_dataset, z_b, name)
+    ccall((:G_SS_mb_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_dataset, z_b, name)
 end
 
-function G_SS_ig_EM_function(gv, SS_ref_db, EM_database, z_b, name)
-    ccall((:G_SS_ig_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_database, z_b, name)
+function G_SS_ig_EM_function(gv, SS_ref_db, EM_dataset, z_b, name)
+    ccall((:G_SS_ig_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_dataset, z_b, name)
 end
 
-function G_SS_um_EM_function(gv, SS_ref_db, EM_database, z_b, name)
-    ccall((:G_SS_um_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_database, z_b, name)
+function G_SS_um_EM_function(gv, SS_ref_db, EM_dataset, z_b, name)
+    ccall((:G_SS_um_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_dataset, z_b, name)
 end
 
 mutable struct em_datas
@@ -1386,8 +1391,8 @@ end
 
 const em_data = em_datas
 
-function get_em_data(EM_database, len_ox, z_b, P, T, name, state)
-    ccall((:get_em_data, libMAGEMin), em_data, (Cint, Cint, bulk_info, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), EM_database, len_ox, z_b, P, T, name, state)
+function get_em_data(EM_dataset, len_ox, z_b, P, T, name, state)
+    ccall((:get_em_data, libMAGEMin), em_data, (Cint, Cint, bulk_info, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), EM_dataset, len_ox, z_b, P, T, name, state)
 end
 
 function get_fs_data(len_ox, z_b, wat, P, T, name, state)

@@ -30,7 +30,7 @@
         double input_3[1];         	/** third line of the thermodynamics datable 								*/
     } FS_db;
 
-    EM_db Access_EM_DB(int id, int EM_database);
+    EM_db Access_EM_DB(int id, int EM_dataset);
 
     FS_db Access_FS_DB(int id);
 

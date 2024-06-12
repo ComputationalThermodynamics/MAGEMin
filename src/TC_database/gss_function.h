@@ -15,25 +15,25 @@
 
 SS_ref G_SS_mp_EM_function(	global_variable  gv, 
 							SS_ref 			 SS_ref_db,
-							int 			 EM_database,
+							int 			 EM_dataset,
 							bulk_info 		 z_b,
 							char 			*name					);
 							
 SS_ref G_SS_mb_EM_function(	global_variable  gv, 
 							SS_ref 			 SS_ref_db,
-							int 			 EM_database,
+							int 			 EM_dataset,
 							bulk_info 		 z_b,
 							char 			*name					);
 
 SS_ref G_SS_ig_EM_function(	global_variable  gv, 
 							SS_ref 			 SS_ref_db,
-							int 			 EM_database,
+							int 			 EM_dataset,
 							bulk_info 		 z_b,
 							char 			*name					);
 
 SS_ref G_SS_um_EM_function(	global_variable  gv, 
 							SS_ref 			 SS_ref_db,
-							int 			 EM_database,
+							int 			 EM_dataset,
 							bulk_info 		 z_b,
 							char 			*name					);
 
@@ -44,7 +44,7 @@ typedef struct em_datas{
     double charge;	
 } em_data;
 
-em_data get_em_data(	int 		 EM_database, 
+em_data get_em_data(	int 		 EM_dataset, 
 						int          len_ox,
 						bulk_info 	 z_b,
                         double       P,

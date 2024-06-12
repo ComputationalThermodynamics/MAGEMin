@@ -43,6 +43,7 @@ typedef struct global_variables {
 	double **pdev;
 	int 	 n_em_db;
 	int 	 EM_database;
+	int 	 EM_dataset;
 	int      n_Diff;
 	int 	 leveling_mode;
 	int      status;			/** status of the minimization 		*/

@@ -1312,34 +1312,34 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
 
 			/* calculate phase volume as V = dG/dP */
-			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, 1., z_b.T, gv.PP_list[i], "equilibrium");
+			PP_db    	 = G_EM_function(gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, 1., z_b.T, gv.PP_list[i], "equilibrium");
 			muC0	 	 = PP_db.gbase;
 
-			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, 1. + gv.gb_P_eps, z_b.T, gv.PP_list[i], "equilibrium");
+			PP_db    	 = G_EM_function(gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, 1. + gv.gb_P_eps, z_b.T, gv.PP_list[i], "equilibrium");
 			muN0 	 	 = PP_db.gbase;
 
-			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T, gv.PP_list[i], "equilibrium");
+			PP_db    	 = G_EM_function(gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T, gv.PP_list[i], "equilibrium");
 			muC	 	 	 = PP_db.gbase;
 
-			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps, z_b.T, gv.PP_list[i], "equilibrium");
+			PP_db    	 = G_EM_function(gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps, z_b.T, gv.PP_list[i], "equilibrium");
 			muN 	 	 = PP_db.gbase;
 
-			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps*2.0, z_b.T, gv.PP_list[i], "equilibrium");
+			PP_db    	 = G_EM_function(gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps*2.0, z_b.T, gv.PP_list[i], "equilibrium");
 			muNN 	 	 = PP_db.gbase;
 
-			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps*3.0, z_b.T, gv.PP_list[i], "equilibrium");
+			PP_db    	 = G_EM_function(gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps*3.0, z_b.T, gv.PP_list[i], "equilibrium");
 			muNNN 	 	 = PP_db.gbase;
 
-			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T + gv.gb_T_eps, gv.PP_list[i], "equilibrium");
+			PP_db    	 = G_EM_function(gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T + gv.gb_T_eps, gv.PP_list[i], "equilibrium");
 			muE	 		 = PP_db.gbase;
 
-			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T - gv.gb_T_eps, gv.PP_list[i], "equilibrium");			
+			PP_db    	 = G_EM_function(gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T - gv.gb_T_eps, gv.PP_list[i], "equilibrium");			
 			muW	 		 = PP_db.gbase;
 
-			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps, z_b.T + gv.gb_T_eps, gv.PP_list[i], "equilibrium");
+			PP_db    	 = G_EM_function(gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps, z_b.T + gv.gb_T_eps, gv.PP_list[i], "equilibrium");
 			muNE	 	 = PP_db.gbase;
 
-			PP_db    	 = G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps, z_b.T - gv.gb_T_eps, gv.PP_list[i], "equilibrium");			
+			PP_db    	 = G_EM_function(gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P + gv.gb_P_eps, z_b.T - gv.gb_T_eps, gv.PP_list[i], "equilibrium");			
 			muNW	 	 = PP_db.gbase;
 
 			/* Calculate mass per pure phase */
@@ -1527,7 +1527,7 @@ global_variable compute_activities(			int					 EM_database,
 	if (O_ix != -1){
 		gv.system_fO2 = exp( (gv.gam_tot[O_ix]*2.0 - G0_O) / (z_b.R*z_b.T)) ;
 
-		PP_ref q 	= G_EM_function(	EM_database, 
+		PP_ref q 	= G_EM_function(	gv.EM_dataset, 
 										gv.len_ox,
 										z_b.id,
 										z_b.bulk_rock, 
@@ -1536,7 +1536,7 @@ global_variable compute_activities(			int					 EM_database,
 										z_b.T, 
 										"q", 
 										"equilibrium"				);
-		PP_ref fa 	= G_EM_function(	EM_database, 
+		PP_ref fa 	= G_EM_function(	gv.EM_dataset, 
 										gv.len_ox,
 										z_b.id,
 										z_b.bulk_rock, 
@@ -1546,7 +1546,7 @@ global_variable compute_activities(			int					 EM_database,
 										"fa", 
 										"equilibrium"				);
 
-		PP_ref mt 	= G_EM_function(	EM_database, 
+		PP_ref mt 	= G_EM_function(	gv.EM_dataset, 
 										gv.len_ox,
 										z_b.id,
 										z_b.bulk_rock, 
@@ -1601,7 +1601,7 @@ global_variable compute_activities(			int					 EM_database,
 	/* if we can compute the activity of MgO (if Gamma MgO exists i.e., if the MgO is taken into account) */
 	if (MgO_ix != -1){
 		double G0_per = 0.0;
-		PP_db  			= G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "per", "equilibrium");
+		PP_db  			= G_EM_function(gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "per", "equilibrium");
 		G0_per  		= PP_db.gbase;//*PP_db.factor;
 		gv.system_aMgO = exp( (gv.gam_tot[MgO_ix] - G0_per) / (z_b.R*z_b.T));
 	}
@@ -1609,7 +1609,7 @@ global_variable compute_activities(			int					 EM_database,
 	/* if we can compute the activity of FeO (if Gamma FeO exists i.e., if the FeO is taken into account) */
 	if (FeO_ix != -1){
 		double G0_fper  = 0.0;
-		PP_db  			= G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "fper", "equilibrium");
+		PP_db  			= G_EM_function(gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "fper", "equilibrium");
 		G0_fper  		= PP_db.gbase;//*PP_db.factor;
 		gv.system_aFeO  = exp( (gv.gam_tot[FeO_ix] - G0_fper) / (z_b.R*z_b.T));
 	}
@@ -1618,7 +1618,7 @@ global_variable compute_activities(			int					 EM_database,
 	/* if we can compute the activity of Al2O3 (if Gamma Al2O3 exists i.e., if the Al2O3 is taken into account) */
 	if (Al2O3_ix != -1){
 		double G0_cor = 0.0;
-		PP_db  			= G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "cor", "equilibrium");
+		PP_db  			= G_EM_function(gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "cor", "equilibrium");
 		G0_cor  		= PP_db.gbase;//*PP_db.factor;
 		gv.system_aAl2O3 = exp( (gv.gam_tot[Al2O3_ix] - G0_cor) / (z_b.R*z_b.T));
 	}
@@ -1626,7 +1626,7 @@ global_variable compute_activities(			int					 EM_database,
 	/* if we can compute the activity of TiO2 (if Gamma TiO2 exists i.e., if the TiO2 is taken into account) */
 	if (TiO2_ix != -1){
 		double G0_ru = 0.0;
-		PP_db  			= G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "ru", "equilibrium");
+		PP_db  			= G_EM_function(gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "ru", "equilibrium");
 		G0_ru  			= PP_db.gbase;//*PP_db.factor;
 		gv.system_aTiO2 = exp( (gv.gam_tot[TiO2_ix] - G0_ru) / (z_b.R*z_b.T));
 	}
@@ -1634,7 +1634,7 @@ global_variable compute_activities(			int					 EM_database,
 	/* if we can compute the activity of H2O (if Gamma H2O exists i.e., if the H2O is taken into account) */
 	if (H2O_ix != -1){
 		double G0_H2O = 0.0;
-		PP_db  			= G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "H2O", "equilibrium");
+		PP_db  			= G_EM_function(gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "H2O", "equilibrium");
 		G0_H2O  		= PP_db.gbase;//*PP_db.factor;
 		gv.system_aH2O  = exp( (gv.gam_tot[H2O_ix] - G0_H2O) / (z_b.R*z_b.T));
 	}
@@ -1644,9 +1644,9 @@ global_variable compute_activities(			int					 EM_database,
 		double G0_q 	= 0.0;
 		double G0_coe 	= 0.0;
 		
-		PP_db  			= G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "q", "equilibrium");
+		PP_db  			= G_EM_function(gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "q", "equilibrium");
 		G0_q  			= PP_db.gbase;//*PP_db.factor;
-		PP_db  			= G_EM_function(EM_database, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "coe", "equilibrium");
+		PP_db  			= G_EM_function(gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "coe", "equilibrium");
 		G0_coe  		= PP_db.gbase;//*PP_db.factor;
 
 		double G0_SiO2 	= G0_q;
