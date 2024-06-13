@@ -272,6 +272,7 @@ void copy_to_Ppc(		int 				 pc_check,
 	Minimization function for PGE 
 */
 void ss_min_PGE(		global_variable 	 gv,
+						PC_type             *PC_read,
 
 						obj_type 			*SS_objective,
 						NLopt_type			*NLopt_opt,
@@ -323,9 +324,10 @@ void ss_min_PGE(		global_variable 	 gv,
 			
 			
 			SS_ref_db[ph_id] = PC_function(				gv,
+														PC_read,
 														SS_ref_db[ph_id], 
 														z_b,
-														gv.SS_list[ph_id] 		);
+														ph_id 					);
 													
 			SS_ref_db[ph_id] = SS_UPDATE_function(		gv, 
 														SS_ref_db[ph_id], 
@@ -379,6 +381,7 @@ void ss_min_PGE(		global_variable 	 gv,
 	Minimization function for PGE 
 */
 void init_PGE_from_LP(	global_variable 	 gv,
+						PC_type				*PC_read,
 
 						obj_type 			*SS_objective,
 						bulk_info 	 		 z_b,
@@ -406,9 +409,10 @@ void init_PGE_from_LP(	global_variable 	 gv,
 
 			
 			SS_ref_db[ph_id] = PC_function(				gv,
+														PC_read,
 														SS_ref_db[ph_id], 
 														z_b,
-														gv.SS_list[ph_id] 		);
+														ph_id 		);
 													
 			SS_ref_db[ph_id] = SS_UPDATE_function(		gv, 
 														SS_ref_db[ph_id], 
@@ -430,6 +434,7 @@ void init_PGE_from_LP(	global_variable 	 gv,
 	Minimization function for PGE 
 */
 void ss_min_LP(			global_variable 	 gv,
+						PC_type				*PC_read,
 
 						obj_type 			*SS_objective,
 						NLopt_type 			*NLopt_opt,
@@ -522,9 +527,10 @@ void ss_min_LP(			global_variable 	 gv,
 						}
 
 						SS_ref_db[ph_id] = PC_function(				gv,
+																	PC_read,
 																	SS_ref_db[ph_id], 
 																	z_b,
-																	gv.SS_list[ph_id] 		);
+																	ph_id 		);
 																
 						SS_ref_db[ph_id] = SS_UPDATE_function(		gv, 
 																	SS_ref_db[ph_id], 
@@ -547,9 +553,10 @@ void ss_min_LP(			global_variable 	 gv,
 					SS_ref_db[ph_id].iguess[k]   =  cp[i].xeos_1[k];
 				}
 				SS_ref_db[ph_id] = PC_function(				gv,
+															PC_read,
 															SS_ref_db[ph_id], 
 															z_b,
-															gv.SS_list[ph_id] 		);
+															ph_id 		);
 														
 				SS_ref_db[ph_id] = SS_UPDATE_function(		gv, 
 															SS_ref_db[ph_id], 
@@ -574,9 +581,10 @@ void ss_min_LP(			global_variable 	 gv,
 					}
 					
 					SS_ref_db[ph_id] = PC_function(				gv,
+																PC_read,
 																SS_ref_db[ph_id], 
 																z_b,
-																gv.SS_list[ph_id] 		);
+																ph_id 		);
 															
 					SS_ref_db[ph_id] = SS_UPDATE_function(		gv, 
 																SS_ref_db[ph_id], 

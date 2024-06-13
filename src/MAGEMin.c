@@ -247,8 +247,8 @@ int runMAGEMin(			int    argc,
 		/* Fill structure holding stable phase equilibrium informations 			*/
 		fill_output_struct(					gv,												/** global variables (e.g. Gamma) 	*/
 										   &splx_data,
-										   
 											z_b,											/** bulk-rock informations 			*/
+
 											DB.PP_ref_db,									/** pure phase database 			*/
 											DB.SS_ref_db,									/** solution phase database 		*/
 											DB.cp,
@@ -370,23 +370,15 @@ int runMAGEMin(			int    argc,
 	/** pointer array to objective functions 								*/
 	obj_type 								SS_objective[gv.len_ss];	
 
-	if (EM_database == 0){				// metapelite database //
-		SS_mp_objective_init_function(			SS_objective,
-												gv							);
-	}
-	if (EM_database == 1){				// metabasite database //
-		SS_mb_objective_init_function(			SS_objective,
-												gv							);
-	}
-	else if (EM_database == 2){			// igneous database //
-		SS_ig_objective_init_function(			SS_objective,
-												gv							);
-	}
-	else if (EM_database == 4){			// ultramafic database //
-		SS_um_objective_init_function(			SS_objective,
-												gv							);
-	}
-	
+	SS_objective_init_function(				SS_objective,
+											gv								);
+
+
+	PC_type 								PC_read[gv.len_ss];
+
+	PC_init(	                    		PC_read,
+											gv								);
+		
 	/****************************************************************************************/
 	/**                                   LEVELLING                                        **/
 	/****************************************************************************************/	
@@ -396,6 +388,7 @@ int runMAGEMin(			int    argc,
 	gv = Levelling(			z_b,										/** bulk rock informations 			*/
 							gv,											/** global variables (e.g. Gamma) 	*/
 
+							PC_read,
 							SS_objective,
 							splx_data,
 							PP_ref_db,									/** pure phase database 			*/
@@ -405,7 +398,6 @@ int runMAGEMin(			int    argc,
 	return gv;
 
 	}
-
 
 /** 
   Compute stable equilibrium at given Pressure, Temperature and bulk-rock composition
@@ -423,43 +415,19 @@ int runMAGEMin(			int    argc,
 	/** pointer array to objective functions 								*/
 	obj_type 								SS_objective[gv.len_ss];	
 
-	if (EM_database == 0){				// metapelite database //
-		SS_mp_objective_init_function(			SS_objective,
-												gv							);
-	}
-	if (EM_database == 1){				// metabasite database //
-		SS_mb_objective_init_function(			SS_objective,
-												gv							);
-	}
-	else if (EM_database == 2){			// igneous database //
-		SS_ig_objective_init_function(			SS_objective,
-												gv							);
-	}
-	else if (EM_database == 4){			// ultramafic database //
-		SS_um_objective_init_function(			SS_objective,
-												gv							);
-	}
-	
+	SS_objective_init_function(				SS_objective,
+											gv								);
+
 	/** pointer array to NLopt functions (calls objective function for local minimization) 								*/
 	NLopt_type 								NLopt_opt[gv.len_ss];	
 
-	if (EM_database == 0){				// metapelite database //
-		TC_mp_NLopt_opt_init(	 				NLopt_opt,
-												gv							);
-	}
-	if (EM_database == 1){				// metabasite database //
-		TC_mb_NLopt_opt_init(	 				NLopt_opt,
-												gv							);
-	}
-	else if (EM_database == 2){			// igneous database //
-		TC_ig_NLopt_opt_init(	 				NLopt_opt,
-												gv							);
-	}
-	else if (EM_database == 4){			// ultramafic database //
-		TC_um_NLopt_opt_init(	 				NLopt_opt,
-												gv							);
-	}
+	NLopt_opt_init(	        				NLopt_opt,
+											gv				);
 
+	PC_type 								PC_read[gv.len_ss];
+
+	PC_init(	                    		PC_read,
+											gv								);
 
 	/****************************************************************************************/
 	/**                                   LEVELLING                                        **/
@@ -470,6 +438,7 @@ int runMAGEMin(			int    argc,
 		gv = Levelling(			z_b,										/** bulk rock informations 			*/
 								gv,											/** global variables (e.g. Gamma) 	*/
 
+								PC_read,
 								SS_objective,
 								splx_data,
 								PP_ref_db,									/** pure phase database 			*/
@@ -481,17 +450,16 @@ int runMAGEMin(			int    argc,
 		gv = Initial_guess(		z_b,										/** bulk rock informations 			*/
 								gv,											/** global variables (e.g. Gamma) 	*/
 
+								PC_read,
 								splx_data,
 								PP_ref_db,									/** pure phase database 			*/
 								SS_ref_db,									/** solution phase database 		*/
 								cp							);
 	}
 
-
 	/****************************************************************************************/
 	/**                            PARTITIONING GIBBS ENERGY                               **/
 	/****************************************************************************************/
-	
 	if (gv.solver == 0){ 		/* Legacy solver only */
 
 		gv.div 		= 0;
@@ -504,6 +472,7 @@ int runMAGEMin(			int    argc,
 
 		gv = LP(				z_b,									/** bulk rock informations 			*/
 								gv,										/** global variables (e.g. Gamma) 	*/
+								PC_read,
 
 								SS_objective,
 								NLopt_opt,
@@ -519,6 +488,7 @@ int runMAGEMin(			int    argc,
 			gv 		= PGE(			z_b,									/** bulk rock constraint 			*/ 
 									gv,										/** global variables (e.g. Gamma) 	*/
 
+									PC_read,
 									SS_objective,
 									NLopt_opt,
 									splx_data,
@@ -550,6 +520,7 @@ int runMAGEMin(			int    argc,
 
 			gv = LP(				z_b,									/** bulk rock informations 			*/
 									gv,										/** global variables (e.g. Gamma) 	*/
+									PC_read,
 
 									SS_objective,
 									NLopt_opt,
@@ -603,6 +574,7 @@ int runMAGEMin(			int    argc,
 		if (ig_liq > 0.25 || n_liq > 2 || n_ss > 6){
 			gv 		= PGE(			z_b,									/** bulk rock constraint 			*/ 
 									gv,										/** global variables (e.g. Gamma) 	*/
+									PC_read,
 
 									SS_objective,
 									NLopt_opt,
@@ -625,6 +597,7 @@ int runMAGEMin(			int    argc,
 
 				gv = LP(				z_b,									/** bulk rock informations 			*/
 										gv,										/** global variables (e.g. Gamma) 	*/
+										PC_read,
 
 										SS_objective,
 										NLopt_opt,
@@ -654,6 +627,7 @@ int runMAGEMin(			int    argc,
 
 			gv = LP(				z_b,									/** bulk rock informations 			*/
 									gv,										/** global variables (e.g. Gamma) 	*/
+									PC_read,
 
 									SS_objective,
 									NLopt_opt,

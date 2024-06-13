@@ -147,56 +147,39 @@ void SS_mb_objective_init_function(	obj_type 			*SS_objective,
 	for (int iss = 0; iss < gv.len_ss; iss++){
 
       if (strcmp( gv.SS_list[iss], "liq")  == 0){
-         SS_objective[iss]  = obj_mb_liq;
-      }
+         SS_objective[iss]  = obj_mb_liq;      }
       else if (strcmp( gv.SS_list[iss], "hb")  == 0){
-         SS_objective[iss]  = obj_mb_hb;
-      }
+         SS_objective[iss]  = obj_mb_hb;      }
       else if (strcmp( gv.SS_list[iss], "aug")  == 0){
-         SS_objective[iss]  = obj_mb_aug;
-      }
+         SS_objective[iss]  = obj_mb_aug;      }
       else if (strcmp( gv.SS_list[iss], "dio")  == 0){
-         SS_objective[iss]  = obj_mb_dio;
-      }
+         SS_objective[iss]  = obj_mb_dio;      }
       else if (strcmp( gv.SS_list[iss], "opx")  == 0){
-         SS_objective[iss]  = obj_mb_opx;
-      }
+         SS_objective[iss]  = obj_mb_opx;      }
       else if (strcmp( gv.SS_list[iss], "g")  == 0){
-         SS_objective[iss]  = obj_mb_g;
-      }
+         SS_objective[iss]  = obj_mb_g;      }
       else if (strcmp( gv.SS_list[iss], "ol")  == 0){
-         SS_objective[iss]  = obj_mb_ol;
-      }
+         SS_objective[iss]  = obj_mb_ol;      }
       else if (strcmp( gv.SS_list[iss], "fsp")  == 0){
-         SS_objective[iss]  = obj_mb_fsp;
-      }
+         SS_objective[iss]  = obj_mb_fsp;      }
       else if (strcmp( gv.SS_list[iss], "abc")  == 0){
-         SS_objective[iss]  = obj_mb_abc;
-      }
+         SS_objective[iss]  = obj_mb_abc;      }
       else if (strcmp( gv.SS_list[iss], "k4tr")  == 0){
-         SS_objective[iss]  = obj_mb_k4tr;
-      }
+         SS_objective[iss]  = obj_mb_k4tr;      }
       else if (strcmp( gv.SS_list[iss], "sp")  == 0){
-         SS_objective[iss]  = obj_mb_sp;
-      }
+         SS_objective[iss]  = obj_mb_sp;      }
       else if (strcmp( gv.SS_list[iss], "ilm")  == 0){
-         SS_objective[iss]  = obj_mb_ilm;
-      }
+         SS_objective[iss]  = obj_mb_ilm;      }
       else if (strcmp( gv.SS_list[iss], "ilmm")  == 0){
-         SS_objective[iss]  = obj_mb_ilmm;
-      }
+         SS_objective[iss]  = obj_mb_ilmm;      }
       else if (strcmp( gv.SS_list[iss], "ep")  == 0){
-         SS_objective[iss]  = obj_mb_ep;
-      }
+         SS_objective[iss]  = obj_mb_ep;      }
       else if (strcmp( gv.SS_list[iss], "bi")  == 0){
-         SS_objective[iss]  = obj_mb_bi;
-      }
+         SS_objective[iss]  = obj_mb_bi;      }
       else if (strcmp( gv.SS_list[iss], "mu")  == 0){
-         SS_objective[iss]  = obj_mb_mu;
-      }
+         SS_objective[iss]  = obj_mb_mu;      }
       else if (strcmp( gv.SS_list[iss], "chl")  == 0){
-         SS_objective[iss]  = obj_mb_chl;
-      }
+         SS_objective[iss]  = obj_mb_chl;      }
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	
@@ -237,6 +220,29 @@ void SS_um_objective_init_function(	obj_type 			*SS_objective,
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	
 	};			
+}
+
+
+void SS_objective_init_function(	obj_type 			*SS_objective,
+									global_variable 	 gv				){
+
+	if (gv.EM_database == 0){				// metapelite database //
+		SS_mp_objective_init_function(			SS_objective,
+												gv							);
+	}
+	if (gv.EM_database == 1){				// metabasite database //
+		SS_mb_objective_init_function(			SS_objective,
+												gv							);
+	}
+	else if (gv.EM_database == 2){			// igneous database //
+		SS_ig_objective_init_function(			SS_objective,
+												gv							);
+	}
+	else if (gv.EM_database == 4){			// ultramafic database //
+		SS_um_objective_init_function(			SS_objective,
+												gv							);
+	}
+
 }
 
 
@@ -938,6 +944,7 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 										simplex_data 		*splx_data,
 										global_variable 	 gv,
 										
+										PC_type             *PC_read,
 										PP_ref 				*PP_ref_db,
 										SS_ref 				*SS_ref_db,
 										csd_phase_set  		*cp
@@ -997,9 +1004,10 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 											gv.SS_list[ph_id]		);
 
 			SS_ref_db[ph_id] = PC_function(	gv,
+											PC_read,
 											SS_ref_db[ph_id], 
 											z_b,
-											gv.SS_list[ph_id] 		);
+											ph_id 					);
 											
 			strcpy(cp[id_cp].name,gv.SS_list[ph_id]);				/* get phase name */	
 			
@@ -1567,6 +1575,7 @@ void destroy_simplex_B(
 global_variable run_initial_guess_function(	bulk_info 	 		 z_b,
 											global_variable 	 gv,
 
+											PC_type             *PC_read,
 											simplex_data		*splx_data,
 											PP_ref 				*PP_ref_db,
 											SS_ref 				*SS_ref_db,
@@ -1600,6 +1609,8 @@ global_variable run_initial_guess_function(	bulk_info 	 		 z_b,
 	gv = update_global_info(				z_b,
 											splx_data,
 											gv,
+
+											PC_read,
 											PP_ref_db,
 											SS_ref_db,
 											cp				);
@@ -1684,6 +1695,7 @@ global_variable run_initial_guess_function(	bulk_info 	 		 z_b,
 global_variable run_levelling_function(		bulk_info 	 z_b,
 											global_variable 	 gv,
 
+											PC_type             *PC_read,
 											obj_type			*SS_objective,	
 											simplex_data		*splx_data,
 											PP_ref 				*PP_ref_db,
@@ -1725,6 +1737,8 @@ global_variable run_levelling_function(		bulk_info 	 z_b,
 	gv = update_global_info(				z_b,
 											splx_data,
 											gv,
+
+											PC_read,
 											PP_ref_db,
 											SS_ref_db,
 											cp				);
@@ -1805,6 +1819,7 @@ global_variable run_levelling_function(		bulk_info 	 z_b,
 global_variable Initial_guess(	bulk_info 	z_b,
 								global_variable 	gv,
 
+								PC_type            *PC_read,
 								simplex_data	   *splx_data,
 								PP_ref 			   *PP_ref_db,
 								SS_ref 			   *SS_ref_db,
@@ -1820,6 +1835,7 @@ global_variable Initial_guess(	bulk_info 	z_b,
 	gv = run_initial_guess_function(	z_b,												/** bulk rock informations    */
 										gv,													/** global variables (e.g. Gamma) */
 
+										PC_read,
 										splx_data,
 										PP_ref_db,											/** pure phase database */
 										SS_ref_db,											/** solution phase database */
@@ -1839,6 +1855,7 @@ global_variable Initial_guess(	bulk_info 	z_b,
 global_variable Levelling(	bulk_info 	z_b,
 							global_variable 	gv,
 
+							PC_type            *PC_read,
 							obj_type 		   *SS_objective,
 							simplex_data	   *splx_data,
 							PP_ref 			   *PP_ref_db,
@@ -1855,6 +1872,7 @@ global_variable Levelling(	bulk_info 	z_b,
 	gv = run_levelling_function(	z_b,												/** bulk rock informations    */
 									gv,													/** global variables (e.g. Gamma) */
 
+									PC_read,
 									SS_objective,
 								    splx_data,
 									PP_ref_db,											/** pure phase database */

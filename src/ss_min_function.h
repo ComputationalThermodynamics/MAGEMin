@@ -29,12 +29,14 @@ global_variable split_cp(				global_variable 	 gv,
 										csd_phase_set  		*cp				);
 
 void init_PGE_from_LP(					global_variable 	 gv,
+										PC_type 			*PC_read,
 										obj_type 			*SS_objective,
 										bulk_info 	 		 z_b,
 										SS_ref 			    *SS_ref_db,
 										csd_phase_set  		*cp				);
 
 void ss_min_PGE(						global_variable 	 gv,
+										PC_type				*PC_read,
 										obj_type 			*SS_objective,
 										NLopt_type			*NLopt_opt,
 										bulk_info 	 		 z_b,
@@ -42,6 +44,8 @@ void ss_min_PGE(						global_variable 	 gv,
 										csd_phase_set  		*cp				);
 										
 void ss_min_LP(							global_variable 	 gv,
+										PC_type				*PC_read,
+										
 										obj_type 			*SS_objective,
 										NLopt_type			*NLopt_opt,
 										bulk_info 	 		 z_b,

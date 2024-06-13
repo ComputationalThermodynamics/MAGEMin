@@ -540,6 +540,9 @@ end
 
 const PC_ref = PC_refs
 
+# typedef double ( * PC_type ) ( unsigned n , const double * x , double * grad , void * SS_ref_db )
+const PC_type = Ptr{Cvoid}
+
 mutable struct global_variables
     version::Ptr{Cchar}
     verbose::Cint
@@ -1256,6 +1259,14 @@ function SS_um_objective_init_function(SS_objective, gv)
     ccall((:SS_um_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
 end
 
+function SS_objective_init_function(SS_objective, gv)
+    ccall((:SS_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
+end
+
+function PC_init(PC_read, gv)
+    ccall((:PC_init, libMAGEMin), Cvoid, (Ptr{PC_type}, global_variable), PC_read, gv)
+end
+
 function p2x_mb_liq(SS_ref_db, eps)
     ccall((:p2x_mb_liq, libMAGEMin), Cvoid, (SS_ref, Cdouble), SS_ref_db, eps)
 end
@@ -1752,8 +1763,8 @@ function obj_aq17(n, x, grad, SS_ref_db)
     ccall((:obj_aq17, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
-function PC_function(gv, SS_ref_db, z_b, name)
-    ccall((:PC_function, libMAGEMin), SS_ref, (global_variable, SS_ref, bulk_info, Ptr{Cchar}), gv, SS_ref_db, z_b, name)
+function PC_function(gv, PC_read, SS_ref_db, z_b, ph_id)
+    ccall((:PC_function, libMAGEMin), SS_ref, (global_variable, Ptr{PC_type}, SS_ref, bulk_info, Cint), gv, PC_read, SS_ref_db, z_b, ph_id)
 end
 
 function P2X(gv, SS_ref_db, z_b, name)
@@ -1762,6 +1773,22 @@ end
 
 function get_phase_id(gv, name)
     ccall((:get_phase_id, libMAGEMin), Cint, (global_variable, Ptr{Cchar}), gv, name)
+end
+
+function TC_mp_PC_init(PC_read, gv)
+    ccall((:TC_mp_PC_init, libMAGEMin), Cvoid, (Ptr{PC_type}, global_variable), PC_read, gv)
+end
+
+function TC_mb_PC_init(PC_read, gv)
+    ccall((:TC_mb_PC_init, libMAGEMin), Cvoid, (Ptr{PC_type}, global_variable), PC_read, gv)
+end
+
+function TC_ig_PC_init(PC_read, gv)
+    ccall((:TC_ig_PC_init, libMAGEMin), Cvoid, (Ptr{PC_type}, global_variable), PC_read, gv)
+end
+
+function TC_um_PC_init(PC_read, gv)
+    ccall((:TC_um_PC_init, libMAGEMin), Cvoid, (Ptr{PC_type}, global_variable), PC_read, gv)
 end
 
 # typedef void ( * sf_type ) ( unsigned m , double * result , unsigned n , const double * x , double * grad , void * data )
@@ -1773,10 +1800,6 @@ end
 
 # typedef SS_ref ( * NLopt_type ) ( global_variable gv , SS_ref SS_ref_db )
 const NLopt_type = Ptr{Cvoid}
-
-function NLopt_opt_function(gv, SS_ref_db, index)
-    ccall((:NLopt_opt_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint), gv, SS_ref_db, index)
-end
 
 function TC_mp_NLopt_opt_init(NLopt_opt, gv)
     ccall((:TC_mp_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
@@ -1792,6 +1815,10 @@ end
 
 function TC_um_NLopt_opt_init(NLopt_opt, gv)
     ccall((:TC_um_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
+end
+
+function NLopt_opt_init(NLopt_opt, gv)
+    ccall((:NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
 end
 
 function SS_mp_pc_init_function(SS_pc_xeos, iss, name)
@@ -1810,16 +1837,12 @@ function SS_um_pc_init_function(SS_pc_xeos, iss, name)
     ccall((:SS_um_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
 end
 
-function PGE(z_b, gv, SS_objective, NLopt_opt, splx_data, PP_ref_db, SS_ref_db, cp)
-    ccall((:PGE, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{obj_type}, Ptr{NLopt_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, SS_objective, NLopt_opt, splx_data, PP_ref_db, SS_ref_db, cp)
+function PGE(z_b, gv, PC_read, SS_objective, NLopt_opt, splx_data, PP_ref_db, SS_ref_db, cp)
+    ccall((:PGE, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PC_type}, Ptr{obj_type}, Ptr{NLopt_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, PC_read, SS_objective, NLopt_opt, splx_data, PP_ref_db, SS_ref_db, cp)
 end
 
-function PGE2(z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
-    ccall((:PGE2, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{obj_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
-end
-
-function init_LP(z_b, splx_data, gv, PP_ref_db, SS_ref_db, cp)
-    ccall((:init_LP, libMAGEMin), global_variable, (bulk_info, Ptr{simplex_data}, global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, splx_data, gv, PP_ref_db, SS_ref_db, cp)
+function init_LP(z_b, splx_data, gv, PC_read, PP_ref_db, SS_ref_db, cp)
+    ccall((:init_LP, libMAGEMin), global_variable, (bulk_info, Ptr{simplex_data}, global_variable, Ptr{PC_type}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, splx_data, gv, PC_read, PP_ref_db, SS_ref_db, cp)
 end
 
 function run_LP(z_b, splx_data, gv, PP_ref_db, SS_ref_db)
@@ -1830,8 +1853,8 @@ function run_LP_ig(z_b, splx_data, gv, PP_ref_db, SS_ref_db)
     ccall((:run_LP_ig, libMAGEMin), global_variable, (bulk_info, Ptr{simplex_data}, global_variable, Ptr{PP_ref}, Ptr{SS_ref}), z_b, splx_data, gv, PP_ref_db, SS_ref_db)
 end
 
-function LP(z_b, gv, SS_objective, NLopt_opt, splx_data, PP_ref_db, SS_ref_db, cp)
-    ccall((:LP, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{obj_type}, Ptr{NLopt_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, SS_objective, NLopt_opt, splx_data, PP_ref_db, SS_ref_db, cp)
+function LP(z_b, gv, PC_read, SS_objective, NLopt_opt, splx_data, PP_ref_db, SS_ref_db, cp)
+    ccall((:LP, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PC_type}, Ptr{obj_type}, Ptr{NLopt_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, PC_read, SS_objective, NLopt_opt, splx_data, PP_ref_db, SS_ref_db, cp)
 end
 
 function LP2(z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
@@ -2217,12 +2240,12 @@ function swap_PGE_pseudocompounds(z_b, splx_data, gv, PP_ref_db, SS_ref_db)
     ccall((:swap_PGE_pseudocompounds, libMAGEMin), Cvoid, (bulk_info, Ptr{simplex_data}, global_variable, Ptr{PP_ref}, Ptr{SS_ref}), z_b, splx_data, gv, PP_ref_db, SS_ref_db)
 end
 
-function Levelling(z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
-    ccall((:Levelling, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{obj_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
+function Levelling(z_b, gv, PC_read, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
+    ccall((:Levelling, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PC_type}, Ptr{obj_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, PC_read, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
 end
 
-function Initial_guess(z_b, gv, splx_data, PP_ref_db, SS_ref_db, cp)
-    ccall((:Initial_guess, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, splx_data, PP_ref_db, SS_ref_db, cp)
+function Initial_guess(z_b, gv, PC_read, splx_data, PP_ref_db, SS_ref_db, cp)
+    ccall((:Initial_guess, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PC_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, PC_read, splx_data, PP_ref_db, SS_ref_db, cp)
 end
 
 function destroy_simplex_A(splx_data)
@@ -2249,16 +2272,16 @@ function split_cp(gv, SS_ref_db, cp)
     ccall((:split_cp, libMAGEMin), global_variable, (global_variable, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, SS_ref_db, cp)
 end
 
-function init_PGE_from_LP(gv, SS_objective, z_b, SS_ref_db, cp)
-    ccall((:init_PGE_from_LP, libMAGEMin), Cvoid, (global_variable, Ptr{obj_type}, bulk_info, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, SS_objective, z_b, SS_ref_db, cp)
+function init_PGE_from_LP(gv, PC_read, SS_objective, z_b, SS_ref_db, cp)
+    ccall((:init_PGE_from_LP, libMAGEMin), Cvoid, (global_variable, Ptr{PC_type}, Ptr{obj_type}, bulk_info, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, PC_read, SS_objective, z_b, SS_ref_db, cp)
 end
 
-function ss_min_PGE(gv, SS_objective, NLopt_opt, z_b, SS_ref_db, cp)
-    ccall((:ss_min_PGE, libMAGEMin), Cvoid, (global_variable, Ptr{obj_type}, Ptr{NLopt_type}, bulk_info, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, SS_objective, NLopt_opt, z_b, SS_ref_db, cp)
+function ss_min_PGE(gv, PC_read, SS_objective, NLopt_opt, z_b, SS_ref_db, cp)
+    ccall((:ss_min_PGE, libMAGEMin), Cvoid, (global_variable, Ptr{PC_type}, Ptr{obj_type}, Ptr{NLopt_type}, bulk_info, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, PC_read, SS_objective, NLopt_opt, z_b, SS_ref_db, cp)
 end
 
-function ss_min_LP(gv, SS_objective, NLopt_opt, z_b, SS_ref_db, cp)
-    ccall((:ss_min_LP, libMAGEMin), Cvoid, (global_variable, Ptr{obj_type}, Ptr{NLopt_type}, bulk_info, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, SS_objective, NLopt_opt, z_b, SS_ref_db, cp)
+function ss_min_LP(gv, PC_read, SS_objective, NLopt_opt, z_b, SS_ref_db, cp)
+    ccall((:ss_min_LP, libMAGEMin), Cvoid, (global_variable, Ptr{PC_type}, Ptr{obj_type}, Ptr{NLopt_type}, bulk_info, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, PC_read, SS_objective, NLopt_opt, z_b, SS_ref_db, cp)
 end
 
 function copy_to_Ppc(pc_check, add, ph_id, gv, SS_objective, SS_ref_db)

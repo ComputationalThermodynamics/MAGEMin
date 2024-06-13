@@ -31,6 +31,10 @@ typedef struct PC_refs {
 
 } PC_ref;
 
+typedef double (*PC_type) (			unsigned         n, 
+									const double    *x,
+									double          *grad,
+									void            *SS_ref_db			);
 
 /* structure to store global variables */
 typedef struct global_variables {

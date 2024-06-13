@@ -89,6 +89,13 @@ void fill_output_struct(		global_variable 	 gv,
 								csd_phase_set  		*cp,
 								stb_system  		*sp
 ){
+
+
+	PC_type 		PC_read[gv.len_ss];
+
+	PC_init(	    PC_read,
+					gv				);
+
 	double G = 0.0;
 	double sum;
 	double sum_wt;
@@ -580,9 +587,10 @@ void fill_output_struct(		global_variable 	 gv,
 													SS_ref_db[ph_id]			);
 
 			SS_ref_db[ph_id] = PC_function(				gv,
+														PC_read,
 														SS_ref_db[ph_id], 
 														z_b,
-														gv.SS_list[ph_id] 		);
+														ph_id 		);
 
 
 			for (j = 0; j < gv.len_ox; j++){
@@ -639,9 +647,10 @@ void fill_output_struct(		global_variable 	 gv,
 													SS_ref_db[ph_id]			);
 
 			SS_ref_db[ph_id] = PC_function(				gv,
+														PC_read,
 														SS_ref_db[ph_id], 
 														z_b,
-														gv.SS_list[ph_id] 		);
+														ph_id 		);
 											
 			for (j = 0; j < gv.len_ox; j++){
 				sp[0].mSS[m].comp_Ppc[j] = SS_ref_db[ph_id].ss_comp[j]*SS_ref_db[ph_id].factor;

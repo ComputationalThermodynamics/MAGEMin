@@ -13,17 +13,23 @@
 
 #include "../MAGEMin.h"
 
-void SS_mb_objective_init_function(	obj_type 		*SS_objective,
-									global_variable  gv					);
+void SS_mb_objective_init_function(	obj_type 		 	*SS_objective,
+									global_variable  	 gv					);
 
-void SS_ig_objective_init_function(	obj_type 		*SS_objective,
-									global_variable  gv					);
+void SS_ig_objective_init_function(	obj_type 		 	*SS_objective,
+									global_variable   	 gv					);
 					
-void SS_mp_objective_init_function(	obj_type 		*SS_objective,
-									global_variable  gv					);
+void SS_mp_objective_init_function(	obj_type 		 	*SS_objective,
+									global_variable 	 gv					);
 
-void SS_um_objective_init_function(	obj_type 		*SS_objective,
-									global_variable  gv					);
+void SS_um_objective_init_function(	obj_type 		 	*SS_objective,
+									global_variable  	 gv					);
+
+void SS_objective_init_function(	obj_type 			*SS_objective,
+									global_variable 	 gv					);
+
+void PC_init(	                    PC_type 			*PC_read,
+									global_variable 	 gv					);
 
 void p2x_mb_liq(  SS_ref SS_ref_db, double eps);
 void p2x_mb_hb(  SS_ref SS_ref_db, double eps);
@@ -160,9 +166,11 @@ double obj_um_po(unsigned     n, const double *x, double *grad, void *SS_ref_db)
 double obj_aq17(unsigned 	  n, const double *x, double *grad, void *SS_ref_db);
 
 SS_ref PC_function(			global_variable 	 gv,
+							PC_type             *PC_read,
+							
 							SS_ref 				 SS_ref_db, 
 							bulk_info 	 		 z_b,
-							char    			*name					);
+							int    			 	ph_id					);
 													
 SS_ref P2X(					global_variable 	 gv,
 							SS_ref 				 SS_ref_db, 
@@ -171,4 +179,15 @@ SS_ref P2X(					global_variable 	 gv,
 							
 int get_phase_id(			global_variable 	 gv,
 							char    			*name					);
+
+
+void TC_mp_PC_init(	                PC_type 			*PC_read,
+									global_variable 	 gv				);
+void TC_mb_PC_init(	                PC_type 			*PC_read,
+									global_variable 	 gv				);
+void TC_ig_PC_init(	                PC_type 			*PC_read,
+									global_variable 	 gv				);
+void TC_um_PC_init(	                PC_type 			*PC_read,
+									global_variable 	 gv				);
+
 #endif

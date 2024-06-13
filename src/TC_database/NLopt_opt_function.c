@@ -6117,3 +6117,27 @@ void TC_um_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 		}	
 	};						
 }
+
+
+void NLopt_opt_init(	        	NLopt_type 			*NLopt_opt,
+									global_variable 	 gv				){
+
+
+	if (gv.EM_database == 0){				// metapelite database //
+		TC_mp_NLopt_opt_init(	 				NLopt_opt,
+												gv							);
+	}
+	if (gv.EM_database == 1){				// metabasite database //
+		TC_mb_NLopt_opt_init(	 				NLopt_opt,
+												gv							);
+	}
+	else if (gv.EM_database == 2){			// igneous database //
+		TC_ig_NLopt_opt_init(	 				NLopt_opt,
+												gv							);
+	}
+	else if (gv.EM_database == 4){			// ultramafic database //
+		TC_um_NLopt_opt_init(	 				NLopt_opt,
+												gv							);
+	}
+
+}

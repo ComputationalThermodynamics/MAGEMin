@@ -17,6 +17,7 @@
 global_variable PGE(			bulk_info 			z_b,
 								global_variable 	gv,
 								
+								PC_type 			*PC_read,
 								obj_type 			*SS_objective,
 								NLopt_type 			*NLopt_opt,
 								simplex_data	    *splx_data,
@@ -24,18 +25,10 @@ global_variable PGE(			bulk_info 			z_b,
 								SS_ref 				*SS_ref_db,
 								csd_phase_set  		*cp					);
 								
-global_variable PGE2(			bulk_info 			z_b,
-								global_variable 	gv,
-								
-								obj_type 			*SS_objective,
-								simplex_data	    *splx_data,
-								PP_ref 				*PP_ref_db,
-								SS_ref 				*SS_ref_db,
-								csd_phase_set  		*cp					);
-
 global_variable init_LP(							bulk_info 	 		 z_b,
 													simplex_data 		*splx_data,
 													global_variable 	 gv,
+													PC_type 			*PC_read,
 													
 													PP_ref 				*PP_ref_db,
 													SS_ref 				*SS_ref_db,
@@ -60,6 +53,7 @@ global_variable run_LP_ig(							bulk_info 			 z_b,
 
 global_variable LP(				bulk_info 			z_b,
 								global_variable 	gv,
+								PC_type 			*PC_read,
 								
 								obj_type 			*SS_objective,
 								NLopt_type			*NLopt_opt,
