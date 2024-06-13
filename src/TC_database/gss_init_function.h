@@ -13,6 +13,20 @@
 
 #include "../MAGEMin.h"
 
+typedef SS_ref (*SS_init_type) (	SS_ref 				 SS_ref_db,
+									global_variable 	 gv				);
+									
+void TC_SS_init_mp(	                SS_init_type 		*SS_init,
+									global_variable 	 gv				);				
+void TC_SS_init_mb(	                SS_init_type 		*SS_init,
+									global_variable 	 gv				);
+void TC_SS_init_ig(	                SS_init_type 		*SS_init,
+									global_variable 	 gv				);
+void TC_SS_init_um(	                SS_init_type 		*SS_init,
+									global_variable 	 gv				);
+void TC_SS_init(	        	    SS_init_type 		*SS_init,
+									global_variable 	 gv				);
+
 SS_ref G_SS_init_EM_function(		int				ph_id,
 									SS_ref 			SS_ref_db, 
 									int 			EM_database, 

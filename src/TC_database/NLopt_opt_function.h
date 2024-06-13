@@ -39,7 +39,7 @@ void TC_ig_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 void TC_um_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 									global_variable 	 gv				);
 
-void NLopt_opt_init(	        	NLopt_type 			*NLopt_opt,
+void TC_NLopt_opt_init(	        	NLopt_type 			*NLopt_opt,
 									global_variable 	 gv				);
 
 #endif

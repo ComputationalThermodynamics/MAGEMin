@@ -370,13 +370,13 @@ int runMAGEMin(			int    argc,
 	/** pointer array to objective functions 								*/
 	obj_type 								SS_objective[gv.len_ss];	
 
-	SS_objective_init_function(				SS_objective,
+	TC_SS_objective_init_function(			SS_objective,
 											gv								);
 
 
 	PC_type 								PC_read[gv.len_ss];
 
-	PC_init(	                    		PC_read,
+	TC_PC_init(	                    		PC_read,
 											gv								);
 		
 	/****************************************************************************************/
@@ -415,18 +415,18 @@ int runMAGEMin(			int    argc,
 	/** pointer array to objective functions 								*/
 	obj_type 								SS_objective[gv.len_ss];	
 
-	SS_objective_init_function(				SS_objective,
+	TC_SS_objective_init_function(			SS_objective,
 											gv								);
 
 	/** pointer array to NLopt functions (calls objective function for local minimization) 								*/
 	NLopt_type 								NLopt_opt[gv.len_ss];	
 
-	NLopt_opt_init(	        				NLopt_opt,
+	TC_NLopt_opt_init(	        			NLopt_opt,
 											gv				);
 
 	PC_type 								PC_read[gv.len_ss];
 
-	PC_init(	                    		PC_read,
+	TC_PC_init(	                    		PC_read,
 											gv								);
 
 	/****************************************************************************************/
@@ -828,8 +828,17 @@ Databases InitializeDatabases(	global_variable gv,
 	/** 
 		Allocate memory for each solution phase according to their specificities (n_em, sf etc) 
 	*/
+	SS_init_type 				SS_init[gv.len_ss];
+
+	TC_SS_init(	        	    SS_init,
+								gv				);
+
+
 	DB.SS_ref_db = malloc ((gv.len_ss) 		* sizeof(SS_ref)); 
 	for (i = 0; i < gv.len_ss; i++){
+
+		// DB.SS_ref_db[i]  = (*SS_init[i])(		DB.SS_ref_db[i],
+		// 										gv							);
 		DB.SS_ref_db[i] = G_SS_init_EM_function(		i,	
 														DB.SS_ref_db[i], 
 														EM_database, 

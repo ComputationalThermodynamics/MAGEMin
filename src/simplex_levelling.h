@@ -13,6 +13,7 @@
 
 #include "MAGEMin.h"
 
+
 /* simplex levelling declaration part */
 void update_dG(						simplex_data 	    *splx_data			);
 

@@ -13,22 +13,22 @@
 
 #include "../MAGEMin.h"
 
-void SS_mb_objective_init_function(	obj_type 		 	*SS_objective,
+void TC_mb_objective_init_function(	obj_type 		 	*SS_objective,
 									global_variable  	 gv					);
 
-void SS_ig_objective_init_function(	obj_type 		 	*SS_objective,
+void TC_ig_objective_init_function(	obj_type 		 	*SS_objective,
 									global_variable   	 gv					);
 					
-void SS_mp_objective_init_function(	obj_type 		 	*SS_objective,
+void TC_mp_objective_init_function(	obj_type 		 	*SS_objective,
 									global_variable 	 gv					);
 
-void SS_um_objective_init_function(	obj_type 		 	*SS_objective,
+void TC_um_objective_init_function(	obj_type 		 	*SS_objective,
 									global_variable  	 gv					);
 
-void SS_objective_init_function(	obj_type 			*SS_objective,
+void TC_SS_objective_init_function(	obj_type 			*SS_objective,
 									global_variable 	 gv					);
 
-void PC_init(	                    PC_type 			*PC_read,
+void TC_PC_init(	                PC_type 			*PC_read,
 									global_variable 	 gv					);
 
 void p2x_mb_liq(  SS_ref SS_ref_db, double eps);
@@ -177,10 +177,6 @@ SS_ref P2X(					global_variable 	 gv,
 							bulk_info 	 		 z_b,
 							char    			*name					);	
 							
-int get_phase_id(			global_variable 	 gv,
-							char    			*name					);
-
-
 void TC_mp_PC_init(	                PC_type 			*PC_read,
 									global_variable 	 gv				);
 void TC_mb_PC_init(	                PC_type 			*PC_read,

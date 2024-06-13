@@ -8346,6 +8346,209 @@ SS_ref P2X(					global_variable 	 gv,
 	return SS_ref_db;
 };
 
+
+
+/* ==================================================================================== */
+/*                           SECTION TO CREATE POINTER ARRAY OF FUNCTION                */
+/* ==================================================================================== */
+
+/**
+	associate the array of pointer with the right solution phase
+*/
+void TC_ig_objective_init_function(	obj_type 			*SS_objective,
+									global_variable 	 gv				){	
+						 
+	for (int iss = 0; iss < gv.len_ss; iss++){
+
+		if      (strcmp( gv.SS_list[iss], "bi")  == 0 ){
+			SS_objective[iss]  = obj_ig_bi; 		}
+		else if (strcmp( gv.SS_list[iss], "fper")  == 0){
+			SS_objective[iss]  = obj_ig_fper; 		}
+		else if (strcmp( gv.SS_list[iss], "cd")  == 0){
+			SS_objective[iss]  = obj_ig_cd; 		}
+		else if (strcmp( gv.SS_list[iss], "cpx") == 0){
+			SS_objective[iss]  = obj_ig_cpx; 		}
+		else if (strcmp( gv.SS_list[iss], "ep")  == 0){
+			SS_objective[iss]  = obj_ig_ep; 		}
+		else if (strcmp( gv.SS_list[iss], "fl")  == 0){
+			SS_objective[iss]  = obj_ig_fl; 		}
+		else if (strcmp( gv.SS_list[iss], "g")   == 0){
+			SS_objective[iss]  = obj_ig_g; 		}
+		else if (strcmp( gv.SS_list[iss], "hb")  == 0){
+			SS_objective[iss]  = obj_ig_hb; 		}
+		else if (strcmp( gv.SS_list[iss], "ilm") == 0){
+			SS_objective[iss]  = obj_ig_ilm; 		}
+		else if (strcmp( gv.SS_list[iss], "liq") == 0){
+			SS_objective[iss]  = obj_ig_liq; 		}
+		else if (strcmp( gv.SS_list[iss], "mu")  == 0){
+			SS_objective[iss]  = obj_ig_mu; 		}
+		else if (strcmp( gv.SS_list[iss], "ol")  == 0){
+			SS_objective[iss]  = obj_ig_ol; 		}
+		else if (strcmp( gv.SS_list[iss], "opx") == 0){
+			SS_objective[iss]  = obj_ig_opx; 		}
+		else if (strcmp( gv.SS_list[iss], "fsp") == 0){
+			SS_objective[iss]  = obj_ig_fsp; 		}
+		else if (strcmp( gv.SS_list[iss], "spn") == 0){
+			SS_objective[iss]  = obj_ig_spn; 		}
+		else{
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
+		}	
+	};			
+}
+
+void TC_mp_objective_init_function(	obj_type 			*SS_objective,
+									global_variable 	 gv				){	
+						 
+	for (int iss = 0; iss < gv.len_ss; iss++){
+
+		if      (strcmp( gv.SS_list[iss], "liq")   == 0 ){
+			SS_objective[iss]  = obj_mp_liq; 		}
+		else if (strcmp( gv.SS_list[iss], "fsp") == 0){
+			SS_objective[iss]  = obj_mp_fsp; 		}
+		else if (strcmp( gv.SS_list[iss], "bi")    == 0){
+			SS_objective[iss]  = obj_mp_bi; 		}
+		else if (strcmp( gv.SS_list[iss], "g")     == 0){
+			SS_objective[iss]  = obj_mp_g; 			}
+		else if (strcmp( gv.SS_list[iss], "ep")    == 0){
+			SS_objective[iss]  = obj_mp_ep; 		}
+		else if (strcmp( gv.SS_list[iss], "ma")    == 0){
+			SS_objective[iss]  = obj_mp_ma; 		}
+		else if (strcmp( gv.SS_list[iss], "mu")    == 0){
+			SS_objective[iss]  = obj_mp_mu; 		}
+		else if (strcmp( gv.SS_list[iss], "opx")   == 0){
+			SS_objective[iss]  = obj_mp_opx; 		}
+		else if (strcmp( gv.SS_list[iss], "sa")    == 0){
+			SS_objective[iss]  = obj_mp_sa; 		}
+		else if (strcmp( gv.SS_list[iss], "cd")    == 0){
+			SS_objective[iss]  = obj_mp_cd; 		}
+		else if (strcmp( gv.SS_list[iss], "st")    == 0){
+			SS_objective[iss]  = obj_mp_st; 		}
+		else if (strcmp( gv.SS_list[iss], "chl")   == 0){
+			SS_objective[iss]  = obj_mp_chl; 		}
+		else if (strcmp( gv.SS_list[iss], "ctd")   == 0){
+			SS_objective[iss]  = obj_mp_ctd; 		}
+		else if (strcmp( gv.SS_list[iss], "sp")    == 0){
+			SS_objective[iss]  = obj_mp_sp; 		}
+		else if (strcmp( gv.SS_list[iss], "ilm")   == 0){
+			SS_objective[iss]  = obj_mp_ilm; 		}
+		else if (strcmp( gv.SS_list[iss], "ilmm")   == 0){
+			SS_objective[iss]  = obj_mp_ilmm; 		}
+		else if (strcmp( gv.SS_list[iss], "mt")    == 0){
+			SS_objective[iss]  = obj_mp_mt; 		}
+		else if (strcmp( gv.SS_list[iss], "aq17")  == 0){
+			SS_objective[iss]  = obj_aq17; 		}
+		else{
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
+		}	
+	};			
+}
+
+
+void TC_mb_objective_init_function(	obj_type 			*SS_objective,
+									global_variable 	 gv				){	
+						 
+	for (int iss = 0; iss < gv.len_ss; iss++){
+
+      if (strcmp( gv.SS_list[iss], "liq")  == 0){
+         SS_objective[iss]  = obj_mb_liq;      }
+      else if (strcmp( gv.SS_list[iss], "hb")  == 0){
+         SS_objective[iss]  = obj_mb_hb;      }
+      else if (strcmp( gv.SS_list[iss], "aug")  == 0){
+         SS_objective[iss]  = obj_mb_aug;      }
+      else if (strcmp( gv.SS_list[iss], "dio")  == 0){
+         SS_objective[iss]  = obj_mb_dio;      }
+      else if (strcmp( gv.SS_list[iss], "opx")  == 0){
+         SS_objective[iss]  = obj_mb_opx;      }
+      else if (strcmp( gv.SS_list[iss], "g")  == 0){
+         SS_objective[iss]  = obj_mb_g;      }
+      else if (strcmp( gv.SS_list[iss], "ol")  == 0){
+         SS_objective[iss]  = obj_mb_ol;      }
+      else if (strcmp( gv.SS_list[iss], "fsp")  == 0){
+         SS_objective[iss]  = obj_mb_fsp;      }
+      else if (strcmp( gv.SS_list[iss], "abc")  == 0){
+         SS_objective[iss]  = obj_mb_abc;      }
+      else if (strcmp( gv.SS_list[iss], "k4tr")  == 0){
+         SS_objective[iss]  = obj_mb_k4tr;      }
+      else if (strcmp( gv.SS_list[iss], "sp")  == 0){
+         SS_objective[iss]  = obj_mb_sp;      }
+      else if (strcmp( gv.SS_list[iss], "ilm")  == 0){
+         SS_objective[iss]  = obj_mb_ilm;      }
+      else if (strcmp( gv.SS_list[iss], "ilmm")  == 0){
+         SS_objective[iss]  = obj_mb_ilmm;      }
+      else if (strcmp( gv.SS_list[iss], "ep")  == 0){
+         SS_objective[iss]  = obj_mb_ep;      }
+      else if (strcmp( gv.SS_list[iss], "bi")  == 0){
+         SS_objective[iss]  = obj_mb_bi;      }
+      else if (strcmp( gv.SS_list[iss], "mu")  == 0){
+         SS_objective[iss]  = obj_mb_mu;      }
+      else if (strcmp( gv.SS_list[iss], "chl")  == 0){
+         SS_objective[iss]  = obj_mb_chl;      }
+		else{
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
+		}	
+	};			
+}
+
+
+void TC_um_objective_init_function(	obj_type 			*SS_objective,
+									global_variable 	 gv				){	
+						 
+	for (int iss = 0; iss < gv.len_ss; iss++){
+
+		if      (strcmp( gv.SS_list[iss], "fl")  == 0 ){
+			SS_objective[iss]  = obj_um_fluid; 		}
+		else if (strcmp( gv.SS_list[iss], "ol")  == 0){
+			SS_objective[iss]  = obj_um_ol; 		}
+		else if (strcmp( gv.SS_list[iss], "br") == 0){
+			SS_objective[iss]  = obj_um_br; 		}
+		else if (strcmp( gv.SS_list[iss], "ch")  == 0){
+			SS_objective[iss]  = obj_um_ch; 		}
+		else if (strcmp( gv.SS_list[iss], "atg")  == 0){
+			SS_objective[iss]  = obj_um_atg; 		}
+		else if (strcmp( gv.SS_list[iss], "g")   == 0){
+			SS_objective[iss]  = obj_um_g; 		}
+		else if (strcmp( gv.SS_list[iss], "ta")  == 0){
+			SS_objective[iss]  = obj_um_ta; 		}
+		else if (strcmp( gv.SS_list[iss], "chl") == 0){
+			SS_objective[iss]  = obj_um_chl; 		}
+		else if (strcmp( gv.SS_list[iss], "anth") == 0){
+			SS_objective[iss]  = obj_um_anth; 		}
+		else if (strcmp( gv.SS_list[iss], "spi")  == 0){
+			SS_objective[iss]  = obj_um_spi; 		}
+		else if (strcmp( gv.SS_list[iss], "opx") == 0){
+			SS_objective[iss]  = obj_um_opx; 		}
+		else if (strcmp( gv.SS_list[iss], "po") == 0){
+			SS_objective[iss]  = obj_um_po; 		}
+		else{
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
+		}	
+	};			
+}
+
+
+void TC_SS_objective_init_function(	obj_type 			*SS_objective,
+									global_variable 	 gv				){
+
+	if (gv.EM_database == 0){				// metapelite database //
+		TC_mp_objective_init_function(			SS_objective,
+												gv							);
+	}
+	if (gv.EM_database == 1){				// metabasite database //
+		TC_mb_objective_init_function(			SS_objective,
+												gv							);
+	}
+	else if (gv.EM_database == 2){			// igneous database //
+		TC_ig_objective_init_function(			SS_objective,
+												gv							);
+	}
+	else if (gv.EM_database == 4){			// ultramafic database //
+		TC_um_objective_init_function(			SS_objective,
+												gv							);
+	}
+
+}
+
+
 void TC_mp_PC_init(	                PC_type 			*PC_read,
 									global_variable 	 gv				){	
 						 
@@ -8514,7 +8717,7 @@ void TC_um_PC_init(	                PC_type 			*PC_read,
     }
 }
 
-void PC_init(	                    PC_type 			*PC_read,
+void TC_PC_init(	                PC_type 			*PC_read,
 									global_variable 	 gv				){
 
 	if (gv.EM_database == 0){				// metapelite database //
@@ -8534,7 +8737,6 @@ void PC_init(	                    PC_type 			*PC_read,
 												gv							);
 	}
 }
-
 
 SS_ref PC_function(		global_variable 	 gv,
                         PC_type             *PC_read,
@@ -8579,17 +8781,4 @@ SS_ref PC_function(		global_variable 	 gv,
 
     return SS_ref_db;
 }
-
-int get_phase_id(		global_variable 	 gv,
-						char    			*name				){
-	int id = 0;
-	for (int i = 0; i < gv.len_ss; i++){
-		if 	(strcmp( name, gv.SS_list[i]) == 0 ){
-			id = i;
-			break;
-		}
-	}
-
-	return id;
-};
 

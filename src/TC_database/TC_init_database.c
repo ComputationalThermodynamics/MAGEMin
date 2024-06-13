@@ -120,7 +120,7 @@ igneous_dataset igneous_db = {
 };
 
 ultramafic_dataset ultramafic_db = {
-	633,					/* Endmember default dataset number */
+	633,						/* Endmember default dataset number */
 	7,							/* number of oxides */			
 	21,							/* number of pure phases */
 	12,							/* number of solution phases */

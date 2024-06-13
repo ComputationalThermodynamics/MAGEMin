@@ -1197,6 +1197,29 @@ function PrintStatus(status)
     ccall((:PrintStatus, libMAGEMin), Cvoid, (Cint,), status)
 end
 
+# typedef SS_ref ( * SS_init_type ) ( SS_ref SS_ref_db , global_variable gv )
+const SS_init_type = Ptr{Cvoid}
+
+function TC_SS_init_mp(SS_init, gv)
+    ccall((:TC_SS_init_mp, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
+end
+
+function TC_SS_init_mb(SS_init, gv)
+    ccall((:TC_SS_init_mb, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
+end
+
+function TC_SS_init_ig(SS_init, gv)
+    ccall((:TC_SS_init_ig, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
+end
+
+function TC_SS_init_um(SS_init, gv)
+    ccall((:TC_SS_init_um, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
+end
+
+function TC_SS_init(SS_init, gv)
+    ccall((:TC_SS_init, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
+end
+
 function G_SS_init_EM_function(ph_id, SS_ref_db, EM_database, name, gv)
     ccall((:G_SS_init_EM_function, libMAGEMin), SS_ref, (Cint, SS_ref, Cint, Ptr{Cchar}, global_variable), ph_id, SS_ref_db, EM_database, name, gv)
 end
@@ -1243,28 +1266,28 @@ function get_fs_data(len_ox, z_b, wat, P, T, name, state)
     ccall((:get_fs_data, libMAGEMin), em_data, (Cint, bulk_info, Ptr{solvent_prop}, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), len_ox, z_b, wat, P, T, name, state)
 end
 
-function SS_mb_objective_init_function(SS_objective, gv)
-    ccall((:SS_mb_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
+function TC_mb_objective_init_function(SS_objective, gv)
+    ccall((:TC_mb_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
 end
 
-function SS_ig_objective_init_function(SS_objective, gv)
-    ccall((:SS_ig_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
+function TC_ig_objective_init_function(SS_objective, gv)
+    ccall((:TC_ig_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
 end
 
-function SS_mp_objective_init_function(SS_objective, gv)
-    ccall((:SS_mp_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
+function TC_mp_objective_init_function(SS_objective, gv)
+    ccall((:TC_mp_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
 end
 
-function SS_um_objective_init_function(SS_objective, gv)
-    ccall((:SS_um_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
+function TC_um_objective_init_function(SS_objective, gv)
+    ccall((:TC_um_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
 end
 
-function SS_objective_init_function(SS_objective, gv)
-    ccall((:SS_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
+function TC_SS_objective_init_function(SS_objective, gv)
+    ccall((:TC_SS_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
 end
 
-function PC_init(PC_read, gv)
-    ccall((:PC_init, libMAGEMin), Cvoid, (Ptr{PC_type}, global_variable), PC_read, gv)
+function TC_PC_init(PC_read, gv)
+    ccall((:TC_PC_init, libMAGEMin), Cvoid, (Ptr{PC_type}, global_variable), PC_read, gv)
 end
 
 function p2x_mb_liq(SS_ref_db, eps)
@@ -1771,10 +1794,6 @@ function P2X(gv, SS_ref_db, z_b, name)
     ccall((:P2X, libMAGEMin), SS_ref, (global_variable, SS_ref, bulk_info, Ptr{Cchar}), gv, SS_ref_db, z_b, name)
 end
 
-function get_phase_id(gv, name)
-    ccall((:get_phase_id, libMAGEMin), Cint, (global_variable, Ptr{Cchar}), gv, name)
-end
-
 function TC_mp_PC_init(PC_read, gv)
     ccall((:TC_mp_PC_init, libMAGEMin), Cvoid, (Ptr{PC_type}, global_variable), PC_read, gv)
 end
@@ -1817,8 +1836,8 @@ function TC_um_NLopt_opt_init(NLopt_opt, gv)
     ccall((:TC_um_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
 end
 
-function NLopt_opt_init(NLopt_opt, gv)
-    ccall((:NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
+function TC_NLopt_opt_init(NLopt_opt, gv)
+    ccall((:TC_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
 end
 
 function SS_mp_pc_init_function(SS_pc_xeos, iss, name)

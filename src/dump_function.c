@@ -93,7 +93,7 @@ void fill_output_struct(		global_variable 	 gv,
 
 	PC_type 		PC_read[gv.len_ss];
 
-	PC_init(	    PC_read,
+	TC_PC_init(	    PC_read,
 					gv				);
 
 	double G = 0.0;

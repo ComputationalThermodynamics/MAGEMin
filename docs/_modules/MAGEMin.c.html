@@ -636,19 +636,19 @@
 <span class="w">	</span><span class="n">obj_type</span><span class="w"> 								</span><span class="n">SS_objective</span><span class="p">[</span><span class="n">gv</span><span class="p">.</span><span class="n">len_ss</span><span class="p">];</span><span class="w">	</span>
 
 <span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">EM_database</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">){</span><span class="w">				</span><span class="c1">// metapelite database //</span>
-<span class="w">		</span><span class="n">SS_mp_objective_init_function</span><span class="p">(</span><span class="w">			</span><span class="n">SS_objective</span><span class="p">,</span><span class="w"></span>
+<span class="w">		</span><span class="n">TC_mp_objective_init_function</span><span class="p">(</span><span class="w">			</span><span class="n">SS_objective</span><span class="p">,</span><span class="w"></span>
 <span class="w">												</span><span class="n">gv</span><span class="w">							</span><span class="p">);</span><span class="w"></span>
 <span class="w">	</span><span class="p">}</span><span class="w"></span>
 <span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">EM_database</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">){</span><span class="w">				</span><span class="c1">// metabasite database //</span>
-<span class="w">		</span><span class="n">SS_mb_objective_init_function</span><span class="p">(</span><span class="w">			</span><span class="n">SS_objective</span><span class="p">,</span><span class="w"></span>
+<span class="w">		</span><span class="n">TC_mb_objective_init_function</span><span class="p">(</span><span class="w">			</span><span class="n">SS_objective</span><span class="p">,</span><span class="w"></span>
 <span class="w">												</span><span class="n">gv</span><span class="w">							</span><span class="p">);</span><span class="w"></span>
 <span class="w">	</span><span class="p">}</span><span class="w"></span>
 <span class="w">	</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">EM_database</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">){</span><span class="w">			</span><span class="c1">// igneous database //</span>
-<span class="w">		</span><span class="n">SS_ig_objective_init_function</span><span class="p">(</span><span class="w">			</span><span class="n">SS_objective</span><span class="p">,</span><span class="w"></span>
+<span class="w">		</span><span class="n">TC_ig_objective_init_function</span><span class="p">(</span><span class="w">			</span><span class="n">SS_objective</span><span class="p">,</span><span class="w"></span>
 <span class="w">												</span><span class="n">gv</span><span class="w">							</span><span class="p">);</span><span class="w"></span>
 <span class="w">	</span><span class="p">}</span><span class="w"></span>
 <span class="w">	</span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">EM_database</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">4</span><span class="p">){</span><span class="w">			</span><span class="c1">// ultramafic database //</span>
-<span class="w">		</span><span class="n">SS_um_objective_init_function</span><span class="p">(</span><span class="w">			</span><span class="n">SS_objective</span><span class="p">,</span><span class="w"></span>
+<span class="w">		</span><span class="n">TC_um_objective_init_function</span><span class="p">(</span><span class="w">			</span><span class="n">SS_objective</span><span class="p">,</span><span class="w"></span>
 <span class="w">												</span><span class="n">gv</span><span class="w">							</span><span class="p">);</span><span class="w"></span>
 <span class="w">	</span><span class="p">}</span><span class="w"></span>
 <span class="w">	</span>
