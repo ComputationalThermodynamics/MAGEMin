@@ -13,6 +13,8 @@
 
 #include "../MAGEMin.h"
 
+
+
 void TC_mb_objective_init_function(	obj_type 		 	*SS_objective,
 									global_variable  	 gv					);
 
@@ -31,71 +33,9 @@ void TC_SS_objective_init_function(	obj_type 			*SS_objective,
 void TC_PC_init(	                PC_type 			*PC_read,
 									global_variable 	 gv					);
 
-void p2x_mb_liq(  SS_ref SS_ref_db, double eps);
-void p2x_mb_hb(  SS_ref SS_ref_db, double eps);
-void p2x_mb_aug(  SS_ref SS_ref_db, double eps);
-void p2x_mb_dio(  SS_ref SS_ref_db, double eps);
-void p2x_mb_opx(  SS_ref SS_ref_db, double eps);
-void p2x_mb_g(  SS_ref SS_ref_db, double eps);
-void p2x_mb_ol(  SS_ref SS_ref_db, double eps);
-void p2x_mb_fsp(  SS_ref SS_ref_db, double eps);
-void p2x_mb_abc(  SS_ref SS_ref_db, double eps);
-void p2x_mb_k4tr(  SS_ref SS_ref_db, double eps);
-void p2x_mb_sp(  SS_ref SS_ref_db, double eps);
-void p2x_mb_ilm(  SS_ref SS_ref_db, double eps);
-void p2x_mb_ilmm(  SS_ref SS_ref_db, double eps);
-void p2x_mb_ep(  SS_ref SS_ref_db, double eps);
-void p2x_mb_bi(  SS_ref SS_ref_db, double eps);
-void p2x_mb_mu(  SS_ref SS_ref_db, double eps);
-void p2x_mb_chl(  SS_ref SS_ref_db, double eps);
 
-void p2x_ig_fper(SS_ref SS_ref_db, double eps);
-void p2x_ig_bi(  SS_ref SS_ref_db, double eps);
-void p2x_ig_cd(  SS_ref SS_ref_db, double eps);
-void p2x_ig_cpx( SS_ref SS_ref_db, double eps);
-void p2x_ig_ep(  SS_ref SS_ref_db, double eps);
-void p2x_ig_fl(  SS_ref SS_ref_db, double eps);
-void p2x_ig_g(   SS_ref SS_ref_db, double eps);
-void p2x_ig_hb(  SS_ref SS_ref_db, double eps);
-void p2x_ig_ilm( SS_ref SS_ref_db, double eps);
-void p2x_ig_liq( SS_ref SS_ref_db, double eps);
-void p2x_ig_mu(  SS_ref SS_ref_db, double eps);
-void p2x_ig_ol(  SS_ref SS_ref_db, double eps);
-void p2x_ig_opx( SS_ref SS_ref_db, double eps);
-void p2x_ig_fsp( SS_ref SS_ref_db, double eps);
-void p2x_ig_spn( SS_ref SS_ref_db, double eps);
-
-void p2x_mp_liq(  	SS_ref SS_ref_db, double eps);
-void p2x_mp_fsp(    SS_ref SS_ref_db, double eps);
-void p2x_mp_bi( 	SS_ref SS_ref_db, double eps);
-void p2x_mp_g(  	SS_ref SS_ref_db, double eps);
-void p2x_mp_ep(  	SS_ref SS_ref_db, double eps);
-void p2x_mp_ma(   	SS_ref SS_ref_db, double eps);
-void p2x_mp_mu(  	SS_ref SS_ref_db, double eps);
-void p2x_mp_opx( 	SS_ref SS_ref_db, double eps);
-void p2x_mp_sa( 	SS_ref SS_ref_db, double eps);
-void p2x_mp_cd(  	SS_ref SS_ref_db, double eps);
-void p2x_mp_st(  	SS_ref SS_ref_db, double eps);
-void p2x_mp_chl( 	SS_ref SS_ref_db, double eps);
-void p2x_mp_ctd(	SS_ref SS_ref_db, double eps);
-void p2x_mp_sp( 	SS_ref SS_ref_db, double eps);
-void p2x_mp_ilm(	SS_ref SS_ref_db, double eps);
-void p2x_mp_ilmm(	SS_ref SS_ref_db, double eps);
-void p2x_mp_mt( 	SS_ref SS_ref_db, double eps);
-void p2x_aq17( 		SS_ref SS_ref_db, double eps);
-
-void p2x_um_fluid(  SS_ref SS_ref_db, double eps);
-void p2x_um_ol(  	SS_ref SS_ref_db, double eps);
-void p2x_um_br( 	SS_ref SS_ref_db, double eps);
-void p2x_um_ch(  	SS_ref SS_ref_db, double eps);
-void p2x_um_atg( 	SS_ref SS_ref_db, double eps);
-void p2x_um_g(   	SS_ref SS_ref_db, double eps);
-void p2x_um_ta(  	SS_ref SS_ref_db, double eps);
-void p2x_um_chl( 	SS_ref SS_ref_db, double eps);
-void p2x_um_anth( 	SS_ref SS_ref_db, double eps);
-void p2x_um_spi(  	SS_ref SS_ref_db, double eps);
-void p2x_um_opx(  	SS_ref SS_ref_db, double eps);
-void p2x_um_po( 	SS_ref SS_ref_db, double eps);
+typedef void (*P2X_type) (		void 				*SS_ref_db,
+								double 				 eps						);
 
 double obj_mb_liq(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mb_hb(unsigned   n, const double *x, double *grad, void *SS_ref_db);
@@ -148,7 +88,6 @@ double obj_mp_sp(unsigned  	 n, const double *x, double *grad, void *SS_ref_db);
 double obj_mp_ilm(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mp_ilmm(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 double obj_mp_mt(unsigned  	 n, const double *x, double *grad, void *SS_ref_db);
-	
 	
 double obj_um_fluid(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 double obj_um_ol(unsigned     n, const double *x, double *grad, void *SS_ref_db);

@@ -19,10 +19,10 @@
 #include <string.h>
 #include <complex.h> 
 
-
 #include "../nlopt.h"
 #include "../MAGEMin.h"
 #include "../toolkit.h"
+#include "objective_functions.h"
 
 /**************************************************************************************/
 /**************************************************************************************/
@@ -8125,6 +8125,199 @@ double obj_aq17(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 
     return d->df;
 }
+
+
+
+void TC_mp_P2X_init(	            P2X_type 			*P2X_read,
+									global_variable 	 gv				){	
+						 					 
+	for (int iss = 0; iss < gv.len_ss; iss++){
+
+		if      (strcmp( gv.SS_list[iss], "liq")   == 0 ){
+			P2X_read[iss]  = p2x_mp_liq; 		}
+		else if (strcmp( gv.SS_list[iss], "fsp") == 0){
+			P2X_read[iss]  = p2x_mp_fsp; 		}
+		else if (strcmp( gv.SS_list[iss], "bi")    == 0){
+			P2X_read[iss]  = p2x_mp_bi; 		}
+		else if (strcmp( gv.SS_list[iss], "g")     == 0){
+			P2X_read[iss]  = p2x_mp_g; 			}
+		else if (strcmp( gv.SS_list[iss], "ep")    == 0){
+			P2X_read[iss]  = p2x_mp_ep; 		}
+		else if (strcmp( gv.SS_list[iss], "ma")    == 0){
+			P2X_read[iss]  = p2x_mp_ma; 		}
+		else if (strcmp( gv.SS_list[iss], "mu")    == 0){
+			P2X_read[iss]  = p2x_mp_mu; 		}
+		else if (strcmp( gv.SS_list[iss], "opx")   == 0){
+			P2X_read[iss]  = p2x_mp_opx; 		}
+		else if (strcmp( gv.SS_list[iss], "sa")    == 0){
+			P2X_read[iss]  = p2x_mp_sa; 		}
+		else if (strcmp( gv.SS_list[iss], "cd")    == 0){
+			P2X_read[iss]  = p2x_mp_cd; 		}
+		else if (strcmp( gv.SS_list[iss], "st")    == 0){
+			P2X_read[iss]  = p2x_mp_st; 		}
+		else if (strcmp( gv.SS_list[iss], "chl")   == 0){
+			P2X_read[iss]  = p2x_mp_chl; 		}
+		else if (strcmp( gv.SS_list[iss], "ctd")   == 0){
+			P2X_read[iss]  = p2x_mp_ctd; 		}
+		else if (strcmp( gv.SS_list[iss], "sp")    == 0){
+			P2X_read[iss]  = p2x_mp_sp; 		}
+		else if (strcmp( gv.SS_list[iss], "ilm")   == 0){
+			P2X_read[iss]  = p2x_mp_ilm; 		}
+		else if (strcmp( gv.SS_list[iss], "ilmm")   == 0){
+			P2X_read[iss]  = p2x_mp_ilmm; 		}
+		else if (strcmp( gv.SS_list[iss], "mt")    == 0){
+			P2X_read[iss]  = p2x_mp_mt; 		}
+		else if (strcmp( gv.SS_list[iss], "aq17")  == 0){
+			P2X_read[iss]  = p2x_aq17; 		    }
+		else{
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
+		}	
+	};	
+}
+
+void TC_mb_P2X_init(	            P2X_type 			*P2X_read,
+									global_variable 	 gv				){	
+						 					 
+	for (int iss = 0; iss < gv.len_ss; iss++){
+        if (strcmp( gv.SS_list[iss], "liq")  == 0){
+            P2X_read[iss]  = p2x_mb_liq;        }
+        else if (strcmp( gv.SS_list[iss], "hb")  == 0){
+            P2X_read[iss]  = p2x_mb_hb;         }
+        else if (strcmp( gv.SS_list[iss], "aug")  == 0){
+            P2X_read[iss]  = p2x_mb_aug;        }
+        else if (strcmp( gv.SS_list[iss], "dio")  == 0){
+            P2X_read[iss]  = p2x_mb_dio;        }
+        else if (strcmp( gv.SS_list[iss], "opx")  == 0){
+            P2X_read[iss]  = p2x_mb_opx;        }
+        else if (strcmp( gv.SS_list[iss], "g")  == 0){
+            P2X_read[iss]  = p2x_mb_g;          }
+        else if (strcmp( gv.SS_list[iss], "ol")  == 0){
+            P2X_read[iss]  = p2x_mb_ol;         }
+        else if (strcmp( gv.SS_list[iss], "fsp")  == 0){
+            P2X_read[iss]  = p2x_mb_fsp;        }
+        else if (strcmp( gv.SS_list[iss], "abc")  == 0){
+            P2X_read[iss]  = p2x_mb_abc;        }
+        else if (strcmp( gv.SS_list[iss], "k4tr")  == 0){
+            P2X_read[iss]  = p2x_mb_k4tr;       }
+        else if (strcmp( gv.SS_list[iss], "sp")  == 0){
+            P2X_read[iss]  = p2x_mb_sp;         }
+        else if (strcmp( gv.SS_list[iss], "ilm")  == 0){
+            P2X_read[iss]  = p2x_mb_ilm;        }
+        else if (strcmp( gv.SS_list[iss], "ilmm")  == 0){
+            P2X_read[iss]  = p2x_mb_ilmm;       }
+        else if (strcmp( gv.SS_list[iss], "ep")  == 0){
+            P2X_read[iss]  = p2x_mb_ep;         }
+        else if (strcmp( gv.SS_list[iss], "bi")  == 0){
+            P2X_read[iss]  = p2x_mb_bi;         }
+        else if (strcmp( gv.SS_list[iss], "mu")  == 0){
+            P2X_read[iss]  = p2x_mb_mu;         }
+        else if (strcmp( gv.SS_list[iss], "chl")  == 0){
+            P2X_read[iss]  = p2x_mb_chl;        }
+		else{
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
+		}	
+	};	
+}
+
+void TC_ig_P2X_init(	            P2X_type 			*P2X_read,
+									global_variable 	 gv				){	
+						 
+    for (int iss = 0; iss < gv.len_ss; iss++){
+
+		if      (strcmp( gv.SS_list[iss], "bi")  == 0 ){
+			P2X_read[iss]  = p2x_ig_bi; 		}
+		else if (strcmp( gv.SS_list[iss], "fper")  == 0){
+			P2X_read[iss]  = p2x_ig_fper; 		}
+		else if (strcmp( gv.SS_list[iss], "cd")  == 0){
+			P2X_read[iss]  = p2x_ig_cd; 		}
+		else if (strcmp( gv.SS_list[iss], "cpx") == 0){
+			P2X_read[iss]  = p2x_ig_cpx; 		}
+		else if (strcmp( gv.SS_list[iss], "ep")  == 0){
+			P2X_read[iss]  = p2x_ig_ep; 		}
+		else if (strcmp( gv.SS_list[iss], "fl")  == 0){
+			P2X_read[iss]  = p2x_ig_fl; 		}
+		else if (strcmp( gv.SS_list[iss], "g")   == 0){
+			P2X_read[iss]  = p2x_ig_g; 		    }
+		else if (strcmp( gv.SS_list[iss], "hb")  == 0){
+			P2X_read[iss]  = p2x_ig_hb; 		}
+		else if (strcmp( gv.SS_list[iss], "ilm") == 0){
+			P2X_read[iss]  = p2x_ig_ilm; 		}
+		else if (strcmp( gv.SS_list[iss], "liq") == 0){
+			P2X_read[iss]  = p2x_ig_liq; 		}
+		else if (strcmp( gv.SS_list[iss], "mu")  == 0){
+			P2X_read[iss]  = p2x_ig_mu; 		}
+		else if (strcmp( gv.SS_list[iss], "ol")  == 0){
+			P2X_read[iss]  = p2x_ig_ol; 		}
+		else if (strcmp( gv.SS_list[iss], "opx") == 0){
+			P2X_read[iss]  = p2x_ig_opx; 		}
+		else if (strcmp( gv.SS_list[iss], "fsp") == 0){
+			P2X_read[iss]  = p2x_ig_fsp; 		}
+		else if (strcmp( gv.SS_list[iss], "spn") == 0){
+			P2X_read[iss]  = p2x_ig_spn; 		}
+		else{
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
+		}	
+	};		
+}
+
+void TC_um_P2X_init(	            P2X_type 			*P2X_read,
+									global_variable 	 gv				){	
+						 
+	for (int iss = 0; iss < gv.len_ss; iss++){
+
+		if      (strcmp( gv.SS_list[iss], "fl")  == 0 ){
+			P2X_read[iss]  = p2x_um_fluid; 		}
+		else if (strcmp( gv.SS_list[iss], "ol")  == 0){
+			P2X_read[iss]  = p2x_um_ol; 		}
+		else if (strcmp( gv.SS_list[iss], "br") == 0){
+			P2X_read[iss]  = p2x_um_br; 		}
+		else if (strcmp( gv.SS_list[iss], "ch")  == 0){
+			P2X_read[iss]  = p2x_um_ch; 		}
+		else if (strcmp( gv.SS_list[iss], "atg")  == 0){
+			P2X_read[iss]  = p2x_um_atg; 		}
+		else if (strcmp( gv.SS_list[iss], "g")   == 0){
+			P2X_read[iss]  = p2x_um_g; 		    }
+		else if (strcmp( gv.SS_list[iss], "ta")  == 0){
+			P2X_read[iss]  = p2x_um_ta; 		}
+		else if (strcmp( gv.SS_list[iss], "chl") == 0){
+			P2X_read[iss]  = p2x_um_chl; 		}
+		else if (strcmp( gv.SS_list[iss], "anth") == 0){
+			P2X_read[iss]  = p2x_um_anth; 		}
+		else if (strcmp( gv.SS_list[iss], "spi")  == 0){
+			P2X_read[iss]  = p2x_um_spi; 		}
+		else if (strcmp( gv.SS_list[iss], "opx") == 0){
+			P2X_read[iss]  = p2x_um_opx; 		}
+		else if (strcmp( gv.SS_list[iss], "po") == 0){
+			P2X_read[iss]  = p2x_um_po; 		}
+		else{
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
+		}	
+	};	
+}
+
+
+void TC_P2X_init(	                P2X_type 			*P2X_read,
+									global_variable 	 gv				){
+
+	if (gv.EM_database == 0){				// metapelite database //
+		TC_mp_P2X_init(			            P2X_read,
+											gv							);
+	}
+	if (gv.EM_database == 1){				// metabasite database //
+		TC_mb_P2X_init(			            P2X_read,
+											gv							);
+	}
+	else if (gv.EM_database == 2){			// igneous database //
+		TC_ig_P2X_init(			            P2X_read,
+											gv							);
+	}
+	else if (gv.EM_database == 4){			// ultramafic database //
+		TC_um_P2X_init(			            P2X_read,
+											gv							);
+	}
+
+}
+
 
 
 SS_ref P2X(					global_variable 	 gv,
