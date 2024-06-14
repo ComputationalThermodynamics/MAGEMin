@@ -7032,11 +7032,11 @@ EM_db Access_EM_DB(int id, int EM_dataset) {
 	if (EM_dataset == 62){	
 	 	Entry_EM = arr_em_db_tc_ds62[id]; 
 	}
-	else if (EM_dataset == 634){		
-		Entry_EM = arr_em_db_tc_ds634[id]; 
-	}
 	else if (EM_dataset == 633){		
 		Entry_EM = arr_em_db_tc_ds633[id]; 
+	}
+	else if (EM_dataset == 634){		
+		Entry_EM = arr_em_db_tc_ds634[id]; 
 	}
 	else{
 		printf(" Wrong endmember dataset, values should be 62, 633 or 634\n");

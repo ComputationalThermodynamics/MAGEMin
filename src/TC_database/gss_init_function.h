@@ -27,9 +27,9 @@ void TC_SS_init_um(	                SS_init_type 		*SS_init,
 void TC_SS_init(	        	    SS_init_type 		*SS_init,
 									global_variable 	 gv				);
 
-SS_ref G_SS_init_EM_function(		int				ph_id,
-									SS_ref 			SS_ref_db, 
-									int 			EM_database, 
+SS_ref G_SS_init_EM_function(		SS_init_type   *SS_init,
+									int				ph_id,
+									SS_ref 			SS_ref_db,
 									char 		   *name, 
 									global_variable gv				);
 

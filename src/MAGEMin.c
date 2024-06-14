@@ -820,7 +820,6 @@ Databases InitializeDatabases(	global_variable gv,
 								int 			EM_database
 ){
 	Databases 	DB;
-	int 		i;
 
 	/* Allocate pure-phase database (to get gbase, comp and factor) 				*/
 	DB.PP_ref_db = malloc ((gv.len_pp) 		* sizeof(PP_ref)); 
@@ -835,21 +834,19 @@ Databases InitializeDatabases(	global_variable gv,
 
 
 	DB.SS_ref_db = malloc ((gv.len_ss) 		* sizeof(SS_ref)); 
-	for (i = 0; i < gv.len_ss; i++){
+	for (int iss = 0; iss < gv.len_ss; iss++){
 
-		// DB.SS_ref_db[i]  = (*SS_init[i])(		DB.SS_ref_db[i],
-		// 										gv							);
-		DB.SS_ref_db[i] = G_SS_init_EM_function(		i,	
-														DB.SS_ref_db[i], 
-														EM_database, 
-														gv.SS_list[i], 
+		DB.SS_ref_db[iss] = G_SS_init_EM_function(		SS_init,	
+														iss,	
+														DB.SS_ref_db[iss],
+														gv.SS_list[iss], 
 														gv						);
 	}
 
 	/* Allocate memory of the considered set of phases 								*/
 	DB.cp 		 = malloc ((gv.max_n_cp) 	* sizeof(csd_phase_set)); 
-	for (i = 0; i < gv.max_n_cp; i++){
-		DB.cp[i] = CP_INIT_function(		DB.cp[i], 
+	for (int iss = 0; iss < gv.max_n_cp; iss++){
+		DB.cp[iss] = CP_INIT_function(		DB.cp[iss], 
 											gv									);
 	}
 
