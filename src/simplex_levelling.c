@@ -746,6 +746,7 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 										global_variable 	 gv,
 										
 										PC_type             *PC_read,
+										P2X_type 			*P2X_read,
 										PP_ref 				*PP_ref_db,
 										SS_ref 				*SS_ref_db,
 										csd_phase_set  		*cp
@@ -798,11 +799,9 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 				SS_ref_db[ph_id].p[j] = gv.em2ss_shift;
 			}
 			SS_ref_db[ph_id].p[em_id] = 1.0 - gv.em2ss_shift*SS_ref_db[ph_id].n_em;
-			
-			SS_ref_db[ph_id] = P2X(			gv,
-											SS_ref_db[ph_id],
-											z_b,
-											gv.SS_list[ph_id]		);
+
+			(*P2X_read[ph_id])(		&SS_ref_db[ph_id],
+									gv.bnd_val					);			
 
 			SS_ref_db[ph_id] = PC_function(	gv,
 											PC_read,
@@ -1377,6 +1376,7 @@ global_variable run_initial_guess_function(	bulk_info 	 		 z_b,
 											global_variable 	 gv,
 
 											PC_type             *PC_read,
+											P2X_type			*P2X_read,
 											simplex_data		*splx_data,
 											PP_ref 				*PP_ref_db,
 											SS_ref 				*SS_ref_db,
@@ -1412,6 +1412,7 @@ global_variable run_initial_guess_function(	bulk_info 	 		 z_b,
 											gv,
 
 											PC_read,
+											P2X_read,
 											PP_ref_db,
 											SS_ref_db,
 											cp				);
@@ -1497,6 +1498,7 @@ global_variable run_levelling_function(		bulk_info 	 z_b,
 											global_variable 	 gv,
 
 											PC_type             *PC_read,
+											P2X_type			*P2X_read,
 											obj_type			*SS_objective,	
 											simplex_data		*splx_data,
 											PP_ref 				*PP_ref_db,
@@ -1540,6 +1542,7 @@ global_variable run_levelling_function(		bulk_info 	 z_b,
 											gv,
 
 											PC_read,
+											P2X_read,
 											PP_ref_db,
 											SS_ref_db,
 											cp				);
@@ -1617,10 +1620,11 @@ global_variable run_levelling_function(		bulk_info 	 z_b,
 /**
   main levelling routine
 */ 
-global_variable Initial_guess(	bulk_info 	z_b,
+global_variable Initial_guess(	bulk_info 			z_b,
 								global_variable 	gv,
 
 								PC_type            *PC_read,
+								P2X_type 		   *P2X_read,
 								simplex_data	   *splx_data,
 								PP_ref 			   *PP_ref_db,
 								SS_ref 			   *SS_ref_db,
@@ -1637,6 +1641,7 @@ global_variable Initial_guess(	bulk_info 	z_b,
 										gv,													/** global variables (e.g. Gamma) */
 
 										PC_read,
+										P2X_read,
 										splx_data,
 										PP_ref_db,											/** pure phase database */
 										SS_ref_db,											/** solution phase database */
@@ -1657,6 +1662,7 @@ global_variable Levelling(	bulk_info 	z_b,
 							global_variable 	gv,
 
 							PC_type            *PC_read,
+							P2X_type		   *P2X_read,
 							obj_type 		   *SS_objective,
 							simplex_data	   *splx_data,
 							PP_ref 			   *PP_ref_db,
@@ -1674,6 +1680,7 @@ global_variable Levelling(	bulk_info 	z_b,
 									gv,													/** global variables (e.g. Gamma) */
 
 									PC_read,
+									P2X_read,
 									SS_objective,
 								    splx_data,
 									PP_ref_db,											/** pure phase database */

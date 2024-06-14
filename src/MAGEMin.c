@@ -378,6 +378,12 @@ int runMAGEMin(			int    argc,
 
 	TC_PC_init(	                    		PC_read,
 											gv								);
+
+
+	P2X_type 								P2X_read[gv.len_ss];
+
+	TC_P2X_init(	                		P2X_read,
+											gv								);
 		
 	/****************************************************************************************/
 	/**                                   LEVELLING                                        **/
@@ -389,6 +395,7 @@ int runMAGEMin(			int    argc,
 							gv,											/** global variables (e.g. Gamma) 	*/
 
 							PC_read,
+							P2X_read,
 							SS_objective,
 							splx_data,
 							PP_ref_db,									/** pure phase database 			*/
@@ -429,6 +436,13 @@ int runMAGEMin(			int    argc,
 	TC_PC_init(	                    		PC_read,
 											gv								);
 
+	P2X_type 								P2X_read[gv.len_ss];
+
+	TC_P2X_init(	                		P2X_read,
+											gv								);
+
+											
+
 	/****************************************************************************************/
 	/**                                   LEVELLING                                        **/
 	/****************************************************************************************/	
@@ -439,6 +453,7 @@ int runMAGEMin(			int    argc,
 								gv,											/** global variables (e.g. Gamma) 	*/
 
 								PC_read,
+								P2X_read,
 								SS_objective,
 								splx_data,
 								PP_ref_db,									/** pure phase database 			*/
@@ -451,6 +466,7 @@ int runMAGEMin(			int    argc,
 								gv,											/** global variables (e.g. Gamma) 	*/
 
 								PC_read,
+								P2X_read,	
 								splx_data,
 								PP_ref_db,									/** pure phase database 			*/
 								SS_ref_db,									/** solution phase database 		*/
@@ -473,6 +489,7 @@ int runMAGEMin(			int    argc,
 		gv = LP(				z_b,									/** bulk rock informations 			*/
 								gv,										/** global variables (e.g. Gamma) 	*/
 								PC_read,
+								P2X_read,
 
 								SS_objective,
 								NLopt_opt,
@@ -521,6 +538,7 @@ int runMAGEMin(			int    argc,
 			gv = LP(				z_b,									/** bulk rock informations 			*/
 									gv,										/** global variables (e.g. Gamma) 	*/
 									PC_read,
+									P2X_read,
 
 									SS_objective,
 									NLopt_opt,
@@ -598,6 +616,7 @@ int runMAGEMin(			int    argc,
 				gv = LP(				z_b,									/** bulk rock informations 			*/
 										gv,										/** global variables (e.g. Gamma) 	*/
 										PC_read,
+										P2X_read,
 
 										SS_objective,
 										NLopt_opt,
@@ -628,6 +647,7 @@ int runMAGEMin(			int    argc,
 			gv = LP(				z_b,									/** bulk rock informations 			*/
 									gv,										/** global variables (e.g. Gamma) 	*/
 									PC_read,
+									P2X_read,
 
 									SS_objective,
 									NLopt_opt,

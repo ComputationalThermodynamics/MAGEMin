@@ -12,7 +12,7 @@
 #define __run_levelling_function_H_
 
 #include "MAGEMin.h"
-
+#include "all_solution_phases.h"
 
 /* simplex levelling declaration part */
 void update_dG(						simplex_data 	    *splx_data			);
@@ -63,6 +63,7 @@ global_variable Levelling(			bulk_info 			z_b,
 									global_variable 	gv,
 
 									PC_type            *PC_read,
+									P2X_type		   *P2X_read,
 									obj_type 		   *SS_objective,
 									simplex_data	   *splx_data,
 									PP_ref 			   *PP_ref_db,
@@ -73,6 +74,7 @@ global_variable Initial_guess(		bulk_info 			z_b,
 									global_variable 	gv,
 
 									PC_type            *PC_read,
+									P2X_type 		   *P2X_read,
 									simplex_data	   *splx_data,
 									PP_ref 			   *PP_ref_db,
 									SS_ref 			   *SS_ref_db,

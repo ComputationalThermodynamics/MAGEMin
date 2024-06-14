@@ -960,6 +960,7 @@ global_variable init_LP(							bulk_info 	 		 z_b,
 													simplex_data 		*splx_data,
 													global_variable 	 gv,
 													PC_type				*PC_read,
+													P2X_type			*P2X_read,
 													
 													PP_ref 				*PP_ref_db,
 													SS_ref 				*SS_ref_db,
@@ -1073,10 +1074,8 @@ global_variable init_LP(							bulk_info 	 		 z_b,
 			}
 			SS_ref_db[ph_id].p[em_id] = 1.0 - gv.em2ss_shift*SS_ref_db[ph_id].n_em;
 			
-			SS_ref_db[ph_id] = P2X(			gv,
-											SS_ref_db[ph_id],
-											z_b,
-											gv.SS_list[ph_id]		);
+			(*P2X_read[ph_id])(		&SS_ref_db[ph_id],
+									gv.bnd_val					);		
 			}
 		
 			/* solution phase */
@@ -1253,6 +1252,7 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 													simplex_data 		*splx_data,
 													global_variable 	 gv,
 													PC_type 			*PC_read,
+													P2X_type 			*P2X_read,
 
 													obj_type 			*SS_objective,
 													PP_ref 				*PP_ref_db,
@@ -1313,10 +1313,8 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 						}
 						SS_ref_db[ph_id].p[em_id] = 1.0 - gv.em2ss_shift*n_em;
 						
-						SS_ref_db[ph_id] = P2X(			gv,
-														SS_ref_db[ph_id],
-														z_b,
-														gv.SS_list[ph_id]		);
+						(*P2X_read[ph_id])(		&SS_ref_db[ph_id],
+												gv.bnd_val					);
 
 						G 	= (*SS_objective[ph_id])(SS_ref_db[ph_id].n_xeos, SS_ref_db[ph_id].iguess, 	NULL, &SS_ref_db[ph_id]);
 
@@ -1476,6 +1474,7 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 global_variable LP(		bulk_info 			z_b,
 						global_variable 	gv,
 						PC_type				*PC_read,
+						P2X_type			*P2X_read,
 
 						obj_type 			*SS_objective,
 						NLopt_type			*NLopt_opt,
@@ -1499,6 +1498,7 @@ global_variable LP(		bulk_info 			z_b,
 									splx_data,
 									gv,
 									PC_read,
+									P2X_read,
 
 									SS_objective,	
 									PP_ref_db,
@@ -1509,6 +1509,7 @@ global_variable LP(		bulk_info 			z_b,
 							splx_data,
 							gv,
 							PC_read,
+							P2X_read,
 									
 							PP_ref_db,
 							SS_ref_db,
@@ -1580,6 +1581,7 @@ global_variable LP(		bulk_info 			z_b,
 										splx_data,
 										gv,
 										PC_read,
+										P2X_read,
 
 										SS_objective,	
 										PP_ref_db,
@@ -1589,6 +1591,7 @@ global_variable LP(		bulk_info 			z_b,
 										splx_data,
 										gv,
 										PC_read,
+										P2X_read,
 										
 										PP_ref_db,
 										SS_ref_db,

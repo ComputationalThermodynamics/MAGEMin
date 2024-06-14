@@ -91,10 +91,15 @@ void fill_output_struct(		global_variable 	 gv,
 ){
 
 
-	PC_type 		PC_read[gv.len_ss];
+	PC_type 				PC_read[gv.len_ss];
 
-	TC_PC_init(	    PC_read,
-					gv				);
+	TC_PC_init(	    		PC_read,
+							gv								);
+
+	P2X_type 				P2X_read[gv.len_ss];
+
+	TC_P2X_init(			P2X_read,
+							gv								);				
 
 	double G = 0.0;
 	double sum;
@@ -577,10 +582,8 @@ void fill_output_struct(		global_variable 	 gv,
 			}
 			SS_ref_db[ph_id].p[em_id] = 1.0 - gv.em2ss_shift*SS_ref_db[ph_id].n_em;
 			
-			SS_ref_db[ph_id] = P2X(			gv,
-											SS_ref_db[ph_id],
-											z_b,
-											gv.SS_list[ph_id]					);
+			(*P2X_read[ph_id])(		&SS_ref_db[ph_id],
+									gv.bnd_val					);
 
 			/* get unrotated gbase */
 			SS_ref_db[ph_id] = non_rot_hyperplane(	gv, 

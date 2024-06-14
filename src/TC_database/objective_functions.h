@@ -34,9 +34,12 @@ void TC_PC_init(	                PC_type 			*PC_read,
 									global_variable 	 gv					);
 
 
-typedef void (*P2X_type) (		void 				*SS_ref_db,
-								double 				 eps						);
+typedef void (*P2X_type) (			void 				*SS_ref_db,
+									double 				 eps				);
 
+void TC_P2X_init(	                P2X_type 			*P2X_read,
+									global_variable 	 gv					);
+									
 double obj_mb_liq(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mb_hb(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mb_aug(unsigned   n, const double *x, double *grad, void *SS_ref_db);
@@ -110,12 +113,7 @@ SS_ref PC_function(			global_variable 	 gv,
 							SS_ref 				 SS_ref_db, 
 							bulk_info 	 		 z_b,
 							int    			 	ph_id					);
-													
-SS_ref P2X(					global_variable 	 gv,
-							SS_ref 				 SS_ref_db, 
-							bulk_info 	 		 z_b,
-							char    			*name					);	
-							
+																		
 void TC_mp_PC_init(	                PC_type 			*PC_read,
 									global_variable 	 gv				);
 void TC_mb_PC_init(	                PC_type 			*PC_read,
