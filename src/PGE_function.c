@@ -1494,15 +1494,15 @@ global_variable LP(		bulk_info 			z_b,
 	int nCheck  = 0;
 
 
-	gv = LP_pc_composite(			z_b,
-									splx_data,
-									gv,
-									PC_read,
-									P2X_read,
+	// gv = LP_pc_composite(		z_b,
+	// 								splx_data,
+	// 								gv,
+	// 								PC_read,
+	// 								P2X_read,
 
-									SS_objective,	
-									PP_ref_db,
-									SS_ref_db			);	
+	// 								SS_objective,	
+	// 								PP_ref_db,
+	// 								SS_ref_db			);	
 
 
 	gv = init_LP(			z_b,
@@ -1577,15 +1577,15 @@ global_variable LP(		bulk_info 			z_b,
 										PP_ref_db,
 										SS_ref_db			);
 
-		gv = LP_pc_composite(			z_b,
-										splx_data,
-										gv,
-										PC_read,
-										P2X_read,
+		// gv = LP_pc_composite(		z_b,
+		// 								splx_data,
+		// 								gv,
+		// 								PC_read,
+		// 								P2X_read,
 
-										SS_objective,	
-										PP_ref_db,
-										SS_ref_db			);	
+		// 								SS_objective,	
+		// 								PP_ref_db,
+		// 								SS_ref_db			);	
 
 		gv = init_LP(					z_b,
 										splx_data,
