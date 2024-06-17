@@ -7,7 +7,7 @@ using DataFrames, Dates, CSV
 
 const VecOrMat = Union{Nothing, AbstractVector{Float64}, AbstractVector{<:AbstractVector{Float64}}}
 
-export  retrieve_solution_phase_information, remove_phases,
+export  anhydrous_renormalization, retrieve_solution_phase_information, remove_phases,
         init_MAGEMin, finalize_MAGEMin, point_wise_minimization, convertBulk4MAGEMin, use_predefined_bulk_rock, define_bulk_rock, create_output,
         print_info, create_gmin_struct, pwm_init, pwm_run,
         single_point_minimization, multi_point_minimization, MAGEMin_Data, W_Data,
@@ -16,7 +16,25 @@ export  retrieve_solution_phase_information, remove_phases,
 
 export adjust_chemical_system, TE_prediction, get_OL_KDs_database, adjust_bulk_4_zircon
 
-    
+  
+
+function anhydrous_renormalization( bulk    :: Vector{Float64},
+                                    oxide   :: Vector{String})
+
+    bulk_dry    = zeros(Float64, length(bulk))
+    H2O = findall(oxide .== "H2O")
+    if ~isempty(H2O)
+        non_H2O     = findall(oxide .!= "H2O")
+        H2O         = H2O[1]
+
+        bulk_dry[non_H2O] .= bulk[non_H2O]
+        bulk_dry ./= sum(bulk_dry)
+    else
+        print(" No water oxide in the system! \n")
+    end
+
+    return bulk_dry
+end
 
 """
     structure that holds the result of the pointwise minimization

@@ -82,6 +82,16 @@ Finalize_MAGEMin(data)
 
 end
 
+@testset "test zr saturation" begin
+    data    = Initialize_MAGEMin("mp", verbose=false);
+        
+    # One bulk rock for all points
+    P,T     = 10.0, 800.0
+    Xoxides = ["SiO2";  "TiO2";  "Al2O3";  "FeO";   "MnO";   "MgO";   "CaO";   "Na2O";  "K2O"; "H2O"; "O"];
+    X       = [58.509,  1.022,   14.858, 4.371, 0.141, 4.561, 5.912, 3.296, 2.399, 10.0, 0.0];
+    sys_in  = "wt"    
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+end
 
 @testset "test normalization" begin
 

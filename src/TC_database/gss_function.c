@@ -679,6 +679,11 @@ SS_ref G_SS_mb_hb_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_in
 		SS_ref_db.bounds_ref[7][1]  = 0.0;	
 	}
 
+    /* this lists the index of the order variables */
+    // SS_ref_db.orderVar      = 1;
+    // SS_ref_db.idOrderVar[8] = -1.0;
+    // SS_ref_db.idOrderVar[9] = -1.0;
+
     return SS_ref_db;
 }
 
@@ -970,6 +975,11 @@ SS_ref G_SS_mb_dio_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_i
 		SS_ref_db.bounds_ref[4][0] = 0.0; 
 		SS_ref_db.bounds_ref[4][1] = 0.0;	
 	}
+    /* this lists the index of the order variables */
+    SS_ref_db.orderVar      = 1;
+    SS_ref_db.idOrderVar[3] = -1.0;
+    SS_ref_db.idOrderVar[4] = -1.0;
+    SS_ref_db.idOrderVar[5] = -1.0;
 
     return SS_ref_db;
 }
