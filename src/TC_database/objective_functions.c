@@ -19,7 +19,7 @@
 #include <string.h>
 #include <complex.h> 
 
-#include "../nlopt.h"
+#include "nlopt.h"
 #include "../MAGEMin.h"
 #include "../toolkit.h"
 #include "objective_functions.h"
