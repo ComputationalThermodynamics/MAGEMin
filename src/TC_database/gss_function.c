@@ -1515,6 +1515,95 @@ SS_ref G_SS_mb_k4tr_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_
 }
 
 /**
+   retrieve reference thermodynamic data for mb_spn
+*/
+SS_ref G_SS_mb_spn_function(SS_ref SS_ref_db, int EM_database, int len_ox, bulk_info z_b, double eps){
+    
+    int i, j;
+    int n_em = SS_ref_db.n_em;
+    
+    char   *EM_tmp[] 		= {"herc","sp","usp"};
+    for (int i = 0; i < SS_ref_db.n_em; i++){
+        strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
+    };
+
+    int n_xeos = SS_ref_db.n_xeos;
+    char   *CV_tmp[] 		= {"x","y"};
+    for (int i = 0; i < SS_ref_db.n_xeos; i++){
+        strcpy(SS_ref_db.CV_list[i],CV_tmp[i]);
+    };
+
+    int n_sf = SS_ref_db.n_sf;
+    
+    char   *SF_tmp[] 		= {"xAl","xTi","xMg","xFe2"};
+    for (int i = 0; i < SS_ref_db.n_sf; i++){
+        strcpy(SS_ref_db.SF_list[i],SF_tmp[i]);
+    };
+    
+    SS_ref_db.W[0] = 0.0;
+    SS_ref_db.W[1] = 27.0000000000000;
+    SS_ref_db.W[2] = 30.0000000000000;
+    
+    
+    em_data herc_eq 		= get_em_data(		EM_database, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"herc", 
+    										"equilibrium"	);
+    
+    em_data sp_eq 		= get_em_data(		EM_database, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"sp", 
+    										"equilibrium"	);
+    
+    em_data usp_eq 		= get_em_data(		EM_database, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"usp", 
+    										"equilibrium"	);
+    
+    SS_ref_db.gbase[0] 		= herc_eq.gb;
+    SS_ref_db.gbase[1] 		= sp_eq.gb;
+    SS_ref_db.gbase[2] 		= usp_eq.gb;
+    
+    SS_ref_db.ElShearMod[0] 	= herc_eq.ElShearMod;
+    SS_ref_db.ElShearMod[1] 	= sp_eq.ElShearMod;
+    SS_ref_db.ElShearMod[2] 	= usp_eq.ElShearMod;
+    
+    for (i = 0; i < len_ox; i++){
+        SS_ref_db.Comp[0][i] 	= herc_eq.C[i];
+        SS_ref_db.Comp[1][i] 	= sp_eq.C[i];
+        SS_ref_db.Comp[2][i] 	= usp_eq.C[i];
+    }
+    
+    for (i = 0; i < n_em; i++){
+        SS_ref_db.z_em[i] = 1.0;
+    };
+    
+    SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
+    SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+    
+
+	if (z_b.bulk_rock[7] == 0.){ 	    //TiO2			
+		SS_ref_db.z_em[2]          = 0.0;
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 1.0; 
+		SS_ref_db.bounds_ref[1][1] = 1.0;	
+	}
+
+
+    return SS_ref_db;
+}
+
+
+/**
    retrieve reference thermodynamic data for mb_sp
 */
 SS_ref G_SS_mb_sp_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_info z_b, double eps){
@@ -1602,18 +1691,6 @@ SS_ref G_SS_mb_sp_function(SS_ref SS_ref_db, int EM_dataset, int len_ox, bulk_in
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     
-
-	if (z_b.bulk_rock[8] == 0. && z_b.bulk_rock[7] == 0.){ 	    //O	&& TiO2			
-		SS_ref_db.z_em[2]          = 0.0;
-        SS_ref_db.d_em[2]          = 1.0;
-		SS_ref_db.z_em[3]          = 0.0;
-        SS_ref_db.d_em[3]          = 1.0;
-
-		SS_ref_db.bounds_ref[2][0] = 0.0; 
-		SS_ref_db.bounds_ref[2][1] = 0.0;
-		SS_ref_db.bounds_ref[1][0] = 1.0; 
-		SS_ref_db.bounds_ref[1][1] = 1.0;	
-	}
 	if (z_b.bulk_rock[7] == 0. && z_b.bulk_rock[8] != 0.){ 		//TiO2	
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
@@ -7933,7 +8010,15 @@ SS_ref G_SS_mb_EM_function(		global_variable 	 gv,
         else if (strcmp( name, "k4tr") == 0 ){
             SS_ref_db  = G_SS_mb_k4tr_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "sp") == 0 ){
+			if (z_b.bulk_rock[gv.O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
             SS_ref_db  = G_SS_mb_sp_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
+        else if (strcmp( name, "spn") == 0 ){
+			if (z_b.bulk_rock[gv.O_id] != 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+            SS_ref_db  = G_SS_mb_spn_function(SS_ref_db, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "ilm") == 0 ){
 			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;

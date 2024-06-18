@@ -51,6 +51,7 @@ double obj_mb_fsp(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mb_abc(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mb_k4tr(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mb_sp(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mb_spn(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mb_ilm(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mb_ilmm(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mb_ep(unsigned   n, const double *x, double *grad, void *SS_ref_db);

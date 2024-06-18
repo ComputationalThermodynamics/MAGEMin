@@ -60,7 +60,7 @@
 	/** 
 		Metabasite database informations
 	**/
-	typedef struct metabasite_datasets {
+		typedef struct metabasite_datasets {
 		int 	ds_version;
 		int 	n_ox;
 		int 	n_pp;
@@ -68,15 +68,15 @@
 		char    ox[10][20];
 		char    PP[24][20];
 
-		char    SS1[14][20];
-		int 	verifyPC1[14];
-		int 	n_SS_PC1[14];
-		double 	SS_PC_stp1[14];
+		char    SS1[15][20];
+		int 	verifyPC1[15];
+		int 	n_SS_PC1[15];
+		double 	SS_PC_stp1[15];
 
-		char    SS2[14][20];
-		int 	verifyPC2[14];
-		int 	n_SS_PC2[14];
-		double 	SS_PC_stp2[14];
+		char    SS2[15][20];
+		int 	verifyPC2[15];
+		int 	n_SS_PC2[15];
+		double 	SS_PC_stp2[15];
 
 		double 	PC_df_add;					/** min value of df under which the PC is added 									*/
 		double  solver_switch_T;

@@ -244,7 +244,24 @@ void p2x_mb_k4tr(void *SS_ref_db, double eps){
         }
     }
 }
-
+/**
+    Endmember to xeos for spn
+*/
+void p2x_mb_spn(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[1]  = 1.0 - 1.0*d->p[2];
+    d->iguess[0]  = (d->p[0] + 2.0*d->p[2])/(d->p[2] + 1.0);
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
 /**
     Endmember to xeos for sp
 */
@@ -546,6 +563,17 @@ void dpdx_mb_k4tr(void *SS_ref_db, const double *x){
 
 
 /**
+    Update dpdx matrix of spn
+*/
+void dpdx_mb_spn(void *SS_ref_db, const double *x){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    double **dp_dx = d->dp_dx;
+
+    dp_dx[0][0] = 2.0 - 1.0*x[1];      dp_dx[0][1] = 2.0 - 1.0*x[0];      
+    dp_dx[1][0] = x[1] - 2.0;      dp_dx[1][1] = x[0] - 1.0;      
+    dp_dx[2][0] = 0.0;      dp_dx[2][1] = -1.0;      
+}
+/**
     Update dpdx matrix of sp
 */
 void dpdx_mb_sp(void *SS_ref_db, const double *x){
@@ -792,7 +820,17 @@ void px_mb_k4tr(void *SS_ref_db, const double *x){
         p[2]           = -x[0] -x[1] + 1.0;
 }
 
-    
+  
+/**
+    Endmember fraction of spn
+*/
+void px_mb_spn(void *SS_ref_db, const double *x){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    double *p = d->p;
+        p[0]           = -1.0*x[0]*x[1] + 2.0*x[0] + 2.0*x[1] - 2.0;
+        p[1]           = (1.0 - 1.0*x[0])*(2.0 - 1.0*x[1]);
+        p[2]           = 1.0 - 1.0*x[1];
+}  
 /**
     Endmember fraction of sp
 */
@@ -1694,7 +1732,73 @@ double obj_mb_k4tr(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     return d->df;
 }
+        
+/**
+    Objective function of spn
+*/
+double obj_mb_spn(unsigned n, const double *x, double *grad, void *SS_ref_db){
+    SS_ref *d         = (SS_ref *) SS_ref_db;
+
+    int n_em          = d->n_em;
+    double P          = d->P;
+    double T          = d->T;
+    double R          = d->R;
+
+    double *gb        = d->gb_lvl;
+    double *mu_Gex    = d->mu_Gex;
+    double *sf        = d->sf;
+    double *mu        = d->mu;
+    double *d_em      = d->d_em;
+    px_mb_spn(SS_ref_db,x);
+
+    for (int i = 0; i < n_em; i++){
+        mu_Gex[i] = 0.0;
+        int it    = 0;
+        for (int j = 0; j < d->n_xeos; j++){
+            for (int k = j+1; k < n_em; k++){
+                mu_Gex[i] -= (d->eye[i][j] - d->p[j])*(d->eye[i][k] - d->p[k])*(d->W[it]);
+                it += 1;
+            }
+        }
+    }
     
+    sf[0]          = 1.0*x[1];
+    sf[1]          = 1.0 - x[1];
+    sf[2]          = 1.0 - x[0];
+    sf[3]          = 1.0*x[0];
+    
+    
+    mu[0]          = gb[0] + R*T*creal(clog(sf[0]*sf[3])) + mu_Gex[0];
+    mu[1]          = gb[1] + R*T*creal(clog(sf[0]*sf[2])) + mu_Gex[1];
+    mu[2]          = gb[2] + R*T*creal(clog(sf[1]*sf[3]  + d_em[2])) + mu_Gex[2];
+    
+    d->sum_apep = 0.0;
+    for (int i = 0; i < n_em; i++){
+        d->sum_apep += d->ape[i]*d->p[i];
+    }
+    d->factor = d->fbc/d->sum_apep;
+
+    d->df_raw = 0.0;
+    for (int i = 0; i < n_em; i++){
+        d->df_raw += mu[i]*d->p[i];
+    }
+    d->df = d->df_raw * d->factor;
+
+    if (grad){
+        double *dfx    = d->dfx;
+        double **dp_dx = d->dp_dx;
+        dpdx_mb_spn(SS_ref_db,x);
+        for (int i = 0; i < (d->n_xeos); i++){
+            dfx[i] = 0.0;
+            for (int j = 0; j < n_em; j++){
+                dfx[i] += (mu[j] - (d->ape[j]/d->sum_apep)*d->df_raw)*d->factor*dp_dx[j][i];
+            }
+            grad[i] = creal(dfx[i]);
+        }
+    }
+
+    return d->df;
+}  
 /**
     Objective function of sp
 */
@@ -8201,6 +8305,8 @@ void TC_mb_P2X_init(	            P2X_type 			*P2X_read,
             P2X_read[iss]  = p2x_mb_k4tr;       }
         else if (strcmp( gv.SS_list[iss], "sp")  == 0){
             P2X_read[iss]  = p2x_mb_sp;         }
+        else if (strcmp( gv.SS_list[iss], "spn")  == 0){
+            P2X_read[iss]  = p2x_mb_spn;         }
         else if (strcmp( gv.SS_list[iss], "ilm")  == 0){
             P2X_read[iss]  = p2x_mb_ilm;        }
         else if (strcmp( gv.SS_list[iss], "ilmm")  == 0){
@@ -8441,6 +8547,8 @@ void TC_mb_objective_init_function(	obj_type 			*SS_objective,
          SS_objective[iss]  = obj_mb_k4tr;      }
       else if (strcmp( gv.SS_list[iss], "sp")  == 0){
          SS_objective[iss]  = obj_mb_sp;      }
+      else if (strcmp( gv.SS_list[iss], "spn")  == 0){
+         SS_objective[iss]  = obj_mb_spn;      }
       else if (strcmp( gv.SS_list[iss], "ilm")  == 0){
          SS_objective[iss]  = obj_mb_ilm;      }
       else if (strcmp( gv.SS_list[iss], "ilmm")  == 0){
@@ -8593,6 +8701,8 @@ void TC_mb_PC_init(	                PC_type 			*PC_read,
          PC_read[iss]  = obj_mb_k4tr;               }
       else if (strcmp( gv.SS_list[iss], "sp")  == 0){
          PC_read[iss]  = obj_mb_sp;                 }
+      else if (strcmp( gv.SS_list[iss], "spn")  == 0){
+         PC_read[iss]  = obj_mb_spn;                }
       else if (strcmp( gv.SS_list[iss], "ilm")  == 0){
          PC_read[iss]  = obj_mb_ilm;                }
       else if (strcmp( gv.SS_list[iss], "ilmm")  == 0){
