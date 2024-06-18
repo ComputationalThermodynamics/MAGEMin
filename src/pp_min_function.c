@@ -1,3 +1,13 @@
+/*@ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ **
+ **   Project      : MAGEMin
+ **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+ **   Developers   : Nicolas Riel, Boris Kaus
+ **   Contributors : Dominguez, H., Green E., Berlie N., and Rummel L.
+ **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
+ **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
+ **
+ ** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ @*/
 /**
         Pure phase minimization function                    
 -----------------------------------------------------------
@@ -55,7 +65,7 @@ global_variable init_em_db(		int 				EM_database,
 
 			if 		(strcmp( gv.PP_list[i], "qif") 	== 0){
 
-				PP_ref iron 	= G_EM_function(	EM_database, 
+				PP_ref iron 	= G_EM_function(	gv.EM_dataset, 
 												gv.len_ox,
 												z_b.id,
 												z_b.bulk_rock, 
@@ -64,7 +74,7 @@ global_variable init_em_db(		int 				EM_database,
 												z_b.T, 
 												"iron", 
 												state				);
-				PP_ref q 	= G_EM_function(	EM_database, 
+				PP_ref q 	= G_EM_function(	gv.EM_dataset, 
 												gv.len_ox,
 												z_b.id,
 												z_b.bulk_rock, 
@@ -73,7 +83,7 @@ global_variable init_em_db(		int 				EM_database,
 												z_b.T, 
 												"q", 
 												state				);
-				PP_ref fa 	= G_EM_function(	EM_database, 
+				PP_ref fa 	= G_EM_function(	gv.EM_dataset, 
 												gv.len_ox,
 												z_b.id,
 												z_b.bulk_rock, 
@@ -110,7 +120,7 @@ global_variable init_em_db(		int 				EM_database,
 			}
 			else if (strcmp( gv.PP_list[i], "nno") 	== 0){
 
-				PP_ref Ni 	= G_EM_function(	EM_database, 
+				PP_ref Ni 	= G_EM_function(	gv.EM_dataset, 
 												gv.len_ox,
 												z_b.id,
 												z_b.bulk_rock, 
@@ -119,7 +129,7 @@ global_variable init_em_db(		int 				EM_database,
 												z_b.T, 
 												"Ni", 
 												state				);
-				PP_ref NiO 	= G_EM_function(	EM_database, 
+				PP_ref NiO 	= G_EM_function(	gv.EM_dataset, 
 												gv.len_ox,
 												z_b.id,
 												z_b.bulk_rock, 
@@ -155,7 +165,7 @@ global_variable init_em_db(		int 				EM_database,
 			}
  			else if (strcmp( gv.PP_list[i], "aH2O") == 0){
 
-				PP_ref H2O 	= G_EM_function(	EM_database, 
+				PP_ref H2O 	= G_EM_function(	gv.EM_dataset, 
 												gv.len_ox,
 												z_b.id,
 												z_b.bulk_rock, 
@@ -197,7 +207,7 @@ global_variable init_em_db(		int 				EM_database,
 			}
  			else if (strcmp( gv.PP_list[i], "aO2") == 0){
 
-				PP_ref O2 	= G_EM_function(	EM_database, 
+				PP_ref O2 	= G_EM_function(	gv.EM_dataset, 
 												gv.len_ox,
 												z_b.id,
 												z_b.bulk_rock, 
@@ -239,7 +249,7 @@ global_variable init_em_db(		int 				EM_database,
 			}			
  			else if (strcmp( gv.PP_list[i], "aMgO") == 0){
 
-				PP_ref MgO 	= G_EM_function(	EM_database, 
+				PP_ref MgO 	= G_EM_function(	gv.EM_dataset, 
 												gv.len_ox,
 												z_b.id,
 												z_b.bulk_rock, 
@@ -281,7 +291,7 @@ global_variable init_em_db(		int 				EM_database,
 			}	
  			else if (strcmp( gv.PP_list[i], "aFeO") == 0){
 
-				PP_ref FeO 	= G_EM_function(	EM_database, 
+				PP_ref FeO 	= G_EM_function(	gv.EM_dataset, 
 												gv.len_ox,
 												z_b.id,
 												z_b.bulk_rock, 
@@ -323,7 +333,7 @@ global_variable init_em_db(		int 				EM_database,
 			}	
 			else if (strcmp( gv.PP_list[i], "aAl2O3") == 0){
 
-				PP_ref Al2O3 	= G_EM_function(	EM_database, 
+				PP_ref Al2O3 	= G_EM_function(	gv.EM_dataset, 
 													gv.len_ox,
 													z_b.id,
 													z_b.bulk_rock, 
@@ -365,7 +375,7 @@ global_variable init_em_db(		int 				EM_database,
 			}	
 			else if (strcmp( gv.PP_list[i], "aTiO2") == 0){
 
-				PP_ref TiO2 	= G_EM_function(	EM_database, 
+				PP_ref TiO2 	= G_EM_function(	gv.EM_dataset, 
 													gv.len_ox,
 													z_b.id,
 													z_b.bulk_rock, 
@@ -407,7 +417,7 @@ global_variable init_em_db(		int 				EM_database,
 			}	
 			else if (strcmp( gv.PP_list[i], "mw") 	== 0){
 
-				PP_ref mt 	= G_EM_function(	EM_database, 
+				PP_ref mt 	= G_EM_function(	gv.EM_dataset, 
 												gv.len_ox,
 												z_b.id,
 												z_b.bulk_rock, 
@@ -416,7 +426,7 @@ global_variable init_em_db(		int 				EM_database,
 												z_b.T, 
 												"mt", 
 												state				);
-				PP_ref wu 	= G_EM_function(	EM_database, 
+				PP_ref wu 	= G_EM_function(	gv.EM_dataset, 
 												gv.len_ox,
 												z_b.id,
 												z_b.bulk_rock, 
@@ -452,7 +462,7 @@ global_variable init_em_db(		int 				EM_database,
 			}
 			else if (strcmp( gv.PP_list[i], "cco") 	== 0){
 
-				PP_ref co2 	= G_EM_function(	EM_database, 
+				PP_ref co2 	= G_EM_function(	gv.EM_dataset, 
 												gv.len_ox,
 												z_b.id,
 												z_b.bulk_rock, 
@@ -461,7 +471,7 @@ global_variable init_em_db(		int 				EM_database,
 												z_b.T, 
 												"CO2", 
 												state				);
-				PP_ref gph 	= G_EM_function(	EM_database, 
+				PP_ref gph 	= G_EM_function(	gv.EM_dataset, 
 												gv.len_ox,
 												z_b.id,
 												z_b.bulk_rock, 
@@ -497,7 +507,7 @@ global_variable init_em_db(		int 				EM_database,
 			}
 			else if (strcmp( gv.PP_list[i], "hm") 	== 0){
 
-				PP_ref mt 	= G_EM_function(	EM_database, 
+				PP_ref mt 	= G_EM_function(	gv.EM_dataset, 
 												gv.len_ox,
 												z_b.id,
 												z_b.bulk_rock, 
@@ -506,7 +516,7 @@ global_variable init_em_db(		int 				EM_database,
 												z_b.T, 
 												"mt", 
 												state				);
-				PP_ref hem 	= G_EM_function(	EM_database, 
+				PP_ref hem 	= G_EM_function(	gv.EM_dataset, 
 												gv.len_ox,
 												z_b.id,
 												z_b.bulk_rock, 
@@ -542,7 +552,7 @@ global_variable init_em_db(		int 				EM_database,
 			}
 			else if (strcmp( gv.PP_list[i], "qfm") 	== 0){
 
-				PP_ref q 	= G_EM_function(	EM_database, 
+				PP_ref q 	= G_EM_function(	gv.EM_dataset, 
 												gv.len_ox,
 												z_b.id,
 												z_b.bulk_rock, 
@@ -551,7 +561,7 @@ global_variable init_em_db(		int 				EM_database,
 												z_b.T, 
 												"q", 
 												state				);
-				PP_ref fa 	= G_EM_function(	EM_database, 
+				PP_ref fa 	= G_EM_function(	gv.EM_dataset, 
 												gv.len_ox,
 												z_b.id,
 												z_b.bulk_rock, 
@@ -561,7 +571,7 @@ global_variable init_em_db(		int 				EM_database,
 												"fa", 
 												state				);
 
-				PP_ref mt 	= G_EM_function(	EM_database, 
+				PP_ref mt 	= G_EM_function(	gv.EM_dataset, 
 												gv.len_ox,
 												z_b.id,
 												z_b.bulk_rock, 
@@ -596,7 +606,7 @@ global_variable init_em_db(		int 				EM_database,
 				gv.pp_flags[i][4] 	= 1;
 			}
 			else if (strcmp( gv.PP_list[i], "O2") 	== 0){
-				PP_ref_db[i] = G_EM_function(	EM_database, 
+				PP_ref_db[i] = G_EM_function(	gv.EM_dataset, 
 												gv.len_ox,
 												z_b.id,
 												z_b.bulk_rock, 
@@ -607,7 +617,7 @@ global_variable init_em_db(		int 				EM_database,
 												state				);
 			}
 			else{
-				PP_ref_db[i] = G_EM_function(	EM_database, 
+				PP_ref_db[i] = G_EM_function(	gv.EM_dataset, 
 												gv.len_ox,
 												z_b.id,
 												z_b.bulk_rock, 

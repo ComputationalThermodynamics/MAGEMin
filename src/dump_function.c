@@ -1,3 +1,13 @@
+/*@ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ **
+ **   Project      : MAGEMin
+ **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+ **   Developers   : Nicolas Riel, Boris Kaus
+ **   Contributors : Dominguez, H., Green E., Berlie N., and Rummel L.
+ **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
+ **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
+ **
+ ** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ @*/
 /**
  The goal is to retrieve logged data and dump them into      
  files to track the behaviour of the solver                  
@@ -21,8 +31,7 @@
 #include "mpi.h"
 #include "MAGEMin.h"
 #include "gem_function.h"
-#include "gss_function.h"
-#include "objective_functions.h"
+#include "all_solution_phases.h"
 #include "toolkit.h"
 
 /**
@@ -80,6 +89,18 @@ void fill_output_struct(		global_variable 	 gv,
 								csd_phase_set  		*cp,
 								stb_system  		*sp
 ){
+
+
+	PC_type 				PC_read[gv.len_ss];
+
+	TC_PC_init(	    		PC_read,
+							gv								);
+
+	P2X_type 				P2X_read[gv.len_ss];
+
+	TC_P2X_init(			P2X_read,
+							gv								);				
+
 	double G = 0.0;
 	double sum;
 	double sum_wt;
@@ -97,18 +118,16 @@ void fill_output_struct(		global_variable 	 gv,
 	strcpy(sp[0].MAGEMin_ver,gv.version);	
 
 
-	if (gv.EM_database == 0){	
+	if (gv.EM_dataset == 62){	
 		strcpy(sp[0].dataset,"tc_ds62");	
 	}
-	else if (gv.EM_database == 1){	
-		strcpy(sp[0].dataset,"tc_ds62");	
-	}
-	else if (gv.EM_database == 2){		
-		strcpy(sp[0].dataset,"tc_ds634");	
-	}
-	else if (gv.EM_database == 4){	
+	else if (gv.EM_dataset == 633){	
 		strcpy(sp[0].dataset,"tc_ds633");	
 	}
+	else if (gv.EM_dataset == 634){		
+		strcpy(sp[0].dataset,"tc_ds634");	
+	}
+
 
 	sp[0].bulk_res_norm 		 = gv.BR_norm;
 	sp[0].n_iterations 		     = gv.global_ite;
@@ -563,19 +582,18 @@ void fill_output_struct(		global_variable 	 gv,
 			}
 			SS_ref_db[ph_id].p[em_id] = 1.0 - gv.em2ss_shift*SS_ref_db[ph_id].n_em;
 			
-			SS_ref_db[ph_id] = P2X(			gv,
-											SS_ref_db[ph_id],
-											z_b,
-											gv.SS_list[ph_id]					);
+			(*P2X_read[ph_id])(		&SS_ref_db[ph_id],
+									gv.bnd_val					);
 
 			/* get unrotated gbase */
 			SS_ref_db[ph_id] = non_rot_hyperplane(	gv, 
 													SS_ref_db[ph_id]			);
 
 			SS_ref_db[ph_id] = PC_function(				gv,
+														PC_read,
 														SS_ref_db[ph_id], 
 														z_b,
-														gv.SS_list[ph_id] 		);
+														ph_id 		);
 
 
 			for (j = 0; j < gv.len_ox; j++){
@@ -632,9 +650,10 @@ void fill_output_struct(		global_variable 	 gv,
 													SS_ref_db[ph_id]			);
 
 			SS_ref_db[ph_id] = PC_function(				gv,
+														PC_read,
 														SS_ref_db[ph_id], 
 														z_b,
-														gv.SS_list[ph_id] 		);
+														ph_id 		);
 											
 			for (j = 0; j < gv.len_ox; j++){
 				sp[0].mSS[m].comp_Ppc[j] = SS_ref_db[ph_id].ss_comp[j]*SS_ref_db[ph_id].factor;

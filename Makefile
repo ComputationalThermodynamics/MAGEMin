@@ -12,8 +12,8 @@ ifeq ($(UNAME_S),Darwin)
 	LIBS    = -lm -framework Accelerate /opt/homebrew/lib/libnlopt.dylib /opt/homebrew/lib/libmpi.dylib
 	INC     = -I/opt/homebrew/include 
 
-	#LIBS   = -lm -framework Accelerate /usr/local/opt/lapack/lib/liblapacke.dylib /usr/local/lib/libnlopt.dylib /usr/local/lib/libmpich.dylib
-	#INC    = -I/usr/local/opt/lapack/include -I/usr/local/include
+	# LIBS   = -lm -framework Accelerate /usr/local/opt/lapack/lib/liblapacke.dylib /usr/local/lib/libnlopt.dylib /usr/local/lib/libmpich.dylib
+	# INC    = -I/usr/local/opt/lapack/include -I/usr/local/include
 
 	# This is for a Mac, where we employ the build-in CBLAS and LAPACKE from MacPorts
 	# LIBS    = -lm -framework Accelerate /opt/local/lib/lapack/liblapacke.dylib /usr/local/lib/libnlopt.dylib ~/Software/mpich-3.3.2/mpich-install/lib/libmpich.dylib
@@ -35,19 +35,26 @@ ifeq ($(UNAME_S),Linux)
 endif
 	EXE_NAME = MAGEMin
 
-SOURCES=src/MAGEMin.c 					\
-		src/toolkit.c					\
-		src/io_function.c				\
-		src/gem_function.c 				\
-		src/gss_init_function.c			\
-		src/gss_function.c				\
-		src/NLopt_opt_function.c 		\
-		src/objective_functions.c		\
-		src/pp_min_function.c 			\
-		src/ss_min_function.c 			\
-		src/simplex_levelling.c 		\
-		src/PGE_function.c 				\
-		src/phase_update_function.c		\
+SOURCES=src/MAGEMin.c 							\
+		src/initialize.c 						\
+		src/TC_database/TC_init_database.c		\
+		src/TC_database/TC_endmembers.c			\
+		src/toolkit.c							\
+		src/io_function.c						\
+		src/gem_function.c 						\
+		src/TC_database/gss_init_function.c		\
+		src/TC_database/gss_function.c			\
+		src/TC_database/NLopt_opt_function.c 	\
+		src/TC_database/objective_functions.c	\
+		src/TC_database/SS_xeos_PC_mp.c			\
+		src/TC_database/SS_xeos_PC_mb.c			\
+		src/TC_database/SS_xeos_PC_ig.c			\
+		src/TC_database/SS_xeos_PC_um.c			\
+		src/pp_min_function.c 					\
+		src/ss_min_function.c 					\
+		src/simplex_levelling.c 				\
+		src/PGE_function.c 						\
+		src/phase_update_function.c				\
 		src/dump_function.c
 
 OBJECTS=$(SOURCES:.c=.o)
@@ -57,10 +64,10 @@ OBJECTS=$(SOURCES:.c=.o)
  
 all: $(OBJECTS)
 	$(CC)  -o $(EXE_NAME) $(OBJECTS) $(INC) $(LIBS) 
-	rm src/*.o
+	rm src/*.o src/TC_database/*.o
 
 lib: $(OBJECTS)
-	$(CC) -shared -fPIC  -o libMAGEMin.dylib $(OBJECTS) $(INC) $(LIBS)
+	$(CC) -shared -fPIC -o libMAGEMin.dylib $(OBJECTS) $(INC) $(LIBS)
  
 clean:
-	rm -f src/*.o *.dylib MAGEMin
+	rm -f src/*.o  src/TC_database/*.o *.dylib MAGEMin

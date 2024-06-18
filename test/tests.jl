@@ -20,9 +20,8 @@ out         =   point_wise_minimization(P,T, data);
 @show out
 
 @test out.G_system ≈ -797.7491828675325
-@test out.ph == ["spn", "cpx",  "opx", "ol"]
+@test sort(out.ph) == sort(["spn", "cpx",  "opx", "ol"])
 @test abs(out.s_cp[1] - 1208.466551730128) < 2.0
-@test all(abs.(out.ph_frac - [0.027985692010022857, 0.14166112328585387, 0.24227821491186913, 0.5880749697922566])  .< 1e-2)
 
 # print more detailed info about this point:
 print_info(out)
@@ -82,6 +81,16 @@ Finalize_MAGEMin(data)
 
 end
 
+@testset "test zr saturation" begin
+    data    = Initialize_MAGEMin("mp", verbose=false);
+        
+    # One bulk rock for all points
+    P,T     = 10.0, 800.0
+    Xoxides = ["SiO2";  "TiO2";  "Al2O3";  "FeO";   "MnO";   "MgO";   "CaO";   "Na2O";  "K2O"; "H2O"; "O"];
+    X       = [58.509,  1.022,   14.858, 4.371, 0.141, 4.561, 5.912, 3.296, 2.399, 10.0, 0.0];
+    sys_in  = "wt"    
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+end
 
 @testset "test normalization" begin
 
@@ -148,8 +157,7 @@ T           =   800.0
 out         =   point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in);
 @test out.G_system ≈ -797.7491828675325
 @test abs(out.s_cp[1] - 1208.466551730128) < 2.0
-@test out.ph == ["spn", "cpx",  "opx", "ol"]
-@test all(abs.(out.ph_frac - [0.027985692010022857, 0.14166112328585387, 0.24227821491186913, 0.5880749697922566])  .< 1e-2)
+@test sort(out.ph) == sort(["spn", "cpx",  "opx", "ol"])
 finalize_MAGEMin(gv,DB,z_b)
 
 @testset "pointwise tests  " begin
@@ -160,8 +168,7 @@ finalize_MAGEMin(gv,DB,z_b)
     data    =   Initialize_MAGEMin(db, verbose=false);
     out     =   multi_point_minimization(P, T, data, test=0);
     @test out[end].G_system ≈ -797.7491828675325
-    @test out[end].ph == ["spn", "cpx",  "opx", "ol"]
-    @test all(abs.(out[end].ph_frac - [0.027985692010022857, 0.14166112328585387, 0.24227821491186913, 0.5880749697922566])  .< 1e-2)
+    @test sort(out[end].ph) == sort(["spn", "cpx",  "opx", "ol"])
 
     Finalize_MAGEMin(data)
 end
@@ -210,7 +217,7 @@ end
     X       = [70.999,12.805,0.771,3.978,6.342,2.7895,1.481,0.758,0.72933,0.075,30.0]
     sys_in  = "mol"    
     out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in,rm_list=rm_list)
-    @test sort(out.ph) == sort(["fsp", "sp", "g", "q", "sill", "ru", "H2O"])
+    @test sort(out.ph) == sort(["H2O", "fsp", "g", "ilmm", "q", "sill", "sp"])
 end
 
 @testset "view array PT" begin

@@ -1,7 +1,18 @@
+/*@ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ **
+ **   Project      : MAGEMin
+ **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+ **   Developers   : Nicolas Riel, Boris Kaus
+ **   Contributors : Dominguez, H., Green E., Berlie N., and Rummel L.
+ **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
+ **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
+ **
+ ** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ @*/
 #ifndef __run_levelling_function_H_
 #define __run_levelling_function_H_
 
 #include "MAGEMin.h"
+#include "all_solution_phases.h"
 
 /* simplex levelling declaration part */
 void update_dG(						simplex_data 	    *splx_data			);
@@ -51,6 +62,8 @@ void swap_PGE_pseudocompounds(		bulk_info 	 		 z_b,
 global_variable Levelling(			bulk_info 			z_b,
 									global_variable 	gv,
 
+									PC_type            *PC_read,
+									P2X_type		   *P2X_read,
 									obj_type 		   *SS_objective,
 									simplex_data	   *splx_data,
 									PP_ref 			   *PP_ref_db,
@@ -60,6 +73,8 @@ global_variable Levelling(			bulk_info 			z_b,
 global_variable Initial_guess(		bulk_info 			z_b,
 									global_variable 	gv,
 
+									PC_type            *PC_read,
+									P2X_type 		   *P2X_read,
 									simplex_data	   *splx_data,
 									PP_ref 			   *PP_ref_db,
 									SS_ref 			   *SS_ref_db,

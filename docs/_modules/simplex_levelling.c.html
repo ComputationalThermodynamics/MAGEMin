@@ -300,10 +300,10 @@
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;SS_xeos_PC_ig.h&quot;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;SS_xeos_PC_um.h&quot;</span><span class="cp"></span>
 
-<div class="viewcode-block" id="c.SS_ig_objective_init_function"><a class="viewcode-back" href="../src/simplex_levelling.html#c.SS_ig_objective_init_function">[docs]</a><span class="cm">/**</span>
+<div class="viewcode-block" id="c.TC_ig_objective_init_function"><a class="viewcode-back" href="../src/simplex_levelling.html#c.TC_ig_objective_init_function">[docs]</a><span class="cm">/**</span>
 <span class="cm">	associate the array of pointer with the right solution phase</span>
 <span class="cm">*/</span><span class="w"></span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">SS_ig_objective_init_function</span><span class="p">(</span><span class="w">	</span><span class="n">obj_type</span><span class="w"> 			</span><span class="o">*</span><span class="n">SS_objective</span><span class="p">,</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">TC_ig_objective_init_function</span><span class="p">(</span><span class="w">	</span><span class="n">obj_type</span><span class="w"> 			</span><span class="o">*</span><span class="n">SS_objective</span><span class="p">,</span><span class="w"></span>
 <span class="w">									</span><span class="n">global_variable</span><span class="w"> 	 </span><span class="n">gv</span><span class="w">				</span><span class="p">){</span><span class="w">	</span>
 <span class="w">						 </span>
 <span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">iss</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">iss</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ss</span><span class="p">;</span><span class="w"> </span><span class="n">iss</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
@@ -344,7 +344,7 @@
 <span class="w">	</span><span class="p">};</span><span class="w">			</span>
 <span class="p">}</span><span class="w"></span></div>
 
-<div class="viewcode-block" id="c.SS_mp_objective_init_function"><span class="kt">void</span><span class="w"> </span><span class="nf">SS_mp_objective_init_function</span><span class="p">(</span><span class="w">	</span><span class="n">obj_type</span><span class="w"> 			</span><span class="o">*</span><span class="n">SS_objective</span><span class="p">,</span><span class="w"></span>
+<div class="viewcode-block" id="c.TC_mp_objective_init_function"><span class="kt">void</span><span class="w"> </span><span class="nf">TC_mp_objective_init_function</span><span class="p">(</span><span class="w">	</span><span class="n">obj_type</span><span class="w"> 			</span><span class="o">*</span><span class="n">SS_objective</span><span class="p">,</span><span class="w"></span>
 <span class="w">									</span><span class="n">global_variable</span><span class="w"> 	 </span><span class="n">gv</span><span class="w">				</span><span class="p">){</span><span class="w">	</span>
 <span class="w">						 </span>
 <span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">iss</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">iss</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ss</span><span class="p">;</span><span class="w"> </span><span class="n">iss</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
@@ -392,7 +392,7 @@
 <span class="p">}</span><span class="w"></span></div>
 
 
-<div class="viewcode-block" id="c.SS_mb_objective_init_function"><span class="kt">void</span><span class="w"> </span><span class="nf">SS_mb_objective_init_function</span><span class="p">(</span><span class="w">	</span><span class="n">obj_type</span><span class="w"> 			</span><span class="o">*</span><span class="n">SS_objective</span><span class="p">,</span><span class="w"></span>
+<div class="viewcode-block" id="c.TC_mb_objective_init_function"><span class="kt">void</span><span class="w"> </span><span class="nf">TC_mb_objective_init_function</span><span class="p">(</span><span class="w">	</span><span class="n">obj_type</span><span class="w"> 			</span><span class="o">*</span><span class="n">SS_objective</span><span class="p">,</span><span class="w"></span>
 <span class="w">									</span><span class="n">global_variable</span><span class="w"> 	 </span><span class="n">gv</span><span class="w">				</span><span class="p">){</span><span class="w">	</span>
 <span class="w">						 </span>
 <span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">iss</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">iss</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ss</span><span class="p">;</span><span class="w"> </span><span class="n">iss</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
@@ -455,7 +455,7 @@
 <span class="p">}</span><span class="w"></span></div>
 
 
-<div class="viewcode-block" id="c.SS_um_objective_init_function"><span class="kt">void</span><span class="w"> </span><span class="nf">SS_um_objective_init_function</span><span class="p">(</span><span class="w">	</span><span class="n">obj_type</span><span class="w"> 			</span><span class="o">*</span><span class="n">SS_objective</span><span class="p">,</span><span class="w"></span>
+<div class="viewcode-block" id="c.TC_um_objective_init_function"><span class="kt">void</span><span class="w"> </span><span class="nf">TC_um_objective_init_function</span><span class="p">(</span><span class="w">	</span><span class="n">obj_type</span><span class="w"> 			</span><span class="o">*</span><span class="n">SS_objective</span><span class="p">,</span><span class="w"></span>
 <span class="w">									</span><span class="n">global_variable</span><span class="w"> 	 </span><span class="n">gv</span><span class="w">				</span><span class="p">){</span><span class="w">	</span>
 <span class="w">						 </span>
 <span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">iss</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">iss</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">gv</span><span class="p">.</span><span class="n">len_ss</span><span class="p">;</span><span class="w"> </span><span class="n">iss</span><span class="o">++</span><span class="p">){</span><span class="w"></span>

@@ -6,13 +6,17 @@ function zirconium_saturation(  out     :: MAGEMin_C.gmin_struct{Float64, Int64}
 
     if out.frac_M > 0.0                            
         if model == "WH" || model == "B"
-            ref_ox      = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "MnO"; "H2O"; "S"];
-            ratio_cation= [1/3.0,2/5,1/2,1/2,1/2,2/5,2/3,2/3,1/3,1,2/5,1/2,2/3,1]
-            
-            cation_name = ["Si"; "Al"; "Ca"; "Mg"; "Fe"; "Fe"; "K"; "Na"; "Ti"; "O"; "Cr"; "Mn"; "H"; "S"]
+            ref_ox      = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "MnO"; "H2O"; "S"];
+            # ratio_cation= [1/3.0,2/5,1/2,1/2,1/2,2/5,2/3,2/3,1/3,1,2/5,1/2,2/3,1]
+            n_cation    = [1.0,2,1,1,1,2,2,1,1,2,1,2,1]
+          
+            cation_name = ["Si"; "Al"; "Ca"; "Mg"; "Fe"; "K"; "Na"; "Ti"; "O"; "Cr"; "Mn"; "H"; "S"]
             
             cation_idx  = [findfirst(isequal(x), ref_ox) for x in out.oxides];
-            cation      = out.bulk_M_wt .*ratio_cation[cation_idx];
+
+            bulk_M_dry  = anhydrous_renormalization(out.bulk_M,out.oxides)
+
+            cation      = bulk_M_dry .*n_cation[cation_idx];
             cation      = cation ./ sum(cation);
 
             Na          = findall(cation_name[cation_idx] .== "Na")[1];

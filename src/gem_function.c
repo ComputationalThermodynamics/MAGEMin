@@ -1,3 +1,13 @@
+/*@ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ **
+ **   Project      : MAGEMin
+ **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+ **   Developers   : Nicolas Riel, Boris Kaus
+ **   Contributors : Dominguez, H., Green E., Berlie N., and Rummel L.
+ **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
+ **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
+ **
+ ** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ @*/
 /**
   Function to calculate chemical potential of endmembers/pure phases  
 */
@@ -592,7 +602,7 @@ void propSolvent_FE97_calc(     solvent_prop    *wat,
 
 }
 
-PP_ref G_EM_function(		int 		 EM_database, 
+PP_ref G_EM_function(		int 		 EM_dataset, 
 							int 		 len_ox,
 							int         *id,
 							double 		*bulk_rock, 
@@ -603,9 +613,9 @@ PP_ref G_EM_function(		int 		 EM_database,
 							char		*state			
 ){
 	/* Get thermodynamic data */
-	struct EM_db EM_return;
+	EM_db EM_return;
 	int i, p_id = find_EM_id(name);
-	EM_return   = Access_EM_DB(p_id, EM_database);
+	EM_return   = Access_EM_DB(p_id, EM_dataset);
 	
 	/* Get composition (in molar amount) */
 	double composition[len_ox];
@@ -932,7 +942,7 @@ PP_ref G_FS_function(		int 		 len_ox,
 
 
 	/* Get thermodynamic data */
-	struct FS_db FS_return;
+	FS_db FS_return;
 	int i, p_id = find_FS_id(name);
 	FS_return   = Access_FS_DB(p_id);
 	

@@ -1,37 +1,30 @@
-/**
-Mineral Assemblage Gibbs Energy Minimization		  
---------------------------------------------
+/*@ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ **
+ **   Project      : MAGEMin
+ **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+ **   Developers   : Nicolas Riel, Boris Kaus
+ **   Contributors : Dominguez, H., Green E., Berlie N., and Rummel L.
+ **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
+ **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
+ **
+ ** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ @*/
 
-Contributors: 
-
-- Main developers: Riel N., Kaus. B.
-- Database translation and debugging: Green E., Berlie N., and Rummel L. 
-     
-Contacts: nriel[at]uni-mainz.de, kaus[at]uni-mainz.de 		 
-                                                                                                  
-MAGEMin is written as a parallel C library callable from any petrological/geodynamic tool. For a given set of pressure, temperature and bulk-rock composition MAGEMin uses a combination of linear programming, extended Partitioning Gibbs free Energy and gradient-based local minimization to compute the most stable mineral assemblage     
-      
-Available thermodynamic dataset                       
-================================
+// Available thermodynamic dataset                       
+// ================================
  
-Igneous thermodynamic dataset
-*****************************
-                    
-- Holland et al., 2018 (see http://hpxeosandthermocalc.org)
-- K2O-Na2O-CaO-FeO-MgO-Al2O3-SiO2-H2O-TiO2-O-Cr2O3 chemical system
-- Equations of state for
-	- Pure stoichiometric phases quartz (q), cristobalite (crst), tridymite (trd), coesite (coe), stishovite (stv), kyanite (ky), sillimanite (sill), andalusite (and), rutile (ru) and sphene (sph). 
-	- Solution phases spinel (spn), biotite (bi), cordierite (cd), clinopyroxene (cpx), orthopyroxene (opx), epidote (ep), garnet (g), hornblende (hb), ilmenite (ilm), silicate melt (liq), muscovite (mu), olivine (ol), ternary feldspar (fsp), and aqueous fluid (fl).
-                                                    
-Imported libraries                       
-==================
+// Metapelite (White et al., 2014)
+// Metabasite (Green et al., 2016)
+// Igneous 	  (Holland et al., 2018)
+// Ultramafic (Evans & Frost, 2021)
+                                              
+// Imported libraries                       
+// ==================
 
-- LAPACKE (C version of LAPACK)                         
-- NLopt  (https://nlopt.readthedocs.io/)                
-- uthash (https://troydhanson.github.io/uthash/)        
-- ketopt (https://github.com/attractivechaos/klib/blob/master/ketopt.h) 
-   
- */
+// - LAPACKE (C version of LAPACK)                         
+// - NLopt  (https://nlopt.readthedocs.io/)                
+// - uthash (https://troydhanson.github.io/uthash/)        
+// - ketopt (https://github.com/attractivechaos/klib/blob/master/ketopt.h) 
+
 
 #include <math.h>
 #include <stdio.h>
@@ -40,20 +33,15 @@ Imported libraries
 #include <complex.h> 
 
 #include "uthash.h"
+#include "hash_init.h"
 #include "ketopt.h"
-#include "nlopt.h"                  // requires specifying this in the makefile
+#include "nlopt.h"                  
 #include "mpi.h"
-#include "Endmembers_tc-ds62.h"
-#include "Endmembers_tc-ds633.h"
-#include "Endmembers_tc-ds634.h"
-#include "Endmembers_M2017.h"
+
 #include "toolkit.h"
 #include "io_function.h"
 #include "gem_function.h"
-#include "gss_init_function.h"
-#include "gss_function.h"
-#include "objective_functions.h"
-#include "NLopt_opt_function.h"
+
 #include "simplex_levelling.h"
 #include "initialize.h"
 #include "ss_min_function.h"
@@ -61,8 +49,10 @@ Imported libraries
 #include "dump_function.h"
 #include "PGE_function.h"
 #include "phase_update_function.h"
+#include "all_solution_phases.h"
 #include "MAGEMin.h"
-#include "simplex_levelling.h"
+
+
 
 /** 
   Main routine
@@ -257,8 +247,8 @@ int runMAGEMin(			int    argc,
 		/* Fill structure holding stable phase equilibrium informations 			*/
 		fill_output_struct(					gv,												/** global variables (e.g. Gamma) 	*/
 										   &splx_data,
-										   
 											z_b,											/** bulk-rock informations 			*/
+
 											DB.PP_ref_db,									/** pure phase database 			*/
 											DB.SS_ref_db,									/** solution phase database 		*/
 											DB.cp,
@@ -380,23 +370,21 @@ int runMAGEMin(			int    argc,
 	/** pointer array to objective functions 								*/
 	obj_type 								SS_objective[gv.len_ss];	
 
-	if (EM_database == 0){				// metapelite database //
-		SS_mp_objective_init_function(			SS_objective,
-												gv							);
-	}
-	if (EM_database == 1){				// metabasite database //
-		SS_mb_objective_init_function(			SS_objective,
-												gv							);
-	}
-	else if (EM_database == 2){			// igneous database //
-		SS_ig_objective_init_function(			SS_objective,
-												gv							);
-	}
-	else if (EM_database == 4){			// ultramafic database //
-		SS_um_objective_init_function(			SS_objective,
-												gv							);
-	}
-	
+	TC_SS_objective_init_function(			SS_objective,
+											gv								);
+
+
+	PC_type 								PC_read[gv.len_ss];
+
+	TC_PC_init(	                    		PC_read,
+											gv								);
+
+
+	P2X_type 								P2X_read[gv.len_ss];
+
+	TC_P2X_init(	                		P2X_read,
+											gv								);
+		
 	/****************************************************************************************/
 	/**                                   LEVELLING                                        **/
 	/****************************************************************************************/	
@@ -406,6 +394,8 @@ int runMAGEMin(			int    argc,
 	gv = Levelling(			z_b,										/** bulk rock informations 			*/
 							gv,											/** global variables (e.g. Gamma) 	*/
 
+							PC_read,
+							P2X_read,
 							SS_objective,
 							splx_data,
 							PP_ref_db,									/** pure phase database 			*/
@@ -415,7 +405,6 @@ int runMAGEMin(			int    argc,
 	return gv;
 
 	}
-
 
 /** 
   Compute stable equilibrium at given Pressure, Temperature and bulk-rock composition
@@ -433,23 +422,26 @@ int runMAGEMin(			int    argc,
 	/** pointer array to objective functions 								*/
 	obj_type 								SS_objective[gv.len_ss];	
 
-	if (EM_database == 0){				// metapelite database //
-		SS_mp_objective_init_function(			SS_objective,
-												gv							);
-	}
-	if (EM_database == 1){				// metabasite database //
-		SS_mb_objective_init_function(			SS_objective,
-												gv							);
-	}
-	else if (EM_database == 2){			// igneous database //
-		SS_ig_objective_init_function(			SS_objective,
-												gv							);
-	}
-	else if (EM_database == 4){			// ultramafic database //
-		SS_um_objective_init_function(			SS_objective,
-												gv							);
-	}
-	
+	TC_SS_objective_init_function(			SS_objective,
+											gv								);
+
+	/** pointer array to NLopt functions (calls objective function for local minimization) 								*/
+	NLopt_type 								NLopt_opt[gv.len_ss];	
+
+	TC_NLopt_opt_init(	        			NLopt_opt,
+											gv				);
+
+	PC_type 								PC_read[gv.len_ss];
+
+	TC_PC_init(	                    		PC_read,
+											gv								);
+
+	P2X_type 								P2X_read[gv.len_ss];
+
+	TC_P2X_init(	                		P2X_read,
+											gv								);
+
+											
 
 	/****************************************************************************************/
 	/**                                   LEVELLING                                        **/
@@ -460,6 +452,8 @@ int runMAGEMin(			int    argc,
 		gv = Levelling(			z_b,										/** bulk rock informations 			*/
 								gv,											/** global variables (e.g. Gamma) 	*/
 
+								PC_read,
+								P2X_read,
 								SS_objective,
 								splx_data,
 								PP_ref_db,									/** pure phase database 			*/
@@ -471,17 +465,17 @@ int runMAGEMin(			int    argc,
 		gv = Initial_guess(		z_b,										/** bulk rock informations 			*/
 								gv,											/** global variables (e.g. Gamma) 	*/
 
+								PC_read,
+								P2X_read,	
 								splx_data,
 								PP_ref_db,									/** pure phase database 			*/
 								SS_ref_db,									/** solution phase database 		*/
 								cp							);
 	}
 
-
 	/****************************************************************************************/
 	/**                            PARTITIONING GIBBS ENERGY                               **/
 	/****************************************************************************************/
-	
 	if (gv.solver == 0){ 		/* Legacy solver only */
 
 		gv.div 		= 0;
@@ -494,8 +488,11 @@ int runMAGEMin(			int    argc,
 
 		gv = LP(				z_b,									/** bulk rock informations 			*/
 								gv,										/** global variables (e.g. Gamma) 	*/
+								PC_read,
+								P2X_read,
 
 								SS_objective,
+								NLopt_opt,
 								splx_data,
 								PP_ref_db,								/** pure phase database 			*/
 								SS_ref_db,								/** solution phase database 		*/
@@ -508,7 +505,9 @@ int runMAGEMin(			int    argc,
 			gv 		= PGE(			z_b,									/** bulk rock constraint 			*/ 
 									gv,										/** global variables (e.g. Gamma) 	*/
 
+									PC_read,
 									SS_objective,
+									NLopt_opt,
 									splx_data,
 									PP_ref_db,								/** pure phase database 			*/
 									SS_ref_db,								/** solution phase database 		*/
@@ -538,8 +537,11 @@ int runMAGEMin(			int    argc,
 
 			gv = LP(				z_b,									/** bulk rock informations 			*/
 									gv,										/** global variables (e.g. Gamma) 	*/
+									PC_read,
+									P2X_read,
 
 									SS_objective,
+									NLopt_opt,
 									splx_data,
 									PP_ref_db,								/** pure phase database 			*/
 									SS_ref_db,								/** solution phase database 		*/
@@ -590,8 +592,10 @@ int runMAGEMin(			int    argc,
 		if (ig_liq > 0.25 || n_liq > 2 || n_ss > 6){
 			gv 		= PGE(			z_b,									/** bulk rock constraint 			*/ 
 									gv,										/** global variables (e.g. Gamma) 	*/
+									PC_read,
 
 									SS_objective,
+									NLopt_opt,
 									splx_data,
 									PP_ref_db,								/** pure phase database 			*/
 									SS_ref_db,								/** solution phase database 		*/
@@ -611,8 +615,11 @@ int runMAGEMin(			int    argc,
 
 				gv = LP(				z_b,									/** bulk rock informations 			*/
 										gv,										/** global variables (e.g. Gamma) 	*/
+										PC_read,
+										P2X_read,
 
 										SS_objective,
+										NLopt_opt,
 										splx_data,
 										PP_ref_db,								/** pure phase database 			*/
 										SS_ref_db,								/** solution phase database 		*/
@@ -639,8 +646,11 @@ int runMAGEMin(			int    argc,
 
 			gv = LP(				z_b,									/** bulk rock informations 			*/
 									gv,										/** global variables (e.g. Gamma) 	*/
+									PC_read,
+									P2X_read,
 
 									SS_objective,
+									NLopt_opt,
 									splx_data,
 									PP_ref_db,								/** pure phase database 			*/
 									SS_ref_db,								/** solution phase database 		*/
@@ -709,6 +719,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 	static ko_longopt_t longopts[] = {
 		{ "Verb", 		ko_optional_argument, 301 },
 		{ "db", 		ko_optional_argument, 302 },
+		{ "ds", 		ko_optional_argument, 309 },
 		{ "File", 		ko_optional_argument, 303 },
 		{ "n_points ",	ko_optional_argument, 304 },
 		{ "test",  		ko_optional_argument, 305 },
@@ -717,7 +728,6 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		{ "Phase",  	ko_optional_argument, 308 },
 		{ "Gam",  		ko_optional_argument, 310 },
 		{ "Bulk", 		ko_optional_argument, 311 },
-        { "maxeval",    ko_optional_argument, 313 },
         { "version",    ko_optional_argument, 314 },
         { "help",    	ko_optional_argument, 315 },
         { "solver",    	ko_optional_argument, 316 },
@@ -739,6 +749,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		else if (c == 315){ print_help( gv ); 					  exit(0); }	
  
         else if	(c == 301){ gv.verbose  		= atoi(opt.arg);				if (gv.verbose == 1){		printf("--verbose     : verbose              = %i \n", 	 	   		gv.verbose			);}} 	
+		else if (c == 309){ gv.EM_dataset		= atoi(opt.arg);		 																															 }
 		else if (c == 321){ gv.limitCaOpx   	= atoi(opt.arg);				if (gv.verbose == 1){		printf("--limitCaOpx  : limitCaOpx           = %i \n", 	 	   		gv.limitCaOpx		);}} 	
 		else if (c == 326){ gv.CaOpxLim	   		= strtold(opt.arg,NULL); 		if (gv.verbose == 1){		printf("--CaOpxLim    : CaOpxLim             = %f \n", 	 	   		gv.CaOpxLim			);}} 	
 		else if (c == 322){ gv.fluidSpec    	= atoi(opt.arg);				if (gv.verbose == 1){		printf("--fluidSpec   : fluidSpec            = %i \n", 	 	   		gv.fluidSpec		);}} 	
@@ -789,6 +800,18 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		 }
 	}
 
+	// checks if the end-member dataset option arg is correct, otherwise sets to default
+	if 	(gv.EM_dataset 	== -1 || gv.EM_dataset 	== 62  || gv.EM_dataset	== 633  || gv.EM_dataset == 634){
+		if (gv.verbose == 1){		
+			printf("--ds          : EM_dataset           = %d \n", gv.EM_dataset);
+		}
+	}
+	else{
+		printf("--ds          : EM_dataset           = default 		WARNING: Unknown dataset %d has been provided, setting default one\n",gv.EM_dataset);
+		gv.EM_dataset = -1;
+	}	
+
+
 	/* set-up database acronym here*/
 	if 		(strcmp(gv.db, "mp") 	== 0){
 		gv.EM_database = 0;
@@ -817,7 +840,6 @@ Databases InitializeDatabases(	global_variable gv,
 								int 			EM_database
 ){
 	Databases 	DB;
-	int 		i;
 
 	/* Allocate pure-phase database (to get gbase, comp and factor) 				*/
 	DB.PP_ref_db = malloc ((gv.len_pp) 		* sizeof(PP_ref)); 
@@ -825,19 +847,26 @@ Databases InitializeDatabases(	global_variable gv,
 	/** 
 		Allocate memory for each solution phase according to their specificities (n_em, sf etc) 
 	*/
+	SS_init_type 				SS_init[gv.len_ss];
+
+	TC_SS_init(	        	    SS_init,
+								gv				);
+
+
 	DB.SS_ref_db = malloc ((gv.len_ss) 		* sizeof(SS_ref)); 
-	for (i = 0; i < gv.len_ss; i++){
-		DB.SS_ref_db[i] = G_SS_init_EM_function(		i,	
-														DB.SS_ref_db[i], 
-														EM_database, 
-														gv.SS_list[i], 
+	for (int iss = 0; iss < gv.len_ss; iss++){
+
+		DB.SS_ref_db[iss] = G_SS_init_EM_function(		SS_init,	
+														iss,	
+														DB.SS_ref_db[iss],
+														gv.SS_list[iss], 
 														gv						);
 	}
 
 	/* Allocate memory of the considered set of phases 								*/
 	DB.cp 		 = malloc ((gv.max_n_cp) 	* sizeof(csd_phase_set)); 
-	for (i = 0; i < gv.max_n_cp; i++){
-		DB.cp[i] = CP_INIT_function(		DB.cp[i], 
+	for (int iss = 0; iss < gv.max_n_cp; iss++){
+		DB.cp[iss] = CP_INIT_function(		DB.cp[iss], 
 											gv									);
 	}
 
@@ -852,33 +881,33 @@ Databases InitializeDatabases(	global_variable gv,
 	DB.FS_names  =	get_FS_DB_names(		gv									);
 
 	/* Create endmember Hashtable */
-	struct EM2id *p_s, *tmp_p;
-	struct EM_db EM_return;
+	EM2id *p_s, *tmp_p;
+	EM_db EM_return;
 	int n_em_db = gv.n_em_db;
     for (int i = 0; i < n_em_db; ++i) {
 		char EM_name[20];
-        p_s = (struct EM2id *)malloc(sizeof *p_s);
+        p_s = (EM2id *)malloc(sizeof *p_s);
         strcpy(p_s->EM_tag, DB.EM_names[i]);
         p_s->id = i;
         HASH_ADD_STR( EM, EM_tag, p_s );
     }
 
 	/* Create pure-phase hashtable */
-	struct PP2id *pp_s, *tmp_pp;
+	PP2id *pp_s, *tmp_pp;
     for (int i = 0; i < sizeof(gv.PP_list); ++i) {
-        pp_s = (struct PP2id *)malloc(sizeof *pp_s);
+        pp_s = (PP2id *)malloc(sizeof *pp_s);
         strcpy(pp_s->PP_tag, gv.PP_list[i]);
         pp_s->id = i;
         HASH_ADD_STR( PP, PP_tag, pp_s );
     }
 
 	/* Create fluid species Hashtable */
-	struct FS2id *fs_s, *tmp_fs;
-	struct FS_db FS_return;
+	FS2id *fs_s, *tmp_fs;
+	FS_db FS_return;
 	int n_fs_db = gv.n_fs_db;
     for (int i = 0; i < n_fs_db; ++i) {
 		char EM_name[20];
-        fs_s = (struct FS2id *)malloc(sizeof *fs_s);
+        fs_s = (FS2id *)malloc(sizeof *fs_s);
         strcpy(fs_s->FS_tag, DB.FS_names[i]);
         fs_s->id = i;
         HASH_ADD_STR( FS, FS_tag, fs_s );

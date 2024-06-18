@@ -1,3 +1,13 @@
+/*@ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ **
+ **   Project      : MAGEMin
+ **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+ **   Developers   : Nicolas Riel, Boris Kaus
+ **   Contributors : Dominguez, H., Green E., Berlie N., and Rummel L.
+ **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
+ **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
+ **
+ ** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ @*/
 /**
                Partitioning Gibbs Energy routine            
 
@@ -28,13 +38,11 @@ The routine is the core of MAGEMin algorithm and is constructed around the Gibbs
 #include "simplex_levelling.h"
 #include "toolkit.h"
 #include "gem_function.h"
-#include "gss_function.h"
 #include "dump_function.h"
 #include "phase_update_function.h"
 #include "ss_min_function.h"
 #include "pp_min_function.h"
-#include "objective_functions.h"
-#include "NLopt_opt_function.h"
+#include "all_solution_phases.h"
 
 /** 
   Partitioning Gibbs Energy function 
@@ -951,6 +959,8 @@ global_variable run_LP_ig(							bulk_info 			 z_b,
 global_variable init_LP(							bulk_info 	 		 z_b,
 													simplex_data 		*splx_data,
 													global_variable 	 gv,
+													PC_type				*PC_read,
+													P2X_type			*P2X_read,
 													
 													PP_ref 				*PP_ref_db,
 													SS_ref 				*SS_ref_db,
@@ -1064,10 +1074,8 @@ global_variable init_LP(							bulk_info 	 		 z_b,
 			}
 			SS_ref_db[ph_id].p[em_id] = 1.0 - gv.em2ss_shift*SS_ref_db[ph_id].n_em;
 			
-			SS_ref_db[ph_id] = P2X(			gv,
-											SS_ref_db[ph_id],
-											z_b,
-											gv.SS_list[ph_id]		);
+			(*P2X_read[ph_id])(		&SS_ref_db[ph_id],
+									gv.bnd_val					);		
 			}
 		
 			/* solution phase */
@@ -1093,9 +1101,10 @@ global_variable init_LP(							bulk_info 	 		 z_b,
 													SS_ref_db[ph_id]			);
 
 			SS_ref_db[ph_id] = PC_function(			gv,
+													PC_read,
 													SS_ref_db[ph_id], 
 													z_b,
-													gv.SS_list[ph_id] 			);
+													ph_id						);
 
 			SS_ref_db[ph_id] = SS_UPDATE_function(	gv, 
 													SS_ref_db[ph_id], 
@@ -1169,6 +1178,7 @@ global_variable init_LP(							bulk_info 	 		 z_b,
 */	
 global_variable update_cp_after_LP(					bulk_info 	 		 z_b,
 													global_variable 	 gv,
+													PC_type 			*PC_read,
 													
 													PP_ref 				*PP_ref_db,
 													SS_ref 				*SS_ref_db,
@@ -1194,9 +1204,10 @@ global_variable update_cp_after_LP(					bulk_info 	 		 z_b,
 			}
 			
 			SS_ref_db[ph_id] = PC_function(				gv,
+														PC_read,
 														SS_ref_db[ph_id], 
 														z_b,
-														gv.SS_list[ph_id] 		);
+														ph_id				);
 													
 			SS_ref_db[ph_id] = SS_UPDATE_function(		gv, 
 														SS_ref_db[ph_id], 
@@ -1240,6 +1251,8 @@ global_variable update_cp_after_LP(					bulk_info 	 		 z_b,
 global_variable LP_pc_composite(					bulk_info 			 z_b,
 													simplex_data 		*splx_data,
 													global_variable 	 gv,
+													PC_type 			*PC_read,
+													P2X_type 			*P2X_read,
 
 													obj_type 			*SS_objective,
 													PP_ref 				*PP_ref_db,
@@ -1300,10 +1313,8 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 						}
 						SS_ref_db[ph_id].p[em_id] = 1.0 - gv.em2ss_shift*n_em;
 						
-						SS_ref_db[ph_id] = P2X(			gv,
-														SS_ref_db[ph_id],
-														z_b,
-														gv.SS_list[ph_id]		);
+						(*P2X_read[ph_id])(		&SS_ref_db[ph_id],
+												gv.bnd_val					);
 
 						G 	= (*SS_objective[ph_id])(SS_ref_db[ph_id].n_xeos, SS_ref_db[ph_id].iguess, 	NULL, &SS_ref_db[ph_id]);
 
@@ -1430,9 +1441,10 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 					}
 
 					SS_ref_db[ph_id] = PC_function(				gv,
+																PC_read,
 																SS_ref_db[ph_id], 
 																z_b,
-																gv.SS_list[ph_id] 		);
+																ph_id 					);
 
 					SS_ref_db[ph_id] = SS_UPDATE_function(		gv, 
 																SS_ref_db[ph_id], 
@@ -1461,8 +1473,11 @@ global_variable LP_pc_composite(					bulk_info 			 z_b,
 */ 
 global_variable LP(		bulk_info 			z_b,
 						global_variable 	gv,
+						PC_type				*PC_read,
+						P2X_type			*P2X_read,
 
 						obj_type 			*SS_objective,
+						NLopt_type			*NLopt_opt,
 						simplex_data	    *splx_data,
 						PP_ref 				*PP_ref_db,
 						SS_ref 				*SS_ref_db,
@@ -1479,18 +1494,22 @@ global_variable LP(		bulk_info 			z_b,
 	int nCheck  = 0;
 
 
-	gv = LP_pc_composite(			z_b,
-									splx_data,
-									gv,
+	// gv = LP_pc_composite(		z_b,
+	// 								splx_data,
+	// 								gv,
+	// 								PC_read,
+	// 								P2X_read,
 
-									SS_objective,	
-									PP_ref_db,
-									SS_ref_db			);	
+	// 								SS_objective,	
+	// 								PP_ref_db,
+	// 								SS_ref_db			);	
 
 
 	gv = init_LP(			z_b,
 							splx_data,
 							gv,
+							PC_read,
+							P2X_read,
 									
 							PP_ref_db,
 							SS_ref_db,
@@ -1540,8 +1559,10 @@ global_variable LP(		bulk_info 			z_b,
 			Local minimization of the solution phases
 		*/
 		ss_min_LP(						gv, 							/** global variables (e.g. Gamma) 		*/
+										PC_read,
 
-										SS_objective,							
+										SS_objective,	
+										NLopt_opt,						
 										z_b,							/** bulk-rock, pressure and temperature conditions */
 										SS_ref_db,						/** solution phase database 			*/	
 										cp 					);
@@ -1556,17 +1577,21 @@ global_variable LP(		bulk_info 			z_b,
 										PP_ref_db,
 										SS_ref_db			);
 
-		gv = LP_pc_composite(			z_b,
-										splx_data,
-										gv,
+		// gv = LP_pc_composite(		z_b,
+		// 								splx_data,
+		// 								gv,
+		// 								PC_read,
+		// 								P2X_read,
 
-										SS_objective,	
-										PP_ref_db,
-										SS_ref_db			);	
+		// 								SS_objective,	
+		// 								PP_ref_db,
+		// 								SS_ref_db			);	
 
 		gv = init_LP(					z_b,
 										splx_data,
 										gv,
+										PC_read,
+										P2X_read,
 										
 										PP_ref_db,
 										SS_ref_db,
@@ -1651,6 +1676,7 @@ global_variable LP(		bulk_info 			z_b,
 
 	gv = update_cp_after_LP(		z_b,
 									gv,
+									PC_read,
 									
 									PP_ref_db,
 									SS_ref_db,
@@ -1664,8 +1690,10 @@ global_variable LP(		bulk_info 			z_b,
 */ 
 global_variable PGE(	bulk_info 			z_b,
 						global_variable 	gv,
+						PC_type             *PC_read,
 
 						obj_type 			*SS_objective,
+						NLopt_type 			*NLopt_opt,
 						simplex_data	    *splx_data,
 						PP_ref 				*PP_ref_db,
 						SS_ref 				*SS_ref_db,
@@ -1756,8 +1784,10 @@ global_variable PGE(	bulk_info 			z_b,
 		*/
 
 		ss_min_PGE(						gv, 						/** global variables (e.g. Gamma) 		*/
+										PC_read,
 
-										SS_objective,							
+										SS_objective,
+										NLopt_opt,						
 										z_b,						/** bulk-rock, pressure and temperature conditions */
 										SS_ref_db,					/** solution phase database 			*/	
 										cp 					);	

@@ -218,7 +218,7 @@ function MAGEMin_data2dataframe( out:: Union{Vector{gmin_struct{Float64, Int64}}
     @showprogress "Saving data to csv..." for k=1:np
         np  = length(out[k].ph)
         nss = out[k].n_SS
-        npp = np-nss
+        npp = out[k].n_PP
 
         part_1 = Dict(  "point[#]"      => k,
                         "X[0.0-1.0]"    => out[k].X[1],

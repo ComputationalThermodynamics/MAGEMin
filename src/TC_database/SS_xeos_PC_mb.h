@@ -8,13 +8,11 @@
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
  ** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ @*/
-#ifndef __IO_FUNCTION_H_
-#define __IO_FUNCTION_H_
+#ifndef __PC_XEOS_MB_H_
+#define __PC_XEOS_MB_H_
 
-#include "MAGEMin.h"
-
-void read_in_data(		global_variable 				gv,
-						io_data 					   *input_data,
-						int      			 			n_points	);
-
+void SS_mb_pc_init_function(	PC_ref 	*SS_pc_xeos,
+							    int 	 iss,
+							    char 	*name				);
+	
 #endif

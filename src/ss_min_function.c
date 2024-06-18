@@ -1,3 +1,13 @@
+/*@ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ **
+ **   Project      : MAGEMin
+ **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+ **   Developers   : Nicolas Riel, Boris Kaus
+ **   Contributors : Dominguez, H., Green E., Berlie N., and Rummel L.
+ **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
+ **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
+ **
+ ** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ @*/
 /**
 Function to call solution phase Minimization        
 */
@@ -13,13 +23,10 @@ Function to call solution phase Minimization
 #include "nlopt.h"
 #include "MAGEMin.h"
 #include "gem_function.h"
-#include "gss_function.h"
-#include "NLopt_opt_function.h"
 #include "dump_function.h"
 #include "toolkit.h"
 #include "phase_update_function.h"
-#include "objective_functions.h"
-
+#include "all_solution_phases.h"
 /** 
 Function to update xi and sum_xi during local minimization.
 */
@@ -265,8 +272,10 @@ void copy_to_Ppc(		int 				 pc_check,
 	Minimization function for PGE 
 */
 void ss_min_PGE(		global_variable 	 gv,
+						PC_type             *PC_read,
 
 						obj_type 			*SS_objective,
+						NLopt_type			*NLopt_opt,
 						bulk_info 	 		 z_b,
 						SS_ref 			    *SS_ref_db,
 						csd_phase_set  		*cp
@@ -303,9 +312,8 @@ void ss_min_PGE(		global_variable 	 gv,
 			/**
 				call to NLopt for non-linear + inequality constraints optimization
 			*/
-			SS_ref_db[ph_id] = NLopt_opt_function(		gv, 
-														SS_ref_db[ph_id], 
-														ph_id					);
+			SS_ref_db[ph_id] = (*NLopt_opt[ph_id])(		gv,
+														SS_ref_db[ph_id]		);										
 			
 			/**
 				establish a set of conditions to update initial guess for next round of local minimization 
@@ -316,9 +324,10 @@ void ss_min_PGE(		global_variable 	 gv,
 			
 			
 			SS_ref_db[ph_id] = PC_function(				gv,
+														PC_read,
 														SS_ref_db[ph_id], 
 														z_b,
-														gv.SS_list[ph_id] 		);
+														ph_id 					);
 													
 			SS_ref_db[ph_id] = SS_UPDATE_function(		gv, 
 														SS_ref_db[ph_id], 
@@ -372,6 +381,7 @@ void ss_min_PGE(		global_variable 	 gv,
 	Minimization function for PGE 
 */
 void init_PGE_from_LP(	global_variable 	 gv,
+						PC_type				*PC_read,
 
 						obj_type 			*SS_objective,
 						bulk_info 	 		 z_b,
@@ -399,9 +409,10 @@ void init_PGE_from_LP(	global_variable 	 gv,
 
 			
 			SS_ref_db[ph_id] = PC_function(				gv,
+														PC_read,
 														SS_ref_db[ph_id], 
 														z_b,
-														gv.SS_list[ph_id] 		);
+														ph_id 		);
 													
 			SS_ref_db[ph_id] = SS_UPDATE_function(		gv, 
 														SS_ref_db[ph_id], 
@@ -423,8 +434,10 @@ void init_PGE_from_LP(	global_variable 	 gv,
 	Minimization function for PGE 
 */
 void ss_min_LP(			global_variable 	 gv,
+						PC_type				*PC_read,
 
 						obj_type 			*SS_objective,
+						NLopt_type 			*NLopt_opt,
 						bulk_info 	 		 z_b,
 						SS_ref 			    *SS_ref_db,
 						csd_phase_set  		*cp
@@ -481,10 +494,8 @@ void ss_min_LP(			global_variable 	 gv,
 				/**
 					call to NLopt for non-linear + inequality constraints optimization
 				*/
-				SS_ref_db[ph_id] = NLopt_opt_function(		gv, 
-															SS_ref_db[ph_id], 
-															ph_id					);
-
+				SS_ref_db[ph_id] = (*NLopt_opt[ph_id])(		gv,
+															SS_ref_db[ph_id]		);			
 				/** 
 					print solution phase informations (print has to occur before saving PC)
 				*/
@@ -516,9 +527,10 @@ void ss_min_LP(			global_variable 	 gv,
 						}
 
 						SS_ref_db[ph_id] = PC_function(				gv,
+																	PC_read,
 																	SS_ref_db[ph_id], 
 																	z_b,
-																	gv.SS_list[ph_id] 		);
+																	ph_id 		);
 																
 						SS_ref_db[ph_id] = SS_UPDATE_function(		gv, 
 																	SS_ref_db[ph_id], 
@@ -541,9 +553,10 @@ void ss_min_LP(			global_variable 	 gv,
 					SS_ref_db[ph_id].iguess[k]   =  cp[i].xeos_1[k];
 				}
 				SS_ref_db[ph_id] = PC_function(				gv,
+															PC_read,
 															SS_ref_db[ph_id], 
 															z_b,
-															gv.SS_list[ph_id] 		);
+															ph_id 		);
 														
 				SS_ref_db[ph_id] = SS_UPDATE_function(		gv, 
 															SS_ref_db[ph_id], 
@@ -568,9 +581,10 @@ void ss_min_LP(			global_variable 	 gv,
 					}
 					
 					SS_ref_db[ph_id] = PC_function(				gv,
+																PC_read,
 																SS_ref_db[ph_id], 
 																z_b,
-																gv.SS_list[ph_id] 		);
+																ph_id 		);
 															
 					SS_ref_db[ph_id] = SS_UPDATE_function(		gv, 
 																SS_ref_db[ph_id], 
@@ -617,7 +631,7 @@ global_variable init_ss_db(		int 				 EM_database,
 
 			SS_ref_db[i]    = G_SS_mp_EM_function(	gv, 
 													SS_ref_db[i], 
-													EM_database, 
+													gv.EM_dataset, 
 													z_b, 
 													gv.SS_list[i]		);
 											
@@ -636,7 +650,7 @@ global_variable init_ss_db(		int 				 EM_database,
 
 			SS_ref_db[i]    = G_SS_mb_EM_function(	gv, 
 													SS_ref_db[i], 
-													EM_database, 
+													gv.EM_dataset, 
 													z_b, 
 													gv.SS_list[i]		);
 											
@@ -655,7 +669,7 @@ global_variable init_ss_db(		int 				 EM_database,
 
 			SS_ref_db[i]    = G_SS_ig_EM_function(	gv, 
 													SS_ref_db[i], 
-													EM_database, 
+													gv.EM_dataset, 
 													z_b, 
 													gv.SS_list[i]		);
 											
@@ -674,7 +688,7 @@ global_variable init_ss_db(		int 				 EM_database,
 
 			SS_ref_db[i]    = G_SS_um_EM_function(	gv, 
 													SS_ref_db[i], 
-													EM_database, 
+													gv.EM_dataset, 
 													z_b, 
 													gv.SS_list[i]		);
 											

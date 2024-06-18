@@ -4,6 +4,7 @@ authors = ["Boris Kaus <kaus@uni-mainz.de> & Nicolas Riel <riel@uni-mainz.de>"]
 version = "1.4.9"
 
 [deps]
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 CEnum = "fa961155-64e5-5f13-b03f-caf6b980ea82"
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"

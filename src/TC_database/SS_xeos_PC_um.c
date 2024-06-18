@@ -1,7 +1,19 @@
-#ifndef __PC_XEOS_um_H_
-#define __PC_XEOS_um_H_
-
-#include "MAGEMin.h"
+/*@ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ **
+ **   Project      : MAGEMin
+ **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+ **   Developers   : Nicolas Riel, Boris Kaus
+ **   Contributors : Dominguez, H., Green E., Berlie N., and Rummel L.
+ **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
+ **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
+ **
+ ** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ @*/
+#include "../MAGEMin.h"
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <string.h>
 
 struct ss_pc um_fluid_pc_xeos[11] = {
 {{0.000100}},
@@ -4856,5 +4868,3 @@ void SS_um_pc_init_function(	PC_ref 	*SS_pc_xeos,
 		printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", name);	
 	}	
 }
-	
-#endif
