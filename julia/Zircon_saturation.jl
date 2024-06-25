@@ -46,12 +46,12 @@ function zirconium_saturation(  out     :: MAGEMin_C.gmin_struct{Float64, Int64}
             idOx_MM       = [findfirst(isequal(x), out.oxides) for x in commonOxide]
             idOx_OB       = [findfirst(isequal(x), opt_basi_oxides) for x in commonOxide]
 
-            liqCompNorm   = out.bulk[idOx_MM] ./ sum(out.bulk[idOx_MM])
+            liqCompNorm   = out.bulk_M[idOx_MM] ./ sum(out.bulk_M[idOx_MM])
             oxListDry     = findall(commonOxide .!= "H2O")
             opt_basicity  = sum(liqCompNorm[oxListDry] .* optical_basicity[idOx_OB[oxListDry]].* n_oxygen[idOx_OB[oxListDry]]) / sum(liqCompNorm[oxListDry] .* n_oxygen[idOx_OB[oxListDry]])
             xH2O          = liqCompNorm[findall(commonOxide .== "H2O")[1]]
 
-            C_zr_liq   = exp(0.96 - 5790.0/(out.T_C+273.15) - 1.28*(out.P_kbar/10.0) + 12.39*opt_basicity + 0.83*xH2O + 2.06*(out.P_kbar/10.0)*opt_basicity)
+            C_zr_liq   = 10^(0.96 - 5790.0/(out.T_C+273.15) - 1.28*(out.P_kbar/10.0) + 12.39*opt_basicity + 0.83*xH2O + 2.06*(out.P_kbar/10.0)*opt_basicity)
         else
             print("Model $model for zirconium saturation is invalid\n")
         end
