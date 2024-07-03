@@ -83,13 +83,36 @@ end
 
 @testset "test zr saturation" begin
     data    = Initialize_MAGEMin("mp", verbose=false);
-        
-    # One bulk rock for all points
-    P,T     = 10.0, 800.0
+
+    P,T     = 6.0, 930.0
     Xoxides = ["SiO2";  "TiO2";  "Al2O3";  "FeO";   "MnO";   "MgO";   "CaO";   "Na2O";  "K2O"; "H2O"; "O"];
     X       = [58.509,  1.022,   14.858, 4.371, 0.141, 4.561, 5.912, 3.296, 2.399, 10.0, 0.0];
-    sys_in  = "wt"    
+    sys_in  = "wt"
     out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+
+    # use compo from experiment from Boehnke et al., 2013
+    compo1 = [54.2, 0.5, 16.9, 4.1, 0.0, 2, 7.6, 2.3, 0.8, 0, 0]
+    bulk_melt = convertBulk4MAGEMin(compo1, Xoxides, "wt", "mp")[1]
+
+    out.bulk_M .= bulk_melt
+    zr_sat_B = MAGEMin_C.zirconium_saturation(out, model="B")
+    zr_sat_WH = MAGEMin_C.zirconium_saturation(out, model="WH")
+
+    @test zr_sat_B ≈ 1403.8755429428836 rtol=1e-5
+    @test zr_sat_WH ≈ 1059.5976323423222 rtol=1e-5
+
+    # test crisp and berry 2022, use compo from their example in the calculator from their paper
+    P,T     = 20.0, 750.0
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+
+    bulk_melt = [61.26, 0, 13.12, 1.33, 0, 0.45, 2.51, 2.26, 2.15, 15.00, 0]
+    # convert bulk_melt from wt to mol of oxides
+    bulk_melt = convertBulk4MAGEMin(bulk_melt, Xoxides, "wt", "mp")[1]
+    out.bulk_M .= bulk_melt
+
+    zr_sat = MAGEMin_C.zirconium_saturation(out, model="CB")
+
+    @test zr_sat ≈ 65.83158859091596 rtol=1e-5
 end
 
 @testset "test normalization" begin

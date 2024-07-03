@@ -199,6 +199,8 @@ function MAGEMin_data2dataframe( out:: Union{Vector{gmin_struct{Float64, Int64}}
                                     Symbol("Enthalpy[J]")   => Float64[],
                                     Symbol("Vp[km/s]")      => Float64[],
                                     Symbol("Vs[km/s]")      => Float64[],
+                                    Symbol("Vp_S[km/s]")      => Float64[],
+                                    Symbol("Vs_S[km/s]")      => Float64[],                                    
                                     Symbol("BulkMod[GPa]")  => Float64[],
                                     Symbol("ShearMod[GPa]") => Float64[],
     )
@@ -243,6 +245,8 @@ function MAGEMin_data2dataframe( out:: Union{Vector{gmin_struct{Float64, Int64}}
                         "Enthalpy[J]"   => out[k].enthalpy,
                         "Vp[km/s]"      => out[k].Vp,
                         "Vs[km/s]"      => out[k].Vs,
+                        "Vp_S[km/s]"      => out[k].Vp_S,
+                        "Vs_S[km/s]"      => out[k].Vs_S,
                         "BulkMod[GPa]"  => out[k].bulkMod,
                         "ShearMod[GPa]" => out[k].shearMod )          
 
@@ -280,6 +284,8 @@ function MAGEMin_data2dataframe( out:: Union{Vector{gmin_struct{Float64, Int64}}
                             "Enthalpy[J]"   => out[k].SS_vec[i].enthalpy,
                             "Vp[km/s]"      => out[k].SS_vec[i].Vp,
                             "Vs[km/s]"      => out[k].SS_vec[i].Vs,
+                            "Vp_S[km/s]"      => "-",
+                            "Vs_S[km/s]"      => "-",                            
                             "BulkMod[GPa]"  => out[k].SS_vec[i].bulkMod,
                             "ShearMod[GPa]" => out[k].SS_vec[i].shearMod )  
 
@@ -322,6 +328,8 @@ function MAGEMin_data2dataframe( out:: Union{Vector{gmin_struct{Float64, Int64}}
                                 "Enthalpy[J]"   => out[k].PP_vec[i].enthalpy,
                                 "Vp[km/s]"      => out[k].PP_vec[i].Vp,
                                 "Vs[km/s]"      => out[k].PP_vec[i].Vs,
+                                "Vp_S[km/s]"      => "-",
+                                "Vs_S[km/s]"      => "-",           
                                 "BulkMod[GPa]"  => out[k].PP_vec[i].bulkMod,
                                 "ShearMod[GPa]" => out[k].PP_vec[i].shearMod )  
 

@@ -21,16 +21,14 @@ export adjust_chemical_system, TE_prediction, get_OL_KDs_database, adjust_bulk_4
 function anhydrous_renormalization( bulk    :: Vector{Float64},
                                     oxide   :: Vector{String})
 
-    bulk_dry    = zeros(Float64, length(bulk))
-    H2O = findall(oxide .== "H2O")
-    if ~isempty(H2O)
-        non_H2O     = findall(oxide .!= "H2O")
-        H2O         = H2O[1]
-
-        bulk_dry[non_H2O] .= bulk[non_H2O]
+    if "H2O" in oxide
+        H2O_index = findfirst(==("H2O"), oxide)
+        bulk_dry = copy(bulk)
+        bulk_dry[H2O_index] = 0.0
         bulk_dry ./= sum(bulk_dry)
     else
-        print(" No water oxide in the system! \n")
+        println("No water oxide in the system!")
+        bulk_dry = bulk ./ sum(bulk)
     end
 
     return bulk_dry
