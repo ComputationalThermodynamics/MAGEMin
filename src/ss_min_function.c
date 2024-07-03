@@ -282,13 +282,14 @@ void ss_min_PGE(		global_variable 	 gv,
 ){
 	int 	ph_id;
 	int 	pc_check;
+	clock_t u;
 
 	for (int i = 0; i < gv.len_cp; i++){ 
 		if (cp[i].ss_flags[0] == 1){
 			pc_check = gv.PC_checked;
 			ph_id = cp[i].id;
 			cp[i].min_time		  		= 0.0;								/** reset local minimization time to 0.0 */
-
+			u = clock(); 
 			/**
 				set the iguess of the solution phase to the one of the considered phase 
 			*/
@@ -334,6 +335,10 @@ void ss_min_PGE(		global_variable 	 gv,
 														z_b, 
 														gv.SS_list[ph_id]		);
 
+			u = clock() - u;
+			SS_ref_db[ph_id].LM_time = ((double)u)/CLOCKS_PER_SEC*1000.0; 
+
+			;
 			/** 
 				print solution phase informations (print has to occur before saving PC)
 			*/
@@ -447,7 +452,7 @@ void ss_min_LP(			global_variable 	 gv,
 	int 	ph_id;
 	int     pc_check;
 	int 	act;
-
+	clock_t u;
 	for (int i = 0; i < gv.len_ss; i++){ 
 		gv.n_min[i] = 0;
 	}
@@ -468,7 +473,7 @@ void ss_min_LP(			global_variable 	 gv,
 
 			if (act == 1){
 				cp[i].min_time		  		= 0.0;								/** reset local minimization time to 0.0 */
-
+				u = clock(); 
 				/**
 					set the iguess of the solution phase to the one of the considered phase 
 				*/
@@ -499,6 +504,10 @@ void ss_min_LP(			global_variable 	 gv,
 				/** 
 					print solution phase informations (print has to occur before saving PC)
 				*/
+			
+				u = clock() - u;
+				SS_ref_db[ph_id].LM_time = ((double)u)/CLOCKS_PER_SEC*1000.0; 
+
 				if (gv.verbose == 1){
 					SS_ref_db[ph_id] = SS_UPDATE_function(		gv, 
 																SS_ref_db[ph_id], 
