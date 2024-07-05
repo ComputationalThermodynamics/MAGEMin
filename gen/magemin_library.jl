@@ -1603,6 +1603,14 @@ function NLopt_opt_ig_spn_function(gv, SS_ref_db)
     ccall((:NLopt_opt_ig_spn_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
 end
 
+function NLopt_opt_ig_cpx_function(gv, SS_ref_db)
+    ccall((:NLopt_opt_ig_cpx_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
+end
+
+function NLopt_opt_ig_hb_function(gv, SS_ref_db)
+    ccall((:NLopt_opt_ig_hb_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
+end
+
 function SS_mp_pc_init_function(SS_pc_xeos, iss, name)
     ccall((:SS_mp_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
 end
