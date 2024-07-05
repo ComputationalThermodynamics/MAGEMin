@@ -42,5 +42,8 @@ void TC_um_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 void TC_NLopt_opt_init(	        	NLopt_type 			*NLopt_opt,
 									global_variable 	 gv				);
 
+
+SS_ref NLopt_opt_ig_spn_function(global_variable gv, SS_ref SS_ref_db);
+
 #endif
 

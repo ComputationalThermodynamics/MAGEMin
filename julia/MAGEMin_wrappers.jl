@@ -937,6 +937,9 @@ function point_wise_minimization_iguess(    P           ::  Number,
 
     n_pc_ss     = zeros(gv.len_ss)
 
+    PC_read = Vector{LibMAGEMin.PC_type}(undef,gv.len_ss)
+    LibMAGEMin.TC_PC_init(PC_read,gv)
+
     # fill the arrays to be copied in splx_data
     for i = 1:np
         if mSS_vec[i].ph_type == "pp"
@@ -955,7 +958,7 @@ function point_wise_minimization_iguess(    P           ::  Number,
             unsafe_copyto!(SS_ref_db[ph_id].gb_lvl,SS_ref_db[ph_id].gbase, SS_ref_db[ph_id].n_em)
             unsafe_copyto!(SS_ref_db[ph_id].iguess,pointer(mSS_vec[i].xeos_Ppc), SS_ref_db[ph_id].n_xeos)
 
-            SS_ref_db[ph_id] = LibMAGEMin.PC_function(gv, SS_ref_db[ph_id], z_b, ph)
+            SS_ref_db[ph_id] = LibMAGEMin.PC_function(gv, PC_read, SS_ref_db[ph_id], z_b, ph_id-1)
 
             g0_A_jll[i] = SS_ref_db[ph_id].df
             A_jll[i,:]  = mSS_vec[i].comp_Ppc[nzEl_array]
@@ -1034,7 +1037,7 @@ function point_wise_minimization_iguess(    P           ::  Number,
 
             # get solution phase information for given compositional variables
             unsafe_copyto!(SS_ref_db[ph_id].iguess,pointer(xeos), n_xeos)
-            SS_ref_db[ph_id] = LibMAGEMin.PC_function(gv, SS_ref_db[ph_id], z_b, ph)
+            SS_ref_db[ph_id] = LibMAGEMin.PC_function(gv, PC_read, SS_ref_db[ph_id], z_b, ph_id-1)
 
             # copy solution phase composition
             ss_comp     = unsafe_wrap(Vector{Cdouble}, SS_ref_db[ph_id].ss_comp, gv.len_ox)
@@ -1554,6 +1557,9 @@ function point_wise_minimization_with_guess(mSS_vec, P, T, gv, z_b, DB, splx_dat
 
     n_pc_ss     = zeros(gv.len_ss)
 
+    PC_read = Vector{LibMAGEMin.PC_type}(undef,gv.len_ss)
+    LibMAGEMin.TC_PC_init(PC_read,gv)
+
     # fill the arrays to be copied in splx_data
     for i = 1:np
         if mSS_vec[i].ph_type == "pp"
@@ -1571,8 +1577,7 @@ function point_wise_minimization_with_guess(mSS_vec, P, T, gv, z_b, DB, splx_dat
 
             unsafe_copyto!(SS_ref_db[ph_id].gb_lvl,SS_ref_db[ph_id].gbase, SS_ref_db[ph_id].n_em)
             unsafe_copyto!(SS_ref_db[ph_id].iguess,pointer(mSS_vec[i].xeos_Ppc), SS_ref_db[ph_id].n_xeos)
-
-            SS_ref_db[ph_id] = LibMAGEMin.PC_function(gv, SS_ref_db[ph_id], z_b, ph)
+            SS_ref_db[ph_id] = LibMAGEMin.PC_function(gv, PC_read, SS_ref_db[ph_id], z_b, ph_id-1)
 
             g0_A_jll[i] = SS_ref_db[ph_id].df
             A_jll[i,:]  = mSS_vec[i].comp_Ppc[nzEl_array]
@@ -1652,7 +1657,7 @@ function point_wise_minimization_with_guess(mSS_vec, P, T, gv, z_b, DB, splx_dat
 
             # get solution phase information for given compositional variables
             unsafe_copyto!(SS_ref_db[ph_id].iguess,pointer(xeos), n_xeos)
-            SS_ref_db[ph_id] = LibMAGEMin.PC_function(gv, SS_ref_db[ph_id], z_b, ph)
+            SS_ref_db[ph_id] = LibMAGEMin.PC_function(gv, PC_read, SS_ref_db[ph_id], z_b, ph_id-1)
 
             # copy solution phase composition
             ss_comp     = unsafe_wrap(Vector{Cdouble}, SS_ref_db[ph_id].ss_comp, gv.len_ox)

@@ -1599,6 +1599,10 @@ function TC_NLopt_opt_init(NLopt_opt, gv)
     ccall((:TC_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
 end
 
+function NLopt_opt_ig_spn_function(gv, SS_ref_db)
+    ccall((:NLopt_opt_ig_spn_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
+end
+
 function SS_mp_pc_init_function(SS_pc_xeos, iss, name)
     ccall((:SS_mp_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
 end
@@ -1633,10 +1637,6 @@ end
 
 function LP(z_b, gv, PC_read, P2X_read, SS_objective, NLopt_opt, splx_data, PP_ref_db, SS_ref_db, cp)
     ccall((:LP, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PC_type}, Ptr{P2X_type}, Ptr{obj_type}, Ptr{NLopt_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, PC_read, P2X_read, SS_objective, NLopt_opt, splx_data, PP_ref_db, SS_ref_db, cp)
-end
-
-function LP2(z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
-    ccall((:LP2, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{obj_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, SS_objective, splx_data, PP_ref_db, SS_ref_db, cp)
 end
 
 function norm_vector(array, n)
