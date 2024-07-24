@@ -94,10 +94,10 @@ metabasite_dataset metabasite_db = {
 igneous_dataset igneous_db = {
 	634,						/* Endmember default dataset number */
 	11,							/* number of oxides */			
-	23,							/* number of pure phases */
+	24,							/* number of pure phases */
 	15,							/* number of solution phases */
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"Cr2O3","H2O"											},
-	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2"	,
+	{"ne"	,"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2"	,
 	"qfm"	,"mw"	,"qif"	,"nno"	,"hm"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"								},
 	{"spn"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"hb"	,"ilm"	,"liq"	,"ol"	,"opx"	,"fsp"	,"fl"	,"mu"	,"fper"					},
 	

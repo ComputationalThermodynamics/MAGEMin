@@ -5248,7 +5248,8 @@ SS_ref NLopt_opt_ig_hb_function(global_variable gv, SS_ref SS_ref_db){
    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, hb_ig_c, NULL, NULL);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
-   
+    nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
+    
    double minf;
    SS_ref_db.status = nlopt_optimize(SS_ref_db.opt, x, &minf);
 

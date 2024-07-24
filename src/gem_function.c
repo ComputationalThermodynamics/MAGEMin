@@ -761,7 +761,7 @@ PP_ref G_EM_function(		int 		 EM_dataset,
 		vterm 		  =(R*T/P + b - (a*R*sqrt(T))/((R*T+b*P)*(R*T + 2.0*b*P)) + c*sqrt(P) + d*P)/100.0; 
         // RTlnf        = R*T*log(1000.0 * P) + b*P + a/(b*sqrt(T)) * (log(R*T + b*P) - log(R*T + 2.0*P*b)) + 2.0/3.0*c*P*sqrt(P) + d/2.0*P*P;
 	}
-    else if(strcmp( name, "O2") == 0 || strcmp( name, "Ni") == 0){
+    else if(strcmp( name, "O2") == 0){
         vterm = 0.0;
     }
 	else {
@@ -773,7 +773,6 @@ PP_ref G_EM_function(		int 		 EM_dataset,
 
     
 	double gbase = (enthalpy - T*entropy + cpterms + vterm + RTlnf);	
-	// printf(" enthalpy %g entropy  %g cpterms  %g vterm  %g RTlnf %g\n", enthalpy,entropy,cpterms,vterm,RTlnf);
 	double landaut, smax, vmax, sfdh, sfdhv, sfw, sfwv, sfn, sffac; 
 	double god, sod, q, v;
 	double tc0, q20, q2;
