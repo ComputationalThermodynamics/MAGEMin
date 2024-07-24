@@ -773,7 +773,6 @@ PP_ref G_EM_function(		int 		 EM_dataset,
 
     
 	double gbase = (enthalpy - T*entropy + cpterms + vterm + RTlnf);	
-	// printf(" enthalpy %g entropy  %g cpterms  %g vterm  %g RTlnf %g\n", enthalpy,entropy,cpterms,vterm,RTlnf);
 	double landaut, smax, vmax, sfdh, sfdhv, sfw, sfwv, sfn, sffac; 
 	double god, sod, q, v;
 	double tc0, q20, q2;
