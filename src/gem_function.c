@@ -20,7 +20,6 @@
 
 #include "MAGEMin.h"
 #include "gem_function.h"
-// #include "gfs_function.h"
 #include "toolkit.h"
 
 #define eps 1e-8
