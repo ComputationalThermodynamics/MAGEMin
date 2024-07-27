@@ -44,7 +44,8 @@ typedef struct em_datas{
     double charge;	
 } em_data;
 
-em_data get_em_data(	int 		 EM_dataset, 
+em_data get_em_data(	char 		*research_group,
+						int 		 EM_dataset, 
 						int          len_ox,
 						bulk_info 	 z_b,
                         double       P,

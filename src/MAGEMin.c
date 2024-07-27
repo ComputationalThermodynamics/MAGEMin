@@ -800,11 +800,20 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		 }
 	}
 
+	// checks if research group is correct, otherwise sets to default
+	if 	( strcmp(gv.research_group, "tc") 	== 0 || strcmp(gv.research_group, "sb") == 0 ){
+	}
+	else{
+		printf(" WARNING: Unknown research group '%s' has been provided, setting default one 'tc'\n",gv.research_group);
+		strcpy(gv.research_group,"tc");
+	}	
+
 	// checks if the end-member dataset option arg is correct, otherwise sets to default
 	if 	(gv.EM_dataset 	== -1 || gv.EM_dataset 	== 62  || gv.EM_dataset	== 633  || gv.EM_dataset == 634){
 	}
 	else{
 		gv.EM_dataset = -1;
+		printf(" WARNING: Unknown dataset '%d' has been provided, setting default one\n",gv.EM_dataset);
 	}	
 
 	if (gv.verbose == 1){		
