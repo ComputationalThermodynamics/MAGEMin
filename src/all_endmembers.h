@@ -13,7 +13,7 @@
 
     /* This includes the activity model from THERMOCALC */
     #include "./TC_database/TC_endmembers.h"
-
+    #include "./TC_database/gem_function.h"
     /* This include Stixrude & Lithgow-Bertelloni solution phase models */
     //#include "STIX_solution_phases.h"
 

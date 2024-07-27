@@ -37,13 +37,13 @@ The routine is the core of MAGEMin algorithm and is constructed around the Gibbs
 #include "MAGEMin.h"
 #include "simplex_levelling.h"
 #include "toolkit.h"
-#include "gem_function.h"
+
 #include "dump_function.h"
 #include "phase_update_function.h"
 #include "ss_min_function.h"
 #include "pp_min_function.h"
 #include "all_solution_phases.h"
-
+#include "all_endmembers.h"
 /** 
   Partitioning Gibbs Energy function 
 */

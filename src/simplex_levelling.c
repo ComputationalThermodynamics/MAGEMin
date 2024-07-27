@@ -39,14 +39,13 @@ Levelling occurs in two stages:
 
 #include "MAGEMin.h"
 #include "simplex_levelling.h"
-#include "gem_function.h"
 #include "pp_min_function.h"
 #include "dump_function.h"
 #include "nlopt.h"
 #include "toolkit.h"
 #include "PGE_function.h"
 #include "all_solution_phases.h"
-
+#include "all_endmembers.h"
 /**
   function to calculate delta G (position of potential phases with current G hyperplane*)
 */

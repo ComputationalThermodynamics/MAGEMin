@@ -23,8 +23,7 @@ This function simply update the driving forces of pure phase each time the G-hyp
 #include <complex.h> 
 
 #include "MAGEMin.h"
-#include "gem_function.h"
-
+#include "all_endmembers.h"
 
 /**
   main pure phase minimization routine

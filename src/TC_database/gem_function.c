@@ -18,9 +18,9 @@
 #include <string.h>
 #include <complex.h> 
 
-#include "MAGEMin.h"
+#include "../MAGEMin.h"
 #include "gem_function.h"
-#include "toolkit.h"
+#include "../toolkit.h"
 
 #define eps 1e-8
 #define max_ox 15

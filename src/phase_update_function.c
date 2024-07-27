@@ -60,8 +60,8 @@ NOTES:
 #include <complex.h> 
 
 #include "MAGEMin.h"
-#include "gem_function.h"
 #include "all_solution_phases.h"
+#include "all_endmembers.h"
 #include "toolkit.h"
 
 /**
