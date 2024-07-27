@@ -50,8 +50,9 @@ void print_help(	global_variable gv	){
 	printf("  --Verb=       [int]   : Verbose option, 0. inactive, 1. active\n");	
 	printf("  --File=       [str]   : File name containing multiple point calculation\n");
 	printf("  --n_points=   [int]   : Number of points when using 'File' argument\n");
-	printf("  --db=         [str]   : Database, can be 'mp', 'ig, or 'um'*\n");
-	printf("  --ds=         [int]   : TC End-member dataset, 62, 633 or 634 (stands for ds6xx) \n");
+	printf("  --rg=         [str]   : ResearchGroup, can be 'tc' or 'sb (THERMOCALC, Stixrude-Lithgow-Bertelloni)\n");
+	printf("  --db=         [str]   : Database, can be 'mp', 'ig, or 'um'* for TC and 2011/2024 for SB\n");
+	printf("  --ds=         [int]   : TC End-member dataset, 62, 633 or 634 (stands for ds6xx)\n");
 	printf("  --test=       [int]   : Number of points when using 'File' argument\n");
 	printf("  --Pres=       [float] : Pressure in kilobar\n");
 	printf("  --Temp=       [float] : Temperature in Celsius\n");
@@ -64,7 +65,7 @@ void print_help(	global_variable gv	){
 	printf("  --buffer_n= 	[float] : multiplier with respect to qfm buffer\n");
 	printf("  --mbCpx= 		[int]   : 0. omphacite, 1. augite (applies to metabasite database, see Green et al., 2016)\n");
 	printf("\n");
-	printf(" * 'mp': metapelite, 'mb': metabasite, 'ig': igneous H18->G23, 'um': ultramafic\n");
+	printf(" *'mp': metapelite, 'mb': metabasite, 'ig': igneous H18->G23, 'um': ultramafic\n");
 	printf("\n");
 	printf(" **the list of oxides must be provided as follow:\n");
 	printf("  'ig':               SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3, H2O\n");

@@ -86,8 +86,8 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.outpath 			= malloc (100 	* sizeof(char)			);
 	gv.version 			= malloc (50  	* sizeof(char)			);
 	gv.File 			= malloc (50 	* sizeof(char)			);
+	gv.research_group 	= malloc (5 	* sizeof(char)			);
 	gv.db 				= malloc (5 	* sizeof(char)			);
-	gv.Phase 			= malloc (50 	* sizeof(char)			);
 	gv.sys_in 			= malloc (5 	* sizeof(char)			);
 	gv.buffer 			= malloc (10 	* sizeof(char)			);
 
@@ -193,9 +193,10 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	z_b->T 				= 1100.0 + 273.15;		
 	z_b->R 				= 0.0083144;
 
-	strcpy(gv.File,		"none"); 	/** Filename to be read to have multiple P-T-bulk conditions to solve 	*/
-	strcpy(gv.sys_in,	"mol"); 	/** system unit 														*/
-	strcpy(gv.db,		"ig"); 		/** database 															*/
+	strcpy(gv.File,				"none"); 	/** Filename to be read to have multiple P-T-bulk conditions to solve 	*/
+	strcpy(gv.sys_in,			"mol"); 	/** system unit 														*/
+	strcpy(gv.db,				"ig"); 		/** database															*/
+	strcpy(gv.research_group,	"tc"); 		/** Research group, THERMOCALC(tc) or  Stixrude-Lithgow-Bertelloni(sb)	*/
 
 	return gv;
 }

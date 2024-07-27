@@ -718,6 +718,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 	int i;
 	static ko_longopt_t longopts[] = {
 		{ "Verb", 		ko_optional_argument, 301 },
+		{ "rg",  		ko_optional_argument, 312 },
 		{ "db", 		ko_optional_argument, 302 },
 		{ "ds", 		ko_optional_argument, 309 },
 		{ "File", 		ko_optional_argument, 303 },
@@ -745,28 +746,27 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 
 	int    c;
 	while ((c = ketopt(&opt, argc, argv, 1, "", longopts)) >= 0) {
-		if 		(c == 314){ printf("MAGEMin %20s\n",gv.version ); exit(0); }	
-		else if (c == 315){ print_help( gv ); 					  exit(0); }	
- 
-        else if	(c == 301){ gv.verbose  		= atoi(opt.arg);				if (gv.verbose == 1){		printf("--verbose     : verbose              = %i \n", 	 	   		gv.verbose			);}} 	
-		else if (c == 309){ gv.EM_dataset		= atoi(opt.arg);		 																															 }
-		else if (c == 321){ gv.limitCaOpx   	= atoi(opt.arg);				if (gv.verbose == 1){		printf("--limitCaOpx  : limitCaOpx           = %i \n", 	 	   		gv.limitCaOpx		);}} 	
-		else if (c == 326){ gv.CaOpxLim	   		= strtold(opt.arg,NULL); 		if (gv.verbose == 1){		printf("--CaOpxLim    : CaOpxLim             = %f \n", 	 	   		gv.CaOpxLim			);}} 	
-		else if (c == 322){ gv.fluidSpec    	= atoi(opt.arg);				if (gv.verbose == 1){		printf("--fluidSpec   : fluidSpec            = %i \n", 	 	   		gv.fluidSpec		);}} 	
-		else if (c == 323){ gv.mbCpx   			= atoi(opt.arg);				if (gv.verbose == 1){		printf("--mbCpx       : mbCpx                = %i \n", 	 	   		gv.mbCpx			);}} 	
-		else if (c == 316){ gv.solver   		= atoi(opt.arg);				if (gv.verbose == 1){		printf("--solver      : solver               = %i \n", 	 	   		gv.solver			);}}																		
-		else if (c == 318){ gv.output_matlab   	= atoi(opt.arg); 				if (gv.verbose == 1){		printf("--out_matlab  : out_matlab           = %i \n", 	 	   		gv.output_matlab	);}}																		
-		else if (c == 304){ gv.n_points 		= atoi(opt.arg); 	 			if (gv.verbose == 1){		printf("--n_points    : n_points             = %i \n", 	 	   		gv.n_points			);}}
-		else if (c == 305){ gv.test  			= atoi(opt.arg); 				if (gv.verbose == 1){		printf("--test        : Test                 = %i \n", 	 	  		gv.test				);}}
-		else if (c == 320){ gv.buffer_n 		= strtold(opt.arg,NULL); 		if (gv.verbose == 1){		printf("--buffer_n    : buffer_n             = %f \n", 				gv.buffer_n			);}}
-		else if (c == 306){ z_b->T				= strtold(opt.arg,NULL)+273.15;	if (gv.verbose == 1){		printf("--Temp        : Temperature          = %f C \n",            z_b->T-273.15000	);}}
-		else if (c == 307){ z_b->P 				= strtold(opt.arg,NULL); 		if (gv.verbose == 1){		printf("--Pres        : Pressure             = %f kbar \n", 		z_b->P				);}}
+		if 		(c == 314){ printf("MAGEMin %20s\n",gv.version ); exit(0); 	}	
+		else if (c == 315){ print_help( gv ); 					  exit(0); 	}	
+        else if	(c == 301){ gv.verbose  		= atoi(opt.arg);			} 	
+		else if (c == 309){ gv.EM_dataset		= atoi(opt.arg);			}
+		else if (c == 321){ gv.limitCaOpx   	= atoi(opt.arg);			} 	
+		else if (c == 326){ gv.CaOpxLim	   		= strtold(opt.arg,NULL); 	} 	
+		else if (c == 322){ gv.fluidSpec    	= atoi(opt.arg);			} 	
+		else if (c == 323){ gv.mbCpx   			= atoi(opt.arg);			} 	
+		else if (c == 316){ gv.solver   		= atoi(opt.arg);			}																		
+		else if (c == 318){ gv.output_matlab   	= atoi(opt.arg); 			}																		
+		else if (c == 304){ gv.n_points 		= atoi(opt.arg); 	 		}
+		else if (c == 305){ gv.test  			= atoi(opt.arg); 			}
+		else if (c == 320){ gv.buffer_n 		= strtold(opt.arg,NULL); 	}
+		else if (c == 306){ z_b->T				= strtold(opt.arg,NULL)+273.15;}
+		else if (c == 307){ z_b->P 				= strtold(opt.arg,NULL); 	}
 
-		else if (c == 319){ strcpy(gv.buffer,opt.arg);							if (gv.verbose == 1){		printf("--buffer      : buffer               = %s \n", 	 	   		gv.buffer			);}} 	
-		else if (c == 308){ strcpy(gv.Phase,opt.arg);		 					if (gv.verbose == 1){		printf("--Phase       : Phase name           = %s \n", 	   			gv.Phase			);}}
-		else if (c == 303){ strcpy(gv.File,opt.arg);		 					if (gv.verbose == 1){		printf("--File        : File                 = %s \n", 	 	   		gv.File				);}}
-		else if (c == 302){ strcpy(gv.db,opt.arg);		 						if (gv.verbose == 1){		printf("--db          : db                   = %s \n", 	 	   		gv.db				);}}
-		else if (c == 317){ strcpy(gv.sys_in,opt.arg);		 					if (gv.verbose == 1){		printf("--sys_in      : sys_in               = %s \n", 	 	   		gv.sys_in			);}}
+		else if (c == 312){ strcpy(gv.research_group,opt.arg); 				}
+		else if (c == 319){ strcpy(gv.buffer,opt.arg);						} 	
+		else if (c == 303){ strcpy(gv.File,opt.arg);		 				}
+		else if (c == 302){ strcpy(gv.db,opt.arg);		 					}
+		else if (c == 317){ strcpy(gv.sys_in,opt.arg);		 				}
 
 		else if (c == 310){
 			char *p = strtok(opt.arg,",");
@@ -802,14 +802,39 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 
 	// checks if the end-member dataset option arg is correct, otherwise sets to default
 	if 	(gv.EM_dataset 	== -1 || gv.EM_dataset 	== 62  || gv.EM_dataset	== 633  || gv.EM_dataset == 634){
-		if (gv.verbose == 1){		
-			printf("--ds          : EM_dataset           = %d \n", gv.EM_dataset);
-		}
 	}
 	else{
-		printf("--ds          : EM_dataset           = default 		WARNING: Unknown dataset %d has been provided, setting default one\n",gv.EM_dataset);
 		gv.EM_dataset = -1;
 	}	
+
+	if (gv.verbose == 1){		
+		printf("--verbose     : verbose              = %i \n", 	 	   		gv.verbose			);
+		printf("--rg          : research group       = %s \n", 	 	  		gv.research_group	);
+		printf("--db          : database             = %s \n", 	 	   		gv.db				);
+		printf("--ds          : dataset              = %d \n", 	 	    	gv.EM_dataset		);
+
+		printf("--sys_in      : sys_in               = %s \n", 	 	   		gv.sys_in			);
+		printf("--Temp        : Temperature          = %f C \n",            z_b->T-273.15000	);
+		printf("--Pres        : Pressure             = %f kbar \n", 		z_b->P				);
+
+		printf("--File        : File                 = %s \n", 	 	   		gv.File				);
+		printf("--n_points    : n_points             = %i \n", 	 	   		gv.n_points			);
+		printf("--test        : Test                 = %i \n", 	 	  		gv.test				);
+		printf("--buffer      : buffer               = %s \n", 	 	   		gv.buffer			);
+		printf("--buffer_n    : buffer_n             = %f \n", 				gv.buffer_n			);
+
+		printf("--solver      : solver               = %i \n", 	 	   		gv.solver			);
+
+		printf("--limitCaOpx  : limitCaOpx           = %i \n", 	 	   		gv.limitCaOpx		);
+		printf("--CaOpxLim    : CaOpxLim             = %f \n", 	 	   		gv.CaOpxLim			);
+		printf("--fluidSpec   : fluidSpec            = %i \n", 	 	   		gv.fluidSpec		);
+		printf("--mbCpx       : mbCpx                = %i \n", 	 	   		gv.mbCpx			);
+
+		printf("--out_matlab  : out_matlab           = %i \n", 	 	   		gv.output_matlab	);
+	}
+
+
+
 
 
 	/* set-up database acronym here*/
@@ -829,6 +854,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		printf(" No or wrong database acronym has been provided, using default (Igneous [ig])\n");
 		gv.EM_database = 2;
 	}
+
 	return gv;
 } 
 
@@ -1142,7 +1168,6 @@ void FreeDatabases(		global_variable gv,
 	// free(gv.version);
 	// free(gv.File);
 	// free(gv.db);
-	// free(gv.Phase);
 	// free(gv.sys_in);
 	// free(gv.buffer);	
 	// free(gv.arg_bulk);

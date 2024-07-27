@@ -46,6 +46,7 @@ typedef struct global_variables {
 	int      Mode;				/** calcultion mode, 0 = full minimization, 1 = extract solution phases informations, 2 = local minimization */
 	double **pdev;
 	int 	 n_em_db;
+	char    *research_group;
 	int 	 EM_database;
 	int 	 EM_dataset;
 	int      n_Diff;
