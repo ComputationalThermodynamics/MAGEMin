@@ -20,7 +20,7 @@
 #endif
 
 #include "nlopt.h"
-// #include "gem_function.h"
+#include "gem_function.h"
 
 struct ss_pc{
     double xeos_pc[25];

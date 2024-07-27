@@ -24,7 +24,7 @@
 
 #include "MAGEMin.h"
 
-#include "TC_database/gem_function.h"
+#include "gem_function.h"
 #include "simplex_levelling.h"
 #include "all_solution_phases.h"
 #include "ss_min_function.h"

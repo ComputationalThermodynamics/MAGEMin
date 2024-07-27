@@ -22,12 +22,11 @@ Function to call solution phase Minimization
 #include "mpi.h"
 #include "nlopt.h"
 #include "MAGEMin.h"
-
+#include "gem_function.h"
 #include "dump_function.h"
 #include "toolkit.h"
 #include "phase_update_function.h"
 #include "all_solution_phases.h"
-#include "all_endmembers.h"
 /** 
 Function to update xi and sum_xi during local minimization.
 */

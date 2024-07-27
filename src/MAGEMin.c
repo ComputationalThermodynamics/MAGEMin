@@ -40,7 +40,7 @@
 
 #include "toolkit.h"
 #include "io_function.h"
-#include "all_endmembers.h"
+#include "gem_function.h"
 
 #include "simplex_levelling.h"
 #include "initialize.h"

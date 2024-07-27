@@ -39,9 +39,9 @@ SOURCES=src/MAGEMin.c 							\
 		src/initialize.c 						\
 		src/TC_database/TC_init_database.c		\
 		src/TC_database/TC_endmembers.c			\
-		src/TC_database/gem_function.c			\
 		src/toolkit.c							\
 		src/io_function.c						\
+		src/gem_function.c 						\
 		src/TC_database/gss_init_function.c		\
 		src/TC_database/gss_function.c			\
 		src/TC_database/NLopt_opt_function.c 	\
