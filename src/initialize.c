@@ -2,7 +2,7 @@
  **
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
- **   Developers   : Nicolas Riel, Boris Kaus
+ **   Developers   : Nicolas Riel, Boris Kaus, Jamison Assunção
  **   Contributors : Dominguez, H., Green E., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
@@ -35,7 +35,7 @@ global_variable global_variable_init( 	global_variable  	 gv,
     Function to retrieve the endmember names from the database 
     Note the size of the array is n_em_db+1, required for the hashtable              
 */
-char** get_EM_DB_names(global_variable gv) {
+char** get_EM_DB_names_tc(global_variable gv) {
     EM_db EM_return;
     int i, n_em_db;
     n_em_db = gv.n_em_db;
@@ -45,6 +45,21 @@ char** get_EM_DB_names(global_variable gv) {
     }
     for ( i = 0; i < n_em_db; i++){	
         EM_return = Access_EM_DB(i, gv.EM_dataset);
+        strcpy(names[i],EM_return.Name);
+    }
+    return names;
+}
+
+char** get_EM_DB_names_sb(global_variable gv) {
+    EM_db_sb EM_return;
+    int i, n_em_db;
+    n_em_db = gv.n_em_db;
+    char ** names = malloc((n_em_db+1) * sizeof(char*));
+    for ( i = 0; i < n_em_db; i++){
+        names[i] = malloc(20 * sizeof(char));
+    }
+    for ( i = 0; i < n_em_db; i++){	
+        EM_return = Access_SB_EM_DB(i, gv.EM_dataset);
         strcpy(names[i],EM_return.Name);
     }
     return names;

@@ -2,7 +2,7 @@
  **
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
- **   Developers   : Nicolas Riel, Boris Kaus
+ **   Developers   : Nicolas Riel, Boris Kaus, Jamison Assunção
  **   Contributors : Dominguez, H., Green E., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
@@ -15,6 +15,7 @@
     #include "./TC_database/TC_endmembers.h"
     #include "./TC_database/TC_gem_function.h"
     /* This include Stixrude & Lithgow-Bertelloni solution phase models */
+    #include "./SB_database/SB_endmembers.h"
     //#include "STIX_solution_phases.h"
 
 #endif

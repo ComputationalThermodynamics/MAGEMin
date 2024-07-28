@@ -2,7 +2,7 @@
  **
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
- **   Developers   : Nicolas Riel, Boris Kaus
+ **   Developers   : Nicolas Riel, Boris Kaus, Jamison Assunção
  **   Contributors : Dominguez, H., Green E., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
@@ -910,7 +910,13 @@ Databases InitializeDatabases(	global_variable gv,
 	DB.sp[0] 	 = SP_INIT_function(		DB.sp[0], gv						);
 
 	/* Endmember names */
-	DB.EM_names  =	get_EM_DB_names(		gv									);
+	if (strcmp(gv.research_group, "tc") == 0){
+		DB.EM_names  =	get_EM_DB_names_tc(		gv									);
+	}
+	else if (strcmp(gv.research_group, "sb") == 0){
+		DB.EM_names  =	get_EM_DB_names_sb(		gv									);
+	}
+
 
 	/* Endmember names */
 	DB.FS_names  =	get_FS_DB_names(		gv									);

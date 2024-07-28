@@ -2,14 +2,14 @@
  **
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
- **   Developers   : Nicolas Riel, Boris Kaus
+ **   Developers   : Nicolas Riel, Boris Kaus, Jamison Assunção
  **   Contributors : Dominguez, H., Green E., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
  ** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ @*/
 /**
-  Function to calculate chemical potential of endmembers/pure phases  
+  Function to calculate chemical potential of endmembers/pure phases for thermocalc database
 */
 
 #include <math.h>
@@ -622,12 +622,6 @@ PP_ref TC_G_EM_function(	int 		 EM_dataset,
 	for (i = 0; i < len_ox; i ++){
 		composition[i] = EM_return.Comp[id[i]];
 	}
-	
-	/**
-		NOTE: The function below is specific for tc_ds633 and might be different 
-		for other databases. Ideally, we would therefore here call a seperate 
-		routine depending on the EM_database.
-    */
 
 	double t0, 	p0, 	R;
 	double pth, theta, 	vv;
