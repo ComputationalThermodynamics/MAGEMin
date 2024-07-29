@@ -14,11 +14,12 @@
     /** store endmember database **/
     typedef struct EM_db_sb_ {
         char   Name[20];			/** pure species name 														*/
-        double Comp[16];       	 	/** pure species composition [0-10] + number of atom [11] 					*/
-        double input_1[3];          /** first line of the thermodynamics datable 								*/
-        double input_2[4];          /** second line of the thermodynamics datable 								*/
-        double input_3[11];         /** third line of the thermodynamics datable 								*/
-        double input_4[3];         	/** third line of the thermodynamics datable 								*/
+        char   FullName[50];		/** pure species name 														*/
+        char   Equation[50];		/** pure species name 														*/
+        double Comp[6];       	 	/** pure species composition [0-10] + number of atom [11] 					*/
+
+        double input_1[16];          /** first line of the thermodynamics datable 								*/
+        double input_2[10];          /** second line of the thermodynamics datable 								*/
     } EM_db_sb;
 
     EM_db_sb Access_SB_EM_DB(int id, int EM_dataset);
