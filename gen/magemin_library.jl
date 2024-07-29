@@ -127,6 +127,22 @@ function rho_wat_calc(wat, Pbar, TK, opt)
     ccall((:rho_wat_calc, libMAGEMin), Cvoid, (Ptr{solvent_prop}, Cdouble, Cdouble, Ptr{Cchar}), wat, Pbar, TK, opt)
 end
 
+mutable struct EM_db_sb_
+    Name::NTuple{20, Cchar}
+    FullName::NTuple{50, Cchar}
+    Equation::NTuple{50, Cchar}
+    Comp::NTuple{6, Cdouble}
+    input_1::NTuple{16, Cdouble}
+    input_2::NTuple{10, Cdouble}
+    EM_db_sb_() = new()
+end
+
+const EM_db_sb = EM_db_sb_
+
+function Access_SB_EM_DB(id, EM_dataset)
+    ccall((:Access_SB_EM_DB, libMAGEMin), EM_db_sb, (Cint, Cint), id, EM_dataset)
+end
+
 # typedef double ( * nlopt_func ) ( unsigned n , const double * x , double * gradient , /* NULL if not needed */ void * func_data )
 const nlopt_func = Ptr{Cvoid}
 
@@ -1887,8 +1903,12 @@ function find_PP_id(PP_tag)
     ccall((:find_PP_id, libMAGEMin), Cint, (Ptr{Cchar},), PP_tag)
 end
 
-function get_EM_DB_names(gv)
-    ccall((:get_EM_DB_names, libMAGEMin), Ptr{Ptr{Cchar}}, (global_variable,), gv)
+function get_EM_DB_names_tc(gv)
+    ccall((:get_EM_DB_names_tc, libMAGEMin), Ptr{Ptr{Cchar}}, (global_variable,), gv)
+end
+
+function get_EM_DB_names_sb(gv)
+    ccall((:get_EM_DB_names_sb, libMAGEMin), Ptr{Ptr{Cchar}}, (global_variable,), gv)
 end
 
 function get_FS_DB_names(gv)

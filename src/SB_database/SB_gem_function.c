@@ -28,7 +28,7 @@
 double plg(double t) {
 	double p4, dinc;
 
-    double p0 	= exp(-t);
+    double P0 	= exp(-t);
     double p1 	= 1.0;
     double p2 	= t * t;
     double p3 	= 2.0 * t;
@@ -39,7 +39,7 @@ double plg(double t) {
     while (i < 100000) {
 
         p4 		= (double)i;
-        p1 		= p1 * p0;
+        p1 		= p1 * P0;
         dinc 	= (p2 + (p3 + 2.0 / p4) / p4) * p1 / p4 / p4;
         plg 	= plg + dinc;
 
@@ -76,15 +76,15 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 	
 	double kbar2bar = 1e3;
 	double RTlnf 	= 0.0;
-	double t0 		= 298.15;
-	double p0 		= 0.001;
+	double T0 		= 298.15;
+	double P0 		= 0.001;
 	double R  		= 8.31446261815324;
  	
 	/* declare the variables */
-	double nr9, nr9t0, c1, c2, c3, aii, aiikk2, aii2;
-	double r23, r59, t1, t2, nr9t, tht, tht0;
+	double nr9, nr9T0, c1, c2, c3, aii, aiikk2, aii2;
+	double r23, r59, t1, t2, nr9t, tht, thT0;
 	double dfth, dfth0, root, V, V23;
-	double f,df,d2f,dfc,d2fc,z,a2f,da,dtht,d2tht,dtht0,d2tht0,fpoly,fpoly0,etht,letht,d2fth,etht0,letht0,d2fth0,f1,df1,dv;
+	double f,df,d2f,dfc,d2fc,z,a2f,da,dtht,d2tht,dthT0,d2thT0,fpoly,fpoly0,etht,letht,d2fth,ethT0,lethT0,d2fth0,f1,df1,dv;
 	double a,gbase;
 
 
@@ -104,7 +104,7 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 	double cme		= EM_return.input_1[9];
     
     nr9 	= -9.0 * n * R;
-    nr9t0 	= nr9 * t0;
+    nr9T0 	= nr9 * T0;
     c1 		= -9.0 * V0 * K0;
     c2 		= Kp / 2.0 - 2.0;
     c3 		= 3.0 * c1 * c2;
@@ -116,14 +116,13 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
     r59 = 5.0 / 9.0;
 
     t1 		= z00 / T;
-    t2 		= T / t0;
+    t2 		= T / T0;
     nr9t 	= nr9 * T;
 	tht 	= t1;
-	tht0 	= tht * t2;
-
+	thT0 	= tht * t2;
 
 	dfth 	= nr9t * gamma0 / 	V0 * (3.0 * plg(tht) 	/ pow(tht,3.0) 	- log(1.0 - exp(-tht)));
-	dfth0 	= nr9t0 * gamma0 / 	V0 * (3.0 * plg(tht0) 	/ pow(tht0,3.0) - log(1.0 - exp(-tht0)));
+	dfth0 	= nr9T0 * gamma0 / 	V0 * (3.0 * plg(thT0) 	/ pow(thT0,3.0) - log(1.0 - exp(-thT0)));
 
 	root 	= K0 * ((2.0 + 2.0 * Kp) * (P + dfth - dfth0) + K0);
 
@@ -163,18 +162,18 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 		root 	= sqrt(z);
 
 		tht 	= t1 * root;
-		tht0 	= tht * T / t0;
+		thT0 	= tht * T / T0;
 
 		a2f 	= aii2 + aiikk2 * f;
 		da 		= a2f / root;
 		dtht 	= t1 * da * df;
 		d2tht 	= t1 * ((aiikk2 / root - pow(a2f,2.0) / pow(z,1.5)) * pow(df,2.0) + da * d2f);
 
-		dtht0 	= dtht * t2;
-		d2tht0 	= d2tht * T;
+		dthT0 	= dtht * t2;
+		d2thT0 	= d2tht * T;
 
 		fpoly 	= 3.0 * plg(tht) / pow(tht,3.0);
-		fpoly0 	= 3.0 * plg(tht0) / pow(tht0,3.0);
+		fpoly0 	= 3.0 * plg(thT0) / pow(thT0,3.0);
 		
 		etht 	= exp(-tht);
 
@@ -187,16 +186,16 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 		dfth 	= (letht - fpoly) * nr9t * dtht / tht;
 		d2fth 	= ((4.0 * pow(dtht,2.0) / tht - d2tht) * (fpoly - letht) + pow(dtht,2.0) * etht / (1.0 - etht)) * nr9t / tht;
 
-		etht0 	= exp(-tht0);
+		ethT0 	= exp(-thT0);
 
-		if (1.0 - etht0 < 0.0){
-			printf("ERROR 1-tht0\n");
+		if (1.0 - ethT0 < 0.0){
+			printf("ERROR 1-thT0\n");
 		}
 
-		letht0 	= log(1.0 - etht0);
+		lethT0 	= log(1.0 - ethT0);
 
-		dfth0 	= (letht0 - fpoly0) * nr9t0 * dtht0 / tht0;
-		d2fth0 	= ((4.0 * pow(dtht0,2.0) / tht0 - d2tht0) * (fpoly0 - letht0) + pow(dtht0,2.0) * etht0 / (1.0 - etht0)) * nr9t0 / tht0;
+		dfth0 	= (lethT0 - fpoly0) * nr9T0 * dthT0 / thT0;
+		d2fth0 	= ((4.0 * pow(dthT0,2.0) / thT0 - d2thT0) * (fpoly0 - lethT0) + pow(dthT0,2.0) * ethT0 / (1.0 - ethT0)) * nr9T0 / thT0;
 
 		f1 		= -dfc - dfth + dfth0 - P;
 		df1 	= -d2fc - d2fth + d2fth0;
@@ -232,10 +231,10 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 	root 	= sqrt(z);
 
 	tht 	= t1 * root;
-	tht0 	= tht * t2;
+	thT0 	= tht * t2;
 
 	/* helmholtz energy */
-	a 		= F0 + c1 * pow(f,2.0) * (0.5 + c2 * f) + nr9 * (T / pow(tht,3.0) * plg(tht) - t0 / pow(tht0,3.0) * plg(tht0));
+	a 		= F0 + c1 * pow(f,2.0) * (0.5 + c2 * f) + nr9 * (T / pow(tht,3.0) * plg(tht) - T0 / pow(thT0,3.0) * plg(thT0));
 	gbase 	= a + P * V - T * cme;
 
 
@@ -265,9 +264,10 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 	for (i = 0; i < len_ox; i++){
 		PP_ref_db.Comp[i] = composition[i];
 	}
-	// PP_ref_db.gbase   =  gbase;
+	PP_ref_db.gbase   =  gbase;
 	PP_ref_db.factor  =  factor;
-	// PP_ref_db.phase_shearModulus  =  (EM_return.input_4[0]*kbar2bar + (P - p0)*(EM_return.input_4[1])*kbar2bar + (T - t0)*(EM_return.input_4[2]))/kbar2bar;
+	// PP_ref_db.phase_shearModulus  =  (EM_return.input_4[0]*kbar2bar + (P - P0)*(EM_return.input_4[1])*kbar2bar + (T - T0)*(EM_return.input_4[2]))/kbar2bar;
+
 
 	// printf(" %4s %+10f\n",name,PP_ref_db.gbase);
 	// for (i = 0; i < len_ox; i++){
