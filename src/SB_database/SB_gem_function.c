@@ -87,21 +87,20 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 	double f,df,d2f,dfc,d2fc,z,a2f,da,dtht,d2tht,dthT0,d2thT0,fpoly,fpoly0,etht,letht,d2fth,ethT0,lethT0,d2fth0,f1,df1,dv;
 	double a,gbase;
 
-
-	int max_ite, itic, ibad, bad;
+	int    max_ite, itic, ibad, bad;
 
 	max_ite 		= 100;
 
-	double F0		= EM_return.input_1[0];
-	double n		= EM_return.input_1[1];
-	double V0 		= EM_return.input_1[2];
-	double K0 		= EM_return.input_1[3];
-	double Kp 		= EM_return.input_1[4];
-	double z00		= EM_return.input_1[5];
-	double gamma0 	= EM_return.input_1[6];
-	double q0 		= EM_return.input_1[7];
-	double etaS0	= EM_return.input_1[8];
-	double cme		= EM_return.input_1[9];
+	double F0		= EM_return.input_2[0];
+	double n		= EM_return.input_2[1];
+	double V0 		= EM_return.input_2[2];
+	double K0 		= EM_return.input_2[3];
+	double Kp 		= EM_return.input_2[4];
+	double z00		= EM_return.input_2[5];
+	double gamma0 	= EM_return.input_2[6];
+	double q0 		= EM_return.input_2[7];
+	double etaS0	= EM_return.input_2[8];
+	double cme		= EM_return.input_2[9];
     
     nr9 	= -9.0 * n * R;
     nr9T0 	= nr9 * T0;
