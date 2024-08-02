@@ -1634,7 +1634,7 @@ global_variable LP(		bulk_info 			z_b,
 		gv.ite_time[gv.global_ite] 		 = ((double)t)/CLOCKS_PER_SEC*1000;
 		gi += 1;
 
-		if ((gv.gamma_norm[gv.global_ite-1] < 1e-4 || gi >= gv.max_LP_ite) && nCheck > 1){
+		if ((gv.gamma_norm[gv.global_ite-1] < 1e-4 || gi >= gv.max_LP_ite) && nCheck > 2){
 			iterate = 0;
 
 			if (gv.gamma_norm[gv.global_ite-1] < 1e-4){
