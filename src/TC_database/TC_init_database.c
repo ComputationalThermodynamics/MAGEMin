@@ -2,8 +2,8 @@
  **
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
- **   Developers   : Nicolas Riel, Boris Kaus, Jamison Assunção
- **   Contributors : Dominguez, H., Green E., Berlie N., and Rummel L.
+ **   Developers   : Nicolas Riel, Boris Kaus
+ **   Contributors : Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -69,7 +69,7 @@ metabasite_dataset metabasite_db = {
 	{"sp"	,"opx"	,"fsp"	,"liq"	,"mu"	,"ilm"	,"ol"	,"hb"	,"ep"	,"g"	,"chl"	,"bi"	,"dio"	,"abc"  ,"spn"			},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1				},  // allow solvus?
-	{936	,1729 	,231	,3504	,4536 	,130	,11		,7655	,110	,216	,3980	,1097	,1806	,21 	,196			},  // # of pseudocompound
+	{936	,1729 	,231	,3504	,4536 	,130	,11		,7656	,110	,216	,3980	,1097	,1806	,21 	,196			},  // # of pseudocompound
 	{0.09	,0.19	,0.049	,0.199	,0.19	,0.09	,0.098	,0.249	,0.049	,0.19	,0.19	,0.149	,0.16	,0.049 	,0.09			},  // discretization step
 
 	{"sp"	,"opx"	,"fsp"	,"liq"	,"mu"	,"ilm"	,"ol"	,"hb"	,"ep"	,"g"	,"chl"	,"bi"	,"aug"	,"abc"  ,"spn"			},

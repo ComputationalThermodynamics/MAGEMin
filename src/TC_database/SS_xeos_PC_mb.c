@@ -2,8 +2,8 @@
  **
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
- **   Developers   : Nicolas Riel, Boris Kaus, Jamison Assunção
- **   Contributors : Dominguez, H., Green E., Berlie N., and Rummel L.
+ **   Developers   : Nicolas Riel, Boris Kaus
+ **   Contributors : Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -11606,8 +11606,9 @@ struct ss_pc mb_ilm_pc_xeos[130] = {
 {{0.990000,0.810000}},
 {{0.990000,0.900000}}};
 
-struct ss_pc mb_hb_pc_xeos[7655] = {
-{{0.59274,0.02252,0.00424,0.00021,0.07907,0.02289,0.05165,0.00226,0.07889,0.26413}},
+struct ss_pc mb_hb_pc_xeos[7656] = {
+{{0.340058,0.062956,0.029548,0.032449,0.130539,0.945036,0.071269,0.002621,-0.049333,0.103128}},     //added manually, do not overwrite
+{{0.59274,0.02252,0.00424,0.00021,0.07907,0.02289,0.05165,0.00226,0.07889,0.26413}},                //added manually, do not overwrite
 {{0.249010,0.000010,0.000010,0.249010,0.000010,0.000010,0.000010,0.000010,0.000010,0.000010}},
 {{0.249010,0.000010,0.000010,0.249010,0.000010,0.000010,0.000010,0.249010,0.000010,0.000010}},
 {{0.249010,0.000010,0.000010,0.249010,0.000010,0.000010,0.000010,0.498010,0.000010,0.000010}},
