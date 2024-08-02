@@ -414,16 +414,16 @@ global_variable get_bulk_metabasite( global_variable gv) {
 	else if (gv.test == 3){
 		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O H2O 	*/
 		/* BL478: Sample 478 of Beard & Lofgren (1991)		*/
-		gv.bulk_rock[0]  = 52.73;		/** SiO2 	*/
-		gv.bulk_rock[1]  = 9.57;		/** Al2O2 	*/
-		gv.bulk_rock[2]  = 9.94;		/** CaO  	*/
-		gv.bulk_rock[3]  = 6.76;		/** MgO 	*/
-		gv.bulk_rock[4]  = 10.49;		/** FeO 	*/
-		gv.bulk_rock[5]  = 0.24;		/** K2O	 	*/
-		gv.bulk_rock[6]  = 3.28;		/** Na2O 	*/
-		gv.bulk_rock[7]  = 1.2;			/** TiO2 	*/
-		gv.bulk_rock[8]  = 1.3;			/** O 		*/
-		gv.bulk_rock[9]  = 3.5;			/** H2O 	*/
+		gv.bulk_rock[0]  = 53.949210157968395;		/** SiO2 	*/
+		gv.bulk_rock[1]  = 9.258148370325934;		/** Al2O2 	*/
+		gv.bulk_rock[2]  = 10.147970405918816;		/** CaO  	*/
+		gv.bulk_rock[3]  = 8.108378324335131;		/** MgO 	*/
+		gv.bulk_rock[4]  = 10.137972405518896;		/** FeO 	*/
+		gv.bulk_rock[5]  = 0.10997800439912016;		/** K2O	 	*/
+		gv.bulk_rock[6]  = 2.539492101579684;		/** Na2O 	*/
+		gv.bulk_rock[7]  = 1.349730053989202;		/** TiO2 	*/
+		gv.bulk_rock[8]  = 0.9798040391921614;		/** O 		*/
+		gv.bulk_rock[9]  = 3.4193161367726455;		/** H2O 	*/
 	}
 	else if (gv.test == 4){
 		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O H2O 	*/

@@ -1,0 +1,213 @@
+[
+    {
+        "name": "plagioclase",
+        "abbrev": "plg",
+        "endmembers": {
+            "anorthite": [[0.0, 1.0, 1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 1.0, 0.0, 0.0, 0.0]],
+            "albite": [[0.0, 0.0, 0.0, 0.0, 0.0, 1.0], [0.0, 0.0, 0.0, 0.0, 0.0, 1.0]]
+        },
+        "margules": {
+            "anorthite,albite": 2.600e+04
+        },
+        "van_laar": []
+    },
+    {
+        "name": "spinel",
+        "abbrev": "sp",
+        "endmembers": {
+            "spinel": [[0.0, 0.0, 0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 0.0, 3.0, 0.0]],
+            "hercynite": [[0.0, 0.0, 0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 0.0, 3.0, 0.0, 0.0]]
+        },
+        "margules": {
+            "spinel,hercynite": 5.000e+03
+        },
+        "van_laar": []
+    },
+    {
+        "name": "olivine",
+        "abbrev": "ol",
+        "endmembers": {
+            "forsterite": [[0.0, 0.0, 0.0, 0.0, 2.0, 0.0]],
+            "fayalite": [[0.0, 0.0, 0.0, 2.0, 0.0, 0.0]]
+        },
+        "margules": {
+            "forsterite,fayalite": 7.600e+03
+        },
+        "van_laar": []
+    },
+    {
+        "name": "wadsleyite",
+        "abbrev": "wa",
+        "endmembers": {
+            "mg-wadsleyite": [[0.0, 0.0, 0.0, 0.0, 2.0, 0.0]],
+            "fe-wadsleyite": [[0.0, 0.0, 0.0, 2.0, 0.0, 0.0]]
+        },
+        "margules": {
+            "mg-wadsleyite,fe-wadsleyite": 1.650e+04
+        },
+        "van_laar": []
+    },
+    {
+        "name": "ringwoodite",
+        "abbrev": "ri",
+        "endmembers": {
+            "mg-ringwoodite": [[0.0, 0.0, 0.0, 0.0, 2.0, 0.0]],
+            "fe-ringwoodite": [[0.0, 0.0, 0.0, 2.0, 0.0, 0.0]]
+        },
+        "margules": {
+            "mg-ringwoodite,fe-ringwoodite": 9.100e+03
+        },
+        "van_laar": []
+    },
+    {
+        "name": "orthopyroxene",
+        "abbrev": "opx",
+        "endmembers": {
+            "enstatite": [[0.0, 0.0, 0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 0.0, 1.0, 0.0]],
+            "ferrosilite": [[0.0, 0.0, 0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 0.0, 1.0, 0.0, 0.0]],
+            "mg-tschermak": [[0.0, 0.0, 0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 1.0, 0.0, 0.0, 0.0]],
+            "ortho-diopside": [[0.0, 1.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 1.0, 0.0]]
+        },
+        "margules": {
+            "enstatite,ferrosilite": 0.000e+00,
+            "enstatite,mg-tschermak": 0.000e+00,
+            "enstatite,ortho-diopside": 3.210e+04,
+            "ferrosilite,mg-tschermak": 0.000e+00,
+            "ferrosilite,ortho-diopside": 0.000e+00,
+            "mg-tschermak,ortho-diopside": 4.800e+04
+        },
+        "van_laar": []
+    },
+    {
+        "name": "clinopyroxene",
+        "abbrev": "cpx",
+        "endmembers": {
+            "diopside": [[0.0, 1.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+            "hedenbergite": [[0.0, 1.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+            "clinoenstatite": [[0.0, 0.0, 0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+            "ca-tschermak": [[0.0, 1.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+            "jadeite": [[0.0, 0.0, 0.0, 0.0, 0.0, 1.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]
+        },
+        "margules": {
+            "diopside,hedenbergite": 0.000e+00,
+            "diopside,clinoenstatite": 2.470e+04,
+            "diopside,ca-tschermak": 2.600e+04,
+            "diopside,jadeite": 2.430e+04,
+            "hedenbergite,clinoenstatite": 2.470e+04,
+            "hedenbergite,ca-tschermak": 0.000e+00,
+            "hedenbergite,jadeite": 0.000e+00,
+            "clinoenstatite,ca-tschermak": 6.060e+04,
+            "clinoenstatite,jadeite": 0.000e+00,
+            "ca-tschermak,jadeite": 1.000e+04
+        },
+        "van_laar": [1.0, 1.0, 1.0, 3.5, 1.0]
+    },
+    {
+        "name": "hp-clinopyroxene",
+        "abbrev": "hpcpx",
+        "endmembers": {
+            "hp-clinoenstatite": [[0.0, 0.0, 0.0, 0.0, 2.0, 0.0]],
+            "hp-clinoferrosilite": [[0.0, 0.0, 0.0, 2.0, 0.0, 0.0]]
+        },
+        "margules": {
+            "hp-clinoenstatite,hp-clinoferrosilite": 0.000e+00
+        },
+        "van_laar": []
+    },
+    {
+        "name": "akimotoite",
+        "abbrev": "ak",
+        "endmembers": {
+            "mg-akimotoite": [[0.0, 0.0, 0.0, 0.0, 1.0, 0.0], [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+            "fe-akimotoite": [[0.0, 0.0, 0.0, 1.0, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+            "corundum": [[0.0, 0.0, 1.0, 0.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0, 0.0, 0.0]]
+        },
+        "margules": {
+            "mg-akimotoite,fe-akimotoite": 0.000e+00,
+            "mg-akimotoite,corundum": 6.600e+04,
+            "fe-akimotoite,corundum": 0.000e+00
+        },
+        "van_laar": []
+    },
+    {
+        "name": "garnet",
+        "abbrev": "gtmj",
+        "endmembers": {
+            "pyrope": [[0.0, 0.0, 0.0, 0.0, 3.0, 0.0], [0.0, 0.0, 1.0, 0.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0, 0.0, 0.0]],
+            "almandine": [[0.0, 0.0, 0.0, 3.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0, 0.0, 0.0]],
+            "grossular": [[0.0, 3.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0, 0.0, 0.0]],
+            "mg-majorite": [[0.0, 0.0, 0.0, 0.0, 3.0, 0.0], [0.0, 0.0, 0.0, 0.0, 1.0, 0.0], [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+            "jd-majorite": [[0.0, 0.0, 0.0, 0.0, 1.0, 2.0], [0.0, 0.0, 1.0, 0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]]
+        },
+        "margules": {
+            "pyrope,almandine": 0.000e+00,
+            "pyrope,grossular": 3.000e+04,
+            "pyrope,mg-majorite": 2.130e+04,
+            "pyrope,jd-majorite": 0.000e+00,
+            "almandine,grossular": 0.000e+00,
+            "almandine,mg-majorite": 0.000e+00,
+            "almandine,jd-majorite": 0.000e+00,
+            "grossular,mg-majorite": 5.800e+04,
+            "grossular,jd-majorite": 0.000e+00,
+            "mg-majorite,jd-majorite": 0.000e+00
+        },
+        "van_laar": []
+    },
+    {
+        "name": "perovskite", 
+        "abbrev": "pv",
+        "endmembers": {
+            "mg-perovskite": [[0.0, 0.0, 0.0, 0.0, 1.0, 0.0], [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+            "fe-perovskite": [[0.0, 0.0, 0.0, 1.0, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+            "al-perovskite": [[0.0, 0.0, 1.0, 0.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0, 0.0, 0.0]]
+        },
+        "margules": {
+            "mg-perovskite,fe-perovskite": 0.000e+00,
+            "mg-perovskite,al-perovskite": 1.160e+05,
+            "fe-perovskite,al-perovskite": 0.000e+00
+        },
+        "van_laar": [1.0, 1.0, 0.39]
+    },
+    {
+        "name": "post-perovskite",
+        "abbrev": "ppv",
+        "endmembers": {
+            "mg-post-perovskite": [[0.0, 0.0, 0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+            "fe-post-perovskite": [[0.0, 0.0, 0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+            "al-post-perovskite": [[0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]
+        },
+        "margules": {
+            "mg-post-perovskite,fe-post-perovskite": 0.000e+00,
+            "mg-post-perovskite,al-post-perovskite": 6.000e+04,
+            "fe-post-perovskite,al-post-perovskite": 0.000e+00
+        },
+        "van_laar": []
+    },
+    {
+        "name": "magnesio-wustite",
+        "abbrev": "mw",
+        "endmembers": {
+            "periclase": [[0.0, 0.0, 0.0, 0.0, 1.0, 0.0]],
+            "wustite": [[0.0, 0.0, 0.0, 1.0, 0.0, 0.0]]
+        },
+        "margules": {
+            "periclase,wustite": 1.300e+04
+        },
+        "van_laar": []
+    },
+    {
+        "name": "ca-ferrite",
+        "abbrev": "cf",
+        "endmembers": {
+            "mg-ca-ferrite": [[0.0, 0.0, 0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+            "fe-ca-ferrite": [[0.0, 0.0, 0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+            "na-ca-ferrite": [[0.0, 0.0, 0.0, 0.0, 0.0, 1.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]
+        },
+        "margules": {
+            "mg-ca-ferrite,fe-ca-ferrite": 0.000e+00,
+            "mg-ca-ferrite,na-ca-ferrite": 0.000e+00,
+            "fe-ca-ferrite,na-ca-ferrite": 0.000e+00
+        },
+        "van_laar": []
+    }
+]

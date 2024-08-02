@@ -73,4 +73,4 @@ lib: $(OBJECTS)
 	$(CC) -shared -fPIC -o libMAGEMin.dylib $(OBJECTS) $(INC) $(LIBS)
  
 clean:
-	rm -f src/*.o  src/TC_database/*.o *.dylib MAGEMin
+	rm -f src/*.o  src/TC_database/*.o src/SB_database/*.o *.dylib MAGEMin
