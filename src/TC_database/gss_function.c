@@ -255,8 +255,6 @@ SS_ref G_SS_mb_liq_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     for (int i = 0; i < SS_ref_db.n_sf; i++){
         strcpy(SS_ref_db.SF_list[i],SF_tmp[i]);
     };
-    //int si = sizeof(SF_tmp)/sizeof(SF_tmp[0]); printf("sz_tmp: %d n_sf %d\n",si,SS_ref_db.n_sf);
-
 
     SS_ref_db.W[0] = 12.0 - 0.4*SS_ref_db.P;
     SS_ref_db.W[1] = -0.5*SS_ref_db.P - 2.0;
