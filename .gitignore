@@ -3,6 +3,8 @@ MAGEMin
 MAGEMin_input.dat
 output/*
 src/*.o
+src/TC_database/*.o
+src/SB_database/*.o
 julia/output/*
 .vscode/
 *.txt

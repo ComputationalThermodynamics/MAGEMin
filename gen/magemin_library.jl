@@ -57,6 +57,92 @@ function Access_FS_DB(id)
     ccall((:Access_FS_DB, libMAGEMin), FS_db, (Cint,), id)
 end
 
+struct PP_refs
+    Name::NTuple{20, Cchar}
+    Comp::NTuple{11, Cdouble}
+    gbase::Cdouble
+    gb_lvl::Cdouble
+    factor::Cdouble
+    phase_density::Cdouble
+    phase_shearModulus::Cdouble
+    phase_shearModulus_v::Cdouble
+    phase_cp::Cdouble
+    phase_expansivity::Cdouble
+    phase_isoTbulkModulus::Cdouble
+    volume_P0::Cdouble
+    thetaExp::Cdouble
+    phase_entropy::Cdouble
+    phase_enthalpy::Cdouble
+    phase_bulkModulus::Cdouble
+    volume::Cdouble
+    mass::Cdouble
+    charge::Cdouble
+end
+
+const PP_ref = PP_refs
+
+function G_EM_function(research_group, EM_dataset, len_ox, id, bulk_rock, apo, P, T, name, state)
+    ccall((:G_EM_function, libMAGEMin), PP_ref, (Ptr{Cchar}, Cint, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), research_group, EM_dataset, len_ox, id, bulk_rock, apo, P, T, name, state)
+end
+
+function sum_array(array, size)
+    ccall((:sum_array, libMAGEMin), Cdouble, (Ptr{Cdouble}, Cint), array, size)
+end
+
+function check_sign(v1, v2)
+    ccall((:check_sign, libMAGEMin), Cint, (Cdouble, Cdouble), v1, v2)
+end
+
+function TC_G_EM_function(EM_database, len_ox, id, bulk_rock, apo, P, T, name, state)
+    ccall((:TC_G_EM_function, libMAGEMin), PP_ref, (Cint, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), EM_database, len_ox, id, bulk_rock, apo, P, T, name, state)
+end
+
+mutable struct solvent_properties
+    g::Cdouble
+    density::Cdouble
+    epsilon::Cdouble
+    Z::Cdouble
+    solvent_properties() = new()
+end
+
+const solvent_prop = solvent_properties
+
+function G_FS_function(len_ox, wat, id, bulk_rock, ElH, apo, P, T, name, state)
+    ccall((:G_FS_function, libMAGEMin), PP_ref, (Cint, Ptr{solvent_prop}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), len_ox, wat, id, bulk_rock, ElH, apo, P, T, name, state)
+end
+
+function propSolvent_JN91_calc(wat, TK)
+    ccall((:propSolvent_JN91_calc, libMAGEMin), Cvoid, (Ptr{solvent_prop}, Cdouble), wat, TK)
+end
+
+function propSolvent_FE97_calc(wat, Pbar, TK)
+    ccall((:propSolvent_FE97_calc, libMAGEMin), Cvoid, (Ptr{solvent_prop}, Cdouble, Cdouble), wat, Pbar, TK)
+end
+
+function propSolvent_SV14_calc(wat, Pbar, TK)
+    ccall((:propSolvent_SV14_calc, libMAGEMin), Cvoid, (Ptr{solvent_prop}, Cdouble, Cdouble), wat, Pbar, TK)
+end
+
+function rho_wat_calc(wat, Pbar, TK, opt)
+    ccall((:rho_wat_calc, libMAGEMin), Cvoid, (Ptr{solvent_prop}, Cdouble, Cdouble, Ptr{Cchar}), wat, Pbar, TK, opt)
+end
+
+mutable struct EM_db_sb_
+    Name::NTuple{20, Cchar}
+    FullName::NTuple{50, Cchar}
+    Equation::NTuple{50, Cchar}
+    Comp::NTuple{6, Cdouble}
+    input_1::NTuple{16, Cdouble}
+    input_2::NTuple{10, Cdouble}
+    EM_db_sb_() = new()
+end
+
+const EM_db_sb = EM_db_sb_
+
+function Access_SB_EM_DB(id, EM_dataset)
+    ccall((:Access_SB_EM_DB, libMAGEMin), EM_db_sb, (Cint, Cint), id, EM_dataset)
+end
+
 # typedef double ( * nlopt_func ) ( unsigned n , const double * x , double * gradient , /* NULL if not needed */ void * func_data )
 const nlopt_func = Ptr{Cvoid}
 
@@ -463,72 +549,6 @@ function nlopt_set_stochastic_population(pop)
     ccall((:nlopt_set_stochastic_population, libMAGEMin), Cvoid, (Cint,), pop)
 end
 
-function sum_array(array, size)
-    ccall((:sum_array, libMAGEMin), Cdouble, (Ptr{Cdouble}, Cint), array, size)
-end
-
-function check_sign(v1, v2)
-    ccall((:check_sign, libMAGEMin), Cint, (Cdouble, Cdouble), v1, v2)
-end
-
-struct PP_refs
-    Name::NTuple{20, Cchar}
-    Comp::NTuple{11, Cdouble}
-    gbase::Cdouble
-    gb_lvl::Cdouble
-    factor::Cdouble
-    phase_density::Cdouble
-    phase_shearModulus::Cdouble
-    phase_shearModulus_v::Cdouble
-    phase_cp::Cdouble
-    phase_expansivity::Cdouble
-    phase_isoTbulkModulus::Cdouble
-    volume_P0::Cdouble
-    thetaExp::Cdouble
-    phase_entropy::Cdouble
-    phase_enthalpy::Cdouble
-    phase_bulkModulus::Cdouble
-    volume::Cdouble
-    mass::Cdouble
-    charge::Cdouble
-end
-
-const PP_ref = PP_refs
-
-function G_EM_function(EM_database, len_ox, id, bulk_rock, apo, P, T, name, state)
-    ccall((:G_EM_function, libMAGEMin), PP_ref, (Cint, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), EM_database, len_ox, id, bulk_rock, apo, P, T, name, state)
-end
-
-mutable struct solvent_properties
-    g::Cdouble
-    density::Cdouble
-    epsilon::Cdouble
-    Z::Cdouble
-    solvent_properties() = new()
-end
-
-const solvent_prop = solvent_properties
-
-function G_FS_function(len_ox, wat, id, bulk_rock, ElH, apo, P, T, name, state)
-    ccall((:G_FS_function, libMAGEMin), PP_ref, (Cint, Ptr{solvent_prop}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), len_ox, wat, id, bulk_rock, ElH, apo, P, T, name, state)
-end
-
-function propSolvent_JN91_calc(wat, TK)
-    ccall((:propSolvent_JN91_calc, libMAGEMin), Cvoid, (Ptr{solvent_prop}, Cdouble), wat, TK)
-end
-
-function propSolvent_FE97_calc(wat, Pbar, TK)
-    ccall((:propSolvent_FE97_calc, libMAGEMin), Cvoid, (Ptr{solvent_prop}, Cdouble, Cdouble), wat, Pbar, TK)
-end
-
-function propSolvent_SV14_calc(wat, Pbar, TK)
-    ccall((:propSolvent_SV14_calc, libMAGEMin), Cvoid, (Ptr{solvent_prop}, Cdouble, Cdouble), wat, Pbar, TK)
-end
-
-function rho_wat_calc(wat, Pbar, TK, opt)
-    ccall((:rho_wat_calc, libMAGEMin), Cvoid, (Ptr{solvent_prop}, Cdouble, Cdouble, Ptr{Cchar}), wat, Pbar, TK, opt)
-end
-
 struct ss_pc
     xeos_pc::NTuple{25, Cdouble}
 end
@@ -550,6 +570,7 @@ mutable struct global_variables
     Mode::Cint
     pdev::Ptr{Ptr{Cdouble}}
     n_em_db::Cint
+    research_group::Ptr{Cchar}
     EM_database::Cint
     EM_dataset::Cint
     n_Diff::Cint
@@ -1258,8 +1279,8 @@ end
 
 const em_data = em_datas
 
-function get_em_data(EM_dataset, len_ox, z_b, P, T, name, state)
-    ccall((:get_em_data, libMAGEMin), em_data, (Cint, Cint, bulk_info, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), EM_dataset, len_ox, z_b, P, T, name, state)
+function get_em_data(research_group, EM_dataset, len_ox, z_b, P, T, name, state)
+    ccall((:get_em_data, libMAGEMin), em_data, (Ptr{Cchar}, Cint, Cint, bulk_info, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), research_group, EM_dataset, len_ox, z_b, P, T, name, state)
 end
 
 function get_fs_data(len_ox, z_b, wat, P, T, name, state)
@@ -1882,8 +1903,12 @@ function find_PP_id(PP_tag)
     ccall((:find_PP_id, libMAGEMin), Cint, (Ptr{Cchar},), PP_tag)
 end
 
-function get_EM_DB_names(gv)
-    ccall((:get_EM_DB_names, libMAGEMin), Ptr{Ptr{Cchar}}, (global_variable,), gv)
+function get_EM_DB_names_tc(gv)
+    ccall((:get_EM_DB_names_tc, libMAGEMin), Ptr{Ptr{Cchar}}, (global_variable,), gv)
+end
+
+function get_EM_DB_names_sb(gv)
+    ccall((:get_EM_DB_names_sb, libMAGEMin), Ptr{Ptr{Cchar}}, (global_variable,), gv)
 end
 
 function get_FS_DB_names(gv)

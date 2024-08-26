@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Dominguez, H., Green E., Berlie N., and Rummel L.
+ **   Contributors : Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -1634,7 +1634,7 @@ global_variable LP(		bulk_info 			z_b,
 		gv.ite_time[gv.global_ite] 		 = ((double)t)/CLOCKS_PER_SEC*1000;
 		gi += 1;
 
-		if ((gv.gamma_norm[gv.global_ite-1] < 1e-4 || gi >= gv.max_LP_ite) && nCheck > 1){
+		if ((gv.gamma_norm[gv.global_ite-1] < 1e-4 || gi >= gv.max_LP_ite) && nCheck > 2){
 			iterate = 0;
 
 			if (gv.gamma_norm[gv.global_ite-1] < 1e-4){

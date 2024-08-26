@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Dominguez, H., Green E., Berlie N., and Rummel L.
+ **   Contributors : Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -220,13 +220,13 @@ void fill_output_struct(		global_variable 	 gv,
 			}
 			atp2wt		/= sum_Molar_mass_bulk;
 
-			sp[0].ph_frac[n]  	 = cp[i].ss_n;
-			sp[0].ph_frac_wt[n]  = cp[i].ss_n*atp2wt;
+			sp[0].ph_frac[n]  	 = cp[i].ss_n_mol;
+			sp[0].ph_frac_wt[n]  = cp[i].ss_n_mol*atp2wt;
 
 			sp[0].ph_type[n]  	 = 1;
 			sp[0].ph_id[n] 		 = m;
 			sp[0].n_SS 			+= 1;
-			sp[0].cp_wt 			+= cp[i].phase_cp * cp[i].ss_n*atp2wt * cp[i].factor;
+			sp[0].cp_wt 		+= cp[i].phase_cp * cp[i].ss_n_mol*atp2wt * cp[i].factor;
 			G = 0.0;
 			for (int j = 0; j < gv.len_ox; j++){
 				G += cp[i].ss_comp[j]*gv.gam_tot[j];
@@ -317,7 +317,7 @@ void fill_output_struct(		global_variable 	 gv,
 						sp[0].frac_M 				= 1.0;
 					}
 					else{
-						sp[0].frac_M 				= cp[i].ss_n;
+						sp[0].frac_M 				= cp[i].ss_n_mol;
 					}
 					sp[0].rho_M  				= cp[i].phase_density;
 					sum = 0.0;
@@ -334,7 +334,7 @@ void fill_output_struct(		global_variable 	 gv,
 
 				}
 				else{
-					sp[0].frac_F 				= cp[i].ss_n;
+					sp[0].frac_F 				= cp[i].ss_n_mol;
 					sp[0].rho_F  				= cp[i].phase_density;
 					sum = 0.0;
 					sum_mol = 0.0;
@@ -353,10 +353,10 @@ void fill_output_struct(		global_variable 	 gv,
 				}
 			}
 			else {
-				sp[0].frac_S 				   += cp[i].ss_n;
-				sp[0].rho_S  				   += cp[i].ss_n*cp[i].phase_density;
+				sp[0].frac_S 				   += cp[i].ss_n_mol;
+				sp[0].rho_S  				   += cp[i].ss_n_mol*cp[i].phase_density;
 				for (j = 0; j < gv.len_ox; j++){
-					sp[0].bulk_S[j]	   		   += cp[i].ss_n*cp[i].ss_comp[j]*cp[i].factor;
+					sp[0].bulk_S[j]	   		   += cp[i].ss_n_mol*cp[i].ss_comp[j]*cp[i].factor;
 				}
 			}
 
@@ -379,12 +379,12 @@ void fill_output_struct(		global_variable 	 gv,
 			}
 			atp2wt		/= sum_Molar_mass_bulk;
 
-			sp[0].ph_frac[n]  	 = gv.pp_n[i];
-			sp[0].ph_frac_wt[n]  = gv.pp_n[i]*atp2wt;
+			sp[0].ph_frac[n]  	 = gv.pp_n_mol[i];
+			sp[0].ph_frac_wt[n]  = gv.pp_n_mol[i]*atp2wt;
 			sp[0].ph_type[n]  	 = 0;
 			sp[0].ph_id[n] 		 = m;
 			sp[0].n_PP 			+= 1;
-			sp[0].cp_wt 		+= PP_ref_db[i].phase_cp * gv.pp_n[i]*atp2wt *PP_ref_db[i].factor;
+			sp[0].cp_wt 		+= PP_ref_db[i].phase_cp * gv.pp_n_mol[i]*atp2wt *PP_ref_db[i].factor;
 
 			sp[0].PP[m].nOx 	 = gv.len_ox;
 			sp[0].PP[m].f 		 = PP_ref_db[i].factor;
@@ -415,17 +415,17 @@ void fill_output_struct(		global_variable 	 gv,
 			}
 		
 			if  (strcmp( gv.PP_list[i], "H2O") != 0){
-				sp[0].frac_S 		+= gv.pp_n[i];
-				sp[0].rho_S  		+= gv.pp_n[i]*PP_ref_db[i].phase_density;
+				sp[0].frac_S 		+= gv.pp_n_mol[i];
+				sp[0].rho_S  		+= gv.pp_n_mol[i]*PP_ref_db[i].phase_density;
 				for (j = 0; j < gv.len_ox; j++){
-					sp[0].bulk_S[j]	+= gv.pp_n[i]*PP_ref_db[i].Comp[j]*PP_ref_db[i].factor;;
+					sp[0].bulk_S[j]	+= gv.pp_n_mol[i]*PP_ref_db[i].Comp[j]*PP_ref_db[i].factor;;
 				}
 			}
 			if  (strcmp( gv.PP_list[i], "H2O") == 0){
-				sp[0].frac_F 		= gv.pp_n[i];
-				sp[0].rho_F  		= gv.pp_n[i]*PP_ref_db[i].phase_density;
+				sp[0].frac_F 		= gv.pp_n_mol[i];
+				sp[0].rho_F  		= gv.pp_n_mol[i]*PP_ref_db[i].phase_density;
 				for (j = 0; j < gv.len_ox; j++){
-					sp[0].bulk_F[j]	= gv.pp_n[i]*PP_ref_db[i].Comp[j]*PP_ref_db[i].factor;;
+					sp[0].bulk_F[j]	= gv.pp_n_mol[i]*PP_ref_db[i].Comp[j]*PP_ref_db[i].factor;;
 				}
 			}
 			n 			    	+= 1;
@@ -979,7 +979,8 @@ void output_thermocalc(			global_variable 	 gv,
 
 			fprintf(loc_min, "%6s", cp[i].name);
 			fprintf(loc_min, "%+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.6f %+12.6f %+12.2f %+12.2f %+12.2f %+12.2f",
-						cp[i].ss_n,cp[i].factor,
+						cp[i].ss_n,
+						cp[i].factor,
 						G,
 						cp[i].volume*10.,
 						cp[i].phase_cp,

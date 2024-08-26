@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Dominguez, H., Green E., Berlie N., and Rummel L.
+ **   Contributors : Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -35,7 +35,7 @@ global_variable global_variable_init( 	global_variable  	 gv,
     Function to retrieve the endmember names from the database 
     Note the size of the array is n_em_db+1, required for the hashtable              
 */
-char** get_EM_DB_names(global_variable gv) {
+char** get_EM_DB_names_tc(global_variable gv) {
     EM_db EM_return;
     int i, n_em_db;
     n_em_db = gv.n_em_db;
@@ -45,6 +45,21 @@ char** get_EM_DB_names(global_variable gv) {
     }
     for ( i = 0; i < n_em_db; i++){	
         EM_return = Access_EM_DB(i, gv.EM_dataset);
+        strcpy(names[i],EM_return.Name);
+    }
+    return names;
+}
+
+char** get_EM_DB_names_sb(global_variable gv) {
+    EM_db_sb EM_return;
+    int i, n_em_db;
+    n_em_db = gv.n_em_db;
+    char ** names = malloc((n_em_db+1) * sizeof(char*));
+    for ( i = 0; i < n_em_db; i++){
+        names[i] = malloc(20 * sizeof(char));
+    }
+    for ( i = 0; i < n_em_db; i++){	
+        EM_return = Access_SB_EM_DB(i, gv.EM_dataset);
         strcpy(names[i],EM_return.Name);
     }
     return names;
@@ -86,8 +101,8 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.outpath 			= malloc (100 	* sizeof(char)			);
 	gv.version 			= malloc (50  	* sizeof(char)			);
 	gv.File 			= malloc (50 	* sizeof(char)			);
+	gv.research_group 	= malloc (5 	* sizeof(char)			);
 	gv.db 				= malloc (5 	* sizeof(char)			);
-	gv.Phase 			= malloc (50 	* sizeof(char)			);
 	gv.sys_in 			= malloc (5 	* sizeof(char)			);
 	gv.buffer 			= malloc (10 	* sizeof(char)			);
 
@@ -100,7 +115,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.5.0 [18/06/2024]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.5.1 [26/08/2024]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
@@ -193,9 +208,10 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	z_b->T 				= 1100.0 + 273.15;		
 	z_b->R 				= 0.0083144;
 
-	strcpy(gv.File,		"none"); 	/** Filename to be read to have multiple P-T-bulk conditions to solve 	*/
-	strcpy(gv.sys_in,	"mol"); 	/** system unit 														*/
-	strcpy(gv.db,		"ig"); 		/** database 															*/
+	strcpy(gv.File,				"none"); 	/** Filename to be read to have multiple P-T-bulk conditions to solve 	*/
+	strcpy(gv.sys_in,			"mol"); 	/** system unit 														*/
+	strcpy(gv.db,				"ig"); 		/** database															*/
+	strcpy(gv.research_group,	"tc"); 		/** Research group, THERMOCALC(tc) or  Stixrude-Lithgow-Bertelloni(sb)	*/
 
 	return gv;
 }

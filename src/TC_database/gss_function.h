@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Dominguez, H., Green E., Berlie N., and Rummel L.
+ **   Contributors : Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -44,7 +44,8 @@ typedef struct em_datas{
     double charge;	
 } em_data;
 
-em_data get_em_data(	int 		 EM_dataset, 
+em_data get_em_data(	char 		*research_group,
+						int 		 EM_dataset, 
 						int          len_ox,
 						bulk_info 	 z_b,
                         double       P,

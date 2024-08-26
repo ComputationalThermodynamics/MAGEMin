@@ -39,6 +39,9 @@ SOURCES=src/MAGEMin.c 							\
 		src/initialize.c 						\
 		src/TC_database/TC_init_database.c		\
 		src/TC_database/TC_endmembers.c			\
+		src/TC_database/TC_gem_function.c		\
+		src/SB_database/SB_endmembers.c			\
+		src/SB_database/SB_gem_function.c			\
 		src/toolkit.c							\
 		src/io_function.c						\
 		src/gem_function.c 						\
@@ -70,4 +73,4 @@ lib: $(OBJECTS)
 	$(CC) -shared -fPIC -o libMAGEMin.dylib $(OBJECTS) $(INC) $(LIBS)
  
 clean:
-	rm -f src/*.o  src/TC_database/*.o *.dylib MAGEMin
+	rm -f src/*.o  src/TC_database/*.o src/SB_database/*.o *.dylib MAGEMin
