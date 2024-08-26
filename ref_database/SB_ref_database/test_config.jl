@@ -16,7 +16,7 @@ function logish(x, meps = 1.0e-7)
     return ln
 end
 R = 8.31446261815324
-T = 1000
+T = 1000.
 
 
 
@@ -35,7 +35,7 @@ M       = [4.0,4.0,4.0,4.0,8.0,8.0,8.0]
 X       = [0.5,0.5]
 
 Xo      = C*X
-config  = R*1000* (M'*Diagonal(Xo)*logish.(Xo))
+config  = R*T* (M'*Diagonal(Xo)*logish.(Xo))
 
 
 tmp     = M.*Diagonal(Xo)*logish.(Xo)
