@@ -13,8 +13,9 @@
 
 #include "MAGEMin.h"
 
-global_variable check_PC(					bulk_info 	 z_b,
+global_variable check_PC(					bulk_info 	 		 z_b,
 											global_variable  	 gv,
+											PC_type				*PC_read,
 
 											PP_ref 				*PP_ref_db,
 											SS_ref 				*SS_ref_db,

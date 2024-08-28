@@ -1981,8 +1981,8 @@ function ketopt(s, argc, argv, permute, ostr, longopts)
     ccall((:ketopt, libMAGEMin), Cint, (Ptr{ketopt_t}, Cint, Ptr{Ptr{Cchar}}, Cint, Ptr{Cchar}, Ptr{ko_longopt_t}), s, argc, argv, permute, ostr, longopts)
 end
 
-function check_PC(z_b, gv, PP_ref_db, SS_ref_db, cp)
-    ccall((:check_PC, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, PP_ref_db, SS_ref_db, cp)
+function check_PC(z_b, gv, PC_read, PP_ref_db, SS_ref_db, cp)
+    ccall((:check_PC, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PC_type}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, PC_read, PP_ref_db, SS_ref_db, cp)
 end
 
 function check_PC_driving_force(z_b, gv, PP_ref_db, SS_ref_db, cp)

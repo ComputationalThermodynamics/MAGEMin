@@ -60,6 +60,7 @@ NOTES:
 #include <complex.h> 
 
 #include "MAGEMin.h"
+#include "ss_min_function.h"
 #include "gem_function.h"
 #include "all_solution_phases.h"
 #include "toolkit.h"
@@ -111,6 +112,7 @@ int cmp_int(const void *a, const void *b)
 */
 global_variable check_PC(					bulk_info 	 		 z_b,
 											global_variable  	 gv,
+											PC_type				*PC_read,
 
 											PP_ref 				*PP_ref_db,
 											SS_ref 				*SS_ref_db,
@@ -133,37 +135,56 @@ global_variable check_PC(					bulk_info 	 		 z_b,
 			ph_id = cp[i].id;
 
 			if (SS_ref_db[ph_id].orderVar == 1 && add_max < 2){
-				gv.len_cp				   += 1;
-				id_cp 		 				= gv.len_cp-1;
-				strcpy(cp[id_cp].name,gv.SS_list[ph_id]);				/* get phase name */				
-				cp[id_cp].in_iter			= gv.global_ite;
-				cp[id_cp].ss_flags[0] 		= 1;						/* set flags */
-				cp[id_cp].ss_flags[1] 		= 0;
-				cp[id_cp].ss_flags[2] 		= 1;
-				cp[id_cp].split 			= 0;							
-				cp[id_cp].id 				= ph_id;						/* get phase id */
-				cp[id_cp].n_xeos			= SS_ref_db[ph_id].n_xeos;		/* get number of compositional variables */
-				cp[id_cp].n_em				= SS_ref_db[ph_id].n_em;		/* get number of endmembers */
-				cp[id_cp].n_sf				= SS_ref_db[ph_id].n_sf;		/* get number of site fractions */
+
+				for (int k = 0; k < cp[i].n_xeos; k++) {
+					SS_ref_db[ph_id].iguess[k]   = cp[i].xeos[k]*SS_ref_db[ph_id].idOrderVar[k];
+				}
+
+				SS_ref_db[ph_id] = PC_function(				gv,
+															PC_read,
+															SS_ref_db[ph_id], 
+															z_b,
+															ph_id 					);
+														
+				SS_ref_db[ph_id] = SS_UPDATE_function(		gv, 
+															SS_ref_db[ph_id], 
+															z_b, 
+															gv.SS_list[ph_id]		);
+
+				if (SS_ref_db[ph_id].sf_ok == 1){
 				
-				for (k = 0; k < SS_ref_db[ph_id].n_xeos; k++){
-					cp[id_cp].dguess[k]     = cp[i].xeos[k]*SS_ref_db[ph_id].idOrderVar[k];
-					cp[id_cp].xeos[k]       = cp[i].xeos[k]*SS_ref_db[ph_id].idOrderVar[k];
-				}
-				for (k = 0; k < SS_ref_db[ph_id].n_xeos; k++){
-					cp[id_cp].mu[k]    		=  0.0;
-				}
-
-				if (gv.verbose == 1){
-						printf("  - %4s    anti-ordering counter-part [act phase]",gv.SS_list[ph_id]);
+					gv.len_cp				   += 1;
+					id_cp 		 				= gv.len_cp-1;
+					strcpy(cp[id_cp].name,gv.SS_list[ph_id]);				/* get phase name */				
+					cp[id_cp].in_iter			= gv.global_ite;
+					cp[id_cp].ss_flags[0] 		= 1;						/* set flags */
+					cp[id_cp].ss_flags[1] 		= 0;
+					cp[id_cp].ss_flags[2] 		= 1;
+					cp[id_cp].split 			= 0;							
+					cp[id_cp].id 				= ph_id;						/* get phase id */
+					cp[id_cp].n_xeos			= SS_ref_db[ph_id].n_xeos;		/* get number of compositional variables */
+					cp[id_cp].n_em				= SS_ref_db[ph_id].n_em;		/* get number of endmembers */
+					cp[id_cp].n_sf				= SS_ref_db[ph_id].n_sf;		/* get number of site fractions */
 					
-					for (int k = 0; k < SS_ref_db[ph_id].n_xeos; k++) {
-						printf(" %+8f",cp[id_cp].dguess[k]);
-					}	
-					printf("\n");							
-				}
+					for (k = 0; k < SS_ref_db[ph_id].n_xeos; k++){
+						cp[id_cp].dguess[k]     = cp[i].xeos[k]*SS_ref_db[ph_id].idOrderVar[k];
+						cp[id_cp].xeos[k]       = cp[i].xeos[k]*SS_ref_db[ph_id].idOrderVar[k];
+					}
+					for (k = 0; k < SS_ref_db[ph_id].n_xeos; k++){
+						cp[id_cp].mu[k]    		=  0.0;
+					}
 
-				add_max += 1;
+					if (gv.verbose == 1){
+							printf("  - %4s    anti-ordering counter-part [act phase]",gv.SS_list[ph_id]);
+						
+						for (int k = 0; k < SS_ref_db[ph_id].n_xeos; k++) {
+							printf(" %+8f",cp[id_cp].dguess[k]);
+						}	
+						printf("\n");							
+					}
+
+					add_max += 1;
+				}
 
 			}
 
@@ -267,45 +288,58 @@ global_variable check_PC(					bulk_info 	 		 z_b,
 
 						id_c += 1;
 
-
-
-
-
 						if (SS_ref_db[i].orderVar == 1){
-							gv.len_cp				   += 1;
 							id_cp 		 				= gv.len_cp-1;
-							strcpy(cp[id_cp].name,gv.SS_list[i]);				/* get phase name */				
-							cp[id_cp].in_iter			= gv.global_ite;
-							cp[id_cp].ss_flags[0] 		= 1;						/* set flags */
-							cp[id_cp].ss_flags[1] 		= 0;
-							cp[id_cp].ss_flags[2] 		= 1;
-							cp[id_cp].split 			= 0;							
-							cp[id_cp].id 				= i;						/* get phase id */
-							cp[id_cp].n_xeos			= SS_ref_db[i].n_xeos;		/* get number of compositional variables */
-							cp[id_cp].n_em				= SS_ref_db[i].n_em;		/* get number of endmembers */
-							cp[id_cp].n_sf				= SS_ref_db[i].n_sf;		/* get number of site fractions */
-							
-							for (k = 0; k < SS_ref_db[i].n_xeos; k++){
-								cp[id_cp].dguess[k]     = cp[id_cp-1].dguess[k]*SS_ref_db[i].idOrderVar[k];
-								cp[id_cp].xeos[k]       = cp[id_cp-1].xeos[k]*SS_ref_db[i].idOrderVar[k];
-							}
-							for (k = 0; k < SS_ref_db[i].n_xeos; k++){
-								cp[id_cp].mu[k]    		=  0.0;
+							for (int k = 0; k < cp[id_cp].n_xeos; k++) {
+								SS_ref_db[i].iguess[k]   = cp[id_cp].xeos[k]*SS_ref_db[i].idOrderVar[k];
 							}
 
+							SS_ref_db[i] = PC_function(					gv,
+																		PC_read,
+																		SS_ref_db[i], 
+																		z_b,
+																		i 		);
+																	
+							SS_ref_db[i] = SS_UPDATE_function(			gv, 
+																		SS_ref_db[i], 
+																		z_b, 
+																		gv.SS_list[i]		);
 
-							if (gv.verbose == 1){
-									printf("     anti-ordering counterpart:");
+							if (SS_ref_db[i].sf_ok == 1){
+
+								gv.len_cp				   += 1;
+								id_cp 		 				= gv.len_cp-1;
+								strcpy(cp[id_cp].name,gv.SS_list[i]);				/* get phase name */				
+								cp[id_cp].in_iter			= gv.global_ite;
+								cp[id_cp].ss_flags[0] 		= 1;						/* set flags */
+								cp[id_cp].ss_flags[1] 		= 0;
+								cp[id_cp].ss_flags[2] 		= 1;
+								cp[id_cp].split 			= 0;							
+								cp[id_cp].id 				= i;						/* get phase id */
+								cp[id_cp].n_xeos			= SS_ref_db[i].n_xeos;		/* get number of compositional variables */
+								cp[id_cp].n_em				= SS_ref_db[i].n_em;		/* get number of endmembers */
+								cp[id_cp].n_sf				= SS_ref_db[i].n_sf;		/* get number of site fractions */
 								
-								for (int k = 0; k < SS_ref_db[i].n_xeos; k++) {
-									printf(" %+8f",cp[id_cp].dguess[k]);
-								}	
-								printf("\n");							
+								for (k = 0; k < SS_ref_db[i].n_xeos; k++){
+									cp[id_cp].dguess[k]     = cp[id_cp-1].dguess[k]*SS_ref_db[i].idOrderVar[k];
+									cp[id_cp].xeos[k]       = cp[id_cp-1].xeos[k]*SS_ref_db[i].idOrderVar[k];
+								}
+								for (k = 0; k < SS_ref_db[i].n_xeos; k++){
+									cp[id_cp].mu[k]    		=  0.0;
+								}
+
+
+								if (gv.verbose == 1){
+										printf("     anti-ordering counterpart:");
+									
+									for (int k = 0; k < SS_ref_db[i].n_xeos; k++) {
+										printf(" %+8f",cp[id_cp].dguess[k]);
+									}	
+									printf("\n");							
+								}
 							}
 
 						}
-
-
 
 					}
 					else{
@@ -363,34 +397,54 @@ global_variable check_PC(					bulk_info 	 		 z_b,
 
 
 							if (SS_ref_db[i].orderVar == 1){
-								gv.len_cp				   += 1;
+
 								id_cp 		 				= gv.len_cp-1;
-								strcpy(cp[id_cp].name,gv.SS_list[i]);				/* get phase name */				
-								cp[id_cp].in_iter			= gv.global_ite;
-								cp[id_cp].ss_flags[0] 		= 1;						/* set flags */
-								cp[id_cp].ss_flags[1] 		= 0;
-								cp[id_cp].ss_flags[2] 		= 1;
-								cp[id_cp].split 			= 0;							
-								cp[id_cp].id 				= i;						/* get phase id */
-								cp[id_cp].n_xeos			= SS_ref_db[i].n_xeos;		/* get number of compositional variables */
-								cp[id_cp].n_em				= SS_ref_db[i].n_em;		/* get number of endmembers */
-								cp[id_cp].n_sf				= SS_ref_db[i].n_sf;		/* get number of site fractions */
-								
-								for (k = 0; k < SS_ref_db[i].n_xeos; k++){
-									cp[id_cp].dguess[k]     = cp[id_cp-1].dguess[k]*SS_ref_db[i].idOrderVar[k];
-									cp[id_cp].xeos[k]       = cp[id_cp-1].xeos[k]*SS_ref_db[i].idOrderVar[k];
-								}
-								for (k = 0; k < SS_ref_db[i].n_xeos; k++){
-									cp[id_cp].mu[k]    		=  0.0;
+								for (int k = 0; k < cp[id_cp].n_xeos; k++) {
+									SS_ref_db[i].iguess[k]   = cp[id_cp].xeos[k]*SS_ref_db[i].idOrderVar[k];
 								}
 
-								if (gv.verbose == 1){
-									printf("     anti-ordering counterpart:");
+								SS_ref_db[i] = PC_function(					gv,
+																			PC_read,
+																			SS_ref_db[i], 
+																			z_b,
+																			i 		);
+																		
+								SS_ref_db[i] = SS_UPDATE_function(			gv, 
+																			SS_ref_db[i], 
+																			z_b, 
+																			gv.SS_list[i]		);
+
+								if (SS_ref_db[i].sf_ok == 1){
+									gv.len_cp				   += 1;
+									id_cp 		 				= gv.len_cp-1;
+									strcpy(cp[id_cp].name,gv.SS_list[i]);				/* get phase name */				
+									cp[id_cp].in_iter			= gv.global_ite;
+									cp[id_cp].ss_flags[0] 		= 1;						/* set flags */
+									cp[id_cp].ss_flags[1] 		= 0;
+									cp[id_cp].ss_flags[2] 		= 1;
+									cp[id_cp].split 			= 0;							
+									cp[id_cp].id 				= i;						/* get phase id */
+									cp[id_cp].n_xeos			= SS_ref_db[i].n_xeos;		/* get number of compositional variables */
+									cp[id_cp].n_em				= SS_ref_db[i].n_em;		/* get number of endmembers */
+									cp[id_cp].n_sf				= SS_ref_db[i].n_sf;		/* get number of site fractions */
 									
-									for (int k = 0; k < SS_ref_db[i].n_xeos; k++) {
-										printf(" %+8f",cp[id_cp].dguess[k]);
-									}	
-									printf("\n");							
+									for (k = 0; k < SS_ref_db[i].n_xeos; k++){
+										cp[id_cp].dguess[k]     = cp[id_cp-1].dguess[k]*SS_ref_db[i].idOrderVar[k];
+										cp[id_cp].xeos[k]       = cp[id_cp-1].xeos[k]*SS_ref_db[i].idOrderVar[k];
+									}
+									for (k = 0; k < SS_ref_db[i].n_xeos; k++){
+										cp[id_cp].mu[k]    		=  0.0;
+									}
+
+									if (gv.verbose == 1){
+										printf("     anti-ordering counterpart:");
+										
+										for (int k = 0; k < SS_ref_db[i].n_xeos; k++) {
+											printf(" %+8f",cp[id_cp].dguess[k]);
+										}	
+										printf("\n");							
+									}
+
 								}
 
 							}
