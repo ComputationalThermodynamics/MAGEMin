@@ -74,7 +74,7 @@ metabasite_dataset metabasite_db = {
 
 	{"sp"	,"opx"	,"fsp"	,"liq"	,"mu"	,"ilm"	,"ol"	,"hb"	,"ep"	,"g"	,"chl"	,"bi"	,"aug"	,"abc"  ,"spn"			},
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1				},  // allow solvus?
-	{936	,1730 	,231	,3504	,4536 	,130	,11		,7663	,110	,216	,3980	,1097	,2389	,21 	,196			},  // # of pseudocompound
+	{936	,1730 	,231	,3504	,4536 	,130	,11		,7663	,110	,216	,3980	,1097	,2390	,21 	,196			},  // # of pseudocompound
 	{0.09	,0.19	,0.049	,0.199	,0.19	,0.09	,0.098	,0.249	,0.049	,0.19	,0.19	,0.149	,0.249	,0.049 	,0.09			},  // discretization step
 
 	4.0, 						/* max dG under which a phase is considered to be reintroduced  					*/

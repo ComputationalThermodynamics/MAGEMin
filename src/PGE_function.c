@@ -1528,6 +1528,7 @@ global_variable LP(		bulk_info 			z_b,
 			}
 			gv = check_PC( 				z_b,						/** bulk rock constraint 				*/ 
 										gv,							/** global variables (e.g. Gamma) 		*/
+										PC_read,
 
 										PP_ref_db,					/** pure phase database 				*/ 
 										SS_ref_db,
@@ -1745,6 +1746,7 @@ global_variable PGE(	bulk_info 			z_b,
 			}
 			gv = check_PC( 					z_b,						/** bulk rock constraint 				*/ 
 											gv,							/** global variables (e.g. Gamma) 		*/
+											PC_read,
 
 											PP_ref_db,					/** pure phase database 				*/ 
 											SS_ref_db,
@@ -1765,6 +1767,7 @@ global_variable PGE(	bulk_info 			z_b,
 			}
 			gv = check_PC( 					z_b,						/** bulk rock constraint 				*/ 
 											gv,							/** global variables (e.g. Gamma) 		*/
+											PC_read,
 
 											PP_ref_db,					/** pure phase database 				*/ 
 											SS_ref_db,
