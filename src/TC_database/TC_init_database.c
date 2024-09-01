@@ -41,8 +41,8 @@ metapelite_dataset metapelite_db = {
 	{"liq"	,"fsp"	,"bi"	,"g"	,"ep"	,"ma"	,"mu"	,"opx"	,"sa"	,"cd"	,"st"	,"chl"	,"ctd"	,"sp"  ,"ilmm"  ,"aq17"	},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1		},  // allow solvus?
-	{2450	,231 	,981	,756	,110 	,1875	,1875	,1277	,230	,343	,540	,2270	,216	,405 	,1430 	,1		},  // # of pseudocompound
-	{0.249	,0.049	,0.19	,0.19	,0.049	,0.19	,0.19	,0.249	,0.19	,0.145	,0.19	,0.249	,0.19	,0.124 	,0.099 	,1.0	},  // discretization step
+	{3150	,231 	,981	,756	,110 	,1875	,1875	,1277	,230	,343	,540	,2270	,216	,405 	,1430 	,1		},  // # of pseudocompound
+	{0.24	,0.049	,0.19	,0.19	,0.049	,0.19	,0.19	,0.249	,0.19	,0.145	,0.19	,0.249	,0.19	,0.124 	,0.099 	,1.0	},  // discretization step
 
 	6.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
 	473.15,						/* max temperature above which PGE solver is active 								*/
