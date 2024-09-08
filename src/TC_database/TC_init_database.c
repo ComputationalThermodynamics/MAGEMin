@@ -131,7 +131,7 @@ ultramafic_dataset ultramafic_db = {
 	{"fl"	,"ol"  ,"br"	,"ch"	,"atg"	,"g"	,"ta"	,"chl"	,"spi"	,"opx"	,"po"	,"anth" 	},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1		,1			},  // allow solvus?
-	{11  	,10  	,10 	,10 	,489 	,10  	,985 	,2691	,100	,196	,10		,274		},  // No. of pseudocompound
+	{11  	,10  	,11 	,10 	,489 	,10  	,985 	,2691	,100	,196	,10		,274		},  // No. of pseudocompound
 	{0.001	,0.1	,0.1	,0.1	,0.19	,0.1	,0.19	,0.19	,0.1	,0.19	,0.1	,0.249		},  // discretization step
 
 	4.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
@@ -474,6 +474,9 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 				}
 				else if (strcmp( gv.ox[i], "O") 	== 0){
 					gv.O_id = i;
+				}
+				else if (strcmp( gv.ox[i], "S") 	== 0){
+					gv.S_id = i;
 				}
 				else if (strcmp( gv.ox[i], "Cr2O3") == 0){
 					gv.Cr2O3_id = i;

@@ -690,7 +690,8 @@ function convertBulk4MAGEMin(bulk_in::T1,bulk_in_ox::Vector{String},sys_in::Stri
         c = findall(MAGEMin_ox .!= "TiO2" .&& MAGEMin_ox .!= "O" .&& MAGEMin_ox .!= "MnO" .&& MAGEMin_ox .!= "H2O");
         d = findall(MAGEMin_ox .== "TiO2" .|| MAGEMin_ox .== "O" .|| MAGEMin_ox .!= "MnO");
     else
-        c = findall(MAGEMin_ox .!= "H2O");
+        c = findall( MAGEMin_ox .!= "S" .&& MAGEMin_ox .!= "O" .&& MAGEMin_ox .!= "H2O");
+        d = findall( MAGEMin_ox .== "S" .|| MAGEMin_ox .== "O");
     end
 
     id0 = findall(MAGEMin_bulk[c] .< 1e-4)

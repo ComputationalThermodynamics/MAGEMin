@@ -6979,6 +6979,13 @@ SS_ref G_SS_um_fluid_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 0.01-eps;
+    
+	if (z_b.bulk_rock[4] == 0.){ 					
+		SS_ref_db.z_em[0]          = 0.0;
+        SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 0.0; 
+		SS_ref_db.bounds_ref[0][1] = 0.0;	
+	}
 
     return SS_ref_db;
 }
@@ -7284,7 +7291,7 @@ SS_ref G_SS_um_atg_function(SS_ref SS_ref_db, char* research_group, int EM_datas
         SS_ref_db.Comp[3][i] 	= atg_eq.C[i]/16.0 - ta_eq.C[i] + tats_eq.C[i];
         SS_ref_db.Comp[4][i] 	= andr_eq.C[i]/2.0 + atg_eq.C[i]/16.0 - gr_eq.C[i]/2.0 - ta_eq.C[i] + tats_eq.C[i];
     }
-    
+
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
     };
@@ -7293,6 +7300,13 @@ SS_ref G_SS_um_atg_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = -1.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
+    
+	if (z_b.bulk_rock[4] == 0.){ 					
+		SS_ref_db.z_em[4]          = 0.0;
+        SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0; 
+		SS_ref_db.bounds_ref[2][1] = 0.0;	
+	}
 
     return SS_ref_db;
 }
@@ -7470,7 +7484,7 @@ SS_ref G_SS_um_ta_function(SS_ref SS_ref_db, char* research_group, int EM_datase
         SS_ref_db.Comp[4][i] 	= andr_eq.C[i]/2.0 - gr_eq.C[i]/2.0 + tats_eq.C[i];
         SS_ref_db.Comp[5][i] 	= tap_eq.C[i];
     }
-    
+
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
     };
@@ -7480,6 +7494,13 @@ SS_ref G_SS_um_ta_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = -1.0+eps; SS_ref_db.bounds_ref[4][1] = 1.0-eps;
+    
+	if (z_b.bulk_rock[4] == 0.){ 					
+		SS_ref_db.z_em[4]          = 0.0;
+        SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0; 
+		SS_ref_db.bounds_ref[2][1] = 0.0;	
+	}
 
     return SS_ref_db;
 }
@@ -7603,7 +7624,7 @@ SS_ref G_SS_um_chl_function(SS_ref SS_ref_db, char* research_group, int EM_datas
         SS_ref_db.Comp[5][i] 	= afchl_eq.C[i] - clin_eq.C[i]/5.0 + daph_eq.C[i]/5.0;
         SS_ref_db.Comp[6][i] 	= andr_eq.C[i]/2.0 + clin_eq.C[i] - gr_eq.C[i]/2.0;
     }
-    
+
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
     };
@@ -7614,7 +7635,14 @@ SS_ref G_SS_um_chl_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = -1.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
     SS_ref_db.bounds_ref[5][0] = -1.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
-    
+  
+	if (z_b.bulk_rock[4] == 0.){ 					
+		SS_ref_db.z_em[6]          = 0.0;
+        SS_ref_db.d_em[6]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0; 
+		SS_ref_db.bounds_ref[2][1] = 0.0;	
+	}
+  
     return SS_ref_db;
 }
 
@@ -7781,13 +7809,20 @@ SS_ref G_SS_um_spi_function(SS_ref SS_ref_db, char* research_group, int EM_datas
         SS_ref_db.Comp[1][i] 	= sp_eq.C[i];
         SS_ref_db.Comp[2][i] 	= mt_eq.C[i];
     }
-    
+
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
     };
     
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+
+	if (z_b.bulk_rock[4] == 0.){ 					
+		SS_ref_db.z_em[2]          = 0.0;
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 1.0; 
+		SS_ref_db.bounds_ref[1][1] = 1.0;	
+	}
 
     return SS_ref_db;
 }
@@ -7886,7 +7921,7 @@ SS_ref G_SS_um_opx_function(SS_ref SS_ref_db, char* research_group, int EM_datas
         SS_ref_db.Comp[3][i] 	= mgts_eq.C[i];
         SS_ref_db.Comp[4][i] 	= andr_eq.C[i]/2.0 - gr_eq.C[i]/2.0 + mgts_eq.C[i];
     }
-    
+
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
     };
@@ -7895,6 +7930,13 @@ SS_ref G_SS_um_opx_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
+
+	if (z_b.bulk_rock[4] == 0.){ 					
+		SS_ref_db.z_em[4]          = 0.0;
+        SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0; 
+		SS_ref_db.bounds_ref[2][1] = 0.0;	
+	}
 
     return SS_ref_db;
 }
@@ -8460,6 +8502,9 @@ SS_ref G_SS_um_EM_function(		global_variable 	 gv,
 			SS_ref_db  = G_SS_um_ta_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}	
 		else if (strcmp( name, "po") == 0){
 			// if no S, deactivate
+			if (z_b.bulk_rock[gv.S_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
 			SS_ref_db  = G_SS_um_po_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "chl") == 0){
 			// if no H2O, deactivate

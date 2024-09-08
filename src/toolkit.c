@@ -280,8 +280,8 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 	for (int i = 0; i < gv.len_ox; i++){ 
 		if (gv.bulk_rock[i] < 1.0e-4){
 
-			if (gv.EM_database == 4){ 			//if database is ultramafic, do not allow to remove O
-				if(strcmp( gv.ox[i], "H2O") != 0){
+			if (gv.EM_database == 0){ 				// metapelite database
+				if(strcmp( gv.ox[i], "H2O") != 0 && strcmp( gv.ox[i], "MnO") != 0  && strcmp( gv.ox[i], "O") != 0  && strcmp( gv.ox[i], "TiO2") != 0){
 					gv.bulk_rock[i] = 1.0e-4;
 					renorm = 1;
 					if (gv.verbose == 1){
@@ -289,8 +289,26 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 					}	
 				}
 			}
-			else{
-				if(strcmp( gv.ox[i], "H2O") != 0 && strcmp( gv.ox[i], "Cr2O3") != 0 && strcmp( gv.ox[i], "O") != 0){
+			else if (gv.EM_database == 1){ 			// metabasite database
+				if(strcmp( gv.ox[i], "TiO2") != 0  && strcmp( gv.ox[i], "O") != 0){
+					gv.bulk_rock[i] = 1.0e-4;
+					renorm = 1;
+					if (gv.verbose == 1){
+						printf("  - mol of %4s = %+.5f < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i],gv.bulk_rock[i]);
+					}	
+				}
+			}
+			else if (gv.EM_database == 3){ 			// igneous database
+				if(strcmp( gv.ox[i], "H2O") != 0  && strcmp( gv.ox[i], "TiO2") != 0 && strcmp( gv.ox[i], "Cr2O3") != 0 && strcmp( gv.ox[i], "O")  != 0 && strcmp( gv.ox[i], "K2O") != 0){
+					gv.bulk_rock[i] = 1.0e-4;
+					renorm = 1;
+					if (gv.verbose == 1){
+						printf("  - mol of %4s = %+.5f < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i],gv.bulk_rock[i]);
+					}	
+				}
+			}
+			else if (gv.EM_database == 4){ 			// ultramafic database
+				if(strcmp( gv.ox[i], "H2O") != 0 && strcmp( gv.ox[i], "S") != 0  && strcmp( gv.ox[i], "O") != 0){
 					gv.bulk_rock[i] = 1.0e-4;
 					renorm = 1;
 					if (gv.verbose == 1){

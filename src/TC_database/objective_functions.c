@@ -2663,6 +2663,7 @@ double obj_um_fluid(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double *mu_Gex    = d->mu_Gex;
     double *sf        = d->sf;
     double *mu        = d->mu;
+    double *d_em      = d->d_em;
     px_um_fluid(SS_ref_db,x);
 
     
@@ -2670,7 +2671,7 @@ double obj_um_fluid(unsigned n, const double *x, double *grad, void *SS_ref_db){
     sf[1]          = 1.0 - x[0];
     
     
-    mu[0]          = gb[0] + R*T*creal(clog(sf[0]));
+    mu[0]          = gb[0] + R*T*creal(clog(sf[0] + d_em[0]));
     mu[1]          = gb[1] + R*T*creal(clog(sf[1]));
     
     d->sum_apep = 0.0;
@@ -2902,6 +2903,7 @@ double obj_um_atg(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double *mu_Gex    = d->mu_Gex;
     double *sf        = d->sf;
     double *mu        = d->mu;
+    double *d_em      = d->d_em;
     px_um_atg(SS_ref_db,x);
 
     double tmp = 0.0;
@@ -2933,7 +2935,7 @@ double obj_um_atg(unsigned n, const double *x, double *grad, void *SS_ref_db){
     mu[1]          = gb[1] + R*T*creal(clog(sf[1]*cpow(sf[5], 2.0)*cpow(sf[6], 2.0))) + mu_Gex[1];
     mu[2]          = gb[2] + R*T*creal(clog(sf[1]*cpow(sf[4], 2.0)*cpow(sf[6], 2.0))) + mu_Gex[2];
     mu[3]          = gb[3] + R*T*creal(clog(4.0*sf[3]*cpow(sf[4], 2.0)*sf[6]*sf[7])) + mu_Gex[3];
-    mu[4]          = gb[4] + R*T*creal(clog(4.0*sf[2]*cpow(sf[4], 2.0)*sf[6]*sf[7])) + mu_Gex[4];
+    mu[4]          = gb[4] + R*T*creal(clog(4.0*sf[2]*cpow(sf[4], 2.0)*sf[6]*sf[7] + d_em[4])) + mu_Gex[4];
     
     d->sum_apep = 0.0;
     for (int i = 0; i < n_em; i++){
@@ -3045,6 +3047,7 @@ double obj_um_ta(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double *mu_Gex    = d->mu_Gex;
     double *sf        = d->sf;
     double *mu        = d->mu;
+    double *d_em      = d->d_em;
     px_um_ta(SS_ref_db,x);
 
     double tmp = 0.0;
@@ -3077,7 +3080,7 @@ double obj_um_ta(unsigned n, const double *x, double *grad, void *SS_ref_db){
     mu[1]          = gb[1] + R*T*creal(clog(sf[1]*cpow(sf[4], 2.0)*cpow(sf[7], 2.0))) + mu_Gex[1];
     mu[2]          = gb[2] + R*T*creal(clog(sf[0]*cpow(sf[4], 2.0)*cpow(sf[7], 2.0))) + mu_Gex[2];
     mu[3]          = gb[3] + R*T*creal(clog(16.0*sf[0]*sf[3]*sf[6]*sf[7]*sf[8])) + mu_Gex[3];
-    mu[4]          = gb[4] + R*T*creal(clog(16.0*sf[0]*sf[3]*sf[5]*sf[7]*sf[8])) + mu_Gex[4];
+    mu[4]          = gb[4] + R*T*creal(clog(16.0*sf[0]*sf[3]*sf[5]*sf[7]*sf[8] + d_em[4])) + mu_Gex[4];
     mu[5]          = gb[5] + R*T*creal(clog(sf[2]*cpow(sf[6], 2.0)*cpow(sf[7], 2.0))) + mu_Gex[5];
     
     d->sum_apep = 0.0;
@@ -3123,6 +3126,7 @@ double obj_um_chl(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double *mu_Gex    = d->mu_Gex;
     double *sf        = d->sf;
     double *mu        = d->mu;
+    double *d_em      = d->d_em;
     px_um_chl(SS_ref_db,x);
 
     double tmp = 0.0;
@@ -3159,7 +3163,7 @@ double obj_um_chl(unsigned n, const double *x, double *grad, void *SS_ref_db){
     mu[3]          = gb[3] + R*T*creal(clog(4.0*sf[10]*sf[1]*cpow(sf[4], 4.0)*sf[8]*sf[9])) + mu_Gex[3];
     mu[4]          = gb[4] + R*T*creal(clog(sf[0]*cpow(sf[4], 4.0)*sf[6]*cpow(sf[9], 2.0))) + mu_Gex[4];
     mu[5]          = gb[5] + R*T*creal(clog(sf[1]*cpow(sf[3], 4.0)*sf[5]*cpow(sf[9], 2.0))) + mu_Gex[5];
-    mu[6]          = gb[6] + R*T*creal(clog(4.0*sf[0]*sf[10]*cpow(sf[3], 4.0)*sf[7]*sf[9])) + mu_Gex[6];
+    mu[6]          = gb[6] + R*T*creal(clog(4.0*sf[0]*sf[10]*cpow(sf[3], 4.0)*sf[7]*sf[9] + d_em[6])) + mu_Gex[6];
     
     d->sum_apep = 0.0;
     for (int i = 0; i < n_em; i++){
@@ -3290,6 +3294,7 @@ double obj_um_spi(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double *mu_Gex    = d->mu_Gex;
     double *sf        = d->sf;
     double *mu        = d->mu;
+    double *d_em      = d->d_em;
     px_um_spi(SS_ref_db,x);
 
     double tmp = 0.0;
@@ -3315,7 +3320,7 @@ double obj_um_spi(unsigned n, const double *x, double *grad, void *SS_ref_db){
     
     mu[0]          = gb[0] + R*T*creal(clog(sf[0]*sf[3])) + mu_Gex[0];
     mu[1]          = gb[1] + R*T*creal(clog(sf[0]*sf[2])) + mu_Gex[1];
-    mu[2]          = gb[2] + R*T*creal(clog(sf[1]*sf[3])) + mu_Gex[2];
+    mu[2]          = gb[2] + R*T*creal(clog(sf[1]*sf[3] + d_em[2])) + mu_Gex[2];
     
     d->sum_apep = 0.0;
     for (int i = 0; i < n_em; i++){
@@ -3360,6 +3365,7 @@ double obj_um_opx(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double *mu_Gex    = d->mu_Gex;
     double *sf        = d->sf;
     double *mu        = d->mu;
+    double *d_em      = d->d_em;
     px_um_opx(SS_ref_db,x);
 
     double tmp = 0.0;
@@ -3391,7 +3397,7 @@ double obj_um_opx(unsigned n, const double *x, double *grad, void *SS_ref_db){
     mu[1]          = gb[1] + R*T*creal(clog(sf[1]*sf[5]*csqrt(sf[7]))) + mu_Gex[1];
     mu[2]          = gb[2] + R*T*creal(clog(sf[0]*sf[5]*csqrt(sf[7]))) + mu_Gex[2];
     mu[3]          = gb[3] + R*T*creal(clog(1.4142*sf[3]*sf[4]*cpow(sf[6], 0.25)*cpow(sf[7], 0.25))) + mu_Gex[3];
-    mu[4]          = gb[4] + R*T*creal(clog(1.4142*sf[2]*sf[4]*cpow(sf[6], 0.25)*cpow(sf[7], 0.25))) + mu_Gex[4];
+    mu[4]          = gb[4] + R*T*creal(clog(1.4142*sf[2]*sf[4]*cpow(sf[6], 0.25)*cpow(sf[7], 0.25) + d_em[4])) + mu_Gex[4];
     
     d->sum_apep = 0.0;
     for (int i = 0; i < n_em; i++){
