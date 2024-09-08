@@ -607,7 +607,10 @@ typedef struct stb_SS_phases {
 
 	double  *Comp_wt;
 	double **emComp_wt;
-	
+
+	double  *Comp_apfu;
+	double **emComp_apfu;
+		
 	//double  *siteFrac;
 	
 } stb_SS_phase;
@@ -657,6 +660,8 @@ typedef struct stb_PP_phases {
 	double  *Comp;
 	double  *Comp_wt;
 
+	double  *Comp_apfu;
+		
 } stb_PP_phase;
 
 /* structure to store informations of stable phase equilibria */

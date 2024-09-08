@@ -1033,6 +1033,8 @@ struct stb_SS_phases
     emComp::Ptr{Ptr{Cdouble}}
     Comp_wt::Ptr{Cdouble}
     emComp_wt::Ptr{Ptr{Cdouble}}
+    Comp_apfu::Ptr{Cdouble}
+    emComp_apfu::Ptr{Ptr{Cdouble}}
 end
 
 const stb_SS_phase = stb_SS_phases
@@ -1073,6 +1075,7 @@ struct stb_PP_phases
     Vs::Cdouble
     Comp::Ptr{Cdouble}
     Comp_wt::Ptr{Cdouble}
+    Comp_apfu::Ptr{Cdouble}
 end
 
 const stb_PP_phase = stb_PP_phases
@@ -1678,6 +1681,7 @@ mutable struct oxide_datas
     oxMass::NTuple{15, Cdouble}
     atPerOx::NTuple{15, Cdouble}
     ElEntropy::NTuple{15, Cdouble}
+    OPerOx::NTuple{15, Cdouble}
     oxide_datas() = new()
 end
 
@@ -2328,6 +2332,7 @@ struct SS_data
     Vs::Cdouble
     Comp::Vector{Cdouble}
     Comp_wt::Vector{Cdouble}
+    Comp_apfu::Vector{Cdouble}
     compVariables::Vector{Cdouble}
     compVariablesNames::Vector{String}
     siteFractions::Vector{Cdouble}
@@ -2338,12 +2343,14 @@ struct SS_data
     emChemPot::Vector{Cdouble}
     emComp::Vector{Vector{Float64}}
     emComp_wt::Vector{Vector{Float64}}
+    emComp_apfu::Vector{Vector{Float64}}
 end
 
 function Base.convert(::Type{SS_data}, a::stb_SS_phases) 
     return SS_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
                                     unsafe_wrap( Vector{Cdouble},        a.Comp,             a.nOx),
                                     unsafe_wrap( Vector{Cdouble},        a.Comp_wt,          a.nOx),
+                                    unsafe_wrap( Vector{Cdouble},        a.Comp_apfu,        a.nOx),
                                     unsafe_wrap( Vector{Cdouble},        a.compVariables,    a.n_xeos),
                     unsafe_string.( unsafe_wrap( Vector{Ptr{Int8}},      a.compVariablesNames,a.n_xeos)),
                                     unsafe_wrap( Vector{Cdouble},        a.siteFractions,    a.n_sf),
@@ -2353,7 +2360,8 @@ function Base.convert(::Type{SS_data}, a::stb_SS_phases)
                                     unsafe_wrap( Vector{Cdouble},        a.emFrac_wt,        a.n_em),
                                     unsafe_wrap( Vector{Cdouble},        a.emChemPot,        a.n_em),
       unsafe_wrap.(Vector{Cdouble}, unsafe_wrap( Vector{Ptr{Cdouble}},   a.emComp, a.n_em),  a.nOx),
-      unsafe_wrap.(Vector{Cdouble}, unsafe_wrap( Vector{Ptr{Cdouble}},   a.emComp_wt, a.n_em),  a.nOx)   )
+      unsafe_wrap.(Vector{Cdouble}, unsafe_wrap( Vector{Ptr{Cdouble}},   a.emComp_wt, a.n_em),  a.nOx),
+      unsafe_wrap.(Vector{Cdouble}, unsafe_wrap( Vector{Ptr{Cdouble}},   a.emComp_apfu, a.n_em),  a.nOx)   )
 end
 
 # metastable phases
@@ -2401,12 +2409,14 @@ struct PP_data
     Vs::Cdouble
     Comp::Vector{Cdouble}
     Comp_wt::Vector{Cdouble}
+    Comp_apfu::Vector{Cdouble}
 end
 
 function Base.convert(::Type{PP_data}, a::stb_PP_phases) 
     return PP_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
                     unsafe_wrap(Vector{Cdouble},a.Comp, a.nOx),
-                    unsafe_wrap(Vector{Cdouble},a.Comp_wt, a.nOx))
+                    unsafe_wrap(Vector{Cdouble},a.Comp_wt, a.nOx),
+                    unsafe_wrap(Vector{Cdouble},a.Comp_apfu, a.nOx))
 end
 
 

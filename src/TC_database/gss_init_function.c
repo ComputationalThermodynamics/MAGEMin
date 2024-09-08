@@ -136,6 +136,8 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 		sp.SS[n].Comp 			= malloc(gv.len_ox 	* sizeof(double)		);
 		sp.PP[n].Comp_wt 		= malloc(gv.len_ox 	* sizeof(double)		);
 		sp.SS[n].Comp_wt 		= malloc(gv.len_ox 	* sizeof(double)		);
+		sp.PP[n].Comp_apfu		= malloc(gv.len_ox 	* sizeof(double)		);
+		sp.SS[n].Comp_apfu		= malloc(gv.len_ox 	* sizeof(double)		);        
 		sp.SS[n].compVariables	= malloc(gv.len_ox*3   * sizeof(double)	    );
         sp.SS[n].siteFractions	= malloc(gv.len_ox*3   * sizeof(double)	    );
 		sp.SS[n].emFrac			= malloc((gv.len_ox*3) * sizeof(double)		);
@@ -146,6 +148,7 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 		sp.SS[n].emNames 	    = malloc((gv.len_ox*3) * sizeof(char*)		);
 		sp.SS[n].emComp 	    = malloc((gv.len_ox*3) * sizeof(double*)	);
 		sp.SS[n].emComp_wt 	    = malloc((gv.len_ox*3) * sizeof(double*)	);
+        sp.SS[n].emComp_apfu    = malloc((gv.len_ox*3) * sizeof(double*)	);
 
 		for (int i = 0; i < gv.len_ox*3; i++){
             sp.SS[n].compVariablesNames[i]		= malloc(20 * sizeof(char)	);
@@ -153,6 +156,7 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 			sp.SS[n].emNames[i]		= malloc(20 * sizeof(char)				);
 			sp.SS[n].emComp[i]		= malloc(gv.len_ox * sizeof(double)		);		
 			sp.SS[n].emComp_wt[i]	= malloc(gv.len_ox * sizeof(double)		);		
+            sp.SS[n].emComp_apfu[i]	= malloc(gv.len_ox * sizeof(double)		);		
 		}
 	}
     

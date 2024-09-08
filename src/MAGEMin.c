@@ -976,11 +976,13 @@ void FreeDatabases(		global_variable gv,
 	for ( i = 0; i < n_ox; i++){
 		if  (DB.sp[0].PP[i].Comp			!=NULL)  free( DB.sp[0].PP[i].Comp 			);	
 		if  (DB.sp[0].PP[i].Comp_wt			!=NULL)  free( DB.sp[0].PP[i].Comp_wt 		);	
+		if  (DB.sp[0].PP[i].Comp_apfu		!=NULL)  free( DB.sp[0].PP[i].Comp_apfu		);	
 	}
 
 	for ( i = 0; i < n_ox; i++){
 		if  (DB.sp[0].SS[i].Comp			!=NULL)  free( DB.sp[0].SS[i].Comp 			);	
 		if  (DB.sp[0].SS[i].Comp_wt			!=NULL)  free( DB.sp[0].SS[i].Comp_wt 		);	
+		if  (DB.sp[0].SS[i].Comp_apfu		!=NULL)  free( DB.sp[0].SS[i].Comp_apfu		);	
 		if  (DB.sp[0].SS[i].compVariables	!=NULL)  free( DB.sp[0].SS[i].compVariables );	
 		if  (DB.sp[0].SS[i].siteFractions	!=NULL)  free( DB.sp[0].SS[i].siteFractions );	
 		if  (DB.sp[0].SS[i].emFrac			!=NULL)  free( DB.sp[0].SS[i].emFrac 		);	
@@ -991,13 +993,15 @@ void FreeDatabases(		global_variable gv,
 			if  (DB.sp[0].SS[i].siteFractionsNames[j]	!=NULL)  free( DB.sp[0].SS[i].siteFractionsNames[j] 	);	
 			if  (DB.sp[0].SS[i].emNames[j]				!=NULL)  free( DB.sp[0].SS[i].emNames[j] 				);	
 			if  (DB.sp[0].SS[i].emComp[j]				!=NULL)  free( DB.sp[0].SS[i].emComp[j] 				);	
-			if  (DB.sp[0].SS[i].emComp_wt[j]			!=NULL)  free( DB.sp[0].SS[i].emComp_wt[j] 				);	
+			if  (DB.sp[0].SS[i].emComp_wt[j]			!=NULL)  free( DB.sp[0].SS[i].emComp_wt[j] 				);
+			if  (DB.sp[0].SS[i].emComp_apfu[j]			!=NULL)  free( DB.sp[0].SS[i].emComp_apfu[j] 			);	
 		}
 		if  (DB.sp[0].SS[i].compVariablesNames	!=NULL)  free( DB.sp[0].SS[i].compVariablesNames );	
 		if  (DB.sp[0].SS[i].siteFractionsNames	!=NULL)  free( DB.sp[0].SS[i].siteFractionsNames );	
 		if  (DB.sp[0].SS[i].emNames				!=NULL)  free( DB.sp[0].SS[i].emNames 			);	
 		if  (DB.sp[0].SS[i].emComp				!=NULL)  free( DB.sp[0].SS[i].emComp 			);	
 		if  (DB.sp[0].SS[i].emComp_wt			!=NULL)  free( DB.sp[0].SS[i].emComp_wt 		);	
+		if  (DB.sp[0].SS[i].emComp_apfu			!=NULL)  free( DB.sp[0].SS[i].emComp_apfu		);	
 	}
 
 	/* free metastable assemblage */

@@ -22,6 +22,7 @@
 		double  oxMass[15];
 		double  atPerOx[15];
 		double  ElEntropy[15]; //standard molar entropy
+		double  OPerOx[15];
 
 	} oxide_data;
 

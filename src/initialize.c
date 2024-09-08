@@ -431,7 +431,8 @@ void reset_sp(						global_variable 	 gv,
 			sp[0].SS[n].Comp[i] 			= 0.0;
 			sp[0].PP[n].Comp_wt[i] 			= 0.0;
 			sp[0].SS[n].Comp_wt[i] 			= 0.0;
-
+			sp[0].PP[n].Comp_apfu[i] 			= 0.0;
+			sp[0].SS[n].Comp_apfu[i] 			= 0.0;
 		}
 		for (int i = 0; i < gv.len_ox*3; i++){
 			sp[0].SS[n].compVariables[i] 	= 0.0;
@@ -448,6 +449,7 @@ void reset_sp(						global_variable 	 gv,
 			for (int j = 0; j < gv.len_ox; j++){
 				sp[0].SS[n].emComp[i][j]	= 0.0;
 				sp[0].SS[n].emComp_wt[i][j]	= 0.0;
+				sp[0].SS[n].emComp_apfu[i][j]	= 0.0;
 			}
 		}
 	}
