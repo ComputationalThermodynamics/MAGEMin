@@ -639,6 +639,26 @@ function convertBulk4MAGEMin(bulk_in::T1,bulk_in_ox::Vector{String},sys_in::Stri
         print("Database not implemented...\n")
     end
 
+    # here we kick out oxides that are not part of the database
+    filter = setdiff(bulk_in_ox,MAGEMin_ox)
+    keep_ids = []
+    if !isempty(filter)
+        tmp_id    = findall(filter .!= "Fe2O3")
+        if !isempty(tmp_id)
+            filter = filter[tmp_id]
+            
+            for i=1:length(bulk_in_ox)
+                if bulk_in_ox[i] in filter
+                else
+                    push!(keep_ids,i)
+                end
+            end
+
+            bulk_in_ox  = bulk_in_ox[keep_ids]
+            bulk_in     = bulk_in[keep_ids]
+        end
+    end
+
 	MAGEMin_bulk    = zeros(length(MAGEMin_ox));
     bulk            = zeros(length(MAGEMin_ox));
     

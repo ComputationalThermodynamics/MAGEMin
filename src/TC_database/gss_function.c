@@ -1541,8 +1541,8 @@ SS_ref G_SS_mb_spn_function(SS_ref SS_ref_db, char* research_group, int EM_datab
     };
     
     SS_ref_db.W[0] = 0.0;
-    SS_ref_db.W[1] = 27.0000000000000;
-    SS_ref_db.W[2] = 30.0000000000000;
+    SS_ref_db.W[1] = 27.;
+    SS_ref_db.W[2] = 30.;
     
     
     em_data herc_eq 		= get_em_data(		research_group, EM_database, 
@@ -7999,9 +7999,414 @@ SS_ref G_SS_um_po_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     };
     
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
+
+
+    return SS_ref_db;
+}
+
+/**
+   retrieve reference thermodynamic data for ume_pl4tr
+*/
+SS_ref G_SS_ume_pl4tr_function(SS_ref SS_ref_db,  char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
+    
+    int i, j;
+    int n_em = SS_ref_db.n_em;
+    
+    char   *EM_tmp[] 		= {"ab","an"};
+    for (int i = 0; i < SS_ref_db.n_em; i++){
+        strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
+    };
+    int n_sf = SS_ref_db.n_sf;
+    
+    char   *SF_tmp[] 		= {"xNaA","xCaA","xAlTB","xSiTB"};
+    for (int i = 0; i < SS_ref_db.n_sf; i++){
+        strcpy(SS_ref_db.SF_list[i],SF_tmp[i]);
+    };
+    
+    SS_ref_db.W[0] = -0.04*SS_ref_db.P - 0.00935*SS_ref_db.T + 14.6;
+    
+    em_data ab_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"ab", 
+    										"equilibrium"	);
+    
+    em_data an_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"an", 
+    										"equilibrium"	);
+    
+    SS_ref_db.gbase[0] 		= ab_eq.gb;
+    SS_ref_db.gbase[1] 		= an_eq.gb;
+    
+    SS_ref_db.ElShearMod[0] 	= ab_eq.ElShearMod;
+    SS_ref_db.ElShearMod[1] 	= an_eq.ElShearMod;
+    
+    for (i = 0; i < len_ox; i++){
+        SS_ref_db.Comp[0][i] 	= ab_eq.C[i];
+        SS_ref_db.Comp[1][i] 	= an_eq.C[i];
+    }
+    
+    for (i = 0; i < n_em; i++){
+        SS_ref_db.z_em[i] = 1.0;
+    };
+    
+    SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     
     return SS_ref_db;
 }
+
+/**
+   retrieve reference thermodynamic data for ume_hb
+*/
+SS_ref G_SS_ume_hb_function(SS_ref SS_ref_db,  char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
+    
+    int i, j;
+    int n_em = SS_ref_db.n_em;
+    
+    char   *EM_tmp[] 		= {"tr","tsm","prgm","glm","cumm","grnm","a","b","mrb"};
+    for (int i = 0; i < SS_ref_db.n_em; i++){
+        strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
+    };
+    int n_sf = SS_ref_db.n_sf;
+    
+    char   *SF_tmp[] 		= {"xvA","xNaA","xMgM13","xFeM13","xMgM2","xFeM2","xAlM2","xFe3M2","xCaM4","xMgM4","xFeM4","xNaM4","xSiT1","xAlT1"};
+    for (int i = 0; i < SS_ref_db.n_sf; i++){
+        strcpy(SS_ref_db.SF_list[i],SF_tmp[i]);
+    };
+    
+    SS_ref_db.W[0] = 20.;
+    SS_ref_db.W[1] = 25.;
+    SS_ref_db.W[2] = 65.;
+    SS_ref_db.W[3] = 45.;
+    SS_ref_db.W[4] = 75.;
+    SS_ref_db.W[5] = 57.;
+    SS_ref_db.W[6] = 63.;
+    SS_ref_db.W[7] = 52.;
+    SS_ref_db.W[8] = -40.;
+    SS_ref_db.W[9] = 25.;
+    SS_ref_db.W[10] = 70.;
+    SS_ref_db.W[11] = 80.;
+    SS_ref_db.W[12] = 70.;
+    SS_ref_db.W[13] = 72.5000000000000;
+    SS_ref_db.W[14] = 20.;
+    SS_ref_db.W[15] = 50.;
+    SS_ref_db.W[16] = 90.;
+    SS_ref_db.W[17] = 106.700000000000;
+    SS_ref_db.W[18] = 94.8000000000000;
+    SS_ref_db.W[19] = 94.8000000000000;
+    SS_ref_db.W[20] = 40.;
+    SS_ref_db.W[21] = 100.000000000000;
+    SS_ref_db.W[22] = 113.500000000000;
+    SS_ref_db.W[23] = 100.000000000000;
+    SS_ref_db.W[24] = 111.200000000000;
+    SS_ref_db.W[25] = 0.0;
+    SS_ref_db.W[26] = 33.;
+    SS_ref_db.W[27] = 18.;
+    SS_ref_db.W[28] = 23.;
+    SS_ref_db.W[29] = 80.;
+    SS_ref_db.W[30] = 12.;
+    SS_ref_db.W[31] = 8.0;
+    SS_ref_db.W[32] = 91.;
+    SS_ref_db.W[33] = 20.;
+    SS_ref_db.W[34] = 80.;
+    SS_ref_db.W[35] = 90.;
+    
+    SS_ref_db.v[0] = 1.0;
+    SS_ref_db.v[1] = 1.5;
+    SS_ref_db.v[2] = 1.7;
+    SS_ref_db.v[3] = 0.80;
+    SS_ref_db.v[4] = 1.0;
+    SS_ref_db.v[5] = 1.0;
+    SS_ref_db.v[6] = 1.0;
+    SS_ref_db.v[7] = 1.0;
+    SS_ref_db.v[8] = 0.80;
+    
+    
+    em_data tr_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"tr", 
+    										"equilibrium"	);
+    
+    em_data ts_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"ts", 
+    										"equilibrium"	);
+    
+    em_data parg_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"parg", 
+    										"equilibrium"	);
+    
+    em_data gl_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"gl", 
+    										"equilibrium"	);
+    
+    em_data cumm_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"cumm", 
+    										"equilibrium"	);
+    
+    em_data grun_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"grun", 
+    										"equilibrium"	);
+    
+    em_data andr_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"andr", 
+    										"equilibrium"	);
+    
+    em_data gr_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"gr", 
+    										"equilibrium"	);
+    
+    SS_ref_db.gbase[0] 		= tr_eq.gb;
+    SS_ref_db.gbase[1] 		= ts_eq.gb + 10.0;
+    SS_ref_db.gbase[2] 		= parg_eq.gb - 10.0;
+    SS_ref_db.gbase[3] 		= gl_eq.gb - 3.0;
+    SS_ref_db.gbase[4] 		= cumm_eq.gb;
+    SS_ref_db.gbase[5] 		= grun_eq.gb - 3.0;
+    SS_ref_db.gbase[6] 		= 0.428571428571429*cumm_eq.gb + 0.571428571428571*grun_eq.gb - 11.2;
+    SS_ref_db.gbase[7] 		= 0.285714285714286*cumm_eq.gb + 0.714285714285714*grun_eq.gb - 13.8;
+    SS_ref_db.gbase[8] 		= andr_eq.gb + gl_eq.gb -gr_eq.gb;
+    
+    SS_ref_db.ElShearMod[0] 	= tr_eq.ElShearMod;
+    SS_ref_db.ElShearMod[1] 	= ts_eq.ElShearMod;
+    SS_ref_db.ElShearMod[2] 	= parg_eq.ElShearMod;
+    SS_ref_db.ElShearMod[3] 	= gl_eq.ElShearMod;
+    SS_ref_db.ElShearMod[4] 	= cumm_eq.ElShearMod;
+    SS_ref_db.ElShearMod[5] 	= grun_eq.ElShearMod;
+    SS_ref_db.ElShearMod[6] 	= 0.428571428571429*cumm_eq.ElShearMod + 0.571428571428571*grun_eq.ElShearMod;
+    SS_ref_db.ElShearMod[7] 	= 0.285714285714286*cumm_eq.ElShearMod + 0.714285714285714*grun_eq.ElShearMod;
+    SS_ref_db.ElShearMod[8] 	= andr_eq.ElShearMod + gl_eq.ElShearMod -gr_eq.ElShearMod;
+    
+    for (i = 0; i < len_ox; i++){
+        SS_ref_db.Comp[0][i] 	= tr_eq.C[i];
+        SS_ref_db.Comp[1][i] 	= ts_eq.C[i];
+        SS_ref_db.Comp[2][i] 	= parg_eq.C[i];
+        SS_ref_db.Comp[3][i] 	= gl_eq.C[i];
+        SS_ref_db.Comp[4][i] 	= cumm_eq.C[i];
+        SS_ref_db.Comp[5][i] 	= grun_eq.C[i];
+        SS_ref_db.Comp[6][i] 	= 0.428571428571429*cumm_eq.C[i] + 0.571428571428571*grun_eq.C[i];
+        SS_ref_db.Comp[7][i] 	= 0.285714285714286*cumm_eq.C[i] + 0.714285714285714*grun_eq.C[i];
+        SS_ref_db.Comp[8][i] 	= andr_eq.C[i] + gl_eq.C[i] -gr_eq.C[i];
+    }
+    
+    for (i = 0; i < n_em; i++){
+        SS_ref_db.z_em[i] = 1.0;
+    };
+    
+    SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
+    SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+    SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
+    SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
+    SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
+    SS_ref_db.bounds_ref[5][0] = 0.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
+    SS_ref_db.bounds_ref[6][0] = -1.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
+    SS_ref_db.bounds_ref[7][0] = -1.0+eps;  SS_ref_db.bounds_ref[7][1] = 1.0-eps;
+
+	if (z_b.bulk_rock[4] == 0.){ 					
+		SS_ref_db.z_em[8]          = 0.0;
+        SS_ref_db.d_em[8]          = 1.0;
+		SS_ref_db.bounds_ref[5][0] = 0.0; 
+		SS_ref_db.bounds_ref[5][1] = 0.0;	
+	}
+
+    return SS_ref_db;
+}
+
+/**
+   retrieve reference thermodynamic data for ume_aug
+*/
+SS_ref G_SS_ume_aug_function(SS_ref SS_ref_db,  char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
+   
+    int i, j;
+    int n_em = SS_ref_db.n_em;
+    
+    char   *EM_tmp[] 		= {"di","cenh","cfs","jdm","acmm","ocats","dcats","fmc"};
+    for (int i = 0; i < SS_ref_db.n_em; i++){
+        strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
+    };
+    int n_xeos = SS_ref_db.n_xeos;
+    char   *CV_tmp[] 		= {"x","y","f","z","j","Qfm","Qa1"};
+    for (int i = 0; i < SS_ref_db.n_xeos; i++){
+        strcpy(SS_ref_db.CV_list[i],CV_tmp[i]);
+    };
+    char   *SF_tmp[] 		= {"xMgM1","xFeM1","xAlM1","xFe3M1","xMgM2","xFeM2","xCaM2","xNaM2","xSiT1","xAlT1","xSiT2","xAlT2"};
+    for (int i = 0; i < SS_ref_db.n_sf; i++){
+        strcpy(SS_ref_db.SF_list[i],SF_tmp[i]);
+    };
+
+    SS_ref_db.W[0] = 29.8 - 0.03*SS_ref_db.P;
+    SS_ref_db.W[1] = 25.8 - 0.03*SS_ref_db.P;
+    SS_ref_db.W[2] = 26.0;
+    SS_ref_db.W[3] = 21.0;
+    SS_ref_db.W[4] = 12.3 - 0.01*SS_ref_db.P;
+    SS_ref_db.W[5] = 12.3 - 0.01*SS_ref_db.P;
+    SS_ref_db.W[6] = 20.6 - 0.03*SS_ref_db.P;
+    SS_ref_db.W[7] = 2.30;
+    SS_ref_db.W[8] = 50.0;
+    SS_ref_db.W[9] = 62.0;
+    SS_ref_db.W[10] = 45.7 - 0.29*SS_ref_db.P;
+    SS_ref_db.W[11] = 45.7 - 0.29*SS_ref_db.P;
+    SS_ref_db.W[12] = 4.00;
+    SS_ref_db.W[13] = 60.0;
+    SS_ref_db.W[14] = 58.0;
+    SS_ref_db.W[15] = 48.0;
+    SS_ref_db.W[16] = 48.0;
+    SS_ref_db.W[17] = 3.50;
+    SS_ref_db.W[18] = 5.00;
+    SS_ref_db.W[19] = 40.0;
+    SS_ref_db.W[20] = 40.0;
+    SS_ref_db.W[21] = 40.0;
+    SS_ref_db.W[22] = 35.0;
+    SS_ref_db.W[23] = 35.0;
+    SS_ref_db.W[24] = 60.0;
+    SS_ref_db.W[25] = 0.01*SS_ref_db.P + 3.8;
+    SS_ref_db.W[26] = 50.0;
+    SS_ref_db.W[27] = 50.0;
+    
+    SS_ref_db.v[0] = 1.20;
+    SS_ref_db.v[1] = 1.00;
+    SS_ref_db.v[2] = 1.00;
+    SS_ref_db.v[3] = 1.20;
+    SS_ref_db.v[4] = 1.20;
+    SS_ref_db.v[5] = 1.90;
+    SS_ref_db.v[6] = 1.90;
+    SS_ref_db.v[7] = 1.00;
+    
+    
+    em_data di_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"di", 
+    										"equilibrium"	);
+    
+    em_data en_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"en", 
+    										"equilibrium"	);
+    
+    em_data fs_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"fs", 
+    										"equilibrium"	);
+    
+    em_data jd_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"jd", 
+    										"equilibrium"	);
+    
+    em_data acm_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"acm", 
+    										"equilibrium"	);
+    
+    em_data cats_or 	= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"cats", 
+    										"ordered"	);
+    
+    SS_ref_db.gbase[0] 		= di_eq.gb;
+    SS_ref_db.gbase[1] 		= 0.048*z_b.P - 0.002*z_b.T + en_eq.gb + 3.5;
+    SS_ref_db.gbase[2] 		= 0.045*z_b.P - 0.002*z_b.T + fs_eq.gb + 2.1;
+    SS_ref_db.gbase[3] 		= jd_eq.gb + 2.0;
+    SS_ref_db.gbase[4] 		= acm_eq.gb - 5.0;
+    SS_ref_db.gbase[5] 		= cats_or.gb;
+    SS_ref_db.gbase[6] 		= 0.01*z_b.P - 0.002882*z_b.T + cats_or.gb + 3.8;
+    SS_ref_db.gbase[7] 		= 0.0465*z_b.P - 0.002*z_b.T + 0.5*en_eq.gb + 0.5*fs_eq.gb - 1.6;
+    
+    SS_ref_db.ElShearMod[0] 	= di_eq.ElShearMod;
+    SS_ref_db.ElShearMod[1] 	= en_eq.ElShearMod;
+    SS_ref_db.ElShearMod[2] 	= fs_eq.ElShearMod;
+    SS_ref_db.ElShearMod[3] 	= jd_eq.ElShearMod;
+    SS_ref_db.ElShearMod[4] 	= acm_eq.ElShearMod;
+    SS_ref_db.ElShearMod[5] 	= cats_or.ElShearMod;
+    SS_ref_db.ElShearMod[6] 	= cats_or.ElShearMod;
+    SS_ref_db.ElShearMod[7] 	= 0.5*en_eq.ElShearMod + 0.5*fs_eq.ElShearMod;
+    
+    for (i = 0; i < len_ox; i++){
+        SS_ref_db.Comp[0][i] 	= di_eq.C[i];
+        SS_ref_db.Comp[1][i] 	= en_eq.C[i];
+        SS_ref_db.Comp[2][i] 	= fs_eq.C[i];
+        SS_ref_db.Comp[3][i] 	= jd_eq.C[i];
+        SS_ref_db.Comp[4][i] 	= acm_eq.C[i];
+        SS_ref_db.Comp[5][i] 	= cats_or.C[i];
+        SS_ref_db.Comp[6][i] 	= cats_or.C[i];
+        SS_ref_db.Comp[7][i] 	= 0.5*en_eq.C[i] + 0.5*fs_eq.C[i];
+    }
+    
+    for (i = 0; i < n_em; i++){
+        SS_ref_db.z_em[i] = 1.0;
+    };
+    
+    SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
+    SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+    SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
+    SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
+    SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
+    SS_ref_db.bounds_ref[5][0] = 0.0+eps;  SS_ref_db.bounds_ref[5][1] = 2.0-eps;
+    SS_ref_db.bounds_ref[6][0] = 0.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
+
+	if (z_b.bulk_rock[4] == 0.){ 					
+		SS_ref_db.z_em[4]          = 0.0;
+        SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0; 
+		SS_ref_db.bounds_ref[2][1] = 0.0;	
+	}
+
+    return SS_ref_db;
+}
+
 
 SS_ref G_SS_mb_EM_function(		global_variable 	 gv,
 								SS_ref 				 SS_ref_db, 
@@ -8502,9 +8907,12 @@ SS_ref G_SS_um_EM_function(		global_variable 	 gv,
 			SS_ref_db  = G_SS_um_ta_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}	
 		else if (strcmp( name, "po") == 0){
 			// if no S, deactivate
-			if (z_b.bulk_rock[gv.S_id] == 0.){
-				SS_ref_db.ss_flags[0]  = 0;
+			if (z_b.bulk_rock[gv.S_id] != 0. && z_b.bulk_rock[gv.O_id] != 0.){
+				SS_ref_db.ss_flags[0]  = 1;
 			}
+            else{
+                SS_ref_db.ss_flags[0]  = 0;
+            }
 			SS_ref_db  = G_SS_um_po_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "chl") == 0){
 			// if no H2O, deactivate
@@ -8564,6 +8972,159 @@ SS_ref G_SS_um_EM_function(		global_variable 	 gv,
 
         /* display molar composition */
         printf("\n S   A   M   F   O   H   S\n");
+
+        for (int i = 0; i < SS_ref_db.n_em; i++){
+            for (int j = 0; j < gv.len_ox; j++){
+                printf(" %.1f",SS_ref_db.Comp[i][j]);
+            }
+            printf("\n");
+        }
+        printf("\n");
+
+	}
+
+	return SS_ref_db;
+};
+
+
+/**
+  checks if it can satisfy the mass constraint
+*/
+SS_ref G_SS_um_ext_EM_function(	global_variable 	 gv,
+								SS_ref 				 SS_ref_db, 
+								int 				 EM_dataset, 
+								bulk_info 	 		 z_b, 
+								char   				*name				){
+									  
+	double eps 		   	= gv.bnd_val;
+	double P 			= SS_ref_db.P;
+	double T 			= SS_ref_db.T;	
+					   
+	SS_ref_db.ss_flags[0]  = 1;
+
+	/* Associate the right solid-solution data */
+	for (int FD = 0; FD < gv.n_Diff; FD++){				/* cycle twice in order to get gb_P_eps to calculate densities later on */
+		//printf("%d %d %s...........\n",FD,EM_dataset,name);	
+		if (FD == 8 || FD == 9){				// dG/dP0 to get Volume at P = 1bar
+			SS_ref_db.P = 1.+ gv.gb_P_eps*gv.pdev[0][FD];
+			SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
+		}
+		else{
+			SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
+			SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
+		}
+
+		if (strcmp( name, "fl") == 0 ){
+			// if no H2O, deactivate
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_um_fluid_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);}
+		else if (strcmp( name, "br") == 0){
+			// if no H2O, deactivate
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_um_br_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "ol") == 0){
+			SS_ref_db  = G_SS_um_ol_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}	
+		else if (strcmp( name, "ch") == 0){
+			// if no h2O, deactivate
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_um_ch_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "atg") == 0){
+			// if no H2O, deactivate
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_um_atg_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}		
+		else if (strcmp( name, "g") == 0){
+			SS_ref_db  = G_SS_um_g_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);		}
+		else if (strcmp( name, "ta") == 0){
+			// if no H2O, deactivate
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_um_ta_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}	
+		else if (strcmp( name, "po") == 0){
+			// if no S, deactivate
+			if (z_b.bulk_rock[gv.S_id] != 0. && z_b.bulk_rock[gv.O_id] != 0.){
+				SS_ref_db.ss_flags[0]  = 1;
+			}
+            else{
+                SS_ref_db.ss_flags[0]  = 0;
+            }
+			SS_ref_db  = G_SS_um_po_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "chl") == 0){
+			// if no H2O, deactivate
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_um_chl_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}	
+		else if (strcmp( name, "anth") == 0){
+			// if no H2O, deactivate
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_um_anth_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);}
+		else if (strcmp( name, "opx") == 0){
+			SS_ref_db  = G_SS_um_opx_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "spi") == 0){
+			SS_ref_db  = G_SS_um_spi_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "pl4tr") == 0){
+			SS_ref_db  = G_SS_ume_pl4tr_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);}
+		else if (strcmp( name, "hb") == 0){
+			// if no H2O, deactivate
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_ume_hb_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "aug") == 0){
+			SS_ref_db  = G_SS_ume_aug_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else{
+			printf("\nsolid solution '%s' is not in the database\n",name);	}	
+		
+		for (int j = 0; j < SS_ref_db.n_em; j++){
+			SS_ref_db.mu_array[FD][j] = SS_ref_db.gbase[j];
+			// printf(" %+10.10f",SS_ref_db.gbase[j]);
+		}
+		// printf("\n");
+	}
+
+	for (int j = 0; j < SS_ref_db.n_xeos; j++){
+		SS_ref_db.bounds[j][0] = SS_ref_db.bounds_ref[j][0];
+		SS_ref_db.bounds[j][1] = SS_ref_db.bounds_ref[j][1];
+	}
+
+	/* Calculate the number of atoms in the bulk-rock composition */
+	double fbc     = 0.0;
+	for (int i = 0; i < gv.len_ox; i++){
+		fbc += z_b.bulk_rock[i]*z_b.apo[i];
+	}
+
+	/* get the numer of atoms per endmember, needed to update normalization factor for liquid */
+	for (int i = 0; i < SS_ref_db.n_em; i++){
+		SS_ref_db.ape[i] = 0.0;
+		for (int j = 0; j < gv.len_ox; j++){
+			SS_ref_db.ape[i] += SS_ref_db.Comp[i][j]*z_b.apo[j];
+		}
+	}
+
+	SS_ref_db.fbc = z_b.fbc;	
+	
+	if (gv.verbose == 1){
+		printf(" %4s:",name);
+
+		/* display Gibbs free energy of reference? */
+		for (int j = 0; j < SS_ref_db.n_em; j++){
+			printf(" %+12.5f",SS_ref_db.gbase[j]);
+		}
+		printf("\n");
+
+        /* display molar composition */
+        printf("\n S   A   M   F   O   H   S   C   N\n");
 
         for (int i = 0; i < SS_ref_db.n_em; i++){
             for (int j = 0; j < gv.len_ox; j++){

@@ -225,6 +225,16 @@ end
     @test out[2].G_system ≈ -912.5920719174167 rtol=2e-4
 
     Finalize_MAGEMin(data)
+
+    data    = Initialize_MAGEMin("um", verbose=-1, solver=0);
+    # One bulk rock for all points
+    P,T     = 10.0, 600.0
+    Xoxides = ["SiO2", "Al2O3", "MgO", "FeO", "O", "H2O", "S"];
+    X       = [20.044,0.6256,29.24,3.149,0.0,46.755,0.0]
+    sys_in  = "mol"    
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+
+
 end
 
 

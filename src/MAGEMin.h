@@ -752,6 +752,7 @@ global_variable global_variable_init( 	global_variable  	 gv,
 global_variable get_bulk_igneous(			global_variable  gv				);
 global_variable get_bulk_metapelite(		global_variable  gv				);
 global_variable get_bulk_ultramafic(		global_variable  gv				);
+global_variable get_bulk_ultramafic_ext(	global_variable  gv				);
 
 /** Stores databases **/
 typedef struct Database {	PP_ref     		 *PP_ref_db;		/** Pure phases 											*/

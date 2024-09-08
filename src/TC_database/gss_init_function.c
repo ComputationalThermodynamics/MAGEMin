@@ -1183,6 +1183,53 @@ SS_ref G_SS_um_po_init_function(SS_ref SS_ref_db,  global_variable gv){
 }
 
 
+/**
+    allocate memory for pl4tr
+*/
+SS_ref G_SS_ume_pl4tr_init_function(SS_ref SS_ref_db, global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 4;
+    SS_ref_db.n_em      = 2;
+    SS_ref_db.n_w       = 1;
+    SS_ref_db.n_xeos    = 1;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for hb
+*/
+SS_ref G_SS_ume_hb_init_function(SS_ref SS_ref_db, global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 14;
+    SS_ref_db.n_em      = 9;
+    SS_ref_db.n_v       = 9;
+    SS_ref_db.n_w       = 36;
+    SS_ref_db.n_xeos    = 8;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for aug
+*/
+SS_ref G_SS_ume_aug_init_function(SS_ref SS_ref_db, global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 12;
+    SS_ref_db.n_em      = 8;
+    SS_ref_db.n_v       = 8;
+    SS_ref_db.n_w       = 28;
+    SS_ref_db.n_xeos    = 7;
+    
+    return SS_ref_db;
+}
+
 void TC_SS_init_mp(	                SS_init_type 		*SS_init,
 									global_variable 	 gv				){
 
@@ -1354,6 +1401,47 @@ void TC_SS_init_um(	                SS_init_type 		*SS_init,
 }
 
 
+void TC_SS_init_um_ext(	            SS_init_type 		*SS_init,
+									global_variable 	 gv				){
+						 
+	for (int iss = 0; iss < gv.len_ss; iss++){
+
+		if      (strcmp( gv.SS_list[iss], "fl")  == 0 ){
+			SS_init[iss]  = G_SS_um_fluid_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ol")  == 0){
+			SS_init[iss]  = G_SS_um_ol_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "br") == 0){
+			SS_init[iss]  = G_SS_um_br_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ch")  == 0){
+			SS_init[iss]  = G_SS_um_ch_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "atg")  == 0){
+			SS_init[iss]  = G_SS_um_atg_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "g")   == 0){
+			SS_init[iss]  = G_SS_um_g_init_function; 	}
+		else if (strcmp( gv.SS_list[iss], "ta")  == 0){
+			SS_init[iss]  = G_SS_um_ta_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "chl") == 0){
+			SS_init[iss]  = G_SS_um_chl_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "anth") == 0){
+			SS_init[iss]  = G_SS_um_anth_init_function; 	}
+		else if (strcmp( gv.SS_list[iss], "spi")  == 0){
+			SS_init[iss]  = G_SS_um_spi_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "opx") == 0){
+			SS_init[iss]  = G_SS_um_opx_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "po") == 0){
+			SS_init[iss]  = G_SS_um_po_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "pl4tr")  == 0){
+			SS_init[iss]  = G_SS_ume_pl4tr_init_function; 	}
+		else if (strcmp( gv.SS_list[iss], "hb") == 0){
+			SS_init[iss]  = G_SS_ume_hb_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "aug") == 0){
+			SS_init[iss]  = G_SS_ume_aug_init_function; 	}
+		else{
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
+		}	
+	};						 
+}
+
 void TC_SS_init(	        	    SS_init_type 		*SS_init,
 									global_variable 	 gv				){
 
@@ -1373,7 +1461,10 @@ void TC_SS_init(	        	    SS_init_type 		*SS_init,
 		TC_SS_init_um(	 				    SS_init,
 											gv							);
 	}
-
+	else if (gv.EM_database == 5){			// ultramafic database //
+		TC_SS_init_um_ext(	 				SS_init,
+											gv							);
+	}
 }
 
 

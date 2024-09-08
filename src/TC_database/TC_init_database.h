@@ -159,6 +159,37 @@
 
 	} ultramafic_dataset;
 
+	typedef struct ultramafic_ext_datasets {
+		int 	ds_version;
+		int 	n_ox;
+		int 	n_pp;
+		int 	n_ss;
+		char    ox[9][20];
+		char    PP[21][20];
+		char    SS[15][20];
+
+		int 	verifyPC[15];
+		int 	n_SS_PC[15];
+		double 	SS_PC_stp[15];
+
+		double 	PC_df_add;					/** min value of df under which the PC is added 									*/
+		double  solver_switch_T;
+		double  min_melt_T;
+
+		double  inner_PGE_ite;				/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
+		double  max_n_phase;				/** maximum mol% phase change during one PGE iteration in wt% 						*/
+		double  max_g_phase;				/** maximum delta_G of reference change during PGE 									*/
+		double 	max_fac;					/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
+
+		double  merge_value;				/** max norm distance between two instances of a solution phase						*/	
+		double 	re_in_n;					/** fraction of phase when being reintroduce.  										*/
+
+		double  obj_tol;
+
+	} ultramafic_ext_dataset;
+
+
+
     global_variable global_variable_TC_init( 	global_variable  	 gv,
                                             	bulk_info 			*z_b 	);
 
@@ -166,5 +197,5 @@
     global_variable get_bulk_metabasite( global_variable gv);
     global_variable get_bulk_igneous( global_variable gv);
     global_variable get_bulk_ultramafic( global_variable gv);
-
+    global_variable get_bulk_ultramafic_ext( global_variable gv);
 #endif

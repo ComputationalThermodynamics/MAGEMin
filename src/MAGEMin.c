@@ -154,6 +154,7 @@ int runMAGEMin(			int    argc,
 	/* 
 	  get bulk rock composition parsed from args 
 	*/
+
 	if 		(gv.EM_database == 0){
 		gv = get_bulk_metapelite( 	gv );
 	}
@@ -165,6 +166,9 @@ int runMAGEMin(			int    argc,
 	}
 	else if (gv.EM_database == 4){
 		gv = get_bulk_ultramafic( 	gv );
+	}
+	else if (gv.EM_database == 5){
+		gv = get_bulk_ultramafic_ext( 	gv );
 	}
 	else{
 		printf(" Wrong database...\n");
@@ -859,6 +863,9 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 	else if (strcmp(gv.db, "um") 	== 0){
 		gv.EM_database = 4;
 	}
+	else if (strcmp(gv.db, "ume") 	== 0){
+		gv.EM_database = 5;
+	}
 	else {
 		printf(" No or wrong database acronym has been provided, using default (Igneous [ig])\n");
 		gv.EM_database = 2;
@@ -882,11 +889,11 @@ Databases InitializeDatabases(	global_variable gv,
 	/** 
 		Allocate memory for each solution phase according to their specificities (n_em, sf etc) 
 	*/
+
 	SS_init_type 				SS_init[gv.len_ss];
 
 	TC_SS_init(	        	    SS_init,
 								gv				);
-
 
 	DB.SS_ref_db = malloc ((gv.len_ss) 		* sizeof(SS_ref)); 
 	for (int iss = 0; iss < gv.len_ss; iss++){
