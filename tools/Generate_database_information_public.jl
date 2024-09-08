@@ -6,9 +6,10 @@ function get_database_infos()
     db_details      = [ "Metapelite (White et al., 2014)",
                         "Metabasite (Green et al., 2016)",
                         "Igneous (Holland et al., 2018)",
-                        "Ultramafic (Evans & Frost., 2021)"]
+                        "Ultramafic (Evans & Frost., 2021)",
+                        "Ultramafic extended (Evans & Frost., 2021) + pl, hb and aug from Green et al., 2016"]
 
-    database_list   = ["mp","mb","ig","um"]
+    database_list   = ["mp","mb","ig","um","ume"]
 
     db_inf          = Array{db_infos, 1}(undef, length(database_list))
 
