@@ -127,6 +127,7 @@ typedef struct global_variables {
 	int      numPoint; 			/** the number of the current point */
 	int      global_ite;		/** global iteration increment */
 	int 	 H2O_id;
+	int 	 S_id;
 	int 	 Al2O3_id;
 	int 	 K2O_id;
 	int 	 O_id;
@@ -607,7 +608,10 @@ typedef struct stb_SS_phases {
 
 	double  *Comp_wt;
 	double **emComp_wt;
-	
+
+	double  *Comp_apfu;
+	double **emComp_apfu;
+		
 	//double  *siteFrac;
 	
 } stb_SS_phase;
@@ -657,6 +661,8 @@ typedef struct stb_PP_phases {
 	double  *Comp;
 	double  *Comp_wt;
 
+	double  *Comp_apfu;
+		
 } stb_PP_phase;
 
 /* structure to store informations of stable phase equilibria */
@@ -746,6 +752,7 @@ global_variable global_variable_init( 	global_variable  	 gv,
 global_variable get_bulk_igneous(			global_variable  gv				);
 global_variable get_bulk_metapelite(		global_variable  gv				);
 global_variable get_bulk_ultramafic(		global_variable  gv				);
+global_variable get_bulk_ultramafic_ext(	global_variable  gv				);
 
 /** Stores databases **/
 typedef struct Database {	PP_ref     		 *PP_ref_db;		/** Pure phases 											*/

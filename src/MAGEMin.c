@@ -154,6 +154,7 @@ int runMAGEMin(			int    argc,
 	/* 
 	  get bulk rock composition parsed from args 
 	*/
+
 	if 		(gv.EM_database == 0){
 		gv = get_bulk_metapelite( 	gv );
 	}
@@ -165,6 +166,9 @@ int runMAGEMin(			int    argc,
 	}
 	else if (gv.EM_database == 4){
 		gv = get_bulk_ultramafic( 	gv );
+	}
+	else if (gv.EM_database == 5){
+		gv = get_bulk_ultramafic_ext( 	gv );
 	}
 	else{
 		printf(" Wrong database...\n");
@@ -859,6 +863,9 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 	else if (strcmp(gv.db, "um") 	== 0){
 		gv.EM_database = 4;
 	}
+	else if (strcmp(gv.db, "ume") 	== 0){
+		gv.EM_database = 5;
+	}
 	else {
 		printf(" No or wrong database acronym has been provided, using default (Igneous [ig])\n");
 		gv.EM_database = 2;
@@ -882,11 +889,11 @@ Databases InitializeDatabases(	global_variable gv,
 	/** 
 		Allocate memory for each solution phase according to their specificities (n_em, sf etc) 
 	*/
+
 	SS_init_type 				SS_init[gv.len_ss];
 
 	TC_SS_init(	        	    SS_init,
 								gv				);
-
 
 	DB.SS_ref_db = malloc ((gv.len_ss) 		* sizeof(SS_ref)); 
 	for (int iss = 0; iss < gv.len_ss; iss++){
@@ -976,11 +983,13 @@ void FreeDatabases(		global_variable gv,
 	for ( i = 0; i < n_ox; i++){
 		if  (DB.sp[0].PP[i].Comp			!=NULL)  free( DB.sp[0].PP[i].Comp 			);	
 		if  (DB.sp[0].PP[i].Comp_wt			!=NULL)  free( DB.sp[0].PP[i].Comp_wt 		);	
+		if  (DB.sp[0].PP[i].Comp_apfu		!=NULL)  free( DB.sp[0].PP[i].Comp_apfu		);	
 	}
 
 	for ( i = 0; i < n_ox; i++){
 		if  (DB.sp[0].SS[i].Comp			!=NULL)  free( DB.sp[0].SS[i].Comp 			);	
 		if  (DB.sp[0].SS[i].Comp_wt			!=NULL)  free( DB.sp[0].SS[i].Comp_wt 		);	
+		if  (DB.sp[0].SS[i].Comp_apfu		!=NULL)  free( DB.sp[0].SS[i].Comp_apfu		);	
 		if  (DB.sp[0].SS[i].compVariables	!=NULL)  free( DB.sp[0].SS[i].compVariables );	
 		if  (DB.sp[0].SS[i].siteFractions	!=NULL)  free( DB.sp[0].SS[i].siteFractions );	
 		if  (DB.sp[0].SS[i].emFrac			!=NULL)  free( DB.sp[0].SS[i].emFrac 		);	
@@ -991,13 +1000,15 @@ void FreeDatabases(		global_variable gv,
 			if  (DB.sp[0].SS[i].siteFractionsNames[j]	!=NULL)  free( DB.sp[0].SS[i].siteFractionsNames[j] 	);	
 			if  (DB.sp[0].SS[i].emNames[j]				!=NULL)  free( DB.sp[0].SS[i].emNames[j] 				);	
 			if  (DB.sp[0].SS[i].emComp[j]				!=NULL)  free( DB.sp[0].SS[i].emComp[j] 				);	
-			if  (DB.sp[0].SS[i].emComp_wt[j]			!=NULL)  free( DB.sp[0].SS[i].emComp_wt[j] 				);	
+			if  (DB.sp[0].SS[i].emComp_wt[j]			!=NULL)  free( DB.sp[0].SS[i].emComp_wt[j] 				);
+			if  (DB.sp[0].SS[i].emComp_apfu[j]			!=NULL)  free( DB.sp[0].SS[i].emComp_apfu[j] 			);	
 		}
 		if  (DB.sp[0].SS[i].compVariablesNames	!=NULL)  free( DB.sp[0].SS[i].compVariablesNames );	
 		if  (DB.sp[0].SS[i].siteFractionsNames	!=NULL)  free( DB.sp[0].SS[i].siteFractionsNames );	
 		if  (DB.sp[0].SS[i].emNames				!=NULL)  free( DB.sp[0].SS[i].emNames 			);	
 		if  (DB.sp[0].SS[i].emComp				!=NULL)  free( DB.sp[0].SS[i].emComp 			);	
 		if  (DB.sp[0].SS[i].emComp_wt			!=NULL)  free( DB.sp[0].SS[i].emComp_wt 		);	
+		if  (DB.sp[0].SS[i].emComp_apfu			!=NULL)  free( DB.sp[0].SS[i].emComp_apfu		);	
 	}
 
 	/* free metastable assemblage */

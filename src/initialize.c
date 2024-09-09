@@ -115,7 +115,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.5.2 [26/08/2024]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.5.3 [09/09/2024]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
@@ -431,7 +431,8 @@ void reset_sp(						global_variable 	 gv,
 			sp[0].SS[n].Comp[i] 			= 0.0;
 			sp[0].PP[n].Comp_wt[i] 			= 0.0;
 			sp[0].SS[n].Comp_wt[i] 			= 0.0;
-
+			sp[0].PP[n].Comp_apfu[i] 			= 0.0;
+			sp[0].SS[n].Comp_apfu[i] 			= 0.0;
 		}
 		for (int i = 0; i < gv.len_ox*3; i++){
 			sp[0].SS[n].compVariables[i] 	= 0.0;
@@ -448,6 +449,7 @@ void reset_sp(						global_variable 	 gv,
 			for (int j = 0; j < gv.len_ox; j++){
 				sp[0].SS[n].emComp[i][j]	= 0.0;
 				sp[0].SS[n].emComp_wt[i][j]	= 0.0;
+				sp[0].SS[n].emComp_apfu[i][j]	= 0.0;
 			}
 		}
 	}

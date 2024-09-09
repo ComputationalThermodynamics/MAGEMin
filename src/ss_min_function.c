@@ -463,7 +463,7 @@ void ss_min_LP(			global_variable 	 gv,
 		if (cp[i].ss_flags[0] == 1){
 			ph_id = cp[i].id;
 
-			if ( strcmp( gv.SS_list[ph_id], "liq") == 0 && gv.n_min[ph_id] > 0){
+			if ( strcmp( gv.SS_list[ph_id], "liq") == 0 && gv.n_min[ph_id] > 1){
 				act = 0;
 			}
 			else{
@@ -700,6 +700,25 @@ global_variable init_ss_db(		int 				 EM_database,
 													gv.EM_dataset, 
 													z_b, 
 													gv.SS_list[i]		);
+											
+										/** can become a global variable instead */
+		}
+	}
+	else if (EM_database == 5 ){
+		for (int i = 0; i < gv.len_ss; i++){
+			SS_ref_db[i].P  = z_b.P;									/** needed to pass to local minimizer, allows for P variation for liq/sol */
+			SS_ref_db[i].T  = z_b.T;		
+			SS_ref_db[i].R  = 0.0083144;
+
+			// if (SS_ref_db[i].is_liq == 1){
+			// 	SS_ref_db[i].P  = z_b.P + gv.melt_pressure;
+			// }
+
+			SS_ref_db[i]    = G_SS_um_ext_EM_function(	gv, 
+														SS_ref_db[i], 
+														gv.EM_dataset, 
+														z_b, 
+														gv.SS_list[i]		);
 											
 										/** can become a global variable instead */
 		}

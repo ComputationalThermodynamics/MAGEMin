@@ -638,6 +638,7 @@ mutable struct global_variables
     numPoint::Cint
     global_ite::Cint
     H2O_id::Cint
+    S_id::Cint
     Al2O3_id::Cint
     K2O_id::Cint
     O_id::Cint
@@ -1033,6 +1034,8 @@ struct stb_SS_phases
     emComp::Ptr{Ptr{Cdouble}}
     Comp_wt::Ptr{Cdouble}
     emComp_wt::Ptr{Ptr{Cdouble}}
+    Comp_apfu::Ptr{Cdouble}
+    emComp_apfu::Ptr{Ptr{Cdouble}}
 end
 
 const stb_SS_phase = stb_SS_phases
@@ -1073,6 +1076,7 @@ struct stb_PP_phases
     Vs::Cdouble
     Comp::Ptr{Cdouble}
     Comp_wt::Ptr{Cdouble}
+    Comp_apfu::Ptr{Cdouble}
 end
 
 const stb_PP_phase = stb_PP_phases
@@ -1170,6 +1174,10 @@ function get_bulk_ultramafic(gv)
     ccall((:get_bulk_ultramafic, libMAGEMin), global_variable, (global_variable,), gv)
 end
 
+function get_bulk_ultramafic_ext(gv)
+    ccall((:get_bulk_ultramafic_ext, libMAGEMin), global_variable, (global_variable,), gv)
+end
+
 mutable struct Database
     PP_ref_db::Ptr{PP_ref}
     SS_ref_db::Ptr{SS_ref}
@@ -1237,6 +1245,10 @@ function TC_SS_init_um(SS_init, gv)
     ccall((:TC_SS_init_um, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
 end
 
+function TC_SS_init_um_ext(SS_init, gv)
+    ccall((:TC_SS_init_um_ext, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
+end
+
 function TC_SS_init(SS_init, gv)
     ccall((:TC_SS_init, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
 end
@@ -1267,6 +1279,10 @@ end
 
 function G_SS_um_EM_function(gv, SS_ref_db, EM_dataset, z_b, name)
     ccall((:G_SS_um_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_dataset, z_b, name)
+end
+
+function G_SS_um_ext_EM_function(gv, SS_ref_db, EM_dataset, z_b, name)
+    ccall((:G_SS_um_ext_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_dataset, z_b, name)
 end
 
 mutable struct em_datas
@@ -1301,6 +1317,10 @@ end
 
 function TC_um_objective_init_function(SS_objective, gv)
     ccall((:TC_um_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
+end
+
+function TC_um_ext_objective_init_function(SS_objective, gv)
+    ccall((:TC_um_ext_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
 end
 
 function TC_SS_objective_init_function(SS_objective, gv)
@@ -1566,6 +1586,18 @@ function obj_um_po(n, x, grad, SS_ref_db)
     ccall((:obj_um_po, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
+function obj_ume_pl4tr(n, x, grad, SS_ref_db)
+    ccall((:obj_ume_pl4tr, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_ume_hb(n, x, grad, SS_ref_db)
+    ccall((:obj_ume_hb, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_ume_aug(n, x, grad, SS_ref_db)
+    ccall((:obj_ume_aug, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
 function obj_aq17(n, x, grad, SS_ref_db)
     ccall((:obj_aq17, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
@@ -1588,6 +1620,10 @@ end
 
 function TC_um_PC_init(PC_read, gv)
     ccall((:TC_um_PC_init, libMAGEMin), Cvoid, (Ptr{PC_type}, global_variable), PC_read, gv)
+end
+
+function TC_um_ext_PC_init(PC_read, gv)
+    ccall((:TC_um_ext_PC_init, libMAGEMin), Cvoid, (Ptr{PC_type}, global_variable), PC_read, gv)
 end
 
 # typedef void ( * sf_type ) ( unsigned m , double * result , unsigned n , const double * x , double * grad , void * data )
@@ -1614,6 +1650,10 @@ end
 
 function TC_um_NLopt_opt_init(NLopt_opt, gv)
     ccall((:TC_um_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
+end
+
+function TC_um_ext_NLopt_opt_init(NLopt_opt, gv)
+    ccall((:TC_um_ext_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
 end
 
 function TC_NLopt_opt_init(NLopt_opt, gv)
@@ -1678,6 +1718,7 @@ mutable struct oxide_datas
     oxMass::NTuple{15, Cdouble}
     atPerOx::NTuple{15, Cdouble}
     ElEntropy::NTuple{15, Cdouble}
+    OPerOx::NTuple{15, Cdouble}
     oxide_datas() = new()
 end
 
@@ -1790,6 +1831,32 @@ mutable struct ultramafic_datasets
 end
 
 const ultramafic_dataset = ultramafic_datasets
+
+mutable struct ultramafic_ext_datasets
+    ds_version::Cint
+    n_ox::Cint
+    n_pp::Cint
+    n_ss::Cint
+    ox::NTuple{9, NTuple{20, Cchar}}
+    PP::NTuple{21, NTuple{20, Cchar}}
+    SS::NTuple{15, NTuple{20, Cchar}}
+    verifyPC::NTuple{15, Cint}
+    n_SS_PC::NTuple{15, Cint}
+    SS_PC_stp::NTuple{15, Cdouble}
+    PC_df_add::Cdouble
+    solver_switch_T::Cdouble
+    min_melt_T::Cdouble
+    inner_PGE_ite::Cdouble
+    max_n_phase::Cdouble
+    max_g_phase::Cdouble
+    max_fac::Cdouble
+    merge_value::Cdouble
+    re_in_n::Cdouble
+    obj_tol::Cdouble
+    ultramafic_ext_datasets() = new()
+end
+
+const ultramafic_ext_dataset = ultramafic_ext_datasets
 
 function global_variable_TC_init(gv, z_b)
     ccall((:global_variable_TC_init, libMAGEMin), global_variable, (global_variable, Ptr{bulk_info}), gv, z_b)
@@ -2328,6 +2395,7 @@ struct SS_data
     Vs::Cdouble
     Comp::Vector{Cdouble}
     Comp_wt::Vector{Cdouble}
+    Comp_apfu::Vector{Cdouble}
     compVariables::Vector{Cdouble}
     compVariablesNames::Vector{String}
     siteFractions::Vector{Cdouble}
@@ -2338,12 +2406,14 @@ struct SS_data
     emChemPot::Vector{Cdouble}
     emComp::Vector{Vector{Float64}}
     emComp_wt::Vector{Vector{Float64}}
+    emComp_apfu::Vector{Vector{Float64}}
 end
 
 function Base.convert(::Type{SS_data}, a::stb_SS_phases) 
     return SS_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
                                     unsafe_wrap( Vector{Cdouble},        a.Comp,             a.nOx),
                                     unsafe_wrap( Vector{Cdouble},        a.Comp_wt,          a.nOx),
+                                    unsafe_wrap( Vector{Cdouble},        a.Comp_apfu,        a.nOx),
                                     unsafe_wrap( Vector{Cdouble},        a.compVariables,    a.n_xeos),
                     unsafe_string.( unsafe_wrap( Vector{Ptr{Int8}},      a.compVariablesNames,a.n_xeos)),
                                     unsafe_wrap( Vector{Cdouble},        a.siteFractions,    a.n_sf),
@@ -2353,7 +2423,8 @@ function Base.convert(::Type{SS_data}, a::stb_SS_phases)
                                     unsafe_wrap( Vector{Cdouble},        a.emFrac_wt,        a.n_em),
                                     unsafe_wrap( Vector{Cdouble},        a.emChemPot,        a.n_em),
       unsafe_wrap.(Vector{Cdouble}, unsafe_wrap( Vector{Ptr{Cdouble}},   a.emComp, a.n_em),  a.nOx),
-      unsafe_wrap.(Vector{Cdouble}, unsafe_wrap( Vector{Ptr{Cdouble}},   a.emComp_wt, a.n_em),  a.nOx)   )
+      unsafe_wrap.(Vector{Cdouble}, unsafe_wrap( Vector{Ptr{Cdouble}},   a.emComp_wt, a.n_em),  a.nOx),
+      unsafe_wrap.(Vector{Cdouble}, unsafe_wrap( Vector{Ptr{Cdouble}},   a.emComp_apfu, a.n_em),  a.nOx)   )
 end
 
 # metastable phases
@@ -2401,12 +2472,14 @@ struct PP_data
     Vs::Cdouble
     Comp::Vector{Cdouble}
     Comp_wt::Vector{Cdouble}
+    Comp_apfu::Vector{Cdouble}
 end
 
 function Base.convert(::Type{PP_data}, a::stb_PP_phases) 
     return PP_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
                     unsafe_wrap(Vector{Cdouble},a.Comp, a.nOx),
-                    unsafe_wrap(Vector{Cdouble},a.Comp_wt, a.nOx))
+                    unsafe_wrap(Vector{Cdouble},a.Comp_wt, a.nOx),
+                    unsafe_wrap(Vector{Cdouble},a.Comp_apfu, a.nOx))
 end
 
 

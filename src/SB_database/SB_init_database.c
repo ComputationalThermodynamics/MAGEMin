@@ -223,6 +223,9 @@ global_variable global_variable_SV_init( 	global_variable  	 gv,
 				else if (strcmp( gv.ox[i], "O") 	== 0){
 					gv.O_id = i;
 				}
+				else if (strcmp( gv.ox[i], "S") 	== 0){
+					gv.S_id = i;
+				}
 				else if (strcmp( gv.ox[i], "Cr2O3") == 0){
 					gv.Cr2O3_id = i;
 				}
