@@ -1762,10 +1762,10 @@ double obj_mb_spn(unsigned n, const double *x, double *grad, void *SS_ref_db){
         }
     }
     
-    sf[0]          = 1.0*x[1];
+    sf[0]          =x[1];
     sf[1]          = 1.0 - x[1];
     sf[2]          = 1.0 - x[0];
-    sf[3]          = 1.0*x[0];
+    sf[3]          =x[0];
     
     
     mu[0]          = gb[0] + R*T*creal(clog(sf[0]*sf[3])) + mu_Gex[0];
@@ -3624,13 +3624,13 @@ double obj_ume_pl4tr(unsigned n, const double *x, double *grad, void *SS_ref_db)
     }   
     
     sf[0]          = 1.0 - x[0];
-    sf[1]          = 1.0*x[0];
+    sf[1]          =x[0];
     sf[2]          = 0.25*x[0] + 0.25;
     sf[3]          = 0.75 - 0.25*x[0];
     
     
     mu[0]          = gb[0] + R*T*creal(clog(1.7547999999999999*sf[0]*cpow(sf[2], 0.25)*cpow(sf[3], 0.75))) + mu_Gex[0];
-    mu[1]          = gb[1] + R*T*creal(clog(2.0*sf[1]*sqrt(sf[2])*sqrt(sf[3]))) + mu_Gex[1];
+    mu[1]          = gb[1] + R*T*creal(clog(2.0*sf[1]*csqrt(sf[2])*csqrt(sf[3]))) + mu_Gex[1];
     
     d->sum_apep = 0.0;
     for (int i = 0; i < n_em; i++){
@@ -3699,24 +3699,24 @@ double obj_ume_hb(unsigned n, const double *x, double *grad, void *SS_ref_db){
     }
     
     sf[0]          = 1.0 - x[3];
-    sf[1]          = 1.0*x[3];
-    sf[2]          = -x[0] + 1.0*x[6] + 1.0;
-    sf[3]          = 1.0*x[0] - x[6];
-    sf[4]          = 1.0*x[0]*x[1] + 1.0*x[0]*x[5] - x[0] - x[1]*x[7] - x[1] - x[5]*x[7] - x[5] + 1.0*x[7] + 1.0;
-    sf[5]          = -x[0]*x[1] - x[0]*x[5] + 1.0*x[0] + 1.0*x[1]*x[7] + 1.0*x[5]*x[7] - x[7];
-    sf[6]          = 1.0*x[1];
-    sf[7]          = 1.0*x[5];
-    sf[8]          = 1.0*x[4];
-    sf[9]          = 1.0*x[0]*x[2] + 1.0*x[0]*x[4] - x[0] + 1.0*x[1]*x[7] - x[2] - x[4] + 1.0*x[5]*x[7] - 1.5*x[6] - x[7] + 1.0;
-    sf[10]          = -x[0]*x[2] - x[0]*x[4] + 1.0*x[0] - x[1]*x[7] - x[5]*x[7] + 1.5*x[6] + 1.0*x[7];
-    sf[11]          = 1.0*x[2];
+    sf[1]          =x[3];
+    sf[2]          = -x[0] +x[6] + 1.0;
+    sf[3]          =x[0] - x[6];
+    sf[4]          =x[0]*x[1] +x[0]*x[5] - x[0] - x[1]*x[7] - x[1] - x[5]*x[7] - x[5] +x[7] + 1.0;
+    sf[5]          = -x[0]*x[1] - x[0]*x[5] +x[0] +x[1]*x[7] +x[5]*x[7] - x[7];
+    sf[6]          =x[1];
+    sf[7]          =x[5];
+    sf[8]          =x[4];
+    sf[9]          =x[0]*x[2] +x[0]*x[4] - x[0] +x[1]*x[7] - x[2] - x[4] +x[5]*x[7] - 1.5*x[6] - x[7] + 1.0;
+    sf[10]          = -x[0]*x[2] - x[0]*x[4] +x[0] - x[1]*x[7] - x[5]*x[7] + 1.5*x[6] +x[7];
+    sf[11]          =x[2];
     sf[12]          = -0.5*x[1] + 0.5*x[2] - 0.25*x[3] - 0.5*x[5] + 1.0;
     sf[13]          = 0.5*x[1] - 0.5*x[2] + 0.25*x[3] + 0.5*x[5];
     
     
     mu[0]          = gb[0] + R*T*creal(clog(sf[0]*sf[12]*cpow(sf[2], 3.0)*cpow(sf[4], 2.0)*cpow(sf[8], 2.0))) + mu_Gex[0];
-    mu[1]          = gb[1] + R*T*creal(clog(2.0*sf[0]*sqrt(sf[12])*sqrt(sf[13])*cpow(sf[2], 3.0)*cpow(sf[6], 2.0)*cpow(sf[8], 2.0))) + mu_Gex[1];
-    mu[2]          = gb[2] + R*T*creal(clog(8.0*sqrt(sf[12])*sqrt(sf[13])*sf[1]*cpow(sf[2], 3.0)*sf[4]*sf[6]*cpow(sf[8], 2.0))) + mu_Gex[2];
+    mu[1]          = gb[1] + R*T*creal(clog(2.0*sf[0]*csqrt(sf[12])*csqrt(sf[13])*cpow(sf[2], 3.0)*cpow(sf[6], 2.0)*cpow(sf[8], 2.0))) + mu_Gex[1];
+    mu[2]          = gb[2] + R*T*creal(clog(8.0*csqrt(sf[12])*csqrt(sf[13])*sf[1]*cpow(sf[2], 3.0)*sf[4]*sf[6]*cpow(sf[8], 2.0))) + mu_Gex[2];
     mu[3]          = gb[3] + R*T*creal(clog(sf[0]*cpow(sf[11], 2.0)*sf[12]*cpow(sf[2], 3.0)*cpow(sf[6], 2.0))) + mu_Gex[3];
     mu[4]          = gb[4] + R*T*creal(clog(sf[0]*sf[12]*cpow(sf[2], 3.0)*cpow(sf[4], 2.0)*cpow(sf[9], 2.0))) + mu_Gex[4];
     mu[5]          = gb[5] + R*T*creal(clog(sf[0]*cpow(sf[10], 2.0)*sf[12]*cpow(sf[3], 3.0)*cpow(sf[5], 2.0))) + mu_Gex[5];
@@ -3790,14 +3790,14 @@ double obj_ume_aug(unsigned n, const double *x, double *grad, void *SS_ref_db){
         }
     }
     
-    sf[0]          = 1.0*x[0]*x[1] + 1.0*x[0]*x[4] - x[0] - x[1] - 0.5*x[3]*x[5] - 0.5*x[4]*x[5] - x[4] + 0.5*x[5] + 1.0;
-    sf[1]          = -x[0]*x[1] - x[0]*x[4] + 1.0*x[0] + 0.5*x[3]*x[5] + 0.5*x[4]*x[5] - 0.5*x[5];
-    sf[2]          = 1.0*x[1] - x[2] + 1.0*x[4];
-    sf[3]          = 1.0*x[2];
-    sf[4]          = 1.0*x[0]*x[3] + 1.0*x[0]*x[4] - x[0] + 0.5*x[3]*x[5] - x[3] + 0.5*x[4]*x[5] - x[4] - 0.5*x[5] + 1.0;
-    sf[5]          = -x[0]*x[3] - x[0]*x[4] + 1.0*x[0] - 0.5*x[3]*x[5] - 0.5*x[4]*x[5] + 0.5*x[5];
-    sf[6]          = 1.0*x[3];
-    sf[7]          = 1.0*x[4];
+    sf[0]          =x[0]*x[1] +x[0]*x[4] - x[0] - x[1] - 0.5*x[3]*x[5] - 0.5*x[4]*x[5] - x[4] + 0.5*x[5] + 1.0;
+    sf[1]          = -x[0]*x[1] - x[0]*x[4] +x[0] + 0.5*x[3]*x[5] + 0.5*x[4]*x[5] - 0.5*x[5];
+    sf[2]          =x[1] - x[2] +x[4];
+    sf[3]          =x[2];
+    sf[4]          =x[0]*x[3] +x[0]*x[4] - x[0] + 0.5*x[3]*x[5] - x[3] + 0.5*x[4]*x[5] - x[4] - 0.5*x[5] + 1.0;
+    sf[5]          = -x[0]*x[3] - x[0]*x[4] +x[0] - 0.5*x[3]*x[5] - 0.5*x[4]*x[5] + 0.5*x[5];
+    sf[6]          =x[3];
+    sf[7]          =x[4];
     sf[8]          = -0.5*x[1] + 0.5*x[6] + 1.0;
     sf[9]          = 0.5*x[1] - 0.5*x[6];
     sf[10]          = -0.5*x[1] - 0.5*x[6] + 1.0;
@@ -5332,10 +5332,10 @@ double obj_mp_cd(unsigned n, const double *x, double *grad, void *SS_ref_db){
         }
     }
     
-    sf[0]          = -x[0]*x[1] + 1.0*x[0];
-    sf[1]          = 1.0*x[0]*x[1] - x[0] - x[1] + 1.0;
-    sf[2]          = 1.0*x[1];
-    sf[3]          = 1.0*x[2];
+    sf[0]          = -x[0]*x[1] +x[0];
+    sf[1]          =x[0]*x[1] - x[0] - x[1] + 1.0;
+    sf[2]          =x[1];
+    sf[3]          =x[2];
     sf[4]          = 1.0 - x[2];
     
     
@@ -5780,8 +5780,8 @@ double obj_mp_ilmm(unsigned n, const double *x, double *grad, void *SS_ref_db){
     
     sf[0]          = 0.5*x[0] - 0.5*x[1] - 0.5*x[2] + 0.5*x[3];
     sf[1]          = 0.5*x[0] - 0.5*x[1] - 0.5*x[2] - 0.5*x[3];
-    sf[2]          = 1.0*x[1];
-    sf[3]          = 1.0*x[2];
+    sf[2]          =x[1];
+    sf[3]          =x[2];
     sf[4]          = 1.0 - x[0];
     sf[5]          = 0.5*x[0] - 0.5*x[1] - 0.5*x[2] - 0.5*x[3];
     sf[6]          = 0.5*x[0] + 0.5*x[1] + 0.5*x[2] + 0.5*x[3];
@@ -7135,7 +7135,7 @@ double obj_ig_fper(unsigned n, const double *x, double *grad, void *SS_ref_db){
         mu_Gex[i] = Gex;
     }   
   
-    sf[0]          = 1.0*x[0];
+    sf[0]          =x[0];
     sf[1]          = 1.0 - x[0];
     
     mu[0]          = gb[0] + R*T*creal(clog(sf[1])) + mu_Gex[0];

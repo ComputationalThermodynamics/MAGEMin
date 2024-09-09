@@ -976,7 +976,19 @@ global_variable get_bulk_ultramafic_ext( global_variable gv) {
 			printf("   - No predefined bulk provided -> user custom bulk (if none provided, will run default Serpentine oxidized)\n");	
 		}	
 	}
-	if (gv.test == 0){ //Evans&Forst 2021, Serpentine oxidized
+	if (gv.test == 0){ //Barberton Komatiite, Tamblyn et al.,2022 
+		/* SiO2 Al2O3 MgO FeO O H2O S */
+		gv.bulk_rock[0]  = 38.51 ;		/** SiO2 	*/
+		gv.bulk_rock[1]  = 2.25;		/** Al2O2 	*/
+		gv.bulk_rock[2]  = 29.03;		/** MgO 	*/
+		gv.bulk_rock[3]  = 4.65;		/** FeO 	*/
+		gv.bulk_rock[4]  = 0.5;			/** O 		*/
+		gv.bulk_rock[5]  = 16.0;		/** H2O 	*/	
+		gv.bulk_rock[6]  = 0.1;			/** S 		*/		
+		gv.bulk_rock[7]  = 6.92;		/** CaO		*/	
+		gv.bulk_rock[8]  = 0.25;		/** Na2O	*/	
+	}      
+	else if (gv.test == 1){ //Evans&Forst 2021, Serpentine oxidized
 		/* SiO2 Al2O3 MgO FeO O H2O S */
 		gv.bulk_rock[0]  = 20.044 ;		/** SiO2 	*/
 		gv.bulk_rock[1]  = 0.6256;		/** Al2O2 	*/
@@ -986,9 +998,9 @@ global_variable get_bulk_ultramafic_ext( global_variable gv) {
 		gv.bulk_rock[5]  = 46.755;		/** H2O 	*/
 		gv.bulk_rock[6]  = 0.3;			/** S 		*/		
 		gv.bulk_rock[7]  = 2.0;			/** CaO		*/	
-		gv.bulk_rock[8]  = 0.15;			/** Na2O	*/	
+		gv.bulk_rock[8]  = 0.15;		/** Na2O	*/	
 	}
-	else if (gv.test == 1){ //Evans&Forst 2021, Serpentine reduced
+	else if (gv.test == 2){ //Evans&Forst 2021, Serpentine reduced
 		/* SiO2 Al2O3 MgO FeO O H2O S */
 		gv.bulk_rock[0]  = 20.044 ;		/** SiO2 	*/
 		gv.bulk_rock[1]  = 0.6256;		/** Al2O2 	*/
@@ -1000,18 +1012,7 @@ global_variable get_bulk_ultramafic_ext( global_variable gv) {
 		gv.bulk_rock[7]  = 2.0;			/** CaO		*/	
 		gv.bulk_rock[8]  = 0.15;			/** Na2O	*/	
 	}
-	else if (gv.test == 2){ //Evans&Forst 2021, Serpentine 
-		/* SiO2 Al2O3 MgO FeO O H2O S */
-		gv.bulk_rock[0]  = 20.044 ;		/** SiO2 	*/
-		gv.bulk_rock[1]  = 0.6256;		/** Al2O2 	*/
-		gv.bulk_rock[2]  = 29.24;		/** MgO 	*/
-		gv.bulk_rock[3]  = 3.149;		/** FeO 	*/
-		gv.bulk_rock[4]  = 0.7;			/** O 		*/
-		gv.bulk_rock[5]  = 46.755;		/** H2O 	*/	
-		gv.bulk_rock[6]  = 0.0;			/** S 		*/		
-		gv.bulk_rock[7]  = 2.0;			/** CaO		*/	
-		gv.bulk_rock[8]  = 0.15;			/** Na2O	*/	
-	}        
+  
 	else{
 		printf("Unknown test %i - please specify a different test! \n", gv.test);
 	 	exit(EXIT_FAILURE);
