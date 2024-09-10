@@ -41,11 +41,13 @@ function retrieve_site_cmp(ss, i)
             else
                 for l=1:length(n_atoms)
                     id              = findfirst(elems .== elements[l])
-                    site_cmp[k,id, j] = Float64(n_atoms[1])
+                    site_cmp[k,id, j] = Float64(n_atoms[l])
                 end
             end
         end
     end
+
+
     return mul, site_cmp
 end
 

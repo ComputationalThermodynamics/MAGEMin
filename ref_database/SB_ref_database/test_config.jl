@@ -45,7 +45,35 @@ cfg2    = R*T* (sum(tmp[[2,3,5,6]]) - tmp[3]/2  - tmp[6]/2)
 cfg1+cfg2
 
 
+n_ss = length(ss)
+for i = 1:n_ss
 
+    mul, site_cmp = retrieve_site_cmp(ss, i)
+
+    n_sf = size(site_cmp)[1]
+    n_ox = size(site_cmp)[2]
+    n_em = size(site_cmp)[3]
+
+    C = zeros(n_sf*n_ox, n_em)
+    M = zeros(n_sf*n_ox)
+
+    for k=1:length(mul)
+        M[(k-1)*n_ox+1:k*n_ox] .= mul[k]
+    end
+
+    for k=1:n_sf
+        C[(k-1)*n_ox+1:k*n_ox,:] .= site_cmp[k,:,:] ./mul[k]
+    end
+
+    X = zeros(n_em) .+ 1.0/n_em
+
+
+    Xo      = C*X
+    config  = R*T* (M'*Diagonal(Xo)*logish.(Xo))
+
+    println("$i $(ss[i].abbrev): $config")
+    
+end
 
 
 
