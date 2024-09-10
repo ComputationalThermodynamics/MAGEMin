@@ -999,6 +999,203 @@ SS_ref G_SS_ig_spn_init_function(SS_ref SS_ref_db,  global_variable gv){
 
 /**************************************************************************************/
 /**************************************************************************************/
+/******************IGNEOUS ALKALINE DRY DATABASE (Weller et al., 2021)*****************/
+/**************************************************************************************/
+/**************************************************************************************/
+
+/**
+    allocate memory for liq
+*/
+SS_ref G_SS_igad_liq_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 18;
+    SS_ref_db.n_em      = 14;
+    SS_ref_db.n_v       = 14;
+    SS_ref_db.n_w       = 91;
+    SS_ref_db.n_xeos    = 13;
+    
+    return SS_ref_db;
+}
+
+
+/**
+    allocate memory for fsp
+*/
+SS_ref G_SS_igad_fsp_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 5;
+    SS_ref_db.n_em      = 3;
+    SS_ref_db.n_v       = 3;
+    SS_ref_db.n_w       = 3;
+    SS_ref_db.n_xeos    = 2;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for spn
+*/
+SS_ref G_SS_igad_spn_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 10;
+    SS_ref_db.n_em      = 8;
+    SS_ref_db.n_v       = 8;
+    SS_ref_db.n_w       = 28;
+    SS_ref_db.n_xeos    = 7;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for g
+*/
+SS_ref G_SS_igad_g_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 8;
+    SS_ref_db.n_em      = 6;
+    SS_ref_db.n_v       = 6;
+    SS_ref_db.n_w       = 15;
+    SS_ref_db.n_xeos    = 5;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for ol
+*/
+SS_ref G_SS_igad_ol_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 5;
+    SS_ref_db.n_em      = 4;
+    SS_ref_db.n_w       = 6;
+    SS_ref_db.n_xeos    = 3;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for opx
+*/
+SS_ref G_SS_igad_opx_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 12;
+    SS_ref_db.n_em      = 9;
+    SS_ref_db.n_v       = 9;
+    SS_ref_db.n_w       = 36;
+    SS_ref_db.n_xeos    = 8;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for cpx
+*/
+SS_ref G_SS_igad_cpx_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 13;
+    SS_ref_db.n_em      = 10;
+    SS_ref_db.n_v       = 10;
+    SS_ref_db.n_w       = 45;
+    SS_ref_db.n_xeos    = 9;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for ilm
+*/
+SS_ref G_SS_igad_ilm_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 8;
+    SS_ref_db.n_em      = 5;
+    SS_ref_db.n_w       = 10;
+    SS_ref_db.n_xeos    = 4;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for ness
+*/
+SS_ref G_SS_igad_ness_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 9;
+    SS_ref_db.n_em      = 6;
+    SS_ref_db.n_v       = 6;
+    SS_ref_db.n_w       = 15;
+    SS_ref_db.n_xeos    = 5;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for lct
+*/
+SS_ref G_SS_igad_lct_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 2;
+    SS_ref_db.n_em      = 2;
+    SS_ref_db.n_v       = 2;
+    SS_ref_db.n_w       = 1;
+    SS_ref_db.n_xeos    = 1;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for kals
+*/
+SS_ref G_SS_igad_kals_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 2;
+    SS_ref_db.n_em      = 2;
+    SS_ref_db.n_v       = 2;
+    SS_ref_db.n_w       = 1;
+    SS_ref_db.n_xeos    = 1;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for mel
+*/
+SS_ref G_SS_igad_mel_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 8;
+    SS_ref_db.n_em      = 5;
+    SS_ref_db.n_w       = 10;
+    SS_ref_db.n_xeos    = 4;
+    
+    return SS_ref_db;
+}
+
+
+/**************************************************************************************/
+/**************************************************************************************/
 /*********************Evan&Frost DATABASE (Evans&Frost , 2021)*************************/
 /**************************************************************************************/
 /**************************************************************************************/
@@ -1365,6 +1562,42 @@ void TC_SS_init_ig(	                SS_init_type 		*SS_init,
 	};	
 }
 
+
+void TC_SS_init_igad(	            SS_init_type 		*SS_init,
+									global_variable 	 gv				){
+					 
+	for (int iss = 0; iss < gv.len_ss; iss++){
+
+        if (strcmp( gv.SS_list[iss], "cpx") == 0){
+			SS_init[iss]  = G_SS_igad_cpx_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "g")   == 0){
+			SS_init[iss]  = G_SS_igad_g_init_function; 		    }
+		else if (strcmp( gv.SS_list[iss], "ilm") == 0){
+			SS_init[iss]  = G_SS_igad_ilm_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "liq") == 0){
+			SS_init[iss]  = G_SS_igad_liq_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ol")  == 0){
+			SS_init[iss]  = G_SS_igad_ol_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "opx") == 0){
+			SS_init[iss]  = G_SS_igad_opx_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "fsp") == 0){
+			SS_init[iss]  = G_SS_igad_fsp_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "spn") == 0){
+			SS_init[iss]  = G_SS_igad_spn_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ness") == 0){
+			SS_init[iss]  = G_SS_igad_ness_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "lct") == 0){
+			SS_init[iss]  = G_SS_igad_lct_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "kals") == 0){
+			SS_init[iss]  = G_SS_igad_kals_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "mel") == 0){
+			SS_init[iss]  = G_SS_igad_mel_init_function; 		}
+		else{
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
+		}	
+	};	
+}
+
 void TC_SS_init_um(	                SS_init_type 		*SS_init,
 									global_variable 	 gv				){
 						 
@@ -1455,6 +1688,10 @@ void TC_SS_init(	        	    SS_init_type 		*SS_init,
 	}
 	else if (gv.EM_database == 2){			// igneous database //
 		TC_SS_init_ig(	 				    SS_init,
+											gv							);
+	}
+	else if (gv.EM_database == 3){			// igneous alkaline database //
+		TC_SS_init_igad(	 				SS_init,
 											gv							);
 	}
 	else if (gv.EM_database == 4){			// ultramafic database //

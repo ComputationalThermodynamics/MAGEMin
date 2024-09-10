@@ -20,5 +20,6 @@
     #include "SS_xeos_PC_mp.h" 				//mp is first, it contains the structure definition
     #include "SS_xeos_PC_mb.h" 
     #include "SS_xeos_PC_ig.h"
+    #include "SS_xeos_PC_igad.h"
     #include "SS_xeos_PC_um.h"
 #endif

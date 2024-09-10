@@ -52,6 +52,7 @@ SOURCES=src/MAGEMin.c 							\
 		src/TC_database/SS_xeos_PC_mp.c			\
 		src/TC_database/SS_xeos_PC_mb.c			\
 		src/TC_database/SS_xeos_PC_ig.c			\
+		src/TC_database/SS_xeos_PC_igad.c		\
 		src/TC_database/SS_xeos_PC_um.c			\
 		src/pp_min_function.c 					\
 		src/ss_min_function.c 					\

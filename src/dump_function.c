@@ -127,8 +127,13 @@ void fill_output_struct(		global_variable 	 gv,
 	else if (gv.EM_dataset == 634){		
 		strcpy(sp[0].dataset,"tc_ds634");	
 	}
-
-
+	else if (gv.EM_dataset == 635){		
+		strcpy(sp[0].dataset,"tc_ds635");	
+	}
+	else if (gv.EM_dataset == 636){		
+		strcpy(sp[0].dataset,"tc_ds636");	
+	}
+	
 	sp[0].bulk_res_norm 		 = gv.BR_norm;
 	sp[0].n_iterations 		     = gv.global_ite;
 	sp[0].status 		         = gv.status;

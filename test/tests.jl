@@ -407,7 +407,7 @@ println("Testing points from the reference diagrams:")
     Finalize_MAGEMin(data)
 
     println("  Starting Gt-Migmatite tests")
-    db  = "mp"  # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b)
+    db  = "mp"  # database: mp, metapelite (White et al 2014b)
     data = Initialize_MAGEMin(db, verbose=false);
    
     gv.verbose=-1;
@@ -419,12 +419,24 @@ println("Testing points from the reference diagrams:")
 
     # Metabasite database
     println("  Starting SQA Amphibole tests")
-    db  = "mb"  # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b)
+    db  = "mb"  # database: ig, igneous (Holland et al., 2018)
     data = Initialize_MAGEMin(db, verbose=false, mbCpx = 1);
    
     gv.verbose=-1;
     @testset "MB-DB - SQA Amphibole" begin
         include("test_diagram_test0_mb.jl")
+        TestPoints(list, data)
+    end
+    Finalize_MAGEMin(data)
+
+    # Igneous alkaline dry database
+    println("  Starting Syenite tests")
+    db  = "igad"  # database: igad, Igneous alkaline dry database (Weller et al., 2024)
+    data = Initialize_MAGEMin(db, verbose=false);
+   
+    gv.verbose=-1;
+    @testset "IGAD-DB - Syenite" begin
+        include("test_diagram_test0_igad.jl")
         TestPoints(list, data)
     end
     Finalize_MAGEMin(data)

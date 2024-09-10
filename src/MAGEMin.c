@@ -156,16 +156,19 @@ int runMAGEMin(			int    argc,
 	*/
 
 	if 		(gv.EM_database == 0){
-		gv = get_bulk_metapelite( 	gv );
+		gv = get_bulk_metapelite( 		gv );
 	}
 	else if (gv.EM_database == 1){
-		gv = get_bulk_metabasite( 	gv );
+		gv = get_bulk_metabasite( 		gv );
 	}
 	else if (gv.EM_database == 2){
-		gv = get_bulk_igneous( 		gv );
+		gv = get_bulk_igneous( 			gv );
+	}
+	else if (gv.EM_database == 3){
+		gv = get_bulk_igneous_igad( 	gv );
 	}
 	else if (gv.EM_database == 4){
-		gv = get_bulk_ultramafic( 	gv );
+		gv = get_bulk_ultramafic( 		gv );
 	}
 	else if (gv.EM_database == 5){
 		gv = get_bulk_ultramafic_ext( 	gv );
@@ -859,6 +862,9 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 	}
 	else if (strcmp(gv.db, "ig") 	== 0){
 		gv.EM_database = 2;
+	}
+	else if (strcmp(gv.db, "igad") 	== 0){
+		gv.EM_database = 3;
 	}
 	else if (strcmp(gv.db, "um") 	== 0){
 		gv.EM_database = 4;

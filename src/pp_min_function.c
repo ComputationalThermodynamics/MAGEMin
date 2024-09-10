@@ -690,18 +690,23 @@ global_variable init_em_db(		int 				EM_database,
 				/* display molar composition */
 
 				if (EM_database == 0){
-					printf("\n S   A   C   M   F   K   N   T   O   Mn  H  \n");
+					printf("\n S   A   C   M   F   K   N   T   O   Mn  H\n");
 				}
 				else if (EM_database == 1){
-					printf("\n S   A   C   M   F   K   N   T   O   H  \n");
+					printf("\n S   A   C   M   F   K   N   T   O   H\n");
 				}
-				else if (EM_database == 2 || EM_database == 3 || EM_database == 6 || EM_database == 5){
-					printf("\n S   A   C   M   F   K   N   T   O   Cr  H  \n");
+				else if (EM_database == 2){
+					printf("\n S   A   C   M   F   K   N   T   O   Cr  H\n");
+				}
+				else if (EM_database == 3){
+					printf("\n S   A   C   M   F   K   N   T   O   Cr\n");
 				}
 				else if (EM_database == 4){
 					printf("\n S   A   M   F   O   H   S\n");
 				}
-
+				else if (EM_database == 5){
+					printf("\n S   A   M   F   O   H   S   C   N\n");
+				}
 				for (int j = 0; j < gv.len_ox; j++){
 					printf(" %.1f",PP_ref_db[i].Comp[j]);
 				}
