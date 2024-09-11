@@ -17,9 +17,8 @@
         char   FullName[50];		/** pure species name 														*/
         char   Equation[50];		/** pure species name 														*/
         double Comp[6];       	 	/** pure species composition [0-10] + number of atom [11] 					*/
-
-        double input_1[16];          /** first line of the thermodynamics datable 								*/
-        double input_2[10];          /** second line of the thermodynamics datable 								*/
+        double input_1[10];          /** second line of the thermodynamics datable 								*/
+        double input_2[3];          /** second line of the thermodynamics datable 								*/
     } EM_db_sb;
 
     EM_db_sb Access_SB_EM_DB(int id, int EM_dataset);

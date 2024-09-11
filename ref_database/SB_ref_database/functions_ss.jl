@@ -22,12 +22,14 @@ struct Phase
     aSm::Float64                # Ambient shear modulus (GPa)
     pd::Float64                 # Pressure derivative
     td::Float64                 # Temperature derivative
-
 end
 
 function read_data(fname::String)
     return JSON3.read(fname, Vector{Phase}) |> DataFrame
 end
+
+data2 = read_data("stx11_data.json")
+@save "STIX11.jld2" data2
 
 struct ModelJSON
     name            :: String

@@ -91,16 +91,16 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 
 	max_ite 		= 100;
 
-	double F0		= EM_return.input_2[0];
-	double n		= EM_return.input_2[1];
-	double V0 		= EM_return.input_2[2];
-	double K0 		= EM_return.input_2[3];
-	double Kp 		= EM_return.input_2[4];
-	double z00		= EM_return.input_2[5];
-	double gamma0 	= EM_return.input_2[6];
-	double q0 		= EM_return.input_2[7];
-	double etaS0	= EM_return.input_2[8];
-	double cme		= EM_return.input_2[9];
+	double F0		= EM_return.input_1[0];
+	double n		= EM_return.input_1[1];
+	double V0 		= EM_return.input_1[2];
+	double K0 		= EM_return.input_1[3];
+	double Kp 		= EM_return.input_1[4];
+	double z00		= EM_return.input_1[5];
+	double gamma0 	= EM_return.input_1[6];
+	double q0 		= EM_return.input_1[7];
+	double etaS0	= EM_return.input_1[8];
+	double cme		= EM_return.input_1[9];
     
     nr9 	= -9.0 * n * R;
     nr9T0 	= nr9 * T0;
@@ -265,7 +265,7 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 	}
 	PP_ref_db.gbase   =  gbase;
 	PP_ref_db.factor  =  factor;
-	// PP_ref_db.phase_shearModulus  =  (EM_return.input_4[0]*kbar2bar + (P - P0)*(EM_return.input_4[1])*kbar2bar + (T - T0)*(EM_return.input_4[2]))/kbar2bar;
+	PP_ref_db.phase_shearModulus  =  (EM_return.input_2[0]*kbar2bar + (P - P0)*(EM_return.input_2[1])*kbar2bar + (T - T0)*(EM_return.input_2[2]))/kbar2bar;
 
 
 	// printf(" %4s %+10f\n",name,PP_ref_db.gbase);

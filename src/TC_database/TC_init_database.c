@@ -70,13 +70,13 @@ metabasite_dataset metabasite_db = {
 	{"sp"	,"opx"	,"fsp"	,"liq"	,"mu"	,"ilm"	,"ol"	,"hb"	,"ep"	,"g"	,"chl"	,"bi"	,"dio"	,"abc"  ,"spn"			},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1				},  // allow solvus?
-	{936	,1730 	,231	,3504	,4536 	,420	,11		,7663	,110	,216	,3980	,1097	,1808	,21 	,196			},  // # of pseudocompound
-	{0.09	,0.19	,0.049	,0.199	,0.19	,0.09	,0.098	,0.249	,0.049	,0.19	,0.19	,0.149	,0.16	,0.049 	,0.09			},  // discretization step
+	{936	,1730 	,231	,3505	,4536 	,420	,11		,7664	,110	,216	,3980	,1097	,1808	,21 	,196			},  // # of pseudocompound
+	{0.09	,0.19	,0.049	,0.199	,0.19	,0.049	,0.098	,0.249	,0.049	,0.19	,0.19	,0.149	,0.16	,0.049 	,0.09			},  // discretization step
 
 	{"sp"	,"opx"	,"fsp"	,"liq"	,"mu"	,"ilm"	,"ol"	,"hb"	,"ep"	,"g"	,"chl"	,"bi"	,"aug"	,"abc"  ,"spn"			},
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1				},  // allow solvus?
-	{936	,1730 	,231	,3504	,4536 	,130	,11		,7663	,110	,216	,3980	,1097	,2390	,21 	,196			},  // # of pseudocompound
-	{0.09	,0.19	,0.049	,0.199	,0.19	,0.09	,0.098	,0.249	,0.049	,0.19	,0.19	,0.149	,0.249	,0.049 	,0.09			},  // discretization step
+	{936	,1730 	,231	,3505	,4536 	,420	,11		,7664	,110	,216	,3980	,1097	,2391	,21 	,196			},  // # of pseudocompound
+	{0.09	,0.19	,0.049	,0.199	,0.19	,0.049	,0.098	,0.249	,0.049	,0.19	,0.19	,0.149	,0.249	,0.049 	,0.09			},  // discretization step
 
 	4.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
 	473.15,						/* max temperature above which PGE solver is active 								*/
@@ -131,7 +131,7 @@ igneous_igad_dataset igneous_igad_db = {
 	{"spn"	,"cpx"	,"g"	,"ilm"	,"liq"	,"ol"	,"opx"	,"fsp"	,"lct"	,"mel"	,"ness"	,"kals"		},
 	
 	{1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1		,1		,1			}, // allow solvus?
-	{3318	,4126	,2450	,1033	,4911	,381	,3412	,861	,21		,270	,1210	,21			}, // # of pseudocompound
+	{3318	,4126	,2450	,1034	,4911	,381	,3412	,861	,21		,270	,1210	,21			}, // # of pseudocompound
 	{0.195	,0.249	,0.145	,0.124	,0.15	,0.098	,0.249	,0.0249	,0.049	,0.19	,0.149 	,0.049		}, // discretization step
 
 	6.0, 						/** max dG under which a phase is considered to be reintroduced  					*/

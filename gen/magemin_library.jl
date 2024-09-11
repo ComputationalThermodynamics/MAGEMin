@@ -132,8 +132,8 @@ mutable struct EM_db_sb_
     FullName::NTuple{50, Cchar}
     Equation::NTuple{50, Cchar}
     Comp::NTuple{6, Cdouble}
-    input_1::NTuple{16, Cdouble}
-    input_2::NTuple{10, Cdouble}
+    input_1::NTuple{10, Cdouble}
+    input_2::NTuple{3, Cdouble}
     EM_db_sb_() = new()
 end
 

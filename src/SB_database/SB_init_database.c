@@ -234,7 +234,7 @@ global_variable global_variable_SB_init( 	global_variable  	 gv,
 
 	/* sets end-member dataset information */
 	if (gv.EM_dataset == 2011){
-			gv.n_em_db 			= 47;
+			gv.n_em_db 			= 46;
 	}
 	// else if (gv.EM_dataset == 22){
 	// 		gv.n_em_db 			= 289;
