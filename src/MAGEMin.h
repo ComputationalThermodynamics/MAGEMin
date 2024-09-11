@@ -36,6 +36,20 @@ typedef double (*PC_type) (			unsigned         n,
 									double          *grad,
 									void            *SS_ref_db			);
 
+/** 
+	Store oxide informations 
+**/
+typedef struct oxide_datas {
+	int 	n_ox;
+	char    oxName[15][20];
+	double  oxMass[15];
+	double  atPerOx[15];
+	double  ElEntropy[15]; //standard molar entropy
+	double  OPerOx[15];
+
+} oxide_data;
+
+
 /* structure to store global variables */
 typedef struct global_variables {
 	
@@ -126,14 +140,22 @@ typedef struct global_variables {
 
 	int      numPoint; 			/** the number of the current point */
 	int      global_ite;		/** global iteration increment */
+
+	/* get the id of the oxides to reduce down the compositional system*/
 	int 	 H2O_id;
 	int 	 S_id;
 	int 	 Al2O3_id;
+	int 	 CaO_id;
+	int 	 Na2O_id;
+	int 	 FeO_id;
+	int 	 MgO_id;
+	int 	 SiO2_id;
 	int 	 K2O_id;
 	int 	 O_id;
 	int 	 TiO2_id;
 	int 	 Cr2O3_id;
 	int 	 MnO_id;
+
 	/* SPECIAL CASES */
 	// double   melt_pressure;
 

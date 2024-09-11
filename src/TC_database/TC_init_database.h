@@ -14,19 +14,6 @@
     #include "../MAGEMin.h"
 
 	/** 
-		Store oxide informations 
-	**/
-	typedef struct oxide_datas {
-		int 	n_ox;
-		char    oxName[15][20];
-		double  oxMass[15];
-		double  atPerOx[15];
-		double  ElEntropy[15]; //standard molar entropy
-		double  OPerOx[15];
-
-	} oxide_data;
-
-	/** 
 		Metapelite database informations
 	**/
 	typedef struct metapelite_datasets {

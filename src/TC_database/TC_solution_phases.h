@@ -11,7 +11,7 @@
 #ifndef __TC_sol_H_
 #define __TC_sol_H_
 
-    #include "gss_init_function.h"
+    #include "tc_gss_init_function.h"
     #include "gss_function.h"
     #include "objective_functions.h"
     #include "NLopt_opt_function.h"

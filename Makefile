@@ -40,12 +40,13 @@ SOURCES=src/MAGEMin.c 							\
 		src/TC_database/TC_init_database.c		\
 		src/TC_database/TC_endmembers.c			\
 		src/TC_database/TC_gem_function.c		\
+		src/SB_database/SB_init_database.c		\
 		src/SB_database/SB_endmembers.c			\
-		src/SB_database/SB_gem_function.c			\
+		src/SB_database/SB_gem_function.c		\
 		src/toolkit.c							\
 		src/io_function.c						\
 		src/gem_function.c 						\
-		src/TC_database/gss_init_function.c		\
+		src/TC_database/tc_gss_init_function.c		\
 		src/TC_database/gss_function.c			\
 		src/TC_database/NLopt_opt_function.c 	\
 		src/TC_database/objective_functions.c	\

@@ -739,7 +739,7 @@ void fill_output_struct(		global_variable 	 gv,
 		}
 	}
 	if (m >= gv.max_n_mSS){
-		printf("WARNING: maximum number of metastable pseudocompounds has been reached, increase the value in gss_init_function.c (SP_INIT_function)\n");
+		printf("WARNING: maximum number of metastable pseudocompounds has been reached, increase the value in tc_gss_init_function.c (SP_INIT_function)\n");
 	}
 
 

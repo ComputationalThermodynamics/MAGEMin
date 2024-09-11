@@ -706,7 +706,7 @@
     {
         "id": "na-ca-ferrite",
         "abbrev": "nacf",
-        "fml": "[Na_1][Al_1]Si_1O_4",
+        "fml": "[Na_1][Si_1]Al_1O_4",
         "oxides":{"SIO2":1.0,"CAO":0.0,"AL2O3":0.5,"FEO":0.0,"MGO":0.0,"NA2O":0.5},
         "F0": -1.844129e6,
         "n": -7.0,

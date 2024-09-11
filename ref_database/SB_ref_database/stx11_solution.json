@@ -201,7 +201,7 @@
         "endmembers": {
             "mg-ca-ferrite": ["mgcf","[Mg_1][Al_1]Al_1O_4"],
             "fe-ca-ferrite": ["fecf","[Fe_1][Al_1]Al_1O_4"],
-            "na-ca-ferrite": ["nacf","[Na_1][Al_1]Si_1O_4"]
+            "na-ca-ferrite": ["nacf","[Na_1][Si_1]Al_1O_4"]
         },
         "margules": {
             "mg-ca-ferrite,fe-ca-ferrite": 0.000e+00,

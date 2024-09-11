@@ -17,11 +17,26 @@
 	#include "all_endmembers.h"
 	#include "all_init_database.h"
 
+	typedef SS_ref (*SS_init_type) (	SS_ref 				SS_ref_db,
+										global_variable 	gv					);
+
 	char** get_EM_DB_names_tc(			global_variable 	gv					);
 	char** get_EM_DB_names_sb(			global_variable 	gv					);
 	char** get_FS_DB_names(				global_variable 	gv					);
 
 	global_variable global_variable_alloc( bulk_info  	    *z_b 				);
+
+	csd_phase_set CP_INIT_function(		csd_phase_set 		cp, 
+										global_variable 	gv					);
+										
+	stb_system SP_INIT_function(		stb_system 			sp,
+										global_variable 	gv					);
+								
+	SS_ref G_SS_init_EM_function(		SS_init_type   	   *SS_init,
+										int					ph_id,
+										SS_ref 				SS_ref_db,
+										char 		   	   *name, 
+										global_variable 	gv					);
 
 	global_variable reset_gv(			global_variable 	 gv,
 										bulk_info 	 		 z_b,

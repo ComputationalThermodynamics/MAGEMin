@@ -15,6 +15,6 @@
     #include "./TC_database/TC_init_database.h"
 
     /* This includes the initializing routine for Stixrude & Lithgow-Bertelloni database */
-    //#include "STIX_solution_phases.h"
+    #include "./SB_database/SB_init_database.h"
 
 #endif
