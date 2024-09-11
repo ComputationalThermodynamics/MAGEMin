@@ -24,55 +24,11 @@ Igneous dataset to use with tc-ds633.txt
 #include <complex.h> 
 
 #include "../MAGEMin.h"
+#include "../initialize.h"
 #include "../all_solution_phases.h"
 #include "../simplex_levelling.h"
 #include "../toolkit.h"
-// #include "gfs_function.h"
 
-/**
-	structure to transfer composition, oversized on purpose to accomodate for database with higher oxide number 
-*/
-typedef struct get_datas{
-	double comp[15];			
-} get_data;
-
-void init_data(int len_ox,	void *comp_array ){
-	get_data *d  = (get_data *) comp_array;
-	for (int i = 0; i < len_ox; i++){
-		d->comp[i] = 0.0;
-	}
-}
-
-void init_pp(int len_ox, void *PP_db ){
-	PP_ref *d  = (PP_ref *) PP_db;
-	for (int i = 0; i < len_ox; i++){
-		d->Comp[i] = 0.0;
-	}
-}
-
-
-/** 
-  function to easely get gb and comp in order to define solid solutions
-*/
-em_data get_em_data(	char        *research_group,
-                        int 		 EM_dataset, 
-						int          len_ox,
-						bulk_info 	 z_b,
-                        double       P,
-                        double       T,
-						char 		*name, 
-						char 		*state		){
-
-	em_data data; 
-	PP_ref PP_db   		= G_EM_function(research_group, EM_dataset, len_ox, z_b.id, z_b.bulk_rock, z_b.apo, P, T, name, state);
-   	data.ElShearMod  	= PP_db.phase_shearModulus;
-   	data.gb  			= PP_db.gbase;
-
-	for (int i = 0; i < len_ox; i++){
-		data.C[i] = PP_db.Comp[i];
-	}
-	return data;
-}
 
 em_data get_fs_data(	int             len_ox,
 						bulk_info 	    z_b,

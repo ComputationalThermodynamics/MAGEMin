@@ -1505,6 +1505,24 @@ function get_FS_DB_names(gv)
     ccall((:get_FS_DB_names, libMAGEMin), Ptr{Ptr{Cchar}}, (global_variable,), gv)
 end
 
+mutable struct em_datas
+    C::NTuple{14, Cdouble}
+    ElShearMod::Cdouble
+    gb::Cdouble
+    charge::Cdouble
+    em_datas() = new()
+end
+
+const em_data = em_datas
+
+function get_em_data(research_group, EM_dataset, len_ox, z_b, P, T, name, state)
+    ccall((:get_em_data, libMAGEMin), em_data, (Ptr{Cchar}, Cint, Cint, bulk_info, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), research_group, EM_dataset, len_ox, z_b, P, T, name, state)
+end
+
+function get_fs_data(len_ox, z_b, wat, P, T, name, state)
+    ccall((:get_fs_data, libMAGEMin), em_data, (Cint, bulk_info, Ptr{solvent_prop}, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), len_ox, z_b, wat, P, T, name, state)
+end
+
 function CP_INIT_function(cp, gv)
     ccall((:CP_INIT_function, libMAGEMin), csd_phase_set, (csd_phase_set, global_variable), cp, gv)
 end
@@ -1603,24 +1621,6 @@ end
 
 function G_SS_um_ext_EM_function(gv, SS_ref_db, EM_dataset, z_b, name)
     ccall((:G_SS_um_ext_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_dataset, z_b, name)
-end
-
-mutable struct em_datas
-    C::NTuple{14, Cdouble}
-    ElShearMod::Cdouble
-    gb::Cdouble
-    charge::Cdouble
-    em_datas() = new()
-end
-
-const em_data = em_datas
-
-function get_em_data(research_group, EM_dataset, len_ox, z_b, P, T, name, state)
-    ccall((:get_em_data, libMAGEMin), em_data, (Ptr{Cchar}, Cint, Cint, bulk_info, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), research_group, EM_dataset, len_ox, z_b, P, T, name, state)
-end
-
-function get_fs_data(len_ox, z_b, wat, P, T, name, state)
-    ccall((:get_fs_data, libMAGEMin), em_data, (Cint, bulk_info, Ptr{solvent_prop}, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), len_ox, z_b, wat, P, T, name, state)
 end
 
 function TC_mb_objective_init_function(SS_objective, gv)

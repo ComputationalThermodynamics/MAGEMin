@@ -24,6 +24,30 @@
 	char** get_EM_DB_names_sb(			global_variable 	gv					);
 	char** get_FS_DB_names(				global_variable 	gv					);
 
+	typedef struct em_datas{
+		double C[14];
+		double ElShearMod;
+		double gb;
+		double charge;	
+	} em_data;
+
+	em_data get_em_data(				char 		*research_group,
+										int 		 EM_dataset, 
+										int          len_ox,
+										bulk_info 	 z_b,
+										double       P,
+										double       T,
+										char 		*name, 
+										char 		*state			);
+
+	em_data get_fs_data(				int             len_ox,
+										bulk_info 	    z_b,
+										solvent_prop   *wat,
+										double          P,
+										double          T,
+										char 		   *name, 
+										char 		   *state					);
+
 	global_variable global_variable_alloc( bulk_info  	    *z_b 				);
 
 	csd_phase_set CP_INIT_function(		csd_phase_set 		cp, 
