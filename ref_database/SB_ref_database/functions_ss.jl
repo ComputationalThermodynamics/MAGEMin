@@ -6,7 +6,7 @@ global tab                  = "    "
 
 struct Phase
     id::String                  # Name id
-    abbrev::String                # Abbreviation
+    abbrev::String              # Abbreviation
     fml::String                 # Chemical formula
     oxides::Dict{String, Float64}  # Oxides
     F0::Float64                 # Helmoltz energy (F0, J/mol)

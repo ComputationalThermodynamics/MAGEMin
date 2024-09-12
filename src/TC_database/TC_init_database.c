@@ -75,7 +75,7 @@ metabasite_dataset metabasite_db = {
 
 	{"sp"	,"opx"	,"fsp"	,"liq"	,"mu"	,"ilm"	,"ol"	,"hb"	,"ep"	,"g"	,"chl"	,"bi"	,"aug"	,"abc"  ,"spn"			},
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1				},  // allow solvus?
-	{936	,1730 	,231	,3505	,4536 	,420	,11		,7664	,110	,216	,3980	,1097	,2391	,21 	,196			},  // # of pseudocompound
+	{936	,1730 	,231	,3505	,4536 	,420	,11		,7664	,110	,216	,3980	,1097	,2392	,21 	,196			},  // # of pseudocompound
 	{0.09	,0.19	,0.049	,0.199	,0.19	,0.049	,0.098	,0.249	,0.049	,0.19	,0.19	,0.149	,0.249	,0.049 	,0.09			},  // discretization step
 
 	4.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
@@ -613,7 +613,7 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 				if (strcmp( gv.ox[i], "H2O") == 0){
 					gv.H2O_id = i;
 				}
-				else if (strcmp( gv.ox[i], "Al2O3") 	== 0){
+				else if (strcmp( gv.ox[i], "Al2O3") == 0){
 					gv.Al2O3_id = i;
 				}
 				else if (strcmp( gv.ox[i], "K2O") 	== 0){

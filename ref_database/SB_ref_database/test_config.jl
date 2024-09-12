@@ -23,7 +23,6 @@ T = 1000.
 # SiO2:0 CaO:1 Al2O3:2 FeO:3 MgO:4 Na2O:5
 # Si Ca Al Fe Mg Na
 C       = [     3/4 0;    #Mg s1
-                0 0;      #Fe s1
                 0 3/4;    #Fe s1
                 1/4 1/4;  #Al s1
                 1/8 0;    #Mg s2
@@ -32,17 +31,26 @@ C       = [     3/4 0;    #Mg s1
 
 M       = [4.0,4.0,4.0,4.0,8.0,8.0,8.0]
 
-X       = [0.5,0.5]
+X       = [0.2,0.8]
 
 Xo      = C*X
 config  = R*T* (M'*Diagonal(Xo)*logish.(Xo))
 
 
-tmp     = M.*Diagonal(Xo)*logish.(Xo)
-cfg1    = R*T* (sum(tmp[[1,3,4,6]]) - tmp[3]/2  - tmp[6]/2)
-cfg2    = R*T* (sum(tmp[[2,3,5,6]]) - tmp[3]/2  - tmp[6]/2)
+C1       = [     3/4 0;    #Mg s1
+                0 3/4;    #Fe s1
+                1/4 1/4]  #Al s2
 
-cfg1+cfg2
+C2       = [     1/8 0;    #Mg s2
+                0 1/8;    #Fe s2
+                7/8 7/8]  #Al s2
+
+
+for i=1:2
+
+
+
+
 
 
 n_ss = length(ss)
@@ -70,6 +78,10 @@ for i = 1:n_ss
 
     Xo      = C*X
     config  = R*T* (M'*Diagonal(Xo)*logish.(Xo))
+
+
+    config_em = R*T .* X .* logish.(X)
+
 
     println("$i $(ss[i].abbrev): $config")
     
