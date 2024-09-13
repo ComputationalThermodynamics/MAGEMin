@@ -1,4 +1,5 @@
 using LinearAlgebra
+using Symbolics
 
 function logish(x, meps = 1.0e-7)
     """
@@ -15,13 +16,14 @@ function logish(x, meps = 1.0e-7)
 
     return ln
 end
+
+
 R = 8.31446261815324
-T = 1000.
+T = 1000.0
 
 
-
-# SiO2:0 CaO:1 Al2O3:2 FeO:3 MgO:4 Na2O:5
 # Si Ca Al Fe Mg Na
+
 C       = [     3/4 0;    #Mg s1
                 0 3/4;    #Fe s1
                 1/4 1/4;  #Al s1
@@ -29,25 +31,42 @@ C       = [     3/4 0;    #Mg s1
                 0 1/8;    #Fe s2
                 7/8 7/8]  #Al s2
 
-M       = [4.0,4.0,4.0,4.0,8.0,8.0,8.0]
+M       = [4.0,4.0,4.0,8.0,8.0,8.0]
+n_em    = size(C,2)
 
-X       = [0.2,0.8]
+@variables xv[1:n_em]
+X               = Symbolics.scalarize(xv)
+ 
+Xo              = C*X
+config          = R * T * (M' * Diagonal(Xo) * log.(Xo))
+grad_config     = Symbolics.gradient(config, X)
 
-Xo      = C*X
-config  = R*T* (M'*Diagonal(Xo)*logish.(Xo))
-
-
-C1       = [     3/4 0;    #Mg s1
-                0 3/4;    #Fe s1
-                1/4 1/4]  #Al s2
-
-C2       = [     1/8 0;    #Mg s2
-                0 1/8;    #Fe s2
-                7/8 7/8]  #Al s2
+f_config        = build_function(config,        X, expression = Val{false})
+f_grad_config,  = build_function(grad_config,   X, expression = Val{false});
 
 
-for i=1:2
+x = [0.1, 0.9]
+f_config(x)
+f_grad_config(x)
 
+ 
+
+# grad_config = Symbolics.gradient(config, [x1, x2])
+# f_grad_config, grad_config! = build_function(grad_config, X, expression = Val{false});
+# f_grad_config([0.1, 0.9])
+# # Print the symbolic expression for the gradient
+# println(grad_config)
+
+# x1_val = 0.1
+# x2_val = 0.9
+# config_evaluated = Symbolics.substitute(config, Dict(x1 => x1_val, x2 => x2_val))
+# grad_config_evaluated = Symbolics.substitute(grad_config, Dict(x1 => x1_val, x2 => x2_val))
+
+# # Print the evaluated gradient
+# println("Evaluated gradient at x1=$x1_val, x2=$x2_val: ", grad_config_evaluated)
+
+
+# config_evaluated = Symbolics.substitute(config, Dict(x1 => x1_val, x2 => x2_val))
 
 
 
@@ -77,10 +96,10 @@ for i = 1:n_ss
 
 
     Xo      = C*X
-    config  = R*T* (M'*Diagonal(Xo)*logish.(Xo))
+    config  = R*T* (M'*Diagonal(Xo)*log.(Xo))
 
 
-    config_em = R*T .* X .* logish.(X)
+    # config_em = R*T .* X .* log.(X)
 
 
     println("$i $(ss[i].abbrev): $config")

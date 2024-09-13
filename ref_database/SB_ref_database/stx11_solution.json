@@ -107,7 +107,7 @@
         "abbrev": "hpcpx",
         "endmembers": {
             "hp-clinoenstatite": ["hpcen","[Mg_2]Si_2O_6"],
-            "hp-clinoferrosilite": ["hpfs","[Fe_2]Si_2O_6"]
+            "hp-clinoferrosilite": ["hpcfs","[Fe_2]Si_2O_6"]
         },
         "margules": {
             "hp-clinoenstatite,hp-clinoferrosilite": 0.000e+00
