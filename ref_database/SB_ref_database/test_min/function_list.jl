@@ -169,15 +169,11 @@ function get_functions(i)
     em_comp = zeros(Float64, n_em, n_ox)
     for j=1:n_em
         em          = ss[i].endmembers[em_list[j]][1]
-        println("$(data2[!,:abbrev])")
-        println("$(em)")
         id          = findfirst(data2[!,:abbrev] .== em)
         em_comp[j,:]= [ (data2[id,:oxides][k]) for k in keys(data2[id,:oxides]) ]
     end
 
     sym             = isempty(v) ? 1 : 0
-
-
 
     M   = Float64[]
     C   = Vector{Float64}[]

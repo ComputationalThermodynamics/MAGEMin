@@ -8,7 +8,7 @@ using NLopt
 
 include("test_min/function_list.jl")
 
-n_em, N, f_config, f_grad_config, f_mu_Gex = get_functions(8);
+n_em, N, f_config, f_grad_config, f_mu_Gex = get_functions(2);
 
 x  = rand(n_em) .+ 0.1; x ./= sum(x);
 
@@ -29,3 +29,5 @@ println(
     # function evaluation : $num_evals
     """
 )
+
+

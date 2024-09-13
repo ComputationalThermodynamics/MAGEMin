@@ -103,7 +103,7 @@ igneous_dataset igneous_db = {
 	{"spn"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"hb"	,"ilm"	,"liq"	,"ol"	,"opx"	,"fsp"	,"fl"	,"mu"	,"fper"					},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1		,1						}, // allow solvus?
-	{1521	,3554	,121	,4125	,210	,2450	,5498	,420	,3088	,381	,3413	,231	,11		,2376	,20						}, // # of pseudocompound
+	{1521	,3554	,121	,4125	,210	,2450	,5499	,420	,3088	,381	,3413	,231	,2		,2376	,20						}, // # of pseudocompound
 	{0.249	,0.124	,0.098	,0.249	,0.049	,0.145	,0.33	,0.0499	,0.198	,0.098	,0.249	,0.049	,1.0 	,0.198	,0.05					}, // discretization step
 
 	6.0, 						/** max dG under which a phase is considered to be reintroduced  					*/
