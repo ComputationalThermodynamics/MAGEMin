@@ -49,4 +49,9 @@ SS_ref G_SS_um_ext_EM_function(	global_variable  gv,
 								bulk_info 		 z_b,
 								char 			*name					);
 
+SS_ref G_SS_mtl_EM_function(	global_variable  gv, 
+								SS_ref 			 SS_ref_db,
+								int 			 EM_dataset,
+								bulk_info 		 z_b,
+								char 			*name					);
 #endif

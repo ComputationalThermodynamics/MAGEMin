@@ -32,17 +32,18 @@ struct ModelJSON
     van_laar        :: Vector{Float64}
 end
 
-function objective(x::Vector, grad::Vector, N, f_config, f_grad_config, f_mu_Gex)
+function objective(x::Vector, grad::Vector, N, f_config, f_grad_config, f_mu_Gex, active)
     mu_Gex          = f_mu_Gex(x);
     S_tot           = f_config(x);
     dSdp            = f_grad_config(x);
 
     if length(grad) > 0
         dGdp        = dSdp+mu_Gex;             # raw dGibbs/dp
-        grad       .= N*(dGdp'*N)';            # projected dGibbs/dp to satisfy sum(p) = 1.0
+        grad       .= (N*(dGdp'*N)') .* active;            # projected dGibbs/dp to satisfy sum(p) = 1.0
     end
     G = mu_Gex'*x + S_tot
-    println("G: $G")
+    # println("G: $G")
+    # println("sum(x): $(sum(x))")
     return  G
 end
 

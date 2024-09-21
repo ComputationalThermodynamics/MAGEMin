@@ -17,21 +17,19 @@
 
 void TC_mb_objective_init_function(	obj_type 		 	*SS_objective,
 									global_variable  	 gv					);
-
 void TC_ig_objective_init_function(	obj_type 		 	*SS_objective,
 									global_variable   	 gv					);
-
-void TC_igad_objective_init_function(	obj_type 		 	*SS_objective,
-										global_variable   	 gv					);
-
+void TC_igad_objective_init_function(	obj_type 		*SS_objective,
+										global_variable  gv					);
 void TC_mp_objective_init_function(	obj_type 		 	*SS_objective,
 									global_variable 	 gv					);
-
 void TC_um_objective_init_function(	obj_type 		 	*SS_objective,
 									global_variable  	 gv					);
-
-void TC_um_ext_objective_init_function(	obj_type 		 	*SS_objective,
+void TC_um_ext_objective_init_function(	obj_type 		*SS_objective,
 									global_variable  	 gv					);
+void TC_mtl_objective_init_function(	obj_type 		*SS_objective,
+									global_variable  	 gv					);
+									
 void TC_SS_objective_init_function(	obj_type 			*SS_objective,
 									global_variable 	 gv					);
 
@@ -127,6 +125,20 @@ double obj_ume_pl4tr(unsigned n, const double *x, double *grad, void *SS_ref_db)
 double obj_ume_hb(unsigned    n, const double *x, double *grad, void *SS_ref_db);
 double obj_ume_aug(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 
+double obj_mtl_g(unsigned  		n, const double *x, double *grad, void *SS_ref_db);
+double obj_mtl_fp(unsigned     	n, const double *x, double *grad, void *SS_ref_db);
+double obj_mtl_mpv(unsigned     n, const double *x, double *grad, void *SS_ref_db);
+double obj_mtl_crn(unsigned     n, const double *x, double *grad, void *SS_ref_db);
+double obj_mtl_cf(unsigned    	n, const double *x, double *grad, void *SS_ref_db);
+double obj_mtl_nal(unsigned     n, const double *x, double *grad, void *SS_ref_db);
+double obj_mtl_aki(unsigned     n, const double *x, double *grad, void *SS_ref_db);
+double obj_mtl_ol(unsigned    	n, const double *x, double *grad, void *SS_ref_db);
+double obj_mtl_wad(unsigned   	n, const double *x, double *grad, void *SS_ref_db);
+double obj_mtl_ring(unsigned    n, const double *x, double *grad, void *SS_ref_db);
+double obj_mtl_cpx(unsigned    	n, const double *x, double *grad, void *SS_ref_db);
+double obj_mtl_opx(unsigned     n, const double *x, double *grad, void *SS_ref_db);
+double obj_mtl_hpx(unsigned 	n, const double *x, double *grad, void *SS_ref_db);
+
 double obj_aq17(unsigned 	  n, const double *x, double *grad, void *SS_ref_db);
 
 SS_ref PC_function(			global_variable 	 gv,
@@ -147,5 +159,7 @@ void TC_igad_PC_init(	            PC_type 			*PC_read,
 void TC_um_PC_init(	                PC_type 			*PC_read,
 									global_variable 	 gv				);
 void TC_um_ext_PC_init(	            PC_type 			*PC_read,
+									global_variable 	 gv				);
+void TC_mtl_PC_init(	            PC_type 			*PC_read,
 									global_variable 	 gv				);
 #endif

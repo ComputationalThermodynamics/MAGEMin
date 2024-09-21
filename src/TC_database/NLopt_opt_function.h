@@ -42,6 +42,8 @@ void TC_um_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 									global_variable 	 gv				);
 void TC_um_ext_NLopt_opt_init(	    NLopt_type 			*NLopt_opt,
 									global_variable 	 gv				);
+void TC_mtl_NLopt_opt_init(	    	NLopt_type 			*NLopt_opt,
+									global_variable 	 gv				);
 void TC_NLopt_opt_init(	        	NLopt_type 			*NLopt_opt,
 									global_variable 	 gv				);
 

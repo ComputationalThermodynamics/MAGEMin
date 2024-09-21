@@ -1316,7 +1316,7 @@ mutable struct metabasite_datasets
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{10, NTuple{20, Cchar}}
-    PP::NTuple{24, NTuple{20, Cchar}}
+    PP::NTuple{23, NTuple{20, Cchar}}
     SS1::NTuple{15, NTuple{20, Cchar}}
     verifyPC1::NTuple{15, Cint}
     n_SS_PC1::NTuple{15, Cint}
@@ -1444,6 +1444,32 @@ end
 
 const ultramafic_ext_dataset = ultramafic_ext_datasets
 
+mutable struct mantle_datasets
+    ds_version::Cint
+    n_ox::Cint
+    n_pp::Cint
+    n_ss::Cint
+    ox::NTuple{6, NTuple{20, Cchar}}
+    PP::NTuple{8, NTuple{20, Cchar}}
+    SS::NTuple{13, NTuple{20, Cchar}}
+    verifyPC::NTuple{13, Cint}
+    n_SS_PC::NTuple{13, Cint}
+    SS_PC_stp::NTuple{13, Cdouble}
+    PC_df_add::Cdouble
+    solver_switch_T::Cdouble
+    min_melt_T::Cdouble
+    inner_PGE_ite::Cdouble
+    max_n_phase::Cdouble
+    max_g_phase::Cdouble
+    max_fac::Cdouble
+    merge_value::Cdouble
+    re_in_n::Cdouble
+    obj_tol::Cdouble
+    mantle_datasets() = new()
+end
+
+const mantle_dataset = mantle_datasets
+
 function global_variable_TC_init(gv, z_b)
     ccall((:global_variable_TC_init, libMAGEMin), global_variable, (global_variable, Ptr{bulk_info}), gv, z_b)
 end
@@ -1454,6 +1480,10 @@ end
 
 function get_bulk_igneous_igad(gv)
     ccall((:get_bulk_igneous_igad, libMAGEMin), global_variable, (global_variable,), gv)
+end
+
+function get_bulk_mantle(gv)
+    ccall((:get_bulk_mantle, libMAGEMin), global_variable, (global_variable,), gv)
 end
 
 mutable struct stx11_datasets
@@ -1595,6 +1625,10 @@ function TC_SS_init_um_ext(SS_init, gv)
     ccall((:TC_SS_init_um_ext, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
 end
 
+function TC_SS_init_mtl(SS_init, gv)
+    ccall((:TC_SS_init_mtl, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
+end
+
 function TC_SS_init(SS_init, gv)
     ccall((:TC_SS_init, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
 end
@@ -1623,6 +1657,10 @@ function G_SS_um_ext_EM_function(gv, SS_ref_db, EM_dataset, z_b, name)
     ccall((:G_SS_um_ext_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_dataset, z_b, name)
 end
 
+function G_SS_mtl_EM_function(gv, SS_ref_db, EM_dataset, z_b, name)
+    ccall((:G_SS_mtl_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_dataset, z_b, name)
+end
+
 function TC_mb_objective_init_function(SS_objective, gv)
     ccall((:TC_mb_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
 end
@@ -1645,6 +1683,10 @@ end
 
 function TC_um_ext_objective_init_function(SS_objective, gv)
     ccall((:TC_um_ext_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
+end
+
+function TC_mtl_objective_init_function(SS_objective, gv)
+    ccall((:TC_mtl_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
 end
 
 function TC_SS_objective_init_function(SS_objective, gv)
@@ -1970,6 +2012,58 @@ function obj_ume_aug(n, x, grad, SS_ref_db)
     ccall((:obj_ume_aug, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
+function obj_mtl_g(n, x, grad, SS_ref_db)
+    ccall((:obj_mtl_g, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_mtl_fp(n, x, grad, SS_ref_db)
+    ccall((:obj_mtl_fp, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_mtl_mpv(n, x, grad, SS_ref_db)
+    ccall((:obj_mtl_mpv, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_mtl_crn(n, x, grad, SS_ref_db)
+    ccall((:obj_mtl_crn, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_mtl_cf(n, x, grad, SS_ref_db)
+    ccall((:obj_mtl_cf, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_mtl_nal(n, x, grad, SS_ref_db)
+    ccall((:obj_mtl_nal, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_mtl_aki(n, x, grad, SS_ref_db)
+    ccall((:obj_mtl_aki, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_mtl_ol(n, x, grad, SS_ref_db)
+    ccall((:obj_mtl_ol, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_mtl_wad(n, x, grad, SS_ref_db)
+    ccall((:obj_mtl_wad, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_mtl_ring(n, x, grad, SS_ref_db)
+    ccall((:obj_mtl_ring, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_mtl_cpx(n, x, grad, SS_ref_db)
+    ccall((:obj_mtl_cpx, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_mtl_opx(n, x, grad, SS_ref_db)
+    ccall((:obj_mtl_opx, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_mtl_hpx(n, x, grad, SS_ref_db)
+    ccall((:obj_mtl_hpx, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
 function obj_aq17(n, x, grad, SS_ref_db)
     ccall((:obj_aq17, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
@@ -2000,6 +2094,10 @@ end
 
 function TC_um_ext_PC_init(PC_read, gv)
     ccall((:TC_um_ext_PC_init, libMAGEMin), Cvoid, (Ptr{PC_type}, global_variable), PC_read, gv)
+end
+
+function TC_mtl_PC_init(PC_read, gv)
+    ccall((:TC_mtl_PC_init, libMAGEMin), Cvoid, (Ptr{PC_type}, global_variable), PC_read, gv)
 end
 
 # typedef void ( * sf_type ) ( unsigned m , double * result , unsigned n , const double * x , double * grad , void * data )
@@ -2036,6 +2134,10 @@ function TC_um_ext_NLopt_opt_init(NLopt_opt, gv)
     ccall((:TC_um_ext_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
 end
 
+function TC_mtl_NLopt_opt_init(NLopt_opt, gv)
+    ccall((:TC_mtl_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
+end
+
 function TC_NLopt_opt_init(NLopt_opt, gv)
     ccall((:TC_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
 end
@@ -2070,6 +2172,10 @@ end
 
 function SS_um_pc_init_function(SS_pc_xeos, iss, name)
     ccall((:SS_um_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
+end
+
+function SS_mtl_pc_init_function(SS_pc_xeos, iss, name)
+    ccall((:SS_mtl_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
 end
 
 function PGE(z_b, gv, PC_read, SS_objective, NLopt_opt, splx_data, PP_ref_db, SS_ref_db, cp)

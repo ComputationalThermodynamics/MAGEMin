@@ -173,6 +173,9 @@ int runMAGEMin(			int    argc,
 	else if (gv.EM_database == 5){
 		gv = get_bulk_ultramafic_ext( 	gv );
 	}
+	else if (gv.EM_database == 6){
+		gv = get_bulk_mantle( 	gv );
+	}
 	else{
 		printf(" Wrong database...\n");
 	}
@@ -845,6 +848,9 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		}
 		else if (strcmp(gv.db, "ume") 	== 0){
 			gv.EM_database = 5;
+		}
+		else if (strcmp(gv.db, "mtl") 	== 0){
+			gv.EM_database = 6;
 		}
 		else {
 			printf(" No or wrong database acronym has been provided, using default (metapelite [mp])\n");
