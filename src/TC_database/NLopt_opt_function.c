@@ -7868,6 +7868,51 @@ void mpv_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *
 };
 
 /**
+    Inequality constraints for cpv
+*/
+void cpv_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+    result[0] = (-1.0*x[2]);
+    result[1] = (-1.0*x[0]*x[1] -x[0]*x[2] -x[0]*x[3] + x[0] + x[1] + x[2] + x[3] - 1.0);
+    result[2] = (x[0]*x[1] + x[0]*x[2] + x[0]*x[3] -x[0]);
+    result[3] = (-0.5*x[3]);
+    result[4] = (-1.0*x[1] - 0.5*x[3]);
+    result[5] = (-1.0*x[1]);
+    result[6] = (x[1] - 1.0);
+
+    if (grad) {
+        grad[0] = 0.0;
+        grad[1] = 0.0;
+        grad[2] = -1.0;
+        grad[3] = 0.0;
+        grad[4] = -1.0*x[1] -x[2] -x[3] + 1.0;
+        grad[5] = 1.0 -x[0];
+        grad[6] = 1.0 -x[0];
+        grad[7] = 1.0 -x[0];
+        grad[8] = x[1] + x[2] + x[3] - 1.0;
+        grad[9] = x[0];
+        grad[10] = x[0];
+        grad[11] = x[0];
+        grad[12] = 0.0;
+        grad[13] = 0.0;
+        grad[14] = 0.0;
+        grad[15] = -0.50;
+        grad[16] = 0.0;
+        grad[17] = -1.0;
+        grad[18] = 0.0;
+        grad[19] = -0.50;
+        grad[20] = 0.0;
+        grad[21] = -1.0;
+        grad[22] = 0.0;
+        grad[23] = 0.0;
+        grad[24] = 0.0;
+        grad[25] = 1.0;
+        grad[26] = 0.0;
+        grad[27] = 0.0;
+    }
+
+    return;
+};
+/**
     Inequality constraints for crn
 */
 void crn_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
@@ -8376,6 +8421,46 @@ SS_ref NLopt_opt_mtl_mpv_function(global_variable gv, SS_ref SS_ref_db){
     if (gv.maxeval==1){  
        // we are only interested in evaluating the objective function  
        minf = obj_mtl_mpv(n, x, NULL, &SS_ref_db);
+    }
+    else{
+      // do optimization
+      SS_ref_db.status = nlopt_optimize(SS_ref_db.opt, x, &minf);
+    }
+    /* Send back needed local solution parameters */
+    for (int i = 0; i < SS_ref_db.n_xeos; i++){
+       SS_ref_db.xeos[i] = x[i];
+    }
+    
+    SS_ref_db.df   = minf;
+    nlopt_destroy(SS_ref_db.opt);
+    
+    return SS_ref_db;
+};
+SS_ref NLopt_opt_mtl_cpv_function(global_variable gv, SS_ref SS_ref_db){
+    
+    int    n_em     = SS_ref_db.n_em;
+    unsigned int n  = SS_ref_db.n_xeos;
+    unsigned int m  = SS_ref_db.n_sf;
+    
+    double *x  = SS_ref_db.iguess; 
+    
+    for (int i = 0; i < (SS_ref_db.n_xeos); i++){
+       SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+       SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
+    }
+    
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n)); 
+    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
+    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
+    nlopt_set_min_objective(SS_ref_db.opt, obj_mtl_cpv, &SS_ref_db);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, cpv_mtl_c, NULL, NULL);
+    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
+    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
+    
+    double minf;
+    if (gv.maxeval==1){  
+       // we are only interested in evaluating the objective function  
+       minf = obj_mtl_cpv(n, x, NULL, &SS_ref_db);
     }
     else{
       // do optimization
@@ -9060,6 +9145,8 @@ void TC_mtl_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_mtl_fp_function; 		}
 		else if (strcmp( gv.SS_list[iss], "mpv") == 0){
 			NLopt_opt[iss]  = NLopt_opt_mtl_mpv_function; 		}
+		else if (strcmp( gv.SS_list[iss], "cpv") == 0){
+			NLopt_opt[iss]  = NLopt_opt_mtl_cpv_function; 		}
 		else if (strcmp( gv.SS_list[iss], "crn")  == 0){
 			NLopt_opt[iss]  = NLopt_opt_mtl_crn_function; 		}
 		else if (strcmp( gv.SS_list[iss], "cf")  == 0){

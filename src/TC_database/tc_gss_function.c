@@ -10461,6 +10461,114 @@ SS_ref G_SS_mtl_mpv_function(SS_ref SS_ref_db, char* research_group, int EM_data
 }
 
 /**
+   retrieve reference thermodynamic data for mtl_cpv
+*/
+SS_ref G_SS_mtl_cpv_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
+    
+    int i, j;
+    int n_em = SS_ref_db.n_em;
+    
+    char   *EM_tmp[] 		= {"mpv","fpvm","cpvm","apv","npvm"};
+    for (int i = 0; i < SS_ref_db.n_em; i++){
+        strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
+    };
+    int n_sf = SS_ref_db.n_sf;
+    
+    char   *SF_tmp[] 		= {"xCaM1","xMgM1","xFeM1","xNaM1","xAlM1","xAlM2","xSiM2"};
+    for (int i = 0; i < SS_ref_db.n_sf; i++){
+        strcpy(SS_ref_db.SF_list[i],SF_tmp[i]);
+    };
+    int n_xeos = SS_ref_db.n_xeos;
+    char   *CV_tmp[] 		= {"x","y","c","n"};
+    for (int i = 0; i < SS_ref_db.n_xeos; i++){
+        strcpy(SS_ref_db.CV_list[i],CV_tmp[i]);
+    };
+    SS_ref_db.W[0] = 12.;
+    SS_ref_db.W[1] = 15.;
+    SS_ref_db.W[2] = 20.;
+    SS_ref_db.W[3] = 22.;
+    SS_ref_db.W[4] = 10.50;
+    SS_ref_db.W[5] = 14.;
+    SS_ref_db.W[6] = 15.40;
+    SS_ref_db.W[7] = 5.0;
+    SS_ref_db.W[8] = 7.5;
+    SS_ref_db.W[9] = 2.5;
+    
+    
+    em_data mpv_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"mpv", 
+    										"equilibrium"	);
+    
+    em_data fpv_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"fpv", 
+    										"equilibrium"	);
+    
+    em_data cpv_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"cpv", 
+    										"equilibrium"	);
+    
+    em_data apv_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"apv", 
+    										"equilibrium"	);
+    
+    em_data npv_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"npv", 
+    										"equilibrium"	);
+    
+    SS_ref_db.gbase[0] 		= mpv_eq.gb + 27.0;
+    SS_ref_db.gbase[1] 		= fpv_eq.gb /*- 9.5*/ + 14.0;
+    SS_ref_db.gbase[2] 		= cpv_eq.gb /*+ 60.0*/;
+    SS_ref_db.gbase[3] 		= apv_eq.gb + 20.0;
+    SS_ref_db.gbase[4] 		= npv_eq.gb + /*16.0*/ + 25.0;
+    
+    SS_ref_db.ElShearMod[0] 	= mpv_eq.ElShearMod;
+    SS_ref_db.ElShearMod[1] 	= fpv_eq.ElShearMod;
+    SS_ref_db.ElShearMod[2] 	= cpv_eq.ElShearMod;
+    SS_ref_db.ElShearMod[3] 	= apv_eq.ElShearMod;
+    SS_ref_db.ElShearMod[4] 	= npv_eq.ElShearMod;
+    
+    for (i = 0; i < len_ox; i++){
+        SS_ref_db.Comp[0][i] 	= mpv_eq.C[i];
+        SS_ref_db.Comp[1][i] 	= fpv_eq.C[i];
+        SS_ref_db.Comp[2][i] 	= cpv_eq.C[i];
+        SS_ref_db.Comp[3][i] 	= apv_eq.C[i];
+        SS_ref_db.Comp[4][i] 	= npv_eq.C[i];
+    }
+    
+    for (i = 0; i < n_em; i++){
+        SS_ref_db.z_em[i] = 1.0;
+    };
+    
+    SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
+    SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+    SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
+    SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
+    
+    return SS_ref_db;
+}
+
+
+/**
    retrieve reference thermodynamic data for mtl_crn
 */
 SS_ref G_SS_mtl_crn_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
@@ -12272,6 +12380,8 @@ SS_ref G_SS_mtl_EM_function(	global_variable 	 gv,
 			SS_ref_db  = G_SS_mtl_fp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "mpv") == 0){
 			SS_ref_db  = G_SS_mtl_mpv_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}	
+		else if (strcmp( name, "cpv") == 0){
+			SS_ref_db  = G_SS_mtl_cpv_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}	
 		else if (strcmp( name, "crn") == 0){
 			SS_ref_db  = G_SS_mtl_crn_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "cf") == 0){
@@ -12289,6 +12399,9 @@ SS_ref G_SS_mtl_EM_function(	global_variable 	 gv,
 		else if (strcmp( name, "cpx") == 0){
 			SS_ref_db  = G_SS_mtl_cpx_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "opx") == 0){
+			if (z_b.P > 100.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
 			SS_ref_db  = G_SS_mtl_opx_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "hpx") == 0){
 			SS_ref_db  = G_SS_mtl_hpx_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);}

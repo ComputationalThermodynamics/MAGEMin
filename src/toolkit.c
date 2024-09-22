@@ -65,7 +65,7 @@ void print_help(	global_variable gv	){
 	printf("  --buffer_n= 	[float] : multiplier with respect to qfm buffer\n");
 	printf("  --mbCpx= 		[int]   : 0. omphacite, 1. augite (applies to metabasite database, see Green et al., 2016)\n");
 	printf("\n");
-	printf(" *'mp': metapelite, 'mb': metabasite, 'ig': igneous H18->G23, 'igad': igneous alkaline dry, 'um': ultramafic, 'ume': ultramafic extended\n");
+	printf(" *'mp': metapelite, 'mb': metabasite, 'ig': igneous H18->G23, 'igad': igneous alkaline dry, 'um': ultramafic, 'ume': ultramafic extended, 'mtl': mantle\n");
 	printf("\n");
 	printf(" **the list of oxides must be provided as follow:\n");
 	printf("  'ig':               SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3, H2O\n");
@@ -74,6 +74,7 @@ void print_help(	global_variable gv	){
 	printf("  'mb':               SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, H2O\n");
 	printf("  'um':               SiO2, Al2O3, MgO, FeOt, O, H2O, S\n");
 	printf("  'ume':              SiO2, Al2O3, MgO, FeOt, O, H2O, S, CaO, Na2O\n");
+	printf("  'mtl':              SiO2, Al2O3, CaO, MgO, FeOt, Na2O\n");
 	printf("\n");
 	printf(" Note that FeOt (total iron) is used here!\n");	
 	printf("\n\n");

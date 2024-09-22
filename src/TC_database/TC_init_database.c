@@ -209,14 +209,14 @@ mantle_dataset mantle_db = {
 	633,						/* Endmember default dataset number */
 	6,							/* number of oxides */			
 	8,							/* number of pure phases */
-	13,							/* number of solution phases */
+	14,							/* number of solution phases */
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"Na2O"																},
 	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"												},
-	{"g"	,"fp"  ,"mpv"	,"crn"	,"cf"	,"nal"	,"aki"	,"ol"	,"wad"	,"ring"	,"cpx"	,"opx"	,"hpx"		},
+	{"g"	,"fp"  ,"mpv"	,"cpv"	,"crn"	,"cf"	,"nal"	,"aki"	,"ol"	,"wad"	,"ring"	,"cpx"	,"opx"	,"hpx"		},
 	
-	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1		,1		,1			},  // allow solvus?
-	{800  	,21  	,336 	,144 	,1258 	,1672  	,144 	,21		,21		,21		,1004	,342	,342		},  // No. of pseudocompound
-	{0.19	,0.049	,0.19	,0.09	,0.19	,0.24	,0.9	,0.049	,0.049	,0.049	,0.19	,0.19	,0.19		},  // discretization step
+	{1		,1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1		,1		,1			},  // allow solvus?
+	{800  	,21  	,336 	,336 	,144 	,1258 	,1672  	,144 	,21		,21		,21		,1004	,342	,342		},  // No. of pseudocompound
+	{0.19	,0.049	,0.19	,0.19	,0.09	,0.19	,0.24	,0.9	,0.049	,0.049	,0.049	,0.19	,0.19	,0.19		},  // discretization step
 
 	4.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
 	473.15,						/* max temperature above which PGE solver is active 								*/

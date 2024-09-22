@@ -128,6 +128,7 @@ double obj_ume_aug(unsigned   n, const double *x, double *grad, void *SS_ref_db)
 double obj_mtl_g(unsigned  		n, const double *x, double *grad, void *SS_ref_db);
 double obj_mtl_fp(unsigned     	n, const double *x, double *grad, void *SS_ref_db);
 double obj_mtl_mpv(unsigned     n, const double *x, double *grad, void *SS_ref_db);
+double obj_mtl_cpv(unsigned     n, const double *x, double *grad, void *SS_ref_db);
 double obj_mtl_crn(unsigned     n, const double *x, double *grad, void *SS_ref_db);
 double obj_mtl_cf(unsigned    	n, const double *x, double *grad, void *SS_ref_db);
 double obj_mtl_nal(unsigned     n, const double *x, double *grad, void *SS_ref_db);

@@ -1451,10 +1451,10 @@ mutable struct mantle_datasets
     n_ss::Cint
     ox::NTuple{6, NTuple{20, Cchar}}
     PP::NTuple{8, NTuple{20, Cchar}}
-    SS::NTuple{13, NTuple{20, Cchar}}
-    verifyPC::NTuple{13, Cint}
-    n_SS_PC::NTuple{13, Cint}
-    SS_PC_stp::NTuple{13, Cdouble}
+    SS::NTuple{14, NTuple{20, Cchar}}
+    verifyPC::NTuple{14, Cint}
+    n_SS_PC::NTuple{14, Cint}
+    SS_PC_stp::NTuple{14, Cdouble}
     PC_df_add::Cdouble
     solver_switch_T::Cdouble
     min_melt_T::Cdouble
@@ -2022,6 +2022,10 @@ end
 
 function obj_mtl_mpv(n, x, grad, SS_ref_db)
     ccall((:obj_mtl_mpv, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_mtl_cpv(n, x, grad, SS_ref_db)
+    ccall((:obj_mtl_cpv, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
 function obj_mtl_crn(n, x, grad, SS_ref_db)

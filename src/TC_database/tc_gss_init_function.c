@@ -1324,6 +1324,20 @@ SS_ref G_SS_mtl_mpv_init_function(SS_ref SS_ref_db,  global_variable gv){
     
     return SS_ref_db;
 }
+/**
+    allocate memory for cpv
+*/
+SS_ref G_SS_mtl_cpv_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 7;
+    SS_ref_db.n_em      = 5;
+    SS_ref_db.n_w       = 10;
+    SS_ref_db.n_xeos    = 4;
+    
+    return SS_ref_db;
+}
 
 /**
     allocate memory for crn
@@ -1743,6 +1757,8 @@ void TC_SS_init_mtl(	            SS_init_type 		*SS_init,
 			SS_init[iss]  = G_SS_mtl_fp_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "mpv") == 0){
 			SS_init[iss]  = G_SS_mtl_mpv_init_function; 	}
+		else if (strcmp( gv.SS_list[iss], "cpv") == 0){
+			SS_init[iss]  = G_SS_mtl_cpv_init_function; 	}
 		else if (strcmp( gv.SS_list[iss], "crn")  == 0){
 			SS_init[iss]  = G_SS_mtl_crn_init_function; 	}
 		else if (strcmp( gv.SS_list[iss], "cf")  == 0){

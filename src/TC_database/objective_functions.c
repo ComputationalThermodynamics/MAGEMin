@@ -10063,6 +10063,18 @@ void px_mtl_mpv(void *SS_ref_db, const double *x){
         p[3]           = x[1];
         p[4]           = x[3];
 }
+/**
+    Endmember fraction of cpv
+*/
+void px_mtl_cpv(void *SS_ref_db, const double *x){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    double *p = d->p;
+        p[0]           = x[0]*x[1] + x[0]*x[2] + x[0]*x[3] -x[0] -x[1] -x[2] -x[3] + 1.0;
+        p[1]           = -1.0*x[0]*x[1] -x[0]*x[2] -x[0]*x[3] + x[0];
+        p[2]           = x[2];
+        p[3]           = x[1];
+        p[4]           = x[3];
+}
 
     
 /**
@@ -10238,6 +10250,19 @@ void dpdx_mtl_mpv(void *SS_ref_db, const double *x){
     dp_dx[4][0] = 0.0;      dp_dx[4][1] = 0.0;      dp_dx[4][2] = 0.0;      dp_dx[4][3] = 1.00;      
 }
 
+/**
+    Update dpdx matrix of cpv
+*/
+void dpdx_mtl_cpv(void *SS_ref_db, const double *x){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    double **dp_dx = d->dp_dx;
+
+    dp_dx[0][0] = x[1] + x[2] + x[3] - 1.0;      dp_dx[0][1] = x[0] - 1.0;      dp_dx[0][2] = x[0] - 1.0;      dp_dx[0][3] = x[0] - 1.0;      
+    dp_dx[1][0] = -1.0*x[1] -x[2] -x[3] + 1.0;      dp_dx[1][1] = -1.0*x[0];      dp_dx[1][2] = -1.0*x[0];      dp_dx[1][3] = -1.0*x[0];      
+    dp_dx[2][0] = 0.0;      dp_dx[2][1] = 0.0;      dp_dx[2][2] = 1.00;      dp_dx[2][3] = 0.0;      
+    dp_dx[3][0] = 0.0;      dp_dx[3][1] = 1.00;      dp_dx[3][2] = 0.0;      dp_dx[3][3] = 0.0;      
+    dp_dx[4][0] = 0.0;      dp_dx[4][1] = 0.0;      dp_dx[4][2] = 0.0;      dp_dx[4][3] = 1.00;      
+}
 
 /**
     Update dpdx matrix of crn
@@ -10587,6 +10612,77 @@ double obj_mtl_mpv(unsigned n, const double *x, double *grad, void *SS_ref_db){
     return d->df;
 }
     
+/**
+    Objective function of cpv
+*/
+double obj_mtl_cpv(unsigned n, const double *x, double *grad, void *SS_ref_db){
+    SS_ref *d         = (SS_ref *) SS_ref_db;
+
+    int n_em          = d->n_em;
+    double P          = d->P;
+    double T          = d->T;
+    double R          = d->R;
+
+    double *gb        = d->gb_lvl;
+    double *mu_Gex    = d->mu_Gex;
+    double *sf        = d->sf;
+    double *mu        = d->mu;
+    px_mtl_cpv(SS_ref_db,x);
+
+    for (int i = 0; i < n_em; i++){
+        mu_Gex[i] = 0.0;
+        int it    = 0;
+        for (int j = 0; j < d->n_xeos; j++){
+            for (int k = j+1; k < n_em; k++){
+                mu_Gex[i] -= (d->eye[i][j] - d->p[j])*(d->eye[i][k] - d->p[k])*(d->W[it]);
+                it += 1;
+            }
+        }
+    }
+    
+    sf[0]          = x[2];
+    sf[1]          = x[0]*x[1] + x[0]*x[2] + x[0]*x[3] - x[0] - x[1] - x[2] - x[3] + 1.0;
+    sf[2]          = -x[0]*x[1] - x[0]*x[2] - x[0]*x[3] + x[0];
+    sf[3]          = 0.5*x[3];
+    sf[4]          = x[1] + 0.5*x[3];
+    sf[5]          = x[1];
+    sf[6]          = 1.0 - x[1];
+    
+    
+    mu[0]          = gb[0] + R*T*creal(clog(sf[1]*sf[6])) + mu_Gex[0];
+    mu[1]          = gb[1] + R*T*creal(clog(sf[2]*sf[6])) + mu_Gex[1];
+    mu[2]          = gb[2] + R*T*creal(clog(sf[0]*sf[6])) + mu_Gex[2];
+    mu[3]          = gb[3] + R*T*creal(clog(sf[4]*sf[5])) + mu_Gex[3];
+    mu[4]          = gb[4] + R*T*creal(clog(2.0*csqrt(sf[3])*csqrt(sf[4])*sf[6])) + mu_Gex[4];
+    
+    d->sum_apep = 0.0;
+    for (int i = 0; i < n_em; i++){
+        d->sum_apep += d->ape[i]*d->p[i];
+    }
+    d->factor = d->fbc/d->sum_apep;
+
+    d->df_raw = 0.0;
+    for (int i = 0; i < n_em; i++){
+        d->df_raw += mu[i]*d->p[i];
+    }
+    d->df = d->df_raw * d->factor;
+
+    if (grad){
+        double *dfx    = d->dfx;
+        double **dp_dx = d->dp_dx;
+        dpdx_mtl_cpv(SS_ref_db,x);
+        for (int i = 0; i < (d->n_xeos); i++){
+            dfx[i] = 0.0;
+            for (int j = 0; j < n_em; j++){
+                dfx[i] += (mu[j] - (d->ape[j]/d->sum_apep)*d->df_raw)*d->factor*dp_dx[j][i];
+            }
+            grad[i] = creal(dfx[i]);
+        }
+    }
+
+    return d->df;
+}
+       
 /**
     Objective function of crn
 */
@@ -12049,6 +12145,8 @@ void TC_mtl_objective_init_function(	obj_type 			*SS_objective,
 			SS_objective[iss]  = obj_mtl_fp; 		}
 		else if (strcmp( gv.SS_list[iss], "mpv") == 0){
 			SS_objective[iss]  = obj_mtl_mpv; 		}
+		else if (strcmp( gv.SS_list[iss], "cpv") == 0){
+			SS_objective[iss]  = obj_mtl_cpv; 		}
 		else if (strcmp( gv.SS_list[iss], "crn")  == 0){
 			SS_objective[iss]  = obj_mtl_crn; 		}
 		else if (strcmp( gv.SS_list[iss], "cf")  == 0){
@@ -12366,6 +12464,8 @@ void TC_mtl_PC_init(	                PC_type 			*PC_read,
 			PC_read[iss]  = obj_mtl_fp; 		        }
 		else if (strcmp( gv.SS_list[iss], "mpv") == 0){
 			PC_read[iss]  = obj_mtl_mpv; 		        }
+		else if (strcmp( gv.SS_list[iss], "cpv") == 0){
+			PC_read[iss]  = obj_mtl_cpv; 		        }
 		else if (strcmp( gv.SS_list[iss], "crn")  == 0){
 			PC_read[iss]  = obj_mtl_crn; 		        }
 		else if (strcmp( gv.SS_list[iss], "cf")  == 0){
