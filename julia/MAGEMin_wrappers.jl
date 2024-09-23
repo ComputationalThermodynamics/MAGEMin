@@ -1010,6 +1010,9 @@ function point_wise_minimization_iguess(    P           ::  Number,
         end
     end
 
+    println(g0_A_jll)
+    println(A_jll)
+
     # copy to the appropriate places
     ph_id_A = unsafe_wrap(Vector{Ptr{Int32}},splx_data.ph_id_A, np)
 
@@ -1086,9 +1089,11 @@ function point_wise_minimization_iguess(    P           ::  Number,
             id_pc  .+= 1;
         end
     end
+
     gv.leveling_mode = 1
 
     out = deepcopy(pwm_run(gv, z_b, DB, splx_data))
+
 
     return out
 end
@@ -1595,6 +1600,15 @@ function point_wise_minimization_with_guess(mSS_vec, P, T, gv, z_b, DB, splx_dat
             ph_id_A_jll[i,2] = ph_id-1
             ph_id_A_jll[i,3] = 0
             ph_id_A_jll[i,4] = 0
+        elseif mSS_vec[i].ph_type == "fo"
+            ph_id = mSS_vec[i].ph_id+1
+            g0_A_jll[i] = 0.0
+            A_jll[i,:]  = mSS_vec[i].comp_Ppc[nzEl_array]
+
+            ph_id_A_jll[i,1] = 0
+            ph_id_A_jll[i,2] = ph_id-1
+            ph_id_A_jll[i,3] = 0
+            ph_id_A_jll[i,4] = 0    
         elseif mSS_vec[i].ph_type == "ss"
             ph_id   = mSS_vec[i].ph_id+1
             ph      = mSS_vec[i].ph_name

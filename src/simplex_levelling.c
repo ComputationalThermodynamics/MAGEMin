@@ -996,29 +996,29 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 	/**
 		Routine to deactivate the liquid endmembers after levelling 
 	*/
-	char liq_tail[] = "L";
-	for (int i = 0; i < gv.len_pp; i++){
-		if ( EndsWithTail(gv.PP_list[i], liq_tail) == 1 ) {
-			if (gv.pp_flags[i][0] == 1){
-				if (gv.pp_flags[i][1] == 1){
-					gv.pp_flags[i][0] = 0;
-					gv.pp_flags[i][1] = 0;
-					gv.pp_flags[i][2] = 0;
-					gv.pp_flags[i][3] = 1;
-					gv.n_phase       -= 1;
-					gv.n_pp_phase    -= 1;
-					gv.pp_n[i]        = 0.0;
-				}
-				else{
-					gv.pp_flags[i][0] = 0;
-					gv.pp_flags[i][1] = 0;
-					gv.pp_flags[i][2] = 0;
-					gv.pp_flags[i][3] = 1;
-					gv.pp_flags[i][4] = 0;
-				}
-			}
-		}
-	}
+	// char liq_tail[] = "L";
+	// for (int i = 0; i < gv.len_pp; i++){
+	// 	if ( EndsWithTail(gv.PP_list[i], liq_tail) == 1 ) {
+	// 		if (gv.pp_flags[i][0] == 1){
+	// 			if (gv.pp_flags[i][1] == 1){
+	// 				gv.pp_flags[i][0] = 0;
+	// 				gv.pp_flags[i][1] = 0;
+	// 				gv.pp_flags[i][2] = 0;
+	// 				gv.pp_flags[i][3] = 1;
+	// 				gv.n_phase       -= 1;
+	// 				gv.n_pp_phase    -= 1;
+	// 				gv.pp_n[i]        = 0.0;
+	// 			}
+	// 			else{
+	// 				gv.pp_flags[i][0] = 0;
+	// 				gv.pp_flags[i][1] = 0;
+	// 				gv.pp_flags[i][2] = 0;
+	// 				gv.pp_flags[i][3] = 1;
+	// 				gv.pp_flags[i][4] = 0;
+	// 			}
+	// 		}
+	// 	}
+	// }
 	
 	if (gv.verbose == 1){
 		printf("\n Initial guesses for compositional variables:\n");

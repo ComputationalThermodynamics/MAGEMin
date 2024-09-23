@@ -411,9 +411,10 @@ void fill_output_struct(		global_variable 	 gv,
 			sum_wt = 0.0;
 			sum_mol = 0.0;
 			for (j = 0; j < gv.len_ox; j++){
+				sp[0].PP[m].Comp_apfu[j] = sp[0].PP[m].Comp[j];
 				sp[0].PP[m].Comp[j]		 = PP_ref_db[i].Comp[j]*PP_ref_db[i].factor;
 				sp[0].PP[m].Comp_wt[j]   = sp[0].PP[m].Comp[j]*z_b.masspo[j];
-				sp[0].PP[m].Comp_apfu[j]   = sp[0].PP[m].Comp[j];
+
 				sum_wt 					+= sp[0].PP[m].Comp_wt[j];
 				sum_mol					+= sp[0].PP[m].Comp[j];
 			}
@@ -426,14 +427,14 @@ void fill_output_struct(		global_variable 	 gv,
 				sp[0].frac_S 		+= gv.pp_n_mol[i];
 				sp[0].rho_S  		+= gv.pp_n_mol[i]*PP_ref_db[i].phase_density;
 				for (j = 0; j < gv.len_ox; j++){
-					sp[0].bulk_S[j]	+= gv.pp_n_mol[i]*PP_ref_db[i].Comp[j]*PP_ref_db[i].factor;;
+					sp[0].bulk_S[j]	+= gv.pp_n_mol[i]*PP_ref_db[i].Comp[j]*PP_ref_db[i].factor;
 				}
 			}
 			if  (strcmp( gv.PP_list[i], "H2O") == 0){
 				sp[0].frac_F 		= gv.pp_n_mol[i];
 				sp[0].rho_F  		= gv.pp_n_mol[i]*PP_ref_db[i].phase_density;
 				for (j = 0; j < gv.len_ox; j++){
-					sp[0].bulk_F[j]	= gv.pp_n_mol[i]*PP_ref_db[i].Comp[j]*PP_ref_db[i].factor;;
+					sp[0].bulk_F[j]	= gv.pp_n_mol[i]*PP_ref_db[i].Comp[j]*PP_ref_db[i].factor;
 				}
 			}
 			n 			    	+= 1;
@@ -560,7 +561,29 @@ void fill_output_struct(		global_variable 	 gv,
 
 	for (i = 0; i < d->n_Ox; i++){
 		ph_id 		= d->ph_id_A[i][1];
-			
+
+
+		if (d->ph_id_A[i][0] == 0){			/* if phase is a fake oxide (This may happen for extremely reduced composition systems) */
+			for (int j = 0; j < gv.len_ox; j++){
+				sp[0].mSS[m].comp_Ppc[j] = 0.0;
+			}
+			sp[0].mSS[m].comp_Ppc[i]	 = 1.0;
+
+			sp[0].mSS[m].G_Ppc 	= 0.0;
+			sp[0].mSS[m].DF_Ppc = 0.0;;
+
+
+			strcpy(sp[0].mSS[m].info,"lpig");
+			strcpy(sp[0].mSS[m].ph_type,"fo");
+			strcpy(sp[0].mSS[m].ph_name,"F.OX");
+			sp[0].mSS[m].ph_id 		= i;
+			sp[0].mSS[m].nOx 		= gv.len_ox;
+			sp[0].mSS[m].n_xeos		= 0;
+			sp[0].mSS[m].n_em 		= 0;
+
+			sp[0].n_mSS += 1;
+			m += 1;
+		}			
 		if (d->ph_id_A[i][0] == 1){			/* if phase is a pure species */
 			for (int j = 0; j < gv.len_ox; j++){
 				sp[0].mSS[m].comp_Ppc[j] = PP_ref_db[ph_id].Comp[j]*PP_ref_db[ph_id].factor;

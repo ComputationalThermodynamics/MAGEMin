@@ -6146,7 +6146,7 @@ SS_ref NLopt_opt_mp_bi_function(global_variable gv, SS_ref SS_ref_db){
 
 
 SS_ref NLopt_opt_mp_liq_function(global_variable gv, SS_ref SS_ref_db){
-    
+
     int    n_em     = SS_ref_db.n_em;
     unsigned int n  = SS_ref_db.n_xeos;
     unsigned int m  = SS_ref_db.n_sf;

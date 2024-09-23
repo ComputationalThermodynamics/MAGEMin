@@ -12,11 +12,14 @@
 // Available thermodynamic dataset                       
 // ================================
  
-// Metapelite (White et al., 2014)
-// Metabasite (Green et al., 2016)
-// Igneous 	  (Holland et al., 2018)
-// Ultramafic (Evans & Frost, 2021)
-                                              
+// Metapelite 			(White et al., 2014)
+// Metabasite 			(Green et al., 2016)
+// Igneous 	  			(Holland et al., 2018)
+// Ultramafic 			(Evans & Frost, 2021)
+// Ultramafic extended	(Evans & Frost, 2021 + Green et al., 2016)
+// Mantle 	  			(Holland et al, 2013)
+// Igneous alkaline dry (Weller et al, 2024)
+
 // Imported libraries                       
 // ==================
 

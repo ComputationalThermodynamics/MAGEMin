@@ -479,7 +479,7 @@ void ss_min_LP(			global_variable 	 gv,
 				*/
 				for (int k = 0; k < cp[i].n_xeos; k++) {
 					SS_ref_db[ph_id].iguess[k] 	= cp[i].xeos[k];
-					cp[i].xeos_0[k] 			= cp[i].xeos[k];;
+					cp[i].xeos_0[k] 			= cp[i].xeos[k];
 					// SS_ref_db[ph_id].dguess[k] = cp[i].xeos[k];			//dguess can be used of LP, it is used for PGE to check for drifting
 				}
 
