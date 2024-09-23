@@ -1293,6 +1293,7 @@ void FreeDatabases(		global_variable gv,
 	/* ================ z_b ============= */
 	free(z_b.apo);
 	free(z_b.masspo);
+	free(z_b.opo);
 	free(z_b.ElEntropy);
 	free(z_b.id);
 	free(z_b.bulk_rock);

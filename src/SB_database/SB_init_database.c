@@ -199,6 +199,7 @@ global_variable global_variable_SB_init( 	global_variable  	 gv,
 	*/	
 	z_b->apo     		= malloc (gv.len_ox * sizeof (double) ); 
 	z_b->masspo     	= malloc (gv.len_ox * sizeof (double) );
+	z_b->opo     		= malloc (gv.len_ox * sizeof (double) );
 	z_b->ElEntropy     	= malloc (gv.len_ox * sizeof (double) );
 	z_b->id     		= malloc (gv.len_ox * sizeof (int) 	  );
 
@@ -220,6 +221,7 @@ global_variable global_variable_SB_init( 	global_variable  	 gv,
 				}											
 				z_b->apo[i]     	= ox_in.atPerOx[j];
 				z_b->masspo[i]  	= ox_in.oxMass[j];
+				z_b->opo[i]  		= ox_in.OPerOx[j];
 				z_b->ElEntropy[i]   = ox_in.ElEntropy[j];
 				z_b->id[i]  		= j;
 				break;

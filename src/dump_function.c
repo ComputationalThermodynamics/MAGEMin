@@ -108,6 +108,7 @@ void fill_output_struct(		global_variable 	 gv,
 	double sum_vol;
 	double sum_em_wt;
 	double sum_ph_mass;
+	double sum_oxygens;
 
 	double sum_Molar_mass_bulk;
 	double atp2wt;
@@ -258,13 +259,16 @@ void fill_output_struct(		global_variable 	 gv,
 			/* solution phase composition */
 			sum_wt = 0.0;
 			sum_mol = 0.0;
+			sum_oxygens = 0.0;
 			for (j = 0; j < gv.len_ox; j++){
+				sp[0].SS[m].Comp_apfu[j]		= cp[i].ss_comp[j];
+				sum_oxygens					   += cp[i].ss_comp[j]*z_b.opo[j];
 				sp[0].SS[m].Comp[j]				= cp[i].ss_comp[j]*cp[i].factor;
 				sp[0].SS[m].Comp_wt[j]			= sp[0].SS[m].Comp[j]*z_b.masspo[j];
-				sp[0].SS[m].Comp_apfu[j]		= cp[i].ss_comp[j];
 				sum_wt 						   += sp[0].SS[m].Comp_wt[j];
 				sum_mol 					   += sp[0].SS[m].Comp[j];
 			}
+
 			for (j = 0; j < gv.len_ox; j++){
 				sp[0].SS[m].Comp_wt[j]		   /= sum_wt;
 				sp[0].SS[m].Comp[j]		   	   /= sum_mol;
@@ -301,10 +305,12 @@ void fill_output_struct(		global_variable 	 gv,
 				
 				sum_wt  = 0.0;
 				sum_mol = 0.0;
+				sum_oxygens = 0.0;
 				for (k = 0; k < gv.len_ox; k++){
 					sp[0].SS[m].emComp[j][k]	= SS_ref_db[cp[i].id].Comp[j][k]*cp[i].factor;
 					sp[0].SS[m].emComp_wt[j][k]	= sp[0].SS[m].emComp[j][k]*z_b.masspo[k];
 					sp[0].SS[m].emComp_apfu[j][k]	= SS_ref_db[cp[i].id].Comp[j][k];
+					sum_oxygens					   += SS_ref_db[cp[i].id].Comp[j][k]*z_b.opo[j];
 					sum_wt 					   += sp[0].SS[m].emComp_wt[j][k];
 					sum_mol 				   += sp[0].SS[m].emComp[j][k];
 				}
@@ -410,8 +416,10 @@ void fill_output_struct(		global_variable 	 gv,
 
 			sum_wt = 0.0;
 			sum_mol = 0.0;
+			sum_oxygens = 0.0;
 			for (j = 0; j < gv.len_ox; j++){
 				sp[0].PP[m].Comp_apfu[j] = sp[0].PP[m].Comp[j];
+				sum_oxygens 			  += sp[0].PP[m].Comp[j]*z_b.opo[j];
 				sp[0].PP[m].Comp[j]		 = PP_ref_db[i].Comp[j]*PP_ref_db[i].factor;
 				sp[0].PP[m].Comp_wt[j]   = sp[0].PP[m].Comp[j]*z_b.masspo[j];
 

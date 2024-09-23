@@ -967,6 +967,7 @@ mutable struct bulk_infos
     apo::Ptr{Cdouble}
     fbc::Cdouble
     masspo::Ptr{Cdouble}
+    opo::Ptr{Cdouble}
     ElEntropy::Ptr{Cdouble}
     bulk_infos() = new()
 end

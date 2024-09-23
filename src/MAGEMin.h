@@ -537,6 +537,7 @@ typedef struct bulk_infos {
     double  *apo;				/** atom per oxide 										*/
     double   fbc;				/** number of atom for the bulk	rock composition		*/
     double  *masspo;			/** Molar mass per oxide 								*/
+	double  *opo;				/** Oxygen per oxide 									*/	
     double  *ElEntropy;			/** Molar entropy per oxide 							*/
 
 } bulk_info;
