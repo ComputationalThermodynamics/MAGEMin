@@ -536,7 +536,7 @@ void fill_simplex_arrays_A(				bulk_info 	 		 z_b,
 	/* fill reference assemblage */
 
 	for (int k = 0; k < z_b.nzEl_val; k++) {
-		d->g0_A[k]    		    = 1e10;								/** penalty G */
+		d->g0_A[k]    		    = 0.0;								/** penalty G CHECKTHISOUT */
 		d->ph_id_A[k][0]  	    = 0;								/** phase_id for penalty phase */
 		d->A[k+k*z_b.nzEl_val]  = 1.0;								/** eye matrix for stoichiometry */
 		d->A1[k+k*z_b.nzEl_val] = 1.0;

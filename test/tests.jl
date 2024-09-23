@@ -28,6 +28,20 @@ print_info(out)
 Finalize_MAGEMin(data)
 
 
+# Initialize database  - new way
+data        =   Initialize_MAGEMin("mtl", verbose=true);
+test        =   0         #KLB1
+data        =   use_predefined_bulk_rock(data, test);
+
+# Call optimization routine for given P & T & bulk_rock
+P           =   180.0
+T           =   1400.0
+out         =   point_wise_minimization(P,T, data);
+
+@test sort(out.ph) == sort(["g", "ring", "wad"])
+Finalize_MAGEMin(data)
+
+
 @testset "test activity buffers" begin
     # Initialize database  - new way
     data        =   Initialize_MAGEMin("mp", verbose=true, buffer="aH2O");
