@@ -9,39 +9,7 @@
  **
  ** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ @*/
 /**
-
-Function to allocate memory for solid-solutions        
-
-Holland et al., 2018 - Melting of peridotites through to granites                 
-Igneous dataset to use with tc-ds633.txt                                          
-"bi","cpx","cd","ep","fl","g","hb","ilm","liq","mu", "ol", "opx","fsp","spn" 
- 
-PP & SS_flags
--------------
-Declare flags needed for leveling and pge algorithms
-
-+-------+-------+------+------+-------+-------+------+
-| SS/PP |  IN	| ACT  | HLD  |  RMV  |  CYC  | REIN |
-+=======+=======+======+======+=======+=======+======+
-| [0]   | 0/1   |  0/1 | 0/1  | 0/1   | 0/n   | 0/1  |
-+-------+-------+------+------+-------+-------+------+
-| [1]   | 0/1   |  0/1 | 0/1  | 0/1   | 0/n   | 0/1  |
-+-------+-------+------+------+-------+-------+------+
-| [2]   | 0/1   |  0/1 | 0/1  | 0/1   | 0/n   | 0/1  |
-+-------+-------+------+------+-------+-------+------+
-|  ...  | 0/1   |  0/1 | 0/1  | 0/1   | 0/n   | 0/1  |
-+-------+-------+------+------+-------+-------+------+
-| [m]	| 0/1   |  0/1 | 0/1  | 0/1   | 0/n   | 0/1  |
-+-------+-------+------+------+-------+-------+------+
-													 
-- IN:   allowed phase (satisfying bulk rock constraints)
-- ACT:  considered phase (part of the active set of phases)
-- HLD:  on hold (not in the active set but still scanned at every iteration)
-- RMV:  removed (not considered anymore)
-- REIN: phase reintroduced
-- m: number of PP or SS
-- n: number of cycles
-
+  Function to allocate memory for solid-solutions        
 */
 
 #include <math.h>
@@ -53,129 +21,7 @@ Declare flags needed for leveling and pge algorithms
 
 #include "../MAGEMin.h"
 #include "../all_solution_phases.h"
-#include "gss_init_function.h"
-
-/** 
-  allocate memory to store considered phases
-
-  note (01/05/2023):
-  ------------------
-
-  n (array dim) was originally equal to gv.len_ox + 1; However this has been changed following update
-  on liq model (Green et al., 2023) and the use of 4 order variables summing up the total
-  number of compositional variables to 14 for a chemical system of 11 oxides
-  This means that the max number of the endmembers can be >= n-oxide + 1
-*/
-csd_phase_set CP_INIT_function(csd_phase_set cp, global_variable gv){
-	
-	int n 			= gv.max_ss_size_cp;
-	
-	/* initialize fractions flags and cycle arrays with zeros */
-	cp.ss_flags 	= malloc (gv.n_flags  * sizeof(int));
-	cp.name   		= malloc (20 * sizeof(char)		    );
-	cp.p_em   		= malloc (n  * sizeof(double) 		);
-	cp.xi_em  		= malloc (n  * sizeof(double) 		);
-	cp.dguess 		= malloc (n  * sizeof(double) 		);
-	cp.xeos   		= malloc (n  * sizeof(double) 		);
-	cp.xeos_0   	= malloc (n  * sizeof(double) 		);
-	cp.xeos_1   	= malloc (n  * sizeof(double) 		);
-	cp.xeos_r   	= malloc (n  * sizeof(double) 		);
-	cp.delta_mu		= malloc (n  * sizeof(double) 		);
-	cp.dfx   		= malloc (n  * sizeof(double) 		);
-	cp.mu    		= malloc (n  * sizeof(double) 		);
-	cp.gbase    	= malloc (n  * sizeof(double) 		);
-	cp.ss_comp		= malloc (n  * sizeof(double) 		);
-	cp.sf			= malloc ((n*2)  * sizeof(double) 	);
-	
-	cp.phase_density  		= 0.0;
-	cp.phase_cp				= 0.0;
-	cp.phase_expansivity	= 0.0;
-	cp.phase_entropy		= 0.0;
-	cp.phase_enthalpy		= 0.0;
-		
-	return cp;
-}
-
-/** 
-  allocate memory to store considered phases
-*/
-stb_system SP_INIT_function(stb_system sp, global_variable gv){
-
-	sp.MAGEMin_ver   		= malloc(50  		* sizeof(char)				);
-	sp.dataset   		    = malloc(50  		* sizeof(char)				);
-	sp.oxides 	     		= malloc(gv.len_ox  * sizeof(char*)				);
-	
-	for (int i = 0; i < gv.len_ox; i++){
-		sp.oxides[i] 		= malloc(20 * sizeof(char));	
-	}
-	sp.bulk 				= malloc(gv.len_ox  * sizeof(double)			);	
-	sp.gamma 				= malloc(gv.len_ox  * sizeof(double)			);	
-	sp.bulk_S 				= malloc(gv.len_ox 	* sizeof(double)			);	
-	sp.bulk_M 				= malloc(gv.len_ox 	* sizeof(double)			);	
-	sp.bulk_F 				= malloc(gv.len_ox 	* sizeof(double)			);	
-
-	sp.bulk_wt 				= malloc(gv.len_ox  * sizeof(double)			);	
-	sp.bulk_S_wt 			= malloc(gv.len_ox 	* sizeof(double)			);	
-	sp.bulk_M_wt 			= malloc(gv.len_ox 	* sizeof(double)			);	
-	sp.bulk_F_wt 			= malloc(gv.len_ox 	* sizeof(double)			);	
-	sp.ph 	     			= malloc(gv.len_ox  * sizeof(char*)				);
-	sp.ph_frac 	     		= malloc(gv.len_ox  * sizeof(double)			);
-	sp.ph_frac_wt     		= malloc(gv.len_ox  * sizeof(double)			);
-	sp.ph_frac_vol     		= malloc(gv.len_ox  * sizeof(double)			);
-	for (int i = 0; i < gv.len_ox; i++){
-		sp.ph[i] 			= malloc(20 * sizeof(char));	
-	}
-	sp.ph_type 				= malloc(gv.len_ox 	* sizeof(int)				);	
-	sp.ph_id 				= malloc(gv.len_ox 	* sizeof(int)				);	
-	sp.PP 		 			= malloc(gv.len_ox  * sizeof(stb_PP_phase)		); 
-	sp.SS 		 			= malloc(gv.len_ox  * sizeof(stb_SS_phase)		); 
-	sp.mSS 		 			= malloc(gv.max_n_mSS  * sizeof(mstb_SS_phase)	); 
-
-	for (int n = 0; n< gv.len_ox; n++){
-		sp.PP[n].Comp 			= malloc(gv.len_ox 	* sizeof(double)		);
-		sp.SS[n].Comp 			= malloc(gv.len_ox 	* sizeof(double)		);
-		sp.PP[n].Comp_wt 		= malloc(gv.len_ox 	* sizeof(double)		);
-		sp.SS[n].Comp_wt 		= malloc(gv.len_ox 	* sizeof(double)		);
-		sp.PP[n].Comp_apfu		= malloc(gv.len_ox 	* sizeof(double)		);
-		sp.SS[n].Comp_apfu		= malloc(gv.len_ox 	* sizeof(double)		);        
-		sp.SS[n].compVariables	= malloc(gv.len_ox*3   * sizeof(double)	    );
-        sp.SS[n].siteFractions	= malloc(gv.len_ox*3   * sizeof(double)	    );
-		sp.SS[n].emFrac			= malloc((gv.len_ox*3) * sizeof(double)		);
-		sp.SS[n].emFrac_wt		= malloc((gv.len_ox*3) * sizeof(double)		);
-		sp.SS[n].emChemPot		= malloc((gv.len_ox*3) * sizeof(double)		);
-		sp.SS[n].compVariablesNames	= malloc(gv.len_ox*3 * sizeof(char*)	);
-		sp.SS[n].siteFractionsNames	= malloc(gv.len_ox*3 * sizeof(char*)	);
-		sp.SS[n].emNames 	    = malloc((gv.len_ox*3) * sizeof(char*)		);
-		sp.SS[n].emComp 	    = malloc((gv.len_ox*3) * sizeof(double*)	);
-		sp.SS[n].emComp_wt 	    = malloc((gv.len_ox*3) * sizeof(double*)	);
-        sp.SS[n].emComp_apfu    = malloc((gv.len_ox*3) * sizeof(double*)	);
-
-		for (int i = 0; i < gv.len_ox*3; i++){
-            sp.SS[n].compVariablesNames[i]		= malloc(20 * sizeof(char)	);
-            sp.SS[n].siteFractionsNames[i]		= malloc(20 * sizeof(char)	);
-			sp.SS[n].emNames[i]		= malloc(20 * sizeof(char)				);
-			sp.SS[n].emComp[i]		= malloc(gv.len_ox * sizeof(double)		);		
-			sp.SS[n].emComp_wt[i]	= malloc(gv.len_ox * sizeof(double)		);		
-            sp.SS[n].emComp_apfu[i]	= malloc(gv.len_ox * sizeof(double)		);		
-		}
-	}
-    
-    /** allocate memory for metastable phases len_ox * 2 to be safe?        */
-	for (int n = 0; n< gv.max_n_mSS; n++){
-        sp.mSS[n].ph_name	    = malloc(20 * sizeof(char)	                );
-        sp.mSS[n].ph_type	    = malloc(20 * sizeof(char)	                );
-        sp.mSS[n].info	        = malloc(20 * sizeof(char)	                );
-        sp.mSS[n].comp_Ppc 	    = malloc((gv.len_ox) 	* sizeof(double)	);  
-        sp.mSS[n].p_Ppc 	    = malloc((gv.len_ox*2) 	* sizeof(double)	);  
-        sp.mSS[n].mu_Ppc 	    = malloc((gv.len_ox*2) 	* sizeof(double)	);  
-        sp.mSS[n].xeos_Ppc 	    = malloc((gv.len_ox*2) 	* sizeof(double)	);  
-	}
-
-	return sp;
-}
-
-
-
+#include "tc_gss_init_function.h"
 
 
 /**************************************************************************************/
@@ -999,6 +845,203 @@ SS_ref G_SS_ig_spn_init_function(SS_ref SS_ref_db,  global_variable gv){
 
 /**************************************************************************************/
 /**************************************************************************************/
+/******************IGNEOUS ALKALINE DRY DATABASE (Weller et al., 2021)*****************/
+/**************************************************************************************/
+/**************************************************************************************/
+
+/**
+    allocate memory for liq
+*/
+SS_ref G_SS_igad_liq_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 18;
+    SS_ref_db.n_em      = 14;
+    SS_ref_db.n_v       = 14;
+    SS_ref_db.n_w       = 91;
+    SS_ref_db.n_xeos    = 13;
+    
+    return SS_ref_db;
+}
+
+
+/**
+    allocate memory for fsp
+*/
+SS_ref G_SS_igad_fsp_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 5;
+    SS_ref_db.n_em      = 3;
+    SS_ref_db.n_v       = 3;
+    SS_ref_db.n_w       = 3;
+    SS_ref_db.n_xeos    = 2;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for spn
+*/
+SS_ref G_SS_igad_spn_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 10;
+    SS_ref_db.n_em      = 8;
+    SS_ref_db.n_v       = 8;
+    SS_ref_db.n_w       = 28;
+    SS_ref_db.n_xeos    = 7;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for g
+*/
+SS_ref G_SS_igad_g_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 8;
+    SS_ref_db.n_em      = 6;
+    SS_ref_db.n_v       = 6;
+    SS_ref_db.n_w       = 15;
+    SS_ref_db.n_xeos    = 5;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for ol
+*/
+SS_ref G_SS_igad_ol_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 5;
+    SS_ref_db.n_em      = 4;
+    SS_ref_db.n_w       = 6;
+    SS_ref_db.n_xeos    = 3;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for opx
+*/
+SS_ref G_SS_igad_opx_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 12;
+    SS_ref_db.n_em      = 9;
+    SS_ref_db.n_v       = 9;
+    SS_ref_db.n_w       = 36;
+    SS_ref_db.n_xeos    = 8;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for cpx
+*/
+SS_ref G_SS_igad_cpx_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 13;
+    SS_ref_db.n_em      = 10;
+    SS_ref_db.n_v       = 10;
+    SS_ref_db.n_w       = 45;
+    SS_ref_db.n_xeos    = 9;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for ilm
+*/
+SS_ref G_SS_igad_ilm_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 8;
+    SS_ref_db.n_em      = 5;
+    SS_ref_db.n_w       = 10;
+    SS_ref_db.n_xeos    = 4;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for ness
+*/
+SS_ref G_SS_igad_ness_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 9;
+    SS_ref_db.n_em      = 6;
+    SS_ref_db.n_v       = 6;
+    SS_ref_db.n_w       = 15;
+    SS_ref_db.n_xeos    = 5;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for lct
+*/
+SS_ref G_SS_igad_lct_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 2;
+    SS_ref_db.n_em      = 2;
+    SS_ref_db.n_v       = 2;
+    SS_ref_db.n_w       = 1;
+    SS_ref_db.n_xeos    = 1;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for kals
+*/
+SS_ref G_SS_igad_kals_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 2;
+    SS_ref_db.n_em      = 2;
+    SS_ref_db.n_v       = 2;
+    SS_ref_db.n_w       = 1;
+    SS_ref_db.n_xeos    = 1;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for mel
+*/
+SS_ref G_SS_igad_mel_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 8;
+    SS_ref_db.n_em      = 5;
+    SS_ref_db.n_w       = 10;
+    SS_ref_db.n_xeos    = 4;
+    
+    return SS_ref_db;
+}
+
+
+/**************************************************************************************/
+/**************************************************************************************/
 /*********************Evan&Frost DATABASE (Evans&Frost , 2021)*************************/
 /**************************************************************************************/
 /**************************************************************************************/
@@ -1230,6 +1273,231 @@ SS_ref G_SS_ume_aug_init_function(SS_ref SS_ref_db, global_variable gv){
     return SS_ref_db;
 }
 
+/**************************************************************************************/
+/**************************************************************************************/
+/***********************Mantle DATABASE (Holland et al., 2013)*************************/
+/**************************************************************************************/
+/**************************************************************************************/
+
+
+/**
+    allocate memory for g
+*/
+SS_ref G_SS_mtl_g_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 8;
+    SS_ref_db.n_em      = 6;
+    SS_ref_db.n_w       = 15;
+    SS_ref_db.n_xeos    = 5;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for fp
+*/
+SS_ref G_SS_mtl_fp_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 2;
+    SS_ref_db.n_em      = 2;
+    SS_ref_db.n_w       = 1;
+    SS_ref_db.n_xeos    = 1;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for mpv
+*/
+SS_ref G_SS_mtl_mpv_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 7;
+    SS_ref_db.n_em      = 5;
+    SS_ref_db.n_w       = 10;
+    SS_ref_db.n_xeos    = 4;
+    
+    return SS_ref_db;
+}
+/**
+    allocate memory for cpv
+*/
+SS_ref G_SS_mtl_cpv_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 7;
+    SS_ref_db.n_em      = 5;
+    SS_ref_db.n_w       = 10;
+    SS_ref_db.n_xeos    = 4;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for crn
+*/
+SS_ref G_SS_mtl_crn_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 5;
+    SS_ref_db.n_em      = 3;
+    SS_ref_db.n_w       = 3;
+    SS_ref_db.n_xeos    = 2;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for cf
+*/
+SS_ref G_SS_mtl_cf_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 8;
+    SS_ref_db.n_em      = 6;
+    SS_ref_db.n_w       = 15;
+    SS_ref_db.n_xeos    = 5;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for nal
+*/
+SS_ref G_SS_mtl_nal_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 10;
+    SS_ref_db.n_em      = 7;
+    SS_ref_db.n_w       = 21;
+    SS_ref_db.n_xeos    = 6;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for aki
+*/
+SS_ref G_SS_mtl_aki_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 5;
+    SS_ref_db.n_em      = 3;
+    SS_ref_db.n_w       = 3;
+    SS_ref_db.n_xeos    = 2;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for ol
+*/
+SS_ref G_SS_mtl_ol_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 2;
+    SS_ref_db.n_em      = 2;
+    SS_ref_db.n_w       = 1;
+    SS_ref_db.n_xeos    = 1;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for wad
+*/
+SS_ref G_SS_mtl_wad_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 2;
+    SS_ref_db.n_em      = 2;
+    SS_ref_db.n_w       = 1;
+    SS_ref_db.n_xeos    = 1;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for ring
+*/
+SS_ref G_SS_mtl_ring_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 2;
+    SS_ref_db.n_em      = 2;
+    SS_ref_db.n_w       = 1;
+    SS_ref_db.n_xeos    = 1;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for cpx
+*/
+SS_ref G_SS_mtl_cpx_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 9;
+    SS_ref_db.n_em      = 6;
+    SS_ref_db.n_v       = 6;
+    SS_ref_db.n_w       = 15;
+    SS_ref_db.n_xeos    = 5;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for opx
+*/
+SS_ref G_SS_mtl_opx_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 8;
+    SS_ref_db.n_em      = 5;
+    SS_ref_db.n_v       = 5;
+    SS_ref_db.n_w       = 10;
+    SS_ref_db.n_xeos    = 4;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for hpx
+*/
+SS_ref G_SS_mtl_hpx_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 8;
+    SS_ref_db.n_em      = 5;
+    SS_ref_db.n_v       = 5;
+    SS_ref_db.n_w       = 10;
+    SS_ref_db.n_xeos    = 4;
+    
+    return SS_ref_db;
+}
+
+
+/**************************************************************************************/
+/**************************************************************************************/
+/**************************************************************************************/
+/**************************************************************************************/
+
 void TC_SS_init_mp(	                SS_init_type 		*SS_init,
 									global_variable 	 gv				){
 
@@ -1365,6 +1633,42 @@ void TC_SS_init_ig(	                SS_init_type 		*SS_init,
 	};	
 }
 
+
+void TC_SS_init_igad(	            SS_init_type 		*SS_init,
+									global_variable 	 gv				){
+					 
+	for (int iss = 0; iss < gv.len_ss; iss++){
+
+        if (strcmp( gv.SS_list[iss], "cpx") == 0){
+			SS_init[iss]  = G_SS_igad_cpx_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "g")   == 0){
+			SS_init[iss]  = G_SS_igad_g_init_function; 		    }
+		else if (strcmp( gv.SS_list[iss], "ilm") == 0){
+			SS_init[iss]  = G_SS_igad_ilm_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "liq") == 0){
+			SS_init[iss]  = G_SS_igad_liq_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ol")  == 0){
+			SS_init[iss]  = G_SS_igad_ol_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "opx") == 0){
+			SS_init[iss]  = G_SS_igad_opx_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "fsp") == 0){
+			SS_init[iss]  = G_SS_igad_fsp_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "spn") == 0){
+			SS_init[iss]  = G_SS_igad_spn_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ness") == 0){
+			SS_init[iss]  = G_SS_igad_ness_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "lct") == 0){
+			SS_init[iss]  = G_SS_igad_lct_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "kals") == 0){
+			SS_init[iss]  = G_SS_igad_kals_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "mel") == 0){
+			SS_init[iss]  = G_SS_igad_mel_init_function; 		}
+		else{
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
+		}	
+	};	
+}
+
 void TC_SS_init_um(	                SS_init_type 		*SS_init,
 									global_variable 	 gv				){
 						 
@@ -1442,6 +1746,44 @@ void TC_SS_init_um_ext(	            SS_init_type 		*SS_init,
 	};						 
 }
 
+void TC_SS_init_mtl(	            SS_init_type 		*SS_init,
+									global_variable 	 gv				){
+						 
+	for (int iss = 0; iss < gv.len_ss; iss++){
+
+		if      (strcmp( gv.SS_list[iss], "g")  == 0 ){
+			SS_init[iss]  = G_SS_mtl_g_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "fp")  == 0){
+			SS_init[iss]  = G_SS_mtl_fp_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "mpv") == 0){
+			SS_init[iss]  = G_SS_mtl_mpv_init_function; 	}
+		else if (strcmp( gv.SS_list[iss], "cpv") == 0){
+			SS_init[iss]  = G_SS_mtl_cpv_init_function; 	}
+		else if (strcmp( gv.SS_list[iss], "crn")  == 0){
+			SS_init[iss]  = G_SS_mtl_crn_init_function; 	}
+		else if (strcmp( gv.SS_list[iss], "cf")  == 0){
+			SS_init[iss]  = G_SS_mtl_cf_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "nal")   == 0){
+			SS_init[iss]  = G_SS_mtl_nal_init_function; 	}
+		else if (strcmp( gv.SS_list[iss], "aki")  == 0){
+			SS_init[iss]  = G_SS_mtl_aki_init_function; 	}
+		else if (strcmp( gv.SS_list[iss], "ol") == 0){
+			SS_init[iss]  = G_SS_mtl_ol_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "wad") == 0){
+			SS_init[iss]  = G_SS_mtl_wad_init_function; 	}
+		else if (strcmp( gv.SS_list[iss], "ring")  == 0){
+			SS_init[iss]  = G_SS_mtl_ring_init_function; 	}
+		else if (strcmp( gv.SS_list[iss], "cpx") == 0){
+			SS_init[iss]  = G_SS_mtl_cpx_init_function; 	}
+		else if (strcmp( gv.SS_list[iss], "opx") == 0){
+			SS_init[iss]  = G_SS_mtl_opx_init_function; 	}
+		else if (strcmp( gv.SS_list[iss], "hpx")  == 0){
+			SS_init[iss]  = G_SS_mtl_hpx_init_function; 	}
+		else{
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
+		}	
+	};						 
+}
 void TC_SS_init(	        	    SS_init_type 		*SS_init,
 									global_variable 	 gv				){
 
@@ -1457,6 +1799,10 @@ void TC_SS_init(	        	    SS_init_type 		*SS_init,
 		TC_SS_init_ig(	 				    SS_init,
 											gv							);
 	}
+	else if (gv.EM_database == 3){			// igneous alkaline database //
+		TC_SS_init_igad(	 				SS_init,
+											gv							);
+	}
 	else if (gv.EM_database == 4){			// ultramafic database //
 		TC_SS_init_um(	 				    SS_init,
 											gv							);
@@ -1465,178 +1811,8 @@ void TC_SS_init(	        	    SS_init_type 		*SS_init,
 		TC_SS_init_um_ext(	 				SS_init,
 											gv							);
 	}
-}
-
-
-
-/**
-  attributes the right solution phase to the solution phase array
-*/
-SS_ref G_SS_init_EM_function(		SS_init_type		*SS_init,
-									int			 		 ph_id,
-									SS_ref 		 		 SS_ref_db,
-									char 				*name, 
-									global_variable 	 gv					){
-
-	/* Retrieve the right data in the right place 	*/
-	SS_ref_db  = (*SS_init[ph_id])(			SS_ref_db,
+	else if (gv.EM_database == 6){			// mantle database //
+		TC_SS_init_mtl(	 				    SS_init,
 											gv							);
-	/**
-		Allocate memory for solution phase models and pseudocompound storage (memory is initialized in the reset function)
-	*/
-	int n_em   = SS_ref_db.n_em;
-	int n_xeos = SS_ref_db.n_xeos;
-	int n_sf   = SS_ref_db.n_sf;
-	int sym    = SS_ref_db.symmetry;
-
-    SS_ref_db.orderVar       = 0;
-	
-	SS_ref_db.EM_list 		 = malloc ((n_em) * sizeof (char*)	);
-	for (int i = 0; i < n_em; i++){ 
-		SS_ref_db.EM_list[i] = malloc(20 * sizeof(char)		);		
 	}
-	SS_ref_db.CV_list 		 = malloc ((n_xeos) * sizeof (char*)	);
-	for (int i = 0; i < n_xeos; i++){ 
-		SS_ref_db.CV_list[i] = malloc(20 * sizeof(char)		);		
-	}
-	SS_ref_db.SF_list 		 = malloc ((n_sf) * sizeof (char*)	);
-	for (int i = 0; i < n_sf; i++){ 
-		SS_ref_db.SF_list[i] = malloc(20 * sizeof(char)		);		
-	}
-	if (sym == 0){
-		SS_ref_db.W   		= malloc (SS_ref_db.n_w * sizeof (double) ); 
-		SS_ref_db.v   		= malloc (SS_ref_db.n_v * sizeof (double) ); 
-	}
-	else if (sym == 1){
-		SS_ref_db.W   		= malloc (SS_ref_db.n_w * sizeof (double) ); 
-	}
-	
-	/* initialize fractions flags and cycle arrays with zeros */
-	SS_ref_db.ss_flags      = malloc (gv.n_flags  * sizeof(int));
-    SS_ref_db.solvus_id     = malloc ((gv.len_ss*4)   * sizeof (int)  	);
-
-	/* dynamic memory allocation of data to send to NLopt */
-	SS_ref_db.bounds 	= malloc (n_xeos * sizeof (double*)  ); 
-	for (int i = 0; i < n_xeos; i++){
-		SS_ref_db.bounds[i] = malloc (2 * sizeof (double) );
-	}
-	
-	SS_ref_db.eye 			= malloc (n_em 			* sizeof (double*)); 
-	SS_ref_db.dp_dx 		= malloc (n_em 			* sizeof (double*)); 
-	SS_ref_db.Comp 			= malloc (n_em 			* sizeof (double*)); 
-	for (int i = 0; i < n_em; i++){
-		SS_ref_db.eye[i] 	= malloc (n_em	 		* sizeof (double) );
-		SS_ref_db.Comp[i] 	= malloc (gv.len_ox 	* sizeof (double) );
-		SS_ref_db.dp_dx[i] 	= malloc (n_xeos 		* sizeof (double) );
-	}
-	
-	SS_ref_db.gbase   		= malloc (n_em   	 	* sizeof (double) ); 
-	SS_ref_db.gb_lvl  		= malloc (n_em   	 	* sizeof (double) ); 
-	SS_ref_db.z_em    		= malloc (n_em   	 	* sizeof (double) ); 
-	SS_ref_db.d_em    		= malloc (n_em   	 	* sizeof (double) );
-	SS_ref_db.density 		= malloc (n_em   	 	* sizeof (double) ); 
-	SS_ref_db.dguess 		= malloc (n_xeos 		* sizeof (double) );
-	SS_ref_db.iguess  		= malloc (n_xeos   	  	* sizeof (double) );
-	SS_ref_db.mguess  		= malloc (n_xeos   	  	* sizeof (double) );
-	SS_ref_db.idOrderVar  	= malloc (n_xeos   	  	* sizeof (double) );
-
-	SS_ref_db.p       		= malloc (n_em       	* sizeof (double) ); 
-	SS_ref_db.ElShearMod    = malloc (n_em       	* sizeof (double) ); 
-	SS_ref_db.ape      		= malloc (n_em       	* sizeof (double) ); 
-	SS_ref_db.mat_phi 		= malloc (n_em       	* sizeof (double) ); 
-	SS_ref_db.mu_Gex  		= malloc (n_em       	* sizeof (double) ); 
-	SS_ref_db.sf      		= malloc (n_sf       	* sizeof (double) ); 
-	SS_ref_db.mu      		= malloc (n_em       	* sizeof (double) ); 
-	SS_ref_db.dfx    		= malloc (n_xeos     	* sizeof (double) ); 
-	SS_ref_db.ss_comp		= malloc (gv.len_ox  	* sizeof (double) ); 
-	SS_ref_db.ElEntropy		= malloc (gv.len_ox  	* sizeof (double) );     
-	SS_ref_db.xi_em   		= malloc (n_em   	 	* sizeof (double) ); 
-	SS_ref_db.xeos    		= malloc (n_xeos     	* sizeof (double) ); 	
-
-	/* memory allocation to store all gbase */
-	SS_ref_db.mu_array = malloc ((gv.n_Diff) * sizeof (double*) ); 
-	for (int i = 0; i < (gv.n_Diff); i++){
-		SS_ref_db.mu_array[i] = malloc (n_em * sizeof (double) );
-	}	
-	
-	/* dynamic memory allocation of data to send to NLopt */
-	SS_ref_db.bounds_ref = malloc ((n_xeos) * sizeof (double*) ); 
-	for (int i = 0; i < (n_xeos); i++){
-		SS_ref_db.bounds_ref[i] = malloc (2 * sizeof (double) );
-	}
-	
-	/* dynamic memory allocation of data to send to NLopt */
-	SS_ref_db.ub   		= malloc ((n_xeos) * sizeof (double) ); 
-	SS_ref_db.lb   		= malloc ((n_xeos) * sizeof (double) ); 
-
-	/**
-		Allocate memory for levelling pseudocompounds 
-	*/
-	// SS_ref_db.n_pc   	= gv.n_pc;
-	SS_ref_db.n_pc   	= gv.n_SS_PC[ph_id];
-    SS_ref_db.tot_pc   	= malloc (1 * sizeof (double) ); 
-    SS_ref_db.id_pc   	= malloc (1 * sizeof (double) ); 
-	SS_ref_db.G_pc   	= malloc ((SS_ref_db.n_pc) * sizeof (double) ); 
-	SS_ref_db.DF_pc 	= malloc ((SS_ref_db.n_pc) * sizeof (double) ); 
-	SS_ref_db.factor_pc = malloc ((SS_ref_db.n_pc) * sizeof (double) ); 
-	SS_ref_db.info  	= malloc ((SS_ref_db.n_pc) * sizeof (int) 	 ); 
-	SS_ref_db.p_pc 		= malloc ((SS_ref_db.n_pc) * sizeof (double*)); 
-	// SS_ref_db.mu_pc 	= malloc ((SS_ref_db.n_pc) * sizeof (double*)); 
-	
-	for (int i = 0; i < (SS_ref_db.n_pc); i++){
-		SS_ref_db.p_pc[i] 	 = malloc ((n_em) * sizeof (double) 	);
-		// SS_ref_db.mu_pc[i] 	 = malloc ((n_em) * sizeof (double) 	);
-	}
-	SS_ref_db.comp_pc = malloc ((SS_ref_db.n_pc) * sizeof (double*) ); 
-	for (int i = 0; i < (SS_ref_db.n_pc); i++){
-		SS_ref_db.comp_pc[i] = malloc (gv.len_ox * sizeof (double) 	);
-	}
-	SS_ref_db.xeos_pc = malloc ((SS_ref_db.n_pc) * sizeof (double*) ); 
-	for (int i = 0; i < (SS_ref_db.n_pc); i++){
-		SS_ref_db.xeos_pc[i] = malloc ((n_xeos)  * sizeof (double) 	);
-	}	
-
-	/**
-		Allocate memory for PGE pseudocompounds 
-	*/
-	SS_ref_db.n_Ppc   	= gv.n_Ppc;								/** maximum number of pseudocompounds to store */
-	SS_ref_db.G_Ppc   	= malloc ((SS_ref_db.n_Ppc) * sizeof (double) ); 
-	SS_ref_db.DF_Ppc 	= malloc ((SS_ref_db.n_Ppc) * sizeof (double) ); 
-	SS_ref_db.info_Ppc 	= malloc ((SS_ref_db.n_Ppc) * sizeof (int) 	 ); 
-	SS_ref_db.p_Ppc 	= malloc ((SS_ref_db.n_Ppc) * sizeof (double*)); 
-	SS_ref_db.mu_Ppc 	= malloc ((SS_ref_db.n_Ppc) * sizeof (double*)); 
-	
-	for (int i = 0; i < (SS_ref_db.n_Ppc); i++){
-		SS_ref_db.p_Ppc[i] 	 = malloc ((n_em) * sizeof (double) 		);
-		SS_ref_db.mu_Ppc[i]  = malloc ((n_em) * sizeof (double) 		);
-	}
-	SS_ref_db.comp_Ppc = malloc ((SS_ref_db.n_Ppc) * sizeof (double*) 	); 
-	for (int i = 0; i < (SS_ref_db.n_Ppc); i++){
-		SS_ref_db.comp_Ppc[i] = malloc (gv.len_ox * sizeof (double) 	);
-	}
-	SS_ref_db.xeos_Ppc = malloc ((SS_ref_db.n_Ppc) * sizeof (double*) 	); 
-	for (int i = 0; i < (SS_ref_db.n_Ppc); i++){
-		SS_ref_db.xeos_Ppc[i] = malloc ((n_xeos)  * sizeof (double) 	);
-	}	
-
-	/* initiliazes eye matrix as there is no need to redo it afterward */
-	for (int i = 0; i < n_em; i++){
-		for (int j = 0; j < n_em; j++){
-			SS_ref_db.eye[i][j] = 0.0;
-		}	
-	}
-	
-	/* initialize eye matrix */
-	for (int j = 0; j < n_em; j++){
-		SS_ref_db.eye[j][j]= 1.0;
-	}
-
-	for (int j = 0; j < n_xeos; j++){
-		SS_ref_db.idOrderVar[j]= 1.0;
-	}
-    
-
-
-	return SS_ref_db;
-};
-
+}

@@ -51,7 +51,7 @@ void print_help(	global_variable gv	){
 	printf("  --File=       [str]   : File name containing multiple point calculation\n");
 	printf("  --n_points=   [int]   : Number of points when using 'File' argument\n");
 	printf("  --rg=         [str]   : ResearchGroup, can be 'tc' or 'sb (THERMOCALC, Stixrude-Lithgow-Bertelloni)\n");
-	printf("  --db=         [str]   : Database, can be 'mp', 'ig, or 'um'* for TC and 2011/2024 for SB\n");
+	printf("  --db=         [str]   : Database, can be 'mp', 'ig', 'igad', 'um'or 'ume'* for TC and 2011/2024 for SB\n");
 	printf("  --ds=         [int]   : TC End-member dataset, 62, 633 or 634 (stands for ds6xx)\n");
 	printf("  --test=       [int]   : Number of points when using 'File' argument\n");
 	printf("  --Pres=       [float] : Pressure in kilobar\n");
@@ -65,13 +65,16 @@ void print_help(	global_variable gv	){
 	printf("  --buffer_n= 	[float] : multiplier with respect to qfm buffer\n");
 	printf("  --mbCpx= 		[int]   : 0. omphacite, 1. augite (applies to metabasite database, see Green et al., 2016)\n");
 	printf("\n");
-	printf(" *'mp': metapelite, 'mb': metabasite, 'ig': igneous H18->G23, 'um': ultramafic\n");
+	printf(" *'mp': metapelite, 'mb': metabasite, 'ig': igneous H18->G23, 'igad': igneous alkaline dry, 'um': ultramafic, 'ume': ultramafic extended, 'mtl': mantle\n");
 	printf("\n");
 	printf(" **the list of oxides must be provided as follow:\n");
 	printf("  'ig':               SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3, H2O\n");
+	printf("  'igad':             SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3\n");
 	printf("  'mp':               SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, MnO, H2O\n");
 	printf("  'mb':               SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, H2O\n");
 	printf("  'um':               SiO2, Al2O3, MgO, FeOt, O, H2O, S\n");
+	printf("  'ume':              SiO2, Al2O3, MgO, FeOt, O, H2O, S, CaO, Na2O\n");
+	printf("  'mtl':              SiO2, Al2O3, CaO, MgO, FeOt, Na2O\n");
 	printf("\n");
 	printf(" Note that FeOt (total iron) is used here!\n");	
 	printf("\n\n");
@@ -250,12 +253,17 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 			printf("  - Database                  : Metabasite (Green et al., 2016)\n"	);
 		}
 		else if (gv.EM_database == 2){
-			printf("  - Database                  : Igneous (Holland et al., 2018 -> Green et al., 2023)\n"	);
+			printf("  - Database                  : Igneous (Holland et al., 2018 -> Green et al., 2024)\n"	);
+		}
+		else if (gv.EM_database == 3){
+			printf("  - Database                  : Igneous alkaline dry (Weller et al., 2024)\n"	);
 		}
 		else if (gv.EM_database == 4 ){
 			printf("  - Database                  : Ultramafic (Evans & Frost, 2021)\n"	);
 		}
-
+		else if (gv.EM_database == 5 ){
+			printf("  - Database                  : Ultramafic extended (Evans & Frost, 2021 + pl, hb and aug from Green et al., 2016)\n"	);
+		}
 
 		if (strcmp( gv.sys_in, "mol") == 0){	
 			printf("  - input system composition  : mol fraction\n"	);
@@ -298,8 +306,17 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 					}	
 				}
 			}
-			else if (gv.EM_database == 3){ 			// igneous database
+			else if (gv.EM_database == 2){ 			// igneous database
 				if(strcmp( gv.ox[i], "H2O") != 0  && strcmp( gv.ox[i], "TiO2") != 0 && strcmp( gv.ox[i], "Cr2O3") != 0 && strcmp( gv.ox[i], "O")  != 0 && strcmp( gv.ox[i], "K2O") != 0){
+					gv.bulk_rock[i] = 1.0e-4;
+					renorm = 1;
+					if (gv.verbose == 1){
+						printf("  - mol of %4s = %+.5f < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i],gv.bulk_rock[i]);
+					}	
+				}
+			}
+			else if (gv.EM_database == 3){ 			// igneous database
+				if(strcmp( gv.ox[i], "TiO2") != 0 && strcmp( gv.ox[i], "Cr2O3") != 0 && strcmp( gv.ox[i], "O")  != 0 ){
 					gv.bulk_rock[i] = 1.0e-4;
 					renorm = 1;
 					if (gv.verbose == 1){

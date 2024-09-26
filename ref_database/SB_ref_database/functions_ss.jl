@@ -1,4 +1,35 @@
+# how to compute chear modulus:
+# mu = mu0 + (P-Pr)*dmu/dP + (T-Tr)*dmu/dT
+# where r is the reference pressure and temperature usually, 1bar and 298.15K
+
 global tab                  = "    "
+
+struct Phase
+    id::String                  # Name id
+    abbrev::String              # Abbreviation
+    fml::String                 # Chemical formula
+    oxides::Dict{String, Float64}  # Oxides
+    F0::Float64                 # Helmoltz energy (F0, J/mol)
+    n::Float64                  # negative of the number of atoms per formula unit (-n)
+    V0::Float64                 # negative of the volume (-V0)
+    K0::Float64                 # c1: isothermal bulk modulus (K0, bar)
+    Kp::Float64                 # c2: pressure derivative of the isothermal bulk modulus (K')
+    Θ0::Float64                 # c3: Debye Temperature (Θ0, K)
+    γ0::Float64                 # c4: Gruneisen thermal parameter (γ0)
+    q0::Float64                 # c5: Mie-Gruneisen exponent (q0)
+    ηS0::Float64                # c6: Shear strain derivative of the tensorial Gruneisen parameter (ηS0)
+    cme::Float64                # c7: Configurational (and magnetic) entropy (J/mol/K)
+    aSm::Float64                # Ambient shear modulus (GPa)
+    pd::Float64                 # Pressure derivative
+    td::Float64                 # Temperature derivative
+end
+
+function read_data(fname::String)
+    return JSON3.read(fname, Vector{Phase}) |> DataFrame
+end
+
+data2 = read_data("stx11_data.json")
+@save "STIX11.jld2" data2
 
 struct ModelJSON
     name            :: String
@@ -41,11 +72,13 @@ function retrieve_site_cmp(ss, i)
             else
                 for l=1:length(n_atoms)
                     id              = findfirst(elems .== elements[l])
-                    site_cmp[k,id, j] = Float64(n_atoms[1])
+                    site_cmp[k,id, j] = Float64(n_atoms[l])
                 end
             end
         end
     end
+
+
     return mul, site_cmp
 end
 
@@ -73,12 +106,12 @@ function get_sb_gss_init_function(sb_ver,ss)
         sb_gss_init_function *= "/**\n"
         sb_gss_init_function *= "    allocate memory for $(sb_ver)_$(ss[i].abbrev)\n"
         sb_gss_init_function *= "*/\n"
-        sb_gss_init_function *= "SS_ref SB_G_SS_$(sb_ver)_$(ss[i].abbrev)_init_function(SS_ref SS_ref_db,  global_variable gv){\n\n"
-        sb_gss_init_function *= "    SS_ref_db.sb        = 1;\n"
+        sb_gss_init_function *= "SS_ref G_SS_$(sb_ver)_$(ss[i].abbrev)_init_function(SS_ref SS_ref_db,  global_variable gv){\n\n"
+        sb_gss_init_function *= "    SS_ref_db.is_liq    = 0;\n"
         sb_gss_init_function *= "    SS_ref_db.symmetry  = $sym;\n"
         sb_gss_init_function *= "    SS_ref_db.n_em      = $(length(em));\n"
         sb_gss_init_function *= "    SS_ref_db.n_sf      = $(length(mul));\n"
-        sb_gss_init_function *= "    SS_ref_db.n_W       = $(length(W));\n"
+        sb_gss_init_function *= "    SS_ref_db.n_w       = $(length(W));\n"
         if sym == 0
             sb_gss_init_function *= "    SS_ref_db.n_v       = $(length(v));\n"
         end
@@ -88,16 +121,16 @@ function get_sb_gss_init_function(sb_ver,ss)
     end
 
 
-    sb_gss_init_function *= "void SB_SS_init_sb11(	    SS_init_type 		*SS_init,\n"
+    sb_gss_init_function *= "void SS_init_sb11(	    SS_init_type 		*SS_init,\n"
     sb_gss_init_function *= "                            global_variable 	 gv				){\n\n"
     sb_gss_init_function *= "$(tab)for (int iss = 0; iss < gv.len_ss; iss++){\n"
     for i = 1:n_ss
         if i == 1
             sb_gss_init_function *= "$(tab)$(tab)if      (strcmp( gv.SS_list[iss], \"$(ss[i].abbrev)\")  == 0 ){\n"
-            sb_gss_init_function *= "$(tab)$(tab)$(tab)SS_init[iss]  = SB_G_SS_$(sb_ver)_$(ss[i].abbrev)_init_function; 		}\n"
+            sb_gss_init_function *= "$(tab)$(tab)$(tab)SS_init[iss]  = G_SS_$(sb_ver)_$(ss[i].abbrev)_init_function; 		}\n"
         else
             sb_gss_init_function *= "$(tab)$(tab)else if (strcmp( gv.SS_list[iss], \"$(ss[i].abbrev)\")  == 0 ){\n"
-            sb_gss_init_function *= "$(tab)$(tab)$(tab)SS_init[iss]  = SB_G_SS_$(sb_ver)_$(ss[i].abbrev)_init_function; 		}\n"
+            sb_gss_init_function *= "$(tab)$(tab)$(tab)SS_init[iss]  = G_SS_$(sb_ver)_$(ss[i].abbrev)_init_function; 		}\n"
         end
     end
     sb_gss_init_function *= "$(tab)$(tab)else{\n"

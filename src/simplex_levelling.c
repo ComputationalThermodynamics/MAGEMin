@@ -536,7 +536,7 @@ void fill_simplex_arrays_A(				bulk_info 	 		 z_b,
 	/* fill reference assemblage */
 
 	for (int k = 0; k < z_b.nzEl_val; k++) {
-		d->g0_A[k]    		    = 1e10;								/** penalty G */
+		d->g0_A[k]    		    = 0.0;								/** penalty G CHECKTHISOUT */
 		d->ph_id_A[k][0]  	    = 0;								/** phase_id for penalty phase */
 		d->A[k+k*z_b.nzEl_val]  = 1.0;								/** eye matrix for stoichiometry */
 		d->A1[k+k*z_b.nzEl_val] = 1.0;
@@ -996,29 +996,29 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 	/**
 		Routine to deactivate the liquid endmembers after levelling 
 	*/
-	char liq_tail[] = "L";
-	for (int i = 0; i < gv.len_pp; i++){
-		if ( EndsWithTail(gv.PP_list[i], liq_tail) == 1 ) {
-			if (gv.pp_flags[i][0] == 1){
-				if (gv.pp_flags[i][1] == 1){
-					gv.pp_flags[i][0] = 0;
-					gv.pp_flags[i][1] = 0;
-					gv.pp_flags[i][2] = 0;
-					gv.pp_flags[i][3] = 1;
-					gv.n_phase       -= 1;
-					gv.n_pp_phase    -= 1;
-					gv.pp_n[i]        = 0.0;
-				}
-				else{
-					gv.pp_flags[i][0] = 0;
-					gv.pp_flags[i][1] = 0;
-					gv.pp_flags[i][2] = 0;
-					gv.pp_flags[i][3] = 1;
-					gv.pp_flags[i][4] = 0;
-				}
-			}
-		}
-	}
+	// char liq_tail[] = "L";
+	// for (int i = 0; i < gv.len_pp; i++){
+	// 	if ( EndsWithTail(gv.PP_list[i], liq_tail) == 1 ) {
+	// 		if (gv.pp_flags[i][0] == 1){
+	// 			if (gv.pp_flags[i][1] == 1){
+	// 				gv.pp_flags[i][0] = 0;
+	// 				gv.pp_flags[i][1] = 0;
+	// 				gv.pp_flags[i][2] = 0;
+	// 				gv.pp_flags[i][3] = 1;
+	// 				gv.n_phase       -= 1;
+	// 				gv.n_pp_phase    -= 1;
+	// 				gv.pp_n[i]        = 0.0;
+	// 			}
+	// 			else{
+	// 				gv.pp_flags[i][0] = 0;
+	// 				gv.pp_flags[i][1] = 0;
+	// 				gv.pp_flags[i][2] = 0;
+	// 				gv.pp_flags[i][3] = 1;
+	// 				gv.pp_flags[i][4] = 0;
+	// 			}
+	// 		}
+	// 	}
+	// }
 	
 	if (gv.verbose == 1){
 		printf("\n Initial guesses for compositional variables:\n");
@@ -1271,6 +1271,13 @@ void run_simplex_levelling(				bulk_info 	 		 z_b,
 											gv.SS_list[iss]				);
 		}
 	}
+	else if (gv.EM_database == 3){
+		for (iss = 0; iss < gv.len_ss; iss++){
+			SS_igad_pc_init_function(		SS_pc_xeos, 
+											iss,
+											gv.SS_list[iss]				);
+		}
+	}
 	else if (gv.EM_database == 4){
 		for (iss = 0; iss < gv.len_ss; iss++){
 			SS_um_pc_init_function(			SS_pc_xeos, 
@@ -1281,6 +1288,13 @@ void run_simplex_levelling(				bulk_info 	 		 z_b,
 	else if (gv.EM_database == 5){
 		for (iss = 0; iss < gv.len_ss; iss++){
 			SS_um_pc_init_function(			SS_pc_xeos, 
+											iss,
+											gv.SS_list[iss]				);
+		}
+	}
+	else if (gv.EM_database == 6){
+		for (iss = 0; iss < gv.len_ss; iss++){
+			SS_mtl_pc_init_function(		SS_pc_xeos, 
 											iss,
 											gv.SS_list[iss]				);
 		}

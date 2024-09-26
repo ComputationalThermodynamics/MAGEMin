@@ -479,7 +479,7 @@ void ss_min_LP(			global_variable 	 gv,
 				*/
 				for (int k = 0; k < cp[i].n_xeos; k++) {
 					SS_ref_db[ph_id].iguess[k] 	= cp[i].xeos[k];
-					cp[i].xeos_0[k] 			= cp[i].xeos[k];;
+					cp[i].xeos_0[k] 			= cp[i].xeos[k];
 					// SS_ref_db[ph_id].dguess[k] = cp[i].xeos[k];			//dguess can be used of LP, it is used for PGE to check for drifting
 				}
 
@@ -685,6 +685,25 @@ global_variable init_ss_db(		int 				 EM_database,
 										/** can become a global variable instead */
 		}
 	}
+	else if (EM_database == 3){
+		for (int i = 0; i < gv.len_ss; i++){
+			SS_ref_db[i].P  = z_b.P;									/** needed to pass to local minimizer, allows for P variation for liq/sol */
+			SS_ref_db[i].T  = z_b.T;		
+			SS_ref_db[i].R  = 0.0083144;
+
+			// if (SS_ref_db[i].is_liq == 1){
+			// 	SS_ref_db[i].P  = z_b.P + gv.melt_pressure;
+			// }
+
+			SS_ref_db[i]    = G_SS_igad_EM_function(	gv, 
+														SS_ref_db[i], 
+														gv.EM_dataset, 
+														z_b, 
+														gv.SS_list[i]		);
+											
+										/** can become a global variable instead */
+		}
+	}
 	else if (EM_database == 4 ){
 		for (int i = 0; i < gv.len_ss; i++){
 			SS_ref_db[i].P  = z_b.P;									/** needed to pass to local minimizer, allows for P variation for liq/sol */
@@ -715,6 +734,25 @@ global_variable init_ss_db(		int 				 EM_database,
 			// }
 
 			SS_ref_db[i]    = G_SS_um_ext_EM_function(	gv, 
+														SS_ref_db[i], 
+														gv.EM_dataset, 
+														z_b, 
+														gv.SS_list[i]		);
+											
+										/** can become a global variable instead */
+		}
+	}
+	else if (EM_database == 6 ){
+		for (int i = 0; i < gv.len_ss; i++){
+			SS_ref_db[i].P  = z_b.P;									/** needed to pass to local minimizer, allows for P variation for liq/sol */
+			SS_ref_db[i].T  = z_b.T;		
+			SS_ref_db[i].R  = 0.0083144;
+
+			// if (SS_ref_db[i].is_liq == 1){
+			// 	SS_ref_db[i].P  = z_b.P + gv.melt_pressure;
+			// }
+
+			SS_ref_db[i]    = G_SS_mtl_EM_function(		gv, 
 														SS_ref_db[i], 
 														gv.EM_dataset, 
 														z_b, 

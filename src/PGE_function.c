@@ -1056,16 +1056,19 @@ global_variable init_LP(							bulk_info 	 		 z_b,
 		add_phase 	= 0;
 		ph_id 		= d->ph_id_A[i][1];
 			
-		/* if phase is a pure species */
-		if (d->ph_id_A[i][0] == 1 ){
+		
+		if (d->ph_id_A[i][0] == 0){						/* if phase if a fake oxide, do nothing! */
+
+		}
+		else if (d->ph_id_A[i][0] == 1 ){ 				/* if phase is a pure species */
 			gv.pp_flags[ph_id][1] 	= 1;
 			gv.pp_flags[ph_id][2] 	= 0;
 			gv.pp_n[ph_id]          = d->n_vec[i];
 			gv.n_pp_phase		   += 1;
 			gv.n_phase 			   += 1;
 		}
-		else {
-			/* pure endmembers as solution phase */
+		else {											/* pure endmembers as solution phase */
+			
 			if (d->ph_id_A[i][0] == 2){
 			em_id 					= d->ph_id_A[i][3];
 

@@ -12,11 +12,14 @@
 // Available thermodynamic dataset                       
 // ================================
  
-// Metapelite (White et al., 2014)
-// Metabasite (Green et al., 2016)
-// Igneous 	  (Holland et al., 2018)
-// Ultramafic (Evans & Frost, 2021)
-                                              
+// Metapelite 			(White et al., 2014)
+// Metabasite 			(Green et al., 2016)
+// Igneous 	  			(Holland et al., 2018)
+// Ultramafic 			(Evans & Frost, 2021)
+// Ultramafic extended	(Evans & Frost, 2021 + Green et al., 2016)
+// Mantle 	  			(Holland et al, 2013)
+// Igneous alkaline dry (Weller et al, 2024)
+
 // Imported libraries                       
 // ==================
 
@@ -156,19 +159,25 @@ int runMAGEMin(			int    argc,
 	*/
 
 	if 		(gv.EM_database == 0){
-		gv = get_bulk_metapelite( 	gv );
+		gv = get_bulk_metapelite( 		gv );
 	}
 	else if (gv.EM_database == 1){
-		gv = get_bulk_metabasite( 	gv );
+		gv = get_bulk_metabasite( 		gv );
 	}
 	else if (gv.EM_database == 2){
-		gv = get_bulk_igneous( 		gv );
+		gv = get_bulk_igneous( 			gv );
+	}
+	else if (gv.EM_database == 3){
+		gv = get_bulk_igneous_igad( 	gv );
 	}
 	else if (gv.EM_database == 4){
-		gv = get_bulk_ultramafic( 	gv );
+		gv = get_bulk_ultramafic( 		gv );
 	}
 	else if (gv.EM_database == 5){
 		gv = get_bulk_ultramafic_ext( 	gv );
+	}
+	else if (gv.EM_database == 6){
+		gv = get_bulk_mantle( 	gv );
 	}
 	else{
 		printf(" Wrong database...\n");
@@ -810,15 +819,66 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 	else{
 		printf(" WARNING: Unknown research group '%s' has been provided, setting default one 'tc'\n",gv.research_group);
 		strcpy(gv.research_group,"tc");
-	}	
-
-	// checks if the end-member dataset option arg is correct, otherwise sets to default
-	if 	(gv.EM_dataset 	== -1 || gv.EM_dataset 	== 62  || gv.EM_dataset	== 633  || gv.EM_dataset == 634){
 	}
-	else{
-		gv.EM_dataset = -1;
-		printf(" WARNING: Unknown dataset '%d' has been provided, setting default one\n",gv.EM_dataset);
-	}	
+
+
+	// Set default option if provided dataset is wrong
+	if 	( strcmp(gv.research_group, "tc") 	== 0 ){
+
+		// checks if the end-member dataset option arg is correct, otherwise sets to default
+		if 	(gv.EM_dataset 	== -1 || gv.EM_dataset 	== 62  || gv.EM_dataset	== 633  || gv.EM_dataset == 634 || gv.EM_dataset == 635 || gv.EM_dataset == 636){
+		}
+		else{
+			gv.EM_dataset = -1;
+			printf(" WARNING: Unknown dataset '%d' has been provided, setting default one\n",gv.EM_dataset);
+		}
+
+		/* set-up database acronym here*/
+		if 		(strcmp(gv.db, "mp") 	== 0){
+			gv.EM_database = 0;
+		}
+		else if (strcmp(gv.db, "mb") 	== 0){
+			gv.EM_database = 1;
+		}
+		else if (strcmp(gv.db, "ig") 	== 0){
+			gv.EM_database = 2;
+		}
+		else if (strcmp(gv.db, "igad") 	== 0){
+			gv.EM_database = 3;
+		}
+		else if (strcmp(gv.db, "um") 	== 0){
+			gv.EM_database = 4;
+		}
+		else if (strcmp(gv.db, "ume") 	== 0){
+			gv.EM_database = 5;
+		}
+		else if (strcmp(gv.db, "mtl") 	== 0){
+			gv.EM_database = 6;
+		}
+		else {
+			printf(" No or wrong database acronym has been provided, using default (metapelite [mp])\n");
+			gv.EM_database = 0;
+		}
+	}
+	else if( strcmp(gv.research_group, "sb") == 0 ){
+		// checks if the end-member dataset option arg is correct, otherwise sets to default
+		if 	(gv.EM_dataset 	== -1 || gv.EM_dataset 	== 2011 ){
+		}
+		else{
+			gv.EM_dataset = -1;
+			printf(" WARNING: Unknown dataset '%d' has been provided, setting default one\n",gv.EM_dataset);
+		}
+
+		/* set-up database acronym here*/
+		if 		(strcmp(gv.db, "sb11") 	== 0){
+			gv.EM_database = 0;
+		}
+		else {
+			printf(" No or wrong database acronym has been provided, using default Stixrude & Lithgow-Bertelloni 2011([sb11])\n");
+			gv.EM_database = 0;
+		}
+
+	}
 
 	if (gv.verbose == 1){		
 		printf("--verbose     : verbose              = %i \n", 	 	   		gv.verbose			);
@@ -844,31 +904,6 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		printf("--mbCpx       : mbCpx                = %i \n", 	 	   		gv.mbCpx			);
 
 		printf("--out_matlab  : out_matlab           = %i \n", 	 	   		gv.output_matlab	);
-	}
-
-
-
-
-
-	/* set-up database acronym here*/
-	if 		(strcmp(gv.db, "mp") 	== 0){
-		gv.EM_database = 0;
-	}
-	else if (strcmp(gv.db, "mb") 	== 0){
-		gv.EM_database = 1;
-	}
-	else if (strcmp(gv.db, "ig") 	== 0){
-		gv.EM_database = 2;
-	}
-	else if (strcmp(gv.db, "um") 	== 0){
-		gv.EM_database = 4;
-	}
-	else if (strcmp(gv.db, "ume") 	== 0){
-		gv.EM_database = 5;
-	}
-	else {
-		printf(" No or wrong database acronym has been provided, using default (Igneous [ig])\n");
-		gv.EM_database = 2;
 	}
 
 	return gv;
@@ -1258,6 +1293,7 @@ void FreeDatabases(		global_variable gv,
 	/* ================ z_b ============= */
 	free(z_b.apo);
 	free(z_b.masspo);
+	free(z_b.opo);
 	free(z_b.ElEntropy);
 	free(z_b.id);
 	free(z_b.bulk_rock);

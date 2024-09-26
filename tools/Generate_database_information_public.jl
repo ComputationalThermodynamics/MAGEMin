@@ -6,10 +6,13 @@ function get_database_infos()
     db_details      = [ "Metapelite (White et al., 2014)",
                         "Metabasite (Green et al., 2016)",
                         "Igneous (Holland et al., 2018)",
+                        "Igneous alkaline dry (Weller et al., 2024)",
                         "Ultramafic (Evans & Frost., 2021)",
-                        "Ultramafic extended (Evans & Frost., 2021) + pl, hb and aug from Green et al., 2016"]
+                        "Ultramafic extended (Evans & Frost., 2021) with pl, hb and aug from Green et al., 2016",
+                        "Mantle (Holland et al., 2013)"
+                        ]
 
-    database_list   = ["mp","mb","ig","um","ume"]
+    database_list   = ["mp","mb","ig","igad","um","ume","mtl"]
 
     db_inf          = Array{db_infos, 1}(undef, length(database_list))
 
@@ -75,19 +78,3 @@ db_inf = get_database_infos()
 
 print(db_inf)
 
-
-
-
-
-
-
-
-
-
-
-
-
-# function get_property(x, name::String)
-#     s = Symbol(name)
-#     return getproperty(x, s)
-# end

@@ -16,15 +16,15 @@
 	/** 
 		Store oxide informations 
 	**/
-	typedef struct oxide_datas {
-		int 	n_ox;
-		char    oxName[15][20];
-		double  oxMass[15];
-		double  atPerOx[15];
-		double  ElEntropy[15]; //standard molar entropy
-		double  OPerOx[15];
+	// typedef struct oxide_datas {
+	// 	int 	n_ox;
+	// 	char    oxName[15][20];
+	// 	double  oxMass[15];
+	// 	double  atPerOx[15];
+	// 	double  ElEntropy[15]; //standard molar entropy
+	// 	double  OPerOx[15];
 
-	} oxide_data;
+	// } oxide_data;
 
 	/** 
 		Igneous database informations 
@@ -58,8 +58,8 @@
 
 	} stx11_dataset;
 
-    global_variable global_variable_SB_init( 	global_variable  	 gv,
-                                            	bulk_info 			*z_b 	);
+	global_variable global_variable_SB_init( 	global_variable  	 gv,
+												bulk_info 			*z_b 	);
 
     global_variable get_bulk_stx11( global_variable gv);
 

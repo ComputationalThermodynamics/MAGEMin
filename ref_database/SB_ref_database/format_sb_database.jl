@@ -4,9 +4,11 @@
 using JLD2
 using DataFrames
 
-@load "STIX11.jld2" data
+# @load "STIX11.jld2" data
 
+@load "STIX11.jld2" data2
 
+data = data2
 sb_ver = "sb11"
 elems  = ["Si", "Ca", "Al", "Fe", "Mg", "Na"]
 
@@ -54,17 +56,19 @@ for i=1:size(data)[1]
         push!(mul, Float64(sum_atoms))
     end
 
-    line3   = zeros(Float64,16)
-    l_tmp   = cat(n_sites, mul, site_cmp, dims=1)
+    # line3   = zeros(Float64,16)
+    # l_tmp   = cat(n_sites, mul, site_cmp, dims=1)
 
-    line3[1:length(l_tmp)]  .= l_tmp
-    line3   = join(collect(line3), ", ")
+    # line3[1:length(l_tmp)]  .= l_tmp
+    # line3   = join(collect(line3), ", ")
 
-    out    *= tab*tab*"{$line3},\n"
+    # out    *= tab*tab*"{$line3},\n"
 
     # retrieve standard state properties
     line4   = join(collect(Vector(data[i, 5:14])), ", ")
     out *= tab*tab*"{$line4},\n"
+
+    out *= tab*tab*"{$(data[i,:aSm]),$(data[i,:pd]),$(data[i,:td])},\n"
 
     out *= tab*"},\n"
 end

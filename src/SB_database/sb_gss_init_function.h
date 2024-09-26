@@ -8,19 +8,14 @@
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
  ** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ @*/
-#ifndef __TC_sol_H_
-#define __TC_sol_H_
+#ifndef __SB_GSS_INIT_FUNCTION_H_
+#define __SB_GSS_INIT_FUNCTION_H_
 
-    #include "tc_gss_init_function.h"
-    #include "tc_gss_function.h"
-    #include "objective_functions.h"
-    #include "NLopt_opt_function.h"
+#include "../MAGEMin.h"
+#include "../initialize.h"
+								
 
-    /* include pseudocompounds */
-    #include "SS_xeos_PC_mp.h" 				//mp is first, it contains the structure definition
-    #include "SS_xeos_PC_mb.h" 
-    #include "SS_xeos_PC_ig.h"
-    #include "SS_xeos_PC_igad.h"
-    #include "SS_xeos_PC_um.h"
-    #include "SS_xeos_PC_mtl.h"
+void SS_init_sb11(          SS_init_type        *SS_init,
+                            global_variable      gv                             );
+
 #endif

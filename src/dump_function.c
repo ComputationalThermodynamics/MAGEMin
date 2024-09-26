@@ -108,6 +108,7 @@ void fill_output_struct(		global_variable 	 gv,
 	double sum_vol;
 	double sum_em_wt;
 	double sum_ph_mass;
+	double sum_oxygens;
 
 	double sum_Molar_mass_bulk;
 	double atp2wt;
@@ -127,8 +128,13 @@ void fill_output_struct(		global_variable 	 gv,
 	else if (gv.EM_dataset == 634){		
 		strcpy(sp[0].dataset,"tc_ds634");	
 	}
-
-
+	else if (gv.EM_dataset == 635){		
+		strcpy(sp[0].dataset,"tc_ds635");	
+	}
+	else if (gv.EM_dataset == 636){		
+		strcpy(sp[0].dataset,"tc_ds636");	
+	}
+	
 	sp[0].bulk_res_norm 		 = gv.BR_norm;
 	sp[0].n_iterations 		     = gv.global_ite;
 	sp[0].status 		         = gv.status;
@@ -253,13 +259,16 @@ void fill_output_struct(		global_variable 	 gv,
 			/* solution phase composition */
 			sum_wt = 0.0;
 			sum_mol = 0.0;
+			sum_oxygens = 0.0;
 			for (j = 0; j < gv.len_ox; j++){
+				sp[0].SS[m].Comp_apfu[j]		= cp[i].ss_comp[j];
+				sum_oxygens					   += cp[i].ss_comp[j]*z_b.opo[j];
 				sp[0].SS[m].Comp[j]				= cp[i].ss_comp[j]*cp[i].factor;
 				sp[0].SS[m].Comp_wt[j]			= sp[0].SS[m].Comp[j]*z_b.masspo[j];
-				sp[0].SS[m].Comp_apfu[j]		= cp[i].ss_comp[j];
 				sum_wt 						   += sp[0].SS[m].Comp_wt[j];
 				sum_mol 					   += sp[0].SS[m].Comp[j];
 			}
+
 			for (j = 0; j < gv.len_ox; j++){
 				sp[0].SS[m].Comp_wt[j]		   /= sum_wt;
 				sp[0].SS[m].Comp[j]		   	   /= sum_mol;
@@ -296,10 +305,12 @@ void fill_output_struct(		global_variable 	 gv,
 				
 				sum_wt  = 0.0;
 				sum_mol = 0.0;
+				sum_oxygens = 0.0;
 				for (k = 0; k < gv.len_ox; k++){
 					sp[0].SS[m].emComp[j][k]	= SS_ref_db[cp[i].id].Comp[j][k]*cp[i].factor;
 					sp[0].SS[m].emComp_wt[j][k]	= sp[0].SS[m].emComp[j][k]*z_b.masspo[k];
 					sp[0].SS[m].emComp_apfu[j][k]	= SS_ref_db[cp[i].id].Comp[j][k];
+					sum_oxygens					   += SS_ref_db[cp[i].id].Comp[j][k]*z_b.opo[j];
 					sum_wt 					   += sp[0].SS[m].emComp_wt[j][k];
 					sum_mol 				   += sp[0].SS[m].emComp[j][k];
 				}
@@ -405,10 +416,13 @@ void fill_output_struct(		global_variable 	 gv,
 
 			sum_wt = 0.0;
 			sum_mol = 0.0;
+			sum_oxygens = 0.0;
 			for (j = 0; j < gv.len_ox; j++){
+				sp[0].PP[m].Comp_apfu[j] = sp[0].PP[m].Comp[j];
+				sum_oxygens 			  += sp[0].PP[m].Comp[j]*z_b.opo[j];
 				sp[0].PP[m].Comp[j]		 = PP_ref_db[i].Comp[j]*PP_ref_db[i].factor;
 				sp[0].PP[m].Comp_wt[j]   = sp[0].PP[m].Comp[j]*z_b.masspo[j];
-				sp[0].PP[m].Comp_apfu[j]   = sp[0].PP[m].Comp[j];
+
 				sum_wt 					+= sp[0].PP[m].Comp_wt[j];
 				sum_mol					+= sp[0].PP[m].Comp[j];
 			}
@@ -421,14 +435,14 @@ void fill_output_struct(		global_variable 	 gv,
 				sp[0].frac_S 		+= gv.pp_n_mol[i];
 				sp[0].rho_S  		+= gv.pp_n_mol[i]*PP_ref_db[i].phase_density;
 				for (j = 0; j < gv.len_ox; j++){
-					sp[0].bulk_S[j]	+= gv.pp_n_mol[i]*PP_ref_db[i].Comp[j]*PP_ref_db[i].factor;;
+					sp[0].bulk_S[j]	+= gv.pp_n_mol[i]*PP_ref_db[i].Comp[j]*PP_ref_db[i].factor;
 				}
 			}
 			if  (strcmp( gv.PP_list[i], "H2O") == 0){
 				sp[0].frac_F 		= gv.pp_n_mol[i];
 				sp[0].rho_F  		= gv.pp_n_mol[i]*PP_ref_db[i].phase_density;
 				for (j = 0; j < gv.len_ox; j++){
-					sp[0].bulk_F[j]	= gv.pp_n_mol[i]*PP_ref_db[i].Comp[j]*PP_ref_db[i].factor;;
+					sp[0].bulk_F[j]	= gv.pp_n_mol[i]*PP_ref_db[i].Comp[j]*PP_ref_db[i].factor;
 				}
 			}
 			n 			    	+= 1;
@@ -555,7 +569,29 @@ void fill_output_struct(		global_variable 	 gv,
 
 	for (i = 0; i < d->n_Ox; i++){
 		ph_id 		= d->ph_id_A[i][1];
-			
+
+
+		if (d->ph_id_A[i][0] == 0){			/* if phase is a fake oxide (This may happen for extremely reduced composition systems) */
+			for (int j = 0; j < gv.len_ox; j++){
+				sp[0].mSS[m].comp_Ppc[j] = 0.0;
+			}
+			sp[0].mSS[m].comp_Ppc[i]	 = 1.0;
+
+			sp[0].mSS[m].G_Ppc 	= 0.0;
+			sp[0].mSS[m].DF_Ppc = 0.0;;
+
+
+			strcpy(sp[0].mSS[m].info,"lpig");
+			strcpy(sp[0].mSS[m].ph_type,"fo");
+			strcpy(sp[0].mSS[m].ph_name,"F.OX");
+			sp[0].mSS[m].ph_id 		= i;
+			sp[0].mSS[m].nOx 		= gv.len_ox;
+			sp[0].mSS[m].n_xeos		= 0;
+			sp[0].mSS[m].n_em 		= 0;
+
+			sp[0].n_mSS += 1;
+			m += 1;
+		}			
 		if (d->ph_id_A[i][0] == 1){			/* if phase is a pure species */
 			for (int j = 0; j < gv.len_ox; j++){
 				sp[0].mSS[m].comp_Ppc[j] = PP_ref_db[ph_id].Comp[j]*PP_ref_db[ph_id].factor;
@@ -734,7 +770,7 @@ void fill_output_struct(		global_variable 	 gv,
 		}
 	}
 	if (m >= gv.max_n_mSS){
-		printf("WARNING: maximum number of metastable pseudocompounds has been reached, increase the value in gss_init_function.c (SP_INIT_function)\n");
+		printf("WARNING: maximum number of metastable pseudocompounds has been reached, increase the value in tc_gss_init_function.c (SP_INIT_function)\n");
 	}
 
 
