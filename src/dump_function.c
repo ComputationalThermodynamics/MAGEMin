@@ -172,12 +172,7 @@ void reset_output_struct(		global_variable 	 gv,
 };
 
 
-
-
-/**
-  Save final result of minimization
-*/
-void fill_output_struct(		global_variable 	 gv,
+void mSS_output_struct(			global_variable 	 gv,
 								simplex_data	    *splx_data,
 								bulk_info 	 		 z_b,
 
@@ -186,7 +181,6 @@ void fill_output_struct(		global_variable 	 gv,
 								csd_phase_set  		*cp,
 								stb_system  		*sp
 ){
-
 	PC_type 				PC_read[gv.len_ss];
 
 	TC_PC_init(	    		PC_read,
@@ -195,355 +189,11 @@ void fill_output_struct(		global_variable 	 gv,
 	P2X_type 				P2X_read[gv.len_ss];
 
 	TC_P2X_init(			P2X_read,
-							gv								);				
-
-	double G = 0.0;
-	double sum,	sum_wt, sum_mol, sum_vol, sum_em_wt, sum_ph_mass, sum_oxygens;
-	double sum_Molar_mass_bulk;
-	double atp2wt;
+							gv								);		
 
 	int nox  = gv.len_ox;
 	int i, j, k, m, n, em_id, ph_id, pc_id;
 	
-	reset_output_struct(gv, z_b, sp);
-
-	for (j = 0; j < gv.len_ox; j++){
-		strcpy(sp[0].oxides[j],gv.ox[j]);	
-		sp[0].G 				+= z_b.bulk_rock[j]*gv.gam_tot[j];
-	}
-
-	sum_Molar_mass_bulk = 0.0;
-	for (i = 0; i < nox; i++){
-		sp[0].M_sys 			+= z_b.bulk_rock[i]*z_b.masspo[i];	
-		sp[0].bulk[i] 	 		 = z_b.bulk_rock[i];
-		sp[0].gamma[i] 	 		 = gv.gam_tot[i];
-		sp[0].bulk_wt[i] 	 	 = z_b.bulk_rock[i]*z_b.masspo[i];
-		sum_Molar_mass_bulk     += sp[0].bulk_wt[i];
-	}
-	for (i = 0; i < nox; i++){
-		sp[0].bulk_wt[i] 	 	/= sum_Molar_mass_bulk;
-	}
-	
-	double n_at_bulk = 0.0;
-	for (i = 0; i < nox; i++){
-		n_at_bulk += z_b.bulk_rock[i] * z_b.apo[i];
-	}
-
-	double mass_bulk = 0.0;
-	for (i = 0; i < nox; i++){
-		mass_bulk += z_b.bulk_rock[i] * z_b.masspo[i];
-	}
-
-
-
-
-	/* copy data from solution phases */
-	n = 0;
-	m = 0;
-	for (int i = 0; i < gv.len_cp; i++){
-		if ( cp[i].ss_flags[1] == 1){
-			strcpy(sp[0].ph[n],cp[i].name);	
-
-			sp[0].ph_frac[n]  	 = cp[i].ss_n_mol;
-			sp[0].ph_frac_wt[n]  = cp[i].ss_n_wt;
-
-			sp[0].ph_type[n]  	 = 1;
-			sp[0].ph_id[n] 		 = m;
-			sp[0].n_SS 			+= 1;
-			sp[0].cp_wt 		+= cp[i].phase_cp * cp[i].ss_n_wt;
-			G = 0.0;
-			for (int j = 0; j < gv.len_ox; j++){
-				G += cp[i].ss_comp[j]*gv.gam_tot[j];
-			}
-			
-			sp[0].SS[m].nOx 	 = gv.len_ox;
-			sp[0].SS[m].f 		 = cp[i].factor;
-			sp[0].SS[m].G 		 = G;
-			sp[0].SS[m].deltaG	 = cp[i].df;
-			sp[0].SS[m].V 		 = cp[i].volume*10.;
-			sp[0].SS[m].cp 		 = cp[i].phase_cp;
-			sp[0].SS[m].rho 	 = cp[i].phase_density;
-			sp[0].SS[m].alpha 	 = cp[i].phase_expansivity;
-			sp[0].SS[m].entropy  = cp[i].phase_entropy;
-			sp[0].SS[m].enthalpy = cp[i].phase_enthalpy;
-			sp[0].SS[m].bulkMod  = cp[i].phase_bulkModulus/10.;
-			sp[0].SS[m].shearMod = cp[i].phase_shearModulus/10.;
-			sp[0].SS[m].Vp 		 = sqrt((cp[i].phase_bulkModulus/10. + 4.0/3.0*cp[i].phase_shearModulus/10.)/(cp[i].phase_density/1e3));
-			sp[0].SS[m].Vs 		 = sqrt(cp[i].phase_shearModulus/10.0/(cp[i].phase_density/1e3));	
-
-			sp[0].SS[m].n_xeos   = cp[i].n_xeos;
-			sp[0].SS[m].n_em 	 = cp[i].n_em;
-			sp[0].SS[m].n_sf 	 = cp[i].n_sf;
-			/* solution phase composition */
-
-			sum_oxygens = 0.0;
-			for (j = 0; j < gv.len_ox; j++){
-				sp[0].SS[m].Comp_apfu[j]		= cp[i].ss_comp[j]*z_b.cpo[j];
-				sum_oxygens					   += cp[i].ss_comp[j]*z_b.opo[j];
-				sp[0].SS[m].Comp[j]				= cp[i].ss_comp_mol[j];
-				sp[0].SS[m].Comp_wt[j]			= cp[i].ss_comp_wt[j];
-			}
-			sp[0].SS[m].Comp_apfu[gv.O_id]    += sum_oxygens;
-
-	
-			for (j = 0; j < cp[i].n_xeos; j++){	
-				sp[0].SS[m].compVariables[j] 	= cp[i].xeos[j];
-			}
-
-			for (j = 0; j < cp[i].n_xeos; j++){	
-				strcpy(sp[0].SS[m].compVariablesNames[j],SS_ref_db[cp[i].id].CV_list[j]);	
-			}
-
-			for (j = 0; j < cp[i].n_sf; j++){	
-				sp[0].SS[m].siteFractions[j] 	= cp[i].sf[j];
-			}
-
-			for (j = 0; j < cp[i].n_sf; j++){	
-				strcpy(sp[0].SS[m].siteFractionsNames[j],SS_ref_db[cp[i].id].SF_list[j]);	
-			}
-
-
-			sum_ph_mass = 0.0;
-			for (j = 0; j < cp[i].n_em; j++){
-				sum_em_wt = 0.0;
-				for (k = 0; k < gv.len_ox; k++){
-					sum_em_wt += SS_ref_db[cp[i].id].Comp[j][k]*cp[i].p_em[j]*z_b.masspo[k];
-				}
-				sp[0].SS[m].emFrac_wt[j] 		= sum_em_wt/sum_wt;
-				sum_ph_mass					   += sp[0].SS[m].emFrac_wt[j];
-				strcpy(sp[0].SS[m].emNames[j],SS_ref_db[cp[i].id].EM_list[j]);	
-				sp[0].SS[m].emFrac[j] 			= cp[i].p_em[j];
-				sp[0].SS[m].emChemPot[j] 		= cp[i].mu[j];
-				
-				sum_wt  = 0.0;
-				sum_mol = 0.0;
-				sum_oxygens = 0.0;
-				for (k = 0; k < gv.len_ox; k++){
-					sp[0].SS[m].emComp[j][k]	= SS_ref_db[cp[i].id].Comp[j][k]*cp[i].factor;
-					sp[0].SS[m].emComp_wt[j][k]	= sp[0].SS[m].emComp[j][k]*z_b.masspo[k];
-					sp[0].SS[m].emComp_apfu[j][k]	= SS_ref_db[cp[i].id].Comp[j][k]*z_b.cpo[j];;
-					sum_oxygens					   += SS_ref_db[cp[i].id].Comp[j][k]*z_b.opo[j];
-					sum_wt 					   += sp[0].SS[m].emComp_wt[j][k];
-					sum_mol 				   += sp[0].SS[m].emComp[j][k];
-				}
-				sp[0].SS[m].emComp_apfu[j][gv.O_id]    += sum_oxygens;
-				for (k = 0; k < gv.len_ox; k++){
-					sp[0].SS[m].emComp_wt[j][k]	/= sum_wt;
-					sp[0].SS[m].emComp[j][k]	/= sum_mol;
-				}
-			}
-			for (j = 0; j < cp[i].n_em; j++){
-				sp[0].SS[m].emFrac_wt[j] 	   /= sum_ph_mass;
-
-			}
-
-			if (strcmp( cp[i].name, "liq") == 0 || strcmp( cp[i].name, "fl") == 0 ){
-				if (strcmp( cp[i].name, "liq") == 0){
-					if (gv.n_phase == 1){
-						sp[0].frac_M 				= 1.0;
-						sp[0].frac_M_wt				= 1.0;
-					}
-					else{
-						sp[0].frac_M 				= cp[i].ss_n_mol;
-						sp[0].frac_M_wt				= cp[i].ss_n_wt;
-					}
-					sp[0].rho_M  				= cp[i].phase_density;
-
-					for (j = 0; j < gv.len_ox; j++){
-						sp[0].bulk_M[j]	   		= cp[i].ss_comp_mol[j];
-						sp[0].bulk_M_wt[j]	    = cp[i].ss_comp_wt[j];
-					}
-
-					sp[0].frac_M_wt 		    = cp[i].ss_n_wt;
-
-				}
-				else{
-					sp[0].frac_F 				= cp[i].ss_n_mol;
-					sp[0].frac_F_wt 			= cp[i].ss_n_wt;
-					sp[0].rho_F  				= cp[i].phase_density;
-					for (j = 0; j < gv.len_ox; j++){
-						sp[0].bulk_F[j]	   		= cp[i].ss_comp_mol[j];
-						sp[0].bulk_F_wt[j]	   	= cp[i].ss_comp_wt[j];
-					}
-				}
-			}
-			else {
-				sp[0].frac_S 				   += cp[i].ss_n_mol;
-				sp[0].frac_S_wt				   += cp[i].ss_n_wt;
-				sp[0].rho_S  				   += cp[i].ss_n_wt*cp[i].phase_density;
-				for (j = 0; j < gv.len_ox; j++){
-					sp[0].bulk_S[j]	   		   += cp[i].ss_n_mol*cp[i].ss_comp_mol[j];
-					sp[0].bulk_S_wt[j]	   	   += cp[i].ss_n_wt*cp[i].ss_comp_wt[j];
-				}
-			}
-
-			n 					+= 1;
-			m 					+= 1;
-		}
-	}
-	/* copy data from pure phases */
-	m = 0;
-	for (int i = 0; i < gv.len_pp; i++){
-		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 1){
-			strcpy(sp[0].ph[n],gv.PP_list[i]);
-		}
-		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
-			strcpy(sp[0].ph[n],gv.PP_list[i]);
-
-			atp2wt = 0.0;
-			for (j = 0; j < gv.len_ox; j++){
-				atp2wt	+= PP_ref_db[i].Comp[j]*PP_ref_db[i].factor*z_b.masspo[j];
-			}
-			atp2wt		/= sum_Molar_mass_bulk;
-
-			sp[0].ph_frac[n]  	 = gv.pp_n_mol[i];
-			sp[0].ph_frac_wt[n]  = gv.pp_n_wt[i];
-			sp[0].ph_type[n]  	 = 0;
-			sp[0].ph_id[n] 		 = m;
-			sp[0].n_PP 			+= 1;
-			sp[0].cp_wt 		+= PP_ref_db[i].phase_cp * gv.pp_n_wt[i];
-
-			sp[0].PP[m].nOx 	 = gv.len_ox;
-			sp[0].PP[m].f 		 = PP_ref_db[i].factor;
-			sp[0].PP[m].G 		 = PP_ref_db[i].gbase;
-			sp[0].PP[m].deltaG	 = PP_ref_db[i].gb_lvl;
-			sp[0].PP[m].V 		 = PP_ref_db[i].volume*10.;
-			sp[0].PP[m].cp 		 = PP_ref_db[i].phase_cp;
-			sp[0].PP[m].rho 	 = PP_ref_db[i].phase_density;
-			sp[0].PP[m].alpha 	 = PP_ref_db[i].phase_expansivity;
-			sp[0].PP[m].entropy  = PP_ref_db[i].phase_entropy;
-			sp[0].PP[m].enthalpy = PP_ref_db[i].phase_enthalpy;
-			sp[0].PP[m].bulkMod  = PP_ref_db[i].phase_bulkModulus/10.;
-			sp[0].PP[m].shearMod = PP_ref_db[i].phase_shearModulus/10.;
-			sp[0].PP[m].Vp 		 = sqrt((PP_ref_db[i].phase_bulkModulus/10. + 4.0/3.0*PP_ref_db[i].phase_shearModulus/10.)/(PP_ref_db[i].phase_density/1e3));
-			sp[0].PP[m].Vs 		 = sqrt(PP_ref_db[i].phase_shearModulus/10.0/(PP_ref_db[i].phase_density/1e3));	
-
-			sum_oxygens = 0.0;
-			for (j = 0; j < gv.len_ox; j++){
-				sp[0].PP[m].Comp_apfu[j] = PP_ref_db[i].Comp[j]*z_b.cpo[j];;
-				sum_oxygens 			  += PP_ref_db[i].Comp[j]*z_b.opo[j];
-				sp[0].PP[m].Comp[j]		 = PP_ref_db[i].Comp_mol[j];
-				sp[0].PP[m].Comp_wt[j]   = PP_ref_db[i].Comp_wt[j];
-			}
-			sp[0].PP[m].Comp_apfu[gv.O_id]    += sum_oxygens;	
-
-			if  (strcmp( gv.PP_list[i], "H2O") != 0){
-				sp[0].frac_S 		+= gv.pp_n_mol[i];
-				sp[0].frac_S_wt		+= gv.pp_n_wt[i];
-				sp[0].rho_S  		+= gv.pp_n_wt[i]*PP_ref_db[i].phase_density;
-				for (j = 0; j < gv.len_ox; j++){
-					sp[0].bulk_S[j]	+= gv.pp_n_mol[i]*PP_ref_db[i].Comp_mol[j];
-					sp[0].bulk_S_wt[j]	+= gv.pp_n_wt[i]*PP_ref_db[i].Comp_wt[j];
-				}
-			}
-			if  (strcmp( gv.PP_list[i], "H2O") == 0){
-				sp[0].frac_F 		= gv.pp_n_mol[i];
-				sp[0].frac_F_wt		= gv.pp_n_wt[i];
-				sp[0].rho_F  		= PP_ref_db[i].phase_density;
-				for (j = 0; j < gv.len_ox; j++){
-					sp[0].bulk_F[j]	= PP_ref_db[i].Comp_mol[j];
-					sp[0].bulk_F_wt[j]	= PP_ref_db[i].Comp_wt[j];
-				}
-			}
-			n 			    	+= 1;
-			m 					+= 1;
-		}
-	}
-	
-
-	// compute volume fraction and normalize other fractions
-	sum_vol = 0.0;
-	sum_mol = 0.0;
-	sum_wt  = 0.0;
-	n = 0;
-	for (int i = 0; i < gv.len_cp; i++){
-		if ( cp[i].ss_flags[1] == 1){
-			sp[0].ph_frac_vol[n] = sp[0].ph_frac_wt[n] / sp[0].SS[n].rho;
-			sum_vol += sp[0].ph_frac_vol[n];
-			sum_mol += sp[0].ph_frac[n];
-			sum_wt  += sp[0].ph_frac_wt[n];
-			n+=1;
-		}
-	}
-	m = 0;
-	for (int i = 0; i < gv.len_pp; i++){
-		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
-			sp[0].ph_frac_vol[n] =  sp[0].ph_frac_wt[n] / sp[0].PP[m].rho;
-			sum_vol += sp[0].ph_frac_vol[n];
-			sum_mol += sp[0].ph_frac[n];
-			sum_wt  += sp[0].ph_frac_wt[n];
-			m +=1;
-			n +=1;
-		}
-	}
-	for (int i = 0; i < gv.n_phase; i++){
-		sp[0].ph_frac_vol[i] 	/= sum_vol;
-		sp[0].ph_frac[i] 		/= sum_mol;
-		sp[0].ph_frac_wt[i] 	/= sum_wt;
-	}
-
-	/* The following section normalizes the entries for S (solid), M (melt) and F (fluid) which are entries useful for geodynamic coupling */
-	// normalize rho_S and bulk_S
-	if (sp[0].frac_S > 0.0){
-		sp[0].rho_S  /= sp[0].frac_S_wt;
-	}
-
-
-	sum = 0.0;
-	sum_mol = 0.0;
-	for (j = 0; j < gv.len_ox; j++){
-		sum 				   += sp[0].bulk_S_wt[j];
-		sum_mol 			   += sp[0].bulk_S[j];
-	}
-	for (j = 0; j < gv.len_ox; j++){
-		sp[0].bulk_S_wt[j]	   /= sum;
-		sp[0].bulk_S[j] 	   /= sum_mol;
-	}
-
-
-	// normalize bulk_M
-	sum 	= 0.0;
-	sum_mol = 0.0;
-	for (j = 0; j < gv.len_ox; j++){
-		sum 				   += sp[0].bulk_M_wt[j];
-		sum_mol 			   += sp[0].bulk_M[j];
-	}
-	for (j = 0; j < gv.len_ox; j++){
-		sp[0].bulk_M_wt[j]	   /= sum;
-		sp[0].bulk_M[j] 	   /= sum_mol;
-	}
-
-	// normalize bulk_F
-	sum 	= 0.0;
-	sum_mol = 0.0;
-	for (j = 0; j < gv.len_ox; j++){
-		sum 				   += sp[0].bulk_F_wt[j];
-		sum_mol 			   += sp[0].bulk_F[j];
-	}
-	for (j = 0; j < gv.len_ox; j++){
-		sp[0].bulk_F_wt[j]	   /= sum;
-		sp[0].bulk_F[j] 	   /= sum_mol;
-	}
-
-	// Normalize the fraction of S + M + F = 1.0
-	sum = sp[0].frac_F + sp[0].frac_M + sp[0].frac_S;
-	sp[0].frac_F /= sum;
-	sp[0].frac_M /= sum;
-	sp[0].frac_S /= sum;
-
-
-	sum = sp[0].frac_F_wt + sp[0].frac_M_wt + sp[0].frac_S_wt;
-
-	sp[0].frac_F_wt /= sum;
-	sp[0].frac_M_wt /= sum;
-	sp[0].frac_S_wt /= sum;
-
-	/* compute cp as J/K/kg for given bulk-rock composition */
-	sp[0].s_cp 					= sp[0].cp_wt/mass_bulk*1e6;
-
-
-
-
 
 	/* get LP assemblage - This routine retrieves the information of the solution phases and pure phase as computed at equilibrium -> to be used as initial guess */
 	m = 0;
@@ -561,7 +211,6 @@ void fill_output_struct(		global_variable 	 gv,
 
 			sp[0].mSS[m].G_Ppc 	= 0.0;
 			sp[0].mSS[m].DF_Ppc = 0.0;;
-
 
 			strcpy(sp[0].mSS[m].info,"lpig");
 			strcpy(sp[0].mSS[m].ph_type,"fo");
@@ -754,62 +403,362 @@ void fill_output_struct(		global_variable 	 gv,
 	if (m >= gv.max_n_mSS){
 		printf("WARNING: maximum number of metastable pseudocompounds has been reached, increase the value in tc_gss_init_function.c (SP_INIT_function)\n");
 	}
+	
+}
 
+/**
+  Save final result of minimization
+*/
+void fill_output_struct(		global_variable 	 gv,
+								simplex_data	    *splx_data,
+								bulk_info 	 		 z_b,
 
-	// debug print
-	if (1 == 0){
-		printf("Phase vol\n");
-		for (int m = 0; m < gv.n_phase; m++){
-			printf(" %4s %+10f\n",sp[0].ph[m],sp[0].ph_frac_vol[m]);
-		}
-		printf("\n");
-		printf("Phase wt\n");
-		for (int m = 0; m < gv.n_phase; m++){
-			printf(" %4s %+10f\n",sp[0].ph[m],sp[0].ph_frac_wt[m]);
-		}
-		printf("\n");
-		for (int m = 0; m < gv.n_cp_phase; m++){
-			printf(" %4s composition [wt]\n",sp[0].ph[m]);
+								PP_ref 				*PP_ref_db,
+								SS_ref 				*SS_ref_db,
+								csd_phase_set  		*cp,
+								stb_system  		*sp
+){
+	double G = 0.0;
+	double sum,	sum_wt, sum_mol, sum_vol, sum_em_wt, sum_ph_mass, sum_oxygens;
+	int nox  = gv.len_ox;
+	int i, j, k, m, n, em_id, ph_id, pc_id;
+	
+	reset_output_struct(gv, z_b, sp);
+
+	for (j = 0; j < gv.len_ox; j++){
+		strcpy(sp[0].oxides[j],gv.ox[j]);	
+		sp[0].G 				+= z_b.bulk_rock[j]*gv.gam_tot[j];
+	}
+
+	for (i = 0; i < nox; i++){
+		sp[0].bulk[i] 	 		 = z_b.bulk_rock[i];
+		sp[0].gamma[i] 	 		 = gv.gam_tot[i];
+	}
+
+	double n_at_bulk = 0.0;
+	for (i = 0; i < nox; i++){
+		n_at_bulk += z_b.bulk_rock[i] * z_b.apo[i];
+	}
+
+	double mass_bulk = 0.0;
+	for (i = 0; i < nox; i++){
+		mass_bulk += z_b.bulk_rock[i] * z_b.masspo[i];
+	}
+	for (i = 0; i < nox; i++){
+		sp[0].bulk_wt[i] 	 	/= mass_bulk;
+	}
+	sp[0].M_sys = mass_bulk;
+
+	/* copy data from solution phases */
+	n = 0;
+	m = 0;
+	for (int i = 0; i < gv.len_cp; i++){
+		if ( cp[i].ss_flags[1] == 1){
+			strcpy(sp[0].ph[n],cp[i].name);	
+
+			sp[0].ph_frac[n]  	 = cp[i].ss_n_mol;
+			sp[0].ph_frac_wt[n]  = cp[i].ss_n_wt;
+
+			sp[0].ph_type[n]  	 = 1;
+			sp[0].ph_id[n] 		 = m;
+			sp[0].n_SS 			+= 1;
+			sp[0].cp_wt 		+= cp[i].phase_cp * cp[i].ss_n_wt * cp[i].factor;
+			G = 0.0;
+			for (int j = 0; j < gv.len_ox; j++){
+				G += cp[i].ss_comp[j]*gv.gam_tot[j];
+			}
+			
+			sp[0].SS[m].nOx 	 = gv.len_ox;
+			sp[0].SS[m].f 		 = cp[i].factor;
+			sp[0].SS[m].G 		 = G;
+			sp[0].SS[m].deltaG	 = cp[i].df;
+			sp[0].SS[m].V 		 = cp[i].volume*10.;
+			sp[0].SS[m].cp 		 = cp[i].phase_cp;
+			sp[0].SS[m].rho 	 = cp[i].phase_density;
+			sp[0].SS[m].alpha 	 = cp[i].phase_expansivity;
+			sp[0].SS[m].entropy  = cp[i].phase_entropy;
+			sp[0].SS[m].enthalpy = cp[i].phase_enthalpy;
+			sp[0].SS[m].bulkMod  = cp[i].phase_bulkModulus/10.;
+			sp[0].SS[m].shearMod = cp[i].phase_shearModulus/10.;
+			sp[0].SS[m].Vp 		 = sqrt((cp[i].phase_bulkModulus/10. + 4.0/3.0*cp[i].phase_shearModulus/10.)/(cp[i].phase_density/1e3));
+			sp[0].SS[m].Vs 		 = sqrt(cp[i].phase_shearModulus/10.0/(cp[i].phase_density/1e3));	
+
+			sp[0].SS[m].n_xeos   = cp[i].n_xeos;
+			sp[0].SS[m].n_em 	 = cp[i].n_em;
+			sp[0].SS[m].n_sf 	 = cp[i].n_sf;
+			/* solution phase composition */
+
+			sum_oxygens = 0.0;
 			for (j = 0; j < gv.len_ox; j++){
-				printf(" %+10f", sp[0].SS[m].Comp_wt[j]);
+				sp[0].SS[m].Comp_apfu[j]		= cp[i].ss_comp[j]*z_b.cpo[j];
+				sum_oxygens					   += cp[i].ss_comp[j]*z_b.opo[j];
+				sp[0].SS[m].Comp[j]				= cp[i].ss_comp_mol[j];
+				sp[0].SS[m].Comp_wt[j]			= cp[i].ss_comp_wt[j];
 			}
-			printf("\n");
-
-			for (int k = 0; k < sp[0].SS[m].n_em; k++){
-				printf(" %+10f",sp[0].SS[m].emFrac_wt[k]);
+			if (gv.O_id != -1){
+				sp[0].SS[m].Comp_apfu[gv.O_id]    += sum_oxygens;
 			}
-			printf("\n");
 
+			for (j = 0; j < cp[i].n_xeos; j++){	
+				sp[0].SS[m].compVariables[j] 	= cp[i].xeos[j];
+			}
+
+			for (j = 0; j < cp[i].n_xeos; j++){	
+				strcpy(sp[0].SS[m].compVariablesNames[j],SS_ref_db[cp[i].id].CV_list[j]);	
+			}
+
+			for (j = 0; j < cp[i].n_sf; j++){	
+				sp[0].SS[m].siteFractions[j] 	= cp[i].sf[j];
+			}
+
+			for (j = 0; j < cp[i].n_sf; j++){	
+				strcpy(sp[0].SS[m].siteFractionsNames[j],SS_ref_db[cp[i].id].SF_list[j]);	
+			}
+
+
+			sum_ph_mass = 0.0;
+			for (j = 0; j < cp[i].n_em; j++){
+				sum_em_wt = 0.0;
+				for (k = 0; k < gv.len_ox; k++){
+					sum_em_wt += SS_ref_db[cp[i].id].Comp[j][k]*cp[i].p_em[j]*z_b.masspo[k];
+				}
+				sp[0].SS[m].emFrac_wt[j] 		= sum_em_wt/sum_wt;
+				sum_ph_mass					   += sp[0].SS[m].emFrac_wt[j];
+				strcpy(sp[0].SS[m].emNames[j],SS_ref_db[cp[i].id].EM_list[j]);	
+				sp[0].SS[m].emFrac[j] 			= cp[i].p_em[j];
+				sp[0].SS[m].emChemPot[j] 		= cp[i].mu[j];
+				
+				sum_wt  = 0.0;
+				sum_mol = 0.0;
+				sum_oxygens = 0.0;
+				for (k = 0; k < gv.len_ox; k++){
+					sp[0].SS[m].emComp[j][k]	= SS_ref_db[cp[i].id].Comp[j][k]*cp[i].factor;
+					sp[0].SS[m].emComp_wt[j][k]	= sp[0].SS[m].emComp[j][k]*z_b.masspo[k];
+					sp[0].SS[m].emComp_apfu[j][k]	= SS_ref_db[cp[i].id].Comp[j][k]*z_b.cpo[j];;
+					sum_oxygens					   += SS_ref_db[cp[i].id].Comp[j][k]*z_b.opo[j];
+					sum_wt 					   += sp[0].SS[m].emComp_wt[j][k];
+					sum_mol 				   += sp[0].SS[m].emComp[j][k];
+				}
+				if (gv.O_id != -1){
+					sp[0].SS[m].emComp_apfu[j][gv.O_id]    += sum_oxygens;
+				}
+
+				for (k = 0; k < gv.len_ox; k++){
+					sp[0].SS[m].emComp_wt[j][k]	/= sum_wt;
+					sp[0].SS[m].emComp[j][k]	/= sum_mol;
+				}
+			}
+			for (j = 0; j < cp[i].n_em; j++){
+				sp[0].SS[m].emFrac_wt[j] 	   /= sum_ph_mass;
+
+			}
+
+			if (strcmp( cp[i].name, "liq") == 0 || strcmp( cp[i].name, "fl") == 0 ){
+				if (strcmp( cp[i].name, "liq") == 0){
+					if (gv.n_phase == 1){
+						sp[0].frac_M 				= 1.0;
+						sp[0].frac_M_wt				= 1.0;
+					}
+					else{
+						sp[0].frac_M 				= cp[i].ss_n_mol;
+						sp[0].frac_M_wt				= cp[i].ss_n_wt;
+					}
+					sp[0].rho_M  				= cp[i].phase_density;
+
+					for (j = 0; j < gv.len_ox; j++){
+						sp[0].bulk_M[j]	   		= cp[i].ss_comp_mol[j];
+						sp[0].bulk_M_wt[j]	    = cp[i].ss_comp_wt[j];
+					}
+
+					sp[0].frac_M_wt 		    = cp[i].ss_n_wt;
+
+				}
+				else{
+					sp[0].frac_F 				= cp[i].ss_n_mol;
+					sp[0].frac_F_wt 			= cp[i].ss_n_wt;
+					sp[0].rho_F  				= cp[i].phase_density;
+					for (j = 0; j < gv.len_ox; j++){
+						sp[0].bulk_F[j]	   		= cp[i].ss_comp_mol[j];
+						sp[0].bulk_F_wt[j]	   	= cp[i].ss_comp_wt[j];
+					}
+				}
+			}
+			else {
+				sp[0].frac_S 				   += cp[i].ss_n_mol;
+				sp[0].frac_S_wt				   += cp[i].ss_n_wt;
+				sp[0].rho_S  				   += cp[i].ss_n_wt*cp[i].phase_density;
+				for (j = 0; j < gv.len_ox; j++){
+					sp[0].bulk_S[j]	   		   += cp[i].ss_n_mol*cp[i].ss_comp_mol[j];
+					sp[0].bulk_S_wt[j]	   	   += cp[i].ss_n_wt*cp[i].ss_comp_wt[j];
+				}
+			}
+
+			n 					+= 1;
+			m 					+= 1;
 		}
-		n = 0;
-		for (int m = gv.n_cp_phase; m < gv.n_phase; m++){
-			printf(" %4s composition [wt]\n",sp[0].ph[m]);
+	}
+	/* copy data from pure phases */
+	m = 0;
+	for (int i = 0; i < gv.len_pp; i++){
+		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 1){
+			strcpy(sp[0].ph[n],gv.PP_list[i]);
+		}
+		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
+			strcpy(sp[0].ph[n],gv.PP_list[i]);
+
+			sp[0].ph_frac[n]  	 = gv.pp_n_mol[i];
+			sp[0].ph_frac_wt[n]  = gv.pp_n_wt[i];
+			sp[0].ph_type[n]  	 = 0;
+			sp[0].ph_id[n] 		 = m;
+			sp[0].n_PP 			+= 1;
+			sp[0].cp_wt 		+= PP_ref_db[i].phase_cp * gv.pp_n_wt[i] * PP_ref_db[i].factor;
+
+			sp[0].PP[m].nOx 	 = gv.len_ox;
+			sp[0].PP[m].f 		 = PP_ref_db[i].factor;
+			sp[0].PP[m].G 		 = PP_ref_db[i].gbase;
+			sp[0].PP[m].deltaG	 = PP_ref_db[i].gb_lvl;
+			sp[0].PP[m].V 		 = PP_ref_db[i].volume*10.;
+			sp[0].PP[m].cp 		 = PP_ref_db[i].phase_cp;
+			sp[0].PP[m].rho 	 = PP_ref_db[i].phase_density;
+			sp[0].PP[m].alpha 	 = PP_ref_db[i].phase_expansivity;
+			sp[0].PP[m].entropy  = PP_ref_db[i].phase_entropy;
+			sp[0].PP[m].enthalpy = PP_ref_db[i].phase_enthalpy;
+			sp[0].PP[m].bulkMod  = PP_ref_db[i].phase_bulkModulus/10.;
+			sp[0].PP[m].shearMod = PP_ref_db[i].phase_shearModulus/10.;
+			sp[0].PP[m].Vp 		 = sqrt((PP_ref_db[i].phase_bulkModulus/10. + 4.0/3.0*PP_ref_db[i].phase_shearModulus/10.)/(PP_ref_db[i].phase_density/1e3));
+			sp[0].PP[m].Vs 		 = sqrt(PP_ref_db[i].phase_shearModulus/10.0/(PP_ref_db[i].phase_density/1e3));	
+
+			sum_oxygens = 0.0;
 			for (j = 0; j < gv.len_ox; j++){
-				printf(" %+10f", sp[0].PP[n].Comp_wt[j]);
+				sp[0].PP[m].Comp_apfu[j] = PP_ref_db[i].Comp[j]*z_b.cpo[j];;
+				sum_oxygens 			  += PP_ref_db[i].Comp[j]*z_b.opo[j];
+				sp[0].PP[m].Comp[j]		 = PP_ref_db[i].Comp_mol[j];
+				sp[0].PP[m].Comp_wt[j]   = PP_ref_db[i].Comp_wt[j];
 			}
-			n += 1;
-			printf("\n");
-		}
+			if (gv.O_id != -1){
+				sp[0].PP[m].Comp_apfu[gv.O_id]    += sum_oxygens;	
+			}
 
-		printf("Bulk solid:\n  %+10f |",sp[0].frac_S_wt );
-		for (j = 0; j < gv.len_ox; j++){
-			printf(" %+10f", sp[0].bulk_S_wt[j]);
+			if  (strcmp( gv.PP_list[i], "H2O") != 0){
+				sp[0].frac_S 		+= gv.pp_n_mol[i];
+				sp[0].frac_S_wt		+= gv.pp_n_wt[i];
+				sp[0].rho_S  		+= gv.pp_n_wt[i]*PP_ref_db[i].phase_density;
+				for (j = 0; j < gv.len_ox; j++){
+					sp[0].bulk_S[j]	+= gv.pp_n_mol[i]*PP_ref_db[i].Comp_mol[j];
+					sp[0].bulk_S_wt[j]	+= gv.pp_n_wt[i]*PP_ref_db[i].Comp_wt[j];
+				}
+			}
+			if  (strcmp( gv.PP_list[i], "H2O") == 0){
+				sp[0].frac_F 		= gv.pp_n_mol[i];
+				sp[0].frac_F_wt		= gv.pp_n_wt[i];
+				sp[0].rho_F  		= PP_ref_db[i].phase_density;
+				for (j = 0; j < gv.len_ox; j++){
+					sp[0].bulk_F[j]	= PP_ref_db[i].Comp_mol[j];
+					sp[0].bulk_F_wt[j]	= PP_ref_db[i].Comp_wt[j];
+				}
+			}
+			n 			    	+= 1;
+			m 					+= 1;
 		}
-		printf("\n");
-
-		printf("Bulk melt:\n  %+10f |",sp[0].frac_M_wt );
-		for (j = 0; j < gv.len_ox; j++){
-			printf(" %+10f", sp[0].bulk_M_wt[j]);
-		}
-		printf("\n");
-
-		printf("Bulk fluid:\n  %+10f |",sp[0].frac_F_wt );
-		for (j = 0; j < gv.len_ox; j++){
-			printf(" %+10f", sp[0].bulk_F_wt[j]);
-		}
-		printf("\n");
 	}
 	
+
+	// compute volume fraction and normalize other fractions
+	sum_vol = 0.0;
+	sum_mol = 0.0;
+	sum_wt  = 0.0;
+	n = 0;
+	for (int i = 0; i < gv.len_cp; i++){
+		if ( cp[i].ss_flags[1] == 1){
+			sp[0].ph_frac_vol[n] = sp[0].ph_frac_wt[n] / sp[0].SS[n].rho;
+			sum_vol += sp[0].ph_frac_vol[n];
+			sum_mol += sp[0].ph_frac[n];
+			sum_wt  += sp[0].ph_frac_wt[n];
+			n+=1;
+		}
+	}
+	m = 0;
+	for (int i = 0; i < gv.len_pp; i++){
+		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
+			sp[0].ph_frac_vol[n] =  sp[0].ph_frac_wt[n] / sp[0].PP[m].rho;
+			sum_vol += sp[0].ph_frac_vol[n];
+			sum_mol += sp[0].ph_frac[n];
+			sum_wt  += sp[0].ph_frac_wt[n];
+			m +=1;
+			n +=1;
+		}
+	}
+	for (int i = 0; i < gv.n_phase; i++){
+		sp[0].ph_frac_vol[i] 	/= sum_vol;
+		sp[0].ph_frac[i] 		/= sum_mol;
+		sp[0].ph_frac_wt[i] 	/= sum_wt;
+	}
+
+	/* The following section normalizes the entries for S (solid), M (melt) and F (fluid) which are entries useful for geodynamic coupling */
+	// normalize rho_S and bulk_S
+	if (sp[0].frac_S > 0.0){
+		sp[0].rho_S  /= sp[0].frac_S_wt;
+	}
+
+	sum = 0.0;
+	sum_mol = 0.0;
+	for (j = 0; j < gv.len_ox; j++){
+		sum 				   += sp[0].bulk_S_wt[j];
+		sum_mol 			   += sp[0].bulk_S[j];
+	}
+	for (j = 0; j < gv.len_ox; j++){
+		sp[0].bulk_S_wt[j]	   /= sum;
+		sp[0].bulk_S[j] 	   /= sum_mol;
+	}
+
+
+	// normalize bulk_M
+	sum 	= 0.0;
+	sum_mol = 0.0;
+	for (j = 0; j < gv.len_ox; j++){
+		sum 				   += sp[0].bulk_M_wt[j];
+		sum_mol 			   += sp[0].bulk_M[j];
+	}
+	for (j = 0; j < gv.len_ox; j++){
+		sp[0].bulk_M_wt[j]	   /= sum;
+		sp[0].bulk_M[j] 	   /= sum_mol;
+	}
+
+	// normalize bulk_F
+	sum 	= 0.0;
+	sum_mol = 0.0;
+	for (j = 0; j < gv.len_ox; j++){
+		sum 				   += sp[0].bulk_F_wt[j];
+		sum_mol 			   += sp[0].bulk_F[j];
+	}
+	for (j = 0; j < gv.len_ox; j++){
+		sp[0].bulk_F_wt[j]	   /= sum;
+		sp[0].bulk_F[j] 	   /= sum_mol;
+	}
+
+	// Normalize the fraction of S + M + F = 1.0
+	sum = sp[0].frac_F + sp[0].frac_M + sp[0].frac_S;
+	sp[0].frac_F /= sum;
+	sp[0].frac_M /= sum;
+	sp[0].frac_S /= sum;
+
+	sum = sp[0].frac_F_wt + sp[0].frac_M_wt + sp[0].frac_S_wt;
+
+	sp[0].frac_F_wt /= sum;
+	sp[0].frac_M_wt /= sum;
+	sp[0].frac_S_wt /= sum;
+
+	/* compute cp as J/K/kg for given bulk-rock composition */
+	sp[0].s_cp 					= sp[0].cp_wt/mass_bulk*1e6;
+
+	mSS_output_struct(	gv,
+						splx_data,
+						z_b,
+						PP_ref_db,
+						SS_ref_db,
+						cp,
+						sp 			);
+
 }
 
 

@@ -580,6 +580,15 @@ global_variable reset_gv(					global_variable 	 gv,
 		}
 	}
 	
+	// gv.H2O_id 	= -1;
+	// gv.CaO_id 	= -1;
+	// gv.Na2O_id 	= -1;
+	// gv.FeO_id 	= -1;
+	// gv.MgO_id 	= -1;
+	// gv.K2O_id 	= -1;
+	// gv.O_id 	= -1;
+	// gv.MnO_id 	= -1;
+
 	/* reset pure phases fractions and xi */
 	for (int i = 0; i < gv.len_pp; i++){		
 		gv.pp_n[i] 		  = 0.0;

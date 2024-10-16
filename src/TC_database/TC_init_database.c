@@ -684,6 +684,14 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 	/**
 		retrieve the right set of oxide and their informations 
 	*/
+	gv.H2O_id 	= -1;
+	gv.CaO_id 	= -1;
+	gv.Na2O_id 	= -1;
+	gv.FeO_id 	= -1;
+	gv.MgO_id 	= -1;
+	gv.K2O_id 	= -1;
+	gv.O_id 	= -1;
+	gv.MnO_id 	= -1;
 	oxide_data ox_in 	= oxide_info;
 	for (i = 0; i < gv.len_ox; i++){
 		for (j = 0; j < ox_in.n_ox; j++){

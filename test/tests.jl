@@ -6,7 +6,6 @@ using Test
 # runtests.jl
 using MAGEMin_C         # load MAGEMin (needs to be loaded from main directory to pick up correct library in case it is locally compiled)
 
-
 # Initialize database  - new way
 data        =   Initialize_MAGEMin("ig", verbose=true);
 test        =   0         #KLB1
@@ -26,8 +25,6 @@ out         =   point_wise_minimization(P,T, data);
 # print more detailed info about this point:
 print_info(out)
 Finalize_MAGEMin(data)
-
-# out.rho_S*out.frac_S_wt + out.rho_M*out.frac_M_wt - out.rho
 
 
 # Initialize database  - new way
