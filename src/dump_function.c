@@ -77,47 +77,16 @@ void dump_init(global_variable gv){
 	}
 }
 
-/**
-  Save final result of minimization
-*/
-void fill_output_struct(		global_variable 	 gv,
-								simplex_data	    *splx_data,
+
+void reset_output_struct(		global_variable 	 gv,
 								bulk_info 	 		 z_b,
-
-								PP_ref 				*PP_ref_db,
-								SS_ref 				*SS_ref_db,
-								csd_phase_set  		*cp,
-								stb_system  		*sp
-){
-
-
-	PC_type 				PC_read[gv.len_ss];
-
-	TC_PC_init(	    		PC_read,
-							gv								);
-
-	P2X_type 				P2X_read[gv.len_ss];
-
-	TC_P2X_init(			P2X_read,
-							gv								);				
-
-	double G = 0.0;
-	double sum;
-	double sum_wt;
-	double sum_mol;
-	double sum_vol;
-	double sum_em_wt;
-	double sum_ph_mass;
-	double sum_oxygens;
-
-	double sum_Molar_mass_bulk;
-	double atp2wt;
+								stb_system  		*sp		){
 
 	int nox  = gv.len_ox;
 	int i, j, k, m, n, em_id, ph_id, pc_id;
-	
-	strcpy(sp[0].MAGEMin_ver,gv.version);	
+	double sum_Molar_mass_bulk;
 
+	strcpy(sp[0].MAGEMin_ver,gv.version);	
 
 	if (gv.EM_dataset == 62){	
 		strcpy(sp[0].dataset,"tc_ds62");	
@@ -134,7 +103,7 @@ void fill_output_struct(		global_variable 	 gv,
 	else if (gv.EM_dataset == 636){		
 		strcpy(sp[0].dataset,"tc_ds636");	
 	}
-	
+
 	sp[0].bulk_res_norm 		 = gv.BR_norm;
 	sp[0].n_iterations 		     = gv.global_ite;
 	sp[0].status 		         = gv.status;
@@ -168,10 +137,6 @@ void fill_output_struct(		global_variable 	 gv,
 	sp[0].Vs_S  		 		 = gv.solid_Vs,
 
 	sp[0].G = 0.0;
-	for (j = 0; j < gv.len_ox; j++){
-		strcpy(sp[0].oxides[j],gv.ox[j]);	
-		sp[0].G 				+= z_b.bulk_rock[j]*gv.gam_tot[j];
-	}
 
 	sp[0].P 			 		 = z_b.P;
 	sp[0].T 			 		 = z_b.T;
@@ -180,11 +145,6 @@ void fill_output_struct(		global_variable 	 gv,
 	sum_Molar_mass_bulk = 0.0;
 	sp[0].M_sys  		= 0.0;
 	for (i = 0; i < nox; i++){
-		sp[0].M_sys 			+= z_b.bulk_rock[i]*z_b.masspo[i];	
-		sp[0].bulk[i] 	 		 = z_b.bulk_rock[i];
-		sp[0].gamma[i] 	 		 = gv.gam_tot[i];
-		sp[0].bulk_wt[i] 	 	 = z_b.bulk_rock[i]*z_b.masspo[i];
-		sum_Molar_mass_bulk     += sp[0].bulk_wt[i];
 
 		sp[0].bulk_S[i] 	 		 = 0.0;
 		sp[0].bulk_S_wt[i] 	 		 = 0.0;
@@ -192,9 +152,6 @@ void fill_output_struct(		global_variable 	 gv,
 		sp[0].bulk_M_wt[i] 	 		 = 0.0;
 		sp[0].bulk_F[i] 	 		 = 0.0;
 		sp[0].bulk_F_wt[i] 	 		 = 0.0;
-	}
-	for (i = 0; i < nox; i++){
-		sp[0].bulk_wt[i] 	 	/= sum_Molar_mass_bulk;
 	}
 
 	sp[0].n_ph			 		 = gv.n_phase;
@@ -212,6 +169,73 @@ void fill_output_struct(		global_variable 	 gv,
 	sp[0].rho_F				 	 = 0.0;
 	sp[0].cp_wt					 = 0.0;
 	sp[0].s_cp					 = 0.0;
+};
+
+
+
+
+/**
+  Save final result of minimization
+*/
+void fill_output_struct(		global_variable 	 gv,
+								simplex_data	    *splx_data,
+								bulk_info 	 		 z_b,
+
+								PP_ref 				*PP_ref_db,
+								SS_ref 				*SS_ref_db,
+								csd_phase_set  		*cp,
+								stb_system  		*sp
+){
+
+	PC_type 				PC_read[gv.len_ss];
+
+	TC_PC_init(	    		PC_read,
+							gv								);
+
+	P2X_type 				P2X_read[gv.len_ss];
+
+	TC_P2X_init(			P2X_read,
+							gv								);				
+
+	double G = 0.0;
+	double sum,	sum_wt, sum_mol, sum_vol, sum_em_wt, sum_ph_mass, sum_oxygens;
+	double sum_Molar_mass_bulk;
+	double atp2wt;
+
+	int nox  = gv.len_ox;
+	int i, j, k, m, n, em_id, ph_id, pc_id;
+	
+	reset_output_struct(gv, z_b, sp);
+
+	for (j = 0; j < gv.len_ox; j++){
+		strcpy(sp[0].oxides[j],gv.ox[j]);	
+		sp[0].G 				+= z_b.bulk_rock[j]*gv.gam_tot[j];
+	}
+
+	sum_Molar_mass_bulk = 0.0;
+	for (i = 0; i < nox; i++){
+		sp[0].M_sys 			+= z_b.bulk_rock[i]*z_b.masspo[i];	
+		sp[0].bulk[i] 	 		 = z_b.bulk_rock[i];
+		sp[0].gamma[i] 	 		 = gv.gam_tot[i];
+		sp[0].bulk_wt[i] 	 	 = z_b.bulk_rock[i]*z_b.masspo[i];
+		sum_Molar_mass_bulk     += sp[0].bulk_wt[i];
+	}
+	for (i = 0; i < nox; i++){
+		sp[0].bulk_wt[i] 	 	/= sum_Molar_mass_bulk;
+	}
+	
+	double n_at_bulk = 0.0;
+	for (i = 0; i < nox; i++){
+		n_at_bulk += z_b.bulk_rock[i] * z_b.apo[i];
+	}
+
+	double mass_bulk = 0.0;
+	for (i = 0; i < nox; i++){
+		mass_bulk += z_b.bulk_rock[i] * z_b.masspo[i];
+	}
+
+
+
 
 	/* copy data from solution phases */
 	n = 0;
@@ -220,19 +244,13 @@ void fill_output_struct(		global_variable 	 gv,
 		if ( cp[i].ss_flags[1] == 1){
 			strcpy(sp[0].ph[n],cp[i].name);	
 
-			atp2wt = 0.0;
-			for (j = 0; j < gv.len_ox; j++){
-				atp2wt	+= cp[i].ss_comp[j]*cp[i].factor*z_b.masspo[j];
-			}
-			atp2wt		/= sum_Molar_mass_bulk;
-
 			sp[0].ph_frac[n]  	 = cp[i].ss_n_mol;
-			sp[0].ph_frac_wt[n]  = cp[i].ss_n_mol*atp2wt;
+			sp[0].ph_frac_wt[n]  = cp[i].ss_n_wt;
 
 			sp[0].ph_type[n]  	 = 1;
 			sp[0].ph_id[n] 		 = m;
 			sp[0].n_SS 			+= 1;
-			sp[0].cp_wt 		+= cp[i].phase_cp * cp[i].ss_n_mol*atp2wt * cp[i].factor;
+			sp[0].cp_wt 		+= cp[i].phase_cp * cp[i].ss_n_wt;
 			G = 0.0;
 			for (int j = 0; j < gv.len_ox; j++){
 				G += cp[i].ss_comp[j]*gv.gam_tot[j];
@@ -257,22 +275,16 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].SS[m].n_em 	 = cp[i].n_em;
 			sp[0].SS[m].n_sf 	 = cp[i].n_sf;
 			/* solution phase composition */
-			sum_wt = 0.0;
-			sum_mol = 0.0;
+
 			sum_oxygens = 0.0;
 			for (j = 0; j < gv.len_ox; j++){
-				sp[0].SS[m].Comp_apfu[j]		= cp[i].ss_comp[j];
+				sp[0].SS[m].Comp_apfu[j]		= cp[i].ss_comp[j]*z_b.cpo[j];
 				sum_oxygens					   += cp[i].ss_comp[j]*z_b.opo[j];
-				sp[0].SS[m].Comp[j]				= cp[i].ss_comp[j]*cp[i].factor;
-				sp[0].SS[m].Comp_wt[j]			= sp[0].SS[m].Comp[j]*z_b.masspo[j];
-				sum_wt 						   += sp[0].SS[m].Comp_wt[j];
-				sum_mol 					   += sp[0].SS[m].Comp[j];
+				sp[0].SS[m].Comp[j]				= cp[i].ss_comp_mol[j];
+				sp[0].SS[m].Comp_wt[j]			= cp[i].ss_comp_wt[j];
 			}
+			sp[0].SS[m].Comp_apfu[gv.O_id]    += sum_oxygens;
 
-			for (j = 0; j < gv.len_ox; j++){
-				sp[0].SS[m].Comp_wt[j]		   /= sum_wt;
-				sp[0].SS[m].Comp[j]		   	   /= sum_mol;
-			}
 	
 			for (j = 0; j < cp[i].n_xeos; j++){	
 				sp[0].SS[m].compVariables[j] 	= cp[i].xeos[j];
@@ -309,11 +321,12 @@ void fill_output_struct(		global_variable 	 gv,
 				for (k = 0; k < gv.len_ox; k++){
 					sp[0].SS[m].emComp[j][k]	= SS_ref_db[cp[i].id].Comp[j][k]*cp[i].factor;
 					sp[0].SS[m].emComp_wt[j][k]	= sp[0].SS[m].emComp[j][k]*z_b.masspo[k];
-					sp[0].SS[m].emComp_apfu[j][k]	= SS_ref_db[cp[i].id].Comp[j][k];
+					sp[0].SS[m].emComp_apfu[j][k]	= SS_ref_db[cp[i].id].Comp[j][k]*z_b.cpo[j];;
 					sum_oxygens					   += SS_ref_db[cp[i].id].Comp[j][k]*z_b.opo[j];
 					sum_wt 					   += sp[0].SS[m].emComp_wt[j][k];
 					sum_mol 				   += sp[0].SS[m].emComp[j][k];
 				}
+				sp[0].SS[m].emComp_apfu[j][gv.O_id]    += sum_oxygens;
 				for (k = 0; k < gv.len_ox; k++){
 					sp[0].SS[m].emComp_wt[j][k]	/= sum_wt;
 					sp[0].SS[m].emComp[j][k]	/= sum_mol;
@@ -328,48 +341,39 @@ void fill_output_struct(		global_variable 	 gv,
 				if (strcmp( cp[i].name, "liq") == 0){
 					if (gv.n_phase == 1){
 						sp[0].frac_M 				= 1.0;
+						sp[0].frac_M_wt				= 1.0;
 					}
 					else{
 						sp[0].frac_M 				= cp[i].ss_n_mol;
+						sp[0].frac_M_wt				= cp[i].ss_n_wt;
 					}
 					sp[0].rho_M  				= cp[i].phase_density;
-					sum = 0.0;
+
 					for (j = 0; j < gv.len_ox; j++){
-						sp[0].bulk_M[j]	   		= cp[i].ss_comp[j]*cp[i].factor;
-						sp[0].bulk_M_wt[j]	    = sp[0].bulk_M[j]*z_b.masspo[j];
-						sum 				   += sp[0].bulk_M_wt[j];
+						sp[0].bulk_M[j]	   		= cp[i].ss_comp_mol[j];
+						sp[0].bulk_M_wt[j]	    = cp[i].ss_comp_wt[j];
 					}
-					for (j = 0; j < gv.len_ox; j++){
-						sp[0].bulk_M_wt[j]	   /= sum;
-					}
-					atp2wt = sum/sum_Molar_mass_bulk;
-					sp[0].frac_M_wt 		    = sp[0].frac_M*atp2wt;
+
+					sp[0].frac_M_wt 		    = cp[i].ss_n_wt;
 
 				}
 				else{
 					sp[0].frac_F 				= cp[i].ss_n_mol;
+					sp[0].frac_F_wt 			= cp[i].ss_n_wt;
 					sp[0].rho_F  				= cp[i].phase_density;
-					sum = 0.0;
-					sum_mol = 0.0;
 					for (j = 0; j < gv.len_ox; j++){
-						sp[0].bulk_F[j]	   		= cp[i].ss_comp[j]*cp[i].factor;
-						sp[0].bulk_F_wt[j]	   	= cp[i].ss_comp[j]*cp[i].factor*z_b.masspo[j];
-						sum 				   += sp[0].bulk_F_wt[j];
-						sum_mol		   		   += sp[0].bulk_F[j];
+						sp[0].bulk_F[j]	   		= cp[i].ss_comp_mol[j];
+						sp[0].bulk_F_wt[j]	   	= cp[i].ss_comp_wt[j];
 					}
-					for (j = 0; j < gv.len_ox; j++){
-						sp[0].bulk_F_wt[j]	   /= sum;
-						sp[0].bulk_F[j]	   	   /= sum_mol;	
-					}
-					atp2wt = sum/sum_Molar_mass_bulk;
-					sp[0].frac_F_wt 		    = sp[0].frac_F*atp2wt;
 				}
 			}
 			else {
 				sp[0].frac_S 				   += cp[i].ss_n_mol;
-				sp[0].rho_S  				   += cp[i].ss_n_mol*cp[i].phase_density;
+				sp[0].frac_S_wt				   += cp[i].ss_n_wt;
+				sp[0].rho_S  				   += cp[i].ss_n_wt*cp[i].phase_density;
 				for (j = 0; j < gv.len_ox; j++){
-					sp[0].bulk_S[j]	   		   += cp[i].ss_n_mol*cp[i].ss_comp[j]*cp[i].factor;
+					sp[0].bulk_S[j]	   		   += cp[i].ss_n_mol*cp[i].ss_comp_mol[j];
+					sp[0].bulk_S_wt[j]	   	   += cp[i].ss_n_wt*cp[i].ss_comp_wt[j];
 				}
 			}
 
@@ -393,11 +397,11 @@ void fill_output_struct(		global_variable 	 gv,
 			atp2wt		/= sum_Molar_mass_bulk;
 
 			sp[0].ph_frac[n]  	 = gv.pp_n_mol[i];
-			sp[0].ph_frac_wt[n]  = gv.pp_n_mol[i]*atp2wt;
+			sp[0].ph_frac_wt[n]  = gv.pp_n_wt[i];
 			sp[0].ph_type[n]  	 = 0;
 			sp[0].ph_id[n] 		 = m;
 			sp[0].n_PP 			+= 1;
-			sp[0].cp_wt 		+= PP_ref_db[i].phase_cp * gv.pp_n_mol[i]*atp2wt *PP_ref_db[i].factor;
+			sp[0].cp_wt 		+= PP_ref_db[i].phase_cp * gv.pp_n_wt[i];
 
 			sp[0].PP[m].nOx 	 = gv.len_ox;
 			sp[0].PP[m].f 		 = PP_ref_db[i].factor;
@@ -414,35 +418,31 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].PP[m].Vp 		 = sqrt((PP_ref_db[i].phase_bulkModulus/10. + 4.0/3.0*PP_ref_db[i].phase_shearModulus/10.)/(PP_ref_db[i].phase_density/1e3));
 			sp[0].PP[m].Vs 		 = sqrt(PP_ref_db[i].phase_shearModulus/10.0/(PP_ref_db[i].phase_density/1e3));	
 
-			sum_wt = 0.0;
-			sum_mol = 0.0;
 			sum_oxygens = 0.0;
 			for (j = 0; j < gv.len_ox; j++){
-				sp[0].PP[m].Comp_apfu[j] = sp[0].PP[m].Comp[j];
-				sum_oxygens 			  += sp[0].PP[m].Comp[j]*z_b.opo[j];
-				sp[0].PP[m].Comp[j]		 = PP_ref_db[i].Comp[j]*PP_ref_db[i].factor;
-				sp[0].PP[m].Comp_wt[j]   = sp[0].PP[m].Comp[j]*z_b.masspo[j];
+				sp[0].PP[m].Comp_apfu[j] = PP_ref_db[i].Comp[j]*z_b.cpo[j];;
+				sum_oxygens 			  += PP_ref_db[i].Comp[j]*z_b.opo[j];
+				sp[0].PP[m].Comp[j]		 = PP_ref_db[i].Comp_mol[j];
+				sp[0].PP[m].Comp_wt[j]   = PP_ref_db[i].Comp_wt[j];
+			}
+			sp[0].PP[m].Comp_apfu[gv.O_id]    += sum_oxygens;	
 
-				sum_wt 					+= sp[0].PP[m].Comp_wt[j];
-				sum_mol					+= sp[0].PP[m].Comp[j];
-			}
-			for (j = 0; j < gv.len_ox; j++){
-				sp[0].PP[m].Comp_wt[j]  /= sum_wt;
-				sp[0].PP[m].Comp[j]  	/= sum_mol;
-			}
-		
 			if  (strcmp( gv.PP_list[i], "H2O") != 0){
 				sp[0].frac_S 		+= gv.pp_n_mol[i];
-				sp[0].rho_S  		+= gv.pp_n_mol[i]*PP_ref_db[i].phase_density;
+				sp[0].frac_S_wt		+= gv.pp_n_wt[i];
+				sp[0].rho_S  		+= gv.pp_n_wt[i]*PP_ref_db[i].phase_density;
 				for (j = 0; j < gv.len_ox; j++){
-					sp[0].bulk_S[j]	+= gv.pp_n_mol[i]*PP_ref_db[i].Comp[j]*PP_ref_db[i].factor;
+					sp[0].bulk_S[j]	+= gv.pp_n_mol[i]*PP_ref_db[i].Comp_mol[j];
+					sp[0].bulk_S_wt[j]	+= gv.pp_n_wt[i]*PP_ref_db[i].Comp_wt[j];
 				}
 			}
 			if  (strcmp( gv.PP_list[i], "H2O") == 0){
 				sp[0].frac_F 		= gv.pp_n_mol[i];
-				sp[0].rho_F  		= gv.pp_n_mol[i]*PP_ref_db[i].phase_density;
+				sp[0].frac_F_wt		= gv.pp_n_wt[i];
+				sp[0].rho_F  		= PP_ref_db[i].phase_density;
 				for (j = 0; j < gv.len_ox; j++){
-					sp[0].bulk_F[j]	= gv.pp_n_mol[i]*PP_ref_db[i].Comp[j]*PP_ref_db[i].factor;
+					sp[0].bulk_F[j]	= PP_ref_db[i].Comp_mol[j];
+					sp[0].bulk_F_wt[j]	= PP_ref_db[i].Comp_wt[j];
 				}
 			}
 			n 			    	+= 1;
@@ -485,57 +485,41 @@ void fill_output_struct(		global_variable 	 gv,
 	/* The following section normalizes the entries for S (solid), M (melt) and F (fluid) which are entries useful for geodynamic coupling */
 	// normalize rho_S and bulk_S
 	if (sp[0].frac_S > 0.0){
-		sp[0].rho_S  				/= sp[0].frac_S;
-		for (j = 0; j < gv.len_ox; j++){
-			sp[0].bulk_S[j]	   		/= sp[0].frac_S;
-		}
+		sp[0].rho_S  /= sp[0].frac_S_wt;
 	}
+
 
 	sum = 0.0;
 	sum_mol = 0.0;
 	for (j = 0; j < gv.len_ox; j++){
-		sp[0].bulk_S_wt[j]	    = sp[0].bulk_S[j]*z_b.masspo[j];
 		sum 				   += sp[0].bulk_S_wt[j];
 		sum_mol 			   += sp[0].bulk_S[j];
 	}
-
 	for (j = 0; j < gv.len_ox; j++){
 		sp[0].bulk_S_wt[j]	   /= sum;
 		sp[0].bulk_S[j] 	   /= sum_mol;
 	}
 
-	atp2wt = sum/sum_Molar_mass_bulk;
-	sp[0].frac_S_wt 		    = sp[0].frac_S*atp2wt;
 
 	// normalize bulk_M
-	for (j = 0; j < gv.len_ox; j++){
-		sp[0].bulk_M[j]	   		/= sp[0].frac_M;
-	}
-
 	sum 	= 0.0;
 	sum_mol = 0.0;
 	for (j = 0; j < gv.len_ox; j++){
 		sum 				   += sp[0].bulk_M_wt[j];
 		sum_mol 			   += sp[0].bulk_M[j];
 	}
-
 	for (j = 0; j < gv.len_ox; j++){
 		sp[0].bulk_M_wt[j]	   /= sum;
 		sp[0].bulk_M[j] 	   /= sum_mol;
 	}
 
-	// normalize rho_F and bulk_F
-	for (j = 0; j < gv.len_ox; j++){
-		sp[0].bulk_F[j]	   		/= sp[0].frac_F;
-	}
-
+	// normalize bulk_F
 	sum 	= 0.0;
 	sum_mol = 0.0;
 	for (j = 0; j < gv.len_ox; j++){
 		sum 				   += sp[0].bulk_F_wt[j];
 		sum_mol 			   += sp[0].bulk_F[j];
 	}
-
 	for (j = 0; j < gv.len_ox; j++){
 		sp[0].bulk_F_wt[j]	   /= sum;
 		sp[0].bulk_F[j] 	   /= sum_mol;
@@ -555,12 +539,10 @@ void fill_output_struct(		global_variable 	 gv,
 	sp[0].frac_S_wt /= sum;
 
 	/* compute cp as J/K/kg for given bulk-rock composition */
-	double MolarMass_system = 0.0;
-	for (int i = 0; i < gv.len_ox; i++){
-		MolarMass_system += z_b.bulk_rock[i]*(z_b.masspo[i]);
-	}
+	sp[0].s_cp 					= sp[0].cp_wt/mass_bulk*1e6;
 
-	sp[0].s_cp 					= sp[0].cp_wt/MolarMass_system*1e6;
+
+
 
 
 	/* get LP assemblage - This routine retrieves the information of the solution phases and pure phase as computed at equilibrium -> to be used as initial guess */
@@ -1233,35 +1215,6 @@ void output_gui(				global_variable 	 gv,
 	fprintf(loc_min, "\n");
 	fclose(loc_min);
 
-
-	/**
-	 * @brief output parameters to calculate seismic wave velocity correction
-	 * 
-	 */
-	// FILE *tot_min;
-	// char tot_lm[255];
-	
-	// if (numprocs==1){	sprintf(tot_lm,	"%s_wave_output.txt"		,gv.outpath); 		}
-	// else 			{	sprintf(tot_lm,	"%s_wave_output.%i.txt"		,gv.outpath, rank); }
-
-	// tot_min 	= fopen(tot_lm, 	"a"); 
-	
-	// if (sp[0].frac_M < 1.0){
-	// 	if (sp[0].frac_M > 0.0){
-	// 	fprintf(tot_min, "%i %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f \n",gv.numPoint+1, z_b.P, z_b.T-273.15,sp[0].Vs_S,sp[0].Vp_S,sp[0].bulkModulus_S,sp[0].shearModulus_S,sp[0].bulkModulus_M,sp[0].rho_M,sp[0].rho_S,sp[0].frac_M,
-	// 																										sp[0].bulk_S_wt[5]+sp[0].bulk_S_wt[6],sp[0].bulk_M_wt[5]+sp[0].bulk_M_wt[6], sp[0].bulk_S_wt[0], sp[0].bulk_M_wt[0], sp[0].bulk_M_wt[10]);
-	// 	}
-	// 	else{
-	// 	fprintf(tot_min, "%i %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f \n", gv.numPoint+1, z_b.P, z_b.T-273.15,sp[0].Vs_S,sp[0].Vp_S,sp[0].bulkModulus_S,sp[0].shearModulus_S,sp[0].bulkModulus_M,sp[0].rho_M,sp[0].rho_S,sp[0].frac_M,
-	// 																										sp[0].bulk_S_wt[5]+sp[0].bulk_S_wt[6],0.0/0.0, sp[0].bulk_S_wt[0], 0.0/0.0, 0.0/0.0);
-	// 	}
-	// }
-	// else{
-	// 	fprintf(tot_min, "%i %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f %.8f \n", gv.numPoint+1, z_b.P, z_b.T-273.15, 0.0/0.0, 0.0/0.0, 0.0/0.0, 0.0/0.0, sp[0].bulkModulus_M, 0.0/0.0, 0.0/0.0,sp[0].frac_M,
-	// 																										0.0/0.0,sp[0].bulk_M_wt[5]+sp[0].bulk_M_wt[6],0.0/0.0, sp[0].bulk_M_wt[0], sp[0].bulk_M_wt[10]);
-	// }
-	
-	// fclose(tot_min);
 
 }
 

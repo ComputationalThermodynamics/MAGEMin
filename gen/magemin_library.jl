@@ -59,10 +59,13 @@ end
 
 struct PP_refs
     Name::NTuple{20, Cchar}
-    Comp::NTuple{11, Cdouble}
+    Comp::NTuple{15, Cdouble}
+    Comp_mol::NTuple{15, Cdouble}
+    Comp_wt::NTuple{15, Cdouble}
     gbase::Cdouble
     gb_lvl::Cdouble
     factor::Cdouble
+    factor_norm::Cdouble
     phase_density::Cdouble
     phase_shearModulus::Cdouble
     phase_shearModulus_v::Cdouble
@@ -570,6 +573,7 @@ mutable struct oxide_datas
     atPerOx::NTuple{15, Cdouble}
     ElEntropy::NTuple{15, Cdouble}
     OPerOx::NTuple{15, Cdouble}
+    catPerOx::NTuple{15, Cdouble}
     oxide_datas() = new()
 end
 
@@ -643,6 +647,7 @@ mutable struct global_variables
     SS_list::Ptr{Ptr{Cchar}}
     pp_n::Ptr{Cdouble}
     pp_n_mol::Ptr{Cdouble}
+    pp_n_wt::Ptr{Cdouble}
     pp_xi::Ptr{Cdouble}
     delta_pp_n::Ptr{Cdouble}
     delta_pp_xi::Ptr{Cdouble}
@@ -968,6 +973,7 @@ mutable struct bulk_infos
     fbc::Cdouble
     masspo::Ptr{Cdouble}
     opo::Ptr{Cdouble}
+    cpo::Ptr{Cdouble}
     ElEntropy::Ptr{Cdouble}
     bulk_infos() = new()
 end
@@ -986,9 +992,11 @@ struct csd_phase_sets
     ss_flags::Ptr{Cint}
     ss_n::Cdouble
     ss_n_mol::Cdouble
+    ss_n_wt::Cdouble
     delta_ss_n::Cdouble
     df::Cdouble
     factor::Cdouble
+    factor_norm::Cdouble
     min_time::Cdouble
     sum_xi::Cdouble
     sum_dxi::Cdouble
@@ -1004,6 +1012,8 @@ struct csd_phase_sets
     delta_mu::Ptr{Cdouble}
     sf::Ptr{Cdouble}
     ss_comp::Ptr{Cdouble}
+    ss_comp_mol::Ptr{Cdouble}
+    ss_comp_wt::Ptr{Cdouble}
     gbase::Ptr{Cdouble}
     mass::Cdouble
     volume::Cdouble
@@ -2586,8 +2596,8 @@ function anelastic_correction(water, Vs0, P, T)
     ccall((:anelastic_correction, libMAGEMin), Cdouble, (Cint, Cdouble, Cdouble, Cdouble), water, Vs0, P, T)
 end
 
-function compute_phase_mol_fraction(gv, PP_ref_db, SS_ref_db, cp)
-    ccall((:compute_phase_mol_fraction, libMAGEMin), global_variable, (global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, PP_ref_db, SS_ref_db, cp)
+function compute_phase_mol_fraction(gv, z_b, PP_ref_db, SS_ref_db, cp)
+    ccall((:compute_phase_mol_fraction, libMAGEMin), global_variable, (global_variable, bulk_info, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, z_b, PP_ref_db, SS_ref_db, cp)
 end
 
 function compute_activities(EM_database, gv, PP_ref_db, z_b)

@@ -27,6 +27,8 @@ out         =   point_wise_minimization(P,T, data);
 print_info(out)
 Finalize_MAGEMin(data)
 
+# out.rho_S*out.frac_S_wt + out.rho_M*out.frac_M_wt - out.rho
+
 
 # Initialize database  - new way
 data        =   Initialize_MAGEMin("mtl", verbose=true);

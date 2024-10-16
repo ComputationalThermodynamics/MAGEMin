@@ -320,6 +320,7 @@ int runMAGEMin(			int    argc,
 	
 
 	gv = compute_phase_mol_fraction(	gv,
+										z_b,
 										PP_ref_db,
 										SS_ref_db,
 										cp				);
@@ -1100,6 +1101,8 @@ void FreeDatabases(		global_variable gv,
 		free(DB.cp[i].mu);
 		free(DB.cp[i].gbase);
 		free(DB.cp[i].ss_comp);
+		free(DB.cp[i].ss_comp_mol);
+		free(DB.cp[i].ss_comp_wt);
 		free(DB.cp[i].sf);
 	}
 
@@ -1272,6 +1275,7 @@ void FreeDatabases(		global_variable gv,
 
 	free(gv.pp_n);
 	free(gv.pp_n_mol);
+	free(gv.pp_n_wt);
 	free(gv.pp_xi);
 	free(gv.delta_pp_n);
 	free(gv.delta_pp_xi);
@@ -1294,6 +1298,7 @@ void FreeDatabases(		global_variable gv,
 	free(z_b.apo);
 	free(z_b.masspo);
 	free(z_b.opo);
+	free(z_b.cpo);
 	free(z_b.ElEntropy);
 	free(z_b.id);
 	free(z_b.bulk_rock);

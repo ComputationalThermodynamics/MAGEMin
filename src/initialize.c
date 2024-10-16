@@ -249,6 +249,8 @@ csd_phase_set CP_INIT_function(csd_phase_set cp, global_variable gv){
 	cp.mu    		= malloc (n  * sizeof(double) 		);
 	cp.gbase    	= malloc (n  * sizeof(double) 		);
 	cp.ss_comp		= malloc (n  * sizeof(double) 		);
+	cp.ss_comp_mol  = malloc (n  * sizeof(double) 		);
+	cp.ss_comp_wt	= malloc (n  * sizeof(double) 		);
 	cp.sf			= malloc ((n*2)  * sizeof(double) 	);
 	
 	cp.phase_density  		= 0.0;
@@ -582,6 +584,7 @@ global_variable reset_gv(					global_variable 	 gv,
 	for (int i = 0; i < gv.len_pp; i++){		
 		gv.pp_n[i] 		  = 0.0;
 		gv.pp_n_mol[i]	  = 0.0;
+		gv.pp_n_wt[i]	  = 0.0;
 		gv.delta_pp_n[i]  = 0.0;
 		gv.pp_xi[i] 	  = 0.0;
 		gv.delta_pp_xi[i] = 0.0;
@@ -887,13 +890,14 @@ void reset_cp(						global_variable 	 gv,
 		cp[i].n_sf				=  0;			
 		cp[i].df 				=  0.0;
 		cp[i].factor 			=  0.0;
-		
+		cp[i].factor_norm		=  0.0;
 		for (int ii = 0; ii < gv.n_flags; ii++){
 			cp[i].ss_flags[ii] 	= 0;
 		}
 
 		cp[i].ss_n        		= 0.0;				/* get initial phase fraction */
 		cp[i].ss_n_mol      	= 0.0;				/* get initial phase fraction */
+		cp[i].ss_n_wt       	= 0.0;				/* get initial phase fraction */
 		cp[i].delta_ss_n    	= 0.0;				/* get initial phase fraction */
 		
 		for (int ii = 0; ii < n; ii++){
@@ -909,6 +913,8 @@ void reset_cp(						global_variable 	 gv,
 			cp[i].mu[ii]        = 0.0;
 			cp[i].gbase[ii]     = 0.0;
 			cp[i].ss_comp[ii]   = 0.0;
+			cp[i].ss_comp_mol[ii]  = 0.0;
+			cp[i].ss_comp_wt[ii]   = 0.0;
 		}
 		 
 		for (int ii = 0; ii < n*2; ii++){
