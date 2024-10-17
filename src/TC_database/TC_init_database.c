@@ -27,7 +27,8 @@ oxide_data oxide_info = {
 	{60.08  ,101.96 ,56.08  ,40.30  ,71.85  ,94.2   ,61.98  ,79.88  ,16.0   ,70.94	,151.99 ,18.015	,44.01	, 32.06	,35.453		},
 	{3.0	,5.0	,2.0	,2.0	,2.0	,3.0	,3.0	,3.0	,1.0	,2.0 	,5.0	,3.0	,3.0	, 1.0	,1.0		},
 	{66.7736,108.653,42.9947,40.3262,38.7162,69.1514,61.1729,70.3246,30.5827,40.1891,106.9795,69.5449,62.8768,9.5557,33.2556	},
-	{2,3,1,1,1,1,1,2,1,1,3,1,2,0,0}
+	{2,3,1,1,1,1,1,2,1,1,3,1,2,0,0},
+	{1,2,1,1,1,2,2,1,1,1,2,2,1,1,1}
 	// for the standard molar entropy the values are already normalized by the reference temperature = 298.15K (25°C) and expressed in kJ
 };
 
@@ -632,6 +633,7 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 	/* allocate memory for pure and solution phase fractions */
 	gv.pp_n    			= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
 	gv.pp_n_mol 		= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
+	gv.pp_n_wt  		= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
 	gv.pp_xi    		= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
 	gv.delta_pp_n 		= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
 	gv.delta_pp_xi 		= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
@@ -675,12 +677,21 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 	z_b->apo     		= malloc (gv.len_ox * sizeof (double) ); 
 	z_b->masspo     	= malloc (gv.len_ox * sizeof (double) );
 	z_b->opo     		= malloc (gv.len_ox * sizeof (double) );
+	z_b->cpo     		= malloc (gv.len_ox * sizeof (double) );
 	z_b->ElEntropy     	= malloc (gv.len_ox * sizeof (double) );
 	z_b->id     		= malloc (gv.len_ox * sizeof (int) 	  );
 
 	/**
 		retrieve the right set of oxide and their informations 
 	*/
+	gv.H2O_id 	= -1;
+	gv.CaO_id 	= -1;
+	gv.Na2O_id 	= -1;
+	gv.FeO_id 	= -1;
+	gv.MgO_id 	= -1;
+	gv.K2O_id 	= -1;
+	gv.O_id 	= -1;
+	gv.MnO_id 	= -1;
 	oxide_data ox_in 	= oxide_info;
 	for (i = 0; i < gv.len_ox; i++){
 		for (j = 0; j < ox_in.n_ox; j++){
@@ -712,6 +723,7 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 				z_b->apo[i]     	= ox_in.atPerOx[j];
 				z_b->masspo[i]  	= ox_in.oxMass[j];
 				z_b->opo[i]  		= ox_in.OPerOx[j];
+				z_b->cpo[i]  		= ox_in.catPerOx[j];
 				z_b->ElEntropy[i]   = ox_in.ElEntropy[j];
 				z_b->id[i]  		= j;
 				break;

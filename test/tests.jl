@@ -6,7 +6,6 @@ using Test
 # runtests.jl
 using MAGEMin_C         # load MAGEMin (needs to be loaded from main directory to pick up correct library in case it is locally compiled)
 
-
 # Initialize database  - new way
 data        =   Initialize_MAGEMin("ig", verbose=true);
 test        =   0         #KLB1

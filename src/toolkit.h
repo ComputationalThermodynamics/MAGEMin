@@ -115,6 +115,7 @@ double anelastic_correction( int 	 water,
 							 double  T 												);
 																																	
 global_variable compute_phase_mol_fraction(	global_variable 	 gv,
+											bulk_info 	 		 z_b,
 											PP_ref  			*PP_ref_db,
 											SS_ref  			*SS_ref_db,
 											csd_phase_set  		*cp					);
