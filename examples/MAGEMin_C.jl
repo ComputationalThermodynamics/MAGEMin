@@ -15,7 +15,7 @@ P           =   8.0
 T           =   1900.0
 out         =   point_wise_minimization(P,T, data);
 
-println(out.PP_vec[1].Comp_apfu);
+# println(out.PP_vec[1].Comp_apfu);
 println(out.SS_vec[1].Comp_apfu);
 
 println(out.bulk_S)

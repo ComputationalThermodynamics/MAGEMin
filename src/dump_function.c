@@ -532,7 +532,7 @@ void fill_output_struct(		global_variable 	 gv,
 				sum_mol = 0.0;
 				sum_oxygens = 0.0;
 				for (k = 0; k < gv.len_ox; k++){
-					sp[0].SS[m].emComp[j][k]	= SS_ref_db[cp[i].id].Comp[j][k]*cp[i].factor;
+					sp[0].SS[m].emComp[j][k]	= SS_ref_db[cp[i].id].Comp[j][k];
 					sp[0].SS[m].emComp_wt[j][k]	= sp[0].SS[m].emComp[j][k]*z_b.masspo[k];
 					sp[0].SS[m].emComp_apfu[j][k]	= SS_ref_db[cp[i].id].Comp[j][k]*z_b.cpo[j];;
 					sum_oxygens					   += SS_ref_db[cp[i].id].Comp[j][k]*z_b.opo[j];
