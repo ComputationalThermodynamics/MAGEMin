@@ -427,6 +427,7 @@ void fill_output_struct(		global_variable 	 gv,
 
 	for (j = 0; j < gv.len_ox; j++){
 		strcpy(sp[0].oxides[j],gv.ox[j]);	
+		strcpy(sp[0].elements[j],z_b.elName[j]);	
 		sp[0].G 				+= z_b.bulk_rock[j]*gv.gam_tot[j];
 	}
 

@@ -270,9 +270,11 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 	sp.MAGEMin_ver   		= malloc(50  		* sizeof(char)				);
 	sp.dataset   		    = malloc(50  		* sizeof(char)				);
 	sp.oxides 	     		= malloc(gv.len_ox  * sizeof(char*)				);
-	
+	sp.elements 	     	= malloc(gv.len_ox  * sizeof(char*)				);
+		
 	for (int i = 0; i < gv.len_ox; i++){
 		sp.oxides[i] 		= malloc(20 * sizeof(char));	
+		sp.elements[i] 		= malloc(20 * sizeof(char));	
 	}
 	sp.bulk 				= malloc(gv.len_ox  * sizeof(double)			);	
 	sp.gamma 				= malloc(gv.len_ox  * sizeof(double)			);	
