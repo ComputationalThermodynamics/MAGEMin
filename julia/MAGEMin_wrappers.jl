@@ -107,6 +107,7 @@ struct gmin_struct{T,I}
     PP_vec      :: Vector{LibMAGEMin.PP_data}
 
     oxides      :: Vector{String}
+    elements    :: Vector{String}
 
     # Seismic velocity info
     Vp              :: T                # P-wave velocity
@@ -1290,6 +1291,7 @@ function create_gmin_struct(DB, gv, time)
 
     # Names of oxides:
     oxides   = unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, stb.oxides, gv.len_ox))
+    elements = unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, stb.elements, gv.len_ox))
 
     # Numerics
     bulk_res_norm   =  gv.BR_norm
@@ -1308,7 +1310,7 @@ function create_gmin_struct(DB, gv, time)
                 n_PP, n_SS, n_mSS,
                 ph_frac, ph_frac_wt, ph_frac_vol, ph_type, ph_id, ph,
                 SS_vec,  mSS_vec, PP_vec,
-                oxides,
+                oxides,  elements,
                 stb.Vp, stb.Vs, stb.Vp_S, stb.Vs_S, stb.bulkMod, stb.shearMod, stb.bulkModulus_M,  stb.bulkModulus_S, stb.shearModulus_S,
                 entropy, enthalpy,
                 iter, bulk_res_norm, time_ms, stb.status)

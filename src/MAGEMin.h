@@ -42,6 +42,7 @@ typedef double (*PC_type) (			unsigned         n,
 typedef struct oxide_datas {
 	int 	n_ox;
 	char    oxName[15][20];
+	char    elName[15][20];
 	double  oxMass[15];
 	double  atPerOx[15];
 	double  ElEntropy[15]; //standard molar entropy
@@ -523,6 +524,7 @@ typedef struct OUTDATA {
 /* structure to store position of zeros and non-zeros positions in bulk_rock composition */
 typedef struct bulk_infos {
 	char   **oxName;
+	char   **elName;
 	double  *oxMass;
 	int     *atPerOx;
 
@@ -707,6 +709,7 @@ typedef struct stb_systems {
 	
 	int     nOx;
 	char  **oxides;
+	char  **elements;
 	
 	double  P;
 	double  T;

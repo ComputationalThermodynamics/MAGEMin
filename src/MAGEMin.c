@@ -1013,6 +1013,7 @@ void FreeDatabases(		global_variable gv,
 
 	for ( i = 0; i < n_ox; i++){
 		if  (DB.sp[0].oxides[i]				!=NULL)  free( DB.sp[0].oxides[i] 			);	
+		if  (DB.sp[0].elements[i]			!=NULL)  free( DB.sp[0].elements[i] 		);	
 		if  (DB.sp[0].ph[i]					!=NULL)  free( DB.sp[0].ph[i] 				);	
 	}
 
@@ -1062,6 +1063,7 @@ void FreeDatabases(		global_variable gv,
 	free(DB.sp[0].mSS);
 
 	free(DB.sp[0].oxides);
+	free(DB.sp[0].elements);
 	free(DB.sp[0].ph);
 
 	free(DB.sp[0].bulk);
@@ -1295,6 +1297,7 @@ void FreeDatabases(		global_variable gv,
 	free(gv.tmp3);
 	free(gv.n_ss_array);
 	/* ================ z_b ============= */
+	for (j = 0; j < n_ox; j++) {free(z_b.elName[j]);} 		free(z_b.elName);	
 	free(z_b.apo);
 	free(z_b.masspo);
 	free(z_b.opo);

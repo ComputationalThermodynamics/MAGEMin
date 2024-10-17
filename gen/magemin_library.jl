@@ -569,6 +569,7 @@ const PC_type = Ptr{Cvoid}
 mutable struct oxide_datas
     n_ox::Cint
     oxName::NTuple{15, NTuple{20, Cchar}}
+    elName::NTuple{15, NTuple{20, Cchar}}
     oxMass::NTuple{15, Cdouble}
     atPerOx::NTuple{15, Cdouble}
     ElEntropy::NTuple{15, Cdouble}
@@ -957,6 +958,7 @@ const out_data = OUTDATA
 
 mutable struct bulk_infos
     oxName::Ptr{Ptr{Cchar}}
+    elName::Ptr{Ptr{Cchar}}
     oxMass::Ptr{Cdouble}
     atPerOx::Ptr{Cint}
     P::Cdouble
@@ -1117,6 +1119,7 @@ struct stb_systems
     status::Cint
     nOx::Cint
     oxides::Ptr{Ptr{Cchar}}
+    elements::Ptr{Ptr{Cchar}}
     P::Cdouble
     T::Cdouble
     X::Cdouble

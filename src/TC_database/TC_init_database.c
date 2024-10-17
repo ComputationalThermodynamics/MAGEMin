@@ -24,6 +24,7 @@
 oxide_data oxide_info = {
 	15,						/* number of endmembers */
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"Cr2O3","H2O"	,"CO2"	,"S"	,"Cl"		},
+	{"Si"	,"Al"	,"Ca"	,"Mg"	,"Fe"	,"K"	,"Na"	,"Ti"	,"O"	,"Mn"	,"Cr"	,"H"	,"C"	,"S"	,"Cl"		},
 	{60.08  ,101.96 ,56.08  ,40.30  ,71.85  ,94.2   ,61.98  ,79.88  ,16.0   ,70.94	,151.99 ,18.015	,44.01	, 32.06	,35.453		},
 	{3.0	,5.0	,2.0	,2.0	,2.0	,3.0	,3.0	,3.0	,1.0	,2.0 	,5.0	,3.0	,3.0	, 1.0	,1.0		},
 	{66.7736,108.653,42.9947,40.3262,38.7162,69.1514,61.1729,70.3246,30.5827,40.1891,106.9795,69.5449,62.8768,9.5557,33.2556	},
@@ -680,7 +681,10 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 	z_b->cpo     		= malloc (gv.len_ox * sizeof (double) );
 	z_b->ElEntropy     	= malloc (gv.len_ox * sizeof (double) );
 	z_b->id     		= malloc (gv.len_ox * sizeof (int) 	  );
-
+	z_b->elName     	= malloc (gv.len_ox * sizeof (char*) );
+	for (i = 0; i < (gv.len_ox); i++){	
+		z_b->elName[i] 	= malloc(20 * sizeof(char));
+	}
 	/**
 		retrieve the right set of oxide and their informations 
 	*/
@@ -725,6 +729,7 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 				z_b->opo[i]  		= ox_in.OPerOx[j];
 				z_b->cpo[i]  		= ox_in.catPerOx[j];
 				z_b->ElEntropy[i]   = ox_in.ElEntropy[j];
+				strcpy(z_b->elName[i],ox_in.elName[j]);
 				z_b->id[i]  		= j;
 				break;
 			}
