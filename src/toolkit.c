@@ -1197,17 +1197,17 @@ global_variable compute_phase_mol_fraction(			global_variable 	 gv,
 	/* solution phases */
 	double sum, n_at_ph, sum_mol_tot, sum_wt, sum_wt_tot;
 	sum_mol_tot = 0.0;
-	sum_wt  	= 0.0;
+
 	sum_wt_tot	= 0.0;
 	for (int i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1){
 
-			sum = 0.0;
+			sum 		= 0.0;
 			for (int j = 0; j < gv.len_ox; j++){
 				sum += cp[i].ss_comp[j];
 			}
 
-			n_at_ph = 0.0;
+			n_at_ph 	= 0.0;
 			for (int j = 0; j < gv.len_ox; j++){
 				n_at_ph += cp[i].ss_comp[j]/sum * z_b.apo[j];
 			}
@@ -1215,7 +1215,7 @@ global_variable compute_phase_mol_fraction(			global_variable 	 gv,
 			for (int j = 0; j < gv.len_ox; j++){
 				cp[i].ss_comp_mol[j] = cp[i].ss_comp[j]/sum;
 			}
-		
+			sum_wt  	= 0.0;
 			for (int j = 0; j < gv.len_ox; j++){
 				cp[i].ss_comp_wt[j] = cp[i].ss_comp_mol[j] * z_b.masspo[j];
 				sum_wt += cp[i].ss_comp_wt[j];
@@ -1238,12 +1238,12 @@ global_variable compute_phase_mol_fraction(			global_variable 	 gv,
 	for (int i = 0; i < gv.len_pp; i++){
 		if (gv.pp_flags[i][1] == 1){
 
-			sum = 0.0;
+			sum 		= 0.0;
 			for (int j = 0; j < gv.len_ox; j++){
 				sum += PP_ref_db[i].Comp[j];
 			}
 
-			n_at_ph = 0.0;
+			n_at_ph 	= 0.0;
 			for (int j = 0; j < gv.len_ox; j++){
 				n_at_ph += PP_ref_db[i].Comp[j]/sum * z_b.apo[j];
 			}
@@ -1251,7 +1251,7 @@ global_variable compute_phase_mol_fraction(			global_variable 	 gv,
 			for (int j = 0; j < gv.len_ox; j++){
 				PP_ref_db[i].Comp_mol[j] = PP_ref_db[i].Comp[j]/sum;
 			}
-		
+			sum_wt  	= 0.0;
 			for (int j = 0; j < gv.len_ox; j++){
 				PP_ref_db[i].Comp_wt[j] = PP_ref_db[i].Comp_mol[j] * z_b.masspo[j];
 				sum_wt += PP_ref_db[i].Comp_wt[j];
@@ -1563,7 +1563,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 			gv.system_cp 	  += cp[i].phase_cp*cp[i].ss_n_mol;
 			gv.system_expansivity 	  += cp[i].phase_expansivity*cp[i].ss_n_mol;
 			if (strcmp( cp[i].name, "liq") != 0 && strcmp( cp[i].name, "fl") != 0){
-				gv.solid_density += cp[i].phase_density*((cp[i].volume*cp[i].ss_n_mol*cp[i].factor)/sum_volume_sol);
+				gv.solid_density += cp[i].phase_density*cp[i].ss_n_wt;
 			}
 		}
 	}
@@ -1574,7 +1574,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 			gv.system_cp 	  += PP_ref_db[i].phase_cp*gv.pp_n_mol[i];	
 			gv.system_expansivity 	  += PP_ref_db[i].phase_expansivity*gv.pp_n_mol[i];	
 			if (strcmp( gv.PP_list[i], "H2O") != 0){		
-				gv.solid_density  += PP_ref_db[i].phase_density*((PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor)/sum_volume_sol);
+				gv.solid_density  += PP_ref_db[i].phase_density*gv.pp_n_wt[i];
 			}
 		}
 	}
