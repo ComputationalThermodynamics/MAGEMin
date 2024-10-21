@@ -444,6 +444,7 @@ void fill_output_struct(		global_variable 	 gv,
 	double mass_bulk = 0.0;
 	for (i = 0; i < nox; i++){
 		mass_bulk += z_b.bulk_rock[i] * z_b.masspo[i];
+		sp[0].bulk_wt[i] = z_b.bulk_rock[i] * z_b.masspo[i];
 	}
 	for (i = 0; i < nox; i++){
 		sp[0].bulk_wt[i] 	 	/= mass_bulk;
