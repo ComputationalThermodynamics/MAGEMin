@@ -1236,7 +1236,7 @@ global_variable compute_phase_mol_fraction(			global_variable 	 gv,
 
 	/* pure phases */
 	for (int i = 0; i < gv.len_pp; i++){
-		if (gv.pp_flags[i][1] == 1){
+		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
 
 			sum 		= 0.0;
 			for (int j = 0; j < gv.len_ox; j++){
