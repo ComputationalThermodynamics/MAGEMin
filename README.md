@@ -1,7 +1,8 @@
 
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://computationalthermodynamics.github.io/MAGEMin/index.html)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10573416.svg)](https://doi.org/10.5281/zenodo.10573416)
-<img src="https://raw.githubusercontent.com/ComputationalThermodynamics/repositories_pictures/main/MAGEMinApp/readme_pd.png?raw=true" alt="drawing" width="640" alt="centered image"/>
+
+<img src="https://raw.githubusercontent.com/ComputationalThermodynamics/repositories_pictures/main/MAGEMinApp/readme_pd.png?raw=true" alt="drawing" width="480" alt="centered image"/>
 
 *Example of auto-labelled isochemical phase diagram for KLB-1 peridotite computed using MAGEMinApp*
 
@@ -12,20 +13,15 @@
 
 While `MAGEMin` is the engine for the prediction of the stable phases, using it is more convenient through the [julia interface](https://github.com/ComputationalThermodynamics/MAGEMin_C.jl) `MAGEMin_C` and/or the [web-browser julia app](https://github.com/ComputationalThermodynamics/MAGEMinApp.jl) `MAGEMinApp`. 
 
-**MAGEMin_C**
+## Available thermodynamic database
+ **Mantle** (Holland et al., 2013), **Metapelite** (White et al., 2014), **Metabasite** (Green et al., 2016), **Igneous** (Holland et al., 2018) and **Ultramafic** (Evans & Frost, 2021).
+
+### MAGEMin_C
 
 [MAGEMin_C](https://github.com/ComputationalThermodynamics/MAGEMin_C.jl) allow to quickly and easily compute single point minimization (serial and parallel) using `Julia` and retrieve the results in a structure. This gives flexibility to the user on how to treat the data. Some programming experience in `Julia` are necessary.
 
-**MAGEMinApp**
+### MAGEMinApp
 [MAGEMinApp](https://github.com/ComputationalThermodynamics/MAGEMinApp.jl) is the graphic user interface developped to compute various type of phase diagrams (P-T, T-X, P-X, PT-X) and PTX paths. MAGEMinApp offers the options to display isocontours, select solution phase for the calculation, automatic labelling of the phase fields, saving the diagrams as vector graphic files and export the data as tables and csv files...
-
-**PlotPseudosection**
-
-We also provide a MATLAB-based graphical user interface `PlotPseudosection.mlapp` to compute phase diagrams, PTX paths and trace-element modelling to mafic to ultramafic rocks (`MagmaX`). 
-
-> [!IMPORTANT] 
-> `PlotPseudosection` is not maintained anymore as the preferred phase diagram tool is now `MAGEMinApp`.
-
 
 ## Installing and using MAGEMinApp
 
@@ -50,11 +46,8 @@ Then copy and paste the address `127.0.0.1:8050` in your web-browser
 
 <img src="https://raw.githubusercontent.com/ComputationalThermodynamics/repositories_pictures/main/MAGEMinApp/MAGEMin_app.png?raw=true" alt="drawing" width="640" alt="centered image"/>
 
-> [!CAUTION]
-> There is some issues with Windows machine (loading `Kaleido`). `] add MAGEMinApp` works well, however when `using MAGEMinApp` it may hang indefinitely. Currently, the current workaround is to cancel `CTRL+C` and try `using MAGEMinApp` a couple of time.
-
 \
-**With Matlab using Julia (not maintained anymore)**
+## With Matlab using Julia (not maintained anymore)
 
 You can use `MAGEMin` is through the MATLAB graphical user interface, which has an installation script to download the correct parallel binaries for your system (created using [BinaryBuilder](https://binarybuilder.org) & [julia](https://julialang.org)).
 
@@ -66,7 +59,7 @@ Follow these steps:
 
 Note that the Matlab GUI is not maintained anymore as the primary phase diagram generator is now the Julia app!
 
-**Manual compilation**
+## Manual compilation
 
 if you wish, you can also compile MAGEMin yourself, which requires you to install these packages as well:
 - MPICH (to allow parallel computations)
@@ -80,8 +73,7 @@ In addition, we make use of [uthash](https://troydhanson.github.io/uthash/) and 
 
 ## Available thermodynamic datasets
 
-The MAGEMin algorithm is general and can be used with any thermodynamic database that are hardcoded for speed reasons. Presently the igneous (Holland et al., 2018) and the metapelite (White et al., 2014) database are available.
-
+The MAGEMin algorithm is general and can be used with any thermodynamic database that are hardcoded for speed reasons.
 
 **Igneous database**
 
@@ -92,8 +84,7 @@ The details of this thermodynamic solid solution and endmember database are:
 - K2O-Na2O-CaO-FeO-MgO-Al2O3-SiO2-H2O-TiO2-O-Cr2O3 chemical system
 - Equations of state for
 	- Pure stoichiometric phases quartz (q), cristobalite (crst), tridymite (trd), coesite (coe), stishovite (stv), kyanite (ky), sillimanite (sill), andalusite (and), rutile (ru) and sphene (sph). 
-	- Solution phases spinel (spn), biotite (bi), cordierite (cd), clinopyroxene (cpx), orthopyroxene (opx), epidote (ep), garnet (g), hornblende (hb), ilmenite (ilm), silicate melt (liq), muscovite (mu), olivine (ol), ternary feldspar (pl4T), and aqueous fluid (fl).
-
+	- Solution phases spinel (spn), biotite (bi), cordierite (cd), clinopyroxene (cpx), orthopyroxene (opx), epidote (ep), garnet (g), clino-amphibole  (hb), ilmenite (ilm), silicate melt (liq), muscovite (mu), olivine (ol), ternary feldspar (pl4T), and aqueous fluid (fl).
 
 **Metapelite database**
 
@@ -107,13 +98,12 @@ The metapelitic model (extended with MnO, White et al., 2014) allows to compute 
 	- Solution phases spinel (spn), biotite (bi), cordierite (cd), orthopyroxene (opx), epidote (ep), garnet (g),  ilmenite (ilm), silicate melt (liq), muscovite (mu),  ternary feldspar (pl4T), sapphirine (sa), staurolite (st), magnetite (mt), chlorite (chl), chloritoid (ctd) and margarite (ma).
 
 **Ultramafic thermodynamic dataset**
-- aadded May 2023, `MAGEMin v1.3.2` 
+- Added May 2023, `MAGEMin v1.3.2` 
 - Evans & Frost, 2021 (see http://hpxeosandthermocalc.org)
-- SiO2-Al2O3MgO-FeO-O-H2O-S chemical system
+- SiO2-Al2O3-MgO-FeO-O-H2O-S chemical system
 - Equations of state for
 	- Pure stoichiometric phases quartz (q), cristobalite (crst), tridymite (trd), coesite (coe), stishovite (stv), kyanite (ky), sillimanite (sill), pyrite (pyr)
 	- Solution phases fluid (fluid), olivine (ol), brucite (br), antigorite (atg), garnet (g), talc (t), chlorite (chl), spinel (spi), orthopyroxene (opx), pyrrhotite (po) and anthophylite (anth)
-- added May 2023
 
 **Metabasite thermodynamic dataset**
 
@@ -122,10 +112,23 @@ The metapelitic model (extended with MnO, White et al., 2014) allows to compute 
 - K2O-Na2O-CaO-FeO-MgO-Al2O3-SiO2-H2O-TiO2-O chemical system
 - Equations of state for
 	- Pure stoichiometric phases quartz (q), cristobalite (crst), tridymite (trd), coesite (coe), stishovite (stv), kyanite (ky), sillimanite (sill), andalusite (and), rutile (ru) and sphene (sph). 
-	- Solution phases spinel (sp), biotite (bi), orthopyroxene (opx), epidote (ep), garnet (g), ilmenite (ilm), silicate melt (liq), muscovite (mu),  ternary feldspar (pl4T), chlorite (chl), Omphacite(omph) and Augite(aug).
+	- Solution phases spinel (sp), biotite (bi), orthopyroxene (opx), epidote (ep), garnet (g), ilmenite (ilm), silicate melt (liq), muscovite (mu),  ternary feldspar (pl4T), chlorite (chl), Omphacite(omph), Augite(aug) and clino-amphibole (hb).
 
-	
+**Extended Ultramafic thermodynamic dataset**
+- Added September 2024, `MAGEMin v1.5.3`
+- Na2O-CaO-FeO-MgO-Al2O3-SiO2-H2O-S-O chemical system
+- Equations of state for
+	- Pure stoichiometric phases quartz (q), cristobalite (crst), tridymite (trd), coesite (coe), stishovite (stv), kyanite (ky), sillimanite (sill), pyrite (pyr)
+	- Solution phases from Evans & Frost, 2021: fluid (fluid), olivine (ol), brucite (br), antigorite (atg), garnet (g), talc (t), chlorite (chl), spinel (spi), orthopyroxene (opx), pyrrhotite (po) and anthophylite (anth)
+	- Solution phases Green et al., 2016: ternary feldspar (pl4T), Augite (aug) and clino-amphibole (hb).
 
+**Mantle dataset (Transition Zone into the Uppermost Lower Mantle)**
+- Added October 2024,`MAGEMin v1.5.5`
+- Holland et al., 2013 (see https://academic.oup.com/petrology/article/54/9/1901/1514886)
+- Na2O–CaO–FeO–MgO–Al2O3–SiO2 (NCFMAS) system
+- Equations of state for
+	- Pure stoichiometric phases quartz (q), cristobalite (crst), tridymite (trd), coesite (coe), stishovite (stv), kyanite (ky), sillimanite (sill) and andalusite (and). 
+	- Solution phases garnet (g), clinopyroxene (cpx), orthopyroxene (opx) and its high-P polymorph (hpx), olivine (ol), wadsleyite (wad), ringwoodite (ring), akimotoite (ak), MgSi-perovskite (mpv), CaSi–perovskite (cpv), cf, nal, corundum (cor) and ferropericlase (fp)
 
 Please keep in mind that the datasets are only calibrated for a limited range of `P`,`T` and `bulk rock` conditions. If you go too far outside those ranges, `MAGEMin` (or most other thermodynamic software packages for that matter) may not converge or give bogus results. 
 Developing new, more widely applicable, thermodynamic datasets is a huge research topic, which will require funding to develop the models themselves, as well as to perform targeted experiments to calibrate those models.
