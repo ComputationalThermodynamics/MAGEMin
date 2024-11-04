@@ -11612,8 +11612,6 @@ SS_ref G_SS_mb_EM_function(		global_variable 	 gv,
 	
 	if (gv.verbose == 1){
 		printf(" %4s:",name);
-
-		/* display Gibbs free energy of reference? */
 		for (int j = 0; j < SS_ref_db.n_em; j++){
 			printf(" %+12.5f",SS_ref_db.gbase[j]);
 		}

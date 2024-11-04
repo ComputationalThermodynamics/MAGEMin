@@ -33,7 +33,7 @@ oxide_data oxide_info_sb = {
 };
 // SiO2:0 CaO:1 Al2O3:2 FeO:3 MgO:4 Na2O:5 */
 stx11_dataset stx11_db = {
-	2011,							/* Endmember default dataset number */
+	2011,						/* Endmember default dataset number */
 	6,							/* number of oxides */			
 	10,							/* number of pure phases */
 	14,							/* number of solution phases */
@@ -107,7 +107,6 @@ global_variable global_variable_SB_init( 	global_variable  	 gv,
 			gv.SS_PC_stp[i] = db.SS_PC_stp[i]; 	
 		}
 	}
-
 	/**
 	 ALLOCATE MEMORY OF OTHER GLOBAL VARIABLES
 	*/
@@ -206,10 +205,22 @@ global_variable global_variable_SB_init( 	global_variable  	 gv,
 	z_b->cpo     		= malloc (gv.len_ox * sizeof (double) );
 	z_b->ElEntropy     	= malloc (gv.len_ox * sizeof (double) );
 	z_b->id     		= malloc (gv.len_ox * sizeof (int) 	  );
-
+	z_b->elName     	= malloc (gv.len_ox * sizeof (char*) );
+	for (i = 0; i < (gv.len_ox); i++){	
+		z_b->elName[i] 	= malloc(20 * sizeof(char));
+	}
 	/**
 		retrieve the right set of oxide and their informations 
 	*/
+	gv.H2O_id 	= -1;
+	gv.CaO_id 	= -1;
+	gv.Na2O_id 	= -1;
+	gv.FeO_id 	= -1;
+	gv.MgO_id 	= -1;
+	gv.K2O_id 	= -1;
+	gv.O_id 	= -1;
+	gv.MnO_id 	= -1;
+
 	oxide_data ox_in 	= oxide_info_sb;
 	for (i = 0; i < gv.len_ox; i++){
 		for (j = 0; j < ox_in.n_ox; j++){
@@ -222,7 +233,13 @@ global_variable global_variable_SB_init( 	global_variable  	 gv,
 				}
 				else if (strcmp( gv.ox[i], "O") 	== 0){
 					gv.O_id = i;
-				}											
+				}	
+				else if (strcmp( gv.ox[i], "MgO") 	== 0){
+					gv.MgO_id = i;
+				}	
+				else if (strcmp( gv.ox[i], "FeO") 	== 0){
+					gv.FeO_id = i;
+				}							
 				z_b->apo[i]     	= ox_in.atPerOx[j];
 				z_b->masspo[i]  	= ox_in.oxMass[j];
 				z_b->opo[i]  		= ox_in.OPerOx[j];

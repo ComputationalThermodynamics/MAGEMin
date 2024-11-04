@@ -117,21 +117,21 @@ int runMAGEMin(			int    argc,
 									 argc,
 									 argv			);
 
-
+	printf("b4 global_variable_init\n");
 	/*
 	  initialize global structure to store shared variables (e.g. Gamma, SS and PP list, ...) 
 	*/
 	gv = global_variable_init( 		 gv,
 									&z_b 			);
 
-
+	printf("b4 Initialize database\n");
 	/* 
 	  Allocate both pure and solid-solution databases 
 	*/
 	DB = InitializeDatabases(		 gv,
 									 gv.EM_database	);
 	
-
+	printf("simplex_data\n");
 	/*
 	  initialize simplex (levelling stage using pseudocompounds) 
 	*/
@@ -928,8 +928,15 @@ Databases InitializeDatabases(	global_variable gv,
 
 	SS_init_type 				SS_init[gv.len_ss];
 
-	TC_SS_init(	        	    SS_init,
-								gv				);
+
+	if 	( strcmp(gv.research_group, "tc") 	== 0 ){
+		TC_SS_init(	        	    SS_init,
+									gv				);
+	}
+	else if (strcmp(gv.research_group, "sb") == 0 ){
+		SB_SS_init(	        	    SS_init,
+									gv				);
+	}
 
 	DB.SS_ref_db = malloc ((gv.len_ss) 		* sizeof(SS_ref)); 
 	for (int iss = 0; iss < gv.len_ss; iss++){

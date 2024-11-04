@@ -8,13 +8,14 @@
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
  ** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ @*/
-#ifndef __TC_all_sol_H_
-#define __TC_all_sol_H_
+#ifndef __SB_sol_H_
+#define __SB_sol_H_
 
-    /* This includes the activity model from THERMOCALC */
-    #include "./TC_database/TC_solution_phases.h"
+    #include "sb_gss_init_function.h"
+    #include "sb_gss_function.h"
+    // #include "objective_functions.h"
+    // #include "NLopt_opt_function.h"
 
-    /* This include Stixrude & Lithgow-Bertelloni solution phase models */
-    #include "./SB_database/SB_solution_phases.h"
-
+    /* include pseudocompounds */
+    // #include "SS_xeos_PC_mtl.h"
 #endif

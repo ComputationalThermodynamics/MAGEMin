@@ -20,7 +20,6 @@
 #include "../all_endmembers.h"
 #include "TC_init_database.h"
 
-
 oxide_data oxide_info = {
 	15,						/* number of endmembers */
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"Cr2O3","H2O"	,"CO2"	,"S"	,"Cl"		},
@@ -696,6 +695,7 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 	gv.K2O_id 	= -1;
 	gv.O_id 	= -1;
 	gv.MnO_id 	= -1;
+	
 	oxide_data ox_in 	= oxide_info;
 	for (i = 0; i < gv.len_ox; i++){
 		for (j = 0; j < ox_in.n_ox; j++){

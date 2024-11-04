@@ -12,6 +12,7 @@
 #include "MAGEMin.h"
 #include "initialize.h"
 #include "toolkit.h"
+#include <stdio.h>
 
 /* Function to allocate the memory of the data to be used/saved during PGE iterations */
 global_variable global_variable_init( 	global_variable  	 gv,
@@ -27,6 +28,9 @@ global_variable global_variable_init( 	global_variable  	 gv,
 	/* here we initialize MAGEMin using Stixrude formalism */
 		gv 	=	global_variable_SB_init( 	gv,
 											z_b 	);
+	}
+	else{
+		printf(" wrong group, fix group name\n");
 	}
 
 	return gv;
@@ -197,7 +201,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.tot_time 		= 0.0;
 
 	/* set default parameters (overwritten later from args)*/
-	gv.EM_database  	=  2; 					
+	gv.EM_database  	=  0; 					
 	gv.n_points 		=  1;
 	gv.solver   		=  2;					/* 0 -> Legacy, 1 = PGE, Hybrid PGE/LP */
 	gv.leveling_mode	=  0;

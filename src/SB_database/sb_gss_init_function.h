@@ -15,7 +15,7 @@
 #include "../initialize.h"
 								
 
-void SS_init_sb11(          SS_init_type        *SS_init,
-                            global_variable      gv                             );
-
+void SB_SS_init(	        	    SS_init_type 		*SS_init,
+									global_variable 	 gv				);
+                                    
 #endif
