@@ -2196,6 +2196,14 @@ function SS_mtl_pc_init_function(SS_pc_xeos, iss, name)
     ccall((:SS_mtl_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
 end
 
+function SB_SS_init(SS_init, gv)
+    ccall((:SB_SS_init, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
+end
+
+function G_SS_sb11_EM_function(gv, SS_ref_db, EM_dataset, z_b, name)
+    ccall((:G_SS_sb11_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_dataset, z_b, name)
+end
+
 function PGE(z_b, gv, PC_read, SS_objective, NLopt_opt, splx_data, PP_ref_db, SS_ref_db, cp)
     ccall((:PGE, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PC_type}, Ptr{obj_type}, Ptr{NLopt_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, PC_read, SS_objective, NLopt_opt, splx_data, PP_ref_db, SS_ref_db, cp)
 end
@@ -2287,7 +2295,7 @@ function read_in_data(gv, input_data, n_points)
     ccall((:read_in_data, libMAGEMin), Cvoid, (global_variable, Ptr{io_data}, Cint), gv, input_data, n_points)
 end
 
-mutable struct ketopt_t
+struct ketopt_t
     ind::Cint
     opt::Cint
     arg::Ptr{Cchar}
@@ -2295,14 +2303,12 @@ mutable struct ketopt_t
     i::Cint
     pos::Cint
     n_args::Cint
-    ketopt_t() = new()
 end
 
-mutable struct ko_longopt_t
+struct ko_longopt_t
     name::Ptr{Cchar}
     has_arg::Cint
     val::Cint
-    ko_longopt_t() = new()
 end
 
 function ketopt_permute(argv, j, n)
