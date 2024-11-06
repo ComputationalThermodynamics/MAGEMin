@@ -1827,7 +1827,12 @@ SS_ref G_SS_mb_ilmm_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     
-
+	if (z_b.bulk_rock[8] == 0.){ 	    //O				
+		SS_ref_db.z_em[2]          = 0.0;
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 1.0; 
+		SS_ref_db.bounds_ref[0][1] = 1.0;	
+	}
 
     return SS_ref_db;
 }

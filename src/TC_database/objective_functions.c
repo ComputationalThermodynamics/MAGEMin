@@ -1954,6 +1954,7 @@ double obj_mb_ilmm(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double *mu_Gex    = d->mu_Gex;
     double *sf        = d->sf;
     double *mu        = d->mu;
+    double *d_em      = d->d_em;
     px_mb_ilmm(SS_ref_db,x);
 
     for (int i = 0; i < n_em; i++){
@@ -1978,7 +1979,7 @@ double obj_mb_ilmm(unsigned n, const double *x, double *grad, void *SS_ref_db){
     
     mu[0]          = gb[0] + R*T*creal(clog(sf[0]*sf[5])) + mu_Gex[0];
     mu[1]          = gb[1] + R*T*creal(clog(4.0*csqrt(sf[0])*csqrt(sf[1])*csqrt(sf[4])*csqrt(sf[5]))) + mu_Gex[1];
-    mu[2]          = gb[2] + R*T*creal(clog(sf[3]*sf[6])) + mu_Gex[2];
+    mu[2]          = gb[2] + R*T*creal(clog(sf[3]*sf[6] + d_em[2])) + mu_Gex[2];
     mu[3]          = gb[3] + R*T*creal(clog(sf[2]*sf[5])) + mu_Gex[3];
     
     d->sum_apep = 0.0;
