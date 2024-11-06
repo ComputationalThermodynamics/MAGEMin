@@ -702,7 +702,8 @@ typedef struct stb_systems {
 	
 	char   *MAGEMin_ver;
 	char   *dataset;
-	
+	char   *database;
+
 	double  bulk_res_norm;
 	int     n_iterations;
 	int     status;
@@ -716,7 +717,9 @@ typedef struct stb_systems {
 	double  X;
 	double *bulk;
 	double *bulk_wt;
-
+	char   *buffer;
+	double  buffer_n;
+	
 	double *gamma;
 	double  G;
 	double  M_sys;

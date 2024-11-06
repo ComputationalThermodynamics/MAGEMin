@@ -1114,6 +1114,7 @@ const stb_PP_phase = stb_PP_phases
 struct stb_systems
     MAGEMin_ver::Ptr{Cchar}
     dataset::Ptr{Cchar}
+    database::Ptr{Cchar}
     bulk_res_norm::Cdouble
     n_iterations::Cint
     status::Cint
@@ -1125,6 +1126,8 @@ struct stb_systems
     X::Cdouble
     bulk::Ptr{Cdouble}
     bulk_wt::Ptr{Cdouble}
+    buffer::Ptr{Cchar}
+    buffer_n::Cdouble
     gamma::Ptr{Cdouble}
     G::Cdouble
     M_sys::Cdouble

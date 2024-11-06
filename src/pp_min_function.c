@@ -59,6 +59,7 @@ global_variable init_em_db(		int 				EM_database,
 ){
 
 		/* initialize endmember database */
+		double buffer_n;
 		char state[] = "equilibrium";	
 		int sum_zel;
 		for (int i = 0; i < gv.len_pp; i++){
@@ -200,13 +201,13 @@ global_variable init_em_db(		int 				EM_database,
 				/* Calculate normalizing factor */
 				double factor = fbc/ape;
 				if (gv.buffer_n < 1e-8){
-					gv.buffer_n = 1e-8;
+					buffer_n = 1e-8;
 				}
 				else if (gv.buffer_n >= 1.0){
-					gv.buffer_n = 1.0-1e-8;
+					buffer_n = 1.0-1e-8;
 				}
 
-				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(gv.buffer_n) + H2O.gbase;
+				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(buffer_n) + H2O.gbase;
 				PP_ref_db[i].factor  =  factor;
 				PP_ref_db[i].phase_shearModulus  = H2O.phase_shearModulus;
 				gv.pp_flags[i][4] 	= 1;
@@ -242,14 +243,14 @@ global_variable init_em_db(		int 				EM_database,
 				}
 				/* Calculate normalizing factor */
 				double factor = fbc/ape;
-				if (gv.buffer_n <= 1e-60){
-					gv.buffer_n = 1e-60;
+				if (gv.buffer_n <= 1e-8){
+					buffer_n = 1e-8;
 				}
 				else if (gv.buffer_n >= 1.0){
-					gv.buffer_n = 1.0-1e-8;
+					buffer_n = 1.0-1e-8;
 				}
 
-				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(gv.buffer_n) + O2.gbase;
+				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(buffer_n) + O2.gbase;
 				PP_ref_db[i].factor  =  factor;
 				PP_ref_db[i].phase_shearModulus  = O2.phase_shearModulus;
 				gv.pp_flags[i][4] 	= 1;
@@ -287,13 +288,13 @@ global_variable init_em_db(		int 				EM_database,
 				/* Calculate normalizing factor */
 				double factor = fbc/ape;
 				if (gv.buffer_n <= 1e-8){
-					gv.buffer_n = 1e-8;
+					buffer_n = 1e-8;
 				}
 				else if (gv.buffer_n >= 1.0){
-					gv.buffer_n = 1.0-1e-8;
+					buffer_n = 1.0-1e-8;
 				}
 
-				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(gv.buffer_n) + MgO.gbase;
+				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(buffer_n) + MgO.gbase;
 				PP_ref_db[i].factor  =  factor;
 				PP_ref_db[i].phase_shearModulus  = MgO.phase_shearModulus;
 				gv.pp_flags[i][4] 	= 1;
@@ -330,13 +331,13 @@ global_variable init_em_db(		int 				EM_database,
 				/* Calculate normalizing factor */
 				double factor = fbc/ape;
 				if (gv.buffer_n <= 1e-8){
-					gv.buffer_n = 1e-8;
+					buffer_n = 1e-8;
 				}
 				else if (gv.buffer_n >= 1.0){
-					gv.buffer_n = 1.0-1e-8;
+					buffer_n = 1.0-1e-8;
 				}
 
-				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(gv.buffer_n) + FeO.gbase;
+				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(buffer_n) + FeO.gbase;
 				PP_ref_db[i].factor  =  factor;
 				PP_ref_db[i].phase_shearModulus  = FeO.phase_shearModulus;
 				gv.pp_flags[i][4] 	= 1;
@@ -373,13 +374,13 @@ global_variable init_em_db(		int 				EM_database,
 				/* Calculate normalizing factor */
 				double factor = fbc/ape;
 				if (gv.buffer_n <= 1e-8){
-					gv.buffer_n = 1e-8;
+					buffer_n = 1e-8;
 				}
 				else if (gv.buffer_n >= 1.0){
-					gv.buffer_n = 1.0-1e-8;
+					buffer_n = 1.0-1e-8;
 				}
 
-				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(gv.buffer_n) + Al2O3.gbase;
+				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(buffer_n) + Al2O3.gbase;
 				PP_ref_db[i].factor  =  factor;
 				PP_ref_db[i].phase_shearModulus  = Al2O3.phase_shearModulus;
 				gv.pp_flags[i][4] 	= 1;
@@ -416,13 +417,13 @@ global_variable init_em_db(		int 				EM_database,
 				/* Calculate normalizing factor */
 				double factor = fbc/ape;
 				if (gv.buffer_n <= 1e-8){
-					gv.buffer_n = 1e-8;
+					buffer_n = 1e-8;
 				}
 				else if (gv.buffer_n >= 1.0){
-					gv.buffer_n = 1.0-1e-8;
+					buffer_n = 1.0-1e-8;
 				}
 
-				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(gv.buffer_n) + TiO2.gbase;
+				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(buffer_n) + TiO2.gbase;
 				PP_ref_db[i].factor  =  factor;
 				PP_ref_db[i].phase_shearModulus  = TiO2.phase_shearModulus;
 				gv.pp_flags[i][4] 	= 1;

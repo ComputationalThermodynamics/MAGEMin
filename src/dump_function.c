@@ -87,7 +87,7 @@ void reset_output_struct(		global_variable 	 gv,
 	double sum_Molar_mass_bulk;
 
 	strcpy(sp[0].MAGEMin_ver,gv.version);	
-
+	strcpy(sp[0].database,gv.db);
 	if (gv.EM_dataset == 62){	
 		strcpy(sp[0].dataset,"tc_ds62");	
 	}
@@ -118,6 +118,15 @@ void reset_output_struct(		global_variable 	 gv,
 	sp[0].aAl2O3				 = gv.system_aAl2O3;
 	sp[0].aMgO					 = gv.system_aMgO;
 	sp[0].aFeO				 	 = gv.system_aFeO;
+	strcpy(sp[0].buffer,gv.buffer);	
+
+	// if (strcmp(gv.buffer, "NONE") != 0){
+	// 	sp[0].buffer_n				 = gv.buffer_n;
+	// }
+	// else{
+	// 	sp[0].buffer_n				 = 0.0;
+	// }
+	sp[0].buffer_n				 = gv.buffer_n;
 
 	sp[0].alpha				 	 = gv.system_expansivity;
 	sp[0].V				 	 	 = gv.system_volume*10.0;	
