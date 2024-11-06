@@ -100,6 +100,7 @@ struct gmin_struct{T,I}
 
     ph_frac     :: Vector{T}            # phase fractions
     ph_frac_wt  :: Vector{T}            # phase fractions
+    ph_frac_1at :: Vector{T}            # phase fractions
     ph_frac_vol :: Vector{T}            # phase fractions
     ph_type     :: Vector{I}            # type of phase (SS or PP)
     ph_id       :: Vector{I}            # id of phase
@@ -1281,6 +1282,7 @@ function create_gmin_struct(DB, gv, time)
 
     ph_frac  =  unsafe_wrap(Vector{Cdouble},stb.ph_frac,   n_ph)
     ph_frac_wt  =  unsafe_wrap(Vector{Cdouble},stb.ph_frac_wt,   n_ph)
+    ph_frac_1at =  unsafe_wrap(Vector{Cdouble},stb.ph_frac_1at,   n_ph)
     ph_frac_vol =  unsafe_wrap(Vector{Cdouble},stb.ph_frac_vol,   n_ph)
     ph_type  =  unsafe_wrap(Vector{Cint},   stb.ph_type,   n_ph)
     ph_id    =  unsafe_wrap(Vector{Cint},   stb.ph_id  ,   n_ph)
@@ -1314,7 +1316,7 @@ function create_gmin_struct(DB, gv, time)
                 rho, rho_M, rho_S, rho_F,
                 fO2, dQFM, aH2O, aSiO2, aTiO2, aAl2O3, aMgO, aFeO,
                 n_PP, n_SS, n_mSS,
-                ph_frac, ph_frac_wt, ph_frac_vol, ph_type, ph_id, ph,
+                ph_frac, ph_frac_wt, ph_frac_1at, ph_frac_vol, ph_type, ph_id, ph,
                 SS_vec,  mSS_vec, PP_vec,
                 oxides,  elements,
                 stb.Vp, stb.Vs, stb.Vp_S, stb.Vs_S, stb.bulkMod, stb.shearMod, stb.bulkModulus_M,  stb.bulkModulus_S, stb.shearModulus_S,

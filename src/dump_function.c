@@ -469,7 +469,7 @@ void fill_output_struct(		global_variable 	 gv,
 
 			sp[0].ph_frac[n]  	 = cp[i].ss_n_mol;
 			sp[0].ph_frac_wt[n]  = cp[i].ss_n_wt;
-
+			sp[0].ph_frac_1at[n] = cp[i].ss_n;
 			sp[0].ph_type[n]  	 = 1;
 			sp[0].ph_id[n] 		 = m;
 			sp[0].n_SS 			+= 1;
@@ -619,6 +619,7 @@ void fill_output_struct(		global_variable 	 gv,
 
 			sp[0].ph_frac[n]  	 = gv.pp_n_mol[i];
 			sp[0].ph_frac_wt[n]  = gv.pp_n_wt[i];
+			sp[0].ph_frac_1at[n]  = gv.pp_n[i];
 			sp[0].ph_type[n]  	 = 0;
 			sp[0].ph_id[n] 		 = m;
 			sp[0].n_PP 			+= 1;

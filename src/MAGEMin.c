@@ -117,21 +117,21 @@ int runMAGEMin(			int    argc,
 									 argc,
 									 argv			);
 
-	printf("b4 global_variable_init\n");
+	// printf("b4 global_variable_init\n");
 	/*
 	  initialize global structure to store shared variables (e.g. Gamma, SS and PP list, ...) 
 	*/
 	gv = global_variable_init( 		 gv,
 									&z_b 			);
 
-	printf("b4 Initialize database\n");
+	// printf("b4 Initialize database\n");
 	/* 
 	  Allocate both pure and solid-solution databases 
 	*/
 	DB = InitializeDatabases(		 gv,
 									 gv.EM_database	);
 	
-	printf("simplex_data\n");
+	// printf("simplex_data\n");
 	/*
 	  initialize simplex (levelling stage using pseudocompounds) 
 	*/
@@ -157,31 +157,9 @@ int runMAGEMin(			int    argc,
 	/* 
 	  get bulk rock composition parsed from args 
 	*/
+	gv = get_tests_bulks(  	 gv );
 
-	if 		(gv.EM_database == 0){
-		gv = get_bulk_metapelite( 		gv );
-	}
-	else if (gv.EM_database == 1){
-		gv = get_bulk_metabasite( 		gv );
-	}
-	else if (gv.EM_database == 2){
-		gv = get_bulk_igneous( 			gv );
-	}
-	else if (gv.EM_database == 3){
-		gv = get_bulk_igneous_igad( 	gv );
-	}
-	else if (gv.EM_database == 4){
-		gv = get_bulk_ultramafic( 		gv );
-	}
-	else if (gv.EM_database == 5){
-		gv = get_bulk_ultramafic_ext( 	gv );
-	}
-	else if (gv.EM_database == 6){
-		gv = get_bulk_mantle( 	gv );
-	}
-	else{
-		printf(" Wrong database...\n");
-	}
+	printf("b4 loop\n");
 	
 	/****************************************************************************************/
 	/**                               LAUNCH MINIMIZATION ROUTINE                          **/
@@ -1085,6 +1063,7 @@ void FreeDatabases(		global_variable gv,
 	free(DB.sp[0].bulk_F_wt);
 	free(DB.sp[0].ph_frac);
 	free(DB.sp[0].ph_frac_wt);
+	free(DB.sp[0].ph_frac_1at);
 	free(DB.sp[0].ph_frac_vol);
 
 	free(DB.sp[0].ph_id);

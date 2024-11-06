@@ -1178,6 +1178,7 @@ struct stb_systems
     ph::Ptr{Ptr{Cchar}}
     ph_frac::Ptr{Cdouble}
     ph_frac_wt::Ptr{Cdouble}
+    ph_frac_1at::Ptr{Cdouble}
     ph_frac_vol::Ptr{Cdouble}
     ph_type::Ptr{Cint}
     ph_id::Ptr{Cint}
@@ -2458,6 +2459,10 @@ end
 
 function convert_system_comp(gv, sys_in, z_b)
     ccall((:convert_system_comp, libMAGEMin), Cvoid, (global_variable, Ptr{Cchar}, bulk_info), gv, sys_in, z_b)
+end
+
+function get_tests_bulks(gv)
+    ccall((:get_tests_bulks, libMAGEMin), global_variable, (global_variable,), gv)
 end
 
 function get_act_sf_id(result, A, n)
