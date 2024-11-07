@@ -966,7 +966,7 @@ SS_ref G_SS_sb11_cf_function(SS_ref SS_ref_db, char* research_group, int EM_data
     return SS_ref_db;
 }
 
-    SS_ref G_SS_sb11_EM_function(        global_variable        gv,
+    SS_ref G_SS_sb11_EM_function(       global_variable        gv,
                                         SS_ref            SS_ref_db,
                                         int            EM_dataset,
                                         bulk_info            z_b,

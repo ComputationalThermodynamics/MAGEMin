@@ -113,6 +113,7 @@ function get_sb_gss_init_function(sb_ver,ss)
         sb_gss_init_function *= "SS_ref G_SS_$(sb_ver)_$(ss[i].abbrev)_init_function(SS_ref SS_ref_db,  global_variable gv){\n\n"
         sb_gss_init_function *= "    SS_ref_db.is_liq    = 0;\n"
         sb_gss_init_function *= "    SS_ref_db.symmetry  = $sym;\n"
+        sb_gss_init_function *= "    SS_ref_db.n_xeos    = $(length(em));\n"
         sb_gss_init_function *= "    SS_ref_db.n_em      = $(length(em));\n"
         sb_gss_init_function *= "    SS_ref_db.n_sf      = $(length(mul));\n"
         sb_gss_init_function *= "    SS_ref_db.n_w       = $(length(W));\n"
