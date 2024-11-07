@@ -57,6 +57,7 @@ char** get_EM_DB_names_tc(global_variable gv) {
 }
 
 char** get_EM_DB_names_sb(global_variable gv) {
+
     EM_db_sb EM_return;
     int i, n_em_db;
     n_em_db = gv.n_em_db;

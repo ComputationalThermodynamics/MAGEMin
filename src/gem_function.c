@@ -48,8 +48,8 @@ PP_ref G_EM_function(	    char        *research_group,
                                         name,
                                         state);
     }
-    else{
-        PP_ref_db = TC_G_EM_function(	EM_dataset,
+    if 	(strcmp(research_group, "sb") 	== 0){
+        PP_ref_db = SB_G_EM_function(	EM_dataset,
                                         len_ox,
                                         id,
                                         bulk_rock,

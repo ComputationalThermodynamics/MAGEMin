@@ -16,6 +16,7 @@
     #include "./TC_database/TC_gem_function.h"
     /* This include Stixrude & Lithgow-Bertelloni solution phase models */
     #include "./SB_database/SB_endmembers.h"
+    #include "./SB_database/SB_gem_function.h"
     //#include "STIX_solution_phases.h"
 
 #endif

@@ -22,7 +22,7 @@
 #include "../toolkit.h"
 #include "SB_gem_function.h"
 
-#define eps 1e-12
+#define eps 1e-10
 
 
 double plg(double t) {
@@ -49,6 +49,7 @@ double plg(double t) {
 
         i += 1;
     }
+
     return plg;
 }
 
@@ -73,7 +74,7 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 	for (i = 0; i < len_ox; i ++){
 		composition[i] = EM_return.Comp[id[i]];
 	}
-	
+
 	double kbar2bar = 1e3;
 	double RTlnf 	= 0.0;
 	double T0 		= 298.15;
@@ -93,7 +94,7 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 
 	double F0		= EM_return.input_1[0];
 	double n		= EM_return.input_1[1];
-	double V0 		= EM_return.input_1[2];
+	double V0 		= -EM_return.input_1[2];
 	double K0 		= EM_return.input_1[3];
 	double Kp 		= EM_return.input_1[4];
 	double z00		= EM_return.input_1[5];
@@ -140,7 +141,7 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 	bad 	= 1;
 
 	itic 	= 0;
-	while (itic < 100){
+	while (itic < max_ite){
 
 		itic   += 1;
 
@@ -206,23 +207,23 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 
 		V -= dv;
 		
-		if (itic > max_ite || fabs(f1) > 1e40){
+		if (itic >= max_ite || fabs(f1) > 1e40){
 
 			if (fabs(f1 / P) < 0.0){
 				ibad = 5;
 				printf("ERROR abs(f1/p)\n");
 			}
-			else if( fabs(dv / (1.0 + V)) < eps ){
+		}
+		else if( fabs(dv / (1.0 + V)) < eps ){
 				bad = 0;
 				break;
-			}
 		}
+		
 	}
 
 	if (bad == 1){
 		printf("ERROR bad\n");
 	}
-
 
 	/* get helmoltz energy:*/
 	f 		= 0.5 * pow((V0 / V),r23) - 0.5;
@@ -263,12 +264,13 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 	for (i = 0; i < len_ox; i++){
 		PP_ref_db.Comp[i] = composition[i];
 	}
-	PP_ref_db.gbase   =  gbase;
+	PP_ref_db.gbase   =  gbase/kbar2bar;
 	PP_ref_db.factor  =  factor;
 	PP_ref_db.phase_shearModulus  =  (EM_return.input_2[0]*kbar2bar + (P - P0)*(EM_return.input_2[1])*kbar2bar + (T - T0)*(EM_return.input_2[2]))/kbar2bar;
 
 
-	// printf(" %4s %+10f\n",name,PP_ref_db.gbase);
+	// printf("gbase %4s %+10f\n",name,PP_ref_db.gbase);
+	// printf("phase_shearModulus %4s %+10f\n",name,PP_ref_db.phase_shearModulus);
 	// for (i = 0; i < len_ox; i++){
 	// 	printf("%+10f",PP_ref_db.Comp[i]*PP_ref_db.factor); 
 	// }

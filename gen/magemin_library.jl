@@ -131,9 +131,9 @@ function rho_wat_calc(wat, Pbar, TK, opt)
 end
 
 mutable struct EM_db_sb_
-    Name::NTuple{20, Cchar}
-    FullName::NTuple{50, Cchar}
-    Equation::NTuple{50, Cchar}
+    Name::NTuple{50, Cchar}
+    FullName::NTuple{80, Cchar}
+    Equation::NTuple{90, Cchar}
     Comp::NTuple{6, Cdouble}
     input_1::NTuple{10, Cdouble}
     input_2::NTuple{3, Cdouble}
@@ -144,6 +144,10 @@ const EM_db_sb = EM_db_sb_
 
 function Access_SB_EM_DB(id, EM_dataset)
     ccall((:Access_SB_EM_DB, libMAGEMin), EM_db_sb, (Cint, Cint), id, EM_dataset)
+end
+
+function SB_G_EM_function(EM_database, len_ox, id, bulk_rock, apo, P, T, name, state)
+    ccall((:SB_G_EM_function, libMAGEMin), PP_ref, (Cint, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), EM_database, len_ox, id, bulk_rock, apo, P, T, name, state)
 end
 
 # typedef double ( * nlopt_func ) ( unsigned n , const double * x , double * gradient , /* NULL if not needed */ void * func_data )
@@ -1510,7 +1514,7 @@ mutable struct stx11_datasets
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{6, NTuple{20, Cchar}}
-    PP::NTuple{10, NTuple{20, Cchar}}
+    PP::NTuple{9, NTuple{20, Cchar}}
     SS::NTuple{14, NTuple{20, Cchar}}
     verifyPC::NTuple{14, Cint}
     n_SS_PC::NTuple{14, Cint}
@@ -2359,6 +2363,10 @@ end
 
 function init_em_db(EM_database, z_b, gv, PP_ref_db)
     ccall((:init_em_db, libMAGEMin), global_variable, (Cint, bulk_info, global_variable, Ptr{PP_ref}), EM_database, z_b, gv, PP_ref_db)
+end
+
+function init_em_db_sb(EM_database, z_b, gv, PP_ref_db)
+    ccall((:init_em_db_sb, libMAGEMin), global_variable, (Cint, bulk_info, global_variable, Ptr{PP_ref}), EM_database, z_b, gv, PP_ref_db)
 end
 
 function update_dG(splx_data)

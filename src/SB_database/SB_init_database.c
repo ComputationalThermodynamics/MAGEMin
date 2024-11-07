@@ -22,23 +22,23 @@
 
 oxide_data oxide_info_sb = {
 	15,						/* number of endmembers */
-	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"Cr2O3","H2O"	,"CO2"	,"S"	,"Cl"		},
-	{"Si"	,"Al"	,"Ca"	,"Mg"	,"Fe"	,"K"	,"Na"	,"Ti"	,"O"	,"Mn"	,"Cr"	,"H"	,"C"	,"S"	,"Cl"		},
-	{60.08  ,101.96 ,56.08  ,40.30  ,71.85  ,94.2   ,61.98  ,79.88  ,16.0   ,70.94	,151.99 ,18.015	,44.01	, 32.06	,35.453		},
-	{3.0	,5.0	,2.0	,2.0	,2.0	,3.0	,3.0	,3.0	,1.0	,2.0 	,5.0	,3.0	,3.0	, 1.0	,1.0		},
-	{66.7736,108.653,42.9947,40.3262,38.7162,69.1514,61.1729,70.3246,30.5827,40.1891,106.9795,69.5449,62.8768,9.5557,33.2556	},
-	{2,3,1,1,1,1,1,2,1,1,3,1,2,0,0},
-	{1,2,1,1,1,2,2,1,1,1,2,2,1,1,1}
+    {"SiO2"	,"CaO"	,"Al2O3","FeO"	,"MgO"	,"Na2O"	,"K2O"	,"TiO2"	,"O"	,"MnO"	,"Cr2O3","H2O"	,"CO2"	,"S"	,"Cl"},
+    {"Si"	,"Ca"	,"Al"	,"Fe"	,"Mg"	,"Na"	,"K"	,"Ti"	,"O"	,"Mn"	,"Cr"	,"H"	,"C"	,"S"	,"Cl"},
+    {60.08  ,56.08  ,101.96 ,71.85  ,40.30  ,61.98  ,94.2   ,79.88  ,16.0   ,70.94	,151.99 ,18.015	,44.01	, 32.06	,35.453},
+    {3.0	,2.0	,5.0	,2.0	,2.0	,3.0	,3.0	,3.0	,1.0	,2.0 	,5.0	,3.0	,3.0	, 1.0	,1.0},
+    {66.7736,42.9947,108.653,38.7162,40.3262,61.1729,69.1514,70.3246,30.5827,40.1891,106.9795,69.5449,62.8768,9.5557,33.2556},
+    {2,1,3,1,1,1,1,2,1,1,3,1,2,0,0},
+    {1,1,2,1,1,2,2,1,1,1,2,2,1,1,1}
 	// for the standard molar entropy the values are already normalized by the reference temperature = 298.15K (25°C) and expressed in kJ
 };
 // SiO2:0 CaO:1 Al2O3:2 FeO:3 MgO:4 Na2O:5 */
 stx11_dataset stx11_db = {
 	2011,						/* Endmember default dataset number */
 	6,							/* number of oxides */			
-	10,							/* number of pure phases */
+	9,							/* number of pure phases */
 	14,							/* number of solution phases */
 	{"SiO2"	,"CaO"	,"Al2O3","FeO"	,"MgO"	,"Na2O"																							},
-	{"neph"	,"ky"	,"seif"	,"st"	,"coe"	,"qtz"	,"capv"	,"aMgO"	,"aFeO"	,"aAl2O3"														},
+	{"neph"	,"ky"	,"st"	,"coe"	,"qtz"	,"capv"	,"aMgO"	,"aFeO"	,"aAl2O3"														},
 	{"plg"	,"sp"	,"ol"	,"wa"	,"ri"	,"opx"	,"cpx"	,"hpcpx","ak"	,"gtmj"	,"pv"	,"ppv"	,"mw"	,"cf"							},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1								}, // allow solvus?
@@ -66,6 +66,7 @@ global_variable global_variable_SB_init( 	global_variable  	 gv,
 
 	if (gv.EM_database == 0){
 		stx11_dataset db 	= stx11_db;
+		gv.EM_dataset 		= db.ds_version;	
 		gv.len_pp   		= db.n_pp;		
 		gv.len_ss  			= db.n_ss;
 		gv.len_ox  			= db.n_ox;
@@ -212,14 +213,11 @@ global_variable global_variable_SB_init( 	global_variable  	 gv,
 	/**
 		retrieve the right set of oxide and their informations 
 	*/
-	gv.H2O_id 	= -1;
+	gv.Al2O3_id = -1;
 	gv.CaO_id 	= -1;
 	gv.Na2O_id 	= -1;
 	gv.FeO_id 	= -1;
 	gv.MgO_id 	= -1;
-	gv.K2O_id 	= -1;
-	gv.O_id 	= -1;
-	gv.MnO_id 	= -1;
 
 	oxide_data ox_in 	= oxide_info_sb;
 	for (i = 0; i < gv.len_ox; i++){
@@ -228,12 +226,18 @@ global_variable global_variable_SB_init( 	global_variable  	 gv,
 				if (strcmp( gv.ox[i], "Al2O3") 	== 0){
 					gv.Al2O3_id = i;
 				}
-				else if (strcmp( gv.ox[i], "TiO2") 	== 0){
-					gv.TiO2_id = i;
+				// else if (strcmp( gv.ox[i], "TiO2") 	== 0){
+				// 	gv.TiO2_id = i;
+				// }
+				// else if (strcmp( gv.ox[i], "O") 	== 0){
+				// 	gv.O_id = i;
+				// }	
+				else if (strcmp( gv.ox[i], "CaO") 	== 0){
+					gv.CaO_id = i;
 				}
-				else if (strcmp( gv.ox[i], "O") 	== 0){
-					gv.O_id = i;
-				}	
+				else if (strcmp( gv.ox[i], "Na2O") 	== 0){
+					gv.Na2O_id = i;
+				}
 				else if (strcmp( gv.ox[i], "MgO") 	== 0){
 					gv.MgO_id = i;
 				}	
@@ -284,6 +288,7 @@ global_variable get_bulk_stx11( global_variable gv) {
 			printf("   - No predefined bulk provided -> user custom bulk (if none provided, will run default KLB1)\n");	
 		}	
 	}
+
 	if (gv.test == 0){ //KLB1
 		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
 		/* Bulk rock composition of Peridotite from Holland et al., 2018, given by E. Green */

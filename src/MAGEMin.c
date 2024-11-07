@@ -117,21 +117,18 @@ int runMAGEMin(			int    argc,
 									 argc,
 									 argv			);
 
-	// printf("b4 global_variable_init\n");
 	/*
 	  initialize global structure to store shared variables (e.g. Gamma, SS and PP list, ...) 
 	*/
 	gv = global_variable_init( 		 gv,
 									&z_b 			);
 
-	// printf("b4 Initialize database\n");
 	/* 
 	  Allocate both pure and solid-solution databases 
 	*/
 	DB = InitializeDatabases(		 gv,
 									 gv.EM_database	);
-	
-	// printf("simplex_data\n");
+
 	/*
 	  initialize simplex (levelling stage using pseudocompounds) 
 	*/
@@ -158,8 +155,6 @@ int runMAGEMin(			int    argc,
 	  get bulk rock composition parsed from args 
 	*/
 	gv = get_tests_bulks(  	 gv );
-
-	printf("b4 loop\n");
 	
 	/****************************************************************************************/
 	/**                               LAUNCH MINIMIZATION ROUTINE                          **/
@@ -330,10 +325,18 @@ int runMAGEMin(			int    argc,
 										SS_ref  			*SS_ref_db				){
 
 	/* initialize endmember database for given P-T point */
-	gv = init_em_db(		EM_database,
-							z_b,											/** bulk rock informations 			*/
-							gv,												/** global variables (e.g. Gamma) 	*/
-							PP_ref_db						);
+	if ( strcmp(gv.research_group, "tc") 	== 0 ){
+		gv = init_em_db(		EM_database,
+								z_b,											/** bulk rock informations 			*/
+								gv,												/** global variables (e.g. Gamma) 	*/
+								PP_ref_db						);
+	}
+	else if ( strcmp(gv.research_group, "sb") 	== 0 ){
+		gv = init_em_db_sb(		EM_database,
+								z_b,											/** bulk rock informations 			*/
+								gv,												/** global variables (e.g. Gamma) 	*/
+								PP_ref_db						);
+	}
 
 	/* Calculate solution phase data at given P-T conditions (G0 based on G0 of endmembers) */
 	gv = init_ss_db(		EM_database,
