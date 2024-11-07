@@ -795,10 +795,10 @@ SS_ref G_SS_mb_aug_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[6][0] = 0.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
     
 	if (z_b.bulk_rock[8] == 0.){ 	    //O				
-		SS_ref_db.z_em[5]          = 0.0;
+		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
-		SS_ref_db.bounds_ref[3][0] = 0.0; 
-		SS_ref_db.bounds_ref[3][1] = 0.0;	
+		SS_ref_db.bounds_ref[2][0] = 0.0; 
+		SS_ref_db.bounds_ref[2][1] = 0.0;	
 	}
 
 
