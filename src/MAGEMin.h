@@ -702,7 +702,8 @@ typedef struct stb_systems {
 	
 	char   *MAGEMin_ver;
 	char   *dataset;
-	
+	char   *database;
+
 	double  bulk_res_norm;
 	int     n_iterations;
 	int     status;
@@ -716,7 +717,9 @@ typedef struct stb_systems {
 	double  X;
 	double *bulk;
 	double *bulk_wt;
-
+	char   *buffer;
+	double  buffer_n;
+	
 	double *gamma;
 	double  G;
 	double  M_sys;
@@ -766,6 +769,7 @@ typedef struct stb_systems {
 	char  **ph;										/* phases names 															*/
 	double *ph_frac; 								/* phase fractions															*/
 	double *ph_frac_wt;								/* phase fractions in wt fraction											*/
+	double *ph_frac_1at;								/* phase fractions in wt fraction											*/
 	double *ph_frac_vol;							/* phase fractions in wt fraction											*/
 	int    *ph_type; 								/* 0 -> Solution phases; 1 -> Pure phases									*/
 	int    *ph_id;									/* position in the related stb_SS_phase or stb_PP_phase structure arrays	*/

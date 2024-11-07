@@ -35,7 +35,7 @@
 		int 	n_pp;
 		int 	n_ss;
 		char    ox[6][20];
-		char    PP[10][20];
+		char    PP[9][20];
 		char    SS[14][20];
 
 		int 	verifyPC[14];

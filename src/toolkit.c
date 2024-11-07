@@ -768,6 +768,51 @@ void print_cp(		global_variable	 gv,
 };
 
 
+global_variable get_tests_bulks(	global_variable  	 gv		
+){
+
+	if ( strcmp(gv.research_group, "tc") 	== 0 ){
+		if 		(gv.EM_database == 0){
+			gv = get_bulk_metapelite( 		gv );
+		}
+		else if (gv.EM_database == 1){
+			gv = get_bulk_metabasite( 		gv );
+		}
+		else if (gv.EM_database == 2){
+			gv = get_bulk_igneous( 			gv );
+		}
+		else if (gv.EM_database == 3){
+			gv = get_bulk_igneous_igad( 	gv );
+		}
+		else if (gv.EM_database == 4){
+			gv = get_bulk_ultramafic( 		gv );
+		}
+		else if (gv.EM_database == 5){
+			gv = get_bulk_ultramafic_ext( 	gv );
+		}
+		else if (gv.EM_database == 6){
+			gv = get_bulk_mantle( 			gv );
+		}
+		else{
+			printf(" Wrong database...\n");
+		}
+	}
+	else if ( strcmp(gv.research_group, "sb") 	== 0 ){
+		if 		(gv.EM_database == 0){
+			gv = get_bulk_stx11( 		gv );
+		}
+		else{
+			printf(" Wrong database...\n");
+		}
+	}
+	else{
+		printf(" Wrong research group...\n");
+	}
+
+
+	return gv;
+}
+
 /**
    rotate G-hyperplane using Gamma
 */

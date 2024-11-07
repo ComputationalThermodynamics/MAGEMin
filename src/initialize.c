@@ -12,6 +12,7 @@
 #include "MAGEMin.h"
 #include "initialize.h"
 #include "toolkit.h"
+#include <stdio.h>
 
 /* Function to allocate the memory of the data to be used/saved during PGE iterations */
 global_variable global_variable_init( 	global_variable  	 gv,
@@ -27,6 +28,9 @@ global_variable global_variable_init( 	global_variable  	 gv,
 	/* here we initialize MAGEMin using Stixrude formalism */
 		gv 	=	global_variable_SB_init( 	gv,
 											z_b 	);
+	}
+	else{
+		printf(" wrong group, fix group name\n");
 	}
 
 	return gv;
@@ -53,6 +57,7 @@ char** get_EM_DB_names_tc(global_variable gv) {
 }
 
 char** get_EM_DB_names_sb(global_variable gv) {
+
     EM_db_sb EM_return;
     int i, n_em_db;
     n_em_db = gv.n_em_db;
@@ -117,7 +122,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.5.6 [17/10/2024]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.5.7 [17/10/2024]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
@@ -197,7 +202,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.tot_time 		= 0.0;
 
 	/* set default parameters (overwritten later from args)*/
-	gv.EM_database  	=  2; 					
+	gv.EM_database  	=  0; 					
 	gv.n_points 		=  1;
 	gv.solver   		=  2;					/* 0 -> Legacy, 1 = PGE, Hybrid PGE/LP */
 	gv.leveling_mode	=  0;
@@ -269,6 +274,7 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 
 	sp.MAGEMin_ver   		= malloc(50  		* sizeof(char)				);
 	sp.dataset   		    = malloc(50  		* sizeof(char)				);
+	sp.database   			= malloc(50  		* sizeof(char)				);
 	sp.oxides 	     		= malloc(gv.len_ox  * sizeof(char*)				);
 	sp.elements 	     	= malloc(gv.len_ox  * sizeof(char*)				);
 		
@@ -276,6 +282,7 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 		sp.oxides[i] 		= malloc(20 * sizeof(char));	
 		sp.elements[i] 		= malloc(20 * sizeof(char));	
 	}
+	sp.buffer 				= malloc(50  		* sizeof(char)				);
 	sp.bulk 				= malloc(gv.len_ox  * sizeof(double)			);	
 	sp.gamma 				= malloc(gv.len_ox  * sizeof(double)			);	
 	sp.bulk_S 				= malloc(gv.len_ox 	* sizeof(double)			);	
@@ -289,6 +296,7 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 	sp.ph 	     			= malloc(gv.len_ox  * sizeof(char*)				);
 	sp.ph_frac 	     		= malloc(gv.len_ox  * sizeof(double)			);
 	sp.ph_frac_wt     		= malloc(gv.len_ox  * sizeof(double)			);
+	sp.ph_frac_1at    		= malloc(gv.len_ox  * sizeof(double)			);
 	sp.ph_frac_vol     		= malloc(gv.len_ox  * sizeof(double)			);
 	for (int i = 0; i < gv.len_ox; i++){
 		sp.ph[i] 			= malloc(20 * sizeof(char));	
@@ -776,6 +784,7 @@ void reset_sp(						global_variable 	 gv,
 		sp[0].ph_id[i] 					=  0;
 		sp[0].ph_frac[i] 				=  0.0;
 		sp[0].ph_frac_wt[i] 			=  0.0;
+		sp[0].ph_frac_1at[i] 			=  0.0;
 		sp[0].ph_frac_vol[i] 			=  0.0;
 	}
 

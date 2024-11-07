@@ -24,7 +24,7 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 void convert_system_comp(				global_variable      gv,
 										char 				*sys_in,
 										bulk_info 			 z_b			);
-										
+global_variable get_tests_bulks(		global_variable  	 gv				);
 void 	get_act_sf_id(int *result, double *A, int n);
 void 	inverseMatrix(int *ipiv, double *A1, int n, double *work, int lwork);
 void 	MatMatMul( double **A, int nrowA, double **B, int ncolB, int common, double **C);

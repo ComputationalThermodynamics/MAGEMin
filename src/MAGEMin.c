@@ -117,20 +117,17 @@ int runMAGEMin(			int    argc,
 									 argc,
 									 argv			);
 
-
 	/*
 	  initialize global structure to store shared variables (e.g. Gamma, SS and PP list, ...) 
 	*/
 	gv = global_variable_init( 		 gv,
 									&z_b 			);
 
-
 	/* 
 	  Allocate both pure and solid-solution databases 
 	*/
 	DB = InitializeDatabases(		 gv,
 									 gv.EM_database	);
-	
 
 	/*
 	  initialize simplex (levelling stage using pseudocompounds) 
@@ -157,31 +154,7 @@ int runMAGEMin(			int    argc,
 	/* 
 	  get bulk rock composition parsed from args 
 	*/
-
-	if 		(gv.EM_database == 0){
-		gv = get_bulk_metapelite( 		gv );
-	}
-	else if (gv.EM_database == 1){
-		gv = get_bulk_metabasite( 		gv );
-	}
-	else if (gv.EM_database == 2){
-		gv = get_bulk_igneous( 			gv );
-	}
-	else if (gv.EM_database == 3){
-		gv = get_bulk_igneous_igad( 	gv );
-	}
-	else if (gv.EM_database == 4){
-		gv = get_bulk_ultramafic( 		gv );
-	}
-	else if (gv.EM_database == 5){
-		gv = get_bulk_ultramafic_ext( 	gv );
-	}
-	else if (gv.EM_database == 6){
-		gv = get_bulk_mantle( 	gv );
-	}
-	else{
-		printf(" Wrong database...\n");
-	}
+	gv = get_tests_bulks(  	 gv );
 	
 	/****************************************************************************************/
 	/**                               LAUNCH MINIMIZATION ROUTINE                          **/
@@ -352,10 +325,18 @@ int runMAGEMin(			int    argc,
 										SS_ref  			*SS_ref_db				){
 
 	/* initialize endmember database for given P-T point */
-	gv = init_em_db(		EM_database,
-							z_b,											/** bulk rock informations 			*/
-							gv,												/** global variables (e.g. Gamma) 	*/
-							PP_ref_db						);
+	if ( strcmp(gv.research_group, "tc") 	== 0 ){
+		gv = init_em_db(		EM_database,
+								z_b,											/** bulk rock informations 			*/
+								gv,												/** global variables (e.g. Gamma) 	*/
+								PP_ref_db						);
+	}
+	else if ( strcmp(gv.research_group, "sb") 	== 0 ){
+		gv = init_em_db_sb(		EM_database,
+								z_b,											/** bulk rock informations 			*/
+								gv,												/** global variables (e.g. Gamma) 	*/
+								PP_ref_db						);
+	}
 
 	/* Calculate solution phase data at given P-T conditions (G0 based on G0 of endmembers) */
 	gv = init_ss_db(		EM_database,
@@ -928,8 +909,15 @@ Databases InitializeDatabases(	global_variable gv,
 
 	SS_init_type 				SS_init[gv.len_ss];
 
-	TC_SS_init(	        	    SS_init,
-								gv				);
+
+	if 	( strcmp(gv.research_group, "tc") 	== 0 ){
+		TC_SS_init(	        	    SS_init,
+									gv				);
+	}
+	else if (strcmp(gv.research_group, "sb") == 0 ){
+		SB_SS_init(	        	    SS_init,
+									gv				);
+	}
 
 	DB.SS_ref_db = malloc ((gv.len_ss) 		* sizeof(SS_ref)); 
 	for (int iss = 0; iss < gv.len_ss; iss++){
@@ -1078,12 +1066,15 @@ void FreeDatabases(		global_variable gv,
 	free(DB.sp[0].bulk_F_wt);
 	free(DB.sp[0].ph_frac);
 	free(DB.sp[0].ph_frac_wt);
+	free(DB.sp[0].ph_frac_1at);
 	free(DB.sp[0].ph_frac_vol);
 
 	free(DB.sp[0].ph_id);
 	free(DB.sp[0].ph_type);
 	free(DB.sp[0].MAGEMin_ver);
+	free(DB.sp[0].buffer);
 	free(DB.sp[0].dataset);
+	free(DB.sp[0].database);
 
 
 	/*  ==================== CP ==============================  */

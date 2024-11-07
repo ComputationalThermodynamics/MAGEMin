@@ -221,7 +221,7 @@ SS_ref G_SS_sb11_cf_init_function(SS_ref SS_ref_db,  global_variable gv){
      return SS_ref_db;
 }
 
-void SS_init_sb11(          SS_init_type        *SS_init,
+void SB_SS_init_sb11(       SS_init_type        *SS_init,
                             global_variable      gv                             ){
 
     for (int iss = 0; iss < gv.len_ss; iss++){
@@ -257,4 +257,14 @@ void SS_init_sb11(          SS_init_type        *SS_init,
             printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
         }
     }
+}
+
+void SB_SS_init(	        	    SS_init_type 		*SS_init,
+									global_variable 	 gv				){
+
+	if (gv.EM_database == 0){				// metapelite database //
+		SB_SS_init_sb11(	 				    SS_init,
+											gv							);
+	}
+
 }

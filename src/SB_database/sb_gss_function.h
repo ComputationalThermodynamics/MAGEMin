@@ -8,26 +8,15 @@
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
  ** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ @*/
-#ifndef __PP_MIN_FUNCTION_H_
-#define __PP_MIN_FUNCTION_H_
+#ifndef __SB_GSS_FUNCTION_H_
+#define __SB_GSS_FUNCTION_H_
 
-#include "MAGEMin.h"
+#include "../MAGEMin.h"
 
-void pp_min_function(		global_variable  gv,
-							bulk_info 		 z_b,
-							PP_ref 			*PP_ref_db				);
-
-/* initialize pure phase database using P-T conditions */
-global_variable init_em_db(	int EM_database,
-							bulk_info 		 z_b,
+SS_ref G_SS_sb11_EM_function(	global_variable  gv, 
+							    SS_ref 			 SS_ref_db,
+                                int 			 EM_dataset,
+                                bulk_info 		 z_b,
+                                char 			*name					);
 							
-							global_variable  gv,
-							PP_ref 			*PP_ref_db				);
-							
-global_variable init_em_db_sb(	int EM_database,
-							bulk_info 		 z_b,
-							
-							global_variable  gv,
-							PP_ref 			*PP_ref_db				);
-
 #endif

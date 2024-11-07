@@ -131,9 +131,9 @@ function rho_wat_calc(wat, Pbar, TK, opt)
 end
 
 mutable struct EM_db_sb_
-    Name::NTuple{20, Cchar}
-    FullName::NTuple{50, Cchar}
-    Equation::NTuple{50, Cchar}
+    Name::NTuple{50, Cchar}
+    FullName::NTuple{80, Cchar}
+    Equation::NTuple{90, Cchar}
     Comp::NTuple{6, Cdouble}
     input_1::NTuple{10, Cdouble}
     input_2::NTuple{3, Cdouble}
@@ -144,6 +144,10 @@ const EM_db_sb = EM_db_sb_
 
 function Access_SB_EM_DB(id, EM_dataset)
     ccall((:Access_SB_EM_DB, libMAGEMin), EM_db_sb, (Cint, Cint), id, EM_dataset)
+end
+
+function SB_G_EM_function(EM_database, len_ox, id, bulk_rock, apo, P, T, name, state)
+    ccall((:SB_G_EM_function, libMAGEMin), PP_ref, (Cint, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), EM_database, len_ox, id, bulk_rock, apo, P, T, name, state)
 end
 
 # typedef double ( * nlopt_func ) ( unsigned n , const double * x , double * gradient , /* NULL if not needed */ void * func_data )
@@ -1114,6 +1118,7 @@ const stb_PP_phase = stb_PP_phases
 struct stb_systems
     MAGEMin_ver::Ptr{Cchar}
     dataset::Ptr{Cchar}
+    database::Ptr{Cchar}
     bulk_res_norm::Cdouble
     n_iterations::Cint
     status::Cint
@@ -1125,6 +1130,8 @@ struct stb_systems
     X::Cdouble
     bulk::Ptr{Cdouble}
     bulk_wt::Ptr{Cdouble}
+    buffer::Ptr{Cchar}
+    buffer_n::Cdouble
     gamma::Ptr{Cdouble}
     G::Cdouble
     M_sys::Cdouble
@@ -1175,6 +1182,7 @@ struct stb_systems
     ph::Ptr{Ptr{Cchar}}
     ph_frac::Ptr{Cdouble}
     ph_frac_wt::Ptr{Cdouble}
+    ph_frac_1at::Ptr{Cdouble}
     ph_frac_vol::Ptr{Cdouble}
     ph_type::Ptr{Cint}
     ph_id::Ptr{Cint}
@@ -1506,7 +1514,7 @@ mutable struct stx11_datasets
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{6, NTuple{20, Cchar}}
-    PP::NTuple{10, NTuple{20, Cchar}}
+    PP::NTuple{9, NTuple{20, Cchar}}
     SS::NTuple{14, NTuple{20, Cchar}}
     verifyPC::NTuple{14, Cint}
     n_SS_PC::NTuple{14, Cint}
@@ -2196,6 +2204,14 @@ function SS_mtl_pc_init_function(SS_pc_xeos, iss, name)
     ccall((:SS_mtl_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
 end
 
+function SB_SS_init(SS_init, gv)
+    ccall((:SB_SS_init, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
+end
+
+function G_SS_sb11_EM_function(gv, SS_ref_db, EM_dataset, z_b, name)
+    ccall((:G_SS_sb11_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_dataset, z_b, name)
+end
+
 function PGE(z_b, gv, PC_read, SS_objective, NLopt_opt, splx_data, PP_ref_db, SS_ref_db, cp)
     ccall((:PGE, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PC_type}, Ptr{obj_type}, Ptr{NLopt_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, PC_read, SS_objective, NLopt_opt, splx_data, PP_ref_db, SS_ref_db, cp)
 end
@@ -2287,7 +2303,7 @@ function read_in_data(gv, input_data, n_points)
     ccall((:read_in_data, libMAGEMin), Cvoid, (global_variable, Ptr{io_data}, Cint), gv, input_data, n_points)
 end
 
-mutable struct ketopt_t
+struct ketopt_t
     ind::Cint
     opt::Cint
     arg::Ptr{Cchar}
@@ -2295,14 +2311,12 @@ mutable struct ketopt_t
     i::Cint
     pos::Cint
     n_args::Cint
-    ketopt_t() = new()
 end
 
-mutable struct ko_longopt_t
+struct ko_longopt_t
     name::Ptr{Cchar}
     has_arg::Cint
     val::Cint
-    ko_longopt_t() = new()
 end
 
 function ketopt_permute(argv, j, n)
@@ -2349,6 +2363,10 @@ end
 
 function init_em_db(EM_database, z_b, gv, PP_ref_db)
     ccall((:init_em_db, libMAGEMin), global_variable, (Cint, bulk_info, global_variable, Ptr{PP_ref}), EM_database, z_b, gv, PP_ref_db)
+end
+
+function init_em_db_sb(EM_database, z_b, gv, PP_ref_db)
+    ccall((:init_em_db_sb, libMAGEMin), global_variable, (Cint, bulk_info, global_variable, Ptr{PP_ref}), EM_database, z_b, gv, PP_ref_db)
 end
 
 function update_dG(splx_data)
@@ -2449,6 +2467,10 @@ end
 
 function convert_system_comp(gv, sys_in, z_b)
     ccall((:convert_system_comp, libMAGEMin), Cvoid, (global_variable, Ptr{Cchar}, bulk_info), gv, sys_in, z_b)
+end
+
+function get_tests_bulks(gv)
+    ccall((:get_tests_bulks, libMAGEMin), global_variable, (global_variable,), gv)
 end
 
 function get_act_sf_id(result, A, n)

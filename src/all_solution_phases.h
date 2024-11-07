@@ -15,6 +15,6 @@
     #include "./TC_database/TC_solution_phases.h"
 
     /* This include Stixrude & Lithgow-Bertelloni solution phase models */
-    //#include "STIX_solution_phases.h"
+    #include "./SB_database/SB_solution_phases.h"
 
 #endif

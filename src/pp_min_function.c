@@ -59,6 +59,7 @@ global_variable init_em_db(		int 				EM_database,
 ){
 
 		/* initialize endmember database */
+		double buffer_n;
 		char state[] = "equilibrium";	
 		int sum_zel;
 		for (int i = 0; i < gv.len_pp; i++){
@@ -200,13 +201,15 @@ global_variable init_em_db(		int 				EM_database,
 				/* Calculate normalizing factor */
 				double factor = fbc/ape;
 				if (gv.buffer_n < 1e-8){
-					gv.buffer_n = 1e-8;
+					buffer_n = 1e-8;
 				}
 				else if (gv.buffer_n >= 1.0){
-					gv.buffer_n = 1.0-1e-8;
+					buffer_n = 1.0-1e-8;
 				}
-
-				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(gv.buffer_n) + H2O.gbase;
+				else{
+					buffer_n = gv.buffer_n;
+				}
+				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(buffer_n) + H2O.gbase;
 				PP_ref_db[i].factor  =  factor;
 				PP_ref_db[i].phase_shearModulus  = H2O.phase_shearModulus;
 				gv.pp_flags[i][4] 	= 1;
@@ -242,14 +245,16 @@ global_variable init_em_db(		int 				EM_database,
 				}
 				/* Calculate normalizing factor */
 				double factor = fbc/ape;
-				if (gv.buffer_n <= 1e-60){
-					gv.buffer_n = 1e-60;
+				if (gv.buffer_n <= 1e-8){
+					buffer_n = 1e-8;
 				}
 				else if (gv.buffer_n >= 1.0){
-					gv.buffer_n = 1.0-1e-8;
+					buffer_n = 1.0-1e-8;
 				}
-
-				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(gv.buffer_n) + O2.gbase;
+				else{
+					buffer_n = gv.buffer_n;
+				}
+				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(buffer_n) + O2.gbase;
 				PP_ref_db[i].factor  =  factor;
 				PP_ref_db[i].phase_shearModulus  = O2.phase_shearModulus;
 				gv.pp_flags[i][4] 	= 1;
@@ -287,13 +292,15 @@ global_variable init_em_db(		int 				EM_database,
 				/* Calculate normalizing factor */
 				double factor = fbc/ape;
 				if (gv.buffer_n <= 1e-8){
-					gv.buffer_n = 1e-8;
+					buffer_n = 1e-8;
 				}
 				else if (gv.buffer_n >= 1.0){
-					gv.buffer_n = 1.0-1e-8;
+					buffer_n = 1.0-1e-8;
 				}
-
-				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(gv.buffer_n) + MgO.gbase;
+				else{
+					buffer_n = gv.buffer_n;
+				}
+				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(buffer_n) + MgO.gbase;
 				PP_ref_db[i].factor  =  factor;
 				PP_ref_db[i].phase_shearModulus  = MgO.phase_shearModulus;
 				gv.pp_flags[i][4] 	= 1;
@@ -330,13 +337,15 @@ global_variable init_em_db(		int 				EM_database,
 				/* Calculate normalizing factor */
 				double factor = fbc/ape;
 				if (gv.buffer_n <= 1e-8){
-					gv.buffer_n = 1e-8;
+					buffer_n = 1e-8;
 				}
 				else if (gv.buffer_n >= 1.0){
-					gv.buffer_n = 1.0-1e-8;
+					buffer_n = 1.0-1e-8;
 				}
-
-				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(gv.buffer_n) + FeO.gbase;
+				else{
+					buffer_n = gv.buffer_n;
+				}
+				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(buffer_n) + FeO.gbase;
 				PP_ref_db[i].factor  =  factor;
 				PP_ref_db[i].phase_shearModulus  = FeO.phase_shearModulus;
 				gv.pp_flags[i][4] 	= 1;
@@ -373,13 +382,15 @@ global_variable init_em_db(		int 				EM_database,
 				/* Calculate normalizing factor */
 				double factor = fbc/ape;
 				if (gv.buffer_n <= 1e-8){
-					gv.buffer_n = 1e-8;
+					buffer_n = 1e-8;
 				}
 				else if (gv.buffer_n >= 1.0){
-					gv.buffer_n = 1.0-1e-8;
+					buffer_n = 1.0-1e-8;
 				}
-
-				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(gv.buffer_n) + Al2O3.gbase;
+				else{
+					buffer_n = gv.buffer_n;
+				}
+				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(buffer_n) + Al2O3.gbase;
 				PP_ref_db[i].factor  =  factor;
 				PP_ref_db[i].phase_shearModulus  = Al2O3.phase_shearModulus;
 				gv.pp_flags[i][4] 	= 1;
@@ -387,7 +398,7 @@ global_variable init_em_db(		int 				EM_database,
 			else if (strcmp( gv.PP_list[i], "aTiO2") == 0){
 
 				PP_ref TiO2 	= G_EM_function(	gv.research_group,
-                                                gv.EM_dataset, 
+                                                	gv.EM_dataset, 
 													gv.len_ox,
 													z_b.id,
 													z_b.bulk_rock, 
@@ -416,13 +427,16 @@ global_variable init_em_db(		int 				EM_database,
 				/* Calculate normalizing factor */
 				double factor = fbc/ape;
 				if (gv.buffer_n <= 1e-8){
-					gv.buffer_n = 1e-8;
+					buffer_n = 1e-8;
 				}
 				else if (gv.buffer_n >= 1.0){
-					gv.buffer_n = 1.0-1e-8;
+					buffer_n = 1.0-1e-8;
+				}
+				else{
+					buffer_n = gv.buffer_n;
 				}
 
-				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(gv.buffer_n) + TiO2.gbase;
+				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(buffer_n) + TiO2.gbase;
 				PP_ref_db[i].factor  =  factor;
 				PP_ref_db[i].phase_shearModulus  = TiO2.phase_shearModulus;
 				gv.pp_flags[i][4] 	= 1;
@@ -715,6 +729,219 @@ global_variable init_em_db(		int 				EM_database,
 
 			}
 
+
+		}
+		if (gv.verbose==1){
+			printf("\n");
+		}		
+		return gv;
+};
+
+
+
+/** 
+  initialize pure phase database */
+global_variable init_em_db_sb(		int 				EM_database,
+								bulk_info 			z_b,
+								global_variable 	gv,
+								PP_ref 			   *PP_ref_db
+){
+
+		/* initialize endmember database */
+		double buffer_n;
+		char state[] = "equilibrium";	
+		int sum_zel;
+		for (int i = 0; i < gv.len_pp; i++){
+		
+ 			if (strcmp( gv.PP_list[i], "aMgO") == 0){
+
+				PP_ref MgO 	= G_EM_function(	gv.research_group,
+                                                gv.EM_dataset, 
+												gv.len_ox,
+												z_b.id,
+												z_b.bulk_rock, 
+												z_b.apo, 
+												z_b.P, 
+												z_b.T, 
+												"pe", 
+												state				);
+
+				strcpy(PP_ref_db[i].Name, gv.PP_list[i]);
+				for (int j = 0; j < gv.len_ox; j++){
+					PP_ref_db[i].Comp[j] = MgO.Comp[j];
+				}		
+
+				/* Calculate the number of atoms in the bulk-rock composition */
+				double fbc     = 0.0;
+				for (int j = 0; j < gv.len_ox; j++){
+					fbc += z_b.bulk_rock[j]*z_b.apo[j];
+				}
+				
+				/* Calculate the number of atom in the solution */
+				double ape = 0.0;
+				for (int j = 0; j < gv.len_ox; j++){
+					ape += PP_ref_db[i].Comp[j]*z_b.apo[j];
+				}
+				/* Calculate normalizing factor */
+				double factor = fbc/ape;
+				if (gv.buffer_n <= 1e-8){
+					buffer_n = 1e-8;
+				}
+				else if (gv.buffer_n >= 1.0){
+					buffer_n = 1.0-1e-8;
+				}
+
+				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(buffer_n) + MgO.gbase;
+				PP_ref_db[i].factor  =  factor;
+				PP_ref_db[i].phase_shearModulus  = MgO.phase_shearModulus;
+				gv.pp_flags[i][4] 	= 1;
+			}	
+ 			else if (strcmp( gv.PP_list[i], "aFeO") == 0){
+
+				PP_ref FeO 	= G_EM_function(	gv.research_group,
+                                                gv.EM_dataset, 
+												gv.len_ox,
+												z_b.id,
+												z_b.bulk_rock, 
+												z_b.apo, 
+												z_b.P, 
+												z_b.T, 
+												"wu", 
+												state				);
+
+				strcpy(PP_ref_db[i].Name, gv.PP_list[i]);
+				for (int j = 0; j < gv.len_ox; j++){
+					PP_ref_db[i].Comp[j] = FeO.Comp[j];
+				}		
+
+				/* Calculate the number of atoms in the bulk-rock composition */
+				double fbc     = 0.0;
+				for (int j = 0; j < gv.len_ox; j++){
+					fbc += z_b.bulk_rock[j]*z_b.apo[j];
+				}
+				
+				/* Calculate the number of atom in the solution */
+				double ape = 0.0;
+				for (int j = 0; j < gv.len_ox; j++){
+					ape += PP_ref_db[i].Comp[j]*z_b.apo[j];
+				}
+				/* Calculate normalizing factor */
+				double factor = fbc/ape;
+				if (gv.buffer_n <= 1e-8){
+					buffer_n = 1e-8;
+				}
+				else if (gv.buffer_n >= 1.0){
+					buffer_n = 1.0-1e-8;
+				}
+
+				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(buffer_n) + FeO.gbase;
+				PP_ref_db[i].factor  =  factor;
+				PP_ref_db[i].phase_shearModulus  = FeO.phase_shearModulus;
+				gv.pp_flags[i][4] 	= 1;
+			}	
+			else if (strcmp( gv.PP_list[i], "aAl2O3") == 0){
+
+				PP_ref Al2O3 	= G_EM_function(	gv.research_group,
+                                                gv.EM_dataset, 
+													gv.len_ox,
+													z_b.id,
+													z_b.bulk_rock, 
+													z_b.apo, 
+													z_b.P, 
+													z_b.T, 
+													"co", 
+													state				);
+
+				strcpy(PP_ref_db[i].Name, gv.PP_list[i]);
+				for (int j = 0; j < gv.len_ox; j++){
+					PP_ref_db[i].Comp[j] = Al2O3.Comp[j];
+				}		
+
+				/* Calculate the number of atoms in the bulk-rock composition */
+				double fbc     = 0.0;
+				for (int j = 0; j < gv.len_ox; j++){
+					fbc += z_b.bulk_rock[j]*z_b.apo[j];
+				}
+				
+				/* Calculate the number of atom in the solution */
+				double ape = 0.0;
+				for (int j = 0; j < gv.len_ox; j++){
+					ape += PP_ref_db[i].Comp[j]*z_b.apo[j];
+				}
+				/* Calculate normalizing factor */
+				double factor = fbc/ape;
+				if (gv.buffer_n <= 1e-8){
+					buffer_n = 1e-8;
+				}
+				else if (gv.buffer_n >= 1.0){
+					buffer_n = 1.0-1e-8;
+				}
+
+				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(buffer_n) + Al2O3.gbase;
+				PP_ref_db[i].factor  =  factor;
+				PP_ref_db[i].phase_shearModulus  = Al2O3.phase_shearModulus;
+				gv.pp_flags[i][4] 	= 1;
+			}	
+			else{
+				PP_ref_db[i] = G_EM_function(	gv.research_group,
+                                                gv.EM_dataset, 
+												gv.len_ox,
+												z_b.id,
+												z_b.bulk_rock, 
+												z_b.apo, 
+												z_b.P, 
+												z_b.T, 
+												gv.PP_list[i], 
+												state				);
+			}
+
+			sum_zel = 0;
+			for (int j = 0; j < z_b.zEl_val; j++){
+				
+				/* If pure-phase contains an oxide absent in the bulk-rock then do not take it into account */
+				if (PP_ref_db[i].Comp[z_b.zEl_array[j]] != 0.0){
+					sum_zel += 1;
+				}
+
+			}
+
+			/* If pure-phase contains an oxide absent in the bulk-rock then do not take it into account */
+			if (sum_zel != 0){
+				gv.pp_flags[i][0] = 0;
+				gv.pp_flags[i][1] = 0;
+				gv.pp_flags[i][2] = 0;
+				gv.pp_flags[i][3] = 1;
+			}
+			else{
+				if (gv.pp_flags[i][0] != 0){ 			//here  we check if the pure phase is deactivated from the start (O2 for instance)
+					gv.pp_flags[i][0] = 1;
+					gv.pp_flags[i][1] = 0;
+					gv.pp_flags[i][2] = 1;
+					gv.pp_flags[i][3] = 0;
+				}
+			}
+
+			/* If buffer not active then remove it */
+			if (gv.pp_flags[i][4] == 1 && strcmp(gv.buffer,gv.PP_list[i]) != 0){
+				gv.pp_flags[i][0] = 0;
+				gv.pp_flags[i][1] = 0;
+				gv.pp_flags[i][2] = 0;
+				gv.pp_flags[i][3] = 1;
+			}		
+
+			if (gv.verbose==1){
+				printf("\n %4s:  %+10f %+10f\n",gv.PP_list[i],PP_ref_db[i].gbase, PP_ref_db[i].factor);
+
+				/* display molar composition */
+
+				if (EM_database == 0){
+					printf(" S   C   A   F   G   N\n");
+				}
+				for (int j = 0; j < gv.len_ox; j++){
+					printf(" %.1f",PP_ref_db[i].Comp[j]);
+				}
+				printf("\n");
+			}
 
 		}
 		if (gv.verbose==1){

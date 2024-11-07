@@ -87,7 +87,7 @@ void reset_output_struct(		global_variable 	 gv,
 	double sum_Molar_mass_bulk;
 
 	strcpy(sp[0].MAGEMin_ver,gv.version);	
-
+	strcpy(sp[0].database,gv.db);
 	if (gv.EM_dataset == 62){	
 		strcpy(sp[0].dataset,"tc_ds62");	
 	}
@@ -118,6 +118,15 @@ void reset_output_struct(		global_variable 	 gv,
 	sp[0].aAl2O3				 = gv.system_aAl2O3;
 	sp[0].aMgO					 = gv.system_aMgO;
 	sp[0].aFeO				 	 = gv.system_aFeO;
+	strcpy(sp[0].buffer,gv.buffer);	
+
+	// if (strcmp(gv.buffer, "NONE") != 0){
+	// 	sp[0].buffer_n				 = gv.buffer_n;
+	// }
+	// else{
+	// 	sp[0].buffer_n				 = 0.0;
+	// }
+	sp[0].buffer_n				 = gv.buffer_n;
 
 	sp[0].alpha				 	 = gv.system_expansivity;
 	sp[0].V				 	 	 = gv.system_volume*10.0;	
@@ -460,7 +469,7 @@ void fill_output_struct(		global_variable 	 gv,
 
 			sp[0].ph_frac[n]  	 = cp[i].ss_n_mol;
 			sp[0].ph_frac_wt[n]  = cp[i].ss_n_wt;
-
+			sp[0].ph_frac_1at[n] = cp[i].ss_n;
 			sp[0].ph_type[n]  	 = 1;
 			sp[0].ph_id[n] 		 = m;
 			sp[0].n_SS 			+= 1;
@@ -610,6 +619,7 @@ void fill_output_struct(		global_variable 	 gv,
 
 			sp[0].ph_frac[n]  	 = gv.pp_n_mol[i];
 			sp[0].ph_frac_wt[n]  = gv.pp_n_wt[i];
+			sp[0].ph_frac_1at[n]  = gv.pp_n[i];
 			sp[0].ph_type[n]  	 = 0;
 			sp[0].ph_id[n] 		 = m;
 			sp[0].n_PP 			+= 1;
