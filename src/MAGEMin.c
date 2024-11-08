@@ -1002,7 +1002,7 @@ Databases InitializeDatabases(	global_variable gv,
 void FreeDatabases(		global_variable gv, 
 						Databases 		DB,
 						bulk_info 	 	z_b			){
-	int i, j, n_xeos, n_em, n_sf, n_ox, n_pc, n_Ppc, n_cp, sym, ndif, pp, ss;
+	int i, j, n_cat, n_xeos, n_em, n_sf, n_ox, n_pc, n_Ppc, n_cp, sym, ndif, pp, ss;
 
 	/*  ==================== SP ==============================  */
 	n_ox = gv.len_ox;
@@ -1126,6 +1126,14 @@ void FreeDatabases(		global_variable gv,
 		n_em 	= DB.SS_ref_db[i].n_em;
 		n_sf 	= DB.SS_ref_db[i].n_sf;
 		n_xeos 	= DB.SS_ref_db[i].n_xeos;
+
+		if (DB.SS_ref_db[i].n_cat > 0){
+			n_cat = DB.SS_ref_db[i].n_cat;
+			for (j = 0; j < n_cat; j++) {	free(DB.SS_ref_db[i].C[j]);}	
+			free(DB.SS_ref_db[i].C);
+			for (j = 0; j < n_em; j++) {	free(DB.SS_ref_db[i].N[j]);}	
+			free(DB.SS_ref_db[i].N);
+		}
 
 		free(DB.SS_ref_db[i].ss_flags);
 		free(DB.SS_ref_db[i].solvus_id);

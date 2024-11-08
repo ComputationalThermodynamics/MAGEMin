@@ -412,6 +412,12 @@ typedef struct SS_refs {
 	/** data needed for phase change and solvus processing **/	
 	int	    *solvus_id;
 	
+	/** data needed for Stixrude database 																	*/
+	int      n_cat;				/** number of cation exchanged in all mixing sites 							*/
+	double **C;					/** site mixing matrix used to compute configurational entropy 	 			*/
+	double **N;					/** nullspace					 	 										*/
+
+
 	/** data needed for levelling and/or PGE **/
 	int		 is_liq;			/** check if phase is "liq" 												*/
 	int      symmetry;			/** solution phase symmetry  												*/

@@ -15,4 +15,5 @@ sb_gss_init_function, sb_gss_function = generate_C_files(sb_ver,ss)
 
 
 print(sb_gss_init_function)
+
 print(sb_gss_function)

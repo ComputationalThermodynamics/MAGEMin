@@ -38,8 +38,8 @@ function objective(x::Vector, grad::Vector, N, f_config, f_grad_config, f_mu_Gex
     dSdp            = f_grad_config(x);
 
     if length(grad) > 0
-        dGdp        = dSdp+mu_Gex;             # raw dGibbs/dp
-        grad       .= (N*(dGdp'*N)') .* active;            # projected dGibbs/dp to satisfy sum(p) = 1.0
+        dGdp        = dSdp+mu_Gex;                          # raw dGibbs/dp
+        grad       .= (N*(dGdp'*N)') .* active;             # projected dGibbs/dp to satisfy sum(p) = 1.0
     end
     G = mu_Gex'*x + S_tot
     # println("G: $G")

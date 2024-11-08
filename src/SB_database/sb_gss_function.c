@@ -40,6 +40,14 @@ SS_ref G_SS_sb11_plg_function(SS_ref SS_ref_db, char* research_group, int EM_dat
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
     };
 
+    // Site mixing composition;
+    SS_ref_db.C[0][0] = 1.0;    SS_ref_db.C[0][1] = 0.0;
+    SS_ref_db.C[1][0] = 0.0;    SS_ref_db.C[1][1] = 1.0;
+
+    // pre-computed Nullspace;
+    SS_ref_db.N[0][0] = -0.7071067811865475;
+    SS_ref_db.N[1][0] = 0.7071067811865476;
+
     SS_ref_db.W[0] = 26000.0;
 
 
@@ -93,6 +101,18 @@ SS_ref G_SS_sb11_sp_function(SS_ref SS_ref_db, char* research_group, int EM_data
     for (int i = 0; i < SS_ref_db.n_em; i++){
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
     };
+
+    // Site mixing composition;
+    SS_ref_db.C[0][0] = 0.25;    SS_ref_db.C[0][1] = 0.25;
+    SS_ref_db.C[1][0] = 0.0;    SS_ref_db.C[1][1] = 0.75;
+    SS_ref_db.C[2][0] = 0.75;    SS_ref_db.C[2][1] = 0.0;
+    SS_ref_db.C[3][0] = 0.875;    SS_ref_db.C[3][1] = 0.875;
+    SS_ref_db.C[4][0] = 0.0;    SS_ref_db.C[4][1] = 0.125;
+    SS_ref_db.C[5][0] = 0.125;    SS_ref_db.C[5][1] = 0.0;
+
+    // pre-computed Nullspace;
+    SS_ref_db.N[0][0] = -0.7071067811865475;
+    SS_ref_db.N[1][0] = 0.7071067811865476;
 
     SS_ref_db.W[0] = 5000.0;
 
@@ -148,6 +168,14 @@ SS_ref G_SS_sb11_ol_function(SS_ref SS_ref_db, char* research_group, int EM_data
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
     };
 
+    // Site mixing composition;
+    SS_ref_db.C[0][0] = 1.0;    SS_ref_db.C[0][1] = 0.0;
+    SS_ref_db.C[1][0] = 0.0;    SS_ref_db.C[1][1] = 1.0;
+
+    // pre-computed Nullspace;
+    SS_ref_db.N[0][0] = -0.7071067811865475;
+    SS_ref_db.N[1][0] = 0.7071067811865476;
+
     SS_ref_db.W[0] = 7600.0;
 
 
@@ -201,6 +229,14 @@ SS_ref G_SS_sb11_wa_function(SS_ref SS_ref_db, char* research_group, int EM_data
     for (int i = 0; i < SS_ref_db.n_em; i++){
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
     };
+
+    // Site mixing composition;
+    SS_ref_db.C[0][0] = 1.0;    SS_ref_db.C[0][1] = 0.0;
+    SS_ref_db.C[1][0] = 0.0;    SS_ref_db.C[1][1] = 1.0;
+
+    // pre-computed Nullspace;
+    SS_ref_db.N[0][0] = -0.7071067811865475;
+    SS_ref_db.N[1][0] = 0.7071067811865476;
 
     SS_ref_db.W[0] = 16500.0;
 
@@ -256,6 +292,14 @@ SS_ref G_SS_sb11_ri_function(SS_ref SS_ref_db, char* research_group, int EM_data
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
     };
 
+    // Site mixing composition;
+    SS_ref_db.C[0][0] = 0.0;    SS_ref_db.C[0][1] = 1.0;
+    SS_ref_db.C[1][0] = 1.0;    SS_ref_db.C[1][1] = 0.0;
+
+    // pre-computed Nullspace;
+    SS_ref_db.N[0][0] = -0.7071067811865475;
+    SS_ref_db.N[1][0] = 0.7071067811865476;
+
     SS_ref_db.W[0] = 9100.0;
 
 
@@ -309,6 +353,20 @@ SS_ref G_SS_sb11_opx_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     for (int i = 0; i < SS_ref_db.n_em; i++){
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
     };
+
+    // Site mixing composition;
+    SS_ref_db.C[0][0] = 0.0;    SS_ref_db.C[0][1] = 0.0;    SS_ref_db.C[0][2] = 0.0;    SS_ref_db.C[0][3] = 1.0;
+    SS_ref_db.C[1][0] = 0.0;    SS_ref_db.C[1][1] = 1.0;    SS_ref_db.C[1][2] = 0.0;    SS_ref_db.C[1][3] = 0.0;
+    SS_ref_db.C[2][0] = 1.0;    SS_ref_db.C[2][1] = 0.0;    SS_ref_db.C[2][2] = 1.0;    SS_ref_db.C[2][3] = 0.0;
+    SS_ref_db.C[3][0] = 1.0;    SS_ref_db.C[3][1] = 0.0;    SS_ref_db.C[3][2] = 0.0;    SS_ref_db.C[3][3] = 0.0;
+    SS_ref_db.C[4][0] = 0.0;    SS_ref_db.C[4][1] = 1.0;    SS_ref_db.C[4][2] = 0.0;    SS_ref_db.C[4][3] = 0.0;
+    SS_ref_db.C[5][0] = 0.0;    SS_ref_db.C[5][1] = 0.0;    SS_ref_db.C[5][2] = 1.0;    SS_ref_db.C[5][3] = 1.0;
+
+    // pre-computed Nullspace;
+    SS_ref_db.N[0][0] = -0.5;    SS_ref_db.N[0][1] = -0.5;    SS_ref_db.N[0][2] = -0.5;
+    SS_ref_db.N[1][0] = 0.8333333333333334;    SS_ref_db.N[1][1] = -0.16666666666666666;    SS_ref_db.N[1][2] = -0.16666666666666666;
+    SS_ref_db.N[2][0] = -0.16666666666666666;    SS_ref_db.N[2][1] = 0.8333333333333334;    SS_ref_db.N[2][2] = -0.16666666666666666;
+    SS_ref_db.N[3][0] = -0.16666666666666666;    SS_ref_db.N[3][1] = -0.16666666666666666;    SS_ref_db.N[3][2] = 0.8333333333333334;
 
     SS_ref_db.W[0] = 0.0;
     SS_ref_db.W[1] = 0.0;
@@ -392,6 +450,23 @@ SS_ref G_SS_sb11_cpx_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     for (int i = 0; i < SS_ref_db.n_em; i++){
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
     };
+
+    // Site mixing composition;
+    SS_ref_db.C[0][0] = 1.0;    SS_ref_db.C[0][1] = 0.0;    SS_ref_db.C[0][2] = 0.0;    SS_ref_db.C[0][3] = 1.0;    SS_ref_db.C[0][4] = 1.0;
+    SS_ref_db.C[1][0] = 0.0;    SS_ref_db.C[1][1] = 0.0;    SS_ref_db.C[1][2] = 1.0;    SS_ref_db.C[1][3] = 0.0;    SS_ref_db.C[1][4] = 0.0;
+    SS_ref_db.C[2][0] = 0.0;    SS_ref_db.C[2][1] = 1.0;    SS_ref_db.C[2][2] = 0.0;    SS_ref_db.C[2][3] = 0.0;    SS_ref_db.C[2][4] = 0.0;
+    SS_ref_db.C[3][0] = 0.0;    SS_ref_db.C[3][1] = 1.0;    SS_ref_db.C[3][2] = 0.0;    SS_ref_db.C[3][3] = 1.0;    SS_ref_db.C[3][4] = 0.0;
+    SS_ref_db.C[4][0] = 1.0;    SS_ref_db.C[4][1] = 0.0;    SS_ref_db.C[4][2] = 0.0;    SS_ref_db.C[4][3] = 0.0;    SS_ref_db.C[4][4] = 0.0;
+    SS_ref_db.C[5][0] = 0.0;    SS_ref_db.C[5][1] = 0.0;    SS_ref_db.C[5][2] = 1.0;    SS_ref_db.C[5][3] = 0.0;    SS_ref_db.C[5][4] = 1.0;
+    SS_ref_db.C[6][0] = 1.0;    SS_ref_db.C[6][1] = 1.0;    SS_ref_db.C[6][2] = 1.0;    SS_ref_db.C[6][3] = 0.5;    SS_ref_db.C[6][4] = 1.0;
+    SS_ref_db.C[7][0] = 0.0;    SS_ref_db.C[7][1] = 0.0;    SS_ref_db.C[7][2] = 0.0;    SS_ref_db.C[7][3] = 0.5;    SS_ref_db.C[7][4] = 0.0;
+
+    // pre-computed Nullspace;
+    SS_ref_db.N[0][0] = -0.44721359549995787;    SS_ref_db.N[0][1] = -0.44721359549995787;    SS_ref_db.N[0][2] = -0.44721359549995787;    SS_ref_db.N[0][3] = -0.44721359549995787;
+    SS_ref_db.N[1][0] = 0.8618033988749895;    SS_ref_db.N[1][1] = -0.13819660112501048;    SS_ref_db.N[1][2] = -0.13819660112501048;    SS_ref_db.N[1][3] = -0.13819660112501048;
+    SS_ref_db.N[2][0] = -0.13819660112501048;    SS_ref_db.N[2][1] = 0.8618033988749895;    SS_ref_db.N[2][2] = -0.13819660112501048;    SS_ref_db.N[2][3] = -0.13819660112501048;
+    SS_ref_db.N[3][0] = -0.13819660112501048;    SS_ref_db.N[3][1] = -0.13819660112501048;    SS_ref_db.N[3][2] = 0.8618033988749895;    SS_ref_db.N[3][3] = -0.13819660112501048;
+    SS_ref_db.N[4][0] = -0.13819660112501048;    SS_ref_db.N[4][1] = -0.13819660112501048;    SS_ref_db.N[4][2] = -0.13819660112501048;    SS_ref_db.N[4][3] = 0.8618033988749895;
 
     SS_ref_db.W[0] = 24700.0;
     SS_ref_db.W[1] = 0.0;
@@ -497,6 +572,14 @@ SS_ref G_SS_sb11_hpcpx_function(SS_ref SS_ref_db, char* research_group, int EM_d
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
     };
 
+    // Site mixing composition;
+    SS_ref_db.C[0][0] = 0.0;    SS_ref_db.C[0][1] = 1.0;
+    SS_ref_db.C[1][0] = 1.0;    SS_ref_db.C[1][1] = 0.0;
+
+    // pre-computed Nullspace;
+    SS_ref_db.N[0][0] = -0.7071067811865475;
+    SS_ref_db.N[1][0] = 0.7071067811865476;
+
     SS_ref_db.W[0] = 0.0;
 
 
@@ -550,6 +633,18 @@ SS_ref G_SS_sb11_ak_function(SS_ref SS_ref_db, char* research_group, int EM_data
     for (int i = 0; i < SS_ref_db.n_em; i++){
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
     };
+
+    // Site mixing composition;
+    SS_ref_db.C[0][0] = 1.0;    SS_ref_db.C[0][1] = 0.0;    SS_ref_db.C[0][2] = 0.0;
+    SS_ref_db.C[1][0] = 0.0;    SS_ref_db.C[1][1] = 0.0;    SS_ref_db.C[1][2] = 1.0;
+    SS_ref_db.C[2][0] = 0.0;    SS_ref_db.C[2][1] = 1.0;    SS_ref_db.C[2][2] = 0.0;
+    SS_ref_db.C[3][0] = 0.0;    SS_ref_db.C[3][1] = 1.0;    SS_ref_db.C[3][2] = 1.0;
+    SS_ref_db.C[4][0] = 1.0;    SS_ref_db.C[4][1] = 0.0;    SS_ref_db.C[4][2] = 0.0;
+
+    // pre-computed Nullspace;
+    SS_ref_db.N[0][0] = -0.5773502691896257;    SS_ref_db.N[0][1] = -0.5773502691896257;
+    SS_ref_db.N[1][0] = 0.7886751345948129;    SS_ref_db.N[1][1] = -0.2113248654051871;
+    SS_ref_db.N[2][0] = -0.2113248654051871;    SS_ref_db.N[2][1] = 0.7886751345948129;
 
     SS_ref_db.W[0] = 66000.0;
     SS_ref_db.W[1] = 0.0;
@@ -618,6 +713,24 @@ SS_ref G_SS_sb11_gtmj_function(SS_ref SS_ref_db, char* research_group, int EM_da
     for (int i = 0; i < SS_ref_db.n_em; i++){
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
     };
+
+    // Site mixing composition;
+    SS_ref_db.C[0][0] = 0.0;    SS_ref_db.C[0][1] = 0.0;    SS_ref_db.C[0][2] = 0.0;    SS_ref_db.C[0][3] = 0.0;    SS_ref_db.C[0][4] = 1.0;
+    SS_ref_db.C[1][0] = 0.0;    SS_ref_db.C[1][1] = 0.3333333333333333;    SS_ref_db.C[1][2] = 0.0;    SS_ref_db.C[1][3] = 0.0;    SS_ref_db.C[1][4] = 0.0;
+    SS_ref_db.C[2][0] = 1.0;    SS_ref_db.C[2][1] = 0.0;    SS_ref_db.C[2][2] = 0.0;    SS_ref_db.C[2][3] = 0.0;    SS_ref_db.C[2][4] = 0.0;
+    SS_ref_db.C[3][0] = 0.0;    SS_ref_db.C[3][1] = 0.0;    SS_ref_db.C[3][2] = 1.0;    SS_ref_db.C[3][3] = 1.0;    SS_ref_db.C[3][4] = 0.0;
+    SS_ref_db.C[4][0] = 0.0;    SS_ref_db.C[4][1] = 0.6666666666666666;    SS_ref_db.C[4][2] = 0.0;    SS_ref_db.C[4][3] = 0.0;    SS_ref_db.C[4][4] = 0.0;
+    SS_ref_db.C[5][0] = 1.0;    SS_ref_db.C[5][1] = 1.0;    SS_ref_db.C[5][2] = 0.0;    SS_ref_db.C[5][3] = 1.0;    SS_ref_db.C[5][4] = 1.0;
+    SS_ref_db.C[6][0] = 0.0;    SS_ref_db.C[6][1] = 0.0;    SS_ref_db.C[6][2] = 1.0;    SS_ref_db.C[6][3] = 0.0;    SS_ref_db.C[6][4] = 0.0;
+    SS_ref_db.C[7][0] = 0.0;    SS_ref_db.C[7][1] = 1.0;    SS_ref_db.C[7][2] = 1.0;    SS_ref_db.C[7][3] = 0.0;    SS_ref_db.C[7][4] = 0.0;
+    SS_ref_db.C[8][0] = 1.0;    SS_ref_db.C[8][1] = 0.0;    SS_ref_db.C[8][2] = 0.0;    SS_ref_db.C[8][3] = 1.0;    SS_ref_db.C[8][4] = 1.0;
+
+    // pre-computed Nullspace;
+    SS_ref_db.N[0][0] = -0.44721359549995787;    SS_ref_db.N[0][1] = -0.44721359549995787;    SS_ref_db.N[0][2] = -0.44721359549995787;    SS_ref_db.N[0][3] = -0.44721359549995787;
+    SS_ref_db.N[1][0] = 0.8618033988749895;    SS_ref_db.N[1][1] = -0.13819660112501048;    SS_ref_db.N[1][2] = -0.13819660112501048;    SS_ref_db.N[1][3] = -0.13819660112501048;
+    SS_ref_db.N[2][0] = -0.13819660112501048;    SS_ref_db.N[2][1] = 0.8618033988749895;    SS_ref_db.N[2][2] = -0.13819660112501048;    SS_ref_db.N[2][3] = -0.13819660112501048;
+    SS_ref_db.N[3][0] = -0.13819660112501048;    SS_ref_db.N[3][1] = -0.13819660112501048;    SS_ref_db.N[3][2] = 0.8618033988749895;    SS_ref_db.N[3][3] = -0.13819660112501048;
+    SS_ref_db.N[4][0] = -0.13819660112501048;    SS_ref_db.N[4][1] = -0.13819660112501048;    SS_ref_db.N[4][2] = -0.13819660112501048;    SS_ref_db.N[4][3] = 0.8618033988749895;
 
     SS_ref_db.W[0] = 30000.0;
     SS_ref_db.W[1] = 0.0;
@@ -718,6 +831,18 @@ SS_ref G_SS_sb11_pv_function(SS_ref SS_ref_db, char* research_group, int EM_data
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
     };
 
+    // Site mixing composition;
+    SS_ref_db.C[0][0] = 1.0;    SS_ref_db.C[0][1] = 0.0;    SS_ref_db.C[0][2] = 0.0;
+    SS_ref_db.C[1][0] = 0.0;    SS_ref_db.C[1][1] = 1.0;    SS_ref_db.C[1][2] = 0.0;
+    SS_ref_db.C[2][0] = 0.0;    SS_ref_db.C[2][1] = 0.0;    SS_ref_db.C[2][2] = 1.0;
+    SS_ref_db.C[3][0] = 0.0;    SS_ref_db.C[3][1] = 1.0;    SS_ref_db.C[3][2] = 1.0;
+    SS_ref_db.C[4][0] = 1.0;    SS_ref_db.C[4][1] = 0.0;    SS_ref_db.C[4][2] = 0.0;
+
+    // pre-computed Nullspace;
+    SS_ref_db.N[0][0] = -0.5773502691896257;    SS_ref_db.N[0][1] = -0.5773502691896257;
+    SS_ref_db.N[1][0] = 0.7886751345948129;    SS_ref_db.N[1][1] = -0.2113248654051871;
+    SS_ref_db.N[2][0] = -0.2113248654051871;    SS_ref_db.N[2][1] = 0.7886751345948129;
+
     SS_ref_db.W[0] = 0.0;
     SS_ref_db.W[1] = 116000.0;
     SS_ref_db.W[2] = 0.0;
@@ -789,6 +914,18 @@ SS_ref G_SS_sb11_ppv_function(SS_ref SS_ref_db, char* research_group, int EM_dat
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
     };
 
+    // Site mixing composition;
+    SS_ref_db.C[0][0] = 0.0;    SS_ref_db.C[0][1] = 0.0;    SS_ref_db.C[0][2] = 1.0;
+    SS_ref_db.C[1][0] = 1.0;    SS_ref_db.C[1][1] = 0.0;    SS_ref_db.C[1][2] = 0.0;
+    SS_ref_db.C[2][0] = 0.0;    SS_ref_db.C[2][1] = 1.0;    SS_ref_db.C[2][2] = 0.0;
+    SS_ref_db.C[3][0] = 1.0;    SS_ref_db.C[3][1] = 1.0;    SS_ref_db.C[3][2] = 0.0;
+    SS_ref_db.C[4][0] = 0.0;    SS_ref_db.C[4][1] = 0.0;    SS_ref_db.C[4][2] = 1.0;
+
+    // pre-computed Nullspace;
+    SS_ref_db.N[0][0] = -0.5773502691896257;    SS_ref_db.N[0][1] = -0.5773502691896257;
+    SS_ref_db.N[1][0] = 0.7886751345948129;    SS_ref_db.N[1][1] = -0.2113248654051871;
+    SS_ref_db.N[2][0] = -0.2113248654051871;    SS_ref_db.N[2][1] = 0.7886751345948129;
+
     SS_ref_db.W[0] = 0.0;
     SS_ref_db.W[1] = 0.0;
     SS_ref_db.W[2] = 60000.0;
@@ -857,6 +994,14 @@ SS_ref G_SS_sb11_mw_function(SS_ref SS_ref_db, char* research_group, int EM_data
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
     };
 
+    // Site mixing composition;
+    SS_ref_db.C[0][0] = 1.0;    SS_ref_db.C[0][1] = 0.0;
+    SS_ref_db.C[1][0] = 0.0;    SS_ref_db.C[1][1] = 1.0;
+
+    // pre-computed Nullspace;
+    SS_ref_db.N[0][0] = -0.7071067811865475;
+    SS_ref_db.N[1][0] = 0.7071067811865476;
+
     SS_ref_db.W[0] = 13000.0;
 
 
@@ -910,6 +1055,18 @@ SS_ref G_SS_sb11_cf_function(SS_ref SS_ref_db, char* research_group, int EM_data
     for (int i = 0; i < SS_ref_db.n_em; i++){
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
     };
+
+    // Site mixing composition;
+    SS_ref_db.C[0][0] = 0.0;    SS_ref_db.C[0][1] = 0.0;    SS_ref_db.C[0][2] = 1.0;
+    SS_ref_db.C[1][0] = 1.0;    SS_ref_db.C[1][1] = 0.0;    SS_ref_db.C[1][2] = 0.0;
+    SS_ref_db.C[2][0] = 0.0;    SS_ref_db.C[2][1] = 1.0;    SS_ref_db.C[2][2] = 0.0;
+    SS_ref_db.C[3][0] = 0.0;    SS_ref_db.C[3][1] = 1.0;    SS_ref_db.C[3][2] = 0.0;
+    SS_ref_db.C[4][0] = 1.0;    SS_ref_db.C[4][1] = 0.0;    SS_ref_db.C[4][2] = 1.0;
+
+    // pre-computed Nullspace;
+    SS_ref_db.N[0][0] = -0.5773502691896257;    SS_ref_db.N[0][1] = -0.5773502691896257;
+    SS_ref_db.N[1][0] = 0.7886751345948129;    SS_ref_db.N[1][1] = -0.2113248654051871;
+    SS_ref_db.N[2][0] = -0.2113248654051871;    SS_ref_db.N[2][1] = 0.7886751345948129;
 
     SS_ref_db.W[0] = 0.0;
     SS_ref_db.W[1] = 0.0;
@@ -966,11 +1123,11 @@ SS_ref G_SS_sb11_cf_function(SS_ref SS_ref_db, char* research_group, int EM_data
     return SS_ref_db;
 }
 
-    SS_ref G_SS_sb11_EM_function(       global_variable        gv,
-                                        SS_ref            SS_ref_db,
-                                        int            EM_dataset,
-                                        bulk_info            z_b,
-                                        char            *name){            
+SS_ref G_SS_sb11_EM_function(       global_variable        gv,
+                                    SS_ref            SS_ref_db,
+                                    int            EM_dataset,
+                                    bulk_info            z_b,
+                                    char            *name){            
 
     double eps 		   	= gv.bnd_val;
     double P 			= SS_ref_db.P;

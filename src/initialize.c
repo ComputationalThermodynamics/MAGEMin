@@ -122,7 +122,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.5.8 [7/11/2024]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.5.9 [7/11/2024]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
@@ -371,6 +371,7 @@ SS_ref G_SS_init_EM_function(		SS_init_type		*SS_init,
 	int n_xeos = SS_ref_db.n_xeos;
 	int n_sf   = SS_ref_db.n_sf;
 	int sym    = SS_ref_db.symmetry;
+	int n_cat  = SS_ref_db.n_cat;
 
     SS_ref_db.orderVar       = 0;
 	
@@ -448,6 +449,19 @@ SS_ref G_SS_init_EM_function(		SS_init_type		*SS_init,
 		SS_ref_db.bounds_ref[i] = malloc (2 * sizeof (double) );
 	}
 	
+	/* allocate memory when using Stixrude database */
+	if (n_cat > 0){
+		/* dynamic memory allocation of data to send to NLopt */
+		SS_ref_db.C = malloc ((n_cat) * sizeof (double*) ); 
+		for (int i = 0; i < (n_cat); i++){
+			SS_ref_db.C[i] = malloc (n_em * sizeof (double) );
+		}
+		SS_ref_db.N = malloc ((n_em) * sizeof (double*) ); 
+		for (int i = 0; i < (n_em); i++){
+			SS_ref_db.N[i] = malloc ((n_em-1) * sizeof (double) );
+		}
+	}
+
 	/* dynamic memory allocation of data to send to NLopt */
 	SS_ref_db.ub   		= malloc ((n_xeos) * sizeof (double) ); 
 	SS_ref_db.lb   		= malloc ((n_xeos) * sizeof (double) ); 

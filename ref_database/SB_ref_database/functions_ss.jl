@@ -1,6 +1,7 @@
 # how to compute chear modulus:
 # mu = mu0 + (P-Pr)*dmu/dP + (T-Tr)*dmu/dT
 # where r is the reference pressure and temperature usually, 1bar and 298.15K
+using LinearAlgebra
 
 global tab                  = "    "
 global tab2                  = "        "
@@ -100,7 +101,23 @@ function get_sb_gss_init_function(sb_ver,ss)
 
         em  = [ ss[i].endmembers[j][1] for j in  keys(ss[i].endmembers)]
 
-        println(mul, site_cmp, W, v, em)
+        n_sf    = size(site_cmp)[1]
+        n_ox    = size(site_cmp)[2]
+        n_em    = size(site_cmp)[3]
+        M   = Float64[]
+        C   = Vector{Float64}[]
+        for k=1:n_sf
+            for l=1:n_ox
+                if ~all(site_cmp[k,l,:] .== 0.0)
+                    push!(C,site_cmp[k,l,:]./mul[k])
+                    push!(M,mul[k])
+                end
+            end
+        end
+        C   = hcat(C...)'
+
+        # println("C: ", C)
+        # println(mul, site_cmp, W, v, em)
 
         sym = 1
         if ~isempty(v)
@@ -113,6 +130,7 @@ function get_sb_gss_init_function(sb_ver,ss)
         sb_gss_init_function *= "SS_ref G_SS_$(sb_ver)_$(ss[i].abbrev)_init_function(SS_ref SS_ref_db,  global_variable gv){\n\n"
         sb_gss_init_function *= "    SS_ref_db.is_liq    = 0;\n"
         sb_gss_init_function *= "    SS_ref_db.symmetry  = $sym;\n"
+        sb_gss_init_function *= "    SS_ref_db.n_cat     = $(size(C,1));\n"
         sb_gss_init_function *= "    SS_ref_db.n_xeos    = $(length(em));\n"
         sb_gss_init_function *= "    SS_ref_db.n_em      = $(length(em));\n"
         sb_gss_init_function *= "    SS_ref_db.n_sf      = $(length(mul));\n"
@@ -161,13 +179,29 @@ function get_sb_gss_function(sb_ver,ss)
 
         em  = [ ss[ii].endmembers[j][1] for j in  keys(ss[ii].endmembers)]
 
-        println(mul, site_cmp, W, v, em)
+        # println(mul, site_cmp, W, v, em)
 
         sym = 1
         if ~isempty(v)
             sym = 0
         end
-        
+
+        n_sf    = size(site_cmp)[1]
+        n_ox    = size(site_cmp)[2]
+        n_em    = size(site_cmp)[3]
+        M   = Float64[]
+        C   = Vector{Float64}[]
+        for k=1:n_sf
+            for l=1:n_ox
+                if ~all(site_cmp[k,l,:] .== 0.0)
+                    push!(C,site_cmp[k,l,:]./mul[k])
+                    push!(M,mul[k])
+                end
+            end
+        end
+        C       = hcat(C...)'
+        n_cat   = size(C,1)
+
         sb_gss_function *= "/**\n"
         sb_gss_function *= "    Solution phase data for $(sb_ver)_$(ss[ii].abbrev)\n"
         sb_gss_function *= "*/\n"
@@ -185,6 +219,24 @@ function get_sb_gss_function(sb_ver,ss)
         sb_gss_function *= "$(tab)$(tab)strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);\n"
         sb_gss_function *= "$(tab)};\n\n"
 
+        sb_gss_function *= "$(tab)// Site mixing composition;\n"
+        for i = 1:n_cat
+            for j = 1:n_em
+                sb_gss_function *= "$(tab)SS_ref_db.C[$(i-1)][$(j-1)] = $(C[i,j]);"
+            end
+            sb_gss_function *= "\n"
+        end
+        sb_gss_function *= "\n"
+        N = nullspace(ones(n_em)')
+        sb_gss_function *= "$(tab)// pre-computed Nullspace;\n"
+        for i = 1:n_em
+            for j = 1:n_em-1
+                sb_gss_function *= "$(tab)SS_ref_db.N[$(i-1)][$(j-1)] = $(N[i,j]);"
+            end
+            sb_gss_function *= "\n"
+        end
+
+        sb_gss_function *= "\n"
         for i=1:length(W)
             sb_gss_function *= "$(tab)SS_ref_db.W[$(i-1)] = $(W[i]);\n"
         end
