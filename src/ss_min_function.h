@@ -70,4 +70,10 @@ global_variable init_ss_db(				int 				 EM_database,
 										bulk_info 	 		 z_b,
 										global_variable 	 gv,
 										SS_ref 				*SS_ref_db		);
+
+global_variable init_ss_db_sb(			int 				 EM_database,
+										bulk_info 	 		 z_b,
+										global_variable 	 gv,
+										SS_ref 				*SS_ref_db		);
+										
 #endif

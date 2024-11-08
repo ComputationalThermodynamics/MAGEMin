@@ -59,11 +59,12 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 							int         *id,
 							double 		*bulk_rock, 
 							double 		*apo, 
-							double 		 P, 
+							double 		 Pkbar, 
 							double 		 T, 
 							char 		*name, 
 							char		*state			
 ){
+
 	/* Get thermodynamic data */
 	EM_db_sb EM_return;
 	int i, p_id = find_EM_id(name);
@@ -76,11 +77,10 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 	}
 
 	double kbar2bar = 1e3;
-	double RTlnf 	= 0.0;
 	double T0 		= 298.15;
 	double P0 		= 0.001;
 	double R  		= 8.31446261815324;
- 	
+ 	double P       = Pkbar * kbar2bar;
 	/* declare the variables */
 	double nr9, nr9T0, c1, c2, c3, aii, aiikk2, aii2;
 	double r23, r59, t1, t2, nr9t, tht, thT0;
@@ -105,7 +105,7 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
     
     nr9 	= -9.0 * n * R;
     nr9T0 	= nr9 * T0;
-    c1 		= -9.0 * V0 * K0;
+    c1 		= -9.0 * (-V0) * K0;
     c2 		= Kp / 2.0 - 2.0;
     c3 		= 3.0 * c1 * c2;
     aii 	= 6.0 * gamma0;
@@ -118,6 +118,7 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
     t1 		= z00 / T;
     t2 		= T / T0;
     nr9t 	= nr9 * T;
+
 	tht 	= t1;
 	thT0 	= tht * t2;
 
@@ -136,7 +137,7 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 	else{
 		V = V0;
 	}
-	
+
 	ibad 	= 4;
 	bad 	= 1;
 
@@ -149,10 +150,8 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 		f 		= 0.5 * V23 - 0.5;
 		df 		= -V23 / V / 3.0;
 		d2f 	= r59 * V23 / pow(V,2.0);
-
 		dfc 	= (c3 * f + c1) * f * df;
 		d2fc 	= (2.0 * c3 * f + c1) * pow(df,2.0) + (c3 * f + c1) * f * d2f;
-
 		z 		= 1.0 + (aii + aiikk2 * f) * f;
 
 		if (z < 0.0 || V / V0 > 100.0 || V / V0 < 1e-2){
@@ -160,21 +159,18 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 		}
 
 		root 	= sqrt(z);
-
 		tht 	= t1 * root;
 		thT0 	= tht * T / T0;
-
 		a2f 	= aii2 + aiikk2 * f;
 		da 		= a2f / root;
 		dtht 	= t1 * da * df;
 		d2tht 	= t1 * ((aiikk2 / root - pow(a2f,2.0) / pow(z,1.5)) * pow(df,2.0) + da * d2f);
 
 		dthT0 	= dtht * t2;
-		d2thT0 	= d2tht * T;
+		d2thT0 	= d2tht * t2;
 
 		fpoly 	= 3.0 * plg(tht) / pow(tht,3.0);
 		fpoly0 	= 3.0 * plg(thT0) / pow(thT0,3.0);
-		
 		etht 	= exp(-tht);
 
 		if (1.0 - etht < 0.0){
@@ -185,7 +181,6 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 
 		dfth 	= (letht - fpoly) * nr9t * dtht / tht;
 		d2fth 	= ((4.0 * pow(dtht,2.0) / tht - d2tht) * (fpoly - letht) + pow(dtht,2.0) * etht / (1.0 - etht)) * nr9t / tht;
-
 		ethT0 	= exp(-thT0);
 
 		if (1.0 - ethT0 < 0.0){

@@ -330,19 +330,27 @@ int runMAGEMin(			int    argc,
 								z_b,											/** bulk rock informations 			*/
 								gv,												/** global variables (e.g. Gamma) 	*/
 								PP_ref_db						);
+
+		/* Calculate solution phase data at given P-T conditions (G0 based on G0 of endmembers) */
+		gv = init_ss_db(		EM_database,
+								z_b,
+								gv,
+								SS_ref_db						);
 	}
 	else if ( strcmp(gv.research_group, "sb") 	== 0 ){
 		gv = init_em_db_sb(		EM_database,
 								z_b,											/** bulk rock informations 			*/
 								gv,												/** global variables (e.g. Gamma) 	*/
 								PP_ref_db						);
+
+		/* Calculate solution phase data at given P-T conditions (G0 based on G0 of endmembers) */
+		gv = init_ss_db_sb(		EM_database,
+								z_b,
+								gv,
+								SS_ref_db						);
 	}
 
-	/* Calculate solution phase data at given P-T conditions (G0 based on G0 of endmembers) */
-	gv = init_ss_db(		EM_database,
-							z_b,
-							gv,
-							SS_ref_db						);
+
 
 	return gv;
 }

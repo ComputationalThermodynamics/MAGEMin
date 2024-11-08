@@ -2457,6 +2457,10 @@ function init_ss_db(EM_database, z_b, gv, SS_ref_db)
     ccall((:init_ss_db, libMAGEMin), global_variable, (Cint, bulk_info, global_variable, Ptr{SS_ref}), EM_database, z_b, gv, SS_ref_db)
 end
 
+function init_ss_db_sb(EM_database, z_b, gv, SS_ref_db)
+    ccall((:init_ss_db_sb, libMAGEMin), global_variable, (Cint, bulk_info, global_variable, Ptr{SS_ref}), EM_database, z_b, gv, SS_ref_db)
+end
+
 function print_help(gv)
     ccall((:print_help, libMAGEMin), Cvoid, (global_variable,), gv)
 end
