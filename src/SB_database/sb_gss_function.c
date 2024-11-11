@@ -909,7 +909,7 @@ SS_ref G_SS_sb11_ppv_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     int i, j;
     int n_em = SS_ref_db.n_em;
 
-    char   *EM_tmp[] 		= {"feppv","mgppv","alppv",};
+    char   *EM_tmp[] 		= {"fppv","mppv","appv",};
     for (int i = 0; i < SS_ref_db.n_em; i++){
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
     };
@@ -931,42 +931,42 @@ SS_ref G_SS_sb11_ppv_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     SS_ref_db.W[2] = 60000.0;
 
 
-    em_data feppv            = get_em_data(    research_group, EM_dataset,
+    em_data fppv            = get_em_data(    research_group, EM_dataset,
                                             len_ox,
                                             z_b,
                                             SS_ref_db.P,
                                             SS_ref_db.T,
-                                            "feppv",
+                                            "fppv",
                                             "equilibrium");
 
-    em_data mgppv            = get_em_data(    research_group, EM_dataset,
+    em_data mppv            = get_em_data(    research_group, EM_dataset,
                                             len_ox,
                                             z_b,
                                             SS_ref_db.P,
                                             SS_ref_db.T,
-                                            "mgppv",
+                                            "mppv",
                                             "equilibrium");
 
-    em_data alppv            = get_em_data(    research_group, EM_dataset,
+    em_data appv            = get_em_data(    research_group, EM_dataset,
                                             len_ox,
                                             z_b,
                                             SS_ref_db.P,
                                             SS_ref_db.T,
-                                            "alppv",
+                                            "appv",
                                             "equilibrium");
 
-    SS_ref_db.gbase[0]        = feppv.gb;
-    SS_ref_db.gbase[1]        = mgppv.gb;
-    SS_ref_db.gbase[2]        = alppv.gb;
+    SS_ref_db.gbase[0]        = fppv.gb;
+    SS_ref_db.gbase[1]        = mppv.gb;
+    SS_ref_db.gbase[2]        = appv.gb;
 
-    SS_ref_db.ElShearMod[0]        = feppv.ElShearMod;
-    SS_ref_db.ElShearMod[1]        = mgppv.ElShearMod;
-    SS_ref_db.ElShearMod[2]        = alppv.ElShearMod;
+    SS_ref_db.ElShearMod[0]        = fppv.ElShearMod;
+    SS_ref_db.ElShearMod[1]        = mppv.ElShearMod;
+    SS_ref_db.ElShearMod[2]        = appv.ElShearMod;
 
     for (i = 0; i < len_ox; i++){
-        SS_ref_db.Comp[0][i] 	= feppv.C[i];
-        SS_ref_db.Comp[1][i] 	= mgppv.C[i];
-        SS_ref_db.Comp[2][i] 	= alppv.C[i];
+        SS_ref_db.Comp[0][i] 	= fppv.C[i];
+        SS_ref_db.Comp[1][i] 	= mppv.C[i];
+        SS_ref_db.Comp[2][i] 	= appv.C[i];
     }
 
     for (i = 0; i < n_em; i++){

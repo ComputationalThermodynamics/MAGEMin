@@ -372,22 +372,27 @@ int runMAGEMin(			int    argc,
 
 	/** pointer array to objective functions 								*/
 	obj_type 								SS_objective[gv.len_ss];	
-
-	TC_SS_objective_init_function(			SS_objective,
-											gv								);
-
-
 	PC_type 								PC_read[gv.len_ss];
-
-	TC_PC_init(	                    		PC_read,
-											gv								);
-
-
 	P2X_type 								P2X_read[gv.len_ss];
 
-	TC_P2X_init(	                		P2X_read,
-											gv								);
-		
+	if (strcmp(gv.research_group, "tc") 	== 0 ){
+		TC_SS_objective_init_function(			SS_objective,
+												gv								);
+
+		TC_PC_init(	                    		PC_read,
+												gv								);
+
+		TC_P2X_init(	                		P2X_read,
+												gv								);
+	}
+	else if (strcmp(gv.research_group, "sb") 	== 0 ){
+		SB_SS_objective_init_function(			SS_objective,
+												gv								);
+
+		SB_PC_init(	                    		PC_read,
+												gv								);
+	}
+	printf("b4 levelling\n");
 	/****************************************************************************************/
 	/**                                   LEVELLING                                        **/
 	/****************************************************************************************/	
@@ -424,27 +429,33 @@ int runMAGEMin(			int    argc,
 
 	/** pointer array to objective functions 								*/
 	obj_type 								SS_objective[gv.len_ss];	
-
-	TC_SS_objective_init_function(			SS_objective,
-											gv								);
-
-	/** pointer array to NLopt functions (calls objective function for local minimization) 								*/
+	PC_type 								PC_read[gv.len_ss];
+	P2X_type 								P2X_read[gv.len_ss];
 	NLopt_type 								NLopt_opt[gv.len_ss];	
 
-	TC_NLopt_opt_init(	        			NLopt_opt,
-											gv				);
+	if (strcmp(gv.research_group, "tc") 	== 0 ){
+		TC_SS_objective_init_function(			SS_objective,
+												gv								);
 
-	PC_type 								PC_read[gv.len_ss];
+		TC_NLopt_opt_init(	        			NLopt_opt,
+												gv								);
 
-	TC_PC_init(	                    		PC_read,
-											gv								);
+		TC_PC_init(	                    		PC_read,
+												gv								);
 
-	P2X_type 								P2X_read[gv.len_ss];
+		TC_P2X_init(	                		P2X_read,
+												gv								);
+	}
+	else if (strcmp(gv.research_group, "sb") 	== 0 ){
+		SB_SS_objective_init_function(			SS_objective,
+												gv								);
 
-	TC_P2X_init(	                		P2X_read,
-											gv								);
+		SB_NLopt_opt_init(	        			NLopt_opt,
+												gv								);
 
-											
+		SB_PC_init(	                    		PC_read,
+												gv								);
+	}								
 
 	/****************************************************************************************/
 	/**                                   LEVELLING                                        **/
@@ -1133,6 +1144,8 @@ void FreeDatabases(		global_variable gv,
 			free(DB.SS_ref_db[i].C);
 			for (j = 0; j < n_em; j++) {	free(DB.SS_ref_db[i].N[j]);}	
 			free(DB.SS_ref_db[i].N);
+			free(DB.SS_ref_db[i].Vec1);
+			free(DB.SS_ref_db[i].Vec2);
 		}
 
 		free(DB.SS_ref_db[i].ss_flags);

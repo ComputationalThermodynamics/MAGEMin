@@ -416,7 +416,8 @@ typedef struct SS_refs {
 	int      n_cat;				/** number of cation exchanged in all mixing sites 							*/
 	double **C;					/** site mixing matrix used to compute configurational entropy 	 			*/
 	double **N;					/** nullspace					 	 										*/
-
+	double  *Vec1;				/** vector 1 																*/
+	double  *Vec2;				/** vector 1 																*/
 
 	/** data needed for levelling and/or PGE **/
 	int		 is_liq;			/** check if phase is "liq" 												*/

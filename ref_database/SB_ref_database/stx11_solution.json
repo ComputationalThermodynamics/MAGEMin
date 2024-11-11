@@ -172,9 +172,9 @@
         "name": "post-perovskite",
         "abbrev": "ppv",
         "endmembers": {
-            "mg-post-perovskite": ["mgppv","[Mg_1][Si_1]O_3"],
-            "fe-post-perovskite": ["feppv","[Fe_1][Si_1]O_3"],
-            "al-post-perovskite": ["alppv","[Al_1][Al_1]O_3"]
+            "mg-post-perovskite": ["mppv","[Mg_1][Si_1]O_3"],
+            "fe-post-perovskite": ["fppv","[Fe_1][Si_1]O_3"],
+            "al-post-perovskite": ["appv","[Al_1][Al_1]O_3"]
         },
         "margules": {
             "mg-post-perovskite,fe-post-perovskite": 0.000e+00,

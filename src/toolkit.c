@@ -593,6 +593,25 @@ void inverseMatrix(int *ipiv, double *A1, int n, double *work, int lwork){
 
 };
 
+// Function to perform vector-matrix multiplication
+void vector_matrix_multiplication(double* v, double** M, double* result, int vector_size, int matrix_cols) {
+    for (int j = 0; j < matrix_cols; j++) {
+        result[j] = 0.0;
+        for (int i = 0; i < vector_size; i++) {
+            result[j] += v[i] * M[i][j];
+        }
+    }
+}
+// Function to perform matrix-vector multiplication
+void matrix_vector_multiplication(double** M, double* v, double* result, int matrix_rows, int matrix_cols) {
+    for (int i = 0; i < matrix_rows; i++) {
+        result[i] = 0.0;
+        for (int j = 0; j < matrix_cols; j++) {
+            result[i] += M[i][j] * v[j];
+        }
+    }
+}
+
 /**
   vector vectorT multiplication
 */	

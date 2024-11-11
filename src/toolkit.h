@@ -25,6 +25,9 @@ void convert_system_comp(				global_variable      gv,
 										char 				*sys_in,
 										bulk_info 			 z_b			);
 global_variable get_tests_bulks(		global_variable  	 gv				);
+
+void 	vector_matrix_multiplication(double* v, double** M, double* result, int vector_size, int matrix_cols);
+void 	matrix_vector_multiplication(double** M, double* v, double* result, int matrix_rows, int matrix_cols);
 void 	get_act_sf_id(int *result, double *A, int n);
 void 	inverseMatrix(int *ipiv, double *A1, int n, double *work, int lwork);
 void 	MatMatMul( double **A, int nrowA, double **B, int ncolB, int common, double **C);

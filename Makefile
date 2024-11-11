@@ -51,13 +51,16 @@ SOURCES=src/MAGEMin.c 							\
 		src/SB_database/sb_gss_init_function.c	\
 		src/SB_database/sb_gss_function.c		\
 		src/TC_database/NLopt_opt_function.c 	\
+		src/SB_database/SB_NLopt_opt_function.c \
 		src/TC_database/objective_functions.c	\
+		src/SB_database/sb_objective_functions.c\
 		src/TC_database/SS_xeos_PC_mp.c			\
 		src/TC_database/SS_xeos_PC_mb.c			\
 		src/TC_database/SS_xeos_PC_ig.c			\
 		src/TC_database/SS_xeos_PC_igad.c		\
 		src/TC_database/SS_xeos_PC_um.c			\
 		src/TC_database/SS_xeos_PC_mtl.c		\
+		src/SB_database/SS_xeos_PC_sb11.c		\
 		src/pp_min_function.c 					\
 		src/ss_min_function.c 					\
 		src/simplex_levelling.c 				\

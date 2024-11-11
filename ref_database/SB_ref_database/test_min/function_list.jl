@@ -188,8 +188,6 @@ function get_functions(i)
     end
     C   = hcat(C...)'
 
-
-
     @variables p[1:n_em]
     X               = Symbolics.scalarize(p)
     R               = 8.31446261815324
@@ -198,6 +196,14 @@ function get_functions(i)
     Xo              = C*X
     config          = R * T * (M' * Diagonal(Xo) * log.(Xo))
     grad_config     = Symbolics.gradient(config, X)
+
+    # for g in grad_config
+    #     expr = string(g)
+    #     expr = replace(expr, r"(\d)(?=[\[\(a-zA-Z])" => s"\1*")
+    #     println(expr)
+    # end
+
+
     mu_Gex          = get_mu_Gex(W, v, n_em, sym)
 
     f_config        = build_function(config,        X, expression = Val{false});

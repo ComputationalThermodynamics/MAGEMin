@@ -34,6 +34,46 @@ end
 data2 = read_data("stx11_data.json")
 @save "STIX11.jld2" data2
 
+# Function to generate a simplex in n dimensions with given step size
+function generate_simplex(n, step)
+    # Generate all possible points with the given step size
+    points = collect(0:step:1)
+    
+    # Generate all combinations of points in n dimensions
+    combinations = Iterators.product(ntuple(_ -> points, n)...)
+    
+    # Filter combinations to keep only those where the sum of coordinates is 1
+    simplex = [collect(comb) for comb in combinations if sum(comb) ≈ 1.0]
+    
+    return simplex
+end
+
+# Function to adjust the simplex points
+function adjust_simplex(simplex, eps)
+    adjusted_simplex = []
+    for point in simplex
+        adjusted_point = copy(point)
+        for i in 1:length(point)
+            if point[i] == 0.0
+                adjusted_point[i] = eps
+            elseif point[i] == 1.0
+                adjusted_point[i] = 1.0 - eps
+            end
+        end
+        # Adjust the remaining coordinates to ensure the sum is still 1
+        sum_adjusted = sum(adjusted_point)
+        if sum_adjusted ≈ 1.0
+            push!(adjusted_simplex, adjusted_point)
+        else
+            # Find the index of the largest coordinate
+            max_index = argmax(adjusted_point)
+            adjusted_point[max_index] += 1.0 - sum_adjusted
+            push!(adjusted_simplex, adjusted_point)
+        end
+    end
+    return adjusted_simplex
+end
+
 struct ModelJSON
     name            :: String
     abbrev          :: String
@@ -161,6 +201,206 @@ function get_sb_gss_init_function(sb_ver,ss)
     sb_gss_init_function *= "$(tab)}\n"
     sb_gss_init_function *= "}\n"
     return sb_gss_init_function
+end
+    
+
+function get_sb_objective_functions(sb_ver,ss)
+    sb_objective_functions    = ""
+
+    n_ss = length(ss)
+    for ii = 1:n_ss
+
+        mul, site_cmp = retrieve_site_cmp(ss, ii)
+
+        W   = [ ss[ii].margules[j] for j in  keys(ss[ii].margules)]
+
+        v   = [ ss[ii].van_laar[j] for j in  keys(ss[ii].van_laar)]
+
+        em  = [ ss[ii].endmembers[j][1] for j in  keys(ss[ii].endmembers)]
+
+        sym = 1
+        if ~isempty(v)
+            sym = 0
+        end
+
+        n_sf    = size(site_cmp)[1]
+        n_ox    = size(site_cmp)[2]
+        n_em    = size(site_cmp)[3]
+        M   = Float64[]
+        C   = Vector{Float64}[]
+        for k=1:n_sf
+            for l=1:n_ox
+                if ~all(site_cmp[k,l,:] .== 0.0)
+                    push!(C,site_cmp[k,l,:]./mul[k])
+                    push!(M,mul[k])
+                end
+            end
+        end
+        C       = hcat(C...)'
+        n_cat   = size(C,1)
+
+        @variables p[0:n_em-1] R T
+        X               = Symbolics.scalarize(p)
+
+        Xo              = C*X
+        config          = R * T * (M' * Diagonal(Xo) * log.(Xo))
+        grad_config     = Symbolics.gradient(config, X)
+
+        sb_objective_functions *= "/**\n"
+        sb_objective_functions *= "    Objective function for $(sb_ver)_$(ss[ii].abbrev)\n"
+        sb_objective_functions *= "*/\n"
+        sb_objective_functions *= "double obj_$(sb_ver)_$(ss[ii].abbrev)(unsigned n, const double *x, double *grad, void *SS_ref_db){\n"
+        sb_objective_functions *= "$(tab)SS_ref *d         = (SS_ref *) SS_ref_db;\n\n"
+        sb_objective_functions *= "$(tab)int n_em          = d->n_em;\n"
+        sb_objective_functions *= "$(tab)double P          = d->P;\n"
+        sb_objective_functions *= "$(tab)double T          = d->T;\n"
+        sb_objective_functions *= "$(tab)double R          = d->R;\n"
+
+        sb_objective_functions *= "$(tab)double *dfx       = d->dfx;\n"
+        sb_objective_functions *= "$(tab)double **N        = d->N;\n"
+        sb_objective_functions *= "$(tab)double *Vec1      = d->Vec1;\n"
+        sb_objective_functions *= "$(tab)double *Vec2      = d->Vec2;\n"
+        sb_objective_functions *= "$(tab)double *p         = d->p;\n"
+        sb_objective_functions *= "$(tab)double *gb        = d->gb_lvl;\n"
+        sb_objective_functions *= "$(tab)double *mu_Gex    = d->mu_Gex;\n"
+
+        if sym == 0
+            sb_objective_functions *= "$(tab)double *mat_phi   = d->mat_phi;\n"
+        end
+        sb_objective_functions *= "\n"
+
+        if sym == 0
+            sb_objective_functions *= "$(tab)d->sum_v = 0.0;\n"
+            sb_objective_functions *= "$(tab)for (int i = 0; i < n_em; i++){\n"
+            sb_objective_functions *= "$(tab)$(tab)p[i]   = x[i];\n"
+            sb_objective_functions *= "$(tab)$(tab)d->sum_v += p[i]*d->v[i];\n"
+            sb_objective_functions *= "$(tab)}\n"
+            sb_objective_functions *= "$(tab)for (int i = 0; i < n_em; i++){\n"
+            sb_objective_functions *= "$(tab)$(tab)d->mat_phi[i] = (p[i]*d->v[i])/d->sum_v;\n"
+            sb_objective_functions *= "$(tab)}\n\n"
+            
+            sb_objective_functions *= "$(tab)double tmp = 0.0;\n"
+            sb_objective_functions *= "$(tab)double Gex = 0.0;\n"
+            sb_objective_functions *= "$(tab)for (int i = 0; i < d->n_em; i++){\n"
+            sb_objective_functions *= "$(tab)$(tab)Gex = 0.0;\n"
+            sb_objective_functions *= "$(tab)$(tab)int it = 0;\n"
+            sb_objective_functions *= "$(tab)$(tab)for (int j = 0; j < d->n_xeos; j++){\n"
+            sb_objective_functions *= "$(tab)$(tab)$(tab)tmp = (d->eye[i][j] - d->mat_phi[j]);\n"
+            sb_objective_functions *= "$(tab)$(tab)$(tab)for (int k = j+1; k < d->n_em; k++){\n"
+            sb_objective_functions *= "$(tab)$(tab)$(tab)$(tab)Gex -= tmp*(d->eye[i][k] - d->mat_phi[k])*(d->W[it]*2.0*d->v[i]/(d->v[j]+d->v[k]));\n"
+            sb_objective_functions *= "$(tab)$(tab)$(tab)$(tab)it += 1;\n"
+            sb_objective_functions *= "$(tab)$(tab)$(tab)}\n"
+            sb_objective_functions *= "$(tab)$(tab)}\n"
+            sb_objective_functions *= "$(tab)$(tab)mu_Gex[i] = Gex;\n"
+            sb_objective_functions *= "$(tab)}\n"
+        else
+            sb_objective_functions *= "$(tab)double tmp = 0.0;\n"
+            sb_objective_functions *= "$(tab)double Gex = 0.0;\n"
+            sb_objective_functions *= "$(tab)for (int i = 0; i < n_em; i++){\n"
+            sb_objective_functions *= "$(tab)$(tab)p[i]   = x[i];\n"
+            sb_objective_functions *= "$(tab)$(tab)Gex = 0.0;\n"
+            sb_objective_functions *= "$(tab)$(tab)int it    = 0;\n"
+            sb_objective_functions *= "$(tab)$(tab)for (int j = 0; j < d->n_xeos; j++){\n"
+            sb_objective_functions *= "$(tab)$(tab)$(tab)tmp = (d->eye[i][j] - p[j]);\n"
+            sb_objective_functions *= "$(tab)$(tab)$(tab)for (int k = j+1; k < n_em; k++){\n"
+            sb_objective_functions *= "$(tab)$(tab)$(tab)$(tab)Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);\n"
+            sb_objective_functions *= "$(tab)$(tab)$(tab)$(tab)it += 1;\n"
+            sb_objective_functions *= "$(tab)$(tab)$(tab)}\n"
+            sb_objective_functions *= "$(tab)$(tab)}\n"
+            sb_objective_functions *= "$(tab)$(tab)mu_Gex[i] = Gex;\n"
+            sb_objective_functions *= "$(tab)}\n\n"
+        end
+
+        sb_objective_functions *= "$(tab)d->sum_apep = 0.0;\n"
+        sb_objective_functions *= "$(tab)for (int i = 0; i < n_em; i++){\n"
+        sb_objective_functions *= "$(tab)$(tab)d->sum_apep += d->ape[i]*p[i];\n"
+        sb_objective_functions *= "$(tab)}\n"
+        sb_objective_functions *= "$(tab)d->factor = d->fbc/d->sum_apep;\n\n"
+
+        Sconfig = replace(string(config), r"(\d)(?=[\[\(a-zA-Z])" => s"\1*")
+        # Sconfig = replace(string(Sconfig), "factor" => "d->factor")
+        sb_objective_functions *= "$(tab)double Sconfig    = $Sconfig;\n\n"
+
+        sb_objective_functions *= "$(tab)d->df_raw = Sconfig;\n"
+        sb_objective_functions *= "$(tab)for (int i = 0; i < n_em; i++){\n"
+        sb_objective_functions *= "$(tab)$(tab)d->df_raw += (mu_Gex[i] + gb[i])*p[i];\n"
+        sb_objective_functions *= "$(tab)}\n"
+        sb_objective_functions *= "$(tab)d->df = d->df_raw * d->factor;\n\n"
+
+        sb_objective_functions *= "$(tab)if (grad){\n"
+        sb_objective_functions *= "$(tab)$(tab)for (int i = 0; i < n_em; i++){\n"
+        for i=1:n_em
+            dS = replace(string(grad_config[i]), r"(\d)(?=[\[\(a-zA-Z])" => s"\1*")
+            sb_objective_functions *= "$(tab)$(tab)$(tab)d->dfx[$(i-1)] = ($dS + mu_Gex[i] * gb[i])* d->factor;\n"
+        end
+        sb_objective_functions *= "$(tab)$(tab)}\n\n"
+        sb_objective_functions *= "$(tab)$(tab)vector_matrix_multiplication(dfx,  N, Vec1, n_em, (n_em-1));\n"
+        sb_objective_functions *= "$(tab)$(tab)matrix_vector_multiplication(N, Vec1, Vec2, n_em, (n_em-1));\n\n"
+        sb_objective_functions *= "$(tab)$(tab)for (int i = 0; i < n_em; i++){\n"
+        sb_objective_functions *= "$(tab)$(tab)$(tab)grad[i] = dfx[i];\n"
+        sb_objective_functions *= "$(tab)$(tab)}\n"
+        sb_objective_functions *= "$(tab)}\n"
+
+
+        sb_objective_functions *= "$(tab)return d->df;\n"
+        sb_objective_functions *= "}\n\n"
+    end
+
+    sb_objective_functions *= "/**\n"
+    sb_objective_functions *= "$(tab)associate the array of pointer with the right solution phase\n"
+    sb_objective_functions *= "*/\n"
+    sb_objective_functions *= "void SB_$(sb_ver)_objective_init_function(	obj_type 			*SS_objective,\n"
+    sb_objective_functions *= "$(tab3)$(tab3)$(tab3)$(tab)global_variable 	 gv				){	\n"
+                            
+    sb_objective_functions *= "$(tab)for (int iss = 0; iss < gv.len_ss; iss++){\n"
+    for i=1:n_ss
+        if i == 1
+            sb_objective_functions *= "$(tab2)if      (strcmp( gv.SS_list[iss], \"$(ss[i].abbrev)\")  == 0 ){\n"
+            sb_objective_functions *= "$(tab3)SS_objective[iss]  = obj_$(sb_ver)_$(ss[i].abbrev); 		}\n"
+        else
+            sb_objective_functions *= "$(tab2)else if (strcmp( gv.SS_list[iss], \"$(ss[i].abbrev)\")  == 0 ){\n"
+            sb_objective_functions *= "$(tab3)SS_objective[iss]  = obj_$(sb_ver)_$(ss[i].abbrev); 		}\n"
+        end
+    end
+     
+    sb_objective_functions *= "$(tab2)else{\n"
+    sb_objective_functions *= "$(tab3)printf(\"\\nsolid solution '%s' is not in the database, cannot be initiated\\n\", gv.SS_list[iss]);\n"
+    sb_objective_functions *= "$(tab2)}	\n"
+    sb_objective_functions *= "$(tab)};\n"	
+    sb_objective_functions *= "}\n"
+
+
+
+    sb_objective_functions *= "/**\n"
+    sb_objective_functions *= "$(tab)associate the array of pointer with the right solution phase\n"
+    sb_objective_functions *= "*/\n"
+    sb_objective_functions *= "void SB_$(sb_ver)_PC_init(	PC_type 			*PC_read,\n"
+    sb_objective_functions *= "$(tab3)$(tab3)global_variable 	 gv				){	\n"
+                            
+    sb_objective_functions *= "$(tab)for (int iss = 0; iss < gv.len_ss; iss++){\n"
+    for i=1:n_ss
+        if i == 1
+            sb_objective_functions *= "$(tab2)if      (strcmp( gv.SS_list[iss], \"$(ss[i].abbrev)\")  == 0 ){\n"
+            sb_objective_functions *= "$(tab3)PC_read[iss]   = obj_$(sb_ver)_$(ss[i].abbrev); 		}\n"
+        else
+            sb_objective_functions *= "$(tab2)else if (strcmp( gv.SS_list[iss], \"$(ss[i].abbrev)\")  == 0 ){\n"
+            sb_objective_functions *= "$(tab3)PC_read[iss]   = obj_$(sb_ver)_$(ss[i].abbrev); 		}\n"
+        end
+    end
+     
+    sb_objective_functions *= "$(tab2)else{\n"
+    sb_objective_functions *= "$(tab3)printf(\"\\nsolid solution '%s' is not in the database, cannot be initiated\\n\", gv.SS_list[iss]);\n"
+    sb_objective_functions *= "$(tab2)}	\n"
+    sb_objective_functions *= "$(tab)};\n"	
+    sb_objective_functions *= "}\n\n\n"
+
+    sb_objective_functions *= "//headers for objectives functions\n"
+    for ii = 1:n_ss
+        sb_objective_functions *= "double obj_$(sb_ver)_$(ss[ii].abbrev)(unsigned n, const double *x, double *grad, void *SS_ref_db);\n"
+    end
+
+
+    return sb_objective_functions
 end
     
 
@@ -370,11 +610,135 @@ function get_sb_gss_function(sb_ver,ss)
 end
 
 
+function get_sb_SS_xeos_PC(sb_ver,ss)
+    step    = 0.1
+    eps     = 1e-4
+    sb_SS_xeos_PC = ""
+
+    n_ss = length(ss)
+    for ii = 1:n_ss
+        mul, site_cmp    = retrieve_site_cmp(ss, ii)
+        n_em             = size(site_cmp)[3]
+        # Generate a simplex in n dimensions
+        simplex          = generate_simplex(n_em, step)
+
+        # Adjust the simplex points
+        adjusted_simplex = adjust_simplex(simplex, eps)
+        n_pc             = length(adjusted_simplex)
+
+        sb_SS_xeos_PC   *= "struct ss_pc $(sb_ver)_$(ss[ii].abbrev)_pc_xeos[$n_pc] = {\n"
+        for i=1:n_pc
+            sb_SS_xeos_PC   *= "$(tab){{"
+            sb_SS_xeos_PC   *= join(round.(adjusted_simplex[i],digits=6),",")
+            sb_SS_xeos_PC   *= "}},\n"
+        end
+        sb_SS_xeos_PC   *= "};\n"
+    end
+
+    sb_SS_xeos_PC *= "\n\n"
+    sb_SS_xeos_PC *= "void SB_$(sb_ver)_pc_init_function(	PC_ref 	*SS_pc_xeos,\n"
+    sb_SS_xeos_PC *= "$(tab3)$(tab3)$(tab3)int 	 iss,\n"
+    sb_SS_xeos_PC *= "$(tab3)$(tab3)$(tab3)char 	*name				){\n"
+                            
+    # sb_SS_xeos_PC *= "$(tab)for (int iss = 0; iss < gv.len_ss; iss++){\n"
+    for i=1:n_ss
+        if i == 1
+            sb_SS_xeos_PC *= "$(tab2)if      (strcmp( name, \"$(ss[i].abbrev)\")  == 0 ){\n"
+            sb_SS_xeos_PC *= "$(tab3)SS_pc_xeos[iss].ss_pc_xeos   = $(sb_ver)_$(ss[i].abbrev)_pc_xeos; 		}\n"
+        else
+            sb_SS_xeos_PC *= "$(tab2)else if (strcmp( name, \"$(ss[i].abbrev)\")  == 0 ){\n"
+            sb_SS_xeos_PC *= "$(tab3)SS_pc_xeos[iss].ss_pc_xeos   = $(sb_ver)_$(ss[i].abbrev)_pc_xeos; 		}\n"
+        end
+    end
+     
+    sb_SS_xeos_PC *= "$(tab2)else{\n"
+    sb_SS_xeos_PC *= "$(tab3)printf(\"\\nsolid solution '%s' is not in the database, cannot be initiated\\n\", name);\n"
+    sb_SS_xeos_PC *= "$(tab2)}	\n"
+    # sb_SS_xeos_PC *= "$(tab)};\n"	
+    sb_SS_xeos_PC *= "}\n\n\n"
+
+
+    return sb_SS_xeos_PC
+end
+
+
+function get_SB_NLopt_opt_functions(sb_ver,ss)
+    SB_NLopt_opt_functions = ""
+
+    n_ss = length(ss)
+    for ii = 1:n_ss
+        mul, site_cmp    = retrieve_site_cmp(ss, ii)
+        n_em             = size(site_cmp)[3]
+
+        SB_NLopt_opt_functions   *= "SS_ref NLopt_opt_$(sb_ver)_$(ss[ii].abbrev)_function(global_variable gv, SS_ref SS_ref_db){\n"
+        SB_NLopt_opt_functions   *= "$(tab)unsigned int    n_em     = SS_ref_db.n_em;\n"
+        SB_NLopt_opt_functions   *= "$(tab)double *x  = SS_ref_db.iguess;\n"
+        
+        SB_NLopt_opt_functions   *= "$(tab)for (int i = 0; i < (n_em); i++){\n"
+        SB_NLopt_opt_functions   *= "$(tab2)SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];\n"
+        SB_NLopt_opt_functions   *= "$(tab2)SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];\n"
+        SB_NLopt_opt_functions   *= "$(tab)}\n"
+        
+        SB_NLopt_opt_functions   *= "$(tab)SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); \n"
+        SB_NLopt_opt_functions   *= "$(tab)nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);\n"
+        SB_NLopt_opt_functions   *= "$(tab)nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);\n"
+
+        SB_NLopt_opt_functions   *= "$(tab)nlopt_set_min_objective(SS_ref_db.opt, obj_$(sb_ver)_$(ss[ii].abbrev), &SS_ref_db);\n"
+
+        SB_NLopt_opt_functions   *= "$(tab)nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);\n"
+        SB_NLopt_opt_functions   *= "$(tab)nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);\n"
+        
+        SB_NLopt_opt_functions   *= "$(tab)double minf;\n"
+        SB_NLopt_opt_functions   *= "$(tab)if (gv.maxeval==1){  \n"
+        SB_NLopt_opt_functions   *= "$(tab2)minf = obj_$(sb_ver)_$(ss[ii].abbrev)(n_em, x, NULL, &SS_ref_db);\n"
+        SB_NLopt_opt_functions   *= "$(tab)}\n"
+        SB_NLopt_opt_functions   *= "$(tab)else{\n"
+        SB_NLopt_opt_functions   *= "$(tab2)SS_ref_db.status = nlopt_optimize(SS_ref_db.opt, x, &minf);\n"
+        SB_NLopt_opt_functions   *= "$(tab)}\n"
+        SB_NLopt_opt_functions   *= "$(tab)/* Send back needed local solution parameters */\n"
+        SB_NLopt_opt_functions   *= "$(tab)for (int i = 0; i < SS_ref_db.n_xeos; i++){\n"
+        SB_NLopt_opt_functions   *= "$(tab2)SS_ref_db.xeos[i] = x[i];\n"
+        SB_NLopt_opt_functions   *= "$(tab)}\n\n"
+        
+        SB_NLopt_opt_functions   *= "$(tab)SS_ref_db.df   = minf;\n"
+        SB_NLopt_opt_functions   *= "$(tab)nlopt_destroy(SS_ref_db.opt);\n\n"
+        
+        SB_NLopt_opt_functions   *= "$(tab)return SS_ref_db;\n"
+        SB_NLopt_opt_functions   *= "};\n"
+    end
+    SB_NLopt_opt_functions   *= "\n\n"
+
+    SB_NLopt_opt_functions *= "void SB_$(sb_ver)_NLopt_opt_init(	    NLopt_type 			*NLopt_opt,\n"
+    SB_NLopt_opt_functions *= "$(tab3)$(tab3)global_variable 	 gv				){\n"      
+    SB_NLopt_opt_functions *= "$(tab)for (int iss = 0; iss < gv.len_ss; iss++){\n"
+    for i=1:n_ss
+        if i == 1
+            SB_NLopt_opt_functions *= "$(tab2)if      (strcmp( gv.SS_list[iss], \"$(ss[i].abbrev)\")  == 0 ){\n"
+            SB_NLopt_opt_functions *= "$(tab3)NLopt_opt[iss]  = NLopt_opt_$(sb_ver)_$(ss[i].abbrev)_function; 		}\n"
+        else
+            SB_NLopt_opt_functions *= "$(tab2)else if (strcmp( gv.SS_list[iss], \"$(ss[i].abbrev)\")  == 0 ){\n"
+            SB_NLopt_opt_functions *= "$(tab3)NLopt_opt[iss]  = NLopt_opt_$(sb_ver)_$(ss[i].abbrev)_function; 		}\n"
+        end
+    end
+     
+    SB_NLopt_opt_functions *= "$(tab2)else{\n"
+    SB_NLopt_opt_functions *= "$(tab3)printf(\"\\nsolid solution '%s' is not in the database, cannot be initiated\\n\", gv.SS_list[iss]);\n"
+    SB_NLopt_opt_functions *= "$(tab2)}	\n"
+    SB_NLopt_opt_functions *= "$(tab)};\n"	
+    SB_NLopt_opt_functions *= "}\n\n\n"
+
+
+    return SB_NLopt_opt_functions
+end
+
 function generate_C_files(sb_ver,ss)
 
     sb_gss_init_function    = get_sb_gss_init_function(sb_ver,ss)
     sb_gss_function         = get_sb_gss_function(sb_ver,ss)
+    sb_objective_functions  = get_sb_objective_functions(sb_ver,ss)
+    sb_SS_xeos_PC           = get_sb_SS_xeos_PC(sb_ver,ss)
+    SB_NLopt_opt_functions  = get_SB_NLopt_opt_functions(sb_ver,ss)
 
-    return sb_gss_init_function, sb_gss_function
+    return sb_gss_init_function, sb_gss_function, sb_objective_functions, sb_SS_xeos_PC, SB_NLopt_opt_functions
 end
 

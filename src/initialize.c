@@ -460,6 +460,8 @@ SS_ref G_SS_init_EM_function(		SS_init_type		*SS_init,
 		for (int i = 0; i < (n_em); i++){
 			SS_ref_db.N[i] = malloc ((n_em-1) * sizeof (double) );
 		}
+		SS_ref_db.Vec1 = malloc ((n_em-1) * sizeof (double) );
+		SS_ref_db.Vec2 = malloc ((n_em) * sizeof (double) );
 	}
 
 	/* dynamic memory allocation of data to send to NLopt */

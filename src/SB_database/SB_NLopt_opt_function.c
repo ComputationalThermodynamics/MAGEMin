@@ -1,0 +1,499 @@
+/*@ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ **
+ **   Project      : MAGEMin
+ **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+ **   Developers   : Nicolas Riel, Boris Kaus
+ **   Contributors : Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
+ **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
+ **
+ ** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ @*/
+/**
+	Function to perform local minimization of the solution phases
+	-> using NLopt external library
+	-> penalty on SF inequality constraints seems good with a small value of 1e-12 (1e-10 was giving problems)                                         
+*/
+
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <string.h>
+#include <complex.h> 
+
+#include "nlopt.h"                  // requires specifying this in the makefile
+#include "../MAGEMin.h"
+#include "SB_NLopt_opt_function.h"
+#include "../all_solution_phases.h"
+#include "../toolkit.h"
+
+SS_ref NLopt_opt_sb11_plg_function(global_variable gv, SS_ref SS_ref_db){
+    unsigned int    n_em     = SS_ref_db.n_em;
+    double *x  = SS_ref_db.iguess;
+    for (int i = 0; i < (n_em); i++){
+        SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+        SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
+    }
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
+    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
+    nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_plg, &SS_ref_db);
+    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
+    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
+    double minf;
+    if (gv.maxeval==1){  
+        minf = obj_sb11_plg(n_em, x, NULL, &SS_ref_db);
+    }
+    else{
+        SS_ref_db.status = nlopt_optimize(SS_ref_db.opt, x, &minf);
+    }
+    /* Send back needed local solution parameters */
+    for (int i = 0; i < SS_ref_db.n_xeos; i++){
+        SS_ref_db.xeos[i] = x[i];
+    }
+
+    SS_ref_db.df   = minf;
+    nlopt_destroy(SS_ref_db.opt);
+
+    return SS_ref_db;
+};
+SS_ref NLopt_opt_sb11_sp_function(global_variable gv, SS_ref SS_ref_db){
+    unsigned int    n_em     = SS_ref_db.n_em;
+    double *x  = SS_ref_db.iguess;
+    for (int i = 0; i < (n_em); i++){
+        SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+        SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
+    }
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
+    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
+    nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_sp, &SS_ref_db);
+    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
+    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
+    double minf;
+    if (gv.maxeval==1){  
+        minf = obj_sb11_sp(n_em, x, NULL, &SS_ref_db);
+    }
+    else{
+        SS_ref_db.status = nlopt_optimize(SS_ref_db.opt, x, &minf);
+    }
+    /* Send back needed local solution parameters */
+    for (int i = 0; i < SS_ref_db.n_xeos; i++){
+        SS_ref_db.xeos[i] = x[i];
+    }
+
+    SS_ref_db.df   = minf;
+    nlopt_destroy(SS_ref_db.opt);
+
+    return SS_ref_db;
+};
+SS_ref NLopt_opt_sb11_ol_function(global_variable gv, SS_ref SS_ref_db){
+    unsigned int    n_em     = SS_ref_db.n_em;
+    double *x  = SS_ref_db.iguess;
+    for (int i = 0; i < (n_em); i++){
+        SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+        SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
+    }
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
+    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
+    nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_ol, &SS_ref_db);
+    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
+    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
+    double minf;
+    if (gv.maxeval==1){  
+        minf = obj_sb11_ol(n_em, x, NULL, &SS_ref_db);
+    }
+    else{
+        SS_ref_db.status = nlopt_optimize(SS_ref_db.opt, x, &minf);
+    }
+    /* Send back needed local solution parameters */
+    for (int i = 0; i < SS_ref_db.n_xeos; i++){
+        SS_ref_db.xeos[i] = x[i];
+    }
+
+    SS_ref_db.df   = minf;
+    nlopt_destroy(SS_ref_db.opt);
+
+    return SS_ref_db;
+};
+SS_ref NLopt_opt_sb11_wa_function(global_variable gv, SS_ref SS_ref_db){
+    unsigned int    n_em     = SS_ref_db.n_em;
+    double *x  = SS_ref_db.iguess;
+    for (int i = 0; i < (n_em); i++){
+        SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+        SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
+    }
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
+    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
+    nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_wa, &SS_ref_db);
+    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
+    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
+    double minf;
+    if (gv.maxeval==1){  
+        minf = obj_sb11_wa(n_em, x, NULL, &SS_ref_db);
+    }
+    else{
+        SS_ref_db.status = nlopt_optimize(SS_ref_db.opt, x, &minf);
+    }
+    /* Send back needed local solution parameters */
+    for (int i = 0; i < SS_ref_db.n_xeos; i++){
+        SS_ref_db.xeos[i] = x[i];
+    }
+
+    SS_ref_db.df   = minf;
+    nlopt_destroy(SS_ref_db.opt);
+
+    return SS_ref_db;
+};
+SS_ref NLopt_opt_sb11_ri_function(global_variable gv, SS_ref SS_ref_db){
+    unsigned int    n_em     = SS_ref_db.n_em;
+    double *x  = SS_ref_db.iguess;
+    for (int i = 0; i < (n_em); i++){
+        SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+        SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
+    }
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
+    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
+    nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_ri, &SS_ref_db);
+    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
+    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
+    double minf;
+    if (gv.maxeval==1){  
+        minf = obj_sb11_ri(n_em, x, NULL, &SS_ref_db);
+    }
+    else{
+        SS_ref_db.status = nlopt_optimize(SS_ref_db.opt, x, &minf);
+    }
+    /* Send back needed local solution parameters */
+    for (int i = 0; i < SS_ref_db.n_xeos; i++){
+        SS_ref_db.xeos[i] = x[i];
+    }
+
+    SS_ref_db.df   = minf;
+    nlopt_destroy(SS_ref_db.opt);
+
+    return SS_ref_db;
+};
+SS_ref NLopt_opt_sb11_opx_function(global_variable gv, SS_ref SS_ref_db){
+    unsigned int    n_em     = SS_ref_db.n_em;
+    double *x  = SS_ref_db.iguess;
+    for (int i = 0; i < (n_em); i++){
+        SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+        SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
+    }
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
+    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
+    nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_opx, &SS_ref_db);
+    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
+    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
+    double minf;
+    if (gv.maxeval==1){  
+        minf = obj_sb11_opx(n_em, x, NULL, &SS_ref_db);
+    }
+    else{
+        SS_ref_db.status = nlopt_optimize(SS_ref_db.opt, x, &minf);
+    }
+    /* Send back needed local solution parameters */
+    for (int i = 0; i < SS_ref_db.n_xeos; i++){
+        SS_ref_db.xeos[i] = x[i];
+    }
+
+    SS_ref_db.df   = minf;
+    nlopt_destroy(SS_ref_db.opt);
+
+    return SS_ref_db;
+};
+SS_ref NLopt_opt_sb11_cpx_function(global_variable gv, SS_ref SS_ref_db){
+    unsigned int    n_em     = SS_ref_db.n_em;
+    double *x  = SS_ref_db.iguess;
+    for (int i = 0; i < (n_em); i++){
+        SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+        SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
+    }
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
+    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
+    nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_cpx, &SS_ref_db);
+    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
+    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
+    double minf;
+    if (gv.maxeval==1){  
+        minf = obj_sb11_cpx(n_em, x, NULL, &SS_ref_db);
+    }
+    else{
+        SS_ref_db.status = nlopt_optimize(SS_ref_db.opt, x, &minf);
+    }
+    /* Send back needed local solution parameters */
+    for (int i = 0; i < SS_ref_db.n_xeos; i++){
+        SS_ref_db.xeos[i] = x[i];
+    }
+
+    SS_ref_db.df   = minf;
+    nlopt_destroy(SS_ref_db.opt);
+
+    return SS_ref_db;
+};
+SS_ref NLopt_opt_sb11_hpcpx_function(global_variable gv, SS_ref SS_ref_db){
+    unsigned int    n_em     = SS_ref_db.n_em;
+    double *x  = SS_ref_db.iguess;
+    for (int i = 0; i < (n_em); i++){
+        SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+        SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
+    }
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
+    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
+    nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_hpcpx, &SS_ref_db);
+    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
+    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
+    double minf;
+    if (gv.maxeval==1){  
+        minf = obj_sb11_hpcpx(n_em, x, NULL, &SS_ref_db);
+    }
+    else{
+        SS_ref_db.status = nlopt_optimize(SS_ref_db.opt, x, &minf);
+    }
+    /* Send back needed local solution parameters */
+    for (int i = 0; i < SS_ref_db.n_xeos; i++){
+        SS_ref_db.xeos[i] = x[i];
+    }
+
+    SS_ref_db.df   = minf;
+    nlopt_destroy(SS_ref_db.opt);
+
+    return SS_ref_db;
+};
+SS_ref NLopt_opt_sb11_ak_function(global_variable gv, SS_ref SS_ref_db){
+    unsigned int    n_em     = SS_ref_db.n_em;
+    double *x  = SS_ref_db.iguess;
+    for (int i = 0; i < (n_em); i++){
+        SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+        SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
+    }
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
+    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
+    nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_ak, &SS_ref_db);
+    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
+    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
+    double minf;
+    if (gv.maxeval==1){  
+        minf = obj_sb11_ak(n_em, x, NULL, &SS_ref_db);
+    }
+    else{
+        SS_ref_db.status = nlopt_optimize(SS_ref_db.opt, x, &minf);
+    }
+    /* Send back needed local solution parameters */
+    for (int i = 0; i < SS_ref_db.n_xeos; i++){
+        SS_ref_db.xeos[i] = x[i];
+    }
+
+    SS_ref_db.df   = minf;
+    nlopt_destroy(SS_ref_db.opt);
+
+    return SS_ref_db;
+};
+SS_ref NLopt_opt_sb11_gtmj_function(global_variable gv, SS_ref SS_ref_db){
+    unsigned int    n_em     = SS_ref_db.n_em;
+    double *x  = SS_ref_db.iguess;
+    for (int i = 0; i < (n_em); i++){
+        SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+        SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
+    }
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
+    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
+    nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_gtmj, &SS_ref_db);
+    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
+    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
+    double minf;
+    if (gv.maxeval==1){  
+        minf = obj_sb11_gtmj(n_em, x, NULL, &SS_ref_db);
+    }
+    else{
+        SS_ref_db.status = nlopt_optimize(SS_ref_db.opt, x, &minf);
+    }
+    /* Send back needed local solution parameters */
+    for (int i = 0; i < SS_ref_db.n_xeos; i++){
+        SS_ref_db.xeos[i] = x[i];
+    }
+
+    SS_ref_db.df   = minf;
+    nlopt_destroy(SS_ref_db.opt);
+
+    return SS_ref_db;
+};
+SS_ref NLopt_opt_sb11_pv_function(global_variable gv, SS_ref SS_ref_db){
+    unsigned int    n_em     = SS_ref_db.n_em;
+    double *x  = SS_ref_db.iguess;
+    for (int i = 0; i < (n_em); i++){
+        SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+        SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
+    }
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
+    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
+    nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_pv, &SS_ref_db);
+    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
+    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
+    double minf;
+    if (gv.maxeval==1){  
+        minf = obj_sb11_pv(n_em, x, NULL, &SS_ref_db);
+    }
+    else{
+        SS_ref_db.status = nlopt_optimize(SS_ref_db.opt, x, &minf);
+    }
+    /* Send back needed local solution parameters */
+    for (int i = 0; i < SS_ref_db.n_xeos; i++){
+        SS_ref_db.xeos[i] = x[i];
+    }
+
+    SS_ref_db.df   = minf;
+    nlopt_destroy(SS_ref_db.opt);
+
+    return SS_ref_db;
+};
+SS_ref NLopt_opt_sb11_ppv_function(global_variable gv, SS_ref SS_ref_db){
+    unsigned int    n_em     = SS_ref_db.n_em;
+    double *x  = SS_ref_db.iguess;
+    for (int i = 0; i < (n_em); i++){
+        SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+        SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
+    }
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
+    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
+    nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_ppv, &SS_ref_db);
+    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
+    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
+    double minf;
+    if (gv.maxeval==1){  
+        minf = obj_sb11_ppv(n_em, x, NULL, &SS_ref_db);
+    }
+    else{
+        SS_ref_db.status = nlopt_optimize(SS_ref_db.opt, x, &minf);
+    }
+    /* Send back needed local solution parameters */
+    for (int i = 0; i < SS_ref_db.n_xeos; i++){
+        SS_ref_db.xeos[i] = x[i];
+    }
+
+    SS_ref_db.df   = minf;
+    nlopt_destroy(SS_ref_db.opt);
+
+    return SS_ref_db;
+};
+SS_ref NLopt_opt_sb11_mw_function(global_variable gv, SS_ref SS_ref_db){
+    unsigned int    n_em     = SS_ref_db.n_em;
+    double *x  = SS_ref_db.iguess;
+    for (int i = 0; i < (n_em); i++){
+        SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+        SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
+    }
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
+    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
+    nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_mw, &SS_ref_db);
+    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
+    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
+    double minf;
+    if (gv.maxeval==1){  
+        minf = obj_sb11_mw(n_em, x, NULL, &SS_ref_db);
+    }
+    else{
+        SS_ref_db.status = nlopt_optimize(SS_ref_db.opt, x, &minf);
+    }
+    /* Send back needed local solution parameters */
+    for (int i = 0; i < SS_ref_db.n_xeos; i++){
+        SS_ref_db.xeos[i] = x[i];
+    }
+
+    SS_ref_db.df   = minf;
+    nlopt_destroy(SS_ref_db.opt);
+
+    return SS_ref_db;
+};
+SS_ref NLopt_opt_sb11_cf_function(global_variable gv, SS_ref SS_ref_db){
+    unsigned int    n_em     = SS_ref_db.n_em;
+    double *x  = SS_ref_db.iguess;
+    for (int i = 0; i < (n_em); i++){
+        SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+        SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
+    }
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
+    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
+    nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_cf, &SS_ref_db);
+    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
+    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
+    double minf;
+    if (gv.maxeval==1){  
+        minf = obj_sb11_cf(n_em, x, NULL, &SS_ref_db);
+    }
+    else{
+        SS_ref_db.status = nlopt_optimize(SS_ref_db.opt, x, &minf);
+    }
+    /* Send back needed local solution parameters */
+    for (int i = 0; i < SS_ref_db.n_xeos; i++){
+        SS_ref_db.xeos[i] = x[i];
+    }
+
+    SS_ref_db.df   = minf;
+    nlopt_destroy(SS_ref_db.opt);
+
+    return SS_ref_db;
+};
+
+void SB_sb11_NLopt_opt_init(        NLopt_type              *NLopt_opt,
+                                    global_variable          gv         ){
+                                        
+    for (int iss = 0; iss < gv.len_ss; iss++){
+        if      (strcmp( gv.SS_list[iss], "plg")  == 0 ){
+            NLopt_opt[iss]  = NLopt_opt_sb11_plg_function;              }
+        else if (strcmp( gv.SS_list[iss], "sp")  == 0 ){
+            NLopt_opt[iss]  = NLopt_opt_sb11_sp_function;               }
+        else if (strcmp( gv.SS_list[iss], "ol")  == 0 ){
+            NLopt_opt[iss]  = NLopt_opt_sb11_ol_function;               }
+        else if (strcmp( gv.SS_list[iss], "wa")  == 0 ){
+            NLopt_opt[iss]  = NLopt_opt_sb11_wa_function;               }
+        else if (strcmp( gv.SS_list[iss], "ri")  == 0 ){
+            NLopt_opt[iss]  = NLopt_opt_sb11_ri_function;               }
+        else if (strcmp( gv.SS_list[iss], "opx")  == 0 ){
+            NLopt_opt[iss]  = NLopt_opt_sb11_opx_function;              }
+        else if (strcmp( gv.SS_list[iss], "cpx")  == 0 ){
+            NLopt_opt[iss]  = NLopt_opt_sb11_cpx_function;              }
+        else if (strcmp( gv.SS_list[iss], "hpcpx")  == 0 ){
+            NLopt_opt[iss]  = NLopt_opt_sb11_hpcpx_function;            }
+        else if (strcmp( gv.SS_list[iss], "ak")  == 0 ){
+            NLopt_opt[iss]  = NLopt_opt_sb11_ak_function;               }
+        else if (strcmp( gv.SS_list[iss], "gtmj")  == 0 ){
+            NLopt_opt[iss]  = NLopt_opt_sb11_gtmj_function;             }
+        else if (strcmp( gv.SS_list[iss], "pv")  == 0 ){
+            NLopt_opt[iss]  = NLopt_opt_sb11_pv_function;               }
+        else if (strcmp( gv.SS_list[iss], "ppv")  == 0 ){
+            NLopt_opt[iss]  = NLopt_opt_sb11_ppv_function;              }
+        else if (strcmp( gv.SS_list[iss], "mw")  == 0 ){
+            NLopt_opt[iss]  = NLopt_opt_sb11_mw_function;               }
+        else if (strcmp( gv.SS_list[iss], "cf")  == 0 ){
+            NLopt_opt[iss]  = NLopt_opt_sb11_cf_function;               }
+        else{
+            printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
+        }
+    };
+}
+
+
+void SB_NLopt_opt_init(	        	NLopt_type 			*NLopt_opt,
+									global_variable 	 gv				){
+
+
+	if (gv.EM_database == 0){				// metapelite database //
+		SB_sb11_NLopt_opt_init(	 				NLopt_opt,
+												gv							);
+	}
+
+}

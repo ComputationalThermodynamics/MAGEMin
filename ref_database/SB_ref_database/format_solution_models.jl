@@ -2,7 +2,7 @@
 # This reads the data exported as 
 
 
-using JSON3, DataFrames, JLD2
+using JSON3, DataFrames, JLD2, Symbolics, Combinatorics
 include("functions_ss.jl")
 
 sb_ver  = "sb11"
@@ -11,9 +11,15 @@ n_el    = length(elems)
 
 ss      = JSON3.read("stx11_solution.json", Vector{ModelJSON}) 
 
-sb_gss_init_function, sb_gss_function = generate_C_files(sb_ver,ss)
+sb_gss_init_function, sb_gss_function, sb_objective_functions, sb_SS_xeos_PC, SB_NLopt_opt_functions = generate_C_files(sb_ver,ss)
 
 
-print(sb_gss_init_function)
+# print(sb_gss_init_function)
 
 print(sb_gss_function)
+
+# print(sb_objective_functions)
+
+# print(sb_SS_xeos_PC)
+
+# print(SB_NLopt_opt_functions)
