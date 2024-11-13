@@ -863,8 +863,10 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 	}
 	else if( strcmp(gv.research_group, "sb") == 0 ){
 		if (gv.solver != 0){
-			printf(" WARNING: Solver option is not available for Stixrude & Lithgow-Bertelloni 2011 dataset, setting default one\n");
 			gv.solver = 0;
+			if (gv.verbose == 1){
+				printf(" WARNING: Solver option is not available for Stixrude & Lithgow-Bertelloni 2011 dataset, setting default one\n");
+			}
 		}
 
 		// checks if the end-member dataset option arg is correct, otherwise sets to default
@@ -880,7 +882,9 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 			gv.EM_database = 0;
 		}
 		else {
-			printf(" No or wrong database acronym has been provided, using default Stixrude & Lithgow-Bertelloni 2011([sb11])\n");
+			if (gv.verbose == 1){
+				printf(" No or wrong database acronym has been provided, using default Stixrude & Lithgow-Bertelloni 2011([sb11])\n");
+			}
 			gv.EM_database = 0;
 		}
 

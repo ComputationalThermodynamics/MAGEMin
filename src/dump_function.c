@@ -762,14 +762,15 @@ void fill_output_struct(		global_variable 	 gv,
 
 	/* compute cp as J/K/kg for given bulk-rock composition */
 	sp[0].s_cp 					= sp[0].cp_wt/mass_bulk*1e6;
-
-	mSS_output_struct(	gv,
-						splx_data,
-						z_b,
-						PP_ref_db,
-						SS_ref_db,
-						cp,
-						sp 			);
+	if (strcmp(gv.research_group, "tc") 	== 0 ){
+		mSS_output_struct(	gv,
+							splx_data,
+							z_b,
+							PP_ref_db,
+							SS_ref_db,
+							cp,
+							sp 			);
+	}
 
 }
 

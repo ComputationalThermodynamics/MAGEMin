@@ -1738,7 +1738,7 @@ global_variable compute_activities(			int					 EM_database,
 	}
 	else {
 		if (gv.verbose == 1){
-			printf("Oxygen fugacity could not be calculated, is O2 endmember included? Is pressure = 0.0?\n");
+			printf("Oxygen fugacity cannot not be calculated (O oxide not part of the database)\n");
 		}
 	}
 
@@ -1774,7 +1774,12 @@ global_variable compute_activities(			int					 EM_database,
 	/* if we can compute the activity of MgO (if Gamma MgO exists i.e., if the MgO is taken into account) */
 	if (MgO_ix != -1){
 		double G0_per = 0.0;
-		PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "per", "equilibrium");
+		if (strcmp(gv.research_group, "tc") 	== 0 ){
+			PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "per", "equilibrium");
+		}
+		else if (strcmp(gv.research_group, "sb") 	== 0 ){
+			PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "pe", "equilibrium");
+		}
 		G0_per  		= PP_db.gbase;//*PP_db.factor;
 		gv.system_aMgO = exp( (gv.gam_tot[MgO_ix] - G0_per) / (z_b.R*z_b.T));
 	}
@@ -1782,7 +1787,12 @@ global_variable compute_activities(			int					 EM_database,
 	/* if we can compute the activity of FeO (if Gamma FeO exists i.e., if the FeO is taken into account) */
 	if (FeO_ix != -1){
 		double G0_fper  = 0.0;
-		PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "fper", "equilibrium");
+		if (strcmp(gv.research_group, "tc") 	== 0 ){
+			PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "fper", "equilibrium");
+		}
+		else if (strcmp(gv.research_group, "sb") 	== 0 ){
+			PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "wu", "equilibrium");
+		}
 		G0_fper  		= PP_db.gbase;//*PP_db.factor;
 		gv.system_aFeO  = exp( (gv.gam_tot[FeO_ix] - G0_fper) / (z_b.R*z_b.T));
 	}
@@ -1791,7 +1801,12 @@ global_variable compute_activities(			int					 EM_database,
 	/* if we can compute the activity of Al2O3 (if Gamma Al2O3 exists i.e., if the Al2O3 is taken into account) */
 	if (Al2O3_ix != -1){
 		double G0_cor = 0.0;
+		if (strcmp(gv.research_group, "tc") 	== 0 ){
 		PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "cor", "equilibrium");
+		}
+		else if (strcmp(gv.research_group, "sb") 	== 0 ){
+			PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "co", "equilibrium");
+		}
 		G0_cor  		= PP_db.gbase;//*PP_db.factor;
 		gv.system_aAl2O3 = exp( (gv.gam_tot[Al2O3_ix] - G0_cor) / (z_b.R*z_b.T));
 	}
@@ -1816,15 +1831,28 @@ global_variable compute_activities(			int					 EM_database,
 	if (SiO2_ix != -1){
 		double G0_q 	= 0.0;
 		double G0_coe 	= 0.0;
-		
-		PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "q", "equilibrium");
-		G0_q  			= PP_db.gbase;//*PP_db.factor;
-		PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "coe", "equilibrium");
-		G0_coe  		= PP_db.gbase;//*PP_db.factor;
+		double G0_st 	= 0.0;
 
+		if (strcmp(gv.research_group, "tc") 	== 0 ){
+			PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "q", "equilibrium");
+			G0_q  			= PP_db.gbase;//*PP_db.factor;
+			PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "coe", "equilibrium");
+			G0_coe  		= PP_db.gbase;//*PP_db.factor;
+		}
+		else if (strcmp(gv.research_group, "sb") 	== 0 ){
+			PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "qtz", "equilibrium");
+			G0_q  			= PP_db.gbase;//*PP_db.factor;
+			PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "coe", "equilibrium");
+			G0_coe  		= PP_db.gbase;//*PP_db.factor;
+			PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "st", "equilibrium");
+			G0_st  		= PP_db.gbase;//*PP_db.factor;
+		}
 		double G0_SiO2 	= G0_q;
 		if (G0_coe < G0_SiO2){
 			G0_SiO2 = G0_coe;
+			if (G0_st < G0_coe){
+				G0_SiO2 = G0_st;
+			}
 		}
 		gv.system_aSiO2 = exp( (gv.gam_tot[SiO2_ix] - G0_SiO2) / (z_b.R*z_b.T));
 	}
