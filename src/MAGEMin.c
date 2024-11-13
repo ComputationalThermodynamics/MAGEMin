@@ -862,6 +862,11 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		}
 	}
 	else if( strcmp(gv.research_group, "sb") == 0 ){
+		if (gv.solver != 0){
+			printf(" WARNING: Solver option is not available for Stixrude & Lithgow-Bertelloni 2011 dataset, setting default one\n");
+			gv.solver = 0;
+		}
+
 		// checks if the end-member dataset option arg is correct, otherwise sets to default
 		if 	(gv.EM_dataset 	== -1 || gv.EM_dataset 	== 2011 ){
 		}

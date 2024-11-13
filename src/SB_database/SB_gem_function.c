@@ -259,7 +259,7 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 	for (i = 0; i < len_ox; i++){
 		PP_ref_db.Comp[i] = composition[i];
 	}
-	PP_ref_db.gbase   =  gbase;
+	PP_ref_db.gbase   =  gbase/kbar2bar;
 	PP_ref_db.factor  =  factor;
 	PP_ref_db.phase_shearModulus  =  (EM_return.input_2[0]*kbar2bar + (P - P0)*(EM_return.input_2[1])*kbar2bar + (T - T0)*(EM_return.input_2[2]))/kbar2bar;
 

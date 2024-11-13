@@ -27,6 +27,20 @@
 #include "../all_solution_phases.h"
 #include "../toolkit.h"
 
+// Equality constraint function: sum(x) == 1
+double equality_constraint(unsigned n, const double *x, double *grad, void *data) {
+        if (grad) {
+            for (unsigned i = 0; i < n; i++) {
+            grad[i] = 1.0;
+        }
+    }
+    double sum = 0.0;
+    for (unsigned i = 0; i < n; i++) {
+            sum += x[i];
+    }
+    return sum - 1.0;
+}
+
 SS_ref NLopt_opt_sb11_plg_function(global_variable gv, SS_ref SS_ref_db){
     unsigned int    n_em     = SS_ref_db.n_em;
     double *x  = SS_ref_db.iguess;
@@ -34,10 +48,11 @@ SS_ref NLopt_opt_sb11_plg_function(global_variable gv, SS_ref SS_ref_db){
         SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
         SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
     }
-    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n_em)); 
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_plg, &SS_ref_db);
+    nlopt_add_equality_constraint(SS_ref_db.opt, equality_constraint, NULL, 1e-8);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     double minf;
@@ -64,10 +79,11 @@ SS_ref NLopt_opt_sb11_sp_function(global_variable gv, SS_ref SS_ref_db){
         SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
         SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
     }
-    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n_em)); 
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_sp, &SS_ref_db);
+    nlopt_add_equality_constraint(SS_ref_db.opt, equality_constraint, NULL, 1e-8);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     double minf;
@@ -94,10 +110,11 @@ SS_ref NLopt_opt_sb11_ol_function(global_variable gv, SS_ref SS_ref_db){
         SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
         SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
     }
-    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n_em)); 
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_ol, &SS_ref_db);
+    nlopt_add_equality_constraint(SS_ref_db.opt, equality_constraint, NULL, 1e-8);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     double minf;
@@ -124,10 +141,11 @@ SS_ref NLopt_opt_sb11_wa_function(global_variable gv, SS_ref SS_ref_db){
         SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
         SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
     }
-    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n_em)); 
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_wa, &SS_ref_db);
+    nlopt_add_equality_constraint(SS_ref_db.opt, equality_constraint, NULL, 1e-8);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     double minf;
@@ -154,10 +172,11 @@ SS_ref NLopt_opt_sb11_ri_function(global_variable gv, SS_ref SS_ref_db){
         SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
         SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
     }
-    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n_em)); 
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_ri, &SS_ref_db);
+    nlopt_add_equality_constraint(SS_ref_db.opt, equality_constraint, NULL, 1e-8);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     double minf;
@@ -184,10 +203,11 @@ SS_ref NLopt_opt_sb11_opx_function(global_variable gv, SS_ref SS_ref_db){
         SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
         SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
     }
-    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n_em)); 
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_opx, &SS_ref_db);
+    nlopt_add_equality_constraint(SS_ref_db.opt, equality_constraint, NULL, 1e-8);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     double minf;
@@ -214,10 +234,11 @@ SS_ref NLopt_opt_sb11_cpx_function(global_variable gv, SS_ref SS_ref_db){
         SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
         SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
     }
-    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n_em)); 
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_cpx, &SS_ref_db);
+    nlopt_add_equality_constraint(SS_ref_db.opt, equality_constraint, NULL, 1e-8);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     double minf;
@@ -244,10 +265,11 @@ SS_ref NLopt_opt_sb11_hpcpx_function(global_variable gv, SS_ref SS_ref_db){
         SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
         SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
     }
-    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n_em)); 
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_hpcpx, &SS_ref_db);
+    nlopt_add_equality_constraint(SS_ref_db.opt, equality_constraint, NULL, 1e-8);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     double minf;
@@ -274,10 +296,11 @@ SS_ref NLopt_opt_sb11_ak_function(global_variable gv, SS_ref SS_ref_db){
         SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
         SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
     }
-    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n_em)); 
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_ak, &SS_ref_db);
+    nlopt_add_equality_constraint(SS_ref_db.opt, equality_constraint, NULL, 1e-8);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     double minf;
@@ -304,10 +327,11 @@ SS_ref NLopt_opt_sb11_gtmj_function(global_variable gv, SS_ref SS_ref_db){
         SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
         SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
     }
-    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n_em)); 
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_gtmj, &SS_ref_db);
+    nlopt_add_equality_constraint(SS_ref_db.opt, equality_constraint, NULL, 1e-8);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     double minf;
@@ -334,10 +358,11 @@ SS_ref NLopt_opt_sb11_pv_function(global_variable gv, SS_ref SS_ref_db){
         SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
         SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
     }
-    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n_em)); 
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_pv, &SS_ref_db);
+    nlopt_add_equality_constraint(SS_ref_db.opt, equality_constraint, NULL, 1e-8);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     double minf;
@@ -364,10 +389,11 @@ SS_ref NLopt_opt_sb11_ppv_function(global_variable gv, SS_ref SS_ref_db){
         SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
         SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
     }
-    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n_em)); 
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_ppv, &SS_ref_db);
+    nlopt_add_equality_constraint(SS_ref_db.opt, equality_constraint, NULL, 1e-8);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     double minf;
@@ -394,10 +420,11 @@ SS_ref NLopt_opt_sb11_mw_function(global_variable gv, SS_ref SS_ref_db){
         SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
         SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
     }
-    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n_em)); 
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_mw, &SS_ref_db);
+    nlopt_add_equality_constraint(SS_ref_db.opt, equality_constraint, NULL, 1e-8);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     double minf;
@@ -424,10 +451,11 @@ SS_ref NLopt_opt_sb11_cf_function(global_variable gv, SS_ref SS_ref_db){
         SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
         SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
     }
-    SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); 
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n_em)); 
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_sb11_cf, &SS_ref_db);
+    nlopt_add_equality_constraint(SS_ref_db.opt, equality_constraint, NULL, 1e-8);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     double minf;
@@ -447,6 +475,7 @@ SS_ref NLopt_opt_sb11_cf_function(global_variable gv, SS_ref SS_ref_db){
 
     return SS_ref_db;
 };
+
 
 void SB_sb11_NLopt_opt_init(        NLopt_type              *NLopt_opt,
                                     global_variable          gv         ){

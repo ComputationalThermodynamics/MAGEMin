@@ -47,10 +47,13 @@ double obj_sb11_plg(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double *gb        = d->gb_lvl;
     double *mu_Gex    = d->mu_Gex;
 
+    for (int i = 0; i < n_em; i++){
+        p[i]   = x[i];
+    }
+
     double tmp = 0.0;
     double Gex = 0.0;
     for (int i = 0; i < n_em; i++){
-        p[i]   = x[i];
         Gex = 0.0;
         int it    = 0;
         for (int j = 0; j < d->n_xeos; j++){
@@ -60,7 +63,7 @@ double obj_sb11_plg(unsigned n, const double *x, double *grad, void *SS_ref_db){
                 it += 1;
             }
         }
-        mu_Gex[i] = Gex;
+        mu_Gex[i] = Gex/1000.0;
     }
 
     d->sum_apep = 0.0;
@@ -78,17 +81,8 @@ double obj_sb11_plg(unsigned n, const double *x, double *grad, void *SS_ref_db){
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        for (int i = 0; i < n_em; i++){
-            d->dfx[0] = (R*T*(1 + log(p[0])) + mu_Gex[i] * gb[i])* d->factor;
-            d->dfx[1] = (R*T*(1 + log(p[1])) + mu_Gex[i] * gb[i])* d->factor;
-        }
-
-        vector_matrix_multiplication(dfx,  N, Vec1, n_em, (n_em-1));
-        matrix_vector_multiplication(N, Vec1, Vec2, n_em, (n_em-1));
-
-        for (int i = 0; i < n_em; i++){
-            grad[i] = dfx[i];
-        }
+        grad[0] = (R*T*(1 + log(p[0])) + mu_Gex[0] + gb[0] )* d->factor;
+        grad[1] = (R*T*(1 + log(p[1])) + mu_Gex[1] + gb[1] )* d->factor;
     }
     return d->df;
 }
@@ -111,10 +105,13 @@ double obj_sb11_sp(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double *gb        = d->gb_lvl;
     double *mu_Gex    = d->mu_Gex;
 
+    for (int i = 0; i < n_em; i++){
+        p[i]   = x[i];
+    }
+
     double tmp = 0.0;
     double Gex = 0.0;
     for (int i = 0; i < n_em; i++){
-        p[i]   = x[i];
         Gex = 0.0;
         int it    = 0;
         for (int j = 0; j < d->n_xeos; j++){
@@ -124,7 +121,7 @@ double obj_sb11_sp(unsigned n, const double *x, double *grad, void *SS_ref_db){
                 it += 1;
             }
         }
-        mu_Gex[i] = Gex;
+        mu_Gex[i] = Gex/1000.0;
     }
 
     d->sum_apep = 0.0;
@@ -142,17 +139,8 @@ double obj_sb11_sp(unsigned n, const double *x, double *grad, void *SS_ref_db){
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        for (int i = 0; i < n_em; i++){
-            d->dfx[0] = (R*T*(8.0 + 7.0*log(0.875*p[0] + 0.875*p[1]) + 3.0*log(0.75*p[0]) + log(0.125*p[0]) + log(0.25*p[0] + 0.25*p[1]) + 0.125 / 0.125 + 2.25 / 0.75) + mu_Gex[i] * gb[i])* d->factor;
-            d->dfx[1] = (R*T*(8.0 + 7.0*log(0.875*p[0] + 0.875*p[1]) + log(0.125*p[1]) + 3.0*log(0.75*p[1]) + log(0.25*p[0] + 0.25*p[1]) + 0.125 / 0.125 + 2.25 / 0.75) + mu_Gex[i] * gb[i])* d->factor;
-        }
-
-        vector_matrix_multiplication(dfx,  N, Vec1, n_em, (n_em-1));
-        matrix_vector_multiplication(N, Vec1, Vec2, n_em, (n_em-1));
-
-        for (int i = 0; i < n_em; i++){
-            grad[i] = dfx[i];
-        }
+        grad[0] = (R*T*(8.0 + 7.0*log(0.875*p[0] + 0.875*p[1]) + 3.0*log(0.75*p[0]) + log(0.125*p[0]) + log(0.25*p[0] + 0.25*p[1]) + 0.125 / 0.125 + 2.25 / 0.75) + mu_Gex[0] + gb[0] )* d->factor;
+        grad[1] = (R*T*(8.0 + 7.0*log(0.875*p[0] + 0.875*p[1]) + log(0.125*p[1]) + 3.0*log(0.75*p[1]) + log(0.25*p[0] + 0.25*p[1]) + 0.125 / 0.125 + 2.25 / 0.75) + mu_Gex[1] + gb[1] )* d->factor;
     }
     return d->df;
 }
@@ -175,10 +163,13 @@ double obj_sb11_ol(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double *gb        = d->gb_lvl;
     double *mu_Gex    = d->mu_Gex;
 
+    for (int i = 0; i < n_em; i++){
+        p[i]   = x[i];
+    }
+
     double tmp = 0.0;
     double Gex = 0.0;
     for (int i = 0; i < n_em; i++){
-        p[i]   = x[i];
         Gex = 0.0;
         int it    = 0;
         for (int j = 0; j < d->n_xeos; j++){
@@ -188,7 +179,7 @@ double obj_sb11_ol(unsigned n, const double *x, double *grad, void *SS_ref_db){
                 it += 1;
             }
         }
-        mu_Gex[i] = Gex;
+        mu_Gex[i] = Gex/1000.0;
     }
 
     d->sum_apep = 0.0;
@@ -206,17 +197,8 @@ double obj_sb11_ol(unsigned n, const double *x, double *grad, void *SS_ref_db){
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        for (int i = 0; i < n_em; i++){
-            d->dfx[0] = (R*T*(2.0 + 2.0*log(p[0])) + mu_Gex[i] * gb[i])* d->factor;
-            d->dfx[1] = (R*T*(2.0 + 2.0*log(p[1])) + mu_Gex[i] * gb[i])* d->factor;
-        }
-
-        vector_matrix_multiplication(dfx,  N, Vec1, n_em, (n_em-1));
-        matrix_vector_multiplication(N, Vec1, Vec2, n_em, (n_em-1));
-
-        for (int i = 0; i < n_em; i++){
-            grad[i] = dfx[i];
-        }
+        grad[0] = (R*T*(2.0 + 2.0*log(p[0])) + mu_Gex[0] + gb[0] )* d->factor;
+        grad[1] = (R*T*(2.0 + 2.0*log(p[1])) + mu_Gex[1] + gb[1] )* d->factor;
     }
     return d->df;
 }
@@ -239,10 +221,13 @@ double obj_sb11_wa(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double *gb        = d->gb_lvl;
     double *mu_Gex    = d->mu_Gex;
 
+    for (int i = 0; i < n_em; i++){
+        p[i]   = x[i];
+    }
+
     double tmp = 0.0;
     double Gex = 0.0;
     for (int i = 0; i < n_em; i++){
-        p[i]   = x[i];
         Gex = 0.0;
         int it    = 0;
         for (int j = 0; j < d->n_xeos; j++){
@@ -252,7 +237,7 @@ double obj_sb11_wa(unsigned n, const double *x, double *grad, void *SS_ref_db){
                 it += 1;
             }
         }
-        mu_Gex[i] = Gex;
+        mu_Gex[i] = Gex/1000.0;
     }
 
     d->sum_apep = 0.0;
@@ -270,17 +255,8 @@ double obj_sb11_wa(unsigned n, const double *x, double *grad, void *SS_ref_db){
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        for (int i = 0; i < n_em; i++){
-            d->dfx[0] = (R*T*(2.0 + 2.0*log(p[0])) + mu_Gex[i] * gb[i])* d->factor;
-            d->dfx[1] = (R*T*(2.0 + 2.0*log(p[1])) + mu_Gex[i] * gb[i])* d->factor;
-        }
-
-        vector_matrix_multiplication(dfx,  N, Vec1, n_em, (n_em-1));
-        matrix_vector_multiplication(N, Vec1, Vec2, n_em, (n_em-1));
-
-        for (int i = 0; i < n_em; i++){
-            grad[i] = dfx[i];
-        }
+        grad[0] = (R*T*(2.0 + 2.0*log(p[0])) + mu_Gex[0] + gb[0] )* d->factor;
+        grad[1] = (R*T*(2.0 + 2.0*log(p[1])) + mu_Gex[1] + gb[1] )* d->factor;
     }
     return d->df;
 }
@@ -303,10 +279,13 @@ double obj_sb11_ri(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double *gb        = d->gb_lvl;
     double *mu_Gex    = d->mu_Gex;
 
+    for (int i = 0; i < n_em; i++){
+        p[i]   = x[i];
+    }
+
     double tmp = 0.0;
     double Gex = 0.0;
     for (int i = 0; i < n_em; i++){
-        p[i]   = x[i];
         Gex = 0.0;
         int it    = 0;
         for (int j = 0; j < d->n_xeos; j++){
@@ -316,7 +295,7 @@ double obj_sb11_ri(unsigned n, const double *x, double *grad, void *SS_ref_db){
                 it += 1;
             }
         }
-        mu_Gex[i] = Gex;
+        mu_Gex[i] = Gex/1000.0;
     }
 
     d->sum_apep = 0.0;
@@ -334,17 +313,8 @@ double obj_sb11_ri(unsigned n, const double *x, double *grad, void *SS_ref_db){
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        for (int i = 0; i < n_em; i++){
-            d->dfx[0] = (R*T*(2.0 + 2.0*log(p[0])) + mu_Gex[i] * gb[i])* d->factor;
-            d->dfx[1] = (R*T*(2.0 + 2.0*log(p[1])) + mu_Gex[i] * gb[i])* d->factor;
-        }
-
-        vector_matrix_multiplication(dfx,  N, Vec1, n_em, (n_em-1));
-        matrix_vector_multiplication(N, Vec1, Vec2, n_em, (n_em-1));
-
-        for (int i = 0; i < n_em; i++){
-            grad[i] = dfx[i];
-        }
+        grad[0] = (R*T*(2.0 + 2.0*log(p[0])) + mu_Gex[0] + gb[0] )* d->factor;
+        grad[1] = (R*T*(2.0 + 2.0*log(p[1])) + mu_Gex[1] + gb[1] )* d->factor;
     }
     return d->df;
 }
@@ -367,10 +337,13 @@ double obj_sb11_opx(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double *gb        = d->gb_lvl;
     double *mu_Gex    = d->mu_Gex;
 
+    for (int i = 0; i < n_em; i++){
+        p[i]   = x[i];
+    }
+
     double tmp = 0.0;
     double Gex = 0.0;
     for (int i = 0; i < n_em; i++){
-        p[i]   = x[i];
         Gex = 0.0;
         int it    = 0;
         for (int j = 0; j < d->n_xeos; j++){
@@ -380,7 +353,7 @@ double obj_sb11_opx(unsigned n, const double *x, double *grad, void *SS_ref_db){
                 it += 1;
             }
         }
-        mu_Gex[i] = Gex;
+        mu_Gex[i] = Gex/1000.0;
     }
 
     d->sum_apep = 0.0;
@@ -398,19 +371,10 @@ double obj_sb11_opx(unsigned n, const double *x, double *grad, void *SS_ref_db){
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        for (int i = 0; i < n_em; i++){
-            d->dfx[0] = (R*T*(2 + log(p[0]) + log(p[0] + p[2])) + mu_Gex[i] * gb[i])* d->factor;
-            d->dfx[1] = (R*T*(2 + 2*log(p[1])) + mu_Gex[i] * gb[i])* d->factor;
-            d->dfx[2] = (R*T*(2 + log(p[0] + p[2]) + log(p[2] + p[3])) + mu_Gex[i] * gb[i])* d->factor;
-            d->dfx[3] = (R*T*(2 + log(p[3]) + log(p[2] + p[3])) + mu_Gex[i] * gb[i])* d->factor;
-        }
-
-        vector_matrix_multiplication(dfx,  N, Vec1, n_em, (n_em-1));
-        matrix_vector_multiplication(N, Vec1, Vec2, n_em, (n_em-1));
-
-        for (int i = 0; i < n_em; i++){
-            grad[i] = dfx[i];
-        }
+        grad[0] = (R*T*(2 + log(p[0]) + log(p[0] + p[2])) + mu_Gex[0] + gb[0] )* d->factor;
+        grad[1] = (R*T*(2 + 2*log(p[1])) + mu_Gex[1] + gb[1] )* d->factor;
+        grad[2] = (R*T*(2 + log(p[0] + p[2]) + log(p[2] + p[3])) + mu_Gex[2] + gb[2] )* d->factor;
+        grad[3] = (R*T*(2 + log(p[3]) + log(p[2] + p[3])) + mu_Gex[3] + gb[3] )* d->factor;
     }
     return d->df;
 }
@@ -434,9 +398,12 @@ double obj_sb11_cpx(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double *mu_Gex    = d->mu_Gex;
     double *mat_phi   = d->mat_phi;
 
-    d->sum_v = 0.0;
     for (int i = 0; i < n_em; i++){
         p[i]   = x[i];
+    }
+
+    d->sum_v = 0.0;
+    for (int i = 0; i < n_em; i++){
         d->sum_v += p[i]*d->v[i];
     }
     for (int i = 0; i < n_em; i++){
@@ -472,20 +439,11 @@ double obj_sb11_cpx(unsigned n, const double *x, double *grad, void *SS_ref_db){
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        for (int i = 0; i < n_em; i++){
-            d->dfx[0] = (R*T*(4.0 + log(p[0]) + log(p[0] + p[3] + p[4]) + 2.0*log(p[0] + p[1] + p[2] + 0.5*p[3] + p[4])) + mu_Gex[i] * gb[i])* d->factor;
-            d->dfx[1] = (R*T*(4.0 + log(p[1] + p[3]) + 2.0*log(p[0] + p[1] + p[2] + 0.5*p[3] + p[4]) + log(p[1])) + mu_Gex[i] * gb[i])* d->factor;
-            d->dfx[2] = (R*T*(4.0 + log(p[2] + p[4]) + log(p[2]) + 2.0*log(p[0] + p[1] + p[2] + 0.5*p[3] + p[4])) + mu_Gex[i] * gb[i])* d->factor;
-            d->dfx[3] = (R*T*(3 + log(0.5*p[3]) + 0.5 / 0.5 + log(p[0] + p[3] + p[4]) + log(p[1] + p[3]) + log(p[0] + p[1] + p[2] + 0.5*p[3] + p[4])) + mu_Gex[i] * gb[i])* d->factor;
-            d->dfx[4] = (R*T*(4.0 + log(p[0] + p[3] + p[4]) + log(p[2] + p[4]) + 2.0*log(p[0] + p[1] + p[2] + 0.5*p[3] + p[4])) + mu_Gex[i] * gb[i])* d->factor;
-        }
-
-        vector_matrix_multiplication(dfx,  N, Vec1, n_em, (n_em-1));
-        matrix_vector_multiplication(N, Vec1, Vec2, n_em, (n_em-1));
-
-        for (int i = 0; i < n_em; i++){
-            grad[i] = dfx[i];
-        }
+        grad[0] = (R*T*(4.0 + log(p[0]) + log(p[0] + p[3] + p[4]) + 2.0*log(p[0] + p[1] + p[2] + 0.5*p[3] + p[4])) + mu_Gex[0] + gb[0] )* d->factor;
+        grad[1] = (R*T*(4.0 + log(p[1] + p[3]) + 2.0*log(p[0] + p[1] + p[2] + 0.5*p[3] + p[4]) + log(p[1])) + mu_Gex[1] + gb[1] )* d->factor;
+        grad[2] = (R*T*(4.0 + log(p[2] + p[4]) + log(p[2]) + 2.0*log(p[0] + p[1] + p[2] + 0.5*p[3] + p[4])) + mu_Gex[2] + gb[2] )* d->factor;
+        grad[3] = (R*T*(3 + log(0.5*p[3]) + 0.5 / 0.5 + log(p[0] + p[3] + p[4]) + log(p[1] + p[3]) + log(p[0] + p[1] + p[2] + 0.5*p[3] + p[4])) + mu_Gex[3] + gb[3] )* d->factor;
+        grad[4] = (R*T*(4.0 + log(p[0] + p[3] + p[4]) + log(p[2] + p[4]) + 2.0*log(p[0] + p[1] + p[2] + 0.5*p[3] + p[4])) + mu_Gex[4] + gb[4] )* d->factor;
     }
     return d->df;
 }
@@ -508,10 +466,13 @@ double obj_sb11_hpcpx(unsigned n, const double *x, double *grad, void *SS_ref_db
     double *gb        = d->gb_lvl;
     double *mu_Gex    = d->mu_Gex;
 
+    for (int i = 0; i < n_em; i++){
+        p[i]   = x[i];
+    }
+
     double tmp = 0.0;
     double Gex = 0.0;
     for (int i = 0; i < n_em; i++){
-        p[i]   = x[i];
         Gex = 0.0;
         int it    = 0;
         for (int j = 0; j < d->n_xeos; j++){
@@ -521,7 +482,7 @@ double obj_sb11_hpcpx(unsigned n, const double *x, double *grad, void *SS_ref_db
                 it += 1;
             }
         }
-        mu_Gex[i] = Gex;
+        mu_Gex[i] = Gex/1000.0;
     }
 
     d->sum_apep = 0.0;
@@ -539,17 +500,8 @@ double obj_sb11_hpcpx(unsigned n, const double *x, double *grad, void *SS_ref_db
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        for (int i = 0; i < n_em; i++){
-            d->dfx[0] = (R*T*(2.0 + 2.0*log(p[0])) + mu_Gex[i] * gb[i])* d->factor;
-            d->dfx[1] = (R*T*(2.0 + 2.0*log(p[1])) + mu_Gex[i] * gb[i])* d->factor;
-        }
-
-        vector_matrix_multiplication(dfx,  N, Vec1, n_em, (n_em-1));
-        matrix_vector_multiplication(N, Vec1, Vec2, n_em, (n_em-1));
-
-        for (int i = 0; i < n_em; i++){
-            grad[i] = dfx[i];
-        }
+        grad[0] = (R*T*(2.0 + 2.0*log(p[0])) + mu_Gex[0] + gb[0] )* d->factor;
+        grad[1] = (R*T*(2.0 + 2.0*log(p[1])) + mu_Gex[1] + gb[1] )* d->factor;
     }
     return d->df;
 }
@@ -572,10 +524,13 @@ double obj_sb11_ak(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double *gb        = d->gb_lvl;
     double *mu_Gex    = d->mu_Gex;
 
+    for (int i = 0; i < n_em; i++){
+        p[i]   = x[i];
+    }
+
     double tmp = 0.0;
     double Gex = 0.0;
     for (int i = 0; i < n_em; i++){
-        p[i]   = x[i];
         Gex = 0.0;
         int it    = 0;
         for (int j = 0; j < d->n_xeos; j++){
@@ -585,7 +540,7 @@ double obj_sb11_ak(unsigned n, const double *x, double *grad, void *SS_ref_db){
                 it += 1;
             }
         }
-        mu_Gex[i] = Gex;
+        mu_Gex[i] = Gex/1000.0;
     }
 
     d->sum_apep = 0.0;
@@ -603,18 +558,9 @@ double obj_sb11_ak(unsigned n, const double *x, double *grad, void *SS_ref_db){
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        for (int i = 0; i < n_em; i++){
-            d->dfx[0] = (R*T*(2 + 2*log(p[0])) + mu_Gex[i] * gb[i])* d->factor;
-            d->dfx[1] = (R*T*(2 + log(p[1] + p[2]) + log(p[1])) + mu_Gex[i] * gb[i])* d->factor;
-            d->dfx[2] = (R*T*(2 + log(p[1] + p[2]) + log(p[2])) + mu_Gex[i] * gb[i])* d->factor;
-        }
-
-        vector_matrix_multiplication(dfx,  N, Vec1, n_em, (n_em-1));
-        matrix_vector_multiplication(N, Vec1, Vec2, n_em, (n_em-1));
-
-        for (int i = 0; i < n_em; i++){
-            grad[i] = dfx[i];
-        }
+        grad[0] = (R*T*(2 + 2*log(p[0])) + mu_Gex[0] + gb[0] )* d->factor;
+        grad[1] = (R*T*(2 + log(p[1] + p[2]) + log(p[1])) + mu_Gex[1] + gb[1] )* d->factor;
+        grad[2] = (R*T*(2 + log(p[1] + p[2]) + log(p[2])) + mu_Gex[2] + gb[2] )* d->factor;
     }
     return d->df;
 }
@@ -637,10 +583,13 @@ double obj_sb11_gtmj(unsigned n, const double *x, double *grad, void *SS_ref_db)
     double *gb        = d->gb_lvl;
     double *mu_Gex    = d->mu_Gex;
 
+    for (int i = 0; i < n_em; i++){
+        p[i]   = x[i];
+    }
+
     double tmp = 0.0;
     double Gex = 0.0;
     for (int i = 0; i < n_em; i++){
-        p[i]   = x[i];
         Gex = 0.0;
         int it    = 0;
         for (int j = 0; j < d->n_xeos; j++){
@@ -650,7 +599,7 @@ double obj_sb11_gtmj(unsigned n, const double *x, double *grad, void *SS_ref_db)
                 it += 1;
             }
         }
-        mu_Gex[i] = Gex;
+        mu_Gex[i] = Gex/1000.0;
     }
 
     d->sum_apep = 0.0;
@@ -668,20 +617,11 @@ double obj_sb11_gtmj(unsigned n, const double *x, double *grad, void *SS_ref_db)
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        for (int i = 0; i < n_em; i++){
-            d->dfx[0] = (R*T*(5.0 + 3.0*log(p[0]) + log(p[0] + p[3] + p[4]) + log(p[0] + p[1] + p[3] + p[4])) + mu_Gex[i] * gb[i])* d->factor;
-            d->dfx[1] = (R*T*(2 + 0.3333333333333333 / 0.3333333333333333 + log(0.3333333333333333*p[1]) + log(p[1] + p[2]) + log(p[0] + p[1] + p[3] + p[4]) + 1.3333333333333333 / 0.6666666666666666 + 2.0*log(0.6666666666666666*p[1])) + mu_Gex[i] * gb[i])* d->factor;
-            d->dfx[2] = (R*T*(5.0 + log(p[1] + p[2]) + log(p[2]) + 3.0*log(p[2] + p[3])) + mu_Gex[i] * gb[i])* d->factor;
-            d->dfx[3] = (R*T*(5.0 + log(p[0] + p[3] + p[4]) + log(p[0] + p[1] + p[3] + p[4]) + 3.0*log(p[2] + p[3])) + mu_Gex[i] * gb[i])* d->factor;
-            d->dfx[4] = (R*T*(5.0 + log(p[0] + p[3] + p[4]) + log(p[0] + p[1] + p[3] + p[4]) + 3.0*log(p[4])) + mu_Gex[i] * gb[i])* d->factor;
-        }
-
-        vector_matrix_multiplication(dfx,  N, Vec1, n_em, (n_em-1));
-        matrix_vector_multiplication(N, Vec1, Vec2, n_em, (n_em-1));
-
-        for (int i = 0; i < n_em; i++){
-            grad[i] = dfx[i];
-        }
+        grad[0] = (R*T*(5.0 + 3.0*log(p[0]) + log(p[0] + p[3] + p[4]) + log(p[0] + p[1] + p[3] + p[4])) + mu_Gex[0] + gb[0] )* d->factor;
+        grad[1] = (R*T*(2 + 0.3333333333333333 / 0.3333333333333333 + log(0.3333333333333333*p[1]) + log(p[1] + p[2]) + log(p[0] + p[1] + p[3] + p[4]) + 1.3333333333333333 / 0.6666666666666666 + 2.0*log(0.6666666666666666*p[1])) + mu_Gex[1] + gb[1] )* d->factor;
+        grad[2] = (R*T*(5.0 + log(p[1] + p[2]) + log(p[2]) + 3.0*log(p[2] + p[3])) + mu_Gex[2] + gb[2] )* d->factor;
+        grad[3] = (R*T*(5.0 + log(p[0] + p[3] + p[4]) + log(p[0] + p[1] + p[3] + p[4]) + 3.0*log(p[2] + p[3])) + mu_Gex[3] + gb[3] )* d->factor;
+        grad[4] = (R*T*(5.0 + log(p[0] + p[3] + p[4]) + log(p[0] + p[1] + p[3] + p[4]) + 3.0*log(p[4])) + mu_Gex[4] + gb[4] )* d->factor;
     }
     return d->df;
 }
@@ -705,9 +645,12 @@ double obj_sb11_pv(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double *mu_Gex    = d->mu_Gex;
     double *mat_phi   = d->mat_phi;
 
-    d->sum_v = 0.0;
     for (int i = 0; i < n_em; i++){
         p[i]   = x[i];
+    }
+
+    d->sum_v = 0.0;
+    for (int i = 0; i < n_em; i++){
         d->sum_v += p[i]*d->v[i];
     }
     for (int i = 0; i < n_em; i++){
@@ -743,18 +686,9 @@ double obj_sb11_pv(unsigned n, const double *x, double *grad, void *SS_ref_db){
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        for (int i = 0; i < n_em; i++){
-            d->dfx[0] = (R*T*(2 + 2*log(p[0])) + mu_Gex[i] * gb[i])* d->factor;
-            d->dfx[1] = (R*T*(2 + log(p[1] + p[2]) + log(p[1])) + mu_Gex[i] * gb[i])* d->factor;
-            d->dfx[2] = (R*T*(2 + log(p[1] + p[2]) + log(p[2])) + mu_Gex[i] * gb[i])* d->factor;
-        }
-
-        vector_matrix_multiplication(dfx,  N, Vec1, n_em, (n_em-1));
-        matrix_vector_multiplication(N, Vec1, Vec2, n_em, (n_em-1));
-
-        for (int i = 0; i < n_em; i++){
-            grad[i] = dfx[i];
-        }
+        grad[0] = (R*T*(2 + 2*log(p[0])) + mu_Gex[0] + gb[0] )* d->factor;
+        grad[1] = (R*T*(2 + log(p[1] + p[2]) + log(p[1])) + mu_Gex[1] + gb[1] )* d->factor;
+        grad[2] = (R*T*(2 + log(p[1] + p[2]) + log(p[2])) + mu_Gex[2] + gb[2] )* d->factor;
     }
     return d->df;
 }
@@ -777,11 +711,12 @@ double obj_sb11_ppv(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double *gb        = d->gb_lvl;
     double *mu_Gex    = d->mu_Gex;
 
-    double tmp = 0.0;
-    double Gex = 0.0;
     for (int i = 0; i < n_em; i++){
         p[i]   = x[i];
     }
+
+    double tmp = 0.0;
+    double Gex = 0.0;
     for (int i = 0; i < n_em; i++){
         Gex = 0.0;
         int it    = 0;
@@ -792,7 +727,7 @@ double obj_sb11_ppv(unsigned n, const double *x, double *grad, void *SS_ref_db){
                 it += 1;
             }
         }
-        mu_Gex[i] = Gex;
+        mu_Gex[i] = Gex/1000.0;
     }
 
     d->sum_apep = 0.0;
@@ -801,7 +736,7 @@ double obj_sb11_ppv(unsigned n, const double *x, double *grad, void *SS_ref_db){
     }
     d->factor = d->fbc/d->sum_apep;
 
-    double Sconfig    = R*T*(p[0]*log(p[0]) + (p[0] + p[1])*log(p[0] + p[1]) + p[1]*log(p[1]) + 2.0*p[2]*log(p[2]));
+    double Sconfig    = R*T*(p[0]*log(p[0]) + (p[0] + p[1])*log(p[0] + p[1]) + p[1]*log(p[1]) + 2*p[2]*log(p[2]));
 
     d->df_raw = Sconfig;
     for (int i = 0; i < n_em; i++){
@@ -810,18 +745,9 @@ double obj_sb11_ppv(unsigned n, const double *x, double *grad, void *SS_ref_db){
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        for (int i = 0; i < n_em; i++){
-            d->dfx[0] = (R*T*(2 + log(p[0]) + log(p[0] + p[1])) + mu_Gex[i] * gb[i])* d->factor;
-            d->dfx[1] = (R*T*(2 + log(p[0] + p[1]) + log(p[1])) + mu_Gex[i] * gb[i])* d->factor;
-            d->dfx[2] = (R*T*(2 + 2*log(p[2])) + mu_Gex[i] * gb[i])* d->factor;
-        }
-
-        vector_matrix_multiplication(dfx,  N, Vec1, n_em, (n_em-1));
-        matrix_vector_multiplication(N, Vec1, Vec2, n_em, (n_em-1));
-
-        for (int i = 0; i < n_em; i++){
-            grad[i] = dfx[i];
-        }
+        grad[0] = (R*T*(2 + log(p[0]) + log(p[0] + p[1])) + mu_Gex[0] + gb[0] )* d->factor;
+        grad[1] = (R*T*(2 + log(p[0] + p[1]) + log(p[1])) + mu_Gex[1] + gb[1] )* d->factor;
+        grad[2] = (R*T*(2 + 2*log(p[2])) + mu_Gex[2] + gb[2] )* d->factor;
     }
     return d->df;
 }
@@ -844,10 +770,13 @@ double obj_sb11_mw(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double *gb        = d->gb_lvl;
     double *mu_Gex    = d->mu_Gex;
 
+    for (int i = 0; i < n_em; i++){
+        p[i]   = x[i];
+    }
+
     double tmp = 0.0;
     double Gex = 0.0;
     for (int i = 0; i < n_em; i++){
-        p[i]   = x[i];
         Gex = 0.0;
         int it    = 0;
         for (int j = 0; j < d->n_xeos; j++){
@@ -857,7 +786,7 @@ double obj_sb11_mw(unsigned n, const double *x, double *grad, void *SS_ref_db){
                 it += 1;
             }
         }
-        mu_Gex[i] = Gex;
+        mu_Gex[i] = Gex/1000.0;
     }
 
     d->sum_apep = 0.0;
@@ -875,17 +804,8 @@ double obj_sb11_mw(unsigned n, const double *x, double *grad, void *SS_ref_db){
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        for (int i = 0; i < n_em; i++){
-            d->dfx[0] = (R*T*(1 + log(p[0])) + mu_Gex[i] * gb[i])* d->factor;
-            d->dfx[1] = (R*T*(1 + log(p[1])) + mu_Gex[i] * gb[i])* d->factor;
-        }
-
-        vector_matrix_multiplication(dfx,  N, Vec1, n_em, (n_em-1));
-        matrix_vector_multiplication(N, Vec1, Vec2, n_em, (n_em-1));
-
-        for (int i = 0; i < n_em; i++){
-            grad[i] = dfx[i];
-        }
+        grad[0] = (R*T*(1 + log(p[0])) + mu_Gex[0] + gb[0] )* d->factor;
+        grad[1] = (R*T*(1 + log(p[1])) + mu_Gex[1] + gb[1] )* d->factor;
     }
     return d->df;
 }
@@ -908,10 +828,13 @@ double obj_sb11_cf(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double *gb        = d->gb_lvl;
     double *mu_Gex    = d->mu_Gex;
 
+    for (int i = 0; i < n_em; i++){
+        p[i]   = x[i];
+    }
+
     double tmp = 0.0;
     double Gex = 0.0;
     for (int i = 0; i < n_em; i++){
-        p[i]   = x[i];
         Gex = 0.0;
         int it    = 0;
         for (int j = 0; j < d->n_xeos; j++){
@@ -921,7 +844,7 @@ double obj_sb11_cf(unsigned n, const double *x, double *grad, void *SS_ref_db){
                 it += 1;
             }
         }
-        mu_Gex[i] = Gex;
+        mu_Gex[i] = Gex/1000.0;
     }
 
     d->sum_apep = 0.0;
@@ -939,21 +862,13 @@ double obj_sb11_cf(unsigned n, const double *x, double *grad, void *SS_ref_db){
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        for (int i = 0; i < n_em; i++){
-            d->dfx[0] = (R*T*(2 + log(p[0]) + log(p[0] + p[2])) + mu_Gex[i] * gb[i])* d->factor;
-            d->dfx[1] = (R*T*(2 + 2*log(p[1])) + mu_Gex[i] * gb[i])* d->factor;
-            d->dfx[2] = (R*T*(2 + log(p[2]) + log(p[0] + p[2])) + mu_Gex[i] * gb[i])* d->factor;
-        }
-
-        vector_matrix_multiplication(dfx,  N, Vec1, n_em, (n_em-1));
-        matrix_vector_multiplication(N, Vec1, Vec2, n_em, (n_em-1));
-
-        for (int i = 0; i < n_em; i++){
-            grad[i] = dfx[i];
-        }
+        grad[0] = (R*T*(2 + log(p[0]) + log(p[0] + p[2])) + mu_Gex[0] + gb[0] )* d->factor;
+        grad[1] = (R*T*(2 + 2*log(p[1])) + mu_Gex[1] + gb[1] )* d->factor;
+        grad[2] = (R*T*(2 + log(p[2]) + log(p[0] + p[2])) + mu_Gex[2] + gb[2] )* d->factor;
     }
     return d->df;
 }
+
 
 /**
     associate the array of pointer with the right solution phase

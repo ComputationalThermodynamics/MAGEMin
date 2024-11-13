@@ -652,12 +652,6 @@ void generate_pseudocompounds(	int 		 		 ss,
 		// }
 		// else {
 			G 	= (*SS_objective[ss])(SS_ref_db[ss].n_xeos, get_ss_pv.xeos_pc, 	NULL, &SS_ref_db[ss]);
-			// printf("G = %.5f: f: %.5f",G,SS_ref_db[ss].factor);
-			// for (int i = 0; i < SS_ref_db[ss].n_xeos; i++){
-			// 	printf(" %.5f",get_ss_pv.xeos_pc[i]);
-			// }
-			// printf("\n");
-
 		// }
 
 		/* get composition of solution phase */

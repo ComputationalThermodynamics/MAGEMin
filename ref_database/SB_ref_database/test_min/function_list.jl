@@ -32,18 +32,32 @@ struct ModelJSON
     van_laar        :: Vector{Float64}
 end
 
-function objective(x::Vector, grad::Vector, N, f_config, f_grad_config, f_mu_Gex, active)
+function objective(x::Vector, grad::Vector, N, f_config, f_grad_config, f_mu_Gex, f_grad, gb, active)
     mu_Gex          = f_mu_Gex(x);
     S_tot           = f_config(x);
     dSdp            = f_grad_config(x);
+    println("x: ", x)
+    println("S_tot: ", S_tot)
+    println("mu_Gex: ", mu_Gex)
+    println("dSdp: ", dSdp,"\n")
 
     if length(grad) > 0
-        dGdp        = dSdp+mu_Gex;                          # raw dGibbs/dp
-        grad       .= (N*(dGdp'*N)') .* active;             # projected dGibbs/dp to satisfy sum(p) = 1.0
+        dGdp        = gb .+ mu_Gex .+ dSdp;                          # raw dGibbs/dp
+
+        test_g = f_grad(x,gb)
+        # grad .= test_g
+
+        grad .= dGdp
+        # println("test_g: ", test_g)
+        # println("dGdp: ", dGdp)
+        
+        # grad       .= (N*(test_g'*N)') .* active;             # projected dGibbs/dp to satisfy sum(p) = 1.0
+        # println("grad: ", grad)
     end
-    G = mu_Gex'*x + S_tot
-    # println("G: $G")
-    # println("sum(x): $(sum(x))")
+    G = gb'x + mu_Gex'*x + S_tot;
+
+    # println("x: ", x)
+    # println(G)
     return  G
 end
 
@@ -188,14 +202,17 @@ function get_functions(i)
     end
     C   = hcat(C...)'
 
-    @variables p[1:n_em]
+    @variables p[1:n_em] gb[1:n_em]
+    Gref            = Symbolics.scalarize(gb)
     X               = Symbolics.scalarize(p)
     R               = 8.31446261815324
-    T               = 1000.0
+    T               = 1373.15
 
     Xo              = C*X
     config          = R * T * (M' * Diagonal(Xo) * log.(Xo))
     grad_config     = Symbolics.gradient(config, X)
+
+
 
     # for g in grad_config
     #     expr = string(g)
@@ -206,10 +223,15 @@ function get_functions(i)
 
     mu_Gex          = get_mu_Gex(W, v, n_em, sym)
 
+    G = Gref'*X + mu_Gex'*X + config;
+    grad_G     = Symbolics.gradient(G, X)
+    println("grad_G $grad_G")
+    
     f_config        = build_function(config,        X, expression = Val{false});
     f_grad_config,  = build_function(grad_config,   X, expression = Val{false});
+    f_grad,         = build_function(grad_G,        X, gb, expression = Val{false});
     f_mu_Gex,       = build_function(mu_Gex,        X, expression = Val{false});
 
 
-    return n_em, N, f_config, f_grad_config, f_mu_Gex
+    return n_em, N, f_config, f_grad_config, f_mu_Gex, f_grad
 end

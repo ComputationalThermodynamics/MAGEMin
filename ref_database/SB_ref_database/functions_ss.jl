@@ -48,6 +48,58 @@ function generate_simplex(n, step)
     return simplex
 end
 
+"""
+    get_mu_Gex(W, v, n_em, sym)
+"""
+function get_mu_Gex(W, v, n_em, sym)
+    @variables p[1:n_em]
+    mu_Gex      = Vector{Num}(undef,n_em)
+    phi_p       = Float64.(I(n_em));
+
+    if sym == 0
+        mat_phi      = Vector{Num}(undef,n_em)
+
+        sum_v = 0.0
+        for i=1:n_em
+            sum_v  += p[i]*v[i];
+        end
+        for i=1:n_em
+            mat_phi[i]   =p[i]*v[i]/sum_v;
+        end
+
+        mu = 0.
+        for i = 1:n_em
+            mu = 0;
+            it = 0;
+            for j = 1:(n_em-1)
+                for k = j+1:n_em
+                    it = it + 1;
+                    mu -= (phi_p[i,j]-mat_phi[j])*(phi_p[i,k]-mat_phi[k])*(W[it]*2*v[i]/(v[j]+v[k]));
+                end
+            end
+            mu_Gex[i]= mu 
+        end
+        
+    elseif sym == 1
+
+        for i = 1:n_em
+            mu = 0;
+            it = 0;
+            for j = 1:n_em-1
+                for k = j+1:n_em
+                    it  = it + 1;
+                    mu -= (phi_p[i,j] - p[j])*(phi_p[i,k]-p[k])*W[it];
+              
+                end
+            end
+           
+            mu_Gex[i]       = mu; 
+        end
+    end
+
+    return mu_Gex
+end
+
 # Function to adjust the simplex points
 function adjust_simplex(simplex, eps)
     adjusted_simplex = []
@@ -239,12 +291,24 @@ function get_sb_objective_functions(sb_ver,ss)
         C       = hcat(C...)'
         n_cat   = size(C,1)
 
-        @variables p[0:n_em-1] R T
+        @variables p[0:n_em-1] R T gb[0:n_em-1]
         X               = Symbolics.scalarize(p)
-
+        Gref            = Symbolics.scalarize(gb)
         Xo              = C*X
         config          = R * T * (M' * Diagonal(Xo) * log.(Xo))
         grad_config     = Symbolics.gradient(config, X)
+        mu_Gex          = get_mu_Gex(W, v, n_em, sym)
+
+        # G = Gref'*X + mu_Gex'*X + config;
+        # grad_G     = Symbolics.gradient(G, X)
+        # grad_muGex = Symbolics.gradient(mu_Gex', X)
+        # println("mu_Gex $(mu_Gex)")
+        # for i = 1:n_em
+        #     println("grad_config $(grad_config[i])")
+        #     println("grad_G $(grad_G[i])")
+        # end
+        # println("")
+
 
         sb_objective_functions *= "/**\n"
         sb_objective_functions *= "    Objective function for $(sb_ver)_$(ss[ii].abbrev)\n"
@@ -268,11 +332,12 @@ function get_sb_objective_functions(sb_ver,ss)
             sb_objective_functions *= "$(tab)double *mat_phi   = d->mat_phi;\n"
         end
         sb_objective_functions *= "\n"
-
+        sb_objective_functions *= "$(tab)for (int i = 0; i < n_em; i++){\n"
+        sb_objective_functions *= "$(tab)$(tab)p[i]   = x[i];\n"
+        sb_objective_functions *= "$(tab)}\n\n"
         if sym == 0
             sb_objective_functions *= "$(tab)d->sum_v = 0.0;\n"
             sb_objective_functions *= "$(tab)for (int i = 0; i < n_em; i++){\n"
-            sb_objective_functions *= "$(tab)$(tab)p[i]   = x[i];\n"
             sb_objective_functions *= "$(tab)$(tab)d->sum_v += p[i]*d->v[i];\n"
             sb_objective_functions *= "$(tab)}\n"
             sb_objective_functions *= "$(tab)for (int i = 0; i < n_em; i++){\n"
@@ -297,7 +362,6 @@ function get_sb_objective_functions(sb_ver,ss)
             sb_objective_functions *= "$(tab)double tmp = 0.0;\n"
             sb_objective_functions *= "$(tab)double Gex = 0.0;\n"
             sb_objective_functions *= "$(tab)for (int i = 0; i < n_em; i++){\n"
-            sb_objective_functions *= "$(tab)$(tab)p[i]   = x[i];\n"
             sb_objective_functions *= "$(tab)$(tab)Gex = 0.0;\n"
             sb_objective_functions *= "$(tab)$(tab)int it    = 0;\n"
             sb_objective_functions *= "$(tab)$(tab)for (int j = 0; j < d->n_xeos; j++){\n"
@@ -307,7 +371,7 @@ function get_sb_objective_functions(sb_ver,ss)
             sb_objective_functions *= "$(tab)$(tab)$(tab)$(tab)it += 1;\n"
             sb_objective_functions *= "$(tab)$(tab)$(tab)}\n"
             sb_objective_functions *= "$(tab)$(tab)}\n"
-            sb_objective_functions *= "$(tab)$(tab)mu_Gex[i] = Gex;\n"
+            sb_objective_functions *= "$(tab)$(tab)mu_Gex[i] = Gex/1000.0;\n"
             sb_objective_functions *= "$(tab)}\n\n"
         end
 
@@ -318,7 +382,6 @@ function get_sb_objective_functions(sb_ver,ss)
         sb_objective_functions *= "$(tab)d->factor = d->fbc/d->sum_apep;\n\n"
 
         Sconfig = replace(string(config), r"(\d)(?=[\[\(a-zA-Z])" => s"\1*")
-        # Sconfig = replace(string(Sconfig), "factor" => "d->factor")
         sb_objective_functions *= "$(tab)double Sconfig    = $Sconfig;\n\n"
 
         sb_objective_functions *= "$(tab)d->df_raw = Sconfig;\n"
@@ -328,17 +391,10 @@ function get_sb_objective_functions(sb_ver,ss)
         sb_objective_functions *= "$(tab)d->df = d->df_raw * d->factor;\n\n"
 
         sb_objective_functions *= "$(tab)if (grad){\n"
-        sb_objective_functions *= "$(tab)$(tab)for (int i = 0; i < n_em; i++){\n"
         for i=1:n_em
             dS = replace(string(grad_config[i]), r"(\d)(?=[\[\(a-zA-Z])" => s"\1*")
-            sb_objective_functions *= "$(tab)$(tab)$(tab)d->dfx[$(i-1)] = ($dS + mu_Gex[i] * gb[i])* d->factor;\n"
+            sb_objective_functions *= "$(tab2)grad[$(i-1)] = ($dS + mu_Gex[$(i-1)] + gb[$(i-1)] )* d->factor;\n"
         end
-        sb_objective_functions *= "$(tab)$(tab)}\n\n"
-        sb_objective_functions *= "$(tab)$(tab)vector_matrix_multiplication(dfx,  N, Vec1, n_em, (n_em-1));\n"
-        sb_objective_functions *= "$(tab)$(tab)matrix_vector_multiplication(N, Vec1, Vec2, n_em, (n_em-1));\n\n"
-        sb_objective_functions *= "$(tab)$(tab)for (int i = 0; i < n_em; i++){\n"
-        sb_objective_functions *= "$(tab)$(tab)$(tab)grad[i] = dfx[i];\n"
-        sb_objective_functions *= "$(tab)$(tab)}\n"
         sb_objective_functions *= "$(tab)}\n"
 
 
@@ -665,6 +721,21 @@ end
 function get_SB_NLopt_opt_functions(sb_ver,ss)
     SB_NLopt_opt_functions = ""
 
+    SB_NLopt_opt_functions   *= "\n"
+    SB_NLopt_opt_functions   *= "// Equality constraint function: sum(x) == 1\n"
+    SB_NLopt_opt_functions   *= "double equality_constraint(unsigned n, const double *x, double *grad, void *data) {\n"
+    SB_NLopt_opt_functions   *= "$(tab2)if (grad) {\n"
+    SB_NLopt_opt_functions   *= "$(tab3)for (unsigned i = 0; i < n; i++) {\n"
+    SB_NLopt_opt_functions   *= "$(tab3)grad[i] = 1.0;\n"
+    SB_NLopt_opt_functions   *= "$(tab2)}\n"
+    SB_NLopt_opt_functions   *= "$(tab)}\n"
+    SB_NLopt_opt_functions   *= "$(tab)double sum = 0.0;\n"
+    SB_NLopt_opt_functions   *= "$(tab)for (unsigned i = 0; i < n; i++) {\n"
+    SB_NLopt_opt_functions   *= "$(tab3)sum += x[i];\n"
+    SB_NLopt_opt_functions   *= "$(tab)}\n"
+    SB_NLopt_opt_functions   *= "$(tab)return sum - 1.0;\n"
+    SB_NLopt_opt_functions   *= "}\n"
+    SB_NLopt_opt_functions   *= "\n"
     n_ss = length(ss)
     for ii = 1:n_ss
         mul, site_cmp    = retrieve_site_cmp(ss, ii)
@@ -679,12 +750,12 @@ function get_SB_NLopt_opt_functions(sb_ver,ss)
         SB_NLopt_opt_functions   *= "$(tab2)SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];\n"
         SB_NLopt_opt_functions   *= "$(tab)}\n"
         
-        SB_NLopt_opt_functions   *= "$(tab)SS_ref_db.opt = nlopt_create(NLOPT_LD_LBFGS, (n_em)); \n"
+        SB_NLopt_opt_functions   *= "$(tab)SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n_em)); \n"
         SB_NLopt_opt_functions   *= "$(tab)nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);\n"
         SB_NLopt_opt_functions   *= "$(tab)nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);\n"
 
         SB_NLopt_opt_functions   *= "$(tab)nlopt_set_min_objective(SS_ref_db.opt, obj_$(sb_ver)_$(ss[ii].abbrev), &SS_ref_db);\n"
-
+        SB_NLopt_opt_functions   *= "$(tab)nlopt_add_equality_constraint(SS_ref_db.opt, equality_constraint, NULL, 1e-8);\n"
         SB_NLopt_opt_functions   *= "$(tab)nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);\n"
         SB_NLopt_opt_functions   *= "$(tab)nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);\n"
         

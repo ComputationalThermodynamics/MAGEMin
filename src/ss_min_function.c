@@ -36,29 +36,33 @@ SS_ref SS_UPDATE_function(		global_variable 	 gv,
 								char    			*name){
 
 	/* sf_ok?*/
-	SS_ref_db.sf_ok = 1;
-	for (int i = 0; i < SS_ref_db.n_sf; i++){
-		if (SS_ref_db.sf[i] < 0.0 || isnan(SS_ref_db.sf[i]) == 1|| isinf(SS_ref_db.sf[i]) == 1){
-			SS_ref_db.sf_ok = 0;
-			SS_ref_db.sf_id = i;
+	if (strcmp(gv.research_group, "tc") 	== 0 ){
+		SS_ref_db.sf_ok = 1;
+		for (int i = 0; i < SS_ref_db.n_sf; i++){
+			if (SS_ref_db.sf[i] < 0.0 || isnan(SS_ref_db.sf[i]) == 1|| isinf(SS_ref_db.sf[i]) == 1){
+				SS_ref_db.sf_ok = 0;
+				SS_ref_db.sf_id = i;
+				break;
+			}
+		}
 
-			break;
+		/* xi calculation (phase fraction expression for PGE) */
+		SS_ref_db.sum_xi 	= 0.0;	
+		for (int i = 0; i < SS_ref_db.n_em; i++){ 
+			SS_ref_db.xi_em[i] = exp(-SS_ref_db.mu[i]/(SS_ref_db.R*SS_ref_db.T));
+			SS_ref_db.sum_xi  += SS_ref_db.xi_em[i]*SS_ref_db.p[i]*SS_ref_db.z_em[i];
+		}
+
+		/* get composition of solution phase */
+		for (int j = 0; j < gv.len_ox; j++){
+			SS_ref_db.ss_comp[j] = 0.0;
+			for (int i = 0; i < SS_ref_db.n_em; i++){
+				SS_ref_db.ss_comp[j] += SS_ref_db.Comp[i][j]*SS_ref_db.p[i]*SS_ref_db.z_em[i];
+			} 
 		}
 	}
-
-	/* xi calculation (phase fraction expression for PGE) */
-	SS_ref_db.sum_xi 	= 0.0;	
-	for (int i = 0; i < SS_ref_db.n_em; i++){ 
-		SS_ref_db.xi_em[i] = exp(-SS_ref_db.mu[i]/(SS_ref_db.R*SS_ref_db.T));
-		SS_ref_db.sum_xi  += SS_ref_db.xi_em[i]*SS_ref_db.p[i]*SS_ref_db.z_em[i];
-	}
-
-	/* get composition of solution phase */
-	for (int j = 0; j < gv.len_ox; j++){
-		SS_ref_db.ss_comp[j] = 0.0;
-		for (int i = 0; i < SS_ref_db.n_em; i++){
-		   SS_ref_db.ss_comp[j] += SS_ref_db.Comp[i][j]*SS_ref_db.p[i]*SS_ref_db.z_em[i];
-	   } 
+	else if (strcmp(gv.research_group, "sb") 	== 0 ){
+		SS_ref_db.sf_ok = 1;
 	}
 
 	return SS_ref_db;
