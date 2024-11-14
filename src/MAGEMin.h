@@ -603,7 +603,7 @@ typedef struct csd_phase_sets {
 	double  phase_expansivity;
 	double  phase_bulkModulus;
 	double  phase_isoTbulkModulus;
-	double  volume_P0;
+	// double  volume_P0;
 	double  thetaExp;
 	double  phase_shearModulus;
 	double  phase_shearModulus_v;

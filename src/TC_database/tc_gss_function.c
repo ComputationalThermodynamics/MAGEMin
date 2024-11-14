@@ -11525,14 +11525,14 @@ SS_ref G_SS_mb_EM_function(		global_variable 	 gv,
 	/* Associate the right solid-solution data */
 	for (int FD = 0; FD < gv.n_Diff; FD++){				/* cycle twice in order to get gb_P_eps to calculate densities later on */
 		
-		if (FD == 8 || FD == 9){				// dG/dP0 to get Volume at P = 1bar
-			SS_ref_db.P = 1.+ gv.gb_P_eps*gv.pdev[0][FD];
-			SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-		}
-		else{
+		// if (FD == 8 || FD == 9){				// dG/dP0 to get Volume at P = 1bar
+		// 	SS_ref_db.P = 1.+ gv.gb_P_eps*gv.pdev[0][FD];
+		// 	SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
+		// }
+		// else{
 			SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
 			SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-		}
+		// }
 
         if (strcmp( name, "liq") == 0 ){
 			/* turn of liquid when T < 600°C) */

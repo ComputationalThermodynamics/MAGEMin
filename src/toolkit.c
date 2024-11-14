@@ -1367,7 +1367,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 	double T 			  = z_b.T;					/** PC function uses the z_b structure this is why the Pressure is saved here */
 	double sum_volume     = 0.0;
 	double sum_volume_sol = 0.0;
-	double dGdTPP, dGdTMP, dG2dT2, dGdP, dGdP_P0, dG2dP2, dG2dP2_N, dGdP_N;
+	double dGdTPP, dGdTMP, dG2dT2, dGdP, dG2dP2, dG2dP2_N, dGdP_N;// dGdP_P0,
 	double mut, mut_N;
 	double phase_isoTbulkModulus_P1;
 
@@ -1405,7 +1405,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 			cp[i].phase_entropy  	 = 0.0;
 			cp[i].phase_enthalpy 	 = 0.0;
 			cp[i].phase_isoTbulkModulus = 0.0;
-			cp[i].volume_P0 		 = 0.0;
+			// cp[i].volume_P0 		 = 0.0;
 			cp[i].thetaExp 			 = 0.0;
 			phase_isoTbulkModulus_P1 = 0.0;
 
@@ -1418,7 +1418,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 					dGdTMP 					 = (SS_ref_db[ss].mu_array[0][j]-SS_ref_db[ss].mu_array[1][j])/(2.0*gv.gb_T_eps);
 					dGdP					 = (SS_ref_db[ss].mu_array[5][j]-SS_ref_db[ss].mu_array[6][j])/(gv.gb_P_eps);
 					dGdP_N 					 = (SS_ref_db[ss].mu_array[4][j]-SS_ref_db[ss].mu_array[5][j])/(gv.gb_P_eps);
-					dGdP_P0 				 = (SS_ref_db[ss].mu_array[8][j]-SS_ref_db[ss].mu_array[9][j])/(gv.gb_P_eps);
+					// dGdP_P0 				 = (SS_ref_db[ss].mu_array[8][j]-SS_ref_db[ss].mu_array[9][j])/(gv.gb_P_eps);
 					/* heat capacity 	*/
 					cp[i].phase_cp    		+= -T*(dG2dT2)*cp[i].p_em[j];
 					
@@ -1426,7 +1426,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 					cp[i].volume    		+= (dGdP)*cp[i].p_em[j];
 
 					/* volume 			*/
-					cp[i].volume_P0    		+= (dGdP_P0)*cp[i].p_em[j];
+					// cp[i].volume_P0    		+= (dGdP_P0)*cp[i].p_em[j];
 
 					/* entropy   		*/
 					cp[i].phase_entropy 	+= -(dGdTMP)*cp[i].p_em[j];
@@ -1528,13 +1528,13 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 			dGdTMP 		= (muE-muW)				/(2.0*gv.gb_T_eps);
 			dGdP		= (muN-muC)				/(gv.gb_P_eps);
 			dGdP_N		= (muNN-muN)			/(gv.gb_P_eps);
-			dGdP_P0 	= (muN0-muC0)			/(gv.gb_P_eps);
+			// dGdP_P0 	= (muN0-muC0)			/(gv.gb_P_eps);
 			
 			/* Calculate volume  per pure phase */
 			PP_ref_db[i].volume  	   		= dGdP; 
 
 			/* Calculate volume  per pure phase */
-			PP_ref_db[i].volume_P0  	    = dGdP_P0; 
+			// PP_ref_db[i].volume_P0  	    = dGdP_P0; 
 			
 			/* Calculate density per pure phase */
 			PP_ref_db[i].phase_density 		= (1000.0*PP_ref_db[i].mass)/(PP_ref_db[i].volume*10.0);
@@ -1738,7 +1738,7 @@ global_variable compute_activities(			int					 EM_database,
 	}
 	else {
 		if (gv.verbose == 1){
-			printf("Oxygen fugacity cannot not be calculated (O oxide not part of the database)\n");
+			printf(" INFO: no fO2 -> O oxide not part of the database\n");
 		}
 	}
 

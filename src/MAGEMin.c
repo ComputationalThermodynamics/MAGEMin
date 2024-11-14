@@ -865,7 +865,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		if (gv.solver != 0){
 			gv.solver = 0;
 			if (gv.verbose == 1){
-				printf(" WARNING: Solver option is not available for Stixrude & Lithgow-Bertelloni 2011 dataset, setting default one\n");
+				printf(" INFO: Solver option is not available for Stixrude & Lithgow-Bertelloni 2011 dataset -> LP is used\n");
 			}
 		}
 
@@ -890,7 +890,8 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 
 	}
 
-	if (gv.verbose == 1){		
+	if (gv.verbose == 1){	
+		printf("\n");	
 		printf("--verbose     : verbose              = %i \n", 	 	   		gv.verbose			);
 		printf("--rg          : research group       = %s \n", 	 	  		gv.research_group	);
 		printf("--db          : database             = %s \n", 	 	   		gv.db				);

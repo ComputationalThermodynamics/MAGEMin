@@ -596,7 +596,7 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 	
 	/* store values for numerical differentiation */
 	/* The last entries MUST be [0-1][end] = 0.0  */
-	gv.n_Diff = 11;
+	gv.n_Diff = 8;
 	gv.pdev = malloc (2 * sizeof(double*));			
 	for (i = 0; i < 2; i++){
 		gv.pdev[i] = malloc (gv.n_Diff * sizeof(double));
@@ -609,9 +609,9 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 	gv.pdev[0][5]  =  1.0;	gv.pdev[1][5]  =  0.0;	
 	gv.pdev[0][6]  =  0.0;	gv.pdev[1][6]  =  0.0;
 	gv.pdev[0][7]  =  3.0;	gv.pdev[1][7]  =  0.0;
-	gv.pdev[0][8]  =  1.0;	gv.pdev[1][8]  =  0.0;
-	gv.pdev[0][9]  =  0.0;	gv.pdev[1][9]  =  0.0;
-	gv.pdev[0][10] =  0.0;	gv.pdev[1][10] =  0.0;
+	// gv.pdev[0][8]  =  1.0;	gv.pdev[1][8]  =  0.0;
+	// gv.pdev[0][9]  =  0.0;	gv.pdev[1][9]  =  0.0;
+	// gv.pdev[0][10] =  0.0;	gv.pdev[1][10] =  0.0;
 
 	gv.V_cor = malloc (2 * sizeof(double));
 

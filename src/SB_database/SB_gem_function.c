@@ -152,6 +152,7 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 		d2f 	= r59 * V23 / pow(V,2.0);
 		dfc 	= (c3 * f + c1) * f * df;
 		d2fc 	= (2.0 * c3 * f + c1) * pow(df,2.0) + (c3 * f + c1) * f * d2f;
+
 		z 		= 1.0 + (aii + aiikk2 * f) * f;
 
 		if (z < 0.0 || V / V0 > 100.0 || V / V0 < 1e-2){
@@ -261,9 +262,12 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 	}
 	PP_ref_db.gbase   =  gbase/kbar2bar;
 	PP_ref_db.factor  =  factor;
-	PP_ref_db.phase_shearModulus  =  (EM_return.input_2[0]*kbar2bar + (P - P0)*(EM_return.input_2[1])*kbar2bar + (T - T0)*(EM_return.input_2[2]))/kbar2bar;
+	PP_ref_db.phase_shearModulus  =  (EM_return.input_2[0] + (P - P0)*(EM_return.input_2[1]) + (T - T0)*(EM_return.input_2[2]))/kbar2bar;
 
-
+    //   SHM(PHMAX+1) = (1D0 + 2D0*F)**(2.5D0)*                         &
+    //        (SHM0*(1D0 - 5D0*F) + F*SHMP*3D0*K0)  &
+    //      -  D4*VOLUM/V0R*((DFT0-DFT)/D2/VQ)
+	
 	// printf("gbase %4s %+10f\n",name,PP_ref_db.gbase);
 	// printf("phase_shearModulus %4s %+10f\n",name,PP_ref_db.phase_shearModulus);
 	// for (i = 0; i < len_ox; i++){

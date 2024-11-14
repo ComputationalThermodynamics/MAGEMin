@@ -613,6 +613,7 @@ void fill_output_struct(		global_variable 	 gv,
 	for (int i = 0; i < gv.len_pp; i++){
 		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 1){
 			strcpy(sp[0].ph[n],gv.PP_list[i]);
+			sp[0].ph_frac_1at[n]  = gv.pp_n[i];
 		}
 		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
 			strcpy(sp[0].ph[n],gv.PP_list[i]);

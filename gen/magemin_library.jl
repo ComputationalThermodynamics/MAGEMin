@@ -72,7 +72,6 @@ struct PP_refs
     phase_cp::Cdouble
     phase_expansivity::Cdouble
     phase_isoTbulkModulus::Cdouble
-    volume_P0::Cdouble
     thetaExp::Cdouble
     phase_entropy::Cdouble
     phase_enthalpy::Cdouble
@@ -1033,7 +1032,6 @@ struct csd_phase_sets
     phase_expansivity::Cdouble
     phase_bulkModulus::Cdouble
     phase_isoTbulkModulus::Cdouble
-    volume_P0::Cdouble
     thetaExp::Cdouble
     phase_shearModulus::Cdouble
     phase_shearModulus_v::Cdouble

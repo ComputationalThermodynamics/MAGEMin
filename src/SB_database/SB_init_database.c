@@ -122,7 +122,7 @@ global_variable global_variable_SB_init( 	global_variable  	 gv,
 	
 	/* store values for numerical differentiation */
 	/* The last entries MUST be [0-1][end] = 0.0  */
-	gv.n_Diff = 11;
+	gv.n_Diff = 8;
 	gv.pdev = malloc (2 * sizeof(double*));			
 	for (i = 0; i < 2; i++){
 		gv.pdev[i] = malloc (gv.n_Diff * sizeof(double));
@@ -135,9 +135,9 @@ global_variable global_variable_SB_init( 	global_variable  	 gv,
 	gv.pdev[0][5]  =  1.0;	gv.pdev[1][5]  =  0.0;	
 	gv.pdev[0][6]  =  0.0;	gv.pdev[1][6]  =  0.0;
 	gv.pdev[0][7]  =  3.0;	gv.pdev[1][7]  =  0.0;
-	gv.pdev[0][8]  =  1.0;	gv.pdev[1][8]  =  0.0;
-	gv.pdev[0][9]  =  0.0;	gv.pdev[1][9]  =  0.0;
-	gv.pdev[0][10] =  0.0;	gv.pdev[1][10] =  0.0;
+	// gv.pdev[0][8]  =  1.0;	gv.pdev[1][8]  =  0.0;
+	// gv.pdev[0][9]  =  0.0;	gv.pdev[1][9]  =  0.0;
+	// gv.pdev[0][10] =  0.0;	gv.pdev[1][10] =  0.0;
 
 	gv.V_cor = malloc (2 * sizeof(double));
 
@@ -290,7 +290,7 @@ global_variable get_bulk_stx11( global_variable gv) {
 	}
 
 	if (gv.test == 0){ //KLB1
-		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
+		/* SiO2 Al2O3 CaO MgO FeO Na2O  */
 		/* Bulk rock composition of Peridotite from Holland et al., 2018, given by E. Green */
 		gv.bulk_rock[0]  = 38.494 ;		/** SiO2 	*/
 		gv.bulk_rock[1]  = 2.824;		/** CaO  	*/
@@ -298,6 +298,16 @@ global_variable get_bulk_stx11( global_variable gv) {
 		gv.bulk_rock[3]  = 50.566;		/** MgO 	*/
 		gv.bulk_rock[4]  = 5.886;		/** FeO 	*/
 		gv.bulk_rock[5]  = 0.250;		/** Na2O 	*/	
+	}	
+	else if (gv.test == 1){ //Pyrolite
+		/* SiO2 Al2O3 CaO MgO FeO Na2O  */
+		/* Workman, Rhea K.; Hart, Stanley R. (Feb 2005). */
+		gv.bulk_rock[0]  = 44.71 ;		/** SiO2 	*/
+		gv.bulk_rock[1]  = 3.17;		/** CaO  	*/
+		gv.bulk_rock[2]  = 3.98;		/** Al2O2 	*/
+		gv.bulk_rock[3]  = 38.73;		/** MgO 	*/
+		gv.bulk_rock[4]  = 8.18;		/** FeO 	*/
+		gv.bulk_rock[5]  = 0.13;		/** Na2O 	*/	
 	}	
 	else{
 		printf("Unknown test %i - please specify a different test! \n", gv.test);
