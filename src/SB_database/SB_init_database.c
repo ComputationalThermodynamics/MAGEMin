@@ -290,25 +290,33 @@ global_variable get_bulk_stx11( global_variable gv) {
 	}
 
 	if (gv.test == 0){ //KLB1
-		/* SiO2 Al2O3 CaO MgO FeO Na2O  */
+		/* SiO2 Al2O3 CaO FeO MgO  Na2O  */
 		/* Bulk rock composition of Peridotite from Holland et al., 2018, given by E. Green */
 		gv.bulk_rock[0]  = 38.494 ;		/** SiO2 	*/
 		gv.bulk_rock[1]  = 2.824;		/** CaO  	*/
 		gv.bulk_rock[2]  = 1.776;		/** Al2O2 	*/
-		gv.bulk_rock[3]  = 50.566;		/** MgO 	*/
-		gv.bulk_rock[4]  = 5.886;		/** FeO 	*/
+		gv.bulk_rock[3]  = 5.886;		/** FeO 	*/
+		gv.bulk_rock[4]  = 50.566;		/** MgO 	*/
 		gv.bulk_rock[5]  = 0.250;		/** Na2O 	*/	
 	}	
 	else if (gv.test == 1){ //Pyrolite
-		/* SiO2 Al2O3 CaO MgO FeO Na2O  */
-		/* Workman, Rhea K.; Hart, Stanley R. (Feb 2005). */
-		gv.bulk_rock[0]  = 44.71 ;		/** SiO2 	*/
-		gv.bulk_rock[1]  = 3.17;		/** CaO  	*/
-		gv.bulk_rock[2]  = 3.98;		/** Al2O2 	*/
-		gv.bulk_rock[3]  = 38.73;		/** MgO 	*/
-		gv.bulk_rock[4]  = 8.18;		/** FeO 	*/
-		gv.bulk_rock[5]  = 0.13;		/** Na2O 	*/	
-	}	
+		/* SiO2 Al2O3 CaO FeO MgO  Na2O  */
+		gv.bulk_rock[0]  = 38.89 ;		/** SiO2 	*/
+		gv.bulk_rock[1]  = 2.2;			/** Al2O2 	*/
+		gv.bulk_rock[2]  = 3.1;			/** CaO  	*/
+		gv.bulk_rock[3]  = 5.8;			/** FeO 	*/
+		gv.bulk_rock[4]  = 50.0;		/** MgO 	*/
+		gv.bulk_rock[5]  = 0.01;		/** Na2O 	*/
+	}  
+	else if (gv.test == 1){ //Harzburgite
+		/* SiO2 Al2O3 CaO FeO MgO  Na2O  */
+		gv.bulk_rock[0]  = 36.39 ;		/** SiO2 	*/
+		gv.bulk_rock[1]  = 0.7;			/** Al2O2 	*/
+		gv.bulk_rock[2]  = 0.9;			/** CaO  	*/
+		gv.bulk_rock[3]  = 5.4;			/** FeO 	*/
+		gv.bulk_rock[4]  = 56.6;		/** MgO 	*/
+		gv.bulk_rock[5]  = 0.01;		/** Na2O 	*/
+	}  
 	else{
 		printf("Unknown test %i - please specify a different test! \n", gv.test);
 	 	exit(EXIT_FAILURE);

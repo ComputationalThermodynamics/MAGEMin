@@ -117,6 +117,10 @@ int runMAGEMin(			int    argc,
 									 argc,
 									 argv			);
 
+	gv = SetupDatabase(				gv,
+								   &z_b				);
+
+
 	/*
 	  initialize global structure to store shared variables (e.g. Gamma, SS and PP list, ...) 
 	*/
@@ -814,6 +818,16 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		 }
 	}
 
+	return gv;
+} 
+
+/** 
+  	Get command line options
+*/
+global_variable SetupDatabase(			global_variable 	 gv,
+										bulk_info 			*z_b	){
+
+
 	// checks if research group is correct, otherwise sets to default
 	if 	( strcmp(gv.research_group, "tc") 	== 0 || strcmp(gv.research_group, "sb") == 0 ){
 	}
@@ -858,10 +872,12 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		}
 		else {
 			printf(" No or wrong database acronym has been provided, using default (metapelite [mp])\n");
+			strcpy(gv.db, "mp");
 			gv.EM_database = 0;
 		}
 	}
 	else if( strcmp(gv.research_group, "sb") == 0 ){
+		gv.mbCpx = 0;
 		if (gv.solver != 0){
 			gv.solver = 0;
 			if (gv.verbose == 1){
@@ -885,6 +901,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 			if (gv.verbose == 1){
 				printf(" No or wrong database acronym has been provided, using default Stixrude & Lithgow-Bertelloni 2011([sb11])\n");
 			}
+			strcpy(gv.db, "sb11");
 			gv.EM_database = 0;
 		}
 
@@ -916,11 +933,8 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 
 		printf("--out_matlab  : out_matlab           = %i \n", 	 	   		gv.output_matlab	);
 	}
-
 	return gv;
-} 
-
-	
+}	
 /** 
   Initiatizes the endmember and solid solution databases and adds them to a single struct
 **/

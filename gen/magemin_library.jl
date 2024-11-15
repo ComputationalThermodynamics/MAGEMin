@@ -1260,6 +1260,10 @@ function ReadCommandLineOptions(gv, z_b, argc, argv)
     ccall((:ReadCommandLineOptions, libMAGEMin), global_variable, (global_variable, Ptr{bulk_info}, Cint, Ptr{Ptr{Cchar}}), gv, z_b, argc, argv)
 end
 
+function SetupDatabase(gv, z_b)
+    ccall((:SetupDatabase, libMAGEMin), global_variable, (global_variable, Ptr{bulk_info}), gv, z_b)
+end
+
 function PrintOutput(gv, rank, l, DB, time_taken, z_b)
     ccall((:PrintOutput, libMAGEMin), Cvoid, (global_variable, Cint, Cint, Databases, Cdouble, bulk_info), gv, rank, l, DB, time_taken, z_b)
 end

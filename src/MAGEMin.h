@@ -850,6 +850,8 @@ global_variable ReadCommandLineOptions(		global_variable   gv,
 											int 			  argc, 
 											char 			**argv					);
 
+global_variable SetupDatabase(				global_variable 	 gv,
+											bulk_info 			*z_b				);
 /* function that prints output */
 void PrintOutput(							global_variable 	gv, 
 											int 				rank, 

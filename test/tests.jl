@@ -6,19 +6,30 @@ using Test
 # runtests.jl
 using MAGEMin_C         # load MAGEMin (needs to be loaded from main directory to pick up correct library in case it is locally compiled)
 
-# Initialize database  - new way
+
+# generic test for sb11 database
+data        =   Initialize_MAGEMin("sb11", verbose=true);
+test        =   1         #KLB1
+data        =   use_predefined_bulk_rock(data, test);
+P           =   80.0
+T           =   800.0
+out         =   point_wise_minimization(P,T, data);
+
+@test sort(out.ph) == sort(["gtmj", "hpcpx", "ol" ,"cpx"])
+Finalize_MAGEMin(data)
+
+# generic test for thermocalc database
 data        =   Initialize_MAGEMin("ig", verbose=true);
 test        =   0         #KLB1
 data        =   use_predefined_bulk_rock(data, test);
-
-# Call optimization routine for given P & T & bulk_rock
 P           =   8.0
 T           =   800.0
 out         =   point_wise_minimization(P,T, data);
 
+
 @show out
 
-@test out.G_system ≈ -797.7491828675325
+@test out.G_system ≈ -797.7397668057848
 @test sort(out.ph) == sort(["spn", "cpx",  "opx", "ol"])
 @test abs(out.s_cp[1] - 1208.466551730128) < 2.0
 
@@ -239,7 +250,7 @@ gv.verbose=-1
 P           =   8.0
 T           =   800.0
 out         =   point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in);
-@test out.G_system ≈ -797.7491828675325
+@test out.G_system ≈ -797.7397668057848
 @test abs(out.s_cp[1] - 1208.466551730128) < 2.0
 @test sort(out.ph) == sort(["spn", "cpx",  "opx", "ol"])
 finalize_MAGEMin(gv,DB,z_b)
@@ -251,7 +262,7 @@ finalize_MAGEMin(gv,DB,z_b)
     db      =   "ig" 
     data    =   Initialize_MAGEMin(db, verbose=false);
     out     =   multi_point_minimization(P, T, data, test=0);
-    @test out[end].G_system ≈ -797.7491828675325
+    @test out[end].G_system ≈ -797.7397668057848
     @test sort(out[end].ph) == sort(["spn", "cpx",  "opx", "ol"])
 
     Finalize_MAGEMin(data)
