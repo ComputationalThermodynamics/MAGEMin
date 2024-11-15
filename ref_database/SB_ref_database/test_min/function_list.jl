@@ -35,24 +35,13 @@ end
 function objective(x::Vector, grad::Vector, N, f_config, f_grad_config, f_mu_Gex, f_grad, gb, active)
     mu_Gex          = f_mu_Gex(x);
     S_tot           = f_config(x);
-    dSdp            = f_grad_config(x);
-    println("x: ", x)
-    println("S_tot: ", S_tot)
-    println("mu_Gex: ", mu_Gex)
-    println("dSdp: ", dSdp,"\n")
+    # dSdp            = f_grad_config(x);
 
     if length(grad) > 0
-        dGdp        = gb .+ mu_Gex .+ dSdp;                          # raw dGibbs/dp
-
+        # dGdp        = gb .+ mu_Gex .+ dSdp;                          # raw dGibbs/dp
+        # grad .= dGdp
         test_g = f_grad(x,gb)
-        # grad .= test_g
-
-        grad .= dGdp
-        # println("test_g: ", test_g)
-        # println("dGdp: ", dGdp)
-        
-        # grad       .= (N*(test_g'*N)') .* active;             # projected dGibbs/dp to satisfy sum(p) = 1.0
-        # println("grad: ", grad)
+        grad .= test_g
     end
     G = gb'x + mu_Gex'*x + S_tot;
 
@@ -225,7 +214,7 @@ function get_functions(i)
 
     G = Gref'*X + mu_Gex'*X + config;
     grad_G     = Symbolics.gradient(G, X)
-    println("grad_G $grad_G")
+    # println("grad_G $grad_G")
     
     f_config        = build_function(config,        X, expression = Val{false});
     f_grad_config,  = build_function(grad_config,   X, expression = Val{false});

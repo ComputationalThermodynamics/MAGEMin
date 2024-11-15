@@ -401,7 +401,6 @@ double obj_sb11_cpx(unsigned n, const double *x, double *grad, void *SS_ref_db){
     for (int i = 0; i < n_em; i++){
         p[i]   = x[i];
     }
-
     d->sum_v = 0.0;
     for (int i = 0; i < n_em; i++){
         d->sum_v += p[i]*d->v[i];
@@ -422,7 +421,7 @@ double obj_sb11_cpx(unsigned n, const double *x, double *grad, void *SS_ref_db){
                 it += 1;
             }
         }
-        mu_Gex[i] = Gex;
+        mu_Gex[i] = Gex/1000.0;
     }
     d->sum_apep = 0.0;
     for (int i = 0; i < n_em; i++){
@@ -669,7 +668,7 @@ double obj_sb11_pv(unsigned n, const double *x, double *grad, void *SS_ref_db){
                 it += 1;
             }
         }
-        mu_Gex[i] = Gex;
+        mu_Gex[i] = Gex/1000-0;
     }
     d->sum_apep = 0.0;
     for (int i = 0; i < n_em; i++){

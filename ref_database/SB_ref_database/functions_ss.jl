@@ -299,8 +299,9 @@ function get_sb_objective_functions(sb_ver,ss)
         grad_config     = Symbolics.gradient(config, X)
         mu_Gex          = get_mu_Gex(W, v, n_em, sym)
 
-        # G = Gref'*X + mu_Gex'*X + config;
-        # grad_G     = Symbolics.gradient(G, X)
+        G = Gref'*X + mu_Gex'*X + config;
+        grad_G     = Symbolics.gradient(G, X)
+        
         # grad_muGex = Symbolics.gradient(mu_Gex', X)
         # println("mu_Gex $(mu_Gex)")
         # for i = 1:n_em
@@ -356,7 +357,7 @@ function get_sb_objective_functions(sb_ver,ss)
             sb_objective_functions *= "$(tab)$(tab)$(tab)$(tab)it += 1;\n"
             sb_objective_functions *= "$(tab)$(tab)$(tab)}\n"
             sb_objective_functions *= "$(tab)$(tab)}\n"
-            sb_objective_functions *= "$(tab)$(tab)mu_Gex[i] = Gex;\n"
+            sb_objective_functions *= "$(tab)$(tab)mu_Gex[i] = Gex/1000.0;\n"
             sb_objective_functions *= "$(tab)}\n"
         else
             sb_objective_functions *= "$(tab)double tmp = 0.0;\n"
@@ -392,8 +393,10 @@ function get_sb_objective_functions(sb_ver,ss)
 
         sb_objective_functions *= "$(tab)if (grad){\n"
         for i=1:n_em
-            dS = replace(string(grad_config[i]), r"(\d)(?=[\[\(a-zA-Z])" => s"\1*")
-            sb_objective_functions *= "$(tab2)grad[$(i-1)] = ($dS + mu_Gex[$(i-1)] + gb[$(i-1)] )* d->factor;\n"
+            # dS = replace(string(grad_config[i]), r"(\d)(?=[\[\(a-zA-Z])" => s"\1*")
+            # sb_objective_functions *= "$(tab2)grad[$(i-1)] = ($dS + mu_Gex[$(i-1)] + gb[$(i-1)] )* d->factor;\n"
+            dS = replace(string(grad_G[i]), r"(\d)(?=[\[\(a-zA-Z])" => s"\1*")
+            sb_objective_functions *= "$(tab2)grad[$(i-1)] = ($dS)* d->factor;\n"
         end
         sb_objective_functions *= "$(tab)}\n"
 
@@ -755,7 +758,7 @@ function get_SB_NLopt_opt_functions(sb_ver,ss)
         SB_NLopt_opt_functions   *= "$(tab)nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);\n"
 
         SB_NLopt_opt_functions   *= "$(tab)nlopt_set_min_objective(SS_ref_db.opt, obj_$(sb_ver)_$(ss[ii].abbrev), &SS_ref_db);\n"
-        SB_NLopt_opt_functions   *= "$(tab)nlopt_add_equality_constraint(SS_ref_db.opt, equality_constraint, NULL, 1e-8);\n"
+        SB_NLopt_opt_functions   *= "$(tab)nlopt_add_equality_constraint(SS_ref_db.opt, equality_constraint, NULL, 1e-6);\n"
         SB_NLopt_opt_functions   *= "$(tab)nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);\n"
         SB_NLopt_opt_functions   *= "$(tab)nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);\n"
         

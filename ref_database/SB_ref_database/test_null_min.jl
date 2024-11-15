@@ -9,14 +9,15 @@ using BenchmarkTools
 
 include("test_min/function_list.jl")
 
-n_em, N, f_config, f_grad_config, f_mu_Gex, f_grad = get_functions(6);
+n_em, N, f_config, f_grad_config, f_mu_Gex, f_grad = get_functions(7);
 
 active = ones(Float64, n_em)
-gb     = [73.1715026079, 6.9138347588, 69.1393955643, 30.4219113823].*1e3
-# gb    = zeros(n_em)
+# gb     = [73.1715026079, 6.9138347588, 69.1393955643, 30.4219113823].*1e3
+gb    = zeros(n_em)
 # gb = [-3295812.69,-2585019.80,-3193633.69,-3310918.59]
 # x   = rand(n_em) .+ 0.1; x ./= sum(x);
-x = [ 0.0001000000, 0.6998000000, 0.0001000000 ,0.3000000000]
+ x = ones(n_em) ./ n_em
+# x = [ 0.0001000000, 0.6998000000, 0.0001000000 ,0.3000000000]
 # x = [0.00010, 0.00010, 0.99970, 0.0001]
 # x = [0.00010, 0.99970, 0.00010, 0.0001]
 eps = 1e-8

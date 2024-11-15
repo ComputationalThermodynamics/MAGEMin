@@ -86,7 +86,6 @@ csd_phase_set CP_UPDATE_function(		global_variable 	gv,
 			break;
 		}
 	}
-
 	cp.sum_xi 	= 0.0;	
 	for (int i = 0; i < cp.n_em; i++){ 
 		cp.xi_em[i] = exp(-cp.mu[i]/(SS_ref_db.R*SS_ref_db.T));
@@ -522,15 +521,24 @@ void ss_min_LP(			global_variable 	 gv,
 															SS_ref_db[ph_id],
 															ph_id					);
 				}
-
-				for (int k = 0; k < cp[i].n_xeos; k++) {
-					cp[i].xeos_1[k] 			 =  SS_ref_db[ph_id].xeos[k];
+				if (SS_ref_db[ph_id].status == -4){
+					if (gv.verbose == 1){
+						printf(" Round-off error in the minimization of %4s\n",gv.SS_list[ph_id]);
+					}
+					for (int k = 0; k < cp[i].n_xeos; k++) {
+						cp[i].xeos_1[k] 			 =  SS_ref_db[ph_id].p[k];
+					}
 				}
-
+				else{
+					for (int k = 0; k < cp[i].n_xeos; k++) {
+						cp[i].xeos_1[k] 			 =  SS_ref_db[ph_id].xeos[k];
+					}
+				}
 				/** 
 					Here if the number of phase occurence in the LP matrix is equal to we add 2 pseudocompounds
 				*/
 				if (gv.n_ss_ph[ph_id] == 1){
+
 					double shift = 0.0;
 					double sh_array[] = {-0.01,0.01};
 					for (int add = 0; add < 2; add++){
