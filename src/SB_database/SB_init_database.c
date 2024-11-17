@@ -35,10 +35,10 @@ oxide_data oxide_info_sb = {
 stx11_dataset stx11_db = {
 	2011,						/* Endmember default dataset number */
 	6,							/* number of oxides */			
-	9,							/* number of pure phases */
+	10,							/* number of pure phases */
 	14,							/* number of solution phases */
 	{"SiO2"	,"CaO"	,"Al2O3","FeO"	,"MgO"	,"Na2O"																							},
-	{"neph"	,"ky"	,"st"	,"coe"	,"qtz"	,"capv"	,"aMgO"	,"aFeO"	,"aAl2O3"																},
+	{"neph"	,"ky"	,"st"	,"coe"	,"qtz"	,"capv"	,"co" 	,"aMgO"	,"aFeO"	,"aAl2O3"																},
 	{"plg"	,"sp"	,"ol"	,"wa"	,"ri"	,"opx"	,"cpx"	,"hpcpx","ak"	,"gtmj"	,"pv"	,"ppv"	,"mw"	,"cf"							},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1								}, // allow solvus?
@@ -290,29 +290,29 @@ global_variable get_bulk_stx11( global_variable gv) {
 	}
 
 	if (gv.test == 0){ //KLB1
-		/* SiO2 Al2O3 CaO FeO MgO  Na2O  */
+		/* SiO2 CaO  Al2O3 FeO MgO  Na2O  */
 		/* Bulk rock composition of Peridotite from Holland et al., 2018, given by E. Green */
-		gv.bulk_rock[0]  = 38.494 ;		/** SiO2 	*/
-		gv.bulk_rock[1]  = 2.824;		/** CaO  	*/
-		gv.bulk_rock[2]  = 1.776;		/** Al2O2 	*/
-		gv.bulk_rock[3]  = 5.886;		/** FeO 	*/
-		gv.bulk_rock[4]  = 50.566;		/** MgO 	*/
+		gv.bulk_rock[0]  = 38.41;		/** SiO2 	*/
+		gv.bulk_rock[1]  = 3.18;		/** CaO  	*/
+		gv.bulk_rock[2]  = 1.8;			/** Al2O2 	*/
+		gv.bulk_rock[3]  = 5.85;		/** FeO 	*/
+		gv.bulk_rock[4]  = 50.49;		/** MgO 	*/
 		gv.bulk_rock[5]  = 0.250;		/** Na2O 	*/	
 	}	
 	else if (gv.test == 1){ //Pyrolite
-		/* SiO2 Al2O3 CaO FeO MgO  Na2O  */
+		/* SiO2 CaO  Al2O3 FeO MgO  Na2O  */
 		gv.bulk_rock[0]  = 38.89 ;		/** SiO2 	*/
-		gv.bulk_rock[1]  = 2.2;			/** Al2O2 	*/
-		gv.bulk_rock[2]  = 3.1;			/** CaO  	*/
+		gv.bulk_rock[1]  = 3.1;			/** CaO  	*/
+		gv.bulk_rock[2]  = 2.2;			/** Al2O2 	*/
 		gv.bulk_rock[3]  = 5.8;			/** FeO 	*/
 		gv.bulk_rock[4]  = 50.0;		/** MgO 	*/
 		gv.bulk_rock[5]  = 0.01;		/** Na2O 	*/
 	}  
 	else if (gv.test == 1){ //Harzburgite
-		/* SiO2 Al2O3 CaO FeO MgO  Na2O  */
+		/* SiO2 CaO  Al2O3 FeO MgO  Na2O  */
 		gv.bulk_rock[0]  = 36.39 ;		/** SiO2 	*/
-		gv.bulk_rock[1]  = 0.7;			/** Al2O2 	*/
-		gv.bulk_rock[2]  = 0.9;			/** CaO  	*/
+		gv.bulk_rock[1]  = 0.9;			/** CaO  	*/
+		gv.bulk_rock[2]  = 0.7;			/** Al2O2 	*/
 		gv.bulk_rock[3]  = 5.4;			/** FeO 	*/
 		gv.bulk_rock[4]  = 56.6;		/** MgO 	*/
 		gv.bulk_rock[5]  = 0.01;		/** Na2O 	*/

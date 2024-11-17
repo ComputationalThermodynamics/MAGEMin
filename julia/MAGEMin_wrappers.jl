@@ -687,7 +687,7 @@ function convertBulk4MAGEMin(bulk_in::T1,bulk_in_ox::Vector{String},sys_in::Stri
     elseif db   == "mtl"
         MAGEMin_ox      = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO";"Na2O"];
     elseif db   == "sb11"
-        MAGEMin_ox      = ["SiO2"; "Al2O3"; "CaO"; "FeO"; "MgO";"Na2O"];
+        MAGEMin_ox      = ["SiO2"; "CaO"; "Al2O3"; "FeO"; "MgO";"Na2O"];
     else
         print("Database not implemented...\n")
     end
@@ -749,8 +749,8 @@ function convertBulk4MAGEMin(bulk_in::T1,bulk_in_ox::Vector{String},sys_in::Stri
 
     # check which component can safely be put to 0.0
     d = []
-    c = []
-
+    c = collect(1:length(MAGEMin_ox))
+    # c should be swt to all first here
     if db       == "mp"
         c = findall(MAGEMin_ox .!= "TiO2" .&& MAGEMin_ox .!= "O" .&& MAGEMin_ox .!= "MnO" .&& MAGEMin_ox .!= "H2O");
         d = findall(MAGEMin_ox .== "TiO2" .|| MAGEMin_ox .== "O" .|| MAGEMin_ox .!= "MnO");

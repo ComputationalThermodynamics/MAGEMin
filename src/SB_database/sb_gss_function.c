@@ -26,7 +26,6 @@ Stixrude thermodynamic database for the mantle minerals
 #include "../all_solution_phases.h"
 #include "../simplex_levelling.h"
 #include "../toolkit.h"
-
 /**
     Solution phase data for sb11_plg
 */
@@ -370,10 +369,10 @@ SS_ref G_SS_sb11_opx_function(SS_ref SS_ref_db, char* research_group, int EM_dat
 
     SS_ref_db.W[0] = 0.0;
     SS_ref_db.W[1] = 0.0;
-    SS_ref_db.W[2] = 32100.0;
+    SS_ref_db.W[2] = 48000.0;
     SS_ref_db.W[3] = 0.0;
     SS_ref_db.W[4] = 0.0;
-    SS_ref_db.W[5] = 48000.0;
+    SS_ref_db.W[5] = 32100.0;
 
 
     em_data mgts            = get_em_data(    research_group, EM_dataset,
@@ -468,16 +467,16 @@ SS_ref G_SS_sb11_cpx_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     SS_ref_db.N[3][0] = -0.13819660112501048;    SS_ref_db.N[3][1] = -0.13819660112501048;    SS_ref_db.N[3][2] = 0.8618033988749895;    SS_ref_db.N[3][3] = -0.13819660112501048;
     SS_ref_db.N[4][0] = -0.13819660112501048;    SS_ref_db.N[4][1] = -0.13819660112501048;    SS_ref_db.N[4][2] = -0.13819660112501048;    SS_ref_db.N[4][3] = 0.8618033988749895;
 
-    SS_ref_db.W[0] = 24700.0;
-    SS_ref_db.W[1] = 0.0;
-    SS_ref_db.W[2] = 26000.0;
-    SS_ref_db.W[3] = 24700.0;
-    SS_ref_db.W[4] = 24300.0;
-    SS_ref_db.W[5] = 0.0;
-    SS_ref_db.W[6] = 60600.0;
-    SS_ref_db.W[7] = 10000.0;
-    SS_ref_db.W[8] = 0.0;
-    SS_ref_db.W[9] = 0.0;
+    SS_ref_db.W[0] = 0.0;
+    SS_ref_db.W[1] = 24700.0;
+    SS_ref_db.W[2] = 0.0;
+    SS_ref_db.W[3] = 0.0;
+    SS_ref_db.W[4] = 0.0;
+    SS_ref_db.W[5] = 10000.0;
+    SS_ref_db.W[6] = 24300.0;
+    SS_ref_db.W[7] = 60600.0;
+    SS_ref_db.W[8] = 24700.0;
+    SS_ref_db.W[9] = 26000.0;
 
     SS_ref_db.v[0] = 1.0;
     SS_ref_db.v[1] = 1.0;
@@ -732,16 +731,16 @@ SS_ref G_SS_sb11_gtmj_function(SS_ref SS_ref_db, char* research_group, int EM_da
     SS_ref_db.N[3][0] = -0.13819660112501048;    SS_ref_db.N[3][1] = -0.13819660112501048;    SS_ref_db.N[3][2] = 0.8618033988749895;    SS_ref_db.N[3][3] = -0.13819660112501048;
     SS_ref_db.N[4][0] = -0.13819660112501048;    SS_ref_db.N[4][1] = -0.13819660112501048;    SS_ref_db.N[4][2] = -0.13819660112501048;    SS_ref_db.N[4][3] = 0.8618033988749895;
 
-    SS_ref_db.W[0] = 30000.0;
+    SS_ref_db.W[0] = 0.0;
     SS_ref_db.W[1] = 0.0;
     SS_ref_db.W[2] = 0.0;
     SS_ref_db.W[3] = 0.0;
     SS_ref_db.W[4] = 0.0;
     SS_ref_db.W[5] = 0.0;
-    SS_ref_db.W[6] = 21300.0;
-    SS_ref_db.W[7] = 0.0;
-    SS_ref_db.W[8] = 0.0;
-    SS_ref_db.W[9] = 58000.0;
+    SS_ref_db.W[6] = 0.0;
+    SS_ref_db.W[7] = 21300.0;
+    SS_ref_db.W[8] = 58000.0;
+    SS_ref_db.W[9] = 30000.0;
 
 
     em_data alm            = get_em_data(    research_group, EM_dataset,
@@ -847,9 +846,9 @@ SS_ref G_SS_sb11_pv_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.W[1] = 116000.0;
     SS_ref_db.W[2] = 0.0;
 
-    SS_ref_db.v[0] = 1.0;
+    SS_ref_db.v[0] = 0.39;
     SS_ref_db.v[1] = 1.0;
-    SS_ref_db.v[2] = 0.39;
+    SS_ref_db.v[2] = 1.0;
 
     em_data alpv            = get_em_data(    research_group, EM_dataset,
                                             len_ox,
@@ -1122,6 +1121,7 @@ SS_ref G_SS_sb11_cf_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     return SS_ref_db;
 }
+
 
 SS_ref G_SS_sb11_EM_function(       global_variable        gv,
                                     SS_ref            SS_ref_db,

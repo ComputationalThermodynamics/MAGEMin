@@ -1521,7 +1521,7 @@ mutable struct stx11_datasets
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{6, NTuple{20, Cchar}}
-    PP::NTuple{9, NTuple{20, Cchar}}
+    PP::NTuple{10, NTuple{20, Cchar}}
     SS::NTuple{14, NTuple{20, Cchar}}
     verifyPC::NTuple{14, Cint}
     n_SS_PC::NTuple{14, Cint}

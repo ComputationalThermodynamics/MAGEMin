@@ -90,18 +90,18 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 
 	int    max_ite, itic, ibad, bad;
 
-	max_ite 		= 100;
+	max_ite 		= 128;
 
-	double F0		= EM_return.input_1[0];
-	double n		= EM_return.input_1[1];
+	double F0		=  EM_return.input_1[0];
+	double n		=  EM_return.input_1[1];
 	double V0 		= -EM_return.input_1[2];
-	double K0 		= EM_return.input_1[3];
-	double Kp 		= EM_return.input_1[4];
-	double z00		= EM_return.input_1[5];
-	double gamma0 	= EM_return.input_1[6];
-	double q0 		= EM_return.input_1[7];
-	double etaS0	= EM_return.input_1[8];
-	double cme		= EM_return.input_1[9];
+	double K0 		=  EM_return.input_1[3];
+	double Kp 		=  EM_return.input_1[4];
+	double z00		=  EM_return.input_1[5];
+	double gamma0 	=  EM_return.input_1[6];
+	double q0 		=  EM_return.input_1[7];
+	double etaS0	=  EM_return.input_1[8];
+	double cme		=  EM_return.input_1[9];
     
     nr9 	= -9.0 * n * R;
     nr9T0 	= nr9 * T0;
@@ -155,9 +155,9 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 
 		z 		= 1.0 + (aii + aiikk2 * f) * f;
 
-		if (z < 0.0 || V / V0 > 100.0 || V / V0 < 1e-2){
-			printf(" ERROR z or V/V0\n");
-		}
+		// if (z < 0.0 || V / V0 > 100.0 || V / V0 < 1e-2){
+		// 	if (gv.verbose == 1){printf(" ERROR z or V/V0\n");}
+		// }
 
 		root 	= sqrt(z);
 		tht 	= t1 * root;
@@ -174,9 +174,9 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 		fpoly0 	= 3.0 * plg(thT0) / pow(thT0,3.0);
 		etht 	= exp(-tht);
 
-		if (1.0 - etht < 0.0){
-			printf("ERROR 1-etht\n");
-		}
+		// if (1.0 - etht < 0.0){
+		// 	printf("ERROR 1-etht\n");
+		// }
 
 		letht 	= log(1.0 - etht);
 
@@ -184,9 +184,9 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 		d2fth 	= ((4.0 * pow(dtht,2.0) / tht - d2tht) * (fpoly - letht) + pow(dtht,2.0) * etht / (1.0 - etht)) * nr9t / tht;
 		ethT0 	= exp(-thT0);
 
-		if (1.0 - ethT0 < 0.0){
-			printf("ERROR 1-thT0\n");
-		}
+		// if (1.0 - ethT0 < 0.0){
+		// 	printf("ERROR 1-thT0\n");
+		// }
 
 		lethT0 	= log(1.0 - ethT0);
 
@@ -207,7 +207,7 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 
 			if (fabs(f1 / P) < 0.0){
 				ibad = 5;
-				printf("ERROR abs(f1/p)\n");
+				// if (gv.verbose == 1){printf("ERROR abs(f1/p)\n");}
 			}
 		}
 		else if( fabs(dv / (1.0 + V)) < eps ){
@@ -217,9 +217,9 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 		
 	}
 
-	if (bad == 1){
-		printf("ERROR bad\n");
-	}
+	// if (bad == 1){
+	// 	if (gv.verbose == 1){printf("ERROR bad\n");}
+	// }
 
 	/* get helmoltz energy:*/
 	f 		= 0.5 * pow((V0 / V),r23) - 0.5;
@@ -232,8 +232,6 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 	/* helmholtz energy */
 	a 		= F0 + c1 * pow(f,2.0) * (0.5 + c2 * f) + nr9 * (T / pow(tht,3.0) * plg(tht) - T0 / pow(thT0,3.0) * plg(thT0));
 	gbase 	= a + P * V - T * cme;
-
-
 
 	/* fill structure to send back to main */
 	PP_ref PP_ref_db;

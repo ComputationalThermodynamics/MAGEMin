@@ -48,6 +48,73 @@ function generate_simplex(n, step)
     return simplex
 end
 
+
+function get_w_ids(ss,ii,data2)
+    ks          = keys(ss[ii].margules)
+    # ks_strings  = [String(s) for s in ks]
+    n_em        = length(ss[ii].endmembers)
+    em          = keys(ss[ii].endmembers)
+    em_strings  = [String(s) for s in em]
+    marg_out    = []
+
+    for i=1:n_em-1
+        for j=i+1:n_em
+            push!(marg_out, sort([em_strings[i],em_strings[j]]))
+        end
+    end
+
+    val_in = []
+    for (key, value) in ss[ii].margules
+        push!(val_in, value)
+    end
+
+    em_out      = keys(ss[ii].endmembers)
+    em_names    = data2[:,:id]
+    
+    em_ids      = []
+    for i in em_out
+        id = findfirst(x->x==i,em_names)
+        push!(em_ids,id)
+    end
+    sorted_indexes = sortperm(em_ids)
+    em_in       = em_names[em_ids[sorted_indexes]]
+
+    ids_v =  []
+    for i in em_out
+        id = findfirst(x->x==i,em_in)
+        push!(ids_v,id)
+    end
+    # println(em_in)
+
+    # em_in is the same order as v
+
+
+    marg_in  = []
+    em_list  = []
+    j = 1
+    for i in ks
+        w_em         = split(i,",")
+        w_em_strings = [String(s) for s in w_em]
+        push!(marg_in, sort(w_em_strings))
+        if w_em_strings[1] in em_list
+        else
+            push!(em_list, w_em_strings[1])
+        end
+    end
+
+    ids_W = []
+    for i in marg_out
+        if i in marg_in
+            idx = findfirst(x->x==i, marg_in)
+            push!(ids_W, idx)
+        else
+            push!(ids_W, 0)
+        end
+    end
+    return ids_W,ids_v
+end
+
+
 """
     get_mu_Gex(W, v, n_em, sym)
 """
@@ -464,7 +531,7 @@ end
     
 
 
-function get_sb_gss_function(sb_ver,ss)
+function get_sb_gss_function(sb_ver,ss,data2)
     sb_gss_function    = ""
 
     n_ss = length(ss)
@@ -472,11 +539,13 @@ function get_sb_gss_function(sb_ver,ss)
 
         mul, site_cmp = retrieve_site_cmp(ss, ii)
 
-        W   = [ ss[ii].margules[j] for j in  keys(ss[ii].margules)]
+        W       = [ ss[ii].margules[j] for j in  keys(ss[ii].margules)]
 
-        v   = [ ss[ii].van_laar[j] for j in  keys(ss[ii].van_laar)]
+        v       = [ ss[ii].van_laar[j] for j in  keys(ss[ii].van_laar)]
 
-        em  = [ ss[ii].endmembers[j][1] for j in  keys(ss[ii].endmembers)]
+        em      = [ ss[ii].endmembers[j][1] for j in  keys(ss[ii].endmembers)]
+        ids_w,ids_v   = get_w_ids(ss,ii,data2)
+
 
         # println(mul, site_cmp, W, v, em)
 
@@ -537,12 +606,12 @@ function get_sb_gss_function(sb_ver,ss)
 
         sb_gss_function *= "\n"
         for i=1:length(W)
-            sb_gss_function *= "$(tab)SS_ref_db.W[$(i-1)] = $(W[i]);\n"
+            sb_gss_function *= "$(tab)SS_ref_db.W[$(i-1)] = $(W[ids_w[i]]);\n"
         end
         sb_gss_function *= "\n"
         if ~isempty(v)
             for i=1:length(v)
-                sb_gss_function *= "$(tab)SS_ref_db.v[$(i-1)] = $(v[i]);\n"
+                sb_gss_function *= "$(tab)SS_ref_db.v[$(i-1)] = $(v[ids_v[i]]);\n"
             end
         end
         sb_gss_function *= "\n"
@@ -805,10 +874,10 @@ function get_SB_NLopt_opt_functions(sb_ver,ss)
     return SB_NLopt_opt_functions
 end
 
-function generate_C_files(sb_ver,ss)
+function generate_C_files(sb_ver,ss,data2)
 
     sb_gss_init_function    = get_sb_gss_init_function(sb_ver,ss)
-    sb_gss_function         = get_sb_gss_function(sb_ver,ss)
+    sb_gss_function         = get_sb_gss_function(sb_ver,ss,data2)
     sb_objective_functions  = get_sb_objective_functions(sb_ver,ss)
     sb_SS_xeos_PC           = get_sb_SS_xeos_PC(sb_ver,ss)
     SB_NLopt_opt_functions  = get_SB_NLopt_opt_functions(sb_ver,ss)
