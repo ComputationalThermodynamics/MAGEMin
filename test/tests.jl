@@ -110,7 +110,7 @@ end
     P           =   8.0
     T           =   400.0
     out         =   point_wise_minimization(P,T, data, buffer_n=0.6);
-    @test sort(out.ph) == ["aH2O", "chl", "ep", "fsp", "mu", "mu", "q", "ru", "sp"]
+    @test sort(out.ph) == sort(["chl", "sp", "mu", "mu", "fsp", "ep", "q", "ru", "aH2O"])
     Finalize_MAGEMin(data)
 
     # Initialize database  - new way
@@ -122,7 +122,7 @@ end
     P           =   8.0
     T           =   400.0
     out         =   point_wise_minimization(P,T, data, buffer_n=0.6);
-    @test sort(out.ph) == ["H2O", "aTiO2", "chl", "ep", "fsp", "ilmm", "mu", "mu", "q"]
+    @test sort(out.ph) == sort(["H2O", "aTiO2", "chl", "ep", "fsp", "ilm", "mu", "mu", "q"])
     Finalize_MAGEMin(data)
 
     # Initialize database  - new way
@@ -134,7 +134,7 @@ end
     P           =   8.0
     T           =   1200.0
     out         =   point_wise_minimization(P,T, data, buffer_n=0.1);
-    @test sort(out.ph) == ["aTiO2", "cpx", "fsp", "liq", "ol", "opx"]
+    @test sort(out.ph) == sort(["aTiO2", "cpx", "fsp", "liq", "ol", "opx"])
 
     Finalize_MAGEMin(data)
 
@@ -147,7 +147,7 @@ end
     X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
     sys_in  = "wt"    
     out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
-    @test sort(out.ph) == ["cpx", "liq", "opx", "qfm"]
+    @test sort(out.ph) == sort(["cpx", "liq", "opx", "qfm"])
 
     Finalize_MAGEMin(data)
 
@@ -322,7 +322,7 @@ end
     X       = [70.999,12.805,0.771,3.978,6.342,2.7895,1.481,0.758,0.72933,0.075,30.0]
     sys_in  = "mol"    
     out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in,rm_list=rm_list)
-    @test sort(out.ph) == sort(["H2O", "fsp", "g", "ilmm", "q", "sill", "sp"])
+    @test sort(out.ph) == sort(["sp", "g", "fsp", "ilm", "q", "sill", "H2O"])
 end
 
 @testset "view array PT" begin

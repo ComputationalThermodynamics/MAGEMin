@@ -23,6 +23,7 @@
 #include "SB_gem_function.h"
 
 #define eps 1e-10
+#define R 8.314462618  // J/(mol·K)
 
 
 double plg(double t) {
@@ -53,6 +54,36 @@ double plg(double t) {
     return plg;
 }
 
+/**
+	Finite strain approximation for eta_{s0}, the isotropic shear
+	strain derivative of the grueneisen parameter.
+	** 'Borrowed' from Burnman **
+*/
+double isotropic_eta_s(double x, double grueneisen_0, double eta_s_0, double q_0) {
+
+    double f 			= 0.5 * (pow(x, 2.0 / 3.0) - 1.0);
+    double a2_s 		= -2.0 * grueneisen_0 - 2.0 * eta_s_0;
+    double a1_ii 		= 6.0 * grueneisen_0;
+    double a2_iikk 		= -12.0 * grueneisen_0 + 36.0 * pow(grueneisen_0, 2.0) - 18.0 * q_0 * grueneisen_0;
+    double nu_o_nu0_sq 	= 1.0 + a1_ii * f + 0.5 * a2_iikk * pow(f, 2.0);
+    double gr 			= 1.0 / 6.0 / nu_o_nu0_sq * (2.0 * f + 1.0) * (a1_ii + a2_iikk * f);
+    double eta_s 		= -gr - (0.5 * pow(nu_o_nu0_sq, -1.0) * pow((2.0 * f) + 1.0, 2.0) * a2_s);
+
+    return eta_s;
+}
+
+/*
+    Get the birch murnaghan shear modulus at a reference temperature, for a
+    given volume. Returns shear modulus in [Pa] (the same units as in G_0).
+    This uses a second order finite strain expansion
+	** 'Borrowed' from Burnman **
+*/
+double shear_modulus_second_order(double volume, double V_0, double G_0, double Gprime_0, double K_0) {
+    double x = V_0 / volume;
+    double G = G_0 * pow(x, 5.0 / 3.0) * (1.0 - 0.5 * (pow(x, 2.0 / 3.0) - 1.0) * (5.0 - 3.0 * Gprime_0 * K_0 * 1e5 / G_0));
+
+    return G;
+}
 
 PP_ref SB_G_EM_function(	int 		 EM_dataset, 
 							int 		 len_ox,
@@ -79,13 +110,15 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 	double kbar2bar = 1e3;
 	double T0 		= 298.15;
 	double P0 		= 0.001;
-	double R  		= 8.31446261815324;
+	// double R  		= 8.31446261815324;
  	double P       = Pkbar * kbar2bar;
 	/* declare the variables */
-	double nr9, nr9T0, c1, c2, c3, aii, aiikk2, aii2;
+	double nr9, nr9T0, c1, c2, c3, aii, aiikk, as, aiikk2, aii2;
 	double r23, r59, t1, t2, nr9t, tht, thT0;
+	double b21, b22;
 	double dfth, dfth0, root, V, V23;
-	double f,df,d2f,dfc,d2fc,z,a2f,da,dtht,d2tht,dthT0,d2thT0,fpoly,fpoly0,etht,letht,d2fth,ethT0,lethT0,d2fth0,f1,df1,dv;
+	double f,df,d2f,dfc,d2fc,z,a2f,da,dtht,d2tht,dthT0,d2thT0,fpoly,fpoly0,etht,letht,d2fth,ethv,ethT0,lethT0,d2fth0,f1,df1,dv;
+	double gamma, etas;
 	double a,gbase;
 
 	int    max_ite, itic, ibad, bad;
@@ -102,15 +135,24 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 	double q0 		=  EM_return.input_1[7];
 	double etaS0	=  EM_return.input_1[8];
 	double cme		=  EM_return.input_1[9];
-    
+
+	double g0 		=  EM_return.input_2[0]*1e9; // GPa to Pa
+	double g0p 		=  EM_return.input_2[1];
+
     nr9 	= -9.0 * n * R;
     nr9T0 	= nr9 * T0;
     c1 		= -9.0 * (-V0) * K0;
     c2 		= Kp / 2.0 - 2.0;
     c3 		= 3.0 * c1 * c2;
     aii 	= 6.0 * gamma0;
-    aiikk2 	= 0.5 * aii * (-2.0 + 6.0 * gamma0 - 3.0 * q0);
-    aii2 	= 3.0 * gamma0;
+	aiikk 	= -12.0*gamma0 + 36.0*pow(gamma0,2.0) - 18.0*q0*gamma0;
+	as      = -(gamma0 + etaS0);
+	aiikk2 	= 0.5 * aiikk;
+    aii2 	= 0.5 * aii;
+    // aiikk2 	= 0.5 * aii * (-2.0 + 6.0 * gamma0 - 3.0 * q0);
+    // aii2 	= 3.0 * gamma0;
+	b21		= (3.0*K0*g0p-5.0*g0);
+	b22 	= ((6.0*g0p-24.0+4.5*Kp)*K0-14.0*g0);
 
     r23 = 2.0 / 3.0;
     r59 = 5.0 / 9.0;
@@ -155,9 +197,10 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 
 		z 		= 1.0 + (aii + aiikk2 * f) * f;
 
-		// if (z < 0.0 || V / V0 > 100.0 || V / V0 < 1e-2){
+		if (z < 0.0 || V / V0 > 100.0 || V / V0 < 1e-2){
+			break;
 		// 	if (gv.verbose == 1){printf(" ERROR z or V/V0\n");}
-		// }
+		}
 
 		root 	= sqrt(z);
 		tht 	= t1 * root;
@@ -174,9 +217,10 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 		fpoly0 	= 3.0 * plg(thT0) / pow(thT0,3.0);
 		etht 	= exp(-tht);
 
-		// if (1.0 - etht < 0.0){
+		if (1.0 - etht < 0.0){
+			break;
 		// 	printf("ERROR 1-etht\n");
-		// }
+		}
 
 		letht 	= log(1.0 - etht);
 
@@ -184,9 +228,10 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 		d2fth 	= ((4.0 * pow(dtht,2.0) / tht - d2tht) * (fpoly - letht) + pow(dtht,2.0) * etht / (1.0 - etht)) * nr9t / tht;
 		ethT0 	= exp(-thT0);
 
-		// if (1.0 - ethT0 < 0.0){
+		if (1.0 - ethT0 < 0.0){
+			break;
 		// 	printf("ERROR 1-thT0\n");
-		// }
+		}
 
 		lethT0 	= log(1.0 - ethT0);
 
@@ -204,11 +249,11 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 		V -= dv;
 		
 		if (itic >= max_ite || fabs(f1) > 1e40){
-
 			if (fabs(f1 / P) < 0.0){
 				ibad = 5;
 				// if (gv.verbose == 1){printf("ERROR abs(f1/p)\n");}
 			}
+			break;
 		}
 		else if( fabs(dv / (1.0 + V)) < eps ){
 				bad = 0;
@@ -232,6 +277,7 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 	/* helmholtz energy */
 	a 		= F0 + c1 * pow(f,2.0) * (0.5 + c2 * f) + nr9 * (T / pow(tht,3.0) * plg(tht) - T0 / pow(thT0,3.0) * plg(thT0));
 	gbase 	= a + P * V - T * cme;
+
 
 	/* fill structure to send back to main */
 	PP_ref PP_ref_db;
@@ -260,12 +306,21 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 	}
 	PP_ref_db.gbase   =  gbase/kbar2bar;
 	PP_ref_db.factor  =  factor;
-	PP_ref_db.phase_shearModulus  =  (EM_return.input_2[0] + (P - P0)*(EM_return.input_2[1]) + (T - T0)*(EM_return.input_2[2]))/kbar2bar;
 
-    //   SHM(PHMAX+1) = (1D0 + 2D0*F)**(2.5D0)*                         &
-    //        (SHM0*(1D0 - 5D0*F) + F*SHMP*3D0*K0)  &
-    //      -  D4*VOLUM/V0R*((DFT0-DFT)/D2/VQ)
-	
+	double sm2o 	= shear_modulus_second_order(V, V0,g0,g0p, K0);
+	double eta_s 	= isotropic_eta_s(V0/V, gamma0, etaS0, q0);
+
+
+	gamma = (2.0*f+1.0)*(aii+aiikk*f)/6.0/z;
+	if (gamma != 0.0){
+		ethv = (dfth0-dfth)/gamma;
+	}    
+	else{         
+		ethv = 0.0;
+	}
+
+	PP_ref_db.phase_shearModulus  =  (sm2o - eta_s*ethv)/1e8;
+
 	// printf("gbase %4s %+10f\n",name,PP_ref_db.gbase);
 	// printf("phase_shearModulus %4s %+10f\n",name,PP_ref_db.phase_shearModulus);
 	// for (i = 0; i < len_ox; i++){

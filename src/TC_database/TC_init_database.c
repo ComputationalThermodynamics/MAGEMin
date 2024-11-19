@@ -40,11 +40,11 @@ metapelite_dataset metapelite_db = {
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"H2O"											},
 	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2"  ,"H2O"	,
 	"qfm"	,"qif"	,"nno"	,"hm"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"								},
-	{"liq"	,"fsp"	,"bi"	,"g"	,"ep"	,"ma"	,"mu"	,"opx"	,"sa"	,"cd"	,"st"	,"chl"	,"ctd"	,"sp"  ,"ilmm"  ,"aq17"	},
+	{"liq"	,"fsp"	,"bi"	,"g"	,"ep"	,"ma"	,"mu"	,"opx"	,"sa"	,"cd"	,"st"	,"chl"	,"ctd"	,"sp"  ,"ilm"  ,"aq17"	},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1		},  // allow solvus?
-	{3150	,231 	,981	,756	,110 	,1875	,1876	,1277	,230	,343	,540	,2270	,216	,405 	,1430 	,1		},  // # of pseudocompound
-	{0.24	,0.049	,0.19	,0.19	,0.049	,0.19	,0.19	,0.249	,0.19	,0.145	,0.19	,0.249	,0.19	,0.124 	,0.099 	,1.0	},  // discretization step
+	{3150	,231 	,981	,756	,110 	,1875	,1876	,1277	,230	,343	,540	,2270	,216	,405 	,130 	,1		},  // # of pseudocompound
+	{0.24	,0.049	,0.19	,0.19	,0.049	,0.19	,0.19	,0.249	,0.19	,0.145	,0.19	,0.249	,0.19	,0.124 	,0.09 	,1.0	},  // discretization step
 
 	6.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
 	473.15,						/* max temperature above which PGE solver is active 								*/
@@ -68,16 +68,16 @@ metabasite_dataset metabasite_db = {
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"H2O"													},
 	{"q"	,"crst"	,"trd"	,"coe"	,"law"	,"ky"	,"sill"	,"and"	,"ru"	,"sph" 	,"ab"	,"H2O"	,
 	"qfm"	,"qif"	,"nno"	,"hm"	,"cco"	,"aH2O"	,"aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"								},
-	{"sp"	,"opx"	,"fsp"	,"liq"	,"mu"	,"ilmm"	,"ol"	,"hb"	,"ep"	,"g"	,"chl"	,"bi"	,"dio"	,"abc"  ,"spn"			},
+	{"sp"	,"opx"	,"fsp"	,"liq"	,"mu"	,"ilm"	,"ol"	,"hb"	,"ep"	,"g"	,"chl"	,"bi"	,"dio"	,"abc"  ,"spn"			},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1				},  // allow solvus?
-	{936	,1731 	,231	,3505	,4536 	,298	,11		,7664	,110	,216	,3980	,1097	,1808	,21 	,196			},  // # of pseudocompound
-	{0.09	,0.19	,0.049	,0.199	,0.19	,0.09	,0.098	,0.249	,0.049	,0.19	,0.19	,0.149	,0.16	,0.049 	,0.09			},  // discretization step
+	{936	,1731 	,231	,3505	,4536 	,420	,11		,7664	,110	,216	,3980	,1097	,1808	,21 	,196			},  // # of pseudocompound
+	{0.09	,0.19	,0.049	,0.199	,0.19	,0.049	,0.098	,0.249	,0.049	,0.19	,0.19	,0.149	,0.16	,0.049 	,0.09			},  // discretization step
 
-	{"sp"	,"opx"	,"fsp"	,"liq"	,"mu"	,"ilmm"	,"ol"	,"hb"	,"ep"	,"g"	,"chl"	,"bi"	,"aug"	,"abc"  ,"spn"			},
+	{"sp"	,"opx"	,"fsp"	,"liq"	,"mu"	,"ilm"	,"ol"	,"hb"	,"ep"	,"g"	,"chl"	,"bi"	,"aug"	,"abc"  ,"spn"			},
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1				},  // allow solvus?
-	{936	,1731 	,231	,3505	,4536 	,298	,11		,7664	,110	,216	,3980	,1097	,2395	,21 	,196			},  // # of pseudocompound
-	{0.09	,0.19	,0.049	,0.199	,0.19	,0.09	,0.098	,0.249	,0.049	,0.19	,0.19	,0.149	,0.24	,0.049 	,0.09			},  // discretization step
+	{936	,1731 	,231	,3505	,4536 	,420	,11		,7664	,110	,216	,3980	,1097	,2395	,21 	,196			},  // # of pseudocompound
+	{0.09	,0.19	,0.049	,0.199	,0.19	,0.049	,0.098	,0.249	,0.049	,0.19	,0.19	,0.149	,0.24	,0.049 	,0.09			},  // discretization step
 
 	4.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
 	473.15,						/* max temperature above which PGE solver is active 								*/
