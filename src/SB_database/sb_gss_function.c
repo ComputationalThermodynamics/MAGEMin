@@ -72,6 +72,9 @@ SS_ref G_SS_sb11_plg_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     SS_ref_db.ElShearMod[0]        = an.ElShearMod;
     SS_ref_db.ElShearMod[1]        = ab.ElShearMod;
 
+    SS_ref_db.ElBulkMod[0]        = an.ElBulkMod;
+    SS_ref_db.ElBulkMod[1]        = ab.ElBulkMod;
+
     for (i = 0; i < len_ox; i++){
         SS_ref_db.Comp[0][i] 	= an.C[i];
         SS_ref_db.Comp[1][i] 	= ab.C[i];
@@ -138,6 +141,9 @@ SS_ref G_SS_sb11_sp_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.ElShearMod[0]        = sp.ElShearMod;
     SS_ref_db.ElShearMod[1]        = hc.ElShearMod;
 
+    SS_ref_db.ElBulkMod[0]        = sp.ElBulkMod;
+    SS_ref_db.ElBulkMod[1]        = hc.ElBulkMod;
+
     for (i = 0; i < len_ox; i++){
         SS_ref_db.Comp[0][i] 	= sp.C[i];
         SS_ref_db.Comp[1][i] 	= hc.C[i];
@@ -199,6 +205,9 @@ SS_ref G_SS_sb11_ol_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     SS_ref_db.ElShearMod[0]        = fa.ElShearMod;
     SS_ref_db.ElShearMod[1]        = fo.ElShearMod;
+
+    SS_ref_db.ElBulkMod[0]        = fa.ElBulkMod;
+    SS_ref_db.ElBulkMod[1]        = fo.ElBulkMod;
 
     for (i = 0; i < len_ox; i++){
         SS_ref_db.Comp[0][i] 	= fa.C[i];
@@ -262,6 +271,9 @@ SS_ref G_SS_sb11_wa_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.ElShearMod[0]        = fewa.ElShearMod;
     SS_ref_db.ElShearMod[1]        = mgwa.ElShearMod;
 
+    SS_ref_db.ElBulkMod[0]        = fewa.ElBulkMod;
+    SS_ref_db.ElBulkMod[1]        = mgwa.ElBulkMod;
+
     for (i = 0; i < len_ox; i++){
         SS_ref_db.Comp[0][i] 	= fewa.C[i];
         SS_ref_db.Comp[1][i] 	= mgwa.C[i];
@@ -323,6 +335,9 @@ SS_ref G_SS_sb11_ri_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     SS_ref_db.ElShearMod[0]        = mgri.ElShearMod;
     SS_ref_db.ElShearMod[1]        = feri.ElShearMod;
+
+    SS_ref_db.ElBulkMod[0]        = mgri.ElBulkMod;
+    SS_ref_db.ElBulkMod[1]        = feri.ElBulkMod;
 
     for (i = 0; i < len_ox; i++){
         SS_ref_db.Comp[0][i] 	= mgri.C[i];
@@ -416,6 +431,11 @@ SS_ref G_SS_sb11_opx_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     SS_ref_db.ElShearMod[1]        = fs.ElShearMod;
     SS_ref_db.ElShearMod[2]        = en.ElShearMod;
     SS_ref_db.ElShearMod[3]        = odi.ElShearMod;
+
+    SS_ref_db.ElBulkMod[0]        = mgts.ElBulkMod;
+    SS_ref_db.ElBulkMod[1]        = fs.ElBulkMod;
+    SS_ref_db.ElBulkMod[2]        = en.ElBulkMod;
+    SS_ref_db.ElBulkMod[3]        = odi.ElBulkMod;
 
     for (i = 0; i < len_ox; i++){
         SS_ref_db.Comp[0][i] 	= mgts.C[i];
@@ -536,6 +556,12 @@ SS_ref G_SS_sb11_cpx_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     SS_ref_db.ElShearMod[3]        = cats.ElShearMod;
     SS_ref_db.ElShearMod[4]        = di.ElShearMod;
 
+    SS_ref_db.ElBulkMod[0]        = he.ElBulkMod;
+    SS_ref_db.ElBulkMod[1]        = jd.ElBulkMod;
+    SS_ref_db.ElBulkMod[2]        = cen.ElBulkMod;
+    SS_ref_db.ElBulkMod[3]        = cats.ElBulkMod;
+    SS_ref_db.ElBulkMod[4]        = di.ElBulkMod;
+
     for (i = 0; i < len_ox; i++){
         SS_ref_db.Comp[0][i] 	= he.C[i];
         SS_ref_db.Comp[1][i] 	= jd.C[i];
@@ -603,6 +629,9 @@ SS_ref G_SS_sb11_hpcpx_function(SS_ref SS_ref_db, char* research_group, int EM_d
 
     SS_ref_db.ElShearMod[0]        = hpcen.ElShearMod;
     SS_ref_db.ElShearMod[1]        = hpcfs.ElShearMod;
+
+    SS_ref_db.ElBulkMod[0]        = hpcen.ElBulkMod;
+    SS_ref_db.ElBulkMod[1]        = hpcfs.ElBulkMod;
 
     for (i = 0; i < len_ox; i++){
         SS_ref_db.Comp[0][i] 	= hpcen.C[i];
@@ -681,6 +710,10 @@ SS_ref G_SS_sb11_ak_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.ElShearMod[0]        = co.ElShearMod;
     SS_ref_db.ElShearMod[1]        = mgak.ElShearMod;
     SS_ref_db.ElShearMod[2]        = feak.ElShearMod;
+
+    SS_ref_db.ElBulkMod[0]        = co.ElBulkMod;
+    SS_ref_db.ElBulkMod[1]        = mgak.ElBulkMod;
+    SS_ref_db.ElBulkMod[2]        = feak.ElBulkMod;
 
     for (i = 0; i < len_ox; i++){
         SS_ref_db.Comp[0][i] 	= co.C[i];
@@ -795,6 +828,12 @@ SS_ref G_SS_sb11_gtmj_function(SS_ref SS_ref_db, char* research_group, int EM_da
     SS_ref_db.ElShearMod[3]        = py.ElShearMod;
     SS_ref_db.ElShearMod[4]        = gr.ElShearMod;
 
+    SS_ref_db.ElBulkMod[0]        = alm.ElBulkMod;
+    SS_ref_db.ElBulkMod[1]        = jdmj.ElBulkMod;
+    SS_ref_db.ElBulkMod[2]        = mgmj.ElBulkMod;
+    SS_ref_db.ElBulkMod[3]        = py.ElBulkMod;
+    SS_ref_db.ElBulkMod[4]        = gr.ElBulkMod;
+
     for (i = 0; i < len_ox; i++){
         SS_ref_db.Comp[0][i] 	= alm.C[i];
         SS_ref_db.Comp[1][i] 	= jdmj.C[i];
@@ -850,7 +889,7 @@ SS_ref G_SS_sb11_pv_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.v[1] = 1.0;
     SS_ref_db.v[2] = 1.0;
 
-    em_data alpv            = get_em_data(    research_group, EM_dataset,
+    em_data alpv            = get_em_data(  research_group, EM_dataset,
                                             len_ox,
                                             z_b,
                                             SS_ref_db.P,
@@ -881,6 +920,10 @@ SS_ref G_SS_sb11_pv_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.ElShearMod[0]        = alpv.ElShearMod;
     SS_ref_db.ElShearMod[1]        = fepv.ElShearMod;
     SS_ref_db.ElShearMod[2]        = mgpv.ElShearMod;
+
+    SS_ref_db.ElBulkMod[0]        = alpv.ElBulkMod;
+    SS_ref_db.ElBulkMod[1]        = fepv.ElBulkMod;
+    SS_ref_db.ElBulkMod[2]        = mgpv.ElBulkMod;
 
     for (i = 0; i < len_ox; i++){
         SS_ref_db.Comp[0][i] 	= alpv.C[i];
@@ -962,6 +1005,10 @@ SS_ref G_SS_sb11_ppv_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     SS_ref_db.ElShearMod[1]        = mppv.ElShearMod;
     SS_ref_db.ElShearMod[2]        = appv.ElShearMod;
 
+    SS_ref_db.ElBulkMod[0]        = fppv.ElBulkMod;
+    SS_ref_db.ElBulkMod[1]        = mppv.ElBulkMod;
+    SS_ref_db.ElBulkMod[2]        = appv.ElBulkMod;
+
     for (i = 0; i < len_ox; i++){
         SS_ref_db.Comp[0][i] 	= fppv.C[i];
         SS_ref_db.Comp[1][i] 	= mppv.C[i];
@@ -1025,6 +1072,9 @@ SS_ref G_SS_sb11_mw_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     SS_ref_db.ElShearMod[0]        = wu.ElShearMod;
     SS_ref_db.ElShearMod[1]        = pe.ElShearMod;
+
+    SS_ref_db.ElBulkMod[0]        = wu.ElBulkMod;
+    SS_ref_db.ElBulkMod[1]        = pe.ElBulkMod;
 
     for (i = 0; i < len_ox; i++){
         SS_ref_db.Comp[0][i] 	= wu.C[i];
@@ -1104,6 +1154,10 @@ SS_ref G_SS_sb11_cf_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.ElShearMod[1]        = nacf.ElShearMod;
     SS_ref_db.ElShearMod[2]        = fecf.ElShearMod;
 
+    SS_ref_db.ElBulkMod[0]        = mgcf.ElBulkMod;
+    SS_ref_db.ElBulkMod[1]        = nacf.ElBulkMod;
+    SS_ref_db.ElBulkMod[2]        = fecf.ElBulkMod;
+
     for (i = 0; i < len_ox; i++){
         SS_ref_db.Comp[0][i] 	= mgcf.C[i];
         SS_ref_db.Comp[1][i] 	= nacf.C[i];
@@ -1121,7 +1175,6 @@ SS_ref G_SS_sb11_cf_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     return SS_ref_db;
 }
-
 
 SS_ref G_SS_sb11_EM_function(       global_variable        gv,
                                     SS_ref            SS_ref_db,

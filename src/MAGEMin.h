@@ -484,6 +484,7 @@ typedef struct SS_refs {
 
 	/* data output */
 	double  *ElShearMod;		/** density of the endmembers 							*/
+	double  *ElBulkMod;		/** density of the endmembers 							*/
 	double  *density;			/** density of the endmembers 							*/
 	double   phase_density;		/** density of the phase 								*/
 	double   volume;			/** volume of the phase 								*/
@@ -606,7 +607,6 @@ typedef struct csd_phase_sets {
 	// double  volume_P0;
 	double  thetaExp;
 	double  phase_shearModulus;
-	double  phase_shearModulus_v;
 	double  phase_entropy;
 	double  phase_enthalpy;
 	

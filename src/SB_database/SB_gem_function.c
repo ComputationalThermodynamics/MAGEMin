@@ -23,13 +23,19 @@
 #include "SB_gem_function.h"
 
 #define eps 1e-10
-#define R 8.314462618  // J/(mol·K)
-
+#define R 8.314462618  							// J/(mol·K)
+#define LOG_EPS -36.04365338911715 				// Example value for log_eps
+#define SQRT_EPS 1.4901161193847656e-08 		// Example value for sqrt_eps
+#define val_infinity 19.4818182068004875 	// Example value for val_infinity
+#define kbar2bar 1e3
+#define bar2pa 1e5
+#define T0 298.15
+#define P0 0.001
 
 double plg(double t) {
 	double p4, dinc;
 
-    double P0 	= exp(-t);
+    double p0 	= exp(-t);
     double p1 	= 1.0;
     double p2 	= t * t;
     double p3 	= 2.0 * t;
@@ -40,7 +46,7 @@ double plg(double t) {
     while (i < 100000) {
 
         p4 		= (double)i;
-        p1 		= p1 * P0;
+        p1 		= p1 * p0;
         dinc 	= (p2 + (p3 + 2.0 / p4) / p4) * p1 / p4 / p4;
         plg 	= plg + dinc;
 
@@ -53,6 +59,62 @@ double plg(double t) {
 
     return plg;
 }
+
+/**
+	Calculate the thermal part of the Birch-Murnaghan equation of state.
+	Returns the thermal part of the equation of state in [Pa].
+	** 'Borrowed' from Burnman **
+*/
+double debye_temperature(double x, double grueneisen_0, double q_0, double Debye_0) {
+    double f = 0.5 * (pow(x, 2.0 / 3.0) - 1.0);
+    double a1_ii = 6.0 * grueneisen_0;  // EQ 47
+    double a2_iikk = -12.0 * grueneisen_0 + 36.0 * pow(grueneisen_0, 2.0) - 18.0 * q_0 * grueneisen_0;  // EQ 47
+    double nu_o_nu0_sq = 1.0 + a1_ii * f + 0.5 * a2_iikk * f * f;
+
+    if (nu_o_nu0_sq > 0.0) {
+        return Debye_0 * sqrt(nu_o_nu0_sq);
+    } else {
+        // printf("This volume (V = %.2f*V_0) exceeds the valid range of the thermal part of the slb equation of state.\n", 1.0 / x);
+        return 0.0;
+    }
+}
+
+/**
+	Calculate the thermal part of the Birch-Murnaghan equation of state.
+	Returns the thermal part of the equation of state in [Pa].
+	** 'Borrowed' from Burnman **
+*/
+double grueneisen_parameter_slb(double V_0, double volume, double gruen_0, double q_0) {
+    double x = V_0 / volume;
+    double f = 0.5 * (pow(x, 2.0 / 3.0) - 1.0);
+    double a1_ii = 6.0 * gruen_0;  // EQ 47
+    double a2_iikk = -12.0 * gruen_0 + 36.0 * gruen_0 * gruen_0 - 18.0 * q_0 * gruen_0;  // EQ 47
+    double nu_o_nu0_sq = 1.0 + a1_ii * f + 0.5 * a2_iikk * f * f;  // EQ 41
+    return 1.0 / 6.0 / nu_o_nu0_sq * (2.0 * f + 1.0) * (a1_ii + a2_iikk * f);
+}
+
+/**
+	Finite strain approximation for :math:`q`, the isotropic volume strain
+	derivative of the grueneisen parameter.
+	** 'Borrowed' from Burnman **
+*/
+double volume_dependent_q(double x, double grueneisen_0, double q_0) {
+    double f = 0.5 * (pow(x, 2.0 / 3.0) - 1.0);
+    double a1_ii = 6.0 * grueneisen_0;  // EQ 47
+    double a2_iikk = -12.0 * grueneisen_0 + 36.0 * pow(grueneisen_0, 2.0) - 18.0 * q_0 * grueneisen_0;  // EQ 47
+    double nu_o_nu0_sq = 1.0 + a1_ii * f + 0.5 * a2_iikk * f * f;  // EQ 41
+    double gr = 1.0 / 6.0 / nu_o_nu0_sq * (2.0 * f + 1.0) * (a1_ii + a2_iikk * f);
+
+    double q;
+    if (fabs(grueneisen_0) < 1.0e-10) {
+        q = 1.0 / 9.0 * (18.0 * gr - 6.0);
+    } else {
+        q = 1.0 / 9.0 * (18.0 * gr - 6.0 - 0.5 / nu_o_nu0_sq * (2.0 * f + 1.0) * (2.0 * f + 1.0) * a2_iikk / gr);
+    }
+
+    return q;
+}
+
 
 /**
 	Finite strain approximation for eta_{s0}, the isotropic shear
@@ -84,6 +146,198 @@ double shear_modulus_second_order(double volume, double V_0, double G_0, double 
 
     return G;
 }
+/*
+    compute the bulk modulus as per the third order
+    birch-murnaghan equation of state.  Returns bulk
+    modulus in the same units as the reference bulk
+    modulus.  Pressure must be in [Pa].
+	** 'Borrowed' from Burnman **
+*/
+double bulk_modulus(double volume, double V_0, double K_0, double Kprime_0) {
+    double x = V_0 / volume;
+    double f = 0.5 * (pow(x, 2.0 / 3.0) - 1.0);
+
+    double K = pow(1.0 + 2.0 * f, 5.0 / 2.0) * (
+        K_0
+        + (3.0 * K_0 * Kprime_0 - 5 * K_0) * f
+        + 27.0 / 2.0 * (K_0 * Kprime_0 - 4.0 * K_0) * f * f
+    );
+
+    return K;
+}
+
+/*
+    Evaluate a Chebyshev series at points x.
+    ** 'Borrowed' from Burnman **
+	n = 17
+*/
+double chebyshev_representation[] = {
+    2.707737068327440945 / 2.0,
+    0.340068135211091751,
+    -0.12945150184440869e-01,
+    0.7963755380173816e-03,
+    -0.546360009590824e-04,
+    0.39243019598805e-05,
+    -0.2894032823539e-06,
+    0.217317613962e-07,
+    -0.16542099950e-08,
+    0.1272796189e-09,
+    -0.987963460e-11,
+    0.7725074e-12,
+    -0.607797e-13,
+    0.48076e-14,
+    -0.3820e-15,
+    0.305e-16,
+    -0.24e-17
+};
+
+double _chebval(double x, const double* c, int len) {
+
+    double c0, c1;
+
+        double x2 = 2 * x;
+        c0 = c[len - 2];
+        c1 = c[len - 1];
+        for (int i = 3; i <= len; i++) {
+            double tmp = c0;
+            c0 = c[len - i] - c1;
+            c1 = tmp + c1 * x2;
+        }
+    
+    return c0 + c1 * x;
+}
+
+/*
+    Evaluate the Debye function using a Chebyshev series expansion coupled with
+    asymptotic solutions of the function.  Shamelessly adapted from the GSL implementation
+    of the same function (Itself adapted from Collected Algorithms from ACM).
+    Should give the same result as debye_fn(x) to near machine-precision.
+	** 'Borrowed' from Burnman **
+*/
+double debye_fn_cheb(double x) {
+    
+    double xcut = LOG_EPS;
+
+    if (x < 2.0 * sqrt(2.0) * SQRT_EPS) {
+
+        return 1.0 - 3.0 * x / 8.0 + x * x / 20.0;
+    } else if (x <= 4.0) {
+        double t = x * x / 8.0 - 1.0;
+        double c = _chebval(t, chebyshev_representation, 17);
+
+        return c - 0.375 * x;
+    } else if (x < -(log(2.0) + LOG_EPS)) {
+        int nexp = (int)floor(xcut / x);
+        double ex = exp(-x);
+        double xk = nexp * x;
+        double rk = nexp;
+        double sum = 0.0;
+        for (int i = nexp; i > 0; i--) {
+            double xk_inv = 1.0 / xk;
+            sum *= ex;
+            sum += (((6.0 * xk_inv + 6.0) * xk_inv + 3.0) * xk_inv + 1.0) / rk;
+            rk -= 1.0;
+            xk -= x;
+        }
+
+        return val_infinity / (x * x * x) - 3.0 * sum * ex;
+    } else if (x < xcut) {
+        double x3 = x * x * x;
+        double sum = 6.0 + 6.0 * x + 3.0 * x * x + x3;
+
+        return (val_infinity - 3.0 * sum * exp(-x)) / x3;
+    } else {
+
+        return ((val_infinity / x) / x) / x;
+    }
+}
+
+/*
+	Calculate the molar heat capacity at constant volume for a Debye solid.
+	** 'Borrowed' from Burnman **
+*/
+double molar_heat_capacity_v(double T, double debye_T, double n) {
+    if (T <= eps) {
+        return 0.0;
+    }
+    double x = debye_T / T;
+    double C_v = 3.0 * n * R * (4.0 * debye_fn_cheb(x) - 3.0 * x / (exp(x) - 1.0));
+    return C_v;
+}
+
+
+/*
+	Calculate the thermal energy for a Debye solid.
+	** 'Borrowed' from Burnman **
+*/
+double thermal_energy(double T, double debye_T, double n) {
+    if (T <= eps) {
+        return 0.0;
+    }
+    double x = debye_T / T;
+    double E_th = 3.0 * n * R * T * debye_fn_cheb(x);
+    return E_th;
+}
+
+/* 
+	Returns isothermal bulk modulus :math:`[Pa]`
+	** 'Borrowed' from Burnman **
+*/
+double isothermal_bulk_modulus_reuss( 	double temperature, 
+										double volume, 
+										double T_0, 
+										double V_0, 
+										double grueneisen_0,
+										double q_0, 
+										double Debye_0, 
+										double n, 
+										double K_0, 
+										double Kprime_0		){
+											
+    double debye_T = debye_temperature(V_0 / volume, grueneisen_0, q_0, Debye_0);
+    double gr = grueneisen_parameter_slb(V_0, volume, grueneisen_0, q_0);
+
+    // thermal energy at temperature T
+    double E_th = thermal_energy(temperature, debye_T, n);
+
+    // thermal energy at reference temperature
+    double E_th_ref = thermal_energy(T_0, debye_T, n);
+
+    // heat capacity at temperature T
+    double C_v = molar_heat_capacity_v(temperature, debye_T, n);
+
+    // heat capacity at reference temperature
+    double C_v_ref = molar_heat_capacity_v(T_0, debye_T, n);
+
+    double q = volume_dependent_q(V_0 / volume, grueneisen_0, q_0);
+
+    double K = bulk_modulus(volume, V_0, K_0, Kprime_0)
+        + (gr + 1.0 - q) * (gr / (volume/1e5)) * (E_th - E_th_ref)
+        - (pow(gr, 2.0) / (volume/1e5)) * (C_v * temperature - C_v_ref * T_0);
+
+    return K;
+}
+
+/*
+	Returns shear modulus :math:`[Pa]`
+	** 'Borrowed' from Burnman **
+*/
+double shear_modulus(	double temperature, 
+						double volume, 
+						double T_0, double V_0, 
+						double grueneisen_0, double q_0, double Debye_0, double n, 
+						double G_0, double Gprime_0, double K_0, double eta_s_0) {
+
+    double debye_T 	= debye_temperature(V_0 / volume, grueneisen_0, q_0, Debye_0);
+    double eta_s 	= isotropic_eta_s(V_0 / volume, grueneisen_0, eta_s_0, q_0);
+
+    double E_th 	= thermal_energy(temperature, debye_T, n);
+    double E_th_ref = thermal_energy(T_0, debye_T, n);
+
+	return shear_modulus_second_order(volume, V_0, G_0, Gprime_0, K_0)
+		- eta_s * (E_th - E_th_ref) / (volume/1e5);
+
+}
 
 PP_ref SB_G_EM_function(	int 		 EM_dataset, 
 							int 		 len_ox,
@@ -107,9 +361,7 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 		composition[i] = EM_return.Comp[id[i]];
 	}
 
-	double kbar2bar = 1e3;
-	double T0 		= 298.15;
-	double P0 		= 0.001;
+
 	// double R  		= 8.31446261815324;
  	double P       = Pkbar * kbar2bar;
 	/* declare the variables */
@@ -307,19 +559,20 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 	PP_ref_db.gbase   =  gbase/kbar2bar;
 	PP_ref_db.factor  =  factor;
 
-	double sm2o 	= shear_modulus_second_order(V, V0,g0,g0p, K0);
-	double eta_s 	= isotropic_eta_s(V0/V, gamma0, etaS0, q0);
+	PP_ref_db.phase_shearModulus  = shear_modulus( 	T, 	V, 
+													T0, V0, 
+													gamma0, q0, z00,  n, 
+													g0, g0p, K0, etaS0)/1e8;
 
 
-	gamma = (2.0*f+1.0)*(aii+aiikk*f)/6.0/z;
-	if (gamma != 0.0){
-		ethv = (dfth0-dfth)/gamma;
-	}    
-	else{         
-		ethv = 0.0;
-	}
-
-	PP_ref_db.phase_shearModulus  =  (sm2o - eta_s*ethv)/1e8;
+	PP_ref_db.phase_bulkModulus  =  isothermal_bulk_modulus_reuss(	T, 	V, 
+																	T0, V0, 
+																	gamma0,
+																	q0, 
+																	z00, 
+																	n, 
+																	K0*bar2pa, 
+																	Kp		)/1e8;
 
 	// printf("gbase %4s %+10f\n",name,PP_ref_db.gbase);
 	// printf("phase_shearModulus %4s %+10f\n",name,PP_ref_db.phase_shearModulus);

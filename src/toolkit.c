@@ -1435,7 +1435,12 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 					cp[i].phase_expansivity += (1.0/(dGdP)*((dGdTPP-dGdTMP)/(gv.gb_P_eps)))*cp[i].p_em[j];
 					
 					/* bulk modulus	*/
-					cp[i].phase_bulkModulus += -dGdP/( dG2dP2 + pow(((dGdTPP-dGdTMP)/(gv.gb_P_eps)),2.0)/dG2dT2 ) * cp[i].p_em[j];
+					if ( strcmp(gv.research_group, "sb") 	== 0 ){
+						cp[i].phase_bulkModulus += SS_ref_db[ss].ElBulkMod[j] * cp[i].p_em[j];
+					}
+					else{
+						cp[i].phase_bulkModulus += -dGdP/( dG2dP2 + pow(((dGdTPP-dGdTMP)/(gv.gb_P_eps)),2.0)/dG2dT2 ) * cp[i].p_em[j];
+					}
 
 					/* iso bulk modulus	*/
 					cp[i].phase_isoTbulkModulus += -dGdP/( dG2dP2 ) 	* cp[i].p_em[j];
@@ -1551,9 +1556,14 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 			/* enthalpy   		*/
 			PP_ref_db[i].phase_enthalpy 	= PP_ref_db[i].phase_entropy*T + PP_ref_db[i].gbase;
 	
-			/* shear modulus	*/
-			PP_ref_db[i].phase_bulkModulus	= -dGdP/( dG2dP2 + pow(((dGdTPP-dGdTMP)/(gv.gb_P_eps)),2.0)/dG2dT2 );
-	
+			/* bulk modulus	*/
+			if ( strcmp(gv.research_group, "sb") 	== 0 ){
+				
+			}
+			else{
+				PP_ref_db[i].phase_bulkModulus	= -dGdP/( dG2dP2 + pow(((dGdTPP-dGdTMP)/(gv.gb_P_eps)),2.0)/dG2dT2 );
+			}
+
 			/* shear modulus	*/
 			PP_ref_db[i].phase_isoTbulkModulus	= -dGdP/( dG2dP2  );
 			phase_isoTbulkModulus_P1			= -dGdP_N/( dG2dP2_N  );

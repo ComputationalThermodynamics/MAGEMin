@@ -1187,6 +1187,7 @@ void FreeDatabases(		global_variable gv,
 
 		free(DB.SS_ref_db[i].p);
 		free(DB.SS_ref_db[i].ElShearMod);
+		free(DB.SS_ref_db[i].ElBulkMod);
 		free(DB.SS_ref_db[i].ape);
 		free(DB.SS_ref_db[i].mat_phi);
 		free(DB.SS_ref_db[i].mu_Gex);	

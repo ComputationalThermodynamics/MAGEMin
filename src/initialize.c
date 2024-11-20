@@ -426,6 +426,7 @@ SS_ref G_SS_init_EM_function(		SS_init_type		*SS_init,
 
 	SS_ref_db.p       		= malloc (n_em       	* sizeof (double) ); 
 	SS_ref_db.ElShearMod    = malloc (n_em       	* sizeof (double) ); 
+	SS_ref_db.ElBulkMod     = malloc (n_em       	* sizeof (double) ); 
 	SS_ref_db.ape      		= malloc (n_em       	* sizeof (double) ); 
 	SS_ref_db.mat_phi 		= malloc (n_em       	* sizeof (double) ); 
 	SS_ref_db.mu_Gex  		= malloc (n_em       	* sizeof (double) ); 
@@ -577,6 +578,7 @@ em_data get_em_data(	char        *research_group,
 	em_data data; 
 	PP_ref PP_db   		= G_EM_function(research_group, EM_dataset, len_ox, z_b.id, z_b.bulk_rock, z_b.apo, P, T, name, state);
    	data.ElShearMod  	= PP_db.phase_shearModulus;
+	data.ElBulkMod  	= PP_db.phase_bulkModulus;
    	data.gb  			= PP_db.gbase;
 
 	for (int i = 0; i < len_ox; i++){

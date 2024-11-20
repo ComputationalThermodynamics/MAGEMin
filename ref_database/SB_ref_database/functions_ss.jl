@@ -633,6 +633,11 @@ function get_sb_gss_function(sb_ver,ss,data2)
         for i = 1:length(em) 
             sb_gss_function *= "$(tab)SS_ref_db.ElShearMod[$(i-1)]"*"$(tab)"^2*"= $(em[i]).ElShearMod;\n"
         end
+        sb_gss_function *= "\n"    
+
+        for i = 1:length(em) 
+            sb_gss_function *= "$(tab)SS_ref_db.ElBulkMod[$(i-1)]"*"$(tab)"^2*"= $(em[i]).ElBulkMod;\n"
+        end
         sb_gss_function *= "\n"       
 
         sb_gss_function *= "$(tab)for (i = 0; i < len_ox; i++){\n"

@@ -68,14 +68,13 @@ struct PP_refs
     factor_norm::Cdouble
     phase_density::Cdouble
     phase_shearModulus::Cdouble
-    phase_shearModulus_v::Cdouble
+    phase_bulkModulus::Cdouble
     phase_cp::Cdouble
     phase_expansivity::Cdouble
     phase_isoTbulkModulus::Cdouble
     thetaExp::Cdouble
     phase_entropy::Cdouble
     phase_enthalpy::Cdouble
-    phase_bulkModulus::Cdouble
     volume::Cdouble
     mass::Cdouble
     charge::Cdouble
@@ -919,6 +918,7 @@ struct SS_refs
     sum_xi::Cdouble
     xeos::Ptr{Cdouble}
     ElShearMod::Ptr{Cdouble}
+    ElBulkMod::Ptr{Cdouble}
     density::Ptr{Cdouble}
     phase_density::Cdouble
     volume::Cdouble
@@ -1034,7 +1034,6 @@ struct csd_phase_sets
     phase_isoTbulkModulus::Cdouble
     thetaExp::Cdouble
     phase_shearModulus::Cdouble
-    phase_shearModulus_v::Cdouble
     phase_entropy::Cdouble
     phase_enthalpy::Cdouble
 end
@@ -1567,6 +1566,7 @@ end
 mutable struct em_datas
     C::NTuple{14, Cdouble}
     ElShearMod::Cdouble
+    ElBulkMod::Cdouble
     gb::Cdouble
     charge::Cdouble
     em_datas() = new()
