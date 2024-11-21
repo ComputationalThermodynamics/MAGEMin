@@ -116,7 +116,7 @@ SS_ref G_SS_sb11_sp_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.N[0][0] = -0.7071067811865475;
     SS_ref_db.N[1][0] = 0.7071067811865476;
 
-    SS_ref_db.W[0] = 5000.0;
+    SS_ref_db.W[0] = 5876.46;
 
 
     em_data sp            = get_em_data(    research_group, EM_dataset,
@@ -181,7 +181,7 @@ SS_ref G_SS_sb11_ol_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.N[0][0] = -0.7071067811865475;
     SS_ref_db.N[1][0] = 0.7071067811865476;
 
-    SS_ref_db.W[0] = 7600.0;
+    SS_ref_db.W[0] = 7813.22;
 
 
     em_data fa            = get_em_data(    research_group, EM_dataset,
@@ -246,7 +246,7 @@ SS_ref G_SS_sb11_wa_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.N[0][0] = -0.7071067811865475;
     SS_ref_db.N[1][0] = 0.7071067811865476;
 
-    SS_ref_db.W[0] = 16500.0;
+    SS_ref_db.W[0] = 16747.18;
 
 
     em_data fewa            = get_em_data(    research_group, EM_dataset,
@@ -311,7 +311,7 @@ SS_ref G_SS_sb11_ri_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.N[0][0] = -0.7071067811865475;
     SS_ref_db.N[1][0] = 0.7071067811865476;
 
-    SS_ref_db.W[0] = 9100.0;
+    SS_ref_db.W[0] = 9340.84;
 
 
     em_data mgri            = get_em_data(    research_group, EM_dataset,
@@ -384,10 +384,10 @@ SS_ref G_SS_sb11_opx_function(SS_ref SS_ref_db, char* research_group, int EM_dat
 
     SS_ref_db.W[0] = 0.0;
     SS_ref_db.W[1] = 0.0;
-    SS_ref_db.W[2] = 48000.0;
+    SS_ref_db.W[2] = 48353.16;
     SS_ref_db.W[3] = 0.0;
     SS_ref_db.W[4] = 0.0;
-    SS_ref_db.W[5] = 32100.0;
+    SS_ref_db.W[5] = 32113.52;
 
 
     em_data mgts            = get_em_data(    research_group, EM_dataset,
@@ -488,14 +488,14 @@ SS_ref G_SS_sb11_cpx_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     SS_ref_db.N[4][0] = -0.13819660112501048;    SS_ref_db.N[4][1] = -0.13819660112501048;    SS_ref_db.N[4][2] = -0.13819660112501048;    SS_ref_db.N[4][3] = 0.8618033988749895;
 
     SS_ref_db.W[0] = 0.0;
-    SS_ref_db.W[1] = 24700.0;
+    SS_ref_db.W[1] = 24740.0;
     SS_ref_db.W[2] = 0.0;
     SS_ref_db.W[3] = 0.0;
     SS_ref_db.W[4] = 0.0;
     SS_ref_db.W[5] = 10000.0;
     SS_ref_db.W[6] = 24300.0;
-    SS_ref_db.W[7] = 60600.0;
-    SS_ref_db.W[8] = 24700.0;
+    SS_ref_db.W[7] = 60531.36;
+    SS_ref_db.W[8] = 24740.0;
     SS_ref_db.W[9] = 26000.0;
 
     SS_ref_db.v[0] = 1.0;
@@ -771,8 +771,8 @@ SS_ref G_SS_sb11_gtmj_function(SS_ref SS_ref_db, char* research_group, int EM_da
     SS_ref_db.W[4] = 0.0;
     SS_ref_db.W[5] = 0.0;
     SS_ref_db.W[6] = 0.0;
-    SS_ref_db.W[7] = 21300.0;
-    SS_ref_db.W[8] = 58000.0;
+    SS_ref_db.W[7] = 21202.78;
+    SS_ref_db.W[8] = 57775.96;
     SS_ref_db.W[9] = 30000.0;
 
 
@@ -889,7 +889,7 @@ SS_ref G_SS_sb11_pv_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.v[1] = 1.0;
     SS_ref_db.v[2] = 1.0;
 
-    em_data alpv            = get_em_data(  research_group, EM_dataset,
+    em_data alpv            = get_em_data(    research_group, EM_dataset,
                                             len_ox,
                                             z_b,
                                             SS_ref_db.P,

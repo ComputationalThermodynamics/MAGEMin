@@ -14,6 +14,7 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <time.h>
 #include <string.h>
 #include <complex.h> 
@@ -22,15 +23,15 @@
 #include "../toolkit.h"
 #include "SB_gem_function.h"
 
-#define eps 1e-10
-#define R 8.314462618  							// J/(mol·K)
-#define LOG_EPS -36.04365338911715 				// Example value for log_eps
-#define SQRT_EPS 1.4901161193847656e-08 		// Example value for sqrt_eps
-#define val_infinity 19.4818182068004875 	// Example value for val_infinity
-#define kbar2bar 1e3
-#define bar2pa 1e5
-#define T0 298.15
-#define P0 0.001
+#define eps 			1e-10
+#define R 				8.314462618  				// J/(mol·K)
+#define LOG_EPS 	   -36.04365338911715 			// Example value for log_eps
+#define SQRT_EPS 		1.4901161193847656e-08 		// Example value for sqrt_eps
+#define val_infinity 	19.4818182068004875 		// Example value for val_infinity
+#define kbar2bar 		1e3
+#define bar2pa 			1e5
+#define T0 				298.15
+#define P0 				0.001
 
 double plg(double t) {
 	double p4, dinc;
@@ -339,6 +340,278 @@ double shear_modulus(	double temperature,
 
 }
 
+/*
+ 	Returns molar volume. :math:`[m^3]`
+	** 'Borrowed' from Burnman **
+*/
+// double volume(	double pressure, 
+// 				double temperature, 
+// 				double V_0, 
+// 				double F_0, 
+// 				double K_0, 
+// 				double Kprime_0, 
+// 				double n, 
+// 				double grueneisen_0, 
+// 				double q_0, 
+// 				double Debye_0		){
+					
+
+//     double dV = 1.0e-2 * V_0;
+
+//     double a1_ii = 6.0 * grueneisen_0;  // EQ 47
+//     double a2_iikk = -12.0 * grueneisen_0 + 36.0 * pow(grueneisen_0, 2.0) - 18.0 * params[5] * grueneisen_0;  // EQ 47
+
+//     double b_iikk = 9.0 * K_0;  // EQ 28
+//     double b_iikkmm = 27.0 * K_0 * (Kprime_0 - 4.0);  // EQ 29
+
+
+//     // Finding the volume at a given pressure requires a root-finding scheme.
+//     // Here we use brentq to find the root.
+
+//     // Root-finding using brentq requires bounds to be specified.
+//     // We do this using a bracketing function.
+//     double args[] = {
+//         pressure,
+//         temperature,
+//         V_0,
+//         Debye_0,
+//         n,
+//         a1_ii,
+//         a2_iikk,
+//         b_iikk,
+//         b_iikkmm,
+//     };
+
+//     double sol;
+//     // try {
+//         // The first attempt to find a bracket for root finding uses V_0 as a starting point
+//         sol = bracket(delta_pressure, V_0, dV, args);
+//     // } catch (Exception) {
+//     //     // At high temperature, the naive bracketing above may try a volume guess that exceeds the point at which the bulk modulus goes negative at that temperature.
+//     //     // In this case, we try a more nuanced approach by first finding the volume at which the bulk modulus goes negative,
+//     //     // and then either (a) raising an exception if the desired pressure is less than the pressure at that volume,
+//     //     // or (b) using that pressure to create a better bracket for brentq.
+//     //     double _K_T(double V, double T, double *params) {
+//     //         return isothermal_bulk_modulus_reuss(0.0, T, V, params[0], params[1], params[2], params[3], grueneisen_0, params[5], K_0, Kprime_0, params[8], params[9], params[10]);
+//     //     }
+
+//     //     double sol_K_T = bracket(_K_T, V_0, dV, args);
+//     //     double V_crit = brentq(_K_T, sol_K_T[0], sol_K_T[1], args);
+//     //     double P_min = pressure(temperature, V_crit, params[0], params[1], params[2], params[3], grueneisen_0, params[5], K_0, Kprime_0, params[8], params[9], params[10]);
+//     //     if (P_min > pressure) {
+//     //         fprintf(stderr, "The desired pressure is not achievable at this temperature. The minimum pressure achievable is %.2e Pa.\n", P_min);
+//     //         exit(EXIT_FAILURE);
+//     //     } else {
+//     //         try {
+//     //             sol = bracket(delta_pressure, V_crit - dV, dV, args);
+//     //         } catch (Exception) {
+//     //             fprintf(stderr, "Cannot find a volume, perhaps you are outside of the range of validity for the equation of state?\n");
+//     //             exit(EXIT_FAILURE);
+//     //         }
+//     //     }
+//     // }
+
+//     return brentq(delta_pressure, sol[0], sol[1], args);
+// }
+
+/*
+ 	Helmholtz free energy of lattice vibrations in the Debye model [J].
+    It is important to note that this does NOT include the zero
+    point energy for the lattice.  As long as you are
+    calculating relative differences in F, this should cancel anyways.
+	** 'Borrowed' from Burnman **
+*/
+double _helmholtz_free_energy(double T, double debye_T, double n) {
+    if (T <= eps) {
+        return 0.0;
+    }
+    double x = debye_T / T;
+    double F = n * R * T * (3.0 * log(1.0 - exp(-x)) - debye_fn_cheb(x));
+    return F;
+}
+
+/*
+    Returns the Helmholtz free energy at the pressure and temperature
+    of the mineral [J/mol]
+	** 'Borrowed' from Burnman **
+*/
+double helmholtz_free_energy(double pressure, double temperature, double volume, double V_0, double T_0, double F_0, double K_0, double Kprime_0, double n, double grueneisen_0, double q_0, double Debye_0) {
+    double x = V_0 / volume;
+    double f = 0.5 * (pow(x, 2.0 / 3.0) - 1.0);
+    double Debye_T = debye_temperature(V_0 / volume, grueneisen_0, q_0, Debye_0);
+
+    double F_quasiharmonic = _helmholtz_free_energy(temperature, Debye_T, n)
+        - _helmholtz_free_energy(T_0, Debye_T, n);
+
+    double b_iikk = 9.0 * K_0;  // EQ 28
+    double b_iikkmm = 27.0 * K_0 * (Kprime_0 - 4.0);  // EQ 29
+
+    double F = F_0
+        + 0.5 * b_iikk * f * f * V_0
+        + (1.0 / 6.0) * V_0 * b_iikkmm * f * f * f
+        + F_quasiharmonic;
+
+    return F;
+}
+
+/*
+	Returns Gibbs energy
+	** 'Borrowed' from Perple_X **
+*/
+double compute_G0(	double t, 
+					double p,
+					double *V,
+
+					double f0,
+					double n,
+					double v0,
+					double k00,
+					double k0p,
+					double z00,
+					double gamma0,
+					double q0,
+					double cme,
+					double g0,
+					double g0p ) {
+
+    // Declare all variables at the beginning of the function
+    double nr9, c1, c2, c3, aii, aiikk, aiikk2, aii2;
+    double nr9t0, beta, gammel, t1, t2, nr9t, tht, tht0;
+    double delt2, dfth, dfth0, root;
+    double v, v23, f, df, d2f, dfc, d2fc, fel, dfel, d2fel;
+    double z, a2f, da, dtht, d2tht, dtht0, d2tht0, fpoly;
+    double fpoly0, etht, letht, d2fth, etht0, letht0, d2fth0;
+    double f1, df1, dv, a;
+	double G0;
+    int itic, ibad;
+    bool bad;
+
+    // v0 = -EM_return.input_1[2];
+    nr9 =  -9.0 * n * R;
+    c1 = -9.0 * (-v0) * k00;
+    c2 = k0p / 2.0 - 2.0;
+    c3 = 3.0 * c1 * c2;
+    aii = 6.0 * gamma0;
+    aiikk = -12.0*gamma0 + 36.0*pow(gamma0,2.0) - 18.0*q0*gamma0;
+    aiikk2 = 0.5 * aiikk;
+    aii2 = 0.5 * aii;
+    nr9t0 = nr9 * T0;
+    // beta = (3.0*k00*g0p-5.0*g0);
+    // gammel = ((6.0*g0p-24.0+4.5*k0p)*k00-14.0*g0);
+      
+    t1 = z00 / t;
+    t2 = t / T0;
+    nr9t = nr9 * t;
+
+    // Initial guess for volume
+    tht = t1;
+    tht0 = tht * t2;
+    delt2 = t * t - T0 * T0;
+
+    dfth = nr9t * gamma0 / v0 * (3.0 * plg(tht) / (tht * tht * tht) - log(1.0 - exp(-tht)));
+    dfth0 = nr9t0 * gamma0 / v0 * (3.0 * plg(tht0) / (tht0 * tht0 * tht0) - log(1.0 - exp(-tht0)));
+
+    root = k00 * ((2.0 + 2.0 * k0p) * (p + dfth - dfth0) + k00);
+
+    if (root > 0.0) {
+        v = ((2.0 + k0p) - sqrt(root) / k00) * v0 / (1.0 + k0p);
+        if (v < v0 / 10.0 || v > v0 * 10.0) v = v0;
+    } else {
+        v = v0;
+    }
+
+    itic = 0;
+    ibad = 4;
+    bad  = true;
+
+    while (true) {
+        itic++;
+
+        v23 = pow(v0 / v, 2.0 / 3.0);
+        f = 0.5 * v23 - 0.5;
+        df = -v23 / (3.0 * v);
+        d2f = (5.0 / 9.0) * v23 / (v * v);
+
+        dfc = (c3 * f + c1) * f * df;
+        d2fc = (2.0 * c3 * f + c1) * df * df + (c3 * f + c1) * f * d2f;
+
+        // fel = -beta / 2.0 * pow(v / v0, gammel) * delt2;
+        // dfel = fel * gammel / v;
+        // d2fel = dfel * (gammel - 1.0) / v;
+
+        z = 1.0 + (aii + aiikk2 * f) * f;
+
+        if (z < 0.0 || v / v0 > 100.0 || v / v0 < 0.01) break;
+
+        root = sqrt(z);
+
+        tht = t1 * root;
+        tht0 = tht * t2;
+
+        a2f = aii2 + aiikk2 * f;
+        da = a2f / root;
+        dtht = t1 * da * df;
+        d2tht = t1 * ((aiikk2 / root - a2f * a2f / pow(z, 1.5)) * df * df + da * d2f);
+
+        dtht0 = dtht * t2;
+        d2tht0 = d2tht * t2;
+
+        fpoly = 3.0 * plg(tht) / (tht * tht * tht);
+        fpoly0 = 3.0 * plg(tht0) / (tht0 * tht0 * tht0);
+
+        etht = exp(-tht);
+
+        if (1.0 - etht < 0.0) break;
+
+        letht = log(1.0 - etht);
+
+        dfth = (letht - fpoly) * nr9t * dtht / tht;
+        d2fth = ((4.0 * dtht * dtht / tht - d2tht) * (fpoly - letht) + dtht * dtht * etht / (1.0 - etht)) * nr9t / tht;
+
+        etht0 = exp(-tht0);
+
+        if (1.0 - etht0 < 0.0) break;
+
+        letht0 = log(1.0 - etht0);
+
+        dfth0 = (letht0 - fpoly0) * nr9t0 * dtht0 / tht0;
+        d2fth0 = ((4.0 * dtht0 * dtht0 / tht0 - d2tht0) * (fpoly0 - letht0) + dtht0 * dtht0 * etht0 / (1.0 - etht0)) * nr9t0 / tht0;
+
+        f1 = -dfc - dfth + dfth0 -p;
+
+        df1 = -d2fc - d2fth + d2fth0;
+
+        dv = f1 / df1;
+
+        if (v - dv < 0.0) dv = v / 2.0;
+
+        v = v - dv;
+
+        if (itic > 100 || fabs(f1) > 1e40) {
+            if (fabs(f1 / p) < 1e-10) ibad = 5;
+            break;
+        } else if (fabs(dv / (1.0 + v)) < 1e-10) {
+            bad = false;
+            break;
+        }
+    }
+
+	*V = v;
+
+    f = 0.5 * pow(v0 / v, 2.0 / 3.0) - 0.5;
+    z = 1.0 + (aii + aiikk2 * f) * f;
+    root = sqrt(z);
+
+    tht = t1 * root;
+    tht0 = tht * t2;
+
+    a = f0 + c1 * f * f * (0.5 + c2 * f) + nr9 * (t / (tht * tht * tht) * plg(tht) - T0 / (tht0 * tht0 * tht0) * plg(tht0));
+
+    G0 = a + p * v - t * cme;
+
+	return G0;
+}
+
 PP_ref SB_G_EM_function(	int 		 EM_dataset, 
 							int 		 len_ox,
 							int         *id,
@@ -361,9 +634,8 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 		composition[i] = EM_return.Comp[id[i]];
 	}
 
-
-	// double R  		= 8.31446261815324;
  	double P       = Pkbar * kbar2bar;
+
 	/* declare the variables */
 	double nr9, nr9T0, c1, c2, c3, aii, aiikk, as, aiikk2, aii2;
 	double r23, r59, t1, t2, nr9t, tht, thT0;
@@ -387,149 +659,21 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 	double q0 		=  EM_return.input_1[7];
 	double etaS0	=  EM_return.input_1[8];
 	double cme		=  EM_return.input_1[9];
-
 	double g0 		=  EM_return.input_2[0]*1e9; // GPa to Pa
 	double g0p 		=  EM_return.input_2[1];
 
-    nr9 	= -9.0 * n * R;
-    nr9T0 	= nr9 * T0;
-    c1 		= -9.0 * (-V0) * K0;
-    c2 		= Kp / 2.0 - 2.0;
-    c3 		= 3.0 * c1 * c2;
-    aii 	= 6.0 * gamma0;
-	aiikk 	= -12.0*gamma0 + 36.0*pow(gamma0,2.0) - 18.0*q0*gamma0;
-	as      = -(gamma0 + etaS0);
-	aiikk2 	= 0.5 * aiikk;
-    aii2 	= 0.5 * aii;
-    // aiikk2 	= 0.5 * aii * (-2.0 + 6.0 * gamma0 - 3.0 * q0);
-    // aii2 	= 3.0 * gamma0;
-	b21		= (3.0*K0*g0p-5.0*g0);
-	b22 	= ((6.0*g0p-24.0+4.5*Kp)*K0-14.0*g0);
-
-    r23 = 2.0 / 3.0;
-    r59 = 5.0 / 9.0;
-
-    t1 		= z00 / T;
-    t2 		= T / T0;
-    nr9t 	= nr9 * T;
-
-	tht 	= t1;
-	thT0 	= tht * t2;
-
-	dfth 	= nr9t * gamma0 / 	V0 * (3.0 * plg(tht) 	/ pow(tht,3.0) 	- log(1.0 - exp(-tht)));
-	dfth0 	= nr9T0 * gamma0 / 	V0 * (3.0 * plg(thT0) 	/ pow(thT0,3.0) - log(1.0 - exp(-thT0)));
-
-	root 	= K0 * ((2.0 + 2.0 * Kp) * (P + dfth - dfth0) + K0);
-
-	V 		= 0.0;
-	if (root > 0.0){
-		V = ((2.0 + Kp) - sqrt(root) / K0) * V0 / (1.0 + Kp);
-		if (V < V0 / 10.0 || V > V0 * 10.0){
-			V = V0;
-		}
-	}
-	else{
-		V = V0;
-	}
-
-	ibad 	= 4;
-	bad 	= 1;
-
-	itic 	= 0;
-	while (itic < max_ite){
-
-		itic   += 1;
-
-		V23 	= pow((V0 / V),r23);
-		f 		= 0.5 * V23 - 0.5;
-		df 		= -V23 / V / 3.0;
-		d2f 	= r59 * V23 / pow(V,2.0);
-		dfc 	= (c3 * f + c1) * f * df;
-		d2fc 	= (2.0 * c3 * f + c1) * pow(df,2.0) + (c3 * f + c1) * f * d2f;
-
-		z 		= 1.0 + (aii + aiikk2 * f) * f;
-
-		if (z < 0.0 || V / V0 > 100.0 || V / V0 < 1e-2){
-			break;
-		// 	if (gv.verbose == 1){printf(" ERROR z or V/V0\n");}
-		}
-
-		root 	= sqrt(z);
-		tht 	= t1 * root;
-		thT0 	= tht * T / T0;
-		a2f 	= aii2 + aiikk2 * f;
-		da 		= a2f / root;
-		dtht 	= t1 * da * df;
-		d2tht 	= t1 * ((aiikk2 / root - pow(a2f,2.0) / pow(z,1.5)) * pow(df,2.0) + da * d2f);
-
-		dthT0 	= dtht * t2;
-		d2thT0 	= d2tht * t2;
-
-		fpoly 	= 3.0 * plg(tht) / pow(tht,3.0);
-		fpoly0 	= 3.0 * plg(thT0) / pow(thT0,3.0);
-		etht 	= exp(-tht);
-
-		if (1.0 - etht < 0.0){
-			break;
-		// 	printf("ERROR 1-etht\n");
-		}
-
-		letht 	= log(1.0 - etht);
-
-		dfth 	= (letht - fpoly) * nr9t * dtht / tht;
-		d2fth 	= ((4.0 * pow(dtht,2.0) / tht - d2tht) * (fpoly - letht) + pow(dtht,2.0) * etht / (1.0 - etht)) * nr9t / tht;
-		ethT0 	= exp(-thT0);
-
-		if (1.0 - ethT0 < 0.0){
-			break;
-		// 	printf("ERROR 1-thT0\n");
-		}
-
-		lethT0 	= log(1.0 - ethT0);
-
-		dfth0 	= (lethT0 - fpoly0) * nr9T0 * dthT0 / thT0;
-		d2fth0 	= ((4.0 * pow(dthT0,2.0) / thT0 - d2thT0) * (fpoly0 - lethT0) + pow(dthT0,2.0) * ethT0 / (1.0 - ethT0)) * nr9T0 / thT0;
-
-		f1 		= -dfc - dfth + dfth0 - P;
-		df1 	= -d2fc - d2fth + d2fth0;
-		dv 		= f1 / df1;
-
-		if (V - dv < 0.0){
-			dv = V / 2.0;
-		}
-
-		V -= dv;
-		
-		if (itic >= max_ite || fabs(f1) > 1e40){
-			if (fabs(f1 / P) < 0.0){
-				ibad = 5;
-				// if (gv.verbose == 1){printf("ERROR abs(f1/p)\n");}
-			}
-			break;
-		}
-		else if( fabs(dv / (1.0 + V)) < eps ){
-				bad = 0;
-				break;
-		}
-		
-	}
-
-	// if (bad == 1){
-	// 	if (gv.verbose == 1){printf("ERROR bad\n");}
-	// }
-
-	/* get helmoltz energy:*/
-	f 		= 0.5 * pow((V0 / V),r23) - 0.5;
-	z 		= 1.0 + (aii + aiikk2 * f) * f;
-	root 	= sqrt(z);
-
-	tht 	= t1 * root;
-	thT0 	= tht * t2;
-
-	/* helmholtz energy */
-	a 		= F0 + c1 * pow(f,2.0) * (0.5 + c2 * f) + nr9 * (T / pow(tht,3.0) * plg(tht) - T0 / pow(thT0,3.0) * plg(thT0));
-	gbase 	= a + P * V - T * cme;
-
+	gbase = compute_G0(	T, P, &V,
+						F0,
+						n,
+						V0,
+						K0,
+						Kp,
+						z00,
+						gamma0,
+						q0,
+						cme,
+						g0,
+						g0p );
 
 	/* fill structure to send back to main */
 	PP_ref PP_ref_db;
