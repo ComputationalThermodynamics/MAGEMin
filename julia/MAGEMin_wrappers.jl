@@ -10,13 +10,14 @@ const VecOrMat = Union{Nothing, AbstractVector{Float64}, AbstractVector{<:Abstra
 export  anhydrous_renormalization, retrieve_solution_phase_information, remove_phases,
         init_MAGEMin, finalize_MAGEMin, point_wise_minimization, convertBulk4MAGEMin, use_predefined_bulk_rock, define_bulk_rock, create_output,
         print_info, create_gmin_struct, pwm_init, pwm_run,
-        single_point_minimization, multi_point_minimization, MAGEMin_Data, W_Data,
+        single_point_minimization, multi_point_minimization, AMR_minimization, MAGEMin_Data, W_Data,
         MAGEMin_data2dataframe, MAGEMin_dataTE2dataframe,
         Initialize_MAGEMin, Finalize_MAGEMin
 
 export adjust_chemical_system, TE_prediction, get_OL_KDs_database, adjust_bulk_4_zircon
 
-  
+export initialize_AMR, split_and_keep, AMR
+
 
 function anhydrous_renormalization( bulk    :: Vector{Float64},
                                     oxide   :: Vector{String})
@@ -579,6 +580,78 @@ function multi_point_minimization(P           ::  T2,
     return Out_PT
 
 end
+
+
+function AMR_minimization(  init_sub    ::  Int64,
+                            ref_lvl     ::  Int64,
+                            Prange      ::  Union{T1, NTuple{2, T1}},
+                            Trange      ::  Union{T1, NTuple{2, T1}},
+                            MAGEMin_db  ::  MAGEMin_Data;
+                            test        ::  Int64                           = 0, # if using a build-in test case,
+                            X           ::  VecOrMat                        = nothing,
+                            B           ::  Union{Nothing, T1, Vector{T1}}  = 0.0,
+                            scp         ::  Int64                           = 0,     
+                            rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
+                            data_in     ::  Union{Nothing, Vector{gmin_struct{Float64, Int64}}} = nothing,
+                            W           ::  Union{Nothing, W_Data}          = nothing,
+                            Xoxides     = Vector{String},
+                            sys_in      = "mol",
+                            rg          = "tc",
+                            progressbar = true        # show a progress bar or not?
+                            ) where {T1 <: Float64}
+
+    Out_XY          =  Vector{MAGEMin_C.gmin_struct{Float64, Int64}}(undef,0)
+    data            =  initialize_AMR(Trange,Prange,init_sub)
+    Hash_XY         =  Vector{UInt64}(undef,0)
+    for irefine = 1:ref_lvl+1
+        if irefine > 1
+            data    = split_and_keep(data, Hash_XY)
+            data    = AMR(data)
+        end
+
+        if isempty(data.split_cell_list)
+            Out_XY_new      = Vector{MAGEMin_C.gmin_struct{Float64, Int64}}(undef,length(data.points))
+            n_new_points    = length(data.points)
+            npoints         = data.points
+        else
+            Out_XY_new      = Vector{MAGEMin_C.gmin_struct{Float64, Int64}}(undef,length(data.npoints))
+            n_new_points    = length(data.npoints)
+            npoints         = data.npoints
+        end
+
+        if n_new_points > 0
+            Tvec = zeros(Float64,n_new_points);
+            Pvec = zeros(Float64,n_new_points);
+            Xvec = Vector{Vector{Float64}}(undef,n_new_points);
+            Bvec = zeros(Float64,n_new_points);
+            for i = 1:n_new_points
+                Tvec[i] = npoints[i][1];
+                Pvec[i] = npoints[i][2];
+                Bvec[i] = B;
+                Xvec[i] = X;
+            end
+
+            Out_XY_new  =   multi_point_minimization(Pvec, Tvec, MAGEMin_db, X=Xvec, B=Bvec, Xoxides=Xoxides, sys_in=sys_in, scp=scp, rm_list=rm_list, rg=rg, test=test,data_in=data_in); 
+        else
+            println("There is no new point to compute...")
+        end
+        Out_XY      = vcat(Out_XY, Out_XY_new)
+
+        # Compute hash for all points
+        n_points    = length(Out_XY)
+
+        Hash_XY     = Vector{UInt64}(undef,n_points)
+        for i=1:n_points
+            Hash_XY[i]      = hash(sort(Out_XY[i].ph))
+        end
+
+    end
+
+    return Out_XY
+end
+
+
+
 
 """
 bulk_rock = use_predefined_bulk_rock(gv, test=-1, db="ig")
@@ -1790,3 +1863,6 @@ end
 include("TE_partitioning.jl")
 include("Zircon_saturation.jl")
 include("export2CSV.jl")
+
+# Loading Adapative mesh refinement functions
+include("AMR.jl")

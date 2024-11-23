@@ -452,18 +452,23 @@ function get_sb_objective_functions(sb_ver,ss)
         Sconfig = replace(string(config), r"(\d)(?=[\[\(a-zA-Z])" => s"\1*")
         sb_objective_functions *= "$(tab)double Sconfig    = $Sconfig;\n\n"
 
-        sb_objective_functions *= "$(tab)d->df_raw = Sconfig;\n"
+        # sb_objective_functions *= "$(tab)d->df_raw = Sconfig;\n"
+        # sb_objective_functions *= "$(tab)for (int i = 0; i < n_em; i++){\n"
+        # sb_objective_functions *= "$(tab)$(tab)d->df_raw += (mu_Gex[i] + gb[i])*p[i];\n"
+        # sb_objective_functions *= "$(tab)}\n"
+        # sb_objective_functions *= "$(tab)d->df = d->df_raw * d->factor;\n\n"
+        sb_objective_functions *= "$(tab)d->df_raw = 0.0;\n"
         sb_objective_functions *= "$(tab)for (int i = 0; i < n_em; i++){\n"
-        sb_objective_functions *= "$(tab)$(tab)d->df_raw += (mu_Gex[i] + gb[i])*p[i];\n"
+        sb_objective_functions *= "$(tab)$(tab)d->df_raw += (mu_Gex[i] + gb[i] + Sconfig)*p[i];\n"
         sb_objective_functions *= "$(tab)}\n"
         sb_objective_functions *= "$(tab)d->df = d->df_raw * d->factor;\n\n"
 
         sb_objective_functions *= "$(tab)if (grad){\n"
         for i=1:n_em
-            # dS = replace(string(grad_config[i]), r"(\d)(?=[\[\(a-zA-Z])" => s"\1*")
-            # sb_objective_functions *= "$(tab2)grad[$(i-1)] = ($dS + mu_Gex[$(i-1)] + gb[$(i-1)] )* d->factor;\n"
-            dS = replace(string(grad_G[i]), r"(\d)(?=[\[\(a-zA-Z])" => s"\1*")
-            sb_objective_functions *= "$(tab2)grad[$(i-1)] = ($dS)* d->factor;\n"
+            sb_objective_functions *= "$(tab2)grad[$(i-1)] = (mu_Gex[$(i-1)] + gb[$(i-1)] + Sconfig)* d->factor;\n"
+            # PREV
+            # dS = replace(string(grad_G[i]), r"(\d)(?=[\[\(a-zA-Z])" => s"\1*")
+            # sb_objective_functions *= "$(tab2)grad[$(i-1)] = ($dS)* d->factor;\n"
         end
         sb_objective_functions *= "$(tab)}\n"
 

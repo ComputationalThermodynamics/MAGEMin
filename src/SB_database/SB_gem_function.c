@@ -30,7 +30,7 @@
 #define val_infinity 	19.4818182068004875 		// Example value for val_infinity
 #define kbar2bar 		1e3
 #define bar2pa 			1e5
-#define T0 				298.15
+#define T0 				300.0
 #define P0 				0.001
 
 double plg(double t) {

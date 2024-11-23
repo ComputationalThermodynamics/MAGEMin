@@ -309,6 +309,22 @@ end
 
 end
 
+@testset "PT adaptive refinement" begin
+    data        = Initialize_MAGEMin("mp", verbose=-1, solver=0);
+
+    init_sub    =  1
+    ref_lvl     =  2
+    Prange      = (1.0,10.0)
+    Trange      = (400.0,800.0)
+    Xoxides     = ["SiO2","Al2O3","CaO","MgO","FeO","K2O","Na2O","TiO2","O","MnO","H2O"]
+    X           = [70.999,12.805,0.771,3.978,6.342,2.7895,1.481,0.758,0.72933,0.075,30.0]
+    sys_in      = "mol"    
+    out         = AMR_minimization(init_sub, ref_lvl, Prange, Trange, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    @test length(out) == 81
+    @test sort(out[66].ph) == sort(["cd", "bi", "liq", "fsp", "sp", "ilm", "H2O"])
+    Finalize_MAGEMin(data)
+end
+
 
 @testset "remove solution phase" begin
 

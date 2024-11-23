@@ -21,9 +21,9 @@ sb_gss_init_function, sb_gss_function, sb_objective_functions, sb_SS_xeos_PC, SB
 
 # print(sb_gss_init_function)
 
-print(sb_gss_function)
+# print(sb_gss_function)
 
-# print(sb_objective_functions)
+print(sb_objective_functions)
 
 # print(sb_SS_xeos_PC)
 
