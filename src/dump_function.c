@@ -613,6 +613,7 @@ void fill_output_struct(		global_variable 	 gv,
 	for (int i = 0; i < gv.len_pp; i++){
 		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 1){
 			strcpy(sp[0].ph[n],gv.PP_list[i]);
+			sp[0].ph_frac_1at[n]  = gv.pp_n[i];
 		}
 		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
 			strcpy(sp[0].ph[n],gv.PP_list[i]);
@@ -762,14 +763,15 @@ void fill_output_struct(		global_variable 	 gv,
 
 	/* compute cp as J/K/kg for given bulk-rock composition */
 	sp[0].s_cp 					= sp[0].cp_wt/mass_bulk*1e6;
-
-	mSS_output_struct(	gv,
-						splx_data,
-						z_b,
-						PP_ref_db,
-						SS_ref_db,
-						cp,
-						sp 			);
+	if (strcmp(gv.research_group, "tc") 	== 0 ){
+		mSS_output_struct(	gv,
+							splx_data,
+							z_b,
+							PP_ref_db,
+							SS_ref_db,
+							cp,
+							sp 			);
+	}
 
 }
 

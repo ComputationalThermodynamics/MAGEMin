@@ -9,10 +9,11 @@ function get_database_infos()
                         "Igneous alkaline dry (Weller et al., 2024)",
                         "Ultramafic (Evans & Frost., 2021)",
                         "Ultramafic extended (Evans & Frost., 2021) with pl, hb and aug from Green et al., 2016",
-                        "Mantle (Holland et al., 2013)"
+                        "Mantle (Holland et al., 2013)",
+                        "Stixrude & Lithgow-Bertelloni (2011)"
                         ]
 
-    database_list   = ["mp","mb","ig","igad","um","ume","mtl"]
+    database_list   = ["mp","mb","ig","igad","um","ume","mtl","sb11"]
 
     db_inf          = Array{db_infos, 1}(undef, length(database_list))
 

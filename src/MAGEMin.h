@@ -412,6 +412,13 @@ typedef struct SS_refs {
 	/** data needed for phase change and solvus processing **/	
 	int	    *solvus_id;
 	
+	/** data needed for Stixrude database 																	*/
+	int      n_cat;				/** number of cation exchanged in all mixing sites 							*/
+	double **C;					/** site mixing matrix used to compute configurational entropy 	 			*/
+	double **N;					/** nullspace					 	 										*/
+	double  *Vec1;				/** vector 1 																*/
+	double  *Vec2;				/** vector 1 																*/
+
 	/** data needed for levelling and/or PGE **/
 	int		 is_liq;			/** check if phase is "liq" 												*/
 	int      symmetry;			/** solution phase symmetry  												*/
@@ -477,6 +484,7 @@ typedef struct SS_refs {
 
 	/* data output */
 	double  *ElShearMod;		/** density of the endmembers 							*/
+	double  *ElBulkMod;		/** density of the endmembers 							*/
 	double  *density;			/** density of the endmembers 							*/
 	double   phase_density;		/** density of the phase 								*/
 	double   volume;			/** volume of the phase 								*/
@@ -596,10 +604,9 @@ typedef struct csd_phase_sets {
 	double  phase_expansivity;
 	double  phase_bulkModulus;
 	double  phase_isoTbulkModulus;
-	double  volume_P0;
+	// double  volume_P0;
 	double  thetaExp;
 	double  phase_shearModulus;
-	double  phase_shearModulus_v;
 	double  phase_entropy;
 	double  phase_enthalpy;
 	
@@ -843,6 +850,8 @@ global_variable ReadCommandLineOptions(		global_variable   gv,
 											int 			  argc, 
 											char 			**argv					);
 
+global_variable SetupDatabase(				global_variable 	 gv,
+											bulk_info 			*z_b				);
 /* function that prints output */
 void PrintOutput(							global_variable 	gv, 
 											int 				rank, 

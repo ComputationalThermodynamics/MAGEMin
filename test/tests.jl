@@ -6,19 +6,30 @@ using Test
 # runtests.jl
 using MAGEMin_C         # load MAGEMin (needs to be loaded from main directory to pick up correct library in case it is locally compiled)
 
-# Initialize database  - new way
+
+# generic test for sb11 database
+data        =   Initialize_MAGEMin("sb11", verbose=true);
+test        =   1         #KLB1
+data        =   use_predefined_bulk_rock(data, test);
+P           =   80.0
+T           =   800.0
+out         =   point_wise_minimization(P,T, data);
+
+@test sort(out.ph) == sort(["gtmj", "hpcpx", "ol" ,"cpx"])
+Finalize_MAGEMin(data)
+
+# generic test for thermocalc database
 data        =   Initialize_MAGEMin("ig", verbose=true);
 test        =   0         #KLB1
 data        =   use_predefined_bulk_rock(data, test);
-
-# Call optimization routine for given P & T & bulk_rock
 P           =   8.0
 T           =   800.0
 out         =   point_wise_minimization(P,T, data);
 
+
 @show out
 
-@test out.G_system ≈ -797.7491828675325
+@test out.G_system ≈ -797.7397668057848
 @test sort(out.ph) == sort(["spn", "cpx",  "opx", "ol"])
 @test abs(out.s_cp[1] - 1208.466551730128) < 2.0
 
@@ -99,7 +110,7 @@ end
     P           =   8.0
     T           =   400.0
     out         =   point_wise_minimization(P,T, data, buffer_n=0.6);
-    @test sort(out.ph) == ["aH2O", "chl", "ep", "fsp", "mu", "mu", "q", "ru", "sp"]
+    @test sort(out.ph) == sort(["chl", "sp", "mu", "mu", "fsp", "ep", "q", "ru", "aH2O"])
     Finalize_MAGEMin(data)
 
     # Initialize database  - new way
@@ -111,7 +122,7 @@ end
     P           =   8.0
     T           =   400.0
     out         =   point_wise_minimization(P,T, data, buffer_n=0.6);
-    @test sort(out.ph) == ["H2O", "aTiO2", "chl", "ep", "fsp", "ilmm", "mu", "mu", "q"]
+    @test sort(out.ph) == sort(["H2O", "aTiO2", "chl", "ep", "fsp", "ilm", "mu", "mu", "q"])
     Finalize_MAGEMin(data)
 
     # Initialize database  - new way
@@ -123,7 +134,7 @@ end
     P           =   8.0
     T           =   1200.0
     out         =   point_wise_minimization(P,T, data, buffer_n=0.1);
-    @test sort(out.ph) == ["aTiO2", "cpx", "fsp", "liq", "ol", "opx"]
+    @test sort(out.ph) == sort(["aTiO2", "cpx", "fsp", "liq", "ol", "opx"])
 
     Finalize_MAGEMin(data)
 
@@ -136,7 +147,7 @@ end
     X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
     sys_in  = "wt"    
     out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
-    @test sort(out.ph) == ["cpx", "liq", "opx", "qfm"]
+    @test sort(out.ph) == sort(["cpx", "liq", "opx", "qfm"])
 
     Finalize_MAGEMin(data)
 
@@ -239,7 +250,7 @@ gv.verbose=-1
 P           =   8.0
 T           =   800.0
 out         =   point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in);
-@test out.G_system ≈ -797.7491828675325
+@test out.G_system ≈ -797.7397668057848
 @test abs(out.s_cp[1] - 1208.466551730128) < 2.0
 @test sort(out.ph) == sort(["spn", "cpx",  "opx", "ol"])
 finalize_MAGEMin(gv,DB,z_b)
@@ -251,7 +262,7 @@ finalize_MAGEMin(gv,DB,z_b)
     db      =   "ig" 
     data    =   Initialize_MAGEMin(db, verbose=false);
     out     =   multi_point_minimization(P, T, data, test=0);
-    @test out[end].G_system ≈ -797.7491828675325
+    @test out[end].G_system ≈ -797.7397668057848
     @test sort(out[end].ph) == sort(["spn", "cpx",  "opx", "ol"])
 
     Finalize_MAGEMin(data)
@@ -298,6 +309,22 @@ end
 
 end
 
+@testset "PT adaptive refinement" begin
+    data        = Initialize_MAGEMin("mp", verbose=-1, solver=0);
+
+    init_sub    =  1
+    ref_lvl     =  2
+    Prange      = (1.0,10.0)
+    Trange      = (400.0,800.0)
+    Xoxides     = ["SiO2","Al2O3","CaO","MgO","FeO","K2O","Na2O","TiO2","O","MnO","H2O"]
+    X           = [70.999,12.805,0.771,3.978,6.342,2.7895,1.481,0.758,0.72933,0.075,30.0]
+    sys_in      = "mol"    
+    out         = AMR_minimization(init_sub, ref_lvl, Prange, Trange, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    @test length(out) == 81
+    @test sort(out[66].ph) == sort(["cd", "bi", "liq", "fsp", "sp", "ilm", "H2O"])
+    Finalize_MAGEMin(data)
+end
+
 
 @testset "remove solution phase" begin
 
@@ -311,7 +338,7 @@ end
     X       = [70.999,12.805,0.771,3.978,6.342,2.7895,1.481,0.758,0.72933,0.075,30.0]
     sys_in  = "mol"    
     out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in,rm_list=rm_list)
-    @test sort(out.ph) == sort(["H2O", "fsp", "g", "ilmm", "q", "sill", "sp"])
+    @test sort(out.ph) == sort(["sp", "g", "fsp", "ilm", "q", "sill", "H2O"])
 end
 
 @testset "view array PT" begin

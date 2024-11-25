@@ -19,7 +19,7 @@
             "hercynite": ["hc","[Fe_3Al_1][Al_7Fe_1]O_16"]
         },
         "margules": {
-            "spinel,hercynite": 5.000e+03
+            "spinel,hercynite": 5.87646e3
         },
         "van_laar": []
     },
@@ -31,7 +31,7 @@
             "fayalite": ["fa","[Fe_2]Si_1O_4"]
         },
         "margules": {
-            "forsterite,fayalite": 7.600e+03
+            "forsterite,fayalite": 7.81322e3
         },
         "van_laar": []
     },
@@ -43,7 +43,7 @@
             "fe-wadsleyite": ["fewa","[Fe_2]Si_1O_4"]
         },
         "margules": {
-            "mg-wadsleyite,fe-wadsleyite": 1.650e+04
+            "mg-wadsleyite,fe-wadsleyite": 16.74718e3
         },
         "van_laar": []
     },
@@ -55,7 +55,7 @@
             "fe-ringwoodite": ["feri","[Fe_2]Si_1O_4"]
         },
         "margules": {
-            "mg-ringwoodite,fe-ringwoodite": 9.100e+03
+            "mg-ringwoodite,fe-ringwoodite": 9.34084e3
         },
         "van_laar": []
     },
@@ -71,10 +71,10 @@
         "margules": {
             "enstatite,ferrosilite": 0.000e+00,
             "enstatite,mg-tschermak": 0.000e+00,
-            "enstatite,ortho-diopside": 3.210e+04,
+            "enstatite,ortho-diopside": 32.11352e3,
             "ferrosilite,mg-tschermak": 0.000e+00,
             "ferrosilite,ortho-diopside": 0.000e+00,
-            "mg-tschermak,ortho-diopside": 4.800e+04
+            "mg-tschermak,ortho-diopside": 48.35316e3
         },
         "van_laar": []
     },
@@ -90,13 +90,13 @@
         },
         "margules": {
             "diopside,hedenbergite": 0.000e+00,
-            "diopside,clinoenstatite": 2.470e+04,
+            "diopside,clinoenstatite": 2.474e+04,
             "diopside,ca-tschermak": 2.600e+04,
             "diopside,jadeite": 2.430e+04,
-            "hedenbergite,clinoenstatite": 2.470e+04,
+            "hedenbergite,clinoenstatite": 2.474e+04,
             "hedenbergite,ca-tschermak": 0.000e+00,
             "hedenbergite,jadeite": 0.000e+00,
-            "clinoenstatite,ca-tschermak": 6.060e+04,
+            "clinoenstatite,ca-tschermak": 60.53136e3,
             "clinoenstatite,jadeite": 0.000e+00,
             "ca-tschermak,jadeite": 1.000e+04
         },
@@ -142,12 +142,12 @@
         "margules": {
             "pyrope,almandine": 0.000e+00,
             "pyrope,grossular": 3.000e+04,
-            "pyrope,mg-majorite": 2.130e+04,
+            "pyrope,mg-majorite": 21.20278e3,
             "pyrope,jd-majorite": 0.000e+00,
             "almandine,grossular": 0.000e+00,
             "almandine,mg-majorite": 0.000e+00,
             "almandine,jd-majorite": 0.000e+00,
-            "grossular,mg-majorite": 5.800e+04,
+            "grossular,mg-majorite": 57.77596e3,
             "grossular,jd-majorite": 0.000e+00,
             "mg-majorite,jd-majorite": 0.000e+00
         },
@@ -172,9 +172,9 @@
         "name": "post-perovskite",
         "abbrev": "ppv",
         "endmembers": {
-            "mg-post-perovskite": ["mgppv","[Mg_1][Si_1]O_3"],
-            "fe-post-perovskite": ["feppv","[Fe_1][Si_1]O_3"],
-            "al-post-perovskite": ["alppv","[Al_1][Al_1]O_3"]
+            "mg-post-perovskite": ["mppv","[Mg_1][Si_1]O_3"],
+            "fe-post-perovskite": ["fppv","[Fe_1][Si_1]O_3"],
+            "al-post-perovskite": ["appv","[Al_1][Al_1]O_3"]
         },
         "margules": {
             "mg-post-perovskite,fe-post-perovskite": 0.000e+00,

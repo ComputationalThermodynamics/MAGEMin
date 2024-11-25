@@ -1030,11 +1030,11 @@ PP_ref G_FS_function(		int 		 len_ox,
     /* convert Gibbs energy from SUPCRT to HSC convention */
     double cor        =  SUPCRT_to_HSC(ElH, composition, len_ox);
 
-
 	PP_ref_db.charge  =  charge;
 	PP_ref_db.gbase   =  G + cor;
 	PP_ref_db.factor  =  factor;
 	PP_ref_db.phase_shearModulus  = 0.0;
+    
 	// printf(" %4s %+10f | factor: %+10f\n",name,PP_ref_db.gbase,PP_ref_db.factor);
 	// for (i = 0; i < len_ox; i++){
 	// 	printf("%+10f",PP_ref_db.Comp[i]*PP_ref_db.factor); 

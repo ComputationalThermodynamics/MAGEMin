@@ -35,15 +35,15 @@ oxide_data oxide_info_sb = {
 stx11_dataset stx11_db = {
 	2011,						/* Endmember default dataset number */
 	6,							/* number of oxides */			
-	9,							/* number of pure phases */
+	10,							/* number of pure phases */
 	14,							/* number of solution phases */
 	{"SiO2"	,"CaO"	,"Al2O3","FeO"	,"MgO"	,"Na2O"																							},
-	{"neph"	,"ky"	,"st"	,"coe"	,"qtz"	,"capv"	,"aMgO"	,"aFeO"	,"aAl2O3"														},
+	{"neph"	,"ky"	,"st"	,"coe"	,"qtz"	,"capv"	,"co" 	,"aMgO"	,"aFeO"	,"aAl2O3"																},
 	{"plg"	,"sp"	,"ol"	,"wa"	,"ri"	,"opx"	,"cpx"	,"hpcpx","ak"	,"gtmj"	,"pv"	,"ppv"	,"mw"	,"cf"							},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1								}, // allow solvus?
-	{1521	,3554	,121	,4124	,210	,2450	,5498	,420	,3088	,381	,3412	,231	,11		,2376							}, // # of pseudocompound
-	{0.249	,0.124	,0.098	,0.249	,0.049	,0.145	,0.33	,0.0499	,0.198	,0.098	,0.249	,0.049	,1.0 	,0.198							}, // discretization step in endmember fraction
+	{11 	,11 	,11 	,11 	,11 	,286	,1001	,11 	,66 	,1001	,66 	,66 	,11		,66 							}, // # of pseudocompound
+	{0.100	,0.100	,0.100	,0.100	,0.100	,0.100	,0.100	,0.100	,0.100	,0.100	,0.100	,0.100	,0.100 	,0.100							}, // discretization step in endmember fraction
 
 	6.0, 						/** max dG under which a phase is considered to be reintroduced  					*/
 	673.15,						/** max temperature above which PGE solver is active 								*/
@@ -122,7 +122,7 @@ global_variable global_variable_SB_init( 	global_variable  	 gv,
 	
 	/* store values for numerical differentiation */
 	/* The last entries MUST be [0-1][end] = 0.0  */
-	gv.n_Diff = 11;
+	gv.n_Diff = 8;
 	gv.pdev = malloc (2 * sizeof(double*));			
 	for (i = 0; i < 2; i++){
 		gv.pdev[i] = malloc (gv.n_Diff * sizeof(double));
@@ -135,9 +135,9 @@ global_variable global_variable_SB_init( 	global_variable  	 gv,
 	gv.pdev[0][5]  =  1.0;	gv.pdev[1][5]  =  0.0;	
 	gv.pdev[0][6]  =  0.0;	gv.pdev[1][6]  =  0.0;
 	gv.pdev[0][7]  =  3.0;	gv.pdev[1][7]  =  0.0;
-	gv.pdev[0][8]  =  1.0;	gv.pdev[1][8]  =  0.0;
-	gv.pdev[0][9]  =  0.0;	gv.pdev[1][9]  =  0.0;
-	gv.pdev[0][10] =  0.0;	gv.pdev[1][10] =  0.0;
+	// gv.pdev[0][8]  =  1.0;	gv.pdev[1][8]  =  0.0;
+	// gv.pdev[0][9]  =  0.0;	gv.pdev[1][9]  =  0.0;
+	// gv.pdev[0][10] =  0.0;	gv.pdev[1][10] =  0.0;
 
 	gv.V_cor = malloc (2 * sizeof(double));
 
@@ -290,15 +290,33 @@ global_variable get_bulk_stx11( global_variable gv) {
 	}
 
 	if (gv.test == 0){ //KLB1
-		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
+		/* SiO2 CaO  Al2O3 FeO MgO  Na2O  */
 		/* Bulk rock composition of Peridotite from Holland et al., 2018, given by E. Green */
-		gv.bulk_rock[0]  = 38.494 ;		/** SiO2 	*/
-		gv.bulk_rock[1]  = 2.824;		/** CaO  	*/
-		gv.bulk_rock[2]  = 1.776;		/** Al2O2 	*/
-		gv.bulk_rock[3]  = 50.566;		/** MgO 	*/
-		gv.bulk_rock[4]  = 5.886;		/** FeO 	*/
+		gv.bulk_rock[0]  = 38.41;		/** SiO2 	*/
+		gv.bulk_rock[1]  = 3.18;		/** CaO  	*/
+		gv.bulk_rock[2]  = 1.8;			/** Al2O2 	*/
+		gv.bulk_rock[3]  = 5.85;		/** FeO 	*/
+		gv.bulk_rock[4]  = 50.49;		/** MgO 	*/
 		gv.bulk_rock[5]  = 0.250;		/** Na2O 	*/	
 	}	
+	else if (gv.test == 1){ //Pyrolite
+		/* SiO2 CaO  Al2O3 FeO MgO  Na2O  */
+		gv.bulk_rock[0]  = 38.89 ;		/** SiO2 	*/
+		gv.bulk_rock[1]  = 3.1;			/** CaO  	*/
+		gv.bulk_rock[2]  = 2.2;			/** Al2O2 	*/
+		gv.bulk_rock[3]  = 5.8;			/** FeO 	*/
+		gv.bulk_rock[4]  = 50.0;		/** MgO 	*/
+		gv.bulk_rock[5]  = 0.01;		/** Na2O 	*/
+	}  
+	else if (gv.test == 1){ //Harzburgite
+		/* SiO2 CaO  Al2O3 FeO MgO  Na2O  */
+		gv.bulk_rock[0]  = 36.39 ;		/** SiO2 	*/
+		gv.bulk_rock[1]  = 0.9;			/** CaO  	*/
+		gv.bulk_rock[2]  = 0.7;			/** Al2O2 	*/
+		gv.bulk_rock[3]  = 5.4;			/** FeO 	*/
+		gv.bulk_rock[4]  = 56.6;		/** MgO 	*/
+		gv.bulk_rock[5]  = 0.01;		/** Na2O 	*/
+	}  
 	else{
 		printf("Unknown test %i - please specify a different test! \n", gv.test);
 	 	exit(EXIT_FAILURE);

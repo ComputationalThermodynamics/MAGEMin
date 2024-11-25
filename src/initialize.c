@@ -122,7 +122,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.5.8 [7/11/2024]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.5.9 [25/11/2024]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
@@ -371,6 +371,7 @@ SS_ref G_SS_init_EM_function(		SS_init_type		*SS_init,
 	int n_xeos = SS_ref_db.n_xeos;
 	int n_sf   = SS_ref_db.n_sf;
 	int sym    = SS_ref_db.symmetry;
+	int n_cat  = SS_ref_db.n_cat;
 
     SS_ref_db.orderVar       = 0;
 	
@@ -425,6 +426,7 @@ SS_ref G_SS_init_EM_function(		SS_init_type		*SS_init,
 
 	SS_ref_db.p       		= malloc (n_em       	* sizeof (double) ); 
 	SS_ref_db.ElShearMod    = malloc (n_em       	* sizeof (double) ); 
+	SS_ref_db.ElBulkMod     = malloc (n_em       	* sizeof (double) ); 
 	SS_ref_db.ape      		= malloc (n_em       	* sizeof (double) ); 
 	SS_ref_db.mat_phi 		= malloc (n_em       	* sizeof (double) ); 
 	SS_ref_db.mu_Gex  		= malloc (n_em       	* sizeof (double) ); 
@@ -448,6 +450,21 @@ SS_ref G_SS_init_EM_function(		SS_init_type		*SS_init,
 		SS_ref_db.bounds_ref[i] = malloc (2 * sizeof (double) );
 	}
 	
+	/* allocate memory when using Stixrude database */
+	if (n_cat > 0){
+		/* dynamic memory allocation of data to send to NLopt */
+		SS_ref_db.C = malloc ((n_cat) * sizeof (double*) ); 
+		for (int i = 0; i < (n_cat); i++){
+			SS_ref_db.C[i] = malloc (n_em * sizeof (double) );
+		}
+		SS_ref_db.N = malloc ((n_em) * sizeof (double*) ); 
+		for (int i = 0; i < (n_em); i++){
+			SS_ref_db.N[i] = malloc ((n_em-1) * sizeof (double) );
+		}
+		SS_ref_db.Vec1 = malloc ((n_em-1) * sizeof (double) );
+		SS_ref_db.Vec2 = malloc ((n_em) * sizeof (double) );
+	}
+
 	/* dynamic memory allocation of data to send to NLopt */
 	SS_ref_db.ub   		= malloc ((n_xeos) * sizeof (double) ); 
 	SS_ref_db.lb   		= malloc ((n_xeos) * sizeof (double) ); 
@@ -561,6 +578,7 @@ em_data get_em_data(	char        *research_group,
 	em_data data; 
 	PP_ref PP_db   		= G_EM_function(research_group, EM_dataset, len_ox, z_b.id, z_b.bulk_rock, z_b.apo, P, T, name, state);
    	data.ElShearMod  	= PP_db.phase_shearModulus;
+	data.ElBulkMod  	= PP_db.phase_bulkModulus;
    	data.gb  			= PP_db.gbase;
 
 	for (int i = 0; i < len_ox; i++){

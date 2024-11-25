@@ -36,29 +36,33 @@ SS_ref SS_UPDATE_function(		global_variable 	 gv,
 								char    			*name){
 
 	/* sf_ok?*/
-	SS_ref_db.sf_ok = 1;
-	for (int i = 0; i < SS_ref_db.n_sf; i++){
-		if (SS_ref_db.sf[i] < 0.0 || isnan(SS_ref_db.sf[i]) == 1|| isinf(SS_ref_db.sf[i]) == 1){
-			SS_ref_db.sf_ok = 0;
-			SS_ref_db.sf_id = i;
+	if (strcmp(gv.research_group, "tc") 	== 0 ){
+		SS_ref_db.sf_ok = 1;
+		for (int i = 0; i < SS_ref_db.n_sf; i++){
+			if (SS_ref_db.sf[i] < 0.0 || isnan(SS_ref_db.sf[i]) == 1|| isinf(SS_ref_db.sf[i]) == 1){
+				SS_ref_db.sf_ok = 0;
+				SS_ref_db.sf_id = i;
+				break;
+			}
+		}
 
-			break;
+		/* xi calculation (phase fraction expression for PGE) */
+		SS_ref_db.sum_xi 	= 0.0;	
+		for (int i = 0; i < SS_ref_db.n_em; i++){ 
+			SS_ref_db.xi_em[i] = exp(-SS_ref_db.mu[i]/(SS_ref_db.R*SS_ref_db.T));
+			SS_ref_db.sum_xi  += SS_ref_db.xi_em[i]*SS_ref_db.p[i]*SS_ref_db.z_em[i];
+		}
+
+		/* get composition of solution phase */
+		for (int j = 0; j < gv.len_ox; j++){
+			SS_ref_db.ss_comp[j] = 0.0;
+			for (int i = 0; i < SS_ref_db.n_em; i++){
+				SS_ref_db.ss_comp[j] += SS_ref_db.Comp[i][j]*SS_ref_db.p[i]*SS_ref_db.z_em[i];
+			} 
 		}
 	}
-
-	/* xi calculation (phase fraction expression for PGE) */
-	SS_ref_db.sum_xi 	= 0.0;	
-	for (int i = 0; i < SS_ref_db.n_em; i++){ 
-		SS_ref_db.xi_em[i] = exp(-SS_ref_db.mu[i]/(SS_ref_db.R*SS_ref_db.T));
-		SS_ref_db.sum_xi  += SS_ref_db.xi_em[i]*SS_ref_db.p[i]*SS_ref_db.z_em[i];
-	}
-
-	/* get composition of solution phase */
-	for (int j = 0; j < gv.len_ox; j++){
-		SS_ref_db.ss_comp[j] = 0.0;
-		for (int i = 0; i < SS_ref_db.n_em; i++){
-		   SS_ref_db.ss_comp[j] += SS_ref_db.Comp[i][j]*SS_ref_db.p[i]*SS_ref_db.z_em[i];
-	   } 
+	else if (strcmp(gv.research_group, "sb") 	== 0 ){
+		SS_ref_db.sf_ok = 1;
 	}
 
 	return SS_ref_db;
@@ -82,7 +86,6 @@ csd_phase_set CP_UPDATE_function(		global_variable 	gv,
 			break;
 		}
 	}
-
 	cp.sum_xi 	= 0.0;	
 	for (int i = 0; i < cp.n_em; i++){ 
 		cp.xi_em[i] = exp(-cp.mu[i]/(SS_ref_db.R*SS_ref_db.T));
@@ -518,15 +521,24 @@ void ss_min_LP(			global_variable 	 gv,
 															SS_ref_db[ph_id],
 															ph_id					);
 				}
-
-				for (int k = 0; k < cp[i].n_xeos; k++) {
-					cp[i].xeos_1[k] 			 =  SS_ref_db[ph_id].xeos[k];
+				if (SS_ref_db[ph_id].status == -4){
+					if (gv.verbose == 1){
+						printf(" Round-off error in the minimization of %4s\n",gv.SS_list[ph_id]);
+					}
+					for (int k = 0; k < cp[i].n_xeos; k++) {
+						cp[i].xeos_1[k] 			 =  SS_ref_db[ph_id].p[k];
+					}
 				}
-
+				else{
+					for (int k = 0; k < cp[i].n_xeos; k++) {
+						cp[i].xeos_1[k] 			 =  SS_ref_db[ph_id].xeos[k];
+					}
+				}
 				/** 
 					Here if the number of phase occurence in the LP matrix is equal to we add 2 pseudocompounds
 				*/
 				if (gv.n_ss_ph[ph_id] == 1){
+
 					double shift = 0.0;
 					double sh_array[] = {-0.01,0.01};
 					for (int add = 0; add < 2; add++){

@@ -13,9 +13,9 @@
 
     #include "sb_gss_init_function.h"
     #include "sb_gss_function.h"
-    // #include "objective_functions.h"
-    // #include "NLopt_opt_function.h"
+    #include "sb_objective_functions.h"
+    #include "SB_NLopt_opt_function.h"
 
     /* include pseudocompounds */
-    // #include "SS_xeos_PC_mtl.h"
+    #include "SS_xeos_PC_sb11.h"
 #endif

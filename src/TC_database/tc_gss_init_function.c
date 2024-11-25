@@ -38,6 +38,7 @@
 
 SS_ref G_SS_aq17_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 25;
@@ -60,6 +61,7 @@ SS_ref G_SS_aq17_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mb_liq_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 1;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 11;
@@ -75,6 +77,7 @@ SS_ref G_SS_mb_liq_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mb_hb_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 18;
@@ -91,6 +94,7 @@ SS_ref G_SS_mb_hb_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mb_aug_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 12;
@@ -107,6 +111,7 @@ SS_ref G_SS_mb_aug_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mb_dio_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 12;
@@ -122,6 +127,7 @@ SS_ref G_SS_mb_dio_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mb_opx_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 9;
@@ -138,6 +144,7 @@ SS_ref G_SS_mb_opx_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mb_g_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 5;
@@ -154,6 +161,7 @@ SS_ref G_SS_mb_g_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mb_ol_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 2;
@@ -169,6 +177,7 @@ SS_ref G_SS_mb_ol_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mb_fsp_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 5;
@@ -185,6 +194,7 @@ SS_ref G_SS_mb_fsp_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mb_abc_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 2;
@@ -201,6 +211,7 @@ SS_ref G_SS_mb_abc_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mb_k4tr_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 5;
@@ -216,6 +227,7 @@ SS_ref G_SS_mb_k4tr_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mb_spn_init_function(SS_ref SS_ref_db, global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 4;
@@ -230,6 +242,7 @@ SS_ref G_SS_mb_spn_init_function(SS_ref SS_ref_db, global_variable gv){
 */
 SS_ref G_SS_mb_sp_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 5;
@@ -245,6 +258,7 @@ SS_ref G_SS_mb_sp_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mb_ilm_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 6;
@@ -260,6 +274,7 @@ SS_ref G_SS_mb_ilm_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mb_ilmm_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 7;
@@ -275,6 +290,7 @@ SS_ref G_SS_mb_ilmm_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mb_ep_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 4;
@@ -290,6 +306,7 @@ SS_ref G_SS_mb_ep_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mb_bi_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 11;
@@ -305,6 +322,7 @@ SS_ref G_SS_mb_bi_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mb_mu_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 10;
@@ -321,6 +339,7 @@ SS_ref G_SS_mb_mu_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mb_chl_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 11;
@@ -344,6 +363,7 @@ SS_ref G_SS_mb_chl_init_function(SS_ref SS_ref_db,  global_variable gv){
 
 SS_ref G_SS_mp_liq_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 1;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 10;
@@ -359,6 +379,7 @@ SS_ref G_SS_mp_liq_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mp_fsp_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 5;
@@ -375,6 +396,7 @@ SS_ref G_SS_mp_fsp_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mp_bi_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 13;
@@ -390,6 +412,7 @@ SS_ref G_SS_mp_bi_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mp_g_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 6;
@@ -406,6 +429,7 @@ SS_ref G_SS_mp_g_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mp_ep_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 4;
@@ -421,6 +445,7 @@ SS_ref G_SS_mp_ep_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mp_ma_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 10;
@@ -437,6 +462,7 @@ SS_ref G_SS_mp_ma_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mp_mu_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 10;
@@ -453,6 +479,7 @@ SS_ref G_SS_mp_mu_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mp_opx_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 11;
@@ -469,6 +496,7 @@ SS_ref G_SS_mp_opx_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mp_sa_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 8;
@@ -484,6 +512,7 @@ SS_ref G_SS_mp_sa_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mp_cd_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 5;
@@ -499,6 +528,7 @@ SS_ref G_SS_mp_cd_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mp_st_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 7;
@@ -514,6 +544,7 @@ SS_ref G_SS_mp_st_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mp_chl_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 12;
@@ -529,6 +560,7 @@ SS_ref G_SS_mp_chl_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mp_ctd_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 5;
@@ -544,6 +576,7 @@ SS_ref G_SS_mp_ctd_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mp_sp_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 5;
@@ -559,6 +592,7 @@ SS_ref G_SS_mp_sp_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mp_ilm_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 6;
@@ -573,6 +607,7 @@ SS_ref G_SS_mp_ilm_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mp_ilmm_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 7;
@@ -588,6 +623,7 @@ SS_ref G_SS_mp_ilmm_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mp_mt_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 5;
@@ -610,6 +646,7 @@ SS_ref G_SS_mp_mt_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_ig_fper_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 2;
@@ -625,7 +662,8 @@ SS_ref G_SS_ig_fper_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_ig_bi_init_function(SS_ref SS_ref_db,  global_variable gv){		
 
-	SS_ref_db.is_liq    = 0;	
+	SS_ref_db.n_cat     = 0;
+    SS_ref_db.is_liq    = 0;	
 	SS_ref_db.symmetry  = 1;	
 	SS_ref_db.n_sf      = 11;
 	SS_ref_db.n_em      = 6;
@@ -640,7 +678,8 @@ SS_ref G_SS_ig_bi_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_ig_cpx_init_function(SS_ref SS_ref_db,  global_variable gv){
 
-	SS_ref_db.is_liq    = 0;	
+	SS_ref_db.n_cat     = 0;
+    SS_ref_db.is_liq    = 0;	
 	SS_ref_db.symmetry  = 0;						  					  
 	SS_ref_db.n_sf      = 13;
 	SS_ref_db.n_em      = 10;
@@ -656,7 +695,8 @@ SS_ref G_SS_ig_cpx_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_ig_cd_init_function(SS_ref SS_ref_db,  global_variable gv){
 
-	SS_ref_db.is_liq    = 0;		
+	SS_ref_db.n_cat     = 0;
+    SS_ref_db.is_liq    = 0;		
 	SS_ref_db.symmetry  = 1;				  					  
 	SS_ref_db.n_sf      = 4;
 	SS_ref_db.n_em      = 3;
@@ -671,7 +711,8 @@ SS_ref G_SS_ig_cd_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_ig_ep_init_function(SS_ref SS_ref_db,  global_variable gv){
 
-	SS_ref_db.is_liq     = 0;	
+	SS_ref_db.n_cat     = 0;
+    SS_ref_db.is_liq     = 0;	
 	SS_ref_db.symmetry   = 1;						  					  
 	SS_ref_db.n_sf       = 4;
 	SS_ref_db.n_em       = 3;
@@ -686,6 +727,7 @@ SS_ref G_SS_ig_ep_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_ig_fl_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 12;
@@ -702,7 +744,8 @@ SS_ref G_SS_ig_fl_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_ig_g_init_function(SS_ref SS_ref_db,  global_variable gv){
 
-	SS_ref_db.is_liq      = 0;	
+	SS_ref_db.n_cat     = 0;
+    SS_ref_db.is_liq      = 0;	
 	SS_ref_db.symmetry    = 0;						  					  
 	SS_ref_db.n_sf        = 8;
 	SS_ref_db.n_em        = 6;
@@ -718,7 +761,8 @@ SS_ref G_SS_ig_g_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_ig_hb_init_function(SS_ref SS_ref_db,  global_variable gv){
 
-	SS_ref_db.is_liq     = 0;	
+	SS_ref_db.n_cat     = 0;
+    SS_ref_db.is_liq     = 0;	
 	SS_ref_db.symmetry   = 0;					  					  
 	SS_ref_db.n_sf       = 18;
 	SS_ref_db.n_em       = 11;
@@ -735,7 +779,8 @@ SS_ref G_SS_ig_hb_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_ig_ilm_init_function(SS_ref SS_ref_db,  global_variable gv){
     
-	SS_ref_db.is_liq    = 0;	
+	SS_ref_db.n_cat     = 0;
+    SS_ref_db.is_liq    = 0;	
 	SS_ref_db.symmetry  = 1;							  					  
 	SS_ref_db.n_sf      = 6;
 	SS_ref_db.n_em      = 3;
@@ -752,6 +797,7 @@ SS_ref G_SS_ig_ilm_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_ig_liq_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 1;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 18;
@@ -768,7 +814,8 @@ SS_ref G_SS_ig_liq_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_ig_mu_init_function(SS_ref SS_ref_db,  global_variable gv){		
 
-	SS_ref_db.is_liq     = 0;	
+	SS_ref_db.n_cat     = 0;
+    SS_ref_db.is_liq     = 0;	
 	SS_ref_db.symmetry   = 0;						  					  
 	SS_ref_db.n_sf       = 10;
 	SS_ref_db.n_em       = 6;
@@ -784,7 +831,8 @@ SS_ref G_SS_ig_mu_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_ig_ol_init_function(SS_ref SS_ref_db,  global_variable gv){		
 
-	SS_ref_db.is_liq     = 0;	
+	SS_ref_db.n_cat     = 0;
+    SS_ref_db.is_liq     = 0;	
 	SS_ref_db.symmetry   = 1;						  					  
 	SS_ref_db.n_sf       = 5;
 	SS_ref_db.n_em       = 4;
@@ -799,7 +847,8 @@ SS_ref G_SS_ig_ol_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_ig_opx_init_function(SS_ref SS_ref_db,  global_variable gv){		
 
-	SS_ref_db.is_liq    = 0;	
+	SS_ref_db.n_cat     = 0;
+    SS_ref_db.is_liq    = 0;	
 	SS_ref_db.symmetry  = 0;					  					  
 	SS_ref_db.n_sf      = 12;
 	SS_ref_db.n_em      = 9;
@@ -815,7 +864,8 @@ SS_ref G_SS_ig_opx_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_ig_fsp_init_function(SS_ref SS_ref_db,  global_variable gv){
 
-	SS_ref_db.is_liq     = 0;
+	SS_ref_db.n_cat     = 0;
+    SS_ref_db.is_liq     = 0;
 	SS_ref_db.symmetry   = 0;
 	SS_ref_db.n_sf       = 5;
 	SS_ref_db.n_em       = 3;
@@ -831,6 +881,7 @@ SS_ref G_SS_ig_fsp_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_ig_spn_init_function(SS_ref SS_ref_db,  global_variable gv){		
 
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 10;
@@ -854,6 +905,7 @@ SS_ref G_SS_ig_spn_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_igad_liq_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 18;
@@ -871,6 +923,7 @@ SS_ref G_SS_igad_liq_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_igad_fsp_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 5;
@@ -887,6 +940,7 @@ SS_ref G_SS_igad_fsp_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_igad_spn_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 10;
@@ -903,6 +957,7 @@ SS_ref G_SS_igad_spn_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_igad_g_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 8;
@@ -919,6 +974,7 @@ SS_ref G_SS_igad_g_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_igad_ol_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 5;
@@ -934,6 +990,7 @@ SS_ref G_SS_igad_ol_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_igad_opx_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 12;
@@ -950,6 +1007,7 @@ SS_ref G_SS_igad_opx_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_igad_cpx_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 13;
@@ -966,6 +1024,7 @@ SS_ref G_SS_igad_cpx_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_igad_ilm_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 8;
@@ -981,6 +1040,7 @@ SS_ref G_SS_igad_ilm_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_igad_ness_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 9;
@@ -997,6 +1057,7 @@ SS_ref G_SS_igad_ness_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_igad_lct_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 2;
@@ -1013,6 +1074,7 @@ SS_ref G_SS_igad_lct_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_igad_kals_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 2;
@@ -1029,6 +1091,7 @@ SS_ref G_SS_igad_kals_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_igad_mel_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 8;
@@ -1051,6 +1114,7 @@ SS_ref G_SS_igad_mel_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_um_fluid_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = -1;
     SS_ref_db.n_sf      = 2;
@@ -1065,6 +1129,7 @@ SS_ref G_SS_um_fluid_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_um_ol_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 2;
@@ -1080,6 +1145,7 @@ SS_ref G_SS_um_ol_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_um_br_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = -1;
     SS_ref_db.n_sf      = 2;
@@ -1094,6 +1160,7 @@ SS_ref G_SS_um_br_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_um_ch_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 2;
@@ -1109,6 +1176,7 @@ SS_ref G_SS_um_ch_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_um_atg_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 8;
@@ -1124,6 +1192,7 @@ SS_ref G_SS_um_atg_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_um_g_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 2;
@@ -1139,6 +1208,7 @@ SS_ref G_SS_um_g_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_um_ta_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 9;
@@ -1154,6 +1224,7 @@ SS_ref G_SS_um_ta_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_um_chl_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 11;
@@ -1169,6 +1240,7 @@ SS_ref G_SS_um_chl_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_um_anth_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 9;
@@ -1185,6 +1257,7 @@ SS_ref G_SS_um_anth_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_um_spi_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 4;
@@ -1200,6 +1273,7 @@ SS_ref G_SS_um_spi_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_um_opx_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 8;
@@ -1215,6 +1289,7 @@ SS_ref G_SS_um_opx_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_um_po_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 2;
@@ -1231,6 +1306,7 @@ SS_ref G_SS_um_po_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_ume_pl4tr_init_function(SS_ref SS_ref_db, global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 4;
@@ -1246,6 +1322,7 @@ SS_ref G_SS_ume_pl4tr_init_function(SS_ref SS_ref_db, global_variable gv){
 */
 SS_ref G_SS_ume_hb_init_function(SS_ref SS_ref_db, global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 14;
@@ -1262,6 +1339,7 @@ SS_ref G_SS_ume_hb_init_function(SS_ref SS_ref_db, global_variable gv){
 */
 SS_ref G_SS_ume_aug_init_function(SS_ref SS_ref_db, global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 12;
@@ -1285,6 +1363,7 @@ SS_ref G_SS_ume_aug_init_function(SS_ref SS_ref_db, global_variable gv){
 */
 SS_ref G_SS_mtl_g_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 8;
@@ -1300,6 +1379,7 @@ SS_ref G_SS_mtl_g_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mtl_fp_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 2;
@@ -1315,6 +1395,7 @@ SS_ref G_SS_mtl_fp_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mtl_mpv_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 7;
@@ -1329,6 +1410,7 @@ SS_ref G_SS_mtl_mpv_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mtl_cpv_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 7;
@@ -1344,6 +1426,7 @@ SS_ref G_SS_mtl_cpv_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mtl_crn_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 5;
@@ -1359,6 +1442,7 @@ SS_ref G_SS_mtl_crn_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mtl_cf_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 8;
@@ -1374,6 +1458,7 @@ SS_ref G_SS_mtl_cf_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mtl_nal_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 10;
@@ -1389,6 +1474,7 @@ SS_ref G_SS_mtl_nal_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mtl_aki_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 5;
@@ -1404,6 +1490,7 @@ SS_ref G_SS_mtl_aki_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mtl_ol_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 2;
@@ -1419,6 +1506,7 @@ SS_ref G_SS_mtl_ol_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mtl_wad_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 2;
@@ -1434,6 +1522,7 @@ SS_ref G_SS_mtl_wad_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mtl_ring_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_sf      = 2;
@@ -1449,6 +1538,7 @@ SS_ref G_SS_mtl_ring_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mtl_cpx_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 9;
@@ -1465,6 +1555,7 @@ SS_ref G_SS_mtl_cpx_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mtl_opx_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 8;
@@ -1481,6 +1572,7 @@ SS_ref G_SS_mtl_opx_init_function(SS_ref SS_ref_db,  global_variable gv){
 */
 SS_ref G_SS_mtl_hpx_init_function(SS_ref SS_ref_db,  global_variable gv){
     
+    SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_sf      = 8;

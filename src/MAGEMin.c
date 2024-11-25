@@ -117,6 +117,10 @@ int runMAGEMin(			int    argc,
 									 argc,
 									 argv			);
 
+	gv = SetupDatabase(				gv,
+								   &z_b				);
+
+
 	/*
 	  initialize global structure to store shared variables (e.g. Gamma, SS and PP list, ...) 
 	*/
@@ -372,22 +376,27 @@ int runMAGEMin(			int    argc,
 
 	/** pointer array to objective functions 								*/
 	obj_type 								SS_objective[gv.len_ss];	
-
-	TC_SS_objective_init_function(			SS_objective,
-											gv								);
-
-
 	PC_type 								PC_read[gv.len_ss];
-
-	TC_PC_init(	                    		PC_read,
-											gv								);
-
-
 	P2X_type 								P2X_read[gv.len_ss];
 
-	TC_P2X_init(	                		P2X_read,
-											gv								);
-		
+	if (strcmp(gv.research_group, "tc") 	== 0 ){
+		TC_SS_objective_init_function(			SS_objective,
+												gv								);
+
+		TC_PC_init(	                    		PC_read,
+												gv								);
+
+		TC_P2X_init(	                		P2X_read,
+												gv								);
+	}
+	else if (strcmp(gv.research_group, "sb") 	== 0 ){
+		SB_SS_objective_init_function(			SS_objective,
+												gv								);
+
+		SB_PC_init(	                    		PC_read,
+												gv								);
+	}
+	printf("b4 levelling\n");
 	/****************************************************************************************/
 	/**                                   LEVELLING                                        **/
 	/****************************************************************************************/	
@@ -424,27 +433,33 @@ int runMAGEMin(			int    argc,
 
 	/** pointer array to objective functions 								*/
 	obj_type 								SS_objective[gv.len_ss];	
-
-	TC_SS_objective_init_function(			SS_objective,
-											gv								);
-
-	/** pointer array to NLopt functions (calls objective function for local minimization) 								*/
+	PC_type 								PC_read[gv.len_ss];
+	P2X_type 								P2X_read[gv.len_ss];
 	NLopt_type 								NLopt_opt[gv.len_ss];	
 
-	TC_NLopt_opt_init(	        			NLopt_opt,
-											gv				);
+	if (strcmp(gv.research_group, "tc") 	== 0 ){
+		TC_SS_objective_init_function(			SS_objective,
+												gv								);
 
-	PC_type 								PC_read[gv.len_ss];
+		TC_NLopt_opt_init(	        			NLopt_opt,
+												gv								);
 
-	TC_PC_init(	                    		PC_read,
-											gv								);
+		TC_PC_init(	                    		PC_read,
+												gv								);
 
-	P2X_type 								P2X_read[gv.len_ss];
+		TC_P2X_init(	                		P2X_read,
+												gv								);
+	}
+	else if (strcmp(gv.research_group, "sb") 	== 0 ){
+		SB_SS_objective_init_function(			SS_objective,
+												gv								);
 
-	TC_P2X_init(	                		P2X_read,
-											gv								);
+		SB_NLopt_opt_init(	        			NLopt_opt,
+												gv								);
 
-											
+		SB_PC_init(	                    		PC_read,
+												gv								);
+	}								
 
 	/****************************************************************************************/
 	/**                                   LEVELLING                                        **/
@@ -803,6 +818,16 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		 }
 	}
 
+	return gv;
+} 
+
+/** 
+  	Get command line options
+*/
+global_variable SetupDatabase(			global_variable 	 gv,
+										bulk_info 			*z_b	){
+
+
 	// checks if research group is correct, otherwise sets to default
 	if 	( strcmp(gv.research_group, "tc") 	== 0 || strcmp(gv.research_group, "sb") == 0 ){
 	}
@@ -847,10 +872,19 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		}
 		else {
 			printf(" No or wrong database acronym has been provided, using default (metapelite [mp])\n");
+			strcpy(gv.db, "mp");
 			gv.EM_database = 0;
 		}
 	}
 	else if( strcmp(gv.research_group, "sb") == 0 ){
+		gv.mbCpx = 0;
+		if (gv.solver != 0){
+			gv.solver = 0;
+			if (gv.verbose == 1){
+				printf(" INFO: Solver option is not available for Stixrude & Lithgow-Bertelloni 2011 dataset -> LP is used\n");
+			}
+		}
+
 		// checks if the end-member dataset option arg is correct, otherwise sets to default
 		if 	(gv.EM_dataset 	== -1 || gv.EM_dataset 	== 2011 ){
 		}
@@ -864,13 +898,17 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 			gv.EM_database = 0;
 		}
 		else {
-			printf(" No or wrong database acronym has been provided, using default Stixrude & Lithgow-Bertelloni 2011([sb11])\n");
+			if (gv.verbose == 1){
+				printf(" No or wrong database acronym has been provided, using default Stixrude & Lithgow-Bertelloni 2011([sb11])\n");
+			}
+			strcpy(gv.db, "sb11");
 			gv.EM_database = 0;
 		}
 
 	}
 
-	if (gv.verbose == 1){		
+	if (gv.verbose == 1){	
+		printf("\n");	
 		printf("--verbose     : verbose              = %i \n", 	 	   		gv.verbose			);
 		printf("--rg          : research group       = %s \n", 	 	  		gv.research_group	);
 		printf("--db          : database             = %s \n", 	 	   		gv.db				);
@@ -895,11 +933,8 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 
 		printf("--out_matlab  : out_matlab           = %i \n", 	 	   		gv.output_matlab	);
 	}
-
 	return gv;
-} 
-
-	
+}	
 /** 
   Initiatizes the endmember and solid solution databases and adds them to a single struct
 **/
@@ -1002,7 +1037,7 @@ Databases InitializeDatabases(	global_variable gv,
 void FreeDatabases(		global_variable gv, 
 						Databases 		DB,
 						bulk_info 	 	z_b			){
-	int i, j, n_xeos, n_em, n_sf, n_ox, n_pc, n_Ppc, n_cp, sym, ndif, pp, ss;
+	int i, j, n_cat, n_xeos, n_em, n_sf, n_ox, n_pc, n_Ppc, n_cp, sym, ndif, pp, ss;
 
 	/*  ==================== SP ==============================  */
 	n_ox = gv.len_ox;
@@ -1127,6 +1162,16 @@ void FreeDatabases(		global_variable gv,
 		n_sf 	= DB.SS_ref_db[i].n_sf;
 		n_xeos 	= DB.SS_ref_db[i].n_xeos;
 
+		if (DB.SS_ref_db[i].n_cat > 0){
+			n_cat = DB.SS_ref_db[i].n_cat;
+			for (j = 0; j < n_cat; j++) {	free(DB.SS_ref_db[i].C[j]);}	
+			free(DB.SS_ref_db[i].C);
+			for (j = 0; j < n_em; j++) {	free(DB.SS_ref_db[i].N[j]);}	
+			free(DB.SS_ref_db[i].N);
+			free(DB.SS_ref_db[i].Vec1);
+			free(DB.SS_ref_db[i].Vec2);
+		}
+
 		free(DB.SS_ref_db[i].ss_flags);
 		free(DB.SS_ref_db[i].solvus_id);
 
@@ -1142,6 +1187,7 @@ void FreeDatabases(		global_variable gv,
 
 		free(DB.SS_ref_db[i].p);
 		free(DB.SS_ref_db[i].ElShearMod);
+		free(DB.SS_ref_db[i].ElBulkMod);
 		free(DB.SS_ref_db[i].ape);
 		free(DB.SS_ref_db[i].mat_phi);
 		free(DB.SS_ref_db[i].mu_Gex);	

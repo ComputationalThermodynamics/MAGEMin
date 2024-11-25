@@ -593,6 +593,25 @@ void inverseMatrix(int *ipiv, double *A1, int n, double *work, int lwork){
 
 };
 
+// Function to perform vector-matrix multiplication
+void vector_matrix_multiplication(double* v, double** M, double* result, int vector_size, int matrix_cols) {
+    for (int j = 0; j < matrix_cols; j++) {
+        result[j] = 0.0;
+        for (int i = 0; i < vector_size; i++) {
+            result[j] += v[i] * M[i][j];
+        }
+    }
+}
+// Function to perform matrix-vector multiplication
+void matrix_vector_multiplication(double** M, double* v, double* result, int matrix_rows, int matrix_cols) {
+    for (int i = 0; i < matrix_rows; i++) {
+        result[i] = 0.0;
+        for (int j = 0; j < matrix_cols; j++) {
+            result[i] += M[i][j] * v[j];
+        }
+    }
+}
+
 /**
   vector vectorT multiplication
 */	
@@ -1348,7 +1367,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 	double T 			  = z_b.T;					/** PC function uses the z_b structure this is why the Pressure is saved here */
 	double sum_volume     = 0.0;
 	double sum_volume_sol = 0.0;
-	double dGdTPP, dGdTMP, dG2dT2, dGdP, dGdP_P0, dG2dP2, dG2dP2_N, dGdP_N;
+	double dGdTPP, dGdTMP, dG2dT2, dGdP, dG2dP2, dG2dP2_N, dGdP_N;// dGdP_P0,
 	double mut, mut_N;
 	double phase_isoTbulkModulus_P1;
 
@@ -1386,7 +1405,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 			cp[i].phase_entropy  	 = 0.0;
 			cp[i].phase_enthalpy 	 = 0.0;
 			cp[i].phase_isoTbulkModulus = 0.0;
-			cp[i].volume_P0 		 = 0.0;
+			// cp[i].volume_P0 		 = 0.0;
 			cp[i].thetaExp 			 = 0.0;
 			phase_isoTbulkModulus_P1 = 0.0;
 
@@ -1399,7 +1418,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 					dGdTMP 					 = (SS_ref_db[ss].mu_array[0][j]-SS_ref_db[ss].mu_array[1][j])/(2.0*gv.gb_T_eps);
 					dGdP					 = (SS_ref_db[ss].mu_array[5][j]-SS_ref_db[ss].mu_array[6][j])/(gv.gb_P_eps);
 					dGdP_N 					 = (SS_ref_db[ss].mu_array[4][j]-SS_ref_db[ss].mu_array[5][j])/(gv.gb_P_eps);
-					dGdP_P0 				 = (SS_ref_db[ss].mu_array[8][j]-SS_ref_db[ss].mu_array[9][j])/(gv.gb_P_eps);
+					// dGdP_P0 				 = (SS_ref_db[ss].mu_array[8][j]-SS_ref_db[ss].mu_array[9][j])/(gv.gb_P_eps);
 					/* heat capacity 	*/
 					cp[i].phase_cp    		+= -T*(dG2dT2)*cp[i].p_em[j];
 					
@@ -1407,7 +1426,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 					cp[i].volume    		+= (dGdP)*cp[i].p_em[j];
 
 					/* volume 			*/
-					cp[i].volume_P0    		+= (dGdP_P0)*cp[i].p_em[j];
+					// cp[i].volume_P0    		+= (dGdP_P0)*cp[i].p_em[j];
 
 					/* entropy   		*/
 					cp[i].phase_entropy 	+= -(dGdTMP)*cp[i].p_em[j];
@@ -1416,7 +1435,12 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 					cp[i].phase_expansivity += (1.0/(dGdP)*((dGdTPP-dGdTMP)/(gv.gb_P_eps)))*cp[i].p_em[j];
 					
 					/* bulk modulus	*/
-					cp[i].phase_bulkModulus += -dGdP/( dG2dP2 + pow(((dGdTPP-dGdTMP)/(gv.gb_P_eps)),2.0)/dG2dT2 ) * cp[i].p_em[j];
+					if ( strcmp(gv.research_group, "sb") 	== 0 ){
+						cp[i].phase_bulkModulus += SS_ref_db[ss].ElBulkMod[j] * cp[i].p_em[j];
+					}
+					else{
+						cp[i].phase_bulkModulus += -dGdP/( dG2dP2 + pow(((dGdTPP-dGdTMP)/(gv.gb_P_eps)),2.0)/dG2dT2 ) * cp[i].p_em[j];
+					}
 
 					/* iso bulk modulus	*/
 					cp[i].phase_isoTbulkModulus += -dGdP/( dG2dP2 ) 	* cp[i].p_em[j];
@@ -1509,13 +1533,13 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 			dGdTMP 		= (muE-muW)				/(2.0*gv.gb_T_eps);
 			dGdP		= (muN-muC)				/(gv.gb_P_eps);
 			dGdP_N		= (muNN-muN)			/(gv.gb_P_eps);
-			dGdP_P0 	= (muN0-muC0)			/(gv.gb_P_eps);
+			// dGdP_P0 	= (muN0-muC0)			/(gv.gb_P_eps);
 			
 			/* Calculate volume  per pure phase */
 			PP_ref_db[i].volume  	   		= dGdP; 
 
 			/* Calculate volume  per pure phase */
-			PP_ref_db[i].volume_P0  	    = dGdP_P0; 
+			// PP_ref_db[i].volume_P0  	    = dGdP_P0; 
 			
 			/* Calculate density per pure phase */
 			PP_ref_db[i].phase_density 		= (1000.0*PP_ref_db[i].mass)/(PP_ref_db[i].volume*10.0);
@@ -1532,9 +1556,14 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 			/* enthalpy   		*/
 			PP_ref_db[i].phase_enthalpy 	= PP_ref_db[i].phase_entropy*T + PP_ref_db[i].gbase;
 	
-			/* shear modulus	*/
-			PP_ref_db[i].phase_bulkModulus	= -dGdP/( dG2dP2 + pow(((dGdTPP-dGdTMP)/(gv.gb_P_eps)),2.0)/dG2dT2 );
-	
+			/* bulk modulus	*/
+			if ( strcmp(gv.research_group, "sb") 	== 0 ){
+				
+			}
+			else{
+				PP_ref_db[i].phase_bulkModulus	= -dGdP/( dG2dP2 + pow(((dGdTPP-dGdTMP)/(gv.gb_P_eps)),2.0)/dG2dT2 );
+			}
+
 			/* shear modulus	*/
 			PP_ref_db[i].phase_isoTbulkModulus	= -dGdP/( dG2dP2  );
 			phase_isoTbulkModulus_P1			= -dGdP_N/( dG2dP2_N  );
@@ -1719,7 +1748,7 @@ global_variable compute_activities(			int					 EM_database,
 	}
 	else {
 		if (gv.verbose == 1){
-			printf("Oxygen fugacity could not be calculated, is O2 endmember included? Is pressure = 0.0?\n");
+			printf(" INFO: no fO2 -> O oxide not part of the database\n");
 		}
 	}
 
@@ -1755,7 +1784,12 @@ global_variable compute_activities(			int					 EM_database,
 	/* if we can compute the activity of MgO (if Gamma MgO exists i.e., if the MgO is taken into account) */
 	if (MgO_ix != -1){
 		double G0_per = 0.0;
-		PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "per", "equilibrium");
+		if (strcmp(gv.research_group, "tc") 	== 0 ){
+			PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "per", "equilibrium");
+		}
+		else if (strcmp(gv.research_group, "sb") 	== 0 ){
+			PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "pe", "equilibrium");
+		}
 		G0_per  		= PP_db.gbase;//*PP_db.factor;
 		gv.system_aMgO = exp( (gv.gam_tot[MgO_ix] - G0_per) / (z_b.R*z_b.T));
 	}
@@ -1763,7 +1797,12 @@ global_variable compute_activities(			int					 EM_database,
 	/* if we can compute the activity of FeO (if Gamma FeO exists i.e., if the FeO is taken into account) */
 	if (FeO_ix != -1){
 		double G0_fper  = 0.0;
-		PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "fper", "equilibrium");
+		if (strcmp(gv.research_group, "tc") 	== 0 ){
+			PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "fper", "equilibrium");
+		}
+		else if (strcmp(gv.research_group, "sb") 	== 0 ){
+			PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "wu", "equilibrium");
+		}
 		G0_fper  		= PP_db.gbase;//*PP_db.factor;
 		gv.system_aFeO  = exp( (gv.gam_tot[FeO_ix] - G0_fper) / (z_b.R*z_b.T));
 	}
@@ -1772,7 +1811,12 @@ global_variable compute_activities(			int					 EM_database,
 	/* if we can compute the activity of Al2O3 (if Gamma Al2O3 exists i.e., if the Al2O3 is taken into account) */
 	if (Al2O3_ix != -1){
 		double G0_cor = 0.0;
+		if (strcmp(gv.research_group, "tc") 	== 0 ){
 		PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "cor", "equilibrium");
+		}
+		else if (strcmp(gv.research_group, "sb") 	== 0 ){
+			PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "co", "equilibrium");
+		}
 		G0_cor  		= PP_db.gbase;//*PP_db.factor;
 		gv.system_aAl2O3 = exp( (gv.gam_tot[Al2O3_ix] - G0_cor) / (z_b.R*z_b.T));
 	}
@@ -1797,15 +1841,28 @@ global_variable compute_activities(			int					 EM_database,
 	if (SiO2_ix != -1){
 		double G0_q 	= 0.0;
 		double G0_coe 	= 0.0;
-		
-		PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "q", "equilibrium");
-		G0_q  			= PP_db.gbase;//*PP_db.factor;
-		PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "coe", "equilibrium");
-		G0_coe  		= PP_db.gbase;//*PP_db.factor;
+		double G0_st 	= 0.0;
 
+		if (strcmp(gv.research_group, "tc") 	== 0 ){
+			PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "q", "equilibrium");
+			G0_q  			= PP_db.gbase;//*PP_db.factor;
+			PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "coe", "equilibrium");
+			G0_coe  		= PP_db.gbase;//*PP_db.factor;
+		}
+		else if (strcmp(gv.research_group, "sb") 	== 0 ){
+			PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "qtz", "equilibrium");
+			G0_q  			= PP_db.gbase;//*PP_db.factor;
+			PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "coe", "equilibrium");
+			G0_coe  		= PP_db.gbase;//*PP_db.factor;
+			PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "st", "equilibrium");
+			G0_st  		= PP_db.gbase;//*PP_db.factor;
+		}
 		double G0_SiO2 	= G0_q;
 		if (G0_coe < G0_SiO2){
 			G0_SiO2 = G0_coe;
+			if (G0_st < G0_coe){
+				G0_SiO2 = G0_st;
+			}
 		}
 		gv.system_aSiO2 = exp( (gv.gam_tot[SiO2_ix] - G0_SiO2) / (z_b.R*z_b.T));
 	}

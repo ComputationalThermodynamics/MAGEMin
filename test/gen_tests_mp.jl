@@ -8,11 +8,11 @@ using MAGEMin_C
 
 # Initialize database 
 db          = "mp"  # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b)
-gv, z_b, DB, splx_data      = init_MAGEMin(db);
+gv, z_b, DB, splx_data      = init_MAGEMin(db, verbose=-1);
 
 
-sys_in      = "mol"     #default is mol, if wt is provided conversion will be done internally (MAGEMin works on mol basis)
-test        = 4         #KLB1
+sys_in      = "mol" 
+test        = 0       
 gv          = use_predefined_bulk_rock(gv, test, db);
 
 mutable struct outP{ _T  } 

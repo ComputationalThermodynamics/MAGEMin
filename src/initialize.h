@@ -27,6 +27,7 @@
 	typedef struct em_datas{
 		double C[14];
 		double ElShearMod;
+		double ElBulkMod;
 		double gb;
 		double charge;	
 	} em_data;

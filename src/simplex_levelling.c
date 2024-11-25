@@ -1249,56 +1249,68 @@ void run_simplex_levelling(				bulk_info 	 		 z_b,
 	
 	PC_ref 			SS_pc_xeos[gv.len_ss];
 
+	if (strcmp(gv.research_group, "tc") 	== 0 ){
+		if (gv.EM_database == 0){
+			for (iss = 0; iss < gv.len_ss; iss++){
+				SS_mp_pc_init_function(			SS_pc_xeos, 
+												iss,
+												gv.SS_list[iss]				);
+			}
+		}
+		if (gv.EM_database == 1){
+			for (iss = 0; iss < gv.len_ss; iss++){
+				SS_mb_pc_init_function(			SS_pc_xeos, 
+												iss,
+												gv.SS_list[iss]				);
+			}
+		}
+		else if (gv.EM_database == 2){
+			for (iss = 0; iss < gv.len_ss; iss++){
+				SS_ig_pc_init_function(			SS_pc_xeos, 
+												iss,
+												gv.SS_list[iss]				);
+			}
+		}
+		else if (gv.EM_database == 3){
+			for (iss = 0; iss < gv.len_ss; iss++){
+				SS_igad_pc_init_function(		SS_pc_xeos, 
+												iss,
+												gv.SS_list[iss]				);
+			}
+		}
+		else if (gv.EM_database == 4){
+			for (iss = 0; iss < gv.len_ss; iss++){
+				SS_um_pc_init_function(			SS_pc_xeos, 
+												iss,
+												gv.SS_list[iss]				);
+			}
+		}
+		else if (gv.EM_database == 5){
+			for (iss = 0; iss < gv.len_ss; iss++){
+				SS_um_pc_init_function(			SS_pc_xeos, 
+												iss,
+												gv.SS_list[iss]				);
+			}
+		}
+		else if (gv.EM_database == 6){
+			for (iss = 0; iss < gv.len_ss; iss++){
+				SS_mtl_pc_init_function(		SS_pc_xeos, 
+												iss,
+												gv.SS_list[iss]				);
+			}
+		}
+	}
+	else if (strcmp(gv.research_group, "sb") 	== 0 ){
+		if (gv.EM_database == 0){
+			for (iss = 0; iss < gv.len_ss; iss++){
+				SB_sb11_pc_init_function(			SS_pc_xeos, 
+													iss,
+													gv.SS_list[iss]				);
+			}
+		}
+	}
 
-	if (gv.EM_database == 0){
-		for (iss = 0; iss < gv.len_ss; iss++){
-			SS_mp_pc_init_function(			SS_pc_xeos, 
-											iss,
-											gv.SS_list[iss]				);
-		}
-	}
-	if (gv.EM_database == 1){
-		for (iss = 0; iss < gv.len_ss; iss++){
-			SS_mb_pc_init_function(			SS_pc_xeos, 
-											iss,
-											gv.SS_list[iss]				);
-		}
-	}
-	else if (gv.EM_database == 2){
-		for (iss = 0; iss < gv.len_ss; iss++){
-			SS_ig_pc_init_function(			SS_pc_xeos, 
-											iss,
-											gv.SS_list[iss]				);
-		}
-	}
-	else if (gv.EM_database == 3){
-		for (iss = 0; iss < gv.len_ss; iss++){
-			SS_igad_pc_init_function(		SS_pc_xeos, 
-											iss,
-											gv.SS_list[iss]				);
-		}
-	}
-	else if (gv.EM_database == 4){
-		for (iss = 0; iss < gv.len_ss; iss++){
-			SS_um_pc_init_function(			SS_pc_xeos, 
-											iss,
-											gv.SS_list[iss]				);
-		}
-	}
-	else if (gv.EM_database == 5){
-		for (iss = 0; iss < gv.len_ss; iss++){
-			SS_um_pc_init_function(			SS_pc_xeos, 
-											iss,
-											gv.SS_list[iss]				);
-		}
-	}
-	else if (gv.EM_database == 6){
-		for (iss = 0; iss < gv.len_ss; iss++){
-			SS_mtl_pc_init_function(		SS_pc_xeos, 
-											iss,
-											gv.SS_list[iss]				);
-		}
-	}
+
 	for (iss = 0; iss < gv.len_ss; iss++){
 		if (SS_ref_db[iss].ss_flags[0] == 1){
 

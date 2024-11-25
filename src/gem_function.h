@@ -15,23 +15,22 @@
 typedef struct PP_refs {
 	char   	Name[20];			    /** Name                                    */
     double 	Comp[15];        	    /** composition [0-10]                      */
-    double 	Comp_mol[15];        	    /** composition [0-10]                      */
-    double 	Comp_wt[15];        	    /** composition [0-10]                      */
+    double 	Comp_mol[15];        	/** composition [0-10]                      */
+    double 	Comp_wt[15];        	/** composition [0-10]                      */
     double 	gbase; 
     double 	gb_lvl;         	    /**driving force, delta_G with G-hyperplane */
     double 	factor;
     double  factor_norm;
     double  phase_density;		    /** molar density of the phase              */
     double  phase_shearModulus;		/** molar density of the phase              */
-    double  phase_shearModulus_v;
+    double  phase_bulkModulus;
     double  phase_cp;			    /** molar cp of the phase                   */
 	double  phase_expansivity;
 	double  phase_isoTbulkModulus;
-	double  volume_P0;
+	// double  volume_P0;
 	double  thetaExp;
 	double  phase_entropy;
 	double  phase_enthalpy;
-	double  phase_bulkModulus;
     double  volume;				    /** molar volume of the phase               */
     double  mass;				    /** molar mass of the phase                 */
     double  charge;
