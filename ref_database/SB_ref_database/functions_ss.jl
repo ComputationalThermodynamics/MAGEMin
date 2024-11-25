@@ -358,17 +358,28 @@ function get_sb_objective_functions(sb_ver,ss)
         C       = hcat(C...)'
         n_cat   = size(C,1)
 
-        @variables p[0:n_em-1] R T gb[0:n_em-1]
+        @variables p[0:n_em-1] R T gb[0:n_em-1] ape[0:n_em-1] fbc
         X               = Symbolics.scalarize(p)
         Gref            = Symbolics.scalarize(gb)
+        A               = Symbolics.scalarize(ape)
         Xo              = C*X
+        fac             = fbc/sum(A.*X)
+
         config          = R * T * (M' * Diagonal(Xo) * log.(Xo))
         grad_config     = Symbolics.gradient(config, X)
         mu_Gex          = get_mu_Gex(W, v, n_em, sym)
 
-        G = Gref'*X + mu_Gex'*X + config;
+  
+
+        G = fac*(Gref'*X + mu_Gex'*X + config);
         grad_G     = Symbolics.gradient(G, X)
         
+        grad_fac = Symbolics.gradient(fac, X)
+        # for i=1:n_em
+        #     println("grad_fac $(grad_fac[i])")
+        # end
+
+        # -ape[0]*(fbc / ((ape[0]*p[0] + ape[1]*p[1])^2))
         # grad_muGex = Symbolics.gradient(mu_Gex', X)
         # println("mu_Gex $(mu_Gex)")
         # for i = 1:n_em
@@ -465,7 +476,8 @@ function get_sb_objective_functions(sb_ver,ss)
 
         sb_objective_functions *= "$(tab)if (grad){\n"
         for i=1:n_em
-            sb_objective_functions *= "$(tab2)grad[$(i-1)] = (mu_Gex[$(i-1)] + gb[$(i-1)] + Sconfig)* d->factor;\n"
+            dS = replace(string(grad_config[i]), r"(\d)(?=[\[\(a-zA-Z])" => s"\1*")
+            sb_objective_functions *= "$(tab2)grad[$(i-1)] = ($(dS) + mu_Gex[$(i-1)] + gb[$(i-1)])* d->factor - (d->df_raw * d->factor * (d->ape[$(i-1)]/d->sum_apep));\n"
             # PREV
             # dS = replace(string(grad_G[i]), r"(\d)(?=[\[\(a-zA-Z])" => s"\1*")
             # sb_objective_functions *= "$(tab2)grad[$(i-1)] = ($dS)* d->factor;\n"
