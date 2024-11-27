@@ -26,6 +26,8 @@ void TC_SS_init_um(	                SS_init_type 		*SS_init,
 									global_variable 	 gv				);
 void TC_SS_init_um_ext(	            SS_init_type 		*SS_init,
 									global_variable 	 gv				);
+void TC_SS_init_mp_ext(	            SS_init_type 		*SS_init,
+									global_variable 	 gv				);
 void TC_SS_init_mtl(	            SS_init_type 		*SS_init,
 									global_variable 	 gv				);
 void TC_SS_init(	        	    SS_init_type 		*SS_init,

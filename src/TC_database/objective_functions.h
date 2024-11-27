@@ -19,17 +19,18 @@ void TC_mb_objective_init_function(	obj_type 		 	*SS_objective,
 									global_variable  	 gv					);
 void TC_ig_objective_init_function(	obj_type 		 	*SS_objective,
 									global_variable   	 gv					);
-void TC_igad_objective_init_function(	obj_type 		*SS_objective,
-										global_variable  gv					);
+void TC_igad_objective_init_function(obj_type 		*SS_objective,
+									global_variable  	 gv					);
 void TC_mp_objective_init_function(	obj_type 		 	*SS_objective,
 									global_variable 	 gv					);
 void TC_um_objective_init_function(	obj_type 		 	*SS_objective,
 									global_variable  	 gv					);
 void TC_um_ext_objective_init_function(	obj_type 		*SS_objective,
 									global_variable  	 gv					);
-void TC_mtl_objective_init_function(	obj_type 		*SS_objective,
+void TC_mtl_objective_init_function(obj_type 		*SS_objective,
 									global_variable  	 gv					);
-									
+void TC_mpe_objective_init_function(obj_type 		 	*SS_objective,
+									global_variable 	 gv					);
 void TC_SS_objective_init_function(	obj_type 			*SS_objective,
 									global_variable 	 gv					);
 
@@ -140,6 +141,30 @@ double obj_mtl_cpx(unsigned    	n, const double *x, double *grad, void *SS_ref_d
 double obj_mtl_opx(unsigned     n, const double *x, double *grad, void *SS_ref_db);
 double obj_mtl_hpx(unsigned 	n, const double *x, double *grad, void *SS_ref_db);
 
+double obj_mpe_liq(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mpe_fsp(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mpe_bi(unsigned  	 n, const double *x, double *grad, void *SS_ref_db);
+double obj_mpe_g(unsigned   	 n, const double *x, double *grad, void *SS_ref_db);
+double obj_mpe_ep(unsigned    n, const double *x, double *grad, void *SS_ref_db);
+double obj_mpe_ma(unsigned    n, const double *x, double *grad, void *SS_ref_db);
+double obj_mpe_mu(unsigned    n, const double *x, double *grad, void *SS_ref_db);
+double obj_mpe_opx(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mpe_sa(unsigned  	 n, const double *x, double *grad, void *SS_ref_db);
+double obj_mpe_cd(unsigned    n, const double *x, double *grad, void *SS_ref_db);
+double obj_mpe_st(unsigned    n, const double *x, double *grad, void *SS_ref_db);
+double obj_mpe_chl(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mpe_ctd(unsigned 	 n, const double *x, double *grad, void *SS_ref_db);
+double obj_mpe_sp(unsigned  	 n, const double *x, double *grad, void *SS_ref_db);
+double obj_mpe_ilm(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mpe_ilmm(unsigned  n, const double *x, double *grad, void *SS_ref_db);
+double obj_mpe_mt(unsigned  	 n, const double *x, double *grad, void *SS_ref_db);
+double obj_mpe_flc(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mpe_occm(unsigned 	 n, const double *x, double *grad, void *SS_ref_db);
+double obj_mpe_dio(unsigned  	 n, const double *x, double *grad, void *SS_ref_db);
+double obj_mpe_aug(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mpe_hb(unsigned  n, const double *x, double *grad, void *SS_ref_db);
+double obj_mpe_po(unsigned  	 n, const double *x, double *grad, void *SS_ref_db);
+		
 double obj_aq17(unsigned 	  n, const double *x, double *grad, void *SS_ref_db);
 
 SS_ref PC_function(			global_variable 	 gv,
@@ -162,5 +187,7 @@ void TC_um_PC_init(	                PC_type 			*PC_read,
 void TC_um_ext_PC_init(	            PC_type 			*PC_read,
 									global_variable 	 gv				);
 void TC_mtl_PC_init(	            PC_type 			*PC_read,
+									global_variable 	 gv				);
+void TC_mpe_PC_init(	            PC_type 			*PC_read,
 									global_variable 	 gv				);
 #endif

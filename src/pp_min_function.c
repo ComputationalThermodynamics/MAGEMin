@@ -722,6 +722,9 @@ global_variable init_em_db(		int 				EM_database,
 				else if (EM_database == 5){
 					printf(" S   A   M   F   O   H   S   C   N\n");
 				}
+				else if (EM_database == 7){
+					printf(" S   A   C   M   F   K   N   T   O   Mn  H  CO  S\n");
+				}
 				for (int j = 0; j < gv.len_ox; j++){
 					printf(" %.1f",PP_ref_db[i].Comp[j]);
 				}

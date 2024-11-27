@@ -876,6 +876,9 @@ global_variable SetupDatabase(			global_variable 	 gv,
 		else if (strcmp(gv.db, "mtl") 	== 0){
 			gv.EM_database = 6;
 		}
+		else if (strcmp(gv.db, "mpe") 	== 0){
+			gv.EM_database = 7;
+		}
 		else {
 			printf(" No or wrong database acronym has been provided, using default (metapelite [mp])\n");
 			strcpy(gv.db, "mp");

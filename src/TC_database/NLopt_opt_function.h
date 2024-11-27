@@ -32,7 +32,8 @@ void TC_mtl_NLopt_opt_init(	    	NLopt_type 			*NLopt_opt,
 									global_variable 	 gv				);
 void TC_NLopt_opt_init(	        	NLopt_type 			*NLopt_opt,
 									global_variable 	 gv				);
-
+void TC_mpe_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
+									global_variable 	 gv				);
 
 SS_ref NLopt_opt_ig_spn_function(global_variable gv, SS_ref SS_ref_db);
 SS_ref NLopt_opt_ig_cpx_function(global_variable gv, SS_ref SS_ref_db);

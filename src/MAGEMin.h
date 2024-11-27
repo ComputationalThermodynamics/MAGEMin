@@ -149,6 +149,7 @@ typedef struct global_variables {
 
 	/* get the id of the oxides to reduce down the compositional system*/
 	int 	 H2O_id;
+	int 	 CO2_id;
 	int 	 S_id;
 	int 	 Al2O3_id;
 	int 	 CaO_id;

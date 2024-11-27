@@ -267,6 +267,12 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 		else if (gv.EM_database == 5 ){
 			printf("  - Database                  : Ultramafic extended (Evans & Frost, 2021 + pl, hb and aug from Green et al., 2016)\n"	);
 		}
+		else if (gv.EM_database == 6 ){
+			printf("  - Database                  : Uppermost lower mantle to upper mantle database (Holland et al., 2013)\n"	);
+		}
+		else if (gv.EM_database == 7 ){
+			printf("  - Database                  : Metapelite extended (White et al., 2014; po from Evans & Frost, 2021;  hb, dio and aug from Green et al., 2016)\n"	);
+		}
 
 		if (strcmp( gv.sys_in, "mol") == 0){	
 			printf("  - input system composition  : mol fraction\n"	);
@@ -814,6 +820,9 @@ global_variable get_tests_bulks(	global_variable  	 gv
 		}
 		else if (gv.EM_database == 6){
 			gv = get_bulk_mantle( 			gv );
+		}
+		else if (gv.EM_database == 7){
+			gv = get_bulk_metapelite_ext( 		gv );
 		}
 		else{
 			printf(" Wrong database...\n");

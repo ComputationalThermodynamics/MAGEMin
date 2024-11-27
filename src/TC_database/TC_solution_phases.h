@@ -23,4 +23,5 @@
     #include "SS_xeos_PC_igad.h"
     #include "SS_xeos_PC_um.h"
     #include "SS_xeos_PC_mtl.h"
+    #include "SS_xeos_PC_mpe.h" 
 #endif
