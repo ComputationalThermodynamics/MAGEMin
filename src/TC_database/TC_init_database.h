@@ -23,11 +23,11 @@
 		int 	n_ss;
 		char    ox[11][20];
 		char    PP[23][20];
-		char    SS[16][20];
+		char    SS[18][20];
 
-		int 	verifyPC[16];
-		int 	n_SS_PC[16];
-		double 	SS_PC_stp[16];
+		int 	verifyPC[18];
+		int 	n_SS_PC[18];
+		double 	SS_PC_stp[18];
 
 		double 	PC_df_add;					/** min value of df under which the PC is added 									*/
 		double  solver_switch_T;
@@ -56,15 +56,10 @@
 		char    ox[10][20];
 		char    PP[23][20];
 
-		char    SS1[15][20];
-		int 	verifyPC1[15];
-		int 	n_SS_PC1[15];
-		double 	SS_PC_stp1[15];
-
-		char    SS2[15][20];
-		int 	verifyPC2[15];
-		int 	n_SS_PC2[15];
-		double 	SS_PC_stp2[15];
+		char    SS[17][20];
+		int 	verifyPC[17];
+		int 	n_SS_PC[17];
+		double 	SS_PC_stp[17];
 
 		double 	PC_df_add;					/** min value of df under which the PC is added 									*/
 		double  solver_switch_T;

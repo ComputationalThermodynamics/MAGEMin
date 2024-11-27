@@ -605,6 +605,9 @@ mutable struct global_variables
     limitCaOpx::Cint
     CaOpxLim::Cdouble
     mbCpx::Cint
+    mbIlm::Cint
+    mpSp::Cint
+    mpIlm::Cint
     fluidSpec::Cint
     n_fs_db::Cint
     test::Cint
@@ -1319,10 +1322,10 @@ mutable struct metapelite_datasets
     n_ss::Cint
     ox::NTuple{11, NTuple{20, Cchar}}
     PP::NTuple{23, NTuple{20, Cchar}}
-    SS::NTuple{16, NTuple{20, Cchar}}
-    verifyPC::NTuple{16, Cint}
-    n_SS_PC::NTuple{16, Cint}
-    SS_PC_stp::NTuple{16, Cdouble}
+    SS::NTuple{18, NTuple{20, Cchar}}
+    verifyPC::NTuple{18, Cint}
+    n_SS_PC::NTuple{18, Cint}
+    SS_PC_stp::NTuple{18, Cdouble}
     PC_df_add::Cdouble
     solver_switch_T::Cdouble
     min_melt_T::Cdouble
@@ -1345,14 +1348,10 @@ mutable struct metabasite_datasets
     n_ss::Cint
     ox::NTuple{10, NTuple{20, Cchar}}
     PP::NTuple{23, NTuple{20, Cchar}}
-    SS1::NTuple{15, NTuple{20, Cchar}}
-    verifyPC1::NTuple{15, Cint}
-    n_SS_PC1::NTuple{15, Cint}
-    SS_PC_stp1::NTuple{15, Cdouble}
-    SS2::NTuple{15, NTuple{20, Cchar}}
-    verifyPC2::NTuple{15, Cint}
-    n_SS_PC2::NTuple{15, Cint}
-    SS_PC_stp2::NTuple{15, Cdouble}
+    SS::NTuple{17, NTuple{20, Cchar}}
+    verifyPC::NTuple{17, Cint}
+    n_SS_PC::NTuple{17, Cint}
+    SS_PC_stp::NTuple{17, Cdouble}
     PC_df_add::Cdouble
     solver_switch_T::Cdouble
     min_melt_T::Cdouble

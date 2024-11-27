@@ -36,15 +36,15 @@ metapelite_dataset metapelite_db = {
 	62,							/* Endmember default dataset number */
 	11,							/* number of oxides */			
 	23,							/* number of pure phases */
-	15,							/* number of solution phases */
+	17,							/* number of solution phases */
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"H2O"											},
 	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2"  ,"H2O"	,
 	"qfm"	,"qif"	,"nno"	,"hm"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"								},
-	{"liq"	,"fsp"	,"bi"	,"g"	,"ep"	,"ma"	,"mu"	,"opx"	,"sa"	,"cd"	,"st"	,"chl"	,"ctd"	,"sp"  ,"ilm"  ,"aq17"	},
+	{"liq"	,"fsp"	,"bi"	,"g"	,"ep"	,"ma"	,"mu"	,"opx"	,"sa"	,"cd"	,"st"	,"chl"	,"ctd"	,"sp"  ,"mt"  ,"ilm"  ,"ilmm"  ,"aq17"	},
 	
-	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1		},  // allow solvus?
-	{3150	,231 	,981	,756	,110 	,1875	,1876	,1277	,230	,343	,540	,2270	,216	,405 	,130 	,1		},  // # of pseudocompound
-	{0.24	,0.049	,0.19	,0.19	,0.049	,0.19	,0.19	,0.249	,0.19	,0.145	,0.19	,0.249	,0.19	,0.124 	,0.09 	,1.0	},  // discretization step
+	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1		},  // allow solvus?
+	{3150	,231 	,981	,756	,110 	,1875	,1876	,1277	,230	,343	,540	,2270	,216	,405 	,87 	,130 	,1430 	,1		},  // # of pseudocompound
+	{0.24	,0.049	,0.19	,0.19	,0.049	,0.19	,0.19	,0.249	,0.19	,0.145	,0.19	,0.249	,0.19	,0.124 	,0.099 	,0.09 	,0.099 	,1.0	},  // discretization step
 
 	6.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
 	473.15,						/* max temperature above which PGE solver is active 								*/
@@ -64,20 +64,15 @@ metabasite_dataset metabasite_db = {
 	62,							/* Endmember default dataset number */
 	10,							/* number of oxides */			
 	23,							/* number of pure phases */
-	15,							/* number of solution phases */
+	17,							/* number of solution phases */
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"H2O"													},
 	{"q"	,"crst"	,"trd"	,"coe"	,"law"	,"ky"	,"sill"	,"and"	,"ru"	,"sph" 	,"ab"	,"H2O"	,
 	"qfm"	,"qif"	,"nno"	,"hm"	,"cco"	,"aH2O"	,"aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"								},
-	{"sp"	,"opx"	,"fsp"	,"liq"	,"mu"	,"ilm"	,"ol"	,"hb"	,"ep"	,"g"	,"chl"	,"bi"	,"dio"	,"abc"  ,"spn"			},
+	{"sp"	,"opx"	,"fsp"	,"liq"	,"mu"	,"ilmm"	,"ilm"	,"ol"	,"hb"	,"ep"	,"g"	,"chl"	,"bi"	,"dio"	,"aug"	,"abc"  ,"spn"			},
 	
-	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1				},  // allow solvus?
-	{936	,1731 	,231	,3505	,4536 	,422	,11		,7664	,110	,216	,3980	,1097	,1808	,21 	,196			},  // # of pseudocompound
-	{0.09	,0.19	,0.049	,0.199	,0.19	,0.049	,0.098	,0.249	,0.049	,0.19	,0.19	,0.149	,0.16	,0.049 	,0.09			},  // discretization step
-
-	{"sp"	,"opx"	,"fsp"	,"liq"	,"mu"	,"ilm"	,"ol"	,"hb"	,"ep"	,"g"	,"chl"	,"bi"	,"aug"	,"abc"  ,"spn"			},
-	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1				},  // allow solvus?
-	{936	,1731 	,231	,3505	,4536 	,422	,11		,7664	,110	,216	,3980	,1097	,2395	,21 	,196			},  // # of pseudocompound
-	{0.09	,0.19	,0.049	,0.199	,0.19	,0.049	,0.098	,0.249	,0.049	,0.19	,0.19	,0.149	,0.24	,0.049 	,0.09			},  // discretization step
+	{1		,1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1				},  // allow solvus?
+	{936	,1731 	,231	,3505	,4536 	,298	,422	,11		,7664	,110	,216	,3980	,1097	,1808	,2395	,21 	,196			},  // # of pseudocompound
+	{0.09	,0.19	,0.049	,0.199	,0.19	,0.09	,0.049	,0.098	,0.249	,0.049	,0.19	,0.19	,0.149	,0.16	,0.24	,0.049 	,0.09			},  // discretization step
 
 	4.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
 	473.15,						/* max temperature above which PGE solver is active 								*/
@@ -327,26 +322,12 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 
 		gv.verifyPC  		= malloc ((gv.len_ss) * sizeof (int) 	);
 		gv.SS_PC_stp     	= malloc ((gv.len_ss) * sizeof (double) );
-
 		for (i = 0; i < gv.len_ss; i++){ 
 			gv.SS_list[i] 	= malloc(20 * sizeof(char)				);
-		}
-
-		if (gv.mbCpx == 0){
-			for (i = 0; i < gv.len_ss; i++){ 
-				strcpy(gv.SS_list[i],db.SS1[i]);
-				gv.verifyPC[i]  = db.verifyPC1[i]; 
-				gv.n_SS_PC[i] 	= db.n_SS_PC1[i]; 
-				gv.SS_PC_stp[i] = db.SS_PC_stp1[i]; 	
-			}
-		}
-		else{
-			for (i = 0; i < gv.len_ss; i++){ 
-				strcpy(gv.SS_list[i],db.SS2[i]);
-				gv.verifyPC[i]  = db.verifyPC2[i]; 
-				gv.n_SS_PC[i] 	= db.n_SS_PC2[i]; 
-				gv.SS_PC_stp[i] = db.SS_PC_stp2[i]; 	
-			}
+			strcpy(gv.SS_list[i],db.SS[i]);
+			gv.verifyPC[i]  = db.verifyPC[i]; 
+			gv.n_SS_PC[i] 	= db.n_SS_PC[i]; 
+			gv.SS_PC_stp[i] = db.SS_PC_stp[i]; 	
 		}
 	}
 	else if (gv.EM_database == 2){

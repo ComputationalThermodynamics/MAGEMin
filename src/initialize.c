@@ -133,7 +133,14 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.buffer_n 		= 0.0;					/** factor for QFM buffer 															*/
 	gv.limitCaOpx       = 0;					/** limit Ca-bearing  orthopyroxene (add-hoc correction) 							*/
 	gv.CaOpxLim         = 1.0;					/** limit Ca-bearing  orthopyroxene (add-hoc correction) 							*/
-	gv.mbCpx 			= 0;					/** 0: omphacite LT, 1: augite HT*/
+
+	/* Phase selection 					*/
+	gv.mbCpx 			= 0;					/** 0: omphacite LT, 1: augite HT													*/
+	gv.mbIlm 			= 0;					/** 0: Ilmm, 1: Ilm 																*/
+	gv.mpSp 			= 0;					/** 0: Sp LT, 1: Mt1													*/
+	gv.mpIlm 			= 0;					/** 0: Ilmm, 1: Ilm 																*/
+
+
 	// gv.calc_seismic_cor = 1;					/** compute seismic velocity corrections (melt and anelastic)						*/
 	// gv.melt_pressure 	= 0.0;				/** [kbar] pressure shift in case of modelling melt pressure 						*/
 

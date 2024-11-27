@@ -79,7 +79,10 @@ typedef struct global_variables {
 	int      limitCaOpx;
 	double   CaOpxLim;
 	int      mbCpx;
-
+	int      mbIlm;
+	int      mpSp;
+	int      mpIlm;
+	
 	/* FLUID SPECIATION OPTIONS */
 	int      fluidSpec;			/** activate fluid speciation along with phase equilibrium modelling? */
 	int      n_fs_db;			/** number of fluid species for the database */

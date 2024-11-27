@@ -219,7 +219,7 @@ global_variable global_variable_SB_init( 	global_variable  	 gv,
 	gv.Na2O_id 	= -1;
 	gv.FeO_id 	= -1;
 	gv.MgO_id 	= -1;
-g	gv.O_id 	= -1;
+	gv.O_id 	= -1;
 	oxide_data ox_in 	= oxide_info_sb;
 	for (i = 0; i < gv.len_ox; i++){
 		for (j = 0; j < ox_in.n_ox; j++){

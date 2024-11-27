@@ -758,6 +758,9 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
      	{ "CaOpxLim",   ko_optional_argument, 326 },
      	{ "fluidSpec",  ko_optional_argument, 322 },
      	{ "mbCpx",  	ko_optional_argument, 323 },
+		{ "mbIlm",  	ko_optional_argument, 324 },
+		{ "mpSp",  		ko_optional_argument, 327 },
+		{ "mpIlm",  	ko_optional_argument, 328 },
     	{ NULL, 0, 0 }
 	};
 	ketopt_t opt = KETOPT_INIT;
@@ -772,6 +775,9 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		else if (c == 326){ gv.CaOpxLim	   		= strtold(opt.arg,NULL); 	} 	
 		else if (c == 322){ gv.fluidSpec    	= atoi(opt.arg);			} 	
 		else if (c == 323){ gv.mbCpx   			= atoi(opt.arg);			} 	
+		else if (c == 324){ gv.mbIlm   			= atoi(opt.arg);			} 
+		else if (c == 327){ gv.mpSp   			= atoi(opt.arg);			} 	
+		else if (c == 328){ gv.mpIlm   			= atoi(opt.arg);			} 		
 		else if (c == 316){ gv.solver   		= atoi(opt.arg);			}																		
 		else if (c == 318){ gv.output_matlab   	= atoi(opt.arg); 			}																		
 		else if (c == 304){ gv.n_points 		= atoi(opt.arg); 	 		}
@@ -930,6 +936,9 @@ global_variable SetupDatabase(			global_variable 	 gv,
 		printf("--CaOpxLim    : CaOpxLim             = %f \n", 	 	   		gv.CaOpxLim			);
 		printf("--fluidSpec   : fluidSpec            = %i \n", 	 	   		gv.fluidSpec		);
 		printf("--mbCpx       : mbCpx                = %i \n", 	 	   		gv.mbCpx			);
+		printf("--mbIlm       : mbIlm                = %i \n", 	 	   		gv.mbIlm			);
+		printf("--mpSp        : mpSp                 = %i \n", 	 	   		gv.mpSp				);
+		printf("--mpIlm       : mpIlm                = %i \n", 	 	   		gv.mpIlm			);
 
 		printf("--out_matlab  : out_matlab           = %i \n", 	 	   		gv.output_matlab	);
 	}
