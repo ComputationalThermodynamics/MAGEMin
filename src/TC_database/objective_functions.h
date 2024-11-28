@@ -158,7 +158,7 @@ double obj_mpe_sp(unsigned  	 n, const double *x, double *grad, void *SS_ref_db)
 double obj_mpe_ilm(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mpe_ilmm(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 double obj_mpe_mt(unsigned  	 n, const double *x, double *grad, void *SS_ref_db);
-double obj_mpe_flc(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mpe_fl(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mpe_occm(unsigned 	 n, const double *x, double *grad, void *SS_ref_db);
 double obj_mpe_dio(unsigned  	 n, const double *x, double *grad, void *SS_ref_db);
 double obj_mpe_aug(unsigned   n, const double *x, double *grad, void *SS_ref_db);

@@ -10033,9 +10033,9 @@ void px_mtl_g(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
         p[0]           = x[0]*x[1] + 1.0/3.0*x[0]*x[4] -x[0] -x[1]*x[3] -x[1] -x[2] - 1.0/3.0*x[3]*x[4] + x[3] -x[4] + 1.0;
-        p[1]           = -1.0*x[0]*x[1] - 1.0/3.0*x[0]*x[4] + x[0] + x[1]*x[3] + 1.0/3.0*x[3]*x[4] -x[3];
+        p[1]           = -x[0]*x[1] - 1.0/3.0*x[0]*x[4] + x[0] + x[1]*x[3] + 1.0/3.0*x[3]*x[4] -x[3];
         p[2]           = x[1];
-        p[3]           = -1.0*x[0]*x[2] + 3.0*x[1]*x[3] + x[2] + x[3]*x[4] - 3.0*x[3];
+        p[3]           = -x[0]*x[2] + 3.0*x[1]*x[3] + x[2] + x[3]*x[4] - 3.0*x[3];
         p[4]           = x[0]*x[2] - 3.0*x[1]*x[3] -x[3]*x[4] + 3.0*x[3];
         p[5]           = x[4];
 }
@@ -10059,7 +10059,7 @@ void px_mtl_mpv(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
         p[0]           = x[0]*x[1] + x[0]*x[2] + x[0]*x[3] -x[0] -x[1] -x[2] -x[3] + 1.0;
-        p[1]           = -1.0*x[0]*x[1] -x[0]*x[2] -x[0]*x[3] + x[0];
+        p[1]           = -x[0]*x[1] -x[0]*x[2] -x[0]*x[3] + x[0];
         p[2]           = x[2];
         p[3]           = x[1];
         p[4]           = x[3];
@@ -10071,7 +10071,7 @@ void px_mtl_cpv(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
         p[0]           = x[0]*x[1] + x[0]*x[2] + x[0]*x[3] -x[0] -x[1] -x[2] -x[3] + 1.0;
-        p[1]           = -1.0*x[0]*x[1] -x[0]*x[2] -x[0]*x[3] + x[0];
+        p[1]           = -x[0]*x[1] -x[0]*x[2] -x[0]*x[3] + x[0];
         p[2]           = x[2];
         p[3]           = x[1];
         p[4]           = x[3];
@@ -10086,7 +10086,7 @@ void px_mtl_crn(void *SS_ref_db, const double *x){
     double *p = d->p;
         p[0]           = x[1];
         p[1]           = x[0]*x[1] -x[0] -x[1] + 1.0;
-        p[2]           = -1.0*x[0]*x[1] + x[0];
+        p[2]           = -x[0]*x[1] + x[0];
 }
 
     
@@ -10096,11 +10096,11 @@ void px_mtl_crn(void *SS_ref_db, const double *x){
 void px_mtl_cf(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
-        p[0]           = -1.0*x[0] -x[3] -x[4] + 1.0;
+        p[0]           = -x[0] -x[3] -x[4] + 1.0;
         p[1]           = x[3];
         p[2]           = x[0] + x[1]*x[3] + x[1]*x[4] -x[1] + x[2]*x[3] + x[2]*x[4] -x[2];
         p[3]           = x[0]*x[1] + x[2]*x[3] + x[2]*x[4] -x[2];
-        p[4]           = -1.0*x[0]*x[1] -x[1]*x[3] -x[1]*x[4] + x[1] - 2.0*x[2]*x[3] - 2.0*x[2]*x[4] + 2.0*x[2];
+        p[4]           = -x[0]*x[1] -x[1]*x[3] -x[1]*x[4] + x[1] - 2.0*x[2]*x[3] - 2.0*x[2]*x[4] + 2.0*x[2];
         p[5]           = x[4];
 }
 
@@ -10114,9 +10114,9 @@ void px_mtl_nal(void *SS_ref_db, const double *x){
         p[0]           = x[5];
         p[1]           = x[4];
         p[2]           = x[0] -x[4] - 0.833333333333333*x[5];
-        p[3]           = -1.0*x[0] + x[1]*x[4] + x[1]*x[5] -x[1] -x[2]*x[4] -x[2]*x[5] + x[2] - 0.166666666666667*x[5] + 1.0;
-        p[4]           = -1.0*x[0]*x[1] - 0.166666666666667*x[1]*x[5] + x[1] - 1.0/3.0*x[2]*x[4] - 1.0/3.0*x[2]*x[5] + 1.0/3.0*x[2] + 0.666666666666667*x[3];
-        p[5]           = -1.0*x[1]*x[4] -x[1]*x[5] + x[2]*x[4] + x[2]*x[5] -x[2] + x[3];
+        p[3]           = -x[0] + x[1]*x[4] + x[1]*x[5] -x[1] -x[2]*x[4] -x[2]*x[5] + x[2] - 0.166666666666667*x[5] + 1.0;
+        p[4]           = -x[0]*x[1] - 0.166666666666667*x[1]*x[5] + x[1] - 1.0/3.0*x[2]*x[4] - 1.0/3.0*x[2]*x[5] + 1.0/3.0*x[2] + 0.666666666666667*x[3];
+        p[5]           = -x[1]*x[4] -x[1]*x[5] + x[2]*x[4] + x[2]*x[5] -x[2] + x[3];
         p[6]           = x[0]*x[1] + 0.166666666666667*x[1]*x[5] + 1.0/3.0*x[2]*x[4] + 1.0/3.0*x[2]*x[5] - 1.0/3.0*x[2] - 1.66666666666667*x[3];
 }
 
@@ -10129,7 +10129,7 @@ void px_mtl_aki(void *SS_ref_db, const double *x){
     double *p = d->p;
         p[0]           = x[1];
         p[1]           = x[0]*x[1] -x[0] -x[1] + 1.0;
-        p[2]           = -1.0*x[0]*x[1] + x[0];
+        p[2]           = -x[0]*x[1] + x[0];
 }
 
     
@@ -10172,11 +10172,11 @@ void px_mtl_ring(void *SS_ref_db, const double *x){
 void px_mtl_cpx(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
-        p[0]           = -1.0*x[1] -x[2] -x[3] + 1.0;
-        p[1]           = -1.0*x[0]*x[1] -x[0]*x[3] + x[0] -x[1]*x[4] -x[3]*x[4] + x[4];
+        p[0]           = -x[1] -x[2] -x[3] + 1.0;
+        p[1]           = -x[0]*x[1] -x[0]*x[3] + x[0] -x[1]*x[4] -x[3]*x[4] + x[4];
         p[2]           = x[1];
         p[3]           = x[3];
-        p[4]           = -1.0*x[0]*x[2] -x[1]*x[4] + x[2] -x[3]*x[4] + x[4];
+        p[4]           = -x[0]*x[2] -x[1]*x[4] + x[2] -x[3]*x[4] + x[4];
         p[5]           = x[0]*x[1] + x[0]*x[2] + x[0]*x[3] -x[0] + 2.0*x[1]*x[4] + 2.0*x[3]*x[4] - 2.0*x[4];
 }
 
@@ -10187,8 +10187,8 @@ void px_mtl_cpx(void *SS_ref_db, const double *x){
 void px_mtl_opx(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
-        p[0]           = -1.0*x[0] -x[1] -x[2] - 0.5*x[3] + 1.0;
-        p[1]           = -1.0*x[0]*x[1] -x[0]*x[2] + x[0] - 0.5*x[3];
+        p[0]           = -x[0] -x[1] -x[2] - 0.5*x[3] + 1.0;
+        p[1]           = -x[0]*x[1] -x[0]*x[2] + x[0] - 0.5*x[3];
         p[2]           = x[0]*x[1] + x[0]*x[2] + x[3];
         p[3]           = x[2];
         p[4]           = x[1];
@@ -10201,8 +10201,8 @@ void px_mtl_opx(void *SS_ref_db, const double *x){
 void px_mtl_hpx(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
-        p[0]           = -1.0*x[0] -x[1] -x[2] - 0.5*x[3] + 1.0;
-        p[1]           = -1.0*x[0]*x[1] -x[0]*x[2] + x[0] - 0.5*x[3];
+        p[0]           = -x[0] -x[1] -x[2] - 0.5*x[3] + 1.0;
+        p[1]           = -x[0]*x[1] -x[0]*x[2] + x[0] - 0.5*x[3];
         p[2]           = x[0]*x[1] + x[0]*x[2] + x[3];
         p[3]           = x[2];
         p[4]           = x[1];
@@ -10216,11 +10216,11 @@ void dpdx_mtl_g(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double **dp_dx = d->dp_dx;
 
-    dp_dx[0][0] = x[1] + 1.0/3.0*x[4] - 1.0;      dp_dx[0][1] = x[0] -x[3] - 1.0;      dp_dx[0][2] = -1.00;      dp_dx[0][3] = -1.0*x[1] - 1.0/3.0*x[4] + 1.0;      dp_dx[0][4] = 1.0/3.0*x[0] - 1.0/3.0*x[3] - 1.0;      
-    dp_dx[1][0] = -1.0*x[1] - 1.0/3.0*x[4] + 1.0;      dp_dx[1][1] = -1.0*x[0] + x[3];      dp_dx[1][2] = 0.0;      dp_dx[1][3] = x[1] + 1.0/3.0*x[4] - 1.0;      dp_dx[1][4] = -1.0/3.0*x[0] + 1.0/3.0*x[3];      
+    dp_dx[0][0] = x[1] + 1.0/3.0*x[4] - 1.0;      dp_dx[0][1] = x[0] -x[3] - 1.0;      dp_dx[0][2] = -1.00;      dp_dx[0][3] = -x[1] - 1.0/3.0*x[4] + 1.0;      dp_dx[0][4] = 1.0/3.0*x[0] - 1.0/3.0*x[3] - 1.0;      
+    dp_dx[1][0] = -x[1] - 1.0/3.0*x[4] + 1.0;      dp_dx[1][1] = -x[0] + x[3];      dp_dx[1][2] = 0.0;      dp_dx[1][3] = x[1] + 1.0/3.0*x[4] - 1.0;      dp_dx[1][4] = -1.0/3.0*x[0] + 1.0/3.0*x[3];      
     dp_dx[2][0] = 0.0;      dp_dx[2][1] = 1.00;      dp_dx[2][2] = 0.0;      dp_dx[2][3] = 0.0;      dp_dx[2][4] = 0.0;      
-    dp_dx[3][0] = -1.0*x[2];      dp_dx[3][1] = 3.0*x[3];      dp_dx[3][2] = 1.0 -x[0];      dp_dx[3][3] = 3.0*x[1] + x[4] - 3.0;      dp_dx[3][4] = x[3];      
-    dp_dx[4][0] = x[2];      dp_dx[4][1] = -3.0*x[3];      dp_dx[4][2] = x[0];      dp_dx[4][3] = -3.0*x[1] -x[4] + 3.0;      dp_dx[4][4] = -1.0*x[3];      
+    dp_dx[3][0] = -x[2];      dp_dx[3][1] = 3.0*x[3];      dp_dx[3][2] = 1.0 -x[0];      dp_dx[3][3] = 3.0*x[1] + x[4] - 3.0;      dp_dx[3][4] = x[3];      
+    dp_dx[4][0] = x[2];      dp_dx[4][1] = -3.0*x[3];      dp_dx[4][2] = x[0];      dp_dx[4][3] = -3.0*x[1] -x[4] + 3.0;      dp_dx[4][4] = -x[3];      
     dp_dx[5][0] = 0.0;      dp_dx[5][1] = 0.0;      dp_dx[5][2] = 0.0;      dp_dx[5][3] = 0.0;      dp_dx[5][4] = 1.00;      
 }
 
@@ -10245,7 +10245,7 @@ void dpdx_mtl_mpv(void *SS_ref_db, const double *x){
     double **dp_dx = d->dp_dx;
 
     dp_dx[0][0] = x[1] + x[2] + x[3] - 1.0;      dp_dx[0][1] = x[0] - 1.0;      dp_dx[0][2] = x[0] - 1.0;      dp_dx[0][3] = x[0] - 1.0;      
-    dp_dx[1][0] = -1.0*x[1] -x[2] -x[3] + 1.0;      dp_dx[1][1] = -1.0*x[0];      dp_dx[1][2] = -1.0*x[0];      dp_dx[1][3] = -1.0*x[0];      
+    dp_dx[1][0] = -x[1] -x[2] -x[3] + 1.0;      dp_dx[1][1] = -x[0];      dp_dx[1][2] = -x[0];      dp_dx[1][3] = -x[0];      
     dp_dx[2][0] = 0.0;      dp_dx[2][1] = 0.0;      dp_dx[2][2] = 1.00;      dp_dx[2][3] = 0.0;      
     dp_dx[3][0] = 0.0;      dp_dx[3][1] = 1.00;      dp_dx[3][2] = 0.0;      dp_dx[3][3] = 0.0;      
     dp_dx[4][0] = 0.0;      dp_dx[4][1] = 0.0;      dp_dx[4][2] = 0.0;      dp_dx[4][3] = 1.00;      
@@ -10259,7 +10259,7 @@ void dpdx_mtl_cpv(void *SS_ref_db, const double *x){
     double **dp_dx = d->dp_dx;
 
     dp_dx[0][0] = x[1] + x[2] + x[3] - 1.0;      dp_dx[0][1] = x[0] - 1.0;      dp_dx[0][2] = x[0] - 1.0;      dp_dx[0][3] = x[0] - 1.0;      
-    dp_dx[1][0] = -1.0*x[1] -x[2] -x[3] + 1.0;      dp_dx[1][1] = -1.0*x[0];      dp_dx[1][2] = -1.0*x[0];      dp_dx[1][3] = -1.0*x[0];      
+    dp_dx[1][0] = -x[1] -x[2] -x[3] + 1.0;      dp_dx[1][1] = -x[0];      dp_dx[1][2] = -x[0];      dp_dx[1][3] = -x[0];      
     dp_dx[2][0] = 0.0;      dp_dx[2][1] = 0.0;      dp_dx[2][2] = 1.00;      dp_dx[2][3] = 0.0;      
     dp_dx[3][0] = 0.0;      dp_dx[3][1] = 1.00;      dp_dx[3][2] = 0.0;      dp_dx[3][3] = 0.0;      
     dp_dx[4][0] = 0.0;      dp_dx[4][1] = 0.0;      dp_dx[4][2] = 0.0;      dp_dx[4][3] = 1.00;      
@@ -10274,7 +10274,7 @@ void dpdx_mtl_crn(void *SS_ref_db, const double *x){
 
     dp_dx[0][0] = 0.0;      dp_dx[0][1] = 1.00;      
     dp_dx[1][0] = x[1] - 1.0;      dp_dx[1][1] = x[0] - 1.0;      
-    dp_dx[2][0] = 1.0 -x[1];      dp_dx[2][1] = -1.0*x[0];      
+    dp_dx[2][0] = 1.0 -x[1];      dp_dx[2][1] = -x[0];      
 }
 
 
@@ -10289,7 +10289,7 @@ void dpdx_mtl_cf(void *SS_ref_db, const double *x){
     dp_dx[1][0] = 0.0;      dp_dx[1][1] = 0.0;      dp_dx[1][2] = 0.0;      dp_dx[1][3] = 1.00;      dp_dx[1][4] = 0.0;      
     dp_dx[2][0] = 1.00;      dp_dx[2][1] = x[3] + x[4] - 1.0;      dp_dx[2][2] = x[3] + x[4] - 1.0;      dp_dx[2][3] = x[1] + x[2];      dp_dx[2][4] = x[1] + x[2];      
     dp_dx[3][0] = x[1];      dp_dx[3][1] = x[0];      dp_dx[3][2] = x[3] + x[4] - 1.0;      dp_dx[3][3] = x[2];      dp_dx[3][4] = x[2];      
-    dp_dx[4][0] = -1.0*x[1];      dp_dx[4][1] = -1.0*x[0] -x[3] -x[4] + 1.0;      dp_dx[4][2] = -2.0*x[3] - 2.0*x[4] + 2.0;      dp_dx[4][3] = -1.0*x[1] - 2.0*x[2];      dp_dx[4][4] = -1.0*x[1] - 2.0*x[2];      
+    dp_dx[4][0] = -x[1];      dp_dx[4][1] = -x[0] -x[3] -x[4] + 1.0;      dp_dx[4][2] = -2.0*x[3] - 2.0*x[4] + 2.0;      dp_dx[4][3] = -x[1] - 2.0*x[2];      dp_dx[4][4] = -x[1] - 2.0*x[2];      
     dp_dx[5][0] = 0.0;      dp_dx[5][1] = 0.0;      dp_dx[5][2] = 0.0;      dp_dx[5][3] = 0.0;      dp_dx[5][4] = 1.00;      
 }
 
@@ -10304,9 +10304,9 @@ void dpdx_mtl_nal(void *SS_ref_db, const double *x){
     dp_dx[0][0] = 0.0;      dp_dx[0][1] = 0.0;      dp_dx[0][2] = 0.0;      dp_dx[0][3] = 0.0;      dp_dx[0][4] = 0.0;      dp_dx[0][5] = 1.00;      
     dp_dx[1][0] = 0.0;      dp_dx[1][1] = 0.0;      dp_dx[1][2] = 0.0;      dp_dx[1][3] = 0.0;      dp_dx[1][4] = 1.00;      dp_dx[1][5] = 0.0;      
     dp_dx[2][0] = 1.00;      dp_dx[2][1] = 0.0;      dp_dx[2][2] = 0.0;      dp_dx[2][3] = 0.0;      dp_dx[2][4] = -1.00;      dp_dx[2][5] = -0.833333333333333;      
-    dp_dx[3][0] = -1.00;      dp_dx[3][1] = x[4] + x[5] - 1.0;      dp_dx[3][2] = -1.0*x[4] -x[5] + 1.0;      dp_dx[3][3] = 0.0;      dp_dx[3][4] = x[1] -x[2];      dp_dx[3][5] = x[1] -x[2] - 0.166666666666667;      
-    dp_dx[4][0] = -1.0*x[1];      dp_dx[4][1] = -1.0*x[0] - 0.166666666666667*x[5] + 1.0;      dp_dx[4][2] = -1.0/3.0*x[4] - 1.0/3.0*x[5] + 1.0/3.0;      dp_dx[4][3] = 0.666666666666667;      dp_dx[4][4] = -1.0/3.0*x[2];      dp_dx[4][5] = -0.166666666666667*x[1] - 1.0/3.0*x[2];      
-    dp_dx[5][0] = 0.0;      dp_dx[5][1] = -1.0*x[4] -x[5];      dp_dx[5][2] = x[4] + x[5] - 1.0;      dp_dx[5][3] = 1.00;      dp_dx[5][4] = -1.0*x[1] + x[2];      dp_dx[5][5] = -1.0*x[1] + x[2];      
+    dp_dx[3][0] = -1.00;      dp_dx[3][1] = x[4] + x[5] - 1.0;      dp_dx[3][2] = -x[4] -x[5] + 1.0;      dp_dx[3][3] = 0.0;      dp_dx[3][4] = x[1] -x[2];      dp_dx[3][5] = x[1] -x[2] - 0.166666666666667;      
+    dp_dx[4][0] = -x[1];      dp_dx[4][1] = -x[0] - 0.166666666666667*x[5] + 1.0;      dp_dx[4][2] = -1.0/3.0*x[4] - 1.0/3.0*x[5] + 1.0/3.0;      dp_dx[4][3] = 0.666666666666667;      dp_dx[4][4] = -1.0/3.0*x[2];      dp_dx[4][5] = -0.166666666666667*x[1] - 1.0/3.0*x[2];      
+    dp_dx[5][0] = 0.0;      dp_dx[5][1] = -x[4] -x[5];      dp_dx[5][2] = x[4] + x[5] - 1.0;      dp_dx[5][3] = 1.00;      dp_dx[5][4] = -x[1] + x[2];      dp_dx[5][5] = -x[1] + x[2];      
     dp_dx[6][0] = x[1];      dp_dx[6][1] = x[0] + 0.166666666666667*x[5];      dp_dx[6][2] = 1.0/3.0*x[4] + 1.0/3.0*x[5] - 1.0/3.0;      dp_dx[6][3] = -1.66666666666667;      dp_dx[6][4] = 1.0/3.0*x[2];      dp_dx[6][5] = 0.166666666666667*x[1] + 1.0/3.0*x[2];      
 }
 
@@ -10320,7 +10320,7 @@ void dpdx_mtl_aki(void *SS_ref_db, const double *x){
 
     dp_dx[0][0] = 0.0;      dp_dx[0][1] = 1.00;      
     dp_dx[1][0] = x[1] - 1.0;      dp_dx[1][1] = x[0] - 1.0;      
-    dp_dx[2][0] = 1.0 -x[1];      dp_dx[2][1] = -1.0*x[0];      
+    dp_dx[2][0] = 1.0 -x[1];      dp_dx[2][1] = -x[0];      
 }
 
 
@@ -10368,10 +10368,10 @@ void dpdx_mtl_cpx(void *SS_ref_db, const double *x){
     double **dp_dx = d->dp_dx;
 
     dp_dx[0][0] = 0.0;      dp_dx[0][1] = -1.00;      dp_dx[0][2] = -1.00;      dp_dx[0][3] = -1.00;      dp_dx[0][4] = 0.0;      
-    dp_dx[1][0] = -1.0*x[1] -x[3] + 1.0;      dp_dx[1][1] = -1.0*x[0] -x[4];      dp_dx[1][2] = 0.0;      dp_dx[1][3] = -1.0*x[0] -x[4];      dp_dx[1][4] = -1.0*x[1] -x[3] + 1.0;      
+    dp_dx[1][0] = -x[1] -x[3] + 1.0;      dp_dx[1][1] = -x[0] -x[4];      dp_dx[1][2] = 0.0;      dp_dx[1][3] = -x[0] -x[4];      dp_dx[1][4] = -x[1] -x[3] + 1.0;      
     dp_dx[2][0] = 0.0;      dp_dx[2][1] = 1.00;      dp_dx[2][2] = 0.0;      dp_dx[2][3] = 0.0;      dp_dx[2][4] = 0.0;      
     dp_dx[3][0] = 0.0;      dp_dx[3][1] = 0.0;      dp_dx[3][2] = 0.0;      dp_dx[3][3] = 1.00;      dp_dx[3][4] = 0.0;      
-    dp_dx[4][0] = -1.0*x[2];      dp_dx[4][1] = -1.0*x[4];      dp_dx[4][2] = 1.0 -x[0];      dp_dx[4][3] = -1.0*x[4];      dp_dx[4][4] = -1.0*x[1] -x[3] + 1.0;      
+    dp_dx[4][0] = -x[2];      dp_dx[4][1] = -x[4];      dp_dx[4][2] = 1.0 -x[0];      dp_dx[4][3] = -x[4];      dp_dx[4][4] = -x[1] -x[3] + 1.0;      
     dp_dx[5][0] = x[1] + x[2] + x[3] - 1.0;      dp_dx[5][1] = x[0] + 2.0*x[4];      dp_dx[5][2] = x[0];      dp_dx[5][3] = x[0] + 2.0*x[4];      dp_dx[5][4] = 2.0*x[1] + 2.0*x[3] - 2.0;      
 }
 
@@ -10384,7 +10384,7 @@ void dpdx_mtl_opx(void *SS_ref_db, const double *x){
     double **dp_dx = d->dp_dx;
 
     dp_dx[0][0] = -1.00;      dp_dx[0][1] = -1.00;      dp_dx[0][2] = -1.00;      dp_dx[0][3] = -0.500;      
-    dp_dx[1][0] = -1.0*x[1] -x[2] + 1.0;      dp_dx[1][1] = -1.0*x[0];      dp_dx[1][2] = -1.0*x[0];      dp_dx[1][3] = -0.500;      
+    dp_dx[1][0] = -x[1] -x[2] + 1.0;      dp_dx[1][1] = -x[0];      dp_dx[1][2] = -x[0];      dp_dx[1][3] = -0.500;      
     dp_dx[2][0] = x[1] + x[2];      dp_dx[2][1] = x[0];      dp_dx[2][2] = x[0];      dp_dx[2][3] = 1.00;      
     dp_dx[3][0] = 0.0;      dp_dx[3][1] = 0.0;      dp_dx[3][2] = 1.00;      dp_dx[3][3] = 0.0;      
     dp_dx[4][0] = 0.0;      dp_dx[4][1] = 1.00;      dp_dx[4][2] = 0.0;      dp_dx[4][3] = 0.0;      
@@ -10399,7 +10399,7 @@ void dpdx_mtl_hpx(void *SS_ref_db, const double *x){
     double **dp_dx = d->dp_dx;
 
     dp_dx[0][0] = -1.00;      dp_dx[0][1] = -1.00;      dp_dx[0][2] = -1.00;      dp_dx[0][3] = -0.500;      
-    dp_dx[1][0] = -1.0*x[1] -x[2] + 1.0;      dp_dx[1][1] = -1.0*x[0];      dp_dx[1][2] = -1.0*x[0];      dp_dx[1][3] = -0.500;      
+    dp_dx[1][0] = -x[1] -x[2] + 1.0;      dp_dx[1][1] = -x[0];      dp_dx[1][2] = -x[0];      dp_dx[1][3] = -0.500;      
     dp_dx[2][0] = x[1] + x[2];      dp_dx[2][1] = x[0];      dp_dx[2][2] = x[0];      dp_dx[2][3] = 1.00;      
     dp_dx[3][0] = 0.0;      dp_dx[3][1] = 0.0;      dp_dx[3][2] = 1.00;      dp_dx[3][3] = 0.0;      
     dp_dx[4][0] = 0.0;      dp_dx[4][1] = 1.00;      dp_dx[4][2] = 0.0;      dp_dx[4][3] = 0.0;      
@@ -11656,9 +11656,9 @@ void dpdx_mpe_mt(void *SS_ref_db, const double *x){
 
 
 /**
-    Update dpdx matrix of flc
+    Update dpdx matrix of fl
 */
-void dpdx_mpe_flc(void *SS_ref_db, const double *x){
+void dpdx_mpe_fl(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double **dp_dx = d->dp_dx;
 
@@ -11703,12 +11703,12 @@ void dpdx_mpe_hb(void *SS_ref_db, const double *x){
 
     dp_dx[0][0] = 0.0;      dp_dx[0][1] = -1.0;      dp_dx[0][2] = 1.0;      dp_dx[0][3] = -0.50;      dp_dx[0][4] = 0.0;      dp_dx[0][5] = 1.0;      dp_dx[0][6] = -1.0;      dp_dx[0][7] = -1.0;      dp_dx[0][8] = 0.0;      dp_dx[0][9] = 0.0;      
     dp_dx[1][0] = 0.0;      dp_dx[1][1] = 1.0;      dp_dx[1][2] = -1.0;      dp_dx[1][3] = -0.50;      dp_dx[1][4] = 0.0;      dp_dx[1][5] = 0.0;      dp_dx[1][6] = 1.0;      dp_dx[1][7] = 0.0;      dp_dx[1][8] = 0.0;      dp_dx[1][9] = 0.0;      
-    dp_dx[2][0] = 0.0;      dp_dx[2][1] = 0.0;      dp_dx[2][2] = 0.0;      dp_dx[2][3] = 1.0 - 1.0*x[4];      dp_dx[2][4] = -1.0*x[3];      dp_dx[2][5] = 0.0;      dp_dx[2][6] = 0.0;      dp_dx[2][7] = 0.0;      dp_dx[2][8] = 0.0;      dp_dx[2][9] = 0.0;      
+    dp_dx[2][0] = 0.0;      dp_dx[2][1] = 0.0;      dp_dx[2][2] = 0.0;      dp_dx[2][3] = 1.0 - x[4];      dp_dx[2][4] = -x[3];      dp_dx[2][5] = 0.0;      dp_dx[2][6] = 0.0;      dp_dx[2][7] = 0.0;      dp_dx[2][8] = 0.0;      dp_dx[2][9] = 0.0;      
     dp_dx[3][0] = 0.0;      dp_dx[3][1] = 0.0;      dp_dx[3][2] = 1.0;      dp_dx[3][3] = 0.0;      dp_dx[3][4] = 0.0;      dp_dx[3][5] = 0.0;      dp_dx[3][6] = -1.0;      dp_dx[3][7] = 0.0;      dp_dx[3][8] = 0.0;      dp_dx[3][9] = 0.0;      
     dp_dx[4][0] = x[2] + x[5] - 1.0;      dp_dx[4][1] = x[9];      dp_dx[4][2] = x[0] - 1.0;      dp_dx[4][3] = 0.0;      dp_dx[4][4] = 0.0;      dp_dx[4][5] = x[0] - 1.0;      dp_dx[4][6] = x[9];      dp_dx[4][7] = x[9];      dp_dx[4][8] = -1.5;      dp_dx[4][9] = x[1] + x[6] + x[7] - 1.0;      
-    dp_dx[5][0] = -1.0*x[1] + x[2] + x[5] - 1.0*x[6] - 1.0*x[7] + 1.0;      dp_dx[5][1] = -1.0*x[0] + 2.0*x[9];      dp_dx[5][2] = x[0];      dp_dx[5][3] = 0.0;      dp_dx[5][4] = 0.0;      dp_dx[5][5] = x[0];      dp_dx[5][6] = -1.0*x[0] + 2.0*x[9];      dp_dx[5][7] = -1.0*x[0] + 2.0*x[9];      dp_dx[5][8] = -2.5;      dp_dx[5][9] = 2.0*x[1] + 2.0*x[6] + 2.0*x[7] - 2.0;      
-    dp_dx[6][0] = -1.0*x[2] - 1.0*x[5];      dp_dx[6][1] = -1.0*x[9];      dp_dx[6][2] = -1.0*x[0];      dp_dx[6][3] = 0.0;      dp_dx[6][4] = 0.0;      dp_dx[6][5] = -1.0*x[0];      dp_dx[6][6] = -1.0*x[9];      dp_dx[6][7] = -1.0*x[9];      dp_dx[6][8] = 2.5;      dp_dx[6][9] = -1.0*x[1] - 1.0*x[6] - 1.0*x[7] + 1.0;      
-    dp_dx[7][0] = x[1] - 1.0*x[2] - 1.0*x[5] + x[6] + x[7];      dp_dx[7][1] = x[0] - 2.0*x[9];      dp_dx[7][2] = -1.0*x[0];      dp_dx[7][3] = 0.0;      dp_dx[7][4] = 0.0;      dp_dx[7][5] = -1.0*x[0];      dp_dx[7][6] = x[0] - 2.0*x[9];      dp_dx[7][7] = x[0] - 2.0*x[9];      dp_dx[7][8] = 1.5;      dp_dx[7][9] = -2.0*x[1] - 2.0*x[6] - 2.0*x[7] + 2.0;      
+    dp_dx[5][0] = -x[1] + x[2] + x[5] - x[6] - x[7] + 1.0;      dp_dx[5][1] = -x[0] + 2.0*x[9];      dp_dx[5][2] = x[0];      dp_dx[5][3] = 0.0;      dp_dx[5][4] = 0.0;      dp_dx[5][5] = x[0];      dp_dx[5][6] = -x[0] + 2.0*x[9];      dp_dx[5][7] = -x[0] + 2.0*x[9];      dp_dx[5][8] = -2.5;      dp_dx[5][9] = 2.0*x[1] + 2.0*x[6] + 2.0*x[7] - 2.0;      
+    dp_dx[6][0] = -x[2] - x[5];      dp_dx[6][1] = -x[9];      dp_dx[6][2] = -x[0];      dp_dx[6][3] = 0.0;      dp_dx[6][4] = 0.0;      dp_dx[6][5] = -x[0];      dp_dx[6][6] = -x[9];      dp_dx[6][7] = -x[9];      dp_dx[6][8] = 2.5;      dp_dx[6][9] = -x[1] - x[6] - x[7] + 1.0;      
+    dp_dx[7][0] = x[1] - x[2] - x[5] + x[6] + x[7];      dp_dx[7][1] = x[0] - 2.0*x[9];      dp_dx[7][2] = -x[0];      dp_dx[7][3] = 0.0;      dp_dx[7][4] = 0.0;      dp_dx[7][5] = -x[0];      dp_dx[7][6] = x[0] - 2.0*x[9];      dp_dx[7][7] = x[0] - 2.0*x[9];      dp_dx[7][8] = 1.5;      dp_dx[7][9] = -2.0*x[1] - 2.0*x[6] - 2.0*x[7] + 2.0;      
     dp_dx[8][0] = 0.0;      dp_dx[8][1] = 0.0;      dp_dx[8][2] = 0.0;      dp_dx[8][3] = 0.0;      dp_dx[8][4] = 0.0;      dp_dx[8][5] = 0.0;      dp_dx[8][6] = 1.0;      dp_dx[8][7] = 0.0;      dp_dx[8][8] = 0.0;      dp_dx[8][9] = 0.0;      
     dp_dx[9][0] = 0.0;      dp_dx[9][1] = 0.0;      dp_dx[9][2] = 0.0;      dp_dx[9][3] = x[4];      dp_dx[9][4] = x[3];      dp_dx[9][5] = 0.0;      dp_dx[9][6] = 0.0;      dp_dx[9][7] = 0.0;      dp_dx[9][8] = 0.0;      dp_dx[9][9] = 0.0;      
     dp_dx[10][0] = 0.0;      dp_dx[10][1] = 0.0;      dp_dx[10][2] = 0.0;      dp_dx[10][3] = 0.0;      dp_dx[10][4] = 0.0;      dp_dx[10][5] = 0.0;      dp_dx[10][6] = 0.0;      dp_dx[10][7] = 1.0;      dp_dx[10][8] = 0.0;      dp_dx[10][9] = 0.0;      
@@ -11724,12 +11724,12 @@ void dpdx_mpe_aug(void *SS_ref_db, const double *x){
 
     dp_dx[0][0] = 0.0;      dp_dx[0][1] = -1.0;      dp_dx[0][2] = 0.0;      dp_dx[0][3] = 1.0;      dp_dx[0][4] = 0.0;      dp_dx[0][5] = 0.0;      dp_dx[0][6] = 0.0;      
     dp_dx[1][0] = x[3] + x[4] - 1.0;      dp_dx[1][1] = 0.0;      dp_dx[1][2] = 0.0;      dp_dx[1][3] = x[0] + 0.5*x[5] - 1.0;      dp_dx[1][4] = x[0] + 0.5*x[5] - 1.0;      dp_dx[1][5] = 0.5*x[3] + 0.5*x[4] - 0.5;      dp_dx[1][6] = 0.0;      
-    dp_dx[2][0] = -1.0*x[1] - 1.0*x[4] + 1.0;      dp_dx[2][1] = -1.0*x[0];      dp_dx[2][2] = 0.0;      dp_dx[2][3] = 0.5*x[5];      dp_dx[2][4] = -1.0*x[0] + 0.5*x[5];      dp_dx[2][5] = 0.5*x[3] + 0.5*x[4] - 0.5;      dp_dx[2][6] = 0.0;      
+    dp_dx[2][0] = -x[1] - x[4] + 1.0;      dp_dx[2][1] = -x[0];      dp_dx[2][2] = 0.0;      dp_dx[2][3] = 0.5*x[5];      dp_dx[2][4] = -x[0] + 0.5*x[5];      dp_dx[2][5] = 0.5*x[3] + 0.5*x[4] - 0.5;      dp_dx[2][6] = 0.0;      
     dp_dx[3][0] = 0.0;      dp_dx[3][1] = 0.0;      dp_dx[3][2] = -1.0;      dp_dx[3][3] = 0.0;      dp_dx[3][4] = 1.0;      dp_dx[3][5] = 0.0;      dp_dx[3][6] = 0.0;      
     dp_dx[4][0] = 0.0;      dp_dx[4][1] = 0.0;      dp_dx[4][2] = 1.0;      dp_dx[4][3] = 0.0;      dp_dx[4][4] = 0.0;      dp_dx[4][5] = 0.0;      dp_dx[4][6] = 0.0;      
     dp_dx[5][0] = 0.0;      dp_dx[5][1] = 0.0;      dp_dx[5][2] = 0.0;      dp_dx[5][3] = 0.0;      dp_dx[5][4] = 0.0;      dp_dx[5][5] = 0.0;      dp_dx[5][6] = 1.0;      
     dp_dx[6][0] = 0.0;      dp_dx[6][1] = 1.0;      dp_dx[6][2] = 0.0;      dp_dx[6][3] = 0.0;      dp_dx[6][4] = 0.0;      dp_dx[6][5] = 0.0;      dp_dx[6][6] = -1.0;      
-    dp_dx[7][0] = x[1] - 1.0*x[3];      dp_dx[7][1] = x[0];      dp_dx[7][2] = 0.0;      dp_dx[7][3] = -1.0*x[0] - 1.0*x[5];      dp_dx[7][4] = -1.0*x[5];      dp_dx[7][5] = -1.0*x[3] - 1.0*x[4] + 1.0;      dp_dx[7][6] = 0.0;      
+    dp_dx[7][0] = x[1] - x[3];      dp_dx[7][1] = x[0];      dp_dx[7][2] = 0.0;      dp_dx[7][3] = -x[0] - x[5];      dp_dx[7][4] = -x[5];      dp_dx[7][5] = -x[3] - x[4] + 1.0;      dp_dx[7][6] = 0.0;      
 }
 
 
@@ -11740,15 +11740,505 @@ void dpdx_mpe_dio(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double **dp_dx = d->dp_dx;
 
-    dp_dx[0][0] = 0.0;      dp_dx[0][1] = 1.0 - 1.0*x[2];      dp_dx[0][2] = -1.0*x[1];      dp_dx[0][3] = -1.0;      dp_dx[0][4] = -1.0;      dp_dx[0][5] = 0.0;      
-    dp_dx[1][0] = x[1] - 1.0*x[3] - 1.0;      dp_dx[1][1] = x[0] - 1.0*x[5] - 1.0;      dp_dx[1][2] = 0.0;      dp_dx[1][3] = -1.0*x[0] - 1.0*x[5] - 1.0;      dp_dx[1][4] = 0.0;      dp_dx[1][5] = -1.0*x[1] - 1.0*x[3] + 1.0;      
-    dp_dx[2][0] = -1.0*x[1] - 1.0*x[3] + 1.0;      dp_dx[2][1] = -1.0*x[0] - 1.0*x[5];      dp_dx[2][2] = 0.0;      dp_dx[2][3] = -1.0*x[0] - 1.0*x[5];      dp_dx[2][4] = 0.0;      dp_dx[2][5] = -1.0*x[1] - 1.0*x[3] + 1.0;      
+    dp_dx[0][0] = 0.0;      dp_dx[0][1] = 1.0 - x[2];      dp_dx[0][2] = -x[1];      dp_dx[0][3] = -1.0;      dp_dx[0][4] = -1.0;      dp_dx[0][5] = 0.0;      
+    dp_dx[1][0] = x[1] - x[3] - 1.0;      dp_dx[1][1] = x[0] - x[5] - 1.0;      dp_dx[1][2] = 0.0;      dp_dx[1][3] = -x[0] - x[5] - 1.0;      dp_dx[1][4] = 0.0;      dp_dx[1][5] = -x[1] - x[3] + 1.0;      
+    dp_dx[2][0] = -x[1] - x[3] + 1.0;      dp_dx[2][1] = -x[0] - x[5];      dp_dx[2][2] = 0.0;      dp_dx[2][3] = -x[0] - x[5];      dp_dx[2][4] = 0.0;      dp_dx[2][5] = -x[1] - x[3] + 1.0;      
     dp_dx[3][0] = 0.0;      dp_dx[3][1] = x[2];      dp_dx[3][2] = x[1];      dp_dx[3][3] = 0.0;      dp_dx[3][4] = -1.0;      dp_dx[3][5] = 0.0;      
     dp_dx[4][0] = 0.0;      dp_dx[4][1] = 0.0;      dp_dx[4][2] = 0.0;      dp_dx[4][3] = 2.0;      dp_dx[4][4] = 0.0;      dp_dx[4][5] = 0.0;      
     dp_dx[5][0] = 2.0*x[3];      dp_dx[5][1] = 2.0*x[5];      dp_dx[5][2] = 0.0;      dp_dx[5][3] = 2.0*x[0] + 2.0*x[5];      dp_dx[5][4] = 0.0;      dp_dx[5][5] = 2.0*x[1] + 2.0*x[3] - 2.0;      
     dp_dx[6][0] = 0.0;      dp_dx[6][1] = 0.0;      dp_dx[6][2] = 0.0;      dp_dx[6][3] = 0.0;      dp_dx[6][4] = 2.0;      dp_dx[6][5] = 0.0;      
 }
 
+
+/**
+    Endmember to xeos for bi_mp
+*/
+void p2x_mpe_bi(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[1]  = d->p[6];
+    d->iguess[3]  = d->p[5];
+    d->iguess[4]  = d->p[4];
+    d->iguess[2]  = d->p[3];
+    d->iguess[5]  = 3.0*(-d->iguess[3]*d->p[1] + d->iguess[3] - 3.0*d->iguess[1]*d->p[1] + d->iguess[1] + d->p[0] - d->p[1]*d->iguess[4] - d->p[1]*d->iguess[2] + d->p[1] + d->iguess[4] + d->iguess[2] - 1.0)/(d->iguess[3] + 3.0*d->iguess[1] + d->iguess[4] + d->iguess[2] - 3.0);
+    d->iguess[0]  = (-d->p[2] + d->iguess[5])/(d->iguess[3] + 3.0*d->iguess[1] + d->iguess[4] + d->iguess[2]);
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+
+/**
+    Endmember to xeos for cd_mp
+*/
+void p2x_mpe_cd(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+
+    d->iguess[1]  = d->p[3];
+    d->iguess[2]  = d->p[2];
+    d->iguess[0] = d->p[1]/(1.0 - d->p[3]);
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+
+/**
+    Endmember to xeos for chl_mp
+*/
+void p2x_mpe_chl(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[2]   =  d->p[6];
+    d->iguess[3]   =  d->p[7];
+    d->iguess[4] = (d->iguess[3] + 1.0 - d->iguess[2] -(d->p[1] - d->p[3]+d->p[5]-d->p[0] + d->p[2]+d->p[4]))/4.0;
+    d->iguess[1]   =  d->p[2] + d->iguess[4];
+    d->iguess[0]  = (-2.0*d->iguess[4] + d->iguess[3] + d->p[0] - 4.0*d->p[3] - 5.0*d->p[4] - d->p[5])/(d->iguess[2] + 5.0*d->iguess[3] + 2.0*d->iguess[1] - 6.0);
+    d->iguess[6]  = (-2.0*pow(d->iguess[4],2.0) - 2.0*d->iguess[4]*d->iguess[2] + d->iguess[4]*d->iguess[3] + d->iguess[4]*d->p[0] - 4.0*d->iguess[4]*d->p[3] - 5.0*d->iguess[4]*d->p[4] - d->iguess[4]*d->p[5] - 2.0*d->iguess[4]*d->iguess[1] + 2.0*d->iguess[4] + d->iguess[2]*d->iguess[3] + d->iguess[2]*d->p[0] - 4.0*d->iguess[2]*d->p[3] - 4.0*d->iguess[2]*d->p[4] - d->iguess[2]*d->p[5] + 5.0*d->iguess[3]*d->p[4] + d->iguess[3]*d->iguess[1] - d->iguess[3] + d->p[0]*d->iguess[1] - d->p[0] - 4.0*d->p[3]*d->iguess[1] + 4.0*d->p[3] - 3.0*d->p[4]*d->iguess[1] - d->p[4] - d->p[5]*d->iguess[1] + d->p[5])/(d->iguess[4]*d->iguess[2] + 5.0*d->iguess[4]*d->iguess[3] + 2.0*d->iguess[4]*d->iguess[1] - 6.0*d->iguess[4] + pow(d->iguess[2],2.0) + 5.0*d->iguess[2]*d->iguess[3] + 3.0*d->iguess[2]*d->iguess[1] - 7.0*d->iguess[2] + 5.0*d->iguess[3]*d->iguess[1] - 5.0*d->iguess[3] + 2.0*pow(d->iguess[1],2.0) - 8.0*d->iguess[1] + 6.0);
+    d->iguess[5]  = (10.0*pow(d->iguess[4],2.0) - 2.0*d->iguess[4]*d->iguess[2] - 25.0*d->iguess[4]*d->iguess[3] - 5.0*d->iguess[4]*d->p[0] + 20.0*d->iguess[4]*d->p[3] + 25.0*d->iguess[4]*d->p[4] + 5.0*d->iguess[4]*d->p[5] - 14.0*d->iguess[4]*d->iguess[1] + 22.0*d->iguess[4] - 4.0*pow(d->iguess[2],2.0) - 21.0*d->iguess[2]*d->iguess[3] - d->iguess[2]*d->p[0] - 4.0*d->iguess[2]*d->p[1] + 4.0*d->iguess[2]*d->p[3] - 4.0*d->iguess[2]*d->p[4] + d->iguess[2]*d->p[5] - 12.0*d->iguess[2]*d->iguess[1] + 28.0*d->iguess[2] - 20.0*d->iguess[3]*d->p[1] - 45.0*d->iguess[3]*d->p[4] - 17.0*d->iguess[3]*d->iguess[1] + 21.0*d->iguess[3] + 3.0*d->p[0]*d->iguess[1] + d->p[0] - 8.0*d->p[1]*d->iguess[1] + 24.0*d->p[1] - 12.0*d->p[3]*d->iguess[1] - 4.0*d->p[3] - 33.0*d->p[4]*d->iguess[1] + 49.0*d->p[4] - 3.0*d->p[5]*d->iguess[1] - d->p[5] - 8.0*pow(d->iguess[1],2.0) + 32.0*d->iguess[1] - 24.0)/(5.0*(-d->iguess[4]*d->iguess[2] - 5.0*d->iguess[4]*d->iguess[3] - 2.0*d->iguess[4]*d->iguess[1] + 6.0*d->iguess[4] + d->iguess[2]*d->iguess[3] + d->iguess[2]*d->iguess[1] - d->iguess[2] + 5.0*pow(d->iguess[3],2.0) + 7.0*d->iguess[3]*d->iguess[1] - 11.0*d->iguess[3] + 2.0*pow(d->iguess[1],2.0) - 8.0*d->iguess[1] + 6.0));
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+
+/**
+    Endmember to xeos for ctd_mp
+*/
+void p2x_mpe_ctd(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[2]  = d->p[3];
+    d->iguess[1]  = d->p[2];
+    d->iguess[0] = d->p[1]/(1.0 - d->iguess[1]);
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+
+/**
+    Endmember to xeos for ep_mp
+*/
+void p2x_mpe_ep(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[1]   =  d->p[1]/2.0;
+    d->iguess[0]   =  d->p[2] + d->iguess[1];
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+
+/**
+    Endmember to xeos for g_mp
+*/
+void p2x_mpe_g(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[3]   =  d->p[4];
+    d->iguess[1]   =  d->p[3];
+    d->iguess[2]   =  d->p[2];
+    d->iguess[0]  =  d->p[1]/(1.0 - d->iguess[2] - d->iguess[1]);
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+
+/**
+    Endmember to xeos for ilm
+*/
+void p2x_mpe_ilm(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[1]   = d->p[0];
+    d->iguess[0]  = d->p[1] + d->iguess[1];
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+
+/**
+    Endmember to xeos for ilmm_mp
+*/
+void p2x_mpe_ilmm(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[2]  = d->p[4];
+    d->iguess[1]  = d->p[3];
+    d->iguess[3]  = d->p[0];
+    d->iguess[0]  = 1.0 - d->p[2];
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+ 
+/**
+    Endmember to xeos for liq_mp
+*/
+void p2x_mpe_liq(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[0]   = d->p[0];
+    d->iguess[3]  = d->p[3];
+    d->iguess[6] = d->p[7];
+    d->iguess[1] = d->p[1] + d->p[2];
+    d->iguess[2]  = d->p[1]/d->iguess[1];
+    d->iguess[4]  = 1.0 - d->iguess[0] - d->iguess[1] - d->iguess[3] - d->iguess[6] - d->p[4];
+    d->iguess[5]   = d->p[6]/d->iguess[4];
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+ 
+/**
+    Endmember to xeos for ma_mp
+*/
+void p2x_mpe_ma(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[2]  = d->p[5];
+    d->iguess[4]  = d->p[4];
+    d->iguess[3]  = d->p[3];
+    d->iguess[1]  = d->p[0] + d->iguess[4] + d->iguess[3] + d->iguess[2];
+    d->iguess[0] = d->p[2]/(1.0-d->iguess[1]);
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+ 
+/**
+    Endmember to xeos for mt_mp
+*/
+void p2x_mpe_mt(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[0]  = 1.0 - d->p[2];
+    d->iguess[1]   = (3.0*d->iguess[0] - d->p[1])/3.0;
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+  
+/**
+    Endmember to xeos for mu_mp
+*/
+void p2x_mpe_mu(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[2]  = d->p[5];
+    d->iguess[4]  = d->p[4];
+    d->iguess[3]  = d->p[3];
+    d->iguess[1]  = d->p[0] + d->iguess[4] + d->iguess[3] + d->iguess[2];
+    d->iguess[0] = d->p[2]/(1.0-d->iguess[1]);
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+
+/**
+    Endmember to xeos for opx_mp
+*/
+void p2x_mpe_opx(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[4]  = d->p[6];
+    d->iguess[1]  = d->p[5];
+    d->iguess[3]  = d->p[4];
+    d->iguess[2]  = d->p[3];
+    d->iguess[0] = (-2.0*d->p[1] - d->p[2])/(d->iguess[4] + d->iguess[3] + 2.0*d->iguess[1] + d->iguess[2] - 2.0);
+    d->iguess[5]  = 2.0*(pow(d->iguess[4], 2) + 2.0*d->iguess[4]*d->iguess[3] + 3.0*d->iguess[4]*d->iguess[1] + d->iguess[4]*d->p[0] + 2.0*d->iguess[4]*d->p[1] + d->iguess[4]*d->p[2] + 2.0*d->iguess[4]*d->iguess[2] - 3.0*d->iguess[4] + pow(d->iguess[3], 2) + 3.0*d->iguess[3]*d->iguess[1] + d->iguess[3]*d->p[0] + 2.0*d->iguess[3]*d->iguess[2] - 3.0*d->iguess[3] + 2.0*pow(d->iguess[1], 2) + 2.0*d->iguess[1]*d->p[0] + 2.0*d->iguess[1]*d->p[1] + d->iguess[1]*d->p[2] + 3.0*d->iguess[1]*d->iguess[2] - 4.0*d->iguess[1] + d->p[0]*d->iguess[2] - 2.0*d->p[0] - 2.0*d->p[1] - d->p[2] + pow(d->iguess[2], 2) - 3.0*d->iguess[2] + 2.0)/(pow(d->iguess[4], 2) + d->iguess[4]*d->iguess[3] + 3.0*d->iguess[4]*d->iguess[1] + d->iguess[4]*d->iguess[2] - 3.0*d->iguess[4] + d->iguess[3]*d->iguess[1] - d->iguess[3] + 2.0*pow(d->iguess[1], 2) + d->iguess[1]*d->iguess[2] - 4.0*d->iguess[1] - d->iguess[2] + 2.0);
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+    
+/**
+    Endmember to xeos for fsp_mp
+*/
+void p2x_mpe_fsp(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[1]   = d->p[2];
+    d->iguess[0]  = d->p[1];
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+
+/**
+    Endmember to xeos for sa_mp
+*/
+void p2x_mpe_sa(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[2]  = d->p[4];
+    d->iguess[1]  = d->p[1];
+    d->iguess[0] = (4.0*d->iguess[2] + 4.0*d->p[0] + d->p[3] + 4.0*d->iguess[1] - 4.0)/(d->iguess[2] + d->iguess[1] - 4.0);
+    d->iguess[3]  = 4.0/3.0*(-4.0*pow(d->iguess[2], 2) - 4.0*d->iguess[2]*d->p[0] - d->iguess[2]*d->p[2] - d->iguess[2]*d->p[3] - 8.0*d->iguess[2]*d->iguess[1] + 8.0*d->iguess[2] - 4.0*d->p[0]*d->iguess[1] + 4.0*d->p[0] - d->p[2]*d->iguess[1] + 4.0*d->p[2] - d->p[3]*d->iguess[1] + d->p[3] - 4.0*pow(d->iguess[1], 2) + 8.0*d->iguess[1] - 4.0)/(d->iguess[2] + d->iguess[1] - 4.0);
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+
+
+/**
+    Endmember to xeos for sp_mp
+*/
+void p2x_mpe_sp(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[2]  = d->p[3];
+    d->iguess[1]  = 1.0 - d->p[2] - d->iguess[2];
+    d->iguess[0] = (-d->p[1] + d->iguess[2] + 1.0)/(d->iguess[2] + 1.0);
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+
+/**
+    Endmember to xeos for st_mp
+*/
+void p2x_mpe_st(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[3]  = d->p[4]/(4.0/3.0);
+    d->iguess[2]  = d->p[3];
+    d->iguess[1]  = d->p[2];
+    d->iguess[0] = d->p[1]/(1.0 - d->iguess[1]);
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+
+/**
+    Endmember to xeos for po
+*/
+void p2x_mpe_po(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[0]  = (1.0-d->p[1])/8.0;
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+
+/**
+    Endmember to xeos for aug
+*/
+void p2x_mpe_aug(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[6]  = d->p[5];
+    d->iguess[1]    = d->p[6] + d->iguess[6];
+    d->iguess[2]    = d->p[4];
+    d->iguess[4]    = d->iguess[2] + d->p[3];
+    d->iguess[3]    = d->p[0] + d->iguess[1];
+    d->iguess[0]   = (2.0*d->iguess[4] + 2.0*d->p[1] + d->p[7] + 2.0*d->iguess[3] - 2.0)/(2.0*d->iguess[4] + d->iguess[1] + d->iguess[3] - 2.0);
+    d->iguess[5]   = (4.0*d->iguess[4]*d->p[1] + 4.0*d->iguess[4]*d->p[2] + 2.0*d->iguess[4]*d->p[7] + 4.0*d->iguess[4]*d->iguess[1] + 4.0*d->iguess[4]*d->iguess[3] - 8.0*d->iguess[4] + 4.0*d->iguess[4]*d->iguess[4] + 4.0*d->p[1]*d->iguess[1] - 4.0*d->p[1] + 2.0*d->p[2]*d->iguess[1] + 2.0*d->p[2]*d->iguess[3] - 4.0*d->p[2] + 2.0*d->p[7]*d->iguess[1] - 2.0*d->p[7] + 4.0*d->iguess[1]*d->iguess[3] - 4.0*d->iguess[1] - 4.0*d->iguess[3] + 4.0)/(d->iguess[4]*d->iguess[1] + 3.0*d->iguess[4]*d->iguess[3] - 4.0*d->iguess[4] + 2.0*d->iguess[4]*d->iguess[4] + d->iguess[1]*d->iguess[3] -d->iguess[1] - 3.0*d->iguess[3] + d->iguess[3]*d->iguess[3] + 2.0);
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+
+/**
+    Endmember to xeos for dio
+*/
+void p2x_mpe_dio(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[4]  = 0.5*d->p[6];
+    d->iguess[3]  = 0.5*d->p[4];
+    d->iguess[1]    = d->iguess[3] + d->p[0] + d->p[3] + 2.0*d->iguess[4];
+    d->iguess[5]   = (d->iguess[3]*d->p[2] + 0.5*d->iguess[3]*d->p[5] + 0.5*d->iguess[1]*d->p[5] - 0.5*d->p[5])/(d->iguess[3]*d->iguess[1] -d->iguess[3] - 2.0*d->iguess[1] + d->iguess[1]*d->iguess[1] + 1.0);
+    d->iguess[0]   = (-d->iguess[3]*d->iguess[5] -d->iguess[1]*d->iguess[5] + 0.5*d->p[5] + d->iguess[5])/d->iguess[3];
+    d->iguess[2]    = (-d->iguess[3] + d->iguess[1] -d->p[0] -d->iguess[4])/d->iguess[1];
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+
+/**
+    Endmember to xeos for hb
+*/
+void p2x_mpe_hb(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[7]   = d->p[10];
+    d->iguess[6]   = d->p[8];
+    d->iguess[2]   = d->iguess[6] + d->p[3];
+    d->iguess[3]   = d->p[2] + d->p[9];
+    d->iguess[4]   = d->p[9]/(d->p[2] + d->p[9]);
+    d->iguess[5]   = d->iguess[3] + d->p[0] + d->p[1] + d->iguess[7];
+    d->iguess[1]   = -0.5*d->iguess[3] + d->iguess[5] -d->iguess[6] -d->p[0] -d->iguess[7] + d->iguess[2];
+    d->iguess[0]  = (5.0*d->iguess[5] + 5.0*d->p[4] - 2.0*d->p[5] + d->p[6] + 5.0*d->iguess[2] - 5.0)/(2.0*d->iguess[5] + 2.0*d->iguess[6] + 2.0*d->iguess[7] + 2.0*d->iguess[1] + 2.0*d->iguess[2] - 7.0);
+    d->iguess[8]  = -0.4*d->iguess[5]*d->iguess[0] + 2.0*d->iguess[5] - 0.4*d->iguess[6]*d->iguess[0] + 2.0*d->p[4] - 0.4*d->p[5] + 1.2*d->p[6] - 0.4*d->iguess[7]*d->iguess[0] - 0.4*d->iguess[0]*d->iguess[1] - 0.4*d->iguess[0]*d->iguess[2] + 2.4*d->iguess[0] + 2.0*d->iguess[2] - 2.0;
+    d->iguess[9]  = (-2.0*d->iguess[5]*d->iguess[0] + 5.0*d->iguess[5] + 5.0*d->p[4] + 3.0*d->p[6] - 2.0*d->iguess[0]*d->iguess[2] + 5.0*d->iguess[0] + 5.0*d->iguess[2] - 5.0)/(2.0*d->iguess[6] + 2.0*d->iguess[7] + 2.0*d->iguess[1] - 2.0);
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+
+/**
+    Endmember to xeos for fl
+*/
+void p2x_mpe_fl(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[0]  = d->p[1];
+
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+
+/**
+    Endmember to xeos for occm
+*/
+void p2x_mpe_occm(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[3]  = d->p[4];
+    d->iguess[2]  = d->p[1] + d->p[4];
+    d->iguess[1]  = d->p[3] + 0.25*d->p[4];
+    d->iguess[0]  = -d->p[0] + 1.0 - d->iguess[1] -0.5*d->iguess[2];
+
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
 
 /**
     Endmember fraction of liq_mp
@@ -11974,12 +12464,12 @@ void px_mpe_mt(void *SS_ref_db, const double *x){
 
     
 /**
-    Endmember fraction of flc
+    Endmember fraction of fl
 */
-void px_mpe_flc(void *SS_ref_db, const double *x){
+void px_mpe_fl(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
-        p[0]           = 1.0 - 1.0*x[0];
+        p[0]           = 1.0 - x[0];
         p[1]           = x[0];
 }
 
@@ -11990,8 +12480,8 @@ void px_mpe_flc(void *SS_ref_db, const double *x){
 void px_mpe_occm(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
-        p[0]           = -1.0*x[0] - 1.0*x[1] - 0.5*x[2] + 1.0;
-        p[1]           = x[2] - 1.0*x[3];
+        p[0]           = -x[0] - x[1] - 0.5*x[2] + 1.0;
+        p[1]           = x[2] - x[3];
         p[2]           = x[0] - 0.5*x[2] + 0.25*x[3];
         p[3]           = x[1] - 0.25*x[3];
         p[4]           = x[3];
@@ -12015,14 +12505,14 @@ void px_mpe_po(void *SS_ref_db, const double *x){
 void px_mpe_hb(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
-        p[0]           = -1.0*x[1] + x[2] - 0.5*x[3] + x[5] - 1.0*x[6] - 1.0*x[7];
-        p[1]           = x[1] - 1.0*x[2] - 0.5*x[3] + x[6];
-        p[2]           = -1.0*x[3]*x[4] + x[3];
-        p[3]           = x[2] - 1.0*x[6];
-        p[4]           = x[0]*x[2] + x[0]*x[5] - 1.0*x[0] + x[1]*x[9] - 1.0*x[2] - 1.0*x[5] + x[6]*x[9] + x[7]*x[9] - 1.5*x[8] - 1.0*x[9] + 1.0;
-        p[5]           = -1.0*x[0]*x[1] + x[0]*x[2] + x[0]*x[5] - 1.0*x[0]*x[6] - 1.0*x[0]*x[7] + x[0] + 2.0*x[1]*x[9] + 2.0*x[6]*x[9] + 2.0*x[7]*x[9] - 2.5*x[8] - 2.0*x[9];
-        p[6]           = -1.0*x[0]*x[2] - 1.0*x[0]*x[5] - 1.0*x[1]*x[9] - 1.0*x[6]*x[9] - 1.0*x[7]*x[9] + 2.5*x[8] + x[9];
-        p[7]           = x[0]*x[1] - 1.0*x[0]*x[2] - 1.0*x[0]*x[5] + x[0]*x[6] + x[0]*x[7] - 2.0*x[1]*x[9] - 2.0*x[6]*x[9] - 2.0*x[7]*x[9] + 1.5*x[8] + 2.0*x[9];
+        p[0]           = -x[1] + x[2] - 0.5*x[3] + x[5] - x[6] - x[7];
+        p[1]           = x[1] - x[2] - 0.5*x[3] + x[6];
+        p[2]           = -x[3]*x[4] + x[3];
+        p[3]           = x[2] - x[6];
+        p[4]           = x[0]*x[2] + x[0]*x[5] - x[0] + x[1]*x[9] - x[2] - x[5] + x[6]*x[9] + x[7]*x[9] - 1.5*x[8] - x[9] + 1.0;
+        p[5]           = -x[0]*x[1] + x[0]*x[2] + x[0]*x[5] - x[0]*x[6] - x[0]*x[7] + x[0] + 2.0*x[1]*x[9] + 2.0*x[6]*x[9] + 2.0*x[7]*x[9] - 2.5*x[8] - 2.0*x[9];
+        p[6]           = -x[0]*x[2] - x[0]*x[5] - x[1]*x[9] - x[6]*x[9] - x[7]*x[9] + 2.5*x[8] + x[9];
+        p[7]           = x[0]*x[1] - x[0]*x[2] - x[0]*x[5] + x[0]*x[6] + x[0]*x[7] - 2.0*x[1]*x[9] - 2.0*x[6]*x[9] - 2.0*x[7]*x[9] + 1.5*x[8] + 2.0*x[9];
         p[8]           = x[6];
         p[9]           = x[3]*x[4];
         p[10]           = x[7];
@@ -12035,14 +12525,14 @@ void px_mpe_hb(void *SS_ref_db, const double *x){
 void px_mpe_aug(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
-        p[0]           = -1.0*x[1] + x[3];
-        p[1]           = x[0]*x[3] + x[0]*x[4] - 1.0*x[0] + 0.5*x[3]*x[5] - 1.0*x[3] + 0.5*x[4]*x[5] - 1.0*x[4] - 0.5*x[5] + 1.0;
-        p[2]           = -1.0*x[0]*x[1] - 1.0*x[0]*x[4] + x[0] + 0.5*x[3]*x[5] + 0.5*x[4]*x[5] - 0.5*x[5];
-        p[3]           = -1.0*x[2] + x[4];
+        p[0]           = -x[1] + x[3];
+        p[1]           = x[0]*x[3] + x[0]*x[4] - x[0] + 0.5*x[3]*x[5] - x[3] + 0.5*x[4]*x[5] - x[4] - 0.5*x[5] + 1.0;
+        p[2]           = -x[0]*x[1] - x[0]*x[4] + x[0] + 0.5*x[3]*x[5] + 0.5*x[4]*x[5] - 0.5*x[5];
+        p[3]           = -x[2] + x[4];
         p[4]           = x[2];
         p[5]           = x[6];
-        p[6]           = x[1] - 1.0*x[6];
-        p[7]           = x[0]*x[1] - 1.0*x[0]*x[3] - 1.0*x[3]*x[5] - 1.0*x[4]*x[5] + x[5];
+        p[6]           = x[1] - x[6];
+        p[7]           = x[0]*x[1] - x[0]*x[3] - x[3]*x[5] - x[4]*x[5] + x[5];
 }
 
     
@@ -12052,10 +12542,10 @@ void px_mpe_aug(void *SS_ref_db, const double *x){
 void px_mpe_dio(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
-        p[0]           = -1.0*x[1]*x[2] + x[1] - 1.0*x[3] - 1.0*x[4];
-        p[1]           = x[0]*x[1] - 1.0*x[0]*x[3] - 1.0*x[0] - 1.0*x[1]*x[5] - 1.0*x[1] - 1.0*x[3]*x[5] - 1.0*x[3] + x[5] + 1.0;
-        p[2]           = -1.0*x[0]*x[1] - 1.0*x[0]*x[3] + x[0] - 1.0*x[1]*x[5] - 1.0*x[3]*x[5] + x[5];
-        p[3]           = x[1]*x[2] - 1.0*x[4];
+        p[0]           = -x[1]*x[2] + x[1] - x[3] - x[4];
+        p[1]           = x[0]*x[1] - x[0]*x[3] - x[0] - x[1]*x[5] - x[1] - x[3]*x[5] - x[3] + x[5] + 1.0;
+        p[2]           = -x[0]*x[1] - x[0]*x[3] + x[0] - x[1]*x[5] - x[3]*x[5] + x[5];
+        p[3]           = x[1]*x[2] - x[4];
         p[4]           = 2.0*x[3];
         p[5]           = 2.0*x[0]*x[3] + 2.0*x[1]*x[5] + 2.0*x[3]*x[5] - 2.0*x[5];
         p[6]           = 2.0*x[4];
@@ -13397,9 +13887,9 @@ double obj_mpe_mt(unsigned n, const double *x, double *grad, void *SS_ref_db){
 }
     
 /**
-    Objective function of flc
+    Objective function of fl
 */
-double obj_mpe_flc(unsigned n, const double *x, double *grad, void *SS_ref_db){
+double obj_mpe_fl(unsigned n, const double *x, double *grad, void *SS_ref_db){
     SS_ref *d         = (SS_ref *) SS_ref_db;
 
     int n_em          = d->n_em;
@@ -13411,15 +13901,15 @@ double obj_mpe_flc(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double *mu_Gex    = d->mu_Gex;
     double *sf        = d->sf;
     double *mu        = d->mu;
-    px_mpe_flc(SS_ref_db,x);
+    double *d_em      = d->d_em;
+    px_mpe_fl(SS_ref_db,x);
 
     
     sf[0]          = 1.0 - x[0];
-    sf[1]          = 1.0*x[0];
+    sf[1]          = x[0];
     
-    
-    mu[0]          = gb[0] + R*T*creal(clog(sf[0]));
-    mu[1]          = gb[1] + R*T*creal(clog(sf[1]));
+    mu[0]          = gb[0] + R*T*creal(clog(sf[0]+ d_em[0]));
+    mu[1]          = gb[1] + R*T*creal(clog(sf[1]+ d_em[1]));
     
     d->sum_apep = 0.0;
     for (int i = 0; i < n_em; i++){
@@ -13436,7 +13926,7 @@ double obj_mpe_flc(unsigned n, const double *x, double *grad, void *SS_ref_db){
     if (grad){
         double *dfx    = d->dfx;
         double **dp_dx = d->dp_dx;
-        dpdx_mpe_flc(SS_ref_db,x);
+        dpdx_mpe_fl(SS_ref_db,x);
         for (int i = 0; i < (d->n_xeos); i++){
             dfx[i] = 0.0;
             for (int j = 0; j < n_em; j++){
@@ -13487,14 +13977,14 @@ double obj_mpe_occm(unsigned n, const double *x, double *grad, void *SS_ref_db){
     }
     
     sf[0]          = -x[0] - x[1] + 0.5*x[2] + 1.0;
-    sf[1]          = 1.0*x[0] - 0.5*x[2] + 0.25*x[3];
-    sf[2]          = 1.0*x[1] - 0.25*x[3];
+    sf[1]          = x[0] - 0.5*x[2] + 0.25*x[3];
+    sf[2]          = x[1] - 0.25*x[3];
     sf[3]          = -x[0] - x[1] - 0.5*x[2] + 1.0;
-    sf[4]          = 1.0*x[0] + 0.5*x[2] - 0.75*x[3];
-    sf[5]          = 1.0*x[1] + 0.75*x[3];
+    sf[4]          = x[0] + 0.5*x[2] - 0.75*x[3];
+    sf[5]          = x[1] + 0.75*x[3];
     sf[6]          = -x[0] - x[1] - 0.5*x[2] + 1.0;
-    sf[7]          = 1.0*x[0] + 0.5*x[2] + 0.25*x[3];
-    sf[8]          = 1.0*x[1] - 0.25*x[3];
+    sf[7]          = x[0] + 0.5*x[2] + 0.25*x[3];
+    sf[8]          = x[1] - 0.25*x[3];
     
     
     mu[0]          = gb[0] + R*T*creal(clog(sqrt(sf[0])*cpow(sf[3], 0.25)*cpow(sf[6], 0.25))) + mu_Gex[0];
@@ -14158,6 +14648,64 @@ void TC_mp_P2X_init(	            P2X_type 			*P2X_read,
 	};	
 }
 
+
+void TC_mpe_P2X_init(	            P2X_type 			*P2X_read,
+									global_variable 	 gv				){	
+						 					 
+	for (int iss = 0; iss < gv.len_ss; iss++){
+
+		if      (strcmp( gv.SS_list[iss], "liq")   == 0 ){
+			P2X_read[iss]  = p2x_mpe_liq; 		}
+		else if (strcmp( gv.SS_list[iss], "fsp") == 0){
+			P2X_read[iss]  = p2x_mpe_fsp; 		}
+		else if (strcmp( gv.SS_list[iss], "bi")    == 0){
+			P2X_read[iss]  = p2x_mpe_bi; 		}
+		else if (strcmp( gv.SS_list[iss], "g")     == 0){
+			P2X_read[iss]  = p2x_mpe_g; 			}
+		else if (strcmp( gv.SS_list[iss], "ep")    == 0){
+			P2X_read[iss]  = p2x_mpe_ep; 		}
+		else if (strcmp( gv.SS_list[iss], "ma")    == 0){
+			P2X_read[iss]  = p2x_mpe_ma; 		}
+		else if (strcmp( gv.SS_list[iss], "mu")    == 0){
+			P2X_read[iss]  = p2x_mpe_mu; 		}
+		else if (strcmp( gv.SS_list[iss], "opx")   == 0){
+			P2X_read[iss]  = p2x_mpe_opx; 		}
+		else if (strcmp( gv.SS_list[iss], "sa")    == 0){
+			P2X_read[iss]  = p2x_mpe_sa; 		}
+		else if (strcmp( gv.SS_list[iss], "cd")    == 0){
+			P2X_read[iss]  = p2x_mpe_cd; 		}
+		else if (strcmp( gv.SS_list[iss], "st")    == 0){
+			P2X_read[iss]  = p2x_mpe_st; 		}
+		else if (strcmp( gv.SS_list[iss], "chl")   == 0){
+			P2X_read[iss]  = p2x_mpe_chl; 		}
+		else if (strcmp( gv.SS_list[iss], "ctd")   == 0){
+			P2X_read[iss]  = p2x_mpe_ctd; 		}
+		else if (strcmp( gv.SS_list[iss], "sp")    == 0){
+			P2X_read[iss]  = p2x_mpe_sp; 		}
+		else if (strcmp( gv.SS_list[iss], "ilm")   == 0){
+			P2X_read[iss]  = p2x_mpe_ilm; 		}
+		else if (strcmp( gv.SS_list[iss], "ilmm")   == 0){
+			P2X_read[iss]  = p2x_mpe_ilmm; 		}
+		else if (strcmp( gv.SS_list[iss], "mt")    == 0){
+			P2X_read[iss]  = p2x_mpe_mt; 		}
+		else if (strcmp( gv.SS_list[iss], "fl")   == 0){
+			P2X_read[iss]  = p2x_mpe_fl; 		}
+		else if (strcmp( gv.SS_list[iss], "occm")   == 0){
+			P2X_read[iss]  = p2x_mpe_occm; 		}
+		else if (strcmp( gv.SS_list[iss], "aug")    == 0){
+			P2X_read[iss]  = p2x_mpe_aug; 		}
+		else if (strcmp( gv.SS_list[iss], "dio")   == 0){
+			P2X_read[iss]  = p2x_mpe_dio; 		}
+		else if (strcmp( gv.SS_list[iss], "po")   == 0){
+			P2X_read[iss]  = p2x_mpe_po; 		}
+		else if (strcmp( gv.SS_list[iss], "hb")    == 0){
+			P2X_read[iss]  = p2x_mpe_hb; 		}
+		else{
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
+		}	
+	};	
+}
+
 void TC_mb_P2X_init(	            P2X_type 			*P2X_read,
 									global_variable 	 gv				){	
 						 					 
@@ -14339,7 +14887,10 @@ void TC_P2X_init(	                P2X_type 			*P2X_read,
 		TC_um_P2X_init(			            P2X_read,
 											gv							);
 	}
-
+	else if (gv.EM_database == 7){			// ultramafic database //
+		TC_mpe_P2X_init(			        P2X_read,
+											gv							);
+	}
 }
 
 /* ==================================================================================== */
@@ -14679,8 +15230,8 @@ void TC_mpe_objective_init_function(	obj_type 			*SS_objective,
 			SS_objective[iss]  = obj_mpe_ilmm; 		}
 		else if (strcmp( gv.SS_list[iss], "mt")    == 0){
 			SS_objective[iss]  = obj_mpe_mt; 		}
-		else if (strcmp( gv.SS_list[iss], "flc")   == 0){
-			SS_objective[iss]  = obj_mpe_flc; 		}
+		else if (strcmp( gv.SS_list[iss], "fl")   == 0){
+			SS_objective[iss]  = obj_mpe_fl; 		}
 		else if (strcmp( gv.SS_list[iss], "occm")   == 0){
 			SS_objective[iss]  = obj_mpe_occm; 		}
 		else if (strcmp( gv.SS_list[iss], "aug")    == 0){
@@ -15061,8 +15612,8 @@ void TC_mpe_PC_init(	                PC_type 			*PC_read,
 			PC_read[iss]  = obj_mpe_ilmm; 		        }
 		else if (strcmp( gv.SS_list[iss], "mt")    == 0){
 			PC_read[iss]  = obj_mpe_mt; 		            }
-		else if (strcmp( gv.SS_list[iss], "flc")   == 0){
-			PC_read[iss]  = obj_mpe_flc; 		        }
+		else if (strcmp( gv.SS_list[iss], "fl")   == 0){
+			PC_read[iss]  = obj_mpe_fl; 		        }
 		else if (strcmp( gv.SS_list[iss], "occm")   == 0){
 			PC_read[iss]  = obj_mpe_occm; 		        }
 		else if (strcmp( gv.SS_list[iss], "aug")    == 0){

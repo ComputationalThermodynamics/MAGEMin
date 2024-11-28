@@ -7751,9 +7751,9 @@ SS_ref NLopt_opt_aq17_function(global_variable gv, SS_ref SS_ref_db){
     Inequality constraints for g
 */
 void g_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
-    result[0] = (-1.0*x[0]*x[1] - 1.0/3.0*x[0]*x[4] + x[0] + x[1]*x[3] + x[1] + 1.0/3.0*x[3]*x[4] -x[3] + 1.0/3.0*x[4] - 1.0);
+    result[0] = (-x[0]*x[1] - 1.0/3.0*x[0]*x[4] + x[0] + x[1]*x[3] + x[1] + 1.0/3.0*x[3]*x[4] -x[3] + 1.0/3.0*x[4] - 1.0);
     result[1] = (x[0]*x[1] + 1.0/3.0*x[0]*x[4] -x[0] -x[1]*x[3] - 1.0/3.0*x[3]*x[4] + x[3]);
-    result[2] = (-1.0*x[1]);
+    result[2] = (-x[1]);
     result[3] = (-1.0/3.0*x[4]);
     result[4] = (x[2] + 0.5*x[4] - 1.0);
     result[5] = (0.5*x[0]*x[2] - 1.5*x[1]*x[3] - 0.5*x[2] - 0.5*x[3]*x[4] + 1.5*x[3]);
@@ -7761,15 +7761,15 @@ void g_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *gr
     result[7] = (-0.5*x[2] - 0.5*x[4]);
 
     if (grad) {
-        grad[0] = -1.0*x[1] - 1.0/3.0*x[4] + 1.0;
-        grad[1] = -1.0*x[0] + x[3] + 1.0;
+        grad[0] = -x[1] - 1.0/3.0*x[4] + 1.0;
+        grad[1] = -x[0] + x[3] + 1.0;
         grad[2] = 0.0;
         grad[3] = x[1] + 1.0/3.0*x[4] - 1.0;
         grad[4] = -1.0/3.0*x[0] + 1.0/3.0*x[3] + 1.0/3.0;
         grad[5] = x[1] + 1.0/3.0*x[4] - 1.0;
         grad[6] = x[0] -x[3];
         grad[7] = 0.0;
-        grad[8] = -1.0*x[1] - 1.0/3.0*x[4] + 1.0;
+        grad[8] = -x[1] - 1.0/3.0*x[4] + 1.0;
         grad[9] = 1.0/3.0*x[0] - 1.0/3.0*x[3];
         grad[10] = 0.0;
         grad[11] = -1.0;
@@ -7811,7 +7811,7 @@ void g_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *gr
 */
 void fp_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = (x[0] - 1.0);
-    result[1] = (-1.0*x[0]);
+    result[1] = (-x[0]);
 
     if (grad) {
         grad[0] = 1.0;
@@ -7825,12 +7825,12 @@ void fp_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *g
     Inequality constraints for mpv
 */
 void mpv_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
-    result[0] = (-1.0*x[2]);
-    result[1] = (-1.0*x[0]*x[1] -x[0]*x[2] -x[0]*x[3] + x[0] + x[1] + x[2] + x[3] - 1.0);
+    result[0] = (-x[2]);
+    result[1] = (-x[0]*x[1] -x[0]*x[2] -x[0]*x[3] + x[0] + x[1] + x[2] + x[3] - 1.0);
     result[2] = (x[0]*x[1] + x[0]*x[2] + x[0]*x[3] -x[0]);
     result[3] = (-0.5*x[3]);
-    result[4] = (-1.0*x[1] - 0.5*x[3]);
-    result[5] = (-1.0*x[1]);
+    result[4] = (-x[1] - 0.5*x[3]);
+    result[5] = (-x[1]);
     result[6] = (x[1] - 1.0);
 
     if (grad) {
@@ -7838,7 +7838,7 @@ void mpv_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *
         grad[1] = 0.0;
         grad[2] = -1.0;
         grad[3] = 0.0;
-        grad[4] = -1.0*x[1] -x[2] -x[3] + 1.0;
+        grad[4] = -x[1] -x[2] -x[3] + 1.0;
         grad[5] = 1.0 -x[0];
         grad[6] = 1.0 -x[0];
         grad[7] = 1.0 -x[0];
@@ -7871,12 +7871,12 @@ void mpv_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *
     Inequality constraints for cpv
 */
 void cpv_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
-    result[0] = (-1.0*x[2]);
-    result[1] = (-1.0*x[0]*x[1] -x[0]*x[2] -x[0]*x[3] + x[0] + x[1] + x[2] + x[3] - 1.0);
+    result[0] = (-x[2]);
+    result[1] = (-x[0]*x[1] -x[0]*x[2] -x[0]*x[3] + x[0] + x[1] + x[2] + x[3] - 1.0);
     result[2] = (x[0]*x[1] + x[0]*x[2] + x[0]*x[3] -x[0]);
     result[3] = (-0.5*x[3]);
-    result[4] = (-1.0*x[1] - 0.5*x[3]);
-    result[5] = (-1.0*x[1]);
+    result[4] = (-x[1] - 0.5*x[3]);
+    result[5] = (-x[1]);
     result[6] = (x[1] - 1.0);
 
     if (grad) {
@@ -7884,7 +7884,7 @@ void cpv_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *
         grad[1] = 0.0;
         grad[2] = -1.0;
         grad[3] = 0.0;
-        grad[4] = -1.0*x[1] -x[2] -x[3] + 1.0;
+        grad[4] = -x[1] -x[2] -x[3] + 1.0;
         grad[5] = 1.0 -x[0];
         grad[6] = 1.0 -x[0];
         grad[7] = 1.0 -x[0];
@@ -7916,10 +7916,10 @@ void cpv_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *
     Inequality constraints for crn
 */
 void crn_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
-    result[0] = (-1.0*x[0]*x[1] + x[0] + x[1] - 1.0);
+    result[0] = (-x[0]*x[1] + x[0] + x[1] - 1.0);
     result[1] = (x[0]*x[1] -x[0]);
-    result[2] = (-1.0*x[1]);
-    result[3] = (-1.0*x[1]);
+    result[2] = (-x[1]);
+    result[3] = (-x[1]);
     result[4] = (x[1] - 1.0);
 
     if (grad) {
@@ -7942,10 +7942,10 @@ void crn_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *
     Inequality constraints for cf
 */
 void cf_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
-    result[0] = (-1.0*x[3]);
-    result[1] = (-1.0*x[1]*x[3] -x[1]*x[4] + x[1] -x[2]*x[3] -x[2]*x[4] + x[2] + x[3] + x[4] - 1.0);
+    result[0] = (-x[3]);
+    result[1] = (-x[1]*x[3] -x[1]*x[4] + x[1] -x[2]*x[3] -x[2]*x[4] + x[2] + x[3] + x[4] - 1.0);
     result[2] = (x[1]*x[3] + x[1]*x[4] -x[1] + x[2]*x[3] + x[2]*x[4] -x[2]);
-    result[3] = (-1.0*x[4]);
+    result[3] = (-x[4]);
     result[4] = (0.5*x[0]*x[1] - 0.5*x[0] + 0.5*x[2]*x[3] + 0.5*x[2]*x[4] - 0.5*x[2]);
     result[5] = (-0.5*x[0]*x[1] - 0.5*x[2]*x[3] - 0.5*x[2]*x[4] + 0.5*x[2]);
     result[6] = (x[0] + 0.5*x[4] - 1.0);
@@ -7958,10 +7958,10 @@ void cf_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *g
         grad[3] = -1.0;
         grad[4] = 0.0;
         grad[5] = 0.0;
-        grad[6] = -1.0*x[3] -x[4] + 1.0;
-        grad[7] = -1.0*x[3] -x[4] + 1.0;
-        grad[8] = -1.0*x[1] -x[2] + 1.0;
-        grad[9] = -1.0*x[1] -x[2] + 1.0;
+        grad[6] = -x[3] -x[4] + 1.0;
+        grad[7] = -x[3] -x[4] + 1.0;
+        grad[8] = -x[1] -x[2] + 1.0;
+        grad[9] = -x[1] -x[2] + 1.0;
         grad[10] = 0.0;
         grad[11] = x[3] + x[4] - 1.0;
         grad[12] = x[3] + x[4] - 1.0;
@@ -8001,15 +8001,15 @@ void cf_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *g
     Inequality constraints for nal
 */
 void nal_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
-    result[0] = (-1.0*x[4]);
-    result[1] = (-1.0*x[1]*x[4] -x[1]*x[5] + x[1] + x[2]*x[4] + x[2]*x[5] -x[2] + x[4] + x[5] - 1.0);
+    result[0] = (-x[4]);
+    result[1] = (-x[1]*x[4] -x[1]*x[5] + x[1] + x[2]*x[4] + x[2]*x[5] -x[2] + x[4] + x[5] - 1.0);
     result[2] = (x[1]*x[4] + x[1]*x[5] -x[1] -x[2]*x[4] -x[2]*x[5] + x[2]);
-    result[3] = (-1.0*x[5]);
+    result[3] = (-x[5]);
     result[4] = (x[1] -x[3] - 1.0);
-    result[5] = (-1.0*x[1] + x[3]);
+    result[5] = (-x[1] + x[3]);
     result[6] = (-0.5*x[0]*x[1] + 0.5*x[0] - 0.0833333333333333*x[1]*x[5] + 0.5*x[1] - 0.166666666666667*x[2]*x[4] - 0.166666666666667*x[2]*x[5] + 0.166666666666667*x[2] + 1.0/3.0*x[3] + 0.0833333333333333*x[5] - 0.5);
     result[7] = (0.5*x[0]*x[1] + 0.0833333333333333*x[1]*x[5] - 0.5*x[1] + 0.166666666666667*x[2]*x[4] + 0.166666666666667*x[2]*x[5] - 0.166666666666667*x[2] - 1.0/3.0*x[3]);
-    result[8] = (-1.0*x[0]);
+    result[8] = (-x[0]);
     result[9] = (0.5*x[0] - 0.0833333333333333*x[5] - 0.5);
 
     if (grad) {
@@ -8020,14 +8020,14 @@ void nal_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *
         grad[4] = -1.0;
         grad[5] = 0.0;
         grad[6] = 0.0;
-        grad[7] = -1.0*x[4] -x[5] + 1.0;
+        grad[7] = -x[4] -x[5] + 1.0;
         grad[8] = x[4] + x[5] - 1.0;
         grad[9] = 0.0;
-        grad[10] = -1.0*x[1] + x[2] + 1.0;
-        grad[11] = -1.0*x[1] + x[2] + 1.0;
+        grad[10] = -x[1] + x[2] + 1.0;
+        grad[11] = -x[1] + x[2] + 1.0;
         grad[12] = 0.0;
         grad[13] = x[4] + x[5] - 1.0;
-        grad[14] = -1.0*x[4] -x[5] + 1.0;
+        grad[14] = -x[4] -x[5] + 1.0;
         grad[15] = 0.0;
         grad[16] = x[1] -x[2];
         grad[17] = x[1] -x[2];
@@ -8082,10 +8082,10 @@ void nal_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *
     Inequality constraints for aki
 */
 void aki_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
-    result[0] = (-1.0*x[1]);
-    result[1] = (-1.0*x[0]*x[1] + x[0] + x[1] - 1.0);
+    result[0] = (-x[1]);
+    result[1] = (-x[0]*x[1] + x[0] + x[1] - 1.0);
     result[2] = (x[0]*x[1] -x[0]);
-    result[3] = (-1.0*x[1]);
+    result[3] = (-x[1]);
     result[4] = (x[1] - 1.0);
 
     if (grad) {
@@ -8109,7 +8109,7 @@ void aki_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *
 */
 void ol_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = (x[0] - 1.0);
-    result[1] = (-1.0*x[0]);
+    result[1] = (-x[0]);
 
     if (grad) {
         grad[0] = 1.0;
@@ -8124,7 +8124,7 @@ void ol_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *g
 */
 void wad_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = (x[0] - 1.0);
-    result[1] = (-1.0*x[0]);
+    result[1] = (-x[0]);
 
     if (grad) {
         grad[0] = 1.0;
@@ -8139,7 +8139,7 @@ void wad_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *
 */
 void ring_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = (x[0] - 1.0);
-    result[1] = (-1.0*x[0]);
+    result[1] = (-x[0]);
 
     if (grad) {
         grad[0] = 1.0;
@@ -8153,22 +8153,22 @@ void ring_mtl_c(unsigned m, double *result, unsigned n, const double *x, double 
     Inequality constraints for cpx
 */
 void cpx_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
-    result[0] = (-1.0*x[0]*x[1] -x[0]*x[3] + x[0] -x[1]*x[4] + x[1] -x[3]*x[4] + x[3] + x[4] - 1.0);
+    result[0] = (-x[0]*x[1] -x[0]*x[3] + x[0] -x[1]*x[4] + x[1] -x[3]*x[4] + x[3] + x[4] - 1.0);
     result[1] = (x[0]*x[1] + x[0]*x[3] -x[0] + x[1]*x[4] + x[3]*x[4] -x[4]);
-    result[2] = (-1.0*x[1] -x[3]);
+    result[2] = (-x[1] -x[3]);
     result[3] = (x[0]*x[2] + x[1]*x[4] -x[2] + x[3]*x[4] -x[4]);
-    result[4] = (-1.0*x[0]*x[2] -x[1]*x[4] -x[3]*x[4] + x[4]);
+    result[4] = (-x[0]*x[2] -x[1]*x[4] -x[3]*x[4] + x[4]);
     result[5] = (x[2] + x[3] - 1.0);
-    result[6] = (-1.0*x[3]);
+    result[6] = (-x[3]);
     result[7] = (0.5*x[1] - 1.0);
     result[8] = (-0.5*x[1]);
 
     if (grad) {
-        grad[0] = -1.0*x[1] -x[3] + 1.0;
-        grad[1] = -1.0*x[0] -x[4] + 1.0;
+        grad[0] = -x[1] -x[3] + 1.0;
+        grad[1] = -x[0] -x[4] + 1.0;
         grad[2] = 0.0;
-        grad[3] = -1.0*x[0] -x[4] + 1.0;
-        grad[4] = -1.0*x[1] -x[3] + 1.0;
+        grad[3] = -x[0] -x[4] + 1.0;
+        grad[4] = -x[1] -x[3] + 1.0;
         grad[5] = x[1] + x[3] - 1.0;
         grad[6] = x[0] + x[4];
         grad[7] = 0.0;
@@ -8184,11 +8184,11 @@ void cpx_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *
         grad[17] = x[0] - 1.0;
         grad[18] = x[4];
         grad[19] = x[1] + x[3] - 1.0;
-        grad[20] = -1.0*x[2];
-        grad[21] = -1.0*x[4];
-        grad[22] = -1.0*x[0];
-        grad[23] = -1.0*x[4];
-        grad[24] = -1.0*x[1] -x[3] + 1.0;
+        grad[20] = -x[2];
+        grad[21] = -x[4];
+        grad[22] = -x[0];
+        grad[23] = -x[4];
+        grad[24] = -x[1] -x[3] + 1.0;
         grad[25] = 0.0;
         grad[26] = 0.0;
         grad[27] = 1.0;
@@ -8218,19 +8218,19 @@ void cpx_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *
     Inequality constraints for opx
 */
 void opx_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
-    result[0] = (-1.0*x[0]*x[1] -x[0]*x[2] + x[0] + x[1] - 0.5*x[3] - 1.0);
+    result[0] = (-x[0]*x[1] -x[0]*x[2] + x[0] + x[1] - 0.5*x[3] - 1.0);
     result[1] = (x[0]*x[1] + x[0]*x[2] -x[0] + 0.5*x[3]);
-    result[2] = (-1.0*x[1]);
-    result[3] = (-1.0*x[2]);
+    result[2] = (-x[1]);
+    result[3] = (-x[2]);
     result[4] = (x[0] + x[2] + 0.5*x[3] - 1.0);
-    result[5] = (-1.0*x[0] - 0.5*x[3]);
+    result[5] = (-x[0] - 0.5*x[3]);
     result[6] = (0.5*x[1] - 1.0);
     result[7] = (-0.5*x[1]);
 
     if (grad) {
-        grad[0] = -1.0*x[1] -x[2] + 1.0;
+        grad[0] = -x[1] -x[2] + 1.0;
         grad[1] = 1.0 -x[0];
-        grad[2] = -1.0*x[0];
+        grad[2] = -x[0];
         grad[3] = -0.50;
         grad[4] = x[1] + x[2] - 1.0;
         grad[5] = x[0];
@@ -8269,19 +8269,19 @@ void opx_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *
     Inequality constraints for hpx
 */
 void hpx_mtl_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
-    result[0] = (-1.0*x[0]*x[1] -x[0]*x[2] + x[0] + x[1] - 0.5*x[3] - 1.0);
+    result[0] = (-x[0]*x[1] -x[0]*x[2] + x[0] + x[1] - 0.5*x[3] - 1.0);
     result[1] = (x[0]*x[1] + x[0]*x[2] -x[0] + 0.5*x[3]);
-    result[2] = (-1.0*x[1]);
-    result[3] = (-1.0*x[2]);
+    result[2] = (-x[1]);
+    result[3] = (-x[2]);
     result[4] = (x[0] + x[2] + 0.5*x[3] - 1.0);
-    result[5] = (-1.0*x[0] - 0.5*x[3]);
+    result[5] = (-x[0] - 0.5*x[3]);
     result[6] = (0.5*x[1] - 1.0);
     result[7] = (-0.5*x[1]);
 
     if (grad) {
-        grad[0] = -1.0*x[1] -x[2] + 1.0;
+        grad[0] = -x[1] -x[2] + 1.0;
         grad[1] = 1.0 -x[0];
-        grad[2] = -1.0*x[0];
+        grad[2] = -x[0];
         grad[3] = -0.50;
         grad[4] = x[1] + x[2] - 1.0;
         grad[5] = x[0];
@@ -9800,11 +9800,11 @@ void bi_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *g
 
 
 /**
-    Inequality constraints for flc
+    Inequality constraints for fl
 */
-void flc_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+void fl_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = (x[0] - 1.0);
-    result[1] = (-1.0*x[0]);
+    result[1] = (-x[0]);
 
     if (grad) {
         grad[0] = 1.0;
@@ -9819,14 +9819,14 @@ void flc_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *
 */
 void occm_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = (x[0] + x[1] - 0.5*x[2] - 1.0);
-    result[1] = (-1.0*x[0] + 0.5*x[2] - 0.25*x[3]);
-    result[2] = (-1.0*x[1] + 0.25*x[3]);
+    result[1] = (-x[0] + 0.5*x[2] - 0.25*x[3]);
+    result[2] = (-x[1] + 0.25*x[3]);
     result[3] = (x[0] + x[1] + 0.5*x[2] - 1.0);
-    result[4] = (-1.0*x[0] - 0.5*x[2] + 0.75*x[3]);
-    result[5] = (-1.0*x[1] - 0.75*x[3]);
+    result[4] = (-x[0] - 0.5*x[2] + 0.75*x[3]);
+    result[5] = (-x[1] - 0.75*x[3]);
     result[6] = (x[0] + x[1] + 0.5*x[2] - 1.0);
-    result[7] = (-1.0*x[0] - 0.5*x[2] - 0.25*x[3]);
-    result[8] = (-1.0*x[1] + 0.25*x[3]);
+    result[7] = (-x[0] - 0.5*x[2] - 0.25*x[3]);
+    result[8] = (-x[1] + 0.25*x[3]);
 
     if (grad) {
         grad[0] = 1.0;
@@ -9875,7 +9875,7 @@ void occm_mpe_c(unsigned m, double *result, unsigned n, const double *x, double 
 */
 void po_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = (x[0] - 1.0);
-    result[1] = (-1.0*x[0]);
+    result[1] = (-x[0]);
 
     if (grad) {
         grad[0] = 1.0;
@@ -9890,23 +9890,23 @@ void po_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *g
 */
 void hb_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = (x[3] - 1.0);
-    result[1] = (x[3]*x[4] - 1.0*x[3]);
-    result[2] = (-1.0*x[3]*x[4]);
-    result[3] = (x[0] - 1.0*x[8] - 1.0);
-    result[4] = (-1.0*x[0] + x[8]);
-    result[5] = (-1.0*x[0]*x[1] - 1.0*x[0]*x[6] - 1.0*x[0]*x[7] + x[0] + x[1]*x[9] + x[1] + x[6]*x[9] + x[6] + x[7]*x[9] + x[7] - 1.0*x[9] - 1.0);
-    result[6] = (x[0]*x[1] + x[0]*x[6] + x[0]*x[7] - 1.0*x[0] - 1.0*x[1]*x[9] - 1.0*x[6]*x[9] - 1.0*x[7]*x[9] + x[9]);
-    result[7] = (-1.0*x[1]);
-    result[8] = (-1.0*x[6]);
-    result[9] = (-1.0*x[7]);
-    result[10] = (-1.0*x[5]);
-    result[11] = (-1.0*x[0]*x[2] - 1.0*x[0]*x[5] + x[0] - 1.0*x[1]*x[9] + x[2] + x[5] - 1.0*x[6]*x[9] - 1.0*x[7]*x[9] + 1.5*x[8] + x[9] - 1.0);
-    result[12] = (x[0]*x[2] + x[0]*x[5] - 1.0*x[0] + x[1]*x[9] + x[6]*x[9] + x[7]*x[9] - 1.5*x[8] - 1.0*x[9]);
-    result[13] = (-1.0*x[2]);
+    result[1] = (x[3]*x[4] - x[3]);
+    result[2] = (-x[3]*x[4]);
+    result[3] = (x[0] - x[8] - 1.0);
+    result[4] = (-x[0] + x[8]);
+    result[5] = (-x[0]*x[1] - x[0]*x[6] - x[0]*x[7] + x[0] + x[1]*x[9] + x[1] + x[6]*x[9] + x[6] + x[7]*x[9] + x[7] - x[9] - 1.0);
+    result[6] = (x[0]*x[1] + x[0]*x[6] + x[0]*x[7] - x[0] - x[1]*x[9] - x[6]*x[9] - x[7]*x[9] + x[9]);
+    result[7] = (-x[1]);
+    result[8] = (-x[6]);
+    result[9] = (-x[7]);
+    result[10] = (-x[5]);
+    result[11] = (-x[0]*x[2] - x[0]*x[5] + x[0] - x[1]*x[9] + x[2] + x[5] - x[6]*x[9] - x[7]*x[9] + 1.5*x[8] + x[9] - 1.0);
+    result[12] = (x[0]*x[2] + x[0]*x[5] - x[0] + x[1]*x[9] + x[6]*x[9] + x[7]*x[9] - 1.5*x[8] - x[9]);
+    result[13] = (-x[2]);
     result[14] = (0.5*x[1] - 0.5*x[2] + 0.25*x[3] + 0.5*x[6] + 0.5*x[7] - 1.0);
     result[15] = (-0.5*x[1] + 0.5*x[2] - 0.25*x[3] - 0.5*x[6] - 0.5*x[7]);
     result[16] = (x[7] - 1.0);
-    result[17] = (-1.0*x[7]);
+    result[17] = (-x[7]);
 
     if (grad) {
         grad[0] = 0.0;
@@ -9932,8 +9932,8 @@ void hb_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *g
         grad[20] = 0.0;
         grad[21] = 0.0;
         grad[22] = 0.0;
-        grad[23] = -1.0*x[4];
-        grad[24] = -1.0*x[3];
+        grad[23] = -x[4];
+        grad[24] = -x[3];
         grad[25] = 0.0;
         grad[26] = 0.0;
         grad[27] = 0.0;
@@ -9959,26 +9959,26 @@ void hb_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *g
         grad[47] = 0.0;
         grad[48] = 1.0;
         grad[49] = 0.0;
-        grad[50] = -1.0*x[1] - 1.0*x[6] - 1.0*x[7] + 1.0;
-        grad[51] = -1.0*x[0] + x[9] + 1.0;
+        grad[50] = -x[1] - x[6] - x[7] + 1.0;
+        grad[51] = -x[0] + x[9] + 1.0;
         grad[52] = 0.0;
         grad[53] = 0.0;
         grad[54] = 0.0;
         grad[55] = 0.0;
-        grad[56] = -1.0*x[0] + x[9] + 1.0;
-        grad[57] = -1.0*x[0] + x[9] + 1.0;
+        grad[56] = -x[0] + x[9] + 1.0;
+        grad[57] = -x[0] + x[9] + 1.0;
         grad[58] = 0.0;
         grad[59] = x[1] + x[6] + x[7] - 1.0;
         grad[60] = x[1] + x[6] + x[7] - 1.0;
-        grad[61] = x[0] - 1.0*x[9];
+        grad[61] = x[0] - x[9];
         grad[62] = 0.0;
         grad[63] = 0.0;
         grad[64] = 0.0;
         grad[65] = 0.0;
-        grad[66] = x[0] - 1.0*x[9];
-        grad[67] = x[0] - 1.0*x[9];
+        grad[66] = x[0] - x[9];
+        grad[67] = x[0] - x[9];
         grad[68] = 0.0;
-        grad[69] = -1.0*x[1] - 1.0*x[6] - 1.0*x[7] + 1.0;
+        grad[69] = -x[1] - x[6] - x[7] + 1.0;
         grad[70] = 0.0;
         grad[71] = -1.0;
         grad[72] = 0.0;
@@ -10019,16 +10019,16 @@ void hb_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *g
         grad[107] = 0.0;
         grad[108] = 0.0;
         grad[109] = 0.0;
-        grad[110] = -1.0*x[2] - 1.0*x[5] + 1.0;
-        grad[111] = -1.0*x[9];
-        grad[112] = 1.0 - 1.0*x[0];
+        grad[110] = -x[2] - x[5] + 1.0;
+        grad[111] = -x[9];
+        grad[112] = 1.0 - x[0];
         grad[113] = 0.0;
         grad[114] = 0.0;
-        grad[115] = 1.0 - 1.0*x[0];
-        grad[116] = -1.0*x[9];
-        grad[117] = -1.0*x[9];
+        grad[115] = 1.0 - x[0];
+        grad[116] = -x[9];
+        grad[117] = -x[9];
         grad[118] = 1.5;
-        grad[119] = -1.0*x[1] - 1.0*x[6] - 1.0*x[7] + 1.0;
+        grad[119] = -x[1] - x[6] - x[7] + 1.0;
         grad[120] = x[2] + x[5] - 1.0;
         grad[121] = x[9];
         grad[122] = x[0];
@@ -10098,25 +10098,25 @@ void hb_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *g
     Inequality constraints for aug
 */
 void aug_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
-    result[0] = (-1.0*x[0]*x[1] - 1.0*x[0]*x[4] + x[0] + x[1] + 0.5*x[3]*x[5] + 0.5*x[4]*x[5] + x[4] - 0.5*x[5] - 1.0);
-    result[1] = (x[0]*x[1] + x[0]*x[4] - 1.0*x[0] - 0.5*x[3]*x[5] - 0.5*x[4]*x[5] + 0.5*x[5]);
-    result[2] = (-1.0*x[1] + x[2] - 1.0*x[4]);
-    result[3] = (-1.0*x[2]);
-    result[4] = (-1.0*x[0]*x[3] - 1.0*x[0]*x[4] + x[0] - 0.5*x[3]*x[5] + x[3] - 0.5*x[4]*x[5] + x[4] + 0.5*x[5] - 1.0);
-    result[5] = (x[0]*x[3] + x[0]*x[4] - 1.0*x[0] + 0.5*x[3]*x[5] + 0.5*x[4]*x[5] - 0.5*x[5]);
-    result[6] = (-1.0*x[3]);
-    result[7] = (-1.0*x[4]);
+    result[0] = (-x[0]*x[1] - x[0]*x[4] + x[0] + x[1] + 0.5*x[3]*x[5] + 0.5*x[4]*x[5] + x[4] - 0.5*x[5] - 1.0);
+    result[1] = (x[0]*x[1] + x[0]*x[4] - x[0] - 0.5*x[3]*x[5] - 0.5*x[4]*x[5] + 0.5*x[5]);
+    result[2] = (-x[1] + x[2] - x[4]);
+    result[3] = (-x[2]);
+    result[4] = (-x[0]*x[3] - x[0]*x[4] + x[0] - 0.5*x[3]*x[5] + x[3] - 0.5*x[4]*x[5] + x[4] + 0.5*x[5] - 1.0);
+    result[5] = (x[0]*x[3] + x[0]*x[4] - x[0] + 0.5*x[3]*x[5] + 0.5*x[4]*x[5] - 0.5*x[5]);
+    result[6] = (-x[3]);
+    result[7] = (-x[4]);
     result[8] = (0.5*x[1] - 0.5*x[6] - 1.0);
     result[9] = (-0.5*x[1] + 0.5*x[6]);
     result[10] = (0.5*x[1] + 0.5*x[6] - 1.0);
     result[11] = (-0.5*x[1] - 0.5*x[6]);
 
     if (grad) {
-        grad[0] = -1.0*x[1] - 1.0*x[4] + 1.0;
-        grad[1] = 1.0 - 1.0*x[0];
+        grad[0] = -x[1] - x[4] + 1.0;
+        grad[1] = 1.0 - x[0];
         grad[2] = 0.0;
         grad[3] = 0.5*x[5];
-        grad[4] = -1.0*x[0] + 0.5*x[5] + 1.0;
+        grad[4] = -x[0] + 0.5*x[5] + 1.0;
         grad[5] = 0.5*x[3] + 0.5*x[4] - 0.5;
         grad[6] = 0.0;
         grad[7] = x[1] + x[4] - 1.0;
@@ -10140,11 +10140,11 @@ void aug_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *
         grad[25] = 0.0;
         grad[26] = 0.0;
         grad[27] = 0.0;
-        grad[28] = -1.0*x[3] - 1.0*x[4] + 1.0;
+        grad[28] = -x[3] - x[4] + 1.0;
         grad[29] = 0.0;
         grad[30] = 0.0;
-        grad[31] = -1.0*x[0] - 0.5*x[5] + 1.0;
-        grad[32] = -1.0*x[0] - 0.5*x[5] + 1.0;
+        grad[31] = -x[0] - 0.5*x[5] + 1.0;
+        grad[32] = -x[0] - 0.5*x[5] + 1.0;
         grad[33] = -0.5*x[3] - 0.5*x[4] + 0.5;
         grad[34] = 0.0;
         grad[35] = x[3] + x[4] - 1.0;
@@ -10205,35 +10205,35 @@ void aug_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *
     Inequality constraints for dio
 */
 void dio_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
-    result[0] = (-1.0*x[0]*x[1] + x[0]*x[3] + x[0] + x[1]*x[5] + x[1] + x[3]*x[5] - 1.0*x[3] - 1.0*x[5] - 1.0);
-    result[1] = (x[0]*x[1] - 1.0*x[0]*x[3] - 1.0*x[0] - 1.0*x[1]*x[5] - 1.0*x[3]*x[5] + x[5]);
-    result[2] = (-1.0*x[1]*x[2] + x[4]);
-    result[3] = (x[1]*x[2] - 1.0*x[1] + x[3] - 1.0*x[4]);
-    result[4] = (-1.0*x[0]*x[1] - 1.0*x[0]*x[3] + x[0] - 1.0*x[1]*x[5] + x[1] - 1.0*x[3]*x[5] + x[3] + x[5] - 1.0);
-    result[5] = (x[0]*x[1] + x[0]*x[3] - 1.0*x[0] + x[1]*x[5] + x[3]*x[5] - 1.0*x[5]);
-    result[6] = (-1.0*x[1]*x[2] - 1.0*x[4]);
-    result[7] = (x[1]*x[2] - 1.0*x[1] - 1.0*x[3] + x[4]);
-    result[8] = (-1.0*x[1] + x[3]);
-    result[9] = (x[1] - 1.0*x[3] - 1.0);
-    result[10] = (-1.0*x[1] - 1.0*x[3]);
+    result[0] = (-x[0]*x[1] + x[0]*x[3] + x[0] + x[1]*x[5] + x[1] + x[3]*x[5] - x[3] - x[5] - 1.0);
+    result[1] = (x[0]*x[1] - x[0]*x[3] - x[0] - x[1]*x[5] - x[3]*x[5] + x[5]);
+    result[2] = (-x[1]*x[2] + x[4]);
+    result[3] = (x[1]*x[2] - x[1] + x[3] - x[4]);
+    result[4] = (-x[0]*x[1] - x[0]*x[3] + x[0] - x[1]*x[5] + x[1] - x[3]*x[5] + x[3] + x[5] - 1.0);
+    result[5] = (x[0]*x[1] + x[0]*x[3] - x[0] + x[1]*x[5] + x[3]*x[5] - x[5]);
+    result[6] = (-x[1]*x[2] - x[4]);
+    result[7] = (x[1]*x[2] - x[1] - x[3] + x[4]);
+    result[8] = (-x[1] + x[3]);
+    result[9] = (x[1] - x[3] - 1.0);
+    result[10] = (-x[1] - x[3]);
     result[11] = (x[1] + x[3] - 1.0);
 
     if (grad) {
-        grad[0] = -1.0*x[1] + x[3] + 1.0;
-        grad[1] = -1.0*x[0] + x[5] + 1.0;
+        grad[0] = -x[1] + x[3] + 1.0;
+        grad[1] = -x[0] + x[5] + 1.0;
         grad[2] = 0.0;
         grad[3] = x[0] + x[5] - 1.0;
         grad[4] = 0.0;
         grad[5] = x[1] + x[3] - 1.0;
-        grad[6] = x[1] - 1.0*x[3] - 1.0;
-        grad[7] = x[0] - 1.0*x[5];
+        grad[6] = x[1] - x[3] - 1.0;
+        grad[7] = x[0] - x[5];
         grad[8] = 0.0;
-        grad[9] = -1.0*x[0] - 1.0*x[5];
+        grad[9] = -x[0] - x[5];
         grad[10] = 0.0;
-        grad[11] = -1.0*x[1] - 1.0*x[3] + 1.0;
+        grad[11] = -x[1] - x[3] + 1.0;
         grad[12] = 0.0;
-        grad[13] = -1.0*x[2];
-        grad[14] = -1.0*x[1];
+        grad[13] = -x[2];
+        grad[14] = -x[1];
         grad[15] = 0.0;
         grad[16] = 1.0;
         grad[17] = 0.0;
@@ -10243,12 +10243,12 @@ void dio_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *
         grad[21] = 1.0;
         grad[22] = -1.0;
         grad[23] = 0.0;
-        grad[24] = -1.0*x[1] - 1.0*x[3] + 1.0;
-        grad[25] = -1.0*x[0] - 1.0*x[5] + 1.0;
+        grad[24] = -x[1] - x[3] + 1.0;
+        grad[25] = -x[0] - x[5] + 1.0;
         grad[26] = 0.0;
-        grad[27] = -1.0*x[0] - 1.0*x[5] + 1.0;
+        grad[27] = -x[0] - x[5] + 1.0;
         grad[28] = 0.0;
-        grad[29] = -1.0*x[1] - 1.0*x[3] + 1.0;
+        grad[29] = -x[1] - x[3] + 1.0;
         grad[30] = x[1] + x[3] - 1.0;
         grad[31] = x[0] + x[5];
         grad[32] = 0.0;
@@ -10256,8 +10256,8 @@ void dio_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *
         grad[34] = 0.0;
         grad[35] = x[1] + x[3] - 1.0;
         grad[36] = 0.0;
-        grad[37] = -1.0*x[2];
-        grad[38] = -1.0*x[1];
+        grad[37] = -x[2];
+        grad[38] = -x[1];
         grad[39] = 0.0;
         grad[40] = -1.0;
         grad[41] = 0.0;
@@ -10907,7 +10907,7 @@ SS_ref NLopt_opt_mpe_liq_function(global_variable gv, SS_ref SS_ref_db){
     return SS_ref_db;
 };
 
-SS_ref NLopt_opt_mpe_flc_function(global_variable gv, SS_ref SS_ref_db){
+SS_ref NLopt_opt_mpe_fl_function(global_variable gv, SS_ref SS_ref_db){
     
     int    n_em     = SS_ref_db.n_em;
     unsigned int n  = SS_ref_db.n_xeos;
@@ -10923,8 +10923,8 @@ SS_ref NLopt_opt_mpe_flc_function(global_variable gv, SS_ref SS_ref_db){
     SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n)); 
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
-    nlopt_set_min_objective(SS_ref_db.opt, obj_mpe_flc, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, flc_mpe_c, NULL, NULL);
+    nlopt_set_min_objective(SS_ref_db.opt, obj_mpe_fl, &SS_ref_db);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, fl_mpe_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -11460,8 +11460,8 @@ void TC_mpe_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_mpe_ilmm_function; 		}
 		else if (strcmp( gv.SS_list[iss], "mt")    == 0){
 			NLopt_opt[iss]  = NLopt_opt_mpe_mt_function; 		}
-		else if (strcmp( gv.SS_list[iss], "flc")   == 0){
-			NLopt_opt[iss]  = NLopt_opt_mpe_flc_function; 		}
+		else if (strcmp( gv.SS_list[iss], "fl")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_mpe_fl_function; 		}
 		else if (strcmp( gv.SS_list[iss], "occm")   == 0){
 			NLopt_opt[iss]  = NLopt_opt_mpe_occm_function; 		}
 		else if (strcmp( gv.SS_list[iss], "aug")    == 0){

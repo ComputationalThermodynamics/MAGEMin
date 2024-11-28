@@ -3361,8 +3361,8 @@ SS_ref G_SS_mp_ilm_function(SS_ref SS_ref_db, char* research_group, int EM_datas
 	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
-		SS_ref_db.bounds_ref[1][0] = 1.0; 
-		SS_ref_db.bounds_ref[1][1] = 1.0;	
+		SS_ref_db.bounds_ref[0][0] = 1.0; 
+		SS_ref_db.bounds_ref[0][1] = 1.0;	
 	}
 
     /* this lists the index of the order variables */
@@ -7829,7 +7829,7 @@ SS_ref G_SS_igad_opx_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     SS_ref_db.ElShearMod[2] 	= 0.5*en_eq.ElShearMod + 0.5*fs_eq.ElShearMod;
     SS_ref_db.ElShearMod[3] 	= di_eq.ElShearMod;
     SS_ref_db.ElShearMod[4] 	= mgts_eq.ElShearMod;
-    SS_ref_db.ElShearMod[5] 	= -1.0*di_eq.ElShearMod + cats_eq.ElShearMod + en_eq.ElShearMod -jd_eq.ElShearMod + kos_eq.ElShearMod;
+    SS_ref_db.ElShearMod[5] 	= -di_eq.ElShearMod + cats_eq.ElShearMod + en_eq.ElShearMod -jd_eq.ElShearMod + kos_eq.ElShearMod;
     SS_ref_db.ElShearMod[6] 	= -0.5*cor_eq.ElShearMod + mgts_eq.ElShearMod + 0.5*per_eq.ElShearMod + 0.5*ru_eq.ElShearMod;
     SS_ref_db.ElShearMod[7] 	= acm_eq.ElShearMod -jd_eq.ElShearMod + mgts_eq.ElShearMod;
     SS_ref_db.ElShearMod[8] 	= jd_eq.ElShearMod;
@@ -7840,7 +7840,7 @@ SS_ref G_SS_igad_opx_function(SS_ref SS_ref_db, char* research_group, int EM_dat
         SS_ref_db.Comp[2][i] 	= 0.5*en_eq.C[i] + 0.5*fs_eq.C[i];
         SS_ref_db.Comp[3][i] 	= di_eq.C[i];
         SS_ref_db.Comp[4][i] 	= mgts_eq.C[i];
-        SS_ref_db.Comp[5][i] 	= -1.0*di_eq.C[i] + cats_eq.C[i] + en_eq.C[i] -jd_eq.C[i] + kos_eq.C[i];
+        SS_ref_db.Comp[5][i] 	= -di_eq.C[i] + cats_eq.C[i] + en_eq.C[i] -jd_eq.C[i] + kos_eq.C[i];
         SS_ref_db.Comp[6][i] 	= -0.5*cor_eq.C[i] + mgts_eq.C[i] + 0.5*per_eq.C[i] + 0.5*ru_eq.C[i];
         SS_ref_db.Comp[7][i] 	= acm_eq.C[i] -jd_eq.C[i] + mgts_eq.C[i];
         SS_ref_db.Comp[8][i] 	= jd_eq.C[i];
@@ -10634,16 +10634,16 @@ SS_ref G_SS_mtl_crn_function(SS_ref SS_ref_db, char* research_group, int EM_data
     
     SS_ref_db.gbase[0] 		= cor_eq.gb;
     SS_ref_db.gbase[1] 		= mcor_eq.gb;
-    SS_ref_db.gbase[2] 		= fak_eq.gb - 1.0*mak_eq.gb + mcor_eq.gb - 15.0;
+    SS_ref_db.gbase[2] 		= fak_eq.gb - mak_eq.gb + mcor_eq.gb - 15.0;
     
     SS_ref_db.ElShearMod[0] 	= cor_eq.ElShearMod;
     SS_ref_db.ElShearMod[1] 	= mcor_eq.ElShearMod;
-    SS_ref_db.ElShearMod[2] 	= fak_eq.ElShearMod - 1.0*mak_eq.ElShearMod + mcor_eq.ElShearMod;
+    SS_ref_db.ElShearMod[2] 	= fak_eq.ElShearMod - mak_eq.ElShearMod + mcor_eq.ElShearMod;
     
     for (i = 0; i < len_ox; i++){
         SS_ref_db.Comp[0][i] 	= cor_eq.C[i];
         SS_ref_db.Comp[1][i] 	= mcor_eq.C[i];
-        SS_ref_db.Comp[2][i] 	= fak_eq.C[i] - 1.0*mak_eq.C[i] + mcor_eq.C[i];
+        SS_ref_db.Comp[2][i] 	= fak_eq.C[i] - mak_eq.C[i] + mcor_eq.C[i];
     }
     
     for (i = 0; i < n_em; i++){
@@ -12516,8 +12516,8 @@ SS_ref G_SS_mpe_ilm_function(SS_ref SS_ref_db, char* research_group, int EM_data
 	if (z_b.bulk_rock[8] == 0.){ 					
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
-		SS_ref_db.bounds_ref[1][0] = 1.0; 
-		SS_ref_db.bounds_ref[1][1] = 1.0;	
+		SS_ref_db.bounds_ref[0][0] = 1.0; 
+		SS_ref_db.bounds_ref[0][1] = 1.0;	
 	}
 
     /* this lists the index of the order variables */
@@ -13624,9 +13624,9 @@ SS_ref G_SS_mpe_st_function(SS_ref SS_ref_db, char* research_group, int EM_datas
 }
 
 /**
-   retrieve reference thermodynamic data for mpe_flc
+   retrieve reference thermodynamic data for mpe_fl
 */
-SS_ref G_SS_mpe_flc_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mpe_fl_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -13681,6 +13681,20 @@ SS_ref G_SS_mpe_flc_function(SS_ref SS_ref_db, char* research_group, int EM_data
     
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     
+
+  	if (z_b.bulk_rock[10] == 0.){ 	// no H2O				
+		SS_ref_db.z_em[0]          = 0.0;
+        SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 1.0; 
+		SS_ref_db.bounds_ref[0][1] = 1.0;	
+	}  
+  	if (z_b.bulk_rock[11] == 0.){ 	// no CO2				
+		SS_ref_db.z_em[1]          = 0.0;
+        SS_ref_db.d_em[1]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 0.0; 
+		SS_ref_db.bounds_ref[0][1] = 0.0;	
+	}  
+
     return SS_ref_db;
 }
 
@@ -14045,8 +14059,8 @@ SS_ref G_SS_mpe_hb_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.gbase[5] 		= grun_eq.gb - 3.0;
     SS_ref_db.gbase[6] 		= 0.428571428571429*cumm_eq.gb + 0.571428571428571*grun_eq.gb - 11.2;
     SS_ref_db.gbase[7] 		= 0.285714285714286*cumm_eq.gb + 0.714285714285714*grun_eq.gb - 13.8;
-    SS_ref_db.gbase[8] 		= andr_eq.gb + gl_eq.gb - 1.0*gr_eq.gb;
-    SS_ref_db.gbase[9] 		= 0.02*z_b.T + mu_eq.gb - 1.0*pa_eq.gb + parg_eq.gb - 7.06;
+    SS_ref_db.gbase[8] 		= andr_eq.gb + gl_eq.gb - gr_eq.gb;
+    SS_ref_db.gbase[9] 		= 0.02*z_b.T + mu_eq.gb - pa_eq.gb + parg_eq.gb - 7.06;
     SS_ref_db.gbase[10] 		= -2.0*dsp_eq.gb + 2.0*ru_eq.gb + ts_eq.gb + 95.0;
     
     SS_ref_db.ElShearMod[0] 	= tr_eq.ElShearMod;
@@ -14057,8 +14071,8 @@ SS_ref G_SS_mpe_hb_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.ElShearMod[5] 	= grun_eq.ElShearMod;
     SS_ref_db.ElShearMod[6] 	= 0.428571428571429*cumm_eq.ElShearMod + 0.571428571428571*grun_eq.ElShearMod;
     SS_ref_db.ElShearMod[7] 	= 0.285714285714286*cumm_eq.ElShearMod + 0.714285714285714*grun_eq.ElShearMod;
-    SS_ref_db.ElShearMod[8] 	= andr_eq.ElShearMod + gl_eq.ElShearMod - 1.0*gr_eq.ElShearMod;
-    SS_ref_db.ElShearMod[9] 	= mu_eq.ElShearMod - 1.0*pa_eq.ElShearMod + parg_eq.ElShearMod;
+    SS_ref_db.ElShearMod[8] 	= andr_eq.ElShearMod + gl_eq.ElShearMod - gr_eq.ElShearMod;
+    SS_ref_db.ElShearMod[9] 	= mu_eq.ElShearMod - pa_eq.ElShearMod + parg_eq.ElShearMod;
     SS_ref_db.ElShearMod[10] 	= -2.0*dsp_eq.ElShearMod + 2.0*ru_eq.ElShearMod + ts_eq.ElShearMod;
     
     for (i = 0; i < len_ox; i++){
@@ -14070,8 +14084,8 @@ SS_ref G_SS_mpe_hb_function(SS_ref SS_ref_db, char* research_group, int EM_datas
         SS_ref_db.Comp[5][i] 	= grun_eq.C[i];
         SS_ref_db.Comp[6][i] 	= 0.428571428571429*cumm_eq.C[i] + 0.571428571428571*grun_eq.C[i];
         SS_ref_db.Comp[7][i] 	= 0.285714285714286*cumm_eq.C[i] + 0.714285714285714*grun_eq.C[i];
-        SS_ref_db.Comp[8][i] 	= andr_eq.C[i] + gl_eq.C[i] - 1.0*gr_eq.C[i];
-        SS_ref_db.Comp[9][i] 	= mu_eq.C[i] - 1.0*pa_eq.C[i] + parg_eq.C[i];
+        SS_ref_db.Comp[8][i] 	= andr_eq.C[i] + gl_eq.C[i] - gr_eq.C[i];
+        SS_ref_db.Comp[9][i] 	= mu_eq.C[i] - pa_eq.C[i] + parg_eq.C[i];
         SS_ref_db.Comp[10][i] 	= -2.0*dsp_eq.C[i] + 2.0*ru_eq.C[i] + ts_eq.C[i];
     }
     
@@ -15485,11 +15499,8 @@ SS_ref G_SS_mpe_EM_function(		global_variable 	 gv,
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_mpe_occm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
-		else if (strcmp( name, "flc") == 0){
-            if ( (z_b.bulk_rock[gv.CO2_id] == 0. || z_b.bulk_rock[gv.H2O_id] == 0.)){
-				SS_ref_db.ss_flags[0]  = 0;
-			}
-			SS_ref_db  = G_SS_mpe_flc_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
+		else if (strcmp( name, "fl") == 0){
+			SS_ref_db  = G_SS_mpe_fl_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
 		else if (strcmp( name, "po") == 0){
             if ( z_b.bulk_rock[gv.S_id] == 0.0){
 				SS_ref_db.ss_flags[0]  = 0;

@@ -235,12 +235,12 @@ metapelite_dataset_ext metapelite_ext_db = {
 	25,							/* number of pure phases */
 	23,							/* number of solution phases */
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"H2O"	,"CO2"	,"S"										},
-	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2"  ,"H2O"	,"pyr"	,"gph"	,
+	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2" 	,"pyr"	,"gph"	,"law"	,
 	"qfm"	,"qif"	,"nno"	,"hm"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"											},
-	{"liq"	,"fsp"	,"bi"	,"g"	,"ep"	,"ma"	,"mu"	,"opx"	,"sa"	,"cd"	,"st"	,"chl"	,"ctd"	,"sp"  ,"mt"  ,"ilm"  ,"ilmm"  ,"occm"	,"flc"	,"po"	,"dio"	,"aug"	,"hb"		},
+	{"liq"	,"fsp"	,"bi"	,"g"	,"ep"	,"ma"	,"mu"	,"opx"	,"sa"	,"cd"	,"st"	,"chl"	,"ctd"	,"sp"  ,"mt"  ,"ilm"  ,"ilmm"  ,"occm"	,"fl"	,"po"	,"dio"	,"aug"	,"hb"		},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1		,1		,1		,1		,1		,1			},  // allow solvus?
-	{3150	,231 	,981	,756	,110 	,1875	,1876	,1277	,230	,343	,540	,2270	,216	,405 	,87 	,130 	,1430 	,352	,12		,10		,1808	,2395,	7664		},  // # of pseudocompound
+	{3150	,231 	,981	,756	,110 	,1875	,1876	,1277	,230	,343	,540	,2270	,216	,405 	,87 	,131 	,1430 	,352	,12		,10		,1808	,2395,	7664		},  // # of pseudocompound
 	{0.24	,0.049	,0.19	,0.19	,0.049	,0.19	,0.19	,0.249	,0.19	,0.145	,0.19	,0.249	,0.19	,0.124 	,0.099 	,0.09 	,0.099 	,0.14	,0.09	,0.1	,0.16	,0.24,	0.249		},  // discretization step
 
 	6.0, 						/* max dG under which a phase is considered to be reintroduced  					*/

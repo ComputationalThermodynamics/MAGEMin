@@ -2207,8 +2207,8 @@ function obj_mpe_mt(n, x, grad, SS_ref_db)
     ccall((:obj_mpe_mt, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
-function obj_mpe_flc(n, x, grad, SS_ref_db)
-    ccall((:obj_mpe_flc, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+function obj_mpe_fl(n, x, grad, SS_ref_db)
+    ccall((:obj_mpe_fl, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
 function obj_mpe_occm(n, x, grad, SS_ref_db)

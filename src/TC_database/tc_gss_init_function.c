@@ -1706,16 +1706,15 @@ SS_ref G_SS_mpe_mu_init_function(SS_ref SS_ref_db, global_variable gv){
     
     return SS_ref_db;
 }
-
 /**
-    allocate memory for bi
+    allocate memory for bi_mpe
 */
-SS_ref G_SS_mpe_bi_init_function(SS_ref SS_ref_db, global_variable gv){
+SS_ref G_SS_mpe_bi_init_function(SS_ref SS_ref_db,  global_variable gv){
     
     SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 1;
-    SS_ref_db.n_sf      = 12;
+    SS_ref_db.n_sf      = 13;
     SS_ref_db.n_em      = 7;
     SS_ref_db.n_w       = 21;
     SS_ref_db.n_xeos    = 6;
@@ -1885,9 +1884,9 @@ SS_ref G_SS_mpe_mt_init_function(SS_ref SS_ref_db, global_variable gv){
 }
 
 /**
-    allocate memory for flc
+    allocate memory for fl
 */
-SS_ref G_SS_mpe_flc_init_function(SS_ref SS_ref_db, global_variable gv){
+SS_ref G_SS_mpe_fl_init_function(SS_ref SS_ref_db, global_variable gv){
     
     SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
@@ -2318,8 +2317,8 @@ void TC_SS_init_mp_ext(	            SS_init_type 		*SS_init,
 			SS_init[iss]  = G_SS_mpe_mt_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "occm")   == 0){
 			SS_init[iss]  = G_SS_mpe_occm_init_function; 	}
-		else if (strcmp( gv.SS_list[iss], "flc")   == 0){
-			SS_init[iss]  = G_SS_mpe_flc_init_function; 	}
+		else if (strcmp( gv.SS_list[iss], "fl")   == 0){
+			SS_init[iss]  = G_SS_mpe_fl_init_function; 	}
 		else if (strcmp( gv.SS_list[iss], "po")    == 0){
 			SS_init[iss]  = G_SS_mpe_po_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "dio")   == 0){
