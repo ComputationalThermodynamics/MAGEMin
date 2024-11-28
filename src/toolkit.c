@@ -64,6 +64,9 @@ void print_help(	global_variable gv	){
 	printf("  --buffer= 	[str]   : choose among O2, qfm, mw, qif, nno, hm, cco, aH2O, aO2, aMgO, aFeO, aAl2O3, aTiO2\n");
 	printf("  --buffer_n= 	[float] : multiplier with respect to qfm buffer\n");
 	printf("  --mbCpx= 		[int]   : 0. omphacite, 1. augite (applies to metabasite database, see Green et al., 2016)\n");
+	printf("  --mbIlm=      [int]   : 0. Ilm, 1. Ilmm see (Green et al., 2016)\n");
+	printf("  --mpSp=       [int]   : 0. Ilm, 1. Ilmm see (White et al., 2014)\n");
+	printf("  --mpIlm=      [int]   : 0. Sp, 1. Mt1 see (White et al., 2014)\n");
 	printf("\n");
 	printf(" *'mp': metapelite, 'mb': metabasite, 'ig': igneous H18->G23, 'igad': igneous alkaline dry, 'um': ultramafic, 'ume': ultramafic extended, 'mtl': mantle\n");
 	printf("\n");
@@ -264,6 +267,12 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 		else if (gv.EM_database == 5 ){
 			printf("  - Database                  : Ultramafic extended (Evans & Frost, 2021 + pl, hb and aug from Green et al., 2016)\n"	);
 		}
+		else if (gv.EM_database == 6 ){
+			printf("  - Database                  : Uppermost lower mantle to upper mantle database (Holland et al., 2013)\n"	);
+		}
+		else if (gv.EM_database == 7 ){
+			printf("  - Database                  : Metapelite extended (White et al., 2014; po from Evans & Frost, 2021;  hb, dio and aug from Green et al., 2016)\n"	);
+		}
 
 		if (strcmp( gv.sys_in, "mol") == 0){	
 			printf("  - input system composition  : mol fraction\n"	);
@@ -333,6 +342,25 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 					}	
 				}
 			}
+			else if (gv.EM_database == 5){ 			// ultramafic database
+				if(strcmp( gv.ox[i], "H2O") != 0 && strcmp( gv.ox[i], "S") != 0  && strcmp( gv.ox[i], "O") != 0){
+					gv.bulk_rock[i] = 1.0e-4;
+					renorm = 1;
+					if (gv.verbose == 1){
+						printf("  - mol of %4s = %+.5f < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i],gv.bulk_rock[i]);
+					}	
+				}
+			}
+			else if (gv.EM_database == 7){ 			// ultramafic database
+				if(strcmp( gv.ox[i], "H2O") != 0 && strcmp( gv.ox[i], "S") != 0  && strcmp( gv.ox[i], "O") != 0 && strcmp( gv.ox[i], "MnO") != 0 && strcmp( gv.ox[i], "TiO2") != 0){
+					gv.bulk_rock[i] = 1.0e-4;
+					renorm = 1;
+					if (gv.verbose == 1){
+						printf("  - mol of %4s = %+.5f < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i],gv.bulk_rock[i]);
+					}	
+				}
+			}
+
 
 		}
 	}
@@ -811,6 +839,9 @@ global_variable get_tests_bulks(	global_variable  	 gv
 		}
 		else if (gv.EM_database == 6){
 			gv = get_bulk_mantle( 			gv );
+		}
+		else if (gv.EM_database == 7){
+			gv = get_bulk_metapelite_ext( 		gv );
 		}
 		else{
 			printf(" Wrong database...\n");

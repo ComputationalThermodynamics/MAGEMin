@@ -472,6 +472,7 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].ph_frac_1at[n] = cp[i].ss_n;
 			sp[0].ph_type[n]  	 = 1;
 			sp[0].ph_id[n] 		 = m;
+			sp[0].ph_id_db[n]    = cp[i].id;
 			sp[0].n_SS 			+= 1;
 			sp[0].cp_wt 		+= cp[i].phase_cp * cp[i].ss_n_wt * cp[i].factor;
 			G = 0.0;
@@ -533,7 +534,7 @@ void fill_output_struct(		global_variable 	 gv,
 				for (k = 0; k < gv.len_ox; k++){
 					sum_em_wt += SS_ref_db[cp[i].id].Comp[j][k]*cp[i].p_em[j]*z_b.masspo[k];
 				}
-				sp[0].SS[m].emFrac_wt[j] 		= sum_em_wt/sum_wt;
+				sp[0].SS[m].emFrac_wt[j] 		= sum_em_wt;
 				sum_ph_mass					   += sp[0].SS[m].emFrac_wt[j];
 				strcpy(sp[0].SS[m].emNames[j],SS_ref_db[cp[i].id].EM_list[j]);	
 				sp[0].SS[m].emFrac[j] 			= cp[i].p_em[j];
@@ -623,6 +624,7 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].ph_frac_1at[n]  = gv.pp_n[i];
 			sp[0].ph_type[n]  	 = 0;
 			sp[0].ph_id[n] 		 = m;
+			sp[0].ph_id_db[n]    = i;
 			sp[0].n_PP 			+= 1;
 			sp[0].cp_wt 		+= PP_ref_db[i].phase_cp * gv.pp_n_wt[i] * PP_ref_db[i].factor;
 

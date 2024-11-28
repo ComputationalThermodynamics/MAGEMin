@@ -122,7 +122,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.5.9 [25/11/2024]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.6.0 [28/11/2024]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
@@ -133,7 +133,14 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.buffer_n 		= 0.0;					/** factor for QFM buffer 															*/
 	gv.limitCaOpx       = 0;					/** limit Ca-bearing  orthopyroxene (add-hoc correction) 							*/
 	gv.CaOpxLim         = 1.0;					/** limit Ca-bearing  orthopyroxene (add-hoc correction) 							*/
-	gv.mbCpx 			= 0;					/** 0: omphacite LT, 1: augite HT*/
+
+	/* Phase selection 					*/
+	gv.mbCpx 			= 0;					/** 0: omphacite LT, 1: augite HT													*/
+	gv.mbIlm 			= 0;					/** 0: Ilmm, 1: Ilm 																*/
+	gv.mpSp 			= 0;					/** 0: Sp LT, 1: Mt1													*/
+	gv.mpIlm 			= 0;					/** 0: Ilmm, 1: Ilm 																*/
+
+
 	// gv.calc_seismic_cor = 1;					/** compute seismic velocity corrections (melt and anelastic)						*/
 	// gv.melt_pressure 	= 0.0;				/** [kbar] pressure shift in case of modelling melt pressure 						*/
 
@@ -303,6 +310,7 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 	}
 	sp.ph_type 				= malloc(gv.len_ox 	* sizeof(int)				);	
 	sp.ph_id 				= malloc(gv.len_ox 	* sizeof(int)				);	
+	sp.ph_id_db 			= malloc(gv.len_ox 	* sizeof(int)				);	
 	sp.PP 		 			= malloc(gv.len_ox  * sizeof(stb_PP_phase)		); 
 	sp.SS 		 			= malloc(gv.len_ox  * sizeof(stb_SS_phase)		); 
 	sp.mSS 		 			= malloc(gv.max_n_mSS  * sizeof(mstb_SS_phase)	); 
@@ -866,7 +874,8 @@ bulk_info reset_z_b_bulk(			global_variable 	 gv,
 	for (i = 0; i < gv.len_ox; i++) {
 		z_b.zEl_array[i] = 0.0;
 		z_b.bulk_rock[i] = gv.bulk_rock[i];
-		if (gv.bulk_rock[i] > 0.0){
+		// if (gv.bulk_rock[i] > 0.0){
+		if (gv.bulk_rock[i] != 0.0){
 			sum += 1;
 		}
 	}

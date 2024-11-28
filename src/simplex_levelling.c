@@ -1299,6 +1299,13 @@ void run_simplex_levelling(				bulk_info 	 		 z_b,
 												gv.SS_list[iss]				);
 			}
 		}
+		else if (gv.EM_database == 7){
+			for (iss = 0; iss < gv.len_ss; iss++){
+				SS_mpe_pc_init_function(		SS_pc_xeos, 
+												iss,
+												gv.SS_list[iss]				);
+			}
+		}
 	}
 	else if (strcmp(gv.research_group, "sb") 	== 0 ){
 		if (gv.EM_database == 0){

@@ -13,35 +13,35 @@
 
 #include "../MAGEMin.h"
 
-SS_ref G_SS_mp_EM_function(	global_variable  gv, 
-							SS_ref 			 SS_ref_db,
-							int 			 EM_dataset,
-							bulk_info 		 z_b,
-							char 			*name					);
+SS_ref G_SS_mp_EM_function(		global_variable  gv, 
+								SS_ref 			 SS_ref_db,
+								int 			 EM_dataset,
+								bulk_info 		 z_b,
+								char 			*name					);
 							
-SS_ref G_SS_mb_EM_function(	global_variable  gv, 
-							SS_ref 			 SS_ref_db,
-							int 			 EM_dataset,
-							bulk_info 		 z_b,
-							char 			*name					);
+SS_ref G_SS_mb_EM_function(		global_variable  gv, 
+								SS_ref 			 SS_ref_db,
+								int 			 EM_dataset,
+								bulk_info 		 z_b,
+								char 			*name					);
 
-SS_ref G_SS_ig_EM_function(	global_variable  gv, 
-							SS_ref 			 SS_ref_db,
-							int 			 EM_dataset,
-							bulk_info 		 z_b,
-							char 			*name					);
+SS_ref G_SS_ig_EM_function(		global_variable  gv, 
+								SS_ref 			 SS_ref_db,
+								int 			 EM_dataset,
+								bulk_info 		 z_b,
+								char 			*name					);
 							
 SS_ref G_SS_igad_EM_function(	global_variable  gv, 
-							SS_ref 			 SS_ref_db,
-							int 			 EM_dataset,
-							bulk_info 		 z_b,
-							char 			*name					);
+								SS_ref 			 SS_ref_db,
+								int 			 EM_dataset,
+								bulk_info 		 z_b,
+								char 			*name					);
 
-SS_ref G_SS_um_EM_function(	global_variable  gv, 
-							SS_ref 			 SS_ref_db,
-							int 			 EM_dataset,
-							bulk_info 		 z_b,
-							char 			*name					);
+SS_ref G_SS_um_EM_function(		global_variable  gv, 
+								SS_ref 			 SS_ref_db,
+								int 			 EM_dataset,
+								bulk_info 		 z_b,
+								char 			*name					);
 
 SS_ref G_SS_um_ext_EM_function(	global_variable  gv, 
 								SS_ref 			 SS_ref_db,
@@ -50,6 +50,12 @@ SS_ref G_SS_um_ext_EM_function(	global_variable  gv,
 								char 			*name					);
 
 SS_ref G_SS_mtl_EM_function(	global_variable  gv, 
+								SS_ref 			 SS_ref_db,
+								int 			 EM_dataset,
+								bulk_info 		 z_b,
+								char 			*name					);
+
+SS_ref G_SS_mpe_EM_function(	global_variable  gv, 
 								SS_ref 			 SS_ref_db,
 								int 			 EM_dataset,
 								bulk_info 		 z_b,
