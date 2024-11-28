@@ -122,7 +122,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.6.0 [25/11/2024]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.6.0 [28/11/2024]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
@@ -310,6 +310,7 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 	}
 	sp.ph_type 				= malloc(gv.len_ox 	* sizeof(int)				);	
 	sp.ph_id 				= malloc(gv.len_ox 	* sizeof(int)				);	
+	sp.ph_id_db 			= malloc(gv.len_ox 	* sizeof(int)				);	
 	sp.PP 		 			= malloc(gv.len_ox  * sizeof(stb_PP_phase)		); 
 	sp.SS 		 			= malloc(gv.len_ox  * sizeof(stb_SS_phase)		); 
 	sp.mSS 		 			= malloc(gv.max_n_mSS  * sizeof(mstb_SS_phase)	); 

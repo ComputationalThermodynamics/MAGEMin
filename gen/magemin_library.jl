@@ -1192,6 +1192,7 @@ struct stb_systems
     ph_frac_vol::Ptr{Cdouble}
     ph_type::Ptr{Cint}
     ph_id::Ptr{Cint}
+    ph_id_db::Ptr{Cint}
     SS::Ptr{stb_SS_phase}
     mSS::Ptr{mstb_SS_phase}
     PP::Ptr{stb_PP_phase}

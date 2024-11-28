@@ -51,6 +51,23 @@ out         =   point_wise_minimization(P,T, data);
 @test sort(out.ph) == sort(["g", "ring", "wad"])
 Finalize_MAGEMin(data)
 
+
+
+@testset "test light output calculation" begin
+    # Without a buffer at 1100.0 C
+    data    = Initialize_MAGEMin("ig", verbose=false);
+    P,T     = 10.0, 600.0
+    Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
+    X       = [78.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
+    sys_in  = "wt"
+    out_hT  = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, light=true)
+
+    @test sort(out_hT.ph_id_db) == sort([1, 1, 3, 4, 6, 10, 12])
+    @test out_hT.ph_type == [1, 1, 1, 1, 1, 0, 0]
+
+    Finalize_MAGEMin(data)
+end
+
 # Tests from L. Candioti - ETH - Oct 2024
 @testset "test mass conservation" begin
 
@@ -330,7 +347,7 @@ end
 
     data    = Initialize_MAGEMin("mp", verbose=-1, solver=0);
 
-    rm_list =   remove_phases(["liq"],"mp")
+    rm_list =   remove_phases(["liq","ilmm"],"mp")
 
     # One bulk rock for all points
     P,T     = 10.713125, 1177.34375

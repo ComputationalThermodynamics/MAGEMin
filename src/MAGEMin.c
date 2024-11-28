@@ -55,8 +55,6 @@
 #include "all_solution_phases.h"
 #include "MAGEMin.h"
 
-
-
 /** 
   Main routine
 */
@@ -1125,6 +1123,7 @@ void FreeDatabases(		global_variable gv,
 	free(DB.sp[0].ph_frac_vol);
 
 	free(DB.sp[0].ph_id);
+	free(DB.sp[0].ph_id_db);
 	free(DB.sp[0].ph_type);
 	free(DB.sp[0].MAGEMin_ver);
 	free(DB.sp[0].buffer);

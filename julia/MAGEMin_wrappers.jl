@@ -105,6 +105,7 @@ struct gmin_struct{T,I}
     ph_frac_vol :: Vector{T}            # phase fractions
     ph_type     :: Vector{I}            # type of phase (SS or PP)
     ph_id       :: Vector{I}            # id of phase
+    ph_id_db    :: Vector{I}            # id of phase
     ph          :: Vector{String}       # Name of phase
 
     SS_vec      :: Vector{LibMAGEMin.SS_data}
@@ -136,6 +137,15 @@ struct gmin_struct{T,I}
     status          :: I           # status of calculations
 end
 
+struct light_gmin_struct{T <: Float32, I <: Int8} 
+    P_kbar      :: T                    # Pressure in kbar
+    T_C         :: T                    # Temperature in Celsius
+   
+    ph_frac_1at :: Vector{T}            # phase fractions
+    ph_type     :: Vector{I}            # type of phase (SS or PP)
+    ph_id_db    :: Vector{I}            # id of phase
+    xeos        :: Vector{Vector{T}}    # Name of phase
+end
 
 
 """
@@ -401,6 +411,7 @@ end
 function single_point_minimization(     P           ::  T1,
                                         T           ::  T1,
                                         MAGEMin_db  ::  MAGEMin_Data;
+                                        light       ::  Bool                            = false,
                                         test        ::  Int64                           = 0, # if using a build-in test case,
                                         X           ::  VecOrMat                        = nothing,      
                                         B           ::  Union{Nothing, T1, Vector{T1}}  = nothing,
@@ -426,7 +437,8 @@ function single_point_minimization(     P           ::  T1,
 
     Out_PT     =   multi_point_minimization(    P,
                                                 T,
-                                                MAGEMin_db,
+                                                MAGEMin_db;
+                                                light       =   light,
                                                 test        =   test,
                                                 X           =   X,
                                                 B           =   B,
@@ -509,6 +521,7 @@ julia> versioninfo()
 function multi_point_minimization(P           ::  T2,
                                   T           ::  T2,
                                   MAGEMin_db  ::  MAGEMin_Data;
+                                  light       ::  Bool                            = false,
                                   test        ::  Int64                           = 0, # if using a build-in test case,
                                   X           ::  VecOrMat                        = nothing,
                                   B           ::  Union{Nothing, T1, Vector{T1}}  = nothing,
@@ -549,8 +562,11 @@ function multi_point_minimization(P           ::  T2,
     end
 
     # initialize vectors
-    Out_PT = Vector{gmin_struct{Float64, Int64}}(undef, length(P))
-
+    if light == true
+        Out_PT = Vector{light_gmin_struct{Float32, Int8}}(undef, length(P))
+    else
+        Out_PT = Vector{gmin_struct{Float64, Int64}}(undef, length(P))
+    end
     # main loop
     if progressbar
         progr = Progress(length(P), desc="Computing $(length(P)) points...") # progress meter
@@ -571,17 +587,25 @@ function multi_point_minimization(P           ::  T2,
             gv = define_bulk_rock(gv, X[i], Xoxides, sys_in, MAGEMin_db.db);
         end
 
-        if ~isnothing(data_in)
-            if isnothing(B)
-                out     = point_wise_minimization_iguess(P[i], T[i], gv, z_b, DB, splx_data; scp, rm_list, data_in = data_in[i])
+        if light == false
+            if ~isnothing(data_in)
+                if isnothing(B)
+                    out     = point_wise_minimization_iguess(P[i], T[i], gv, z_b, DB, splx_data; scp, rm_list, data_in = data_in[i])
+                else
+                    out     = point_wise_minimization_iguess(P[i], T[i], gv, z_b, DB, splx_data; buffer_n = B[i], W = W, scp, rm_list, data_in = data_in[i])
+                end  
             else
-                out     = point_wise_minimization_iguess(P[i], T[i], gv, z_b, DB, splx_data; buffer_n = B[i], W = W, scp, rm_list, data_in = data_in[i])
-            end  
-        else
+                if isnothing(B)
+                    out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; scp, rm_list)
+                else
+                    out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; buffer_n = B[i], W = W, scp, rm_list)
+                end
+            end
+        elseif light == true
             if isnothing(B)
-                out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; scp, rm_list)
+                out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; light=light, scp, rm_list)
             else
-                out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; buffer_n = B[i], W = W, scp, rm_list)
+                out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; light=light, buffer_n = B[i], W = W, scp, rm_list)
             end
         end
 
@@ -957,6 +981,7 @@ function point_wise_minimization(   P       ::Float64,
                                     z_b,
                                     DB,
                                     splx_data;
+                                    light       = false,
                                     buffer_n    = 0.0,
                                     scp         = 0,
                                     rm_list     = nothing,
@@ -1026,8 +1051,11 @@ function point_wise_minimization(   P       ::Float64,
     LibMAGEMin.PrintOutput(gv, 0, 1, DB, time, z_b);
 
     # Transform results to a more convenient julia struct
-    out = deepcopy(create_gmin_struct(DB, gv, time));
-
+    if light == true
+        out = deepcopy(create_light_gmin_struct(DB));
+    else    
+        out = deepcopy(create_gmin_struct(DB, gv, time));
+    end
     # here we compute specific heat capacity using reactions
     if (scp == 1)
         mSS_vec     = deepcopy(out.mSS_vec)
@@ -1440,6 +1468,7 @@ function create_gmin_struct(DB, gv, time)
     ph_frac_vol =  unsafe_wrap(Vector{Cdouble},stb.ph_frac_vol,   n_ph)
     ph_type  =  unsafe_wrap(Vector{Cint},   stb.ph_type,   n_ph)
     ph_id    =  unsafe_wrap(Vector{Cint},   stb.ph_id  ,   n_ph)
+    ph_id_db   =  unsafe_wrap(Vector{Cint},   stb.ph_id_db ,   n_ph)
     ph       =  unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, stb.ph, n_ph)) # stable phases
 
     # extract info about compositional variables of the solution models:
@@ -1470,7 +1499,7 @@ function create_gmin_struct(DB, gv, time)
                 rho, rho_M, rho_S, rho_F,
                 fO2, dQFM, aH2O, aSiO2, aTiO2, aAl2O3, aMgO, aFeO,
                 n_PP, n_SS, n_mSS,
-                ph_frac, ph_frac_wt, ph_frac_1at, ph_frac_vol, ph_type, ph_id, ph,
+                ph_frac, ph_frac_wt, ph_frac_1at, ph_frac_vol, ph_type, ph_id, ph_id_db, ph,
                 SS_vec,  mSS_vec, PP_vec,
                 oxides,  elements,
                 stb.Vp, stb.Vs, stb.Vp_S, stb.Vs_S, stb.bulkMod, stb.shearMod, stb.bulkModulus_M,  stb.bulkModulus_S, stb.shearModulus_S,
@@ -1480,6 +1509,34 @@ function create_gmin_struct(DB, gv, time)
    return out
 end
 
+
+"""
+    out = create_light_gmin_struct(gv, z_b)
+
+This extracts the output of a pointwise MAGEMin optimization and adds it into a julia structure
+"""
+function create_light_gmin_struct(DB)
+
+    stb      = unsafe_load(DB.sp)
+    n_ph     =  stb.n_ph        # total # of stable phases
+    n_PP     =  stb.n_PP        # number of pure phases
+    n_SS     =  stb.n_SS        # number of solid solutions
+
+    P_kbar   = Float32(stb.P)
+    T_C      = Float32(stb.T-273.15)
+
+    ph_frac_1at =  Float32.(unsafe_wrap(Vector{Cdouble},     stb.ph_frac_1at,        n_ph))
+    ph_type     =  Int8.(unsafe_wrap(Vector{Cint},        stb.ph_type,            n_ph))
+    ph_id_db    =  Int8.(unsafe_wrap(Vector{Cint},        stb.ph_id_db,           n_ph))
+
+    # extract info about compositional variables of the solution models:
+    SS_vec  = convert.(LibMAGEMin.SS_data, unsafe_wrap(Vector{LibMAGEMin.stb_SS_phase},stb.SS,n_SS))
+    xeos     = [Float32.(SS_vec[i].compVariables) for i=1:n_SS]
+    # Store all in output struct
+    out = light_gmin_struct{Float32,Int8}( P_kbar, T_C, ph_frac_1at, ph_type, ph_id_db, xeos)
+
+   return out
+end
 
 # Print brief info about pointwise calculation result
 function show(io::IO, g::gmin_struct)
