@@ -900,7 +900,7 @@ function convertBulk4MAGEMin(bulk_in::T1,bulk_in_ox::Vector{String},sys_in::Stri
         MAGEMin_bulk[c[id0]] .= 1e-4;
     end
 
-    id1 = findall(MAGEMin_bulk[d] .< 2e-5)
+    id1 = findall(MAGEMin_bulk[d] .< 2e-5 .&& MAGEMin_bulk[d] .> -2e-5)
     if ~isempty(id1)
         MAGEMin_bulk[d[id1]] .= 0.0;
     end

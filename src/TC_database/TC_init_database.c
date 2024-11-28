@@ -1490,7 +1490,7 @@ global_variable get_bulk_metapelite_ext( global_variable gv) {
 		gv.bulk_rock[5]  = 1.7686;		/** K2O	 	*/
 		gv.bulk_rock[6]  = 2.4820;		/** Na2O 	*/
 		gv.bulk_rock[7]  = 0.6393;		/** TiO2 	*/
-		gv.bulk_rock[8]  = 0.1;			/** O 		*/
+		gv.bulk_rock[8]  = -0.5;		/** O 		*/
 		gv.bulk_rock[9]  = 0.0630;		/** MnO 	*/
 		gv.bulk_rock[10] = 10.0;		/** H2O 	*/
 		gv.bulk_rock[11] = 10.0;		/** CO2  	*/
