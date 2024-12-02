@@ -914,7 +914,7 @@ global_variable SetupDatabase(			global_variable 	 gv,
 
 	}
 
-	if (gv.verbose == 1){	
+	if (gv.verbose == 2){	
 		printf("\n");	
 		printf("--verbose     : verbose              = %i \n", 	 	   		gv.verbose			);
 		printf("--rg          : research group       = %s \n", 	 	  		gv.research_group	);

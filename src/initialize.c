@@ -879,7 +879,7 @@ bulk_info reset_z_b_bulk(			global_variable 	 gv,
 		z_b.zEl_array[i] = 0.0;
 		z_b.bulk_rock[i] = gv.bulk_rock[i];
 		// if (gv.bulk_rock[i] > 0.0){
-		if (gv.bulk_rock[i] != 0.0){
+		if (gv.bulk_rock[i] != 0.0 ){ //|| gv.O_id == i
 			sum += 1;
 		}
 	}

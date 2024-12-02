@@ -5645,7 +5645,6 @@ double obj_mp_sp(unsigned n, const double *x, double *grad, void *SS_ref_db){
     sf[3]          = 1.0 - x[0];
     sf[4]          = x[0];
     
-    
     mu[0]          = R*T*creal(clog(sf[0]*sf[4])) + gb[0] + mu_Gex[0];
     mu[1]          = R*T*creal(clog(sf[0]*sf[3])) + gb[1] + mu_Gex[1];
     mu[2]          = R*T*creal(clog(sf[4]*sf[1] + d_em[2])) + gb[2] + mu_Gex[2];
