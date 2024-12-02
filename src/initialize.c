@@ -790,6 +790,10 @@ void reset_sp(						global_variable 	 gv,
 	sp[0].frac_M_wt						= 0.0;
 	sp[0].frac_F_wt						= 0.0;
 
+	sp[0].frac_S_vol					= 0.0;
+	sp[0].frac_M_vol					= 0.0;
+	sp[0].frac_F_vol					= 0.0;
+
 	sp[0].frac_S						= 0.0;
 	sp[0].frac_M						= 0.0;
 	sp[0].frac_F						= 0.0;

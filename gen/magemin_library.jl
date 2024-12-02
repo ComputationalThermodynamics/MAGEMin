@@ -1177,10 +1177,13 @@ struct stb_systems
     rho_F::Cdouble
     bulk_S_wt::Ptr{Cdouble}
     frac_S_wt::Cdouble
+    frac_S_vol::Cdouble
     bulk_M_wt::Ptr{Cdouble}
     frac_M_wt::Cdouble
+    frac_M_vol::Cdouble
     bulk_F_wt::Ptr{Cdouble}
     frac_F_wt::Cdouble
+    frac_F_vol::Cdouble
     n_ph::Cint
     n_PP::Cint
     n_SS::Cint
@@ -1323,7 +1326,7 @@ mutable struct metapelite_datasets
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{11, NTuple{20, Cchar}}
-    PP::NTuple{23, NTuple{20, Cchar}}
+    PP::NTuple{24, NTuple{20, Cchar}}
     SS::NTuple{18, NTuple{20, Cchar}}
     verifyPC::NTuple{18, Cint}
     n_SS_PC::NTuple{18, Cint}
@@ -1349,7 +1352,7 @@ mutable struct metabasite_datasets
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{10, NTuple{20, Cchar}}
-    PP::NTuple{23, NTuple{20, Cchar}}
+    PP::NTuple{24, NTuple{20, Cchar}}
     SS::NTuple{17, NTuple{20, Cchar}}
     verifyPC::NTuple{17, Cint}
     n_SS_PC::NTuple{17, Cint}
@@ -1505,7 +1508,7 @@ mutable struct metapelite_datasets_ext
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{13, NTuple{20, Cchar}}
-    PP::NTuple{25, NTuple{20, Cchar}}
+    PP::NTuple{26, NTuple{20, Cchar}}
     SS::NTuple{23, NTuple{20, Cchar}}
     verifyPC::NTuple{23, Cint}
     n_SS_PC::NTuple{23, Cint}

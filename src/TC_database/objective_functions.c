@@ -14523,7 +14523,7 @@ double obj_aq17(unsigned n, const double *x, double *grad, void *SS_ref_db) {
                                 d->g,  
                                 d->epsilon,
                                 xiw                );  //fraction of water
-        // cor          = HSC_to_SUPCRT(ElH, Comp[i], len_ox);
+        cor          = HSC_to_SUPCRT(ElH, Comp[i], len_ox);
         mu[i]        = gb[i]  + (log(pow(10.0,loggamma)) + log(1000.0/18.0153) + log(x[i]/Xw) - log(xiw/Xw) - xiw/Xw + 1.0 )/1000.0;
         m_all       += x[i];
         if (charge[i] != 0.0){
@@ -14552,7 +14552,7 @@ double obj_aq17(unsigned n, const double *x, double *grad, void *SS_ref_db) {
                                         m_all       );
 
     /* set chemical potential of water */
-    // cor          = HSC_to_SUPCRT(ElH, Comp[0], len_ox);
+    cor          = HSC_to_SUPCRT(ElH, Comp[0], len_ox);
     mu[0] = gb[0]  + ( log(logawater) + log(xiw/Xw) - Xw/xiw - xiw/Xw + 2.0)/1000.0;
 
     px_aq17(SS_ref_db,x);

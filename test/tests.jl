@@ -78,10 +78,9 @@ end
     X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
     sys_in  = "wt"
     out_hT  = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
-    Δρ_hT = abs( out_hT.rho - ((out_hT.frac_M_wt * out_hT.rho_M + out_hT.frac_S_wt * out_hT.rho_S )) )
+    Δρ_hT   = abs( out_hT.rho - ((out_hT.frac_M_wt * out_hT.rho_M + out_hT.frac_S_wt * out_hT.rho_S )) )
     @test Δρ_hT < 1e-10
     Finalize_MAGEMin(data)
-
 
     # Without a buffer at 800.0 C
     data    = Initialize_MAGEMin("ig", verbose=false);
@@ -101,7 +100,7 @@ end
     X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
     sys_in  = "wt"
     out_BhT = single_point_minimization(P, T, data, X=X, B=0.0, Xoxides=Xoxides, sys_in=sys_in)
-    Δρ_BhT = abs( out_BhT.rho - ((out_BhT.frac_M_wt * out_BhT.rho_M + out_BhT.frac_S_wt * out_BhT.rho_S )) )
+    Δρ_BhT  = abs( out_BhT.rho - ((out_BhT.frac_M_wt * out_BhT.rho_M + out_BhT.frac_S_wt * out_BhT.rho_S )) )
     @test Δρ_BhT < 1e-10
     Finalize_MAGEMin(data)
     
@@ -112,42 +111,37 @@ end
     X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
     sys_in  = "wt"
     out_BlT = single_point_minimization(P, T, data, X=X, B=0.0, Xoxides=Xoxides, sys_in=sys_in)
-    Δρ_BlT = abs( out_BlT.rho - ((out_BlT.frac_M_wt * out_BlT.rho_M + out_BlT.frac_S_wt * out_BlT.rho_S )) )
+    Δρ_BlT  = abs( out_BlT.rho - ((out_BlT.frac_M_wt * out_BlT.rho_M + out_BlT.frac_S_wt * out_BlT.rho_S )) )
     @test Δρ_BlT < 1e-10
     Finalize_MAGEMin(data)
+
 end
 
 @testset "test activity buffers" begin
     # Initialize database  - new way
-    data        =   Initialize_MAGEMin("mp", verbose=true, buffer="aH2O");
+    data        =   Initialize_MAGEMin("mp", verbose=-1, buffer="aH2O");
     test        =   0        
     data        =   use_predefined_bulk_rock(data, test);
-
-    # Call optimization routine for given P & T & bulk_rock
     P           =   8.0
     T           =   400.0
     out         =   point_wise_minimization(P,T, data, buffer_n=0.6);
     @test sort(out.ph) == sort(["chl", "sp", "mu", "mu", "fsp", "ep", "q", "ru", "aH2O"])
     Finalize_MAGEMin(data)
 
-    # Initialize database  - new way
+
     data        =   Initialize_MAGEMin("mp", verbose=true, buffer="aTiO2");
     test        =   0        
     data        =   use_predefined_bulk_rock(data, test);
-
-    # Call optimization routine for given P & T & bulk_rock
     P           =   8.0
     T           =   400.0
     out         =   point_wise_minimization(P,T, data, buffer_n=0.6);
     @test sort(out.ph) == sort(["H2O", "aTiO2", "chl", "ep", "fsp", "ilm", "mu", "mu", "q"])
     Finalize_MAGEMin(data)
 
-    # Initialize database  - new way
+
     data        =   Initialize_MAGEMin("ig", verbose=true, buffer="aTiO2");
     test        =   0        
     data        =   use_predefined_bulk_rock(data, test);
-
-    # Call optimization routine for given P & T & bulk_rock
     P           =   8.0
     T           =   1200.0
     out         =   point_wise_minimization(P,T, data, buffer_n=0.1);
@@ -157,8 +151,6 @@ end
 
 
     data    = Initialize_MAGEMin("ig", verbose=false, buffer="qfm");
-    
-    # One bulk rock for all points
     P,T     = 10.0, 1100.0
     Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
     X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
@@ -168,6 +160,26 @@ end
 
     Finalize_MAGEMin(data)
 
+end
+
+@testset "test sum frac_vol" begin
+    data    = Initialize_MAGEMin("mp", verbose=-1, solver=0);
+    P,T     = 10.713125, 1177.34375
+    Xoxides = ["SiO2","Al2O3","CaO","MgO","FeO","K2O","Na2O","TiO2","O","MnO","H2O"]
+    X       = [70.999,12.805,0.771,3.978,6.342,2.7895,1.481,0.758,0.72933,0.075,30.0]
+    sys_in  = "mol"    
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    @test sum(out.frac_M_vol + out.frac_F_vol + out.frac_S_vol) ≈ 1.0
+    Finalize_MAGEMin(data)
+
+    data    = Initialize_MAGEMin("mp", verbose=-1, solver=0);
+    P,T     = 5.713125, 477.34375
+    Xoxides = ["SiO2","Al2O3","CaO","MgO","FeO","K2O","Na2O","TiO2","O","MnO","H2O"]
+    X       = [70.999,12.805,0.771,3.978,6.342,2.7895,1.481,0.758,0.72933,0.075,30.0]
+    sys_in  = "mol"    
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    Finalize_MAGEMin(data)
+    @test sum(out.frac_M_vol + out.frac_F_vol + out.frac_S_vol) ≈ 1.0
 end
 
 @testset "test zr saturation" begin

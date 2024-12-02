@@ -7718,7 +7718,7 @@ SS_ref NLopt_opt_aq17_function(global_variable gv, SS_ref SS_ref_db){
        SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
     }
     
-    SS_ref_db.opt = nlopt_create(NLOPT_LN_COBYLA, (n)); 
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n)); 
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_aq17, &SS_ref_db);
