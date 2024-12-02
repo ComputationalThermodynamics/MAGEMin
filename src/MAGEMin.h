@@ -769,10 +769,10 @@ typedef struct stb_systems {
 	double *bulk_M; double frac_M; double rho_M; 	/* Melt system informations 												*/
 	double *bulk_F; double frac_F; double rho_F; 	/* Fluid system informations 												*/
 	
-	double *bulk_S_wt; double frac_S_wt;   			/* Solid system informations 												*/
-	double *bulk_M_wt; double frac_M_wt;  			/* Melt system informations 												*/
-	double *bulk_F_wt; double frac_F_wt;  			/* Fluid system informations 												*/
-	
+	double *bulk_S_wt; double frac_S_wt; double frac_S_vol;  			/* Solid system informations 												*/
+	double *bulk_M_wt; double frac_M_wt; double frac_M_vol;  			/* Melt system informations 												*/
+	double *bulk_F_wt; double frac_F_wt; double frac_F_vol; 			/* Fluid system informations 												*/
+
 	int     n_ph;									/* number of predicted stable phases 										*/
 	int     n_PP;									/* number of predicted stable pure phases 									*/
 	int     n_SS;									/* number of predicted stable solution phases 								*/

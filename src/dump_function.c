@@ -173,6 +173,9 @@ void reset_output_struct(		global_variable 	 gv,
 	sp[0].frac_S_wt				 = 0.0;
 	sp[0].frac_M_wt				 = 0.0;
 	sp[0].frac_F_wt				 = 0.0;
+	sp[0].frac_S_vol			 = 0.0;
+	sp[0].frac_M_vol			 = 0.0;
+	sp[0].frac_F_vol			 = 0.0;
 	sp[0].rho_S				 	 = 0.0;
 	sp[0].rho_M				 	 = 0.0;
 	sp[0].rho_F				 	 = 0.0;
@@ -570,6 +573,7 @@ void fill_output_struct(		global_variable 	 gv,
 					if (gv.n_phase == 1){
 						sp[0].frac_M 				= 1.0;
 						sp[0].frac_M_wt				= 1.0;
+						sp[0].frac_M_vol		    = 1.0;
 					}
 					else{
 						sp[0].frac_M 				= cp[i].ss_n_mol;
@@ -686,6 +690,19 @@ void fill_output_struct(		global_variable 	 gv,
 	for (int i = 0; i < gv.len_cp; i++){
 		if ( cp[i].ss_flags[1] == 1){
 			sp[0].ph_frac_vol[n] = sp[0].ph_frac_wt[n] / sp[0].SS[n].rho;
+
+			if (strcmp( cp[i].name, "liq") == 0 || strcmp( cp[i].name, "fl") == 0 ){
+				if (strcmp( cp[i].name, "liq") == 0){
+						sp[0].frac_M_vol      = sp[0].ph_frac_vol[n];
+				}
+				else{
+						sp[0].frac_F_vol      = sp[0].ph_frac_vol[n];
+				}
+			}
+			else{
+				sp[0].frac_S_vol += sp[0].ph_frac_vol[n];
+			}
+
 			sum_vol += sp[0].ph_frac_vol[n];
 			sum_mol += sp[0].ph_frac[n];
 			sum_wt  += sp[0].ph_frac_wt[n];
@@ -696,6 +713,14 @@ void fill_output_struct(		global_variable 	 gv,
 	for (int i = 0; i < gv.len_pp; i++){
 		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
 			sp[0].ph_frac_vol[n] =  sp[0].ph_frac_wt[n] / sp[0].PP[m].rho;
+
+			if  (strcmp( gv.PP_list[i], "H2O") != 0){
+				sp[0].frac_S_vol += sp[0].ph_frac_vol[n];
+			}
+			if  (strcmp( gv.PP_list[i], "H2O") == 0){
+				sp[0].frac_F_vol = sp[0].ph_frac_vol[n];
+			}
+
 			sum_vol += sp[0].ph_frac_vol[n];
 			sum_mol += sp[0].ph_frac[n];
 			sum_wt  += sp[0].ph_frac_wt[n];
@@ -708,6 +733,7 @@ void fill_output_struct(		global_variable 	 gv,
 		sp[0].ph_frac[i] 		/= sum_mol;
 		sp[0].ph_frac_wt[i] 	/= sum_wt;
 	}
+
 
 	/* The following section normalizes the entries for S (solid), M (melt) and F (fluid) which are entries useful for geodynamic coupling */
 	// normalize rho_S and bulk_S
@@ -762,6 +788,12 @@ void fill_output_struct(		global_variable 	 gv,
 	sp[0].frac_F_wt /= sum;
 	sp[0].frac_M_wt /= sum;
 	sp[0].frac_S_wt /= sum;
+
+	sum = sp[0].frac_F_vol + sp[0].frac_M_vol + sp[0].frac_S_vol;
+
+	sp[0].frac_F_vol /= sum;
+	sp[0].frac_M_vol /= sum;
+	sp[0].frac_S_vol /= sum;
 
 	/* compute cp as J/K/kg for given bulk-rock composition */
 	sp[0].s_cp 					= sp[0].cp_wt/mass_bulk*1e6;

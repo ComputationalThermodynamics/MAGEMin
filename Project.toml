@@ -1,7 +1,7 @@
 name = "MAGEMin_C"
 uuid = "e5d170eb-415a-4524-987b-12f1bce1ddab"
 authors = ["Boris Kaus <kaus@uni-mainz.de> & Nicolas Riel <riel@uni-mainz.de>"]
-version = "1.6.0"
+version = "1.6.1"
 
 [deps]
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"

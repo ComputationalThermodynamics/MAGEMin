@@ -1730,7 +1730,7 @@ SS_ref G_SS_mpe_opx_init_function(SS_ref SS_ref_db, global_variable gv){
     SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.symmetry  = 0;
-    SS_ref_db.n_sf      = 10;
+    SS_ref_db.n_sf      = 11;
     SS_ref_db.n_em      = 7;
     SS_ref_db.n_v       = 7;
     SS_ref_db.n_w       = 21;

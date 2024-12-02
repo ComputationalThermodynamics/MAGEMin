@@ -4246,12 +4246,12 @@ SS_ref G_SS_mp_sp_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     };
     //int si = sizeof(SF_tmp)/sizeof(SF_tmp[0]); printf("sz_tmp: %d n_sf %d\n",si,SS_ref_db.n_sf);
     
-    SS_ref_db.W[0] = 16.;
-    SS_ref_db.W[1] = 2.;
-    SS_ref_db.W[2] = 20.;
-    SS_ref_db.W[3] = 18.;
-    SS_ref_db.W[4] = 36.;
-    SS_ref_db.W[5] = 30.;
+    SS_ref_db.W[0] = 0.0;
+    SS_ref_db.W[1] = 18.5;
+    SS_ref_db.W[2] = 27.0;
+    SS_ref_db.W[3] = 40.0;
+    SS_ref_db.W[4] = 30.0;
+    SS_ref_db.W[5] = 0.0;
     
     
     em_data herc_eq 	= get_em_data(		research_group, EM_dataset, 
@@ -13401,12 +13401,12 @@ SS_ref G_SS_mpe_sp_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     };
     //int si = sizeof(SF_tmp)/sizeof(SF_tmp[0]); printf("sz_tmp: %d n_sf %d\n",si,SS_ref_db.n_sf);
     
-    SS_ref_db.W[0] = 16.;
-    SS_ref_db.W[1] = 2.;
-    SS_ref_db.W[2] = 20.;
-    SS_ref_db.W[3] = 18.;
-    SS_ref_db.W[4] = 36.;
-    SS_ref_db.W[5] = 30.;
+    SS_ref_db.W[0] = 0.0;
+    SS_ref_db.W[1] = 18.5;
+    SS_ref_db.W[2] = 27.0;
+    SS_ref_db.W[3] = 40.0;
+    SS_ref_db.W[4] = 30.0;
+    SS_ref_db.W[5] = 0.0;
     
     
     em_data herc_eq 	= get_em_data(		research_group, EM_dataset, 

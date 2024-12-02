@@ -122,7 +122,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.6.0 [28/11/2024]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.6.1 [28/11/2024]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
@@ -790,6 +790,10 @@ void reset_sp(						global_variable 	 gv,
 	sp[0].frac_M_wt						= 0.0;
 	sp[0].frac_F_wt						= 0.0;
 
+	sp[0].frac_S_vol					= 0.0;
+	sp[0].frac_M_vol					= 0.0;
+	sp[0].frac_F_vol					= 0.0;
+
 	sp[0].frac_S						= 0.0;
 	sp[0].frac_M						= 0.0;
 	sp[0].frac_F						= 0.0;
@@ -875,7 +879,7 @@ bulk_info reset_z_b_bulk(			global_variable 	 gv,
 		z_b.zEl_array[i] = 0.0;
 		z_b.bulk_rock[i] = gv.bulk_rock[i];
 		// if (gv.bulk_rock[i] > 0.0){
-		if (gv.bulk_rock[i] != 0.0){
+		if (gv.bulk_rock[i] != 0.0 ){ //|| gv.O_id == i
 			sum += 1;
 		}
 	}
