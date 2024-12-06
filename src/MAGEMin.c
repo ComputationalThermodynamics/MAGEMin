@@ -852,8 +852,11 @@ global_variable SetupDatabase(			global_variable 	 gv,
 			printf(" WARNING: Unknown dataset '%d' has been provided, setting default one\n",gv.EM_dataset);
 		}
 
+		if 	(strcmp(gv.db,    "mpf") 	== 0){
+			gv.EM_database = -1;
+		}
 		/* set-up database acronym here*/
-		if 		(strcmp(gv.db, "mp") 	== 0){
+		else if (strcmp(gv.db, "mp") 	== 0){
 			gv.EM_database = 0;
 		}
 		else if (strcmp(gv.db, "mb") 	== 0){

@@ -14535,17 +14535,24 @@ SS_ref G_SS_mb_EM_function(		global_variable 	 gv,
 	SS_ref_db.fbc = z_b.fbc;	
 	
 	if (gv.verbose == 1){
-		printf(" %4s:",name);
+		printf(" %4s:\n",name);
+        printf("----\n");
+        /* display Gibbs free energy of reference? */
+        for (int j = 0; j < SS_ref_db.n_em; j++){
+			printf(" %12s",SS_ref_db.EM_list[j]);
+		}
+		printf("\n");
+        /* display Gibbs free energy of reference? */
 		for (int j = 0; j < SS_ref_db.n_em; j++){
 			printf(" %+12.5f",SS_ref_db.gbase[j]);
 		}
 		printf("\n");
 
         /* display molar composition */
-        printf(" S   A   C   M   F   K   N   T   O   H\n");
+        printf(" S    A    C    M    F    K    N    T    O    H\n");
         for (int i = 0; i < SS_ref_db.n_em; i++){
             for (int j = 0; j < gv.len_ox; j++){
-                printf(" %.1f",SS_ref_db.Comp[i][j]);
+                printf(" %+.1f",SS_ref_db.Comp[i][j]);
             }
             printf("\n");
         }
@@ -14674,8 +14681,13 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
 	SS_ref_db.fbc = z_b.fbc;	
 	
 	if (gv.verbose == 1){
-		printf(" %4s:",name);
-
+		printf(" %4s:\n",name);
+        printf("----\n");
+		/* display Gibbs free energy of reference? */
+        for (int j = 0; j < SS_ref_db.n_em; j++){
+			printf(" %12s",SS_ref_db.EM_list[j]);
+		}
+		printf("\n");
 		/* display Gibbs free energy of reference? */
 		for (int j = 0; j < SS_ref_db.n_em; j++){
 			printf(" %+12.5f",SS_ref_db.gbase[j]);
@@ -14683,10 +14695,10 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
 		printf("\n");
 
         /* display molar composition */
-        printf(" S   A   C   M   F   K   N   T   O   Cr  H\n");
+        printf(" S    A    C    M    F    K    N    T    O    Cr   H\n");
         for (int i = 0; i < SS_ref_db.n_em; i++){
             for (int j = 0; j < gv.len_ox; j++){
-                printf(" %.1f",SS_ref_db.Comp[i][j]);
+                printf(" %+.1f",SS_ref_db.Comp[i][j]);
             }
             printf("\n");
         }
@@ -14778,25 +14790,29 @@ SS_ref G_SS_igad_EM_function(	global_variable 	 gv,
 	SS_ref_db.fbc = z_b.fbc;	
 	
 	if (gv.verbose == 1){
-		printf(" %4s:",name);
-
+		printf(" %4s:\n",name);
+        printf("----\n");
+		/* display Gibbs free energy of reference? */
+        for (int j = 0; j < SS_ref_db.n_em; j++){
+			printf(" %12s",SS_ref_db.EM_list[j]);
+		}
+		printf("\n");
 		/* display Gibbs free energy of reference? */
 		for (int j = 0; j < SS_ref_db.n_em; j++){
 			printf(" %+12.5f",SS_ref_db.gbase[j]);
 		}
 		printf("\n");
 
-		if (1 == 1){
-			/* display molar composition */
-            printf(" S   A   C   M   F   K   N   T   O   Cr  \n");
-			for (int i = 0; i < SS_ref_db.n_em; i++){
-				for (int j = 0; j < gv.len_ox; j++){
-					printf(" %.1f",SS_ref_db.Comp[i][j]);
-				}
-				printf("\n");
-			}
-			printf("\n");
-		}
+        /* display molar composition */
+        printf(" S    A    C    M    F    K    N    T    O    Cr  \n");
+        for (int i = 0; i < SS_ref_db.n_em; i++){
+            for (int j = 0; j < gv.len_ox; j++){
+                printf(" %+.1f",SS_ref_db.Comp[i][j]);
+            }
+            printf("\n");
+        }
+        printf("\n");
+
 	}
 
 	return SS_ref_db;
@@ -14946,19 +14962,24 @@ SS_ref G_SS_mp_EM_function(		global_variable 	 gv,
 	SS_ref_db.fbc = z_b.fbc;	
 	
 	if (gv.verbose == 1){
-		printf(" %4s:",name);
-
+		printf(" %4s:\n",name);
+        printf("----\n");
 		/* display Gibbs free energy of reference? */
+        for (int j = 0; j < SS_ref_db.n_em; j++){
+			printf(" %12s",SS_ref_db.EM_list[j]);
+		}
+		printf("\n");
+        /* display Gibbs free energy of reference? */
 		for (int j = 0; j < SS_ref_db.n_em; j++){
 			printf(" %+12.5f",SS_ref_db.gbase[j]);
 		}
 		printf("\n");
 
         /* display molar composition */
-        printf(" S   A   C   M   F   K   N   T   O   M   H  \n");
+        printf(" S    A    C    M    F    K    N    T    O    Mn   H\n");
         for (int i = 0; i < SS_ref_db.n_em; i++){
             for (int j = 0; j < gv.len_ox; j++){
-                printf(" %.1f",SS_ref_db.Comp[i][j]);
+                printf(" %+.1f",SS_ref_db.Comp[i][j]);
             }
             printf("\n");
         }
@@ -15088,8 +15109,13 @@ SS_ref G_SS_um_EM_function(		global_variable 	 gv,
 	SS_ref_db.fbc = z_b.fbc;	
 	
 	if (gv.verbose == 1){
-		printf(" %4s:",name);
-
+		printf(" %4s:\n",name);
+        printf("----\n");
+		/* display Gibbs free energy of reference? */
+        for (int j = 0; j < SS_ref_db.n_em; j++){
+			printf(" %12s",SS_ref_db.EM_list[j]);
+		}
+		printf("\n");
 		/* display Gibbs free energy of reference? */
 		for (int j = 0; j < SS_ref_db.n_em; j++){
 			printf(" %+12.5f",SS_ref_db.gbase[j]);
@@ -15097,16 +15123,14 @@ SS_ref G_SS_um_EM_function(		global_variable 	 gv,
 		printf("\n");
 
         /* display molar composition */
-        printf(" S   A   M   F   O   H   S\n");
-
+        printf(" S    A    M    F    O    H    S\n");
         for (int i = 0; i < SS_ref_db.n_em; i++){
             for (int j = 0; j < gv.len_ox; j++){
-                printf(" %.1f",SS_ref_db.Comp[i][j]);
+                printf(" %+.1f",SS_ref_db.Comp[i][j]);
             }
             printf("\n");
         }
         printf("\n");
-
 	}
 
 	return SS_ref_db;
@@ -15241,8 +15265,13 @@ SS_ref G_SS_um_ext_EM_function(	global_variable 	 gv,
 	SS_ref_db.fbc = z_b.fbc;	
 	
 	if (gv.verbose == 1){
-		printf(" %4s:",name);
-
+		printf(" %4s:\n",name);
+        printf("----\n");
+		/* display Gibbs free energy of reference? */
+        for (int j = 0; j < SS_ref_db.n_em; j++){
+			printf(" %12s",SS_ref_db.EM_list[j]);
+		}
+		printf("\n");
 		/* display Gibbs free energy of reference? */
 		for (int j = 0; j < SS_ref_db.n_em; j++){
 			printf(" %+12.5f",SS_ref_db.gbase[j]);
@@ -15250,11 +15279,10 @@ SS_ref G_SS_um_ext_EM_function(	global_variable 	 gv,
 		printf("\n");
 
         /* display molar composition */
-        printf(" S   A   M   F   O   H   S   C   N\n");
-
+        printf(" S    A    M    F    O    H    S    C    N\n");
         for (int i = 0; i < SS_ref_db.n_em; i++){
             for (int j = 0; j < gv.len_ox; j++){
-                printf(" %.1f",SS_ref_db.Comp[i][j]);
+                printf(" %+.1f",SS_ref_db.Comp[i][j]);
             }
             printf("\n");
         }
@@ -15359,8 +15387,13 @@ SS_ref G_SS_mtl_EM_function(	global_variable 	 gv,
 	SS_ref_db.fbc = z_b.fbc;	
 	
 	if (gv.verbose == 1){
-		printf(" %4s:",name);
-
+		printf(" %4s:\n",name);
+        printf("----\n");
+		/* display Gibbs free energy of reference? */
+        for (int j = 0; j < SS_ref_db.n_em; j++){
+			printf(" %12s",SS_ref_db.EM_list[j]);
+		}
+		printf("\n");
 		/* display Gibbs free energy of reference? */
 		for (int j = 0; j < SS_ref_db.n_em; j++){
 			printf(" %+12.5f",SS_ref_db.gbase[j]);
@@ -15369,10 +15402,9 @@ SS_ref G_SS_mtl_EM_function(	global_variable 	 gv,
 
         /* display molar composition */
         printf(" S   A   C   M   F   N\n");
-
         for (int i = 0; i < SS_ref_db.n_em; i++){
             for (int j = 0; j < gv.len_ox; j++){
-                printf(" %.1f",SS_ref_db.Comp[i][j]);
+                printf(" %+.1f",SS_ref_db.Comp[i][j]);
             }
             printf("\n");
         }
@@ -15549,8 +15581,13 @@ SS_ref G_SS_mpe_EM_function(		global_variable 	 gv,
 	SS_ref_db.fbc = z_b.fbc;	
 	
 	if (gv.verbose == 1){
-		printf(" %4s:",name);
-
+		printf(" %4s:\n",name);
+        printf("----\n");
+		/* display Gibbs free energy of reference? */
+        for (int j = 0; j < SS_ref_db.n_em; j++){
+			printf(" %12s",SS_ref_db.EM_list[j]);
+		}
+		printf("\n");
 		/* display Gibbs free energy of reference? */
 		for (int j = 0; j < SS_ref_db.n_em; j++){
 			printf(" %+12.5f",SS_ref_db.gbase[j]);
@@ -15558,10 +15595,10 @@ SS_ref G_SS_mpe_EM_function(		global_variable 	 gv,
 		printf("\n");
 
         /* display molar composition */
-        printf(" S   A   C   M   F   K   N   T   O   M   H  CO  S\n");
+        printf(" S    A    C    M    F    K    N    T    O    Mn   H   CO   S\n");
         for (int i = 0; i < SS_ref_db.n_em; i++){
             for (int j = 0; j < gv.len_ox; j++){
-                printf(" %.1f",SS_ref_db.Comp[i][j]);
+                printf(" %+.1f",SS_ref_db.Comp[i][j]);
             }
             printf("\n");
         }
