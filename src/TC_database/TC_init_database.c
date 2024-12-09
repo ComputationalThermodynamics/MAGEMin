@@ -104,10 +104,10 @@ metabasite_dataset metabasite_db = {
 	{"sp"	,"opx"	,"fsp"	,"liq"	,"mu"	,"ilmm"	,"ilm"	,"ol"	,"hb"	,"ep"	,"g"	,"chl"	,"bi"	,"dio"	,"aug"	,"abc"  ,"spn"			},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1				},  // allow solvus?
-	{936	,1731 	,231	,3505	,4536 	,298	,422	,11		,7664	,110	,216	,3980	,1097	,1808	,2395	,21 	,196			},  // # of pseudocompound
+	{936	,1731 	,231	,3507	,4536 	,298	,422	,11		,7664	,110	,216	,3980	,1097	,1808	,2395	,21 	,196			},  // # of pseudocompound
 	{0.09	,0.19	,0.049	,0.199	,0.19	,0.09	,0.049	,0.098	,0.249	,0.049	,0.19	,0.19	,0.149	,0.16	,0.24	,0.049 	,0.09			},  // discretization step
 
-	4.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
+	6.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
 	473.15,						/* max temperature above which PGE solver is active 								*/
 	873.15,						/** minimum temperature above which melt is considered 								*/
 
