@@ -468,6 +468,7 @@ void fill_output_struct(		global_variable 	 gv,
 	m = 0;
 	for (int i = 0; i < gv.len_cp; i++){
 		if ( cp[i].ss_flags[1] == 1){
+
 			strcpy(sp[0].ph[n],cp[i].name);	
 
 			sp[0].ph_frac[n]  	 = cp[i].ss_n_mol;

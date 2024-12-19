@@ -7,7 +7,7 @@ using DataFrames, Dates, CSV
 
 const VecOrMat = Union{Nothing, AbstractVector{Float64}, AbstractVector{<:AbstractVector{Float64}}}
 
-export  anhydrous_renormalization, retrieve_solution_phase_information, remove_phases,
+export  anhydrous_renormalization, retrieve_solution_phase_information, remove_phases, get_ss_from_mineral,
         init_MAGEMin, finalize_MAGEMin, point_wise_minimization, convertBulk4MAGEMin, use_predefined_bulk_rock, define_bulk_rock, create_output,
         print_info, create_gmin_struct, pwm_init, pwm_run,
         single_point_minimization, multi_point_minimization, AMR_minimization, MAGEMin_Data, W_Data,
@@ -1390,6 +1390,139 @@ end
 
 # pwm_run(gv, z_b, DB, splx_data) = pwm_run( gv, z_b, DB, splx_data)
 
+
+function get_mineral_name(db, ss, SS_vec)
+
+    mineral_name = ss
+   
+    if db == "ig" || db == "igad"
+        x = SS_vec.compVariables
+        if ss == "spn"
+            if x[3] - 0.5 > 0.0;        mineral_name = "cm";
+            elseif x[2] - 0.5 > 0.0;    mineral_name = "mt";
+            else                        mineral_name = "sp";    end
+        elseif ss == "fsp"
+            if x[2] - 0.5 > 0.0;        mineral_name = "ksp";
+            else                        mineral_name = "pl";    end
+        elseif ss == "mu"
+            if x[4] - 0.5 > 0.0;        mineral_name = "pat";
+            else                        mineral_name = "mu";    end
+        elseif ss == "hb"
+            if x[3] - 0.5 > 0.0;        mineral_name = "gl";
+            elseif -x[3] -x[4] + 0.2 > 0.0;   mineral_name = "act";
+            else
+                if x[6] < 0.1;          mineral_name = "cum"; 
+                elseif -1/2*x[4]+x[6]-x[7]-x[8]-x[2]+x[3]>0.5;      mineral_name = "tr";       
+                else                    mineral_name = "hb";    end
+            end  
+        elseif ss == "ilm"
+            if -x[1] + 0.5 > 0.0;       mineral_name = "hem";
+            else                        mineral_name = "ilm";   end 
+        elseif ss == "ness"
+            if x[2] - 0.5 > 0.0;       mineral_name = "nesK";
+            else                        mineral_name = "ness";   end 
+        elseif ss == "cpx"
+            if x[3] - 0.6 > 0.0;        mineral_name = "pig";
+            elseif x[4] - 0.5 > 0.0;    mineral_name = "omph";
+            else                        mineral_name = "aug";   end 
+        end
+
+    elseif db == "mp" || db == "mpe" || db == "mb" || db == "ume"
+        x = SS_vec.compVariables
+        if ss == "sp"
+            if x[2] - 0.5 > 0.0;        mineral_name = "mt";
+            else                        mineral_name = "sp";    end
+        elseif ss == "fsp"
+            if x[2] - 0.5 > 0.0;        mineral_name = "ksp";
+            else                        mineral_name = "pl";    end
+        elseif ss == "mu"
+            if x[4] - 0.5 > 0.0;        mineral_name = "pat";
+            else                        mineral_name = "mu";    end
+        elseif ss == "hb"
+            if x[3] - 0.5 > 0.0;        mineral_name = "gl";
+            elseif -x[3]-x[4]+0.2>0.0;  mineral_name = "act";
+            else
+                if x[6] < 0.1;          mineral_name = "cum"; 
+                elseif -1/2*x[4]+x[6]-x[7]-x[8]-x[2]+x[3]>0.5;      mineral_name = "tr";     
+                else                    mineral_name = "hb";    end
+            end  
+        elseif ss == "ilmm"
+            if x[1] - 0.5 > 0.0;        mineral_name = "ilmm";
+            else                        mineral_name = "hemm";   end 
+        elseif ss == "ilm"
+            if 1.0 - x[1] > 0.5;        mineral_name = "hem";
+            else                        mineral_name = "ilm";   end 
+        elseif ss == "dio"
+            if 2*x[4] > 0.5;            mineral_name = "omph";
+            else                        mineral_name = "dio";   end 
+        elseif ss == "occm"
+            if x[2] > 0.5;              mineral_name = "sid";
+            elseif x[3] > 0.5;          mineral_name = "ank";  
+            elseif x[1] > 0.25 && x[3] < 0.01;         mineral_name = "mag";  
+            else                        mineral_name = "cc";   end 
+
+        end
+
+    end
+
+    return mineral_name
+end
+
+"""
+    This function returns the solution phase name given the mineral name (handling solvus -> solution phase)
+"""
+function get_ss_from_mineral(db, mrl, mbCpx)
+
+    ss = mrl
+   
+    if db =="ig" || db == "igad"
+
+        if mrl == "cm" || mrl == "mt" || mrl == "sp"
+            ss = "spn"
+        elseif mrl == "pat" || mrl == "mu"
+            ss = "mu"
+        elseif mrl == "ksp" || mrl == "pl"
+            ss = "fsp"
+        elseif mrl == "gl" || mrl == "act" || mrl == "hb" || mrl == "cum" || mrl == "tr"
+            ss = "hb"
+        elseif mrl == "hem" || mrl == "ilm"
+            ss = "ilm"
+        elseif mrl == "pig" || mrl == "omph" || mrl == "aug"
+            ss = "cpx"
+        elseif mrl == "nesK"
+            ss = "ness"
+        end
+
+    elseif db == "mp" || db == "mpe" || db == "mb" || db == "ume"
+
+        if mrl == "mt" || mrl == "sp"
+            ss = "sp"
+        elseif mrl == "ksp" || mrl == "pl"
+            ss = "fsp"
+        elseif mrl == "pat" || mrl == "mu"
+            ss = "mu"
+        elseif mrl == "gl" || mrl == "act" || mrl == "hb" || mrl == "cum" || mrl == "tr"
+            ss = "hb"
+        elseif mrl == "hem" || mrl == "ilm"
+            ss = "ilm"
+        elseif mrl == "hemm" || mrl == "ilmm"
+            ss = "ilmm"
+        elseif mrl == "omph" || mrl == "dio"
+            if mbCpx == 0
+                ss = "dio"
+            else
+                ss = "aug"
+            end
+        elseif mrl == "sid" || mrl == "mag" || mrl == "ank" || mrl == "cc"
+            ss = "occm"
+        end
+
+
+    end
+
+    return ss
+end
+
 """
     out = create_gmin_struct(gv, z_b)
 
@@ -1469,17 +1602,21 @@ function create_gmin_struct(DB, gv, time)
     n_SS     =  stb.n_SS        # number of solid solutions
     n_mSS    =  stb.n_mSS        # number of solid solutions
 
-    ph_frac  =  unsafe_wrap(Vector{Cdouble},stb.ph_frac,   n_ph)
+    ph_frac     =  unsafe_wrap(Vector{Cdouble},stb.ph_frac,   n_ph)
     ph_frac_wt  =  unsafe_wrap(Vector{Cdouble},stb.ph_frac_wt,   n_ph)
     ph_frac_1at =  unsafe_wrap(Vector{Cdouble},stb.ph_frac_1at,   n_ph)
     ph_frac_vol =  unsafe_wrap(Vector{Cdouble},stb.ph_frac_vol,   n_ph)
-    ph_type  =  unsafe_wrap(Vector{Cint},   stb.ph_type,   n_ph)
-    ph_id    =  unsafe_wrap(Vector{Cint},   stb.ph_id  ,   n_ph)
-    ph_id_db   =  unsafe_wrap(Vector{Cint},   stb.ph_id_db ,   n_ph)
-    ph       =  unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, stb.ph, n_ph)) # stable phases
+    ph_type     =  unsafe_wrap(Vector{Cint},   stb.ph_type,   n_ph)
+    ph_id       =  unsafe_wrap(Vector{Cint},   stb.ph_id  ,   n_ph)
+    ph_id_db    =  unsafe_wrap(Vector{Cint},   stb.ph_id_db ,   n_ph)
+    ph          =  unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, stb.ph, n_ph)) # stable phases
 
     # extract info about compositional variables of the solution models:
     SS_vec  = convert.(LibMAGEMin.SS_data, unsafe_wrap(Vector{LibMAGEMin.stb_SS_phase},stb.SS,n_SS))
+
+    for i=1:n_SS
+        ph[i] = get_mineral_name(database, ph[i], SS_vec[i])
+    end
 
     # extract information about metastable solution phases
     mSS_vec = convert.(LibMAGEMin.mSS_data, unsafe_wrap(Vector{LibMAGEMin.mstb_SS_phase},stb.mSS,n_mSS))
