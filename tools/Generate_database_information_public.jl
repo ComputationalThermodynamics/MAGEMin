@@ -5,7 +5,7 @@ function get_database_infos()
     
     db_details      = [ "Metapelite (White et al., 2014)",
                         "Metabasite (Green et al., 2016)",
-                        "Igneous (Holland et al., 2018)",
+                        "Igneous (Green et al., 2025, corrected after Holland et al., 2018)",
                         "Igneous alkaline dry (Weller et al., 2024)",
                         "Ultramafic (Evans & Frost., 2021)",
                         "Ultramafic extended (Evans & Frost., 2021) with pl, hb and aug from Green et al., 2016",

@@ -122,7 +122,7 @@ metabasite_dataset metabasite_db = {
 };
 
 igneous_dataset igneous_db = {
-	634,						/* Endmember default dataset number */
+	636,						/* Endmember default dataset number */
 	11,							/* number of oxides */			
 	24,							/* number of pure phases */
 	15,							/* number of solution phases */
@@ -132,8 +132,8 @@ igneous_dataset igneous_db = {
 	{"spn"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"hb"	,"ilm"	,"liq"	,"ol"	,"opx"	,"fsp"	,"fl"	,"mu"	,"fper"					},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1		,1						}, // allow solvus?
-	{1522	,3554	,121	,4125	,210	,2450	,5499	,420	,3088	,381	,3413	,231	,2		,2376	,20						}, // # of pseudocompound
-	{0.249	,0.124	,0.098	,0.249	,0.049	,0.145	,0.33	,0.0499	,0.198	,0.098	,0.249	,0.049	,1.0 	,0.198	,0.05					}, // discretization step
+	{1522	,3554	,121	,4125	,210	,2450	,5499	,1669	,3088	,381	,3413	,231	,2		,2376	,20						}, // # of pseudocompound
+	{0.249	,0.124	,0.098	,0.249	,0.049	,0.145	,0.33	,0.11	,0.198	,0.098	,0.249	,0.049	,1.0 	,0.198	,0.05					}, // discretization step
 
 	6.0, 						/** max dG under which a phase is considered to be reintroduced  					*/
 	673.15,						/** max temperature above which PGE solver is active 								*/
@@ -160,8 +160,8 @@ igneous_igad_dataset igneous_igad_db = {
 	{"spn"	,"cpx"	,"g"	,"ilm"	,"liq"	,"ol"	,"opx"	,"fsp"	,"lct"	,"mel"	,"ness"	,"kals"		},
 	
 	{1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1		,1		,1			}, // allow solvus?
-	{3318	,4127	,2450	,1035	,4911	,381	,3413	,861	,21		,270	,1210	,21			}, // # of pseudocompound
-	{0.195	,0.249	,0.145	,0.124	,0.15	,0.098	,0.249	,0.0249	,0.049	,0.19	,0.149 	,0.049		}, // discretization step
+	{3318	,4127	,2450	,1669	,4911	,381	,3413	,861	,21		,270	,1210	,21			}, // # of pseudocompound
+	{0.195	,0.249	,0.145	,0.11	,0.15	,0.098	,0.249	,0.0249	,0.049	,0.19	,0.149 	,0.049		}, // discretization step
 
 	6.0, 						/** max dG under which a phase is considered to be reintroduced  					*/
 	673.15,						/** max temperature above which PGE solver is active 								*/

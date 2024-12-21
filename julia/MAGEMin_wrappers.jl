@@ -14,6 +14,8 @@ export  anhydrous_renormalization, retrieve_solution_phase_information, remove_p
         MAGEMin_data2dataframe, MAGEMin_dataTE2dataframe,
         Initialize_MAGEMin, Finalize_MAGEMin
 
+export wt2mol, mol2wt
+
 export adjust_chemical_system, TE_prediction, get_OL_KDs_database, adjust_bulk_4_zircon
 
 export initialize_AMR, split_and_keep, AMR
@@ -415,6 +417,7 @@ function single_point_minimization(     P           ::  T1,
                                         T           ::  T1,
                                         MAGEMin_db  ::  MAGEMin_Data;
                                         light       ::  Bool                            = false,
+                                        name_solvus ::  Bool                            = false,
                                         test        ::  Int64                           = 0, # if using a build-in test case,
                                         X           ::  VecOrMat                        = nothing,      
                                         B           ::  Union{Nothing, T1, Vector{T1}}  = nothing,
@@ -442,6 +445,7 @@ function single_point_minimization(     P           ::  T1,
                                                 T,
                                                 MAGEMin_db;
                                                 light       =   light,
+                                                name_solvus =   name_solvus,
                                                 test        =   test,
                                                 X           =   X,
                                                 B           =   B,
@@ -525,6 +529,7 @@ function multi_point_minimization(P           ::  T2,
                                   T           ::  T2,
                                   MAGEMin_db  ::  MAGEMin_Data;
                                   light       ::  Bool                            = false,
+                                  name_solvus ::  Bool                            = false,
                                   test        ::  Int64                           = 0, # if using a build-in test case,
                                   X           ::  VecOrMat                        = nothing,
                                   B           ::  Union{Nothing, T1, Vector{T1}}  = nothing,
@@ -599,9 +604,9 @@ function multi_point_minimization(P           ::  T2,
                 end  
             else
                 if isnothing(B)
-                    out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; scp, rm_list)
+                    out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; scp, rm_list, name_solvus=name_solvus)
                 else
-                    out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; buffer_n = B[i], W = W, scp, rm_list)
+                    out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; buffer_n = B[i], W = W, scp, rm_list, name_solvus=name_solvus)
                 end
             end
         elseif light == true
@@ -783,13 +788,54 @@ function normalize(vector::Vector{Float64})
 end
 
 
+function wt2mol(    bulk_wt     :: Vector{Float64},
+                    bulk_ox     :: Vector{String}) 
+
+    ref_ox          = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "MnO"; "H2O"; "CO2"; "S"];
+    ref_MolarMass   = [60.08; 101.96; 56.08; 40.30; 71.85; 159.69; 94.2; 61.98; 79.88; 16.0; 151.99; 70.937; 18.015; 44.01; 32.06];      #Molar mass of oxides
+
+    bulk_mol = zeros(length(bulk_ox));
+    bulk_wt  = normalize(bulk_wt)
+
+    for i = 1:length(bulk_ox)
+        id = findfirst(ref_ox .== bulk_ox[i]);
+        bulk_mol[i] = bulk_wt[i]/ref_MolarMass[id];
+    end
+
+    bulk_mol .= bulk_mol ./sum(bulk_mol) .* 100.0
+
+    return bulk_mol
+end
+
+function mol2wt(    bulk_mol     :: Vector{Float64},
+                    bulk_ox      :: Vector{String}) 
+
+    ref_ox          = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "MnO"; "H2O"; "CO2"; "S"];
+    ref_MolarMass   = [60.08; 101.96; 56.08; 40.30; 71.85; 159.69; 94.2; 61.98; 79.88; 16.0; 151.99; 70.937; 18.015; 44.01; 32.06];      #Molar mass of oxides
+
+    bulk_wt = zeros(length(bulk_ox));
+    bulk_mol = normalize(bulk_mol)
+
+    for i = 1:length(bulk_ox)
+        id = findfirst(ref_ox .== bulk_ox[i]);
+        bulk_wt[i] = bulk_mol[i]*ref_MolarMass[id];
+    end
+
+    bulk_wt .= bulk_wt ./sum(bulk_wt) .* 100.0
+
+    return bulk_wt
+end
+
 """
-convertBulk4MAGEMin( bulk_in, bulk_in_ox, sys_in)
+    MAGEMin_bulk, MAGEMin_ox; = convertBulk4MAGEMin(bulk_in::T1,bulk_in_ox::Vector{String},sys_in::String,db::String) where {T1 <: AbstractVector{Float64}}
 
 receives bulk-rock composition in [mol,wt] fraction and associated oxide list and sends back bulk-rock composition converted for MAGEMin use
 
 """
-function convertBulk4MAGEMin(bulk_in::T1,bulk_in_ox::Vector{String},sys_in::String,db::String) where {T1 <: AbstractVector{Float64}}
+function convertBulk4MAGEMin(   bulk_in     :: T1,
+                                bulk_in_ox  :: Vector{String},
+                                sys_in      :: String,
+                                db          :: String ) where {T1 <: AbstractVector{Float64}}
 
 	ref_ox          = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "MnO"; "H2O"; "CO2"; "S"];
 	ref_MolarMass   = [60.08; 101.96; 56.08; 40.30; 71.85; 159.69; 94.2; 61.98; 79.88; 16.0; 151.99; 70.937; 18.015; 44.01; 32.06];      #Molar mass of oxides
@@ -985,6 +1031,7 @@ function point_wise_minimization(   P       ::Float64,
                                     DB,
                                     splx_data;
                                     light       = false,
+                                    name_solvus = false,
                                     buffer_n    = 0.0,
                                     scp         = 0,
                                     rm_list     = nothing,
@@ -1057,7 +1104,7 @@ function point_wise_minimization(   P       ::Float64,
     if light == true
         out = deepcopy(create_light_gmin_struct(DB));
     else    
-        out = deepcopy(create_gmin_struct(DB, gv, time));
+        out = deepcopy(create_gmin_struct(DB, gv, time; name_solvus = name_solvus));
     end
     # here we compute specific heat capacity using reactions
     if (scp == 1)
@@ -1305,9 +1352,10 @@ point_wise_minimization(P       ::  Number,
                         buffer_n::  Float64     = 0.0,
                         scp     ::  Int64       = 0,
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
+                        name_solvus::Bool       = false,
                         data_in ::  Union{Nothing, gmin_struct{Float64, Int64}, Vector{gmin_struct{Float64, Int64}}} = nothing,
                         W       ::  Union{Nothing, W_Data} = nothing) = 
-                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, scp, rm_list, data_in, W)
+                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, scp, rm_list, name_solvus, data_in, W)
 
 point_wise_minimization(P       ::  Number,
                         T       ::  Number,
@@ -1319,9 +1367,10 @@ point_wise_minimization(P       ::  Number,
                         buffer_n::  Float64     = 0.0,
                         scp     ::  Int64       = 0,
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
+                        name_solvus::Bool       = false,
                         data_in ::  Union{Nothing, gmin_struct{Float64, Int64}, Vector{gmin_struct{Float64, Int64}}} = nothing,
                         W       ::  Union{Nothing, W_Data} = nothing) = 
-                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, scp,  rm_list, data_in, W)
+                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, scp,  rm_list, name_solvus, data_in, W)
 
 point_wise_minimization(P       ::  Number,
                         T       ::  Number,
@@ -1329,9 +1378,10 @@ point_wise_minimization(P       ::  Number,
                         buffer_n::  Float64     = 0.0,
                         scp     ::  Int64       = 0,
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
+                        name_solvus::Bool       = false,
                         data_in ::  Union{Nothing, gmin_struct{Float64, Int64}, Vector{gmin_struct{Float64, Int64}}} = nothing,
                         W       ::  Union{Nothing, W_Data} = nothing) = 
-                        point_wise_minimization(Float64(P),Float64(T), data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]; buffer_n, scp, rm_list, data_in, W)
+                        point_wise_minimization(Float64(P),Float64(T), data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]; buffer_n, scp, rm_list, name_solvus, data_in, W)
 
 
 """
@@ -1424,7 +1474,7 @@ function get_mineral_name(db, ss, SS_vec)
         elseif ss == "cpx"
             if x[3] - 0.6 > 0.0;        mineral_name = "pig";
             elseif x[4] - 0.5 > 0.0;    mineral_name = "omph";
-            else                        mineral_name = "aug";   end 
+            else                        mineral_name = "cpx";   end 
         end
 
     elseif db == "mp" || db == "mpe" || db == "mb" || db == "ume"
@@ -1487,7 +1537,7 @@ function get_ss_from_mineral(db, mrl, mbCpx)
             ss = "hb"
         elseif mrl == "hem" || mrl == "ilm"
             ss = "ilm"
-        elseif mrl == "pig" || mrl == "omph" || mrl == "aug"
+        elseif mrl == "pig" || mrl == "omph"
             ss = "cpx"
         elseif mrl == "nesK"
             ss = "ness"
@@ -1528,7 +1578,7 @@ end
 
 This extracts the output of a pointwise MAGEMin optimization and adds it into a julia structure
 """
-function create_gmin_struct(DB, gv, time)
+function create_gmin_struct(DB, gv, time; name_solvus = false)
 
     stb      = unsafe_load(DB.sp)
 
@@ -1614,10 +1664,11 @@ function create_gmin_struct(DB, gv, time)
     # extract info about compositional variables of the solution models:
     SS_vec  = convert.(LibMAGEMin.SS_data, unsafe_wrap(Vector{LibMAGEMin.stb_SS_phase},stb.SS,n_SS))
 
-    for i=1:n_SS
-        ph[i] = get_mineral_name(database, ph[i], SS_vec[i])
+    if name_solvus == true
+        for i=1:n_SS
+            ph[i] = get_mineral_name(database, ph[i], SS_vec[i])
+        end
     end
-
     # extract information about metastable solution phases
     mSS_vec = convert.(LibMAGEMin.mSS_data, unsafe_wrap(Vector{LibMAGEMin.mstb_SS_phase},stb.mSS,n_mSS))
 
