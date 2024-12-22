@@ -20,17 +20,50 @@
 #include "../all_endmembers.h"
 #include "TC_init_database.h"
 
+
+/* 	Note that "ecp" is the electrochemical potential "component" used for partitioning gibbs energy when using aqueous fluid model 	*/
 oxide_data oxide_info = {
 	15,						/* number of endmembers */
-	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"Cr2O3","H2O"	,"CO2"	,"S"	,"Cl"		},
-	{"Si"	,"Al"	,"Ca"	,"Mg"	,"Fe"	,"K"	,"Na"	,"Ti"	,"O"	,"Mn"	,"Cr"	,"H"	,"C"	,"S"	,"Cl"		},
-	{60.08  ,101.96 ,56.08  ,40.30  ,71.85  ,94.2   ,61.98  ,79.88  ,16.0   ,70.94	,151.99 ,18.015	,44.01	, 32.06	,35.453		},
-	{3.0	,5.0	,2.0	,2.0	,2.0	,3.0	,3.0	,3.0	,1.0	,2.0 	,5.0	,3.0	,3.0	, 1.0	,1.0		},
-	{66.7736,108.653,42.9947,40.3262,38.7162,69.1514,61.1729,70.3246,30.5827,40.1891,106.9795,69.5449,62.8768,9.5557,33.2556	},
-	{2,3,1,1,1,1,1,2,1,1,3,1,2,0,0},
-	{1,2,1,1,1,2,2,1,1,1,2,2,1,1,1}
+	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"Cr2O3","H2O"	,"CO2"	,"S"	,"Cl"	,"ecp"		},
+	{"Si"	,"Al"	,"Ca"	,"Mg"	,"Fe"	,"K"	,"Na"	,"Ti"	,"O"	,"Mn"	,"Cr"	,"H"	,"C"	,"S"	,"Cl"	,"ecp"		},
+	{60.08  ,101.96 ,56.08  ,40.30  ,71.85  ,94.2   ,61.98  ,79.88  ,16.0   ,70.94	,151.99 ,18.015	,44.01	, 32.06	,35.453	,0.0		},
+	{3.0	,5.0	,2.0	,2.0	,2.0	,3.0	,3.0	,3.0	,1.0	,2.0 	,5.0	,3.0	,3.0	, 1.0	,1.0	,0.0		},
+	{66.7736,108.653,42.9947,40.3262,38.7162,69.1514,61.1729,70.3246,30.5827,40.1891,106.9795,69.5449,62.8768,9.5557,33.2556,0.0		},
+	{2,3,1,1,1,1,1,2,1,1,3,1,2,0,0,0},
+	{1,2,1,1,1,2,2,1,1,1,2,2,1,1,1,0}
 	// for the standard molar entropy the values are already normalized by the reference temperature = 298.15K (25°C) and expressed in kJ
 };
+
+
+metapelite_aq_dataset metapelite_aq_db = {
+	62,							/* Endmember default dataset number */
+	11,							/* number of oxides */			
+	24,							/* number of pure phases */
+	18,							/* number of solution phases */
+	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"H2O"											},
+	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2"  ,"H2O"	,"zo"	,
+	"qfm"	,"qif"	,"nno"	,"hm"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"								},
+	{"liq"	,"fsp"	,"bi"	,"g"	,"ep"	,"ma"	,"mu"	,"opx"	,"sa"	,"cd"	,"st"	,"chl"	,"ctd"	,"sp"  ,"mt"  ,"ilm"  ,"ilmm"  ,"aq17"},
+	
+	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1		},  // allow solvus?
+	{3150	,231 	,981	,756	,110 	,1875	,1877	,1277	,230	,343	,540	,2270	,216	,405 	,87 	,130 	,1430 	,1		},  // # of pseudocompound
+	{0.24	,0.049	,0.19	,0.19	,0.049	,0.19	,0.19	,0.249	,0.19	,0.145	,0.19	,0.249	,0.19	,0.124 	,0.099 	,0.09 	,0.099 	,1.0	},  // discretization step
+
+	6.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
+	473.15,						/* max temperature above which PGE solver is active 								*/
+	873.15,						/** minimum temperature above which melt is considered 								*/
+
+	4,							/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
+	0.025,						/** maximum mol% phase change during one PGE iteration in wt% 						*/
+	2.5,						/** maximum delta_G of reference change during PGE 									*/
+	1.0,						/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
+
+	1e-1,						/** merge instances of solution phase if norm < val 								*/
+	1e-4,						/** fraction of solution phase when re-introduced 									*/
+	1e-6						/** objective function tolerance 				 									*/
+};
+
+
 
 metapelite_dataset metapelite_db = {
 	62,							/* Endmember default dataset number */
@@ -40,10 +73,10 @@ metapelite_dataset metapelite_db = {
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"H2O"											},
 	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2"  ,"H2O"	,"zo"	,
 	"qfm"	,"qif"	,"nno"	,"hm"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"								},
-	{"liq"	,"fsp"	,"bi"	,"g"	,"ep"	,"ma"	,"mu"	,"opx"	,"sa"	,"cd"	,"st"	,"chl"	,"ctd"	,"sp"  ,"mt"  ,"ilm"  ,"ilmm"  ,"aq17"	},
+	{"liq"	,"fsp"	,"bi"	,"g"	,"ep"	,"ma"	,"mu"	,"opx"	,"sa"	,"cd"	,"st"	,"chl"	,"ctd"	,"sp"  ,"mt"  ,"ilm"  ,"ilmm" 	,"aq17" },
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1		},  // allow solvus?
-	{3150	,231 	,981	,756	,110 	,1875	,1877	,1277	,230	,343	,540	,2270	,216	,405 	,87 	,130 	,1430 	,1		},  // # of pseudocompound
+	{3150	,231 	,981	,756	,110 	,1875	,1877	,1277	,230	,343	,540	,2270	,216	,407 	,87 	,130 	,1430 	,1		},  // # of pseudocompound
 	{0.24	,0.049	,0.19	,0.19	,0.049	,0.19	,0.19	,0.249	,0.19	,0.145	,0.19	,0.249	,0.19	,0.124 	,0.099 	,0.09 	,0.099 	,1.0	},  // discretization step
 
 	6.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
@@ -71,10 +104,10 @@ metabasite_dataset metabasite_db = {
 	{"sp"	,"opx"	,"fsp"	,"liq"	,"mu"	,"ilmm"	,"ilm"	,"ol"	,"hb"	,"ep"	,"g"	,"chl"	,"bi"	,"dio"	,"aug"	,"abc"  ,"spn"			},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1				},  // allow solvus?
-	{936	,1731 	,231	,3505	,4536 	,298	,422	,11		,7664	,110	,216	,3980	,1097	,1808	,2395	,21 	,196			},  // # of pseudocompound
+	{936	,1731 	,231	,3507	,4536 	,298	,422	,11		,7664	,110	,216	,3980	,1097	,1808	,2395	,21 	,196			},  // # of pseudocompound
 	{0.09	,0.19	,0.049	,0.199	,0.19	,0.09	,0.049	,0.098	,0.249	,0.049	,0.19	,0.19	,0.149	,0.16	,0.24	,0.049 	,0.09			},  // discretization step
 
-	4.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
+	6.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
 	473.15,						/* max temperature above which PGE solver is active 								*/
 	873.15,						/** minimum temperature above which melt is considered 								*/
 
@@ -89,7 +122,7 @@ metabasite_dataset metabasite_db = {
 };
 
 igneous_dataset igneous_db = {
-	634,						/* Endmember default dataset number */
+	636,						/* Endmember default dataset number */
 	11,							/* number of oxides */			
 	24,							/* number of pure phases */
 	15,							/* number of solution phases */
@@ -99,8 +132,8 @@ igneous_dataset igneous_db = {
 	{"spn"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"hb"	,"ilm"	,"liq"	,"ol"	,"opx"	,"fsp"	,"fl"	,"mu"	,"fper"					},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1		,1						}, // allow solvus?
-	{1522	,3554	,121	,4125	,210	,2450	,5499	,420	,3088	,381	,3413	,231	,2		,2376	,20						}, // # of pseudocompound
-	{0.249	,0.124	,0.098	,0.249	,0.049	,0.145	,0.33	,0.0499	,0.198	,0.098	,0.249	,0.049	,1.0 	,0.198	,0.05					}, // discretization step
+	{1522	,3554	,121	,4125	,210	,2450	,5499	,1669	,3088	,381	,3413	,231	,2		,2376	,20						}, // # of pseudocompound
+	{0.249	,0.124	,0.098	,0.249	,0.049	,0.145	,0.33	,0.11	,0.198	,0.098	,0.249	,0.049	,1.0 	,0.198	,0.05					}, // discretization step
 
 	6.0, 						/** max dG under which a phase is considered to be reintroduced  					*/
 	673.15,						/** max temperature above which PGE solver is active 								*/
@@ -127,8 +160,8 @@ igneous_igad_dataset igneous_igad_db = {
 	{"spn"	,"cpx"	,"g"	,"ilm"	,"liq"	,"ol"	,"opx"	,"fsp"	,"lct"	,"mel"	,"ness"	,"kals"		},
 	
 	{1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1		,1		,1			}, // allow solvus?
-	{3318	,4127	,2450	,1035	,4911	,381	,3413	,861	,21		,270	,1210	,21			}, // # of pseudocompound
-	{0.195	,0.249	,0.145	,0.124	,0.15	,0.098	,0.249	,0.0249	,0.049	,0.19	,0.149 	,0.049		}, // discretization step
+	{3318	,4127	,2450	,1670	,4911	,381	,3413	,861	,21		,270	,1210	,21			}, // # of pseudocompound
+	{0.195	,0.249	,0.145	,0.11	,0.15	,0.098	,0.249	,0.0249	,0.049	,0.19	,0.149 	,0.049		}, // discretization step
 
 	6.0, 						/** max dG under which a phase is considered to be reintroduced  					*/
 	673.15,						/** max temperature above which PGE solver is active 								*/
@@ -240,7 +273,7 @@ metapelite_dataset_ext metapelite_ext_db = {
 	{"liq"	,"fsp"	,"bi"	,"g"	,"ep"	,"ma"	,"mu"	,"opx"	,"sa"	,"cd"	,"st"	,"chl"	,"ctd"	,"sp"  ,"mt"  ,"ilm"  ,"ilmm"  ,"occm"	,"fl"	,"po"	,"dio"	,"aug"	,"hb"		},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1		,1		,1		,1		,1		,1			},  // allow solvus?
-	{3150	,231 	,981	,756	,110 	,1875	,1877	,1277	,230	,343	,540	,2270	,216	,405 	,87 	,131 	,1430 	,352	,12		,10		,1808	,2395,	7664		},  // # of pseudocompound
+	{3150	,231 	,981	,756	,110 	,1875	,1877	,1277	,230	,343	,540	,2270	,216	,407 	,87 	,131 	,1430 	,352	,12		,10		,1808	,2395,	7664		},  // # of pseudocompound
 	{0.24	,0.049	,0.19	,0.19	,0.049	,0.19	,0.19	,0.249	,0.19	,0.145	,0.19	,0.249	,0.19	,0.124 	,0.099 	,0.09 	,0.099 	,0.14	,0.09	,0.1	,0.16	,0.24,	0.249		},  // discretization step
 
 	6.0, 						/* max dG under which a phase is considered to be reintroduced  					*/

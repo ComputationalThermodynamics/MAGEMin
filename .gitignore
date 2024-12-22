@@ -6,6 +6,8 @@ src/*.o
 src/TC_database/*.o
 src/SB_database/*.o
 julia/output/*
+ref_database/SB_ref_database/.DS_Store
+matlab/.DS_Store
 .vscode/
 *.txt
 Manifest.toml

@@ -1273,6 +1273,46 @@ double anelastic_correction(  	int 	water,
 
 }
 
+
+// char* retrieve_phase_name(		global_variable 	 gv,
+// 								SS_ref  			*SS_ref_db,
+// 								int 				 iss,		){
+
+
+// 		if (gv.EM_database 		== 0){
+// 			printf("  - Database                  : Metapelite (White et al., 2014)\n"	);
+// 		}
+// 		if (gv.EM_database 		== 1){
+// 			printf("  - Database                  : Metabasite (Green et al., 2016)\n"	);
+// 		}
+// 		else if (gv.EM_database == 2){
+// 			printf("  - Database                  : Igneous (Holland et al., 2018 -> Green et al., 2024)\n"	);
+// 		}
+// 		else if (gv.EM_database == 3){
+// 			printf("  - Database                  : Igneous alkaline dry (Weller et al., 2024)\n"	);
+// 		}
+// 		else if (gv.EM_database == 4 ){
+// 			printf("  - Database                  : Ultramafic (Evans & Frost, 2021)\n"	);
+// 		}
+// 		else if (gv.EM_database == 5 ){
+// 			printf("  - Database                  : Ultramafic extended (Evans & Frost, 2021 + pl, hb and aug from Green et al., 2016)\n"	);
+// 		}
+// 		else if (gv.EM_database == 6 ){
+// 			printf("  - Database                  : Uppermost lower mantle to upper mantle database (Holland et al., 2013)\n"	);
+// 		}
+// 		else if (gv.EM_database == 7 ){
+// 			printf("  - Database                  : Metapelite extended (White et al., 2014; po from Evans & Frost, 2021;  hb, dio and aug from Green et al., 2016)\n"	);
+// 		}
+
+// 	// char   *ss_name[];
+// 	// ss_name = 
+
+
+// 	return ss_name;
+// }
+
+
+
 /** 
    This routine convert the molar fraction on 1 atom basis to mol fraction 
 */

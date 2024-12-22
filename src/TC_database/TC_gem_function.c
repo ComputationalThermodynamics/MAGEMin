@@ -1035,11 +1035,11 @@ PP_ref G_FS_function(		int 		 len_ox,
 	PP_ref_db.factor  =  factor;
 	PP_ref_db.phase_shearModulus  = 0.0;
     
-	// printf(" %4s %+10f %+10f | factor: %+10f\n",name,G,PP_ref_db.gbase,PP_ref_db.factor);
-	// for (i = 0; i < len_ox; i++){
-	// 	printf("%+10f",PP_ref_db.Comp[i]*PP_ref_db.factor); 
-	// }
-	// printf("\n\n");
+	printf(" %4s %+10f %+10f | factor: %+10f\n",name,G,PP_ref_db.gbase,PP_ref_db.factor);
+	for (i = 0; i < len_ox; i++){
+		printf("%+10f",PP_ref_db.Comp[i]*PP_ref_db.factor); 
+	}
+	printf("\n\n");
 
 	return (PP_ref_db);
 }

@@ -778,18 +778,17 @@ SS_ref G_SS_ig_hb_init_function(SS_ref SS_ref_db,  global_variable gv){
     allocate memory for ilm
 */
 SS_ref G_SS_ig_ilm_init_function(SS_ref SS_ref_db,  global_variable gv){
-    
-	SS_ref_db.n_cat     = 0;
-    SS_ref_db.is_liq    = 0;	
-	SS_ref_db.symmetry  = 1;							  					  
-	SS_ref_db.n_sf      = 6;
-	SS_ref_db.n_em      = 3;
-	SS_ref_db.n_w       = 3;
-	SS_ref_db.n_xeos    = 2; 
+
+    SS_ref_db.n_cat     = 0;
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 8;
+    SS_ref_db.n_em      = 5;
+    SS_ref_db.n_w       = 10;
+    SS_ref_db.n_xeos    = 4;
     
     return SS_ref_db;
 }
-
 
 
 /**

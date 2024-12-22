@@ -39,15 +39,16 @@ typedef double (*PC_type) (			unsigned         n,
 /** 
 	Store oxide informations 
 **/
+#define n_ox_all 16
 typedef struct oxide_datas {
 	int 	n_ox;
-	char    oxName[15][20];
-	char    elName[15][20];
-	double  oxMass[15];
-	double  atPerOx[15];
-	double  ElEntropy[15]; //standard molar entropy
-	double  OPerOx[15];
-	double  catPerOx[15];
+	char    oxName[n_ox_all][20];
+	char    elName[n_ox_all][20];
+	double  oxMass[n_ox_all];
+	double  atPerOx[n_ox_all];
+	double  ElEntropy[n_ox_all]; //standard molar entropy
+	double  OPerOx[n_ox_all];
+	double  catPerOx[n_ox_all];
 
 } oxide_data;
 

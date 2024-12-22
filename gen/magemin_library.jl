@@ -40,7 +40,7 @@ const EM_db = EM_db_
 
 mutable struct FS_db_
     Name::NTuple{20, Cchar}
-    Comp::NTuple{16, Cdouble}
+    Comp::NTuple{17, Cdouble}
     input_1::NTuple{4, Cdouble}
     input_2::NTuple{7, Cdouble}
     input_3::NTuple{1, Cdouble}
@@ -570,13 +570,13 @@ const PC_type = Ptr{Cvoid}
 
 mutable struct oxide_datas
     n_ox::Cint
-    oxName::NTuple{15, NTuple{20, Cchar}}
-    elName::NTuple{15, NTuple{20, Cchar}}
-    oxMass::NTuple{15, Cdouble}
-    atPerOx::NTuple{15, Cdouble}
-    ElEntropy::NTuple{15, Cdouble}
-    OPerOx::NTuple{15, Cdouble}
-    catPerOx::NTuple{15, Cdouble}
+    oxName::NTuple{16, NTuple{20, Cchar}}
+    elName::NTuple{16, NTuple{20, Cchar}}
+    oxMass::NTuple{16, Cdouble}
+    atPerOx::NTuple{16, Cdouble}
+    ElEntropy::NTuple{16, Cdouble}
+    OPerOx::NTuple{16, Cdouble}
+    catPerOx::NTuple{16, Cdouble}
     oxide_datas() = new()
 end
 
@@ -1319,6 +1319,32 @@ struct UT_hash_handle
     keylen::Cuint
     hashv::Cuint
 end
+
+mutable struct metapelite_aq_datasets
+    ds_version::Cint
+    n_ox::Cint
+    n_pp::Cint
+    n_ss::Cint
+    ox::NTuple{12, NTuple{20, Cchar}}
+    PP::NTuple{24, NTuple{20, Cchar}}
+    SS::NTuple{18, NTuple{20, Cchar}}
+    verifyPC::NTuple{18, Cint}
+    n_SS_PC::NTuple{18, Cint}
+    SS_PC_stp::NTuple{18, Cdouble}
+    PC_df_add::Cdouble
+    solver_switch_T::Cdouble
+    min_melt_T::Cdouble
+    inner_PGE_ite::Cdouble
+    max_n_phase::Cdouble
+    max_g_phase::Cdouble
+    max_fac::Cdouble
+    merge_value::Cdouble
+    re_in_n::Cdouble
+    obj_tol::Cdouble
+    metapelite_aq_datasets() = new()
+end
+
+const metapelite_aq_dataset = metapelite_aq_datasets
 
 mutable struct metapelite_datasets
     ds_version::Cint
@@ -2883,6 +2909,8 @@ const NLOPT_MINF_MAX_REACHED = NLOPT_STOPVAL_REACHED
 
 # Skipping MacroDefinition: NLOPT_DEPRECATED __attribute__ ( ( deprecated ) )
 
+const n_ox_all = 16
+
 # Skipping MacroDefinition: UTHASH_VERSION 2.1.0
 
 const HASH_NONFATAL_OOM = 0
@@ -2900,6 +2928,18 @@ const HASH_BLOOM_BYTELEN = Cuint(0)
 const HASH_SIGNATURE = Cuint(0xa0111fe1)
 
 const HASH_BLOOM_SIGNATURE = Cuint(0xb12220f2)
+
+const n_ox_mpf = 12
+
+const n_ss_mpf = 18
+
+const n_pp_mpf = 24
+
+const n_ss_mp = 18
+
+const n_pp_mp = 24
+
+const n_ox_mp = 11
 
 const ko_no_argument = 0
 

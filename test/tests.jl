@@ -14,7 +14,6 @@ data        =   use_predefined_bulk_rock(data, test);
 P           =   80.0
 T           =   800.0
 out         =   point_wise_minimization(P,T, data);
-
 @test sort(out.ph) == sort(["gtmj", "hpcpx", "ol" ,"cpx"])
 Finalize_MAGEMin(data)
 
@@ -25,33 +24,13 @@ data        =   use_predefined_bulk_rock(data, test);
 P           =   8.0
 T           =   800.0
 out         =   point_wise_minimization(P,T, data);
-
+Finalize_MAGEMin(data)
 
 @show out
 
-@test out.G_system ≈ -797.7397668057848
+@test out.G_system ≈ -797.7779758880838
 @test sort(out.ph) == sort(["spn", "cpx",  "opx", "ol"])
 @test abs(out.s_cp[1] - 1208.466551730128) < 2.0
-
-# print more detailed info about this point:
-print_info(out)
-Finalize_MAGEMin(data)
-
-
-# Initialize database  - new way
-data        =   Initialize_MAGEMin("mtl", verbose=true);
-test        =   0         #KLB1
-data        =   use_predefined_bulk_rock(data, test);
-
-# Call optimization routine for given P & T & bulk_rock
-P           =   180.0
-T           =   1400.0
-out         =   point_wise_minimization(P,T, data);
-
-@test sort(out.ph) == sort(["g", "ring", "wad"])
-Finalize_MAGEMin(data)
-
-
 
 @testset "test light output calculation" begin
     # Without a buffer at 1100.0 C
@@ -145,7 +124,7 @@ end
     P           =   8.0
     T           =   1200.0
     out         =   point_wise_minimization(P,T, data, buffer_n=0.1);
-    @test sort(out.ph) == sort(["aTiO2", "cpx", "fsp", "liq", "ol", "opx"])
+    @test sort(out.ph) == sort(["aTiO2", "cpx", "fsp", "liq", "ol", "opx", "spn"])
 
     Finalize_MAGEMin(data)
 
@@ -279,7 +258,7 @@ gv.verbose=-1
 P           =   8.0
 T           =   800.0
 out         =   point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in);
-@test out.G_system ≈ -797.7397668057848
+@test out.G_system ≈ -797.7779758880838
 @test abs(out.s_cp[1] - 1208.466551730128) < 2.0
 @test sort(out.ph) == sort(["spn", "cpx",  "opx", "ol"])
 finalize_MAGEMin(gv,DB,z_b)
@@ -291,7 +270,7 @@ finalize_MAGEMin(gv,DB,z_b)
     db      =   "ig" 
     data    =   Initialize_MAGEMin(db, verbose=false);
     out     =   multi_point_minimization(P, T, data, test=0);
-    @test out[end].G_system ≈ -797.7397668057848
+    @test out[end].G_system ≈ -797.7779758880838
     @test sort(out[end].ph) == sort(["spn", "cpx",  "opx", "ol"])
 
     Finalize_MAGEMin(data)
@@ -367,7 +346,7 @@ end
     X       = [70.999,12.805,0.771,3.978,6.342,2.7895,1.481,0.758,0.72933,0.075,30.0]
     sys_in  = "mol"    
     out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in,rm_list=rm_list)
-    @test sort(out.ph) == sort(["sp", "g", "fsp", "ilm", "q", "sill", "H2O"])
+    @test sort(out.ph) == sort(["H2O", "fsp", "g", "ilm", "q", "sill"])
 end
 
 @testset "view array PT" begin
@@ -415,18 +394,35 @@ end
     out         = point_wise_minimization(P,T, data)
 
     tol = 1.5e-2;
-    @test abs(out.bulkMod - 95.36502708314566         )  < tol
-    @test abs(out.shearMod - 29.908982525130096       )  < tol
-    @test abs(out.Vs - 3.0562725380891456             )  < tol
-    @test abs(out.Vp - 6.499047842613104              )  < tol
-    @test abs(out.Vs_S -4.30859321743808              )  < tol
-    @test abs(out.Vp_S - 7.392063221476717            )  < tol
-    @test abs(out.bulkModulus_M - 27.239361903015595  )  < tol
-    @test abs(out.bulkModulus_S - 95.74438231792864   )  < tol
-    @test abs(out.shearModulus_S - 59.4633264822083   )  < tol
+    @test abs(out.bulkMod - 95.38259619715919          )  < tol
+    @test abs(out.shearMod - 30.00415632224766         )  < tol
+    @test abs(out.Vs - 3.058170574984424               )  < tol
+    @test abs(out.Vp - 6.496228660404665               )  < tol
+    @test abs(out.Vs_S -4.32673155675931               )  < tol
+    @test abs(out.Vp_S - 7.4164485518740655            )  < tol
+    @test abs(out.bulkModulus_M - 27.774178727949742   )  < tol
+    @test abs(out.bulkModulus_S - 96.0300277122071     )  < tol
+    @test abs(out.shearModulus_S - 59.83910473056979   )  < tol
 
     Finalize_MAGEMin(data)
 end
+
+
+@testset "test Mantle HP13" begin
+    # Initialize database  - new way
+    data        =   Initialize_MAGEMin("mtl", verbose=true);
+    test        =   0         #KLB1
+    data        =   use_predefined_bulk_rock(data, test);
+
+    # Call optimization routine for given P & T & bulk_rock
+    P           =   180.0
+    T           =   1400.0
+    out         =   point_wise_minimization(P,T, data);
+
+    @test sort(out.ph) == sort(["g", "ring", "wad"])
+    Finalize_MAGEMin(data)
+end
+
 
 # Stores data of tests
 mutable struct outP{ _T  } 

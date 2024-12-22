@@ -13,21 +13,64 @@
 
     #include "../MAGEMin.h"
 
+
+
 	/** 
 		Metapelite database informations
 	**/
+	#define n_ox_mpf 12 		// as of now this is n_oxides = 11 + electrochemical potential
+	#define n_ss_mpf 18			
+	#define n_pp_mpf 24
+
+	typedef struct metapelite_aq_datasets {
+		int 	ds_version;
+		int 	n_ox;
+		int 	n_pp;
+		int 	n_ss;
+		char    ox[n_ox_mpf][20];
+		char    PP[n_pp_mpf][20];
+		char    SS[n_ss_mpf][20];
+
+		int 	verifyPC[n_ss_mpf];
+		int 	n_SS_PC[n_ss_mpf];
+		double 	SS_PC_stp[n_ss_mpf];
+
+		double 	PC_df_add;					/** min value of df under which the PC is added 									*/
+		double  solver_switch_T;
+		double  min_melt_T;
+
+		double  inner_PGE_ite;				/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
+		double  max_n_phase;				/** maximum mol% phase change during one PGE iteration in wt% 						*/
+		double  max_g_phase;				/** maximum delta_G of reference change during PGE 									*/
+		double 	max_fac;					/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
+
+		double  merge_value;				/** max norm distance between two instances of a solution phase						*/	
+		double 	re_in_n;					/** fraction of phase when being reintroduce.  										*/
+
+		double  obj_tol;
+
+	} metapelite_aq_dataset;
+
+
+
+	/** 
+		Metapelite database informations
+	**/
+	#define n_ss_mp 18
+	#define n_pp_mp 24
+	#define n_ox_mp 11
 	typedef struct metapelite_datasets {
 		int 	ds_version;
 		int 	n_ox;
 		int 	n_pp;
 		int 	n_ss;
-		char    ox[11][20];
-		char    PP[24][20];
-		char    SS[18][20];
+		char    ox[n_ox_mp][20];
+		char    PP[n_pp_mp][20];
+		char    SS[n_ss_mp][20];
 
-		int 	verifyPC[18];
-		int 	n_SS_PC[18];
-		double 	SS_PC_stp[18];
+		int 	verifyPC[n_ss_mp];
+		int 	n_SS_PC[n_ss_mp];
+		double 	SS_PC_stp[n_ss_mp];
 
 		double 	PC_df_add;					/** min value of df under which the PC is added 									*/
 		double  solver_switch_T;

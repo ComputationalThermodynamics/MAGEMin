@@ -24,7 +24,7 @@
     /** store endmember database **/
     typedef struct FS_db_ {
         char   Name[20];			/** pure species name 														*/
-        double Comp[16];       	 	/** pure species composition [0-10] + number of atom [11] 					*/
+        double Comp[17];       	 	/** pure species composition [0-10] + number of atom [11] + charge[12]	    */
         double input_1[4];          /** first line of the thermodynamics datable 								*/
         double input_2[7];          /** second line of the thermodynamics datable 								*/
         double input_3[1];         	/** third line of the thermodynamics datable 								*/
