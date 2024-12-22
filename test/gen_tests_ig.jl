@@ -12,7 +12,7 @@ gv, z_b, DB, splx_data      = init_MAGEMin(db);
 
 
 sys_in      = "mol"     #default is mol, if wt is provided conversion will be done internally (MAGEMin works on mol basis)
-test        = 6         #KLB1
+test        = 0         #KLB1
 gv          = use_predefined_bulk_rock(gv, test, db);
 
 mutable struct outP{ _T  } 

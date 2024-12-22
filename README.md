@@ -133,6 +133,23 @@ The metapelitic model (extended with MnO, White et al., 2014) allows to compute 
 Please keep in mind that the datasets are only calibrated for a limited range of `P`,`T` and `bulk rock` conditions. If you go too far outside those ranges, `MAGEMin` (or most other thermodynamic software packages for that matter) may not converge or give bogus results. 
 Developing new, more widely applicable, thermodynamic datasets is a huge research topic, which will require funding to develop the models themselves, as well as to perform targeted experiments to calibrate those models.
 
+**Igneous dataset (update and correction)**
+- Added December 2024,`MAGEMin v1.6.2`
+- Green et al., 2025, corrected from Holland et al., 2018 (see http://hpxeosandthermocalc.org)
+- K2O-Na2O-CaO-FeO-MgO-Al2O3-SiO2-H2O-TiO2-O-Cr2O3 chemical system
+- Equations of state for
+	- Pure stoichiometric phases quartz (q), cristobalite (crst), tridymite (trd), coesite (coe), stishovite (stv), kyanite (ky), sillimanite (sill), andalusite (and), rutile (ru) and sphene (sph). 
+	- Solution phases spinel (spn), biotite (bi), cordierite (cd), clinopyroxene (cpx), orthopyroxene (opx), epidote (ep), garnet (g), clino-amphibole  (hb), ilmenite (ilm), silicate melt (liq), muscovite (mu), olivine (ol), ternary feldspar (pl4T), and aqueous fluid (fl).
+
+**Igneous alkaline dry dataset**
+- Added December 2024,`MAGEMin v1.6.2`
+- Weller et l., 2024 (see doi:10.1093/petrology/egae098)
+- K2O-Na2O-CaO-FeO-MgO-Al2O3-SiO2-TiO2-O-Cr2O3 chemical system
+- Equations of state for
+	- Pure stoichiometric phases quartz (q), cristobalite (crst), tridymite (trd), coesite (coe), stishovite (stv), kyanite (ky), sillimanite (sill), andalusite (and), rutile (ru) and sphene (sph). 
+	- Solution phases spinel (spn), clinopyroxene (cpx), orthopyroxene (opx), garnet (g), ilmenite (ilm), silicate melt (liq), olivine (ol), ternary feldspar (pl4T), Nepheline (ness), Kalsilite (kals), Leucite (lct) and Melilite (mel).
+
+
 ## Documentation
 Full support to install and use MAGEMin is available [here](https://computationalthermodynamics.github.io/MAGEMin/index.html).
 
@@ -150,3 +167,42 @@ You are very welcome to request new features and point out bugs by opening an is
 Development of this software package was funded by the European Research Council under grant ERC CoG #771143 - [MAGMA](https://magma.uni-mainz.de).
 
 <img src="./pics/MAGMA_Logo.png" alt="drawing" width="480" alt="centered image"/>
+
+## References
+
+- Green, ECR, Holland, TJB, Powell, R, Weller, OM, & Riel, N (2025).
+XXXXXX Journal of Petrology, doi: XXXXXX
+
+- Weller, OM, Holland, TJB, Soderman, CR, Green, ECR, Powell, R, 
+Beard, CD & Riel, N (2024). New Thermodynamic Models for Anhydrous
+Alkaline-Silicate Magmatic Systems. Journal of Petrology, 65,
+doi: 10.1093/petrology/egae098
+
+- Holland, TJB, Green, ECR & Powell, R (2022). A thermodynamic model
+for feldspars in KAlSi3O8-NaAlSi3O8-CaAl2Si2O8 for mineral 
+equilibrium calculations. Journal of Metamorphic Geology, 40, 587-600, 
+doi: 10.1111/jmg.12639
+
+- Tomlinson, EL & Holland, TJB (2021). A Thermodynamic Model for the
+Subsolidus Evolution and Melting of Peridotite. Journal of Petrology,
+62, doi: 10.1093/petrology/egab012
+
+- Holland, TJB, Green, ECR & Powell, R (2018). Melting of Peridotites
+through to Granites: A Simple Thermodynamic Model in the System
+KNCFMASHTOCr. Journal of Petrology, 59, 881-900, 
+doi: 10.1093/petrology/egy048
+
+- Green, ECR, White, RW, Diener, JFA, Powell, R, Holland, TJB & 
+Palin, RM (2016). Activity-composition relations for the calculation
+of partial melting equilibria in metabasic rocks. Journal of 
+Metamorphic Geology, 34, 845-869, doi: 10.1111/jmg.12211
+
+- White, RW, Powell, R, Holland, TJB, Johnson, TE & Green, ECR (2014). 
+New mineral activity-composition relations for thermodynamic calculations 
+in metapelitic systems. Journal of Metamorphic Geology, 32, 261-286,
+doi: 10.1111/jmg.12071
+
+- Holland, TJB & Powell, RW (2011). An improved and extended internally
+consistent thermodynamic dataset for phases of petrological interest,
+involving a new equation of state for solids. Journal of Metamorphic 
+Geology, 29, 333-383, doi: 10.1111/j.1525-1314.2010.00923.x
