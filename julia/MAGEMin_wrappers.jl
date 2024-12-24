@@ -1060,6 +1060,16 @@ function point_wise_minimization(   P       ::Float64,
     LibMAGEMin.reset_SS(gv,z_b, DB.SS_ref_db)
     LibMAGEMin.reset_sp(gv, DB.sp)
 
+    if ~isnothing(rm_list)
+        # if the list of phase to be removed is not empty then we first activate all combination
+        # the following entries are set to 2, as only values of 0 or 1 are considered in the C code
+        # i.e. that all phases are first set active before removing the ones in the list (with expection of the restricted ones)
+        gv.mbCpx        = 2
+        gv.mbIlm        = 2
+        gv.mpSp         = 2
+        gv.mpIlm        = 2
+    end
+    
     gv      = LibMAGEMin.ComputeG0_point(gv.EM_database, z_b, gv, DB.PP_ref_db,DB.SS_ref_db);
 
 
@@ -1071,13 +1081,12 @@ function point_wise_minimization(   P       ::Float64,
             flags_off = zeros(Int32,5);
             if i in rm_list
                 unsafe_copyto!(SS_ref_db[i].ss_flags,pointer(flags_off), 5)
-            else
-                unsafe_copyto!(SS_ref_db[i].ss_flags,pointer(flags_on), 5)
+            # else
+            #     unsafe_copyto!(SS_ref_db[i].ss_flags,pointer(flags_on), 5)
             end
         end
 
     end
-
 
     # here we can over-ride default W's
     if ~isnothing(W)
