@@ -600,11 +600,11 @@ do {                                                                            
 /* The Bernstein hash function, used in Perl prior to v5.6. Note (x<<5+x)=x*33. */
 #define HASH_BER(key,keylen,hashv)                                               \
 do {                                                                             \
-  unsigned _hb_keylen = (unsigned)keylen;                                        \
-  const unsigned char *_hb_key = (const unsigned char*)(key);                    \
+  unsigned _amp_keylen = (unsigned)keylen;                                        \
+  const unsigned char *_amp_key = (const unsigned char*)(key);                    \
   (hashv) = 0;                                                                   \
-  while (_hb_keylen-- != 0U) {                                                   \
-    (hashv) = (((hashv) << 5) + (hashv)) + *_hb_key++;                           \
+  while (_amp_keylen-- != 0U) {                                                   \
+    (hashv) = (((hashv) << 5) + (hashv)) + *_amp_key++;                           \
   }                                                                              \
 } while (0)
 

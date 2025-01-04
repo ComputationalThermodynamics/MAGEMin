@@ -56,9 +56,9 @@ void p2x_mb_liq(void *SS_ref_db, double eps){
 }
 
 /**
-    Endmember to xeos for hb
+    Endmember to xeos for amp
 */
-void p2x_mb_hb(void *SS_ref_db, double eps){
+void p2x_mb_amp(void *SS_ref_db, double eps){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     
     d->iguess[7]   = d->p[10];
@@ -427,9 +427,9 @@ void dpdx_mb_liq(void *SS_ref_db, const double *x){
 
 
 /**
-    Update dpdx matrix of hb
+    Update dpdx matrix of amp
 */
-void dpdx_mb_hb(void *SS_ref_db, const double *x){
+void dpdx_mb_amp(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double **dp_dx = d->dp_dx;
 
@@ -695,9 +695,9 @@ void px_mb_liq(void *SS_ref_db, const double *x){
 
     
 /**
-    Endmember fraction of hb
+    Endmember fraction of amp
 */
-void px_mb_hb(void *SS_ref_db, const double *x){
+void px_mb_amp(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
         p[0]           = -x[1] + x[2] - 0.5*x[3] + x[5] -x[6] -x[7];
@@ -1010,9 +1010,9 @@ double obj_mb_liq(unsigned n, const double *x, double *grad, void *SS_ref_db){
 }
     
 /**
-    Objective function of hb
+    Objective function of amp
 */
-double obj_mb_hb(unsigned n, const double *x, double *grad, void *SS_ref_db){
+double obj_mb_amp(unsigned n, const double *x, double *grad, void *SS_ref_db){
     SS_ref *d         = (SS_ref *) SS_ref_db;
 
     int n_em          = d->n_em;
@@ -1026,7 +1026,7 @@ double obj_mb_hb(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double *sf        = d->sf;
     double *mu        = d->mu;
     double *d_em      = d->d_em;
-    px_mb_hb(SS_ref_db,x);
+    px_mb_amp(SS_ref_db,x);
 
     d->sum_v = 0.0;
     for (int i = 0; i < n_em; i++){
@@ -1094,7 +1094,7 @@ double obj_mb_hb(unsigned n, const double *x, double *grad, void *SS_ref_db){
     if (grad){
         double *dfx    = d->dfx;
         double **dp_dx = d->dp_dx;
-        dpdx_mb_hb(SS_ref_db,x);
+        dpdx_mb_amp(SS_ref_db,x);
         for (int i = 0; i < (d->n_xeos); i++){
             dfx[i] = 0.0;
             for (int j = 0; j < n_em; j++){
@@ -2506,9 +2506,9 @@ void dpdx_ume_pl4tr(void *SS_ref_db, const double *x){
 
 
 /**
-    Update dpdx matrix of hb
+    Update dpdx matrix of amp
 */
-void dpdx_ume_hb(void *SS_ref_db, const double *x){
+void dpdx_ume_amp(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double **dp_dx = d->dp_dx;
 
@@ -2707,9 +2707,9 @@ void px_ume_pl4tr(void *SS_ref_db, const double *x){
 
     
 /**
-    Endmember fraction of hb
+    Endmember fraction of amp
 */
-void px_ume_hb(void *SS_ref_db, const double *x){
+void px_ume_amp(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
         p[0]           = -x[1] + x[2] - 0.5*x[3] + x[4] -x[5];
@@ -3662,9 +3662,9 @@ double obj_ume_pl4tr(unsigned n, const double *x, double *grad, void *SS_ref_db)
 }
     
 /**
-    Objective function of hb
+    Objective function of amp
 */
-double obj_ume_hb(unsigned n, const double *x, double *grad, void *SS_ref_db){
+double obj_ume_amp(unsigned n, const double *x, double *grad, void *SS_ref_db){
     SS_ref *d         = (SS_ref *) SS_ref_db;
 
     int n_em          = d->n_em;
@@ -3678,7 +3678,7 @@ double obj_ume_hb(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double *sf        = d->sf;
     double *mu        = d->mu;
     double *d_em      = d->d_em;
-    px_ume_hb(SS_ref_db,x);
+    px_ume_amp(SS_ref_db,x);
 
     d->sum_v = 0.0;
     for (int i = 0; i < n_em; i++){
@@ -3740,7 +3740,7 @@ double obj_ume_hb(unsigned n, const double *x, double *grad, void *SS_ref_db){
     if (grad){
         double *dfx    = d->dfx;
         double **dp_dx = d->dp_dx;
-        dpdx_ume_hb(SS_ref_db,x);
+        dpdx_ume_amp(SS_ref_db,x);
         for (int i = 0; i < (d->n_xeos); i++){
             dfx[i] = 0.0;
             for (int j = 0; j < n_em; j++){
@@ -6060,7 +6060,7 @@ void p2x_ig_g(void *SS_ref_db, double eps){
 /** 
   endmembers to xeos (hornblende)
 */
-void p2x_ig_hb(void *SS_ref_db, double eps){
+void p2x_ig_amp(void *SS_ref_db, double eps){
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
 	d->iguess[0] = (-3.5*d->p[5] - 2.0*d->p[6] - 2.5*d->p[7])/(-0.5*d->p[0] + 0.5*d->p[1] + 0.5*d->p[10] + 0.5*d->p[3] - 1.5*d->p[4] - 1.5*d->p[5] - 1.5*d->p[6] - 1.5*d->p[7] + 0.5*d->p[8] - 2.0);
@@ -6746,7 +6746,7 @@ void dpdx_ig_g(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (hornblende)
 */
-void dpdx_ig_hb(void *SS_ref_db, const double *x){
+void dpdx_ig_amp(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double **dp_dx = d->dp_dx;
 
@@ -6980,7 +6980,7 @@ void px_ig_g(void *SS_ref_db, const double *x){
 /** 
   update px matrix (hornblende)
 */
-void px_ig_hb(void *SS_ref_db, const double *x){
+void px_ig_amp(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
         p[0]           = -0.5*x[3] + x[5] - x[6] - x[7] - x[1] + x[2];
@@ -7660,7 +7660,7 @@ double obj_ig_g(unsigned   n, const double *x, double *grad, void *SS_ref_db) {
 /** 
   objective function of hornblende
 */
-double obj_ig_hb(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
+double obj_ig_amp(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
     SS_ref *d         = (SS_ref *) SS_ref_db;
 
     int n_em          = d->n_em;
@@ -7674,7 +7674,7 @@ double obj_ig_hb(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
     double *sf        = d->sf;
     double *mu        = d->mu;
     double *d_em      = d->d_em;
-    px_ig_hb(SS_ref_db,x);
+    px_ig_amp(SS_ref_db,x);
 
     d->sum_v = 0.0;
     for (int i = 0; i < n_em; i++){
@@ -7746,7 +7746,7 @@ double obj_ig_hb(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
     if (grad){
         double *dfx    = d->dfx;
         double **dp_dx = d->dp_dx;
-        dpdx_ig_hb(SS_ref_db,x);
+        dpdx_ig_amp(SS_ref_db,x);
         for (int i = 0; i < (d->n_xeos); i++){
             dfx[i] = 0.0;
             for (int j = 0; j < n_em; j++){
@@ -11708,9 +11708,9 @@ void dpdx_mpe_po(void *SS_ref_db, const double *x){
 
 
 /**
-    Update dpdx matrix of hb
+    Update dpdx matrix of amp
 */
-void dpdx_mpe_hb(void *SS_ref_db, const double *x){
+void dpdx_mpe_amp(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double **dp_dx = d->dp_dx;
 
@@ -12188,9 +12188,9 @@ void p2x_mpe_dio(void *SS_ref_db, double eps){
 }
 
 /**
-    Endmember to xeos for hb
+    Endmember to xeos for amp
 */
-void p2x_mpe_hb(void *SS_ref_db, double eps){
+void p2x_mpe_amp(void *SS_ref_db, double eps){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     
     d->iguess[7]   = d->p[10];
@@ -12513,9 +12513,9 @@ void px_mpe_po(void *SS_ref_db, const double *x){
 
     
 /**
-    Endmember fraction of hb
+    Endmember fraction of amp
 */
-void px_mpe_hb(void *SS_ref_db, const double *x){
+void px_mpe_amp(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
         p[0]           = -x[1] + x[2] - 0.5*x[3] + x[5] - x[6] - x[7];
@@ -14208,9 +14208,9 @@ double obj_mpe_aug(unsigned n, const double *x, double *grad, void *SS_ref_db){
   
    
 /**
-    Objective function of hb
+    Objective function of amp
 */
-double obj_mpe_hb(unsigned n, const double *x, double *grad, void *SS_ref_db){
+double obj_mpe_amp(unsigned n, const double *x, double *grad, void *SS_ref_db){
     SS_ref *d         = (SS_ref *) SS_ref_db;
 
     int n_em          = d->n_em;
@@ -14224,7 +14224,7 @@ double obj_mpe_hb(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double *sf        = d->sf;
     double *mu        = d->mu;
     double *d_em      = d->d_em;
-    px_mpe_hb(SS_ref_db,x);
+    px_mpe_amp(SS_ref_db,x);
 
     d->sum_v = 0.0;
     for (int i = 0; i < n_em; i++){
@@ -14292,7 +14292,7 @@ double obj_mpe_hb(unsigned n, const double *x, double *grad, void *SS_ref_db){
     if (grad){
         double *dfx    = d->dfx;
         double **dp_dx = d->dp_dx;
-        dpdx_mpe_hb(SS_ref_db,x);
+        dpdx_mpe_amp(SS_ref_db,x);
         for (int i = 0; i < (d->n_xeos); i++){
             dfx[i] = 0.0;
             for (int j = 0; j < n_em; j++){
@@ -14711,8 +14711,8 @@ void TC_mpe_P2X_init(	            P2X_type 			*P2X_read,
 			P2X_read[iss]  = p2x_mpe_dio; 		}
 		else if (strcmp( gv.SS_list[iss], "po")   == 0){
 			P2X_read[iss]  = p2x_mpe_po; 		}
-		else if (strcmp( gv.SS_list[iss], "hb")    == 0){
-			P2X_read[iss]  = p2x_mpe_hb; 		}
+		else if (strcmp( gv.SS_list[iss], "amp")    == 0){
+			P2X_read[iss]  = p2x_mpe_amp; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	
@@ -14725,8 +14725,8 @@ void TC_mb_P2X_init(	            P2X_type 			*P2X_read,
 	for (int iss = 0; iss < gv.len_ss; iss++){
         if (strcmp( gv.SS_list[iss], "liq")  == 0){
             P2X_read[iss]  = p2x_mb_liq;        }
-        else if (strcmp( gv.SS_list[iss], "hb")  == 0){
-            P2X_read[iss]  = p2x_mb_hb;         }
+        else if (strcmp( gv.SS_list[iss], "amp")  == 0){
+            P2X_read[iss]  = p2x_mb_amp;         }
         else if (strcmp( gv.SS_list[iss], "aug")  == 0){
             P2X_read[iss]  = p2x_mb_aug;        }
         else if (strcmp( gv.SS_list[iss], "dio")  == 0){
@@ -14784,8 +14784,8 @@ void TC_ig_P2X_init(	            P2X_type 			*P2X_read,
 			P2X_read[iss]  = p2x_ig_fl; 		}
 		else if (strcmp( gv.SS_list[iss], "g")   == 0){
 			P2X_read[iss]  = p2x_ig_g; 		    }
-		else if (strcmp( gv.SS_list[iss], "hb")  == 0){
-			P2X_read[iss]  = p2x_ig_hb; 		}
+		else if (strcmp( gv.SS_list[iss], "amp")  == 0){
+			P2X_read[iss]  = p2x_ig_amp; 		}
 		else if (strcmp( gv.SS_list[iss], "ilm") == 0){
 			P2X_read[iss]  = p2x_ig_ilm; 		}
 		else if (strcmp( gv.SS_list[iss], "liq") == 0){
@@ -14932,8 +14932,8 @@ void TC_ig_objective_init_function(	obj_type 			*SS_objective,
 			SS_objective[iss]  = obj_ig_fl; 		}
 		else if (strcmp( gv.SS_list[iss], "g")   == 0){
 			SS_objective[iss]  = obj_ig_g; 		}
-		else if (strcmp( gv.SS_list[iss], "hb")  == 0){
-			SS_objective[iss]  = obj_ig_hb; 		}
+		else if (strcmp( gv.SS_list[iss], "amp")  == 0){
+			SS_objective[iss]  = obj_ig_amp; 		}
 		else if (strcmp( gv.SS_list[iss], "ilm") == 0){
 			SS_objective[iss]  = obj_ig_ilm; 		}
 		else if (strcmp( gv.SS_list[iss], "liq") == 0){
@@ -15045,8 +15045,8 @@ void TC_mb_objective_init_function(	obj_type 			*SS_objective,
 
       if (strcmp( gv.SS_list[iss], "liq")  == 0){
          SS_objective[iss]  = obj_mb_liq;      }
-      else if (strcmp( gv.SS_list[iss], "hb")  == 0){
-         SS_objective[iss]  = obj_mb_hb;      }
+      else if (strcmp( gv.SS_list[iss], "amp")  == 0){
+         SS_objective[iss]  = obj_mb_amp;      }
       else if (strcmp( gv.SS_list[iss], "aug")  == 0){
          SS_objective[iss]  = obj_mb_aug;      }
       else if (strcmp( gv.SS_list[iss], "dio")  == 0){
@@ -15153,8 +15153,8 @@ void TC_um_ext_objective_init_function(	obj_type 			*SS_objective,
 			SS_objective[iss]  = obj_um_po; 		}
 		else if (strcmp( gv.SS_list[iss], "pl4tr")  == 0){
 			SS_objective[iss]  = obj_ume_pl4tr; 		}
-		else if (strcmp( gv.SS_list[iss], "hb") == 0){
-			SS_objective[iss]  = obj_ume_hb; 		}
+		else if (strcmp( gv.SS_list[iss], "amp") == 0){
+			SS_objective[iss]  = obj_ume_amp; 		}
 		else if (strcmp( gv.SS_list[iss], "aug") == 0){
 			SS_objective[iss]  = obj_ume_aug; 		}
 		else{
@@ -15251,8 +15251,8 @@ void TC_mpe_objective_init_function(	obj_type 			*SS_objective,
 			SS_objective[iss]  = obj_mpe_aug; 		}
 		else if (strcmp( gv.SS_list[iss], "dio")   == 0){
 			SS_objective[iss]  = obj_mpe_dio; 		}
-		else if (strcmp( gv.SS_list[iss], "hb")   == 0){
-			SS_objective[iss]  = obj_mpe_hb; 		}
+		else if (strcmp( gv.SS_list[iss], "amp")   == 0){
+			SS_objective[iss]  = obj_mpe_amp; 		}
 		else if (strcmp( gv.SS_list[iss], "po")    == 0){
 			SS_objective[iss]  = obj_mpe_po; 		}
 		else{
@@ -15353,8 +15353,8 @@ void TC_mb_PC_init(	                PC_type 			*PC_read,
 
       if (strcmp( gv.SS_list[iss], "liq")  == 0){
          PC_read[iss]  = obj_mb_liq;                }
-      else if (strcmp( gv.SS_list[iss], "hb")  == 0){
-         PC_read[iss]  = obj_mb_hb;                 }
+      else if (strcmp( gv.SS_list[iss], "amp")  == 0){
+         PC_read[iss]  = obj_mb_amp;                 }
       else if (strcmp( gv.SS_list[iss], "aug")  == 0){
          PC_read[iss]  = obj_mb_aug;                }
       else if (strcmp( gv.SS_list[iss], "dio")  == 0){
@@ -15412,8 +15412,8 @@ void TC_ig_PC_init(	                PC_type 			*PC_read,
 			PC_read[iss]  = obj_ig_fl; 		          }
 		else if (strcmp( gv.SS_list[iss], "g")   == 0){
 			PC_read[iss]  = obj_ig_g; 		          }
-		else if (strcmp( gv.SS_list[iss], "hb")  == 0){
-			PC_read[iss]  = obj_ig_hb; 		          }
+		else if (strcmp( gv.SS_list[iss], "amp")  == 0){
+			PC_read[iss]  = obj_ig_amp; 		          }
 		else if (strcmp( gv.SS_list[iss], "ilm") == 0){
 			PC_read[iss]  = obj_ig_ilm; 		      }
 		else if (strcmp( gv.SS_list[iss], "liq") == 0){
@@ -15534,8 +15534,8 @@ void TC_um_ext_PC_init(	                PC_type 			*PC_read,
 			PC_read[iss]  = obj_um_po; 		        }
 		else if (strcmp( gv.SS_list[iss], "pl4tr")  == 0){
 			PC_read[iss]  = obj_ume_pl4tr; 		    }
-		else if (strcmp( gv.SS_list[iss], "hb") == 0){
-			PC_read[iss]  = obj_ume_hb; 		    }
+		else if (strcmp( gv.SS_list[iss], "amp") == 0){
+			PC_read[iss]  = obj_ume_amp; 		    }
 		else if (strcmp( gv.SS_list[iss], "aug") == 0){
 			PC_read[iss]  = obj_ume_aug; 		    }
 		else{
@@ -15633,8 +15633,8 @@ void TC_mpe_PC_init(	                PC_type 			*PC_read,
 			PC_read[iss]  = obj_mpe_aug; 		            }
 		else if (strcmp( gv.SS_list[iss], "dio")   == 0){
 			PC_read[iss]  = obj_mpe_dio; 		        }
-		else if (strcmp( gv.SS_list[iss], "hb")   == 0){
-			PC_read[iss]  = obj_mpe_hb; 		        }
+		else if (strcmp( gv.SS_list[iss], "amp")   == 0){
+			PC_read[iss]  = obj_mpe_amp; 		        }
 		else if (strcmp( gv.SS_list[iss], "po")    == 0){
 			PC_read[iss]  = obj_mpe_po; 		            }
 		else{

@@ -20167,7 +20167,7 @@ struct ss_pc mpe_aug_pc_xeos[2395] = {
 {{0.996000,0.996000,0.747000,0.996000,0.000000,0.000000,0.498000}},
 {{0.996000,0.996000,0.747000,0.996000,0.000000,0.000000,0.747000}}};
 
-struct ss_pc mpe_hb_pc_xeos[7664] = {
+struct ss_pc mpe_amp_pc_xeos[7664] = {
 {{0.193943,0.271726,0.371770,0.091662,0.050579,0.610391,0.065522,0.005700,-0.011238,0.041284}},
 {{0.312501,0.054647,0.138181,0.032653,0.152655,0.859792,0.066658,0.000550,-0.052959,0.091912}},
 {{0.411932,0.167775,0.206631,0.067862,0.190981,0.764643,0.000000,0.004931,-0.042809,0.095336}},
@@ -28260,8 +28260,8 @@ void SS_mpe_pc_init_function(	PC_ref 	*SS_pc_xeos,
 		SS_pc_xeos[iss].ss_pc_xeos  = mpe_aug_pc_xeos; 		}
 	else if (strcmp( name, "dio") == 0){
 		SS_pc_xeos[iss].ss_pc_xeos  = mpe_dio_pc_xeos; 		}
-	else if (strcmp( name, "hb") == 0){
-		SS_pc_xeos[iss].ss_pc_xeos  = mpe_hb_pc_xeos; 		}
+	else if (strcmp( name, "amp") == 0){
+		SS_pc_xeos[iss].ss_pc_xeos  = mpe_amp_pc_xeos; 		}
 	else if (strcmp( name, "po") == 0){
 		SS_pc_xeos[iss].ss_pc_xeos  = mpe_po_pc_xeos; 		}
 	else{

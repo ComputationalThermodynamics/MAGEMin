@@ -37,7 +37,7 @@ void TC_mpe_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 
 SS_ref NLopt_opt_ig_spl_function(global_variable gv, SS_ref SS_ref_db);
 SS_ref NLopt_opt_ig_cpx_function(global_variable gv, SS_ref SS_ref_db);
-SS_ref NLopt_opt_ig_hb_function(global_variable gv, SS_ref SS_ref_db);
+SS_ref NLopt_opt_ig_amp_function(global_variable gv, SS_ref SS_ref_db);
 
 #endif
 

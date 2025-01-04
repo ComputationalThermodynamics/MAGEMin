@@ -23,8 +23,8 @@ end
 function mineral_name_convertor(    phase_name      :: Vector{String}   )
 
     ph = copy(phase_name)
-    ph = replace.(ph,"All"  => "all");      ph = replace.(ph,"Ap"   => "ap");       ph = replace.(ph,"Ttn"  => "ttn");      ph = replace.(ph,"Amp"  => "hb");
-    ph = replace.(ph,"Bt"   => "bi");       ph = replace.(ph,"Crd"  => "cd");       ph = replace.(ph,"Kfs"  => "ksp");      ph = replace.(ph,"Pl"   => "pl");
+    ph = replace.(ph,"All"  => "all");      ph = replace.(ph,"Ap"   => "ap");       ph = replace.(ph,"Ttn"  => "ttn");      ph = replace.(ph,"Amp"  => "amp");
+    ph = replace.(ph,"Bt"   => "bi");       ph = replace.(ph,"Crd"  => "cd");       ph = replace.(ph,"Kfs"  => "afs");      ph = replace.(ph,"Pl"   => "pl");
     ph = replace.(ph,"Qtz"  => "q");        ph = replace.(ph,"Rt"   => "ru");       ph = replace.(ph,"Grt"  => "g");        ph = replace.(ph,"Ep"   => "ep");
     ph = replace.(ph,"Ol"   => "ol");       ph = replace.(ph,"Opx"  => "opx");      ph = replace.(ph,"Mica" => "mu");       ph = replace.(ph,"Mt"   => "mt");
     ph = replace.(ph,"Zrn"  => "zrn");      ph = replace.(ph,"Cpx"  => "cpx");      ph = replace.(ph,"Spl"  => "sp");
@@ -49,7 +49,7 @@ function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Flo
         ph[i]   = ss
         if ss == "fsp"
             if out.SS_vec[i].compVariables[2] - 0.5 > 0
-                ph[i] = "ksp"
+                ph[i] = "afs"
             else
                 ph[i] = "pl"
             end

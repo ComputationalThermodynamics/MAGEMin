@@ -14140,7 +14140,7 @@ struct ss_pc ig_liq_pc_xeos[3088] = {
 {{0.792100,0.198100,0.000100,0.000100,0.000100,0.000100,0.000100,0.000100,0.000100,0.198100,0.000100}},
 {{0.990100,0.000100,0.000100,0.000100,0.000100,0.000100,0.000100,0.000100,0.000100,0.000100,0.000100}}};
 
-struct ss_pc ig_hb_pc_xeos[5499] = {
+struct ss_pc ig_amp_pc_xeos[5499] = {
 {{0.035462,0.868696,0.974798,0.023117,0.034398,0.024802,0.093848,0.000694,0.000219,-0.003143}},
 {{0.3301,0.0001,0.0001,0.0001,0.3301,0.0001,0.0001,0.0001,0.0001,0.0001}},
 {{0.3301,0.0001,0.0001,0.0001,0.3301,0.0001,0.0001,0.3301,0.0001,0.0001}},
@@ -28727,8 +28727,8 @@ void SS_ig_pc_init_function(	PC_ref 	*SS_pc_xeos,
 		SS_pc_xeos[iss].ss_pc_xeos  = ig_fl_pc_xeos; 		}
 	else if (strcmp( name, "g")   == 0){
 		SS_pc_xeos[iss].ss_pc_xeos  = ig_g_pc_xeos; 		}
-	else if (strcmp( name, "hb")  == 0){
-		SS_pc_xeos[iss].ss_pc_xeos  = ig_hb_pc_xeos; 		}
+	else if (strcmp( name, "amp")  == 0){
+		SS_pc_xeos[iss].ss_pc_xeos  = ig_amp_pc_xeos; 		}
 	else if (strcmp( name, "ilm") == 0){
 		SS_pc_xeos[iss].ss_pc_xeos  = ig_ilm_pc_xeos; 		}
 	else if (strcmp( name, "liq") == 0){

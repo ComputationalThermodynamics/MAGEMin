@@ -50,9 +50,9 @@ switch SS
         variableNames = {'x(pig)','y(pig)','o(pig)','n(pig)','Q(pig)','f(pig)','cr(pig)','t(pig)','k(pig)'};
         InitialGuess  = [0.124, 0.1120, 0.88, 0.028, -0.0115, 0.004, 0.001, 0.148, 0.001];
 
-    case 'hb'
+    case 'amp'
         %proportion
-        variableNames = {'x(hb)','y(hb)','z(hb)','a(hb)','k(hb)','c(hb)','f(hb)','t(hb)','Q1(hb)','Q2(hb)'};
+        variableNames = {'x(amp)','y(amp)','z(amp)','a(amp)','k(amp)','c(amp)','f(amp)','t(amp)','Q1(amp)','Q2(amp)'};
         InitialGuess  = [0.3, 0.2, 0.01, 0.45, 0.01, 0.8, 0.05, 0.01, -0.01, 0.1];
 
     case 'ilm'          % Ilmenite

@@ -13,7 +13,7 @@ Function to calculate the reference chemical potential of solid-solutions
 
 Holland et al., 2018 - Corrected in Green et al., 2025 - Melting of peridotites through to granites                 
 Igneous dataset to use with tc-ds633.txt                                         
-"bi","cpx","cd","ep","fl","g","hb","ilm","liq","mu", "ol", "opx","fsp","spl" 
+"bi","cpx","cd","ep","fl","g","amp","ilm","liq","mu", "ol", "opx","fsp","spl" 
 */
 
 #include <math.h>
@@ -380,9 +380,9 @@ SS_ref G_SS_mb_liq_function(SS_ref SS_ref_db, char* research_group, int EM_datas
 }
 
 /**
-   retrieve reference thermodynamic data for mb_hb
+   retrieve reference thermodynamic data for mb_amp
 */
-SS_ref G_SS_mb_hb_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mb_amp_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -5538,7 +5538,7 @@ SS_ref G_SS_ig_g_function(SS_ref SS_ref_db, char* research_group, int EM_dataset
 /**
   retrieve reference thermodynamic data for horblende 
 */
-SS_ref G_SS_ig_hb_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_ig_amp_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -9879,9 +9879,9 @@ SS_ref G_SS_ume_pl4tr_function(SS_ref SS_ref_db,  char* research_group, int EM_d
 }
 
 /**
-   retrieve reference thermodynamic data for ume_hb
+   retrieve reference thermodynamic data for ume_amp
 */
-SS_ref G_SS_ume_hb_function(SS_ref SS_ref_db,  char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_ume_amp_function(SS_ref SS_ref_db,  char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -13914,9 +13914,9 @@ SS_ref G_SS_mpe_po_function(SS_ref SS_ref_db, char* research_group, int EM_datas
 }
 
 /**
-   retrieve reference thermodynamic data for mpe_hb
+   retrieve reference thermodynamic data for mpe_amp
 */
-SS_ref G_SS_mpe_hb_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_mpe_amp_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -14505,8 +14505,8 @@ SS_ref G_SS_mb_EM_function(		global_variable 	 gv,
 				SS_ref_db.ss_flags[0]  = 0;
 			}
             SS_ref_db  = G_SS_mb_liq_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
-        else if (strcmp( name, "hb") == 0 ){
-            SS_ref_db  = G_SS_mb_hb_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+        else if (strcmp( name, "amp") == 0 ){
+            SS_ref_db  = G_SS_mb_amp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "aug") == 0 ){
             if (gv.mbCpx == 0){
                 SS_ref_db.ss_flags[0]  = 0;
@@ -14669,11 +14669,11 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_ig_g_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);		}
-		else if (strcmp( name, "hb") == 0){
+		else if (strcmp( name, "amp") == 0){
 			if (z_b.bulk_rock[gv.H2O_id] == 0.  || z_b.bulk_rock[gv.Al2O3_id] == 0. ){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_ig_hb_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}	
+			SS_ref_db  = G_SS_ig_amp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}	
 		else if (strcmp( name, "ilm") == 0){
 			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
@@ -15277,12 +15277,12 @@ SS_ref G_SS_um_ext_EM_function(	global_variable 	 gv,
 			SS_ref_db  = G_SS_um_spi_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "pl4tr") == 0){
 			SS_ref_db  = G_SS_ume_pl4tr_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);}
-		else if (strcmp( name, "hb") == 0){
+		else if (strcmp( name, "amp") == 0){
 			// if no H2O, deactivate
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_ume_hb_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+			SS_ref_db  = G_SS_ume_amp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "aug") == 0){
 			SS_ref_db  = G_SS_ume_aug_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else{
@@ -15597,11 +15597,11 @@ SS_ref G_SS_mpe_EM_function(		global_variable 	 gv,
 			SS_ref_db  = G_SS_mpe_dio_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
 		else if (strcmp( name, "aug") == 0){
 			SS_ref_db  = G_SS_mpe_aug_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
-		else if (strcmp( name, "hb") == 0){
+		else if (strcmp( name, "amp") == 0){
             if ( z_b.bulk_rock[gv.H2O_id] == 0.0 ){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_mpe_hb_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
+			SS_ref_db  = G_SS_mpe_amp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
 		else{
 			printf("\nsolid solution '%s' is not in the database\n",name);	                    }	
 		for (int j = 0; j < SS_ref_db.n_em; j++){

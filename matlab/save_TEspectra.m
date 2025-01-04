@@ -16,7 +16,7 @@ function save_TEspectra(PseudoSectionData,full)
     for j=1:length(TEname)
         Data.TE.m.(TEname{j})   = PseudoSectionData.TraceElement.m.(TEname{j})(k);
         Data.TE.s.(TEname{j})   = PseudoSectionData.TraceElement.s.(TEname{j})(k);
-        Data.TE.hb.(TEname{j})  = PseudoSectionData.TraceElement.hb.(TEname{j})(k);
+        Data.TE.amp.(TEname{j})  = PseudoSectionData.TraceElement.amp.(TEname{j})(k);
         Data.TE.g.(TEname{j})   = PseudoSectionData.TraceElement.g.(TEname{j})(k);
         Data.TE.pl.(TEname{j})  = PseudoSectionData.TraceElement.pl.(TEname{j})(k);
         Data.TE.ol.(TEname{j})  = PseudoSectionData.TraceElement.ol.(TEname{j})(k);

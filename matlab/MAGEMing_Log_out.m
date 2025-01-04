@@ -41,7 +41,7 @@ title('\bf Residual evolution');
 set(gca, 'YScale', 'log')
 
 subplot(234)
-m = ["spl","bi","cd","cpx","ep","g","hb","ilm","liq","mu","ol","opx","pl"];
+m = ["spl","bi","cd","cpx","ep","g","amp","ilm","liq","mu","ol","opx","pl"];
 b = [];
 n = [];
 for i=1:n_ss
@@ -61,7 +61,7 @@ legend(b, n);
 title('\bf Min time per SS');
 
 subplot(235)
-m = ["spl","bi","cd","cpx","ep","g","hb","ilm","liq","mu","ol","opx","pl"];
+m = ["spl","bi","cd","cpx","ep","g","amp","ilm","liq","mu","ol","opx","pl"];
 b = [];
 n = [];
 for i=1:n_ss
@@ -81,7 +81,7 @@ legend(b, n);
 title('\bf Sum (xi) per SS');
 
 subplot(236)
-m = ["spl","bi","cd","cpx","ep","g","hb","ilm","liq","mu","ol","opx","pl"];
+m = ["spl","bi","cd","cpx","ep","g","amp","ilm","liq","mu","ol","opx","pl"];
 b = [];
 n = [];
 for i=1:n_ss

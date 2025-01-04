@@ -73,9 +73,9 @@ SS_ref G_SS_mb_liq_init_function(SS_ref SS_ref_db,  global_variable gv){
 }
 
 /**
-    allocate memory for hb
+    allocate memory for amp
 */
-SS_ref G_SS_mb_hb_init_function(SS_ref SS_ref_db,  global_variable gv){
+SS_ref G_SS_mb_amp_init_function(SS_ref SS_ref_db,  global_variable gv){
     
     SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
@@ -759,7 +759,7 @@ SS_ref G_SS_ig_g_init_function(SS_ref SS_ref_db,  global_variable gv){
 /** 
   allocate memory for hornblende
 */
-SS_ref G_SS_ig_hb_init_function(SS_ref SS_ref_db,  global_variable gv){
+SS_ref G_SS_ig_amp_init_function(SS_ref SS_ref_db,  global_variable gv){
 
 	SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq     = 0;	
@@ -1317,9 +1317,9 @@ SS_ref G_SS_ume_pl4tr_init_function(SS_ref SS_ref_db, global_variable gv){
 }
 
 /**
-    allocate memory for hb
+    allocate memory for amp
 */
-SS_ref G_SS_ume_hb_init_function(SS_ref SS_ref_db, global_variable gv){
+SS_ref G_SS_ume_amp_init_function(SS_ref SS_ref_db, global_variable gv){
     
     SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
@@ -1933,9 +1933,9 @@ SS_ref G_SS_mpe_po_init_function(SS_ref SS_ref_db, global_variable gv){
 }
 
 /**
-    allocate memory for hb
+    allocate memory for amp
 */
-SS_ref G_SS_mpe_hb_init_function(SS_ref SS_ref_db, global_variable gv){
+SS_ref G_SS_mpe_amp_init_function(SS_ref SS_ref_db, global_variable gv){
     
     SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
@@ -2040,8 +2040,8 @@ void TC_SS_init_mb(	                SS_init_type 		*SS_init,
 	for (int iss = 0; iss < gv.len_ss; iss++){
         if (strcmp( gv.SS_list[iss], "liq")  == 0){
             SS_init[iss]  = G_SS_mb_liq_init_function;        }
-        else if (strcmp( gv.SS_list[iss], "hb")  == 0){
-            SS_init[iss]  = G_SS_mb_hb_init_function;         }
+        else if (strcmp( gv.SS_list[iss], "amp")  == 0){
+            SS_init[iss]  = G_SS_mb_amp_init_function;         }
         else if (strcmp( gv.SS_list[iss], "aug")  == 0){
             SS_init[iss]  = G_SS_mb_aug_init_function;        }
         else if (strcmp( gv.SS_list[iss], "dio")  == 0){
@@ -2100,8 +2100,8 @@ void TC_SS_init_ig(	                SS_init_type 		*SS_init,
 			SS_init[iss]  = G_SS_ig_fl_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "g")   == 0){
 			SS_init[iss]  = G_SS_ig_g_init_function; 		    }
-		else if (strcmp( gv.SS_list[iss], "hb")  == 0){
-			SS_init[iss]  = G_SS_ig_hb_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "amp")  == 0){
+			SS_init[iss]  = G_SS_ig_amp_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "ilm") == 0){
 			SS_init[iss]  = G_SS_ig_ilm_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "liq") == 0){
@@ -2225,8 +2225,8 @@ void TC_SS_init_um_ext(	            SS_init_type 		*SS_init,
 			SS_init[iss]  = G_SS_um_po_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "pl4tr")  == 0){
 			SS_init[iss]  = G_SS_ume_pl4tr_init_function; 	}
-		else if (strcmp( gv.SS_list[iss], "hb") == 0){
-			SS_init[iss]  = G_SS_ume_hb_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "amp") == 0){
+			SS_init[iss]  = G_SS_ume_amp_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "aug") == 0){
 			SS_init[iss]  = G_SS_ume_aug_init_function; 	}
 		else{
@@ -2324,8 +2324,8 @@ void TC_SS_init_mp_ext(	            SS_init_type 		*SS_init,
 			SS_init[iss]  = G_SS_mpe_dio_init_function; 	}
 		else if (strcmp( gv.SS_list[iss], "aug")   == 0){
 			SS_init[iss]  = G_SS_mpe_aug_init_function; 	}
-		else if (strcmp( gv.SS_list[iss], "hb")    == 0){
-			SS_init[iss]  = G_SS_mpe_hb_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "amp")    == 0){
+			SS_init[iss]  = G_SS_mpe_amp_init_function; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	
