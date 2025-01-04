@@ -367,7 +367,7 @@ typedef struct simplex_datas
 } simplex_data;
 
 /* Declare structures to hold reference gbase, composition and factor for solid solutions */
-/* "bi","cpx","crd","ep","fl","g","hb","ilm","liq","mu","ol","opx","fsp","spn" */
+/* "bi","cpx","crd","ep","fl","g","hb","ilm","liq","mu","ol","opx","fsp","spl" */
 typedef struct SS_refs {
 	double 	 P;					/** used to pass to local minimizer, would allow to have pressure difference for liq/solid */
 	double 	 T;

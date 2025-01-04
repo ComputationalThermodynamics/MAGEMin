@@ -206,7 +206,7 @@ else
     fprintf(fid,'zeromodeisopleth %s  \n',Line.PhaseDisappear{1});
 end
 
-fprintf(fid,'%% zeromodeisopleth spn %% phase that disappears (e.g. @ univariant line)\n'); 
+fprintf(fid,'%% zeromodeisopleth spl %% phase that disappears (e.g. @ univariant line)\n'); 
 if ~ComputeLine
     fprintf(fid,'calcmu yes \n');
 end

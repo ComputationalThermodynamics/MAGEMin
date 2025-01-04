@@ -15,7 +15,7 @@
 #include <time.h>
 #include <string.h>
 
-struct ss_pc mb_spn_pc_xeos[196] = {
+struct ss_pc mb_spl_pc_xeos[196] = {
 {{0.000010,0.000010}},
 {{0.000010,0.074010}},
 {{0.000010,0.148010}},
@@ -29220,8 +29220,8 @@ void SS_mb_pc_init_function(	PC_ref 	*SS_pc_xeos,
 						 
 	if      (strcmp( name, "sp")  == 0 ){
 		SS_pc_xeos[iss].ss_pc_xeos  = mb_sp_pc_xeos; 		}
-	else if (strcmp( name, "spn")  == 0 ){
-		SS_pc_xeos[iss].ss_pc_xeos  = mb_spn_pc_xeos; 		}
+	else if (strcmp( name, "spl")  == 0 ){
+		SS_pc_xeos[iss].ss_pc_xeos  = mb_spl_pc_xeos; 		}
 	else if (strcmp( name, "opx")  == 0){
 		SS_pc_xeos[iss].ss_pc_xeos  = mb_opx_pc_xeos; 		}
 	else if (strcmp( name, "fsp")  == 0){

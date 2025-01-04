@@ -5,10 +5,10 @@ using MAGEMin_C
 using PlotlyJS
 
 # number of computational steps
-nsteps = 128
+nsteps = 64
 
 # Starting/ending Temperature [°C]
-T = range(1200.0,850.0,nsteps)
+T = range(1200.0,600.0,nsteps)
 
 # Starting/ending Pressure [kbar]
 P = range(3.0,0.1,nsteps)

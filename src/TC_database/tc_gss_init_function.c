@@ -223,9 +223,9 @@ SS_ref G_SS_mb_k4tr_init_function(SS_ref SS_ref_db,  global_variable gv){
     return SS_ref_db;
 }
 /**
-    allocate memory for spn
+    allocate memory for spl
 */
-SS_ref G_SS_mb_spn_init_function(SS_ref SS_ref_db, global_variable gv){
+SS_ref G_SS_mb_spl_init_function(SS_ref SS_ref_db, global_variable gv){
     
     SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
@@ -876,9 +876,9 @@ SS_ref G_SS_ig_fsp_init_function(SS_ref SS_ref_db,  global_variable gv){
 }
 
 /** 
-  allocate memory for spn
+  allocate memory for spl
 */
-SS_ref G_SS_ig_spn_init_function(SS_ref SS_ref_db,  global_variable gv){		
+SS_ref G_SS_ig_spl_init_function(SS_ref SS_ref_db,  global_variable gv){		
 
     SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
@@ -935,9 +935,9 @@ SS_ref G_SS_igad_fsp_init_function(SS_ref SS_ref_db,  global_variable gv){
 }
 
 /**
-    allocate memory for spn
+    allocate memory for spl
 */
-SS_ref G_SS_igad_spn_init_function(SS_ref SS_ref_db,  global_variable gv){
+SS_ref G_SS_igad_spl_init_function(SS_ref SS_ref_db,  global_variable gv){
     
     SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
@@ -1035,9 +1035,9 @@ SS_ref G_SS_igad_ilm_init_function(SS_ref SS_ref_db,  global_variable gv){
 }
 
 /**
-    allocate memory for ness
+    allocate memory for nph
 */
-SS_ref G_SS_igad_ness_init_function(SS_ref SS_ref_db,  global_variable gv){
+SS_ref G_SS_igad_nph_init_function(SS_ref SS_ref_db,  global_variable gv){
     
     SS_ref_db.n_cat     = 0;
     SS_ref_db.is_liq    = 0;
@@ -2060,8 +2060,8 @@ void TC_SS_init_mb(	                SS_init_type 		*SS_init,
             SS_init[iss]  = G_SS_mb_k4tr_init_function;       }
         else if (strcmp( gv.SS_list[iss], "sp")  == 0){
             SS_init[iss]  = G_SS_mb_sp_init_function;         }
-        else if (strcmp( gv.SS_list[iss], "spn")  == 0){
-            SS_init[iss]  = G_SS_mb_spn_init_function;        }
+        else if (strcmp( gv.SS_list[iss], "spl")  == 0){
+            SS_init[iss]  = G_SS_mb_spl_init_function;        }
         else if (strcmp( gv.SS_list[iss], "ilm")  == 0){
             SS_init[iss]  = G_SS_mb_ilm_init_function;        }
         else if (strcmp( gv.SS_list[iss], "ilmm")  == 0){
@@ -2114,8 +2114,8 @@ void TC_SS_init_ig(	                SS_init_type 		*SS_init,
 			SS_init[iss]  = G_SS_ig_opx_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "fsp") == 0){
 			SS_init[iss]  = G_SS_ig_fsp_init_function; 		}
-		else if (strcmp( gv.SS_list[iss], "spn") == 0){
-			SS_init[iss]  = G_SS_ig_spn_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "spl") == 0){
+			SS_init[iss]  = G_SS_ig_spl_init_function; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	
@@ -2142,10 +2142,10 @@ void TC_SS_init_igad(	            SS_init_type 		*SS_init,
 			SS_init[iss]  = G_SS_igad_opx_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "fsp") == 0){
 			SS_init[iss]  = G_SS_igad_fsp_init_function; 		}
-		else if (strcmp( gv.SS_list[iss], "spn") == 0){
-			SS_init[iss]  = G_SS_igad_spn_init_function; 		}
-		else if (strcmp( gv.SS_list[iss], "ness") == 0){
-			SS_init[iss]  = G_SS_igad_ness_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "spl") == 0){
+			SS_init[iss]  = G_SS_igad_spl_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "nph") == 0){
+			SS_init[iss]  = G_SS_igad_nph_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "lct") == 0){
 			SS_init[iss]  = G_SS_igad_lct_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "kals") == 0){

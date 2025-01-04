@@ -29,7 +29,7 @@ Finalize_MAGEMin(data)
 @show out
 
 @test out.G_system ≈ -797.7779758880838
-@test sort(out.ph) == sort(["spn", "cpx",  "opx", "ol"])
+@test sort(out.ph) == sort(["spl", "cpx",  "opx", "ol"])
 @test abs(out.s_cp[1] - 1208.466551730128) < 2.0
 
 @testset "test light output calculation" begin
@@ -124,7 +124,7 @@ end
     P           =   8.0
     T           =   1200.0
     out         =   point_wise_minimization(P,T, data, buffer_n=0.1);
-    @test sort(out.ph) == sort(["aTiO2", "cpx", "fsp", "liq", "ol", "opx", "spn"])
+    @test sort(out.ph) == sort(["aTiO2", "cpx", "fsp", "liq", "ol", "opx", "spl"])
 
     Finalize_MAGEMin(data)
 
@@ -260,7 +260,7 @@ T           =   800.0
 out         =   point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in);
 @test out.G_system ≈ -797.7779758880838
 @test abs(out.s_cp[1] - 1208.466551730128) < 2.0
-@test sort(out.ph) == sort(["spn", "cpx",  "opx", "ol"])
+@test sort(out.ph) == sort(["spl", "cpx",  "opx", "ol"])
 finalize_MAGEMin(gv,DB,z_b)
 
 @testset "pointwise tests  " begin
@@ -271,7 +271,7 @@ finalize_MAGEMin(gv,DB,z_b)
     data    =   Initialize_MAGEMin(db, verbose=false);
     out     =   multi_point_minimization(P, T, data, test=0);
     @test out[end].G_system ≈ -797.7779758880838
-    @test sort(out[end].ph) == sort(["spn", "cpx",  "opx", "ol"])
+    @test sort(out[end].ph) == sort(["spl", "cpx",  "opx", "ol"])
 
     Finalize_MAGEMin(data)
 end

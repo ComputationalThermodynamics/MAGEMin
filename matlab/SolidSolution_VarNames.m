@@ -60,8 +60,8 @@ switch SS
         variableNames = {'x(ilm)','Q(ilm)'};
         InitialGuess  = [0.8, 0.055];
 
-    case 'spn'
-        variableNames = {'x(spn)','y(spn)','c(spn)','t(spn)','Q1(spn)','Q2(spn)','Q3(spn)'};
+    case 'spl'
+        variableNames = {'x(spl)','y(spl)','c(spl)','t(spl)','Q1(spl)','Q2(spl)','Q3(spl)'};
         InitialGuess  = [0.20, 0.1, 0.8, 0.05, 0.05, 0.05, 0.05];
 
     case 'cm'

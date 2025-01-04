@@ -23,8 +23,8 @@ switch Computation.EOS_Method
         end
         
         % Use the NN to evaluate the data for the points as a function of T,P (and later chemistry)
-        SolutionModels = {'spn';};
-%         SolutionModels = {'spn';'ol';'cpx'; 'opx'; 'pli';'g'; 'liq'};
+        SolutionModels = {'spl';};
+%         SolutionModels = {'spl';'ol';'cpx'; 'opx'; 'pli';'g'; 'liq'};
         
         for iSS = 1:length(SolutionModels)
            CompositionalVar_NN{iSS}  = xEOS_From_NN(SolutionModels{iSS},XY_vec(newPoints,:));

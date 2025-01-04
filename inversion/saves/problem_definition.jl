@@ -33,7 +33,7 @@ end
 #= IGNEOUS DATABASE INFOS
     Here the informations needed to fill the definition problem are displayed for convenience
 
-    spn: 1; n_W's, 28; n_em's, 8
+    spl: 1; n_W's, 28; n_em's, 8
     bi: 2; n_W's, 15; n_em's, 6
     cd: 3; n_W's, 3; n_em's, 3
     cpx: 4; n_W's, 45; n_em's, 10

@@ -42,7 +42,7 @@ function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Flo
     ph      = Array{String}(undef, out.n_SS + out.n_PP) 
     ph_wt   = Array{Float64}(undef, out.n_SS + out.n_PP) 
 
-    # add solution phase and classify some solution phases (spn, fsp, ilm)                             
+    # add solution phase and classify some solution phases (spl, fsp, ilm)                             
     for i = 1:out.n_SS                             
         ss      = out.ph[i]
         ph_wt[i]= out.ph_frac_wt[i]
@@ -54,7 +54,7 @@ function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Flo
                 ph[i] = "pl"
             end
         end
-        if ss == "spn"
+        if ss == "spl"
             if out.SS_vec[i].compVariables[3] - 0.5 > 0
                 ph[i] = "cm"        # chromite
             else

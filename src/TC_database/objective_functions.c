@@ -245,9 +245,9 @@ void p2x_mb_k4tr(void *SS_ref_db, double eps){
     }
 }
 /**
-    Endmember to xeos for spn
+    Endmember to xeos for spl
 */
-void p2x_mb_spn(void *SS_ref_db, double eps){
+void p2x_mb_spl(void *SS_ref_db, double eps){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     
     d->iguess[1]  = 1.0 -d->p[2];
@@ -563,9 +563,9 @@ void dpdx_mb_k4tr(void *SS_ref_db, const double *x){
 
 
 /**
-    Update dpdx matrix of spn
+    Update dpdx matrix of spl
 */
-void dpdx_mb_spn(void *SS_ref_db, const double *x){
+void dpdx_mb_spl(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double **dp_dx = d->dp_dx;
 
@@ -822,9 +822,9 @@ void px_mb_k4tr(void *SS_ref_db, const double *x){
 
   
 /**
-    Endmember fraction of spn
+    Endmember fraction of spl
 */
-void px_mb_spn(void *SS_ref_db, const double *x){
+void px_mb_spl(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
         p[0]           = -x[0]*x[1] + 2.0*x[0] + 2.0*x[1] - 2.0;
@@ -1734,9 +1734,9 @@ double obj_mb_k4tr(unsigned n, const double *x, double *grad, void *SS_ref_db){
 }
         
 /**
-    Objective function of spn
+    Objective function of spl
 */
-double obj_mb_spn(unsigned n, const double *x, double *grad, void *SS_ref_db){
+double obj_mb_spl(unsigned n, const double *x, double *grad, void *SS_ref_db){
     SS_ref *d         = (SS_ref *) SS_ref_db;
 
     int n_em          = d->n_em;
@@ -1749,7 +1749,7 @@ double obj_mb_spn(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double *sf        = d->sf;
     double *mu        = d->mu;
     double *d_em      = d->d_em;
-    px_mb_spn(SS_ref_db,x);
+    px_mb_spl(SS_ref_db,x);
 
     for (int i = 0; i < n_em; i++){
         mu_Gex[i] = 0.0;
@@ -1787,7 +1787,7 @@ double obj_mb_spn(unsigned n, const double *x, double *grad, void *SS_ref_db){
     if (grad){
         double *dfx    = d->dfx;
         double **dp_dx = d->dp_dx;
-        dpdx_mb_spn(SS_ref_db,x);
+        dpdx_mb_spl(SS_ref_db,x);
         for (int i = 0; i < (d->n_xeos); i++){
             dfx[i] = 0.0;
             for (int j = 0; j < n_em; j++){
@@ -6233,7 +6233,7 @@ void p2x_ig_fsp(void *SS_ref_db, double eps){
 /** 
   endmembers to xeos (spinel)
 */
-void p2x_ig_spn(void *SS_ref_db, double eps){
+void p2x_ig_spl(void *SS_ref_db, double eps){
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
 	d->iguess[0]  = (1.0 - d->p[6] - d->p[7] - d->p[0] - d->p[1])/(d->p[7] + 1.0);
@@ -6862,7 +6862,7 @@ void dpdx_ig_fsp(void *SS_ref_db, const double *x){
 /** 
   update dpdpx matrix (spinel)
 */
-void dpdx_ig_spn(void *SS_ref_db, const double *x){
+void dpdx_ig_spl(void *SS_ref_db, const double *x){
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 	
 	double **dp_dx = d->dp_dx;
@@ -7086,7 +7086,7 @@ void px_ig_fsp(void *SS_ref_db, const double *x){
 /** 
   update px matrix (spinel)
 */
-void px_ig_spn(void *SS_ref_db, const double *x){
+void px_ig_spl(void *SS_ref_db, const double *x){
 	SS_ref *d  = (SS_ref *) SS_ref_db;
 	double *p = d->p;
 
@@ -8274,7 +8274,7 @@ double obj_ig_fsp(unsigned  n, const double *x, double *grad, void *SS_ref_db) {
 /** 
   objective function of spinel
 */
-double obj_ig_spn(unsigned n, const double *x, double *grad, void *SS_ref_db) {
+double obj_ig_spl(unsigned n, const double *x, double *grad, void *SS_ref_db) {
      SS_ref *d         = (SS_ref *) SS_ref_db;
 
     int n_em          = d->n_em;
@@ -8287,7 +8287,7 @@ double obj_ig_spn(unsigned n, const double *x, double *grad, void *SS_ref_db) {
     double *sf        = d->sf;
     double *mu        = d->mu;
     double *d_em      = d->d_em;
-    px_ig_spn(SS_ref_db,x);
+    px_ig_spl(SS_ref_db,x);
 
     d->sum_v = 0.0;
     for (int i = 0; i < n_em; i++){
@@ -8347,7 +8347,7 @@ double obj_ig_spn(unsigned n, const double *x, double *grad, void *SS_ref_db) {
     if (grad){
         double *dfx    = d->dfx;
         double **dp_dx = d->dp_dx;
-        dpdx_ig_spn(SS_ref_db,x);
+        dpdx_ig_spl(SS_ref_db,x);
         for (int i = 0; i < (d->n_xeos); i++){
             dfx[i] = 0.0;
             for (int j = 0; j < n_em; j++){
@@ -8370,9 +8370,9 @@ double obj_ig_spn(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 
 
 /**
-    Endmember to xeos for ness
+    Endmember to xeos for nph
 */
-void p2x_igad_ness(void *SS_ref_db, double eps){
+void p2x_igad_nph(void *SS_ref_db, double eps){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     
     d->iguess[3]  = d->p[5];
@@ -8622,7 +8622,7 @@ void p2x_igad_fsp(void *SS_ref_db, double eps){
 /** 
   endmembers to xeos (spinel)
 */
-void p2x_igad_spn(void *SS_ref_db, double eps){
+void p2x_igad_spl(void *SS_ref_db, double eps){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     
     d->iguess[2] = d->p[6];
@@ -8683,9 +8683,9 @@ void dpdx_igad_fsp(void *SS_ref_db, const double *x){
 
 
 /**
-    Update dpdx matrix of spn
+    Update dpdx matrix of spl
 */
-void dpdx_igad_spn(void *SS_ref_db, const double *x){
+void dpdx_igad_spl(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double **dp_dx = d->dp_dx;
 
@@ -8783,9 +8783,9 @@ void dpdx_igad_ilm(void *SS_ref_db, const double *x){
 
 
 /**
-    Update dpdx matrix of ness
+    Update dpdx matrix of nph
 */
-void dpdx_igad_ness(void *SS_ref_db, const double *x){
+void dpdx_igad_nph(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double **dp_dx = d->dp_dx;
 
@@ -8872,9 +8872,9 @@ void px_igad_fsp(void *SS_ref_db, const double *x){
 
     
 /**
-    Endmember fraction of spn
+    Endmember fraction of spl
 */
-void px_igad_spn(void *SS_ref_db, const double *x){
+void px_igad_spl(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
         p[0]           = -1.0/3.0*x[0]*x[3] - 1.0/3.0*x[0] - x[2] + 1.0/3.0*x[3] + 2.0/3.0*x[4] + 1.0/3.0;
@@ -8970,9 +8970,9 @@ void px_igad_ilm(void *SS_ref_db, const double *x){
 
     
 /**
-    Endmember fraction of ness
+    Endmember fraction of nph
 */
-void px_igad_ness(void *SS_ref_db, const double *x){
+void px_igad_nph(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     double *p = d->p;
         p[0]           = 0.25*x[0]*x[1] - x[0] + 0.75*x[1]*x[4] - x[1] - 0.75*x[2] - x[3] + 1.0;
@@ -9200,9 +9200,9 @@ double obj_igad_fsp(unsigned n, const double *x, double *grad, void *SS_ref_db){
 }
     
 /**
-    Objective function of spn
+    Objective function of spl
 */
-double obj_igad_spn(unsigned n, const double *x, double *grad, void *SS_ref_db){
+double obj_igad_spl(unsigned n, const double *x, double *grad, void *SS_ref_db){
     SS_ref *d         = (SS_ref *) SS_ref_db;
 
     int n_em          = d->n_em;
@@ -9216,7 +9216,7 @@ double obj_igad_spn(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double *sf        = d->sf;
     double *mu        = d->mu;
     double *d_em      = d->d_em;
-    px_igad_spn(SS_ref_db,x);
+    px_igad_spl(SS_ref_db,x);
 
     d->sum_v = 0.0;
     for (int i = 0; i < n_em; i++){
@@ -9277,7 +9277,7 @@ double obj_igad_spn(unsigned n, const double *x, double *grad, void *SS_ref_db){
     if (grad){
         double *dfx    = d->dfx;
         double **dp_dx = d->dp_dx;
-        dpdx_igad_spn(SS_ref_db,x);
+        dpdx_igad_spl(SS_ref_db,x);
         for (int i = 0; i < (d->n_xeos); i++){
             dfx[i] = 0.0;
             for (int j = 0; j < n_em; j++){
@@ -9718,9 +9718,9 @@ double obj_igad_ilm(unsigned n, const double *x, double *grad, void *SS_ref_db){
 }
     
 /**
-    Objective function of ness
+    Objective function of nph
 */
-double obj_igad_ness(unsigned n, const double *x, double *grad, void *SS_ref_db){
+double obj_igad_nph(unsigned n, const double *x, double *grad, void *SS_ref_db){
     SS_ref *d         = (SS_ref *) SS_ref_db;
 
     int n_em          = d->n_em;
@@ -9734,7 +9734,7 @@ double obj_igad_ness(unsigned n, const double *x, double *grad, void *SS_ref_db)
     double *sf        = d->sf;
     double *mu        = d->mu;
     double *d_em      = d->d_em;
-    px_igad_ness(SS_ref_db,x);
+    px_igad_nph(SS_ref_db,x);
 
     d->sum_v = 0.0;
     for (int i = 0; i < n_em; i++){
@@ -9792,7 +9792,7 @@ double obj_igad_ness(unsigned n, const double *x, double *grad, void *SS_ref_db)
     if (grad){
         double *dfx    = d->dfx;
         double **dp_dx = d->dp_dx;
-        dpdx_igad_ness(SS_ref_db,x);
+        dpdx_igad_nph(SS_ref_db,x);
         for (int i = 0; i < (d->n_xeos); i++){
             dfx[i] = 0.0;
             for (int j = 0; j < n_em; j++){
@@ -14745,8 +14745,8 @@ void TC_mb_P2X_init(	            P2X_type 			*P2X_read,
             P2X_read[iss]  = p2x_mb_k4tr;       }
         else if (strcmp( gv.SS_list[iss], "sp")  == 0){
             P2X_read[iss]  = p2x_mb_sp;         }
-        else if (strcmp( gv.SS_list[iss], "spn")  == 0){
-            P2X_read[iss]  = p2x_mb_spn;         }
+        else if (strcmp( gv.SS_list[iss], "spl")  == 0){
+            P2X_read[iss]  = p2x_mb_spl;         }
         else if (strcmp( gv.SS_list[iss], "ilm")  == 0){
             P2X_read[iss]  = p2x_mb_ilm;        }
         else if (strcmp( gv.SS_list[iss], "ilmm")  == 0){
@@ -14798,8 +14798,8 @@ void TC_ig_P2X_init(	            P2X_type 			*P2X_read,
 			P2X_read[iss]  = p2x_ig_opx; 		}
 		else if (strcmp( gv.SS_list[iss], "fsp") == 0){
 			P2X_read[iss]  = p2x_ig_fsp; 		}
-		else if (strcmp( gv.SS_list[iss], "spn") == 0){
-			P2X_read[iss]  = p2x_ig_spn; 		}
+		else if (strcmp( gv.SS_list[iss], "spl") == 0){
+			P2X_read[iss]  = p2x_ig_spl; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	
@@ -14825,10 +14825,10 @@ void TC_igad_P2X_init(	            P2X_type 			*P2X_read,
 			P2X_read[iss]  = p2x_igad_opx; 		}
 		else if (strcmp( gv.SS_list[iss], "fsp") == 0){
 			P2X_read[iss]  = p2x_igad_fsp; 		}
-		else if (strcmp( gv.SS_list[iss], "spn") == 0){
-			P2X_read[iss]  = p2x_igad_spn; 		}
-		else if (strcmp( gv.SS_list[iss], "ness")  == 0){
-			P2X_read[iss]  = p2x_igad_ness; 		}
+		else if (strcmp( gv.SS_list[iss], "spl") == 0){
+			P2X_read[iss]  = p2x_igad_spl; 		}
+		else if (strcmp( gv.SS_list[iss], "nph")  == 0){
+			P2X_read[iss]  = p2x_igad_nph; 		}
 		else if (strcmp( gv.SS_list[iss], "lct") == 0){
 			P2X_read[iss]  = p2x_igad_lct; 		}
 		else if (strcmp( gv.SS_list[iss], "kals") == 0){
@@ -14946,8 +14946,8 @@ void TC_ig_objective_init_function(	obj_type 			*SS_objective,
 			SS_objective[iss]  = obj_ig_opx; 		}
 		else if (strcmp( gv.SS_list[iss], "fsp") == 0){
 			SS_objective[iss]  = obj_ig_fsp; 		}
-		else if (strcmp( gv.SS_list[iss], "spn") == 0){
-			SS_objective[iss]  = obj_ig_spn; 		}
+		else if (strcmp( gv.SS_list[iss], "spl") == 0){
+			SS_objective[iss]  = obj_ig_spl; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	
@@ -14974,10 +14974,10 @@ void TC_igad_objective_init_function(	obj_type 			*SS_objective,
 			SS_objective[iss]  = obj_igad_opx; 		}
 		else if (strcmp( gv.SS_list[iss], "fsp") == 0){
 			SS_objective[iss]  = obj_igad_fsp; 		}
-		else if (strcmp( gv.SS_list[iss], "spn") == 0){
-			SS_objective[iss]  = obj_igad_spn; 		}
-		else if (strcmp( gv.SS_list[iss], "ness")  == 0){
-			SS_objective[iss]  = obj_igad_ness; 	}
+		else if (strcmp( gv.SS_list[iss], "spl") == 0){
+			SS_objective[iss]  = obj_igad_spl; 		}
+		else if (strcmp( gv.SS_list[iss], "nph")  == 0){
+			SS_objective[iss]  = obj_igad_nph; 	}
 		else if (strcmp( gv.SS_list[iss], "lct") == 0){
 			SS_objective[iss]  = obj_igad_lct; 		}
 		else if (strcmp( gv.SS_list[iss], "kals") == 0){
@@ -15065,8 +15065,8 @@ void TC_mb_objective_init_function(	obj_type 			*SS_objective,
          SS_objective[iss]  = obj_mb_k4tr;      }
       else if (strcmp( gv.SS_list[iss], "sp")  == 0){
          SS_objective[iss]  = obj_mb_sp;      }
-      else if (strcmp( gv.SS_list[iss], "spn")  == 0){
-         SS_objective[iss]  = obj_mb_spn;      }
+      else if (strcmp( gv.SS_list[iss], "spl")  == 0){
+         SS_objective[iss]  = obj_mb_spl;      }
       else if (strcmp( gv.SS_list[iss], "ilm")  == 0){
          SS_objective[iss]  = obj_mb_ilm;      }
       else if (strcmp( gv.SS_list[iss], "ilmm")  == 0){
@@ -15373,8 +15373,8 @@ void TC_mb_PC_init(	                PC_type 			*PC_read,
          PC_read[iss]  = obj_mb_k4tr;               }
       else if (strcmp( gv.SS_list[iss], "sp")  == 0){
          PC_read[iss]  = obj_mb_sp;                 }
-      else if (strcmp( gv.SS_list[iss], "spn")  == 0){
-         PC_read[iss]  = obj_mb_spn;                }
+      else if (strcmp( gv.SS_list[iss], "spl")  == 0){
+         PC_read[iss]  = obj_mb_spl;                }
       else if (strcmp( gv.SS_list[iss], "ilm")  == 0){
          PC_read[iss]  = obj_mb_ilm;                }
       else if (strcmp( gv.SS_list[iss], "ilmm")  == 0){
@@ -15426,8 +15426,8 @@ void TC_ig_PC_init(	                PC_type 			*PC_read,
 			PC_read[iss]  = obj_ig_opx; 		      }
 		else if (strcmp( gv.SS_list[iss], "fsp") == 0){
 			PC_read[iss]  = obj_ig_fsp; 		      }
-		else if (strcmp( gv.SS_list[iss], "spn") == 0){
-			PC_read[iss]  = obj_ig_spn; 		    }
+		else if (strcmp( gv.SS_list[iss], "spl") == 0){
+			PC_read[iss]  = obj_ig_spl; 		    }
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	
@@ -15453,10 +15453,10 @@ void TC_igad_PC_init(	                PC_type 			*PC_read,
 			PC_read[iss]  = obj_igad_opx; 		      }
 		else if (strcmp( gv.SS_list[iss], "fsp") == 0){
 			PC_read[iss]  = obj_igad_fsp; 		      }
-		else if (strcmp( gv.SS_list[iss], "spn") == 0){
-			PC_read[iss]  = obj_igad_spn; 		    }
-		else if (strcmp( gv.SS_list[iss], "ness")  == 0){
-			PC_read[iss]  = obj_igad_ness; 		      }
+		else if (strcmp( gv.SS_list[iss], "spl") == 0){
+			PC_read[iss]  = obj_igad_spl; 		    }
+		else if (strcmp( gv.SS_list[iss], "nph")  == 0){
+			PC_read[iss]  = obj_igad_nph; 		      }
 		else if (strcmp( gv.SS_list[iss], "lct") == 0){
 			PC_read[iss]  = obj_igad_lct; 		      }
 		else if (strcmp( gv.SS_list[iss], "kals") == 0){
