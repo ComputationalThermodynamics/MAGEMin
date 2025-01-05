@@ -276,11 +276,11 @@ if (any(strcmpi(properties(p.Results.uiax),'Legend')) && ~isempty(p.Results.uiax
     % Search for objects in new axes that have matching displayNames values as legend strings (see note [11])
     newChildren = [h.axes.Children; newChildrenYY]; 
     hasDisplayName = isprop(newChildren,'DisplayName'); 
-    dispNames = get(newChildren(hasDisplayName),'DisplayName'); 
-    if isempty(dispNames)
-        dispNames = ''; 
+    displames = get(newChildren(hasDisplayName),'DisplayName'); 
+    if isempty(displames)
+        displames = ''; 
     end
-    [~,legIdx] = ismember(legHand.String, dispNames); 
+    [~,legIdx] = ismember(legHand.String, displames); 
     legObjHands = newChildren(legIdx); 
     
     % Create new legend and copy selected properties

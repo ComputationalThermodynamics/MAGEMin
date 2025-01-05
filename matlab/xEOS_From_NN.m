@@ -8,8 +8,8 @@ load('NN_test1');
 
 % Compute NN
 switch SS
-    case 'spn'
-        xEOS    = net_spn([XY_vec]')';
+    case 'spl'
+        xEOS    = net_spl([XY_vec]')';
         lb      =   [0 0 0 0 -1 -1 -1];
         ub      =   [1 1 1 1  1  1  1];
     case 'cpx'

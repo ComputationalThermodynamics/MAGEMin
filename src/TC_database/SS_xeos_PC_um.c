@@ -4859,7 +4859,7 @@ struct ss_pc ume_pl4tr_pc_xeos[21] = {
 {{0.931100}},
 {{0.980100}}};
 
-struct ss_pc ume_hb_pc_xeos[3640] = {
+struct ss_pc ume_amp_pc_xeos[3640] = {
 {{0.240100,0.000100,0.000100,0.000100,0.000100,0.000100,0.000100,0.000100}},
 {{0.240100,0.000100,0.000100,0.000100,0.000100,0.240100,0.000100,0.000100}},
 {{0.240100,0.000100,0.000100,0.000100,0.240100,0.000100,0.000100,0.000100}},
@@ -11570,8 +11570,8 @@ void SS_um_pc_init_function(	PC_ref 	*SS_pc_xeos,
 		SS_pc_xeos[iss].ss_pc_xeos  = um_po_pc_xeos; 		}
 	else if (strcmp( name, "pl4tr") == 0){
 		SS_pc_xeos[iss].ss_pc_xeos  = ume_pl4tr_pc_xeos; 		}
-	else if (strcmp( name, "hb") == 0){
-		SS_pc_xeos[iss].ss_pc_xeos  = ume_hb_pc_xeos; 		}
+	else if (strcmp( name, "amp") == 0){
+		SS_pc_xeos[iss].ss_pc_xeos  = ume_amp_pc_xeos; 		}
 	else if (strcmp( name, "aug") == 0){
 		SS_pc_xeos[iss].ss_pc_xeos  = ume_aug_pc_xeos; 		}
 	else{

@@ -41,7 +41,7 @@ ig = unsafe_wrap(Vector{Cdouble},ss_struct[ss].iguess, ss_struct[ss].n_xeos)
 tmp = [0.680373011  0.00109226965]; #pl4tr
 # tmp = [0.338431366   0.0372603498   0.0428520434   0.0519428464    0.295506935]; #opx
 # tmp = [0.621931926 0.000197970492] #ilm
-# tmp = [0.837897697   0.0274371794    0.249717882]; #spn
+# tmp = [0.837897697   0.0274371794    0.249717882]; #spl
 for i =1:length(ig)
     ig[i] = tmp[i]
 end

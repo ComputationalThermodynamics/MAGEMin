@@ -145,9 +145,9 @@ void liq_mb_c(unsigned m, double *result, unsigned n, const double *x, double *g
 };
 
 /**
-    Inequality constraints for hb
+    Inequality constraints for amp
 */
-void hb_mb_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+void amp_mb_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = ( x[3] - 1.0);
     result[1] = ( x[3]*x[4] -x[3]);
     result[2] = ( -x[3]*x[4]);
@@ -734,9 +734,9 @@ void k4tr_mb_c(unsigned m, double *result, unsigned n, const double *x, double *
 };
 
 /**
-    Inequality constraints for spn
+    Inequality constraints for spl
 */
-void spn_mb_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+void spl_mb_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = (-x[1]);
     result[1] = (x[1] - 1.0);
     result[2] = (x[0] - 1.0);
@@ -1147,7 +1147,7 @@ SS_ref NLopt_opt_mb_liq_function(global_variable gv, SS_ref SS_ref_db){
     
     return SS_ref_db;
 };
-SS_ref NLopt_opt_mb_hb_function(global_variable gv, SS_ref SS_ref_db){
+SS_ref NLopt_opt_mb_amp_function(global_variable gv, SS_ref SS_ref_db){
     
     int    n_em     = SS_ref_db.n_em;
     unsigned int n  = SS_ref_db.n_xeos;
@@ -1163,8 +1163,8 @@ SS_ref NLopt_opt_mb_hb_function(global_variable gv, SS_ref SS_ref_db){
     SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n)); 
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
-    nlopt_set_min_objective(SS_ref_db.opt, obj_mb_hb, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, hb_mb_c, NULL, NULL);
+    nlopt_set_min_objective(SS_ref_db.opt, obj_mb_amp, &SS_ref_db);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, amp_mb_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     
@@ -1452,7 +1452,7 @@ SS_ref NLopt_opt_mb_k4tr_function(global_variable gv, SS_ref SS_ref_db){
     
     return SS_ref_db;
 };
-SS_ref NLopt_opt_mb_spn_function(global_variable gv, SS_ref SS_ref_db){
+SS_ref NLopt_opt_mb_spl_function(global_variable gv, SS_ref SS_ref_db){
     
     int    n_em     = SS_ref_db.n_em;
     unsigned int n  = SS_ref_db.n_xeos;
@@ -1468,15 +1468,15 @@ SS_ref NLopt_opt_mb_spn_function(global_variable gv, SS_ref SS_ref_db){
     SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n)); 
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
-    nlopt_set_min_objective(SS_ref_db.opt, obj_mb_spn, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, spn_mb_c, NULL, NULL);
+    nlopt_set_min_objective(SS_ref_db.opt, obj_mb_spl, &SS_ref_db);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, spl_mb_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     
     double minf;
     if (gv.maxeval==1){  
        // we are only interested in evaluating the objective function  
-       minf = obj_mb_spn(n, x, NULL, &SS_ref_db);
+       minf = obj_mb_spl(n, x, NULL, &SS_ref_db);
     }
     else{
       // do optimization
@@ -3032,7 +3032,7 @@ void g_ig_c(unsigned m, double *result, unsigned n, const double *x, double *gra
 /** 
   local minimization for hornblende
 */
-void hb_ig_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+void amp_ig_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = ( x[3] - 1.0);
     result[1] = ( x[3]*x[4] - x[3]);
     result[2] = ( -x[3]*x[4]);
@@ -3774,7 +3774,7 @@ void fsp_ig_c(unsigned m, double *result, unsigned n, const double *x, double *g
 /** 
   local minimization for spinel
 */
-void spn_ig_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *SS_ref_db){
+void spl_ig_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *SS_ref_db){
     result[0] = ( 1./3.*x[0]*x[3] + 1./3.*x[0] - 1./3.*x[3] - 2./3.*x[4] - 1./3.);
     result[1] = ( -1./3.*x[0]*x[3] - 1./3.*x[0] - 2./3.*x[5]);
     result[2] = ( -2./3.*x[1]*x[2] - 2./3.*x[1]*x[3] + 2./3.*x[1] + 1./3.*x[3] + 2./3.*x[4] + 2./3.*x[5] + 2./3.*x[6] - 2./3.);
@@ -4260,9 +4260,9 @@ void fsp_igad_c(unsigned m, double *result, unsigned n, const double *x, double 
 };
 
 /**
-    Inequality constraints for spn
+    Inequality constraints for spl
 */
-void spn_igad_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+void spl_igad_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = ( 1.0/3.0*x[0]*x[3] + 1.0/3.0*x[0] - 1.0/3.0*x[3] - 2.0/3.0*x[4] - 1.0/3.0);
     result[1] = ( -1.0/3.0*x[0]*x[3] - 1.0/3.0*x[0] - 2.0/3.0*x[5]);
     result[2] = ( -2.0/3.0*x[1]*x[2] - 2.0/3.0*x[1]*x[3] + 2.0/3.0*x[1] + 1.0/3.0*x[3] + 2.0/3.0*x[4] + 2.0/3.0*x[5] + 2.0/3.0*x[6] - 2.0/3.0);
@@ -4752,9 +4752,9 @@ void ilm_igad_c(unsigned m, double *result, unsigned n, const double *x, double 
 };
 
 /**
-    Inequality constraints for ness
+    Inequality constraints for nph
 */
-void ness_igad_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+void nph_igad_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = ( -0.25*x[0]*x[1] - 0.75*x[1]*x[4] + x[1] - 0.25*x[2] + x[4] - 1.0);
     result[1] = ( 0.25*x[0]*x[1] + 0.75*x[1]*x[4] - x[1] + 0.25*x[2]);
     result[2] = ( -x[4]);
@@ -5347,9 +5347,9 @@ void pl4tr_ume_c(unsigned m, double *result, unsigned n, const double *x, double
 };
 
 /**
-    Inequality constraints for hb
+    Inequality constraints for amp
 */
-void hb_ume_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+void amp_ume_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = (x[3] - 1.0);
     result[1] = (-x[3]);
     result[2] = (x[0] -x[6] - 1.0);
@@ -6446,7 +6446,7 @@ SS_ref NLopt_opt_ig_g_function(global_variable gv, SS_ref SS_ref_db){
    return SS_ref_db;
 };
 
-SS_ref NLopt_opt_ig_hb_function(global_variable gv, SS_ref SS_ref_db){
+SS_ref NLopt_opt_ig_amp_function(global_variable gv, SS_ref SS_ref_db){
 
    int    n_em     = SS_ref_db.n_em;
    unsigned int n  = SS_ref_db.n_xeos;
@@ -6462,8 +6462,8 @@ SS_ref NLopt_opt_ig_hb_function(global_variable gv, SS_ref SS_ref_db){
    SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n)); 
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
-   nlopt_set_min_objective(SS_ref_db.opt, obj_ig_hb, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, hb_ig_c, NULL, NULL);
+   nlopt_set_min_objective(SS_ref_db.opt, obj_ig_amp, &SS_ref_db);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, amp_ig_c, NULL, NULL);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -6692,7 +6692,7 @@ SS_ref NLopt_opt_ig_fsp_function(global_variable gv, SS_ref SS_ref_db){
    return SS_ref_db;
 };
 
-SS_ref NLopt_opt_ig_spn_function(global_variable gv, SS_ref SS_ref_db){
+SS_ref NLopt_opt_ig_spl_function(global_variable gv, SS_ref SS_ref_db){
 
    int    n_em     = SS_ref_db.n_em;
    unsigned int n  = SS_ref_db.n_xeos;
@@ -6708,8 +6708,8 @@ SS_ref NLopt_opt_ig_spn_function(global_variable gv, SS_ref SS_ref_db){
    SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n));
    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
-   nlopt_set_min_objective(SS_ref_db.opt, obj_ig_spn, &SS_ref_db);
-   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, spn_ig_c, &SS_ref_db, NULL);
+   nlopt_set_min_objective(SS_ref_db.opt, obj_ig_spl, &SS_ref_db);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, spl_ig_c, &SS_ref_db, NULL);
    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
 
@@ -6803,7 +6803,7 @@ SS_ref NLopt_opt_igad_fsp_function(global_variable gv, SS_ref SS_ref_db){
     
     return SS_ref_db;
 };
-SS_ref NLopt_opt_igad_spn_function(global_variable gv, SS_ref SS_ref_db){
+SS_ref NLopt_opt_igad_spl_function(global_variable gv, SS_ref SS_ref_db){
     
     int    n_em     = SS_ref_db.n_em;
     unsigned int n  = SS_ref_db.n_xeos;
@@ -6819,8 +6819,8 @@ SS_ref NLopt_opt_igad_spn_function(global_variable gv, SS_ref SS_ref_db){
     SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n)); 
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
-    nlopt_set_min_objective(SS_ref_db.opt, obj_igad_spn, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, spn_igad_c, NULL, NULL);
+    nlopt_set_min_objective(SS_ref_db.opt, obj_igad_spl, &SS_ref_db);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, spl_igad_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -7013,7 +7013,7 @@ SS_ref NLopt_opt_igad_ilm_function(global_variable gv, SS_ref SS_ref_db){
     
     return SS_ref_db;
 };
-SS_ref NLopt_opt_igad_ness_function(global_variable gv, SS_ref SS_ref_db){
+SS_ref NLopt_opt_igad_nph_function(global_variable gv, SS_ref SS_ref_db){
     
     int    n_em     = SS_ref_db.n_em;
     unsigned int n  = SS_ref_db.n_xeos;
@@ -7029,8 +7029,8 @@ SS_ref NLopt_opt_igad_ness_function(global_variable gv, SS_ref SS_ref_db){
     SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n)); 
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
-    nlopt_set_min_objective(SS_ref_db.opt, obj_igad_ness, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, ness_igad_c, NULL, NULL);
+    nlopt_set_min_objective(SS_ref_db.opt, obj_igad_nph, &SS_ref_db);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, nph_igad_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -7623,7 +7623,7 @@ SS_ref NLopt_opt_ume_pl4tr_function(global_variable gv, SS_ref SS_ref_db){
     
     return SS_ref_db;
 };
-SS_ref NLopt_opt_ume_hb_function(global_variable gv, SS_ref SS_ref_db){
+SS_ref NLopt_opt_ume_amp_function(global_variable gv, SS_ref SS_ref_db){
     
     int    n_em     = SS_ref_db.n_em;
     unsigned int n  = SS_ref_db.n_xeos;
@@ -7639,8 +7639,8 @@ SS_ref NLopt_opt_ume_hb_function(global_variable gv, SS_ref SS_ref_db){
     SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n)); 
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
-    nlopt_set_min_objective(SS_ref_db.opt, obj_ume_hb, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, hb_ume_c, NULL, NULL);
+    nlopt_set_min_objective(SS_ref_db.opt, obj_ume_amp, &SS_ref_db);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, amp_ume_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -9906,9 +9906,9 @@ void po_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *g
 };
 
 /**
-    Inequality constraints for hb
+    Inequality constraints for amp
 */
-void hb_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+void amp_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = (x[3] - 1.0);
     result[1] = (x[3]*x[4] - x[3]);
     result[2] = (-x[3]*x[4]);
@@ -11034,7 +11034,7 @@ SS_ref NLopt_opt_mpe_po_function(global_variable gv, SS_ref SS_ref_db){
     
     return SS_ref_db;
 };
-SS_ref NLopt_opt_mpe_hb_function(global_variable gv, SS_ref SS_ref_db){
+SS_ref NLopt_opt_mpe_amp_function(global_variable gv, SS_ref SS_ref_db){
     
     int    n_em     = SS_ref_db.n_em;
     unsigned int n  = SS_ref_db.n_xeos;
@@ -11050,8 +11050,8 @@ SS_ref NLopt_opt_mpe_hb_function(global_variable gv, SS_ref SS_ref_db){
     SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n)); 
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
-    nlopt_set_min_objective(SS_ref_db.opt, obj_mpe_hb, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, hb_mpe_c, NULL, NULL);
+    nlopt_set_min_objective(SS_ref_db.opt, obj_mpe_amp, &SS_ref_db);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, amp_mpe_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -11203,8 +11203,8 @@ void TC_mb_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 	for (int iss = 0; iss < gv.len_ss; iss++){
         if (strcmp( gv.SS_list[iss], "liq")  == 0){
             NLopt_opt[iss]  = NLopt_opt_mb_liq_function;        }
-        else if (strcmp( gv.SS_list[iss], "hb")  == 0){
-            NLopt_opt[iss]  = NLopt_opt_mb_hb_function;         }
+        else if (strcmp( gv.SS_list[iss], "amp")  == 0){
+            NLopt_opt[iss]  = NLopt_opt_mb_amp_function;         }
         else if (strcmp( gv.SS_list[iss], "aug")  == 0){
             NLopt_opt[iss]  = NLopt_opt_mb_aug_function;        }
         else if (strcmp( gv.SS_list[iss], "dio")  == 0){
@@ -11223,8 +11223,8 @@ void TC_mb_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
             NLopt_opt[iss]  = NLopt_opt_mb_k4tr_function;       }
         else if (strcmp( gv.SS_list[iss], "sp")  == 0){
             NLopt_opt[iss]  = NLopt_opt_mb_sp_function;         }
-        else if (strcmp( gv.SS_list[iss], "spn")  == 0){
-            NLopt_opt[iss]  = NLopt_opt_mb_spn_function;        }
+        else if (strcmp( gv.SS_list[iss], "spl")  == 0){
+            NLopt_opt[iss]  = NLopt_opt_mb_spl_function;        }
         else if (strcmp( gv.SS_list[iss], "ilm")  == 0){
             NLopt_opt[iss]  = NLopt_opt_mb_ilm_function;        }
         else if (strcmp( gv.SS_list[iss], "ilmm")  == 0){
@@ -11262,8 +11262,8 @@ void TC_ig_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_ig_fl_function; 		}
 		else if (strcmp( gv.SS_list[iss], "g")   == 0){
 			NLopt_opt[iss]  = NLopt_opt_ig_g_function; 		    }
-		else if (strcmp( gv.SS_list[iss], "hb")  == 0){
-			NLopt_opt[iss]  = NLopt_opt_ig_hb_function; 		}
+		else if (strcmp( gv.SS_list[iss], "amp")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_ig_amp_function; 		}
 		else if (strcmp( gv.SS_list[iss], "ilm") == 0){
 			NLopt_opt[iss]  = NLopt_opt_ig_ilm_function; 		}
 		else if (strcmp( gv.SS_list[iss], "liq") == 0){
@@ -11276,8 +11276,8 @@ void TC_ig_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_ig_opx_function; 		}
 		else if (strcmp( gv.SS_list[iss], "fsp") == 0){
 			NLopt_opt[iss]  = NLopt_opt_ig_fsp_function; 		}
-		else if (strcmp( gv.SS_list[iss], "spn") == 0){
-			NLopt_opt[iss]  = NLopt_opt_ig_spn_function; 		}
+		else if (strcmp( gv.SS_list[iss], "spl") == 0){
+			NLopt_opt[iss]  = NLopt_opt_ig_spl_function; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	
@@ -11304,10 +11304,10 @@ void TC_igad_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_igad_opx_function; 		}
 		else if (strcmp( gv.SS_list[iss], "fsp") == 0){
 			NLopt_opt[iss]  = NLopt_opt_igad_fsp_function; 		}
-		else if (strcmp( gv.SS_list[iss], "spn") == 0){
-			NLopt_opt[iss]  = NLopt_opt_igad_spn_function; 		}
-		else if (strcmp( gv.SS_list[iss], "ness") == 0){
-			NLopt_opt[iss]  = NLopt_opt_igad_ness_function; 	}
+		else if (strcmp( gv.SS_list[iss], "spl") == 0){
+			NLopt_opt[iss]  = NLopt_opt_igad_spl_function; 		}
+		else if (strcmp( gv.SS_list[iss], "nph") == 0){
+			NLopt_opt[iss]  = NLopt_opt_igad_nph_function; 	}
 		else if (strcmp( gv.SS_list[iss], "lct") == 0){
 			NLopt_opt[iss]  = NLopt_opt_igad_lct_function; 		}
 		else if (strcmp( gv.SS_list[iss], "kals") == 0){
@@ -11387,8 +11387,8 @@ void TC_um_ext_NLopt_opt_init(	    NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_um_po_function; 		}
 		else if (strcmp( gv.SS_list[iss], "pl4tr")  == 0){
 			NLopt_opt[iss]  = NLopt_opt_ume_pl4tr_function; 	}
-		else if (strcmp( gv.SS_list[iss], "hb") == 0){
-			NLopt_opt[iss]  = NLopt_opt_ume_hb_function; 		}
+		else if (strcmp( gv.SS_list[iss], "amp") == 0){
+			NLopt_opt[iss]  = NLopt_opt_ume_amp_function; 		}
 		else if (strcmp( gv.SS_list[iss], "aug") == 0){
 			NLopt_opt[iss]  = NLopt_opt_ume_aug_function; 		}
 		else{
@@ -11488,8 +11488,8 @@ void TC_mpe_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_mpe_aug_function; 		}
 		else if (strcmp( gv.SS_list[iss], "dio")   == 0){
 			NLopt_opt[iss]  = NLopt_opt_mpe_dio_function; 		}
-		else if (strcmp( gv.SS_list[iss], "hb")   == 0){
-			NLopt_opt[iss]  = NLopt_opt_mpe_hb_function; 		}
+		else if (strcmp( gv.SS_list[iss], "amp")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_mpe_amp_function; 		}
 		else if (strcmp( gv.SS_list[iss], "po")    == 0){
 			NLopt_opt[iss]  = NLopt_opt_mpe_po_function; 		}
 		else{

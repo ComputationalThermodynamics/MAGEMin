@@ -842,6 +842,7 @@ struct SS_refs
     Z::Cdouble
     densityW::Cdouble
     epsilon::Cdouble
+    fName::Ptr{Cchar}
     EM_list::Ptr{Ptr{Cchar}}
     CV_list::Ptr{Ptr{Cchar}}
     SF_list::Ptr{Ptr{Cchar}}
@@ -1189,6 +1190,7 @@ struct stb_systems
     n_SS::Cint
     n_mSS::Cint
     ph::Ptr{Ptr{Cchar}}
+    sol_name::Ptr{Ptr{Cchar}}
     ph_frac::Ptr{Cdouble}
     ph_frac_wt::Ptr{Cdouble}
     ph_frac_1at::Ptr{Cdouble}
@@ -1809,8 +1811,8 @@ function obj_mb_liq(n, x, grad, SS_ref_db)
     ccall((:obj_mb_liq, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
-function obj_mb_hb(n, x, grad, SS_ref_db)
-    ccall((:obj_mb_hb, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+function obj_mb_amp(n, x, grad, SS_ref_db)
+    ccall((:obj_mb_amp, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
 function obj_mb_aug(n, x, grad, SS_ref_db)
@@ -1849,8 +1851,8 @@ function obj_mb_sp(n, x, grad, SS_ref_db)
     ccall((:obj_mb_sp, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
-function obj_mb_spn(n, x, grad, SS_ref_db)
-    ccall((:obj_mb_spn, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+function obj_mb_spl(n, x, grad, SS_ref_db)
+    ccall((:obj_mb_spl, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
 function obj_mb_ilm(n, x, grad, SS_ref_db)
@@ -1905,8 +1907,8 @@ function obj_ig_g(n, x, grad, SS_ref_db)
     ccall((:obj_ig_g, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
-function obj_ig_hb(n, x, grad, SS_ref_db)
-    ccall((:obj_ig_hb, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+function obj_ig_amp(n, x, grad, SS_ref_db)
+    ccall((:obj_ig_amp, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
 function obj_ig_ilm(n, x, grad, SS_ref_db)
@@ -1933,8 +1935,8 @@ function obj_ig_fsp(n, x, grad, SS_ref_db)
     ccall((:obj_ig_fsp, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
-function obj_ig_spn(n, x, grad, SS_ref_db)
-    ccall((:obj_ig_spn, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+function obj_ig_spl(n, x, grad, SS_ref_db)
+    ccall((:obj_ig_spl, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
 function obj_igad_liq(n, x, grad, SS_ref_db)
@@ -1945,8 +1947,8 @@ function obj_igad_fsp(n, x, grad, SS_ref_db)
     ccall((:obj_igad_fsp, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
-function obj_igad_spn(n, x, grad, SS_ref_db)
-    ccall((:obj_igad_spn, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+function obj_igad_spl(n, x, grad, SS_ref_db)
+    ccall((:obj_igad_spl, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
 function obj_igad_g(n, x, grad, SS_ref_db)
@@ -1969,8 +1971,8 @@ function obj_igad_ilm(n, x, grad, SS_ref_db)
     ccall((:obj_igad_ilm, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
-function obj_igad_ness(n, x, grad, SS_ref_db)
-    ccall((:obj_igad_ness, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+function obj_igad_nph(n, x, grad, SS_ref_db)
+    ccall((:obj_igad_nph, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
 function obj_igad_lct(n, x, grad, SS_ref_db)
@@ -2105,8 +2107,8 @@ function obj_ume_pl4tr(n, x, grad, SS_ref_db)
     ccall((:obj_ume_pl4tr, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
-function obj_ume_hb(n, x, grad, SS_ref_db)
-    ccall((:obj_ume_hb, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+function obj_ume_amp(n, x, grad, SS_ref_db)
+    ccall((:obj_ume_amp, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
 function obj_ume_aug(n, x, grad, SS_ref_db)
@@ -2253,8 +2255,8 @@ function obj_mpe_aug(n, x, grad, SS_ref_db)
     ccall((:obj_mpe_aug, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
-function obj_mpe_hb(n, x, grad, SS_ref_db)
-    ccall((:obj_mpe_hb, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+function obj_mpe_amp(n, x, grad, SS_ref_db)
+    ccall((:obj_mpe_amp, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
 function obj_mpe_po(n, x, grad, SS_ref_db)
@@ -2340,16 +2342,16 @@ function TC_mpe_NLopt_opt_init(NLopt_opt, gv)
     ccall((:TC_mpe_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
 end
 
-function NLopt_opt_ig_spn_function(gv, SS_ref_db)
-    ccall((:NLopt_opt_ig_spn_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
+function NLopt_opt_ig_spl_function(gv, SS_ref_db)
+    ccall((:NLopt_opt_ig_spl_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
 end
 
 function NLopt_opt_ig_cpx_function(gv, SS_ref_db)
     ccall((:NLopt_opt_ig_cpx_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
 end
 
-function NLopt_opt_ig_hb_function(gv, SS_ref_db)
-    ccall((:NLopt_opt_ig_hb_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
+function NLopt_opt_ig_amp_function(gv, SS_ref_db)
+    ccall((:NLopt_opt_ig_amp_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
 end
 
 function SS_mp_pc_init_function(SS_pc_xeos, iss, name)

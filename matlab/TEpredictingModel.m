@@ -38,7 +38,7 @@ function PseudoSectionData = TEpredictingModel(PseudoSectionData)
     end
     
     % create structure that will hold trace elements information of the system
-    SSname = {'m','s','hb','pl','cpx','g','opx','ol'};
+    SSname = {'m','s','amp','pl','cpx','g','opx','ol'};
     for i=1:length(TEname)
         for j=1:length(SSname)
             str = strcat(string(SSname(j)),'.',string(TEname(i)),' = zeros(np_tot,1);');
@@ -72,7 +72,7 @@ function PseudoSectionData = TEpredictingModel(PseudoSectionData)
                 ss           = string(phase(ph));
                 
                 switch ss
-                    case {"hb","anth"}
+                    case {"amp","anth"}
                         Di(1,:)  = TE_amph(P,T,mc,comp,ri_CN_8,ri_CN_6,fpe,ri_8,ri_6,order_flag,TE_name,fig,TE_name1,p,clr);
                         c_mx(1,:)= Fr.*Di(1,:);
                         F(2)     = Fr;
@@ -108,7 +108,7 @@ function PseudoSectionData = TEpredictingModel(PseudoSectionData)
                 m.(TEname{k})(i) = c_m(k);
                 s.(TEname{k})(i) = c_s(k);
             end
-            % fns = fieldnames(hb);
+            % fns = fieldnames(amp);
 
             % % Modal Fractional Melting MFM   
             % c_m= (MIXB./Dwr).*(1-(F(1)).^((1./Dwr)-1));            % Melt composition
@@ -137,7 +137,7 @@ function PseudoSectionData = TEpredictingModel(PseudoSectionData)
             if F(2)~=0
                 c_amph=c_s./(F(2)+(Di(4,:).*F(5)+Di(3,:).*F(4)+Di(5,:).*F(6)+Di(2,:).*F(3)+Di(6,:).*F(7)+F(1))./(Di(1,:)));
                 for k=1:length(TEname)
-                    hb.(TEname{k})(i) = c_amph(k);
+                    amp.(TEname{k})(i) = c_amph(k);
                 end
             end
             if F(6)~=0
@@ -162,7 +162,7 @@ function PseudoSectionData = TEpredictingModel(PseudoSectionData)
             for k=1:length(TEname)
                 m.(TEname{k})(i)   = NaN;
                 s.(TEname{k})(i)   = NaN;
-                hb.(TEname{k})(i)  = NaN;
+                amp.(TEname{k})(i)  = NaN;
                 g.(TEname{k})(i)   = NaN;
                 pl.(TEname{k})(i)  = NaN;
                 ol.(TEname{k})(i)  = NaN;
@@ -175,7 +175,7 @@ function PseudoSectionData = TEpredictingModel(PseudoSectionData)
 
     PseudoSectionData.TraceElement.s   = s;
     PseudoSectionData.TraceElement.m   = m;
-    PseudoSectionData.TraceElement.hb  = hb;
+    PseudoSectionData.TraceElement.amp  = amp;
     PseudoSectionData.TraceElement.g   = g;
     PseudoSectionData.TraceElement.pl  = pl;
     PseudoSectionData.TraceElement.ol  = ol;

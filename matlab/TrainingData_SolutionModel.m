@@ -6,7 +6,7 @@ function [TrainingData] = TrainingData_SolutionModel(TrainingData, SS, MPI_dir, 
 %   1) Predefined Gamma, T,P 
 %         [TrainingData]    = TrainingData_SolutionModel(TrainingData, SS, MPI_dir, MPI_cores, n_pc, T, P, Gamma)
 %           TrainingData    =   Previous data (optional), or empty
-%           SS              =   solid solution (e.g. 'spn')
+%           SS              =   solid solution (e.g. 'spl')
 %           MPI_dir         =   directory that contains the MPI executable (empty if no MPI)
 %           MPI_cores       =   # of cores (optional)
 %           n_pc            =   # points/dimension
@@ -17,7 +17,7 @@ function [TrainingData] = TrainingData_SolutionModel(TrainingData, SS, MPI_dir, 
 %   2) Create random selection
 %           [TrainingData]  =   TrainingData_SolutionModel(TrainingData, SS, MPI_dir, MPI_cores, n_pc, nPoints, Bounds_T, Bounds_P, Bounds_Gamma)
 %           TrainingData    =   Previous data (optional), or empty
-%           SS              =   solid solution (e.g. 'spn')
+%           SS              =   solid solution (e.g. 'spl')
 %           MPI_dir         =   directory that contains the MPI executable (empty if no MPI)
 %           MPI_cores       =   # of cores (optional)
 %           nPoints         =   # of points

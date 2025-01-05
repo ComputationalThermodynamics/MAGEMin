@@ -4954,7 +4954,7 @@ struct ss_pc igad_kals_pc_xeos[21] = {
 {{0.980100}}};
 
 /* step = 0.16 */
-struct ss_pc igad_ness_pc_xeos[1210] = {
+struct ss_pc igad_nph_pc_xeos[1210] = {
 {{0.002437,0.279349,0.862515,0.000100,0.000617}},
 {{0.149010,0.149010,-0.105990,0.000010,0.000010}},
 {{0.149010,0.149010,-0.105990,0.149010,0.000010}},
@@ -11833,7 +11833,8 @@ struct ss_pc igad_ilm_pc_xeos[1670] = {
 {{0.990000,0.880000,0.100000,0.760000}},
 {{0.990000,0.880000,0.100000,0.870000}}};
 
-struct ss_pc igad_cpx_pc_xeos[4127] = {
+struct ss_pc igad_cpx_pc_xeos[4128] = {
+{{0.257417,0.000000,0.008906,0.146675,-0.006780,0.021656,0.000607,0.017931,0.002650}},
 {{0.068562,0.000000,0.005005,0.168924,-0.002132,0.023915,0.000592,0.022802,0.168924}},
 {{0.150262,0.000000,0.000747,0.159533,-0.000645,0.047355,0.000088,0.032448,0.002771}},
 {{0.516044,0.001090,0.797516,0.079500,-0.091525,0.010078,0.000145,0.033774,0.014066}},
@@ -19377,7 +19378,7 @@ struct ss_pc igad_opx_pc_xeos[3413] = {
 {{0.996000,0.996000,0.996000,0.000000,0.498000,0.000000,0.249000,0.000000}},
 {{0.996000,0.996000,0.996000,0.000000,0.747000,0.000000,0.000000,0.000000}}};
 
-struct ss_pc igad_spn_pc_xeos[3318] = {
+struct ss_pc igad_spl_pc_xeos[3318] = {
 {{0.965996,0.992920,0.020318,0.001965,0.025491,-0.446828,0.429279}},
 {{0.000010,0.000010,0.000010,0.195010,0.000010,0.000010,0.000010}},
 {{0.000010,0.000010,0.000010,0.195010,0.195010,0.000010,0.000010}},
@@ -22716,16 +22717,16 @@ void SS_igad_pc_init_function(	PC_ref 	*SS_pc_xeos,
 		SS_pc_xeos[iss].ss_pc_xeos  = igad_opx_pc_xeos; 		}
 	else if (strcmp( name, "fsp") == 0){
 		SS_pc_xeos[iss].ss_pc_xeos  = igad_fsp_pc_xeos; 	    }
-	else if (strcmp( name, "spn") == 0){
-		SS_pc_xeos[iss].ss_pc_xeos  = igad_spn_pc_xeos; 		}
+	else if (strcmp( name, "spl") == 0){
+		SS_pc_xeos[iss].ss_pc_xeos  = igad_spl_pc_xeos; 		}
 	else if (strcmp( name, "kals") == 0){
 		SS_pc_xeos[iss].ss_pc_xeos  = igad_kals_pc_xeos; 		}
 	else if (strcmp( name, "mel") == 0){
 		SS_pc_xeos[iss].ss_pc_xeos  = igad_mel_pc_xeos; 		}
 	else if (strcmp( name, "lct") == 0){
 		SS_pc_xeos[iss].ss_pc_xeos  = igad_lct_pc_xeos; 		}
-	else if (strcmp( name, "ness") == 0){
-		SS_pc_xeos[iss].ss_pc_xeos  = igad_ness_pc_xeos; 		}
+	else if (strcmp( name, "nph") == 0){
+		SS_pc_xeos[iss].ss_pc_xeos  = igad_nph_pc_xeos; 		}
 	else{
 		printf("\nsolid solution '%s' is not in the database, cannot be initiated [igad]\n", name);	
 	}	

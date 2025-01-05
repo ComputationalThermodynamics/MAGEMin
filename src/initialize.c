@@ -122,7 +122,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.6.1 [28/11/2024]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.6.3 [05/01/2025]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
@@ -301,12 +301,14 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 	sp.bulk_M_wt 			= malloc(gv.len_ox 	* sizeof(double)			);	
 	sp.bulk_F_wt 			= malloc(gv.len_ox 	* sizeof(double)			);	
 	sp.ph 	     			= malloc(gv.len_ox  * sizeof(char*)				);
+	sp.sol_name 	     	= malloc(gv.len_ox  * sizeof(char*)				);
 	sp.ph_frac 	     		= malloc(gv.len_ox  * sizeof(double)			);
 	sp.ph_frac_wt     		= malloc(gv.len_ox  * sizeof(double)			);
 	sp.ph_frac_1at    		= malloc(gv.len_ox  * sizeof(double)			);
 	sp.ph_frac_vol     		= malloc(gv.len_ox  * sizeof(double)			);
 	for (int i = 0; i < gv.len_ox; i++){
 		sp.ph[i] 			= malloc(20 * sizeof(char));	
+		sp.sol_name[i] 		= malloc(20 * sizeof(char));	
 	}
 	sp.ph_type 				= malloc(gv.len_ox 	* sizeof(int)				);	
 	sp.ph_id 				= malloc(gv.len_ox 	* sizeof(int)				);	
@@ -382,7 +384,7 @@ SS_ref G_SS_init_EM_function(		SS_init_type		*SS_init,
 	int n_cat  = SS_ref_db.n_cat;
 
     SS_ref_db.orderVar       = 0;
-	
+	SS_ref_db.fName 		 = malloc(20 * sizeof(char)		);		
 	SS_ref_db.EM_list 		 = malloc ((n_em) * sizeof (char*)	);
 	for (int i = 0; i < n_em; i++){ 
 		SS_ref_db.EM_list[i] = malloc(20 * sizeof(char)		);		
@@ -801,6 +803,7 @@ void reset_sp(						global_variable 	 gv,
 	/* reset system */
 	for (int i = 0; i < gv.len_ox; i++){
 		strcpy(sp[0].ph[i],"");	
+		strcpy(sp[0].sol_name[i],"");	
 		sp[0].bulk[i] 					= 0.0;
 		sp[0].bulk_wt[i] 				= 0.0;
 		sp[0].gamma[i] 					= 0.0;

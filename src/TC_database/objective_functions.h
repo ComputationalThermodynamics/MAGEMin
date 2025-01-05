@@ -45,7 +45,7 @@ void TC_P2X_init(	                P2X_type 			*P2X_read,
 									global_variable 	 gv					);
 									
 double obj_mb_liq(unsigned   n, const double *x, double *grad, void *SS_ref_db);
-double obj_mb_hb(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mb_amp(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mb_aug(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mb_dio(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mb_opx(unsigned   n, const double *x, double *grad, void *SS_ref_db);
@@ -55,7 +55,7 @@ double obj_mb_fsp(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mb_abc(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mb_k4tr(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mb_sp(unsigned   n, const double *x, double *grad, void *SS_ref_db);
-double obj_mb_spn(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mb_spl(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mb_ilm(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mb_ilmm(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mb_ep(unsigned   n, const double *x, double *grad, void *SS_ref_db);
@@ -70,24 +70,24 @@ double obj_ig_cpx(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_ep(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_fl(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_g(unsigned    n, const double *x, double *grad, void *SS_ref_db);
-double obj_ig_hb(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_ig_amp(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_ilm(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_liq(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_mu(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_ol(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_opx(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_fsp(unsigned  n, const double *x, double *grad, void *SS_ref_db);
-double obj_ig_spn(unsigned  n, const double *x, double *grad, void *SS_ref_db);
+double obj_ig_spl(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 
 double obj_igad_liq(unsigned n, const double *x, double *grad, void *SS_ref_db);
 double obj_igad_fsp(unsigned  n, const double *x, double *grad, void *SS_ref_db);
-double obj_igad_spn(unsigned  n, const double *x, double *grad, void *SS_ref_db);
+double obj_igad_spl(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 double obj_igad_g(unsigned    n, const double *x, double *grad, void *SS_ref_db);
 double obj_igad_ol(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_igad_opx(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 double obj_igad_cpx(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 double obj_igad_ilm(unsigned  n, const double *x, double *grad, void *SS_ref_db);
-double obj_igad_ness(unsigned n, const double *x, double *grad, void *SS_ref_db);
+double obj_igad_nph(unsigned n, const double *x, double *grad, void *SS_ref_db);
 double obj_igad_lct(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 double obj_igad_kals(unsigned n, const double *x, double *grad, void *SS_ref_db);
 double obj_igad_mel(unsigned  n, const double *x, double *grad, void *SS_ref_db);
@@ -123,7 +123,7 @@ double obj_um_spi(unsigned    n, const double *x, double *grad, void *SS_ref_db)
 double obj_um_opx(unsigned    n, const double *x, double *grad, void *SS_ref_db);
 double obj_um_po(unsigned     n, const double *x, double *grad, void *SS_ref_db);
 double obj_ume_pl4tr(unsigned n, const double *x, double *grad, void *SS_ref_db);
-double obj_ume_hb(unsigned    n, const double *x, double *grad, void *SS_ref_db);
+double obj_ume_amp(unsigned    n, const double *x, double *grad, void *SS_ref_db);
 double obj_ume_aug(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 
 double obj_mtl_g(unsigned  		n, const double *x, double *grad, void *SS_ref_db);
@@ -162,7 +162,7 @@ double obj_mpe_fl(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mpe_occm(unsigned 	 n, const double *x, double *grad, void *SS_ref_db);
 double obj_mpe_dio(unsigned  	 n, const double *x, double *grad, void *SS_ref_db);
 double obj_mpe_aug(unsigned   n, const double *x, double *grad, void *SS_ref_db);
-double obj_mpe_hb(unsigned  n, const double *x, double *grad, void *SS_ref_db);
+double obj_mpe_amp(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 double obj_mpe_po(unsigned  	 n, const double *x, double *grad, void *SS_ref_db);
 		
 double obj_aq17(unsigned 	  n, const double *x, double *grad, void *SS_ref_db);

@@ -264,7 +264,7 @@
 <p>Function to allocate memory for solid-solutions</p>
 <p>Holland et al., 2018 - Melting of peridotites through to granites
 Igneous dataset to use with tc-ds633.txt
-“bi”,”cpx”,”cd”,”ep”,”fl”,”g”,”hb”,”ilm”,”liq”,”mu”, “ol”, “opx”,”fsp”,”spn”</p>
+“bi”,”cpx”,”cd”,”ep”,”fl”,”g”,”amp”,”ilm”,”liq”,”mu”, “ol”, “opx”,”fsp”,”spl”</p>
 <section id="pp-ss-flags">
 <h2>PP &amp; SS_flags<a class="headerlink" href="#pp-ss-flags" title="Permalink to this headline"></a></h2>
 <p>Declare flags needed for leveling and pge algorithms</p>
@@ -369,9 +369,9 @@ This means that the max number of the endmembers can be &gt;= n-oxide + 1</p>
 </dd></dl>
 
 <dl class="c function">
-<dt class="sig sig-object c" id="c.G_SS_mb_hb_init_function">
-<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_hb_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_hb_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_hb_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>allocate memory for hb</p>
+<dt class="sig sig-object c" id="c.G_SS_mb_amp_init_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_mb_amp_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_mb_amp_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_mb_amp_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>allocate memory for amp</p>
 </dd></dl>
 
 <dl class="c function">
@@ -618,8 +618,8 @@ This means that the max number of the endmembers can be &gt;= n-oxide + 1</p>
 </dd></dl>
 
 <dl class="c function">
-<dt class="sig sig-object c" id="c.G_SS_ig_hb_init_function">
-<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_ig_hb_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_ig_hb_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_ig_hb_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dt class="sig sig-object c" id="c.G_SS_ig_amp_init_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_ig_amp_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_ig_amp_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_ig_amp_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>allocate memory for hornblende</p>
 </dd></dl>
 
@@ -660,9 +660,9 @@ This means that the max number of the endmembers can be &gt;= n-oxide + 1</p>
 </dd></dl>
 
 <dl class="c function">
-<dt class="sig sig-object c" id="c.G_SS_ig_spn_init_function">
-<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_ig_spn_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_ig_spn_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_ig_spn_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>allocate memory for spn</p>
+<dt class="sig sig-object c" id="c.G_SS_ig_spl_init_function">
+<span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G_SS_ig_spl_init_function</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">SS_ref</span></span><span class="w"> </span><span class="n"><span class="pre">SS_ref_db</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">EM_database</span></span>, <span class="n"><span class="pre">global_variable</span></span><span class="w"> </span><span class="n"><span class="pre">gv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.G_SS_ig_spl_init_function" title="Permalink to this definition"></a><br /><a class="reference internal" href="../_modules/gss_init_function.c.html#c.G_SS_ig_spl_init_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>allocate memory for spl</p>
 </dd></dl>
 
 <dl class="c function">

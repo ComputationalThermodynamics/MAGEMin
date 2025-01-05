@@ -8,9 +8,9 @@ function get_database_infos()
                         "Igneous (Green et al., 2025, corrected after Holland et al., 2018)",
                         "Igneous alkaline dry (Weller et al., 2024)",
                         "Ultramafic (Evans & Frost., 2021)",
-                        "Ultramafic extended (Evans & Frost., 2021) with pl, hb and aug from Green et al., 2016",
+                        "Ultramafic extended (Evans & Frost., 2021) with pl, amp and aug from Green et al., 2016",
                         "Mantle (Holland et al., 2013)",
-                        "Metapelite extended (White et al., 2014 with po from Evans & Frost., 2021, hb dio and aug from Green et al., 2016)",
+                        "Metapelite extended (White et al., 2014 with po from Evans & Frost., 2021, amp dio and aug from Green et al., 2016)",
                         "Stixrude & Lithgow-Bertelloni (2011)"
                         ]
 
