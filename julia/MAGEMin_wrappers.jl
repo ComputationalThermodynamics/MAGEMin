@@ -1467,10 +1467,11 @@ function get_mineral_name(db, ss, SS_vec)
         x = SS_vec.compVariables
         if ss == "spl"
             if x[3] - 0.5 > 0.0;        mineral_name = "cm";
+            elseif x[4] - 0.5 > 0.0;    mineral_name = "usp";
             elseif x[2] - 0.5 > 0.0;    mineral_name = "mgt";
-            else                        mineral_name = "sp";    end
+            else                        mineral_name = "spl";    end
         elseif ss == "fsp"
-            if x[2] - 0.5 > 0.0;        mineral_name = "afs";
+            if x[2] - x[1] > 0.0;       mineral_name = "afs";
             else                        mineral_name = "pl";    end
         elseif ss == "mu"
             if x[4] - 0.5 > 0.0;        mineral_name = "pat";
@@ -1479,7 +1480,7 @@ function get_mineral_name(db, ss, SS_vec)
             if x[3] - 0.5 > 0.0;        mineral_name = "gl";
             elseif -x[3] -x[4] + 0.2 > 0.0;   mineral_name = "act";
             else
-                if x[6] < 0.1;          mineral_name = "cum"; 
+                if x[6] < 0.1;          mineral_name = "cumm"; 
                 elseif -1/2*x[4]+x[6]-x[7]-x[8]-x[2]+x[3]>0.5;      mineral_name = "tr";       
                 else                    mineral_name = "amp";    end
             end  
@@ -1487,11 +1488,11 @@ function get_mineral_name(db, ss, SS_vec)
             if -x[1] + 0.5 > 0.0;       mineral_name = "hem";
             else                        mineral_name = "ilm";   end 
         elseif ss == "nph"
-            if x[2] - 0.5 > 0.0;       mineral_name = "nphK";
+            if x[2] - 0.5 > 0.0;       mineral_name = "K-nph";
             else                        mineral_name = "nph";   end 
         elseif ss == "cpx"
             if x[3] - 0.6 > 0.0;        mineral_name = "pig";
-            elseif x[4] - 0.5 > 0.0;    mineral_name = "omph";
+            elseif x[4] - 0.5 > 0.0;    mineral_name = "Na-cpx";
             else                        mineral_name = "cpx";   end 
         end
 
@@ -1501,7 +1502,7 @@ function get_mineral_name(db, ss, SS_vec)
             if x[2] - 0.5 > 0.0;        mineral_name = "mt";
             else                        mineral_name = "sp";    end
         elseif ss == "fsp"
-            if x[2] - 0.5 > 0.0;        mineral_name = "afs";
+            if x[2] - x[1] > 0.0;       mineral_name = "afs";
             else                        mineral_name = "pl";    end
         elseif ss == "mu"
             if x[4] - 0.5 > 0.0;        mineral_name = "pat";
@@ -1510,7 +1511,7 @@ function get_mineral_name(db, ss, SS_vec)
             if x[3] - 0.5 > 0.0;        mineral_name = "gl";
             elseif -x[3]-x[4]+0.2>0.0;  mineral_name = "act";
             else
-                if x[6] < 0.1;          mineral_name = "cum"; 
+                if x[6] < 0.1;          mineral_name = "cumm"; 
                 elseif -1/2*x[4]+x[6]-x[7]-x[8]-x[2]+x[3]>0.5;      mineral_name = "tr";     
                 else                    mineral_name = "amp";    end
             end  
@@ -1545,19 +1546,19 @@ function get_ss_from_mineral(db, mrl, mbCpx)
    
     if db =="ig" || db == "igad"
 
-        if mrl == "cm" || mrl == "mgt" || mrl == "sp"
+        if mrl == "cm" || mrl == "mgt" || mrl == "usp"
             ss = "spl"
         elseif mrl == "pat" || mrl == "mu"
             ss = "mu"
         elseif mrl == "afs" || mrl == "pl"
             ss = "fsp"
-        elseif mrl == "gl" || mrl == "act" || mrl == "amp" || mrl == "cum" || mrl == "tr"
+        elseif mrl == "gl" || mrl == "act" || mrl == "amp" || mrl == "cumm" || mrl == "tr"
             ss = "amp"
         elseif mrl == "hem" || mrl == "ilm"
             ss = "ilm"
-        elseif mrl == "pig" || mrl == "omph"
+        elseif mrl == "pig" || mrl == "Na-cpx"
             ss = "cpx"
-        elseif mrl == "nphK"
+        elseif mrl == "K-nph"
             ss = "nph"
         end
 
@@ -1569,7 +1570,7 @@ function get_ss_from_mineral(db, mrl, mbCpx)
             ss = "fsp"
         elseif mrl == "pat" || mrl == "mu"
             ss = "mu"
-        elseif mrl == "gl" || mrl == "act" || mrl == "amp" || mrl == "cum" || mrl == "tr"
+        elseif mrl == "gl" || mrl == "act" || mrl == "amp" || mrl == "cumm" || mrl == "tr"
             ss = "amp"
         elseif mrl == "hem" || mrl == "ilm"
             ss = "ilm"
