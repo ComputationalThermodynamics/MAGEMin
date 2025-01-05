@@ -194,7 +194,7 @@ SS_ref G_SS_aq17_function(SS_ref SS_ref_db, char* research_group, int EM_dataset
    retrieve reference thermodynamic data for mb_liq
 */
 SS_ref G_SS_mb_liq_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"liq_G16");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -383,7 +383,7 @@ SS_ref G_SS_mb_liq_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mb_amp
 */
 SS_ref G_SS_mb_amp_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"amp_G16");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -647,7 +647,7 @@ SS_ref G_SS_mb_amp_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mb_aug
 */
 SS_ref G_SS_mb_aug_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"aug_G16");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -808,7 +808,7 @@ SS_ref G_SS_mb_aug_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mb_dio
 */
 SS_ref G_SS_mb_dio_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"dio_G16");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -943,7 +943,7 @@ SS_ref G_SS_mb_dio_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mb_opx
 */
 SS_ref G_SS_mb_opx_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"opx_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -1082,7 +1082,7 @@ SS_ref G_SS_mb_opx_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mb_g
 */
 SS_ref G_SS_mb_g_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"g_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -1186,7 +1186,7 @@ SS_ref G_SS_mb_g_function(SS_ref SS_ref_db, char* research_group, int EM_dataset
    retrieve reference thermodynamic data for mb_ol
 */
 SS_ref G_SS_mb_ol_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"ol_H11");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -1248,7 +1248,7 @@ SS_ref G_SS_mb_ol_function(SS_ref SS_ref_db, char* research_group, int EM_datase
    retrieve reference thermodynamic data for mb_fsp
 */
 SS_ref G_SS_mb_fsp_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"fsp_H22");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -1328,7 +1328,7 @@ SS_ref G_SS_mb_fsp_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mb_abc
 */
 SS_ref G_SS_mb_abc_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"abc_H11");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -1393,7 +1393,7 @@ SS_ref G_SS_mb_abc_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mb_k4tr
 */
 SS_ref G_SS_mb_k4tr_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"fsp_H22");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -1473,7 +1473,7 @@ SS_ref G_SS_mb_k4tr_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for mb_spl
 */
 SS_ref G_SS_mb_spl_function(SS_ref SS_ref_db, char* research_group, int EM_database, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"spl_W02");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -1562,7 +1562,7 @@ SS_ref G_SS_mb_spl_function(SS_ref SS_ref_db, char* research_group, int EM_datab
    retrieve reference thermodynamic data for mb_sp
 */
 SS_ref G_SS_mb_sp_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"sp_W02");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -1660,7 +1660,7 @@ SS_ref G_SS_mb_sp_function(SS_ref SS_ref_db, char* research_group, int EM_datase
    retrieve reference thermodynamic data for mb_ilm
 */
 SS_ref G_SS_mb_ilm_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"ilm_W00");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -1750,7 +1750,7 @@ SS_ref G_SS_mb_ilm_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mb_ilmm
 */
 SS_ref G_SS_mb_ilmm_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"ilmm_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -1840,7 +1840,7 @@ SS_ref G_SS_mb_ilmm_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for mb_ep
 */
 SS_ref G_SS_mb_ep_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"ep_H11");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -1927,7 +1927,7 @@ SS_ref G_SS_mb_ep_function(SS_ref SS_ref_db, char* research_group, int EM_datase
    retrieve reference thermodynamic data for mb_bi
 */
 SS_ref G_SS_mb_bi_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"bi_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -2071,7 +2071,7 @@ SS_ref G_SS_mb_bi_function(SS_ref SS_ref_db, char* research_group, int EM_datase
    retrieve reference thermodynamic data for mb_mu
 */
 SS_ref G_SS_mb_mu_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"mu_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -2217,7 +2217,7 @@ SS_ref G_SS_mb_mu_function(SS_ref SS_ref_db, char* research_group, int EM_datase
    retrieve reference thermodynamic data for mb_chl
 */
 SS_ref G_SS_mb_chl_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"chl_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -2365,7 +2365,7 @@ SS_ref G_SS_mb_chl_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mp_liq
 */
 SS_ref G_SS_mp_liq_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"liq_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -2533,7 +2533,7 @@ SS_ref G_SS_mp_liq_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mp_bi
 */
 SS_ref G_SS_mp_bi_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"bi_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -2703,7 +2703,7 @@ SS_ref G_SS_mp_bi_function(SS_ref SS_ref_db, char* research_group, int EM_datase
    retrieve reference thermodynamic data for mp_cd
 */
 SS_ref G_SS_mp_cd_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"cd_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -2801,7 +2801,7 @@ SS_ref G_SS_mp_cd_function(SS_ref SS_ref_db, char* research_group, int EM_datase
    retrieve reference thermodynamic data for mp_chl
 */
 SS_ref G_SS_mp_chl_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"chl_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -2971,7 +2971,7 @@ SS_ref G_SS_mp_chl_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mp_ctd
 */
 SS_ref G_SS_mp_ctd_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"ctd_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -3083,7 +3083,7 @@ SS_ref G_SS_mp_ctd_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mp_ep
 */
 SS_ref G_SS_mp_ep_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"ep_H11");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -3170,7 +3170,7 @@ SS_ref G_SS_mp_ep_function(SS_ref SS_ref_db, char* research_group, int EM_datase
    retrieve reference thermodynamic data for mp_g
 */
 SS_ref G_SS_mp_g_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"g_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -3297,7 +3297,7 @@ SS_ref G_SS_mp_g_function(SS_ref SS_ref_db, char* research_group, int EM_dataset
    retrieve reference thermodynamic data for mb_ilm
 */
 SS_ref G_SS_mp_ilm_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"ilm_W00");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -3378,7 +3378,7 @@ SS_ref G_SS_mp_ilm_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mp_ilmm
 */
 SS_ref G_SS_mp_ilmm_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"ilmm_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -3496,7 +3496,7 @@ SS_ref G_SS_mp_ilmm_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for mp_ma
 */
 SS_ref G_SS_mp_ma_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"ma_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -3641,7 +3641,7 @@ SS_ref G_SS_mp_ma_function(SS_ref SS_ref_db, char* research_group, int EM_datase
    retrieve reference thermodynamic data for mp_mt
 */
 SS_ref G_SS_mp_mt_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"mt_W00");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -3727,7 +3727,7 @@ SS_ref G_SS_mp_mt_function(SS_ref SS_ref_db, char* research_group, int EM_datase
    retrieve reference thermodynamic data for mp_mu
 */
 SS_ref G_SS_mp_mu_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"mu_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -3872,7 +3872,7 @@ SS_ref G_SS_mp_mu_function(SS_ref SS_ref_db, char* research_group, int EM_datase
    retrieve reference thermodynamic data for mp_opx
 */
 SS_ref G_SS_mp_opx_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"opx_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -4034,7 +4034,7 @@ SS_ref G_SS_mp_opx_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mp_fsp
 */
 SS_ref G_SS_mp_fsp_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"fsp_H22");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -4114,7 +4114,7 @@ SS_ref G_SS_mp_fsp_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mp_sa
 */
 SS_ref G_SS_mp_sa_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"sa_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -4227,7 +4227,7 @@ SS_ref G_SS_mp_sa_function(SS_ref SS_ref_db, char* research_group, int EM_datase
    retrieve reference thermodynamic data for mp_sp
 */
 SS_ref G_SS_mp_sp_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"sp_W02");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -4331,7 +4331,7 @@ SS_ref G_SS_mp_sp_function(SS_ref SS_ref_db, char* research_group, int EM_datase
    retrieve reference thermodynamic data for mp_st
 */
 SS_ref G_SS_mp_st_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"st_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -4473,7 +4473,7 @@ SS_ref G_SS_mp_st_function(SS_ref SS_ref_db, char* research_group, int EM_datase
    retrieve reference thermodynamic data for igp_fper_S11
 */
 SS_ref G_SS_ig_fper_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"fper");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -4535,7 +4535,7 @@ SS_ref G_SS_ig_fper_function(SS_ref SS_ref_db, char* research_group, int EM_data
   retrieve reference thermodynamic data for biotite 
 */
 SS_ref G_SS_ig_bi_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info  z_b, double eps){	
-   
+    strcpy(SS_ref_db.fName,"bi_G25");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -4686,7 +4686,7 @@ SS_ref G_SS_ig_bi_function(SS_ref SS_ref_db, char* research_group, int EM_datase
   retrieve reference thermodynamic data for clinopyroxene 
 */
 SS_ref G_SS_ig_cpx_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"cpx_W24");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -4950,7 +4950,7 @@ SS_ref G_SS_ig_cpx_function(SS_ref SS_ref_db, char* research_group, int EM_datas
   retrieve reference thermodynamic data for cordierite 
 */
 SS_ref G_SS_ig_cd_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"cd_G25");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -5029,7 +5029,7 @@ SS_ref G_SS_ig_cd_function(SS_ref SS_ref_db, char* research_group, int EM_datase
   retrieve reference thermodynamic data for epidote 
 */
 SS_ref G_SS_ig_ep_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"ep_H11");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -5119,7 +5119,7 @@ SS_ref G_SS_ig_ep_function(SS_ref SS_ref_db, char* research_group, int EM_datase
    retrieve reference thermodynamic data for ig_flH
 */
 SS_ref G_SS_ig_fl_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"fl_G25");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -5374,7 +5374,7 @@ SS_ref G_SS_ig_fl_function(SS_ref SS_ref_db, char* research_group, int EM_datase
   retrieve reference thermodynamic data for garnet 
 */
 SS_ref G_SS_ig_g_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"g_W24");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -5539,7 +5539,7 @@ SS_ref G_SS_ig_g_function(SS_ref SS_ref_db, char* research_group, int EM_dataset
   retrieve reference thermodynamic data for horblende 
 */
 SS_ref G_SS_ig_amp_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"amp_G16");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -5810,7 +5810,7 @@ SS_ref G_SS_ig_amp_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for ig_ilm
 */
 SS_ref G_SS_ig_ilm_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-     
+    strcpy(SS_ref_db.fName,"ilm_W24");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -5927,7 +5927,7 @@ SS_ref G_SS_ig_ilm_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for ig_liqHw
 */
 SS_ref G_SS_ig_liq_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-        
+    strcpy(SS_ref_db.fName,"liq_G25w");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -6212,7 +6212,7 @@ SS_ref G_SS_ig_liq_function(SS_ref SS_ref_db, char* research_group, int EM_datas
   retrieve reference thermodynamic data for muscovite
 */
 SS_ref G_SS_ig_mu_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"mu_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -6358,7 +6358,7 @@ SS_ref G_SS_ig_mu_function(SS_ref SS_ref_db, char* research_group, int EM_datase
   retrieve reference thermodynamic data for olivine
 */
 SS_ref G_SS_ig_ol_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"ol_H18");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -6441,7 +6441,7 @@ SS_ref G_SS_ig_ol_function(SS_ref SS_ref_db, char* research_group, int EM_datase
   retrieve reference thermodynamic data for orthopyroxene
 */
 SS_ref G_SS_ig_opx_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"opx_W24");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -6668,7 +6668,7 @@ SS_ref G_SS_ig_opx_function(SS_ref SS_ref_db, char* research_group, int EM_datas
   retrieve reference thermodynamic data for plagioclase4T (late 2021 update of TC, given by Eleanor)
 */
 SS_ref G_SS_ig_fsp_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"fsp_H22");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -6755,7 +6755,7 @@ SS_ref G_SS_ig_fsp_function(SS_ref SS_ref_db, char* research_group, int EM_datas
   retrieve reference thermodynamic data for spinel
 */
 SS_ref G_SS_ig_spl_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"spl_T21");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -6939,7 +6939,7 @@ SS_ref G_SS_ig_spl_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for igad_liq
 */
 SS_ref G_SS_igad_liq_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"liq_W24d");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -7228,7 +7228,7 @@ SS_ref G_SS_igad_liq_function(SS_ref SS_ref_db, char* research_group, int EM_dat
    retrieve reference thermodynamic data for igad_fsp
 */
 SS_ref G_SS_igad_fsp_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"fsp_H22");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -7306,7 +7306,7 @@ SS_ref G_SS_igad_fsp_function(SS_ref SS_ref_db, char* research_group, int EM_dat
    retrieve reference thermodynamic data for igad_spl
 */
 SS_ref G_SS_igad_spl_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"spl_T21");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -7474,7 +7474,7 @@ SS_ref G_SS_igad_spl_function(SS_ref SS_ref_db, char* research_group, int EM_dat
    retrieve reference thermodynamic data for igad_g
 */
 SS_ref G_SS_igad_g_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"g_W24");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -7631,7 +7631,7 @@ SS_ref G_SS_igad_g_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for igad_ol
 */
 SS_ref G_SS_igad_ol_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"ol_H18");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -7712,7 +7712,7 @@ SS_ref G_SS_igad_ol_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for igad_opx
 */
 SS_ref G_SS_igad_opx_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"opx_W24");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -7937,7 +7937,7 @@ SS_ref G_SS_igad_opx_function(SS_ref SS_ref_db, char* research_group, int EM_dat
    retrieve reference thermodynamic data for igad_cpx
 */
 SS_ref G_SS_igad_cpx_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"cpx_W24");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -8204,7 +8204,7 @@ SS_ref G_SS_igad_cpx_function(SS_ref SS_ref_db, char* research_group, int EM_dat
    retrieve reference thermodynamic data for igad_ilm
 */
 SS_ref G_SS_igad_ilm_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"ilm_W24");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -8322,7 +8322,7 @@ SS_ref G_SS_igad_ilm_function(SS_ref SS_ref_db, char* research_group, int EM_dat
    retrieve reference thermodynamic data for igad_nph
 */
 SS_ref G_SS_igad_nph_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"nph_W24");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -8461,7 +8461,7 @@ SS_ref G_SS_igad_nph_function(SS_ref SS_ref_db, char* research_group, int EM_dat
    retrieve reference thermodynamic data for igad_lct
 */
 SS_ref G_SS_igad_lct_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"lct_W24");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -8532,7 +8532,7 @@ SS_ref G_SS_igad_lct_function(SS_ref SS_ref_db, char* research_group, int EM_dat
    retrieve reference thermodynamic data for igad_kals
 */
 SS_ref G_SS_igad_kals_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"kals_W24");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -8595,7 +8595,7 @@ SS_ref G_SS_igad_kals_function(SS_ref SS_ref_db, char* research_group, int EM_da
    retrieve reference thermodynamic data for igad_mel
 */
 SS_ref G_SS_igad_mel_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"mel_W24");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -8739,7 +8739,7 @@ SS_ref G_SS_igad_mel_function(SS_ref SS_ref_db, char* research_group, int EM_dat
    retrieve reference thermodynamic data for ev_fluid
 */
 SS_ref G_SS_um_fluid_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"fl_EF21");
     int i, j;
     int n_em = SS_ref_db.n_em;
 
@@ -8805,7 +8805,7 @@ SS_ref G_SS_um_fluid_function(SS_ref SS_ref_db, char* research_group, int EM_dat
    retrieve reference thermodynamic data for ev_ol
 */
 SS_ref G_SS_um_ol_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"ol_H11");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -8867,7 +8867,7 @@ SS_ref G_SS_um_ol_function(SS_ref SS_ref_db, char* research_group, int EM_datase
    retrieve reference thermodynamic data for ev_br
 */
 SS_ref G_SS_um_br_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"br_E13");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -8934,7 +8934,7 @@ SS_ref G_SS_um_br_function(SS_ref SS_ref_db, char* research_group, int EM_datase
    retrieve reference thermodynamic data for ev_ch
 */
 SS_ref G_SS_um_ch_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"ch_EF21");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -9004,7 +9004,7 @@ SS_ref G_SS_um_ch_function(SS_ref SS_ref_db, char* research_group, int EM_datase
    retrieve reference thermodynamic data for ev_atg
 */
 SS_ref G_SS_um_atg_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"atg_EF21");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -9126,7 +9126,7 @@ SS_ref G_SS_um_atg_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for ev_g
 */
 SS_ref G_SS_um_g_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"g_H18");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -9189,7 +9189,7 @@ SS_ref G_SS_um_g_function(SS_ref SS_ref_db, char* research_group, int EM_dataset
    retrieve reference thermodynamic data for ev_ta
 */
 SS_ref G_SS_um_ta_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"ta_EF21");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -9320,7 +9320,7 @@ SS_ref G_SS_um_ta_function(SS_ref SS_ref_db, char* research_group, int EM_datase
    retrieve reference thermodynamic data for ev_chl
 */
 SS_ref G_SS_um_chl_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"chl_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -9462,7 +9462,7 @@ SS_ref G_SS_um_chl_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for ev_anth
 */
 SS_ref G_SS_um_anth_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"anth_D07");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -9559,7 +9559,7 @@ SS_ref G_SS_um_anth_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for ev_spi
 */
 SS_ref G_SS_um_spi_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"spi_W02");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -9642,7 +9642,7 @@ SS_ref G_SS_um_spi_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for ev_opx
 */
 SS_ref G_SS_um_opx_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"opx_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -9756,7 +9756,7 @@ SS_ref G_SS_um_opx_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for ev_po
 */
 SS_ref G_SS_um_po_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"po_E10");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -9819,7 +9819,7 @@ SS_ref G_SS_um_po_function(SS_ref SS_ref_db, char* research_group, int EM_datase
    retrieve reference thermodynamic data for ume_pl4tr
 */
 SS_ref G_SS_ume_pl4tr_function(SS_ref SS_ref_db,  char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"fsp_H22");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -9882,7 +9882,7 @@ SS_ref G_SS_ume_pl4tr_function(SS_ref SS_ref_db,  char* research_group, int EM_d
    retrieve reference thermodynamic data for ume_amp
 */
 SS_ref G_SS_ume_amp_function(SS_ref SS_ref_db,  char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"amp_G16");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -10074,7 +10074,7 @@ SS_ref G_SS_ume_amp_function(SS_ref SS_ref_db,  char* research_group, int EM_dat
    retrieve reference thermodynamic data for ume_aug
 */
 SS_ref G_SS_ume_aug_function(SS_ref SS_ref_db,  char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-   
+    strcpy(SS_ref_db.fName,"aug_G16");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -10235,7 +10235,7 @@ SS_ref G_SS_ume_aug_function(SS_ref SS_ref_db,  char* research_group, int EM_dat
    retrieve reference thermodynamic data for mtl_g
 */
 SS_ref G_SS_mtl_g_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"g_H13");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -10351,7 +10351,7 @@ SS_ref G_SS_mtl_g_function(SS_ref SS_ref_db, char* research_group, int EM_datase
    retrieve reference thermodynamic data for mtl_fp
 */
 SS_ref G_SS_mtl_fp_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"fp_H13");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -10413,7 +10413,7 @@ SS_ref G_SS_mtl_fp_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mtl_mpv
 */
 SS_ref G_SS_mtl_mpv_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"mpv_H13");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -10520,7 +10520,7 @@ SS_ref G_SS_mtl_mpv_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for mtl_cpv
 */
 SS_ref G_SS_mtl_cpv_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"cpv_H13");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -10628,7 +10628,7 @@ SS_ref G_SS_mtl_cpv_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for mtl_crn
 */
 SS_ref G_SS_mtl_crn_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"crn_H13");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -10712,7 +10712,7 @@ SS_ref G_SS_mtl_crn_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for mtl_cf
 */
 SS_ref G_SS_mtl_cf_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"cf_H13");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -10828,7 +10828,7 @@ SS_ref G_SS_mtl_cf_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mtl_nal
 */
 SS_ref G_SS_mtl_nal_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"nal_H13");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -10954,7 +10954,7 @@ SS_ref G_SS_mtl_nal_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for mtl_aki
 */
 SS_ref G_SS_mtl_aki_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"aki_H13");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -11031,7 +11031,7 @@ SS_ref G_SS_mtl_aki_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for mtl_ol
 */
 SS_ref G_SS_mtl_ol_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"ol_H13");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -11094,7 +11094,7 @@ SS_ref G_SS_mtl_ol_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mtl_wad
 */
 SS_ref G_SS_mtl_wad_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"wad_H13");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -11157,7 +11157,7 @@ SS_ref G_SS_mtl_wad_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for mtl_ring
 */
 SS_ref G_SS_mtl_ring_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"ring_H13");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -11220,7 +11220,7 @@ SS_ref G_SS_mtl_ring_function(SS_ref SS_ref_db, char* research_group, int EM_dat
    retrieve reference thermodynamic data for mtl_cpx
 */
 SS_ref G_SS_mtl_cpx_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"cpx_H13");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -11344,7 +11344,7 @@ SS_ref G_SS_mtl_cpx_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for mtl_opx
 */
 SS_ref G_SS_mtl_opx_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"opx_H13");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -11450,7 +11450,7 @@ SS_ref G_SS_mtl_opx_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for mtl_hpx
 */
 SS_ref G_SS_mtl_hpx_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"hpx_H13");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -11572,7 +11572,7 @@ SS_ref G_SS_mtl_hpx_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for mp_liq
 */
 SS_ref G_SS_mpe_liq_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"liq_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -11740,7 +11740,7 @@ SS_ref G_SS_mpe_liq_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for mp_bi
 */
 SS_ref G_SS_mpe_bi_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"bi_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -11910,7 +11910,7 @@ SS_ref G_SS_mpe_bi_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mp_cd
 */
 SS_ref G_SS_mpe_cd_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"cd_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -12008,7 +12008,7 @@ SS_ref G_SS_mpe_cd_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mp_chl
 */
 SS_ref G_SS_mpe_chl_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"chl_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -12178,7 +12178,7 @@ SS_ref G_SS_mpe_chl_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for mp_ctd
 */
 SS_ref G_SS_mpe_ctd_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"ctd_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -12290,7 +12290,7 @@ SS_ref G_SS_mpe_ctd_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for mp_ep
 */
 SS_ref G_SS_mpe_ep_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"ep_H11");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -12377,7 +12377,7 @@ SS_ref G_SS_mpe_ep_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mp_g
 */
 SS_ref G_SS_mpe_g_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"g_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -12504,7 +12504,7 @@ SS_ref G_SS_mpe_g_function(SS_ref SS_ref_db, char* research_group, int EM_datase
    retrieve reference thermodynamic data for mb_ilm
 */
 SS_ref G_SS_mpe_ilm_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"ilm_W00");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -12585,7 +12585,7 @@ SS_ref G_SS_mpe_ilm_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for mp_ilmm
 */
 SS_ref G_SS_mpe_ilmm_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"ilmm_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -12703,7 +12703,7 @@ SS_ref G_SS_mpe_ilmm_function(SS_ref SS_ref_db, char* research_group, int EM_dat
    retrieve reference thermodynamic data for mp_ma
 */
 SS_ref G_SS_mpe_ma_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"ma_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -12848,7 +12848,7 @@ SS_ref G_SS_mpe_ma_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mp_mt
 */
 SS_ref G_SS_mpe_mt_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"nt_W00");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -12934,7 +12934,7 @@ SS_ref G_SS_mpe_mt_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mp_mu
 */
 SS_ref G_SS_mpe_mu_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"mu_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -13079,7 +13079,7 @@ SS_ref G_SS_mpe_mu_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mp_opx
 */
 SS_ref G_SS_mpe_opx_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"opx_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -13241,7 +13241,7 @@ SS_ref G_SS_mpe_opx_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for mp_fsp
 */
 SS_ref G_SS_mpe_fsp_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"fsp_H22");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -13321,7 +13321,7 @@ SS_ref G_SS_mpe_fsp_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for mp_sa
 */
 SS_ref G_SS_mpe_sa_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"sa_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -13434,7 +13434,7 @@ SS_ref G_SS_mpe_sa_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mp_sp
 */
 SS_ref G_SS_mpe_sp_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"sa_W02");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -13538,7 +13538,7 @@ SS_ref G_SS_mpe_sp_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mp_st
 */
 SS_ref G_SS_mpe_st_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"st_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -13679,7 +13679,7 @@ SS_ref G_SS_mpe_st_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mpe_fl
 */
 SS_ref G_SS_mpe_fl_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"fl_H03");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -13754,7 +13754,7 @@ SS_ref G_SS_mpe_fl_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mpe_occm
 */
 SS_ref G_SS_mpe_occm_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"occm_F11");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -13853,7 +13853,7 @@ SS_ref G_SS_mpe_occm_function(SS_ref SS_ref_db, char* research_group, int EM_dat
    retrieve reference thermodynamic data for mpe_po
 */
 SS_ref G_SS_mpe_po_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"po_E10");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -13917,7 +13917,7 @@ SS_ref G_SS_mpe_po_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mpe_amp
 */
 SS_ref G_SS_mpe_amp_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"amp_G16");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -14176,7 +14176,7 @@ SS_ref G_SS_mpe_amp_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for mpe_aug
 */
 SS_ref G_SS_mpe_aug_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"aug_G16");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -14339,7 +14339,7 @@ SS_ref G_SS_mpe_aug_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for mpe_dio
 */
 SS_ref G_SS_mpe_dio_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"dio_G16");
     int i, j;
     int n_em = SS_ref_db.n_em;
     

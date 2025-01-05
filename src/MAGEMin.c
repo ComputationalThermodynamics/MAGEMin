@@ -1059,6 +1059,7 @@ void FreeDatabases(		global_variable gv,
 		if  (DB.sp[0].oxides[i]				!=NULL)  free( DB.sp[0].oxides[i] 			);	
 		if  (DB.sp[0].elements[i]			!=NULL)  free( DB.sp[0].elements[i] 		);	
 		if  (DB.sp[0].ph[i]					!=NULL)  free( DB.sp[0].ph[i] 				);	
+		if  (DB.sp[0].sol_name[i]			!=NULL)  free( DB.sp[0].sol_name[i] 		);	
 	}
 
 	for ( i = 0; i < n_ox; i++){
@@ -1254,6 +1255,7 @@ void FreeDatabases(		global_variable gv,
 			free(DB.SS_ref_db[i].dp_dx[j]);
 		}
 		free(DB.SS_ref_db[i].EM_list);
+		free(DB.SS_ref_db[i].fName);
 		free(DB.SS_ref_db[i].eye);
 		free(DB.SS_ref_db[i].Comp);
 		free(DB.SS_ref_db[i].dp_dx);

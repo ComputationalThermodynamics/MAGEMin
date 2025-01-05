@@ -842,6 +842,7 @@ struct SS_refs
     Z::Cdouble
     densityW::Cdouble
     epsilon::Cdouble
+    fName::Ptr{Cchar}
     EM_list::Ptr{Ptr{Cchar}}
     CV_list::Ptr{Ptr{Cchar}}
     SF_list::Ptr{Ptr{Cchar}}
@@ -1189,6 +1190,7 @@ struct stb_systems
     n_SS::Cint
     n_mSS::Cint
     ph::Ptr{Ptr{Cchar}}
+    sol_name::Ptr{Ptr{Cchar}}
     ph_frac::Ptr{Cdouble}
     ph_frac_wt::Ptr{Cdouble}
     ph_frac_1at::Ptr{Cdouble}

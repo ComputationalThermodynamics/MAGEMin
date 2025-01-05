@@ -382,6 +382,7 @@ typedef struct SS_refs {
 	double   epsilon;
 
 	/** end-member name list */
+	char 	*fName;				/** name of the phase 														*/
 	char   **EM_list;			/** solution phase list */
 	char   **CV_list;			/** solution phase list */
 	char   **SF_list;			/** solution phase list */
@@ -779,6 +780,7 @@ typedef struct stb_systems {
 	int     n_SS;									/* number of predicted stable solution phases 								*/
 	int 	n_mSS;
 	char  **ph;										/* phases names 															*/
+	char  **sol_name;								/* phases names 															*/
 	double *ph_frac; 								/* phase fractions															*/
 	double *ph_frac_wt;								/* phase fractions in wt fraction											*/
 	double *ph_frac_1at;								/* phase fractions in wt fraction										*/

@@ -470,6 +470,7 @@ void fill_output_struct(		global_variable 	 gv,
 		if ( cp[i].ss_flags[1] == 1){
 
 			strcpy(sp[0].ph[n],cp[i].name);	
+			strcpy(sp[0].sol_name[n],SS_ref_db[cp[i].id].fName);	
 
 			sp[0].ph_frac[n]  	 = cp[i].ss_n_mol;
 			sp[0].ph_frac_wt[n]  = cp[i].ss_n_wt;

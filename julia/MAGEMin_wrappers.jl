@@ -113,6 +113,7 @@ struct gmin_struct{T,I}
     ph_id       :: Vector{I}            # id of phase
     ph_id_db    :: Vector{I}            # id of phase
     ph          :: Vector{String}       # Name of phase
+    sol_name    :: Vector{String}       # Name of phase
 
     SS_vec      :: Vector{LibMAGEMin.SS_data}
     mSS_vec     :: Vector{LibMAGEMin.mSS_data}
@@ -1671,14 +1672,15 @@ function create_gmin_struct(DB, gv, time; name_solvus = false)
     n_SS     =  stb.n_SS        # number of solid solutions
     n_mSS    =  stb.n_mSS        # number of solid solutions
 
-    ph_frac     =  unsafe_wrap(Vector{Cdouble},stb.ph_frac,   n_ph)
-    ph_frac_wt  =  unsafe_wrap(Vector{Cdouble},stb.ph_frac_wt,   n_ph)
-    ph_frac_1at =  unsafe_wrap(Vector{Cdouble},stb.ph_frac_1at,   n_ph)
-    ph_frac_vol =  unsafe_wrap(Vector{Cdouble},stb.ph_frac_vol,   n_ph)
-    ph_type     =  unsafe_wrap(Vector{Cint},   stb.ph_type,   n_ph)
-    ph_id       =  unsafe_wrap(Vector{Cint},   stb.ph_id  ,   n_ph)
-    ph_id_db    =  unsafe_wrap(Vector{Cint},   stb.ph_id_db ,   n_ph)
+    ph_frac     =  unsafe_wrap(Vector{Cdouble},stb.ph_frac,         n_ph)
+    ph_frac_wt  =  unsafe_wrap(Vector{Cdouble},stb.ph_frac_wt,      n_ph)
+    ph_frac_1at =  unsafe_wrap(Vector{Cdouble},stb.ph_frac_1at,     n_ph)
+    ph_frac_vol =  unsafe_wrap(Vector{Cdouble},stb.ph_frac_vol,     n_ph)
+    ph_type     =  unsafe_wrap(Vector{Cint},   stb.ph_type,         n_ph)
+    ph_id       =  unsafe_wrap(Vector{Cint},   stb.ph_id  ,         n_ph)
+    ph_id_db    =  unsafe_wrap(Vector{Cint},   stb.ph_id_db ,       n_ph)
     ph          =  unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, stb.ph, n_ph)) # stable phases
+    sol_name    =  unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, stb.sol_name, n_ph)) # stable phases
 
     # extract info about compositional variables of the solution models:
     SS_vec  = convert.(LibMAGEMin.SS_data, unsafe_wrap(Vector{LibMAGEMin.stb_SS_phase},stb.SS,n_SS))
@@ -1714,7 +1716,7 @@ function create_gmin_struct(DB, gv, time; name_solvus = false)
                 rho, rho_M, rho_S, rho_F,
                 fO2, dQFM, aH2O, aSiO2, aTiO2, aAl2O3, aMgO, aFeO,
                 n_PP, n_SS, n_mSS,
-                ph_frac, ph_frac_wt, ph_frac_1at, ph_frac_vol, ph_type, ph_id, ph_id_db, ph,
+                ph_frac, ph_frac_wt, ph_frac_1at, ph_frac_vol, ph_type, ph_id, ph_id_db, ph, sol_name,
                 SS_vec,  mSS_vec, PP_vec,
                 oxides,  elements,
                 stb.Vp, stb.Vs, stb.Vp_S, stb.Vs_S, stb.bulkMod, stb.shearMod, stb.bulkModulus_M,  stb.bulkModulus_S, stb.shearModulus_S,
@@ -1740,7 +1742,7 @@ function create_light_gmin_struct(DB)
     P_kbar   = Float32(stb.P)
     T_C      = Float32(stb.T-273.15)
 
-    ph_frac_1at =  Float32.(unsafe_wrap(Vector{Cdouble},     stb.ph_frac_1at,        n_ph))
+    ph_frac_1at =  Float32.(unsafe_wrap(Vector{Cdouble},  stb.ph_frac_1at,        n_ph))
     ph_type     =  Int8.(unsafe_wrap(Vector{Cint},        stb.ph_type,            n_ph))
     ph_id_db    =  Int8.(unsafe_wrap(Vector{Cint},        stb.ph_id_db,           n_ph))
 
