@@ -703,7 +703,6 @@ global_variable init_em_db(		int 				EM_database,
 				printf("\n %4s:  %+10f %+10f\n",gv.PP_list[i],PP_ref_db[i].gbase, PP_ref_db[i].factor);
 
 				/* display molar composition */
-
 				if (EM_database == 0){
 					printf(" S   A   C   M   F   K   N   T   O   Mn  H\n");
 				}
@@ -723,10 +722,10 @@ global_variable init_em_db(		int 				EM_database,
 					printf(" S   A   M   F   O   H   S   C   N\n");
 				}
 				else if (EM_database == 6){
-					printf(" S   A   M   F   O   H   S   C   N\n");
+					printf(" S   A   M   F   O   H   S   C   N  \n");
 				}
 				else if (EM_database == 7){
-					printf(" S   A   C   M   F   N \n");
+					printf(" S   A   C   M   F   K   N   T   O   Mn  H   CO2 S\n");
 				}
 				for (int j = 0; j < gv.len_ox; j++){
 					printf(" %.1f",PP_ref_db[i].Comp[j]);

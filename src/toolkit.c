@@ -1375,7 +1375,9 @@ global_variable compute_phase_mol_fraction(			global_variable 	 gv,
 
 			sum 		= 0.0;
 			for (int j = 0; j < gv.len_ox; j++){
-				sum += PP_ref_db[i].Comp[j];
+				if (PP_ref_db[i].Comp[j] > 0.0 ){
+					sum += PP_ref_db[i].Comp[j];
+				}
 			}
 
 			n_at_ph 	= 0.0;
@@ -1500,7 +1502,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 					// cp[i].volume_P0    		+= (dGdP_P0)*cp[i].p_em[j];
 
 					/* entropy   		*/
-					cp[i].phase_entropy 	+= -(dGdTMP)*cp[i].p_em[j];
+					cp[i].phase_entropy 	+= -(dGdTMP)*cp[i].p_em[j]*cp[i].factor;
 
 					/* expansivity 		*/
 					cp[i].phase_expansivity += (1.0/(dGdP)*((dGdTPP-dGdTMP)/(gv.gb_P_eps)))*cp[i].p_em[j];
@@ -1528,7 +1530,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 			}
 
 			/* enthalpy   		*/
-			cp[i].phase_enthalpy = cp[i].phase_entropy*T + G;
+			cp[i].phase_enthalpy = cp[i].phase_entropy*T + G*cp[i].factor;
 	
 			/** calculate density from volume */
 			cp[i].phase_density  = (cp[i].mass*1000.0)/(cp[i].volume*10.0);
@@ -1622,10 +1624,10 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 			PP_ref_db[i].phase_expansivity 	= 1.0/(dGdP)*((dGdTPP-dGdTMP)/(gv.gb_P_eps));
 			
 			/* entropy 		*/
-			PP_ref_db[i].phase_entropy 		= -dGdTMP;
+			PP_ref_db[i].phase_entropy 		= -dGdTMP*PP_ref_db[i].factor;
 			
 			/* enthalpy   		*/
-			PP_ref_db[i].phase_enthalpy 	= PP_ref_db[i].phase_entropy*T + PP_ref_db[i].gbase;
+			PP_ref_db[i].phase_enthalpy 	= PP_ref_db[i].phase_entropy*T + PP_ref_db[i].gbase*PP_ref_db[i].factor;;
 	
 			/* bulk modulus	*/
 			if ( strcmp(gv.research_group, "sb") 	== 0 ){
@@ -1704,7 +1706,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 	for (int i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1){
 			gv.system_density += cp[i].phase_density*cp[i].ss_n_wt;
-			gv.system_entropy += cp[i].phase_entropy*cp[i].ss_n_mol*cp[i].factor;
+			gv.system_entropy += cp[i].phase_entropy*cp[i].ss_n_mol;//*cp[i].factor;
 			gv.system_cp 	  += cp[i].phase_cp*cp[i].ss_n_mol;
 			gv.system_expansivity 	  += cp[i].phase_expansivity*cp[i].ss_n_mol;
 			if (strcmp( cp[i].name, "liq") != 0 && strcmp( cp[i].name, "fl") != 0){
@@ -1715,7 +1717,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 	for (int i = 0; i < gv.len_pp; i++){
 		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
 			gv.system_density += PP_ref_db[i].phase_density*gv.pp_n_wt[i];
-			gv.system_entropy += PP_ref_db[i].phase_entropy*gv.pp_n_mol[i]*PP_ref_db[i].factor;		
+			gv.system_entropy += PP_ref_db[i].phase_entropy*gv.pp_n_mol[i];//*PP_ref_db[i].factor;		
 			gv.system_cp 	  += PP_ref_db[i].phase_cp*gv.pp_n_mol[i];	
 			gv.system_expansivity 	  += PP_ref_db[i].phase_expansivity*gv.pp_n_mol[i];	
 			if (strcmp( gv.PP_list[i], "H2O") != 0){		

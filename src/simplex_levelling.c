@@ -780,10 +780,12 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 		get initial conditions for active phases
 	*/
 	for (i = 0; i < d->n_Ox; i++){
+
 		ph_id 		= d->ph_id_A[i][1];
-			
+
 		/* if phase is a pure species */
 		if (d->ph_id_A[i][0] == 1 ){
+
 			gv.pp_flags[ph_id][1] 	= 1;
 			gv.pp_flags[ph_id][2] 	= 0;
 			gv.pp_n[ph_id]          = d->n_vec[i];
@@ -792,6 +794,7 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 		}
 		/* pure endmembers as solution phase */
 		if (d->ph_id_A[i][0] == 2){
+
 			phase_on[ph_id] 		= 1;
 			em_id 					= d->ph_id_A[i][3];
 
@@ -808,7 +811,7 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 											SS_ref_db[ph_id], 
 											z_b,
 											ph_id 					);
-											
+					
 			strcpy(cp[id_cp].name,gv.SS_list[ph_id]);				/* get phase name */	
 			
 			cp[id_cp].split 		= 0;							
@@ -872,6 +875,7 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 		
 		/* solution phase */
 		if (d->ph_id_A[i][0] == 3){
+
 			pc_id 					= d->ph_id_A[i][3];
 			phase_on[ph_id] 		= 1;
 			
@@ -1437,17 +1441,17 @@ global_variable run_initial_guess_function(	bulk_info 	 		 z_b,
 											gv,
 											PP_ref_db,
 											SS_ref_db		);	
-	
+
 	/* update global variable gamma */
 	update_global_gamma_LU(					z_b,
 											splx_data		);	
 	
-										
+						
 	/* remove solution from consideration when min driving force is > gv.bnd_filter_pc */
 	reduce_ss_list( 						SS_ref_db, 
 											gv 				);
 	
-	
+
 	/* function to send back the updated initial guess, and phases flags */
 	gv = update_global_info(				z_b,
 											splx_data,
@@ -1577,7 +1581,7 @@ global_variable run_levelling_function(		bulk_info 	 z_b,
 	reduce_ss_list( 						SS_ref_db, 
 											gv 				);
 	
-	
+
 	/* function to send back the updated initial guess, and phases flags */
 	gv = update_global_info(				z_b,
 											splx_data,

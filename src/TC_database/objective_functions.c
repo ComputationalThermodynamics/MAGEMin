@@ -4085,6 +4085,73 @@ void p2x_um_po(void *SS_ref_db, double eps){
     }
 }
 
+/**
+    Endmember to xeos for fsp_mp
+*/
+void p2x_ume_pl4tr(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[1]   = d->p[2];
+    d->iguess[0]  = d->p[1];
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+/**
+    Endmember to xeos for amp
+*/
+void p2x_ume_amp(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[7]   = d->p[10];
+    d->iguess[6]   = d->p[8];
+    d->iguess[2]   = d->iguess[6] + d->p[3];
+    d->iguess[3]   = d->p[2] + d->p[9];
+    d->iguess[4]   = d->p[9]/(d->p[2] + d->p[9]);
+    d->iguess[5]   = d->iguess[3] + d->p[0] + d->p[1] + d->iguess[7];
+    d->iguess[1]   = -0.5*d->iguess[3] + d->iguess[5] -d->iguess[6] -d->p[0] -d->iguess[7] + d->iguess[2];
+    d->iguess[0]  = (5.0*d->iguess[5] + 5.0*d->p[4] - 2.0*d->p[5] + d->p[6] + 5.0*d->iguess[2] - 5.0)/(2.0*d->iguess[5] + 2.0*d->iguess[6] + 2.0*d->iguess[7] + 2.0*d->iguess[1] + 2.0*d->iguess[2] - 7.0);
+    d->iguess[8]  = -0.4*d->iguess[5]*d->iguess[0] + 2.0*d->iguess[5] - 0.4*d->iguess[6]*d->iguess[0] + 2.0*d->p[4] - 0.4*d->p[5] + 1.2*d->p[6] - 0.4*d->iguess[7]*d->iguess[0] - 0.4*d->iguess[0]*d->iguess[1] - 0.4*d->iguess[0]*d->iguess[2] + 2.4*d->iguess[0] + 2.0*d->iguess[2] - 2.0;
+    d->iguess[9]  = (-2.0*d->iguess[5]*d->iguess[0] + 5.0*d->iguess[5] + 5.0*d->p[4] + 3.0*d->p[6] - 2.0*d->iguess[0]*d->iguess[2] + 5.0*d->iguess[0] + 5.0*d->iguess[2] - 5.0)/(2.0*d->iguess[6] + 2.0*d->iguess[7] + 2.0*d->iguess[1] - 2.0);
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+/**
+    Endmember to xeos for aug
+*/
+void p2x_ume_aug(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[6]  = d->p[5];
+    d->iguess[1]    = d->p[6] + d->iguess[6];
+    d->iguess[2]    = d->p[4];
+    d->iguess[4]    = d->iguess[2] + d->p[3];
+    d->iguess[3]    = d->p[0] + d->iguess[1];
+    d->iguess[0]   = (2.0*d->iguess[4] + 2.0*d->p[1] + d->p[7] + 2.0*d->iguess[3] - 2.0)/(2.0*d->iguess[4] + d->iguess[1] + d->iguess[3] - 2.0);
+    d->iguess[5]   = (4.0*d->iguess[4]*d->p[1] + 4.0*d->iguess[4]*d->p[2] + 2.0*d->iguess[4]*d->p[7] + 4.0*d->iguess[4]*d->iguess[1] + 4.0*d->iguess[4]*d->iguess[3] - 8.0*d->iguess[4] + 4.0*d->iguess[4]*d->iguess[4] + 4.0*d->p[1]*d->iguess[1] - 4.0*d->p[1] + 2.0*d->p[2]*d->iguess[1] + 2.0*d->p[2]*d->iguess[3] - 4.0*d->p[2] + 2.0*d->p[7]*d->iguess[1] - 2.0*d->p[7] + 4.0*d->iguess[1]*d->iguess[3] - 4.0*d->iguess[1] - 4.0*d->iguess[3] + 4.0)/(d->iguess[4]*d->iguess[1] + 3.0*d->iguess[4]*d->iguess[3] - 4.0*d->iguess[4] + 2.0*d->iguess[4]*d->iguess[4] + d->iguess[1]*d->iguess[3] -d->iguess[1] - 3.0*d->iguess[3] + d->iguess[3]*d->iguess[3] + 2.0);
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
 
 /**************************************************************************************/
 /**************************************************************************************/
@@ -14870,6 +14937,12 @@ void TC_um_P2X_init(	            P2X_type 			*P2X_read,
 			P2X_read[iss]  = p2x_um_opx; 		}
 		else if (strcmp( gv.SS_list[iss], "po") == 0){
 			P2X_read[iss]  = p2x_um_po; 		}
+		else if (strcmp( gv.SS_list[iss], "pl4tr")  == 0){
+			P2X_read[iss]  = p2x_ume_pl4tr; 		}
+		else if (strcmp( gv.SS_list[iss], "amp") == 0){
+			P2X_read[iss]  = p2x_ume_amp; 		}
+		else if (strcmp( gv.SS_list[iss], "aug") == 0){
+			P2X_read[iss]  = p2x_ume_aug; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	
@@ -14896,11 +14969,11 @@ void TC_P2X_init(	                P2X_type 			*P2X_read,
 		TC_igad_P2X_init(			        P2X_read,
 											gv							);
 	}
-	else if (gv.EM_database == 4){			// ultramafic database //
+	else if (gv.EM_database == 4 || gv.EM_database == 5){			// ultramafic database //
 		TC_um_P2X_init(			            P2X_read,
 											gv							);
 	}
-	else if (gv.EM_database == 7){			// ultramafic database //
+	else if (gv.EM_database == 7){			// metapelite ext database //
 		TC_mpe_P2X_init(			        P2X_read,
 											gv							);
 	}
