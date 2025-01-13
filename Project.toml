@@ -1,7 +1,7 @@
 name = "MAGEMin_C"
 uuid = "e5d170eb-415a-4524-987b-12f1bce1ddab"
 authors = ["Boris Kaus <kaus@uni-mainz.de> & Nicolas Riel <riel@uni-mainz.de>"]
-version = "1.6.3"
+version = "1.6.4"
 
 [deps]
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
@@ -10,11 +10,13 @@ CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 MAGEMin_jll = "763ebaa8-b0d2-5f6b-90ef-4fc23b5db1c4"
+NLopt_jll = "079eb43e-fd8e-5478-9966-2cf3e3edb778"
 PlotlyJS = "f0f68f2c-4968-5e81-91da-67840de0976a"
 ProgressMeter = "92933f4c-e287-5a05-a399-4b506db050ca"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
 CEnum = "0.4"
+NLopt_jll = "2.8.0 - 2.8.0"
 ProgressMeter = "1"
 julia = "1.9"

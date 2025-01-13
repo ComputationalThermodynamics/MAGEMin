@@ -35,6 +35,7 @@ function get_database_infos()
         for i=1:gv.len_ss
             n_em 	= ss_struct[i].n_em
             n_xeos 	= ss_struct[i].n_xeos
+            fName   = unsafe_string.(ss_struct[i].fName)
             
             em_names   = unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, ss_struct[i].EM_list, n_em))
     
@@ -47,7 +48,7 @@ function get_database_infos()
             xeos_names2[1] = "none"
             xeos_names2[2:end] = xeos_names
     
-            ss[i]   = ss_infos(ss_names[i], n_em, n_xeos, em_names2, xeos_names2)
+            ss[i]   = ss_infos(fName, ss_names[i], n_em, n_xeos, em_names2, xeos_names2)
         end
     
         db_inf[k] = db_infos(database_list[k],db_details[k],ss,ss_names,pp_names)
@@ -59,6 +60,7 @@ end
 
 
 mutable struct ss_infos
+    ss_fName:: String
     ss_name :: String
     n_em    :: Int64
     n_xeos  :: Int64
