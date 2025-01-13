@@ -1375,7 +1375,9 @@ global_variable compute_phase_mol_fraction(			global_variable 	 gv,
 
 			sum 		= 0.0;
 			for (int j = 0; j < gv.len_ox; j++){
-				sum += PP_ref_db[i].Comp[j];
+				if (PP_ref_db[i].Comp[j] > 0.0 ){
+					sum += PP_ref_db[i].Comp[j];
+				}
 			}
 
 			n_at_ph 	= 0.0;
