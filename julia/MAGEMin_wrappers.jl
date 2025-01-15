@@ -1862,7 +1862,7 @@ function print_info(g::gmin_struct)
       end
 
       for i=1:g.n_PP
-        print("$(lpad(g.ph[i],15," ")) ")
+        print("$(lpad(g.ph[i+g.n_SS],15," ")) ")
         for j=1:length(g.oxides)
             print("$(lpad(round(g.PP_vec[i].Comp[j],digits=5),8," ")) ")
         end
@@ -1898,7 +1898,7 @@ function print_info(g::gmin_struct)
 
       print("\n")
       for i=1:g.n_PP
-        print("$(lpad(g.ph[i],15," ")) ")
+        print("$(lpad(g.ph[i+g.n_SS],15," ")) ")
         for j=1:length(g.oxides)
             print("$(lpad(round(g.PP_vec[i].Comp_wt[j],digits=5),8," ")) ")
         end
@@ -1934,7 +1934,7 @@ function print_info(g::gmin_struct)
         print("\n")
     end
     for i=1:g.n_PP
-        print("$(lpad(g.ph[i],15," ")) ")
+        print("$(lpad(g.ph[i+g.n_SS],15," ")) ")
         print("$(lpad(round(g.ph_frac[i],digits=5),13," ")) ")
         print("$(lpad(round(g.ph_frac_wt[i],digits=5),8," ")) ")
         print("$(lpad(round(g.ph_frac_vol[i],digits=5),8," ")) ")
@@ -1985,7 +1985,7 @@ function print_info(g::gmin_struct)
         println("  $(lpad(g.ph[i],6," "))  $(rpad(g.SS_vec[i].deltaG,15," ")) ")
     end
     for i=1:g.n_PP
-        println("  $(lpad(g.ph[i],6," "))  $(rpad(g.PP_vec[i].deltaG,15," ")) ")
+        println("  $(lpad(g.ph[i+g.n_SS],6," "))  $(rpad(g.PP_vec[i].deltaG,15," ")) ")
     end
 
     print("\n")
