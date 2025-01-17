@@ -16,7 +16,7 @@ export  anhydrous_renormalization, retrieve_solution_phase_information, remove_p
 
 export wt2mol, mol2wt
 
-export adjust_chemical_system, TE_prediction, get_OL_KDs_database, adjust_bulk_4_zircon
+export adjust_chemical_system, TE_prediction, get_OL_KDs_database, get_EODC_Exp_KDs_database, get_EODC_Nat_KDs_database, adjust_bulk_4_zircon
 
 export initialize_AMR, split_and_keep, AMR
 
