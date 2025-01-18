@@ -16,15 +16,13 @@ bulk_TE     = [50.60777553,0.953497243,13.70435413,0.19,11.28130762,0.202560796,
 
 KDs_dtb     = get_OL_KDs_database();
 
-C0          = adjust_chemical_system(    KDs_dtb,bulk_TE,elem_TE);
-
-out_TE      = TE_prediction(C0,KDs_dtb, "CB",out,dtb);
-
+C0          = adjust_chemical_system( KDs_dtb, bulk_TE, elem_TE );
+out_TE      = TE_prediction(C0,KDs_dtb,out,dtb; ZrSat_model = "CB");
 
 if ~isnothing(out_TE.bulk_cor_wt)      #then we can recompute the equilibrium after removing the SiO2 entering zircon
     sys_in      = "wt"    
     out         = single_point_minimization(P, T, data, X=out_TE.bulk_cor_wt, Xoxides=out.oxides, sys_in=sys_in)
-    out_TE      = TE_prediction(C0,KDs_dtb, "CB",out,dtb)
+    out_TE      = TE_prediction(C0,KDs_dtb,out,dtb; ZrSat_model = "CB")
 end
 
 # add parallel test

@@ -72,14 +72,59 @@ end
     Holds the partitioning coefficient database
 """
 struct KDs_database
-    infos           :: String
-    element_name    :: Vector{String}
-    conditions      :: Tuple{String, Vector{Vector{Float64}}}
-    phase_name      :: Tuple{Vector{String}, Vector{String}, Vector{String}}
-    KDs             :: Tuple{Matrix{Float64}, Matrix{Float64}, Matrix{Float64}}
+    infos           #:: String
+    element_name    #:: Vector{String}
+    conditions      #:: Union{Tuple{String, Vector{Vector{Float64}}},Tuple{String,String}}
+    phase_name      #:: Tuple{Vector{String}, Vector{String}, Vector{String}}
+    KDs             #:: Tuple{Matrix{Float64}, Matrix{Float64}, Matrix{Float64}}
 end
 
+"""
+    Get the partitioning coefficient database from Oliveira Da Costa, E. ...
+"""
+function get_EODC_Exp_KDs_database()
+    infos               = "Oliveira Da Costa, E. ..."
 
+    element_name        = ["Li"]
+    conditions          = ("none")
+
+    ph                  = ["mu"; "bi"; "cd"; "FeTiOx"; "g"; "afs"; "pl"; "q"; "ru"]  
+    KDs                 = [0.82; 1.67; 0.44; 1e-5; 1e-5; 1e-5; 0.02; 1e-5; 1e-5] 
+
+    phase_name          = [ph]
+    KDs                 = [KDs]
+
+    KDs_dtb             = KDs_database(infos, element_name, conditions, phase_name, KDs)
+
+    return KDs_dtb
+end
+
+"""
+    Get the partitioning coefficient database from Oliveira Da Costa, E. ...
+"""
+function get_EODC_Nat_KDs_database()
+    infos               = "Oliveira Da Costa, E. ..."
+
+    element_name        = ["Li","Be","Cs","Ta"]
+    conditions          = ("min","max")
+
+    ph_1                = ["mu"; "bi"; "cd"; "FeTiOx"; "g"; "afs"; "pl"; "q"; "ru"]
+    ph_2                = ["mu"; "bi"; "cd"; "FeTiOx"; "g"; "afs"; "pl"; "q"; "ru"]
+
+    KDs_1               = [0.08 1.35 0.3 0.4; 0.31 0.16 0.57 3.83; 1.43 33.7 0.1 1e-5; 1e-5 1e-5 1e-5 0.76; 0.06 0.0 1e-5 1e-5; 0.017 0.04 0.03 0.09; 0.28 0.29 1e-5 1e-5; 1e-5 1e-5 1e-5 1e-5; 1e-5 1e-5 1e-5 2.0]
+    KDs_2               = [0.33 1.35 0.3 0.4; 0.71 0.87 0.62 3.92; 1.95 73.7 0.1 1e-5; 1e-5 1e-5 1e-5 86.0; 0.37 0.03 1e-5 1e-5; 0.25 0.14 0.06 0.13; 1.48 2.24 0.02 0.07; 1e-5 1e-5 1e-5 1e-5; 1e-5 1e-5 1e-5 112.0]
+
+    phase_name          = (ph_1,ph_2)
+    KDs                 = (KDs_1,KDs_2)
+
+    KDs_dtb             = KDs_database(infos, element_name, conditions, phase_name, KDs)
+
+    return KDs_dtb
+end
+
+"""
+    Get the partitioning coefficient database from Laurent, O. ...
+"""
 function get_OL_KDs_database()
     infos               = "Laurent, O. (2012). Les changements géodynamiques à la transition Archéen-Protérozoïque : étude des granitoïdes de la marge Nord du craton du Kaapvaal (Afrique du Sud). PhD, Université Blaise Pascal, Clermont-Ferrand."
 
@@ -106,11 +151,19 @@ end
 
 function adjust_chemical_system(    KDs_dtb     :: KDs_database,
                                     bulk_TE     :: Vector{Float64},
-                                    elem_TE     :: Vector{String})
+                                    elem_TE     :: Vector{String}       )
 
-    C0_TE_idx   = [findfirst(isequal(x), elem_TE) for x in KDs_dtb.element_name]
-    C0_TE       = bulk_TE[C0_TE_idx]
-    
+    n_el        = length(KDs_dtb.element_name)
+    C0_TE       = zeros(Float64,n_el)
+
+    for i=1:n_el
+        id = findfirst(KDs_dtb.element_name[i] .== elem_TE)
+        if !isnothing(id)
+            C0_TE[i] = bulk_TE[id]
+        end
+    end
+
+
     return C0_TE
 end
 
@@ -137,14 +190,33 @@ function compute_partitioning(  cond        :: Int64,
                                 ph          :: Vector{String}, 
                                 ph_wt       :: Vector{Float64}, 
                                 liq_wt      :: Float64,
-                                KDs_dtb     :: KDs_database)
+                                KDs_dtb     :: KDs_database;
+                                model       :: String  = "OL",
+                                ratio       :: Float64 = 1.0)
 
+    # compute bulk distributiion coefficient
+    if model == "OL"
+        KDs         = KDs_dtb.KDs[cond];
+        phase_name  = KDs_dtb.phase_name[cond]
+    elseif model == "EODC"
+        if cond == 3
+            if ratio < 0.0 || ratio > 1.0
+                error("ratio must be between 0 and 1. Setting it to 0.5")
+                ratio = 0.5
+            end
+            KDs         = KDs_dtb.KDs[1].*ratio .+ KDs_dtb.KDs[2].*(1.0-ratio);
+            phase_name  = KDs_dtb.phase_name[1]
+        else 
+            KDs         = KDs_dtb.KDs[cond];
+            phase_name  = KDs_dtb.phase_name[cond]
+        end
+    end
 
-    TE_ph       =  intersect(ph,KDs_dtb.phase_name[cond]);
+    TE_ph       =  intersect(ph, phase_name);
 
     # get indexes of the phase with respect to MAGEMin output and TE_database
     MM_ph_idx   = [findfirst(isequal(x), ph) for x in TE_ph];
-    TE_ph_idx   = [findfirst(isequal(x), KDs_dtb.phase_name[cond]) for x in TE_ph];
+    TE_ph_idx   = [findfirst(isequal(x), phase_name) for x in TE_ph];
 
     # normalize phase fractions
     sum_ph_frac = sum(ph_wt[MM_ph_idx]);
@@ -152,66 +224,49 @@ function compute_partitioning(  cond        :: Int64,
     ph_wt_norm  = ph_wt[MM_ph_idx]./sum_ph_frac;
     ph_TE       = ph[MM_ph_idx];
 
-    # compute bulk distributiion coefficient
-    D           = KDs_dtb.KDs[cond][TE_ph_idx,:]'*ph_wt_norm;
-
+    D           = KDs[TE_ph_idx,:]'*ph_wt_norm;
     Cliq        = C0 ./ (D .+ liq_wt_norm.*(1.0 .- D));
     Csol        = (C0 .- Cliq .*  liq_wt_norm) ./ (1.0 .- liq_wt_norm)
-    Cmin        = similar(KDs_dtb.KDs[cond][TE_ph_idx,:]); 
+    Cmin        = similar(KDs[TE_ph_idx,:]); 
 
     for i = 1:length(ph_wt_norm)
-        Cmin[i,:] = KDs_dtb.KDs[cond][TE_ph_idx[i],:] .* Cliq;
+        Cmin[i,:] = KDs[TE_ph_idx[i],:] .* Cliq;
     end
 
     return Cliq, Cmin, Csol, ph_TE, ph_wt_norm, liq_wt_norm
 end
 
-
+"""
+    TE_prediction
+"""
 function TE_prediction(     C0         :: Vector{Float64},
                             KDs_dtb    :: KDs_database,
-                            ZrSat_model:: String,
                             out        :: MAGEMin_C.gmin_struct{Float64, Int64},
-                            dtb        :: String )
+                            dtb        :: String;
+                            ZrSat_model:: String  = "CB",
+                            model      :: String  = "OL",
+                            option     :: Int64   =  1,
+                            ratio      :: Float64 =  1.0)
 
-    ox_id       = findfirst(out.oxides .== KDs_dtb.conditions[1])[1]
-    ox_non_H2O       = findall(out.oxides .!= "H2O")
+    if model == "OL"
+        ox_id       = findfirst(out.oxides  .== KDs_dtb.conditions[1])[1]
+        ox_non_H2O  = findall(out.oxides    .!= "H2O")
 
-    ox_M        = out.bulk_M_wt[ox_id]./sum(out.bulk_M_wt[ox_non_H2O])
-    liq_wt      = out.frac_M_wt
-    sol_wt      = out.frac_S_wt
-    elements    = KDs_dtb.element_name
-    if liq_wt > 0.0 && liq_wt < 1.0 && sol_wt > 0.0
-        n_cond  = length(KDs_dtb.conditions[2])
-        cond    = -1
-        for i=1:n_cond
-            if ox_M > KDs_dtb.conditions[2][i][1] && ox_M < KDs_dtb.conditions[2][i][2]
-                cond = i
-                break
+        ox_M        = out.bulk_M_wt[ox_id]./sum(out.bulk_M_wt[ox_non_H2O])
+        liq_wt      = out.frac_M_wt
+        sol_wt      = out.frac_S_wt
+        elements    = KDs_dtb.element_name
+        if liq_wt > 0.0 && liq_wt < 1.0 && sol_wt > 0.0
+            n_cond  = length(KDs_dtb.conditions[2])
+            cond    = -1
+            for i=1:n_cond
+                if ox_M > KDs_dtb.conditions[2][i][1] && ox_M < KDs_dtb.conditions[2][i][2]
+                    cond = i
+                    break
+                end
             end
-        end
 
-        ph, ph_wt   =  mineral_classification(out, dtb);
-
-        Cliq, Cmin, Csol, ph_TE, ph_wt_norm, liq_wt_norm,  = compute_partitioning(  cond,
-                                                                                    C0,
-                                                                                    ph, 
-                                                                                    ph_wt, 
-                                                                                    liq_wt,
-                                                                                    KDs_dtb)
-
-        id_Zr       = findfirst(KDs_dtb.element_name .== "Zr")[1]
-        Cliq_Zr     = Cliq[id_Zr]
-
-        Sat_zr_liq  = zirconium_saturation( out; 
-                                            model = ZrSat_model)   
-                                                                                
-        if Cliq_Zr > Sat_zr_liq
-            zrc_wt, SiO2_zrc_wt, O_wt       = adjust_bulk_4_zircon(Cliq_Zr, Sat_zr_liq)
-
-            push!(ph,"zrn")
-            push!(ph_wt,zrc_wt/100.0)
-
-            ph_wt = ph_wt ./(sum(ph_wt))
+            ph, ph_wt   =  mineral_classification(out, dtb);
 
             Cliq, Cmin, Csol, ph_TE, ph_wt_norm, liq_wt_norm,  = compute_partitioning(  cond,
                                                                                         C0,
@@ -220,52 +275,121 @@ function TE_prediction(     C0         :: Vector{Float64},
                                                                                         liq_wt,
                                                                                         KDs_dtb)
 
+            id_Zr       = findfirst(KDs_dtb.element_name .== "Zr")[1]
             Cliq_Zr     = Cliq[id_Zr]
+
+            Sat_zr_liq  = zirconium_saturation( out; 
+                                                model = ZrSat_model)   
+                                                                                    
+            if Cliq_Zr > Sat_zr_liq
+                zrc_wt, SiO2_zrc_wt, O_wt       = adjust_bulk_4_zircon(Cliq_Zr, Sat_zr_liq)
+
+                push!(ph,"zrn")
+                push!(ph_wt,zrc_wt/100.0)
+
+                ph_wt = ph_wt ./(sum(ph_wt))
+
+                Cliq, Cmin, Csol, ph_TE, ph_wt_norm, liq_wt_norm,  = compute_partitioning(  cond,
+                                                                                            C0,
+                                                                                            ph, 
+                                                                                            ph_wt, 
+                                                                                            liq_wt,
+                                                                                            KDs_dtb)
+
+                Cliq_Zr     = Cliq[id_Zr]
+                Sat_zr_liq  = zirconium_saturation( out; 
+                                                    model = ZrSat_model)   
+
+                SiO2_id                         = findall(out.oxides .== "SiO2")[1]
+
+                bulk_cor_wt                     = copy(out.bulk_wt)
+                bulk_cor_wt[SiO2_id]            = out.bulk_wt[SiO2_id] - SiO2_zrc_wt 
+                bulk_cor_wt                   ./= sum(bulk_cor_wt)
+
+            else
+                zrc_wt, bulk_cor_wt = nothing, nothing
+            end
+
+        elseif liq_wt == 0.0
+            Csol        = C0
+            Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt = nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing
+        elseif liq_wt == 1.0 || (sol_wt == 0.0 && liq_wt > 0.0) #latter means there is fluid + melt
+            Cliq        = C0
+            Csol        = nothing
+            id_Zr       = findfirst(KDs_dtb.element_name .== "Zr")[1]
+
+            Cliq_Zr     = Cliq[id_Zr]
+            Cmin, ph_TE, ph_wt_norm, zrc_wt = nothing, nothing, nothing, nothing
             Sat_zr_liq  = zirconium_saturation( out; 
                                                 model = ZrSat_model)   
 
-            SiO2_id                         = findall(out.oxides .== "SiO2")[1]
+            if Cliq_Zr > Sat_zr_liq
+                zrc_wt, SiO2_zrc_wt, O_wt       = adjust_bulk_4_zircon(Cliq_Zr, Sat_zr_liq)
 
-            bulk_cor_wt                     = copy(out.bulk_wt)
-            bulk_cor_wt[SiO2_id]            = out.bulk_wt[SiO2_id] - SiO2_zrc_wt 
-            bulk_cor_wt                   ./= sum(bulk_cor_wt)
+                SiO2_id                         = findall(out.oxides .== "SiO2")[1]
 
+                bulk_cor_wt                     = copy(out.bulk_wt)
+                bulk_cor_wt[SiO2_id]            = out.bulk_wt[SiO2_id] - SiO2_zrc_wt 
+                bulk_cor_wt                   ./= sum(bulk_cor_wt)
+            else
+                zrc_wt, bulk_cor_wt = nothing, nothing
+            end
+
+            liq_wt_norm = 1.0
         else
-            zrc_wt, bulk_cor_wt = nothing, nothing
+            print("unrecognized case!\n")
+            Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, zrc_wt, bulk_cor_wt, Sat_zr_liq = nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing
         end
 
-    elseif liq_wt == 0.0
-        Csol        = C0
-        Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt = nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing
-    elseif liq_wt == 1.0 || (sol_wt == 0.0 && liq_wt > 0.0) #latter means there is fluid + melt
-        Cliq        = C0
-        Csol        = nothing
-        id_Zr       = findfirst(KDs_dtb.element_name .== "Zr")[1]
+        out_TE = out_tepm(elements, C0, Cliq, Csol, Cmin, nothing, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt)
 
-        Cliq_Zr     = Cliq[id_Zr]
-        Cmin, ph_TE, ph_wt_norm, zrc_wt = nothing, nothing, nothing, nothing
-        Sat_zr_liq  = zirconium_saturation( out; 
-                                            model = ZrSat_model)   
+        return out_TE
+        
+    elseif model == "EODC"
 
-        if Cliq_Zr > Sat_zr_liq
-            zrc_wt, SiO2_zrc_wt, O_wt       = adjust_bulk_4_zircon(Cliq_Zr, Sat_zr_liq)
+        liq_wt      = out.frac_M_wt
+        sol_wt      = out.frac_S_wt
+        elements    = KDs_dtb.element_name
 
-            SiO2_id                         = findall(out.oxides .== "SiO2")[1]
+        Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt = nothing, nothing, nothing, nothing
 
-            bulk_cor_wt                     = copy(out.bulk_wt)
-            bulk_cor_wt[SiO2_id]            = out.bulk_wt[SiO2_id] - SiO2_zrc_wt 
-            bulk_cor_wt                   ./= sum(bulk_cor_wt)
+        if option == 1
+            cond    = 1
+        elseif option == 2
+            cond    = 2
+        elseif option == 3
+            cond    = 3
+        end
+        if liq_wt > 0.0 && liq_wt < 1.0 && sol_wt > 0.0
+            ph, ph_wt   =  mineral_classification(out, dtb);
+
+            Cliq, Cmin, Csol, ph_TE, ph_wt_norm, liq_wt_norm,  = compute_partitioning(  cond,
+                                                                                        C0,
+                                                                                        ph, 
+                                                                                        ph_wt, 
+                                                                                        liq_wt,
+                                                                                        KDs_dtb;
+                                                                                        model = model,
+                                                                                        ratio = ratio)
+
+        elseif liq_wt == 0.0
+            Csol        = C0
+            Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm = nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing
+
+        elseif liq_wt == 1.0 || (sol_wt == 0.0 && liq_wt > 0.0) #latter means there is fluid + melt
+            Cliq        = C0
+            Csol        = nothing
+            liq_wt_norm = 1.0
         else
-            zrc_wt, bulk_cor_wt = nothing, nothing
+            print("unrecognized case!\n")
+            Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, zrc_wt, bulk_cor_wt, Sat_zr_liq = nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing
+        
         end
 
-        liq_wt_norm = 1.0
-    else
-        print("unrecognized case!\n")
-        Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, zrc_wt, bulk_cor_wt, Sat_zr_liq = nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing
+        out_TE = out_tepm(elements, C0, Cliq, Csol, Cmin, nothing, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt)
+            
+        return out_TE
     end
 
-    out_TE = out_tepm(elements, C0, Cliq, Csol, Cmin, nothing, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt)
-
-    return out_TE
+    
 end
