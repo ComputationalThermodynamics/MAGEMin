@@ -697,8 +697,8 @@ global_variable init_em_db(		int 				EM_database,
 				gv.pp_flags[i][1] = 0;
 				gv.pp_flags[i][2] = 0;
 				gv.pp_flags[i][3] = 1;
-			}		
-
+				printf("  -> buffer not active\n");	
+			}
 			if (gv.verbose==1){
 				printf("\n %4s:  %+10f %+10f\n",gv.PP_list[i],PP_ref_db[i].gbase, PP_ref_db[i].factor);
 

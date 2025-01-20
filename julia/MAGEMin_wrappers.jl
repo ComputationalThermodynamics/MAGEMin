@@ -1473,7 +1473,7 @@ function get_mineral_name(db, ss, SS_vec)
             elseif x[2] - 0.5 > 0.0;    mineral_name = "mgt";
             else                        mineral_name = "spl";    end
         elseif ss == "fsp"
-            if x[2] - x[1] > 0.0;       mineral_name = "afs";
+            if x[2] - 0.5 > 0.0;       mineral_name = "afs";
             else                        mineral_name = "pl";    end
         elseif ss == "mu"
             if x[4] - 0.5 > 0.0;        mineral_name = "pat";
@@ -1504,7 +1504,7 @@ function get_mineral_name(db, ss, SS_vec)
             if x[2] - 0.5 > 0.0;        mineral_name = "mt";
             else                        mineral_name = "sp";    end
         elseif ss == "fsp"
-            if x[2] - x[1] > 0.0;       mineral_name = "afs";
+            if x[2] - 0.5 > 0.0;       mineral_name = "afs";
             else                        mineral_name = "pl";    end
         elseif ss == "mu"
             if x[4] - 0.5 > 0.0;        mineral_name = "pat";

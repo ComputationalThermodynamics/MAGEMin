@@ -46,7 +46,7 @@ metapelite_aq_dataset metapelite_aq_db = {
 	{"liq"	,"fsp"	,"bi"	,"g"	,"ep"	,"ma"	,"mu"	,"opx"	,"sa"	,"cd"	,"st"	,"chl"	,"ctd"	,"sp"  ,"mt"  ,"ilm"  ,"ilmm"  ,"aq17"},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1		},  // allow solvus?
-	{3150	,231 	,981	,756	,110 	,1875	,1877	,1277	,230	,343	,540	,2270	,216	,405 	,87 	,130 	,1430 	,1		},  // # of pseudocompound
+	{3150	,231 	,981	,757	,110 	,1875	,1877	,1277	,230	,343	,540	,2270	,216	,405 	,87 	,130 	,1430 	,1		},  // # of pseudocompound
 	{0.24	,0.049	,0.19	,0.19	,0.049	,0.19	,0.19	,0.249	,0.19	,0.145	,0.19	,0.249	,0.19	,0.124 	,0.099 	,0.09 	,0.099 	,1.0	},  // discretization step
 
 	6.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
@@ -76,14 +76,14 @@ metapelite_dataset metapelite_db = {
 	{"liq"	,"fsp"	,"bi"	,"g"	,"ep"	,"ma"	,"mu"	,"opx"	,"sa"	,"cd"	,"st"	,"chl"	,"ctd"	,"sp"  ,"mt"  ,"ilm"  ,"ilmm" 	,"aq17" },
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1		},  // allow solvus?
-	{3150	,231 	,981	,756	,110 	,1875	,1877	,1277	,230	,343	,540	,2270	,216	,407 	,87 	,130 	,1430 	,1		},  // # of pseudocompound
+	{3150	,231 	,981	,757	,110 	,1875	,1877	,1277	,230	,343	,540	,2270	,216	,407 	,87 	,130 	,1430 	,1		},  // # of pseudocompound
 	{0.24	,0.049	,0.19	,0.19	,0.049	,0.19	,0.19	,0.249	,0.19	,0.145	,0.19	,0.249	,0.19	,0.124 	,0.099 	,0.09 	,0.099 	,1.0	},  // discretization step
 
 	6.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
 	473.15,						/* max temperature above which PGE solver is active 								*/
 	873.15,						/** minimum temperature above which melt is considered 								*/
 
-	4,							/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
+	2,							/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
 	0.025,						/** maximum mol% phase change during one PGE iteration in wt% 						*/
 	2.5,						/** maximum delta_G of reference change during PGE 									*/
 	1.0,						/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
@@ -124,22 +124,22 @@ metabasite_dataset metabasite_db = {
 igneous_dataset igneous_db = {
 	636,						/* Endmember default dataset number */
 	11,							/* number of oxides */			
-	24,							/* number of pure phases */
+	25,							/* number of pure phases */
 	15,							/* number of solution phases */
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"Cr2O3","H2O"											},
-	{"ne"	,"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2"	,
+	{"ne"	,"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2"	,"H2O"	,
 	"qfm"	,"mw"	,"qif"	,"nno"	,"hm"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"								},
 	{"spl"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"amp"	,"ilm"	,"liq"	,"ol"	,"opx"	,"fsp"	,"fl"	,"mu"	,"fper"					},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1		,1						}, // allow solvus?
-	{1522	,3554	,121	,4126	,210	,2450	,5499	,1669	,3088	,381	,3413	,231	,2		,2376	,20						}, // # of pseudocompound
-	{0.249	,0.124	,0.098	,0.249	,0.049	,0.145	,0.33	,0.11	,0.198	,0.098	,0.249	,0.049	,1.0 	,0.198	,0.05					}, // discretization step
+	{1523	,3554	,121	,4126	,210	,2450	,5499	,1669	,3088	,381	,3413	,231	,2		,2376	,20						}, // # of pseudocompound
+	{0.2	,0.124	,0.098	,0.249	,0.049	,0.145	,0.33	,0.11	,0.198	,0.098	,0.249	,0.049	,1.0 	,0.198	,0.05					}, // discretization step
 
 	6.0, 						/** max dG under which a phase is considered to be reintroduced  					*/
 	673.15,						/** max temperature above which PGE solver is active 								*/
 	773.15,						/** minimum temperature above which melt is considered 								*/
 
-	8,							/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
+	4,							/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
 	0.025,						/** maximum mol% phase change during one PGE iteration in wt% 						*/
 	2.5,						/** maximum delta_G of reference change during PGE 									*/
 	1.0,						/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
@@ -273,7 +273,7 @@ metapelite_dataset_ext metapelite_ext_db = {
 	{"liq"	,"fsp"	,"bi"	,"g"	,"ep"	,"ma"	,"mu"	,"opx"	,"sa"	,"cd"	,"st"	,"chl"	,"ctd"	,"sp"  ,"mt"  ,"ilm"  ,"ilmm"  ,"occm"	,"fl"	,"po"	,"dio"	,"aug"	,"amp"		},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1		,1		,1		,1		,1		,1			},  // allow solvus?
-	{3150	,231 	,981	,756	,110 	,1875	,1877	,1277	,230	,343	,540	,2270	,216	,407 	,87 	,131 	,1430 	,352	,12		,10		,1809	,2396,	7664		},  // # of pseudocompound
+	{3150	,231 	,981	,757	,110 	,1875	,1877	,1277	,230	,343	,540	,2270	,216	,407 	,87 	,131 	,1430 	,352	,12		,10		,1809	,2396,	7664		},  // # of pseudocompound
 	{0.24	,0.049	,0.19	,0.19	,0.049	,0.19	,0.19	,0.249	,0.19	,0.145	,0.19	,0.249	,0.19	,0.124 	,0.099 	,0.09 	,0.099 	,0.14	,0.09	,0.1	,0.16	,0.24,	0.249		},  // discretization step
 
 	6.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
