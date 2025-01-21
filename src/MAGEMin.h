@@ -176,6 +176,7 @@ typedef struct global_variables {
 	double   bnd_filter_pge;     /** value of driving force the pseudocompound is considered to reduce the compositional space */
 	double 	 max_G_pc;
 	int     *n_SS_PC;
+	int 	*act_PP;
 	double  *SS_PC_stp;
 	double   eps_sf_pc;	
 	int      n_pc;				/** maximum number of pseudocompounds to store 								*/

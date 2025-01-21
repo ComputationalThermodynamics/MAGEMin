@@ -63,10 +63,9 @@ global_variable init_em_db(		int 				EM_database,
 		char state[] = "equilibrium";	
 		int sum_zel;
 		for (int i = 0; i < gv.len_pp; i++){
-
 			if 		(strcmp( gv.PP_list[i], "qif") 	== 0){
 
-				PP_ref iron 	= G_EM_function(	gv.research_group,
+				PP_ref iron 	= G_EM_function(gv.research_group,
                                                 gv.EM_dataset, 
 												gv.len_ox,
 												z_b.id,
@@ -692,12 +691,11 @@ global_variable init_em_db(		int 				EM_database,
 			}
 
 			/* If buffer not active then remove it */
-			if (gv.pp_flags[i][4] == 1 && strcmp(gv.buffer,gv.PP_list[i]) != 0){
+			if ( (gv.pp_flags[i][4] == 1 && strcmp(gv.buffer,gv.PP_list[i]) != 0) || (gv.act_PP[i] == 0) ){
 				gv.pp_flags[i][0] = 0;
 				gv.pp_flags[i][1] = 0;
 				gv.pp_flags[i][2] = 0;
 				gv.pp_flags[i][3] = 1;
-				printf("  -> buffer not active\n");	
 			}
 			if (gv.verbose==1){
 				printf("\n %4s:  %+10f %+10f\n",gv.PP_list[i],PP_ref_db[i].gbase, PP_ref_db[i].factor);
@@ -731,9 +729,11 @@ global_variable init_em_db(		int 				EM_database,
 					printf(" %.1f",PP_ref_db[i].Comp[j]);
 				}
 				printf("\n");
-
+				
+				if (gv.pp_flags[i][3] == 1){
+					printf(" Pure phase is not considered in the calculation\n");
+				}
 			}
-
 
 		}
 		if (gv.verbose==1){
@@ -927,7 +927,7 @@ global_variable init_em_db_sb(		int 				EM_database,
 			}
 
 			/* If buffer not active then remove it */
-			if (gv.pp_flags[i][4] == 1 && strcmp(gv.buffer,gv.PP_list[i]) != 0){
+			if ( (gv.pp_flags[i][4] == 1 && strcmp(gv.buffer,gv.PP_list[i]) != 0) ){
 				gv.pp_flags[i][0] = 0;
 				gv.pp_flags[i][1] = 0;
 				gv.pp_flags[i][2] = 0;

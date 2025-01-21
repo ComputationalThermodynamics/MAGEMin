@@ -126,9 +126,11 @@ igneous_dataset igneous_db = {
 	11,							/* number of oxides */			
 	25,							/* number of pure phases */
 	15,							/* number of solution phases */
-	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"Cr2O3","H2O"											},
+	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"Cr2O3","H2O"													},
 	{"ne"	,"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2"	,"H2O"	,
 	"qfm"	,"mw"	,"qif"	,"nno"	,"hm"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"								},
+	{1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 0		,
+	 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		,										},
 	{"spl"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"amp"	,"ilm"	,"liq"	,"ol"	,"opx"	,"fsp"	,"fl"	,"mu"	,"fper"					},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1		,1						}, // allow solvus?
@@ -342,6 +344,8 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 			gv.n_SS_PC[i] 	= db.n_SS_PC[i]; 
 			gv.SS_PC_stp[i] = db.SS_PC_stp[i]; 	
 		}
+		gv.act_PP     		= malloc ((gv.len_pp) * sizeof (int) 	);
+		for (i = 0; i < gv.len_pp; i++){ gv.act_PP[i] = 1; 			};
 	}
 	else if (gv.EM_database == 1){
 		metabasite_dataset db 	= metabasite_db;
@@ -390,6 +394,8 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 			gv.n_SS_PC[i] 	= db.n_SS_PC[i]; 
 			gv.SS_PC_stp[i] = db.SS_PC_stp[i]; 	
 		}
+		gv.act_PP     		= malloc ((gv.len_pp) * sizeof (int) 	);
+		for (i = 0; i < gv.len_pp; i++){ gv.act_PP[i] = 1; 			};
 	}
 	else if (gv.EM_database == 2){
 		igneous_dataset db 	= igneous_db;
@@ -439,6 +445,8 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 			gv.n_SS_PC[i] 	= db.n_SS_PC[i]; 
 			gv.SS_PC_stp[i] = db.SS_PC_stp[i]; 	
 		}
+		gv.act_PP     		= malloc ((gv.len_pp) * sizeof (int) 	);
+		for (i = 0; i < gv.len_pp; i++){ gv.act_PP[i]  = db.act_PP[i]; 			};
 	}
 	else if (gv.EM_database == 3){
 		igneous_igad_dataset db 	= igneous_igad_db;
@@ -488,6 +496,8 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 			gv.n_SS_PC[i] 	= db.n_SS_PC[i]; 
 			gv.SS_PC_stp[i] = db.SS_PC_stp[i]; 	
 		}
+		gv.act_PP     		= malloc ((gv.len_pp) * sizeof (int) 	);
+		for (i = 0; i < gv.len_pp; i++){ gv.act_PP[i] = 1; 			};
 	}
 	else if (gv.EM_database == 4){
 		ultramafic_dataset db = ultramafic_db;
@@ -533,6 +543,8 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 			gv.n_SS_PC[i] 	= db.n_SS_PC[i]; 
 			gv.SS_PC_stp[i] = db.SS_PC_stp[i]; 	
 		}
+		gv.act_PP     		= malloc ((gv.len_pp) * sizeof (int) 	);
+		for (i = 0; i < gv.len_pp; i++){ gv.act_PP[i] = 1; 			};
 	}
 	else if (gv.EM_database == 5){
 		ultramafic_ext_dataset db = ultramafic_ext_db;
@@ -578,6 +590,8 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 			gv.n_SS_PC[i] 	= db.n_SS_PC[i]; 
 			gv.SS_PC_stp[i] = db.SS_PC_stp[i]; 	
 		}
+		gv.act_PP     		= malloc ((gv.len_pp) * sizeof (int) 	);
+		for (i = 0; i < gv.len_pp; i++){ gv.act_PP[i] = 1; 			};
 	}
 	else if (gv.EM_database == 6){
 		mantle_dataset db = mantle_db;
@@ -623,6 +637,8 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 			gv.n_SS_PC[i] 	= db.n_SS_PC[i]; 
 			gv.SS_PC_stp[i] = db.SS_PC_stp[i]; 	
 		}
+		gv.act_PP     		= malloc ((gv.len_pp) * sizeof (int) 	);
+		for (i = 0; i < gv.len_pp; i++){ gv.act_PP[i] = 1; 			};
 	}
 	else if (gv.EM_database == 7){
 		metapelite_dataset_ext db 	= metapelite_ext_db;
@@ -669,6 +685,8 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 			gv.n_SS_PC[i] 	= db.n_SS_PC[i]; 
 			gv.SS_PC_stp[i] = db.SS_PC_stp[i]; 	
 		}
+		gv.act_PP     		= malloc ((gv.len_pp) * sizeof (int) 	);
+		for (i = 0; i < gv.len_pp; i++){ gv.act_PP[i] = 1; 			};
 	}
 
 	/**

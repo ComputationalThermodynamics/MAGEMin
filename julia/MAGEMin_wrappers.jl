@@ -788,7 +788,7 @@ end
 function define_bulk_rock(gv, bulk_in, bulk_in_ox, sys_in,db)
 
     bulk_rock, ox   = convertBulk4MAGEMin(bulk_in,bulk_in_ox,sys_in,db)     # conversion changes the system unit to mol
-    unsafe_copyto!(gv.bulk_rock, pointer(bulk_rock) , gv.len_ox)            # copy the bulk-rock
+    unsafe_copyto!(gv.bulk_rock, pointer(bulk_rock), gv.len_ox)            # copy the bulk-rock
 
     LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
 
