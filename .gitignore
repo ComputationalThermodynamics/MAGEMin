@@ -8,6 +8,7 @@ src/SB_database/*.o
 julia/output/*
 ref_database/SB_ref_database/.DS_Store
 matlab/.DS_Store
+tools/.DS_Store
 .vscode/
 *.txt
 Manifest.toml
