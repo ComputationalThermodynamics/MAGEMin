@@ -1314,6 +1314,7 @@ void FreeDatabases(		global_variable gv,
 	for (j = 0; j < n_ox; j++) {free(gv.A2[j]);}		free(gv.A2);
 
 	free(gv.n_SS_PC);
+	free(gv.act_PP);
 	free(gv.n_min);
 	free(gv.verifyPC);
 	free(gv.n_ss_ph);

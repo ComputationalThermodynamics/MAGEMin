@@ -679,6 +679,7 @@ mutable struct global_variables
     bnd_filter_pge::Cdouble
     max_G_pc::Cdouble
     n_SS_PC::Ptr{Cint}
+    act_PP::Ptr{Cint}
     SS_PC_stp::Ptr{Cdouble}
     eps_sf_pc::Cdouble
     n_pc::Cint
@@ -1405,7 +1406,8 @@ mutable struct igneous_datasets
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{11, NTuple{20, Cchar}}
-    PP::NTuple{24, NTuple{20, Cchar}}
+    PP::NTuple{25, NTuple{20, Cchar}}
+    act_PP::NTuple{25, Cint}
     SS::NTuple{15, NTuple{20, Cchar}}
     verifyPC::NTuple{15, Cint}
     n_SS_PC::NTuple{15, Cint}
@@ -2941,6 +2943,12 @@ const n_ss_mp = 18
 const n_pp_mp = 24
 
 const n_ox_mp = 11
+
+const n_ox_ig = 11
+
+const n_ss_ig = 15
+
+const n_pp_ig = 25
 
 const ko_no_argument = 0
 

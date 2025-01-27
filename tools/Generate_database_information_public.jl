@@ -11,15 +11,14 @@ function get_database_infos()
                         "Ultramafic extended (Evans & Frost., 2021) with pl, amp and aug from Green et al., 2016",
                         "Mantle (Holland et al., 2013)",
                         "Metapelite extended (White et al., 2014 with po from Evans & Frost., 2021, amp dio and aug from Green et al., 2016)",
-                        "Stixrude & Lithgow-Bertelloni (2011)"
-                        ]
+                        "Stixrude & Lithgow-Bertelloni (2011)" ]
 
     database_list   = ["mp","mb","ig","igad","um","ume","mtl","mpe","sb11"]
 
     db_inf          = Array{db_infos, 1}(undef, length(database_list))
 
     for k in eachindex(database_list)
-        datab         = database_list[k]
+        datab         = database_list
         gv, z_b, DB, splx_data  = init_MAGEMin(datab; mbCpx = 1);
         gv          =   use_predefined_bulk_rock(gv, 0, datab);
         gv.verbose  =  -1
@@ -52,7 +51,7 @@ function get_database_infos()
         end
     
         db_inf[k] = db_infos(database_list[k],db_details[k],ss,ss_names,pp_names)
-        finalize_MAGEMin(gv,DB, z_b)
+        # finalize_MAGEMin(gv,DB, z_b)
     end
     
     return db_inf

@@ -124,7 +124,7 @@ void PGE_print(					bulk_info 				z_b,
 	printf("OFF| P. phase |  Fraction  |  delta_G  (< 5.0) | \n");
 	printf("═══════════════════════════════════════════════════════════════════════════════════════\n");
 	for (int i = 0; i < gv.len_pp; i++){ 
-		if ((gv.pp_flags[i][2] == 1 && PP_ref_db[i].gb_lvl*PP_ref_db[i].factor < 5.0) || (gv.pp_flags[i][2] == 0 && PP_ref_db[i].gb_lvl*PP_ref_db[i].factor > 0.0)){
+		if ((gv.pp_flags[i][2] == 1 && PP_ref_db[i].gb_lvl*PP_ref_db[i].factor < 5.0) ){
 			printf(" %d | %4s     | %+10f | %+10f | \n",0,gv.PP_list[i],gv.pp_n[i],PP_ref_db[i].gb_lvl*PP_ref_db[i].factor);
 		}
 	}

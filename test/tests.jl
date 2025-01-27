@@ -337,16 +337,25 @@ end
 @testset "remove solution phase" begin
 
     data    = Initialize_MAGEMin("mp", verbose=-1, solver=0);
-
-    rm_list =   remove_phases(["liq","ilmm"],"mp")
-
-    # One bulk rock for all points
+    rm_list =   remove_phases(["liq","ilm"],"mp")
     P,T     = 10.713125, 1177.34375
     Xoxides = ["SiO2","Al2O3","CaO","MgO","FeO","K2O","Na2O","TiO2","O","MnO","H2O"]
     X       = [70.999,12.805,0.771,3.978,6.342,2.7895,1.481,0.758,0.72933,0.075,30.0]
     sys_in  = "mol"    
     out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in,rm_list=rm_list)
-    @test sort(out.ph) == sort(["H2O", "fsp", "g", "ilm", "q", "sill"])
+    @test sort(out.ph) == sort(["fsp", "g", "ilmm", "sp", "q", "sill", "H2O"])
+    Finalize_MAGEMin(data)
+
+
+    data    = Initialize_MAGEMin("mp", verbose=-1, solver=0);
+    rm_list =   remove_phases(["liq","ilmm","sill"],"mp")
+    P,T     = 10.713125, 1177.34375
+    Xoxides = ["SiO2","Al2O3","CaO","MgO","FeO","K2O","Na2O","TiO2","O","MnO","H2O"]
+    X       = [70.999,12.805,0.771,3.978,6.342,2.7895,1.481,0.758,0.72933,0.075,30.0]
+    sys_in  = "mol"    
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in,rm_list=rm_list)
+    @test sort(out.ph) == sort(["fsp", "cd", "sa", "ilm", "sp", "q", "H2O"])
+    Finalize_MAGEMin(data)
 end
 
 @testset "view array PT" begin

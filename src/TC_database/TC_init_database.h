@@ -123,18 +123,22 @@
 	/** 
 		Igneous database informations 
 	**/
+	#define n_ox_ig 11 		// as of now this is n_oxides = 11 + electrochemical potential
+	#define n_ss_ig 15			
+	#define n_pp_ig 25
 	typedef struct igneous_datasets {
 		int 	ds_version;
 		int 	n_ox;
 		int 	n_pp;
 		int 	n_ss;
-		char    ox[11][20];
-		char    PP[24][20];
-		char    SS[15][20];
+		char    ox[n_ox_ig][20];
+		char    PP[n_pp_ig][20];
+		int 	act_PP[n_pp_ig];
+		char    SS[n_ss_ig][20];
 
-		int 	verifyPC[15];
-		int 	n_SS_PC[15];
-		double 	SS_PC_stp[15];
+		int 	verifyPC[n_ss_ig];
+		int 	n_SS_PC[n_ss_ig];
+		double 	SS_PC_stp[n_ss_ig];
 
 		double 	PC_df_add;	
 		double  solver_switch_T;
