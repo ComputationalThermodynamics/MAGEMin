@@ -49,6 +49,32 @@ dict_ss["occm"] = "carbonate",[ "sid" "siderite";
                                 "mag" "magnesite";
                                 "cc" "calcite"] 
 
+dict_ss["opx"]  = "orthopyroxene",[ "opx" "orthopyroxene"] 
+dict_ss["liq"]  = "liquid",[ "liq" "liquid"] 
+dict_ss["ol"]   = "olivine",[ "ol" "olivine"] 
+dict_ss["ep"]   = "epidote",[ "ep" "epidote"] 
+dict_ss["g"]    = "garnet",[ "g" "garnet"] 
+dict_ss["chl"]  = "chlorite",[ "chl" "chlorite"] 
+dict_ss["bi"]   = "biotite",[ "bi" "biotite"] 
+dict_ss["aug"]  = "augite",[ "aug" "augite"] 
+dict_ss["abc"]  = "abc",[ "abc" "abc"] 
+dict_ss["ctd"]  = "chloritoid",[ "ctd" "chloritoid"] 
+dict_ss["ma"]   = "margarite",[ "ma" "margarite"] 
+dict_ss["st"]   = "staurolite",[ "st" "staurolite"] 
+dict_ss["sa"]   = "sapphirine",[ "sa" "sapphirine"] 
+dict_ss["cd"]   = "cordierite",[ "cd" "cordierite"] 
+dict_ss["mt"]   = "magnetite",[ "mt" "magnetite"] 
+dict_ss["fl"]   = "fluid",[ "fl" "fluid"] 
+dict_ss["lct"]  = "leucite",[ "lct" "leucite"] 
+dict_ss["kals"] = "kalsilite",[ "kals" "kalsilite"] 
+dict_ss["mel"]  = "melilite",[ "mel" "melilite"] 
+dict_ss["br"]   = "brucite",[ "br" "brucite"] 
+dict_ss["atg"]  = "antigorite",[ "atg" "antigorite"] 
+dict_ss["ta"]  = "talc",[ "ta" "talc"] 
+dict_ss["anth"]  = "anthophyllite",[ "anth" "anthophyllite"] 
+dict_ss["po"]  = "pyrrhotite",[ "po" "pyrrhotite"] 
+
+
 # Convert the dictionary to a JSON string
 json_str = JSON.json(dict_ss)
 
