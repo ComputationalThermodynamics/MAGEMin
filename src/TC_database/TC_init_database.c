@@ -714,8 +714,8 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 	gv.pdev[0][3]  =  1.0;	gv.pdev[1][3]  = -1.0;	
 	gv.pdev[0][4]  =  2.0;	gv.pdev[1][4]  =  0.0;
 	gv.pdev[0][5]  =  1.0;	gv.pdev[1][5]  =  0.0;	
-	gv.pdev[0][6]  =  0.0;	gv.pdev[1][6]  =  0.0;
-	gv.pdev[0][7]  =  3.0;	gv.pdev[1][7]  =  0.0;
+	gv.pdev[0][6]  =  3.0;	gv.pdev[1][6]  =  0.0;
+	gv.pdev[0][7]  =  0.0;	gv.pdev[1][7]  =  0.0;
 
 	gv.V_cor 	   		= malloc (2 * sizeof(double));
 
