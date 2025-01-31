@@ -134,8 +134,8 @@ igneous_dataset igneous_db = {
 	{"spl"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"amp"	,"ilm"	,"liq"	,"ol"	,"opx"	,"fsp"	,"fl"	,"mu"	,"fper"					},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1		,1						}, // allow solvus?
-	{1523	,3554	,121	,4126	,210	,2450	,5499	,1669	,3088	,381	,3413	,231	,2		,2376	,20						}, // # of pseudocompound
-	{0.2	,0.124	,0.098	,0.249	,0.049	,0.145	,0.33	,0.11	,0.198	,0.098	,0.249	,0.049	,1.0 	,0.198	,0.05					}, // discretization step
+	{1523	,3554	,121	,4127	,210	,2450	,5499	,1670	,3088	,381	,3413	,231	,2		,2376	,20						}, // # of pseudocompound
+	{0.2	,0.124	,0.098	,0.20	,0.049	,0.145	,0.33	,0.10	,0.198	,0.098	,0.249	,0.049	,1.0 	,0.198	,0.05					}, // discretization step
 
 	6.0, 						/** max dG under which a phase is considered to be reintroduced  					*/
 	673.15,						/** max temperature above which PGE solver is active 								*/
@@ -162,8 +162,8 @@ igneous_igad_dataset igneous_igad_db = {
 	{"spl"	,"cpx"	,"g"	,"ilm"	,"liq"	,"ol"	,"opx"	,"fsp"	,"lct"	,"mel"	,"nph"	,"kals"		},
 	
 	{1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1		,1		,1			}, // allow solvus?
-	{3318	,4128	,2450	,1670	,4911	,381	,3413	,861	,21		,270	,1210	,21			}, // # of pseudocompound
-	{0.195	,0.249	,0.145	,0.11	,0.15	,0.098	,0.249	,0.0249	,0.049	,0.19	,0.149 	,0.049		}, // discretization step
+	{3318	,4128	,2450	,1671	,4911	,381	,3413	,861	,21		,270	,1210	,21			}, // # of pseudocompound
+	{0.195	,0.249	,0.145	,0.05	,0.15	,0.098	,0.249	,0.0249	,0.049	,0.19	,0.149 	,0.049		}, // discretization step
 
 	6.0, 						/** max dG under which a phase is considered to be reintroduced  					*/
 	673.15,						/** max temperature above which PGE solver is active 								*/
