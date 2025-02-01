@@ -77,7 +77,7 @@ metapelite_dataset metapelite_db = {
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1		},  // allow solvus?
 	{3150	,231 	,981	,757	,110 	,1875	,1877	,1277	,230	,343	,540	,2270	,216	,407 	,87 	,130 	,1430 	,1		},  // # of pseudocompound
-	{0.24	,0.049	,0.19	,0.19	,0.049	,0.19	,0.19	,0.249	,0.19	,0.145	,0.19	,0.249	,0.19	,0.124 	,0.099 	,0.09 	,0.099 	,1.0	},  // discretization step
+	{0.24	,0.049	,0.19	,0.19	,0.049	,0.19	,0.19	,0.249	,0.19	,0.145	,0.19	,0.249	,0.19	,0.075 	,0.099 	,0.09 	,0.099 	,1.0	},  // discretization step
 
 	6.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
 	473.15,						/* max temperature above which PGE solver is active 								*/
@@ -105,7 +105,7 @@ metabasite_dataset metabasite_db = {
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1				},  // allow solvus?
 	{936	,1731 	,231	,3507	,4536 	,298	,422	,11		,7665	,110	,216	,3980	,1098	,1808	,2396	,21 	,196			},  // # of pseudocompound
-	{0.09	,0.19	,0.049	,0.199	,0.19	,0.09	,0.049	,0.098	,0.20	,0.049	,0.19	,0.19	,0.125	,0.16	,0.20	,0.049 	,0.09			},  // discretization step
+	{0.09	,0.19	,0.049	,0.199	,0.19	,0.09	,0.049	,0.098	,0.20	,0.049	,0.19	,0.19	,0.125	,0.10	,0.20	,0.049 	,0.09			},  // discretization step
 
 	6.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
 	473.15,						/* max temperature above which PGE solver is active 								*/
