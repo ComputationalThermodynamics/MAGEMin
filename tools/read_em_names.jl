@@ -4,8 +4,6 @@ using JSON
 file_path   = "em_name.json"
 dict_em     = JSON.parsefile(file_path)
 
-println(sorted_dict)
-
 
 dict_ss = Dict{String, Any}()
 dict_ss["sp"] = "spinel",[ "sp" "spinel";
@@ -70,10 +68,20 @@ dict_ss["kals"] = "kalsilite",[ "kals" "kalsilite"]
 dict_ss["mel"]  = "melilite",[ "mel" "melilite"] 
 dict_ss["br"]   = "brucite",[ "br" "brucite"] 
 dict_ss["atg"]  = "antigorite",[ "atg" "antigorite"] 
-dict_ss["ta"]  = "talc",[ "ta" "talc"] 
-dict_ss["anth"]  = "anthophyllite",[ "anth" "anthophyllite"] 
-dict_ss["po"]  = "pyrrhotite",[ "po" "pyrrhotite"] 
+dict_ss["ta"]   = "talc",[ "ta" "talc"] 
+dict_ss["anth"] = "anthophyllite",[ "anth" "anthophyllite"] 
+dict_ss["po"]   = "pyrrhotite",[ "po" "pyrrhotite"] 
 
+dict_ss["fp"]   = "ferropericlase",[ "fp" "ferropericlase"] 
+dict_ss["mpv"]  = "MgSi-perovskite",[ "mpv" "MgSi-perovskite"] 
+dict_ss["cpv"]  = "CaSi-perovskite",[ "cpv" "CaSi-perovskite"] 
+dict_ss["crn"]  = "Mg-Al corundum",[ "crn" "Mg-Al corundum"] 
+dict_ss["cf"]   = "Ca-Ferrite",[ "cf" "Ca-Ferrite"] 
+dict_ss["nal"]  = "NAL-phase",[ "nal" "NAL-phase"] 
+dict_ss["aki"]  = "akimotoite",[ "aki" "akimotoite"] 
+dict_ss["wad"]  = "Fe-Mg wadsleyite",[ "wad" "Fe-Mg wadsleyite"] 
+dict_ss["ring"] = "Fe-Mg ringwoodite",[ "ring" "Fe-Mg ringwoodite"] 
+dict_ss["hpx"]  = "high-P orthopyroxene",[ "hpx" "high-P orthopyroxene"] 
 
 # Convert the dictionary to a JSON string
 json_str = JSON.json(dict_ss)

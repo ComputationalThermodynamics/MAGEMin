@@ -11446,12 +11446,11 @@ double obj_mtl_hpx(unsigned n, const double *x, double *grad, void *SS_ref_db){
     sf[6]          = 1.0 - 0.5*x[1];
     sf[7]          = 0.5*x[1];
     
-    
     mu[0]          = gb[0] + R*T*creal(clog(sf[0]*sf[4]*csqrt(sf[6]))) + mu_Gex[0];
     mu[1]          = gb[1] + R*T*creal(clog(sf[1]*sf[5]*csqrt(sf[6]))) + mu_Gex[1];
     mu[2]          = gb[2] + R*T*creal(clog(sf[0]*sf[5]*csqrt(sf[6]))) + mu_Gex[2];
     mu[3]          = gb[3] + R*T*creal(clog(sf[0]*sf[3]*csqrt(sf[6]))) + mu_Gex[3];
-    mu[4]          = gb[4] + R*T*creal(clog(1.4141999999999999*sf[2]*sf[4]*cpow(sf[6], 0.25)*cpow(sf[7], 0.25))) + mu_Gex[4];
+    mu[4]          = gb[4] + R*T*creal(clog(1.4142*sf[2]*sf[4]*cpow(sf[6], 0.25)*cpow(sf[7], 0.25))) + mu_Gex[4];
     
     d->sum_apep = 0.0;
     for (int i = 0; i < n_em; i++){
