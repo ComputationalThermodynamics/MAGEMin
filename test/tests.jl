@@ -139,6 +139,26 @@ end
 
     Finalize_MAGEMin(data)
 
+    data    = Initialize_MAGEMin("ig", verbose=false, buffer="iw");
+    P,T     = 10.0, 1100.0
+    Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
+    X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
+    sys_in  = "wt"    
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    @test sort(out.ph) == sort(["opx", "liq", "cpx", "iw"])
+
+    Finalize_MAGEMin(data)
+
+    # Initialize database  - new way
+    data        =   Initialize_MAGEMin("mp", verbose=-1, buffer="iw");
+    test        =   0        
+    data        =   use_predefined_bulk_rock(data, test);
+    P           =   8.0
+    T           =   400.0
+    out         =   point_wise_minimization(P,T, data, buffer_n=-5.0);
+    @test sort(out.ph) == sort(["chl", "fsp", "mu", "mu", "q", "ru", "sph", "H2O", "iw"])
+    Finalize_MAGEMin(data)
+
 end
 
 @testset "test sum frac_vol" begin

@@ -18,7 +18,7 @@ function get_database_infos()
     db_inf          = Array{db_infos, 1}(undef, length(database_list))
 
     for k in eachindex(database_list)
-        datab         = database_list
+        datab         = database_list[k]
         gv, z_b, DB, splx_data  = init_MAGEMin(datab; mbCpx = 1);
         gv          =   use_predefined_bulk_rock(gv, 0, datab);
         gv.verbose  =  -1
