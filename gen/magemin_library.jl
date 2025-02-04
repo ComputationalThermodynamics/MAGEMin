@@ -1537,7 +1537,7 @@ mutable struct metapelite_datasets_ext
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{13, NTuple{20, Cchar}}
-    PP::NTuple{28, NTuple{20, Cchar}}
+    PP::NTuple{31, NTuple{20, Cchar}}
     SS::NTuple{23, NTuple{20, Cchar}}
     verifyPC::NTuple{23, Cint}
     n_SS_PC::NTuple{23, Cint}
