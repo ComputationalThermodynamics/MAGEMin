@@ -206,3 +206,13 @@ doi: 10.1111/jmg.12071
 consistent thermodynamic dataset for phases of petrological interest,
 involving a new equation of state for solids. Journal of Metamorphic 
 Geology, 29, 333-383, doi: 10.1111/j.1525-1314.2010.00923.x
+
+
+<!-- ## Extended informations
+
+G0HSC(T,P)  =  Tr·Selements(Tr,Pr) +  G0SUPCRT(T,P)
+Tr = 298.15K
+HSC -> thermocalc
+SUPCRT -> DEW
+
+Dean, John A. Lange’s Handbook of Chemistry, 12th ed.; McGraw-Hill: New York, New York, 1979; p 9-4–9-94. -->
