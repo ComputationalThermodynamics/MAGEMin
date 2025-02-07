@@ -723,6 +723,9 @@ PP_ref TC_G_EM_function(	int 		 EM_dataset,
 		double r      =   1.0/vsub;
 		double Ares   =   R1*T*( c1*r + (1.0/(c2 + c3*r + c4*pow(r, 2.0) + c5*pow(r, 3.0) + c6*pow(r, 4.0)) - 1.0/c2) - c7/c8*(exp(-c8*r) - 1.0) - c9/c10*(exp(-c10*r) - 1.0) );
 		vterm         =   (Ares + p_bar*vsub + R1*T*(log( R1*T / vsub ) - 1.0)) * 1e-4;	
+
+        // printf("vterm: %f\n", vterm);
+        // printf("Ares: %f\n", Ares);
 	}
 	/**
 	 	here we use the CORK EOS to calculate G_O2 (see Holland & Powell, 1991) 
@@ -1028,10 +1031,10 @@ PP_ref G_FS_function(		int 		 len_ox,
 	}
 
     /* convert Gibbs energy from SUPCRT to HSC convention */
-    double cor        =  SUPCRT_to_HSC(ElH, composition, len_ox);
+    // double cor        =  SUPCRT_to_HSC(ElH, composition, len_ox);
 
 	PP_ref_db.charge  =  charge;
-	PP_ref_db.gbase   =  G + cor;
+	PP_ref_db.gbase   =  G;// + cor;
 	PP_ref_db.factor  =  factor;
 	PP_ref_db.phase_shearModulus  = 0.0;
     

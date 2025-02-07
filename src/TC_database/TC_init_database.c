@@ -38,11 +38,11 @@ oxide_data oxide_info = {
 metapelite_aq_dataset metapelite_aq_db = {
 	62,							/* Endmember default dataset number */
 	11,							/* number of oxides */			
-	24,							/* number of pure phases */
+	26,							/* number of pure phases */
 	18,							/* number of solution phases */
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"H2O"											},
 	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2"  ,"H2O"	,"zo"	,
-	"qfm"	,"qif"	,"nno"	,"hm"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"								},
+	"qfm"	,"mw"	,"qif"	,"nno"	,"hm"	,"iw"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"								},
 	{"liq"	,"fsp"	,"bi"	,"g"	,"ep"	,"ma"	,"mu"	,"opx"	,"sa"	,"cd"	,"st"	,"chl"	,"ctd"	,"sp"  ,"mt"  ,"ilm"  ,"ilmm"  ,"aq17"},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1		},  // allow solvus?
@@ -68,22 +68,22 @@ metapelite_aq_dataset metapelite_aq_db = {
 metapelite_dataset metapelite_db = {
 	62,							/* Endmember default dataset number */
 	11,							/* number of oxides */			
-	24,							/* number of pure phases */
+	26,							/* number of pure phases */
 	17,							/* number of solution phases */
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"H2O"											},
 	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2"  ,"H2O"	,"zo"	,
-	"qfm"	,"qif"	,"nno"	,"hm"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"								},
+	"qfm"	,"mw"	,"qif"	,"nno"	,"hm"	,"iw"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"								},
 	{"liq"	,"fsp"	,"bi"	,"g"	,"ep"	,"ma"	,"mu"	,"opx"	,"sa"	,"cd"	,"st"	,"chl"	,"ctd"	,"sp"  ,"mt"  ,"ilm"  ,"ilmm" 	,"aq17" },
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1		},  // allow solvus?
-	{3150	,231 	,981	,757	,110 	,1875	,1877	,1277	,230	,343	,540	,2270	,216	,407 	,87 	,130 	,1430 	,1		},  // # of pseudocompound
-	{0.24	,0.049	,0.19	,0.19	,0.049	,0.19	,0.19	,0.249	,0.19	,0.145	,0.19	,0.249	,0.19	,0.075 	,0.099 	,0.09 	,0.099 	,1.0	},  // discretization step
+	{3150	,231 	,981	,757	,110 	,1875	,1877	,1277	,230	,343	,540	,2270	,216	,410 	,87 	,130 	,1430 	,1		},  // # of pseudocompound
+	{0.24	,0.049	,0.19	,0.19	,0.049	,0.19	,0.19	,0.249	,0.19	,0.145	,0.19	,0.249	,0.19	,0.02 	,0.025 	,0.025 	,0.025 	,1.0	},  // discretization step
 
 	6.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
 	473.15,						/* max temperature above which PGE solver is active 								*/
 	873.15,						/** minimum temperature above which melt is considered 								*/
 
-	2,							/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
+	4,							/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
 	0.025,						/** maximum mol% phase change during one PGE iteration in wt% 						*/
 	2.5,						/** maximum delta_G of reference change during PGE 									*/
 	1.0,						/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
@@ -96,22 +96,22 @@ metapelite_dataset metapelite_db = {
 metabasite_dataset metabasite_db = {
 	62,							/* Endmember default dataset number */
 	10,							/* number of oxides */			
-	24,							/* number of pure phases */
+	26,							/* number of pure phases */
 	17,							/* number of solution phases */
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"H2O"													},
 	{"q"	,"crst"	,"trd"	,"coe"	,"law"	,"ky"	,"sill"	,"and"	,"ru"	,"sph" 	,"ab"	,"H2O"	,"zo"	,
-	"qfm"	,"qif"	,"nno"	,"hm"	,"cco"	,"aH2O"	,"aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"								},
+	"qfm"	,"mw" 	,"qif"	,"nno"	,"hm"	,"iw"	,"cco"	,"aH2O"	,"aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"								},
 	{"sp"	,"opx"	,"fsp"	,"liq"	,"mu"	,"ilmm"	,"ilm"	,"ol"	,"amp"	,"ep"	,"g"	,"chl"	,"bi"	,"dio"	,"aug"	,"abc"  ,"spl"			},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1				},  // allow solvus?
-	{936	,1731 	,231	,3507	,4536 	,298	,422	,11		,7665	,110	,216	,3980	,1098	,1808	,2396	,21 	,196			},  // # of pseudocompound
-	{0.09	,0.19	,0.049	,0.199	,0.19	,0.09	,0.049	,0.098	,0.20	,0.049	,0.19	,0.19	,0.125	,0.10	,0.20	,0.049 	,0.09			},  // discretization step
+	{936	,1731 	,231	,3507	,4536 	,298	,422	,11		,7671	,110	,217	,3980	,1098	,1811	,2398	,21 	,196			},  // # of pseudocompound
+	{0.09	,0.19	,0.049	,0.199	,0.19	,0.09	,0.049	,0.098	,0.15	,0.049	,0.19	,0.19	,0.125	,0.10	,0.10	,0.049 	,0.09			},  // discretization step
 
 	6.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
 	473.15,						/* max temperature above which PGE solver is active 								*/
 	873.15,						/** minimum temperature above which melt is considered 								*/
 
-	2,							/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
+	4,							/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
 	0.025,						/** maximum mol% phase change during one PGE iteration in wt% 						*/
 	2.5,						/** maximum delta_G of reference change during PGE 									*/
 	1.0,						/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
@@ -124,13 +124,13 @@ metabasite_dataset metabasite_db = {
 igneous_dataset igneous_db = {
 	636,						/* Endmember default dataset number */
 	11,							/* number of oxides */			
-	25,							/* number of pure phases */
+	26,							/* number of pure phases */
 	15,							/* number of solution phases */
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"Cr2O3","H2O"													},
 	{"ne"	,"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2"	,"H2O"	,
-	"qfm"	,"mw"	,"qif"	,"nno"	,"hm"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"								},
+	"qfm"	,"mw"	,"qif"	,"nno"	,"hm"	,"iw"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"								},
 	{1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 0		,
-	 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		,										},
+	 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		,										},
 	{"spl"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"amp"	,"ilm"	,"liq"	,"ol"	,"opx"	,"fsp"	,"fl"	,"mu"	,"fper"					},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1		,1						}, // allow solvus?
@@ -154,11 +154,11 @@ igneous_dataset igneous_db = {
 igneous_igad_dataset igneous_igad_db = {
 	636,						/* number of endmembers */
 	10,							/* number of oxides */			
-	23,							/* number of pure phases */
+	24,							/* number of pure phases */
 	12,							/* number of solution phases */
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"Cr2O3"														},
 	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2" 	,
-	"qfm"	,"mw"	,"qif"	,"nno"	,"hm"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"								},
+	"qfm"	,"mw"	,"qif"	,"nno"	,"hm"	,"iw"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"								},
 	{"spl"	,"cpx"	,"g"	,"ilm"	,"liq"	,"ol"	,"opx"	,"fsp"	,"lct"	,"mel"	,"nph"	,"kals"		},
 	
 	{1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1		,1		,1			}, // allow solvus?
@@ -182,11 +182,11 @@ igneous_igad_dataset igneous_igad_db = {
 ultramafic_dataset ultramafic_db = {
 	633,						/* Endmember default dataset number */
 	7,							/* number of oxides */			
-	21,							/* number of pure phases */
+	23,							/* number of pure phases */
 	12,							/* number of solution phases */
 	{"SiO2"	,"Al2O3","MgO"	,"FeO"	,"O"	,"H2O"	,"S"												},
 	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"pyr"	,"O2"  	,
-	"qfm"	,"qif"	,"nno"	,"hm"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"	},
+	"qfm"	,"qif"	,"nno"	,"hm"	,"mw"	,"iw"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"	},
 	{"fl"	,"ol"  ,"br"	,"ch"	,"atg"	,"g"	,"ta"	,"chl"	,"spi"	,"opx"	,"po"	,"anth" 	},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1		,1			},  // allow solvus?
@@ -210,11 +210,11 @@ ultramafic_dataset ultramafic_db = {
 ultramafic_ext_dataset ultramafic_ext_db = {
 	633,						/* Endmember default dataset number */
 	9,							/* number of oxides */			
-	21,							/* number of pure phases */
+	23,							/* number of pure phases */
 	15,							/* number of solution phases */
-	{"SiO2"	,"Al2O3","MgO"	,"FeO"	,"O"	,"H2O"	,"S"	,"CaO"	,"Na2O"								},
+	{"SiO2"	,"Al2O3","MgO"	,"FeO"	,"O"	,"H2O"	,"S"	,"CaO"	,"Na2O"													},
 	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"pyr"	,"O2"  	,
-	"qfm"	,"qif"	,"nno"	,"hm"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"	},
+	"qfm"	,"qif"	,"nno"	,"hm"	,"mw"	,"iw"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"		},
 	{"fl"	,"ol"  ,"br"	,"ch"	,"atg"	,"g"	,"ta"	,"chl"	,"spi"	,"opx"	,"po"	,"anth"	,"pl4tr","amp"	,"aug"	},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1		,1		,1		,1		,1		},  // allow solvus?
@@ -267,16 +267,16 @@ mantle_dataset mantle_db = {
 metapelite_dataset_ext metapelite_ext_db = {
 	62,							/* Endmember default dataset number */
 	13,							/* number of oxides */			
-	26,							/* number of pure phases */
+	31,							/* number of pure phases */
 	23,							/* number of solution phases */
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"H2O"	,"CO2"	,"S"										},
-	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2" 	,"pyr"	,"gph"	,"law"	,"zo"	,
-	"qfm"	,"qif"	,"nno"	,"hm"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"											},
+	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2" 	,"pyr"	,"gph"	,"law"	,"zo" ,"prl"  ,"mpm"   ,"pre"	,
+	"qfm"	,"mw"	,"qif"	,"nno"	,"hm"	,"iw" 	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"											},
 	{"liq"	,"fsp"	,"bi"	,"g"	,"ep"	,"ma"	,"mu"	,"opx"	,"sa"	,"cd"	,"st"	,"chl"	,"ctd"	,"sp"  ,"mt"  ,"ilm"  ,"ilmm"  ,"occm"	,"fl"	,"po"	,"dio"	,"aug"	,"amp"		},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1		,1		,1		,1		,1		,1			},  // allow solvus?
-	{3150	,231 	,981	,757	,110 	,1875	,1877	,1277	,230	,343	,540	,2270	,216	,407 	,87 	,131 	,1430 	,352	,12		,10		,1809	,2396,	7664		},  // # of pseudocompound
-	{0.24	,0.049	,0.19	,0.19	,0.049	,0.19	,0.19	,0.249	,0.19	,0.145	,0.19	,0.249	,0.19	,0.124 	,0.099 	,0.09 	,0.099 	,0.14	,0.09	,0.1	,0.16	,0.24,	0.249		},  // discretization step
+	{3150	,231 	,981	,758	,110 	,1875	,1877	,1277	,230	,343	,540	,2270	,216	,407 	,87 	,131 	,1430 	,352	,12		,10		,1809	,2396,	7666		},  // # of pseudocompound
+	{0.24	,0.049	,0.19	,0.05	,0.049	,0.19	,0.19	,0.249	,0.19	,0.145	,0.19	,0.249	,0.19	,0.124 	,0.099 	,0.09 	,0.099 	,0.14	,0.09	,0.1	,0.16	,0.24,	0.075		},  // discretization step
 
 	6.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
 	473.15,						/* max temperature above which PGE solver is active 								*/
@@ -851,7 +851,7 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 
 	/* sets end-member dataset information */
 	if (gv.EM_dataset == 62){
-			gv.n_em_db 			= 256;
+			gv.n_em_db 			= 257;
 	}
 	else if (gv.EM_dataset == 633){
 			gv.n_em_db 			= 289;

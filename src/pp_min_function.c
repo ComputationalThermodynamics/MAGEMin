@@ -487,6 +487,54 @@ global_variable init_em_db(		int 				EM_database,
 				PP_ref_db[i].phase_shearModulus  = 2.0*mt.phase_shearModulus -6.0*wu.phase_shearModulus;
 				gv.pp_flags[i][4] 	= 1;
 			}
+			else if (strcmp( gv.PP_list[i], "iw") 	== 0){
+
+				PP_ref iron 	= G_EM_function(	gv.research_group,
+													gv.EM_dataset, 
+													gv.len_ox,
+													z_b.id,
+													z_b.bulk_rock, 
+													z_b.apo, 
+													z_b.P, 
+													z_b.T, 
+													"iron", 
+													state				);
+													
+				PP_ref wu 	= G_EM_function(	gv.research_group,
+                                                gv.EM_dataset, 
+												gv.len_ox,
+												z_b.id,
+												z_b.bulk_rock, 
+												z_b.apo, 
+												z_b.P, 
+												z_b.T, 
+												"wu", 
+												state				);
+
+				strcpy(PP_ref_db[i].Name, gv.PP_list[i]);
+				for (int j = 0; j < gv.len_ox; j++){
+					PP_ref_db[i].Comp[j] = 2.0*wu.Comp[j] -2.0*iron.Comp[j];
+				}		
+
+				/* Calculate the number of atoms in the bulk-rock composition */
+				double fbc     = 0.0;
+				for (int j = 0; j < gv.len_ox; j++){
+					fbc += z_b.bulk_rock[j]*z_b.apo[j];
+				}
+				
+				/* Calculate the number of atom in the solution */
+				double ape = 0.0;
+				for (int j = 0; j < gv.len_ox; j++){
+					ape += PP_ref_db[i].Comp[j]*z_b.apo[j];
+				}
+				/* Calculate normalizing factor */
+				double factor = fbc/ape;
+
+				PP_ref_db[i].gbase   =  2.0*wu.gbase -2.0*iron.gbase + z_b.T*0.019145*gv.buffer_n;
+				PP_ref_db[i].factor  =  factor;
+				PP_ref_db[i].phase_shearModulus  = 2.0*wu.phase_shearModulus -2.0*iron.phase_shearModulus;
+				gv.pp_flags[i][4] 	= 1;
+			}
 			else if (strcmp( gv.PP_list[i], "cco") 	== 0){
 
 				PP_ref co2 	= G_EM_function(	gv.research_group,

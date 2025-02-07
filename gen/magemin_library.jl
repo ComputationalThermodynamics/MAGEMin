@@ -1328,7 +1328,7 @@ mutable struct metapelite_aq_datasets
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{12, NTuple{20, Cchar}}
-    PP::NTuple{24, NTuple{20, Cchar}}
+    PP::NTuple{26, NTuple{20, Cchar}}
     SS::NTuple{18, NTuple{20, Cchar}}
     verifyPC::NTuple{18, Cint}
     n_SS_PC::NTuple{18, Cint}
@@ -1354,7 +1354,7 @@ mutable struct metapelite_datasets
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{11, NTuple{20, Cchar}}
-    PP::NTuple{24, NTuple{20, Cchar}}
+    PP::NTuple{26, NTuple{20, Cchar}}
     SS::NTuple{18, NTuple{20, Cchar}}
     verifyPC::NTuple{18, Cint}
     n_SS_PC::NTuple{18, Cint}
@@ -1380,7 +1380,7 @@ mutable struct metabasite_datasets
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{10, NTuple{20, Cchar}}
-    PP::NTuple{24, NTuple{20, Cchar}}
+    PP::NTuple{26, NTuple{20, Cchar}}
     SS::NTuple{17, NTuple{20, Cchar}}
     verifyPC::NTuple{17, Cint}
     n_SS_PC::NTuple{17, Cint}
@@ -1406,8 +1406,8 @@ mutable struct igneous_datasets
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{11, NTuple{20, Cchar}}
-    PP::NTuple{25, NTuple{20, Cchar}}
-    act_PP::NTuple{25, Cint}
+    PP::NTuple{26, NTuple{20, Cchar}}
+    act_PP::NTuple{26, Cint}
     SS::NTuple{15, NTuple{20, Cchar}}
     verifyPC::NTuple{15, Cint}
     n_SS_PC::NTuple{15, Cint}
@@ -1433,7 +1433,7 @@ mutable struct igneous_igad_datasets
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{10, NTuple{20, Cchar}}
-    PP::NTuple{23, NTuple{20, Cchar}}
+    PP::NTuple{24, NTuple{20, Cchar}}
     SS::NTuple{12, NTuple{20, Cchar}}
     verifyPC::NTuple{12, Cint}
     n_SS_PC::NTuple{12, Cint}
@@ -1459,7 +1459,7 @@ mutable struct ultramafic_datasets
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{7, NTuple{20, Cchar}}
-    PP::NTuple{21, NTuple{20, Cchar}}
+    PP::NTuple{23, NTuple{20, Cchar}}
     SS::NTuple{12, NTuple{20, Cchar}}
     verifyPC::NTuple{12, Cint}
     n_SS_PC::NTuple{12, Cint}
@@ -1485,7 +1485,7 @@ mutable struct ultramafic_ext_datasets
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{9, NTuple{20, Cchar}}
-    PP::NTuple{21, NTuple{20, Cchar}}
+    PP::NTuple{23, NTuple{20, Cchar}}
     SS::NTuple{15, NTuple{20, Cchar}}
     verifyPC::NTuple{15, Cint}
     n_SS_PC::NTuple{15, Cint}
@@ -1537,7 +1537,7 @@ mutable struct metapelite_datasets_ext
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{13, NTuple{20, Cchar}}
-    PP::NTuple{26, NTuple{20, Cchar}}
+    PP::NTuple{31, NTuple{20, Cchar}}
     SS::NTuple{23, NTuple{20, Cchar}}
     verifyPC::NTuple{23, Cint}
     n_SS_PC::NTuple{23, Cint}
@@ -2936,11 +2936,11 @@ const n_ox_mpf = 12
 
 const n_ss_mpf = 18
 
-const n_pp_mpf = 24
+const n_pp_mpf = 26
 
 const n_ss_mp = 18
 
-const n_pp_mp = 24
+const n_pp_mp = 26
 
 const n_ox_mp = 11
 
@@ -2948,7 +2948,7 @@ const n_ox_ig = 11
 
 const n_ss_ig = 15
 
-const n_pp_ig = 25
+const n_pp_ig = 26
 
 const ko_no_argument = 0
 

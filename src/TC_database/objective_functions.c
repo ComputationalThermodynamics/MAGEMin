@@ -14649,21 +14649,21 @@ double obj_aq17(unsigned n, const double *x, double *grad, void *SS_ref_db) {
     d->df = d->df_raw * d->factor;
 
 
-    printf("gb0:\n");
-    for (int i = 0; i < n_em; i++){
-        printf(" %+12.6f",gb[i]);
-    }
-    printf("\n");
-    printf("x:\n");
-    for (int i = 0; i < n_em; i++){
-        printf(" %g",x[i]);
-    }
-    printf("\n");
-    printf("mu:\n");
-    for (int i = 0; i < n_em; i++){
-        printf(" %+12.6f",mu[i]);
-    }
-    printf("\nFLUID: dfraw -> %+10f df -> %10f\n",d->df_raw,d->df);
+    // printf("gb0:\n");
+    // for (int i = 0; i < n_em; i++){
+    //     printf(" %+12.6f",gb[i]);
+    // }
+    // printf("\n");
+    // printf("x:\n");
+    // for (int i = 0; i < n_em; i++){
+    //     printf(" %g",x[i]);
+    // }
+    // printf("\n");
+    // printf("mu:\n");
+    // for (int i = 0; i < n_em; i++){
+    //     printf(" %+12.6f",mu[i]);
+    // }
+    // printf("\nFLUID: dfraw -> %+10f df -> %10f\n",d->df_raw,d->df);
 
 	// printf("\n\n");
 
