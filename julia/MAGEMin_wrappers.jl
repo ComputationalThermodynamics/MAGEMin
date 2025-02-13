@@ -1552,8 +1552,8 @@ function get_mineral_name(db, ss, SS_vec)
             if 1.0 - x[1] > 0.5;        mineral_name = "hem";
             else                        mineral_name = "ilm";   end 
         elseif ss == "dio"
-            if x[3] > 0.0 && x[3] <= 0.3;       mineral_name = "dio";
-            elseif x[3] > 0.3 && x[3] <= 0.7;   mineral_name = "omph";
+            if x[2] > 0.0 && x[2] <= 0.3;       mineral_name = "dio";
+            elseif x[2] > 0.3 && x[2] <= 0.7;   mineral_name = "omph";
             else                                mineral_name = "jd";   end 
         elseif ss == "occm"
             if x[2] > 0.5;              mineral_name = "sid";
