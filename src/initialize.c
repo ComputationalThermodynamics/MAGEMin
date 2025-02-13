@@ -127,8 +127,8 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
 	gv.EM_dataset 		= -1;
-	gv.max_n_mSS		= 160;					/** maximum number of metastable pseudocompounds 									*/
-	gv.max_n_cp 		= 160;					/** number of considered solution phases 											*/	
+	gv.max_n_mSS		= 256;					/** maximum number of metastable pseudocompounds 									*/
+	gv.max_n_cp 		= 256;					/** number of considered solution phases 											*/	
 	gv.max_ss_size_cp   = 24;					/** maximum size for a solution phase saved in the cp structure                     */
 	gv.buffer_n 		= 0.0;					/** factor for QFM buffer 															*/
 	gv.limitCaOpx       = 0;					/** limit Ca-bearing  orthopyroxene (add-hoc correction) 							*/
