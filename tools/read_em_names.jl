@@ -40,7 +40,8 @@ dict_ss["cpx"] = "clinopyroxene",[  "pig" "pigeonite";
                                     "cpx" "clinopyroxene" ] 
 
 dict_ss["dio"] = "diopside",[   "dio" "diopside";
-                                "omph" "omphacite" ] 
+                                "omph" "omphacite";
+                                "jd" "jadeite" ] 
 
 dict_ss["occm"] = "carbonate",[ "sid" "siderite";
                                 "ank" "ankerite";
