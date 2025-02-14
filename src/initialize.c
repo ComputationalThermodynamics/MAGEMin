@@ -122,7 +122,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.6.9 [07/02/2025]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.6.9 [14/02/2025]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
@@ -139,7 +139,6 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.mbIlm 			= 0;					/** 0: Ilmm, 1: Ilm 																*/
 	gv.mpSp 			= 0;					/** 0: Sp LT, 1: Mt1													*/
 	gv.mpIlm 			= 0;					/** 0: Ilmm, 1: Ilm 																*/
-
 
 	// gv.calc_seismic_cor = 1;					/** compute seismic velocity corrections (melt and anelastic)						*/
 	// gv.melt_pressure 	= 0.0;				/** [kbar] pressure shift in case of modelling melt pressure 						*/
