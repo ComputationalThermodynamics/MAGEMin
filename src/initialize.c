@@ -122,13 +122,13 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.6.8 [07/02/2025]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.6.9 [14/02/2025]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
 	gv.EM_dataset 		= -1;
-	gv.max_n_mSS		= 128;					/** maximum number of metastable pseudocompounds 									*/
-	gv.max_n_cp 		= 128;					/** number of considered solution phases 											*/	
+	gv.max_n_mSS		= 256;					/** maximum number of metastable pseudocompounds 									*/
+	gv.max_n_cp 		= 256;					/** number of considered solution phases 											*/	
 	gv.max_ss_size_cp   = 24;					/** maximum size for a solution phase saved in the cp structure                     */
 	gv.buffer_n 		= 0.0;					/** factor for QFM buffer 															*/
 	gv.limitCaOpx       = 0;					/** limit Ca-bearing  orthopyroxene (add-hoc correction) 							*/
@@ -139,7 +139,6 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.mbIlm 			= 0;					/** 0: Ilmm, 1: Ilm 																*/
 	gv.mpSp 			= 0;					/** 0: Sp LT, 1: Mt1													*/
 	gv.mpIlm 			= 0;					/** 0: Ilmm, 1: Ilm 																*/
-
 
 	// gv.calc_seismic_cor = 1;					/** compute seismic velocity corrections (melt and anelastic)						*/
 	// gv.melt_pressure 	= 0.0;				/** [kbar] pressure shift in case of modelling melt pressure 						*/
@@ -162,7 +161,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.PC_min_dist 		= 1.0;					/** factor multiplying the diagonal of the hyperbox of xeos s-tep 					*/
 
 	/* levelling parameters 			*/
-	gv.em2ss_shift		= 1e-8;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
+	gv.em2ss_shift		= 2e-6;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
 	gv.bnd_filter_pc    = 10.0;					/** value of driving force the pseudocompound is considered 						*/
 	gv.bnd_filter_pge   = 2.5;					/** value of driving force the pseudocompound is considered 						*/
 	gv.max_G_pc         = 2.5;					/** dG under which PC is considered after their generation		 					*/
@@ -178,7 +177,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 													pseudocompound is added to the Ppc list 										*/
 
 	/* local minimizer options 	*/
-	gv.bnd_val          = 1.0e-10;				/** boundary value for x-eos 										 				*/
+	gv.bnd_val          = 1.0e-6;				/** boundary value for x-eos 										 				*/
 	gv.box_size_mode_PGE= 0.25;					/** box edge size of the compositional variables used during PGE local minimization */
 	gv.maxeval   		= 1024;					/** max number of evaluation of the obj function for mode 1 (PGE)					*/
 	gv.maxgmTime        = 0.1; 					/** set a maximum minimization time for the local minimizer (sec)					*/
