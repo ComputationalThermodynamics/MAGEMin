@@ -1190,7 +1190,7 @@ function point_wise_minimization_iguess(    P           ::  Number,
                                             data_in     ::  Union{Nothing, gmin_struct{Float64, Int64}} = nothing,
                                             W           ::  Union{Nothing, W_Data}          = nothing )
 
-    mSS_vec     = deepcopy(data_in.mSS_vec)
+    mSS_vec         = deepcopy(data_in.mSS_vec)
 
     gv.buffer_n     =   buffer_n;
     input_data      =   LibMAGEMin.io_data();           # zero (not used actually)
@@ -1316,7 +1316,7 @@ function point_wise_minimization_iguess(    P           ::  Number,
     for i = 1:n_mSS
 
         if mSS_vec[i].ph_type == "ss"
-            ph          = mSS_vec[i].ph_name
+            # ph          = mSS_vec[i].ph_names
             ph_id       = mSS_vec[i].ph_id+1
             n_xeos      = SS_ref_db[ph_id].n_xeos
             n_em        = SS_ref_db[ph_id].n_em
@@ -1735,6 +1735,14 @@ function create_gmin_struct(DB, gv, time; name_solvus = false)
     iter            =  gv.global_ite
     time_ms         =  time*1000.0
 
+    Vs_S = stb.Vs_S
+    Vp_S = stb.Vp_S
+    if isinf(Vp_S)
+        Vp_S = NaN
+    end
+    if isinf(Vs_S)
+        Vs_S = NaN
+    end
     # Store all in output struct
     out = gmin_struct{Float64,Int64}( MAGEMin_ver, dataset, database, buffer, buffer_n, G_system, Gamma, P_kbar, T_C, X, M_sys,
                 bulk, bulk_M, bulk_S, bulk_F,
@@ -1749,7 +1757,7 @@ function create_gmin_struct(DB, gv, time; name_solvus = false)
                 ph_frac, ph_frac_wt, ph_frac_1at, ph_frac_vol, ph_type, ph_id, ph_id_db, ph, sol_name,
                 SS_vec,  mSS_vec, PP_vec,
                 oxides,  elements,
-                stb.Vp, stb.Vs, stb.Vp_S, stb.Vs_S, stb.bulkMod, stb.shearMod, stb.bulkModulus_M,  stb.bulkModulus_S, stb.shearModulus_S,
+                stb.Vp, stb.Vs, Vp_S, Vs_S, stb.bulkMod, stb.shearMod, stb.bulkModulus_M,  stb.bulkModulus_S, stb.shearModulus_S,
                 entropy, enthalpy,
                 iter, bulk_res_norm, time_ms, stb.status)
 
