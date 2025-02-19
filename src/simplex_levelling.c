@@ -1158,11 +1158,16 @@ void run_initial_guess_levelling(		bulk_info 	 		 z_b,
 
 	int i, k, iss;
 
-	initialize_initial_guess(			z_b,
-										splx_data,
-										gv,
-										PP_ref_db,
-										SS_ref_db				);	
+	// initialize_initial_guess(			z_b,
+	// 									splx_data,
+	// 									gv,
+	// 									PP_ref_db,
+	// 									SS_ref_db				);	
+	fill_simplex_arrays_A(					z_b,
+										    splx_data,
+											gv,
+											PP_ref_db,
+											SS_ref_db		);
 
 	update_local_gamma(					d->A1,
 										d->g0_A,
