@@ -20,6 +20,7 @@ mutable struct AMR_data
     ncells          :: Vector{Vector{Int64}}
     points          :: Vector{Vector{Float64}}
     npoints         :: Vector{Vector{Float64}}
+    npoints_ig      :: Vector{Tuple}
     hash_map        :: Dict{Vector{Float64}, Int}
     bnd_cells       :: Vector{Tuple}
     split_cell_list :: Vector{Int64}
@@ -47,6 +48,7 @@ function initialize_AMR(Xrange,Yrange,igs)
     points          = Vector{Vector{Float64}}(undef, 0)
     cells           = Vector{Vector{Int64}}(undef, 0)
     npoints         = Vector{Vector{Float64}}(undef, 0)
+    npoints_ig      = Vector{Tuple}(undef, 0)   
     ncells          = Vector{Vector{Int64}}(undef, 0)
     hash_map        = Dict{Vector{Float64}, Int}()
     bnd_cells       = Vector{Tuple}(undef, 0)
@@ -69,6 +71,7 @@ function initialize_AMR(Xrange,Yrange,igs)
                         ncells,
                         points,
                         npoints,
+                        npoints_ig,
                         hash_map,
                         bnd_cells,
                         split_cell_list,
@@ -134,6 +137,7 @@ end
 """
 function AMR(data)
     npoints         = Vector{Vector{Float64}}(undef, 0)
+    npoints_ig      = Vector{Tuple}(undef, 0)
     ncells          = Vector{Vector{Int64}}(undef, 0)
 
     tp              = length(data.points)
@@ -145,6 +149,8 @@ function AMR(data)
             p = data.hash_map[tmp]
         else
             push!(npoints, tmp)
+            push!(npoints_ig, (data.cells[data.split_cell_list[i]][1], data.cells[data.split_cell_list[i]][2], data.cells[data.split_cell_list[i]][3], data.cells[data.split_cell_list[i]][4]))
+            
             tp += 1
             data.hash_map[tmp] = tp
             p  = tp
@@ -156,6 +162,8 @@ function AMR(data)
             p = data.hash_map[tmp]
         else
             push!(npoints, tmp)
+            push!(npoints_ig, (data.cells[data.split_cell_list[i]][1], data.cells[data.split_cell_list[i]][2]))
+            
             tp += 1
             data.hash_map[tmp] = tp
             p  = tp
@@ -167,6 +175,8 @@ function AMR(data)
             p = data.hash_map[tmp]
         else
             push!(npoints, tmp)
+            push!(npoints_ig, (data.cells[data.split_cell_list[i]][2], data.cells[data.split_cell_list[i]][3]))
+           
             tp += 1
             data.hash_map[tmp] = tp
             p  = tp
@@ -178,6 +188,8 @@ function AMR(data)
             p = data.hash_map[tmp]
         else
             push!(npoints, tmp)
+            push!(npoints_ig, (data.cells[data.split_cell_list[i]][3], data.cells[data.split_cell_list[i]][4]))
+            
             tp += 1
             data.hash_map[tmp] = tp
             p  = tp
@@ -189,6 +201,8 @@ function AMR(data)
             p = data.hash_map[tmp]
         else
             push!(npoints, tmp)
+            push!(npoints_ig, (data.cells[data.split_cell_list[i]][4], data.cells[data.split_cell_list[i]][1]))
+            
             tp += 1
             data.hash_map[tmp] = tp
             p  = tp
@@ -224,6 +238,7 @@ function AMR(data)
 
     data.ncells     = ncells
     data.npoints    = npoints
+    data.npoints_ig = npoints_ig
 
     return data
 end
