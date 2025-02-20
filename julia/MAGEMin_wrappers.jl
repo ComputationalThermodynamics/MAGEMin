@@ -580,11 +580,7 @@ function multi_point_minimization(P           ::  T2,
     end
 
     # initialize vectors
-    if light == true
-        Out_PT = Vector{light_gmin_struct{Float32, Int8}}(undef, length(P))
-    else
-        Out_PT = Vector{gmin_struct{Float64, Int64}}(undef, length(P))
-    end
+    Out_PT = light ? Vector{light_gmin_struct{Float32, Int8}}(undef, length(P)) : Vector{gmin_struct{Float64, Int64}}(undef, length(P))
     # main loop
     if progressbar
         progr = Progress(length(P), desc="Computing $(length(P)) points...") # progress meter
@@ -607,7 +603,8 @@ function multi_point_minimization(P           ::  T2,
 
         ig          = isnothing(G) ? nothing :  G[i]
         buffer      = isnothing(B) ? 0.0 :      B[i] 
-        out         = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; light=light, buffer_n = buffer, ig = ig, W = W, scp, rm_list)
+        out         = point_wise_minimization(  P[i], T[i], gv, z_b, DB, splx_data;
+                                                light=light, buffer_n=buffer, ig=ig, W=W, scp, rm_list)
 
         Out_PT[i]   = deepcopy(out)
 
