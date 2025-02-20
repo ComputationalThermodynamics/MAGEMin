@@ -601,29 +601,13 @@ function multi_point_minimization(P           ::  T2,
         DB          = MAGEMin_db.DB[id]
         splx_data   = MAGEMin_db.splx_data[id]
 
-        if CompositionType==2
-            # different bulk-rock composition for every point - specify it here
+        if CompositionType == 2
             gv = define_bulk_rock(gv, X[i], Xoxides, sys_in, MAGEMin_db.db);
         end
 
-        if ~isnothing(G)
-            ig = G[i]
-        else
-            ig = nothing
-        end
-        
-        if ~isnothing(B)
-            buffer = B[i]
-        else
-            buffer = 0.0
-        end
-
-        # if light == false
-        #     out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; buffer_n = buffer, ig = ig, W = W, scp, rm_list, name_solvus=name_solvus)
-        # elseif light == true
-            out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; light=light, buffer_n = buffer, ig = ig, W = W, scp, rm_list)
-        # end
-
+        ig          = isnothing(G) ? nothing :  G[i]
+        buffer      = isnothing(B) ? 0.0 :      B[i] 
+        out         = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; light=light, buffer_n = buffer, ig = ig, W = W, scp, rm_list)
 
         Out_PT[i]   = deepcopy(out)
 
