@@ -546,9 +546,9 @@ function multi_point_minimization(P           ::  T2,
                                   rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                                   W           ::  Union{Nothing, W_Data}          = nothing,
                                   Xoxides     = Vector{String},
-                                  sys_in      = "mol",
-                                  rg          = "tc",
-                                  progressbar = true,        # show a progress bar or not?
+                                  sys_in      :: String                         = "mol",
+                                  rg          :: String                         = "tc",
+                                  progressbar :: Bool                           = true,        # show a progress bar or not?
                                   callback_fn ::  Union{Nothing, Function}= nothing, 
                                   callback_int::  Int64 = 1
                                   ) where {T1 <: Float64, T2 <: AbstractVector{Float64}}
@@ -638,10 +638,10 @@ function AMR_minimization(  init_sub    ::  Int64,
                             scp         ::  Int64                           = 0,     
                             rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                             W           ::  Union{Nothing, W_Data}          = nothing,
-                            Xoxides     = Vector{String},
-                            sys_in      = "mol",
-                            rg          = "tc",
-                            progressbar = true        # show a progress bar or not?
+                            Xoxides     =  Vector{String},
+                            sys_in      ::  String                          = "mol",
+                            rg          ::  String                          = "tc",
+                            progressbar :: Bool                             = true        # show a progress bar or not?
                             ) where {T1 <: Float64}
 
     Out_XY          =  Vector{MAGEMin_C.gmin_struct{Float64, Int64}}(undef,0)
