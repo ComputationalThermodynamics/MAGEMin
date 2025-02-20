@@ -432,7 +432,8 @@ function single_point_minimization(     P           ::  T1,
                                         X           ::  VecOrMat                        = nothing,      
                                         B           ::  Union{Nothing, T1, Vector{T1}}  = nothing,
                                         G           ::  Union{Nothing, Vector{LibMAGEMin.mSS_data},Vector{Vector{LibMAGEMin.mSS_data}}}  = nothing,
-                                        scp         ::  Int64                           = 0,   
+                                        scp         ::  Int64                           = 0,
+                                        iguess      ::  Int64                           = 0,
                                         rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                                         W           ::  Union{Nothing, W_Data}          = nothing,
                                         Xoxides     = Vector{String},
@@ -457,6 +458,7 @@ function single_point_minimization(     P           ::  T1,
                                                 B           =   B,
                                                 G           =   G,   
                                                 scp         =   scp,
+                                                iguess      =   iguess,
                                                 rm_list     =   rm_list,
                                                 W           =   W,
                                                 Xoxides     =   Xoxides,
@@ -542,7 +544,8 @@ function multi_point_minimization(P           ::  T2,
                                   X           ::  VecOrMat                        = nothing,
                                   B           ::  Union{Nothing, T1, Vector{T1}}  = nothing,
                                   G           ::  Union{Nothing, Vector{LibMAGEMin.mSS_data},Vector{Vector{LibMAGEMin.mSS_data}}}  = nothing,
-                                  scp         ::  Int64                           = 0,     
+                                  scp         ::  Int64                           = 0, 
+                                  iguess      ::  Int64                           = 0,    
                                   rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                                   W           ::  Union{Nothing, W_Data}          = nothing,
                                   Xoxides     = Vector{String},
@@ -601,10 +604,10 @@ function multi_point_minimization(P           ::  T2,
             gv = define_bulk_rock(gv, X[i], Xoxides, sys_in, MAGEMin_db.db);
         end
 
-        ig          = isnothing(G) ? nothing :  G[i]
+        Gi          = isnothing(G) ? nothing :  G[i]
         buffer      = isnothing(B) ? 0.0 :      B[i] 
         out         = point_wise_minimization(  P[i], T[i], gv, z_b, DB, splx_data;
-                                                light=light, buffer_n=buffer, ig=ig, W=W, scp, rm_list)
+                                                light=light, buffer_n=buffer, name_solvus=name_solvus, Gi=Gi, W=W, scp=scp, iguess=iguess, rm_list=rm_list)
 
         Out_PT[i]   = deepcopy(out)
 
@@ -635,7 +638,8 @@ function AMR_minimization(  init_sub    ::  Int64,
                             test        ::  Int64                           = 0, # if using a build-in test case,
                             X           ::  VecOrMat                        = nothing,
                             B           ::  Union{Nothing, T1, Vector{T1}}  = 0.0,
-                            scp         ::  Int64                           = 0,     
+                            scp         ::  Int64                           = 0,  
+                            iguess      ::  Int64                           = 0,   
                             rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                             W           ::  Union{Nothing, W_Data}          = nothing,
                             Xoxides     =  Vector{String},
@@ -683,7 +687,8 @@ function AMR_minimization(  init_sub    ::  Int64,
                     Gvec[i] = vcat(tmp...)
                 end
             end
-            Out_XY_new  =   multi_point_minimization(Pvec, Tvec, MAGEMin_db, X=Xvec, B=Bvec, G=Gvec, Xoxides=Xoxides, sys_in=sys_in, scp=scp, rm_list=rm_list, rg=rg, test=test); 
+            Out_XY_new  =   multi_point_minimization(   Pvec, Tvec, MAGEMin_db,
+                                                        X=Xvec, B=Bvec, G=Gvec, Xoxides=Xoxides, sys_in=sys_in, scp=scp, iguess=iguess, rm_list=rm_list, rg=rg, test=test); 
         else
             println("There is no new point to compute...")
         end
@@ -1034,14 +1039,15 @@ function point_wise_minimization(   P       ::Float64,
                                     light       = false,
                                     name_solvus = false,
                                     buffer_n    = 0.0,
-                                    ig          = nothing,
+                                    Gi          = nothing,
                                     scp         = 0,
+                                    iguess      = 0,
                                     rm_list     = nothing,
                                     W           = nothing   )
 
     gv.buffer_n     =   buffer_n;
     input_data      =   LibMAGEMin.io_data();           # zero (not used actually)
-    z_b.T           =   T + 273.15;                    # in K
+    z_b.T           =   T + 273.15;                     # in K
 
     if P < 0.001
         P = 0.001
@@ -1073,7 +1079,7 @@ function point_wise_minimization(   P       ::Float64,
     
     gv      = LibMAGEMin.ComputeG0_point(gv.EM_database, z_b, gv, DB.PP_ref_db,DB.SS_ref_db);
 
-
+    #= THIS IS WHERE pwm_init ends =#
     if ~isnothing(rm_list)
 
         SS_ref_db   = unsafe_wrap(Vector{LibMAGEMin.SS_ref},DB.SS_ref_db,gv.len_ss);
@@ -1091,7 +1097,6 @@ function point_wise_minimization(   P       ::Float64,
             end
         end
 
-
         flags_off = zeros(Int32,5);
         for i in rm_list
             if i > 0    # solution phase
@@ -1102,19 +1107,94 @@ function point_wise_minimization(   P       ::Float64,
                 unsafe_copyto!(pp_flags[id], pointer(flags_off), 5)
             end
         end
-
-
-
     end
 
     # here we can over-ride default W's
     if ~isnothing(W)
-        if gv.EM_database  == W.database    # check if the database fit
+        if gv.EM_database == W.database    # check if the database fit
         else
             print(" Wrong database number, please make sure the custom Ws are linked to the right database\n")
         end
     end
 
+    if iguess == 1
+        SS_ref_db   = unsafe_wrap(Vector{LibMAGEMin.SS_ref},DB.SS_ref_db,gv.len_ss);
+
+        # retrieve dimensions
+        np          = z_b.nzEl_val
+        nzEl_array  = unsafe_wrap(Vector{Cint},z_b.nzEl_array, gv.len_ox) .+ 1
+        nzEl_array  = nzEl_array[1:np]
+    
+        PC_read = Vector{LibMAGEMin.PC_type}(undef,gv.len_ss)
+        LibMAGEMin.TC_PC_init(PC_read,gv)
+    
+        # add pseudocompounds
+        n_mSS = length(Gi)
+        for i = 1:n_mSS
+    
+            if Gi[i].ph_type == "ss"
+                ph_id       = Gi[i].ph_id+1
+                n_xeos      = SS_ref_db[ph_id].n_xeos
+                n_em        = SS_ref_db[ph_id].n_em
+    
+                tot_pc      = unsafe_wrap(Vector{Cint},SS_ref_db[ph_id].tot_pc, 1)
+                id_pc       = unsafe_wrap(Vector{Cint},SS_ref_db[ph_id].id_pc, 1)
+                info        = unsafe_wrap(Vector{Cint},SS_ref_db[ph_id].info, gv.max_n_mSS)
+                factor_pc   = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].factor_pc, gv.max_n_mSS)
+                DF_pc       = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].DF_pc, gv.max_n_mSS)
+                G_pc        = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].G_pc, gv.max_n_mSS)
+    
+                m_pc        = id_pc[1]+1;
+                ptr_comp_pc = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].comp_pc,gv.max_n_mSS)
+                ptr_p_pc    = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].p_pc,gv.max_n_mSS)
+                ptr_xeos_pc = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].xeos_pc,gv.max_n_mSS)
+    
+                unsafe_copyto!(SS_ref_db[ph_id].gb_lvl,SS_ref_db[ph_id].gbase, SS_ref_db[ph_id].n_em)
+                xeos        = Gi[i].xeos_Ppc
+    
+                # retrieve bounds
+                bounds_ref      = zeros( n_xeos,2)
+                ptr_bounds_ref  = unsafe_wrap(Vector{Ptr{Cdouble}}, SS_ref_db[ph_id].bounds_ref, n_xeos)
+    
+                for k=1:n_xeos
+                    bounds_ref[k,:] = unsafe_wrap(Vector{Cdouble}, ptr_bounds_ref[k], 2)
+                    if xeos[k] < bounds_ref[k,1]
+                        xeos[k] = bounds_ref[k,1]
+                    elseif xeos[k] > bounds_ref[k,2]
+                        xeos[k] = bounds_ref[k,2]
+                    end
+                end
+    
+                # get solution phase information for given compositional variables
+                unsafe_copyto!(SS_ref_db[ph_id].iguess,pointer(xeos), n_xeos)
+                SS_ref_db[ph_id] = LibMAGEMin.PC_function(gv, PC_read, SS_ref_db[ph_id], z_b, ph_id-1)
+    
+                # copy solution phase composition
+                ss_comp     = unsafe_wrap(Vector{Cdouble}, SS_ref_db[ph_id].ss_comp, gv.len_ox)
+                comp_pc     = unsafe_wrap(Vector{Cdouble}, ptr_comp_pc[m_pc], gv.len_ox)
+                comp_pc    .= ss_comp .* SS_ref_db[ph_id].factor;
+    
+                # copy endmember fraction
+                p           = unsafe_wrap(Vector{Cdouble}, SS_ref_db[ph_id].p, n_em)
+                p_pc        = unsafe_wrap(Vector{Cdouble}, ptr_p_pc[m_pc], n_em)
+                p_pc       .= p
+    
+                # copy compositional variables
+                xeos_pc     = unsafe_wrap(Vector{Cdouble}, ptr_xeos_pc[m_pc], n_xeos)
+                xeos_pc    .= xeos
+    
+                info[m_pc]      = 1;
+                factor_pc[m_pc] = SS_ref_db[ph_id].factor;
+                DF_pc[m_pc]     = SS_ref_db[ph_id].df;
+                G_pc[m_pc]      = SS_ref_db[ph_id].df;
+    
+                tot_pc .+= 1;
+                id_pc  .+= 1;
+            end
+        end
+    
+        gv.leveling_mode = 1
+    end
 
     # computing minimization
     time = @elapsed  gv      = LibMAGEMin.ComputeEquilibrium_Point(gv.EM_database, input_data, z_b, gv, pointer_from_objref(splx_data),	DB.PP_ref_db, DB.SS_ref_db, DB.cp);
@@ -1148,7 +1228,6 @@ function point_wise_minimization(   P       ::Float64,
     end
 
     return out
-
 end
 
 
@@ -1165,12 +1244,13 @@ point_wise_minimization(P       ::  Number,
                         DB,
                         splx_data;
                         buffer_n::  Float64     = 0.0,
-                        ig      ::  Union{Nothing, Vector{LibMAGEMin.mSS_data}}  = nothing,
+                        Gi      ::  Union{Nothing, Vector{LibMAGEMin.mSS_data}}  = nothing,
                         scp     ::  Int64       = 0,
+                        iguess  ::  Int64       = 0,
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         name_solvus::Bool       = false,
                         W       ::  Union{Nothing, W_Data} = nothing) = 
-                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, ig, scp, rm_list, name_solvus, W)
+                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, Gi, scp, iguess, rm_list, name_solvus, W)
 
 point_wise_minimization(P       ::  Number,
                         T       ::  Number,
@@ -1180,23 +1260,25 @@ point_wise_minimization(P       ::  Number,
                         splx_data:: LibMAGEMin.simplex_datas,
                         sys_in  ::  String;
                         buffer_n::  Float64     = 0.0,
-                        ig      ::  Union{Nothing, Vector{LibMAGEMin.mSS_data}}  = nothing,
+                        Gi      ::  Union{Nothing, Vector{LibMAGEMin.mSS_data}}  = nothing,
                         scp     ::  Int64       = 0,
+                        iguess  ::  Int64       = 0,
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         name_solvus::Bool       = false,
                         W       ::  Union{Nothing, W_Data} = nothing) = 
-                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, ig, scp,  rm_list, name_solvus, W)
+                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, Gi, scp, iguess, rm_list, name_solvus, W)
 
 point_wise_minimization(P       ::  Number,
                         T       ::  Number,
                         data    ::  MAGEMin_Data;
                         buffer_n::  Float64     = 0.0,
-                        ig      ::  Union{Nothing, Vector{LibMAGEMin.mSS_data}}  = nothing,
+                        Gi      ::  Union{Nothing, Vector{LibMAGEMin.mSS_data}}  = nothing,
                         scp     ::  Int64       = 0,
+                        iguess ::  Int64       = 0,
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         name_solvus::Bool       = false,
                         W       ::  Union{Nothing, W_Data} = nothing) = 
-                        point_wise_minimization(Float64(P),Float64(T), data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]; buffer_n, scp, ig, rm_list, name_solvus, W)
+                        point_wise_minimization(Float64(P),Float64(T), data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]; buffer_n, Gi, scp, iguess, rm_list, name_solvus, W)
 
 
 """
