@@ -435,7 +435,6 @@ function single_point_minimization(     P           ::  T1,
                                         scp         ::  Int64                           = 0,   
                                         rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                                         W           ::  Union{Nothing, W_Data}          = nothing,
-                                        data_in     ::  Union{Nothing, gmin_struct{Float64, Int64}, Vector{gmin_struct{Float64, Int64}}} = nothing,
                                         Xoxides     = Vector{String},
                                         sys_in      = "mol",
                                         rg          = "tc",
@@ -448,10 +447,6 @@ function single_point_minimization(     P           ::  T1,
         X = [X]
     end
 
-    if data_in isa gmin_struct{Float64, Int64}
-        data_in = [data_in]
-    end  
-
     Out_PT     =   multi_point_minimization(    P,
                                                 T,
                                                 MAGEMin_db;
@@ -463,7 +458,6 @@ function single_point_minimization(     P           ::  T1,
                                                 G           =   G,   
                                                 scp         =   scp,
                                                 rm_list     =   rm_list,
-                                                data_in     =   data_in,
                                                 W           =   W,
                                                 Xoxides     =   Xoxides,
                                                 sys_in      =   sys_in,
@@ -550,7 +544,6 @@ function multi_point_minimization(P           ::  T2,
                                   G           ::  Union{Nothing, Vector{LibMAGEMin.mSS_data},Vector{Vector{LibMAGEMin.mSS_data}}}  = nothing,
                                   scp         ::  Int64                           = 0,     
                                   rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
-                                  data_in     ::  Union{Nothing, Vector{gmin_struct{Float64, Int64}}} = nothing,
                                   W           ::  Union{Nothing, W_Data}          = nothing,
                                   Xoxides     = Vector{String},
                                   sys_in      = "mol",
@@ -625,15 +618,11 @@ function multi_point_minimization(P           ::  T2,
             buffer = 0.0
         end
 
-        if light == false
-            if ~isnothing(data_in)
-                out     = point_wise_minimization_iguess(P[i], T[i], gv, z_b, DB, splx_data; buffer_n = buffer, ig = ig, W = W, scp, rm_list, data_in = data_in[i])
-            else
-                out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; buffer_n = buffer, ig = ig, W = W, scp, rm_list, name_solvus=name_solvus)
-            end
-        elseif light == true
+        # if light == false
+        #     out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; buffer_n = buffer, ig = ig, W = W, scp, rm_list, name_solvus=name_solvus)
+        # elseif light == true
             out     = point_wise_minimization(P[i], T[i], gv, z_b, DB, splx_data; light=light, buffer_n = buffer, ig = ig, W = W, scp, rm_list)
-        end
+        # end
 
 
         Out_PT[i]   = deepcopy(out)
@@ -667,7 +656,6 @@ function AMR_minimization(  init_sub    ::  Int64,
                             B           ::  Union{Nothing, T1, Vector{T1}}  = 0.0,
                             scp         ::  Int64                           = 0,     
                             rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
-                            data_in     ::  Union{Nothing, Vector{gmin_struct{Float64, Int64}}} = nothing,
                             W           ::  Union{Nothing, W_Data}          = nothing,
                             Xoxides     = Vector{String},
                             sys_in      = "mol",
@@ -714,7 +702,7 @@ function AMR_minimization(  init_sub    ::  Int64,
                     Gvec[i] = vcat(tmp...)
                 end
             end
-            Out_XY_new  =   multi_point_minimization(Pvec, Tvec, MAGEMin_db, X=Xvec, B=Bvec, G=Gvec, Xoxides=Xoxides, sys_in=sys_in, scp=scp, rm_list=rm_list, rg=rg, test=test,data_in=data_in); 
+            Out_XY_new  =   multi_point_minimization(Pvec, Tvec, MAGEMin_db, X=Xvec, B=Bvec, G=Gvec, Xoxides=Xoxides, sys_in=sys_in, scp=scp, rm_list=rm_list, rg=rg, test=test); 
         else
             println("There is no new point to compute...")
         end
@@ -1068,7 +1056,6 @@ function point_wise_minimization(   P       ::Float64,
                                     ig          = nothing,
                                     scp         = 0,
                                     rm_list     = nothing,
-                                    data_in     = nothing,
                                     W           = nothing   )
 
     gv.buffer_n     =   buffer_n;
@@ -1201,9 +1188,8 @@ point_wise_minimization(P       ::  Number,
                         scp     ::  Int64       = 0,
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         name_solvus::Bool       = false,
-                        data_in ::  Union{Nothing, gmin_struct{Float64, Int64}, Vector{gmin_struct{Float64, Int64}}} = nothing,
                         W       ::  Union{Nothing, W_Data} = nothing) = 
-                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, ig, scp, rm_list, name_solvus, data_in, W)
+                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, ig, scp, rm_list, name_solvus, W)
 
 point_wise_minimization(P       ::  Number,
                         T       ::  Number,
@@ -1217,9 +1203,8 @@ point_wise_minimization(P       ::  Number,
                         scp     ::  Int64       = 0,
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         name_solvus::Bool       = false,
-                        data_in ::  Union{Nothing, gmin_struct{Float64, Int64}, Vector{gmin_struct{Float64, Int64}}} = nothing,
                         W       ::  Union{Nothing, W_Data} = nothing) = 
-                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, ig, scp,  rm_list, name_solvus, data_in, W)
+                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, ig, scp,  rm_list, name_solvus, W)
 
 point_wise_minimization(P       ::  Number,
                         T       ::  Number,
@@ -1229,9 +1214,8 @@ point_wise_minimization(P       ::  Number,
                         scp     ::  Int64       = 0,
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         name_solvus::Bool       = false,
-                        data_in ::  Union{Nothing, gmin_struct{Float64, Int64}, Vector{gmin_struct{Float64, Int64}}} = nothing,
                         W       ::  Union{Nothing, W_Data} = nothing) = 
-                        point_wise_minimization(Float64(P),Float64(T), data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]; buffer_n, scp, ig, rm_list, name_solvus, data_in, W)
+                        point_wise_minimization(Float64(P),Float64(T), data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]; buffer_n, scp, ig, rm_list, name_solvus, W)
 
 
 """
