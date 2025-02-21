@@ -433,7 +433,7 @@ function single_point_minimization(     P           ::  T1,
                                         B           ::  Union{Nothing, T1, Vector{T1}}  = nothing,
                                         G           ::  Union{Nothing, Vector{LibMAGEMin.mSS_data},Vector{Vector{LibMAGEMin.mSS_data}}}  = nothing,
                                         scp         ::  Int64                           = 0,
-                                        iguess      ::  Int64                           = 0,
+                                        iguess      ::  Bool                            = false,
                                         rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                                         W           ::  Union{Nothing, W_Data}          = nothing,
                                         Xoxides     = Vector{String},
@@ -545,14 +545,14 @@ function multi_point_minimization(P           ::  T2,
                                   B           ::  Union{Nothing, T1, Vector{T1}}  = nothing,
                                   G           ::  Union{Nothing, Vector{LibMAGEMin.mSS_data},Vector{Vector{LibMAGEMin.mSS_data}}}  = nothing,
                                   scp         ::  Int64                           = 0, 
-                                  iguess      ::  Int64                           = 0,    
+                                  iguess      ::  Bool                            = false,    
                                   rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                                   W           ::  Union{Nothing, W_Data}          = nothing,
                                   Xoxides     = Vector{String},
-                                  sys_in      :: String                         = "mol",
-                                  rg          :: String                         = "tc",
-                                  progressbar :: Bool                           = true,        # show a progress bar or not?
-                                  callback_fn ::  Union{Nothing, Function}= nothing, 
+                                  sys_in      :: String                           = "mol",
+                                  rg          :: String                           = "tc",
+                                  progressbar :: Bool                             = true,        # show a progress bar or not?
+                                  callback_fn ::  Union{Nothing, Function} = nothing, 
                                   callback_int::  Int64 = 1
                                   ) where {T1 <: Float64, T2 <: AbstractVector{Float64}}
 
@@ -639,7 +639,7 @@ function AMR_minimization(  init_sub    ::  Int64,
                             X           ::  VecOrMat                        = nothing,
                             B           ::  Union{Nothing, T1, Vector{T1}}  = 0.0,
                             scp         ::  Int64                           = 0,  
-                            iguess      ::  Int64                           = 0,   
+                            iguess      ::  Bool                            = false,   
                             rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                             W           ::  Union{Nothing, W_Data}          = nothing,
                             Xoxides     =  Vector{String},
@@ -672,7 +672,7 @@ function AMR_minimization(  init_sub    ::  Int64,
             Pvec = zeros(Float64,n_new_points);
             Xvec = Vector{Vector{Float64}}(undef,n_new_points);
             Bvec = zeros(Float64,n_new_points);
-            if !isempty(data.split_cell_list)
+            if !isempty(data.split_cell_list) && iguess == true
                 Gvec = Vector{Vector{LibMAGEMin.mSS_data}}(undef,n_new_points);
             else
                 Gvec = nothing;
@@ -682,7 +682,7 @@ function AMR_minimization(  init_sub    ::  Int64,
                 Pvec[i] = npoints[i][2];
                 Bvec[i] = B;
                 Xvec[i] = X;
-                if !isempty(data.split_cell_list)
+                if !isempty(data.split_cell_list) && iguess == true
                     tmp = [Out_XY[data.npoints_ig[i][j]].mSS_vec for j=1:length(data.npoints_ig[i])]
                     Gvec[i] = vcat(tmp...)
                 end
@@ -1041,7 +1041,7 @@ function point_wise_minimization(   P       ::Float64,
                                     buffer_n    = 0.0,
                                     Gi          = nothing,
                                     scp         = 0,
-                                    iguess      = 0,
+                                    iguess      = false,
                                     rm_list     = nothing,
                                     W           = nothing   )
 
@@ -1117,7 +1117,7 @@ function point_wise_minimization(   P       ::Float64,
         end
     end
 
-    if iguess == 1
+    if iguess == true && Gi !== nothing
         SS_ref_db   = unsafe_wrap(Vector{LibMAGEMin.SS_ref},DB.SS_ref_db,gv.len_ss);
 
         # retrieve dimensions
@@ -1246,7 +1246,7 @@ point_wise_minimization(P       ::  Number,
                         buffer_n::  Float64     = 0.0,
                         Gi      ::  Union{Nothing, Vector{LibMAGEMin.mSS_data}}  = nothing,
                         scp     ::  Int64       = 0,
-                        iguess  ::  Int64       = 0,
+                        iguess  ::  Bool        = false,
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         name_solvus::Bool       = false,
                         W       ::  Union{Nothing, W_Data} = nothing) = 
@@ -1262,7 +1262,7 @@ point_wise_minimization(P       ::  Number,
                         buffer_n::  Float64     = 0.0,
                         Gi      ::  Union{Nothing, Vector{LibMAGEMin.mSS_data}}  = nothing,
                         scp     ::  Int64       = 0,
-                        iguess  ::  Int64       = 0,
+                        iguess  ::  Bool        = false,
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         name_solvus::Bool       = false,
                         W       ::  Union{Nothing, W_Data} = nothing) = 
@@ -1274,7 +1274,7 @@ point_wise_minimization(P       ::  Number,
                         buffer_n::  Float64     = 0.0,
                         Gi      ::  Union{Nothing, Vector{LibMAGEMin.mSS_data}}  = nothing,
                         scp     ::  Int64       = 0,
-                        iguess ::  Int64       = 0,
+                        iguess  ::  Bool        = false,
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         name_solvus::Bool       = false,
                         W       ::  Union{Nothing, W_Data} = nothing) = 
