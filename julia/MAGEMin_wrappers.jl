@@ -1119,7 +1119,8 @@ function point_wise_minimization(   P       ::Float64,
 
     if iguess == true && Gi !== nothing
         SS_ref_db   = unsafe_wrap(Vector{LibMAGEMin.SS_ref},DB.SS_ref_db,gv.len_ss);
-
+        n_SS_PC     = unsafe_wrap(Vector{Cint},gv.n_SS_PC,gv.len_ss);
+    
         # retrieve dimensions
         np          = z_b.nzEl_val
         nzEl_array  = unsafe_wrap(Vector{Cint},z_b.nzEl_array, gv.len_ox) .+ 1
@@ -1132,64 +1133,57 @@ function point_wise_minimization(   P       ::Float64,
         n_mSS = length(Gi)
         for i = 1:n_mSS
     
-            if Gi[i].ph_type == "ss"
+            if Gi[i].ph_type == "ss" || Gi[i].ph_type == "ss_em"
+                ph          = Gi[i].ph_name
                 ph_id       = Gi[i].ph_id+1
                 n_xeos      = SS_ref_db[ph_id].n_xeos
                 n_em        = SS_ref_db[ph_id].n_em
-    
+
                 tot_pc      = unsafe_wrap(Vector{Cint},SS_ref_db[ph_id].tot_pc, 1)
                 id_pc       = unsafe_wrap(Vector{Cint},SS_ref_db[ph_id].id_pc, 1)
-                info        = unsafe_wrap(Vector{Cint},SS_ref_db[ph_id].info, gv.max_n_mSS)
-                factor_pc   = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].factor_pc, gv.max_n_mSS)
-                DF_pc       = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].DF_pc, gv.max_n_mSS)
-                G_pc        = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].G_pc, gv.max_n_mSS)
-    
-                m_pc        = id_pc[1]+1;
-                ptr_comp_pc = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].comp_pc,gv.max_n_mSS)
-                ptr_p_pc    = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].p_pc,gv.max_n_mSS)
-                ptr_xeos_pc = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].xeos_pc,gv.max_n_mSS)
-    
-                unsafe_copyto!(SS_ref_db[ph_id].gb_lvl,SS_ref_db[ph_id].gbase, SS_ref_db[ph_id].n_em)
-                xeos        = Gi[i].xeos_Ppc
-    
-                # retrieve bounds
-                bounds_ref      = zeros( n_xeos,2)
-                ptr_bounds_ref  = unsafe_wrap(Vector{Ptr{Cdouble}}, SS_ref_db[ph_id].bounds_ref, n_xeos)
-    
-                for k=1:n_xeos
-                    bounds_ref[k,:] = unsafe_wrap(Vector{Cdouble}, ptr_bounds_ref[k], 2)
-                    if xeos[k] < bounds_ref[k,1]
-                        xeos[k] = bounds_ref[k,1]
-                    elseif xeos[k] > bounds_ref[k,2]
-                        xeos[k] = bounds_ref[k,2]
-                    end
+
+                if tot_pc[1] < n_SS_PC[ph_id]   # here we make sure we have the space to store the pseudocompound
+
+                    m_pc        = id_pc[1]+1;
+                    info        = unsafe_wrap(Vector{Cint},SS_ref_db[ph_id].info,           gv.max_n_mSS)
+                    factor_pc   = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].factor_pc,   gv.max_n_mSS)
+                    DF_pc       = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].DF_pc,       gv.max_n_mSS)
+                    G_pc        = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].G_pc,        gv.max_n_mSS)
+        
+                    ptr_comp_pc = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].comp_pc,gv.max_n_mSS)
+                    ptr_p_pc    = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].p_pc,   gv.max_n_mSS)
+                    ptr_xeos_pc = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].xeos_pc,gv.max_n_mSS)
+        
+                    unsafe_copyto!(SS_ref_db[ph_id].gb_lvl,SS_ref_db[ph_id].gbase, SS_ref_db[ph_id].n_em)
+                    xeos        = Gi[i].xeos_Ppc
+        
+                    # get solution phase information for given compositional variables
+                    unsafe_copyto!(SS_ref_db[ph_id].iguess,pointer(xeos), n_xeos)
+                    SS_ref_db[ph_id] = LibMAGEMin.PC_function(gv, PC_read, SS_ref_db[ph_id], z_b, ph_id-1)
+        
+                    # copy solution phase composition
+                    ss_comp     = unsafe_wrap(Vector{Cdouble}, SS_ref_db[ph_id].ss_comp, gv.len_ox)
+                    # println("ph: $ph comp: $ss_comp")
+                    comp_pc     = unsafe_wrap(Vector{Cdouble}, ptr_comp_pc[m_pc], gv.len_ox)
+                    comp_pc    .= ss_comp .* SS_ref_db[ph_id].factor;
+        
+                    # copy endmember fraction
+                    p           = unsafe_wrap(Vector{Cdouble}, SS_ref_db[ph_id].p, n_em)
+                    p_pc        = unsafe_wrap(Vector{Cdouble}, ptr_p_pc[m_pc], n_em)
+                    p_pc       .= p
+        
+                    # copy compositional variables
+                    xeos_pc     = unsafe_wrap(Vector{Cdouble}, ptr_xeos_pc[m_pc], n_xeos)
+                    xeos_pc    .= xeos
+        
+                    info[m_pc]      = 1;
+                    factor_pc[m_pc] = SS_ref_db[ph_id].factor;
+                    DF_pc[m_pc]     = SS_ref_db[ph_id].df;
+                    G_pc[m_pc]      = SS_ref_db[ph_id].df;
+        
+                    tot_pc    .+= 1;
+                    id_pc     .+= 1;
                 end
-    
-                # get solution phase information for given compositional variables
-                unsafe_copyto!(SS_ref_db[ph_id].iguess,pointer(xeos), n_xeos)
-                SS_ref_db[ph_id] = LibMAGEMin.PC_function(gv, PC_read, SS_ref_db[ph_id], z_b, ph_id-1)
-    
-                # copy solution phase composition
-                ss_comp     = unsafe_wrap(Vector{Cdouble}, SS_ref_db[ph_id].ss_comp, gv.len_ox)
-                comp_pc     = unsafe_wrap(Vector{Cdouble}, ptr_comp_pc[m_pc], gv.len_ox)
-                comp_pc    .= ss_comp .* SS_ref_db[ph_id].factor;
-    
-                # copy endmember fraction
-                p           = unsafe_wrap(Vector{Cdouble}, SS_ref_db[ph_id].p, n_em)
-                p_pc        = unsafe_wrap(Vector{Cdouble}, ptr_p_pc[m_pc], n_em)
-                p_pc       .= p
-    
-                # copy compositional variables
-                xeos_pc     = unsafe_wrap(Vector{Cdouble}, ptr_xeos_pc[m_pc], n_xeos)
-                xeos_pc    .= xeos
-    
-                info[m_pc]      = 1;
-                factor_pc[m_pc] = SS_ref_db[ph_id].factor;
-                DF_pc[m_pc]     = SS_ref_db[ph_id].df;
-                G_pc[m_pc]      = SS_ref_db[ph_id].df;
-    
-                tot_pc .+= 1;
-                id_pc  .+= 1;
             end
         end
     
