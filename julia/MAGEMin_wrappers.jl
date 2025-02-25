@@ -275,7 +275,7 @@ function Initialize_MAGEMin(db = "ig";  verbose     ::Union{Int64,Bool} = 0,
                                                 buffer      = buffer,
                                                 solver      = solver    );
 
-    nt              = Threads.nthreads()
+    nt              = Threads.maxthreadid()
     list_gv         = Vector{typeof(gv)}(undef, nt)
     list_z_b        = Vector{typeof(z_b)}(undef, nt)
     list_DB         = Vector{typeof(DB)}(undef, nt)
@@ -315,7 +315,7 @@ end
 Finalizes MAGEMin and clears variables
 """
 function Finalize_MAGEMin(dat::MAGEMin_Data)
-    for id in 1:Threads.nthreads()
+    for id in 1:Threads.maxthreadid()
         LibMAGEMin.FreeDatabases(dat.gv[id], dat.DB[id], dat.z_b[id])
         # splx_data needs to be freed
      end
@@ -562,7 +562,7 @@ function multi_point_minimization(P           ::  T2,
     if isnothing(X)
         # Use one of the build-in tests
         # Create thread-local data
-        for i in 1:Threads.nthreads()
+        for i in 1:Threads.maxthreadid()
             MAGEMin_db.gv[i] = use_predefined_bulk_rock(MAGEMin_db.gv[i], test, MAGEMin_db.db);
         end
         CompositionType = 0;    # build-in tests
@@ -572,7 +572,7 @@ function multi_point_minimization(P           ::  T2,
         @assert length(X) == length(Xoxides)
 
             # Set the bulk rock composition for all points
-            for i in 1:Threads.nthreads()
+            for i in 1:Threads.maxthreadid()
                 MAGEMin_db.gv[i] = define_bulk_rock(MAGEMin_db.gv[i], X, Xoxides, sys_in, MAGEMin_db.db);
             end
             CompositionType = 1;    # specified bulk composition for all points
@@ -771,7 +771,7 @@ end
 Returns the pre-defined bulk rock composition of a given test
 """
 function use_predefined_bulk_rock(data::MAGEMin_Data, test=0)  
-    nt = Threads.nthreads()
+    nt = Threads.maxthreadid()
     for id in 1:nt
         data.gv[id] =  use_predefined_bulk_rock(data.gv[id], test, data.db);
     end

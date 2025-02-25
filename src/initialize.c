@@ -122,7 +122,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.7.0 [21/02/2025]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.7.0 [25/02/2025]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");

@@ -22,7 +22,7 @@ end
     @test true
 
     # Only run additional tests if we are running with a single thread right now
-    if Threads.nthreads() == 1
+    if Threads.maxthreadid() == 1
         # We explicitly disable code coverage tracking with multiple threads since
         # this is expensive, see https://github.com/JuliaLang/julia/issues/36142
         run(`$(Base.julia_cmd()) --threads=2 --check-bounds=yes --code-coverage=none $(abspath(joinpath(@__DIR__, "tests.jl")))`)
