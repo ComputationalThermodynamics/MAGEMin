@@ -104,8 +104,8 @@ metabasite_dataset metabasite_db = {
 	{"sp"	,"opx"	,"fsp"	,"liq"	,"mu"	,"ilmm"	,"ilm"	,"ol"	,"amp"	,"ep"	,"g"	,"chl"	,"bi"	,"dio"	,"aug"	,"abc"  ,"spl"			},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1				},  // allow solvus?
-	{936	,1731 	,231	,3507	,4536 	,298	,422	,11		,7671	,110	,217	,3980	,1098	,1811	,2398	,21 	,196			},  // # of pseudocompound
-	{0.09	,0.19	,0.049	,0.199	,0.19	,0.09	,0.049	,0.098	,0.15	,0.049	,0.19	,0.19	,0.125	,0.10	,0.10	,0.049 	,0.09			},  // discretization step
+	{937	,1731 	,231	,3507	,4536 	,298	,422	,11		,7673	,110	,217	,3980	,1098	,1811	,2398	,21 	,196			},  // # of pseudocompound
+	{0.04	,0.19	,0.049	,0.199	,0.19	,0.09	,0.049	,0.098	,0.15	,0.049	,0.19	,0.19	,0.125	,0.10	,0.10	,0.049 	,0.04			},  // discretization step
 
 	6.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
 	473.15,						/* max temperature above which PGE solver is active 								*/
@@ -199,7 +199,7 @@ ultramafic_dataset ultramafic_db = {
 
 	4,							/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
 	0.025,						/** maximum mol% phase change during one PGE iteration in wt% 						*/
-	1.5,						/** maximum delta_G of reference change during PGE 									*/
+	2.5,						/** maximum delta_G of reference change during PGE 									*/
 	1.0,						/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
 
 	1e-1,						/** merge instances of solution phase if norm < val 								*/
@@ -227,7 +227,7 @@ ultramafic_ext_dataset ultramafic_ext_db = {
 
 	4,							/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
 	0.025,						/** maximum mol% phase change during one PGE iteration in wt% 						*/
-	1.5,						/** maximum delta_G of reference change during PGE 									*/
+	2.5,						/** maximum delta_G of reference change during PGE 									*/
 	1.0,						/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
 
 	1e-1,						/** merge instances of solution phase if norm < val 								*/
@@ -255,7 +255,7 @@ mantle_dataset mantle_db = {
 
 	4,							/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
 	0.025,						/** maximum mol% phase change during one PGE iteration in wt% 						*/
-	1.5,						/** maximum delta_G of reference change during PGE 									*/
+	2.5,						/** maximum delta_G of reference change during PGE 									*/
 	1.0,						/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
 
 	1e-1,						/** merge instances of solution phase if norm < val 								*/
