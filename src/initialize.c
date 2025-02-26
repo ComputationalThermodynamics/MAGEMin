@@ -122,12 +122,12 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.7.0 [25/02/2025]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.7.1 [25/02/2025]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
 	gv.EM_dataset 		= -1;
-	gv.max_n_mSS		= 64;					/** maximum number of metastable pseudocompounds 									*/
+	gv.max_n_mSS		= 128;					/** maximum number of metastable pseudocompounds 									*/
 	gv.max_n_cp 		= 256;					/** number of considered solution phases 											*/	
 	gv.max_ss_size_cp   = 24;					/** maximum size for a solution phase saved in the cp structure                     */
 	gv.buffer_n 		= 0.0;					/** factor for QFM buffer 															*/
