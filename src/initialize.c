@@ -159,6 +159,8 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.PC_check_val1	= 1.0e-2;				/** br norm under which PC are tested for potential candidate to be added 			*/
 	gv.PC_check_val2	= 1.0e-4;				/** br norm under which PC are tested for potential candidate to be added 			*/
 	gv.PC_min_dist 		= 1.0;					/** factor multiplying the diagonal of the hyperbox of xeos s-tep 					*/
+	gv.mSS_df_max_add 	= 0.4;					/** driving force under which a metastable solution phase is added to the assemblage */
+	gv.mSS_df_min_add   = 1e-3;					/** driving force under which a metastable solution phase is added to the assemblage */
 
 	/* levelling parameters 			*/
 	gv.em2ss_shift		= 2e-6;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/

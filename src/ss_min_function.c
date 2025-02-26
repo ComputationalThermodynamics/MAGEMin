@@ -226,7 +226,7 @@ void copy_to_Ppc(		int 				 pc_check,
 		int    save_mSS;
 
 
-		if (pc_check != 2 || SS_ref_db[ph_id].df < 0.0 || SS_ref_db[ph_id].df > 0.5){
+		if (pc_check != 2 || SS_ref_db[ph_id].df < gv.mSS_df_min_add || SS_ref_db[ph_id].df > gv.mSS_df_max_add){
 			save_mSS = 0;
 		}
 		else{

@@ -628,6 +628,8 @@ mutable struct global_variables
     mean_sum_xi::Cdouble
     sigma_sum_xi::Cdouble
     min_melt_T::Cdouble
+    mSS_df_max_add::Cdouble
+    mSS_df_min_add::Cdouble
     relax_PGE_val::Cdouble
     PC_df_add::Cdouble
     PC_min_dist::Cdouble

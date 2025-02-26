@@ -1145,14 +1145,14 @@ function point_wise_minimization(   P       ::Float64,
                 if tot_pc[1] < n_SS_PC[ph_id]   # here we make sure we have the space to store the pseudocompound
 
                     m_pc        = id_pc[1]+1;
-                    info        = unsafe_wrap(Vector{Cint},SS_ref_db[ph_id].info,           gv.max_n_mSS)
-                    factor_pc   = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].factor_pc,   gv.max_n_mSS)
-                    DF_pc       = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].DF_pc,       gv.max_n_mSS)
-                    G_pc        = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].G_pc,        gv.max_n_mSS)
+                    info        = unsafe_wrap(Vector{Cint},SS_ref_db[ph_id].info,           gv.n_pc)
+                    factor_pc   = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].factor_pc,   gv.n_pc)
+                    DF_pc       = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].DF_pc,       gv.n_pc)
+                    G_pc        = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].G_pc,        gv.n_pc)
         
-                    ptr_comp_pc = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].comp_pc,gv.max_n_mSS)
-                    ptr_p_pc    = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].p_pc,   gv.max_n_mSS)
-                    ptr_xeos_pc = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].xeos_pc,gv.max_n_mSS)
+                    ptr_comp_pc = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].comp_pc,gv.n_pc)
+                    ptr_p_pc    = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].p_pc,   gv.n_pc)
+                    ptr_xeos_pc = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].xeos_pc,gv.n_pc)
         
                     unsafe_copyto!(SS_ref_db[ph_id].gb_lvl,SS_ref_db[ph_id].gbase, SS_ref_db[ph_id].n_em)
                     xeos        = Gi[i].xeos_Ppc
