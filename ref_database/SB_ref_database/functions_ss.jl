@@ -553,7 +553,7 @@ function get_sb_gss_function(sb_ver,ss,data2)
 
     n_ss = length(ss)
     for ii = 1:n_ss
-
+        println(ii)
         mul, site_cmp = retrieve_site_cmp(ss, ii)
 
         W       = [ ss[ii].margules[j] for j in  keys(ss[ii].margules)]
