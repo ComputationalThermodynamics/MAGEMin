@@ -744,7 +744,6 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 																	K0*bar2pa, 
 																	Kp		)/1e8;
 
-    printf("V %4s %g\n",name,V);
 
     PP_ref_db.phase_expansivity =  thermal_expansivity(     V0/1e6, 
                                                             V/1e6, 
