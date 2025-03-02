@@ -28,6 +28,8 @@
 		double C[14];
 		double ElShearMod;
 		double ElBulkMod;
+		double ElCp;
+		double ElExpansivity;
 		double gb;
 		double charge;	
 	} em_data;

@@ -316,7 +316,8 @@ void swap_pure_endmembers(				bulk_info 	 		 z_b,
 	double factor;
 
 	for (int i = 0; i < gv.len_ss; i++){												/**loop to pass informations from active endmembers */
-		if (SS_ref_db[i].ss_flags[0] == 1 && strcmp( gv.SS_list[i], "aq17") != 0 && strcmp( gv.SS_list[i], "chl") != 0 && strcmp( gv.SS_list[i], "g") != 0 && strcmp( gv.SS_list[i], "ep") != 0 && strcmp( gv.SS_list[i], "fsp") != 0){												/** if SS is not filtered out then continue */
+		// if (SS_ref_db[i].ss_flags[0] == 1 && strcmp( gv.SS_list[i], "aq17") != 0 && strcmp( gv.SS_list[i], "chl") != 0 && strcmp( gv.SS_list[i], "g") != 0 && strcmp( gv.SS_list[i], "ep") != 0 && strcmp( gv.SS_list[i], "fsp") != 0 && strcmp( gv.SS_list[i], "mu") != 0){												/** if SS is not filtered out then continue */
+		if (SS_ref_db[i].ss_flags[0] == 1 && strcmp( gv.SS_list[i], "ilm") == 1){												/** if SS is not filtered out then continue */
 
 			for (int l = 0; l < SS_ref_db[i].n_em; l++){	
 				/** if bulk-rock satisfy the compositions of endmembers, retrieve their informations */
@@ -536,7 +537,7 @@ void fill_simplex_arrays_A(				bulk_info 	 		 z_b,
 	/* fill reference assemblage */
 
 	for (int k = 0; k < z_b.nzEl_val; k++) {
-		d->g0_A[k]    		    = 0.0;								/** penalty G CHECKTHISOUT */
+		d->g0_A[k]    		    = 1e6;								/** penalty G CHECKTHISOUT */
 		d->ph_id_A[k][0]  	    = 0;								/** phase_id for penalty phase */
 		d->A[k+k*z_b.nzEl_val]  = 1.0;								/** eye matrix for stoichiometry */
 		d->A1[k+k*z_b.nzEl_val] = 1.0;
@@ -1068,13 +1069,13 @@ void run_simplex_pseudocompounds(		bulk_info 	 		z_b,
 		k 		   += 1;
 		d->swp      = 0;
 		t 			= clock();
-		if (gv.EM_database != 6){ //TMP fix, at the moment I don't have the return mapping function from p to x for Mantle database
-			swap_pure_endmembers(				z_b,
-												splx_data,
-												gv,
-												PP_ref_db,
-												SS_ref_db	);	
-		}
+		// if (gv.EM_database != 6){ //TMP fix, at the moment I don't have the return mapping function from p to x for Mantle database
+		// 	swap_pure_endmembers(				z_b,
+		// 										splx_data,
+		// 										gv,
+		// 										PP_ref_db,
+		// 										SS_ref_db	);	
+		// }
 
 		swap_pure_phases(					z_b,
 											splx_data,
@@ -1120,7 +1121,13 @@ void run_simplex_pseudocompounds_IG(	bulk_info 	 		z_b,
 		k 		   += 1;
 		d->swp      = 0;
 		t 			= clock();
-
+		// if (gv.EM_database != 6){ //TMP fix, at the moment I don't have the return mapping function from p to x for Mantle database
+		// 	swap_pure_endmembers(				z_b,
+		// 										splx_data,
+		// 										gv,
+		// 										PP_ref_db,
+		// 										SS_ref_db	);	
+		// }
 		swap_pure_phases(					z_b,
 											splx_data,
 											gv,
@@ -1322,6 +1329,13 @@ void run_simplex_levelling(				bulk_info 	 		 z_b,
 		if (gv.EM_database == 0){
 			for (iss = 0; iss < gv.len_ss; iss++){
 				SB_sb11_pc_init_function(			SS_pc_xeos, 
+													iss,
+													gv.SS_list[iss]				);
+			}
+		}
+		else if (gv.EM_database == 1){
+			for (iss = 0; iss < gv.len_ss; iss++){
+				SB_sb21_pc_init_function(			SS_pc_xeos, 
 													iss,
 													gv.SS_list[iss]				);
 			}

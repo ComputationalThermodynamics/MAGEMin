@@ -10,6 +10,7 @@
  ** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ @*/
 /**
   Function to calculate chemical potential of endmembers/pure phases for Stixrude database
+  Most of the functions have been borrowed from Burnman (R. Myhill) and Perple_X (J. Connolly)
 */
 
 #include <math.h>
@@ -267,6 +268,7 @@ double molar_heat_capacity_v(double T, double debye_T, double n) {
 }
 
 
+
 /*
 	Calculate the thermal energy for a Debye solid.
 	** 'Borrowed' from Burnman **
@@ -339,6 +341,30 @@ double shear_modulus(	double temperature,
 		- eta_s * (E_th - E_th_ref) / (volume/1e5);
 
 }
+
+/*
+    Returns thermal expansivity. :math:`[1/K]`
+    ** 'Borrowed' from Burnman **
+*/
+double thermal_expansivity(     double V_0, 
+                                double volume, 
+                                double grueneisen_0, 
+                                double q_0, 
+                                double Debye_0, 
+                                double n, 
+                                double K, 
+                                double temperature		){
+
+    double debye_T, C_v, gr_slb, alpha;
+                                    
+    debye_T  = debye_temperature(V_0 / volume, grueneisen_0, q_0, Debye_0);
+    C_v      = molar_heat_capacity_v(temperature, debye_T, n);
+    gr_slb   = grueneisen_parameter_slb(V_0, volume, grueneisen_0, q_0);
+    alpha    = gr_slb * C_v / volume / K;
+    
+    return alpha;
+}
+
 
 /*
  	Returns molar volume. :math:`[m^3]`
@@ -587,7 +613,7 @@ double compute_G0(	double t,
 
         v = v - dv;
 
-        if (itic > 100 || fabs(f1) > 1e40) {
+        if (itic > 2048 || fabs(f1) > 1e40) {
             if (fabs(f1 / p) < 1e-10) ibad = 5;
             break;
         } else if (fabs(dv / (1.0 + v)) < 1e-10) {
@@ -718,6 +744,21 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 																	K0*bar2pa, 
 																	Kp		)/1e8;
 
+
+    PP_ref_db.phase_expansivity =  thermal_expansivity(     V0/1e6, 
+                                                            V/1e6, 
+                                                            gamma0, 
+                                                            q0, 
+                                                            z00, 
+                                                            -n, 
+                                                            PP_ref_db.phase_bulkModulus*1e9, 
+                                                            T		);  
+
+
+    PP_ref_db.phase_cp = molar_heat_capacity_v(T, z00, -n)/1e3;
+
+    // printf("phase_expansivity %4s %g\n",name,PP_ref_db.phase_expansivity);
+    // printf("phase_cp %4s %g \n\n",name,PP_ref_db.phase_cp);       
 	// printf("gbase %4s %+10f\n",name,PP_ref_db.gbase);
 	// printf("phase_shearModulus %4s %+10f\n",name,PP_ref_db.phase_shearModulus);
 	// for (i = 0; i < len_ox; i++){

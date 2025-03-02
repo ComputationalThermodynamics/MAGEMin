@@ -223,9 +223,14 @@ void copy_to_Ppc(		int 				 pc_check,
 
 		double G;
 		int    m_Ppc;
+		int    save_mSS;
 
-		if (add != 0 || SS_ref_db[ph_id].df_raw < 1e-3 || SS_ref_db[ph_id].df_raw > 0.25){
-			pc_check = 0;
+
+		if (pc_check != 2 || SS_ref_db[ph_id].df < gv.mSS_df_min_add || SS_ref_db[ph_id].df > gv.mSS_df_max_add){
+			save_mSS = 0;
+		}
+		else{
+			save_mSS = 1;
 		}
 
 		/* get unrotated gbase */
@@ -243,7 +248,7 @@ void copy_to_Ppc(		int 				 pc_check,
 		
 		m_Ppc = SS_ref_db[ph_id].id_Ppc;
 
-		if (pc_check == 1){
+		if (save_mSS == 1){
 			SS_ref_db[ph_id].info_Ppc[m_Ppc]   = 9;
 		}
 		else{
@@ -460,9 +465,9 @@ void ss_min_LP(			global_variable 	 gv,
 		gv.n_min[i] = 0;
 	}
 
+	pc_check = gv.PC_checked;
 	for (int i = 0; i < gv.len_cp; i++){ 
-		pc_check = gv.PC_checked;
-
+	
 		if (cp[i].ss_flags[0] == 1){
 			ph_id = cp[i].id;
 
@@ -827,6 +832,25 @@ global_variable init_ss_db_sb(	int 				 EM_database,
 										/** can become a global variable instead */
 		}
 	}
+	else if (EM_database == 1){
 
+		for (int i = 0; i < gv.len_ss; i++){
+			SS_ref_db[i].P  = z_b.P;									/** needed to pass to local minimizer, allows for P variation for liq/sol */
+			SS_ref_db[i].T  = z_b.T;		
+			SS_ref_db[i].R  = 0.0083144;
+
+			// if (SS_ref_db[i].is_liq == 1){
+			// 	SS_ref_db[i].P  = z_b.P + gv.melt_pressure;
+			// }
+
+			SS_ref_db[i]    = G_SS_sb21_EM_function(	gv, 
+														SS_ref_db[i], 
+														gv.EM_dataset, 
+														z_b, 
+														gv.SS_list[i]		);
+											
+										/** can become a global variable instead */
+		}
+	}
 	return gv;
 };

@@ -1496,20 +1496,8 @@ global_variable LP(		bulk_info 			z_b,
 	int    mode = 0;
 	int    gi   = 0;
 	int iterate = 1;
-	int nCheck  = 0;
 
-
-	// gv = LP_pc_composite(		z_b,
-	// 								splx_data,
-	// 								gv,
-	// 								PC_read,
-	// 								P2X_read,
-
-	// 								SS_objective,	
-	// 								PP_ref_db,
-	// 								SS_ref_db			);	
-
-
+	gv.PC_checked = 0;
 	gv = init_LP(			z_b,
 							splx_data,
 							gv,
@@ -1521,12 +1509,12 @@ global_variable LP(		bulk_info 			z_b,
 							cp	);
 
 	while (iterate == 1){
-		gv.PC_checked = 0;
+		
 
 		t = clock();
 
-		if ((gv.gamma_norm[gv.global_ite-1] < 1.0 && nCheck < 3 && gv.global_ite > 1)){
-			gv.PC_checked = 1;
+		if ((gv.gamma_norm[gv.global_ite-1] < 1.0 && gv.PC_checked < 2 && gv.global_ite > 1)){
+			gv.PC_checked += 1;
 			if (gv.verbose == 1){
 				printf(" Checking PC for re-introduction:\n");
 				printf(" ════════════════════════════════\n");
@@ -1541,7 +1529,7 @@ global_variable LP(		bulk_info 			z_b,
 			if (gv.verbose == 1){
 				printf("\n");
 			}
-			nCheck += 1;
+
 		}
 
 		if (gv.verbose == 1){
@@ -1582,16 +1570,6 @@ global_variable LP(		bulk_info 			z_b,
 												
 										PP_ref_db,
 										SS_ref_db			);
-
-		// gv = LP_pc_composite(		z_b,
-		// 								splx_data,
-		// 								gv,
-		// 								PC_read,
-		// 								P2X_read,
-
-		// 								SS_objective,	
-		// 								PP_ref_db,
-		// 								SS_ref_db			);	
 
 		gv = init_LP(					z_b,
 										splx_data,
@@ -1640,10 +1618,10 @@ global_variable LP(		bulk_info 			z_b,
 		gv.ite_time[gv.global_ite] 		 = ((double)t)/CLOCKS_PER_SEC*1000;
 		gi += 1;
 
-		if ((gv.gamma_norm[gv.global_ite-1] < 1e-4 || gi >= gv.max_LP_ite) && nCheck > 2){
+		if ((gv.gamma_norm[gv.global_ite-1] < 1e-6 || gi >= gv.max_LP_ite) && gv.PC_checked == 2){
 			iterate = 0;
 
-			if (gv.gamma_norm[gv.global_ite-1] < 1e-4){
+			if (gv.gamma_norm[gv.global_ite-1] < 1e-6){
 				gv.status = 0;
 			}
 			if (gi >= gv.max_LP_ite){
@@ -1658,9 +1636,6 @@ global_variable LP(		bulk_info 			z_b,
 				}
 				else if ( gv.gamma_norm[gv.global_ite-1] >= 1.0 && gv.gamma_norm[gv.global_ite-1] < 10.0){
 					gv.status = 4;
-				}
-				else{
-					gv.status = -1;
 				}
 			}
 

@@ -122,12 +122,12 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.7.0 [25/02/2025]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.7.1 [25/02/2025]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
 	gv.EM_dataset 		= -1;
-	gv.max_n_mSS		= 64;					/** maximum number of metastable pseudocompounds 									*/
+	gv.max_n_mSS		= 128;					/** maximum number of metastable pseudocompounds 									*/
 	gv.max_n_cp 		= 256;					/** number of considered solution phases 											*/	
 	gv.max_ss_size_cp   = 24;					/** maximum size for a solution phase saved in the cp structure                     */
 	gv.buffer_n 		= 0.0;					/** factor for QFM buffer 															*/
@@ -159,9 +159,11 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.PC_check_val1	= 1.0e-2;				/** br norm under which PC are tested for potential candidate to be added 			*/
 	gv.PC_check_val2	= 1.0e-4;				/** br norm under which PC are tested for potential candidate to be added 			*/
 	gv.PC_min_dist 		= 1.0;					/** factor multiplying the diagonal of the hyperbox of xeos s-tep 					*/
+	gv.mSS_df_max_add 	= 0.4;					/** driving force under which a metastable solution phase is added to the assemblage */
+	gv.mSS_df_min_add   = 1e-3;					/** driving force under which a metastable solution phase is added to the assemblage */
 
 	/* levelling parameters 			*/
-	gv.em2ss_shift		= 2e-6;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
+	gv.em2ss_shift		= 2e-8;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
 	gv.bnd_filter_pc    = 10.0;					/** value of driving force the pseudocompound is considered 						*/
 	gv.bnd_filter_pge   = 2.5;					/** value of driving force the pseudocompound is considered 						*/
 	gv.max_G_pc         = 2.5;					/** dG under which PC is considered after their generation		 					*/
@@ -436,6 +438,8 @@ SS_ref G_SS_init_EM_function(		SS_init_type		*SS_init,
 	SS_ref_db.p       		= malloc (n_em       	* sizeof (double) ); 
 	SS_ref_db.ElShearMod    = malloc (n_em       	* sizeof (double) ); 
 	SS_ref_db.ElBulkMod     = malloc (n_em       	* sizeof (double) ); 
+	SS_ref_db.ElCp    		= malloc (n_em       	* sizeof (double) ); 
+	SS_ref_db.ElExpansivity = malloc (n_em       	* sizeof (double) ); 
 	SS_ref_db.ape      		= malloc (n_em       	* sizeof (double) ); 
 	SS_ref_db.mat_phi 		= malloc (n_em       	* sizeof (double) ); 
 	SS_ref_db.mu_Gex  		= malloc (n_em       	* sizeof (double) ); 
@@ -588,6 +592,8 @@ em_data get_em_data(	char        *research_group,
 	PP_ref PP_db   		= G_EM_function(research_group, EM_dataset, len_ox, z_b.id, z_b.bulk_rock, z_b.apo, P, T, name, state);
    	data.ElShearMod  	= PP_db.phase_shearModulus;
 	data.ElBulkMod  	= PP_db.phase_bulkModulus;
+	data.ElCp  		 	= PP_db.phase_cp;
+	data.ElExpansivity 	= PP_db.phase_expansivity;
    	data.gb  			= PP_db.gbase;
 
 	for (int i = 0; i < len_ox; i++){

@@ -3,28 +3,31 @@
 
 
 using JSON3, DataFrames, JLD2, Symbolics, Combinatorics
-
 include("functions_ss.jl")
 
-sb_ver  = "sb11"
+sb      = 11
 elems   = ["Si", "Ca", "Al", "Fe", "Mg", "Na"]
 n_el    = length(elems)
 
-data2   = read_data("stx11_data.json")
+if sb == 11
 
-ss      = JSON3.read("stx11_solution.json", Vector{ModelJSON})
+    sb_ver  = "sb11"
 
+    data    = read_data("stx11_data.json")
+    ss      = JSON3.read("stx11_solution.json", Vector{ModelJSON})
+elseif sb == 21
 
-sb_gss_init_function, sb_gss_function, sb_objective_functions, sb_SS_xeos_PC, SB_NLopt_opt_functions = generate_C_files(sb_ver,ss,data2)
+    sb_ver  = "sb21"
 
+    data    = read_data("stx21_data.json")
+    ss      = JSON3.read("stx21_solution.json", Vector{ModelJSON})
+end
+
+sb_gss_init_function, sb_gss_function, sb_objective_functions, sb_SS_xeos_PC, SB_NLopt_opt_functions = generate_C_files(sb_ver,ss,data);
 
 
 # print(sb_gss_init_function)
-
 # print(sb_gss_function)
-
-print(sb_objective_functions)
-
+# print(sb_objective_functions)
 # print(sb_SS_xeos_PC)
-
 # print(SB_NLopt_opt_functions)

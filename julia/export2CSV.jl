@@ -83,7 +83,7 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
                             "P[kbar]"       => out[k].P_kbar,
                             "T[°C]"         => out[k].T_C,
                             "phase"         => "liq",
-                            "mode[wt%]"     => out_te[k].liq_wt_norm,
+                            "mode[wt%]"     => out_te[k].liq_wt_norm .* 100.0,
                             "Zr_sat[μg/g]"  => Sat_zr_liq)
 
             part_2 = Dict(  (out[1].oxides[j]*"_cor[wt%]" => "-")
@@ -130,8 +130,8 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
                                 "X[0.0-1.0]"    => out[k].X[1],
                                 "P[kbar]"       => out[k].P_kbar,
                                 "T[°C]"         => out[k].T_C,
-                                "phase"         => out_te[k].ph_TE,
-                                "mode[wt%]"     => out_te[k].ph_wt_norm,
+                                "phase"         => out_te[k].ph_TE[i],
+                                "mode[wt%]"     => out_te[k].ph_wt_norm[i].*100.0,
                                 "Zr_sat[μg/g]"  => "-")
 
                 part_2 = Dict(  (out[1].oxides[j]*"_cor[wt%]" => "-")

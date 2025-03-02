@@ -851,6 +851,9 @@ global_variable get_tests_bulks(	global_variable  	 gv
 		if 		(gv.EM_database == 0){
 			gv = get_bulk_stx11( 		gv );
 		}
+		else if (gv.EM_database == 1){
+			gv = get_bulk_stx21( 		gv );
+		}
 		else{
 			printf(" Wrong database...\n");
 		}
@@ -1493,9 +1496,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 					dGdP					 = (SS_ref_db[ss].mu_array[5][j]-SS_ref_db[ss].mu_array[7][j])/(gv.gb_P_eps);
 					dGdP_N 					 = (SS_ref_db[ss].mu_array[4][j]-SS_ref_db[ss].mu_array[5][j])/(gv.gb_P_eps);
 					// dGdP_P0 				 = (SS_ref_db[ss].mu_array[8][j]-SS_ref_db[ss].mu_array[9][j])/(gv.gb_P_eps);
-					/* heat capacity 	*/
-					cp[i].phase_cp    		+= -T*(dG2dT2)*cp[i].p_em[j];
-					
+
 					/* volume 			*/
 					cp[i].volume    		+= (dGdP)*cp[i].p_em[j];
 
@@ -1505,16 +1506,18 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 					/* entropy   		*/
 					cp[i].phase_entropy 	+= -(dGdTMP)*cp[i].p_em[j]*cp[i].factor;
 
-					/* expansivity 		*/
-					cp[i].phase_expansivity += (1.0/(dGdP)*((dGdTPP-dGdTMP)/(gv.gb_P_eps)))*cp[i].p_em[j];
-					
-					/* bulk modulus	*/
+					/* Bulk modulus - Expansivity - Heat capacity */
 					if ( strcmp(gv.research_group, "sb") 	== 0 ){
-						cp[i].phase_bulkModulus += SS_ref_db[ss].ElBulkMod[j] * cp[i].p_em[j];
+						cp[i].phase_expansivity += SS_ref_db[ss].ElExpansivity[j] 	* cp[i].p_em[j];
+						cp[i].phase_bulkModulus += SS_ref_db[ss].ElBulkMod[j] 		* cp[i].p_em[j];
+						cp[i].phase_cp    		+= SS_ref_db[ss].ElCp[j]*cp[i].p_em[j];
 					}
 					else{
+						cp[i].phase_expansivity += (1.0/(dGdP)*((dGdTPP-dGdTMP)/(gv.gb_P_eps)))*cp[i].p_em[j];
 						cp[i].phase_bulkModulus += -dGdP/( dG2dP2 + pow(((dGdTPP-dGdTMP)/(gv.gb_P_eps)),2.0)/dG2dT2 ) * cp[i].p_em[j];
+						cp[i].phase_cp    		+= -T*(dG2dT2)*cp[i].p_em[j];
 					}
+					
 
 					/* iso bulk modulus	*/
 					cp[i].phase_isoTbulkModulus += -dGdP/( dG2dP2 ) 	* cp[i].p_em[j];
@@ -1621,24 +1624,18 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 			/* Calculate density per pure phase */
 			PP_ref_db[i].phase_density 		= (1000.0*PP_ref_db[i].mass)/(PP_ref_db[i].volume*10.0);
 			
-			/* calculate cp of pure phase */
-			PP_ref_db[i].phase_cp 			= -T*(dG2dT2);
-			
-			/* expansivity 		*/
-			PP_ref_db[i].phase_expansivity 	= 1.0/(dGdP)*((dGdTPP-dGdTMP)/(gv.gb_P_eps));
-			
+
 			/* entropy 		*/
 			PP_ref_db[i].phase_entropy 		= -dGdTMP*PP_ref_db[i].factor;
 			
 			/* enthalpy   		*/
 			PP_ref_db[i].phase_enthalpy 	= PP_ref_db[i].phase_entropy*T + PP_ref_db[i].gbase*PP_ref_db[i].factor;;
 	
-			/* bulk modulus	*/
-			if ( strcmp(gv.research_group, "sb") 	== 0 ){
-				
-			}
-			else{
+			/* bulk modulus	- expansivity - calculate cp of pure phase */
+			if ( strcmp(gv.research_group, "sb") 	!= 0 ){
 				PP_ref_db[i].phase_bulkModulus	= -dGdP/( dG2dP2 + pow(((dGdTPP-dGdTMP)/(gv.gb_P_eps)),2.0)/dG2dT2 );
+				PP_ref_db[i].phase_cp 			= -T*(dG2dT2);
+				PP_ref_db[i].phase_expansivity 	= 1.0/(dGdP)*((dGdTPP-dGdTMP)/(gv.gb_P_eps));
 			}
 
 			/* shear modulus	*/

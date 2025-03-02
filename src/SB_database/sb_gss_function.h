@@ -18,5 +18,10 @@ SS_ref G_SS_sb11_EM_function(	global_variable  gv,
                                 int 			 EM_dataset,
                                 bulk_info 		 z_b,
                                 char 			*name					);
-							
+
+SS_ref G_SS_sb21_EM_function(	global_variable  gv, 
+                                SS_ref 			 SS_ref_db,
+                                int 			 EM_dataset,
+                                bulk_info 		 z_b,
+                                char 			*name					);						
 #endif

@@ -11,9 +11,10 @@ function get_database_infos()
                         "Ultramafic extended (Evans & Frost., 2021) with pl, amp and aug from Green et al., 2016",
                         "Mantle (Holland et al., 2013)",
                         "Metapelite extended (White et al., 2014 with po from Evans & Frost., 2021, amp dio and aug from Green et al., 2016)",
-                        "Stixrude & Lithgow-Bertelloni (2011)" ]
+                        "Stixrude & Lithgow-Bertelloni (2011)",
+                        "Stixrude & Lithgow-Bertelloni (2021)" ]
 
-    database_list   = ["mp","mb","ig","igad","um","ume","mtl","mpe","sb11"]
+    database_list   = ["mp","mb","ig","igad","um","ume","mtl","mpe","sb11","sb21"]
 
     db_inf          = Array{db_infos, 1}(undef, length(database_list))
 
