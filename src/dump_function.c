@@ -194,14 +194,22 @@ void mSS_output_struct(			global_variable 	 gv,
 								stb_system  		*sp
 ){
 	PC_type 				PC_read[gv.len_ss];
-
-	TC_PC_init(	    		PC_read,
-							gv								);
-
 	P2X_type 				P2X_read[gv.len_ss];
 
-	TC_P2X_init(			P2X_read,
-							gv								);		
+	if (strcmp(gv.research_group, "tc") 	== 0 ){
+		TC_PC_init(	    		PC_read,
+								gv			);
+		TC_P2X_init(			P2X_read,
+								gv								);		
+	}
+	else if (strcmp(gv.research_group, "sb") 	== 0 ){
+		SB_PC_init(	    		PC_read,
+								gv			);
+	}
+
+
+
+
 
 	int nox  = gv.len_ox;
 	int i, j, k, m, n, em_id, ph_id, pc_id;
@@ -257,7 +265,7 @@ void mSS_output_struct(			global_variable 	 gv,
 			sp[0].n_mSS += 1;
 			m += 1;
 		}
-		else if (d->ph_id_A[i][0] == 2){ 		/* pure endmembers as solution phase */
+		else if (d->ph_id_A[i][0] == 2 && strcmp(gv.research_group, "tc") 	== 0 ){ 		/* pure endmembers as solution phase */
 			em_id 					= d->ph_id_A[i][3];
 
 			for (j = 0; j < SS_ref_db[ph_id].n_em; j++) {	
@@ -272,12 +280,20 @@ void mSS_output_struct(			global_variable 	 gv,
 			SS_ref_db[ph_id] = non_rot_hyperplane(	gv, 
 													SS_ref_db[ph_id]			);
 
-			SS_ref_db[ph_id] = PC_function(				gv,
-														PC_read,
-														SS_ref_db[ph_id], 
-														z_b,
-														ph_id 		);
-
+			if (strcmp(gv.research_group, "tc") 	== 0 ){									
+				SS_ref_db[ph_id] = PC_function(				gv,
+															PC_read,
+															SS_ref_db[ph_id], 
+															z_b,
+															ph_id 		);
+			}
+			else if (strcmp(gv.research_group, "sb") 	== 0 ){
+				SS_ref_db[ph_id] = SB_PC_function(			gv,
+															PC_read,
+															SS_ref_db[ph_id], 
+															z_b,
+															ph_id 		);
+			}
 
 			for (j = 0; j < gv.len_ox; j++){
 				sp[0].mSS[m].comp_Ppc[j] = SS_ref_db[ph_id].ss_comp[j]*SS_ref_db[ph_id].factor;
@@ -332,11 +348,20 @@ void mSS_output_struct(			global_variable 	 gv,
 			SS_ref_db[ph_id] = non_rot_hyperplane(	gv, 
 													SS_ref_db[ph_id]			);
 
-			SS_ref_db[ph_id] = PC_function(				gv,
-														PC_read,
-														SS_ref_db[ph_id], 
-														z_b,
-														ph_id 		);
+			if (strcmp(gv.research_group, "tc") 	== 0 ){									
+				SS_ref_db[ph_id] = PC_function(				gv,
+															PC_read,
+															SS_ref_db[ph_id], 
+															z_b,
+															ph_id 		);
+			}
+			else if (strcmp(gv.research_group, "sb") 	== 0 ){
+				SS_ref_db[ph_id] = SB_PC_function(			gv,
+															PC_read,
+															SS_ref_db[ph_id], 
+															z_b,
+															ph_id 		);
+			}
 											
 			for (j = 0; j < gv.len_ox; j++){
 				sp[0].mSS[m].comp_Ppc[j] = SS_ref_db[ph_id].ss_comp[j]*SS_ref_db[ph_id].factor;
@@ -799,15 +824,15 @@ void fill_output_struct(		global_variable 	 gv,
 
 	/* compute cp as J/K/kg for given bulk-rock composition */
 	sp[0].s_cp 					= sp[0].cp_wt/mass_bulk*1e6;
-	if (strcmp(gv.research_group, "tc") 	== 0 ){
-		mSS_output_struct(	gv,
-							splx_data,
-							z_b,
-							PP_ref_db,
-							SS_ref_db,
-							cp,
-							sp 			);
-	}
+
+	mSS_output_struct(	gv,
+						splx_data,
+						z_b,
+						PP_ref_db,
+						SS_ref_db,
+						cp,
+						sp 			);
+
 
 }
 

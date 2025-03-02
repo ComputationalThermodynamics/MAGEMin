@@ -927,6 +927,8 @@ struct SS_refs
     xeos::Ptr{Cdouble}
     ElShearMod::Ptr{Cdouble}
     ElBulkMod::Ptr{Cdouble}
+    ElCp::Ptr{Cdouble}
+    ElExpansivity::Ptr{Cdouble}
     density::Ptr{Cdouble}
     phase_density::Cdouble
     volume::Cdouble
@@ -1606,12 +1608,42 @@ end
 
 const stx11_dataset = stx11_datasets
 
+mutable struct stx21_datasets
+    ds_version::Cint
+    n_ox::Cint
+    n_pp::Cint
+    n_ss::Cint
+    ox::NTuple{6, NTuple{20, Cchar}}
+    PP::NTuple{10, NTuple{20, Cchar}}
+    SS::NTuple{15, NTuple{20, Cchar}}
+    verifyPC::NTuple{15, Cint}
+    n_SS_PC::NTuple{15, Cint}
+    SS_PC_stp::NTuple{15, Cdouble}
+    PC_df_add::Cdouble
+    solver_switch_T::Cdouble
+    min_melt_T::Cdouble
+    inner_PGE_ite::Cdouble
+    max_n_phase::Cdouble
+    max_g_phase::Cdouble
+    max_fac::Cdouble
+    merge_value::Cdouble
+    re_in_n::Cdouble
+    obj_tol::Cdouble
+    stx21_datasets() = new()
+end
+
+const stx21_dataset = stx21_datasets
+
 function global_variable_SB_init(gv, z_b)
     ccall((:global_variable_SB_init, libMAGEMin), global_variable, (global_variable, Ptr{bulk_info}), gv, z_b)
 end
 
 function get_bulk_stx11(gv)
     ccall((:get_bulk_stx11, libMAGEMin), global_variable, (global_variable,), gv)
+end
+
+function get_bulk_stx21(gv)
+    ccall((:get_bulk_stx21, libMAGEMin), global_variable, (global_variable,), gv)
 end
 
 # typedef SS_ref ( * SS_init_type ) ( SS_ref SS_ref_db , global_variable gv )
@@ -1633,6 +1665,8 @@ mutable struct em_datas
     C::NTuple{14, Cdouble}
     ElShearMod::Cdouble
     ElBulkMod::Cdouble
+    ElCp::Cdouble
+    ElExpansivity::Cdouble
     gb::Cdouble
     charge::Cdouble
     em_datas() = new()
@@ -2394,8 +2428,16 @@ function G_SS_sb11_EM_function(gv, SS_ref_db, EM_dataset, z_b, name)
     ccall((:G_SS_sb11_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_dataset, z_b, name)
 end
 
+function G_SS_sb21_EM_function(gv, SS_ref_db, EM_dataset, z_b, name)
+    ccall((:G_SS_sb21_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_dataset, z_b, name)
+end
+
 function SB_sb11_objective_init_function(SS_objective, gv)
     ccall((:SB_sb11_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
+end
+
+function SB_sb21_objective_init_function(SS_objective, gv)
+    ccall((:SB_sb21_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
 end
 
 function SB_SS_objective_init_function(SS_objective, gv)
@@ -2462,12 +2504,76 @@ function obj_sb11_cf(n, x, grad, SS_ref_db)
     ccall((:obj_sb11_cf, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
-function SB_PC__function(gv, PC_read, SS_ref_db, z_b, ph_id)
-    ccall((:SB_PC__function, libMAGEMin), SS_ref, (global_variable, Ptr{PC_type}, SS_ref, bulk_info, Cint), gv, PC_read, SS_ref_db, z_b, ph_id)
+function obj_sb21_plg(n, x, grad, SS_ref_db)
+    ccall((:obj_sb21_plg, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_sb21_sp(n, x, grad, SS_ref_db)
+    ccall((:obj_sb21_sp, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_sb21_ol(n, x, grad, SS_ref_db)
+    ccall((:obj_sb21_ol, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_sb21_wa(n, x, grad, SS_ref_db)
+    ccall((:obj_sb21_wa, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_sb21_ri(n, x, grad, SS_ref_db)
+    ccall((:obj_sb21_ri, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_sb21_opx(n, x, grad, SS_ref_db)
+    ccall((:obj_sb21_opx, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_sb21_cpx(n, x, grad, SS_ref_db)
+    ccall((:obj_sb21_cpx, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_sb21_hpcpx(n, x, grad, SS_ref_db)
+    ccall((:obj_sb21_hpcpx, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_sb21_ak(n, x, grad, SS_ref_db)
+    ccall((:obj_sb21_ak, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_sb21_gtmj(n, x, grad, SS_ref_db)
+    ccall((:obj_sb21_gtmj, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_sb21_pv(n, x, grad, SS_ref_db)
+    ccall((:obj_sb21_pv, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_sb21_ppv(n, x, grad, SS_ref_db)
+    ccall((:obj_sb21_ppv, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_sb21_cf(n, x, grad, SS_ref_db)
+    ccall((:obj_sb21_cf, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_sb21_mw(n, x, grad, SS_ref_db)
+    ccall((:obj_sb21_mw, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_sb21_nal(n, x, grad, SS_ref_db)
+    ccall((:obj_sb21_nal, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function SB_PC_function(gv, PC_read, SS_ref_db, z_b, ph_id)
+    ccall((:SB_PC_function, libMAGEMin), SS_ref, (global_variable, Ptr{PC_type}, SS_ref, bulk_info, Cint), gv, PC_read, SS_ref_db, z_b, ph_id)
 end
 
 function SB_sb11_PC_init(PC_read, gv)
     ccall((:SB_sb11_PC_init, libMAGEMin), Cvoid, (Ptr{PC_type}, global_variable), PC_read, gv)
+end
+
+function SB_sb21_PC_init(PC_read, gv)
+    ccall((:SB_sb21_PC_init, libMAGEMin), Cvoid, (Ptr{PC_type}, global_variable), PC_read, gv)
 end
 
 function SB_NLopt_opt_init(NLopt_opt, gv)
@@ -2476,6 +2582,10 @@ end
 
 function SB_sb11_pc_init_function(SS_pc_xeos, iss, name)
     ccall((:SB_sb11_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
+end
+
+function SB_sb21_pc_init_function(SS_pc_xeos, iss, name)
+    ccall((:SB_sb21_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
 end
 
 function PGE(z_b, gv, PC_read, SS_objective, NLopt_opt, splx_data, PP_ref_db, SS_ref_db, cp)

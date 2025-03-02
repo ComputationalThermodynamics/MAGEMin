@@ -2,244 +2,120 @@
     {
         "name": "plagioclase",
         "abbrev": "plg",
-        "endmembers": {
-            "anorthite": ["an","[Ca_1]Al_2Si_2O_8"],
-            "albite": ["ab","[Na_1]Al_1Si_3O_8"]
-        },
-        "margules": {
-            "anorthite,albite": 1.300e+04
-        },
+        "endmembers": [["an","[Ca_1]Al_2Si_2O_8"],["ab","[Na_1]Al_1Si_3O_8"]],
+        "margules": [1.300e+04],
         "van_laar": [],
         "volume_interaction": []
     },
     {
         "name": "spinel",
         "abbrev": "sp",
-        "endmembers": {
-            "spinel": ["sp","[Mg_3Al_1][Al_7Mg_1]O_16"],
-            "hercynite": ["hc","[Fe_3Al_1][Al_7Fe_1]O_16"]
-        },
-        "margules": {
-            "spinel,hercynite": -533.21
-        },
+        "endmembers": [["sp","[Mg_3Al_1][Al_7Mg_1]O_16"],["hc","[Fe_3Al_1][Al_7Fe_1]O_16"]],
+        "margules": [-533.21],
         "van_laar": [],
         "volume_interaction": []
     },
     {
         "name": "olivine",
         "abbrev": "ol",
-        "endmembers": {
-            "forsterite": ["fo","[Mg_2]Si_1O_4"],
-            "fayalite": ["fa","[Fe_2]Si_1O_4"]
-        },
-        "margules": {
-            "forsterite,fayalite": 4694.66
-        },
+        "endmembers": [["fo","[Mg_2]Si_1O_4"],["fa","[Fe_2]Si_1O_4"]],
+        "margules": [4694.66],
         "van_laar": [],
         "volume_interaction": []
     },
     {
         "name": "wadsleyite",
         "abbrev": "wa",
-        "endmembers": {
-            "mg-wadsleyite": ["mgwa","[Mg_2]Si_1O_4"],
-            "fe-wadsleyite": ["fewa","[Fe_2]Si_1O_4"]
-        },
-        "margules": {
-            "mg-wadsleyite,fe-wadsleyite": 13202.38
-        },
+        "endmembers": [["mgwa","[Mg_2]Si_1O_4"],["fewa","[Fe_2]Si_1O_4"]],
+        "margules": [13202.38],
         "van_laar": [],
         "volume_interaction": []
     },
     {
         "name": "ringwoodite",
         "abbrev": "ri",
-        "endmembers": {
-            "mg-ringwoodite": ["mgri","[Mg_2]Si_1O_4"],
-            "fe-ringwoodite": ["feri","[Fe_2]Si_1O_4"]
-        },
-        "margules": {
-            "mg-ringwoodite,fe-ringwoodite": 7600.74
-        },
+        "endmembers": [["mgri","[Mg_2]Si_1O_4"],["feri","[Fe_2]Si_1O_4"]],
+        "margules": [7600.74],
         "van_laar": [],
         "volume_interaction": []
     },
     {
         "name": "orthopyroxene",
         "abbrev": "opx",
-        "endmembers": {
-            "enstatite": ["en","[Mg_1][Mg_1]Si_2O_6"],
-            "ferrosilite": ["fs","[Fe_1][Fe_1]Si_2O_6"],
-            "mg-tschermak": ["mgts","[Mg_1][Al_1]Si_1Al_1O_6"],
-            "ortho-diopside": ["odi","[Ca_1][Mg_1]Si_2O_6"]
-        },
-        "margules": {
-            "enstatite,ferrosilite": 0.000e+00,
-            "enstatite,mg-tschermak": 0.000e+00,
-            "enstatite,ortho-diopside": 32217.44,
-            "ferrosilite,mg-tschermak": 0.000e+00,
-            "ferrosilite,ortho-diopside": 32217.44,
-            "mg-tschermak,ortho-diopside": 48370.41
-        },
+        "endmembers": [["en","[Mg_1][Mg_1]Si_2O_6"],["fs","[Fe_1][Fe_1]Si_2O_6"],["mgts","[Mg_1][Al_1]Si_1Al_1O_6"],["odi","[Ca_1][Mg_1]Si_2O_6"]],
+        "margules": [0.000e+00,0.000e+00, 32217.44,0.000e+00,32217.44,48370.41],
         "van_laar": [],
         "volume_interaction": []
     },
     {
         "name": "clinopyroxene",
         "abbrev": "cpx",
-        "endmembers": {
-            "diopside": ["di","[Ca_1][Mg_1][Si_2]O_6"],
-            "hedenbergite": ["he","[Ca_1][Fe_1][Si_2]O_6"],
-            "clinoenstatite": ["cen","[Mg_1][Mg_1][Si_2]O_6"],
-            "ca-tschermak": ["cats","[Ca_1][Al_1][Si_1Al_1]O_6"],
-            "jadeite": ["jd","[Na_1][Al_1][Si_2]O_6"]
-        },
-        "margules": {
-            "diopside,hedenbergite": 0.000e+00,
-            "diopside,clinoenstatite": 2.474e+04,
-            "diopside,ca-tschermak": 2.600e+04,
-            "diopside,jadeite": 2.430e+04,
-            "hedenbergite,clinoenstatite": 2.474e+04,
-            "hedenbergite,ca-tschermak": 26000.0,
-            "hedenbergite,jadeite": 24300.0,
-            "clinoenstatite,ca-tschermak": 60132.81,
-            "clinoenstatite,jadeite": 46046.07,
-            "ca-tschermak,jadeite": 1.000e+04
-        },
+        "endmembers": [["di","[Ca_1][Mg_1][Si_2]O_6"],["he","[Ca_1][Fe_1][Si_2]O_6"],["cen","[Mg_1][Mg_1][Si_2]O_6"],["cats","[Ca_1][Al_1][Si_1Al_1]O_6"],["jd","[Na_1][Al_1][Si_2]O_6"]],
+        "margules": [0.000e+00,2.474e+04,2.600e+04,2.430e+04,2.474e+04,26000.0,24300.0,60132.81,46046.07,1.000e+04],
         "van_laar": [1.0, 1.0, 1.0, 3.5, 1.0],
         "volume_interaction": []
     },
     {
         "name": "hp-clinopyroxene",
         "abbrev": "hpcpx",
-        "endmembers": {
-            "hp-clinoenstatite": ["hpcen","[Mg_2]Si_2O_6"],
-            "hp-clinoferrosilite": ["hpcfs","[Fe_2]Si_2O_6"]
-        },
-        "margules": {
-            "hp-clinoenstatite,hp-clinoferrosilite": 0.000e+00
-        },
+        "endmembers": [["hpcen","[Mg_2]Si_2O_6"],["hpcfs","[Fe_2]Si_2O_6"]],
+        "margules": [0.000e+00],
         "van_laar": [],
         "volume_interaction": []
     },
     {
         "name": "akimotoite",
         "abbrev": "ak",
-        "endmembers": {
-            "mg-akimotoite": ["mgak","[Mg_1][Si_1]O_3"],
-            "fe-akimotoite": ["feak","[Fe_1][Si_1]O_3"],
-            "corundum": ["co","[Al_1][Al_1]O_3"]
-        },
-        "margules": {
-            "mg-akimotoite,fe-akimotoite": 0.000e+00,
-            "mg-akimotoite,corundum": 59348.69,
-            "fe-akimotoite,corundum": 59348.69
-        },
+        "endmembers": [["mgak","[Mg_1][Si_1]O_3"],["feak","[Fe_1][Si_1]O_3"],["co","[Al_1][Al_1]O_3"]],
+        "margules": [0.000e+00,59348.69,59348.69],
         "van_laar": [],
         "volume_interaction": []
     },
     {
         "name": "garnet",
         "abbrev": "gtmj",
-        "endmembers": {
-            "pyrope": ["py","[Mg_3][Al_1][Al_1]Si_3O_12"],
-            "almandine": ["alm","[Fe_3][Al_1][Al_1]Si_3O_12"],
-            "grossular": ["gr","[Ca_3][Al_1][Al_1]Si_3O_12"],
-            "mg-majorite": ["mgmj","[Mg_3][Mg_1][Si_1]Si_3O_12"],
-            "jd-majorite": ["jdmj","[Na_2Al_1][Al_1][Si_1]Si_3O_12"]
-        },
-        "margules": {
-            "pyrope,almandine": 0.000e+00,
-            "pyrope,grossular": 21117.58,
-            "pyrope,mg-majorite": 22672.42,
-            "pyrope,jd-majorite": 22672.42,
-            "almandine,grossular": 21117.58,
-            "almandine,mg-majorite": 22672.42,
-            "almandine,jd-majorite": 22672.42,
-            "grossular,mg-majorite": 60718.2,
-            "grossular,jd-majorite": 60718.2,
-            "mg-majorite,jd-majorite": 70879.14
-        },
+        "endmembers": [["py","[Mg_3][Al_1][Al_1]Si_3O_12"],["alm","[Fe_3][Al_1][Al_1]Si_3O_12"],["gr","[Ca_3][Al_1][Al_1]Si_3O_12"],["mgmj","[Mg_3][Mg_1][Si_1]Si_3O_12"],["jdmj","[Na_2Al_1][Al_1][Si_1]Si_3O_12"]],
+        "margules": [0.000e+00,21117.58,22672.42,22672.42,21117.58,22672.42,22672.42,60718.2,60718.2,70879.14],
         "van_laar": [],
-        "volume_interaction": [0.0, 1.03e-06, 0.0, 0.0, 0.0, 0.0, 0.0, 1.03e-06, 0.0, 0.0]
+        "volume_interaction": [0.0, 1.03e-05, 0.0, 0.0, 0.0, 0.0, 0.0, 1.03e-05, 0.0, 0.0]
     },
     {
         "name": "perovskite", 
         "abbrev": "pv",
-        "endmembers": {
-            "mg-perovskite": ["mgpv","[Mg_1][Si_1]O_3"],
-            "fe-perovskite": ["fepv","[Fe_1][Si_1]O_3"],
-            "al-perovskite": ["alpv","[Al_1][Al_1]O_3"]
-        },
-        "margules": {
-            "mg-perovskite,fe-perovskite": -11396.17,
-            "mg-perovskite,al-perovskite": 34979.87,
-            "fe-perovskite,al-perovskite": 0.000e+00
-        },
+        "endmembers": [["mgpv","[Mg_1][Si_1]O_3"],["fepv","[Fe_1][Si_1]O_3"],["alpv","[Al_1][Al_1]O_3"]],
+        "margules": [-11396.17,34979.87,0.000e+00],
         "van_laar": [],
         "volume_interaction": []
     },
     {
         "name": "post-perovskite",
         "abbrev": "ppv",
-        "endmembers": {
-            "mg-post-perovskite": ["mppv","[Mg_1][Si_1]O_3"],
-            "fe-post-perovskite": ["fppv","[Fe_1][Si_1]O_3"],
-            "al-post-perovskite": ["appv","[Al_1][Al_1]O_3"]
-        },
-        "margules": {
-            "mg-post-perovskite,fe-post-perovskite": -10955.49,
-            "mg-post-perovskite,al-post-perovskite": 34979.87,
-            "fe-post-perovskite,al-post-perovskite": 34979.87
-        },
+        "endmembers": [["mppv","[Mg_1][Si_1]O_3"],["fppv","[Fe_1][Si_1]O_3"],["appv","[Al_1][Al_1]O_3"]],
+        "margules": [-10955.49,34979.87,34979.87],
         "van_laar": [],
         "volume_interaction": []
     },
     {
         "name": "ca-ferrite",
         "abbrev": "cf",
-        "endmembers": {
-            "mg-ca-ferrite": ["mgcf","[Mg_1][Al_1]Al_1O_4"],
-            "fe-ca-ferrite": ["fecf","[Fe_1][Al_1]Al_1O_4"],
-            "na-ca-ferrite": ["nacf","[Na_1][Si_1]Al_1O_4"]
-        },
-        "margules": {
-            "mg-ca-ferrite,fe-ca-ferrite": 0.000e+00,
-            "mg-ca-ferrite,na-ca-ferrite": 60825.08,
-            "fe-ca-ferrite,na-ca-ferrite": 60825.08
-        },
+        "endmembers": [["mgcf","[Mg_1][Al_1]Al_1O_4"],["fecf","[Fe_1][Al_1]Al_1O_4"],["nacf","[Na_1][Si_1]Al_1O_4"]],
+        "margules": [0.000e+00,60825.08,60825.08],
         "van_laar": [1.0, 1.0, 4.4532],
         "volume_interaction": []
     },
     {
         "name": "magneso-wustite",
         "abbrev": "mw",
-        "endmembers": {
-            "periclase": ["pe","[Mg_2][Mg_2]O_4"],
-            "wustite": ["wu","[Fe_2][Fe_2]O_4"],
-            "alpha-nao2-phase": ["anao","[Na_2][Al_2]O_4"]
-        },
-        "margules": {
-            "periclase,wustite": 44000.0,
-            "periclase,alpha-nao2-phase": 120000.0,
-            "wustite,alpha-nao2-phase": 120000.0
-        },
+        "endmembers": [["pe","[Mg_2][Mg_2]O_4"],["wu","[Fe_2][Fe_2]O_4"],["anao","[Na_2][Al_2]O_4"]],
+        "margules": [44000.0,120000.0, 120000.0],
         "van_laar": [],
-        "volume_interaction": [4.4e-07, 0.0, 0.0]
+        "volume_interaction": [4.4e-06, 0.0, 0.0]
     },
     {
         "name": "new-aluminium-phase",
         "abbrev": "nal",
-        "endmembers": {
-            "mg-nal": ["mnal","[Na_1][Mg_2][Al_5Si_1]O_12"],
-            "fe-nal": ["fnal","[Na_1][Fe_2][Al_5Si_1]O_12"],
-            "na-nal": ["nnal","[Na_1][Na_2][Al_3Si_3]O_12"]
-        },
-        "margules": {
-            "mg-nal,fe-nal": 0.0,
-            "mg-nal,na-nal": -60781.47,
-            "fe-nal,na-nal": -60781.47
-        },
+        "endmembers": [["mnal","[Na_1][Mg_2][Al_5Si_1]O_12"],["fnal","[Na_1][Fe_2][Al_5Si_1]O_12"],["nnal","[Na_1][Na_2][Al_3Si_3]O_12"]],
+        "margules": [0.0,-60781.47,-60781.47],
         "van_laar": [],
         "volume_interaction": []
     }

@@ -31,8 +31,77 @@ function read_data(fname::String)
     return JSON3.read(fname, Vector{Phase}) |> DataFrame
 end
 
-data2 = read_data("stx11_data.json")
-@save "STIX11.jld2" data2
+
+
+function format_em(data)
+
+        elems  = ["Si", "Ca", "Al", "Fe", "Mg", "Na"]
+
+        tab = "    "
+        out = ""
+        out *= "/* SiO2:0 CaO:1 Al2O3:2 FeO:3 MgO:4 Na2O:5 */\n"
+        out *= "EM_db_sb arr_em_db_sb_$(sb_ver)[$(size(data)[1])] = {\n"
+        
+        # loop through all phases
+        for i=1:size(data)[1]
+            out *= tab*"{\n"
+            out *= tab*tab*"\"$(data[i,:abbrev])\", \"$(data[i,:id])\", \"$(data[i,:fml])\",\n"
+        
+            # retrieve the composition
+            composition = join(collect(values(data[i, :oxides])), ", ")
+            out *= tab*tab*"{$composition},\n"
+        
+            # retrieve site occupancies
+            fml = data[i, :fml]
+            n_sites = count(c -> c == '[', fml)
+        
+            # retrieve multiplicities and site compositions
+            matches     = eachmatch(r"\[([^\[\]]+)\]", data[i, :fml])
+            contents    = [m.captures[1] for m in matches]
+            mul         = []
+            site_cmp    = []
+            for i in contents
+                matches = eachmatch(r"_(\d+)", i)
+                n_atoms = [parse(Int, m.captures[1]) for m in matches]
+        
+                matches = eachmatch(r"[A-Za-z]+", i)
+                elements = [m.match for m in matches]
+        
+                if length(n_atoms) == 1
+                    push!(site_cmp, length(n_atoms))
+                    push!(site_cmp, findfirst(elems .== elements[1]), Float64(n_atoms[1]))
+                else
+                    push!(site_cmp, length(n_atoms))
+                    for j=1:length(n_atoms)
+                        push!(site_cmp,  findfirst(elems .== elements[j]), Float64(n_atoms[j]))
+                    end
+                end
+        
+                sum_atoms = sum(n_atoms)
+                push!(mul, Float64(sum_atoms))
+            end
+        
+            # line3   = zeros(Float64,16)
+            # l_tmp   = cat(n_sites, mul, site_cmp, dims=1)
+        
+            # line3[1:length(l_tmp)]  .= l_tmp
+            # line3   = join(collect(line3), ", ")
+        
+            # out    *= tab*tab*"{$line3},\n"
+        
+            # retrieve standard state properties
+            line4   = join(collect(Vector(data[i, 5:14])), ", ")
+            out *= tab*tab*"{$line4},\n"
+        
+            out *= tab*tab*"{$(data[i,:aSm]),$(data[i,:pd]),$(data[i,:td])},\n"
+        
+            out *= tab*"},\n"
+        end
+        
+        out *= "};\n"
+        
+    return out
+end
 
 # Function to generate a simplex in n dimensions with given step size
 function generate_simplex(n, step)
@@ -49,7 +118,7 @@ function generate_simplex(n, step)
 end
 
 
-function get_w_ids(ss,ii,data2)
+function get_w_ids(ss,ii,data)
     ks          = keys(ss[ii].margules)
     # ks_strings  = [String(s) for s in ks]
     n_em        = length(ss[ii].endmembers)
@@ -69,7 +138,7 @@ function get_w_ids(ss,ii,data2)
     end
 
     em_out      = keys(ss[ii].endmembers)
-    em_names    = data2[:,:id]
+    em_names    = data[:,:id]
     
     em_ids      = []
     for i in em_out
@@ -87,8 +156,6 @@ function get_w_ids(ss,ii,data2)
     # println(em_in)
 
     # em_in is the same order as v
-
-
     marg_in  = []
     em_list  = []
     j = 1
@@ -194,19 +261,20 @@ function adjust_simplex(simplex, eps)
 end
 
 struct ModelJSON
-    name            :: String
-    abbrev          :: String
-    endmembers      :: Dict{String, Vector{String}}
-    margules        :: Dict{String, Float64}
-    van_laar        :: Vector{Float64}
+    name                    :: String
+    abbrev                  :: String
+    endmembers              :: Vector{Vector{String}}
+    margules                :: Vector{Float64}
+    van_laar                :: Vector{Float64}
+    volume_interaction      :: Vector{Float64}
 end
 
 function retrieve_site_cmp(ss, i)
 
-    em          = String.(keys(ss[i].endmembers))
+    em          = [ss[i].endmembers[j][1] for j = 1:length(ss[i].endmembers)]
     n_em        = length(em)
 
-    fml         = ss[i].endmembers[em[1]][2]
+    fml         = ss[i].endmembers[1][2]
 
     matches     = eachmatch(r"\[([^\[\]]+)\]", fml)
     contents    = [m.captures[1] for m in matches]
@@ -217,7 +285,7 @@ function retrieve_site_cmp(ss, i)
     site_cmp    = zeros(Float64, n_sf,n_el, n_em)
 
     for j=1:n_em
-        fml         = ss[i].endmembers[em[j]][2]
+        fml         = ss[i].endmembers[j][2]
         matches     = eachmatch(r"\[([^\[\]]+)\]", fml)
         contents    = [m.captures[1] for m in matches]
 
@@ -302,7 +370,7 @@ function get_sb_gss_init_function(sb_ver,ss)
         sb_gss_init_function *= "}\n\n"
     end
 
-    sb_gss_init_function *= "void SS_init_sb11(	    SS_init_type 		*SS_init,\n"
+    sb_gss_init_function *= "void SB_SS_init_$(sb_ver)(	    SS_init_type 		*SS_init,\n"
     sb_gss_init_function *= "                            global_variable 	 gv				){\n\n"
     sb_gss_init_function *= "$(tab)for (int iss = 0; iss < gv.len_ss; iss++){\n"
     for i = 1:n_ss
@@ -548,12 +616,12 @@ end
     
 
 
-function get_sb_gss_function(sb_ver,ss,data2)
+function get_sb_gss_function(sb_ver,ss,data)
     sb_gss_function    = ""
 
     n_ss = length(ss)
     for ii = 1:n_ss
-        println(ii)
+        println("phase $ii -> $(ss[ii].name)")
         mul, site_cmp = retrieve_site_cmp(ss, ii)
 
         W       = [ ss[ii].margules[j] for j in  keys(ss[ii].margules)]
@@ -561,14 +629,20 @@ function get_sb_gss_function(sb_ver,ss,data2)
         v       = [ ss[ii].van_laar[j] for j in  keys(ss[ii].van_laar)]
 
         em      = [ ss[ii].endmembers[j][1] for j in  keys(ss[ii].endmembers)]
-        ids_w,ids_v   = get_w_ids(ss,ii,data2)
+        # ids_w,ids_v   = get_w_ids(ss,ii,data)
 
-
+        P_cor = [ ss[ii].volume_interaction[j] for j in  keys(ss[ii].volume_interaction)]
+        # println("$ids_v $P_cor")
         # println(mul, site_cmp, W, v, em)
 
         sym = 1
         if ~isempty(v)
             sym = 0
+        end
+
+        vol_cor = 0
+        if ~isempty(P_cor)
+            vol_cor = 1
         end
 
         n_sf    = size(site_cmp)[1]
@@ -623,12 +697,21 @@ function get_sb_gss_function(sb_ver,ss,data2)
 
         sb_gss_function *= "\n"
         for i=1:length(W)
-            sb_gss_function *= "$(tab)SS_ref_db.W[$(i-1)] = $(W[ids_w[i]]);\n"
+            if vol_cor == 1
+                if P_cor[i] != 0.0
+                    cor = "+ $(P_cor[i]) * SS_ref_db.P"
+                else
+                    cor = ""
+                end
+            else
+                cor = ""
+            end
+            sb_gss_function *= "$(tab)SS_ref_db.W[$(i-1)] = $(W[i]) $cor;\n"
         end
         sb_gss_function *= "\n"
         if ~isempty(v)
             for i=1:length(v)
-                sb_gss_function *= "$(tab)SS_ref_db.v[$(i-1)] = $(v[ids_v[i]]);\n"
+                sb_gss_function *= "$(tab)SS_ref_db.v[$(i-1)] = $(v[i]);\n"
             end
         end
         sb_gss_function *= "\n"
@@ -655,7 +738,17 @@ function get_sb_gss_function(sb_ver,ss,data2)
         for i = 1:length(em) 
             sb_gss_function *= "$(tab)SS_ref_db.ElBulkMod[$(i-1)]"*"$(tab)"^2*"= $(em[i]).ElBulkMod;\n"
         end
-        sb_gss_function *= "\n"       
+        sb_gss_function *= "\n"    
+        
+        for i = 1:length(em) 
+            sb_gss_function *= "$(tab)SS_ref_db.ElCp[$(i-1)]"*"$(tab)"^2*"= $(em[i]).ElCp;\n"
+        end
+        sb_gss_function *= "\n"    
+
+        for i = 1:length(em) 
+            sb_gss_function *= "$(tab)SS_ref_db.ElExpansivity[$(i-1)]"*"$(tab)"^2*"= $(em[i]).ElExpansivity;\n"
+        end
+        sb_gss_function *= "\n"    
 
         sb_gss_function *= "$(tab)for (i = 0; i < len_ox; i++){\n"
         for i = 1:length(em) 
@@ -740,6 +833,8 @@ function get_sb_gss_function(sb_ver,ss,data2)
     sb_gss_function *= "$(tab2)printf(\"\\n\");\n"
 
     if sb_ver == "sb11"
+        sb_gss_function *= "$(tab2)printf(\" S   C   A   F   M   N\\n\");\n"  
+    elseif sb_ver == "sb21"
         sb_gss_function *= "$(tab2)printf(\" S   C   A   F   M   N\\n\");\n"  
     else
         println("database implemented yet...")
@@ -896,10 +991,10 @@ function get_SB_NLopt_opt_functions(sb_ver,ss)
     return SB_NLopt_opt_functions
 end
 
-function generate_C_files(sb_ver,ss,data2)
+function generate_C_files(sb_ver,ss,data)
 
     sb_gss_init_function    = get_sb_gss_init_function(sb_ver,ss)
-    sb_gss_function         = get_sb_gss_function(sb_ver,ss,data2)
+    sb_gss_function         = get_sb_gss_function(sb_ver,ss,data)
     sb_objective_functions  = get_sb_objective_functions(sb_ver,ss)
     sb_SS_xeos_PC           = get_sb_SS_xeos_PC(sb_ver,ss)
     SB_NLopt_opt_functions  = get_SB_NLopt_opt_functions(sb_ver,ss)

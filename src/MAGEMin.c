@@ -896,7 +896,7 @@ global_variable SetupDatabase(			global_variable 	 gv,
 		}
 
 		// checks if the end-member dataset option arg is correct, otherwise sets to default
-		if 	(gv.EM_dataset 	== -1 || gv.EM_dataset 	== 2011 ){
+		if 	(gv.EM_dataset 	== -1 || gv.EM_dataset 	== 2011 || gv.EM_dataset == 2021){
 		}
 		else{
 			gv.EM_dataset = -1;
@@ -907,6 +907,9 @@ global_variable SetupDatabase(			global_variable 	 gv,
 		if 		(strcmp(gv.db, "sb11") 	== 0){
 			gv.EM_database = 0;
 		}
+		else if 		(strcmp(gv.db, "sb21") 	== 0){
+			gv.EM_database = 1;
+		} 
 		else {
 			if (gv.verbose == 1){
 				printf(" No or wrong database acronym has been provided, using default Stixrude & Lithgow-Bertelloni 2011([sb11])\n");
@@ -1203,6 +1206,8 @@ void FreeDatabases(		global_variable gv,
 		free(DB.SS_ref_db[i].p);
 		free(DB.SS_ref_db[i].ElShearMod);
 		free(DB.SS_ref_db[i].ElBulkMod);
+		free(DB.SS_ref_db[i].ElCp);
+		free(DB.SS_ref_db[i].ElExpansivity);
 		free(DB.SS_ref_db[i].ape);
 		free(DB.SS_ref_db[i].mat_phi);
 		free(DB.SS_ref_db[i].mu_Gex);	

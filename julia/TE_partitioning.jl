@@ -89,7 +89,7 @@ function get_EODC_Exp_KDs_database()
     conditions          = ("none")
 
     ph                  = ["mu"; "bi"; "cd"; "FeTiOx"; "g"; "afs"; "pl"; "q"; "ru"]  
-    KDs                 = [0.82; 1.67; 0.44; 1e-5; 1e-5; 1e-5; 0.02; 1e-5; 1e-5] 
+    KDs                 = [0.82; 1.67; 0.44; 1e-5; 0.01; 0.02; 0.01; 1e-5; 1e-5] 
 
     phase_name          = [ph]
     KDs                 = [KDs]

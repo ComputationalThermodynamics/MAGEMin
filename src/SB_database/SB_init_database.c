@@ -59,6 +59,35 @@ stx11_dataset stx11_db = {
 	1e-6						/** objective function tolerance 				 									*/
 };
 
+// SiO2:0 CaO:1 Al2O3:2 FeO:3 MgO:4 Na2O:5 */
+stx21_dataset stx21_db = {
+	2021,						/* Endmember default dataset number */
+	6,							/* number of oxides */			
+	10,							/* number of pure phases */
+	15,							/* number of solution phases */
+	{"SiO2"	,"CaO"	,"Al2O3","FeO"	,"MgO"	,"Na2O"																							},
+	{"neph"	,"ky"	,"st"	,"coe"	,"qtz"	,"capv"	,"co" 	,"aMgO"	,"aFeO"	,"aAl2O3"														},
+	{"plg"	,"sp"	,"ol"	,"wa"	,"ri"	,"opx"	,"cpx"	,"hpcpx","ak"	,"gtmj"	,"pv"	,"ppv"	,"cf"	,"mw"	,"nal"					},
+	
+	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1		,1						}, // allow solvus?
+	{11 	,11 	,11 	,11 	,11 	,286	,1001	,11 	,66 	,1001	,66 	,66 	,11		,66 	,66						}, // # of pseudocompound
+	{0.100	,0.100	,0.100	,0.100	,0.100	,0.100	,0.100	,0.100	,0.100	,0.100	,0.100	,0.100	,0.100 	,0.100	,0.100					}, // discretization step in endmember fraction
+
+	6.0, 						/** max dG under which a phase is considered to be reintroduced  					*/
+	673.15,						/** max temperature above which PGE solver is active 								*/
+	773.15,						/** minimum temperature above which melt is considered 								*/
+
+	8,							/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
+	0.025,						/** maximum mol% phase change during one PGE iteration in wt% 						*/
+	2.5,						/** maximum delta_G of reference change during PGE 									*/
+	1.0,						/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
+
+	2e-1,						/** merge instances of solution phase if norm < val 								*/
+	1e-4,						/** fraction of solution phase when re-introduced 									*/
+	1e-6						/** objective function tolerance 				 									*/
+};
+
+
 /* Function to allocate the memory of the data to be used/saved during PGE iterations */
 global_variable global_variable_SB_init( 	global_variable  	 gv,
 											bulk_info 			*z_b 	){
@@ -107,6 +136,54 @@ global_variable global_variable_SB_init( 	global_variable  	 gv,
 			gv.n_SS_PC[i] 	= db.n_SS_PC[i]; 
 			gv.SS_PC_stp[i] = db.SS_PC_stp[i]; 	
 		}
+		gv.act_PP     		= malloc ((gv.len_pp) * sizeof (int) 	);
+		for (i = 0; i < gv.len_pp; i++){ gv.act_PP[i] = 1; 			};
+	}
+	else if (gv.EM_database == 1){
+		stx21_dataset db 	= stx21_db;
+		gv.EM_dataset 		= db.ds_version;	
+		gv.len_pp   		= db.n_pp;		
+		gv.len_ss  			= db.n_ss;
+		gv.len_ox  			= db.n_ox;
+
+		gv.PC_df_add		= db.PC_df_add;					/** min value of df under which the PC is added 									*/
+		gv.solver_switch_T  = db.solver_switch_T;
+		gv.min_melt_T       = db.min_melt_T;				/** minimum temperature above which melt is considered 								*/
+
+		gv.inner_PGE_ite    = db.inner_PGE_ite;				/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
+		gv.max_n_phase  	= db.max_n_phase;				/** maximum mol% phase change during one PGE iteration in wt% 						*/
+		gv.max_g_phase  	= db.max_g_phase;				/** maximum delta_G of reference change during PGE 									*/
+		gv.max_fac          = db.max_fac;					/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
+
+		gv.merge_value		= db.merge_value;				/** merge instances of solution phase if norm < val 								*/
+		gv.re_in_n          = db.re_in_n;					/** fraction of phase when being reintroduce.  										*/
+		gv.obj_tol 			= db.obj_tol;
+
+		gv.ox 				= malloc (gv.len_ox * sizeof(char*)		);
+		for (i = 0; i < gv.len_ox; i++){
+			gv.ox[i] 		= malloc(20 * sizeof(char));	
+			strcpy(gv.ox[i],db.ox[i]);
+		}
+
+		gv.PP_list 			= malloc (gv.len_pp * sizeof(char*)		);
+		for (i = 0; i < (gv.len_pp); i++){	
+			gv.PP_list[i] 	= malloc(20 * sizeof(char));
+			strcpy(gv.PP_list[i],db.PP[i]);
+		}
+
+		gv.SS_list 			= malloc ((gv.len_ss) * sizeof (char*)	);
+		gv.n_SS_PC     		= malloc ((gv.len_ss) * sizeof (int) 	);
+		gv.verifyPC  		= malloc ((gv.len_ss) * sizeof (int) 	);
+		gv.SS_PC_stp     	= malloc ((gv.len_ss) * sizeof (double) );
+		for (i = 0; i < gv.len_ss; i++){ 
+			gv.SS_list[i] 	= malloc(20 * sizeof(char)				);
+			strcpy(gv.SS_list[i],db.SS[i]);
+			gv.verifyPC[i]  = db.verifyPC[i]; 
+			gv.n_SS_PC[i] 	= db.n_SS_PC[i]; 
+			gv.SS_PC_stp[i] = db.SS_PC_stp[i]; 	
+		}
+		gv.act_PP     		= malloc ((gv.len_pp) * sizeof (int) 	);
+		for (i = 0; i < gv.len_pp; i++){ gv.act_PP[i] = 1; 			};
 	}
 	/**
 	 ALLOCATE MEMORY OF OTHER GLOBAL VARIABLES
@@ -135,9 +212,6 @@ global_variable global_variable_SB_init( 	global_variable  	 gv,
 	gv.pdev[0][5]  =  1.0;	gv.pdev[1][5]  =  0.0;	
 	gv.pdev[0][6]  =  3.0;	gv.pdev[1][6]  =  0.0;
 	gv.pdev[0][7]  =  0.0;	gv.pdev[1][7]  =  0.0;
-	// gv.pdev[0][8]  =  1.0;	gv.pdev[1][8]  =  0.0;
-	// gv.pdev[0][9]  =  0.0;	gv.pdev[1][9]  =  0.0;
-	// gv.pdev[0][10] =  0.0;	gv.pdev[1][10] =  0.0;
 
 	gv.V_cor = malloc (2 * sizeof(double));
 
@@ -264,12 +338,11 @@ global_variable global_variable_SB_init( 	global_variable  	 gv,
 
 	/* sets end-member dataset information */
 	if (gv.EM_dataset == 2011){
-			gv.n_em_db 			= 46;
+			gv.n_em_db 		= 46;
 	}
-	// else if (gv.EM_dataset == 22){
-	// 		gv.n_em_db 			= 289;
-	// }
-		
+	else if (gv.EM_dataset == 2021){
+		gv.n_em_db 			= 68;
+	}
 
 	return gv;
 }
@@ -323,4 +396,55 @@ global_variable get_bulk_stx11( global_variable gv) {
 	 	exit(EXIT_FAILURE);
 	}
 	return gv;
+}
+
+/* Provide a list of test bulk-rock composition for the metapelite database (White et al., 2014)*/
+global_variable get_bulk_stx21( global_variable gv) {
+	if (gv.test != -1){
+	   if (gv.verbose == 1){
+		   printf("\n");
+		   printf("   - Minimization using in-built bulk-rock  : test %2d\n",gv.test);	
+	   }							
+   }
+   else{
+	   gv.test = 0;
+	   if (gv.verbose == 1){
+		   printf("\n");
+		   printf("   - No predefined bulk provided -> user custom bulk (if none provided, will run default KLB1)\n");	
+	   }	
+   }
+
+   if (gv.test == 0){ //KLB1
+	   /* SiO2 CaO  Al2O3 FeO MgO  Na2O  */
+	   /* Bulk rock composition of Peridotite from Holland et al., 2018, given by E. Green */
+	   gv.bulk_rock[0]  = 38.41;		/** SiO2 	*/
+	   gv.bulk_rock[1]  = 3.18;		/** CaO  	*/
+	   gv.bulk_rock[2]  = 1.8;			/** Al2O2 	*/
+	   gv.bulk_rock[3]  = 5.85;		/** FeO 	*/
+	   gv.bulk_rock[4]  = 50.49;		/** MgO 	*/
+	   gv.bulk_rock[5]  = 0.250;		/** Na2O 	*/	
+   }	
+   else if (gv.test == 1){ //Pyrolite
+	   /* SiO2 CaO  Al2O3 FeO MgO  Na2O  */
+	   gv.bulk_rock[0]  = 38.89 ;		/** SiO2 	*/
+	   gv.bulk_rock[1]  = 3.1;			/** CaO  	*/
+	   gv.bulk_rock[2]  = 2.2;			/** Al2O2 	*/
+	   gv.bulk_rock[3]  = 5.8;			/** FeO 	*/
+	   gv.bulk_rock[4]  = 50.0;		/** MgO 	*/
+	   gv.bulk_rock[5]  = 0.01;		/** Na2O 	*/
+   }  
+   else if (gv.test == 1){ //Harzburgite
+	   /* SiO2 CaO  Al2O3 FeO MgO  Na2O  */
+	   gv.bulk_rock[0]  = 36.39 ;		/** SiO2 	*/
+	   gv.bulk_rock[1]  = 0.9;			/** CaO  	*/
+	   gv.bulk_rock[2]  = 0.7;			/** Al2O2 	*/
+	   gv.bulk_rock[3]  = 5.4;			/** FeO 	*/
+	   gv.bulk_rock[4]  = 56.6;		/** MgO 	*/
+	   gv.bulk_rock[5]  = 0.01;		/** Na2O 	*/
+   }  
+   else{
+	   printf("Unknown test %i - please specify a different test! \n", gv.test);
+		exit(EXIT_FAILURE);
+   }
+   return gv;
 }

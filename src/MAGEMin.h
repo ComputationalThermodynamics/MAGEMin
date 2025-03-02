@@ -492,8 +492,10 @@ typedef struct SS_refs {
 	double  *xeos; 				/** previous minimized x-eos	 						*/
 
 	/* data output */
-	double  *ElShearMod;		/** density of the endmembers 							*/
-	double  *ElBulkMod;		/** density of the endmembers 							*/
+	double  *ElShearMod;		/** Shear modulus of the endmembers 					*/
+	double  *ElBulkMod;			/** Bulk modulus of the endmembers 						*/
+	double  *ElCp;				/** Cp of the endmembers 								*/
+	double  *ElExpansivity;		/** Thermal expansivity of the endmembers 				*/
 	double  *density;			/** density of the endmembers 							*/
 	double   phase_density;		/** density of the phase 								*/
 	double   volume;			/** volume of the phase 								*/

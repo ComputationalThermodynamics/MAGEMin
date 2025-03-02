@@ -17,6 +17,10 @@
 
 void SB_sb11_objective_init_function(	obj_type 		 	*SS_objective,
 									global_variable  	 gv					);
+
+void SB_sb21_objective_init_function(	obj_type 		 	*SS_objective,
+									global_variable  	 gv					);
+									
 void SB_SS_objective_init_function(	obj_type 			*SS_objective,
 									global_variable 	 gv					);
 
@@ -39,8 +43,24 @@ double obj_sb11_ppv(unsigned n, const double *x, double *grad, void *SS_ref_db);
 double obj_sb11_mw(unsigned n, const double *x, double *grad, void *SS_ref_db);
 double obj_sb11_cf(unsigned n, const double *x, double *grad, void *SS_ref_db);
 
+//headers for objectives functions
+double obj_sb21_plg(unsigned n, const double *x, double *grad, void *SS_ref_db);
+double obj_sb21_sp(unsigned n, const double *x, double *grad, void *SS_ref_db);
+double obj_sb21_ol(unsigned n, const double *x, double *grad, void *SS_ref_db);
+double obj_sb21_wa(unsigned n, const double *x, double *grad, void *SS_ref_db);
+double obj_sb21_ri(unsigned n, const double *x, double *grad, void *SS_ref_db);
+double obj_sb21_opx(unsigned n, const double *x, double *grad, void *SS_ref_db);
+double obj_sb21_cpx(unsigned n, const double *x, double *grad, void *SS_ref_db);
+double obj_sb21_hpcpx(unsigned n, const double *x, double *grad, void *SS_ref_db);
+double obj_sb21_ak(unsigned n, const double *x, double *grad, void *SS_ref_db);
+double obj_sb21_gtmj(unsigned n, const double *x, double *grad, void *SS_ref_db);
+double obj_sb21_pv(unsigned n, const double *x, double *grad, void *SS_ref_db);
+double obj_sb21_ppv(unsigned n, const double *x, double *grad, void *SS_ref_db);
+double obj_sb21_cf(unsigned n, const double *x, double *grad, void *SS_ref_db);
+double obj_sb21_mw(unsigned n, const double *x, double *grad, void *SS_ref_db);
+double obj_sb21_nal(unsigned n, const double *x, double *grad, void *SS_ref_db);
 
-SS_ref SB_PC__function(		global_variable 	 gv,
+SS_ref SB_PC_function(		global_variable 	 gv,
 							PC_type             *PC_read,
 							
 							SS_ref 				 SS_ref_db, 
@@ -48,6 +68,9 @@ SS_ref SB_PC__function(		global_variable 	 gv,
 							int    			 	ph_id					);
 																		
 void SB_sb11_PC_init(	               PC_type 			*PC_read,
+									global_variable 	 gv				);
+
+void SB_sb21_PC_init(	               PC_type 			*PC_read,
 									global_variable 	 gv				);
 
 #endif
