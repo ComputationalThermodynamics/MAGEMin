@@ -8,7 +8,7 @@ using DataFrames, Dates, CSV
 const VecOrMat = Union{Nothing, AbstractVector{Float64}, AbstractVector{<:AbstractVector{Float64}}}
 
 export  anhydrous_renormalization, retrieve_solution_phase_information, remove_phases, get_ss_from_mineral,
-        init_MAGEMin, finalize_MAGEMin, point_wise_minimization, convertBulk4MAGEMin, use_predefined_bulk_rock, define_bulk_rock, create_output,
+        init_MAGEMin, allocate_output,finalize_MAGEMin, point_wise_minimization, convertBulk4MAGEMin, use_predefined_bulk_rock, define_bulk_rock, create_output,
         print_info, create_gmin_struct, pwm_init, pwm_run,
         single_point_minimization, multi_point_minimization, AMR_minimization, MAGEMin_Data, W_Data,
         MAGEMin_data2dataframe, MAGEMin_dataTE2dataframe,
@@ -20,6 +20,12 @@ export adjust_chemical_system, TE_prediction, get_OL_KDs_database, get_EODC_Exp_
 
 export initialize_AMR, split_and_keep, AMR
 
+"""
+    Function to allocate memory for the output
+"""
+function allocate_output(n::Int64)
+    return Vector{gmin_struct{Float64, Int64}}(undef, n)
+end
 
 function anhydrous_renormalization( bulk    :: Vector{Float64},
                                     oxide   :: Vector{String})
