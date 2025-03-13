@@ -317,7 +317,8 @@ void swap_pure_endmembers(				bulk_info 	 		 z_b,
 
 	for (int i = 0; i < gv.len_ss; i++){												/**loop to pass informations from active endmembers */
 		// if (SS_ref_db[i].ss_flags[0] == 1 && strcmp( gv.SS_list[i], "aq17") != 0 && strcmp( gv.SS_list[i], "chl") != 0 && strcmp( gv.SS_list[i], "g") != 0 && strcmp( gv.SS_list[i], "ep") != 0 && strcmp( gv.SS_list[i], "fsp") != 0 && strcmp( gv.SS_list[i], "mu") != 0){												/** if SS is not filtered out then continue */
-		if (SS_ref_db[i].ss_flags[0] == 1 && strcmp( gv.SS_list[i], "ilm") == 1){												/** if SS is not filtered out then continue */
+		// if (SS_ref_db[i].ss_flags[0] == 1 && strcmp( gv.SS_list[i], "ilm") == 1){												/** if SS is not filtered out then continue */
+		if (SS_ref_db[i].ss_flags[0] == 1){												/** if SS is not filtered out then continue */
 
 			for (int l = 0; l < SS_ref_db[i].n_em; l++){	
 				/** if bulk-rock satisfy the compositions of endmembers, retrieve their informations */
