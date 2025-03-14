@@ -1070,13 +1070,13 @@ void run_simplex_pseudocompounds(		bulk_info 	 		z_b,
 		k 		   += 1;
 		d->swp      = 0;
 		t 			= clock();
-		// if (gv.EM_database != 6){ //TMP fix, at the moment I don't have the return mapping function from p to x for Mantle database
-		// 	swap_pure_endmembers(				z_b,
-		// 										splx_data,
-		// 										gv,
-		// 										PP_ref_db,
-		// 										SS_ref_db	);	
-		// }
+		if (gv.EM_database != 6){ //TMP fix, at the moment I don't have the return mapping function from p to x for Mantle database
+			swap_pure_endmembers(				z_b,
+												splx_data,
+												gv,
+												PP_ref_db,
+												SS_ref_db	);	
+		}
 
 		swap_pure_phases(					z_b,
 											splx_data,
@@ -1122,13 +1122,13 @@ void run_simplex_pseudocompounds_IG(	bulk_info 	 		z_b,
 		k 		   += 1;
 		d->swp      = 0;
 		t 			= clock();
-		// if (gv.EM_database != 6){ //TMP fix, at the moment I don't have the return mapping function from p to x for Mantle database
-		// 	swap_pure_endmembers(				z_b,
-		// 										splx_data,
-		// 										gv,
-		// 										PP_ref_db,
-		// 										SS_ref_db	);	
-		// }
+		if (gv.EM_database != 6){ //TMP fix, at the moment I don't have the return mapping function from p to x for Mantle database
+			swap_pure_endmembers(				z_b,
+												splx_data,
+												gv,
+												PP_ref_db,
+												SS_ref_db	);	
+		}
 		swap_pure_phases(					z_b,
 											splx_data,
 											gv,

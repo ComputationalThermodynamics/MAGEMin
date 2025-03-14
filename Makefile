@@ -5,8 +5,7 @@ UNAME_S := $(shell uname -s)
 EXE_NAME:= MAGEMin
 
 ifeq ($(UNAME_S),Darwin)
-	CCFLAGS = -Wall -O3 -g -fPIC -Wno-unused-variable -Wno-unused-but-set-variable
-	
+	CCFLAGS = -Wall -O3 -g -fPIC -Wno-unused-variable -Wno-unused-but-set-variable -march=native -funroll-loops -flto
 	# These are the flags to be used if you followed the instructions on the webpage and installed MPICH and NLopt all through homebrew 
 	# Note that we use the apple Accelerate framework to call Lapack routines
 	LIBS    = -lm -framework Accelerate /opt/homebrew/lib/libnlopt.dylib /opt/homebrew/lib/libmpi.dylib
@@ -24,7 +23,7 @@ ifeq ($(UNAME_S),Linux)
 	 # -g, -O3, normal vs optimized compilation (~ 2/3 times faster with -O3)
 	 # -Wno-unused-variable -Wno-unused-but-set-variable -Wno-maybe-uninitialized -Wno-unused-result
 	 #  -lllalloc
-	CCFLAGS = -Wall -O3 -g -fPIC -Wno-unused-variable -Wno-unused-result -Wno-unused-function
+	CCFLAGS = -Wall -O3 -g -fPIC -Wno-unused-variable -Wno-unused-but-set-variable -march=native -funroll-loops -flto
 	LIBS   += -lm -llapacke -lnlopt -g -L/usr/lib -L/usr/lib/x86_64-linux-gnu/openmpi/lib -lmpi
 	INC     = -I/usr/lib/x86_64-linux-gnu/openmpi/include/
 	
@@ -76,11 +75,11 @@ OBJECTS=$(SOURCES:.c=.o)
 	$(CC) $(CCFLAGS) -c $< -o $@ $(INC)
  
 all: $(OBJECTS)
-	$(CC)  -o $(EXE_NAME) $(OBJECTS) $(INC) $(LIBS) 
+	$(CC)  -o $(EXE_NAME) $(OBJECTS) $(INC) $(LIBS)  -flto
 	rm src/*.o src/TC_database/*.o
 
 lib: $(OBJECTS)
-	$(CC) -shared -fPIC -o libMAGEMin.dylib $(OBJECTS) $(INC) $(LIBS)
+	$(CC) -shared -fPIC -o libMAGEMin.dylib $(OBJECTS) $(INC) $(LIBS) -flto
  
 clean:
 	rm -f src/*.o  src/TC_database/*.o src/SB_database/*.o *.dylib MAGEMin

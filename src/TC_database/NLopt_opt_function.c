@@ -677,15 +677,15 @@ void fsp_mb_c(unsigned m, double *result, unsigned n, const double *x, double *g
     result[4] = ( 0.25*x[0] - 0.75);
 
     if (grad) {
-        grad[0] = 1.00;
-        grad[1] = 1.00;
-        grad[2] = -1.00;
+        grad[0] = 1.0;
+        grad[1] = 1.0;
+        grad[2] = -1.0;
         grad[3] = 0.0;
         grad[4] = 0.0;
-        grad[5] = -1.00;
-        grad[6] = -0.250;
+        grad[5] = -1.0;
+        grad[6] = -0.25;
         grad[7] = 0.0;
-        grad[8] = 0.250;
+        grad[8] = 0.25;
         grad[9] = 0.0;
     }
 
