@@ -122,7 +122,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.7.1 [25/02/2025]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.7.2 [17/03/2025]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
@@ -160,14 +160,14 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.PC_check_val2	= 1.0e-4;				/** br norm under which PC are tested for potential candidate to be added 			*/
 	gv.PC_min_dist 		= 1.0;					/** factor multiplying the diagonal of the hyperbox of xeos s-tep 					*/
 	gv.mSS_df_max_add 	= 0.4;					/** driving force under which a metastable solution phase is added to the assemblage */
-	gv.mSS_df_min_add   = 1e-3;					/** driving force under which a metastable solution phase is added to the assemblage */
+	gv.mSS_df_min_add   = 1e-6;					/** driving force under which a metastable solution phase is added to the assemblage */
 
 	/* levelling parameters 			*/
-	gv.em2ss_shift		= 2e-8;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
+	gv.em2ss_shift		= 2e-7;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
 	gv.bnd_filter_pc    = 10.0;					/** value of driving force the pseudocompound is considered 						*/
 	gv.bnd_filter_pge   = 2.5;					/** value of driving force the pseudocompound is considered 						*/
 	gv.max_G_pc         = 2.5;					/** dG under which PC is considered after their generation		 					*/
-	gv.eps_sf_pc		= 1e-10;				/** Minimum value of site fraction under which PC is rejected, 
+	gv.eps_sf_pc		= 1e-12;				/** Minimum value of site fraction under which PC is rejected, 
 													don't put it too high as it will conflict with bounds of x-eos					*/
 
 	/* PGE LP pseudocompounds parameters */
@@ -179,7 +179,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 													pseudocompound is added to the Ppc list 										*/
 
 	/* local minimizer options 	*/
-	gv.bnd_val          = 1.0e-8;				/** boundary value for x-eos 										 				*/
+	gv.bnd_val          = 1.0e-7;				/** boundary value for x-eos 										 				*/
 	gv.box_size_mode_PGE= 0.25;					/** box edge size of the compositional variables used during PGE local minimization */
 	gv.maxeval   		= 1024;					/** max number of evaluation of the obj function for mode 1 (PGE)					*/
 	gv.maxgmTime        = 0.1; 					/** set a maximum minimization time for the local minimizer (sec)					*/
@@ -195,8 +195,8 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.it_f             = 256;                  /** gives back failure when the number of iteration is bigger than it_f             */
 
 	/* phase update options 			*/
-	gv.min_df 			= -1e-7;					/** value under which a phase in hold is reintroduced */
-	gv.re_in_df 		= -1e-7;
+	gv.min_df 			= -1e-6;					/** value under which a phase in hold is reintroduced */
+	gv.re_in_df 		= -1e-6;
 	/* numerical derivatives P,T steps (same value as TC) */
 	gv.gb_P_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
 	gv.gb_T_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
