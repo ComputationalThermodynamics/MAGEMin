@@ -2,35 +2,28 @@
 CC=clang 
 
 UNAME_S := $(shell uname -s)
+
 EXE_NAME:= MAGEMin
 
+# Check if USE_MPI is set (default: 1)
+USE_MPI ?= 1
+
+CCFLAGS = -Wall -O3 -g -fPIC -Wno-unused-variable -Wno-unused-but-set-variable -march=native -funroll-loops -flto
 ifeq ($(UNAME_S),Darwin)
-	CCFLAGS = -Wall -O3 -g -fPIC -Wno-unused-variable -Wno-unused-but-set-variable -march=native -funroll-loops -flto
-	# These are the flags to be used if you followed the instructions on the webpage and installed MPICH and NLopt all through homebrew 
-	# Note that we use the apple Accelerate framework to call Lapack routines
-	LIBS    = -lm -framework Accelerate /opt/homebrew/lib/libnlopt.dylib /opt/homebrew/lib/libmpi.dylib
-	INC     = -I/opt/homebrew/include 
-
-	# LIBS   = -lm -framework Accelerate /usr/local/opt/lapack/lib/liblapacke.dylib /usr/local/lib/libnlopt.dylib /usr/local/lib/libmpich.dylib
-	# INC    = -I/usr/local/opt/lapack/include -I/usr/local/include
-
-	# This is for a Mac, where we employ the build-in CBLAS and LAPACKE from MacPorts
-	# LIBS    = -lm -framework Accelerate /opt/local/lib/lapack/liblapacke.dylib /usr/local/lib/libnlopt.dylib ~/Software/mpich-3.3.2/mpich-install/lib/libmpich.dylib
-	# INC     = -I/opt/local/include/lapack -I/usr/local/include -I/Users/kausb/Software/mpich-3.3.2/mpich-install/include
+	INC      = -I/opt/homebrew/include 
+	LIBS     = -lm -framework Accelerate /opt/homebrew/lib/libnlopt.dylib
+	ifeq ($(USE_MPI),1)
+		CCFLAGS += -DUSE_MPI
+		LIBS    += /opt/homebrew/lib/libmpi.dylib
+	endif
 endif
 ifeq ($(UNAME_S),Linux)
-	 # This is for a Linux:	
-	 # -g, -O3, normal vs optimized compilation (~ 2/3 times faster with -O3)
-	 # -Wno-unused-variable -Wno-unused-but-set-variable -Wno-maybe-uninitialized -Wno-unused-result
-	 #  -lllalloc
-	CCFLAGS = -Wall -O3 -g -fPIC -Wno-unused-variable -Wno-unused-but-set-variable -march=native -funroll-loops -flto
-	LIBS   += -lm -llapacke -lnlopt -g -L/usr/lib -L/usr/lib/x86_64-linux-gnu/openmpi/lib -lmpi
-	INC     = -I/usr/lib/x86_64-linux-gnu/openmpi/include/
-	
-	## RUN MAGEMIN ON PLUTON
-	#  CCFLAGS = -Wall -O3 -g -shared -fPIC -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-result -Wno-unused-function
-	#  LIBS   += -lm -L/local/home/nriel/lapack-3.10.0 -llapacke -llapack -lrefblas -lgfortran -L/local/home/nriel/nlopt_install/install/lib -lnlopt -g -L/opt/mpich3/lib -lmpi
-	#  INC     = -I/opt/mpich3/include -I/local/home/nriel/lapack-3.10.0/LAPACKE/include -I/local/home/nriel/nlopt_install/install/include
+	LIBS     = -lm -llapacke -lnlopt -g -L/usr/lib 
+	ifeq ($(USE_MPI),1)
+		CCFLAGS += -DUSE_MPI
+		LIBS    += -L/usr/lib/x86_64-linux-gnu/openmpi/lib -lmpi
+		INC      = -I/usr/lib/x86_64-linux-gnu/openmpi/include/
+	endif
 endif
 	EXE_NAME = MAGEMin
 
@@ -70,7 +63,9 @@ SOURCES=src/MAGEMin.c 							\
 		src/dump_function.c
 
 OBJECTS=$(SOURCES:.c=.o)
- 
+
+
+
 .c.o:
 	$(CC) $(CCFLAGS) -c $< -o $@ $(INC)
  

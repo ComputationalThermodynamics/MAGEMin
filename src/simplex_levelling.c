@@ -35,7 +35,9 @@ Levelling occurs in two stages:
 	#include <lapacke.h> 
 #endif 
 
-#include "mpi.h"
+#ifdef USE_MPI
+	#include "mpi.h"
+#endif
 
 #include "MAGEMin.h"
 #include "simplex_levelling.h"
