@@ -38,8 +38,11 @@
 #include "uthash.h"
 #include "hash_init.h"
 #include "ketopt.h"
-#include "nlopt.h"                  
-#include "mpi.h"
+#include "nlopt.h"  
+
+#ifdef USE_MPI
+	#include "mpi.h"
+#endif
 
 #include "toolkit.h"
 #include "io_function.h"
@@ -63,13 +66,18 @@ int main(		int    argc,
 ){
 	int 	rank;
 	
-	MPI_Init(&argc, &argv);
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	
+	#ifdef USE_MPI
+		MPI_Init(&argc, &argv);
+		MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	#endif
+
 	/* call the main MAGEMin routine */
 	runMAGEMin(argc, argv);
    
-	MPI_Finalize();
+	#ifdef USE_MPI
+		MPI_Finalize();
+	#endif
+
 	return 0;
 }
 
@@ -91,9 +99,10 @@ int runMAGEMin(			int    argc,
 	/*
 	  initialize MPI communicators 
 	*/
-	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-
+	#ifdef USE_MPI
+		MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
+		MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	#endif
 	/*
 		initiliaze structures
 	*/
@@ -161,13 +170,23 @@ int runMAGEMin(			int    argc,
 	/****************************************************************************************/
 	/**                               LAUNCH MINIMIZATION ROUTINE                          **/
 	/****************************************************************************************/
-	if (rank==0 && gv.verbose != -1){
-    	printf("\nRunning MAGEMin %5s on %d cores {\n", gv.version, numprocs);
-    	printf("═══════════════════════════════════════════════\n");
-	}
-	for (int point = 0; point < gv.n_points; point++){
-        if ( (point % numprocs != rank)) continue;   	/** this ensures that, in parallel, not every point is computed by every processor (instead only every numprocs point). Only applied to Mode==0 */
+	#ifdef USE_MPI
+		if (rank==0 && gv.verbose != -1){
+			printf("\nRunning MAGEMin %5s on %d cores {\n", gv.version, numprocs);
+			printf("═══════════════════════════════════════════════\n");
+		}
+	#else
+		if (gv.verbose != -1){
+			printf("\nRunning Serial MAGEMin %5s {\n", gv.version);
+			printf("═══════════════════════════════════════════════\n");
+		}
+	#endif
 
+
+	for (int point = 0; point < gv.n_points; point++){
+		#ifdef USE_MPI
+        	if ( (point % numprocs != rank)) continue;   	/** this ensures that, in parallel, not every point is computed by every processor (instead only every numprocs point). Only applied to Mode==0 */
+		#endif
 		t              = clock();										/** reset loop timer 				*/
 		gv.numPoint    = point; 										/** the number of the current point */
 
@@ -255,12 +274,18 @@ int runMAGEMin(			int    argc,
 											DB.sp						);
 
 		/* Print output to screen 													*/									/* in seconds 	 					*/
-		PrintOutput(gv, rank, point, DB, time_taken, z_b);									/* print output on screen 			*/
+		#ifdef USE_MPI
+			PrintOutput(gv, rank, point, DB, time_taken, z_b);									/* print output on screen 			*/
+		#else
+			PrintOutput(gv, 0, point, DB, time_taken, z_b);									/* print output on screen 			*/
+		#endif
 	}
 	/* end of loop over points */
 
 	/* wait for all cores to be finished */
-	MPI_Barrier(MPI_COMM_WORLD);		
+	#ifdef USE_MPI
+		MPI_Barrier(MPI_COMM_WORLD);		
+	#endif
 
 	/* now merge the parallel output files into one*/
 	mergeParallelFiles(gv);
@@ -276,10 +301,16 @@ int runMAGEMin(			int    argc,
 	
 	if (gv.verbose != -1){
 		time_taken = ((double)u)/(CLOCKS_PER_SEC); 				/** in seconds */
-		if (rank==0){
+		#ifdef USE_MPI
+			if (rank==0){
+				printf("___________________________________\n");
+				printf("MAGEMin comp time: %+3f ms }\n", time_taken*1000.0);
+			}
+		#else
 			printf("___________________________________\n");
 			printf("MAGEMin comp time: %+3f ms }\n", time_taken*1000.0);
-		}
+		#endif
+
 	}
     return 0;
 }

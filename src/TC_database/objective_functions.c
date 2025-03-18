@@ -270,7 +270,7 @@ void p2x_mb_sp(void *SS_ref_db, double eps){
     
     d->iguess[2]   = d->p[3];
     d->iguess[1]  = -d->p[2] -d->iguess[2] + 1.0;
-    d->iguess[0]  = (-d->p[1] + d->iguess[2] + 1.0)/(d->iguess[2] + 1.0);
+    d->iguess[0]  = (d->p[1] - d->iguess[2] - 1.0)/(-d->iguess[2] - 1.0);
     
     for (int i = 0; i < d->n_xeos; i++){
         if (d->iguess[i] < d->bounds[i][0]){
