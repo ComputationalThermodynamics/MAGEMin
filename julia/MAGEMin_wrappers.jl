@@ -269,7 +269,7 @@ function Initialize_MAGEMin(db = "ig";  verbose     ::Union{Int64,Bool} = 0,
                                         mpSp        ::Int64             = 0,
                                         mpIlm       ::Int64             = 0,
                                         buffer      ::String            = "NONE",
-                                        solver      ::Int64             = 1         )
+                                        solver      ::Int64             = 2         )
 
     gv, z_b, DB, splx_data = init_MAGEMin(db;   verbose     = verbose,
                                                 mbCpx       = mbCpx,
@@ -343,7 +343,7 @@ function  init_MAGEMin( db          =  "ig";
                         limitCaOpx  =   0,
                         CaOpxLim    =   1.0,
                         buffer      =  "NONE",
-                        solver      =   1           )
+                        solver      =   2           )
 
     z_b         = LibMAGEMin.bulk_infos()
     gv          = LibMAGEMin.global_variables()
