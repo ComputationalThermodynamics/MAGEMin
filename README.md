@@ -151,7 +151,7 @@ Developing new, more widely applicable, thermodynamic datasets is a huge researc
 
 
 ## Documentation
-Full support to install and use MAGEMin is available [here](https://computationalthermodynamics.github.io/MAGEMin/index.html).
+Full support to install and use MAGEMin is available [here](https://computationalthermodynamics.github.io/MAGEMin_C.jl/dev/).
 
 ## Citation
 An open-acces paper describing the methodology is:
