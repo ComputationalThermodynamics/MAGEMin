@@ -66,7 +66,7 @@ if you wish, you can also compile MAGEMin yourself, which requires you to instal
 - LAPACKE (C version of LAPACK)
 - NLopt (https://nlopt.readthedocs.io/)
 
-Details and guidelines are given in the extended documentation: https://computationalthermodynamics.github.io/MAGEMin/index.html  
+Details and guidelines are given in the extended documentation: https://computationalthermodynamics.github.io/MAGEMin_C.jl/dev/
 
 In addition, we make use of [uthash](https://troydhanson.github.io/uthash/) and [ketopt](https://github.com/attractivechaos/klib/blob/master/ketopt.h).
 
