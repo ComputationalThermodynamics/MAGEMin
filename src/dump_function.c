@@ -793,7 +793,6 @@ void fill_output_struct(		global_variable 	 gv,
 		sp[0].bulk_S[j] 	   /= sum_mol;
 	}
 
-
 	// normalize bulk_M
 	sum 	= 0.0;
 	sum_mol = 0.0;
@@ -835,6 +834,23 @@ void fill_output_struct(		global_variable 	 gv,
 	sp[0].frac_F_vol /= sum;
 	sp[0].frac_M_vol /= sum;
 	sp[0].frac_S_vol /= sum;
+
+
+	for (j = 0; j < gv.len_ox; j++){
+		if (sp[0].frac_F == 0.0){
+			sp[0].bulk_F[j] = 0.0;
+			sp[0].bulk_F_wt[j] = 0.0;
+		}
+		if (sp[0].frac_M == 0.0){
+			sp[0].bulk_M[j] = 0.0;
+			sp[0].bulk_M_wt[j] = 0.0;
+		}
+		if (sp[0].frac_S == 0.0){
+			sp[0].bulk_S[j] = 0.0;
+			sp[0].bulk_S_wt[j] = 0.0;
+		}
+	}
+
 
 	/* compute cp as J/K/kg for given bulk-rock composition */
 	sp[0].s_cp 					= sp[0].cp_wt/mass_bulk*1e6;

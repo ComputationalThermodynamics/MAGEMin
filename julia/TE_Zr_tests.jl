@@ -25,4 +25,22 @@ if ~isnothing(out_TE.bulk_cor_wt)      #then we can recompute the equilibrium af
     out_TE      = TE_prediction(C0,KDs_dtb,out,dtb; ZrSat_model = "CB")
 end
 
-# add parallel test
+
+# Initialize database  - new way
+dtb          =  "mp"
+data        =   Initialize_MAGEMin(dtb, verbose=false);
+test        =   0         #FWP
+data        =   use_predefined_bulk_rock(data, test);
+
+# Call optimization routine for given P & T & bulk_rock
+P           =   3.0
+T           =   850.0
+out         =   point_wise_minimization(P,T, data);
+
+elem_TE     = ["Li"]
+bulk_TE     = [100.0]
+
+KDs_dtb     = get_MM_KDs_database();
+
+C0          = adjust_chemical_system( KDs_dtb, bulk_TE, elem_TE );
+out_TE      = TE_prediction(C0,KDs_dtb,out,dtb; model="MM", option = 1);

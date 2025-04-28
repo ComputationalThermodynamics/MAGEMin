@@ -51,7 +51,7 @@ metapelite_aq_dataset metapelite_aq_db = {
 
 	6.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
 	473.15,						/* max temperature above which PGE solver is active 								*/
-	873.15,						/** minimum temperature above which melt is considered 								*/
+	773.15,						/** minimum temperature above which melt is considered 								*/
 
 	4,							/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
 	0.025,						/** maximum mol% phase change during one PGE iteration in wt% 						*/
@@ -81,7 +81,7 @@ metapelite_dataset metapelite_db = {
 
 	6.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
 	473.15,						/* max temperature above which PGE solver is active 								*/
-	873.15,						/** minimum temperature above which melt is considered 								*/
+	773.15,						/** minimum temperature above which melt is considered 								*/
 
 	4,							/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
 	0.025,						/** maximum mol% phase change during one PGE iteration in wt% 						*/

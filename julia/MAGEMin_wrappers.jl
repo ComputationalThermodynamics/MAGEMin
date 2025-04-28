@@ -17,7 +17,8 @@ export  anhydrous_renormalization, retrieve_solution_phase_information, remove_p
 
 export wt2mol, mol2wt
 
-export adjust_chemical_system, TE_prediction, get_OL_KDs_database, get_EODC_Exp_KDs_database, get_EODC_Nat_KDs_database, adjust_bulk_4_zircon
+export adjust_chemical_system, TE_prediction, adjust_bulk_4_zircon
+export get_OL_KDs_database, get_MM_KDs_database, get_KP_Exp_KDs_database, get_IL_Exp_KDs_database, get_B_Nat_KDs_database, get_AV_Nat_KDs_database
 
 export initialize_AMR, split_and_keep, AMR
 
@@ -151,16 +152,38 @@ struct gmin_struct{T,I}
     status          :: I           # status of calculations
 end
 
+# struct light_gmin_struct{T <: Float32, I <: Int8} 
+#     P_kbar      :: T                    # Pressure in kbar
+#     T_C         :: T                    # Temperature in Celsius
+   
+#     ph_frac_1at :: Vector{T}            # phase fractions
+#     ph_type     :: Vector{I}            # type of phase (SS or PP)
+#     ph_id_db    :: Vector{I}            # id of phase
+#     xeos        :: Vector{Vector{T}}    # Name of phase
+# end
 struct light_gmin_struct{T <: Float32, I <: Int8} 
     P_kbar      :: T                    # Pressure in kbar
     T_C         :: T                    # Temperature in Celsius
    
-    ph_frac_1at :: Vector{T}            # phase fractions
+    ph_frac_wt  :: Vector{T}            # phase fractions
     ph_type     :: Vector{I}            # type of phase (SS or PP)
     ph_id_db    :: Vector{I}            # id of phase
-    xeos        :: Vector{Vector{T}}    # Name of phase
-end
 
+    frac_S_wt   :: T
+    frac_F_wt   :: T
+    frac_M_wt   :: T
+
+    bulk_S_wt   :: Vector{T}
+    bulk_F_wt   :: Vector{T}
+    bulk_M_wt   :: Vector{T}
+
+    rho_S       :: T
+    rho_F       :: T
+    rho_M       :: T
+
+    s_cp        :: Vector{T}
+
+end
 
 """
     Holds general information about solution phases
@@ -1241,7 +1264,7 @@ function point_wise_minimization(   P       ::Float64,
 
     # Transform results to a more convenient julia struct
     if light == true
-        out = deepcopy(create_light_gmin_struct(DB));
+        out = deepcopy(create_light_gmin_struct(DB,gv));
     else    
         out = deepcopy(create_gmin_struct(DB, gv, time; name_solvus = name_solvus));
     end
@@ -1409,8 +1432,8 @@ function get_mineral_name(db, ss, SS_vec)
     elseif db == "mp" || db == "mpe" || db == "mb" || db == "ume"
         x = SS_vec.compVariables
         if ss == "sp"
-            if x[2] - 0.5 > 0.0;        mineral_name = "mt";
-            else                        mineral_name = "sp";    end
+            if x[2] - 0.5 > 0.0;        mineral_name = "sp";
+            else                        mineral_name = "mt";    end
         elseif ss == "fsp"
             if x[2] - 0.5 > 0.0;       mineral_name = "afs";
             else                        mineral_name = "pl";    end
@@ -1589,6 +1612,8 @@ function create_gmin_struct(DB, gv, time; name_solvus = false)
     ph_type     =  unsafe_wrap(Vector{Cint},   stb.ph_type,         n_ph)
     ph_id       =  unsafe_wrap(Vector{Cint},   stb.ph_id  ,         n_ph)
     ph_id_db    =  unsafe_wrap(Vector{Cint},   stb.ph_id_db ,       n_ph)
+
+    # println("ph_frac $ph_frac ph_frac_wt $ph_frac_wt")
     ph          =  unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, stb.ph, n_ph)) # stable phases
     sol_name    =  unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, stb.sol_name, n_ph)) # stable phases
 
@@ -1650,25 +1675,61 @@ end
 
 This extracts the output of a pointwise MAGEMin optimization and adds it into a julia structure
 """
-function create_light_gmin_struct(DB)
+# function create_light_gmin_struct(DB)
 
-    stb      = unsafe_load(DB.sp)
-    n_ph     =  stb.n_ph        # total # of stable phases
-    n_PP     =  stb.n_PP        # number of pure phases
-    n_SS     =  stb.n_SS        # number of solid solutions
+#     stb      = unsafe_load(DB.sp)
+#     n_ph     =  stb.n_ph        # total # of stable phases
+#     n_PP     =  stb.n_PP        # number of pure phases
+#     n_SS     =  stb.n_SS        # number of solid solutions
 
-    P_kbar   = Float32(stb.P)
-    T_C      = Float32(stb.T-273.15)
+#     P_kbar   = Float32(stb.P)
+#     T_C      = Float32(stb.T-273.15)
 
-    ph_frac_1at =  Float32.(unsafe_wrap(Vector{Cdouble},  stb.ph_frac_1at,        n_ph))
+#     ph_frac_1at =  Float32.(unsafe_wrap(Vector{Cdouble},  stb.ph_frac_1at,        n_ph))
+#     ph_type     =  Int8.(unsafe_wrap(Vector{Cint},        stb.ph_type,            n_ph))
+#     ph_id_db    =  Int8.(unsafe_wrap(Vector{Cint},        stb.ph_id_db,           n_ph))
+
+#     # extract info about compositional variables of the solution models:
+#     SS_vec  = convert.(LibMAGEMin.SS_data, unsafe_wrap(Vector{LibMAGEMin.stb_SS_phase},stb.SS,n_SS))
+#     xeos     = [Float32.(SS_vec[i].compVariables) for i=1:n_SS]
+#     # Store all in output struct
+#     out = light_gmin_struct{Float32,Int8}( P_kbar, T_C, ph_frac_1at, ph_type, ph_id_db, xeos)
+
+#    return out
+# end
+function create_light_gmin_struct(DB,gv)
+
+    stb         = unsafe_load(DB.sp)
+    n_ph        =  stb.n_ph        # total # of stable phases
+    n_PP        =  stb.n_PP        # number of pure phases
+    n_SS        =  stb.n_SS        # number of solid solutions
+
+    P_kbar      = Float32(stb.P)
+    T_C         = Float32(stb.T-273.15)
+
+    ph_frac_wt  =  Float32.(unsafe_wrap(Vector{Cdouble},  stb.ph_frac_wt,         n_ph))
     ph_type     =  Int8.(unsafe_wrap(Vector{Cint},        stb.ph_type,            n_ph))
     ph_id_db    =  Int8.(unsafe_wrap(Vector{Cint},        stb.ph_id_db,           n_ph))
 
-    # extract info about compositional variables of the solution models:
-    SS_vec  = convert.(LibMAGEMin.SS_data, unsafe_wrap(Vector{LibMAGEMin.stb_SS_phase},stb.SS,n_SS))
-    xeos     = [Float32.(SS_vec[i].compVariables) for i=1:n_SS]
-    # Store all in output struct
-    out = light_gmin_struct{Float32,Int8}( P_kbar, T_C, ph_frac_1at, ph_type, ph_id_db, xeos)
+    frac_F_wt   = Float32.(stb.frac_F_wt)
+    frac_S_wt   = Float32.(stb.frac_S_wt)
+    frac_M_wt   = Float32.(stb.frac_M_wt)
+
+    bulk_S_wt   = Float32.(unsafe_wrap(Vector{Cdouble},stb.bulk_S_wt, gv.len_ox))
+    bulk_F_wt   = Float32.(unsafe_wrap(Vector{Cdouble},stb.bulk_F_wt, gv.len_ox))
+    bulk_M_wt   = Float32.(unsafe_wrap(Vector{Cdouble},stb.bulk_M_wt, gv.len_ox))
+
+    rho_S       = Float32.(stb.rho_S)
+    rho_F       = Float32.(stb.rho_F)
+    rho_M       = Float32.(stb.rho_M)
+
+    s_cp        = Float32.([stb.s_cp])
+
+    out = light_gmin_struct{Float32,Int8}(  P_kbar, T_C, ph_frac_wt, ph_type, ph_id_db,
+                                            frac_S_wt, frac_F_wt, frac_M_wt,
+                                            bulk_S_wt, bulk_F_wt, bulk_M_wt,
+                                            rho_S, rho_F, rho_M,
+                                            s_cp)
 
    return out
 end
@@ -2028,6 +2089,7 @@ end
 
 
 # The following section add post-processing routines
+include("TE_ph_models.jl")
 include("TE_partitioning.jl")
 include("Zircon_saturation.jl")
 include("export2CSV.jl")

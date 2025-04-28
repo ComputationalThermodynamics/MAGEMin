@@ -5,6 +5,69 @@
 """
     Classify the mineral output from MAGEMin to be able to be compared with partitioning coefficient database
 """
+# function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Float64, Int64},
+#                                     dtb             :: String  )
+
+#     ph      = Array{String}(undef, out.n_SS + out.n_PP) 
+#     ph_wt   = Array{Float64}(undef, out.n_SS + out.n_PP) 
+
+#     # add solution phase and classify some solution phases (spl, fsp, ilm)                             
+#     for i = 1:out.n_SS                             
+#         ss      = out.ph[i]
+#         ph_wt[i]= out.ph_frac_wt[i]
+#         ph[i]   = ss
+#         if ss == "fsp"
+#             if out.SS_vec[i].compVariables[2] - 0.5 > 0
+#                 ph[i] = "afs"
+#             else
+#                 ph[i] = "pl"
+#             end
+#         end
+#         if ss == "spl"
+#             if out.SS_vec[i].compVariables[3] - 0.5 > 0
+#                 ph[i] = "cm"        # chromite
+#             else
+#                 if out.SS_vec[i].compVariables[2] - 0.5 > 0
+#                     ph[i] = "mt"    # magnetite
+#                 else
+#                     ph[i] = "sp"    # spinel
+#                 end
+#             end
+#         end
+#         if ss == "sp"
+#             if out.SS_vec[i].compVariables[2] + out.SS_vec[i].compVariables[3] - 0.5 > 0
+#                 ph[i] = "mt"        # chromite
+#             else
+#                 if (1 - out.SS_vec[i].compVariables[1])*(1 + out.SS_vec[i].compVariables[3]) - 0.5 > 0
+#                     ph[i] = "sp"    # spinel
+#                 else
+#                     if out.SS_vec[i].compVariables[3] -0.5 > 0
+#                         ph[i] = "FeTiOx"  # uvospinel
+#                     else
+#                         ph[i] = "sp" # hercynite
+#                     end
+#                 end
+#             end
+#         end
+#         if ss == "dio" || ss == "aug"
+#             ph[i] = "cpx"
+#         end
+#         if ss == "ilm" || ss == "ilmm"
+#             ph[i] = "FeTiOx"
+#         end
+ 
+#     end
+
+#     # add pure phases
+#     for i=1:out.n_PP
+#         ph[i+out.n_SS]      = out.ph[i+out.n_SS]
+#         ph_wt[i+out.n_SS]   = out.ph_frac_wt[i+out.n_SS]
+#     end
+
+#     return ph, ph_wt
+# end
+
+
 function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Float64, Int64},
                                     dtb             :: String  )
 
@@ -13,60 +76,83 @@ function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Flo
 
     # add solution phase and classify some solution phases (spl, fsp, ilm)                             
     for i = 1:out.n_SS                             
-        ss      = out.ph[i]
-        ph_wt[i]= out.ph_frac_wt[i]
-        ph[i]   = ss
-        if ss == "fsp"
-            if out.SS_vec[i].compVariables[2] - 0.5 > 0
-                ph[i] = "afs"
-            else
-                ph[i] = "pl"
+        ss              = out.ph[i]
+        mineral_name    = ss
+        ph_wt[i]        = out.ph_frac_wt[i]
+
+        x               = out.SS_vec[i].compVariables
+        if dtb == "ig" || dtb == "igad"
+            if ss == "spl"
+                if x[3] - 0.5 > 0.0;        mineral_name = "cm";
+                elseif x[4] - 0.5 > 0.0;    mineral_name = "sp";
+                elseif x[2] - 0.5 > 0.0;    mineral_name = "mgt";
+                else                        mineral_name = "sp";    end
+            elseif ss == "fsp"
+                if x[2] - 0.5 > 0.0;        mineral_name = "afs";
+                else                        mineral_name = "pl";    end
+            elseif ss == "mu"
+                if x[4] - 0.5 > 0.0;        mineral_name = "pat";
+                else                        mineral_name = "mu";    end
+            elseif ss == "ilm"
+                if -x[1] + 0.5 > 0.0;       mineral_name = "hem";
+                else                        mineral_name = "FeTiOx";   end 
+            end
+    
+        elseif dtb == "mp" || dtb == "mpe" || dtb == "mb" || dtb == "ume"
+            if ss == "sp"
+                if x[2] - 0.5 > 0.0;        mineral_name = "sp";
+                else                        mineral_name = "mgt";    end
+            elseif ss == "fsp"
+                if x[2] - 0.5 > 0.0;        mineral_name = "afs";
+                else                        mineral_name = "pl";    end
+            elseif ss == "mu"
+                if x[4] - 0.5 > 0.0;        mineral_name = "pat";
+                else                        mineral_name = "mu";    end
+            elseif ss == "ilmm"
+                if x[1] - 0.5 > 0.0;        mineral_name = "FeTiOx";
+                else                        mineral_name = "hem";   end 
+            elseif ss == "ilm"
+                if 1.0 - x[1] > 0.5;        mineral_name = "hem";
+                else                        mineral_name = "FeTiOx";   end 
+            elseif ss == "dio"
+                mineral_name = "cpx";
+            elseif ss == "occm"
+                if x[2] > 0.5;              mineral_name = "sid";
+                elseif x[3] > 0.5;          mineral_name = "ank";  
+                elseif x[1] > 0.25 && x[3] < 0.01;         mineral_name = "mag";  
+                else                        mineral_name = "cc";   end 
             end
         end
-        if ss == "spl"
-            if out.SS_vec[i].compVariables[3] - 0.5 > 0
-                ph[i] = "cm"        # chromite
-            else
-                if out.SS_vec[i].compVariables[2] - 0.5 > 0
-                    ph[i] = "mgt"    # magnetite
-                else
-                    ph[i] = "sp"    # spinel
-                end
-            end
-        end
-        if ss == "sp"
-            if out.SS_vec[i].compVariables[2] + out.SS_vec[i].compVariables[3] - 0.5 > 0
-                ph[i] = "mgt"        # chromite
-            else
-                if (1 - out.SS_vec[i].compVariables[1])*(1 + out.SS_vec[i].compVariables[3]) - 0.5 > 0
-                    ph[i] = "sp"    # spinel
-                else
-                    if out.SS_vec[i].compVariables[3] -0.5 > 0
-                        ph[i] = "FeTiOx"  # uvospinel
-                    else
-                        ph[i] = "sp" # hercynite
-                    end
-                end
-            end
-        end
-        if ss == "dio" || ss == "aug"
-            ph[i] = "cpx"
-        end
-        if ss == "ilm" || ss == "ilmm"
-            ph[i] = "FeTiOx"
-        end
-        # add pure phases
-        for i=1:out.n_PP
-            ph[i+out.n_SS]      = out.ph[i+out.n_SS]
-            ph_wt[i+out.n_SS]   = out.ph_frac_wt[i+out.n_SS]
-        end
-        
+
+        # provide the right day
+        ph[i]   = mineral_name
     end
 
-    return ph, ph_wt
+    # add pure phases
+    for i=1:out.n_PP
+        ph[i+out.n_SS]      = out.ph[i+out.n_SS]
+        ph_wt[i+out.n_SS]   = out.ph_frac_wt[i+out.n_SS]
+    end
+
+    unique_ph   = unique(ph)
+    n_ph        = length(unique_ph)
+    if n_ph    != length(ph)
+        ph_     = Array{String}(undef, length(unique_ph)) 
+        ph_wt_  = Array{Float64}(undef, length(unique_ph)) 
+
+        id_ph   = [findall(x->x==ph[i],unique_ph)[1] for i=1:length(ph)]
+
+        for i=1:n_ph
+            ph_[i]      = unique_ph[i]
+            ph_wt_[i]   = sum(ph_wt[id_ph .== i])
+        end   
+
+        return ph_, ph_wt_
+    else
+        return ph, ph_wt
+    end
+
 end
-
-
 
 """
     Holds the partitioning coefficient database
@@ -75,26 +161,96 @@ struct KDs_database
     infos           #:: String
     element_name    #:: Vector{String}
     conditions      #:: Union{Tuple{String, Vector{Vector{Float64}}},Tuple{String,String}}
+    non_linear      #:: Bool
     phase_name      #:: Tuple{Vector{String}, Vector{String}, Vector{String}}
     KDs             #:: Tuple{Matrix{Float64}, Matrix{Float64}, Matrix{Float64}}
 end
 
+
 """
-    Get the partitioning coefficient database from Oliveira Da Costa, E. ...
+    Get the partitioning coefficient database from Matt Morris et ., 2025 ...
 """
-function get_EODC_Exp_KDs_database()
-    infos               = "Oliveira Da Costa, E. ..."
+function get_MM_KDs_database()
+    infos               = "M. Morris et al., 2025"
+
+    element_name        = ["Li"]
+    conditions          = ("min","pref","max")
+    nl                  = true
+    ph_1                = ["q";"afs";"pl";"bi";"opx";"cd";"mu";"amp";"fl";"cpx";"g"]
+    ph_2                = ["q";"afs";"pl";"bi";"opx";"cd";"mu";"amp";"fl";"cpx";"g"]
+    ph_3                = ["q";"afs";"pl";"bi";"opx";"cd";"mu";"amp";"fl";"cpx";"g"]
+
+    KDs_1               = [0.41;0.14;0.41;1.67;0.2;125;0.82;1.4;0.65;0.26;0.01] 
+    KDs_2               = [0.17;0.14;0.33;1.67;0.2;125;0.82;0.2;0.65;0.26;0.01] 
+    KDs_3               = [0.05;0.01;0.02;1.67;0.2;0.44;0.5;0.16;0.65;0.26;0.01] 
+
+
+    phase_name          = [ph_1,ph_2,ph_3]
+    KDs                 = [KDs_1,KDs_2,KDs_3]
+
+    KDs_dtb             = KDs_database(infos, element_name, conditions, nl, phase_name, KDs)
+
+    return KDs_dtb
+end
+
+
+"""
+    Get the Li partitioning coefficient (Oliveira Da Costa, E. ...)
+"""
+function get_KP_Exp_KDs_database()
+    infos               = "Experimental Kds (as in Koopmans et al., 2023)"
 
     element_name        = ["Li"]
     conditions          = ("none")
-
-    ph                  = ["mu"; "bi"; "cd"; "FeTiOx"; "g"; "afs"; "pl"; "q"; "ru"]  
-    KDs                 = [0.82; 1.67; 0.44; 1e-5; 0.01; 0.02; 0.01; 1e-5; 1e-5] 
+    nl                  = false
+    ph                  = ["mu"; "bi"; "cd"; "g"; "afs"; "pl"; "q"]  
+    KDs                 = [0.82; 1.67; 0.44; 0.01; 0.01; 0.02; 0.01;] 
 
     phase_name          = [ph]
     KDs                 = [KDs]
 
-    KDs_dtb             = KDs_database(infos, element_name, conditions, phase_name, KDs)
+    KDs_dtb             = KDs_database(infos, element_name, conditions, nl, phase_name, KDs)
+
+    return KDs_dtb
+end
+
+function get_IL_Exp_KDs_database()
+    infos               = "Experimental Kds 2 (Icenhower and London, 1995; Evensen and London, 2002; 2003)"
+
+    element_name        = ["Li"]
+    conditions          = ("none")
+    nl                  = true
+    ph                  = ["mu"; "bi"; "cd"; "g"; "afs"; "pl"; "q"]  
+    KDs                 = [0.8; 1.0; 1.0; 0.01; 0.01; 0.03; 0.01;] 
+
+    phase_name          = [ph]
+    KDs                 = [KDs]
+
+    KDs_dtb             = KDs_database(infos, element_name, conditions, nl, phase_name, KDs)
+
+    return KDs_dtb
+end
+
+
+"""
+    Get the partitioning coefficient database from Oliveira Da Costa, E. ...
+"""
+function get_B_Nat_KDs_database()
+    infos               = "Natural Kds (as in Baloaurd et al., 2023)"
+
+    element_name        = ["Li"]
+    conditions          = ("min","max")
+    nl                  = false
+    ph_1                = ["mu"; "bi"; "cd"; "g"; "afs"; "pl"; "q"]  
+    ph_2                = ["mu"; "bi"; "cd"; "g"; "afs"; "pl"; "q"]  
+
+    KDs_1               = [0.08; 0.41; 0.82; 0.07; 0.01; 0.01; 0.01]
+    KDs_2               = [0.33; 1.67; 3.34; 0.28; 0.01; 0.01; 0.01]
+
+    phase_name          = (ph_1,ph_2)
+    KDs                 = (KDs_1,KDs_2)
+
+    KDs_dtb             = KDs_database(infos, element_name, conditions, nl, phase_name, KDs)
 
     return KDs_dtb
 end
@@ -102,25 +258,26 @@ end
 """
     Get the partitioning coefficient database from Oliveira Da Costa, E. ...
 """
-function get_EODC_Nat_KDs_database()
-    infos               = "Oliveira Da Costa, E. ..."
+function get_AV_Nat_KDs_database()
+    infos               = "mostly from Acosta-Vigil et al., 2012"
 
-    element_name        = ["Li","Be","Cs","Ta"]
+    element_name        = ["Li"]
     conditions          = ("min","max")
+    nl                  = false
+    ph_1                = ["mu"; "bi"; "cd"; "g"; "afs"; "pl"; "q"; "FeTiOx";]  
+    ph_2                = ["mu"; "bi"; "cd"; "g"; "afs"; "pl"; "q"; "FeTiOx";]  
 
-    ph_1                = ["mu"; "bi"; "cd"; "FeTiOx"; "g"; "afs"; "pl"; "q"; "ru"]
-    ph_2                = ["mu"; "bi"; "cd"; "FeTiOx"; "g"; "afs"; "pl"; "q"; "ru"]
-
-    KDs_1               = [0.08 1.35 0.3 0.4; 0.31 0.16 0.57 3.83; 1.43 33.7 0.1 1e-5; 1e-5 1e-5 1e-5 0.76; 0.06 0.0 1e-5 1e-5; 0.017 0.04 0.03 0.09; 0.28 0.29 1e-5 1e-5; 1e-5 1e-5 1e-5 1e-5; 1e-5 1e-5 1e-5 2.0]
-    KDs_2               = [0.33 1.35 0.3 0.4; 0.71 0.87 0.62 3.92; 1.95 73.7 0.1 1e-5; 1e-5 1e-5 1e-5 86.0; 0.37 0.03 1e-5 1e-5; 0.25 0.14 0.06 0.13; 1.48 2.24 0.02 0.07; 1e-5 1e-5 1e-5 1e-5; 1e-5 1e-5 1e-5 112.0]
+    KDs_1               = [0.08; 0.31; 1.43; 0.06; 0.017; 0.28; 0.01; 0.09]
+    KDs_2               = [0.33; 0.71; 1.95; 0.37; 0.25; 1.48; 0.01; 0.07]
 
     phase_name          = (ph_1,ph_2)
     KDs                 = (KDs_1,KDs_2)
 
-    KDs_dtb             = KDs_database(infos, element_name, conditions, phase_name, KDs)
+    KDs_dtb             = KDs_database(infos, element_name, conditions, nl, phase_name, KDs)
 
     return KDs_dtb
 end
+
 
 """
     Get the partitioning coefficient database from Laurent, O. ...
@@ -130,7 +287,7 @@ function get_OL_KDs_database()
 
     element_name        = ["Rb", "Ba", "Th", "U", "Nb", "Ta", "La", "Ce", "Pb", "Pr", "Sr", "Nd", "Zr", "Hf", "Sm", "Eu", "Gd", "Tb", "Dy", "Y", "Ho", "Er", "Tm", "Yb", "Lu", "V", "Sc"]
     conditions          = ("SiO2",[[0.0,52.0],[52.0,63.0],[63.0,100.0]])
-
+    nl                  = false
     ph_1                = ["all", "amp", "ap", "bi", "cd", "cpx", "FeTiOx", "g", "afs", "mgt", "ol", "opx", "pl", "q", "ru", "sp", "ttn", "zrn", "ep", "and", "sill", "mu"]
     ph_2                = ["all"; "amp"; "ap"; "bi"; "cd"; "cpx"; "FeTiOx"; "g"; "afs"; "mgt"; "ol"; "opx"; "pl"; "q"; "ru"; "sp"; "ttn"; "zrn"]
     ph_3                = ["all"; "amp"; "ap"; "bi"; "cd"; "cpx"; "FeTiOx"; "g"; "afs"; "mgt"; "ol"; "opx"; "pl"; "q"; "ru"; "sp"; "ttn"; "zrn"; "ep"]
@@ -143,7 +300,7 @@ function get_OL_KDs_database()
     phase_name          = (ph_1,ph_2,ph_3)
     KDs                 = (KDs_1,KDs_2,KDs_3)
 
-    KDs_dtb             = KDs_database(infos, element_name,conditions,phase_name,KDs)
+    KDs_dtb             = KDs_database(infos, element_name,conditions, nl, phase_name,KDs)
 
     return KDs_dtb
 end
@@ -185,12 +342,14 @@ struct out_tepm
 end
 
 
-function compute_partitioning(  cond        :: Int64,
+function compute_partitioning(  out         :: MAGEMin_C.gmin_struct{Float64, Int64},
+                                cond        :: Int64,
                                 C0          :: Vector{Float64}, 
                                 ph          :: Vector{String}, 
                                 ph_wt       :: Vector{Float64}, 
                                 liq_wt      :: Float64,
                                 KDs_dtb     :: KDs_database;
+                                nnl_KDs     :: Bool    = false,
                                 model       :: String  = "OL",
                                 ratio       :: Float64 = 1.0)
 
@@ -198,6 +357,23 @@ function compute_partitioning(  cond        :: Int64,
     if model == "OL"
         KDs         = KDs_dtb.KDs[cond];
         phase_name  = KDs_dtb.phase_name[cond]
+    elseif model == "MM"
+        KDs         = KDs_dtb.KDs[cond];
+        phase_name  = KDs_dtb.phase_name[cond]
+
+        # overwrite with non-linear KDs
+        if nnl_KDs == true
+            if "bi" in out.ph
+                id_bi       = findfirst(out.ph .== "bi")
+                y           = out.SS_vec[id_bi].compVariables[3]
+                f           = out.SS_vec[id_bi].compVariables[4]
+                T           = out.T_C
+                KD_Li_bi    = bi_Li_CB_model(y,f,T)
+                id_bi2      = findfirst(phase_name .== "bi")
+                KDs[id_bi2] = KD_Li_bi
+            end
+        end
+
     elseif model == "EODC"
         if cond == 3
             if ratio < 0.0 || ratio > 1.0
@@ -209,6 +385,24 @@ function compute_partitioning(  cond        :: Int64,
         else 
             KDs         = KDs_dtb.KDs[cond];
             phase_name  = KDs_dtb.phase_name[cond]
+
+            if KDs_dtb.non_linear == true
+                if "bi" in out.ph
+                    id_bi       = findfirst(out.ph .== "bi")
+                    T           = out.T_C
+                    KD_Li_bi    = bi_Li_IL_model(T)
+                    id_bi2      = findfirst(phase_name .== "bi")
+                    KDs[id_bi2] = KD_Li_bi
+                end
+                if "cd" in out.ph
+                    id_cd       = findfirst(out.ph .== "cd")
+                    T           = out.T_C
+                    KD_Li_cd   = cd_Li_IL_model(T)
+                    id_cd2      = findfirst(phase_name .== "cd")
+                    KDs[id_cd2] = KD_Li_cd
+                end
+            end
+
         end
     end
 
@@ -243,6 +437,7 @@ function TE_prediction(     C0         :: Vector{Float64},
                             KDs_dtb    :: KDs_database,
                             out        :: MAGEMin_C.gmin_struct{Float64, Int64},
                             dtb        :: String;
+                            nnl_KDs    :: Bool    = false,
                             ZrSat_model:: String  = "CB",
                             model      :: String  = "OL",
                             option     :: Int64   =  1,
@@ -268,7 +463,7 @@ function TE_prediction(     C0         :: Vector{Float64},
 
             ph, ph_wt   =  mineral_classification(out, dtb);
 
-            Cliq, Cmin, Csol, ph_TE, ph_wt_norm, liq_wt_norm,  = compute_partitioning(  cond,
+            Cliq, Cmin, Csol, ph_TE, ph_wt_norm, liq_wt_norm,  = compute_partitioning(  out, cond,
                                                                                         C0,
                                                                                         ph, 
                                                                                         ph_wt, 
@@ -289,7 +484,7 @@ function TE_prediction(     C0         :: Vector{Float64},
 
                 ph_wt = ph_wt ./(sum(ph_wt))
 
-                Cliq, Cmin, Csol, ph_TE, ph_wt_norm, liq_wt_norm,  = compute_partitioning(  cond,
+                Cliq, Cmin, Csol, ph_TE, ph_wt_norm, liq_wt_norm,  = compute_partitioning(  out, cond,
                                                                                             C0,
                                                                                             ph, 
                                                                                             ph_wt, 
@@ -363,12 +558,13 @@ function TE_prediction(     C0         :: Vector{Float64},
         if liq_wt > 0.0 && liq_wt < 1.0 && sol_wt > 0.0
             ph, ph_wt   =  mineral_classification(out, dtb);
 
-            Cliq, Cmin, Csol, ph_TE, ph_wt_norm, liq_wt_norm,  = compute_partitioning(  cond,
+            Cliq, Cmin, Csol, ph_TE, ph_wt_norm, liq_wt_norm,  = compute_partitioning(  out, cond,
                                                                                         C0,
                                                                                         ph, 
                                                                                         ph_wt, 
                                                                                         liq_wt,
                                                                                         KDs_dtb;
+                                                                                        nnl_KDs = nnl_KDs,
                                                                                         model = model,
                                                                                         ratio = ratio)
 
@@ -378,12 +574,59 @@ function TE_prediction(     C0         :: Vector{Float64},
 
         elseif liq_wt == 1.0 || (sol_wt == 0.0 && liq_wt > 0.0) #latter means there is fluid + melt
             Cliq        = C0
-            Csol        = nothing
+            Csol, Cmin, ph_TE, ph_wt_norm  = nothing, nothing, nothing, nothing
             liq_wt_norm = 1.0
         else
             print("unrecognized case!\n")
             Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, zrc_wt, bulk_cor_wt, Sat_zr_liq = nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing
-        
+        end
+
+        out_TE = out_tepm(elements, C0, Cliq, Csol, Cmin, nothing, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt)
+            
+        return out_TE
+    elseif model == "MM"
+
+        liq_wt      = out.frac_M_wt
+        sol_wt      = out.frac_S_wt
+        elements    = KDs_dtb.element_name
+
+        Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt = nothing, nothing, nothing, nothing
+
+        if option == 0
+            cond    = 1
+        elseif option == 1
+            cond    = 2
+        elseif option == 2
+            cond    = 3
+        else 
+            println("option not recognized, setting to preffered value")
+            cond    = 2
+        end
+
+        if liq_wt > 0.0 && liq_wt < 1.0 && sol_wt > 0.0
+            ph, ph_wt   =  mineral_classification(out, dtb);
+
+            Cliq, Cmin, Csol, ph_TE, ph_wt_norm, liq_wt_norm,  = compute_partitioning(  out, cond,
+                                                                                        C0,
+                                                                                        ph, 
+                                                                                        ph_wt, 
+                                                                                        liq_wt,
+                                                                                        KDs_dtb;
+                                                                                        nnl_KDs = nnl_KDs,
+                                                                                        model = model,
+                                                                                        ratio = ratio)
+
+        elseif liq_wt == 0.0
+            Csol        = C0
+            Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm = nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing
+
+        elseif liq_wt == 1.0 || (sol_wt == 0.0 && liq_wt > 0.0) #latter means there is fluid + melt
+            Cliq        = C0
+            Csol, Cmin, ph_TE, ph_wt_norm  = nothing, nothing, nothing, nothing
+            liq_wt_norm = 1.0
+        else
+            print("unrecognized case!\n")
+            Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, zrc_wt, bulk_cor_wt, Sat_zr_liq = nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing
         end
 
         out_TE = out_tepm(elements, C0, Cliq, Csol, Cmin, nothing, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt)
