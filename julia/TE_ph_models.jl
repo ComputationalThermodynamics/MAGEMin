@@ -11,10 +11,11 @@ function bi_Li_CB_model(    y :: Float64,
     return KD_Li 
 end
 
+# For the following bi_Li_IL_model and cd_Li_IL_model, the T is in Celsius
 function bi_Li_IL_model(   T :: Float64 )
-    return -0.0076*(T+273.15)+6.5775 
+    return -0.0076*(T)+6.5775 
 end
 
 function cd_Li_IL_model(   T :: Float64 )
-    return -0.0021*(T+273.15)+1.933
+    return -0.0021*(T)+1.933
 end
