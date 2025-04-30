@@ -78,6 +78,7 @@ double obj_ig_ol(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_opx(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_fsp(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_spl(unsigned  n, const double *x, double *grad, void *SS_ref_db);
+double obj_ig_chl(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 
 double obj_igad_liq(unsigned n, const double *x, double *grad, void *SS_ref_db);
 double obj_igad_fsp(unsigned  n, const double *x, double *grad, void *SS_ref_db);

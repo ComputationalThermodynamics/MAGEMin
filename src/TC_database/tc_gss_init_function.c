@@ -892,6 +892,22 @@ SS_ref G_SS_ig_spl_init_function(SS_ref SS_ref_db,  global_variable gv){
 	return SS_ref_db;
 }
 
+/**
+    allocate memory for chl
+*/
+SS_ref G_SS_ig_chl_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.n_cat     = 0;
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 11;
+    SS_ref_db.n_em      = 7;
+    SS_ref_db.n_w       = 21;
+    SS_ref_db.n_xeos    = 6;
+    
+    return SS_ref_db;
+}
+
 
 /**************************************************************************************/
 /**************************************************************************************/
@@ -2116,6 +2132,8 @@ void TC_SS_init_ig(	                SS_init_type 		*SS_init,
 			SS_init[iss]  = G_SS_ig_fsp_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "spl") == 0){
 			SS_init[iss]  = G_SS_ig_spl_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "chl") == 0){
+			SS_init[iss]  = G_SS_ig_chl_init_function; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	
