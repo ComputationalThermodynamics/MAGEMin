@@ -162,8 +162,8 @@ igneous_igad_dataset igneous_igad_db = {
 	{"spl"	,"cpx"	,"g"	,"ilm"	,"liq"	,"ol"	,"opx"	,"fsp"	,"lct"	,"mel"	,"nph"	,"kals"		},
 	
 	{1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1		,1		,1			}, // allow solvus?
-	{3318	,4128	,2450	,1671	,4911	,381	,3413	,861	,21		,270	,1210	,21			}, // # of pseudocompound
-	{0.195	,0.249	,0.145	,0.05	,0.15	,0.098	,0.249	,0.0249	,0.049	,0.19	,0.149 	,0.049		}, // discretization step
+	{3318	,4128	,2450	,1671	,4912	,381	,3413	,861	,21		,270	,1210	,21			}, // # of pseudocompound
+	{0.195	,0.249	,0.145	,0.05	,0.1	,0.098	,0.249	,0.0249	,0.049	,0.19	,0.149 	,0.049		}, // discretization step
 
 	6.0, 						/** max dG under which a phase is considered to be reintroduced  					*/
 	673.15,						/** max temperature above which PGE solver is active 								*/

@@ -2965,6 +2965,10 @@ function BrentRoots(x1, x2, data, Tolerance, mode, maxIterations, valueAtRoot, n
     ccall((:BrentRoots, libMAGEMin), Cdouble, (Cdouble, Cdouble, Ptr{Cdouble}, Cdouble, Cint, Cint, Ptr{Cdouble}, Ptr{Cint}, Ptr{Cint}), x1, x2, data, Tolerance, mode, maxIterations, valueAtRoot, niter, error)
 end
 
+function calculate_mass_phase(nox, z_b, ph_comp_mol)
+    ccall((:calculate_mass_phase, libMAGEMin), Cdouble, (Cint, bulk_info, Ptr{Cdouble}), nox, z_b, ph_comp_mol)
+end
+
 function print_cp(gv, cp)
     ccall((:print_cp, libMAGEMin), Cvoid, (global_variable, Ptr{csd_phase_set}), gv, cp)
 end

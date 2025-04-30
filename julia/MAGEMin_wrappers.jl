@@ -89,7 +89,7 @@ struct gmin_struct{T,I}
     # Solid, melt, fluid densities
     alpha       :: T
     V           :: T
-    cp          :: T
+    # cp          :: T
     s_cp        :: Vector{T}
     rho         :: T
     rho_M       :: T
@@ -1576,7 +1576,7 @@ function create_gmin_struct(DB, gv, time; name_solvus = false)
     # Solid, melt, fluid densities
     alpha   = stb.alpha
     V       = stb.V
-    cp      = stb.cp
+    # cp      = stb.cp
     s_cp    = [stb.s_cp]
     rho     = stb.rho
     rho_M   = stb.rho_M
@@ -1655,7 +1655,7 @@ function create_gmin_struct(DB, gv, time; name_solvus = false)
                 frac_M, frac_S, frac_F,
                 frac_M_wt, frac_S_wt, frac_F_wt,
                 frac_M_vol, frac_S_vol, frac_F_vol,
-                alpha, V, cp, s_cp,
+                alpha, V, #=cp,=# s_cp,
                 rho, rho_M, rho_S, rho_F,
                 fO2, dQFM, aH2O, aSiO2, aTiO2, aAl2O3, aMgO, aFeO,
                 n_PP, n_SS, n_mSS,

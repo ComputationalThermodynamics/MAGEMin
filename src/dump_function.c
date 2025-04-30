@@ -471,6 +471,7 @@ void fill_output_struct(		global_variable 	 gv,
 ){
 	double G = 0.0;
 	double sum,	sum_wt, sum_mol, sum_vol, sum_em_wt, sum_ph_mass, sum_oxygens;
+	double phase_mass;
 	int nox  = gv.len_ox;
 	int i, j, k, m, n, em_id, ph_id, pc_id;
 	
@@ -523,21 +524,6 @@ void fill_output_struct(		global_variable 	 gv,
 			for (int j = 0; j < gv.len_ox; j++){
 				G += cp[i].ss_comp[j]*gv.gam_tot[j];
 			}
-			
-			sp[0].SS[m].nOx 	 = gv.len_ox;
-			sp[0].SS[m].f 		 = cp[i].factor;
-			sp[0].SS[m].G 		 = G;
-			sp[0].SS[m].deltaG	 = cp[i].df;
-			sp[0].SS[m].V 		 = cp[i].volume*10.;
-			sp[0].SS[m].cp 		 = cp[i].phase_cp;
-			sp[0].SS[m].rho 	 = cp[i].phase_density;
-			sp[0].SS[m].alpha 	 = cp[i].phase_expansivity;
-			sp[0].SS[m].entropy  = cp[i].phase_entropy;
-			sp[0].SS[m].enthalpy = cp[i].phase_enthalpy;
-			sp[0].SS[m].bulkMod  = cp[i].phase_bulkModulus/10.;
-			sp[0].SS[m].shearMod = cp[i].phase_shearModulus/10.;
-			sp[0].SS[m].Vp 		 = sqrt((cp[i].phase_bulkModulus/10. + 4.0/3.0*cp[i].phase_shearModulus/10.)/(cp[i].phase_density/1e3));
-			sp[0].SS[m].Vs 		 = sqrt(cp[i].phase_shearModulus/10.0/(cp[i].phase_density/1e3));	
 
 			sp[0].SS[m].n_xeos   = cp[i].n_xeos;
 			sp[0].SS[m].n_em 	 = cp[i].n_em;
@@ -551,6 +537,24 @@ void fill_output_struct(		global_variable 	 gv,
 				sp[0].SS[m].Comp[j]				= cp[i].ss_comp_mol[j];
 				sp[0].SS[m].Comp_wt[j]			= cp[i].ss_comp_wt[j];
 			}
+			phase_mass = calculate_mass_phase( nox, z_b, sp[0].SS[m].Comp);
+
+			sp[0].SS[m].nOx 	 = gv.len_ox;
+			sp[0].SS[m].f 		 = cp[i].factor;
+			sp[0].SS[m].G 		 = G;
+			sp[0].SS[m].deltaG	 = cp[i].df;
+			sp[0].SS[m].V 		 = cp[i].volume*10.;
+			sp[0].SS[m].cp 		 = (cp[i].phase_cp * cp[i].factor)/phase_mass;
+			sp[0].SS[m].rho 	 = cp[i].phase_density;
+			sp[0].SS[m].alpha 	 = cp[i].phase_expansivity;
+			sp[0].SS[m].entropy  = cp[i].phase_entropy;
+			sp[0].SS[m].enthalpy = cp[i].phase_enthalpy;
+			sp[0].SS[m].bulkMod  = cp[i].phase_bulkModulus/10.;
+			sp[0].SS[m].shearMod = cp[i].phase_shearModulus/10.;
+			sp[0].SS[m].Vp 		 = sqrt((cp[i].phase_bulkModulus/10. + 4.0/3.0*cp[i].phase_shearModulus/10.)/(cp[i].phase_density/1e3));
+			sp[0].SS[m].Vs 		 = sqrt(cp[i].phase_shearModulus/10.0/(cp[i].phase_density/1e3));	
+
+
 			if (gv.O_id != -1){
 				sp[0].SS[m].Comp_apfu[gv.O_id]    += sum_oxygens;
 			}
@@ -673,21 +677,6 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].n_PP 			+= 1;
 			sp[0].cp_wt 		+= PP_ref_db[i].phase_cp * gv.pp_n_wt[i] * PP_ref_db[i].factor;
 
-			sp[0].PP[m].nOx 	 = gv.len_ox;
-			sp[0].PP[m].f 		 = PP_ref_db[i].factor;
-			sp[0].PP[m].G 		 = PP_ref_db[i].gbase;
-			sp[0].PP[m].deltaG	 = PP_ref_db[i].gb_lvl;
-			sp[0].PP[m].V 		 = PP_ref_db[i].volume*10.;
-			sp[0].PP[m].cp 		 = PP_ref_db[i].phase_cp;
-			sp[0].PP[m].rho 	 = PP_ref_db[i].phase_density;
-			sp[0].PP[m].alpha 	 = PP_ref_db[i].phase_expansivity;
-			sp[0].PP[m].entropy  = PP_ref_db[i].phase_entropy;
-			sp[0].PP[m].enthalpy = PP_ref_db[i].phase_enthalpy;
-			sp[0].PP[m].bulkMod  = PP_ref_db[i].phase_bulkModulus/10.;
-			sp[0].PP[m].shearMod = PP_ref_db[i].phase_shearModulus/10.;
-			sp[0].PP[m].Vp 		 = sqrt((PP_ref_db[i].phase_bulkModulus/10. + 4.0/3.0*PP_ref_db[i].phase_shearModulus/10.)/(PP_ref_db[i].phase_density/1e3));
-			sp[0].PP[m].Vs 		 = sqrt(PP_ref_db[i].phase_shearModulus/10.0/(PP_ref_db[i].phase_density/1e3));	
-
 			sum_oxygens = 0.0;
 			for (j = 0; j < gv.len_ox; j++){
 				sp[0].PP[m].Comp_apfu[j] = PP_ref_db[i].Comp[j]*z_b.cpo[j];;
@@ -698,6 +687,23 @@ void fill_output_struct(		global_variable 	 gv,
 			if (gv.O_id != -1){
 				sp[0].PP[m].Comp_apfu[gv.O_id]    += sum_oxygens;	
 			}
+
+			phase_mass = calculate_mass_phase( nox, z_b, sp[0].SS[m].Comp);
+
+			sp[0].PP[m].nOx 	 = gv.len_ox;
+			sp[0].PP[m].f 		 = PP_ref_db[i].factor;
+			sp[0].PP[m].G 		 = PP_ref_db[i].gbase;
+			sp[0].PP[m].deltaG	 = PP_ref_db[i].gb_lvl;
+			sp[0].PP[m].V 		 = PP_ref_db[i].volume*10.;
+			sp[0].PP[m].cp 		 = (PP_ref_db[i].phase_cp * PP_ref_db[i].factor)/phase_mass;
+			sp[0].PP[m].rho 	 = PP_ref_db[i].phase_density;
+			sp[0].PP[m].alpha 	 = PP_ref_db[i].phase_expansivity;
+			sp[0].PP[m].entropy  = PP_ref_db[i].phase_entropy;
+			sp[0].PP[m].enthalpy = PP_ref_db[i].phase_enthalpy;
+			sp[0].PP[m].bulkMod  = PP_ref_db[i].phase_bulkModulus/10.;
+			sp[0].PP[m].shearMod = PP_ref_db[i].phase_shearModulus/10.;
+			sp[0].PP[m].Vp 		 = sqrt((PP_ref_db[i].phase_bulkModulus/10. + 4.0/3.0*PP_ref_db[i].phase_shearModulus/10.)/(PP_ref_db[i].phase_density/1e3));
+			sp[0].PP[m].Vs 		 = sqrt(PP_ref_db[i].phase_shearModulus/10.0/(PP_ref_db[i].phase_density/1e3));	
 
 			if  (strcmp( gv.PP_list[i], "H2O") != 0){
 				sp[0].frac_S 		+= gv.pp_n_mol[i];
