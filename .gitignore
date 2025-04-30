@@ -12,5 +12,5 @@ tools/.DS_Store
 .vscode/
 *.txt
 Manifest.toml
-
+.DS_Store
 libMAGEMin.dylib

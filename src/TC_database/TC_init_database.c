@@ -51,7 +51,7 @@ metapelite_aq_dataset metapelite_aq_db = {
 
 	6.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
 	473.15,						/* max temperature above which PGE solver is active 								*/
-	873.15,						/** minimum temperature above which melt is considered 								*/
+	773.15,						/** minimum temperature above which melt is considered 								*/
 
 	4,							/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
 	0.025,						/** maximum mol% phase change during one PGE iteration in wt% 						*/
@@ -81,7 +81,7 @@ metapelite_dataset metapelite_db = {
 
 	6.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
 	473.15,						/* max temperature above which PGE solver is active 								*/
-	873.15,						/** minimum temperature above which melt is considered 								*/
+	773.15,						/** minimum temperature above which melt is considered 								*/
 
 	4,							/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
 	0.025,						/** maximum mol% phase change during one PGE iteration in wt% 						*/
@@ -125,17 +125,17 @@ igneous_dataset igneous_db = {
 	636,						/* Endmember default dataset number */
 	11,							/* number of oxides */			
 	26,							/* number of pure phases */
-	15,							/* number of solution phases */
-	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"Cr2O3","H2O"													},
+	16,							/* number of solution phases */
+	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"Cr2O3","H2O"														},
 	{"ne"	,"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2"	,"H2O"	,
-	"qfm"	,"mw"	,"qif"	,"nno"	,"hm"	,"iw"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"								},
+	"qfm"	,"mw"	,"qif"	,"nno"	,"hm"	,"iw"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"							},
 	{1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 0		,
-	 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		,										},
-	{"spl"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"amp"	,"ilm"	,"liq"	,"ol"	,"opx"	,"fsp"	,"fl"	,"mu"	,"fper"					},
+	 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		, 1		,									},
+	{"spl"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"amp"	,"ilm"	,"liq"	,"ol"	,"opx"	,"fsp"	,"fl"	,"mu"	,"fper"	,"chl"				},
 	
-	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1		,1						}, // allow solvus?
-	{1523	,3554	,121	,4127	,210	,2450	,5499	,1670	,3088	,381	,3413	,231	,2		,2376	,20						}, // # of pseudocompound
-	{0.2	,0.124	,0.098	,0.20	,0.049	,0.145	,0.33	,0.10	,0.15	,0.04	,0.249	,0.049	,1.0 	,0.198	,0.05					}, // discretization step
+	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1		,1		,1					}, // allow solvus?
+	{1523	,3554	,121	,4127	,210	,2450	,5499	,1670	,3088	,381	,3413	,231	,2		,2376	,20		,3980				}, // # of pseudocompound
+	{0.2	,0.124	,0.098	,0.20	,0.049	,0.145	,0.33	,0.10	,0.15	,0.04	,0.249	,0.049	,1.0 	,0.198	,0.05	,0.19				}, // discretization step
 
 	6.0, 						/** max dG under which a phase is considered to be reintroduced  					*/
 	673.15,						/** max temperature above which PGE solver is active 								*/
@@ -162,8 +162,8 @@ igneous_igad_dataset igneous_igad_db = {
 	{"spl"	,"cpx"	,"g"	,"ilm"	,"liq"	,"ol"	,"opx"	,"fsp"	,"lct"	,"mel"	,"nph"	,"kals"		},
 	
 	{1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1		,1		,1			}, // allow solvus?
-	{3318	,4128	,2450	,1671	,4911	,381	,3413	,861	,21		,270	,1210	,21			}, // # of pseudocompound
-	{0.195	,0.249	,0.145	,0.05	,0.15	,0.098	,0.249	,0.0249	,0.049	,0.19	,0.149 	,0.049		}, // discretization step
+	{3318	,4128	,2450	,1671	,4912	,381	,3413	,861	,21		,270	,1210	,21			}, // # of pseudocompound
+	{0.195	,0.249	,0.145	,0.05	,0.1	,0.098	,0.249	,0.0249	,0.049	,0.19	,0.149 	,0.049		}, // discretization step
 
 	6.0, 						/** max dG under which a phase is considered to be reintroduced  					*/
 	673.15,						/** max temperature above which PGE solver is active 								*/

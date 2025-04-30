@@ -1,11 +1,16 @@
+#=~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+#   Project      : MAGEMin_C
+#   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+#   Developers   : Nicolas Riel, Boris Kaus
+#   Contributors : Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+#   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
+#   Contact      : nriel[at]uni-mainz.de
+#
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ =#
 # this tests the julia interface to MAGEMin
 using Test
-
-# Load MAGEMin (needs to be loaded from main directory to pick up correct
-# library in case it is locally compiled). This is handled by the logic in
-# runtests.jl
-using MAGEMin_C         # load MAGEMin (needs to be loaded from main directory to pick up correct library in case it is locally compiled)
-
+using MAGEMin_C
 
 data        =   Initialize_MAGEMin("sb21", verbose=true);
 test        =   1         #KLB1
@@ -96,7 +101,6 @@ end
 end
 
 @testset "test activity buffers" begin
-    # Initialize database  - new way
     data        =   Initialize_MAGEMin("mp", verbose=-1, buffer="aH2O");
     test        =   0        
     data        =   use_predefined_bulk_rock(data, test);
@@ -105,7 +109,6 @@ end
     out         =   point_wise_minimization(P,T, data, buffer_n=0.6);
     @test sort(out.ph) == sort(["chl", "sp", "mu", "mu", "fsp", "ep", "q", "ru", "aH2O"])
     Finalize_MAGEMin(data)
-
 
     data        =   Initialize_MAGEMin("mp", verbose=true, buffer="aTiO2");
     test        =   0        
@@ -116,7 +119,6 @@ end
     @test sort(out.ph) == sort(["H2O", "aTiO2", "chl", "ep", "fsp", "ilm", "mu", "mu", "q"])
     Finalize_MAGEMin(data)
 
-
     data        =   Initialize_MAGEMin("ig", verbose=true, buffer="aTiO2");
     test        =   0        
     data        =   use_predefined_bulk_rock(data, test);
@@ -126,7 +128,6 @@ end
     @test sort(out.ph) == sort(["aTiO2", "cpx", "fsp", "liq", "ol", "opx", "spl"])
 
     Finalize_MAGEMin(data)
-
 
     data    = Initialize_MAGEMin("ig", verbose=false, buffer="qfm");
     P,T     = 10.0, 1100.0
@@ -148,7 +149,6 @@ end
 
     Finalize_MAGEMin(data)
 
-    # Initialize database  - new way
     data        =   Initialize_MAGEMin("mp", verbose=-1, buffer="iw");
     test        =   0        
     data        =   use_predefined_bulk_rock(data, test);
@@ -157,7 +157,6 @@ end
     out         =   point_wise_minimization(P,T, data, buffer_n=-5.0);
     @test sort(out.ph) == sort(["chl", "fsp", "mu", "mu", "q", "ru", "sph", "H2O", "iw"])
     Finalize_MAGEMin(data)
-
 end
 
 @testset "test sum frac_vol" begin
@@ -215,8 +214,6 @@ end
 end
 
 @testset "test normalization" begin
-
-    # Initialize database  - new way
     data        =   Initialize_MAGEMin("ig", verbose=true);
     test        =   5         #KLB1
     data        =   use_predefined_bulk_rock(data, test);
@@ -253,7 +250,6 @@ end
     @test  sum(out.bulk_S)                                   ≈ 1.0
     @test  sum(out.bulk_S_wt)                                ≈ 1.0
   
-
     P           =   8.0
     T           =   1900.0
     out         =   point_wise_minimization(P,T, data);
@@ -264,8 +260,6 @@ end
     
     Finalize_MAGEMin(data)
 end
-
-
 
 # previous way we defined this (left here for backwards compatibility)
 db          = "ig"
@@ -296,8 +290,6 @@ finalize_MAGEMin(gv,DB,z_b)
 end
 
 @testset "specify bulk rock" begin
-    
-
     data    = Initialize_MAGEMin("ig", verbose=false);
     
     # One bulk rock for all points
@@ -308,7 +300,6 @@ end
     out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
 
     @test abs(out.G_system + 916.8283889543869)/abs(916.8283889543869) < 2e-4
-
 
     # different bulk rock per point
     P       = [10.0, 10.0]
@@ -332,8 +323,6 @@ end
     X       = [20.044,0.6256,29.24,3.149,0.0,46.755,0.0]
     sys_in  = "mol"    
     out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
-
-
 end
 
 @testset "PT adaptive refinement" begin
@@ -364,7 +353,6 @@ end
     out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in,rm_list=rm_list)
     @test sort(out.ph) == sort(["fsp", "g", "ilmm", "sp", "q", "sill", "H2O"])
     Finalize_MAGEMin(data)
-
 
     data    = Initialize_MAGEMin("mp", verbose=-1, solver=0);
     rm_list =   remove_phases(["liq","ilmm","sill"],"mp")
@@ -437,7 +425,7 @@ end
 
 
 @testset "test Mantle HP13" begin
-    # Initialize database  - new way
+
     data        =   Initialize_MAGEMin("mtl", verbose=true);
     test        =   0         #KLB1
     data        =   use_predefined_bulk_rock(data, test);

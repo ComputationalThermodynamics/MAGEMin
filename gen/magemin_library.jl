@@ -1413,10 +1413,10 @@ mutable struct igneous_datasets
     ox::NTuple{11, NTuple{20, Cchar}}
     PP::NTuple{26, NTuple{20, Cchar}}
     act_PP::NTuple{26, Cint}
-    SS::NTuple{15, NTuple{20, Cchar}}
-    verifyPC::NTuple{15, Cint}
-    n_SS_PC::NTuple{15, Cint}
-    SS_PC_stp::NTuple{15, Cdouble}
+    SS::NTuple{16, NTuple{20, Cchar}}
+    verifyPC::NTuple{16, Cint}
+    n_SS_PC::NTuple{16, Cint}
+    SS_PC_stp::NTuple{16, Cdouble}
     PC_df_add::Cdouble
     solver_switch_T::Cdouble
     min_melt_T::Cdouble
@@ -1975,6 +1975,10 @@ end
 
 function obj_ig_spl(n, x, grad, SS_ref_db)
     ccall((:obj_ig_spl, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_ig_chl(n, x, grad, SS_ref_db)
+    ccall((:obj_ig_chl, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
 function obj_igad_liq(n, x, grad, SS_ref_db)
@@ -2965,6 +2969,10 @@ function BrentRoots(x1, x2, data, Tolerance, mode, maxIterations, valueAtRoot, n
     ccall((:BrentRoots, libMAGEMin), Cdouble, (Cdouble, Cdouble, Ptr{Cdouble}, Cdouble, Cint, Cint, Ptr{Cdouble}, Ptr{Cint}, Ptr{Cint}), x1, x2, data, Tolerance, mode, maxIterations, valueAtRoot, niter, error)
 end
 
+function calculate_mass_phase(nox, z_b, ph_comp_mol)
+    ccall((:calculate_mass_phase, libMAGEMin), Cdouble, (Cint, bulk_info, Ptr{Cdouble}), nox, z_b, ph_comp_mol)
+end
+
 function print_cp(gv, cp)
     ccall((:print_cp, libMAGEMin), Cvoid, (global_variable, Ptr{csd_phase_set}), gv, cp)
 end
@@ -3059,7 +3067,7 @@ const n_ox_mp = 11
 
 const n_ox_ig = 11
 
-const n_ss_ig = 15
+const n_ss_ig = 16
 
 const n_pp_ig = 26
 

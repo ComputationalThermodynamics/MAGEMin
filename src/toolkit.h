@@ -72,6 +72,10 @@ double 	BrentRoots(  double 	x1,
 					int    *niter, 
 					int    *error 			);
 
+double calculate_mass_phase(	int 		 	nox,
+								bulk_info 	 	z_b,
+								double 		   *ph_comp_mol);
+								
 /* printing function (verbose) */
 void print_cp(					global_variable gv,
 								csd_phase_set  *cp

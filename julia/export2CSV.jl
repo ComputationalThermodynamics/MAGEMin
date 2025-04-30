@@ -1,3 +1,13 @@
+#=~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+#   Project      : MAGEMin_C
+#   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+#   Developers   : Nicolas Riel, Boris Kaus
+#   Contributors : Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+#   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
+#   Contact      : nriel[at]uni-mainz.de
+#
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ =#
 
 """
 MAGEMin_dataTE2dataframe( out:: Union{Vector{out_tepm}, out_tepm},dtb,fileout)
@@ -199,7 +209,7 @@ function MAGEMin_data2dataframe( out:: Union{Vector{gmin_struct{Float64, Int64}}
                                     Symbol("aFeO")          => Float64[],
                                     Symbol("density[kg/m3]")    => Float64[],
                                     Symbol("volume[cm3/mol]")   => Float64[],
-                                    Symbol("heatCapacity[J/K]")=> Float64[],
+                                    Symbol("heatCapacity[J/kg/K]")=> Float64[],
                                     Symbol("alpha[1/K]")    => Float64[],
                                     Symbol("Entropy[J/K]")  => Float64[],
                                     Symbol("Enthalpy[J]")   => Float64[],
@@ -245,14 +255,14 @@ function MAGEMin_data2dataframe( out:: Union{Vector{gmin_struct{Float64, Int64}}
                         "aFeO"          => out[k].aFeO,
                         "density[kg/m3]"    => out[k].rho,
                         "volume[cm3/mol]"   => out[k].V,
-                        "heatCapacity[J/K]"=> out[k].s_cp,
+                        "heatCapacity[J/kg/K]"=> out[k].s_cp,
                         "alpha[1/K]"    => out[k].alpha,
                         "Entropy[J/K]"  => out[k].entropy,
                         "Enthalpy[J]"   => out[k].enthalpy,
                         "Vp[km/s]"      => out[k].Vp,
                         "Vs[km/s]"      => out[k].Vs,
-                        "Vp_S[km/s]"      => out[k].Vp_S,
-                        "Vs_S[km/s]"      => out[k].Vs_S,
+                        "Vp_S[km/s]"    => out[k].Vp_S,
+                        "Vs_S[km/s]"    => out[k].Vs_S,
                         "BulkMod[GPa]"  => out[k].bulkMod,
                         "ShearMod[GPa]" => out[k].shearMod )          
 
@@ -284,7 +294,7 @@ function MAGEMin_data2dataframe( out:: Union{Vector{gmin_struct{Float64, Int64}}
                             "aFeO"          => "-",
                             "density[kg/m3]"    => out[k].SS_vec[i].rho,
                             "volume[cm3/mol]"   => out[k].SS_vec[i].V,
-                            "heatCapacity[kJ/K]"=> out[k].SS_vec[i].cp,
+                            "heatCapacity[J/kg/K]"=> out[k].SS_vec[i].cp,
                             "alpha[1/K]"    => out[k].SS_vec[i].alpha,
                             "Entropy[J/K]"  => out[k].SS_vec[i].entropy,
                             "Enthalpy[J]"   => out[k].SS_vec[i].enthalpy,
@@ -328,7 +338,7 @@ function MAGEMin_data2dataframe( out:: Union{Vector{gmin_struct{Float64, Int64}}
                                 "aFeO"          => "-",
                                 "density[kg/m3]"    => out[k].PP_vec[i].rho,
                                 "volume[cm3/mol]"   => out[k].PP_vec[i].V,
-                                "heatCapacity[kJ/K]"=> out[k].PP_vec[i].cp,
+                                "heatCapacity[J/kg/K]"=> out[k].PP_vec[i].cp,
                                 "alpha[1/K]"    => out[k].PP_vec[i].alpha,
                                 "Entropy[J/K]"  => out[k].PP_vec[i].entropy,
                                 "Enthalpy[J]"   => out[k].PP_vec[i].enthalpy,

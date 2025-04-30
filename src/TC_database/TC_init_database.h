@@ -124,7 +124,7 @@
 		Igneous database informations 
 	**/
 	#define n_ox_ig 11 		// as of now this is n_oxides = 11 + electrochemical potential
-	#define n_ss_ig 15			
+	#define n_ss_ig 16			
 	#define n_pp_ig 26
 	typedef struct igneous_datasets {
 		int 	ds_version;

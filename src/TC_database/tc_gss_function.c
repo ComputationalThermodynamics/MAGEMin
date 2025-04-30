@@ -6929,6 +6929,146 @@ SS_ref G_SS_ig_spl_function(SS_ref SS_ref_db, char* research_group, int EM_datas
 }
 
 
+/**
+   retrieve reference thermodynamic data for mb_chl
+*/
+SS_ref G_SS_ig_chl_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
+    strcpy(SS_ref_db.fName,"chl_W14");
+    int i, j;
+    int n_em = SS_ref_db.n_em;
+    
+    char   *EM_tmp[] 		= {"clin","afchl","ames","daph","ochl1","ochl4","f3clin"};
+    for (int i = 0; i < SS_ref_db.n_em; i++){
+        strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
+    };
+    int n_xeos = SS_ref_db.n_xeos;
+    char   *CV_tmp[] 		= {"x","y","f","QAl","Q1","Q4"};
+    for (int i = 0; i < SS_ref_db.n_xeos; i++){
+        strcpy(SS_ref_db.CV_list[i],CV_tmp[i]);
+    };
+    char   *SF_tmp[] 		= {"xMgM1","xFeM1","xAlM1","xMgM23","xFeM23","xMgM4","xFeM4","xFe3M4","xAlM4","xSiT2","xAlT2"};
+    for (int i = 0; i < SS_ref_db.n_sf; i++){
+        strcpy(SS_ref_db.SF_list[i],SF_tmp[i]);
+    };
+    //int si = sizeof(SF_tmp)/sizeof(SF_tmp[0]); printf("sz_tmp: %d n_sf %d\n",si,SS_ref_db.n_sf);
+    
+    SS_ref_db.W[0] = 17.0;
+    SS_ref_db.W[1] = 17.0;
+    SS_ref_db.W[2] = 20.0;
+    SS_ref_db.W[3] = 30.0;
+    SS_ref_db.W[4] = 21.0;
+    SS_ref_db.W[5] = 2.00;
+    SS_ref_db.W[6] = 16.0;
+    SS_ref_db.W[7] = 37.0;
+    SS_ref_db.W[8] = 20.0;
+    SS_ref_db.W[9] = 4.00;
+    SS_ref_db.W[10] = 15.0;
+    SS_ref_db.W[11] = 30.0;
+    SS_ref_db.W[12] = 29.0;
+    SS_ref_db.W[13] = 13.0;
+    SS_ref_db.W[14] = 19.0;
+    SS_ref_db.W[15] = 18.0;
+    SS_ref_db.W[16] = 33.0;
+    SS_ref_db.W[17] = 22.0;
+    SS_ref_db.W[18] = 24.0;
+    SS_ref_db.W[19] = 28.6;
+    SS_ref_db.W[20] = 19.0;
+    
+    
+    em_data clin_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"clin", 
+    										"equilibrium"	);
+    
+    em_data afchl_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"afchl", 
+    										"equilibrium"	);
+    
+    em_data ames_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"ames", 
+    										"equilibrium"	);
+    
+    em_data daph_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"daph", 
+    										"equilibrium"	);
+    
+    em_data gr_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"gr", 
+    										"equilibrium"	);
+    
+    em_data andr_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"andr", 
+    										"equilibrium"	);
+    
+    SS_ref_db.gbase[0] 		= clin_eq.gb;
+    SS_ref_db.gbase[1] 		= afchl_eq.gb;
+    SS_ref_db.gbase[2] 		= ames_eq.gb;
+    SS_ref_db.gbase[3] 		= daph_eq.gb;
+    SS_ref_db.gbase[4] 		= afchl_eq.gb -clin_eq.gb + daph_eq.gb + 3.0;
+    SS_ref_db.gbase[5] 		= afchl_eq.gb - 0.2*clin_eq.gb + 0.2*daph_eq.gb + 2.4;
+    SS_ref_db.gbase[6] 		= 0.5*andr_eq.gb + clin_eq.gb - 0.5*gr_eq.gb + 2.0;
+    
+    SS_ref_db.ElShearMod[0] 	= clin_eq.ElShearMod;
+    SS_ref_db.ElShearMod[1] 	= afchl_eq.ElShearMod;
+    SS_ref_db.ElShearMod[2] 	= ames_eq.ElShearMod;
+    SS_ref_db.ElShearMod[3] 	= daph_eq.ElShearMod;
+    SS_ref_db.ElShearMod[4] 	= afchl_eq.ElShearMod -clin_eq.ElShearMod + daph_eq.ElShearMod;
+    SS_ref_db.ElShearMod[5] 	= afchl_eq.ElShearMod - 0.2*clin_eq.ElShearMod + 0.2*daph_eq.ElShearMod;
+    SS_ref_db.ElShearMod[6] 	= 0.5*andr_eq.ElShearMod + clin_eq.ElShearMod - 0.5*gr_eq.ElShearMod;
+    
+    for (i = 0; i < len_ox; i++){
+        SS_ref_db.Comp[0][i] 	= clin_eq.C[i];
+        SS_ref_db.Comp[1][i] 	= afchl_eq.C[i];
+        SS_ref_db.Comp[2][i] 	= ames_eq.C[i];
+        SS_ref_db.Comp[3][i] 	= daph_eq.C[i];
+        SS_ref_db.Comp[4][i] 	= afchl_eq.C[i] -clin_eq.C[i] + daph_eq.C[i];
+        SS_ref_db.Comp[5][i] 	= afchl_eq.C[i] - 0.2*clin_eq.C[i] + 0.2*daph_eq.C[i];
+        SS_ref_db.Comp[6][i] 	= 0.5*andr_eq.C[i] + clin_eq.C[i] - 0.5*gr_eq.C[i];
+    }
+    
+    for (i = 0; i < n_em; i++){
+        SS_ref_db.z_em[i] = 1.0;
+    };
+    
+    SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
+    SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+    SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
+    SS_ref_db.bounds_ref[3][0] = -1.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
+    SS_ref_db.bounds_ref[4][0] = -1.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
+    SS_ref_db.bounds_ref[5][0] = -1.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
+
+	if (z_b.bulk_rock[8] == 0.){ 	    //O				
+		SS_ref_db.z_em[6]          = 0.0;
+        SS_ref_db.d_em[6]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0; 
+		SS_ref_db.bounds_ref[2][1] = 0.0;	
+	}
+    return SS_ref_db;
+}
+
 /**************************************************************************************/
 /**************************************************************************************/
 /*****************IGNEOUS ALKALINE DRY DATABASE (Weller et al., 2024)******************/
@@ -14703,6 +14843,11 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
 			SS_ref_db  = G_SS_ig_fsp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}	
 		else if (strcmp( name, "spl") == 0){
 			SS_ref_db  = G_SS_ig_spl_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "chl") == 0){
+			if (z_b.bulk_rock[gv.H2O_id] == 0. ){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_ig_chl_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}	
 		else{
 			printf("\nsolid solution '%s' is not in the database\n",name);	}	
 		
