@@ -663,8 +663,6 @@ global_variable init_ss_db(		int 				 EM_database,
 													gv.EM_dataset, 
 													z_b, 
 													gv.SS_list[i]		);
-											
-										/** can become a global variable instead */
 		}
 	}
 	else if (EM_database == 1){
@@ -682,8 +680,6 @@ global_variable init_ss_db(		int 				 EM_database,
 													gv.EM_dataset, 
 													z_b, 
 													gv.SS_list[i]		);
-											
-										/** can become a global variable instead */
 		}
 	}
 	else if (EM_database == 2){
@@ -701,8 +697,6 @@ global_variable init_ss_db(		int 				 EM_database,
 													gv.EM_dataset, 
 													z_b, 
 													gv.SS_list[i]		);
-											
-										/** can become a global variable instead */
 		}
 	}
 	else if (EM_database == 3){
@@ -720,8 +714,6 @@ global_variable init_ss_db(		int 				 EM_database,
 														gv.EM_dataset, 
 														z_b, 
 														gv.SS_list[i]		);
-											
-										/** can become a global variable instead */
 		}
 	}
 	else if (EM_database == 4 ){
@@ -739,8 +731,6 @@ global_variable init_ss_db(		int 				 EM_database,
 													gv.EM_dataset, 
 													z_b, 
 													gv.SS_list[i]		);
-											
-										/** can become a global variable instead */
 		}
 	}
 	else if (EM_database == 5 ){
@@ -758,8 +748,6 @@ global_variable init_ss_db(		int 				 EM_database,
 														gv.EM_dataset, 
 														z_b, 
 														gv.SS_list[i]		);
-											
-										/** can become a global variable instead */
 		}
 	}
 	else if (EM_database == 6 ){
@@ -777,8 +765,6 @@ global_variable init_ss_db(		int 				 EM_database,
 														gv.EM_dataset, 
 														z_b, 
 														gv.SS_list[i]		);
-											
-										/** can become a global variable instead */
 		}
 	}
 	else if (EM_database == 7 ){
@@ -796,8 +782,6 @@ global_variable init_ss_db(		int 				 EM_database,
 														gv.EM_dataset, 
 														z_b, 
 														gv.SS_list[i]		);
-											
-										/** can become a global variable instead */
 		}
 	}
 

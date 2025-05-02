@@ -218,7 +218,7 @@ ultramafic_ext_dataset ultramafic_ext_db = {
 	{"fl"	,"ol"  ,"br"	,"ch"	,"atg"	,"g"	,"ta"	,"chl"	,"spi"	,"opx"	,"po"	,"anth"	,"pl4tr","amp"	,"aug"	},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1		,1		,1		,1		,1		},  // allow solvus?
-	{11  	,10  	,11 	,10 	,489 	,10  	,985 	,2691	,100	,196	,10		,274	,21		,3640	,3036	},  // No. of pseudocompound
+	{11  	,10  	,11 	,10 	,489 	,10  	,985 	,2691	,100	,196	,10		,274	,21		,5033	,3036	},  // No. of pseudocompound
 	{0.001	,0.1	,0.1	,0.1	,0.19	,0.1	,0.19	,0.19	,0.1	,0.19	,0.1	,0.249	,0.049	,0.24	,0.24	},  // discretization step
 
 	4.0, 						/* max dG under which a phase is considered to be reintroduced  					*/

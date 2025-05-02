@@ -9967,14 +9967,11 @@ SS_ref G_SS_ume_pl4tr_function(SS_ref SS_ref_db,  char* research_group, int EM_d
     for (int i = 0; i < SS_ref_db.n_em; i++){
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
     };
-    int n_sf = SS_ref_db.n_sf;
-    
     int n_xeos = SS_ref_db.n_xeos;
     char   *CV_tmp[] 		= {"ca"};
     for (int i = 0; i < SS_ref_db.n_xeos; i++){
         strcpy(SS_ref_db.CV_list[i],CV_tmp[i]);
     };
-
     char   *SF_tmp[] 		= {"xNaA","xCaA","xAlTB","xSiTB"};
     for (int i = 0; i < SS_ref_db.n_sf; i++){
         strcpy(SS_ref_db.SF_list[i],SF_tmp[i]);
@@ -10030,14 +10027,11 @@ SS_ref G_SS_ume_amp_function(SS_ref SS_ref_db,  char* research_group, int EM_dat
     for (int i = 0; i < SS_ref_db.n_em; i++){
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
     };
-    int n_sf = SS_ref_db.n_sf;
-
     int n_xeos = SS_ref_db.n_xeos;
     char   *CV_tmp[] 		= {"x","y","z","a","c","f","Q1","Q2"};
     for (int i = 0; i < SS_ref_db.n_xeos; i++){
         strcpy(SS_ref_db.CV_list[i],CV_tmp[i]);
     };
-
     char   *SF_tmp[] 		= {"xvA","xNaA","xMgM13","xFeM13","xMgM2","xFeM2","xAlM2","xFe3M2","xCaM4","xMgM4","xFeM4","xNaM4","xSiT1","xAlT1"};
     for (int i = 0; i < SS_ref_db.n_sf; i++){
         strcpy(SS_ref_db.SF_list[i],SF_tmp[i]);
