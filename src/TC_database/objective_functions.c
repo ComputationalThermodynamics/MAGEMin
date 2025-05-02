@@ -4091,7 +4091,6 @@ void p2x_um_po(void *SS_ref_db, double eps){
 void p2x_ume_pl4tr(void *SS_ref_db, double eps){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     
-    d->iguess[1]   = d->p[2];
     d->iguess[0]  = d->p[1];
     
     for (int i = 0; i < d->n_xeos; i++){
@@ -4109,16 +4108,14 @@ void p2x_ume_pl4tr(void *SS_ref_db, double eps){
 void p2x_ume_amp(void *SS_ref_db, double eps){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     
-    d->iguess[7]   = d->p[10];
-    d->iguess[6]   = d->p[8];
-    d->iguess[2]   = d->iguess[6] + d->p[3];
-    d->iguess[3]   = d->p[2] + d->p[9];
-    d->iguess[4]   = d->p[9]/(d->p[2] + d->p[9]);
-    d->iguess[5]   = d->iguess[3] + d->p[0] + d->p[1] + d->iguess[7];
-    d->iguess[1]   = -0.5*d->iguess[3] + d->iguess[5] -d->iguess[6] -d->p[0] -d->iguess[7] + d->iguess[2];
-    d->iguess[0]  = (5.0*d->iguess[5] + 5.0*d->p[4] - 2.0*d->p[5] + d->p[6] + 5.0*d->iguess[2] - 5.0)/(2.0*d->iguess[5] + 2.0*d->iguess[6] + 2.0*d->iguess[7] + 2.0*d->iguess[1] + 2.0*d->iguess[2] - 7.0);
-    d->iguess[8]  = -0.4*d->iguess[5]*d->iguess[0] + 2.0*d->iguess[5] - 0.4*d->iguess[6]*d->iguess[0] + 2.0*d->p[4] - 0.4*d->p[5] + 1.2*d->p[6] - 0.4*d->iguess[7]*d->iguess[0] - 0.4*d->iguess[0]*d->iguess[1] - 0.4*d->iguess[0]*d->iguess[2] + 2.4*d->iguess[0] + 2.0*d->iguess[2] - 2.0;
-    d->iguess[9]  = (-2.0*d->iguess[5]*d->iguess[0] + 5.0*d->iguess[5] + 5.0*d->p[4] + 3.0*d->p[6] - 2.0*d->iguess[0]*d->iguess[2] + 5.0*d->iguess[0] + 5.0*d->iguess[2] - 5.0)/(2.0*d->iguess[6] + 2.0*d->iguess[7] + 2.0*d->iguess[1] - 2.0);
+    d->iguess[5]   = d->p[8];
+    d->iguess[2]   = d->iguess[5] + d->p[3];
+    d->iguess[3]   = d->p[2];
+    d->iguess[4]   = d->iguess[3] + d->p[0] + d->p[1];
+    d->iguess[1]   = -0.5*d->iguess[3] + d->iguess[4] - 1.0*d->iguess[5] - 1.0*d->p[0] + d->iguess[2];
+    d->iguess[0]   = 0.142857142857143*(5.0*d->iguess[4] + 5.0*d->p[4] - 2.0*d->p[5] + d->p[6] + 5.0*d->iguess[2] - 5.0)/(0.285714285714286*d->iguess[4] + 0.285714285714286*d->iguess[5] + 0.285714285714286*d->iguess[1] + 0.285714285714286*d->iguess[2] - 1);
+    d->iguess[6]   = -0.4*d->iguess[4]*d->iguess[0] + 2.0*d->iguess[4] - 0.4*d->iguess[5]*d->iguess[0] + 2.0*d->p[4] - 0.4*d->p[5] + 1.2*d->p[6] - 0.4*d->iguess[0]*d->iguess[1] - 0.4*d->iguess[0]*d->iguess[2] + 2.4*d->iguess[0] + 2.0*d->iguess[2] - 2.0;
+    d->iguess[7]   = 0.5*(-2.0*d->iguess[4]*d->iguess[0] + 5.0*d->iguess[4] + 5.0*d->p[4] + 3.0*d->p[6] - 2.0*d->iguess[0]*d->iguess[2] + 5.0*d->iguess[0] + 5.0*d->iguess[2] - 5.0)/(d->iguess[5] + d->iguess[1] - 1);
     
     for (int i = 0; i < d->n_xeos; i++){
         if (d->iguess[i] < d->bounds[i][0]){
@@ -4135,11 +4132,11 @@ void p2x_ume_amp(void *SS_ref_db, double eps){
 void p2x_ume_aug(void *SS_ref_db, double eps){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     
-    d->iguess[6]  = d->p[5];
-    d->iguess[1]    = d->p[6] + d->iguess[6];
-    d->iguess[2]    = d->p[4];
-    d->iguess[4]    = d->iguess[2] + d->p[3];
-    d->iguess[3]    = d->p[0] + d->iguess[1];
+    d->iguess[6]   = d->p[5];
+    d->iguess[1]   = d->p[6] + d->iguess[6];
+    d->iguess[2]   = d->p[4];
+    d->iguess[4]   = d->iguess[2] + d->p[3];
+    d->iguess[3]   = d->p[0] + d->iguess[1];
     d->iguess[0]   = (2.0*d->iguess[4] + 2.0*d->p[1] + d->p[7] + 2.0*d->iguess[3] - 2.0)/(2.0*d->iguess[4] + d->iguess[1] + d->iguess[3] - 2.0);
     d->iguess[5]   = (4.0*d->iguess[4]*d->p[1] + 4.0*d->iguess[4]*d->p[2] + 2.0*d->iguess[4]*d->p[7] + 4.0*d->iguess[4]*d->iguess[1] + 4.0*d->iguess[4]*d->iguess[3] - 8.0*d->iguess[4] + 4.0*d->iguess[4]*d->iguess[4] + 4.0*d->p[1]*d->iguess[1] - 4.0*d->p[1] + 2.0*d->p[2]*d->iguess[1] + 2.0*d->p[2]*d->iguess[3] - 4.0*d->p[2] + 2.0*d->p[7]*d->iguess[1] - 2.0*d->p[7] + 4.0*d->iguess[1]*d->iguess[3] - 4.0*d->iguess[1] - 4.0*d->iguess[3] + 4.0)/(d->iguess[4]*d->iguess[1] + 3.0*d->iguess[4]*d->iguess[3] - 4.0*d->iguess[4] + 2.0*d->iguess[4]*d->iguess[4] + d->iguess[1]*d->iguess[3] -d->iguess[1] - 3.0*d->iguess[3] + d->iguess[3]*d->iguess[3] + 2.0);
     
@@ -14198,11 +14195,11 @@ double obj_mpe_occm(unsigned n, const double *x, double *grad, void *SS_ref_db){
     sf[8]          = x[1] - 0.25*x[3];
     
     
-    mu[0]          = gb[0] + R*T*creal(clog(sqrt(sf[0])*cpow(sf[3], 0.25)*cpow(sf[6], 0.25))) + mu_Gex[0];
-    mu[1]          = gb[1] + R*T*creal(clog(sqrt(sf[0])*cpow(sf[4], 0.25)*cpow(sf[7], 0.25))) + mu_Gex[1];
-    mu[2]          = gb[2] + R*T*creal(clog(sqrt(sf[1])*cpow(sf[4], 0.25)*cpow(sf[7], 0.25))) + mu_Gex[2];
-    mu[3]          = gb[3] + R*T*creal(clog(sqrt(sf[2])*cpow(sf[5], 0.25)*cpow(sf[8], 0.25))) + mu_Gex[3];
-    mu[4]          = gb[4] + R*T*creal(clog(sqrt(sf[0])*cpow(sf[5], 0.25)*cpow(sf[7], 0.25))) + mu_Gex[4];
+    mu[0]          = gb[0] + R*T*creal(clog(csqrt(sf[0])*cpow(sf[3], 0.25)*cpow(sf[6], 0.25))) + mu_Gex[0];
+    mu[1]          = gb[1] + R*T*creal(clog(csqrt(sf[0])*cpow(sf[4], 0.25)*cpow(sf[7], 0.25))) + mu_Gex[1];
+    mu[2]          = gb[2] + R*T*creal(clog(csqrt(sf[1])*cpow(sf[4], 0.25)*cpow(sf[7], 0.25))) + mu_Gex[2];
+    mu[3]          = gb[3] + R*T*creal(clog(csqrt(sf[2])*cpow(sf[5], 0.25)*cpow(sf[8], 0.25))) + mu_Gex[3];
+    mu[4]          = gb[4] + R*T*creal(clog(csqrt(sf[0])*cpow(sf[5], 0.25)*cpow(sf[7], 0.25))) + mu_Gex[4];
     
     d->sum_apep = 0.0;
     for (int i = 0; i < n_em; i++){
@@ -15070,6 +15067,42 @@ void TC_um_P2X_init(	            P2X_type 			*P2X_read,
 			P2X_read[iss]  = p2x_um_opx; 		}
 		else if (strcmp( gv.SS_list[iss], "po") == 0){
 			P2X_read[iss]  = p2x_um_po; 		}
+		else{
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
+		}	
+	};	
+}
+
+
+void TC_um_ext_P2X_init(	        P2X_type 			*P2X_read,
+									global_variable 	 gv				){	
+						 
+	for (int iss = 0; iss < gv.len_ss; iss++){
+
+		if      (strcmp( gv.SS_list[iss], "fl")  == 0 ){
+			P2X_read[iss]  = p2x_um_fluid; 		}
+		else if (strcmp( gv.SS_list[iss], "ol")  == 0){
+			P2X_read[iss]  = p2x_um_ol; 		}
+		else if (strcmp( gv.SS_list[iss], "br") == 0){
+			P2X_read[iss]  = p2x_um_br; 		}
+		else if (strcmp( gv.SS_list[iss], "ch")  == 0){
+			P2X_read[iss]  = p2x_um_ch; 		}
+		else if (strcmp( gv.SS_list[iss], "atg")  == 0){
+			P2X_read[iss]  = p2x_um_atg; 		}
+		else if (strcmp( gv.SS_list[iss], "g")   == 0){
+			P2X_read[iss]  = p2x_um_g; 		    }
+		else if (strcmp( gv.SS_list[iss], "ta")  == 0){
+			P2X_read[iss]  = p2x_um_ta; 		}
+		else if (strcmp( gv.SS_list[iss], "chl") == 0){
+			P2X_read[iss]  = p2x_um_chl; 		}
+		else if (strcmp( gv.SS_list[iss], "anth") == 0){
+			P2X_read[iss]  = p2x_um_anth; 		}
+		else if (strcmp( gv.SS_list[iss], "spi")  == 0){
+			P2X_read[iss]  = p2x_um_spi; 		}
+		else if (strcmp( gv.SS_list[iss], "opx") == 0){
+			P2X_read[iss]  = p2x_um_opx; 		}
+		else if (strcmp( gv.SS_list[iss], "po") == 0){
+			P2X_read[iss]  = p2x_um_po; 		}
 		else if (strcmp( gv.SS_list[iss], "pl4tr")  == 0){
 			P2X_read[iss]  = p2x_ume_pl4tr; 		}
 		else if (strcmp( gv.SS_list[iss], "amp") == 0){
@@ -15081,7 +15114,6 @@ void TC_um_P2X_init(	            P2X_type 			*P2X_read,
 		}	
 	};	
 }
-
 
 void TC_P2X_init(	                P2X_type 			*P2X_read,
 									global_variable 	 gv				){
@@ -15102,8 +15134,12 @@ void TC_P2X_init(	                P2X_type 			*P2X_read,
 		TC_igad_P2X_init(			        P2X_read,
 											gv							);
 	}
-	else if (gv.EM_database == 4 || gv.EM_database == 5){			// ultramafic database //
+	else if (gv.EM_database == 4){			// ultramafic database //
 		TC_um_P2X_init(			            P2X_read,
+											gv							);
+	}
+	else if (gv.EM_database == 5){			// ultramafic database //
+		TC_um_ext_P2X_init(			        P2X_read,
 											gv							);
 	}
 	else if (gv.EM_database == 7){			// metapelite ext database //

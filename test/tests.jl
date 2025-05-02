@@ -12,7 +12,7 @@
 using Test
 using MAGEMin_C
 
-data        =   Initialize_MAGEMin("sb21", verbose=true);
+data        =   Initialize_MAGEMin("sb21", verbose=-1);
 test        =   1         #KLB1
 data        =   use_predefined_bulk_rock(data, test);
 P           =   80.0
@@ -22,7 +22,7 @@ out         =   point_wise_minimization(P,T, data);
 Finalize_MAGEMin(data)
 
 # generic test for thermocalc database
-data        =   Initialize_MAGEMin("ig", verbose=true);
+data        =   Initialize_MAGEMin("ig", verbose=-1);
 test        =   0         #KLB1
 data        =   use_predefined_bulk_rock(data, test);
 P           =   8.0
@@ -30,15 +30,13 @@ T           =   800.0
 out         =   point_wise_minimization(P,T, data);
 Finalize_MAGEMin(data)
 
-@show out
-
 @test out.G_system ≈ -797.7873859283119
 @test sort(out.ph) == sort(["spl", "cpx",  "opx", "ol"])
 @test abs(out.s_cp[1] - 1208.466551730128) < 2.0
 
 @testset "test light output calculation" begin
     # Without a buffer at 1100.0 C
-    data    = Initialize_MAGEMin("ig", verbose=false);
+    data    = Initialize_MAGEMin("ig", verbose=-1);
     P,T     = 10.0, 600.0
     Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
     X       = [78.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
@@ -51,11 +49,24 @@ Finalize_MAGEMin(data)
     Finalize_MAGEMin(data)
 end
 
+
+@testset "test ume database" begin
+    data        =   Initialize_MAGEMin("ume", verbose=-1);
+    test        =   0
+    data        =   use_predefined_bulk_rock(data, test);
+    P           =   20.0
+    T           =   400.0
+    out         =   point_wise_minimization(P,T, data);
+    Finalize_MAGEMin(data)
+
+    @test sort(out.ph) == sort(["fl", "spi", "ta", "aug", "chl", "pyr"])
+end
+
 # Tests from L. Candioti - ETH - Oct 2024
 @testset "test mass conservation" begin
 
     # Without a buffer at 1100.0 C
-    data    = Initialize_MAGEMin("ig", verbose=false);
+    data    = Initialize_MAGEMin("ig", verbose=-1);
     P,T     = 10.0, 1100.0
     Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
     X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
@@ -66,7 +77,7 @@ end
     Finalize_MAGEMin(data)
 
     # Without a buffer at 800.0 C
-    data    = Initialize_MAGEMin("ig", verbose=false);
+    data    = Initialize_MAGEMin("ig", verbose=-1);
     P,T     = 10.0, 800.0
     Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
     X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
@@ -77,7 +88,7 @@ end
     Finalize_MAGEMin(data)
 
     # With a buffer at 1100.0 C
-    data    = Initialize_MAGEMin("ig", buffer = "nno", verbose=false);
+    data    = Initialize_MAGEMin("ig", buffer = "nno", verbose=-1);
     P,T     = 10.0, 1100.0
     Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
     X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
@@ -88,7 +99,7 @@ end
     Finalize_MAGEMin(data)
     
     # With a buffer at 800.0 C
-    data    = Initialize_MAGEMin("ig", verbose=false);
+    data    = Initialize_MAGEMin("ig", verbose=-1);
     P,T     = 10.0, 800.0
     Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
     X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
@@ -110,7 +121,7 @@ end
     @test sort(out.ph) == sort(["chl", "sp", "mu", "mu", "fsp", "ep", "q", "ru", "aH2O"])
     Finalize_MAGEMin(data)
 
-    data        =   Initialize_MAGEMin("mp", verbose=true, buffer="aTiO2");
+    data        =   Initialize_MAGEMin("mp", verbose=-1, buffer="aTiO2");
     test        =   0        
     data        =   use_predefined_bulk_rock(data, test);
     P           =   8.0
@@ -119,7 +130,7 @@ end
     @test sort(out.ph) == sort(["H2O", "aTiO2", "chl", "ep", "fsp", "ilm", "mu", "mu", "q"])
     Finalize_MAGEMin(data)
 
-    data        =   Initialize_MAGEMin("ig", verbose=true, buffer="aTiO2");
+    data        =   Initialize_MAGEMin("ig", verbose=-1, buffer="aTiO2");
     test        =   0        
     data        =   use_predefined_bulk_rock(data, test);
     P           =   8.0
@@ -129,7 +140,7 @@ end
 
     Finalize_MAGEMin(data)
 
-    data    = Initialize_MAGEMin("ig", verbose=false, buffer="qfm");
+    data    = Initialize_MAGEMin("ig", verbose=-1, buffer="qfm");
     P,T     = 10.0, 1100.0
     Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
     X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
@@ -139,7 +150,7 @@ end
 
     Finalize_MAGEMin(data)
 
-    data    = Initialize_MAGEMin("ig", verbose=false, buffer="iw");
+    data    = Initialize_MAGEMin("ig", verbose=-1, buffer="iw");
     P,T     = 10.0, 1100.0
     Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
     X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
@@ -180,7 +191,7 @@ end
 end
 
 @testset "test zr saturation" begin
-    data    = Initialize_MAGEMin("mp", verbose=false);
+    data    = Initialize_MAGEMin("mp", verbose=-1);
 
     P,T     = 6.0, 930.0
     Xoxides = ["SiO2";  "TiO2";  "Al2O3";  "FeO";   "MnO";   "MgO";   "CaO";   "Na2O";  "K2O"; "H2O"; "O"];
@@ -214,7 +225,7 @@ end
 end
 
 @testset "test normalization" begin
-    data        =   Initialize_MAGEMin("ig", verbose=true);
+    data        =   Initialize_MAGEMin("ig", verbose=-1);
     test        =   5         #KLB1
     data        =   use_predefined_bulk_rock(data, test);
     P           =   8.0
@@ -281,7 +292,7 @@ finalize_MAGEMin(gv,DB,z_b)
     P       =   fill(8.0,n)
     T       =   fill(800.0,n)
     db      =   "ig" 
-    data    =   Initialize_MAGEMin(db, verbose=false);
+    data    =   Initialize_MAGEMin(db, verbose=-1);
     out     =   multi_point_minimization(P, T, data, test=0);
     @test out[end].G_system ≈ -797.7873859283119
     @test sort(out[end].ph) == sort(["spl", "cpx",  "opx", "ol"])
@@ -290,7 +301,7 @@ finalize_MAGEMin(gv,DB,z_b)
 end
 
 @testset "specify bulk rock" begin
-    data    = Initialize_MAGEMin("ig", verbose=false);
+    data    = Initialize_MAGEMin("ig", verbose=-1);
     
     # One bulk rock for all points
     P,T     = 10.0, 1100.0
@@ -367,7 +378,7 @@ end
 
 @testset "view array PT" begin
 
-    data    = Initialize_MAGEMin("ig", verbose=false);
+    data    = Initialize_MAGEMin("ig", verbose=-1);
 
     # different bulk rock per point
     P       = [10.0, 10.0, 0]
@@ -402,7 +413,7 @@ end
 
 @testset "test Seismic velocities & modulus" begin
     # Call optimization routine for given P & T & bulk_rock
-    data         = Initialize_MAGEMin("ig", verbose=false);
+    data         = Initialize_MAGEMin("ig", verbose=-1);
     test        = 0;
     data         = use_predefined_bulk_rock(data, test)
     P           = 8.0
@@ -426,7 +437,7 @@ end
 
 @testset "test Mantle HP13" begin
 
-    data        =   Initialize_MAGEMin("mtl", verbose=true);
+    data        =   Initialize_MAGEMin("mtl", verbose=-1);
     test        =   0         #KLB1
     data        =   use_predefined_bulk_rock(data, test);
 
