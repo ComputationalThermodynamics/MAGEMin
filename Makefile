@@ -8,7 +8,7 @@ EXE_NAME:= MAGEMin
 # Check if USE_MPI is set (default: 1)
 USE_MPI ?= 1
 
-CCFLAGS = -Wall -O3 -g -fPIC -Wno-unused-variable -Wno-unused-but-set-variable -march=native -funroll-loops -flto
+CCFLAGS = -Wall -O3 -g -fPIC -Wno-unused-variable -Wno-unused-but-set-variable -march=native -funroll-loops
 ifeq ($(UNAME_S),Darwin)
 	INC      = -I/opt/homebrew/include 
 	LIBS     = -lm -framework Accelerate /opt/homebrew/lib/libnlopt.dylib
@@ -24,15 +24,6 @@ ifeq ($(UNAME_S),Linux)
 		LIBS    += -L/usr/lib/x86_64-linux-gnu/openmpi/lib -lmpi
 		INC      = -I/usr/lib/x86_64-linux-gnu/openmpi/include/
 	endif
-endif
-ifeq ($(UNAME_S),Windows)
-    INC      = -IC:/msys64/mingw64/include
-    LIBS     = -LC:/msys64/mingw64/lib -lnlopt -llapacke -lblas -lgfortran -lm
-    ifeq ($(USE_MPI),1)
-        CCFLAGS += -DUSE_MPI
-        LIBS    += -LC:/msys64/mingw64/lib -lmpi
-        INC     += -IC:/msys64/mingw64/include/mpi
-    endif
 endif
 
 SOURCES=src/MAGEMin.c 							\
