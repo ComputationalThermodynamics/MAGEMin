@@ -25,7 +25,15 @@ ifeq ($(UNAME_S),Linux)
 		INC      = -I/usr/lib/x86_64-linux-gnu/openmpi/include/
 	endif
 endif
-	EXE_NAME = MAGEMin
+ifeq ($(UNAME_S),Windows)
+    INC      = -IC:/msys64/mingw64/include
+    LIBS     = -LC:/msys64/mingw64/lib -lnlopt -llapacke -lblas -lgfortran -lm
+    ifeq ($(USE_MPI),1)
+        CCFLAGS += -DUSE_MPI
+        LIBS    += -LC:/msys64/mingw64/lib -lmpi
+        INC     += -IC:/msys64/mingw64/include/mpi
+    endif
+endif
 
 SOURCES=src/MAGEMin.c 							\
 		src/initialize.c 						\
