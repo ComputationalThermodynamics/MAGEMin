@@ -807,7 +807,7 @@ global_variable init_em_db_sb(	int 				EM_database,
 		for (int i = 0; i < gv.len_pp; i++){
 		
  			if (strcmp( gv.PP_list[i], "aMgO") == 0){
-				printf("here aMgO\n");
+
 				PP_ref MgO 	= G_EM_function(	gv.research_group,
                                                 gv.EM_dataset, 
 												gv.len_ox,
