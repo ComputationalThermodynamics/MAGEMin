@@ -794,7 +794,7 @@ global_variable init_em_db(		int 				EM_database,
 
 /** 
   initialize pure phase database */
-global_variable init_em_db_sb(		int 				EM_database,
+global_variable init_em_db_sb(	int 				EM_database,
 								bulk_info 			z_b,
 								global_variable 	gv,
 								PP_ref 			   *PP_ref_db
@@ -807,7 +807,7 @@ global_variable init_em_db_sb(		int 				EM_database,
 		for (int i = 0; i < gv.len_pp; i++){
 		
  			if (strcmp( gv.PP_list[i], "aMgO") == 0){
-
+				printf("here aMgO\n");
 				PP_ref MgO 	= G_EM_function(	gv.research_group,
                                                 gv.EM_dataset, 
 												gv.len_ox,
@@ -822,6 +822,9 @@ global_variable init_em_db_sb(		int 				EM_database,
 				strcpy(PP_ref_db[i].Name, gv.PP_list[i]);
 				for (int j = 0; j < gv.len_ox; j++){
 					PP_ref_db[i].Comp[j] = MgO.Comp[j];
+					if (gv.EM_database == 1){
+						PP_ref_db[i].Comp[j] /= 4.0; // divide by 4 for sb21
+					}
 				}		
 
 				/* Calculate the number of atoms in the bulk-rock composition */
@@ -843,8 +846,11 @@ global_variable init_em_db_sb(		int 				EM_database,
 				else if (gv.buffer_n >= 1.0){
 					buffer_n = 1.0-1e-8;
 				}
-
-				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(buffer_n) + MgO.gbase;
+				double G0 = MgO.gbase;
+				if (gv.EM_database == 1){
+					G0 /= 4.0; // divide by 4 for sb21
+				}
+				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(buffer_n) + G0;
 				PP_ref_db[i].factor  =  factor;
 				PP_ref_db[i].phase_shearModulus  = MgO.phase_shearModulus;
 				gv.pp_flags[i][4] 	= 1;
@@ -865,6 +871,9 @@ global_variable init_em_db_sb(		int 				EM_database,
 				strcpy(PP_ref_db[i].Name, gv.PP_list[i]);
 				for (int j = 0; j < gv.len_ox; j++){
 					PP_ref_db[i].Comp[j] = FeO.Comp[j];
+					if (gv.EM_database == 1){
+						PP_ref_db[i].Comp[j] /= 4.0; // divide by 4 for sb21
+					}
 				}		
 
 				/* Calculate the number of atoms in the bulk-rock composition */
@@ -886,8 +895,11 @@ global_variable init_em_db_sb(		int 				EM_database,
 				else if (gv.buffer_n >= 1.0){
 					buffer_n = 1.0-1e-8;
 				}
-
-				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(buffer_n) + FeO.gbase;
+				double G0 = FeO.gbase;
+				if (gv.EM_database == 1){
+					G0 /= 4.0; // divide by 4 for sb21
+				}
+				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(buffer_n) + G0;
 				PP_ref_db[i].factor  =  factor;
 				PP_ref_db[i].phase_shearModulus  = FeO.phase_shearModulus;
 				gv.pp_flags[i][4] 	= 1;
