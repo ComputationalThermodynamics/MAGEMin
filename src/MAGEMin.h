@@ -142,6 +142,7 @@ typedef struct global_variables {
 	double  *pp_n;				/** fraction of pure phase in estimated phase assemblage */
 	double  *pp_n_mol;			/** fraction of pure phase in estimated phase assemblage */
 	double  *pp_n_wt;			/** fraction of pure phase in estimated phase assemblage */
+	double  *pp_n_vol;			/** fraction of pure phase in estimated phase assemblage */
 	double  *pp_xi;				/** penalty term -> distance from G-hyperplane */
 	double  *delta_pp_n;		/** fraction of pure phase in estimated phase assemblage */
 	double  *delta_pp_xi;		/** penalty term -> distance from G-hyperplane*/
@@ -583,6 +584,7 @@ typedef struct csd_phase_sets {
 	double 	ss_n;
 	double 	ss_n_mol;
 	double 	ss_n_wt;
+	double  ss_n_vol;
 	double  delta_ss_n;
 	double 	df;
 	double 	factor;
@@ -631,6 +633,7 @@ typedef struct stb_SS_phases {
 	double   G;
 	double   deltaG;
 	double   V;
+	double   V_mol;
 	double   alpha;
 	double   cp;
 	double   entropy;
@@ -698,6 +701,7 @@ typedef struct stb_PP_phases {
 	double   G;
 	double   deltaG;
 	double   V;
+	double   V_mol;
 	double   alpha;
 	double   cp;
 	double   entropy;
@@ -756,6 +760,7 @@ typedef struct stb_systems {
 	double  s_cp;
 	double  cp_wt;
 	double  V;
+	double  V_mol;
 	
 	double  entropy;
 	double  enthalpy;

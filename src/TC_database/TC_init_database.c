@@ -738,6 +738,7 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 	gv.pp_n    			= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
 	gv.pp_n_mol 		= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
 	gv.pp_n_wt  		= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
+	gv.pp_n_vol 		= malloc (gv.len_pp * sizeof(double)	);	
 	gv.pp_xi    		= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
 	gv.delta_pp_n 		= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
 	gv.delta_pp_xi 		= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */

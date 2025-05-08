@@ -70,7 +70,7 @@ stx21_dataset stx21_db = {
 	{"plg"	,"sp"	,"ol"	,"wa"	,"ri"	,"opx"	,"cpx"	,"hpcpx","ak"	,"gtmj"	,"pv"	,"ppv"	,"cf"	,"mw"	,"nal"					},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1		,1						}, // allow solvus?
-	{11 	,11 	,11 	,11 	,11 	,286	,1001	,11 	,66 	,1001	,66 	,66 	,11		,66 	,66						}, // # of pseudocompound
+	{11 	,11 	,11 	,11 	,11 	,286	,1001	,11 	,66 	,1001	,66 	,66 	,66		,66 	,66						}, // # of pseudocompound
 	{0.100	,0.100	,0.100	,0.100	,0.100	,0.100	,0.100	,0.100	,0.100	,0.100	,0.100	,0.100	,0.100 	,0.100	,0.100					}, // discretization step in endmember fraction
 
 	6.0, 						/** max dG under which a phase is considered to be reintroduced  					*/
@@ -234,6 +234,7 @@ global_variable global_variable_SB_init( 	global_variable  	 gv,
 	gv.pp_n    			= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
 	gv.pp_n_mol 		= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
 	gv.pp_n_wt  		= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
+	gv.pp_n_vol  		= malloc (gv.len_pp * sizeof(double)	);
 	gv.pp_xi    		= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
 	gv.delta_pp_n 		= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
 	gv.delta_pp_xi 		= malloc (gv.len_pp * sizeof(double)	);									/** pure phase fraction vector */
@@ -382,7 +383,7 @@ global_variable get_bulk_stx11( global_variable gv) {
 		gv.bulk_rock[4]  = 50.0;		/** MgO 	*/
 		gv.bulk_rock[5]  = 0.01;		/** Na2O 	*/
 	}  
-	else if (gv.test == 1){ //Harzburgite
+	else if (gv.test == 2){ //Harzburgite
 		/* SiO2 CaO  Al2O3 FeO MgO  Na2O  */
 		gv.bulk_rock[0]  = 36.39 ;		/** SiO2 	*/
 		gv.bulk_rock[1]  = 0.9;			/** CaO  	*/

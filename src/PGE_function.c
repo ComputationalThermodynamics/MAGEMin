@@ -993,6 +993,7 @@ global_variable init_LP(							bulk_info 	 		 z_b,
 		gv.pp_n[i] 		  = 0.0;
 		gv.pp_n_mol[i]	  = 0.0;
 		gv.pp_n_wt[i]	  = 0.0;
+		gv.pp_n_vol[i]	  = 0.0;
 		gv.delta_pp_n[i]  = 0.0;
 		gv.pp_xi[i] 	  = 0.0;
 		gv.delta_pp_xi[i] = 0.0;
@@ -1028,6 +1029,7 @@ global_variable init_LP(							bulk_info 	 		 z_b,
 		cp[i].ss_n        		= 0.0;				/* get initial phase fraction */
 		cp[i].ss_n_mol      	= 0.0;				/* get initial phase mol fraction */
 		cp[i].ss_n_wt			= 0.0;
+		cp[i].ss_n_vol   		= 0.0;				/* get initial phase mol fraction */
 		cp[i].delta_ss_n    	= 0.0;				/* get initial phase fraction */
 		
 		for (int ii = 0; ii < n; ii++){

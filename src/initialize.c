@@ -122,7 +122,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.7.5 [02/04/2025]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.7.6 [8/04/2025]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
@@ -637,6 +637,7 @@ global_variable reset_gv(					global_variable 	 gv,
 		gv.pp_n[i] 		  = 0.0;
 		gv.pp_n_mol[i]	  = 0.0;
 		gv.pp_n_wt[i]	  = 0.0;
+		gv.pp_n_vol[i]	  = 0.0;
 		gv.delta_pp_n[i]  = 0.0;
 		gv.pp_xi[i] 	  = 0.0;
 		gv.delta_pp_xi[i] = 0.0;
@@ -957,6 +958,7 @@ void reset_cp(						global_variable 	 gv,
 		cp[i].ss_n        		= 0.0;				/* get initial phase fraction */
 		cp[i].ss_n_mol      	= 0.0;				/* get initial phase fraction */
 		cp[i].ss_n_wt       	= 0.0;				/* get initial phase fraction */
+		cp[i].ss_n_vol      	= 0.0;				/* get initial phase fraction */
 		cp[i].delta_ss_n    	= 0.0;				/* get initial phase fraction */
 		
 		for (int ii = 0; ii < n; ii++){

@@ -786,7 +786,7 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 	for (i = 0; i < d->n_Ox; i++){
 
 		ph_id 		= d->ph_id_A[i][1];
-
+		// printf(" %d %d ",i,d->ph_id_A[i][0]);
 		/* if phase is a pure species */
 		if (d->ph_id_A[i][0] == 1 ){
 
@@ -1072,7 +1072,7 @@ void run_simplex_pseudocompounds(		bulk_info 	 		z_b,
 		k 		   += 1;
 		d->swp      = 0;
 		t 			= clock();
-		if (gv.EM_database != 6){ //TMP fix, at the moment I don't have the return mapping function from p to x for Mantle database
+		if (gv.EM_database != 6 && strcmp(gv.research_group, "sb") 	!= 0){ //TMP fix, at the moment I don't have the return mapping function from p to x for Mantle database
 			swap_pure_endmembers(				z_b,
 												splx_data,
 												gv,
@@ -1124,7 +1124,7 @@ void run_simplex_pseudocompounds_IG(	bulk_info 	 		z_b,
 		k 		   += 1;
 		d->swp      = 0;
 		t 			= clock();
-		if (gv.EM_database != 6){ //TMP fix, at the moment I don't have the return mapping function from p to x for Mantle database
+		if (gv.EM_database != 6 && strcmp(gv.research_group, "sb") 	!= 0){ //TMP fix, at the moment I don't have the return mapping function from p to x for Mantle database
 			swap_pure_endmembers(				z_b,
 												splx_data,
 												gv,
@@ -1473,7 +1473,6 @@ global_variable run_initial_guess_function(	bulk_info 	 		 z_b,
 	reduce_ss_list( 						SS_ref_db, 
 											gv 				);
 	
-
 	/* function to send back the updated initial guess, and phases flags */
 	gv = update_global_info(				z_b,
 											splx_data,
@@ -1603,7 +1602,7 @@ global_variable run_levelling_function(		bulk_info 	 z_b,
 	reduce_ss_list( 						SS_ref_db, 
 											gv 				);
 	
-
+	
 	/* function to send back the updated initial guess, and phases flags */
 	gv = update_global_info(				z_b,
 											splx_data,
