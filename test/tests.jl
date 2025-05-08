@@ -9,6 +9,13 @@
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ =#
 # this tests the julia interface to MAGEMin
+
+function norm(vec :: Vector{Float64})
+    return sqrt(sum(vec.^2))
+end
+
+
+
 using Test
 using MAGEMin_C
 
@@ -49,7 +56,6 @@ Finalize_MAGEMin(data)
     Finalize_MAGEMin(data)
 end
 
-
 @testset "test ume database" begin
     data        =   Initialize_MAGEMin("ume", verbose=-1);
     test        =   0
@@ -72,7 +78,7 @@ end
     X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
     sys_in  = "wt"
     out_hT  = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
-    Δρ_hT   = abs( out_hT.rho - ((out_hT.frac_M_wt * out_hT.rho_M + out_hT.frac_S_wt * out_hT.rho_S )) )
+    Δρ_hT   = abs( out_hT.rho - ((out_hT.frac_M_vol * out_hT.rho_M + out_hT.frac_S_vol * out_hT.rho_S )) )
     @test Δρ_hT < 1e-10
     Finalize_MAGEMin(data)
 
@@ -83,7 +89,7 @@ end
     X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
     sys_in  = "wt"
     out_lT  = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
-    Δρ_lT = abs( out_lT.rho - ((out_lT.frac_M_wt * out_lT.rho_M + out_lT.frac_S_wt * out_lT.rho_S )) )
+    Δρ_lT = abs( out_lT.rho - ((out_lT.frac_M_vol * out_lT.rho_M + out_lT.frac_S_vol * out_lT.rho_S )) )
     @test Δρ_lT < 1e-10
     Finalize_MAGEMin(data)
 
@@ -94,7 +100,7 @@ end
     X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
     sys_in  = "wt"
     out_BhT = single_point_minimization(P, T, data, X=X, B=0.0, Xoxides=Xoxides, sys_in=sys_in)
-    Δρ_BhT  = abs( out_BhT.rho - ((out_BhT.frac_M_wt * out_BhT.rho_M + out_BhT.frac_S_wt * out_BhT.rho_S )) )
+    Δρ_BhT  = abs( out_BhT.rho - ((out_BhT.frac_M_vol * out_BhT.rho_M + out_BhT.frac_S_vol * out_BhT.rho_S )) )
     @test Δρ_BhT < 1e-10
     Finalize_MAGEMin(data)
     
@@ -105,7 +111,7 @@ end
     X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
     sys_in  = "wt"
     out_BlT = single_point_minimization(P, T, data, X=X, B=0.0, Xoxides=Xoxides, sys_in=sys_in)
-    Δρ_BlT  = abs( out_BlT.rho - ((out_BlT.frac_M_wt * out_BlT.rho_M + out_BlT.frac_S_wt * out_BlT.rho_S )) )
+    Δρ_BlT  = abs( out_BlT.rho - ((out_BlT.frac_M_vol * out_BlT.rho_M + out_BlT.frac_S_vol * out_BlT.rho_S )) )
     @test Δρ_BlT < 1e-10
     Finalize_MAGEMin(data)
 
@@ -588,4 +594,67 @@ end
 println("Testing problematic points:")
 @testset verbose = true "Problematic points" begin
     include("test_problematic_points.jl")
+end
+
+println("Benchmark against Theriak:")
+@testset "Benchmark against Theriak" begin
+
+    # Solid phases
+    solid_phases = ["g", "liq", "pl", "afs", "bi", "ilm", "sill", "q"];
+    td_id = sortperm(solid_phases)
+
+    #N
+    N               = [0.6136, 4.8183, 4.6406, 1.0617, 4.2211, 0.5645, 5.1276, 24.0023]; N ./= sum(N);
+    # Volume/mol
+    volume_mol      = [117.5005, 58.7648, 101.8521, 107.6953, 153.3781, 31.6762, 50.1679, 23.4358];
+    # Volume [ccm]
+    volume_ccm      = [72.1034, 283.1494, 472.6552, 114.3374, 647.4299, 17.8820, 257.2415, 562.5131];
+    # Vol%
+    vol_percent     = [2.9705, 11.6651, 19.4724, 4.7105, 26.6727, 0.7367, 10.5978, 23.1743];
+    # Wt/mol
+    wt_mol          = [478.4261, 128.5542, 267.7937, 274.4220, 464.6401, 155.5184, 162.0456, 60.0843];
+    # Wt [g]
+    wt_g            = [293.5831, 619.4190, 1242.7242, 291.3470, 1961.3092, 87.7938, 830.9067, 1442.1636];
+    # Wt%
+    wt_percent      = [4.3370, 9.1505, 18.3584, 4.3040, 28.9738, 1.2970, 12.2747, 21.3046]; wt_percent ./= sum(wt_percent);
+    # Density [g/ccm]
+    density_g_ccm   = [4.071695, 2.187605, 2.629240, 2.548133, 3.029377, 4.909629, 3.230065, 2.563786];
+
+    data    = Initialize_MAGEMin("mp", verbose=-1, solver=0);
+    P, T    = 7.0, 760.0;
+    Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "MnO"; "H2O"];
+    X       = [0.60758, 0.12843, 0.01492, 0.05202, 0.0755, 0.02769, 0.01882, 0.00853, 0.00612, 0.00165, 0.05875];
+    sys_in  = "mol";
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, name_solvus=true)
+    MM_id   = sortperm(out.ph)
+
+
+    mol = zeros(length(out.ph))
+    wt  = zeros(length(out.ph))
+    vol = zeros(length(out.ph))
+    vol_mol = zeros(length(out.ph))
+    vol_ccm = zeros(length(out.ph))
+    for i=1:out.n_SS
+        mol[i] = out.ph_frac[i]
+        wt[i] = out.ph_frac_wt[i]
+        vol[i] = out.ph_frac_vol[i]
+        vol_mol[i] = out.SS_vec[i].V_mol
+        vol_ccm[i] = out.SS_vec[i].V
+    end
+    for i=1:out.n_PP
+        mol[i+out.n_SS] = out.ph_frac[i+out.n_SS]
+        wt[i+out.n_SS] = out.ph_frac_wt[i+out.n_SS]
+        vol[i+out.n_SS] = out.ph_frac_vol[i+out.n_SS]
+        vol_mol[i+out.n_SS] = out.PP_vec[i].V_mol
+        vol_ccm[i+out.n_SS] = out.PP_vec[i].V
+    end
+
+    @test out.ph[MM_id]         ==  solid_phases[td_id]
+    @test norm(vol_mol[MM_id]   .-  volume_mol[td_id]) < 1.0
+    @test norm(vol_ccm[MM_id]   .-  (volume_mol[td_id] .* N[td_id])) < 0.1
+    @test norm(vol[MM_id].*100  .-  vol_percent[td_id]) < 0.1
+    @test norm(mol[MM_id]       .-  N[td_id]) < 1e-4
+    @test norm(wt[MM_id]        .-  wt_percent[td_id]) < 1e-4
+    Finalize_MAGEMin(data)
+
 end

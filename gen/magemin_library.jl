@@ -656,6 +656,7 @@ mutable struct global_variables
     pp_n::Ptr{Cdouble}
     pp_n_mol::Ptr{Cdouble}
     pp_n_wt::Ptr{Cdouble}
+    pp_n_vol::Ptr{Cdouble}
     pp_xi::Ptr{Cdouble}
     delta_pp_n::Ptr{Cdouble}
     delta_pp_xi::Ptr{Cdouble}
@@ -1013,6 +1014,7 @@ struct csd_phase_sets
     ss_n::Cdouble
     ss_n_mol::Cdouble
     ss_n_wt::Cdouble
+    ss_n_vol::Cdouble
     delta_ss_n::Cdouble
     df::Cdouble
     factor::Cdouble
@@ -1056,6 +1058,7 @@ struct stb_SS_phases
     G::Cdouble
     deltaG::Cdouble
     V::Cdouble
+    V_mol::Cdouble
     alpha::Cdouble
     cp::Cdouble
     entropy::Cdouble
@@ -1111,6 +1114,7 @@ struct stb_PP_phases
     G::Cdouble
     deltaG::Cdouble
     V::Cdouble
+    V_mol::Cdouble
     alpha::Cdouble
     cp::Cdouble
     entropy::Cdouble
@@ -1161,6 +1165,7 @@ struct stb_systems
     s_cp::Cdouble
     cp_wt::Cdouble
     V::Cdouble
+    V_mol::Cdouble
     entropy::Cdouble
     enthalpy::Cdouble
     bulkMod::Cdouble
@@ -3087,6 +3092,7 @@ struct SS_data
     G::Cdouble
     deltaG::Cdouble
     V::Cdouble
+    V_mol::Cdouble
     alpha::Cdouble
     entropy::Cdouble
     enthalpy::Cdouble
@@ -3113,7 +3119,7 @@ struct SS_data
 end
 
 function Base.convert(::Type{SS_data}, a::stb_SS_phases) 
-    return SS_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
+    return SS_data(a.f, a.G, a.deltaG, a.V, a.V_mol, a.alpha, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
                                     unsafe_wrap( Vector{Cdouble},        a.Comp,             a.nOx),
                                     unsafe_wrap( Vector{Cdouble},        a.Comp_wt,          a.nOx),
                                     unsafe_wrap( Vector{Cdouble},        a.Comp_apfu,        a.nOx),
@@ -3164,6 +3170,7 @@ struct PP_data
     G::Cdouble
     deltaG::Cdouble
     V::Cdouble
+    V_mol::Cdouble
     alpha::Cdouble
     entropy::Cdouble
     enthalpy::Cdouble
@@ -3179,7 +3186,7 @@ struct PP_data
 end
 
 function Base.convert(::Type{PP_data}, a::stb_PP_phases) 
-    return PP_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
+    return PP_data(a.f, a.G, a.deltaG, a.V, a.V_mol,a.alpha, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
                     unsafe_wrap(Vector{Cdouble},a.Comp, a.nOx),
                     unsafe_wrap(Vector{Cdouble},a.Comp_wt, a.nOx),
                     unsafe_wrap(Vector{Cdouble},a.Comp_apfu, a.nOx))
