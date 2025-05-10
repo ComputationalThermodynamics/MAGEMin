@@ -315,8 +315,8 @@ double isothermal_bulk_modulus_reuss( 	double temperature,
     double q = volume_dependent_q(V_0 / volume, grueneisen_0, q_0);
 
     double K = bulk_modulus(volume, V_0, K_0, Kprime_0)
-        + (gr + 1.0 - q) * (gr / (volume/1e5)) * (E_th - E_th_ref)
-        - (pow(gr, 2.0) / (volume/1e5)) * (C_v * temperature - C_v_ref * T_0);
+        + (gr + 1.0 - q) * (gr / (volume/1e4)) * (E_th - E_th_ref)
+        - (pow(gr, 2.0) / (volume/1e4)) * (C_v * temperature - C_v_ref * T_0);
 
     return K;
 }
@@ -338,7 +338,7 @@ double shear_modulus(	double temperature,
     double E_th_ref = thermal_energy(T_0, debye_T, n);
 
 	return shear_modulus_second_order(volume, V_0, G_0, Gprime_0, K_0)
-		- eta_s * (E_th - E_th_ref) / (volume/1e5);
+		- eta_s * (E_th - E_th_ref) / (volume/1e4);
 
 }
 

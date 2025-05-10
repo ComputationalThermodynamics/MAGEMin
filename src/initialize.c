@@ -122,7 +122,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.7.6 [8/04/2025]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.7.7 [11/04/2025]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
@@ -623,15 +623,6 @@ global_variable reset_gv(					global_variable 	 gv,
 		}
 	}
 	
-	// gv.H2O_id 	= -1;
-	// gv.CaO_id 	= -1;
-	// gv.Na2O_id 	= -1;
-	// gv.FeO_id 	= -1;
-	// gv.MgO_id 	= -1;
-	// gv.K2O_id 	= -1;
-	// gv.O_id 	= -1;
-	// gv.MnO_id 	= -1;
-
 	/* reset pure phases fractions and xi */
 	for (int i = 0; i < gv.len_pp; i++){		
 		gv.pp_n[i] 		  = 0.0;
@@ -689,7 +680,6 @@ global_variable reset_gv(					global_variable 	 gv,
 	gv.melt_density       = 0.;
 	gv.melt_bulkModulus   = 0.;
 	gv.launch_PGE		  = 0;
-
 	gv.solid_density      = 0.;
 	gv.solid_bulkModulus  = 0.;
 	gv.solid_shearModulus = 0.;

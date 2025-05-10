@@ -430,6 +430,7 @@ typedef struct SS_refs {
 	double  *Vec2;				/** vector 1 																*/
 
 	/** data needed for levelling and/or PGE **/
+	int      override;			/** check if the phase is overridden 										*/
 	int		 is_liq;			/** check if phase is "liq" 												*/
 	int      symmetry;			/** solution phase symmetry  												*/
 	int      n_em;				/** number od endmembers 													*/
@@ -633,7 +634,6 @@ typedef struct stb_SS_phases {
 	double   G;
 	double   deltaG;
 	double   V;
-	double   V_mol;
 	double   alpha;
 	double   cp;
 	double   entropy;
@@ -701,7 +701,6 @@ typedef struct stb_PP_phases {
 	double   G;
 	double   deltaG;
 	double   V;
-	double   V_mol;
 	double   alpha;
 	double   cp;
 	double   entropy;
@@ -760,7 +759,6 @@ typedef struct stb_systems {
 	double  s_cp;
 	double  cp_wt;
 	double  V;
-	double  V_mol;
 	
 	double  entropy;
 	double  enthalpy;

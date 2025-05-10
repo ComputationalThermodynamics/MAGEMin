@@ -543,8 +543,7 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].SS[m].f 		 = cp[i].factor;
 			sp[0].SS[m].G 		 = G;
 			sp[0].SS[m].deltaG	 = cp[i].df;
-			sp[0].SS[m].V_mol 	 = cp[i].volume*10.;
-			sp[0].SS[m].V 		 = cp[i].volume*10.* cp[i].ss_n_mol;
+			sp[0].SS[m].V 		 = cp[i].volume*10.;
 			sp[0].SS[m].cp 		 = (cp[i].phase_cp * cp[i].factor)/phase_mass;
 			sp[0].SS[m].rho 	 = cp[i].phase_density;
 			sp[0].SS[m].alpha 	 = cp[i].phase_expansivity;
@@ -648,7 +647,7 @@ void fill_output_struct(		global_variable 	 gv,
 			else {
 				sp[0].frac_S 				   += cp[i].ss_n_mol;
 				sp[0].frac_S_wt				   += cp[i].ss_n_wt;
-				sp[0].rho_S  				   += cp[i].ss_n_vol*cp[i].phase_density;
+				sp[0].rho_S  				   += cp[i].ss_n_wt*cp[i].phase_density;
 				for (j = 0; j < gv.len_ox; j++){
 					sp[0].bulk_S[j]	   		   += cp[i].ss_n_mol*cp[i].ss_comp_mol[j];
 					sp[0].bulk_S_wt[j]	   	   += cp[i].ss_n_wt*cp[i].ss_comp_wt[j];
@@ -695,8 +694,7 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].PP[m].f 		 = PP_ref_db[i].factor;
 			sp[0].PP[m].G 		 = PP_ref_db[i].gbase;
 			sp[0].PP[m].deltaG	 = PP_ref_db[i].gb_lvl;
-			sp[0].PP[m].V_mol    = PP_ref_db[i].volume*10.;
-			sp[0].PP[m].V 		 = PP_ref_db[i].volume*10. *  gv.pp_n_mol[i];
+			sp[0].PP[m].V 		 = PP_ref_db[i].volume*10.;
 			sp[0].PP[m].cp 		 = (PP_ref_db[i].phase_cp * PP_ref_db[i].factor)/phase_mass;
 			sp[0].PP[m].rho 	 = PP_ref_db[i].phase_density;
 			sp[0].PP[m].alpha 	 = PP_ref_db[i].phase_expansivity;
@@ -710,7 +708,7 @@ void fill_output_struct(		global_variable 	 gv,
 			if  (strcmp( gv.PP_list[i], "H2O") != 0){
 				sp[0].frac_S 		+= gv.pp_n_mol[i];
 				sp[0].frac_S_wt		+= gv.pp_n_wt[i];
-				sp[0].rho_S  		+= gv.pp_n_vol[i]*PP_ref_db[i].phase_density;
+				sp[0].rho_S  		+= gv.pp_n_wt[i]*PP_ref_db[i].phase_density;
 				for (j = 0; j < gv.len_ox; j++){
 					sp[0].bulk_S[j]	+= gv.pp_n_mol[i]*PP_ref_db[i].Comp_mol[j];
 					sp[0].bulk_S_wt[j]	+= gv.pp_n_wt[i]*PP_ref_db[i].Comp_wt[j];
@@ -732,14 +730,13 @@ void fill_output_struct(		global_variable 	 gv,
 	
 
 	// compute volume fraction and normalize other fractions
-	sp[0].frac_S_vol = 0.0;
 	sum_vol = 0.0;
 	sum_mol = 0.0;
 	sum_wt  = 0.0;
 	n = 0;
 	for (int i = 0; i < gv.len_cp; i++){
 		if ( cp[i].ss_flags[1] == 1){
-			sp[0].ph_frac_vol[n] = cp[i].ss_n_vol;
+			sp[0].ph_frac_vol[n] = sp[0].ph_frac_wt[n] / sp[0].SS[n].rho;
 
 			if (strcmp( cp[i].name, "liq") == 0 || strcmp( cp[i].name, "fl") == 0 ){
 				if (strcmp( cp[i].name, "liq") == 0){
@@ -762,7 +759,7 @@ void fill_output_struct(		global_variable 	 gv,
 	m = 0;
 	for (int i = 0; i < gv.len_pp; i++){
 		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
-			sp[0].ph_frac_vol[n] =  gv.pp_n_vol[i];
+			sp[0].ph_frac_vol[n] =  sp[0].ph_frac_wt[n] / sp[0].PP[m].rho;
 
 			if  (strcmp( gv.PP_list[i], "H2O") != 0){
 				sp[0].frac_S_vol += sp[0].ph_frac_vol[n];
@@ -788,7 +785,7 @@ void fill_output_struct(		global_variable 	 gv,
 	/* The following section normalizes the entries for S (solid), M (melt) and F (fluid) which are entries useful for geodynamic coupling */
 	// normalize rho_S and bulk_S
 	if (sp[0].frac_S > 0.0){
-		sp[0].rho_S  /= sp[0].frac_S_vol;
+		sp[0].rho_S  /= sp[0].frac_S_wt;
 	}
 
 	sum = 0.0;
