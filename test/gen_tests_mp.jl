@@ -12,7 +12,7 @@ gv, z_b, DB, splx_data      = init_MAGEMin(db, verbose=-1);
 
 
 sys_in      = "mol" 
-test        = 0       
+test        = 4       
 gv          = use_predefined_bulk_rock(gv, test, db);
 
 mutable struct outP{ _T  } 

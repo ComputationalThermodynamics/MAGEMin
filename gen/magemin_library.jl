@@ -877,6 +877,7 @@ struct SS_refs
     N::Ptr{Ptr{Cdouble}}
     Vec1::Ptr{Cdouble}
     Vec2::Ptr{Cdouble}
+    override::Cint
     is_liq::Cint
     symmetry::Cint
     n_em::Cint
@@ -1058,7 +1059,6 @@ struct stb_SS_phases
     G::Cdouble
     deltaG::Cdouble
     V::Cdouble
-    V_mol::Cdouble
     alpha::Cdouble
     cp::Cdouble
     entropy::Cdouble
@@ -1114,7 +1114,6 @@ struct stb_PP_phases
     G::Cdouble
     deltaG::Cdouble
     V::Cdouble
-    V_mol::Cdouble
     alpha::Cdouble
     cp::Cdouble
     entropy::Cdouble
@@ -1165,7 +1164,6 @@ struct stb_systems
     s_cp::Cdouble
     cp_wt::Cdouble
     V::Cdouble
-    V_mol::Cdouble
     entropy::Cdouble
     enthalpy::Cdouble
     bulkMod::Cdouble
@@ -3092,7 +3090,6 @@ struct SS_data
     G::Cdouble
     deltaG::Cdouble
     V::Cdouble
-    V_mol::Cdouble
     alpha::Cdouble
     entropy::Cdouble
     enthalpy::Cdouble
@@ -3119,7 +3116,7 @@ struct SS_data
 end
 
 function Base.convert(::Type{SS_data}, a::stb_SS_phases) 
-    return SS_data(a.f, a.G, a.deltaG, a.V, a.V_mol, a.alpha, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
+    return SS_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
                                     unsafe_wrap( Vector{Cdouble},        a.Comp,             a.nOx),
                                     unsafe_wrap( Vector{Cdouble},        a.Comp_wt,          a.nOx),
                                     unsafe_wrap( Vector{Cdouble},        a.Comp_apfu,        a.nOx),
@@ -3170,7 +3167,6 @@ struct PP_data
     G::Cdouble
     deltaG::Cdouble
     V::Cdouble
-    V_mol::Cdouble
     alpha::Cdouble
     entropy::Cdouble
     enthalpy::Cdouble
@@ -3186,7 +3182,7 @@ struct PP_data
 end
 
 function Base.convert(::Type{PP_data}, a::stb_PP_phases) 
-    return PP_data(a.f, a.G, a.deltaG, a.V, a.V_mol,a.alpha, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
+    return PP_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
                     unsafe_wrap(Vector{Cdouble},a.Comp, a.nOx),
                     unsafe_wrap(Vector{Cdouble},a.Comp_wt, a.nOx),
                     unsafe_wrap(Vector{Cdouble},a.Comp_apfu, a.nOx))

@@ -28,6 +28,7 @@
 SS_ref G_SS_sb11_plg_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 2;
     SS_ref_db.n_xeos    = 2;
@@ -44,6 +45,7 @@ SS_ref G_SS_sb11_plg_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb11_sp_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 6;
     SS_ref_db.n_xeos    = 2;
@@ -60,6 +62,7 @@ SS_ref G_SS_sb11_sp_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb11_ol_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 2;
     SS_ref_db.n_xeos    = 2;
@@ -76,6 +79,7 @@ SS_ref G_SS_sb11_ol_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb11_wa_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 2;
     SS_ref_db.n_xeos    = 2;
@@ -92,6 +96,7 @@ SS_ref G_SS_sb11_wa_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb11_ri_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 2;
     SS_ref_db.n_xeos    = 2;
@@ -108,6 +113,7 @@ SS_ref G_SS_sb11_ri_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb11_opx_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 6;
     SS_ref_db.n_xeos    = 4;
@@ -124,6 +130,7 @@ SS_ref G_SS_sb11_opx_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb11_cpx_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_cat     = 8;
     SS_ref_db.n_xeos    = 5;
@@ -141,6 +148,7 @@ SS_ref G_SS_sb11_cpx_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb11_hpcpx_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 2;
     SS_ref_db.n_xeos    = 2;
@@ -157,6 +165,7 @@ SS_ref G_SS_sb11_hpcpx_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb11_ak_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 5;
     SS_ref_db.n_xeos    = 3;
@@ -173,6 +182,7 @@ SS_ref G_SS_sb11_ak_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb11_gtmj_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 9;
     SS_ref_db.n_xeos    = 5;
@@ -189,6 +199,7 @@ SS_ref G_SS_sb11_gtmj_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb11_pv_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_cat     = 5;
     SS_ref_db.n_xeos    = 3;
@@ -206,6 +217,7 @@ SS_ref G_SS_sb11_pv_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb11_ppv_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 5;
     SS_ref_db.n_xeos    = 3;
@@ -222,6 +234,7 @@ SS_ref G_SS_sb11_ppv_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb11_mw_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 2;
     SS_ref_db.n_xeos    = 2;
@@ -238,6 +251,7 @@ SS_ref G_SS_sb11_mw_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb11_cf_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 5;
     SS_ref_db.n_xeos    = 3;
@@ -292,6 +306,7 @@ void SB_SS_init_sb11(       SS_init_type        *SS_init,
 SS_ref G_SS_sb21_plg_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 2;
     SS_ref_db.n_xeos    = 2;
@@ -308,6 +323,7 @@ SS_ref G_SS_sb21_plg_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb21_sp_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 6;
     SS_ref_db.n_xeos    = 2;
@@ -324,6 +340,7 @@ SS_ref G_SS_sb21_sp_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb21_ol_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 2;
     SS_ref_db.n_xeos    = 2;
@@ -340,6 +357,7 @@ SS_ref G_SS_sb21_ol_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb21_wa_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 2;
     SS_ref_db.n_xeos    = 2;
@@ -356,6 +374,7 @@ SS_ref G_SS_sb21_wa_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb21_ri_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 2;
     SS_ref_db.n_xeos    = 2;
@@ -372,6 +391,7 @@ SS_ref G_SS_sb21_ri_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb21_opx_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 6;
     SS_ref_db.n_xeos    = 4;
@@ -388,6 +408,7 @@ SS_ref G_SS_sb21_opx_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb21_cpx_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_cat     = 8;
     SS_ref_db.n_xeos    = 5;
@@ -405,6 +426,7 @@ SS_ref G_SS_sb21_cpx_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb21_hpcpx_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 2;
     SS_ref_db.n_xeos    = 2;
@@ -421,6 +443,7 @@ SS_ref G_SS_sb21_hpcpx_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb21_ak_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 5;
     SS_ref_db.n_xeos    = 3;
@@ -437,6 +460,7 @@ SS_ref G_SS_sb21_ak_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb21_gtmj_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 9;
     SS_ref_db.n_xeos    = 5;
@@ -453,6 +477,7 @@ SS_ref G_SS_sb21_gtmj_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb21_pv_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 5;
     SS_ref_db.n_xeos    = 3;
@@ -469,6 +494,7 @@ SS_ref G_SS_sb21_pv_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb21_ppv_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 5;
     SS_ref_db.n_xeos    = 3;
@@ -485,6 +511,7 @@ SS_ref G_SS_sb21_ppv_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb21_cf_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 0;
     SS_ref_db.n_cat     = 5;
     SS_ref_db.n_xeos    = 3;
@@ -502,6 +529,7 @@ SS_ref G_SS_sb21_cf_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb21_mw_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 6;
     SS_ref_db.n_xeos    = 3;
@@ -518,6 +546,7 @@ SS_ref G_SS_sb21_mw_init_function(SS_ref SS_ref_db,  global_variable gv){
 SS_ref G_SS_sb21_nal_init_function(SS_ref SS_ref_db,  global_variable gv){
 
     SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 6;
     SS_ref_db.n_xeos    = 3;
