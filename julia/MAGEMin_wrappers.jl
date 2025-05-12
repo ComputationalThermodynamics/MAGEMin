@@ -22,7 +22,7 @@ const available_TC_ds   = [62,633,634,635,636]
 export  anhydrous_renormalization, retrieve_solution_phase_information, remove_phases, get_ss_from_mineral,
         init_MAGEMin, allocate_output,finalize_MAGEMin, point_wise_minimization, convertBulk4MAGEMin, use_predefined_bulk_rock, define_bulk_rock, create_output,
         print_info, create_gmin_struct, pwm_init, pwm_run,
-        single_point_minimization, multi_point_minimization, AMR_minimization, MAGEMin_Data, W_Data,
+        single_point_minimization, multi_point_minimization, AMR_minimization, MAGEMin_Data,
         MAGEMin_data2dataframe, MAGEMin_dataTE2dataframe,
         Initialize_MAGEMin, Finalize_MAGEMin
 
@@ -163,15 +163,6 @@ struct gmin_struct{T,I}
     status          :: I           # status of calculations
 end
 
-# struct light_gmin_struct{T <: Float32, I <: Int8} 
-#     P_kbar      :: T                    # Pressure in kbar
-#     T_C         :: T                    # Temperature in Celsius
-   
-#     ph_frac_1at :: Vector{T}            # phase fractions
-#     ph_type     :: Vector{I}            # type of phase (SS or PP)
-#     ph_id_db    :: Vector{I}            # id of phase
-#     xeos        :: Vector{Vector{T}}    # Name of phase
-# end
 struct light_gmin_struct{T <: Float32, I <: Int8} 
     P_kbar      :: T                    # Pressure in kbar
     T_C         :: T                    # Temperature in Celsius
@@ -239,10 +230,11 @@ end
     Holds the overriding Ws parameters
 0 = "mp", 1 = "mb", 2 = "ig", 3 = "igad", 4 = "um", 5 = "ume", 6 = "mtl", 7 = "mpe", 8 = "sb11", 9 = "sb21"
 """
-mutable struct W_Data
-    SS_id   :: Vector{Int64}
-    SS_len  :: Vector{Int64}
-    Ws      :: Vector{Matrix{Float64}}
+mutable struct W_data{T <: Float64,I <: Int64}
+    dtb         :: I
+    ss_ids      :: I
+    n_Ws        :: I
+    Ws          :: Matrix{T}   #S T P * n_Ws
 end
 
 
@@ -489,7 +481,7 @@ function single_point_minimization(     P           ::  T1,
                                         scp         ::  Int64                           = 0,
                                         iguess      ::  Bool                            = false,
                                         rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
-                                        W           ::  Union{Nothing, W_Data}          = nothing,
+                                        W           ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}}          = nothing,
                                         Xoxides     = Vector{String},
                                         sys_in      = "mol",
                                         rg          = "tc",
@@ -528,7 +520,7 @@ end
 
 
 """
-Out_PT =multi_point_minimization(P::T2,T::T2,MAGEMin_db::MAGEMin_Data;test::Int64=0,X::Union{Nothing, AbstractVector{Float64}, AbstractVector{<:AbstractVector{Float64}}}=nothing,B::Union{Nothing, T1, Vector{T1}}=nothing,W::Union{Nothing, W_Data}=nothing,Xoxides=Vector{String},sys_in="mol",progressbar=true, 
+Out_PT =multi_point_minimization(P::T2,T::T2,MAGEMin_db::MAGEMin_Data;test::Int64=0,X::Union{Nothing, AbstractVector{Float64}, AbstractVector{<:AbstractVector{Float64}}}=nothing,B::Union{Nothing, T1, Vector{T1}}=nothing,W::Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}}=nothing,Xoxides=Vector{String},sys_in="mol",progressbar=true, 
                                 callback_fn ::Union{Nothing, Function}= nothing,  
                                 callback_int::Int64 = 1) where {T1 <: Float64, T2 <: AbstractVector{T1}}
 
@@ -604,7 +596,7 @@ function multi_point_minimization(P           ::  T2,
                                   scp         ::  Int64                           = 0, 
                                   iguess      ::  Bool                            = false,    
                                   rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
-                                  W           ::  Union{Nothing, W_Data}          = nothing,
+                                  W           ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}}  = nothing,
                                   Xoxides     = Vector{String},
                                   sys_in      :: String                           = "mol",
                                   rg          :: String                           = "tc",
@@ -698,7 +690,7 @@ function AMR_minimization(  init_sub    ::  Int64,
                             scp         ::  Int64                           = 0,  
                             iguess      ::  Bool                            = false,   
                             rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
-                            W           ::  Union{Nothing, W_Data}          = nothing,
+                            W           ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}}  = nothing,
                             Xoxides     =  Vector{String},
                             sys_in      ::  String                          = "mol",
                             rg          ::  String                          = "tc",
@@ -765,17 +757,12 @@ function AMR_minimization(  init_sub    ::  Int64,
 end
 
 
-
-
 """
 bulk_rock = use_predefined_bulk_rock(gv, test=-1, db="ig")
 
 Returns the pre-defined bulk rock composition of a given test
 """
 function use_predefined_bulk_rock(gv, test=0, db="ig")
-
-    # test = unsafe_string.(gv.research_group)
-    # println(typeof(gv.research_group))
 
     rg = unsafe_string(gv.research_group)
 
@@ -990,7 +977,6 @@ function convertBulk4MAGEMin(   bulk_in     :: T1,
     # check which component can safely be put to 0.0
     d = []
     c = collect(1:length(MAGEMin_ox))
-    # c should be swt to all first here
     if db       == "mp"
         c = findall(MAGEMin_ox .!= "TiO2" .&& MAGEMin_ox .!= "O" .&& MAGEMin_ox .!= "MnO" .&& MAGEMin_ox .!= "H2O");
         d = findall(MAGEMin_ox .== "TiO2" .|| MAGEMin_ox .== "O" .|| MAGEMin_ox .!= "MnO");
@@ -1141,7 +1127,40 @@ function point_wise_minimization(   P       ::Float64,
         gv.mpIlm        = 2
     end
     
+
     gv      = LibMAGEMin.ComputeG0_point(gv.EM_database, z_b, gv, DB.PP_ref_db,DB.SS_ref_db);
+
+    # here we can over-ride default W's
+    if ~isnothing(W)
+        n_over  = length(W)
+        Pw      = z_b.P
+        Tw      = z_b.T
+        for n=1:n_over
+
+            if gv.EM_database == W[n].dtb
+                ss          = W[n].ss_ids
+                SS_ref_db   = unsafe_wrap(Vector{LibMAGEMin.SS_ref},DB.SS_ref_db,gv.len_ss);
+                n_W         = SS_ref_db[ss].n_w;
+                if W[n].n_Ws == n_W
+                    # override = 1
+                    # unsafe_copyto!(pointer(SS_ref_db[ss].override), pointer(override), 1) 
+                    # SS_ref_db[ss].override = 1;                                                     # set the override flag to 1
+                    # Wdef    = unsafe_wrap(Vector{Cdouble},SS_ref_db[ss].W, SS_ref_db[ss].n_w);      # retrieve default Ws
+                    new_Ws  = zeros(n_W)
+                    for i=1:n_W
+                        new_Ws[i] = W[n].Ws[i,1] + W[n].Ws[i,2]*Tw + W[n].Ws[i,3]*Pw 
+                    end
+                    unsafe_copyto!(SS_ref_db[ss].W, pointer(new_Ws), SS_ref_db[ss].n_w) 
+                else
+                    print(" Wrong number of W's, please make sure the custom Ws are linked to the right solution model\n Ws override will be ignored\n")
+                    println(" n_W target= $(n_W), n_W provided = $(W[n].n_Ws)")
+                end
+            end
+            
+        end
+    end
+
+    # gv      = LibMAGEMin.ComputeG0_point(gv.EM_database, z_b, gv, DB.PP_ref_db,DB.SS_ref_db);
 
     #= THIS IS WHERE pwm_init ends =#
     if ~isnothing(rm_list)
@@ -1170,14 +1189,6 @@ function point_wise_minimization(   P       ::Float64,
                 id = abs(i)
                 unsafe_copyto!(pp_flags[id], pointer(flags_off), 5)
             end
-        end
-    end
-
-    # here we can over-ride default W's
-    if ~isnothing(W)
-        if gv.EM_database == W.database    # check if the database fit
-        else
-            print(" Wrong database number, please make sure the custom Ws are linked to the right database\n")
         end
     end
 
@@ -1314,7 +1325,7 @@ point_wise_minimization(P       ::  Number,
                         iguess  ::  Bool        = false,
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         name_solvus::Bool       = false,
-                        W       ::  Union{Nothing, W_Data} = nothing) = 
+                        W       ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}} = nothing) = 
                         point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, Gi, scp, iguess, rm_list, name_solvus, W)
 
 point_wise_minimization(P       ::  Number,
@@ -1330,7 +1341,7 @@ point_wise_minimization(P       ::  Number,
                         iguess  ::  Bool        = false,
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         name_solvus::Bool       = false,
-                        W       ::  Union{Nothing, W_Data} = nothing) = 
+                        W       ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}} = nothing) = 
                         point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, Gi, scp, iguess, rm_list, name_solvus, W)
 
 point_wise_minimization(P       ::  Number,
@@ -1342,7 +1353,7 @@ point_wise_minimization(P       ::  Number,
                         iguess  ::  Bool        = false,
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         name_solvus::Bool       = false,
-                        W       ::  Union{Nothing, W_Data} = nothing) = 
+                        W       ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}} = nothing) = 
                         point_wise_minimization(Float64(P),Float64(T), data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]; buffer_n, Gi, scp, iguess, rm_list, name_solvus, W)
 
 
@@ -1686,28 +1697,6 @@ end
 
 This extracts the output of a pointwise MAGEMin optimization and adds it into a julia structure
 """
-# function create_light_gmin_struct(DB)
-
-#     stb      = unsafe_load(DB.sp)
-#     n_ph     =  stb.n_ph        # total # of stable phases
-#     n_PP     =  stb.n_PP        # number of pure phases
-#     n_SS     =  stb.n_SS        # number of solid solutions
-
-#     P_kbar   = Float32(stb.P)
-#     T_C      = Float32(stb.T-273.15)
-
-#     ph_frac_1at =  Float32.(unsafe_wrap(Vector{Cdouble},  stb.ph_frac_1at,        n_ph))
-#     ph_type     =  Int8.(unsafe_wrap(Vector{Cint},        stb.ph_type,            n_ph))
-#     ph_id_db    =  Int8.(unsafe_wrap(Vector{Cint},        stb.ph_id_db,           n_ph))
-
-#     # extract info about compositional variables of the solution models:
-#     SS_vec  = convert.(LibMAGEMin.SS_data, unsafe_wrap(Vector{LibMAGEMin.stb_SS_phase},stb.SS,n_SS))
-#     xeos     = [Float32.(SS_vec[i].compVariables) for i=1:n_SS]
-#     # Store all in output struct
-#     out = light_gmin_struct{Float32,Int8}( P_kbar, T_C, ph_frac_1at, ph_type, ph_id_db, xeos)
-
-#    return out
-# end
 function create_light_gmin_struct(DB,gv)
 
     stb         = unsafe_load(DB.sp)

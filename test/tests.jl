@@ -12,6 +12,10 @@
 using Test
 using MAGEMin_C
 
+function norm(vec :: Vector{Float64})
+    return sqrt(sum(vec.^2))
+end
+
 data        =   Initialize_MAGEMin("sb21", verbose=-1);
 test        =   1         #KLB1
 data        =   use_predefined_bulk_rock(data, test);
@@ -588,4 +592,27 @@ end
 println("Testing problematic points:")
 @testset verbose = true "Problematic points" begin
     include("test_problematic_points.jl")
+end
+
+
+# a few tests that gave problems in the past
+println("Override Ws")
+@testset verbose = true "Test Ws override" begin
+
+    #= First we create a structure to store the data in memory =#
+    dtb     = 0             # metapelite
+    ss_id   = 3             # biotite
+    n_Ws    = 21            # number of Margules parameters
+    Ws      = [0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0; 0.0 0.0 0.0]
+    new_Ws      =  Vector{MAGEMin_C.W_data{Float64,Int64}}(undef, 1)
+    new_Ws[1]   = MAGEMin_C.W_data(dtb, ss_id, n_Ws, Ws)   
+
+    data    = Initialize_MAGEMin("mp", verbose=-1, solver=0);
+    P,T     = 4.0,650.0
+    Xoxides = ["SiO2","Al2O3","CaO","MgO","FeO","K2O","Na2O","TiO2","O","MnO","H2O"]
+    X       = [70.999,12.805,0.771,3.978,6.342,2.7895,1.481,0.758,0.72933,0.075,30.0]
+    sys_in  = "mol"    
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in,W=new_Ws)
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    @test norm(out.ph_frac) - 0.456 < 0.01
 end
