@@ -49,7 +49,7 @@ function anhydrous_renormalization( bulk    :: Vector{Float64},
         bulk_dry[H2O_index] = 0.0
         bulk_dry ./= sum(bulk_dry)
     else
-        println("No water oxide in the system!")
+        # println("No water oxide in the system!")
         bulk_dry = bulk ./ sum(bulk)
     end
 
