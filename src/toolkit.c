@@ -1485,7 +1485,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 						cp[i].phase_cp    		+= SS_ref_db[ss].ElCp[j]*cp[i].p_em[j];
 					}
 					else{
-						cp[i].phase_expansivity += (1.0/(dGdP)*((dGdTPP-dGdTMP)/(gv.gb_P_eps)))*cp[i].p_em[j];
+						cp[i].phase_expansivity += (1.0/(dGdP*10.0)*((dGdTPP-dGdTMP)/(gv.gb_P_eps)))*cp[i].p_em[j];
 						cp[i].phase_bulkModulus += -dGdP/( dG2dP2 + pow(((dGdTPP-dGdTMP)/(gv.gb_P_eps)),2.0)/dG2dT2 ) * cp[i].p_em[j];
 						cp[i].phase_cp    		+= -T*(dG2dT2)*cp[i].p_em[j];
 					}
@@ -1607,7 +1607,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 			if ( strcmp(gv.research_group, "sb") 	!= 0 ){
 				PP_ref_db[i].phase_bulkModulus	= -dGdP/( dG2dP2 + pow(((dGdTPP-dGdTMP)/(gv.gb_P_eps)),2.0)/dG2dT2 );
 				PP_ref_db[i].phase_cp 			= -T*(dG2dT2);
-				PP_ref_db[i].phase_expansivity 	= 1.0/(dGdP)*((dGdTPP-dGdTMP)/(gv.gb_P_eps));
+				PP_ref_db[i].phase_expansivity 	= 1.0/(dGdP*10.0)*((dGdTPP-dGdTMP)/(gv.gb_P_eps));
 			}
 
 			/* shear modulus	*/

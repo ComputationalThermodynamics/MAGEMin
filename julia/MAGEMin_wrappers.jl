@@ -98,9 +98,8 @@ struct gmin_struct{T,I}
     frac_F_vol   :: T
 
     # Solid, melt, fluid densities
-    alpha       :: T
+    alpha       :: Vector{T}
     V           :: T
-    # cp          :: T
     s_cp        :: Vector{T}
     rho         :: T
     rho_M       :: T
@@ -184,7 +183,7 @@ struct light_gmin_struct{T <: Float32, I <: Int8}
     rho_M       :: T
 
     s_cp        :: Vector{T}
-
+    alpha       :: Vector{T}
 end
 
 """
@@ -1224,14 +1223,14 @@ function point_wise_minimization(   P       ::Float64,
                 if tot_pc[1] < n_SS_PC[ph_id]   # here we make sure we have the space to store the pseudocompound
 
                     m_pc        = id_pc[1]+1;
-                    info        = unsafe_wrap(Vector{Cint},SS_ref_db[ph_id].info,           gv.n_pc)
-                    factor_pc   = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].factor_pc,   gv.n_pc)
-                    DF_pc       = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].DF_pc,       gv.n_pc)
-                    G_pc        = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].G_pc,        gv.n_pc)
+                    info        = unsafe_wrap(Vector{Cint},SS_ref_db[ph_id].info,           SS_ref_db[ph_id].n_pc)
+                    factor_pc   = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].factor_pc,   SS_ref_db[ph_id].n_pc)
+                    DF_pc       = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].DF_pc,       SS_ref_db[ph_id].n_pc)
+                    G_pc        = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].G_pc,        SS_ref_db[ph_id].n_pc)
         
-                    ptr_comp_pc = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].comp_pc,gv.n_pc)
-                    ptr_p_pc    = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].p_pc,   gv.n_pc)
-                    ptr_xeos_pc = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].xeos_pc,gv.n_pc)
+                    ptr_comp_pc = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].comp_pc,SS_ref_db[ph_id].n_pc)
+                    ptr_p_pc    = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].p_pc,   SS_ref_db[ph_id].n_pc)
+                    ptr_xeos_pc = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].xeos_pc,SS_ref_db[ph_id].n_pc)
         
                     unsafe_copyto!(SS_ref_db[ph_id].gb_lvl,SS_ref_db[ph_id].gbase, SS_ref_db[ph_id].n_em)
                     xeos        = Gi[i].xeos_Ppc
@@ -1294,13 +1293,20 @@ function point_wise_minimization(   P       ::Float64,
     if (scp == 1)
         mSS_vec     = deepcopy(out.mSS_vec)
         dT          = 2.0;
+        dP          = 0.002;
         out_W       = point_wise_minimization_with_guess(mSS_vec, P, T-dT, gv, z_b, DB, splx_data)
         out_E       = point_wise_minimization_with_guess(mSS_vec, P, T+dT, gv, z_b, DB, splx_data)
+
         hcp         = -(T+273.15)*(out_E.G_system + out_W.G_system - 2.0*out.G_system)/(dT*dT);
         # hcp         = ((T+273.15)*(out_E.entropy - out.entropy)/(dT));
 
-        s_cp        = hcp/out.M_sys*1e6;
-        out.s_cp   .= s_cp
+        out_N       = point_wise_minimization_with_guess(mSS_vec, P+dP, T, gv, z_b, DB, splx_data)
+        out_NE      = point_wise_minimization_with_guess(mSS_vec, P+dP, T+dT, gv, z_b, DB, splx_data)
+        dGdT_N 		= (out_NE.G_system - out_N.G_system)	/(dT);
+        dGdT_P 		= (out_E.G_system - out.G_system)	    /(dT);
+
+        out.s_cp   .= hcp/out.M_sys*1e6;
+        out.alpha  .= 1.0/( (out_N.G_system - out.G_system)/dP * 10.0)*((dGdT_N-dGdT_P)/(dP))
     end
 
     return out
@@ -1596,7 +1602,7 @@ function create_gmin_struct(DB, gv, time; name_solvus = false)
     frac_F_vol   = stb.frac_F_vol
 
     # Solid, melt, fluid densities
-    alpha   = stb.alpha
+    alpha   = [stb.alpha]
     V       = stb.V
     # cp      = stb.cp
     s_cp    = [stb.s_cp]
@@ -1724,12 +1730,12 @@ function create_light_gmin_struct(DB,gv)
     rho_M       = Float32.(stb.rho_M)
 
     s_cp        = Float32.([stb.s_cp])
-
+    alpha       = Float32.([stb.alpha])
     out = light_gmin_struct{Float32,Int8}(  P_kbar, T_C, ph_frac_wt, ph_type, ph_id_db,
                                             frac_S_wt, frac_F_wt, frac_M_wt,
                                             bulk_S_wt, bulk_F_wt, bulk_M_wt,
                                             rho_S, rho_F, rho_M,
-                                            s_cp)
+                                            s_cp,alpha)
 
    return out
 end
@@ -1937,7 +1943,7 @@ function print_info(g::gmin_struct)
     print("$(lpad(round(sum(g.ph_frac_wt),digits=5),8," ")) ")
     print("$(lpad(round(sum(g.ph_frac_vol),digits=5),8," ")) ")
     print("$(lpad(round(g.G_system,digits=5),20," ")) ")
-    print("$(lpad(round(g.alpha,digits=5),29," ")) ")
+    print("$(lpad(round(g.alpha[1],digits=5),29," ")) ")
     print("$(lpad(round(g.cp,digits=5),29," ")) ")
     print("$(lpad(round(g.s_cp[1],digits=5),29," ")) ")
     print("$(lpad(round(g.V,digits=5),29," ")) ")
@@ -2023,61 +2029,67 @@ function point_wise_minimization_with_guess(    mSS_vec ::  Vector{LibMAGEMin.mS
 
             tot_pc      = unsafe_wrap(Vector{Cint},SS_ref_db[ph_id].tot_pc, 1)
             id_pc       = unsafe_wrap(Vector{Cint},SS_ref_db[ph_id].id_pc, 1)
-            info        = unsafe_wrap(Vector{Cint},SS_ref_db[ph_id].info, gv.max_n_mSS)
-            factor_pc   = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].factor_pc, gv.max_n_mSS)
-            DF_pc       = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].DF_pc, gv.max_n_mSS)
-            G_pc        = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].G_pc, gv.max_n_mSS)
+            info        = unsafe_wrap(Vector{Cint},SS_ref_db[ph_id].info, SS_ref_db[ph_id].n_pc)
+            factor_pc   = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].factor_pc, SS_ref_db[ph_id].n_pc)
+            DF_pc       = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].DF_pc, SS_ref_db[ph_id].n_pc)
+            G_pc        = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].G_pc, SS_ref_db[ph_id].n_pc)
 
-            m_pc        = id_pc[1]+1;
-            ptr_comp_pc = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].comp_pc,gv.max_n_mSS)
-            ptr_p_pc    = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].p_pc,gv.max_n_mSS)
-            ptr_xeos_pc = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].xeos_pc,gv.max_n_mSS)
+            # here we make sure the pseudocompound can be added
+            if id_pc[1]+1 < SS_ref_db[ph_id].n_pc 
 
-            unsafe_copyto!(SS_ref_db[ph_id].gb_lvl,SS_ref_db[ph_id].gbase, SS_ref_db[ph_id].n_em)
-            xeos        = mSS_vec[i].xeos_Ppc
+                m_pc        = id_pc[1]+1;
+                ptr_comp_pc = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].comp_pc,SS_ref_db[ph_id].n_pc)
+                ptr_p_pc    = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].p_pc,SS_ref_db[ph_id].n_pc)
+                ptr_xeos_pc = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].xeos_pc,SS_ref_db[ph_id].n_pc)
 
-            # retrieve bounds
-            bounds_ref      = zeros( n_xeos,2)
-            ptr_bounds_ref  = unsafe_wrap(Vector{Ptr{Cdouble}}, SS_ref_db[ph_id].bounds_ref, n_xeos)
+                unsafe_copyto!(SS_ref_db[ph_id].gb_lvl,SS_ref_db[ph_id].gbase, SS_ref_db[ph_id].n_em)
+                xeos        = mSS_vec[i].xeos_Ppc
 
-            for k=1:n_xeos
-                bounds_ref[k,:] = unsafe_wrap(Vector{Cdouble}, ptr_bounds_ref[k], 2)
-                if xeos[k] < bounds_ref[k,1]
-                    xeos[k] = bounds_ref[k,1]
-                elseif xeos[k] > bounds_ref[k,2]
-                    xeos[k] = bounds_ref[k,2]
+                # retrieve bounds
+                bounds_ref      = zeros( n_xeos,2)
+                ptr_bounds_ref  = unsafe_wrap(Vector{Ptr{Cdouble}}, SS_ref_db[ph_id].bounds_ref, n_xeos)
+
+                for k=1:n_xeos
+                    bounds_ref[k,:] = unsafe_wrap(Vector{Cdouble}, ptr_bounds_ref[k], 2)
+                    if xeos[k] < bounds_ref[k,1]
+                        xeos[k] = bounds_ref[k,1]
+                    elseif xeos[k] > bounds_ref[k,2]
+                        xeos[k] = bounds_ref[k,2]
+                    end
                 end
+
+                # get solution phase information for given compositional variables
+                unsafe_copyto!(SS_ref_db[ph_id].iguess,pointer(xeos), n_xeos)
+                if rg == "tc"
+                    SS_ref_db[ph_id] = LibMAGEMin.PC_function(gv, PC_read, SS_ref_db[ph_id], z_b, ph_id-1)
+                elseif rg == "sb"
+                    SS_ref_db[ph_id] = LibMAGEMin.SB_PC_function(gv, PC_read, SS_ref_db[ph_id], z_b, ph_id-1)
+                end
+
+                # copy solution phase composition
+                ss_comp     = unsafe_wrap(Vector{Cdouble}, SS_ref_db[ph_id].ss_comp, gv.len_ox)
+  
+                # println("ph $ph n_pc $(SS_ref_db[ph_id].n_pc) m_pc $m_pc")
+                comp_pc     = unsafe_wrap(Vector{Cdouble}, ptr_comp_pc[m_pc], gv.len_ox)
+                comp_pc    .= ss_comp .* SS_ref_db[ph_id].factor;
+
+                # copy endmember fraction
+                p           = unsafe_wrap(Vector{Cdouble}, SS_ref_db[ph_id].p, n_em)
+                p_pc        = unsafe_wrap(Vector{Cdouble}, ptr_p_pc[m_pc], n_em)
+                p_pc       .= p
+
+                # copy compositional variables
+                xeos_pc     = unsafe_wrap(Vector{Cdouble}, ptr_xeos_pc[m_pc], n_xeos)
+                xeos_pc    .= xeos
+
+                info[m_pc]      = 1;
+                factor_pc[m_pc] = SS_ref_db[ph_id].factor;
+                DF_pc[m_pc]     = SS_ref_db[ph_id].df;
+                G_pc[m_pc]      = SS_ref_db[ph_id].df;
+
+                tot_pc .+= 1;
+                id_pc  .+= 1;
             end
-
-            # get solution phase information for given compositional variables
-            unsafe_copyto!(SS_ref_db[ph_id].iguess,pointer(xeos), n_xeos)
-            if rg == "tc"
-                SS_ref_db[ph_id] = LibMAGEMin.PC_function(gv, PC_read, SS_ref_db[ph_id], z_b, ph_id-1)
-            elseif rg == "sb"
-                SS_ref_db[ph_id] = LibMAGEMin.SB_PC_function(gv, PC_read, SS_ref_db[ph_id], z_b, ph_id-1)
-            end
-
-            # copy solution phase composition
-            ss_comp     = unsafe_wrap(Vector{Cdouble}, SS_ref_db[ph_id].ss_comp, gv.len_ox)
-            comp_pc     = unsafe_wrap(Vector{Cdouble}, ptr_comp_pc[m_pc], gv.len_ox)
-            comp_pc    .= ss_comp .* SS_ref_db[ph_id].factor;
-
-            # copy endmember fraction
-            p           = unsafe_wrap(Vector{Cdouble}, SS_ref_db[ph_id].p, n_em)
-            p_pc        = unsafe_wrap(Vector{Cdouble}, ptr_p_pc[m_pc], n_em)
-            p_pc       .= p
-
-            # copy compositional variables
-            xeos_pc     = unsafe_wrap(Vector{Cdouble}, ptr_xeos_pc[m_pc], n_xeos)
-            xeos_pc    .= xeos
-
-            info[m_pc]      = 1;
-            factor_pc[m_pc] = SS_ref_db[ph_id].factor;
-            DF_pc[m_pc]     = SS_ref_db[ph_id].df;
-            G_pc[m_pc]      = SS_ref_db[ph_id].df;
-
-            tot_pc .+= 1;
-            id_pc  .+= 1;
         end
     end
 
