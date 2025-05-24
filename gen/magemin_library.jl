@@ -1408,6 +1408,32 @@ end
 
 const metabasite_dataset = metabasite_datasets
 
+mutable struct metabasite_ext_datasets
+    ds_version::Cint
+    n_ox::Cint
+    n_pp::Cint
+    n_ss::Cint
+    ox::NTuple{10, NTuple{20, Cchar}}
+    PP::NTuple{26, NTuple{20, Cchar}}
+    SS::NTuple{19, NTuple{20, Cchar}}
+    verifyPC::NTuple{19, Cint}
+    n_SS_PC::NTuple{19, Cint}
+    SS_PC_stp::NTuple{19, Cdouble}
+    PC_df_add::Cdouble
+    solver_switch_T::Cdouble
+    min_melt_T::Cdouble
+    inner_PGE_ite::Cdouble
+    max_n_phase::Cdouble
+    max_g_phase::Cdouble
+    max_fac::Cdouble
+    merge_value::Cdouble
+    re_in_n::Cdouble
+    obj_tol::Cdouble
+    metabasite_ext_datasets() = new()
+end
+
+const metabasite_ext_dataset = metabasite_ext_datasets
+
 mutable struct igneous_datasets
     ds_version::Cint
     n_ox::Cint
@@ -1546,10 +1572,10 @@ mutable struct metapelite_datasets_ext
     n_ss::Cint
     ox::NTuple{13, NTuple{20, Cchar}}
     PP::NTuple{31, NTuple{20, Cchar}}
-    SS::NTuple{23, NTuple{20, Cchar}}
-    verifyPC::NTuple{23, Cint}
-    n_SS_PC::NTuple{23, Cint}
-    SS_PC_stp::NTuple{23, Cdouble}
+    SS::NTuple{24, NTuple{20, Cchar}}
+    verifyPC::NTuple{24, Cint}
+    n_SS_PC::NTuple{24, Cint}
+    SS_PC_stp::NTuple{24, Cdouble}
     PC_df_add::Cdouble
     solver_switch_T::Cdouble
     min_melt_T::Cdouble
@@ -1761,6 +1787,10 @@ function TC_SS_init_mp_ext(SS_init, gv)
     ccall((:TC_SS_init_mp_ext, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
 end
 
+function TC_SS_init_mb_ext(SS_init, gv)
+    ccall((:TC_SS_init_mb_ext, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
+end
+
 function TC_SS_init_mtl(SS_init, gv)
     ccall((:TC_SS_init_mtl, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
 end
@@ -1775,6 +1805,10 @@ end
 
 function G_SS_mb_EM_function(gv, SS_ref_db, EM_dataset, z_b, name)
     ccall((:G_SS_mb_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_dataset, z_b, name)
+end
+
+function G_SS_mb_ext_EM_function(gv, SS_ref_db, EM_dataset, z_b, name)
+    ccall((:G_SS_mb_ext_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_dataset, z_b, name)
 end
 
 function G_SS_ig_EM_function(gv, SS_ref_db, EM_dataset, z_b, name)
@@ -1803,6 +1837,10 @@ end
 
 function TC_mb_objective_init_function(SS_objective, gv)
     ccall((:TC_mb_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
+end
+
+function TC_mb_ext_objective_init_function(SS_objective, gv)
+    ccall((:TC_mb_ext_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
 end
 
 function TC_ig_objective_init_function(SS_objective, gv)
@@ -1918,6 +1956,14 @@ end
 
 function obj_mb_chl(n, x, grad, SS_ref_db)
     ccall((:obj_mb_chl, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_mb_oamp(n, x, grad, SS_ref_db)
+    ccall((:obj_mb_oamp, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_mb_ta(n, x, grad, SS_ref_db)
+    ccall((:obj_mb_ta, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
 function obj_ig_fper(n, x, grad, SS_ref_db)
@@ -2324,6 +2370,10 @@ function TC_mb_PC_init(PC_read, gv)
     ccall((:TC_mb_PC_init, libMAGEMin), Cvoid, (Ptr{PC_type}, global_variable), PC_read, gv)
 end
 
+function TC_mb_ext_PC_init(PC_read, gv)
+    ccall((:TC_mb_ext_PC_init, libMAGEMin), Cvoid, (Ptr{PC_type}, global_variable), PC_read, gv)
+end
+
 function TC_ig_PC_init(PC_read, gv)
     ccall((:TC_ig_PC_init, libMAGEMin), Cvoid, (Ptr{PC_type}, global_variable), PC_read, gv)
 end
@@ -2357,6 +2407,10 @@ end
 
 function TC_mb_NLopt_opt_init(NLopt_opt, gv)
     ccall((:TC_mb_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
+end
+
+function TC_mb_ext_NLopt_opt_init(NLopt_opt, gv)
+    ccall((:TC_mb_ext_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
 end
 
 function TC_ig_NLopt_opt_init(NLopt_opt, gv)

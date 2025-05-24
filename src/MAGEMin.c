@@ -893,6 +893,9 @@ global_variable SetupDatabase(			global_variable 	 gv,
 		else if (strcmp(gv.db, "mb") 	== 0){
 			gv.EM_database = 1;
 		}
+		else if (strcmp(gv.db, "mbe") 	== 0){
+			gv.EM_database = 11;
+		}
 		else if (strcmp(gv.db, "ig") 	== 0){
 			gv.EM_database = 2;
 		}

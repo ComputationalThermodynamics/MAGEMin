@@ -108,7 +108,7 @@ function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Flo
                 else                        mineral_name = "FeTiOx";   end 
             end
     
-        elseif dtb == "mp" || dtb == "mpe" || dtb == "mb" || dtb == "ume"
+        elseif dtb == "mp" || dtb == "mpe" || dtb == "mb" || dtb == "ume" || db == "mbe"
             if ss == "sp"
                 if x[2] - 0.5 > 0.0;        mineral_name = "sp";
                 else                        mineral_name = "mgt";    end

@@ -255,6 +255,9 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 		if (gv.EM_database 		== 1){
 			printf("  - Database                  : Metabasite (Green et al., 2016)\n"	);
 		}
+		if (gv.EM_database 		== 11){
+			printf("  - Database                  : Metabasite extended (Green et al., 2016; oamp from Diener et al., 2007)\n"	);
+		}
 		else if (gv.EM_database == 2){
 			printf("  - Database                  : Igneous (Holland et al., 2018 -> Green et al., 2024)\n"	);
 		}
@@ -307,6 +310,15 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 				}
 			}
 			else if (gv.EM_database == 1){ 			// metabasite database
+				if(strcmp( gv.ox[i], "TiO2") != 0  && strcmp( gv.ox[i], "O") != 0){
+					gv.bulk_rock[i] = 1.0e-4;
+					renorm = 1;
+					if (gv.verbose == 1){
+						printf("  - mol of %4s = %+.5f < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i],gv.bulk_rock[i]);
+					}	
+				}
+			}
+			else if (gv.EM_database == 11){ 			// metabasite database
 				if(strcmp( gv.ox[i], "TiO2") != 0  && strcmp( gv.ox[i], "O") != 0){
 					gv.bulk_rock[i] = 1.0e-4;
 					renorm = 1;
@@ -823,6 +835,9 @@ global_variable get_tests_bulks(	global_variable  	 gv
 			gv = get_bulk_metapelite( 		gv );
 		}
 		else if (gv.EM_database == 1){
+			gv = get_bulk_metabasite( 		gv );
+		}
+		else if (gv.EM_database == 11){
 			gv = get_bulk_metabasite( 		gv );
 		}
 		else if (gv.EM_database == 2){

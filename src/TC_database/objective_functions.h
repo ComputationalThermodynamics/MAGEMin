@@ -17,6 +17,8 @@
 
 void TC_mb_objective_init_function(	obj_type 		 	*SS_objective,
 									global_variable  	 gv					);
+void TC_mb_ext_objective_init_function(	obj_type 		 	*SS_objective,
+									global_variable  	 gv					);
 void TC_ig_objective_init_function(	obj_type 		 	*SS_objective,
 									global_variable   	 gv					);
 void TC_igad_objective_init_function(obj_type 		*SS_objective,
@@ -62,6 +64,8 @@ double obj_mb_ep(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mb_bi(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mb_mu(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mb_chl(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mb_oamp(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_mb_ta(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 
 double obj_ig_fper(unsigned n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_bi(unsigned   n, const double *x, double *grad, void *SS_ref_db);
@@ -178,6 +182,8 @@ SS_ref PC_function(			global_variable 	 gv,
 void TC_mp_PC_init(	                PC_type 			*PC_read,
 									global_variable 	 gv				);
 void TC_mb_PC_init(	                PC_type 			*PC_read,
+									global_variable 	 gv				);
+void TC_mb_ext_PC_init(	            PC_type 			*PC_read,
 									global_variable 	 gv				);
 void TC_ig_PC_init(	                PC_type 			*PC_read,
 									global_variable 	 gv				);
