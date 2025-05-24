@@ -79,7 +79,11 @@ function zirconium_saturation(  out     :: MAGEMin_C.gmin_struct{Float64, Int64}
 
             # # Directly access the water content without creating a temporary array
             xH2O_index = findfirst(==("H2O"), String.(commonOxide))
-            xH2O = liqCompNorm[xH2O_index]
+            if !isnothing(xH2O_index)
+                xH2O = liqCompNorm[xH2O_index]
+            else
+                xH2O = 0.0
+            end
 
             # # Compute C_zr_liq
             C_zr_liq = 10^(0.96 - 5790.0 / (out.T_C + 273.15) - 1.28 * (out.P_kbar * 0.1) + 12.39 * opt_basicity + 0.83 * xH2O + 2.06 * (out.P_kbar * 0.1) * opt_basicity)

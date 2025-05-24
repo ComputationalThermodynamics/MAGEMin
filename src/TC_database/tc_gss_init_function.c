@@ -368,6 +368,41 @@ SS_ref G_SS_mb_chl_init_function(SS_ref SS_ref_db,  global_variable gv){
 }
 
 
+/**
+    allocate memory for oamp
+*/
+SS_ref G_SS_mb_oamp_init_function(SS_ref SS_ref_db, global_variable gv){
+    
+    SS_ref_db.n_cat     = 0;
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 14;
+    SS_ref_db.n_em      = 9;
+    SS_ref_db.n_v       = 9;
+    SS_ref_db.n_w       = 36;
+    SS_ref_db.n_xeos    = 8;
+    
+    return SS_ref_db;
+}
+
+/**
+    allocate memory for ta
+*/
+SS_ref G_SS_mb_ta_init_function(SS_ref SS_ref_db, global_variable gv){
+    
+    SS_ref_db.n_cat     = 0;
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 8;
+    SS_ref_db.n_em      = 5;
+    SS_ref_db.n_w       = 10;
+    SS_ref_db.n_xeos    = 4;
+    
+    return SS_ref_db;
+}
+
 /**************************************************************************************/
 /**************************************************************************************/
 /*********************METAPELITE DATABASE (White et al., 2014)*************************/
@@ -2211,6 +2246,55 @@ void TC_SS_init_mb(	                SS_init_type 		*SS_init,
 }
 
 
+void TC_SS_init_mb_ext(	                SS_init_type 		*SS_init,
+									global_variable 	 gv				){
+					 
+	for (int iss = 0; iss < gv.len_ss; iss++){
+        if (strcmp( gv.SS_list[iss], "liq")  == 0){
+            SS_init[iss]  = G_SS_mb_liq_init_function;        }
+        else if (strcmp( gv.SS_list[iss], "amp")  == 0){
+            SS_init[iss]  = G_SS_mb_amp_init_function;         }
+        else if (strcmp( gv.SS_list[iss], "aug")  == 0){
+            SS_init[iss]  = G_SS_mb_aug_init_function;        }
+        else if (strcmp( gv.SS_list[iss], "dio")  == 0){
+            SS_init[iss]  = G_SS_mb_dio_init_function;        }
+        else if (strcmp( gv.SS_list[iss], "opx")  == 0){
+            SS_init[iss]  = G_SS_mb_opx_init_function;        }
+        else if (strcmp( gv.SS_list[iss], "g")  == 0){
+            SS_init[iss]  = G_SS_mb_g_init_function;          }
+        else if (strcmp( gv.SS_list[iss], "ol")  == 0){
+            SS_init[iss]  = G_SS_mb_ol_init_function;         }
+        else if (strcmp( gv.SS_list[iss], "fsp")  == 0){
+            SS_init[iss]  = G_SS_mb_fsp_init_function;        }
+        else if (strcmp( gv.SS_list[iss], "abc")  == 0){
+            SS_init[iss]  = G_SS_mb_abc_init_function;        }
+        else if (strcmp( gv.SS_list[iss], "k4tr")  == 0){
+            SS_init[iss]  = G_SS_mb_k4tr_init_function;       }
+        else if (strcmp( gv.SS_list[iss], "sp")  == 0){
+            SS_init[iss]  = G_SS_mb_sp_init_function;         }
+        else if (strcmp( gv.SS_list[iss], "spl")  == 0){
+            SS_init[iss]  = G_SS_mb_spl_init_function;        }
+        else if (strcmp( gv.SS_list[iss], "ilm")  == 0){
+            SS_init[iss]  = G_SS_mb_ilm_init_function;        }
+        else if (strcmp( gv.SS_list[iss], "ilmm")  == 0){
+            SS_init[iss]  = G_SS_mb_ilmm_init_function;       }
+        else if (strcmp( gv.SS_list[iss], "ep")  == 0){
+            SS_init[iss]  = G_SS_mb_ep_init_function;         }
+        else if (strcmp( gv.SS_list[iss], "bi")  == 0){
+            SS_init[iss]  = G_SS_mb_bi_init_function;         }
+        else if (strcmp( gv.SS_list[iss], "mu")  == 0){
+            SS_init[iss]  = G_SS_mb_mu_init_function;         }
+        else if (strcmp( gv.SS_list[iss], "chl")  == 0){
+            SS_init[iss]  = G_SS_mb_chl_init_function;        }
+        else if (strcmp( gv.SS_list[iss], "oamp")  == 0){
+            SS_init[iss]  = G_SS_mb_oamp_init_function;        }
+        else if (strcmp( gv.SS_list[iss], "ta")  == 0){
+            SS_init[iss]  = G_SS_mb_ta_init_function;         }
+		else{
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
+		}	
+	};	
+}
 void TC_SS_init_ig(	                SS_init_type 		*SS_init,
 									global_variable 	 gv				){
 					 
@@ -2457,7 +2541,9 @@ void TC_SS_init_mp_ext(	            SS_init_type 		*SS_init,
 		else if (strcmp( gv.SS_list[iss], "aug")   == 0){
 			SS_init[iss]  = G_SS_mpe_aug_init_function; 	}
 		else if (strcmp( gv.SS_list[iss], "amp")    == 0){
-			SS_init[iss]  = G_SS_mpe_amp_init_function; 		}
+			SS_init[iss]  = G_SS_mpe_amp_init_function; 	}
+		else if (strcmp( gv.SS_list[iss], "oamp")    == 0){
+			SS_init[iss]  = G_SS_mb_oamp_init_function; 	}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	
@@ -2471,10 +2557,18 @@ void TC_SS_init(	        	    SS_init_type 		*SS_init,
 		TC_SS_init_mp(	 				    SS_init,
 											gv							);
 	}
-	if (gv.EM_database == 1){				// metabasite database //
+	else if (gv.EM_database == 1){				// metabasite database //
 		TC_SS_init_mb(	 				    SS_init,
 											gv							);
 	}
+    else if (gv.EM_database == 11){			// metabasite extended database //
+        TC_SS_init_mb_ext(	 				SS_init,
+                                            gv							);
+    }
+    else if (gv.EM_database == 12){			// metabasite extended database //
+        TC_SS_init_mb_ext(	 				SS_init,
+                                            gv							);
+    }
 	else if (gv.EM_database == 2){			// igneous database //
 		TC_SS_init_ig(	 				    SS_init,
 											gv							);

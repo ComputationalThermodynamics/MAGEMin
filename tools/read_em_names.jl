@@ -47,7 +47,9 @@ dict_ss["occm"] = "carbonate",[ "sid" "siderite";
                                 "ank" "ankerite";
                                 "mag" "magnesite";
                                 "cc" "calcite"] 
-
+dict_ss["ta"]  = "talc",[ "ta" "talc"] 
+dict_ss["oamp"] = "orthoamhibole",[ "anth" "anthophyllite";
+                                    "ged" "gedrite" ]
 dict_ss["opx"]  = "orthopyroxene",[ "opx" "orthopyroxene"] 
 dict_ss["liq"]  = "liquid",[ "liq" "liquid"] 
 dict_ss["ol"]   = "olivine",[ "ol" "olivine"] 

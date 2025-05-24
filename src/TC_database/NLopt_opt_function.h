@@ -20,6 +20,8 @@ void TC_mp_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 									global_variable 	 gv				);
 void TC_mb_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 									global_variable 	 gv				);
+void TC_mb_ext_NLopt_opt_init(	    NLopt_type 			*NLopt_opt,
+									global_variable 	 gv				);
 void TC_ig_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 									global_variable 	 gv				);
 void TC_igad_NLopt_opt_init(	    NLopt_type 			*NLopt_opt,

@@ -122,6 +122,35 @@ metabasite_dataset metabasite_db = {
 	1e-6						/** objective function tolerance 				 									*/
 };
 
+
+metabasite_ext_dataset metabasite_ext_db = {
+	62,							/* Endmember default dataset number */
+	10,							/* number of oxides */			
+	26,							/* number of pure phases */
+	19,							/* number of solution phases */
+	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"H2O"													},
+	{"q"	,"crst"	,"trd"	,"coe"	,"law"	,"ky"	,"sill"	,"and"	,"ru"	,"sph" 	,"ab"	,"H2O"	,"zo"	,
+	"qfm"	,"mw" 	,"qif"	,"nno"	,"hm"	,"iw"	,"cco"	,"aH2O"	,"aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"								},
+	{"sp"	,"opx"	,"fsp"	,"liq"	,"mu"	,"ilmm"	,"ilm"	,"ol"	,"amp"	,"ep"	,"g"	,"chl"	,"bi"	,"dio"	,"aug"	,"abc"  ,"spl"	,"ta"	,"oamp"		},
+	
+	{1		,1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1		,1 		,1			},  // allow solvus?
+	{939	,1731 	,231	,3507	,4538 	,298	,422	,11		,7673	,110	,217	,3980	,1098	,1811	,2398	,21 	,196	,760	,3648		},  // # of pseudocompound
+	{0.04	,0.19	,0.02	,0.15	,0.049	,0.09	,0.049	,0.04	,0.15	,0.049	,0.19	,0.19	,0.125	,0.10	,0.10	,0.049 	,0.04	,0.09	,0.2		},  // discretization step
+
+	6.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
+	473.15,						/* max temperature above which PGE solver is active 								*/
+	873.15,						/** minimum temperature above which melt is considered 								*/
+
+	4,							/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
+	0.025,						/** maximum mol% phase change during one PGE iteration in wt% 						*/
+	2.5,						/** maximum delta_G of reference change during PGE 									*/
+	1.0,						/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
+
+	1e-1,						/** merge instances of solution phase if norm < val 								*/
+	1e-4,						/** fraction of solution phase when re-introduced 									*/
+	1e-6						/** objective function tolerance 				 									*/
+};
+
 igneous_dataset igneous_db = {
 	636,						/* Endmember default dataset number */
 	11,							/* number of oxides */			
@@ -269,15 +298,15 @@ metapelite_dataset_ext metapelite_ext_db = {
 	62,							/* Endmember default dataset number */
 	13,							/* number of oxides */			
 	31,							/* number of pure phases */
-	23,							/* number of solution phases */
+	24,							/* number of solution phases */
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"H2O"	,"CO2"	,"S"										},
 	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2" 	,"pyr"	,"gph"	,"law"	,"zo" ,"prl"  ,"mpm"   ,"pre"	,
 	"qfm"	,"mw"	,"qif"	,"nno"	,"hm"	,"iw" 	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"											},
-	{"liq"	,"fsp"	,"bi"	,"g"	,"ep"	,"ma"	,"mu"	,"opx"	,"sa"	,"cd"	,"st"	,"chl"	,"ctd"	,"sp"  ,"mt"  ,"ilm"  ,"ilmm"  ,"occm"	,"fl"	,"po"	,"dio"	,"aug"	,"amp"		},
+	{"liq"	,"fsp"	,"bi"	,"g"	,"ep"	,"ma"	,"mu"	,"opx"	,"sa"	,"cd"	,"st"	,"chl"	,"ctd"	,"sp"  ,"mt"  ,"ilm"  ,"ilmm"  ,"occm"	,"fl"	,"po"	,"dio"	,"aug"	,"amp"	,"oamp"		},
 	
-	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1		,1		,1		,1		,1		,1			},  // allow solvus?
-	{3150	,231 	,981	,758	,110 	,1875	,1877	,1277	,230	,343	,540	,2270	,216	,407 	,87 	,131 	,1430 	,352	,12		,10		,1810	,2396,	7669		},  // # of pseudocompound
-	{0.24	,0.049	,0.125	,0.049	,0.049	,0.19	,0.19	,0.249	,0.19	,0.145	,0.19	,0.249	,0.19	,0.124 	,0.099 	,0.09 	,0.099 	,0.10	,0.09	,0.1	,0.10	,0.10,	0.075		},  // discretization step
+	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1		,1		,1		,1		,1		,1		,1			},  // allow solvus?
+	{3150	,231 	,981	,758	,110 	,1875	,1877	,1277	,230	,343	,540	,2270	,216	,407 	,87 	,131 	,1430 	,352	,12		,10		,1810	,2396,	7669	,3648		},  // # of pseudocompound
+	{0.24	,0.049	,0.125	,0.049	,0.049	,0.19	,0.19	,0.249	,0.19	,0.145	,0.19	,0.249	,0.19	,0.124 	,0.099 	,0.09 	,0.099 	,0.10	,0.09	,0.1	,0.10	,0.10,	0.075	,0.2		},  // discretization step
 
 	6.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
 	473.15,						/* max temperature above which PGE solver is active 								*/
@@ -350,6 +379,56 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 	}
 	else if (gv.EM_database == 1){
 		metabasite_dataset db 	= metabasite_db;
+		if (gv.EM_dataset == -1){
+			gv.EM_dataset = db.ds_version;	
+		}
+		gv.len_pp   		= db.n_pp;		
+		gv.len_ss  			= db.n_ss;
+		gv.len_ox  			= db.n_ox;
+
+		gv.PC_df_add		= db.PC_df_add;					/** min value of df under which the PC is added 									*/
+		gv.solver_switch_T  = db.solver_switch_T;
+		gv.min_melt_T       = db.min_melt_T ;				/** minimum temperature above which melt is considered 								*/
+
+		gv.inner_PGE_ite    = db.inner_PGE_ite;				/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
+		gv.max_n_phase  	= db.max_n_phase;				/** maximum mol% phase change during one PGE iteration in wt% 						*/
+		gv.max_g_phase  	= db.max_g_phase;				/** maximum delta_G of reference change during PGE 									*/
+		gv.max_fac          = db.max_fac;					/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
+
+		gv.merge_value		= db.merge_value;				/** merge instances of solution phase if norm < val 								*/
+		gv.re_in_n          = db.re_in_n;					/** fraction of phase when being reintroduce.  										*/
+		gv.obj_tol 			= db.obj_tol;
+
+		/* alloc */
+		gv.ox 				= malloc (gv.len_ox * sizeof(char*)		);
+		for (i = 0; i < gv.len_ox; i++){
+			gv.ox[i] 		= malloc(20 * sizeof(char));	
+			strcpy(gv.ox[i],db.ox[i]);
+		}
+
+		gv.PP_list 			= malloc (gv.len_pp * sizeof(char*)		);
+		for (i = 0; i < (gv.len_pp); i++){	
+			gv.PP_list[i] 	= malloc(20 * sizeof(char));
+			strcpy(gv.PP_list[i],db.PP[i]);
+		}
+
+		gv.SS_list 			= malloc ((gv.len_ss) * sizeof (char*)	);
+		gv.n_SS_PC     		= malloc ((gv.len_ss) * sizeof (int) 	);
+
+		gv.verifyPC  		= malloc ((gv.len_ss) * sizeof (int) 	);
+		gv.SS_PC_stp     	= malloc ((gv.len_ss) * sizeof (double) );
+		for (i = 0; i < gv.len_ss; i++){ 
+			gv.SS_list[i] 	= malloc(20 * sizeof(char)				);
+			strcpy(gv.SS_list[i],db.SS[i]);
+			gv.verifyPC[i]  = db.verifyPC[i]; 
+			gv.n_SS_PC[i] 	= db.n_SS_PC[i]; 
+			gv.SS_PC_stp[i] = db.SS_PC_stp[i]; 	
+		}
+		gv.act_PP     		= malloc ((gv.len_pp) * sizeof (int) 	);
+		for (i = 0; i < gv.len_pp; i++){ gv.act_PP[i] = 1; 			};
+	}
+	else if (gv.EM_database == 11){
+		metabasite_ext_dataset db 	= metabasite_ext_db;
 		if (gv.EM_dataset == -1){
 			gv.EM_dataset = db.ds_version;	
 		}

@@ -121,6 +121,38 @@
 	} metabasite_dataset;
 
 	/** 
+		Metabasite ext database informations
+	**/
+		typedef struct metabasite_ext_datasets {
+		int 	ds_version;
+		int 	n_ox;
+		int 	n_pp;
+		int 	n_ss;
+		char    ox[10][20];
+		char    PP[26][20];
+
+		char    SS[19][20];
+		int 	verifyPC[19];
+		int 	n_SS_PC[19];
+		double 	SS_PC_stp[19];
+
+		double 	PC_df_add;					/** min value of df under which the PC is added 									*/
+		double  solver_switch_T;
+		double  min_melt_T;
+
+		double  inner_PGE_ite;				/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
+		double  max_n_phase;				/** maximum mol% phase change during one PGE iteration in wt% 						*/
+		double  max_g_phase;				/** maximum delta_G of reference change during PGE 									*/
+		double 	max_fac;					/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
+
+		double  merge_value;				/** max norm distance between two instances of a solution phase						*/	
+		double 	re_in_n;					/** fraction of phase when being reintroduce.  										*/
+
+		double  obj_tol;
+
+	} metabasite_ext_dataset;
+
+	/** 
 		Igneous database informations 
 	**/
 	#define n_ox_ig 11 		// as of now this is n_oxides = 11 + electrochemical potential
@@ -294,11 +326,11 @@
 		int 	n_ss;
 		char    ox[13][20];
 		char    PP[31][20];
-		char    SS[23][20];
+		char    SS[24][20];
 
-		int 	verifyPC[23];
-		int 	n_SS_PC[23];
-		double 	SS_PC_stp[23];
+		int 	verifyPC[24];
+		int 	n_SS_PC[24];
+		double 	SS_PC_stp[24];
 
 		double 	PC_df_add;					/** min value of df under which the PC is added 									*/
 		double  solver_switch_T;
