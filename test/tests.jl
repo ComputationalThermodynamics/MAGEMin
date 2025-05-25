@@ -73,8 +73,9 @@ end
     out         =   point_wise_minimization(P,T, data);
     Finalize_MAGEMin(data)
 
-    @test sort(out.ph) == sort(["fl", "spi", "ta", "aug", "chl", "pyr"])
+    @test sort(out.ph) == sort(["amp", "atg", "chl", "fl", "pyr", "spi", "ta"])
 end
+
 
 # Tests from L. Candioti - ETH - Oct 2024
 @testset "test mass conservation" begin
