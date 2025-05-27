@@ -2379,52 +2379,52 @@ SS_ref G_SS_mb_oamp_function(SS_ref SS_ref_db, char* research_group, int EM_data
         strcpy(SS_ref_db.SF_list[i],SF_tmp[i]);
     };
     
-    SS_ref_db.W[0] = 25.0000000000000;
-    SS_ref_db.W[1] = 25.0000000000000;
-    SS_ref_db.W[2] = 65.0000000000000;
-    SS_ref_db.W[3] = 45.0000000000000;
-    SS_ref_db.W[4] = 33.0000000000000;
-    SS_ref_db.W[5] = 52.0000000000000;
-    SS_ref_db.W[6] = 18.0000000000000;
-    SS_ref_db.W[7] = 23.0000000000000;
-    SS_ref_db.W[8] = -40.0000000000000;
-    SS_ref_db.W[9] = 25.0000000000000;
-    SS_ref_db.W[10] = 70.0000000000000;
-    SS_ref_db.W[11] = 39.5000000000000;
-    SS_ref_db.W[12] = 20.0000000000000;
-    SS_ref_db.W[13] = 29.0000000000000;
-    SS_ref_db.W[14] = 34.6000000000000;
-    SS_ref_db.W[15] = 50.0000000000000;
-    SS_ref_db.W[16] = 90.0000000000000;
-    SS_ref_db.W[17] = 45.0000000000000;
-    SS_ref_db.W[18] = 40.0000000000000;
-    SS_ref_db.W[19] = 33.2000000000000;
-    SS_ref_db.W[20] = 36.0000000000000;
-    SS_ref_db.W[21] = 65.0000000000000;
-    SS_ref_db.W[22] = 81.2000000000000;
+    SS_ref_db.W[0] = 25.;
+    SS_ref_db.W[1] = 25.;
+    SS_ref_db.W[2] = 65.;
+    SS_ref_db.W[3] = 45.;
+    SS_ref_db.W[4] = 33.;
+    SS_ref_db.W[5] = 52.;
+    SS_ref_db.W[6] = 18.;
+    SS_ref_db.W[7] = 23.;
+    SS_ref_db.W[8] = -40.;
+    SS_ref_db.W[9] = 25.;
+    SS_ref_db.W[10] = 70.;
+    SS_ref_db.W[11] = 39.5;
+    SS_ref_db.W[12] = 20.;
+    SS_ref_db.W[13] = 29.;
+    SS_ref_db.W[14] = 34.6;
+    SS_ref_db.W[15] = 50.;
+    SS_ref_db.W[16] = 90.;
+    SS_ref_db.W[17] = 45.;
+    SS_ref_db.W[18] = 40.;
+    SS_ref_db.W[19] = 33.2;
+    SS_ref_db.W[20] = 36.;
+    SS_ref_db.W[21] = 65.;
+    SS_ref_db.W[22] = 81.2;
     SS_ref_db.W[23] = 0.0;
-    SS_ref_db.W[24] = 65.5000000000000;
-    SS_ref_db.W[25] = 78.4000000000000;
-    SS_ref_db.W[26] = 75.0000000000000;
-    SS_ref_db.W[27] = 52.0000000000000;
-    SS_ref_db.W[28] = 57.0000000000000;
-    SS_ref_db.W[29] = 63.0000000000000;
-    SS_ref_db.W[30] = 65.0000000000000;
-    SS_ref_db.W[31] = 12.0000000000000;
-    SS_ref_db.W[32] = 8.00000000000000;
-    SS_ref_db.W[33] = 52.0000000000000;
-    SS_ref_db.W[34] = 63.0000000000000;
-    SS_ref_db.W[35] = 20.0000000000000;
+    SS_ref_db.W[24] = 65.5;
+    SS_ref_db.W[25] = 78.4;
+    SS_ref_db.W[26] = 75.;
+    SS_ref_db.W[27] = 52.;
+    SS_ref_db.W[28] = 57.;
+    SS_ref_db.W[29] = 63.;
+    SS_ref_db.W[30] = 65.;
+    SS_ref_db.W[31] = 12.;
+    SS_ref_db.W[32] = 8.0;
+    SS_ref_db.W[33] = 52.;
+    SS_ref_db.W[34] = 63.;
+    SS_ref_db.W[35] = 20.;
     
-    SS_ref_db.v[0] = 1.00000000000000;
-    SS_ref_db.v[1] = 1.50000000000000;
-    SS_ref_db.v[2] = 1.70000000000000;
-    SS_ref_db.v[3] = 0.800000000000000;
-    SS_ref_db.v[4] = 1.00000000000000;
-    SS_ref_db.v[5] = 1.00000000000000;
-    SS_ref_db.v[6] = 0.800000000000000;
-    SS_ref_db.v[7] = 1.00000000000000;
-    SS_ref_db.v[8] = 1.00000000000000;
+    SS_ref_db.v[0] = 1.0;
+    SS_ref_db.v[1] = 1.5;
+    SS_ref_db.v[2] = 1.7;
+    SS_ref_db.v[3] = 0.80;
+    SS_ref_db.v[4] = 1.0;
+    SS_ref_db.v[5] = 1.0;
+    SS_ref_db.v[6] = 0.80;
+    SS_ref_db.v[7] = 1.0;
+    SS_ref_db.v[8] = 1.0;
     
     
     em_data anth_eq 		= get_em_data(	research_group, EM_dataset,
@@ -2465,7 +2465,7 @@ SS_ref G_SS_mb_oamp_function(SS_ref SS_ref_db, char* research_group, int EM_data
     										SS_ref_db.P,
     										SS_ref_db.T,
     										"gl", 
-    										"ordered"	);
+    										"equilibrium"	);
     
     em_data otr_eq 		= get_em_data(		research_group, EM_dataset,
     										len_ox,
@@ -2473,7 +2473,7 @@ SS_ref G_SS_mb_oamp_function(SS_ref SS_ref_db, char* research_group, int EM_data
     										SS_ref_db.P,
     										SS_ref_db.T,
     										"tr", 
-    										"ordered"	);
+    										"equilibrium"	);
     
     em_data fanth_eq 		= get_em_data(	research_group, EM_dataset,
     										len_ox,
@@ -2512,7 +2512,7 @@ SS_ref G_SS_mb_oamp_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.gbase[2] 		= anth_eq.gb + parg_eq.gb - 1.0*tr_eq.gb + 3.0;
     SS_ref_db.gbase[3] 		= omgl_eq.gb;
     SS_ref_db.gbase[4] 		= otr_eq.gb;
-    SS_ref_db.gbase[5] 		= fanth_eq.gb + 70.0;
+    SS_ref_db.gbase[5] 		= fanth_eq.gb + 7.0;
     SS_ref_db.gbase[6] 		= andr_eq.gb + gl_eq.gb - 1.0*gr_eq.gb + 33.0;
     SS_ref_db.gbase[7] 		= 0.428571428571429*anth_eq.gb + 0.571428571428571*fanth_eq.gb - 5.5;
     SS_ref_db.gbase[8] 		= 0.285714285714286*anth_eq.gb + 0.714285714285714*fanth_eq.gb - 6.7;
@@ -2587,16 +2587,16 @@ SS_ref G_SS_mb_ta_function(SS_ref SS_ref_db, char* research_group, int EM_datase
         strcpy(SS_ref_db.SF_list[i],SF_tmp[i]);
     };
     
-    SS_ref_db.W[0] = 12.0000000000000;
-    SS_ref_db.W[1] = 8.00000000000000;
-    SS_ref_db.W[2] = 55.0000000000000;
-    SS_ref_db.W[3] = 10.0000000000000;
-    SS_ref_db.W[4] = 4.00000000000000;
-    SS_ref_db.W[5] = 43.0000000000000;
-    SS_ref_db.W[6] = 16.5000000000000;
-    SS_ref_db.W[7] = 52.0000000000000;
-    SS_ref_db.W[8] = 12.5000000000000;
-    SS_ref_db.W[9] = 65.0000000000000;
+    SS_ref_db.W[0] = 12.;
+    SS_ref_db.W[1] = 8.0;
+    SS_ref_db.W[2] = 55.;
+    SS_ref_db.W[3] = 10.;
+    SS_ref_db.W[4] = 4.0;
+    SS_ref_db.W[5] = 43.;
+    SS_ref_db.W[6] = 16.5;
+    SS_ref_db.W[7] = 52.;
+    SS_ref_db.W[8] = 12.5;
+    SS_ref_db.W[9] = 65.;
     
     
     em_data ta_eq 		= get_em_data(		research_group, EM_dataset,
