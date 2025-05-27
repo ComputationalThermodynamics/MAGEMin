@@ -670,18 +670,10 @@ void generate_pseudocompounds(	int 		 		 ss,
 		for (int j = 0; j < d->n_Ox; j++) {
 			df -= SS_ref_db[ss].ss_comp[z_b.nzEl_array[j]]*d->gamma_tot[z_b.nzEl_array[j]]*SS_ref_db[ss].factor;
 		}
-
+		// printf(" %s   G -> %.6f   df -> %.6f",gv.SS_list[ss],G,df);
 		/** store 
 		 * pseudocompound */
-		if ( df < gv.max_G_pc ){
-
-			/* get composition of solution phase */
-			// for (j = 0; j < gv.len_ox; j++){
-			// 	SS_ref_db[ss].ss_comp[j] = 0.0;
-			// 	for (i = 0; i < SS_ref_db[ss].n_em; i++){
-			// 		SS_ref_db[ss].ss_comp[j] += SS_ref_db[ss].Comp[i][j]*SS_ref_db[ss].p[i]*SS_ref_db[ss].z_em[i];
-			// 	} 
-			// }
+		if ( df < gv.max_G_pc || k % 10 == 0){	/** if the driving force is lower than the filter or if it is the last one */
 
 			m_pc = SS_ref_db[ss].id_pc[0];
 			SS_ref_db[ss].info[m_pc]      = 0;
@@ -1001,33 +993,6 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 		}
 	}
 
-	/**
-		Routine to deactivate the liquid endmembers after levelling 
-	*/
-	// char liq_tail[] = "L";
-	// for (int i = 0; i < gv.len_pp; i++){
-	// 	if ( EndsWithTail(gv.PP_list[i], liq_tail) == 1 ) {
-	// 		if (gv.pp_flags[i][0] == 1){
-	// 			if (gv.pp_flags[i][1] == 1){
-	// 				gv.pp_flags[i][0] = 0;
-	// 				gv.pp_flags[i][1] = 0;
-	// 				gv.pp_flags[i][2] = 0;
-	// 				gv.pp_flags[i][3] = 1;
-	// 				gv.n_phase       -= 1;
-	// 				gv.n_pp_phase    -= 1;
-	// 				gv.pp_n[i]        = 0.0;
-	// 			}
-	// 			else{
-	// 				gv.pp_flags[i][0] = 0;
-	// 				gv.pp_flags[i][1] = 0;
-	// 				gv.pp_flags[i][2] = 0;
-	// 				gv.pp_flags[i][3] = 1;
-	// 				gv.pp_flags[i][4] = 0;
-	// 			}
-	// 		}
-	// 	}
-	// }
-	
 	if (gv.verbose == 1){
 		printf("\n Initial guesses for compositional variables:\n");
 		printf("═════════════════════════════════════════════\n");
@@ -1131,6 +1096,7 @@ void run_simplex_pseudocompounds_IG(	bulk_info 	 		z_b,
 												PP_ref_db,
 												SS_ref_db	);	
 		}
+		
 		swap_pure_phases(					z_b,
 											splx_data,
 											gv,
@@ -1240,12 +1206,13 @@ void run_simplex_levelling(				bulk_info 	 		 z_b,
 										PP_ref_db,
 										SS_ref_db				);	
 
-	// swap_pure_endmembers(				z_b,
-	// 									splx_data,
-	// 									gv,
-	// 									PP_ref_db,
-	// 									SS_ref_db				);	
-
+	if (gv.EM_database != 6 && strcmp(gv.research_group, "sb") 	!= 0){ //TMP fix, at the moment I don't have the return mapping function from p to x for Mantle database
+		swap_pure_endmembers(				z_b,
+											splx_data,
+											gv,
+											PP_ref_db,
+											SS_ref_db	);	
+	}
 
 	update_local_gamma(					d->A1,
 										d->g0_A,
@@ -1476,9 +1443,9 @@ global_variable run_initial_guess_function(	bulk_info 	 		 z_b,
 											splx_data		);	
 	
 						
-	/* remove solution from consideration when min driving force is > gv.bnd_filter_pc */
-	reduce_ss_list( 						SS_ref_db, 
-											gv 				);
+	// /* remove solution from consideration when min driving force is > gv.bnd_filter_pc */
+	// reduce_ss_list( 						SS_ref_db, 
+	// 										gv 				);
 	
 	/* function to send back the updated initial guess, and phases flags */
 	gv = update_global_info(				z_b,

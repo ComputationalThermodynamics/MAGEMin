@@ -25,7 +25,6 @@ end
 # out         =   point_wise_minimization(P,T, data);
 # Finalize_MAGEMin(data)
 
-
 data        =   Initialize_MAGEMin("sb21", verbose=-1);
 test        =   1         #KLB1
 data        =   use_predefined_bulk_rock(data, test);
@@ -61,19 +60,6 @@ Finalize_MAGEMin(data)
     @test out_hT.ph_type == [1, 1, 1, 1, 1, 0, 0]
 
     Finalize_MAGEMin(data)
-end
-
-
-@testset "test ume database" begin
-    data        =   Initialize_MAGEMin("ume", verbose=-1);
-    test        =   0
-    data        =   use_predefined_bulk_rock(data, test);
-    P           =   20.0
-    T           =   400.0
-    out         =   point_wise_minimization(P,T, data);
-    Finalize_MAGEMin(data)
-
-    @test sort(out.ph) == sort(["fl", "spi", "ta", "aug", "chl", "pyr"])
 end
 
 # Tests from L. Candioti - ETH - Oct 2024
@@ -462,6 +448,35 @@ end
 
     @test sort(out.ph) == sort(["g", "ring", "wad"])
     Finalize_MAGEMin(data)
+end
+
+@testset "test ume" begin
+
+    data        =   Initialize_MAGEMin("ume", verbose=-1);
+    test        =   0
+    data        =   use_predefined_bulk_rock(data, test);
+    P           =   20.0
+    T           =   400.0
+    out         =   point_wise_minimization(P,T, data);
+    Finalize_MAGEMin(data)
+    @test sort(out.ph) == sort(["amp", "fl", "atg", "spi", "chl", "ta", "pyr"])
+end
+
+
+# test from Philip Hartmeier
+@testset "test apfu" begin
+
+    data        =   Initialize_MAGEMin("mp", verbose=-1);
+    T           = 580.0
+    P           = 4.5
+    X           = [64.13, 0.91, 19.63, 6.85, 0.08, 2.41, 0.65, 1.38, 3.95, 40.0]
+    Xoxides     = ["SiO2", "TiO2", "Al2O3", "FeO", "MnO", "MgO", "CaO", "Na2O", "K2O", "H2O"]
+    sys_in      = "wt%"
+    out         =   single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    Finalize_MAGEMin(data)
+
+    id_bi = findfirst(isequal("bi"), out.ph)
+    @test sum(abs.(out.SS_vec[id_bi].Comp_apfu .- [2.7200471702210804, 1.5599056595578387, 0.0, 0.889288666478316, 1.733735938353352, 1.0, 0.0, 0.08651639504830935, 12.0, 0.010506170341103422, 1.8269672099033814])) .< 1e-3
 end
 
 
