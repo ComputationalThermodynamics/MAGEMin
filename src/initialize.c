@@ -127,7 +127,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
 	gv.EM_dataset 		= -1;
-	gv.max_n_mSS		= 256;					/** maximum number of metastable pseudocompounds 									*/
+	gv.max_n_mSS		= 128;					/** maximum number of metastable pseudocompounds 									*/
 	gv.max_n_cp 		= 256;					/** number of considered solution phases 											*/	
 	gv.max_ss_size_cp   = 24;					/** maximum size for a solution phase saved in the cp structure                     */
 	gv.buffer_n 		= 0.0;					/** factor for QFM buffer 															*/
@@ -160,7 +160,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.PC_check_val2	= 1.0e-4;				/** br norm under which PC are tested for potential candidate to be added 			*/
 	gv.PC_min_dist 		= 1.0;					/** factor multiplying the diagonal of the hyperbox of xeos s-tep 					*/
 	gv.mSS_df_max_add 	= 0.4;					/** driving force under which a metastable solution phase is added to the assemblage */
-	gv.mSS_df_min_add   = 1e-6;					/** driving force under which a metastable solution phase is added to the assemblage */
+	gv.mSS_df_min_add   = 1e-4;					/** driving force under which a metastable solution phase is added to the assemblage */
 
 	/* levelling parameters 			*/
 	gv.em2ss_shift		= 2e-7;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
@@ -1075,7 +1075,7 @@ void init_simplex_A( 	simplex_data 		*splx_data,
 
 	/* prescribe tolerance parameters */
 	d->dG_B_tol	   = gv.re_in_df;
-	d->min_F_tol   = 1e14;
+	d->min_F_tol   = 1e6;
 	
 	/* allocate reference assemblage memory */
 	d->A           = malloc ((gv.len_ox*gv.len_ox)  * sizeof(double));

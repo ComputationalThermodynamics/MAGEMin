@@ -600,7 +600,7 @@ function multi_point_minimization(P           ::  T2,
                                   B           ::  Union{Nothing, Vector{T1}}  = nothing,
                                   G           ::  Union{Nothing, Vector{LibMAGEMin.mSS_data},Vector{Vector{LibMAGEMin.mSS_data}}}  = nothing,
                                   scp         ::  Int64                           = 0, 
-                                  iguess      ::  Bool                            = false,    
+                                  iguess      ::  Union{Vector{Bool},Bool}        = false,
                                   rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                                   W           ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}}  = nothing,
                                   Xoxides     = Vector{String},
@@ -660,9 +660,11 @@ function multi_point_minimization(P           ::  T2,
         end
 
         Gi          = isnothing(G) ? nothing :  G[i]
+        ig          =  isa(iguess, Vector{Bool}) ? iguess[i] : iguess
+
         buffer      = isnothing(B) ? 0.0 :      B[i] 
         out         = point_wise_minimization(  P[i], T[i], gv, z_b, DB, splx_data;
-                                                light=light, buffer_n=buffer, name_solvus=name_solvus, Gi=Gi, W=W, scp=scp, iguess=iguess, rm_list=rm_list)
+                                                light=light, buffer_n=buffer, name_solvus=name_solvus, Gi=Gi, W=W, scp=scp, iguess=ig, rm_list=rm_list)
 
         Out_PT[i]   = deepcopy(out)
 
@@ -694,7 +696,7 @@ function AMR_minimization(  init_sub    ::  Int64,
                             X           ::  VecOrMat                        = nothing,
                             B           ::  Union{Nothing, T1, Vector{T1}}  = 0.0,
                             scp         ::  Int64                           = 0,  
-                            iguess      ::  Bool                            = false,   
+                            iguess      ::  Union{Vector{Bool},Bool}        = false,
                             rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                             W           ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}}  = nothing,
                             Xoxides     =  Vector{String},

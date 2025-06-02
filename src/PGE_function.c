@@ -817,6 +817,10 @@ global_variable run_LP(								bulk_info 			 z_b,
 		printf(" [----------------------------------------]\n");
 
 		for (int i = 0; i < d->n_Ox; i++){
+			if (d->ph_id_A[i][0] == 0){
+				printf(" ['%5s' %+10f  %+12.4f  %5d ]", "F.OX", d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+				printf("\n");
+			}
 			if (d->ph_id_A[i][0] == 1){
 				printf(" ['%5s' %+10f  %+12.4f  %2d %2d ]", gv.PP_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0], d->stage[i]);
 				printf("\n");
@@ -916,6 +920,10 @@ global_variable run_LP_ig(							bulk_info 			 z_b,
 		printf(" [----------------------------------------]\n");
 
 		for (int i = 0; i < d->n_Ox; i++){
+			if (d->ph_id_A[i][0] == 0){
+				printf(" ['%5s' %+10f  %+12.4f  %5d ]", "F.OX", d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+				printf("\n");
+			}
 			if (d->ph_id_A[i][0] == 1){
 				printf(" ['%5s' %+10f  %+12.4f  %2d %2d ]", gv.PP_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0], d->stage[i]);
 				printf("\n");
