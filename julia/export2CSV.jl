@@ -199,7 +199,7 @@ function MAGEMin_data2dataframe( out:: Union{Vector{gmin_struct{Float64, Int64}}
                                     Symbol("phase")         => String[],
                                     Symbol("mode[mol%]")    => Float64[],
                                     Symbol("mode[wt%]")     => Float64[],
-                                    Symbol("mode[%]")       => Float64[],
+                                    Symbol("mode[vol%]")    => Float64[],
                                     Symbol("log10(fO2)")    => Float64[],
                                     Symbol("log10(dQFM)")   => Float64[],
                                     Symbol("aH2O")          => Float64[],
