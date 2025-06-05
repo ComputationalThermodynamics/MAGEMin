@@ -1411,7 +1411,7 @@ end
 pwm_init(P::Number,T::Number, gv, z_b, DB, splx_data) = pwm_init(Float64(P),Float64(T), gv, z_b, DB, splx_data)
 
 
-function pwm_run(gv, z_b, DB, splx_data)
+function pwm_run(gv, z_b, DB, splx_data; name_solvus = false)
     input_data      =   LibMAGEMin.io_data();                           # zero (not used actually)
 
     time = @elapsed  gv      = LibMAGEMin.ComputeEquilibrium_Point(gv.EM_database, input_data, z_b, gv, pointer_from_objref(splx_data),	DB.PP_ref_db,DB.SS_ref_db,DB.cp);
@@ -1426,7 +1426,7 @@ function pwm_run(gv, z_b, DB, splx_data)
     LibMAGEMin.PrintOutput(gv, 0, 1, DB, time, z_b);
 
     # Transform results to a more convenient julia struct
-    out = create_gmin_struct(DB, gv, time);
+    out = create_gmin_struct(DB, gv, time; name_solvus = name_solvus);
 
     # LibMAGEMin.FreeDatabases(gv, DB, z_b);
 
