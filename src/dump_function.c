@@ -134,12 +134,6 @@ void reset_output_struct(		global_variable 	 gv,
 	sp[0].aFeO				 	 = gv.system_aFeO;
 	strcpy(sp[0].buffer,gv.buffer);	
 
-	// if (strcmp(gv.buffer, "NONE") != 0){
-	// 	sp[0].buffer_n				 = gv.buffer_n;
-	// }
-	// else{
-	// 	sp[0].buffer_n				 = 0.0;
-	// }
 	sp[0].buffer_n				 = gv.buffer_n;
 
 	sp[0].alpha				 	 = gv.system_expansivity;
@@ -220,10 +214,6 @@ void mSS_output_struct(			global_variable 	 gv,
 		SB_PC_init(	    		PC_read,
 								gv			);
 	}
-
-
-
-
 
 	int nox  = gv.len_ox;
 	int i, j, k, m, n, em_id, ph_id, pc_id;

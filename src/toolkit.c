@@ -1311,7 +1311,7 @@ global_variable compute_phase_mol_fraction(			global_variable 	 gv,
 													PP_ref  			*PP_ref_db,
 													SS_ref  			*SS_ref_db,
 													csd_phase_set  		*cp					){
-
+														
 	int nox  = gv.len_ox;
 	double n_at_bulk = 0.0;
 	/* number of atom of bulk-rock composition */
@@ -1438,7 +1438,6 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 	double density[gv.len_ox];
 	int not_only_liq = 0;
 	int ss;
-
 
 	/** calculate mass, volume and densities */
 	for (int i = 0; i < gv.len_cp; i++){

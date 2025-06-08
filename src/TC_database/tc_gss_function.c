@@ -13292,7 +13292,7 @@ SS_ref G_SS_mpe_ma_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mp_mt
 */
 SS_ref G_SS_mpe_mt_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    strcpy(SS_ref_db.fName,"nt_W00");
+    strcpy(SS_ref_db.fName,"mt_W00");
     int i, j;
     int n_em = SS_ref_db.n_em;
     

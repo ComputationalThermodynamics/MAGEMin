@@ -85,7 +85,6 @@ void update_dG(	simplex_data *splx_data
 
 
 
-
 /**
   update Gamma using LAPACKE dgesv
 */	
@@ -236,6 +235,9 @@ void initialize_initial_guess(		bulk_info 	 		 z_b,
 					d->n_Ox		);	
 
 }
+
+
+
 
 
 /**
@@ -670,7 +672,7 @@ void generate_pseudocompounds(	int 		 		 ss,
 		for (int j = 0; j < d->n_Ox; j++) {
 			df -= SS_ref_db[ss].ss_comp[z_b.nzEl_array[j]]*d->gamma_tot[z_b.nzEl_array[j]]*SS_ref_db[ss].factor;
 		}
-		// printf(" %s   G -> %.6f   df -> %.6f",gv.SS_list[ss],G,df);
+
 		/** store 
 		 * pseudocompound */
 		if ( df < gv.max_G_pc || k % 10 == 0){	/** if the driving force is lower than the filter or if it is the last one */
@@ -685,8 +687,7 @@ void generate_pseudocompounds(	int 		 		 ss,
 				SS_ref_db[ss].comp_pc[m_pc][j] = SS_ref_db[ss].ss_comp[j]*SS_ref_db[ss].factor;	/** composition */
 			}
 			for ( j = 0; j < SS_ref_db[ss].n_em; j++){												/** save coordinates */
-				SS_ref_db[ss].p_pc[m_pc][j]  = SS_ref_db[ss].p[j];												
-				// SS_ref_db[ss].mu_pc[m_pc][j] = SS_ref_db[ss].mu[j]*SS_ref_db[ss].z_em[j];										
+				SS_ref_db[ss].p_pc[m_pc][j]  = SS_ref_db[ss].p[j];																					
 			}
 			/* save xeos */
 			for ( j = 0; j < SS_ref_db[ss].n_xeos; j++){		
@@ -697,7 +698,7 @@ void generate_pseudocompounds(	int 		 		 ss,
 			
 			/* add increment to the number of considered phases */
 			SS_ref_db[ss].tot_pc[0]  += 1;
-			SS_ref_db[ss].id_pc[0]  += 1;
+			SS_ref_db[ss].id_pc[0]   += 1;
 		}
 	}
 }
@@ -993,6 +994,26 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 		}
 	}
 
+	// // compute mass balance residual after levelling (check up)
+	// for (int j = 0; j < gv.len_ox; j++){
+	// 	gv.mass_residual[j] = -z_b.bulk_rock[j];
+	// 	for (int i = 0; i < gv.len_pp; i++){
+	// 		if (gv.pp_flags[i][1] == 1){
+	// 			gv.mass_residual[j] += PP_ref_db[i].Comp[j]*PP_ref_db[i].factor*gv.pp_n[i];
+	// 		}
+	// 	}	
+
+	// 	/** calculate residual as function of endmember fractions */
+	// 	for (int i = 0; i < gv.len_cp; i++){
+	// 		if (cp[i].ss_flags[1] == 1 ){
+	// 			int ss = cp[i].id;
+	// 			for (int k = 0; k < cp[i].n_em; k++){
+	// 				gv.mass_residual[j] += SS_ref_db[ss].Comp[k][j]*cp[i].factor*cp[i].p_em[k]*SS_ref_db[ss].z_em[k]*cp[i].ss_n;
+	// 			}
+	// 		}
+	// 	}
+	// }	
+
 	if (gv.verbose == 1){
 		printf("\n Initial guesses for compositional variables:\n");
 		printf("═════════════════════════════════════════════\n");
@@ -1010,8 +1031,22 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 			}
 		}
 		printf("\n");	
+
+		// printf("\n Levelling Mass Residual check:\n");
+		// printf("═════════════════════════════════════════════\n");
+		
+
+		// for (int j = 0; j < gv.len_ox; j++){
+		// 	printf(" %10s",gv.ox[j]);	
+		// }
+		// printf("\n");	
+		// for (int j = 0; j < gv.len_ox; j++){
+		// 	printf(" %.8f",gv.mass_residual[j]);	
+		// }
+		// printf("\n");	
+
 	}
-	
+
 	return gv;
 }
 
@@ -1134,17 +1169,12 @@ void run_initial_guess_levelling(		bulk_info 	 		 z_b,
 
 	int i, k, iss;
 
-	// initialize_initial_guess(			z_b,
-	// 									splx_data,
-	// 									gv,
-	// 									PP_ref_db,
-	// 									SS_ref_db				);	
 	fill_simplex_arrays_A(					z_b,
 										    splx_data,
 											gv,
 											PP_ref_db,
 											SS_ref_db		);
-
+									
 	update_local_gamma(					d->A1,
 										d->g0_A,
 										d->gamma_ps,
@@ -1182,6 +1212,39 @@ void run_initial_guess_levelling(		bulk_info 	 		 z_b,
 	
 };
 
+
+/**
+  function to run simplex linear programming with pseudocompounds
+*/	
+void run_metastable_levelling(			bulk_info 	 		 z_b,
+										simplex_data 		*splx_data,
+										global_variable 	 gv,
+										
+										PP_ref 				*PP_ref_db,
+										SS_ref 				*SS_ref_db
+){
+	simplex_data *d  = (simplex_data *) splx_data;
+
+	int i, k, iss;
+
+	initialize_initial_guess(			z_b,
+										splx_data,
+										gv,
+										PP_ref_db,
+										SS_ref_db				);	
+									
+	update_local_gamma(					d->A1,
+										d->g0_A,
+										d->gamma_ps,
+										d->n_Ox					);
+
+
+	/** update gam_tot using pure species levelling gamma */
+	for (i = 0; i < d->n_Ox; i++){
+		d->gamma_tot[z_b.nzEl_array[i]] = d->gamma_ps[i];
+	}
+	
+};
 
 
 /**
@@ -1443,6 +1506,123 @@ global_variable run_initial_guess_function(	bulk_info 	 		 z_b,
 											splx_data		);	
 	
 						
+	/* remove solution from consideration when min driving force is > gv.bnd_filter_pc */
+	reduce_ss_list( 						SS_ref_db, 
+											gv 				);
+	
+	/* function to send back the updated initial guess, and phases flags */
+	gv = update_global_info(				z_b,
+											splx_data,
+											gv,
+
+											PC_read,
+											P2X_read,
+											PP_ref_db,
+											SS_ref_db,
+											cp				);
+
+	if (gv.verbose == 1){
+		printf("\nGet initial guess (Gamma and phase fractions) \n");
+		printf("══════════════════════════════════════════════\n\n");
+		printf("    P: %+10f T: %+10f\n",z_b.P,z_b.T);
+		printf(" [----------------------------------------]\n");
+		printf(" [  Ph  |   Ph PROP  |   g0_Ph    |  ix   ]\n");
+		printf(" [----------------------------------------]\n");
+
+		for (int i = 0; i < d->n_Ox; i++){
+			if (d->ph_id_A[i][0] == 0){
+				printf(" ['%5s' %+10f  %+12.4f  %5d ]", "F.OX", d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+				printf("\n");
+			}
+			if (d->ph_id_A[i][0] == 1){
+				printf(" ['%5s' %+10f  %+12.4f  %5d ]", gv.PP_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+				printf("\n");
+			}
+			if (d->ph_id_A[i][0] == 2){
+				printf(" ['%5s' %+10f  %+12.4f  %5d ]\n", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+			}
+			if (d->ph_id_A[i][0] == 3){
+				printf(" ['%5s' %+10f  %+12.4f  %5d ]", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+				for (int ii = 0; ii < SS_ref_db[d->ph_id_A[i][1]].n_xeos; ii++){
+					printf(" %+10f", SS_ref_db[d->ph_id_A[i][1]].xeos_pc[d->ph_id_A[i][3]][ii] );
+				}
+				printf("\n");
+			}
+		}
+		printf("\n");
+		for (int i = 0; i < d->n_Ox; i++){
+			printf(" %g", d->gamma_tot[z_b.nzEl_array[i]]);
+		}
+		printf("\n");
+		printf(" [----------------------------------------]\n");
+		printf(" [  OXIDE      GAMMA_EM        GAMMA_PC   ]\n");
+		printf(" [----------------------------------------]\n");
+		for (int i = 0; i < d->n_Ox; i++){
+			printf(" [ %5s %+15f %+15f  ]\n", gv.ox[z_b.nzEl_array[i]], d->gamma_ps[i], d->gamma_tot[z_b.nzEl_array[i]]);
+		}
+		printf(" [----------------------------------------]\n");
+		printf(" [            %4d swaps                  ]\n", d->n_swp);
+		printf(" [----------------------------------------]\n");
+		
+		printf("\n [----------------------------------------]\n");
+		printf(" [           ACTIVE PHASES                ]\n");
+		printf(" [----------------------------------------]\n");
+		for (int i = 0; i < gv.len_ss; i++){
+			if (SS_ref_db[i].ss_flags[0] == 1){
+				printf(" [                 %5s                  ]\n",gv.SS_list[i]);
+			}
+		}
+		printf(" [----------------------------------------]\n");
+		printf(" [           UNACTIVE PHASES              ]\n");
+		printf(" [----------------------------------------]\n");
+		for (int i = 0; i < gv.len_ss; i++){
+			if (SS_ref_db[i].ss_flags[0] == 0){
+				printf(" [                 %5s                  ]\n",gv.SS_list[i]);
+			}
+		}
+	}
+
+	t 			= clock() - t; 
+	time_taken  = ((double)t)/CLOCKS_PER_SEC; // in seconds 
+	gv.LVL_time = time_taken*1000;	
+	
+	return gv;
+};		
+
+
+
+/**
+  Levelling function when using initial guess
+*/	
+global_variable run_metastable_function(	bulk_info 	 		 z_b,
+											global_variable 	 gv,
+
+											PC_type             *PC_read,
+											P2X_type			*P2X_read,
+											simplex_data		*splx_data,
+											PP_ref 				*PP_ref_db,
+											SS_ref 				*SS_ref_db,
+											csd_phase_set  		*cp
+){
+	simplex_data *d  = (simplex_data *) splx_data;
+
+	clock_t t; 
+	double time_taken;
+	t = clock();
+
+
+	/** run linear programming with simplex approach */
+	run_metastable_levelling(				z_b,
+										    splx_data,
+											gv,
+											PP_ref_db,
+											SS_ref_db		);	
+
+	/* update global variable gamma */
+	update_global_gamma_LU(					z_b,
+											splx_data		);	
+	
+						
 	// /* remove solution from consideration when min driving force is > gv.bnd_filter_pc */
 	// reduce_ss_list( 						SS_ref_db, 
 	// 										gv 				);
@@ -1525,8 +1705,6 @@ global_variable run_initial_guess_function(	bulk_info 	 		 z_b,
 	
 	return gv;
 };		
-
-
 
 
 /**
@@ -1695,6 +1873,43 @@ global_variable Initial_guess(	bulk_info 			z_b,
 	return gv;
 };
 
+
+/**
+  main levelling routine
+*/ 
+global_variable Metastable_calc(	bulk_info 			z_b,
+									global_variable 	gv,
+
+									PC_type            *PC_read,
+									P2X_type 		   *P2X_read,
+									simplex_data	   *splx_data,
+									PP_ref 			   *PP_ref_db,
+									SS_ref 			   *SS_ref_db,
+									csd_phase_set  	   *cp
+){
+
+	if (gv.verbose == 1){
+		printf("\nMetastability: update Gamma\n");
+		printf("════════════════════════════════════════\n");
+	}
+
+	/* pseudosection function to get starting guess */
+	gv = run_metastable_function(		z_b,												/** bulk rock informations    */
+										gv,													/** global variables (e.g. Gamma) */
+
+										PC_read,
+										P2X_read,
+										splx_data,
+										PP_ref_db,											/** pure phase database */
+										SS_ref_db,											/** solution phase database */
+										cp				);
+	if (gv.verbose == 1){
+		printf(" [   Initial guess time %+12f ms   ]\n",gv.LVL_time);
+		printf(" [----------------------------------------]\n\n\n");
+	}
+
+	return gv;
+};
 
 /**
   main levelling routine

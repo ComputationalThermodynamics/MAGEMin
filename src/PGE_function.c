@@ -817,6 +817,10 @@ global_variable run_LP(								bulk_info 			 z_b,
 		printf(" [----------------------------------------]\n");
 
 		for (int i = 0; i < d->n_Ox; i++){
+			if (d->ph_id_A[i][0] == 0){
+				printf(" ['%5s' %+10f  %+12.4f  %5d ]", "F.OX", d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+				printf("\n");
+			}
 			if (d->ph_id_A[i][0] == 1){
 				printf(" ['%5s' %+10f  %+12.4f  %2d %2d ]", gv.PP_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0], d->stage[i]);
 				printf("\n");
@@ -916,6 +920,10 @@ global_variable run_LP_ig(							bulk_info 			 z_b,
 		printf(" [----------------------------------------]\n");
 
 		for (int i = 0; i < d->n_Ox; i++){
+			if (d->ph_id_A[i][0] == 0){
+				printf(" ['%5s' %+10f  %+12.4f  %5d ]", "F.OX", d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+				printf("\n");
+			}
 			if (d->ph_id_A[i][0] == 1){
 				printf(" ['%5s' %+10f  %+12.4f  %2d %2d ]", gv.PP_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0], d->stage[i]);
 				printf("\n");
@@ -1667,6 +1675,61 @@ global_variable LP(		bulk_info 			z_b,
 	
 	return gv;
 };		
+
+
+
+/**
+  Main LP routine
+*/ 
+global_variable LP_metastable(	bulk_info 			z_b,
+								global_variable 	gv,
+								PC_type				*PC_read,
+								P2X_type			*P2X_read,
+
+								obj_type 			*SS_objective,
+								NLopt_type			*NLopt_opt,
+								simplex_data	    *splx_data,
+								PP_ref 				*PP_ref_db,
+								SS_ref 				*SS_ref_db,
+								csd_phase_set  		*cp					){
+		
+	clock_t t; 	
+
+	gv.LP 	 = 1;	
+	gv.PGE 	 = 0;
+
+	gv = init_LP(					z_b,
+									splx_data,
+									gv,
+									PC_read,
+									P2X_read,
+											
+									PP_ref_db,
+									SS_ref_db,
+									cp					);
+	/**
+		Merge instances of the same solution phase that are compositionnally close 
+	*/
+	gv = phase_merge_function(		z_b,							/** bulk rock constraint 				*/
+									gv,								/** global variables (e.g. Gamma) 		*/
+
+									PP_ref_db,						/** pure phase database 				*/
+									SS_ref_db,						/** solution phase database 			*/ 
+									cp					); 
+
+	gv = update_cp_after_LP(		z_b,
+									gv,
+									PC_read,
+									
+									PP_ref_db,
+									SS_ref_db,
+									cp					);
+	
+	return gv;
+};		
+
+
+
 
 /**
   Main PGE routine

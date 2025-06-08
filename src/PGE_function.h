@@ -64,6 +64,18 @@ global_variable LP(				bulk_info 			z_b,
 								SS_ref 				*SS_ref_db,
 								csd_phase_set  		*cp					);
 
+global_variable LP_metastable(	bulk_info 			z_b,
+								global_variable 	gv,
+								PC_type				*PC_read,
+								P2X_type			*P2X_read,
+
+								obj_type 			*SS_objective,
+								NLopt_type			*NLopt_opt,
+								simplex_data	    *splx_data,
+								PP_ref 				*PP_ref_db,
+								SS_ref 				*SS_ref_db,
+								csd_phase_set  		*cp					);
+
 double norm_vector(double *array ,int n);
 
 #endif

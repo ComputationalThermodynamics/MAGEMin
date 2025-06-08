@@ -389,64 +389,6 @@ int runMAGEMin(			int    argc,
 }
 
 
-
-/** 
-  Compute to levelling only (for testing)
-*/
-	global_variable ComputeLevellingOnly( 		int 				 EM_database,
-												io_data 			 input_data,
-												bulk_info 	 		 z_b,
-												global_variable 	 gv,
-
-												simplex_data	    *splx_data,
-												PP_ref  			*PP_ref_db,
-												SS_ref  			*SS_ref_db,
-												csd_phase_set  		*cp						){
-
-	/** pointer array to objective functions 								*/
-	obj_type 								SS_objective[gv.len_ss];	
-	PC_type 								PC_read[gv.len_ss];
-	P2X_type 								P2X_read[gv.len_ss];
-
-	if (strcmp(gv.research_group, "tc") 	== 0 ){
-		TC_SS_objective_init_function(			SS_objective,
-												gv								);
-
-		TC_PC_init(	                    		PC_read,
-												gv								);
-
-		TC_P2X_init(	                		P2X_read,
-												gv								);
-	}
-	else if (strcmp(gv.research_group, "sb") 	== 0 ){
-		SB_SS_objective_init_function(			SS_objective,
-												gv								);
-
-		SB_PC_init(	                    		PC_read,
-												gv								);
-	}
-	printf("b4 levelling\n");
-	/****************************************************************************************/
-	/**                                   LEVELLING                                        **/
-	/****************************************************************************************/	
-	// leveling mode = 0 is default, without using initial guess
-	// leveling mode = 1 uses initial guess
-
-	gv = Levelling(			z_b,										/** bulk rock informations 			*/
-							gv,											/** global variables (e.g. Gamma) 	*/
-
-							PC_read,
-							P2X_read,
-							SS_objective,
-							splx_data,
-							PP_ref_db,									/** pure phase database 			*/
-							SS_ref_db,									/** solution phase database 		*/
-							cp							);
-
-	return gv;
-
-	}
-
 /** 
   Compute stable equilibrium at given Pressure, Temperature and bulk-rock composition
 */
@@ -519,7 +461,17 @@ int runMAGEMin(			int    argc,
 								SS_ref_db,									/** solution phase database 		*/
 								cp							);
 	}
+	else if (gv.leveling_mode == 2){
+		gv = Metastable_calc(	z_b,										/** bulk rock informations 			*/
+								gv,											/** global variables (e.g. Gamma) 	*/
 
+								PC_read,
+								P2X_read,	
+								splx_data,
+								PP_ref_db,									/** pure phase database 			*/
+								SS_ref_db,									/** solution phase database 		*/
+								cp							);
+	}
 	/****************************************************************************************/
 	/**                            PARTITIONING GIBBS ENERGY                               **/
 	/****************************************************************************************/
@@ -704,7 +656,32 @@ int runMAGEMin(			int    argc,
 									cp						);
 		}
 	}
-	else {
+	else if (gv.solver == 3){
+		gv.div 		= 0;
+		gv.status 	= -1;
+
+		/* initialize legacy solver using results of levelling phase */
+		for (int i = 0; i < gv.len_ox; i++){
+			gv.gam_tot[i] = gv.gam_tot_0[i];
+		}	
+	
+		gv = LP_metastable(		z_b,									/** bulk rock informations 			*/
+								gv,										/** global variables (e.g. Gamma) 	*/
+								PC_read,
+								P2X_read,
+
+								SS_objective,
+								NLopt_opt,
+								splx_data,
+								PP_ref_db,								/** pure phase database 			*/
+								SS_ref_db,								/** solution phase database 		*/
+								cp						);
+
+		if (gv.verbose == 1){
+			printf("  Metastable calculation, no minimization (solver option = 3)\n");
+		}
+	}
+	else{
 		printf("  Wrong solver option: should be 0 (legacy) or 1 (PGE & legacy)");
 	}
 
@@ -753,6 +730,7 @@ int runMAGEMin(			int    argc,
 
 	return gv;
 }
+
 
 /** 
   	Get command line options
