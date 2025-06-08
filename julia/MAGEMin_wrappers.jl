@@ -23,6 +23,7 @@ export  anhydrous_renormalization, retrieve_solution_phase_information, remove_p
         init_MAGEMin, allocate_output,finalize_MAGEMin, point_wise_minimization, 
         get_all_stable_phases, convertBulk4MAGEMin, use_predefined_bulk_rock, define_bulk_rock, create_output,
         print_info, create_gmin_struct, pwm_init, pwm_run,
+        point_wise_metastability,
         single_point_minimization, multi_point_minimization, AMR_minimization, MAGEMin_Data,
         MAGEMin_data2dataframe, MAGEMin_dataTE2dataframe, MAGEMin_data2dataframe_inlined,
         Initialize_MAGEMin, Finalize_MAGEMin
@@ -1380,8 +1381,46 @@ point_wise_minimization(P       ::  Number,
 
 
 """
+    pwm_init(P::Float64,T::Float64, gv, z_b, DB, splx_data)
+
     Function to provide single point minimization and give access to G0 and W's (Margules) parameters
     The objective here is to be able to use MAGEMin for thermodynamic database inversion/calibration
+
+# Example
+
+```julia
+dtb     = "mp"
+gv, z_b, DB, splx_data  = init_MAGEMin(dtb);
+
+Xoxides = ["SiO2";  "TiO2";  "Al2O3";  "FeO";   "MnO";   "MgO";   "CaO";   "Na2O";  "K2O"; "H2O"; "O"];
+X       = [58.509,  1.022,   14.858, 4.371, 0.141, 4.561, 5.912, 3.296, 2.399, 10.0, 0.0];
+sys_in  = "wt"
+gv      = define_bulk_rock(gv, X, Xoxides, sys_in, dtb);
+P, T    = 6.0, 500.0
+gv, z_b, DB, splx_data = pwm_init(P, T, gv, z_b, DB, splx_data);
+
+# Modify gbase or W's here
+
+out     = pwm_run(gv, z_b, DB, splx_data);
+```
+which gives:
+
+```
+julia> out       = pwm_run(gv, z_b, DB, splx_data);
+Status             :            0 
+Mass residual      : +3.23681e-15
+Rank               :            0 
+Point              :            1 
+Temperature        :   +500.00000       [C] 
+Pressure           :     +6.00000       [kbar]
+
+SOL = [G: -791.477] (12 iterations, 11.03 ms)
+GAM = [-943.275969,-1739.945965,-770.603948,-668.434121,-339.621452,-886.160861,-804.045787,-992.801306,-480.273909,-480.273909]
+
+Phase :       bi      chl        g      opx      fsp        q      sph      H2O       zo 
+Mode  :  0.18022  0.00161  0.00174  0.04239  0.33178  0.15155  0.01325  0.24445  0.03301 
+```
+
 """
 function pwm_init(P::Float64,T::Float64, gv, z_b, DB, splx_data)
 
@@ -1432,8 +1471,6 @@ function pwm_run(gv, z_b, DB, splx_data; name_solvus = false)
 
     return out
 end
-
-# pwm_run(gv, z_b, DB, splx_data) = pwm_run( gv, z_b, DB, splx_data)
 
 
 """
@@ -1980,6 +2017,266 @@ function point_wise_minimization_with_guess(    mSS_vec ::  Vector{LibMAGEMin.mS
 
     return out
 end
+
+
+
+"""
+    out = point_wise_metastability(out, P, T, data)
+
+    where out is a MAGEMin_C output structure of type MAGEMin_C.gmin_struct{Float64, Int64}, P is pressure, T is temperature and data is the MAGEMin_C working data structure. 
+
+    This function computes the metastability of the solution phases in `out` at pressure `P` and temperature `T`.
+
+# Example:
+
+```julia
+using MAGEMin_C
+
+data    = Initialize_MAGEMin("mp", verbose=-1; solver=0);
+P,T     = 6.0, 630.0
+Xoxides = ["SiO2";  "TiO2";  "Al2O3";  "FeO";   "MnO";   "MgO";   "CaO";   "Na2O";  "K2O"; "H2O"; "O"];
+X       = [58.509,  1.022,   14.858, 4.371, 0.141, 4.561, 5.912, 3.296, 2.399, 10.0, 0.0];
+sys_in  = "wt"
+out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+
+Pmeta, Tmeta       = 6.0, 500.0
+out2    = point_wise_metastability(out, Pmeta, Tmeta, data)
+```
+
+which gives:
+
+````
+julia> out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+Pressure          : 6.0      [kbar]
+Temperature       : 630.0    [Celsius]
+     Stable phase | Fraction (mol fraction) 
+               bi   0.18975 
+              fsp   0.33769 
+              opx   0.06615 
+                q   0.14587 
+              sph   0.01103 
+              H2O   0.24952 
+     Stable phase | Fraction (wt fraction) 
+               bi   0.21347 
+              fsp   0.44152 
+              opx   0.07259 
+                q   0.17078 
+              sph   0.01404 
+              H2O   0.0876 
+     Stable phase | Fraction (vol fraction) 
+               bi   0.16535 
+              fsp   0.38301 
+              opx   0.05008 
+                q   0.1507 
+              sph   0.00921 
+              H2O   0.24165 
+Gibbs free energy : -806.707117  (23 iterations; 15.5 ms)
+Oxygen fugacity          : 11.422305637291458
+Delta QFM                : 29.789994195381436
+
+julia> Pmeta, Tmeta       = 6.0, 500.0
+(6.0, 500.0)
+
+julia> out2    = point_wise_metastability(out, Pmeta, Tmeta, data)
+Pressure          : 6.0      [kbar]
+Temperature       : 500.0    [Celsius]
+     Stable phase | Fraction (mol fraction) 
+               bi   0.18975 
+              fsp   0.33769 
+              opx   0.06615 
+                q   0.14587 
+              sph   0.01103 
+              H2O   0.24952 
+     Stable phase | Fraction (wt fraction) 
+               bi   0.21347 
+              fsp   0.44152 
+              opx   0.07259 
+                q   0.17078 
+              sph   0.01404 
+              H2O   0.0876 
+     Stable phase | Fraction (vol fraction) 
+               bi   0.16819 
+              fsp   0.39062 
+              opx   0.05102 
+                q   0.1528 
+              sph   0.0094 
+              H2O   0.22795 
+Gibbs free energy : -791.460287  (0 iterations; 0.04 ms)
+Oxygen fugacity          : 11.256905434522107
+Delta QFM                : 34.26950061699225
+````
+
+"""
+function point_wise_metastability(  out     :: MAGEMin_C.gmin_struct{Float64, Int64},
+                                    P       :: Float64,
+                                    T       :: Float64,
+                                    gv, z_b, DB, splx_data)
+
+    mSS_vec = deepcopy(out.mSS_vec)                                
+
+    # initialize MAGEMin up to G0 computation included
+    gv, z_b, DB, splx_data = pwm_init(P, T, gv, z_b, DB, splx_data);
+    gv.verbose = -1
+
+    ############################################################################
+    # retrieve Pure Phases information
+    PP_ref_db   = unsafe_wrap(Vector{LibMAGEMin.PP_ref},DB.PP_ref_db,gv.len_pp);
+
+    # retrieve Solution Phases information
+    SS_ref_db   = unsafe_wrap(Vector{LibMAGEMin.SS_ref},DB.SS_ref_db,gv.len_ss);
+
+    # retrieve dimensions
+    np          = z_b.nzEl_val
+    nzEl_array  = unsafe_wrap(Vector{Cint},z_b.nzEl_array, gv.len_ox) .+ 1
+    nzEl_array  = nzEl_array[1:np]
+
+    # Declare array to be copied in splx_data
+    A_jll       = zeros(np,np)
+    g0_A_jll    = zeros(np)
+    ph_id_A_jll = zeros(Int32,np,4)
+
+    n_pc_ss     = zeros(gv.len_ss)
+
+    PC_read = Vector{LibMAGEMin.PC_type}(undef,gv.len_ss)
+    LibMAGEMin.TC_PC_init(PC_read,gv)
+
+    # fill the arrays to be copied in splx_data
+    for i = 1:np
+        if mSS_vec[i].ph_type == "pp"
+            ph_id = mSS_vec[i].ph_id+1
+            g0_A_jll[i] = PP_ref_db[ph_id].gbase*PP_ref_db[ph_id].factor
+            A_jll[i,:]  = mSS_vec[i].comp_Ppc[nzEl_array]
+
+            ph_id_A_jll[i,1] = 1
+            ph_id_A_jll[i,2] = ph_id-1
+            ph_id_A_jll[i,3] = 0
+            ph_id_A_jll[i,4] = 0
+        elseif mSS_vec[i].ph_type == "ss"
+            ph_id   = mSS_vec[i].ph_id+1
+            ph      = mSS_vec[i].ph_name
+
+            unsafe_copyto!(SS_ref_db[ph_id].gb_lvl,SS_ref_db[ph_id].gbase, SS_ref_db[ph_id].n_em)
+            unsafe_copyto!(SS_ref_db[ph_id].iguess,pointer(mSS_vec[i].xeos_Ppc), SS_ref_db[ph_id].n_xeos)
+            SS_ref_db[ph_id] = LibMAGEMin.PC_function(gv, PC_read, SS_ref_db[ph_id], z_b, ph_id-1)
+
+            g0_A_jll[i] = SS_ref_db[ph_id].df
+            A_jll[i,:]  = mSS_vec[i].comp_Ppc[nzEl_array]
+            ph_id_A_jll[i,1] = 3
+            ph_id_A_jll[i,2] = ph_id-1
+            ph_id_A_jll[i,3] = 0
+            ph_id_A_jll[i,4] = n_pc_ss[ph_id]
+            n_pc_ss[ph_id]  += 1
+        elseif mSS_vec[i].ph_type == "ss_em"
+            ph_id   = mSS_vec[i].ph_id+1
+            em_id   = mSS_vec[i].em_id+1
+            ape     = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].ape, SS_ref_db[ph_id].n_em)
+            gbase   = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].gbase, SS_ref_db[ph_id].n_em)
+            comp_ptr= unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].Comp, SS_ref_db[ph_id].n_em)
+            Comp    = unsafe_wrap(Vector{Cdouble},comp_ptr[em_id], gv.len_ox)
+            factor 	= z_b.fbc/ape[em_id]
+            ph      = mSS_vec[i].ph_name
+
+            g0_A_jll[i] = gbase[em_id]*factor;
+            A_jll[i,:]  = Comp[nzEl_array]*factor
+            ph_id_A_jll[i,1] = 2
+            ph_id_A_jll[i,2] = ph_id-1
+            ph_id_A_jll[i,3] = 0
+            ph_id_A_jll[i,4] = em_id-1
+        end
+    end
+
+    # copy to the appropriate places
+    ph_id_A = unsafe_wrap(Vector{Ptr{Int32}},splx_data.ph_id_A, np)
+
+    for i=1:np
+        unsafe_copyto!(ph_id_A[i],pointer(ph_id_A_jll[i,:]),4)
+    end
+
+    unsafe_copyto!(splx_data.A,pointer(vec(A_jll)),np*np)
+    unsafe_copyto!(splx_data.A1,pointer(vec(A_jll)),np*np)
+    unsafe_copyto!(splx_data.g0_A,pointer(g0_A_jll),np)
+
+
+    # add pseudocompounds
+    n_mSS = length(mSS_vec)
+    for i = 1:n_mSS
+
+        if mSS_vec[i].ph_type == "ss"
+            ph          = mSS_vec[i].ph_name
+            ph_id       = mSS_vec[i].ph_id+1
+            n_xeos      = SS_ref_db[ph_id].n_xeos
+            n_em        = SS_ref_db[ph_id].n_em
+
+            tot_pc      = unsafe_wrap(Vector{Cint},SS_ref_db[ph_id].tot_pc, 1)
+            id_pc       = unsafe_wrap(Vector{Cint},SS_ref_db[ph_id].id_pc, 1)
+            info        = unsafe_wrap(Vector{Cint},SS_ref_db[ph_id].info, gv.max_n_mSS)
+            factor_pc   = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].factor_pc, gv.max_n_mSS)
+            DF_pc       = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].DF_pc, gv.max_n_mSS)
+            G_pc        = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].G_pc, gv.max_n_mSS)
+
+            m_pc        = id_pc[1]+1;
+            ptr_comp_pc = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].comp_pc,gv.max_n_mSS)
+            ptr_p_pc    = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].p_pc,gv.max_n_mSS)
+            ptr_xeos_pc = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].xeos_pc,gv.max_n_mSS)
+
+            unsafe_copyto!(SS_ref_db[ph_id].gb_lvl,SS_ref_db[ph_id].gbase, SS_ref_db[ph_id].n_em)
+            xeos        = mSS_vec[i].xeos_Ppc
+
+            # retrieve bounds
+            bounds_ref      = zeros( n_xeos,2)
+            ptr_bounds_ref  = unsafe_wrap(Vector{Ptr{Cdouble}}, SS_ref_db[ph_id].bounds_ref, n_xeos)
+
+            for k=1:n_xeos
+                bounds_ref[k,:] = unsafe_wrap(Vector{Cdouble}, ptr_bounds_ref[k], 2)
+                if xeos[k] < bounds_ref[k,1]
+                    xeos[k] = bounds_ref[k,1]
+                elseif xeos[k] > bounds_ref[k,2]
+                    xeos[k] = bounds_ref[k,2]
+                end
+            end
+
+            # get solution phase information for given compositional variables
+            unsafe_copyto!(SS_ref_db[ph_id].iguess,pointer(xeos), n_xeos)
+            SS_ref_db[ph_id] = LibMAGEMin.PC_function(gv, PC_read, SS_ref_db[ph_id], z_b, ph_id-1)
+
+            # copy solution phase composition
+            ss_comp     = unsafe_wrap(Vector{Cdouble}, SS_ref_db[ph_id].ss_comp, gv.len_ox)
+            comp_pc     = unsafe_wrap(Vector{Cdouble}, ptr_comp_pc[m_pc], gv.len_ox)
+            comp_pc    .= ss_comp .* SS_ref_db[ph_id].factor;
+
+            # copy endmember fraction
+            p           = unsafe_wrap(Vector{Cdouble}, SS_ref_db[ph_id].p, n_em)
+            p_pc        = unsafe_wrap(Vector{Cdouble}, ptr_p_pc[m_pc], n_em)
+            p_pc       .= p
+
+            # copy compositional variables
+            xeos_pc     = unsafe_wrap(Vector{Cdouble}, ptr_xeos_pc[m_pc], n_xeos)
+            xeos_pc    .= xeos
+
+            info[m_pc]      = 1;
+            factor_pc[m_pc] = SS_ref_db[ph_id].factor;
+            DF_pc[m_pc]     = SS_ref_db[ph_id].df;
+            G_pc[m_pc]      = SS_ref_db[ph_id].df;
+
+            tot_pc .+= 1;
+            id_pc  .+= 1;
+        end
+    end
+
+    gv.leveling_mode    = 2
+    gv.solver           = 3    #this deactivates minimization 
+    out                 = deepcopy(pwm_run(gv, z_b, DB, splx_data))
+
+    return out
+end
+
+
+point_wise_metastability(           out     :: MAGEMin_C.gmin_struct{Float64, Int64},
+                                    P       :: Float64,
+                                    T       :: Float64,
+                                    data    ::  MAGEMin_Data) =
+                                    point_wise_metastability(out, P, T, data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1])
+
 
 
 # The following section add post-processing routines

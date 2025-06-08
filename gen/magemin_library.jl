@@ -2669,6 +2669,10 @@ function LP(z_b, gv, PC_read, P2X_read, SS_objective, NLopt_opt, splx_data, PP_r
     ccall((:LP, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PC_type}, Ptr{P2X_type}, Ptr{obj_type}, Ptr{NLopt_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, PC_read, P2X_read, SS_objective, NLopt_opt, splx_data, PP_ref_db, SS_ref_db, cp)
 end
 
+function LP_metastable(z_b, gv, PC_read, P2X_read, SS_objective, NLopt_opt, splx_data, PP_ref_db, SS_ref_db, cp)
+    ccall((:LP_metastable, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PC_type}, Ptr{P2X_type}, Ptr{obj_type}, Ptr{NLopt_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, PC_read, P2X_read, SS_objective, NLopt_opt, splx_data, PP_ref_db, SS_ref_db, cp)
+end
+
 function norm_vector(array, n)
     ccall((:norm_vector, libMAGEMin), Cdouble, (Ptr{Cdouble}, Cint), array, n)
 end
@@ -2844,6 +2848,10 @@ end
 
 function Initial_guess(z_b, gv, PC_read, P2X_read, splx_data, PP_ref_db, SS_ref_db, cp)
     ccall((:Initial_guess, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PC_type}, Ptr{P2X_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, PC_read, P2X_read, splx_data, PP_ref_db, SS_ref_db, cp)
+end
+
+function Metastable_calc(z_b, gv, PC_read, P2X_read, splx_data, PP_ref_db, SS_ref_db, cp)
+    ccall((:Metastable_calc, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PC_type}, Ptr{P2X_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, PC_read, P2X_read, splx_data, PP_ref_db, SS_ref_db, cp)
 end
 
 function destroy_simplex_A(splx_data)

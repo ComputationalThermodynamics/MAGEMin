@@ -237,6 +237,9 @@ void initialize_initial_guess(		bulk_info 	 		 z_b,
 }
 
 
+
+
+
 /**
   function to swp pure phases
 */	
@@ -1166,11 +1169,6 @@ void run_initial_guess_levelling(		bulk_info 	 		 z_b,
 
 	int i, k, iss;
 
-	// initialize_initial_guess(			z_b,
-	// 									splx_data,
-	// 									gv,
-	// 									PP_ref_db,
-	// 									SS_ref_db				);	
 	fill_simplex_arrays_A(					z_b,
 										    splx_data,
 											gv,
@@ -1214,6 +1212,39 @@ void run_initial_guess_levelling(		bulk_info 	 		 z_b,
 	
 };
 
+
+/**
+  function to run simplex linear programming with pseudocompounds
+*/	
+void run_metastable_levelling(			bulk_info 	 		 z_b,
+										simplex_data 		*splx_data,
+										global_variable 	 gv,
+										
+										PP_ref 				*PP_ref_db,
+										SS_ref 				*SS_ref_db
+){
+	simplex_data *d  = (simplex_data *) splx_data;
+
+	int i, k, iss;
+
+	initialize_initial_guess(			z_b,
+										splx_data,
+										gv,
+										PP_ref_db,
+										SS_ref_db				);	
+									
+	update_local_gamma(					d->A1,
+										d->g0_A,
+										d->gamma_ps,
+										d->n_Ox					);
+
+
+	/** update gam_tot using pure species levelling gamma */
+	for (i = 0; i < d->n_Ox; i++){
+		d->gamma_tot[z_b.nzEl_array[i]] = d->gamma_ps[i];
+	}
+	
+};
 
 
 /**
@@ -1560,6 +1591,121 @@ global_variable run_initial_guess_function(	bulk_info 	 		 z_b,
 
 
 
+/**
+  Levelling function when using initial guess
+*/	
+global_variable run_metastable_function(	bulk_info 	 		 z_b,
+											global_variable 	 gv,
+
+											PC_type             *PC_read,
+											P2X_type			*P2X_read,
+											simplex_data		*splx_data,
+											PP_ref 				*PP_ref_db,
+											SS_ref 				*SS_ref_db,
+											csd_phase_set  		*cp
+){
+	simplex_data *d  = (simplex_data *) splx_data;
+
+	clock_t t; 
+	double time_taken;
+	t = clock();
+
+
+	/** run linear programming with simplex approach */
+	run_metastable_levelling(				z_b,
+										    splx_data,
+											gv,
+											PP_ref_db,
+											SS_ref_db		);	
+
+	/* update global variable gamma */
+	update_global_gamma_LU(					z_b,
+											splx_data		);	
+	
+						
+	// /* remove solution from consideration when min driving force is > gv.bnd_filter_pc */
+	// reduce_ss_list( 						SS_ref_db, 
+	// 										gv 				);
+	
+	/* function to send back the updated initial guess, and phases flags */
+	gv = update_global_info(				z_b,
+											splx_data,
+											gv,
+
+											PC_read,
+											P2X_read,
+											PP_ref_db,
+											SS_ref_db,
+											cp				);
+
+	if (gv.verbose == 1){
+		printf("\nGet initial guess (Gamma and phase fractions) \n");
+		printf("══════════════════════════════════════════════\n\n");
+		printf("    P: %+10f T: %+10f\n",z_b.P,z_b.T);
+		printf(" [----------------------------------------]\n");
+		printf(" [  Ph  |   Ph PROP  |   g0_Ph    |  ix   ]\n");
+		printf(" [----------------------------------------]\n");
+
+		for (int i = 0; i < d->n_Ox; i++){
+			if (d->ph_id_A[i][0] == 0){
+				printf(" ['%5s' %+10f  %+12.4f  %5d ]", "F.OX", d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+				printf("\n");
+			}
+			if (d->ph_id_A[i][0] == 1){
+				printf(" ['%5s' %+10f  %+12.4f  %5d ]", gv.PP_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+				printf("\n");
+			}
+			if (d->ph_id_A[i][0] == 2){
+				printf(" ['%5s' %+10f  %+12.4f  %5d ]\n", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+			}
+			if (d->ph_id_A[i][0] == 3){
+				printf(" ['%5s' %+10f  %+12.4f  %5d ]", gv.SS_list[d->ph_id_A[i][1]], d->n_vec[i], d->g0_A[i], d->ph_id_A[i][0]);
+				for (int ii = 0; ii < SS_ref_db[d->ph_id_A[i][1]].n_xeos; ii++){
+					printf(" %+10f", SS_ref_db[d->ph_id_A[i][1]].xeos_pc[d->ph_id_A[i][3]][ii] );
+				}
+				printf("\n");
+			}
+		}
+		printf("\n");
+		for (int i = 0; i < d->n_Ox; i++){
+			printf(" %g", d->gamma_tot[z_b.nzEl_array[i]]);
+		}
+		printf("\n");
+		printf(" [----------------------------------------]\n");
+		printf(" [  OXIDE      GAMMA_EM        GAMMA_PC   ]\n");
+		printf(" [----------------------------------------]\n");
+		for (int i = 0; i < d->n_Ox; i++){
+			printf(" [ %5s %+15f %+15f  ]\n", gv.ox[z_b.nzEl_array[i]], d->gamma_ps[i], d->gamma_tot[z_b.nzEl_array[i]]);
+		}
+		printf(" [----------------------------------------]\n");
+		printf(" [            %4d swaps                  ]\n", d->n_swp);
+		printf(" [----------------------------------------]\n");
+		
+		printf("\n [----------------------------------------]\n");
+		printf(" [           ACTIVE PHASES                ]\n");
+		printf(" [----------------------------------------]\n");
+		for (int i = 0; i < gv.len_ss; i++){
+			if (SS_ref_db[i].ss_flags[0] == 1){
+				printf(" [                 %5s                  ]\n",gv.SS_list[i]);
+			}
+		}
+		printf(" [----------------------------------------]\n");
+		printf(" [           UNACTIVE PHASES              ]\n");
+		printf(" [----------------------------------------]\n");
+		for (int i = 0; i < gv.len_ss; i++){
+			if (SS_ref_db[i].ss_flags[0] == 0){
+				printf(" [                 %5s                  ]\n",gv.SS_list[i]);
+			}
+		}
+	}
+
+	t 			= clock() - t; 
+	time_taken  = ((double)t)/CLOCKS_PER_SEC; // in seconds 
+	gv.LVL_time = time_taken*1000;	
+	
+	return gv;
+};		
+
 
 /**
   Levelling function.
@@ -1727,6 +1873,43 @@ global_variable Initial_guess(	bulk_info 			z_b,
 	return gv;
 };
 
+
+/**
+  main levelling routine
+*/ 
+global_variable Metastable_calc(	bulk_info 			z_b,
+									global_variable 	gv,
+
+									PC_type            *PC_read,
+									P2X_type 		   *P2X_read,
+									simplex_data	   *splx_data,
+									PP_ref 			   *PP_ref_db,
+									SS_ref 			   *SS_ref_db,
+									csd_phase_set  	   *cp
+){
+
+	if (gv.verbose == 1){
+		printf("\nMetastability: update Gamma\n");
+		printf("════════════════════════════════════════\n");
+	}
+
+	/* pseudosection function to get starting guess */
+	gv = run_metastable_function(		z_b,												/** bulk rock informations    */
+										gv,													/** global variables (e.g. Gamma) */
+
+										PC_read,
+										P2X_read,
+										splx_data,
+										PP_ref_db,											/** pure phase database */
+										SS_ref_db,											/** solution phase database */
+										cp				);
+	if (gv.verbose == 1){
+		printf(" [   Initial guess time %+12f ms   ]\n",gv.LVL_time);
+		printf(" [----------------------------------------]\n\n\n");
+	}
+
+	return gv;
+};
 
 /**
   main levelling routine
