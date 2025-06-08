@@ -45,6 +45,14 @@ function allocate_output(n::Int64)
     return Vector{gmin_struct{Float64, Int64}}(undef, n)
 end
 
+
+"""
+    bulk_dry = anhydrous_renormalization(   bulk    :: Vector{Float64},
+                                            oxide   :: Vector{String})
+
+    This function renormalizes the bulk rock composition to remove water (H2O) if present.
+
+"""
 function anhydrous_renormalization( bulk    :: Vector{Float64},
                                     oxide   :: Vector{String})
 
@@ -687,7 +695,42 @@ function multi_point_minimization(P           ::  T2,
     return Out_PT
 end
 
+"""
+    AMR_minimization(   init_sub    ::  Int64,
+                        ref_lvl     ::  Int64,
+                        Prange      ::  Union{T1, NTuple{2, T1}},
+                        Trange      ::  Union{T1, NTuple{2, T1}},
+                        MAGEMin_db  ::  MAGEMin_Data;
+                        test        ::  Int64                           = 0, # if using a build-in test case,
+                        X           ::  VecOrMat                        = nothing,
+                        B           ::  Union{Nothing, T1, Vector{T1}}  = 0.0,
+                        scp         ::  Int64                           = 0,  
+                        iguess      ::  Union{Vector{Bool},Bool}        = false,
+                        rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
+                        W           ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}}  = nothing,
+                        Xoxides     = Vector{String},
+                        sys_in      :: String                          = "mol",
+                        rg          :: String                          = "tc",
+                        progressbar :: Bool                             = true        # show a progress bar or not?
+                    ) where {T1 <: Float64}
 
+    Performs an Adaptive Mesh Refinement (AMR) minimization for a range of points as a function of pressure `Prange`, temperature `Trange` and/or composition `X`. The database `MAGEMin_db` must be initialised before calling the routine.
+
+# Example
+```julia
+data        = Initialize_MAGEMin("mp", verbose=-1, solver=0);
+
+init_sub    =  1
+ref_lvl     =  2
+Prange      = (1.0,10.0)
+Trange      = (400.0,800.0)
+Xoxides     = ["SiO2","Al2O3","CaO","MgO","FeO","K2O","Na2O","TiO2","O","MnO","H2O"]
+X           = [70.999,12.805,0.771,3.978,6.342,2.7895,1.481,0.758,0.72933,0.075,30.0]
+sys_in      = "mol"    
+out         = AMR_minimization(init_sub, ref_lvl, Prange, Trange, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+```
+
+"""
 function AMR_minimization(  init_sub    ::  Int64,
                             ref_lvl     ::  Int64,
                             Prange      ::  Union{T1, NTuple{2, T1}},
@@ -827,6 +870,7 @@ end
 
 """
     data = use_predefined_bulk_rock(data::MAGEMin_Data, test=0)
+
 Returns the pre-defined bulk rock composition of a given test
 """
 function use_predefined_bulk_rock(data::MAGEMin_Data, test=0)  
@@ -837,6 +881,11 @@ function use_predefined_bulk_rock(data::MAGEMin_Data, test=0)
     return data
 end
 
+"""
+    gv = define_bulk_rock(gv, bulk_in, bulk_in_ox, sys_in, db)
+
+Defines the bulk-rock composition in `gv` structure using the input `bulk_in` and `bulk_in_ox`, converting it to the appropriate format for MAGEMin.
+"""
 function define_bulk_rock(gv, bulk_in, bulk_in_ox, sys_in,db)
 
     bulk_rock, ox   = convertBulk4MAGEMin(bulk_in,bulk_in_ox,sys_in,db)     # conversion changes the system unit to mol
@@ -852,7 +901,10 @@ function normalize(vector::Vector{Float64})
     return vector ./ sum(vector)
 end
 
-
+"""
+    bulk_mol = wt2mol(bulk_wt, bulk_ox)
+Converts bulk-rock composition from wt to mol fraction
+"""
 function wt2mol(    bulk_wt     :: Vector{Float64},
                     bulk_ox     :: Vector{String}) 
 
@@ -872,6 +924,12 @@ function wt2mol(    bulk_wt     :: Vector{Float64},
     return bulk_mol
 end
 
+
+"""
+    mol2wt(bulk_mol::Vector{Float64}, bulk_ox::Vector{String})
+
+    Converts bulk-rock composition from mol to wt fraction
+"""
 function mol2wt(    bulk_mol     :: Vector{Float64},
                     bulk_ox      :: Vector{String}) 
 
