@@ -26,6 +26,7 @@ export  anhydrous_renormalization, retrieve_solution_phase_information, remove_p
         point_wise_metastability,
         single_point_minimization, multi_point_minimization, AMR_minimization, MAGEMin_Data,
         MAGEMin_data2dataframe, MAGEMin_dataTE2dataframe, MAGEMin_data2dataframe_inlined,
+        zirconium_saturation, 
         Initialize_MAGEMin, Finalize_MAGEMin
 
 export wt2mol, mol2wt
@@ -145,6 +146,9 @@ struct gmin_struct{T,I}
     ph_id_db    :: Vector{I}            # id of phase
     ph          :: Vector{String}       # Name of phase
     sol_name    :: Vector{String}       # Name of phase
+
+    SS_syms     :: Dict{Symbol, Int64}
+    PP_syms     :: Dict{Symbol, Int64}
 
     SS_vec      :: Vector{LibMAGEMin.SS_data}
     mSS_vec     :: Vector{LibMAGEMin.mSS_data}
@@ -311,7 +315,7 @@ function Initialize_MAGEMin(db = "ig";  verbose     ::Union{Int64,Bool} = 0,
                                         mpSp        ::Int64             = 0,
                                         mpIlm       ::Int64             = 0,
                                         buffer      ::String            = "NONE",
-                                        solver      ::Int64             = 2         )
+                                        solver      ::Int64             = 0         )
 
     gv, z_b, DB, splx_data = init_MAGEMin(db;   verbose     = verbose,
                                                 dataset     = dataset,
@@ -388,7 +392,7 @@ function  init_MAGEMin( db          :: String               =  "ig";
                         limitCaOpx  :: Int64                =   0,
                         CaOpxLim    :: Float64              =   1.0,
                         buffer      :: String               =  "NONE",
-                        solver      :: Int64                =   2           )
+                        solver      :: Int64                =   0           )
 
     z_b         = LibMAGEMin.bulk_infos()
     gv          = LibMAGEMin.global_variables()
@@ -1622,6 +1626,10 @@ function create_gmin_struct(DB, gv, time; name_solvus = false)
     ph          =  unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, stb.ph, n_ph)) # stable phases
     sol_name    =  unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, stb.sol_name, n_ph)) # stable phases
 
+
+    SS_syms = Dict( Symbol("$(ph[i])") => i for i=1:n_SS )
+    PP_syms = Dict( Symbol("$(ph[i])") => i-n_SS for i=n_SS+1:n_SS+n_PP )
+
     # extract info about compositional variables of the solution models:
     SS_vec  = convert.(LibMAGEMin.SS_data, unsafe_wrap(Vector{LibMAGEMin.stb_SS_phase},stb.SS,n_SS))
 
@@ -1665,6 +1673,7 @@ function create_gmin_struct(DB, gv, time; name_solvus = false)
                 fO2, dQFM, aH2O, aSiO2, aTiO2, aAl2O3, aMgO, aFeO,
                 n_PP, n_SS, n_mSS,
                 ph_frac, ph_frac_wt, ph_frac_1at, ph_frac_vol, ph_type, ph_id, ph_id_db, ph, sol_name,
+                SS_syms, PP_syms,
                 SS_vec,  mSS_vec, PP_vec,
                 oxides,  elements,
                 stb.Vp, stb.Vs, Vp_S, Vs_S, stb.bulkMod, stb.shearMod, stb.bulkModulus_M,  stb.bulkModulus_S, stb.shearModulus_S,
