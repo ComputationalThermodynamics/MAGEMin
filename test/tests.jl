@@ -353,6 +353,30 @@ end
     Finalize_MAGEMin(data)
 end
 
+@testset "Trace-element partitioning model" begin
+    data    = Initialize_MAGEMin("mp", verbose=1, solver=0);
+    P,T     = 6.0, 699.0
+    Xoxides = ["SiO2";  "TiO2";  "Al2O3";  "FeO";   "MnO";   "MgO";   "CaO";   "Na2O";  "K2O"; "H2O"; "O"];
+    X       = [58.509,  1.022,   14.858, 4.371, 0.141, 4.561, 5.912, 3.296, 2.399, 10.0, 0.2];
+    sys_in  = "wt"
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, name_solvus=true)
+    Finalize_MAGEMin(data)
+
+
+    # create database on the fly
+    el      = ["Li","Zr"]
+    ph      = ["q","afs","pl","bi","opx","cd","mu","amp","fl","cpx","g","zrn"]
+    KDs     = ["0.17" "0.01";"0.14 * T_C/1000.0 + [:bi].compVariables[1]" "0.01";"0.33 + 0.01*P_kbar" "0.01";"1.67 * P_kbar / 10.0 + T_C/1000.0" "0.01";"0.2" "0.01";"125" "0.01";"0.82" "0.01";"0.2" "0.01";"0.65" "0.01";"0.26" "0.01";"0.01" "0.01";"0.01" "0.0"] 
+    C0      = [100.0,400.0] #starting concentration of elements in ppm (ug/g)
+    dtb     = "mp"
+
+    KDs_database = create_custom_KDs_database(el, ph, KDs)
+
+    out_TE = TE_prediction(out, C0, KDs_database, dtb; ZrSat_model = "CB")
+
+    @test out_TE.Cliq[1] ≈ 152.25336409302815 rtol=1e-3
+    @test out_TE.Cliq[2] ≈ 609.0134563721126  rtol=1e-3
+end
 
 @testset "remove solution phase" begin
 

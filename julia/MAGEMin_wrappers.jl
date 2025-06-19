@@ -19,20 +19,20 @@ using DataFrames, Dates, CSV
 const VecOrMat          = Union{Nothing, AbstractVector{Float64}, AbstractVector{<:AbstractVector{Float64}}}
 const available_TC_ds   = [62,633,634,635,636]
 
-export  anhydrous_renormalization, retrieve_solution_phase_information, remove_phases, get_ss_from_mineral,
+export  anhydrous_renormalization, retrieve_solution_phase_information, remove_phases, get_ss_from_mineral, mineral_classification,
         init_MAGEMin, allocate_output,finalize_MAGEMin, point_wise_minimization, 
         get_all_stable_phases, convertBulk4MAGEMin, use_predefined_bulk_rock, define_bulk_rock, create_output,
         print_info, create_gmin_struct, pwm_init, pwm_run,
         point_wise_metastability,
         single_point_minimization, multi_point_minimization, AMR_minimization, MAGEMin_Data,
         MAGEMin_data2dataframe, MAGEMin_dataTE2dataframe, MAGEMin_data2dataframe_inlined,
-        zirconium_saturation, 
+        
         Initialize_MAGEMin, Finalize_MAGEMin
 
 export wt2mol, mol2wt
 
-export adjust_chemical_system, TE_prediction, adjust_bulk_4_zircon
-export get_OL_KDs_database, get_MM_KDs_database, get_KP_Exp_KDs_database, get_IL_Exp_KDs_database, get_B_Nat_KDs_database, get_AV_Nat_KDs_database
+export TE_prediction, adjust_bulk_4_zircon, create_custom_KDs_database, zirconium_saturation, get_TE_database, adjust_chemical_system
+# export get_TE_database#, get_MM_KDs_database, get_KP_Exp_KDs_database, get_IL_Exp_KDs_database, get_B_Nat_KDs_database, get_AV_Nat_KDs_database
 
 export initialize_AMR, split_and_keep, AMR
 
@@ -1378,6 +1378,7 @@ function point_wise_minimization(   P       ::Float64,
         out_E       = point_wise_minimization_with_guess(mSS_vec, P, T+dT, gv, z_b, DB, splx_data)
 
         hcp         = -(T+273.15)*(out_E.G_system + out_W.G_system - 2.0*out.G_system)/(dT*dT);
+        # hcp         = (T+273.15)*(out_E.entropy - out.entropy)/(dT); # entropy way
 
         out_N       = point_wise_minimization_with_guess(mSS_vec, P+dP, T, gv, z_b, DB, splx_data)
         out_NE      = point_wise_minimization_with_guess(mSS_vec, P+dP, T+dT, gv, z_b, DB, splx_data)
