@@ -236,6 +236,13 @@ function partition_TE(  KDs_database:: custom_KDs_database,
     MM_ph_idx   = [findfirst(isequal(x), ph) for x in TE_ph]
     TE_ph_idx   = [findfirst(isequal(x), phase_name) for x in TE_ph]
 
+    # println("ph: ", ph)
+    # println("phase_name: ", phase_name)
+    # println("TE_ph: ", TE_ph)
+    # println("MM_ph_idx: ", MM_ph_idx)
+    # println("TE_ph_idx: ", TE_ph_idx)
+
+    
     # normalize phase fractions
     sum_ph_frac = sum(ph_wt[MM_ph_idx]);
     liq_wt_norm = liq_wt/(sum_ph_frac+liq_wt);
@@ -249,6 +256,7 @@ function partition_TE(  KDs_database:: custom_KDs_database,
     for i=1:n_ph
         for j=1:n_el
             expr        = KDs_database.KDs_expr[TE_ph_idx[i],j]
+            # expr        = KDs_database.KDs_expr[MM_ph_idx[i],j]
             KDs[i,j]    = Base.invokelatest(expr, out)
         end
     end

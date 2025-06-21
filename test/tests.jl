@@ -374,8 +374,8 @@ end
 
     out_TE = TE_prediction(out, C0, KDs_database, dtb; ZrSat_model = "CB")
 
-    @test out_TE.Cliq[1] ≈ 152.25336409302815 rtol=1e-3
-    @test out_TE.Cliq[2] ≈ 609.0134563721126  rtol=1e-3
+    @test out_TE.Cliq[1] ≈ 154.51891525771387 rtol=1e-3
+    @test out_TE.Cliq[2] ≈ 3107.727391290317 rtol=1e-3
 end
 
 @testset "remove solution phase" begin

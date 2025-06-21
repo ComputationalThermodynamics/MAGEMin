@@ -1627,10 +1627,6 @@ function create_gmin_struct(DB, gv, time; name_solvus = false)
     ph          =  unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, stb.ph, n_ph)) # stable phases
     sol_name    =  unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, stb.sol_name, n_ph)) # stable phases
 
-
-    SS_syms = Dict( Symbol("$(ph[i])") => i for i=1:n_SS )
-    PP_syms = Dict( Symbol("$(ph[i])") => i-n_SS for i=n_SS+1:n_SS+n_PP )
-
     # extract info about compositional variables of the solution models:
     SS_vec  = convert.(LibMAGEMin.SS_data, unsafe_wrap(Vector{LibMAGEMin.stb_SS_phase},stb.SS,n_SS))
 
@@ -1639,6 +1635,12 @@ function create_gmin_struct(DB, gv, time; name_solvus = false)
             ph[i] = get_mineral_name(database, ph[i], SS_vec[i])
         end
     end
+
+    # create dictionaries for easy access to the phase symbols; has to be after the name_solvus is set!
+    SS_syms = Dict( Symbol("$(ph[i])") => i for i=1:n_SS )
+    PP_syms = Dict( Symbol("$(ph[i])") => i-n_SS for i=n_SS+1:n_SS+n_PP )
+
+
     # extract information about metastable solution phases
     mSS_vec = convert.(LibMAGEMin.mSS_data, unsafe_wrap(Vector{LibMAGEMin.mstb_SS_phase},stb.mSS,n_mSS))
 
