@@ -29,7 +29,7 @@ KDs_dtb     = get_OL_KDs_database();
 C0          = adjust_chemical_system( KDs_dtb, bulk_TE, elem_TE );
 out_TE      = TE_prediction(C0,KDs_dtb,out,dtb; ZrSat_model = "CB");
 
-if ~isnothing(out_TE.bulk_cor_wt)      #then we can recompute the equilibrium after removing the SiO2 entering zircon
+if !isnan(out_TE.bulk_cor_wt)      #then we can recompute the equilibrium after removing the SiO2 entering zircon
     sys_in      = "wt"    
     out         = single_point_minimization(P, T, data, X=out_TE.bulk_cor_wt, Xoxides=out.oxides, sys_in=sys_in)
     out_TE      = TE_prediction(C0,KDs_dtb,out,dtb; ZrSat_model = "CB")

@@ -230,7 +230,7 @@
 		int 	n_pp;
 		int 	n_ss;
 		char    ox[7][20];
-		char    PP[23][20];
+		char    PP[24][20];
 		char    SS[12][20];
 
 		int 	verifyPC[12];
@@ -259,7 +259,7 @@
 		int 	n_pp;
 		int 	n_ss;
 		char    ox[9][20];
-		char    PP[23][20];
+		char    PP[24][20];
 		char    SS[15][20];
 
 		int 	verifyPC[15];

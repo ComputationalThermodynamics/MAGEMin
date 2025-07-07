@@ -16,15 +16,26 @@ function norm(vec :: Vector{Float64})
     return sqrt(sum(vec.^2))
 end
 
-# A convenient testy test
-# using MAGEMin_C
-# data    = Initialize_MAGEMin("mp", verbose=-1);
-# P,T     = 6.0, 930.0
-# Xoxides = ["SiO2";  "TiO2";  "Al2O3";  "FeO";   "MnO";   "MgO";   "CaO";   "Na2O";  "K2O"; "H2O"; "O"];
-# X       = [58.509,  1.022,   14.858, 4.371, 0.141, 4.561, 5.912, 3.296, 2.399, 10.0, 0.0];
-# sys_in  = "wt"
-# out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
-# Finalize_MAGEMin(data)
+#= A convenient testy test
+
+using MAGEMin_C
+data    = Initialize_MAGEMin("mp", verbose=-1);
+P,T     = 6.0, 710.0
+Xoxides = ["SiO2";  "TiO2";  "Al2O3";  "FeO";   "MnO";   "MgO";   "CaO";   "Na2O";  "K2O"; "H2O"; "O"];
+X       = [58.509,  1.022,   14.858, 4.371, 0.141, 4.561, 5.912, 3.296, 2.399, 10.0, 0.0];
+sys_in  = "wt"
+out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+Finalize_MAGEMin(data)
+
+data        =   Initialize_MAGEMin("ig", verbose=-1);
+test        =   0         #KLB1
+data        =   use_predefined_bulk_rock(data, test);
+P           =   8.0
+T           =   1800.0
+out         =   point_wise_minimization(P,T, data);
+Finalize_MAGEMin(data)
+
+=#
 
 data        =   Initialize_MAGEMin("sb21", verbose=-1);
 test        =   1         #KLB1
@@ -47,6 +58,14 @@ Finalize_MAGEMin(data)
 @test out.G_system ≈ -797.7873859283119
 @test sort(out.ph) == sort(["spl", "cpx",  "opx", "ol"])
 @test abs(out.s_cp[1] - 1208.466551730128) < 2.0
+
+@testset "test external routines" begin
+    ox              = ["SiO2", "TiO2", "Al2O3", "FeO", "MnO", "MgO", "CaO", "Na2O", "K2O", "P2O5", "H2O"]
+    mol_percents    = [62.38, 0.41, 11.79, 0.03, 0.02, 4.80, 9.73, 3.41, 0.59, 0.05, 6.80]
+    T_C             = 1000.0
+    viscosity       = compute_melt_viscosity_G08(ox, mol_percents, T_C)
+    @test (viscosity) ≈ 4751.168588718496
+end
 
 @testset "test light output calculation" begin
     # Without a buffer at 1100.0 C
@@ -484,7 +503,7 @@ end
     T           =   400.0
     out         =   point_wise_minimization(P,T, data);
     Finalize_MAGEMin(data)
-    @test sort(out.ph) == sort(["amp", "fl", "atg", "spi", "chl", "ta", "pyr"])
+    @test sort(out.ph) == sort(["amp", "atg", "chl", "fl", "hem", "pyr", "spi", "ta"])
 end
 
 

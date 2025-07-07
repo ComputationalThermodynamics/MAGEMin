@@ -121,18 +121,18 @@ end
     Holds the output of the TE partitioning routine
 """
 struct out_tepm
-    elements    :: Union{Nothing, Vector{String}}
-    C0          :: Union{Nothing, Vector{Float64}}
-    Cliq        :: Union{Nothing, Vector{Float64}}
-    Csol        :: Union{Nothing, Vector{Float64}}
-    Cmin        :: Union{Nothing, Matrix{Float64}}
+    elements    :: Union{Float64, Vector{String}}
+    C0          :: Union{Float64, Vector{Float64}}
+    Cliq        :: Union{Float64, Vector{Float64}}
+    Csol        :: Union{Float64, Vector{Float64}}
+    Cmin        :: Union{Float64, Matrix{Float64}}
     ph_TE       :: Union{Nothing, Vector{String}}
-    ph_wt_norm  :: Union{Nothing, Vector{Float64}}
-    liq_wt_norm :: Union{Nothing, Float64}
-    Cliq_Zr     :: Union{Nothing, Float64}
-    Sat_zr_liq  :: Union{Nothing, Float64}
-    zrc_wt      :: Union{Nothing, Float64}
-    bulk_cor_wt :: Union{Nothing, Vector{Float64}}
+    ph_wt_norm  :: Union{Float64, Vector{Float64}}
+    liq_wt_norm :: Union{Float64, Float64}
+    Cliq_Zr     :: Union{Float64, Float64}
+    Sat_zr_liq  :: Union{Float64, Float64}
+    zrc_wt      :: Union{Float64, Float64}
+    bulk_cor_wt :: Union{Float64, Vector{Float64}}
 end
 
 
@@ -236,13 +236,6 @@ function partition_TE(  KDs_database:: custom_KDs_database,
     MM_ph_idx   = [findfirst(isequal(x), ph) for x in TE_ph]
     TE_ph_idx   = [findfirst(isequal(x), phase_name) for x in TE_ph]
 
-    # println("ph: ", ph)
-    # println("phase_name: ", phase_name)
-    # println("TE_ph: ", TE_ph)
-    # println("MM_ph_idx: ", MM_ph_idx)
-    # println("TE_ph_idx: ", TE_ph_idx)
-
-    
     # normalize phase fractions
     sum_ph_frac = sum(ph_wt[MM_ph_idx]);
     liq_wt_norm = liq_wt/(sum_ph_frac+liq_wt);
@@ -256,7 +249,6 @@ function partition_TE(  KDs_database:: custom_KDs_database,
     for i=1:n_ph
         for j=1:n_el
             expr        = KDs_database.KDs_expr[TE_ph_idx[i],j]
-            # expr        = KDs_database.KDs_expr[MM_ph_idx[i],j]
             KDs[i,j]    = Base.invokelatest(expr, out)
         end
     end
@@ -326,15 +318,15 @@ function compute_TE_partitioning(   KDs_database:: custom_KDs_database,
                                                                             ph, ph_wt, liq_wt           ) 
     elseif liq_wt == 0.0
         Csol        = C0
-        Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm = nothing, nothing, nothing, nothing, nothing
+        Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm = NaN, NaN, nothing, NaN, NaN
 
     elseif liq_wt == 1.0 || (sol_wt == 0.0 && liq_wt > 0.0) #latter means there is fluid + melt
         Cliq        = C0
-        Csol, Cmin, ph_TE, ph_wt_norm  = nothing, nothing, nothing, nothing
+        Csol, Cmin, ph_TE, ph_wt_norm  = NaN, NaN, nothing, NaN
         liq_wt_norm = 1.0
     else
         println("unrecognized case!")
-        Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm = nothing, nothing, nothing, nothing, nothing, nothing
+        Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm = NaN, NaN, NaN, nothing, NaN, NaN
     end
 
     return Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm
@@ -397,7 +389,7 @@ function compute_Zr_sat_n_part(     out         :: MAGEMin_C.gmin_struct{Float64
         bulk_cor_wt[SiO2_id]            = out.bulk_wt[SiO2_id] - SiO2_zrc_wt 
         bulk_cor_wt                   ./= sum(bulk_cor_wt)
     else
-        zrc_wt, bulk_cor_wt = nothing, nothing
+        zrc_wt, bulk_cor_wt = NaN, NaN
     end
 
     return Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt
@@ -416,8 +408,8 @@ function TE_prediction(  out, C0, KDs_database, dtb;
                         ZrSat_model   :: String = "CB")
 
     # Initialize output variables
-    Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm = nothing, nothing, nothing, nothing, nothing, nothing
-    Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt         = nothing, nothing, nothing, nothing
+    Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm = NaN, NaN, NaN, nothing, NaN, NaN
+    Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt         = NaN, NaN, NaN, NaN
 
     # input data
     liq_wt      = out.frac_M_wt
