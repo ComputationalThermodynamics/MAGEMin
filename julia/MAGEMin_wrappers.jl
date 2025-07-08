@@ -173,7 +173,7 @@ struct gmin_struct{T,I}
 
     # thermodynamic properties
     entropy         :: Vector{T}         # entropy
-    enthalpy        :: T         # enthalpy
+    enthalpy        :: Vector{T}        # enthalpy
 
     # Numerics:
     iter            :: I             # number of iterations required
@@ -1388,7 +1388,8 @@ function point_wise_minimization(   P       ::Float64,
         dGdT_N 		= (out_NE.G_system - out_N.G_system)	/(dT);
         dGdT_P 		= (out_E.G_system - out.G_system)	    /(dT);
 
-        out.entropy .= -(out_E.entropy - out.entropy)/(dT);
+        out.entropy     .= -(out_E.entropy - out.entropy)/(dT);
+        out.enthalpy    .= out.entropy*(T+273.15) + out.G_system;
         out.s_cp   .= hcp/out.M_sys*1e6;
         out.alpha  .= 1.0/( (out_N.G_system - out.G_system)/dP * 10.0)*((dGdT_N-dGdT_P)/(dP))
     end
@@ -1611,7 +1612,7 @@ function create_gmin_struct(DB, gv, time; name_solvus = false)
 
     # thermodynamic properties
     entropy = [stb.entropy]
-    enthalpy= stb.enthalpy
+    enthalpy= [stb.enthalpy]
 
     # Stable assemblage info
     n_ph     =  stb.n_ph        # total # of stable phases
