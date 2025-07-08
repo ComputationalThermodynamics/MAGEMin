@@ -172,7 +172,7 @@ struct gmin_struct{T,I}
     shearModulus_S  :: T                # Elastic shear modulus
 
     # thermodynamic properties
-    entropy         :: T          # entropy
+    entropy         :: Vector{T}         # entropy
     enthalpy        :: T         # enthalpy
 
     # Numerics:
@@ -1388,6 +1388,7 @@ function point_wise_minimization(   P       ::Float64,
         dGdT_N 		= (out_NE.G_system - out_N.G_system)	/(dT);
         dGdT_P 		= (out_E.G_system - out.G_system)	    /(dT);
 
+        out.entropy .= -(out_E.entropy - out.entropy)/(dT);
         out.s_cp   .= hcp/out.M_sys*1e6;
         out.alpha  .= 1.0/( (out_N.G_system - out.G_system)/dP * 10.0)*((dGdT_N-dGdT_P)/(dP))
     end
@@ -1609,7 +1610,7 @@ function create_gmin_struct(DB, gv, time; name_solvus = false)
     aFeO    = stb.aFeO
 
     # thermodynamic properties
-    entropy = stb.entropy
+    entropy = [stb.entropy]
     enthalpy= stb.enthalpy
 
     # Stable assemblage info
