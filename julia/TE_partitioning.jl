@@ -10,74 +10,27 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ =#
 # Trace element partitioning prediction routine
 # Note that only metapelite, metabasite and igneous database can be used for trace element prediction
-# NR 11/04/2023
+# NR 17/06/2023
+
+
+"""
+    This routine stores the TE partitioning coefficients
+"""
+function get_TE_database(tedb :: String = "OL12")
+    if tedb == "OL12"
+        infos               = "Laurent, O. (2012). Les changements géodynamiques à la transition Archéen-Protérozoïque : étude des granitoïdes de la marge Nord du craton du Kaapvaal (Afrique du Sud). PhD, Université Blaise Pascal, Clermont-Ferrand."
+
+        el                 = ["Rb", "Ba", "Th", "U", "Nb", "Ta", "La", "Ce", "Pb", "Pr", "Sr", "Nd", "Zr", "Hf", "Sm", "Eu", "Gd", "Tb", "Dy", "Y", "Ho", "Er", "Tm", "Yb", "Lu", "V", "Sc"]
+        ph                 = ["all", "amp", "ap", "bi", "cd", "cpx", "FeTiOx", "g", "afs", "mgt", "ol", "opx", "pl", "q", "ru", "sp", "ttn", "zrn", "ep", "and", "sill", "mu"]
+        KDs                = ["if [:liq].Comp_wt[1] <= 52.0 0.0632455532033676 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0632455532033676 else 0.0632455532033676 end" "if [:liq].Comp_wt[1] <= 52.0 3.46410161513776 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 3.46410161513776 else 3.46410161513776 end" "if [:liq].Comp_wt[1] <= 52.0 424.264068711929 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 324.037034920393 else 324.037034920393 end" "if [:liq].Comp_wt[1] <= 52.0 20.0 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 13.228756555323 else 13.228756555323 end" "if [:liq].Comp_wt[1] <= 52.0 0.447213595499958 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.836660026534076 else 0.836660026534076 end" "if [:liq].Comp_wt[1] <= 52.0 2.73861278752583 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.836660026534076 else 0.836660026534076 end" "if [:liq].Comp_wt[1] <= 52.0 1549.19333848297 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1414.2135623731 else 1414.2135623731 end" "if [:liq].Comp_wt[1] <= 52.0 1224.74487139159 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1174.73401244707 else 1174.73401244707 end" "if [:liq].Comp_wt[1] <= 52.0 0.316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0 else 1.0 end" "if [:liq].Comp_wt[1] <= 52.0 1005.98210719674 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 948.683298050515 else 948.683298050515 end" "if [:liq].Comp_wt[1] <= 52.0 1.0 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0 else 1.0 end" "if [:liq].Comp_wt[1] <= 52.0 793.725393319378 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 612.372435695795 else 612.372435695795 end" "if [:liq].Comp_wt[1] <= 52.0 0.173205080756888 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.173205080756888 else 0.173205080756888 end" "if [:liq].Comp_wt[1] <= 52.0 12.2474487139159 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 11.180339887499 else 11.180339887499 end" "if [:liq].Comp_wt[1] <= 52.0 447.213595499958 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 300.0 else 300.0 end" "if [:liq].Comp_wt[1] <= 52.0 97.9795897113271 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 34.6410161513775 else 34.6410161513775 end" "if [:liq].Comp_wt[1] <= 52.0 254.950975679639 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 116.189500386222 else 116.189500386222 end" "if [:liq].Comp_wt[1] <= 52.0 169.558249578132 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 58.309518948453 else 58.309518948453 end" "if [:liq].Comp_wt[1] <= 52.0 118.321595661992 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 31.6227766016838 else 31.6227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 95.3939201416947 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 31.6227766016838 else 31.6227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 84.8528137423857 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 18.9736659610103 else 18.9736659610103 end" "if [:liq].Comp_wt[1] <= 52.0 63.2455532033676 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 13.4164078649987 else 13.4164078649987 end" "if [:liq].Comp_wt[1] <= 52.0 43.301270189222 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 10.2469507659596 else 10.2469507659596 end" "if [:liq].Comp_wt[1] <= 52.0 26.8328157299975 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 7.74596669241484 else 7.74596669241484 end" "if [:liq].Comp_wt[1] <= 52.0 17.7482393492988 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 6.70820393249937 else 6.70820393249937 end" "if [:liq].Comp_wt[1] <= 52.0 1.0 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0 else 1.0 end" "if [:liq].Comp_wt[1] <= 52.0 57.0087712549569 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 57.0087712549569 else 57.0087712549569 end"; "if [:liq].Comp_wt[1] <= 52.0 0.0547722557505166 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.122474487139159 else 0.223606797749979 end" "if [:liq].Comp_wt[1] <= 52.0 0.189736659610103 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.223606797749979 else 0.31224989991992 end" "if [:liq].Comp_wt[1] <= 52.0 0.212132034355964 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.14142135623731 else 0.0141421356237309 end" "if [:liq].Comp_wt[1] <= 52.0 0.821583836257749 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.1 else 0.0193649167310371 end" "if [:liq].Comp_wt[1] <= 52.0 2.0 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.559016994374947 else 0.158113883008419 end" "if [:liq].Comp_wt[1] <= 52.0 0.4 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.273861278752583 else 0.220794021658196 end" "if [:liq].Comp_wt[1] <= 52.0 0.559016994374947 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.335410196624968 else 0.0724568837309472 end" "if [:liq].Comp_wt[1] <= 52.0 1.0 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.412310562561766 else 0.144913767461894 end" "if [:liq].Comp_wt[1] <= 52.0 0.632455532033676 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.223606797749979 else 0.0632455532033676 end" "if [:liq].Comp_wt[1] <= 52.0 1.59687194226713 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.574456264653803 else 0.234520787991171 end" "if [:liq].Comp_wt[1] <= 52.0 0.387298334620742 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.273861278752583 else 0.3 end" "if [:liq].Comp_wt[1] <= 52.0 2.64575131106459 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.866025403784439 else 0.346410161513775 end" "if [:liq].Comp_wt[1] <= 52.0 0.632455532033676 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.4 else 0.335410196624968 end" "if [:liq].Comp_wt[1] <= 52.0 0.707106781186547 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.547722557505166 else 0.391152144312159 end" "if [:liq].Comp_wt[1] <= 52.0 3.46410161513776 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.36930639376292 else 0.447213595499958 end" "if [:liq].Comp_wt[1] <= 52.0 3.46410161513776 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0 else 0.524404424085076 end" "if [:liq].Comp_wt[1] <= 52.0 4.74341649025257 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.80277563773199 else 0.589915248150105 end" "if [:liq].Comp_wt[1] <= 52.0 5.37354631505117 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 2.21359436211787 else 0.634822809924155 end" "if [:liq].Comp_wt[1] <= 52.0 5.42217668469038 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 2.29128784747792 else 0.66932802122726 end" "if [:liq].Comp_wt[1] <= 52.0 5.74456264653803 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 2.12132034355964 else 0.612372435695794 end" "if [:liq].Comp_wt[1] <= 52.0 5.24404424085076 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 2.08566536146142 else 0.681175454637056 end" "if [:liq].Comp_wt[1] <= 52.0 4.96990945591567 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.8165902124585 else 0.648074069840786 end" "if [:liq].Comp_wt[1] <= 52.0 4.5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.51657508881031 else 0.603738353924943 end" "if [:liq].Comp_wt[1] <= 52.0 3.74165738677394 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.40712472794703 else 0.53619026473818 end" "if [:liq].Comp_wt[1] <= 52.0 2.95803989154981 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.30384048104053 else 0.458257569495584 end" "if [:liq].Comp_wt[1] <= 52.0 6.70820393249937 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 5.47722557505166 else 4.89897948556636 end" "if [:liq].Comp_wt[1] <= 52.0 14.142135623731 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 10.0 else 3.87298334620742 end"; "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.273861278752583 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0790569415042095 else 0.0790569415042095 end" "if [:liq].Comp_wt[1] <= 52.0 1.0 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.790569415042095 else 0.790569415042095 end" "if [:liq].Comp_wt[1] <= 52.0 0.948683298050514 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.387298334620742 else 0.387298334620742 end" "if [:liq].Comp_wt[1] <= 52.0 0.0316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00353553390593274 else 0.00353553390593274 end" "if [:liq].Comp_wt[1] <= 52.0 0.0316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00707106781186547 else 0.00707106781186547 end" "if [:liq].Comp_wt[1] <= 52.0 13.228756555323 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 3.87298334620742 else 3.87298334620742 end" "if [:liq].Comp_wt[1] <= 52.0 21.2132034355964 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 7.07106781186548 else 7.07106781186548 end" "if [:liq].Comp_wt[1] <= 52.0 0.158113883008419 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.316227766016838 else 0.316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 30.5777697028413 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 11.0679718105893 else 11.0679718105893 end" "if [:liq].Comp_wt[1] <= 52.0 7.07106781186548 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.93649167310371 else 1.93649167310371 end" "if [:liq].Comp_wt[1] <= 52.0 40.3112887414928 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 15.0 else 15.0 end" "if [:liq].Comp_wt[1] <= 52.0 0.387298334620742 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.193649167310371 else 0.193649167310371 end" "if [:liq].Comp_wt[1] <= 52.0 0.387298334620742 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0707106781186547 else 0.0707106781186547 end" "if [:liq].Comp_wt[1] <= 52.0 47.4341649025257 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 17.3205080756888 else 17.3205080756888 end" "if [:liq].Comp_wt[1] <= 52.0 21.2132034355964 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 11.180339887499 else 11.180339887499 end" "if [:liq].Comp_wt[1] <= 52.0 52.9150262212919 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 18.3711730708738 else 18.3711730708738 end" "if [:liq].Comp_wt[1] <= 52.0 52.9150262212919 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 17.8885438199983 else 17.8885438199983 end" "if [:liq].Comp_wt[1] <= 52.0 45.8257569495584 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 15.6524758424985 else 15.6524758424985 end" "if [:liq].Comp_wt[1] <= 52.0 38.7298334620742 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 12.2474487139159 else 12.2474487139159 end" "if [:liq].Comp_wt[1] <= 52.0 37.0809924354783 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 13.4164078649987 else 13.4164078649987 end" "if [:liq].Comp_wt[1] <= 52.0 30.0 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 11.180339887499 else 11.180339887499 end" "if [:liq].Comp_wt[1] <= 52.0 22.9128784747792 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 8.94427190999916 else 8.94427190999916 end" "if [:liq].Comp_wt[1] <= 52.0 15.8113883008419 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 6.70820393249937 else 6.70820393249937 end" "if [:liq].Comp_wt[1] <= 52.0 12.5499003980111 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 4.47213595499958 else 4.47213595499958 end" "if [:liq].Comp_wt[1] <= 52.0 0.316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.223606797749979 else 0.223606797749979 end" "if [:liq].Comp_wt[1] <= 52.0 0.316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.316227766016838 else 0.316227766016838 end"; "if [:liq].Comp_wt[1] <= 52.0 4.0 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 3.16227766016838 else 2.0 end" "if [:liq].Comp_wt[1] <= 52.0 6.70820393249937 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 5.47722557505166 else 4.47213595499958 end" "if [:liq].Comp_wt[1] <= 52.0 0.316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0474341649025257 else 0.0474341649025257 end" "if [:liq].Comp_wt[1] <= 52.0 0.316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0707106781186547 else 0.0707106781186547 end" "if [:liq].Comp_wt[1] <= 52.0 6.32455532033676 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.474341649025257 else 0.273861278752583 end" "if [:liq].Comp_wt[1] <= 52.0 1.89736659610103 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.316227766016838 else 0.187082869338697 end" "if [:liq].Comp_wt[1] <= 52.0 1.26491106406735 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0591607978309961 else 0.0144913767461894 end" "if [:liq].Comp_wt[1] <= 52.0 0.948683298050514 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.06 else 0.0189736659610103 end" "if [:liq].Comp_wt[1] <= 52.0 0.316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0316227766016838 else 0.0316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.790569415042095 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0648074069840786 else 0.0244948974278318 end" "if [:liq].Comp_wt[1] <= 52.0 0.223606797749979 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.234520787991171 else 0.234520787991171 end" "if [:liq].Comp_wt[1] <= 52.0 0.790569415042095 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0670820393249937 else 0.031224989991992 end" "if [:liq].Comp_wt[1] <= 52.0 0.632455532033676 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.229128784747792 else 0.0547722557505166 end" "if [:liq].Comp_wt[1] <= 52.0 0.632455532033676 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.316227766016838 else 0.0547722557505166 end" "if [:liq].Comp_wt[1] <= 52.0 0.632455532033676 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0707106781186547 else 0.0387298334620742 end" "if [:liq].Comp_wt[1] <= 52.0 0.316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.13228756555323 else 0.0418330013267038 end" "if [:liq].Comp_wt[1] <= 52.0 0.51234753829798 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0741619848709566 else 0.0447213595499958 end" "if [:liq].Comp_wt[1] <= 52.0 0.521536192416212 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0774596669241483 else 0.0519615242270663 end" "if [:liq].Comp_wt[1] <= 52.0 0.519615242270663 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0793725393319377 else 0.0591607978309961 end" "if [:liq].Comp_wt[1] <= 52.0 0.774596669241483 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.111803398874989 else 0.066332495807108 end" "if [:liq].Comp_wt[1] <= 52.0 0.53851648071345 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0774596669241483 else 0.0692820323027551 end" "if [:liq].Comp_wt[1] <= 52.0 0.554977477020464 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0747663025700749 else 0.0747663025700749 end" "if [:liq].Comp_wt[1] <= 52.0 0.557225268630201 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0734846922834953 else 0.0793725393319377 end" "if [:liq].Comp_wt[1] <= 52.0 0.558569601750758 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0726636084983398 else 0.0819756061276768 end" "if [:liq].Comp_wt[1] <= 52.0 0.559016994374947 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0707106781186547 else 0.0866025403784439 end" "if [:liq].Comp_wt[1] <= 52.0 3.16227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 3.16227766016838 else 3.16227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 9.21954445729289 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 9.21954445729289 else 9.21954445729289 end"; "if [:liq].Comp_wt[1] <= 52.0 0.106066017177982 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.106066017177982 else 0.106066017177982 end" "if [:liq].Comp_wt[1] <= 52.0 0.0223606797749979 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0223606797749979 else 0.0223606797749979 end" "if [:liq].Comp_wt[1] <= 52.0 0.193649167310371 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.193649167310371 else 0.193649167310371 end" "if [:liq].Comp_wt[1] <= 52.0 0.632455532033676 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.632455532033676 else 0.632455532033676 end" "if [:liq].Comp_wt[1] <= 52.0 0.0316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0316227766016838 else 0.0316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.0316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0316227766016838 else 0.0316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.0741619848709566 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0741619848709566 else 0.0741619848709566 end" "if [:liq].Comp_wt[1] <= 52.0 0.0848528137423857 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0848528137423857 else 0.0848528137423857 end" "if [:liq].Comp_wt[1] <= 52.0 0.0316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0316227766016838 else 0.0316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.0989949493661167 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0989949493661167 else 0.0989949493661167 end" "if [:liq].Comp_wt[1] <= 52.0 0.187082869338697 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.187082869338697 else 0.187082869338697 end" "if [:liq].Comp_wt[1] <= 52.0 0.12 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.12 else 0.12 end" "if [:liq].Comp_wt[1] <= 52.0 0.0612372435695794 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0612372435695794 else 0.0612372435695794 end" "if [:liq].Comp_wt[1] <= 52.0 0.0774596669241483 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0774596669241483 else 0.0774596669241483 end" "if [:liq].Comp_wt[1] <= 52.0 0.173205080756888 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.173205080756888 else 0.173205080756888 end" "if [:liq].Comp_wt[1] <= 52.0 0.0316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0316227766016838 else 0.0316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.403112887414927 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.403112887414927 else 0.403112887414927 end" "if [:liq].Comp_wt[1] <= 52.0 0.670820393249937 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.670820393249937 else 0.670820393249937 end" "if [:liq].Comp_wt[1] <= 52.0 1.14564392373896 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.14564392373896 else 1.14564392373896 end" "if [:liq].Comp_wt[1] <= 52.0 0.987420882906575 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.987420882906575 else 0.987420882906575 end" "if [:liq].Comp_wt[1] <= 52.0 1.58113883008419 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.58113883008419 else 1.58113883008419 end" "if [:liq].Comp_wt[1] <= 52.0 2.29128784747792 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 2.29128784747792 else 2.29128784747792 end" "if [:liq].Comp_wt[1] <= 52.0 2.80624304008046 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 2.80624304008046 else 2.80624304008046 end" "if [:liq].Comp_wt[1] <= 52.0 3.16227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 3.16227766016838 else 3.16227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 3.51781181986757 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 3.51781181986757 else 3.51781181986757 end" "if [:liq].Comp_wt[1] <= 52.0 0.447213595499958 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.447213595499958 else 0.447213595499958 end" "if [:liq].Comp_wt[1] <= 52.0 2.23606797749979 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 2.23606797749979 else 2.23606797749979 end"; "if [:liq].Comp_wt[1] <= 52.0 0.0316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0316227766016838 else 0.00948683298050514 end" "if [:liq].Comp_wt[1] <= 52.0 0.122474487139159 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0547722557505166 else 0.005 end" "if [:liq].Comp_wt[1] <= 52.0 0.14142135623731 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0707106781186547 else 0.00935414346693485 end" "if [:liq].Comp_wt[1] <= 52.0 0.154919333848297 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0447213595499958 else 0.00707106781186547 end" "if [:liq].Comp_wt[1] <= 52.0 0.109544511501033 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.111803398874989 else 0.00894427190999916 end" "if [:liq].Comp_wt[1] <= 52.0 0.154919333848297 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0707106781186547 else 0.0180277563773199 end" "if [:liq].Comp_wt[1] <= 52.0 0.632455532033676 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.13228756555323 else 0.0474341649025257 end" "if [:liq].Comp_wt[1] <= 52.0 1.09544511501033 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.212132034355964 else 0.0866025403784439 end" "if [:liq].Comp_wt[1] <= 52.0 0.223606797749979 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.316227766016838 else 0.0223606797749979 end" "if [:liq].Comp_wt[1] <= 52.0 1.48323969741913 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.290688837074973 else 0.14456832294801 end" "if [:liq].Comp_wt[1] <= 52.0 0.335410196624968 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.287228132326901 else 0.122474487139159 end" "if [:liq].Comp_wt[1] <= 52.0 1.93649167310371 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.401870625948202 else 0.216333076527839 end" "if [:liq].Comp_wt[1] <= 52.0 0.387298334620742 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.234520787991171 else 0.0707106781186547 end" "if [:liq].Comp_wt[1] <= 52.0 0.547722557505166 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.31224989991992 else 0.187082869338697 end" "if [:liq].Comp_wt[1] <= 52.0 2.32379000772445 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.5 else 0.301662062579967 end" "if [:liq].Comp_wt[1] <= 52.0 2.77488738510232 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.692820323027551 else 0.387298334620742 end" "if [:liq].Comp_wt[1] <= 52.0 3.06186217847897 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.725603197346869 else 0.460977222864644 end" "if [:liq].Comp_wt[1] <= 52.0 3.46410161513775 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.848528137423857 else 0.522494019104525 end" "if [:liq].Comp_wt[1] <= 52.0 3.57770876399966 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.953939201416946 else 0.551361950083609 end" "if [:liq].Comp_wt[1] <= 52.0 3.24037034920393 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.09544511501033 else 0.6 end" "if [:liq].Comp_wt[1] <= 52.0 3.35410196624969 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.06348483769163 else 0.585662018573853 end" "if [:liq].Comp_wt[1] <= 52.0 3.1859064644148 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.14105214604767 else 0.608276253029822 end" "if [:liq].Comp_wt[1] <= 52.0 3.07408522978788 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.18215904175369 else 0.608276253029822 end" "if [:liq].Comp_wt[1] <= 52.0 2.89827534923789 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.1861703081767 else 0.585662018573853 end" "if [:liq].Comp_wt[1] <= 52.0 2.77488738510232 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.18321595661992 else 0.559910707166777 end" "if [:liq].Comp_wt[1] <= 52.0 4.74341649025257 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.93649167310371 else 1.58113883008419 end" "if [:liq].Comp_wt[1] <= 52.0 26.4575131106459 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 7.74596669241484 else 4.74341649025257 end"; "if [:liq].Comp_wt[1] <= 52.0 0.0223606797749979 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.0223606797749979 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00447213595499958 else 0.00447213595499958 end" "if [:liq].Comp_wt[1] <= 52.0 0.387298334620742 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0158113883008419 else 0.0158113883008419 end" "if [:liq].Comp_wt[1] <= 52.0 0.387298334620742 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0237170824512628 else 0.0237170824512628 end" "if [:liq].Comp_wt[1] <= 52.0 28.2842712474619 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 4.47213595499958 else 4.47213595499958 end" "if [:liq].Comp_wt[1] <= 52.0 44.7213595499958 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 6.70820393249937 else 6.70820393249937 end" "if [:liq].Comp_wt[1] <= 52.0 3.35410196624968 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0223606797749979 else 0.0223606797749979 end" "if [:liq].Comp_wt[1] <= 52.0 2.82842712474619 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0306186217847897 else 0.0306186217847897 end" "if [:liq].Comp_wt[1] <= 52.0 0.447213595499958 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0158113883008419 else 0.0158113883008419 end" "if [:liq].Comp_wt[1] <= 52.0 2.57875939164553 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0367423461417476 else 0.0367423461417476 end" "if [:liq].Comp_wt[1] <= 52.0 0.193649167310371 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00632455532033676 else 0.00632455532033676 end" "if [:liq].Comp_wt[1] <= 52.0 2.50998007960223 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0412310562561766 else 0.0412310562561766 end" "if [:liq].Comp_wt[1] <= 52.0 1.58113883008419 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.22474487139159 else 1.22474487139159 end" "if [:liq].Comp_wt[1] <= 52.0 1.58113883008419 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.5 else 1.5 end" "if [:liq].Comp_wt[1] <= 52.0 2.36643191323985 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0547722557505166 else 0.0547722557505166 end" "if [:liq].Comp_wt[1] <= 52.0 0.632455532033676 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0447213595499958 else 0.0447213595499958 end" "if [:liq].Comp_wt[1] <= 52.0 2.36643191323985 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0790569415042095 else 0.0790569415042095 end" "if [:liq].Comp_wt[1] <= 52.0 1.89736659610103 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.09 else 0.09 end" "if [:liq].Comp_wt[1] <= 52.0 1.58113883008419 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0989949493661167 else 0.0989949493661167 end" "if [:liq].Comp_wt[1] <= 52.0 0.447213595499958 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0707106781186547 else 0.0707106781186547 end" "if [:liq].Comp_wt[1] <= 52.0 1.58113883008419 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.101980390271856 else 0.101980390271856 end" "if [:liq].Comp_wt[1] <= 52.0 1.58113883008419 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.111803398874989 else 0.111803398874989 end" "if [:liq].Comp_wt[1] <= 52.0 1.42302494707577 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.117260393995586 else 0.117260393995586 end" "if [:liq].Comp_wt[1] <= 52.0 1.26491106406735 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.117473401244707 else 0.117473401244707 end" "if [:liq].Comp_wt[1] <= 52.0 1.26491106406735 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.109544511501033 else 0.109544511501033 end" "if [:liq].Comp_wt[1] <= 52.0 31.6227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 11.180339887499 else 11.180339887499 end" "if [:liq].Comp_wt[1] <= 52.0 4.47213595499958 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.73205080756888 else 1.73205080756888 end"; "if [:liq].Comp_wt[1] <= 52.0 0.00790569415042094 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00836660026534076 else 0.000866025403784438 end" "if [:liq].Comp_wt[1] <= 52.0 0.0173205080756888 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0154919333848297 else 0.000387298334620741 end" "if [:liq].Comp_wt[1] <= 52.0 0.0774596669241483 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0474341649025257 else 0.002 end" "if [:liq].Comp_wt[1] <= 52.0 0.158113883008419 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0935414346693485 else 0.00612372435695794 end" "if [:liq].Comp_wt[1] <= 52.0 0.0316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0264575131106459 else 0.013228756555323 end" "if [:liq].Comp_wt[1] <= 52.0 0.0707106781186547 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.05 else 0.0180277563773199 end" "if [:liq].Comp_wt[1] <= 52.0 0.1 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0264575131106459 else 0.00894427190999916 end" "if [:liq].Comp_wt[1] <= 52.0 0.237170824512628 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0519615242270663 else 0.0219089023002067 end" "if [:liq].Comp_wt[1] <= 52.0 0.0316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0316227766016838 else 0.0122474487139159 end" "if [:liq].Comp_wt[1] <= 52.0 0.460977222864644 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.102469507659596 else 0.0565685424949238 end" "if [:liq].Comp_wt[1] <= 52.0 0.0223606797749979 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0173205080756888 else 0.013228756555323 end" "if [:liq].Comp_wt[1] <= 52.0 0.866025403784439 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.205548047910945 else 0.122474487139159 end" "if [:liq].Comp_wt[1] <= 52.0 0.447213595499958 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.547722557505166 else 0.3 end" "if [:liq].Comp_wt[1] <= 52.0 0.707106781186547 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.387298334620742 else 0.252487623459052 end" "if [:liq].Comp_wt[1] <= 52.0 1.93649167310371 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.433012701892219 else 0.264575131106459 end" "if [:liq].Comp_wt[1] <= 52.0 1.58113883008419 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.5 else 0.424264068711928 end" "if [:liq].Comp_wt[1] <= 52.0 6.12372435695795 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.58113883008419 else 0.821583836257749 end" "if [:liq].Comp_wt[1] <= 52.0 11.180339887499 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 3.16227766016838 else 1.3228756555323 end" "if [:liq].Comp_wt[1] <= 52.0 22.3606797749979 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 5.45435605731786 else 1.93649167310371 end" "if [:liq].Comp_wt[1] <= 52.0 25.4950975679639 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 6.12372435695795 else 2.32379000772445 end" "if [:liq].Comp_wt[1] <= 52.0 32.4037034920393 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 8.2915619758885 else 2.54950975679639 end" "if [:liq].Comp_wt[1] <= 52.0 41.2310562561766 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 9.89949493661167 else 3.1224989991992 end" "if [:liq].Comp_wt[1] <= 52.0 44.7213595499958 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 10.0623058987491 else 3.51781181986757 end" "if [:liq].Comp_wt[1] <= 52.0 44.7213595499958 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 9.35414346693486 else 4.02336923485777 end" "if [:liq].Comp_wt[1] <= 52.0 37.4165738677394 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 7.74596669241484 else 4.47213595499958 end" "if [:liq].Comp_wt[1] <= 52.0 4.47213595499958 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 2.64575131106459 else 2.44948974278318 end" "if [:liq].Comp_wt[1] <= 52.0 22.3606797749979 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 3.16227766016838 else 3.74165738677394 end"; "if [:liq].Comp_wt[1] <= 52.0 0.948683298050514 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.948683298050514 else 0.948683298050514 end" "if [:liq].Comp_wt[1] <= 52.0 9.48683298050514 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 5.47722557505166 else 5.47722557505166 end" "if [:liq].Comp_wt[1] <= 52.0 0.0144913767461894 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0173205080756888 else 0.0173205080756888 end" "if [:liq].Comp_wt[1] <= 52.0 0.0158113883008419 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0273861278752583 else 0.0273861278752583 end" "if [:liq].Comp_wt[1] <= 52.0 0.0447213595499958 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0158113883008419 else 0.0158113883008419 end" "if [:liq].Comp_wt[1] <= 52.0 0.00707106781186547 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.14142135623731 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.111803398874989 else 0.111803398874989 end" "if [:liq].Comp_wt[1] <= 52.0 0.0866025403784439 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0670820393249937 else 0.0670820393249937 end" "if [:liq].Comp_wt[1] <= 52.0 0.948683298050514 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.223606797749979 else 0.223606797749979 end" "if [:liq].Comp_wt[1] <= 52.0 0.0547722557505166 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0447213595499958 else 0.0447213595499958 end" "if [:liq].Comp_wt[1] <= 52.0 3.87298334620742 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 2.23606797749979 else 2.23606797749979 end" "if [:liq].Comp_wt[1] <= 52.0 0.0316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.03 else 0.03 end" "if [:liq].Comp_wt[1] <= 52.0 0.0193649167310371 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0223606797749979 else 0.0223606797749979 end" "if [:liq].Comp_wt[1] <= 52.0 0.0158113883008419 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0223606797749979 else 0.0223606797749979 end" "if [:liq].Comp_wt[1] <= 52.0 0.0187082869338697 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0212132034355964 else 0.0212132034355964 end" "if [:liq].Comp_wt[1] <= 52.0 3.87298334620742 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 3.35410196624969 else 3.35410196624969 end" "if [:liq].Comp_wt[1] <= 52.0 0.0187082869338697 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0167332005306815 else 0.0167332005306815 end" "if [:liq].Comp_wt[1] <= 52.0 0.0167332005306815 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.015 else 0.015 end" "if [:liq].Comp_wt[1] <= 52.0 0.02 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0144913767461894 else 0.0144913767461894 end" "if [:liq].Comp_wt[1] <= 52.0 0.0316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0254950975679639 else 0.0254950975679639 end" "if [:liq].Comp_wt[1] <= 52.0 0.02 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0162018517460197 else 0.0162018517460197 end" "if [:liq].Comp_wt[1] <= 52.0 0.0223606797749979 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0189736659610103 else 0.0189736659610103 end" "if [:liq].Comp_wt[1] <= 52.0 0.0234520787991171 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.02 else 0.02 end" "if [:liq].Comp_wt[1] <= 52.0 0.0234520787991171 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0232379000772445 else 0.0232379000772445 end" "if [:liq].Comp_wt[1] <= 52.0 0.0244948974278318 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0273861278752583 else 0.0273861278752583 end" "if [:liq].Comp_wt[1] <= 52.0 0.223606797749979 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.111803398874989 else 0.111803398874989 end" "if [:liq].Comp_wt[1] <= 52.0 0.0316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.02 else 0.02 end"; "if [:liq].Comp_wt[1] <= 52.0 0.0223606797749979 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0387298334620742 else 0.0158113883008419 end" "if [:liq].Comp_wt[1] <= 52.0 0.0223606797749979 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.158113883008419 else 0.0158113883008419 end" "if [:liq].Comp_wt[1] <= 52.0 0.221359436211787 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0935414346693485 else 0.0387298334620742 end" "if [:liq].Comp_wt[1] <= 52.0 0.447213595499958 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.13228756555323 else 0.0387298334620742 end" "if [:liq].Comp_wt[1] <= 52.0 1.67332005306815 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.136930639376291 else 0.1 end" "if [:liq].Comp_wt[1] <= 52.0 2.12132034355964 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.122474487139159 else 0.1 end" "if [:liq].Comp_wt[1] <= 52.0 1.02469507659596 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.14142135623731 else 0.0126491106406735 end" "if [:liq].Comp_wt[1] <= 52.0 1.0 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.189736659610103 else 0.0273861278752583 end" "if [:liq].Comp_wt[1] <= 52.0 0.547722557505166 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.316227766016838 else 0.0591607978309961 end" "if [:liq].Comp_wt[1] <= 52.0 1.06066017177982 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.234520787991171 else 0.0474341649025257 end" "if [:liq].Comp_wt[1] <= 52.0 0.0264575131106459 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0223606797749979 else 0.0122474487139159 end" "if [:liq].Comp_wt[1] <= 52.0 1.09544511501033 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.267394839142419 else 0.062449979983984 end" "if [:liq].Comp_wt[1] <= 52.0 0.670820393249937 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.220794021658196 else 0.150831031289984 end" "if [:liq].Comp_wt[1] <= 52.0 0.707106781186547 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.158113883008419 else 0.2 end" "if [:liq].Comp_wt[1] <= 52.0 1.09544511501033 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.3 else 0.0724568837309471 end" "if [:liq].Comp_wt[1] <= 52.0 0.948683298050514 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.254950975679639 else 0.0360555127546399 end" "if [:liq].Comp_wt[1] <= 52.0 1.18321595661992 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.324037034920393 else 0.0774596669241483 end" "if [:liq].Comp_wt[1] <= 52.0 1.18321595661992 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.31224989991992 else 0.0702851335632223 end" "if [:liq].Comp_wt[1] <= 52.0 1.10679718105893 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.301662062579967 else 0.0666333249958307 end" "if [:liq].Comp_wt[1] <= 52.0 0.948683298050514 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.335410196624968 else 0.0591607978309961 end" "if [:liq].Comp_wt[1] <= 52.0 1.02469507659596 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.268328157299975 else 0.0620483682299543 end" "if [:liq].Comp_wt[1] <= 52.0 0.866025403784439 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.245967477524977 else 0.0565685424949238 end" "if [:liq].Comp_wt[1] <= 52.0 0.866025403784439 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.234520787991171 else 0.0547722557505166 end" "if [:liq].Comp_wt[1] <= 52.0 0.707106781186547 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.223606797749979 else 0.05 end" "if [:liq].Comp_wt[1] <= 52.0 0.547722557505166 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.212132034355964 else 0.0447213595499958 end" "if [:liq].Comp_wt[1] <= 52.0 36.0555127546399 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 22.3606797749979 else 6.32455532033676 end" "if [:liq].Comp_wt[1] <= 52.0 8.66025403784439 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 3.16227766016838 else 1.4142135623731 end"; "if [:liq].Comp_wt[1] <= 52.0 0.0223606797749979 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.013228756555323 else 0.00223606797749979 end" "if [:liq].Comp_wt[1] <= 52.0 0.03 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0122474487139159 else 0.00223606797749979 end" "if [:liq].Comp_wt[1] <= 52.0 0.02 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0154919333848297 else 0.000707106781186547 end" "if [:liq].Comp_wt[1] <= 52.0 0.0154919333848297 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0223606797749979 else 0.000707106781186547 end" "if [:liq].Comp_wt[1] <= 52.0 0.031224989991992 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0193649167310371 else 0.00273861278752583 end" "if [:liq].Comp_wt[1] <= 52.0 0.0335410196624968 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0273861278752583 else 0.005 end" "if [:liq].Comp_wt[1] <= 52.0 0.0670820393249937 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00273861278752583 else 0.000223606797749979 end" "if [:liq].Comp_wt[1] <= 52.0 0.0774596669241483 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00489897948556636 else 0.000447213595499958 end" "if [:liq].Comp_wt[1] <= 52.0 0.158113883008419 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0187082869338697 else 0.000193649167310371 end" "if [:liq].Comp_wt[1] <= 52.0 0.0916515138991168 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00790569415042094 else 0.000935414346693485 end" "if [:liq].Comp_wt[1] <= 52.0 0.13228756555323 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.01 else 0.000109544511501033 end" "if [:liq].Comp_wt[1] <= 52.0 0.106066017177982 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0116189500386222 else 0.00158113883008419 end" "if [:liq].Comp_wt[1] <= 52.0 0.025298221281347 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0387298334620742 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.0284604989415154 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0223606797749979 else 0.00547722557505166 end" "if [:liq].Comp_wt[1] <= 52.0 0.121963109176505 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0152970585407783 else 0.00250998007960223 end" "if [:liq].Comp_wt[1] <= 52.0 0.14142135623731 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0187616630392937 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.13228756555323 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0228035085019828 else 0.00424264068711928 end" "if [:liq].Comp_wt[1] <= 52.0 0.154919333848297 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0270554985169374 else 0.0062928530890209 end" "if [:liq].Comp_wt[1] <= 52.0 0.175499287747842 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0324037034920393 else 0.00908295106229247 end" "if [:liq].Comp_wt[1] <= 52.0 0.126491106406735 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0346410161513775 else 0.00774596669241483 end" "if [:liq].Comp_wt[1] <= 52.0 0.193649167310371 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0369864840178138 else 0.013228756555323 end" "if [:liq].Comp_wt[1] <= 52.0 0.232379000772445 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.04 else 0.0193649167310371 end" "if [:liq].Comp_wt[1] <= 52.0 0.277488738510232 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0439545219516718 else 0.0241867732448956 end" "if [:liq].Comp_wt[1] <= 52.0 0.316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0474341649025257 else 0.0273861278752583 end" "if [:liq].Comp_wt[1] <= 52.0 0.387298334620742 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0529150262212918 else 0.0282842712474619 end" "if [:liq].Comp_wt[1] <= 52.0 0.244948974278318 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.16431676725155 else 0.0774596669241483 end" "if [:liq].Comp_wt[1] <= 52.0 0.447213595499958 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.433012701892219 else 0.287228132326901 end"; "if [:liq].Comp_wt[1] <= 52.0 0.0158113883008419 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0244948974278318 else 0.00547722557505166 end" "if [:liq].Comp_wt[1] <= 52.0 0.05 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0316227766016838 else 0.00173205080756888 end" "if [:liq].Comp_wt[1] <= 52.0 0.158113883008419 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.1 else 0.000316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.158113883008419 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0316227766016838 else 0.0005 end" "if [:liq].Comp_wt[1] <= 52.0 0.25298221281347 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.05 else 0.00346410161513776 end" "if [:liq].Comp_wt[1] <= 52.0 0.316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0670820393249937 else 0.00632455532033676 end" "if [:liq].Comp_wt[1] <= 52.0 0.158113883008419 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00894427190999916 else 0.000836660026534075 end" "if [:liq].Comp_wt[1] <= 52.0 0.239791576165636 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0204939015319192 else 0.00264575131106459 end" "if [:liq].Comp_wt[1] <= 52.0 0.0894427190999916 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.111803398874989 else 0.02 end" "if [:liq].Comp_wt[1] <= 52.0 0.289827534923789 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0363318042491699 else 0.00547722557505166 end" "if [:liq].Comp_wt[1] <= 52.0 0.0447213595499958 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0193649167310371 else 0.0141421356237309 end" "if [:liq].Comp_wt[1] <= 52.0 0.353553390593274 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0574456264653803 else 0.0109544511501033 end" "if [:liq].Comp_wt[1] <= 52.0 0.0547722557505166 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0346410161513775 else 0.0291547594742265 end" "if [:liq].Comp_wt[1] <= 52.0 0.0948683298050513 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0547722557505166 else 0.0547722557505166 end" "if [:liq].Comp_wt[1] <= 52.0 0.424264068711928 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0812403840463596 else 0.0180277563773199 end" "if [:liq].Comp_wt[1] <= 52.0 0.316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.114017542509914 else 0.0223606797749979 end" "if [:liq].Comp_wt[1] <= 52.0 0.58309518948453 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.157480157480236 else 0.0324037034920393 end" "if [:liq].Comp_wt[1] <= 52.0 0.724568837309472 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.207846096908265 else 0.0412310562561766 end" "if [:liq].Comp_wt[1] <= 52.0 0.848528137423857 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.256124969497314 else 0.05 end" "if [:liq].Comp_wt[1] <= 52.0 0.774596669241483 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.282842712474619 else 0.0670820393249937 end" "if [:liq].Comp_wt[1] <= 52.0 0.924662100445346 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.311126983722081 else 0.0619677335393187 end" "if [:liq].Comp_wt[1] <= 52.0 1.0 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.351425667816112 else 0.0734846922834953 end" "if [:liq].Comp_wt[1] <= 52.0 1.16189500386223 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.4 else 0.0916515138991168 end" "if [:liq].Comp_wt[1] <= 52.0 1.2747548783982 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.458257569495584 else 0.107238052947636 end" "if [:liq].Comp_wt[1] <= 52.0 1.54919333848297 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.5 else 0.120415945787923 end" "if [:liq].Comp_wt[1] <= 52.0 3.16227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.5 else 1.0 end" "if [:liq].Comp_wt[1] <= 52.0 22.3606797749979 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 5.47722557505166 else 1.22474487139159 end"; "if [:liq].Comp_wt[1] <= 52.0 0.126491106406735 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0447213595499958 else 0.0547722557505166 end" "if [:liq].Comp_wt[1] <= 52.0 0.632455532033676 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.387298334620742 else 0.335410196624968 end" "if [:liq].Comp_wt[1] <= 52.0 0.0547722557505166 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0316227766016838 else 0.1 end" "if [:liq].Comp_wt[1] <= 52.0 0.1 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0547722557505166 else 0.0632455532033676 end" "if [:liq].Comp_wt[1] <= 52.0 0.1 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0612372435695794 else 0.0447213595499958 end" "if [:liq].Comp_wt[1] <= 52.0 0.0670820393249937 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0447213595499958 else 0.0447213595499958 end" "if [:liq].Comp_wt[1] <= 52.0 0.387298334620742 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.2 else 0.111803398874989 end" "if [:liq].Comp_wt[1] <= 52.0 0.284604989415154 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.154919333848297 else 0.0894427190999916 end" "if [:liq].Comp_wt[1] <= 52.0 0.670820393249937 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.5 else 0.591607978309962 end" "if [:liq].Comp_wt[1] <= 52.0 0.221359436211786 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.122474487139159 else 0.0714142842854285 end" "if [:liq].Comp_wt[1] <= 52.0 4.47213595499958 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 2.44948974278318 else 1.6583123951777 end" "if [:liq].Comp_wt[1] <= 52.0 0.158113883008419 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.106066017177982 else 0.0591607978309961 end" "if [:liq].Comp_wt[1] <= 52.0 0.0894427190999916 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0223606797749979 else 0.01 end" "if [:liq].Comp_wt[1] <= 52.0 0.0670820393249937 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0324037034920393 else 0.0154919333848297 end" "if [:liq].Comp_wt[1] <= 52.0 0.126491106406735 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0774596669241483 else 0.0489897948556635 end" "if [:liq].Comp_wt[1] <= 52.0 2.73861278752583 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.1180339887499 else 0.707106781186547 end" "if [:liq].Comp_wt[1] <= 52.0 0.116189500386222 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0447213595499958 else 0.0387298334620742 end" "if [:liq].Comp_wt[1] <= 52.0 0.102469507659596 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0367423461417476 else 0.0338230690505755 end" "if [:liq].Comp_wt[1] <= 52.0 0.0948683298050513 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.03 else 0.03 end" "if [:liq].Comp_wt[1] <= 52.0 0.1 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0292403830344269 else 0.0357071421427143 end" "if [:liq].Comp_wt[1] <= 52.0 0.0774596669241483 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0256904651573302 else 0.0267394839142419 end" "if [:liq].Comp_wt[1] <= 52.0 0.0692820323027551 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0212132034355964 else 0.0240831891575846 end" "if [:liq].Comp_wt[1] <= 52.0 0.0574456264653803 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0182345825288105 else 0.0222261107708929 end" "if [:liq].Comp_wt[1] <= 52.0 0.0524404424085076 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0169705627484771 else 0.0203469899493758 end" "if [:liq].Comp_wt[1] <= 52.0 0.0447213595499958 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0154919333848297 else 0.0178885438199983 end" "if [:liq].Comp_wt[1] <= 52.0 0.158113883008419 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.158113883008419 else 0.0670820393249937 end" "if [:liq].Comp_wt[1] <= 52.0 0.0316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0316227766016838 else 0.0316227766016838 end"; "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.00316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00316227766016838 else 0.00316227766016838 end"; "if [:liq].Comp_wt[1] <= 52.0 0.0118321595661992 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.01 else 0.01 end" "if [:liq].Comp_wt[1] <= 52.0 0.01 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00866025403784438 else 0.00866025403784438 end" "if [:liq].Comp_wt[1] <= 52.0 0.335410196624968 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.162018517460196 else 0.162018517460196 end" "if [:liq].Comp_wt[1] <= 52.0 0.335410196624968 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.2 else 0.2 end" "if [:liq].Comp_wt[1] <= 52.0 61.2372435695795 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 33.5410196624969 else 33.5410196624969 end" "if [:liq].Comp_wt[1] <= 52.0 27.3861278752583 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 22.3606797749979 else 22.3606797749979 end" "if [:liq].Comp_wt[1] <= 52.0 0.0353553390593274 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0111803398874989 else 0.0111803398874989 end" "if [:liq].Comp_wt[1] <= 52.0 0.0458257569495584 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0141421356237309 else 0.0141421356237309 end" "if [:liq].Comp_wt[1] <= 52.0 0.0316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0273861278752583 else 0.0273861278752583 end" "if [:liq].Comp_wt[1] <= 52.0 0.0494974746830583 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0156524758424985 else 0.0156524758424985 end" "if [:liq].Comp_wt[1] <= 52.0 0.0707106781186547 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0316227766016838 else 0.0316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.0565685424949238 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0172481883106603 else 0.0172481883106603 end" "if [:liq].Comp_wt[1] <= 52.0 3.46410161513776 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 2.23606797749979 else 2.23606797749979 end" "if [:liq].Comp_wt[1] <= 52.0 5.29150262212918 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 3.74165738677394 else 3.74165738677394 end" "if [:liq].Comp_wt[1] <= 52.0 0.0565685424949238 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0184932420089069 else 0.0184932420089069 end" "if [:liq].Comp_wt[1] <= 52.0 0.00111803398874989 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.000632455532033676 else 0.000632455532033676 end" "if [:liq].Comp_wt[1] <= 52.0 0.0354964786985977 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0194935886896179 else 0.0194935886896179 end" "if [:liq].Comp_wt[1] <= 52.0 0.0278208554864871 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0204939015319192 else 0.0204939015319192 end" "if [:liq].Comp_wt[1] <= 52.0 0.0256904651573302 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.022248595461287 else 0.022248595461287 end" "if [:liq].Comp_wt[1] <= 52.0 0.0707106781186547 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0273861278752583 else 0.0273861278752583 end" "if [:liq].Comp_wt[1] <= 52.0 0.0241867732448956 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.024 else 0.024 end" "if [:liq].Comp_wt[1] <= 52.0 0.0217944947177034 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0264575131106459 else 0.0264575131106459 end" "if [:liq].Comp_wt[1] <= 52.0 0.0185202591774521 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0291204395571221 else 0.0291204395571221 end" "if [:liq].Comp_wt[1] <= 52.0 0.0173205080756888 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0314642654451045 else 0.0314642654451045 end" "if [:liq].Comp_wt[1] <= 52.0 0.0158113883008419 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.033466401061363 else 0.033466401061363 end" "if [:liq].Comp_wt[1] <= 52.0 47.4341649025257 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 3.16227766016838 else 3.16227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.273861278752583 else 0.273861278752583 end"; "if [:liq].Comp_wt[1] <= 52.0 0.00547722557505166 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00547722557505166 else 0.00547722557505166 end" "if [:liq].Comp_wt[1] <= 52.0 0.00223606797749979 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00223606797749979 else 0.00223606797749979 end" "if [:liq].Comp_wt[1] <= 52.0 0.00790569415042094 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00790569415042094 else 0.00790569415042094 end" "if [:liq].Comp_wt[1] <= 52.0 0.013228756555323 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.013228756555323 else 0.013228756555323 end" "if [:liq].Comp_wt[1] <= 52.0 0.0707106781186547 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0707106781186547 else 0.0707106781186547 end" "if [:liq].Comp_wt[1] <= 52.0 0.0707106781186547 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0707106781186547 else 0.0707106781186547 end" "if [:liq].Comp_wt[1] <= 52.0 0.00244948974278318 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00244948974278318 else 0.00244948974278318 end" "if [:liq].Comp_wt[1] <= 52.0 0.00387298334620742 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00387298334620742 else 0.00387298334620742 end" "if [:liq].Comp_wt[1] <= 52.0 0.000316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.000316227766016838 else 0.000316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 0.006 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.006 else 0.006 end" "if [:liq].Comp_wt[1] <= 52.0 0.00346410161513776 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00346410161513776 else 0.00346410161513776 end" "if [:liq].Comp_wt[1] <= 52.0 0.00812403840463596 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.00812403840463596 else 0.00812403840463596 end" "if [:liq].Comp_wt[1] <= 52.0 0.0790569415042095 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0790569415042095 else 0.0790569415042095 end" "if [:liq].Comp_wt[1] <= 52.0 0.1 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.1 else 0.1 end" "if [:liq].Comp_wt[1] <= 52.0 0.0116189500386222 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0116189500386222 else 0.0116189500386222 end" "if [:liq].Comp_wt[1] <= 52.0 0.0106066017177982 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0106066017177982 else 0.0106066017177982 end" "if [:liq].Comp_wt[1] <= 52.0 0.0144913767461894 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0144913767461894 else 0.0144913767461894 end" "if [:liq].Comp_wt[1] <= 52.0 0.0149666295470958 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0149666295470958 else 0.0149666295470958 end" "if [:liq].Comp_wt[1] <= 52.0 0.015 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.015 else 0.015 end" "if [:liq].Comp_wt[1] <= 52.0 0.0158113883008419 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0158113883008419 else 0.0158113883008419 end" "if [:liq].Comp_wt[1] <= 52.0 0.0141421356237309 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0141421356237309 else 0.0141421356237309 end" "if [:liq].Comp_wt[1] <= 52.0 0.0132664991614216 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0132664991614216 else 0.0132664991614216 end" "if [:liq].Comp_wt[1] <= 52.0 0.0130384048104053 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0130384048104053 else 0.0130384048104053 end" "if [:liq].Comp_wt[1] <= 52.0 0.012369316876853 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.012369316876853 else 0.012369316876853 end" "if [:liq].Comp_wt[1] <= 52.0 0.0116189500386222 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.0116189500386222 else 0.0116189500386222 end" "if [:liq].Comp_wt[1] <= 52.0 8.36660026534076 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 8.36660026534076 else 8.36660026534076 end" "if [:liq].Comp_wt[1] <= 52.0 0.316227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.316227766016838 else 0.316227766016838 end"; "if [:liq].Comp_wt[1] <= 52.0 0.4 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.4 else 0.4 end" "if [:liq].Comp_wt[1] <= 52.0 1.36930639376292 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.36930639376292 else 1.36930639376292 end" "if [:liq].Comp_wt[1] <= 52.0 0.223606797749979 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.223606797749979 else 0.223606797749979 end" "if [:liq].Comp_wt[1] <= 52.0 0.2 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.2 else 0.2 end" "if [:liq].Comp_wt[1] <= 52.0 3.46410161513776 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 3.46410161513776 else 3.46410161513776 end" "if [:liq].Comp_wt[1] <= 52.0 8.66025403784439 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 8.66025403784439 else 8.66025403784439 end" "if [:liq].Comp_wt[1] <= 52.0 6.0 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 6.0 else 6.0 end" "if [:liq].Comp_wt[1] <= 52.0 7.41619848709567 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 7.41619848709567 else 7.41619848709567 end" "if [:liq].Comp_wt[1] <= 52.0 0.223606797749979 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.223606797749979 else 0.223606797749979 end" "if [:liq].Comp_wt[1] <= 52.0 8.83176086632785 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 8.83176086632785 else 8.83176086632785 end" "if [:liq].Comp_wt[1] <= 52.0 2.23606797749979 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 2.23606797749979 else 2.23606797749979 end" "if [:liq].Comp_wt[1] <= 52.0 10.2469507659596 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 10.2469507659596 else 10.2469507659596 end" "if [:liq].Comp_wt[1] <= 52.0 1.34164078649987 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.34164078649987 else 1.34164078649987 end" "if [:liq].Comp_wt[1] <= 52.0 1.73205080756888 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.73205080756888 else 1.73205080756888 end" "if [:liq].Comp_wt[1] <= 52.0 10.9544511501033 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 10.9544511501033 else 10.9544511501033 end" "if [:liq].Comp_wt[1] <= 52.0 8.06225774829855 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 8.06225774829855 else 8.06225774829855 end" "if [:liq].Comp_wt[1] <= 52.0 10.2469507659596 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 10.2469507659596 else 10.2469507659596 end" "if [:liq].Comp_wt[1] <= 52.0 9.2951600308978 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 9.2951600308978 else 9.2951600308978 end" "if [:liq].Comp_wt[1] <= 52.0 7.88035532193822 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 7.88035532193822 else 7.88035532193822 end" "if [:liq].Comp_wt[1] <= 52.0 6.0 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 6.0 else 6.0 end" "if [:liq].Comp_wt[1] <= 52.0 6.557438524302 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 6.557438524302 else 6.557438524302 end" "if [:liq].Comp_wt[1] <= 52.0 5.17010638188423 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 5.17010638188423 else 5.17010638188423 end" "if [:liq].Comp_wt[1] <= 52.0 3.73496987939662 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 3.73496987939662 else 3.73496987939662 end" "if [:liq].Comp_wt[1] <= 52.0 2.56904651573303 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 2.56904651573303 else 2.56904651573303 end" "if [:liq].Comp_wt[1] <= 52.0 1.67332005306815 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.67332005306815 else 1.67332005306815 end" "if [:liq].Comp_wt[1] <= 52.0 5.47722557505166 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 5.47722557505166 else 5.47722557505166 end" "if [:liq].Comp_wt[1] <= 52.0 2.23606797749979 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 2.23606797749979 else 2.23606797749979 end"; "if [:liq].Comp_wt[1] <= 52.0 0.632455532033676 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.632455532033676 else 0.632455532033676 end" "if [:liq].Comp_wt[1] <= 52.0 0.632455532033676 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.632455532033676 else 0.632455532033676 end" "if [:liq].Comp_wt[1] <= 52.0 18.02775637732 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 18.02775637732 else 18.02775637732 end" "if [:liq].Comp_wt[1] <= 52.0 31.6227766016838 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 31.6227766016838 else 31.6227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 22.3606797749979 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 22.3606797749979 else 22.3606797749979 end" "if [:liq].Comp_wt[1] <= 52.0 22.3606797749979 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 22.3606797749979 else 22.3606797749979 end" "if [:liq].Comp_wt[1] <= 52.0 1.26491106406735 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.26491106406735 else 1.26491106406735 end" "if [:liq].Comp_wt[1] <= 52.0 3.46410161513776 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 3.46410161513776 else 0.1 end" "if [:liq].Comp_wt[1] <= 52.0 0.1 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.1 else 0.316227766016838 end" "if [:liq].Comp_wt[1] <= 52.0 2.0 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 2.0 else 2.0 end" "if [:liq].Comp_wt[1] <= 52.0 4.47213595499958 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 4.47213595499958 else 4.47213595499958 end" "if [:liq].Comp_wt[1] <= 52.0 2.82842712474619 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 2.82842712474619 else 2.82842712474619 end" "if [:liq].Comp_wt[1] <= 52.0 948.683298050515 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 948.683298050515 else 948.683298050515 end" "if [:liq].Comp_wt[1] <= 52.0 948.683298050515 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 948.683298050515 else 948.683298050515 end" "if [:liq].Comp_wt[1] <= 52.0 7.74596669241484 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 7.74596669241484 else 7.74596669241484 end" "if [:liq].Comp_wt[1] <= 52.0 2.23606797749979 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 2.23606797749979 else 2.23606797749979 end" "if [:liq].Comp_wt[1] <= 52.0 20.4939015319192 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 20.4939015319192 else 20.4939015319192 end" "if [:liq].Comp_wt[1] <= 52.0 28.4604989415154 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 28.4604989415154 else 28.4604989415154 end" "if [:liq].Comp_wt[1] <= 52.0 44.1588043316392 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 44.1588043316392 else 44.1588043316392 end" "if [:liq].Comp_wt[1] <= 52.0 67.0820393249938 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 67.0820393249938 else 67.0820393249938 end" "if [:liq].Comp_wt[1] <= 52.0 73.4846922834954 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 73.4846922834954 else 73.4846922834954 end" "if [:liq].Comp_wt[1] <= 52.0 110.0 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 110.0 else 110.0 end" "if [:liq].Comp_wt[1] <= 52.0 139.64240043769 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 139.64240043769 else 139.64240043769 end" "if [:liq].Comp_wt[1] <= 52.0 173.205080756888 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 173.205080756888 else 173.205080756888 end" "if [:liq].Comp_wt[1] <= 52.0 223.606797749979 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 223.606797749979 else 223.606797749979 end" "if [:liq].Comp_wt[1] <= 52.0 0.1 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 0.1 else 0.1 end" "if [:liq].Comp_wt[1] <= 52.0 63.2455532033676 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 63.2455532033676 else 63.2455532033676 end"; "if [:liq].Comp_wt[1] <= 52.0 0.0045 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 0.0045 end" "if [:liq].Comp_wt[1] <= 52.0 0.408 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 0.408 end" "if [:liq].Comp_wt[1] <= 52.0 156.0 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 156.0 end" "if [:liq].Comp_wt[1] <= 52.0 1.29 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.29 end" "if [:liq].Comp_wt[1] <= 52.0 0.226 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 0.226 end" "if [:liq].Comp_wt[1] <= 52.0 0.226 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 0.226 end" "if [:liq].Comp_wt[1] <= 52.0 2.05 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 2.05 end" "if [:liq].Comp_wt[1] <= 52.0 2.44 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 2.44 end" "if [:liq].Comp_wt[1] <= 52.0 0.5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 0.5 end" "if [:liq].Comp_wt[1] <= 52.0 2.85475042692001 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 2.89 end" "if [:liq].Comp_wt[1] <= 52.0 2.0 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 2.0 end" "if [:liq].Comp_wt[1] <= 52.0 3.34 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 3.78 end" "if [:liq].Comp_wt[1] <= 52.0 0.1 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 0.1 end" "if [:liq].Comp_wt[1] <= 52.0 10.0 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 10.0 end" "if [:liq].Comp_wt[1] <= 52.0 4.22 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 4.22 end" "if [:liq].Comp_wt[1] <= 52.0 3.78 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 3.78 end" "if [:liq].Comp_wt[1] <= 52.0 4.67 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 4.67 end" "if [:liq].Comp_wt[1] <= 52.0 4.58421203698084 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 4.59 end" "if [:liq].Comp_wt[1] <= 52.0 4.5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 4.5 end" "if [:liq].Comp_wt[1] <= 52.0 4.3 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 4.3 end" "if [:liq].Comp_wt[1] <= 52.0 4.12431812546026 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 4.14 end" "if [:liq].Comp_wt[1] <= 52.0 3.78 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 3.78 end" "if [:liq].Comp_wt[1] <= 52.0 3.34496636754392 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 3.37 end" "if [:liq].Comp_wt[1] <= 52.0 2.96 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 2.96 end" "if [:liq].Comp_wt[1] <= 52.0 2.61933874283863 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 2.55 end" "if [:liq].Comp_wt[1] <= 52.0 0.1 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 0.1 end" "if [:liq].Comp_wt[1] <= 52.0 0.0001 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 0.0001 end"; "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end"; "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end"; "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end" "if [:liq].Comp_wt[1] <= 52.0 1.0e-5 elseif [:liq].Comp_wt[1] <= 56.0 && [:liq].Comp_wt[1] > 52.0 1.0e-5 else 1.0e-5 end"]
+    end
+
+    return (infos,el,ph,KDs)
+end
 
 """
     Classify the mineral output from MAGEMin to be able to be compared with partitioning coefficient database
 """
-# function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Float64, Int64},
-#                                     dtb             :: String  )
-
-#     ph      = Array{String}(undef, out.n_SS + out.n_PP) 
-#     ph_wt   = Array{Float64}(undef, out.n_SS + out.n_PP) 
-
-#     # add solution phase and classify some solution phases (spl, fsp, ilm)                             
-#     for i = 1:out.n_SS                             
-#         ss      = out.ph[i]
-#         ph_wt[i]= out.ph_frac_wt[i]
-#         ph[i]   = ss
-#         if ss == "fsp"
-#             if out.SS_vec[i].compVariables[2] - 0.5 > 0
-#                 ph[i] = "afs"
-#             else
-#                 ph[i] = "pl"
-#             end
-#         end
-#         if ss == "spl"
-#             if out.SS_vec[i].compVariables[3] - 0.5 > 0
-#                 ph[i] = "cm"        # chromite
-#             else
-#                 if out.SS_vec[i].compVariables[2] - 0.5 > 0
-#                     ph[i] = "mt"    # magnetite
-#                 else
-#                     ph[i] = "sp"    # spinel
-#                 end
-#             end
-#         end
-#         if ss == "sp"
-#             if out.SS_vec[i].compVariables[2] + out.SS_vec[i].compVariables[3] - 0.5 > 0
-#                 ph[i] = "mt"        # chromite
-#             else
-#                 if (1 - out.SS_vec[i].compVariables[1])*(1 + out.SS_vec[i].compVariables[3]) - 0.5 > 0
-#                     ph[i] = "sp"    # spinel
-#                 else
-#                     if out.SS_vec[i].compVariables[3] -0.5 > 0
-#                         ph[i] = "FeTiOx"  # uvospinel
-#                     else
-#                         ph[i] = "sp" # hercynite
-#                     end
-#                 end
-#             end
-#         end
-#         if ss == "dio" || ss == "aug"
-#             ph[i] = "cpx"
-#         end
-#         if ss == "ilm" || ss == "ilmm"
-#             ph[i] = "FeTiOx"
-#         end
- 
-#     end
-
-#     # add pure phases
-#     for i=1:out.n_PP
-#         ph[i+out.n_SS]      = out.ph[i+out.n_SS]
-#         ph_wt[i+out.n_SS]   = out.ph_frac_wt[i+out.n_SS]
-#     end
-
-#     return ph, ph_wt
-# end
-
-
 function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Float64, Int64},
                                     dtb             :: String  )
 
@@ -165,158 +118,55 @@ function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Flo
 end
 
 """
+    Holds the output of the TE partitioning routine
+"""
+struct out_tepm
+    elements    :: Union{Float64, Vector{String}}
+    C0          :: Union{Float64, Vector{Float64}}
+    Cliq        :: Union{Float64, Vector{Float64}}
+    Csol        :: Union{Float64, Vector{Float64}}
+    Cmin        :: Union{Float64, Matrix{Float64}}
+    ph_TE       :: Union{Nothing, Vector{String}}
+    ph_wt_norm  :: Union{Float64, Vector{Float64}}
+    liq_wt_norm :: Union{Float64, Float64}
+    Cliq_Zr     :: Union{Float64, Float64}
+    Sat_zr_liq  :: Union{Float64, Float64}
+    zrc_wt      :: Union{Float64, Float64}
+    bulk_cor_wt :: Union{Float64, Vector{Float64}}
+end
+
+
+"""
     Holds the partitioning coefficient database
 """
-struct KDs_database
+struct custom_KDs_database
     infos           #:: String
     element_name    #:: Vector{String}
-    conditions      #:: Union{Tuple{String, Vector{Vector{Float64}}},Tuple{String,String}}
-    non_linear      #:: Bool
-    phase_name      #:: Tuple{Vector{String}, Vector{String}, Vector{String}}
-    KDs             #:: Tuple{Matrix{Float64}, Matrix{Float64}, Matrix{Float64}}
+    phase_name      #:: Vector{String}, String
+    KDs_expr        #:: Matrix{Expr}, Vector{Expr}
 end
 
+function retrieve_eval_rules_TE()
 
-"""
-    Get the partitioning coefficient database from Matt Morris et ., 2025 ...
-"""
-function get_MM_KDs_database()
-    infos               = "M. Morris et al., 2025"
+    in_eval_TE     = ["T_C","P_kbar","oxides"]
+    out_eval_TE    = ["out.T_C","out.P_kbar","out.oxides"]
 
-    element_name        = ["Li"]
-    conditions          = ("min","pref","max")
-    nl                  = true
-    ph_1                = ["q";"afs";"pl";"bi";"opx";"cd";"mu";"amp";"fl";"cpx";"g"]
-    ph_2                = ["q";"afs";"pl";"bi";"opx";"cd";"mu";"amp";"fl";"cpx";"g"]
-    ph_3                = ["q";"afs";"pl";"bi";"opx";"cd";"mu";"amp";"fl";"cpx";"g"]
-
-    KDs_1               = [0.41;0.14;0.41;1.67;0.2;125;0.82;1.4;0.65;0.26;0.01] 
-    KDs_2               = [0.17;0.14;0.33;1.67;0.2;125;0.82;0.2;0.65;0.26;0.01] 
-    KDs_3               = [0.05;0.01;0.02;1.67;0.2;0.44;0.5;0.16;0.65;0.26;0.01] 
-
-
-    phase_name          = [ph_1,ph_2,ph_3]
-    KDs                 = [KDs_1,KDs_2,KDs_3]
-
-    KDs_dtb             = KDs_database(infos, element_name, conditions, nl, phase_name, KDs)
-
-    return KDs_dtb
+    return in_eval_TE, out_eval_TE
 end
 
+function convert_SS_eval_TE(str)
+    pattern = r"\[:([A-Za-z_][A-Za-z0-9_]*)\]"
+    matches = collect(eachmatch(pattern, str))
 
-"""
-    Get the Li partitioning coefficient (Oliveira Da Costa, E. ...)
-"""
-function get_KP_Exp_KDs_database()
-    infos               = "Experimental Kds (as in Koopmans et al., 2023)"
+    if !isempty(matches)
+        name = matches[1].captures[1]
+        str = replace(str, matches[1].match => "out.SS_vec[out.SS_syms[:$name]]")
+    end
 
-    element_name        = ["Li"]
-    conditions          = ("none")
-    nl                  = false
-    ph                  = ["mu"; "bi"; "cd"; "g"; "afs"; "pl"; "q"]  
-    KDs                 = [0.82; 1.67; 0.44; 0.01; 0.01; 0.02; 0.01;] 
-
-    phase_name          = [ph]
-    KDs                 = [KDs]
-
-    KDs_dtb             = KDs_database(infos, element_name, conditions, nl, phase_name, KDs)
-
-    return KDs_dtb
+    return str
 end
 
-function get_IL_Exp_KDs_database()
-    infos               = "Experimental Kds 2 (Icenhower and London, 1995; Evensen and London, 2002; 2003)"
-
-    element_name        = ["Li"]
-    conditions          = ("none")
-    nl                  = true
-    ph                  = ["mu"; "bi"; "cd"; "g"; "afs"; "pl"; "q"]  
-    KDs                 = [0.8; 1.0; 1.0; 0.01; 0.01; 0.03; 0.01;] 
-
-    phase_name          = [ph]
-    KDs                 = [KDs]
-
-    KDs_dtb             = KDs_database(infos, element_name, conditions, nl, phase_name, KDs)
-
-    return KDs_dtb
-end
-
-
-"""
-    Get the partitioning coefficient database from Oliveira Da Costa, E. ...
-"""
-function get_B_Nat_KDs_database()
-    infos               = "Natural Kds (as in Baloaurd et al., 2023)"
-
-    element_name        = ["Li"]
-    conditions          = ("min","max")
-    nl                  = false
-    ph_1                = ["mu"; "bi"; "cd"; "g"; "afs"; "pl"; "q"]  
-    ph_2                = ["mu"; "bi"; "cd"; "g"; "afs"; "pl"; "q"]  
-
-    KDs_1               = [0.08; 0.41; 0.82; 0.07; 0.01; 0.01; 0.01]
-    KDs_2               = [0.33; 1.67; 3.34; 0.28; 0.01; 0.01; 0.01]
-
-    phase_name          = (ph_1,ph_2)
-    KDs                 = (KDs_1,KDs_2)
-
-    KDs_dtb             = KDs_database(infos, element_name, conditions, nl, phase_name, KDs)
-
-    return KDs_dtb
-end
-
-"""
-    Get the partitioning coefficient database from Oliveira Da Costa, E. ...
-"""
-function get_AV_Nat_KDs_database()
-    infos               = "mostly from Acosta-Vigil et al., 2012"
-
-    element_name        = ["Li"]
-    conditions          = ("min","max")
-    nl                  = false
-    ph_1                = ["mu"; "bi"; "cd"; "g"; "afs"; "pl"; "q"; "FeTiOx";]  
-    ph_2                = ["mu"; "bi"; "cd"; "g"; "afs"; "pl"; "q"; "FeTiOx";]  
-
-    KDs_1               = [0.08; 0.31; 1.43; 0.06; 0.017; 0.28; 0.01; 0.09]
-    KDs_2               = [0.33; 0.71; 1.95; 0.37; 0.25; 1.48; 0.01; 0.07]
-
-    phase_name          = (ph_1,ph_2)
-    KDs                 = (KDs_1,KDs_2)
-
-    KDs_dtb             = KDs_database(infos, element_name, conditions, nl, phase_name, KDs)
-
-    return KDs_dtb
-end
-
-
-"""
-    Get the partitioning coefficient database from Laurent, O. ...
-"""
-function get_OL_KDs_database()
-    infos               = "Laurent, O. (2012). Les changements géodynamiques à la transition Archéen-Protérozoïque : étude des granitoïdes de la marge Nord du craton du Kaapvaal (Afrique du Sud). PhD, Université Blaise Pascal, Clermont-Ferrand."
-
-    element_name        = ["Rb", "Ba", "Th", "U", "Nb", "Ta", "La", "Ce", "Pb", "Pr", "Sr", "Nd", "Zr", "Hf", "Sm", "Eu", "Gd", "Tb", "Dy", "Y", "Ho", "Er", "Tm", "Yb", "Lu", "V", "Sc"]
-    conditions          = ("SiO2",[[0.0,52.0],[52.0,63.0],[63.0,100.0]])
-    nl                  = false
-    ph_1                = ["all", "amp", "ap", "bi", "cd", "cpx", "FeTiOx", "g", "afs", "mgt", "ol", "opx", "pl", "q", "ru", "sp", "ttn", "zrn", "ep", "and", "sill", "mu"]
-    ph_2                = ["all"; "amp"; "ap"; "bi"; "cd"; "cpx"; "FeTiOx"; "g"; "afs"; "mgt"; "ol"; "opx"; "pl"; "q"; "ru"; "sp"; "ttn"; "zrn"]
-    ph_3                = ["all"; "amp"; "ap"; "bi"; "cd"; "cpx"; "FeTiOx"; "g"; "afs"; "mgt"; "ol"; "opx"; "pl"; "q"; "ru"; "sp"; "ttn"; "zrn"; "ep"]
-
-    KDs_1               = [0.0632455532033676 3.46410161513776 424.264068711929 20 0.447213595499958 2.73861278752583 1549.19333848297 1224.74487139159 0.316227766016838 1005.98210719674 1 793.725393319378 0.173205080756888 12.2474487139159 447.213595499958 97.9795897113271 254.950975679639 169.558249578132 118.321595661992 95.3939201416947 84.8528137423857 63.2455532033676 43.301270189222 26.8328157299975 17.7482393492988 1 57.0087712549569; 0.0547722557505166 0.189736659610103 0.212132034355964 0.821583836257749 2 0.4 0.559016994374947 1 0.632455532033676 1.59687194226713 0.387298334620742 2.64575131106459 0.632455532033676 0.707106781186547 3.46410161513776 3.46410161513776 4.74341649025257 5.37354631505117 5.42217668469038 5.74456264653803 5.24404424085076 4.96990945591567 4.5 3.74165738677394 2.95803989154981 6.70820393249937 14.142135623731; 0.00316227766016838 0.273861278752583 1 0.948683298050514 0.0316227766016838 0.0316227766016838 13.228756555323 21.2132034355964 0.158113883008419 30.5777697028413 7.07106781186548 40.3112887414928 0.387298334620742 0.387298334620742 47.4341649025257 21.2132034355964 52.9150262212919 52.9150262212919 45.8257569495584 38.7298334620742 37.0809924354783 30 22.9128784747792 15.8113883008419 12.5499003980111 0.316227766016838 0.316227766016838; 4 6.70820393249937 0.316227766016838 0.316227766016838 6.32455532033676 1.89736659610103 1.26491106406735 0.948683298050514 0.316227766016838 0.790569415042095 0.223606797749979 0.790569415042095 0.632455532033676 0.632455532033676 0.632455532033676 0.316227766016838 0.51234753829798 0.521536192416212 0.519615242270663 0.774596669241483 0.53851648071345 0.554977477020464 0.557225268630201 0.558569601750758 0.559016994374947 3.16227766016838 9.21954445729289; 0.106066017177982 0.0223606797749979 0.193649167310371 0.632455532033676 0.0316227766016838 0.0316227766016838 0.0741619848709566 0.0848528137423857 0.0316227766016838 0.0989949493661167 0.187082869338697 0.12 0.0612372435695794 0.0774596669241483 0.173205080756888 0.0316227766016838 0.403112887414927 0.670820393249937 1.14564392373896 0.987420882906575 1.58113883008419 2.29128784747792 2.80624304008046 3.16227766016838 3.51781181986757 0.447213595499958 2.23606797749979; 0.0316227766016838 0.122474487139159 0.14142135623731 0.154919333848297 0.109544511501033 0.154919333848297 0.632455532033676 1.09544511501033 0.223606797749979 1.48323969741913 0.335410196624968 1.93649167310371 0.387298334620742 0.547722557505166 2.32379000772445 2.77488738510232 3.06186217847897 3.46410161513775 3.57770876399966 3.24037034920393 3.35410196624969 3.1859064644148 3.07408522978788 2.89827534923789 2.77488738510232 4.74341649025257 26.4575131106459; 0.0223606797749979 0.0223606797749979 0.387298334620742 0.387298334620742 28.2842712474619 44.7213595499958 3.35410196624968 2.82842712474619 0.447213595499958 2.57875939164553 0.193649167310371 2.50998007960223 1.58113883008419 1.58113883008419 2.36643191323985 0.632455532033676 2.36643191323985 1.89736659610103 1.58113883008419 0.447213595499958 1.58113883008419 1.58113883008419 1.42302494707577 1.26491106406735 1.26491106406735 31.6227766016838 4.47213595499958; 0.00790569415042094 0.0173205080756888 0.0774596669241483 0.158113883008419 0.0316227766016838 0.0707106781186547 0.1 0.237170824512628 0.0316227766016838 0.460977222864644 0.0223606797749979 0.866025403784439 0.447213595499958 0.707106781186547 1.93649167310371 1.58113883008419 6.12372435695795 11.180339887499 22.3606797749979 25.4950975679639 32.4037034920393 41.2310562561766 44.7213595499958 44.7213595499958 37.4165738677394 4.47213595499958 22.3606797749979; 0.948683298050514 9.48683298050514 0.0144913767461894 0.0158113883008419 0.0447213595499958 0.00707106781186547 0.14142135623731 0.0866025403784439 0.948683298050514 0.0547722557505166 3.87298334620742 0.0316227766016838 0.0193649167310371 0.0158113883008419 0.0187082869338697 3.87298334620742 0.0187082869338697 0.0167332005306815 0.02 0.0316227766016838 0.02 0.0223606797749979 0.0234520787991171 0.0234520787991171 0.0244948974278318 0.223606797749979 0.0316227766016838; 0.0223606797749979 0.0223606797749979 0.221359436211787 0.447213595499958 1.67332005306815 2.12132034355964 1.02469507659596 1 0.547722557505166 1.06066017177982 0.0264575131106459 1.09544511501033 0.670820393249937 0.707106781186547 1.09544511501033 0.948683298050514 1.18321595661992 1.18321595661992 1.10679718105893 0.948683298050514 1.02469507659596 0.866025403784439 0.866025403784439 0.707106781186547 0.547722557505166 36.0555127546399 8.66025403784439; 0.0223606797749979 0.03 0.02 0.0154919333848297 0.031224989991992 0.0335410196624968 0.0670820393249937 0.0774596669241483 0.158113883008419 0.0916515138991168 0.13228756555323 0.106066017177982 0.025298221281347 0.0284604989415154 0.121963109176505 0.14142135623731 0.13228756555323 0.154919333848297 0.175499287747842 0.126491106406735 0.193649167310371 0.232379000772445 0.277488738510232 0.316227766016838 0.387298334620742 0.244948974278318 0.447213595499958; 0.0158113883008419 0.05 0.158113883008419 0.158113883008419 0.25298221281347 0.316227766016838 0.158113883008419 0.239791576165636 0.0894427190999916 0.289827534923789 0.0447213595499958 0.353553390593274 0.0547722557505166 0.0948683298050513 0.424264068711928 0.316227766016838 0.58309518948453 0.724568837309472 0.848528137423857 0.774596669241483 0.924662100445346 1 1.16189500386223 1.2747548783982 1.54919333848297 3.16227766016838 22.3606797749979; 0.126491106406735 0.632455532033676 0.0547722557505166 0.1 0.1 0.0670820393249937 0.387298334620742 0.284604989415154 0.670820393249937 0.221359436211786 4.47213595499958 0.158113883008419 0.0894427190999916 0.0670820393249937 0.126491106406735 2.73861278752583 0.116189500386222 0.102469507659596 0.0948683298050513 0.1 0.0774596669241483 0.0692820323027551 0.0574456264653803 0.0524404424085076 0.0447213595499958 0.158113883008419 0.0316227766016838; 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838; 0.0118321595661992 0.01 0.335410196624968 0.335410196624968 61.2372435695795 27.3861278752583 0.0353553390593274 0.0458257569495584 0.0316227766016838 0.0494974746830583 0.0707106781186547 0.0565685424949238 3.46410161513776 5.29150262212918 0.0565685424949238 0.00111803398874989 0.0354964786985977 0.0278208554864871 0.0256904651573302 0.0707106781186547 0.0241867732448956 0.0217944947177034 0.0185202591774521 0.0173205080756888 0.0158113883008419 47.4341649025257 0.316227766016838; 0.00547722557505166 0.00223606797749979 0.00790569415042094 0.013228756555323 0.0707106781186547 0.0707106781186547 0.00244948974278318 0.00387298334620742 0.000316227766016838 0.006 0.00346410161513776 0.00812403840463596 0.0790569415042095 0.1 0.0116189500386222 0.0106066017177982 0.0144913767461894 0.0149666295470958 0.015 0.0158113883008419 0.0141421356237309 0.0132664991614216 0.0130384048104053 0.012369316876853 0.0116189500386222 8.36660026534076 0.316227766016838; 0.4 1.36930639376292 0.223606797749979 0.2 3.46410161513776 8.66025403784439 6 7.41619848709567 0.223606797749979 8.83176086632785 2.23606797749979 10.2469507659596 1.34164078649987 1.73205080756888 10.9544511501033 8.06225774829855 10.2469507659596 9.2951600308978 7.88035532193822 6 6.557438524302 5.17010638188423 3.73496987939662 2.56904651573303 1.67332005306815 5.47722557505166 2.23606797749979; 0.632455532033676 0.632455532033676 18.02775637732 31.6227766016838 22.3606797749979 22.3606797749979 1.26491106406735 3.46410161513776 0.1 2 4.47213595499958 2.82842712474619 948.683298050515 948.683298050515 7.74596669241484 2.23606797749979 20.4939015319192 28.4604989415154 44.1588043316392 67.0820393249938 73.4846922834954 110 139.64240043769 173.205080756888 223.606797749979 0.1 63.2455532033676; 0.0045 0.408 156 1.29 0.226 0.226 2.05 2.44 0.5 2.85475042692001 2 3.34 0.1 10 4.22 3.78 4.67 4.58421203698084 4.5 4.3 4.12431812546026 3.78 3.34496636754392 2.96 2.61933874283863 0.1 0.0001; 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5; 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5; 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5 1.0e-5];
-    KDs_2               = [0.0632455532033676 3.46410161513776 324.037034920393 13.228756555323 0.836660026534076 0.836660026534076 1414.2135623731 1174.73401244707 1 948.683298050515 1 612.372435695795 0.173205080756888 11.180339887499 300 34.6410161513775 116.189500386222 58.309518948453 31.6227766016838 31.6227766016838 18.9736659610103 13.4164078649987 10.2469507659596 7.74596669241484 6.70820393249937 1 57.0087712549569; 0.122474487139159 0.223606797749979 0.14142135623731 0.1 0.559016994374947 0.273861278752583 0.335410196624968 0.412310562561766 0.223606797749979 0.574456264653803 0.273861278752583 0.866025403784439 0.4 0.547722557505166 1.36930639376292 1 1.80277563773199 2.21359436211787 2.29128784747792 2.12132034355964 2.08566536146142 1.8165902124585 1.51657508881031 1.40712472794703 1.30384048104053 5.47722557505166 10; 0.00316227766016838 0.0790569415042095 0.790569415042095 0.387298334620742 0.00353553390593274 0.00707106781186547 3.87298334620742 7.07106781186548 0.316227766016838 11.0679718105893 1.93649167310371 15 0.193649167310371 0.0707106781186547 17.3205080756888 11.180339887499 18.3711730708738 17.8885438199983 15.6524758424985 12.2474487139159 13.4164078649987 11.180339887499 8.94427190999916 6.70820393249937 4.47213595499958 0.223606797749979 0.316227766016838; 3.16227766016838 5.47722557505166 0.0474341649025257 0.0707106781186547 0.474341649025257 0.316227766016838 0.0591607978309961 0.06 0.0316227766016838 0.0648074069840786 0.234520787991171 0.0670820393249937 0.229128784747792 0.316227766016838 0.0707106781186547 0.13228756555323 0.0741619848709566 0.0774596669241483 0.0793725393319377 0.111803398874989 0.0774596669241483 0.0747663025700749 0.0734846922834953 0.0726636084983398 0.0707106781186547 3.16227766016838 9.21954445729289; 0.106066017177982 0.0223606797749979 0.193649167310371 0.632455532033676 0.0316227766016838 0.0316227766016838 0.0741619848709566 0.0848528137423857 0.0316227766016838 0.0989949493661167 0.187082869338697 0.12 0.0612372435695794 0.0774596669241483 0.173205080756888 0.0316227766016838 0.403112887414927 0.670820393249937 1.14564392373896 0.987420882906575 1.58113883008419 2.29128784747792 2.80624304008046 3.16227766016838 3.51781181986757 0.447213595499958 2.23606797749979; 0.0316227766016838 0.0547722557505166 0.0707106781186547 0.0447213595499958 0.111803398874989 0.0707106781186547 0.13228756555323 0.212132034355964 0.316227766016838 0.290688837074973 0.287228132326901 0.401870625948202 0.234520787991171 0.31224989991992 0.5 0.692820323027551 0.725603197346869 0.848528137423857 0.953939201416946 1.09544511501033 1.06348483769163 1.14105214604767 1.18215904175369 1.1861703081767 1.18321595661992 1.93649167310371 7.74596669241484; 0.00316227766016838 0.00447213595499958 0.0158113883008419 0.0237170824512628 4.47213595499958 6.70820393249937 0.0223606797749979 0.0306186217847897 0.0158113883008419 0.0367423461417476 0.00632455532033676 0.0412310562561766 1.22474487139159 1.5 0.0547722557505166 0.0447213595499958 0.0790569415042095 0.09 0.0989949493661167 0.0707106781186547 0.101980390271856 0.111803398874989 0.117260393995586 0.117473401244707 0.109544511501033 11.180339887499 1.73205080756888; 0.00836660026534076 0.0154919333848297 0.0474341649025257 0.0935414346693485 0.0264575131106459 0.05 0.0264575131106459 0.0519615242270663 0.0316227766016838 0.102469507659596 0.0173205080756888 0.205548047910945 0.547722557505166 0.387298334620742 0.433012701892219 0.5 1.58113883008419 3.16227766016838 5.45435605731786 6.12372435695795 8.2915619758885 9.89949493661167 10.0623058987491 9.35414346693486 7.74596669241484 2.64575131106459 3.16227766016838; 0.948683298050514 5.47722557505166 0.0173205080756888 0.0273861278752583 0.0158113883008419 0.00316227766016838 0.111803398874989 0.0670820393249937 0.223606797749979 0.0447213595499958 2.23606797749979 0.03 0.0223606797749979 0.0223606797749979 0.0212132034355964 3.35410196624969 0.0167332005306815 0.015 0.0144913767461894 0.0254950975679639 0.0162018517460197 0.0189736659610103 0.02 0.0232379000772445 0.0273861278752583 0.111803398874989 0.02; 0.0387298334620742 0.158113883008419 0.0935414346693485 0.13228756555323 0.136930639376291 0.122474487139159 0.14142135623731 0.189736659610103 0.316227766016838 0.234520787991171 0.0223606797749979 0.267394839142419 0.220794021658196 0.158113883008419 0.3 0.254950975679639 0.324037034920393 0.31224989991992 0.301662062579967 0.335410196624968 0.268328157299975 0.245967477524977 0.234520787991171 0.223606797749979 0.212132034355964 22.3606797749979 3.16227766016838; 0.013228756555323 0.0122474487139159 0.0154919333848297 0.0223606797749979 0.0193649167310371 0.0273861278752583 0.00273861278752583 0.00489897948556636 0.0187082869338697 0.00790569415042094 0.01 0.0116189500386222 0.0387298334620742 0.0223606797749979 0.0152970585407783 0.0187616630392937 0.0228035085019828 0.0270554985169374 0.0324037034920393 0.0346410161513775 0.0369864840178138 0.04 0.0439545219516718 0.0474341649025257 0.0529150262212918 0.16431676725155 0.433012701892219; 0.0244948974278318 0.0316227766016838 0.1 0.0316227766016838 0.05 0.0670820393249937 0.00894427190999916 0.0204939015319192 0.111803398874989 0.0363318042491699 0.0193649167310371 0.0574456264653803 0.0346410161513775 0.0547722557505166 0.0812403840463596 0.114017542509914 0.157480157480236 0.207846096908265 0.256124969497314 0.282842712474619 0.311126983722081 0.351425667816112 0.4 0.458257569495584 0.5 1.5 5.47722557505166; 0.0447213595499958 0.387298334620742 0.0316227766016838 0.0547722557505166 0.0612372435695794 0.0447213595499958 0.2 0.154919333848297 0.5 0.122474487139159 2.44948974278318 0.106066017177982 0.0223606797749979 0.0324037034920393 0.0774596669241483 1.1180339887499 0.0447213595499958 0.0367423461417476 0.03 0.0292403830344269 0.0256904651573302 0.0212132034355964 0.0182345825288105 0.0169705627484771 0.0154919333848297 0.158113883008419 0.0316227766016838; 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838; 0.01 0.00866025403784438 0.162018517460196 0.2 33.5410196624969 22.3606797749979 0.0111803398874989 0.0141421356237309 0.0273861278752583 0.0156524758424985 0.0316227766016838 0.0172481883106603 2.23606797749979 3.74165738677394 0.0184932420089069 0.000632455532033676 0.0194935886896179 0.0204939015319192 0.022248595461287 0.0273861278752583 0.024 0.0264575131106459 0.0291204395571221 0.0314642654451045 0.033466401061363 3.16227766016838 0.273861278752583; 0.00547722557505166 0.00223606797749979 0.00790569415042094 0.013228756555323 0.0707106781186547 0.0707106781186547 0.00244948974278318 0.00387298334620742 0.000316227766016838 0.006 0.00346410161513776 0.00812403840463596 0.0790569415042095 0.1 0.0116189500386222 0.0106066017177982 0.0144913767461894 0.0149666295470958 0.015 0.0158113883008419 0.0141421356237309 0.0132664991614216 0.0130384048104053 0.012369316876853 0.0116189500386222 8.36660026534076 0.316227766016838; 0.4 1.36930639376292 0.223606797749979 0.2 3.46410161513776 8.66025403784439 6 7.41619848709567 0.223606797749979 8.83176086632785 2.23606797749979 10.2469507659596 1.34164078649987 1.73205080756888 10.9544511501033 8.06225774829855 10.2469507659596 9.2951600308978 7.88035532193822 6 6.557438524302 5.17010638188423 3.73496987939662 2.56904651573303 1.67332005306815 5.47722557505166 2.23606797749979; 0.632455532033676 0.632455532033676 18.02775637732 31.6227766016838 22.3606797749979 22.3606797749979 1.26491106406735 3.46410161513776 0.1 2 4.47213595499958 2.82842712474619 948.683298050515 948.683298050515 7.74596669241484 2.23606797749979 20.4939015319192 28.4604989415154 44.1588043316392 67.0820393249938 73.4846922834954 110 139.64240043769 173.205080756888 223.606797749979 0.1 63.2455532033676]
-    KDs_3               = [0.0632455532033676 3.46410161513776 324.037034920393 13.228756555323 0.836660026534076 0.836660026534076 1414.2135623731 1174.73401244707 1 948.683298050515 1 612.372435695795 0.173205080756888 11.180339887499 300 34.6410161513775 116.189500386222 58.309518948453 31.6227766016838 31.6227766016838 18.9736659610103 13.4164078649987 10.2469507659596 7.74596669241484 6.70820393249937 1 57.0087712549569; 0.223606797749979 0.31224989991992 0.0141421356237309 0.0193649167310371 0.158113883008419 0.220794021658196 0.0724568837309472 0.144913767461894 0.0632455532033676 0.234520787991171 0.3 0.346410161513775 0.335410196624968 0.391152144312159 0.447213595499958 0.524404424085076 0.589915248150105 0.634822809924155 0.66932802122726 0.612372435695794 0.681175454637056 0.648074069840786 0.603738353924943 0.53619026473818 0.458257569495584 4.89897948556636 3.87298334620742; 0.00316227766016838 0.0790569415042095 0.790569415042095 0.387298334620742 0.00353553390593274 0.00707106781186547 3.87298334620742 7.07106781186548 0.316227766016838 11.0679718105893 1.93649167310371 15 0.193649167310371 0.0707106781186547 17.3205080756888 11.180339887499 18.3711730708738 17.8885438199983 15.6524758424985 12.2474487139159 13.4164078649987 11.180339887499 8.94427190999916 6.70820393249937 4.47213595499958 0.223606797749979 0.316227766016838; 2 4.47213595499958 0.0474341649025257 0.0707106781186547 0.273861278752583 0.187082869338697 0.0144913767461894 0.0189736659610103 0.0316227766016838 0.0244948974278318 0.234520787991171 0.031224989991992 0.0547722557505166 0.0547722557505166 0.0387298334620742 0.0418330013267038 0.0447213595499958 0.0519615242270663 0.0591607978309961 0.066332495807108 0.0692820323027551 0.0747663025700749 0.0793725393319377 0.0819756061276768 0.0866025403784439 3.16227766016838 9.21954445729289; 0.106066017177982 0.0223606797749979 0.193649167310371 0.632455532033676 0.0316227766016838 0.0316227766016838 0.0741619848709566 0.0848528137423857 0.0316227766016838 0.0989949493661167 0.187082869338697 0.12 0.0612372435695794 0.0774596669241483 0.173205080756888 0.0316227766016838 0.403112887414927 0.670820393249937 1.14564392373896 0.987420882906575 1.58113883008419 2.29128784747792 2.80624304008046 3.16227766016838 3.51781181986757 0.447213595499958 2.23606797749979; 0.00948683298050514 0.005 0.00935414346693485 0.00707106781186547 0.00894427190999916 0.0180277563773199 0.0474341649025257 0.0866025403784439 0.0223606797749979 0.14456832294801 0.122474487139159 0.216333076527839 0.0707106781186547 0.187082869338697 0.301662062579967 0.387298334620742 0.460977222864644 0.522494019104525 0.551361950083609 0.6 0.585662018573853 0.608276253029822 0.608276253029822 0.585662018573853 0.559910707166777 1.58113883008419 4.74341649025257; 0.00316227766016838 0.00447213595499958 0.0158113883008419 0.0237170824512628 4.47213595499958 6.70820393249937 0.0223606797749979 0.0306186217847897 0.0158113883008419 0.0367423461417476 0.00632455532033676 0.0412310562561766 1.22474487139159 1.5 0.0547722557505166 0.0447213595499958 0.0790569415042095 0.09 0.0989949493661167 0.0707106781186547 0.101980390271856 0.111803398874989 0.117260393995586 0.117473401244707 0.109544511501033 11.180339887499 1.73205080756888; 0.000866025403784438 0.000387298334620741 0.002 0.00612372435695794 0.013228756555323 0.0180277563773199 0.00894427190999916 0.0219089023002067 0.0122474487139159 0.0565685424949238 0.013228756555323 0.122474487139159 0.3 0.252487623459052 0.264575131106459 0.424264068711928 0.821583836257749 1.3228756555323 1.93649167310371 2.32379000772445 2.54950975679639 3.1224989991992 3.51781181986757 4.02336923485777 4.47213595499958 2.44948974278318 3.74165738677394; 0.948683298050514 5.47722557505166 0.0173205080756888 0.0273861278752583 0.0158113883008419 0.00316227766016838 0.111803398874989 0.0670820393249937 0.223606797749979 0.0447213595499958 2.23606797749979 0.03 0.0223606797749979 0.0223606797749979 0.0212132034355964 3.35410196624969 0.0167332005306815 0.015 0.0144913767461894 0.0254950975679639 0.0162018517460197 0.0189736659610103 0.02 0.0232379000772445 0.0273861278752583 0.111803398874989 0.02; 0.0158113883008419 0.0158113883008419 0.0387298334620742 0.0387298334620742 0.1 0.1 0.0126491106406735 0.0273861278752583 0.0591607978309961 0.0474341649025257 0.0122474487139159 0.062449979983984 0.150831031289984 0.2 0.0724568837309471 0.0360555127546399 0.0774596669241483 0.0702851335632223 0.0666333249958307 0.0591607978309961 0.0620483682299543 0.0565685424949238 0.0547722557505166 0.05 0.0447213595499958 6.32455532033676 1.4142135623731; 0.00223606797749979 0.00223606797749979 0.000707106781186547 0.000707106781186547 0.00273861278752583 0.005 0.000223606797749979 0.000447213595499958 0.000193649167310371 0.000935414346693485 0.000109544511501033 0.00158113883008419 0.00316227766016838 0.00547722557505166 0.00250998007960223 0.00316227766016838 0.00424264068711928 0.0062928530890209 0.00908295106229247 0.00774596669241483 0.013228756555323 0.0193649167310371 0.0241867732448956 0.0273861278752583 0.0282842712474619 0.0774596669241483 0.287228132326901; 0.00547722557505166 0.00173205080756888 0.000316227766016838 0.0005 0.00346410161513776 0.00632455532033676 0.000836660026534075 0.00264575131106459 0.02 0.00547722557505166 0.0141421356237309 0.0109544511501033 0.0291547594742265 0.0547722557505166 0.0180277563773199 0.0223606797749979 0.0324037034920393 0.0412310562561766 0.05 0.0670820393249937 0.0619677335393187 0.0734846922834953 0.0916515138991168 0.107238052947636 0.120415945787923 1 1.22474487139159; 0.0547722557505166 0.335410196624968 0.1 0.0632455532033676 0.0447213595499958 0.0447213595499958 0.111803398874989 0.0894427190999916 0.591607978309962 0.0714142842854285 1.6583123951777 0.0591607978309961 0.01 0.0154919333848297 0.0489897948556635 0.707106781186547 0.0387298334620742 0.0338230690505755 0.03 0.0357071421427143 0.0267394839142419 0.0240831891575846 0.0222261107708929 0.0203469899493758 0.0178885438199983 0.0670820393249937 0.0316227766016838; 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838 0.00316227766016838; 0.01 0.00866025403784438 0.162018517460196 0.2 33.5410196624969 22.3606797749979 0.0111803398874989 0.0141421356237309 0.0273861278752583 0.0156524758424985 0.0316227766016838 0.0172481883106603 2.23606797749979 3.74165738677394 0.0184932420089069 0.000632455532033676 0.0194935886896179 0.0204939015319192 0.022248595461287 0.0273861278752583 0.024 0.0264575131106459 0.0291204395571221 0.0314642654451045 0.033466401061363 3.16227766016838 0.273861278752583; 0.00547722557505166 0.00223606797749979 0.00790569415042094 0.013228756555323 0.0707106781186547 0.0707106781186547 0.00244948974278318 0.00387298334620742 0.000316227766016838 0.006 0.00346410161513776 0.00812403840463596 0.0790569415042095 0.1 0.0116189500386222 0.0106066017177982 0.0144913767461894 0.0149666295470958 0.015 0.0158113883008419 0.0141421356237309 0.0132664991614216 0.0130384048104053 0.012369316876853 0.0116189500386222 8.36660026534076 0.316227766016838; 0.4 1.36930639376292 0.223606797749979 0.2 3.46410161513776 8.66025403784439 6 7.41619848709567 0.223606797749979 8.83176086632785 2.23606797749979 10.2469507659596 1.34164078649987 1.73205080756888 10.9544511501033 8.06225774829855 10.2469507659596 9.2951600308978 7.88035532193822 6 6.557438524302 5.17010638188423 3.73496987939662 2.56904651573303 1.67332005306815 5.47722557505166 2.23606797749979; 0.632455532033676 0.632455532033676 18.02775637732 31.6227766016838 22.3606797749979 22.3606797749979 1.26491106406735 0.1 0.316227766016838 2 4.47213595499958 2.82842712474619 948.683298050515 948.683298050515 7.74596669241484 2.23606797749979 20.4939015319192 28.4604989415154 44.1588043316392 67.0820393249938 73.4846922834954 110 139.64240043769 173.205080756888 223.606797749979 0.1 63.2455532033676; 0.0045 0.408 156 1.29 0.226 0.226 2.05 2.44 0.5 2.89 2 3.78 0.1 10 4.22 3.78 4.67 4.59 4.5 4.3 4.14 3.78 3.37 2.96 2.55 0.1 0.0001]
-
-    # phase_name          = (mineral_name_convertor(ph_1),mineral_name_convertor(ph_2),mineral_name_convertor(ph_3))
-    phase_name          = (ph_1,ph_2,ph_3)
-    KDs                 = (KDs_1,KDs_2,KDs_3)
-
-    KDs_dtb             = KDs_database(infos, element_name,conditions, nl, phase_name,KDs)
-
-    return KDs_dtb
-end
-
-
-function adjust_chemical_system(    KDs_dtb     :: KDs_database,
+function adjust_chemical_system(    KDs_dtb     :: custom_KDs_database,
                                     bulk_TE     :: Vector{Float64},
                                     elem_TE     :: Vector{String}       )
 
@@ -330,97 +180,61 @@ function adjust_chemical_system(    KDs_dtb     :: KDs_database,
         end
     end
 
-
     return C0_TE
 end
 
+"""
+    KDs_database = custom_KDs_database(infos::String, 
+                        element_name::Vector{String}, 
+                        phase_name::Vector{String}, 
+                        KDs_expr::Matrix{Expr})
 
-struct out_tepm
-    elements    :: Union{Nothing, Vector{String}}
-    C0          :: Union{Nothing, Vector{Float64}}
-    Cliq        :: Union{Nothing, Vector{Float64}}
-    Csol        :: Union{Nothing, Vector{Float64}}
-    Cmin        :: Union{Nothing, Matrix{Float64}}
-    Czrc        :: Union{Nothing, Vector{Float64}}
-    ph_TE       :: Union{Nothing, Vector{String}}
-    ph_wt_norm  :: Union{Nothing, Vector{Float64}}
-    liq_wt_norm :: Union{Nothing, Float64}
-    Cliq_Zr     :: Union{Nothing, Float64}
-    Sat_zr_liq  :: Union{Nothing, Float64}
-    zrc_wt      :: Union{Nothing, Float64}
-    bulk_cor_wt :: Union{Nothing, Vector{Float64}}
-end
+Create a custom KDs database from the given information.
 
+returns a custom_KDs_database object that can be used in the TE_partitioning.jl module.
 
-function compute_partitioning(  out         :: MAGEMin_C.gmin_struct{Float64, Int64},
-                                cond        :: Int64,
-                                C0          :: Vector{Float64}, 
-                                ph          :: Vector{String}, 
-                                ph_wt       :: Vector{Float64}, 
-                                liq_wt      :: Float64,
-                                KDs_dtb     :: KDs_database;
-                                nnl_KDs     :: Bool    = false,
-                                model       :: String  = "OL",
-                                ratio       :: Float64 = 1.0)
+"""
+function create_custom_KDs_database(el_name         :: Vector{String},
+                                    phase_name      :: Vector{String},
+                                    KDs_expr_str    :: Union{Matrix{String},Vector{String}} ;
+                                    info            :: String = "Custom KDs database")
 
-    # compute bulk distributiion coefficient
-    if model == "OL"
-        KDs         = KDs_dtb.KDs[cond];
-        phase_name  = KDs_dtb.phase_name[cond]
-    elseif model == "MM"
-        KDs         = KDs_dtb.KDs[cond];
-        phase_name  = KDs_dtb.phase_name[cond]
+    n_el    = length(el_name)
+    n_ph    = length(phase_name)
 
-        # overwrite with non-linear KDs
-        if nnl_KDs == true
-            if "bi" in out.ph
-                id_bi       = findfirst(out.ph .== "bi")
-                y           = out.SS_vec[id_bi].compVariables[3]
-                f           = out.SS_vec[id_bi].compVariables[4]
-                T           = out.T_C
-                KD_Li_bi    = bi_Li_CB_model(y,f,T)
-                id_bi2      = findfirst(phase_name .== "bi")
-                KDs[id_bi2] = KD_Li_bi
-            end
-        end
+    KDs_expr = Matrix{Function}(undef, n_ph, n_el)
+    in_eval_TE, out_eval_TE = retrieve_eval_rules_TE()
 
-    elseif model == "EODC"
-        if cond == 3
-            if ratio < 0.0 || ratio > 1.0
-                error("ratio must be between 0 and 1. Setting it to 0.5")
-                ratio = 0.5
-            end
-            KDs         = KDs_dtb.KDs[1].*ratio .+ KDs_dtb.KDs[2].*(1.0-ratio);
-            phase_name  = KDs_dtb.phase_name[1]
-        else 
-            KDs         = KDs_dtb.KDs[cond];
-            phase_name  = KDs_dtb.phase_name[cond]
+    for i = 1:n_ph
+        for j = 1:n_el
 
-            if KDs_dtb.non_linear == true
-                if "bi" in out.ph
-                    id_bi       = findfirst(out.ph .== "bi")
-                    T           = out.T_C
-                    KD_Li_bi    = bi_Li_IL_model(T)
-                    id_bi2      = findfirst(phase_name .== "bi")
-                    KDs[id_bi2] = KD_Li_bi
-                end
-                if "cd" in out.ph
-                    id_cd       = findfirst(out.ph .== "cd")
-                    T           = out.T_C
-                    KD_Li_cd   = cd_Li_IL_model(T)
-                    id_cd2      = findfirst(phase_name .== "cd")
-                    KDs[id_cd2] = KD_Li_cd
-                end
+            expr_str      = KDs_expr_str[i,j]
+            for i=1:length(in_eval_TE)
+                expr_str = replace(expr_str, in_eval_TE[i] => out_eval_TE[i])
             end
 
+            expr_str      = convert_SS_eval_TE(expr_str)
+            KDs_expr[i,j] = eval(Meta.parse("out -> ($(expr_str) +0)"))
         end
     end
 
-    TE_ph       =  intersect(ph, phase_name);
+    return custom_KDs_database(info, el_name, phase_name, KDs_expr)
+end
+
+function partition_TE(  KDs_database:: custom_KDs_database,
+                        out         :: MAGEMin_C.gmin_struct{Float64, Int64},   
+                        C0          :: Vector{Float64},
+                        ph          :: Vector{String},
+                        ph_wt       :: Vector{Float64}, 
+                        liq_wt      :: Float64)
+
+
+    phase_name  = KDs_database.phase_name
+    TE_ph       = intersect(ph, phase_name);
 
     # get indexes of the phase with respect to MAGEMin output and TE_database
-    MM_ph_idx   = [findfirst(isequal(x), ph) for x in TE_ph];
-    TE_ph_idx   = [findfirst(isequal(x), phase_name) for x in TE_ph];
+    MM_ph_idx   = [findfirst(isequal(x), ph) for x in TE_ph]
+    TE_ph_idx   = [findfirst(isequal(x), phase_name) for x in TE_ph]
 
     # normalize phase fractions
     sum_ph_frac = sum(ph_wt[MM_ph_idx]);
@@ -428,221 +242,205 @@ function compute_partitioning(  out         :: MAGEMin_C.gmin_struct{Float64, In
     ph_wt_norm  = ph_wt[MM_ph_idx]./sum_ph_frac;
     ph_TE       = ph[MM_ph_idx];
 
-    D           = KDs[TE_ph_idx,:]'*ph_wt_norm;
+    n_ph        = length(ph_wt_norm)
+    n_el        = length(C0)
+    KDs         = zeros(Float64, n_ph, n_el) # partitioning coefficients
+
+    for i=1:n_ph
+        for j=1:n_el
+            expr        = KDs_database.KDs_expr[TE_ph_idx[i],j]
+            KDs[i,j]    = Base.invokelatest(expr, out)
+        end
+    end
+
+    D           = KDs'*ph_wt_norm;
     Cliq        = C0 ./ (D .+ liq_wt_norm.*(1.0 .- D));
     Csol        = (C0 .- Cliq .*  liq_wt_norm) ./ (1.0 .- liq_wt_norm)
-    Cmin        = similar(KDs[TE_ph_idx,:]); 
+    Cmin        = similar(KDs); 
 
     for i = 1:length(ph_wt_norm)
-        Cmin[i,:] = KDs[TE_ph_idx[i],:] .* Cliq;
+        Cmin[i,:] = KDs[i,:] .* Cliq;
     end
 
     return Cliq, Cmin, Csol, ph_TE, ph_wt_norm, liq_wt_norm
 end
 
-"""
-    TE_prediction
-"""
-function TE_prediction(     C0         :: Vector{Float64},
-                            KDs_dtb    :: KDs_database,
-                            out        :: MAGEMin_C.gmin_struct{Float64, Int64},
-                            dtb        :: String;
-                            nnl_KDs    :: Bool    = false,
-                            ZrSat_model:: String  = "CB",
-                            model      :: String  = "OL",
-                            option     :: Int64   =  1,
-                            ratio      :: Float64 =  1.0)
 
-    if model == "OL"
-        ox_id       = findfirst(out.oxides  .== KDs_dtb.conditions[1])[1]
-        ox_non_H2O  = findall(out.oxides    .!= "H2O")
+function health_check_TE(C0, KDs_database)
 
-        ox_M        = out.bulk_M_wt[ox_id]./sum(out.bulk_M_wt[ox_non_H2O])
-        liq_wt      = out.frac_M_wt
-        sol_wt      = out.frac_S_wt
-        elements    = KDs_dtb.element_name
-        if liq_wt > 0.0 && liq_wt < 1.0 && sol_wt > 0.0
-            n_cond  = length(KDs_dtb.conditions[2])
-            cond    = -1
-            for i=1:n_cond
-                if ox_M > KDs_dtb.conditions[2][i][1] && ox_M < KDs_dtb.conditions[2][i][2]
-                    cond = i
-                    break
-                end
-            end
-
-            ph, ph_wt   =  mineral_classification(out, dtb);
-
-            Cliq, Cmin, Csol, ph_TE, ph_wt_norm, liq_wt_norm,  = compute_partitioning(  out, cond,
-                                                                                        C0,
-                                                                                        ph, 
-                                                                                        ph_wt, 
-                                                                                        liq_wt,
-                                                                                        KDs_dtb)
-
-            id_Zr       = findfirst(KDs_dtb.element_name .== "Zr")[1]
-            Cliq_Zr     = Cliq[id_Zr]
-
-            Sat_zr_liq  = zirconium_saturation( out; 
-                                                model = ZrSat_model)   
-                                                                                    
-            if Cliq_Zr > Sat_zr_liq
-                zrc_wt, SiO2_zrc_wt, O_wt       = adjust_bulk_4_zircon(Cliq_Zr, Sat_zr_liq)
-
-                push!(ph,"zrn")
-                push!(ph_wt,zrc_wt/100.0)
-
-                ph_wt = ph_wt ./(sum(ph_wt))
-
-                Cliq, Cmin, Csol, ph_TE, ph_wt_norm, liq_wt_norm,  = compute_partitioning(  out, cond,
-                                                                                            C0,
-                                                                                            ph, 
-                                                                                            ph_wt, 
-                                                                                            liq_wt,
-                                                                                            KDs_dtb)
-
-                Cliq_Zr     = Cliq[id_Zr]
-                Sat_zr_liq  = zirconium_saturation( out; 
-                                                    model = ZrSat_model)   
-
-                SiO2_id                         = findall(out.oxides .== "SiO2")[1]
-
-                bulk_cor_wt                     = copy(out.bulk_wt)
-                bulk_cor_wt[SiO2_id]            = out.bulk_wt[SiO2_id] - SiO2_zrc_wt 
-                bulk_cor_wt                   ./= sum(bulk_cor_wt)
-
-            else
-                zrc_wt, bulk_cor_wt = nothing, nothing
-            end
-
-        elseif liq_wt == 0.0
-            Csol        = C0
-            Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt = nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing
-        elseif liq_wt == 1.0 || (sol_wt == 0.0 && liq_wt > 0.0) #latter means there is fluid + melt
-            Cliq        = C0
-            Csol        = nothing
-            id_Zr       = findfirst(KDs_dtb.element_name .== "Zr")[1]
-
-            Cliq_Zr     = Cliq[id_Zr]
-            Cmin, ph_TE, ph_wt_norm, zrc_wt = nothing, nothing, nothing, nothing
-            Sat_zr_liq  = zirconium_saturation( out; 
-                                                model = ZrSat_model)   
-
-            if Cliq_Zr > Sat_zr_liq
-                zrc_wt, SiO2_zrc_wt, O_wt       = adjust_bulk_4_zircon(Cliq_Zr, Sat_zr_liq)
-
-                SiO2_id                         = findall(out.oxides .== "SiO2")[1]
-
-                bulk_cor_wt                     = copy(out.bulk_wt)
-                bulk_cor_wt[SiO2_id]            = out.bulk_wt[SiO2_id] - SiO2_zrc_wt 
-                bulk_cor_wt                   ./= sum(bulk_cor_wt)
-            else
-                zrc_wt, bulk_cor_wt = nothing, nothing
-            end
-
-            liq_wt_norm = 1.0
-        else
-            print("unrecognized case!\n")
-            Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, zrc_wt, bulk_cor_wt, Sat_zr_liq = nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing
-        end
-
-        out_TE = out_tepm(elements, C0, Cliq, Csol, Cmin, nothing, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt)
-
-        return out_TE
-        
-    elseif model == "EODC"
-
-        liq_wt      = out.frac_M_wt
-        sol_wt      = out.frac_S_wt
-        elements    = KDs_dtb.element_name
-
-        Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt = nothing, nothing, nothing, nothing
-
-        if option == 1
-            cond    = 1
-        elseif option == 2
-            cond    = 2
-        elseif option == 3
-            cond    = 3
-        end
-        if liq_wt > 0.0 && liq_wt < 1.0 && sol_wt > 0.0
-            ph, ph_wt   =  mineral_classification(out, dtb);
-
-            Cliq, Cmin, Csol, ph_TE, ph_wt_norm, liq_wt_norm,  = compute_partitioning(  out, cond,
-                                                                                        C0,
-                                                                                        ph, 
-                                                                                        ph_wt, 
-                                                                                        liq_wt,
-                                                                                        KDs_dtb;
-                                                                                        nnl_KDs = nnl_KDs,
-                                                                                        model = model,
-                                                                                        ratio = ratio)
-
-        elseif liq_wt == 0.0
-            Csol        = C0
-            Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm = nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing
-
-        elseif liq_wt == 1.0 || (sol_wt == 0.0 && liq_wt > 0.0) #latter means there is fluid + melt
-            Cliq        = C0
-            Csol, Cmin, ph_TE, ph_wt_norm  = nothing, nothing, nothing, nothing
-            liq_wt_norm = 1.0
-        else
-            print("unrecognized case!\n")
-            Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, zrc_wt, bulk_cor_wt, Sat_zr_liq = nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing
-        end
-
-        out_TE = out_tepm(elements, C0, Cliq, Csol, Cmin, nothing, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt)
-            
-        return out_TE
-    elseif model == "MM"
-
-        liq_wt      = out.frac_M_wt
-        sol_wt      = out.frac_S_wt
-        elements    = KDs_dtb.element_name
-
-        Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt = nothing, nothing, nothing, nothing
-
-        if option == 0
-            cond    = 1
-        elseif option == 1
-            cond    = 2
-        elseif option == 2
-            cond    = 3
-        else 
-            println("option not recognized, setting to preffered value")
-            cond    = 2
-        end
-
-        if liq_wt > 0.0 && liq_wt < 1.0 && sol_wt > 0.0
-            ph, ph_wt   =  mineral_classification(out, dtb);
-
-            Cliq, Cmin, Csol, ph_TE, ph_wt_norm, liq_wt_norm,  = compute_partitioning(  out, cond,
-                                                                                        C0,
-                                                                                        ph, 
-                                                                                        ph_wt, 
-                                                                                        liq_wt,
-                                                                                        KDs_dtb;
-                                                                                        nnl_KDs = nnl_KDs,
-                                                                                        model = model,
-                                                                                        ratio = ratio)
-
-        elseif liq_wt == 0.0
-            Csol        = C0
-            Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm = nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing
-
-        elseif liq_wt == 1.0 || (sol_wt == 0.0 && liq_wt > 0.0) #latter means there is fluid + melt
-            Cliq        = C0
-            Csol, Cmin, ph_TE, ph_wt_norm  = nothing, nothing, nothing, nothing
-            liq_wt_norm = 1.0
-        else
-            print("unrecognized case!\n")
-            Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, zrc_wt, bulk_cor_wt, Sat_zr_liq = nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing, nothing
-        end
-
-        out_TE = out_tepm(elements, C0, Cliq, Csol, Cmin, nothing, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt)
-            
-        return out_TE
+    status = 1
+    if length(C0) != length(KDs_database.element_name)
+        error("C0 and KDs_database.element_name must have the same length")
+        status = 0
+    end
+    if length(KDs_database.phase_name) == 0
+        error("KDs_database.phase_name must not be empty")
+        status = 0
+    end
+    if length(KDs_database.KDs_expr) == 0
+        error("KDs_database.KDs_expr must not be empty")
+        status = 0
+    end
+    if size(KDs_database.KDs_expr,1) != length(KDs_database.phase_name)
+        error("KDs_database.KDs_expr must have the same number of rows as KDs_database.phase_name")
+        status = 0
     end
 
-    
+    return status
+end
+
+
+"""
+    compute_TE_partitioning(    KDs_database:: custom_KDs_database,
+                                C0          :: Vector{Float64},
+                                ph          :: Vector{String},
+                                ph_wt       :: Vector{Float64}, 
+                                liq_wt      :: Float64,
+                                sol_wt      :: Float64)
+
+Compute the partitioning of elements into different phases based on the provided KDs database and the initial composition C0.
+
+This function partitions the elements into liquid, solid, and other phases based on the provided KDs database and the initial composition C0. It returns the partitioned compositions along with normalized phase weights.
+
+"""
+function compute_TE_partitioning(   KDs_database:: custom_KDs_database,
+                                    out         :: MAGEMin_C.gmin_struct{Float64, Int64},
+                                    C0          :: Vector{Float64},
+                                    ph          :: Vector{String},
+                                    ph_wt       :: Vector{Float64}, 
+                                    liq_wt      :: Float64,
+                                    sol_wt      :: Float64)
+
+
+    if liq_wt > 0.0 && liq_wt < 1.0 && sol_wt > 0.0
+        
+        Cliq, Cmin, Csol, ph_TE, ph_wt_norm, liq_wt_norm = partition_TE(    KDs_database, out, C0, 
+                                                                            ph, ph_wt, liq_wt           ) 
+    elseif liq_wt == 0.0
+        Csol        = C0
+        Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm = NaN, NaN, nothing, NaN, NaN
+
+    elseif liq_wt == 1.0 || (sol_wt == 0.0 && liq_wt > 0.0) #latter means there is fluid + melt
+        Cliq        = C0
+        Csol, Cmin, ph_TE, ph_wt_norm  = NaN, NaN, nothing, NaN
+        liq_wt_norm = 1.0
+    else
+        println("unrecognized case!")
+        Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm = NaN, NaN, NaN, nothing, NaN, NaN
+    end
+
+    return Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm
+end
+
+"""
+    compute_Zr_sat_n_part(          out         :: MAGEMin_C.gmin_struct{Float64, Int64},
+                                    KDs_database:: custom_KDs_database,
+                                    Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm,
+                                    C0          :: Vector{Float64},
+                                    ph          :: Vector{String},
+                                    ph_wt       :: Vector{Float64}, 
+                                    liq_wt      :: Float64,
+                                    sol_wt      :: Float64;
+                                    ZrSat_model :: String = "CB")
+
+Compute zircon saturation and adjust bulk composition if necessary.
+
+This function checks if the zirconium content in the liquid phase exceeds the saturation limit. If it does, it adjusts the bulk composition by removing the excess zirconium and adds a new phase for zircon.
+
+"""
+function compute_Zr_sat_n_part(     out         :: MAGEMin_C.gmin_struct{Float64, Int64},
+                                    KDs_database:: custom_KDs_database,
+                                    Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm,
+                                    C0          :: Vector{Float64},
+                                    ph          :: Vector{String},
+                                    ph_wt       :: Vector{Float64}, 
+                                    liq_wt      :: Float64,
+                                    sol_wt      :: Float64;
+                                    ZrSat_model :: String = "CB")
+
+    id_Zr       = findfirst(KDs_database.element_name .== "Zr")
+    Cliq_Zr     = Cliq[id_Zr]
+    Sat_zr_liq  = zirconium_saturation( out; 
+                                        model = ZrSat_model)
+
+    if Cliq_Zr > Sat_zr_liq
+        zrc_wt, SiO2_zrc_wt, O_wt       = adjust_bulk_4_zircon(Cliq_Zr, Sat_zr_liq)
+
+        push!(ph,"zrn")
+        push!(ph_wt, zrc_wt/100.0)
+
+        ph_wt = ph_wt ./(sum(ph_wt))
+
+        Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm = compute_TE_partitioning(     KDs_database,
+                                                                                        out,
+                                                                                        C0,
+                                                                                        ph,
+                                                                                        ph_wt, 
+                                                                                        liq_wt,
+                                                                                        sol_wt)
+
+        Cliq_Zr     = Cliq[id_Zr]
+        Sat_zr_liq  = zirconium_saturation( out; 
+                                            model = ZrSat_model)   
+
+        SiO2_id                         = findfirst(out.oxides .== "SiO2")
+
+        bulk_cor_wt                     = copy(out.bulk_wt)
+        bulk_cor_wt[SiO2_id]            = out.bulk_wt[SiO2_id] - SiO2_zrc_wt 
+        bulk_cor_wt                   ./= sum(bulk_cor_wt)
+    else
+        zrc_wt, bulk_cor_wt = NaN, NaN
+    end
+
+    return Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt
+end
+
+"""
+    out_TE = TE_prediction(  out, C0, KDs_database, dtb;
+                    ZrSat_model   :: String = "CB")
+
+Perform TE partitioning and zircon saturation calculation.
+
+This function computes the partitioning of elements into different phases based on the provided KDs database and the initial composition C0. It also checks for zircon saturation and adjusts the composition if necessary.
+
+"""
+function TE_prediction(  out, C0, KDs_database, dtb;
+                        ZrSat_model   :: String = "CB")
+
+    # Initialize output variables
+    Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm = NaN, NaN, NaN, nothing, NaN, NaN
+    Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt         = NaN, NaN, NaN, NaN
+
+    # input data
+    liq_wt      = out.frac_M_wt
+    sol_wt      = out.frac_S_wt
+
+    status      = health_check_TE(C0, KDs_database)
+    ph, ph_wt   =  mineral_classification(out, dtb)
+
+    # first let's partition elements
+    Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm = compute_TE_partitioning(     KDs_database,
+                                                                                    out,
+                                                                                    C0,
+                                                                                    ph,
+                                                                                    ph_wt, 
+                                                                                    liq_wt,
+                                                                                    sol_wt)
+                                
+    # then compute zircon saturation and re-partition if necessary
+    if !isnothing(findfirst(KDs_database.element_name .== "Zr")) && liq_wt > 0.0 && ZrSat_model != "none"
+        Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt = compute_Zr_sat_n_part( out,
+                                                                                                                            KDs_database,
+                                                                                                                            Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm,
+                                                                                                                            C0,
+                                                                                                                            ph,
+                                                                                                                            ph_wt, 
+                                                                                                                            liq_wt,
+                                                                                                                            sol_wt;
+                                                                                                                            ZrSat_model = ZrSat_model)
+    end
+
+    out_TE = out_tepm(KDs_database.element_name, C0, Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt)
+
+    return out_TE
 end
