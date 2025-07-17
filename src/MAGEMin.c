@@ -768,6 +768,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		{ "mbIlm",  	ko_optional_argument, 324 },
 		{ "mpSp",  		ko_optional_argument, 327 },
 		{ "mpIlm",  	ko_optional_argument, 328 },
+		{ "ig_ed",  	ko_optional_argument, 329 },
     	{ NULL, 0, 0 }
 	};
 	ketopt_t opt = KETOPT_INIT;
@@ -785,6 +786,7 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		else if (c == 324){ gv.mbIlm   			= atoi(opt.arg);			} 
 		else if (c == 327){ gv.mpSp   			= atoi(opt.arg);			} 	
 		else if (c == 328){ gv.mpIlm   			= atoi(opt.arg);			} 		
+		else if (c == 329){ gv.ig_ed   			= atoi(opt.arg);			} 		
 		else if (c == 316){ gv.solver   		= atoi(opt.arg);			}																		
 		else if (c == 318){ gv.output_matlab   	= atoi(opt.arg); 			}																		
 		else if (c == 304){ gv.n_points 		= atoi(opt.arg); 	 		}
@@ -958,6 +960,7 @@ global_variable SetupDatabase(			global_variable 	 gv,
 		printf("--mbIlm       : mbIlm                = %i \n", 	 	   		gv.mbIlm			);
 		printf("--mpSp        : mpSp                 = %i \n", 	 	   		gv.mpSp				);
 		printf("--mpIlm       : mpIlm                = %i \n", 	 	   		gv.mpIlm			);
+		printf("--ig_ed       : ig_ed                = %i \n", 	 	   		gv.ig_ed			);
 
 		printf("--out_matlab  : out_matlab           = %i \n", 	 	   		gv.output_matlab	);
 	}
@@ -1431,7 +1434,7 @@ void PrintOutput(	global_variable 	gv,
 		printf("\n");
 		printf(" SOL = [G: %.3f] (%i iterations, %.2f ms)\n",gv.G_system,gv.global_ite,time_taken*1000.0);
 		printf(" GAM = [");
-		for (i = 0; i < z_b.nzEl_val-1; i++){
+		for (i = 0; i < z_b.nzEl_val; i++){
 			printf("%+8f,",gv.gam_tot[z_b.nzEl_array[i]]);
 		}
 		printf("%+8f",gv.gam_tot[z_b.nzEl_val-1]);

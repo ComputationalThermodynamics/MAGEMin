@@ -608,6 +608,7 @@ mutable struct global_variables
     mbIlm::Cint
     mpSp::Cint
     mpIlm::Cint
+    ig_ed::Cint
     fluidSpec::Cint
     n_fs_db::Cint
     test::Cint
@@ -1388,7 +1389,7 @@ mutable struct metabasite_datasets
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{10, NTuple{20, Cchar}}
-    PP::NTuple{26, NTuple{20, Cchar}}
+    PP::NTuple{27, NTuple{20, Cchar}}
     SS::NTuple{17, NTuple{20, Cchar}}
     verifyPC::NTuple{17, Cint}
     n_SS_PC::NTuple{17, Cint}
@@ -1414,7 +1415,7 @@ mutable struct metabasite_ext_datasets
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{10, NTuple{20, Cchar}}
-    PP::NTuple{26, NTuple{20, Cchar}}
+    PP::NTuple{276, NTuple{20, Cchar}}
     SS::NTuple{19, NTuple{20, Cchar}}
     verifyPC::NTuple{19, Cint}
     n_SS_PC::NTuple{19, Cint}
