@@ -514,6 +514,7 @@ void fill_output_struct(		global_variable 	 gv,
 			for (int j = 0; j < gv.len_ox; j++){
 				G += cp[i].ss_comp[j]*gv.gam_tot[j];
 			}
+			G *= cp[i].factor;
 
 			sp[0].SS[m].n_xeos   = cp[i].n_xeos;
 			sp[0].SS[m].n_em 	 = cp[i].n_em;
@@ -581,6 +582,8 @@ void fill_output_struct(		global_variable 	 gv,
 				for (int k = 0; k < gv.len_ox; k++){
 					sp[0].SS[m].emChemPot[j] += SS_ref_db[cp[i].id].Comp[j][k]*gv.gam_tot[k];
 				}
+				sp[0].SS[m].emChemPot[j] 		*= cp[i].factor;
+				
 				
 				sum_wt  = 0.0;
 				sum_mol = 0.0;
