@@ -576,7 +576,11 @@ void fill_output_struct(		global_variable 	 gv,
 				sum_ph_mass					   += sp[0].SS[m].emFrac_wt[j];
 				strcpy(sp[0].SS[m].emNames[j],SS_ref_db[cp[i].id].EM_list[j]);	
 				sp[0].SS[m].emFrac[j] 			= cp[i].p_em[j];
+
 				sp[0].SS[m].emChemPot[j] 		= cp[i].mu[j];
+				for (int k = 0; k < gv.len_ox; k++){
+					sp[0].SS[m].emChemPot[j] += SS_ref_db[cp[i].id].Comp[j][k]*gv.gam_tot[k];
+				}
 				
 				sum_wt  = 0.0;
 				sum_mol = 0.0;
