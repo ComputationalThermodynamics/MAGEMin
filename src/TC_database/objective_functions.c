@@ -10022,7 +10022,6 @@ double obj_igad_cpx(unsigned n, const double *x, double *grad, void *SS_ref_db){
     sf[11]          = 1.0 - 0.5*x[1];
     sf[12]          = 0.5*x[1];
     
-    
     mu[0]          = gb[0] + R*T*creal(clog(sf[0]*csqrt(sf[11])*sf[8])) + mu_Gex[0];
     mu[1]          = gb[1] + R*T*creal(clog(csqrt(sf[11])*sf[1]*sf[7])) + mu_Gex[1];
     mu[2]          = gb[2] + R*T*creal(clog(1.4142*cpow(sf[11], 0.25)*cpow(sf[12], 0.25)*sf[2]*sf[8])) + mu_Gex[2];
@@ -10033,7 +10032,6 @@ double obj_igad_cpx(unsigned n, const double *x, double *grad, void *SS_ref_db){
     mu[7]          = gb[7] + R*T*creal(clog(sf[0]*csqrt(sf[11])*sf[6])) + mu_Gex[7];
     mu[8]          = gb[8] + R*T*creal(clog(sf[0]*csqrt(sf[11])*sf[7])) + mu_Gex[8];
     mu[9]          = gb[9] + R*T*creal(clog(sf[10]*csqrt(sf[11])*sf[2] + d_em[9])) + mu_Gex[9];
-    
     
     d->sum_apep = 0.0;
     for (int i = 0; i < n_em; i++){
