@@ -431,11 +431,21 @@ end
     Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
     X1      = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
     X2      = [49.43; 14.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
-    X       = [X1,X2]
+    X       = [X1, X2] # only use first two points
     sys_in  = "wt"
-    P_view = @view P[1:2]
-    T_view = @view T[1:2]
+    P_view  = @view P[1:2]
+    T_view  = @view T[1:2]
     out     = multi_point_minimization(P_view, T_view, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+
+    # test with a view of the bulk rock
+    index_shufle   = [2,1,3,4,5,6,7,8,9,10,11]
+    Xoxides_shufle = ["Al2O3"; "SiO2"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"]
+    X1_view        = @view X1[index_shufle]
+
+    # just run it to be sure it is not erroring
+    out     = single_point_minimization(P[3], T[3], data, X=X1_view, Xoxides=Xoxides_shufle, sys_in=sys_in)
+    mol2wt(X1_view, Xoxides_shufle) # convert to mol
+    wt2mol(X1_view, Xoxides_shufle) # convert to mol
 
     Finalize_MAGEMin(data)
 end

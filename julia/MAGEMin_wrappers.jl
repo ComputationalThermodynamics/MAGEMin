@@ -909,7 +909,7 @@ function define_bulk_rock(gv, bulk_in, bulk_in_ox, sys_in,db)
 end
 
 
-function normalize(vector::Vector{Float64})
+function normalize(vector::AbstractVector{Float64})
     return vector ./ sum(vector)
 end
 
@@ -917,8 +917,8 @@ end
     bulk_mol = wt2mol(bulk_wt, bulk_ox)
 Converts bulk-rock composition from wt to mol fraction
 """
-function wt2mol(    bulk_wt     :: Vector{Float64},
-                    bulk_ox     :: Vector{String}) 
+function wt2mol(    bulk_wt     :: AbstractVector{Float64},
+                    bulk_ox     :: AbstractVector{String}) 
 
     ref_ox          = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "MnO"; "H2O"; "CO2"; "S"];
     ref_MolarMass   = [60.08; 101.96; 56.08; 40.30; 71.85; 159.69; 94.2; 61.98; 79.88; 16.0; 151.99; 70.937; 18.015; 44.01; 32.06];      #Molar mass of oxides
@@ -926,7 +926,7 @@ function wt2mol(    bulk_wt     :: Vector{Float64},
     bulk_mol = zeros(length(bulk_ox));
     bulk_wt  = normalize(bulk_wt)
 
-    for i = 1:length(bulk_ox)
+    for i = axes(bulk_ox,1)
         id = findfirst(ref_ox .== bulk_ox[i]);
         bulk_mol[i] = bulk_wt[i]/ref_MolarMass[id];
     end
@@ -942,8 +942,8 @@ end
 
     Converts bulk-rock composition from mol to wt fraction
 """
-function mol2wt(    bulk_mol     :: Vector{Float64},
-                    bulk_ox      :: Vector{String}) 
+function mol2wt(    bulk_mol     :: AbstractVector{Float64},
+                    bulk_ox      :: AbstractVector{String}) 
 
     ref_ox          = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "MnO"; "H2O"; "CO2"; "S"];
     ref_MolarMass   = [60.08; 101.96; 56.08; 40.30; 71.85; 159.69; 94.2; 61.98; 79.88; 16.0; 151.99; 70.937; 18.015; 44.01; 32.06];      #Molar mass of oxides
@@ -951,7 +951,7 @@ function mol2wt(    bulk_mol     :: Vector{Float64},
     bulk_wt = zeros(length(bulk_ox));
     bulk_mol = normalize(bulk_mol)
 
-    for i = 1:length(bulk_ox)
+    for i = axes(bulk_ox,1)
         id = findfirst(ref_ox .== bulk_ox[i]);
         bulk_wt[i] = bulk_mol[i]*ref_MolarMass[id];
     end
