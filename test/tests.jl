@@ -696,3 +696,42 @@ println("Override Ws")
     out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
     @test norm(out.ph_frac) - 0.456 < 0.01
 end
+
+#=
+# The following part is not really a test yet, but more an example of how to use initial guesses
+
+using MAGEMin_C
+
+MAGEMin_data    = Initialize_MAGEMin("mp", verbose=-1);
+
+Xoxides         = ["SiO2";  "TiO2";  "Al2O3";  "FeO";   "MnO";   "MgO";   "CaO";   "Na2O";  "K2O"; "H2O"; "O"];
+X1              = [58.509,  1.022,   14.858, 4.371, 0.141, 4.561, 5.912, 3.296, 2.399, 10.0, 0.0];
+sys_in          = "wt"
+
+
+Pvec,Tvec       = [6.0,6.1,6.0,6.1], [710.0,710.0,720.0,720.0]
+Xvec            = [X1,X1,X1,X1] # here the composition can also be slightly varied. how much I am not quite sure yet
+
+Out_XY          = Vector{out_struct}(undef,length(Pvec))
+Out_XY          = multi_point_minimization( Pvec, Tvec, MAGEMin_data;
+                                            X=Xvec, Xoxides=Xoxides, sys_in=sys_in, 
+                                            name_solvus=true); 
+
+# retrieve theinitial guesses
+# The way it works is by retrieving the mSS_vec structure from the 4 previous minimizations and concatenating them into a single vector
+tmp             = [Out_XY[i].mSS_vec for i=1:length(Pvec)]
+Gig             = vcat(tmp...)                  
+
+# note that below we use slightly different P,T conditions and that Gig is passed as an initial guess within square brackets
+# A similar approach can be used in the case of multi_point_minimization but then a vector of P,T, iguess and G must be passed
+# Note that G is a vector of vectors in that case => Gig = Vector{Vector{LibMAGEMin.mSS_data}}(undef,np);
+Out_ig          = single_point_minimization(    6.05, 715.0, MAGEMin_data;
+                                                X=X1, Xoxides=Xoxides, sys_in=sys_in, 
+                                                name_solvus=true,
+                                                iguess=true,G=[Gig]); 
+
+
+Finalize_MAGEMin(MAGEMin_data)
+
+
+=#

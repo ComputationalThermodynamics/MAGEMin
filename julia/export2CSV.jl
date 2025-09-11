@@ -56,7 +56,7 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
 
     print("\noutput path: $(pwd())\n")
     @showprogress "Saving data to csv..." for k=1:np
-
+        # system
         part_1 = Dict(  "point[#]"      => k,
                         "X[0.0-1.0]"    => out[k].X[1],
                         "P[kbar]"       => out[k].P_kbar,
@@ -65,7 +65,7 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
                         "mode[wt%]"     => 100.0,
                         "Zr_sat[μg/g]"  => "-")
 
-        if ~isnothing(out_te[k].bulk_cor_wt)
+        if ~isnothing(out_te[k].bulk_cor_wt) && !any(isnan, out_te[k].bulk_cor_wt)
             part_2 = Dict(  (out[1].oxides[j]*"_cor[wt%]" => out_te[k].bulk_cor_wt[j]*100.0)
                             for j in eachindex(out[1].oxides))
         else
@@ -87,7 +87,7 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
             Sat_zr_liq = out_te[k].Sat_zr_liq
         end
 
-        if ~isnothing(out_te[k].liq_wt_norm)
+        if ~isnothing(out_te[k].liq_wt_norm) && !any(isnan, out_te[k].liq_wt_norm)
             part_1 = Dict(  "point[#]"      => k,
                             "X[0.0-1.0]"    => out[k].X[1],
                             "P[kbar]"       => out[k].P_kbar,
@@ -108,8 +108,8 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
         end
 
         # solid
-        if ~isnothing(out_te[k].Csol)
-            if ~isnothing(out_te[k].liq_wt_norm)
+        if ~isnothing(out_te[k].Csol) && !any(isnan, out_te[k].Csol)
+            if ~isnothing(out_te[k].liq_wt_norm) && !isnan(out_te[k].liq_wt_norm)
                 sol_mode = (1.0-out_te[k].liq_wt_norm)*100.0
             else
                 sol_mode = 100.0
@@ -132,7 +132,7 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
 
             push!(MAGEMin_db, row, cols=:union)
         end
-        
+
         if ~isnothing(out_te[k].ph_TE)
             nph  = length(out_te[k].ph_TE)
             for i=1:nph

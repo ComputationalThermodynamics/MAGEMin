@@ -1393,6 +1393,7 @@ function point_wise_minimization(   P       ::Float64,
         dGdT_N 		= (out_NE.G_system - out_N.G_system)	/(dT);
         dGdT_P 		= (out_E.G_system - out.G_system)	    /(dT);
 
+        # out.entropy     .= -(out_E.entropy - out.entropy)/(dT);
         out.entropy     .= -(out_E.G_system - out.G_system)/(dT);
         out.enthalpy    .= out.entropy*(T+273.15) .+ out.G_system;
         out.s_cp   .= hcp/out.M_sys*1e6;
