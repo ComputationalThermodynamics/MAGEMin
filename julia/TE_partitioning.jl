@@ -226,7 +226,8 @@ function partition_TE(  KDs_database:: custom_KDs_database,
                         C0          :: Vector{Float64},
                         ph          :: Vector{String},
                         ph_wt       :: Vector{Float64}, 
-                        liq_wt      :: Float64)
+                        liq_wt      :: Float64;
+                        norm_TE     :: Bool = true)
 
 
     phase_name  = KDs_database.phase_name
@@ -238,8 +239,13 @@ function partition_TE(  KDs_database:: custom_KDs_database,
 
     # normalize phase fractions
     sum_ph_frac = sum(ph_wt[MM_ph_idx]);
-    liq_wt_norm = liq_wt/(sum_ph_frac+liq_wt);
-    ph_wt_norm  = ph_wt[MM_ph_idx]./sum_ph_frac;
+    if norm_TE == true
+        liq_wt_norm = liq_wt/(sum_ph_frac+liq_wt);
+        ph_wt_norm  = ph_wt[MM_ph_idx]./sum_ph_frac;
+    else
+        liq_wt_norm = liq_wt
+        ph_wt_norm  = ph_wt[MM_ph_idx]
+    end
     ph_TE       = ph[MM_ph_idx];
 
     n_ph        = length(ph_wt_norm)
@@ -309,13 +315,14 @@ function compute_TE_partitioning(   KDs_database:: custom_KDs_database,
                                     ph          :: Vector{String},
                                     ph_wt       :: Vector{Float64}, 
                                     liq_wt      :: Float64,
-                                    sol_wt      :: Float64)
+                                    sol_wt      :: Float64;
+                                    norm_TE     :: Bool = true  )
 
 
     if liq_wt > 0.0 && liq_wt < 1.0 && sol_wt > 0.0
         
         Cliq, Cmin, Csol, ph_TE, ph_wt_norm, liq_wt_norm = partition_TE(    KDs_database, out, C0, 
-                                                                            ph, ph_wt, liq_wt           ) 
+                                                                            ph, ph_wt, liq_wt; norm_TE=norm_TE)
     elseif liq_wt == 0.0
         Csol        = C0
         Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm = NaN, NaN, nothing, NaN, NaN
@@ -356,7 +363,8 @@ function compute_Zr_sat_n_part(     out         :: MAGEMin_C.gmin_struct{Float64
                                     ph_wt       :: Vector{Float64}, 
                                     liq_wt      :: Float64,
                                     sol_wt      :: Float64;
-                                    ZrSat_model :: String = "CB")
+                                    ZrSat_model :: String = "CB",
+                                    norm_TE     :: Bool = true)
 
     id_Zr       = findfirst(KDs_database.element_name .== "Zr")
     Cliq_Zr     = Cliq[id_Zr]
@@ -377,7 +385,8 @@ function compute_Zr_sat_n_part(     out         :: MAGEMin_C.gmin_struct{Float64
                                                                                         ph,
                                                                                         ph_wt, 
                                                                                         liq_wt,
-                                                                                        sol_wt)
+                                                                                        sol_wt;
+                                                                                        norm_TE = norm_TE)
 
         Cliq_Zr     = Cliq[id_Zr]
         Sat_zr_liq  = zirconium_saturation( out; 
@@ -405,7 +414,8 @@ This function computes the partitioning of elements into different phases based 
 
 """
 function TE_prediction(  out, C0, KDs_database, dtb;
-                        ZrSat_model   :: String = "CB")
+                        ZrSat_model   :: String = "CB",
+                        norm_TE       :: Bool = true)
 
     # Initialize output variables
     Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm = NaN, NaN, NaN, nothing, NaN, NaN
@@ -425,7 +435,8 @@ function TE_prediction(  out, C0, KDs_database, dtb;
                                                                                     ph,
                                                                                     ph_wt, 
                                                                                     liq_wt,
-                                                                                    sol_wt)
+                                                                                    sol_wt;
+                                                                                    norm_TE = norm_TE)
                                 
     # then compute zircon saturation and re-partition if necessary
     if !isnothing(findfirst(KDs_database.element_name .== "Zr")) && liq_wt > 0.0 && ZrSat_model != "none"

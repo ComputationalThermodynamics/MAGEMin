@@ -105,7 +105,7 @@ metabasite_dataset metabasite_db = {
 	{"sp"	,"opx"	,"fsp"	,"liq"	,"mu"	,"ilmm"	,"ilm"	,"ol"	,"amp"	,"ep"	,"g"	,"chl"	,"bi"	,"dio"	,"aug"	,"abc"  ,"spl"			},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1				},  // allow solvus?
-	{939	,1731 	,231	,3507	,4539 	,298	,422	,11		,7673	,110	,217	,3980	,1098	,1811	,2398	,21 	,196			},  // # of pseudocompound
+	{939	,1731 	,231	,3507	,4539 	,298	,422	,11		,7674	,110	,217	,3980	,1098	,1811	,2398	,21 	,196			},  // # of pseudocompound
 	{0.04	,0.19	,0.02	,0.15	,0.049	,0.09	,0.049	,0.04	,0.15	,0.049	,0.19	,0.19	,0.125	,0.10	,0.10	,0.049 	,0.04			},  // discretization step
 
 	6.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
@@ -164,7 +164,7 @@ igneous_dataset igneous_db = {
 	{"spl"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"amp"	,"ilm"	,"liq"	,"ol"	,"opx"	,"fsp"	,"fl"	,"mu"	,"fper"	,"chl"				},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1		,1		,1					}, // allow solvus?
-	{1523	,3554	,121	,4127	,210	,2450	,5499	,1670	,3088	,381	,3413	,231	,2		,2376	,20		,3980				}, // # of pseudocompound
+	{1523	,3554	,121	,4127	,210	,2450	,5499	,1670	,3088	,381	,3413	,231	,10		,2376	,20		,3980				}, // # of pseudocompound
 	{0.2	,0.124	,0.098	,0.20	,0.049	,0.145	,0.33	,0.10	,0.15	,0.04	,0.249	,0.049	,1.0 	,0.198	,0.05	,0.19				}, // discretization step
 
 	6.0, 						/** max dG under which a phase is considered to be reintroduced  					*/

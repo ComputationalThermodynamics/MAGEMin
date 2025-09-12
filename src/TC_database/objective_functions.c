@@ -58,25 +58,130 @@ void p2x_mb_liq(void *SS_ref_db, double eps){
 /**
     Endmember to xeos for amp
 */
-void p2x_mb_amp(void *SS_ref_db, double eps){
-    SS_ref *d  = (SS_ref *) SS_ref_db;
+// void p2x_mb_amp(void *SS_ref_db, double eps){
+//     SS_ref *d  = (SS_ref *) SS_ref_db;
     
-    d->iguess[7]   = d->p[10];
-    d->iguess[6]   = d->p[8];
-    d->iguess[2]   = d->iguess[6] + d->p[3];
-    d->iguess[3]   = d->p[2] + d->p[9];
-    d->iguess[4]   = d->p[9]/(d->p[2] + d->p[9]);
-    d->iguess[5]   = d->iguess[3] + d->p[0] + d->p[1] + d->iguess[7];
-    d->iguess[1]   = -0.5*d->iguess[3] + d->iguess[5] -d->iguess[6] -d->p[0] -d->iguess[7] + d->iguess[2];
-    d->iguess[0]  = (5.0*d->iguess[5] + 5.0*d->p[4] - 2.0*d->p[5] + d->p[6] + 5.0*d->iguess[2] - 5.0)/(2.0*d->iguess[5] + 2.0*d->iguess[6] + 2.0*d->iguess[7] + 2.0*d->iguess[1] + 2.0*d->iguess[2] - 7.0);
-    d->iguess[8]  = -0.4*d->iguess[5]*d->iguess[0] + 2.0*d->iguess[5] - 0.4*d->iguess[6]*d->iguess[0] + 2.0*d->p[4] - 0.4*d->p[5] + 1.2*d->p[6] - 0.4*d->iguess[7]*d->iguess[0] - 0.4*d->iguess[0]*d->iguess[1] - 0.4*d->iguess[0]*d->iguess[2] + 2.4*d->iguess[0] + 2.0*d->iguess[2] - 2.0;
-    d->iguess[9]  = (-2.0*d->iguess[5]*d->iguess[0] + 5.0*d->iguess[5] + 5.0*d->p[4] + 3.0*d->p[6] - 2.0*d->iguess[0]*d->iguess[2] + 5.0*d->iguess[0] + 5.0*d->iguess[2] - 5.0)/(2.0*d->iguess[6] + 2.0*d->iguess[7] + 2.0*d->iguess[1] - 2.0);
+//     d->iguess[7]   = d->p[10];
+//     d->iguess[6]   = d->p[8];
+//     d->iguess[2]   = d->iguess[6] + d->p[3];
+//     d->iguess[3]   = d->p[2] + d->p[9];
+//     d->iguess[4]   = d->p[9]/(d->p[2] + d->p[9]);
+//     d->iguess[5]   = d->iguess[3] + d->p[0] + d->p[1] + d->iguess[7];
+//     d->iguess[1]   = -0.5*d->iguess[3] + d->iguess[5] -d->iguess[6] -d->p[0] -d->iguess[7] + d->iguess[2];
+//     d->iguess[0]  = (5.0*d->iguess[5] + 5.0*d->p[4] - 2.0*d->p[5] + d->p[6] + 5.0*d->iguess[2] - 5.0)/(2.0*d->iguess[5] + 2.0*d->iguess[6] + 2.0*d->iguess[7] + 2.0*d->iguess[1] + 2.0*d->iguess[2] - 7.0);
+//     d->iguess[8]  = -0.4*d->iguess[5]*d->iguess[0] + 2.0*d->iguess[5] - 0.4*d->iguess[6]*d->iguess[0] + 2.0*d->p[4] - 0.4*d->p[5] + 1.2*d->p[6] - 0.4*d->iguess[7]*d->iguess[0] - 0.4*d->iguess[0]*d->iguess[1] - 0.4*d->iguess[0]*d->iguess[2] + 2.4*d->iguess[0] + 2.0*d->iguess[2] - 2.0;
+//     d->iguess[9]  = (-2.0*d->iguess[5]*d->iguess[0] + 5.0*d->iguess[5] + 5.0*d->p[4] + 3.0*d->p[6] - 2.0*d->iguess[0]*d->iguess[2] + 5.0*d->iguess[0] + 5.0*d->iguess[2] - 5.0)/(2.0*d->iguess[6] + 2.0*d->iguess[7] + 2.0*d->iguess[1] - 2.0);
     
-    for (int i = 0; i < d->n_xeos; i++){
-        if (d->iguess[i] < d->bounds[i][0]){
+//     for (int i = 0; i < d->n_xeos; i++){
+//         if (d->iguess[i] < d->bounds[i][0]){
+//             d->iguess[i] = d->bounds[i][0];
+//         }
+//         if (d->iguess[i] > d->bounds[i][1]){
+//             d->iguess[i] = d->bounds[i][1];
+//         }
+//     }
+// }
+
+
+/**
+    Endmember to xeos for amp
+*/
+void p2x_mb_amp(void *SS_ref_db, double eps) {
+    SS_ref *d = (SS_ref *) SS_ref_db;
+
+    // Common denominator for x, Q1, Q2
+    double denom_x_Q1 =  4.0 * d->p[3] + 3.0 * d->p[9] + 4.0 * d->p[8] + 
+                        3.0 * d->p[2] + 2.0 * d->p[0] + 4.0 * d->p[1] + 4.0 * d->p[10] - 7.0;
+    double denom_Q2 = 8.0 * pow(d->p[3], 2.0) + 10.0 * d->p[3] * d->p[9] + 
+                      16.0 * d->p[3] * d->p[8] + 10.0 * d->p[3] * d->p[2] + 4.0 * d->p[3] * d->p[0] + 
+                      16.0 * d->p[3] * d->p[1] + 16.0 * d->p[3] * d->p[10] - 22.0 * d->p[3] + 
+                      3.0 * pow(d->p[9], 2.0) + 10.0 * d->p[9] * d->p[8] + 6.0 * d->p[9] * d->p[2] + 
+                      2.0 * d->p[9] * d->p[0] + 10.0 * d->p[9] * d->p[1] + 10.0 * d->p[9] * d->p[10] - 
+                      13.0 * d->p[9] + 8.0 * pow(d->p[8], 2.0) + 10.0 * d->p[8] * d->p[2] + 
+                      4.0 * d->p[8] * d->p[0] + 16.0 * d->p[8] * d->p[1] + 16.0 * d->p[8] * d->p[10] - 
+                      22.0 * d->p[8] + 3.0 * pow(d->p[2], 2.0) + 2.0 * d->p[2] * d->p[0] + 
+                      10.0 * d->p[2] * d->p[1] + 10.0 * d->p[2] * d->p[10] - 13.0 * d->p[2] + 
+                      4.0 * d->p[0] * d->p[1] + 4.0 * d->p[0] * d->p[10] - 4.0 * d->p[0] + 
+                      8.0 * pow(d->p[1], 2.0) + 16.0 * d->p[1] * d->p[10] - 22.0 * d->p[1] + 
+                      8.0 * pow(d->p[10], 2.0) - 22.0 * d->p[10] + 14.0;
+    double denom_k = d->p[2] + d->p[9];
+
+    // Assignments
+    d->iguess[3]  = d->p[2] + d->p[9]; // a
+    d->iguess[5]  = d->p[0] + d->p[1] + d->p[10] + d->p[11] + d->p[2] + d->p[9]; // c
+    d->iguess[6]  = d->p[8]; // f
+    d->iguess[4]  = (denom_k != 0.0) ? d->p[9] / denom_k : d->bounds[4][0]; // k
+    d->iguess[7]  = d->p[10]; // t
+    d->iguess[1]  = d->p[1] + 0.5 * d->p[2] + d->p[3] + 0.5 * d->p[9]; // y
+    d->iguess[2]  = d->p[3] + d->p[8]; // z
+    d->iguess[0]  = (denom_x_Q1 != 0.0) ? 
+                    0.142857142857143 * (5.0 * d->p[0] + 5.0 * d->p[1] + 5.0 * d->p[10] + 
+                                        5.0 * d->p[2] + 5.0 * d->p[3] + 
+                                         5.0 * d->p[4] - 2.0 * d->p[5] + d->p[6] + 
+                                         5.0 * d->p[8] + 5.0 * d->p[9] - 5.0) / denom_x_Q1 : 
+                    d->bounds[0][0]; // x
+    d->iguess[8]  = (denom_x_Q1 != 0.0) ? 
+                    0.142857142857143 * (2.0 * d->p[0] * d->p[1] + 2.0 * d->p[0] * d->p[10] + 
+                                         5.0 * d->p[0] * d->p[2] + 
+                                         6.0 * d->p[0] * d->p[3] + 2.0 * d->p[0] * d->p[4] + 
+                                         2.0 * d->p[0] * d->p[6] + 6.0 * d->p[0] * d->p[8] + 
+                                         5.0 * d->p[0] * d->p[9] - 4.0 * d->p[0] + 2.0 * pow(d->p[0], 2.0) + 
+                                         8.0 * d->p[1] * d->p[10]  + 
+                                         7.0 * d->p[1] * d->p[2] + 8.0 * d->p[1] * d->p[3] + 
+                                         4.0 * d->p[1] * d->p[4] + 4.0 * d->p[1] * d->p[6] + 
+                                         8.0 * d->p[1] * d->p[8] + 7.0 * d->p[1] * d->p[9] - 
+                                         6.0 * d->p[1] + 4.0 * pow(d->p[1], 2.0) + 
+                                         7.0 * d->p[10] * d->p[2] + 8.0 * d->p[10] * d->p[3] + 
+                                         4.0 * d->p[10] * d->p[4] + 4.0 * d->p[10] * d->p[6] + 
+                                         8.0 * d->p[10] * d->p[8] + 7.0 * d->p[10] * d->p[9] - 
+                                         6.0 * d->p[10] + 4.0 * pow(d->p[10], 2.0) + 
+                                         7.0 * d->p[2] * d->p[3] + 3.0 * d->p[2] * d->p[4] + 
+                                         3.0 * d->p[2] * d->p[6] + 7.0 * d->p[2] * d->p[8] + 
+                                         6.0 * d->p[2] * d->p[9] - 5.0 * d->p[2] + 3.0 * pow(d->p[2], 2.0) + 
+                                         4.0 * d->p[3] * d->p[4] + 4.0 * d->p[3] * d->p[6] + 
+                                         8.0 * d->p[3] * d->p[8] + 7.0 * d->p[3] * d->p[9] - 
+                                         6.0 * d->p[3] + 4.0 * pow(d->p[3], 2.0) + 4.0 * d->p[4] * d->p[8] + 
+                                         3.0 * d->p[4] * d->p[9] - 2.0 * d->p[4] - 2.0 * d->p[5] + 
+                                         4.0 * d->p[6] * d->p[8] + 3.0 * d->p[6] * d->p[9] - 6.0 * d->p[6] + 
+                                         7.0 * d->p[8] * d->p[9] - 6.0 * d->p[8] + 4.0 * pow(d->p[8], 2.0) - 
+                                         5.0 * d->p[9] + 3.0 * pow(d->p[9], 2.0) + 2.0) / denom_x_Q1 : 
+                    d->bounds[8][0]; // Q1
+    d->iguess[9]  = (denom_Q2 != 0.0) ? 
+                    0.0454545454545455 * (10.0 * d->p[0] * d->p[1] + 10.0 * d->p[0] * d->p[10] + 
+                                          5.0 * d->p[0] * d->p[2] + 10.0 * d->p[0] * d->p[3] + 
+                                          4.0 * d->p[0] * d->p[5] + 4.0 * d->p[0] * d->p[6] + 
+                                          10.0 * d->p[0] * d->p[8] + 5.0 * d->p[0] * d->p[9] - 
+                                          10.0 * d->p[0] + 20.0 * d->p[1] * d->p[10] + 
+                                          15.0 * d->p[1] * d->p[2] + 
+                                          20.0 * d->p[1] * d->p[3] + 10.0 * d->p[1] * d->p[4] + 
+                                          4.0 * d->p[1] * d->p[5] + 10.0 * d->p[1] * d->p[6] + 
+                                          20.0 * d->p[1] * d->p[8] + 15.0 * d->p[1] * d->p[9] - 
+                                          20.0 * d->p[1] + 10.0 * pow(d->p[1], 2.0) + 
+                                          15.0 * d->p[10] * d->p[2] + 
+                                          20.0 * d->p[10] * d->p[3] + 10.0 * d->p[10] * d->p[4] + 
+                                          4.0 * d->p[10] * d->p[5] + 10.0 * d->p[10] * d->p[6] + 
+                                          20.0 * d->p[10] * d->p[8] + 15.0 * d->p[10] * d->p[9] - 
+                                          20.0 * d->p[10] + 10.0 * pow(d->p[10], 2.0) + 15.0 * d->p[2] * d->p[3] + 
+                                          5.0 * d->p[2] * d->p[4] + 4.0 * d->p[2] * d->p[5] + 
+                                          7.0 * d->p[2] * d->p[6] + 15.0 * d->p[2] * d->p[8] + 
+                                          10.0 * d->p[2] * d->p[9] - 15.0 * d->p[2] + 5.0 * pow(d->p[2], 2.0) + 
+                                          10.0 * d->p[3] * d->p[4] + 4.0 * d->p[3] * d->p[5] + 
+                                          10.0 * d->p[3] * d->p[6] + 20.0 * d->p[3] * d->p[8] + 
+                                          15.0 * d->p[3] * d->p[9] - 20.0 * d->p[3] + 10.0 * pow(d->p[3], 2.0) + 
+                                          10.0 * d->p[4] * d->p[8] + 5.0 * d->p[4] * d->p[9] - 
+                                          10.0 * d->p[4] + 4.0 * d->p[5] * d->p[8] + 4.0 * d->p[5] * d->p[9] - 
+                                          10.0 * d->p[5] + 10.0 * d->p[6] * d->p[8] + 7.0 * d->p[6] * d->p[9] - 
+                                          16.0 * d->p[6] + 15.0 * d->p[8] * d->p[9] - 20.0 * d->p[8] + 
+                                          10.0 * pow(d->p[8], 2.0) - 15.0 * d->p[9] + 5.0 * pow(d->p[9], 2.0) + 
+                                          10.0) / denom_Q2 : 
+                    d->bounds[9][0]; // Q2
+
+    // Bounds checking
+    for (int i = 0; i < d->n_xeos; i++) {
+        if (d->iguess[i] < d->bounds[i][0]) {
             d->iguess[i] = d->bounds[i][0];
         }
-        if (d->iguess[i] > d->bounds[i][1]){
+        if (d->iguess[i] > d->bounds[i][1]) {
             d->iguess[i] = d->bounds[i][1];
         }
     }
@@ -6351,31 +6456,135 @@ void p2x_ig_g(void *SS_ref_db, double eps){
 /** 
   endmembers to xeos (hornblende)
 */
-void p2x_ig_amp(void *SS_ref_db, double eps){
-	SS_ref *d  = (SS_ref *) SS_ref_db;
+// void p2x_ig_amp(void *SS_ref_db, double eps){
+// 	SS_ref *d  = (SS_ref *) SS_ref_db;
 
-	d->iguess[0] = (-3.5*d->p[5] - 2.0*d->p[6] - 2.5*d->p[7])/(-0.5*d->p[0] + 0.5*d->p[1] + 0.5*d->p[10] + 0.5*d->p[3] - 1.5*d->p[4] - 1.5*d->p[5] - 1.5*d->p[6] - 1.5*d->p[7] + 0.5*d->p[8] - 2.0);
-	d->iguess[1] = (d->p[1]-d->p[0] + 1.0-d->p[3]-d->p[8]-d->p[4]-d->p[6]-d->p[5]-d->p[7] -2*d->p[8] - d->p[10] + 2*(d->p[3] + d->p[8]))/2.0;
-	d->iguess[2] = d->p[3] + d->p[8];
-	d->iguess[3] = d->p[2] + d->p[9];
-	d->iguess[4] = d->p[9]/(d->p[2]+d->p[9]);
-	d->iguess[5] = 1.0-d->p[3]-d->p[8]-d->p[4]-d->p[6]-d->p[5]-d->p[7];
-	d->iguess[6] = d->p[8];
-	d->iguess[7] = d->p[10];
-	d->iguess[8] = (-3.5*d->p[5] - 2.0*d->p[6] - 2.5*d->p[7])/(-0.5*d->p[0] + 0.5*d->p[1] + 0.5*d->p[10] + 0.5*d->p[3] - 1.5*d->p[4] - 1.5*d->p[5] - 1.5*d->p[6] - 1.5*d->p[7] + 0.5*d->p[8] - 2.0) -d->p[5] -d->p[7];
-	d->iguess[9] = (d->p[5] + d->p[6] - (-3.5*d->p[5] - 2.0*d->p[6] - 2.5*d->p[7])*(0.5*d->p[0] - 0.5*d->p[1] - 0.5*d->p[10] - 0.5*d->p[3] + 0.5*d->p[4] + 0.5*d->p[5] + 0.5*d->p[6] + 0.5*d->p[7] - 0.5*d->p[8] + 0.5)/(-0.5*d->p[0] + 0.5*d->p[1] + 0.5*d->p[10] + 0.5*d->p[3] - 1.5*d->p[4] - 1.5*d->p[5] - 1.5*d->p[6] - 1.5*d->p[7] + 0.5*d->p[8] - 2.0))/(-0.5*d->p[0] + 0.5*d->p[1] + 0.5*d->p[10] + 0.5*d->p[3] - 0.5*d->p[4] - 0.5*d->p[5] - 0.5*d->p[6] - 0.5*d->p[7] + 0.5*d->p[8] - 0.5);
+// 	d->iguess[0] = (-3.5*d->p[5] - 2.0*d->p[6] - 2.5*d->p[7])/(-0.5*d->p[0] + 0.5*d->p[1] + 0.5*d->p[10] + 0.5*d->p[3] - 1.5*d->p[4] - 1.5*d->p[5] - 1.5*d->p[6] - 1.5*d->p[7] + 0.5*d->p[8] - 2.0);
+// 	d->iguess[1] = (d->p[1]-d->p[0] + 1.0-d->p[3]-d->p[8]-d->p[4]-d->p[6]-d->p[5]-d->p[7] -2*d->p[8] - d->p[10] + 2*(d->p[3] + d->p[8]))/2.0;
+// 	d->iguess[2] = d->p[3] + d->p[8];
+// 	d->iguess[3] = d->p[2] + d->p[9];
+// 	d->iguess[4] = d->p[9]/(d->p[2]+d->p[9]);
+// 	d->iguess[5] = 1.0-d->p[3]-d->p[8]-d->p[4]-d->p[6]-d->p[5]-d->p[7];
+// 	d->iguess[6] = d->p[8];
+// 	d->iguess[7] = d->p[10];
+// 	d->iguess[8] = (-3.5*d->p[5] - 2.0*d->p[6] - 2.5*d->p[7])/(-0.5*d->p[0] + 0.5*d->p[1] + 0.5*d->p[10] + 0.5*d->p[3] - 1.5*d->p[4] - 1.5*d->p[5] - 1.5*d->p[6] - 1.5*d->p[7] + 0.5*d->p[8] - 2.0) -d->p[5] -d->p[7];
+// 	d->iguess[9] = (d->p[5] + d->p[6] - (-3.5*d->p[5] - 2.0*d->p[6] - 2.5*d->p[7])*(0.5*d->p[0] - 0.5*d->p[1] - 0.5*d->p[10] - 0.5*d->p[3] + 0.5*d->p[4] + 0.5*d->p[5] + 0.5*d->p[6] + 0.5*d->p[7] - 0.5*d->p[8] + 0.5)/(-0.5*d->p[0] + 0.5*d->p[1] + 0.5*d->p[10] + 0.5*d->p[3] - 1.5*d->p[4] - 1.5*d->p[5] - 1.5*d->p[6] - 1.5*d->p[7] + 0.5*d->p[8] - 2.0))/(-0.5*d->p[0] + 0.5*d->p[1] + 0.5*d->p[10] + 0.5*d->p[3] - 0.5*d->p[4] - 0.5*d->p[5] - 0.5*d->p[6] - 0.5*d->p[7] + 0.5*d->p[8] - 0.5);
 
-	if (d->z_em[8]  == 0){ d->iguess[6]  = eps;}
-	if (d->z_em[10] == 0){ d->iguess[7]  = eps;}
+// 	if (d->z_em[8]  == 0){ d->iguess[6]  = eps;}
+// 	if (d->z_em[10] == 0){ d->iguess[7]  = eps;}
 		
-	for (int i = 0; i < d->n_xeos; i++){
-		if (d->iguess[i] < d->bounds[i][0]){
-			d->iguess[i] = d->bounds[i][0];
-		}
-		if (d->iguess[i] > d->bounds[i][1]){
-			d->iguess[i] = d->bounds[i][1];
-		}
-	}
+// 	for (int i = 0; i < d->n_xeos; i++){
+// 		if (d->iguess[i] < d->bounds[i][0]){
+// 			d->iguess[i] = d->bounds[i][0];
+// 		}
+// 		if (d->iguess[i] > d->bounds[i][1]){
+// 			d->iguess[i] = d->bounds[i][1];
+// 		}
+// 	}
+// }
+
+/**
+    Endmember to xeos for amp
+*/
+void p2x_ig_amp(void *SS_ref_db, double eps) {
+    SS_ref *d = (SS_ref *) SS_ref_db;
+
+    // Common denominator for x, Q1, Q2
+    double denom_x_Q1 =  4.0 * d->p[3] + 3.0 * d->p[9] + 4.0 * d->p[8] + 
+                        3.0 * d->p[2] + 2.0 * d->p[0] + 4.0 * d->p[1] + 4.0 * d->p[10] - 7.0;
+    double denom_Q2 = 8.0 * pow(d->p[3], 2.0) + 10.0 * d->p[3] * d->p[9] + 
+                      16.0 * d->p[3] * d->p[8] + 10.0 * d->p[3] * d->p[2] + 4.0 * d->p[3] * d->p[0] + 
+                      16.0 * d->p[3] * d->p[1] + 16.0 * d->p[3] * d->p[10] - 22.0 * d->p[3] + 
+                      3.0 * pow(d->p[9], 2.0) + 10.0 * d->p[9] * d->p[8] + 6.0 * d->p[9] * d->p[2] + 
+                      2.0 * d->p[9] * d->p[0] + 10.0 * d->p[9] * d->p[1] + 10.0 * d->p[9] * d->p[10] - 
+                      13.0 * d->p[9] + 8.0 * pow(d->p[8], 2.0) + 10.0 * d->p[8] * d->p[2] + 
+                      4.0 * d->p[8] * d->p[0] + 16.0 * d->p[8] * d->p[1] + 16.0 * d->p[8] * d->p[10] - 
+                      22.0 * d->p[8] + 3.0 * pow(d->p[2], 2.0) + 2.0 * d->p[2] * d->p[0] + 
+                      10.0 * d->p[2] * d->p[1] + 10.0 * d->p[2] * d->p[10] - 13.0 * d->p[2] + 
+                      4.0 * d->p[0] * d->p[1] + 4.0 * d->p[0] * d->p[10] - 4.0 * d->p[0] + 
+                      8.0 * pow(d->p[1], 2.0) + 16.0 * d->p[1] * d->p[10] - 22.0 * d->p[1] + 
+                      8.0 * pow(d->p[10], 2.0) - 22.0 * d->p[10] + 14.0;
+    double denom_k = d->p[2] + d->p[9];
+
+    // Assignments
+    d->iguess[3]  = d->p[2] + d->p[9]; // a
+    d->iguess[5]  = d->p[0] + d->p[1] + d->p[10] + d->p[11] + d->p[2] + d->p[9]; // c
+    d->iguess[6]  = d->p[8]; // f
+    d->iguess[4]  = (denom_k != 0.0) ? d->p[9] / denom_k : d->bounds[4][0]; // k
+    d->iguess[7]  = d->p[10]; // t
+    d->iguess[1]  = d->p[1] + 0.5 * d->p[2] + d->p[3] + 0.5 * d->p[9]; // y
+    d->iguess[2]  = d->p[3] + d->p[8]; // z
+    d->iguess[0]  = (denom_x_Q1 != 0.0) ? 
+                    0.142857142857143 * (5.0 * d->p[0] + 5.0 * d->p[1] + 5.0 * d->p[10] + 
+                                        5.0 * d->p[2] + 5.0 * d->p[3] + 
+                                         5.0 * d->p[4] - 2.0 * d->p[5] + d->p[6] + 
+                                         5.0 * d->p[8] + 5.0 * d->p[9] - 5.0) / denom_x_Q1 : 
+                    d->bounds[0][0]; // x
+    d->iguess[8]  = (denom_x_Q1 != 0.0) ? 
+                    0.142857142857143 * (2.0 * d->p[0] * d->p[1] + 2.0 * d->p[0] * d->p[10] + 
+                                         5.0 * d->p[0] * d->p[2] + 
+                                         6.0 * d->p[0] * d->p[3] + 2.0 * d->p[0] * d->p[4] + 
+                                         2.0 * d->p[0] * d->p[6] + 6.0 * d->p[0] * d->p[8] + 
+                                         5.0 * d->p[0] * d->p[9] - 4.0 * d->p[0] + 2.0 * pow(d->p[0], 2.0) + 
+                                         8.0 * d->p[1] * d->p[10]  + 
+                                         7.0 * d->p[1] * d->p[2] + 8.0 * d->p[1] * d->p[3] + 
+                                         4.0 * d->p[1] * d->p[4] + 4.0 * d->p[1] * d->p[6] + 
+                                         8.0 * d->p[1] * d->p[8] + 7.0 * d->p[1] * d->p[9] - 
+                                         6.0 * d->p[1] + 4.0 * pow(d->p[1], 2.0) + 
+                                         7.0 * d->p[10] * d->p[2] + 8.0 * d->p[10] * d->p[3] + 
+                                         4.0 * d->p[10] * d->p[4] + 4.0 * d->p[10] * d->p[6] + 
+                                         8.0 * d->p[10] * d->p[8] + 7.0 * d->p[10] * d->p[9] - 
+                                         6.0 * d->p[10] + 4.0 * pow(d->p[10], 2.0) + 
+                                         7.0 * d->p[2] * d->p[3] + 3.0 * d->p[2] * d->p[4] + 
+                                         3.0 * d->p[2] * d->p[6] + 7.0 * d->p[2] * d->p[8] + 
+                                         6.0 * d->p[2] * d->p[9] - 5.0 * d->p[2] + 3.0 * pow(d->p[2], 2.0) + 
+                                         4.0 * d->p[3] * d->p[4] + 4.0 * d->p[3] * d->p[6] + 
+                                         8.0 * d->p[3] * d->p[8] + 7.0 * d->p[3] * d->p[9] - 
+                                         6.0 * d->p[3] + 4.0 * pow(d->p[3], 2.0) + 4.0 * d->p[4] * d->p[8] + 
+                                         3.0 * d->p[4] * d->p[9] - 2.0 * d->p[4] - 2.0 * d->p[5] + 
+                                         4.0 * d->p[6] * d->p[8] + 3.0 * d->p[6] * d->p[9] - 6.0 * d->p[6] + 
+                                         7.0 * d->p[8] * d->p[9] - 6.0 * d->p[8] + 4.0 * pow(d->p[8], 2.0) - 
+                                         5.0 * d->p[9] + 3.0 * pow(d->p[9], 2.0) + 2.0) / denom_x_Q1 : 
+                    d->bounds[8][0]; // Q1
+    d->iguess[9]  = (denom_Q2 != 0.0) ? 
+                    0.0454545454545455 * (10.0 * d->p[0] * d->p[1] + 10.0 * d->p[0] * d->p[10] + 
+                                          5.0 * d->p[0] * d->p[2] + 10.0 * d->p[0] * d->p[3] + 
+                                          4.0 * d->p[0] * d->p[5] + 4.0 * d->p[0] * d->p[6] + 
+                                          10.0 * d->p[0] * d->p[8] + 5.0 * d->p[0] * d->p[9] - 
+                                          10.0 * d->p[0] + 20.0 * d->p[1] * d->p[10] + 
+                                          15.0 * d->p[1] * d->p[2] + 
+                                          20.0 * d->p[1] * d->p[3] + 10.0 * d->p[1] * d->p[4] + 
+                                          4.0 * d->p[1] * d->p[5] + 10.0 * d->p[1] * d->p[6] + 
+                                          20.0 * d->p[1] * d->p[8] + 15.0 * d->p[1] * d->p[9] - 
+                                          20.0 * d->p[1] + 10.0 * pow(d->p[1], 2.0) + 
+                                          15.0 * d->p[10] * d->p[2] + 
+                                          20.0 * d->p[10] * d->p[3] + 10.0 * d->p[10] * d->p[4] + 
+                                          4.0 * d->p[10] * d->p[5] + 10.0 * d->p[10] * d->p[6] + 
+                                          20.0 * d->p[10] * d->p[8] + 15.0 * d->p[10] * d->p[9] - 
+                                          20.0 * d->p[10] + 10.0 * pow(d->p[10], 2.0) + 15.0 * d->p[2] * d->p[3] + 
+                                          5.0 * d->p[2] * d->p[4] + 4.0 * d->p[2] * d->p[5] + 
+                                          7.0 * d->p[2] * d->p[6] + 15.0 * d->p[2] * d->p[8] + 
+                                          10.0 * d->p[2] * d->p[9] - 15.0 * d->p[2] + 5.0 * pow(d->p[2], 2.0) + 
+                                          10.0 * d->p[3] * d->p[4] + 4.0 * d->p[3] * d->p[5] + 
+                                          10.0 * d->p[3] * d->p[6] + 20.0 * d->p[3] * d->p[8] + 
+                                          15.0 * d->p[3] * d->p[9] - 20.0 * d->p[3] + 10.0 * pow(d->p[3], 2.0) + 
+                                          10.0 * d->p[4] * d->p[8] + 5.0 * d->p[4] * d->p[9] - 
+                                          10.0 * d->p[4] + 4.0 * d->p[5] * d->p[8] + 4.0 * d->p[5] * d->p[9] - 
+                                          10.0 * d->p[5] + 10.0 * d->p[6] * d->p[8] + 7.0 * d->p[6] * d->p[9] - 
+                                          16.0 * d->p[6] + 15.0 * d->p[8] * d->p[9] - 20.0 * d->p[8] + 
+                                          10.0 * pow(d->p[8], 2.0) - 15.0 * d->p[9] + 5.0 * pow(d->p[9], 2.0) + 
+                                          10.0) / denom_Q2 : 
+                    d->bounds[9][0]; // Q2
+
+    // Bounds checking
+    for (int i = 0; i < d->n_xeos; i++) {
+        if (d->iguess[i] < d->bounds[i][0]) {
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]) {
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
 }
 
 /** 
@@ -12610,25 +12819,129 @@ void p2x_mpe_dio(void *SS_ref_db, double eps){
 /**
     Endmember to xeos for amp
 */
-void p2x_mpe_amp(void *SS_ref_db, double eps){
-    SS_ref *d  = (SS_ref *) SS_ref_db;
+// void p2x_mpe_amp(void *SS_ref_db, double eps){
+//     SS_ref *d  = (SS_ref *) SS_ref_db;
     
-    d->iguess[7]   = d->p[10];
-    d->iguess[6]   = d->p[8];
-    d->iguess[2]   = d->iguess[6] + d->p[3];
-    d->iguess[3]   = d->p[2] + d->p[9];
-    d->iguess[4]   = d->p[9]/(d->p[2] + d->p[9]);
-    d->iguess[5]   = d->iguess[3] + d->p[0] + d->p[1] + d->iguess[7];
-    d->iguess[1]   = -0.5*d->iguess[3] + d->iguess[5] -d->iguess[6] -d->p[0] -d->iguess[7] + d->iguess[2];
-    d->iguess[0]  = (5.0*d->iguess[5] + 5.0*d->p[4] - 2.0*d->p[5] + d->p[6] + 5.0*d->iguess[2] - 5.0)/(2.0*d->iguess[5] + 2.0*d->iguess[6] + 2.0*d->iguess[7] + 2.0*d->iguess[1] + 2.0*d->iguess[2] - 7.0);
-    d->iguess[8]  = -0.4*d->iguess[5]*d->iguess[0] + 2.0*d->iguess[5] - 0.4*d->iguess[6]*d->iguess[0] + 2.0*d->p[4] - 0.4*d->p[5] + 1.2*d->p[6] - 0.4*d->iguess[7]*d->iguess[0] - 0.4*d->iguess[0]*d->iguess[1] - 0.4*d->iguess[0]*d->iguess[2] + 2.4*d->iguess[0] + 2.0*d->iguess[2] - 2.0;
-    d->iguess[9]  = (-2.0*d->iguess[5]*d->iguess[0] + 5.0*d->iguess[5] + 5.0*d->p[4] + 3.0*d->p[6] - 2.0*d->iguess[0]*d->iguess[2] + 5.0*d->iguess[0] + 5.0*d->iguess[2] - 5.0)/(2.0*d->iguess[6] + 2.0*d->iguess[7] + 2.0*d->iguess[1] - 2.0);
+//     d->iguess[7]   = d->p[10];
+//     d->iguess[6]   = d->p[8];
+//     d->iguess[2]   = d->iguess[6] + d->p[3];
+//     d->iguess[3]   = d->p[2] + d->p[9];
+//     d->iguess[4]   = d->p[9]/(d->p[2] + d->p[9]);
+//     d->iguess[5]   = d->iguess[3] + d->p[0] + d->p[1] + d->iguess[7];
+//     d->iguess[1]   = -0.5*d->iguess[3] + d->iguess[5] -d->iguess[6] -d->p[0] -d->iguess[7] + d->iguess[2];
+//     d->iguess[0]  = (5.0*d->iguess[5] + 5.0*d->p[4] - 2.0*d->p[5] + d->p[6] + 5.0*d->iguess[2] - 5.0)/(2.0*d->iguess[5] + 2.0*d->iguess[6] + 2.0*d->iguess[7] + 2.0*d->iguess[1] + 2.0*d->iguess[2] - 7.0);
+//     d->iguess[8]  = -0.4*d->iguess[5]*d->iguess[0] + 2.0*d->iguess[5] - 0.4*d->iguess[6]*d->iguess[0] + 2.0*d->p[4] - 0.4*d->p[5] + 1.2*d->p[6] - 0.4*d->iguess[7]*d->iguess[0] - 0.4*d->iguess[0]*d->iguess[1] - 0.4*d->iguess[0]*d->iguess[2] + 2.4*d->iguess[0] + 2.0*d->iguess[2] - 2.0;
+//     d->iguess[9]  = (-2.0*d->iguess[5]*d->iguess[0] + 5.0*d->iguess[5] + 5.0*d->p[4] + 3.0*d->p[6] - 2.0*d->iguess[0]*d->iguess[2] + 5.0*d->iguess[0] + 5.0*d->iguess[2] - 5.0)/(2.0*d->iguess[6] + 2.0*d->iguess[7] + 2.0*d->iguess[1] - 2.0);
     
-    for (int i = 0; i < d->n_xeos; i++){
-        if (d->iguess[i] < d->bounds[i][0]){
+//     for (int i = 0; i < d->n_xeos; i++){
+//         if (d->iguess[i] < d->bounds[i][0]){
+//             d->iguess[i] = d->bounds[i][0];
+//         }
+//         if (d->iguess[i] > d->bounds[i][1]){
+//             d->iguess[i] = d->bounds[i][1];
+//         }
+//     }
+// }
+
+/**
+    Endmember to xeos for amp
+*/
+void p2x_mpe_amp(void *SS_ref_db, double eps) {
+    SS_ref *d = (SS_ref *) SS_ref_db;
+
+    // Common denominator for x, Q1, Q2
+    double denom_x_Q1 =  4.0 * d->p[3] + 3.0 * d->p[9] + 4.0 * d->p[8] + 
+                        3.0 * d->p[2] + 2.0 * d->p[0] + 4.0 * d->p[1] + 4.0 * d->p[10] - 7.0;
+    double denom_Q2 = 8.0 * pow(d->p[3], 2.0) + 10.0 * d->p[3] * d->p[9] + 
+                      16.0 * d->p[3] * d->p[8] + 10.0 * d->p[3] * d->p[2] + 4.0 * d->p[3] * d->p[0] + 
+                      16.0 * d->p[3] * d->p[1] + 16.0 * d->p[3] * d->p[10] - 22.0 * d->p[3] + 
+                      3.0 * pow(d->p[9], 2.0) + 10.0 * d->p[9] * d->p[8] + 6.0 * d->p[9] * d->p[2] + 
+                      2.0 * d->p[9] * d->p[0] + 10.0 * d->p[9] * d->p[1] + 10.0 * d->p[9] * d->p[10] - 
+                      13.0 * d->p[9] + 8.0 * pow(d->p[8], 2.0) + 10.0 * d->p[8] * d->p[2] + 
+                      4.0 * d->p[8] * d->p[0] + 16.0 * d->p[8] * d->p[1] + 16.0 * d->p[8] * d->p[10] - 
+                      22.0 * d->p[8] + 3.0 * pow(d->p[2], 2.0) + 2.0 * d->p[2] * d->p[0] + 
+                      10.0 * d->p[2] * d->p[1] + 10.0 * d->p[2] * d->p[10] - 13.0 * d->p[2] + 
+                      4.0 * d->p[0] * d->p[1] + 4.0 * d->p[0] * d->p[10] - 4.0 * d->p[0] + 
+                      8.0 * pow(d->p[1], 2.0) + 16.0 * d->p[1] * d->p[10] - 22.0 * d->p[1] + 
+                      8.0 * pow(d->p[10], 2.0) - 22.0 * d->p[10] + 14.0;
+    double denom_k = d->p[2] + d->p[9];
+
+    // Assignments
+    d->iguess[3]  = d->p[2] + d->p[9]; // a
+    d->iguess[5]  = d->p[0] + d->p[1] + d->p[10] + d->p[11] + d->p[2] + d->p[9]; // c
+    d->iguess[6]  = d->p[8]; // f
+    d->iguess[4]  = (denom_k != 0.0) ? d->p[9] / denom_k : d->bounds[4][0]; // k
+    d->iguess[7]  = d->p[10]; // t
+    d->iguess[1]  = d->p[1] + 0.5 * d->p[2] + d->p[3] + 0.5 * d->p[9]; // y
+    d->iguess[2]  = d->p[3] + d->p[8]; // z
+    d->iguess[0]  = (denom_x_Q1 != 0.0) ? 
+                    0.142857142857143 * (5.0 * d->p[0] + 5.0 * d->p[1] + 5.0 * d->p[10] + 
+                                        5.0 * d->p[2] + 5.0 * d->p[3] + 
+                                         5.0 * d->p[4] - 2.0 * d->p[5] + d->p[6] + 
+                                         5.0 * d->p[8] + 5.0 * d->p[9] - 5.0) / denom_x_Q1 : 
+                    d->bounds[0][0]; // x
+    d->iguess[8]  = (denom_x_Q1 != 0.0) ? 
+                    0.142857142857143 * (2.0 * d->p[0] * d->p[1] + 2.0 * d->p[0] * d->p[10] + 
+                                         5.0 * d->p[0] * d->p[2] + 
+                                         6.0 * d->p[0] * d->p[3] + 2.0 * d->p[0] * d->p[4] + 
+                                         2.0 * d->p[0] * d->p[6] + 6.0 * d->p[0] * d->p[8] + 
+                                         5.0 * d->p[0] * d->p[9] - 4.0 * d->p[0] + 2.0 * pow(d->p[0], 2.0) + 
+                                         8.0 * d->p[1] * d->p[10]  + 
+                                         7.0 * d->p[1] * d->p[2] + 8.0 * d->p[1] * d->p[3] + 
+                                         4.0 * d->p[1] * d->p[4] + 4.0 * d->p[1] * d->p[6] + 
+                                         8.0 * d->p[1] * d->p[8] + 7.0 * d->p[1] * d->p[9] - 
+                                         6.0 * d->p[1] + 4.0 * pow(d->p[1], 2.0) + 
+                                         7.0 * d->p[10] * d->p[2] + 8.0 * d->p[10] * d->p[3] + 
+                                         4.0 * d->p[10] * d->p[4] + 4.0 * d->p[10] * d->p[6] + 
+                                         8.0 * d->p[10] * d->p[8] + 7.0 * d->p[10] * d->p[9] - 
+                                         6.0 * d->p[10] + 4.0 * pow(d->p[10], 2.0) + 
+                                         7.0 * d->p[2] * d->p[3] + 3.0 * d->p[2] * d->p[4] + 
+                                         3.0 * d->p[2] * d->p[6] + 7.0 * d->p[2] * d->p[8] + 
+                                         6.0 * d->p[2] * d->p[9] - 5.0 * d->p[2] + 3.0 * pow(d->p[2], 2.0) + 
+                                         4.0 * d->p[3] * d->p[4] + 4.0 * d->p[3] * d->p[6] + 
+                                         8.0 * d->p[3] * d->p[8] + 7.0 * d->p[3] * d->p[9] - 
+                                         6.0 * d->p[3] + 4.0 * pow(d->p[3], 2.0) + 4.0 * d->p[4] * d->p[8] + 
+                                         3.0 * d->p[4] * d->p[9] - 2.0 * d->p[4] - 2.0 * d->p[5] + 
+                                         4.0 * d->p[6] * d->p[8] + 3.0 * d->p[6] * d->p[9] - 6.0 * d->p[6] + 
+                                         7.0 * d->p[8] * d->p[9] - 6.0 * d->p[8] + 4.0 * pow(d->p[8], 2.0) - 
+                                         5.0 * d->p[9] + 3.0 * pow(d->p[9], 2.0) + 2.0) / denom_x_Q1 : 
+                    d->bounds[8][0]; // Q1
+    d->iguess[9]  = (denom_Q2 != 0.0) ? 
+                    0.0454545454545455 * (10.0 * d->p[0] * d->p[1] + 10.0 * d->p[0] * d->p[10] + 
+                                          5.0 * d->p[0] * d->p[2] + 10.0 * d->p[0] * d->p[3] + 
+                                          4.0 * d->p[0] * d->p[5] + 4.0 * d->p[0] * d->p[6] + 
+                                          10.0 * d->p[0] * d->p[8] + 5.0 * d->p[0] * d->p[9] - 
+                                          10.0 * d->p[0] + 20.0 * d->p[1] * d->p[10] + 
+                                          15.0 * d->p[1] * d->p[2] + 
+                                          20.0 * d->p[1] * d->p[3] + 10.0 * d->p[1] * d->p[4] + 
+                                          4.0 * d->p[1] * d->p[5] + 10.0 * d->p[1] * d->p[6] + 
+                                          20.0 * d->p[1] * d->p[8] + 15.0 * d->p[1] * d->p[9] - 
+                                          20.0 * d->p[1] + 10.0 * pow(d->p[1], 2.0) + 
+                                          15.0 * d->p[10] * d->p[2] + 
+                                          20.0 * d->p[10] * d->p[3] + 10.0 * d->p[10] * d->p[4] + 
+                                          4.0 * d->p[10] * d->p[5] + 10.0 * d->p[10] * d->p[6] + 
+                                          20.0 * d->p[10] * d->p[8] + 15.0 * d->p[10] * d->p[9] - 
+                                          20.0 * d->p[10] + 10.0 * pow(d->p[10], 2.0) + 15.0 * d->p[2] * d->p[3] + 
+                                          5.0 * d->p[2] * d->p[4] + 4.0 * d->p[2] * d->p[5] + 
+                                          7.0 * d->p[2] * d->p[6] + 15.0 * d->p[2] * d->p[8] + 
+                                          10.0 * d->p[2] * d->p[9] - 15.0 * d->p[2] + 5.0 * pow(d->p[2], 2.0) + 
+                                          10.0 * d->p[3] * d->p[4] + 4.0 * d->p[3] * d->p[5] + 
+                                          10.0 * d->p[3] * d->p[6] + 20.0 * d->p[3] * d->p[8] + 
+                                          15.0 * d->p[3] * d->p[9] - 20.0 * d->p[3] + 10.0 * pow(d->p[3], 2.0) + 
+                                          10.0 * d->p[4] * d->p[8] + 5.0 * d->p[4] * d->p[9] - 
+                                          10.0 * d->p[4] + 4.0 * d->p[5] * d->p[8] + 4.0 * d->p[5] * d->p[9] - 
+                                          10.0 * d->p[5] + 10.0 * d->p[6] * d->p[8] + 7.0 * d->p[6] * d->p[9] - 
+                                          16.0 * d->p[6] + 15.0 * d->p[8] * d->p[9] - 20.0 * d->p[8] + 
+                                          10.0 * pow(d->p[8], 2.0) - 15.0 * d->p[9] + 5.0 * pow(d->p[9], 2.0) + 
+                                          10.0) / denom_Q2 : 
+                    d->bounds[9][0]; // Q2
+
+    // Bounds checking
+    for (int i = 0; i < d->n_xeos; i++) {
+        if (d->iguess[i] < d->bounds[i][0]) {
             d->iguess[i] = d->bounds[i][0];
         }
-        if (d->iguess[i] > d->bounds[i][1]){
+        if (d->iguess[i] > d->bounds[i][1]) {
             d->iguess[i] = d->bounds[i][1];
         }
     }
