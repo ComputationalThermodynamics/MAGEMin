@@ -1281,8 +1281,10 @@ function point_wise_minimization(   P       ::Float64,
 
     if iguess == true && Gi !== nothing
         SS_ref_db   = unsafe_wrap(Vector{LibMAGEMin.SS_ref},DB.SS_ref_db,gv.len_ss);
+        PP_ref_db   = unsafe_wrap(Vector{LibMAGEMin.PP_ref},DB.PP_ref_db,gv.len_pp);
         n_SS_PC     = unsafe_wrap(Vector{Cint},gv.n_SS_PC,gv.len_ss);
         rg          = unsafe_string(gv.research_group)
+        
         # retrieve dimensions
         np          = z_b.nzEl_val
         nzEl_array  = unsafe_wrap(Vector{Cint},z_b.nzEl_array, gv.len_ox) .+ 1
@@ -1295,6 +1297,71 @@ function point_wise_minimization(   P       ::Float64,
             LibMAGEMin.SB_PC_init(PC_read,gv)
         end
     
+        # Declare array to be copied in splx_data
+        A_jll       = zeros(np,np)
+        g0_A_jll    = zeros(np)
+        ph_id_A_jll = zeros(Int32,np,4)
+        n_pc_ss     = zeros(gv.len_ss)
+
+        # fill the arrays to be copied in splx_data
+        for i = 1:np
+            if Gi[i].ph_type == "pp"
+                ph_id = Gi[i].ph_id+1
+                g0_A_jll[i] = PP_ref_db[ph_id].gbase*PP_ref_db[ph_id].factor
+                A_jll[i,:]  = Gi[i].comp_Ppc[nzEl_array]
+
+                ph_id_A_jll[i,1] = 1
+                ph_id_A_jll[i,2] = ph_id-1
+                ph_id_A_jll[i,3] = 0
+                ph_id_A_jll[i,4] = 0
+            elseif Gi[i].ph_type == "ss"
+                ph_id   = Gi[i].ph_id+1
+                ph      = Gi[i].ph_name
+
+                unsafe_copyto!(SS_ref_db[ph_id].gb_lvl,SS_ref_db[ph_id].gbase, SS_ref_db[ph_id].n_em)
+                unsafe_copyto!(SS_ref_db[ph_id].iguess,pointer(Gi[i].xeos_Ppc), SS_ref_db[ph_id].n_xeos)
+                if rg == "tc"
+                    SS_ref_db[ph_id] = LibMAGEMin.PC_function(gv, PC_read, SS_ref_db[ph_id], z_b, ph_id-1)
+                elseif rg == "sb"
+                    SS_ref_db[ph_id] = LibMAGEMin.SB_PC_function(gv, PC_read, SS_ref_db[ph_id], z_b, ph_id-1)
+                end
+                g0_A_jll[i] = SS_ref_db[ph_id].df
+                A_jll[i,:]  = Gi[i].comp_Ppc[nzEl_array]
+                ph_id_A_jll[i,1] = 3
+                ph_id_A_jll[i,2] = ph_id-1
+                ph_id_A_jll[i,3] = 0
+                ph_id_A_jll[i,4] = n_pc_ss[ph_id]
+                n_pc_ss[ph_id]  += 1
+            elseif Gi[i].ph_type == "ss_em"
+                ph_id   = Gi[i].ph_id+1
+                em_id   = Gi[i].em_id+1
+                ape     = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].ape, SS_ref_db[ph_id].n_em)
+                gbase   = unsafe_wrap(Vector{Cdouble},SS_ref_db[ph_id].gbase, SS_ref_db[ph_id].n_em)
+                comp_ptr= unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].Comp, SS_ref_db[ph_id].n_em)
+                Comp    = unsafe_wrap(Vector{Cdouble},comp_ptr[em_id], gv.len_ox)
+                factor 	= z_b.fbc/ape[em_id]
+                ph      = Gi[i].ph_name
+
+                g0_A_jll[i] = gbase[em_id]*factor;
+                A_jll[i,:]  = Comp[nzEl_array]*factor
+                ph_id_A_jll[i,1] = 2
+                ph_id_A_jll[i,2] = ph_id-1
+                ph_id_A_jll[i,3] = 0
+                ph_id_A_jll[i,4] = em_id-1
+            end
+        end
+        # copy to the appropriate places
+        ph_id_A = unsafe_wrap(Vector{Ptr{Int32}},splx_data.ph_id_A, np)
+
+        for i=1:np
+            unsafe_copyto!(ph_id_A[i],pointer(ph_id_A_jll[i,:]),4)
+        end
+
+        unsafe_copyto!(splx_data.A,pointer(vec(A_jll)),np*np)
+        unsafe_copyto!(splx_data.A1,pointer(vec(A_jll)),np*np)
+        unsafe_copyto!(splx_data.g0_A,pointer(g0_A_jll),np)
+
+
         # add pseudocompounds
         n_mSS = length(Gi)
         for i = 1:n_mSS
