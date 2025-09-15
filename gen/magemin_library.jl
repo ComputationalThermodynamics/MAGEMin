@@ -57,6 +57,10 @@ function Access_FS_DB(id)
     ccall((:Access_FS_DB, libMAGEMin), FS_db, (Cint,), id)
 end
 
+function get_arr_em_db_tc(EM_dataset)
+    ccall((:get_arr_em_db_tc, libMAGEMin), Ptr{EM_db}, (Cint,), EM_dataset)
+end
+
 struct PP_refs
     Name::NTuple{20, Cchar}
     Comp::NTuple{15, Cdouble}
@@ -609,6 +613,7 @@ mutable struct global_variables
     mpSp::Cint
     mpIlm::Cint
     ig_ed::Cint
+    fixed_bulk::Cint
     fluidSpec::Cint
     n_fs_db::Cint
     test::Cint

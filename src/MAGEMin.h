@@ -84,6 +84,7 @@ typedef struct global_variables {
 	int      mpSp;
 	int      mpIlm;
 	int      ig_ed;			/** igneous endmember database? */
+	int      fixed_bulk;
 	
 	/* FLUID SPECIATION OPTIONS */
 	int      fluidSpec;			/** activate fluid speciation along with phase equilibrium modelling? */
