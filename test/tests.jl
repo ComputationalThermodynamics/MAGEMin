@@ -75,7 +75,7 @@ end
     Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
     X       = [78.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
     sys_in  = "wt"
-    out_hT  = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, light=true)
+    out_hT  = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, light=true);
 
     @test sort(out_hT.ph_id_db) == sort([1, 1, 3, 4, 6, 10, 12])
     @test out_hT.ph_type == [1, 1, 1, 1, 1, 0, 0]
@@ -92,7 +92,7 @@ end
     Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
     X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
     sys_in  = "wt"
-    out_hT  = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    out_hT  = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in);
     Δρ_hT   = abs( out_hT.rho - ((out_hT.frac_M_wt * out_hT.rho_M + out_hT.frac_S_wt * out_hT.rho_S )) )
     @test Δρ_hT < 1e-10
     Finalize_MAGEMin(data)
@@ -103,7 +103,7 @@ end
     Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
     X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
     sys_in  = "wt"
-    out_lT  = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    out_lT  = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in);
     Δρ_lT = abs( out_lT.rho - ((out_lT.frac_M_wt * out_lT.rho_M + out_lT.frac_S_wt * out_lT.rho_S )) )
     @test Δρ_lT < 1e-10
     Finalize_MAGEMin(data)
@@ -114,7 +114,7 @@ end
     Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
     X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
     sys_in  = "wt"
-    out_BhT = single_point_minimization(P, T, data, X=X, B=0.0, Xoxides=Xoxides, sys_in=sys_in)
+    out_BhT = single_point_minimization(P, T, data, X=X, B=0.0, Xoxides=Xoxides, sys_in=sys_in);
     Δρ_BhT  = abs( out_BhT.rho - ((out_BhT.frac_M_wt * out_BhT.rho_M + out_BhT.frac_S_wt * out_BhT.rho_S )) )
     @test Δρ_BhT < 1e-10
     Finalize_MAGEMin(data)
@@ -125,7 +125,7 @@ end
     Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
     X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
     sys_in  = "wt"
-    out_BlT = single_point_minimization(P, T, data, X=X, B=0.0, Xoxides=Xoxides, sys_in=sys_in)
+    out_BlT = single_point_minimization(P, T, data, X=X, B=0.0, Xoxides=Xoxides, sys_in=sys_in);
     Δρ_BlT  = abs( out_BlT.rho - ((out_BlT.frac_M_wt * out_BlT.rho_M + out_BlT.frac_S_wt * out_BlT.rho_S )) )
     @test Δρ_BlT < 1e-10
     Finalize_MAGEMin(data)
@@ -166,7 +166,7 @@ end
     Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
     X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
     sys_in  = "wt"    
-    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in);
     @test sort(out.ph) == sort(["cpx", "liq", "opx", "qfm"])
 
     Finalize_MAGEMin(data)
@@ -176,7 +176,7 @@ end
     Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
     X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
     sys_in  = "wt"    
-    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in);
     @test sort(out.ph) == sort(["opx", "liq", "cpx", "iw"])
 
     Finalize_MAGEMin(data)
@@ -197,7 +197,7 @@ end
     Xoxides = ["SiO2","Al2O3","CaO","MgO","FeO","K2O","Na2O","TiO2","O","MnO","H2O"]
     X       = [70.999,12.805,0.771,3.978,6.342,2.7895,1.481,0.758,0.72933,0.075,30.0]
     sys_in  = "mol"    
-    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in);
     @test sum(out.frac_M_vol + out.frac_F_vol + out.frac_S_vol) ≈ 1.0
     Finalize_MAGEMin(data)
 
@@ -206,7 +206,7 @@ end
     Xoxides = ["SiO2","Al2O3","CaO","MgO","FeO","K2O","Na2O","TiO2","O","MnO","H2O"]
     X       = [70.999,12.805,0.771,3.978,6.342,2.7895,1.481,0.758,0.72933,0.075,30.0]
     sys_in  = "mol"    
-    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in);
     Finalize_MAGEMin(data)
     @test sum(out.frac_M_vol + out.frac_F_vol + out.frac_S_vol) ≈ 1.0
 end
@@ -218,7 +218,7 @@ end
     Xoxides = ["SiO2";  "TiO2";  "Al2O3";  "FeO";   "MnO";   "MgO";   "CaO";   "Na2O";  "K2O"; "H2O"; "O"];
     X       = [58.509,  1.022,   14.858, 4.371, 0.141, 4.561, 5.912, 3.296, 2.399, 10.0, 0.0];
     sys_in  = "wt"
-    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in);
 
     # use compo from experiment from Boehnke et al., 2013
     compo1 = [54.2, 0.5, 16.9, 4.1, 0.0, 2, 7.6, 2.3, 0.8, 0, 0]
@@ -233,7 +233,7 @@ end
 
     # test crisp and berry 2022, use compo from their example in the calculator from their paper
     P,T     = 20.0, 750.0
-    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in);
 
     bulk_melt = [61.26, 0, 13.12, 1.33, 0, 0.45, 2.51, 2.26, 2.15, 15.00, 0]
     # convert bulk_melt from wt to mol of oxides
@@ -329,7 +329,7 @@ end
     Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
     X       = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
     sys_in  = "wt"    
-    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in);
 
     @test abs(out.G_system + 916.8283889543869)/abs(916.8283889543869) < 2e-4
 
@@ -341,7 +341,7 @@ end
     X2      = [49.43; 14.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
     X       = [X1,X2]
     sys_in  = "wt"    
-    out     = multi_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    out     = multi_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in);
     
     @test out[1].G_system ≈ -916.8283889543869 rtol=2e-4
     @test out[2].G_system ≈ -912.5920719174167 rtol=2e-4
@@ -354,7 +354,7 @@ end
     Xoxides = ["SiO2", "Al2O3", "MgO", "FeO", "O", "H2O", "S"];
     X       = [20.044,0.6256,29.24,3.149,0.0,46.755,0.0]
     sys_in  = "mol"    
-    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in);
 end
 
 @testset "PT adaptive refinement" begin
@@ -367,19 +367,19 @@ end
     Xoxides     = ["SiO2","Al2O3","CaO","MgO","FeO","K2O","Na2O","TiO2","O","MnO","H2O"]
     X           = [70.999,12.805,0.771,3.978,6.342,2.7895,1.481,0.758,0.72933,0.075,30.0]
     sys_in      = "mol"    
-    out         = AMR_minimization(init_sub, ref_lvl, Prange, Trange, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    out         = AMR_minimization(init_sub, ref_lvl, Prange, Trange, data, X=X, Xoxides=Xoxides, sys_in=sys_in);
     @test length(out) == 81
     @test sort(out[66].ph) == sort(["cd", "bi", "liq", "fsp", "sp", "ilm", "H2O"])
     Finalize_MAGEMin(data)
 end
 
 @testset "Trace-element partitioning model" begin
-    data    = Initialize_MAGEMin("mp", verbose=1, solver=0);
+    data    = Initialize_MAGEMin("mp", verbose=-1, solver=0);
     P,T     = 6.0, 699.0
     Xoxides = ["SiO2";  "TiO2";  "Al2O3";  "FeO";   "MnO";   "MgO";   "CaO";   "Na2O";  "K2O"; "H2O"; "O"];
     X       = [58.509,  1.022,   14.858, 4.371, 0.141, 4.561, 5.912, 3.296, 2.399, 10.0, 0.2];
     sys_in  = "wt"
-    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, name_solvus=true)
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, name_solvus=true);
     Finalize_MAGEMin(data)
 
 
@@ -392,7 +392,7 @@ end
 
     KDs_database = create_custom_KDs_database(el, ph, KDs)
 
-    out_TE = TE_prediction(out, C0, KDs_database, dtb; ZrSat_model = "CB")
+    out_TE = TE_prediction(out, C0, KDs_database, dtb; ZrSat_model = "CB");
 
     @test out_TE.Cliq[1] ≈ 154.51891525771387 rtol=1e-3
     @test out_TE.Cliq[2] ≈ 3107.727391290317 rtol=1e-3
@@ -406,7 +406,7 @@ end
     Xoxides = ["SiO2","Al2O3","CaO","MgO","FeO","K2O","Na2O","TiO2","O","MnO","H2O"]
     X       = [70.999,12.805,0.771,3.978,6.342,2.7895,1.481,0.758,0.72933,0.075,30.0]
     sys_in  = "mol"    
-    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in,rm_list=rm_list)
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in,rm_list=rm_list);
     @test sort(out.ph) == sort(["fsp", "g", "ilmm", "sp", "q", "sill", "H2O"])
     Finalize_MAGEMin(data)
 
@@ -416,7 +416,7 @@ end
     Xoxides = ["SiO2","Al2O3","CaO","MgO","FeO","K2O","Na2O","TiO2","O","MnO","H2O"]
     X       = [70.999,12.805,0.771,3.978,6.342,2.7895,1.481,0.758,0.72933,0.075,30.0]
     sys_in  = "mol"    
-    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in,rm_list=rm_list)
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in,rm_list=rm_list);
     @test sort(out.ph) == sort(["fsp", "cd", "sa", "ilm", "sp", "q", "H2O"])
     Finalize_MAGEMin(data)
 end
@@ -435,7 +435,7 @@ end
     sys_in  = "wt"
     P_view  = @view P[1:2]
     T_view  = @view T[1:2]
-    out     = multi_point_minimization(P_view, T_view, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    out     = multi_point_minimization(P_view, T_view, data, X=X, Xoxides=Xoxides, sys_in=sys_in);
 
     # test with a view of the bulk rock
     index_shufle   = [2,1,3,4,5,6,7,8,9,10,11]
@@ -443,7 +443,7 @@ end
     X1_view        = @view X1[index_shufle]
 
     # just run it to be sure it is not erroring
-    out     = single_point_minimization(P[3], T[3], data, X=X1_view, Xoxides=Xoxides_shufle, sys_in=sys_in)
+    out     = single_point_minimization(P[3], T[3], data, X=X1_view, Xoxides=Xoxides_shufle, sys_in=sys_in);
     mol2wt(X1_view, Xoxides_shufle) # convert to mol
     wt2mol(X1_view, Xoxides_shufle) # convert to mol
 
@@ -527,7 +527,7 @@ end
     X           = [64.13, 0.91, 19.63, 6.85, 0.08, 2.41, 0.65, 1.38, 3.95, 40.0]
     Xoxides     = ["SiO2", "TiO2", "Al2O3", "FeO", "MnO", "MgO", "CaO", "Na2O", "K2O", "H2O"]
     sys_in      = "wt%"
-    out         =   single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    out         =   single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in);
     Finalize_MAGEMin(data)
 
     id_bi = findfirst(isequal("bi"), out.ph)
@@ -735,8 +735,8 @@ println("Override Ws")
     Xoxides = ["SiO2","Al2O3","CaO","MgO","FeO","K2O","Na2O","TiO2","O","MnO","H2O"]
     X       = [70.999,12.805,0.771,3.978,6.342,2.7895,1.481,0.758,0.72933,0.075,30.0]
     sys_in  = "mol"    
-    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in,W=new_Ws)
-    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in,W=new_Ws);
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in);
     @test norm(out.ph_frac) - 0.456 < 0.01
 end
 
