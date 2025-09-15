@@ -1563,10 +1563,10 @@ Mode  :  0.18022  0.00161  0.00174  0.04239  0.33178  0.15155  0.01325  0.24445 
 ```
 
 """
-function pwm_init(P::Float64,T::Float64, gv, z_b, DB, splx_data)
+function pwm_init(P::Float64,T::Float64, gv, z_b, DB, splx_data; G0 = true)
 
     # input_data      =   LibMAGEMin.io_data();                           # zero (not used actually)
-    
+
     z_b.T           =   T + 273.15    # in K
     z_b.P           =   P
 
@@ -1583,12 +1583,14 @@ function pwm_init(P::Float64,T::Float64, gv, z_b, DB, splx_data)
     LibMAGEMin.reset_SS(gv,z_b, DB.SS_ref_db)
     LibMAGEMin.reset_sp(gv, DB.sp)
 
-    gv      = LibMAGEMin.ComputeG0_point(gv.EM_database, z_b, gv, DB.PP_ref_db,DB.SS_ref_db);
+    if G0 == true
+        gv      = LibMAGEMin.ComputeG0_point(gv.EM_database, z_b, gv, DB.PP_ref_db,DB.SS_ref_db);
+    end
 
     return (gv, z_b, DB, splx_data)
 end
 
-pwm_init(P::Number,T::Number, gv, z_b, DB, splx_data) = pwm_init(Float64(P),Float64(T), gv, z_b, DB, splx_data)
+pwm_init(P::Number,T::Number, gv, z_b, DB, splx_data) = pwm_init(Float64(P),Float64(T), gv, z_b, DB, splx_data; G0 = true)
 
 
 function pwm_run(gv, z_b, DB, splx_data; name_solvus = false)
