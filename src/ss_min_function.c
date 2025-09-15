@@ -474,7 +474,7 @@ void ss_min_LP(			global_variable 	 gv,
 		if (cp[i].ss_flags[0] == 1){
 			ph_id = cp[i].id;
 
-			if ( strcmp( gv.SS_list[ph_id], "liq") == 0 && gv.n_min[ph_id] > 3){
+			if ( strcmp( gv.SS_list[ph_id], "liq") == 0 && gv.n_min[ph_id] > 2){
 				act = 0;
 			}
 			else{
