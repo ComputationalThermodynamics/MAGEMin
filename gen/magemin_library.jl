@@ -613,6 +613,7 @@ mutable struct global_variables
     mpSp::Cint
     mpIlm::Cint
     ig_ed::Cint
+    fixed_bulk::Cint
     fluidSpec::Cint
     n_fs_db::Cint
     test::Cint

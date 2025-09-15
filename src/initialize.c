@@ -122,7 +122,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.8.5 [20/09/2025]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.8.5 [15/09/2025]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
@@ -133,6 +133,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.buffer_n 		= 0.0;					/** factor for QFM buffer 															*/
 	gv.limitCaOpx       = 0;					/** limit Ca-bearing  orthopyroxene (add-hoc correction) 							*/
 	gv.CaOpxLim         = 1.0;					/** limit Ca-bearing  orthopyroxene (add-hoc correction) 							*/
+	gv.fixed_bulk	    = 0;                   /** by default we don't activate the initial guess for fixed bulk 					*/
 
 	/* Phase selection 					*/
 	gv.mbCpx 			= 0;					/** 0: omphacite LT, 1: augite HT													*/
@@ -674,6 +675,7 @@ global_variable reset_gv(					global_variable 	 gv,
 		}
 	}
 	gv.leveling_mode	  = 0;
+	gv.fixed_bulk		  = 0;
 	gv.tot_time 	  	  = 0.0;
 	gv.tot_min_time 	  = 0.0;
 	gv.melt_fraction	  = 0.;
