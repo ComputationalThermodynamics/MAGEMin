@@ -1053,10 +1053,12 @@ function convertBulk4MAGEMin(   bulk_in     :: T1,
             id = findall(ref_ox .== bulk_in_ox[i])[1];
 			bulk[i] = bulk_in[i]/ref_MolarMass[id];
 		end
-    else
+    elseif sys_in == "mol"
 		for i=1:length(bulk_in_ox)
 			bulk[i] = bulk_in[i];
 		end
+    else
+        println("System unit not implemented -> use 'mol' or 'wt' -> falling back to 'mol'")
 	end
 
 	bulk = normalize(bulk);
@@ -1118,6 +1120,9 @@ function convertBulk4MAGEMin(   bulk_in     :: T1,
         MAGEMin_bulk[d[id1]] .= 0.0;
     end
     MAGEMin_bulk .= normalize(MAGEMin_bulk).*100.0
+
+    println("MAGEMin_bulk = ",MAGEMin_bulk)
+    println("MAGEMin_ox   = ",MAGEMin_ox)
     return MAGEMin_bulk, MAGEMin_ox;
 end
 
@@ -2337,6 +2342,9 @@ function point_wise_metastability(  out     :: MAGEMin_C.gmin_struct{Float64, In
     ph_id_A_jll = zeros(Int32,np,4)
 
     n_pc_ss     = zeros(gv.len_ss)
+
+    PC_read = Vector{LibMAGEMin.PC_type}(undef,gv.len_ss)
+    LibMAGEMin.TC_PC_init(PC_read,gv)
 
     # fill the arrays to be copied in splx_data
     for i = 1:np
