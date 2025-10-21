@@ -1121,8 +1121,6 @@ function convertBulk4MAGEMin(   bulk_in     :: T1,
     end
     MAGEMin_bulk .= normalize(MAGEMin_bulk).*100.0
 
-    println("MAGEMin_bulk = ",MAGEMin_bulk)
-    println("MAGEMin_ox   = ",MAGEMin_ox)
     return MAGEMin_bulk, MAGEMin_ox;
 end
 

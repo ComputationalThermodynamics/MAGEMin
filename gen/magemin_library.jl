@@ -3,7 +3,7 @@ module LibMAGEMin
 using MAGEMin_jll
 export MAGEMin_jll
 
-using CEnum
+using CEnum: CEnum, @cenum
 
 #
 # START OF PROLOGUE
