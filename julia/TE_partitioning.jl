@@ -129,6 +129,7 @@ struct out_tepm
     ph_TE       :: Union{Nothing, Vector{String}}
     ph_wt_norm  :: Union{Float64, Vector{Float64}}
     liq_wt_norm :: Union{Float64, Float64}
+    bulk_D      :: Union{Float64, Float64}
     Cliq_Zr     :: Union{Float64, Float64}
     Sat_zr_liq  :: Union{Float64, Float64}
     zrc_wt      :: Union{Float64, Float64}
@@ -260,6 +261,7 @@ function partition_TE(  KDs_database:: custom_KDs_database,
     end
 
     D           = KDs'*ph_wt_norm;
+    bulk_D      = sum(D);
     Cliq        = C0 ./ (D .+ liq_wt_norm.*(1.0 .- D));
     Csol        = (C0 .- Cliq .*  liq_wt_norm) ./ (1.0 .- liq_wt_norm)
     Cmin        = similar(KDs); 
@@ -268,7 +270,7 @@ function partition_TE(  KDs_database:: custom_KDs_database,
         Cmin[i,:] = KDs[i,:] .* Cliq;
     end
 
-    return Cliq, Cmin, Csol, ph_TE, ph_wt_norm, liq_wt_norm
+    return Cliq, Cmin, Csol, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D
 end
 
 
@@ -321,22 +323,22 @@ function compute_TE_partitioning(   KDs_database:: custom_KDs_database,
 
     if liq_wt > 0.0 && liq_wt < 1.0 && sol_wt > 0.0
         
-        Cliq, Cmin, Csol, ph_TE, ph_wt_norm, liq_wt_norm = partition_TE(    KDs_database, out, C0, 
+        Cliq, Cmin, Csol, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D = partition_TE(    KDs_database, out, C0, 
                                                                             ph, ph_wt, liq_wt; norm_TE=norm_TE)
     elseif liq_wt == 0.0
         Csol        = C0
-        Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm = NaN, NaN, nothing, NaN, NaN
+        Cliq, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D = NaN, NaN, nothing, NaN, NaN, NaN
 
     elseif liq_wt == 1.0 || (sol_wt == 0.0 && liq_wt > 0.0) #latter means there is fluid + melt
         Cliq        = C0
-        Csol, Cmin, ph_TE, ph_wt_norm  = NaN, NaN, nothing, NaN
+        Csol, Cmin, ph_TE, ph_wt_norm, bulk_D  = NaN, NaN, nothing, NaN, NaN
         liq_wt_norm = 1.0
     else
         println("unrecognized case!")
-        Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm = NaN, NaN, NaN, nothing, NaN, NaN
+        Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D = NaN, NaN, NaN, nothing, NaN, NaN, NaN
     end
 
-    return Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm
+    return Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D
 end
 
 """
@@ -357,7 +359,7 @@ This function checks if the zirconium content in the liquid phase exceeds the sa
 """
 function compute_Zr_sat_n_part(     out         :: MAGEMin_C.gmin_struct{Float64, Int64},
                                     KDs_database:: custom_KDs_database,
-                                    Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm,
+                                    Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D,
                                     C0          :: Vector{Float64},
                                     ph          :: Vector{String},
                                     ph_wt       :: Vector{Float64}, 
@@ -379,14 +381,14 @@ function compute_Zr_sat_n_part(     out         :: MAGEMin_C.gmin_struct{Float64
 
         ph_wt = ph_wt ./(sum(ph_wt))
 
-        Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm = compute_TE_partitioning(     KDs_database,
-                                                                                        out,
-                                                                                        C0,
-                                                                                        ph,
-                                                                                        ph_wt, 
-                                                                                        liq_wt,
-                                                                                        sol_wt;
-                                                                                        norm_TE = norm_TE)
+        Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D = compute_TE_partitioning(     KDs_database,
+                                                                                                out,
+                                                                                                C0,
+                                                                                                ph,
+                                                                                                ph_wt, 
+                                                                                                liq_wt,
+                                                                                                sol_wt;
+                                                                                                norm_TE = norm_TE)
 
         Cliq_Zr     = Cliq[id_Zr]
         Sat_zr_liq  = zirconium_saturation( out; 
@@ -401,7 +403,7 @@ function compute_Zr_sat_n_part(     out         :: MAGEMin_C.gmin_struct{Float64
         zrc_wt, bulk_cor_wt = NaN, NaN
     end
 
-    return Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt
+    return Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt
 end
 
 """
@@ -429,20 +431,20 @@ function TE_prediction(  out, C0, KDs_database, dtb;
     ph, ph_wt   =  mineral_classification(out, dtb)
 
     # first let's partition elements
-    Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm = compute_TE_partitioning(     KDs_database,
-                                                                                    out,
-                                                                                    C0,
-                                                                                    ph,
-                                                                                    ph_wt, 
-                                                                                    liq_wt,
-                                                                                    sol_wt;
-                                                                                    norm_TE = norm_TE)
+    Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D = compute_TE_partitioning(     KDs_database,
+                                                                                            out,
+                                                                                            C0,
+                                                                                            ph,
+                                                                                            ph_wt, 
+                                                                                            liq_wt,
+                                                                                            sol_wt;
+                                                                                            norm_TE = norm_TE)
                                 
     # then compute zircon saturation and re-partition if necessary
     if !isnothing(findfirst(KDs_database.element_name .== "Zr")) && liq_wt > 0.0 && ZrSat_model != "none"
-        Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt = compute_Zr_sat_n_part( out,
+        Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt = compute_Zr_sat_n_part( out,
                                                                                                                             KDs_database,
-                                                                                                                            Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm,
+                                                                                                                            Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D,
                                                                                                                             C0,
                                                                                                                             ph,
                                                                                                                             ph_wt, 
@@ -451,7 +453,7 @@ function TE_prediction(  out, C0, KDs_database, dtb;
                                                                                                                             ZrSat_model = ZrSat_model)
     end
 
-    out_TE = out_tepm(KDs_database.element_name, C0, Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt)
+    out_TE = out_tepm(KDs_database.element_name, C0, Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt)
 
     return out_TE
 end

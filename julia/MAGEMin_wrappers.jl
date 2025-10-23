@@ -2317,7 +2317,7 @@ function point_wise_metastability(  out     :: MAGEMin_C.gmin_struct{Float64, In
                                     gv, z_b, DB, splx_data)
 
     mSS_vec = deepcopy(out.mSS_vec)                                
-
+    gv      = define_bulk_rock(gv, out.bulk, out.oxides, "mol", out.database);
     # initialize MAGEMin up to G0 computation included
     gv, z_b, DB, splx_data = pwm_init(P, T, gv, z_b, DB, splx_data);
     gv.verbose = -1
@@ -2341,9 +2341,15 @@ function point_wise_metastability(  out     :: MAGEMin_C.gmin_struct{Float64, In
 
     n_pc_ss     = zeros(gv.len_ss)
 
-    PC_read = Vector{LibMAGEMin.PC_type}(undef,gv.len_ss)
-    LibMAGEMin.TC_PC_init(PC_read,gv)
+    rg          = unsafe_string(gv.research_group)
 
+    PC_read = Vector{LibMAGEMin.PC_type}(undef,gv.len_ss)
+    if rg == "tc"
+        LibMAGEMin.TC_PC_init(PC_read,gv)
+    elseif rg == "sb"
+        LibMAGEMin.SB_PC_init(PC_read,gv)
+    end
+    
     # fill the arrays to be copied in splx_data
     for i = 1:np
         if mSS_vec[i].ph_type == "pp"
@@ -2399,7 +2405,6 @@ function point_wise_metastability(  out     :: MAGEMin_C.gmin_struct{Float64, In
     unsafe_copyto!(splx_data.A,pointer(vec(A_jll)),np*np)
     unsafe_copyto!(splx_data.A1,pointer(vec(A_jll)),np*np)
     unsafe_copyto!(splx_data.g0_A,pointer(g0_A_jll),np)
-
 
     # add pseudocompounds
     n_mSS = length(mSS_vec)
@@ -2473,7 +2478,6 @@ function point_wise_metastability(  out     :: MAGEMin_C.gmin_struct{Float64, In
 
     return out
 end
-
 
 point_wise_metastability(           out     :: MAGEMin_C.gmin_struct{Float64, Int64},
                                     P       :: Float64,
