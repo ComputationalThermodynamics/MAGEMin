@@ -32,8 +32,9 @@ export  anhydrous_renormalization, retrieve_solution_phase_information, remove_p
 export wt2mol, mol2wt
 export compute_melt_viscosity_G08
 
-export TE_prediction, adjust_bulk_4_zircon, create_custom_KDs_database, zirconium_saturation, get_TE_database, adjust_chemical_system
-# export get_TE_database#, get_MM_KDs_database, get_KP_Exp_KDs_database, get_IL_Exp_KDs_database, get_B_Nat_KDs_database, get_AV_Nat_KDs_database
+export TE_prediction, adjust_bulk_4_zircon, create_custom_KDs_database, get_TE_database, adjust_chemical_system
+export zirconium_saturation, sulfur_saturation
+
 
 export initialize_AMR, split_and_keep, AMR
 
@@ -2491,6 +2492,7 @@ point_wise_metastability(           out     :: MAGEMin_C.gmin_struct{Float64, In
 include("TE_ph_models.jl")
 include("TE_partitioning.jl")
 include("Zircon_saturation.jl")
+include("Sulfur_saturation.jl")
 include("export2CSV.jl")
 include("External_routines.jl")
 
