@@ -393,8 +393,8 @@ end
 
     out_TE = TE_prediction(out, C0, KDs_database, dtb; ZrSat_model = "CB");
 
-    @test out_TE.Cliq[1] ≈ 189.3168751415881 rtol=1e-3
-    @test out_TE.Cliq[2] ≈ 47.86020212957779 rtol=1e-3
+    @test out_TE.Cliq[1] ≈ 189.11851095903208 rtol=1e-3
+    @test out_TE.Cliq[2] ≈ 47.86020212957779  rtol=1e-3
 end
 
 
@@ -438,16 +438,16 @@ end
 
         res     = abs(n0 - vec_norm(out_TE[1].bulk_cor_mol))
         n0      = vec_norm(out_TE[1].bulk_cor_mol)
-
+        println("   Iteration $ite: residual = $res")
         ite    += 1
         if ite == 32
             @warn "Saturation model did not converge in 32 iterations, residual is $res"
         end
     end
 
-    @test out_TE[1].zrc_wt  ≈ 0.001972466068224902  rtol=1e-4
-    @test out_TE[1].sulf_wt ≈ 0.02745430326882016   rtol=1e-4
-    @test out_TE[1].fapt_wt ≈ 0.2212939720987964    rtol=1e-4
+    @test out_TE[1].zrc_wt  ≈ 0.00019651394753624735    rtol=1e-4
+    @test out_TE[1].sulf_wt ≈ 0.002737236177132178      rtol=1e-4
+    @test out_TE[1].fapt_wt ≈ 0.012701750699255025      rtol=1e-4
 
     Finalize_MAGEMin(data)
 end

@@ -98,7 +98,8 @@ function zirconium_saturation(  out     :: MAGEMin_C.gmin_struct{Float64, Int64}
 end
 
 function adjust_bulk_4_zircon(  zr_liq  ::  Float64,
-                                sat_liq ::  Float64 )
+                                sat_liq ::  Float64,
+                                liq_wt  ::  Float64 )
 
     SiO2_wt         = 0.0
     O2_wt           = 0.0
@@ -110,7 +111,7 @@ function adjust_bulk_4_zircon(  zr_liq  ::  Float64,
     O2_wt       = (zircon_wt *0.174570)
 
 
-    return zircon_wt, SiO2_wt, O2_wt
+    return zircon_wt*liq_wt, SiO2_wt*liq_wt, O2_wt*liq_wt
 end
 
 function phosphate_saturation(      out     :: MAGEMin_C.gmin_struct{Float64, Int64};
@@ -142,14 +143,15 @@ function phosphate_saturation(      out     :: MAGEMin_C.gmin_struct{Float64, In
     end
 
 end
-function adjust_bulk_4_fapatite( P2O5_liq    ::  Float64,
-                                 sat_liq     ::  Float64 )
+function adjust_bulk_4_fapatite(    P2O5_liq   ::  Float64,
+                                    sat_liq    ::  Float64,
+                                    liq_wt     ::  Float64 )
 
     P2O5        = (P2O5_liq - sat_liq)/1e6
     fapt_wt     =  P2O5 * 2.37
     CaO_wt      =  P2O5 * 1.316
 
-    return fapt_wt, CaO_wt
+    return fapt_wt*liq_wt, CaO_wt*liq_wt
 end
 
 #=
@@ -297,7 +299,8 @@ function sulfur_saturation(     out     :: MAGEMin_C.gmin_struct{Float64, Int64}
 end
 
 function adjust_bulk_4_sulfide( S_liq  ::  Float64,
-                                sat_liq ::  Float64 )
+                                sat_liq ::  Float64,
+                                liq_wt  ::  Float64 )
 
     Fe_wt           = 0.0
     sulfur_excess   = (S_liq - sat_liq)/1e6
@@ -306,5 +309,5 @@ function adjust_bulk_4_sulfide( S_liq  ::  Float64,
     Fe_wt           = sulfur_excess * 1.742
 
 
-    return sulfide_wt, Fe_wt
+    return sulfide_wt*liq_wt, Fe_wt*liq_wt
 end
