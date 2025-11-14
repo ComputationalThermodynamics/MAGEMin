@@ -8,8 +8,7 @@
 #   Contact      : nriel[at]uni-mainz.de
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ =#
-# Routine to compute zircon saturation and adjust bulk-rock composition when zircon crystallizes
-# NR 12/04/2024, benchmarked HD 25/06/2024
+
 
 function zirconium_saturation(  out     :: MAGEMin_C.gmin_struct{Float64, Int64};
                                 model   :: String = "WH"    )
@@ -136,13 +135,30 @@ function phosphate_saturation(      out     :: MAGEMin_C.gmin_struct{Float64, In
         M_factor        = M/(sum(M_liq_dry) + M)                        # molar fraction of P2O5 in melt
 
         C_P2O5_liq      = C_P_liq_molar/M_factor * 1e4                             # ppm   
-        # Note that in StatGeochem.jl -> P2O5sat wt% = P2O5sat / 0.47. Here I convert based on the system molar mass. Note sure which one is better...
+
+    elseif model == "HWBea92"
+
+        SiO2_wt     = out.SS_vec[out.SS_syms[:liq]].Comp_wt[findfirst(isequal("SiO2"), out.oxides)]
+        Al2O3_mol   = out.SS_vec[out.SS_syms[:liq]].Comp[findfirst(isequal("Al2O3"), out.oxides)]
+        CaO_mol     = out.SS_vec[out.SS_syms[:liq]].Comp[findfirst(isequal("CaO"), out.oxides)]
+        Na2O_mol    = out.SS_vec[out.SS_syms[:liq]].Comp[findfirst(isequal("Na2O"), out.oxides)]
+        K2O_mol     = out.SS_vec[out.SS_syms[:liq]].Comp[findfirst(isequal("K2O"), out.oxides)]
+        T_K         = out.T_C + 273.15
+
+        AoCNK       = Al2O3_mol / (CaO_mol + Na2O_mol + K2O_mol)    # A over CNK
+
+        C_P2O5_WH   = 52.5525567/ exp( (8400.0 + 2.64e4(SiO2_wt - 0.5))/T_K - (3.1 + 12.4(SiO2_wt - 0.5)) )  # wt% as in Harrison and Watson 1984
+
+        C_P2O5_liq  =  (C_P2O5_WH * (AoCNK -1.0) * 6429.0/out.T_C) * 1e4  # ppm Harrison and Watson 1984 + Correction from Bea et al. 1992
     else
         print("Cannot compute phosphate saturation in liquid if melt is not predicted!\n")
         C_P2O5_liq = -1
     end
-
+    
+    return C_P2O5_liq
 end
+
+
 function adjust_bulk_4_fapatite(    P2O5_liq   ::  Float64,
                                     sat_liq    ::  Float64,
                                     liq_wt     ::  Float64 )
