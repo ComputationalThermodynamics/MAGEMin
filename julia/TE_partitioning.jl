@@ -121,22 +121,27 @@ end
     Holds the output of the TE partitioning routine
 """
 struct out_tepm
-    elements    :: Union{Float64, Vector{String}}
-    C0          :: Union{Float64, Vector{Float64}}
-    Cliq        :: Union{Float64, Vector{Float64}}
-    Csol        :: Union{Float64, Vector{Float64}}
-    Cmin        :: Union{Float64, Matrix{Float64}}
-    ph_TE       :: Union{Nothing, Vector{String}}
-    ph_wt_norm  :: Union{Float64, Vector{Float64}}
-    liq_wt_norm :: Union{Float64, Float64}
-    bulk_D      :: Union{Float64, Float64}
-    Cliq_Zr     :: Union{Float64, Float64}
-    Sat_zr_liq  :: Union{Float64, Float64}
-    zrc_wt      :: Union{Float64, Float64}
-    bulk_cor_wt :: Union{Float64, Vector{Float64}}
-    Cliq_S     :: Union{Float64, Float64}
-    Sat_S_liq  :: Union{Float64, Float64}
-    sulf_wt      :: Union{Float64, Float64}
+    elements        :: Union{Float64, Vector{String}}
+    C0              :: Union{Float64, Vector{Float64}}
+    Cliq            :: Union{Float64, Vector{Float64}}
+    Csol            :: Union{Float64, Vector{Float64}}
+    Cmin            :: Union{Float64, Matrix{Float64}}
+    ph_TE           :: Union{Nothing, Vector{String}}
+    ph_wt_norm      :: Union{Float64, Vector{Float64}}
+    liq_wt_norm     :: Union{Float64, Float64}
+    bulk_D          :: Union{Float64, Float64}
+
+    bulk_cor_wt     :: Union{Float64, Vector{Float64}}
+    bulk_cor_mol    :: Union{Float64, Vector{Float64}}
+
+    Sat_Zr_liq      :: Union{Float64, Float64}
+    zrc_wt          :: Union{Float64, Float64}
+
+    Sat_S_liq       :: Union{Float64, Float64}
+    sulf_wt         :: Union{Float64, Float64}
+
+    Sat_P2O5_liq    :: Union{Float64, Float64}
+    fapt_wt         :: Union{Float64, Float64}
 end
 
 
@@ -344,6 +349,8 @@ function compute_TE_partitioning(   KDs_database:: custom_KDs_database,
     return Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D
 end
 
+
+
 """
     compute_Zr_sat_n_part(          out         :: MAGEMin_C.gmin_struct{Float64, Int64},
                                     KDs_database:: custom_KDs_database,
@@ -362,7 +369,7 @@ This function checks if the zirconium content in the liquid phase exceeds the sa
 """
 function compute_Zr_sat_n_part(     out         :: MAGEMin_C.gmin_struct{Float64, Int64},
                                     KDs_database:: custom_KDs_database,
-                                    Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D,
+                                    Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D, bulk_cor_wt,
                                     C0          :: Vector{Float64},
                                     ph          :: Vector{String},
                                     ph_wt       :: Vector{Float64}, 
@@ -373,14 +380,14 @@ function compute_Zr_sat_n_part(     out         :: MAGEMin_C.gmin_struct{Float64
 
     id_Zr       = findfirst(KDs_database.element_name .== "Zr")
     Cliq_Zr     = Cliq[id_Zr]
-    Sat_zr_liq  = zirconium_saturation( out; 
+    Sat_Zr_liq  = zirconium_saturation( out; 
                                         model = ZrSat_model)
 
-    if Cliq_Zr > Sat_zr_liq
-        zrc_wt, SiO2_zrc_wt, O_wt       = adjust_bulk_4_zircon(Cliq_Zr, Sat_zr_liq)
+    if Cliq_Zr > Sat_Zr_liq
+        zrc_wt, SiO2_zrc_wt, O_zrc_wt       = adjust_bulk_4_zircon(Cliq_Zr, Sat_Zr_liq)
 
         push!(ph,"zrn")
-        push!(ph_wt, zrc_wt/100.0)
+        push!(ph_wt, zrc_wt)
 
         ph_wt = ph_wt ./(sum(ph_wt))
 
@@ -394,26 +401,40 @@ function compute_Zr_sat_n_part(     out         :: MAGEMin_C.gmin_struct{Float64
                                                                                                 norm_TE = norm_TE)
 
         Cliq_Zr     = Cliq[id_Zr]
-        Sat_zr_liq  = zirconium_saturation( out; 
+        Sat_Zr_liq  = zirconium_saturation( out; 
                                             model = ZrSat_model)   
 
-        SiO2_id                         = findfirst(out.oxides .== "SiO2")
+        bulk_cor_wt[findfirst(out.oxides .== "SiO2")]   += SiO2_zrc_wt/100.0
+        bulk_cor_wt[findfirst(out.oxides .== "O")]      += 2.0*O_zrc_wt/100.0
 
-        bulk_cor_wt                     = copy(out.bulk_wt)
-        bulk_cor_wt[SiO2_id]            = out.bulk_wt[SiO2_id] - SiO2_zrc_wt 
-        bulk_cor_wt                   ./= sum(bulk_cor_wt)
-        Cliq[id_Zr]                     = Sat_zr_liq
+        Cliq[id_Zr]                     = Sat_Zr_liq
     else
-        zrc_wt, bulk_cor_wt = NaN, NaN
+        zrc_wt = NaN
     end
 
-    return Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt
+    return Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D, Sat_Zr_liq, zrc_wt, bulk_cor_wt
 end
 
+"""
+    compute_S_sat_n_part(           out         :: MAGEMin_C.gmin_struct{Float64, Int64},
+                                    KDs_database:: custom_KDs_database,
+                                    Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D, bulk_cor_wt,
+                                    C0          :: Vector{Float64},
+                                    ph          :: Vector{String},
+                                    ph_wt       :: Vector{Float64}, 
+                                    liq_wt      :: Float64,
+                                    sol_wt      :: Float64;
+                                    SSat_model  :: String = "1000ppm",
+                                    norm_TE     :: Bool = true)
 
+Compute sulfur saturation and adjust bulk composition if necessary.
+
+This function checks if the sulfur content in the liquid phase exceeds the saturation limit. If it does, it adjusts the bulk composition by removing the excess sulfur and adds a new phase for FeS.
+
+"""
 function compute_S_sat_n_part(      out         :: MAGEMin_C.gmin_struct{Float64, Int64},
                                     KDs_database:: custom_KDs_database,
-                                    Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D,
+                                    Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D, bulk_cor_wt,
                                     C0          :: Vector{Float64},
                                     ph          :: Vector{String},
                                     ph_wt       :: Vector{Float64}, 
@@ -425,7 +446,6 @@ function compute_S_sat_n_part(      out         :: MAGEMin_C.gmin_struct{Float64
     id_S       = findfirst(KDs_database.element_name .== "S")
     Cliq_S     = Cliq[id_S]
 
-
     Sat_S_liq  = sulfur_saturation(     out; 
                                         model = SSat_model)
 
@@ -433,7 +453,7 @@ function compute_S_sat_n_part(      out         :: MAGEMin_C.gmin_struct{Float64
         sulf_wt, Fe_sulf_wt      = adjust_bulk_4_sulfide(Cliq_S, Sat_S_liq)
 
         push!(ph,"sulf")
-        push!(ph_wt, sulf_wt/100.0)
+        push!(ph_wt, sulf_wt)
 
         ph_wt = ph_wt ./(sum(ph_wt))
 
@@ -451,12 +471,81 @@ function compute_S_sat_n_part(      out         :: MAGEMin_C.gmin_struct{Float64
                                             model = SSat_model)  
 
         Cliq[id_S]  = Sat_S_liq
+
+        bulk_cor_wt[findfirst(out.oxides .== "FeO")] += Fe_sulf_wt/100.0
+
     else
         sulf_wt = NaN
     end
 
-    return Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D, Cliq_S, Sat_S_liq, sulf_wt
+    return Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D, Sat_S_liq, sulf_wt, bulk_cor_wt
 end
+
+
+"""
+    compute_P_sat_n_part(           out         :: MAGEMin_C.gmin_struct{Float64, Int64},
+                                    KDs_database:: custom_KDs_database,
+                                    Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D, bulk_cor_wt,
+                                    C0          :: Vector{Float64},
+                                    ph          :: Vector{String},
+                                    ph_wt       :: Vector{Float64}, 
+                                    liq_wt      :: Float64,
+                                    sol_wt      :: Float64;
+                                    P2O5Sat_model  :: String = "Tollari06",
+                                    norm_TE     :: Bool = true)
+
+Compute phosphate saturation and adjust bulk composition if necessary.
+
+This function checks if the P2O5 content in the liquid phase exceeds the saturation limit. If it does, it adjusts the bulk composition by removing the excess P2O5 and adds a new phase for fapt.
+
+"""
+function compute_P2O5_sat_n_part(   out         :: MAGEMin_C.gmin_struct{Float64, Int64},
+                                    KDs_database:: custom_KDs_database,
+                                    Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D, bulk_cor_wt,
+                                    C0          :: Vector{Float64},
+                                    ph          :: Vector{String},
+                                    ph_wt       :: Vector{Float64}, 
+                                    liq_wt      :: Float64,
+                                    sol_wt      :: Float64;
+                                    P2O5Sat_model  :: String = "Tollari06",
+                                    norm_TE     :: Bool = true)
+
+    id_P2O5             = findfirst(KDs_database.element_name .== "P2O5")
+    Cliq_P2O5           = Cliq[id_P2O5]
+
+    Sat_P2O5_liq  = phosphate_saturation(   out; 
+                                            model = P2O5Sat_model)
+
+    if Cliq_P2O5 > Sat_P2O5_liq
+        fapt, CaO_fpat_wt      = adjust_bulk_4_fapatite(Cliq_P2O5, Sat_P2O5_liq)
+
+        push!(ph,"fapt")
+        push!(ph_wt, fapt)
+
+        ph_wt = ph_wt ./(sum(ph_wt))
+
+        Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D = compute_TE_partitioning(     KDs_database,
+                                                                                                out,
+                                                                                                C0,
+                                                                                                ph,
+                                                                                                ph_wt, 
+                                                                                                liq_wt,
+                                                                                                sol_wt;
+                                                                                                norm_TE = norm_TE)
+        Cliq_P2O5     = Cliq[id_P2O5]
+        Sat_P2O5_liq  = phosphate_saturation(   out; 
+                                                model = P2O5Sat_model)  
+
+        Cliq[id_P2O5]  = Sat_P2O5_liq
+
+        bulk_cor_wt[findfirst(out.oxides .== "CaO")]  +=  CaO_fpat_wt/100.0
+    else
+        fapt = NaN
+    end
+
+    return Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D, Sat_P2O5_liq, fapt, bulk_cor_wt
+end
+
 
 """
     out_TE = TE_prediction(  out, C0, KDs_database, dtb;
@@ -468,16 +557,18 @@ Perform TE partitioning and zircon saturation calculation.
 This function computes the partitioning of elements into different phases based on the provided KDs database and the initial composition C0. It also checks for zircon saturation and adjusts the composition if necessary.
 
 """
-function TE_prediction(  out, C0, KDs_database, dtb;
-                        ZrSat_model   :: String = "CB",
-                        SSat_model    :: String = "1000ppm",
-                        norm_TE       :: Bool = true)
+function TE_prediction( out, C0, KDs_database, dtb;
+                        ZrSat_model     :: String   = "none",
+                        SSat_model      :: String   = "none",
+                        P2O5Sat_model   :: String   = "none",
+                        norm_TE         :: Bool     = false)
 
     # Initialize output variables
     Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm = NaN, NaN, NaN, nothing, NaN, NaN
-    Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt         = NaN, NaN, NaN, NaN
-    Cliq_S, Sat_S_liq, sulf_wt                       = NaN, NaN, NaN
-
+    Sat_Zr_liq, zrc_wt, bulk_cor_wt       = NaN, NaN, NaN
+    Sat_S_liq, sulf_wt                    = NaN, NaN, NaN
+    Sat_P2O5_liq, fapt_wt,                = NaN, NaN, NaN
+    
     # input data
     liq_wt      = out.frac_M_wt
     sol_wt      = out.frac_S_wt
@@ -494,33 +585,65 @@ function TE_prediction(  out, C0, KDs_database, dtb;
                                                                                             liq_wt,
                                                                                             sol_wt;
                                                                                             norm_TE = norm_TE)
-                                
-    # then compute zircon saturation and re-partition if necessary
+         
+    bulk_cor_wt = copy(out.bulk_wt); bulk_cor_wt .= 0.0;                                                                              
+
     if !isnothing(findfirst(KDs_database.element_name .== "Zr")) && liq_wt > 0.0 && ZrSat_model != "none"
-        Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt = compute_Zr_sat_n_part( out,
-                                                                                                                            KDs_database,
-                                                                                                                            Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D,
-                                                                                                                            C0,
-                                                                                                                            ph,
-                                                                                                                            ph_wt, 
-                                                                                                                            liq_wt,
-                                                                                                                            sol_wt;
-                                                                                                                            ZrSat_model = ZrSat_model)
-    end
-    # then compute zircon saturation and re-partition if necessary
-    if !isnothing(findfirst(KDs_database.element_name .== "S")) && liq_wt > 0.0 && SSat_model != "none"
-        Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D, Cliq_S, Sat_S_liq, sulf_wt = compute_S_sat_n_part(         out,
-                                                                                                                            KDs_database,
-                                                                                                                            Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D,
-                                                                                                                            C0,
-                                                                                                                            ph,
-                                                                                                                            ph_wt, 
-                                                                                                                            liq_wt,
-                                                                                                                            sol_wt;
-                                                                                                                            SSat_model = SSat_model)
+        Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D,
+        Sat_Zr_liq, zrc_wt, bulk_cor_wt = compute_Zr_sat_n_part(   out,
+                                                                            KDs_database,
+                                                                            Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D, bulk_cor_wt,
+                                                                            C0,
+                                                                            ph,
+                                                                            ph_wt, 
+                                                                            liq_wt,
+                                                                            sol_wt;
+                                                                            ZrSat_model = ZrSat_model,
+                                                                            norm_TE = norm_TE)
     end
 
-    out_TE = out_tepm(KDs_database.element_name, C0, Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D, Cliq_Zr, Sat_zr_liq, zrc_wt, bulk_cor_wt,  Cliq_S, Sat_S_liq, sulf_wt)
+    if !isnothing(findfirst(KDs_database.element_name .== "S")) && liq_wt > 0.0 && SSat_model != "none"
+        Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D,
+        Sat_S_liq, sulf_wt, bulk_cor_wt = compute_S_sat_n_part(     out,
+                                                                            KDs_database,
+                                                                            Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D, bulk_cor_wt,
+                                                                            C0,
+                                                                            ph,
+                                                                            ph_wt, 
+                                                                            liq_wt,
+                                                                            sol_wt;
+                                                                            SSat_model = SSat_model,
+                                                                            norm_TE = norm_TE)
+    end
+
+    if !isnothing(findfirst(KDs_database.element_name .== "P2O5")) && liq_wt > 0.0 && P2O5Sat_model != "none"
+        Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D,
+        Sat_P2O5_liq, fapt_wt, bulk_cor_wt = compute_P2O5_sat_n_part(           out,
+                                                                                KDs_database,
+                                                                                Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D, bulk_cor_wt,
+                                                                                C0,
+                                                                                ph,
+                                                                                ph_wt, 
+                                                                                liq_wt,
+                                                                                sol_wt;
+                                                                                P2O5Sat_model = P2O5Sat_model,
+                                                                                norm_TE = norm_TE)
+            end
+
+
+    # compute corrected bulk molar composition
+    n_sys           = [out.bulk_wt[i]       / get_molar_mass(out.oxides[i]) for i in eachindex(out.oxides) ]
+    n_cor           = [bulk_cor_wt[i]       / get_molar_mass(out.oxides[i]) for i in eachindex(out.oxides) ]
+    n_cor_fac       = n_cor./(n_sys .+ n_cor)
+    bulk_cor_mol    = out.bulk .* n_cor_fac
+
+    out_TE = out_tepm(  KDs_database.element_name, 
+                        C0, Cliq, Csol, Cmin,
+                        ph_TE, ph_wt_norm, liq_wt_norm, bulk_D, bulk_cor_wt, bulk_cor_mol,
+
+                        Sat_Zr_liq, zrc_wt,
+                        Sat_S_liq, sulf_wt,
+                        Sat_P2O5_liq, fapt_wt)
 
     return out_TE
 end

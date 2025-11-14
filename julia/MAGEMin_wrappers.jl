@@ -14,7 +14,7 @@
 import Base.show
 using Base.Threads: @threads
 using ProgressMeter
-using DataFrames, Dates, CSV
+using DataFrames, Dates, CSV, SpecialFunctions
 
 const VecOrMat          = Union{Nothing, AbstractVector{Float64}, AbstractVector{<:AbstractVector{Float64}}}
 const available_TC_ds   = [62,633,634,635,636]
@@ -29,11 +29,11 @@ export  anhydrous_renormalization, retrieve_solution_phase_information, remove_p
         
         Initialize_MAGEMin, Finalize_MAGEMin
 
-export wt2mol, mol2wt
+export wt2mol, mol2wt, get_molar_mass, vec_norm
 export compute_melt_viscosity_G08
 
 export TE_prediction, adjust_bulk_4_zircon, create_custom_KDs_database, get_TE_database, adjust_chemical_system
-export zirconium_saturation, sulfur_saturation
+export zirconium_saturation, sulfur_saturation, phosphate_saturation
 
 
 export initialize_AMR, split_and_keep, AMR
@@ -43,12 +43,28 @@ export out_struct, out_TE_struct
 include("name_solvus.jl")
 
 """
+    Function to retrieve the molar mass of an oxide
+"""
+function get_molar_mass( oxide :: String)
+    ref_ox          = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "MnO"; "H2O"; "CO2"; "S"; "P2O5"];
+	ref_MolarMass   = [60.08; 101.96; 56.08; 40.30; 71.85; 159.69; 94.2; 61.98; 79.88; 16.0; 151.99; 70.937; 18.015; 44.01; 32.06; 141.9445];      #Molar mass of oxides
+
+    id_oxide        = findfirst(==(oxide), ref_ox)
+
+    return ref_MolarMass[id_oxide]
+end
+
+
+"""
     Function to allocate memory for the output
 """
 function allocate_output(n::Int64)
     return Vector{gmin_struct{Float64, Int64}}(undef, n)
 end
 
+function vec_norm(v::AbstractVector)
+    sqrt(sum(abs2, v))
+end
 
 """
     bulk_dry = anhydrous_renormalization(   bulk    :: Vector{Float64},
@@ -1507,8 +1523,8 @@ function point_wise_minimization(   P       ::Float64,
         # out.entropy     .= -(out_E.entropy - out.entropy)/(dT);
         out.entropy     .= -(out_E.G_system - out.G_system)/(dT);
         out.enthalpy    .= out.entropy*(T+273.15) .+ out.G_system;
-        out.s_cp   .= hcp/out.M_sys*1e6;
-        out.alpha  .= 1.0/( (out_N.G_system - out.G_system)/dP * 10.0)*((dGdT_N-dGdT_P)/(dP))
+        out.s_cp        .= hcp/out.M_sys*1e6;
+        out.alpha       .= 1.0/( (out_N.G_system - out.G_system)/dP * 10.0)*((dGdT_N-dGdT_P)/(dP))
     end
 
     return out
@@ -1766,7 +1782,6 @@ function create_gmin_struct(DB, gv, time; name_solvus = false)
     # create dictionaries for easy access to the phase symbols; has to be after the name_solvus is set!
     SS_syms = Dict( Symbol("$(ph[i])") => i for i=1:n_SS )
     PP_syms = Dict( Symbol("$(ph[i])") => i-n_SS for i=n_SS+1:n_SS+n_PP )
-
 
     # extract information about metastable solution phases
     mSS_vec = convert.(LibMAGEMin.mSS_data, unsafe_wrap(Vector{LibMAGEMin.mstb_SS_phase},stb.mSS,n_mSS))
@@ -2491,8 +2506,7 @@ point_wise_metastability(           out     :: MAGEMin_C.gmin_struct{Float64, In
 # The following section add post-processing routines
 include("TE_ph_models.jl")
 include("TE_partitioning.jl")
-include("Zircon_saturation.jl")
-include("Sulfur_saturation.jl")
+include("TE_saturation_models.jl")
 include("export2CSV.jl")
 include("External_routines.jl")
 
