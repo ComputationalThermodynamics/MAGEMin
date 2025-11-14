@@ -389,8 +389,8 @@ function compute_Zr_sat_n_part(     out         :: MAGEMin_C.gmin_struct{Float64
         zrc_wt, SiO2_zrc_wt, O_zrc_wt       = adjust_bulk_4_zircon(C0_Zr, 0.0, 1.0)
     end
 
-    bulk_cor_wt[findfirst(out.oxides .== "SiO2")]   += SiO2_zrc_wt/100.0
-    bulk_cor_wt[findfirst(out.oxides .== "O")]      += 2.0*O_zrc_wt/100.0
+    bulk_cor_wt[findfirst(out.oxides .== "SiO2")]   += SiO2_zrc_wt
+    bulk_cor_wt[findfirst(out.oxides .== "O")]      += 2.0*O_zrc_wt
 
     return Sat_Zr_liq, zrc_wt, bulk_cor_wt
 end
@@ -434,7 +434,7 @@ function compute_S_sat_n_part(      out         :: MAGEMin_C.gmin_struct{Float64
         sulf_wt, Fe_sulf_wt      = adjust_bulk_4_sulfide(C0_S, 0.0, 1.0)
     end
 
-    bulk_cor_wt[findfirst(out.oxides .== "FeO")] += Fe_sulf_wt/100.0
+    bulk_cor_wt[findfirst(out.oxides .== "FeO")] += Fe_sulf_wt
 
     return Sat_S_liq, sulf_wt, bulk_cor_wt
 end
@@ -479,7 +479,7 @@ function compute_P2O5_sat_n_part(   out         :: MAGEMin_C.gmin_struct{Float64
         fapt, CaO_fpat_wt  = adjust_bulk_4_fapatite(C0_P2O5, 0.0, 1.0)
     end
 
-    bulk_cor_wt[findfirst(out.oxides .== "CaO")]  +=  CaO_fpat_wt/100.0
+    bulk_cor_wt[findfirst(out.oxides .== "CaO")]  +=  CaO_fpat_wt
 
     return Sat_P2O5_liq, fapt, bulk_cor_wt
 end
@@ -547,7 +547,6 @@ function TE_prediction( out, C0, KDs_database, dtb;
     end
 
     if !isnothing(findfirst(KDs_database.element_name .== "P2O5")) && P2O5Sat_model != "none"
-
         if P2O5Sat_model == "Tollari06" && out.oxides[findfirst(out.oxides .== "H2O")] != 0.0
             @warn "P2O5 saturation model 'Tollari06' is calibrated for dry systems. Use HWBea92 model for hydrous systems."
         end
@@ -557,11 +556,13 @@ function TE_prediction( out, C0, KDs_database, dtb;
                                                                             Cliq, bulk_cor_wt, C0,
                                                                             liq_wt;
                                                                             P2O5Sat_model   = P2O5Sat_model)
-
         push!(ph,"fapt")
         push!(ph_wt, fapt_wt)
     end
-    ph_wt = ph_wt ./(sum(ph_wt))
+    sum_wt       = sum(ph_wt)
+    bulk_cor_wt .= bulk_cor_wt  ./ sum_wt
+    ph_wt        = ph_wt        ./ sum_wt
+
 
     Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D = compute_TE_partitioning(     KDs_database,
                                                                                             out,
@@ -617,9 +618,9 @@ function TE_prediction( out, C0, KDs_database, dtb;
                         C0, Cliq, Csol, Cmin,
                         ph_TE, ph_wt_norm, liq_wt_norm, bulk_D, bulk_cor_wt, bulk_cor_mol,
 
-                        Sat_Zr_liq, zrc_wt,
-                        Sat_S_liq, sulf_wt,
-                        Sat_P2O5_liq, fapt_wt)
+                        Sat_Zr_liq,     zrc_wt/ sum_wt,
+                        Sat_S_liq,      sulf_wt/ sum_wt,
+                        Sat_P2O5_liq,   fapt_wt/ sum_wt)
 
     return out_TE
 end
