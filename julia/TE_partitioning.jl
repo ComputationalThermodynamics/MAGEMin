@@ -381,6 +381,15 @@ function compute_Zr_sat_n_part(     out         :: MAGEMin_C.gmin_struct{Float64
 
         if Cliq_Zr > Sat_Zr_liq
             zrc_wt, SiO2_zrc_wt, O_zrc_wt       = adjust_bulk_4_zircon(Cliq_Zr, Sat_Zr_liq, liq_wt)
+
+            SiO2_bulk_wt             = out.SS_vec[out.SS_syms[:liq]].Comp_wt[findfirst(isequal("SiO2"), out.oxides)]
+
+            if SiO2_zrc_wt*liq_wt  > SiO2_bulk_wt
+                @warn "Not enough SiO2 in the bulk composition to saturate in zircon. Increasing the Sat_Zr_liq to the available SiO2 content."
+                factor                          = SiO2_bulk_wt / SiO2_zrc_wt*liq_wt 
+                Sat_Zr_liq                      = Sat_Zr_liq + factor * (Cliq_Zr - Sat_Zr_liq)
+                zrc_wt, SiO2_zrc_wt, O_zrc_wt   = adjust_bulk_4_zircon(Cliq_Zr, Sat_Zr_liq, liq_wt)
+            end
         else
             zrc_wt, SiO2_zrc_wt, O_zrc_wt = 0.0, 0.0, 0.0
         end
@@ -425,16 +434,27 @@ function compute_S_sat_n_part(      out         :: MAGEMin_C.gmin_struct{Float64
                                             model = SSat_model)
 
         if Cliq_S > Sat_S_liq
-            sulf_wt, Fe_sulf_wt      = adjust_bulk_4_sulfide(Cliq_S, Sat_S_liq, liq_wt)
+            sulf_wt, FeO_sulf_wt, O_sulf_wt     = adjust_bulk_4_sulfide(Cliq_S, Sat_S_liq, liq_wt)
+
+            FeO_bulk_wt             = out.SS_vec[out.SS_syms[:liq]].Comp_wt[findfirst(isequal("FeO"), out.oxides)]
+            # O_bulk_wt               = out.SS_vec[out.SS_syms[:liq]].Comp_wt[findfirst(isequal("O"),    out.oxides)]
+            
+            if FeO_sulf_wt*liq_wt > FeO_bulk_wt
+                @warn "Not enough FeO in the bulk composition to saturate in sulfide. Increasing the Sat_S_liq to the available FeO content."
+                factor              = FeO_bulk_wt / FeO_sulf_wt*liq_wt 
+                Sat_S_liq           = Sat_S_liq + factor * (Cliq_S - Sat_S_liq)
+                sulf_wt, FeO_sulf_wt, O_sulf_wt = adjust_bulk_4_sulfide(Cliq_S, Sat_S_liq, liq_wt)
+            end
         else
-            sulf_wt, Fe_sulf_wt = 0.0, 0.0
+            sulf_wt, FeO_sulf_wt, O_sulf_wt = 0.0, 0.0, 0.0
         end
     else
         C0_S       =  C0[id_S]
-        sulf_wt, Fe_sulf_wt      = adjust_bulk_4_sulfide(C0_S, 0.0, 1.0)
+        sulf_wt, FeO_sulf_wt, O_sulf_wt      = adjust_bulk_4_sulfide(C0_S, 0.0, 1.0)
     end
 
-    bulk_cor_wt[findfirst(out.oxides .== "FeO")] += Fe_sulf_wt
+    bulk_cor_wt[findfirst(out.oxides .== "FeO")] += FeO_sulf_wt
+    bulk_cor_wt[findfirst(out.oxides .== "O")]   += O_sulf_wt
 
     return Sat_S_liq, sulf_wt, bulk_cor_wt
 end
@@ -470,7 +490,15 @@ function compute_P2O5_sat_n_part(   out         :: MAGEMin_C.gmin_struct{Float64
                                                 model = P2O5Sat_model)
 
         if Cliq_P2O5 > Sat_P2O5_liq
-            fapt, CaO_fpat_wt      = adjust_bulk_4_fapatite(Cliq_P2O5, Sat_P2O5_liq, liq_wt)
+            fapt, CaO_fpat_wt     = adjust_bulk_4_fapatite(Cliq_P2O5, Sat_P2O5_liq, liq_wt)
+
+            CaO_bulk_wt           = out.SS_vec[out.SS_syms[:liq]].Comp_wt[findfirst(isequal("CaO"), out.oxides)]
+            if CaO_fpat_wt*liq_wt  > CaO_bulk_wt
+                @warn "Not enough CaO in the bulk composition to saturate in fapatite. Increasing the Sat_P2O5_liq to the available CaO content."
+                factor            = CaO_bulk_wt / CaO_fpat_wt*liq_wt 
+                Sat_P2O5_liq      = Sat_P2O5_liq + factor * (Cliq_P2O5 - Sat_P2O5_liq)
+                fapt, CaO_fpat_wt = adjust_bulk_4_fapatite(Cliq_P2O5, Sat_P2O5_liq, liq_wt)
+            end
         else
             fapt, CaO_fpat_wt = 0.0, 0.0
         end

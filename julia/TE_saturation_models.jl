@@ -318,12 +318,12 @@ function adjust_bulk_4_sulfide( S_liq  ::  Float64,
                                 sat_liq ::  Float64,
                                 liq_wt  ::  Float64 )
 
-    Fe_wt           = 0.0
+
     sulfur_excess   = (S_liq - sat_liq)/1e6
 
     sulfide_wt      = sulfur_excess * 2.742
-    Fe_wt           = sulfur_excess * 1.742
+    FeO_wt          = sulfur_excess * 1.742
+    O_wt            = - FeO_wt * 0.2227
 
-
-    return sulfide_wt*liq_wt, Fe_wt*liq_wt
+    return sulfide_wt*liq_wt, FeO_wt*liq_wt, O_wt*liq_wt
 end
