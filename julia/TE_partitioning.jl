@@ -547,6 +547,11 @@ function TE_prediction( out, C0, KDs_database, dtb;
     end
 
     if !isnothing(findfirst(KDs_database.element_name .== "P2O5")) && P2O5Sat_model != "none"
+
+        if P2O5Sat_model == "Tollari06" && out.oxides[findfirst(out.oxides .== "H2O")] != 0.0
+            @warn "P2O5 saturation model 'Tollari06' is calibrated for dry systems. Use HWBea92 model for hydrous systems."
+        end
+
         Sat_P2O5_liq, fapt_wt, bulk_cor_wt = compute_P2O5_sat_n_part(       out,
                                                                             KDs_database,
                                                                             Cliq, bulk_cor_wt, C0,
