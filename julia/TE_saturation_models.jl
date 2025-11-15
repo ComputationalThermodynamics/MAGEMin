@@ -38,15 +38,15 @@ function zirconium_saturation(  out     :: MAGEMin_C.gmin_struct{Float64, Int64}
             Si          = findfirst(==("Si"), cation_name[cation_idx]);
 
             M           = (cation[Na] + cation[K]+ 2.0*cation[Ca]) / (cation[Al] * cation[Si]) * sum_cation;
-            C_zr_zrn    = 497644;
+            C_zr_zrc    = 497644;
 
             # Watson & Harrison (1983)
             if model == "WH"
-                C_zr_liq    = C_zr_zrn/exp((-3.80 - 0.85*(M - 1.0)) + (12900/(out.T_C+273.15)))
+                C_zr_liq    = C_zr_zrc/exp((-3.80 - 0.85*(M - 1.0)) + (12900/(out.T_C+273.15)))
             end
             # Boehnke et al., 2013
             if model == "B"
-                C_zr_liq    = C_zr_zrn/exp((-1.48 - 1.16*(M - 1.0)) + (10108/(out.T_C+273.15)))
+                C_zr_liq    = C_zr_zrc/exp((-1.48 - 1.16*(M - 1.0)) + (10108/(out.T_C+273.15)))
             end
         # Crisp and Berry 2022
         elseif model == "CB"

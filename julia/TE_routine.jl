@@ -37,7 +37,7 @@ function mineral_name_convertor(    phase_name      :: Vector{String}   )
     ph = replace.(ph,"Bt"   => "bi");       ph = replace.(ph,"Crd"  => "cd");       ph = replace.(ph,"Kfs"  => "afs");      ph = replace.(ph,"Pl"   => "pl");
     ph = replace.(ph,"Qtz"  => "q");        ph = replace.(ph,"Rt"   => "ru");       ph = replace.(ph,"Grt"  => "g");        ph = replace.(ph,"Ep"   => "ep");
     ph = replace.(ph,"Ol"   => "ol");       ph = replace.(ph,"Opx"  => "opx");      ph = replace.(ph,"Mica" => "mu");       ph = replace.(ph,"Mt"   => "mt");
-    ph = replace.(ph,"Zrn"  => "zrn");      ph = replace.(ph,"Cpx"  => "cpx");      ph = replace.(ph,"Spl"  => "sp");
+    ph = replace.(ph,"zrc"  => "zrc");      ph = replace.(ph,"Cpx"  => "cpx");      ph = replace.(ph,"Spl"  => "sp");
 
     return ph 
 end

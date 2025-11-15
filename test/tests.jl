@@ -384,7 +384,7 @@ end
 
     # create database on the fly
     el      = ["Li","Zr"]
-    ph      = ["q","afs","pl","bi","opx","cd","mu","amp","fl","cpx","g","zrn"]
+    ph      = ["q","afs","pl","bi","opx","cd","mu","amp","fl","cpx","g","zrc"]
     KDs     = ["0.17" "0.01";"0.14 * T_C/1000.0 + [:bi].compVariables[1]" "0.01";"0.33 + 0.01*P_kbar" "0.01";"1.67 * P_kbar / 10.0 + T_C/1000.0" "0.01";"0.2" "0.01";"125" "0.01";"0.82" "0.01";"0.2" "0.01";"0.65" "0.01";"0.26" "0.01";"0.01" "0.01";"0.01" "0.0"] 
     C0      = [100.0,400.0] #starting concentration of elements in ppm (ug/g)
     dtb     = "mp"
@@ -408,7 +408,7 @@ end
     X_mol ./= sum(X_mol)                                                    # normalize to 1.0
 
     el      = ["Zr","P2O5","S"]
-    ph      = ["zrn","fapt","sulf"]
+    ph      = ["zrc","fapt","sulf"]
     KDs     = [ "0.0" "0.0" "0.0";
                 "0.0" "0.0" "0.0";
                 "0.0" "0.0" "0.0"]                                          # phase crystallized from saturation models have 0.0 KDs
