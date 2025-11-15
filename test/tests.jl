@@ -413,7 +413,7 @@ end
                 "0.0" "0.0" "0.0";
                 "0.0" "0.0" "0.0"]                                          # phase crystallized from saturation models have 0.0 KDs
 
-    C0      = [400.0, 70000, 1000.0]                                        # starting concentration of elements in ppm (ug/g)
+    C0      = [400.0, 1000, 1000.0]                                        # starting concentration of elements in ppm (ug/g)
     dtb     = "mp"
 
     KDs_dtb = create_custom_KDs_database(el, ph, KDs)
@@ -430,7 +430,7 @@ end
         out[1]     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, name_solvus=true);
         out_TE[1]  = TE_prediction(out[1] , C0, KDs_dtb, dtb; 
                                 ZrSat_model     = "CB",
-                                P2O5Sat_model   = "Tollari06",
+                                P2O5Sat_model   = "HWBea92",
                                 SSat_model      = "Liu07",
                                 norm_TE         = false);
 
@@ -445,9 +445,9 @@ end
         end
     end
 
-    @test out_TE[1].zrc_wt  ≈ 0.00019651394753624735    rtol=1e-4
-    @test out_TE[1].sulf_wt ≈ 0.002737236177132178      rtol=1e-4
-    @test out_TE[1].fapt_wt ≈ 0.012701750699255025      rtol=1e-4
+    @test out_TE[1].zrc_wt  ≈ 0.0001951066849433592    rtol=1e-4
+    @test out_TE[1].sulf_wt ≈ 0.002722767470774445      rtol=1e-4
+    @test out_TE[1].fapt_wt ≈ 0.0023564098247473063      rtol=1e-4
 
     Finalize_MAGEMin(data)
 end
