@@ -148,8 +148,7 @@ function phosphate_saturation(      out     :: MAGEMin_C.gmin_struct{Float64, In
         AoCNK       = Al2O3_mol / (CaO_mol + Na2O_mol + K2O_mol)    # A over CNK
 
         C_P2O5_WH   = 52.5525567/ exp( (8400.0 + 2.64e4(SiO2_wt - 0.5))/T_K - (3.1 + 12.4(SiO2_wt - 0.5)) )  # wt% as in Harrison and Watson 1984
-
-        C_P2O5_liq  =  (C_P2O5_WH * (AoCNK -1.0) * 6429.0/out.T_C) * 1e4  # ppm Harrison and Watson 1984 + Correction from Bea et al. 1992
+        C_P2O5_liq  =  maximum([C_P2O5_WH * 1e4, (C_P2O5_WH * (AoCNK -1.0) * 6429.0/out.T_C) * 1e4])   # ppm Harrison and Watson 1984 + Correction from Bea et al. 1992
     else
         print("Cannot compute phosphate saturation in liquid if melt is not predicted!\n")
         C_P2O5_liq = -1

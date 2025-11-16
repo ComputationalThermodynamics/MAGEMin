@@ -101,3 +101,24 @@ app.layout = t
 run_server(app)
 
 
+
+# id_zrc = findfirst(==( "zrc"), OL12[3])
+# id_Zr = findfirst(==( "Zr"), OL12[2])
+
+# r = fill("0.0", 22, 2)
+# b = fill("0.0", 2, 29)
+
+# OL12[4][id_zrc, id_Zr]
+# OL12 = (OL12[1], OL12[2], OL12[3], hcat(OL12[4], r))
+# OL12 = (OL12[1], OL12[2], OL12[3], vcat(OL12[4], b))
+
+
+# # OL12 = (OL12[1], OL12[2], OL12[3], m)
+
+# m =copy(OL12[4])
+
+# r = fill("0.0", 22, 2)
+# b = fill("0.0", 2, 29)
+
+# m = hcat(m,r)
+# m = vcat(m,b)
