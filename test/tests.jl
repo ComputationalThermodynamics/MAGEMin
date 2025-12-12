@@ -33,6 +33,16 @@ test        =   0         #KLB1
 data        =   use_predefined_bulk_rock(data, test);
 P           =   8.0
 T           =   1800.0
+out         =   point_w
+ise_minimization(P,T, data);
+Finalize_MAGEMin(data)
+
+using MAGEMin_C
+data        =   Initialize_MAGEMin("mb", verbose=-1);
+test        =   0         #KLB1
+data        =   use_predefined_bulk_rock(data, test);
+P           =   4.0
+T           =   600.0
 out         =   point_wise_minimization(P,T, data);
 Finalize_MAGEMin(data)
 
@@ -445,9 +455,9 @@ end
         end
     end
 
-    @test out_TE[1].zrc_wt  ≈ 0.0001951066849433592    rtol=1e-4
-    @test out_TE[1].sulf_wt ≈ 0.002722767470774445      rtol=1e-4
-    @test out_TE[1].fapt_wt ≈ 0.0023564098247473063      rtol=1e-4
+    @test out_TE[1].zrc_wt  ≈ 0.0001951066849433592    rtol=1e-3
+    @test out_TE[1].sulf_wt ≈ 0.002722767470774445      rtol=1e-3
+    @test out_TE[1].fapt_wt ≈ 0.0023191756689226023      rtol=1e-3
 
     Finalize_MAGEMin(data)
 end

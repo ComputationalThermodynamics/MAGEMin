@@ -524,6 +524,7 @@ function single_point_minimization(     P           ::  T1,
                                         B           ::  Union{Nothing, T1 }             = nothing,
                                         G           ::  Union{Nothing, Vector{LibMAGEMin.mSS_data},Vector{Vector{LibMAGEMin.mSS_data}}}  = nothing,
                                         scp         ::  Int64                           = 0,
+                                        dT          ::  T1                              = 2.0,
                                         iguess      ::  Bool                            = false,
                                         rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                                         W           ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}}          = nothing,
@@ -553,6 +554,7 @@ function single_point_minimization(     P           ::  T1,
                                                 B           =   B,
                                                 G           =   G,   
                                                 scp         =   scp,
+                                                dT          =   dT,
                                                 iguess      =   iguess,
                                                 rm_list     =   rm_list,
                                                 W           =   W,
@@ -577,6 +579,7 @@ Out_PT = multi_point_minimization(P           ::  T2,
                                   B           ::  Union{Nothing, Vector{T1}}  = nothing,
                                   G           ::  Union{Nothing, Vector{LibMAGEMin.mSS_data},Vector{Vector{LibMAGEMin.mSS_data}}}  = nothing,
                                   scp         ::  Int64                           = 0, 
+                                  dT          ::  T1                              = 2.0,
                                   iguess      ::  Union{Vector{Bool},Bool}        = false,
                                   rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                                   W           ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}}  = nothing,
@@ -659,6 +662,7 @@ function multi_point_minimization(P           ::  T2,
                                   B           ::  Union{Nothing, Vector{T1}}  = nothing,
                                   G           ::  Union{Nothing, Vector{LibMAGEMin.mSS_data},Vector{Vector{LibMAGEMin.mSS_data}}}  = nothing,
                                   scp         ::  Int64                           = 0, 
+                                  dT          ::  T1                              = 2.0,
                                   iguess      ::  Union{Vector{Bool},Bool}        = false,
                                   rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                                   W           ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}}  = nothing,
@@ -723,7 +727,7 @@ function multi_point_minimization(P           ::  T2,
 
         buffer      = isnothing(B) ? 0.0 :      B[i] 
         out         = point_wise_minimization(  P[i], T[i], gv, z_b, DB, splx_data;
-                                                light=light, buffer_n=buffer, name_solvus=name_solvus, fixed_bulk=fixed_bulk, Gi=Gi, W=W, scp=scp, iguess=ig, rm_list=rm_list)
+                                                light=light, buffer_n=buffer, name_solvus=name_solvus, fixed_bulk=fixed_bulk, Gi=Gi, W=W, scp=scp, dT=dT, iguess=ig, rm_list=rm_list)
 
         Out_PT[i]   = deepcopy(out)
 
@@ -755,6 +759,7 @@ end
                         X           ::  VecOrMat                        = nothing,
                         B           ::  Union{Nothing, T1, Vector{T1}}  = 0.0,
                         scp         ::  Int64                           = 0,  
+                        dT          ::  T1                              = 2.0,
                         iguess      ::  Union{Vector{Bool},Bool}        = false,
                         rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                         W           ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}}  = nothing,
@@ -790,6 +795,7 @@ function AMR_minimization(  init_sub    ::  Int64,
                             X           ::  VecOrMat                        = nothing,
                             B           ::  Union{Nothing, T1, Vector{T1}}  = 0.0,
                             scp         ::  Int64                           = 0,  
+                            dT          ::  T1                              = 2.0,
                             iguess      ::  Union{Vector{Bool},Bool}        = false,
                             rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                             W           ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}}  = nothing,
@@ -839,7 +845,7 @@ function AMR_minimization(  init_sub    ::  Int64,
                 end
             end
             Out_XY_new  =   multi_point_minimization(   Pvec, Tvec, MAGEMin_db,
-                                                        X=Xvec, B=Bvec, G=Gvec, Xoxides=Xoxides, sys_in=sys_in, scp=scp, iguess=iguess, rm_list=rm_list, rg=rg, test=test); 
+                                                        X=Xvec, B=Bvec, G=Gvec, Xoxides=Xoxides, sys_in=sys_in, scp=scp, dT=dT, iguess=iguess, rm_list=rm_list, rg=rg, test=test); 
         else
             println("There is no new point to compute...")
         end
@@ -1155,6 +1161,7 @@ end
                                     buffer_n    = 0.0,
                                     Gi          = nothing,
                                     scp         = 0,
+                                    dT          = 2.0,
                                     iguess      = false,
                                     rm_list     = nothing,
                                     W           = nothing   )
@@ -1234,6 +1241,7 @@ function point_wise_minimization(   P       ::Float64,
                                     buffer_n    = 0.0,
                                     Gi          = nothing,
                                     scp         = 0,
+                                    dT          = 2.0,
                                     iguess      = false,
                                     rm_list     = nothing,
                                     W           = nothing   )
@@ -1507,21 +1515,22 @@ function point_wise_minimization(   P       ::Float64,
     # here we compute specific heat capacity using reactions
     if (scp == 1)
         mSS_vec     = deepcopy(out.mSS_vec)
-        dT          = 2.0;
+        # dT          = 2.0;
         dP          = 0.002;
         out_W       = point_wise_minimization_with_guess(mSS_vec, P, T-dT, gv, z_b, DB, splx_data)
         out_E       = point_wise_minimization_with_guess(mSS_vec, P, T+dT, gv, z_b, DB, splx_data)
-
         hcp         = -(T+273.15)*(out_E.G_system + out_W.G_system - 2.0*out.G_system)/(dT*dT);
-        # hcp         = (T+273.15)*(out_E.entropy - out.entropy)/(dT); # entropy way
 
         out_N       = point_wise_minimization_with_guess(mSS_vec, P+dP, T, gv, z_b, DB, splx_data)
         out_NE      = point_wise_minimization_with_guess(mSS_vec, P+dP, T+dT, gv, z_b, DB, splx_data)
         dGdT_N 		= (out_NE.G_system - out_N.G_system)	/(dT);
         dGdT_P 		= (out_E.G_system - out.G_system)	    /(dT);
 
-        # out.entropy     .= -(out_E.entropy - out.entropy)/(dT);
-        out.entropy     .= -(out_E.G_system - out.G_system)/(dT);
+        out.entropy     .= -(out_E.G_system - out_W.G_system)/(2.0*dT);
+        # out_mW       = point_wise_minimization_with_guess(mSS_vec, P, T-dT/2.0, gv, z_b, DB, splx_data)
+        # out_mE       = point_wise_minimization_with_guess(mSS_vec, P, T+dT/2.0, gv, z_b, DB, splx_data)
+        # out.entropy     .= -(out_mE.G_system - out_mW.G_system)/(dT);
+
         out.enthalpy    .= out.entropy*(T+273.15) .+ out.G_system;
         out.s_cp        .= hcp/out.M_sys*1e6;
         out.alpha       .= 1.0/( (out_N.G_system - out.G_system)/dP * 10.0)*((dGdT_N-dGdT_P)/(dP))
@@ -1546,12 +1555,13 @@ point_wise_minimization(P       ::  Number,
                         buffer_n::  Float64     = 0.0,
                         Gi      ::  Union{Nothing, Vector{LibMAGEMin.mSS_data}}  = nothing,
                         scp     ::  Int64       = 0,
+                        dT      ::  Float64     = 2.0,
                         iguess  ::  Bool        = false,
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         name_solvus::Bool       = false,
                         fixed_bulk::Bool        = false,
                         W       ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}} = nothing) = 
-                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, Gi, scp, iguess, rm_list, name_solvus, fixed_bulk, W)
+                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, Gi, scp, dT, iguess, rm_list, name_solvus, fixed_bulk, W)
 
 point_wise_minimization(P       ::  Number,
                         T       ::  Number,
@@ -1563,12 +1573,13 @@ point_wise_minimization(P       ::  Number,
                         buffer_n::  Float64     = 0.0,
                         Gi      ::  Union{Nothing, Vector{LibMAGEMin.mSS_data}}  = nothing,
                         scp     ::  Int64       = 0,
+                        dT      ::  Float64     = 2.0,
                         iguess  ::  Bool        = false,
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         name_solvus::Bool       = false,
                         fixed_bulk::Bool        = false,
                         W       ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}} = nothing) = 
-                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, Gi, scp, iguess, rm_list, name_solvus, fixed_bulk, W)
+                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, Gi, scp, dT, iguess, rm_list, name_solvus, fixed_bulk, W)
 
 point_wise_minimization(P       ::  Number,
                         T       ::  Number,
@@ -1576,12 +1587,13 @@ point_wise_minimization(P       ::  Number,
                         buffer_n::  Float64     = 0.0,
                         Gi      ::  Union{Nothing, Vector{LibMAGEMin.mSS_data}}  = nothing,
                         scp     ::  Int64       = 0,
+                        dT      ::  Float64     = 2.0,
                         iguess  ::  Bool        = false,
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         name_solvus::Bool       = false,
                         fixed_bulk::Bool        = false,
                         W       ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}} = nothing) = 
-                        point_wise_minimization(Float64(P),Float64(T), data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]; buffer_n, Gi, scp, iguess, rm_list, name_solvus, fixed_bulk, W)
+                        point_wise_minimization(Float64(P),Float64(T), data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]; buffer_n, Gi, scp, dT, iguess, rm_list, name_solvus, fixed_bulk, W)
 
 
 """
