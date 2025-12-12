@@ -32,7 +32,7 @@ function compute_melt_viscosity_G08(oxides, M_mol, T_C; A = -4.55)
 
     G08_ox_list = ["SiO2", "Al2O3", "TiO2", "FeO", "CaO", "MgO", "MnO", "Na2O", "K2O", "P2O5", "H2O", "F2O-1"]
     n_G08_ox    = length(G08_ox_list)
-    G_mol = zeros(Float64,n_G08_ox)
+    G_mol       = zeros(Float64,n_G08_ox)
 
     for i=1:n_G08_ox
         if G08_ox_list[i] in oxides

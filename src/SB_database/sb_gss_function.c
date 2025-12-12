@@ -1309,6 +1309,9 @@ SS_ref G_SS_sb11_EM_function(       global_variable        gv,
         }
 
         if (strcmp( name, "plg") == 0 ){
+  			if ( P > 500.0){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
             SS_ref_db  = G_SS_sb11_plg_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "sp") == 0 ){
             SS_ref_db  = G_SS_sb11_sp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
@@ -2782,6 +2785,9 @@ SS_ref G_SS_sb21_EM_function(       global_variable          gv,
         }
 
         if (strcmp( name, "plg") == 0 ){
+  			if ( P > 500.0){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
             SS_ref_db  = G_SS_sb21_plg_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps); }
         else if (strcmp( name, "sp") == 0 ){
             SS_ref_db  = G_SS_sb21_sp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);  }

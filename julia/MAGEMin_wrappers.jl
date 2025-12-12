@@ -14,7 +14,7 @@
 import Base.show
 using Base.Threads: @threads
 using ProgressMeter
-using DataFrames, Dates, CSV
+using DataFrames, Dates, CSV, SpecialFunctions
 
 const VecOrMat          = Union{Nothing, AbstractVector{Float64}, AbstractVector{<:AbstractVector{Float64}}}
 const available_TC_ds   = [62,633,634,635,636]
@@ -29,11 +29,12 @@ export  anhydrous_renormalization, retrieve_solution_phase_information, remove_p
         
         Initialize_MAGEMin, Finalize_MAGEMin
 
-export wt2mol, mol2wt
+export wt2mol, mol2wt, get_molar_mass, vec_norm
 export compute_melt_viscosity_G08
 
-export TE_prediction, adjust_bulk_4_zircon, create_custom_KDs_database, zirconium_saturation, get_TE_database, adjust_chemical_system
-# export get_TE_database#, get_MM_KDs_database, get_KP_Exp_KDs_database, get_IL_Exp_KDs_database, get_B_Nat_KDs_database, get_AV_Nat_KDs_database
+export TE_prediction, adjust_bulk_4_zircon, create_custom_KDs_database, get_TE_database, adjust_chemical_system
+export zirconium_saturation, sulfur_saturation, phosphate_saturation
+
 
 export initialize_AMR, split_and_keep, AMR
 
@@ -42,12 +43,28 @@ export out_struct, out_TE_struct
 include("name_solvus.jl")
 
 """
+    Function to retrieve the molar mass of an oxide
+"""
+function get_molar_mass( oxide :: String)
+    ref_ox          = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "MnO"; "H2O"; "CO2"; "S"; "P2O5"];
+	ref_MolarMass   = [60.08; 101.96; 56.08; 40.30; 71.85; 159.69; 94.2; 61.98; 79.88; 16.0; 151.99; 70.937; 18.015; 44.01; 32.06; 141.9445];      #Molar mass of oxides
+
+    id_oxide        = findfirst(==(oxide), ref_ox)
+
+    return ref_MolarMass[id_oxide]
+end
+
+
+"""
     Function to allocate memory for the output
 """
 function allocate_output(n::Int64)
     return Vector{gmin_struct{Float64, Int64}}(undef, n)
 end
 
+function vec_norm(v::AbstractVector)
+    sqrt(sum(abs2, v))
+end
 
 """
     bulk_dry = anhydrous_renormalization(   bulk    :: Vector{Float64},
@@ -507,6 +524,7 @@ function single_point_minimization(     P           ::  T1,
                                         B           ::  Union{Nothing, T1 }             = nothing,
                                         G           ::  Union{Nothing, Vector{LibMAGEMin.mSS_data},Vector{Vector{LibMAGEMin.mSS_data}}}  = nothing,
                                         scp         ::  Int64                           = 0,
+                                        dT          ::  T1                              = 2.0,
                                         iguess      ::  Bool                            = false,
                                         rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                                         W           ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}}          = nothing,
@@ -536,6 +554,7 @@ function single_point_minimization(     P           ::  T1,
                                                 B           =   B,
                                                 G           =   G,   
                                                 scp         =   scp,
+                                                dT          =   dT,
                                                 iguess      =   iguess,
                                                 rm_list     =   rm_list,
                                                 W           =   W,
@@ -560,6 +579,7 @@ Out_PT = multi_point_minimization(P           ::  T2,
                                   B           ::  Union{Nothing, Vector{T1}}  = nothing,
                                   G           ::  Union{Nothing, Vector{LibMAGEMin.mSS_data},Vector{Vector{LibMAGEMin.mSS_data}}}  = nothing,
                                   scp         ::  Int64                           = 0, 
+                                  dT          ::  T1                              = 2.0,
                                   iguess      ::  Union{Vector{Bool},Bool}        = false,
                                   rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                                   W           ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}}  = nothing,
@@ -642,6 +662,7 @@ function multi_point_minimization(P           ::  T2,
                                   B           ::  Union{Nothing, Vector{T1}}  = nothing,
                                   G           ::  Union{Nothing, Vector{LibMAGEMin.mSS_data},Vector{Vector{LibMAGEMin.mSS_data}}}  = nothing,
                                   scp         ::  Int64                           = 0, 
+                                  dT          ::  T1                              = 2.0,
                                   iguess      ::  Union{Vector{Bool},Bool}        = false,
                                   rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                                   W           ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}}  = nothing,
@@ -706,7 +727,7 @@ function multi_point_minimization(P           ::  T2,
 
         buffer      = isnothing(B) ? 0.0 :      B[i] 
         out         = point_wise_minimization(  P[i], T[i], gv, z_b, DB, splx_data;
-                                                light=light, buffer_n=buffer, name_solvus=name_solvus, fixed_bulk=fixed_bulk, Gi=Gi, W=W, scp=scp, iguess=ig, rm_list=rm_list)
+                                                light=light, buffer_n=buffer, name_solvus=name_solvus, fixed_bulk=fixed_bulk, Gi=Gi, W=W, scp=scp, dT=dT, iguess=ig, rm_list=rm_list)
 
         Out_PT[i]   = deepcopy(out)
 
@@ -738,6 +759,7 @@ end
                         X           ::  VecOrMat                        = nothing,
                         B           ::  Union{Nothing, T1, Vector{T1}}  = 0.0,
                         scp         ::  Int64                           = 0,  
+                        dT          ::  T1                              = 2.0,
                         iguess      ::  Union{Vector{Bool},Bool}        = false,
                         rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                         W           ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}}  = nothing,
@@ -773,6 +795,7 @@ function AMR_minimization(  init_sub    ::  Int64,
                             X           ::  VecOrMat                        = nothing,
                             B           ::  Union{Nothing, T1, Vector{T1}}  = 0.0,
                             scp         ::  Int64                           = 0,  
+                            dT          ::  T1                              = 2.0,
                             iguess      ::  Union{Vector{Bool},Bool}        = false,
                             rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
                             W           ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}}  = nothing,
@@ -822,7 +845,7 @@ function AMR_minimization(  init_sub    ::  Int64,
                 end
             end
             Out_XY_new  =   multi_point_minimization(   Pvec, Tvec, MAGEMin_db,
-                                                        X=Xvec, B=Bvec, G=Gvec, Xoxides=Xoxides, sys_in=sys_in, scp=scp, iguess=iguess, rm_list=rm_list, rg=rg, test=test); 
+                                                        X=Xvec, B=Bvec, G=Gvec, Xoxides=Xoxides, sys_in=sys_in, scp=scp, dT=dT, iguess=iguess, rm_list=rm_list, rg=rg, test=test); 
         else
             println("There is no new point to compute...")
         end
@@ -1053,10 +1076,12 @@ function convertBulk4MAGEMin(   bulk_in     :: T1,
             id = findall(ref_ox .== bulk_in_ox[i])[1];
 			bulk[i] = bulk_in[i]/ref_MolarMass[id];
 		end
-    else
+    elseif sys_in == "mol"
 		for i=1:length(bulk_in_ox)
 			bulk[i] = bulk_in[i];
 		end
+    else
+        println("System unit not implemented -> use 'mol' or 'wt' -> falling back to 'mol'")
 	end
 
 	bulk = normalize(bulk);
@@ -1118,6 +1143,7 @@ function convertBulk4MAGEMin(   bulk_in     :: T1,
         MAGEMin_bulk[d[id1]] .= 0.0;
     end
     MAGEMin_bulk .= normalize(MAGEMin_bulk).*100.0
+
     return MAGEMin_bulk, MAGEMin_ox;
 end
 
@@ -1135,6 +1161,7 @@ end
                                     buffer_n    = 0.0,
                                     Gi          = nothing,
                                     scp         = 0,
+                                    dT          = 2.0,
                                     iguess      = false,
                                     rm_list     = nothing,
                                     W           = nothing   )
@@ -1214,6 +1241,7 @@ function point_wise_minimization(   P       ::Float64,
                                     buffer_n    = 0.0,
                                     Gi          = nothing,
                                     scp         = 0,
+                                    dT          = 2.0,
                                     iguess      = false,
                                     rm_list     = nothing,
                                     W           = nothing   )
@@ -1487,24 +1515,25 @@ function point_wise_minimization(   P       ::Float64,
     # here we compute specific heat capacity using reactions
     if (scp == 1)
         mSS_vec     = deepcopy(out.mSS_vec)
-        dT          = 2.0;
+        # dT          = 2.0;
         dP          = 0.002;
         out_W       = point_wise_minimization_with_guess(mSS_vec, P, T-dT, gv, z_b, DB, splx_data)
         out_E       = point_wise_minimization_with_guess(mSS_vec, P, T+dT, gv, z_b, DB, splx_data)
-
         hcp         = -(T+273.15)*(out_E.G_system + out_W.G_system - 2.0*out.G_system)/(dT*dT);
-        # hcp         = (T+273.15)*(out_E.entropy - out.entropy)/(dT); # entropy way
 
         out_N       = point_wise_minimization_with_guess(mSS_vec, P+dP, T, gv, z_b, DB, splx_data)
         out_NE      = point_wise_minimization_with_guess(mSS_vec, P+dP, T+dT, gv, z_b, DB, splx_data)
         dGdT_N 		= (out_NE.G_system - out_N.G_system)	/(dT);
         dGdT_P 		= (out_E.G_system - out.G_system)	    /(dT);
 
-        # out.entropy     .= -(out_E.entropy - out.entropy)/(dT);
-        out.entropy     .= -(out_E.G_system - out.G_system)/(dT);
+        out.entropy     .= -(out_E.G_system - out_W.G_system)/(2.0*dT);
+        # out_mW       = point_wise_minimization_with_guess(mSS_vec, P, T-dT/2.0, gv, z_b, DB, splx_data)
+        # out_mE       = point_wise_minimization_with_guess(mSS_vec, P, T+dT/2.0, gv, z_b, DB, splx_data)
+        # out.entropy     .= -(out_mE.G_system - out_mW.G_system)/(dT);
+
         out.enthalpy    .= out.entropy*(T+273.15) .+ out.G_system;
-        out.s_cp   .= hcp/out.M_sys*1e6;
-        out.alpha  .= 1.0/( (out_N.G_system - out.G_system)/dP * 10.0)*((dGdT_N-dGdT_P)/(dP))
+        out.s_cp        .= hcp/out.M_sys*1e6;
+        out.alpha       .= 1.0/( (out_N.G_system - out.G_system)/dP * 10.0)*((dGdT_N-dGdT_P)/(dP))
     end
 
     return out
@@ -1526,12 +1555,13 @@ point_wise_minimization(P       ::  Number,
                         buffer_n::  Float64     = 0.0,
                         Gi      ::  Union{Nothing, Vector{LibMAGEMin.mSS_data}}  = nothing,
                         scp     ::  Int64       = 0,
+                        dT      ::  Float64     = 2.0,
                         iguess  ::  Bool        = false,
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         name_solvus::Bool       = false,
                         fixed_bulk::Bool        = false,
                         W       ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}} = nothing) = 
-                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, Gi, scp, iguess, rm_list, name_solvus, fixed_bulk, W)
+                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, Gi, scp, dT, iguess, rm_list, name_solvus, fixed_bulk, W)
 
 point_wise_minimization(P       ::  Number,
                         T       ::  Number,
@@ -1543,12 +1573,13 @@ point_wise_minimization(P       ::  Number,
                         buffer_n::  Float64     = 0.0,
                         Gi      ::  Union{Nothing, Vector{LibMAGEMin.mSS_data}}  = nothing,
                         scp     ::  Int64       = 0,
+                        dT      ::  Float64     = 2.0,
                         iguess  ::  Bool        = false,
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         name_solvus::Bool       = false,
                         fixed_bulk::Bool        = false,
                         W       ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}} = nothing) = 
-                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, Gi, scp, iguess, rm_list, name_solvus, fixed_bulk, W)
+                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, Gi, scp, dT, iguess, rm_list, name_solvus, fixed_bulk, W)
 
 point_wise_minimization(P       ::  Number,
                         T       ::  Number,
@@ -1556,12 +1587,13 @@ point_wise_minimization(P       ::  Number,
                         buffer_n::  Float64     = 0.0,
                         Gi      ::  Union{Nothing, Vector{LibMAGEMin.mSS_data}}  = nothing,
                         scp     ::  Int64       = 0,
+                        dT      ::  Float64     = 2.0,
                         iguess  ::  Bool        = false,
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         name_solvus::Bool       = false,
                         fixed_bulk::Bool        = false,
                         W       ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}} = nothing) = 
-                        point_wise_minimization(Float64(P),Float64(T), data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]; buffer_n, Gi, scp, iguess, rm_list, name_solvus, fixed_bulk, W)
+                        point_wise_minimization(Float64(P),Float64(T), data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]; buffer_n, Gi, scp, dT, iguess, rm_list, name_solvus, fixed_bulk, W)
 
 
 """
@@ -1762,7 +1794,6 @@ function create_gmin_struct(DB, gv, time; name_solvus = false)
     # create dictionaries for easy access to the phase symbols; has to be after the name_solvus is set!
     SS_syms = Dict( Symbol("$(ph[i])") => i for i=1:n_SS )
     PP_syms = Dict( Symbol("$(ph[i])") => i-n_SS for i=n_SS+1:n_SS+n_PP )
-
 
     # extract information about metastable solution phases
     mSS_vec = convert.(LibMAGEMin.mSS_data, unsafe_wrap(Vector{LibMAGEMin.mstb_SS_phase},stb.mSS,n_mSS))
@@ -2314,7 +2345,7 @@ function point_wise_metastability(  out     :: MAGEMin_C.gmin_struct{Float64, In
                                     gv, z_b, DB, splx_data)
 
     mSS_vec = deepcopy(out.mSS_vec)                                
-
+    gv      = define_bulk_rock(gv, out.bulk, out.oxides, "mol", out.database);
     # initialize MAGEMin up to G0 computation included
     gv, z_b, DB, splx_data = pwm_init(P, T, gv, z_b, DB, splx_data);
     gv.verbose = -1
@@ -2338,6 +2369,15 @@ function point_wise_metastability(  out     :: MAGEMin_C.gmin_struct{Float64, In
 
     n_pc_ss     = zeros(gv.len_ss)
 
+    rg          = unsafe_string(gv.research_group)
+
+    PC_read = Vector{LibMAGEMin.PC_type}(undef,gv.len_ss)
+    if rg == "tc"
+        LibMAGEMin.TC_PC_init(PC_read,gv)
+    elseif rg == "sb"
+        LibMAGEMin.SB_PC_init(PC_read,gv)
+    end
+    
     # fill the arrays to be copied in splx_data
     for i = 1:np
         if mSS_vec[i].ph_type == "pp"
@@ -2393,7 +2433,6 @@ function point_wise_metastability(  out     :: MAGEMin_C.gmin_struct{Float64, In
     unsafe_copyto!(splx_data.A,pointer(vec(A_jll)),np*np)
     unsafe_copyto!(splx_data.A1,pointer(vec(A_jll)),np*np)
     unsafe_copyto!(splx_data.g0_A,pointer(g0_A_jll),np)
-
 
     # add pseudocompounds
     n_mSS = length(mSS_vec)
@@ -2468,7 +2507,6 @@ function point_wise_metastability(  out     :: MAGEMin_C.gmin_struct{Float64, In
     return out
 end
 
-
 point_wise_metastability(           out     :: MAGEMin_C.gmin_struct{Float64, Int64},
                                     P       :: Float64,
                                     T       :: Float64,
@@ -2480,7 +2518,7 @@ point_wise_metastability(           out     :: MAGEMin_C.gmin_struct{Float64, In
 # The following section add post-processing routines
 include("TE_ph_models.jl")
 include("TE_partitioning.jl")
-include("Zircon_saturation.jl")
+include("TE_saturation_models.jl")
 include("export2CSV.jl")
 include("External_routines.jl")
 

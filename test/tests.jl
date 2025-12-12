@@ -33,6 +33,16 @@ test        =   0         #KLB1
 data        =   use_predefined_bulk_rock(data, test);
 P           =   8.0
 T           =   1800.0
+out         =   point_w
+ise_minimization(P,T, data);
+Finalize_MAGEMin(data)
+
+using MAGEMin_C
+data        =   Initialize_MAGEMin("mb", verbose=-1);
+test        =   0         #KLB1
+data        =   use_predefined_bulk_rock(data, test);
+P           =   4.0
+T           =   600.0
 out         =   point_wise_minimization(P,T, data);
 Finalize_MAGEMin(data)
 
@@ -225,22 +235,21 @@ end
     bulk_melt = convertBulk4MAGEMin(compo1, Xoxides, "wt", "mp")[1]
 
     out.bulk_M .= bulk_melt
-    zr_sat_B = MAGEMin_C.zirconium_saturation(out, model="B")
-    zr_sat_WH = MAGEMin_C.zirconium_saturation(out, model="WH")
+    zr_sat_B    = MAGEMin_C.zirconium_saturation(out, model="B")
+    zr_sat_WH   = MAGEMin_C.zirconium_saturation(out, model="WH")
 
-    @test zr_sat_B ≈ 1403.8755429428836 rtol=1e-5
+    @test zr_sat_B  ≈ 1403.8755429428836 rtol=1e-5
     @test zr_sat_WH ≈ 1059.5976323423222 rtol=1e-5
 
     # test crisp and berry 2022, use compo from their example in the calculator from their paper
     P,T     = 20.0, 750.0
     out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in);
 
-    bulk_melt = [61.26, 0, 13.12, 1.33, 0, 0.45, 2.51, 2.26, 2.15, 15.00, 0]
-    # convert bulk_melt from wt to mol of oxides
-    bulk_melt = convertBulk4MAGEMin(bulk_melt, Xoxides, "wt", "mp")[1]
+    bulk_melt    = [61.26, 0, 13.12, 1.33, 0, 0.45, 2.51, 2.26, 2.15, 15.00, 0]
+    bulk_melt   = convertBulk4MAGEMin(bulk_melt, Xoxides, "wt", "mp")[1]
     out.bulk_M .= bulk_melt
 
-    zr_sat = MAGEMin_C.zirconium_saturation(out, model="CB")
+    zr_sat  = MAGEMin_C.zirconium_saturation(out, model="CB")
 
     @test zr_sat ≈ 65.83158859091596 rtol=1e-5
 end
@@ -385,7 +394,7 @@ end
 
     # create database on the fly
     el      = ["Li","Zr"]
-    ph      = ["q","afs","pl","bi","opx","cd","mu","amp","fl","cpx","g","zrn"]
+    ph      = ["q","afs","pl","bi","opx","cd","mu","amp","fl","cpx","g","zrc"]
     KDs     = ["0.17" "0.01";"0.14 * T_C/1000.0 + [:bi].compVariables[1]" "0.01";"0.33 + 0.01*P_kbar" "0.01";"1.67 * P_kbar / 10.0 + T_C/1000.0" "0.01";"0.2" "0.01";"125" "0.01";"0.82" "0.01";"0.2" "0.01";"0.65" "0.01";"0.26" "0.01";"0.01" "0.01";"0.01" "0.0"] 
     C0      = [100.0,400.0] #starting concentration of elements in ppm (ug/g)
     dtb     = "mp"
@@ -394,9 +403,65 @@ end
 
     out_TE = TE_prediction(out, C0, KDs_database, dtb; ZrSat_model = "CB");
 
-    @test out_TE.Cliq[1] ≈ 154.51891525771387 rtol=1e-3
-    @test out_TE.Cliq[2] ≈ 3107.727391290317 rtol=1e-3
+    @test out_TE.Cliq[1] ≈ 189.11851095903208 rtol=1e-3
+    @test out_TE.Cliq[2] ≈ 47.86020212957779  rtol=1e-3
 end
+
+
+@testset "Saturation models" begin
+    # using MAGEMin_C
+    data    = Initialize_MAGEMin("mp", verbose=-1, solver=0);
+    P,T     = 6.0, 699.0
+    Xoxides = ["SiO2";  "TiO2";  "Al2O3";  "FeO";   "MnO";   "MgO";   "CaO";   "Na2O";  "K2O"; "H2O"; "O"];
+    X       = [58.509,  1.022,   14.858, 4.371, 0.141, 4.561, 5.912, 3.296, 2.399, 10.0, 0.2];
+    X_mol, Xoxides  = convertBulk4MAGEMin(X, Xoxides,"wt","mp"); sys_in   = "mol"
+    X_mol ./= sum(X_mol)                                                    # normalize to 1.0
+
+    el      = ["Zr","P2O5","S"]
+    ph      = ["zrc","fapt","sulf"]
+    KDs     = [ "0.0" "0.0" "0.0";
+                "0.0" "0.0" "0.0";
+                "0.0" "0.0" "0.0"]                                          # phase crystallized from saturation models have 0.0 KDs
+
+    C0      = [400.0, 1000, 1000.0]                                        # starting concentration of elements in ppm (ug/g)
+    dtb     = "mp"
+
+    KDs_dtb = create_custom_KDs_database(el, ph, KDs)
+
+    out      = Vector{out_struct}(undef,1)
+    out_TE   = Vector{out_TE_struct}(undef,1)
+
+    X       = copy(X_mol)
+    tol     = 1e-6
+    res     = 1.0
+    n0      = 0.0
+    ite     = 0
+    while res > tol && ite < 32
+        out[1]     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, name_solvus=true);
+        out_TE[1]  = TE_prediction(out[1] , C0, KDs_dtb, dtb; 
+                                ZrSat_model     = "CB",
+                                P2O5Sat_model   = "HWBea92",
+                                SSat_model      = "Liu07",
+                                norm_TE         = false);
+
+        X       =  X_mol .- out_TE[1].bulk_cor_mol
+
+        res     = abs(n0 - vec_norm(out_TE[1].bulk_cor_mol))
+        n0      = vec_norm(out_TE[1].bulk_cor_mol)
+        println("   Iteration $ite: residual = $res")
+        ite    += 1
+        if ite == 32
+            @warn "Saturation model did not converge in 32 iterations, residual is $res"
+        end
+    end
+
+    @test out_TE[1].zrc_wt  ≈ 0.0001951066849433592    rtol=1e-3
+    @test out_TE[1].sulf_wt ≈ 0.002722767470774445      rtol=1e-3
+    @test out_TE[1].fapt_wt ≈ 0.0023191756689226023      rtol=1e-3
+
+    Finalize_MAGEMin(data)
+end
+
 
 @testset "remove solution phase" begin
 
@@ -526,12 +591,12 @@ end
     P           = 4.5
     X           = [64.13, 0.91, 19.63, 6.85, 0.08, 2.41, 0.65, 1.38, 3.95, 40.0]
     Xoxides     = ["SiO2", "TiO2", "Al2O3", "FeO", "MnO", "MgO", "CaO", "Na2O", "K2O", "H2O"]
-    sys_in      = "wt%"
+    sys_in      = "wt"
     out         =   single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in);
     Finalize_MAGEMin(data)
 
-    id_bi = findfirst(isequal("bi"), out.ph)
-    @test sum(abs.(out.SS_vec[id_bi].Comp_apfu .- [2.7200471702210804, 1.5599056595578387, 0.0, 0.889288666478316, 1.733735938353352, 1.0, 0.0, 0.08651639504830935, 12.0, 0.010506170341103422, 1.8269672099033814])) .< 1e-3
+    id_bi = findfirst( out.ph .== "bi" )
+    @test sum(abs.(out.SS_vec[id_bi].Comp_apfu .- [2.7139545235947877, 1.572090952810424, 0.0, 1.1115442718289477, 1.5026608485480333, 1.0, 0.0, 0.08905581689654532, 12.0, 0.010693586321261687, 1.8218883662069094])) .< 1e-3
 end
 
 
@@ -718,8 +783,23 @@ println("Testing problematic points:")
 end
 
 
-# a few tests that gave problems in the past
-println("Override Ws")
+@testset "Metastability function" begin
+    data    = Initialize_MAGEMin("mp", verbose=-1; solver=0);
+    P,T     = 6.0, 630.0
+    Xoxides = ["SiO2";  "TiO2";  "Al2O3";  "FeO";   "MnO";   "MgO";   "CaO";   "Na2O";  "K2O"; "H2O"; "O"];
+    X       = [58.509,  1.022,   14.858, 4.371, 0.141, 4.561, 5.912, 3.296, 2.399, 10.0, 0.0];
+    sys_in  = "wt"
+
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    Pmeta, Tmeta       = 6.0, 500.0
+    out2    = point_wise_metastability(out, Pmeta, Tmeta, data)
+
+    Finalize_MAGEMin(data)
+
+    @test abs(out.G_system + 806.7071168433587) < 1e-6
+    @test abs(out2.G_system + 791.460287) < 1e-6
+end
+
 @testset verbose = true "Test Ws override" begin
 
     #= First we create a structure to store the data in memory =#
@@ -735,9 +815,10 @@ println("Override Ws")
     Xoxides = ["SiO2","Al2O3","CaO","MgO","FeO","K2O","Na2O","TiO2","O","MnO","H2O"]
     X       = [70.999,12.805,0.771,3.978,6.342,2.7895,1.481,0.758,0.72933,0.075,30.0]
     sys_in  = "mol"    
-    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in,W=new_Ws);
-    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in);
-    @test norm(out.ph_frac) - 0.456 < 0.01
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in ,W=new_Ws)
+    # out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    Finalize_MAGEMin(data)
+    @test norm(out.ph_frac) - 0.45682499466457954 < 0.01
 end
 
 #=

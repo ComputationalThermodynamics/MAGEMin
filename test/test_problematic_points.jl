@@ -45,3 +45,15 @@ print("\tsuccess!\n\n")
 
 Finalize_MAGEMin(data)
 
+#=
+
+using MAGEMin_C
+data    = Initialize_MAGEMin("igad", verbose=1, solver=0);
+P, T    = 6.885, 1850.875;
+Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"];
+X       = [0.38451, 0.01774, 0.02821, 0.5051, 0.05879, 0.0001, 0.0025, 0.001, 0.00096, 0.00109];
+sys_in  = "mol";
+out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+Finalize_MAGEMin(data)
+
+=#
