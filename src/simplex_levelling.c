@@ -657,8 +657,17 @@ void generate_pseudocompounds(	int 		 		 ss,
 		// 	G 	= (*SS_objective[ss])(SS_ref_db[ss].n_xeos, get_ss_pv.xeos_pc, 	NULL, &SS_ref_db[ss]) + cor;
 		// }
 		// else {
-			G 	= (*SS_objective[ss])(SS_ref_db[ss].n_xeos, get_ss_pv.xeos_pc, 	NULL, &SS_ref_db[ss]);
+		G 	= (*SS_objective[ss])(SS_ref_db[ss].n_xeos, get_ss_pv.xeos_pc, 	NULL, &SS_ref_db[ss]);
 		// }
+
+		SS_ref_db[ss].sf_ok = 1;
+		for (int i = 0; i < SS_ref_db[ss].n_sf; i++){
+			if (SS_ref_db[ss].sf[i] < 0.0 || isnan(SS_ref_db[ss].sf[i]) == 1|| isinf(SS_ref_db[ss].sf[i]) == 1){
+				SS_ref_db[ss].sf_ok = 0;
+				SS_ref_db[ss].sf_id = i;
+				break;
+			}
+		}
 
 		/* get composition of solution phase */
 		for (j = 0; j < gv.len_ox; j++){
@@ -675,7 +684,7 @@ void generate_pseudocompounds(	int 		 		 ss,
 
 		/** store 
 		 * pseudocompound */
-		if ( df < gv.max_G_pc || k % 10 == 0){	/** if the driving force is lower than the filter or if it is the last one */
+		if ( (df < gv.max_G_pc || k % 10 == 0) && SS_ref_db[ss].sf_ok == 1){	/** if the driving force is lower than the filter or if it is the last one */
 
 			m_pc = SS_ref_db[ss].id_pc[0];
 			SS_ref_db[ss].info[m_pc]      = 0;
