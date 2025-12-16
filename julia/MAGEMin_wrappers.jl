@@ -486,7 +486,8 @@ function  init_MAGEMin( db          :: String               =  "ig";
     gv.limitCaOpx   = limitCaOpx
     gv.CaOpxLim     = CaOpxLim
     gv.solver       = solver
-    gv.buffer       = pointer(buffer)
+    unsafe_copyto!(convert(Ptr{UInt8}, gv.buffer), pointer(buffer), length(buffer) + 1)
+
 
     if !isnothing(dataset) && rg == "tc" && dataset in available_TC_ds
         gv.EM_dataset = dataset
