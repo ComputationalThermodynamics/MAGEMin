@@ -233,7 +233,6 @@ function MAGEMin_data2dataframe( out:: Union{Vector{gmin_struct{Float64, Int64}}
         MAGEMin_db[!, col] = Float64[] 
     end
 
-
     print("\noutput path: $(pwd())\n")
     @showprogress "Saving data to csv..." for k=1:np
         np  = length(out[k].ph)
@@ -316,7 +315,10 @@ function MAGEMin_data2dataframe( out:: Union{Vector{gmin_struct{Float64, Int64}}
             part_3 = Dict(  (out[1].oxides[j]*"[wt%]" => out[k].SS_vec[i].Comp_wt[j]*100.0)
                             for j in eachindex(out[1].oxides))
 
-            row    = merge(part_1,part_2,part_3)   
+            part_4 = Dict(  (out[1].elements[j]*"[apfu]" => out[k].SS_vec[i].Comp_apfu[j])
+                            for j in eachindex(out[1].elements))
+
+            row    = merge(part_1,part_2,part_3,part_4)   
 
             push!(MAGEMin_db, row, cols=:union)
             
@@ -361,7 +363,10 @@ function MAGEMin_data2dataframe( out:: Union{Vector{gmin_struct{Float64, Int64}}
                 part_3 = Dict(  (out[1].oxides[j]*"[wt%]" => out[k].PP_vec[i].Comp_wt[j]*100.0)
                                 for j in eachindex(out[1].oxides))
 
-                row    = merge(part_1,part_2,part_3)   
+                part_4 = Dict(  (out[1].elements[j]*"[apfu]" => out[k].PP_vec[i].Comp_apfu[j])
+                                for j in eachindex(out[1].elements))
+
+                row    = merge(part_1,part_2,part_3,part_4)   
 
                 push!(MAGEMin_db, row, cols=:union)
 
@@ -543,6 +548,12 @@ function MAGEMin_data2dataframe_inlined( out:: Union{Vector{gmin_struct{Float64,
             col = ph*"_"*i*"[wt%]"
             ss_db_[!, col] = Float64[] 
         end
+
+        for i in out[1].elements
+            col = ph*"_"*i*"[apfu]"
+            ss_db_[!, col] = Float64[] 
+        end
+
         ss_db = hcat(ss_db,ss_db_)
     end
   
@@ -573,6 +584,9 @@ function MAGEMin_data2dataframe_inlined( out:: Union{Vector{gmin_struct{Float64,
 
                 ss_part_3 = Dict(  (ph*"_"*out[1].oxides[j]*"[wt%]" => out[k].SS_vec[i].Comp_wt[j]*100.0)
                                 for j in eachindex(out[1].oxides))
+
+                ss_part_4 = Dict(  (ph*"_"*out[1].elements[j]*"[apfu]" => out[k].SS_vec[i].Comp_apfu[j])
+                                for j in eachindex(out[1].elements))
             else
                 ss_part_1 = Dict(   "$(ph)_mode[mol%]"    => NaN,
                                     "$(ph)_mode[wt%]"     => NaN,
@@ -594,8 +608,10 @@ function MAGEMin_data2dataframe_inlined( out:: Union{Vector{gmin_struct{Float64,
                 ss_part_3 = Dict(  (ph*"_"*out[1].oxides[j]*"[wt%]" => NaN)
                                 for j in eachindex(out[1].oxides))
 
+                ss_part_4 = Dict(  (ph*"_"*out[1].elements[j]*"[apfu]" => NaN)
+                                for j in eachindex(out[1].elements))
             end
-            row_    = merge(ss_part_1,ss_part_2,ss_part_3)  
+            row_    = merge(ss_part_1,ss_part_2,ss_part_3,ss_part_4)  
             row = merge(row,row_) 
         end
         push!(ss_db, row, cols=:union)
@@ -628,6 +644,11 @@ function MAGEMin_data2dataframe_inlined( out:: Union{Vector{gmin_struct{Float64,
                 col = ph*"_"*i*"[wt%]"
                 pp_db_[!, col] = Float64[] 
             end
+
+            for i in out[1].elements
+                col = ph*"_"*i*"[apfu]"
+                pp_db_[!, col] = Float64[] 
+            end
             pp_db = hcat(pp_db,pp_db_)
         end
     
@@ -658,6 +679,9 @@ function MAGEMin_data2dataframe_inlined( out:: Union{Vector{gmin_struct{Float64,
 
                     pp_part_3 = Dict(  (ph*"_"*out[1].oxides[j]*"[wt%]" => out[k].PP_vec[i-s].Comp_wt[j]*100.0)
                                     for j in eachindex(out[1].oxides))
+
+                    pp_part_4 = Dict(  (ph*"_"*out[1].elements[j]*"[apfu]" => out[k].PP_vec[i-s].Comp_apfu[j])
+                                    for j in eachindex(out[1].elements))
                 else
                     pp_part_1 = Dict(   "$(ph)_mode[mol%]"    => NaN,
                                         "$(ph)_mode[wt%]"     => NaN,
@@ -679,8 +703,10 @@ function MAGEMin_data2dataframe_inlined( out:: Union{Vector{gmin_struct{Float64,
                     pp_part_3 = Dict(  (ph*"_"*out[1].oxides[j]*"[wt%]" => NaN)
                                     for j in eachindex(out[1].oxides))
 
+                    pp_part_4 = Dict(  (ph*"_"*out[1].elements[j]*"[apfu]" => NaN)
+                                    for j in eachindex(out[1].elements))
                 end
-                row_    = merge(pp_part_1,pp_part_2,pp_part_3)  
+                row_    = merge(pp_part_1,pp_part_2,pp_part_3,pp_part_4)  
                 row = merge(row,row_) 
             end
             push!(pp_db, row, cols=:union)
