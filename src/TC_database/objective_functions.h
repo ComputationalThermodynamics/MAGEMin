@@ -130,6 +130,7 @@ double obj_um_po(unsigned     n, const double *x, double *grad, void *SS_ref_db)
 double obj_ume_pl4tr(unsigned n, const double *x, double *grad, void *SS_ref_db);
 double obj_ume_amp(unsigned    n, const double *x, double *grad, void *SS_ref_db);
 double obj_ume_aug(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_ume_spl(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 
 double obj_mtl_g(unsigned  		n, const double *x, double *grad, void *SS_ref_db);
 double obj_mtl_fp(unsigned     	n, const double *x, double *grad, void *SS_ref_db);
