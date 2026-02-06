@@ -5935,6 +5935,80 @@ void aug_ume_c(unsigned m, double *result, unsigned n, const double *x, double *
     return;
 };
 
+/**
+    Inequality constraints for spl
+*/
+void spl_ume_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+    result[0] = (0.333333333333333*x[0] - 0.666666666666667*x[3] - 0.333333333333333);
+    result[1] = (-0.333333333333333*x[0] - 0.666666666666667*x[4]);
+    result[2] = (-0.666666666666667*x[1]*x[2] + 0.666666666666667*x[1] + 0.666666666666667*x[3] + 0.666666666666667*x[4] + 0.666666666666667*x[5] - 0.666666666666667);
+    result[3] = (0.666666666666667*x[1]*x[2] - 0.666666666666667*x[1] - 0.666666666666667*x[5]);
+    result[4] = (0.333333333333333*x[0] + 0.333333333333333*x[3] - 0.333333333333333);
+    result[5] = (-0.333333333333333*x[0] + 0.333333333333333*x[4]);
+    result[6] = (-0.666666666666667*x[1]*x[2] + 0.666666666666667*x[1] + x[2] - 0.333333333333333*x[3] - 0.333333333333333*x[4] - 0.333333333333333*x[5] - 0.666666666666667);
+    result[7] = (0.666666666666667*x[1]*x[2] - 0.666666666666667*x[1] + 0.333333333333333*x[5]);
+    result[8] = (-1.0*x[2]);
+
+    if (grad) {
+        grad[0] = 0.333333333333333;
+        grad[1] = 0.0;
+        grad[2] = 0.0;
+        grad[3] = -0.666666666666667;
+        grad[4] = 0.0;
+        grad[5] = 0.0;
+        grad[6] = -0.333333333333333;
+        grad[7] = 0.0;
+        grad[8] = 0.0;
+        grad[9] = 0.0;
+        grad[10] = -0.666666666666667;
+        grad[11] = 0.0;
+        grad[12] = 0.0;
+        grad[13] = 0.666666666666667 - 0.666666666666667*x[2];
+        grad[14] = -0.666666666666667*x[1];
+        grad[15] = 0.666666666666667;
+        grad[16] = 0.666666666666667;
+        grad[17] = 0.666666666666667;
+        grad[18] = 0.0;
+        grad[19] = 0.666666666666667*x[2] - 0.666666666666667;
+        grad[20] = 0.666666666666667*x[1];
+        grad[21] = 0.0;
+        grad[22] = 0.0;
+        grad[23] = -0.666666666666667;
+        grad[24] = 0.333333333333333;
+        grad[25] = 0.0;
+        grad[26] = 0.0;
+        grad[27] = 0.333333333333333;
+        grad[28] = 0.0;
+        grad[29] = 0.0;
+        grad[30] = -0.333333333333333;
+        grad[31] = 0.0;
+        grad[32] = 0.0;
+        grad[33] = 0.0;
+        grad[34] = 0.333333333333333;
+        grad[35] = 0.0;
+        grad[36] = 0.0;
+        grad[37] = 0.666666666666667 - 0.666666666666667*x[2];
+        grad[38] = 1.0 - 0.666666666666667*x[1];
+        grad[39] = -0.333333333333333;
+        grad[40] = -0.333333333333333;
+        grad[41] = -0.333333333333333;
+        grad[42] = 0.0;
+        grad[43] = 0.666666666666667*x[2] - 0.666666666666667;
+        grad[44] = 0.666666666666667*x[1];
+        grad[45] = 0.0;
+        grad[46] = 0.0;
+        grad[47] = 0.333333333333333;
+        grad[48] = 0.0;
+        grad[49] = 0.0;
+        grad[50] = -1.00000000000000;
+        grad[51] = 0.0;
+        grad[52] = 0.0;
+        grad[53] = 0.0;
+    }
+
+    return;
+};
+
 
 SS_ref NLopt_opt_mp_st_function(global_variable gv, SS_ref SS_ref_db){
     
@@ -8056,6 +8130,42 @@ SS_ref NLopt_opt_ume_aug_function(global_variable gv, SS_ref SS_ref_db){
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj_ume_aug, &SS_ref_db);
     nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, aug_ume_c, NULL, NULL);
+    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
+    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
+    nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
+
+    double minf;
+    SS_ref_db.status = nlopt_optimize(SS_ref_db.opt, x, &minf);
+
+    /* Send back needed local solution parameters */
+    for (int i = 0; i < SS_ref_db.n_xeos; i++){
+       SS_ref_db.xeos[i] = x[i];
+    }
+    
+    SS_ref_db.df   = minf;
+    nlopt_destroy(SS_ref_db.opt);
+    
+    return SS_ref_db;
+};
+
+SS_ref NLopt_opt_ume_spl_function(global_variable gv, SS_ref SS_ref_db){
+    
+    int    n_em     = SS_ref_db.n_em;
+    unsigned int n  = SS_ref_db.n_xeos;
+    unsigned int m  = SS_ref_db.n_sf;
+    
+    double *x  = SS_ref_db.iguess; 
+    
+    for (int i = 0; i < (SS_ref_db.n_xeos); i++){
+       SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+       SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
+    }
+    
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n)); 
+    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
+    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
+    nlopt_set_min_objective(SS_ref_db.opt, obj_ume_spl, &SS_ref_db);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, spl_ume_c, NULL, NULL);
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
     nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
@@ -11822,6 +11932,8 @@ void TC_um_ext_NLopt_opt_init(	    NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_ume_amp_function; 		}
 		else if (strcmp( gv.SS_list[iss], "aug") == 0){
 			NLopt_opt[iss]  = NLopt_opt_ume_aug_function; 		}
+		else if (strcmp( gv.SS_list[iss], "spl") == 0){
+			NLopt_opt[iss]  = NLopt_opt_ume_spl_function; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	

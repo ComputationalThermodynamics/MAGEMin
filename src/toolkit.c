@@ -356,7 +356,7 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 				}
 			}
 			else if (gv.EM_database == 5){ 			// ultramafic database
-				if(strcmp( gv.ox[i], "H2O") != 0 && strcmp( gv.ox[i], "S") != 0  && strcmp( gv.ox[i], "O") != 0){
+				if(strcmp( gv.ox[i], "H2O") != 0 && strcmp( gv.ox[i], "S") != 0  && strcmp( gv.ox[i], "O") != 0 && strcmp( gv.ox[i], "Cr2O3") != 0){
 					gv.bulk_rock[i] = 1.0e-4;
 					renorm = 1;
 					if (gv.verbose == 1){
