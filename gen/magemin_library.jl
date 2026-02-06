@@ -1524,12 +1524,12 @@ mutable struct ultramafic_ext_datasets
     n_ox::Cint
     n_pp::Cint
     n_ss::Cint
-    ox::NTuple{9, NTuple{20, Cchar}}
+    ox::NTuple{10, NTuple{20, Cchar}}
     PP::NTuple{24, NTuple{20, Cchar}}
-    SS::NTuple{15, NTuple{20, Cchar}}
-    verifyPC::NTuple{15, Cint}
-    n_SS_PC::NTuple{15, Cint}
-    SS_PC_stp::NTuple{15, Cdouble}
+    SS::NTuple{16, NTuple{20, Cchar}}
+    verifyPC::NTuple{16, Cint}
+    n_SS_PC::NTuple{16, Cint}
+    SS_PC_stp::NTuple{16, Cdouble}
     PC_df_add::Cdouble
     solver_switch_T::Cdouble
     min_melt_T::Cdouble
@@ -2210,6 +2210,10 @@ end
 
 function obj_ume_aug(n, x, grad, SS_ref_db)
     ccall((:obj_ume_aug, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_ume_spl(n, x, grad, SS_ref_db)
+    ccall((:obj_ume_spl, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
 function obj_mtl_g(n, x, grad, SS_ref_db)

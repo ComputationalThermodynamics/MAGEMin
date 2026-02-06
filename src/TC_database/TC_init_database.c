@@ -239,17 +239,17 @@ ultramafic_dataset ultramafic_db = {
 
 ultramafic_ext_dataset ultramafic_ext_db = {
 	633,						/* Endmember default dataset number */
-	9,							/* number of oxides */			
+	10,							/* number of oxides */			
 	24,							/* number of pure phases */
-	15,							/* number of solution phases */
-	{"SiO2"	,"Al2O3","MgO"	,"FeO"	,"O"	,"H2O"	,"S"	,"CaO"	,"Na2O"													},
+	16,							/* number of solution phases */
+	{"SiO2"	,"Al2O3","MgO"	,"FeO"	,"O"	,"H2O"	,"S"	,"CaO"	,"Na2O", "Cr2O3"												},
 	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"pyr"	,"O2"  	,"hem"	,
-	"qfm"	,"qif"	,"nno"	,"hm"	,"mw"	,"iw"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"		},
-	{"fl"	,"ol"  ,"br"	,"ch"	,"atg"	,"g"	,"ta"	,"chl"	,"spi"	,"opx"	,"po"	,"anth"	,"pl4tr","amp"	,"aug"	},
+	"qfm"	,"qif"	,"nno"	,"hm"	,"mw"	,"iw"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"				},
+	{"fl"	,"ol"  ,"br"	,"ch"	,"atg"	,"g"	,"ta"	,"chl"	,"spi"	,"opx"	,"po"	,"anth"	,"pl4tr","amp"	,"aug", "spl"	},
 	
-	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1		,1		,1		,1		,1		},  // allow solvus?
-	{11  	,10  	,11 	,10 	,489 	,10  	,985 	,2691	,100	,196	,10		,274	,21		,5033	,3036	},  // No. of pseudocompound
-	{0.001	,0.1	,0.1	,0.1	,0.19	,0.1	,0.19	,0.19	,0.1	,0.19	,0.1	,0.249	,0.049	,0.24	,0.24	},  // discretization step
+	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1		,1		,1		,1		,1		,1		},  // allow solvus?
+	{11  	,10  	,11 	,10 	,489 	,10  	,985 	,2691	,100	,196	,10		,274	,21		,5033	,3036	,2060},  // No. of pseudocompound
+	{0.001	,0.1	,0.1	,0.1	,0.19	,0.1	,0.19	,0.19	,0.1	,0.19	,0.1	,0.249	,0.049	,0.24	,0.24	,0.19},  // discretization step
 
 	4.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
 	473.15,						/* max temperature above which PGE solver is active 								*/
@@ -1443,6 +1443,7 @@ global_variable get_bulk_ultramafic_ext( global_variable gv) {
 		gv.bulk_rock[6]  = 0.1;			/** S 		*/		
 		gv.bulk_rock[7]  = 6.92;		/** CaO		*/	
 		gv.bulk_rock[8]  = 0.25;		/** Na2O	*/	
+		gv.bulk_rock[9]  = 0.0;		/** Cr2O3	*/	
 	}      
 	else if (gv.test == 1){ //Evans&Forst 2021, Serpentine oxidized
 		/* SiO2 Al2O3 MgO FeO O H2O S */
@@ -1455,6 +1456,7 @@ global_variable get_bulk_ultramafic_ext( global_variable gv) {
 		gv.bulk_rock[6]  = 0.3;			/** S 		*/		
 		gv.bulk_rock[7]  = 2.0;			/** CaO		*/	
 		gv.bulk_rock[8]  = 0.15;		/** Na2O	*/	
+		gv.bulk_rock[9]  = 0.0;		/** Cr2O3	*/	
 	}
 	else if (gv.test == 2){ //Evans&Forst 2021, Serpentine reduced
 		/* SiO2 Al2O3 MgO FeO O H2O S */
@@ -1466,7 +1468,21 @@ global_variable get_bulk_ultramafic_ext( global_variable gv) {
 		gv.bulk_rock[5]  = 46.755;		/** H2O 	*/	
 		gv.bulk_rock[6]  = 0.3;			/** S 		*/		
 		gv.bulk_rock[7]  = 2.0;			/** CaO		*/	
-		gv.bulk_rock[8]  = 0.15;			/** Na2O	*/	
+		gv.bulk_rock[8]  = 0.15;			/** Na2O	*/
+		gv.bulk_rock[9]  = 0.0;		/** Cr2O3	*/
+	}
+	else if (gv.test == 3){ //Evans&Forst 2021, Serpentine reduced
+		/* SiO2 Al2O3 MgO FeO O H2O S */
+		gv.bulk_rock[0]  = 20.044 ;		/** SiO2 	*/
+		gv.bulk_rock[1]  = 0.6256;		/** Al2O2 	*/
+		gv.bulk_rock[2]  = 29.24;		/** MgO 	*/
+		gv.bulk_rock[3]  = 3.149;		/** FeO 	*/
+		gv.bulk_rock[4]  = 0.1324;		/** O 		*/
+		gv.bulk_rock[5]  = 46.755;		/** H2O 	*/	
+		gv.bulk_rock[6]  = 0.3;			/** S 		*/		
+		gv.bulk_rock[7]  = 2.0;			/** CaO		*/	
+		gv.bulk_rock[8]  = 0.15;		/** Na2O	*/
+		gv.bulk_rock[9]  = 0.4;		    /** Cr2O3	*/
 	}
   
 	else{

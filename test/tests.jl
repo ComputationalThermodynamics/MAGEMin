@@ -24,7 +24,7 @@ P,T     = 6.0, 710.0
 Xoxides = ["SiO2";  "TiO2";  "Al2O3";  "FeO";   "MnO";   "MgO";   "CaO";   "Na2O";  "K2O"; "H2O"; "O"];
 X       = [58.509,  1.022,   14.858, 4.371, 0.141, 4.561, 5.912, 3.296, 2.399, 10.0, 0.0];
 sys_in  = "wt"
-out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, scp = 1, dT=1.5)
 Finalize_MAGEMin(data)
 
 using MAGEMin_C
@@ -33,8 +33,7 @@ test        =   0         #KLB1
 data        =   use_predefined_bulk_rock(data, test);
 P           =   8.0
 T           =   1800.0
-out         =   point_w
-ise_minimization(P,T, data);
+out         =   point_wise_minimization(P,T, data);
 Finalize_MAGEMin(data)
 
 using MAGEMin_C

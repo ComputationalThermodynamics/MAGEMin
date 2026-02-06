@@ -2874,6 +2874,22 @@ void dpdx_ume_aug(void *SS_ref_db, const double *x){
 }
 
 
+/**
+    Update dpdx matrix of spl
+*/
+void dpdx_ume_spl(void *SS_ref_db, const double *x){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    double **dp_dx = d->dp_dx;
+
+    dp_dx[0][0] = -0.333333333333333;      dp_dx[0][1] = 0.0;      dp_dx[0][2] = -1.00000000000000;      dp_dx[0][3] = 0.666666666666667;      dp_dx[0][4] = 0.0;      dp_dx[0][5] = 0.0;      
+    dp_dx[1][0] = -0.666666666666667;      dp_dx[1][1] = 0.0;      dp_dx[1][2] = 0.0;      dp_dx[1][3] = -0.666666666666667;      dp_dx[1][4] = 0.0;      dp_dx[1][5] = 0.0;      
+    dp_dx[2][0] = 0.333333333333333;      dp_dx[2][1] = 0.333333333333333*x[2] - 0.333333333333333;      dp_dx[2][2] = 0.333333333333333*x[1];      dp_dx[2][3] = 0.0;      dp_dx[2][4] = 0.666666666666667;      dp_dx[2][5] = 0.666666666666667;      
+    dp_dx[3][0] = 0.666666666666667;      dp_dx[3][1] = 0.666666666666667*x[2] - 0.666666666666667;      dp_dx[3][2] = 0.666666666666667*x[1];      dp_dx[3][3] = 0.0;      dp_dx[3][4] = -0.666666666666667;      dp_dx[3][5] = -0.666666666666667;      
+    dp_dx[4][0] = 0.0;      dp_dx[4][1] = 0.333333333333333 - 0.333333333333333*x[2];      dp_dx[4][2] = -0.333333333333333*x[1];      dp_dx[4][3] = 0.0;      dp_dx[4][4] = 0.0;      dp_dx[4][5] = -0.666666666666667;      
+    dp_dx[5][0] = 0.0;      dp_dx[5][1] = 0.666666666666667 - 0.666666666666667*x[2];      dp_dx[5][2] = -0.666666666666667*x[1];      dp_dx[5][3] = 0.0;      dp_dx[5][4] = 0.0;      dp_dx[5][5] = 0.666666666666667;      
+    dp_dx[6][0] = 0.0;      dp_dx[6][1] = 0.0;      dp_dx[6][2] = 1.00000000000000;      dp_dx[6][3] = 0.0;      dp_dx[6][4] = 0.0;      dp_dx[6][5] = 0.0;      
+}
+
 //-----------------------px for ev------------------- 
 //--------------------------------------------------- 
 /**
@@ -3072,6 +3088,21 @@ void px_ume_aug(void *SS_ref_db, const double *x){
         p[7]           = x[0]*x[1] -x[0]*x[3] -x[3]*x[5] -x[4]*x[5] + x[5];
 }
 
+
+/**
+    Endmember fraction of spl
+*/
+void px_ume_spl(void *SS_ref_db, const double *x){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    double *p = d->p;
+        p[0]           = -0.333333333333333*x[0] - 1.0*x[2] + 0.666666666666667*x[3] + 0.333333333333333;
+        p[1]           = -0.666666666666667*x[0] - 0.666666666666667*x[3] + 0.666666666666667;
+        p[2]           = 0.333333333333333*x[0] + 0.333333333333333*x[1]*x[2] - 0.333333333333333*x[1] + 0.666666666666667*x[4] + 0.666666666666667*x[5];
+        p[3]           = 0.666666666666667*x[0] + 0.666666666666667*x[1]*x[2] - 0.666666666666667*x[1] - 0.666666666666667*x[4] - 0.666666666666667*x[5];
+        p[4]           = -0.333333333333333*x[1]*x[2] + 0.333333333333333*x[1] - 0.666666666666667*x[5];
+        p[5]           = -0.666666666666667*x[1]*x[2] + 0.666666666666667*x[1] + 0.666666666666667*x[5];
+        p[6]           = x[2];
+}
 
 //-----------------------obj for ev------------------- 
 //--------------------------------------------------- 
@@ -4175,6 +4206,91 @@ double obj_ume_aug(unsigned n, const double *x, double *grad, void *SS_ref_db){
 }
 
 
+/**
+    Objective function of spl
+*/
+double obj_ume_spl(unsigned n, const double *x, double *grad, void *SS_ref_db){
+    SS_ref *d         = (SS_ref *) SS_ref_db;
+
+    int n_em          = d->n_em;
+    double P          = d->P;
+    double T          = d->T;
+    double R          = d->R;
+
+    double *gb        = d->gb_lvl;
+    double *mat_phi   = d->mat_phi;
+    double *mu_Gex    = d->mu_Gex;
+    double *sf        = d->sf;
+    double *mu        = d->mu;
+    double *d_em      = d->d_em;
+    px_ume_spl(SS_ref_db,x);
+
+    d->sum_v = 0.0;
+    for (int i = 0; i < n_em; i++){
+        d->sum_v += d->p[i]*d->v[i];
+    }
+    for (int i = 0; i < n_em; i++){
+        d->mat_phi[i] = (d->p[i]*d->v[i])/d->sum_v;
+    }
+    
+    for (int i = 0; i < d->n_em; i++){
+        mu_Gex[i] = 0.0;
+        int it = 0;
+        for (int j = 0; j < d->n_xeos; j++){
+            for (int k = j+1; k < d->n_em; k++){
+                mu_Gex[i] -= (d->eye[i][j] - d->mat_phi[j])*(d->eye[i][k] - d->mat_phi[k])*(d->W[it]*2.0*d->v[i]/(d->v[j]+d->v[k]));
+                it += 1;
+            }
+        }
+    }
+    
+    sf[0]          = -0.333333333333333*x[0] + 0.666666666666667*x[3] + 0.333333333333333;
+    sf[1]          = 0.333333333333333*x[0] + 0.666666666666667*x[4];
+    sf[2]          = 0.666666666666667*x[1]*x[2] - 0.666666666666667*x[1] - 0.666666666666667*x[3] - 0.666666666666667*x[4] - 0.666666666666667*x[5] + 0.666666666666667;
+    sf[3]          = -0.666666666666667*x[1]*x[2] + 0.666666666666667*x[1] + 0.666666666666667*x[5];
+    sf[4]          = -0.333333333333333*x[0] - 0.333333333333333*x[3] + 0.333333333333333;
+    sf[5]          = 0.333333333333333*x[0] - 0.333333333333333*x[4];
+    sf[6]          = 0.666666666666667*x[1]*x[2] - 0.666666666666667*x[1] - x[2] + 0.333333333333333*x[3] + 0.333333333333333*x[4] + 0.333333333333333*x[5] + 0.666666666666667;
+    sf[7]          = -0.666666666666667*x[1]*x[2] + 0.666666666666667*x[1] - 0.333333333333333*x[5];
+    sf[8]          = 1.0*x[2];
+    
+    
+    mu[0]          = gb[0] + R*T*creal(clog(sf[0]*sf[6])) + mu_Gex[0];
+    mu[1]          = gb[1] + R*T*creal(clog(2.0*sf[2]*sqrt(sf[4])*sqrt(sf[6]))) + mu_Gex[1];
+    mu[2]          = gb[2] + R*T*creal(clog(sf[1]*sf[6])) + mu_Gex[2];
+    mu[3]          = gb[3] + R*T*creal(clog(2.0*sf[2]*sqrt(sf[5])*sqrt(sf[6]))) + mu_Gex[3];
+    mu[4]          = gb[4] + R*T*creal(clog(sf[1]*sf[7])) + mu_Gex[4];
+    mu[5]          = gb[5] + R*T*creal(clog(2.0*sf[3]*sqrt(sf[5])*sqrt(sf[7]))) + mu_Gex[5];
+    mu[6]          = gb[6] + R*T*creal(clog(sf[0]*sf[8] + d_em[6])) + mu_Gex[6];
+    
+    d->sum_apep = 0.0;
+    for (int i = 0; i < n_em; i++){
+        d->sum_apep += d->ape[i]*d->p[i];
+    }
+    d->factor = d->fbc/d->sum_apep;
+
+    d->df_raw = 0.0;
+    for (int i = 0; i < n_em; i++){
+        d->df_raw += mu[i]*d->p[i];
+    }
+    d->df = d->df_raw * d->factor;
+
+    if (grad){
+        double *dfx    = d->dfx;
+        double **dp_dx = d->dp_dx;
+        dpdx_ume_spl(SS_ref_db,x);
+        for (int i = 0; i < (d->n_xeos); i++){
+            dfx[i] = 0.0;
+            for (int j = 0; j < n_em; j++){
+                dfx[i] += (mu[j] - (d->ape[j]/d->sum_apep)*d->df_raw)*d->factor*dp_dx[j][i];
+            }
+            grad[i] = creal(dfx[i]);
+        }
+    }
+
+    return d->df;
+}
+
 //-----------------------p2x for ev------------------- 
 //--------------------------------------------------- 
 
@@ -4481,6 +4597,30 @@ void p2x_ume_aug(void *SS_ref_db, double eps){
         }
     }
 }
+
+/**
+    Endmember to xeos for spl
+*/
+void p2x_ume_spl(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[2]  = d->p[5];
+    d->iguess[1]  = (-1.0*d->p[3] - 1.0*d->p[4])/(d->iguess[2] - 1.0);
+    d->iguess[0]  = -1.0*d->iguess[2] - 1.0*d->p[-1] - 1.0*d->p[0] + 1.0;
+    d->iguess[3]  = -1.5*d->p[0] - 1.0*d->iguess[0] + 1.0;
+    d->iguess[5]  = d->iguess[2]*d->iguess[1] + 1.5*d->p[4] - 1.0*d->iguess[1];
+    d->iguess[4]  = d->iguess[2]*d->iguess[1] - 1.5*d->p[2] - 1.0*d->iguess[5] + d->iguess[0] - 1.0*d->iguess[1];
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+
 
 /**************************************************************************************/
 /**************************************************************************************/
@@ -15700,6 +15840,8 @@ void TC_um_ext_P2X_init(	        P2X_type 			*P2X_read,
 			P2X_read[iss]  = p2x_ume_amp; 		}
 		else if (strcmp( gv.SS_list[iss], "aug") == 0){
 			P2X_read[iss]  = p2x_ume_aug; 		}
+        else if (strcmp( gv.SS_list[iss], "spl") == 0){
+			P2X_read[iss]  = p2x_ume_spl; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	
@@ -16047,6 +16189,8 @@ void TC_um_ext_objective_init_function(	obj_type 			*SS_objective,
 			SS_objective[iss]  = obj_ume_amp; 		}
 		else if (strcmp( gv.SS_list[iss], "aug") == 0){
 			SS_objective[iss]  = obj_ume_aug; 		}
+        else if (strcmp( gv.SS_list[iss], "spl") == 0){
+			SS_objective[iss]  = obj_ume_spl; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	
@@ -16488,6 +16632,8 @@ void TC_um_ext_PC_init(	                PC_type 			*PC_read,
 			PC_read[iss]  = obj_ume_amp; 		    }
 		else if (strcmp( gv.SS_list[iss], "aug") == 0){
 			PC_read[iss]  = obj_ume_aug; 		    }
+        else if (strcmp( gv.SS_list[iss], "spl") == 0){
+			PC_read[iss]  = obj_ume_spl; 		    }
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	
