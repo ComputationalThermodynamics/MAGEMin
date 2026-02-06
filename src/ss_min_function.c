@@ -549,7 +549,7 @@ void ss_min_LP(			global_variable 	 gv,
 				if (gv.n_ss_ph[ph_id] == 1){
 
 					double shift = 0.0;
-					double sh_array[] = {-0.01,0.01};
+					double sh_array[] = {-0.01,0.001,0.001,0.01};
 					for (int add = 0; add < 2; add++){
 						shift = sh_array[add];
 						for (int k = 0; k < cp[i].n_xeos; k++) {

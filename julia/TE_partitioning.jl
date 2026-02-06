@@ -65,6 +65,10 @@ function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Flo
             if ss == "sp"
                 if x[2] - 0.5 > 0.0;        mineral_name = "sp";
                 else                        mineral_name = "mgt";    end
+            elseif ss == "spl"
+                if x[3] - 0.5 > 0.0;        mineral_name = "cm";
+                elseif x[2] - 0.5 > 0.0;    mineral_name = "mgt";
+                else                        mineral_name = "sp";    end
             elseif ss == "fsp"
                 if x[2] - 0.5 > 0.0;        mineral_name = "afs";
                 else                        mineral_name = "pl";    end

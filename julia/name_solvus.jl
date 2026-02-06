@@ -54,6 +54,10 @@ function get_mineral_name(db, ss, SS_vec)
         if ss == "sp"
             if x[2] - 0.5 > 0.0;        mineral_name = "sp";
             else                        mineral_name = "mt";    end
+        elseif ss == "spl"
+            if x[3] - 0.5 > 0.0;        mineral_name = "cm";
+            elseif x[2] - 0.5 > 0.0;    mineral_name = "mgt";
+            else                        mineral_name = "sp";    end
         elseif ss == "fsp"
             if x[2] - 0.5 > 0.0;       mineral_name = "afs";
             else                        mineral_name = "pl";    end
@@ -122,6 +126,8 @@ function get_ss_from_mineral(db, mrl, mbCpx)
 
         if mrl == "mt" || mrl == "sp"
             ss = "sp"
+        elseif mrl == "cm" || mrl == "mgt" || mrl == "usp"
+            ss = "spl"
         elseif mrl == "afs" || mrl == "pl"
             ss = "fsp"
         elseif mrl == "pat" || mrl == "mu"
