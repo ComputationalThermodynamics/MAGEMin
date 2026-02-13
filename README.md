@@ -17,7 +17,7 @@ While `MAGEMin` is the engine for the prediction of the stable phases, using it 
 Full support to install and use MAGEMin is available [here](https://computationalthermodynamics.github.io/MAGEMin_C.jl/dev/).
 
 ## Available thermodynamic database
- **Mantle** (Holland et al., 2013; Stixrude, & Lithgow-Bertelloni, 2011; 2021; 2024), **Metapelite** (White et al., 2014), **Metabasite** (Green et al., 2016), **Igneous** (Holland et al., 2018) and **Ultramafic** (Evans & Frost, 2021).
+ **Mantle** (Holland et al., 2013; Stixrude, & Lithgow-Bertelloni, 2011; 2021; 2024), **Metapelite** (White et al., 2014), **Metabasite** (Green et al., 2016), **Igneous** (Holland et al., 2018 -> Green et al., 2025; Weller et al., 2024) and **Ultramafic** (Evans & Frost, 2021).
 
 ### MAGEMin_C
 
