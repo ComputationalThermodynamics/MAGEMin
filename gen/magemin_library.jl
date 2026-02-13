@@ -1526,7 +1526,7 @@ mutable struct ultramafic_ext_datasets
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{10, NTuple{20, Cchar}}
-    PP::NTuple{24, NTuple{20, Cchar}}
+    PP::NTuple{25, NTuple{20, Cchar}}
     SS::NTuple{16, NTuple{20, Cchar}}
     verifyPC::NTuple{16, Cint}
     n_SS_PC::NTuple{16, Cint}

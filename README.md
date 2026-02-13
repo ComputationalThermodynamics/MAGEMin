@@ -143,11 +143,34 @@ Developing new, more widely applicable, thermodynamic datasets is a huge researc
 
 **Igneous alkaline dry dataset**
 - Added December 2024,`MAGEMin v1.6.2`
-- Weller et l., 2024 (see doi:10.1093/petrology/egae098)
+- Weller et l., 2024 (see http://hpxeosandthermocalc.org)
 - K2O-Na2O-CaO-FeO-MgO-Al2O3-SiO2-TiO2-O-Cr2O3 chemical system
 - Equations of state for
 	- Pure stoichiometric phases quartz (q), cristobalite (crst), tridymite (trd), coesite (coe), stishovite (stv), kyanite (ky), sillimanite (sill), andalusite (and), rutile (ru) and sphene (sph). 
 	- Solution phases spinel (spl), clinopyroxene (cpx), orthopyroxene (opx), garnet (g), ilmenite (ilm), silicate melt (liq), olivine (ol), ternary feldspar (pl4T), Nepheline (ness), Kalsilite (kals), Leucite (lct) and Melilite (mel).
+
+**Stixrude & Lithgow-Bertelloni thermodynamic dataset (2012)**
+- Addition by Jamison Assunção
+- Stixrude, L., & Lithgow-Bertelloni, C. (2012)
+- Na2O–CaO–FeO–MgO–Al2O3–SiO2 (NCFMAS) system
+- Equations of state for
+	- Pure stoichiometric phases nepheline (neph), kyanite (ky), staurolite (st), coesite (coe), quartz (qtz), calcium perovskite (capv), corundum (co).
+	- Solution phases plagioclase (plg), spinel (sp), olivine (ol), wadsleyite (wa), ringwoodite (ri), orthopyroxene (opx), clinopyroxene (cpx), high-pressure clinopyroxene (hpcpx), akimotoite (ak), garnet-majorite (gtmj), perovskite (pv), post-perovskite (ppv), melt (mw) and calcium ferrite (cf)
+
+**Stixrude & Lithgow-Bertelloni thermodynamic dataset (2022)**
+- Stixrude, L., & Lithgow-Bertelloni, C. (2022)
+- Na2O–CaO–FeO–MgO–Al2O3–SiO2 (NCFMAS) system
+- Equations of state for
+	- Pure stoichiometric phases nepheline (neph), kyanite (ky), staurolite (st), coesite (coe), quartz (qtz), calcium perovskite (capv), corundum (co).
+	- Solution phases plagioclase (plg), spinel (sp), olivine (ol), wadsleyite (wa), ringwoodite (ri), orthopyroxene (opx), clinopyroxene (cpx), high-pressure clinopyroxene (hpcpx), akimotoite (ak), garnet-majorite (gtmj), perovskite (pv), post-perovskite (ppv), calcium ferrite (cf), melt (mw) and NAL phase (nal)
+
+**Stixrude & Lithgow-Bertelloni thermodynamic dataset (2024)**
+- Added February 2026,`MAGEMin v1.8.9` by Nickolas B. Moccetti
+- Stixrude, L., & Lithgow-Bertelloni, C. (2024)
+- Na2O–CaO–FeO–MgO–Al2O3–SiO2–O (NCFMASOCr) system
+- Equations of state for
+	- Pure stoichiometric phases nepheline (neph), kyanite (ky), staurolite (st), coesite (coe), quartz (qtz), calcium perovskite (capv), oxygen (O2), iron-alpha (fea), iron-epsilon (fee), iron-gamma (feg), wollastonite (wo), low-pressure perovskite (lppv), post-perovskite wollastonite (pwo).
+	- Solution phases plagioclase (plg), spinel (sp), olivine (ol), wadsleyite (wa), ringwoodite (ri), orthopyroxene (opx), clinopyroxene (cpx), high-pressure clinopyroxene (hpcpx), akimotoite (ak), garnet-majorite (gtmj), perovskite (pv), post-perovskite (ppv), calcium ferrite (cf), melt (mw) and NAL phase (nal)
 
 
 ## Documentation
@@ -170,8 +193,7 @@ Development of this software package was funded by the European Research Council
 
 ## References
 
-- Green, ECR, Holland, TJB, Powell, R, Weller, OM, & Riel, N (2025).
-XXXXXX Journal of Petrology, doi: XXXXXX
+- Green, E. C., Holland, T. J., Powell, R., Weller, O. M., & Riel, N. (2025). Corrigendum to: Melting of Peridotites through to Granites: a Simple Thermodynamic Model in the System KNCFMASHTOCr, and, a Thermodynamic Model for the Subsolidus Evolution and Melting of Peridotite. Journal of Petrology, 66(1), egae079.
 
 - Weller, OM, Holland, TJB, Soderman, CR, Green, ECR, Powell, R, 
 Beard, CD & Riel, N (2024). New Thermodynamic Models for Anhydrous
@@ -207,6 +229,11 @@ consistent thermodynamic dataset for phases of petrological interest,
 involving a new equation of state for solids. Journal of Metamorphic 
 Geology, 29, 333-383, doi: 10.1111/j.1525-1314.2010.00923.x
 
+- Stixrude, L., & Lithgow-Bertelloni, C. (2012). Geophysics of chemical heterogeneity in the mantle. Annual Review of Earth and Planetary Sciences, 40(1), 569-595.
+
+- Stixrude, L., & Lithgow-Bertelloni, C. (2022). Thermal expansivity, heat capacity and bulk modulus of the mantle. Geophysical Journal International, 228(2), 1119-1149.
+
+- Stixrude, L., & Lithgow-Bertelloni, C. (2024). Thermodynamics of mantle minerals–III: the role of iron. Geophysical Journal International, 237(3), 1699-1733.
 
 <!-- ## Extended informations
 

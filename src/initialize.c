@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -122,7 +122,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.8.9 28/02/2026]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.8.9 14/02/2026]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
