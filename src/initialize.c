@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -104,7 +104,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 		allocate data necessary to initialize the system 
 	*/
 	/* system parameters 		*/
-	gv.maxlen_ox 		= 15;
+	gv.maxlen_ox 		= 16;
 	gv.outpath 			= malloc (100 	* sizeof(char)			);
 	gv.version 			= malloc (50  	* sizeof(char)			);
 	gv.File 			= malloc (50 	* sizeof(char)			);
@@ -122,7 +122,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.8.8 07/02/2025]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.8.9 14/02/2026]");	/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
@@ -656,8 +656,7 @@ global_variable reset_gv(					global_variable 	 gv,
 			}
 		}
 		else{
-
-			if(strcmp( gv.PP_list[i], "O2") == 0){
+			if(strcmp( gv.PP_list[i], "O2") == 0 && strcmp(gv.research_group, "sb") != 0){ //stx
 				gv.pp_flags[i][0] = 0;
 				gv.pp_flags[i][1] = 0;
 				gv.pp_flags[i][2] = 0;
@@ -698,7 +697,7 @@ global_variable reset_gv(					global_variable 	 gv,
 	gv.system_aAl2O3  	  = 0.;
 	gv.system_aMgO  	  = 0.;
 	gv.system_aFeO  	  = 0.;
-		
+
 	gv.system_density     = 0.;
 	gv.system_entropy     = 0.;
 	gv.system_enthalpy    = 0.;
@@ -725,6 +724,7 @@ global_variable reset_gv(					global_variable 	 gv,
 	gv.n_cp_phase         = 0;					/** reset the number of ss phases to start with */
 	gv.n_pp_phase         = 0;					/** reset the number of pp phases to start with */
 	gv.alpha          	  = gv.max_fac;
+
 
 	/* reset iteration record */
 	for (i = 0; i < gv.it_f; i++){	

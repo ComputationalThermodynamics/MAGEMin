@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -914,12 +914,6 @@ PP_ref TC_G_EM_function(	int 		 EM_dataset,
 	PP_ref_db.factor  =  factor;
 	PP_ref_db.phase_shearModulus  =  (EM_return.input_4[0]*kbar2bar + (P - p0)*(EM_return.input_4[1])*kbar2bar + (T - t0)*(EM_return.input_4[2]))/kbar2bar;
 
-	// printf(" %4s %+10f\n",name,PP_ref_db.gbase);
-	// for (i = 0; i < len_ox; i++){
-	// 	printf("%+10f",PP_ref_db.Comp[i]*PP_ref_db.factor); 
-	// }
-	// printf("\n");
-
 	return (PP_ref_db);
 }
 
@@ -999,7 +993,7 @@ PP_ref G_FS_function(		int 		 len_ox,
 		X2      = 2.0*eta * (z*z*z*z/(re*re*re) - z/pow((3.082 + g),3.0));
 		w       = eta * (z*z/re - z/(3.082 + g));
 	}
-	
+
 	G  = 4.184 * (Gf - Sr * (TK - Tref) - c1 * (TK * log(TK / Tref) - TK + Tref) + a1 * (Pbar - Pref) + a2 * log((psi + Pbar) / (psi + Pref)) - c2 * ((1.0 / (TK - theta) - 1.0 / (Tref - theta)) * ((theta - TK) / theta) - TK / pow(theta,2.0) * log((Tref * (TK - theta)) / (TK * (Tref - theta)))) + (1.0 / (TK - theta)) * (a3 * (Pbar - Pref) + a4 * log((psi + Pbar) / (psi + Pref))) + (w * (-Z - 1.0) - wr * (-ZPrTr - 1.0) + wr * YPrTr * (TK - Tref)));
 	G /= 1000.0; // turn to kJ
 

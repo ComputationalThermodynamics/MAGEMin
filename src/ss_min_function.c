@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -849,6 +849,26 @@ global_variable init_ss_db_sb(	int 				 EM_database,
 			// }
 
 			SS_ref_db[i]    = G_SS_sb21_EM_function(	gv, 
+														SS_ref_db[i], 
+														gv.EM_dataset, 
+														z_b, 
+														gv.SS_list[i]		);
+											
+										/** can become a global variable instead */
+		}
+	}
+	else if (EM_database == 2){
+
+		for (int i = 0; i < gv.len_ss; i++){
+			SS_ref_db[i].P  = z_b.P;									/** needed to pass to local minimizer, allows for P variation for liq/sol */
+			SS_ref_db[i].T  = z_b.T;		
+			SS_ref_db[i].R  = 0.0083144;
+
+			// if (SS_ref_db[i].is_liq == 1){
+			// 	SS_ref_db[i].P  = z_b.P + gv.melt_pressure;
+			// }
+
+			SS_ref_db[i]    = G_SS_sb24_EM_function(	gv, 
 														SS_ref_db[i], 
 														gv.EM_dataset, 
 														z_b, 

@@ -8,13 +8,10 @@
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
  ** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ @*/
-#ifndef __TC_all_sol_H_
-#define __TC_all_sol_H_
+#ifndef __PC_XEOS_SB24_H_
+#define __PC_XEOS_SB24_H_
 
-    /* This includes the activity model from THERMOCALC */
-    #include "./TC_database/TC_solution_phases.h"
-
-    /* This include Stixrude & Lithgow-Bertelloni solution phase models */
-    #include "./SB_database/SB_solution_phases.h"
-
+void SB_sb24_pc_init_function(	PC_ref 	*SS_pc_xeos,
+							    int 	 iss,
+							    char 	*name				);
 #endif

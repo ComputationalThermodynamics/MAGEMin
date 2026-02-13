@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -498,19 +498,31 @@ double compute_G0(	double t,
 					double q0,
 					double cme,
 					double g0,
-					double g0p ) {
+					double g0p,
+                    int nativeFe) {
 
     // Declare all variables at the beginning of the function
     double nr9, c1, c2, c3, aii, aiikk, aiikk2, aii2;
     double nr9t0, beta, gammel, t1, t2, nr9t, tht, tht0;
     double delt2, dfth, dfth0, root;
-    double v, v23, f, df, d2f, dfc, d2fc, fel, dfel, d2fel;
+    double v, v23, f, df, d2f, dfc, d2fc;
     double z, a2f, da, dtht, d2tht, dtht0, d2tht0, fpoly;
     double fpoly0, etht, letht, d2fth, etht0, letht0, d2fth0;
+    double b1, b2, fel, dfel, d2fel, tau, Tc, Klro, Ksro, D;
     double f1, df1, dv, a;
-	double G0;
+	double G0, Gmag;
     int itic, ibad;
     bool bad;
+
+    /* Electronic contributions to alpha-epsilon-gamma Fe */
+    fel=0.0; dfel=0.0; d2fel=0.0;
+    if (nativeFe == 1) { // fea
+        b1 = 0.00388; b2 = 1.47960; Tc=1043.01; tau=t/Tc;
+    } else if (nativeFe == 2) { // fee
+        b1 = 0.00411; b2 = 1.69270;
+    } else if (nativeFe == 3) { // feg
+        b1 = 0.00375; b2 = 1.4796;
+    }
 
     // v0 = -EM_return.input_1[2];
     nr9 =  -9.0 * n * R;
@@ -561,9 +573,12 @@ double compute_G0(	double t,
         dfc = (c3 * f + c1) * f * df;
         d2fc = (2.0 * c3 * f + c1) * df * df + (c3 * f + c1) * f * d2f;
 
-        // fel = -beta / 2.0 * pow(v / v0, gammel) * delt2;
-        // dfel = fel * gammel / v;
-        // d2fel = dfel * (gammel - 1.0) / v;
+        // Electronic contribution to the Helmholtz free energy
+        if (nativeFe > 0) {
+            fel = -b1 / 2.0 * pow(v / v0, b2) * delt2;
+            dfel = fel * b2 / v;
+            d2fel = dfel * (b2 - 1.0) / v;
+        }
 
         z = 1.0 + (aii + aiikk2 * f) * f;
 
@@ -603,9 +618,9 @@ double compute_G0(	double t,
         dfth0 = (letht0 - fpoly0) * nr9t0 * dtht0 / tht0;
         d2fth0 = ((4.0 * dtht0 * dtht0 / tht0 - d2tht0) * (fpoly0 - letht0) + dtht0 * dtht0 * etht0 / (1.0 - etht0)) * nr9t0 / tht0;
 
-        f1 = -dfc - dfth + dfth0 -p;
+        f1 = -dfc - dfth + dfth0 - dfel -p;
 
-        df1 = -d2fc - d2fth + d2fth0;
+        df1 = -d2fc - d2fth + d2fth0 - d2fel;
 
         dv = f1 / df1;
 
@@ -624,6 +639,13 @@ double compute_G0(	double t,
 
 	*V = v;
 
+    // Recompute (converged) electronic contribution
+    if (nativeFe > 0) {
+        fel = -b1 / 2.0 * pow(v / v0, b2) * delt2;
+    } else {
+        fel = 0.0;
+    }
+
     f = 0.5 * pow(v0 / v, 2.0 / 3.0) - 0.5;
     z = 1.0 + (aii + aiikk2 * f) * f;
     root = sqrt(z);
@@ -631,9 +653,23 @@ double compute_G0(	double t,
     tht = t1 * root;
     tht0 = tht * t2;
 
-    a = f0 + c1 * f * f * (0.5 + c2 * f) + nr9 * (t / (tht * tht * tht) * plg(tht) - T0 / (tht0 * tht0 * tht0) * plg(tht0));
+    a = f0 + c1 * f * f * (0.5 + c2 * f) + nr9 * (t / (tht * tht * tht) * plg(tht) - T0 / (tht0 * tht0 * tht0) * plg(tht0)) + fel;
 
     G0 = a + p * v - t * cme;
+
+    // Magnetic contribution to Gibbs free energy
+    if (nativeFe == 1) { // only fea is assumed magnetic
+        // Tc=1043.01 K | SD=9.46 J/mol/K | tau=t/Tc | p=0.4 (nondimentional standard for bcc (fea); see Roslyakova et al. 2016)
+        D = (518.0/1125.0)+(11692.0/15975.0)*(1.0/0.4 - 1.0);
+        Klro = 9.46 / D;
+        Ksro = (474.0/497.0)*(1.0/0.4 - 1.0)*Klro;
+        if (tau <= 1.0) {
+            Gmag = t/D*9.46*( 1.0 - (79.0*pow(tau, -1.0)/140/0.4 + 474.0/497.0*(1.0/0.4 - 1.0)) * (pow(tau, 3.0)/6 + pow(tau, 9.0)/135 + pow(tau, 15.0)/600) );
+        } else {
+            Gmag = -t/D*9.46*(pow(tau, -5.0)/10.0 + pow(tau, -15.0)/315.0 + pow(tau, -25.0)/1500.0);
+        }
+        G0 += Gmag;
+    }
 
 	return G0;
 }
@@ -650,56 +686,80 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 ){
 
 	/* Get thermodynamic data */
-	EM_db_sb EM_return;
-	int i, p_id = find_EM_id(name);
-	EM_return   = Access_SB_EM_DB(p_id, EM_dataset);
-	
-	/* Get composition (in molar amount) */
-	double composition[len_ox];
-	for (i = 0; i < len_ox; i ++){
-		composition[i] = EM_return.Comp[id[i]];
-	}
+    EM_db_sb EM_return;
+    int i, p_id = find_EM_id(name);
+    EM_return   = Access_SB_EM_DB(p_id, EM_dataset);
+    
+    /* Get composition (in molar amount) */
+    double composition[len_ox];
+    for (i = 0; i < len_ox; i ++){
+        composition[i] = EM_return.Comp[i];
+    }
 
- 	double P       = Pkbar * kbar2bar;
+    double P       = Pkbar * kbar2bar;
 
-	/* declare the variables */
-	double nr9, nr9T0, c1, c2, c3, aii, aiikk, as, aiikk2, aii2;
-	double r23, r59, t1, t2, nr9t, tht, thT0;
-	double b21, b22;
-	double dfth, dfth0, root, V, V23;
-	double f,df,d2f,dfc,d2fc,z,a2f,da,dtht,d2tht,dthT0,d2thT0,fpoly,fpoly0,etht,letht,d2fth,ethv,ethT0,lethT0,d2fth0,f1,df1,dv;
-	double gamma, etas;
-	double a,gbase;
+    /* declare the variables */
+    double nr9, nr9T0, c1, c2, c3, cpterms, t0, aii, aiikk, as, aiikk2, aii2;
+    double r23, r59, t1, t2, nr9t, tht, thT0;
+    double b21, b22;
+    double dfth, dfth0, root, V, V23;
+    double f,df,d2f,dfc,d2fc,z,a2f,da,dtht,d2tht,dthT0,d2thT0,fpoly,fpoly0,etht,letht,d2fth,ethv,ethT0,lethT0,d2fth0,f1,df1,dv;
+    double gamma, etas;
+    double a, gbase;
 
-	int    max_ite, itic, ibad, bad;
+    int    max_ite, itic, ibad, bad;
 
-	max_ite 		= 128;
+    max_ite 		= 128;
 
-	double F0		=  EM_return.input_1[0];
-	double n		=  EM_return.input_1[1];
-	double V0 		= -EM_return.input_1[2];
-	double K0 		=  EM_return.input_1[3];
-	double Kp 		=  EM_return.input_1[4];
-	double z00		=  EM_return.input_1[5];
-	double gamma0 	=  EM_return.input_1[6];
-	double q0 		=  EM_return.input_1[7];
-	double etaS0	=  EM_return.input_1[8];
-	double cme		=  EM_return.input_1[9];
-	double g0 		=  EM_return.input_2[0]*1e9; // GPa to Pa
-	double g0p 		=  EM_return.input_2[1];
+    double F0		=  EM_return.input_1[0]; // or S0 for O2
+    double n		=  EM_return.input_1[1]; // or c1 for O2
+    double V0 		= -EM_return.input_1[2]; // or c2 for O2
+    double K0 		=  EM_return.input_1[3]; // or c3 for O2
+    double Kp 		=  EM_return.input_1[4]; // or c5 for O2
+    double z00		=  EM_return.input_1[5];
+    double gamma0 	=  EM_return.input_1[6];
+    double q0 		=  EM_return.input_1[7];
+    double etaS0	=  EM_return.input_1[8];
+    double cme		=  EM_return.input_1[9];
+    double g0 		=  EM_return.input_2[0]*1e9; // GPa to Pa
+    double g0p 		=  EM_return.input_2[1];
+    int   nativeFe   =  0;
 
-	gbase = compute_G0(	T, P, &V,
-						F0,
-						n,
-						V0,
-						K0,
-						Kp,
-						z00,
-						gamma0,
-						q0,
-						cme,
-						g0,
-						g0p );
+    if (strcmp(name, "fea") == 0) {
+        nativeFe = 1;
+    } else if (strcmp(name, "fee") == 0) {
+        nativeFe = 2;
+    } else if (strcmp(name, "feg") == 0) {
+        nativeFe = 3;
+    }
+
+    if (strcmp(name, "O2") == 0) {
+        t0=298.15;
+        /* Cp integration */
+        cpterms  		= n* (T - t0) +   V0* (pow(T,2.0) - pow(t0,2.0))/2.0 - 
+                                        K0* (1.0/T - 1.0/t0) + 
+                                2.0* Kp* (pow(T,0.5) - pow(t0,0.5))     - 
+                            T* (2.0* n* (log(pow(T,0.5)) - log(pow(t0,0.5))) 
+                            + V0* (T - t0) - 
+                            K0/2.0* (pow(T,-2.) - pow(t0,-2.0)) - 2.0* Kp* (pow(T,-0.5) - pow(t0,-0.5)));
+
+        /* gbase = (enthalpy - T*entropy + cpterms + vterm + RTlnf) */
+        gbase = (0.0 - (T-t0)*F0 + cpterms + 0.0 + 0.0);
+    } else {
+        gbase = compute_G0(	T, P, &V,
+                            F0,
+                            n,
+                            V0,
+                            K0,
+                            Kp,
+                            z00,
+                            gamma0,
+                            q0,
+                            cme,
+                            g0,
+                            g0p,
+                            nativeFe);
+    }
 
 	/* fill structure to send back to main */
 	PP_ref PP_ref_db;
@@ -729,6 +789,12 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 	PP_ref_db.gbase   =  gbase/kbar2bar;
 	PP_ref_db.factor  =  factor;
 
+    if (strcmp(name, "O2") == 0) { // Gasseous phase
+        PP_ref_db.phase_shearModulus = 0.0;
+        PP_ref_db.phase_bulkModulus  = 0.0;
+        PP_ref_db.phase_expansivity  = 0.0;
+        PP_ref_db.phase_cp           = 0.0;
+    } else {
 	PP_ref_db.phase_shearModulus  = shear_modulus( 	T, 	V, 
 													T0, V0, 
 													gamma0, q0, z00,  n, 
@@ -756,7 +822,7 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 
 
     PP_ref_db.phase_cp = molar_heat_capacity_v(T, z00, -n)/1e3;
-
+    }
     // printf("phase_expansivity %4s %g\n",name,PP_ref_db.phase_expansivity);
     // printf("phase_cp %4s %g \n\n",name,PP_ref_db.phase_cp);       
 	// printf("gbase %4s %+10f\n",name,PP_ref_db.gbase);
@@ -765,6 +831,6 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 	// 	printf("%+10f",PP_ref_db.Comp[i]*PP_ref_db.factor); 
 	// }
 	// printf("\n");
-
-	return (PP_ref_db);
+    return (PP_ref_db);
+    
 }

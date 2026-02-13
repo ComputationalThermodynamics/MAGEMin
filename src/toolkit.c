@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -250,33 +250,47 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 
 	if (gv.verbose == 1){	
 
-		if (gv.EM_database 		== 0){
-			printf("  - Database                  : Metapelite (White et al., 2014)\n"	);
+		if (strcmp(gv.research_group, "tc") == 0) {
+			if (gv.EM_database 		== 0){
+				printf("  - Database                  : Metapelite (White et al., 2014)\n"	);
+			}
+			if (gv.EM_database 		== 1){
+				printf("  - Database                  : Metabasite (Green et al., 2016)\n"	);
+			}
+			if (gv.EM_database 		== 11){
+				printf("  - Database                  : Metabasite extended (Green et al., 2016; oamp from Diener et al., 2007)\n"	);
+			}
+			else if (gv.EM_database == 2){
+				printf("  - Database                  : Igneous (Holland et al., 2018 -> Green et al., 2024)\n"	);
+			}
+			else if (gv.EM_database == 3){
+				printf("  - Database                  : Igneous alkaline dry (Weller et al., 2024)\n"	);
+			}
+			else if (gv.EM_database == 4 ){
+				printf("  - Database                  : Ultramafic (Evans & Frost, 2021)\n"	);
+			}
+			else if (gv.EM_database == 5 ){
+				printf("  - Database                  : Ultramafic extended (Evans & Frost, 2021 + pl, amp and aug from Green et al., 2016)\n"	);
+			}
+			else if (gv.EM_database == 6 ){
+				printf("  - Database                  : Uppermost lower mantle to upper mantle database (Holland et al., 2013)\n"	);
+			}
+			else if (gv.EM_database == 7 ){
+				printf("  - Database                  : Metapelite extended (White et al., 2014; po from Evans & Frost, 2021;  amp, dio and aug from Green et al., 2016)\n"	);
+			}
 		}
-		if (gv.EM_database 		== 1){
-			printf("  - Database                  : Metabasite (Green et al., 2016)\n"	);
+		else {
+			if (gv.EM_database 		== 0){
+				printf("  - Database                  : Stixrude and Bertelloni-Lithgow (2011)\n"	);
+			}
+			if (gv.EM_database 		== 1){
+				printf("  - Database                  : Stixrude and Bertelloni-Lithgow (2021)\n"	);
+			}
+			if (gv.EM_database 		== 2){
+				printf("  - Database                  : Stixrude and Bertelloni-Lithgow (2024)\n"	);
+			}
 		}
-		if (gv.EM_database 		== 11){
-			printf("  - Database                  : Metabasite extended (Green et al., 2016; oamp from Diener et al., 2007)\n"	);
-		}
-		else if (gv.EM_database == 2){
-			printf("  - Database                  : Igneous (Holland et al., 2018 -> Green et al., 2024)\n"	);
-		}
-		else if (gv.EM_database == 3){
-			printf("  - Database                  : Igneous alkaline dry (Weller et al., 2024)\n"	);
-		}
-		else if (gv.EM_database == 4 ){
-			printf("  - Database                  : Ultramafic (Evans & Frost, 2021)\n"	);
-		}
-		else if (gv.EM_database == 5 ){
-			printf("  - Database                  : Ultramafic extended (Evans & Frost, 2021 + pl, amp and aug from Green et al., 2016)\n"	);
-		}
-		else if (gv.EM_database == 6 ){
-			printf("  - Database                  : Uppermost lower mantle to upper mantle database (Holland et al., 2013)\n"	);
-		}
-		else if (gv.EM_database == 7 ){
-			printf("  - Database                  : Metapelite extended (White et al., 2014; po from Evans & Frost, 2021;  amp, dio and aug from Green et al., 2016)\n"	);
-		}
+
 
 		if (strcmp( gv.sys_in, "mol") == 0){	
 			printf("  - input system composition  : mol fraction\n"	);
@@ -869,6 +883,9 @@ global_variable get_tests_bulks(	global_variable  	 gv
 		}
 		else if (gv.EM_database == 1){
 			gv = get_bulk_stx21( 		gv );
+		}
+		else if (gv.EM_database == 2){
+			gv = get_bulk_stx24( 		gv );
 		}
 		else{
 			printf(" Wrong database...\n");
@@ -1776,6 +1793,16 @@ global_variable compute_activities(			int					 EM_database,
 	}
 	if (O_ix != -1){
 		gv.system_fO2 = exp( (gv.gam_tot[O_ix]*2.0 - G0_O) / (z_b.R*z_b.T)) ;
+		char qstr[4];
+		char mtstr[4];
+		if (strcmp(gv.research_group, "sb")==0){
+			strcpy(qstr, "qtz");
+			strcpy(mtstr, "mag");
+		}
+		else {
+			strcpy(qstr, "q");
+			strcpy(mtstr, "mt");
+		}
 
 		PP_ref q 	= G_EM_function(	gv.research_group, gv.EM_dataset, 
 										gv.len_ox,
@@ -1784,8 +1811,9 @@ global_variable compute_activities(			int					 EM_database,
 										z_b.apo, 
 										z_b.P, 
 										z_b.T, 
-										"q", 
+										qstr, 
 										"equilibrium"				);
+
 		PP_ref fa 	= G_EM_function(	gv.research_group, gv.EM_dataset, 
 										gv.len_ox,
 										z_b.id,
@@ -1803,7 +1831,7 @@ global_variable compute_activities(			int					 EM_database,
 										z_b.apo, 
 										z_b.P, 
 										z_b.T, 
-										"mt", 
+										mtstr, 
 										"equilibrium"				);
 
 		double gO_qfm   	=  -3.0 * fa.gbase + 3.0*q.gbase + 2.0*mt.gbase;

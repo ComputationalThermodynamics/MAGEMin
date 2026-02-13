@@ -1,0 +1,124 @@
+[
+    {
+        "name": "plagioclase",
+        "abbrev": "plg",
+        "endmembers": [["an","[Ca_1]Al_2Si_2O_8"],["ab","[Na_1]Al_1Si_3O_8"]],
+        "margules": [1.300e+04],
+        "van_laar": [],
+        "volume_interaction": []
+    },
+    {
+        "name": "spinel",
+        "abbrev": "sp",
+        "endmembers": [["sp","[Mg_1][Al_2]O_4"],["hc","[Fe_1][Al_2]O_4"],["smag","[Fe_1][Fe_2]O_4"],["picr","[Mg_1][Cr_2]O_4"]],
+        "margules": [-1.311e+03, 6.300e+04, 2.100e+04, 5.500e+04, 2.100e+04, 4.200e+04],
+        "van_laar": [],
+        "volume_interaction": []
+    },
+    {
+        "name": "olivine",
+        "abbrev": "ol",
+        "endmembers": [["fo","[Mg_2]Si_1O_4"],["fa","[Fe_2]Si_1O_4"]],
+        "margules": [2.474e+03],
+        "van_laar": [],
+        "volume_interaction": []
+    },
+    {
+        "name": "wadsleyite",
+        "abbrev": "wa",
+        "endmembers": [["mgwa","[Mg_2]Si_1O_4"],["fewa","[Fe_2]Si_1O_4"]],
+        "margules": [1.286e+04],
+        "van_laar": [],
+        "volume_interaction": []
+    },
+    {
+        "name": "ringwoodite",
+        "abbrev": "ri",
+        "endmembers": [["mgri","[Mg_2]Si_1O_4"],["feri","[Fe_2]Si_1O_4"]],
+        "margules": [6.229e+03],
+        "van_laar": [],
+        "volume_interaction": []
+    },
+    {
+        "name": "orthopyroxene",
+        "abbrev": "opx",
+        "endmembers": [["en","[Mg_1][Mg_1]Si_2O_6"],["fs","[Fe_1][Fe_1]Si_2O_6"],["mgts","[Mg_1][Al_1]Si_1Al_1O_6"],["odi","[Ca_1][Mg_1]Si_2O_6"]],
+        "margules": [0.000e+00,0.000e+00,3.221e+04,0.000e+00,3.221e+04,4.664e+04],
+        "van_laar": [],
+        "volume_interaction": []
+    },
+    {
+        "name": "clinopyroxene",
+        "abbrev": "cpx",
+        "endmembers": [["di","[Ca_1][Mg_1][Si_2]O_6"],["he","[Ca_1][Fe_1][Si_2]O_6"],["cen","[Mg_1][Mg_1][Si_2]O_6"],["cats","[Ca_1][Al_1][Si_1Al_1]O_6"],["jd","[Na_1][Al_1][Si_2]O_6"],["acm", "[Na_1][Fe_1][Si_2]O_6"]],
+        "margules": [0.000e+00,2.474e+04,2.600e+04,2.430e+04,2.430e+04,2.474e+04,2.600e+04,2.430e+04,2.430e+04,6.372e+04,4.604e+04,4.604e+04,1.000e+04, 1.000e+04, 0.000e+00],
+        "van_laar": [1.0, 1.0, 1.0, 3.5, 1.0, 1.0],
+        "volume_interaction": []
+    },
+    {
+        "name": "hp-clinopyroxene",
+        "abbrev": "hpcpx",
+        "endmembers": [["mgc2","[Mg_2]Si_2O_6"],["fec2","[Fe_2]Si_2O_6"]],
+        "margules": [0.000e+00],
+        "van_laar": [],
+        "volume_interaction": []
+    },
+    {
+        "name": "akimotoite",
+        "abbrev": "ak",
+        "endmembers": [["mgak","[Mg_1][Si_1]O_3"],["feak","[Fe_1][Si_1]O_3"],["co","[Al_1][Al_1]O_3"],["hem","[Fe_1][Fe_1]O_3"],["esk","[Cr_1][Cr_1]O_3"]],
+        "margules": [0.000e+00,6.249e+04,6.500e+04,9.318e+04,6.249e+04,6.500e+04,9.318e+04,6.500e+04,4.000e+04,4.000e+04],
+        "van_laar": [1.0, 1.0, 1.0, 1.3, 1.0],
+        "volume_interaction": []
+    },
+    {
+        "name": "garnet",
+        "abbrev": "gtmj",
+        "endmembers": [["py","[Mg_3][Al_1][Al_1]Si_3O_12"],["alm","[Fe_3][Al_1][Al_1]Si_3O_12"],["gr","[Ca_3][Al_1][Al_1]Si_3O_12"],["mgmj","[Mg_3][Mg_1][Si_1]Si_3O_12"],["jdmj","[Na_2Al_1][Al_1][Si_1]Si_3O_12"],["knor","[Mg_3][Cr_1][Cr_1]Si_3O_12"],["andr","[Ca_3][Fe_1][Fe_1]Si_3O_12"]],
+        "margules": [0.000e+00,1.909e+04,2.316e+04,2.316e+04,0.000e+00,5.300e+04,0.000e+00,2.316e+04,2.316e+04,1.000e+04,4.400e+04,6.468e+04,6.6468e+04,-2.000e+04,0.000e+00,7.117e+04,2.588e+04,6.468e+04,2.588e+04,6.468e+04, 7.500e+04],
+        "van_laar": [],
+        "volume_interaction": [0.0, 1.03e-05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.03e-05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    },
+    {
+        "name": "perovskite", 
+        "abbrev": "pv",
+        "endmembers": [["mgpv","[Mg_1][Si_1]O_3"],["fepv","[Fe_1][Si_1]O_3"],["alpv","[Al_1][Al_1]O_3"],["hepv","[Fe_1][Fe_1]O_3"],["hlpv","[Fe_1][Fe_1]O_3"],["fapv","[Fe_1][Al_1]O_3"],["crpv","[Cr_1][Cr_1]O_3"]],
+        "margules": [-1.247e+04,3.166e+04,9.386e+04,4.986e+04,0.000e+00,9.318e+04,0.000e+00,9.387e+04,4.986e+04,0.000e+00,9.318e+04,6.500e+04,6.500e+04,6.500e+04,4.000e+04,-5.875e+03,6.500e+04,4.000e+04,6.500e+04,4.000e+04,4.000e+04],
+        "van_laar": [],
+        "volume_interaction": []
+    },
+    {
+        "name": "post-perovskite",
+        "abbrev": "ppv",
+        "endmembers": [["mppv","[Mg_1][Si_1]O_3"],["fppv","[Fe_1][Si_1]O_3"],["appv","[Al_1][Al_1]O_3"],["hppv","[Fe_1][Fe_1]O_3"],["cppv","[Cr_1][Cr_1]O_3"]],
+        "margules": [-3.983e+04,3.166e+04,9.387e+04,9.318e+04,3.166e+04,9.387e+04,9.318e+04,6.500e+04,4.000e+04,4.000e+04],
+        "van_laar": [],
+        "volume_interaction": []
+    },
+    {
+        "name": "ca-ferrite",
+        "abbrev": "cf",
+        "endmembers": [["mgcf","[Mg_1][Al_1][Al_1]O_4"],["fecf","[Fe_1][Al_1][Al_1]O_4"],["nacf","[Na_1][Si_1][Al_1]O_4"],["hmag","[Fe_1][Fe_1][Fe_1]O_4"],["crcf","[Mg_1][Cr_1][Cr_1]O_4"]],
+        "margules": [0.000e+00,6.719e+04,0.000e+00,0.000e+00,6.719e+04,0.000e+00,0.000e+00,0.000e+00,6.719e+04,0.000e+00],
+        "van_laar": [1.0, 1.0, 3.97647, 1.0, 1.0],
+        "volume_interaction": []
+    },
+    {
+        "name": "magneso-wustite",
+        "abbrev": "mw",
+        "endmembers": [["pe","[Mg_2][Mg_2]O_4"],["wu","[Fe_2][Fe_2]O_4"],["wuls","[Fe_2][Fe_2]O_4"],["mag","[Fe_1]Fe_2O_4"],["anao","[Na_2][Al_2]O_4"]],
+        "margules": [4.400e+04,-8.712e+04,3.028e+05,1.200e+05,-6.022e+04,1.062e+05,1.200e+05,1.062e+05,1.200e+05,1.200e+05],
+        "van_laar": [1.0, 1.0, 1.0, 0.08293, 1.0],
+        "volume_interaction": [4.4e-06, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    },
+    {
+        "name": "new-aluminium-phase",
+        "abbrev": "nal",
+        "endmembers": [["mnal","[Na_1][Mg_2][Al_5Si_1]O_12"],["fnal","[Na_1][Fe_2][Al_5Si_1]O_12"],["nnal","[Na_1][Na_2][Al_3Si_3]O_12"]],
+        "margules": [0.0,-6.208e+04,-6.208e+04],
+        "van_laar": [],
+        "volume_interaction": []
+    }
+
+]
+

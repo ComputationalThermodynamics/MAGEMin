@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -1397,6 +1397,14 @@ void run_simplex_levelling(				bulk_info 	 		 z_b,
 													iss,
 													gv.SS_list[iss]				);
 			}
+		}
+		else if (gv.EM_database == 2){
+			for (iss = 0; iss < gv.len_ss; iss++){
+				SB_sb24_pc_init_function(			SS_pc_xeos, 
+													iss,
+													gv.SS_list[iss]				);
+			}
+			
 		}
 	}
 

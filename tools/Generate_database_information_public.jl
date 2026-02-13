@@ -13,15 +13,17 @@ function get_database_infos()
                         "Mantle (Holland et al., 2013)",
                         "Metapelite extended (White et al., 2014 with po from Evans & Frost., 2021, amp dio and aug from Green et al., 2016)",
                         "Stixrude & Lithgow-Bertelloni (2011)",
-                        "Stixrude & Lithgow-Bertelloni (2021)" ]
+                        "Stixrude & Lithgow-Bertelloni (2021)",
+                        "Stixrude & Lithgow-Bertelloni (2024)"]
 
-    database_list   = ["mp","mb","mbe","ig","igad","um","ume","mtl","mpe","sb11","sb21"]
-    dataset_default = [62,62,62,636,636,633,633,633,62,-1,-1]
-    dataset_opt     = (62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636), (-1), (-1)
+    database_list   = ["mp","mb","mbe","ig","igad","um","ume","mtl","mpe","sb11","sb21","sb24"]
+    dataset_default = [62,62,62,636,636,633,633,633,62,-1,-1,-1]
+    dataset_opt     = (62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(-1, -1, -1, -1, -1),(-1, -1, -1, -1, -1),(-1, -1, -1, -1, -1)
 
     db_inf          = Array{db_infos, 1}(undef, length(database_list))
 
     for k in eachindex(database_list)
+        println(database_list[k])
         datab         = database_list[k]
         gv, z_b, DB, splx_data  = init_MAGEMin(datab; mbCpx = 1);
         gv          =   use_predefined_bulk_rock(gv, 0, datab);

@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -14,9 +14,9 @@
 /*  Store pure phases composition, gbase, and bulk-rock factor */
 typedef struct PP_refs {
 	char   	Name[20];			    /** Name                                    */
-    double 	Comp[15];        	    /** composition [0-10]                      */
-    double 	Comp_mol[15];        	/** composition [0-10]                      */
-    double 	Comp_wt[15];        	/** composition [0-10]                      */
+    double 	Comp[16];        	    /** composition [0-10]                      */
+    double 	Comp_mol[16];        	/** composition [0-10]                      */
+    double 	Comp_wt[16];        	/** composition [0-10]                      */
     double 	gbase; 
     double 	gb_lvl;         	    /**driving force, delta_G with G-hyperplane */
     double 	factor;

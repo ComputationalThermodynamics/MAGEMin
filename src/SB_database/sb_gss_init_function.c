@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -597,6 +597,290 @@ void SB_SS_init_sb21(          SS_init_type                *SS_init,
     }
 }
 
+/**
+    allocate memory for sb24_plg
+*/
+SS_ref G_SS_sb24_plg_init_function(SS_ref SS_ref_db,  global_variable gv){
+
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_cat     = 2;
+    SS_ref_db.n_xeos    = 2;
+    SS_ref_db.n_em      = 2;
+    SS_ref_db.n_sf      = 1;
+    SS_ref_db.n_w       = 1;
+
+     return SS_ref_db;
+}
+
+/**
+    allocate memory for sb24_sp
+*/
+SS_ref G_SS_sb24_sp_init_function(SS_ref SS_ref_db,  global_variable gv){
+
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_cat     = 5;
+    SS_ref_db.n_xeos    = 4;
+    SS_ref_db.n_em      = 4;
+    SS_ref_db.n_sf      = 2;
+    SS_ref_db.n_w       = 6;
+
+     return SS_ref_db;
+}
+
+/**
+    allocate memory for sb24_ol
+*/
+SS_ref G_SS_sb24_ol_init_function(SS_ref SS_ref_db,  global_variable gv){
+
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_cat     = 2;
+    SS_ref_db.n_xeos    = 2;
+    SS_ref_db.n_em      = 2;
+    SS_ref_db.n_sf      = 1;
+    SS_ref_db.n_w       = 1;
+
+     return SS_ref_db;
+}
+
+/**
+    allocate memory for sb24_wa
+*/
+SS_ref G_SS_sb24_wa_init_function(SS_ref SS_ref_db,  global_variable gv){
+
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_cat     = 2;
+    SS_ref_db.n_xeos    = 2;
+    SS_ref_db.n_em      = 2;
+    SS_ref_db.n_sf      = 1;
+    SS_ref_db.n_w       = 1;
+
+     return SS_ref_db;
+}
+
+/**
+    allocate memory for sb24_ri
+*/
+SS_ref G_SS_sb24_ri_init_function(SS_ref SS_ref_db,  global_variable gv){
+
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_cat     = 2;
+    SS_ref_db.n_xeos    = 2;
+    SS_ref_db.n_em      = 2;
+    SS_ref_db.n_sf      = 1;
+    SS_ref_db.n_w       = 1;
+
+     return SS_ref_db;
+}
+
+/**
+    allocate memory for sb24_opx
+*/
+SS_ref G_SS_sb24_opx_init_function(SS_ref SS_ref_db,  global_variable gv){
+
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_cat     = 6;
+    SS_ref_db.n_xeos    = 4;
+    SS_ref_db.n_em      = 4;
+    SS_ref_db.n_sf      = 2;
+    SS_ref_db.n_w       = 6;
+
+     return SS_ref_db;
+}
+
+/**
+    allocate memory for sb24_cpx
+*/
+SS_ref G_SS_sb24_cpx_init_function(SS_ref SS_ref_db,  global_variable gv){
+
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_cat     = 8;
+    SS_ref_db.n_xeos    = 6;
+    SS_ref_db.n_em      = 6;
+    SS_ref_db.n_sf      = 3;
+    SS_ref_db.n_w       = 15;
+    SS_ref_db.n_v       = 6;
+
+     return SS_ref_db;
+}
+
+/**
+    allocate memory for sb24_hpcpx
+*/
+SS_ref G_SS_sb24_hpcpx_init_function(SS_ref SS_ref_db,  global_variable gv){
+
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_cat     = 2;
+    SS_ref_db.n_xeos    = 2;
+    SS_ref_db.n_em      = 2;
+    SS_ref_db.n_sf      = 1;
+    SS_ref_db.n_w       = 1;
+
+     return SS_ref_db;
+}
+
+/**
+    allocate memory for sb24_ak
+*/
+SS_ref G_SS_sb24_ak_init_function(SS_ref SS_ref_db,  global_variable gv){
+
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_cat     = 8;
+    SS_ref_db.n_xeos    = 5;
+    SS_ref_db.n_em      = 5;
+    SS_ref_db.n_sf      = 2;
+    SS_ref_db.n_w       = 10;
+    SS_ref_db.n_v       = 5;
+
+     return SS_ref_db;
+}
+
+/**
+    allocate memory for sb24_gtmj
+*/
+SS_ref G_SS_sb24_gtmj_init_function(SS_ref SS_ref_db,  global_variable gv){
+
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_cat     = 13;
+    SS_ref_db.n_xeos    = 7;
+    SS_ref_db.n_em      = 7;
+    SS_ref_db.n_sf      = 3;
+    SS_ref_db.n_w       = 21;
+
+     return SS_ref_db;
+}
+
+/**
+    allocate memory for sb24_pv
+*/
+SS_ref G_SS_sb24_pv_init_function(SS_ref SS_ref_db,  global_variable gv){
+
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_cat     = 8;
+    SS_ref_db.n_xeos    = 7;
+    SS_ref_db.n_em      = 7;
+    SS_ref_db.n_sf      = 2;
+    SS_ref_db.n_w       = 21;
+
+     return SS_ref_db;
+}
+
+/**
+    allocate memory for sb24_ppv
+*/
+SS_ref G_SS_sb24_ppv_init_function(SS_ref SS_ref_db,  global_variable gv){
+
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_cat     = 8;
+    SS_ref_db.n_xeos    = 5;
+    SS_ref_db.n_em      = 5;
+    SS_ref_db.n_sf      = 2;
+    SS_ref_db.n_w       = 10;
+
+     return SS_ref_db;
+}
+
+/**
+    allocate memory for sb24_cf
+*/
+SS_ref G_SS_sb24_cf_init_function(SS_ref SS_ref_db,  global_variable gv){
+
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_cat     = 10;
+    SS_ref_db.n_xeos    = 5;
+    SS_ref_db.n_em      = 5;
+    SS_ref_db.n_sf      = 3;
+    SS_ref_db.n_w       = 10;
+    SS_ref_db.n_v       = 5;
+
+     return SS_ref_db;
+}
+
+/**
+    allocate memory for sb24_mw
+*/
+SS_ref G_SS_sb24_mw_init_function(SS_ref SS_ref_db,  global_variable gv){
+
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_cat     = 6;
+    SS_ref_db.n_xeos    = 5;
+    SS_ref_db.n_em      = 5;
+    SS_ref_db.n_sf      = 2;
+    SS_ref_db.n_w       = 10;
+    SS_ref_db.n_v       = 5;
+
+     return SS_ref_db;
+}
+
+/**
+    allocate memory for sb24_nal
+*/
+SS_ref G_SS_sb24_nal_init_function(SS_ref SS_ref_db,  global_variable gv){
+
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_cat     = 6;
+    SS_ref_db.n_xeos    = 3;
+    SS_ref_db.n_em      = 3;
+    SS_ref_db.n_sf      = 3;
+    SS_ref_db.n_w       = 3;
+
+     return SS_ref_db;
+}
+
+void SB_SS_init_sb24(	    SS_init_type 		*SS_init,
+                            global_variable 	 gv				){
+
+    for (int iss = 0; iss < gv.len_ss; iss++){
+        if      (strcmp( gv.SS_list[iss], "plg")  == 0 ){
+            SS_init[iss]  = G_SS_sb24_plg_init_function; 		}
+        else if (strcmp( gv.SS_list[iss], "sp")  == 0 ){
+            SS_init[iss]  = G_SS_sb24_sp_init_function; 		}
+        else if (strcmp( gv.SS_list[iss], "ol")  == 0 ){
+            SS_init[iss]  = G_SS_sb24_ol_init_function; 		}
+        else if (strcmp( gv.SS_list[iss], "wa")  == 0 ){
+            SS_init[iss]  = G_SS_sb24_wa_init_function; 		}
+        else if (strcmp( gv.SS_list[iss], "ri")  == 0 ){
+            SS_init[iss]  = G_SS_sb24_ri_init_function; 		}
+        else if (strcmp( gv.SS_list[iss], "opx")  == 0 ){
+            SS_init[iss]  = G_SS_sb24_opx_init_function; 		}
+        else if (strcmp( gv.SS_list[iss], "cpx")  == 0 ){
+            SS_init[iss]  = G_SS_sb24_cpx_init_function; 		}
+        else if (strcmp( gv.SS_list[iss], "hpcpx")  == 0 ){
+            SS_init[iss]  = G_SS_sb24_hpcpx_init_function; 		}
+        else if (strcmp( gv.SS_list[iss], "ak")  == 0 ){
+            SS_init[iss]  = G_SS_sb24_ak_init_function; 		}
+        else if (strcmp( gv.SS_list[iss], "gtmj")  == 0 ){
+            SS_init[iss]  = G_SS_sb24_gtmj_init_function; 		}
+        else if (strcmp( gv.SS_list[iss], "pv")  == 0 ){
+            SS_init[iss]  = G_SS_sb24_pv_init_function; 		}
+        else if (strcmp( gv.SS_list[iss], "ppv")  == 0 ){
+            SS_init[iss]  = G_SS_sb24_ppv_init_function; 		}
+        else if (strcmp( gv.SS_list[iss], "cf")  == 0 ){
+            SS_init[iss]  = G_SS_sb24_cf_init_function; 		}
+        else if (strcmp( gv.SS_list[iss], "mw")  == 0 ){
+            SS_init[iss]  = G_SS_sb24_mw_init_function; 		}
+        else if (strcmp( gv.SS_list[iss], "nal")  == 0 ){
+            SS_init[iss]  = G_SS_sb24_nal_init_function; 		}
+        else{
+            printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
+        }
+    }
+}
+
 void SB_SS_init(	        	    SS_init_type 		*SS_init,
 									global_variable 	 gv				){
 
@@ -606,6 +890,10 @@ void SB_SS_init(	        	    SS_init_type 		*SS_init,
 	}
 	if (gv.EM_database == 1){				// database //
 		SB_SS_init_sb21(	 				SS_init,
+											gv							);
+	}
+    if (gv.EM_database == 2){				// database //
+		SB_SS_init_sb24(	 				SS_init,
 											gv							);
 	}
 }
