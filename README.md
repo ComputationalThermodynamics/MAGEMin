@@ -13,8 +13,11 @@
 
 While `MAGEMin` is the engine for the prediction of the stable phases, using it is more convenient through the [julia interface](https://github.com/ComputationalThermodynamics/MAGEMin_C.jl) `MAGEMin_C` and/or the [web-browser julia app](https://github.com/ComputationalThermodynamics/MAGEMinApp.jl) `MAGEMinApp`. 
 
+## Documentation
+Full support to install and use MAGEMin is available [here](https://computationalthermodynamics.github.io/MAGEMin_C.jl/dev/).
+
 ## Available thermodynamic database
- **Mantle** (Holland et al., 2013), **Metapelite** (White et al., 2014), **Metabasite** (Green et al., 2016), **Igneous** (Holland et al., 2018) and **Ultramafic** (Evans & Frost, 2021).
+ **Mantle** (Holland et al., 2013; Stixrude, & Lithgow-Bertelloni, 2011; 2021; 2024), **Metapelite** (White et al., 2014), **Metabasite** (Green et al., 2016), **Igneous** (Holland et al., 2018) and **Ultramafic** (Evans & Frost, 2021).
 
 ### MAGEMin_C
 
@@ -172,9 +175,6 @@ Developing new, more widely applicable, thermodynamic datasets is a huge researc
 	- Pure stoichiometric phases nepheline (neph), kyanite (ky), staurolite (st), coesite (coe), quartz (qtz), calcium perovskite (capv), oxygen (O2), iron-alpha (fea), iron-epsilon (fee), iron-gamma (feg), wollastonite (wo), low-pressure perovskite (lppv), post-perovskite wollastonite (pwo).
 	- Solution phases plagioclase (plg), spinel (sp), olivine (ol), wadsleyite (wa), ringwoodite (ri), orthopyroxene (opx), clinopyroxene (cpx), high-pressure clinopyroxene (hpcpx), akimotoite (ak), garnet-majorite (gtmj), perovskite (pv), post-perovskite (ppv), calcium ferrite (cf), melt (mw) and NAL phase (nal)
 
-
-## Documentation
-Full support to install and use MAGEMin is available [here](https://computationalthermodynamics.github.io/MAGEMin_C.jl/dev/).
 
 ## Citation
 An open-acces paper describing the methodology is:
