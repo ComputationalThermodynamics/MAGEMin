@@ -6,7 +6,7 @@ using JSON3, DataFrames, JLD2, Symbolics, Combinatorics
 include("functions_ss.jl")
 
 sb      = 11
-elems   = ["Si", "Ca", "Al", "Fe", "Mg", "Na"]
+elems   = sb==24 ? ["Si", "Ca", "Al", "Mg", "Na", "O", "Cr", "Fe"] : ["Si", "Ca", "Al", "Fe", "Mg", "Na"]
 n_el    = length(elems)
 
 if sb == 11
@@ -21,6 +21,12 @@ elseif sb == 21
 
     data    = read_data("stx21_data.json")
     ss      = JSON3.read("stx21_solution.json", Vector{ModelJSON})
+elseif sb == 24
+
+    sb_ver  = "sb24"
+
+    data    = read_data("stx24_data.json")
+    ss      = JSON3.read("stx24_solution.json", Vector{ModelJSON})
 end
 
 sb_gss_init_function, sb_gss_function, sb_objective_functions, sb_SS_xeos_PC, SB_NLopt_opt_functions = generate_C_files(sb_ver,ss,data);

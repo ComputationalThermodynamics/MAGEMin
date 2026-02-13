@@ -18,5 +18,5 @@ typedef SS_ref (*NLopt_type) (		global_variable 	 gv,
 
 void SB_NLopt_opt_init(	        	NLopt_type 			*NLopt_opt,
 									global_variable 	 gv				);
-#endif
 
+#endif

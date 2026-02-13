@@ -6,12 +6,14 @@ using DataFrames
 
 include("functions_ss.jl")
 
-sb_ver = "sb21"
+sb_ver = "sb11"
 
 if sb_ver == "sb11"
     data = read_data("stx11_data.json")
 elseif sb_ver == "sb21"
     data = read_data("stx21_data.json")
+elseif sb_ver == "sb24"
+    data = read_data("stx24_data.json")
 end
 
 out = format_em(data)
