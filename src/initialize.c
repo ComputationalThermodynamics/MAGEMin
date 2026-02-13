@@ -656,8 +656,7 @@ global_variable reset_gv(					global_variable 	 gv,
 			}
 		}
 		else{
-
-			if(strcmp( gv.PP_list[i], "O2") == 0  && strcmp(gv.research_group, "sb") != 0){
+			if(strcmp( gv.PP_list[i], "O2") == 0 && strcmp(gv.research_group, "sb") != 0){ //stx
 				gv.pp_flags[i][0] = 0;
 				gv.pp_flags[i][1] = 0;
 				gv.pp_flags[i][2] = 0;
@@ -698,7 +697,7 @@ global_variable reset_gv(					global_variable 	 gv,
 	gv.system_aAl2O3  	  = 0.;
 	gv.system_aMgO  	  = 0.;
 	gv.system_aFeO  	  = 0.;
-		
+
 	gv.system_density     = 0.;
 	gv.system_entropy     = 0.;
 	gv.system_enthalpy    = 0.;
@@ -725,6 +724,7 @@ global_variable reset_gv(					global_variable 	 gv,
 	gv.n_cp_phase         = 0;					/** reset the number of ss phases to start with */
 	gv.n_pp_phase         = 0;					/** reset the number of pp phases to start with */
 	gv.alpha          	  = gv.max_fac;
+
 
 	/* reset iteration record */
 	for (i = 0; i < gv.it_f; i++){	

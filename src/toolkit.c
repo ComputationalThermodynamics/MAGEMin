@@ -250,7 +250,7 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 
 	if (gv.verbose == 1){	
 
-if (strcmp(gv.research_group, "tc") == 0) {
+		if (strcmp(gv.research_group, "tc") == 0) {
 			if (gv.EM_database 		== 0){
 				printf("  - Database                  : Metapelite (White et al., 2014)\n"	);
 			}
@@ -289,6 +289,17 @@ if (strcmp(gv.research_group, "tc") == 0) {
 			if (gv.EM_database 		== 2){
 				printf("  - Database                  : Stixrude and Bertelloni-Lithgow (2024)\n"	);
 			}
+		}
+
+
+		if (strcmp( gv.sys_in, "mol") == 0){	
+			printf("  - input system composition  : mol fraction\n"	);
+		}
+		else if (strcmp( gv.sys_in, "wt") == 0){	
+			printf("  - input system composition  : wt fraction\n"	);
+		}
+		else{
+			printf("  - input system composition  : unknown! [has to be mol or wt]\n");
 		}
 		printf("  - Buffer                    : %s\n",gv.buffer	);
 
@@ -872,6 +883,9 @@ global_variable get_tests_bulks(	global_variable  	 gv
 		}
 		else if (gv.EM_database == 1){
 			gv = get_bulk_stx21( 		gv );
+		}
+		else if (gv.EM_database == 2){
+			gv = get_bulk_stx24( 		gv );
 		}
 		else{
 			printf(" Wrong database...\n");
@@ -1797,8 +1811,9 @@ global_variable compute_activities(			int					 EM_database,
 										z_b.apo, 
 										z_b.P, 
 										z_b.T, 
-										qstr,
+										qstr, 
 										"equilibrium"				);
+
 		PP_ref fa 	= G_EM_function(	gv.research_group, gv.EM_dataset, 
 										gv.len_ox,
 										z_b.id,
