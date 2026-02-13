@@ -1398,6 +1398,14 @@ void run_simplex_levelling(				bulk_info 	 		 z_b,
 													gv.SS_list[iss]				);
 			}
 		}
+		else if (gv.EM_database == 2){
+			for (iss = 0; iss < gv.len_ss; iss++){
+				SB_sb24_pc_init_function(			SS_pc_xeos, 
+													iss,
+													gv.SS_list[iss]				);
+			}
+			
+		}
 	}
 
 

@@ -25,7 +25,7 @@
 	char** get_FS_DB_names(				global_variable 	gv					);
 
 	typedef struct em_datas{
-		double C[14];
+		double C[16];
 		double ElShearMod;
 		double ElBulkMod;
 		double ElCp;

@@ -161,6 +161,7 @@ typedef struct global_variables {
 	int 	 CaO_id;
 	int 	 Na2O_id;
 	int 	 FeO_id;
+	int 	 Fe_id;
 	int 	 MgO_id;
 	int 	 SiO2_id;
 	int 	 K2O_id;
