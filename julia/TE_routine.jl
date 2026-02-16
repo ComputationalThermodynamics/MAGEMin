@@ -48,6 +48,7 @@ end
 """
 function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Float64, Int64},
                                     dtb             :: String  )
+    # @warn "Breaking changes in v2.1.3 by disambiguation of solvus names: 'spl': 'mt' > 'smt', 'sp' > 'spl'; 'sp': 'mt' > 'smt'."
 
     ph      = Array{String}(undef, out.n_SS + out.n_PP) 
     ph_wt   = Array{Float64}(undef, out.n_SS + out.n_PP) 
@@ -69,15 +70,15 @@ function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Flo
                 ph[i] = "cm"        # chromite
             else
                 if out.SS_vec[i].compVariables[2] - 0.5 > 0
-                    ph[i] = "mt"    # magnetite
+                    ph[i] = "smt"    # magnetite
                 else
-                    ph[i] = "sp"    # spinel
+                    ph[i] = "spl"    # spinel
                 end
             end
         end
         if ss == "sp"
             if out.SS_vec[i].compVariables[2] + out.SS_vec[i].compVariables[3] - 0.5 > 0
-                ph[i] = "mt"        # chromite
+                ph[i] = "smt"        # chromite
             else
                 if (1 - out.SS_vec[i].compVariables[1])*(1 + out.SS_vec[i].compVariables[3]) - 0.5 > 0
                     ph[i] = "sp"    # spinel

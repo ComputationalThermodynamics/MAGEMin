@@ -14,6 +14,7 @@
 # Function to return the mineral name from the solution phase name
 function get_mineral_name(db, ss, SS_vec)
 
+    # @warn "Breaking changes in v2.1.3 by disambiguation of solvus names: 'spl': 'sp' > 'spl'; 'sp': 'mt' > 'smt'."
     mineral_name = ss
    
     if db == "ig" || db == "igad"
@@ -53,11 +54,11 @@ function get_mineral_name(db, ss, SS_vec)
         x = SS_vec.compVariables
         if ss == "sp"
             if x[2] - 0.5 > 0.0;        mineral_name = "sp";
-            else                        mineral_name = "mt";    end
+            else                        mineral_name = "smt";    end
         elseif ss == "spl"
             if x[3] - 0.5 > 0.0;        mineral_name = "cm";
             elseif x[2] - 0.5 > 0.0;    mineral_name = "mgt";
-            else                        mineral_name = "sp";    end
+            else                        mineral_name = "spl";    end
         elseif ss == "fsp"
             if x[2] - 0.5 > 0.0;       mineral_name = "afs";
             else                        mineral_name = "pl";    end

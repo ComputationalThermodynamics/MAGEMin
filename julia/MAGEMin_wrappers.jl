@@ -29,7 +29,7 @@ export  anhydrous_renormalization, retrieve_solution_phase_information, remove_p
         
         Initialize_MAGEMin, Finalize_MAGEMin
 
-export wt2mol, mol2wt, get_molar_mass, vec_norm
+export wt2mol, mol2wt, get_molar_mass, vec_norm, FeO2Fe_O
 export compute_melt_viscosity_G08
 
 export TE_prediction, adjust_bulk_4_zircon, create_custom_KDs_database, get_TE_database, adjust_chemical_system
@@ -1013,6 +1013,23 @@ function mol2wt(    bulk_mol     :: AbstractVector{Float64},
 end
 
 """
+    FeO2Fe_O(bulk_mol::Vector{Float64}, bulk_ox::Vector{String})
+
+    Converts bulk-rock composition using FeO + extra oxygen to total Fe + total O (used for SB24)
+"""
+function FeO2Fe_O(    bulk_mol     :: AbstractVector{Float64},
+                      bulk_ox      :: AbstractVector{String}) 
+
+    # Recompute FeO + O -> Fe + O (negative O for reduced systems, positive for oxidized systems)
+    bulk_mod = copy(bulk_mol)
+    tmp_idFeO, tmp_idO = findfirst(bulk_ox .== "FeO"), findfirst(bulk_ox .== "O")
+    nFeᵀ, nOᵀ = (2bulk_mod[tmp_idO]/3 + bulk_mod[tmp_idFeO]), (bulk_mod[tmp_idFeO] + bulk_mod[tmp_idO])
+    bulk_mod[6] = nOᵀ; bulk_mod[8] = nFeᵀ;
+    bulk_ox         = ["SiO2"; "CaO"; "Al2O3"; "MgO"; "Na2O"; "O"; "Cr2O3"; "Fe"]
+    return bulk_mod, bulk_ox
+end
+
+"""
     MAGEMin_bulk, MAGEMin_ox; = convertBulk4MAGEMin(bulk_in::T1,bulk_in_ox::Vector{String},sys_in::String,db::String) where {T1 <: AbstractVector{Float64}}
 
 receives bulk-rock composition in [mol,wt] fraction and associated oxide list and sends back bulk-rock composition converted for MAGEMin use
@@ -1051,7 +1068,9 @@ function convertBulk4MAGEMin(   bulk_in     :: T1,
     elseif db   == "sb21"
         MAGEMin_ox      = ["SiO2"; "CaO"; "Al2O3"; "FeO"; "MgO";"Na2O"];
     elseif db   == "sb24"
+        # Recompute FeO + O -> Fe + O (negative O for reduced systems, positive for oxidized systems)
         MAGEMin_ox      = ["SiO2"; "CaO"; "Al2O3"; "MgO"; "Na2O"; "O"; "Cr2O3"; "Fe"];
+        bulk_in, bulk_in_ox      = FeO2Fe_O(bulk_in, bulk_in_ox)
     else
         print("Database not implemented...\n")
     end

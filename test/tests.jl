@@ -538,6 +538,16 @@ end
     @test bulk_rock ≈ [76.57038397179574, 8.914984523583415, 2.0849576977131403, 2.835783318610597, 4.30275071755529, 1.8302970975627948, 2.568605789798099, 0.6615823604771729, 0.16546809116073818, 0.06518643174302832, 0.0]
 end
 
+@testset "FeO + Oᵉˣᵗʳᵃ -> Feᵀᵒᵗᵃˡ + Oᵀᵒᵗᵃˡ" begin
+
+    bulk_in_ox  =  ["SiO2"; "CaO"; "Al2O3"; "MgO"; "Na2O"; "FeO"; "Cr2O3"; "O"]
+    bulk_in     = [38.83, 2.94, 2.03, 50.02, 0.11, 5.69, 0.19, 0.18] # Pyrolite
+    bulk_mod, bulk_ox    = FeO2Fe_O(bulk_in, bulk_in_ox)
+    @test bulk_mod ≈ [38.83, 2.94, 2.03, 50.02, 0.11, 5.87, 0.19, 5.81]
+    @test bulk_ox == ["SiO2"; "CaO"; "Al2O3"; "MgO"; "Na2O"; "O"; "Cr2O3"; "Fe"]
+
+end
+
 
 @testset "test Seismic velocities & modulus" begin
     # Call optimization routine for given P & T & bulk_rock
