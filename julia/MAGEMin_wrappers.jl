@@ -46,8 +46,8 @@ include("name_solvus.jl")
     Function to retrieve the molar mass of an oxide
 """
 function get_molar_mass( oxide :: String)
-    ref_ox          = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "MnO"; "H2O"; "CO2"; "S"; "P2O5"];
-	ref_MolarMass   = [60.08; 101.96; 56.08; 40.30; 71.85; 159.69; 94.2; 61.98; 79.88; 16.0; 151.99; 70.937; 18.015; 44.01; 32.06; 141.9445];      #Molar mass of oxides
+    ref_ox          = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "MnO"; "H2O"; "CO2"; "S"; "P2O5"; "Fe"];
+	ref_MolarMass   = [60.08; 101.96; 56.08; 40.30; 71.85; 159.69; 94.2; 61.98; 79.88; 16.0; 151.99; 70.937; 18.015; 44.01; 32.06; 141.9445; 55.85];      #Molar mass of oxides
 
     id_oxide        = findfirst(==(oxide), ref_ox)
 
@@ -1017,16 +1017,17 @@ end
 
     Converts bulk-rock composition using FeO + extra oxygen to total Fe + total O (used for SB24)
 """
-function FeO2Fe_O(    bulk_mol     :: AbstractVector{Float64},
-                      bulk_ox      :: AbstractVector{String}) 
+function FeO2Fe_O!(    bulk_mol     :: AbstractVector{Float64},
+                       bulk_ox      :: AbstractVector{String}) 
+
+    # Don't call if composition is already being passed as Fe + O
+    (!("FeO" in bulk_ox) || !("O" in bulk_ox)) && return bulk_mol, bulk_ox
 
     # Recompute FeO + O -> Fe + O (negative O for reduced systems, positive for oxidized systems)
-    bulk_mod = copy(bulk_mol)
-    tmp_idFeO, tmp_idO = findfirst(bulk_ox .== "FeO"), findfirst(bulk_ox .== "O")
-    nFeᵀ, nOᵀ = (2bulk_mod[tmp_idO]/3 + bulk_mod[tmp_idFeO]), (bulk_mod[tmp_idFeO] + bulk_mod[tmp_idO])
-    bulk_mod[6] = nOᵀ; bulk_mod[8] = nFeᵀ;
-    bulk_ox         = ["SiO2"; "CaO"; "Al2O3"; "MgO"; "Na2O"; "O"; "Cr2O3"; "Fe"]
-    return bulk_mod, bulk_ox
+    tmp_idFeO, tmp_idO  = findfirst(bulk_ox .== "FeO"), findfirst(bulk_ox .== "O")
+    nFeᵀ, nOᵀ           = (2bulk_mol[tmp_idO]/3 + bulk_mol[tmp_idFeO]), (bulk_mol[tmp_idFeO] + bulk_mol[tmp_idO])
+    bulk_mol[tmp_idO]   = nOᵀ; bulk_mol[tmp_idFeO] = nFeᵀ;
+    bulk_ox[tmp_idFeO]  = "Fe"
 end
 
 """
@@ -1042,8 +1043,8 @@ function convertBulk4MAGEMin(   bulk_in     :: T1,
 
     bulk_in = normalize(bulk_in);                            
 
-	ref_ox          = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "MnO"; "H2O"; "CO2"; "S"];
-	ref_MolarMass   = [60.08; 101.96; 56.08; 40.30; 71.85; 159.69; 94.2; 61.98; 79.88; 16.0; 151.99; 70.937; 18.015; 44.01; 32.06];      #Molar mass of oxides
+    ref_ox          = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "MnO"; "H2O"; "CO2"; "S"; "Fe"];
+	ref_MolarMass   = [60.08; 101.96; 56.08; 40.30; 71.85; 159.69; 94.2; 61.98; 79.88; 16.0; 151.99; 70.937; 18.015; 44.01; 32.06; 55.85];      #Molar mass of oxides
 
     if db       == "mp"
         MAGEMin_ox      = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "MnO"; "H2O"];
@@ -1070,7 +1071,6 @@ function convertBulk4MAGEMin(   bulk_in     :: T1,
     elseif db   == "sb24"
         # Recompute FeO + O -> Fe + O (negative O for reduced systems, positive for oxidized systems)
         MAGEMin_ox      = ["SiO2"; "CaO"; "Al2O3"; "MgO"; "Na2O"; "O"; "Cr2O3"; "Fe"];
-        bulk_in, bulk_in_ox      = FeO2Fe_O(bulk_in, bulk_in_ox)
     else
         print("Database not implemented...\n")
     end
@@ -1079,7 +1079,7 @@ function convertBulk4MAGEMin(   bulk_in     :: T1,
     filter = setdiff(bulk_in_ox,MAGEMin_ox)
     keep_ids = []
     if !isempty(filter)
-        tmp_id    = findall(filter .!= "Fe2O3")
+        tmp_id    = findall(filter .!= "Fe2O3" .&& filter .!= "FeO" .&& filter .!= "Fe")
         if !isempty(tmp_id)
             filter = filter[tmp_id]
             
@@ -1112,6 +1112,7 @@ function convertBulk4MAGEMin(   bulk_in     :: T1,
         println("System unit not implemented -> use 'mol' or 'wt' -> falling back to 'mol'")
 	end
 
+    (db=="sb24") && (bulk, bulk_in_ox = FeO2Fe_O!(bulk, bulk_in_ox))
 	bulk = normalize(bulk);
 
 	for i=1:length(MAGEMin_ox)
