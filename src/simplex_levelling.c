@@ -686,6 +686,12 @@ void generate_pseudocompounds(	int 		 		 ss,
 		 * pseudocompound */
 		if ( (df < gv.max_G_pc || k % 10 == 0) && SS_ref_db[ss].sf_ok == 1){	/** if the driving force is lower than the filter or if it is the last one */
 
+			/* bounds check > ring-buffer */
+    		if (SS_ref_db[ss].id_pc[0] >= SS_ref_db[ss].n_pc){ 
+        		SS_ref_db[ss].id_pc[0] = 0; 
+        		printf("MAXIMUM PC REACHED for %4s\n", gv.SS_list[ss]);
+    		}
+
 			m_pc = SS_ref_db[ss].id_pc[0];
 			SS_ref_db[ss].info[m_pc]      = 0;
 			SS_ref_db[ss].factor_pc[m_pc] = SS_ref_db[ss].factor;
@@ -706,8 +712,11 @@ void generate_pseudocompounds(	int 		 		 ss,
 			SS_ref_db[ss].G_pc[m_pc] = G;
 			
 			/* add increment to the number of considered phases */
-			SS_ref_db[ss].tot_pc[0]  += 1;
 			SS_ref_db[ss].id_pc[0]   += 1;
+			/* only increase tot_pc if ring buffer not filled*/
+			if (SS_ref_db[ss].tot_pc[0] < SS_ref_db[ss].n_pc){
+        		SS_ref_db[ss].tot_pc[0] += 1;
+    		}
 		}
 	}
 }
