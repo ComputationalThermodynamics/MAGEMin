@@ -114,7 +114,7 @@ function adjust_bulk_4_zircon(  zr_liq  ::  Float64,
 end
 
 function phosphate_saturation(      out     :: MAGEMin_C.gmin_struct{Float64, Int64};
-                                    model   :: String = "Tollari06"    )
+                                    model   :: String = "Klein26"    )
 
     if model == "Tollari06"
         ox_list         = ["SiO2","TiO2","Al2O3","FeO","MgO","CaO","Na2O","K2O"]
@@ -145,10 +145,21 @@ function phosphate_saturation(      out     :: MAGEMin_C.gmin_struct{Float64, In
         K2O_mol     = out.SS_vec[out.SS_syms[:liq]].Comp[findfirst(isequal("K2O"), out.oxides)]
         T_K         = out.T_C + 273.15
 
-        AoCNK       = Al2O3_mol / (CaO_mol + Na2O_mol + K2O_mol)    # A over CNK
+        AoCNK       = Al2O3_mol / (2.0*CaO_mol + Na2O_mol + K2O_mol)    # A over CNK
 
         C_P2O5_WH   = 52.5525567/ exp( (8400.0 + 2.64e4(SiO2_wt - 0.5))/T_K - (3.1 + 12.4(SiO2_wt - 0.5)) )  # wt% as in Harrison and Watson 1984
         C_P2O5_liq  =  maximum([C_P2O5_WH * 1e4, (C_P2O5_WH * (AoCNK -1.0) * 6429.0/out.T_C) * 1e4])   # ppm Harrison and Watson 1984 + Correction from Bea et al. 1992
+    elseif model == "Klein26"
+        SiO2_wt     = out.SS_vec[out.SS_syms[:liq]].Comp_wt[findfirst(isequal("SiO2"), out.oxides)]
+        Al2O3_mol   = out.SS_vec[out.SS_syms[:liq]].Comp[findfirst(isequal("Al2O3"), out.oxides)]
+        CaO_mol     = out.SS_vec[out.SS_syms[:liq]].Comp[findfirst(isequal("CaO"), out.oxides)]
+        Na2O_mol    = out.SS_vec[out.SS_syms[:liq]].Comp[findfirst(isequal("Na2O"), out.oxides)]
+        K2O_mol     = out.SS_vec[out.SS_syms[:liq]].Comp[findfirst(isequal("K2O"), out.oxides)]
+        T_K         = out.T_C + 273.15
+
+        ASI         = Al2O3_mol / (2.0*CaO_mol + Na2O_mol + K2O_mol)    # A over CNK
+        log10_P2O5  = (1e4 * (-1.47 + 1.28 * SiO2_wt))/(T_K) + 12.79 + 1.06*ASI - 14.06 * SiO2_wt
+        C_P2O5_liq  = exp10(log10_P2O5) * 1e4
     else
         print("Cannot compute phosphate saturation in liquid if melt is not predicted!\n")
         C_P2O5_liq = -1

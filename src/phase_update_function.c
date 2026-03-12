@@ -218,7 +218,6 @@ global_variable check_PC(					bulk_info 	 		 z_b,
 							 dist = 0;
 						} 
 					}
-
 				}
 				if (dist == 1){
 					SS_ref_db[i].DF_pc[l] = SS_ref_db[i].G_pc[l];

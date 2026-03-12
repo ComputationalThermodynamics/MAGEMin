@@ -1112,16 +1112,17 @@ function convertBulk4MAGEMin(   bulk_in     :: T1,
         println("System unit not implemented -> use 'mol' or 'wt' -> falling back to 'mol'")
 	end
 
-    (db=="sb24") && (bulk, bulk_in_ox = FeO2Fe_O!(bulk, bulk_in_ox))
-	bulk = normalize(bulk);
+    Xox_cp = copy(bulk_in_ox) # Use copy of oxide list to avoid in-place modification
+    (db=="sb24") && (FeO2Fe_O!(bulk, Xox_cp))
+    bulk = normalize(bulk);
 
-	for i=1:length(MAGEMin_ox)
-        id = findall(bulk_in_ox .== MAGEMin_ox[i]);
-		if ~isempty(id)
-			MAGEMin_bulk[i] = bulk[id[1]];
-		end
-	end
-    idFe2O3 = findall(bulk_in_ox .== "Fe2O3");
+    for i=1:length(MAGEMin_ox)
+        id = findall(Xox_cp .== MAGEMin_ox[i]);
+        if ~isempty(id)
+            MAGEMin_bulk[i] = bulk[id[1]];
+        end
+    end
+    idFe2O3 = findall(Xox_cp .== "Fe2O3");
 
     if ~isempty(idFe2O3)
         idFeO = findall(MAGEMin_ox .== "FeO");
@@ -1545,15 +1546,15 @@ function point_wise_minimization(   P       ::Float64,
     if (scp == 1)
         mSS_vec     = deepcopy(out.mSS_vec)
         # dT          = 2.0;
-        # dP          = 0.002;
+        dP          = 0.002;
         out_W       = point_wise_minimization_with_guess(mSS_vec, P, T-dT, gv, z_b, DB, splx_data)
         out_E       = point_wise_minimization_with_guess(mSS_vec, P, T+dT, gv, z_b, DB, splx_data)
         hcp         = -(T+273.15)*(out_E.G_system + out_W.G_system - 2.0*out.G_system)/(dT*dT);
 
-        # out_N       = point_wise_minimization_with_guess(mSS_vec, P+dP, T, gv, z_b, DB, splx_data)
-        # out_NE      = point_wise_minimization_with_guess(mSS_vec, P+dP, T+dT, gv, z_b, DB, splx_data)
-        # dGdT_N 		= (out_NE.G_system - out_N.G_system)	/(dT);
-        # dGdT_P 		= (out_E.G_system - out.G_system)	    /(dT);
+        out_N       = point_wise_minimization_with_guess(mSS_vec, P+dP, T, gv, z_b, DB, splx_data)
+        out_NE      = point_wise_minimization_with_guess(mSS_vec, P+dP, T+dT, gv, z_b, DB, splx_data)
+        dGdT_N 		= (out_NE.G_system - out_N.G_system)	/(dT);
+        dGdT_P 		= (out_E.G_system - out.G_system)	    /(dT);
 
         out.entropy     .= -(out_E.G_system - out_W.G_system)/(2.0*dT);
         # out.entropy     .= -(out_E.G_system - out.G_system)/(dT);
@@ -1564,7 +1565,7 @@ function point_wise_minimization(   P       ::Float64,
 
         out.enthalpy    .= out.entropy*(T+273.15) .+ out.G_system;
         out.s_cp        .= hcp/out.M_sys*1e6;
-        # out.alpha       .= 1.0/( (out_N.G_system - out.G_system)/dP * 10.0)*((dGdT_N-dGdT_P)/(dP))
+        out.alpha       .= 1.0/( (out_N.G_system - out.G_system)/dP * 10.0)*((dGdT_N-dGdT_P)/(dP))
     end
 
     return out

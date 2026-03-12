@@ -475,7 +475,7 @@ end
                                     ph_wt       :: Vector{Float64}, 
                                     liq_wt      :: Float64,
                                     sol_wt      :: Float64;
-                                    P2O5Sat_model  :: String = "Tollari06",
+                                    P2O5Sat_model  :: String = "Klein26",
                                     norm_TE     :: Bool = true)
 
 Compute phosphate saturation and adjust bulk composition if necessary.
@@ -487,7 +487,7 @@ function compute_P2O5_sat_n_part(   out         :: MAGEMin_C.gmin_struct{Float64
                                     KDs_database:: custom_KDs_database,
                                     Cliq, bulk_cor_wt, C0,
                                     liq_wt      :: Float64;
-                                    P2O5Sat_model   :: String = "Tollari06")
+                                    P2O5Sat_model   :: String = "Klein26")
     Sat_P2O5_liq   = NaN
     id_P2O5        = findfirst(KDs_database.element_name .== "P2O5")
     if liq_wt > 0.0                                    
