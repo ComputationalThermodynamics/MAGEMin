@@ -78,7 +78,7 @@ function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Flo
         end
         if ss == "sp"
             if out.SS_vec[i].compVariables[2] + out.SS_vec[i].compVariables[3] - 0.5 > 0
-                ph[i] = "smt"        # chromite
+                ph[i] = "smt"        # magnetite
             else
                 if (1 - out.SS_vec[i].compVariables[1])*(1 + out.SS_vec[i].compVariables[3]) - 0.5 > 0
                     ph[i] = "sp"    # spinel

@@ -107,7 +107,7 @@ function get_ss_from_mineral(db, mrl, mbCpx)
    
     if db =="ig" || db == "igad"
 
-        if mrl == "cm" || mrl == "mgt" || mrl == "usp"
+        if mrl == "cm" || mrl == "mgt" || mrl == "usp" || mrl == "spl"
             ss = "spl"
         elseif mrl == "pat" || mrl == "mu"
             ss = "mu"
@@ -125,7 +125,7 @@ function get_ss_from_mineral(db, mrl, mbCpx)
 
     elseif db == "mp" || db == "mpe" || db == "mb" || db == "ume" || db == "mbe"
 
-        if mrl == "mt" || mrl == "sp"
+        if mrl == "smt" || mrl == "sp"
             ss = "sp"
         elseif mrl == "cm" || mrl == "mgt" || mrl == "usp"
             ss = "spl"
