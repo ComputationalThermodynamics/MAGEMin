@@ -20,7 +20,7 @@
 	**/
 	#define n_ox_mpf 12 		// as of now this is n_oxides = 11 + electrochemical potential
 	#define n_ss_mpf 18			
-	#define n_pp_mpf 26
+	#define n_pp_mpf 27
 
 	typedef struct metapelite_aq_datasets {
 		int 	ds_version;
@@ -57,7 +57,7 @@
 		Metapelite database informations
 	**/
 	#define n_ss_mp 18
-	#define n_pp_mp 26
+	#define n_pp_mp 27
 	#define n_ox_mp 11
 	typedef struct metapelite_datasets {
 		int 	ds_version;
@@ -97,7 +97,7 @@
 		int 	n_pp;
 		int 	n_ss;
 		char    ox[10][20];
-		char    PP[27][20];
+		char    PP[28][20];
 
 		char    SS[17][20];
 		int 	verifyPC[17];
@@ -129,7 +129,7 @@
 		int 	n_pp;
 		int 	n_ss;
 		char    ox[10][20];
-		char    PP[276][20];
+		char    PP[28][20];
 
 		char    SS[19][20];
 		int 	verifyPC[19];
@@ -157,7 +157,7 @@
 	**/
 	#define n_ox_ig 11 		// as of now this is n_oxides = 11 + electrochemical potential
 	#define n_ss_ig 16			
-	#define n_pp_ig 26
+	#define n_pp_ig 27
 	typedef struct igneous_datasets {
 		int 	ds_version;
 		int 	n_ox;
@@ -197,7 +197,7 @@
 		int 	n_pp;
 		int 	n_ss;
 		char    ox[10][20];
-		char    PP[24][20];
+		char    PP[25][20];
 		char    SS[12][20];
 
 		int 	verifyPC[12];
@@ -230,7 +230,7 @@
 		int 	n_pp;
 		int 	n_ss;
 		char    ox[7][20];
-		char    PP[24][20];
+		char    PP[25][20];
 		char    SS[12][20];
 
 		int 	verifyPC[12];
@@ -258,13 +258,13 @@
 		int 	n_ox;
 		int 	n_pp;
 		int 	n_ss;
-		char    ox[10][20];
-		char    PP[25][20];
-		char    SS[16][20];
+		char    ox[11][20];
+		char    PP[27][20];
+		char    SS[18][20];
 
-		int 	verifyPC[16];
-		int 	n_SS_PC[16];
-		double 	SS_PC_stp[16];
+		int 	verifyPC[18];
+		int 	n_SS_PC[18];
+		double 	SS_PC_stp[18];
 
 		double 	PC_df_add;					/** min value of df under which the PC is added 									*/
 		double  solver_switch_T;
@@ -325,7 +325,7 @@
 		int 	n_pp;
 		int 	n_ss;
 		char    ox[13][20];
-		char    PP[31][20];
+		char    PP[32][20];
 		char    SS[24][20];
 
 		int 	verifyPC[24];

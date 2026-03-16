@@ -370,7 +370,7 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 				}
 			}
 			else if (gv.EM_database == 5){ 			// ultramafic database
-				if(strcmp( gv.ox[i], "H2O") != 0 && strcmp( gv.ox[i], "S") != 0  && strcmp( gv.ox[i], "O") != 0 && strcmp( gv.ox[i], "Cr2O3") != 0){
+				if(strcmp( gv.ox[i], "H2O") != 0 && strcmp( gv.ox[i], "S") != 0  && strcmp( gv.ox[i], "O") != 0 && strcmp( gv.ox[i], "Cr2O3") != 0 && strcmp( gv.ox[i], "CO2") != 0){
 					gv.bulk_rock[i] = 1.0e-4;
 					renorm = 1;
 					if (gv.verbose == 1){
@@ -1655,7 +1655,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 			// sum_volume 			+= PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor;
 			sum_volume 		+= gv.pp_n_wt[i]/PP_ref_db[i].phase_density;
 
-			if (strcmp( gv.PP_list[i], "H2O") != 0){
+			if (strcmp( gv.PP_list[i], "H2O") != 0 && strcmp( gv.PP_list[i], "O2") != 0){
 				// sum_volume_sol 		+= PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor;
 				sum_volume_sol 		+= gv.pp_n_wt[i]/PP_ref_db[i].phase_density;
 				gv.solid_fraction 	+= gv.pp_n_mol[i];
@@ -1694,7 +1694,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 			s2 += (gv.pp_n_wt[i]/PP_ref_db[i].phase_density/sum_volume) / (PP_ref_db[i].phase_shearModulus/10.0);
 			b1 +=  gv.pp_n_wt[i]/PP_ref_db[i].phase_density/sum_volume *  (PP_ref_db[i].phase_bulkModulus /10.0);
 			b2 += (gv.pp_n_wt[i]/PP_ref_db[i].phase_density/sum_volume) / (PP_ref_db[i].phase_bulkModulus /10.0);
-			if (strcmp( gv.PP_list[i], "H2O") != 0){
+			if (strcmp( gv.PP_list[i], "H2O") != 0 && strcmp( gv.PP_list[i], "O2") != 0){
 				s1S +=  gv.pp_n_wt[i]/PP_ref_db[i].phase_density/sum_volume_sol *  (PP_ref_db[i].phase_shearModulus/10.0);
 				s2S += (gv.pp_n_wt[i]/PP_ref_db[i].phase_density/sum_volume_sol) / (PP_ref_db[i].phase_shearModulus/10.0);
 				b1S +=  gv.pp_n_wt[i]/PP_ref_db[i].phase_density/sum_volume_sol *  (PP_ref_db[i].phase_bulkModulus /10.0);
@@ -1730,7 +1730,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 			gv.system_entropy += PP_ref_db[i].phase_entropy*gv.pp_n_mol[i];//*PP_ref_db[i].factor;		
 			gv.system_cp 	  += PP_ref_db[i].phase_cp*gv.pp_n_mol[i];	
 			gv.system_expansivity 	  += PP_ref_db[i].phase_expansivity*gv.pp_n_mol[i];	
-			if (strcmp( gv.PP_list[i], "H2O") != 0){		
+			if (strcmp( gv.PP_list[i], "H2O") != 0 && strcmp( gv.PP_list[i], "O2") != 0){		
 				gv.solid_density  += PP_ref_db[i].phase_density*gv.pp_n_wt[i];
 				sum_solid_n_wt += gv.pp_n_wt[i];
 			}

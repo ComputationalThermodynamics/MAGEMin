@@ -2465,6 +2465,10 @@ void TC_SS_init_um_ext(	            SS_init_type 		*SS_init,
 			SS_init[iss]  = G_SS_ume_aug_init_function; 	}
         else if (strcmp( gv.SS_list[iss], "spl") == 0){
             SS_init[iss]  = G_SS_ume_spl_init_function; 	}
+		else if (strcmp( gv.SS_list[iss], "occm")   == 0){
+			SS_init[iss]  = G_SS_mpe_occm_init_function; 	}
+		else if (strcmp( gv.SS_list[iss], "flc")   == 0){
+			SS_init[iss]  = G_SS_mpe_fl_init_function; 	}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	

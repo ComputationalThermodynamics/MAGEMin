@@ -384,7 +384,7 @@
 
 #
  =================================================================
- ternary feldspar, “4TR” model, with plagioclase-friendly
+ ternary feldspar, ï¿½4TRï¿½ model, with plagioclase-friendly
          parameterisation.
 
  Holland, TJB, Green, ECR & Powell, R (2021). A thermodynamic model
@@ -437,7 +437,7 @@
 
 #
  =================================================================
- ternary feldspar, “4TR” model, with K-feldspar-friendly
+ ternary feldspar, ï¿½4TRï¿½ model, with K-feldspar-friendly
          parameterisation.
 
  Holland, TJB, Green, ECR & Powell, R (2021). A thermodynamic model

@@ -11934,6 +11934,10 @@ void TC_um_ext_NLopt_opt_init(	    NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_ume_aug_function; 		}
 		else if (strcmp( gv.SS_list[iss], "spl") == 0){
 			NLopt_opt[iss]  = NLopt_opt_ume_spl_function; 		}
+		else if (strcmp( gv.SS_list[iss], "flc")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_mpe_fl_function; 		}
+		else if (strcmp( gv.SS_list[iss], "occm")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_mpe_occm_function; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	
