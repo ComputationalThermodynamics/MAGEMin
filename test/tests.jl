@@ -174,7 +174,7 @@ end
     data        =   use_predefined_bulk_rock(data, test);
     P           =   8.0
     T           =   1200.0
-    out         =   point_wise_minimization(P,T, data, buffer_n=0.1);
+    out         =   point_wise_minimization(P,T, data, buffer_n=0.01);
     @test sort(out.ph) == sort(["aTiO2", "cpx", "fsp", "liq", "ol", "opx", "spl"])
 
     Finalize_MAGEMin(data)
@@ -490,7 +490,7 @@ end
     X       = [70.999,12.805,0.771,3.978,6.342,2.7895,1.481,0.758,0.72933,0.075,30.0]
     sys_in  = "mol"    
     out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in,rm_list=rm_list);
-    @test sort(out.ph) == sort(["fsp", "cd", "sa", "ilm", "sp", "q", "H2O"])
+    @test sort(out.ph) == sort(["H2O", "cd", "cor", "fsp", "g", "ilm", "q", "sp"])
     Finalize_MAGEMin(data)
 end
 
@@ -543,13 +543,25 @@ end
     bulk_in_ox  =  ["SiO2"; "CaO"; "Al2O3"; "MgO"; "Na2O"; "FeO"; "Cr2O3"; "O"]    
     bulk_in     = [38.83, 2.94, 2.03, 50.03, 0.11, 5.69, 0.19, 0.17] # Pyrolite
     bulk_mod, bulk_ox  = convertBulk4MAGEMin(bulk_in,bulk_in_ox,"mol","sb24");
-    @test bulk_mod ≈ [36.70363601991304, 2.7790030877812084, 1.9188354653727389, 47.29031444955574, 0.10397630600541938, 5.539101392652341, 0.17959543764572436, 5.485537841073792]
+    @test bulk_mod ≈ [36.742997728993195, 2.7819833459500383, 1.9208932626797883, 47.34102952308858, 0.10408781226343683, 5.545041635124907, 0.17978803936411814, 5.384178652535959]
     @test bulk_ox == ["SiO2"; "CaO"; "Al2O3"; "MgO"; "Na2O"; "O"; "Cr2O3"; "Fe"]
 
     bulk_in_ox  =  ["SiO2"; "CaO"; "Al2O3"; "MgO"; "Na2O"; "FeO"; "Cr2O3"; "O"]    
     bulk_in     = [45.13, 3.19, 4.02, 39.00, 0.13, 7.91, 0.56, 0.05] # Pyrolite in wt%
     bulk_mod, bulk_ox  = convertBulk4MAGEMin(bulk_in,bulk_in_ox,"wt","sb24");
-    @test bulk_mod ≈ [36.70686795908632, 2.779678693345346, 1.9266735990685513, 47.29023595595317, 0.10249524088549603, 5.532452316544104, 0.18004660310883333, 5.481549632008184]
+    @test bulk_mod ≈ [36.744275604478226, 2.7825114393856785, 1.9286370551405936, 47.33842901832809, 0.10259969288150061, 5.538090389905078, 0.1802300870140965, 5.385226712866728]
+    @test bulk_ox == ["SiO2"; "CaO"; "Al2O3"; "MgO"; "Na2O"; "O"; "Cr2O3"; "Fe"]
+
+    bulk_in_ox  =  ["SiO2"; "CaO"; "Al2O3"; "MgO"; "Na2O"; "FeO"; "Cr2O3"; "Fe2O3"]    
+    bulk_in     = [38.83, 2.94, 2.03, 50.03, 0.11, 5.35, 0.19, 0.17] # Pyrolite
+    bulk_mod, bulk_ox  = convertBulk4MAGEMin(bulk_in,bulk_in_ox,"mol","sb24");
+    @test bulk_mod ≈ [36.74299772899319, 2.7819833459500383, 1.9208932626797879, 47.34102952308858, 0.1040878122634368, 5.545041635124905, 0.17978803936411814, 5.384178652535957]
+    @test bulk_ox == ["SiO2"; "CaO"; "Al2O3"; "MgO"; "Na2O"; "O"; "Cr2O3"; "Fe"]
+
+    bulk_in_ox  =  ["SiO2"; "CaO"; "Al2O3"; "MgO"; "Na2O"; "Fe"; "Cr2O3"; "O"]    
+    bulk_in     = [38.83, 2.94, 2.03, 50.03, 0.11, 5.69, 0.19, 5.86] # Pyrolite
+    bulk_mod, bulk_ox  = convertBulk4MAGEMin(bulk_in,bulk_in_ox,"mol","sb24");
+    @test bulk_mod ≈ [36.74299772899319, 2.7819833459500383, 1.9208932626797879, 47.34102952308857, 0.1040878122634368, 5.545041635124906, 0.1797880393641181, 5.384178652535958]
     @test bulk_ox == ["SiO2"; "CaO"; "Al2O3"; "MgO"; "Na2O"; "O"; "Cr2O3"; "Fe"]
 
 end

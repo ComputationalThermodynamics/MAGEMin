@@ -43,7 +43,19 @@ export out_struct, out_TE_struct
 include("name_solvus.jl")
 
 """
-    Function to retrieve the molar mass of an oxide
+    get_molar_mass(oxide)
+
+    Retrieve the molar mass of a given oxide.
+
+    Parameters
+    ----------
+    oxide : String
+        Name of the oxide (e.g., "SiO2", "Al2O3").
+
+    Returns
+    -------
+    molar_mass : Float64
+        Molar mass of the specified oxide [g/mol].
 """
 function get_molar_mass( oxide :: String)
     ref_ox          = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "MnO"; "H2O"; "CO2"; "S"; "P2O5"; "Fe"];
@@ -56,7 +68,19 @@ end
 
 
 """
-    Function to allocate memory for the output
+    allocate_output(n)
+
+    Allocate memory for the output vector of minimization results.
+
+    Parameters
+    ----------
+    n : Int64
+        Number of output structures to allocate.
+
+    Returns
+    -------
+    output : Vector{gmin_struct{Float64, Int64}}
+        Uninitialized vector of `gmin_struct` with length `n`.
 """
 function allocate_output(n::Int64)
     return Vector{gmin_struct{Float64, Int64}}(undef, n)
@@ -67,11 +91,21 @@ function vec_norm(v::AbstractVector)
 end
 
 """
-    bulk_dry = anhydrous_renormalization(   bulk    :: Vector{Float64},
-                                            oxide   :: Vector{String})
+    anhydrous_renormalization(bulk, oxide)
 
-    This function renormalizes the bulk rock composition to remove water (H2O) if present.
+    Renormalize the bulk rock composition to remove water (H2O) if present.
 
+    Parameters
+    ----------
+    bulk : Vector{Float64}
+        Bulk rock composition vector.
+    oxide : Vector{String}
+        List of oxide names corresponding to `bulk`.
+
+    Returns
+    -------
+    bulk_dry : Vector{Float64}
+        Renormalized anhydrous bulk rock composition.
 """
 function anhydrous_renormalization( bulk    :: Vector{Float64},
                                     oxide   :: Vector{String})
@@ -90,7 +124,168 @@ function anhydrous_renormalization( bulk    :: Vector{Float64},
 end
 
 """
-    structure that holds the result of the pointwise minimization
+    gmin_struct{T, I}
+
+    Structure that holds the result of the pointwise Gibbs energy minimization.
+
+    Fields
+    ------
+    MAGEMin_ver : String
+        MAGEMin version string.
+    dataset : String
+        Dataset name.
+    database : String
+        Database name.
+    buffer : String
+        Buffer type.
+    buffer_n : T
+        Buffer value.
+    G_system : T
+        Gibbs free energy of the system.
+    Gamma : Vector{T}
+        Chemical potentials of oxides.
+    P_kbar : T
+        Pressure [kbar].
+    T_C : T
+        Temperature [°C].
+    X : Vector{T}
+        Compositional variable(s).
+    M_sys : T
+        Molar mass of the system.
+    bulk : Vector{T}
+        Bulk rock composition [mol].
+    bulk_M : Vector{T}
+        Bulk melt composition [mol].
+    bulk_S : Vector{T}
+        Bulk solid composition [mol].
+    bulk_F : Vector{T}
+        Bulk fluid composition [mol].
+    bulk_wt : Vector{T}
+        Bulk rock composition [wt].
+    bulk_M_wt : Vector{T}
+        Bulk melt composition [wt].
+    bulk_S_wt : Vector{T}
+        Bulk solid composition [wt].
+    bulk_F_wt : Vector{T}
+        Bulk fluid composition [wt].
+    frac_M : T
+        Melt fraction [mol].
+    frac_S : T
+        Solid fraction [mol].
+    frac_F : T
+        Fluid fraction [mol].
+    frac_M_wt : T
+        Melt fraction [wt].
+    frac_S_wt : T
+        Solid fraction [wt].
+    frac_F_wt : T
+        Fluid fraction [wt].
+    frac_M_vol : T
+        Melt fraction [vol].
+    frac_S_vol : T
+        Solid fraction [vol].
+    frac_F_vol : T
+        Fluid fraction [vol].
+    alpha : Vector{T}
+        Thermal expansivity.
+    V : T
+        Volume.
+    s_cp : Vector{T}
+        Heat capacity.
+    rho : T
+        System density [kg/m³].
+    rho_M : T
+        Melt density [kg/m³].
+    rho_S : T
+        Solid density [kg/m³].
+    rho_F : T
+        Fluid density [kg/m³].
+    eta_M : T
+        Melt viscosity [Pa·s].
+    fO2 : T
+        Oxygen fugacity.
+    dQFM : T
+        Delta QFM buffer.
+    aH2O : T
+        Activity of H2O.
+    aSiO2 : T
+        Activity of SiO2.
+    aTiO2 : T
+        Activity of TiO2.
+    aAl2O3 : T
+        Activity of Al2O3.
+    aMgO : T
+        Activity of MgO.
+    aFeO : T
+        Activity of FeO.
+    n_PP : Int64
+        Number of pure phases.
+    n_SS : Int64
+        Number of solution phases.
+    n_mSS : Int64
+        Number of metastable solution phases.
+    ph_frac : Vector{T}
+        Phase fractions [mol].
+    ph_frac_wt : Vector{T}
+        Phase fractions [wt].
+    ph_frac_1at : Vector{T}
+        Phase fractions [mol, 1 atom basis].
+    ph_frac_vol : Vector{T}
+        Phase fractions [vol].
+    ph_type : Vector{I}
+        Type of phase (SS or PP).
+    ph_id : Vector{I}
+        Phase identifier.
+    ph_id_db : Vector{I}
+        Phase identifier in database.
+    ph : Vector{String}
+        Phase names.
+    sol_name : Vector{String}
+        Solution phase names.
+    SS_syms : Dict{Symbol, Int64}
+        Symbol-to-index mapping for solution phases.
+    PP_syms : Dict{Symbol, Int64}
+        Symbol-to-index mapping for pure phases.
+    SS_vec : Vector{LibMAGEMin.SS_data}
+        Solution phase data.
+    mSS_vec : Vector{LibMAGEMin.mSS_data}
+        Metastable solution phase data.
+    PP_vec : Vector{LibMAGEMin.PP_data}
+        Pure phase data.
+    oxides : Vector{String}
+        Oxide names.
+    elements : Vector{String}
+        Element names.
+    Vp : T
+        P-wave velocity [km/s].
+    Vs : T
+        S-wave velocity [km/s].
+    Vp_S : T
+        P-wave velocity of solid aggregate [km/s].
+    Vs_S : T
+        S-wave velocity of solid aggregate [km/s].
+    bulkMod : T
+        Elastic bulk modulus [GPa].
+    shearMod : T
+        Elastic shear modulus [GPa].
+    bulkModulus_M : T
+        Bulk modulus of melt [GPa].
+    bulkModulus_S : T
+        Bulk modulus of solid [GPa].
+    shearModulus_S : T
+        Shear modulus of solid [GPa].
+    entropy : Vector{T}
+        Entropy [J/K].
+    enthalpy : Vector{T}
+        Enthalpy [J].
+    iter : I
+        Number of iterations required.
+    bulk_res_norm : T
+        Bulk residual norm.
+    time_ms : T
+        Computational time [ms].
+    status : I
+        Status of calculations (0 = converged, 5 = not converged).
 """
 struct gmin_struct{T,I}
     MAGEMin_ver :: String
@@ -224,7 +419,28 @@ struct light_gmin_struct{T <: Float32, I <: Int8}
 end
 
 """
-    Holds general information about solution phases
+    ss_infos
+
+    Mutable structure holding general information about a solution phase.
+
+    Fields
+    ------
+    ss_fName : String
+        Full name of the solution phase.
+    ss_name : String
+        Short name of the solution phase.
+    n_em : Int64
+        Number of endmembers.
+    n_xeos : Int64
+        Number of compositional variables.
+    n_sf : Int64
+        Number of site fractions.
+    ss_em : Vector{String}
+        Endmember names.
+    ss_xeos : Vector{String}
+        Compositional variable names.
+    ss_sf : Vector{String}
+        Site fraction names.
 """
 mutable struct ss_infos
     ss_fName:: String
@@ -238,7 +454,26 @@ mutable struct ss_infos
 end
 
 """
-    Holds general information about the database
+    db_infos
+
+    Mutable structure holding general information about the thermodynamic database.
+
+    Fields
+    ------
+    db_name : String
+        Database short name.
+    db_info : String
+        Database description.
+    db_dataset : Int64
+        Dataset identifier.
+    dataset_opt : Union{Nothing, Int64, NTuple{5,Int64}, NTuple{4,Int64}}
+        Available dataset options.
+    data_ss : Array{ss_infos}
+        Solution phase information array.
+    ss_name : Array{String}
+        Solution phase names.
+    data_pp : Array{String}
+        Pure phase names.
 """
 mutable struct db_infos
     db_name :: String
@@ -252,7 +487,22 @@ end
         
 
 """
-    Holds the MAGEMin databases & required structures for every thread
+    MAGEMin_Data{TypeGV, TypeZB, TypeDB, TypeSplxData}
+
+    Mutable structure holding the MAGEMin databases and required structures for every thread.
+
+    Fields
+    ------
+    db : String
+        Database name.
+    gv : TypeGV
+        Global variables (one per thread).
+    z_b : TypeZB
+        Bulk info structures (one per thread).
+    DB : TypeDB
+        Database structures (one per thread).
+    splx_data : TypeSplxData
+        Simplex data structures (one per thread).
 """
 mutable struct MAGEMin_Data{TypeGV, TypeZB, TypeDB, TypeSplxData}
     db          :: String
@@ -263,8 +513,22 @@ mutable struct MAGEMin_Data{TypeGV, TypeZB, TypeDB, TypeSplxData}
 end
 
 """
-    Holds the overriding Ws parameters
-0 = "mp", 1 = "mb", 11 = "mbe",2 = "ig", 3 = "igad", 4 = "um", 5 = "ume", 6 = "mtl", 7 = "mpe", 8 = "sb11", 9 = "sb21", 10 = "sb24"
+    W_data{T, I}
+
+    Mutable structure holding overriding Margules (Ws) parameters.
+
+    Database mapping: 0 = "mp", 1 = "mb", 11 = "mbe", 2 = "ig", 3 = "igad", 4 = "um", 5 = "ume", 6 = "mtl", 7 = "mpe", 8 = "sb11", 9 = "sb21", 10 = "sb24".
+
+    Fields
+    ------
+    dtb : I
+        Database identifier.
+    ss_ids : I
+        Solution phase identifier.
+    n_Ws : I
+        Number of Margules parameters.
+    Ws : Matrix{T}
+        Margules parameters matrix (S, T, P × n_Ws).
 """
 mutable struct W_data{T <: Float64,I <: Int64}
     dtb         :: I
@@ -275,7 +539,19 @@ end
 
 
 """
-    Function to retrieve the general information of the databases
+    retrieve_solution_phase_information(dtb)
+
+    Retrieve the general information of the thermodynamic databases (solution phases, endmembers, pure phases).
+
+    Parameters
+    ----------
+    dtb : String
+        Database name (e.g., "mp", "mb", "ig", "igad", "um", "ume", "mtl", "mpe", "sb11", "sb21", "sb24").
+
+    Returns
+    -------
+    db_inf : db_infos
+        Structure containing database information (solution phases, pure phases, endmembers).
 """
 function retrieve_solution_phase_information(dtb)
 
@@ -287,7 +563,21 @@ function retrieve_solution_phase_information(dtb)
 end
 
 """
-    Function to retrieve the list of indexes of the solution phases to be removed from the minimization
+    remove_phases(list, dtb)
+
+    Retrieve the list of indexes of the solution phases to be removed from the minimization.
+
+    Parameters
+    ----------
+    list : Union{Nothing, Vector{String}}
+        List of phase names to remove, or `nothing` to remove none.
+    dtb : String
+        Database name (e.g., "mp", "ig").
+
+    Returns
+    -------
+    rm_list : Union{Nothing, Vector{Int64}}
+        Vector of phase indexes to remove (negative for pure phases), or `nothing` if no phases to remove.
 """
 function remove_phases( list        :: Union{Nothing,Vector{String}},
                         dtb         :: String)
@@ -322,9 +612,41 @@ function remove_phases( list        :: Union{Nothing,Vector{String}},
 end
 
 """
-    Dat = Initialize_MAGEMin(db = "ig"; verbose::Union{Bool, Int64} = true)
+    Initialize_MAGEMin(db="ig"; verbose=0, dataset=nothing, limitCaOpx=0, CaOpxLim=0.0, mbCpx=1, mbIlm=0, mpSp=0, mpIlm=0, ig_ed=0, buffer="NONE", solver=0)
 
-Initializes MAGEMin on one or more threads, for the database `db`. You can suppress all output with `verbose=false`. `verbose=true` will give a brief summary of the result, whereas `verbose=1` will give more details about the computations.
+    Initialize MAGEMin on one or more threads for the specified database.
+
+    Parameters
+    ----------
+    db : String, optional
+        Database name (default: "ig"). Options: "mp", "mb", "mbe", "ig", "igad", "um", "ume", "mtl", "mpe", "sb11", "sb21", "sb24".
+    verbose : Union{Int64, Bool}, optional
+        Verbosity level (default: 0). `false` or `-1` suppresses output, `true` or `0` gives a brief summary, `1` gives detailed output.
+    dataset : Union{Nothing, Int64}, optional
+        Dataset identifier (default: nothing). Must be in `available_TC_ds` if specified.
+    limitCaOpx : Int64, optional
+        Flag to limit Ca in orthopyroxene (default: 0).
+    CaOpxLim : Float64, optional
+        Ca limit value for orthopyroxene (default: 0.0).
+    mbCpx : Int64, optional
+        Metabasite clinopyroxene model flag (default: 1).
+    mbIlm : Int64, optional
+        Metabasite ilmenite model flag (default: 0).
+    mpSp : Int64, optional
+        Metapelite spinel model flag (default: 0).
+    mpIlm : Int64, optional
+        Metapelite ilmenite model flag (default: 0).
+    ig_ed : Int64, optional
+        Igneous extended database flag (default: 0).
+    buffer : String, optional
+        Buffer type (default: "NONE").
+    solver : Int64, optional
+        Solver type (default: 0).
+
+    Returns
+    -------
+    data : MAGEMin_Data
+        Initialized MAGEMin data structure containing per-thread databases and variables.
 """
 function Initialize_MAGEMin(db = "ig";  verbose     ::Union{Int64,Bool} = 0,
                                         dataset     ::Union{Nothing,Int64} = nothing,
@@ -388,8 +710,18 @@ end
 
 
 """
-    Finalize_MAGEMin(dat::MAGEMin_Data)
-Finalizes MAGEMin and clears variables
+    Finalize_MAGEMin(dat)
+
+    Finalize MAGEMin and free all allocated memory.
+
+    Parameters
+    ----------
+    dat : MAGEMin_Data
+        MAGEMin data structure to finalize.
+
+    Returns
+    -------
+    nothing
 """
 function Finalize_MAGEMin(dat::MAGEMin_Data)
     for id in 1:Threads.maxthreadid()
@@ -401,9 +733,47 @@ end
 
 
 """
-    gv, DB = init_MAGEMin(;EM_database=0)
+    init_MAGEMin(db="ig"; verbose=0, dataset=nothing, mbCpx=0, mbIlm=0, mpSp=0, mpIlm=0, ig_ed=0, limitCaOpx=0, CaOpxLim=1.0, buffer="NONE", solver=0)
 
-Initializes MAGEMin (including setting global options) and loads the Database.
+    Initialize MAGEMin (including setting global options) and load the database for a single thread.
+
+    Parameters
+    ----------
+    db : String, optional
+        Database name (default: "ig").
+    verbose : Union{Int64, Bool}, optional
+        Verbosity level (default: 0).
+    dataset : Union{Nothing, Int}, optional
+        Dataset identifier (default: nothing).
+    mbCpx : Int64, optional
+        Metabasite clinopyroxene model flag (default: 0).
+    mbIlm : Int64, optional
+        Metabasite ilmenite model flag (default: 0).
+    mpSp : Int64, optional
+        Metapelite spinel model flag (default: 0).
+    mpIlm : Int64, optional
+        Metapelite ilmenite model flag (default: 0).
+    ig_ed : Int64, optional
+        Igneous extended database flag (default: 0).
+    limitCaOpx : Int64, optional
+        Flag to limit Ca in orthopyroxene (default: 0).
+    CaOpxLim : Float64, optional
+        Ca limit value for orthopyroxene (default: 1.0).
+    buffer : String, optional
+        Buffer type (default: "NONE").
+    solver : Int64, optional
+        Solver type (default: 0).
+
+    Returns
+    -------
+    gv : global_variables
+        Global variables structure.
+    z_b : bulk_infos
+        Bulk rock information structure.
+    DB : Database
+        Thermodynamic database structure.
+    splx_data : simplex_data
+        Simplex data structure.
 """
 function  init_MAGEMin( db          :: String               =  "ig";
                         verbose     :: Union{Int64,Bool}    =   0,
@@ -507,8 +877,22 @@ function  init_MAGEMin( db          :: String               =  "ig";
 end
 
 """
-    finalize_MAGEMin(gv,DB)
-Cleans up the memory
+    finalize_MAGEMin(gv, DB, z_b)
+
+    Free the memory allocated by `init_MAGEMin`.
+
+    Parameters
+    ----------
+    gv : global_variables
+        Global variables structure.
+    DB : Database
+        Thermodynamic database structure.
+    z_b : bulk_infos
+        Bulk rock information structure.
+
+    Returns
+    -------
+    nothing
 """
 function  finalize_MAGEMin(gv,DB, z_b)
     LibMAGEMin.FreeDatabases(gv, DB, z_b)
@@ -572,88 +956,72 @@ end
 
 
 """
-Out_PT = multi_point_minimization(P           ::  T2,
-                                  T           ::  T2,
-                                  MAGEMin_db  ::  MAGEMin_Data;
-                                  light       ::  Bool                            = false,
-                                  name_solvus ::  Bool                            = false,
-                                  fixed_bulk  ::  Bool                            = false,
-                                  test        ::  Int64                           = 0, # if using a build-in test case,
-                                  X           ::  VecOrMat                        = nothing,
-                                  B           ::  Union{Nothing, Vector{T1}}  = nothing,
-                                  G           ::  Union{Nothing, Vector{LibMAGEMin.mSS_data},Vector{Vector{LibMAGEMin.mSS_data}}}  = nothing,
-                                  scp         ::  Int64                           = 0, 
-                                  dT          ::  T1                              = 2.0,
-                                  iguess      ::  Union{Vector{Bool},Bool}        = false,
-                                  rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
-                                  W           ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}}  = nothing,
-                                  Xoxides     = Vector{String},
-                                  sys_in      :: String                           = "mol",
-                                  rg          :: String                           = "tc",
-                                  progressbar :: Bool                             = true,        # show a progress bar or not?
-                                  callback_fn ::  Union{Nothing, Function} = nothing, 
-                                  callback_int::  Int64 = 1
-                                  )
+    multi_point_minimization(P, T, MAGEMin_db; light=false, name_solvus=false, fixed_bulk=false, test=0, X=nothing, B=nothing, G=nothing, scp=0, dT=2.0, iguess=false, rm_list=nothing, W=nothing, Xoxides=Vector{String}, sys_in="mol", rg="tc", progressbar=true, callback_fn=nothing, callback_int=1)
 
+    Perform (parallel) MAGEMin calculations for a range of points as a function of pressure, temperature and/or composition.
 
-Perform (parallel) MAGEMin calculations for a range of points as a function of pressure `P`, temperature `T` and/or composition `X`. The database `MAGEMin_db` must be initialised before calling the routine.
-The bulk-rock composition can either be set to be one of the pre-defined build-in test cases, or can be specified specifically by passing `X`, `Xoxides` and `sys_in` (that specifies whether the input is in "mol" or "wt").
+    The bulk-rock composition can either be set to be one of the pre-defined build-in test cases, or can be specified specifically by passing `X`, `Xoxides` and `sys_in`.
 
-Below a few examples:
+    Parameters
+    ----------
+    P : AbstractVector{Float64}
+        Pressure vector [kbar].
+    T : AbstractVector{Float64}
+        Temperature vector [°C].
+    MAGEMin_db : MAGEMin_Data
+        Initialized MAGEMin data structure.
+    light : Bool, optional
+        If true, return a light output structure (default: false).
+    name_solvus : Bool, optional
+        If true, rename phases with solvus names (default: false).
+    fixed_bulk : Bool, optional
+        If true, use fixed bulk composition (default: false).
+    test : Int64, optional
+        Build-in test case number (default: 0).
+    X : VecOrMat, optional
+        Bulk rock composition(s). Single vector for all points, or vector of vectors for per-point composition (default: nothing).
+    B : Union{Nothing, Vector{Float64}}, optional
+        Buffer values per point (default: nothing).
+    G : Union{Nothing, Vector{LibMAGEMin.mSS_data}, Vector{Vector{LibMAGEMin.mSS_data}}}, optional
+        Initial guess data (default: nothing).
+    scp : Int64, optional
+        Sub-solidus computation parameter (default: 0).
+    dT : Float64, optional
+        Temperature increment for sub-solidus detection (default: 2.0).
+    iguess : Union{Vector{Bool}, Bool}, optional
+        Whether to use initial guess (default: false).
+    rm_list : Union{Nothing, Vector{Int64}}, optional
+        List of phase indexes to remove (default: nothing).
+    W : Union{Nothing, Vector{W_data{Float64, Int64}}}, optional
+        Overriding Margules parameters (default: nothing).
+    Xoxides : Vector{String}
+        Oxide names corresponding to `X`.
+    sys_in : String, optional
+        Input system units, \"mol\" or \"wt\" (default: \"mol\").
+    rg : String, optional
+        Research group, \"tc\" or \"sb\" (default: \"tc\").
+    progressbar : Bool, optional
+        Show progress bar (default: true).
+    callback_fn : Union{Nothing, Function}, optional
+        Callback function called periodically (default: nothing).
+    callback_int : Int64, optional
+        Callback interval in number of points (default: 1).
 
-Example 1 - build-in test vs. pressure and temperature
-===
-```julia
-julia> data = Initialize_MAGEMin("ig", verbose=false);
-julia> n = 10
-julia> P = rand(8:40.0,n)
-julia> T = rand(800:1500.0,n)
-julia> out = multi_point_minimization(P, T, data, test=0)
-julia> Finalize_MAGEMin(data)
-```
+    Returns
+    -------
+    Out_PT : Vector{gmin_struct{Float64, Int64}} or Vector{light_gmin_struct{Float32, Int8}}
+        Vector of minimization results for each P-T point.
 
-Example 2 - Specify constant bulk rock composition for all points:
-===
-```julia
-julia> data = Initialize_MAGEMin("ig", verbose=false);
-julia> n = 10
-julia> P = fill(10.0,n)
-julia> T = fill(1100.0,n)
-julia> Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
-julia> X = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
-julia> sys_in = "wt"
-julia> out = multi_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
-julia> Finalize_MAGEMin(data)
-```
-
-Example 3 - Different bulk rock composition for different points
-===
-```julia
-julia> data = Initialize_MAGEMin("ig", verbose=false);
-julia> P = [10.0, 20.0]
-julia> T = [1100.0, 1200]
-julia> Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
-julia> X1 = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
-julia> X2 = [49.43; 14.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
-julia> X = [X1,X2]
-julia> sys_in = "wt"
-julia> out = multi_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
-julia> Finalize_MAGEMin(data)
-```
-
-Activating multithreading on julia
-===
-
-To take advantage of multithreading, you need to start julia from the terminal with:
-```bash
-\$ julia -t auto
-```
-which will automatically use all threads on your machine. Alternatively, use `julia -t 4` to start it on 4 threads.
-If you are interested to see what you can do on your machine type:
-```
-julia> versioninfo()
-```
-
+    Examples
+    --------
+    ```julia
+    data = Initialize_MAGEMin("ig", verbose=false);
+    n = 10
+    P = rand(8:40.0,n)
+    T = rand(800:1500.0,n)
+    out = multi_point_minimization(P, T, data, test=0)
+    Finalize_MAGEMin(data)
+    ```
 """
 function multi_point_minimization(P           ::  T2,
                                   T           ::  T2,
@@ -754,41 +1122,65 @@ function multi_point_minimization(P           ::  T2,
 end
 
 """
-    AMR_minimization(   init_sub    ::  Int64,
-                        ref_lvl     ::  Int64,
-                        Prange      ::  Union{T1, NTuple{2, T1}},
-                        Trange      ::  Union{T1, NTuple{2, T1}},
-                        MAGEMin_db  ::  MAGEMin_Data;
-                        test        ::  Int64                           = 0, # if using a build-in test case,
-                        X           ::  VecOrMat                        = nothing,
-                        B           ::  Union{Nothing, T1, Vector{T1}}  = 0.0,
-                        scp         ::  Int64                           = 0,  
-                        dT          ::  T1                              = 2.0,
-                        iguess      ::  Union{Vector{Bool},Bool}        = false,
-                        rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
-                        W           ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}}  = nothing,
-                        Xoxides     = Vector{String},
-                        sys_in      :: String                          = "mol",
-                        rg          :: String                          = "tc",
-                        progressbar :: Bool                             = true        # show a progress bar or not?
-                    ) where {T1 <: Float64}
+    AMR_minimization(init_sub, ref_lvl, Prange, Trange, MAGEMin_db; test=0, X=nothing, B=0.0, scp=0, dT=2.0, iguess=false, rm_list=nothing, W=nothing, Xoxides=Vector{String}, sys_in="mol", rg="tc", progressbar=true)
 
-    Performs an Adaptive Mesh Refinement (AMR) minimization for a range of points as a function of pressure `Prange`, temperature `Trange` and/or composition `X`. The database `MAGEMin_db` must be initialised before calling the routine.
+    Perform an Adaptive Mesh Refinement (AMR) minimization for a range of points as a function of pressure, temperature and/or composition.
 
-# Example
-```julia
-data        = Initialize_MAGEMin("mp", verbose=-1, solver=0);
+    Parameters
+    ----------
+    init_sub : Int64
+        Initial number of subdivisions.
+    ref_lvl : Int64
+        Number of refinement levels.
+    Prange : Union{Float64, NTuple{2, Float64}}
+        Pressure range [kbar] as a tuple (Pmin, Pmax) or single value.
+    Trange : Union{Float64, NTuple{2, Float64}}
+        Temperature range [°C] as a tuple (Tmin, Tmax) or single value.
+    MAGEMin_db : MAGEMin_Data
+        Initialized MAGEMin data structure.
+    test : Int64, optional
+        Build-in test case number (default: 0).
+    X : VecOrMat, optional
+        Bulk rock composition(s) (default: nothing).
+    B : Union{Nothing, Float64, Vector{Float64}}, optional
+        Buffer value(s) (default: 0.0).
+    scp : Int64, optional
+        Sub-solidus computation parameter (default: 0).
+    dT : Float64, optional
+        Temperature increment for sub-solidus detection (default: 2.0).
+    iguess : Union{Vector{Bool}, Bool}, optional
+        Whether to use initial guess (default: false).
+    rm_list : Union{Nothing, Vector{Int64}}, optional
+        List of phase indexes to remove (default: nothing).
+    W : Union{Nothing, Vector{W_data{Float64, Int64}}}, optional
+        Overriding Margules parameters (default: nothing).
+    Xoxides : Vector{String}
+        Oxide names corresponding to `X`.
+    sys_in : String, optional
+        Input system units, \"mol\" or \"wt\" (default: \"mol\").
+    rg : String, optional
+        Research group, \"tc\" or \"sb\" (default: \"tc\").
+    progressbar : Bool, optional
+        Show progress bar (default: true).
 
-init_sub    =  1
-ref_lvl     =  2
-Prange      = (1.0,10.0)
-Trange      = (400.0,800.0)
-Xoxides     = ["SiO2","Al2O3","CaO","MgO","FeO","K2O","Na2O","TiO2","O","MnO","H2O"]
-X           = [70.999,12.805,0.771,3.978,6.342,2.7895,1.481,0.758,0.72933,0.075,30.0]
-sys_in      = "mol"    
-out         = AMR_minimization(init_sub, ref_lvl, Prange, Trange, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
-```
+    Returns
+    -------
+    Out_XY : Vector{gmin_struct{Float64, Int64}}
+        Vector of minimization results for each refined P-T point.
 
+    Examples
+    --------
+    ```julia
+    data        = Initialize_MAGEMin("mp", verbose=-1, solver=0);
+    init_sub    =  1
+    ref_lvl     =  2
+    Prange      = (1.0,10.0)
+    Trange      = (400.0,800.0)
+    Xoxides     = ["SiO2","Al2O3","CaO","MgO","FeO","K2O","Na2O","TiO2","O","MnO","H2O"]
+    X           = [70.999,12.805,0.771,3.978,6.342,2.7895,1.481,0.758,0.72933,0.075,30.0]
+    sys_in      = "mol"
+    out         = AMR_minimization(init_sub, ref_lvl, Prange, Trange, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    ```
 """
 function AMR_minimization(  init_sub    ::  Int64,
                             ref_lvl     ::  Int64,
@@ -870,9 +1262,23 @@ end
 
 
 """
-bulk_rock = use_predefined_bulk_rock(gv, test=-1, db="ig")
+    use_predefined_bulk_rock(gv, test=0, db="ig")
 
-Returns the pre-defined bulk rock composition of a given test
+    Return the pre-defined bulk rock composition for a given built-in test case.
+
+    Parameters
+    ----------
+    gv : LibMAGEMin.global_variables
+        Global variables structure.
+    test : Int64, optional
+        Built-in test case number (default: 0).
+    db : String, optional
+        Database identifier, e.g. "ig", "mp", "mb" (default: "ig").
+
+    Returns
+    -------
+    gv : LibMAGEMin.global_variables
+        Updated global variables with bulk rock composition set.
 """
 function use_predefined_bulk_rock(gv, test=0, db="ig")
 
@@ -932,9 +1338,21 @@ function use_predefined_bulk_rock(gv, test=0, db="ig")
 end
 
 """
-    data = use_predefined_bulk_rock(data::MAGEMin_Data, test=0)
+    use_predefined_bulk_rock(data::MAGEMin_Data, test=0)
 
-Returns the pre-defined bulk rock composition of a given test
+    Return the pre-defined bulk rock composition for a given built-in test case (multi-threaded version).
+
+    Parameters
+    ----------
+    data : MAGEMin_Data
+        Initialized MAGEMin data structure.
+    test : Int64, optional
+        Built-in test case number (default: 0).
+
+    Returns
+    -------
+    data : MAGEMin_Data
+        Updated MAGEMin data structure with bulk rock composition set for all threads.
 """
 function use_predefined_bulk_rock(data::MAGEMin_Data, test=0)  
     nt = Threads.maxthreadid()
@@ -945,9 +1363,27 @@ function use_predefined_bulk_rock(data::MAGEMin_Data, test=0)
 end
 
 """
-    gv = define_bulk_rock(gv, bulk_in, bulk_in_ox, sys_in, db)
+    define_bulk_rock(gv, bulk_in, bulk_in_ox, sys_in, db)
 
-Defines the bulk-rock composition in `gv` structure using the input `bulk_in` and `bulk_in_ox`, converting it to the appropriate format for MAGEMin.
+    Define the bulk-rock composition in the global variables structure, converting it to the appropriate format for MAGEMin.
+
+    Parameters
+    ----------
+    gv : LibMAGEMin.global_variables
+        Global variables structure.
+    bulk_in : AbstractVector{Float64}
+        Input bulk rock composition.
+    bulk_in_ox : Vector{String}
+        Oxide names corresponding to `bulk_in`.
+    sys_in : String
+        Input system units, "mol" or "wt".
+    db : String
+        Database identifier, e.g. "ig", "mp", "mb".
+
+    Returns
+    -------
+    gv : LibMAGEMin.global_variables
+        Updated global variables with normalized bulk rock composition.
 """
 function define_bulk_rock(gv, bulk_in, bulk_in_ox, sys_in,db)
 
@@ -965,8 +1401,21 @@ function normalize(vector::AbstractVector{Float64})
 end
 
 """
-    bulk_mol = wt2mol(bulk_wt, bulk_ox)
-Converts bulk-rock composition from wt to mol fraction
+    wt2mol(bulk_wt, bulk_ox)
+
+    Convert bulk-rock composition from weight fraction to molar fraction.
+
+    Parameters
+    ----------
+    bulk_wt : AbstractVector{Float64}
+        Bulk rock composition in weight fraction.
+    bulk_ox : AbstractVector{String}
+        Oxide names corresponding to `bulk_wt`.
+
+    Returns
+    -------
+    bulk_mol : Vector{Float64}
+        Bulk rock composition in molar fraction (normalized to 100).
 """
 function wt2mol(    bulk_wt     :: AbstractVector{Float64},
                     bulk_ox     :: AbstractVector{String}) 
@@ -989,9 +1438,21 @@ end
 
 
 """
-    mol2wt(bulk_mol::Vector{Float64}, bulk_ox::Vector{String})
+    mol2wt(bulk_mol, bulk_ox)
 
-    Converts bulk-rock composition from mol to wt fraction
+    Convert bulk-rock composition from molar fraction to weight fraction.
+
+    Parameters
+    ----------
+    bulk_mol : AbstractVector{Float64}
+        Bulk rock composition in molar fraction.
+    bulk_ox : AbstractVector{String}
+        Oxide names corresponding to `bulk_mol`.
+
+    Returns
+    -------
+    bulk_wt : Vector{Float64}
+        Bulk rock composition in weight fraction (normalized to 100).
 """
 function mol2wt(    bulk_mol     :: AbstractVector{Float64},
                     bulk_ox      :: AbstractVector{String}) 
@@ -1013,28 +1474,69 @@ function mol2wt(    bulk_mol     :: AbstractVector{Float64},
 end
 
 """
-    FeO2Fe_O(bulk_mol::Vector{Float64}, bulk_ox::Vector{String})
+    FeO2Fe_O!(bulk_mol, bulk_ox)
 
-    Converts bulk-rock composition using FeO + extra oxygen to total Fe + total O (used for SB24)
+    Convert bulk-rock composition from FeO + extra oxygen to total Fe + total O (used for SB24). Modifies `bulk_mol` and `bulk_ox` in place.
+
+    Parameters
+    ----------
+    bulk_mol : AbstractVector{Float64}
+        Bulk rock composition in molar fraction (modified in place).
+    bulk_ox : AbstractVector{String}
+        Oxide names corresponding to `bulk_mol` (modified in place).
+
+    Returns
+    -------
+    bulk_mol : AbstractVector{Float64}
+        Updated bulk rock composition with Fe and O instead of FeO.
+    bulk_ox : AbstractVector{String}
+        Updated oxide names with "Fe" and "O" replacing "FeO".
 """
 function FeO2Fe_O!(    bulk_mol     :: AbstractVector{Float64},
                        bulk_ox      :: AbstractVector{String}) 
-
-    # Don't call if composition is already being passed as Fe + O
-    (!("FeO" in bulk_ox) || !("O" in bulk_ox)) && return bulk_mol, bulk_ox
-
-    # Recompute FeO + O -> Fe + O (negative O for reduced systems, positive for oxidized systems)
-    tmp_idFeO, tmp_idO  = findfirst(bulk_ox .== "FeO"), findfirst(bulk_ox .== "O")
-    nFeᵀ, nOᵀ           = (2bulk_mol[tmp_idO]/3 + bulk_mol[tmp_idFeO]), (bulk_mol[tmp_idFeO] + bulk_mol[tmp_idO])
-    bulk_mol[tmp_idO]   = nOᵀ; bulk_mol[tmp_idFeO] = nFeᵀ;
-    bulk_ox[tmp_idFeO]  = "Fe"
+    
+    if ("Fe" in bulk_ox && "O" in bulk_ox) # Don't call if composition is already being passed as Fe + O
+        # nothing to do
+    elseif ("FeO" in bulk_ox && "Fe2O3" in bulk_ox) # If FeO and Fe2O3 are given, deduce bulk
+        tmp_idFeO, tmp_idFe2O3  = findfirst(bulk_ox .== "FeO"), findfirst(bulk_ox .== "Fe2O3")
+        nFeᵀ, nOᵀ = (bulk_mol[tmp_idFeO] + 2bulk_mol[tmp_idFe2O3]), (bulk_mol[tmp_idFeO] + 3bulk_mol[tmp_idFe2O3])
+        bulk_mol[tmp_idFeO] = nFeᵀ; bulk_mol[tmp_idFe2O3]   = nOᵀ; 
+        bulk_ox[tmp_idFeO]  = "Fe"; bulk_ox[tmp_idFe2O3]  = "O"
+    elseif ("FeO" in bulk_ox && !("O" in bulk_ox)) # If only FeO is present, assume excess oxygen to be zero
+        push!(bulk_ox, "O"); push!(bulk_mol, 0.0);
+    else # Recompute FeO + O -> Fe + O (negative O for reduced systems, positive for oxidized systems)
+        tmp_idFeO, tmp_idO  = findfirst(bulk_ox .== "FeO"), findfirst(bulk_ox .== "O")
+        XFe2O3 = bulk_mol[tmp_idO]; XFeO = bulk_mol[tmp_idFeO] - 2XFe2O3
+        nFeᵀ, nOᵀ           = (2XFe2O3 + XFeO), (XFeO + 3XFe2O3)
+        bulk_mol[tmp_idO]   = nOᵀ; bulk_mol[tmp_idFeO] = nFeᵀ;
+        bulk_ox[tmp_idFeO]  = "Fe"
+    end
+    return bulk_mol, bulk_ox
 end
 
+
 """
-    MAGEMin_bulk, MAGEMin_ox; = convertBulk4MAGEMin(bulk_in::T1,bulk_in_ox::Vector{String},sys_in::String,db::String) where {T1 <: AbstractVector{Float64}}
+    convertBulk4MAGEMin(bulk_in, bulk_in_ox, sys_in, db)
 
-receives bulk-rock composition in [mol,wt] fraction and associated oxide list and sends back bulk-rock composition converted for MAGEMin use
+    Convert a bulk-rock composition (in mol or wt fraction) and its associated oxide list into the format expected by MAGEMin.
 
+    Parameters
+    ----------
+    bulk_in : AbstractVector{Float64}
+        Input bulk rock composition.
+    bulk_in_ox : Vector{String}
+        Oxide names corresponding to `bulk_in`.
+    sys_in : String
+        Input system units, "mol" or "wt".
+    db : String
+        Database identifier, e.g. "ig", "mp", "mb", "sb24".
+
+    Returns
+    -------
+    MAGEMin_bulk : Vector{Float64}
+        Bulk rock composition converted and normalized for MAGEMin (summing to 100).
+    MAGEMin_ox : Vector{String}
+        Oxide names in the order expected by MAGEMin for the given database.
 """
 function convertBulk4MAGEMin(   bulk_in     :: T1,
                                 bulk_in_ox  :: Vector{String},
@@ -1124,7 +1626,7 @@ function convertBulk4MAGEMin(   bulk_in     :: T1,
     end
     idFe2O3 = findall(Xox_cp .== "Fe2O3");
 
-    if ~isempty(idFe2O3)
+    if (~isempty(idFe2O3) && db!="sb24") # sb24 -> done in FeO2Fe_O!()
         idFeO = findall(MAGEMin_ox .== "FeO");
         MAGEMin_bulk[idFeO[1]] += bulk[idFe2O3[1]]*2.0;
 
@@ -1179,85 +1681,78 @@ end
 
 
 """
-    oint_wise_minimization(         P       ::Float64,
-                                    T       ::Float64,
-                                    gv,
-                                    z_b,
-                                    DB,
-                                    splx_data;
-                                    light       = false,
-                                    name_solvus = false,
-                                    fixed_bulk  = false,
-                                    buffer_n    = 0.0,
-                                    Gi          = nothing,
-                                    scp         = 0,
-                                    dT          = 2.0,
-                                    iguess      = false,
-                                    rm_list     = nothing,
-                                    W           = nothing   )
+    point_wise_minimization(P, T, gv, z_b, DB, splx_data; light=false, name_solvus=false, fixed_bulk=false, buffer_n=0.0, Gi=nothing, scp=0, dT=2.0, iguess=false, rm_list=nothing, W=nothing)
 
-Computes the stable assemblage at `P` [kbar], `T` [C] and for a given bulk rock composition
+    Compute the stable mineral assemblage at given pressure and temperature for a specified bulk rock composition.
 
+    Parameters
+    ----------
+    P : Float64
+        Pressure [kbar].
+    T : Float64
+        Temperature [°C].
+    gv : LibMAGEMin.global_variables
+        Global variables structure (must have bulk rock composition set).
+    z_b : LibMAGEMin.bulk_infos
+        Bulk rock information structure.
+    DB : LibMAGEMin.Database
+        Database structure.
+    splx_data : LibMAGEMin.simplex_datas
+        Simplex data structure.
+    light : Bool, optional
+        Return a lightweight output structure (default: false).
+    name_solvus : Bool, optional
+        Resolve solvus naming (default: false).
+    fixed_bulk : Bool, optional
+        Use fixed bulk composition (default: false).
+    buffer_n : Float64, optional
+        Buffer value (default: 0.0).
+    Gi : Union{Nothing, Vector{LibMAGEMin.mSS_data}}, optional
+        Initial guess from previous minimization (default: nothing).
+    scp : Int64, optional
+        Sub-solidus computation parameter (default: 0).
+    dT : Float64, optional
+        Temperature increment for sub-solidus detection (default: 2.0).
+    iguess : Bool, optional
+        Whether to use initial guess (default: false).
+    rm_list : Union{Nothing, Vector{Int64}}, optional
+        List of phase indexes to remove (default: nothing).
+    W : Union{Nothing, Vector{W_data{Float64, Int64}}}, optional
+        Overriding Margules parameters (default: nothing).
 
-# Example 1
+    Returns
+    -------
+    out : gmin_struct{Float64, Int64}
+        Structure containing the minimization results (stable phases, fractions, thermodynamic properties, etc.).
 
-This is an example of how to use it for a predefined bulk rock composition:
-```julia
-julia> db          = "ig"  # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b)
-julia> gv, z_b, DB, splx_data      = init_MAGEMin(db);
-julia> test        = 0;
-julia> sys_in      = "mol"     #default is mol, if wt is provided conversion will be done internally (MAGEMin works on mol basis)
-julia> gv          = use_predefined_bulk_rock(gv, test, db)
-julia> P           = 8.0;
-julia> T           = 800.0;
-julia> gv.verbose  = -1;        # switch off any verbose
-julia> out         = point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in)
-Pressure          : 8.0      [kbar]
-Temperature       : 800.0    [Celsius]
-     Stable phase | Fraction (mol fraction)
-              opx   0.24229
-               ol   0.58808
-              cpx   0.14165
-              spl   0.02798
-     Stable phase | Fraction (wt fraction)
-              opx   0.23908
-               ol   0.58673
-              cpx   0.14583
-              spl   0.02846
-Gibbs free energy : -797.749183  (26 iterations; 94.95 ms)
-Oxygen fugacity          : 9.645393319147175e-12
-```
+    Examples
+    --------
+    Using a predefined bulk rock composition:
+    ```julia
+    db          = "ig"
+    gv, z_b, DB, splx_data = init_MAGEMin(db);
+    test        = 0;
+    sys_in      = "mol"
+    gv          = use_predefined_bulk_rock(gv, test, db)
+    P           = 8.0;
+    T           = 800.0;
+    gv.verbose  = -1;
+    out         = point_wise_minimization(P, T, gv, z_b, DB, splx_data, sys_in)
+    ```
 
-# Example 2
-And here a case in which you specify your own bulk rock composition.
-We convert that in the correct format, using the `convertBulk4MAGEMin` function.
-```julia
-julia> db          = "ig"  # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b)
-julia> gv, z_b, DB, splx_data      = init_MAGEMin(db);
-julia> bulk_in_ox = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
-julia> bulk_in    = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
-julia> sys_in     = "wt"
-julia> gv         = define_bulk_rock(gv, bulk_in, bulk_in_ox, sys_in, db);
-julia> P,T         = 10.0, 1100.0;
-julia> gv.verbose  = -1;        # switch off any verbose
-julia> out         = point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in)
-Pressure          : 10.0      [kbar]
-Temperature       : 1100.0    [Celsius]
-     Stable phase | Fraction (mol fraction)
-             pl4T   0.01114
-              liq   0.74789
-              cpx   0.21862
-              opx   0.02154
-     Stable phase | Fraction (wt fraction)
-             pl4T   0.01168
-              liq   0.72576
-              cpx   0.23872
-              opx   0.02277
-Gibbs free energy : -907.27887  (47 iterations; 187.11 ms)
-Oxygen fugacity          : 0.02411835177808492
-julia> finalize_MAGEMin(gv,DB)
-```
-
+    Using a custom bulk rock composition:
+    ```julia
+    db          = "ig"
+    gv, z_b, DB, splx_data = init_MAGEMin(db);
+    bulk_in_ox  = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
+    bulk_in     = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
+    sys_in      = "wt"
+    gv          = define_bulk_rock(gv, bulk_in, bulk_in_ox, sys_in, db);
+    P, T        = 10.0, 1100.0;
+    gv.verbose  = -1;
+    out         = point_wise_minimization(P, T, gv, z_b, DB, splx_data, sys_in)
+    finalize_MAGEMin(gv, DB)
+    ```
 """
 function point_wise_minimization(   P       ::Float64,
                                     T       ::Float64,
@@ -1574,9 +2069,23 @@ end
 
 
 """
-    out = point_wise_minimization(P::Number,T::Number, data::MAGEMin_Data)
+    point_wise_minimization(P, T, data::MAGEMin_Data)
 
-Performs a point-wise optimization for a given pressure `P` and temperature `T` for the data specified in the MAGEMin database `MAGEMin_Data` (where also compoition is specified)
+    Perform a point-wise Gibbs energy minimization for a given pressure and temperature using the `MAGEMin_Data` structure.
+
+    Parameters
+    ----------
+    P : Number
+        Pressure [kbar].
+    T : Number
+        Temperature [°C].
+    data : MAGEMin_Data
+        Initialized MAGEMin data structure (composition must be set beforehand).
+
+    Returns
+    -------
+    out : gmin_struct{Float64, Int64}
+        Structure containing the minimization results.
 """
 point_wise_minimization(P       ::  Number,
                         T       ::  Number,
@@ -1629,46 +2138,51 @@ point_wise_minimization(P       ::  Number,
 
 
 """
-    pwm_init(P::Float64,T::Float64, gv, z_b, DB, splx_data; G0 = true)
+    pwm_init(P, T, gv, z_b, DB, splx_data; G0=true)
 
-    Function to provide single point minimization and give access to G0 and W's (Margules) parameters
-    The objective here is to be able to use MAGEMin for thermodynamic database inversion/calibration
+    Initialize a single point minimization and optionally compute G0 and Margules (W) parameters. Intended for thermodynamic database inversion/calibration workflows.
 
-# Example
+    Parameters
+    ----------
+    P : Float64
+        Pressure [kbar].
+    T : Float64
+        Temperature [°C].
+    gv : LibMAGEMin.global_variables
+        Global variables structure.
+    z_b : LibMAGEMin.bulk_infos
+        Bulk rock information structure.
+    DB : LibMAGEMin.Database
+        Database structure.
+    splx_data : LibMAGEMin.simplex_datas
+        Simplex data structure.
+    G0 : Bool, optional
+        Whether to compute G0 (default: true).
 
-```julia
-dtb     = "mp"
-gv, z_b, DB, splx_data  = init_MAGEMin(dtb);
+    Returns
+    -------
+    gv : LibMAGEMin.global_variables
+        Updated global variables.
+    z_b : LibMAGEMin.bulk_infos
+        Updated bulk rock information.
+    DB : LibMAGEMin.Database
+        Updated database.
+    splx_data : LibMAGEMin.simplex_datas
+        Updated simplex data.
 
-Xoxides = ["SiO2";  "TiO2";  "Al2O3";  "FeO";   "MnO";   "MgO";   "CaO";   "Na2O";  "K2O"; "H2O"; "O"];
-X       = [58.509,  1.022,   14.858, 4.371, 0.141, 4.561, 5.912, 3.296, 2.399, 10.0, 0.0];
-sys_in  = "wt"
-gv      = define_bulk_rock(gv, X, Xoxides, sys_in, dtb);
-P, T    = 6.0, 500.0
-gv, z_b, DB, splx_data = pwm_init(P, T, gv, z_b, DB, splx_data);
-
-# Modify gbase or W's here
-
-out     = pwm_run(gv, z_b, DB, splx_data);
-```
-which gives:
-
-```
-julia> out       = pwm_run(gv, z_b, DB, splx_data);
-Status             :            0 
-Mass residual      : +3.23681e-15
-Rank               :            0 
-Point              :            1 
-Temperature        :   +500.00000       [C] 
-Pressure           :     +6.00000       [kbar]
-
-SOL = [G: -791.477] (12 iterations, 11.03 ms)
-GAM = [-943.275969,-1739.945965,-770.603948,-668.434121,-339.621452,-886.160861,-804.045787,-992.801306,-480.273909,-480.273909]
-
-Phase :       bi      chl        g      opx      fsp        q      sph      H2O       zo 
-Mode  :  0.18022  0.00161  0.00174  0.04239  0.33178  0.15155  0.01325  0.24445  0.03301 
-```
-
+    Examples
+    --------
+    ```julia
+    dtb     = "mp"
+    gv, z_b, DB, splx_data = init_MAGEMin(dtb);
+    Xoxides = ["SiO2"; "TiO2"; "Al2O3"; "FeO"; "MnO"; "MgO"; "CaO"; "Na2O"; "K2O"; "H2O"; "O"];
+    X       = [58.509, 1.022, 14.858, 4.371, 0.141, 4.561, 5.912, 3.296, 2.399, 10.0, 0.0];
+    sys_in  = "wt"
+    gv      = define_bulk_rock(gv, X, Xoxides, sys_in, dtb);
+    P, T    = 6.0, 500.0
+    gv, z_b, DB, splx_data = pwm_init(P, T, gv, z_b, DB, splx_data);
+    out     = pwm_run(gv, z_b, DB, splx_data);
+    ```
 """
 function pwm_init(P::Float64,T::Float64, gv, z_b, DB, splx_data; G0 = true)
 
@@ -1724,9 +2238,25 @@ end
 
 
 """
-    out = create_gmin_struct(gv, z_b)
+    create_gmin_struct(DB, gv, time; name_solvus=false)
 
-This extracts the output of a pointwise MAGEMin optimization and adds it into a julia structure
+    Extract the output of a pointwise MAGEMin optimization into a Julia structure.
+
+    Parameters
+    ----------
+    DB : LibMAGEMin.Database
+        Database structure.
+    gv : LibMAGEMin.global_variables
+        Global variables structure.
+    time : Float64
+        Elapsed computation time [s].
+    name_solvus : Bool, optional
+        Resolve solvus naming (default: false).
+
+    Returns
+    -------
+    out : gmin_struct{Float64, Int64}
+        Structure containing the full minimization results.
 """
 function create_gmin_struct(DB, gv, time; name_solvus = false)
 
@@ -1882,9 +2412,21 @@ end
 
 
 """
-    out = create_light_gmin_struct(gv, z_b)
+    create_light_gmin_struct(DB, gv)
 
-This extracts the output of a pointwise MAGEMin optimization and adds it into a julia structure
+    Extract a lightweight output of a pointwise MAGEMin optimization into a Julia structure (Float32/Int8 types).
+
+    Parameters
+    ----------
+    DB : LibMAGEMin.Database
+        Database structure.
+    gv : LibMAGEMin.global_variables
+        Global variables structure.
+
+    Returns
+    -------
+    out : light_gmin_struct{Float32, Int8}
+        Lightweight structure containing essential minimization results.
 """
 function create_light_gmin_struct(DB,gv)
 
@@ -1951,7 +2493,12 @@ end
 """
     print_info(g::gmin_struct)
 
-Prints a more extensive overview of the simulation results
+    Print an extensive overview of the minimization results, including stable phases, compositions, thermodynamic properties, and numerics.
+
+    Parameters
+    ----------
+    g : gmin_struct
+        Output structure from a MAGEMin minimization.
 """
 function print_info(g::gmin_struct)
 
@@ -2167,7 +2714,31 @@ end
 
 
 """
-    out = function point_wise_minimization_with_guess(mSS_vec :: Vector{mSS_data}, P, T, gv, z_b, DB, splx_data)
+    point_wise_minimization_with_guess(mSS_vec, P, T, gv, z_b, DB, splx_data)
+
+    Perform a point-wise Gibbs energy minimization using an initial guess from metastable solution phase data.
+
+    Parameters
+    ----------
+    mSS_vec : Vector{LibMAGEMin.mSS_data}
+        Vector of metastable solution phase data used as initial guess.
+    P : Float64
+        Pressure [kbar].
+    T : Float64
+        Temperature [°C].
+    gv : LibMAGEMin.global_variables
+        Global variables structure.
+    z_b : LibMAGEMin.bulk_infos
+        Bulk rock information structure.
+    DB : LibMAGEMin.Database
+        Database structure.
+    splx_data : LibMAGEMin.simplex_datas
+        Simplex data structure.
+
+    Returns
+    -------
+    out : gmin_struct{Float64, Int64}
+        Structure containing the minimization results.
 """
 function point_wise_minimization_with_guess(    mSS_vec ::  Vector{LibMAGEMin.mSS_data},
                                                 P       ::  Float64,
@@ -2285,91 +2856,45 @@ end
 
 
 """
-    out = point_wise_metastability(out, P, T, data)
+    point_wise_metastability(out, P, T, gv, z_b, DB, splx_data)
 
-    where out is a MAGEMin_C output structure of type MAGEMin_C.gmin_struct{Float64, Int64}, P is pressure, T is temperature and data is the MAGEMin_C working data structure. 
+    Compute the metastability of the solution phases from a previous minimization result at new pressure and temperature conditions.
 
-    This function computes the metastability of the solution phases in `out` at pressure `P` and temperature `T`.
+    Parameters
+    ----------
+    out : gmin_struct{Float64, Int64}
+        Output structure from a previous MAGEMin minimization.
+    P : Float64
+        Pressure [kbar].
+    T : Float64
+        Temperature [°C].
+    gv : LibMAGEMin.global_variables
+        Global variables structure.
+    z_b : LibMAGEMin.bulk_infos
+        Bulk rock information structure.
+    DB : LibMAGEMin.Database
+        Database structure.
+    splx_data : LibMAGEMin.simplex_datas
+        Simplex data structure.
 
-# Example:
+    Returns
+    -------
+    out : gmin_struct{Float64, Int64}
+        Structure containing the metastability results at the new P-T conditions.
 
-```julia
-using MAGEMin_C
-
-data    = Initialize_MAGEMin("mp", verbose=-1; solver=0);
-P,T     = 6.0, 630.0
-Xoxides = ["SiO2";  "TiO2";  "Al2O3";  "FeO";   "MnO";   "MgO";   "CaO";   "Na2O";  "K2O"; "H2O"; "O"];
-X       = [58.509,  1.022,   14.858, 4.371, 0.141, 4.561, 5.912, 3.296, 2.399, 10.0, 0.0];
-sys_in  = "wt"
-out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
-
-Pmeta, Tmeta       = 6.0, 500.0
-out2    = point_wise_metastability(out, Pmeta, Tmeta, data)
-```
-
-which gives:
-
-````
-julia> out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
-Pressure          : 6.0      [kbar]
-Temperature       : 630.0    [Celsius]
-     Stable phase | Fraction (mol fraction) 
-               bi   0.18975 
-              fsp   0.33769 
-              opx   0.06615 
-                q   0.14587 
-              sph   0.01103 
-              H2O   0.24952 
-     Stable phase | Fraction (wt fraction) 
-               bi   0.21347 
-              fsp   0.44152 
-              opx   0.07259 
-                q   0.17078 
-              sph   0.01404 
-              H2O   0.0876 
-     Stable phase | Fraction (vol fraction) 
-               bi   0.16535 
-              fsp   0.38301 
-              opx   0.05008 
-                q   0.1507 
-              sph   0.00921 
-              H2O   0.24165 
-Gibbs free energy : -806.707117  (23 iterations; 15.5 ms)
-Oxygen fugacity          : 11.422305637291458
-Delta QFM                : 29.789994195381436
-
-julia> Pmeta, Tmeta       = 6.0, 500.0
-(6.0, 500.0)
-
-julia> out2    = point_wise_metastability(out, Pmeta, Tmeta, data)
-Pressure          : 6.0      [kbar]
-Temperature       : 500.0    [Celsius]
-     Stable phase | Fraction (mol fraction) 
-               bi   0.18975 
-              fsp   0.33769 
-              opx   0.06615 
-                q   0.14587 
-              sph   0.01103 
-              H2O   0.24952 
-     Stable phase | Fraction (wt fraction) 
-               bi   0.21347 
-              fsp   0.44152 
-              opx   0.07259 
-                q   0.17078 
-              sph   0.01404 
-              H2O   0.0876 
-     Stable phase | Fraction (vol fraction) 
-               bi   0.16819 
-              fsp   0.39062 
-              opx   0.05102 
-                q   0.1528 
-              sph   0.0094 
-              H2O   0.22795 
-Gibbs free energy : -791.460287  (0 iterations; 0.04 ms)
-Oxygen fugacity          : 11.256905434522107
-Delta QFM                : 34.26950061699225
-````
-
+    Examples
+    --------
+    ```julia
+    using MAGEMin_C
+    data    = Initialize_MAGEMin("mp", verbose=-1; solver=0);
+    P, T    = 6.0, 630.0
+    Xoxides = ["SiO2"; "TiO2"; "Al2O3"; "FeO"; "MnO"; "MgO"; "CaO"; "Na2O"; "K2O"; "H2O"; "O"];
+    X       = [58.509, 1.022, 14.858, 4.371, 0.141, 4.561, 5.912, 3.296, 2.399, 10.0, 0.0];
+    sys_in  = "wt"
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    Pmeta, Tmeta = 6.0, 500.0
+    out2    = point_wise_metastability(out, Pmeta, Tmeta, data)
+    ```
 """
 function point_wise_metastability(  out     :: MAGEMin_C.gmin_struct{Float64, Int64},
                                     P       :: Float64,
