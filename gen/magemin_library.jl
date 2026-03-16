@@ -1525,12 +1525,12 @@ mutable struct ultramafic_ext_datasets
     n_ox::Cint
     n_pp::Cint
     n_ss::Cint
-    ox::NTuple{10, NTuple{20, Cchar}}
-    PP::NTuple{26, NTuple{20, Cchar}}
-    SS::NTuple{16, NTuple{20, Cchar}}
-    verifyPC::NTuple{16, Cint}
-    n_SS_PC::NTuple{16, Cint}
-    SS_PC_stp::NTuple{16, Cdouble}
+    ox::NTuple{11, NTuple{20, Cchar}}
+    PP::NTuple{27, NTuple{20, Cchar}}
+    SS::NTuple{18, NTuple{20, Cchar}}
+    verifyPC::NTuple{18, Cint}
+    n_SS_PC::NTuple{18, Cint}
+    SS_PC_stp::NTuple{18, Cdouble}
     PC_df_add::Cdouble
     solver_switch_T::Cdouble
     min_melt_T::Cdouble

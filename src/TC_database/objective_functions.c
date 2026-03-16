@@ -15842,6 +15842,10 @@ void TC_um_ext_P2X_init(	        P2X_type 			*P2X_read,
 			P2X_read[iss]  = p2x_ume_aug; 		}
         else if (strcmp( gv.SS_list[iss], "spl") == 0){
 			P2X_read[iss]  = p2x_ume_spl; 		}
+		else if (strcmp( gv.SS_list[iss], "flc")   == 0){
+			P2X_read[iss]  = p2x_mpe_fl; 		}
+		else if (strcmp( gv.SS_list[iss], "occm")   == 0){
+			P2X_read[iss]  = p2x_mpe_occm; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	
@@ -16191,6 +16195,10 @@ void TC_um_ext_objective_init_function(	obj_type 			*SS_objective,
 			SS_objective[iss]  = obj_ume_aug; 		}
         else if (strcmp( gv.SS_list[iss], "spl") == 0){
 			SS_objective[iss]  = obj_ume_spl; 		}
+		else if (strcmp( gv.SS_list[iss], "flc")   == 0){
+			SS_objective[iss]  = obj_mpe_fl; 		}
+		else if (strcmp( gv.SS_list[iss], "occm")   == 0){
+			SS_objective[iss]  = obj_mpe_occm; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	
@@ -16634,6 +16642,10 @@ void TC_um_ext_PC_init(	                PC_type 			*PC_read,
 			PC_read[iss]  = obj_ume_aug; 		    }
         else if (strcmp( gv.SS_list[iss], "spl") == 0){
 			PC_read[iss]  = obj_ume_spl; 		    }
+		else if (strcmp( gv.SS_list[iss], "flc")   == 0){
+			PC_read[iss]  = obj_mpe_fl; 		        }
+		else if (strcmp( gv.SS_list[iss], "occm")   == 0){
+			PC_read[iss]  = obj_mpe_occm; 		        }
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	
