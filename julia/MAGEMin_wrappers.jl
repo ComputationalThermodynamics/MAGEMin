@@ -186,6 +186,12 @@ end
         Solid fraction [vol].
     frac_F_vol : T
         Fluid fraction [vol].
+    entropy_S : T
+        Entropy of solid [J/K].
+    entropy_M : T
+        Entropy of melt [J/K].
+    entropy_F : T
+        Entropy of fluid [J/K].
     alpha : Vector{T}
         Thermal expansivity.
     V : T
@@ -324,6 +330,10 @@ struct gmin_struct{T,I}
     frac_M_vol   :: T
     frac_S_vol   :: T
     frac_F_vol   :: T
+
+    entropy_S      :: T
+    entropy_M      :: T
+    entropy_F      :: T
 
     # Solid, melt, fluid densities
     alpha       :: Vector{T}
@@ -2295,6 +2305,10 @@ function create_gmin_struct(DB, gv, time; name_solvus = false)
     frac_S_vol   = stb.frac_S_vol
     frac_F_vol   = stb.frac_F_vol
 
+    entropy_S = stb.entropy_S
+    entropy_M = stb.entropy_M
+    entropy_F = stb.entropy_F
+
     # Solid, melt, fluid densities
     alpha   = [stb.alpha]
     V       = stb.V
@@ -2390,6 +2404,7 @@ function create_gmin_struct(DB, gv, time; name_solvus = false)
                 frac_M, frac_S, frac_F,
                 frac_M_wt, frac_S_wt, frac_F_wt,
                 frac_M_vol, frac_S_vol, frac_F_vol,
+                entropy_S, entropy_M, entropy_F,
                 alpha, V, #=cp,=# s_cp,
                 rho, rho_M, rho_S, rho_F, eta_M,
                 fO2, dQFM, aH2O, aSiO2, aTiO2, aAl2O3, aMgO, aFeO,

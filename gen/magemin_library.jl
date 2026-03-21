@@ -1191,6 +1191,9 @@ struct stb_systems
     bulk_F::Ptr{Cdouble}
     frac_F::Cdouble
     rho_F::Cdouble
+    entropy_S::Cdouble
+    entropy_M::Cdouble
+    entropy_F::Cdouble
     bulk_S_wt::Ptr{Cdouble}
     frac_S_wt::Cdouble
     frac_S_vol::Cdouble

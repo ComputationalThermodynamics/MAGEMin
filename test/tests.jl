@@ -27,6 +27,8 @@ sys_in  = "wt"
 out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, scp = 1, dT=1.5)
 Finalize_MAGEMin(data)
 
+out.SS_vec[1].entropy * out.ph_frac[1] + out.SS_vec[2].entropy * out.ph_frac[2] + out.SS_vec[3].entropy * out.ph_frac[3] + out.SS_vec[4].entropy * out.ph_frac[4]+out.PP_vec[1].entropy * out.ph_frac[5] + out.PP_vec[2].entropy * out.ph_frac[6] + out.PP_vec[3].entropy * out.ph_frac[7]
+
 using MAGEMin_C
 data        =   Initialize_MAGEMin("ig", verbose=-1);
 test        =   0         #KLB1
