@@ -137,7 +137,8 @@ void reset_output_struct(		global_variable 	 gv,
 	sp[0].buffer_n				 = gv.buffer_n;
 
 	sp[0].alpha				 	 = gv.system_expansivity;
-	sp[0].V				 	 	 = gv.system_volume*10.0;	
+	sp[0].V				 	 	 = gv.system_volume;	
+	sp[0].V_cm3mol				 = gv.system_volume_cm3mol;	
 	sp[0].cp				 	 = gv.system_cp;	
 	sp[0].entropy				 = gv.system_entropy;
 	sp[0].enthalpy				 = gv.system_enthalpy;
@@ -470,7 +471,7 @@ void fill_output_struct(		global_variable 	 gv,
 	
 	reset_output_struct(gv, z_b, sp);
 
-	for (j = 0; j < gv.len_ox; j++){
+	for (j = 0; j < nox; j++){
 		strcpy(sp[0].oxides[j],gv.ox[j]);	
 		strcpy(sp[0].elements[j],z_b.elName[j]);	
 		sp[0].G 				+= z_b.bulk_rock[j]*gv.gam_tot[j];
@@ -480,7 +481,6 @@ void fill_output_struct(		global_variable 	 gv,
 		sp[0].bulk[i] 	 		 = z_b.bulk_rock[i];
 		sp[0].gamma[i] 	 		 = gv.gam_tot[i];
 	}
-
 	double n_at_bulk = 0.0;
 	for (i = 0; i < nox; i++){
 		n_at_bulk += z_b.bulk_rock[i] * z_b.apo[i];
@@ -622,8 +622,6 @@ void fill_output_struct(		global_variable 	 gv,
 						sp[0].frac_M_vol		    = 1.0;
 					}
 					else{
-						// printf("cp[i].phase_entropy = %lf\n", cp[i].phase_entropy);
-						// printf("cp[i].ss_n_mol = %lf\n", cp[i].ss_n_mol);
 						sp[0].entropy_M 			= cp[i].phase_entropy*cp[i].ss_n_mol;
 						sp[0].frac_M 				= cp[i].ss_n_mol;
 						sp[0].frac_M_wt				= cp[i].ss_n_wt;

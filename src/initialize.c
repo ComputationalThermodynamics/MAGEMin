@@ -702,6 +702,7 @@ global_variable reset_gv(					global_variable 	 gv,
 	gv.system_entropy     = 0.;
 	gv.system_enthalpy    = 0.;
 	gv.system_volume   	  = 0.;
+	gv.system_volume_cm3mol = 0.;
 	gv.system_cp    	  = 0.;
 	gv.system_expansivity = 0.;
 	gv.system_bulkModulus = 0.;

@@ -924,7 +924,6 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 			}
 		}
 	}
-
 	z_b->bulk_rock_cat  = malloc (gv.len_ox * sizeof (double) ); 
 	z_b->bulk_rock  	= malloc (gv.len_ox * sizeof (double) ); 
 	z_b->nzEl_array 	= malloc (gv.len_ox * sizeof (int) ); 

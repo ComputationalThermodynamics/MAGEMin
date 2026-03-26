@@ -287,6 +287,7 @@ typedef struct global_variables {
 	double   system_Vp;
 	double   system_Vs;
 	double   system_volume;
+	double   system_volume_cm3mol;
 
 	double 	 system_fO2;
 	double   system_deltaQFM;
@@ -762,6 +763,7 @@ typedef struct stb_systems {
 	double  s_cp;
 	double  cp_wt;
 	double  V;
+	double  V_cm3mol;
 	
 	double  entropy;
 	double  enthalpy;
