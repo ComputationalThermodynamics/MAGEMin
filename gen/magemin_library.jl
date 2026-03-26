@@ -1172,7 +1172,7 @@ struct stb_systems
     s_cp::Cdouble
     cp_wt::Cdouble
     V::Cdouble
-    V_cm3mol::Cdouble
+    V_cm3::Cdouble
     entropy::Cdouble
     enthalpy::Cdouble
     bulkMod::Cdouble

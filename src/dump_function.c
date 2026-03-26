@@ -137,8 +137,8 @@ void reset_output_struct(		global_variable 	 gv,
 	sp[0].buffer_n				 = gv.buffer_n;
 
 	sp[0].alpha				 	 = gv.system_expansivity;
-	sp[0].V				 	 	 = gv.system_volume;	
-	sp[0].V_cm3mol				 = gv.system_volume_cm3mol;	
+	sp[0].V				 	 	 = gv.system_volume_cm3mol;	
+	sp[0].V_cm3				 	 = gv.system_volume*1e6;	
 	sp[0].cp				 	 = gv.system_cp;	
 	sp[0].entropy				 = gv.system_entropy;
 	sp[0].enthalpy				 = gv.system_enthalpy;

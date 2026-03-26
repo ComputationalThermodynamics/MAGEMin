@@ -763,7 +763,7 @@ typedef struct stb_systems {
 	double  s_cp;
 	double  cp_wt;
 	double  V;
-	double  V_cm3mol;
+	double  V_cm3;
 	
 	double  entropy;
 	double  enthalpy;

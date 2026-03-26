@@ -1460,7 +1460,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 	double P 			  = z_b.P;					/** PC function uses the z_b structure this is why the Pressure is saved here */
 	double T 			  = z_b.T;					/** PC function uses the z_b structure this is why the Pressure is saved here */
 	double sum_volume     = 0.0;
-	double sum_volume_cm3mol = 0.0;
+	double sum_volume_cm3 = 0.0;
 	double sum_volume_sol = 0.0;
 	double sum_solid_n_wt = 0.0;
 	double dGdTPP, dGdTMP, dG2dT2, dGdP, dG2dP2, dG2dP2_N, dGdP_N;// dGdP_P0,
@@ -1572,7 +1572,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 			/** get sum of volume*fraction*factor to calculate vol% from mol% */
 			// sum_volume += cp[i].volume*cp[i].ss_n_mol*cp[i].factor;
 			sum_volume 		+= cp[i].ss_n_wt/cp[i].phase_density;
-			sum_volume_cm3mol += cp[i].ss_n_mol*cp[i].volume*10.0;
+			sum_volume_cm3 += cp[i].ss_n_mol*cp[i].volume*10.0;
 
 			if (strcmp( cp[i].name, "liq") != 0 && strcmp( cp[i].name, "fl") != 0){
 				// sum_volume_sol 		+= cp[i].volume*cp[i].ss_n_mol*cp[i].factor;
@@ -1669,7 +1669,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 			/** get sum of volume*fraction*factor to calculate vol% from mol% */
 			// sum_volume 			+= PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor;
 			sum_volume 		+= gv.pp_n_wt[i]/PP_ref_db[i].phase_density;
-			sum_volume_cm3mol += gv.pp_n_mol[i]*PP_ref_db[i].volume*10.0;
+			sum_volume_cm3 += gv.pp_n_mol[i]*PP_ref_db[i].volume*10.0;
 
 			if (strcmp( gv.PP_list[i], "H2O") != 0 && strcmp( gv.PP_list[i], "O2") != 0){
 				// sum_volume_sol 		+= PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor;
@@ -1754,7 +1754,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 	}
 	gv.solid_density 	   /= sum_solid_n_wt;
 	gv.system_volume 		= sum_volume;
-	gv.system_volume_cm3mol 	= sum_volume_cm3mol;
+	gv.system_volume_cm3mol 	= sum_volume_cm3;
 	G = 0.0;
 	for (int j = 0; j < gv.len_ox; j++){
 		G += z_b.bulk_rock[j]*gv.gam_tot[j];
