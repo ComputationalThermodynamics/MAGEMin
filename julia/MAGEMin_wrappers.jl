@@ -186,6 +186,12 @@ end
         Solid fraction [vol].
     frac_F_vol : T
         Fluid fraction [vol].
+    entropy_S : T
+        Entropy of solid [J/K].
+    entropy_M : T
+        Entropy of melt [J/K].
+    entropy_F : T
+        Entropy of fluid [J/K].
     alpha : Vector{T}
         Thermal expansivity.
     V : T
@@ -325,9 +331,14 @@ struct gmin_struct{T,I}
     frac_S_vol   :: T
     frac_F_vol   :: T
 
+    entropy_S      :: T
+    entropy_M      :: T
+    entropy_F      :: T
+
     # Solid, melt, fluid densities
     alpha       :: Vector{T}
     V           :: T
+    V_cm3    :: T
     s_cp        :: Vector{T}
     rho         :: T
     rho_M       :: T
@@ -1630,20 +1641,27 @@ function convertBulk4MAGEMin(   bulk_in     :: T1,
     oxide_config = Dict(
         "mp"   => (core=["SiO2", "Al2O3", "CaO", "MgO", "FeO", "K2O", "Na2O"],  
                    optional=["TiO2", "O", "MnO", "H2O"]),
+
         "mb"   => (core=["SiO2", "Al2O3", "CaO", "MgO", "FeO", "K2O", "Na2O", "H2O"],
                    optional=["TiO2", "O"]),
+
         "mbe"  => (core=["SiO2", "Al2O3", "CaO", "MgO", "FeO", "K2O", "Na2O", "H2O"],
                    optional=["TiO2", "O"]),
-        "ig"   => (core=["SiO2", "Al2O3", "CaO", "MgO", "FeO", "Na2O", "H2O"],
-                   optional=["K2O", "Cr2O3", "TiO2", "O"]),
-        "igad" => (core=["SiO2", "Al2O3", "CaO", "MgO", "FeO", "K2O", "Na2O", "H2O"],
-                   optional=["Cr2O3", "TiO2", "O"]),
-        "um"   => (core=["SiO2", "Al2O3", "MgO", "FeO", "H2O", "S"],
-                   optional=["O"]),
-        "ume"  => (core=["SiO2", "Al2O3", "MgO", "FeO", "H2O", "Na2O", "CaO"],
-                   optional=["S", "O", "Cr2O3", "CO2"]),
-        "mpe"  => (core=["SiO2", "Al2O3", "CaO", "MgO", "FeO", "K2O", "Na2O", "H2O"],
-                   optional=["CO2", "S", "TiO2", "O", "MnO"]),
+
+        "ig"   => (core=["SiO2", "Al2O3", "CaO", "MgO", "FeO", "Na2O"],
+                   optional=["K2O", "Cr2O3", "TiO2", "O", "H2O"]),
+
+        "igad" => (core=["SiO2", "Al2O3", "CaO", "MgO", "FeO", "K2O", "Na2O"],
+                   optional=["Cr2O3", "TiO2", "O", "H2O"]),
+
+        "um"   => (core=["SiO2", "Al2O3", "MgO", "FeO"],
+                   optional=["S", "O", "H2O"]),
+
+        "ume"  => (core=["SiO2", "Al2O3", "MgO", "FeO", "Na2O", "CaO"],
+                   optional=["S", "O", "Cr2O3", "CO2", "H2O"]),
+                   
+        "mpe"  => (core=["SiO2", "Al2O3", "CaO", "MgO", "FeO", "K2O", "Na2O"],
+                   optional=["CO2", "S", "TiO2", "O", "MnO", "H2O"]),
     )
 
     # Get core and optional indices for current database
@@ -2288,9 +2306,14 @@ function create_gmin_struct(DB, gv, time; name_solvus = false)
     frac_S_vol   = stb.frac_S_vol
     frac_F_vol   = stb.frac_F_vol
 
+    entropy_S = stb.entropy_S
+    entropy_M = stb.entropy_M
+    entropy_F = stb.entropy_F
+
     # Solid, melt, fluid densities
     alpha   = [stb.alpha]
     V       = stb.V
+    V_cm3 = stb.V_cm3
     # cp      = stb.cp
     s_cp    = [stb.s_cp]
     rho     = stb.rho
@@ -2383,7 +2406,8 @@ function create_gmin_struct(DB, gv, time; name_solvus = false)
                 frac_M, frac_S, frac_F,
                 frac_M_wt, frac_S_wt, frac_F_wt,
                 frac_M_vol, frac_S_vol, frac_F_vol,
-                alpha, V, #=cp,=# s_cp,
+                entropy_S, entropy_M, entropy_F,
+                alpha, V,V_cm3, s_cp,
                 rho, rho_M, rho_S, rho_F, eta_M,
                 fO2, dQFM, aH2O, aSiO2, aTiO2, aAl2O3, aMgO, aFeO,
                 n_PP, n_SS, n_mSS,

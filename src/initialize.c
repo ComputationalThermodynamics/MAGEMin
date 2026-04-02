@@ -122,7 +122,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.9.0 18/03/2026]");	/** MAGEMin version 																*/
+	strcpy(gv.version,"1.9.1 02/04/2026]");		/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
@@ -702,6 +702,7 @@ global_variable reset_gv(					global_variable 	 gv,
 	gv.system_entropy     = 0.;
 	gv.system_enthalpy    = 0.;
 	gv.system_volume   	  = 0.;
+	gv.system_volume_cm3mol = 0.;
 	gv.system_cp    	  = 0.;
 	gv.system_expansivity = 0.;
 	gv.system_bulkModulus = 0.;
@@ -790,6 +791,10 @@ void reset_sp(						global_variable 	 gv,
 	sp[0].frac_S_wt						= 0.0;
 	sp[0].frac_M_wt						= 0.0;
 	sp[0].frac_F_wt						= 0.0;
+
+	sp[0].entropy_S						= 0.0;
+	sp[0].entropy_M						= 0.0;
+	sp[0].entropy_F						= 0.0;
 
 	sp[0].frac_S_vol					= 0.0;
 	sp[0].frac_M_vol					= 0.0;

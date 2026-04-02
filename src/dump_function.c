@@ -137,7 +137,8 @@ void reset_output_struct(		global_variable 	 gv,
 	sp[0].buffer_n				 = gv.buffer_n;
 
 	sp[0].alpha				 	 = gv.system_expansivity;
-	sp[0].V				 	 	 = gv.system_volume*10.0;	
+	sp[0].V				 	 	 = gv.system_volume_cm3mol;	
+	sp[0].V_cm3				 	 = gv.system_volume*1e6;	
 	sp[0].cp				 	 = gv.system_cp;	
 	sp[0].entropy				 = gv.system_entropy;
 	sp[0].enthalpy				 = gv.system_enthalpy;
@@ -184,6 +185,9 @@ void reset_output_struct(		global_variable 	 gv,
 	sp[0].frac_S_vol			 = 0.0;
 	sp[0].frac_M_vol			 = 0.0;
 	sp[0].frac_F_vol			 = 0.0;
+	sp[0].entropy_S				 = 0.0;
+	sp[0].entropy_M				 = 0.0;
+	sp[0].entropy_F				 = 0.0;
 	sp[0].rho_S				 	 = 0.0;
 	sp[0].rho_M				 	 = 0.0;
 	sp[0].rho_F				 	 = 0.0;
@@ -467,7 +471,7 @@ void fill_output_struct(		global_variable 	 gv,
 	
 	reset_output_struct(gv, z_b, sp);
 
-	for (j = 0; j < gv.len_ox; j++){
+	for (j = 0; j < nox; j++){
 		strcpy(sp[0].oxides[j],gv.ox[j]);	
 		strcpy(sp[0].elements[j],z_b.elName[j]);	
 		sp[0].G 				+= z_b.bulk_rock[j]*gv.gam_tot[j];
@@ -477,7 +481,6 @@ void fill_output_struct(		global_variable 	 gv,
 		sp[0].bulk[i] 	 		 = z_b.bulk_rock[i];
 		sp[0].gamma[i] 	 		 = gv.gam_tot[i];
 	}
-
 	double n_at_bulk = 0.0;
 	for (i = 0; i < nox; i++){
 		n_at_bulk += z_b.bulk_rock[i] * z_b.apo[i];
@@ -613,11 +616,13 @@ void fill_output_struct(		global_variable 	 gv,
 			if (strcmp( cp[i].name, "liq") == 0 || strcmp( cp[i].name, "fl") == 0 ){
 				if (strcmp( cp[i].name, "liq") == 0){
 					if (gv.n_phase == 1){
+						sp[0].entropy_M 			= cp[i].phase_entropy;
 						sp[0].frac_M 				= 1.0;
 						sp[0].frac_M_wt				= 1.0;
 						sp[0].frac_M_vol		    = 1.0;
 					}
 					else{
+						sp[0].entropy_M 			= cp[i].phase_entropy*cp[i].ss_n_mol;
 						sp[0].frac_M 				= cp[i].ss_n_mol;
 						sp[0].frac_M_wt				= cp[i].ss_n_wt;
 					}
@@ -632,6 +637,7 @@ void fill_output_struct(		global_variable 	 gv,
 
 				}
 				else{
+					sp[0].entropy_F 			= cp[i].phase_entropy*cp[i].ss_n_mol;
 					sp[0].frac_F 				= cp[i].ss_n_mol;
 					sp[0].frac_F_wt 			= cp[i].ss_n_wt;
 					sp[0].rho_F  				= cp[i].phase_density;
@@ -642,6 +648,7 @@ void fill_output_struct(		global_variable 	 gv,
 				}
 			}
 			else {
+				sp[0].entropy_S 			   += cp[i].phase_entropy*cp[i].ss_n_mol;
 				sp[0].frac_S 				   += cp[i].ss_n_mol;
 				sp[0].frac_S_wt				   += cp[i].ss_n_wt;
 				sp[0].rho_S  				   += cp[i].ss_n_wt*cp[i].phase_density;
@@ -703,6 +710,7 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].PP[m].Vs 		 = sqrt(PP_ref_db[i].phase_shearModulus/10.0/(PP_ref_db[i].phase_density/1e3));	
 
 			if  (strcmp( gv.PP_list[i], "H2O") != 0){
+				sp[0].entropy_S 	+= PP_ref_db[i].phase_entropy*gv.pp_n_mol[i];
 				sp[0].frac_S 		+= gv.pp_n_mol[i];
 				sp[0].frac_S_wt		+= gv.pp_n_wt[i];
 				sp[0].rho_S  		+= gv.pp_n_wt[i]*PP_ref_db[i].phase_density;
@@ -712,6 +720,7 @@ void fill_output_struct(		global_variable 	 gv,
 				}
 			}
 			if  (strcmp( gv.PP_list[i], "H2O") == 0){
+				sp[0].entropy_F 	= PP_ref_db[i].phase_entropy*gv.pp_n_mol[i];
 				sp[0].frac_F 		= gv.pp_n_mol[i];
 				sp[0].frac_F_wt		= gv.pp_n_wt[i];
 				sp[0].rho_F  		= PP_ref_db[i].phase_density;
@@ -825,6 +834,10 @@ void fill_output_struct(		global_variable 	 gv,
 	sp[0].frac_F /= sum;
 	sp[0].frac_M /= sum;
 	sp[0].frac_S /= sum;
+
+	// sp[0].entropy_S /= sum;
+	// sp[0].entropy_M /= sum;
+	// sp[0].entropy_F /= sum;
 
 	sum = sp[0].frac_F_wt + sp[0].frac_M_wt + sp[0].frac_S_wt;
 

@@ -55,7 +55,7 @@ function get_mineral_name(db, ss, SS_vec)
         if ss == "sp"
             if x[2] - 0.5 > 0.0;        mineral_name = "sp";
             else                        mineral_name = "smt";    end
-        elseif ss == "spl"
+        elseif ss == "spl" && db == "ume"
             if x[3] - 0.5 > 0.0;        mineral_name = "cm";
             elseif x[2] - 0.5 > 0.0;    mineral_name = "mgt";
             else                        mineral_name = "spl";    end

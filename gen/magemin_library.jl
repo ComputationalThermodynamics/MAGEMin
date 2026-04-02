@@ -772,6 +772,7 @@ mutable struct global_variables
     system_Vp::Cdouble
     system_Vs::Cdouble
     system_volume::Cdouble
+    system_volume_cm3mol::Cdouble
     system_fO2::Cdouble
     system_deltaQFM::Cdouble
     system_aH2O::Cdouble
@@ -1171,6 +1172,7 @@ struct stb_systems
     s_cp::Cdouble
     cp_wt::Cdouble
     V::Cdouble
+    V_cm3::Cdouble
     entropy::Cdouble
     enthalpy::Cdouble
     bulkMod::Cdouble
@@ -1191,6 +1193,9 @@ struct stb_systems
     bulk_F::Ptr{Cdouble}
     frac_F::Cdouble
     rho_F::Cdouble
+    entropy_S::Cdouble
+    entropy_M::Cdouble
+    entropy_F::Cdouble
     bulk_S_wt::Ptr{Cdouble}
     frac_S_wt::Cdouble
     frac_S_vol::Cdouble
