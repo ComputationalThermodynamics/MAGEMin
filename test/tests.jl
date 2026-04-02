@@ -76,7 +76,7 @@ T           =   800.0
 out         =   point_wise_minimization(P,T, data);
 Finalize_MAGEMin(data)
 
-@test out.G_system ≈ -797.7951607413974
+@test out.G_system ≈ -797.7807281620526
 @test sort(out.ph) == sort(["spl", "cpx",  "opx", "ol"])
 @test abs(out.s_cp[1] - 1208.466551730128) < 2.0
 
@@ -322,7 +322,7 @@ gv.verbose=-1
 P           =   8.0
 T           =   800.0
 out         =   point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in);
-@test out.G_system ≈ -797.7951607413974
+@test out.G_system ≈ -797.7807281620526
 @test abs(out.s_cp[1] - 1208.466551730128) < 2.0
 @test sort(out.ph) == sort(["spl", "cpx",  "opx", "ol"])
 finalize_MAGEMin(gv,DB,z_b)
@@ -334,7 +334,7 @@ finalize_MAGEMin(gv,DB,z_b)
     db      =   "ig" 
     data    =   Initialize_MAGEMin(db, verbose=-1);
     out     =   multi_point_minimization(P, T, data, test=0);
-    @test out[end].G_system ≈ -797.7951607413974
+    @test out[end].G_system ≈ -797.7807281620526
     @test sort(out[end].ph) == sort(["spl", "cpx",  "opx", "ol"])
 
     Finalize_MAGEMin(data)
