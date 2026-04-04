@@ -1415,9 +1415,9 @@ global_variable compute_phase_mol_fraction(			global_variable 	 gv,
 	}
 
 
-	for (int i = 0; i < gv.len_ox; i++){
-		z_b.bulk_rock[i] = 0.0;
-	}
+	// for (int i = 0; i < gv.len_ox; i++){
+	// 	z_b.bulk_rock[i] = 0.0;
+	// }
 
 	/* normalize mol fractions */
 	for (int i = 0; i < gv.len_cp; i++){
@@ -1425,9 +1425,9 @@ global_variable compute_phase_mol_fraction(			global_variable 	 gv,
 			cp[i].ss_n_mol   /= sum_mol_tot;
 			cp[i].ss_n_wt    /= sum_wt_tot;
 
-			for (int j = 0; j < gv.len_ox; j++){
-				z_b.bulk_rock[j] += cp[i].ss_comp_mol[j] * cp[i].ss_n_mol;
-			}
+			// for (int j = 0; j < gv.len_ox; j++){
+			// 	z_b.bulk_rock[j] += cp[i].ss_comp_mol[j] * cp[i].ss_n_mol;
+			// }
 		}
 	}
 	for (int i = 0; i < gv.len_pp; i++){
@@ -1435,9 +1435,9 @@ global_variable compute_phase_mol_fraction(			global_variable 	 gv,
 			gv.pp_n_mol[i]   /= sum_mol_tot;
 			gv.pp_n_wt[i]    /= sum_wt_tot;
 
-			for (int j = 0; j < gv.len_ox; j++){
-				z_b.bulk_rock[j] += PP_ref_db[i].Comp_mol[j] * gv.pp_n_mol[i];
-			}
+			// for (int j = 0; j < gv.len_ox; j++){
+			// 	z_b.bulk_rock[j] += PP_ref_db[i].Comp_mol[j] * gv.pp_n_mol[i];
+			// }
 		}
 	}
 
