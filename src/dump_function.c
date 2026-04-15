@@ -651,11 +651,11 @@ void fill_output_struct(		global_variable 	 gv,
 				sp[0].entropy_S 			   += cp[i].phase_entropy*cp[i].ss_n_mol;
 				sp[0].frac_S 				   += cp[i].ss_n_mol;
 				sp[0].frac_S_wt				   += cp[i].ss_n_wt;
-				sp[0].rho_S  				   += cp[i].ss_n_wt*cp[i].phase_density;
 				for (j = 0; j < gv.len_ox; j++){
 					sp[0].bulk_S[j]	   		   += cp[i].ss_n_mol*cp[i].ss_comp_mol[j];
 					sp[0].bulk_S_wt[j]	   	   += cp[i].ss_n_wt*cp[i].ss_comp_wt[j];
 				}
+				sp[0].rho_S  				   += cp[i].ss_n_wt/cp[i].phase_density;
 			}
 
 			n 					+= 1;
@@ -713,7 +713,7 @@ void fill_output_struct(		global_variable 	 gv,
 				sp[0].entropy_S 	+= PP_ref_db[i].phase_entropy*gv.pp_n_mol[i];
 				sp[0].frac_S 		+= gv.pp_n_mol[i];
 				sp[0].frac_S_wt		+= gv.pp_n_wt[i];
-				sp[0].rho_S  		+= gv.pp_n_wt[i]*PP_ref_db[i].phase_density;
+				sp[0].rho_S  		+= gv.pp_n_wt[i]/PP_ref_db[i].phase_density;
 				for (j = 0; j < gv.len_ox; j++){
 					sp[0].bulk_S[j]	+= gv.pp_n_mol[i]*PP_ref_db[i].Comp_mol[j];
 					sp[0].bulk_S_wt[j]	+= gv.pp_n_wt[i]*PP_ref_db[i].Comp_wt[j];
@@ -789,9 +789,9 @@ void fill_output_struct(		global_variable 	 gv,
 
 
 	/* The following section normalizes the entries for S (solid), M (melt) and F (fluid) which are entries useful for geodynamic coupling */
-	// normalize rho_S and bulk_S
+	// normalize rho_S and bulk_S (use harmonic mean)
 	if (sp[0].frac_S > 0.0){
-		sp[0].rho_S  /= sp[0].frac_S_wt;
+		sp[0].rho_S  = sp[0].frac_S_wt / sp[0].rho_S;
 	}
 
 	sum = 0.0;
