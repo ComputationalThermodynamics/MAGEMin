@@ -1668,8 +1668,8 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 
 			/** get sum of volume*fraction*factor to calculate vol% from mol% */
 			// sum_volume 			+= PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor;
-			sum_volume 		+= gv.pp_n_wt[i]/PP_ref_db[i].phase_density;
-			sum_volume_cm3 += gv.pp_n_mol[i]*PP_ref_db[i].volume*10.0;
+			sum_volume 			+= gv.pp_n_wt[i]/PP_ref_db[i].phase_density;
+			sum_volume_cm3  	+= gv.pp_n_mol[i]*PP_ref_db[i].volume*10.0;
 
 			if (strcmp( gv.PP_list[i], "H2O") != 0 && strcmp( gv.PP_list[i], "O2") != 0){
 				// sum_volume_sol 		+= PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor;
@@ -1726,33 +1726,25 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 	gv.solid_shearModulus 	= 0.50 * s1S + 0.50 * (1.0/(s2S));
 	gv.solid_bulkModulus  	= 0.50 * b1S + 0.50 * (1.0/(b2S));
 
-	/* calculate density of the system */
-	sum_solid_n_wt = 0.0;
+	/* calculate thermodynamic properties of the system */
 	for (int i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1){
-			gv.system_density += cp[i].phase_density*cp[i].ss_n_wt;
 			gv.system_entropy += cp[i].phase_entropy*cp[i].ss_n_mol;//*cp[i].factor;
 			gv.system_cp 	  += cp[i].phase_cp*cp[i].ss_n_mol;
 			gv.system_expansivity 	  += cp[i].phase_expansivity*cp[i].ss_n_mol;
-			if (strcmp( cp[i].name, "liq") != 0 && strcmp( cp[i].name, "fl") != 0){
-				gv.solid_density += cp[i].phase_density*cp[i].ss_n_wt;
-				sum_solid_n_wt += cp[i].ss_n_wt;
-			}
 		}
 	}
 	for (int i = 0; i < gv.len_pp; i++){
 		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
-			gv.system_density += PP_ref_db[i].phase_density*gv.pp_n_wt[i];
 			gv.system_entropy += PP_ref_db[i].phase_entropy*gv.pp_n_mol[i];//*PP_ref_db[i].factor;		
 			gv.system_cp 	  += PP_ref_db[i].phase_cp*gv.pp_n_mol[i];	
 			gv.system_expansivity 	  += PP_ref_db[i].phase_expansivity*gv.pp_n_mol[i];	
-			if (strcmp( gv.PP_list[i], "H2O") != 0 && strcmp( gv.PP_list[i], "O2") != 0){		
-				gv.solid_density  += PP_ref_db[i].phase_density*gv.pp_n_wt[i];
-				sum_solid_n_wt += gv.pp_n_wt[i];
-			}
 		}
 	}
-	gv.solid_density 	   /= sum_solid_n_wt;
+	
+	/* calculate density from volume using harmonic mean: rho = 1 / sum(wt_frac/rho) */
+	gv.system_density 		= 1.0 / sum_volume;
+	gv.solid_density  		= 1.0 / sum_volume_sol;
 	gv.system_volume 		= sum_volume;
 	gv.system_volume_cm3mol 	= sum_volume_cm3;
 	G = 0.0;

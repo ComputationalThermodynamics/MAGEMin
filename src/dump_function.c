@@ -512,12 +512,11 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].ph_id[n] 		 = m;
 			sp[0].ph_id_db[n]    = cp[i].id;
 			sp[0].n_SS 			+= 1;
-			sp[0].cp_wt 		+= cp[i].phase_cp * cp[i].ss_n_wt * cp[i].factor;
+
 			G = 0.0;
 			for (int j = 0; j < gv.len_ox; j++){
-				G += cp[i].ss_comp[j]*gv.gam_tot[j];
+				G += cp[i].ss_comp_mol[j]*gv.gam_tot[j];
 			}
-			G *= cp[i].factor;
 
 			sp[0].SS[m].n_xeos   = cp[i].n_xeos;
 			sp[0].SS[m].n_em 	 = cp[i].n_em;
@@ -539,10 +538,11 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].SS[m].deltaG	 = cp[i].df;
 			sp[0].SS[m].V 		 = cp[i].volume*10.;
 			sp[0].SS[m].cp 		 = (cp[i].phase_cp * cp[i].factor)/phase_mass;
+			sp[0].cp_wt 		+= sp[0].SS[m].cp* cp[i].ss_n_wt;//cp[i].phase_cp * cp[i].ss_n_wt * cp[i].factor;
 			sp[0].SS[m].rho 	 = cp[i].phase_density;
 			sp[0].SS[m].alpha 	 = cp[i].phase_expansivity;
 			sp[0].SS[m].entropy  = cp[i].phase_entropy;
-			sp[0].SS[m].enthalpy = cp[i].phase_enthalpy;
+			sp[0].SS[m].enthalpy = cp[i].phase_entropy*z_b.T + G;
 			sp[0].SS[m].bulkMod  = cp[i].phase_bulkModulus/10.;
 			sp[0].SS[m].shearMod = cp[i].phase_shearModulus/10.;
 			sp[0].SS[m].Vp 		 = sqrt((cp[i].phase_bulkModulus/10. + 4.0/3.0*cp[i].phase_shearModulus/10.)/(cp[i].phase_density/1e3));
@@ -651,11 +651,11 @@ void fill_output_struct(		global_variable 	 gv,
 				sp[0].entropy_S 			   += cp[i].phase_entropy*cp[i].ss_n_mol;
 				sp[0].frac_S 				   += cp[i].ss_n_mol;
 				sp[0].frac_S_wt				   += cp[i].ss_n_wt;
-				sp[0].rho_S  				   += cp[i].ss_n_wt*cp[i].phase_density;
 				for (j = 0; j < gv.len_ox; j++){
 					sp[0].bulk_S[j]	   		   += cp[i].ss_n_mol*cp[i].ss_comp_mol[j];
 					sp[0].bulk_S_wt[j]	   	   += cp[i].ss_n_wt*cp[i].ss_comp_wt[j];
 				}
+				sp[0].rho_S  				   += cp[i].ss_n_wt/cp[i].phase_density;
 			}
 
 			n 					+= 1;
@@ -679,7 +679,6 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].ph_id[n] 		 = m;
 			sp[0].ph_id_db[n]    = i;
 			sp[0].n_PP 			+= 1;
-			sp[0].cp_wt 		+= PP_ref_db[i].phase_cp * gv.pp_n_wt[i] * PP_ref_db[i].factor;
 
 			sum_oxygens = 0.0;
 			for (j = 0; j < gv.len_ox; j++){
@@ -692,18 +691,25 @@ void fill_output_struct(		global_variable 	 gv,
 				sp[0].PP[m].Comp_apfu[gv.O_id]    += sum_oxygens;	
 			}
 
-			phase_mass = calculate_mass_phase( nox, z_b, sp[0].SS[m].Comp);
+			phase_mass = calculate_mass_phase( nox, z_b, sp[0].PP[m].Comp);
 
 			sp[0].PP[m].nOx 	 = gv.len_ox;
 			sp[0].PP[m].f 		 = PP_ref_db[i].factor;
-			sp[0].PP[m].G 		 = PP_ref_db[i].gbase;
+			G = 0.0;
+			for (int j = 0; j < gv.len_ox; j++){
+				G += PP_ref_db[i].Comp_mol[j]*gv.gam_tot[j];
+			}
+			sp[0].PP[m].G 		 = G;
+
 			sp[0].PP[m].deltaG	 = PP_ref_db[i].gb_lvl;
 			sp[0].PP[m].V 		 = PP_ref_db[i].volume*10.;
 			sp[0].PP[m].cp 		 = (PP_ref_db[i].phase_cp * PP_ref_db[i].factor)/phase_mass;
+			sp[0].cp_wt 		+= sp[0].PP[m].cp* gv.pp_n_wt[i];//PP_ref_db[i].phase_cp * gv.pp_n_wt[i] * PP_ref_db[i].factor;
+
 			sp[0].PP[m].rho 	 = PP_ref_db[i].phase_density;
 			sp[0].PP[m].alpha 	 = PP_ref_db[i].phase_expansivity;
 			sp[0].PP[m].entropy  = PP_ref_db[i].phase_entropy;
-			sp[0].PP[m].enthalpy = PP_ref_db[i].phase_enthalpy;
+			sp[0].PP[m].enthalpy = PP_ref_db[i].phase_entropy*z_b.T + G;
 			sp[0].PP[m].bulkMod  = PP_ref_db[i].phase_bulkModulus/10.;
 			sp[0].PP[m].shearMod = PP_ref_db[i].phase_shearModulus/10.;
 			sp[0].PP[m].Vp 		 = sqrt((PP_ref_db[i].phase_bulkModulus/10. + 4.0/3.0*PP_ref_db[i].phase_shearModulus/10.)/(PP_ref_db[i].phase_density/1e3));
@@ -713,7 +719,7 @@ void fill_output_struct(		global_variable 	 gv,
 				sp[0].entropy_S 	+= PP_ref_db[i].phase_entropy*gv.pp_n_mol[i];
 				sp[0].frac_S 		+= gv.pp_n_mol[i];
 				sp[0].frac_S_wt		+= gv.pp_n_wt[i];
-				sp[0].rho_S  		+= gv.pp_n_wt[i]*PP_ref_db[i].phase_density;
+				sp[0].rho_S  		+= gv.pp_n_wt[i]/PP_ref_db[i].phase_density;
 				for (j = 0; j < gv.len_ox; j++){
 					sp[0].bulk_S[j]	+= gv.pp_n_mol[i]*PP_ref_db[i].Comp_mol[j];
 					sp[0].bulk_S_wt[j]	+= gv.pp_n_wt[i]*PP_ref_db[i].Comp_wt[j];
@@ -789,9 +795,9 @@ void fill_output_struct(		global_variable 	 gv,
 
 
 	/* The following section normalizes the entries for S (solid), M (melt) and F (fluid) which are entries useful for geodynamic coupling */
-	// normalize rho_S and bulk_S
+	// normalize rho_S and bulk_S (use harmonic mean)
 	if (sp[0].frac_S > 0.0){
-		sp[0].rho_S  /= sp[0].frac_S_wt;
+		sp[0].rho_S  = sp[0].frac_S_wt / sp[0].rho_S;
 	}
 
 	sum = 0.0;
@@ -869,7 +875,7 @@ void fill_output_struct(		global_variable 	 gv,
 
 
 	/* compute cp as J/K/kg for given bulk-rock composition */
-	sp[0].s_cp 					= sp[0].cp_wt/mass_bulk*1e6;
+	sp[0].s_cp 					= sp[0].cp_wt;///mass_bulk*1e6;
 
 	mSS_output_struct(	gv,
 						splx_data,
