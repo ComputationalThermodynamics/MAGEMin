@@ -515,9 +515,9 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].cp_wt 		+= cp[i].phase_cp * cp[i].ss_n_wt * cp[i].factor;
 			G = 0.0;
 			for (int j = 0; j < gv.len_ox; j++){
-				G += cp[i].ss_comp[j]*gv.gam_tot[j];
+				G += cp[i].ss_comp_mol[j]*gv.gam_tot[j];
 			}
-			G *= cp[i].factor;
+			// G *= cp[i].factor;
 
 			sp[0].SS[m].n_xeos   = cp[i].n_xeos;
 			sp[0].SS[m].n_em 	 = cp[i].n_em;
@@ -696,7 +696,12 @@ void fill_output_struct(		global_variable 	 gv,
 
 			sp[0].PP[m].nOx 	 = gv.len_ox;
 			sp[0].PP[m].f 		 = PP_ref_db[i].factor;
-			sp[0].PP[m].G 		 = PP_ref_db[i].gbase;
+			G = 0.0;
+			for (int j = 0; j < gv.len_ox; j++){
+				G += PP_ref_db[i].Comp_mol[j]*gv.gam_tot[j];
+			}
+			sp[0].PP[m].G 		 = G;
+
 			sp[0].PP[m].deltaG	 = PP_ref_db[i].gb_lvl;
 			sp[0].PP[m].V 		 = PP_ref_db[i].volume*10.;
 			sp[0].PP[m].cp 		 = (PP_ref_db[i].phase_cp * PP_ref_db[i].factor)/phase_mass;
