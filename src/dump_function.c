@@ -512,7 +512,7 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].ph_id[n] 		 = m;
 			sp[0].ph_id_db[n]    = cp[i].id;
 			sp[0].n_SS 			+= 1;
-			sp[0].cp_wt 		+= cp[i].phase_cp * cp[i].ss_n_wt * cp[i].factor;
+
 			G = 0.0;
 			for (int j = 0; j < gv.len_ox; j++){
 				G += cp[i].ss_comp_mol[j]*gv.gam_tot[j];
@@ -538,6 +538,7 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].SS[m].deltaG	 = cp[i].df;
 			sp[0].SS[m].V 		 = cp[i].volume*10.;
 			sp[0].SS[m].cp 		 = (cp[i].phase_cp * cp[i].factor)/phase_mass;
+			sp[0].cp_wt 		+= sp[0].SS[m].cp* cp[i].ss_n_wt;//cp[i].phase_cp * cp[i].ss_n_wt * cp[i].factor;
 			sp[0].SS[m].rho 	 = cp[i].phase_density;
 			sp[0].SS[m].alpha 	 = cp[i].phase_expansivity;
 			sp[0].SS[m].entropy  = cp[i].phase_entropy;
@@ -678,7 +679,6 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].ph_id[n] 		 = m;
 			sp[0].ph_id_db[n]    = i;
 			sp[0].n_PP 			+= 1;
-			sp[0].cp_wt 		+= PP_ref_db[i].phase_cp * gv.pp_n_wt[i] * PP_ref_db[i].factor;
 
 			sum_oxygens = 0.0;
 			for (j = 0; j < gv.len_ox; j++){
@@ -691,7 +691,7 @@ void fill_output_struct(		global_variable 	 gv,
 				sp[0].PP[m].Comp_apfu[gv.O_id]    += sum_oxygens;	
 			}
 
-			phase_mass = calculate_mass_phase( nox, z_b, sp[0].SS[m].Comp);
+			phase_mass = calculate_mass_phase( nox, z_b, sp[0].PP[m].Comp);
 
 			sp[0].PP[m].nOx 	 = gv.len_ox;
 			sp[0].PP[m].f 		 = PP_ref_db[i].factor;
@@ -704,6 +704,8 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].PP[m].deltaG	 = PP_ref_db[i].gb_lvl;
 			sp[0].PP[m].V 		 = PP_ref_db[i].volume*10.;
 			sp[0].PP[m].cp 		 = (PP_ref_db[i].phase_cp * PP_ref_db[i].factor)/phase_mass;
+			sp[0].cp_wt 		+= sp[0].PP[m].cp* gv.pp_n_wt[i];//PP_ref_db[i].phase_cp * gv.pp_n_wt[i] * PP_ref_db[i].factor;
+
 			sp[0].PP[m].rho 	 = PP_ref_db[i].phase_density;
 			sp[0].PP[m].alpha 	 = PP_ref_db[i].phase_expansivity;
 			sp[0].PP[m].entropy  = PP_ref_db[i].phase_entropy;
@@ -873,7 +875,7 @@ void fill_output_struct(		global_variable 	 gv,
 
 
 	/* compute cp as J/K/kg for given bulk-rock composition */
-	sp[0].s_cp 					= sp[0].cp_wt/mass_bulk*1e6;
+	sp[0].s_cp 					= sp[0].cp_wt;///mass_bulk*1e6;
 
 	mSS_output_struct(	gv,
 						splx_data,

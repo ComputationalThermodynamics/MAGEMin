@@ -1668,8 +1668,8 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 
 			/** get sum of volume*fraction*factor to calculate vol% from mol% */
 			// sum_volume 			+= PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor;
-			sum_volume 		+= gv.pp_n_wt[i]/PP_ref_db[i].phase_density;
-			sum_volume_cm3 += gv.pp_n_mol[i]*PP_ref_db[i].volume*10.0;
+			sum_volume 			+= gv.pp_n_wt[i]/PP_ref_db[i].phase_density;
+			sum_volume_cm3  	+= gv.pp_n_mol[i]*PP_ref_db[i].volume*10.0;
 
 			if (strcmp( gv.PP_list[i], "H2O") != 0 && strcmp( gv.PP_list[i], "O2") != 0){
 				// sum_volume_sol 		+= PP_ref_db[i].volume*gv.pp_n_mol[i]*PP_ref_db[i].factor;
