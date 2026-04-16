@@ -517,7 +517,6 @@ void fill_output_struct(		global_variable 	 gv,
 			for (int j = 0; j < gv.len_ox; j++){
 				G += cp[i].ss_comp_mol[j]*gv.gam_tot[j];
 			}
-			// G *= cp[i].factor;
 
 			sp[0].SS[m].n_xeos   = cp[i].n_xeos;
 			sp[0].SS[m].n_em 	 = cp[i].n_em;
@@ -542,7 +541,7 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].SS[m].rho 	 = cp[i].phase_density;
 			sp[0].SS[m].alpha 	 = cp[i].phase_expansivity;
 			sp[0].SS[m].entropy  = cp[i].phase_entropy;
-			sp[0].SS[m].enthalpy = cp[i].phase_enthalpy;
+			sp[0].SS[m].enthalpy = cp[i].phase_entropy*z_b.T + G;
 			sp[0].SS[m].bulkMod  = cp[i].phase_bulkModulus/10.;
 			sp[0].SS[m].shearMod = cp[i].phase_shearModulus/10.;
 			sp[0].SS[m].Vp 		 = sqrt((cp[i].phase_bulkModulus/10. + 4.0/3.0*cp[i].phase_shearModulus/10.)/(cp[i].phase_density/1e3));
@@ -708,7 +707,7 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].PP[m].rho 	 = PP_ref_db[i].phase_density;
 			sp[0].PP[m].alpha 	 = PP_ref_db[i].phase_expansivity;
 			sp[0].PP[m].entropy  = PP_ref_db[i].phase_entropy;
-			sp[0].PP[m].enthalpy = PP_ref_db[i].phase_enthalpy;
+			sp[0].PP[m].enthalpy = PP_ref_db[i].phase_entropy*z_b.T + G;
 			sp[0].PP[m].bulkMod  = PP_ref_db[i].phase_bulkModulus/10.;
 			sp[0].PP[m].shearMod = PP_ref_db[i].phase_shearModulus/10.;
 			sp[0].PP[m].Vp 		 = sqrt((PP_ref_db[i].phase_bulkModulus/10. + 4.0/3.0*PP_ref_db[i].phase_shearModulus/10.)/(PP_ref_db[i].phase_density/1e3));
