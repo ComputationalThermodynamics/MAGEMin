@@ -405,14 +405,14 @@ struct gmin_struct{T,I}
     status          :: I           # status of calculations
 end
 
-struct light_gmin_struct{T <: Float32, I <: Int8} 
+struct light_gmin_struct{T <: Float32, I <: Int8, S <: String} 
     P_kbar      :: T                    # Pressure in kbar
     T_C         :: T                    # Temperature in Celsius
    
     ph_frac_wt  :: Vector{T}            # phase fractions
-    ph_type     :: Vector{I}            # type of phase (SS or PP)
-    ph_id_db    :: Vector{I}            # id of phase
-
+    # ph_type     :: Vector{I}            # type of phase (SS or PP)
+    # ph_id_db    :: Vector{I}            # id of phase
+    ph_name     :: Vector{S}            # name of phase
     frac_S_wt   :: T
     frac_F_wt   :: T
     frac_M_wt   :: T
@@ -426,8 +426,38 @@ struct light_gmin_struct{T <: Float32, I <: Int8}
     rho_M       :: T
 
     s_cp        :: Vector{T}
-    alpha       :: Vector{T}
+    # alpha       :: Vector{T}
 end
+
+
+
+struct light_gmin_struct_ig{T <: Float32, I <: Int8, S <: String} 
+    P_kbar      :: T                    # Pressure in kbar
+    T_C         :: T                    # Temperature in Celsius
+   
+    ph_frac_wt  :: Vector{T}            # phase fractions
+    # ph_type     :: Vector{I}            # type of phase (SS or PP)
+    # ph_id_db    :: Vector{I}            # id of phase
+    ph_name     :: Vector{S}   
+    frac_S_wt   :: T
+    frac_F_wt   :: T
+    frac_M_wt   :: T
+
+    bulk_S_wt   :: Vector{T}
+    bulk_F_wt   :: Vector{T}
+    bulk_M_wt   :: Vector{T}
+
+    rho_S       :: T
+    rho_F       :: T
+    rho_M       :: T
+
+    s_cp        :: Vector{T}
+    mSS_vec     :: Vector{LibMAGEMin.mSS_data}
+    bulk_res_norm   :: T    # bulk residual norm
+end
+
+
+
 
 """
     ss_infos
@@ -916,6 +946,7 @@ function single_point_minimization(     P           ::  T1,
                                         T           ::  T1,
                                         MAGEMin_db  ::  MAGEMin_Data;
                                         light       ::  Bool                            = false,
+                                        light_ig    ::  Bool                            = false,
                                         name_solvus ::  Bool                            = false,
                                         fixed_bulk  ::  Bool                            = false,
                                         test        ::  Int64                           = 0, # if using a build-in test case,
@@ -946,6 +977,7 @@ function single_point_minimization(     P           ::  T1,
                                                 T,
                                                 MAGEMin_db;
                                                 light       =   light,
+                                                light_ig    =   light_ig,
                                                 name_solvus =   name_solvus,
                                                 fixed_bulk  =   fixed_bulk,
                                                 test        =   test,
@@ -1038,6 +1070,7 @@ function multi_point_minimization(P           ::  T2,
                                   T           ::  T2,
                                   MAGEMin_db  ::  MAGEMin_Data;
                                   light       ::  Bool                            = false,
+                                  light_ig    ::  Bool                            = false,
                                   name_solvus ::  Bool                            = false,
                                   fixed_bulk  ::  Bool                            = false,
                                   test        ::  Int64                           = 0, # if using a build-in test case,
@@ -1084,8 +1117,16 @@ function multi_point_minimization(P           ::  T2,
     end
 
     # initialize vectors
-    Out_PT = light ? Vector{light_gmin_struct{Float32, Int8}}(undef, length(P)) : Vector{gmin_struct{Float64, Int64}}(undef, length(P))
-    # main loop
+    if light && light_ig
+        Out_PT = Vector{light_gmin_struct_ig{Float32, Int8, String}}(undef, length(P))
+    elseif light && !light_ig
+        Out_PT = Vector{light_gmin_struct{Float32, Int8, String}}(undef, length(P))
+    else
+        Out_PT = Vector{gmin_struct{Float64, Int64}}(undef, length(P))
+    end
+
+    # Out_PT = light ? Vector{light_gmin_struct{Float32, Int8}}(undef, length(P)) : Vector{gmin_struct{Float64, Int64}}(undef, length(P))
+    # # main loop
     if progressbar
         progr = Progress(length(P), desc="Computing $(length(P)) points...") # progress meter
     end
@@ -1110,7 +1151,7 @@ function multi_point_minimization(P           ::  T2,
 
         buffer      = isnothing(B) ? 0.0 :      B[i] 
         out         = point_wise_minimization(  P[i], T[i], gv, z_b, DB, splx_data;
-                                                light=light, buffer_n=buffer, name_solvus=name_solvus, fixed_bulk=fixed_bulk, Gi=Gi, W=W, scp=scp, dT=dT, iguess=ig, rm_list=rm_list)
+                                                light=light, light_ig=light_ig, buffer_n=buffer, name_solvus=name_solvus, fixed_bulk=fixed_bulk, Gi=Gi, W=W, scp=scp, dT=dT, iguess=ig, rm_list=rm_list)
 
         Out_PT[i]   = deepcopy(out)
 
@@ -1767,6 +1808,7 @@ function point_wise_minimization(   P       ::Float64,
                                     DB,
                                     splx_data;
                                     light       = false,
+                                    light_ig   = false,
                                     name_solvus = false,
                                     fixed_bulk  = false,
                                     buffer_n    = 0.0,
@@ -2038,9 +2080,11 @@ function point_wise_minimization(   P       ::Float64,
     LibMAGEMin.PrintOutput(gv, 0, 1, DB, time, z_b);
 
     # Transform results to a more convenient julia struct
-    if light == true
-        out = deepcopy(create_light_gmin_struct(DB,gv));
-    else    
+    if light && light_ig
+        out = deepcopy(create_light_gmin_struct_ig(DB,gv));
+    elseif light && !light_ig
+         out = deepcopy(create_light_gmin_struct(DB,gv));
+    else  
         out = deepcopy(create_gmin_struct(DB, gv, time; name_solvus = name_solvus));
     end
     # here we compute specific heat capacity using reactions
@@ -2440,19 +2484,19 @@ end
     out : light_gmin_struct{Float32, Int8}
         Lightweight structure containing essential minimization results.
 """
-function create_light_gmin_struct(DB,gv)
+function create_light_gmin_struct(DB,gv; name_solvus = true)
 
     stb         = unsafe_load(DB.sp)
     n_ph        =  stb.n_ph        # total # of stable phases
     n_PP        =  stb.n_PP        # number of pure phases
     n_SS        =  stb.n_SS        # number of solid solutions
-
+    database    = unsafe_string(stb.database)
     P_kbar      = Float32(stb.P)
     T_C         = Float32(stb.T-273.15)
 
     ph_frac_wt  =  Float32.(unsafe_wrap(Vector{Cdouble},  stb.ph_frac_wt,         n_ph))
-    ph_type     =  Int8.(unsafe_wrap(Vector{Cint},        stb.ph_type,            n_ph))
-    ph_id_db    =  Int8.(unsafe_wrap(Vector{Cint},        stb.ph_id_db,           n_ph))
+    # ph_type     =  Int8.(unsafe_wrap(Vector{Cint},        stb.ph_type,            n_ph))
+    # ph_id_db    =  Int8.(unsafe_wrap(Vector{Cint},        stb.ph_id_db,           n_ph))
 
     frac_F_wt   = Float32.(stb.frac_F_wt)
     frac_S_wt   = Float32.(stb.frac_S_wt)
@@ -2467,15 +2511,104 @@ function create_light_gmin_struct(DB,gv)
     rho_M       = Float32.(stb.rho_M)
 
     s_cp        = Float32.([stb.s_cp])
-    alpha       = Float32.([stb.alpha])
-    out = light_gmin_struct{Float32,Int8}(  P_kbar, T_C, ph_frac_wt, ph_type, ph_id_db,
+    # alpha       = Float32.([stb.alpha])
+
+    # println("ph_frac $ph_frac ph_frac_wt $ph_frac_wt")
+    ph          =  unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, stb.ph, n_ph)) # stable phases
+
+    # extract info about compositional variables of the solution models:
+    SS_vec  = convert.(LibMAGEMin.SS_data, unsafe_wrap(Vector{LibMAGEMin.stb_SS_phase},stb.SS,n_SS))
+
+    if name_solvus == true
+        for i=1:n_SS
+            ph[i] = get_mineral_name(database, ph[i], SS_vec[i])
+        end
+    end
+
+
+    out = light_gmin_struct{Float32,Int8, String}(  P_kbar, T_C, ph_frac_wt, ph,
                                             frac_S_wt, frac_F_wt, frac_M_wt,
                                             bulk_S_wt, bulk_F_wt, bulk_M_wt,
                                             rho_S, rho_F, rho_M,
-                                            s_cp,alpha)
+                                            s_cp)
 
    return out
 end
+
+
+
+"""
+    create_light_gmin_struct_ig(DB, gv)
+
+    Extract a lightweight output of a pointwise MAGEMin optimization into a Julia structure (Float32/Int8 types).
+
+    Parameters
+    ----------
+    DB : LibMAGEMin.Database
+        Database structure.
+    gv : LibMAGEMin.global_variables
+        Global variables structure.
+
+    Returns
+    -------
+    out : light_gmin_struct{Float32, Int8}
+        Lightweight structure containing essential minimization results.
+"""
+function create_light_gmin_struct_ig(DB,gv; name_solvus = true)
+
+    stb         = unsafe_load(DB.sp)
+    n_ph        =  stb.n_ph        # total # of stable phases
+    n_PP        =  stb.n_PP        # number of pure phases
+    n_SS        =  stb.n_SS        # number of solid solutions
+    database    = unsafe_string(stb.database)
+        n_mSS    =  stb.n_mSS        # number of solid solutions
+
+    P_kbar      = Float32(stb.P)
+    T_C         = Float32(stb.T-273.15)
+
+    ph_frac_wt  =  Float32.(unsafe_wrap(Vector{Cdouble},  stb.ph_frac_wt,         n_ph))
+    # ph_type     =  Int8.(unsafe_wrap(Vector{Cint},        stb.ph_type,            n_ph))
+    # ph_id_db    =  Int8.(unsafe_wrap(Vector{Cint},        stb.ph_id_db,           n_ph))
+
+    frac_F_wt   = Float32.(stb.frac_F_wt)
+    frac_S_wt   = Float32.(stb.frac_S_wt)
+    frac_M_wt   = Float32.(stb.frac_M_wt)
+
+    bulk_S_wt   = Float32.(unsafe_wrap(Vector{Cdouble},stb.bulk_S_wt, gv.len_ox))
+    bulk_F_wt   = Float32.(unsafe_wrap(Vector{Cdouble},stb.bulk_F_wt, gv.len_ox))
+    bulk_M_wt   = Float32.(unsafe_wrap(Vector{Cdouble},stb.bulk_M_wt, gv.len_ox))
+
+    rho_S       = Float32.(stb.rho_S)
+    rho_F       = Float32.(stb.rho_F)
+    rho_M       = Float32.(stb.rho_M)
+
+    s_cp        = Float32.([stb.s_cp])
+    # alpha       = Float32.([stb.alpha])
+
+    # println("ph_frac $ph_frac ph_frac_wt $ph_frac_wt")
+    ph          =  unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, stb.ph, n_ph)) # stable phases
+
+    # extract info about compositional variables of the solution models:
+    SS_vec  = convert.(LibMAGEMin.SS_data, unsafe_wrap(Vector{LibMAGEMin.stb_SS_phase},stb.SS,n_SS))
+
+    if name_solvus == true
+        for i=1:n_SS
+            ph[i] = get_mineral_name(database, ph[i], SS_vec[i])
+        end
+    end
+    # extract information about metastable solution phases
+    mSS_vec = convert.(LibMAGEMin.mSS_data, unsafe_wrap(Vector{LibMAGEMin.mstb_SS_phase},stb.mSS,n_mSS))
+    bulk_res_norm   =  Float32.(gv.BR_norm)
+
+    out = light_gmin_struct_ig{Float32,Int8, String}(   P_kbar, T_C, ph_frac_wt, ph,
+                                                frac_S_wt, frac_F_wt, frac_M_wt,
+                                                bulk_S_wt, bulk_F_wt, bulk_M_wt,
+                                                rho_S, rho_F, rho_M,
+                                                s_cp, mSS_vec, bulk_res_norm)
+
+   return out
+end
+
 
 # Print brief info about pointwise calculation result
 function show(io::IO, g::gmin_struct)
