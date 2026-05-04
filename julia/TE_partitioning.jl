@@ -52,6 +52,10 @@ function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Flo
                 elseif x[4] - 0.5 > 0.0;    mineral_name = "sp";
                 elseif x[2] - 0.5 > 0.0;    mineral_name = "mgt";
                 else                        mineral_name = "spl";    end
+            elseif ss == "pig" || ss == "Na-cpx"
+                mineral_name = "cpx";
+            elseif ss == "gl" || ss == "act" || ss == "amp" || ss == "cumm" || ss == "tr"
+                mineral_name = "amp";
             elseif ss == "fsp"
                 if x[2] - 0.5 > 0.0;        mineral_name = "afs";
                 else                        mineral_name = "pl";    end
@@ -67,6 +71,10 @@ function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Flo
             if ss == "sp"
                 if x[2] - 0.5 > 0.0;        mineral_name = "sp";
                 else                        mineral_name = "smt";    end
+            elseif ss == "gl" || ss == "act" || ss == "amp" || ss == "cumm" || ss == "tr"
+                mineral_name = "amp";
+            elseif ss == "omph" || ss == "dio" || ss == "jd"
+                mineral_name = "cpx";
             elseif ss == "spl"
                 if x[3] - 0.5 > 0.0;        mineral_name = "cm";
                 elseif x[2] - 0.5 > 0.0;    mineral_name = "mgt";
@@ -83,8 +91,6 @@ function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Flo
             elseif ss == "ilm"
                 if 1.0 - x[1] > 0.5;        mineral_name = "hem";
                 else                        mineral_name = "FeTiOx";   end 
-            elseif ss == "dio"
-                mineral_name = "cpx";
             elseif ss == "occm"
                 if x[2] > 0.5;              mineral_name = "sid";
                 elseif x[3] > 0.5;          mineral_name = "ank";  
