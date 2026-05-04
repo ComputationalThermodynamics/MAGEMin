@@ -97,8 +97,7 @@ end
     sys_in  = "wt"
     out_hT  = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, light=true);
 
-    @test sort(out_hT.ph_id_db) == sort([1, 1, 3, 4, 6, 10, 12])
-    @test out_hT.ph_type == [1, 1, 1, 1, 1, 0, 0]
+    @test sort(out_hT.ph_name) == sort(["amp", "bi", "cpx", "ep", "fl", "q", "sph"])
 
     Finalize_MAGEMin(data)
 end
@@ -113,8 +112,7 @@ end
     sys_in  = "wt"
     out_hT  = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, light=true, light_ig = true);
 
-    @test sort(out_hT.ph_id_db) == sort([1, 1, 3, 4, 6, 10, 12])
-    @test out_hT.ph_type == [1, 1, 1, 1, 1, 0, 0]
+    @test sort(out_hT.ph_name) == sort(["amp", "bi", "cpx", "ep", "fl", "q", "sph"])
 
     Finalize_MAGEMin(data)
 end

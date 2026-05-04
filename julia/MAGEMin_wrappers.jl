@@ -410,8 +410,6 @@ struct light_gmin_struct{T <: Float32, I <: Int8, S <: String}
     T_C         :: T                    # Temperature in Celsius
    
     ph_frac_wt  :: Vector{T}            # phase fractions
-    # ph_type     :: Vector{I}            # type of phase (SS or PP)
-    # ph_id_db    :: Vector{I}            # id of phase
     ph_name     :: Vector{S}            # name of phase
     frac_S_wt   :: T
     frac_F_wt   :: T
@@ -426,7 +424,6 @@ struct light_gmin_struct{T <: Float32, I <: Int8, S <: String}
     rho_M       :: T
 
     s_cp        :: Vector{T}
-    # alpha       :: Vector{T}
 end
 
 
@@ -436,8 +433,6 @@ struct light_gmin_struct_ig{T <: Float32, I <: Int8, S <: String}
     T_C         :: T                    # Temperature in Celsius
    
     ph_frac_wt  :: Vector{T}            # phase fractions
-    # ph_type     :: Vector{I}            # type of phase (SS or PP)
-    # ph_id_db    :: Vector{I}            # id of phase
     ph_name     :: Vector{S}   
     frac_S_wt   :: T
     frac_F_wt   :: T
@@ -1717,10 +1712,10 @@ function convertBulk4MAGEMin(   bulk_in     :: T1,
     end
 
     # Set optional oxides to 0 if near zero
-    id1 = findall(MAGEMin_bulk[d] .< 2e-5 .&& MAGEMin_bulk[d] .> -2e-5)
-    if ~isempty(id1)
-        MAGEMin_bulk[d[id1]] .= 0.0;
-    end
+    # id1 = findall(MAGEMin_bulk[d] .< 2e-5 .&& MAGEMin_bulk[d] .> -2e-5)
+    # if ~isempty(id1)
+    #     MAGEMin_bulk[d[id1]] .= 0.0;
+    # end
     MAGEMin_bulk .= normalize(MAGEMin_bulk).*100.0
 
     return MAGEMin_bulk, MAGEMin_ox;
@@ -2004,10 +1999,13 @@ function point_wise_minimization(   P       ::Float64,
         end
 
         # add pseudocompounds
+        pp_active_ids   = Int[]
         n_mSS = length(Gi)
         for i = 1:n_mSS
     
-            if Gi[i].ph_type == "ss" || Gi[i].ph_type == "ss_em"
+            if Gi[i].ph_type == "pp"
+                push!(pp_active_ids, Gi[i].ph_id+1)
+            elseif Gi[i].ph_type == "ss" || Gi[i].ph_type == "ss_em"
                 ph          = Gi[i].ph_name
                 ph_id       = Gi[i].ph_id+1
                 n_xeos      = SS_ref_db[ph_id].n_xeos
@@ -2061,6 +2059,16 @@ function point_wise_minimization(   P       ::Float64,
                     tot_pc    .+= 1;
                     id_pc     .+= 1;
                 end
+            end
+        end
+
+        # deactivate pure phases not in the initial guess list
+        pp_flags_ig = unsafe_wrap(Vector{Ptr{Int32}},gv.pp_flags, gv.len_pp);
+        flags_off   = zeros(Int32,5);
+        for i = 1:gv.len_pp
+            if !(i in pp_active_ids)
+                id = abs(i)
+                unsafe_copyto!(pp_flags_ig[id], pointer(flags_off), 5)
             end
         end
     
@@ -2897,8 +2905,6 @@ function point_wise_minimization_with_guess(    mSS_vec ::  Vector{LibMAGEMin.mS
     gv, z_b, DB, splx_data = pwm_init(P, T, gv, z_b, DB, splx_data);
     gv.verbose = -1
 
-
-    # println("reasearch group: $rg")
     ############################################################################
     # retrieve Solution Phases information
     rg          = unsafe_string(gv.research_group)
