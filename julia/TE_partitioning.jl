@@ -175,13 +175,18 @@ function retrieve_eval_rules_TE()
     return in_eval_TE, out_eval_TE
 end
 
+
 function convert_SS_eval_TE(str)
     pattern = r"\[:([A-Za-z_][A-Za-z0-9_]*)\]"
     matches = collect(eachmatch(pattern, str))
 
-    if !isempty(matches)
-        name = matches[1].captures[1]
-        str = replace(str, matches[1].match => "out.SS_vec[out.SS_syms[:$name]]")
+    seen = Set{String}()
+    for m in matches
+        raw = m.match
+        raw in seen && continue
+        push!(seen, raw)
+        name = m.captures[1]
+        str = replace(str, raw => "out.SS_vec[out.SS_syms[:$name]]")
     end
 
     return str
