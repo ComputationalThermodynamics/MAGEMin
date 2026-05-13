@@ -873,6 +873,32 @@ end
     @test norm(out.ph_frac) - 0.45682499466457954 < 0.01
 end
 
+@testset "test matrix (2D grid) input for multi_point_minimization" begin
+    data    = Initialize_MAGEMin("ig", verbose=-1);
+    Xoxides = ["SiO2","Al2O3","CaO","MgO","FeO","Fe2O3","K2O","Na2O","TiO2","Cr2O3","H2O"]
+
+    # 2×2 P-T grid
+    P_grid  = [8.0  9.0; 10.0 11.0]
+    T_grid  = [800.0 850.0; 900.0 950.0]
+
+    # per-node bulk composition matrix: 4 rows (one per grid node, column-major order), 11 columns
+    X1      = [48.43, 15.19, 11.57, 10.13, 6.65, 1.64, 0.59, 1.87, 0.68, 0.0, 3.0]
+    X2      = [50.0,  14.0,  10.0,  12.0,  7.0,  1.5,  0.6,  2.0,  0.7,  0.0, 2.0]
+    X3      = [47.0,  16.0,  12.0,   9.0,  6.0,  2.0,  0.5,  1.5,  0.6,  0.0, 4.0]
+    X4      = [52.0,  13.0,   9.0,  11.0,  8.0,  1.2,  0.7,  2.2,  0.8,  0.0, 1.5]
+    X_grid  = [X1'; X2'; X3'; X4']   # (4, 11)
+
+    out     = multi_point_minimization(P_grid, T_grid, data, X=X_grid, Xoxides=Xoxides, sys_in="wt", progressbar=false)
+
+    @test size(out) == (2, 2)
+    @test out[1,1].P_kbar ≈ 8.0
+    @test out[1,1].T_C    ≈ 800.0
+    @test out[2,2].P_kbar ≈ 11.0
+    @test out[2,2].T_C    ≈ 950.0
+
+    Finalize_MAGEMin(data)
+end
+
 #=
 # The following part is not really a test yet, but more an example of how to use initial guesses
 

@@ -994,6 +994,86 @@ end
 
 
 """
+    multi_point_minimization(P, T, MAGEMin_db; X=nothing, ...)
+
+    Matrix overload for 2D model grids. `P` and `T` are matrices of the same
+    size (e.g. `(nx, ny)`) representing a spatial grid of pressures [kbar] and
+    temperatures [°C]. They are flattened internally, computed in parallel, and
+    the results are returned as a matrix of the same shape.
+
+    The bulk-rock composition `X` can be:
+    - `nothing` (use a built-in test case, set via `test=`)
+    - `Vector{Float64}` of length `noxides` — same composition for every node
+    - `Matrix{Float64}` of size `(nx*ny, noxides)` — per-node composition,
+      where row `i` corresponds to the linearised index of the grid
+
+    All other keyword arguments are forwarded to the vector-based method.
+
+    Examples
+    --------
+    ```julia
+    data    = Initialize_MAGEMin("ig", verbose=false);
+    Xoxides = ["SiO2","Al2O3","CaO","MgO","FeO","Fe2O3","K2O","Na2O","TiO2","Cr2O3","H2O"]
+    X       = [48.43, 15.19, 11.57, 10.13, 6.65, 1.64, 0.59, 1.87, 0.68, 0.0, 3.0]
+
+    # 2-D P-T grid (uniform bulk)
+    P_grid  = [8.0  9.0; 10.0 11.0]   # (2×2)
+    T_grid  = [800.0 850.0; 900.0 950.0]
+    out     = multi_point_minimization(P_grid, T_grid, data, X=X, Xoxides=Xoxides, sys_in="wt")
+    # out is a (2×2) Matrix{gmin_struct}
+
+    Finalize_MAGEMin(data)
+    ```
+"""
+function multi_point_minimization(P           ::  AbstractMatrix{Float64},
+                                  T           ::  AbstractMatrix{Float64},
+                                  MAGEMin_db  ::  MAGEMin_Data;
+                                  light       ::  Bool                            = false,
+                                  light_ig    ::  Bool                            = false,
+                                  name_solvus ::  Bool                            = false,
+                                  fixed_bulk  ::  Bool                            = false,
+                                  test        ::  Int64                           = 0,
+                                  X           ::  Union{Nothing, Vector{Float64}, Matrix{Float64}} = nothing,
+                                  B           ::  Union{Nothing, Vector{Float64}} = nothing,
+                                  G           ::  Union{Nothing, Vector{LibMAGEMin.mSS_data},Vector{Vector{LibMAGEMin.mSS_data}}}  = nothing,
+                                  scp         ::  Int64                           = 0,
+                                  dT          ::  Float64                         = 2.0,
+                                  iguess      ::  Union{Vector{Bool},Bool}        = false,
+                                  rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
+                                  W           ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}}  = nothing,
+                                  Xoxides                                         = Vector{String},
+                                  sys_in      ::  String                          = "mol",
+                                  rg          ::  String                          = "tc",
+                                  progressbar ::  Bool                            = true,
+                                  callback_fn ::  Union{Nothing, Function}        = nothing,
+                                  callback_int::  Int64                           = 1)
+
+    @assert size(P) == size(T) "P and T matrices must have the same size"
+    grid_size = size(P)
+
+    Pvec = vec(P)
+    Tvec = vec(T)
+
+    Xvec = if isa(X, Matrix{Float64})
+        @assert size(X, 1) == length(Pvec) "X must have $(length(Pvec)) rows (one per grid node)"
+        [X[i, :] for i in 1:length(Pvec)]
+    else
+        X   # nothing or Vector{Float64} — handled by the vector method
+    end
+
+    out_vec = multi_point_minimization(Pvec, Tvec, MAGEMin_db;
+                                       light=light, light_ig=light_ig, name_solvus=name_solvus,
+                                       fixed_bulk=fixed_bulk, test=test, X=Xvec, B=B, G=G,
+                                       scp=scp, dT=dT, iguess=iguess, rm_list=rm_list, W=W,
+                                       Xoxides=Xoxides, sys_in=sys_in, rg=rg,
+                                       progressbar=progressbar, callback_fn=callback_fn,
+                                       callback_int=callback_int)
+
+    return reshape(out_vec, grid_size)
+end
+
+
+"""
     multi_point_minimization(P, T, MAGEMin_db; light=false, name_solvus=false, fixed_bulk=false, test=0, X=nothing, B=nothing, G=nothing, scp=0, dT=2.0, iguess=false, rm_list=nothing, W=nothing, Xoxides=Vector{String}, sys_in="mol", rg="tc", progressbar=true, callback_fn=nothing, callback_int=1)
 
     Perform (parallel) MAGEMin calculations for a range of points as a function of pressure, temperature and/or composition.
