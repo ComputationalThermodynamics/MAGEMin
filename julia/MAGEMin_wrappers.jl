@@ -405,10 +405,10 @@ struct gmin_struct{T,I}
     status          :: I           # status of calculations
 end
 
-struct light_gmin_struct{T <: Float32, I <: Int8, S <: String} 
+struct light_gmin_struct{T <: Float32, I <: Int8, S <: String}
     P_kbar      :: T                    # Pressure in kbar
     T_C         :: T                    # Temperature in Celsius
-   
+
     ph_frac_wt  :: Vector{T}            # phase fractions
     ph_name     :: Vector{S}            # name of phase
     frac_S_wt   :: T
@@ -422,21 +422,26 @@ struct light_gmin_struct{T <: Float32, I <: Int8, S <: String}
     rho_S       :: T
     rho_F       :: T
     rho_M       :: T
+    eta_M       :: T
 
     s_cp        :: Vector{T}
 end
 
 
 
-struct light_gmin_struct_ig{T <: Float32, I <: Int8, S <: String} 
+struct light_gmin_struct_ig{T <: Float32, I <: Int8, S <: String}
     P_kbar      :: T                    # Pressure in kbar
     T_C         :: T                    # Temperature in Celsius
-   
+
     ph_frac_wt  :: Vector{T}            # phase fractions
-    ph_name     :: Vector{S}   
+    ph_name     :: Vector{S}
     frac_S_wt   :: T
     frac_F_wt   :: T
     frac_M_wt   :: T
+
+    frac_S_vol  :: T
+    frac_F_vol  :: T
+    frac_M_vol  :: T
 
     bulk_S_wt   :: Vector{T}
     bulk_F_wt   :: Vector{T}
@@ -445,6 +450,7 @@ struct light_gmin_struct_ig{T <: Float32, I <: Int8, S <: String}
     rho_S       :: T
     rho_F       :: T
     rho_M       :: T
+    eta_M       :: T
 
     s_cp        :: Vector{T}
     mSS_vec     :: Vector{LibMAGEMin.mSS_data}
@@ -2598,6 +2604,16 @@ function create_light_gmin_struct(DB,gv; name_solvus = true)
     rho_F       = Float32.(stb.rho_F)
     rho_M       = Float32.(stb.rho_M)
 
+    oxides      = unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, stb.oxides, gv.len_ox))
+    bulk_M      = unsafe_wrap(Vector{Cdouble}, stb.bulk_M_wt, gv.len_ox)
+    frac_M      = stb.frac_M_wt
+
+    if frac_M > 0.0
+        eta_M = Float32(compute_melt_viscosity_G08(oxides, bulk_M, Float64(T_C); A = -4.55))
+    else
+        eta_M = Float32(NaN)
+    end
+
     s_cp        = Float32.([stb.s_cp])
     # alpha       = Float32.([stb.alpha])
 
@@ -2617,7 +2633,7 @@ function create_light_gmin_struct(DB,gv; name_solvus = true)
     out = light_gmin_struct{Float32,Int8, String}(  P_kbar, T_C, ph_frac_wt, ph,
                                             frac_S_wt, frac_F_wt, frac_M_wt,
                                             bulk_S_wt, bulk_F_wt, bulk_M_wt,
-                                            rho_S, rho_F, rho_M,
+                                            rho_S, rho_F, rho_M, eta_M,
                                             s_cp)
 
    return out
@@ -2662,6 +2678,10 @@ function create_light_gmin_struct_ig(DB,gv; name_solvus = true)
     frac_S_wt   = Float32.(stb.frac_S_wt)
     frac_M_wt   = Float32.(stb.frac_M_wt)
 
+    frac_S_vol  = Float32.(stb.frac_S_vol)
+    frac_F_vol  = Float32.(stb.frac_F_vol)
+    frac_M_vol  = Float32.(stb.frac_M_vol)
+
     bulk_S_wt   = Float32.(unsafe_wrap(Vector{Cdouble},stb.bulk_S_wt, gv.len_ox))
     bulk_F_wt   = Float32.(unsafe_wrap(Vector{Cdouble},stb.bulk_F_wt, gv.len_ox))
     bulk_M_wt   = Float32.(unsafe_wrap(Vector{Cdouble},stb.bulk_M_wt, gv.len_ox))
@@ -2669,6 +2689,16 @@ function create_light_gmin_struct_ig(DB,gv; name_solvus = true)
     rho_S       = Float32.(stb.rho_S)
     rho_F       = Float32.(stb.rho_F)
     rho_M       = Float32.(stb.rho_M)
+
+    oxides      = unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, stb.oxides, gv.len_ox))
+    bulk_M      = unsafe_wrap(Vector{Cdouble}, stb.bulk_M_wt, gv.len_ox)
+    frac_M      = stb.frac_M_wt
+
+    if frac_M > 0.0
+        eta_M = Float32(compute_melt_viscosity_G08(oxides, bulk_M, Float64(T_C); A = -4.55))
+    else
+        eta_M = Float32(NaN)
+    end
 
     s_cp        = Float32.([stb.s_cp])
     # alpha       = Float32.([stb.alpha])
@@ -2690,8 +2720,9 @@ function create_light_gmin_struct_ig(DB,gv; name_solvus = true)
 
     out = light_gmin_struct_ig{Float32,Int8, String}(   P_kbar, T_C, ph_frac_wt, ph,
                                                 frac_S_wt, frac_F_wt, frac_M_wt,
+                                                frac_S_vol, frac_F_vol, frac_M_vol,
                                                 bulk_S_wt, bulk_F_wt, bulk_M_wt,
-                                                rho_S, rho_F, rho_M,
+                                                rho_S, rho_F, rho_M, eta_M,
                                                 s_cp, mSS_vec, bulk_res_norm)
 
    return out
