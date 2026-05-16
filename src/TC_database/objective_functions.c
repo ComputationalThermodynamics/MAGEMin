@@ -6481,8 +6481,6 @@ void p2x_ig_cd(void *SS_ref_db, double eps){
 	d->iguess[0]  = d->p[1];
 	d->iguess[1]  = d->p[2];
 	
-	if (d->z_em[2]  == 0.0){ d->iguess[1]  = eps;}
-		
 	for (int i = 0; i < d->n_xeos; i++){
 		if (d->iguess[i] < d->bounds[i][0]){
 			d->iguess[i] = d->bounds[i][0];
@@ -6509,10 +6507,6 @@ void p2x_ig_cpx(void *SS_ref_db, double eps){
 	d->iguess[7]  = d->p[5]/2.0;	
 	d->iguess[8]  = d->p[9];	
 
-	if (d->z_em[3]  == 0.0){ d->iguess[6]  = eps;}
-	if (d->z_em[4]  == 0.0){ d->iguess[5]  = eps;}
-	if (d->z_em[5]  == 0.0){ d->iguess[7]  = eps;}
-		
 	for (int i = 0; i < d->n_xeos; i++){
 		if (d->iguess[i] < d->bounds[i][0]){
 			d->iguess[i] = d->bounds[i][0];
@@ -6558,9 +6552,7 @@ void p2x_ig_fl(void *SS_ref_db, double eps){
 	d->iguess[7]  = d->p[8];
 	d->iguess[8]  = d->p[9];
 	d->iguess[9]  = d->p[10];
-	
-	if (d->z_em[10] == 0.0){ d->iguess[9]  = eps;}
-		
+
 	for (int i = 0; i < d->n_xeos; i++){
 		if (d->iguess[i] < d->bounds[i][0]){
 			d->iguess[i] = d->bounds[i][0];
@@ -6765,9 +6757,7 @@ void p2x_ig_liq(void *SS_ref_db, double eps){
 	d->iguess[8]  = d->p[9]/(1.0+3./4.*d->p[10]);
 	d->iguess[9]  = d->p[10];
 	d->iguess[10] = d->p[11]/(1.0+3./4.*d->p[10]);
-		
-	if (d->z_em[11] == 0.0){ d->iguess[10] = eps;}
-		
+
 	for (int i = 0; i < d->n_xeos; i++){
 		if (d->iguess[i] < d->bounds[i][0]){
 			d->iguess[i] = d->bounds[i][0];
@@ -6789,9 +6779,7 @@ void p2x_ig_mu(void *SS_ref_db, double eps){
 	d->iguess[2]  = d->p[5];
 	d->iguess[3]  = d->p[3];
 	d->iguess[4]  = d->p[4];
-
-	if (d->z_em[5]  == 0.0){ d->iguess[2]  = eps;}
-		
+	
 	for (int i = 0; i < d->n_xeos; i++){
 		if (d->iguess[i] < d->bounds[i][0]){
 			d->iguess[i] = d->bounds[i][0];
@@ -6836,11 +6824,7 @@ void p2x_ig_opx(void *SS_ref_db, double eps){
 	d->iguess[5] = d->p[6]/2.0;
 	d->iguess[6] = d->p[5];
 	d->iguess[7] = d->p[8];
-	
-	if (d->z_em[5]  == 0.0){ d->iguess[6]  = eps;}
-	if (d->z_em[4]  == 0.0){ d->iguess[4]  = eps;}
-	if (d->z_em[6]  == 0.0){ d->iguess[5]  = eps;}
-		
+
 	for (int i = 0; i < d->n_xeos; i++){
 		if (d->iguess[i] < d->bounds[i][0]){
 			d->iguess[i] = d->bounds[i][0];
@@ -9266,10 +9250,6 @@ void p2x_igad_cpx(void *SS_ref_db, double eps){
 	d->iguess[7]  = d->p[5]/2.0;	
 	d->iguess[8]  = d->p[9];	
 
-	if (d->z_em[3]  == 0.0){ d->iguess[6]  = eps;}
-	if (d->z_em[4]  == 0.0){ d->iguess[5]  = eps;}
-	if (d->z_em[5]  == 0.0){ d->iguess[7]  = eps;}
-		
 	for (int i = 0; i < d->n_xeos; i++){
 		if (d->iguess[i] < d->bounds[i][0]){
 			d->iguess[i] = d->bounds[i][0];
@@ -9357,11 +9337,7 @@ void p2x_igad_opx(void *SS_ref_db, double eps){
 	d->iguess[5] = d->p[6]/2.0;
 	d->iguess[6] = d->p[5];
 	d->iguess[7] = d->p[8];
-	
-	if (d->z_em[5]  == 0.0){ d->iguess[6]  = eps;}
-	if (d->z_em[4]  == 0.0){ d->iguess[4]  = eps;}
-	if (d->z_em[6]  == 0.0){ d->iguess[5]  = eps;}
-		
+
 	for (int i = 0; i < d->n_xeos; i++){
 		if (d->iguess[i] < d->bounds[i][0]){
 			d->iguess[i] = d->bounds[i][0];
