@@ -486,10 +486,10 @@ global_variable PGE_update_solution(	global_variable  	 gv,
 
 	/* Update Gamma */
 	for (i = 0; i < z_b.nzEl_val; i++){
-		gv.delta_gam_tot[z_b.nzEl_array[i]]  = gv.dGamma[i]*gv.alpha;	
-		gv.gam_tot[z_b.nzEl_array[i]] 		+= gv.dGamma[i]*gv.alpha;		
+		gv.delta_gam_tot[z_b.nzEl_array[i]]  = gv.dGamma[i]*gv.alpha;
+		gv.gam_tot[z_b.nzEl_array[i]] 		+= gv.dGamma[i]*gv.alpha;
 	}
-	
+
 	gv.gamma_norm[gv.global_ite] = norm_vector(gv.dGamma, z_b.nzEl_val);
 
 	/* Update solution phase (SS) fractions */
@@ -1652,6 +1652,11 @@ global_variable LP(		bulk_info 			z_b,
 			if (gv.BR_norm > 1e-3){
 				gv.status = -1;
 			}
+
+			for (int i = 0; i < z_b.nzEl_val; i++){
+				if (gv.gam_tot[z_b.nzEl_array[i]] >= 0.0){ gv.status = -1; }
+			}
+
 		}
 	}
 

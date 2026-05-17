@@ -455,6 +455,7 @@ struct light_gmin_struct_ig{T <: Float32, I <: Int8, S <: String}
     s_cp        :: Vector{T}
     mSS_vec     :: Vector{LibMAGEMin.mSS_data}
     bulk_res_norm   :: T    # bulk residual norm
+    status      :: I
 end
 
 
@@ -2717,13 +2718,14 @@ function create_light_gmin_struct_ig(DB,gv; name_solvus = true)
     # extract information about metastable solution phases
     mSS_vec = convert.(LibMAGEMin.mSS_data, unsafe_wrap(Vector{LibMAGEMin.mstb_SS_phase},stb.mSS,n_mSS))
     bulk_res_norm   =  Float32.(gv.BR_norm)
+    status          =  Int8(gv.status)
 
     out = light_gmin_struct_ig{Float32,Int8, String}(   P_kbar, T_C, ph_frac_wt, ph,
                                                 frac_S_wt, frac_F_wt, frac_M_wt,
                                                 frac_S_vol, frac_F_vol, frac_M_vol,
                                                 bulk_S_wt, bulk_F_wt, bulk_M_wt,
                                                 rho_S, rho_F, rho_M, eta_M,
-                                                s_cp, mSS_vec, bulk_res_norm)
+                                                s_cp, mSS_vec, bulk_res_norm, status)
 
    return out
 end
