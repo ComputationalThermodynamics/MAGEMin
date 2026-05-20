@@ -195,7 +195,9 @@ end
     alpha : Vector{T}
         Thermal expansivity.
     V : T
-        Volume.
+        Volume [J/bar].
+    V_cm3 : T
+        Volume [cm³].
     s_cp : Vector{T}
         Heat capacity.
     rho : T
@@ -405,6 +407,44 @@ struct gmin_struct{T,I}
     status          :: I           # status of calculations
 end
 
+"""
+    light_gmin_struct{T, I, S}
+
+    Lightweight structure holding a reduced set of MAGEMin minimization outputs (Float32/Int8 types) for memory-efficient storage.
+
+    Fields
+    ------
+    P_kbar : T
+        Pressure [kbar].
+    T_C : T
+        Temperature [°C].
+    ph_frac_wt : Vector{T}
+        Phase fractions [wt].
+    ph_name : Vector{S}
+        Phase names.
+    frac_S_wt : T
+        Solid fraction [wt].
+    frac_F_wt : T
+        Fluid fraction [wt].
+    frac_M_wt : T
+        Melt fraction [wt].
+    bulk_S_wt : Vector{T}
+        Bulk solid composition [wt].
+    bulk_F_wt : Vector{T}
+        Bulk fluid composition [wt].
+    bulk_M_wt : Vector{T}
+        Bulk melt composition [wt].
+    rho_S : T
+        Solid density [kg/m³].
+    rho_F : T
+        Fluid density [kg/m³].
+    rho_M : T
+        Melt density [kg/m³].
+    eta_M : T
+        Melt viscosity [Pa·s].
+    s_cp : Vector{T}
+        Heat capacity.
+"""
 struct light_gmin_struct{T <: Float32, I <: Int8, S <: String}
     P_kbar      :: T                    # Pressure in kbar
     T_C         :: T                    # Temperature in Celsius
@@ -429,6 +469,56 @@ end
 
 
 
+"""
+    light_gmin_struct_ig{T, I, S}
+
+    Lightweight structure holding a reduced set of MAGEMin minimization outputs for igneous databases (Float32/Int8 types). Extends `light_gmin_struct` with volumetric fractions, metastable solution phase data, and convergence information.
+
+    Fields
+    ------
+    P_kbar : T
+        Pressure [kbar].
+    T_C : T
+        Temperature [°C].
+    ph_frac_wt : Vector{T}
+        Phase fractions [wt].
+    ph_name : Vector{S}
+        Phase names.
+    frac_S_wt : T
+        Solid fraction [wt].
+    frac_F_wt : T
+        Fluid fraction [wt].
+    frac_M_wt : T
+        Melt fraction [wt].
+    frac_S_vol : T
+        Solid fraction [vol].
+    frac_F_vol : T
+        Fluid fraction [vol].
+    frac_M_vol : T
+        Melt fraction [vol].
+    bulk_S_wt : Vector{T}
+        Bulk solid composition [wt].
+    bulk_F_wt : Vector{T}
+        Bulk fluid composition [wt].
+    bulk_M_wt : Vector{T}
+        Bulk melt composition [wt].
+    rho_S : T
+        Solid density [kg/m³].
+    rho_F : T
+        Fluid density [kg/m³].
+    rho_M : T
+        Melt density [kg/m³].
+    eta_M : T
+        Melt viscosity [Pa·s].
+    s_cp : Vector{T}
+        Heat capacity.
+    mSS_vec : Vector{LibMAGEMin.mSS_data}
+        Metastable solution phase data.
+    bulk_res_norm : T
+        Bulk residual norm.
+    status : I
+        Status of calculations (0 = converged, 5 = not converged).
+"""
 struct light_gmin_struct_ig{T <: Float32, I <: Int8, S <: String}
     P_kbar      :: T                    # Pressure in kbar
     T_C         :: T                    # Temperature in Celsius
@@ -943,7 +1033,71 @@ function  finalize_MAGEMin(gv,DB, z_b)
 end
 
 
-# wrapper for single point minimization
+"""
+    single_point_minimization(P, T, MAGEMin_db; light=false, light_ig=false, name_solvus=false, fixed_bulk=false, test=0, X=nothing, B=nothing, G=nothing, scp=0, dT=2.0, iguess=false, rm_list=nothing, W=nothing, Xoxides=Vector{String}, sys_in="mol", rg="tc", progressbar=true)
+
+    Perform a MAGEMin Gibbs energy minimization at a single pressure-temperature point.
+
+    This is a convenience wrapper around `multi_point_minimization` for scalar `P` and `T` inputs.
+
+    Parameters
+    ----------
+    P : Float64
+        Pressure [kbar].
+    T : Float64
+        Temperature [°C].
+    MAGEMin_db : MAGEMin_Data
+        Initialized MAGEMin data structure.
+    light : Bool, optional
+        Return a lightweight output structure (default: false).
+    light_ig : Bool, optional
+        Return an extended lightweight structure for igneous databases (default: false).
+    name_solvus : Bool, optional
+        Resolve solvus naming (default: false).
+    fixed_bulk : Bool, optional
+        Use fixed bulk composition (default: false).
+    test : Int64, optional
+        Built-in test case number (default: 0).
+    X : VecOrMat, optional
+        Bulk rock composition. Single vector of length `noxides` (default: nothing).
+    B : Union{Nothing, Float64}, optional
+        Buffer value (default: nothing).
+    G : Union{Nothing, Vector{LibMAGEMin.mSS_data}}, optional
+        Initial guess data (default: nothing).
+    scp : Int64, optional
+        Sub-solidus computation parameter (default: 0).
+    dT : Float64, optional
+        Temperature increment for sub-solidus detection (default: 2.0).
+    iguess : Bool, optional
+        Whether to use initial guess (default: false).
+    rm_list : Union{Nothing, Vector{Int64}}, optional
+        List of phase indexes to remove (default: nothing).
+    W : Union{Nothing, Vector{W_data{Float64, Int64}}}, optional
+        Overriding Margules parameters (default: nothing).
+    Xoxides : Vector{String}
+        Oxide names corresponding to `X`.
+    sys_in : String, optional
+        Input system units, \"mol\" or \"wt\" (default: \"mol\").
+    rg : String, optional
+        Research group, \"tc\" or \"sb\" (default: \"tc\").
+    progressbar : Bool, optional
+        Show progress bar (default: true).
+
+    Returns
+    -------
+    out : gmin_struct{Float64, Int64}
+        Structure containing the minimization result at the given P-T point.
+
+    Examples
+    --------
+    ```julia
+    data    = Initialize_MAGEMin("ig", verbose=false);
+    Xoxides = ["SiO2","Al2O3","CaO","MgO","FeO","Fe2O3","K2O","Na2O","TiO2","Cr2O3","H2O"]
+    X       = [48.43, 15.19, 11.57, 10.13, 6.65, 1.64, 0.59, 1.87, 0.68, 0.0, 3.0]
+    out     = single_point_minimization(10.0, 1100.0, data, X=X, Xoxides=Xoxides, sys_in="wt")
+    Finalize_MAGEMin(data)
+    ```
+"""
 function single_point_minimization(     P           ::  T1,
                                         T           ::  T1,
                                         MAGEMin_db  ::  MAGEMin_Data;
@@ -1798,11 +1952,6 @@ function convertBulk4MAGEMin(   bulk_in     :: T1,
         MAGEMin_bulk[c[id0]] .= 1e-4;
     end
 
-    # Set optional oxides to 0 if near zero
-    # id1 = findall(MAGEMin_bulk[d] .< 2e-5 .&& MAGEMin_bulk[d] .> -2e-5)
-    # if ~isempty(id1)
-    #     MAGEMin_bulk[d[id1]] .= 0.0;
-    # end
     MAGEMin_bulk .= normalize(MAGEMin_bulk).*100.0
 
     return MAGEMin_bulk, MAGEMin_ox;
@@ -1830,6 +1979,8 @@ end
         Simplex data structure.
     light : Bool, optional
         Return a lightweight output structure (default: false).
+    light_ig : Bool, optional
+        Return an extended lightweight structure for igneous databases (default: false).
     name_solvus : Bool, optional
         Resolve solvus naming (default: false).
     fixed_bulk : Bool, optional
@@ -2359,6 +2510,43 @@ end
 pwm_init(P::Number,T::Number, gv, z_b, DB, splx_data) = pwm_init(Float64(P),Float64(T), gv, z_b, DB, splx_data; G0 = true)
 
 
+"""
+    pwm_run(gv, z_b, DB, splx_data; name_solvus=false)
+
+    Run the equilibrium computation and post-processing after `pwm_init`. Intended for thermodynamic database inversion/calibration workflows.
+
+    Parameters
+    ----------
+    gv : LibMAGEMin.global_variables
+        Global variables structure (initialized via `pwm_init`).
+    z_b : LibMAGEMin.bulk_infos
+        Bulk rock information structure.
+    DB : LibMAGEMin.Database
+        Database structure.
+    splx_data : LibMAGEMin.simplex_datas
+        Simplex data structure.
+    name_solvus : Bool, optional
+        Resolve solvus naming (default: false).
+
+    Returns
+    -------
+    out : gmin_struct{Float64, Int64}
+        Structure containing the minimization results.
+
+    Examples
+    --------
+    ```julia
+    dtb     = "mp"
+    gv, z_b, DB, splx_data = init_MAGEMin(dtb);
+    Xoxides = ["SiO2"; "TiO2"; "Al2O3"; "FeO"; "MnO"; "MgO"; "CaO"; "Na2O"; "K2O"; "H2O"; "O"];
+    X       = [58.509, 1.022, 14.858, 4.371, 0.141, 4.561, 5.912, 3.296, 2.399, 10.0, 0.0];
+    sys_in  = "wt"
+    gv      = define_bulk_rock(gv, X, Xoxides, sys_in, dtb);
+    P, T    = 6.0, 500.0
+    gv, z_b, DB, splx_data = pwm_init(P, T, gv, z_b, DB, splx_data);
+    out     = pwm_run(gv, z_b, DB, splx_data);
+    ```
+"""
 function pwm_run(gv, z_b, DB, splx_data; name_solvus = false)
     input_data      =   LibMAGEMin.io_data();                           # zero (not used actually)
 
@@ -2576,7 +2764,7 @@ end
 
     Returns
     -------
-    out : light_gmin_struct{Float32, Int8}
+    out : light_gmin_struct{Float32, Int8, String}
         Lightweight structure containing essential minimization results.
 """
 function create_light_gmin_struct(DB,gv; name_solvus = true)
@@ -2656,8 +2844,8 @@ end
 
     Returns
     -------
-    out : light_gmin_struct{Float32, Int8}
-        Lightweight structure containing essential minimization results.
+    out : light_gmin_struct_ig{Float32, Int8, String}
+        Lightweight extended structure containing essential minimization results for igneous databases.
 """
 function create_light_gmin_struct_ig(DB,gv; name_solvus = true)
 

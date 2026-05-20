@@ -10,10 +10,34 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ =#
 
 """
-MAGEMin_dataTE2dataframe( out:: Union{Vector{out_tepm}, out_tepm},dtb,fileout)
+    MAGEMin_dataTE2dataframe(out, out_te, dtb, fileout)
 
-    Transform MAGEMin trace-element output into a dataframe for quick(ish) save
+    Export MAGEMin minimization results together with trace element partitioning
+    output to a CSV file, writing one row per phase per point.
 
+    The CSV contains columns for P, T, X, phase name, mode [wt%], Zr saturation
+    [μg/g], corrected bulk oxide composition [wt%], and per-element concentrations
+    [μg/g]. A companion metadata text file recording the MAGEMin version, database,
+    date, and time is written alongside the CSV.
+
+    Rows are written for the bulk system (`"system"`), the melt (`"liq"`), the
+    bulk solid aggregate (`"sol"`), and each individual mineral phase.
+
+    Parameters
+    ----------
+    out : Union{Vector{gmin_struct{Float64, Int64}}, gmin_struct{Float64, Int64}}
+        MAGEMin minimization output for one or more points.
+    out_te : Union{Vector{out_tepm}, out_tepm}
+        Trace element partitioning output corresponding to each point in `out`.
+    dtb : String
+        Database identifier used to retrieve database metadata (e.g., `"ig"`, `"mp"`).
+    fileout : String
+        Base path for output files. Two files are created: `fileout.csv` and
+        `fileout_metadata.txt`.
+
+    Returns
+    -------
+    nothing
 """
 function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64, Int64}}, gmin_struct{Float64, Int64}},
                                     out_te  :: Union{Vector{out_tepm}, out_tepm},
@@ -172,10 +196,31 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
 end
 
 """
-MAGEMin_data2dataframe( out:: Union{Vector{MAGEMin_C.gmin_struct{Float64, Int64}}, MAGEMin_C.gmin_struct{Float64, Int64}})
+    MAGEMin_data2dataframe(out, dtb, fileout)
 
-    Transform MAGEMin output into a dataframe for quick(ish) save
+    Export MAGEMin minimization results to a CSV file in long (stacked) format,
+    writing one row per phase per point.
 
+    Each row contains point index, X fraction, P [kbar], T [°C], phase name,
+    modal abundances (mol%, wt%, vol%), system thermodynamic properties
+    (ρ, Vp, Vs, Cp, α, S, H, K, G), activity/fugacity variables, and oxide
+    compositions (mol% and wt%) plus apfu element compositions for each phase.
+    System-level rows (`"system"`) additionally carry fO₂, ΔQFM, and melt
+    viscosity. A companion metadata file is written at `fileout_metadata.txt`.
+
+    Parameters
+    ----------
+    out : Union{Vector{gmin_struct{Float64, Int64}}, gmin_struct{Float64, Int64}}
+        MAGEMin minimization output for one or more points.
+    dtb : String
+        Database identifier used to retrieve database metadata (e.g., `"ig"`, `"mp"`).
+    fileout : String
+        Base path for output files. Two files are created: `fileout.csv` and
+        `fileout_metadata.txt`.
+
+    Returns
+    -------
+    nothing
 """
 function MAGEMin_data2dataframe( out:: Union{Vector{gmin_struct{Float64, Int64}}, gmin_struct{Float64, Int64}},dtb,fileout)
 
@@ -388,12 +433,27 @@ end
 
 
 """
-    get_all_stable_phases(out:: Union{Vector{gmin_struct{Float64, Int64}}, gmin_struct{Float64, Int64}})
-    return ph_name
+    get_all_stable_phases(out)
 
-    The function receives as an input a single/Vector of MAGEMin_C output structure and returns the list (Vector{String}) of unique stable phases
-        - Note that first the sorted solution phase names are provided, followed by the sorted pure phase names
-          e.g., ["amp", "bi", "chl", "cpx", "ep", "fl", "fsp", "liq", "opx", "sph"]
+    Collect the unique set of stable phase names across all minimization points.
+
+    Solution phases are sorted alphabetically and listed first; pure phases follow
+    in their own sorted block. For example:
+    `["amp", "bi", "chl", "cpx", "ep", "fl", "fsp", "liq", "opx", "sph", "q", "ru"]`
+
+    Parameters
+    ----------
+    out : Union{Vector{gmin_struct{Float64, Int64}}, gmin_struct{Float64, Int64}}
+        MAGEMin minimization output for one or more points.
+
+    Returns
+    -------
+    ph_names : Vector{String}
+        Sorted unique phase names (solution phases first, then pure phases).
+    n_ss : Int64
+        Number of unique solution phases.
+    n_pp : Int64
+        Number of unique pure phases.
 """
 function get_all_stable_phases(out:: Union{Vector{gmin_struct{Float64, Int64}}, gmin_struct{Float64, Int64}})
      np     = length(out)
@@ -425,10 +485,33 @@ end
 
 
 """
-MAGEMin_data2dataframe( out:: Union{Vector{MAGEMin_C.gmin_struct{Float64, Int64}}, MAGEMin_C.gmin_struct{Float64, Int64}})
+    MAGEMin_data2dataframe_inlined(out, dtb, fileout)
 
-    Transform MAGEMin output into a dataframe for quick(ish) save
+    Export MAGEMin minimization results to a CSV file in wide (inlined) format,
+    with one row per point and all phase data spread across columns.
 
+    The output DataFrame is built in three blocks that are horizontally
+    concatenated: system-level properties (`sys_*` prefix), solution-phase
+    columns (`<ph>_*` prefix, `NaN`-filled when a phase is absent at a given
+    point), and pure-phase columns (same convention). Column groups per phase
+    include modal fractions (mol%, wt%, vol%), thermodynamic properties
+    (ρ, Vp, Vs, Cp, α, S, H, K, G), and oxide compositions (mol%, wt%) plus
+    apfu element compositions. A companion metadata file is written at
+    `fileout_metadata.txt`; the CSV is written to `fileout_inlined.csv`.
+
+    Parameters
+    ----------
+    out : Union{Vector{gmin_struct{Float64, Int64}}, gmin_struct{Float64, Int64}}
+        MAGEMin minimization output for one or more points.
+    dtb : String
+        Database identifier used to retrieve database metadata (e.g., `"ig"`, `"mp"`).
+    fileout : String
+        Base path for output files. Two files are created: `fileout_inlined.csv`
+        and `fileout_metadata.txt`.
+
+    Returns
+    -------
+    nothing
 """
 function MAGEMin_data2dataframe_inlined( out:: Union{Vector{gmin_struct{Float64, Int64}}, gmin_struct{Float64, Int64}},dtb,fileout)
     print("\noutput path: $(pwd())\n")

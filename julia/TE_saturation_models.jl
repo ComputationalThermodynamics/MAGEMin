@@ -10,6 +10,26 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ =#
 
 
+"""
+    zirconium_saturation(out; model="WH")
+
+    Compute the zirconium saturation concentration in the melt phase [ppm].
+
+    Parameters
+    ----------
+    out : MAGEMin_C.gmin_struct{Float64, Int64}
+        MAGEMin minimization output (must contain a melt phase).
+    model : String, optional
+        Saturation model (default: "WH"). Valid options:
+        - "WH"  — Watson & Harrison (1983)
+        - "B"   — Boehnke et al. (2013)
+        - "CB"  — Crisp & Berry (2022)
+
+    Returns
+    -------
+    C_zr_liq : Float64
+        Zr saturation concentration in the melt [ppm], or -1 if no melt is present.
+"""
 function zirconium_saturation(  out     :: MAGEMin_C.gmin_struct{Float64, Int64};
                                 model   :: String = "WH"    )
 
@@ -96,6 +116,29 @@ function zirconium_saturation(  out     :: MAGEMin_C.gmin_struct{Float64, Int64}
     return C_zr_liq
 end
 
+"""
+    adjust_bulk_4_zircon(zr_liq, sat_liq, liq_wt)
+
+    Compute the weight fractions of zircon, SiO₂, and O returned to the bulk when the melt exceeds Zr saturation.
+
+    Parameters
+    ----------
+    zr_liq : Float64
+        Zr concentration in the melt [ppm].
+    sat_liq : Float64
+        Zr saturation concentration in the melt [ppm].
+    liq_wt : Float64
+        Melt weight fraction.
+
+    Returns
+    -------
+    zircon_wt : Float64
+        Weight fraction of precipitated zircon (scaled by `liq_wt`).
+    SiO2_wt : Float64
+        SiO₂ weight returned to the bulk (scaled by `liq_wt`).
+    O2_wt : Float64
+        O weight returned to the bulk (scaled by `liq_wt`).
+"""
 function adjust_bulk_4_zircon(  zr_liq  ::  Float64,
                                 sat_liq ::  Float64,
                                 liq_wt  ::  Float64 )
@@ -113,6 +156,26 @@ function adjust_bulk_4_zircon(  zr_liq  ::  Float64,
     return zircon_wt*liq_wt, SiO2_wt*liq_wt, O2_wt*liq_wt
 end
 
+"""
+    phosphate_saturation(out; model="Klein26")
+
+    Compute the P₂O₅ saturation concentration in the melt phase [ppm].
+
+    Parameters
+    ----------
+    out : MAGEMin_C.gmin_struct{Float64, Int64}
+        MAGEMin minimization output (must contain a melt phase with a "liq" solution phase).
+    model : String, optional
+        Saturation model (default: "Klein26"). Valid options:
+        - "Klein26"  — Klein et al. (2026)
+        - "HWBea92"  — Harrison & Watson (1984) + correction from Bea et al. (1992); for hydrous systems
+        - "Tollari06" — Tollari et al. (2006); calibrated for dry systems
+
+    Returns
+    -------
+    C_P2O5_liq : Float64
+        P₂O₅ saturation concentration in the melt [ppm], or -1 if the model is unrecognized.
+"""
 function phosphate_saturation(      out     :: MAGEMin_C.gmin_struct{Float64, Int64};
                                     model   :: String = "Klein26"    )
 
@@ -169,6 +232,27 @@ function phosphate_saturation(      out     :: MAGEMin_C.gmin_struct{Float64, In
 end
 
 
+"""
+    adjust_bulk_4_fapatite(P2O5_liq, sat_liq, liq_wt)
+
+    Compute the weight fractions of fluorapatite and CaO returned to the bulk when the melt exceeds P₂O₅ saturation.
+
+    Parameters
+    ----------
+    P2O5_liq : Float64
+        P₂O₅ concentration in the melt [ppm].
+    sat_liq : Float64
+        P₂O₅ saturation concentration in the melt [ppm].
+    liq_wt : Float64
+        Melt weight fraction.
+
+    Returns
+    -------
+    fapt_wt : Float64
+        Weight fraction of precipitated fluorapatite (scaled by `liq_wt`).
+    CaO_wt : Float64
+        CaO weight returned to the bulk (scaled by `liq_wt`).
+"""
 function adjust_bulk_4_fapatite(    P2O5_liq   ::  Float64,
                                     sat_liq    ::  Float64,
                                     liq_wt     ::  Float64 )
@@ -189,6 +273,21 @@ end
     - Bockrath et al. (2004) - Sulfur solubility in mafic melts: Implications for sulfur degassing of basaltic volcanoes.
     NR 7/11/2025
 =#
+"""
+    logish(x)
+
+    Safe natural logarithm that returns 0.0 for non-positive inputs instead of `-Inf` or `NaN`.
+
+    Parameters
+    ----------
+    x : Float64
+        Input value.
+
+    Returns
+    -------
+    Float64
+        `log(x)` if `x > 0`, otherwise `0.0`.
+"""
 function logish(x::Float64)
     if x <= 0.0
         return 0.0
@@ -197,6 +296,26 @@ function logish(x::Float64)
     end
 end
 
+"""
+    sulfur_saturation(out; model="1000ppm")
+
+    Compute the sulfur concentration at sulfide saturation (SCSS) in the melt phase [ppm].
+
+    Parameters
+    ----------
+    out : MAGEMin_C.gmin_struct{Float64, Int64}
+        MAGEMin minimization output (must contain a melt phase with a "liq" solution phase).
+    model : String, optional
+        Saturation model (default: "1000ppm"). Valid options:
+        - `"<N>ppm"`   — Fixed saturation value of N ppm (e.g., "1000ppm", "500ppm")
+        - "Liu07"      — Liu et al. (2007); SCSS model, may be unreliable for anhydrous conditions
+        - "Oneill21"   — O'Neill (2021); thermodynamic SCSS model using fO₂ from the minimization
+
+    Returns
+    -------
+    C_s_liq : Float64
+        Sulfur saturation concentration in the melt [ppm].
+"""
 function sulfur_saturation(     out     :: MAGEMin_C.gmin_struct{Float64, Int64};
                                 model   :: String = "1000ppm"    )
 
@@ -324,6 +443,29 @@ function sulfur_saturation(     out     :: MAGEMin_C.gmin_struct{Float64, Int64}
     return C_s_liq
 end
 
+"""
+    adjust_bulk_4_sulfide(S_liq, sat_liq, liq_wt)
+
+    Compute the weight fractions of sulfide, FeO, and O returned to the bulk when the melt exceeds sulfur saturation.
+
+    Parameters
+    ----------
+    S_liq : Float64
+        Sulfur concentration in the melt [ppm].
+    sat_liq : Float64
+        Sulfur saturation concentration in the melt [ppm].
+    liq_wt : Float64
+        Melt weight fraction.
+
+    Returns
+    -------
+    sulfide_wt : Float64
+        Weight fraction of precipitated sulfide (scaled by `liq_wt`).
+    FeO_wt : Float64
+        FeO weight returned to the bulk (scaled by `liq_wt`).
+    O_wt : Float64
+        O weight correction (negative, scaled by `liq_wt`).
+"""
 function adjust_bulk_4_sulfide( S_liq  ::  Float64,
                                 sat_liq ::  Float64,
                                 liq_wt  ::  Float64 )

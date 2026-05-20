@@ -14,6 +14,33 @@
 
 """
     AMR_data
+
+    Mutable structure holding the state of an Adaptive Mesh Refinement (AMR) grid.
+
+    Fields
+    ------
+    cells : Vector{Vector{Int64}}
+        Current quadrilateral cells, each defined by 4 point indices (counter-clockwise).
+    ncells : Vector{Vector{Int64}}
+        Newly generated cells from the last refinement step.
+    points : Vector{Vector{Float64}}
+        All grid point coordinates [X, Y].
+    npoints : Vector{Vector{Float64}}
+        Newly generated point coordinates from the last refinement step.
+    npoints_ig : Vector{Tuple}
+        Parent point index tuples for each new point (used for initial guess interpolation).
+    hash_map : Dict{Vector{Float64}, Int}
+        Map from point coordinates to their index, used to avoid duplicate points.
+    bnd_cells : Vector{Tuple}
+        Boundary information for kept cells: tuples of (cell_index, midpoint_indices...).
+    split_cell_list : Vector{Int64}
+        Indices of cells to be split in the next refinement pass.
+    keep_cell_list : Vector{Int64}
+        Indices of cells to be kept unchanged in the next refinement pass.
+    Xrange : Vector{Float64}
+        X-axis bounds of the domain [Xmin, Xmax].
+    Yrange : Vector{Float64}
+        Y-axis bounds of the domain [Ymin, Ymax].
 """
 mutable struct AMR_data
     cells           :: Vector{Vector{Int64}}
@@ -31,6 +58,22 @@ end
 
 """
     compute_index(value, min_value, delta)
+
+    Compute the 1-based grid index of a coordinate value along one axis.
+
+    Parameters
+    ----------
+    value : Float64
+        Coordinate value to index.
+    min_value : Float64
+        Minimum value of the axis.
+    delta : Float64
+        Grid spacing along the axis.
+
+    Returns
+    -------
+    index : Int64
+        1-based index of `value` in the uniform grid.
 """
 function compute_index(value, min_value, delta)
     return Int64(round((value - min_value + delta) / delta))
@@ -38,7 +81,25 @@ end
 
 
 """
-    compute_hash_map(data)
+    initialize_AMR(Xrange, Yrange, igs)
+
+    Create an initial uniform quadrilateral grid for Adaptive Mesh Refinement.
+
+    The grid has `2^igs` cells per dimension, covering the rectangular domain defined by `Xrange` and `Yrange`.
+
+    Parameters
+    ----------
+    Xrange : Union{Tuple{Float64,Float64}, Vector{Float64}}
+        X-axis bounds of the domain [Xmin, Xmax].
+    Yrange : Union{Tuple{Float64,Float64}, Vector{Float64}}
+        Y-axis bounds of the domain [Ymin, Ymax].
+    igs : Int64
+        Initial subdivision level; produces `2^igs × 2^igs` cells.
+
+    Returns
+    -------
+    data : AMR_data
+        Initialized AMR data structure with the uniform grid.
 """
 function initialize_AMR(Xrange,Yrange,igs)
 
@@ -80,16 +141,51 @@ function initialize_AMR(Xrange,Yrange,igs)
     return data
 end
 
-""" 
+"""
     all_identical(arr::Vector{UInt64})
+
+    Check whether all elements in a `UInt64` vector are identical.
+
+    Parameters
+    ----------
+    arr : Vector{UInt64}
+        Vector of hash values to compare.
+
+    Returns
+    -------
+    result : Bool
+        `true` if all elements equal `arr[1]`, `false` otherwise.
 """
 function all_identical(arr::Vector{UInt64})
     return all(x -> x == arr[1], arr)
 end
 
 
-""" 
-    split_and_keep(data)
+"""
+    split_and_keep(data, Hash_XY)
+
+    Categorise cells into the split or keep list based on phase assembly uniformity.
+
+    For each cell in `data.keep_cell_list` (from the previous refinement step) and
+    any remaining cells beyond that list, the function collects the phase-assembly
+    hash values at all corner points (and any boundary midpoints already stored in
+    `data.bnd_cells`). If all hashes are identical the cell is stable and added to
+    `keep_cell_list`; otherwise it straddles a reaction boundary and is added to
+    `split_cell_list`.
+
+    Parameters
+    ----------
+    data : AMR_data
+        AMR state structure. `data.cells`, `data.keep_cell_list`, and
+        `data.bnd_cells` are read; `data.split_cell_list` and
+        `data.keep_cell_list` are overwritten.
+    Hash_XY : Vector{UInt64}
+        Per-point phase-assembly hash values, indexed by point index.
+
+    Returns
+    -------
+    data : AMR_data
+        Updated AMR state with refreshed `split_cell_list` and `keep_cell_list`.
 """
 function split_and_keep(data,Hash_XY)
     kp                      = length(data.keep_cell_list)
@@ -134,6 +230,35 @@ end
 
 """
     AMR(data)
+
+    Perform one adaptive mesh refinement step on the quadrilateral grid.
+
+    Each cell in `data.split_cell_list` is subdivided into four child cells by
+    inserting five new points: one at the cell centroid and one at each edge
+    midpoint. Duplicate midpoints shared by adjacent cells are detected via
+    `data.hash_map` and reused rather than duplicated. Cells in
+    `data.keep_cell_list` are retained unchanged; their edge midpoints that were
+    created by neighbouring splits are recorded in `data.bnd_cells` for use in
+    the next `split_and_keep` call.
+
+    Parameters
+    ----------
+    data : AMR_data
+        AMR state structure. `data.cells`, `data.points`, `data.hash_map`,
+        `data.split_cell_list`, and `data.keep_cell_list` are read and updated.
+
+    Returns
+    -------
+    data : AMR_data
+        Updated AMR state with:
+        - `data.cells`     — combined list of kept cells followed by new child cells.
+        - `data.points`    — extended point list including all new midpoints.
+        - `data.ncells`    — child cells generated in this step.
+        - `data.npoints`   — new point coordinates generated in this step.
+        - `data.npoints_ig`— parent-point index tuples for each new point, used for
+                             initial-guess interpolation.
+        - `data.bnd_cells` — boundary midpoint records for each kept cell.
+        - `data.hash_map`  — updated coordinate-to-index map.
 """
 function AMR(data)
     npoints         = Vector{Vector{Float64}}(undef, 0)
