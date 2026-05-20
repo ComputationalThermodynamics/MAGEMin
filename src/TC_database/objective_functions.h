@@ -170,6 +170,9 @@ double obj_mpe_dio(unsigned  	 n, const double *x, double *grad, void *SS_ref_db
 double obj_mpe_aug(unsigned   n, const double *x, double *grad, void *SS_ref_db);
 double obj_mpe_amp(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 double obj_mpe_po(unsigned  	 n, const double *x, double *grad, void *SS_ref_db);
+double obj_mpe_car(unsigned  	 n, const double *x, double *grad, void *SS_ref_db);
+double obj_mpe_carp(unsigned  	 n, const double *x, double *grad, void *SS_ref_db);
+
 		
 double obj_aq17(unsigned 	  n, const double *x, double *grad, void *SS_ref_db);
 

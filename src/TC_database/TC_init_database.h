@@ -326,11 +326,11 @@
 		int 	n_ss;
 		char    ox[13][20];
 		char    PP[32][20];
-		char    SS[24][20];
+		char    SS[25][20];
 
-		int 	verifyPC[24];
-		int 	n_SS_PC[24];
-		double 	SS_PC_stp[24];
+		int 	verifyPC[25];
+		int 	n_SS_PC[25];
+		double 	SS_PC_stp[25];
 
 		double 	PC_df_add;					/** min value of df under which the PC is added 									*/
 		double  solver_switch_T;

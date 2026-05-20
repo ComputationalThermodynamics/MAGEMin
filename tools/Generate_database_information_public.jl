@@ -95,6 +95,6 @@ end
 
 
 db_inf = get_database_infos()
-
+println("\n")
 print(db_inf)
 

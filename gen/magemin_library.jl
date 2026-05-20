@@ -1584,10 +1584,10 @@ mutable struct metapelite_datasets_ext
     n_ss::Cint
     ox::NTuple{13, NTuple{20, Cchar}}
     PP::NTuple{32, NTuple{20, Cchar}}
-    SS::NTuple{24, NTuple{20, Cchar}}
-    verifyPC::NTuple{24, Cint}
-    n_SS_PC::NTuple{24, Cint}
-    SS_PC_stp::NTuple{24, Cdouble}
+    SS::NTuple{25, NTuple{20, Cchar}}
+    verifyPC::NTuple{25, Cint}
+    n_SS_PC::NTuple{25, Cint}
+    SS_PC_stp::NTuple{25, Cdouble}
     PC_df_add::Cdouble
     solver_switch_T::Cdouble
     min_melt_T::Cdouble
@@ -2398,6 +2398,14 @@ end
 
 function obj_mpe_po(n, x, grad, SS_ref_db)
     ccall((:obj_mpe_po, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_mpe_car(n, x, grad, SS_ref_db)
+    ccall((:obj_mpe_car, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_mpe_carp(n, x, grad, SS_ref_db)
+    ccall((:obj_mpe_carp, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
 function obj_aq17(n, x, grad, SS_ref_db)

@@ -15470,7 +15470,177 @@ SS_ref G_SS_mpe_dio_function(SS_ref SS_ref_db, char* research_group, int EM_data
 }
 
 
+/**
+   retrieve reference thermodynamic data for mpe_car
+*/
+SS_ref G_SS_mpe_car_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
+    
+    int i, j;
+    int n_em = SS_ref_db.n_em;
+    
+    char   *EM_tmp[] 		= {"fcar","mcar","ncar","caro"};
+    for (int i = 0; i < SS_ref_db.n_em; i++){
+        strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
+    };
+    
+    int n_xeos = SS_ref_db.n_xeos;
+    char   *CV_tmp[] 		= {"m","n","f"};
+    for (int i = 0; i < SS_ref_db.n_xeos; i++){
+        strcpy(SS_ref_db.CV_list[i],CV_tmp[i]);
+    };
+    int n_sf = SS_ref_db.n_sf;
+    
+    char   *SF_tmp[] 		= {"xFeM1","xMgM1","xMnM1","xFe3M2","xAlM2"};
+    for (int i = 0; i < SS_ref_db.n_sf; i++){
+        strcpy(SS_ref_db.SF_list[i],SF_tmp[i]);
+    };
+    
+    SS_ref_db.W[0] = 1.0;
+    SS_ref_db.W[1] = 1.0;
+    SS_ref_db.W[2] = 0.0;
+    SS_ref_db.W[3] = 1.0;
+    SS_ref_db.W[4] = 0.0;
+    SS_ref_db.W[5] = 0.0;
+    
+    
+    em_data fcar_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"fcar", 
+    										"equilibrium"	);
+    
+    em_data mcar_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"mcar", 
+    										"equilibrium"	);
+    
+    em_data mang_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"mang", 
+    										"equilibrium"	);
+    
+    em_data per_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"per", 
+    										"equilibrium"	);
+    
+    em_data cor_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"cor", 
+    										"equilibrium"	);
+    
+    em_data hem_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"hem", 
+    										"equilibrium"	);
+    
+    SS_ref_db.gbase[0] 		= fcar_eq.gb;
+    SS_ref_db.gbase[1] 		= mcar_eq.gb;
+    SS_ref_db.gbase[2] 		= mang_eq.gb + mcar_eq.gb - 1.0*per_eq.gb + 30.0;
+    SS_ref_db.gbase[3] 		= -0.5*cor_eq.gb + fcar_eq.gb + 0.5*hem_eq.gb + 45.0;
+    
+    SS_ref_db.ElShearMod[0] 	= fcar_eq.ElShearMod;
+    SS_ref_db.ElShearMod[1] 	= mcar_eq.ElShearMod;
+    SS_ref_db.ElShearMod[2] 	= mang_eq.ElShearMod + mcar_eq.ElShearMod - 1.0*per_eq.ElShearMod;
+    SS_ref_db.ElShearMod[3] 	= -0.5*cor_eq.ElShearMod + fcar_eq.ElShearMod + 0.5*hem_eq.ElShearMod;
+    
+    for (i = 0; i < len_ox; i++){
+        SS_ref_db.Comp[0][i] 	= fcar_eq.C[i];
+        SS_ref_db.Comp[1][i] 	= mcar_eq.C[i];
+        SS_ref_db.Comp[2][i] 	= mang_eq.C[i] + mcar_eq.C[i] - 1.0*per_eq.C[i];
+        SS_ref_db.Comp[3][i] 	= -0.5*cor_eq.C[i] + fcar_eq.C[i] + 0.5*hem_eq.C[i];
+    }
+    
+    for (i = 0; i < n_em; i++){
+        SS_ref_db.z_em[i] = 1.0;
+    };
+    
+    SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
+    SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+    SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
+    
+    return SS_ref_db;
+}
 
+
+
+/**
+   retrieve reference thermodynamic data for mpe_carp
+*/
+SS_ref G_SS_mpe_carp_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
+    
+    int i, j;
+    int n_em = SS_ref_db.n_em;
+    
+    char   *EM_tmp[] 		= {"mcar","fcar"};
+    for (int i = 0; i < SS_ref_db.n_em; i++){
+        strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
+    };
+    
+    int n_xeos = SS_ref_db.n_xeos;
+    char   *CV_tmp[] 		= {"x"};
+    for (int i = 0; i < SS_ref_db.n_xeos; i++){
+        strcpy(SS_ref_db.CV_list[i],CV_tmp[i]);
+    };
+    int n_sf = SS_ref_db.n_sf;
+    
+    char   *SF_tmp[] 		= {"xMgM1","xFeM1"};
+    for (int i = 0; i < SS_ref_db.n_sf; i++){
+        strcpy(SS_ref_db.SF_list[i],SF_tmp[i]);
+    };
+    
+    em_data mcar_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"mcar", 
+    										"equilibrium"	);
+    
+    em_data fcar_eq 		= get_em_data(		research_group, EM_dataset, 
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"fcar", 
+    										"equilibrium"	);
+    
+    SS_ref_db.gbase[0] 		= mcar_eq.gb;
+    SS_ref_db.gbase[1] 		= fcar_eq.gb;
+    
+    SS_ref_db.ElShearMod[0] 	= mcar_eq.ElShearMod;
+    SS_ref_db.ElShearMod[1] 	= fcar_eq.ElShearMod;
+    
+    for (i = 0; i < len_ox; i++){
+        SS_ref_db.Comp[0][i] 	= mcar_eq.C[i];
+        SS_ref_db.Comp[1][i] 	= fcar_eq.C[i];
+    }
+    
+    for (i = 0; i < n_em; i++){
+        SS_ref_db.z_em[i] = 1.0;
+    };
+    
+    SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
+    
+    return SS_ref_db;
+}
 
 SS_ref G_SS_mb_EM_function(		global_variable 	 gv,
 								SS_ref 				 SS_ref_db, 
@@ -16768,6 +16938,13 @@ SS_ref G_SS_mpe_EM_function(		global_variable 	 gv,
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_mb_oamp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
+        else if (strcmp( name, "car") == 0){
+			SS_ref_db  = G_SS_mpe_car_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
+        else if (strcmp( name, "carp") == 0){
+            if ( z_b.bulk_rock[gv.H2O_id] == 0.0 ){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mpe_carp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
 		else{
 			printf("\nsolid solution '%s' is not in the database\n",name);	                    }	
 		for (int j = 0; j < SS_ref_db.n_em; j++){
