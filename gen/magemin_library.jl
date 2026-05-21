@@ -1681,7 +1681,7 @@ mutable struct stx24_datasets
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{8, NTuple{20, Cchar}}
-    PP::NTuple{16, NTuple{20, Cchar}}
+    PP::NTuple{23, NTuple{20, Cchar}}
     SS::NTuple{15, NTuple{20, Cchar}}
     verifyPC::NTuple{15, Cint}
     n_SS_PC::NTuple{15, Cint}

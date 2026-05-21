@@ -874,7 +874,7 @@ global_variable init_em_db_sb(	int 				EM_database,
 				strcpy(PP_ref_db[i].Name, gv.PP_list[i]);
 				for (int j = 0; j < gv.len_ox; j++){
 					PP_ref_db[i].Comp[j] = FeO.Comp[j];
-					if (gv.EM_database == 1 || gv.EM_database == 2){
+					if (gv.EM_database == 1 || gv.EM_database == 2 ){
 						PP_ref_db[i].Comp[j] /= 4.0; // divide by 4 for sb21
 					}
 				}		
@@ -995,19 +995,39 @@ global_variable init_em_db_sb(	int 				EM_database,
 				PP_ref_db[i].phase_shearModulus  = O2.phase_shearModulus;
 				gv.pp_flags[i][4] 	= 1;
 			}	
-
 			else if (strcmp( gv.PP_list[i], "qif") 	== 0){
 
-				PP_ref iron 	= G_EM_function(gv.research_group,
-                                                gv.EM_dataset, 
-												gv.len_ox,
-												z_b.id,
-												z_b.bulk_rock, 
-												z_b.apo, 
-												z_b.P, 
-												z_b.T, 
-												"fea", 
-												state				);
+				PP_ref fea 	= G_EM_function(	gv.research_group,
+													gv.EM_dataset, 
+													gv.len_ox,
+													z_b.id,
+													z_b.bulk_rock, 
+													z_b.apo, 
+													z_b.P, 
+													z_b.T, 
+													"fea", 
+													state				);
+				PP_ref fee 	= G_EM_function(	gv.research_group,
+													gv.EM_dataset, 
+													gv.len_ox,
+													z_b.id,
+													z_b.bulk_rock, 
+													z_b.apo, 
+													z_b.P, 
+													z_b.T, 
+													"fee", 
+													state				);
+				PP_ref feg 	= G_EM_function(	gv.research_group,
+													gv.EM_dataset, 
+													gv.len_ox,
+													z_b.id,
+													z_b.bulk_rock, 
+													z_b.apo, 
+													z_b.P, 
+													z_b.T, 
+													"feg", 
+													state				);		
+													
 				PP_ref q 	= G_EM_function(	gv.research_group,
                                                 gv.EM_dataset, 
 												gv.len_ox,
@@ -1017,6 +1037,26 @@ global_variable init_em_db_sb(	int 				EM_database,
 												z_b.P, 
 												z_b.T, 
 												"qtz", 
+												state				);
+				PP_ref coe	= G_EM_function(	gv.research_group,
+                                                gv.EM_dataset, 
+												gv.len_ox,
+												z_b.id,
+												z_b.bulk_rock, 
+												z_b.apo, 
+												z_b.P, 
+												z_b.T, 
+												"coe", 
+												state				);
+				PP_ref st 	= G_EM_function(	gv.research_group,
+                                                gv.EM_dataset, 
+												gv.len_ox,
+												z_b.id,
+												z_b.bulk_rock, 
+												z_b.apo, 
+												z_b.P, 
+												z_b.T, 
+												"st", 
 												state				);
 				PP_ref fa 	= G_EM_function(	gv.research_group,
                                                 gv.EM_dataset, 
@@ -1032,7 +1072,7 @@ global_variable init_em_db_sb(	int 				EM_database,
 
 				strcpy(PP_ref_db[i].Name, gv.PP_list[i]);
 				for (int j = 0; j < gv.len_ox; j++){
-					PP_ref_db[i].Comp[j] = fa.Comp[j] -2.0*iron.Comp[j] - q.Comp[j];
+					PP_ref_db[i].Comp[j] = fa.Comp[j] -2.0*fea.Comp[j] - q.Comp[j];
 				}		
 
 				/* Calculate the number of atoms in the bulk-rock composition */
@@ -1048,13 +1088,21 @@ global_variable init_em_db_sb(	int 				EM_database,
 				}
 				/* Calculate normalizing factor */
 				double factor = fbc/ape;
+				double min_Fe_gbase = fea.gbase;
+				if (fee.gbase < min_Fe_gbase) { min_Fe_gbase = fee.gbase; }
+				if (feg.gbase < min_Fe_gbase) { min_Fe_gbase = feg.gbase; }
 
-				PP_ref_db[i].gbase   =  fa.gbase -2.0*iron.gbase - q.gbase + z_b.T*0.019145*gv.buffer_n;
+				double min_SiO2_gbase = q.gbase;
+				if (coe.gbase < min_SiO2_gbase) { min_SiO2_gbase = coe.gbase; }
+
+				if (st.gbase  < min_SiO2_gbase) { min_SiO2_gbase = st.gbase;  }
+				PP_ref_db[i].gbase   =  fa.gbase -2.0*min_Fe_gbase - min_SiO2_gbase + z_b.T*0.019145*gv.buffer_n;
 				PP_ref_db[i].factor  =  factor;
-				PP_ref_db[i].phase_shearModulus  = fa.phase_shearModulus -2.0*iron.phase_shearModulus - q.phase_shearModulus;
+				PP_ref_db[i].phase_shearModulus  = fa.phase_shearModulus -2.0*fea.phase_shearModulus - q.phase_shearModulus;
 				gv.pp_flags[i][4] 	= 1;
 			}
 			else if (strcmp( gv.PP_list[i], "mw") 	== 0){
+
 
 				PP_ref mt 	= G_EM_function(	gv.research_group,
                                                 gv.EM_dataset, 
@@ -1066,6 +1114,29 @@ global_variable init_em_db_sb(	int 				EM_database,
 												z_b.T, 
 												"mag", 
 												state				);
+
+				PP_ref smt 	= G_EM_function(	gv.research_group,
+                                                gv.EM_dataset, 
+												gv.len_ox,
+												z_b.id,
+												z_b.bulk_rock, 
+												z_b.apo, 
+												z_b.P, 
+												z_b.T, 
+												"smag", 
+												state				);
+
+				PP_ref hmt 	= G_EM_function(	gv.research_group,
+                                                gv.EM_dataset, 
+												gv.len_ox,
+												z_b.id,
+												z_b.bulk_rock, 
+												z_b.apo, 
+												z_b.P, 
+												z_b.T, 
+												"hmag", 
+												state				);
+												
 				PP_ref wu 	= G_EM_function(	gv.research_group,
                                                 gv.EM_dataset, 
 												gv.len_ox,
@@ -1079,7 +1150,7 @@ global_variable init_em_db_sb(	int 				EM_database,
 
 				strcpy(PP_ref_db[i].Name, gv.PP_list[i]);
 				for (int j = 0; j < gv.len_ox; j++){
-					PP_ref_db[i].Comp[j] = 2.0*mt.Comp[j] -6.0*wu.Comp[j];
+					PP_ref_db[i].Comp[j] = 2.0*mt.Comp[j] -3.0*wu.Comp[j]/2.0;
 				}		
 
 				/* Calculate the number of atoms in the bulk-rock composition */
@@ -1096,14 +1167,18 @@ global_variable init_em_db_sb(	int 				EM_database,
 				/* Calculate normalizing factor */
 				double factor = fbc/ape;
 
-				PP_ref_db[i].gbase   =  2.0*mt.gbase -6.0*wu.gbase + z_b.T*0.019145*gv.buffer_n;
+				double min_mag_gbase = mt.gbase;
+				if (smt.gbase < min_mag_gbase) { min_mag_gbase = smt.gbase; }
+				if (hmt.gbase < min_mag_gbase) { min_mag_gbase = hmt.gbase; }
+
+				PP_ref_db[i].gbase   =  2.0*min_mag_gbase -3.0*wu.gbase/2.0 + z_b.T*0.019145*gv.buffer_n; // divided by 4 Fe4O4 -> FeO
 				PP_ref_db[i].factor  =  factor;
-				PP_ref_db[i].phase_shearModulus  = 2.0*mt.phase_shearModulus -6.0*wu.phase_shearModulus;
+				PP_ref_db[i].phase_shearModulus  = 2.0*mt.phase_shearModulus -3.0*wu.phase_shearModulus/2.0;
 				gv.pp_flags[i][4] 	= 1;
 			}
 			else if (strcmp( gv.PP_list[i], "iw") 	== 0){
 
-				PP_ref iron 	= G_EM_function(	gv.research_group,
+				PP_ref fea 	= G_EM_function(	gv.research_group,
 													gv.EM_dataset, 
 													gv.len_ox,
 													z_b.id,
@@ -1113,6 +1188,27 @@ global_variable init_em_db_sb(	int 				EM_database,
 													z_b.T, 
 													"fea", 
 													state				);
+				PP_ref fee 	= G_EM_function(	gv.research_group,
+													gv.EM_dataset, 
+													gv.len_ox,
+													z_b.id,
+													z_b.bulk_rock, 
+													z_b.apo, 
+													z_b.P, 
+													z_b.T, 
+													"fee", 
+													state				);
+				PP_ref feg 	= G_EM_function(	gv.research_group,
+													gv.EM_dataset, 
+													gv.len_ox,
+													z_b.id,
+													z_b.bulk_rock, 
+													z_b.apo, 
+													z_b.P, 
+													z_b.T, 
+													"feg", 
+													state				);		
+													
 													
 				PP_ref wu 	= G_EM_function(	gv.research_group,
                                                 gv.EM_dataset, 
@@ -1127,7 +1223,7 @@ global_variable init_em_db_sb(	int 				EM_database,
 
 				strcpy(PP_ref_db[i].Name, gv.PP_list[i]);
 				for (int j = 0; j < gv.len_ox; j++){
-					PP_ref_db[i].Comp[j] = 2.0*wu.Comp[j] -2.0*iron.Comp[j];
+					PP_ref_db[i].Comp[j] = wu.Comp[j]/2.0 -2.0*fea.Comp[j];
 				}		
 
 				/* Calculate the number of atoms in the bulk-rock composition */
@@ -1144,9 +1240,13 @@ global_variable init_em_db_sb(	int 				EM_database,
 				/* Calculate normalizing factor */
 				double factor = fbc/ape;
 
-				PP_ref_db[i].gbase   =  2.0*wu.gbase -2.0*iron.gbase + z_b.T*0.019145*gv.buffer_n;
+				double min_Fe_gbase = fea.gbase;
+				if (fee.gbase < min_Fe_gbase) { min_Fe_gbase = fee.gbase; }
+				if (feg.gbase < min_Fe_gbase) { min_Fe_gbase = feg.gbase; }
+
+				PP_ref_db[i].gbase   =  wu.gbase/2.0 -2.0*min_Fe_gbase+ z_b.T*0.019145*gv.buffer_n;
 				PP_ref_db[i].factor  =  factor;
-				PP_ref_db[i].phase_shearModulus  = 2.0*wu.phase_shearModulus -2.0*iron.phase_shearModulus;
+				PP_ref_db[i].phase_shearModulus  = wu.phase_shearModulus/2.0 -2.0*fea.phase_shearModulus;
 				gv.pp_flags[i][4] 	= 1;
 			}
 			else if (strcmp( gv.PP_list[i], "hm") 	== 0){
@@ -1161,6 +1261,29 @@ global_variable init_em_db_sb(	int 				EM_database,
 												z_b.T, 
 												"mag", 
 												state				);
+
+				PP_ref smt 	= G_EM_function(	gv.research_group,
+                                                gv.EM_dataset, 
+												gv.len_ox,
+												z_b.id,
+												z_b.bulk_rock, 
+												z_b.apo, 
+												z_b.P, 
+												z_b.T, 
+												"smag", 
+												state				);
+
+				PP_ref hmt 	= G_EM_function(	gv.research_group,
+                                                gv.EM_dataset, 
+												gv.len_ox,
+												z_b.id,
+												z_b.bulk_rock, 
+												z_b.apo, 
+												z_b.P, 
+												z_b.T, 
+												"hmag", 
+												state				);
+
 				PP_ref hem 	= G_EM_function(	gv.research_group,
                                                 gv.EM_dataset, 
 												gv.len_ox,
@@ -1191,7 +1314,11 @@ global_variable init_em_db_sb(	int 				EM_database,
 				/* Calculate normalizing factor */
 				double factor = fbc/ape;
 
-				PP_ref_db[i].gbase   =  6.0*hem.gbase -4.0*mt.gbase + z_b.T*0.019145*gv.buffer_n;
+				double min_mag_gbase = mt.gbase;
+				if (smt.gbase < min_mag_gbase) { min_mag_gbase = smt.gbase; }
+				if (hmt.gbase < min_mag_gbase) { min_mag_gbase = hmt.gbase; }
+
+				PP_ref_db[i].gbase   =  6.0*hem.gbase -4.0*min_mag_gbase + z_b.T*0.019145*gv.buffer_n;
 				PP_ref_db[i].factor  =  factor;
 				PP_ref_db[i].phase_shearModulus  = 6.0*hem.phase_shearModulus -4.0*mt.phase_shearModulus;
 				gv.pp_flags[i][4] 	= 1;
@@ -1208,6 +1335,27 @@ global_variable init_em_db_sb(	int 				EM_database,
 												z_b.T, 
 												"qtz", 
 												state				);
+				PP_ref coe	= G_EM_function(	gv.research_group,
+                                                gv.EM_dataset, 
+												gv.len_ox,
+												z_b.id,
+												z_b.bulk_rock, 
+												z_b.apo, 
+												z_b.P, 
+												z_b.T, 
+												"coe", 
+												state				);
+				PP_ref st 	= G_EM_function(	gv.research_group,
+                                                gv.EM_dataset, 
+												gv.len_ox,
+												z_b.id,
+												z_b.bulk_rock, 
+												z_b.apo, 
+												z_b.P, 
+												z_b.T, 
+												"st", 
+												state				);
+
 				PP_ref fa 	= G_EM_function(	gv.research_group,
                                                 gv.EM_dataset, 
 												gv.len_ox,
@@ -1230,6 +1378,28 @@ global_variable init_em_db_sb(	int 				EM_database,
 												"mag", 
 												state				);
 
+				PP_ref smt 	= G_EM_function(	gv.research_group,
+                                                gv.EM_dataset, 
+												gv.len_ox,
+												z_b.id,
+												z_b.bulk_rock, 
+												z_b.apo, 
+												z_b.P, 
+												z_b.T, 
+												"smag", 
+												state				);
+
+				PP_ref hmt 	= G_EM_function(	gv.research_group,
+                                                gv.EM_dataset, 
+												gv.len_ox,
+												z_b.id,
+												z_b.bulk_rock, 
+												z_b.apo, 
+												z_b.P, 
+												z_b.T, 
+												"hmag", 
+												state				);
+
 				strcpy(PP_ref_db[i].Name, gv.PP_list[i]);
 				for (int j = 0; j < gv.len_ox; j++){
 					PP_ref_db[i].Comp[j] = -3.0 * fa.Comp[j] + 3.0*q.Comp[j] + 2.0*mt.Comp[j];
@@ -1249,7 +1419,15 @@ global_variable init_em_db_sb(	int 				EM_database,
 				/* Calculate normalizing factor */
 				double factor = fbc/ape;
 
-				PP_ref_db[i].gbase   =  -3.0 * fa.gbase + 3.0*q.gbase + 2.0*mt.gbase + z_b.T*0.019145*gv.buffer_n;
+				double min_SiO2_gbase = q.gbase;
+				if (coe.gbase < min_SiO2_gbase) { min_SiO2_gbase = coe.gbase; }
+				if (st.gbase  < min_SiO2_gbase) { min_SiO2_gbase = st.gbase;  }
+
+				double min_mag_gbase = mt.gbase;
+				if (smt.gbase < min_mag_gbase) { min_mag_gbase = smt.gbase; }
+				if (hmt.gbase < min_mag_gbase) { min_mag_gbase = hmt.gbase; }
+
+				PP_ref_db[i].gbase   =  -3.0 * fa.gbase + 3.0*min_SiO2_gbase + 2.0*min_mag_gbase + z_b.T*0.019145*gv.buffer_n;
 				PP_ref_db[i].factor  =  factor;
 				PP_ref_db[i].phase_shearModulus  =  -3.0 * fa.phase_shearModulus + 3.0*q.phase_shearModulus + 2.0*mt.phase_shearModulus;
 				gv.pp_flags[i][4] 	= 1;
@@ -1266,8 +1444,6 @@ global_variable init_em_db_sb(	int 				EM_database,
 												gv.PP_list[i], 
 												state				);
 			}
-
-
 			else{
 				PP_ref_db[i] = G_EM_function(	gv.research_group,
                                                 gv.EM_dataset, 
@@ -1321,7 +1497,13 @@ global_variable init_em_db_sb(	int 				EM_database,
 				/* display molar composition */
 
 				if (EM_database == 0){
-					printf(" S   C   A   F   G   N\n");
+					printf(" S   C   A   F   M   N\n");
+				}
+				else if (EM_database == 1){
+					printf(" S   C   A   F   M   N\n");
+				}
+				else if (EM_database == 2){
+					printf(" S   C   A   M   N   O   Cr  Fe\n");
 				}
 				for (int j = 0; j < gv.len_ox; j++){
 					printf(" %.1f",PP_ref_db[i].Comp[j]);
