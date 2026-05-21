@@ -2164,7 +2164,40 @@ SS_ref G_SS_mpe_dio_init_function(SS_ref SS_ref_db, global_variable gv){
     
     return SS_ref_db;
 }
+/**
+    allocate memory for car
+*/
+SS_ref G_SS_mpe_car_init_function(SS_ref SS_ref_db, global_variable gv){
+    
+    SS_ref_db.n_cat     = 0;
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 5;
+    SS_ref_db.n_em      = 4;
+    SS_ref_db.n_w       = 6;
+    SS_ref_db.n_xeos    = 3;
+    
+    return SS_ref_db;
+}
 
+/**
+    allocate memory for carp
+*/
+SS_ref G_SS_mpe_carp_init_function(SS_ref SS_ref_db, global_variable gv){
+    
+    SS_ref_db.n_cat     = 0;
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 2;
+    SS_ref_db.n_em      = 2;
+    SS_ref_db.n_v       = 0;
+    SS_ref_db.n_w       = 0;
+    SS_ref_db.n_xeos    = 1;
+    
+    return SS_ref_db;
+}
 /**************************************************************************************/
 /**************************************************************************************/
 /**************************************************************************************/
@@ -2568,6 +2601,10 @@ void TC_SS_init_mp_ext(	            SS_init_type 		*SS_init,
 			SS_init[iss]  = G_SS_mpe_amp_init_function; 	}
 		else if (strcmp( gv.SS_list[iss], "oamp")    == 0){
 			SS_init[iss]  = G_SS_mb_oamp_init_function; 	}
+		else if (strcmp( gv.SS_list[iss], "car")    == 0){
+			SS_init[iss]  = G_SS_mpe_car_init_function; 	}
+        else if (strcmp( gv.SS_list[iss], "carp")    == 0){
+			SS_init[iss]  = G_SS_mpe_carp_init_function; 	}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	

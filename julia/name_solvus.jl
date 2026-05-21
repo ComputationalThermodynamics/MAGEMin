@@ -10,8 +10,25 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ =#
 """
     get_mineral_name(db, ss, SS_vec)
+
+    Return a mineralogically meaningful name for a solution phase based on its compositional variables (solvus disambiguation).
+
+    For solution phases that straddle a solvus (e.g., feldspar → plagioclase or alkali feldspar; spinel → spinel, magnetite, or ulvöspinel), the returned name reflects the dominant endmember rather than the generic solution phase label.
+
+    Parameters
+    ----------
+    db : String
+        Database identifier (e.g., "ig", "igad", "mp", "mpe", "mb", "ume", "mbe").
+    ss : String
+        Solution phase short name (e.g., "fsp", "spl", "amp", "ilm").
+    SS_vec : LibMAGEMin.SS_data
+        Solution phase data structure containing `compVariables`.
+
+    Returns
+    -------
+    mineral_name : String
+        Disambiguated mineral name (e.g., "pl", "afs", "mgt", "ilm", "hem").
 """
-# Function to return the mineral name from the solution phase name
 function get_mineral_name(db, ss, SS_vec)
 
     # @warn "Breaking changes in v2.1.3 by disambiguation of solvus names: 'spl': 'sp' > 'spl'; 'sp': 'mt' > 'smt'."
@@ -99,7 +116,23 @@ function get_mineral_name(db, ss, SS_vec)
 end
 
 """
-    This function returns the solution phase name given the mineral name (handling solvus -> solution phase)
+    get_ss_from_mineral(db, mrl, mbCpx)
+
+    Return the solution phase name corresponding to a disambiguated mineral name (inverse of `get_mineral_name`).
+
+    Parameters
+    ----------
+    db : String
+        Database identifier (e.g., "ig", "igad", "mp", "mpe", "mb", "ume", "mbe").
+    mrl : String
+        Disambiguated mineral name (e.g., "pl", "afs", "mgt", "hem", "omph").
+    mbCpx : Int64
+        Metabasite clinopyroxene model flag. Controls whether omphacite/diopside maps to "dio" (0) or "aug" (1).
+
+    Returns
+    -------
+    ss : String
+        Solution phase short name (e.g., "fsp", "spl", "amp", "ilm").
 """
 function get_ss_from_mineral(db, mrl, mbCpx)
 

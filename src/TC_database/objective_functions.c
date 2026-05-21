@@ -6481,8 +6481,6 @@ void p2x_ig_cd(void *SS_ref_db, double eps){
 	d->iguess[0]  = d->p[1];
 	d->iguess[1]  = d->p[2];
 	
-	if (d->z_em[2]  == 0.0){ d->iguess[1]  = eps;}
-		
 	for (int i = 0; i < d->n_xeos; i++){
 		if (d->iguess[i] < d->bounds[i][0]){
 			d->iguess[i] = d->bounds[i][0];
@@ -6509,10 +6507,6 @@ void p2x_ig_cpx(void *SS_ref_db, double eps){
 	d->iguess[7]  = d->p[5]/2.0;	
 	d->iguess[8]  = d->p[9];	
 
-	if (d->z_em[3]  == 0.0){ d->iguess[6]  = eps;}
-	if (d->z_em[4]  == 0.0){ d->iguess[5]  = eps;}
-	if (d->z_em[5]  == 0.0){ d->iguess[7]  = eps;}
-		
 	for (int i = 0; i < d->n_xeos; i++){
 		if (d->iguess[i] < d->bounds[i][0]){
 			d->iguess[i] = d->bounds[i][0];
@@ -6558,9 +6552,7 @@ void p2x_ig_fl(void *SS_ref_db, double eps){
 	d->iguess[7]  = d->p[8];
 	d->iguess[8]  = d->p[9];
 	d->iguess[9]  = d->p[10];
-	
-	if (d->z_em[10] == 0.0){ d->iguess[9]  = eps;}
-		
+
 	for (int i = 0; i < d->n_xeos; i++){
 		if (d->iguess[i] < d->bounds[i][0]){
 			d->iguess[i] = d->bounds[i][0];
@@ -6765,9 +6757,7 @@ void p2x_ig_liq(void *SS_ref_db, double eps){
 	d->iguess[8]  = d->p[9]/(1.0+3./4.*d->p[10]);
 	d->iguess[9]  = d->p[10];
 	d->iguess[10] = d->p[11]/(1.0+3./4.*d->p[10]);
-		
-	if (d->z_em[11] == 0.0){ d->iguess[10] = eps;}
-		
+
 	for (int i = 0; i < d->n_xeos; i++){
 		if (d->iguess[i] < d->bounds[i][0]){
 			d->iguess[i] = d->bounds[i][0];
@@ -6789,9 +6779,7 @@ void p2x_ig_mu(void *SS_ref_db, double eps){
 	d->iguess[2]  = d->p[5];
 	d->iguess[3]  = d->p[3];
 	d->iguess[4]  = d->p[4];
-
-	if (d->z_em[5]  == 0.0){ d->iguess[2]  = eps;}
-		
+	
 	for (int i = 0; i < d->n_xeos; i++){
 		if (d->iguess[i] < d->bounds[i][0]){
 			d->iguess[i] = d->bounds[i][0];
@@ -6836,11 +6824,7 @@ void p2x_ig_opx(void *SS_ref_db, double eps){
 	d->iguess[5] = d->p[6]/2.0;
 	d->iguess[6] = d->p[5];
 	d->iguess[7] = d->p[8];
-	
-	if (d->z_em[5]  == 0.0){ d->iguess[6]  = eps;}
-	if (d->z_em[4]  == 0.0){ d->iguess[4]  = eps;}
-	if (d->z_em[6]  == 0.0){ d->iguess[5]  = eps;}
-		
+
 	for (int i = 0; i < d->n_xeos; i++){
 		if (d->iguess[i] < d->bounds[i][0]){
 			d->iguess[i] = d->bounds[i][0];
@@ -9266,10 +9250,6 @@ void p2x_igad_cpx(void *SS_ref_db, double eps){
 	d->iguess[7]  = d->p[5]/2.0;	
 	d->iguess[8]  = d->p[9];	
 
-	if (d->z_em[3]  == 0.0){ d->iguess[6]  = eps;}
-	if (d->z_em[4]  == 0.0){ d->iguess[5]  = eps;}
-	if (d->z_em[5]  == 0.0){ d->iguess[7]  = eps;}
-		
 	for (int i = 0; i < d->n_xeos; i++){
 		if (d->iguess[i] < d->bounds[i][0]){
 			d->iguess[i] = d->bounds[i][0];
@@ -9357,11 +9337,7 @@ void p2x_igad_opx(void *SS_ref_db, double eps){
 	d->iguess[5] = d->p[6]/2.0;
 	d->iguess[6] = d->p[5];
 	d->iguess[7] = d->p[8];
-	
-	if (d->z_em[5]  == 0.0){ d->iguess[6]  = eps;}
-	if (d->z_em[4]  == 0.0){ d->iguess[4]  = eps;}
-	if (d->z_em[6]  == 0.0){ d->iguess[5]  = eps;}
-		
+
 	for (int i = 0; i < d->n_xeos; i++){
 		if (d->iguess[i] < d->bounds[i][0]){
 			d->iguess[i] = d->bounds[i][0];
@@ -12532,6 +12508,31 @@ void dpdx_mpe_dio(void *SS_ref_db, const double *x){
 }
 
 
+
+/**
+    Update dpdx matrix of car
+*/
+void dpdx_mpe_car(void *SS_ref_db, const double *x){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    double **dp_dx = d->dp_dx;
+
+    dp_dx[0][0] = x[2] - 1.0;      dp_dx[0][1] = x[2] - 1.0;      dp_dx[0][2] = x[0] + x[1] - 1.0;      
+    dp_dx[1][0] = 1.0 - 1.0*x[2];      dp_dx[1][1] = 0.0;      dp_dx[1][2] = -1.0*x[0];      
+    dp_dx[2][0] = 0.0;      dp_dx[2][1] = 1.0 - 1.0*x[2];      dp_dx[2][2] = -1.0*x[1];      
+    dp_dx[3][0] = 0.0;      dp_dx[3][1] = 0.0;      dp_dx[3][2] = 1.00000000000000;      
+}
+/**
+    Update dpdx matrix of carp
+*/
+void dpdx_mpe_carp(void *SS_ref_db, const double *x){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    double **dp_dx = d->dp_dx;
+
+    dp_dx[0][0] = 1.00000000000000;      
+    dp_dx[1][0] = -1.00000000000000;      
+}
+
+
 /**
     Endmember to xeos for bi_mp
 */
@@ -13127,6 +13128,56 @@ void p2x_mpe_occm(void *SS_ref_db, double eps){
 }
 
 /**
+    Endmember to xeos for car
+*/
+void p2x_mpe_car(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[2]  = d->p[2];
+    d->iguess[0]  = d->p[0]/(1.0 - 1.0*d->p[2]);
+    d->iguess[1]  = d->p[1]/(1.0 - 1.0*d->p[2]);
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+
+/**
+    Endmember to xeos for carp
+*/
+void p2x_mpe_carp(void *SS_ref_db, double eps){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    
+    d->iguess[0]  = d->p[-1];
+    
+    for (int i = 0; i < d->n_xeos; i++){
+        if (d->iguess[i] < d->bounds[i][0]){
+            d->iguess[i] = d->bounds[i][0];
+        }
+        if (d->iguess[i] > d->bounds[i][1]){
+            d->iguess[i] = d->bounds[i][1];
+        }
+    }
+}
+
+
+/**
+    Endmember fraction of car
+*/
+void px_mpe_car(void *SS_ref_db, const double *x){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    double *p = d->p;
+        p[0]           = (1.0 - 1.0*x[2])*(-1.0*x[0] - 1.0*x[1] + 1.0);
+        p[1]           = x[0]*(1.0 - 1.0*x[2]);
+        p[2]           = x[1]*(1.0 - 1.0*x[2]);
+        p[3]           = x[2];
+}
+/**
     Endmember fraction of liq_mp
 */
 void px_mpe_liq(void *SS_ref_db, const double *x){
@@ -13435,6 +13486,16 @@ void px_mpe_dio(void *SS_ref_db, const double *x){
         p[4]           = 2.0*x[3];
         p[5]           = 2.0*x[0]*x[3] + 2.0*x[1]*x[5] + 2.0*x[3]*x[5] - 2.0*x[5];
         p[6]           = 2.0*x[4];
+}
+    
+/**
+    Endmember fraction of carp
+*/
+void px_mpe_carp(void *SS_ref_db, const double *x){
+    SS_ref *d  = (SS_ref *) SS_ref_db;
+    double *p = d->p;
+        p[0]           = x[0];
+        p[1]           = 1.0 - 1.0*x[0];
 }
 
 /**
@@ -15246,6 +15307,127 @@ double obj_mpe_po(unsigned n, const double *x, double *grad, void *SS_ref_db){
     return d->df;
 }
 
+/**
+    Objective function of car
+*/
+double obj_mpe_car(unsigned n, const double *x, double *grad, void *SS_ref_db){
+    SS_ref *d         = (SS_ref *) SS_ref_db;
+
+    int n_em          = d->n_em;
+    double P          = d->P;
+    double T          = d->T;
+    double R          = d->R;
+
+    double *gb        = d->gb_lvl;
+    double *mu_Gex    = d->mu_Gex;
+    double *sf        = d->sf;
+    double *mu        = d->mu;
+    px_mpe_car(SS_ref_db,x);
+
+    for (int i = 0; i < n_em; i++){
+        mu_Gex[i] = 0.0;
+        int it    = 0;
+        for (int j = 0; j < d->n_xeos; j++){
+            for (int k = j+1; k < n_em; k++){
+                mu_Gex[i] -= (d->eye[i][j] - d->p[j])*(d->eye[i][k] - d->p[k])*(d->W[it]);
+                it += 1;
+            }
+        }
+    }
+    
+    sf[0]          = -x[0] - x[1] + 1.0;
+    sf[1]          = 1.0*x[0];
+    sf[2]          = 1.0*x[1];
+    sf[3]          = 1.0*x[2];
+    sf[4]          = 1.0 - x[2];
+    
+    
+    mu[0]          = gb[0] + R*T*creal(clog(sf[0]*sf[4])) + mu_Gex[0];
+    mu[1]          = gb[1] + R*T*creal(clog(sf[1]*sf[4])) + mu_Gex[1];
+    mu[2]          = gb[2] + R*T*creal(clog(sf[2]*sf[4])) + mu_Gex[2];
+    mu[3]          = gb[3] + R*T*creal(clog(sf[0]*sf[3])) + mu_Gex[3];
+    
+    d->sum_apep = 0.0;
+    for (int i = 0; i < n_em; i++){
+        d->sum_apep += d->ape[i]*d->p[i];
+    }
+    d->factor = d->fbc/d->sum_apep;
+
+    d->df_raw = 0.0;
+    for (int i = 0; i < n_em; i++){
+        d->df_raw += mu[i]*d->p[i];
+    }
+    d->df = d->df_raw * d->factor;
+
+    if (grad){
+        double *dfx    = d->dfx;
+        double **dp_dx = d->dp_dx;
+        dpdx_mpe_car(SS_ref_db,x);
+        for (int i = 0; i < (d->n_xeos); i++){
+            dfx[i] = 0.0;
+            for (int j = 0; j < n_em; j++){
+                dfx[i] += (mu[j] - (d->ape[j]/d->sum_apep)*d->df_raw)*d->factor*dp_dx[j][i];
+            }
+            grad[i] = creal(dfx[i]);
+        }
+    }
+
+    return d->df;
+}
+  
+
+/**
+    Objective function of carp
+*/
+double obj_mpe_carp(unsigned n, const double *x, double *grad, void *SS_ref_db){
+    SS_ref *d         = (SS_ref *) SS_ref_db;
+
+    int n_em          = d->n_em;
+    double P          = d->P;
+    double T          = d->T;
+    double R          = d->R;
+
+    double *gb        = d->gb_lvl;
+    double *mu_Gex    = d->mu_Gex;
+    double *sf        = d->sf;
+    double *mu        = d->mu;
+    px_mpe_carp(SS_ref_db,x);
+
+    
+    sf[0]          = 1.0*x[0];
+    sf[1]          = 1.0 - x[0];
+    
+    mu[0]          = gb[0] + R*T*creal(clog(sf[0]));
+    mu[1]          = gb[1] + R*T*creal(clog(sf[1]));
+    
+    d->sum_apep = 0.0;
+    for (int i = 0; i < n_em; i++){
+        d->sum_apep += d->ape[i]*d->p[i];
+    }
+    d->factor = d->fbc/d->sum_apep;
+
+    d->df_raw = 0.0;
+    for (int i = 0; i < n_em; i++){
+        d->df_raw += mu[i]*d->p[i];
+    }
+    d->df = d->df_raw * d->factor;
+
+    if (grad){
+        double *dfx    = d->dfx;
+        double **dp_dx = d->dp_dx;
+        dpdx_mpe_carp(SS_ref_db,x);
+        for (int i = 0; i < (d->n_xeos); i++){
+            dfx[i] = 0.0;
+            for (int j = 0; j < n_em; j++){
+                dfx[i] += (mu[j] - (d->ape[j]/d->sum_apep)*d->df_raw)*d->factor*dp_dx[j][i];
+            }
+            grad[i] = creal(dfx[i]);
+        }
+    }
+
+    return d->df;
+}
+    
 /**************************************************************************************/
 /**************************************************************************************/
 /**************************************************************************************/
@@ -15587,7 +15769,11 @@ void TC_mpe_P2X_init(	            P2X_type 			*P2X_read,
 		else if (strcmp( gv.SS_list[iss], "amp")    == 0){
 			P2X_read[iss]  = p2x_mpe_amp; 		}
 		else if (strcmp( gv.SS_list[iss], "oamp")    == 0){
-			}
+            P2X_read[iss]  = p2x_mpe_amp; }
+        else if (strcmp( gv.SS_list[iss], "car")    == 0){
+            P2X_read[iss]  = p2x_mpe_car; 		}
+        else if (strcmp( gv.SS_list[iss], "carp")    == 0){
+            P2X_read[iss]  = p2x_mpe_carp; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	
@@ -16299,6 +16485,10 @@ void TC_mpe_objective_init_function(	obj_type 			*SS_objective,
 			SS_objective[iss]  = obj_mpe_po; 		}
 		else if (strcmp( gv.SS_list[iss], "oamp")    == 0){
 			SS_objective[iss]  = obj_mb_oamp; 		}
+        else if (strcmp( gv.SS_list[iss], "car")    == 0){
+            SS_objective[iss]  = obj_mpe_car; 		}
+        else if (strcmp( gv.SS_list[iss], "carp")    == 0){
+            SS_objective[iss]  = obj_mpe_carp; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	
@@ -16747,6 +16937,10 @@ void TC_mpe_PC_init(	                PC_type 			*PC_read,
 			PC_read[iss]  = obj_mpe_po; 		            }
 		else if (strcmp( gv.SS_list[iss], "oamp")    == 0){
 			PC_read[iss]  = obj_mb_oamp; 		            }
+        else if (strcmp( gv.SS_list[iss], "car")    == 0){
+			PC_read[iss]  = obj_mpe_car; 		            }
+        else if (strcmp( gv.SS_list[iss], "carp")    == 0){
+			PC_read[iss]  = obj_mpe_carp; 		            }
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
 		}	

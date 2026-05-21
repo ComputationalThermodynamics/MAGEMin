@@ -122,7 +122,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.9.3 16/04/2026]");		/** MAGEMin version 																*/
+	strcpy(gv.version,"1.9.4 21/05/2026]");		/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
@@ -656,7 +656,7 @@ global_variable reset_gv(					global_variable 	 gv,
 			}
 		}
 		else{
-			if(strcmp( gv.PP_list[i], "O2") == 0 && strcmp(gv.research_group, "sb") != 0){ //stx
+			if(strcmp( gv.PP_list[i], "O2") == 0){// && strcmp(gv.research_group, "sb") != 0){ //stx
 				gv.pp_flags[i][0] = 0;
 				gv.pp_flags[i][1] = 0;
 				gv.pp_flags[i][2] = 0;

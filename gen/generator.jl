@@ -1,5 +1,5 @@
 using Clang.Generators
-using Clang.LibClang.Clang_jll
+using Clang_jll
 using Pkg
 using Pkg.Artifacts
 #using MAGEMin_jll

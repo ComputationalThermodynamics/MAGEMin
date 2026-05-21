@@ -8,8 +8,25 @@
 #   Contact      : nriel[at]uni-mainz.de
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ =#
-# Function to calculate the Li partitioning coefficient in biotite, after C. Beard., 2025
+"""
+    bi_Li_CB_model(y, f, T)
 
+    Compute the Li partition coefficient between biotite and melt, after Beard (2025).
+
+    Parameters
+    ----------
+    y : Float64
+        Biotite Al-content compositional variable (Al on T site).
+    f : Float64
+        Biotite Fe/(Fe+Mg) compositional variable.
+    T : Float64
+        Temperature [°C].
+
+    Returns
+    -------
+    KD_Li : Float64
+        Li partition coefficient (biotite/melt).
+"""
 function bi_Li_CB_model(    y :: Float64,
                             f :: Float64,
                             T :: Float64 )
@@ -22,11 +39,40 @@ function bi_Li_CB_model(    y :: Float64,
     return KD_Li 
 end
 
-# For the following bi_Li_IL_model and cd_Li_IL_model, the T is in Celsius
+"""
+    bi_Li_IL_model(T)
+
+    Compute the Li partition coefficient between biotite and melt using a linear temperature model (Imai & Liang, unpublished).
+
+    Parameters
+    ----------
+    T : Float64
+        Temperature [°C].
+
+    Returns
+    -------
+    KD_Li : Float64
+        Li partition coefficient (biotite/melt).
+"""
 function bi_Li_IL_model(   T :: Float64 )
-    return -0.0076*(T)+6.5775 
+    return -0.0076*(T)+6.5775
 end
 
+"""
+    cd_Li_IL_model(T)
+
+    Compute the Li partition coefficient between cordierite and melt using a linear temperature model (Imai & Liang, unpublished).
+
+    Parameters
+    ----------
+    T : Float64
+        Temperature [°C].
+
+    Returns
+    -------
+    KD_Li : Float64
+        Li partition coefficient (cordierite/melt).
+"""
 function cd_Li_IL_model(   T :: Float64 )
     return -0.0021*(T)+1.933
 end

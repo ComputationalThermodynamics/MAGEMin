@@ -14,7 +14,19 @@
 
 
 """
-    This routine stores the TE partitioning coefficients
+    get_TE_database(tedb="OL12")
+
+    Return the built-in trace element (TE) partitioning coefficient database.
+
+    Parameters
+    ----------
+    tedb : String, optional
+        Database identifier (default: "OL12"). Currently only "OL12" is supported (Laurent, 2012).
+
+    Returns
+    -------
+    db : custom_KDs_database
+        Trace element partitioning coefficient database containing element names, phase names, and partition coefficient expressions.
 """
 function get_TE_database(tedb :: String = "OL12")
     if tedb == "OL12"
@@ -29,7 +41,25 @@ function get_TE_database(tedb :: String = "OL12")
 end
 
 """
-    Classify the mineral output from MAGEMin to be able to be compared with partitioning coefficient database
+    mineral_classification(out, dtb)
+
+    Classify the stable phases from a MAGEMin minimization result into mineralogical names compatible with the trace element partitioning coefficient database.
+
+    Solution phases that straddle a solvus (e.g., feldspar, spinel, ilmenite) are disambiguated using their compositional variables. Duplicate phases resulting from solvus splitting are merged by summing their weight fractions.
+
+    Parameters
+    ----------
+    out : MAGEMin_C.gmin_struct{Float64, Int64}
+        MAGEMin minimization output structure.
+    dtb : String
+        Database identifier (e.g., "ig", "igad", "mp", "mpe", "mb", "ume", "mbe").
+
+    Returns
+    -------
+    ph : Vector{String}
+        Classified phase names compatible with the TE partitioning database.
+    ph_wt : Vector{Float64}
+        Weight fractions corresponding to each phase.
 """
 function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Float64, Int64},
                                     dtb             :: String  )
@@ -52,6 +82,10 @@ function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Flo
                 elseif x[4] - 0.5 > 0.0;    mineral_name = "sp";
                 elseif x[2] - 0.5 > 0.0;    mineral_name = "mgt";
                 else                        mineral_name = "spl";    end
+            elseif ss == "pig" || ss == "Na-cpx"
+                mineral_name = "cpx";
+            elseif ss == "gl" || ss == "act" || ss == "amp" || ss == "cumm" || ss == "tr"
+                mineral_name = "amp";
             elseif ss == "fsp"
                 if x[2] - 0.5 > 0.0;        mineral_name = "afs";
                 else                        mineral_name = "pl";    end
@@ -67,6 +101,10 @@ function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Flo
             if ss == "sp"
                 if x[2] - 0.5 > 0.0;        mineral_name = "sp";
                 else                        mineral_name = "smt";    end
+            elseif ss == "gl" || ss == "act" || ss == "amp" || ss == "cumm" || ss == "tr"
+                mineral_name = "amp";
+            elseif ss == "omph" || ss == "dio" || ss == "jd"
+                mineral_name = "cpx";
             elseif ss == "spl"
                 if x[3] - 0.5 > 0.0;        mineral_name = "cm";
                 elseif x[2] - 0.5 > 0.0;    mineral_name = "mgt";
@@ -83,8 +121,6 @@ function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Flo
             elseif ss == "ilm"
                 if 1.0 - x[1] > 0.5;        mineral_name = "hem";
                 else                        mineral_name = "FeTiOx";   end 
-            elseif ss == "dio"
-                mineral_name = "cpx";
             elseif ss == "occm"
                 if x[2] > 0.5;              mineral_name = "sid";
                 elseif x[3] > 0.5;          mineral_name = "ank";  
@@ -124,7 +160,46 @@ function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Flo
 end
 
 """
-    Holds the output of the TE partitioning routine
+    out_tepm
+
+    Structure holding the output of the trace element (TE) partitioning routine.
+
+    Fields
+    ------
+    elements : Vector{String}
+        Names of the trace elements.
+    C0 : Vector{Float64}
+        Initial bulk trace element composition [ppm].
+    Cliq : Vector{Float64}
+        Trace element concentrations in the melt phase [ppm].
+    Csol : Vector{Float64}
+        Trace element concentrations in the bulk solid [ppm].
+    Cmin : Matrix{Float64}
+        Trace element concentrations in each individual mineral phase [ppm] (phases × elements).
+    ph_TE : Vector{String}
+        Names of the phases included in the partitioning calculation.
+    ph_wt_norm : Vector{Float64}
+        Normalized weight fractions of the solid phases.
+    liq_wt_norm : Float64
+        Normalized weight fraction of the melt.
+    bulk_D : Float64
+        Bulk partition coefficient.
+    bulk_cor_wt : Vector{Float64}
+        Corrected bulk oxide weight fractions (accounting for saturation phases).
+    bulk_cor_mol : Vector{Float64}
+        Corrected bulk oxide molar fractions.
+    Sat_Zr_liq : Float64
+        Zirconium saturation concentration in the melt [ppm] (NaN if not computed).
+    zrc_wt : Float64
+        Weight fraction of zircon precipitated (NaN if not computed).
+    Sat_S_liq : Float64
+        Sulfur saturation concentration in the melt [ppm] (NaN if not computed).
+    sulf_wt : Float64
+        Weight fraction of sulfide precipitated (NaN if not computed).
+    Sat_P2O5_liq : Float64
+        P₂O₅ saturation concentration in the melt [ppm] (NaN if not computed).
+    fapt_wt : Float64
+        Weight fraction of fluorapatite precipitated (NaN if not computed).
 """
 struct out_tepm
     elements        :: Union{Float64, Vector{String}}
@@ -152,7 +227,20 @@ end
 
 
 """
-    Holds the partitioning coefficient database
+    custom_KDs_database
+
+    Structure holding a trace element partitioning coefficient (KD) database.
+
+    Fields
+    ------
+    infos : String
+        Description or citation for the database.
+    element_name : Vector{String}
+        Names of the trace elements.
+    phase_name : Vector{String}
+        Names of the mineral phases for which KDs are defined.
+    KDs_expr : Matrix{Function}
+        Matrix of compiled KD functions (phases × elements). Each function takes a `gmin_struct` as input and returns a Float64.
 """
 struct custom_KDs_database
     infos           #:: String
@@ -161,6 +249,20 @@ struct custom_KDs_database
     KDs_expr        #:: Matrix{Expr}, Vector{Expr}
 end
 
+"""
+    retrieve_eval_rules_TE()
+
+    Return the token substitution rules used when compiling KD expression strings.
+
+    Plain tokens such as `T_C` and `P_kbar` are replaced with their fully-qualified counterparts on a `gmin_struct` (e.g., `out.T_C`), so that compiled functions can be called with a single `out` argument.
+
+    Returns
+    -------
+    in_eval_TE : Vector{String}
+        Tokens to search for in the expression string.
+    out_eval_TE : Vector{String}
+        Replacement strings referencing the `out` argument.
+"""
 function retrieve_eval_rules_TE()
 
     in_eval_TE     = ["T_C","P_kbar","oxides"]
@@ -169,18 +271,61 @@ function retrieve_eval_rules_TE()
     return in_eval_TE, out_eval_TE
 end
 
+
+"""
+    convert_SS_eval_TE(str)
+
+    Rewrite `[:phase]` subscript tokens in a KD expression string to fully-qualified `gmin_struct` accessor calls.
+
+    The pattern `[:name]` is replaced with `out.SS_vec[out.SS_syms[:name]]`, allowing KD expressions to reference solution phase data by short name (e.g., `[:liq].compVariables[1]` → `out.SS_vec[out.SS_syms[:liq]].compVariables[1]`).
+
+    Parameters
+    ----------
+    str : String
+        KD expression string potentially containing `[:phase]` tokens.
+
+    Returns
+    -------
+    str : String
+        Expression string with all `[:phase]` tokens replaced.
+"""
 function convert_SS_eval_TE(str)
     pattern = r"\[:([A-Za-z_][A-Za-z0-9_]*)\]"
     matches = collect(eachmatch(pattern, str))
 
-    if !isempty(matches)
-        name = matches[1].captures[1]
-        str = replace(str, matches[1].match => "out.SS_vec[out.SS_syms[:$name]]")
+    seen = Set{String}()
+    for m in matches
+        raw = m.match
+        raw in seen && continue
+        push!(seen, raw)
+        name = m.captures[1]
+        str = replace(str, raw => "out.SS_vec[out.SS_syms[:$name]]")
     end
 
     return str
 end
 
+"""
+    adjust_chemical_system(KDs_dtb, bulk_TE, elem_TE)
+
+    Reorder and subset a bulk trace element composition vector to match the element order defined in a KD database.
+
+    Elements present in `KDs_dtb` but absent from `elem_TE` are set to zero.
+
+    Parameters
+    ----------
+    KDs_dtb : custom_KDs_database
+        KD database whose `element_name` field defines the target element order.
+    bulk_TE : Vector{Float64}
+        Input bulk trace element concentrations [ppm].
+    elem_TE : Vector{String}
+        Element names corresponding to `bulk_TE`.
+
+    Returns
+    -------
+    C0_TE : Vector{Float64}
+        Bulk trace element concentrations reordered to match `KDs_dtb.element_name` [ppm].
+"""
 function adjust_chemical_system(    KDs_dtb     :: custom_KDs_database,
                                     bulk_TE     :: Vector{Float64},
                                     elem_TE     :: Vector{String}       )
@@ -199,15 +344,27 @@ function adjust_chemical_system(    KDs_dtb     :: custom_KDs_database,
 end
 
 """
-    KDs_database = custom_KDs_database(infos::String, 
-                        element_name::Vector{String}, 
-                        phase_name::Vector{String}, 
-                        KDs_expr::Matrix{Expr})
+    create_custom_KDs_database(el_name, phase_name, KDs_expr_str; info="Custom KDs database")
 
-Create a custom KDs database from the given information.
+    Create a custom trace element partitioning coefficient (KD) database from string expressions.
 
-returns a custom_KDs_database object that can be used in the TE_partitioning.jl module.
+    Each expression in `KDs_expr_str` may reference `T_C`, `P_kbar`, `oxides`, and solution phase compositional variables using the syntax `[:phase_name]` (e.g., `[:liq].compVariables[1]`). These are resolved against the `gmin_struct` output at evaluation time.
 
+    Parameters
+    ----------
+    el_name : Vector{String}
+        Names of the trace elements.
+    phase_name : Vector{String}
+        Names of the mineral phases.
+    KDs_expr_str : Union{Matrix{String}, Vector{String}}
+        Matrix (phases × elements) or vector of KD expressions as strings.
+    info : String, optional
+        Description or citation for the database (default: "Custom KDs database").
+
+    Returns
+    -------
+    db : custom_KDs_database
+        Compiled KD database ready for use in `TE_prediction`.
 """
 function create_custom_KDs_database(el_name         :: Vector{String},
                                     phase_name      :: Vector{String},
@@ -236,6 +393,45 @@ function create_custom_KDs_database(el_name         :: Vector{String},
     return custom_KDs_database(info, el_name, phase_name, KDs_expr)
 end
 
+"""
+    partition_TE(KDs_database, out, C0, ph, ph_wt, liq_wt; norm_TE=true)
+
+    Apply the batch melting equation to partition trace elements between melt and solid phases for the subset of phases present in both the MAGEMin output and the KD database.
+
+    Parameters
+    ----------
+    KDs_database : custom_KDs_database
+        Compiled KD database.
+    out : MAGEMin_C.gmin_struct{Float64, Int64}
+        MAGEMin minimization output used to evaluate P-T-composition-dependent KDs.
+    C0 : Vector{Float64}
+        Initial bulk trace element composition [ppm].
+    ph : Vector{String}
+        Phase names from `mineral_classification`.
+    ph_wt : Vector{Float64}
+        Weight fractions of each phase.
+    liq_wt : Float64
+        Melt weight fraction.
+    norm_TE : Bool, optional
+        Normalize phase fractions to the phases present in the KD database (default: true).
+
+    Returns
+    -------
+    Cliq : Vector{Float64}
+        Trace element concentrations in the melt [ppm].
+    Cmin : Matrix{Float64}
+        Trace element concentrations in each mineral phase [ppm] (phases × elements).
+    Csol : Vector{Float64}
+        Trace element concentrations in the bulk solid [ppm].
+    ph_TE : Vector{String}
+        Names of phases included in the calculation.
+    ph_wt_norm : Vector{Float64}
+        Normalized solid phase weight fractions.
+    liq_wt_norm : Float64
+        Normalized melt weight fraction.
+    bulk_D : Float64
+        Bulk partition coefficient.
+"""
 function partition_TE(  KDs_database:: custom_KDs_database,
                         out         :: MAGEMin_C.gmin_struct{Float64, Int64},   
                         C0          :: Vector{Float64},
@@ -288,6 +484,23 @@ function partition_TE(  KDs_database:: custom_KDs_database,
 end
 
 
+"""
+    health_check_TE(C0, KDs_database)
+
+    Validate that the initial composition vector and KD database are consistent before running TE partitioning.
+
+    Parameters
+    ----------
+    C0 : Vector{Float64}
+        Initial bulk trace element composition [ppm].
+    KDs_database : custom_KDs_database
+        KD database to validate against `C0`.
+
+    Returns
+    -------
+    status : Int64
+        1 if all checks pass, 0 if any check fails (errors are also thrown).
+"""
 function health_check_TE(C0, KDs_database)
 
     status = 1
@@ -313,17 +526,47 @@ end
 
 
 """
-    compute_TE_partitioning(    KDs_database:: custom_KDs_database,
-                                C0          :: Vector{Float64},
-                                ph          :: Vector{String},
-                                ph_wt       :: Vector{Float64}, 
-                                liq_wt      :: Float64,
-                                sol_wt      :: Float64)
+    compute_TE_partitioning(KDs_database, out, C0, ph, ph_wt, liq_wt, sol_wt; norm_TE=true)
 
-Compute the partitioning of elements into different phases based on the provided KDs database and the initial composition C0.
+    Partition trace elements between melt and solid phases using the supplied KD database.
 
-This function partitions the elements into liquid, solid, and other phases based on the provided KDs database and the initial composition C0. It returns the partitioned compositions along with normalized phase weights.
+    Handles three end-member cases: fully molten (`liq_wt == 1.0`), fully solid (`liq_wt == 0.0`), and mixed (`0 < liq_wt < 1`). In the mixed case the batch melting equation is applied.
 
+    Parameters
+    ----------
+    KDs_database : custom_KDs_database
+        Compiled trace element partitioning coefficient database.
+    out : MAGEMin_C.gmin_struct{Float64, Int64}
+        MAGEMin minimization output used to evaluate P-T-composition-dependent KDs.
+    C0 : Vector{Float64}
+        Initial bulk trace element composition [ppm].
+    ph : Vector{String}
+        Phase names from `mineral_classification`.
+    ph_wt : Vector{Float64}
+        Weight fractions of each phase.
+    liq_wt : Float64
+        Melt weight fraction.
+    sol_wt : Float64
+        Solid weight fraction.
+    norm_TE : Bool, optional
+        Normalize phase fractions before computing KDs (default: true).
+
+    Returns
+    -------
+    Cliq : Vector{Float64}
+        Trace element concentrations in the melt [ppm].
+    Csol : Vector{Float64}
+        Trace element concentrations in the bulk solid [ppm].
+    Cmin : Matrix{Float64}
+        Trace element concentrations in each mineral phase [ppm].
+    ph_TE : Vector{String}
+        Phase names included in the calculation.
+    ph_wt_norm : Vector{Float64}
+        Normalized solid phase weight fractions.
+    liq_wt_norm : Float64
+        Normalized melt weight fraction.
+    bulk_D : Float64
+        Bulk partition coefficient.
 """
 function compute_TE_partitioning(   KDs_database:: custom_KDs_database,
                                     out         :: MAGEMin_C.gmin_struct{Float64, Int64},
@@ -358,20 +601,37 @@ end
 
 
 """
-    compute_Zr_sat_n_part(          out         :: MAGEMin_C.gmin_struct{Float64, Int64},
-                                    KDs_database:: custom_KDs_database,
-                                    Cliq,
-                                    C0          :: Vector{Float64},
-                                    ph          :: Vector{String},
-                                    ph_wt       :: Vector{Float64}, 
-                                    liq_wt      :: Float64,
-                                    sol_wt      :: Float64;
-                                    ZrSat_model :: String = "CB")
+    compute_Zr_sat_n_part(out, KDs_database, Cliq, bulk_cor_wt, C0, liq_wt; ZrSat_model="CB")
 
-Compute zircon saturation and adjust bulk composition if necessary.
+    Check zircon saturation and adjust the corrected bulk composition if the melt exceeds the Zr saturation limit.
 
-This function checks if the zirconium content in the liquid phase exceeds the saturation limit. If it does, it adjusts the bulk composition by removing the excess zirconium and adds a new phase for zircon.
+    If Zr in the melt exceeds the saturation concentration, the excess is removed from the melt and the corresponding SiO₂ and O are returned to the bulk. If there is no melt (`liq_wt == 0`), all Zr is assumed to have precipitated as zircon.
 
+    Parameters
+    ----------
+    out : MAGEMin_C.gmin_struct{Float64, Int64}
+        MAGEMin minimization output.
+    KDs_database : custom_KDs_database
+        Trace element partitioning coefficient database (must include "Zr").
+    Cliq : Vector{Float64}
+        Current trace element concentrations in the melt [ppm].
+    bulk_cor_wt : Vector{Float64}
+        Corrected bulk oxide weight fractions (modified in place).
+    C0 : Vector{Float64}
+        Initial bulk trace element composition [ppm].
+    liq_wt : Float64
+        Melt weight fraction.
+    ZrSat_model : String, optional
+        Zirconium saturation model (default: "CB"). Passed to `zirconium_saturation`.
+
+    Returns
+    -------
+    Sat_Zr_liq : Float64
+        Zr saturation concentration in the melt [ppm].
+    zrc_wt : Float64
+        Weight fraction of precipitated zircon.
+    bulk_cor_wt : Vector{Float64}
+        Updated corrected bulk oxide weight fractions.
 """
 function compute_Zr_sat_n_part(     out         :: MAGEMin_C.gmin_struct{Float64, Int64},
                                     KDs_database:: custom_KDs_database,
@@ -411,21 +671,37 @@ function compute_Zr_sat_n_part(     out         :: MAGEMin_C.gmin_struct{Float64
 end
 
 """
-    compute_S_sat_n_part(           out         :: MAGEMin_C.gmin_struct{Float64, Int64},
-                                    KDs_database:: custom_KDs_database,
-                                    Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D, bulk_cor_wt,
-                                    C0          :: Vector{Float64},
-                                    ph          :: Vector{String},
-                                    ph_wt       :: Vector{Float64}, 
-                                    liq_wt      :: Float64,
-                                    sol_wt      :: Float64;
-                                    SSat_model  :: String = "1000ppm",
-                                    norm_TE     :: Bool = true)
+    compute_S_sat_n_part(out, KDs_database, Cliq, bulk_cor_wt, C0, liq_wt; SSat_model="1000ppm")
 
-Compute sulfur saturation and adjust bulk composition if necessary.
+    Check sulfur saturation and adjust the corrected bulk composition if the melt exceeds the S saturation limit.
 
-This function checks if the sulfur content in the liquid phase exceeds the saturation limit. If it does, it adjusts the bulk composition by removing the excess sulfur and adds a new phase for FeS.
+    If S in the melt exceeds the saturation concentration, the excess is removed and the corresponding FeO and O are returned to the bulk. If there is no melt, all S is assumed to have precipitated as sulfide.
 
+    Parameters
+    ----------
+    out : MAGEMin_C.gmin_struct{Float64, Int64}
+        MAGEMin minimization output.
+    KDs_database : custom_KDs_database
+        Trace element partitioning coefficient database (must include "S").
+    Cliq : Vector{Float64}
+        Current trace element concentrations in the melt [ppm].
+    bulk_cor_wt : Vector{Float64}
+        Corrected bulk oxide weight fractions (modified in place).
+    C0 : Vector{Float64}
+        Initial bulk trace element composition [ppm].
+    liq_wt : Float64
+        Melt weight fraction.
+    SSat_model : String, optional
+        Sulfur saturation model (default: "1000ppm"). Passed to `sulfur_saturation`.
+
+    Returns
+    -------
+    Sat_S_liq : Float64
+        S saturation concentration in the melt [ppm].
+    sulf_wt : Float64
+        Weight fraction of precipitated sulfide.
+    bulk_cor_wt : Vector{Float64}
+        Updated corrected bulk oxide weight fractions.
 """
 function compute_S_sat_n_part(      out         :: MAGEMin_C.gmin_struct{Float64, Int64},
                                     KDs_database:: custom_KDs_database,
@@ -467,21 +743,37 @@ end
 
 
 """
-    compute_P_sat_n_part(           out         :: MAGEMin_C.gmin_struct{Float64, Int64},
-                                    KDs_database:: custom_KDs_database,
-                                    Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D, bulk_cor_wt,
-                                    C0          :: Vector{Float64},
-                                    ph          :: Vector{String},
-                                    ph_wt       :: Vector{Float64}, 
-                                    liq_wt      :: Float64,
-                                    sol_wt      :: Float64;
-                                    P2O5Sat_model  :: String = "Klein26",
-                                    norm_TE     :: Bool = true)
+    compute_P2O5_sat_n_part(out, KDs_database, Cliq, bulk_cor_wt, C0, liq_wt; P2O5Sat_model="Klein26")
 
-Compute phosphate saturation and adjust bulk composition if necessary.
+    Check phosphate saturation and adjust the corrected bulk composition if the melt exceeds the P₂O₅ saturation limit.
 
-This function checks if the P2O5 content in the liquid phase exceeds the saturation limit. If it does, it adjusts the bulk composition by removing the excess P2O5 and adds a new phase for fapt.
+    If P₂O₅ in the melt exceeds the saturation concentration, the excess is removed and the corresponding CaO is returned to the bulk. If there is no melt, all P₂O₅ is assumed to have precipitated as fluorapatite.
 
+    Parameters
+    ----------
+    out : MAGEMin_C.gmin_struct{Float64, Int64}
+        MAGEMin minimization output.
+    KDs_database : custom_KDs_database
+        Trace element partitioning coefficient database (must include "P2O5").
+    Cliq : Vector{Float64}
+        Current trace element concentrations in the melt [ppm].
+    bulk_cor_wt : Vector{Float64}
+        Corrected bulk oxide weight fractions (modified in place).
+    C0 : Vector{Float64}
+        Initial bulk trace element composition [ppm].
+    liq_wt : Float64
+        Melt weight fraction.
+    P2O5Sat_model : String, optional
+        Phosphate saturation model (default: "Klein26"). Passed to `phosphate_saturation`.
+
+    Returns
+    -------
+    Sat_P2O5_liq : Float64
+        P₂O₅ saturation concentration in the melt [ppm].
+    fapt_wt : Float64
+        Weight fraction of precipitated fluorapatite.
+    bulk_cor_wt : Vector{Float64}
+        Updated corrected bulk oxide weight fractions.
 """
 function compute_P2O5_sat_n_part(   out         :: MAGEMin_C.gmin_struct{Float64, Int64},
                                     KDs_database:: custom_KDs_database,
@@ -520,14 +812,35 @@ end
 
 
 """
-    out_TE = TE_prediction(  out, C0, KDs_database, dtb;
-                    ZrSat_model   :: String = "CB",
-                    SSat_model    :: String = "1000ppm",)
+    TE_prediction(out, C0, KDs_database, dtb; ZrSat_model="none", SSat_model="none", P2O5Sat_model="none", norm_TE=false)
 
-Perform TE partitioning and zircon saturation calculation.
+    Perform trace element partitioning, optionally with zircon, sulfide, and/or apatite saturation corrections.
 
-This function computes the partitioning of elements into different phases based on the provided KDs database and the initial composition C0. It also checks for zircon saturation and adjusts the composition if necessary.
+    Phases are classified via `mineral_classification`, elements are partitioned using the batch melting equation, and saturation corrections are applied when the corresponding model is not `"none"`. The corrected bulk composition (accounting for precipitated saturation phases) is also returned.
 
+    Parameters
+    ----------
+    out : MAGEMin_C.gmin_struct{Float64, Int64}
+        MAGEMin minimization output.
+    C0 : Vector{Float64}
+        Initial bulk trace element composition [ppm], in the order of `KDs_database.element_name`.
+    KDs_database : custom_KDs_database
+        Compiled trace element partitioning coefficient database.
+    dtb : String
+        Database identifier used for mineral classification (e.g., "ig", "mp").
+    ZrSat_model : String, optional
+        Zirconium saturation model — "none" disables Zr correction (default: "none"). Valid options: "CB", "W85", "BD92", "RZ93", "CZLD08".
+    SSat_model : String, optional
+        Sulfur saturation model — "none" disables S correction (default: "none"). Valid option: "1000ppm".
+    P2O5Sat_model : String, optional
+        Phosphate saturation model — "none" disables P₂O₅ correction (default: "none"). Valid options: "Klein26", "HWBea92", "Tollari06".
+    norm_TE : Bool, optional
+        Normalize phase fractions before computing KDs (default: false).
+
+    Returns
+    -------
+    out_TE : out_tepm
+        Structure containing melt/solid/mineral TE concentrations, saturation values, and corrected bulk compositions.
 """
 function TE_prediction( out, C0, KDs_database, dtb;
                         ZrSat_model     :: String   = "none",

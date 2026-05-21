@@ -53,29 +53,30 @@ end
 
 # metastable phases
 struct mSS_data
-    ph_name::String
-    ph_type::String
-    info::String
-    ph_id::Cint
-    em_id::Cint
-    n_xeos::Cint
-    n_em::Cint
-    G_Ppc::Cdouble
-    DF_Ppc::Cdouble
-    comp_Ppc::Vector{Cdouble}
-    p_Ppc::Vector{Cdouble}
-    mu_Ppc::Vector{Cdouble}
-    xeos_Ppc::Vector{Cdouble}
+    ph_name     ::String
+    ph_type     ::String
+    # info      ::String          # unused
+    ph_id       ::Cint
+    em_id       ::Cint
+    # n_xeos    ::Cint            # unused — SS_ref_db[ph_id].n_xeos used instead
+    # n_em      ::Cint            # unused — SS_ref_db[ph_id].n_em used instead
+    # G_Ppc     ::Cdouble         # unused
+    # DF_Ppc    ::Cdouble         # unused
+    comp_Ppc    ::Vector{Cdouble}
+    # p_Ppc     ::Vector{Cdouble} # unused
+    # mu_Ppc    ::Vector{Cdouble} # unused
+    xeos_Ppc    ::Vector{Cdouble}
 end
 
-function Base.convert(::Type{mSS_data}, a::mstb_SS_phases) 
+function Base.convert(::Type{mSS_data}, a::mstb_SS_phases)
     return  mSS_data(   unsafe_string(a.ph_name),
                         unsafe_string(a.ph_type),
-                        unsafe_string(a.info),
-                        a.ph_id, a.em_id, a.n_xeos, a.n_em, a.G_Ppc, a.DF_Ppc,
+                        # unsafe_string(a.info),
+                        a.ph_id, a.em_id,
+                        # a.n_xeos, a.n_em, a.G_Ppc, a.DF_Ppc,
                         unsafe_wrap( Vector{Cdouble},        a.comp_Ppc,           a.nOx),
-                        unsafe_wrap( Vector{Cdouble},        a.p_Ppc,              a.n_em),
-                        unsafe_wrap( Vector{Cdouble},        a.mu_Ppc,             a.n_em),
+                        # unsafe_wrap( Vector{Cdouble},        a.p_Ppc,              a.n_em),
+                        # unsafe_wrap( Vector{Cdouble},        a.mu_Ppc,             a.n_em),
                         unsafe_wrap( Vector{Cdouble},        a.xeos_Ppc,           a.n_xeos)    )
 end
 

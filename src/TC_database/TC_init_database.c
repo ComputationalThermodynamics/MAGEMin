@@ -164,8 +164,8 @@ igneous_dataset igneous_db = {
 	{"spl"	,"bi"	,"cd"	,"cpx"	,"ep"	,"g"	,"amp"	,"ilm"	,"liq"	,"ol"	,"opx"	,"fsp"	,"fl"	,"mu"	,"fper"	,"chl"				},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1		,1		,1					}, // allow solvus?
-	{1523	,3554	,121	,4127	,210	,2450	,5499	,1670	,3088	,381	,3413	,231	,10		,2376	,20		,3980				}, // # of pseudocompound
-	{0.2	,0.124	,0.098	,0.20	,0.049	,0.145	,0.33	,0.10	,0.15	,0.04	,0.249	,0.049	,1.0 	,0.198	,0.05	,0.19				}, // discretization step
+	{1523	,3554	,121	,4127	,210	,2450	,5499	,1670	,3088	,381	,5056	,231	,10		,2376	,20		,3980				}, // # of pseudocompound
+	{0.2	,0.124	,0.098	,0.20	,0.049	,0.145	,0.33	,0.10	,0.15	,0.04	,0.15	,0.049	,1.0 	,0.198	,0.05	,0.19				}, // discretization step
 
 	6.0, 						/** max dG under which a phase is considered to be reintroduced  					*/
 	673.15,						/** max temperature above which PGE solver is active 								*/
@@ -298,15 +298,15 @@ metapelite_dataset_ext metapelite_ext_db = {
 	62,							/* Endmember default dataset number */
 	13,							/* number of oxides */			
 	32,							/* number of pure phases */
-	24,							/* number of solution phases */
+	25,							/* number of solution phases */
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"H2O"	,"CO2"	,"S"										},
 	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2" 	,"pyr"	,"gph"	,"law"	,"zo" ,"prl"  ,"mpm"   ,"pre"	,"cor",
 	"qfm"	,"mw"	,"qif"	,"nno"	,"hm"	,"iw" 	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"											},
-	{"liq"	,"fsp"	,"bi"	,"g"	,"ep"	,"ma"	,"mu"	,"opx"	,"sa"	,"cd"	,"st"	,"chl"	,"ctd"	,"sp"  ,"mt"  ,"ilm"  ,"ilmm"  ,"occm"	,"fl"	,"po"	,"dio"	,"aug"	,"amp"	,"oamp"		},
+	{"liq"	,"fsp"	,"bi"	,"g"	,"ep"	,"ma"	,"mu"	,"opx"	,"sa"	,"cd"	,"st"	,"chl"	,"ctd"	,"sp"  ,"mt"  ,"ilm"  ,"ilmm"  ,"occm"	,"fl"	,"po"	,"dio"	,"aug"	,"amp"	,"oamp"	,"carp"	,"car"			},
 	
-	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1		,1		,1		,1		,1		,1		,1			},  // allow solvus?
-	{3150	,231 	,981	,758	,110 	,1875	,1877	,1277	,230	,343	,540	,2270	,216	,407 	,87 	,131 	,1430 	,352	,12		,10		,1810	,2396,	7669	,3648		},  // # of pseudocompound
-	{0.24	,0.049	,0.125	,0.049	,0.049	,0.19	,0.19	,0.249	,0.19	,0.145	,0.19	,0.249	,0.19	,0.124 	,0.099 	,0.09 	,0.099 	,0.10	,0.09	,0.1	,0.10	,0.10,	0.075	,0.2		},  // discretization step
+	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1		,1		,1		,1		,1		,1		,1		,1		,1				},  // allow solvus?
+	{3150	,231 	,981	,758	,110 	,1875	,1877	,1277	,230	,343	,540	,2270	,216	,407 	,87 	,131 	,1430 	,352	,12		,10		,1810	,2396,	7669	,3648	,25		,196			},  // # of pseudocompound
+	{0.24	,0.049	,0.125	,0.049	,0.049	,0.19	,0.19	,0.249	,0.19	,0.145	,0.19	,0.249	,0.19	,0.124 	,0.099 	,0.09 	,0.099 	,0.10	,0.09	,0.1	,0.10	,0.10,	0.075	,0.2	,0.04	,0.05			},  // discretization step
 
 	6.0, 						/* max dG under which a phase is considered to be reintroduced  					*/
 	473.15,						/* max temperature above which PGE solver is active 								*/

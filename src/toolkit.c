@@ -1858,12 +1858,13 @@ global_variable compute_activities(			int					 EM_database,
 
 	/* compute activities for pure component phases */
 	/* get chemical potential of pure components (index)*/
-	int H2O_ix 	= -1;
-	int TiO2_ix = -1;
-	int SiO2_ix = -1;
-	int Al2O3_ix = -1;
-	int MgO_ix = -1;
-	int FeO_ix = -1;
+	int H2O_ix 		= -1;
+	int TiO2_ix 	= -1;
+	int SiO2_ix 	= -1;
+	int Al2O3_ix 	= -1;
+	int MgO_ix 		= -1;
+	int FeO_ix 		= -1;
+	int Fe_ix 		= -1;
 	for (int i = 0; i < gv.len_ox; i++){
 		if	(strcmp( gv.ox[i], "H2O") 	   == 0 && z_b.bulk_rock[i] > 0.0){
 			H2O_ix = i;
@@ -1883,6 +1884,9 @@ global_variable compute_activities(			int					 EM_database,
 		else if(strcmp( gv.ox[i], "MgO") == 0 && z_b.bulk_rock[i] > 0.0){
 			MgO_ix = i;
 		}
+		else if(strcmp( gv.ox[i], "Fe") == 0 && z_b.bulk_rock[i] > 0.0){
+			Fe_ix = i;
+		}
 	}
 
 	/* if we can compute the activity of MgO (if Gamma MgO exists i.e., if the MgO is taken into account) */
@@ -1893,8 +1897,11 @@ global_variable compute_activities(			int					 EM_database,
 		}
 		else if (strcmp(gv.research_group, "sb") 	== 0 ){
 			PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "pe", "equilibrium");
+			G0_per 			= PP_db.gbase;//*PP_db.factor;
+			if (gv.EM_database == 1 || gv.EM_database == 2){
+				G0_per /= 4.0;
+			}
 		}
-		G0_per  		= PP_db.gbase;//*PP_db.factor;
 		gv.system_aMgO = exp( (gv.gam_tot[MgO_ix] - G0_per) / (z_b.R*z_b.T));
 	}
 
@@ -1906,9 +1913,25 @@ global_variable compute_activities(			int					 EM_database,
 		}
 		else if (strcmp(gv.research_group, "sb") 	== 0 ){
 			PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "wu", "equilibrium");
+			G0_fper 		= PP_db.gbase;//*PP_db.factor;
+			if (gv.EM_database == 1 || gv.EM_database == 2){
+				G0_fper /= 4.0;
+			}
 		}
 		G0_fper  		= PP_db.gbase;//*PP_db.factor;
 		gv.system_aFeO  = exp( (gv.gam_tot[FeO_ix] - G0_fper) / (z_b.R*z_b.T));
+	}
+
+	if (Fe_ix != -1 && O_ix != -1){
+		double G0_fper  = 0.0;
+		if (strcmp(gv.research_group, "sb") 	== 0 ){
+			PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "wu", "equilibrium");
+			G0_fper 		= PP_db.gbase;//*PP_db.factor;
+			if (gv.EM_database == 2){
+				G0_fper /= 4.0;
+			}
+		}
+		gv.system_aFeO  = exp( ( (gv.gam_tot[Fe_ix] + gv.gam_tot[O_ix]) - G0_fper) / (z_b.R*z_b.T));
 	}
 
 
@@ -1959,7 +1982,7 @@ global_variable compute_activities(			int					 EM_database,
 			PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "coe", "equilibrium");
 			G0_coe  		= PP_db.gbase;//*PP_db.factor;
 			PP_db  			= G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, z_b.P, z_b.T , "st", "equilibrium");
-			G0_st  		= PP_db.gbase;//*PP_db.factor;
+			G0_st  			= PP_db.gbase;//*PP_db.factor;
 		}
 		double G0_SiO2 	= G0_q;
 		if (G0_coe < G0_SiO2){
