@@ -1584,10 +1584,10 @@ mutable struct metapelite_datasets_ext
     n_ss::Cint
     ox::NTuple{13, NTuple{20, Cchar}}
     PP::NTuple{32, NTuple{20, Cchar}}
-    SS::NTuple{25, NTuple{20, Cchar}}
-    verifyPC::NTuple{25, Cint}
-    n_SS_PC::NTuple{25, Cint}
-    SS_PC_stp::NTuple{25, Cdouble}
+    SS::NTuple{26, NTuple{20, Cchar}}
+    verifyPC::NTuple{26, Cint}
+    n_SS_PC::NTuple{26, Cint}
+    SS_PC_stp::NTuple{26, Cdouble}
     PC_df_add::Cdouble
     solver_switch_T::Cdouble
     min_melt_T::Cdouble
@@ -1681,7 +1681,7 @@ mutable struct stx24_datasets
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{8, NTuple{20, Cchar}}
-    PP::NTuple{17, NTuple{20, Cchar}}
+    PP::NTuple{16, NTuple{20, Cchar}}
     SS::NTuple{15, NTuple{20, Cchar}}
     verifyPC::NTuple{15, Cint}
     n_SS_PC::NTuple{15, Cint}

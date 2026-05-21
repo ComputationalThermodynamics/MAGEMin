@@ -823,14 +823,7 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 
     PP_ref_db.phase_cp = molar_heat_capacity_v(T, z00, -n)/1e3;
     }
-    // printf("phase_expansivity %4s %g\n",name,PP_ref_db.phase_expansivity);
-    // printf("phase_cp %4s %g \n\n",name,PP_ref_db.phase_cp);       
-	// printf("gbase %4s %+10f\n",name,PP_ref_db.gbase);
-	// printf("phase_shearModulus %4s %+10f\n",name,PP_ref_db.phase_shearModulus);
-	// for (i = 0; i < len_ox; i++){
-	// 	printf("%+10f",PP_ref_db.Comp[i]*PP_ref_db.factor); 
-	// }
-	// printf("\n");
+
     return (PP_ref_db);
     
 }
