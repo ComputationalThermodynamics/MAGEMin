@@ -274,7 +274,12 @@ void copy_to_Ppc(		int 				 pc_check,
 		SS_ref_db[ph_id].G_Ppc[m_Ppc] = G;
 		
 		/* add increment to the number of considered phases */
-		SS_ref_db[ph_id].tot_Ppc += 1;
+		if (SS_ref_db[ph_id].tot_Ppc < SS_ref_db[ph_id].n_Ppc){
+			SS_ref_db[ph_id].tot_Ppc += 1;
+		}
+		else{
+			SS_ref_db[ph_id].tot_Ppc = SS_ref_db[ph_id].n_Ppc;
+		}
 		SS_ref_db[ph_id].id_Ppc  += 1;
 }
 

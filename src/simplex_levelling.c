@@ -882,7 +882,12 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 			SS_ref_db[ph_id].G_Ppc[m_pc] = SS_ref_db[ph_id].df;
 			
 			/* add increment to the number of considered phases */
-			SS_ref_db[ph_id].tot_Ppc += 1;
+			if (SS_ref_db[ph_id].tot_Ppc < SS_ref_db[ph_id].n_Ppc){
+				SS_ref_db[ph_id].tot_Ppc += 1;
+			}
+			else{
+				SS_ref_db[ph_id].tot_Ppc = SS_ref_db[ph_id].n_Ppc;
+			}
 			SS_ref_db[ph_id].id_Ppc  += 1;
 
 
@@ -950,7 +955,12 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 			SS_ref_db[ph_id].G_Ppc[m_pc] = SS_ref_db[ph_id].G_pc[pc_id];
 			
 			/* add increment to the number of considered phases */
-			SS_ref_db[ph_id].tot_Ppc += 1;
+			if (SS_ref_db[ph_id].tot_Ppc < SS_ref_db[ph_id].n_Ppc){
+				SS_ref_db[ph_id].tot_Ppc += 1;
+			}
+			else{
+				SS_ref_db[ph_id].tot_Ppc = SS_ref_db[ph_id].n_Ppc;
+			}
 			SS_ref_db[ph_id].id_Ppc  += 1;
 
 		}
