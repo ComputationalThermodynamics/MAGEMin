@@ -550,6 +550,7 @@ void ss_min_LP(			global_variable 	 gv,
 				/** 
 					Here if the number of phase occurence in the LP matrix is equal to we add 2 pseudocompounds
 				*/
+				/*
 				if (gv.n_ss_ph[ph_id] == 1){
 
 					double shift = 0.0;
@@ -582,7 +583,7 @@ void ss_min_LP(			global_variable 	 gv,
 						}
 					}
 				}
-					
+				*/
 				for (int k = 0; k < cp[i].n_xeos; k++) {
 					SS_ref_db[ph_id].iguess[k]   =  cp[i].xeos_1[k];
 				}
