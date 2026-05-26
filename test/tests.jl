@@ -432,6 +432,46 @@ end
 end
 
 
+@testset "CO lattice-strain TE database (Cornet 2017)" begin
+    # KLB-1 peridotite (predefined test=0), ig database.
+    # At P=10.01 kbar, T=1300°C the stable assembly is liq + cpx
+    # (verified in test_diagram_test0.jl), so D_cpx is exercised.
+    data    = Initialize_MAGEMin("ig", verbose=-1, solver=0)
+    data    = use_predefined_bulk_rock(data, 0)
+    P, T    = 10.01, 1300.0
+    out     = single_point_minimization(P, T, data, name_solvus=true)
+    Finalize_MAGEMin(data)
+
+    # build the CO KDs database — returns custom_KDs_database directly
+    KDs_database = get_TE_database("CO")
+
+    # structural checks on the database
+    @test KDs_database isa custom_KDs_database
+    @test length(KDs_database.element_name) == 28
+    @test KDs_database.element_name == TE_names
+    @test length(KDs_database.phase_name)   == 7   # cpx gt opx pl ol hb amp
+
+    # run partitioning — flat 10 ppm for all 28 elements
+    C0     = fill(10.0, 28)
+    dtb    = "ig"
+    out_TE = TE_prediction(out, C0, KDs_database, dtb)
+
+    # output structure
+    @test length(out_TE.elements) == 28
+    @test out_TE.elements         == TE_names
+    @test length(out_TE.Cliq)     == 28
+
+    # melt is present and carries all elements
+    @test out_TE.liq_wt_norm  > 0.0
+    @test all(isfinite, out_TE.Cliq)
+    @test all(>(0.0),   out_TE.Cliq)
+
+    # mass balance: bulk_D is finite and positive
+    @test isfinite(out_TE.bulk_D)
+    @test out_TE.bulk_D > 0.0
+end
+
+
 @testset "Saturation models" begin
     # using MAGEMin_C
     data    = Initialize_MAGEMin("mp", verbose=-1, solver=0);
