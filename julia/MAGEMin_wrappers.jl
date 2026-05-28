@@ -34,7 +34,8 @@ export compute_melt_viscosity_G08
 
 export TE_prediction, adjust_bulk_4_zircon, create_custom_KDs_database, get_TE_database, get_CO_KDs_database, adjust_chemical_system
 export custom_KDs_database, TE_names
-export zirconium_saturation, sulfur_saturation, phosphate_saturation
+export zirconium_saturation, sulfur_saturation, phosphate_saturation, co2_saturation, volatile_saturation_SY26, CO2_from_dissolved_H2O
+export SaturationConfig, solve_with_saturation
 
 
 export initialize_AMR, split_and_keep, AMR
