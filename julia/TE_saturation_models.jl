@@ -660,7 +660,7 @@ end
 Given a known dissolved H₂O content in the melt, compute the CO₂ saturation
 concentration using the M2Fluid model of Sun & Yao (2026).
 
-Assumes a binary H₂O–CO₂ fluid so that P_CO₂ = P − P_H₂O.  P_H₂O is found by
+Assumes a binary H₂O-CO₂ fluid so that P_CO₂ = P - P_H₂O.  P_H₂O is found by
 numerically inverting Eq. (7) via bisection on [0, P].
 
 Parameters
@@ -670,14 +670,14 @@ out : MAGEMin_C.gmin_struct{Float64, Int64}
 S_H2O_wt : Float64
     Total dissolved H₂O content in the melt [wt%].
 tol : Float64, optional
-    Convergence tolerance on P_H₂O [bar] (default 1e-6).
+    Convergence tolerance on P_H₂O (in bar; default 1e-6).
 
 Returns
 -------
 P_H2O : Float64
     H₂O partial pressure [bar].
 P_CO2 : Float64
-    CO₂ partial pressure [bar]  (= P − P_H₂O).
+    CO₂ partial pressure (in bar; = P - P_H₂O).
 S_CO2 : Float64
     CO₂ saturation in the melt [ppm], or NaN if P_CO₂ ≤ 0.
 """
