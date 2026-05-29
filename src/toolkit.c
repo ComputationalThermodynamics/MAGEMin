@@ -1682,9 +1682,16 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 
 
 
-	/** 
-	 calculate the bulk and shear modulus of the aggregate using the Voigt-Reuss-Hill averaging scheme with a weighting factor of 0.5 
+	/**
+	 Elastic averaging following Perple_X convention:
+	   gv.seismicScheme:      0 = VRH,  1 = HS
+	   gv.seismicWeightFactor (w): positions between soft and stiff bound of the chosen scheme
+	     VRH: (1-w)*Reuss + w*Voigt  — w=0.5 gives classic VRH
+	     HS:  (1-w)*HS-   + w*HS+   — w=0.5 gives HS average
+	 When a fluid phase is present, G_min = 0, so HS- shear bound = 0 (handled by IEEE 754).
 	*/
+	double w = gv.seismicWeightFactor;
+
 	double s1 = 0.0; double b1 = 0.0;
 	double s2 = 0.0; double b2 = 0.0;
 	double s1S = 0.0; double b1S = 0.0;
@@ -1719,12 +1726,117 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 		}
 	}
 
-	// Voight-Reuss-Hill averaging
-	gv.system_shearModulus 	= 0.50 * s1 + 0.50 * (1.0/(s2));
-	gv.system_bulkModulus  	= 0.50 * b1 + 0.50 * (1.0/(b2));
+	/* VRH: (1-w)*Reuss + w*Voigt */
+	double K_VRH_sys = (1.0-w)*(1.0/b2)  + w*b1;
+	double G_VRH_sys = (1.0-w)*(1.0/s2)  + w*s1;
+	double K_VRH_sol = (1.0-w)*(1.0/b2S) + w*b1S;
+	double G_VRH_sol = (1.0-w)*(1.0/s2S) + w*s1S;
 
-	gv.solid_shearModulus 	= 0.50 * s1S + 0.50 * (1.0/(s2S));
-	gv.solid_bulkModulus  	= 0.50 * b1S + 0.50 * (1.0/(b2S));
+	/* Hashin-Shtrikman bounds: find K/G extremes across all phases */
+	double K_max = 0.0, K_min = 1e30, G_max = 0.0, G_min = 1e30;
+	double K_maxS = 0.0, K_minS = 1e30, G_maxS = 0.0, G_minS = 1e30;
+
+	for (int i = 0; i < gv.len_cp; i++){
+		if (cp[i].ss_flags[1] == 1){
+			double Ki = cp[i].phase_bulkModulus  / 10.0;
+			double Gi = cp[i].phase_shearModulus / 10.0;
+			if (Ki > K_max) K_max = Ki;  if (Ki < K_min) K_min = Ki;
+			if (Gi > G_max) G_max = Gi;  if (Gi < G_min) G_min = Gi;
+			if (strcmp(cp[i].name, "liq") != 0 && strcmp(cp[i].name, "fl") != 0){
+				if (Ki > K_maxS) K_maxS = Ki;  if (Ki < K_minS) K_minS = Ki;
+				if (Gi > G_maxS) G_maxS = Gi;  if (Gi < G_minS) G_minS = Gi;
+			}
+		}
+	}
+	for (int i = 0; i < gv.len_pp; i++){
+		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
+			double Ki = PP_ref_db[i].phase_bulkModulus  / 10.0;
+			double Gi = PP_ref_db[i].phase_shearModulus / 10.0;
+			if (Ki > K_max) K_max = Ki;  if (Ki < K_min) K_min = Ki;
+			if (Gi > G_max) G_max = Gi;  if (Gi < G_min) G_min = Gi;
+			if (strcmp(gv.PP_list[i], "H2O") != 0 && strcmp(gv.PP_list[i], "O2") != 0){
+				if (Ki > K_maxS) K_maxS = Ki;  if (Ki < K_minS) K_minS = Ki;
+				if (Gi > G_maxS) G_maxS = Gi;  if (Gi < G_minS) G_minS = Gi;
+			}
+		}
+	}
+
+	/* HS system bounds (fluid-safe: when G_min=0, zeta_m=0, 1/sHS_m->0 via IEEE 754) */
+	double zeta_p  = (G_max > 0.0) ? G_max *(9.0*K_max  + 8.0*G_max )/(6.0*(K_max  + 2.0*G_max )) : 0.0;
+	double zeta_m  = (G_min > 0.0) ? G_min *(9.0*K_min  + 8.0*G_min )/(6.0*(K_min  + 2.0*G_min )) : 0.0;
+	double bHS_p = 0.0, bHS_m = 0.0, sHS_p = 0.0, sHS_m = 0.0;
+
+	for (int i = 0; i < gv.len_cp; i++){
+		if (cp[i].ss_flags[1] == 1){
+			double fi = cp[i].ss_n_wt / cp[i].phase_density / sum_volume;
+			double Ki = cp[i].phase_bulkModulus  / 10.0;
+			double Gi = cp[i].phase_shearModulus / 10.0;
+			bHS_p += fi / (Ki + 4.0/3.0*G_max);
+			bHS_m += fi / (Ki + 4.0/3.0*G_min);
+			sHS_p += fi / (Gi + zeta_p);
+			sHS_m += fi / (Gi + zeta_m);
+		}
+	}
+	for (int i = 0; i < gv.len_pp; i++){
+		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
+			double fi = gv.pp_n_wt[i] / PP_ref_db[i].phase_density / sum_volume;
+			double Ki = PP_ref_db[i].phase_bulkModulus  / 10.0;
+			double Gi = PP_ref_db[i].phase_shearModulus / 10.0;
+			bHS_p += fi / (Ki + 4.0/3.0*G_max);
+			bHS_m += fi / (Ki + 4.0/3.0*G_min);
+			sHS_p += fi / (Gi + zeta_p);
+			sHS_m += fi / (Gi + zeta_m);
+		}
+	}
+
+	/* HS: (1-w)*HS- + w*HS+ */
+	double K_HS_sys = (1.0-w)*(1.0/bHS_m - 4.0/3.0*G_min) + w*(1.0/bHS_p - 4.0/3.0*G_max);
+	double G_HS_sys = (1.0-w)*(1.0/sHS_m - zeta_m)         + w*(1.0/sHS_p - zeta_p);
+
+	/* HS solid bounds */
+	double K_HS_sol = K_VRH_sol, G_HS_sol = G_VRH_sol;
+	if (sum_volume_sol > 0.0 && K_maxS > 0.0){
+		double zeta_pS = (G_maxS > 0.0) ? G_maxS*(9.0*K_maxS + 8.0*G_maxS)/(6.0*(K_maxS + 2.0*G_maxS)) : 0.0;
+		double zeta_mS = (G_minS > 0.0) ? G_minS*(9.0*K_minS + 8.0*G_minS)/(6.0*(K_minS + 2.0*G_minS)) : 0.0;
+		double bHSS_p = 0.0, bHSS_m = 0.0, sHSS_p = 0.0, sHSS_m = 0.0;
+		for (int i = 0; i < gv.len_cp; i++){
+			if (cp[i].ss_flags[1] == 1 && strcmp(cp[i].name,"liq") != 0 && strcmp(cp[i].name,"fl") != 0){
+				double fi = cp[i].ss_n_wt / cp[i].phase_density / sum_volume_sol;
+				double Ki = cp[i].phase_bulkModulus  / 10.0;
+				double Gi = cp[i].phase_shearModulus / 10.0;
+				bHSS_p += fi / (Ki + 4.0/3.0*G_maxS);
+				bHSS_m += fi / (Ki + 4.0/3.0*G_minS);
+				sHSS_p += fi / (Gi + zeta_pS);
+				sHSS_m += fi / (Gi + zeta_mS);
+			}
+		}
+		for (int i = 0; i < gv.len_pp; i++){
+			if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0 && strcmp(gv.PP_list[i],"H2O") != 0 && strcmp(gv.PP_list[i],"O2") != 0){
+				double fi = gv.pp_n_wt[i] / PP_ref_db[i].phase_density / sum_volume_sol;
+				double Ki = PP_ref_db[i].phase_bulkModulus  / 10.0;
+				double Gi = PP_ref_db[i].phase_shearModulus / 10.0;
+				bHSS_p += fi / (Ki + 4.0/3.0*G_maxS);
+				bHSS_m += fi / (Ki + 4.0/3.0*G_minS);
+				sHSS_p += fi / (Gi + zeta_pS);
+				sHSS_m += fi / (Gi + zeta_mS);
+			}
+		}
+		K_HS_sol = (1.0-w)*(1.0/bHSS_m - 4.0/3.0*G_minS) + w*(1.0/bHSS_p - 4.0/3.0*G_maxS);
+		G_HS_sol = (1.0-w)*(1.0/sHSS_m - zeta_mS)         + w*(1.0/sHSS_p - zeta_pS);
+	}
+
+	/* select scheme */
+	if (gv.seismicScheme == 0){
+		gv.system_bulkModulus  = K_VRH_sys;
+		gv.system_shearModulus = G_VRH_sys;
+		gv.solid_bulkModulus   = K_VRH_sol;
+		gv.solid_shearModulus  = G_VRH_sol;
+	} else {
+		gv.system_bulkModulus  = K_HS_sys;
+		gv.system_shearModulus = G_HS_sys;
+		gv.solid_bulkModulus   = K_HS_sol;
+		gv.solid_shearModulus  = G_HS_sol;
+	}
 
 	/* calculate thermodynamic properties of the system */
 	for (int i = 0; i < gv.len_cp; i++){

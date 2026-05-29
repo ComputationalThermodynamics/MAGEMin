@@ -861,8 +861,7 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 			/** 
 			   add PC to Ppc list 
 			*/
-			SS_ref_db[ph_id].id_Ppc = SS_ref_db[ph_id].id_Ppc % SS_ref_db[ph_id].n_Ppc;
-			if (SS_ref_db[ph_id].id_Ppc == 0 && SS_ref_db[ph_id].tot_Ppc > 0){ printf("PC buffer full for %4s, wrapping around (increase PC_MAX to avoid overwriting)\n",gv.SS_list[ph_id]);}
+			if (SS_ref_db[ph_id].id_Ppc >= SS_ref_db[ph_id].n_Ppc){ SS_ref_db[ph_id].id_Ppc = 0; printf("MAXIMUM STORAGE SPACE FOR PC IS REACHED, INCREASED #PC_MAX\n");}
 			m_pc = SS_ref_db[ph_id].id_Ppc;
 
 			SS_ref_db[ph_id].info_Ppc[m_pc]   = 2;
@@ -883,7 +882,12 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 			SS_ref_db[ph_id].G_Ppc[m_pc] = SS_ref_db[ph_id].df;
 			
 			/* add increment to the number of considered phases */
-			SS_ref_db[ph_id].tot_Ppc += 1;
+			if (SS_ref_db[ph_id].tot_Ppc < SS_ref_db[ph_id].n_Ppc){
+				SS_ref_db[ph_id].tot_Ppc += 1;
+			}
+			else{
+				SS_ref_db[ph_id].tot_Ppc = SS_ref_db[ph_id].n_Ppc;
+			}
 			SS_ref_db[ph_id].id_Ppc  += 1;
 
 
@@ -930,8 +934,7 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 			/** 
 			   add PC to Ppc list 
 			*/
-			SS_ref_db[ph_id].id_Ppc = SS_ref_db[ph_id].id_Ppc % SS_ref_db[ph_id].n_Ppc;
-			if (SS_ref_db[ph_id].id_Ppc == 0 && SS_ref_db[ph_id].tot_Ppc > 0){ printf("PC buffer full for %4s, wrapping around (increase PC_MAX to avoid overwriting)\n",gv.SS_list[ph_id]);}
+			if (SS_ref_db[ph_id].id_Ppc >= SS_ref_db[ph_id].n_Ppc){ SS_ref_db[ph_id].id_Ppc = 0; printf("MAXIMUM STORAGE SPACE FOR PC IS REACHED, INCREASED #PC_MAX\n");}
 			m_pc = SS_ref_db[ph_id].id_Ppc;
 
 			SS_ref_db[ph_id].info_Ppc[m_pc]   = SS_ref_db[ph_id].info[pc_id];
@@ -952,7 +955,12 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 			SS_ref_db[ph_id].G_Ppc[m_pc] = SS_ref_db[ph_id].G_pc[pc_id];
 			
 			/* add increment to the number of considered phases */
-			SS_ref_db[ph_id].tot_Ppc += 1;
+			if (SS_ref_db[ph_id].tot_Ppc < SS_ref_db[ph_id].n_Ppc){
+				SS_ref_db[ph_id].tot_Ppc += 1;
+			}
+			else{
+				SS_ref_db[ph_id].tot_Ppc = SS_ref_db[ph_id].n_Ppc;
+			}
 			SS_ref_db[ph_id].id_Ppc  += 1;
 
 		}

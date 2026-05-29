@@ -247,9 +247,7 @@ void copy_to_Ppc(		int 				 pc_check,
 												&SS_ref_db[ph_id]			);
 
 		/* check where to add the new phase PC */
-		SS_ref_db[ph_id].id_Ppc = SS_ref_db[ph_id].id_Ppc % SS_ref_db[ph_id].n_Ppc;
-		if (SS_ref_db[ph_id].id_Ppc == 0 && SS_ref_db[ph_id].tot_Ppc > 0){ printf("SS_LP, PC buffer full for %4s, wrapping around (increase PC_MAX to avoid overwriting)\n",gv.SS_list[ph_id]);}
-		
+		if (SS_ref_db[ph_id].id_Ppc >= SS_ref_db[ph_id].n_Ppc){ SS_ref_db[ph_id].id_Ppc = 0; printf("SS_LP, MAXIMUM STORAGE SPACE FOR PC IS REACHED for %4s, INCREASED #PC_MAX\n",gv.SS_list[ph_id]);}
 		m_Ppc = SS_ref_db[ph_id].id_Ppc;
 
 		if (save_mSS == 1){
@@ -276,7 +274,12 @@ void copy_to_Ppc(		int 				 pc_check,
 		SS_ref_db[ph_id].G_Ppc[m_Ppc] = G;
 		
 		/* add increment to the number of considered phases */
-		SS_ref_db[ph_id].tot_Ppc += 1;
+		if (SS_ref_db[ph_id].tot_Ppc < SS_ref_db[ph_id].n_Ppc){
+			SS_ref_db[ph_id].tot_Ppc += 1;
+		}
+		else{
+			SS_ref_db[ph_id].tot_Ppc = SS_ref_db[ph_id].n_Ppc;
+		}
 		SS_ref_db[ph_id].id_Ppc  += 1;
 }
 
@@ -547,6 +550,7 @@ void ss_min_LP(			global_variable 	 gv,
 				/** 
 					Here if the number of phase occurence in the LP matrix is equal to we add 2 pseudocompounds
 				*/
+				// /*
 				if (gv.n_ss_ph[ph_id] == 1){
 
 					double shift = 0.0;
@@ -579,7 +583,7 @@ void ss_min_LP(			global_variable 	 gv,
 						}
 					}
 				}
-					
+				// */
 				for (int k = 0; k < cp[i].n_xeos; k++) {
 					SS_ref_db[ph_id].iguess[k]   =  cp[i].xeos_1[k];
 				}

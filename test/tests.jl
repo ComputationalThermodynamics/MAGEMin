@@ -80,7 +80,7 @@ Finalize_MAGEMin(data)
 @test sort(out.ph) == sort(["spl", "cpx",  "opx", "ol"])
 @test abs(out.s_cp[1] - 1208.466551730128) < 2.0
 
-@testset "test external routines" begin
+@testset verbose=true "test external routines" begin
     ox              = ["SiO2", "TiO2", "Al2O3", "FeO", "MnO", "MgO", "CaO", "Na2O", "K2O", "P2O5", "H2O"]
     mol_percents    = [62.38, 0.41, 11.79, 0.03, 0.02, 4.80, 9.73, 3.41, 0.59, 0.05, 6.80]
     T_C             = 1000.0
@@ -88,7 +88,7 @@ Finalize_MAGEMin(data)
     @test (viscosity) ≈ 4751.168588718496
 end
 
-@testset "test light output calculation" begin
+@testset verbose=true "test light output calculation" begin
     # Without a buffer at 1100.0 C
     data    = Initialize_MAGEMin("ig", verbose=-1);
     P,T     = 10.0, 600.0
@@ -103,7 +103,7 @@ end
 end
 
 
-@testset "test light output calculation with initial guess" begin
+@testset verbose=true "test light output calculation with initial guess" begin
     # Without a buffer at 1100.0 C
     data    = Initialize_MAGEMin("ig", verbose=-1);
     P,T     = 10.0, 600.0
@@ -118,7 +118,7 @@ end
 end
 
 # Tests from L. Candioti - ETH - Oct 2024
-@testset "test mass conservation" begin
+@testset verbose=true "test mass conservation" begin
 
     # Without a buffer at 1100.0 C
     data    = Initialize_MAGEMin("ig", verbose=-1);
@@ -166,7 +166,7 @@ end
 
 end
 
-@testset "test activity buffers" begin
+@testset verbose=true "test activity buffers" begin
     data        =   Initialize_MAGEMin("mp", verbose=-1, buffer="aH2O");
     test        =   0        
     data        =   use_predefined_bulk_rock(data, test);
@@ -225,7 +225,7 @@ end
     Finalize_MAGEMin(data)
 end
 
-@testset "test sum frac_vol" begin
+@testset verbose=true "test sum frac_vol" begin
     data    = Initialize_MAGEMin("mp", verbose=-1, solver=0);
     P,T     = 10.713125, 1177.34375
     Xoxides = ["SiO2","Al2O3","CaO","MgO","FeO","K2O","Na2O","TiO2","O","MnO","H2O"]
@@ -245,7 +245,7 @@ end
     @test sum(out.frac_M_vol + out.frac_F_vol + out.frac_S_vol) ≈ 1.0
 end
 
-@testset "test zr saturation" begin
+@testset verbose=true "test zr saturation" begin
     data    = Initialize_MAGEMin("mp", verbose=-1);
 
     P,T     = 6.0, 930.0
@@ -278,7 +278,7 @@ end
     @test zr_sat ≈ 65.83158859091596 rtol=1e-5
 end
 
-@testset "test normalization" begin
+@testset verbose=true "test normalization" begin
     data        =   Initialize_MAGEMin("ig", verbose=-1);
     test        =   5         #KLB1
     data        =   use_predefined_bulk_rock(data, test);
@@ -341,7 +341,7 @@ out         =   point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in);
 @test sort(out.ph) == sort(["spl", "cpx",  "opx", "ol"])
 finalize_MAGEMin(gv,DB,z_b)
 
-@testset "pointwise tests  " begin
+@testset verbose=true "pointwise tests  " begin
     n       =   100;
     P       =   fill(8.0,n)
     T       =   fill(800.0,n)
@@ -354,7 +354,7 @@ finalize_MAGEMin(gv,DB,z_b)
     Finalize_MAGEMin(data)
 end
 
-@testset "specify bulk rock" begin
+@testset verbose=true "specify bulk rock" begin
     data    = Initialize_MAGEMin("ig", verbose=-1);
     
     # One bulk rock for all points
@@ -390,7 +390,7 @@ end
     out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in);
 end
 
-@testset "PT adaptive refinement" begin
+@testset verbose=true "PT adaptive refinement" begin
     data        = Initialize_MAGEMin("mp", verbose=-1, solver=0);
 
     init_sub    =  1
@@ -406,7 +406,7 @@ end
     Finalize_MAGEMin(data)
 end
 
-@testset "Trace-element partitioning model" begin
+@testset verbose=true "Trace-element partitioning model" begin
     data    = Initialize_MAGEMin("mp", verbose=-1, solver=0);
     P,T     = 6.0, 699.0
     Xoxides = ["SiO2";  "TiO2";  "Al2O3";  "FeO";   "MnO";   "MgO";   "CaO";   "Na2O";  "K2O"; "H2O"; "O"];
@@ -432,7 +432,90 @@ end
 end
 
 
-@testset "Saturation models" begin
+@testset verbose=true "Trace-element partitioning + saturation models" begin
+    data    = Initialize_MAGEMin("mp", verbose=-1, solver=0)
+    P, T    = 6.0, 699.0
+    Xoxides = ["SiO2","TiO2","Al2O3","FeO","MnO","MgO","CaO","Na2O","K2O","H2O","O"]
+    X       = [58.509, 1.022, 14.858, 4.371, 0.141, 4.561, 5.912, 3.296, 2.399, 10.0, 0.2]
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in="wt", name_solvus=true)
+
+    # Li with real KDs across major phases; Zr/P2O5/S/CO2 saturation-controlled (KDs=0)
+    # saturation phases (zrc, fapt, sulf, fl) are auto-added by SaturationConfig
+    el  = ["Li","Zr","P2O5","S","CO2"]
+    ph  = ["q","afs","pl","bi","opx","cd","mu","amp","fl","cpx","g"]
+    KDs = ["0.17"   "0.01" "0.0" "0.0" "0.0";
+           "0.14 * T_C/1000.0 + [:bi].compVariables[1]" "0.01" "0.0" "0.0" "0.0";
+           "0.33 + 0.01*P_kbar" "0.01" "0.0" "0.0" "0.0";
+           "1.67 * P_kbar / 10.0 + T_C/1000.0" "0.01" "0.0" "0.0" "0.0";
+           "0.2"  "0.01" "0.0" "0.0" "0.0";
+           "125"  "0.01" "0.0" "0.0" "0.0";
+           "0.82" "0.01" "0.0" "0.0" "0.0";
+           "0.2"  "0.01" "0.0" "0.0" "0.0";
+           "0.65" "0.01" "0.0" "0.0" "0.0";
+           "0.26" "0.01" "0.0" "0.0" "0.0";
+           "0.01" "0.01" "0.0" "0.0" "0.0"]
+    C0      = [100.0, 400.0, 1000.0, 1000.0, 500.0]
+    KDs_dtb = create_custom_KDs_database(el, ph, KDs)
+    sat     = SaturationConfig(Zr="CB", P2O5="HWBea92", S="Liu07", CO2="SY26")
+    out_TE  = TE_prediction(out, C0, KDs_dtb, "mp"; sat=sat)
+
+    tol = 1e-3
+    @test out_TE.Cliq[1] ≈ 189.83559381921782    rtol=tol   # Li
+    @test out_TE.Cliq[2] ≈ 47.86020212957779     rtol=tol   # Zr at saturation
+    @test out_TE.Cliq[3] ≈ 133.18203710723262    rtol=tol   # P2O5 at saturation
+    @test out_TE.Cliq[4] ≈ 16.185494729785756    rtol=tol   # S at saturation
+    @test out_TE.Cliq[5] ≈ 1500.2696597838953    rtol=tol   # CO2 capped at saturation
+    @test out_TE.zrc_wt  ≈ 0.00018324301535409875  rtol=tol
+    @test out_TE.fapt_wt ≈ 0.0023231379042603197   rtol=tol
+    @test out_TE.sulf_wt ≈ 0.0027220048406193923   rtol=tol
+    @test out_TE.Sat_CO2_liq ≈ 1500.2696597838953  rtol=tol
+    @test out_TE.fl_CO2_wt   ≈ 0.0003371727572556881 rtol=tol
+
+    Finalize_MAGEMin(data)
+end
+
+
+@testset verbose=true "CO lattice-strain TE database (Cornet 2017)" begin
+    # KLB-1 peridotite (predefined test=0), ig database.
+    # At P=10.01 kbar, T=1300°C the stable assembly is liq + cpx
+    # (verified in test_diagram_test0.jl), so D_cpx is exercised.
+    data    = Initialize_MAGEMin("ig", verbose=-1, solver=0)
+    data    = use_predefined_bulk_rock(data, 0)
+    P, T    = 10.01, 1300.0
+    out     = single_point_minimization(P, T, data, name_solvus=true)
+    Finalize_MAGEMin(data)
+
+    # build the CO KDs database — returns custom_KDs_database directly
+    KDs_database = get_TE_database("CO")
+
+    # structural checks on the database
+    @test KDs_database isa custom_KDs_database
+    @test length(KDs_database.element_name) == 28
+    @test KDs_database.element_name == TE_names
+    @test length(KDs_database.phase_name)   == 7   # cpx gt opx pl ol hb amp
+
+    # run partitioning — flat 10 ppm for all 28 elements
+    C0     = fill(10.0, 28)
+    dtb    = "ig"
+    out_TE = TE_prediction(out, C0, KDs_database, dtb)
+
+    # output structure
+    @test length(out_TE.elements) == 28
+    @test out_TE.elements         == TE_names
+    @test length(out_TE.Cliq)     == 28
+
+    # melt is present and carries all elements
+    @test out_TE.liq_wt_norm  > 0.0
+    @test all(isfinite, out_TE.Cliq)
+    @test all(>(0.0),   out_TE.Cliq)
+
+    # mass balance: bulk_D is finite and positive
+    @test isfinite(out_TE.bulk_D)
+    @test out_TE.bulk_D > 0.0
+end
+
+
+@testset verbose=true "Saturation models" begin
     # using MAGEMin_C
     data    = Initialize_MAGEMin("mp", verbose=-1, solver=0);
     P,T     = 6.0, 699.0
@@ -487,7 +570,40 @@ end
 end
 
 
-@testset "remove solution phase" begin
+@testset verbose=true "Saturation models — solve_with_saturation + CO2 (SY26)" begin
+    # Same metapelite as above.  Uses the new SaturationConfig / solve_with_saturation API.
+    data    = Initialize_MAGEMin("mp", verbose=-1, solver=0)
+    P, T    = 6.0, 699.0
+    Xoxides = ["SiO2","TiO2","Al2O3","FeO","MnO","MgO","CaO","Na2O","K2O","H2O","O"]
+    X       = [58.509, 1.022, 14.858, 4.371, 0.141, 4.561, 5.912, 3.296, 2.399, 10.0, 0.2]
+    X_mol, Xoxides = convertBulk4MAGEMin(X, Xoxides, "wt", "mp"); sys_in = "mol"
+    X_mol ./= sum(X_mol)
+
+    el      = ["Zr", "P2O5", "S", "CO2"]
+    C0      = [400.0, 1000.0, 1000.0, 500.0]   # CO2 well below saturation → fl_CO2_wt = 0
+
+    # phases are added automatically by SaturationConfig via _augment_KDs_for_saturation
+    KDs_dtb = create_custom_KDs_database(el)
+
+    sat = SaturationConfig(Zr="CB", P2O5="HWBea92", S="Liu07", CO2="SY26")
+
+    out, out_TE, converged, n_iter = solve_with_saturation(P, T, data, X_mol, Xoxides, C0, KDs_dtb, "mp";
+                                                            sat=sat, sys_in=sys_in)
+
+    @test converged
+    # Zr / S / P2O5 must be unchanged (CO2 undersaturated → zero fl weight, sum_wt unchanged)
+    @test out_TE.zrc_wt  ≈ 0.0001951066849433592        rtol=1e-3
+    @test out_TE.sulf_wt ≈ 0.002722767470774445         rtol=1e-3
+    @test out_TE.fapt_wt ≈ 0.0023191756689226023        rtol=1e-3
+    # CO2 saturation was computed and 50 ppm is well below the limit
+    @test !isnan(out_TE.Sat_CO2_liq)
+    @test out_TE.fl_CO2_wt ≈ 0.0003154780601036963      rtol=1e-3
+
+    Finalize_MAGEMin(data)
+end
+
+
+@testset verbose=true "remove solution phase" begin
 
     data    = Initialize_MAGEMin("mp", verbose=-1, solver=0);
     rm_list =   remove_phases(["liq","ilm"],"mp")
@@ -510,7 +626,7 @@ end
     Finalize_MAGEMin(data)
 end
 
-@testset "view array PT" begin
+@testset verbose=true "view array PT" begin
 
     data    = Initialize_MAGEMin("ig", verbose=-1);
 
@@ -539,7 +655,7 @@ end
     Finalize_MAGEMin(data)
 end
 
-@testset "convert bulk rock" begin
+@testset verbose=true "convert bulk rock" begin
 
     bulk_in_ox = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "Cr2O3"; "H2O"];
     bulk_in    = [48.43; 15.19; 11.57; 10.13; 6.65; 1.64; 0.59; 1.87; 0.68; 0.0; 3.0];
@@ -554,7 +670,7 @@ end
     @test bulk_rock ≈ [76.57038397179574, 8.914984523583415, 2.0849576977131403, 2.835783318610597, 4.30275071755529, 1.8302970975627948, 2.568605789798099, 0.6615823604771729, 0.16546809116073818, 0.06518643174302832, 0.0]
 end
 
-@testset "FeO + Oᵉˣᵗʳᵃ -> Feᵀᵒᵗᵃˡ + Oᵀᵒᵗᵃˡ" begin
+@testset verbose=true "FeO + Oᵉˣᵗʳᵃ -> Feᵀᵒᵗᵃˡ + Oᵀᵒᵗᵃˡ" begin
 
     bulk_in_ox  =  ["SiO2"; "CaO"; "Al2O3"; "MgO"; "Na2O"; "FeO"; "Cr2O3"; "O"]    
     bulk_in     = [38.83, 2.94, 2.03, 50.03, 0.11, 5.69, 0.19, 0.17] # Pyrolite
@@ -583,16 +699,16 @@ end
 end
 
 
-@testset "test Seismic velocities & modulus" begin
+@testset verbose=true "test Seismic velocities & modulus - VRH" begin
     # Call optimization routine for given P & T & bulk_rock
-    data         = Initialize_MAGEMin("ig", verbose=-1);
+    data         = Initialize_MAGEMin("ig", verbose=-1; seismicScheme="VRH", seismicWeightFactor=0.5);
     test        = 0;
     data         = use_predefined_bulk_rock(data, test)
     P           = 8.0
     T           = 1200.0
     out         = point_wise_minimization(P,T, data)
+    tol         = 1.5e-2;
 
-    tol = 1.5e-2;
     @test abs(out.bulkMod - 94.62309357990975          )  < tol
     @test abs(out.shearMod - 29.843843046045578        )  < tol
     @test abs(out.Vs - 3.0500442437065094              )  < tol
@@ -607,7 +723,31 @@ end
 end
 
 
-@testset "test Mantle HP13" begin
+@testset verbose=true "test Seismic velocities & modulus - HS" begin
+    # Call optimization routine for given P & T & bulk_rock
+    data         = Initialize_MAGEMin("ig", verbose=-1; seismicScheme="HS", seismicWeightFactor=0.95);
+    test        = 0;
+    data         = use_predefined_bulk_rock(data, test)
+    P           = 8.0
+    T           = 1200.0
+    out         = point_wise_minimization(P,T, data)
+    tol         = 1.5e-2;
+
+    @test abs(out.bulkMod - 94.9207227314658           )  < tol
+    @test abs(out.shearMod - 56.23048827772405         )  < tol
+    @test abs(out.Vs - 4.189889782462432               )  < tol
+    @test abs(out.Vp - 7.282937716875037               )  < tol
+    @test abs(out.Vs_S - 4.305197788922828             )  < tol
+    @test abs(out.Vp_S - 7.373574860960485             )  < tol
+    @test abs(out.bulkModulus_M - 27.774116805966923   )  < tol
+    @test abs(out.bulkModulus_S - 95.4968207451378     )  < tol
+    @test abs(out.shearModulus_S - 59.68335800904911   )  < tol
+
+    Finalize_MAGEMin(data)
+end
+
+
+@testset verbose=true "test Mantle HP13" begin
 
     data        =   Initialize_MAGEMin("mtl", verbose=-1);
     test        =   0         #KLB1
@@ -622,7 +762,7 @@ end
     Finalize_MAGEMin(data)
 end
 
-@testset "test ume" begin
+@testset verbose=true "test ume" begin
 
     data        =   Initialize_MAGEMin("ume", verbose=-1);
     test        =   0
@@ -636,7 +776,7 @@ end
 
 
 # test from Philip Hartmeier
-@testset "test apfu" begin
+@testset verbose=true "test apfu" begin
 
     data        =   Initialize_MAGEMin("mp", verbose=-1);
     T           = 580.0
@@ -652,7 +792,7 @@ end
 end
 
 
-@testset "Text initial guess" begin
+@testset verbose=true "Text initial guess" begin
 
     MAGEMin_data    = Initialize_MAGEMin("ig", verbose=false, solver=0);
 
@@ -835,7 +975,7 @@ println("Testing problematic points:")
 end
 
 
-@testset "Metastability function" begin
+@testset verbose=true "Metastability function" begin
     data    = Initialize_MAGEMin("mp", verbose=-1; solver=0);
     P,T     = 6.0, 630.0
     Xoxides = ["SiO2";  "TiO2";  "Al2O3";  "FeO";   "MnO";   "MgO";   "CaO";   "Na2O";  "K2O"; "H2O"; "O"];
@@ -873,7 +1013,7 @@ end
     @test norm(out.ph_frac) - 0.45682499466457954 < 0.01
 end
 
-@testset "test matrix (2D grid) input for multi_point_minimization" begin
+@testset verbose=true "test matrix (2D grid) input for multi_point_minimization" begin
     data    = Initialize_MAGEMin("ig", verbose=-1);
     Xoxides = ["SiO2","Al2O3","CaO","MgO","FeO","Fe2O3","K2O","Na2O","TiO2","Cr2O3","H2O"]
 
@@ -898,6 +1038,69 @@ end
 
     Finalize_MAGEMin(data)
 end
+
+@testset verbose=true "test SY26 volatile saturation (Sun & Yao 2026)" begin
+    # Low-MgO, low-K2O rhyolite matching Table S3 of Sun & Yao (2026).
+    # MgO≈0 and K2O≈2 mol% are critical: b3=-1019 for X_MgO and b4=-452 for X_K2O²
+    # dominate the molecular-CO2 term; typical rhyolites with K2O>3% yield far too little CO2.
+    data    = Initialize_MAGEMin("ig", verbose=-1, solver=0)
+    P, T    = 2.5, 900.0
+    Xoxides = ["SiO2","TiO2","Al2O3","FeO","MgO","CaO","Na2O","K2O","H2O"]
+    X       = [78.0, 0.30, 12.0, 2.0, 0.01, 1.0, 4.0, 2.0, 5.0]
+    sys_in  = "mol"
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+    P_H2O_auto, P_CO2_auto, S_CO2_auto = MAGEMin_C.CO2_from_dissolved_H2O(out)
+
+
+    @test out.frac_M > 0.0
+
+    P_bar = P * 1000.0
+
+    # pure H2O fluid: only H2O partial pressure provided
+    S_H2O_pure, _ = MAGEMin_C.volatile_saturation_SY26(out; P_H2O = P_bar)
+    @test !isnan(S_H2O_pure)
+    @test S_H2O_pure > 0.0
+
+    # mixed H2O–CO2 fluid: P_H2O = 0.7·P, P_CO2 = 0.3·P
+    S_H2O_mix, S_CO2_mix = MAGEMin_C.volatile_saturation_SY26(out; P_H2O = 0.7*P_bar, P_CO2 = 0.3*P_bar)
+    @test !isnan(S_H2O_mix) && S_H2O_mix > 0.0
+    @test !isnan(S_CO2_mix) && S_CO2_mix > 0.0
+    @test S_H2O_mix < S_H2O_pure   # lower P_H2O → less H2O solubility
+
+    # CO2_from_dissolved_H2O: use half the pure-H2O saturation so P_CO2 > 0
+    S_H2O_in              = 0.5 * S_H2O_pure
+    P_H2O_inv, P_CO2_inv, S_CO2_inv = MAGEMin_C.CO2_from_dissolved_H2O(out, S_H2O_in)
+    @test !isnan(P_H2O_inv) && P_H2O_inv > 0.0
+    @test !isnan(P_CO2_inv) && P_CO2_inv > 0.0
+    @test !isnan(S_CO2_inv) && S_CO2_inv > 0.0
+    @test P_H2O_inv + P_CO2_inv ≈ P_bar  rtol=1e-4
+
+    # round-trip: re-evaluate S_H2O at the inverted P_H2O — must recover S_H2O_in
+    S_H2O_rt, _ = MAGEMin_C.volatile_saturation_SY26(out; P_H2O = P_H2O_inv)
+    @test S_H2O_rt ≈ S_H2O_in  rtol=1e-4
+
+    # no-arg overload: reads dissolved H2O from melt directly
+    P_H2O_auto, P_CO2_auto, S_CO2_auto = MAGEMin_C.CO2_from_dissolved_H2O(out)
+    H2O_idx      = findfirst(==("H2O"), out.oxides)
+    S_H2O_melt   = out.SS_vec[out.SS_syms[:liq]].Comp_wt[H2O_idx] * 100.0
+    @test !isnan(P_H2O_auto) && P_H2O_auto > 0.0
+    @test P_H2O_auto + P_CO2_auto ≈ P_bar  rtol=1e-4
+    # re-evaluate S_H2O at auto P_H2O — must match the melt dissolved H2O
+    S_H2O_auto, _ = MAGEMin_C.volatile_saturation_SY26(out; P_H2O = P_H2O_auto)
+    @test S_H2O_auto ≈ S_H2O_melt  rtol=1e-4
+
+    Finalize_MAGEMin(data)
+end
+
+
+#=
+When a melt reaches volatile saturation, it coexists with a separate fluid phase (a supercritical H₂O–CO₂ vapor). That fluid has a composition X_H₂O (mole fraction of H₂O in the bubble). The partial pressures fed to the model are:
+
+
+P_H₂O = X_H₂O_fluid × P_total
+P_CO₂ = (1 − X_H₂O_fluid) × P_total
+The model then predicts how much H₂O and CO₂ dissolves in the melt at equilibrium with that fluid.
+=#
 
 #=
 # The following part is not really a test yet, but more an example of how to use initial guesses

@@ -479,3 +479,330 @@ function adjust_bulk_4_sulfide( S_liq  ::  Float64,
 
     return sulfide_wt*liq_wt, FeO_wt*liq_wt, O_wt*liq_wt
 end
+
+#=
+    H2O–CO2 solubility model: Sun & Yao (2026), Earth Planet. Sci. Lett.
+    "M2Fluid": unified model calibrated on 2090 experiments,
+    1 bar – 6 GPa, 660 – 1924 °C, carbonatite to rhyolite.
+
+    Eq. 7 — H2O (wt%):
+        S_H2O = S_H2O(m) + S_OH-
+        ln S_H2O(m) = a0 ln P_H2O + a1 ln T + a2 (P²/T) + a3 (√P · X_Na2O/T) + a4 (X_Na2O/T)
+        ln S_OH-    = a5 ln P_H2O + a6 ln T + (a7 + a8 X_Al2O3 + a9 X_Na2O)(P/T)
+
+    Eq. 8 — CO2 (ppm):
+        S_CO2 = S_CO2(m) + S_CO3²⁻
+        ln S_CO2(m)  = b0 ln P_CO2 + b1 ln P + b2 X_Al2O3 √P + b3 X_MgO² + b4 X_K2O²
+        ln S_CO3²⁻   = b0 ln P_CO2 + b5 ln T + b6 ln P + Ω + F + Q · S_H2O
+        Ω = (b7 X_SiO2 + b8 X_CaO)(P/T) + (b9 X_CaO + b10 X_Na2O) √P
+        F = b11 X_SiO2 + b12 X_Al2O3 + b13 X_FeOt + b14 X_MgO + b15 X_K2O
+          + b16 ln(1 − (X_SiO2 + X_TiO2 + X_Al2O3 + X_P2O5))
+        Q = b17 X_SiO2 + b18 X_Al2O3 + b19 X_Na2O + b20 X_K2O
+
+    Units: T in K, P in bar, X = oxide molar fractions on volatile-free basis.
+    NR 05/2026
+=#
+
+# Table 1 coefficients
+const _SY26_a = (
+     0.807805,      # a0
+    -0.700336,      # a1
+     2.949559e-6,   # a2
+    -74.546597,     # a3
+     7146.275452,   # a4
+     0.449387,      # a5
+    -0.360194,      # a6
+    -0.308259,      # a7
+     2.984703,      # a8
+    -1.693710,      # a9
+)
+
+const _SY26_b = (
+     0.711812,      # b0
+     0.285783,      # b1
+    -0.044440,      # b2
+ -1019.065935,      # b3
+  -451.908354,      # b4
+     1.282791,      # b5
+     0.651135,      # b6
+     0.040306,      # b7
+     0.583632,      # b8
+    -0.116595,      # b9
+    -0.036834,      # b10
+    -9.761378,      # b11
+    -9.184586,      # b12
+   -18.300993,      # b13
+   -11.489536,      # b14
+     9.856334,      # b15
+     3.126584,      # b16
+     0.584610,      # b17
+    -2.027465,      # b18
+     0.552689,      # b19
+    -1.570268,      # b20
+)
+
+"""
+    volatile_saturation_SY26(out; P_H2O=NaN, P_CO2=NaN)
+
+Compute H2O and CO2 solubility in the melt using the M2Fluid model of Sun & Yao (2026).
+
+If `P_H2O` or `P_CO2` are not provided and a fluid phase is present in `out`, partial
+pressures are estimated from the fluid mole fractions assuming ideal mixing.  If neither
+a value nor a fluid phase is available for a volatile species, the corresponding
+saturation is returned as `NaN`.
+
+Parameters
+----------
+out : MAGEMin_C.gmin_struct{Float64, Int64}
+    MAGEMin minimization output (must contain a melt phase).
+P_H2O : Float64, optional
+    Partial pressure of H₂O [bar].  When `NaN` (default), derived from fluid composition
+    if a fluid phase is present.
+P_CO2 : Float64, optional
+    Partial pressure of CO₂ [bar].  When `NaN` (default), derived from fluid composition
+    if a fluid phase is present.
+
+Returns
+-------
+S_H2O : Float64
+    H₂O solubility in the melt [wt%], or `NaN` if P_H2O cannot be determined.
+S_CO2 : Float64
+    CO₂ solubility in the melt [ppm], or `NaN` if P_CO2 cannot be determined.
+"""
+function volatile_saturation_SY26(  out     :: MAGEMin_C.gmin_struct{Float64, Int64};
+                                    P_H2O   :: Float64 = NaN,
+                                    P_CO2   :: Float64 = NaN,
+                                    P_total :: Float64 = NaN  )
+
+    out.frac_M == 0.0 && return NaN, NaN
+
+    T_K   = out.T_C + 273.15
+    P_bar = isnan(P_total) ? out.P_kbar * 1000.0 : P_total
+    oxides = out.oxides
+
+    # --- volatile-free mole fractions from the melt ---
+    volatile_ox = ("H2O", "CO2", "S", "O")
+    liq_comp    = out.SS_vec[out.SS_syms[:liq]].Comp   # mole fractions (include volatiles)
+
+    dry_mol  = [liq_comp[i] for i in eachindex(oxides) if !(oxides[i] in volatile_ox)]
+    dry_oxs  = [oxides[i]   for i in eachindex(oxides) if !(oxides[i] in volatile_ox)]
+    tot_dry  = sum(dry_mol)
+    Xd(name) = (i = findfirst(==(name), dry_oxs); isnothing(i) ? 0.0 : dry_mol[i] / tot_dry)
+
+    # Fe³⁺ is tracked as "O" (16 g/mol) in MAGEMin: 1 mol O ↔ 2 mol Fe as FeO-equiv.
+    # "O" is excluded from tot_dry, so add its contribution explicitly.
+    idx_O   = findfirst(==("O"), oxides)
+    n_O_raw = isnothing(idx_O) ? 0.0 : liq_comp[idx_O]
+
+    X_SiO2  = Xd("SiO2")
+    X_TiO2  = Xd("TiO2")
+    X_Al2O3 = Xd("Al2O3")
+    X_FeOt  = Xd("FeO") + 2.0 * n_O_raw / tot_dry
+    X_MgO   = Xd("MgO")
+    X_CaO   = Xd("CaO")
+    X_Na2O  = Xd("Na2O")
+    X_K2O   = Xd("K2O")
+    X_P2O5  = Xd("P2O5")
+
+    # --- derive P_H2O / P_CO2 from fluid phase when not supplied ---
+    if (isnan(P_H2O) || isnan(P_CO2)) && out.frac_F > 0.0
+        fl_mol   = out.bulk_F
+        tot_fl   = sum(fl_mol)
+        idx_H2O  = findfirst(==("H2O"), oxides)
+        idx_CO2  = findfirst(==("CO2"), oxides)
+
+        if isnan(P_H2O) && !isnothing(idx_H2O)
+            P_H2O = (fl_mol[idx_H2O] / tot_fl) * P_bar
+        end
+        if isnan(P_CO2) && !isnothing(idx_CO2)
+            P_CO2 = (fl_mol[idx_CO2] / tot_fl) * P_bar
+        end
+    end
+
+    a = _SY26_a
+    b = _SY26_b
+
+    # --- H2O solubility (wt%) ---
+    S_H2O = NaN
+    if !isnan(P_H2O) && P_H2O > 0.0
+        ln_Sm  = a[1]*log(P_H2O) + a[2]*log(T_K) + a[3]*(P_bar^2/T_K) +
+                 a[4]*(sqrt(P_bar)*X_Na2O/T_K) + a[5]*(X_Na2O/T_K)
+        ln_SOH = a[6]*log(P_H2O) + a[7]*log(T_K) + (a[8] + a[9]*X_Al2O3 + a[10]*X_Na2O)*(P_bar/T_K)
+        S_H2O  = exp(ln_Sm) + exp(ln_SOH)
+    end
+
+    # --- CO2 solubility (ppm) ---
+    S_CO2 = NaN
+    if !isnan(P_CO2) && P_CO2 > 0.0
+        S_H2O_eff = isnan(S_H2O) ? 0.0 : S_H2O   # coupling term; 0 if H2O unavailable
+
+        inner = max(1.0 - (X_SiO2 + X_TiO2 + X_Al2O3 + X_P2O5), 1e-12)
+
+        ln_Sm_co2 = b[1]*log(P_CO2) + b[2]*log(P_bar) + b[3]*X_Al2O3*sqrt(P_bar) +
+                    b[4]*X_MgO^2 + b[5]*X_K2O^2
+
+        Ω  = (b[8]*X_SiO2 + b[9]*X_CaO)*(P_bar/T_K) + (b[10]*X_CaO + b[11]*X_Na2O)*sqrt(P_bar)
+        F  = b[12]*X_SiO2 + b[13]*X_Al2O3 + b[14]*X_FeOt + b[15]*X_MgO + b[16]*X_K2O +
+             b[17]*log(inner)
+        Q  = b[18]*X_SiO2 + b[19]*X_Al2O3 + b[20]*X_Na2O + b[21]*X_K2O
+
+        ln_Sco3 = b[1]*log(P_CO2) + b[6]*log(T_K) + b[7]*log(P_bar) + Ω + F + Q*S_H2O_eff
+
+        S_CO2 = exp(ln_Sm_co2) + exp(ln_Sco3)
+    end
+
+    return S_H2O, S_CO2
+end
+
+"""
+    CO2_from_dissolved_H2O(out, S_H2O_wt; tol=1e-6)
+
+Given a known dissolved H₂O content in the melt, compute the CO₂ saturation
+concentration using the M2Fluid model of Sun & Yao (2026).
+
+Assumes a binary H₂O–CO₂ fluid so that P_CO₂ = P − P_H₂O.  P_H₂O is found by
+numerically inverting Eq. (7) via bisection on [0, P].
+
+Parameters
+----------
+out : MAGEMin_C.gmin_struct{Float64, Int64}
+    MAGEMin minimization output (must contain a melt phase).
+S_H2O_wt : Float64
+    Total dissolved H₂O content in the melt [wt%].
+tol : Float64, optional
+    Convergence tolerance on P_H₂O [bar] (default 1e-6).
+
+Returns
+-------
+P_H2O : Float64
+    H₂O partial pressure [bar].
+P_CO2 : Float64
+    CO₂ partial pressure [bar]  (= P − P_H₂O).
+S_CO2 : Float64
+    CO₂ saturation in the melt [ppm], or NaN if P_CO₂ ≤ 0.
+"""
+function CO2_from_dissolved_H2O(    out         :: MAGEMin_C.gmin_struct{Float64, Int64},
+                                    S_H2O_wt    :: Float64;
+                                    tol         :: Float64 = 1e-6   )
+
+    out.frac_M == 0.0 && return NaN, NaN, NaN
+
+    P_bar = out.P_kbar * 1000.0
+
+    # upper bound: pure H2O fluid at total pressure
+    S_max, _ = volatile_saturation_SY26(out; P_H2O = P_bar, P_CO2 = 0.0)
+
+    if isnan(S_max) || S_H2O_wt >= S_max
+        # melt is at or above pure-H2O saturation — no CO2 in fluid
+        return P_bar, 0.0, NaN
+    end
+
+    # bisect on P_H2O in (0, P_bar] to match S_H2O_wt
+    lo = 0.0
+    hi = P_bar
+    while (hi - lo) > tol
+        mid = 0.5*(lo + hi)
+        S, _ = volatile_saturation_SY26(out; P_H2O = mid, P_CO2 = 0.0)
+        (isnan(S) || S < S_H2O_wt) ? lo = mid : hi = mid
+    end
+    P_H2O = 0.5*(lo + hi)
+
+    P_CO2 = max(P_bar - P_H2O, 0.0)
+
+    _, S_CO2 = volatile_saturation_SY26(out; P_H2O = P_H2O, P_CO2 = P_CO2)
+
+    return P_H2O, P_CO2, S_CO2
+end
+
+"""
+    CO2_from_dissolved_H2O(out)
+
+Convenience overload: reads dissolved H₂O directly from the melt phase of `out`
+(in wt%) and forwards to `CO2_from_dissolved_H2O(out, S_H2O_wt)`.
+
+Returns `(NaN, NaN, NaN)` if no melt is present or the melt contains no H₂O.
+"""
+function CO2_from_dissolved_H2O(out :: MAGEMin_C.gmin_struct{Float64, Int64})
+    liq_idx = get(out.SS_syms, :liq, 0)
+    liq_idx == 0 && return NaN, NaN, NaN
+
+    H2O_idx = findfirst(==("H2O"), out.oxides)
+    isnothing(H2O_idx) && return NaN, NaN, NaN
+
+    S_H2O_wt = out.SS_vec[liq_idx].Comp_wt[H2O_idx] * 100.0
+    S_H2O_wt <= 0.0 && return NaN, NaN, NaN
+
+    return CO2_from_dissolved_H2O(out, S_H2O_wt)
+end
+
+"""
+    co2_saturation(out; model="SY26")
+
+    Compute the CO₂ saturation concentration in the melt phase [ppm].
+
+    Reads dissolved H₂O from the melt phase of `out`, inverts the SY26 H₂O
+    equation to find P_H₂O, then evaluates CO₂ solubility at
+    P_CO₂ = P_total − P_H₂O (binary H₂O–CO₂ fluid assumption).
+
+    Parameters
+    ----------
+    out : MAGEMin_C.gmin_struct{Float64, Int64}
+        MAGEMin minimization output (must contain a melt phase with dissolved H₂O).
+    model : String, optional
+        Saturation model (default: "SY26"). Currently only "SY26" is supported.
+
+    Returns
+    -------
+    S_CO2 : Float64
+        CO₂ saturation concentration in the melt [ppm], or NaN if H₂O is
+        unavailable or the model is unrecognised.
+"""
+function co2_saturation(    out     :: MAGEMin_C.gmin_struct{Float64, Int64};
+                            model   :: String = "SY26"  )
+    if model == "SY26"
+        _, _, S_CO2 = CO2_from_dissolved_H2O(out)
+        return S_CO2
+    else
+        print("CO2 saturation model $model not recognized.\n")
+        return NaN
+    end
+end
+
+"""
+    adjust_bulk_4_fluid(CO2_liq, sat_liq, liq_wt)
+
+    Compute the weight fractions of CO₂ fluid and the oxide correction when the
+    melt exceeds CO₂ saturation.
+
+    Unlike mineral saturation phases (zircon, sulfide, apatite), the excess CO₂
+    is not converted to a stoichiometrically distinct solid — it degasses into a
+    CO₂-bearing fluid.  The same CO₂ weight is therefore both the fluid weight
+    and the amount returned to the bulk CO₂ oxide budget for the next iteration.
+
+    Parameters
+    ----------
+    CO2_liq : Float64
+        CO₂ concentration in the melt [ppm].
+    sat_liq : Float64
+        CO₂ saturation concentration in the melt [ppm].
+    liq_wt : Float64
+        Melt weight fraction.
+
+    Returns
+    -------
+    fluid_wt : Float64
+        Weight fraction of CO₂ fluid formed (scaled by `liq_wt`).
+    CO2_wt : Float64
+        CO₂ weight returned to the bulk oxide budget (scaled by `liq_wt`);
+        equals `fluid_wt` for a pure CO₂ fluid.
+"""
+function adjust_bulk_4_fluid(   CO2_liq ::  Float64,
+                                sat_liq ::  Float64,
+                                liq_wt  ::  Float64 )
+
+    CO2_excess  = (CO2_liq - sat_liq) / 1e6   # ppm → dimensionless weight fraction
+    fluid_wt    = CO2_excess
+    CO2_wt      = CO2_excess
+
+    return fluid_wt * liq_wt, CO2_wt * liq_wt
+end

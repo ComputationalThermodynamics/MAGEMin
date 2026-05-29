@@ -601,6 +601,8 @@ mutable struct global_variables
     status::Cint
     solver::Cint
     solver_switch_T::Cdouble
+    seismicScheme::Cint
+    seismicWeightFactor::Cdouble
     output_matlab::Cint
     tot_min_time::Cdouble
     tot_time::Cdouble

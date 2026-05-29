@@ -4254,13 +4254,12 @@ double obj_ume_spl(unsigned n, const double *x, double *grad, void *SS_ref_db){
     sf[7]          = -0.666666666666667*x[1]*x[2] + 0.666666666666667*x[1] - 0.333333333333333*x[5];
     sf[8]          = 1.0*x[2];
     
-    
     mu[0]          = gb[0] + R*T*creal(clog(sf[0]*sf[6])) + mu_Gex[0];
-    mu[1]          = gb[1] + R*T*creal(clog(2.0*sf[2]*sqrt(sf[4])*sqrt(sf[6]))) + mu_Gex[1];
+    mu[1]          = gb[1] + R*T*creal(clog(2.0*sf[2]*csqrt(sf[4])*csqrt(sf[6]))) + mu_Gex[1];
     mu[2]          = gb[2] + R*T*creal(clog(sf[1]*sf[6])) + mu_Gex[2];
-    mu[3]          = gb[3] + R*T*creal(clog(2.0*sf[2]*sqrt(sf[5])*sqrt(sf[6]))) + mu_Gex[3];
+    mu[3]          = gb[3] + R*T*creal(clog(2.0*sf[2]*csqrt(sf[5])*csqrt(sf[6]))) + mu_Gex[3];
     mu[4]          = gb[4] + R*T*creal(clog(sf[1]*sf[7])) + mu_Gex[4];
-    mu[5]          = gb[5] + R*T*creal(clog(2.0*sf[3]*sqrt(sf[5])*sqrt(sf[7]))) + mu_Gex[5];
+    mu[5]          = gb[5] + R*T*creal(clog(2.0*sf[3]*csqrt(sf[5])*csqrt(sf[7]))) + mu_Gex[5];
     mu[6]          = gb[6] + R*T*creal(clog(sf[0]*sf[8] + d_em[6])) + mu_Gex[6];
     
     d->sum_apep = 0.0;

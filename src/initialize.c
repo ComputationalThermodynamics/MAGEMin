@@ -122,7 +122,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.9.4 21/05/2026]");		/** MAGEMin version 																*/
+	strcpy(gv.version,"1.9.5 29/05/2026]");		/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
@@ -210,7 +210,8 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.alpha        	= gv.max_fac;			/** active under-relaxing factor 													*/
 	gv.tot_min_time 	= 0.0;
 	gv.tot_time 		= 0.0;
-
+	gv.seismicScheme 	= 0;					/** 0: Voigt-Reuss-Hill, 1: Hashin-Shtrikman */
+	gv.seismicWeightFactor = 0.5;				/** 0->1: soft-to-stiff weight within chosen scheme. VRH: 0=Reuss, 0.5=classic VRH, 1=Voigt. HS: 0=HS-, 0.5=HS avg, 1=HS+. Default 0.5 preserves classic VRH. */
 	/* set default parameters (overwritten later from args)*/
 	gv.EM_database  	=  0; 					
 	gv.n_points 		=  1;

@@ -32,8 +32,10 @@ export  anhydrous_renormalization, retrieve_solution_phase_information, remove_p
 export wt2mol, mol2wt, get_molar_mass, vec_norm, FeO2Fe_O
 export compute_melt_viscosity_G08
 
-export TE_prediction, adjust_bulk_4_zircon, create_custom_KDs_database, get_TE_database, adjust_chemical_system
-export zirconium_saturation, sulfur_saturation, phosphate_saturation
+export TE_prediction, adjust_bulk_4_zircon, create_custom_KDs_database, get_TE_database, get_CO_KDs_database, adjust_chemical_system
+export custom_KDs_database, TE_names
+export zirconium_saturation, sulfur_saturation, phosphate_saturation, co2_saturation, volatile_saturation_SY26, CO2_from_dissolved_H2O
+export SaturationConfig, solve_with_saturation
 
 
 export initialize_AMR, split_and_keep, AMR
@@ -791,7 +793,9 @@ function Initialize_MAGEMin(db = "ig";  verbose     ::Union{Int64,Bool} = 0,
                                         mpIlm       ::Int64             = 0,
                                         ig_ed       ::Int64             = 0,
                                         buffer      ::String            = "NONE",
-                                        solver      ::Int64             = 0         )
+                                        solver      ::Int64             = 0,
+                                        seismicScheme :: String         = "VRH",
+                                        seismicWeightFactor :: Float64    = 0.5)
 
     gv, z_b, DB, splx_data = init_MAGEMin(db;   verbose     = verbose,
                                                 dataset     = dataset,
@@ -803,7 +807,9 @@ function Initialize_MAGEMin(db = "ig";  verbose     ::Union{Int64,Bool} = 0,
                                                 limitCaOpx  = limitCaOpx,
                                                 CaOpxLim    = CaOpxLim,
                                                 buffer      = buffer,
-                                                solver      = solver    );
+                                                solver      = solver,
+                                                seismicScheme = seismicScheme,
+                                                seismicWeightFactor = seismicWeightFactor );
 
     nt              = Threads.maxthreadid()
     list_gv         = Vector{typeof(gv)}(undef, nt)
@@ -830,7 +836,9 @@ function Initialize_MAGEMin(db = "ig";  verbose     ::Union{Int64,Bool} = 0,
                                                     limitCaOpx  = limitCaOpx,
                                                     CaOpxLim    = CaOpxLim,
                                                     buffer      = buffer,
-                                                    solver      = solver    );
+                                                    solver      = solver,
+                                                    seismicScheme = seismicScheme,
+                                                    seismicWeightFactor = seismicWeightFactor );
 
         list_gv[id]         = gv
         list_z_b[id]        = z_b
@@ -919,7 +927,9 @@ function  init_MAGEMin( db          :: String               =  "ig";
                         limitCaOpx  :: Int64                =   0,
                         CaOpxLim    :: Float64              =   1.0,
                         buffer      :: String               =  "NONE",
-                        solver      :: Int64                =   0           )
+                        solver      :: Int64                =   0,
+                        seismicScheme :: String             =  "VRH",
+                        seismicWeightFactor :: Float64      = 0.5 )
 
     z_b         = LibMAGEMin.bulk_infos()
     gv          = LibMAGEMin.global_variables()
@@ -992,6 +1002,9 @@ function  init_MAGEMin( db          :: String               =  "ig";
     gv.limitCaOpx   = limitCaOpx
     gv.CaOpxLim     = CaOpxLim
     gv.solver       = solver
+    gv.seismicScheme = seismicScheme == "VRH" ? 0 : 1
+    gv.seismicWeightFactor = seismicWeightFactor
+
     unsafe_copyto!(convert(Ptr{UInt8}, gv.buffer), pointer(buffer), length(buffer) + 1)
 
 
@@ -1829,7 +1842,8 @@ end
 function convertBulk4MAGEMin(   bulk_in     :: T1,
                                 bulk_in_ox  :: Vector{String},
                                 sys_in      :: String,
-                                db          :: String ) where {T1 <: AbstractVector{Float64}}
+                                db          :: String;
+                                oxMinGuard  ::  Bool = true ) where {T1 <: AbstractVector{Float64}}
 
     bulk_in = normalize(bulk_in);                            
 
@@ -1950,6 +1964,14 @@ function convertBulk4MAGEMin(   bulk_in     :: T1,
     id0 = findall(MAGEMin_bulk[c] .< 1e-4)
     if ~isempty(id0)
         MAGEMin_bulk[c[id0]] .= 1e-4;
+    end
+
+    # Set optional oxides to 0 if near zero
+    if oxMinGuard
+        id1 = findall(MAGEMin_bulk[d] .< 2e-5 .&& MAGEMin_bulk[d] .> -2e-5)
+        if ~isempty(id1)
+            MAGEMin_bulk[d[id1]] .= 0.0;
+        end
     end
 
     MAGEMin_bulk .= normalize(MAGEMin_bulk).*100.0
@@ -3526,6 +3548,7 @@ point_wise_metastability(           out     :: MAGEMin_C.gmin_struct{Float64, In
 
 # The following section add post-processing routines
 include("TE_ph_models.jl")
+include("lattice_strain.jl")
 include("TE_partitioning.jl")
 include("TE_saturation_models.jl")
 include("export2CSV.jl")
