@@ -178,6 +178,15 @@ Base.@kwdef struct SaturationConfig
     S    :: String = "none"
     P2O5 :: String = "none"
     CO2  :: String = "none"
+    # Optional per-element phase overrides.  Keys are element names (e.g. "Zr");
+    # values are (phase, adjust) NamedTuples where:
+    #   phase  :: String   — phase label used in the KDs database
+    #   adjust :: Function — bulk-correction function with signature
+    #                        (out, Cliq_el, Sat_el, liq_wt) -> (phase_wt, bulk_delta)
+    # Elements absent from this dict use the _SAT_PHASE default and the built-in
+    # adjust_bulk_4_* functions.
+    overrides :: Dict{String, @NamedTuple{phase::String, adjust::Function}} =
+                 Dict{String, @NamedTuple{phase::String, adjust::Function}}()
 end
 
 """
@@ -369,6 +378,36 @@ function adjust_chemical_system(    KDs_dtb     :: custom_KDs_database,
     end
 
     return C0_TE
+end
+
+"""
+    create_custom_KDs_database(el_name; info)
+
+    Create an elements-only KDs database with no phases. Phases (and zero KDs) are added
+    automatically by `_augment_KDs_for_saturation` when a `SaturationConfig` is provided
+    to `TE_prediction` or `solve_with_saturation`.
+"""
+function create_custom_KDs_database(el_name :: Vector{String};
+                                    info    :: String = "Custom KDs database")
+    return create_custom_KDs_database(el_name, String[],
+                                      Matrix{String}(undef, 0, length(el_name));
+                                      info = info)
+end
+
+"""
+    create_custom_KDs_database(el_name, phase_name; info)
+
+    Create a KDs database with the given elements and phases, all KDs set to zero.
+    Useful when phases are known but partition coefficients are saturation-controlled.
+"""
+function create_custom_KDs_database(el_name    :: Vector{String},
+                                    phase_name :: Vector{String};
+                                    info       :: String = "Custom KDs database")
+    n_ph = length(phase_name)
+    n_el = length(el_name)
+    return create_custom_KDs_database(el_name, phase_name,
+                                      fill("0.0", n_ph, n_el);
+                                      info = info)
 end
 
 """
@@ -627,8 +666,12 @@ function compute_TE_partitioning(   KDs_database:: custom_KDs_database,
 end
 
 
-# Map from SaturationConfig field name → phase label used in the KDs database
+# Default element → saturation phase mapping
 const _SAT_PHASE = Dict("Zr" => "zrc", "S" => "sulf", "P2O5" => "fapt", "CO2" => "fl")
+
+# Return the saturation phase for `el`: override → _SAT_PHASE default → nothing
+_sat_phase(sat::SaturationConfig, el::String) =
+    haskey(sat.overrides, el) ? sat.overrides[el].phase : get(_SAT_PHASE, el, nothing)
 
 """
     _augment_KDs_for_saturation(KDs_database, sat)
@@ -641,9 +684,10 @@ original is never mutated.
 function _augment_KDs_for_saturation(KDs_database :: custom_KDs_database,
                                      sat          :: SaturationConfig)
     extra = String[]
-    for (field, phase) in (("Zr", "zrc"), ("S", "sulf"), ("P2O5", "fapt"), ("CO2", "fl"))
+    for field in ("Zr", "S", "P2O5", "CO2")
         model = getfield(sat, Symbol(field))
-        if model != "none" && phase ∉ KDs_database.phase_name
+        phase = _sat_phase(sat, field)
+        if model != "none" && !isnothing(phase) && phase ∉ KDs_database.phase_name
             push!(extra, phase)
         end
     end
@@ -652,7 +696,7 @@ function _augment_KDs_for_saturation(KDs_database :: custom_KDs_database,
 
     n_elem   = length(KDs_database.element_name)
     zero_fn  = (_) -> 0.0
-    new_KDs  = hcat(KDs_database.KDs_expr, fill(zero_fn, n_elem, length(extra)))
+    new_KDs  = vcat(KDs_database.KDs_expr, fill(zero_fn, length(extra), n_elem))
 
     return custom_KDs_database(
         KDs_database.infos,
@@ -913,7 +957,8 @@ function compute_CO2_sat_n_part(    out         :: MAGEMin_C.gmin_struct{Float64
                                     KDs_database:: custom_KDs_database,
                                     Cliq, bulk_cor_wt, C0,
                                     liq_wt      :: Float64;
-                                    CO2Sat_model :: String = "SY26")
+                                    CO2Sat_model :: String = "SY26",
+                                    CO2_phase    :: String = "fl")
 
     Sat_CO2_liq = NaN
     fl_CO2_wt   = 0.0
@@ -930,6 +975,14 @@ function compute_CO2_sat_n_part(    out         :: MAGEMin_C.gmin_struct{Float64
             if !isnothing(CO2_idx)
                 bulk_cor_wt[CO2_idx] += CO2_bulk_wt
             end
+        end
+    elseif CO2_phase == "fl"
+        # No melt and phase is fluid: all CO2 goes to fl (same pattern as Zr → zrc when liq_wt == 0)
+        C0_CO2 = C0[id_CO2]
+        fl_CO2_wt, CO2_bulk_wt = adjust_bulk_4_fluid(C0_CO2, 0.0, 1.0)
+        CO2_idx = findfirst(out.oxides .== "CO2")
+        if !isnothing(CO2_idx)
+            bulk_cor_wt[CO2_idx] += CO2_bulk_wt
         end
     end
 
@@ -991,7 +1044,7 @@ function TE_prediction( out, C0, KDs_database, dtb;
     Sat_Zr_liq, zrc_wt, bulk_cor_wt       = NaN, NaN, NaN
     Sat_S_liq, sulf_wt                    = NaN, NaN, NaN
     Sat_P2O5_liq, fapt_wt,                = NaN, NaN, NaN
-    Sat_CO2_liq, fl_CO2_wt               = NaN, NaN
+    Sat_CO2_liq, fl_CO2_wt                = NaN, NaN
 
     # input data
     liq_wt      = out.frac_M_wt
@@ -1050,7 +1103,8 @@ function TE_prediction( out, C0, KDs_database, dtb;
                                                                             KDs_database,
                                                                             Cliq, bulk_cor_wt, C0,
                                                                             liq_wt;
-                                                                            CO2Sat_model = CO2Sat_model)
+                                                                            CO2Sat_model = CO2Sat_model,
+                                                                            CO2_phase    = isnothing(sat) ? "fl" : something(_sat_phase(sat, "CO2"), "fl"))
         push!(ph,"fl")
         push!(ph_wt, fl_CO2_wt)
     end

@@ -71,6 +71,8 @@ typedef struct global_variables {
 	int      status;			/** status of the minimization 		*/
 	int      solver;
 	double   solver_switch_T;
+	int 	 seismicScheme; 	/** 0: Voigt-Reuss-Hill, 1: Hashin-Shtrikman */
+	double   seismicWeightFactor; 	/** value between 0 and 1 to blend VRH and HS bounds for seismic properties calculation. 0 = pure VRH, 1 = pure HS, values in between = linear blend. When a fluid phase is present, G_min = 0, so HS- shear bound = 0 (handled by IEEE 754). */
 	// int 	 calc_seismic_cor;
 	int 	 output_matlab;
 	double 	 tot_min_time;

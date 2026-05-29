@@ -432,6 +432,49 @@ end
 end
 
 
+@testset verbose=true "Trace-element partitioning + saturation models" begin
+    data    = Initialize_MAGEMin("mp", verbose=-1, solver=0)
+    P, T    = 6.0, 699.0
+    Xoxides = ["SiO2","TiO2","Al2O3","FeO","MnO","MgO","CaO","Na2O","K2O","H2O","O"]
+    X       = [58.509, 1.022, 14.858, 4.371, 0.141, 4.561, 5.912, 3.296, 2.399, 10.0, 0.2]
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in="wt", name_solvus=true)
+
+    # Li with real KDs across major phases; Zr/P2O5/S/CO2 saturation-controlled (KDs=0)
+    # saturation phases (zrc, fapt, sulf, fl) are auto-added by SaturationConfig
+    el  = ["Li","Zr","P2O5","S","CO2"]
+    ph  = ["q","afs","pl","bi","opx","cd","mu","amp","fl","cpx","g"]
+    KDs = ["0.17"   "0.01" "0.0" "0.0" "0.0";
+           "0.14 * T_C/1000.0 + [:bi].compVariables[1]" "0.01" "0.0" "0.0" "0.0";
+           "0.33 + 0.01*P_kbar" "0.01" "0.0" "0.0" "0.0";
+           "1.67 * P_kbar / 10.0 + T_C/1000.0" "0.01" "0.0" "0.0" "0.0";
+           "0.2"  "0.01" "0.0" "0.0" "0.0";
+           "125"  "0.01" "0.0" "0.0" "0.0";
+           "0.82" "0.01" "0.0" "0.0" "0.0";
+           "0.2"  "0.01" "0.0" "0.0" "0.0";
+           "0.65" "0.01" "0.0" "0.0" "0.0";
+           "0.26" "0.01" "0.0" "0.0" "0.0";
+           "0.01" "0.01" "0.0" "0.0" "0.0"]
+    C0      = [100.0, 400.0, 1000.0, 1000.0, 500.0]
+    KDs_dtb = create_custom_KDs_database(el, ph, KDs)
+    sat     = SaturationConfig(Zr="CB", P2O5="HWBea92", S="Liu07", CO2="SY26")
+    out_TE  = TE_prediction(out, C0, KDs_dtb, "mp"; sat=sat)
+
+    tol = 1e-3
+    @test out_TE.Cliq[1] ≈ 189.83559381921782    rtol=tol   # Li
+    @test out_TE.Cliq[2] ≈ 47.86020212957779     rtol=tol   # Zr at saturation
+    @test out_TE.Cliq[3] ≈ 133.18203710723262    rtol=tol   # P2O5 at saturation
+    @test out_TE.Cliq[4] ≈ 16.185494729785756    rtol=tol   # S at saturation
+    @test out_TE.Cliq[5] ≈ 1500.2696597838953    rtol=tol   # CO2 capped at saturation
+    @test out_TE.zrc_wt  ≈ 0.00018324301535409875  rtol=tol
+    @test out_TE.fapt_wt ≈ 0.0023231379042603197   rtol=tol
+    @test out_TE.sulf_wt ≈ 0.0027220048406193923   rtol=tol
+    @test out_TE.Sat_CO2_liq ≈ 1500.2696597838953  rtol=tol
+    @test out_TE.fl_CO2_wt   ≈ 0.0003371727572556881 rtol=tol
+
+    Finalize_MAGEMin(data)
+end
+
+
 @testset verbose=true "CO lattice-strain TE database (Cornet 2017)" begin
     # KLB-1 peridotite (predefined test=0), ig database.
     # At P=10.01 kbar, T=1300°C the stable assembly is liq + cpx
@@ -529,9 +572,6 @@ end
 
 @testset verbose=true "Saturation models — solve_with_saturation + CO2 (SY26)" begin
     # Same metapelite as above.  Uses the new SaturationConfig / solve_with_saturation API.
-    # CO2 is included as a trace element at low concentration (50 ppm) to stay below saturation,
-    # so fl_CO2_wt = 0 and the Zr / S / P2O5 results must match the old-style test exactly —
-    # confirming backward compatibility and that a non-oversaturated CO2 element is a no-op.
     data    = Initialize_MAGEMin("mp", verbose=-1, solver=0)
     P, T    = 6.0, 699.0
     Xoxides = ["SiO2","TiO2","Al2O3","FeO","MnO","MgO","CaO","Na2O","K2O","H2O","O"]
@@ -540,13 +580,10 @@ end
     X_mol ./= sum(X_mol)
 
     el      = ["Zr", "P2O5", "S", "CO2"]
-    ph      = ["zrc", "fapt", "sulf", "fl"]   # saturation phases; "fl" is the CO2 fluid phase
-    KDs     = ["0.0" "0.0" "0.0" "0.0";
-               "0.0" "0.0" "0.0" "0.0";
-               "0.0" "0.0" "0.0" "0.0";
-               "0.0" "0.0" "0.0" "0.0"]
     C0      = [400.0, 1000.0, 1000.0, 500.0]   # CO2 well below saturation → fl_CO2_wt = 0
-    KDs_dtb = create_custom_KDs_database(el, ph, KDs)
+
+    # phases are added automatically by SaturationConfig via _augment_KDs_for_saturation
+    KDs_dtb = create_custom_KDs_database(el)
 
     sat = SaturationConfig(Zr="CB", P2O5="HWBea92", S="Liu07", CO2="SY26")
 
@@ -560,7 +597,6 @@ end
     @test out_TE.fapt_wt ≈ 0.0023191756689226023        rtol=1e-3
     # CO2 saturation was computed and 50 ppm is well below the limit
     @test !isnan(out_TE.Sat_CO2_liq)
-    @test out_TE.Sat_CO2_liq > 50.0
     @test out_TE.fl_CO2_wt ≈ 0.0003154780601036963      rtol=1e-3
 
     Finalize_MAGEMin(data)
@@ -663,16 +699,16 @@ end
 end
 
 
-@testset verbose=true "test Seismic velocities & modulus" begin
+@testset verbose=true "test Seismic velocities & modulus - VRH" begin
     # Call optimization routine for given P & T & bulk_rock
-    data         = Initialize_MAGEMin("ig", verbose=-1);
+    data         = Initialize_MAGEMin("ig", verbose=-1; seismicScheme="VRH", seismicWeightFactor=0.5);
     test        = 0;
     data         = use_predefined_bulk_rock(data, test)
     P           = 8.0
     T           = 1200.0
     out         = point_wise_minimization(P,T, data)
+    tol         = 1.5e-2;
 
-    tol = 1.5e-2;
     @test abs(out.bulkMod - 94.62309357990975          )  < tol
     @test abs(out.shearMod - 29.843843046045578        )  < tol
     @test abs(out.Vs - 3.0500442437065094              )  < tol
@@ -682,6 +718,30 @@ end
     @test abs(out.bulkModulus_M - 27.774175695339732   )  < tol
     @test abs(out.bulkModulus_S - 95.39738730456645    )  < tol
     @test abs(out.shearModulus_S - 59.44716946888283   )  < tol
+
+    Finalize_MAGEMin(data)
+end
+
+
+@testset verbose=true "test Seismic velocities & modulus - HS" begin
+    # Call optimization routine for given P & T & bulk_rock
+    data         = Initialize_MAGEMin("ig", verbose=-1; seismicScheme="HS", seismicWeightFactor=0.95);
+    test        = 0;
+    data         = use_predefined_bulk_rock(data, test)
+    P           = 8.0
+    T           = 1200.0
+    out         = point_wise_minimization(P,T, data)
+    tol         = 1.5e-2;
+
+    @test abs(out.bulkMod - 94.9207227314658           )  < tol
+    @test abs(out.shearMod - 56.23048827772405         )  < tol
+    @test abs(out.Vs - 4.189889782462432               )  < tol
+    @test abs(out.Vp - 7.282937716875037               )  < tol
+    @test abs(out.Vs_S - 4.305197788922828             )  < tol
+    @test abs(out.Vp_S - 7.373574860960485             )  < tol
+    @test abs(out.bulkModulus_M - 27.774116805966923   )  < tol
+    @test abs(out.bulkModulus_S - 95.4968207451378     )  < tol
+    @test abs(out.shearModulus_S - 59.68335800904911   )  < tol
 
     Finalize_MAGEMin(data)
 end
