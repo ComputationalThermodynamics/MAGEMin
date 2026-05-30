@@ -667,7 +667,7 @@ end
 
 
 # Default element → saturation phase mapping
-const _SAT_PHASE = Dict("Zr" => "zrc", "S" => "sulf", "P2O5" => "fapt", "CO2" => "fl")
+const _SAT_PHASE = Dict("Zr" => "zrc", "S" => "sulf", "P2O5" => "fapt", "CO2" => "flC")
 
 # Return the saturation phase for `el`: override → _SAT_PHASE default → nothing
 _sat_phase(sat::SaturationConfig, el::String) =
@@ -957,33 +957,23 @@ function compute_CO2_sat_n_part(    out         :: MAGEMin_C.gmin_struct{Float64
                                     KDs_database:: custom_KDs_database,
                                     Cliq, bulk_cor_wt, C0,
                                     liq_wt      :: Float64;
-                                    CO2Sat_model :: String = "SY26",
-                                    CO2_phase    :: String = "fl")
+                                    CO2Sat_model :: String = "SY26")
 
     Sat_CO2_liq = NaN
-    fl_CO2_wt   = 0.0
     id_CO2      = findfirst(KDs_database.element_name .== "CO2")
 
     if liq_wt > 0.0
-        Cliq_CO2    = Cliq[id_CO2]
+        Cliq_CO2  = Cliq[id_CO2]
+        # Cliq_CO2    = C0[findfirst(KDs_database.element_name .== "CO2")] * (1.0/liq_wt)
         Sat_CO2_liq = co2_saturation(out; model = CO2Sat_model)
-
-        if !isnan(Sat_CO2_liq) && Cliq_CO2 > Sat_CO2_liq
+        if Cliq_CO2 > Sat_CO2_liq
             fl_CO2_wt, CO2_bulk_wt = adjust_bulk_4_fluid(Cliq_CO2, Sat_CO2_liq, liq_wt)
-
-            CO2_idx = findfirst(out.oxides .== "CO2")
-            if !isnothing(CO2_idx)
-                bulk_cor_wt[CO2_idx] += CO2_bulk_wt
-            end
+        else
+            fl_CO2_wt, CO2_bulk_wt = 0.0, 0.0
         end
-    elseif CO2_phase == "fl"
-        # No melt and phase is fluid: all CO2 goes to fl (same pattern as Zr → zrc when liq_wt == 0)
-        C0_CO2 = C0[id_CO2]
-        fl_CO2_wt, CO2_bulk_wt = adjust_bulk_4_fluid(C0_CO2, 0.0, 1.0)
-        CO2_idx = findfirst(out.oxides .== "CO2")
-        if !isnothing(CO2_idx)
-            bulk_cor_wt[CO2_idx] += CO2_bulk_wt
-        end
+    else
+        C0_CO2            =  C0[findfirst(KDs_database.element_name .== "CO2")]
+        fl_CO2_wt, CO2_bulk_wt  = adjust_bulk_4_fluid(C0_CO2, 0.0, 1.0)
     end
 
     return Sat_CO2_liq, fl_CO2_wt, bulk_cor_wt
@@ -1062,7 +1052,7 @@ function TE_prediction( out, C0, KDs_database, dtb;
                                                                                             liq_wt,
                                                                                             sol_wt;
                                                                                             norm_TE = norm_TE)
-         
+
     bulk_cor_wt = copy(out.bulk_wt); bulk_cor_wt .= 0.0;                                                                              
 
     if !isnothing(findfirst(KDs_database.element_name .== "Zr")) && ZrSat_model != "none"
@@ -1098,14 +1088,14 @@ function TE_prediction( out, C0, KDs_database, dtb;
         push!(ph,"fapt")
         push!(ph_wt, fapt_wt)
     end
+
     if !isnothing(findfirst(KDs_database.element_name .== "CO2")) && CO2Sat_model != "none"
-        Sat_CO2_liq, fl_CO2_wt, bulk_cor_wt = compute_CO2_sat_n_part(      out,
+        Sat_CO2_liq, fl_CO2_wt, bulk_cor_wt = compute_CO2_sat_n_part(       out,
                                                                             KDs_database,
                                                                             Cliq, bulk_cor_wt, C0,
                                                                             liq_wt;
-                                                                            CO2Sat_model = CO2Sat_model,
-                                                                            CO2_phase    = isnothing(sat) ? "fl" : something(_sat_phase(sat, "CO2"), "fl"))
-        push!(ph,"fl")
+                                                                            CO2Sat_model = CO2Sat_model)
+        push!(ph,"flC")
         push!(ph_wt, fl_CO2_wt)
     end
     sum_wt       = sum(ph_wt)
@@ -1121,6 +1111,7 @@ function TE_prediction( out, C0, KDs_database, dtb;
                                                                                             liq_wt,
                                                                                             sol_wt;
                                                                                             norm_TE = norm_TE)
+
     if liq_wt > 0.0
         if !isnothing(findfirst(KDs_database.element_name .== "Zr"))    && ZrSat_model != "none"
             id_Zr           = findfirst(KDs_database.element_name .== "Zr")
