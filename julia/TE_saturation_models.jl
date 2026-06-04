@@ -626,7 +626,8 @@ function volatile_saturation_SY26(  out     :: MAGEMin_C.gmin_struct{Float64, In
     S_H2O = NaN
     if !isnan(P_H2O) && P_H2O > 0.0
         ln_Sm  = a[1]*log(P_H2O) + a[2]*log(T_K) + a[3]*(P_bar^2/T_K) +
-                 a[4]*(sqrt(P_bar)*X_Na2O/T_K) + a[5]*(X_Na2O/T_K)
+                 a[4]*((sqrt(P_bar))*X_Na2O/T_K) + a[5]*(X_Na2O/T_K)
+
         ln_SOH = a[6]*log(P_H2O) + a[7]*log(T_K) + (a[8] + a[9]*X_Al2O3 + a[10]*X_Na2O)*(P_bar/T_K)
         S_H2O  = exp(ln_Sm) + exp(ln_SOH)
     end
@@ -660,7 +661,7 @@ end
 Given a known dissolved H₂O content in the melt, compute the CO₂ saturation
 concentration using the M2Fluid model of Sun & Yao (2026).
 
-Assumes a binary H₂O–CO₂ fluid so that P_CO₂ = P − P_H₂O.  P_H₂O is found by
+Assumes a binary H₂O-CO₂ fluid so that P_CO₂ = P - P_H₂O.  P_H₂O is found by
 numerically inverting Eq. (7) via bisection on [0, P].
 
 Parameters
@@ -670,14 +671,14 @@ out : MAGEMin_C.gmin_struct{Float64, Int64}
 S_H2O_wt : Float64
     Total dissolved H₂O content in the melt [wt%].
 tol : Float64, optional
-    Convergence tolerance on P_H₂O [bar] (default 1e-6).
+    Convergence tolerance on P_H₂O (in bar; default 1e-6).
 
 Returns
 -------
 P_H2O : Float64
     H₂O partial pressure [bar].
 P_CO2 : Float64
-    CO₂ partial pressure [bar]  (= P − P_H₂O).
+    CO₂ partial pressure (in bar; = P - P_H₂O).
 S_CO2 : Float64
     CO₂ saturation in the melt [ppm], or NaN if P_CO₂ ≤ 0.
 """
@@ -689,13 +690,14 @@ function CO2_from_dissolved_H2O(    out         :: MAGEMin_C.gmin_struct{Float64
 
     P_bar = out.P_kbar * 1000.0
 
-    # upper bound: pure H2O fluid at total pressure
-    S_max, _ = volatile_saturation_SY26(out; P_H2O = P_bar, P_CO2 = 0.0)
+    # # upper bound: pure H2O fluid at total pressure
+    # S_max, _ = volatile_saturation_SY26(out; P_H2O = P_bar, P_CO2 = 0.0)
 
-    if isnan(S_max) || S_H2O_wt >= S_max
-        # melt is at or above pure-H2O saturation — no CO2 in fluid
-        return P_bar, 0.0, NaN
-    end
+    # if isnan(S_max) || S_H2O_wt >= S_max
+    #     # melt is at or above pure-H2O saturation — no CO2 in fluid
+    #     @warn "Dissolved H₂O content ($S_H2O_wt wt%) exceeds pure-H₂O saturation ($S_max wt%); returning P_H2O = P_total and S_CO2 = NaN."
+    #     return P_bar, 0.0, NaN
+    # end
 
     # bisect on P_H2O in (0, P_bar] to match S_H2O_wt
     lo = 0.0

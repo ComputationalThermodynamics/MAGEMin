@@ -1030,11 +1030,16 @@ Databases InitializeDatabases(	global_variable gv,
 	DB.FS_names  =	get_FS_DB_names(		gv									);
 
 	/* Create endmember Hashtable */
+	/* Fix: clear stale entries from any previous Initialize_MAGEMin call before
+	   rebuilding, otherwise HASH_FIND returns wrong indices when switching databases
+	   (e.g. "an" is at index 1 in sb11 but index 3 in sb21). */
 	EM2id *p_s, *tmp_p;
+	HASH_ITER(hh, EM, p_s, tmp_p) { HASH_DEL(EM, p_s); free(p_s); }
+	// Previous code (no clear — left as reference):
+	// EM2id *p_s, *tmp_p;
 	EM_db EM_return;
 	int n_em_db = gv.n_em_db;
     for (int i = 0; i < n_em_db; ++i) {
-		char EM_name[20];
         p_s = (EM2id *)malloc(sizeof *p_s);
         strcpy(p_s->EM_tag, DB.EM_names[i]);
         p_s->id = i;
@@ -1043,6 +1048,9 @@ Databases InitializeDatabases(	global_variable gv,
 
 	/* Create pure-phase hashtable */
 	PP2id *pp_s, *tmp_pp;
+	HASH_ITER(hh, PP, pp_s, tmp_pp) { HASH_DEL(PP, pp_s); free(pp_s); }
+	// Previous code (no clear — left as reference):
+	// PP2id *pp_s, *tmp_pp;
     for (int i = 0; i < sizeof(gv.PP_list); ++i) {
         pp_s = (PP2id *)malloc(sizeof *pp_s);
         strcpy(pp_s->PP_tag, gv.PP_list[i]);
@@ -1052,10 +1060,12 @@ Databases InitializeDatabases(	global_variable gv,
 
 	/* Create fluid species Hashtable */
 	FS2id *fs_s, *tmp_fs;
+	HASH_ITER(hh, FS, fs_s, tmp_fs) { HASH_DEL(FS, fs_s); free(fs_s); }
+	// Previous code (no clear — left as reference):
+	// FS2id *fs_s, *tmp_fs;
 	FS_db FS_return;
 	int n_fs_db = gv.n_fs_db;
     for (int i = 0; i < n_fs_db; ++i) {
-		char EM_name[20];
         fs_s = (FS2id *)malloc(sizeof *fs_s);
         strcpy(fs_s->FS_tag, DB.FS_names[i]);
         fs_s->id = i;

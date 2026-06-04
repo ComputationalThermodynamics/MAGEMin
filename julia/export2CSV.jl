@@ -67,15 +67,28 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
                                     Symbol("phase")             => String[],
                                     Symbol("mode[wt%]")         => Float64[],
                                     Symbol("Zr_sat[μg/g]")      => Float64[],
+                                    Symbol("S_sat[μg/g]")       => Float64[],
+                                    Symbol("P2O5_sat[wt%]")     => Float64[],
+                                    Symbol("CO2_sat[wt%]")      => Float64[],
+                                    Symbol("zrc_wt[wt%]")       => Float64[],
+                                    Symbol("sulf_wt[wt%]")      => Float64[],
+                                    Symbol("fapt_wt[wt%]")      => Float64[],
+                                    Symbol("fl_CO2_wt[wt%]")    => Float64[],
+                                    Symbol("bulk_D[-]")         => Float64[],
     )
     for i in out[1].oxides
         col = i*"_cor[wt%]"
-        MAGEMin_db[!, col] = Float64[] 
+        MAGEMin_db[!, col] = Float64[]
+    end
+
+    for i in out[1].oxides
+        col = i*"_cor[mol%]"
+        MAGEMin_db[!, col] = Float64[]
     end
 
     for i in out_te[1].elements
         col = i*"_[μg/g]"
-        MAGEMin_db[!, col] = Float64[] 
+        MAGEMin_db[!, col] = Float64[]
     end
 
     print("\noutput path: $(pwd())\n")
@@ -87,7 +100,15 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
                         "T[°C]"         => out[k].T_C,
                         "phase"         => "system",
                         "mode[wt%]"     => 100.0,
-                        "Zr_sat[μg/g]"  => "-")
+                        "Zr_sat[μg/g]"  => "-",
+                        "S_sat[μg/g]"   => "-",
+                        "P2O5_sat[wt%]" => "-",
+                        "CO2_sat[wt%]"  => "-",
+                        "zrc_wt[wt%]"   => "-",
+                        "sulf_wt[wt%]"  => "-",
+                        "fapt_wt[wt%]"  => "-",
+                        "fl_CO2_wt[wt%]"=> "-",
+                        "bulk_D[-]"     => out_te[k].bulk_D)
 
         if ~isnothing(out_te[k].bulk_cor_wt) && !any(isnan, out_te[k].bulk_cor_wt)
             part_2 = Dict(  (out[1].oxides[j]*"_cor[wt%]" => out_te[k].bulk_cor_wt[j]*100.0)
@@ -97,18 +118,68 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
                             for j in eachindex(out[1].oxides))
         end
 
+        if ~isnothing(out_te[k].bulk_cor_mol) && !any(isnan, out_te[k].bulk_cor_mol)
+            part_2b = Dict( (out[1].oxides[j]*"_cor[mol%]" => out_te[k].bulk_cor_mol[j]*100.0)
+                            for j in eachindex(out[1].oxides))
+        else
+            part_2b = Dict( (out[1].oxides[j]*"_cor[mol%]" => "-")
+                            for j in eachindex(out[1].oxides))
+        end
+
         part_3 = Dict(  ( out_te[1].elements[j]*"_[μg/g]" => out_te[k].C0[j])
                         for j in eachindex(out_te[1].elements))
 
-        row    = merge(part_1,part_2,part_3)   
+        row    = merge(part_1,part_2,part_2b,part_3)
 
         push!(MAGEMin_db, row, cols=:union)
         
         # liquid
         if isnothing(out_te[k].Sat_Zr_liq)
             Sat_Zr_liq = "-"
-        else 
+        else
             Sat_Zr_liq = out_te[k].Sat_Zr_liq
+        end
+
+        if isnothing(out_te[k].Sat_S_liq)
+            Sat_S_liq = "-"
+        else
+            Sat_S_liq = out_te[k].Sat_S_liq
+        end
+
+        if isnothing(out_te[k].Sat_P2O5_liq)
+            Sat_P2O5_liq = "-"
+        else
+            Sat_P2O5_liq = out_te[k].Sat_P2O5_liq
+        end
+
+        if isnothing(out_te[k].Sat_CO2_liq)
+            Sat_CO2_liq = "-"
+        else
+            Sat_CO2_liq = out_te[k].Sat_CO2_liq
+        end
+
+        if isnothing(out_te[k].zrc_wt)
+            zrc_wt = "-"
+        else
+            zrc_wt = out_te[k].zrc_wt
+        end
+
+        if isnothing(out_te[k].sulf_wt)
+            sulf_wt = "-"
+        else
+            sulf_wt = out_te[k].sulf_wt
+        end
+
+        if isnothing(out_te[k].fapt_wt)
+            fapt_wt = "-"
+        else
+            fapt_wt = out_te[k].fapt_wt
+        end
+
+        if isnothing(out_te[k].fl_CO2_wt)
+            fl_CO2_wt = "-"
+        else
+            fl_CO2_wt = out_te[k].fl_CO2_wt
         end
 
         if ~isnothing(out_te[k].liq_wt_norm) && !any(isnan, out_te[k].liq_wt_norm)
@@ -118,15 +189,26 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
                             "T[°C]"         => out[k].T_C,
                             "phase"         => "liq",
                             "mode[wt%]"     => out_te[k].liq_wt_norm .* 100.0,
-                            "Zr_sat[μg/g]"  => Sat_Zr_liq)
+                            "Zr_sat[μg/g]"  => Sat_Zr_liq,
+                            "S_sat[μg/g]"   => Sat_S_liq,
+                            "P2O5_sat[wt%]" => Sat_P2O5_liq,
+                            "CO2_sat[wt%]"  => Sat_CO2_liq,
+                            "zrc_wt[wt%]"   => zrc_wt,
+                            "sulf_wt[wt%]"  => sulf_wt,
+                            "fapt_wt[wt%]"  => fapt_wt,
+                            "fl_CO2_wt[wt%]"=> fl_CO2_wt,
+                            "bulk_D[-]"     => "-")
 
             part_2 = Dict(  (out[1].oxides[j]*"_cor[wt%]" => "-")
+                            for j in eachindex(out[1].oxides))
+
+            part_2b = Dict( (out[1].oxides[j]*"_cor[mol%]" => "-")
                             for j in eachindex(out[1].oxides))
 
             part_3 = Dict(  ( out_te[1].elements[j]*"_[μg/g]" => out_te[k].Cliq[j])
                             for j in eachindex(out_te[1].elements))
 
-            row    = merge(part_1,part_2,part_3)   
+            row    = merge(part_1,part_2,part_2b,part_3)
 
             push!(MAGEMin_db, row, cols=:union)
         end
@@ -144,15 +226,26 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
                             "T[°C]"         => out[k].T_C,
                             "phase"         => "sol",
                             "mode[wt%]"     => sol_mode,
-                            "Zr_sat[μg/g]"  => "-")
+                            "Zr_sat[μg/g]"  => "-",
+                            "S_sat[μg/g]"   => "-",
+                            "P2O5_sat[wt%]" => "-",
+                            "CO2_sat[wt%]"  => "-",
+                            "zrc_wt[wt%]"   => "-",
+                            "sulf_wt[wt%]"  => "-",
+                            "fapt_wt[wt%]"  => "-",
+                            "fl_CO2_wt[wt%]"=> "-",
+                            "bulk_D[-]"     => "-")
 
             part_2 = Dict(  (out[1].oxides[j]*"_cor[wt%]" => "-")
+                            for j in eachindex(out[1].oxides))
+
+            part_2b = Dict( (out[1].oxides[j]*"_cor[mol%]" => "-")
                             for j in eachindex(out[1].oxides))
 
             part_3 = Dict(  ( out_te[1].elements[j]*"_[μg/g]" => out_te[k].Csol[j])
                             for j in eachindex(out_te[1].elements))
 
-            row    = merge(part_1,part_2,part_3)   
+            row    = merge(part_1,part_2,part_2b,part_3)
 
             push!(MAGEMin_db, row, cols=:union)
         end
@@ -166,15 +259,26 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
                                 "T[°C]"         => out[k].T_C,
                                 "phase"         => out_te[k].ph_TE[i],
                                 "mode[wt%]"     => out_te[k].ph_wt_norm[i].*100.0,
-                                "Zr_sat[μg/g]"  => "-")
+                                "Zr_sat[μg/g]"  => "-",
+                                "S_sat[μg/g]"   => "-",
+                                "P2O5_sat[wt%]" => "-",
+                                "CO2_sat[wt%]"  => "-",
+                                "zrc_wt[wt%]"   => "-",
+                                "sulf_wt[wt%]"  => "-",
+                                "fapt_wt[wt%]"  => "-",
+                                "fl_CO2_wt[wt%]"=> "-",
+                                "bulk_D[-]"     => "-")
 
                 part_2 = Dict(  (out[1].oxides[j]*"_cor[wt%]" => "-")
+                                for j in eachindex(out[1].oxides))
+
+                part_2b = Dict( (out[1].oxides[j]*"_cor[mol%]" => "-")
                                 for j in eachindex(out[1].oxides))
 
                 part_3 = Dict(  ( out_te[1].elements[j]*"_[μg/g]" => out_te[k].Cmin[i,j])
                                 for j in eachindex(out_te[1].elements))
 
-                row    = merge(part_1,part_2,part_3)   
+                row    = merge(part_1,part_2,part_2b,part_3)
 
                 push!(MAGEMin_db, row, cols=:union)
 
