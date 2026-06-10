@@ -34,6 +34,13 @@
     fileout : String
         Base path for output files. Two files are created: `fileout.csv` and
         `fileout_metadata.txt`.
+    use_Warr2021 : Bool, optional
+        If `true`, mineral phase names are converted to IMA-CNMNC approved symbols
+        following Warr (2021). Names with no official symbol are returned with a
+        trailing `"*"`. Default is `false`.
+    use_GPA : Bool, optional
+        If `true`, pressure is reported in GPa (column `"P[GPa]"`) instead of kbar
+        (column `"P[kbar]"`). Default is `false`.
 
     Returns
     -------
@@ -42,7 +49,9 @@
 function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64, Int64}}, gmin_struct{Float64, Int64}},
                                     out_te  :: Union{Vector{out_tepm}, out_tepm},
                                     dtb,
-                                    fileout)
+                                    fileout;
+                                    use_Warr2021 :: Bool = false,
+                                    use_GPA :: Bool = false)
 
     # here we fill the dataframe with the all minimized point entries
     if typeof(out) == MAGEMin_C.gmin_struct{Float64, Int64}
@@ -59,10 +68,12 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
 
     metadata   = "# MAGEMin_TE " * " $(out[1].MAGEMin_ver);" * datetoday * ", " * rightnow * "; using database " * db_in.db_info * "\n"
 
+    P_colname  = use_GPA ? "P[GPa]" : "P[kbar]"
+
     # Here we create the dataframe's header:
     MAGEMin_db = DataFrame(         Symbol("point[#]")          => Int64[],
                                     Symbol("X[0.0-1.0]")        => Float64[],
-                                    Symbol("P[kbar]")           => Float64[],
+                                    Symbol(P_colname)            => Float64[],
                                     Symbol("T[°C]")             => Float64[],
                                     Symbol("phase")             => String[],
                                     Symbol("mode[wt%]")         => Float64[],
@@ -93,10 +104,12 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
 
     print("\noutput path: $(pwd())\n")
     @showprogress "Saving data to csv..." for k=1:np
+        P_val = use_GPA ? out[k].P_kbar * 0.1 : out[k].P_kbar
+
         # system
         part_1 = Dict(  "point[#]"      => k,
                         "X[0.0-1.0]"    => out[k].X[1],
-                        "P[kbar]"       => out[k].P_kbar,
+                        P_colname       => P_val,
                         "T[°C]"         => out[k].T_C,
                         "phase"         => "system",
                         "mode[wt%]"     => 100.0,
@@ -185,7 +198,7 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
         if ~isnothing(out_te[k].liq_wt_norm) && !any(isnan, out_te[k].liq_wt_norm)
             part_1 = Dict(  "point[#]"      => k,
                             "X[0.0-1.0]"    => out[k].X[1],
-                            "P[kbar]"       => out[k].P_kbar,
+                            P_colname       => P_val,
                             "T[°C]"         => out[k].T_C,
                             "phase"         => "liq",
                             "mode[wt%]"     => out_te[k].liq_wt_norm .* 100.0,
@@ -222,7 +235,7 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
             end
             part_1 = Dict(  "point[#]"      => k,
                             "X[0.0-1.0]"    => out[k].X[1],
-                            "P[kbar]"       => out[k].P_kbar,
+                            P_colname       => P_val,
                             "T[°C]"         => out[k].T_C,
                             "phase"         => "sol",
                             "mode[wt%]"     => sol_mode,
@@ -253,11 +266,12 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
         if ~isnothing(out_te[k].ph_TE)
             nph  = length(out_te[k].ph_TE)
             for i=1:nph
+                ph_label = use_Warr2021 ? get_Warr_name(out_te[k].ph_TE[i]) : out_te[k].ph_TE[i]
                 part_1 = Dict(  "point[#]"      => k,
                                 "X[0.0-1.0]"    => out[k].X[1],
-                                "P[kbar]"       => out[k].P_kbar,
+                                P_colname       => P_val,
                                 "T[°C]"         => out[k].T_C,
-                                "phase"         => out_te[k].ph_TE[i],
+                                "phase"         => ph_label,
                                 "mode[wt%]"     => out_te[k].ph_wt_norm[i].*100.0,
                                 "Zr_sat[μg/g]"  => "-",
                                 "S_sat[μg/g]"   => "-",
@@ -321,12 +335,19 @@ end
     fileout : String
         Base path for output files. Two files are created: `fileout.csv` and
         `fileout_metadata.txt`.
+    use_Warr2021 : Bool, optional
+        If `true`, mineral phase names are converted to IMA-CNMNC approved symbols
+        following Warr (2021). Names with no official symbol are returned with a
+        trailing `"*"`. Default is `false`.
+    use_GPA : Bool, optional
+        If `true`, pressure is reported in GPa (column `"P[GPa]"`) instead of kbar
+        (column `"P[kbar]"`). Default is `false`.
 
     Returns
     -------
     nothing
 """
-function MAGEMin_data2dataframe( out:: Union{Vector{gmin_struct{Float64, Int64}}, gmin_struct{Float64, Int64}},dtb,fileout)
+function MAGEMin_data2dataframe( out:: Union{Vector{gmin_struct{Float64, Int64}}, gmin_struct{Float64, Int64}},dtb,fileout; use_Warr2021 :: Bool = false, use_GPA :: Bool = false)
 
     # here we fill the dataframe with the all minimized point entries
     if typeof(out) == MAGEMin_C.gmin_struct{Float64, Int64}
@@ -340,10 +361,12 @@ function MAGEMin_data2dataframe( out:: Union{Vector{gmin_struct{Float64, Int64}}
 
     metadata   = "# MAGEMin " * " $(out[1].MAGEMin_ver);" * datetoday * ", " * rightnow * "; using database " * db_in.db_info * "\n"
 
+    P_colname  = use_GPA ? "P[GPa]" : "P[kbar]"
+
     # Here we create the dataframe's header:
     MAGEMin_db = DataFrame(         Symbol("point[#]")      => Int64[],
                                     Symbol("X[0.0-1.0]")    => Float64[],
-                                    Symbol("P[kbar]")       => Float64[],
+                                    Symbol(P_colname)       => Float64[],
                                     Symbol("T[°C]")         => Float64[],
                                     Symbol("phase")         => String[],
                                     Symbol("mode[mol%]")    => Float64[],
@@ -387,10 +410,11 @@ function MAGEMin_data2dataframe( out:: Union{Vector{gmin_struct{Float64, Int64}}
         np  = length(out[k].ph)
         nss = out[k].n_SS
         npp = out[k].n_PP
+        P_val = use_GPA ? out[k].P_kbar * 0.1 : out[k].P_kbar
 
         part_1 = Dict(  "point[#]"      => k,
                         "X[0.0-1.0]"    => out[k].X[1],
-                        "P[kbar]"       => out[k].P_kbar,
+                        P_colname       => P_val,
                         "T[°C]"         => out[k].T_C,
                         "phase"         => "system",
                         "mode[mol%]"    => 100.0,
@@ -429,11 +453,12 @@ function MAGEMin_data2dataframe( out:: Union{Vector{gmin_struct{Float64, Int64}}
         push!(MAGEMin_db, row, cols=:union)
 
         for i=1:nss
+            ph_label = use_Warr2021 ? get_Warr_name(out[k].ph[i]) : out[k].ph[i]
             part_1 = Dict(  "point[#]"      => k,
                             "X[0.0-1.0]"    => out[k].X[1],
-                            "P[kbar]"       => out[k].P_kbar,
+                            P_colname       => P_val,
                             "T[°C]"         => out[k].T_C,
-                            "phase"         => out[k].ph[i],
+                            "phase"         => ph_label,
                             "mode[mol%]"    => out[k].ph_frac[i].*100.0,
                             "mode[wt%]"     => out[k].ph_frac_wt[i].*100.0,
                             "mode[vol%]"    => out[k].ph_frac_vol[i].*100.0,
@@ -476,12 +501,12 @@ function MAGEMin_data2dataframe( out:: Union{Vector{gmin_struct{Float64, Int64}}
         if npp > 0
             for i=1:npp
                 pos = i + nss
-
+                ph_label = use_Warr2021 ? get_Warr_name(out[k].ph[pos]) : out[k].ph[pos]
                 part_1 = Dict(  "point[#]"      => k,
                                 "X[0.0-1.0]"    => out[k].X[1],
-                                "P[kbar]"       => out[k].P_kbar,
+                                P_colname       => P_val,
                                 "T[°C]"         => out[k].T_C,
-                                "phase"         => out[k].ph[pos],
+                                "phase"         => ph_label,
                                 "mode[mol%]"    => out[k].ph_frac[pos].*100.0,
                                 "mode[wt%]"     => out[k].ph_frac_wt[pos].*100.0,
                                 "mode[vol%]"    => out[k].ph_frac_vol[pos].*100.0,
@@ -612,12 +637,19 @@ end
     fileout : String
         Base path for output files. Two files are created: `fileout_inlined.csv`
         and `fileout_metadata.txt`.
+    use_Warr2021 : Bool, optional
+        If `true`, mineral phase names used as column prefixes are converted to
+        IMA-CNMNC approved symbols following Warr (2021). Names with no official
+        symbol are returned with a trailing `"*"`. Default is `false`.
+    use_GPA : Bool, optional
+        If `true`, pressure is reported in GPa (column `"P[GPa]"`) instead of kbar
+        (column `"P[kbar]"`). Default is `false`.
 
     Returns
     -------
     nothing
 """
-function MAGEMin_data2dataframe_inlined( out:: Union{Vector{gmin_struct{Float64, Int64}}, gmin_struct{Float64, Int64}},dtb,fileout)
+function MAGEMin_data2dataframe_inlined( out:: Union{Vector{gmin_struct{Float64, Int64}}, gmin_struct{Float64, Int64}},dtb,fileout; use_Warr2021 :: Bool = false, use_GPA :: Bool = false)
     print("\noutput path: $(pwd())\n")
   
     # here we fill the dataframe with the all minimized point entries
@@ -633,10 +665,12 @@ function MAGEMin_data2dataframe_inlined( out:: Union{Vector{gmin_struct{Float64,
 
     ph_names, n_ss, n_pp  = get_all_stable_phases(out)
 
+    P_colname  = use_GPA ? "P[GPa]" : "P[kbar]"
+
     # Here we create the dataframe's header:
     sys_db = DataFrame(             Symbol("point[#]")      => Int64[],
                                     Symbol("X[0.0-1.0]")    => Float64[],
-                                    Symbol("P[kbar]")       => Float64[],
+                                    Symbol(P_colname)       => Float64[],
                                     Symbol("T[°C]")         => Float64[],
                                     Symbol("sys_log10(fO2)")    => Float64[],
                                     Symbol("sys_log10(dQFM)")   => Float64[],
@@ -671,9 +705,11 @@ function MAGEMin_data2dataframe_inlined( out:: Union{Vector{gmin_struct{Float64,
     end
 
     @showprogress "Saving data to csv..." for k=1:np
+        P_val = use_GPA ? out[k].P_kbar * 0.1 : out[k].P_kbar
+
         part_1 = Dict(  "point[#]"      => k,
                         "X[0.0-1.0]"    => out[k].X[1],
-                        "P[kbar]"       => out[k].P_kbar,
+                        P_colname       => P_val,
                         "T[°C]"         => out[k].T_C,
                         "sys_log10(fO2)"    => out[k].fO2[1],
                         "sys_log10(dQFM)"   => out[k].dQFM[1],
@@ -711,34 +747,35 @@ function MAGEMin_data2dataframe_inlined( out:: Union{Vector{gmin_struct{Float64,
 
     ss_db   = DataFrame()
     for i=1:n_ss
-        ph = ph_names[i]
-        ss_db_ =     DataFrame(     Symbol("$(ph)_mode[mol%]")    => Float64[],
-                                    Symbol("$(ph)_mode[wt%]")     => Float64[],
-                                    Symbol("$(ph)_mode[vol%]")     => Float64[],
-                                    Symbol("$(ph)_density[kg/m3]")    => Float64[],
-                                    Symbol("$(ph)_volume[cm3/mol]")   => Float64[],
-                                    Symbol("$(ph)_heatCapacity[J/kg/K]")=> Float64[],
-                                    Symbol("$(ph)_alpha[1/K]")    => Float64[],
-                                    Symbol("$(ph)_Entropy[kJ/K]")  => Float64[],
-                                    Symbol("$(ph)_Enthalpy[kJ/mol]")   => Float64[],
-                                    Symbol("$(ph)_Vp[km/s]")      => Float64[],
-                                    Symbol("$(ph)_Vs[km/s]")      => Float64[],                                  
-                                    Symbol("$(ph)_BulkMod[GPa]")  => Float64[],
-                                    Symbol("$(ph)_ShearMod[GPa]") => Float64[])
+        ph     = ph_names[i]
+        ph_col = use_Warr2021 ? get_Warr_name(ph) : ph
+        ss_db_ =     DataFrame(     Symbol("$(ph_col)_mode[mol%]")    => Float64[],
+                                    Symbol("$(ph_col)_mode[wt%]")     => Float64[],
+                                    Symbol("$(ph_col)_mode[vol%]")     => Float64[],
+                                    Symbol("$(ph_col)_density[kg/m3]")    => Float64[],
+                                    Symbol("$(ph_col)_volume[cm3/mol]")   => Float64[],
+                                    Symbol("$(ph_col)_heatCapacity[J/kg/K]")=> Float64[],
+                                    Symbol("$(ph_col)_alpha[1/K]")    => Float64[],
+                                    Symbol("$(ph_col)_Entropy[kJ/K]")  => Float64[],
+                                    Symbol("$(ph_col)_Enthalpy[kJ/mol]")   => Float64[],
+                                    Symbol("$(ph_col)_Vp[km/s]")      => Float64[],
+                                    Symbol("$(ph_col)_Vs[km/s]")      => Float64[],
+                                    Symbol("$(ph_col)_BulkMod[GPa]")  => Float64[],
+                                    Symbol("$(ph_col)_ShearMod[GPa]") => Float64[])
 
         for i in out[1].oxides
-            col = ph*"_"*i*"[mol%]"
-            ss_db_[!, col] = Float64[] 
+            col = ph_col*"_"*i*"[mol%]"
+            ss_db_[!, col] = Float64[]
         end
 
         for i in out[1].oxides
-            col = ph*"_"*i*"[wt%]"
-            ss_db_[!, col] = Float64[] 
+            col = ph_col*"_"*i*"[wt%]"
+            ss_db_[!, col] = Float64[]
         end
 
         for i in out[1].elements
-            col = ph*"_"*i*"[apfu]"
-            ss_db_[!, col] = Float64[] 
+            col = ph_col*"_"*i*"[apfu]"
+            ss_db_[!, col] = Float64[]
         end
 
         ss_db = hcat(ss_db,ss_db_)
@@ -748,58 +785,58 @@ function MAGEMin_data2dataframe_inlined( out:: Union{Vector{gmin_struct{Float64,
     @showprogress "Saving data to csv..." for k=1:np
         row     = Dict{String, Float64}()
         for j=1:n_ss
-            
             ph      = ph_names[j]
+            ph_col  = use_Warr2021 ? get_Warr_name(ph) : ph
             if ph in out[k].ph
                 i = findfirst(out[k].ph .== ph)
-                ss_part_1 = Dict(   "$(ph)_mode[mol%]"    => out[k].ph_frac[i].*100.0,
-                        "$(ph)_mode[wt%]"     => out[k].ph_frac_wt[i].*100.0,
-                        "$(ph)_mode[vol%]"     => out[k].ph_frac_vol[i].*100.0,
-                        "$(ph)_density[kg/m3]"    => out[k].SS_vec[i].rho,
-                        "$(ph)_volume[cm3/mol]"   => out[k].SS_vec[i].V,
-                        "$(ph)_heatCapacity[J/kg/K]"=> out[k].SS_vec[i].cp,
-                        "$(ph)_alpha[1/K]"    => out[k].SS_vec[i].alpha,
-                        "$(ph)_Entropy[kJ/K]"  => out[k].SS_vec[i].entropy,
-                        "$(ph)_Enthalpy[kJ/mol]"   => out[k].SS_vec[i].enthalpy,
-                        "$(ph)_Vp[km/s]"      => out[k].SS_vec[i].Vp,
-                        "$(ph)_Vs[km/s]"      => out[k].SS_vec[i].Vs,                         
-                        "$(ph)_BulkMod[GPa]"  => out[k].SS_vec[i].bulkMod,
-                        "$(ph)_ShearMod[GPa]" => out[k].SS_vec[i].shearMod )  
+                ss_part_1 = Dict(   "$(ph_col)_mode[mol%]"    => out[k].ph_frac[i].*100.0,
+                        "$(ph_col)_mode[wt%]"     => out[k].ph_frac_wt[i].*100.0,
+                        "$(ph_col)_mode[vol%]"     => out[k].ph_frac_vol[i].*100.0,
+                        "$(ph_col)_density[kg/m3]"    => out[k].SS_vec[i].rho,
+                        "$(ph_col)_volume[cm3/mol]"   => out[k].SS_vec[i].V,
+                        "$(ph_col)_heatCapacity[J/kg/K]"=> out[k].SS_vec[i].cp,
+                        "$(ph_col)_alpha[1/K]"    => out[k].SS_vec[i].alpha,
+                        "$(ph_col)_Entropy[kJ/K]"  => out[k].SS_vec[i].entropy,
+                        "$(ph_col)_Enthalpy[kJ/mol]"   => out[k].SS_vec[i].enthalpy,
+                        "$(ph_col)_Vp[km/s]"      => out[k].SS_vec[i].Vp,
+                        "$(ph_col)_Vs[km/s]"      => out[k].SS_vec[i].Vs,
+                        "$(ph_col)_BulkMod[GPa]"  => out[k].SS_vec[i].bulkMod,
+                        "$(ph_col)_ShearMod[GPa]" => out[k].SS_vec[i].shearMod )
 
-                ss_part_2 = Dict(  (ph*"_"*out[1].oxides[j]*"[mol%]" => out[k].SS_vec[i].Comp[j]*100.0)
+                ss_part_2 = Dict(  (ph_col*"_"*out[1].oxides[j]*"[mol%]" => out[k].SS_vec[i].Comp[j]*100.0)
                                 for j in eachindex(out[1].oxides))
 
-                ss_part_3 = Dict(  (ph*"_"*out[1].oxides[j]*"[wt%]" => out[k].SS_vec[i].Comp_wt[j]*100.0)
+                ss_part_3 = Dict(  (ph_col*"_"*out[1].oxides[j]*"[wt%]" => out[k].SS_vec[i].Comp_wt[j]*100.0)
                                 for j in eachindex(out[1].oxides))
 
-                ss_part_4 = Dict(  (ph*"_"*out[1].elements[j]*"[apfu]" => out[k].SS_vec[i].Comp_apfu[j])
+                ss_part_4 = Dict(  (ph_col*"_"*out[1].elements[j]*"[apfu]" => out[k].SS_vec[i].Comp_apfu[j])
                                 for j in eachindex(out[1].elements))
             else
-                ss_part_1 = Dict(   "$(ph)_mode[mol%]"    => NaN,
-                                    "$(ph)_mode[wt%]"     => NaN,
-                                    "$(ph)_mode[vol%]"     => NaN,
-                                    "$(ph)_density[kg/m3]"    => NaN,
-                                    "$(ph)_volume[cm3/mol]"   => NaN,
-                                    "$(ph)_heatCapacity[J/kg/K]"=> NaN,
-                                    "$(ph)_alpha[1/K]"    => NaN,
-                                    "$(ph)_Entropy[kJ/K]"  => NaN,
-                                    "$(ph)_Enthalpy[kJ/mol]"   => NaN,
-                                    "$(ph)_Vp[km/s]"      => NaN,
-                                    "$(ph)_Vs[km/s]"      => NaN,                         
-                                    "$(ph)_BulkMod[GPa]"  => NaN,
-                                    "$(ph)_ShearMod[GPa]" => NaN )  
+                ss_part_1 = Dict(   "$(ph_col)_mode[mol%]"    => NaN,
+                                    "$(ph_col)_mode[wt%]"     => NaN,
+                                    "$(ph_col)_mode[vol%]"     => NaN,
+                                    "$(ph_col)_density[kg/m3]"    => NaN,
+                                    "$(ph_col)_volume[cm3/mol]"   => NaN,
+                                    "$(ph_col)_heatCapacity[J/kg/K]"=> NaN,
+                                    "$(ph_col)_alpha[1/K]"    => NaN,
+                                    "$(ph_col)_Entropy[kJ/K]"  => NaN,
+                                    "$(ph_col)_Enthalpy[kJ/mol]"   => NaN,
+                                    "$(ph_col)_Vp[km/s]"      => NaN,
+                                    "$(ph_col)_Vs[km/s]"      => NaN,
+                                    "$(ph_col)_BulkMod[GPa]"  => NaN,
+                                    "$(ph_col)_ShearMod[GPa]" => NaN )
 
-                ss_part_2 = Dict(  (ph*"_"*out[1].oxides[j]*"[mol%]" => NaN)
+                ss_part_2 = Dict(  (ph_col*"_"*out[1].oxides[j]*"[mol%]" => NaN)
                                 for j in eachindex(out[1].oxides))
 
-                ss_part_3 = Dict(  (ph*"_"*out[1].oxides[j]*"[wt%]" => NaN)
+                ss_part_3 = Dict(  (ph_col*"_"*out[1].oxides[j]*"[wt%]" => NaN)
                                 for j in eachindex(out[1].oxides))
 
-                ss_part_4 = Dict(  (ph*"_"*out[1].elements[j]*"[apfu]" => NaN)
+                ss_part_4 = Dict(  (ph_col*"_"*out[1].elements[j]*"[apfu]" => NaN)
                                 for j in eachindex(out[1].elements))
             end
-            row_    = merge(ss_part_1,ss_part_2,ss_part_3,ss_part_4)  
-            row = merge(row,row_) 
+            row_    = merge(ss_part_1,ss_part_2,ss_part_3,ss_part_4)
+            row = merge(row,row_)
         end
         push!(ss_db, row, cols=:union)
     end
@@ -807,94 +844,96 @@ function MAGEMin_data2dataframe_inlined( out:: Union{Vector{gmin_struct{Float64,
     if n_pp > 0
         pp_db   = DataFrame()
         for i=1:n_pp
-            ph = ph_names[i+n_ss]
-            pp_db_ =     DataFrame(     Symbol("$(ph)_mode[mol%]")    => Float64[],
-                                        Symbol("$(ph)_mode[wt%]")     => Float64[],
-                                        Symbol("$(ph)_mode[vol%]")     => Float64[],
-                                        Symbol("$(ph)_density[kg/m3]")    => Float64[],
-                                        Symbol("$(ph)_volume[cm3/mol]")   => Float64[],
-                                        Symbol("$(ph)_heatCapacity[J/kg/K]")=> Float64[],
-                                        Symbol("$(ph)_alpha[1/K]")    => Float64[],
-                                        Symbol("$(ph)_Entropy[kJ/K]")  => Float64[],
-                                        Symbol("$(ph)_Enthalpy[kJ/mol]")   => Float64[],
-                                        Symbol("$(ph)_Vp[km/s]")      => Float64[],
-                                        Symbol("$(ph)_Vs[km/s]")      => Float64[],                                  
-                                        Symbol("$(ph)_BulkMod[GPa]")  => Float64[],
-                                        Symbol("$(ph)_ShearMod[GPa]") => Float64[])
+            ph     = ph_names[i+n_ss]
+            ph_col = use_Warr2021 ? get_Warr_name(ph) : ph
+            pp_db_ =     DataFrame(     Symbol("$(ph_col)_mode[mol%]")    => Float64[],
+                                        Symbol("$(ph_col)_mode[wt%]")     => Float64[],
+                                        Symbol("$(ph_col)_mode[vol%]")     => Float64[],
+                                        Symbol("$(ph_col)_density[kg/m3]")    => Float64[],
+                                        Symbol("$(ph_col)_volume[cm3/mol]")   => Float64[],
+                                        Symbol("$(ph_col)_heatCapacity[J/kg/K]")=> Float64[],
+                                        Symbol("$(ph_col)_alpha[1/K]")    => Float64[],
+                                        Symbol("$(ph_col)_Entropy[kJ/K]")  => Float64[],
+                                        Symbol("$(ph_col)_Enthalpy[kJ/mol]")   => Float64[],
+                                        Symbol("$(ph_col)_Vp[km/s]")      => Float64[],
+                                        Symbol("$(ph_col)_Vs[km/s]")      => Float64[],
+                                        Symbol("$(ph_col)_BulkMod[GPa]")  => Float64[],
+                                        Symbol("$(ph_col)_ShearMod[GPa]") => Float64[])
 
             for i in out[1].oxides
-                col = ph*"_"*i*"[mol%]"
-                pp_db_[!, col] = Float64[] 
+                col = ph_col*"_"*i*"[mol%]"
+                pp_db_[!, col] = Float64[]
             end
 
             for i in out[1].oxides
-                col = ph*"_"*i*"[wt%]"
-                pp_db_[!, col] = Float64[] 
+                col = ph_col*"_"*i*"[wt%]"
+                pp_db_[!, col] = Float64[]
             end
 
             for i in out[1].elements
-                col = ph*"_"*i*"[apfu]"
-                pp_db_[!, col] = Float64[] 
+                col = ph_col*"_"*i*"[apfu]"
+                pp_db_[!, col] = Float64[]
             end
             pp_db = hcat(pp_db,pp_db_)
         end
-    
+
 
         @showprogress "Saving data to csv..." for k=1:np
             row     = Dict{String, Float64}()
             for j=1:n_pp
                 ph      = ph_names[j+n_ss]
+                ph_col  = use_Warr2021 ? get_Warr_name(ph) : ph
                 if ph in out[k].ph
                     i = findfirst(out[k].ph .== ph)
                     s = out[k].n_SS
-                    pp_part_1 = Dict(   "$(ph)_mode[mol%]"    => out[k].ph_frac[i].*100.0,
-                                        "$(ph)_mode[wt%]"     => out[k].ph_frac_wt[i].*100.0,
-                                        "$(ph)_mode[vol%]"     => out[k].ph_frac_vol[i].*100.0,
-                                        "$(ph)_density[kg/m3]"    => out[k].PP_vec[i-s].rho,
-                                        "$(ph)_volume[cm3/mol]"   => out[k].PP_vec[i-s].V,
-                                        "$(ph)_heatCapacity[J/kg/K]"=> out[k].PP_vec[i-s].cp,
-                                        "$(ph)_alpha[1/K]"    => out[k].PP_vec[i-s].alpha,
-                                        "$(ph)_Entropy[kJ/K]"  => out[k].PP_vec[i-s].entropy,
-                                        "$(ph)_Enthalpy[kJ/mol]"   => out[k].PP_vec[i-s].enthalpy,
-                                        "$(ph)_Vp[km/s]"      => out[k].PP_vec[i-s].Vp,
-                                        "$(ph)_Vs[km/s]"      => out[k].PP_vec[i-s].Vs,                         
-                                        "$(ph)_BulkMod[GPa]"  => out[k].PP_vec[i-s].bulkMod,
-                                        "$(ph)_ShearMod[GPa]" => out[k].PP_vec[i-s].shearMod )  
+                    pp_part_1 = Dict(   "$(ph_col)_mode[mol%]"    => out[k].ph_frac[i].*100.0,
+                                        "$(ph_col)_mode[wt%]"     => out[k].ph_frac_wt[i].*100.0,
+                                        "$(ph_col)_mode[vol%]"     => out[k].ph_frac_vol[i].*100.0,
+                                        "$(ph_col)_density[kg/m3]"    => out[k].PP_vec[i-s].rho,
+                                        "$(ph_col)_volume[cm3/mol]"   => out[k].PP_vec[i-s].V,
+                                        "$(ph_col)_heatCapacity[J/kg/K]"=> out[k].PP_vec[i-s].cp,
+                                        "$(ph_col)_alpha[1/K]"    => out[k].PP_vec[i-s].alpha,
+                                        "$(ph_col)_Entropy[kJ/K]"  => out[k].PP_vec[i-s].entropy,
+                                        "$(ph_col)_Enthalpy[kJ/mol]"   => out[k].PP_vec[i-s].enthalpy,
+                                        "$(ph_col)_Vp[km/s]"      => out[k].PP_vec[i-s].Vp,
+                                        "$(ph_col)_Vs[km/s]"      => out[k].PP_vec[i-s].Vs,
+                                        "$(ph_col)_BulkMod[GPa]"  => out[k].PP_vec[i-s].bulkMod,
+                                        "$(ph_col)_ShearMod[GPa]" => out[k].PP_vec[i-s].shearMod )
 
-                    pp_part_2 = Dict(  (ph*"_"*out[1].oxides[j]*"[mol%]" => out[k].PP_vec[i-s].Comp[j]*100.0)
+                    pp_part_2 = Dict(  (ph_col*"_"*out[1].oxides[j]*"[mol%]" => out[k].PP_vec[i-s].Comp[j]*100.0)
                                     for j in eachindex(out[1].oxides))
 
-                    pp_part_3 = Dict(  (ph*"_"*out[1].oxides[j]*"[wt%]" => out[k].PP_vec[i-s].Comp_wt[j]*100.0)
+                    pp_part_3 = Dict(  (ph_col*"_"*out[1].oxides[j]*"[wt%]" => out[k].PP_vec[i-s].Comp_wt[j]*100.0)
                                     for j in eachindex(out[1].oxides))
 
-                    pp_part_4 = Dict(  (ph*"_"*out[1].elements[j]*"[apfu]" => out[k].PP_vec[i-s].Comp_apfu[j])
+                    pp_part_4 = Dict(  (ph_col*"_"*out[1].elements[j]*"[apfu]" => out[k].PP_vec[i-s].Comp_apfu[j])
                                     for j in eachindex(out[1].elements))
                 else
-                    pp_part_1 = Dict(   "$(ph)_mode[mol%]"    => NaN,
-                                        "$(ph)_mode[wt%]"     => NaN,
-                                        "$(ph)_mode[vol%]"     => NaN,
-                                        "$(ph)_density[kg/m3]"    => NaN,
-                                        "$(ph)_volume[cm3/mol]"   => NaN,
-                                        "$(ph)_heatCapacity[J/kg/K]"=> NaN,
-                                        "$(ph)_alpha[1/K]"    => NaN,
-                                        "$(ph)_Entropy[kJ/K]"  => NaN,
-                                        "$(ph)_Enthalpy[kJ/mol]"   => NaN,
-                                        "$(ph)_Vp[km/s]"      => NaN,
-                                        "$(ph)_Vs[km/s]"      => NaN,                         
-                                        "$(ph)_BulkMod[GPa]"  => NaN,
-                                        "$(ph)_ShearMod[GPa]" => NaN )  
+                    pp_part_1 = Dict(   "$(ph_col)_mode[mol%]"    => NaN,
+                                        "$(ph_col)_mode[wt%]"     => NaN,
+                                        "$(ph_col)_mode[vol%]"     => NaN,
+                                        "$(ph_col)_density[kg/m3]"    => NaN,
+                                        "$(ph_col)_volume[cm3/mol]"   => NaN,
+                                        "$(ph_col)_heatCapacity[J/kg/K]"=> NaN,
+                                        "$(ph_col)_alpha[1/K]"    => NaN,
+                                        "$(ph_col)_Entropy[kJ/K]"  => NaN,
+                                        "$(ph_col)_Enthalpy[kJ/mol]"   => NaN,
+                                        "$(ph_col)_Vp[km/s]"      => NaN,
+                                        "$(ph_col)_Vs[km/s]"      => NaN,
+                                        "$(ph_col)_BulkMod[GPa]"  => NaN,
+                                        "$(ph_col)_ShearMod[GPa]" => NaN )
 
-                    pp_part_2 = Dict(  (ph*"_"*out[1].oxides[j]*"[mol%]" => NaN)
+                    pp_part_2 = Dict(  (ph_col*"_"*out[1].oxides[j]*"[mol%]" => NaN)
                                     for j in eachindex(out[1].oxides))
 
-                    pp_part_3 = Dict(  (ph*"_"*out[1].oxides[j]*"[wt%]" => NaN)
+                    pp_part_3 = Dict(  (ph_col*"_"*out[1].oxides[j]*"[wt%]" => NaN)
                                     for j in eachindex(out[1].oxides))
 
-                    pp_part_4 = Dict(  (ph*"_"*out[1].elements[j]*"[apfu]" => NaN)
+                    pp_part_4 = Dict(  (ph_col*"_"*out[1].elements[j]*"[apfu]" => NaN)
                                     for j in eachindex(out[1].elements))
                 end
-                row_    = merge(pp_part_1,pp_part_2,pp_part_3,pp_part_4)  
-                row = merge(row,row_) 
+                row_    = merge(pp_part_1,pp_part_2,pp_part_3,pp_part_4)
+                row = merge(row,row_)
             end
             push!(pp_db, row, cols=:union)
         end

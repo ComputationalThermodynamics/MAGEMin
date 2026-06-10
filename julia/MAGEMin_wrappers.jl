@@ -42,7 +42,10 @@ export initialize_AMR, split_and_keep, AMR
 
 export out_struct, out_TE_struct
 
+export get_Warr_name, get_Warr_names, get_mineral_name_Warr
+
 include("name_solvus.jl")
+include("Warr2021.jl")
 
 """
     get_molar_mass(oxide)
