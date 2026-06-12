@@ -43,7 +43,7 @@
 
     Reference
     ---------
-    Clark A.N., Lesher C.E., Jacobsen S.D., Demouchy S. (2017)
+    Clark A.N. and Lesher C.E. (2017)
 """
 function wave_melt_correction(gv, P_kbar::Float64, solid_Vp::Float64, solid_Vs::Float64, aspectRatio::Float64 = 0.25, shallow_correction::Bool = false)
 
