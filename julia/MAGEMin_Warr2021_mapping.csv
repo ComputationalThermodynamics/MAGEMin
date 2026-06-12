@@ -1,0 +1,433 @@
+# MAGEMin to Warr (2021) IMA-CNMNC approved mineral symbol mapping
+# Columns: magemin_name, type, mineral_full_name, warr_symbol
+# type: ss=solution phase, em=endmember, pp=pure phase, sv=solvus-disambiguated name
+# Warr (2021): Warr L.N., Mineralogical Magazine 85, 291-320, doi:10.1180/mgm.2021.43
+# Lower case entries have no official Warr equivalent (composite/theoretical/model-specific)
+magemin_name,type,mineral_full_name,warr_symbol
+#
+# === SOLUTION PHASE NAMES (ss) ===
+#
+abc,ss,Albite (ordered),Ab
+ak,ss,Akimotoite,Aki
+aki,ss,Akimotoite,Aki
+amp,ss,Amphibole,Amp
+anth,ss,Anthophyllite,Ath
+atg,ss,Antigorite,Atg
+aug,ss,Augite,Aug
+bi,ss,Biotite,Bt
+br,ss,Brucite,Brc
+carp,ss,Carpholite,Cph
+cd,ss,Cordierite,Crd
+cf,ss,Ca-ferrite phase,cf
+ch,ss,Clinohumite,Chu
+chl,ss,Chlorite,Chl
+cpv,ss,Ca-perovskite,cpv
+cpx,ss,Clinopyroxene,Cpx
+crn,ss,Corundum (high-P),crn
+ctd,ss,Chloritoid,Cld
+dio,ss,Clinopyroxene (dio/omphacite model),Cpx
+ep,ss,Epidote,Ep
+fl,ss,Fluid,fl
+flc,ss,Fluid (H2O-CO2),flc
+fp,ss,Ferropericlase,Fper
+fper,ss,Ferropericlase,Fper
+fsp,ss,Feldspar,Fsp
+g,ss,Garnet,Grt
+gtmj,ss,Garnet-majorite,Grt
+hpcpx,ss,High-pressure clinopyroxene,hpcpx
+hpx,ss,High-pressure pyroxene,hpx
+ilm,ss,Ilmenite,Ilm
+ilmm,ss,Ilmenite-hematite (Mn-bearing),Ilm
+kals,ss,Kalsilite,Kls
+lct,ss,Leucite,Lct
+liq,ss,Melt (silicate liquid),liq
+ma,ss,Margarite,Mrg
+mel,ss,Melilite,Mel
+mpv,ss,Mg-perovskite,mpv
+mt,ss,Magnetite,Mag
+mu,ss,Muscovite,Ms
+nal,ss,Na-Al high-pressure phase,nal
+nph,ss,Nepheline,Nph
+oamp,ss,Orthoamphibole,oamp
+occm,ss,Carbonate (calcite-dolomite-magnesite),occm
+ol,ss,Olivine,Ol
+opx,ss,Orthopyroxene,Opx
+pl4tr,ss,Plagioclase,Pl
+po,ss,Pyrrhotite,Po
+ppv,ss,Post-perovskite,ppv
+pv,ss,Perovskite,pv
+ring,ss,Ringwoodite,ring
+sa,ss,Sapphirine,Spr
+sp,ss,Spinel,Spl
+spi,ss,Spinel,Spl
+spl,ss,Spinel,Spl
+st,ss,Staurolite,St
+ta,ss,Talc,Tlc
+wad,ss,Wadsleyite,Wds
+#
+# === ENDMEMBER NAMES (em) ===
+#
+a,em,Ordering component A,a
+aak,em,Al-akimotoite,aak
+aatg,em,Al-antigorite component,aatg
+ab,em,Albite,Ab
+ab1L,em,Albite liquid component,ab1L
+abL,em,Albite liquid component,abL
+abm,em,Albite ordered,Ab
+acmm,em,Acmite component,Aeg
+afchl,em,Al-free chlorite component,afchl
+ak,em,Akermanite,Ak
+alm,em,Almandine,Alm
+ames,em,Amesite,Ame
+amoa,em,Orthoamphibole component A,amoa
+amob,em,Orthoamphibole component B,amob
+an,em,Anorthite,An
+anL,em,Anorthite liquid component,anL
+andr,em,Andradite,Adr
+anm,em,Anorthite ordered,An
+annm,em,Annite,Ann
+anoL,em,Anorthite liquid component (alkaline db),anoL
+anth,em,Anthophyllite,Ath
+apv,em,Al-perovskite component,apv
+atgf,em,Fe-antigorite component,atgf
+atgo,em,Antigorite ordered component,atgo
+b,em,Ordering component B,b
+cacf,em,Ca-Ca-ferrite component,cacf
+canal,em,Ca-Na-Al high-P component,canal
+cats,em,Ca-Tschermak pyroxene component,cats
+cbuf,em,Ca-buffer component (cpx),cbuf
+cc,em,Calcite,Cal
+cel,em,Celadonite,Cel
+celt,em,Celadonite-type mica component,celt
+cen,em,Clinoenstatite,Cen
+cenh,em,Clinoenstatite-hed component,cenh
+cess,em,Eskolaite-clinopyroxene component,cess
+cfm,em,Ca-Fe-Mg mixing component,cfm
+cfs,em,Clinoferrosilite,Cfs
+chuf,em,Fe-clinohumite component,chuf
+chum,em,Clinohumite,Chu
+clin,em,Clinochlore,Cln
+co,em,Corundum component (SLB),Crn
+cor,em,Corundum,Crn
+cpvm,em,Ca-perovskite Mg-component,cpvm
+crd,em,Cordierite,Crd
+crdi,em,Cr-diopside component,crdi
+cren,em,Cr-enstatite component,cren
+ctdo,em,Chloritoid ordered component,ctdo
+cumm,em,Cummingtonite,Cum
+cz,em,Clinozoisite,Czo
+daph,em,Daphnite,Dph
+dcats,em,High-P Ca-Tschermak component,dcats
+dgk,em,Disordered geikielite component,dgk
+dhem,em,Disordered hematite component,dhem
+di,em,Diopside,Di
+dilm,em,Disordered ilmenite component,dilm
+dmt,em,Disordered magnetite component,dmt
+eas,em,Eastonite,eas
+east,em,Eastonite component,east
+ekL,em,Liquid component Ek,ekL
+ekfL,em,Fluid component Ek,ekfL
+en,em,Enstatite,En
+enL,em,Enstatite liquid component,enL
+ep,em,Epidote,Ep
+f3clin,em,Fe3-clinochlore component,f3clin
+fa,em,Fayalite,Fa
+fa2L,em,Fayalite liquid component,fa2L
+fafL,em,Fayalite fluid component,fafL
+fak,em,Fe-akermanite component,fak
+fant,em,Fe-anthophyllite component,fant
+fanth,em,Fe-anthophyllite,fanth
+fatg,em,Fe-antigorite component,fatg
+fbi,em,Fe-biotite component,fbi
+fbr,em,Fe-brucite component,fbr
+fcel,em,Fe-celadonite component,fcel
+fcelt,em,Fe-celadonite-type component,fcelt
+fcor,em,Fe-corundum component,fcor
+fcrd,em,Fe-cordierite component,fcrd
+fctd,em,Fe-chloritoid component,fctd
+feak,em,Fe-akimotoite component,feak
+fep,em,Fe-epidote component,fep
+fepv,em,Fe-perovskite component,fepv
+feri,em,Fe-ringwoodite component,feri
+fewa,em,Fe-wadsleyite component,fewa
+fge,em,Fe-gehlenite component,fge
+fm,em,Fe-Mg mixing component,fm
+fmc,em,Fe-Mg-Ca mixing component,fmc
+fmu,em,Fe-muscovite component,fmu
+fo,em,Forsterite,Fo
+fo2L,em,Forsterite liquid component,fo2L
+fofL,em,Forsterite fluid component,fofL
+fopx,em,Fe-opx component,fopx
+fpvm,em,Fe-perovskite component,fpvm
+fppv,em,Fe-post-perovskite component,fppv
+frw,em,Fe-ringwoodite component,frw
+fs,em,Ferrosilite,Fs
+fscf,em,Fe-Ca-ferrite component,fscf
+fsnal,em,Fe-Na-Al phase component,fsnal
+fspm,em,Fe-sapphirine component,fspm
+fst,em,Fe-staurolite component,fst
+fta,em,Fe-talc component,fta
+fwd,em,Fe-wadsleyite component,fwd
+gedf,em,Fe-gedrite component,gedf
+geh,em,Gehlenite,Gh
+geik,em,Geikielite,Gkl
+feral,em,Fe-Al component,feral
+gfm,em,Fe-majorite component,gfm
+glm,em,Glaucophane,Gln
+gr,em,Grossular,Grs
+grnm,em,Hornblende tschermak component,grnm
+H2,em,Hydrogen (fluid),H2
+H2O,em,Water,H2O
+h2oL,em,Water liquid component,h2oL
+h2o1L,em,Water liquid component,h2o1L
+hcrd,em,Hydrous cordierite component,hcrd
+he,em,Hedenbergite (SLB),Hed
+hed,em,Hedenbergite,Hed
+herc,em,Hercynite,Hc
+hepv,em,Perovskite Mg-component,hepv
+hlpv,em,Perovskite component,hlpv
+hm,em,Hematite,Hem
+hmag,em,Ca-ferrite hematite-type component,hmag
+hmL,em,Hematite liquid component,hmL
+hmfL,em,Hematite fluid component,hmfL
+hmts,em,High-Mg tschermakite component,hmts
+hpcen,em,High-P clinoenstatite component,hpcen
+hpcfs,em,High-P clinoferrosilite component,hpcfs
+ihc,em,Inverse hercynite component,ihc
+imt,em,Inverse magnetite component,imt
+isp,em,Inverse spinel component,isp
+jac,em,Jadeite-acmite component,jac
+jd,em,Jadeite,Jd
+jdL,em,Jadeite liquid component,jdL
+jdfL,em,Jadeite fluid component,jdfL
+jdm,em,Jadeite cpx component,jdm
+jdmj,em,Jadeite-majorite component,jdmj
+kfL,em,K-feldspar liquid component,kfL
+kho,em,Knorringite component,kho
+kjL,em,Liquid component Kj,kjL
+kjd,em,K-jadeite component,kjd
+kjfL,em,Fluid component Kj,kjfL
+klc,em,K-leucite component,klc
+kls,em,Kalsilite,Kls
+kmL,em,Liquid component Km,kmL
+knom,em,Knorringite,Kno
+knr,em,Knorringite,Kno
+kprg,em,K-pargasite component,kprg
+kspL,em,K-feldspar liquid component,kspL
+ma,em,Margarite,Mrg
+macf,em,Mg-Ca-Ca-ferrite component,macf
+mag,em,Magnesite (in carbonate context),Mgs
+maj,em,Majorite,Maj
+mak,em,Mg-akimotoite component,mak
+mam,em,Mg-margarite component,mam
+manal,em,Mg-Na-Al phase component,manal
+mcor,em,Mg-corundum component,mcor
+mctd,em,Mg-chloritoid component,mctd
+mess,em,Mn-enstatite component,mess
+mgak,em,Mg-akimotoite,Aki
+mgcf,em,Mg-Ca-ferrite component,mgcf
+mgmj,em,Mg-majorite,Maj
+mgpv,em,Mg-perovskite component,mgpv
+mgri,em,Mg-ringwoodite component,mgri
+mgts,em,Mg-Tschermak pyroxene component,mgts
+mgwa,em,Mg-wadsleyite,Wds
+mmbi,em,Mn-Mg biotite component,mmbi
+mmchl,em,Mn-Mg chlorite component,mmchl
+mncd,em,Mn-cordierite component,mncd
+mnct,em,Mn-chloritoid component,mnct
+mnopx,em,Mn-orthopyroxene component,mnopx
+mnstm,em,Mn-staurolite component,mnstm
+mnal,em,Mg-Na-Al phase component,mnal
+mnt,em,Monticellite,Mtc
+mont,em,Monticellite,Mtc
+mppv,em,Mg-post-perovskite component,mppv
+mrb,em,Magnesioriebeckite component,mrb
+mrw,em,Mg-ringwoodite component,mrw
+mscf,em,Mg-Ca-ferrite component,mscf
+msnal,em,Mg-Na-Al phase component,msnal
+mstm,em,Mg-staurolite component,mstm
+msto,em,Mg-staurolite ordered component,msto
+mstt,em,Ti-Mg-staurolite component,mstt
+mt,em,Magnetite,Mag
+mut,em,Muscovite,Ms
+mwd,em,Mg-wadsleyite,Wds
+nacf,em,Na-Ca-ferrite component,nacf
+nacfm,em,Na-Ca-ferrite component,nacfm
+nagt,em,Na-majoritic garnet component,nagt
+nanal,em,Na-Na-Al phase component,nanal
+neC,em,Nepheline C-component,neC
+neF,em,Nepheline F-component,neF
+neK,em,K-nepheline component,neK
+neN,em,Nepheline N-component,neN
+neO,em,Nepheline O-component,neO
+neS,em,Nepheline S-component,neS
+nhc,em,Normal hercynite component,nhc
+nks,em,Na-kalsilite component,nks
+nlc,em,Na-leucite component,nlc
+nmL,em,Na-melilite liquid component,nmL
+nml,em,Na-melilite component,nml
+nmt,em,Normal magnetite component,nmt
+nnal,em,Na-Na-Al phase component,nnal
+npvm,em,Na-perovskite component,npvm
+nsp,em,Normal spinel component,nsp
+o1nal,em,Na-Al phase O1 component,o1nal
+o2nal,em,Na-Al phase O2 component,o2nal
+oank,em,Ordered ankerite component,oank
+oatg,em,Ordered antigorite component,oatg
+obi,em,Ordered biotite component,obi
+obuf,em,Buffer component (opx),obuf
+ocats,em,Ca-Tschermak opx component,ocats
+odi,em,Orthopyroxene diopside component,odi
+odo,em,Ordered dolomite component,odo
+ogk,em,Ordered geikielite component,ogk
+oilm,em,Ordered ilmenite component,oilm
+ojd,em,Jadeite opx component,ojd
+om,em,Omphacite mixing component,om
+omgl,em,Orthoamphibole glaucophane component,omgl
+ompa,em,Orthoamphibole pargasite component,ompa
+omrb,em,Orthoamphibole riebeckite component,omrb
+oscf,em,Ordered Ca-ferrite component,oscf
+ospr,em,Ordered sapphirine component,ospr
+ota,em,Ordered talc component,ota
+otr,em,Orthoamphibole tremolite component,otr
+pa,em,Paragonite,Pg
+pat,em,Paragonite-Al mica component,pat
+pcr,em,Picrochromite component,pcr
+pe,em,Periclase (SLB),Per
+per,em,Periclase,Per
+phl,em,Phlogopite,Phl
+picr,em,Picrochromite component,picr
+pnt,em,Pyrophanite,Pyp
+ppv,em,Post-perovskite component,ppv
+prgm,em,Pargasite,Prg
+py,em,Pyrope,Prp
+q3L,em,Quartz liquid component,q3L
+q4L,em,Quartz liquid component,q4L
+qfL,em,Quartz fluid component,qfL
+qndm,em,Quadrilateral end member,qndm
+san,em,Sanidine,Sa
+sid,em,Siderite,Sid
+sl1L,em,Silicate liquid component,sl1L
+slL,em,Silicate liquid component,slL
+slfL,em,Silicate fluid component,slfL
+smag,em,Spinel Mg component,smag
+sp,em,Spinel,Spl
+spr4,em,Sapphirine 4:2 component,spr4
+spr5,em,Sapphirine 5:2 component,spr5
+spro,em,Sapphirine ordered component,spro
+spss,em,Spessartine,Sps
+ta,em,Talc,Tlc
+tao,em,Talc ordered component,tao
+tap,em,Talc P-component,tap
+tats,em,Tschermak-talc component,tats
+tbi,em,Ti-biotite component,tbi
+tiL,em,Liquid component Ti,tiL
+tifL,em,Fluid component Ti,tifL
+tig,em,Ti-garnet component,tig
+tr,em,Tremolite,Tr
+trot,em,Troilite disordered component,trot
+trov,em,Troilite ordered component,trov
+tsm,em,Tschermakite,Ts
+tts,em,Ti-tschermakite component,tts
+usp,em,Ulvöspinel,Usp
+wo1L,em,Wollastonite liquid component,wo1L
+wofL,em,Wollastonite fluid component,wofL
+wu,em,Wüstite,Wus
+wuls,em,Wüstite-like component,wuls
+anao,em,Na-periclase component,anao
+alpv,em,Al-perovskite component,alpv
+appv,em,Al-post-perovskite component,appv
+cppv,em,Ca-post-perovskite component,cppv
+crpv,em,Cr-perovskite component,crpv
+crcf,em,Cr-Ca-ferrite component,crcf
+fapv,em,Fe-Al-perovskite component,fapv
+fppv,em,Fe-post-perovskite component,fppv
+hppv,em,Post-perovskite component,hppv
+fecf,em,Fe-Ca-ferrite component,fecf
+CO2,em,Carbon dioxide (fluid),CO2
+#
+# === PURE PHASE NAMES (pp) ===
+#
+O2,pp,Oxygen,O2
+H2O,pp,Water,H2O
+aAl2O3,pp,Al2O3 activity,aAl2O3
+aFeO,pp,FeO activity,aFeO
+aH2O,pp,Water activity,aH2O
+aMgO,pp,MgO activity,aMgO
+aO2,pp,Oxygen activity,aO2
+aTiO2,pp,TiO2 activity,aTiO2
+ab,pp,Albite,Ab
+and,pp,Andalusite,And
+apbo,pp,Al-phase (SLB),apbo
+capv,pp,CaSiO3 perovskite,capv
+cco,pp,CCO buffer,cco
+co,pp,Corundum (SLB),Crn
+coe,pp,Coesite,Coe
+cor,pp,Corundum,Crn
+crst,pp,Cristobalite,Crs
+fea,pp,FeAlO3 phase (SLB),fea
+fee,pp,FeO phase (SLB),fee
+feg,pp,FegO phase (SLB),feg
+gph,pp,Graphite,Gr
+hem,pp,Hematite,Hem
+hm,pp,Hematite,Hem
+iw,pp,IW buffer,iw
+ky,pp,Kyanite,Ky
+law,pp,Lawsonite,Lws
+lppv,pp,Low-pressure post-perovskite (SLB),lppv
+mpm,pp,Mg-pumpellyite component,mpm
+mw,pp,Magnetite-wüstite buffer,mw
+ne,pp,Nepheline,Nph
+neph,pp,Nepheline,Nph
+nno,pp,NNO buffer,nno
+pre,pp,Prehnite,Prh
+prl,pp,Pyrophyllite,Prl
+pwo,pp,P-wollastonite (SLB),pwo
+pyr,pp,Pyrite,Py
+q,pp,Quartz,Qz
+qfm,pp,QFM buffer,qfm
+qif,pp,QIF buffer,qif
+qtz,pp,Quartz,Qz
+ru,pp,Rutile,Rt
+sill,pp,Sillimanite,Sil
+sph,pp,Titanite,Ttn
+st,pp,Stishovite (SLB db),Stv
+stv,pp,Stishovite,Stv
+trd,pp,Tridymite,Trd
+wo,pp,Wollastonite,Wo
+zo,pp,Zoisite,Zo
+#
+# === SOLVUS-DISAMBIGUATED NAMES (sv) ===
+#
+K-nph,sv,K-nepheline,K-nph
+Na-cpx,sv,Na-rich clinopyroxene,Na-cpx
+act,sv,Actinolite,Act
+afs,sv,Alkali feldspar,Afs
+ank,sv,Ankerite,Ank
+anth,sv,Anthophyllite,Ath
+cc,sv,Calcite,Cal
+cm,sv,Chromite,Chr
+cpx,sv,Clinopyroxene,Cpx
+cumm,sv,Cummingtonite,Cum
+dio,sv,Diopside,Di
+ged,sv,Gedrite,Ged
+gl,sv,Glaucophane,Gln
+hem,sv,Hematite,Hem
+hemm,sv,Hematite (Mn-bearing ilm model),Hem
+ilm,sv,Ilmenite,Ilm
+ilmm,sv,Ilmenite (Mn-bearing),Ilm
+jd,sv,Jadeite,Jd
+mag,sv,Magnesite (carbonate context),Mgs
+mgt,sv,Magnetite,Mag
+mu,sv,Muscovite,Ms
+nph,sv,Nepheline,Nph
+omph,sv,Omphacite,Omp
+pat,sv,Paragonite-Al mica component,pat
+pig,sv,Pigeonite,Pig
+pl,sv,Plagioclase,Pl
+sid,sv,Siderite,Sid
+smt,sv,Magnetite-dominated spinel,smt
+sp,sv,Spinel,Spl
+spl,sv,Spinel,Spl
+tr,sv,Tremolite,Tr
+usp,sv,Ulvöspinel,Usp

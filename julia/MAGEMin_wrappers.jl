@@ -42,7 +42,13 @@ export initialize_AMR, split_and_keep, AMR
 
 export out_struct, out_TE_struct
 
+export get_Warr_name, get_Warr_names, get_mineral_name_Warr
+
+export wave_melt_correction, anelastic_correction
+
 include("name_solvus.jl")
+include("Warr2021.jl")
+include("seismic_corrections.jl")
 
 """
     get_molar_mass(oxide)
@@ -284,6 +290,10 @@ end
         Bulk modulus of solid [GPa].
     shearModulus_S : T
         Shear modulus of solid [GPa].
+    Vp_cor : T
+        Seismic-corrected P-wave velocity of solid aggregate [km/s] (melt + anelastic corrections; NaN if `seismic_cor=false`).
+    Vs_cor : T
+        Seismic-corrected S-wave velocity of solid aggregate [km/s] (melt + anelastic corrections; NaN if `seismic_cor=false`).
     entropy : Vector{T}
         Entropy [J/K].
     enthalpy : Vector{T}
@@ -397,6 +407,10 @@ struct gmin_struct{T,I}
     bulkModulus_M   :: T                # Elastic bulk modulus
     bulkModulus_S   :: T                # Elastic bulk modulus
     shearModulus_S  :: T                # Elastic shear modulus
+
+    # Seismic velocity corrections (melt + anelastic), NaN if seismic_cor=false
+    Vp_cor          :: T                # Seismic-corrected P-wave velocity of solid aggregate
+    Vs_cor          :: T                # Seismic-corrected S-wave velocity of solid aggregate
 
     # thermodynamic properties
     entropy         :: Vector{T}         # entropy
@@ -1095,6 +1109,14 @@ end
         Research group, \"tc\" or \"sb\" (default: \"tc\").
     progressbar : Bool, optional
         Show progress bar (default: true).
+    seismic_cor : Bool, optional
+        If true, compute melt + anelastic corrected seismic velocities of the
+        solid aggregate (`Vp_cor`, `Vs_cor`) (default: false).
+    aspect_ratio : Float64, optional
+        Aspect ratio of the melt/pore geometry, used when `seismic_cor=true` (default: 0.3).
+    seismic_water : Int, optional
+        Water content mode passed to [`anelastic_correction`](@ref) when `seismic_cor=true`:
+        `0` = dry mantle, `1` = damp mantle, `2` = wet mantle (default: 0).
 
     Returns
     -------
@@ -1130,7 +1152,12 @@ function single_point_minimization(     P           ::  T1,
                                         Xoxides     = Vector{String},
                                         sys_in      = "mol",
                                         rg          = "tc",
-                                        progressbar = true        # show a progress bar or not?
+                                        progressbar = true,        # show a progress bar or not?
+                                        seismic_cor ::  Bool        = false,
+                                        aspect_ratio::  Float64     = 0.3,
+                                        seismic_water::  Int64      = 0,
+                                        shallow_correction::  Bool  = false,
+                                        anelastic_cor::  Bool       = false
                                         ) where {T1 <: Float64}
 
     P   = [P];
@@ -1161,7 +1188,12 @@ function single_point_minimization(     P           ::  T1,
                                                 Xoxides     =   Xoxides,
                                                 sys_in      =   sys_in,
                                                 rg          =   rg,
-                                                progressbar =   progressbar);
+                                                progressbar =   progressbar,
+                                                seismic_cor =   seismic_cor,
+                                                aspect_ratio=   aspect_ratio,
+                                                seismic_water = seismic_water,
+                                                shallow_correction = shallow_correction,
+                                                anelastic_cor = anelastic_cor);
     return Out_PT[1]
 
 end
@@ -1220,7 +1252,12 @@ function multi_point_minimization(P           ::  AbstractMatrix{Float64},
                                   rg          ::  String                          = "tc",
                                   progressbar ::  Bool                            = true,
                                   callback_fn ::  Union{Nothing, Function}        = nothing,
-                                  callback_int::  Int64                           = 1)
+                                  callback_int::  Int64                           = 1,
+                                  seismic_cor ::  Bool                            = false,
+                                  aspect_ratio::  Float64                         = 0.3,
+                                  seismic_water::  Int64                         = 0,
+                                  shallow_correction::  Bool                     = false,
+                                  anelastic_cor::  Bool                          = false)
 
     @assert size(P) == size(T) "P and T matrices must have the same size"
     grid_size = size(P)
@@ -1241,7 +1278,9 @@ function multi_point_minimization(P           ::  AbstractMatrix{Float64},
                                        scp=scp, dT=dT, iguess=iguess, rm_list=rm_list, W=W,
                                        Xoxides=Xoxides, sys_in=sys_in, rg=rg,
                                        progressbar=progressbar, callback_fn=callback_fn,
-                                       callback_int=callback_int)
+                                       callback_int=callback_int, seismic_cor=seismic_cor,
+                                       aspect_ratio=aspect_ratio, seismic_water=seismic_water,
+                                       shallow_correction=shallow_correction, anelastic_cor=anelastic_cor)
 
     return reshape(out_vec, grid_size)
 end
@@ -1294,6 +1333,14 @@ end
         Research group, \"tc\" or \"sb\" (default: \"tc\").
     progressbar : Bool, optional
         Show progress bar (default: true).
+    seismic_cor : Bool, optional
+        If true, compute melt + anelastic corrected seismic velocities of the
+        solid aggregate (`Vp_cor`, `Vs_cor`) (default: false).
+    aspect_ratio : Float64, optional
+        Aspect ratio of the melt/pore geometry, used when `seismic_cor=true` (default: 0.3).
+    seismic_water : Int, optional
+        Water content mode passed to [`anelastic_correction`](@ref) when `seismic_cor=true`:
+        `0` = dry mantle, `1` = damp mantle, `2` = wet mantle (default: 0).
     callback_fn : Union{Nothing, Function}, optional
         Callback function called periodically (default: nothing).
     callback_int : Int64, optional
@@ -1335,8 +1382,13 @@ function multi_point_minimization(P           ::  T2,
                                   sys_in      :: String                           = "mol",
                                   rg          :: String                           = "tc",
                                   progressbar :: Bool                             = true,        # show a progress bar or not?
-                                  callback_fn ::  Union{Nothing, Function} = nothing, 
-                                  callback_int::  Int64 = 1
+                                  callback_fn ::  Union{Nothing, Function} = nothing,
+                                  callback_int::  Int64 = 1,
+                                  seismic_cor ::  Bool                            = false,
+                                  aspect_ratio::  Float64                         = 0.3,
+                                  seismic_water::  Int64                         = 0,
+                                  shallow_correction::  Bool                     = false,
+                                  anelastic_cor::  Bool                          = false
                                   ) where {T1 <: Float64, T2 <: AbstractVector{Float64}}
 
     # Set the compositional info
@@ -1400,7 +1452,7 @@ function multi_point_minimization(P           ::  T2,
 
         buffer      = isnothing(B) ? 0.0 :      B[i] 
         out         = point_wise_minimization(  P[i], T[i], gv, z_b, DB, splx_data;
-                                                light=light, light_ig=light_ig, buffer_n=buffer, name_solvus=name_solvus, fixed_bulk=fixed_bulk, Gi=Gi, W=W, scp=scp, dT=dT, iguess=ig, rm_list=rm_list)
+                                                light=light, light_ig=light_ig, buffer_n=buffer, name_solvus=name_solvus, fixed_bulk=fixed_bulk, Gi=Gi, W=W, scp=scp, dT=dT, iguess=ig, rm_list=rm_list, seismic_cor=seismic_cor, aspect_ratio=aspect_ratio, seismic_water=seismic_water, shallow_correction=shallow_correction, anelastic_cor=anelastic_cor)
 
         Out_PT[i]   = deepcopy(out)
 
@@ -1463,6 +1515,14 @@ end
         Research group, \"tc\" or \"sb\" (default: \"tc\").
     progressbar : Bool, optional
         Show progress bar (default: true).
+    seismic_cor : Bool, optional
+        If true, compute melt + anelastic corrected seismic velocities of the
+        solid aggregate (`Vp_cor`, `Vs_cor`) (default: false).
+    aspect_ratio : Float64, optional
+        Aspect ratio of the melt/pore geometry, used when `seismic_cor=true` (default: 0.3).
+    seismic_water : Int, optional
+        Water content mode passed to [`anelastic_correction`](@ref) when `seismic_cor=true`:
+        `0` = dry mantle, `1` = damp mantle, `2` = wet mantle (default: 0).
 
     Returns
     -------
@@ -1981,7 +2041,7 @@ end
 
 
 """
-    point_wise_minimization(P, T, gv, z_b, DB, splx_data; light=false, name_solvus=false, fixed_bulk=false, buffer_n=0.0, Gi=nothing, scp=0, dT=2.0, iguess=false, rm_list=nothing, W=nothing)
+    point_wise_minimization(P, T, gv, z_b, DB, splx_data; light=false, name_solvus=false, fixed_bulk=false, buffer_n=0.0, Gi=nothing, scp=0, dT=2.0, iguess=false, rm_list=nothing, W=nothing, seismic_cor=false, aspect_ratio=0.3)
 
     Compute the stable mineral assemblage at given pressure and temperature for a specified bulk rock composition.
 
@@ -2021,6 +2081,14 @@ end
         List of phase indexes to remove (default: nothing).
     W : Union{Nothing, Vector{W_data{Float64, Int64}}}, optional
         Overriding Margules parameters (default: nothing).
+    seismic_cor : Bool, optional
+        If true, compute melt + anelastic corrected seismic velocities of the
+        solid aggregate (`Vp_cor`, `Vs_cor`) (default: false).
+    aspect_ratio : Float64, optional
+        Aspect ratio of the melt/pore geometry, used when `seismic_cor=true` (default: 0.3).
+    seismic_water : Int, optional
+        Water content mode passed to [`anelastic_correction`](@ref) when `seismic_cor=true`:
+        `0` = dry mantle, `1` = damp mantle, `2` = wet mantle (default: 0).
 
     Returns
     -------
@@ -2072,7 +2140,12 @@ function point_wise_minimization(   P       ::Float64,
                                     dT          = 2.0,
                                     iguess      = false,
                                     rm_list     = nothing,
-                                    W           = nothing   )
+                                    W           = nothing,
+                                    seismic_cor   = false,
+                                    aspect_ratio  = 0.3,
+                                    seismic_water = 0,
+                                    shallow_correction = false,
+                                    anelastic_cor = false)
 
     gv.buffer_n     =   buffer_n;
     input_data      =   LibMAGEMin.io_data();           # zero (not used actually)
@@ -2353,7 +2426,7 @@ function point_wise_minimization(   P       ::Float64,
     elseif light && !light_ig
          out = deepcopy(create_light_gmin_struct(DB,gv));
     else  
-        out = deepcopy(create_gmin_struct(DB, gv, time; name_solvus = name_solvus));
+        out = deepcopy(create_gmin_struct(DB, gv, time; name_solvus = name_solvus, seismic_cor = seismic_cor, aspect_ratio = aspect_ratio, seismic_water = seismic_water, shallow_correction = shallow_correction, anelastic_cor = anelastic_cor));
     end
     # here we compute specific heat capacity using reactions
     if (scp == 1)
@@ -2419,8 +2492,13 @@ point_wise_minimization(P       ::  Number,
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         name_solvus::Bool       = false,
                         fixed_bulk::Bool        = false,
-                        W       ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}} = nothing) = 
-                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, Gi, scp, dT, iguess, rm_list, name_solvus, fixed_bulk, W)
+                        W       ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}} = nothing,
+                        seismic_cor::Bool       = false,
+                        aspect_ratio::Float64   = 0.3,
+                        seismic_water::Int      = 0,
+                        shallow_correction::Bool = false,
+                        anelastic_cor::Bool     = false) =
+                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, Gi, scp, dT, iguess, rm_list, name_solvus, fixed_bulk, W, seismic_cor, aspect_ratio, seismic_water, shallow_correction, anelastic_cor)
 
 point_wise_minimization(P       ::  Number,
                         T       ::  Number,
@@ -2437,8 +2515,13 @@ point_wise_minimization(P       ::  Number,
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         name_solvus::Bool       = false,
                         fixed_bulk::Bool        = false,
-                        W       ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}} = nothing) = 
-                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, Gi, scp, dT, iguess, rm_list, name_solvus, fixed_bulk, W)
+                        W       ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}} = nothing,
+                        seismic_cor::Bool       = false,
+                        aspect_ratio::Float64   = 0.3,
+                        seismic_water::Int      = 0,
+                        shallow_correction::Bool = false,
+                        anelastic_cor::Bool     = false) =
+                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, Gi, scp, dT, iguess, rm_list, name_solvus, fixed_bulk, W, seismic_cor, aspect_ratio, seismic_water, shallow_correction, anelastic_cor)
 
 point_wise_minimization(P       ::  Number,
                         T       ::  Number,
@@ -2451,8 +2534,13 @@ point_wise_minimization(P       ::  Number,
                         rm_list ::  Union{Nothing, Vector{Int64}}   = nothing,
                         name_solvus::Bool       = false,
                         fixed_bulk::Bool        = false,
-                        W       ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}} = nothing) = 
-                        point_wise_minimization(Float64(P),Float64(T), data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]; buffer_n, Gi, scp, dT, iguess, rm_list, name_solvus, fixed_bulk, W)
+                        W       ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}} = nothing,
+                        seismic_cor::Bool       = false,
+                        aspect_ratio::Float64   = 0.3,
+                        seismic_water::Int      = 0,
+                        shallow_correction::Bool = false,
+                        anelastic_cor::Bool     = false) =
+                        point_wise_minimization(Float64(P),Float64(T), data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]; buffer_n, Gi, scp, dT, iguess, rm_list, name_solvus, fixed_bulk, W, seismic_cor, aspect_ratio, seismic_water, shallow_correction, anelastic_cor)
 
 
 """
@@ -2533,7 +2621,7 @@ pwm_init(P::Number,T::Number, gv, z_b, DB, splx_data) = pwm_init(Float64(P),Floa
 
 
 """
-    pwm_run(gv, z_b, DB, splx_data; name_solvus=false)
+    pwm_run(gv, z_b, DB, splx_data; name_solvus=false, seismic_cor=false, aspect_ratio=0.3)
 
     Run the equilibrium computation and post-processing after `pwm_init`. Intended for thermodynamic database inversion/calibration workflows.
 
@@ -2549,6 +2637,14 @@ pwm_init(P::Number,T::Number, gv, z_b, DB, splx_data) = pwm_init(Float64(P),Floa
         Simplex data structure.
     name_solvus : Bool, optional
         Resolve solvus naming (default: false).
+    seismic_cor : Bool, optional
+        If true, compute melt + anelastic corrected seismic velocities of the
+        solid aggregate (`Vp_cor`, `Vs_cor`) (default: false).
+    aspect_ratio : Float64, optional
+        Aspect ratio of the melt/pore geometry, used when `seismic_cor=true` (default: 0.3).
+    seismic_water : Int, optional
+        Water content mode passed to [`anelastic_correction`](@ref) when `seismic_cor=true`:
+        `0` = dry mantle, `1` = damp mantle, `2` = wet mantle (default: 0).
 
     Returns
     -------
@@ -2569,7 +2665,7 @@ pwm_init(P::Number,T::Number, gv, z_b, DB, splx_data) = pwm_init(Float64(P),Floa
     out     = pwm_run(gv, z_b, DB, splx_data);
     ```
 """
-function pwm_run(gv, z_b, DB, splx_data; name_solvus = false)
+function pwm_run(gv, z_b, DB, splx_data; name_solvus = false, seismic_cor = false, aspect_ratio = 0.3, seismic_water = 0, shallow_correction = false, anelastic_cor = false)
     input_data      =   LibMAGEMin.io_data();                           # zero (not used actually)
 
     time = @elapsed  gv      = LibMAGEMin.ComputeEquilibrium_Point(gv.EM_database, input_data, z_b, gv, pointer_from_objref(splx_data),	DB.PP_ref_db,DB.SS_ref_db,DB.cp);
@@ -2584,7 +2680,7 @@ function pwm_run(gv, z_b, DB, splx_data; name_solvus = false)
     LibMAGEMin.PrintOutput(gv, 0, 1, DB, time, z_b);
 
     # Transform results to a more convenient julia struct
-    out = create_gmin_struct(DB, gv, time; name_solvus = name_solvus);
+    out = create_gmin_struct(DB, gv, time; name_solvus = name_solvus, seismic_cor = seismic_cor, aspect_ratio = aspect_ratio, seismic_water = seismic_water, shallow_correction = shallow_correction, anelastic_cor = anelastic_cor);
 
     # LibMAGEMin.FreeDatabases(gv, DB, z_b);
 
@@ -2593,7 +2689,7 @@ end
 
 
 """
-    create_gmin_struct(DB, gv, time; name_solvus=false)
+    create_gmin_struct(DB, gv, time; name_solvus=false, seismic_cor=false, aspect_ratio=0.3)
 
     Extract the output of a pointwise MAGEMin optimization into a Julia structure.
 
@@ -2607,13 +2703,23 @@ end
         Elapsed computation time [s].
     name_solvus : Bool, optional
         Resolve solvus naming (default: false).
+    seismic_cor : Bool, optional
+        If true, compute melt + anelastic corrected seismic velocities of the
+        solid aggregate (`Vp_cor`, `Vs_cor`) using [`wave_melt_correction`](@ref)
+        and [`anelastic_correction`](@ref) (default: false).
+    aspect_ratio : Float64, optional
+        Aspect ratio of the melt/pore geometry, passed to
+        [`wave_melt_correction`](@ref) when `seismic_cor=true` (default: 0.3).
+    seismic_water : Int, optional
+        Water content mode passed to [`anelastic_correction`](@ref) when `seismic_cor=true`:
+        `0` = dry mantle, `1` = damp mantle, `2` = wet mantle (default: 0).
 
     Returns
     -------
     out : gmin_struct{Float64, Int64}
         Structure containing the full minimization results.
 """
-function create_gmin_struct(DB, gv, time; name_solvus = false)
+function create_gmin_struct(DB, gv, time; name_solvus = false, seismic_cor = false, aspect_ratio = 0.3, seismic_water = 0, shallow_correction = false, anelastic_cor = false)
 
     stb      = unsafe_load(DB.sp)
 
@@ -2747,6 +2853,15 @@ function create_gmin_struct(DB, gv, time; name_solvus = false)
         eta_M = NaN
     end
 
+    # Seismic velocity corrections (anelastic + melt/pore) of the solid aggregate
+    if seismic_cor
+        T_K  = T_C + 273.15
+        Vs0  = anelastic_cor ? anelastic_correction(seismic_water, gv.solid_Vs, P_kbar, T_K) : gv.solid_Vs
+        Vp_cor, Vs_cor = wave_melt_correction(gv, P_kbar, gv.solid_Vp, Vs0, aspect_ratio, shallow_correction)
+    else
+        Vp_cor = NaN
+        Vs_cor = NaN
+    end
 
     # Store all in output struct
     out = gmin_struct{Float64,Int64}( MAGEMin_ver, dataset, database, buffer, buffer_n, G_system, Gamma, P_kbar, T_C, X, M_sys,
@@ -2765,6 +2880,7 @@ function create_gmin_struct(DB, gv, time; name_solvus = false)
                 SS_vec,  mSS_vec, PP_vec,
                 oxides,  elements,
                 stb.Vp, stb.Vs, Vp_S, Vs_S, stb.bulkMod, stb.shearMod, stb.bulkModulus_M,  stb.bulkModulus_S, stb.shearModulus_S,
+                Vp_cor, Vs_cor,
                 entropy, enthalpy,
                 iter, bulk_res_norm, time_ms, stb.status)
 
@@ -3210,6 +3326,14 @@ end
         Database structure.
     splx_data : LibMAGEMin.simplex_datas
         Simplex data structure.
+    seismic_cor : Bool, optional
+        If true, compute melt + anelastic corrected seismic velocities of the
+        solid aggregate (`Vp_cor`, `Vs_cor`) (default: false).
+    aspect_ratio : Float64, optional
+        Aspect ratio of the melt/pore geometry, used when `seismic_cor=true` (default: 0.3).
+    seismic_water : Int, optional
+        Water content mode passed to [`anelastic_correction`](@ref) when `seismic_cor=true`:
+        `0` = dry mantle, `1` = damp mantle, `2` = wet mantle (default: 0).
 
     Returns
     -------
@@ -3222,7 +3346,12 @@ function point_wise_minimization_with_guess(    mSS_vec ::  Vector{LibMAGEMin.mS
                                                 gv      ::  LibMAGEMin.global_variables,
                                                 z_b     ::  LibMAGEMin.bulk_infos,
                                                 DB      ::  LibMAGEMin.Database,
-                                                splx_data:: LibMAGEMin.simplex_datas)
+                                                splx_data:: LibMAGEMin.simplex_datas;
+                                                seismic_cor ::  Bool    = false,
+                                                aspect_ratio::  Float64 = 0.3,
+                                                seismic_water::  Int64  = 0,
+                                                shallow_correction::  Bool = false,
+                                                anelastic_cor::  Bool   = false)
 
     # initialize MAGEMin up to G0 computation included
     gv, z_b, DB, splx_data = pwm_init(P, T, gv, z_b, DB, splx_data);
@@ -3322,7 +3451,7 @@ function point_wise_minimization_with_guess(    mSS_vec ::  Vector{LibMAGEMin.mS
     end
 
     gv.leveling_mode = 1
-    out = deepcopy(pwm_run(gv, z_b, DB, splx_data))
+    out = deepcopy(pwm_run(gv, z_b, DB, splx_data; seismic_cor = seismic_cor, aspect_ratio = aspect_ratio, seismic_water = seismic_water, shallow_correction = shallow_correction, anelastic_cor = anelastic_cor))
 
     return out
 end
@@ -3350,6 +3479,14 @@ end
         Database structure.
     splx_data : LibMAGEMin.simplex_datas
         Simplex data structure.
+    seismic_cor : Bool, optional
+        If true, compute melt + anelastic corrected seismic velocities of the
+        solid aggregate (`Vp_cor`, `Vs_cor`) (default: false).
+    aspect_ratio : Float64, optional
+        Aspect ratio of the melt/pore geometry, used when `seismic_cor=true` (default: 0.3).
+    seismic_water : Int, optional
+        Water content mode passed to [`anelastic_correction`](@ref) when `seismic_cor=true`:
+        `0` = dry mantle, `1` = damp mantle, `2` = wet mantle (default: 0).
 
     Returns
     -------
@@ -3373,7 +3510,12 @@ end
 function point_wise_metastability(  out     :: MAGEMin_C.gmin_struct{Float64, Int64},
                                     P       :: Float64,
                                     T       :: Float64,
-                                    gv, z_b, DB, splx_data)
+                                    gv, z_b, DB, splx_data;
+                                    seismic_cor ::  Bool    = false,
+                                    aspect_ratio::  Float64 = 0.3,
+                                    seismic_water::  Int64  = 0,
+                                    shallow_correction::  Bool = false,
+                                    anelastic_cor::  Bool   = false)
 
     mSS_vec = deepcopy(out.mSS_vec)                                
     gv      = define_bulk_rock(gv, out.bulk, out.oxides, "mol", out.database);
@@ -3532,8 +3674,8 @@ function point_wise_metastability(  out     :: MAGEMin_C.gmin_struct{Float64, In
     end
 
     gv.leveling_mode    = 2
-    gv.solver           = 3    #this deactivates minimization 
-    out                 = deepcopy(pwm_run(gv, z_b, DB, splx_data))
+    gv.solver           = 3    #this deactivates minimization
+    out                 = deepcopy(pwm_run(gv, z_b, DB, splx_data; seismic_cor = seismic_cor, aspect_ratio = aspect_ratio, seismic_water = seismic_water, shallow_correction = shallow_correction, anelastic_cor = anelastic_cor))
 
     return out
 end
@@ -3541,8 +3683,13 @@ end
 point_wise_metastability(           out     :: MAGEMin_C.gmin_struct{Float64, Int64},
                                     P       :: Float64,
                                     T       :: Float64,
-                                    data    ::  MAGEMin_Data) =
-                                    point_wise_metastability(out, P, T, data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1])
+                                    data    ::  MAGEMin_Data;
+                                    seismic_cor ::  Bool    = false,
+                                    aspect_ratio::  Float64 = 0.3,
+                                    seismic_water::  Int64  = 0,
+                                    shallow_correction::  Bool = false,
+                                    anelastic_cor::  Bool   = false) =
+                                    point_wise_metastability(out, P, T, data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]; seismic_cor, aspect_ratio, seismic_water, shallow_correction, anelastic_cor)
 
 
 
