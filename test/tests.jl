@@ -47,6 +47,8 @@ T           =   600.0
 out         =   point_wise_minimization(P,T, data);
 Finalize_MAGEMin(data)
 
+
+
 =#
 
 data        =   Initialize_MAGEMin("sb21", verbose=-1);
@@ -224,6 +226,33 @@ end
     @test sort(out.ph) == sort(["chl", "fsp", "mu", "mu", "q", "ru", "sph", "H2O", "iw"])
     Finalize_MAGEMin(data)
 end
+
+@testset "test seismic corrections" begin
+
+    using MAGEMin_C
+    data    = Initialize_MAGEMin("mp", verbose=-1);
+    P,T     = 6.0, 710.0
+    Xoxides = ["SiO2";  "TiO2";  "Al2O3";  "FeO";   "MnO";   "MgO";   "CaO";   "Na2O";  "K2O"; "H2O"; "O"];
+    X       = [58.509,  1.022,   14.858, 4.371, 0.141, 4.561, 5.912, 3.296, 2.399, 10.0, 0.0];
+    sys_in  = "wt"
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, seismic_cor=true, aspect_ratio=0.3, seismic_water=0);
+
+    @test out.Vp_cor ≈ 5.344706081749584    rtol=1e-4
+    @test out.Vs_cor ≈ 3.4167835601563867   rtol=1e-4
+
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, seismic_cor=true, aspect_ratio=0.6, seismic_water=0);
+
+    @test out.Vp_cor ≈ 5.3543584808361295   rtol=1e-4
+    @test out.Vs_cor ≈ 3.423928366872985    rtol=1e-4
+
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, seismic_cor=true, aspect_ratio=0.1, seismic_water=0);
+
+    @test out.Vp_cor ≈ 5.32240747401925     rtol=1e-4
+    @test out.Vs_cor ≈ 3.396792998347959    rtol=1e-4
+
+    Finalize_MAGEMin(data)
+end
+
 
 @testset verbose=true "test sum frac_vol" begin
     data    = Initialize_MAGEMin("mp", verbose=-1, solver=0);
