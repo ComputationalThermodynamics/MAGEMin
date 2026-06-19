@@ -8328,7 +8328,12 @@ SS_ref G_SS_igad_spl_function(SS_ref SS_ref_db, char* research_group, int EM_dat
 		SS_ref_db.bounds_ref[1][0] = 0.0; 
 		SS_ref_db.bounds_ref[1][1] = 0.0;	
 	}
-
+	if (z_b.bulk_rock[7] == 0.){ 					
+		SS_ref_db.z_em[7]          = 0.0;
+        SS_ref_db.d_em[7]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0; 
+		SS_ref_db.bounds_ref[3][1] = 0.0;	
+	}
 
     /* this lists the index of the order variables */
     SS_ref_db.orderVar      = 1;
