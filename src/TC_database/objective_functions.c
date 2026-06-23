@@ -9006,7 +9006,7 @@ double obj_ig_spl(unsigned n, const double *x, double *grad, void *SS_ref_db) {
     mu[4]          = gb[4] + R*T*creal(clog(sf[1]*sf[7] + d_em[4])) + mu_Gex[4];
     mu[5]          = gb[5] + R*T*creal(clog(2.0*sf[3]*csqrt(sf[5])*csqrt(sf[7]) + d_em[5])) + mu_Gex[5];
     mu[6]          = gb[6] + R*T*creal(clog(sf[0]*sf[8] + d_em[6])) + mu_Gex[6];
-    mu[7]          = gb[7] + R*T*creal(clog(2.0*sf[1]*csqrt(sf[5])*csqrt(sf[9]))) + mu_Gex[7];
+    mu[7]          = gb[7] + R*T*creal(clog(2.0*sf[1]*csqrt(sf[5])*csqrt(sf[9]) + d_em[7])) + mu_Gex[7];
   
     d->sum_apep = 0.0;
     for (int i = 0; i < n_em; i++){
@@ -10007,7 +10007,7 @@ double obj_igad_spl(unsigned n, const double *x, double *grad, void *SS_ref_db){
     mu[4]          = gb[4] + R*T*creal(clog(sf[1]*sf[7] + d_em[4])) + mu_Gex[4];
     mu[5]          = gb[5] + R*T*creal(clog(2.0*sf[3]*csqrt(sf[5])*csqrt(sf[7]) + d_em[5])) + mu_Gex[5];
     mu[6]          = gb[6] + R*T*creal(clog(sf[0]*sf[8] + d_em[6])) + mu_Gex[6];
-    mu[7]          = gb[7] + R*T*creal(clog(2.0*sf[1]*csqrt(sf[5])*csqrt(sf[9]))) + mu_Gex[7];
+    mu[7]          = gb[7] + R*T*creal(clog(2.0*sf[1]*csqrt(sf[5])*csqrt(sf[9]) + d_em[7])) + mu_Gex[7];
     
     d->sum_apep = 0.0;
     for (int i = 0; i < n_em; i++){
