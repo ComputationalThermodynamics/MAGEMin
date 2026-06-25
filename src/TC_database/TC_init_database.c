@@ -991,6 +991,9 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 				else if (strcmp( gv.ox[i], "Cr2O3") == 0){
 					gv.Cr2O3_id = i;
 				}
+				else if (strcmp( gv.ox[i], "FeO") == 0){
+					gv.FeO_id = i;
+				}
 				else if (strcmp( gv.ox[i], "MnO") 	== 0){
 					gv.MnO_id = i;
 				}												

@@ -38,7 +38,11 @@ push!(args, "-I$nlopt_include_dir")
 # push!(args, "-isystem$mpi_include_dir")
 
 # Process all header files in the magemin_include_dir directory:
-header_files = [joinpath(magemin_include_dir, header) for header in readdir(magemin_include_dir) if endswith(header, ".h")]
+# (MAGEMin_api.h is excluded: it's a standalone C/C++ convenience API that embeds
+#  global_variable/bulk_info/Databases/simplex_data by value, which makes Clang.jl
+#  drop their mutability + auto_mutability_with_new constructors for ABI correctness,
+#  breaking the existing Julia wrapper code that relies on those constructors.)
+header_files = [joinpath(magemin_include_dir, header) for header in readdir(magemin_include_dir) if endswith(header, ".h") && header != "MAGEMin_api.h"]
 
 # create context
 ctx = create_context(header_files, args, options)

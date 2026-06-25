@@ -61,7 +61,8 @@ SOURCES=src/MAGEMin.c 							\
 		src/simplex_levelling.c 				\
 		src/PGE_function.c 						\
 		src/phase_update_function.c				\
-		src/dump_function.c
+		src/dump_function.c						\
+		src/MAGEMin_api.c
 
 OBJECTS=$(SOURCES:.c=.o)
 

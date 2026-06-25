@@ -770,6 +770,7 @@ typedef struct stb_systems {
 	double  entropy;
 	double  enthalpy;
 	double  system_oxygen;
+	double  Fe3_Fe2_ratio;
 
 	double  bulkMod;
 	double  shearMod;

@@ -143,6 +143,8 @@ void reset_output_struct(		global_variable 	 gv,
 	sp[0].entropy				 = gv.system_entropy;
 	sp[0].enthalpy				 = gv.system_enthalpy;
 	sp[0].system_oxygen			 = 0.0;
+	sp[0].Fe3_Fe2_ratio			 = 0.0;
+
 	if (gv.O_id != -1 && z_b.bulk_rock[gv.O_id] != 0.0){
 		double buffer_mol    = 0.0;
 		int    buffer_active = 0;
@@ -155,9 +157,11 @@ void reset_output_struct(		global_variable 	 gv,
 		}
 		if (buffer_active == 0){
 			sp[0].system_oxygen = z_b.bulk_rock[gv.O_id];
+			sp[0].Fe3_Fe2_ratio = z_b.bulk_rock[gv.O_id]/z_b.bulk_rock[gv.FeO_id];	
 		}
 		else{
 			sp[0].system_oxygen = z_b.bulk_rock[gv.O_id] - buffer_mol;
+			sp[0].Fe3_Fe2_ratio = sp[0].system_oxygen/z_b.bulk_rock[gv.FeO_id];
 		}
 	}
 

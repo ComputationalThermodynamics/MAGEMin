@@ -1178,6 +1178,7 @@ struct stb_systems
     entropy::Cdouble
     enthalpy::Cdouble
     system_oxygen::Cdouble
+    Fe3_Fe2_ratio::Cdouble
     bulkMod::Cdouble
     shearMod::Cdouble
     bulkModulus_M::Cdouble

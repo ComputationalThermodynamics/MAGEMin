@@ -416,6 +416,7 @@ struct gmin_struct{T,I}
     entropy         :: Vector{T}         # entropy
     enthalpy        :: Vector{T}        # enthalpy
     system_oxygen   :: T
+    Fe3_Fe2_ratio   :: T
 
     # Numerics:
     iter            :: I             # number of iterations required
@@ -2804,6 +2805,7 @@ function create_gmin_struct(DB, gv, time; name_solvus = false, seismic_cor = fal
     entropy = [stb.entropy]
     enthalpy= [stb.enthalpy]
     system_oxygen = stb.system_oxygen
+    Fe3_Fe2_ratio = stb.Fe3_Fe2_ratio
 
     # Stable assemblage info
     n_ph     =  stb.n_ph        # total # of stable phases
@@ -2894,7 +2896,7 @@ function create_gmin_struct(DB, gv, time; name_solvus = false, seismic_cor = fal
                 oxides,  elements,
                 stb.Vp, stb.Vs, Vp_S, Vs_S, stb.bulkMod, stb.shearMod, stb.bulkModulus_M,  stb.bulkModulus_S, stb.shearModulus_S,
                 Vp_cor, Vs_cor,
-                entropy, enthalpy, system_oxygen,
+                entropy, enthalpy, system_oxygen, Fe3_Fe2_ratio,
                 iter, bulk_res_norm, time_ms, stb.status)
 
    return out
