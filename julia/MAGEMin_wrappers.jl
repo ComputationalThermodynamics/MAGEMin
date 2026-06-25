@@ -1162,6 +1162,7 @@ function single_point_minimization(     P           ::  T1,
                                         aspect_ratio::  Float64     = 0.3,
                                         seismic_water::  Int64      = 0,
                                         shallow_correction::  Bool  = false,
+                                        fluid_as_melt ::  Bool      = false,
                                         anelastic_cor::  Bool       = false
                                         ) where {T1 <: Float64}
 
@@ -1198,6 +1199,7 @@ function single_point_minimization(     P           ::  T1,
                                                 aspect_ratio=   aspect_ratio,
                                                 seismic_water = seismic_water,
                                                 shallow_correction = shallow_correction,
+                                                fluid_as_melt = fluid_as_melt,
                                                 anelastic_cor = anelastic_cor);
     return Out_PT[1]
 
@@ -1262,6 +1264,7 @@ function multi_point_minimization(P           ::  AbstractMatrix{Float64},
                                   aspect_ratio::  Float64                         = 0.3,
                                   seismic_water::  Int64                         = 0,
                                   shallow_correction::  Bool                     = false,
+                                  fluid_as_melt::  Bool                          = false,
                                   anelastic_cor::  Bool                          = false)
 
     @assert size(P) == size(T) "P and T matrices must have the same size"
@@ -1285,7 +1288,8 @@ function multi_point_minimization(P           ::  AbstractMatrix{Float64},
                                        progressbar=progressbar, callback_fn=callback_fn,
                                        callback_int=callback_int, seismic_cor=seismic_cor,
                                        aspect_ratio=aspect_ratio, seismic_water=seismic_water,
-                                       shallow_correction=shallow_correction, anelastic_cor=anelastic_cor)
+                                       shallow_correction=shallow_correction, fluid_as_melt=fluid_as_melt,
+                                       anelastic_cor=anelastic_cor)
 
     return reshape(out_vec, grid_size)
 end
@@ -1393,6 +1397,7 @@ function multi_point_minimization(P           ::  T2,
                                   aspect_ratio::  Float64                         = 0.3,
                                   seismic_water::  Int64                         = 0,
                                   shallow_correction::  Bool                     = false,
+                                  fluid_as_melt ::  Bool                          = false,
                                   anelastic_cor::  Bool                          = false
                                   ) where {T1 <: Float64, T2 <: AbstractVector{Float64}}
 
@@ -1457,7 +1462,7 @@ function multi_point_minimization(P           ::  T2,
 
         buffer      = isnothing(B) ? 0.0 :      B[i] 
         out         = point_wise_minimization(  P[i], T[i], gv, z_b, DB, splx_data;
-                                                light=light, light_ig=light_ig, buffer_n=buffer, name_solvus=name_solvus, fixed_bulk=fixed_bulk, Gi=Gi, W=W, scp=scp, dT=dT, iguess=ig, rm_list=rm_list, seismic_cor=seismic_cor, aspect_ratio=aspect_ratio, seismic_water=seismic_water, shallow_correction=shallow_correction, anelastic_cor=anelastic_cor)
+                                                light=light, light_ig=light_ig, buffer_n=buffer, name_solvus=name_solvus, fixed_bulk=fixed_bulk, Gi=Gi, W=W, scp=scp, dT=dT, iguess=ig, rm_list=rm_list, seismic_cor=seismic_cor, aspect_ratio=aspect_ratio, seismic_water=seismic_water, shallow_correction=shallow_correction, fluid_as_melt=fluid_as_melt, anelastic_cor=anelastic_cor)
 
         Out_PT[i]   = deepcopy(out)
 
@@ -2158,6 +2163,7 @@ function point_wise_minimization(   P       ::Float64,
                                     aspect_ratio  = 0.3,
                                     seismic_water = 0,
                                     shallow_correction = false,
+                                    fluid_as_melt = false,
                                     anelastic_cor = false)
 
     gv.buffer_n     =   buffer_n;
@@ -2439,7 +2445,7 @@ function point_wise_minimization(   P       ::Float64,
     elseif light && !light_ig
          out = deepcopy(create_light_gmin_struct(DB,gv));
     else  
-        out = deepcopy(create_gmin_struct(DB, gv, time; name_solvus = name_solvus, seismic_cor = seismic_cor, aspect_ratio = aspect_ratio, seismic_water = seismic_water, shallow_correction = shallow_correction, anelastic_cor = anelastic_cor));
+        out = deepcopy(create_gmin_struct(DB, gv, time; name_solvus = name_solvus, seismic_cor = seismic_cor, aspect_ratio = aspect_ratio, seismic_water = seismic_water, shallow_correction = shallow_correction, fluid_as_melt = fluid_as_melt, anelastic_cor = anelastic_cor));
     end
     # here we compute specific heat capacity using reactions
     if (scp == 1)
@@ -2510,8 +2516,9 @@ point_wise_minimization(P       ::  Number,
                         aspect_ratio::Float64   = 0.3,
                         seismic_water::Int      = 0,
                         shallow_correction::Bool = false,
+                        fluid_as_melt::Bool      = false,
                         anelastic_cor::Bool     = false) =
-                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, Gi, scp, dT, iguess, rm_list, name_solvus, fixed_bulk, W, seismic_cor, aspect_ratio, seismic_water, shallow_correction, anelastic_cor)
+                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, Gi, scp, dT, iguess, rm_list, name_solvus, fixed_bulk, W, seismic_cor, aspect_ratio, seismic_water, shallow_correction, fluid_as_melt, anelastic_cor)
 
 point_wise_minimization(P       ::  Number,
                         T       ::  Number,
@@ -2533,8 +2540,9 @@ point_wise_minimization(P       ::  Number,
                         aspect_ratio::Float64   = 0.3,
                         seismic_water::Int      = 0,
                         shallow_correction::Bool = false,
+                        fluid_as_melt::Bool      = false,
                         anelastic_cor::Bool     = false) =
-                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, Gi, scp, dT, iguess, rm_list, name_solvus, fixed_bulk, W, seismic_cor, aspect_ratio, seismic_water, shallow_correction, anelastic_cor)
+                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, Gi, scp, dT, iguess, rm_list, name_solvus, fixed_bulk, W, seismic_cor, aspect_ratio, seismic_water, shallow_correction, fluid_as_melt, anelastic_cor)
 
 point_wise_minimization(P       ::  Number,
                         T       ::  Number,
@@ -2552,8 +2560,9 @@ point_wise_minimization(P       ::  Number,
                         aspect_ratio::Float64   = 0.3,
                         seismic_water::Int      = 0,
                         shallow_correction::Bool = false,
+                        fluid_as_melt::Bool      = false,
                         anelastic_cor::Bool     = false) =
-                        point_wise_minimization(Float64(P),Float64(T), data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]; buffer_n, Gi, scp, dT, iguess, rm_list, name_solvus, fixed_bulk, W, seismic_cor, aspect_ratio, seismic_water, shallow_correction, anelastic_cor)
+                        point_wise_minimization(Float64(P),Float64(T), data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]; buffer_n, Gi, scp, dT, iguess, rm_list, name_solvus, fixed_bulk, W, seismic_cor, aspect_ratio, seismic_water, shallow_correction, fluid_as_melt, anelastic_cor)
 
 
 """
@@ -2678,7 +2687,7 @@ pwm_init(P::Number,T::Number, gv, z_b, DB, splx_data) = pwm_init(Float64(P),Floa
     out     = pwm_run(gv, z_b, DB, splx_data);
     ```
 """
-function pwm_run(gv, z_b, DB, splx_data; name_solvus = false, seismic_cor = false, aspect_ratio = 0.3, seismic_water = 0, shallow_correction = false, anelastic_cor = false)
+function pwm_run(gv, z_b, DB, splx_data; name_solvus = false, seismic_cor = false, aspect_ratio = 0.3, seismic_water = 0, shallow_correction = false, fluid_as_melt = false, anelastic_cor = false)
     input_data      =   LibMAGEMin.io_data();                           # zero (not used actually)
 
     time = @elapsed  gv      = LibMAGEMin.ComputeEquilibrium_Point(gv.EM_database, input_data, z_b, gv, pointer_from_objref(splx_data),	DB.PP_ref_db,DB.SS_ref_db,DB.cp);
@@ -2693,7 +2702,7 @@ function pwm_run(gv, z_b, DB, splx_data; name_solvus = false, seismic_cor = fals
     LibMAGEMin.PrintOutput(gv, 0, 1, DB, time, z_b);
 
     # Transform results to a more convenient julia struct
-    out = create_gmin_struct(DB, gv, time; name_solvus = name_solvus, seismic_cor = seismic_cor, aspect_ratio = aspect_ratio, seismic_water = seismic_water, shallow_correction = shallow_correction, anelastic_cor = anelastic_cor);
+    out = create_gmin_struct(DB, gv, time; name_solvus = name_solvus, seismic_cor = seismic_cor, aspect_ratio = aspect_ratio, seismic_water = seismic_water, shallow_correction = shallow_correction, fluid_as_melt = fluid_as_melt, anelastic_cor = anelastic_cor);
 
     # LibMAGEMin.FreeDatabases(gv, DB, z_b);
 
@@ -2732,7 +2741,7 @@ end
     out : gmin_struct{Float64, Int64}
         Structure containing the full minimization results.
 """
-function create_gmin_struct(DB, gv, time; name_solvus = false, seismic_cor = false, aspect_ratio = 0.3, seismic_water = 0, shallow_correction = false, anelastic_cor = false)
+function create_gmin_struct(DB, gv, time; name_solvus = false, seismic_cor = false, aspect_ratio = 0.3, seismic_water = 0, shallow_correction = false, fluid_as_melt = false, anelastic_cor = false)
 
     stb      = unsafe_load(DB.sp)
 
@@ -2872,7 +2881,7 @@ function create_gmin_struct(DB, gv, time; name_solvus = false, seismic_cor = fal
     if seismic_cor
         T_K  = T_C + 273.15
         Vs0  = anelastic_cor ? anelastic_correction(seismic_water, gv.solid_Vs, P_kbar, T_K) : gv.solid_Vs
-        Vp_cor, Vs_cor = wave_melt_correction(gv, P_kbar, gv.solid_Vp, Vs0, aspect_ratio, shallow_correction)
+        Vp_cor, Vs_cor = wave_melt_correction(gv, P_kbar, gv.solid_Vp, Vs0, frac_M_vol, frac_S_vol, frac_F_vol; aspectRatio=aspect_ratio, shallow_correction=shallow_correction, fluid_as_melt=fluid_as_melt)
     else
         Vp_cor = NaN
         Vs_cor = NaN
@@ -3366,6 +3375,7 @@ function point_wise_minimization_with_guess(    mSS_vec ::  Vector{LibMAGEMin.mS
                                                 aspect_ratio::  Float64 = 0.3,
                                                 seismic_water::  Int64  = 0,
                                                 shallow_correction::  Bool = false,
+                                                fluid_as_melt::  Bool   = false,
                                                 anelastic_cor::  Bool   = false)
 
     # initialize MAGEMin up to G0 computation included
@@ -3466,7 +3476,7 @@ function point_wise_minimization_with_guess(    mSS_vec ::  Vector{LibMAGEMin.mS
     end
 
     gv.leveling_mode = 1
-    out = deepcopy(pwm_run(gv, z_b, DB, splx_data; seismic_cor = seismic_cor, aspect_ratio = aspect_ratio, seismic_water = seismic_water, shallow_correction = shallow_correction, anelastic_cor = anelastic_cor))
+    out = deepcopy(pwm_run(gv, z_b, DB, splx_data; seismic_cor = seismic_cor, aspect_ratio = aspect_ratio, seismic_water = seismic_water, shallow_correction = shallow_correction, fluid_as_melt = fluid_as_melt, anelastic_cor = anelastic_cor))
 
     return out
 end
@@ -3530,6 +3540,7 @@ function point_wise_metastability(  out     :: MAGEMin_C.gmin_struct{Float64, In
                                     aspect_ratio::  Float64 = 0.3,
                                     seismic_water::  Int64  = 0,
                                     shallow_correction::  Bool = false,
+                                    fluid_as_melt::  Bool   = false,
                                     anelastic_cor::  Bool   = false)
 
     mSS_vec = deepcopy(out.mSS_vec)                                
@@ -3690,7 +3701,7 @@ function point_wise_metastability(  out     :: MAGEMin_C.gmin_struct{Float64, In
 
     gv.leveling_mode    = 2
     gv.solver           = 3    #this deactivates minimization
-    out                 = deepcopy(pwm_run(gv, z_b, DB, splx_data; seismic_cor = seismic_cor, aspect_ratio = aspect_ratio, seismic_water = seismic_water, shallow_correction = shallow_correction, anelastic_cor = anelastic_cor))
+    out                 = deepcopy(pwm_run(gv, z_b, DB, splx_data; seismic_cor = seismic_cor, aspect_ratio = aspect_ratio, seismic_water = seismic_water, shallow_correction = shallow_correction, fluid_as_melt = fluid_as_melt, anelastic_cor = anelastic_cor))
 
     return out
 end
@@ -3703,8 +3714,9 @@ point_wise_metastability(           out     :: MAGEMin_C.gmin_struct{Float64, In
                                     aspect_ratio::  Float64 = 0.3,
                                     seismic_water::  Int64  = 0,
                                     shallow_correction::  Bool = false,
+                                    fluid_as_melt::  Bool   = false,
                                     anelastic_cor::  Bool   = false) =
-                                    point_wise_metastability(out, P, T, data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]; seismic_cor, aspect_ratio, seismic_water, shallow_correction, anelastic_cor)
+                                    point_wise_metastability(out, P, T, data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]; seismic_cor, aspect_ratio, seismic_water, shallow_correction, fluid_as_melt, anelastic_cor)
 
 
 

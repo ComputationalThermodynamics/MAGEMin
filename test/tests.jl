@@ -238,18 +238,18 @@ end
     sys_in  = "wt"
     out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, seismic_cor=true, aspect_ratio=0.3, seismic_water=0);
 
-    @test out.Vp_cor ≈ 5.344706081749584    rtol=1e-4
-    @test out.Vs_cor ≈ 3.4167835601563867   rtol=1e-4
+    @test out.Vp_cor ≈ 5.342675762785988    rtol=1e-4
+    @test out.Vs_cor ≈ 3.415349818810448    rtol=1e-4
 
     out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, seismic_cor=true, aspect_ratio=0.6, seismic_water=0);
 
-    @test out.Vp_cor ≈ 5.3543584808361295   rtol=1e-4
-    @test out.Vs_cor ≈ 3.423928366872985    rtol=1e-4
+    @test out.Vp_cor ≈ 5.35301103758362     rtol=1e-4
+    @test out.Vs_cor ≈ 3.423002024620632    rtol=1e-4
 
     out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, seismic_cor=true, aspect_ratio=0.1, seismic_water=0);
 
-    @test out.Vp_cor ≈ 5.32240747401925     rtol=1e-4
-    @test out.Vs_cor ≈ 3.396792998347959    rtol=1e-4
+    @test out.Vp_cor ≈ 5.31879891895499     rtol=1e-4
+    @test out.Vs_cor ≈ 3.39393959747249     rtol=1e-4
 
     Finalize_MAGEMin(data)
 end

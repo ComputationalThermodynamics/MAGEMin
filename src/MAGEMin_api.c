@@ -111,11 +111,11 @@ stb_system *MAGEMin_ComputeEquilibrium(	MAGEMin_Handle *h,
 	h->z_b = reset_z_b_bulk(			h->gv,
 										h->z_b					);
 
-	reset_simplex_A(					&h->splx_data,
-										 h->z_b,
-										 h->gv					);
-	reset_simplex_B_em(				&h->splx_data,
-										 h->gv					);
+	reset_simplex_A(				   &h->splx_data,
+										h->z_b,
+										h->gv					);
+	reset_simplex_B_em(				   &h->splx_data,
+										h->gv					);
 
 	reset_cp(							h->gv,
 										h->z_b,
@@ -153,7 +153,7 @@ stb_system *MAGEMin_ComputeEquilibrium(	MAGEMin_Handle *h,
 										h->DB.SS_ref_db,
 										h->DB.cp				);
 
-	fill_output_struct(				h->gv,
+	fill_output_struct(					h->gv,
 									   &h->splx_data,
 										h->z_b,
 
