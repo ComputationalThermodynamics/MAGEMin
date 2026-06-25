@@ -153,6 +153,7 @@ end
     out_BhT = single_point_minimization(P, T, data, X=X, B=0.0, Xoxides=Xoxides, sys_in=sys_in);
     Δρ_BhT  = abs( out_BhT.rho - (1.0 / (out_BhT.frac_M_wt / out_BhT.rho_M + out_BhT.frac_S_wt / out_BhT.rho_S)) )
     @test Δρ_BhT < 1e-10
+    @test out_BhT.system_oxygen ≈ 0.004867165479051421    rtol=1e-4
     Finalize_MAGEMin(data)
     
     # With a buffer at 800.0 C

@@ -21,6 +21,8 @@ void TC_mb_ext_objective_init_function(	obj_type 		 	*SS_objective,
 									global_variable  	 gv					);
 void TC_ig_objective_init_function(	obj_type 		 	*SS_objective,
 									global_variable   	 gv					);
+void TC_igd_objective_init_function(obj_type 		 	*SS_objective,
+									global_variable   	 gv					);
 void TC_igad_objective_init_function(obj_type 		*SS_objective,
 									global_variable  	 gv					);
 void TC_mp_objective_init_function(	obj_type 		 	*SS_objective,
@@ -83,6 +85,16 @@ double obj_ig_opx(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_fsp(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_spl(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_chl(unsigned  n, const double *x, double *grad, void *SS_ref_db);
+
+double obj_igd_liq(unsigned n, const double *x, double *grad, void *SS_ref_db);
+double obj_igd_fsp(unsigned  n, const double *x, double *grad, void *SS_ref_db);
+double obj_igd_spl(unsigned  n, const double *x, double *grad, void *SS_ref_db);
+double obj_igd_g(unsigned    n, const double *x, double *grad, void *SS_ref_db);
+double obj_igd_ol(unsigned   n, const double *x, double *grad, void *SS_ref_db);
+double obj_igd_opx(unsigned  n, const double *x, double *grad, void *SS_ref_db);
+double obj_igd_cpx(unsigned  n, const double *x, double *grad, void *SS_ref_db);
+double obj_igd_ilm(unsigned  n, const double *x, double *grad, void *SS_ref_db);
+
 
 double obj_igad_liq(unsigned n, const double *x, double *grad, void *SS_ref_db);
 double obj_igad_fsp(unsigned  n, const double *x, double *grad, void *SS_ref_db);

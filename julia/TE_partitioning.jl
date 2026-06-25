@@ -77,7 +77,7 @@ function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Flo
         ph_wt[i]        = out.ph_frac_wt[i]
 
         x               = out.SS_vec[i].compVariables
-        if dtb == "ig" || dtb == "igad"
+        if dtb == "ig" || dtb == "igad" || dtb == "igd"
             if ss == "spl"
                 if x[3] - 0.5 > 0.0;        mineral_name = "cm";
                 elseif x[4] - 0.5 > 0.0;    mineral_name = "sp";

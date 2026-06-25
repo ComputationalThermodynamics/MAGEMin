@@ -479,7 +479,7 @@ void ss_min_LP(			global_variable 	 gv,
 			ph_id = cp[i].id;
 
 			// deactivating the next part helps for IGAD database at VHT
-			if ( strcmp( gv.SS_list[ph_id], "liq") == 0 && gv.n_min[ph_id] > 2){
+			if ( strcmp( gv.SS_list[ph_id], "liq") == 0 && gv.n_min[ph_id] > 3){
 				act = 0;
 			}
 			else{
@@ -716,6 +716,23 @@ global_variable init_ss_db(		int 				 EM_database,
 			// }
 
 			SS_ref_db[i]    = G_SS_ig_EM_function(	gv, 
+													SS_ref_db[i], 
+													gv.EM_dataset, 
+													z_b, 
+													gv.SS_list[i]		);
+		}
+	}
+	else if (EM_database == 22){
+		for (int i = 0; i < gv.len_ss; i++){
+			SS_ref_db[i].P  = z_b.P;									/** needed to pass to local minimizer, allows for P variation for liq/sol */
+			SS_ref_db[i].T  = z_b.T;		
+			SS_ref_db[i].R  = 0.0083144;
+
+			// if (SS_ref_db[i].is_liq == 1){
+			// 	SS_ref_db[i].P  = z_b.P + gv.melt_pressure;
+			// }
+
+			SS_ref_db[i]    = G_SS_igd_EM_function(	gv, 
 													SS_ref_db[i], 
 													gv.EM_dataset, 
 													z_b, 

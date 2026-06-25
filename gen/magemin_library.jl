@@ -1177,6 +1177,7 @@ struct stb_systems
     V_cm3::Cdouble
     entropy::Cdouble
     enthalpy::Cdouble
+    system_oxygen::Cdouble
     bulkMod::Cdouble
     shearMod::Cdouble
     bulkModulus_M::Cdouble
@@ -1475,6 +1476,32 @@ end
 
 const igneous_dataset = igneous_datasets
 
+mutable struct igneous_igd_datasets
+    ds_version::Cint
+    n_ox::Cint
+    n_pp::Cint
+    n_ss::Cint
+    ox::NTuple{10, NTuple{20, Cchar}}
+    PP::NTuple{25, NTuple{20, Cchar}}
+    SS::NTuple{8, NTuple{20, Cchar}}
+    verifyPC::NTuple{8, Cint}
+    n_SS_PC::NTuple{8, Cint}
+    SS_PC_stp::NTuple{8, Cdouble}
+    PC_df_add::Cdouble
+    solver_switch_T::Cdouble
+    min_melt_T::Cdouble
+    inner_PGE_ite::Cdouble
+    max_n_phase::Cdouble
+    max_g_phase::Cdouble
+    max_fac::Cdouble
+    merge_value::Cdouble
+    re_in_n::Cdouble
+    obj_tol::Cdouble
+    igneous_igd_datasets() = new()
+end
+
+const igneous_igd_dataset = igneous_igd_datasets
+
 mutable struct igneous_igad_datasets
     ds_version::Cint
     n_ox::Cint
@@ -1611,6 +1638,10 @@ end
 
 function get_bulk_metabasite(gv)
     ccall((:get_bulk_metabasite, libMAGEMin), global_variable, (global_variable,), gv)
+end
+
+function get_bulk_igneous_igd(gv)
+    ccall((:get_bulk_igneous_igd, libMAGEMin), global_variable, (global_variable,), gv)
 end
 
 function get_bulk_igneous_igad(gv)
@@ -1815,6 +1846,10 @@ function TC_SS_init_ig(SS_init, gv)
     ccall((:TC_SS_init_ig, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
 end
 
+function TC_SS_init_igd(SS_init, gv)
+    ccall((:TC_SS_init_igd, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
+end
+
 function TC_SS_init_igad(SS_init, gv)
     ccall((:TC_SS_init_igad, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
 end
@@ -1859,6 +1894,10 @@ function G_SS_ig_EM_function(gv, SS_ref_db, EM_dataset, z_b, name)
     ccall((:G_SS_ig_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_dataset, z_b, name)
 end
 
+function G_SS_igd_EM_function(gv, SS_ref_db, EM_dataset, z_b, name)
+    ccall((:G_SS_igd_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_dataset, z_b, name)
+end
+
 function G_SS_igad_EM_function(gv, SS_ref_db, EM_dataset, z_b, name)
     ccall((:G_SS_igad_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_dataset, z_b, name)
 end
@@ -1889,6 +1928,10 @@ end
 
 function TC_ig_objective_init_function(SS_objective, gv)
     ccall((:TC_ig_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
+end
+
+function TC_igd_objective_init_function(SS_objective, gv)
+    ccall((:TC_igd_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
 end
 
 function TC_igad_objective_init_function(SS_objective, gv)
@@ -2072,6 +2115,38 @@ end
 
 function obj_ig_chl(n, x, grad, SS_ref_db)
     ccall((:obj_ig_chl, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_igd_liq(n, x, grad, SS_ref_db)
+    ccall((:obj_igd_liq, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_igd_fsp(n, x, grad, SS_ref_db)
+    ccall((:obj_igd_fsp, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_igd_spl(n, x, grad, SS_ref_db)
+    ccall((:obj_igd_spl, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_igd_g(n, x, grad, SS_ref_db)
+    ccall((:obj_igd_g, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_igd_ol(n, x, grad, SS_ref_db)
+    ccall((:obj_igd_ol, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_igd_opx(n, x, grad, SS_ref_db)
+    ccall((:obj_igd_opx, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_igd_cpx(n, x, grad, SS_ref_db)
+    ccall((:obj_igd_cpx, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_igd_ilm(n, x, grad, SS_ref_db)
+    ccall((:obj_igd_ilm, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
 function obj_igad_liq(n, x, grad, SS_ref_db)
@@ -2473,6 +2548,10 @@ function TC_ig_NLopt_opt_init(NLopt_opt, gv)
     ccall((:TC_ig_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
 end
 
+function TC_igd_NLopt_opt_init(NLopt_opt, gv)
+    ccall((:TC_igd_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
+end
+
 function TC_igad_NLopt_opt_init(NLopt_opt, gv)
     ccall((:TC_igad_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
 end
@@ -2519,6 +2598,10 @@ end
 
 function SS_ig_pc_init_function(SS_pc_xeos, iss, name)
     ccall((:SS_ig_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
+end
+
+function SS_igd_pc_init_function(SS_pc_xeos, iss, name)
+    ccall((:SS_igd_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
 end
 
 function SS_igad_pc_init_function(SS_pc_xeos, iss, name)

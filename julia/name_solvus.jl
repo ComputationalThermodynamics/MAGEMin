@@ -34,7 +34,7 @@ function get_mineral_name(db, ss, SS_vec)
     # @warn "Breaking changes in v2.1.3 by disambiguation of solvus names: 'spl': 'sp' > 'spl'; 'sp': 'mt' > 'smt'."
     mineral_name = ss
    
-    if db == "ig" || db == "igad"
+    if db == "ig" || db == "igad"  || db == "igd"
         x = SS_vec.compVariables
         if ss == "spl"
             if x[3] - 0.5 > 0.0;        mineral_name = "cm";
@@ -138,7 +138,7 @@ function get_ss_from_mineral(db, mrl, mbCpx)
 
     ss = mrl
    
-    if db =="ig" || db == "igad"
+    if db =="ig" || db == "igad" || db == "igd"
 
         if mrl == "cm" || mrl == "mgt" || mrl == "usp" || mrl == "spl"
             ss = "spl"
