@@ -2,14 +2,15 @@
  **
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
- **
- **   Minimal C API to call MAGEMin as a library from external C/C++ code.
- **   This file does not modify any existing MAGEMin source: it only calls
- **   the same building blocks that runMAGEMin() (src/MAGEMin.c) already
- **   uses for its per-point loop, skipping the CLI argument parsing and the
- **   file/screen output steps.
+ **   Developers   : Nicolas Riel, Boris Kaus
+ **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
+ **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
  ** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ @*/
+/*@
+ **   Minimal C API to call MAGEMin as a library from external C/C++ code.
+ @*/
 
 #include <stdio.h>
 #include <stdlib.h>
