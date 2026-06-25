@@ -157,11 +157,11 @@ void reset_output_struct(		global_variable 	 gv,
 		}
 		if (buffer_active == 0){
 			sp[0].system_oxygen = z_b.bulk_rock[gv.O_id];
-			sp[0].Fe3_Fe2_ratio = z_b.bulk_rock[gv.O_id]/z_b.bulk_rock[gv.FeO_id];	
+			sp[0].Fe3_Fe2_ratio = z_b.bulk_rock[gv.O_id]*2.0/(z_b.bulk_rock[gv.FeO_id] + z_b.bulk_rock[gv.O_id]*2.0);	
 		}
 		else{
 			sp[0].system_oxygen = z_b.bulk_rock[gv.O_id] - buffer_mol;
-			sp[0].Fe3_Fe2_ratio = sp[0].system_oxygen/z_b.bulk_rock[gv.FeO_id];
+			sp[0].Fe3_Fe2_ratio = sp[0].system_oxygen*2.0/(z_b.bulk_rock[gv.FeO_id] + sp[0].system_oxygen*2.0);
 		}
 	}
 
