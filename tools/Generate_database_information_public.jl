@@ -7,6 +7,7 @@ function get_database_infos()
                         "Metabasite (Green et al., 2016)",
                         "Metabasite extended (Green et al., 2016 with oamp from Diener et al., 2007 and ta from Rebay et al., 2022)",
                         "Igneous (Green et al., 2025, corrected after Holland et al., 2018)",
+                        "Igneous (Bin et al., 2026, corrected after Tomlinson & Holland, 2021)",
                         "Igneous alkaline dry (Weller et al., 2024)",
                         "Ultramafic (Evans & Frost., 2021)",
                         "Ultramafic extended (Evans & Frost., 2021 with pl, amp and aug from Green et al., 2016)",
@@ -16,9 +17,22 @@ function get_database_infos()
                         "Stixrude & Lithgow-Bertelloni (2021)",
                         "Stixrude & Lithgow-Bertelloni (2024)"]
 
-    database_list   = ["mp","mb","mbe","ig","igad","um","ume","mtl","mpe","sb11","sb21","sb24"]
-    dataset_default = [62,62,62,636,636,633,633,633,62,-1,-1,-1]
-    dataset_opt     = (62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(62, 633, 634, 635, 636),(-1, -1, -1, -1, -1),(-1, -1, -1, -1, -1),(-1, -1, -1, -1, -1)
+    database_list   =   ["mp","mb","mbe","ig","igad","igd","um","ume","mtl","mpe","sb11","sb21","sb24"]
+    dataset_default =   [62,62,62,636,636,634,633,633,633,62,-1,-1,-1]
+    dataset_opt     =   (62, 633, 634, 635, 636),
+                        (62, 633, 634, 635, 636),
+                        (62, 633, 634, 635, 636),
+                        (62, 633, 634, 635, 636),
+                        (62, 633, 634, 635, 636),
+                        (62, 633, 634, 635, 636),
+                        (62, 633, 634, 635, 636),
+                        (62, 633, 634, 635, 636),
+                        (62, 633, 634, 635, 636),
+                        (62, 633, 634, 635, 636),
+                        (62, 633, 634, 635, 636),
+                        (-1, -1, -1, -1, -1),
+                        (-1, -1, -1, -1, -1),
+                        (-1, -1, -1, -1, -1)
 
     db_inf          = Array{db_infos, 1}(undef, length(database_list))
 
@@ -94,7 +108,7 @@ mutable struct db_infos
 end
 
 
-db_inf = get_database_infos()
+db_inf = get_database_infos();
 println("\n")
 print(db_inf)
 

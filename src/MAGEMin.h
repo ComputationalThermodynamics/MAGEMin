@@ -87,7 +87,9 @@ typedef struct global_variables {
 	int      mpIlm;
 	int      ig_ed;			/** igneous endmember database? */
 	int      fixed_bulk;
-	
+	int      SB_eos;		/** 0: legacy (Perple_X-style) SLB EOS solver, 1: burnman-style (Brent volume solve + 3rd order shear), 2: same as 1 but with HeFESTo's analytic vibrational/spinodal volume bounds */
+	int      SB_eos_cor;	/** 0: compute_G0() legacy Newton solver behaves exactly as before (default), 1: destabilize (NAN) on non-convergence instead of silently using the unconverged volume, and tighten its v/v0 sanity bound to match Perple_X/HeFESTo */
+
 	/* FLUID SPECIATION OPTIONS */
 	int      fluidSpec;			/** activate fluid speciation along with phase equilibrium modelling? */
 	int      n_fs_db;			/** number of fluid species for the database */
@@ -769,6 +771,8 @@ typedef struct stb_systems {
 	
 	double  entropy;
 	double  enthalpy;
+	double  system_oxygen;
+	double  Fe3_Fe2_ratio;
 
 	double  bulkMod;
 	double  shearMod;

@@ -48,6 +48,7 @@ SOURCES=src/MAGEMin.c 							\
 		src/TC_database/SS_xeos_PC_mp.c			\
 		src/TC_database/SS_xeos_PC_mb.c			\
 		src/TC_database/SS_xeos_PC_ig.c			\
+		src/TC_database/SS_xeos_PC_igd.c		\
 		src/TC_database/SS_xeos_PC_igad.c		\
 		src/TC_database/SS_xeos_PC_um.c			\
 		src/TC_database/SS_xeos_PC_mtl.c		\
@@ -60,7 +61,8 @@ SOURCES=src/MAGEMin.c 							\
 		src/simplex_levelling.c 				\
 		src/PGE_function.c 						\
 		src/phase_update_function.c				\
-		src/dump_function.c
+		src/dump_function.c						\
+		src/MAGEMin_api.c
 
 OBJECTS=$(SOURCES:.c=.o)
 
@@ -71,7 +73,7 @@ OBJECTS=$(SOURCES:.c=.o)
  
 all: $(OBJECTS)
 	$(CC)  -o $(EXE_NAME) $(OBJECTS) $(INC) $(LIBS)  -flto
-	rm src/*.o src/TC_database/*.o
+	rm src/*.o src/TC_database/*.o src/SB_database/*.o
 
 lib: $(OBJECTS)
 	$(CC) -shared -fPIC -o libMAGEMin.dylib $(OBJECTS) $(INC) $(LIBS) -flto

@@ -142,6 +142,28 @@ void reset_output_struct(		global_variable 	 gv,
 	sp[0].cp				 	 = gv.system_cp;	
 	sp[0].entropy				 = gv.system_entropy;
 	sp[0].enthalpy				 = gv.system_enthalpy;
+	sp[0].system_oxygen			 = 0.0;
+	sp[0].Fe3_Fe2_ratio			 = 0.0;
+
+	if (gv.O_id != -1 && z_b.bulk_rock[gv.O_id] != 0.0){
+		double buffer_mol    = 0.0;
+		int    buffer_active = 0;
+		for (int ii = 0; ii < gv.len_pp; ii++){
+			if (gv.pp_flags[ii][1] == 1 && gv.pp_flags[ii][4] == 1){
+				buffer_active = 1;
+				buffer_mol    = gv.pp_n_mol[ii];
+				break;
+			}
+		}
+		if (buffer_active == 0){
+			sp[0].system_oxygen = z_b.bulk_rock[gv.O_id];
+			sp[0].Fe3_Fe2_ratio = z_b.bulk_rock[gv.O_id]*2.0/(z_b.bulk_rock[gv.FeO_id] + z_b.bulk_rock[gv.O_id]*2.0);	
+		}
+		else{
+			sp[0].system_oxygen = z_b.bulk_rock[gv.O_id] - buffer_mol;
+			sp[0].Fe3_Fe2_ratio = sp[0].system_oxygen*2.0/(z_b.bulk_rock[gv.FeO_id] + sp[0].system_oxygen*2.0);
+		}
+	}
 
 	sp[0].bulkMod				 = gv.system_bulkModulus;
 	sp[0].shearMod				 = gv.system_shearModulus;

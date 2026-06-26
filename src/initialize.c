@@ -122,7 +122,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.9.8 23/06/2026]");		/** MAGEMin version 																*/
+	strcpy(gv.version,"1.9.9 26/06/2026]");		/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
@@ -220,6 +220,8 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.verbose 			=  0;
 	gv.output_matlab 	=  0;
 	gv.test     		= -1;
+	gv.SB_eos			=  0;					/* 0 -> legacy (Perple_X-style), 1 -> burnman-style, 2 -> burnman-style + HeFESTo volume bounds */
+	gv.SB_eos_cor		=  1;					/* 0 -> legacy compute_G0() unchanged, 1 -> destabilize on non-convergence + tightened v/v0 bound */
 
 	/* default PT conditions for test */
 	z_b->P 				= 12.0;		

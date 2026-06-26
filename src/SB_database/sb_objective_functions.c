@@ -608,7 +608,7 @@ double obj_sb11_gtmj(unsigned n, const double *x, double *grad, void *SS_ref_db)
     }
     d->factor = d->fbc/d->sum_apep;
 
-    double Sconfig    = R*T*(3.0*p[0]*log(p[0]) + (p[0] + p[3] + p[4])*log(p[0] + p[3] + p[4]) + (p[0] + p[1] + p[3] + p[4])*log(p[0] + p[1] + p[3] + p[4]) + p[1]*log(0.3333333333333333*p[1]) + (p[1] + p[2])*log(p[1] + p[2]) + 2.0*p[1]*log(0.6666666666666666*p[1]) + p[2]*log(p[2]) + 3.0*(p[2] + p[3])*log(p[2] + p[3]) + 3.0*p[4]*log(p[4]));
+    double Sconfig    = R*T*(3.0*p[0]*log(p[0]) + (p[0] + p[3] + p[4])*log(p[0] + p[3] + p[4]) + (p[0] + p[1] + p[3] + p[4])*log(p[0] + p[1] + p[3] + p[4]) + p[1]*log(1.0/3.03*p[1]) + (p[1] + p[2])*log(p[1] + p[2]) + 2.0*p[1]*log(0.6666666666666666*p[1]) + p[2]*log(p[2]) + 3.0*(p[2] + p[3])*log(p[2] + p[3]) + 3.0*p[4]*log(p[4]));
 
     d->df_raw = 0.0;
     for (int i = 0; i < n_em; i++){
@@ -618,7 +618,7 @@ double obj_sb11_gtmj(unsigned n, const double *x, double *grad, void *SS_ref_db)
 
     if (grad){
         grad[0] = (R*T*(5.0 + 3.0*log(p[0]) + log(p[0] + p[3] + p[4]) + log(p[0] + p[1] + p[3] + p[4])) + mu_Gex[0] + gb[0])* d->factor - (d->df_raw * d->factor * (d->ape[0]/d->sum_apep));
-        grad[1] = (R*T*(2 + 0.3333333333333333 / 0.3333333333333333 + log(0.3333333333333333*p[1]) + log(p[1] + p[2]) + log(p[0] + p[1] + p[3] + p[4]) + 1.3333333333333333 / 0.6666666666666666 + 2.0*log(0.6666666666666666*p[1])) + mu_Gex[1] + gb[1])* d->factor - (d->df_raw * d->factor * (d->ape[1]/d->sum_apep));
+        grad[1] = (R*T*(2 + 1.0/3.03 / 1.0/3.03 + log(1.0/3.03*p[1]) + log(p[1] + p[2]) + log(p[0] + p[1] + p[3] + p[4]) + 1.3333333333333333 / 0.6666666666666666 + 2.0*log(0.6666666666666666*p[1])) + mu_Gex[1] + gb[1])* d->factor - (d->df_raw * d->factor * (d->ape[1]/d->sum_apep));
         grad[2] = (R*T*(5.0 + log(p[1] + p[2]) + log(p[2]) + 3.0*log(p[2] + p[3])) + mu_Gex[2] + gb[2])* d->factor - (d->df_raw * d->factor * (d->ape[2]/d->sum_apep));
         grad[3] = (R*T*(5.0 + log(p[0] + p[3] + p[4]) + log(p[0] + p[1] + p[3] + p[4]) + 3.0*log(p[2] + p[3])) + mu_Gex[3] + gb[3])* d->factor - (d->df_raw * d->factor * (d->ape[3]/d->sum_apep));
         grad[4] = (R*T*(5.0 + log(p[0] + p[3] + p[4]) + log(p[0] + p[1] + p[3] + p[4]) + 3.0*log(p[4])) + mu_Gex[4] + gb[4])* d->factor - (d->df_raw * d->factor * (d->ape[4]/d->sum_apep));
@@ -1532,7 +1532,7 @@ double obj_sb21_gtmj(unsigned n, const double *x, double *grad, void *SS_ref_db)
     }
     d->factor = d->fbc/d->sum_apep;
 
-    double Sconfig    = R*T*((p[0] + p[1] + p[2])*log(p[0] + p[1] + p[2]) + (p[0] + p[1] + p[2] + p[4])*log(p[0] + p[1] + p[2] + p[4]) + 3.0*(p[0] + p[3])*log(p[0] + p[3]) + 3.0*p[1]*log(p[1]) + 3.0*p[2]*log(p[2]) + p[3]*log(p[3]) + (p[3] + p[4])*log(p[3] + p[4]) + 2.0*p[4]*log(0.6666666666666666*p[4]) + p[4]*log(0.3333333333333333*p[4]));
+    double Sconfig    = R*T*((p[0] + p[1] + p[2])*log(p[0] + p[1] + p[2]) + (p[0] + p[1] + p[2] + p[4])*log(p[0] + p[1] + p[2] + p[4]) + 3.0*(p[0] + p[3])*log(p[0] + p[3]) + 3.0*p[1]*log(p[1]) + 3.0*p[2]*log(p[2]) + p[3]*log(p[3]) + (p[3] + p[4])*log(p[3] + p[4]) + 2.0*p[4]*log(0.6666666666666666*p[4]) + p[4]*log(1.0/3.03*p[4]));
 
     d->df_raw = 0.0;
     for (int i = 0; i < n_em; i++){
@@ -1545,7 +1545,7 @@ double obj_sb21_gtmj(unsigned n, const double *x, double *grad, void *SS_ref_db)
         grad[1] = (R*T*(5.0 + log(p[0] + p[1] + p[2]) + log(p[0] + p[1] + p[2] + p[4]) + 3.0*log(p[1])) + mu_Gex[1] + gb[1])* d->factor - (d->df_raw * d->factor * (d->ape[1]/d->sum_apep));
         grad[2] = (R*T*(5.0 + log(p[0] + p[1] + p[2]) + log(p[0] + p[1] + p[2] + p[4]) + 3.0*log(p[2])) + mu_Gex[2] + gb[2])* d->factor - (d->df_raw * d->factor * (d->ape[2]/d->sum_apep));
         grad[3] = (R*T*(5.0 + 3.0*log(p[0] + p[3]) + log(p[3]) + log(p[3] + p[4])) + mu_Gex[3] + gb[3])* d->factor - (d->df_raw * d->factor * (d->ape[3]/d->sum_apep));
-        grad[4] = (R*T*(2 + 2.0*log(0.6666666666666666*p[4]) + 0.3333333333333333 / 0.3333333333333333 + log(0.3333333333333333*p[4]) + log(p[0] + p[1] + p[2] + p[4]) + 1.3333333333333333 / 0.6666666666666666 + log(p[3] + p[4])) + mu_Gex[4] + gb[4])* d->factor - (d->df_raw * d->factor * (d->ape[4]/d->sum_apep));
+        grad[4] = (R*T*(2 + 2.0*log(0.6666666666666666*p[4]) + 1.0/3.03 / 1.0/3.03 + log(1.0/3.03*p[4]) + log(p[0] + p[1] + p[2] + p[4]) + 1.3333333333333333 / 0.6666666666666666 + log(p[3] + p[4])) + mu_Gex[4] + gb[4])* d->factor - (d->df_raw * d->factor * (d->ape[4]/d->sum_apep));
     }
     return d->df;
 }
@@ -2528,7 +2528,7 @@ double obj_sb24_gtmj(unsigned n, const double *x, double *grad, void *SS_ref_db)
     }
     d->factor = d->fbc/d->sum_apep;
 
-    double Sconfig    = R*T*((p[0] + p[1] + p[2])*log(p[0] + p[1] + p[2]) + (p[0] + p[1] + p[2] + p[4])*log(p[0] + p[1] + p[2] + p[4]) + 3.0*(p[0] + p[3] + p[5])*log(p[0] + p[3] + p[5]) + 3.0*p[1]*log(p[1]) + 3.0*(p[2] + p[6])*log(p[2] + p[6]) + (p[3] + p[4])*log(p[3] + p[4]) + p[3]*log(p[3]) + 2.0*p[4]*log(0.6666666666666666*p[4]) + p[4]*log(0.3333333333333333*p[4]) + 2.0*p[5]*log(p[5]) + 2.0*p[6]*log(p[6]));
+    double Sconfig    = R*T*((p[0] + p[1] + p[2])*log(p[0] + p[1] + p[2]) + (p[0] + p[1] + p[2] + p[4])*log(p[0] + p[1] + p[2] + p[4]) + 3.0*(p[0] + p[3] + p[5])*log(p[0] + p[3] + p[5]) + 3.0*p[1]*log(p[1]) + 3.0*(p[2] + p[6])*log(p[2] + p[6]) + (p[3] + p[4])*log(p[3] + p[4]) + p[3]*log(p[3]) + 2.0*p[4]*log(0.6666666666666666*p[4]) + p[4]*log(1.0/3.03*p[4]) + 2.0*p[5]*log(p[5]) + 2.0*p[6]*log(p[6]));
 
     d->df_raw = 0.0;
     for (int i = 0; i < n_em; i++){
@@ -2541,7 +2541,7 @@ double obj_sb24_gtmj(unsigned n, const double *x, double *grad, void *SS_ref_db)
         grad[1] = (R*T*(5.0 + log(p[0] + p[1] + p[2]) + log(p[0] + p[1] + p[2] + p[4]) + 3.0*log(p[1])) + mu_Gex[1] + gb[1])* d->factor - (d->df_raw * d->factor * (d->ape[1]/d->sum_apep));
         grad[2] = (R*T*(5.0 + log(p[0] + p[1] + p[2]) + log(p[0] + p[1] + p[2] + p[4]) + 3.0*log(p[2] + p[6])) + mu_Gex[2] + gb[2])* d->factor - (d->df_raw * d->factor * (d->ape[2]/d->sum_apep));
         grad[3] = (R*T*(5.0 + log(p[3] + p[4]) + 3.0*log(p[0] + p[3] + p[5]) + log(p[3])) + mu_Gex[3] + gb[3])* d->factor - (d->df_raw * d->factor * (d->ape[3]/d->sum_apep));
-        grad[4] = (R*T*(5.0 + log(p[0] + p[1] + p[2] + p[4]) + 2.0*log(0.6666666666666666*p[4]) + log(p[3] + p[4]) + log(0.3333333333333333*p[4])) + mu_Gex[4] + gb[4])* d->factor - (d->df_raw * d->factor * (d->ape[4]/d->sum_apep));
+        grad[4] = (R*T*(5.0 + log(p[0] + p[1] + p[2] + p[4]) + 2.0*log(0.6666666666666666*p[4]) + log(p[3] + p[4]) + log(1.0/3.03*p[4])) + mu_Gex[4] + gb[4])* d->factor - (d->df_raw * d->factor * (d->ape[4]/d->sum_apep));
         grad[5] = (R*T*(5.0 + 3.0*log(p[0] + p[3] + p[5]) + 2.0*log(p[5])) + mu_Gex[5] + gb[5])* d->factor - (d->df_raw * d->factor * (d->ape[5]/d->sum_apep));
         grad[6] = (R*T*(5.0 + 3.0*log(p[2] + p[6]) + 2.0*log(p[6])) + mu_Gex[6] + gb[6])* d->factor - (d->df_raw * d->factor * (d->ape[6]/d->sum_apep));
     }

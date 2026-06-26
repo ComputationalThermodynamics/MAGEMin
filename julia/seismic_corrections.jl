@@ -45,14 +45,29 @@
     ---------
     Clark A.N. and Lesher C.E. (2017)
 """
-function wave_melt_correction(gv, P_kbar::Float64, solid_Vp::Float64, solid_Vs::Float64, aspectRatio::Float64 = 0.25, shallow_correction::Bool = false)
+function wave_melt_correction(  gv, 
+                                P_kbar      :: Float64,
+                                solid_Vp    :: Float64,
+                                solid_Vs    :: Float64,
+                                frac_M_vol  :: Float64,
+                                frac_S_vol  :: Float64,
+                                frac_F_vol  :: Float64;
+                                aspectRatio :: Float64 = 0.25,
+                                shallow_correction  :: Bool = false,
+                                fluid_as_melt       :: Bool = false)
 
     Vp_cor = solid_Vp
     Vs_cor = solid_Vs
 
-    if gv.melt_fraction > 0.0
-        sum_f          = gv.melt_fraction + gv.solid_fraction
-        melt_fraction  = gv.melt_fraction  / sum_f
+    if frac_M_vol > 0.0
+
+        if fluid_as_melt
+            melt_fraction = frac_M_vol + frac_F_vol
+            solid_fraction = frac_S_vol
+        else 
+            melt_fraction = frac_M_vol / ( 1.0 - frac_F_vol)
+            solid_fraction = frac_S_vol  / ( 1.0 - frac_F_vol)
+        end
 
         poisson = 0.25
 

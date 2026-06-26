@@ -323,8 +323,10 @@ end
     modal abundances (mol%, wt%, vol%), system thermodynamic properties
     (ρ, Vp, Vs, Cp, α, S, H, K, G), activity/fugacity variables, and oxide
     compositions (mol% and wt%) plus apfu element compositions for each phase.
-    System-level rows (`"system"`) additionally carry fO₂, ΔQFM, and melt
-    viscosity. A companion metadata file is written at `fileout_metadata.txt`.
+    System-level rows (`"system"`) additionally carry fO₂, ΔQFM, melt
+    viscosity, and the seismically-corrected solid-aggregate velocities
+    (`Vp_cor`, `Vs_cor`, NaN if seismic corrections were not requested).
+    A companion metadata file is written at `fileout_metadata.txt`.
 
     Parameters
     ----------
@@ -390,7 +392,9 @@ function MAGEMin_data2dataframe( out:: Union{Vector{gmin_struct{Float64, Int64}}
                                     Symbol("Vp[km/s]")      => Float64[],
                                     Symbol("Vs[km/s]")      => Float64[],
                                     Symbol("Vp_S[km/s]")      => Float64[],
-                                    Symbol("Vs_S[km/s]")      => Float64[],                                    
+                                    Symbol("Vs_S[km/s]")      => Float64[],
+                                    Symbol("Vp_cor[km/s]")      => Float64[],
+                                    Symbol("Vs_cor[km/s]")      => Float64[],
                                     Symbol("BulkMod[GPa]")  => Float64[],
                                     Symbol("ShearMod[GPa]") => Float64[],
     )
@@ -439,8 +443,10 @@ function MAGEMin_data2dataframe( out:: Union{Vector{gmin_struct{Float64, Int64}}
                         "Vs[km/s]"      => out[k].Vs,
                         "Vp_S[km/s]"    => out[k].Vp_S,
                         "Vs_S[km/s]"    => out[k].Vs_S,
+                        "Vp_cor[km/s]"  => out[k].Vp_cor,
+                        "Vs_cor[km/s]"  => out[k].Vs_cor,
                         "BulkMod[GPa]"  => out[k].bulkMod,
-                        "ShearMod[GPa]" => out[k].shearMod )          
+                        "ShearMod[GPa]" => out[k].shearMod )
 
         part_2 = Dict(  (out[1].oxides[j]*"[mol%]" => out[k].bulk[j]*100.0)
                         for j in eachindex(out[1].oxides))
@@ -479,7 +485,9 @@ function MAGEMin_data2dataframe( out:: Union{Vector{gmin_struct{Float64, Int64}}
                             "Vp[km/s]"      => out[k].SS_vec[i].Vp,
                             "Vs[km/s]"      => out[k].SS_vec[i].Vs,
                             "Vp_S[km/s]"      => "-",
-                            "Vs_S[km/s]"      => "-",                            
+                            "Vs_S[km/s]"      => "-",
+                            "Vp_cor[km/s]"    => "-",
+                            "Vs_cor[km/s]"    => "-",
                             "BulkMod[GPa]"  => out[k].SS_vec[i].bulkMod,
                             "ShearMod[GPa]" => out[k].SS_vec[i].shearMod )  
 
@@ -527,7 +535,9 @@ function MAGEMin_data2dataframe( out:: Union{Vector{gmin_struct{Float64, Int64}}
                                 "Vp[km/s]"      => out[k].PP_vec[i].Vp,
                                 "Vs[km/s]"      => out[k].PP_vec[i].Vs,
                                 "Vp_S[km/s]"      => "-",
-                                "Vs_S[km/s]"      => "-",           
+                                "Vs_S[km/s]"      => "-",
+                                "Vp_cor[km/s]"    => "-",
+                                "Vs_cor[km/s]"    => "-",
                                 "BulkMod[GPa]"  => out[k].PP_vec[i].bulkMod,
                                 "ShearMod[GPa]" => out[k].PP_vec[i].shearMod )  
 
@@ -622,7 +632,10 @@ end
     The output DataFrame is built in three blocks that are horizontally
     concatenated: system-level properties (`sys_*` prefix), solution-phase
     columns (`<ph>_*` prefix, `NaN`-filled when a phase is absent at a given
-    point), and pure-phase columns (same convention). Column groups per phase
+    point), and pure-phase columns (same convention). System-level properties
+    additionally include the solid-aggregate seismic velocities (`Vp_S`,
+    `Vs_S`) and their seismically-corrected counterparts (`Vp_cor`, `Vs_cor`,
+    NaN if seismic corrections were not requested). Column groups per phase
     include modal fractions (mol%, wt%, vol%), thermodynamic properties
     (ρ, Vp, Vs, Cp, α, S, H, K, G), and oxide compositions (mol%, wt%) plus
     apfu element compositions. A companion metadata file is written at
@@ -690,7 +703,9 @@ function MAGEMin_data2dataframe_inlined( out:: Union{Vector{gmin_struct{Float64,
                                     Symbol("sys_Vp[km/s]")      => Float64[],
                                     Symbol("sys_Vs[km/s]")      => Float64[],
                                     Symbol("Vp_S[km/s]")      => Float64[],
-                                    Symbol("Vs_S[km/s]")      => Float64[],                                    
+                                    Symbol("Vs_S[km/s]")      => Float64[],
+                                    Symbol("Vp_cor[km/s]")      => Float64[],
+                                    Symbol("Vs_cor[km/s]")      => Float64[],
                                     Symbol("sys_BulkMod[GPa]")  => Float64[],
                                     Symbol("sys_ShearMod[GPa]") => Float64[])
 
@@ -730,6 +745,8 @@ function MAGEMin_data2dataframe_inlined( out:: Union{Vector{gmin_struct{Float64,
                         "sys_Vs[km/s]"      => out[k].Vs,
                         "Vp_S[km/s]"        => out[k].Vp_S,
                         "Vs_S[km/s]"        => out[k].Vs_S,
+                        "Vp_cor[km/s]"      => out[k].Vp_cor,
+                        "Vs_cor[km/s]"      => out[k].Vs_cor,
                         "sys_BulkMod[GPa]"  => out[k].bulkMod,
                         "sys_ShearMod[GPa]" => out[k].shearMod )          
 

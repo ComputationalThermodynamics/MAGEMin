@@ -263,6 +263,9 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 			else if (gv.EM_database == 2){
 				printf("  - Database                  : Igneous (Holland et al., 2018 -> Green et al., 2024)\n"	);
 			}
+			else if (gv.EM_database == 22){
+				printf("  - Database                  : Igneous dry (Tomlinson & Holland, 2021 -> Bin et al., 2026)\n"	);
+			}
 			else if (gv.EM_database == 3){
 				printf("  - Database                  : Igneous alkaline dry (Weller et al., 2024)\n"	);
 			}
@@ -344,6 +347,15 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 			}
 			else if (gv.EM_database == 2){ 			// igneous database
 				if(strcmp( gv.ox[i], "H2O") != 0  && strcmp( gv.ox[i], "TiO2") != 0 && strcmp( gv.ox[i], "Cr2O3") != 0 && strcmp( gv.ox[i], "O")  != 0 && strcmp( gv.ox[i], "K2O") != 0){
+					gv.bulk_rock[i] = 1.0e-4;
+					renorm = 1;
+					if (gv.verbose == 1){
+						printf("  - mol of %4s = %+.5f < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i],gv.bulk_rock[i]);
+					}	
+				}
+			}
+			else if (gv.EM_database == 22){ 			// igneous database
+				if(strcmp( gv.ox[i], "TiO2") != 0 && strcmp( gv.ox[i], "Cr2O3") != 0 && strcmp( gv.ox[i], "O")  != 0 ){
 					gv.bulk_rock[i] = 1.0e-4;
 					renorm = 1;
 					if (gv.verbose == 1){
@@ -858,6 +870,9 @@ global_variable get_tests_bulks(	global_variable  	 gv
 		else if (gv.EM_database == 2){
 			gv = get_bulk_igneous( 			gv );
 		}
+		else if (gv.EM_database == 22){
+			gv = get_bulk_igneous_igd( 		gv );
+		}
 		else if (gv.EM_database == 3){
 			gv = get_bulk_igneous_igad( 	gv );
 		}
@@ -871,7 +886,7 @@ global_variable get_tests_bulks(	global_variable  	 gv
 			gv = get_bulk_mantle( 			gv );
 		}
 		else if (gv.EM_database == 7){
-			gv = get_bulk_metapelite_ext( 		gv );
+			gv = get_bulk_metapelite_ext( 	gv );
 		}
 		else{
 			printf(" Wrong database...\n");
@@ -1339,9 +1354,12 @@ global_variable compute_phase_mol_fraction(			global_variable 	 gv,
 
 	/* solution phases */
 	double sum, n_at_ph, sum_mol_tot, sum_wt, sum_wt_tot;
+	double sum_mol_buffer, sum_wt_buffer;
 	sum_mol_tot = 0.0;
 
 	sum_wt_tot	= 0.0;
+	sum_mol_buffer = 0.0;
+	sum_wt_buffer  = 0.0;
 	for (int i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1){
 
@@ -1374,6 +1392,8 @@ global_variable compute_phase_mol_fraction(			global_variable 	 gv,
 			cp[i].ss_n_wt 	 = cp[i].ss_n_mol * sum_wt;
 			sum_mol_tot 	+= cp[i].ss_n_mol;
 			sum_wt_tot 		+= cp[i].ss_n_wt;
+			sum_mol_buffer 	+= cp[i].ss_n_mol;
+			sum_wt_buffer 	+= cp[i].ss_n_wt;
 		}
 	}
 
@@ -1411,6 +1431,45 @@ global_variable compute_phase_mol_fraction(			global_variable 	 gv,
 			gv.pp_n_wt[i] 	 = gv.pp_n_mol[i] * sum_wt;
 			sum_mol_tot 	+= gv.pp_n_mol[i];
 			sum_wt_tot 		+= gv.pp_n_wt[i];
+			sum_mol_buffer 	+= gv.pp_n_mol[i];
+			sum_wt_buffer 	+= gv.pp_n_wt[i];
+		}
+	}
+
+	/* buffer phase (normalized separately, does not contribute to sum_mol_tot/sum_wt_tot) */
+	for (int i = 0; i < gv.len_pp; i++){
+		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 1){
+
+			sum 		= 0.0;
+			for (int j = 0; j < gv.len_ox; j++){
+				if (PP_ref_db[i].Comp[j] > 0.0 ){
+					sum += PP_ref_db[i].Comp[j];
+				}
+			}
+
+			n_at_ph 	= 0.0;
+			for (int j = 0; j < gv.len_ox; j++){
+				n_at_ph += PP_ref_db[i].Comp[j]/sum * z_b.apo[j];
+			}
+
+			for (int j = 0; j < gv.len_ox; j++){
+				PP_ref_db[i].Comp_mol[j] = PP_ref_db[i].Comp[j]/sum;
+			}
+			sum_wt  	= 0.0;
+			for (int j = 0; j < gv.len_ox; j++){
+				PP_ref_db[i].Comp_wt[j] = PP_ref_db[i].Comp_mol[j] * z_b.masspo[j];
+				sum_wt += PP_ref_db[i].Comp_wt[j];
+			}
+			for (int j = 0; j < gv.len_ox; j++){
+				PP_ref_db[i].Comp_wt[j] /= sum_wt;
+			}
+
+			PP_ref_db[i].factor_norm = n_at_bulk/n_at_ph;
+
+			gv.pp_n_mol[i]   = gv.pp_n[i] * PP_ref_db[i].factor_norm;
+			gv.pp_n_wt[i] 	 = gv.pp_n_mol[i] * sum_wt;
+			sum_mol_buffer 	+= gv.pp_n_mol[i];
+			sum_wt_buffer 	+= gv.pp_n_wt[i];
 		}
 	}
 
@@ -1431,13 +1490,20 @@ global_variable compute_phase_mol_fraction(			global_variable 	 gv,
 		}
 	}
 	for (int i = 0; i < gv.len_pp; i++){
-		if (gv.pp_flags[i][1] == 1){
+		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
 			gv.pp_n_mol[i]   /= sum_mol_tot;
 			gv.pp_n_wt[i]    /= sum_wt_tot;
 
 			// for (int j = 0; j < gv.len_ox; j++){
 			// 	z_b.bulk_rock[j] += PP_ref_db[i].Comp_mol[j] * gv.pp_n_mol[i];
 			// }
+		}
+	}
+	/* normalize buffer phase separately so it never affects, nor is affected by, sum_mol_tot/sum_wt_tot */
+	for (int i = 0; i < gv.len_pp; i++){
+		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 1 && sum_mol_buffer > 0.0){
+			gv.pp_n_mol[i]   /= sum_mol_buffer;
+			gv.pp_n_wt[i]    /= sum_wt_buffer;
 		}
 	}
 

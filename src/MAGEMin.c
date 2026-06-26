@@ -769,6 +769,8 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		{ "mpSp",  		ko_optional_argument, 327 },
 		{ "mpIlm",  	ko_optional_argument, 328 },
 		{ "ig_ed",  	ko_optional_argument, 329 },
+		{ "SB_eos",  	ko_optional_argument, 330 },
+		{ "SB_eos_cor", ko_optional_argument, 331 },
     	{ NULL, 0, 0 }
 	};
 	ketopt_t opt = KETOPT_INIT;
@@ -786,7 +788,9 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		else if (c == 324){ gv.mbIlm   			= atoi(opt.arg);			} 
 		else if (c == 327){ gv.mpSp   			= atoi(opt.arg);			} 	
 		else if (c == 328){ gv.mpIlm   			= atoi(opt.arg);			} 		
-		else if (c == 329){ gv.ig_ed   			= atoi(opt.arg);			} 		
+		else if (c == 329){ gv.ig_ed   			= atoi(opt.arg);			}
+		else if (c == 330){ gv.SB_eos   			= atoi(opt.arg);			}
+		else if (c == 331){ gv.SB_eos_cor			= atoi(opt.arg);			}
 		else if (c == 316){ gv.solver   		= atoi(opt.arg);			}																		
 		else if (c == 318){ gv.output_matlab   	= atoi(opt.arg); 			}																		
 		else if (c == 304){ gv.n_points 		= atoi(opt.arg); 	 		}
@@ -879,6 +883,9 @@ global_variable SetupDatabase(			global_variable 	 gv,
 		else if (strcmp(gv.db, "ig") 	== 0){
 			gv.EM_database = 2;
 		}
+		else if (strcmp(gv.db, "igd") 	== 0){
+			gv.EM_database = 22;
+		}
 		else if (strcmp(gv.db, "igad") 	== 0){
 			gv.EM_database = 3;
 		}
@@ -935,9 +942,11 @@ global_variable SetupDatabase(			global_variable 	 gv,
 			gv.EM_database = 0;
 		}
 
+		SB_set_eos_formulation(gv.SB_eos);
+		SB_set_eos_correction(gv.SB_eos_cor);
 	}
 
-	if (gv.verbose == 2){	
+	if (gv.verbose == 2){
 		printf("\n");	
 		printf("--verbose     : verbose              = %i \n", 	 	   		gv.verbose			);
 		printf("--rg          : research group       = %s \n", 	 	  		gv.research_group	);
@@ -978,7 +987,7 @@ Databases InitializeDatabases(	global_variable gv,
 	Databases 	DB;
 
 	/* Allocate pure-phase database (to get gbase, comp and factor) 				*/
-	DB.PP_ref_db = malloc ((gv.len_pp) 		* sizeof(PP_ref)); 
+	DB.PP_ref_db = malloc ((gv.len_pp) 		* sizeof(PP_ref));
 	
 	/** 
 		Allocate memory for each solution phase according to their specificities (n_em, sf etc) 

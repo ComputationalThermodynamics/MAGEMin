@@ -761,6 +761,9 @@ global_variable init_em_db(		int 				EM_database,
 				else if (EM_database == 2){
 					printf(" S   A   C   M   F   K   N   T   O   Cr  H\n");
 				}
+				else if (EM_database == 22){
+					printf(" S   A   C   M   F   K   N   T   O   Cr\n");
+				}
 				else if (EM_database == 3){
 					printf(" S   A   C   M   F   K   N   T   O   Cr\n");
 				}
