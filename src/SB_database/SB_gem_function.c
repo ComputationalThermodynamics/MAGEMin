@@ -34,6 +34,31 @@
 #define T0 				300.0
 #define P0 				0.001
 
+/* 0 = legacy (Perple_X-style) solver, 1 = burnman-style (Brent volume solve + 3rd order shear),
+   2 = same as 1 but with HeFESTo's analytic vibrational/spinodal volume bounds */
+static int SB_eos_formulation = 0;
+
+void SB_set_eos_formulation(int mode){
+	SB_eos_formulation = mode;
+}
+
+/* 0 = compute_G0() reproduces its original (pre-correction) behavior exactly: a
+   non-converged Newton iteration silently returns whatever volume it landed
+   on. 1 = apply the fix found by comparing against Perple_X's own GSTX
+   routine (rlib.f): honor the 'bad' convergence flag - which the original
+   Fortran already uses to destabilize the phase on failure, but which was
+   computed-and-discarded in this C port - by returning NAN instead (caught
+   by SB_G_EM_function's centralized NaN/Inf guard), and tighten the loop's
+   v/v0 sanity bound from the port-introduced [0.01,100] to [0.1,10], matching
+   both Perple_X's own initial-guess bound and HeFESTo's analytic fallback
+   range (sb_volume_bounds()). Off by default to keep default behavior
+   unchanged; set via gv.SB_eos_cor / --SB_eos_cor. */
+static int SB_eos_correction = 0;
+
+void SB_set_eos_correction(int mode){
+	SB_eos_correction = mode;
+}
+
 double plg(double t) {
 	double p4, dinc;
 
@@ -145,6 +170,28 @@ double isotropic_eta_s(double x, double grueneisen_0, double eta_s_0, double q_0
 double shear_modulus_second_order(double volume, double V_0, double G_0, double Gprime_0, double K_0) {
     double x = V_0 / volume;
     double G = G_0 * pow(x, 5.0 / 3.0) * (1.0 - 0.5 * (pow(x, 2.0 / 3.0) - 1.0) * (5.0 - 3.0 * Gprime_0 * K_0 * 1e5 / G_0));
+
+    return G;
+}
+
+/*
+    Get the birch murnaghan shear modulus at a reference temperature, for a
+    given volume. Returns shear modulus in [Pa] (the same units as in G_0).
+    This uses a third order finite strain expansion. Every mineral in
+    burnman's SLB_2011/SLB_2024 databases uses this order ("should be
+    preferred, as it is more thermodynamically consistent" per burnman).
+	** 'Borrowed' from Burnman **
+*/
+double shear_modulus_third_order(double volume, double V_0, double G_0, double Gprime_0, double K_0, double Kprime_0) {
+    double x      = V_0 / volume;
+    double f      = 0.5 * (pow(x, 2.0 / 3.0) - 1.0);
+    double K_0_pa = K_0 * 1e5;
+
+    double G = pow(1.0 + 2.0 * f, 5.0 / 2.0) * (
+        G_0
+        + (3.0 * K_0_pa * Gprime_0 - 5.0 * G_0) * f
+        + (6.0 * K_0_pa * Gprime_0 - 24.0 * K_0_pa - 14.0 * G_0 + 4.5 * K_0_pa * Kprime_0) * f * f
+    );
 
     return G;
 }
@@ -300,23 +347,31 @@ double isothermal_bulk_modulus_reuss( 	double temperature,
     double debye_T = debye_temperature(V_0 / volume, grueneisen_0, q_0, Debye_0);
     double gr = grueneisen_parameter_slb(V_0, volume, grueneisen_0, q_0);
 
+    /* MAGEMin's sb endmember database stores n (atoms per formula unit) with a
+       sign baked in for compute_G0's own Newton-iteration algebra; thermal_energy()/
+       molar_heat_capacity_v() are direct burnman ports and require the physical
+       (positive) atom count - see the same fix in compute_G0_burnman(). */
+    double n_abs = fabs(n);
+
     // thermal energy at temperature T
-    double E_th = thermal_energy(temperature, debye_T, n);
+    double E_th = thermal_energy(temperature, debye_T, n_abs);
 
     // thermal energy at reference temperature
-    double E_th_ref = thermal_energy(T_0, debye_T, n);
+    double E_th_ref = thermal_energy(T_0, debye_T, n_abs);
 
     // heat capacity at temperature T
-    double C_v = molar_heat_capacity_v(temperature, debye_T, n);
+    double C_v = molar_heat_capacity_v(temperature, debye_T, n_abs);
 
     // heat capacity at reference temperature
-    double C_v_ref = molar_heat_capacity_v(T_0, debye_T, n);
+    double C_v_ref = molar_heat_capacity_v(T_0, debye_T, n_abs);
 
     double q = volume_dependent_q(V_0 / volume, grueneisen_0, q_0);
 
+    /* volume is in MAGEMin's native J/bar units; 1 J/bar = 1e-5 m^3 (1 bar = 1e5 Pa),
+       so volume/1e5 converts to m^3 to match E_th/C_v's SI (J) units - NOT volume/1e4. */
     double K = bulk_modulus(volume, V_0, K_0, Kprime_0)
-        + (gr + 1.0 - q) * (gr / (volume/1e4)) * (E_th - E_th_ref)
-        - (pow(gr, 2.0) / (volume/1e4)) * (C_v * temperature - C_v_ref * T_0);
+        + (gr + 1.0 - q) * (gr / (volume/1e5)) * (E_th - E_th_ref)
+        - (pow(gr, 2.0) / (volume/1e5)) * (C_v * temperature - C_v_ref * T_0);
 
     return K;
 }
@@ -325,20 +380,31 @@ double isothermal_bulk_modulus_reuss( 	double temperature,
 	Returns shear modulus :math:`[Pa]`
 	** 'Borrowed' from Burnman **
 */
-double shear_modulus(	double temperature, 
-						double volume, 
-						double T_0, double V_0, 
-						double grueneisen_0, double q_0, double Debye_0, double n, 
-						double G_0, double Gprime_0, double K_0, double eta_s_0) {
+double shear_modulus(	double temperature,
+						double volume,
+						double T_0, double V_0,
+						double grueneisen_0, double q_0, double Debye_0, double n,
+						double G_0, double Gprime_0, double K_0, double Kprime_0, double eta_s_0) {
 
     double debye_T 	= debye_temperature(V_0 / volume, grueneisen_0, q_0, Debye_0);
     double eta_s 	= isotropic_eta_s(V_0 / volume, grueneisen_0, eta_s_0, q_0);
 
-    double E_th 	= thermal_energy(temperature, debye_T, n);
-    double E_th_ref = thermal_energy(T_0, debye_T, n);
+    /* see isothermal_bulk_modulus_reuss()/compute_G0_burnman() for why fabs(n) is needed */
+    double n_abs = fabs(n);
+    double E_th 	= thermal_energy(temperature, debye_T, n_abs);
+    double E_th_ref = thermal_energy(T_0, debye_T, n_abs);
 
-	return shear_modulus_second_order(volume, V_0, G_0, Gprime_0, K_0)
-		- eta_s * (E_th - E_th_ref) / (volume/1e4);
+    double G_BM;
+    if (SB_eos_formulation == 1 || SB_eos_formulation == 2){
+        G_BM = shear_modulus_third_order(volume, V_0, G_0, Gprime_0, K_0, Kprime_0);
+    }
+    else{
+        G_BM = shear_modulus_second_order(volume, V_0, G_0, Gprime_0, K_0);
+    }
+
+	/* volume is in MAGEMin's native J/bar units; volume/1e5 converts to m^3 (see
+	   isothermal_bulk_modulus_reuss()) - NOT volume/1e4. */
+	return G_BM - eta_s * (E_th - E_th_ref) / (volume/1e5);
 
 }
 
@@ -481,10 +547,517 @@ double helmholtz_free_energy(double pressure, double temperature, double volume,
 }
 
 /*
+	Pressure residual P(V,T) - P_target for the SLB EOS, matching burnman's
+	_delta_pressure (slb.py). Used to solve for V via bracket + Brent's method
+	instead of compute_G0's Newton iteration. Re-uses thermal_energy(), already
+	defined above in this file (depends on the Chebyshev-Debye machinery), so
+	this stays local to SB_gem_function.c rather than going through toolkit.c's
+	AFunction()/BrentRoots() dispatcher.
+
+	data = { P_target, T, V_0, T_0, Debye_0, n, a1_ii, a2_iikk, b_iikk, b_iikkmm, bel_0, gel }
+	** 'Borrowed' from Burnman **
+*/
+double sb_pressure_residual(double v, double *data) {
+	double P_target  = data[0];
+	double T         = data[1];
+	double V_0       = data[2];
+	double T_0       = data[3];
+	double Debye_0   = data[4];
+	double n         = data[5];
+	double a1_ii     = data[6];
+	double a2_iikk   = data[7];
+	double b_iikk    = data[8];
+	double b_iikkmm  = data[9];
+	double bel_0     = data[10];
+	double gel       = data[11];
+
+	double f           = 0.5 * (pow(V_0 / v, 2.0 / 3.0) - 1.0);
+	double nu_o_nu0_sq = 1.0 + a1_ii * f + 0.5 * a2_iikk * f * f;
+
+	/* Outside this range the finite-strain Debye temperature expansion goes
+	   imaginary (same condition burnman's _debye_temperature() raises on) -
+	   signal invalidity with NaN instead of silently substituting debye_T=0,
+	   which would fabricate a wrong-but-finite root. sb_solve_volume/sb_brent_root
+	   treat NaN as failure and the caller falls back to compute_G0(). */
+	if (nu_o_nu0_sq <= 0.0) {
+		return NAN;
+	}
+	double debye_T  = Debye_0 * sqrt(nu_o_nu0_sq);
+
+	double E_th     = thermal_energy(T,   debye_T, n);
+	double E_th_ref = thermal_energy(T_0, debye_T, n);
+	double gr       = 1.0 / 6.0 / nu_o_nu0_sq * (2.0 * f + 1.0) * (a1_ii + a2_iikk * f);
+
+	double Pel = 0.0;
+	if (bel_0 != 0.0) {
+		Pel = 0.5 * gel * bel_0 * pow(v / V_0, gel) * (T * T - T_0 * T_0) / v;
+	}
+
+	return (1.0 / 3.0) * pow(1.0 + 2.0 * f, 5.0 / 2.0) * (b_iikk * f + 0.5 * b_iikkmm * f * f)
+		+ gr * (E_th - E_th_ref) / v + Pel - P_target;
+}
+
+/*
+	Brent's method root-finder, adapted from BrentRoots (toolkit.c) but calling
+	sb_pressure_residual() directly instead of dispatching through AFunction(mode,...).
+	RootBracketed()/Minimum() are shared with toolkit.c via toolkit.h.
+*/
+double sb_brent_root(double x1, double x2, double *data, double Tolerance, int maxIterations, int *error) {
+
+	double FPP = 1e-11, nearzero = 1e-40;
+	double result, AA, BB, CC, DD, EE, FA, FB, FC, Tol1, PP, QQ, RR, SS, xm;
+	int i;
+	bool done;
+
+	result = 0.0; EE = 0.0; CC = 0.0;
+	i = 0; done = false; *error = 0;
+	AA = x1; BB = x2; FA = sb_pressure_residual(AA,data); FB = sb_pressure_residual(BB,data);
+
+	/* RootBracketed() treats NaN as "bracketed" (NaN fails both > 0 and < 0
+	   tests), so a NaN residual (volume outside the EOS's valid range, see
+	   sb_pressure_residual) must be caught explicitly here or it would be
+	   chased by the iteration below and silently propagate a NaN/bogus root. */
+	if (isnan(FA) || isnan(FB)) {
+		*error = 1;
+		return x1;
+	}
+
+	if (!(RootBracketed(FA,FB))) {
+		*error = 1;
+		return x1;
+	}
+
+	FC = FB;
+	do {
+		if (!(RootBracketed(FC,FB))) {
+			CC = AA; FC = FA; DD = BB - AA; EE = DD;
+		}
+		if (fabs(FC) < fabs(FB)) {
+			AA = BB; BB = CC; CC = AA;
+			FA = FB; FB = FC; FC = FA;
+		}
+		Tol1 = 2.0 * FPP * fabs(BB) + 0.5 * Tolerance;
+		xm = 0.5 * (CC-BB);
+		if ((fabs(xm) <= Tol1) || (fabs(FA) < nearzero)) {
+			result = BB;
+			done = true;
+		}
+		else {
+			if ((fabs(EE) >= Tol1) && (fabs(FA) > fabs(FB))) {
+				SS = FB/FA;
+				if (fabs(AA - CC) < nearzero) {
+					PP = 2.0 * xm * SS;
+					QQ = 1.0 - SS;
+				}
+				else {
+					QQ = FA/FC;
+					RR = FB/FC;
+					PP = SS * (2.0 * xm * QQ * (QQ - RR) - (BB-AA) * (RR - 1.0));
+					QQ = (QQ - 1.0) * (RR - 1.0) * (SS - 1.0);
+				}
+				if (PP > nearzero) QQ = -QQ;
+				PP = fabs(PP);
+				if ((2.0 * PP) < Minimum(3.0*xm*QQ-fabs(Tol1 * QQ), fabs(EE * QQ))) {
+					EE = DD; DD = PP/QQ;
+				}
+				else {
+					DD = xm; EE = DD;
+				}
+			}
+			else {
+				DD = xm; EE = DD;
+			}
+			AA = BB;
+			FA = FB;
+			if (fabs(DD) > Tol1) BB = BB + DD;
+			else {
+				if (xm > 0.0) BB = BB + fabs(Tol1);
+				else BB = BB - fabs(Tol1);
+			}
+			FB = sb_pressure_residual(BB,data);
+			if (isnan(FB)) {
+				*error = 1;
+				return x1;
+			}
+			i++;
+		}
+	} while ((!done) && (i < maxIterations));
+
+	if (i >= maxIterations) *error = 2;
+	return result;
+}
+
+/*
+	Solves for the equilibrium volume via a golden-ratio bracket expansion
+	followed by Brent's method, matching burnman's volume() (slb.py), instead
+	of compute_G0's Newton iteration. Returns 0 on success, 1 if no bracket
+	could be found within maxiter steps.
+	** 'Borrowed' from Burnman **
+*/
+int sb_solve_volume(double *V, double P_target, double *data, double V_0) {
+
+	double dx = fabs(1.0e-2 * V_0);
+	double ratio = 1.618033988749895;
+	int maxiter = 100;
+
+	double x0 = V_0;
+	double f0 = sb_pressure_residual(x0,data);
+	double x_left = x0 - dx, x_right = x0 + dx;
+	double f_left = sb_pressure_residual(x_left,data);
+	double f_right = sb_pressure_residual(x_right,data);
+
+	/* overshot zero, try making dx smaller */
+	if ((f0 - f_left) * (f_right - f0) < 0.0) {
+		while ((f0 - f_left) * (f_right - f0) < 0.0 && dx > 1.0e-12 * V_0) {
+			dx /= ratio;
+			x_left = x0 - dx; x_right = x0 + dx;
+			f_left = sb_pressure_residual(x_left,data);
+			f_right = sb_pressure_residual(x_right,data);
+		}
+	}
+
+	for (int i = 0; i < maxiter; i++) {
+		if (RootBracketed(f_left,f0)) {
+			int error;
+			*V = sb_brent_root(x_left, x0, data, 1.0e-12*V_0, 100, &error);
+			return (error == 0) ? 0 : 1;
+		}
+		if (RootBracketed(f0,f_right)) {
+			int error;
+			*V = sb_brent_root(x0, x_right, data, 1.0e-12*V_0, 100, &error);
+			return (error == 0) ? 0 : 1;
+		}
+		dx *= ratio;
+		x_left = x0 - dx; x_right = x0 + dx;
+		f_left = sb_pressure_residual(x_left,data);
+		f_right = sb_pressure_residual(x_right,data);
+		if (x_left <= 0.0) { return 1; }
+	}
+
+	return 1;
+}
+
+/*
+	Volume bounds within which a real equilibrium volume can exist, ported
+	from HeFESTo (L. Stixrude & C. Lithgow-Bertelloni's own reference
+	implementation, parset.f) - used by compute_G0_burnman_bounded()/
+	sb_solve_volume_bounded() (SB_eos=2) to keep the bracket search from
+	ever evaluating the residual outside the EOS's valid range, rather
+	than discovering invalidity after the fact (compute_G0_burnman()/
+	SB_eos=1's approach).
+
+	Two independent bounds are computed and combined:
+	- "vibrational" limit: roots of nu_o_nu0_sq(f) = vsquaredminimum
+	  (HeFESTo requires some safety margin above the literal zero-crossing),
+	  i.e. (1-vsquaredminimum) + a1_ii*f + 0.5*a2_iikk*f^2 = 0, converted
+	  to volume via V = V_0*(2f+1)^(-3/2) (inverse of f = 0.5*((V_0/V)^(2/3)-1)).
+	- "spinodal" limit: roots of the cold (BM3) bulk modulus going
+	  non-positive, 1 + (3Kp-5)*f + 13.5*(Kp-4)*f^2 = 0 - a mechanical
+	  stability bound, independent of the thermal one.
+	Both are clamped to [V_0/10, V_0*10] (HeFESTo's own fallback floor/ceiling),
+	then combined by taking the tighter of the two (vl=max, vu=min).
+*/
+static void sb_volume_bounds(double a1_ii, double a2_iikk, double Kp, double V_0,
+								double *vl, double *vu) {
+
+	const double vsquaredminimum = 0.1;
+	double vlow = 1.0e-15, vupp = 1.0e15;
+
+	/* --- vibrational limit --- */
+	double c = 1.0 - vsquaredminimum;
+	double b = a1_ii;
+	double a = 0.5 * a2_iikk;
+	double det = b*b - 4.0*a*c;
+	double fextremum = 0.0, vextremum = vupp;
+	if (a != 0.0) {
+		fextremum = -b / (2.0*a);
+		if (2.0*fextremum + 1.0 > 0.0) {
+			vextremum = V_0 * pow(2.0*fextremum + 1.0, -1.5);
+		}
+	}
+
+	if (det >= 0.0) {
+		if (a == 0.0) {
+			double f1 = (b != 0.0) ? -c/b : 0.0;
+			if (f1 > 0.0) vlow = V_0 * pow(2.0*f1 + 1.0, -1.5);
+			if (f1 < 0.0) vupp = V_0 * pow(2.0*f1 + 1.0, -1.5);
+		} else {
+			double sq = sqrt(det);
+			double f1 = (-b - sq) / (2.0*a);
+			double f2 = (-b + sq) / (2.0*a);
+			double fmax = (f1 > f2) ? f1 : f2;
+			double fmin = (f1 < f2) ? f1 : f2;
+			if (fmax < 0.0) {
+				vupp = V_0 * pow(2.0*fmax + 1.0, -1.5);
+			} else if (fmin > 0.0) {
+				vlow = V_0 * pow(2.0*fmin + 1.0, -1.5);
+			} else {
+				vupp = V_0 * pow(2.0*fmin + 1.0, -1.5);
+				vlow = V_0 * pow(2.0*fmax + 1.0, -1.5);
+			}
+		}
+	}
+	/* require vibrational frequency to increase with increasing f (decreasing V) */
+	if (fextremum > 0.0) vlow = (vlow > vextremum) ? vlow : vextremum;
+	if (fextremum < 0.0) vupp = (vupp < vextremum) ? vupp : vextremum;
+
+	double vlim_lo = ((vlow > V_0/10.0) ? vlow : V_0/10.0);
+	double vlim_hi = ((vupp < V_0*10.0) ? vupp : V_0*10.0);
+
+	/* --- spinodal limit (cold bulk modulus stays positive) --- */
+	double csp = 1.0;
+	double bsp = 3.0*Kp - 5.0;
+	double asp = 13.5*(Kp - 4.0);
+	double detsp = bsp*bsp - 4.0*asp*csp;
+	double vsplow = 1.0e-15, vspupp = 1.0e15;
+	if (detsp >= 0.0) {
+		if (asp == 0.0) {
+			double f1 = (bsp != 0.0) ? -csp/bsp : 0.0;
+			vspupp = V_0 * pow(2.0*f1 + 1.0, -1.5);
+		} else {
+			double sq = sqrt(detsp);
+			double f1 = (-bsp - sq) / (2.0*asp);
+			double f2 = (-bsp + sq) / (2.0*asp);
+			double fmax = (f1 > f2) ? f1 : f2;
+			double fmin = (f1 < f2) ? f1 : f2;
+			if (fmax < 0.0) {
+				vspupp = V_0 * pow(2.0*fmax + 1.0, -1.5);
+			} else if (fmin > 0.0) {
+				vsplow = V_0 * pow(2.0*fmin + 1.0, -1.5);
+			} else {
+				vspupp = V_0 * pow(2.0*fmin + 1.0, -1.5);
+				vsplow = V_0 * pow(2.0*fmax + 1.0, -1.5);
+			}
+		}
+	}
+	double vsp_lo = ((vsplow > V_0/10.0) ? vsplow : V_0/10.0);
+	double vsp_hi = ((vspupp < V_0*10.0) ? vspupp : V_0*10.0);
+
+	*vl = (vlim_lo > vsp_lo) ? vlim_lo : vsp_lo;
+	*vu = (vlim_hi < vsp_hi) ? vlim_hi : vsp_hi;
+}
+
+/*
+	Same golden-ratio bracket expansion as sb_solve_volume(), but hard-clamped
+	to [vl,vu] (sb_volume_bounds()) instead of expanding without limit -
+	mirrors HeFESTo's cage.f. Returns 0 on success, 1 if no root exists
+	within [vl,vu] (genuine vibrational/spinodal instability at this P,T).
+*/
+int sb_solve_volume_bounded(double *V, double P_target, double *data, double V_0, double vl, double vu) {
+
+	double ratio = 1.618033988749895;
+	int maxiter = 100;
+
+	if (!(V_0 > vl && V_0 < vu)) { return 1; }
+
+	double x0 = V_0;
+	double f0 = sb_pressure_residual(x0,data);
+	double dx = fabs(1.0e-2 * V_0);
+	double x_left  = (x0 - dx > vl) ? x0 - dx : vl;
+	double x_right = (x0 + dx < vu) ? x0 + dx : vu;
+	double f_left  = sb_pressure_residual(x_left,data);
+	double f_right = sb_pressure_residual(x_right,data);
+
+	for (int i = 0; i < maxiter; i++) {
+		if (!isnan(f_left) && RootBracketed(f_left,f0)) {
+			int error;
+			*V = sb_brent_root(x_left, x0, data, 1.0e-12*V_0, 100, &error);
+			return (error == 0) ? 0 : 1;
+		}
+		if (!isnan(f_right) && RootBracketed(f0,f_right)) {
+			int error;
+			*V = sb_brent_root(x0, x_right, data, 1.0e-12*V_0, 100, &error);
+			return (error == 0) ? 0 : 1;
+		}
+		if (x_left <= vl && x_right >= vu) { return 1; }
+		dx *= ratio;
+		x_left  = (x0 - dx > vl) ? x0 - dx : vl;
+		x_right = (x0 + dx < vu) ? x0 + dx : vu;
+		f_left  = sb_pressure_residual(x_left,data);
+		f_right = sb_pressure_residual(x_right,data);
+	}
+
+	return 1;
+}
+
+/* forward declaration: compute_G0_burnman()/compute_G0_burnman_bounded() fall back to this if no volume bracket is found */
+double compute_G0(	double t, double p, double *V,
+					double f0, double n, double v0, double k00, double k0p,
+					double z00, double gamma0, double q0, double cme,
+					double g0, double g0p, int nativeFe);
+
+/*
+	Burnman-style alternative to compute_G0(): solves for volume via
+	bracket+Brent (sb_solve_volume) instead of a Newton iteration, then
+	assembles Gibbs energy the way burnman does it
+	(gibbs_free_energy = helmholtz_free_energy + P*V), reusing the
+	already-present helmholtz_free_energy(). Electronic (fel) and magnetic
+	(Gmag) corrections for native Fe phases are identical to compute_G0's
+	(same physics, solver-independent) and applied the same way.
+*/
+double compute_G0_burnman(	double t,
+							double p,
+							double *V,
+
+							double f0,
+							double n,
+							double v0,
+							double k00,
+							double k0p,
+							double z00,
+							double gamma0,
+							double q0,
+							double cme,
+							double g0,
+							double g0p,
+							int nativeFe) {
+
+	double b1 = 0.0, b2 = 0.0, Tc = 0.0, tau, delt2;
+	double fel, Gmag, D, Klro, Ksro, v;
+
+	if (nativeFe == 1) { // fea
+		b1 = 0.00388; b2 = 1.47960; Tc = 1043.01; tau = t/Tc;
+	} else if (nativeFe == 2) { // fee
+		b1 = 0.00411; b2 = 1.69270;
+	} else if (nativeFe == 3) { // feg
+		b1 = 0.00375; b2 = 1.4796;
+	}
+
+	double a1_ii    = 6.0 * gamma0;
+	double a2_iikk  = -12.0*gamma0 + 36.0*pow(gamma0,2.0) - 18.0*q0*gamma0;
+	double b_iikk   = 9.0 * k00;
+	double b_iikkmm = 27.0 * k00 * (k0p - 4.0);
+
+	/* MAGEMin's sb endmember database stores n (atoms per formula unit) with a
+	   sign baked in for compute_G0's own Newton-iteration algebra; thermal_energy()/
+	   helmholtz_free_energy() are direct burnman ports and require the physical
+	   (positive) atom count, so use fabs(n) here and below. */
+	double n_abs = fabs(n);
+
+	double data[12] = { p, t, v0, T0, z00, n_abs, a1_ii, a2_iikk, b_iikk, b_iikkmm, b1, b2 };
+
+	if (sb_solve_volume(&v, p, data, v0) != 0) {
+		/* fall back to the legacy Newton solver if no bracket was found
+		   (e.g. far outside the validated P-T range) */
+		return compute_G0(t, p, V, f0, n, v0, k00, k0p, z00, gamma0, q0, cme, g0, g0p, nativeFe);
+	}
+
+	*V = v;
+
+	delt2 = t*t - T0*T0;
+	fel   = 0.0;
+	if (nativeFe > 0) {
+		fel = -b1 / 2.0 * pow(v / v0, b2) * delt2;
+	}
+
+	double F  = helmholtz_free_energy(p, t, v, v0, T0, f0, k00, k0p, n_abs, gamma0, q0, z00) + fel;
+	double G0 = F + p * v - t * cme;
+
+	/* Magnetic contribution to Gibbs free energy (Chin-Hertzman-Sundman model) */
+	if (nativeFe == 1) { // only fea is assumed magnetic
+		D    = (518.0/1125.0)+(11692.0/15975.0)*(1.0/0.4 - 1.0);
+		Klro = 9.46 / D;
+		Ksro = (474.0/497.0)*(1.0/0.4 - 1.0)*Klro;
+		if (tau <= 1.0) {
+			Gmag = t/D*9.46*( 1.0 - (79.0*pow(tau, -1.0)/140/0.4 + 474.0/497.0*(1.0/0.4 - 1.0)) * (pow(tau, 3.0)/6 + pow(tau, 9.0)/135 + pow(tau, 15.0)/600) );
+		} else {
+			Gmag = -t/D*9.46*(pow(tau, -5.0)/10.0 + pow(tau, -15.0)/315.0 + pow(tau, -25.0)/1500.0);
+		}
+		G0 += Gmag;
+	}
+
+	return G0;
+}
+
+/*
+	Same as compute_G0_burnman(), but the volume solve is hard-bounded by
+	HeFESTo's analytic vibrational+spinodal limits (sb_volume_bounds(),
+	sb_solve_volume_bounded()) instead of an unbounded bracket expansion -
+	this is the only difference from compute_G0_burnman(); the EOS formula
+	(BM3 + single-Debye MGD thermal model) is identical and already matches
+	HeFESTo's own reduced form for standard (single-Debye-temperature)
+	mantle minerals, so it is reused verbatim here.
+*/
+double compute_G0_burnman_bounded(	double t,
+									double p,
+									double *V,
+
+									double f0,
+									double n,
+									double v0,
+									double k00,
+									double k0p,
+									double z00,
+									double gamma0,
+									double q0,
+									double cme,
+									double g0,
+									double g0p,
+									int nativeFe) {
+
+	double b1 = 0.0, b2 = 0.0, Tc = 0.0, tau, delt2;
+	double fel, Gmag, D, Klro, Ksro, v;
+
+	if (nativeFe == 1) { // fea
+		b1 = 0.00388; b2 = 1.47960; Tc = 1043.01; tau = t/Tc;
+	} else if (nativeFe == 2) { // fee
+		b1 = 0.00411; b2 = 1.69270;
+	} else if (nativeFe == 3) { // feg
+		b1 = 0.00375; b2 = 1.4796;
+	}
+
+	double n_abs = fabs(n);
+	double a1_ii    = 6.0 * gamma0;
+	double a2_iikk  = -12.0*gamma0 + 36.0*pow(gamma0,2.0) - 18.0*q0*gamma0;
+	double b_iikk   = 9.0 * k00;
+	double b_iikkmm = 27.0 * k00 * (k0p - 4.0);
+
+	double vl, vu;
+	sb_volume_bounds(a1_ii, a2_iikk, k0p, v0, &vl, &vu);
+
+	double data[12] = { p, t, v0, T0, z00, n_abs, a1_ii, a2_iikk, b_iikk, b_iikkmm, b1, b2 };
+
+	if (sb_solve_volume_bounded(&v, p, data, v0, vl, vu) != 0) {
+		/* fall back to the legacy Newton solver if no bracket was found
+		   within HeFESTo's own vibrational/spinodal bounds - a genuine
+		   instability at this P,T, not just a search-range artifact.
+		   (SB_G_EM_function guards against this fallback itself being
+		   NaN/Inf, regardless of which SB_eos formulation produced it.) */
+		return compute_G0(t, p, V, f0, n, v0, k00, k0p, z00, gamma0, q0, cme, g0, g0p, nativeFe);
+	}
+
+	*V = v;
+
+	delt2 = t*t - T0*T0;
+	fel   = 0.0;
+	if (nativeFe > 0) {
+		fel = -b1 / 2.0 * pow(v / v0, b2) * delt2;
+	}
+
+	double F  = helmholtz_free_energy(p, t, v, v0, T0, f0, k00, k0p, n_abs, gamma0, q0, z00) + fel;
+	double G0 = F + p * v - t * cme;
+
+	/* Magnetic contribution to Gibbs free energy (Chin-Hertzman-Sundman model) */
+	if (nativeFe == 1) { // only fea is assumed magnetic
+		D    = (518.0/1125.0)+(11692.0/15975.0)*(1.0/0.4 - 1.0);
+		Klro = 9.46 / D;
+		Ksro = (474.0/497.0)*(1.0/0.4 - 1.0)*Klro;
+		if (tau <= 1.0) {
+			Gmag = t/D*9.46*( 1.0 - (79.0*pow(tau, -1.0)/140/0.4 + 474.0/497.0*(1.0/0.4 - 1.0)) * (pow(tau, 3.0)/6 + pow(tau, 9.0)/135 + pow(tau, 15.0)/600) );
+		} else {
+			Gmag = -t/D*9.46*(pow(tau, -5.0)/10.0 + pow(tau, -15.0)/315.0 + pow(tau, -25.0)/1500.0);
+		}
+		G0 += Gmag;
+	}
+
+	return G0;
+}
+
+/*
 	Returns Gibbs energy
 	** 'Borrowed' from Perple_X **
 */
-double compute_G0(	double t, 
+double compute_G0(	double t,
 					double p,
 					double *V,
 
@@ -582,7 +1155,15 @@ double compute_G0(	double t,
 
         z = 1.0 + (aii + aiikk2 * f) * f;
 
-        if (z < 0.0 || v / v0 > 100.0 || v / v0 < 0.01) break;
+        /* Perple_X's own GSTX routine (the original this was ported from)
+           has no v/v0 sanity range in this loop at all - only v<=0; the
+           [0.01,100] range below was introduced during the C port and is
+           looser than both Perple_X's own initial-guess bound (v0/10..v0*10,
+           see above) and HeFESTo's analytic fallback range. Under the
+           correction, tighten to match those. */
+        double v_v0_hi = SB_eos_correction ? 10.0  : 100.0;
+        double v_v0_lo = SB_eos_correction ? 0.1   : 0.01;
+        if (z < 0.0 || v / v0 > v_v0_hi || v / v0 < v_v0_lo) break;
 
         root = sqrt(z);
 
@@ -629,7 +1210,7 @@ double compute_G0(	double t,
         v = v - dv;
 
         if (itic > 2048 || fabs(f1) > 1e40) {
-            if (fabs(f1 / p) < 1e-10) ibad = 5;
+            if (fabs(f1 / p) < 1e-10) { ibad = 5; bad = false; }
             break;
         } else if (fabs(dv / (1.0 + v)) < 1e-10) {
             bad = false;
@@ -638,6 +1219,19 @@ double compute_G0(	double t,
     }
 
 	*V = v;
+
+    /* compute_G0's own convergence flag ('bad') was tracked but never acted
+       upon - a non-converged Newton iteration would silently return whatever
+       volume/G0 it last landed on. Perple_X's original GSTX routine instead
+       destabilizes the phase on failure; under the correction, return NAN
+       (caught by SB_G_EM_function's centralized NaN/Inf guard, which applies
+       the same large-penalty-G treatment) instead of trusting a divergent v.
+       *V is also reset to v0 so any downstream property (shear/bulk modulus,
+       reported volume) computed from it isn't built on a garbage value. */
+    if (SB_eos_correction && bad) {
+        *V = v0;
+        return NAN;
+    }
 
     // Recompute (converged) electronic contribution
     if (nativeFe > 0) {
@@ -745,6 +1339,34 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 
         /* gbase = (enthalpy - T*entropy + cpterms + vterm + RTlnf) */
         gbase = (0.0 - (T-t0)*F0 + cpterms + 0.0 + 0.0);
+    } else if (SB_eos_formulation == 1) {
+        gbase = compute_G0_burnman(	T, P, &V,
+                            F0,
+                            n,
+                            V0,
+                            K0,
+                            Kp,
+                            z00,
+                            gamma0,
+                            q0,
+                            cme,
+                            g0,
+                            g0p,
+                            nativeFe);
+    } else if (SB_eos_formulation == 2) {
+        gbase = compute_G0_burnman_bounded(	T, P, &V,
+                            F0,
+                            n,
+                            V0,
+                            K0,
+                            Kp,
+                            z00,
+                            gamma0,
+                            q0,
+                            cme,
+                            g0,
+                            g0p,
+                            nativeFe);
     } else {
         gbase = compute_G0(	T, P, &V,
                             F0,
@@ -759,6 +1381,21 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
                             g0,
                             g0p,
                             nativeFe);
+    }
+
+    if (isnan(gbase) || isinf(gbase)) {
+        /* Genuine volume/Gibbs solve failure (vibrational or spinodal
+           instability at this P,T) rather than a search-range artifact -
+           can occur with any of the three SB_eos formulations. Nothing
+           downstream in the LP/PGE pipeline guards against NaN/Inf
+           endmember G's (they compare as neither favorable nor
+           unfavorable and can corrupt the whole-system solve), so -
+           matching HeFESTo's own gspec.f philosophy of forcing G
+           arbitrarily large for an unstable species rather than letting
+           the failure propagate - substitute a large but finite penalty.
+           1e9 J (-> 1e6 kJ after the /kbar2bar conversion below) matches
+           the existing penalty-G convention in simplex_levelling.c. */
+        gbase = 1.0e9;
     }
 
 	/* fill structure to send back to main */
@@ -795,10 +1432,10 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
         PP_ref_db.phase_expansivity  = 0.0;
         PP_ref_db.phase_cp           = 0.0;
     } else {
-	PP_ref_db.phase_shearModulus  = shear_modulus( 	T, 	V, 
-													T0, V0, 
-													gamma0, q0, z00,  n, 
-													g0, g0p, K0, etaS0)/1e8;
+	PP_ref_db.phase_shearModulus  = shear_modulus( 	T, 	V,
+													T0, V0,
+													gamma0, q0, z00,  n,
+													g0, g0p, K0, Kp, etaS0)/1e8;
 
 
 	PP_ref_db.phase_bulkModulus  =  isothermal_bulk_modulus_reuss(	T, 	V, 

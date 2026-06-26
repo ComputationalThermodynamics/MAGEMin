@@ -47,8 +47,6 @@ T           =   600.0
 out         =   point_wise_minimization(P,T, data);
 Finalize_MAGEMin(data)
 
-
-
 =#
 
 data        =   Initialize_MAGEMin("sb21", verbose=-1);

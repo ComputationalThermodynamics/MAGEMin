@@ -148,6 +148,14 @@ function Access_SB_EM_DB(id, EM_dataset)
     ccall((:Access_SB_EM_DB, libMAGEMin), EM_db_sb, (Cint, Cint), id, EM_dataset)
 end
 
+function SB_set_eos_formulation(mode)
+    ccall((:SB_set_eos_formulation, libMAGEMin), Cvoid, (Cint,), mode)
+end
+
+function SB_set_eos_correction(mode)
+    ccall((:SB_set_eos_correction, libMAGEMin), Cvoid, (Cint,), mode)
+end
+
 function SB_G_EM_function(EM_database, len_ox, id, bulk_rock, apo, P, T, name, state)
     ccall((:SB_G_EM_function, libMAGEMin), PP_ref, (Cint, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), EM_database, len_ox, id, bulk_rock, apo, P, T, name, state)
 end
@@ -616,6 +624,8 @@ mutable struct global_variables
     mpIlm::Cint
     ig_ed::Cint
     fixed_bulk::Cint
+    SB_eos::Cint
+    SB_eos_cor::Cint
     fluidSpec::Cint
     n_fs_db::Cint
     test::Cint

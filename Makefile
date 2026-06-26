@@ -73,7 +73,7 @@ OBJECTS=$(SOURCES:.c=.o)
  
 all: $(OBJECTS)
 	$(CC)  -o $(EXE_NAME) $(OBJECTS) $(INC) $(LIBS)  -flto
-	rm src/*.o src/TC_database/*.o
+	rm src/*.o src/TC_database/*.o src/SB_database/*.o
 
 lib: $(OBJECTS)
 	$(CC) -shared -fPIC -o libMAGEMin.dylib $(OBJECTS) $(INC) $(LIBS) -flto
