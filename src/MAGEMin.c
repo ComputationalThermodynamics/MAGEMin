@@ -293,8 +293,14 @@ int runMAGEMin(			int    argc,
 	if (gv.output_matlab >= 1){
 		mergeParallel_matlab(gv);
 	}
-	/* free memory allocated to solution and pure phases */
-	FreeDatabases(gv, DB, z_b);
+	/* free memory allocated to the input file data, if one was provided (must run
+	   before FreeDatabases, which frees gv.File itself) */
+	if (strcmp( gv.File, "none") != 0){
+		free_input_data(input_data, gv.n_points);
+	}
+
+	/* free memory allocated to solution and pure phases, and to the simplex levelling structures */
+	FreeDatabases(gv, DB, z_b, &splx_data);
 
 	/* print the time */
 	u = clock() - u; 
@@ -875,7 +881,7 @@ global_variable SetupDatabase(			global_variable 	 gv,
 
 
 	// checks if research group is correct, otherwise sets to default
-	if 	( strcmp(gv.research_group, "tc") 	== 0 || strcmp(gv.research_group, "sb") == 0 /* || strcmp(gv.research_group, "gh") == 0 */){
+	if 	( strcmp(gv.research_group, "tc") 	== 0 || strcmp(gv.research_group, "sb") == 0){// || strcmp(gv.research_group, "gh") == 0 ){
 	}
 	else{
 		printf(" WARNING: Unknown research group '%s' has been provided, setting default one 'tc'\n",gv.research_group);
@@ -1149,9 +1155,10 @@ Databases InitializeDatabases(	global_variable gv,
 /** 
   Free the memory associated with the databases
 **/
-void FreeDatabases(		global_variable gv, 
+void FreeDatabases(		global_variable gv,
 						Databases 		DB,
-						bulk_info 	 	z_b			){
+						bulk_info 	 	z_b,
+						simplex_data   *splx_data	){
 	int i, j, n_cat, n_xeos, n_em, n_sf, n_ox, n_pc, n_Ppc, n_cp, sym, ndif, pp, ss;
 
 	/*  ==================== SP ==============================  */
@@ -1212,6 +1219,7 @@ void FreeDatabases(		global_variable gv,
 	free(DB.sp[0].oxides);
 	free(DB.sp[0].elements);
 	free(DB.sp[0].ph);
+	free(DB.sp[0].sol_name);
 
 	free(DB.sp[0].bulk);
 	free(DB.sp[0].gamma);
@@ -1394,16 +1402,25 @@ void FreeDatabases(		global_variable gv,
 	}
 
 	/*  ==================== GV ==============================  */
-	/* It seems like unwrapped pointers using Julia creates conflicts when de-allocating memory */
-	// free(gv.outpath);
-	// free(gv.version);
-	// free(gv.File);
-	// free(gv.db);
-	// free(gv.sys_in);
-	// free(gv.buffer);	
-	// free(gv.arg_bulk);
-	// free(gv.arg_gamma);
-	// free(gv.bulk_rock);
+	/* Re-enabled 2026-07-19. Root cause of the earlier SIGABRT found: gv.buffer
+	   was being repointed at Julia-GC-owned memory by MAGEMinApp's
+	   refine_MAGEMin (AMR/MAGEMin_utils.jl, "gv[i].buffer = pointer(bufferType)")
+	   instead of being written into in place - freeing that was an invalid
+	   free on memory C never allocated. Fixed on the Julia side (now copies
+	   bytes into gv.buffer's original malloc'd buffer instead of repointing
+	   it), so gv.buffer stays a real, C-owned allocation for its whole
+	   lifetime again, same as the other fields below. None of the other 9
+	   fields are ever repointed like this anywhere in the Julia wrapper/app. */
+	free(gv.outpath);
+	free(gv.version);
+	free(gv.File);
+	free(gv.db);
+	free(gv.sys_in);
+	free(gv.buffer);
+	free(gv.research_group);
+	free(gv.arg_bulk);
+	free(gv.arg_gamma);
+	free(gv.bulk_rock);
 
 	n_ox 	= gv.len_ox;
 	pp 		= gv.len_pp;
@@ -1483,6 +1500,10 @@ void FreeDatabases(		global_variable gv,
 	free(DB.SS_ref_db);
 	free(DB.sp);
 	free(DB.cp);
+
+	/* ================ simplex levelling ============= */
+	destroy_simplex_A(splx_data);
+	destroy_simplex_B(splx_data);
 }
 
 /** 

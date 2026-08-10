@@ -1359,8 +1359,8 @@ function InitializeDatabases(gv, EM_database)
     ccall((:InitializeDatabases, libMAGEMin), Databases, (global_variable, Cint), gv, EM_database)
 end
 
-function FreeDatabases(gv, DB, z_b)
-    ccall((:FreeDatabases, libMAGEMin), Cvoid, (global_variable, Databases, bulk_info), gv, DB, z_b)
+function FreeDatabases(gv, DB, z_b, splx_data)
+    ccall((:FreeDatabases, libMAGEMin), Cvoid, (global_variable, Databases, bulk_info, Ptr{simplex_data}), gv, DB, z_b, splx_data)
 end
 
 function ComputeG0_point(EM_database, z_b, gv, PP_ref_db, SS_ref_db)
@@ -3190,6 +3190,10 @@ end
 
 function read_in_data(gv, input_data, n_points)
     ccall((:read_in_data, libMAGEMin), Cvoid, (global_variable, Ptr{io_data}, Cint), gv, input_data, n_points)
+end
+
+function free_input_data(input_data, n_points)
+    ccall((:free_input_data, libMAGEMin), Cvoid, (Ptr{io_data}, Cint), input_data, n_points)
 end
 
 struct ketopt_t

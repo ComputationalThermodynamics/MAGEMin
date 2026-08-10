@@ -170,7 +170,8 @@ void MAGEMin_Free(				MAGEMin_Handle *h				){
 
 	FreeDatabases(						h->gv,
 										h->DB,
-										h->z_b					);
+										h->z_b,
+									   &h->splx_data			);
 
 	free(h);
 }

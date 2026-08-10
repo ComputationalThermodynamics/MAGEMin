@@ -184,7 +184,7 @@ typedef struct global_variables {
 	/* LEVELLING */
 	double   LVL_time;			/** time taken for levelling (ms) */
 	double   em2ss_shift;		/** small value to retrieve x-eos from pure endmember after levelling */
-	
+
 	/* PSEUDOCOMPOUNDS */
 	double   bnd_filter_pc;     /** value of driving force the pseudocompound is considered to reduce the compositional space */
 	double   bnd_filter_pge;     /** value of driving force the pseudocompound is considered to reduce the compositional space */
@@ -856,9 +856,10 @@ typedef struct Database {	PP_ref     		 *PP_ref_db;		/** Pure phases 											
 Databases InitializeDatabases(				global_variable 	 gv, 
 											int 				 EM_database		);
 
-void FreeDatabases(							global_variable 	 gv, 
+void FreeDatabases(							global_variable 	 gv,
 											Databases			 DB,
-											bulk_info 	 		 z_b				);
+											bulk_info 	 		 z_b,
+											simplex_data		*splx_data			);
 											
 global_variable ComputeG0_point( 			int 				 EM_database,
 											bulk_info 	 		 z_b,

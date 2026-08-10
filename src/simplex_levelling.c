@@ -329,7 +329,7 @@ void swap_pure_endmembers(				bulk_info 	 		 z_b,
 		   live changes tc/um/mantle's existing LP-swap behavior (regression
 		   confirmed on tc "um" db, 20kbar/600C: Status 0 -> -1), so it's scoped
 		   to "gh" only here; tc/um/mantle keep the old (inert) behavior */
-		if ( strcmp(gv.research_group, "gh") == 0 || (strcmp( gv.SS_list[i], "ta") == 1 && strcmp( gv.SS_list[i], "oamp") == 1) ){												/** if SS is not filtered out then continue */
+		if ( strcmp(gv.research_group, "gh") == 0 ){										/** if SS is not filtered out then continue */
 			if (SS_ref_db[i].ss_flags[0] == 1){												/** if SS is not filtered out then continue */
 
 				for (int l = 0; l < SS_ref_db[i].n_em; l++){	
@@ -386,12 +386,12 @@ void swap_pure_endmembers(				bulk_info 	 		 z_b,
 				}
 			}}
 	}
-	
+
 }
 
 /**
   function to swp solution phase pseudocompounds
-*/	
+*/
 void swap_pseudocompounds(				bulk_info 	 		 z_b,
 										simplex_data 		*splx_data,
 										global_variable 	 gv,
@@ -1111,7 +1111,7 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 void run_simplex_pseudocompounds(		bulk_info 	 		z_b,
 										simplex_data 		*splx_data,
 										global_variable 	 gv,
-										
+
 										PP_ref 				*PP_ref_db,
 										SS_ref 				*SS_ref_db
 ){
@@ -1130,15 +1130,15 @@ void run_simplex_pseudocompounds(		bulk_info 	 		z_b,
 												splx_data,
 												gv,
 												PP_ref_db,
-												SS_ref_db	);	
+												SS_ref_db	);
 		}
 
 		swap_pure_phases(					z_b,
 											splx_data,
 											gv,
 											PP_ref_db,
-											SS_ref_db	);	
-							
+											SS_ref_db	);
+
 		swap_pseudocompounds(				z_b,
 											splx_data,
 											gv,
@@ -1314,9 +1314,9 @@ void run_metastable_levelling(			bulk_info 	 		 z_b,
 */	
 void run_simplex_levelling(				bulk_info 	 		 z_b,
 										simplex_data 		*splx_data,
-										
+
 										global_variable 	 gv,
-										
+
 										PP_ref 				*PP_ref_db,
 										SS_ref 				*SS_ref_db,
 										obj_type			*SS_objective
@@ -1329,14 +1329,14 @@ void run_simplex_levelling(				bulk_info 	 		 z_b,
 										splx_data,
 										gv,
 										PP_ref_db,
-										SS_ref_db				);	
+										SS_ref_db				);
 
 	if (gv.EM_database != 6 && strcmp(gv.research_group, "sb") 	!= 0){ //TMP fix, at the moment I don't have the return mapping function from p to x for Mantle database (nor for "sb" yet); "gh" has its own p2x_gh_generic (GH_P2X_init), see gh_objective_functions.c
 		swap_pure_endmembers(				z_b,
 											splx_data,
 											gv,
 											PP_ref_db,
-											SS_ref_db	);	
+											SS_ref_db	);
 	}
 
 	update_local_gamma(					d->A1,
@@ -1829,7 +1829,7 @@ global_variable run_levelling_function(		bulk_info 	 z_b,
 											gv,
 											PP_ref_db,
 											SS_ref_db,
-											SS_objective	);	
+											SS_objective	);
 	
 	/* update global variable gamma */
 	update_global_gamma_LU(					z_b,

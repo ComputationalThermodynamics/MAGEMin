@@ -143,7 +143,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.9.10 [19/07/2026]");		/** MAGEMin version 																*/
+	strcpy(gv.version,"1.9.11 [12/08/2026]");		/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
@@ -1131,7 +1131,13 @@ void init_simplex_A( 	simplex_data 		*splx_data,
 	/* prescribe tolerance parameters */
 	d->dG_B_tol	   = gv.re_in_df;
 	d->min_F_tol   = 1e6;
-	
+
+	/* n_Ox is normally (re)set to the active oxide count by reset_simplex_A()
+	   ahead of every point solve, but destroy_simplex_A() relies on it too
+	   (as the ph_id_A[] free loop bound) and can run before any point was
+	   ever solved, so it must never be left uninitialized here */
+	d->n_Ox        = gv.len_ox;
+
 	/* allocate reference assemblage memory */
 	d->A           = malloc ((gv.len_ox*gv.len_ox)  * sizeof(double));
 	d->Alu         = malloc ((gv.len_ox*gv.len_ox)  * sizeof(double));

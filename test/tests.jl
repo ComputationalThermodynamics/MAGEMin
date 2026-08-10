@@ -424,7 +424,7 @@ out         =   point_wise_minimization(P,T, gv, z_b, DB, splx_data, sys_in);
 @test out.G_system ≈ -797.7873865220898
 @test abs(out.s_cp[1] - 1208.466551730128) < 2.0
 @test sort(out.ph) == sort(["spl", "cpx",  "opx", "ol"])
-finalize_MAGEMin(gv,DB,z_b)
+finalize_MAGEMin(gv,DB,z_b,splx_data)
 
 @testset verbose=true "pointwise tests  " begin
     n       =   100;

@@ -40,7 +40,7 @@ void swap_pure_phases(				bulk_info 	 		 z_b,
 void swap_pure_endmembers(			bulk_info 	 		 z_b,
 									simplex_data 		*splx_data,
 									global_variable 	 gv,
-										
+
 									PP_ref 				*PP_ref_db,
 									SS_ref 				*SS_ref_db			);
 

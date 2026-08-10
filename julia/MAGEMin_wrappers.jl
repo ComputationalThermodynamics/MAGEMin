@@ -886,8 +886,7 @@ end
 """
 function Finalize_MAGEMin(dat::MAGEMin_Data)
     for id in 1:Threads.maxthreadid()
-        LibMAGEMin.FreeDatabases(dat.gv[id], dat.DB[id], dat.z_b[id])
-        # splx_data needs to be freed
+        LibMAGEMin.FreeDatabases(dat.gv[id], dat.DB[id], dat.z_b[id], pointer_from_objref(dat.splx_data[id]))
      end
      return nothing
 end
@@ -1066,7 +1065,7 @@ function  init_MAGEMin( db          :: String               =  "ig";
 end
 
 """
-    finalize_MAGEMin(gv, DB, z_b)
+    finalize_MAGEMin(gv, DB, z_b, splx_data)
 
     Free the memory allocated by `init_MAGEMin`.
 
@@ -1078,13 +1077,15 @@ end
         Thermodynamic database structure.
     z_b : bulk_infos
         Bulk rock information structure.
+    splx_data : TypeSplxData
+        Simplex levelling structure.
 
     Returns
     -------
     nothing
 """
-function  finalize_MAGEMin(gv,DB, z_b)
-    LibMAGEMin.FreeDatabases(gv, DB, z_b)
+function  finalize_MAGEMin(gv, DB, z_b, splx_data)
+    LibMAGEMin.FreeDatabases(gv, DB, z_b, pointer_from_objref(splx_data))
     return nothing
 end
 
@@ -2075,10 +2076,24 @@ function convertBulk4MAGEMin(   bulk_in     :: T1,
         "mpe"  => (core=["SiO2", "Al2O3", "CaO", "MgO", "FeO", "K2O", "Na2O"],
                    optional=["CO2", "S", "TiO2", "O", "MnO", "H2O"]),
 
+        "mtl"   => (core=["SiO2", "Al2O3", "CaO", "MgO", "FeO", "Na2O"],
+                   optional=["K2O", "Cr2O3", "TiO2", "O", "H2O"]),
+
+        "sb11"   => (core=["SiO2", "Al2O3", "FeO", "MgO"],
+                   optional=[ "CaO", "Na2O"]),
+
+        "sb21"   => (core=["SiO2", "Al2O3", "FeO", "MgO"],
+                   optional=[ "CaO", "Na2O"]),
+
+        "sb24"   => (core=["SiO2", "Al2O3", "MgO", "O", "Fe"],
+                   optional=["CaO", "Na2O", "Cr2O3"]),
+
         "xMELTS"  => (core=["FeO"],
                    optional=["SiO2"	,"Al2O3","CaO"	,"MgO"  ,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"Cr2O3","H2O"	,"CO2"]),
+
         "rMELTS"  => (core=["FeO"],
                    optional=["SiO2"	,"Al2O3","CaO"	,"MgO"  ,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"Cr2O3","H2O"	,"CO2"]),
+
         "pMELTS"  => (core=["FeO"],
                    optional=["SiO2"	,"Al2O3","CaO"	,"MgO"  ,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"Cr2O3","H2O"]),
 

@@ -17,4 +17,7 @@ void read_in_data(		global_variable 				gv,
 						io_data 					   *input_data,
 						int      			 			n_points	);
 
+void free_input_data(	io_data 					   *input_data,
+						int      			 			n_points	);
+
 #endif

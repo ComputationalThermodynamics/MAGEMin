@@ -131,4 +131,35 @@ void read_in_data(		global_variable 	 gv,
 	}
 };
 
+/**
+  free memory allocated by read_in_data
+*/
+void free_input_data(	io_data 			*input_data,												/** input data structure */
+						int      			 n_points
+){
+	for (int k = 0; k < n_points; k++){
+		if (input_data[k].in_bulk != NULL){
+			free(input_data[k].in_bulk);
+		}
+		if (input_data[k].phase_names != NULL){
+			for (int i = 0; i < input_data[k].n_phase; i++){
+				free(input_data[k].phase_names[i]);
+			}
+			free(input_data[k].phase_names);
+		}
+		if (input_data[k].phase_xeos != NULL){
+			for (int i = 0; i < input_data[k].n_phase; i++){
+				free(input_data[k].phase_xeos[i]);
+			}
+			free(input_data[k].phase_xeos);
+		}
+		if (input_data[k].phase_emp != NULL){
+			for (int i = 0; i < input_data[k].n_phase; i++){
+				free(input_data[k].phase_emp[i]);
+			}
+			free(input_data[k].phase_emp);
+		}
+	}
+};
+
 
