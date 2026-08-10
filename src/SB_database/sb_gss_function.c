@@ -26,6 +26,24 @@ Stixrude thermodynamic database for the mantle minerals
 #include "../all_solution_phases.h"
 #include "../simplex_levelling.h"
 #include "../toolkit.h"
+
+/**
+    Boil-out test for a solution-phase endmember: true if any oxide it
+    needs (any nonzero entry of its own Comp[] row, already fetched via
+    get_em_data) is entirely absent from the bulk-rock composition.
+    Same check as GH_database's GH_boiled_out (see gh_gss_function.c);
+    ported here on a per-phase basis since SB_database never deactivates
+    endmembers for a zeroed bulk-rock oxide.
+*/
+static int SB_boiled_out(int len_ox, const double *Comp, double *bulk_rock){
+    for (int j = 0; j < len_ox; j++){
+        if (Comp[j] != 0.0 && bulk_rock[j] == 0.0){
+            return 1;
+        }
+    }
+    return 0;
+}
+
 /**
     Solution phase data for sb11_plg
 */
@@ -88,10 +106,14 @@ SS_ref G_SS_sb11_plg_function(SS_ref SS_ref_db, char* research_group, int EM_dat
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, an.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, ab.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -163,10 +185,14 @@ SS_ref G_SS_sb11_sp_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, sp.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, hc.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -234,10 +260,14 @@ SS_ref G_SS_sb11_ol_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, fo.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, fa.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -305,10 +335,14 @@ SS_ref G_SS_sb11_wa_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, mgwa.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, fewa.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -376,10 +410,14 @@ SS_ref G_SS_sb11_ri_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, mgri.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, feri.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -486,12 +524,18 @@ SS_ref G_SS_sb11_opx_function(SS_ref SS_ref_db, char* research_group, int EM_dat
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, en.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, fs.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
+    if (SB_boiled_out(len_ox, mgts.C, z_b.bulk_rock)){ SS_ref_db.d_em[2] = 1.0; SS_ref_db.z_em[2] = 0.0; SS_ref_db.bounds_ref[2][0] = 0.0; SS_ref_db.bounds_ref[2][1] = 0.0; }
+    if (SB_boiled_out(len_ox, odi.C, z_b.bulk_rock)){ SS_ref_db.d_em[3] = 1.0; SS_ref_db.z_em[3] = 0.0; SS_ref_db.bounds_ref[3][0] = 0.0; SS_ref_db.bounds_ref[3][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -624,6 +668,7 @@ SS_ref G_SS_sb11_cpx_function(SS_ref SS_ref_db, char* research_group, int EM_dat
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
@@ -631,6 +676,12 @@ SS_ref G_SS_sb11_cpx_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, di.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, he.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
+    if (SB_boiled_out(len_ox, cen.C, z_b.bulk_rock)){ SS_ref_db.d_em[2] = 1.0; SS_ref_db.z_em[2] = 0.0; SS_ref_db.bounds_ref[2][0] = 0.0; SS_ref_db.bounds_ref[2][1] = 0.0; }
+    if (SB_boiled_out(len_ox, cats.C, z_b.bulk_rock)){ SS_ref_db.d_em[3] = 1.0; SS_ref_db.z_em[3] = 0.0; SS_ref_db.bounds_ref[3][0] = 0.0; SS_ref_db.bounds_ref[3][1] = 0.0; }
+    if (SB_boiled_out(len_ox, jd.C, z_b.bulk_rock)){ SS_ref_db.d_em[4] = 1.0; SS_ref_db.z_em[4] = 0.0; SS_ref_db.bounds_ref[4][0] = 0.0; SS_ref_db.bounds_ref[4][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -698,10 +749,14 @@ SS_ref G_SS_sb11_hpcpx_function(SS_ref SS_ref_db, char* research_group, int EM_d
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, hpcen.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, hpcfs.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -789,11 +844,16 @@ SS_ref G_SS_sb11_ak_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, mgak.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, feak.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
+    if (SB_boiled_out(len_ox, co.C, z_b.bulk_rock)){ SS_ref_db.d_em[2] = 1.0; SS_ref_db.z_em[2] = 0.0; SS_ref_db.bounds_ref[2][0] = 0.0; SS_ref_db.bounds_ref[2][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -922,6 +982,7 @@ SS_ref G_SS_sb11_gtmj_function(SS_ref SS_ref_db, char* research_group, int EM_da
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
@@ -929,6 +990,12 @@ SS_ref G_SS_sb11_gtmj_function(SS_ref SS_ref_db, char* research_group, int EM_da
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, py.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, alm.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
+    if (SB_boiled_out(len_ox, gr.C, z_b.bulk_rock)){ SS_ref_db.d_em[2] = 1.0; SS_ref_db.z_em[2] = 0.0; SS_ref_db.bounds_ref[2][0] = 0.0; SS_ref_db.bounds_ref[2][1] = 0.0; }
+    if (SB_boiled_out(len_ox, mgmj.C, z_b.bulk_rock)){ SS_ref_db.d_em[3] = 1.0; SS_ref_db.z_em[3] = 0.0; SS_ref_db.bounds_ref[3][0] = 0.0; SS_ref_db.bounds_ref[3][1] = 0.0; }
+    if (SB_boiled_out(len_ox, jdmj.C, z_b.bulk_rock)){ SS_ref_db.d_em[4] = 1.0; SS_ref_db.z_em[4] = 0.0; SS_ref_db.bounds_ref[4][0] = 0.0; SS_ref_db.bounds_ref[4][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -1019,11 +1086,16 @@ SS_ref G_SS_sb11_pv_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, mgpv.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, fepv.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
+    if (SB_boiled_out(len_ox, alpv.C, z_b.bulk_rock)){ SS_ref_db.d_em[2] = 1.0; SS_ref_db.z_em[2] = 0.0; SS_ref_db.bounds_ref[2][0] = 0.0; SS_ref_db.bounds_ref[2][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -1111,11 +1183,16 @@ SS_ref G_SS_sb11_ppv_function(SS_ref SS_ref_db, char* research_group, int EM_dat
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, mppv.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, fppv.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
+    if (SB_boiled_out(len_ox, appv.C, z_b.bulk_rock)){ SS_ref_db.d_em[2] = 1.0; SS_ref_db.z_em[2] = 0.0; SS_ref_db.bounds_ref[2][0] = 0.0; SS_ref_db.bounds_ref[2][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -1183,10 +1260,14 @@ SS_ref G_SS_sb11_mw_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, pe.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, wu.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -1274,12 +1355,16 @@ SS_ref G_SS_sb11_cf_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
 
+    if (SB_boiled_out(len_ox, mgcf.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, fecf.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
+    if (SB_boiled_out(len_ox, nacf.C, z_b.bulk_rock)){ SS_ref_db.d_em[2] = 1.0; SS_ref_db.z_em[2] = 0.0; SS_ref_db.bounds_ref[2][0] = 0.0; SS_ref_db.bounds_ref[2][1] = 0.0; }
 
     return SS_ref_db;
 }
@@ -1448,10 +1533,14 @@ SS_ref G_SS_sb21_plg_function(SS_ref SS_ref_db, char* research_group, int EM_dat
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, an.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, ab.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -1523,10 +1612,14 @@ SS_ref G_SS_sb21_sp_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, sp.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, hc.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -1594,10 +1687,14 @@ SS_ref G_SS_sb21_ol_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, fo.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, fa.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -1665,10 +1762,14 @@ SS_ref G_SS_sb21_wa_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, mgwa.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, fewa.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -1736,10 +1837,14 @@ SS_ref G_SS_sb21_ri_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, mgri.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, feri.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -1846,12 +1951,18 @@ SS_ref G_SS_sb21_opx_function(SS_ref SS_ref_db, char* research_group, int EM_dat
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, en.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, fs.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
+    if (SB_boiled_out(len_ox, mgts.C, z_b.bulk_rock)){ SS_ref_db.d_em[2] = 1.0; SS_ref_db.z_em[2] = 0.0; SS_ref_db.bounds_ref[2][0] = 0.0; SS_ref_db.bounds_ref[2][1] = 0.0; }
+    if (SB_boiled_out(len_ox, odi.C, z_b.bulk_rock)){ SS_ref_db.d_em[3] = 1.0; SS_ref_db.z_em[3] = 0.0; SS_ref_db.bounds_ref[3][0] = 0.0; SS_ref_db.bounds_ref[3][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -1984,6 +2095,7 @@ SS_ref G_SS_sb21_cpx_function(SS_ref SS_ref_db, char* research_group, int EM_dat
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
@@ -1991,6 +2103,12 @@ SS_ref G_SS_sb21_cpx_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, di.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, he.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
+    if (SB_boiled_out(len_ox, cen.C, z_b.bulk_rock)){ SS_ref_db.d_em[2] = 1.0; SS_ref_db.z_em[2] = 0.0; SS_ref_db.bounds_ref[2][0] = 0.0; SS_ref_db.bounds_ref[2][1] = 0.0; }
+    if (SB_boiled_out(len_ox, cats.C, z_b.bulk_rock)){ SS_ref_db.d_em[3] = 1.0; SS_ref_db.z_em[3] = 0.0; SS_ref_db.bounds_ref[3][0] = 0.0; SS_ref_db.bounds_ref[3][1] = 0.0; }
+    if (SB_boiled_out(len_ox, jd.C, z_b.bulk_rock)){ SS_ref_db.d_em[4] = 1.0; SS_ref_db.z_em[4] = 0.0; SS_ref_db.bounds_ref[4][0] = 0.0; SS_ref_db.bounds_ref[4][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -2058,10 +2176,14 @@ SS_ref G_SS_sb21_hpcpx_function(SS_ref SS_ref_db, char* research_group, int EM_d
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, hpcen.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, hpcfs.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -2149,11 +2271,16 @@ SS_ref G_SS_sb21_ak_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, mgak.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, feak.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
+    if (SB_boiled_out(len_ox, co.C, z_b.bulk_rock)){ SS_ref_db.d_em[2] = 1.0; SS_ref_db.z_em[2] = 0.0; SS_ref_db.bounds_ref[2][0] = 0.0; SS_ref_db.bounds_ref[2][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -2282,6 +2409,7 @@ SS_ref G_SS_sb21_gtmj_function(SS_ref SS_ref_db, char* research_group, int EM_da
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
@@ -2289,6 +2417,12 @@ SS_ref G_SS_sb21_gtmj_function(SS_ref SS_ref_db, char* research_group, int EM_da
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, py.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, alm.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
+    if (SB_boiled_out(len_ox, gr.C, z_b.bulk_rock)){ SS_ref_db.d_em[2] = 1.0; SS_ref_db.z_em[2] = 0.0; SS_ref_db.bounds_ref[2][0] = 0.0; SS_ref_db.bounds_ref[2][1] = 0.0; }
+    if (SB_boiled_out(len_ox, mgmj.C, z_b.bulk_rock)){ SS_ref_db.d_em[3] = 1.0; SS_ref_db.z_em[3] = 0.0; SS_ref_db.bounds_ref[3][0] = 0.0; SS_ref_db.bounds_ref[3][1] = 0.0; }
+    if (SB_boiled_out(len_ox, jdmj.C, z_b.bulk_rock)){ SS_ref_db.d_em[4] = 1.0; SS_ref_db.z_em[4] = 0.0; SS_ref_db.bounds_ref[4][0] = 0.0; SS_ref_db.bounds_ref[4][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -2376,11 +2510,16 @@ SS_ref G_SS_sb21_pv_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, mgpv.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, fepv.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
+    if (SB_boiled_out(len_ox, alpv.C, z_b.bulk_rock)){ SS_ref_db.d_em[2] = 1.0; SS_ref_db.z_em[2] = 0.0; SS_ref_db.bounds_ref[2][0] = 0.0; SS_ref_db.bounds_ref[2][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -2468,11 +2607,16 @@ SS_ref G_SS_sb21_ppv_function(SS_ref SS_ref_db, char* research_group, int EM_dat
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, mppv.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, fppv.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
+    if (SB_boiled_out(len_ox, appv.C, z_b.bulk_rock)){ SS_ref_db.d_em[2] = 1.0; SS_ref_db.z_em[2] = 0.0; SS_ref_db.bounds_ref[2][0] = 0.0; SS_ref_db.bounds_ref[2][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -2563,12 +2707,16 @@ SS_ref G_SS_sb21_cf_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
 
+    if (SB_boiled_out(len_ox, mgcf.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, fecf.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
+    if (SB_boiled_out(len_ox, nacf.C, z_b.bulk_rock)){ SS_ref_db.d_em[2] = 1.0; SS_ref_db.z_em[2] = 0.0; SS_ref_db.bounds_ref[2][0] = 0.0; SS_ref_db.bounds_ref[2][1] = 0.0; }
 
     return SS_ref_db;
 }
@@ -2656,11 +2804,16 @@ SS_ref G_SS_sb21_mw_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, pe.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, wu.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
+    if (SB_boiled_out(len_ox, anao.C, z_b.bulk_rock)){ SS_ref_db.d_em[2] = 1.0; SS_ref_db.z_em[2] = 0.0; SS_ref_db.bounds_ref[2][0] = 0.0; SS_ref_db.bounds_ref[2][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -2749,11 +2902,16 @@ SS_ref G_SS_sb21_nal_function(SS_ref SS_ref_db, char* research_group, int EM_dat
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, mnal.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, fnal.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
+    if (SB_boiled_out(len_ox, nnal.C, z_b.bulk_rock)){ SS_ref_db.d_em[2] = 1.0; SS_ref_db.z_em[2] = 0.0; SS_ref_db.bounds_ref[2][0] = 0.0; SS_ref_db.bounds_ref[2][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -2925,10 +3083,14 @@ SS_ref G_SS_sb24_plg_function(SS_ref SS_ref_db, char* research_group, int EM_dat
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, an.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, ab.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -3034,12 +3196,18 @@ SS_ref G_SS_sb24_sp_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, sp.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, hc.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
+    if (SB_boiled_out(len_ox, smag.C, z_b.bulk_rock)){ SS_ref_db.d_em[2] = 1.0; SS_ref_db.z_em[2] = 0.0; SS_ref_db.bounds_ref[2][0] = 0.0; SS_ref_db.bounds_ref[2][1] = 0.0; }
+    if (SB_boiled_out(len_ox, picr.C, z_b.bulk_rock)){ SS_ref_db.d_em[3] = 1.0; SS_ref_db.z_em[3] = 0.0; SS_ref_db.bounds_ref[3][0] = 0.0; SS_ref_db.bounds_ref[3][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -3107,10 +3275,14 @@ SS_ref G_SS_sb24_ol_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, fo.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, fa.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -3178,10 +3350,14 @@ SS_ref G_SS_sb24_wa_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, mgwa.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, fewa.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -3249,10 +3425,14 @@ SS_ref G_SS_sb24_ri_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, mgri.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, feri.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -3359,12 +3539,18 @@ SS_ref G_SS_sb24_opx_function(SS_ref SS_ref_db, char* research_group, int EM_dat
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, en.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, fs.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
+    if (SB_boiled_out(len_ox, mgts.C, z_b.bulk_rock)){ SS_ref_db.d_em[2] = 1.0; SS_ref_db.z_em[2] = 0.0; SS_ref_db.bounds_ref[2][0] = 0.0; SS_ref_db.bounds_ref[2][1] = 0.0; }
+    if (SB_boiled_out(len_ox, odi.C, z_b.bulk_rock)){ SS_ref_db.d_em[3] = 1.0; SS_ref_db.z_em[3] = 0.0; SS_ref_db.bounds_ref[3][0] = 0.0; SS_ref_db.bounds_ref[3][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -3518,6 +3704,7 @@ SS_ref G_SS_sb24_cpx_function(SS_ref SS_ref_db, char* research_group, int EM_dat
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
@@ -3526,6 +3713,13 @@ SS_ref G_SS_sb24_cpx_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
     SS_ref_db.bounds_ref[5][0] = 0.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, di.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, he.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
+    if (SB_boiled_out(len_ox, cen.C, z_b.bulk_rock)){ SS_ref_db.d_em[2] = 1.0; SS_ref_db.z_em[2] = 0.0; SS_ref_db.bounds_ref[2][0] = 0.0; SS_ref_db.bounds_ref[2][1] = 0.0; }
+    if (SB_boiled_out(len_ox, cats.C, z_b.bulk_rock)){ SS_ref_db.d_em[3] = 1.0; SS_ref_db.z_em[3] = 0.0; SS_ref_db.bounds_ref[3][0] = 0.0; SS_ref_db.bounds_ref[3][1] = 0.0; }
+    if (SB_boiled_out(len_ox, jd.C, z_b.bulk_rock)){ SS_ref_db.d_em[4] = 1.0; SS_ref_db.z_em[4] = 0.0; SS_ref_db.bounds_ref[4][0] = 0.0; SS_ref_db.bounds_ref[4][1] = 0.0; }
+    if (SB_boiled_out(len_ox, acm.C, z_b.bulk_rock)){ SS_ref_db.d_em[5] = 1.0; SS_ref_db.z_em[5] = 0.0; SS_ref_db.bounds_ref[5][0] = 0.0; SS_ref_db.bounds_ref[5][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -3593,10 +3787,14 @@ SS_ref G_SS_sb24_hpcpx_function(SS_ref SS_ref_db, char* research_group, int EM_d
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, mgc2.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, fec2.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -3729,6 +3927,7 @@ SS_ref G_SS_sb24_ak_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
@@ -3736,6 +3935,12 @@ SS_ref G_SS_sb24_ak_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, mgak.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, feak.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
+    if (SB_boiled_out(len_ox, co.C, z_b.bulk_rock)){ SS_ref_db.d_em[2] = 1.0; SS_ref_db.z_em[2] = 0.0; SS_ref_db.bounds_ref[2][0] = 0.0; SS_ref_db.bounds_ref[2][1] = 0.0; }
+    if (SB_boiled_out(len_ox, hem.C, z_b.bulk_rock)){ SS_ref_db.d_em[3] = 1.0; SS_ref_db.z_em[3] = 0.0; SS_ref_db.bounds_ref[3][0] = 0.0; SS_ref_db.bounds_ref[3][1] = 0.0; }
+    if (SB_boiled_out(len_ox, esk.C, z_b.bulk_rock)){ SS_ref_db.d_em[4] = 1.0; SS_ref_db.z_em[4] = 0.0; SS_ref_db.bounds_ref[4][0] = 0.0; SS_ref_db.bounds_ref[4][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -3909,6 +4114,7 @@ SS_ref G_SS_sb24_gtmj_function(SS_ref SS_ref_db, char* research_group, int EM_da
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
@@ -3918,6 +4124,14 @@ SS_ref G_SS_sb24_gtmj_function(SS_ref SS_ref_db, char* research_group, int EM_da
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
     SS_ref_db.bounds_ref[5][0] = 0.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
     SS_ref_db.bounds_ref[6][0] = 0.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, py.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, alm.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
+    if (SB_boiled_out(len_ox, gr.C, z_b.bulk_rock)){ SS_ref_db.d_em[2] = 1.0; SS_ref_db.z_em[2] = 0.0; SS_ref_db.bounds_ref[2][0] = 0.0; SS_ref_db.bounds_ref[2][1] = 0.0; }
+    if (SB_boiled_out(len_ox, mgmj.C, z_b.bulk_rock)){ SS_ref_db.d_em[3] = 1.0; SS_ref_db.z_em[3] = 0.0; SS_ref_db.bounds_ref[3][0] = 0.0; SS_ref_db.bounds_ref[3][1] = 0.0; }
+    if (SB_boiled_out(len_ox, jdmj.C, z_b.bulk_rock)){ SS_ref_db.d_em[4] = 1.0; SS_ref_db.z_em[4] = 0.0; SS_ref_db.bounds_ref[4][0] = 0.0; SS_ref_db.bounds_ref[4][1] = 0.0; }
+    if (SB_boiled_out(len_ox, knor.C, z_b.bulk_rock)){ SS_ref_db.d_em[5] = 1.0; SS_ref_db.z_em[5] = 0.0; SS_ref_db.bounds_ref[5][0] = 0.0; SS_ref_db.bounds_ref[5][1] = 0.0; }
+    if (SB_boiled_out(len_ox, andr.C, z_b.bulk_rock)){ SS_ref_db.d_em[6] = 1.0; SS_ref_db.z_em[6] = 0.0; SS_ref_db.bounds_ref[6][0] = 0.0; SS_ref_db.bounds_ref[6][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -4086,6 +4300,7 @@ SS_ref G_SS_sb24_pv_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
@@ -4095,6 +4310,14 @@ SS_ref G_SS_sb24_pv_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
     SS_ref_db.bounds_ref[5][0] = 0.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
     SS_ref_db.bounds_ref[6][0] = 0.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, mgpv.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, fepv.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
+    if (SB_boiled_out(len_ox, alpv.C, z_b.bulk_rock)){ SS_ref_db.d_em[2] = 1.0; SS_ref_db.z_em[2] = 0.0; SS_ref_db.bounds_ref[2][0] = 0.0; SS_ref_db.bounds_ref[2][1] = 0.0; }
+    if (SB_boiled_out(len_ox, hepv.C, z_b.bulk_rock)){ SS_ref_db.d_em[3] = 1.0; SS_ref_db.z_em[3] = 0.0; SS_ref_db.bounds_ref[3][0] = 0.0; SS_ref_db.bounds_ref[3][1] = 0.0; }
+    if (SB_boiled_out(len_ox, hlpv.C, z_b.bulk_rock)){ SS_ref_db.d_em[4] = 1.0; SS_ref_db.z_em[4] = 0.0; SS_ref_db.bounds_ref[4][0] = 0.0; SS_ref_db.bounds_ref[4][1] = 0.0; }
+    if (SB_boiled_out(len_ox, fapv.C, z_b.bulk_rock)){ SS_ref_db.d_em[5] = 1.0; SS_ref_db.z_em[5] = 0.0; SS_ref_db.bounds_ref[5][0] = 0.0; SS_ref_db.bounds_ref[5][1] = 0.0; }
+    if (SB_boiled_out(len_ox, crpv.C, z_b.bulk_rock)){ SS_ref_db.d_em[6] = 1.0; SS_ref_db.z_em[6] = 0.0; SS_ref_db.bounds_ref[6][0] = 0.0; SS_ref_db.bounds_ref[6][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -4222,6 +4445,7 @@ SS_ref G_SS_sb24_ppv_function(SS_ref SS_ref_db, char* research_group, int EM_dat
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
@@ -4229,6 +4453,12 @@ SS_ref G_SS_sb24_ppv_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, mppv.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, fppv.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
+    if (SB_boiled_out(len_ox, appv.C, z_b.bulk_rock)){ SS_ref_db.d_em[2] = 1.0; SS_ref_db.z_em[2] = 0.0; SS_ref_db.bounds_ref[2][0] = 0.0; SS_ref_db.bounds_ref[2][1] = 0.0; }
+    if (SB_boiled_out(len_ox, hppv.C, z_b.bulk_rock)){ SS_ref_db.d_em[3] = 1.0; SS_ref_db.z_em[3] = 0.0; SS_ref_db.bounds_ref[3][0] = 0.0; SS_ref_db.bounds_ref[3][1] = 0.0; }
+    if (SB_boiled_out(len_ox, cppv.C, z_b.bulk_rock)){ SS_ref_db.d_em[4] = 1.0; SS_ref_db.z_em[4] = 0.0; SS_ref_db.bounds_ref[4][0] = 0.0; SS_ref_db.bounds_ref[4][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -4363,6 +4593,7 @@ SS_ref G_SS_sb24_cf_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
@@ -4371,6 +4602,11 @@ SS_ref G_SS_sb24_cf_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
 
+    if (SB_boiled_out(len_ox, mgcf.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, fecf.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
+    if (SB_boiled_out(len_ox, nacf.C, z_b.bulk_rock)){ SS_ref_db.d_em[2] = 1.0; SS_ref_db.z_em[2] = 0.0; SS_ref_db.bounds_ref[2][0] = 0.0; SS_ref_db.bounds_ref[2][1] = 0.0; }
+    if (SB_boiled_out(len_ox, hmag.C, z_b.bulk_rock)){ SS_ref_db.d_em[3] = 1.0; SS_ref_db.z_em[3] = 0.0; SS_ref_db.bounds_ref[3][0] = 0.0; SS_ref_db.bounds_ref[3][1] = 0.0; }
+    if (SB_boiled_out(len_ox, crcf.C, z_b.bulk_rock)){ SS_ref_db.d_em[4] = 1.0; SS_ref_db.z_em[4] = 0.0; SS_ref_db.bounds_ref[4][0] = 0.0; SS_ref_db.bounds_ref[4][1] = 0.0; }
 
     return SS_ref_db;
 }
@@ -4500,6 +4736,7 @@ SS_ref G_SS_sb24_mw_function(SS_ref SS_ref_db, char* research_group, int EM_data
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
@@ -4507,6 +4744,12 @@ SS_ref G_SS_sb24_mw_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, pe.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, wu.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
+    if (SB_boiled_out(len_ox, wuls.C, z_b.bulk_rock)){ SS_ref_db.d_em[2] = 1.0; SS_ref_db.z_em[2] = 0.0; SS_ref_db.bounds_ref[2][0] = 0.0; SS_ref_db.bounds_ref[2][1] = 0.0; }
+    if (SB_boiled_out(len_ox, mag.C, z_b.bulk_rock)){ SS_ref_db.d_em[3] = 1.0; SS_ref_db.z_em[3] = 0.0; SS_ref_db.bounds_ref[3][0] = 0.0; SS_ref_db.bounds_ref[3][1] = 0.0; }
+    if (SB_boiled_out(len_ox, anao.C, z_b.bulk_rock)){ SS_ref_db.d_em[4] = 1.0; SS_ref_db.z_em[4] = 0.0; SS_ref_db.bounds_ref[4][0] = 0.0; SS_ref_db.bounds_ref[4][1] = 0.0; }
 
 
     return SS_ref_db;
@@ -4595,11 +4838,16 @@ SS_ref G_SS_sb24_nal_function(SS_ref SS_ref_db, char* research_group, int EM_dat
 
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
+        SS_ref_db.d_em[i] = 0.0;
     };
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
+
+    if (SB_boiled_out(len_ox, mnal.C, z_b.bulk_rock)){ SS_ref_db.d_em[0] = 1.0; SS_ref_db.z_em[0] = 0.0; SS_ref_db.bounds_ref[0][0] = 0.0; SS_ref_db.bounds_ref[0][1] = 0.0; }
+    if (SB_boiled_out(len_ox, fnal.C, z_b.bulk_rock)){ SS_ref_db.d_em[1] = 1.0; SS_ref_db.z_em[1] = 0.0; SS_ref_db.bounds_ref[1][0] = 0.0; SS_ref_db.bounds_ref[1][1] = 0.0; }
+    if (SB_boiled_out(len_ox, nnal.C, z_b.bulk_rock)){ SS_ref_db.d_em[2] = 1.0; SS_ref_db.z_em[2] = 0.0; SS_ref_db.bounds_ref[2][0] = 0.0; SS_ref_db.bounds_ref[2][1] = 0.0; }
 
 
     return SS_ref_db;
