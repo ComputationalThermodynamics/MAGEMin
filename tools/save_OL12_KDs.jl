@@ -1,3 +1,13 @@
+#=~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+#   Project      : MAGEMin_C
+#   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+#   Developers   : Nicolas Riel, Boris Kaus
+#   Contributors : Moccetti, N. B., Dominguez, H., Assunção J., Green E., Dolejš, D., Berlie N., and Rummel L.
+#   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
+#   Contact      : nriel[at]uni-mainz.de
+#
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ =#
 using JSON, DataFrames, Dash
 
 infos               = "Laurent, O. (2012). Les changements géodynamiques à la transition Archéen-Protérozoïque : étude des granitoïdes de la marge Nord du craton du Kaapvaal (Afrique du Sud). PhD, Université Blaise Pascal, Clermont-Ferrand."

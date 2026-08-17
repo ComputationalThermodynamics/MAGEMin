@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Moccetti, N. B., Dominguez, H., Assunção J., Green E., Dolejš, D., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -570,12 +570,12 @@ global_variable phase_merge_function(		bulk_info 			z_b,
 		}
 	}
 
-	/* check and merge phases in the active assemblage */	
+	/* check and merge phases in the active assemblage */
 	for (iss = 0; iss < gv.len_ss; iss++){
-		
+
 		/* if there is a possible solvus */
 		if (gv.n_solvi[iss] > 1){
-			
+
 			/* go through the upper triange of the matrix (avoiding diagonal)*/
 			for (k = 0; k < gv.n_solvi[iss]; k++){ 
 				for (l = k+1; l < gv.n_solvi[iss]; l++){

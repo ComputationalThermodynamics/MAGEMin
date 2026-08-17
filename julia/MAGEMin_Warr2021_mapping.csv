@@ -8,61 +8,119 @@ magemin_name,type,mineral_full_name,warr_symbol
 # === SOLUTION PHASE NAMES (ss) ===
 #
 abc,ss,Albite (ordered),Ab
+abc_H11,ss,Albite (ordered),Ab
 ak,ss,Akimotoite,Aki
 aki,ss,Akimotoite,Aki
 amp,ss,Amphibole,Amp
+amp_G16,ss,Amphibole,Amp
 anth,ss,Anthophyllite,Ath
+anth_D07,ss,Anthophyllite,Ath
 atg,ss,Antigorite,Atg
+atg_EF21,ss,Antigorite,Atg
 aug,ss,Augite,Aug
+aug_G16,ss,Augite,Aug
 bi,ss,Biotite,Bt
+bi_G25,ss,Biotite,Bt
+bi_W14,ss,Biotite,Bt
 br,ss,Brucite,Brc
+br_E13,ss,Brucite,Brc
+car,ss,Carpholite,Cph
 carp,ss,Carpholite,Cph
+carp_W14,ss,Carpholite,Cph
 cd,ss,Cordierite,Crd
+cd_G25,ss,Cordierite,Crd
+cd_W14,ss,Cordierite,Crd
 cf,ss,Ca-ferrite phase,cf
 ch,ss,Clinohumite,Chu
+ch_EF21,ss,Clinohumite,Chu
 chl,ss,Chlorite,Chl
+chl_W14,ss,Chlorite,Chl
 cpv,ss,Ca-perovskite,cpv
 cpx,ss,Clinopyroxene,Cpx
+cpx_W24,ss,Clinopyroxene,Cpx
 crn,ss,Corundum (high-P),crn
 ctd,ss,Chloritoid,Cld
+ctd_W14,ss,Chloritoid,Cld
 dio,ss,Clinopyroxene (dio/omphacite model),Cpx
+dio_G16,ss,Clinopyroxene (dio/omphacite model),Cpx
 ep,ss,Epidote,Ep
+ep_H11,ss,Epidote,Ep
 fl,ss,Fluid,fl
+fl_DEW,ss,DEW aqueous fluid (Sverjensky et al. 2014),fl_DEW
+fl_DEW_S14,ss,DEW aqueous fluid (Sverjensky et al. 2014),fl_DEW
+fl_EF21,ss,Fluid,fl
+fl_G25,ss,Fluid,fl
+fl_H03,ss,Fluid,fl
 flc,ss,Fluid (H2O-CO2),flc
 fp,ss,Ferropericlase,Fper
 fper,ss,Ferropericlase,Fper
 fsp,ss,Feldspar,Fsp
+fsp_H22,ss,Feldspar,Fsp
+fsp_H22op,ss,Feldspar,Fsp
 g,ss,Garnet,Grt
+g_H18,ss,Garnet,Grt
+g_W14,ss,Garnet,Grt
+g_W24,ss,Garnet,Grt
 gtmj,ss,Garnet-majorite,Grt
 hpcpx,ss,High-pressure clinopyroxene,hpcpx
 hpx,ss,High-pressure pyroxene,hpx
 ilm,ss,Ilmenite,Ilm
+ilm_W00,ss,Ilmenite,Ilm
+ilm_W24,ss,Ilmenite,Ilm
 ilmm,ss,Ilmenite-hematite (Mn-bearing),Ilm
+ilmm_W14,ss,Ilmenite-hematite (Mn-bearing),Ilm
 kals,ss,Kalsilite,Kls
+kals_W24,ss,Kalsilite,Kls
 lct,ss,Leucite,Lct
+lct_W24,ss,Leucite,Lct
 liq,ss,Melt (silicate liquid),liq
+liq_G16,ss,Melt (silicate liquid),liq
+liq_G25w,ss,Melt (silicate liquid),liq
+liq_W14,ss,Melt (silicate liquid),liq
+liq_W24d,ss,Melt (silicate liquid),liq
 ma,ss,Margarite,Mrg
+ma_W14,ss,Margarite,Mrg
 mel,ss,Melilite,Mel
+mel_W24,ss,Melilite,Mel
 mpv,ss,Mg-perovskite,mpv
 mt,ss,Magnetite,Mag
+mt_W00,ss,Magnetite,Mag
 mu,ss,Muscovite,Ms
+mu_W14,ss,Muscovite,Ms
 nal,ss,Na-Al high-pressure phase,nal
 nph,ss,Nepheline,Nph
+nph_W24,ss,Nepheline,Nph
 oamp,ss,Orthoamphibole,oamp
+oamp_D07,ss,Orthoamphibole,oamp
 occm,ss,Carbonate (calcite-dolomite-magnesite),occm
+occm_F11,ss,Carbonate (calcite-dolomite-magnesite),occm
 ol,ss,Olivine,Ol
+ol_H11,ss,Olivine,Ol
+ol_H18,ss,Olivine,Ol
 opx,ss,Orthopyroxene,Opx
+opx_W14,ss,Orthopyroxene,Opx
+opx_W24,ss,Orthopyroxene,Opx
 pl4tr,ss,Plagioclase,Pl
+plc,ss,Plagioclase,Pl
+plc_B05,ss,Plagioclase,Pl
 po,ss,Pyrrhotite,Po
+po_E10,ss,Pyrrhotite,Po
 ppv,ss,Post-perovskite,ppv
 pv,ss,Perovskite,pv
 ring,ss,Ringwoodite,ring
 sa,ss,Sapphirine,Spr
+sa_W14,ss,Sapphirine,Spr
 sp,ss,Spinel,Spl
+sp_W02,ss,Spinel,Spl
 spi,ss,Spinel,Spl
+spi_W02,ss,Spinel,Spl
 spl,ss,Spinel,Spl
+spl_T21,ss,Spinel,Spl
+spl_W02,ss,Spinel,Spl
 st,ss,Staurolite,St
+st_W14,ss,Staurolite,St
 ta,ss,Talc,Tlc
+ta_EF21,ss,Talc,Tlc
 wad,ss,Wadsleyite,Wds
 #
 # === ENDMEMBER NAMES (em) ===

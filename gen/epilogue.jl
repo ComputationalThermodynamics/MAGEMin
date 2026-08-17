@@ -18,6 +18,10 @@ struct SS_data
     shearMod::Cdouble
     Vp::Cdouble
     Vs::Cdouble
+    pH::Cdouble
+    chargeResidual::Cdouble
+    sumMolality::Cdouble
+    G_water::Cdouble
     Comp::Vector{Cdouble}
     Comp_wt::Vector{Cdouble}
     Comp_apfu::Vector{Cdouble}
@@ -26,6 +30,8 @@ struct SS_data
     siteFractions::Vector{Cdouble}
     siteFractionsNames::Vector{String}
     emNames::Vector{String}
+    molality::Vector{Cdouble}
+    activity::Vector{Cdouble}
     emFrac::Vector{Cdouble}
     emFrac_wt::Vector{Cdouble}
     emChemPot::Vector{Cdouble}
@@ -34,8 +40,9 @@ struct SS_data
     emComp_apfu::Vector{Vector{Float64}}
 end
 
-function Base.convert(::Type{SS_data}, a::stb_SS_phases) 
-    return SS_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.beta, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
+function Base.convert(::Type{SS_data}, a::stb_SS_phases)
+    return SS_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.beta, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs, a.pH,
+                                    a.chargeResidual, a.sumMolality, a.G_water,
                                     unsafe_wrap( Vector{Cdouble},        a.Comp,             a.nOx),
                                     unsafe_wrap( Vector{Cdouble},        a.Comp_wt,          a.nOx),
                                     unsafe_wrap( Vector{Cdouble},        a.Comp_apfu,        a.nOx),
@@ -44,6 +51,8 @@ function Base.convert(::Type{SS_data}, a::stb_SS_phases)
                                     unsafe_wrap( Vector{Cdouble},        a.siteFractions,    a.n_sf),
                     unsafe_string.( unsafe_wrap( Vector{Ptr{Int8}},      a.siteFractionsNames,a.n_sf)),
                     unsafe_string.( unsafe_wrap( Vector{Ptr{Int8}},      a.emNames,          a.n_em)),
+                                    unsafe_wrap( Vector{Cdouble},        a.molality,         a.n_em),
+                                    unsafe_wrap( Vector{Cdouble},        a.activity,         a.n_em),
                                     unsafe_wrap( Vector{Cdouble},        a.emFrac,           a.n_em),
                                     unsafe_wrap( Vector{Cdouble},        a.emFrac_wt,        a.n_em),
                                     unsafe_wrap( Vector{Cdouble},        a.emChemPot,        a.n_em),
@@ -51,6 +60,20 @@ function Base.convert(::Type{SS_data}, a::stb_SS_phases)
       unsafe_wrap.(Vector{Cdouble}, unsafe_wrap( Vector{Ptr{Cdouble}},   a.emComp_wt, a.n_em),  a.nOx),
       unsafe_wrap.(Vector{Cdouble}, unsafe_wrap( Vector{Ptr{Cdouble}},   a.emComp_apfu, a.n_em),  a.nOx)   )
 end
+
+# Fields only ever populated (non-NaN) for the fl_DEW aqueous phase - hidden from the
+# default display for every other solution phase, where they're meaningless NaN filler.
+const _SS_data_dew_only_fields = (:pH, :chargeResidual, :sumMolality, :G_water, :molality, :activity)
+
+function Base.show(io::IO, ::MIME"text/plain", ss::SS_data)
+    is_dew = !isnan(ss.chargeResidual)
+    println(io, "SS_data:")
+    for f in fieldnames(SS_data)
+        (!is_dew && f in _SS_data_dew_only_fields) && continue
+        println(io, "  ", f, " = ", getfield(ss, f))
+    end
+end
+Base.show(io::IO, ss::SS_data) = show(io, MIME("text/plain"), ss)
 
 # metastable phases
 struct mSS_data

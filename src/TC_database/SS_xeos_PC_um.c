@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Moccetti, N. B., Dominguez, H., Assunção J., Green E., Dolejš, D., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include "DEW_aq_solver.h"
 
 struct ss_pc um_fluid_pc_xeos[11] = {
 {{0.000100}},
@@ -15365,8 +15366,9 @@ struct ss_pc ume_occm_pc_xeos[352] = {
 
 void SS_um_pc_init_function(	PC_ref 	*SS_pc_xeos,
 							    int 	 iss,
-							    char 	*name				){	
-						 
+							    char 	*name,
+							    global_variable gv			){
+
 	if      (strcmp( name, "fl")  == 0 ){
 		SS_pc_xeos[iss].ss_pc_xeos  = um_fluid_pc_xeos; 	}
 	else if (strcmp( name, "ol")  == 0){
@@ -15403,7 +15405,77 @@ void SS_um_pc_init_function(	PC_ref 	*SS_pc_xeos,
 		SS_pc_xeos[iss].ss_pc_xeos  = ume_fl_pc_xeos; 		}
     else if (strcmp( name, "occm") == 0){
 		SS_pc_xeos[iss].ss_pc_xeos  = ume_occm_pc_xeos; 		}
+	else if (strcmp( name, "fl_DEW") == 0){
+		enum { FL_DEW_N_PROFILES = 5 };
+		static struct ss_pc fl_DEW_pc_xeos[FL_DEW_N_PROFILES];
+
+		int id[gv.len_ox];
+		DEW_build_id_map(gv.len_ox, gv.ox, id);
+
+		const char *profile_names[FL_DEW_N_PROFILES][2] = {
+			{0},                        /* row 0: baseline, dominant H2O */
+			{"CO2"},                    /* row 1: dominant CO2 (0.75) - see profile_frac */
+			{"H4SiO4"},                 /* row 2: silica-rich H2O */
+			{"CaO", "Mg(OH)2"},         /* row 3: alkaline-earth-rich H2O (neutral complexes) */
+			{"NaOH"},                   /* row 4: alkali-rich H2O (Na-only, no K2O in ume) */
+		};
+		double profile_frac[FL_DEW_N_PROFILES][2] = {
+			{0},
+			{0.75},
+			{0.10},
+			{0.05, 0.05},
+			{0.08},
+		};
+
+		for (int p = 0; p < FL_DEW_N_PROFILES; p++){
+			int n_active = 0;
+			double sum_elevated = 0.0;
+			double net_charge = 0.0;
+			int idx_Hp = -1, idx_OHm = -1;
+			for (int s = 0; s < gv.n_dew_db; s++){
+				DEW_db sp = Access_DEW_DB(s);
+				if (!DEW_species_active(sp, gv.len_ox, id)){ continue; }
+
+				int touches_other_zero = 0;
+				for (int j = 0; j < gv.len_ox; j++){
+					if (j == gv.O_id){ continue; }
+					if (gv.bulk_rock[j] == 0. && sp.Comp[id[j]] != 0.){ touches_other_zero = 1; break; }
+				}
+				int mu_depends_on_O = (gv.O_id >= 0 && sp.MuComp[id[gv.O_id]] != 0.);
+				int suppressed = (touches_other_zero || mu_depends_on_O) ? 1 : 0;
+
+				double val = suppressed ? 0.0 : 1e-6;
+				if (!suppressed){
+					for (int t = 0; t < 2; t++){
+						if (profile_names[p][t] != 0 && strcmp(sp.Name, profile_names[p][t]) == 0){
+							val = profile_frac[p][t];
+							break;
+						}
+					}
+					if (strcmp(sp.Name, "H+")  == 0){ idx_Hp  = n_active; }
+					if (strcmp(sp.Name, "OH-") == 0){ idx_OHm = n_active; }
+				}
+				fl_DEW_pc_xeos[p].xeos_pc[n_active] = val;
+				sum_elevated += val;
+				net_charge   += val*sp.input_3[2];
+				n_active++;
+			}
+
+
+			if (net_charge > 0.0 && idx_OHm >= 0){
+				fl_DEW_pc_xeos[p].xeos_pc[idx_OHm] += net_charge;
+				sum_elevated += net_charge;
+			}
+			else if (net_charge < 0.0 && idx_Hp >= 0){
+				fl_DEW_pc_xeos[p].xeos_pc[idx_Hp] += -net_charge;
+				sum_elevated += -net_charge;
+			}
+
+			fl_DEW_pc_xeos[p].xeos_pc[n_active] = fmax(1.0 - sum_elevated, 1e-6);
+		}
+
+		SS_pc_xeos[iss].ss_pc_xeos  = fl_DEW_pc_xeos; 		}
 	else{
-		printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", name);	
-	}	
+		printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", name);
+	}
 }

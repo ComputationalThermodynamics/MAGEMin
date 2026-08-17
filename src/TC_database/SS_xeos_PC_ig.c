@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Moccetti, N. B., Dominguez, H., Assunção J., Green E., Dolejš, D., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include "DEW_aq_solver.h"
 
 struct ss_pc ig_fper_pc_xeos[20] = {
 {{0.000000}},
@@ -34348,8 +34349,9 @@ struct ss_pc ig_chl_pc_xeos[3980] = {
     
 void SS_ig_pc_init_function(	PC_ref 	*SS_pc_xeos,
 							    int 	 iss,
-							    char 	*name				){	
-						 
+							    char 	*name,
+							    global_variable gv			){
+
 	if      (strcmp( name, "bi")  == 0 ){
 		SS_pc_xeos[iss].ss_pc_xeos  = ig_bi_pc_xeos; 		}
 	else if (strcmp( name, "fper")  == 0){
@@ -34382,7 +34384,33 @@ void SS_ig_pc_init_function(	PC_ref 	*SS_pc_xeos,
 		SS_pc_xeos[iss].ss_pc_xeos  = ig_spl_pc_xeos; 		}
 	else if (strcmp( name, "chl") == 0){
 		SS_pc_xeos[iss].ss_pc_xeos  = ig_chl_pc_xeos; 		}
+	else if (strcmp( name, "fl_DEW") == 0){
+
+		static struct ss_pc fl_DEW_pc_xeos[1];
+
+		int id[gv.len_ox];
+		DEW_build_id_map(gv.len_ox, gv.ox, id);
+
+		int n_active = 0;
+		int n_survive = 0;
+		for (int s = 0; s < gv.n_dew_db; s++){
+			DEW_db sp = Access_DEW_DB(s);
+			if (!DEW_species_active(sp, gv.len_ox, id)){ continue; }
+			int touches_other_zero = 0;
+			for (int j = 0; j < gv.len_ox; j++){
+				if (j == gv.O_id){ continue; }
+				if (gv.bulk_rock[j] == 0. && sp.Comp[id[j]] != 0.){ touches_other_zero = 1; break; }
+			}
+			int mu_depends_on_O = (gv.O_id >= 0 && sp.MuComp[id[gv.O_id]] != 0.);
+			int suppressed = (touches_other_zero || mu_depends_on_O) ? 1 : 0;
+			fl_DEW_pc_xeos[0].xeos_pc[n_active] = suppressed ? 0.0 : 1e-6;
+			if (!suppressed){ n_survive++; }
+			n_active++;
+		}
+		fl_DEW_pc_xeos[0].xeos_pc[n_active] = 1.0 - n_survive*1e-6;
+
+		SS_pc_xeos[iss].ss_pc_xeos  = fl_DEW_pc_xeos; 		}
 	else{
-		printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", name);	
-	}	
+		printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", name);
+	}
 }

@@ -1,3 +1,13 @@
+#=~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+#   Project      : MAGEMin_C
+#   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+#   Developers   : Nicolas Riel, Boris Kaus
+#   Contributors : Moccetti, N. B., Dominguez, H., Assunção J., Green E., Dolejš, D., Berlie N., and Rummel L.
+#   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
+#   Contact      : nriel[at]uni-mainz.de
+#
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ =#
 using MAGEMin_C
 data    = Initialize_MAGEMin("mp", verbose=-1);
 P,T     = 6.0, 930.0

@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Moccetti, N. B., Dominguez, H., Assunção J., Green E., Dolejš, D., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -373,37 +373,48 @@ global_variable global_variable_SB_init( 	global_variable  	 gv,
 	gv.MgO_id 	= -1;
 	gv.Cr2O3_id = -1;
 	gv.O_id 	= -1;
+
+	/* z_b mirrors gv's oxide ids so G_SS_*_function() (which only receives z_b, not gv)
+	   can test a specific oxide's abundance without hardcoding its positional index */
+	z_b->Al2O3_id = -1;
+	z_b->CaO_id 	= -1;
+	z_b->Na2O_id 	= -1;
+	z_b->FeO_id 	= -1;
+	z_b->MgO_id 	= -1;
+	z_b->Cr2O3_id = -1;
+	z_b->O_id 	= -1;
+
 	oxide_data ox_in 	= oxide_info_sb;
 	for (i = 0; i < gv.len_ox; i++){
 		for (j = 0; j < ox_in.n_ox; j++){
 			if (strcmp( gv.ox[i], ox_in.oxName[j]) == 0){
 				if (strcmp( gv.ox[i], "Al2O3") 	== 0){
-					gv.Al2O3_id = i;
+					gv.Al2O3_id = i; z_b->Al2O3_id = i;
 				}
 				// else if (strcmp( gv.ox[i], "TiO2") 	== 0){
 				// 	gv.TiO2_id = i;
 				// }
 				else if (strcmp( gv.ox[i], "O") 	== 0){
-					gv.O_id = i;
-				}	
+					gv.O_id = i; z_b->O_id = i;
+				}
 				else if (strcmp( gv.ox[i], "CaO") 	== 0){
-					gv.CaO_id = i;
+					gv.CaO_id = i; z_b->CaO_id = i;
 				}
 				else if (strcmp( gv.ox[i], "Na2O") 	== 0){
-					gv.Na2O_id = i;
+					gv.Na2O_id = i; z_b->Na2O_id = i;
 				}
 				else if (strcmp( gv.ox[i], "MgO") 	== 0){
-					gv.MgO_id = i;
-				}	
+					gv.MgO_id = i; z_b->MgO_id = i;
+				}
 				else if (strcmp( gv.ox[i], "FeO") 	== 0){
-					gv.FeO_id = i;
-				}			
+					gv.FeO_id = i; z_b->FeO_id = i;
+				}
 				else if (strcmp( gv.ox[i], "Fe") 	== 0){
 					gv.Fe_id = i;
-				}					
+				}
 				else if (strcmp( gv.ox[i], "Cr2O3") == 0){
-					gv.Cr2O3_id = i;
-				}		
+					gv.Cr2O3_id = i; z_b->Cr2O3_id = i;
+				}
 				z_b->apo[i]     	= ox_in.atPerOx[j];
 				z_b->masspo[i]  	= ox_in.oxMass[j];
 				z_b->opo[i]  		= ox_in.OPerOx[j];

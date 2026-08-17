@@ -1,3 +1,13 @@
+#=~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+#   Project      : MAGEMin_C
+#   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+#   Developers   : Nicolas Riel, Boris Kaus
+#   Contributors : Moccetti, N. B., Dominguez, H., Assunção J., Green E., Dolejš, D., Berlie N., and Rummel L.
+#   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
+#   Contact      : nriel[at]uni-mainz.de
+#
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ =#
 # Generate a pseudocompound (PC) composition grid for a "gh" (Ghiorso/MELTS)
 # solution phase, in the same struct literal format already hand-written in
 # src/GH_database/SS_xeos_PC_gh.c (e.g. "struct ss_pc gh_liq_pc_xeos[26] = {...}").

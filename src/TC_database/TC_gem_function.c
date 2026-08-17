@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Moccetti, N. B., Dominguez, H., Assunção J., Green E., Dolejš, D., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -26,581 +26,6 @@
 #define eps 1e-8
 #define max_ox 15
 
-typedef struct Helmholtz_WP {
-    double R;
-    double no[9];
-    double gammao[5];
-    double c[55];
-    double d[55];
-    double t[55];
-    double n[57];
-    double alpha[3];
-    double beta[3];
-    double gamma[3];
-    double epsilon[3];
-
-    double a[2];
-    double b[2];
-    double A[2];
-    double B[2];
-    double C[2];
-    double F[2];
-    double E[2];
-
-    // output
-    double helmholtz;   
-    double helmholtzD;   
-    double helmholtzDD;  
-
-} HelmholtzWP;
-
-HelmholtzWP helm_WP = {
-    461.51805,
-    {0.0,-8.32044648201, 6.6832105268, 3.00632, 0.012436, 0.97315, 1.27950, 0.96956, 0.24873},
-    {1.28728967, 3.53734222, 7.74073708, 9.24437796, 27.5075105},
-
-    {0.0,0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0, 4.0, 6.0, 6.0, 6.0, 6.0, 0.0, 0.0, 0},
-    {0.0,1.0, 1.0, 1.0, 2.0, 2.0, 3.0, 4.0, 1.0, 1.0, 1.0, 2.0, 2.0, 3.0, 4.0, 4.0, 5.0, 7.0, 9.0, 10.0, 11.0, 13.0, 15.0, 1.0, 2.0, 2.0, 2.0, 3.0, 4.0, 4.0, 4.0, 5.0, 6.0, 6.0, 7.0, 9.0, 9.0, 9.0, 9.0, 9.0, 10.0, 10.0, 12.0, 3.0, 4.0, 4.0, 5.0, 14.0, 3.0, 6.0, 6.0, 6.0, 3.0, 3.0, 3.0},
-    {0.0,-0.5, 0.875, 1.0, 0.5, 0.75, 0.375, 1.0, 4.0, 6.0, 12.0, 1.0, 5.0, 4.0, 2.0, 13.0, 9.0, 3.0, 4.0, 11.0, 4.0, 13.0, 1.0, 7.0, 1.0, 9.0, 10.0, 10.0, 3.0, 7.0, 10.0, 10.0, 6.0, 10.0, 10.0, 1.0, 2.0, 3.0, 4.0, 8.0, 6.0, 9.0, 8.0, 16.0, 22.0, 23.0, 23.0, 10.0, 50.0, 44.0, 46.0, 50.0, 0.0, 1.0, 4.0},
-    {0.0,0.12533547935523e-01,0.78957634722828e+01,-0.87803203303561e+01, 0.31802509345418,-0.26145533859358,-0.78199751687981e-02, 0.88089493102134e-02,-0.66856572307965, 0.20433810950965,-0.66212605039687e-04,-0.19232721156002,-0.25709043003438, 0.16074868486251,-0.40092828925807e-01, 0.39343422603254e-06,-0.75941377088144e-05, 0.56250979351888e-03,-0.15608652257135e-04, 0.11537996422951e-08, 0.36582165144204e-06,-0.13251180074668e-11,-0.62639586912454e-09,-0.10793600908932, 0.17611491008752e-01, 0.22132295167546,-0.40247669763528, 0.58083399985759, 0.49969146990806e-02,-0.31358700712549e-01,-0.74315929710341, 0.47807329915480, 0.20527940895948e-01,-0.13636435110343, 0.14180634400617e-01, 0.83326504880713e-02,-0.29052336009585e-01, 0.38615085574206e-01,-0.20393486513704e-01,-0.16554050063734e-02, 0.19955571979541e-02, 0.15870308324157e-03,-0.16388568342530e-04, 0.43613615723811e-01, 0.34994005463765e-01,-0.76788197844621e-01, 0.22446277332006e-01,-0.62689710414685e-04,-0.55711118565645e-09,-0.19905718354408, 0.31777497330738,-0.11841182425981,-0.31306260323435e+02,0.31546140237781e+02,-0.25213154341695e+04,-0.14874640856724,0.31806110878444},
-    {20.0,20.0,20.0} ,
-    {150.0, 150.0, 150.0},
-    {1.21,1.21,1.25},
-    {1.0,1.0,1.0},
-    {3.5,3.5},
-    {0.85,0.95},
-    {0.32,0.32},
-    {0.2,0.2},
-    {28.0,32.0},
-    {700.0,800.0},
-    {0.3,0.3},
-
-    0.0,
-    0.0,
-    0.0
-};
-
-typedef struct Helmholtz_HGK {
-    //  constant
-    double refT;
-    double refrho;
-    double refV;
-    double refP;
-    double refVis;
-    double refCond;
-    double refSurfTension;
-    double refF;
-    double refS;
-    double refSoundSpeed;
-
-    double A0[18];
-    double A1[5];
-    double A20;
-    double yc[4];
-    double z0;
-    double ki[36];
-    double li[36];
-    double A3[36];
-    double mi[4];
-    double ni[4];
-    double alpha[4];
-    double beta[4];
-
-    double ri[4];
-    double ti[4];
-    double A4[4];
-
-    // output
-    double helmholtz;   
-    double helmholtzD;   
-    double helmholtzDD;  
-
-} HelmholtzHGK;
-
-HelmholtzHGK helm_HGK = {
-    647.27,
-    317.763,
-    1.0/317.763,
-    22.115e+06,
-    55.071e-06,
-    0.49450,
-    235.8e-03,
-    69595.89,
-    107.5222,
-    263.810,
-    {-0.130840393653E+2,-0.857020420940E+2,0.765192919131E-2,-0.620600116069E+0,-0.106924329402E+2,-0.280671377296E+1,0.119843634845E+3,-0.823907389256E+2,0.555864146443E+2,-0.310698122980E+2,0.136200239305E+2,-0.457116129409E+1,0.115382128188E+1,-0.214242224683E+0,0.282800597384E-1,-0.250384152737E-2,0.132952679669E-3,-0.319277411208E-5},
-    {0.15383053E+1,-0.81048367E+0,-0.68305748E+1,0.00000000E+0,0.86756271E+0},
-    0.42923415E+1,
-    {0.59402227E-1,-0.28128238E-1,0.56826674E-3,-0.27987451E-3},
-    0.317763E+0,
-    {1.0,1.0,1.0,1.0,2.0,2.0,2.0,2.0,3.0,3.0,3.0,3.0,4.0,4.0,4.0,4.0,5.0,5.0,5.0,5.0,6.0,6.0,6.0,6.0,7.0,7.0,7.0,7.0,9.0,9.0,9.0,9.0,3.0,3.0,1.0,5.0},
-    {1.0,2.0,4.0,6.0,1.0,2.0,4.0,6.0,1.0,2.0,4.0,6.0,1.0,2.0,4.0,6.0,1.0,2.0,4.0,6.0,1.0,2.0,4.0,6.0,1.0,2.0,4.0,6.0,1.0,2.0,4.0,6.0,0.0,3.0,3.0,3.0},
-    {-0.76221190138079E+1,0.32661493707555E+2,0.11305763156821E+2,-0.10015404767712E+1,0.12830064355028E+3,-0.28371416789846E+3,0.24256279839182E+3,-0.99357645626725E+2,-0.12275453013171E+4,0.23077622506234E+4,-0.16352219929859E+4,0.58436648297764E+3,0.42365441415641E+4,-0.78027526961828E+4,0.38855645739589E+4,-0.91225112529381E+3,-0.90143895703666E+4,0.15196214817734E+5,-0.39616651358508E+4,-0.72027511617558E+3,0.11147126705990E+5,-0.17412065252210E+5,0.99918281207782E+3,0.33504807153854E+4,-0.64752644922631E+4,0.98323730907847E+4,0.83877854108422E+3,-0.27919349903103E+4,0.11112410081192E+4,-0.17287587261807E+4,-0.36233262795423E+3,0.61139429010144E+3,0.32968064728562E+2,0.10411239605066E+3,-0.38225874712590E+2,-0.20307478607599E+3},
-    {2.0,2.0,2.0,4.0},
-    {0.0,2.0,0.0,0.0},
-    {34.0,40.0,30.0,1050.0},
-    {20000.0,20000.0,40000.0,25.0},
-    {0.10038928E+1, 0.10038928E+1, 0.10038928E+1, 0.48778492E+1},
-    {0.98876821E+0, 0.98876821E+0, 0.99124013E+0, 0.41713659E+0},
-    {-0.32329494E-2, -0.24139355E-1, 0.79027651E-3, -0.13362857E+1},
-
-    0.0,
-    0.0,
-    0.0
-};
-
-void HelmholtzHGK_calc( HelmholtzHGK    *HGK,
-                        double           TK,
-                        double           D        ){
-    HelmholtzHGK *in  = (HelmholtzHGK *) HGK;
-
-    //Dimensionless temperature and density
-    double t = TK/in->refT;
-    double d = D/in->refrho;
-
-    /**--------------------------------------------------------------------------
-     HGK0 - Auxilliary 0
-    --------------------------------------------------------------------------*/
-
-    double aux0helmholtz    = (in->A0[0] + in->A0[1] * t) * log(t);
-    double aux = 0.0;
-    for (int i = 2; i < 18; i++){
-        aux0helmholtz    +=   in->A0[i] * pow(t,((double)i-4.0));
-    }
-
-    /**--------------------------------------------------------------------------
-     HGK1 - Auxilliary 1
-    --------------------------------------------------------------------------*/
-    double aux1helmholtz    = 0.0;
-
-    for (int i = 0; i < 5; i++){
-        aux1helmholtz    += + d * in->A1[i] * pow(t,(1.0-(double)i));
-    }
-
-    double aux1helmholtzD   = aux1helmholtz/d;
-
-    /**--------------------------------------------------------------------------
-     HGK2 - Auxilliary 2
-    --------------------------------------------------------------------------*/
-    double t3   = pow(t,-3.0);
-    double t5   = pow(t,-5.0);
-
-    double y     = d * (in->yc[0] + in->yc[1]*log(t) + in->yc[2]*t3 + in->yc[3]*t5);
-    double y_r   = y/d;
-    double y_rr  = 0.0;
-
-    double x    = 1.0/(1.0 - y);
-    double x2   = x * x;
-    double x_r  = y_r * x2;
-    double x_rr = y_rr * x2 + 2.0 * y_r * x_r * x;
-
-    double u     = log(d * x);
-    double u_r   = x_r/x + 1.0/d;
-    double u_rr  = x_rr/x - x_r*x_r/(x*x) - 1.0/(d*d);
-
-    double c1 = -130.0/3.0;
-    double c2 =  169.0/6.0;
-    double c3 = -14.0;
-
-    double aux2helmholtz    = in->A20 * t * (u + c1*x  + c2*x*x + c3*y);
-    double aux2helmholtzD   = in->A20 * t * (u_r + c1*x_r + 2.0*c2*x*x_r + c3*y_r);
-    double aux2helmholtzDD  = in->A20 * t * (u_rr + c1*x_rr + 2.0*c2*(x*x_rr + x_r*x_r) + c3*y_rr);
-
-    /**--------------------------------------------------------------------------
-     HGK3 - Auxilliary 3
-    --------------------------------------------------------------------------*/
-    double z     =  1.0 - exp(-in->z0 * d);
-    double z_r   =  in->z0 * (1.0 - z);
-    double z_rr  = -in->z0 * z_r;
-
-    double aux3helmholtz    = 0.0;
-    double aux3helmholtzD   = 0.0;
-    double aux3helmholtzDD  = 0.0;
-
-    double lambda     = 0.0; 
-    double lambda_r   = 0.0;
-    double lambda_rr  = 0.0;
-
-    for (int i = 0; i < 36; ++i){
-
-        lambda     =  in->A3[i] * pow(t,(-in->li[i])) * pow(z,(in->ki[i]));
-        lambda_r   =  in->ki[i]*z_r*lambda/z;
-        lambda_rr  =  lambda_r*(z_rr/z_r + lambda_r/lambda - z_r/z);
-
-        aux3helmholtz    +=  lambda;
-        aux3helmholtzD   +=  lambda_r;
-        aux3helmholtzDD  +=  lambda_rr;
-    }
-
-    /*--------------------------------------------------------------------------
-     HGK4 - Auxilliary 4
-    --------------------------------------------------------------------------*/
-    double aux4helmholtz    = 0.;
-    double aux4helmholtzD   = 0.;
-    double aux4helmholtzDD  = 0.;
-
-    double delta     = 0.0;
-    double tau       = 0.0; 
-    double delta_r   = 0.0; 
-
-    double delta_m   = 0.0; 
-    double delta_n   = 0.0; 
-    
-    double psi       = 0.0; 
-    double psi_r     = 0.0; 
-    double psi_rr    = 0.0; 
-    
-    double theta     = 0.0;  
-    double theta_r   = 0.0;  
-    double theta_rr  = 0.0;  
-
-    for(int i = 0; i < 4; ++i){
-        delta   = (d - in->ri[i])/in->ri[i];
-        tau     = (t - in->ti[i])/in->ti[i];
-        delta_r = 1.0/in->ri[i];
-
-        delta_m = pow(delta,in->mi[i]);
-        delta_n = pow(delta,in->ni[i]);
-        
-        psi    =  (in->ni[i] - in->alpha[i]*in->mi[i]*delta_m)*(delta_r/delta);
-        psi_r  = -(in->ni[i] + in->alpha[i]*in->mi[i]*(in->mi[i] - 1.0)*delta_m)* pow((delta_r/delta),2.0);
-        psi_rr = (2.0*in->ni[i] - in->alpha[i]*in->mi[i]*(in->mi[i] - 1.0)*(in->mi[i] - 2.0)*delta_m)*pow((delta_r/delta),3.0);
-        
-        theta     =  in->A4[i]*delta_n*exp(-in->alpha[i]*delta_m - in->beta[i]*tau*tau);
-        theta_r   =  psi*theta;
-        theta_rr  =  psi_r*theta + psi*theta_r;
-
-        aux4helmholtz    +=  theta;
-        aux4helmholtzD   +=  theta_r;
-        aux4helmholtzDD  +=  theta_rr;
-    }
-
-    /*--------------------------------------------------------------------------
-     FINAL WATER HELMHOLTZ STATE
-    --------------------------------------------------------------------------*/
-    // Assemble the contributions from each auxiliary Helmholtz state
-    in->helmholtz    = aux0helmholtz    + aux1helmholtz    + aux2helmholtz    + aux3helmholtz    + aux4helmholtz;
-    in->helmholtzD   =                    aux1helmholtzD   + aux2helmholtzD   + aux3helmholtzD   + aux4helmholtzD;
-    in->helmholtzDD  =                                       aux2helmholtzDD  + aux3helmholtzDD  + aux4helmholtzDD;
-
-    // Convert the Helmholtz free energy of water and its derivatives to dimensioned form
-    in->helmholtz    *=  in->refF;
-    in->helmholtzD   *=  in->refF/in->refrho;
-    in->helmholtzDD  *=  in->refF/in->refrho/in->refrho;
-}
-
-void HelmholtzWP_calc( HelmholtzWP      *WP,
-                        double           TK,
-                        double           D,
-                        double           Tcr,
-                        double           Dcr        ){
-    HelmholtzWP *in  = (HelmholtzWP *) WP;
-    int j;
-    double tau   = Tcr/TK;
-    double delta = D/Dcr;
-
-    double phio     =  log(delta) + in->no[1] + in->no[2]*tau + in->no[3]*log(tau);
-    double phio_d   =  1.0/delta;
-    double phio_dd  = -1.0/pow(delta,2.0);
-
-    double ee = 0.0;
-
-    for(int i = 4; i < 9; ++i){
-        j = i - 4;
-        ee = exp(in->gammao[j] * tau);
-        phio     = phio + in->no[i] * log(1.0 - 1.0/ee);
-    }
-
-    double phir     = 0.0;
-    double phir_d   = 0.0;
-    double phir_dd  = 0.0;
-
-    double xA,xA_d,xA_dd,dci;
-    for(int i = 1; i < 8; ++i){
-
-        xA     = in->n[i]*pow(delta,in->d[i])*pow(tau,in->t[i]);
-        xA_d   = in->d[i]/delta * xA;
-        xA_dd  = (in->d[i] - 1.0)/delta * xA_d;
-
-        phir     +=  xA;
-        phir_d   +=  xA_d;
-        phir_dd  +=  xA_dd;
-    }
-
-    double     xB,xB_d,xB_dd;
-    for(int i = 8; i < 52; ++i){
-
-        dci = pow(delta,in->c[i]);
-
-        xB     =  in->n[i]*pow(delta,in->d[i])*pow(tau,in->t[i])*exp(-dci);
-        xB_d   = (in->d[i] - in->c[i]*dci)/delta * xB;
-        xB_dd  = (in->d[i] - in->c[i]*dci - 1.0)/delta * xB_d - dci*pow((in->c[i]/delta),2.0) * xB;
-
-        phir     = phir + xB;
-        phir_d   = phir_d + xB_d;
-        phir_dd  = phir_dd + xB_dd;
-    }
-
-    double aux1d,aux2d,xC,xC_d,xC_dd;
-
-    for(int i = 52; i < 55; ++i){
-        j = i - 52;
-
-        aux1d = (in->d[i]/delta - 2.0*in->alpha[j]*(delta - in->epsilon[j]));
-        aux2d = (in->d[i]/pow(delta,2.0) + 2.0*in->alpha[j]);
-
-        xC     = in->n[i] * pow(delta,in->d[i]) * pow(tau,in->t[i]) * exp(-in->alpha[j]*pow((delta - in->epsilon[j]),2.0) - in->beta[j]*pow((tau - in->gamma[j]),2.0));
-        xC_d   = aux1d * xC;
-        xC_dd  = aux1d * xC_d - aux2d * xC;
-
-        phir     = phir + xC;
-        phir_d   = phir_d + xC_d;
-        phir_dd  = phir_dd + xC_dd;
-    }
-
-    double dd,tt,theta,theta_d,theta_dd,psi,psi_d,psi_dd;
-    double Delta,Delta_d,Delta_dd;
-    double DeltaPow,DeltaPow_d,DeltaPow_dd;
-    double xD,xD_d,xD_dd;
-        
-    for(int i = 55; i < 57; ++i){
-        j = i - 55;
-
-        dd = pow((delta - 1.0),2.0);
-        tt = pow((tau - 1.0),2.0);
-        
-        theta     = (1.0 - tau) + in->A[j]*pow(dd,(0.5/in->E[j]));
-        theta_d   = (theta + tau - 1.0)/(delta - 1.0)/in->E[j];
-        theta_dd  = (1.0/in->E[j] - 1.0) * theta_d/(delta - 1.0);
-        
-        psi     = exp(-in->C[j]*dd - in->F[j]*tt);
-        psi_d   = -2.0*in->C[j]*(delta - 1.0) * psi;
-        psi_dd  = -2.0*in->C[j]*(psi + (delta - 1.0) * psi_d);
-        
-        Delta     = theta*theta + in->B[j]*pow(dd,in->a[j]);
-        Delta_d   = 2.0*(theta*theta_d + in->a[j]*(Delta - theta*theta)/(delta - 1));
-        Delta_dd  = 2.0*(theta_d*theta_d + theta*theta_dd + in->a[j] * ((Delta_d - 2.0*theta*theta_d)/(delta - 1.0) - (Delta - theta*theta)/pow((delta - 1.0),2.0)));
-        
-        DeltaPow     =  pow(Delta,in->b[j]);
-        DeltaPow_d   =  in->b[j]*Delta_d/Delta * DeltaPow;
-        DeltaPow_dd  = (in->b[j]*Delta_dd/Delta + in->b[j]*(in->b[j] - 1.0)*pow((Delta_d/Delta),2.0)) * DeltaPow;
-        
-        xD     = in->n[i]*DeltaPow*delta*psi;
-        xD_d   = in->n[i]*(DeltaPow*(psi + delta*psi_d) + DeltaPow_d*delta*psi);
-        xD_dd  = in->n[i]*(DeltaPow*(2.0*psi_d + delta*psi_dd) + 2.0*DeltaPow_d*(psi + delta*psi_d) + DeltaPow_dd*delta*psi);
-    
-        phir     +=  xD;
-        phir_d   +=  xD_d;
-        phir_dd  +=  xD_dd;
-    }
-
-    double phi     = phio     + phir    ;
-    double phi_d   = phio_d   + phir_d  ;
-    double phi_dd  = phio_dd  + phir_dd ;
-
-    double dD   =  1.0/Dcr;
-
-    double phiD   = phi_d*dD;
-    double phiDD  = phi_dd*dD*dD;
-
-    /*--------------------------------------------------------------------------
-     FINAL WATER HELMHOLTZ STATE
-    --------------------------------------------------------------------------*/
-    in->helmholtz    = in->R*TK*phi;
-    in->helmholtzD   = in->R*TK*phiD;
-    in->helmholtzDD  = in->R*TK*phiDD;
-}
-
-
-// typedef struct PropSub_datas {
-//     double R;
-//     double no[8];
-
-// } PropSub_data;
-
-// PropSub_data PS_data = {
-    
-//     0.0,
-//     0.0
-// };
-
-
-// function [density, densityT, densityP, densityTT, densityTP, densityPP] = Rho(Pbar,TK,Rhocalc)
-void rho_wat_calc(      solvent_prop    *wat,
-                        double           Pbar,
-                        double           TK,
-                        char            *opt        ){
-
-    solvent_prop *d     = (solvent_prop *) wat;
-
-    HelmholtzWP   WP    = helm_WP;
-    HelmholtzHGK  HGK   = helm_HGK;
-
-    double Tcr = 647.096;                                       //waterCriticalTemperature;
-    double Dcr = 322.0;                                         //waterCriticalDensity;
-    
-    if (strcmp( opt, "HGK") == 0 || strcmp( opt, "WP") == 0){
-        double D        = 0.0;
-        double b1       =  1.99274064;
-        double b2       =  1.09965342;
-        double b3       = -0.510839303;
-        double b4       = -1.75493479;
-        double b5       = -45.5170352;
-        double b6       = -6.74694450e+05;
-        double t        = 1.0 - TK/Tcr;
-        double t13      = pow(t,1.0/3.0);
-        double t23      = t13 * t13;
-        double t53      = t13 * t23 * t23;
-        double t163     = t13 * t53 * t53 * t53;
-        double t433     = t163 * t163 * t53 * t * t;
-        double t1103    = t433 * t433 * t163 * t53 * t;
-        
-        if (TK > Tcr){
-            D = 0.99*Dcr;
-        }   
-        else{
-            D = Dcr * (1.0 + b1*t13 + b2*t23 + b3*t53 + b4*t163 + b5*t433 + b6*t1103);
-        }
-        
-        double Pcr = 22.064e6;                                      //waterCriticalPressure; - In Pa - so 220.64 bars
-
-        double f,df;
-        //Apply Newton's method to the pressure-density equation
-        for (int i = 0; i < 100; i++){
-            if (strcmp( opt, "HGK") == 0 ){                         //Haar, Gallagher, and Kell (1984)
-                HelmholtzHGK_calc( &HGK, TK, D );
-                f  = (D*D*HGK.helmholtzD - (Pbar*100000.0))/Pcr;
-                df = (2.0*D*HGK.helmholtzD + D*D*HGK.helmholtzDD)/Pcr;
-                if (D > f/df){
-                    D = D - f/df;   
-                }
-                else{
-                   D = (Pbar*100000.0)/(D*HGK.helmholtzD);     
-                }
-            }
-            else{                                                   //Wagner and Pruss (1995)
-                HelmholtzWP_calc( &WP, TK, D, Tcr, Dcr);
-
-                f  = (D*D*WP.helmholtzD - (Pbar*100000.0))/Pcr;
-                df = (2.0*D*WP.helmholtzD + D*D*WP.helmholtzDD)/Pcr;     
-                if (D > f/df){
-                    D = D - f/df;   
-                }
-                else{
-                   D = (Pbar*100000.0)/(D*WP.helmholtzD);     
-                }
-            } 
-
-            if(fabs(f) < 1e-8){
-                break;
-            }
-        }
-        
-        //Set the density and its partial derivatives of the thermodynamic state of water
-        d->density   =  D;
-    }
-}
-
-
-void propSolvent_JN91_calc(     solvent_prop    *wat,
-                                double           TK     ){
-
-    solvent_prop *in  = (solvent_prop *) wat;
-
-
-    double Tr = 298.15;
-    double Dr = 1000.0;
-    double t  = TK/Tr;
-    double r  = in->density/Dr;
-    double a[] = {0.0000000000e+00,0.1470333593e+02,0.2128462733e+03,-0.1154445173e+03,0.1955210915e+02,-0.8330347980e+02,0.3213240048e+02,-0.6694098645e+01,-0.3786202045e+02,0.6887359646e+02,-0.2729401652e+02};
-
-    /*--------------------------------------------------------------------------
-    CALCULATION
-    --------------------------------------------------------------------------*/
-    double k1 = 1.0;  // k0
-    double k2 = a[1]/t;   // k1
-    double k3 = a[2]/t + a[3] + a[4]*t;   // k2
-    double k4 = a[5]/t + a[6]*t + a[7]*t*t;   // k3
-    double k5 = a[8]/t/t + a[9]/t + a[10];   // k4
-
-    double k[] = {k1,k2,k3,k4,k5};
-
-    double epsilon = 0.0;
-    double ri;
-    for (int i = 0; i < 5; i++){
-        ri = pow(r,((double)i));
-        epsilon += k[i]*ri;
-    }
-
-    //--------------------------------------------------------------------------
-    // FINAL BORN FUNCTIONS
-    //--------------------------------------------------------------------------
-    in->epsilon = epsilon;
-    in->Z = -1.0/epsilon;;
-}
-
-void propSolvent_SV14_calc(     solvent_prop    *wat,
-                                double           Pbar,
-                                double           TK       ){
-
-    solvent_prop *in  = (solvent_prop *) wat;
-    // Constants
-    double a[] = {0.0000000000, -1.576377e-03, 6.810288e-02, 7.548755e-01};
-    double b[] = {0.0000000000, -8.016651e-05, -6.871618e-02, 4.747973};
-
-    double TC = TK - 273.15;
-    double density = in->density/1000.0;
-
-    double epsilon = exp(b[1]*TC + b[2]*pow(TC,0.5) + b[3])*pow(density,(a[1]*TC + a[2]*pow(TC,0.5) + a[3]));
-
-    in->epsilon = epsilon;
-    in->Z = -1.0/epsilon;
-
-}
-
-
-void propSolvent_FE97_calc(     solvent_prop    *wat,
-                                double           Pbar,
-                                double           TK       ){
-
-    solvent_prop *in  = (solvent_prop *) wat;
-    //--------------------------------------------------------------------------
-    // Constants
-    double II[] = {1.0, 1.0, 1.0, 2.0, 3.0, 3.0, 4.0, 5.0, 6.0, 7.0, 10.0};
-    double J[] = {0.25, 1.0, 2.5, 1.5, 1.5, 2.5, 2.0, 2.0, 5.0, 0.5, 10.0};
-    double n[] = {0.978224486826, -0.957771379375, 0.237511794148, 0.714692244396, -0.298217036956, -0.108863472196, 0.949327488264e-1, -0.980469816509e-2, 0.165167634970e-4, 0.937359795772e-4, -0.12317921872e-9, 0.196096504426e-2};
-
-    double Tcr = 647.096; //waterCriticalTemperature;
-    double Dcr = 322.0; //waterCriticalDensity;
-    double Pcr = 22.064; //waterCriticalPressure; - In MPa - Do I need to convert? 22.064e6 Pa = 220.64 bars
-
-    //--------------------------------------------------------------------------
-    // CALCULATION
-    //--------------------------------------------------------------------------
-    // Constants
-    double k        = 1.380658e-23;
-    double Na       = 6.0221367e23;
-    double alfa     = 1.636e-40;
-    double epsilon0 = 8.854187817e-12;
-    double mu       = 6.138e-30;
-    double M        = 0.018015268;
-
-    double g = 1.0 + n[11]*(in->density/Dcr)/(pow((Tcr/228.0/(Tcr/TK)-1.0),1.2));
-    double epsilon, A, B;
-    for (int i = 0; i < 11; i++){
-        g = g + n[i]*pow((in->density/Dcr),II[i])*pow((Tcr/TK),J[i]);
-    }
-    A = Na * mu*mu * in->density * g / M / epsilon0 / k / TK;
-    B = Na * alfa * in->density / 3.0 / M / epsilon0;
-    epsilon = (1.0+A+5.0*B + pow((9.0+2.0*A+18.0*B+A*A+10.0*A*B+9.0*B*B),0.5)) / 4.0 / (1.0-B);
-
-    //--------------------------------------------------------------------------
-    // FINAL EPSILON AND BORN FUNCTIONS
-    //--------------------------------------------------------------------------
-    in->epsilon = epsilon;
-    in->Z = -1.0/epsilon;
-
-}
 
 PP_ref TC_G_EM_function(	int 		 EM_dataset, 
 							int 		 len_ox,
@@ -635,6 +60,7 @@ PP_ref TC_G_EM_function(	int 		 EM_dataset,
 	double tc 		= 0.0;
 	double kbar2bar = 1e3;
 	double RTlnf 	= 0.0;
+	double water_density_gcm3 = 0.0;		/** g/cm3, from the Pitzer & Sterner (1994) molar volume below; only set when name=="H2O" - used by G_DEW_function's solvent EOS (DEW2019) */
 	t0 				= 298.15;
 	p0 				= 0.001;
 	R  				= 0.0083144; 
@@ -722,10 +148,14 @@ PP_ref TC_G_EM_function(	int 		 EM_dataset,
 		
 		double r      =   1.0/vsub;
 		double Ares   =   R1*T*( c1*r + (1.0/(c2 + c3*r + c4*pow(r, 2.0) + c5*pow(r, 3.0) + c6*pow(r, 4.0)) - 1.0/c2) - c7/c8*(exp(-c8*r) - 1.0) - c9/c10*(exp(-c10*r) - 1.0) );
-		vterm         =   (Ares + p_bar*vsub + R1*T*(log( R1*T / vsub ) - 1.0)) * 1e-4;	
+		vterm         =   (Ares + p_bar*vsub + R1*T*(log( R1*T / vsub ) - 1.0)) * 1e-4;
 
         // printf("vterm: %f\n", vterm);
         // printf("Ares: %f\n", Ares);
+
+		if (strcmp( name, "H2O") == 0){
+			water_density_gcm3 = 18.015/vsub;		/** vsub in cm3/mol -> g/cm3 */
+		}
 	}
 	/**
 	 	here we use the CORK EOS to calculate G_O2 (see Holland & Powell, 1991) 
@@ -912,131 +342,289 @@ PP_ref TC_G_EM_function(	int 		 EM_dataset,
 	}
 	PP_ref_db.gbase   =  gbase;
 	PP_ref_db.factor  =  factor;
+	PP_ref_db.phase_density =  water_density_gcm3;	/** g/cm3, only meaningful for name=="H2O" (0.0 otherwise) */
 	PP_ref_db.phase_shearModulus  =  (EM_return.input_4[0]*kbar2bar + (P - p0)*(EM_return.input_4[1])*kbar2bar + (T - t0)*(EM_return.input_4[2]))/kbar2bar;
 
 	return (PP_ref_db);
 }
 
-PP_ref G_FS_function(		int 		 len_ox,
-							solvent_prop *wat,
-							int         *id,
-							double 		*bulk_rock, 
-                            double      *ElH,
-							double 		*apo, 
-							double 		 P, 
-							double 		 T, 
-							char 		*name, 
-							char		*state			
-){
-	solvent_prop *in = (solvent_prop *) wat;
 
+/**************************************************************************************/
+/**************************************************************************************/
+/* DEW2019 (Deep Earth Water) aqueous species standard-state EOS                      */
+/*--------------------------------------------------------------------------          */
+/* Port of MAGEMin.jl's DEW_19_gbase.jl / DEW_19_a-x.jl (Sverjensky and co-workers,   */
+/* Deep Earth Water model, https://www.dewcomputes.org). See                          */
+/* tools/DEW_implementation_plan.md for the porting strategy.                         */
+/*                                                                                     */
+/* Water density (rho_w, g/cm3) is obtained from TC_G_EM_function's own H2O standard  */
+/* state (Pitzer & Sterner, 1994 EOS) - this keeps fl_DEW's solvent consistent with    */
+/* the rest of the TC-group database's own H2O endmember, and its molar-volume-derived */
+/* density is already in g/cm3.                                                        */
+/**************************************************************************************/
 
-	/* Get thermodynamic data */
-	FS_db FS_return;
-	int i, p_id = find_FS_id(name);
-	FS_return   = Access_FS_DB(p_id);
-	
-	/* Get composition (in molar amount) */
-	double composition[len_ox];
-	for (i = 0; i < len_ox; i ++){
-		composition[i] = FS_return.Comp[id[i]];
-	}
-	double ZPrTr 	= -0.1278034682e-1;
-	double YPrTr 	= -0.5798650444e-4;
-	double Pref 	= 1.0;
-	double Tref 	= 298.15;
-	double eta 		= 0.166027e6;
-	double theta 	= 228.0;
-	double psi 		= 2600.0;
+/* Water saturation pressure (liquid-vapor equilibrium), Shock et al. (1992).
+   T_celsius in Celsius, returns bar. */
+double DEW_psat(double T_celsius){
+    double result  =  1.44021565e+00;
+    result += -2.75944904e-02 * T_celsius;
+    result +=  3.50602876e-04 * T_celsius*T_celsius;
+    result += -2.44834016e-06 * T_celsius*T_celsius*T_celsius;
+    result +=  1.57085668e-08 * T_celsius*T_celsius*T_celsius*T_celsius;
+    return result;
+}
 
-	double Volume 	= FS_return.input_1[0];
-	double Hr       = FS_return.input_1[2]/4.184;
-	double Sr 		= FS_return.input_1[1]/4.184;
-	double Gf 		= FS_return.input_1[3]/4.184;
-	double a1 		= FS_return.input_2[0];
-	double a2 		= FS_return.input_2[1];
-	double a3 		= FS_return.input_2[2];
-	double a4 		= FS_return.input_2[3];
-	double c1 		= FS_return.input_2[4];
-	double c2 		= FS_return.input_2[5];
-	double wr 		= FS_return.input_2[6];
-	double charge	= FS_return.input_3[0];
+/* Solvent g-function, Shock et al. (1992), used inside the Born term. T in K, P in bar, rho_w in g/cm3 */
+double DEW_gSolvent(double T, double P, double rho_w){
+    double min_rho_w = 1.0;
+    double TC = T - 273.15;
 
+    if (rho_w >= 1.0){
+        return 0.0;
+    }
+    else if ((P >= 500.0) && (rho_w <= min_rho_w)){
+        return 0.0;
+    }
+    else if ((P < 500.0) && (P >= 220.46) && (TC >= 373.917)){
+        return 0.0;
+    }
+    else if ((P < 220.46) && (P >= 1.00) && (P > DEW_psat(TC))){
+        return 0.0;
+    }
+    else{
+        double agP   = -2.037662,    agPP  =  5.747000e-3, agPPP = -6.557892e-6;
+        double bgP   =  6.107361,    bgPP  = -1.074337e-2, bgPPP =  1.268348e-5;
+        double ag1   =  3.66666e-16, ag2   = -1.504956e-10, ag3  =  5.01799e-14;
 
-	/* compute properties of the solute */
-	double TK 		= T;
-	double Pbar 	= P*1000.0;
-	double Z 		= in->Z;
-	double TC 		= T - 273.15;
-	double ag1 		= -2.037662;
-	double ag2 		=  5.747000e-3;
-	double ag3 		= -6.557892e-6;
-	double bg1 		=  6.107361;
-	double bg2 		= -1.074377e-2;
-	double bg3 		=  1.268348e-5;
-	double ag 		= ag1 + ag2*TC + ag3*TC*TC;
-	double bg 		= bg1 + bg2*TC + bg3*TC*TC;
-	double r 		= in->density/1000.0;
-	double g   		=  ag * pow((1.0 - r),bg);	
-    in->g           = g;
+        double aG = agP + agPP*TC + agPPP*TC*TC;
+        double bG = bgP + bgPP*TC + bgPPP*TC*TC;
 
-	/* Born coefficient */
-	double w, z, re, reref, X1, X2, G;
-	if (charge == 0.0){
-		w   = wr;
-	} 
-	else{
-		z       = charge;
-		reref   = z*z/(wr/eta + z/3.082);
-		re      = reref + fabs(z) * g;
-		X1      = -eta * (fabs(z*z*z)/(re*re) - z/pow((3.082 + g),2.0));
-		X2      = 2.0*eta * (z*z*z*z/(re*re*re) - z/pow((3.082 + g),3.0));
-		w       = eta * (z*z/re - z/(3.082 + g));
-	}
+        double f = 0.0;
+        if ((P <= 1000.0) && (TC >= 155.0) && (TC <= 355.0)){
+            f += ( pow((TC-155.0)/300.0, 4.8) + ag1*pow((TC-155.0)/300.0, 16.0) ) *
+                 ( ag2*pow(1000.0-P, 3.0) + ag3*pow(1000.0-P, 4.0) );
+        }
 
-	G  = 4.184 * (Gf - Sr * (TK - Tref) - c1 * (TK * log(TK / Tref) - TK + Tref) + a1 * (Pbar - Pref) + a2 * log((psi + Pbar) / (psi + Pref)) - c2 * ((1.0 / (TK - theta) - 1.0 / (Tref - theta)) * ((theta - TK) / theta) - TK / pow(theta,2.0) * log((Tref * (TK - theta)) / (TK * (Tref - theta)))) + (1.0 / (TK - theta)) * (a3 * (Pbar - Pref) + a4 * log((psi + Pbar) / (psi + Pref))) + (w * (-Z - 1.0) - wr * (-ZPrTr - 1.0) + wr * YPrTr * (TK - Tref)));
-	G /= 1000.0; // turn to kJ
+        return aG*pow(1.0 - rho_w, bG) - f;
+    }
+}
 
+/* Johnson & Norton (1991) dielectric constant of water. T in K, rho_w in g/cm3 */
+double DEW_JN_epsilon(double T, double rho_w){
+    double T_hat = T / 298.15;
+    double r     = rho_w;      /* already g/cm3, i.e. normalized to the 1000 kg/m3 reference */
 
-	/* fill structure to send back to main */
-	PP_ref PP_ref_db;
-	
-	/* Calculate normalizing factor using bulk-rock composition */
-	double factor  = 0.0;
-	
-	/* Calculate the number of atoms in the bulk-rock composition */
-	double fbc     = 0.0;
-	for (i = 0; i < len_ox; i++){
-		fbc += bulk_rock[i]*apo[i];
-	}
-	
-	/* Calculate the number of atom in the solution */
-	double ape = 0.0;
-	for (i = 0; i < len_ox; i++){
-		ape += composition[i]*apo[i];
-	}
-	
-	/* Calculate normalizing factor */
-	factor = fbc/ape;
+    double k0 = 1.0;
+    double k1 = 14.70333593 / T_hat;
+    double k2 = 212.8462733 / T_hat - 115.4445173 + 19.55210915 * T_hat;
+    double k3 = -83.3034798 / T_hat + 32.13240048 * T_hat - 6.69409865 * T_hat * T_hat;
+    double k4 = -37.86202045 / (T_hat*T_hat) + 68.87359646 / T_hat - 27.29401652;
 
-	strcpy(PP_ref_db.Name, name);
-	for (i = 0; i < len_ox; i++){
-		PP_ref_db.Comp[i] = composition[i];
-	}
+    return k0 + k1*r + k2*r*r + k3*r*r*r + k4*r*r*r*r;
+}
 
-    /* convert Gibbs energy from SUPCRT to HSC convention */
-    // double cor        =  SUPCRT_to_HSC(ElH, composition, len_ox);
+/* Sverjensky et al. (2014) dielectric constant of water ("DM"). T in K, rho_w in g/cm3 */
+double DEW_DM_epsilon(double T, double rho_w){
+    double a1 = -1.57637700752506e-3, a2 =  6.81028783422197e-2, a3 =  7.54875480393944e-1;
+    double b1 = -8.01665106535394e-5, b2 = -6.87161761831994e-2, b3 =  4.74797272182151e0;
 
-	PP_ref_db.charge  =  charge;
-	PP_ref_db.gbase   =  G;// + cor;
-	PP_ref_db.factor  =  factor;
-	PP_ref_db.phase_shearModulus  = 0.0;
-    
-	printf(" %4s %+10f %+10f | factor: %+10f\n",name,G,PP_ref_db.gbase,PP_ref_db.factor);
-	for (i = 0; i < len_ox; i++){
-		printf("%+10f",PP_ref_db.Comp[i]*PP_ref_db.factor); 
-	}
-	printf("\n\n");
+    double aTK1 = -5.8274486041453000E-02, aTK2 =  2.2389805995733700E+00, aTK3 = -2.0249736922093000E+01;
+    double bTK1 =  5.7128535105795700E-02, bTK2 = -2.2591436511452200E+00, bTK3 =  2.6398103834434400E+01;
 
-	return (PP_ref_db);
+    double TC = T - 273.15;
+
+    double rho_wExponent, expExponent;
+    if (TC > 0.0){
+        rho_wExponent = a1*TC + a2*sqrt(TC) + a3;
+        expExponent   = b1*TC + b2*sqrt(TC) + b3;
+    }
+    else{
+        rho_wExponent = aTK1*T + aTK2*sqrt(T) + aTK3;
+        expExponent   = bTK1*T + bTK2*sqrt(T) + bTK3;
+    }
+
+    return exp(expExponent) * pow(rho_w, rho_wExponent);
+}
+
+/* Smoothed (tanh-weighted around 5000 bar) blend of the DM/JN dielectric constant models. T in K, P in bar, rho_w in g/cm3 */
+double DEW_epsilon(double T, double P, double rho_w){
+    double DM_value = DEW_DM_epsilon(T, rho_w);
+    double JN_value = DEW_JN_epsilon(T, rho_w);
+
+    double width  = 1000.0;
+    double centre = 5000.0;
+    double weight, result = 0.0;
+
+    if (P < centre){
+        weight = 0.5 + tanh((P - centre)/width) / 2.0;
+        if (weight < 0.001){ weight = 0.0; }
+        result = weight*DM_value + (1.0 - weight)*JN_value;
+    }
+    else{
+        weight = 0.5 - tanh((P - centre)/width) / 2.0;
+        if (weight < 0.001){ weight = 0.0; }
+        result = weight*JN_value + (1.0 - weight)*DM_value;
+    }
+    return result;
+}
+
+/* Born function B. T in K, P in bar, rho_w in g/cm3 */
+double DEW_born_B(double T, double P, double rho_w){
+    double Epsilon = DEW_epsilon(T, P, rho_w);
+    return -1.0 / Epsilon;
+}
+
+/* Debye-Hückel A parameter, as used by the DEW aqueous speciation solver (aq_min_iterative port). */
+double DEW_Agamma(double T, double P, double rho_w){
+    double Epsilon = DEW_epsilon(T, P, rho_w);
+    return 1.824829238e6 * sqrt(rho_w) / pow(Epsilon*T, 1.5);
+}
+
+/* Debye-Hückel B parameter, as used by the DEW aqueous speciation solver (aq_min_iterative port). */
+double DEW_Bgamma(double T, double P, double rho_w){
+    double Epsilon = DEW_epsilon(T, P, rho_w);
+    return 50.29158649 * sqrt(rho_w) / sqrt(Epsilon*T);
+}
+
+/**
+    Standard-state Gibbs free energy of a DEW2019 aqueous species (revised-HKF with
+    variable theta/c1/c2/omega0 and the DEW Born-solvation term). Direct port of
+    DEW_19_gbase.jl. T_r, P_r, Psi, eta and theta are universal solvent-EOS constants
+    shared by every species (not stored per-species, see TC_endmembers.h).
+*/
+AQ_ref G_DEW_function(     int              len_ox,
+                            int             *id,
+                            double          *ElEntropy,
+                            double           P,
+                            double           T,
+                            double           rho_w,
+                            char            *name          ){
+
+    /* Get thermodynamic data */
+    DEW_db DEW_return;
+    int i, p_id = find_DEW_id(name);
+    DEW_return  = Access_DEW_DB(p_id);
+
+    /* universal solvent-EOS constants, shared by every species */
+    double T_r   = 298.15;
+    double P_r   = 1.0;
+    double Psi   = 2600.0;
+    double eta   = 694657.0;
+    double theta = 228.0;
+
+    double G_ref  = DEW_return.input_1[0];
+    double S_ref  = DEW_return.input_1[1];
+    double a1     = DEW_return.input_1[2];
+    double a2     = DEW_return.input_1[3];
+    double a3     = DEW_return.input_2[0];
+    double a4     = DEW_return.input_2[1];
+    double c1     = DEW_return.input_2[2];
+    double c2     = DEW_return.input_2[3];
+    double rH     = DEW_return.input_3[0];
+    double omega0 = DEW_return.input_3[1];
+    double z      = DEW_return.input_3[2];
+    double mu_Hp  = DEW_return.input_4[0];
+
+    double Pbar = P * 1000.0;      /* P given in kbar, like every other TC_gem_function.c EOS */
+
+    double theta2 = theta*theta;
+    double theta3 = theta2*theta;
+    double theta_inv_T = 1.0/(T - theta);
+
+    double c1_theta3 = c1*theta3;
+    double c2_theta  = c2*theta;
+    double c_denom   = c1*theta2 + 2.0*c2;
+
+    /* Term 1: G_ref */
+    double gbase = G_ref;
+
+    /* Term 2: pressure terms */
+    double pressure_term = T*a1*theta_inv_T - a1*theta*theta_inv_T + a3*theta_inv_T;
+    gbase += Pbar*pressure_term - P_r*pressure_term;
+
+    /* Term 3: entropy term */
+    gbase -= S_ref*(T - T_r);
+
+    /* Term 4: log terms with c1, c2 */
+    double log_arg_T  = T   + (-c1_theta3 - 2.0*c2_theta)/c_denom;
+    double log_arg_Tr = T_r + (-c1_theta3 - 2.0*c2_theta)/c_denom;
+    gbase += T*c2*log(log_arg_T)/theta2;
+
+    /* complex reference-state term */
+    double t_ = ( -T_r*c1*theta2*log(T_r) - T_r*c1*theta2 - T_r*c2*log(T_r)
+                  + T_r*c2*log(T_r - c1_theta3/c_denom - 2.0*c2_theta/c_denom)
+                  + c1*theta3*log(T_r) + c1*theta3 + c2*theta*log(T_r)
+                  - c2*theta*log(T_r - c1_theta3/c_denom - 2.0*c2_theta/c_denom) + c2_theta );
+
+    gbase -= T*t_/(T_r*theta2 - theta3);
+    gbase -= T_r*c2*log(log_arg_Tr)/theta2;
+    gbase += T_r*t_/(T_r*theta2 - theta3);
+
+    /* Term 5: omega0 terms */
+    gbase -= 5.7986499999999998e-5*omega0*(T - T_r) - 0.9872562762839302*omega0;
+
+    /* Term 6: Born contribution */
+    double gS = DEW_gSolvent(T, Pbar, rho_w);
+    double born_contrib;
+    if (z == 0.0){
+        born_contrib = omega0;
+    }
+    else{
+        born_contrib = -eta*z/(rH + gS) +
+                        (eta*z/rH + omega0) / (1.0 + (z/rH + omega0/eta)*fabs(z)*gS/(z*z));
+    }
+    gbase -= (DEW_born_B(T, Pbar, rho_w) + 1.0)*born_contrib;
+
+    /* Term 7: a2, a4 pressure-temperature term */
+    double log_psi_P  = log(Pbar + Psi);
+    double log_psi_Pr = log(P_r  + Psi);
+    gbase += (T*a2 - a2*theta + a4)*(log_psi_P - log_psi_Pr)*theta_inv_T;
+
+    /* Term 8: final c1, c2 terms */
+    double log_arg_T2  = T   + (-c1_theta3 - c2_theta + theta*(c1*theta2 + c2))/c_denom;
+    double log_arg_Tr2 = T_r + (-c1_theta3 - c2_theta + theta*(c1*theta2 + c2))/c_denom;
+
+    gbase -= (T*c1*theta2   + T*c2)  *log(log_arg_T2) /theta2;
+    gbase += (T_r*c1*theta2 + T_r*c2)*log(log_arg_Tr2)/theta2;
+
+    /* Get composition + formation-reaction stoichiometry, sliced to the active oxide set */
+    double comp[len_ox];
+    double mu_comp[len_ox+1];
+    for (i = 0; i < len_ox; i++){
+        comp[i]    = DEW_return.Comp[id[i]];
+        mu_comp[i] = DEW_return.MuComp[id[i]];
+    }
+    mu_comp[len_ox] = mu_Hp;
+
+    /* HSC/SUPCRT conversion (mirrors DEW_19_gbase.jl's Sref block: MAGEMin's precomputed
+       per-oxide reference-entropy table (z_b.ElEntropy) is already Tr-scaled AND already
+       in kJ - unlike Julia's own raw per-element*Tr sum, which stays in J until the final
+       /1000 - so cor must be added post-/1000, not folded into the J-scale gbase) */
+    double cor = SUPCRT_to_HSC(ElEntropy, comp, len_ox);   /* kJ */
+
+    double gbase_supcrt = gbase / 1000.0;
+    double gbase_hsc    = gbase_supcrt + cor;
+
+    /* special case for H+ / H2 -> gbase = 0 (matches DEW_19_gbase.jl) */
+    if (strcmp(DEW_return.Name, "H+") == 0 || strcmp(DEW_return.Name, "H2") == 0){
+        gbase_supcrt = 0.0;
+        gbase_hsc    = 0.0;
+    }
+
+    /* fill structure to send back to main */
+    AQ_ref AQ_ref_db;
+
+    strcpy(AQ_ref_db.Name, name);
+    for (i = 0; i < len_ox; i++){
+        AQ_ref_db.Comp[i]   = comp[i];
+        AQ_ref_db.MuComp[i] = mu_comp[i];
+    }
+    AQ_ref_db.MuComp[len_ox] = mu_comp[len_ox];
+
+    AQ_ref_db.z             = z;
+    AQ_ref_db.gbase_supcrt  = gbase_supcrt;
+    AQ_ref_db.gbase         = gbase_hsc;
+    AQ_ref_db.factor        = 1.0;
+
+    return (AQ_ref_db);
 }

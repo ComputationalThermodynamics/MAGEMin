@@ -3,7 +3,7 @@
 #   Project      : MAGEMin_C
 #   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 #   Developers   : Nicolas Riel, Boris Kaus
-#   Contributors : Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Moccetti, N. B., Dominguez, H., Assunção J., Green E., Dolejš, D., Berlie N., and Rummel L.
 #   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
 #   Contact      : nriel[at]uni-mainz.de
 #
@@ -15,79 +15,6 @@ using MAGEMin_C
 function norm(vec :: Vector{Float64})
     return sqrt(sum(vec.^2))
 end
-
-#= A convenient testy test
-
-using MAGEMin_C
-data    = Initialize_MAGEMin("mp", verbose=-1);
-P,T     = 6.0, 710.0
-Xoxides = ["SiO2";  "TiO2";  "Al2O3";  "FeO";   "MnO";   "MgO";   "CaO";   "Na2O";  "K2O"; "H2O"; "O"];
-X       = [58.509,  1.022,   14.858, 4.371, 0.141, 4.561, 5.912, 3.296, 2.399, 10.0, 0.0];
-sys_in  = "wt"
-out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, scp = 1, dT=1.5)
-Finalize_MAGEMin(data)
-
-out.SS_vec[1].entropy * out.ph_frac[1] + out.SS_vec[2].entropy * out.ph_frac[2] + out.SS_vec[3].entropy * out.ph_frac[3] + out.SS_vec[4].entropy * out.ph_frac[4]+out.PP_vec[1].entropy * out.ph_frac[5] + out.PP_vec[2].entropy * out.ph_frac[6] + out.PP_vec[3].entropy * out.ph_frac[7]
-
-using MAGEMin_C
-data        =   Initialize_MAGEMin("ig", verbose=-1);
-test        =   0         #KLB1
-data        =   use_predefined_bulk_rock(data, test);
-P           =   8.0
-T           =   1800.0
-out         =   point_wise_minimization(P,T, data);
-Finalize_MAGEMin(data)
-
-using MAGEMin_C
-data        =   Initialize_MAGEMin("mb", verbose=-1);
-test        =   0         #KLB1
-data        =   use_predefined_bulk_rock(data, test);
-P           =   4.0
-T           =   600.0
-out         =   point_wise_minimization(P,T, data);
-Finalize_MAGEMin(data)
-
-
-using MAGEMin_C
-data        =   Initialize_MAGEMin("xMELTS", verbose=-1);
-test        =   0 #rough basalt
-data        =   use_predefined_bulk_rock(data, test);
-P           =   8.0
-T           =   800.0
-out         =   point_wise_minimization(P,T, data);
-
-using MAGEMin_C
-data        =   Initialize_MAGEMin("pMELTS", verbose=-1);
-test        =   0 #rough basalt
-data        =   use_predefined_bulk_rock(data, test);
-P           =   8.0
-T           =   800.0
-out         =   point_wise_minimization(P,T, data);
-
-
-using MAGEMin_C
-data        =   Initialize_MAGEMin("pMELTS", verbose=1);
-test        =   0 #rough basalt
-data        =   use_predefined_bulk_rock(data, test);
-P           =   8.0
-T           =   800.0
-#out         =   point_wise_minimization(P,T, data);
-rm_list =   remove_phases(["spn","rhm"],"pMELTS")
-out     = single_point_minimization(P, T, data, rm_list=rm_list)
-
-
-using MAGEMin_C
-data        =   Initialize_MAGEMin("rMELTS", verbose=-1);
-test        =   0 #rough basalt
-data        =   use_predefined_bulk_rock(data, test);
-P           =   1.0
-T           =   500.0
-out         =   point_wise_minimization(P,T, data)
-
-rm_list =   remove_phases(["spn","rhm"],"pMELTS")
-out     = single_point_minimization(P, T, data, rm_list=rm_list)
-
-=#
 
 data        =   Initialize_MAGEMin("sb21", verbose=-1);
 test        =   1         #KLB1

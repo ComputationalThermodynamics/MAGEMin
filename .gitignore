@@ -1,5 +1,8 @@
 environmental_variables.m
 MAGEMin
+MAGEMin_asan
+MAGEMin_asan_cli
+*.dSYM/
 MAGEMin_input.dat
 output/*
 src/*.o
@@ -17,3 +20,4 @@ Manifest.toml
 .DS_Store
 libMAGEMin.dylib
 **/.DS_Store
+**/.md

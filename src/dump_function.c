@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Moccetti, N. B., Dominguez, H., Assunção J., Green E., Dolejš, D., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -35,6 +35,7 @@
 #include "MAGEMin.h"
 #include "gem_function.h"
 #include "all_solution_phases.h"
+#include "TC_database/DEW_aq_solver.h"
 #include "toolkit.h"
 
 /**
@@ -449,6 +450,7 @@ void mSS_output_struct(			global_variable 	 gv,
 	int n_xeos, n_em;
 	for (int i = 0; i < gv.len_ss; i++){
 		if (SS_ref_db[i].ss_flags[0] == 1){
+			if (strcmp(gv.SS_list[i], "fl_DEW") == 0 || strcmp(gv.SS_list[i], "fl_DEW_S14") == 0){ continue; }
 
 			n_em 	 = SS_ref_db[i].n_em;
 			n_xeos 	 = SS_ref_db[i].n_xeos;
@@ -545,8 +547,8 @@ void fill_output_struct(		global_variable 	 gv,
 	for (int i = 0; i < gv.len_cp; i++){
 		if ( cp[i].ss_flags[1] == 1){
 
-			strcpy(sp[0].ph[n],cp[i].name);	
-			strcpy(sp[0].sol_name[n],SS_ref_db[cp[i].id].fName);	
+			strcpy(sp[0].ph[n],cp[i].name);
+			strcpy(sp[0].sol_name[n],SS_ref_db[cp[i].id].fName);
 
 			sp[0].ph_frac[n]  	 = cp[i].ss_n_mol;
 			sp[0].ph_frac_wt[n]  = cp[i].ss_n_wt;
@@ -590,8 +592,58 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].SS[m].bulkMod  = cp[i].phase_bulkModulus/10.;
 			sp[0].SS[m].shearMod = cp[i].phase_shearModulus/10.;
 			sp[0].SS[m].Vp 		 = sqrt((cp[i].phase_bulkModulus/10. + 4.0/3.0*cp[i].phase_shearModulus/10.)/(cp[i].phase_density/1e3));
-			sp[0].SS[m].Vs 		 = sqrt(cp[i].phase_shearModulus/10.0/(cp[i].phase_density/1e3));	
+			sp[0].SS[m].Vs 		 = sqrt(cp[i].phase_shearModulus/10.0/(cp[i].phase_density/1e3));
 
+			sp[0].SS[m].pH 		 	  = NAN;
+			sp[0].SS[m].chargeResidual = NAN;
+			sp[0].SS[m].sumMolality    = NAN;
+			sp[0].SS[m].G_water        = NAN;
+			for (j = 0; j < cp[i].n_em; j++){
+				sp[0].SS[m].molality[j] = NAN;
+				sp[0].SS[m].activity[j] = NAN;
+			}
+			if (strcmp( cp[i].name, "fl_DEW") == 0 || strcmp( cp[i].name, "fl_DEW_S14") == 0){
+				AQ_data AQ_pH = init_DEW_aqueous_model_at_point(	DEW_N_SPECIES_DB,
+																	gv.EM_dataset,
+																	gv.len_ox,
+																	z_b.id,
+																	z_b.bulk_rock,
+																	z_b.apo,
+																	z_b.ElEntropy,
+																	SS_ref_db[cp[i].id].P,
+																	SS_ref_db[cp[i].id].T			);
+				sp[0].SS[m].pH   = DEW_aq_pH(	&AQ_pH,
+												cp[i].p_em,
+												SS_ref_db[cp[i].id].T,
+												SS_ref_db[cp[i].id].P			);
+
+				int n_sp = AQ_pH.n_sp;
+				double *m_sp    = malloc(n_sp * sizeof(double));
+				double  gamma_e[5];
+				double  a_coef;
+				DEW_aq_activity_state(	&AQ_pH,
+										cp[i].p_em,
+										SS_ref_db[cp[i].id].T,
+										SS_ref_db[cp[i].id].P,
+										m_sp, gamma_e, &a_coef			);
+
+				double z_res = 0.0, sum_m = 0.0;
+				for (j = 0; j < n_sp; j++){
+					int z_id = (int)fabs(AQ_pH.z[j]);
+					sp[0].SS[m].molality[j] = m_sp[j];
+					sp[0].SS[m].activity[j] = m_sp[j]*gamma_e[z_id];
+					z_res += m_sp[j]*AQ_pH.z[j];
+					sum_m += m_sp[j];
+				}
+				sp[0].SS[m].activity[n_sp] = a_coef;
+
+				sp[0].SS[m].chargeResidual = fabs(z_res);
+				sp[0].SS[m].sumMolality    = sum_m;
+				sp[0].SS[m].G_water        = AQ_pH.gb_w;
+
+				free(m_sp);
+				free_DEW_aqueous_model(&AQ_pH);
+			}
 
 			if (gv.O_id != -1){
 				sp[0].SS[m].Comp_apfu[gv.O_id]    += sum_oxygens;
@@ -638,18 +690,34 @@ void fill_output_struct(		global_variable 	 gv,
 				for (k = 0; k < gv.len_ox; k++){
 					sp[0].SS[m].emComp[j][k]	= SS_ref_db[cp[i].id].Comp[j][k];
 					sp[0].SS[m].emComp_wt[j][k]	= sp[0].SS[m].emComp[j][k]*z_b.masspo[k];
-					sp[0].SS[m].emComp_apfu[j][k]	= SS_ref_db[cp[i].id].Comp[j][k]*z_b.cpo[j];;
-					sum_oxygens					   += SS_ref_db[cp[i].id].Comp[j][k]*z_b.opo[j];
+					sp[0].SS[m].emComp_apfu[j][k]	= SS_ref_db[cp[i].id].Comp[j][k]*z_b.cpo[k];;
+					sum_oxygens					   += SS_ref_db[cp[i].id].Comp[j][k]*z_b.opo[k];
 					sum_wt 					   += sp[0].SS[m].emComp_wt[j][k];
 					sum_mol 				   += sp[0].SS[m].emComp[j][k];
 				}
 				if (gv.O_id != -1){
-					sp[0].SS[m].emComp_apfu[j][gv.O_id]    += sum_oxygens;
+					/* sum_oxygens is the endmember's TOTAL oxygen-atom count (summed across every
+					   oxide component's own oxygen contribution, including the O component's).
+					   The generic per-k loop above already wrote a "raw" value into the O_id slot
+					   (Comp[j][O_id]*cpo[O_id], counting only the O component's own term once) -
+					   that value must be REPLACED by the true total, not added to it, otherwise
+					   the O component's contribution is counted twice. */
+					sp[0].SS[m].emComp_apfu[j][gv.O_id]    = sum_oxygens;
 				}
 
+				/* sum_wt/sum_mol are sums of signed formation-reaction coefficients for
+				   fl_DEW's charged aqueous species (Comp[] can be negative there, unlike
+				   every other phase's plain non-negative oxide recipe) and can legitimately
+				   be ~0 or negative for some species. Normalizing by a non-positive sum
+				   either divides by zero (NaN/Inf) or silently flips every sign, so leave
+				   the raw (already-assigned) signed values in that case instead. */
 				for (k = 0; k < gv.len_ox; k++){
-					sp[0].SS[m].emComp_wt[j][k]	/= sum_wt;
-					sp[0].SS[m].emComp[j][k]	/= sum_mol;
+					if (sum_wt > 1e-8){
+						sp[0].SS[m].emComp_wt[j][k]	/= sum_wt;
+					}
+					if (sum_mol > 1e-8){
+						sp[0].SS[m].emComp[j][k]	/= sum_mol;
+					}
 				}
 			}
 			for (j = 0; j < cp[i].n_em; j++){
@@ -657,8 +725,10 @@ void fill_output_struct(		global_variable 	 gv,
 
 			}
 
-			if (strcmp( cp[i].name, "liq") == 0 || strcmp( cp[i].name, "fl") == 0 ){
-				if (strcmp( cp[i].name, "liq") == 0){
+			if (strcmp( cp[i].name, "liq") == 0 || strcmp( cp[i].name, "fl") == 0 || strcmp( cp[i].name, "fl_DEW") == 0
+			 || strcmp( cp[i].name, "liq_W14") == 0 || strcmp( cp[i].name, "liq_G16") == 0 || strcmp( cp[i].name, "liq_G25w") == 0 || strcmp( cp[i].name, "liq_W24d") == 0
+			 || strcmp( cp[i].name, "fl_G25") == 0 || strcmp( cp[i].name, "fl_EF21") == 0 || strcmp( cp[i].name, "fl_H03") == 0 || strcmp( cp[i].name, "fl_DEW_S14") == 0){
+				if (strcmp( cp[i].name, "liq") == 0 || strcmp( cp[i].name, "liq_W14") == 0 || strcmp( cp[i].name, "liq_G16") == 0 || strcmp( cp[i].name, "liq_G25w") == 0 || strcmp( cp[i].name, "liq_W24d") == 0){
 					if (gv.n_phase == 1){
 						sp[0].entropy_M 			= cp[i].phase_entropy;
 						sp[0].frac_M 				= 1.0;
@@ -794,8 +864,10 @@ void fill_output_struct(		global_variable 	 gv,
 		if ( cp[i].ss_flags[1] == 1){
 			sp[0].ph_frac_vol[n] = sp[0].ph_frac_wt[n] / sp[0].SS[n].rho;
 
-			if (strcmp( cp[i].name, "liq") == 0 || strcmp( cp[i].name, "fl") == 0 ){
-				if (strcmp( cp[i].name, "liq") == 0){
+			if (strcmp( cp[i].name, "liq") == 0 || strcmp( cp[i].name, "fl") == 0 || strcmp( cp[i].name, "fl_DEW") == 0
+			 || strcmp( cp[i].name, "liq_W14") == 0 || strcmp( cp[i].name, "liq_G16") == 0 || strcmp( cp[i].name, "liq_G25w") == 0 || strcmp( cp[i].name, "liq_W24d") == 0
+			 || strcmp( cp[i].name, "fl_G25") == 0 || strcmp( cp[i].name, "fl_EF21") == 0 || strcmp( cp[i].name, "fl_H03") == 0 || strcmp( cp[i].name, "fl_DEW_S14") == 0){
+				if (strcmp( cp[i].name, "liq") == 0 || strcmp( cp[i].name, "liq_W14") == 0 || strcmp( cp[i].name, "liq_G16") == 0 || strcmp( cp[i].name, "liq_G25w") == 0 || strcmp( cp[i].name, "liq_W24d") == 0){
 						sp[0].frac_M_vol      = sp[0].ph_frac_vol[n];
 				}
 				else{

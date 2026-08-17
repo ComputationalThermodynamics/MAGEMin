@@ -38,23 +38,25 @@ end
 
 const EM_db = EM_db_
 
-mutable struct FS_db_
+mutable struct DEW_db_
     Name::NTuple{20, Cchar}
-    Comp::NTuple{17, Cdouble}
+    Comp::NTuple{16, Cdouble}
+    MuComp::NTuple{16, Cdouble}
     input_1::NTuple{4, Cdouble}
-    input_2::NTuple{7, Cdouble}
-    input_3::NTuple{1, Cdouble}
-    FS_db_() = new()
+    input_2::NTuple{4, Cdouble}
+    input_3::NTuple{3, Cdouble}
+    input_4::NTuple{1, Cdouble}
+    DEW_db_() = new()
 end
 
-const FS_db = FS_db_
+const DEW_db = DEW_db_
 
 function Access_EM_DB(id, EM_dataset)
     ccall((:Access_EM_DB, libMAGEMin), EM_db, (Cint, Cint), id, EM_dataset)
 end
 
-function Access_FS_DB(id)
-    ccall((:Access_FS_DB, libMAGEMin), FS_db, (Cint,), id)
+function Access_DEW_DB(id)
+    ccall((:Access_DEW_DB, libMAGEMin), DEW_db, (Cint,), id)
 end
 
 function get_arr_em_db_tc(EM_dataset)
@@ -103,34 +105,53 @@ function TC_G_EM_function(EM_database, len_ox, id, bulk_rock, apo, P, T, name, s
     ccall((:TC_G_EM_function, libMAGEMin), PP_ref, (Cint, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), EM_database, len_ox, id, bulk_rock, apo, P, T, name, state)
 end
 
-mutable struct solvent_properties
-    g::Cdouble
-    density::Cdouble
-    epsilon::Cdouble
-    Z::Cdouble
-    solvent_properties() = new()
+mutable struct AQ_refs
+    Name::NTuple{20, Cchar}
+    Comp::NTuple{17, Cdouble}
+    MuComp::NTuple{18, Cdouble}
+    z::Cdouble
+    gbase_supcrt::Cdouble
+    gbase::Cdouble
+    factor::Cdouble
+    AQ_refs() = new()
 end
 
-const solvent_prop = solvent_properties
+const AQ_ref = AQ_refs
 
-function G_FS_function(len_ox, wat, id, bulk_rock, ElH, apo, P, T, name, state)
-    ccall((:G_FS_function, libMAGEMin), PP_ref, (Cint, Ptr{solvent_prop}, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), len_ox, wat, id, bulk_rock, ElH, apo, P, T, name, state)
+function DEW_psat(T_celsius)
+    ccall((:DEW_psat, libMAGEMin), Cdouble, (Cdouble,), T_celsius)
 end
 
-function propSolvent_JN91_calc(wat, TK)
-    ccall((:propSolvent_JN91_calc, libMAGEMin), Cvoid, (Ptr{solvent_prop}, Cdouble), wat, TK)
+function DEW_gSolvent(T, P, rho_w)
+    ccall((:DEW_gSolvent, libMAGEMin), Cdouble, (Cdouble, Cdouble, Cdouble), T, P, rho_w)
 end
 
-function propSolvent_FE97_calc(wat, Pbar, TK)
-    ccall((:propSolvent_FE97_calc, libMAGEMin), Cvoid, (Ptr{solvent_prop}, Cdouble, Cdouble), wat, Pbar, TK)
+function DEW_JN_epsilon(T, rho_w)
+    ccall((:DEW_JN_epsilon, libMAGEMin), Cdouble, (Cdouble, Cdouble), T, rho_w)
 end
 
-function propSolvent_SV14_calc(wat, Pbar, TK)
-    ccall((:propSolvent_SV14_calc, libMAGEMin), Cvoid, (Ptr{solvent_prop}, Cdouble, Cdouble), wat, Pbar, TK)
+function DEW_DM_epsilon(T, rho_w)
+    ccall((:DEW_DM_epsilon, libMAGEMin), Cdouble, (Cdouble, Cdouble), T, rho_w)
 end
 
-function rho_wat_calc(wat, Pbar, TK, opt)
-    ccall((:rho_wat_calc, libMAGEMin), Cvoid, (Ptr{solvent_prop}, Cdouble, Cdouble, Ptr{Cchar}), wat, Pbar, TK, opt)
+function DEW_epsilon(T, P, rho_w)
+    ccall((:DEW_epsilon, libMAGEMin), Cdouble, (Cdouble, Cdouble, Cdouble), T, P, rho_w)
+end
+
+function DEW_born_B(T, P, rho_w)
+    ccall((:DEW_born_B, libMAGEMin), Cdouble, (Cdouble, Cdouble, Cdouble), T, P, rho_w)
+end
+
+function DEW_Agamma(T, P, rho_w)
+    ccall((:DEW_Agamma, libMAGEMin), Cdouble, (Cdouble, Cdouble, Cdouble), T, P, rho_w)
+end
+
+function DEW_Bgamma(T, P, rho_w)
+    ccall((:DEW_Bgamma, libMAGEMin), Cdouble, (Cdouble, Cdouble, Cdouble), T, P, rho_w)
+end
+
+function G_DEW_function(len_ox, id, ElEntropy, P, T, rho_w, name)
+    ccall((:G_DEW_function, libMAGEMin), AQ_ref, (Cint, Ptr{Cint}, Ptr{Cdouble}, Cdouble, Cdouble, Cdouble, Ptr{Cchar}), len_ox, id, ElEntropy, P, T, rho_w, name)
 end
 
 mutable struct EM_db_sb_
@@ -634,7 +655,7 @@ function nlopt_set_stochastic_population(pop)
 end
 
 struct ss_pc
-    xeos_pc::NTuple{25, Cdouble}
+    xeos_pc::NTuple{130, Cdouble}
 end
 
 mutable struct PC_refs
@@ -694,10 +715,12 @@ mutable struct global_variables
     BR_rel_norm::Cint
     gh_multistart_order::Cint
     fixed_bulk::Cint
+    DEW_solve_algorithm::Cint
+    warm_start::Cint
     SB_eos::Cint
     SB_eos_cor::Cint
     fluidSpec::Cint
-    n_fs_db::Cint
+    n_dew_db::Cint
     test::Cint
     bulk_rock::Ptr{Cdouble}
     arg_bulk::Ptr{Cdouble}
@@ -793,7 +816,6 @@ mutable struct global_variables
     obj_refine_fac::Cdouble
     act_rMELTS_liq_pc_synth::Cint
     liq_pc_synth_active::Cint
-    gh_liq_pc_synth_h::Cdouble
     gh_liq_pc_synth_threshold::Cint
     A_PGE::Ptr{Cdouble}
     A0_PGE::Ptr{Cdouble}
@@ -892,8 +914,8 @@ function find_EM_id(em_tag)
     ccall((:find_EM_id, libMAGEMin), Cint, (Ptr{Cchar},), em_tag)
 end
 
-function find_FS_id(em_tag)
-    ccall((:find_FS_id, libMAGEMin), Cint, (Ptr{Cchar},), em_tag)
+function find_DEW_id(em_tag)
+    ccall((:find_DEW_id, libMAGEMin), Cint, (Ptr{Cchar},), em_tag)
 end
 
 # typedef double ( * obj_type ) ( unsigned n , const double * x , double * grad , void * SS_ref_db )
@@ -989,6 +1011,8 @@ struct SS_refs
     sf_id::Cint
     Comp::Ptr{Ptr{Cdouble}}
     gbase::Ptr{Cdouble}
+    mu_comp::Ptr{Ptr{Cdouble}}
+    dew_warm_ok::Cint
     mu_array::Ptr{Ptr{Cdouble}}
     gb_lvl::Ptr{Cdouble}
     factor::Cdouble
@@ -996,6 +1020,7 @@ struct SS_refs
     bounds_ref::Ptr{Ptr{Cdouble}}
     d_em::Ptr{Cdouble}
     z_em::Ptr{Cdouble}
+    ox_penalty::Ptr{Cdouble}
     n_guess::Cint
     iguess::Ptr{Cdouble}
     dguess::Ptr{Cdouble}
@@ -1087,6 +1112,20 @@ mutable struct bulk_infos
     nzEl_array::Ptr{Cint}
     zEl_array::Ptr{Cint}
     id::Ptr{Cint}
+    SiO2_id::Cint
+    Al2O3_id::Cint
+    CaO_id::Cint
+    MgO_id::Cint
+    FeO_id::Cint
+    K2O_id::Cint
+    Na2O_id::Cint
+    TiO2_id::Cint
+    O_id::Cint
+    MnO_id::Cint
+    Cr2O3_id::Cint
+    H2O_id::Cint
+    CO2_id::Cint
+    S_id::Cint
     apo::Ptr{Cdouble}
     fbc::Cdouble
     masspo::Ptr{Cdouble}
@@ -1166,6 +1205,10 @@ struct stb_SS_phases
     shearMod::Cdouble
     Vp::Cdouble
     Vs::Cdouble
+    pH::Cdouble
+    chargeResidual::Cdouble
+    sumMolality::Cdouble
+    G_water::Cdouble
     n_xeos::Cint
     n_em::Cint
     n_sf::Cint
@@ -1175,6 +1218,8 @@ struct stb_SS_phases
     siteFractions::Ptr{Cdouble}
     siteFractionsNames::Ptr{Ptr{Cchar}}
     emNames::Ptr{Ptr{Cchar}}
+    molality::Ptr{Cdouble}
+    activity::Ptr{Cdouble}
     emFrac::Ptr{Cdouble}
     emFrac_wt::Ptr{Cdouble}
     emChemPot::Ptr{Cdouble}
@@ -1349,7 +1394,7 @@ mutable struct Database
     cp::Ptr{csd_phase_set}
     sp::Ptr{stb_system}
     EM_names::Ptr{Ptr{Cchar}}
-    FS_names::Ptr{Ptr{Cchar}}
+    DEW_names::Ptr{Ptr{Cchar}}
     Database() = new()
 end
 
@@ -1436,32 +1481,6 @@ struct UT_hash_handle
     hashv::Cuint
 end
 
-mutable struct metapelite_aq_datasets
-    ds_version::Cint
-    n_ox::Cint
-    n_pp::Cint
-    n_ss::Cint
-    ox::NTuple{12, NTuple{20, Cchar}}
-    PP::NTuple{27, NTuple{20, Cchar}}
-    SS::NTuple{18, NTuple{20, Cchar}}
-    verifyPC::NTuple{18, Cint}
-    n_SS_PC::NTuple{18, Cint}
-    SS_PC_stp::NTuple{18, Cdouble}
-    PC_df_add::Cdouble
-    solver_switch_T::Cdouble
-    min_melt_T::Cdouble
-    inner_PGE_ite::Cdouble
-    max_n_phase::Cdouble
-    max_g_phase::Cdouble
-    max_fac::Cdouble
-    merge_value::Cdouble
-    re_in_n::Cdouble
-    obj_tol::Cdouble
-    metapelite_aq_datasets() = new()
-end
-
-const metapelite_aq_dataset = metapelite_aq_datasets
-
 mutable struct metapelite_datasets
     ds_version::Cint
     n_ox::Cint
@@ -1495,10 +1514,10 @@ mutable struct metabasite_datasets
     n_ss::Cint
     ox::NTuple{10, NTuple{20, Cchar}}
     PP::NTuple{28, NTuple{20, Cchar}}
-    SS::NTuple{17, NTuple{20, Cchar}}
-    verifyPC::NTuple{17, Cint}
-    n_SS_PC::NTuple{17, Cint}
-    SS_PC_stp::NTuple{17, Cdouble}
+    SS::NTuple{18, NTuple{20, Cchar}}
+    verifyPC::NTuple{18, Cint}
+    n_SS_PC::NTuple{18, Cint}
+    SS_PC_stp::NTuple{18, Cdouble}
     PC_df_add::Cdouble
     solver_switch_T::Cdouble
     min_melt_T::Cdouble
@@ -1521,10 +1540,10 @@ mutable struct metabasite_ext_datasets
     n_ss::Cint
     ox::NTuple{10, NTuple{20, Cchar}}
     PP::NTuple{28, NTuple{20, Cchar}}
-    SS::NTuple{19, NTuple{20, Cchar}}
-    verifyPC::NTuple{19, Cint}
-    n_SS_PC::NTuple{19, Cint}
-    SS_PC_stp::NTuple{19, Cdouble}
+    SS::NTuple{20, NTuple{20, Cchar}}
+    verifyPC::NTuple{20, Cint}
+    n_SS_PC::NTuple{20, Cint}
+    SS_PC_stp::NTuple{20, Cdouble}
     PC_df_add::Cdouble
     solver_switch_T::Cdouble
     min_melt_T::Cdouble
@@ -1548,10 +1567,10 @@ mutable struct igneous_datasets
     ox::NTuple{11, NTuple{20, Cchar}}
     PP::NTuple{27, NTuple{20, Cchar}}
     act_PP::NTuple{27, Cint}
-    SS::NTuple{16, NTuple{20, Cchar}}
-    verifyPC::NTuple{16, Cint}
-    n_SS_PC::NTuple{16, Cint}
-    SS_PC_stp::NTuple{16, Cdouble}
+    SS::NTuple{17, NTuple{20, Cchar}}
+    verifyPC::NTuple{17, Cint}
+    n_SS_PC::NTuple{17, Cint}
+    SS_PC_stp::NTuple{17, Cdouble}
     PC_df_add::Cdouble
     solver_switch_T::Cdouble
     min_melt_T::Cdouble
@@ -1626,10 +1645,10 @@ mutable struct ultramafic_datasets
     n_ss::Cint
     ox::NTuple{7, NTuple{20, Cchar}}
     PP::NTuple{25, NTuple{20, Cchar}}
-    SS::NTuple{12, NTuple{20, Cchar}}
-    verifyPC::NTuple{12, Cint}
-    n_SS_PC::NTuple{12, Cint}
-    SS_PC_stp::NTuple{12, Cdouble}
+    SS::NTuple{13, NTuple{20, Cchar}}
+    verifyPC::NTuple{13, Cint}
+    n_SS_PC::NTuple{13, Cint}
+    SS_PC_stp::NTuple{13, Cdouble}
     PC_df_add::Cdouble
     solver_switch_T::Cdouble
     min_melt_T::Cdouble
@@ -1652,10 +1671,10 @@ mutable struct ultramafic_ext_datasets
     n_ss::Cint
     ox::NTuple{11, NTuple{20, Cchar}}
     PP::NTuple{27, NTuple{20, Cchar}}
-    SS::NTuple{18, NTuple{20, Cchar}}
-    verifyPC::NTuple{18, Cint}
-    n_SS_PC::NTuple{18, Cint}
-    SS_PC_stp::NTuple{18, Cdouble}
+    SS::NTuple{19, NTuple{20, Cchar}}
+    verifyPC::NTuple{19, Cint}
+    n_SS_PC::NTuple{19, Cint}
+    SS_PC_stp::NTuple{19, Cdouble}
     PC_df_add::Cdouble
     solver_switch_T::Cdouble
     min_melt_T::Cdouble
@@ -1703,11 +1722,11 @@ mutable struct metapelite_datasets_ext
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{13, NTuple{20, Cchar}}
-    PP::NTuple{32, NTuple{20, Cchar}}
-    SS::NTuple{26, NTuple{20, Cchar}}
-    verifyPC::NTuple{26, Cint}
-    n_SS_PC::NTuple{26, Cint}
-    SS_PC_stp::NTuple{26, Cdouble}
+    PP::NTuple{33, NTuple{20, Cchar}}
+    SS::NTuple{28, NTuple{20, Cchar}}
+    verifyPC::NTuple{28, Cint}
+    n_SS_PC::NTuple{28, Cint}
+    SS_PC_stp::NTuple{28, Cdouble}
     PC_df_add::Cdouble
     solver_switch_T::Cdouble
     min_melt_T::Cdouble
@@ -1722,6 +1741,32 @@ mutable struct metapelite_datasets_ext
 end
 
 const metapelite_dataset_ext = metapelite_datasets_ext
+
+mutable struct all_datasets
+    ds_version::Cint
+    n_ox::Cint
+    n_pp::Cint
+    n_ss::Cint
+    ox::NTuple{14, NTuple{20, Cchar}}
+    PP::NTuple{36, NTuple{20, Cchar}}
+    SS::NTuple{57, NTuple{20, Cchar}}
+    verifyPC::NTuple{57, Cint}
+    n_SS_PC::NTuple{57, Cint}
+    SS_PC_stp::NTuple{57, Cdouble}
+    PC_df_add::Cdouble
+    solver_switch_T::Cdouble
+    min_melt_T::Cdouble
+    inner_PGE_ite::Cdouble
+    max_n_phase::Cdouble
+    max_g_phase::Cdouble
+    max_fac::Cdouble
+    merge_value::Cdouble
+    re_in_n::Cdouble
+    obj_tol::Cdouble
+    all_datasets() = new()
+end
+
+const all_dataset = all_datasets
 
 function global_variable_TC_init(gv, z_b)
     ccall((:global_variable_TC_init, libMAGEMin), global_variable, (global_variable, Ptr{bulk_info}), gv, z_b)
@@ -1745,6 +1790,10 @@ end
 
 function get_bulk_metapelite_ext(gv)
     ccall((:get_bulk_metapelite_ext, libMAGEMin), global_variable, (global_variable,), gv)
+end
+
+function get_bulk_all(gv)
+    ccall((:get_bulk_all, libMAGEMin), global_variable, (global_variable,), gv)
 end
 
 mutable struct stx11_datasets
@@ -1894,8 +1943,8 @@ function get_EM_DB_names_gh(gv)
     ccall((:get_EM_DB_names_gh, libMAGEMin), Ptr{Ptr{Cchar}}, (global_variable,), gv)
 end
 
-function get_FS_DB_names(gv)
-    ccall((:get_FS_DB_names, libMAGEMin), Ptr{Ptr{Cchar}}, (global_variable,), gv)
+function get_DEW_DB_names(gv)
+    ccall((:get_DEW_DB_names, libMAGEMin), Ptr{Ptr{Cchar}}, (global_variable,), gv)
 end
 
 mutable struct em_datas
@@ -1913,10 +1962,6 @@ const em_data = em_datas
 
 function get_em_data(research_group, EM_dataset, len_ox, z_b, P, T, name, state)
     ccall((:get_em_data, libMAGEMin), em_data, (Ptr{Cchar}, Cint, Cint, bulk_info, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), research_group, EM_dataset, len_ox, z_b, P, T, name, state)
-end
-
-function get_fs_data(len_ox, z_b, wat, P, T, name, state)
-    ccall((:get_fs_data, libMAGEMin), em_data, (Cint, bulk_info, Ptr{solvent_prop}, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), len_ox, z_b, wat, P, T, name, state)
 end
 
 function CP_INIT_function(cp, gv)
@@ -2007,6 +2052,10 @@ function TC_SS_init_mtl(SS_init, gv)
     ccall((:TC_SS_init_mtl, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
 end
 
+function TC_SS_init_all(SS_init, gv)
+    ccall((:TC_SS_init_all, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
+end
+
 function TC_SS_init(SS_init, gv)
     ccall((:TC_SS_init, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
 end
@@ -2051,6 +2100,10 @@ function G_SS_mpe_EM_function(gv, SS_ref_db, EM_dataset, z_b, name)
     ccall((:G_SS_mpe_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_dataset, z_b, name)
 end
 
+function G_SS_all_EM_function(gv, SS_ref_db, EM_dataset, z_b, name)
+    ccall((:G_SS_all_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_dataset, z_b, name)
+end
+
 function TC_mb_objective_init_function(SS_objective, gv)
     ccall((:TC_mb_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
 end
@@ -2091,8 +2144,16 @@ function TC_mpe_objective_init_function(SS_objective, gv)
     ccall((:TC_mpe_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
 end
 
+function TC_all_objective_init_function(SS_objective, gv)
+    ccall((:TC_all_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
+end
+
 function TC_SS_objective_init_function(SS_objective, gv)
     ccall((:TC_SS_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
+end
+
+function TC_all_PC_init(PC_read, gv)
+    ccall((:TC_all_PC_init, libMAGEMin), Cvoid, (Ptr{PC_type}, global_variable), PC_read, gv)
 end
 
 function TC_PC_init(PC_read, gv)
@@ -2101,6 +2162,10 @@ end
 
 # typedef void ( * P2X_type ) ( void * SS_ref_db , double eps )
 const P2X_type = Ptr{Cvoid}
+
+function TC_all_P2X_init(P2X_read, gv)
+    ccall((:TC_all_P2X_init, libMAGEMin), Cvoid, (Ptr{P2X_type}, global_variable), P2X_read, gv)
+end
 
 function TC_P2X_init(P2X_read, gv)
     ccall((:TC_P2X_init, libMAGEMin), Cvoid, (Ptr{P2X_type}, global_variable), P2X_read, gv)
@@ -2526,6 +2591,10 @@ function obj_mpe_fsp(n, x, grad, SS_ref_db)
     ccall((:obj_mpe_fsp, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
+function obj_mpe_plc(n, x, grad, SS_ref_db)
+    ccall((:obj_mpe_plc, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
 function obj_mpe_bi(n, x, grad, SS_ref_db)
     ccall((:obj_mpe_bi, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
@@ -2618,8 +2687,8 @@ function obj_mpe_carp(n, x, grad, SS_ref_db)
     ccall((:obj_mpe_carp, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
-function obj_aq17(n, x, grad, SS_ref_db)
-    ccall((:obj_aq17, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+function obj_fl_DEW(n, x, grad, SS_ref_db)
+    ccall((:obj_fl_DEW, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
 function PC_function(gv, PC_read, SS_ref_db, z_b, ph_id)
@@ -2709,6 +2778,10 @@ function TC_mpe_NLopt_opt_init(NLopt_opt, gv)
     ccall((:TC_mpe_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
 end
 
+function TC_all_NLopt_opt_init(NLopt_opt, gv)
+    ccall((:TC_all_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
+end
+
 function NLopt_opt_ig_spl_function(gv, SS_ref_db)
     ccall((:NLopt_opt_ig_spl_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
 end
@@ -2721,16 +2794,16 @@ function NLopt_opt_ig_amp_function(gv, SS_ref_db)
     ccall((:NLopt_opt_ig_amp_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
 end
 
-function SS_mp_pc_init_function(SS_pc_xeos, iss, name)
-    ccall((:SS_mp_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
+function SS_mp_pc_init_function(SS_pc_xeos, iss, name, gv)
+    ccall((:SS_mp_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}, global_variable), SS_pc_xeos, iss, name, gv)
 end
 
-function SS_mb_pc_init_function(SS_pc_xeos, iss, name)
-    ccall((:SS_mb_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
+function SS_mb_pc_init_function(SS_pc_xeos, iss, name, gv)
+    ccall((:SS_mb_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}, global_variable), SS_pc_xeos, iss, name, gv)
 end
 
-function SS_ig_pc_init_function(SS_pc_xeos, iss, name)
-    ccall((:SS_ig_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
+function SS_ig_pc_init_function(SS_pc_xeos, iss, name, gv)
+    ccall((:SS_ig_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}, global_variable), SS_pc_xeos, iss, name, gv)
 end
 
 function SS_igd_pc_init_function(SS_pc_xeos, iss, name)
@@ -2741,16 +2814,16 @@ function SS_igad_pc_init_function(SS_pc_xeos, iss, name)
     ccall((:SS_igad_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
 end
 
-function SS_um_pc_init_function(SS_pc_xeos, iss, name)
-    ccall((:SS_um_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
+function SS_um_pc_init_function(SS_pc_xeos, iss, name, gv)
+    ccall((:SS_um_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}, global_variable), SS_pc_xeos, iss, name, gv)
 end
 
 function SS_mtl_pc_init_function(SS_pc_xeos, iss, name)
     ccall((:SS_mtl_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
 end
 
-function SS_mpe_pc_init_function(SS_pc_xeos, iss, name)
-    ccall((:SS_mpe_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
+function SS_mpe_pc_init_function(SS_pc_xeos, iss, name, gv)
+    ccall((:SS_mpe_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}, global_variable), SS_pc_xeos, iss, name, gv)
 end
 
 function SB_SS_init(SS_init, gv)
@@ -3166,14 +3239,14 @@ end
 
 const EM2id = EM2id_
 
-mutable struct FS2id_
-    FS_tag::NTuple{20, Cchar}
+mutable struct DEW2id_
+    DEW_tag::NTuple{20, Cchar}
     id::Cint
     hh::UT_hash_handle
-    FS2id_() = new()
+    DEW2id_() = new()
 end
 
-const FS2id = FS2id_
+const DEW2id = DEW2id_
 
 mutable struct PP2id_
     PP_tag::NTuple{20, Cchar}
@@ -3584,12 +3657,6 @@ const HASH_SIGNATURE = Cuint(0xa0111fe1)
 
 const HASH_BLOOM_SIGNATURE = Cuint(0xb12220f2)
 
-const n_ox_mpf = 12
-
-const n_ss_mpf = 18
-
-const n_pp_mpf = 27
-
 const n_ss_mp = 18
 
 const n_pp_mp = 27
@@ -3598,7 +3665,7 @@ const n_ox_mp = 11
 
 const n_ox_ig = 11
 
-const n_ss_ig = 16
+const n_ss_ig = 17
 
 const n_pp_ig = 27
 
@@ -3628,6 +3695,10 @@ struct SS_data
     shearMod::Cdouble
     Vp::Cdouble
     Vs::Cdouble
+    pH::Cdouble
+    chargeResidual::Cdouble
+    sumMolality::Cdouble
+    G_water::Cdouble
     Comp::Vector{Cdouble}
     Comp_wt::Vector{Cdouble}
     Comp_apfu::Vector{Cdouble}
@@ -3636,6 +3707,8 @@ struct SS_data
     siteFractions::Vector{Cdouble}
     siteFractionsNames::Vector{String}
     emNames::Vector{String}
+    molality::Vector{Cdouble}
+    activity::Vector{Cdouble}
     emFrac::Vector{Cdouble}
     emFrac_wt::Vector{Cdouble}
     emChemPot::Vector{Cdouble}
@@ -3644,8 +3717,9 @@ struct SS_data
     emComp_apfu::Vector{Vector{Float64}}
 end
 
-function Base.convert(::Type{SS_data}, a::stb_SS_phases) 
-    return SS_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.beta, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
+function Base.convert(::Type{SS_data}, a::stb_SS_phases)
+    return SS_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.beta, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs, a.pH,
+                                    a.chargeResidual, a.sumMolality, a.G_water,
                                     unsafe_wrap( Vector{Cdouble},        a.Comp,             a.nOx),
                                     unsafe_wrap( Vector{Cdouble},        a.Comp_wt,          a.nOx),
                                     unsafe_wrap( Vector{Cdouble},        a.Comp_apfu,        a.nOx),
@@ -3654,6 +3728,8 @@ function Base.convert(::Type{SS_data}, a::stb_SS_phases)
                                     unsafe_wrap( Vector{Cdouble},        a.siteFractions,    a.n_sf),
                     unsafe_string.( unsafe_wrap( Vector{Ptr{Int8}},      a.siteFractionsNames,a.n_sf)),
                     unsafe_string.( unsafe_wrap( Vector{Ptr{Int8}},      a.emNames,          a.n_em)),
+                                    unsafe_wrap( Vector{Cdouble},        a.molality,         a.n_em),
+                                    unsafe_wrap( Vector{Cdouble},        a.activity,         a.n_em),
                                     unsafe_wrap( Vector{Cdouble},        a.emFrac,           a.n_em),
                                     unsafe_wrap( Vector{Cdouble},        a.emFrac_wt,        a.n_em),
                                     unsafe_wrap( Vector{Cdouble},        a.emChemPot,        a.n_em),
@@ -3661,6 +3737,20 @@ function Base.convert(::Type{SS_data}, a::stb_SS_phases)
       unsafe_wrap.(Vector{Cdouble}, unsafe_wrap( Vector{Ptr{Cdouble}},   a.emComp_wt, a.n_em),  a.nOx),
       unsafe_wrap.(Vector{Cdouble}, unsafe_wrap( Vector{Ptr{Cdouble}},   a.emComp_apfu, a.n_em),  a.nOx)   )
 end
+
+# Fields only ever populated (non-NaN) for the fl_DEW aqueous phase - hidden from the
+# default display for every other solution phase, where they're meaningless NaN filler.
+const _SS_data_dew_only_fields = (:pH, :chargeResidual, :sumMolality, :G_water, :molality, :activity)
+
+function Base.show(io::IO, ::MIME"text/plain", ss::SS_data)
+    is_dew = !isnan(ss.chargeResidual)
+    println(io, "SS_data:")
+    for f in fieldnames(SS_data)
+        (!is_dew && f in _SS_data_dew_only_fields) && continue
+        println(io, "  ", f, " = ", getfield(ss, f))
+    end
+end
+Base.show(io::IO, ss::SS_data) = show(io, MIME("text/plain"), ss)
 
 # metastable phases
 struct mSS_data

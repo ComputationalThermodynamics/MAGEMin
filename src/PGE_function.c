@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Moccetti, N. B., Dominguez, H., Assunção J., Green E., Dolejš, D., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -1231,12 +1231,56 @@ global_variable update_cp_after_LP(					bulk_info 	 		 z_b,
 														z_b,
 														ph_id				);
 													
-			SS_ref_db[ph_id] = SS_UPDATE_function(		gv, 
-														SS_ref_db[ph_id], 
-														z_b, 
+			SS_ref_db[ph_id] = SS_UPDATE_function(		gv,
+														SS_ref_db[ph_id],
+														z_b,
 														gv.SS_list[ph_id]		);
 
-			/** 
+			/* fl_DEW-only: unlike every other phase, xeos alone does not determine a
+			   valid fl_DEW state - it must also satisfy the internal charge-balance
+			   condition Sum(m_i*z_i)=0, which only DEW_aq_min_multistart/_warmstart
+			   (via NLopt_opt_fl_DEW_function) actually enforces. This function copies
+			   whatever xeos cp[i] already holds (ss_flags[1]==1 phases can reach here
+			   without ever having been through ss_min_PGE/ss_min_LP's NLopt_opt call in
+			   the same run, if they never graduate to ss_flags[0]==1), re-scored only
+			   by the cheap PC_function G-evaluation used above - which, for fl_DEW,
+			   just reads whatever composition it is given and cannot detect or correct
+			   a charge imbalance. Confirmed via a user-reported reproduction (mbe,
+			   11.26kbar/581.25C, rm_list=[1,4,6,15,19,-13]) where a fl_DEW instance
+			   with chargeResidual=9.25 (raw, never-refined seed-derived: Ca+2/K+/Na+
+			   elevated with no compensating anion) still reached the final output even
+			   after NLopt_opt_fl_DEW_function itself was hardened to never return an
+			   unconverged candidate - because this function's copy_to_cp call never
+			   goes through NLopt_opt_fl_DEW_function at all. mole-fraction-weighted
+			   Sum(x_i*z_i) is proportional to the true molality-weighted charge residual
+			   (same positive Omega/x_water scale factor multiplies every species), so it
+			   is equally valid as a charge-balance check and needs no extra molality
+			   recomputation. 1e-3 safely separates a genuinely bad, unrefined candidate
+			   (this case: ~0.2) from the worst-case innocent trace-level asymmetry of a
+			   never-elevated baseline seed (~1e-4 at most, ~100 suppressed-or-not
+			   species at 1e-6 each). */
+			if ((strcmp(gv.SS_list[ph_id], "fl_DEW") == 0 || strcmp(gv.SS_list[ph_id], "fl_DEW_S14") == 0) && SS_ref_db[ph_id].sf_ok == 1){
+				/* SS_ref_db[ph_id] is a shared per-PHASE-TYPE scratch struct, not
+				   per-cp[]-instance - .xeos in particular is only ever written by
+				   NLopt_opt_fl_DEW_function (S.x), never by PC_function/obj_fl_DEW
+				   (which only write .iguess/.sf/.mu), so it still holds whatever the
+				   LAST NLopt_opt call for this ph_id left there regardless of which
+				   cp[i] this loop iteration is on - reading it here would silently
+				   check the wrong instance whenever fl_DEW has multiple simultaneous
+				   cp[] entries (a real solvus). .iguess is the correct field: it was
+				   just set from THIS cp[i].xeos a few lines above, and is what
+				   PC_function actually read and what copy_to_cp will copy back. */
+				double z_res = 0.0;
+				int n_sp = SS_ref_db[ph_id].n_em - 1;   /* water excluded: z=0, see G_SS_fl_DEW_function */
+				for (int k = 0; k < n_sp; k++){
+					z_res += SS_ref_db[ph_id].iguess[k]*SS_ref_db[ph_id].mat_phi[k];
+				}
+				if (fabs(z_res) > 1e-3){
+					SS_ref_db[ph_id].sf_ok = 0;
+				}
+			}
+
+			/**
 				print solution phase informations (print has to occur before saving PC)
 			*/
 			if (gv.verbose == 1){
@@ -1250,7 +1294,7 @@ global_variable update_cp_after_LP(					bulk_info 	 		 z_b,
 				/**
 					copy the minimized phase informations to cp structure
 				*/
-				copy_to_cp(								i, 
+				copy_to_cp(								i,
 														ph_id,
 														gv,
 														SS_ref_db,
@@ -1259,7 +1303,7 @@ global_variable update_cp_after_LP(					bulk_info 	 		 z_b,
 			else{
 				if (gv.verbose == 1){
 					printf(" !> SF [:%d] not respected for %4s (SS not updated)\n",SS_ref_db[ph_id].sf_id,gv.SS_list[ph_id]);
-				}	
+				}
 			}
 		}
 	}
@@ -1268,8 +1312,8 @@ global_variable update_cp_after_LP(					bulk_info 	 		 z_b,
 }
 
 /**
-  function to run simplex linear programming during PGE with pseudocompounds 
-*/	
+  function to run simplex linear programming during PGE with pseudocompounds
+*/
 global_variable LP_pc_composite(					bulk_info 			 z_b,
 													simplex_data 		*splx_data,
 													global_variable 	 gv,
@@ -1530,7 +1574,17 @@ global_variable LP(		bulk_info 			z_b,
 
 		t = clock();
 
-		if ((gv.gamma_norm[gv.global_ite-1] < 1.0 && gv.PC_checked < 2 && gv.global_ite > 1)){
+		/* gv.global_ite > 1 must be checked FIRST: && short-circuits left-to-right in C, so
+		   the original ordering (bound check last) still evaluated gv.gamma_norm[global_ite-1]
+		   on every entry to this loop, including the very first one for a point
+		   (global_ite==0), reading gv.gamma_norm[-1] - a heap-buffer-overflow confirmed via
+		   AddressSanitizer (PGE_function.c:1533, one double before the gv.gamma_norm
+		   allocation in TC_init_database.c). Usually silent (reads adjacent heap bytes), but
+		   segfaults whenever the allocator happens to place gamma_norm at the start of a
+		   fresh page - a heap-layout coincidence, not tied to any particular database/oxide
+		   chemistry, though richer speciation (e.g. mpe with both S and CO2 active) changes
+		   allocation patterns enough to shift how often that coincidence is hit. */
+		if ((gv.global_ite > 1 && gv.gamma_norm[gv.global_ite-1] < 1.0 && gv.PC_checked < 2)){
 			gv.PC_checked += 1;
 			if (gv.verbose == 1){
 				printf(" Checking PC for re-introduction:\n");
@@ -1624,10 +1678,29 @@ global_variable LP(		bulk_info 			z_b,
 		/* Increment global iteration value */
 		gv.global_ite += 1;
 
+		/* PGE_mass_norm/Alg/gamma_norm/gibbs_ev/ite_time are allocated at gv.it_f*2 entries
+		   (TC_init_database.c) - the convergence checks further down only bound global_ite
+		   against gv.it_f (half that), on the assumption this loop and the "PGE proper"
+		   loop below each stay within that budget. A genuinely hard/slow point (confirmed
+		   via AddressSanitizer: ume 1kbar/850C) can still drive global_ite past the array's
+		   actual gv.it_f*2 capacity before either soft check fires, overflowing these
+		   arrays. Hard-clamp here so that case reports clean non-convergence instead of
+		   corrupting the heap. */
+		if (gv.global_ite >= gv.it_f*2){
+			gv.global_ite = gv.it_f*2 - 1;
+			gv.div        = 1;
+			gv.status     = 4;
+			iterate       = 0;
+			if (gv.verbose == 1){
+				printf(" >%d iterations (hard cap), not diverging but not converging\n\n", gv.it_f*2);
+			}
+			break;
+		}
+
 		/* check evolution of mass constraint residual */
 		gv.PGE_mass_norm[gv.global_ite]  = gv.BR_norm;	/** save norm for the current global iteration */
 		gv.Alg[gv.global_ite] 			 = 0;
-		t 								 = clock() - t; 
+		t 								 = clock() - t;
 
 		if (gv.verbose == 1){
 			printf("\n __ iteration duration: %+4f ms __\n\n\n",((double)t)/CLOCKS_PER_SEC*1000);
@@ -1680,13 +1753,13 @@ global_variable LP(		bulk_info 			z_b,
 	gv = update_cp_after_LP(		z_b,
 									gv,
 									PC_read,
-									
+
 									PP_ref_db,
 									SS_ref_db,
 									cp					);
-	
+
 	return gv;
-};		
+};
 
 
 
@@ -1732,13 +1805,13 @@ global_variable LP_metastable(	bulk_info 			z_b,
 	gv = update_cp_after_LP(		z_b,
 									gv,
 									PC_read,
-									
+
 									PP_ref_db,
 									SS_ref_db,
 									cp					);
-	
+
 	return gv;
-};		
+};
 
 
 
@@ -1889,6 +1962,20 @@ global_variable PGE(	bulk_info 			z_b,
 		t = clock() - t; 
 		if (gv.verbose == 1){
 			printf("\n __ iteration duration: %+4f ms __\n\n\n",((double)t)/CLOCKS_PER_SEC*1000);
+		}
+
+		/* hard-clamp against PGE_mass_norm/Alg/gamma_norm/gibbs_ev/ite_time's actual
+		   gv.it_f*2 capacity - see the matching guard in the LP loop above for why the
+		   softer gv.it_f-based checks further down aren't sufficient on their own. */
+		if (gv.global_ite >= gv.it_f*2){
+			gv.global_ite = gv.it_f*2 - 1;
+			gv.div        = 1;
+			gv.status     = 4;
+			iterate       = 0;
+			if (gv.verbose == 1){
+				printf(" >%d iterations (hard cap), not diverging but not converging\n\n", gv.it_f*2);
+			}
+			break;
 		}
 
 		/* check evolution of mass constraint residual */

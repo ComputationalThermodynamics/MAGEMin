@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Moccetti, N. B., Dominguez, H., Assunção J., Green E., Dolejš, D., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -33,6 +33,8 @@ void TC_SS_init_mp_ext(	            SS_init_type 		*SS_init,
 void TC_SS_init_mb_ext(	            SS_init_type 		*SS_init,
 									global_variable 	 gv				);
 void TC_SS_init_mtl(	            SS_init_type 		*SS_init,
+									global_variable 	 gv				);
+void TC_SS_init_all(	            SS_init_type 		*SS_init,
 									global_variable 	 gv				);
 void TC_SS_init(	        	    SS_init_type 		*SS_init,
 									global_variable 	 gv				);

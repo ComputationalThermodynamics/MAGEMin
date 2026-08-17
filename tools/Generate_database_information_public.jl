@@ -1,3 +1,13 @@
+#=~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+#   Project      : MAGEMin_C
+#   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+#   Developers   : Nicolas Riel, Boris Kaus
+#   Contributors : Moccetti, N. B., Dominguez, H., Assunção J., Green E., Dolejš, D., Berlie N., and Rummel L.
+#   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
+#   Contact      : nriel[at]uni-mainz.de
+#
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ =#
 using MAGEMin_C
 
 
@@ -13,6 +23,7 @@ function get_database_infos()
                         "Ultramafic extended (Evans & Frost., 2021 with pl, amp and aug from Green et al., 2016)",
                         "Mantle (Holland et al., 2013)",
                         "Metapelite extended (White et al., 2014 with po from Evans & Frost., 2021, amp dio and aug from Green et al., 2016)",
+                        "Global solution dataset",
                         "Stixrude & Lithgow-Bertelloni (2011)",
                         "Stixrude & Lithgow-Bertelloni (2021)",
                         "Stixrude & Lithgow-Bertelloni (2024)",
@@ -20,9 +31,10 @@ function get_database_infos()
                         "pMELTS 5.6.1",
                         "rMELTS 1.2.0"]
 
-    database_list   =   ["mp","mb","mbe","ig","igad","igd","um","ume","mtl","mpe","sb11","sb21","sb24","xMELTS","pMELTS","rMELTS"]
-    dataset_default =   [62,62,62,636,636,634,633,633,633,62,-1,-1,-1,1,1,1]
+    database_list   =   ["mp","mb","mbe","ig","igad","igd","um","ume","mtl","mpe","all","sb11","sb21","sb24","xMELTS","pMELTS","rMELTS"]
+    dataset_default =   [62,62,62,636,636,634,633,633,633,62,636,-1,-1,-1,1,1,1]
     dataset_opt     =   (62, 633, 634, 635, 636),
+                        (62, 633, 634, 635, 636),
                         (62, 633, 634, 635, 636),
                         (62, 633, 634, 635, 636),
                         (62, 633, 634, 635, 636),

@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Moccetti, N. B., Dominguez, H., Assunção J., Green E., Dolejš, D., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -53,9 +53,16 @@ SS_ref SS_UPDATE_function(		global_variable 	 gv,
 		}
 
 		/* xi calculation (phase fraction expression for PGE) */
-		SS_ref_db.sum_xi 	= 0.0;	
-		for (int i = 0; i < SS_ref_db.n_em; i++){ 
-			SS_ref_db.xi_em[i] = exp(-SS_ref_db.mu[i]/(SS_ref_db.R*SS_ref_db.T));
+		SS_ref_db.sum_xi 	= 0.0;
+		for (int i = 0; i < SS_ref_db.n_em; i++){
+			/* Clamp the exponent's upper bound: for an ordinary phase mu[i]/RT never gets
+			   close to this, but fl_DEW's hyperplane-relative mu[i] can be astronomically
+			   negative for a formally-favored-but-effectively-absent charged species,
+			   overflowing exp() to +Inf; Inf*p[i] with p[i]==0 is then Inf*0=NaN, poisoning
+			   sum_xi (and everything downstream in PGE_function.c's mass-balance matrix
+			   that reads xi_em). No lower-bound clamp needed - underflow to 0 is the
+			   correct, harmless result for a genuinely unfavorable species. */
+			SS_ref_db.xi_em[i] = exp(fmin(-SS_ref_db.mu[i]/(SS_ref_db.R*SS_ref_db.T), 700.0));
 			SS_ref_db.sum_xi  += SS_ref_db.xi_em[i]*SS_ref_db.p[i]*SS_ref_db.z_em[i];
 		}
 
@@ -95,9 +102,10 @@ csd_phase_set CP_UPDATE_function(		global_variable 	gv,
 			break;
 		}
 	}
-	cp.sum_xi 	= 0.0;	
-	for (int i = 0; i < cp.n_em; i++){ 
-		cp.xi_em[i] = exp(-cp.mu[i]/(SS_ref_db.R*SS_ref_db.T));
+	cp.sum_xi 	= 0.0;
+	for (int i = 0; i < cp.n_em; i++){
+		/* see the matching clamp + comment in SS_UPDATE_function above */
+		cp.xi_em[i] = exp(fmin(-cp.mu[i]/(SS_ref_db.R*SS_ref_db.T), 700.0));
 		cp.sum_xi  += cp.xi_em[i]*cp.p_em[i]*SS_ref_db.z_em[i];
 	}
 
@@ -310,9 +318,9 @@ void ss_min_PGE(		global_variable 	 gv,
 			pc_check = gv.PC_checked;
 			ph_id = cp[i].id;
 			cp[i].min_time		  		= 0.0;								/** reset local minimization time to 0.0 */
-			u = clock(); 
+			u = clock();
 			/**
-				set the iguess of the solution phase to the one of the considered phase 
+				set the iguess of the solution phase to the one of the considered phase
 			*/
 			for (int k = 0; k < cp[i].n_xeos; k++) {
 				SS_ref_db[ph_id].iguess[k] = cp[i].xeos[k];
@@ -518,7 +526,7 @@ void ss_min_LP(			global_variable 	 gv,
 			candidate_ok 	= 1;
 			ph_id 			= cp[i].id;
 
-			/* NR-17/07/26 
+			/* NR-17/07/26
 				Here I added a target rule for rMELTS. The liquid model including H2O and CO2 leads to a large number of local minimum. Brute force exploration is needed to lead the minimization toward the global minimum.
 				This is something that is not needed for the other databases, as the Gibbs surface of other liquid models have smoother landscape.
 			*/
@@ -553,8 +561,6 @@ void ss_min_LP(			global_variable 	 gv,
 					act = 1;
 				}
 			}
-
-
 
 			gv.n_min[ph_id] += 1;
 			if (act == 1){
@@ -896,10 +902,23 @@ global_variable init_ss_db(		int 				 EM_database,
 			// 	SS_ref_db[i].P  = z_b.P + gv.melt_pressure;
 			// }
 
-			SS_ref_db[i]    = G_SS_mpe_EM_function(		gv, 
-														SS_ref_db[i], 
-														gv.EM_dataset, 
-														z_b, 
+			SS_ref_db[i]    = G_SS_mpe_EM_function(		gv,
+														SS_ref_db[i],
+														gv.EM_dataset,
+														z_b,
+														gv.SS_list[i]		);
+		}
+	}
+	else if (EM_database == 8 ){
+		for (int i = 0; i < gv.len_ss; i++){
+			SS_ref_db[i].P  = z_b.P;									/** needed to pass to local minimizer, allows for P variation for liq/sol */
+			SS_ref_db[i].T  = z_b.T;
+			SS_ref_db[i].R  = 0.0083144;
+
+			SS_ref_db[i]    = G_SS_all_EM_function(		gv,
+														SS_ref_db[i],
+														gv.EM_dataset,
+														z_b,
 														gv.SS_list[i]		);
 		}
 	}

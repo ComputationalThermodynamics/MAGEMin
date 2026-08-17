@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Moccetti, N. B., Dominguez, H., Assunção J., Green E., Dolejš, D., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -780,11 +780,14 @@ global_variable init_em_db(		int 				EM_database,
 				else if (EM_database == 7){
 					printf(" S   A   C   M   F   K   N   T   O   Mn  H   CO2 S\n");
 				}
+				else if (EM_database == 8){
+					printf(" S   A   C   M   F   K   N   T   O   Mn  Cr  H   CO2 S\n");
+				}
 				for (int j = 0; j < gv.len_ox; j++){
 					printf(" %.1f",PP_ref_db[i].Comp[j]);
 				}
 				printf("\n");
-				
+
 				if (gv.pp_flags[i][3] == 1){
 					printf(" Pure phase is not considered in the calculation\n");
 				}
@@ -793,7 +796,7 @@ global_variable init_em_db(		int 				EM_database,
 		}
 		if (gv.verbose==1){
 			printf("\n");
-		}		
+		}
 		return gv;
 };
 

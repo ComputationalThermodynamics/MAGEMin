@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Moccetti, N. B., Dominguez, H., Assunção J., Green E., Dolejš, D., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -656,20 +656,7 @@ void generate_pseudocompounds(	int 		 		 ss,
 			}
 		}
 
-		// if(strcmp( gv.SS_list[ss], "aq17") == 0){
-		// 	/* get composition of solution phase */
-		// 	for (j = 0; j < gv.len_ox; j++){
-		// 		SS_ref_db[ss].ss_comp[j] = 0.0;
-		// 		for (i = 0; i < SS_ref_db[ss].n_em; i++){
-		// 			SS_ref_db[ss].ss_comp[j] += SS_ref_db[ss].Comp[i][j]*get_ss_pv.xeos_pc[i]*SS_ref_db[ss].z_em[i];
-		// 		} 
-		// 	}
-		// 	double cor = SUPCRT_to_HSC(SS_ref_db[ss].ElEntropy, SS_ref_db[ss].ss_comp, SS_ref_db[ss].len_ox);
-		// 	G 	= (*SS_objective[ss])(SS_ref_db[ss].n_xeos, get_ss_pv.xeos_pc, 	NULL, &SS_ref_db[ss]) + cor;
-		// }
-		// else {
 		G 	= (*SS_objective[ss])(SS_ref_db[ss].n_xeos, get_ss_pv.xeos_pc, 	NULL, &SS_ref_db[ss]);
-		// }
 
 		SS_ref_db[ss].sf_ok = 1;
 		for (int i = 0; i < SS_ref_db[ss].n_sf; i++){
@@ -844,14 +831,26 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 			SS_ref_db[ph_id].p[em_id] = 1.0 - gv.em2ss_shift*SS_ref_db[ph_id].n_em;
 
 			(*P2X_read[ph_id])(		&SS_ref_db[ph_id],
-									gv.bnd_val					);			
+									gv.bnd_val					);
+
+			/* get unrotated gbase - PC_function's objective functions (e.g. obj_fl_DEW) read
+			   d->gb_lvl, not d->gbase, by convention (see obj_fl_DEW's own comment). This
+			   call was missing here (present in the equivalent block in dump_function.c's
+			   fill_output_struct), leaving gb_lvl stale/unrefreshed for this point whenever
+			   the simplex levelling picks a phase's pure single endmember as an initial
+			   candidate - most consequential for fl_DEW, whose objective function derives
+			   real G/mu from gb_lvl via DEW_aq_evaluate every time it's called, unlike
+			   phases that only read it while NLopt is actively minimizing (and so almost
+			   always found it already fresh from that same call chain). */
+			SS_ref_db[ph_id] = non_rot_hyperplane(	gv,
+													SS_ref_db[ph_id]			);
 
 			SS_ref_db[ph_id] = PC_function(	gv,
 											PC_read,
-											SS_ref_db[ph_id], 
+											SS_ref_db[ph_id],
 											z_b,
 											ph_id 					);
-					
+
 			strcpy(cp[id_cp].name,gv.SS_list[ph_id]);				/* get phase name */	
 			
 			cp[id_cp].split 		= 0;							
@@ -1310,8 +1309,161 @@ void run_metastable_levelling(			bulk_info 	 		 z_b,
 
 
 /**
+  "all" database (EM_database==8) pseudocompound-seed dispatch: delegates to each
+  source database's OWN SS_<db>_pc_init_function, called with that source db's native
+  (bare) phase name, so the exact same seed array ends up wired into SS_pc_xeos[iss] as
+  it would in the source database itself. See notes/all_database_dispatch_source_map.md
+  for the per-phase source-db table this mirrors.
+*/
+void SS_all_pc_init_function(	PC_ref 	*SS_pc_xeos,
+							    int 	 iss,
+							    char 	*name,
+							    global_variable gv			){
+
+	/* liq (4 citation variants) */
+	if      (strcmp( name, "liq_W24d") == 0 ){
+		SS_igd_pc_init_function(		SS_pc_xeos, iss, "liq"			);	}
+	else if (strcmp( name, "liq_G16")  == 0 ){
+		SS_mb_pc_init_function(		SS_pc_xeos, iss, "liq", gv		);	}
+	else if (strcmp( name, "liq_W14")  == 0 ){
+		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "liq", gv		);	}
+	else if (strcmp( name, "liq_G25w") == 0 ){
+		SS_ig_pc_init_function(		SS_pc_xeos, iss, "liq", gv		);	}
+
+	/* fsp (2 citation variants) */
+	else if (strcmp( name, "fsp_H22")   == 0 ){
+		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "fsp", gv		);	}
+	else if (strcmp( name, "fsp_H22op") == 0 ){
+		SS_igd_pc_init_function(		SS_pc_xeos, iss, "fsp"			);	}
+
+	/* g (3 citation variants) */
+	else if (strcmp( name, "g_W24") == 0 ){
+		SS_ig_pc_init_function(		SS_pc_xeos, iss, "g", gv		);	}
+	else if (strcmp( name, "g_W14") == 0 ){
+		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "g", gv		);	}
+	else if (strcmp( name, "g_H18") == 0 ){
+		SS_um_pc_init_function(		SS_pc_xeos, iss, "g", gv		);	}
+
+	/* opx (2 citation variants) */
+	else if (strcmp( name, "opx_W24") == 0 ){
+		SS_ig_pc_init_function(		SS_pc_xeos, iss, "opx", gv		);	}
+	else if (strcmp( name, "opx_W14") == 0 ){
+		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "opx", gv		);	}
+
+	/* ol (2 citation variants) */
+	else if (strcmp( name, "ol_H18") == 0 ){
+		SS_igad_pc_init_function(		SS_pc_xeos, iss, "ol"			);	}
+	else if (strcmp( name, "ol_H11") == 0 ){
+		SS_mb_pc_init_function(			SS_pc_xeos, iss, "ol", gv		);	}
+
+	/* ilm (2 citation variants) */
+	else if (strcmp( name, "ilm_W24") == 0 ){
+		SS_ig_pc_init_function(		SS_pc_xeos, iss, "ilm", gv		);	}
+	else if (strcmp( name, "ilm_W00") == 0 ){
+		SS_mb_pc_init_function(			SS_pc_xeos, iss, "ilm", gv		);	}
+
+	/* spl (2 citation variants) */
+	else if (strcmp( name, "spl_T21") == 0 ){
+		SS_um_pc_init_function(		SS_pc_xeos, iss, "spl", gv		);	}
+	else if (strcmp( name, "spl_W02") == 0 ){
+		SS_mb_pc_init_function(			SS_pc_xeos, iss, "spl", gv		);	}
+
+	/* bi (2 citation variants) */
+	else if (strcmp( name, "bi_G25") == 0 ){
+		SS_ig_pc_init_function(		SS_pc_xeos, iss, "bi", gv		);	}
+	else if (strcmp( name, "bi_W14") == 0 ){
+		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "bi", gv		);	}
+
+	/* cd (2 citation variants) */
+	else if (strcmp( name, "cd_G25") == 0 ){
+		SS_ig_pc_init_function(		SS_pc_xeos, iss, "cd", gv		);	}
+	else if (strcmp( name, "cd_W14") == 0 ){
+		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "cd", gv		);	}
+
+	/* fl (3 citation variants) */
+	else if (strcmp( name, "fl_G25")  == 0 ){
+		SS_ig_pc_init_function(		SS_pc_xeos, iss, "fl", gv		);	}
+	else if (strcmp( name, "fl_EF21") == 0 ){
+		SS_um_pc_init_function(		SS_pc_xeos, iss, "fl", gv		);	}
+	else if (strcmp( name, "fl_H03")  == 0 ){
+		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "fl", gv		);	}
+
+	/* non-collision tokens */
+	else if (strcmp( name, "ep_H11")    == 0){
+		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "ep", gv		);	}
+	else if (strcmp( name, "ma_W14")    == 0){
+		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "ma", gv		);	}
+	else if (strcmp( name, "mu_W14")    == 0){
+		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "mu", gv		);	}
+	else if (strcmp( name, "sa_W14")    == 0){
+		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "sa", gv		);	}
+	else if (strcmp( name, "st_W14")    == 0){
+		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "st", gv		);	}
+	else if (strcmp( name, "chl_W14")   == 0){
+		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "chl", gv		);	}
+	else if (strcmp( name, "ctd_W14")   == 0){
+		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "ctd", gv		);	}
+	else if (strcmp( name, "sp_W02")    == 0){
+		SS_mb_pc_init_function(		SS_pc_xeos, iss, "sp", gv		);	}
+	else if (strcmp( name, "mt_W00")    == 0){
+		SS_mp_pc_init_function(		SS_pc_xeos, iss, "mt", gv		);	}
+	else if (strcmp( name, "ilmm_W14")  == 0){
+		SS_mb_pc_init_function(			SS_pc_xeos, iss, "ilmm", gv		);	}
+	else if (strcmp( name, "amp_G16")   == 0){
+		SS_mb_pc_init_function(			SS_pc_xeos, iss, "amp", gv		);	}
+	else if (strcmp( name, "dio_G16")   == 0){
+		SS_mb_pc_init_function(			SS_pc_xeos, iss, "dio", gv		);	}
+	else if (strcmp( name, "aug_G16")   == 0){
+		SS_mb_pc_init_function(			SS_pc_xeos, iss, "aug", gv		);	}
+	else if (strcmp( name, "abc_H11")   == 0){
+		SS_mb_pc_init_function(			SS_pc_xeos, iss, "abc", gv		);	}
+	else if (strcmp( name, "ta_EF21")    == 0){
+		SS_um_pc_init_function(		SS_pc_xeos, iss, "ta", gv		);	}
+	else if (strcmp( name, "oamp_D07")  == 0){
+		SS_mb_pc_init_function(			SS_pc_xeos, iss, "oamp", gv		);	}
+	else if (strcmp( name, "fl_DEW_S14") == 0){
+		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "fl_DEW", gv	);	}
+	else if (strcmp( name, "cpx_W24")   == 0){
+		SS_ig_pc_init_function(		SS_pc_xeos, iss, "cpx", gv		);	}
+	else if (strcmp( name, "fper")  == 0){
+		SS_ig_pc_init_function(		SS_pc_xeos, iss, "fper", gv		);	}
+	else if (strcmp( name, "lct_W24")   == 0){
+		SS_igad_pc_init_function(		SS_pc_xeos, iss, "lct"			);	}
+	else if (strcmp( name, "mel_W24")   == 0){
+		SS_igad_pc_init_function(		SS_pc_xeos, iss, "mel"			);	}
+	else if (strcmp( name, "nph_W24")   == 0){
+		SS_igad_pc_init_function(		SS_pc_xeos, iss, "nph"			);	}
+	else if (strcmp( name, "kals_W24")  == 0){
+		SS_igad_pc_init_function(		SS_pc_xeos, iss, "kals"			);	}
+	else if (strcmp( name, "br_E13")    == 0){
+		SS_um_pc_init_function(		SS_pc_xeos, iss, "br", gv		);	}
+	else if (strcmp( name, "ch_EF21")    == 0){
+		SS_um_pc_init_function(		SS_pc_xeos, iss, "ch", gv		);	}
+	else if (strcmp( name, "atg_EF21")   == 0){
+		SS_um_pc_init_function(		SS_pc_xeos, iss, "atg", gv		);	}
+	else if (strcmp( name, "spi_W02")   == 0){
+		SS_um_pc_init_function(		SS_pc_xeos, iss, "spi", gv		);	}
+	else if (strcmp( name, "po_E10")    == 0){
+		SS_um_pc_init_function(		SS_pc_xeos, iss, "po", gv		);	}
+	else if (strcmp( name, "anth_D07")  == 0){
+		SS_um_pc_init_function(		SS_pc_xeos, iss, "anth", gv		);	}
+	else if (strcmp( name, "occm_F11")  == 0){
+		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "occm", gv		);	}
+	else if (strcmp( name, "carp_W14")  == 0){
+		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "carp", gv		);	}
+	else if (strcmp( name, "plc_B05")   == 0){
+		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "plc", gv		);	}
+	else if (strcmp( name, "car")   == 0){
+		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "car", gv		);	}
+	else{
+		printf("\nsolid solution '%s' is not in the database, cannot be initiated [all]\n", name);
+	}
+}
+
+
+/**
   function to run simplex linear programming with pseudocompounds
-*/	
+*/
 void run_simplex_levelling(				bulk_info 	 		 z_b,
 										simplex_data 		*splx_data,
 
@@ -1365,30 +1517,34 @@ void run_simplex_levelling(				bulk_info 	 		 z_b,
 	if (strcmp(gv.research_group, "tc") 	== 0 ){
 		if (gv.EM_database == 0){
 			for (iss = 0; iss < gv.len_ss; iss++){
-				SS_mp_pc_init_function(			SS_pc_xeos, 
+				SS_mp_pc_init_function(			SS_pc_xeos,
 												iss,
-												gv.SS_list[iss]				);
+												gv.SS_list[iss],
+												gv								);
 			}
 		}
 		if (gv.EM_database == 1){
 			for (iss = 0; iss < gv.len_ss; iss++){
-				SS_mb_pc_init_function(			SS_pc_xeos, 
+				SS_mb_pc_init_function(			SS_pc_xeos,
 												iss,
-												gv.SS_list[iss]				);
+												gv.SS_list[iss],
+												gv								);
 			}
 		}
 		if (gv.EM_database == 11){
 			for (iss = 0; iss < gv.len_ss; iss++){
-				SS_mb_pc_init_function(			SS_pc_xeos, 
+				SS_mb_pc_init_function(			SS_pc_xeos,
 												iss,
-												gv.SS_list[iss]				);
+												gv.SS_list[iss],
+												gv								);
 			}
 		}
 		else if (gv.EM_database == 2){
 			for (iss = 0; iss < gv.len_ss; iss++){
-				SS_ig_pc_init_function(			SS_pc_xeos, 
+				SS_ig_pc_init_function(			SS_pc_xeos,
 												iss,
-												gv.SS_list[iss]				);
+												gv.SS_list[iss],
+												gv								);
 			}
 		}
 		else if (gv.EM_database == 22){
@@ -1407,30 +1563,41 @@ void run_simplex_levelling(				bulk_info 	 		 z_b,
 		}
 		else if (gv.EM_database == 4){
 			for (iss = 0; iss < gv.len_ss; iss++){
-				SS_um_pc_init_function(			SS_pc_xeos, 
+				SS_um_pc_init_function(			SS_pc_xeos,
 												iss,
-												gv.SS_list[iss]				);
+												gv.SS_list[iss],
+												gv								);
 			}
 		}
 		else if (gv.EM_database == 5){
 			for (iss = 0; iss < gv.len_ss; iss++){
-				SS_um_pc_init_function(			SS_pc_xeos, 
+				SS_um_pc_init_function(			SS_pc_xeos,
 												iss,
-												gv.SS_list[iss]				);
+												gv.SS_list[iss],
+												gv								);
 			}
 		}
 		else if (gv.EM_database == 6){
 			for (iss = 0; iss < gv.len_ss; iss++){
-				SS_mtl_pc_init_function(		SS_pc_xeos, 
+				SS_mtl_pc_init_function(		SS_pc_xeos,
 												iss,
 												gv.SS_list[iss]				);
 			}
 		}
 		else if (gv.EM_database == 7){
 			for (iss = 0; iss < gv.len_ss; iss++){
-				SS_mpe_pc_init_function(		SS_pc_xeos, 
+				SS_mpe_pc_init_function(		SS_pc_xeos,
 												iss,
-												gv.SS_list[iss]				);
+												gv.SS_list[iss],
+												gv								);
+			}
+		}
+		else if (gv.EM_database == 8){
+			for (iss = 0; iss < gv.len_ss; iss++){
+				SS_all_pc_init_function(		SS_pc_xeos,
+												iss,
+												gv.SS_list[iss],
+												gv								);
 			}
 		}
 	}

@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Moccetti, N. B., Dominguez, H., Assunção J., Green E., Dolejš, D., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -26,6 +26,7 @@
 #include "NLopt_opt_function.h"
 #include "../all_solution_phases.h"
 #include "../toolkit.h"
+#include "DEW_aq_solver.h"
 
 
 /**************************************************************************************/
@@ -9247,70 +9248,88 @@ SS_ref NLopt_opt_ume_spl_function(global_variable gv, SS_ref SS_ref_db){
     return SS_ref_db;
 };
 
-/**
-    Equality constraints aq17
-*/
-void aq17_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *SS_ref_db){
-    SS_ref *d         = (SS_ref *) SS_ref_db;
+/**************************************************************************************/
+/* DEW2019 aqueous fluid ("fl_DEW") - see TC_database/DEW_aq_solver.h.             */
+/* Unlike every other phase, this does NOT call NLopt: fl_DEW's                    */
+/* equilibrium follows directly from the system's current oxide-component chemical    */
+/* potentials (gv.gam_tot) via the DEW_aq_min_iterative fixed-point solver, ported     */
+/* from MAGEMin.jl's aq_min_iterative (see tools/DEW_implementation_plan.md Phase 4).  */
+/* Builds a lightweight AQ_data "shim" pointing directly at G_SS_fl_DEW_function's  */
+/* already-computed per-point arrays (gbase/mu_comp/mat_phi/densityW) rather than      */
+/* recomputing them - those don't change within a point, only Gamma does.             */
+/**************************************************************************************/
+SS_ref NLopt_opt_fl_DEW_function(global_variable gv, SS_ref SS_ref_db){
 
-    int n_em          = d->n_em;
-    double *charge    = d->mat_phi;
+    int n_em = SS_ref_db.n_em;
+    int n_sp = n_em - 1;   /* water is the last endmember, see G_SS_fl_DEW_function */
 
-    result[0] = - 1.0;
-    result[1] =   0.0;
+    AQ_data AQ_shim;
+    AQ_shim.n_sp    = n_sp;
+    AQ_shim.len_ox  = SS_ref_db.len_ox;
+    AQ_shim.id_H2O  = gv.H2O_id;
+    AQ_shim.gbase   = SS_ref_db.gbase;
+    AQ_shim.z       = SS_ref_db.mat_phi;
+    AQ_shim.mu_comp = SS_ref_db.mu_comp;
+    AQ_shim.rho_w   = SS_ref_db.densityW;
+    AQ_shim.gb_w    = SS_ref_db.gbase[n_sp];
+
+    AQ_solver S = init_DEW_solver(&AQ_shim);
+
+    DEW_stat_reset();
+    clock_t dew_stat_t0 = clock();
+    int used_warm = 0;
+    if (gv.warm_start && SS_ref_db.dew_warm_ok){
+
+        used_warm = DEW_aq_min_warmstart(  &AQ_shim,
+                                            &S,
+                                            gv.gam_tot,
+                                            SS_ref_db.R,
+                                            SS_ref_db.T,
+                                            SS_ref_db.P,
+                                            1000,
+                                            1e-12,
+                                            SS_ref_db.iguess,
+                                            gv.DEW_solve_algorithm      );
+    }
+    if (!used_warm){
+        DEW_aq_min_multistart(  &AQ_shim,
+                                &S,
+                                gv.gam_tot,
+                                SS_ref_db.R,
+                                SS_ref_db.T,
+                                SS_ref_db.P,
+                                1000,       /* max_iter,  matches aq_min_iterative.jl's default */
+                                1e-12,      /* z_res_tol, matches aq_min_iterative.jl's default */
+                                gv.DEW_solve_algorithm      );
+        SS_ref_db.dew_warm_ok = 1;   /* this point now has a verified global-min branch to warm-start from next call */
+    }
+    clock_t dew_stat_t1 = clock();
+    if (gv.verbose == 1){
+        printf(" [fl_DEW stat] P=%.3fkbar T=%.3fC n_sp=%d alg=%d warm=%d picard_passes=%ld residual_evals=%ld time=%.3fms rho_w=%.4f I_str=%.5f sum_m=%.5f a_coef=%.5f z_res=%.3e\n",
+                SS_ref_db.P, SS_ref_db.T-273.15, n_sp, gv.DEW_solve_algorithm, used_warm, DEW_stat_picard_passes, DEW_stat_residual_evals,
+                1000.0*(double)(dew_stat_t1-dew_stat_t0)/CLOCKS_PER_SEC,
+                AQ_shim.rho_w, S.I_str, S.sum_m, S.a_coef, S.z_res);
+    }
+
+    SS_ref_db.status = S.converged ? 3 : -1;
+
+    if (!S.converged){
+        for (int i = 0; i < n_sp; i++){ S.x[i] = 0.0; }
+        S.x[n_sp] = 1.0;
+    }
+
+    obj_fl_DEW(n_em, S.x, NULL, &SS_ref_db);
+
+    if (!S.converged){
+        SS_ref_db.sf[0] = -1.0;
+    }
+
     for (int i = 0; i < n_em; i++){
-        result[0] += x[i];
-        result[1] += charge[i]*x[i];
+        SS_ref_db.xeos[i] = S.x[i];
     }
 
-    int j = 0;
-    if (grad) {
-        for (int i = 0; i < n_em; i++){
-            grad[j] = 1.0;
-            j += 1;
-        }
-        for (int i = 0; i < n_em; i++){
-            grad[j] = charge[i];
-            j += 1;
-        }
-    }
+    free_DEW_solver(&S);
 
-    return;
-};
-/* NLopt function to minimize for aqueous fluid */
-SS_ref NLopt_opt_aq17_function(global_variable gv, SS_ref SS_ref_db){
-    
-    int    n_em     = SS_ref_db.n_em;
-    unsigned int n  = SS_ref_db.n_xeos;
-    unsigned int m  = 2;
-    
-    double *x  = SS_ref_db.iguess; 
-    
-    for (int i = 0; i < (SS_ref_db.n_xeos); i++){
-       SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
-       SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
-    }
-    
-    SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n)); 
-    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
-    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
-    nlopt_set_min_objective(SS_ref_db.opt, obj_aq17, &SS_ref_db);
-    nlopt_add_equality_mconstraint(SS_ref_db.opt, m, aq17_c, &SS_ref_db, NULL);
-    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
-    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
-    // nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
-
-    double minf;
-    SS_ref_db.status = nlopt_optimize(SS_ref_db.opt, x, &minf);
-
-    /* Send back needed local solution parameters */
-    for (int i = 0; i < SS_ref_db.n_xeos; i++){
-       SS_ref_db.xeos[i] = x[i];
-    }
-
-    SS_ref_db.df   = minf;
-    nlopt_destroy(SS_ref_db.opt);
-    
     return SS_ref_db;
 };
 
@@ -10749,6 +10768,27 @@ void fsp_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *
     }
 
     return;
+}
+
+/**
+    Inequality constraints for plc_mpe (sf[0..2] >= 0, same p()/sf() formulas as
+    fsp_mpe_c's first 3 rows - no T-site rows here, single A-site model).
+*/
+void plc_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+    result[0] = ( x[0] + x[1] - 1.0);
+    result[1] = ( -x[0]);
+    result[2] = ( -x[1]);
+
+    if (grad) {
+        grad[0] = 1.0;
+        grad[1] = 1.0;
+        grad[2] = -1.0;
+        grad[3] = 0.0;
+        grad[4] = 0.0;
+        grad[5] = -1.0;
+    }
+
+    return;
 };
 
 /**
@@ -12085,10 +12125,46 @@ SS_ref NLopt_opt_mpe_fsp_function(global_variable gv, SS_ref SS_ref_db){
     for (int i = 0; i < SS_ref_db.n_xeos; i++){
        SS_ref_db.xeos[i] = x[i];
     }
-    
+
     SS_ref_db.df   = minf;
     nlopt_destroy(SS_ref_db.opt);
-    
+
+    return SS_ref_db;
+};
+
+SS_ref NLopt_opt_mpe_plc_function(global_variable gv, SS_ref SS_ref_db){
+
+    int    n_em     = SS_ref_db.n_em;
+    unsigned int n  = SS_ref_db.n_xeos;
+    unsigned int m  = SS_ref_db.n_sf;
+
+    double *x  = SS_ref_db.iguess;
+
+    for (int i = 0; i < (SS_ref_db.n_xeos); i++){
+       SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+       SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
+    }
+
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n));
+    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
+    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
+    nlopt_set_min_objective(SS_ref_db.opt, obj_mpe_plc, &SS_ref_db);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, plc_mpe_c, NULL, NULL);
+    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
+    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
+    nlopt_set_maxtime(SS_ref_db.opt, gv.maxgmTime);
+
+    double minf;
+    SS_ref_db.status = nlopt_optimize(SS_ref_db.opt, x, &minf);
+
+    /* Send back needed local solution parameters */
+    for (int i = 0; i < SS_ref_db.n_xeos; i++){
+       SS_ref_db.xeos[i] = x[i];
+    }
+
+    SS_ref_db.df   = minf;
+    nlopt_destroy(SS_ref_db.opt);
+
     return SS_ref_db;
 };
 
@@ -12854,12 +12930,12 @@ void TC_mp_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_mp_ilmm_function; 		}
 		else if (strcmp( gv.SS_list[iss], "mt")    == 0){
 			NLopt_opt[iss]  = NLopt_opt_mp_mt_function; 		}
-		else if (strcmp( gv.SS_list[iss], "aq17")  == 0){
-			NLopt_opt[iss]  = NLopt_opt_aq17_function; 		    }
+		else if (strcmp( gv.SS_list[iss], "fl_DEW")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_fl_DEW_function; 		    }
 		else{
-			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
-		}	
-	};			
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
+		}
+	};
 }
 
 void TC_mb_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
@@ -12902,10 +12978,12 @@ void TC_mb_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
             NLopt_opt[iss]  = NLopt_opt_mb_mu_function;         }
         else if (strcmp( gv.SS_list[iss], "chl")  == 0){
             NLopt_opt[iss]  = NLopt_opt_mb_chl_function;        }
+		else if (strcmp( gv.SS_list[iss], "fl_DEW")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_fl_DEW_function;     }
 		else{
-			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
-		}	
-	};				
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
+		}
+	};
 }
 
 void TC_mb_ext_NLopt_opt_init(	    NLopt_type 			*NLopt_opt,
@@ -12952,10 +13030,12 @@ void TC_mb_ext_NLopt_opt_init(	    NLopt_type 			*NLopt_opt,
             NLopt_opt[iss]  = NLopt_opt_mb_oamp_function;        }
         else if (strcmp( gv.SS_list[iss], "ta")  == 0){
             NLopt_opt[iss]  = NLopt_opt_mb_ta_function;         }
+		else if (strcmp( gv.SS_list[iss], "fl_DEW")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_fl_DEW_function;     }
 		else{
-			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
-		}	
-	};				
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
+		}
+	};
 }
 void TC_ig_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 									global_variable 	 gv				){	
@@ -12994,10 +13074,12 @@ void TC_ig_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_ig_spl_function; 		}
 		else if (strcmp( gv.SS_list[iss], "chl") == 0){
 			NLopt_opt[iss]  = NLopt_opt_ig_chl_function; 		}
+		else if (strcmp( gv.SS_list[iss], "fl_DEW")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_fl_DEW_function; 		}
 		else{
-			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
-		}	
-	};				
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
+		}
+	};
 }
 
 
@@ -13092,10 +13174,12 @@ void TC_um_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_um_opx_function; 		}
 		else if (strcmp( gv.SS_list[iss], "po") == 0){
 			NLopt_opt[iss]  = NLopt_opt_um_po_function; 		}
+		else if (strcmp( gv.SS_list[iss], "fl_DEW")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_fl_DEW_function; 		}
 		else{
-			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
-		}	
-	};						
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
+		}
+	};
 }
 
 
@@ -13140,10 +13224,12 @@ void TC_um_ext_NLopt_opt_init(	    NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_mpe_fl_function; 		}
 		else if (strcmp( gv.SS_list[iss], "occm")   == 0){
 			NLopt_opt[iss]  = NLopt_opt_mpe_occm_function; 		}
+		else if (strcmp( gv.SS_list[iss], "fl_DEW")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_fl_DEW_function; 		}
 		else{
-			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
-		}	
-	};						
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
+		}
+	};
 }
 
 
@@ -13199,6 +13285,8 @@ void TC_mpe_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_mpe_liq_function; 		}
 		else if (strcmp( gv.SS_list[iss], "fsp") == 0){
 			NLopt_opt[iss]  = NLopt_opt_mpe_fsp_function; 		}
+		else if (strcmp( gv.SS_list[iss], "plc") == 0){
+			NLopt_opt[iss]  = NLopt_opt_mpe_plc_function; 		}
 		else if (strcmp( gv.SS_list[iss], "bi")    == 0){
 			NLopt_opt[iss]  = NLopt_opt_mpe_bi_function; 		}
 		else if (strcmp( gv.SS_list[iss], "g")     == 0){
@@ -13247,10 +13335,159 @@ void TC_mpe_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_mpe_car_function; 		}
         else if (strcmp( gv.SS_list[iss], "carp")    == 0){
 			NLopt_opt[iss]  = NLopt_opt_mpe_carp_function; 		}
+		else if (strcmp( gv.SS_list[iss], "fl_DEW")    == 0){
+			NLopt_opt[iss]  = NLopt_opt_fl_DEW_function; 		}
 		else{
-			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);	
-		}	
-	};			
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
+		}
+	};
+}
+
+
+void TC_all_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
+									global_variable 	 gv				){
+
+	for (int iss = 0; iss < gv.len_ss; iss++){
+
+		/* liq (4 citation variants) */
+		if      (strcmp( gv.SS_list[iss], "liq_W24d") == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_igd_liq_function; 		}
+		else if (strcmp( gv.SS_list[iss], "liq_G16")  == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_mb_liq_function; 		}
+		else if (strcmp( gv.SS_list[iss], "liq_W14")  == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_mpe_liq_function; 		}
+		else if (strcmp( gv.SS_list[iss], "liq_G25w") == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_ig_liq_function; 		}
+
+		/* fsp (2 citation variants) */
+		else if (strcmp( gv.SS_list[iss], "fsp_H22")   == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_mpe_fsp_function; 		}
+		else if (strcmp( gv.SS_list[iss], "fsp_H22op") == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_igd_fsp_function; 		}
+
+		/* g (3 citation variants) */
+		else if (strcmp( gv.SS_list[iss], "g_W24") == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_ig_g_function; 		}
+		else if (strcmp( gv.SS_list[iss], "g_W14") == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_mpe_g_function; 		}
+		else if (strcmp( gv.SS_list[iss], "g_H18") == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_um_g_function; 		}
+
+		/* opx (2 citation variants) */
+		else if (strcmp( gv.SS_list[iss], "opx_W24") == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_ig_opx_function; 		}
+		else if (strcmp( gv.SS_list[iss], "opx_W14") == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_mpe_opx_function; 		}
+
+		/* ol (2 citation variants) */
+		else if (strcmp( gv.SS_list[iss], "ol_H18") == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_igad_ol_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ol_H11") == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_mb_ol_function; 		}
+
+		/* ilm (2 citation variants) */
+		else if (strcmp( gv.SS_list[iss], "ilm_W24") == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_ig_ilm_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ilm_W00") == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_mb_ilm_function; 		}
+
+		/* spl (2 citation variants) */
+		else if (strcmp( gv.SS_list[iss], "spl_T21") == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_ume_spl_function; 		}
+		else if (strcmp( gv.SS_list[iss], "spl_W02") == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_mb_spl_function; 		}
+
+		/* bi (2 citation variants) */
+		else if (strcmp( gv.SS_list[iss], "bi_G25") == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_ig_bi_function; 		}
+		else if (strcmp( gv.SS_list[iss], "bi_W14") == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_mpe_bi_function; 		}
+
+		/* cd (2 citation variants) */
+		else if (strcmp( gv.SS_list[iss], "cd_G25") == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_ig_cd_function; 		}
+		else if (strcmp( gv.SS_list[iss], "cd_W14") == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_mpe_cd_function; 		}
+
+		/* fl (3 citation variants) */
+		else if (strcmp( gv.SS_list[iss], "fl_G25")  == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_ig_fl_function; 		}
+		else if (strcmp( gv.SS_list[iss], "fl_EF21") == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_um_fluid_function; 		}
+		else if (strcmp( gv.SS_list[iss], "fl_H03")  == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_mpe_fl_function; 		}
+
+		/* non-collision tokens */
+		else if (strcmp( gv.SS_list[iss], "ep_H11")    == 0){
+			NLopt_opt[iss]  = NLopt_opt_mpe_ep_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ma_W14")    == 0){
+			NLopt_opt[iss]  = NLopt_opt_mpe_ma_function; 		}
+		else if (strcmp( gv.SS_list[iss], "mu_W14")    == 0){
+			NLopt_opt[iss]  = NLopt_opt_mpe_mu_function; 		}
+		else if (strcmp( gv.SS_list[iss], "sa_W14")    == 0){
+			NLopt_opt[iss]  = NLopt_opt_mpe_sa_function; 		}
+		else if (strcmp( gv.SS_list[iss], "st_W14")    == 0){
+			NLopt_opt[iss]  = NLopt_opt_mpe_st_function; 		}
+		else if (strcmp( gv.SS_list[iss], "chl_W14")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_mpe_chl_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ctd_W14")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_mpe_ctd_function; 		}
+		else if (strcmp( gv.SS_list[iss], "sp_W02")    == 0){
+			NLopt_opt[iss]  = NLopt_opt_mb_sp_function; 		}
+		else if (strcmp( gv.SS_list[iss], "mt_W00")    == 0){
+			NLopt_opt[iss]  = NLopt_opt_mp_mt_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ilmm_W14")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_mb_ilmm_function; 		}
+		else if (strcmp( gv.SS_list[iss], "amp_G16")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_mb_amp_function; 		}
+		else if (strcmp( gv.SS_list[iss], "dio_G16")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_mb_dio_function; 		}
+		else if (strcmp( gv.SS_list[iss], "aug_G16")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_mb_aug_function; 		}
+		else if (strcmp( gv.SS_list[iss], "abc_H11")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_mb_abc_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ta_EF21")    == 0){
+			NLopt_opt[iss]  = NLopt_opt_um_ta_function; 		}
+		else if (strcmp( gv.SS_list[iss], "oamp_D07")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_mb_oamp_function; 		}
+		else if (strcmp( gv.SS_list[iss], "fl_DEW_S14") == 0){
+			NLopt_opt[iss]  = NLopt_opt_fl_DEW_function; 		}
+		else if (strcmp( gv.SS_list[iss], "cpx_W24")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_ig_cpx_function; 		}
+		else if (strcmp( gv.SS_list[iss], "fper")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_ig_fper_function; 		}
+		else if (strcmp( gv.SS_list[iss], "lct_W24")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_igad_lct_function; 		}
+		else if (strcmp( gv.SS_list[iss], "mel_W24")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_igad_mel_function; 		}
+		else if (strcmp( gv.SS_list[iss], "nph_W24")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_igad_nph_function; 		}
+		else if (strcmp( gv.SS_list[iss], "kals_W24")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_igad_kals_function; 		}
+		else if (strcmp( gv.SS_list[iss], "br_E13")    == 0){
+			NLopt_opt[iss]  = NLopt_opt_um_br_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ch_EF21")    == 0){
+			NLopt_opt[iss]  = NLopt_opt_um_ch_function; 		}
+		else if (strcmp( gv.SS_list[iss], "atg_EF21")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_um_atg_function; 		}
+		else if (strcmp( gv.SS_list[iss], "spi_W02")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_um_spi_function; 		}
+		else if (strcmp( gv.SS_list[iss], "po_E10")    == 0){
+			NLopt_opt[iss]  = NLopt_opt_um_po_function; 		}
+		else if (strcmp( gv.SS_list[iss], "anth_D07")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_um_anth_function; 		}
+		else if (strcmp( gv.SS_list[iss], "occm_F11")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_mpe_occm_function; 		}
+		else if (strcmp( gv.SS_list[iss], "carp_W14")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_mpe_carp_function; 		}
+		else if (strcmp( gv.SS_list[iss], "plc_B05")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_mpe_plc_function; 		}
+		else if (strcmp( gv.SS_list[iss], "car")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_mpe_car_function; 		}
+		else{
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
+		}
+	};
 }
 
 
@@ -13296,6 +13533,10 @@ void TC_NLopt_opt_init(	        	NLopt_type 			*NLopt_opt,
 	}
 	else if (gv.EM_database == 7){			// ultramafic database //
 		TC_mpe_NLopt_opt_init(	 			NLopt_opt,
+												gv							);
+	}
+	else if (gv.EM_database == 8){			// all database //
+		TC_all_NLopt_opt_init(	 			NLopt_opt,
 												gv							);
 	}
 }
