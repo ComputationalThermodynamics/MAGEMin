@@ -13779,18 +13779,6 @@ void dpdx_mpe_dio(void *SS_ref_db, const double *x){
 
 
 /**
-    Update dpdx matrix of car
-*/
-void dpdx_mpe_car(void *SS_ref_db, const double *x){
-    SS_ref *d  = (SS_ref *) SS_ref_db;
-    double **dp_dx = d->dp_dx;
-
-    dp_dx[0][0] = x[2] - 1.0;      dp_dx[0][1] = x[2] - 1.0;      dp_dx[0][2] = x[0] + x[1] - 1.0;      
-    dp_dx[1][0] = 1.0 -x[2];      dp_dx[1][1] = 0.0;      dp_dx[1][2] = -x[0];      
-    dp_dx[2][0] = 0.0;      dp_dx[2][1] = 1.0 -x[2];      dp_dx[2][2] = -x[1];      
-    dp_dx[3][0] = 0.0;      dp_dx[3][1] = 0.0;      dp_dx[3][2] = 1.0;      
-}
-/**
     Update dpdx matrix of carp
 */
 void dpdx_mpe_carp(void *SS_ref_db, const double *x){
@@ -14416,26 +14404,6 @@ void p2x_mpe_occm(void *SS_ref_db, double eps){
 }
 
 /**
-    Endmember to xeos for car
-*/
-void p2x_mpe_car(void *SS_ref_db, double eps){
-    SS_ref *d  = (SS_ref *) SS_ref_db;
-    
-    d->iguess[2]  = d->p[2];
-    d->iguess[0]  = d->p[0]/(1.0 -d->p[2]);
-    d->iguess[1]  = d->p[1]/(1.0 -d->p[2]);
-    
-    for (int i = 0; i < d->n_xeos; i++){
-        if (d->iguess[i] < d->bounds[i][0]){
-            d->iguess[i] = d->bounds[i][0];
-        }
-        if (d->iguess[i] > d->bounds[i][1]){
-            d->iguess[i] = d->bounds[i][1];
-        }
-    }
-}
-
-/**
     Endmember to xeos for carp
 */
 void p2x_mpe_carp(void *SS_ref_db, double eps){
@@ -14453,18 +14421,6 @@ void p2x_mpe_carp(void *SS_ref_db, double eps){
     }
 }
 
-
-/**
-    Endmember fraction of car
-*/
-void px_mpe_car(void *SS_ref_db, const double *x){
-    SS_ref *d  = (SS_ref *) SS_ref_db;
-    double *p = d->p;
-        p[0]           = (1.0 -x[2])*(-x[0] -x[1] + 1.0);
-        p[1]           = x[0]*(1.0 -x[2]);
-        p[2]           = x[1]*(1.0 -x[2]);
-        p[3]           = x[2];
-}
 /**
     Endmember fraction of liq_mp
 */
@@ -16716,76 +16672,6 @@ double obj_mpe_po(unsigned n, const double *x, double *grad, void *SS_ref_db){
 }
 
 /**
-    Objective function of car
-*/
-double obj_mpe_car(unsigned n, const double *x, double *grad, void *SS_ref_db){
-    SS_ref *d         = (SS_ref *) SS_ref_db;
-
-    int n_em          = d->n_em;
-    double P          = d->P;
-    double T          = d->T;
-    double R          = d->R;
-
-    double *gb        = d->gb_lvl;
-    double *mu_Gex    = d->mu_Gex;
-    double *sf        = d->sf;
-    double *mu        = d->mu;
-    double *d_em      = d->d_em;
-    px_mpe_car(SS_ref_db,x);
-
-    for (int i = 0; i < n_em; i++){
-        mu_Gex[i] = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            for (int k = j+1; k < n_em; k++){
-                mu_Gex[i] -= (d->eye[i][j] - d->p[j])*(d->eye[i][k] - d->p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
-    }
-    
-    sf[0]          = -x[0] - x[1] + 1.0;
-    sf[1]          =x[0];
-    sf[2]          =x[1];
-    sf[3]          =x[2];
-    sf[4]          = 1.0 - x[2];
-    
-    
-    mu[0]          = gb[0] + R*T*creal(clog(sf[0]*sf[4])) + mu_Gex[0];
-    mu[1]          = gb[1] + R*T*creal(clog(sf[1]*sf[4])) + mu_Gex[1];
-    mu[2]          = gb[2] + R*T*creal(clog(sf[2]*sf[4] + d_em[2])) + mu_Gex[2];
-    mu[3]          = gb[3] + R*T*creal(clog(sf[0]*sf[3] + d_em[3])) + mu_Gex[3];
-    
-    d->sum_apep = 0.0;
-    for (int i = 0; i < n_em; i++){
-        d->sum_apep += d->ape[i]*d->p[i];
-    }
-    d->factor = d->fbc/d->sum_apep;
-
-    d->df_raw = 0.0;
-    for (int i = 0; i < n_em; i++){
-        d->df_raw += mu[i]*d->p[i];
-    }
-    d->df = d->df_raw * d->factor;
-
-    if (grad){
-        double *dfx    = d->dfx;
-        double **dp_dx = d->dp_dx;
-        dpdx_mpe_car(SS_ref_db,x);
-        for (int i = 0; i < (d->n_xeos); i++){
-            dfx[i] = 0.0;
-            for (int j = 0; j < n_em; j++){
-                dfx[i] += (mu[j] - (d->ape[j]/d->sum_apep)*d->df_raw)*d->factor*dp_dx[j][i];
-            }
-            grad[i] = creal(dfx[i]);
-        }
-    }
-
-    return d->df;
-}
-  
-
-/**
     Objective function of carp
 */
 double obj_mpe_carp(unsigned n, const double *x, double *grad, void *SS_ref_db){
@@ -17018,8 +16904,6 @@ void TC_mpe_P2X_init(	            P2X_type 			*P2X_read,
 			P2X_read[iss]  = p2x_mpe_amp; 		}
 		else if (strcmp( gv.SS_list[iss], "oamp")    == 0){
             P2X_read[iss]  = p2x_mb_oamp; }
-        else if (strcmp( gv.SS_list[iss], "car")    == 0){
-            P2X_read[iss]  = p2x_mpe_car; 		}
         else if (strcmp( gv.SS_list[iss], "carp")    == 0){
             P2X_read[iss]  = p2x_mpe_carp; 		}
         else if (strcmp( gv.SS_list[iss], "fl_DEW")    == 0){
@@ -17463,8 +17347,6 @@ void TC_all_P2X_init(	            P2X_type 			*P2X_read,
 			P2X_read[iss]  = p2x_mpe_carp; 		}
 		else if (strcmp( gv.SS_list[iss], "plc_B05")   == 0){
 			P2X_read[iss]  = p2x_mpe_plc; 		}
-		else if (strcmp( gv.SS_list[iss], "car")   == 0){
-			P2X_read[iss]  = p2x_mpe_car; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -17965,8 +17847,6 @@ void TC_mpe_objective_init_function(	obj_type 			*SS_objective,
 			SS_objective[iss]  = obj_mpe_po; 		}
 		else if (strcmp( gv.SS_list[iss], "oamp")    == 0){
 			SS_objective[iss]  = obj_mb_oamp; 		}
-        else if (strcmp( gv.SS_list[iss], "car")    == 0){
-            SS_objective[iss]  = obj_mpe_car; 		}
         else if (strcmp( gv.SS_list[iss], "carp")    == 0){
             SS_objective[iss]  = obj_mpe_carp; 		}
         else if (strcmp( gv.SS_list[iss], "fl_DEW")    == 0){
@@ -18115,8 +17995,6 @@ void TC_all_objective_init_function(	obj_type 			*SS_objective,
 			SS_objective[iss]  = obj_mpe_carp; 		}
 		else if (strcmp( gv.SS_list[iss], "plc_B05")   == 0){
 			SS_objective[iss]  = obj_mpe_plc; 		}
-		else if (strcmp( gv.SS_list[iss], "car")   == 0){
-			SS_objective[iss]  = obj_mpe_car; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -18611,8 +18489,6 @@ void TC_mpe_PC_init(	                PC_type 			*PC_read,
 			PC_read[iss]  = obj_mpe_po; 		            }
 		else if (strcmp( gv.SS_list[iss], "oamp")    == 0){
 			PC_read[iss]  = obj_mb_oamp; 		            }
-        else if (strcmp( gv.SS_list[iss], "car")    == 0){
-			PC_read[iss]  = obj_mpe_car; 		            }
         else if (strcmp( gv.SS_list[iss], "carp")    == 0){
 			PC_read[iss]  = obj_mpe_carp; 		            }
         else if (strcmp( gv.SS_list[iss], "fl_DEW")    == 0){
@@ -18761,8 +18637,6 @@ void TC_all_PC_init(	                PC_type 			*PC_read,
 			PC_read[iss]  = obj_mpe_carp; 		}
 		else if (strcmp( gv.SS_list[iss], "plc_B05")   == 0){
 			PC_read[iss]  = obj_mpe_plc; 		}
-		else if (strcmp( gv.SS_list[iss], "car")   == 0){
-			PC_read[iss]  = obj_mpe_car; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}

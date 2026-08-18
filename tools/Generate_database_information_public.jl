@@ -99,6 +99,8 @@ function get_database_infos()
         # finalize_MAGEMin(gv,DB, z_b)
     end
     
+    
+
     return db_inf
 end
 

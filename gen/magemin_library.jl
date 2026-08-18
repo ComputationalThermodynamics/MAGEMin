@@ -2679,10 +2679,6 @@ function obj_mpe_po(n, x, grad, SS_ref_db)
     ccall((:obj_mpe_po, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
-function obj_mpe_car(n, x, grad, SS_ref_db)
-    ccall((:obj_mpe_car, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
-end
-
 function obj_mpe_carp(n, x, grad, SS_ref_db)
     ccall((:obj_mpe_carp, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end

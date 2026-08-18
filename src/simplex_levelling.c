@@ -1453,8 +1453,6 @@ void SS_all_pc_init_function(	PC_ref 	*SS_pc_xeos,
 		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "carp", gv		);	}
 	else if (strcmp( name, "plc_B05")   == 0){
 		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "plc", gv		);	}
-	else if (strcmp( name, "car")   == 0){
-		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "car", gv		);	}
 	else{
 		printf("\nsolid solution '%s' is not in the database, cannot be initiated [all]\n", name);
 	}

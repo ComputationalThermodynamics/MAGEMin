@@ -18512,136 +18512,6 @@ SS_ref G_SS_mpe_dio_function(SS_ref SS_ref_db, char* research_group, int EM_data
 }
 
 
-/**
-   retrieve reference thermodynamic data for mpe_car
-*/
-SS_ref G_SS_mpe_car_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    /* fName was left unset - see G_SS_mpe_carp_function's fix (same class of bug). */
-    strcpy(SS_ref_db.fName,"car");
-
-    int i, j;
-    int n_em = SS_ref_db.n_em;
-
-
-    char   *EM_tmp[] 		= {"fcar","mcar","ncar","caro"};
-    for (int i = 0; i < SS_ref_db.n_em; i++){
-        strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
-    };
-    
-    int n_xeos = SS_ref_db.n_xeos;
-    char   *CV_tmp[] 		= {"m","n","f"};
-    for (int i = 0; i < SS_ref_db.n_xeos; i++){
-        strcpy(SS_ref_db.CV_list[i],CV_tmp[i]);
-    };
-    int n_sf = SS_ref_db.n_sf;
-    
-    char   *SF_tmp[] 		= {"xFeM1","xMgM1","xMnM1","xFe3M2","xAlM2"};
-    for (int i = 0; i < SS_ref_db.n_sf; i++){
-        strcpy(SS_ref_db.SF_list[i],SF_tmp[i]);
-    };
-    
-    SS_ref_db.W[0] = 1.0;
-    SS_ref_db.W[1] = 1.0;
-    SS_ref_db.W[2] = 0.0;
-    SS_ref_db.W[3] = 1.0;
-    SS_ref_db.W[4] = 0.0;
-    SS_ref_db.W[5] = 0.0;
-    
-    
-    em_data fcar_eq 		= get_em_data(		research_group, EM_dataset, 
-    										len_ox,
-    										z_b,
-    										SS_ref_db.P,
-    										SS_ref_db.T,
-    										"fcar", 
-    										"equilibrium"	);
-    
-    em_data mcar_eq 		= get_em_data(		research_group, EM_dataset, 
-    										len_ox,
-    										z_b,
-    										SS_ref_db.P,
-    										SS_ref_db.T,
-    										"mcar", 
-    										"equilibrium"	);
-    
-    em_data mang_eq 		= get_em_data(		research_group, EM_dataset, 
-    										len_ox,
-    										z_b,
-    										SS_ref_db.P,
-    										SS_ref_db.T,
-    										"mang", 
-    										"equilibrium"	);
-    
-    em_data per_eq 		= get_em_data(		research_group, EM_dataset, 
-    										len_ox,
-    										z_b,
-    										SS_ref_db.P,
-    										SS_ref_db.T,
-    										"per", 
-    										"equilibrium"	);
-    
-    em_data cor_eq 		= get_em_data(		research_group, EM_dataset, 
-    										len_ox,
-    										z_b,
-    										SS_ref_db.P,
-    										SS_ref_db.T,
-    										"cor", 
-    										"equilibrium"	);
-    
-    em_data hem_eq 		= get_em_data(		research_group, EM_dataset, 
-    										len_ox,
-    										z_b,
-    										SS_ref_db.P,
-    										SS_ref_db.T,
-    										"hem", 
-    										"equilibrium"	);
-    
-    SS_ref_db.gbase[0] 		= fcar_eq.gb;
-    SS_ref_db.gbase[1] 		= mcar_eq.gb;
-    SS_ref_db.gbase[2] 		= mang_eq.gb + mcar_eq.gb -per_eq.gb + 30.0;
-    SS_ref_db.gbase[3] 		= -0.5*cor_eq.gb + fcar_eq.gb + 0.5*hem_eq.gb + 45.0;
-    
-    SS_ref_db.ElShearMod[0] 	= fcar_eq.ElShearMod;
-    SS_ref_db.ElShearMod[1] 	= mcar_eq.ElShearMod;
-    SS_ref_db.ElShearMod[2] 	= mang_eq.ElShearMod + mcar_eq.ElShearMod -per_eq.ElShearMod;
-    SS_ref_db.ElShearMod[3] 	= -0.5*cor_eq.ElShearMod + fcar_eq.ElShearMod + 0.5*hem_eq.ElShearMod;
-    
-    for (i = 0; i < len_ox; i++){
-        SS_ref_db.Comp[0][i] 	= fcar_eq.C[i];
-        SS_ref_db.Comp[1][i] 	= mcar_eq.C[i];
-        SS_ref_db.Comp[2][i] 	= mang_eq.C[i] + mcar_eq.C[i] -per_eq.C[i];
-        SS_ref_db.Comp[3][i] 	= -0.5*cor_eq.C[i] + fcar_eq.C[i] + 0.5*hem_eq.C[i];
-    }
-    
-    for (i = 0; i < n_em; i++){
-        SS_ref_db.z_em[i] = 1.0;
-    };
-    
-    SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
-    SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
-    SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
-
-	/* pin: endmember 3 (-0.5*cor+fcar+0.5*hem, the ferric/O-linked redox exchange
-	   endmember) - p[3]=x2 ("f"), single var, bare, clean. Same class as mt/aug/dio/amp's
-	   O pins elsewhere - Al2O3 cancels out of the formation reaction, O is the real driver. */
-	if (z_b.bulk_rock[z_b.O_id] == 0.){
-		SS_ref_db.z_em[3]          = 0.0;
-        SS_ref_db.d_em[3]          = 1.0;
-		SS_ref_db.bounds_ref[2][0] = 0.0;
-		SS_ref_db.bounds_ref[2][1] = 0.0;
-	}
-	/* pin: mang (MnO) - p[mang]=x1*(1-x2), x1 ("n") is a bare factor (the (1-x2) partner
-	   is never structurally zero except when O is also 0, already handled above), clean. */
-	if (z_b.bulk_rock[z_b.MnO_id] == 0.){
-		SS_ref_db.z_em[2]          = 0.0;
-        SS_ref_db.d_em[2]          = 1.0;
-		SS_ref_db.bounds_ref[1][0] = 0.0;
-		SS_ref_db.bounds_ref[1][1] = 0.0;
-	}
-
-    return SS_ref_db;
-}
-
 
 
 /**
@@ -20299,11 +20169,6 @@ SS_ref G_SS_mpe_EM_function(	global_variable 	 gv,
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_mb_oamp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
-        else if (strcmp( name, "car") == 0){ //carpholite
-			if ( z_b.bulk_rock[gv.H2O_id] == 0.0 ){
-				SS_ref_db.ss_flags[0]  = 0;
-			}
-			SS_ref_db  = G_SS_mpe_car_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
         else if (strcmp( name, "carp") == 0){
             if ( z_b.bulk_rock[gv.H2O_id] == 0.0 ){
 				SS_ref_db.ss_flags[0]  = 0;
@@ -20684,11 +20549,6 @@ SS_ref G_SS_all_EM_function(	global_variable 	 gv,
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_mpe_plc_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
-		else if (strcmp( name, "car") == 0 ){
-			if ( z_b.bulk_rock[gv.H2O_id] == 0.0 ){
-				SS_ref_db.ss_flags[0]  = 0;
-			}
-			SS_ref_db  = G_SS_mpe_car_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else{
 			printf("\nsolid solution '%s' is not in the database\n",name);	}
 

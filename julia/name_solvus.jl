@@ -183,8 +183,8 @@ function get_ss_from_mineral(db, mrl, mbCpx)
         elseif mrl == "anth" || mrl == "ged"
             ss = "oamp"
         end
-
-
+    elseif occursin("_", mrl)
+        ss = split(mrl, "_")[1]
     end
 
     return ss

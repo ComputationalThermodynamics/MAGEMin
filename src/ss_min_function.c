@@ -32,6 +32,7 @@ Function to call solution phase Minimization
 #include "all_solution_phases.h"
 
 #define LIQ_PC_SYNTH_MAX_DIM 16
+#define MAX_LIQ_PHASES 8
 
 /** 
 Function to update xi and sum_xi during local minimization.
@@ -489,34 +490,27 @@ void ss_min_LP(			global_variable 	 gv,
 	}
 	int    is_gh            = (strcmp(gv.research_group, "gh") == 0);
 	int    is_tc            = (strcmp(gv.research_group, "tc") == 0);
-	int    ph_id_liq        = -1;
+
+	int    n_liq_ph          = 0;
+	int    ph_id_liq[MAX_LIQ_PHASES];
+	int    liq_synth_active[MAX_LIQ_PHASES];
+	int    liq_real_min_found[MAX_LIQ_PHASES];
+	int    liq_candidate_index[MAX_LIQ_PHASES]; /* index of cp[] entry with the successful minimization */
 
 	if (gv.liq_pc_synth_active && (is_gh || is_tc)){
-		for (int iss = 0; iss < gv.len_ss; iss++){
-			if (strcmp(gv.SS_list[iss], "liq") == 0){ ph_id_liq = iss; break; }
+		for (int iss = 0; iss < gv.len_ss && n_liq_ph < MAX_LIQ_PHASES; iss++){
+			if (SS_ref_db[iss].is_liq == 1){ ph_id_liq[n_liq_ph++] = iss; }
 		}
 	}
 
-	/* gv.n_ss_ph[] is only ever written by LP_pc_composite (PGE_function.c),
-	   which is not called anywhere in the ss_min_LP/run_LP path this
-	   database uses - it is always 0 here (confirmed empirically), so N is
-	   counted directly from cp[] instead, which is what's actually live. */
-	int    N_liq = 0;
-	if (ph_id_liq >= 0){
+	for (int l = 0; l < n_liq_ph; l++){
+		int N_liq = 0;
 		for (int i = 0; i < gv.len_ox; i++){
-			if (cp[i].ss_flags[0] == 1 && cp[i].id == ph_id_liq){ N_liq += 1; }
+			if (cp[i].ss_flags[0] == 1 && cp[i].id == ph_id_liq[l]){ N_liq += 1; }
 		}
-	}
-	int    liq_synth_active = (ph_id_liq >= 0) && (N_liq >= gv.gh_liq_pc_synth_threshold);
-	int    liq_real_min_found = 0;
-	int    liq_candidate_index = -1; /* index of cp[] entry with the successful minimization */
-	double MtM[n_ox_all][n_ox_all];
-	double Mtmu[n_ox_all];
-	if (liq_synth_active){
-		for (int a = 0; a < n_ox_all; a++){
-			Mtmu[a] = 0.0;
-			for (int b = 0; b < n_ox_all; b++){ MtM[a][b] = 0.0; }
-		}
+		liq_synth_active[l]    = (N_liq >= gv.gh_liq_pc_synth_threshold);
+		liq_real_min_found[l]  = 0;
+		liq_candidate_index[l] = -1;
 	}
 
 	pc_check = gv.PC_checked;
@@ -525,6 +519,9 @@ void ss_min_LP(			global_variable 	 gv,
 		if (cp[i].ss_flags[0] == 1){
 			candidate_ok 	= 1;
 			ph_id 			= cp[i].id;
+
+			int liq_l = -1;
+			for (int l = 0; l < n_liq_ph; l++){ if (ph_id_liq[l] == ph_id){ liq_l = l; break; } }
 
 			/* NR-17/07/26
 				Here I added a target rule for rMELTS. The liquid model including H2O and CO2 leads to a large number of local minimum. Brute force exploration is needed to lead the minimization toward the global minimum.
@@ -535,11 +532,11 @@ void ss_min_LP(			global_variable 	 gv,
 					act = 1;
 				}
 				else{
-					is_liq_synth_candidate = (liq_synth_active && ph_id == ph_id_liq && !liq_real_min_found);
-					if (liq_synth_active && ph_id == ph_id_liq){
+					is_liq_synth_candidate = (liq_l >= 0 && liq_synth_active[liq_l] && !liq_real_min_found[liq_l]);
+					if (liq_l >= 0 && liq_synth_active[liq_l]){
 						act = is_liq_synth_candidate ? 1 : 0;
 					}
-					else if ( strcmp( gv.SS_list[ph_id], "liq") == 0 && gv.n_min[ph_id] > gv.n_max_val){
+					else if ( SS_ref_db[ph_id].is_liq == 1 && gv.n_min[ph_id] > gv.n_max_val){
 						act = 0;
 					}
 					else{
@@ -550,11 +547,11 @@ void ss_min_LP(			global_variable 	 gv,
 			}
 			else{
 				// deactivating the next part helps for IGAD database at VHT
-				is_liq_synth_candidate = (liq_synth_active && ph_id == ph_id_liq && !liq_real_min_found);
-				if (liq_synth_active && ph_id == ph_id_liq){
+				is_liq_synth_candidate = (liq_l >= 0 && liq_synth_active[liq_l] && !liq_real_min_found[liq_l]);
+				if (liq_l >= 0 && liq_synth_active[liq_l]){
 					act = is_liq_synth_candidate ? 1 : 0;
 				}
-				else if ( strcmp( gv.SS_list[ph_id], "liq") == 0 && gv.n_min[ph_id] > gv.n_max_val){
+				else if ( SS_ref_db[ph_id].is_liq == 1 && gv.n_min[ph_id] > gv.n_max_val){
 					act = 0;
 				}
 				else{
@@ -678,8 +675,8 @@ void ss_min_LP(			global_variable 	 gv,
 
 
 				if (is_liq_synth_candidate && candidate_ok == 1){
-					liq_real_min_found = 1;
-					liq_candidate_index = i;
+					liq_real_min_found[liq_l] = 1;
+					liq_candidate_index[liq_l] = i;
 				}
 
 			}
@@ -688,35 +685,38 @@ void ss_min_LP(			global_variable 	 gv,
 	}
 
 	/**
-	  	If the liquid phase is present and has been minimized successfully, 
+	  	For each liquid phase present that has been minimized successfully,
 		we can try to synthesize new PCs by linear interpolation between the real minimum and the other PCs of the same phase
 	*/
-	if (liq_synth_active && liq_real_min_found){
-		int n_xeos = SS_ref_db[ph_id_liq].n_xeos;
-		if (n_xeos > LIQ_PC_SYNTH_MAX_DIM){ return; }
+	for (int l = 0; l < n_liq_ph; l++){
+		if (!(liq_synth_active[l] && liq_real_min_found[l])){ continue; }
+
+		int phid   = ph_id_liq[l];
+		int n_xeos = SS_ref_db[phid].n_xeos;
+		if (n_xeos > LIQ_PC_SYNTH_MAX_DIM){ continue; }
 
 		double x_star[LIQ_PC_SYNTH_MAX_DIM];
-		for (int k = 0; k < n_xeos; k++){ x_star[k] = SS_ref_db[ph_id_liq].xeos[k]; }
+		for (int k = 0; k < n_xeos; k++){ x_star[k] = SS_ref_db[phid].xeos[k]; }
 
 		double steps[3] = {0.3, 0.6, 0.9};
 
 		for (int ic = 0; ic < gv.len_ox; ic++){
-			if (cp[ic].ss_flags[0] == 1 && cp[ic].id == ph_id_liq && ic != liq_candidate_index){
+			if (cp[ic].ss_flags[0] == 1 && cp[ic].id == phid && ic != liq_candidate_index[l]){
 				for (int si = 0; si < 3; si++){
 					double s = steps[si];
 					int ok = 1;
 					for (int k = 0; k < n_xeos; k++){
 						double x_syn = x_star[k] + s * (cp[ic].xeos[k] - x_star[k]);
-						if (x_syn < SS_ref_db[ph_id_liq].bounds[k][0] || x_syn > SS_ref_db[ph_id_liq].bounds[k][1]){ ok = 0; break; }
-						SS_ref_db[ph_id_liq].iguess[k] = x_syn;
+						if (x_syn < SS_ref_db[phid].bounds[k][0] || x_syn > SS_ref_db[phid].bounds[k][1]){ ok = 0; break; }
+						SS_ref_db[phid].iguess[k] = x_syn;
 					}
 					if (!ok) { continue; }
 
-					SS_ref_db[ph_id_liq] = PC_function(gv, PC_read, SS_ref_db[ph_id_liq], z_b, ph_id_liq);
-					SS_ref_db[ph_id_liq] = SS_UPDATE_function(gv, SS_ref_db[ph_id_liq], z_b, gv.SS_list[ph_id_liq]);
+					SS_ref_db[phid] = PC_function(gv, PC_read, SS_ref_db[phid], z_b, phid);
+					SS_ref_db[phid] = SS_UPDATE_function(gv, SS_ref_db[phid], z_b, gv.SS_list[phid]);
 
-					if (SS_ref_db[ph_id_liq].sf_ok == 1){
-						copy_to_Ppc(pc_check, 1, ph_id_liq, gv, SS_objective, SS_ref_db);
+					if (SS_ref_db[phid].sf_ok == 1){
+						copy_to_Ppc(pc_check, 1, phid, gv, SS_objective, SS_ref_db);
 						if (gv.verbose == 1){ printf(" [liq pc synth-linear] added PC for cp#%d step %g\n", ic, s); }
 					}
 					else{

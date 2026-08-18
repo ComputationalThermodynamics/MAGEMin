@@ -10495,37 +10495,6 @@ void carp_mpe_c(unsigned m, double *result, unsigned n, const double *x, double 
 };
 
 /**
-    Inequality constraints for car
-*/
-void car_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
-    result[0] = (x[0] + x[1] - 1.0);
-    result[1] = (-x[0]);
-    result[2] = (-x[1]);
-    result[3] = (-x[2]);
-    result[4] = (x[2] - 1.0);
-
-    if (grad) {
-        grad[0] = 1.0;
-        grad[1] = 1.0;
-        grad[2] = 0.0;
-        grad[3] = -1.0;
-        grad[4] = 0.0;
-        grad[5] = 0.0;
-        grad[6] = 0.0;
-        grad[7] = -1.0;
-        grad[8] = 0.0;
-        grad[9] = 0.0;
-        grad[10] = 0.0;
-        grad[11] = -1.0;
-        grad[12] = 0.0;
-        grad[13] = 0.0;
-        grad[14] = 1.0;
-    }
-
-    return;
-};
-
-/**
     Inequality constraints for liq_mp
 */
 void liq_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
@@ -11954,40 +11923,6 @@ void dio_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *
     return;
 };
 
-SS_ref NLopt_opt_mpe_car_function(global_variable gv, SS_ref SS_ref_db){
-    
-    int    n_em     = SS_ref_db.n_em;
-    unsigned int n  = SS_ref_db.n_xeos;
-    unsigned int m  = SS_ref_db.n_sf;
-    
-    double *x  = SS_ref_db.iguess; 
-    
-    for (int i = 0; i < (SS_ref_db.n_xeos); i++){
-       SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
-       SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
-    }
-    
-    SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n)); 
-    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
-    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
-    nlopt_set_min_objective(SS_ref_db.opt, obj_mpe_car, &SS_ref_db);
-    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, car_mpe_c, NULL, NULL);
-    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
-    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
-    
-    double minf;
-    SS_ref_db.status = nlopt_optimize(SS_ref_db.opt, x, &minf);
-
-    /* Send back needed local solution parameters */
-    for (int i = 0; i < SS_ref_db.n_xeos; i++){
-       SS_ref_db.xeos[i] = x[i];
-    }
-    
-    SS_ref_db.df   = minf;
-    nlopt_destroy(SS_ref_db.opt);
-    
-    return SS_ref_db;
-};
 SS_ref NLopt_opt_mpe_st_function(global_variable gv, SS_ref SS_ref_db){
     
     int    n_em     = SS_ref_db.n_em;
@@ -13331,8 +13266,6 @@ void TC_mpe_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_mpe_po_function; 		}
 		else if (strcmp( gv.SS_list[iss], "oamp")    == 0){
 			NLopt_opt[iss]  = NLopt_opt_mb_oamp_function; 		}
-		else if (strcmp( gv.SS_list[iss], "car")    == 0){
-			NLopt_opt[iss]  = NLopt_opt_mpe_car_function; 		}
         else if (strcmp( gv.SS_list[iss], "carp")    == 0){
 			NLopt_opt[iss]  = NLopt_opt_mpe_carp_function; 		}
 		else if (strcmp( gv.SS_list[iss], "fl_DEW")    == 0){
@@ -13482,8 +13415,6 @@ void TC_all_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_mpe_carp_function; 		}
 		else if (strcmp( gv.SS_list[iss], "plc_B05")   == 0){
 			NLopt_opt[iss]  = NLopt_opt_mpe_plc_function; 		}
-		else if (strcmp( gv.SS_list[iss], "car")   == 0){
-			NLopt_opt[iss]  = NLopt_opt_mpe_car_function; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
