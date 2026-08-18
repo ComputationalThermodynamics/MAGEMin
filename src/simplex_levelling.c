@@ -833,12 +833,12 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 			(*P2X_read[ph_id])(		&SS_ref_db[ph_id],
 									gv.bnd_val					);
 
-			/* get unrotated gbase - PC_function's objective functions (e.g. obj_fl_DEW) read
-			   d->gb_lvl, not d->gbase, by convention (see obj_fl_DEW's own comment). This
+			/* get unrotated gbase - PC_function's objective functions (e.g. obj_DEW) read
+			   d->gb_lvl, not d->gbase, by convention (see obj_DEW's own comment). This
 			   call was missing here (present in the equivalent block in dump_function.c's
 			   fill_output_struct), leaving gb_lvl stale/unrefreshed for this point whenever
 			   the simplex levelling picks a phase's pure single endmember as an initial
-			   candidate - most consequential for fl_DEW, whose objective function derives
+			   candidate - most consequential for DEW, whose objective function derives
 			   real G/mu from gb_lvl via DEW_aq_evaluate every time it's called, unlike
 			   phases that only read it while NLopt is actively minimizing (and so almost
 			   always found it already fresh from that same call chain). */
@@ -1421,8 +1421,8 @@ void SS_all_pc_init_function(	PC_ref 	*SS_pc_xeos,
 		SS_um_pc_init_function(		SS_pc_xeos, iss, "ta", gv		);	}
 	else if (strcmp( name, "oamp_D07")  == 0){
 		SS_mb_pc_init_function(			SS_pc_xeos, iss, "oamp", gv		);	}
-	else if (strcmp( name, "fl_DEW_S14") == 0){
-		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "fl_DEW", gv	);	}
+	else if (strcmp( name, "DEW_S14") == 0){
+		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "DEW", gv	);	}
 	else if (strcmp( name, "cpx_W24")   == 0){
 		SS_ig_pc_init_function(		SS_pc_xeos, iss, "cpx", gv		);	}
 	else if (strcmp( name, "fper")  == 0){

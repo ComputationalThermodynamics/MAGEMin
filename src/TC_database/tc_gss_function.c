@@ -32,19 +32,19 @@ Igneous dataset to use with tc-ds633.txt
 
 
 /**************************************************************************************/
-/* DEW2019 aqueous fluid ("fl_DEW") - see TC_database/DEW_aq_solver.h.             */
+/* DEW2019 aqueous fluid ("DEW") - see TC_database/DEW_aq_solver.h.             */
 /* Reuses the already-verified init_DEW_aqueous_model_at_point (Phase 2-4) rather than */
 /* re-deriving gbase/composition here; this function's only job is copying that       */
 /* per-point species data into the SS_ref fields the rest of the pipeline expects.    */
 /* Water is kept LAST (index n_em-1), matching AQ_data's own convention throughout.    */
 /**************************************************************************************/
-SS_ref G_SS_fl_DEW_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
+SS_ref G_SS_DEW_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
 
     int i, j;
     int n_em    = SS_ref_db.n_em;
     double eps2 = 1e-15;
 
-    strcpy(SS_ref_db.fName, "fl_DEW_S14");   /* citation tag (Sverjensky et al. 2014 dielectric model), matching every other phase's G_SS_xxx_function setting fName - unset here left it as uninitialized malloc'd garbage, which crashed fill_output_struct's strcpy the first time a fl_DEW instance was ever exercised */
+    strcpy(SS_ref_db.fName, "DEW_S14");   /* citation tag (Sverjensky et al. 2014 dielectric model), matching every other phase's G_SS_xxx_function setting fName - unset here left it as uninitialized malloc'd garbage, which crashed fill_output_struct's strcpy the first time a DEW instance was ever exercised */
 
     AQ_data AQ = init_DEW_aqueous_model_at_point(  DEW_N_SPECIES_DB,
                                                     EM_dataset,
@@ -57,7 +57,7 @@ SS_ref G_SS_fl_DEW_function(SS_ref SS_ref_db, char* research_group, int EM_datas
                                                     SS_ref_db.T                );
 
     if (AQ.n_sp + 1 != n_em){
-        printf(" fl_DEW: active species count changed since init (%d+1 != %d) - the active oxide set must be identical for every point in a run\n", AQ.n_sp, n_em);
+        printf(" DEW: active species count changed since init (%d+1 != %d) - the active oxide set must be identical for every point in a run\n", AQ.n_sp, n_em);
     }
 
     SS_ref_db.densityW = AQ.rho_w;
@@ -66,11 +66,11 @@ SS_ref G_SS_fl_DEW_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.epsilon    = 0.0;
 
     /* xeos and site fractions are both just the mole fraction of each endmember for
-       fl_DEW (n_xeos == n_em == n_sf, no separate compositional-variable transform,
+       DEW (n_xeos == n_em == n_sf, no separate compositional-variable transform,
        p[i]=x[i] directly) - CV_list/SF_list reuse the species names accordingly. Every
        other (actually-exercised) phase populates both of these from a static name
        table; leaving them unset here left them as uninitialized malloc'd garbage, which
-       crashed fill_output_struct's strcpy the first time a fl_DEW instance was ever
+       crashed fill_output_struct's strcpy the first time a DEW instance was ever
        exercised (same class of bug as fName, just two more instances of it). */
     for (i = 0; i < AQ.n_sp; i++){
         strcpy(SS_ref_db.EM_list[i], AQ.em_names[i]);
@@ -18887,12 +18887,12 @@ SS_ref G_SS_mb_ext_EM_function(		global_variable 	 gv,
 				SS_ref_db.ss_flags[0]  = 0;
 			}
             SS_ref_db  = G_SS_mb_ta_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
-		else if (strcmp( name, "fl_DEW") == 0){
-			// aqueous fluid needs water - mbe has no other fluid model, fl_DEW is unconditionally the free-fluid phase here
+		else if (strcmp( name, "DEW") == 0){
+			// aqueous fluid needs water - mbe has no other fluid model, DEW is unconditionally the free-fluid phase here
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_fl_DEW_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+			SS_ref_db  = G_SS_DEW_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else{
             printf("\nsolid solution '%s' is not in the database\n",name);	}
 
@@ -19007,12 +19007,12 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_ig_fl_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
-		else if (strcmp( name, "fl_DEW") == 0){
-			/* dead branch: "fl_DEW" is not in ig's SS_list, never reached via dispatch. */
+		else if (strcmp( name, "DEW") == 0){
+			/* dead branch: "DEW" is not in ig's SS_list, never reached via dispatch. */
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_fl_DEW_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+			SS_ref_db  = G_SS_DEW_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "g") == 0){
 			if (z_b.bulk_rock[gv.Al2O3_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
@@ -19574,7 +19574,7 @@ SS_ref G_SS_um_EM_function(		global_variable 	 gv,
 		}
 
 		if (strcmp( name, "fl") == 0 ){
-			// if no H2O, deactivate; also deactivated when fl_DEW is active - it replaces this phase as the free-fluid model
+			// if no H2O, deactivate; also deactivated when DEW is active - it replaces this phase as the free-fluid model
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
@@ -19803,12 +19803,12 @@ SS_ref G_SS_um_ext_EM_function(	global_variable 	 gv,
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_mpe_fl_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
-		else if (strcmp( name, "fl_DEW") == 0){
-			// aqueous fluid needs water - unconditionally active otherwise, like any other phase ("flc" above is a separate, independent H2O-CO2 fluid model, not tied to fl_DEW)
+		else if (strcmp( name, "DEW") == 0){
+			// aqueous fluid needs water - unconditionally active otherwise, like any other phase ("flc" above is a separate, independent H2O-CO2 fluid model, not tied to DEW)
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_fl_DEW_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
+			SS_ref_db  = G_SS_DEW_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
 		else{
 			printf("\nsolid solution '%s' is not in the database\n",name);	}
 
@@ -20174,11 +20174,11 @@ SS_ref G_SS_mpe_EM_function(	global_variable 	 gv,
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_mpe_carp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
-		else if (strcmp( name, "fl_DEW") == 0){
+		else if (strcmp( name, "DEW") == 0){
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_fl_DEW_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
+			SS_ref_db  = G_SS_DEW_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
 		else{
 			printf("\nsolid solution '%s' is not in the database\n",name);	                    }	
 		for (int j = 0; j < SS_ref_db.n_em; j++){
@@ -20475,11 +20475,11 @@ SS_ref G_SS_all_EM_function(	global_variable 	 gv,
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_mb_oamp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
-		else if (strcmp( name, "fl_DEW_S14") == 0 ){
+		else if (strcmp( name, "DEW_S14") == 0 ){
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_fl_DEW_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+			SS_ref_db  = G_SS_DEW_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "cpx_W24") == 0 ){
 			SS_ref_db  = G_SS_ig_cpx_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "fper") == 0 ){

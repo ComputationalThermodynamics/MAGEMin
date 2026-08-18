@@ -46,8 +46,8 @@ dio_G16,ss,Clinopyroxene (dio/omphacite model),Cpx
 ep,ss,Epidote,Ep
 ep_H11,ss,Epidote,Ep
 fl,ss,Fluid,fl
-fl_DEW,ss,DEW aqueous fluid (Sverjensky et al. 2014),fl_DEW
-fl_DEW_S14,ss,DEW aqueous fluid (Sverjensky et al. 2014),fl_DEW
+DEW,ss,DEW aqueous fluid (Sverjensky et al. 2014),DEW
+DEW_S14,ss,DEW aqueous fluid (Sverjensky et al. 2014),DEW
 fl_EF21,ss,Fluid,fl
 fl_G25,ss,Fluid,fl
 fl_H03,ss,Fluid,fl

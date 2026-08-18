@@ -151,7 +151,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.max_n_mSS			=  128;					/** maximum number of metastable pseudocompounds 									*/
 	gv.max_n_cp 			=  256;					/** number of considered solution phases 											*/	
 	gv.max_ss_size_cp   	=  130;					/** maximum size for a solution phase saved in the cp structure - 24 sufficed for every
-													phase up to aq17; fl_DEW (DEW2019 aqueous model) can need up to DEW_N_SPECIES_DB=120
+													phase up to aq17; DEW (DEW2019 aqueous model) can need up to DEW_N_SPECIES_DB=120
 													species + water endmembers, so this was bumped in step with struct ss_pc.xeos_pc[]
 													(MAGEMin.h) - both are sized for the same reason. */
 	gv.buffer_n 			=  0.0;					/** factor for QFM buffer 															*/
@@ -249,8 +249,8 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.EM_database  		=  0; 					
 	gv.n_points 			=  1;
 	gv.solver   			=  2;					/* 0 -> Legacy, 1 = PGE, Hybrid PGE/LP */
-	gv.DEW_solve_algorithm 	=  2;              		/** 0: original plain Picard fl_DEW inner solver (default), 1: damped/mixed variant, 2: plain Picard + Newton-safeguarded-by-bisection mu_Hp solve - see DEW_aq_solver.c */
-	gv.warm_start			=  1;					/** 1 (default): fl_DEW outer-PGE warm start active, 0: disabled (always re-explore the full 8-start multistart grid) - see NLopt_opt_fl_DEW_function */
+	gv.DEW_solve_algorithm 	=  2;              		/** 0: original plain Picard DEW inner solver (default), 1: damped/mixed variant, 2: plain Picard + Newton-safeguarded-by-bisection mu_Hp solve - see DEW_aq_solver.c */
+	gv.warm_start			=  1;					/** 1 (default): DEW outer-PGE warm start active, 0: disabled (always re-explore the full 8-start multistart grid) - see NLopt_opt_DEW_function */
 	gv.leveling_mode		=  0;
 	gv.verbose 				=  0;
 	gv.output_matlab 		=  0;
@@ -359,11 +359,11 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 	sp.SS 		 			= malloc(gv.len_ox  * sizeof(stb_SS_phase)		); 
 	sp.mSS 		 			= malloc(gv.max_n_mSS  * sizeof(mstb_SS_phase)	); 
 
-	/* gv.len_ox*3 sufficed for every phase up to aq17; fl_DEW (DEW2019 aqueous
+	/* gv.len_ox*3 sufficed for every phase up to aq17; DEW (DEW2019 aqueous
 	   model) can need up to gv.max_ss_size_cp endmembers regardless of len_ox (its
 	   species count comes from the DEW database, not the oxide system), so this is
 	   sized against whichever bound is larger. Shared by both the sp.SS[] loop below
-	   and the sp.mSS[] loop further down (same fl_DEW-sized-endmember situation). */
+	   and the sp.mSS[] loop further down (same DEW-sized-endmember situation). */
 	int n_max_pc = (gv.len_ox*3 > gv.max_ss_size_cp) ? gv.len_ox*3 : gv.max_ss_size_cp;
 
 	for (int n = 0; n< gv.len_ox; n++){
@@ -400,8 +400,8 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
     
     /** allocate memory for metastable phases. p_Ppc/mu_Ppc/xeos_Ppc are written up to
         SS_ref_db[ph_id].n_em/n_xeos in dump_function.c's mSS_output_struct - same
-        "fl_DEW can need far more slots than len_ox*2" situation as sp.SS[n] above (a
-        heap-buffer-overflow WRITE confirmed via AddressSanitizer here: mpe's fl_DEW has
+        "DEW can need far more slots than len_ox*2" situation as sp.SS[n] above (a
+        heap-buffer-overflow WRITE confirmed via AddressSanitizer here: mpe's DEW has
         up to ~101 endmembers against a len_ox*2=26 allocation), so sized against the same
         n_max_pc bound for consistency - comp_Ppc stays len_ox-sized since it's only ever
         indexed by oxide, not by endmember. */
@@ -491,10 +491,10 @@ SS_ref G_SS_init_EM_function(		SS_init_type		*SS_init,
 		SS_ref_db.dp_dx[i] 	= malloc (n_xeos 		* sizeof (double) );
 	}
 
-	/* fl_DEW (DEW2019 aqueous model) needs each species' formation-reaction
+	/* DEW (DEW2019 aqueous model) needs each species' formation-reaction
 	   stoichiometry vs oxide components + H+, not just its mass-balance composition -
 	   see MAGEMin.h's SS_ref.mu_comp doc comment. NULL/unallocated for every other phase. */
-	if (strcmp(name, "fl_DEW") == 0 || strcmp(name, "fl_DEW_S14") == 0){
+	if (strcmp(name, "DEW") == 0 || strcmp(name, "DEW_S14") == 0){
 		SS_ref_db.mu_comp = malloc (n_em * sizeof (double*));
 		for (int i = 0; i < n_em; i++){
 			SS_ref_db.mu_comp[i] = malloc ((gv.len_ox+1) * sizeof (double));

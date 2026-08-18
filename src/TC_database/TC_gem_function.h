@@ -29,7 +29,7 @@ PP_ref TC_G_EM_function(    int          EM_database,
 
 /**
     Return type for DEW2019 aqueous species (mirrors MAGEMin.jl's AF_ref, DEW_19_gbase.jl).
-    Distinct from PP_ref since fl_DEW's solver (aq_min_iterative port) needs each
+    Distinct from PP_ref since DEW's solver (aq_min_iterative port) needs each
     species' formation-reaction stoichiometry against the oxide components + H+ (MuComp),
     not just its mass-balance composition (Comp) - no other TC_gem_function.c EOS needs this.
 **/

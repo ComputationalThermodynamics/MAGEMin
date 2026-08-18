@@ -22,7 +22,7 @@
 #include "nlopt.h"
 #include "gem_function.h"
 
-/* 25 sufficed for every phase up to aq17; fl_DEW (DEW2019 aqueous model, up to
+/* 25 sufficed for every phase up to aq17; DEW (DEW2019 aqueous model, up to
    DEW_N_SPECIES_DB=120 species + water) can need far more x-eos slots for its single
    (n_SS_PC=1) starting pseudocompound - bumped to 130 for headroom. Existing static
    tables with fewer literals than this (e.g. mp_bi_pc_xeos[981]'s 6-element rows) are
@@ -95,8 +95,8 @@ typedef struct global_variables {
 	int      BR_rel_norm;		/** 1: PGE mass-residual convergence norm (BR_norm) is computed per-oxide-relative (normalized by each oxide's own bulk abundance), 0: off (unmodified legacy absolute norm) */
 	int      gh_multistart_order;	/** gh phases with an embedded order-parameter solve (e.g. spinel): 0 (default) = single physically-motivated starting guess, exactly matching real xMELTS' own order() function; 1 (legacy/opt-in) = multi-start over several starting points, keeping the lowest-G result - finds a lower true minimum at extreme near-single-endmember compositions but can disagree with what real MELTS itself would compute there */
 	int      fixed_bulk;
-	int      DEW_solve_algorithm;	/** fl_DEW inner speciation solver (DEW_aq_min_iterative family): 0 (default) = original plain (unmixed) Picard fixed-point iteration, bisection mu_Hp solve; 1 = damped/mixed variant that under-relaxes the composition<->activity-coefficient feedback loop, aimed at the high-ionic-strength (deep/hot P-T) regime where plain Picard oscillates/overshoots, bisection mu_Hp solve; 2 = same outer loop as 0 but with the mu_Hp charge-balance root-find replaced by a Newton step safeguarded by bisection (DEW_solve_mu_Hp_safeguarded) - same bracketing guarantee as algorithm 0's bisection (can never leave a verified sign-changing bracket) but converges quadratically, cutting residual evaluations per solve by 40-1000x; benchmarked with 0 regressions over an 84-point mpe/ume/mbe P-T sweep - see DEW_aq_solver.c. All three are exact fixed points of the same equilibrium condition when converged; algorithms 1 and 2 are opt-in pending broader validation. */
-	int      warm_start;		/** fl_DEW outer-PGE-loop warm start (NLopt_opt_fl_DEW_function/SS_ref.dew_warm_ok): 1 (default) = after a point's first fl_DEW solve (always the full 8-start DEW_aq_min_multistart grid), later outer iterations of the SAME point first try a single solve warm-started from the previous converged composition, falling back to the full grid only if that fails to converge; 0 = disable the shortcut entirely and always re-run the full 8-start grid, every outer iteration, every point - a debugging/comparison knob to isolate whether the warm-start path itself is implicated in a given issue. */
+	int      DEW_solve_algorithm;	/** DEW inner speciation solver (DEW_aq_min_iterative family): 0 (default) = original plain (unmixed) Picard fixed-point iteration, bisection mu_Hp solve; 1 = damped/mixed variant that under-relaxes the composition<->activity-coefficient feedback loop, aimed at the high-ionic-strength (deep/hot P-T) regime where plain Picard oscillates/overshoots, bisection mu_Hp solve; 2 = same outer loop as 0 but with the mu_Hp charge-balance root-find replaced by a Newton step safeguarded by bisection (DEW_solve_mu_Hp_safeguarded) - same bracketing guarantee as algorithm 0's bisection (can never leave a verified sign-changing bracket) but converges quadratically, cutting residual evaluations per solve by 40-1000x; benchmarked with 0 regressions over an 84-point mpe/ume/mbe P-T sweep - see DEW_aq_solver.c. All three are exact fixed points of the same equilibrium condition when converged; algorithms 1 and 2 are opt-in pending broader validation. */
+	int      warm_start;		/** DEW outer-PGE-loop warm start (NLopt_opt_DEW_function/SS_ref.dew_warm_ok): 1 (default) = after a point's first DEW solve (always the full 8-start DEW_aq_min_multistart grid), later outer iterations of the SAME point first try a single solve warm-started from the previous converged composition, falling back to the full grid only if that fails to converge; 0 = disable the shortcut entirely and always re-run the full 8-start grid, every outer iteration, every point - a debugging/comparison knob to isolate whether the warm-start path itself is implicated in a given issue. */
 	int      SB_eos;			/** 0: legacy (Perple_X-style) SLB EOS solver, 1: burnman-style (Brent volume solve + 3rd order shear), 2: same as 1 but with HeFESTo's analytic vibrational/spinodal volume bounds */
 	int      SB_eos_cor;		/** 0: compute_G0() legacy Newton solver behaves exactly as before (default), 1: destabilize (NAN) on non-convergence instead of silently using the unconverged volume, and tighten its v/v0 sanity bound to match Perple_X/HeFESTo */
 
@@ -476,15 +476,15 @@ typedef struct SS_refs {
     double **Comp;    			/** 2d array of endmember composition 										*/
     double  *gbase;        		/** 1d array of gbase 														*/
     double **mu_comp;			/** 2d array [n_em][len_ox+1], formation-reaction stoichiometry vs oxide
-    								components + H+ - only used by fl_DEW (DEW2019 aqueous model), which
+    								components + H+ - only used by DEW (DEW2019 aqueous model), which
     								needs each species' reaction against the current Gamma hyperplane, not
     								just its raw mass-balance composition (see TC_database/DEW_aq_solver.h).
     								NULL/unused for every other solution phase. 								*/
-    int      dew_warm_ok;		/** fl_DEW only: 1 once this point has completed at least one full
+    int      dew_warm_ok;		/** DEW only: 1 once this point has completed at least one full
     								DEW_aq_min_multistart() grid solve, so xeos already holds a
     								verified-global-min mole-fraction vector safe to warm-start
     								subsequent outer PGE iterations from (see
-    								NLopt_opt_fl_DEW_function). Reset to 0 at the start of every
+    								NLopt_opt_DEW_function). Reset to 0 at the start of every
     								point in ComputeEquilibrium_Point. Unused by every other
     								solution phase. 															*/
 
@@ -707,10 +707,10 @@ typedef struct stb_SS_phases {
 	double   shearMod;
 	double   Vp;
 	double   Vs;
-	double   pH;				/** -log10(activity of H+); only meaningful for fl_DEW, NaN otherwise */
-	double   chargeResidual;	/** |sum(z_i*m_i)| at the converged aqueous speciation; only meaningful for fl_DEW, NaN otherwise */
-	double   sumMolality;		/** sum of solute molalities [mol/kg H2O]; only meaningful for fl_DEW, NaN otherwise */
-	double   G_water;			/** standard-state Gibbs energy of the solvent (H2O) [kJ/mol]; only meaningful for fl_DEW, NaN otherwise */
+	double   pH;				/** -log10(activity of H+); only meaningful for DEW, NaN otherwise */
+	double   chargeResidual;	/** |sum(z_i*m_i)| at the converged aqueous speciation; only meaningful for DEW, NaN otherwise */
+	double   sumMolality;		/** sum of solute molalities [mol/kg H2O]; only meaningful for DEW, NaN otherwise */
+	double   G_water;			/** standard-state Gibbs energy of the solvent (H2O) [kJ/mol]; only meaningful for DEW, NaN otherwise */
 
 	int      n_xeos;
 	int      n_em;
@@ -722,8 +722,8 @@ typedef struct stb_SS_phases {
 	double  *siteFractions;
 	char   **siteFractionsNames;
 	char   **emNames;
-	double  *molality;			/** [n_em] mol/kg H2O; only meaningful for fl_DEW (water's own slot is NaN), NaN-filled otherwise */
-	double  *activity;			/** [n_em] species activity (solvent slot = water activity coefficient); only meaningful for fl_DEW, NaN-filled otherwise */
+	double  *molality;			/** [n_em] mol/kg H2O; only meaningful for DEW (water's own slot is NaN), NaN-filled otherwise */
+	double  *activity;			/** [n_em] species activity (solvent slot = water activity coefficient); only meaningful for DEW, NaN-filled otherwise */
 	double  *emFrac;
 	double  *emFrac_wt;
 	double  *emChemPot;

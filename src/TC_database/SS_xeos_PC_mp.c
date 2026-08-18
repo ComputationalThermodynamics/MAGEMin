@@ -16009,27 +16009,27 @@ void SS_mp_pc_init_function(	PC_ref 	*SS_pc_xeos,
 		SS_pc_xeos[iss].ss_pc_xeos  = mp_ilmm_pc_xeos; 		}
 	else if (strcmp( name, "mt") == 0){
 		SS_pc_xeos[iss].ss_pc_xeos  = mp_mt_pc_xeos; 		}
-	else if (strcmp( name, "fl_DEW") == 0){
+	else if (strcmp( name, "DEW") == 0){
 		/* single (n_SS_PC=1) starting pseudocompound: mostly water, trace amounts of
-		   every dissolved species, with water LAST (index n_active) matching fl_DEW's
-		   own convention (see G_SS_fl_DEW_function). static storage: avoids a
+		   every dissolved species, with water LAST (index n_active) matching DEW's
+		   own convention (see G_SS_DEW_function). static storage: avoids a
 		   per-levelling-call malloc/free for what's really a per-run-constant
 		   (n_active only depends on gv.ox[]/gv.len_ox, fixed for the whole run). */
-		static struct ss_pc fl_DEW_pc_xeos[1];
+		static struct ss_pc DEW_pc_xeos[1];
 
 		int id[gv.len_ox];
 		DEW_build_id_map(gv.len_ox, gv.ox, id);
 
 		/* Oxide=0.0 support: n_active (schema-active count) must stay exactly as before -
 		   it fixes n_em/array positions, shared with init_DEW_aqueous_model's assembly
-		   order, so every position here must line up 1:1 with G_SS_fl_DEW_function's
+		   order, so every position here must line up 1:1 with G_SS_DEW_function's
 		   per-point species list. But a species whose Comp[] touches a bulk-zero oxide
 		   gets suppressed there (gbase=1e6) - if this seed still gives it the same 1e-6
 		   starting mass as a real species, the ONE seed's G is poisoned badly enough
-		   (1e-6 * 1e6 = +1 kJ per suppressed species) that fl_DEW is never even promoted
+		   (1e-6 * 1e6 = +1 kJ per suppressed species) that DEW is never even promoted
 		   for NLopt refinement (n_Ppc stays 0), regardless of whether the surviving
 		   species would legitimately be favorable. Give suppressed positions 0.0 instead,
-		   same per-point bulk check as G_SS_fl_DEW_function. */
+		   same per-point bulk check as G_SS_DEW_function. */
 		int n_active = 0;
 		int n_survive = 0;
 		for (int s = 0; s < gv.n_dew_db; s++){
@@ -16043,13 +16043,13 @@ void SS_mp_pc_init_function(	PC_ref 	*SS_pc_xeos,
 			}
 			int mu_depends_on_O = (gv.O_id >= 0 && sp.MuComp[id[gv.O_id]] != 0.);
 			int suppressed = (touches_other_zero || mu_depends_on_O) ? 1 : 0;
-			fl_DEW_pc_xeos[0].xeos_pc[n_active] = suppressed ? 0.0 : 1e-6;
+			DEW_pc_xeos[0].xeos_pc[n_active] = suppressed ? 0.0 : 1e-6;
 			if (!suppressed){ n_survive++; }
 			n_active++;
 		}
-		fl_DEW_pc_xeos[0].xeos_pc[n_active] = 1.0 - n_survive*1e-6;
+		DEW_pc_xeos[0].xeos_pc[n_active] = 1.0 - n_survive*1e-6;
 
-		SS_pc_xeos[iss].ss_pc_xeos  = fl_DEW_pc_xeos; 		}
+		SS_pc_xeos[iss].ss_pc_xeos  = DEW_pc_xeos; 		}
 	else{
 		printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", name);
 	}

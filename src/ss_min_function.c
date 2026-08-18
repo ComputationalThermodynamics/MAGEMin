@@ -57,7 +57,7 @@ SS_ref SS_UPDATE_function(		global_variable 	 gv,
 		SS_ref_db.sum_xi 	= 0.0;
 		for (int i = 0; i < SS_ref_db.n_em; i++){
 			/* Clamp the exponent's upper bound: for an ordinary phase mu[i]/RT never gets
-			   close to this, but fl_DEW's hyperplane-relative mu[i] can be astronomically
+			   close to this, but DEW's hyperplane-relative mu[i] can be astronomically
 			   negative for a formally-favored-but-effectively-absent charged species,
 			   overflowing exp() to +Inf; Inf*p[i] with p[i]==0 is then Inf*0=NaN, poisoning
 			   sum_xi (and everything downstream in PGE_function.c's mass-balance matrix

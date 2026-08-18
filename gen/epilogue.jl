@@ -61,7 +61,7 @@ function Base.convert(::Type{SS_data}, a::stb_SS_phases)
       unsafe_wrap.(Vector{Cdouble}, unsafe_wrap( Vector{Ptr{Cdouble}},   a.emComp_apfu, a.n_em),  a.nOx)   )
 end
 
-# Fields only ever populated (non-NaN) for the fl_DEW aqueous phase - hidden from the
+# Fields only ever populated (non-NaN) for the DEW aqueous phase - hidden from the
 # default display for every other solution phase, where they're meaningless NaN filler.
 const _SS_data_dew_only_fields = (:pH, :chargeResidual, :sumMolality, :G_water, :molality, :activity)
 

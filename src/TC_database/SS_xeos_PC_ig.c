@@ -34384,9 +34384,9 @@ void SS_ig_pc_init_function(	PC_ref 	*SS_pc_xeos,
 		SS_pc_xeos[iss].ss_pc_xeos  = ig_spl_pc_xeos; 		}
 	else if (strcmp( name, "chl") == 0){
 		SS_pc_xeos[iss].ss_pc_xeos  = ig_chl_pc_xeos; 		}
-	else if (strcmp( name, "fl_DEW") == 0){
+	else if (strcmp( name, "DEW") == 0){
 
-		static struct ss_pc fl_DEW_pc_xeos[1];
+		static struct ss_pc DEW_pc_xeos[1];
 
 		int id[gv.len_ox];
 		DEW_build_id_map(gv.len_ox, gv.ox, id);
@@ -34403,13 +34403,13 @@ void SS_ig_pc_init_function(	PC_ref 	*SS_pc_xeos,
 			}
 			int mu_depends_on_O = (gv.O_id >= 0 && sp.MuComp[id[gv.O_id]] != 0.);
 			int suppressed = (touches_other_zero || mu_depends_on_O) ? 1 : 0;
-			fl_DEW_pc_xeos[0].xeos_pc[n_active] = suppressed ? 0.0 : 1e-6;
+			DEW_pc_xeos[0].xeos_pc[n_active] = suppressed ? 0.0 : 1e-6;
 			if (!suppressed){ n_survive++; }
 			n_active++;
 		}
-		fl_DEW_pc_xeos[0].xeos_pc[n_active] = 1.0 - n_survive*1e-6;
+		DEW_pc_xeos[0].xeos_pc[n_active] = 1.0 - n_survive*1e-6;
 
-		SS_pc_xeos[iss].ss_pc_xeos  = fl_DEW_pc_xeos; 		}
+		SS_pc_xeos[iss].ss_pc_xeos  = DEW_pc_xeos; 		}
 	else{
 		printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", name);
 	}

@@ -465,13 +465,13 @@ int runMAGEMin(			int    argc,
 		   gated to exclude "sb" explicitly - see simplex_levelling.c */
 	}
 
-	/* fl_DEW warm start: SS_ref_db is allocated once for the whole run (InitializeDatabases,
+	/* DEW warm start: SS_ref_db is allocated once for the whole run (InitializeDatabases,
 	   called before the point loop) and reused across every point, so a stale
 	   dew_warm_ok==1 left over from the PREVIOUS point would wrongly let this point's very
 	   first outer iteration skip the full multistart grid and warm-start from a different
 	   point's converged composition. Cross-point continuity is not trusted here (P-T-X can
 	   jump arbitrarily between points); only within-point, across-outer-iteration continuity
-	   is - see NLopt_opt_fl_DEW_function. */
+	   is - see NLopt_opt_DEW_function. */
 	for (int iss = 0; iss < gv.len_ss; iss++){ SS_ref_db[iss].dew_warm_ok = 0; }
 
 	/****************************************************************************************/
@@ -1386,7 +1386,7 @@ void FreeDatabases(		global_variable gv,
 		free(DB.SS_ref_db[i].Comp);
 		free(DB.SS_ref_db[i].dp_dx);
 
-		if (strcmp(gv.SS_list[i], "fl_DEW") == 0 || strcmp(gv.SS_list[i], "fl_DEW_S14") == 0){
+		if (strcmp(gv.SS_list[i], "DEW") == 0 || strcmp(gv.SS_list[i], "DEW_S14") == 0){
 			for (j = 0; j < n_em; j++){ free(DB.SS_ref_db[i].mu_comp[j]); }
 			free(DB.SS_ref_db[i].mu_comp);
 		}

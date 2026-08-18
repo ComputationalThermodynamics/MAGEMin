@@ -15,7 +15,7 @@
 
 #include "DEW_aq_solver.h"
 
-/* TEMPORARY investigation instrumentation (2026-08-14, low-T fl_DEW convergence-cost
+/* TEMPORARY investigation instrumentation (2026-08-14, low-T DEW convergence-cost
    investigation) - counts Picard outer-loop passes (DEW_aq_min_iterative's own while
    loop) and charge-residual evaluations (DEW_charge_residual, called from both the
    bracket-expansion and bisection phases of the mu_Hp root-find, each internally O(n_sp))
@@ -30,7 +30,7 @@
    data race, found 2026-08-14 while investigating a reported segfault in
    swap_PGE_pseudocompounds during a 6876-point --db=mpe --DEW_activate=1 batch run).
    Thread-local storage gives every thread its own independent counters instead, matching
-   the per-call, per-thread instrumentation semantics DEW_stat_reset()/the [fl_DEW stat]
+   the per-call, per-thread instrumentation semantics DEW_stat_reset()/the [DEW stat]
    printf were always meant to have. */
 _Thread_local long DEW_stat_picard_passes  = 0;
 _Thread_local long DEW_stat_residual_evals = 0;
@@ -103,7 +103,7 @@ AQ_data init_DEW_aqueous_model(    int      n_dew_db,
     }
 
     AQ_data AQ;
-    strcpy(AQ.name, "fl_DEW");
+    strcpy(AQ.name, "DEW");
     AQ.n_sp   = n_active;
     AQ.len_ox = len_ox;
     AQ.id_H2O = DEW_find_id_H2O(len_ox, id);
@@ -242,7 +242,7 @@ void free_DEW_solver( AQ_solver *S ){
     correction (still present below, unmodified, behind this flag) instead of the
     bracketed-bisection solve. The Newton step can overshoot by an unbounded amount in
     one iteration when the crude initial guess is badly charge-imbalanced (confirmed
-    root cause of a real "fl_DEW spuriously absent" bug, see tools/DEW_implementation_plan.md
+    root cause of a real "DEW spuriously absent" bug, see tools/DEW_implementation_plan.md
     2026-08-12 entries) - charge balance vs mu_Hp is a monotonic 1D root-find (same
     problem structure as pH vs charge balance in any speciation code), so bisection can't
     overshoot into the same overflow territory: every trial mu_Hp it evaluates uses the
@@ -653,7 +653,7 @@ void DEW_aq_min_iterative(     AQ_data     *AQ,
     delicate, heavily-clamped) function, so a bug here cannot touch the default algorithm
     0 path at all.
 
-    Root cause this targets (see NLopt_opt_fl_DEW_function's 2026-08-14 diagnostic: I_str/
+    Root cause this targets (see NLopt_opt_DEW_function's 2026-08-14 diagnostic: I_str/
     sum_m spiking to unphysical values, a_coef collapsing to 0, before the stall detector
     cuts the pass off - confirmed to happen ONLY in the concentrated/high-ionic-strength
     regime, e.g. 20kbar/500C, never in the dilute one, e.g. 2kbar/200C): the composition
@@ -873,7 +873,7 @@ void DEW_aq_min_iterative_mixed(   AQ_data     *AQ,
 
 /**
     Shared core of DEW_aq_evaluate/DEW_aq_pH (and, externally, dump_function.c's
-    fl_DEW output reporting): derives per-species molality m[] (caller-allocated,
+    DEW output reporting): derives per-species molality m[] (caller-allocated,
     size AQ->n_sp) and the Debye-Hückel activity coefficient gamma_e[5] (indexed by
     |z|, 0..4) from a converged mole-fraction vector x[n_sp+1] (index n_sp =
     water). Also returns a_coef (water activity coefficient), needed by
@@ -971,7 +971,7 @@ void DEW_aq_evaluate(      AQ_data      *AQ,
     DEW_aq_min_iterative's fixed-point iteration has multiple distinct self-consistent
     fixed points depending on the Hp_eps starting guess - not just different convergence
     paths to the same answer, but genuinely different converged G (e.g. one starting guess
-    finding fl_DEW clearly favoured at 600-800 C, another converging to a fl_DEW-absent
+    finding DEW clearly favoured at 600-800 C, another converging to a DEW-absent
     state with measurably HIGHER G at the exact same conditions). A Picard-type iteration
     like this has no general guarantee of a unique fixed point, so trusting any single
     arbitrary starting guess is not safe - see tools/DEW_implementation_plan.md 2026-08-12. */
@@ -1061,7 +1061,7 @@ void DEW_aq_min_multistart(    AQ_data     *AQ,
     directly from a previous outer-iteration's converged mole-fraction vector (x_warm),
     instead of re-running the full 8-point Hp_eps multistart grid DEW_aq_min_multistart does
     above. Only worth trusting once the caller has already verified x_warm came from a real
-    multistart-grid solve for THIS point (see NLopt_opt_fl_DEW_function / SS_ref.dew_warm_ok)
+    multistart-grid solve for THIS point (see NLopt_opt_DEW_function / SS_ref.dew_warm_ok)
     - relies on Gamma_ox changing only incrementally between consecutive outer PGE
     iterations of the same point (the premise the whole PGE architecture already runs on for
     every other phase's per-iteration NLopt warm start), NOT on x_warm being a
@@ -1096,7 +1096,7 @@ int DEW_aq_min_warmstart(      AQ_data      *AQ,
     print statement (pH isn't computed anywhere else in MAGEMin.jl to cross-check it
     against), so this is a from-scratch correct implementation, not a faithful port.
 
-    Only ever called with a fully-populated AQ_data (never obj_fl_DEW's lightweight
+    Only ever called with a fully-populated AQ_data (never obj_DEW's lightweight
     AQ_shim, which leaves em_names unset) since it needs to find "H+" by name.
 */
 double DEW_aq_pH(          AQ_data      *AQ,

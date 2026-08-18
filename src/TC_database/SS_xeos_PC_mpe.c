@@ -32195,22 +32195,22 @@ void SS_mpe_pc_init_function(	PC_ref 	*SS_pc_xeos,
 		SS_pc_xeos[iss].ss_pc_xeos  = mpe_oamp_pc_xeos; 	}
     else if (strcmp( name, "carp") == 0){
 		SS_pc_xeos[iss].ss_pc_xeos  = mpe_carp_pc_xeos; 	}
-	else if (strcmp( name, "fl_DEW") == 0){
-		enum { FL_DEW_N_PROFILES = 5 };
-		static struct ss_pc fl_DEW_pc_xeos[FL_DEW_N_PROFILES];
+	else if (strcmp( name, "DEW") == 0){
+		enum { DEW_N_PROFILES = 5 };
+		static struct ss_pc DEW_pc_xeos[DEW_N_PROFILES];
 
 		int id[gv.len_ox];
 		DEW_build_id_map(gv.len_ox, gv.ox, id);
 
 
-		const char *profile_names[FL_DEW_N_PROFILES][2] = {
+		const char *profile_names[DEW_N_PROFILES][2] = {
 			{0},                        /* row 0: baseline, dominant H2O */
 			{"CO2"},                    /* row 1: dominant CO2 (0.75) - see profile_frac */
 			{"H4SiO4"},                 /* row 2: silica-rich H2O */
 			{"CaO", "Mg(OH)2"},         /* row 3: alkaline-earth-rich H2O (neutral complexes) */
 			{"NaOH", "KOH"},            /* row 4: alkali-rich H2O (neutral complexes) */
 		};
-		double profile_frac[FL_DEW_N_PROFILES][2] = {
+		double profile_frac[DEW_N_PROFILES][2] = {
 			{0},
 			{0.75},
 			{0.10},
@@ -32218,7 +32218,7 @@ void SS_mpe_pc_init_function(	PC_ref 	*SS_pc_xeos,
 			{0.05, 0.05},
 		};
 
-		for (int p = 0; p < FL_DEW_N_PROFILES; p++){
+		for (int p = 0; p < DEW_N_PROFILES; p++){
 			int n_active = 0;
 			double sum_elevated = 0.0;
 			double net_charge = 0.0;
@@ -32246,25 +32246,25 @@ void SS_mpe_pc_init_function(	PC_ref 	*SS_pc_xeos,
 					if (strcmp(sp.Name, "H+")  == 0){ idx_Hp  = n_active; }
 					if (strcmp(sp.Name, "OH-") == 0){ idx_OHm = n_active; }
 				}
-				fl_DEW_pc_xeos[p].xeos_pc[n_active] = val;
+				DEW_pc_xeos[p].xeos_pc[n_active] = val;
 				sum_elevated += val;
 				net_charge   += val*sp.input_3[2];
 				n_active++;
 			}
 
 			if (net_charge > 0.0 && idx_OHm >= 0){
-				fl_DEW_pc_xeos[p].xeos_pc[idx_OHm] += net_charge;
+				DEW_pc_xeos[p].xeos_pc[idx_OHm] += net_charge;
 				sum_elevated += net_charge;
 			}
 			else if (net_charge < 0.0 && idx_Hp >= 0){
-				fl_DEW_pc_xeos[p].xeos_pc[idx_Hp] += -net_charge;
+				DEW_pc_xeos[p].xeos_pc[idx_Hp] += -net_charge;
 				sum_elevated += -net_charge;
 			}
 
-			fl_DEW_pc_xeos[p].xeos_pc[n_active] = fmax(1.0 - sum_elevated, 1e-6);
+			DEW_pc_xeos[p].xeos_pc[n_active] = fmax(1.0 - sum_elevated, 1e-6);
 		}
 
-		SS_pc_xeos[iss].ss_pc_xeos  = fl_DEW_pc_xeos; 		}
+		SS_pc_xeos[iss].ss_pc_xeos  = DEW_pc_xeos; 		}
 	else{
 		printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", name);
 	}

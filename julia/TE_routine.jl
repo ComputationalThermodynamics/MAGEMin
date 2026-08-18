@@ -74,85 +74,85 @@ function mineral_name_convertor(    phase_name      :: Vector{String}   )
 end
 
 
-"""
-    mineral_classification(out, dtb)
+# """
+#     mineral_classification(out, dtb)
 
-    Classify the stable phases from a MAGEMin minimization result into mineralogical names compatible with the trace element partitioning coefficient database.
+#     Classify the stable phases from a MAGEMin minimization result into mineralogical names compatible with the trace element partitioning coefficient database.
 
-    Solution phases that straddle a solvus (feldspar, spinel, ilmenite) are disambiguated using their compositional variables. Clinopyroxene variants ("dio", "aug") are unified as "cpx"; ilmenite variants ("ilm", "ilmm") are unified as "FeTiOx".
+#     Solution phases that straddle a solvus (feldspar, spinel, ilmenite) are disambiguated using their compositional variables. Clinopyroxene variants ("dio", "aug") are unified as "cpx"; ilmenite variants ("ilm", "ilmm") are unified as "FeTiOx".
 
-    Parameters
-    ----------
-    out : MAGEMin_C.gmin_struct{Float64, Int64}
-        MAGEMin minimization output structure.
-    dtb : String
-        Database identifier (e.g., "ig", "igad", "mp", "mpe", "mb", "ume", "mbe").
+#     Parameters
+#     ----------
+#     out : MAGEMin_C.gmin_struct{Float64, Int64}
+#         MAGEMin minimization output structure.
+#     dtb : String
+#         Database identifier (e.g., "ig", "igad", "mp", "mpe", "mb", "ume", "mbe").
 
-    Returns
-    -------
-    ph : Vector{String}
-        Classified phase names compatible with the TE partitioning database.
-    ph_wt : Vector{Float64}
-        Weight fractions corresponding to each phase.
-"""
-function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Float64, Int64},
-                                    dtb             :: String  )
+#     Returns
+#     -------
+#     ph : Vector{String}
+#         Classified phase names compatible with the TE partitioning database.
+#     ph_wt : Vector{Float64}
+#         Weight fractions corresponding to each phase.
+# """
+# function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Float64, Int64},
+#                                     dtb             :: String  )
                                     
-    ph      = Array{String}(undef, out.n_SS + out.n_PP) 
-    ph_wt   = Array{Float64}(undef, out.n_SS + out.n_PP) 
+#     ph      = Array{String}(undef, out.n_SS + out.n_PP) 
+#     ph_wt   = Array{Float64}(undef, out.n_SS + out.n_PP) 
 
-    # add solution phase and classify some solution phases (spl, fsp, ilm)                             
-    for i = 1:out.n_SS                             
-        ss      = out.ph[i]
-        ph_wt[i]= out.ph_frac_wt[i]
-        ph[i]   = ss
-        if ss == "fsp"
-            if out.SS_vec[i].compVariables[2] - 0.5 > 0
-                ph[i] = "afs"
-            else
-                ph[i] = "pl"
-            end
-        end
-        if ss == "spl"
-            if out.SS_vec[i].compVariables[3] - 0.5 > 0
-                ph[i] = "cm"        # chromite
-            else
-                if out.SS_vec[i].compVariables[2] - 0.5 > 0
-                    ph[i] = "smt"    # magnetite
-                else
-                    ph[i] = "spl"    # spinel
-                end
-            end
-        end
-        if ss == "sp"
-            if out.SS_vec[i].compVariables[2] + out.SS_vec[i].compVariables[3] - 0.5 > 0
-                ph[i] = "smt"        # magnetite
-            else
-                if (1 - out.SS_vec[i].compVariables[1])*(1 + out.SS_vec[i].compVariables[3]) - 0.5 > 0
-                    ph[i] = "sp"    # spinel
-                else
-                    if out.SS_vec[i].compVariables[3] -0.5 > 0
-                        ph[i] = "FeTiOx"  # uvospinel
-                    else
-                        ph[i] = "sp" # hercynite
-                    end
-                end
-            end
-        end
-        if ss == "dio" || ss == "aug"
-            ph[i] = "cpx"
-        end
-        if ss == "ilm" || ss == "ilmm"
-            ph[i] = "FeTiOx"
-        end
-        # add pure phases
-        for i=1:out.n_PP
-            ph[i+out.n_SS]      = out.ph[i+out.n_SS]
-            ph_wt[i+out.n_SS]   = out.ph_frac_wt[i+out.n_SS]
-        end
+#     # add solution phase and classify some solution phases (spl, fsp, ilm)                             
+#     for i = 1:out.n_SS                             
+#         ss      = out.ph[i]
+#         ph_wt[i]= out.ph_frac_wt[i]
+#         ph[i]   = ss
+#         if ss == "fsp"
+#             if out.SS_vec[i].compVariables[2] - 0.5 > 0
+#                 ph[i] = "afs"
+#             else
+#                 ph[i] = "pl"
+#             end
+#         end
+#         if ss == "spl"
+#             if out.SS_vec[i].compVariables[3] - 0.5 > 0
+#                 ph[i] = "cm"        # chromite
+#             else
+#                 if out.SS_vec[i].compVariables[2] - 0.5 > 0
+#                     ph[i] = "smt"    # magnetite
+#                 else
+#                     ph[i] = "spl"    # spinel
+#                 end
+#             end
+#         end
+#         if ss == "sp"
+#             if out.SS_vec[i].compVariables[2] + out.SS_vec[i].compVariables[3] - 0.5 > 0
+#                 ph[i] = "smt"        # magnetite
+#             else
+#                 if (1 - out.SS_vec[i].compVariables[1])*(1 + out.SS_vec[i].compVariables[3]) - 0.5 > 0
+#                     ph[i] = "sp"    # spinel
+#                 else
+#                     if out.SS_vec[i].compVariables[3] -0.5 > 0
+#                         ph[i] = "FeTiOx"  # uvospinel
+#                     else
+#                         ph[i] = "sp" # hercynite
+#                     end
+#                 end
+#             end
+#         end
+#         if ss == "dio" || ss == "aug"
+#             ph[i] = "cpx"
+#         end
+#         if ss == "ilm" || ss == "ilmm"
+#             ph[i] = "FeTiOx"
+#         end
+#         # add pure phases
+#         for i=1:out.n_PP
+#             ph[i+out.n_SS]      = out.ph[i+out.n_SS]
+#             ph_wt[i+out.n_SS]   = out.ph_frac_wt[i+out.n_SS]
+#         end
         
-    end
+#     end
 
-    return ph, ph_wt
-end
+#     return ph, ph_wt
+# end
 

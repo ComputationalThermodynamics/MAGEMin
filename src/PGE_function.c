@@ -1236,22 +1236,22 @@ global_variable update_cp_after_LP(					bulk_info 	 		 z_b,
 														z_b,
 														gv.SS_list[ph_id]		);
 
-			/* fl_DEW-only: unlike every other phase, xeos alone does not determine a
-			   valid fl_DEW state - it must also satisfy the internal charge-balance
+			/* DEW-only: unlike every other phase, xeos alone does not determine a
+			   valid DEW state - it must also satisfy the internal charge-balance
 			   condition Sum(m_i*z_i)=0, which only DEW_aq_min_multistart/_warmstart
-			   (via NLopt_opt_fl_DEW_function) actually enforces. This function copies
+			   (via NLopt_opt_DEW_function) actually enforces. This function copies
 			   whatever xeos cp[i] already holds (ss_flags[1]==1 phases can reach here
 			   without ever having been through ss_min_PGE/ss_min_LP's NLopt_opt call in
 			   the same run, if they never graduate to ss_flags[0]==1), re-scored only
-			   by the cheap PC_function G-evaluation used above - which, for fl_DEW,
+			   by the cheap PC_function G-evaluation used above - which, for DEW,
 			   just reads whatever composition it is given and cannot detect or correct
 			   a charge imbalance. Confirmed via a user-reported reproduction (mbe,
-			   11.26kbar/581.25C, rm_list=[1,4,6,15,19,-13]) where a fl_DEW instance
+			   11.26kbar/581.25C, rm_list=[1,4,6,15,19,-13]) where a DEW instance
 			   with chargeResidual=9.25 (raw, never-refined seed-derived: Ca+2/K+/Na+
 			   elevated with no compensating anion) still reached the final output even
-			   after NLopt_opt_fl_DEW_function itself was hardened to never return an
+			   after NLopt_opt_DEW_function itself was hardened to never return an
 			   unconverged candidate - because this function's copy_to_cp call never
-			   goes through NLopt_opt_fl_DEW_function at all. mole-fraction-weighted
+			   goes through NLopt_opt_DEW_function at all. mole-fraction-weighted
 			   Sum(x_i*z_i) is proportional to the true molality-weighted charge residual
 			   (same positive Omega/x_water scale factor multiplies every species), so it
 			   is equally valid as a charge-balance check and needs no extra molality
@@ -1259,19 +1259,19 @@ global_variable update_cp_after_LP(					bulk_info 	 		 z_b,
 			   (this case: ~0.2) from the worst-case innocent trace-level asymmetry of a
 			   never-elevated baseline seed (~1e-4 at most, ~100 suppressed-or-not
 			   species at 1e-6 each). */
-			if ((strcmp(gv.SS_list[ph_id], "fl_DEW") == 0 || strcmp(gv.SS_list[ph_id], "fl_DEW_S14") == 0) && SS_ref_db[ph_id].sf_ok == 1){
+			if ((strcmp(gv.SS_list[ph_id], "DEW") == 0 || strcmp(gv.SS_list[ph_id], "DEW_S14") == 0) && SS_ref_db[ph_id].sf_ok == 1){
 				/* SS_ref_db[ph_id] is a shared per-PHASE-TYPE scratch struct, not
 				   per-cp[]-instance - .xeos in particular is only ever written by
-				   NLopt_opt_fl_DEW_function (S.x), never by PC_function/obj_fl_DEW
+				   NLopt_opt_DEW_function (S.x), never by PC_function/obj_DEW
 				   (which only write .iguess/.sf/.mu), so it still holds whatever the
 				   LAST NLopt_opt call for this ph_id left there regardless of which
 				   cp[i] this loop iteration is on - reading it here would silently
-				   check the wrong instance whenever fl_DEW has multiple simultaneous
+				   check the wrong instance whenever DEW has multiple simultaneous
 				   cp[] entries (a real solvus). .iguess is the correct field: it was
 				   just set from THIS cp[i].xeos a few lines above, and is what
 				   PC_function actually read and what copy_to_cp will copy back. */
 				double z_res = 0.0;
-				int n_sp = SS_ref_db[ph_id].n_em - 1;   /* water excluded: z=0, see G_SS_fl_DEW_function */
+				int n_sp = SS_ref_db[ph_id].n_em - 1;   /* water excluded: z=0, see G_SS_DEW_function */
 				for (int k = 0; k < n_sp; k++){
 					z_res += SS_ref_db[ph_id].iguess[k]*SS_ref_db[ph_id].mat_phi[k];
 				}

@@ -9249,19 +9249,19 @@ SS_ref NLopt_opt_ume_spl_function(global_variable gv, SS_ref SS_ref_db){
 };
 
 /**************************************************************************************/
-/* DEW2019 aqueous fluid ("fl_DEW") - see TC_database/DEW_aq_solver.h.             */
-/* Unlike every other phase, this does NOT call NLopt: fl_DEW's                    */
+/* DEW2019 aqueous fluid ("DEW") - see TC_database/DEW_aq_solver.h.             */
+/* Unlike every other phase, this does NOT call NLopt: DEW's                    */
 /* equilibrium follows directly from the system's current oxide-component chemical    */
 /* potentials (gv.gam_tot) via the DEW_aq_min_iterative fixed-point solver, ported     */
 /* from MAGEMin.jl's aq_min_iterative (see tools/DEW_implementation_plan.md Phase 4).  */
-/* Builds a lightweight AQ_data "shim" pointing directly at G_SS_fl_DEW_function's  */
+/* Builds a lightweight AQ_data "shim" pointing directly at G_SS_DEW_function's  */
 /* already-computed per-point arrays (gbase/mu_comp/mat_phi/densityW) rather than      */
 /* recomputing them - those don't change within a point, only Gamma does.             */
 /**************************************************************************************/
-SS_ref NLopt_opt_fl_DEW_function(global_variable gv, SS_ref SS_ref_db){
+SS_ref NLopt_opt_DEW_function(global_variable gv, SS_ref SS_ref_db){
 
     int n_em = SS_ref_db.n_em;
-    int n_sp = n_em - 1;   /* water is the last endmember, see G_SS_fl_DEW_function */
+    int n_sp = n_em - 1;   /* water is the last endmember, see G_SS_DEW_function */
 
     AQ_data AQ_shim;
     AQ_shim.n_sp    = n_sp;
@@ -9305,7 +9305,7 @@ SS_ref NLopt_opt_fl_DEW_function(global_variable gv, SS_ref SS_ref_db){
     }
     clock_t dew_stat_t1 = clock();
     if (gv.verbose == 1){
-        printf(" [fl_DEW stat] P=%.3fkbar T=%.3fC n_sp=%d alg=%d warm=%d picard_passes=%ld residual_evals=%ld time=%.3fms rho_w=%.4f I_str=%.5f sum_m=%.5f a_coef=%.5f z_res=%.3e\n",
+        printf(" [DEW stat] P=%.3fkbar T=%.3fC n_sp=%d alg=%d warm=%d picard_passes=%ld residual_evals=%ld time=%.3fms rho_w=%.4f I_str=%.5f sum_m=%.5f a_coef=%.5f z_res=%.3e\n",
                 SS_ref_db.P, SS_ref_db.T-273.15, n_sp, gv.DEW_solve_algorithm, used_warm, DEW_stat_picard_passes, DEW_stat_residual_evals,
                 1000.0*(double)(dew_stat_t1-dew_stat_t0)/CLOCKS_PER_SEC,
                 AQ_shim.rho_w, S.I_str, S.sum_m, S.a_coef, S.z_res);
@@ -9318,7 +9318,7 @@ SS_ref NLopt_opt_fl_DEW_function(global_variable gv, SS_ref SS_ref_db){
         S.x[n_sp] = 1.0;
     }
 
-    obj_fl_DEW(n_em, S.x, NULL, &SS_ref_db);
+    obj_DEW(n_em, S.x, NULL, &SS_ref_db);
 
     if (!S.converged){
         SS_ref_db.sf[0] = -1.0;
@@ -12865,8 +12865,8 @@ void TC_mp_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_mp_ilmm_function; 		}
 		else if (strcmp( gv.SS_list[iss], "mt")    == 0){
 			NLopt_opt[iss]  = NLopt_opt_mp_mt_function; 		}
-		else if (strcmp( gv.SS_list[iss], "fl_DEW")  == 0){
-			NLopt_opt[iss]  = NLopt_opt_fl_DEW_function; 		    }
+		else if (strcmp( gv.SS_list[iss], "DEW")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_DEW_function; 		    }
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -12913,8 +12913,8 @@ void TC_mb_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
             NLopt_opt[iss]  = NLopt_opt_mb_mu_function;         }
         else if (strcmp( gv.SS_list[iss], "chl")  == 0){
             NLopt_opt[iss]  = NLopt_opt_mb_chl_function;        }
-		else if (strcmp( gv.SS_list[iss], "fl_DEW")  == 0){
-			NLopt_opt[iss]  = NLopt_opt_fl_DEW_function;     }
+		else if (strcmp( gv.SS_list[iss], "DEW")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_DEW_function;     }
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -12965,8 +12965,8 @@ void TC_mb_ext_NLopt_opt_init(	    NLopt_type 			*NLopt_opt,
             NLopt_opt[iss]  = NLopt_opt_mb_oamp_function;        }
         else if (strcmp( gv.SS_list[iss], "ta")  == 0){
             NLopt_opt[iss]  = NLopt_opt_mb_ta_function;         }
-		else if (strcmp( gv.SS_list[iss], "fl_DEW")  == 0){
-			NLopt_opt[iss]  = NLopt_opt_fl_DEW_function;     }
+		else if (strcmp( gv.SS_list[iss], "DEW")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_DEW_function;     }
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -13009,8 +13009,8 @@ void TC_ig_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_ig_spl_function; 		}
 		else if (strcmp( gv.SS_list[iss], "chl") == 0){
 			NLopt_opt[iss]  = NLopt_opt_ig_chl_function; 		}
-		else if (strcmp( gv.SS_list[iss], "fl_DEW")  == 0){
-			NLopt_opt[iss]  = NLopt_opt_fl_DEW_function; 		}
+		else if (strcmp( gv.SS_list[iss], "DEW")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_DEW_function; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -13109,8 +13109,8 @@ void TC_um_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_um_opx_function; 		}
 		else if (strcmp( gv.SS_list[iss], "po") == 0){
 			NLopt_opt[iss]  = NLopt_opt_um_po_function; 		}
-		else if (strcmp( gv.SS_list[iss], "fl_DEW")  == 0){
-			NLopt_opt[iss]  = NLopt_opt_fl_DEW_function; 		}
+		else if (strcmp( gv.SS_list[iss], "DEW")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_DEW_function; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -13159,8 +13159,8 @@ void TC_um_ext_NLopt_opt_init(	    NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_mpe_fl_function; 		}
 		else if (strcmp( gv.SS_list[iss], "occm")   == 0){
 			NLopt_opt[iss]  = NLopt_opt_mpe_occm_function; 		}
-		else if (strcmp( gv.SS_list[iss], "fl_DEW")  == 0){
-			NLopt_opt[iss]  = NLopt_opt_fl_DEW_function; 		}
+		else if (strcmp( gv.SS_list[iss], "DEW")  == 0){
+			NLopt_opt[iss]  = NLopt_opt_DEW_function; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -13268,8 +13268,8 @@ void TC_mpe_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_mb_oamp_function; 		}
         else if (strcmp( gv.SS_list[iss], "carp")    == 0){
 			NLopt_opt[iss]  = NLopt_opt_mpe_carp_function; 		}
-		else if (strcmp( gv.SS_list[iss], "fl_DEW")    == 0){
-			NLopt_opt[iss]  = NLopt_opt_fl_DEW_function; 		}
+		else if (strcmp( gv.SS_list[iss], "DEW")    == 0){
+			NLopt_opt[iss]  = NLopt_opt_DEW_function; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -13383,8 +13383,8 @@ void TC_all_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_um_ta_function; 		}
 		else if (strcmp( gv.SS_list[iss], "oamp_D07")  == 0){
 			NLopt_opt[iss]  = NLopt_opt_mb_oamp_function; 		}
-		else if (strcmp( gv.SS_list[iss], "fl_DEW_S14") == 0){
-			NLopt_opt[iss]  = NLopt_opt_fl_DEW_function; 		}
+		else if (strcmp( gv.SS_list[iss], "DEW_S14") == 0){
+			NLopt_opt[iss]  = NLopt_opt_DEW_function; 		}
 		else if (strcmp( gv.SS_list[iss], "cpx_W24")   == 0){
 			NLopt_opt[iss]  = NLopt_opt_ig_cpx_function; 		}
 		else if (strcmp( gv.SS_list[iss], "fper")  == 0){

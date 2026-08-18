@@ -34,9 +34,9 @@ using Printf
 for i=1:length(Xoxides)
     @printf(" %-12s %10.6f\n", Xoxides[i], X[i])
 end
-for i=1:length(out.PH_vec[:fl_DEW].emFrac)
-    if out.PH_vec[:fl_DEW].emFrac[i] > 0.0
-        @printf(" %-12s %12.10f\n", out.PH_vec[:fl_DEW].emNames[i], out.PH_vec[:fl_DEW].emFrac[i])
+for i=1:length(out.PH_vec[:DEW].emFrac)
+    if out.PH_vec[:DEW].emFrac[i] > 0.0
+        @printf(" %-12s %12.10f\n", out.PH_vec[:DEW].emNames[i], out.PH_vec[:DEW].emFrac[i])
     end
 end
 

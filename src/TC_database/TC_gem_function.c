@@ -358,7 +358,7 @@ PP_ref TC_G_EM_function(	int 		 EM_dataset,
 /* tools/DEW_implementation_plan.md for the porting strategy.                         */
 /*                                                                                     */
 /* Water density (rho_w, g/cm3) is obtained from TC_G_EM_function's own H2O standard  */
-/* state (Pitzer & Sterner, 1994 EOS) - this keeps fl_DEW's solvent consistent with    */
+/* state (Pitzer & Sterner, 1994 EOS) - this keeps DEW's solvent consistent with    */
 /* the rest of the TC-group database's own H2O endmember, and its molar-volume-derived */
 /* density is already in g/cm3.                                                        */
 /**************************************************************************************/

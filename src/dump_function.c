@@ -450,7 +450,7 @@ void mSS_output_struct(			global_variable 	 gv,
 	int n_xeos, n_em;
 	for (int i = 0; i < gv.len_ss; i++){
 		if (SS_ref_db[i].ss_flags[0] == 1){
-			if (strcmp(gv.SS_list[i], "fl_DEW") == 0 || strcmp(gv.SS_list[i], "fl_DEW_S14") == 0){ continue; }
+			if (strcmp(gv.SS_list[i], "DEW") == 0 || strcmp(gv.SS_list[i], "DEW_S14") == 0){ continue; }
 
 			n_em 	 = SS_ref_db[i].n_em;
 			n_xeos 	 = SS_ref_db[i].n_xeos;
@@ -602,7 +602,7 @@ void fill_output_struct(		global_variable 	 gv,
 				sp[0].SS[m].molality[j] = NAN;
 				sp[0].SS[m].activity[j] = NAN;
 			}
-			if (strcmp( cp[i].name, "fl_DEW") == 0 || strcmp( cp[i].name, "fl_DEW_S14") == 0){
+			if (strcmp( cp[i].name, "DEW") == 0 || strcmp( cp[i].name, "DEW_S14") == 0){
 				AQ_data AQ_pH = init_DEW_aqueous_model_at_point(	DEW_N_SPECIES_DB,
 																	gv.EM_dataset,
 																	gv.len_ox,
@@ -706,7 +706,7 @@ void fill_output_struct(		global_variable 	 gv,
 				}
 
 				/* sum_wt/sum_mol are sums of signed formation-reaction coefficients for
-				   fl_DEW's charged aqueous species (Comp[] can be negative there, unlike
+				   DEW's charged aqueous species (Comp[] can be negative there, unlike
 				   every other phase's plain non-negative oxide recipe) and can legitimately
 				   be ~0 or negative for some species. Normalizing by a non-positive sum
 				   either divides by zero (NaN/Inf) or silently flips every sign, so leave
@@ -725,9 +725,9 @@ void fill_output_struct(		global_variable 	 gv,
 
 			}
 
-			if (strcmp( cp[i].name, "liq") == 0 || strcmp( cp[i].name, "fl") == 0 || strcmp( cp[i].name, "fl_DEW") == 0
+			if (strcmp( cp[i].name, "liq") == 0 || strcmp( cp[i].name, "fl") == 0 || strcmp( cp[i].name, "DEW") == 0
 			 || strcmp( cp[i].name, "liq_W14") == 0 || strcmp( cp[i].name, "liq_G16") == 0 || strcmp( cp[i].name, "liq_G25w") == 0 || strcmp( cp[i].name, "liq_W24d") == 0
-			 || strcmp( cp[i].name, "fl_G25") == 0 || strcmp( cp[i].name, "fl_EF21") == 0 || strcmp( cp[i].name, "fl_H03") == 0 || strcmp( cp[i].name, "fl_DEW_S14") == 0){
+			 || strcmp( cp[i].name, "fl_G25") == 0 || strcmp( cp[i].name, "fl_EF21") == 0 || strcmp( cp[i].name, "fl_H03") == 0 || strcmp( cp[i].name, "DEW_S14") == 0){
 				if (strcmp( cp[i].name, "liq") == 0 || strcmp( cp[i].name, "liq_W14") == 0 || strcmp( cp[i].name, "liq_G16") == 0 || strcmp( cp[i].name, "liq_G25w") == 0 || strcmp( cp[i].name, "liq_W24d") == 0){
 					if (gv.n_phase == 1){
 						sp[0].entropy_M 			= cp[i].phase_entropy;
@@ -864,9 +864,9 @@ void fill_output_struct(		global_variable 	 gv,
 		if ( cp[i].ss_flags[1] == 1){
 			sp[0].ph_frac_vol[n] = sp[0].ph_frac_wt[n] / sp[0].SS[n].rho;
 
-			if (strcmp( cp[i].name, "liq") == 0 || strcmp( cp[i].name, "fl") == 0 || strcmp( cp[i].name, "fl_DEW") == 0
+			if (strcmp( cp[i].name, "liq") == 0 || strcmp( cp[i].name, "fl") == 0 || strcmp( cp[i].name, "DEW") == 0
 			 || strcmp( cp[i].name, "liq_W14") == 0 || strcmp( cp[i].name, "liq_G16") == 0 || strcmp( cp[i].name, "liq_G25w") == 0 || strcmp( cp[i].name, "liq_W24d") == 0
-			 || strcmp( cp[i].name, "fl_G25") == 0 || strcmp( cp[i].name, "fl_EF21") == 0 || strcmp( cp[i].name, "fl_H03") == 0 || strcmp( cp[i].name, "fl_DEW_S14") == 0){
+			 || strcmp( cp[i].name, "fl_G25") == 0 || strcmp( cp[i].name, "fl_EF21") == 0 || strcmp( cp[i].name, "fl_H03") == 0 || strcmp( cp[i].name, "DEW_S14") == 0){
 				if (strcmp( cp[i].name, "liq") == 0 || strcmp( cp[i].name, "liq_W14") == 0 || strcmp( cp[i].name, "liq_G16") == 0 || strcmp( cp[i].name, "liq_G25w") == 0 || strcmp( cp[i].name, "liq_W24d") == 0){
 						sp[0].frac_M_vol      = sp[0].ph_frac_vol[n];
 				}

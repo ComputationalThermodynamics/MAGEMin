@@ -193,7 +193,7 @@ double obj_mpe_carp(unsigned  	 n, const double *x, double *grad, void *SS_ref_d
 
 		
 
-double obj_fl_DEW(unsigned 	  n, const double *x, double *grad, void *SS_ref_db);
+double obj_DEW(unsigned 	  n, const double *x, double *grad, void *SS_ref_db);
 
 SS_ref PC_function(			global_variable 	 gv,
 							PC_type             *PC_read,

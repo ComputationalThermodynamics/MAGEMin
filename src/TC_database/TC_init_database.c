@@ -101,7 +101,7 @@ metabasite_ext_dataset metabasite_ext_db = {
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"H2O"													},
 	{"q"	,"crst"	,"trd"	,"coe"	,"law"	,"ky"	,"sill"	,"and"	,"ru"	,"sph" 	,"O2" ,"ab"	,"H2O"	,"zo"	,"cor",
 	"qfm"	,"mw" 	,"qif"	,"nno"	,"hm"	,"iw"	,"cco"	,"aH2O"	,"aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"								},
-	{"sp"	,"opx"	,"fsp"	,"liq"	,"mu"	,"ilmm"	,"ilm"	,"ol"	,"amp"	,"ep"	,"g"	,"chl"	,"bi"	,"dio"	,"aug"	,"abc"  ,"spl"	,"ta"	,"oamp"	,"fl_DEW"	},
+	{"sp"	,"opx"	,"fsp"	,"liq"	,"mu"	,"ilmm"	,"ilm"	,"ol"	,"amp"	,"ep"	,"g"	,"chl"	,"bi"	,"dio"	,"aug"	,"abc"  ,"spl"	,"ta"	,"oamp"	,"DEW"	},
 
 	{1		,1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1		,1 		,1		,1		},  // allow solvus?
 	{939	,1731 	,231	,3507	,4539 	,298	,422	,11		,7673	,110	,217	,3980	,1098	,1811	,2398	,21 	,196	,760	,3648	,4		},  // # of pseudocompound
@@ -245,7 +245,7 @@ ultramafic_ext_dataset ultramafic_ext_db = {
 	{"SiO2"	,"Al2O3","MgO"	,"FeO"	,"O"	,"H2O"	,"S"	,"CaO"	,"Na2O", "Cr2O3","CO2"											},
 	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"pyr"	,"O2"  	,"hem"	,"H2O"	,"cor"	,"gph",
 	"qfm"	,"qif"	,"nno"	,"hm"	,"mw"	,"iw"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"				},
-	{"fl"	,"ol"  ,"br"	,"ch"	,"atg"	,"g"	,"ta"	,"chl"	,"spi"	,"opx"	,"po"	,"anth"	,"pl4tr","amp"	,"aug"	,"spl"	,"flc"	,"occm"	,"fl_DEW"	},
+	{"fl"	,"ol"  ,"br"	,"ch"	,"atg"	,"g"	,"ta"	,"chl"	,"spi"	,"opx"	,"po"	,"anth"	,"pl4tr","amp"	,"aug"	,"spl"	,"flc"	,"occm"	,"DEW"	},
 
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1		,1		,1		,1		,1		,1		,1		,1		,1		},  // allow solvus?
 	{11  	,10  	,11 	,10 	,489 	,10  	,985 	,2691	,100	,196	,10		,274	,21		,5033	,3036	,2060	,12		,352	,5		},  // No. of pseudocompound
@@ -302,7 +302,7 @@ metapelite_dataset_ext metapelite_ext_db = {
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"H2O"	,"CO2"	,"S"										},
 	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2" 	,"pyr"	,"gph"	,"law"	,"zo" ,"prl"  ,"mpm"   ,"pre"	,"cor",	"H2O",
 	"qfm"	,"mw"	,"qif"	,"nno"	,"hm"	,"iw" 	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"											},
-	{"liq"	,"fsp"	,"bi"	,"g"	,"ep"	,"ma"	,"mu"	,"opx"	,"sa"	,"cd"	,"st"	,"chl"	,"ctd"	,"sp"  ,"mt"  ,"ilm"  ,"ilmm"  ,"occm"	,"fl"	,"po"	,"dio"	,"aug"	,"amp"	,"oamp"	,"carp"	,"plc","fl_DEW"		},
+	{"liq"	,"fsp"	,"bi"	,"g"	,"ep"	,"ma"	,"mu"	,"opx"	,"sa"	,"cd"	,"st"	,"chl"	,"ctd"	,"sp"  ,"mt"  ,"ilm"  ,"ilmm"  ,"occm"	,"fl"	,"po"	,"dio"	,"aug"	,"amp"	,"oamp"	,"carp"	,"plc","DEW"		},
 
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1 		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1			},  // allow solvus?
 	{3150	,231 	,981	,758	,110 	,1875	,1877	,1277	,230	,343	,540	,2270	,216	,407 	,87 	,131 	,1430 	,352	,12		,10		,1810	,2396,	7669	,3648	,25		,231	,5			},  // # of pseudocompound
@@ -334,7 +334,7 @@ all_dataset all_db = {
 	{"liq_W24d"	,"liq_G16"	,"liq_W14"	,"liq_G25w"	,"fsp_H22"	,"fsp_H22op","g_W24"	,"g_W14"	,"g_H18"	,"opx_W24"	,"opx_W14"	,"ol_H18"	,"ol_H11"	,
 	 "ilm_W24"	,"ilm_W00"	,"spl_T21"	,"spl_W02"	,"bi_G25"	,"bi_W14"	,"cd_G25"	,"cd_W14"	,"fl_G25"	,"fl_EF21"	,"fl_H03"	,
 	 "ep_H11"	,"ma_W14"	,"mu_W14"	,"sa_W14"	,"st_W14"	,"chl_W14"	,"ctd_W14"	,"sp_W02"	,"mt_W00"	,"ilmm_W14"	,"amp_G16"	,"dio_G16"	,"aug_G16"	,"abc_H11"	,
-	 "ta_EF21"	,"oamp_D07"	,"fl_DEW_S14","cpx_W24"	,"fper"		,"lct_W24"	,"mel_W24"	,"nph_W24"	,"kals_W24"	,"br_E13"	,"ch_EF21"	,"atg_EF21"	,"spi_W02"	,"po_E10"	,
+	 "ta_EF21"	,"oamp_D07"	,"DEW_S14","cpx_W24"	,"fper"		,"lct_W24"	,"mel_W24"	,"nph_W24"	,"kals_W24"	,"br_E13"	,"ch_EF21"	,"atg_EF21"	,"spi_W02"	,"po_E10"	,
 	 "anth_D07"	,"occm_F11"	,"carp_W14"	,"plc_B05"															},
 
 	{1			,1			,1			,1			,1			,1			,1			,1			,1			,1			,1			,1			,1			,

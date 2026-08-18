@@ -16726,16 +16726,16 @@ double obj_mpe_carp(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
 
 /**************************************************************************************/
-/* DEW2019 aqueous fluid ("fl_DEW") - see TC_database/DEW_aq_solver.h.             */
-/* Unlike every other phase, fl_DEW's actual equilibrium solve happens in          */
-/* NLopt_opt_fl_DEW_function (DEW_aq_min_iterative, not NLopt) - obj_               */
-/* fl_DEW only needs to reproduce that already-converged solution's mu/G from a    */
+/* DEW2019 aqueous fluid ("DEW") - see TC_database/DEW_aq_solver.h.             */
+/* Unlike every other phase, DEW's actual equilibrium solve happens in          */
+/* NLopt_opt_DEW_function (DEW_aq_min_iterative, not NLopt) - obj_               */
+/* DEW only needs to reproduce that already-converged solution's mu/G from a    */
 /* mole-fraction vector alone, because copy_to_Ppc (ss_min_function.c) unconditionally */
 /* re-evaluates the phase's objective function to get the unrotated G/mu for the LP    */
 /* pseudocompound pool. DEW_aq_evaluate does exactly that (one-pass, no iteration -    */
 /* see its own doc comment for why that's mathematically equivalent at convergence).   */
 /**************************************************************************************/
-void p2x_fl_DEW(void *SS_ref_db, double eps){
+void p2x_DEW(void *SS_ref_db, double eps){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     int n_em   = d->n_em;
 
@@ -16748,7 +16748,7 @@ void p2x_fl_DEW(void *SS_ref_db, double eps){
     }
 }
 
-void px_fl_DEW(void *SS_ref_db, const double *x){
+void px_DEW(void *SS_ref_db, const double *x){
     SS_ref *d  = (SS_ref *) SS_ref_db;
     int n_em    = d->n_em;
 
@@ -16757,10 +16757,10 @@ void px_fl_DEW(void *SS_ref_db, const double *x){
     }
 }
 
-double obj_fl_DEW(unsigned n, const double *x, double *grad, void *SS_ref_db) {
+double obj_DEW(unsigned n, const double *x, double *grad, void *SS_ref_db) {
     SS_ref *d    = (SS_ref *) SS_ref_db;
     int n_em     = d->n_em;
-    int n_sp     = n_em - 1;   /* water is the last endmember, see G_SS_fl_DEW_function */
+    int n_sp     = n_em - 1;   /* water is the last endmember, see G_SS_DEW_function */
 
     /* Read d->gb_lvl, NOT d->gbase directly - every obj_* function in this codebase
        follows this convention: the caller
@@ -16769,7 +16769,7 @@ double obj_fl_DEW(unsigned n, const double *x, double *grad, void *SS_ref_db) {
        function, so the SAME function returns a hyperplane-relative driving force when
        called from PC_function (rotated) and the absolute G when called from
        copy_to_Ppc (unrotated) - see tools/DEW_implementation_plan.md Phase 5. Hardcoding
-       d->gbase here (an earlier draft did) made every fl_DEW driving force report the
+       d->gbase here (an earlier draft did) made every DEW driving force report the
        phase's *absolute* G instead of ~0 at equilibrium. */
     AQ_data AQ_shim;
     AQ_shim.n_sp  = n_sp;
@@ -16784,7 +16784,7 @@ double obj_fl_DEW(unsigned n, const double *x, double *grad, void *SS_ref_db) {
 
     for (int i = 0; i < n_em; i++){ d->mu[i] = mu[i]; }
 
-    px_fl_DEW(SS_ref_db, x);
+    px_DEW(SS_ref_db, x);
 
     /* explicitly set d->sf[] here (see tools/DEW_implementation_plan.md Phase 5) */
     for (int i = 0; i < n_em; i++){ d->sf[i] = x[i]; }
@@ -16794,7 +16794,7 @@ double obj_fl_DEW(unsigned n, const double *x, double *grad, void *SS_ref_db) {
     d->df      = G;
 
     if (grad){
-        for (int i = 0; i < (int)n; i++){ grad[i] = 0.0; }   /* never called with grad != NULL: fl_DEW's equilibrium is solved by DEW_aq_min_iterative (NLopt_opt_fl_DEW_function), not NLopt */
+        for (int i = 0; i < (int)n; i++){ grad[i] = 0.0; }   /* never called with grad != NULL: DEW's equilibrium is solved by DEW_aq_min_iterative (NLopt_opt_DEW_function), not NLopt */
     }
 
     return d->df;
@@ -16840,8 +16840,8 @@ void TC_mp_P2X_init(	            P2X_type 			*P2X_read,
 			P2X_read[iss]  = p2x_mp_ilmm; 		}
 		else if (strcmp( gv.SS_list[iss], "mt")    == 0){
 			P2X_read[iss]  = p2x_mp_mt; 		}
-		else if (strcmp( gv.SS_list[iss], "fl_DEW")  == 0){
-			P2X_read[iss]  = p2x_fl_DEW; 		    }
+		else if (strcmp( gv.SS_list[iss], "DEW")  == 0){
+			P2X_read[iss]  = p2x_DEW; 		    }
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -16906,8 +16906,8 @@ void TC_mpe_P2X_init(	            P2X_type 			*P2X_read,
             P2X_read[iss]  = p2x_mb_oamp; }
         else if (strcmp( gv.SS_list[iss], "carp")    == 0){
             P2X_read[iss]  = p2x_mpe_carp; 		}
-        else if (strcmp( gv.SS_list[iss], "fl_DEW")    == 0){
-            P2X_read[iss]  = p2x_fl_DEW; 		}
+        else if (strcmp( gv.SS_list[iss], "DEW")    == 0){
+            P2X_read[iss]  = p2x_DEW; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -16954,8 +16954,8 @@ void TC_mb_P2X_init(	            P2X_type 			*P2X_read,
             P2X_read[iss]  = p2x_mb_mu;         }
         else if (strcmp( gv.SS_list[iss], "chl")  == 0){
             P2X_read[iss]  = p2x_mb_chl;        }
-		else if (strcmp( gv.SS_list[iss], "fl_DEW")  == 0){
-			P2X_read[iss]  = p2x_fl_DEW;     }
+		else if (strcmp( gv.SS_list[iss], "DEW")  == 0){
+			P2X_read[iss]  = p2x_DEW;     }
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -17007,8 +17007,8 @@ void TC_mb_ext_P2X_init(	        P2X_type 			*P2X_read,
             }
         else if (strcmp( gv.SS_list[iss], "oamp")  == 0){
             P2X_read[iss]  = p2x_mb_oamp;       }
-		else if (strcmp( gv.SS_list[iss], "fl_DEW")  == 0){
-			P2X_read[iss]  = p2x_fl_DEW;     }
+		else if (strcmp( gv.SS_list[iss], "DEW")  == 0){
+			P2X_read[iss]  = p2x_DEW;     }
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -17052,8 +17052,8 @@ void TC_ig_P2X_init(	            P2X_type 			*P2X_read,
 			P2X_read[iss]  = p2x_ig_spl; 		}
 		else if (strcmp( gv.SS_list[iss], "chl") == 0){
 			P2X_read[iss]  = p2x_ig_chl; 		}
-		else if (strcmp( gv.SS_list[iss], "fl_DEW") == 0){
-			P2X_read[iss]  = p2x_fl_DEW; 		}
+		else if (strcmp( gv.SS_list[iss], "DEW") == 0){
+			P2X_read[iss]  = p2x_DEW; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -17151,8 +17151,8 @@ void TC_um_P2X_init(	            P2X_type 			*P2X_read,
 			P2X_read[iss]  = p2x_um_opx; 		}
 		else if (strcmp( gv.SS_list[iss], "po") == 0){
 			P2X_read[iss]  = p2x_um_po; 		}
-		else if (strcmp( gv.SS_list[iss], "fl_DEW") == 0){
-			P2X_read[iss]  = p2x_fl_DEW; 		}
+		else if (strcmp( gv.SS_list[iss], "DEW") == 0){
+			P2X_read[iss]  = p2x_DEW; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -17201,8 +17201,8 @@ void TC_um_ext_P2X_init(	        P2X_type 			*P2X_read,
 			P2X_read[iss]  = p2x_mpe_fl; 		}
 		else if (strcmp( gv.SS_list[iss], "occm")   == 0){
 			P2X_read[iss]  = p2x_mpe_occm; 		}
-		else if (strcmp( gv.SS_list[iss], "fl_DEW")  == 0){
-			P2X_read[iss]  = p2x_fl_DEW; 		}
+		else if (strcmp( gv.SS_list[iss], "DEW")  == 0){
+			P2X_read[iss]  = p2x_DEW; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -17315,8 +17315,8 @@ void TC_all_P2X_init(	            P2X_type 			*P2X_read,
 			P2X_read[iss]  = p2x_um_ta; 		}
 		else if (strcmp( gv.SS_list[iss], "oamp_D07")  == 0){
 			P2X_read[iss]  = p2x_mb_oamp; 		}
-		else if (strcmp( gv.SS_list[iss], "fl_DEW_S14") == 0){
-			P2X_read[iss]  = p2x_fl_DEW; 		}
+		else if (strcmp( gv.SS_list[iss], "DEW_S14") == 0){
+			P2X_read[iss]  = p2x_DEW; 		}
 		else if (strcmp( gv.SS_list[iss], "cpx_W24")   == 0){
 			P2X_read[iss]  = p2x_ig_cpx; 		}
 		else if (strcmp( gv.SS_list[iss], "fper")  == 0){
@@ -17442,8 +17442,8 @@ void TC_ig_objective_init_function(	obj_type 			*SS_objective,
 			SS_objective[iss]  = obj_ig_spl; 		}
 		else if (strcmp( gv.SS_list[iss], "chl") == 0){
 			SS_objective[iss]  = obj_ig_chl; 		}
-		else if (strcmp( gv.SS_list[iss], "fl_DEW") == 0){
-			SS_objective[iss]  = obj_fl_DEW; 		}
+		else if (strcmp( gv.SS_list[iss], "DEW") == 0){
+			SS_objective[iss]  = obj_DEW; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -17552,8 +17552,8 @@ void TC_mp_objective_init_function(	obj_type 			*SS_objective,
 			SS_objective[iss]  = obj_mp_ilmm; 		}
 		else if (strcmp( gv.SS_list[iss], "mt")    == 0){
 			SS_objective[iss]  = obj_mp_mt; 		}
-		else if (strcmp( gv.SS_list[iss], "fl_DEW")  == 0){
-			SS_objective[iss]  = obj_fl_DEW; 		}
+		else if (strcmp( gv.SS_list[iss], "DEW")  == 0){
+			SS_objective[iss]  = obj_DEW; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -17602,8 +17602,8 @@ void TC_mb_objective_init_function(	obj_type 			*SS_objective,
          SS_objective[iss]  = obj_mb_mu;      }
       else if (strcmp( gv.SS_list[iss], "chl")  == 0){
          SS_objective[iss]  = obj_mb_chl;      }
-		else if (strcmp( gv.SS_list[iss], "fl_DEW")  == 0){
-			SS_objective[iss]  = obj_fl_DEW;      }
+		else if (strcmp( gv.SS_list[iss], "DEW")  == 0){
+			SS_objective[iss]  = obj_DEW;      }
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -17656,8 +17656,8 @@ void TC_mb_ext_objective_init_function(	obj_type 			*SS_objective,
          SS_objective[iss]  = obj_mb_oamp;      }
       else if (strcmp( gv.SS_list[iss], "ta")  == 0){
          SS_objective[iss]  = obj_mb_ta;      }
-		else if (strcmp( gv.SS_list[iss], "fl_DEW")  == 0){
-			SS_objective[iss]  = obj_fl_DEW;      }
+		else if (strcmp( gv.SS_list[iss], "DEW")  == 0){
+			SS_objective[iss]  = obj_DEW;      }
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -17693,8 +17693,8 @@ void TC_um_objective_init_function(	obj_type 			*SS_objective,
 			SS_objective[iss]  = obj_um_opx; 		}
 		else if (strcmp( gv.SS_list[iss], "po") == 0){
 			SS_objective[iss]  = obj_um_po; 		}
-		else if (strcmp( gv.SS_list[iss], "fl_DEW")  == 0){
-			SS_objective[iss]  = obj_fl_DEW; 		}
+		else if (strcmp( gv.SS_list[iss], "DEW")  == 0){
+			SS_objective[iss]  = obj_DEW; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -17743,8 +17743,8 @@ void TC_um_ext_objective_init_function(	obj_type 			*SS_objective,
 			SS_objective[iss]  = obj_mpe_fl; 		}
 		else if (strcmp( gv.SS_list[iss], "occm")   == 0){
 			SS_objective[iss]  = obj_mpe_occm; 		}
-		else if (strcmp( gv.SS_list[iss], "fl_DEW")  == 0){
-			SS_objective[iss]  = obj_fl_DEW; 		}
+		else if (strcmp( gv.SS_list[iss], "DEW")  == 0){
+			SS_objective[iss]  = obj_DEW; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -17849,8 +17849,8 @@ void TC_mpe_objective_init_function(	obj_type 			*SS_objective,
 			SS_objective[iss]  = obj_mb_oamp; 		}
         else if (strcmp( gv.SS_list[iss], "carp")    == 0){
             SS_objective[iss]  = obj_mpe_carp; 		}
-        else if (strcmp( gv.SS_list[iss], "fl_DEW")    == 0){
-            SS_objective[iss]  = obj_fl_DEW; 		}
+        else if (strcmp( gv.SS_list[iss], "DEW")    == 0){
+            SS_objective[iss]  = obj_DEW; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}	
@@ -17963,8 +17963,8 @@ void TC_all_objective_init_function(	obj_type 			*SS_objective,
 			SS_objective[iss]  = obj_um_ta; 		}
 		else if (strcmp( gv.SS_list[iss], "oamp_D07")  == 0){
 			SS_objective[iss]  = obj_mb_oamp; 		}
-		else if (strcmp( gv.SS_list[iss], "fl_DEW_S14") == 0){
-			SS_objective[iss]  = obj_fl_DEW; 		}
+		else if (strcmp( gv.SS_list[iss], "DEW_S14") == 0){
+			SS_objective[iss]  = obj_DEW; 		}
 		else if (strcmp( gv.SS_list[iss], "cpx_W24")   == 0){
 			SS_objective[iss]  = obj_ig_cpx; 		}
 		else if (strcmp( gv.SS_list[iss], "fper")  == 0){
@@ -18090,8 +18090,8 @@ void TC_mp_PC_init(	                PC_type 			*PC_read,
 			PC_read[iss]  = obj_mp_ilmm; 		        }
 		else if (strcmp( gv.SS_list[iss], "mt")    == 0){
 			PC_read[iss]  = obj_mp_mt; 		            }
-		else if (strcmp( gv.SS_list[iss], "fl_DEW")  == 0){
-			PC_read[iss]  = obj_fl_DEW; 		            }
+		else if (strcmp( gv.SS_list[iss], "DEW")  == 0){
+			PC_read[iss]  = obj_DEW; 		            }
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -18139,8 +18139,8 @@ void TC_mb_PC_init(	                PC_type 			*PC_read,
          PC_read[iss]  = obj_mb_mu;                 }
       else if (strcmp( gv.SS_list[iss], "chl")  == 0){
          PC_read[iss]  = obj_mb_chl;                }
-		else if (strcmp( gv.SS_list[iss], "fl_DEW")  == 0){
-			PC_read[iss]  = obj_fl_DEW;             }
+		else if (strcmp( gv.SS_list[iss], "DEW")  == 0){
+			PC_read[iss]  = obj_DEW;             }
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -18193,8 +18193,8 @@ void TC_mb_ext_PC_init(	            PC_type 			*PC_read,
          PC_read[iss]  = obj_mb_oamp;                }
       else if (strcmp( gv.SS_list[iss], "ta")  == 0){
          PC_read[iss]  = obj_mb_ta;                 }
-		else if (strcmp( gv.SS_list[iss], "fl_DEW")  == 0){
-			PC_read[iss]  = obj_fl_DEW;             }
+		else if (strcmp( gv.SS_list[iss], "DEW")  == 0){
+			PC_read[iss]  = obj_DEW;             }
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -18238,8 +18238,8 @@ void TC_ig_PC_init(	                PC_type 			*PC_read,
 			PC_read[iss]  = obj_ig_spl; 		    }
 		else if (strcmp( gv.SS_list[iss], "chl") == 0){
 			PC_read[iss]  = obj_ig_chl; 		    }
-		else if (strcmp( gv.SS_list[iss], "fl_DEW") == 0){
-			PC_read[iss]  = obj_fl_DEW; 		    }
+		else if (strcmp( gv.SS_list[iss], "DEW") == 0){
+			PC_read[iss]  = obj_DEW; 		    }
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -18335,8 +18335,8 @@ void TC_um_PC_init(	                PC_type 			*PC_read,
 			PC_read[iss]  = obj_um_opx; 		    }
 		else if (strcmp( gv.SS_list[iss], "po") == 0){
 			PC_read[iss]  = obj_um_po; 		        }
-		else if (strcmp( gv.SS_list[iss], "fl_DEW") == 0){
-			PC_read[iss]  = obj_fl_DEW; 		    }
+		else if (strcmp( gv.SS_list[iss], "DEW") == 0){
+			PC_read[iss]  = obj_DEW; 		    }
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -18384,8 +18384,8 @@ void TC_um_ext_PC_init(	                PC_type 			*PC_read,
 			PC_read[iss]  = obj_mpe_fl; 		        }
 		else if (strcmp( gv.SS_list[iss], "occm")   == 0){
 			PC_read[iss]  = obj_mpe_occm; 		        }
-		else if (strcmp( gv.SS_list[iss], "fl_DEW")   == 0){
-			PC_read[iss]  = obj_fl_DEW; 		        }
+		else if (strcmp( gv.SS_list[iss], "DEW")   == 0){
+			PC_read[iss]  = obj_DEW; 		        }
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -18491,8 +18491,8 @@ void TC_mpe_PC_init(	                PC_type 			*PC_read,
 			PC_read[iss]  = obj_mb_oamp; 		            }
         else if (strcmp( gv.SS_list[iss], "carp")    == 0){
 			PC_read[iss]  = obj_mpe_carp; 		            }
-        else if (strcmp( gv.SS_list[iss], "fl_DEW")    == 0){
-			PC_read[iss]  = obj_fl_DEW; 		            }
+        else if (strcmp( gv.SS_list[iss], "DEW")    == 0){
+			PC_read[iss]  = obj_DEW; 		            }
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -18605,8 +18605,8 @@ void TC_all_PC_init(	                PC_type 			*PC_read,
 			PC_read[iss]  = obj_um_ta; 		}
 		else if (strcmp( gv.SS_list[iss], "oamp_D07")  == 0){
 			PC_read[iss]  = obj_mb_oamp; 		}
-		else if (strcmp( gv.SS_list[iss], "fl_DEW_S14") == 0){
-			PC_read[iss]  = obj_fl_DEW; 		}
+		else if (strcmp( gv.SS_list[iss], "DEW_S14") == 0){
+			PC_read[iss]  = obj_DEW; 		}
 		else if (strcmp( gv.SS_list[iss], "cpx_W24")   == 0){
 			PC_read[iss]  = obj_ig_cpx; 		}
 		else if (strcmp( gv.SS_list[iss], "fper")  == 0){
