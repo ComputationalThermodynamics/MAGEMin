@@ -11441,7 +11441,7 @@ EM_db Access_EM_DB(int id, int EM_dataset) {
 /* Sverjensky, D. A., Harrison, B., & Azzolini, D. (2014). Water in the deep Earth:   */
 /* The dielectric constant and the solubilities of quartz and corundum to 60 kb and   */
 /* 1200 C. Geochimica et Cosmochimica Acta, 129, 125-145.                             */
-/* https://www.dewcomputes.org                                                        */
+/* https://www.dewcommunity.org                                                        */
 /*                                                                                     */
 /* Comp[]/MuComp[] follow the canonical oxide_info order (SiO2,Al2O3,CaO,MgO,FeO,K2O, */
 /* Na2O,TiO2,O,MnO,Cr2O3,H2O,CO2,S,Cl); [15] unused. Comp[] is the O-corrected         */

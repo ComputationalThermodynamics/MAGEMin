@@ -354,7 +354,7 @@ PP_ref TC_G_EM_function(	int 		 EM_dataset,
 /* DEW2019 (Deep Earth Water) aqueous species standard-state EOS                      */
 /*--------------------------------------------------------------------------          */
 /* Port of MAGEMin.jl's DEW_19_gbase.jl / DEW_19_a-x.jl (Sverjensky and co-workers,   */
-/* Deep Earth Water model, https://www.dewcomputes.org). See                          */
+/* Deep Earth Water model, https://www.dewcommunity.org). See                          */
 /* tools/DEW_implementation_plan.md for the porting strategy.                         */
 /*                                                                                     */
 /* Water density (rho_w, g/cm3) is obtained from TC_G_EM_function's own H2O standard  */
