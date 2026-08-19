@@ -19,7 +19,7 @@ using DataFrames, Dates, CSV, SpecialFunctions
 const VecOrMat          = Union{Nothing, AbstractVector{Float64}, AbstractVector{<:AbstractVector{Float64}}}
 const available_TC_ds   = [62,633,634,635,636]
 
-export  anhydrous_renormalization, retrieve_solution_phase_information, remove_phases, get_ss_from_mineral, mineral_classification,
+export  anhydrous_renormalization, retrieve_solution_phase_information, print_phase_info, remove_phases, select_phases, get_ss_from_mineral, mineral_classification,
         init_MAGEMin, allocate_output,finalize_MAGEMin, point_wise_minimization, 
         get_all_stable_phases, convertBulk4MAGEMin, use_predefined_bulk_rock, define_bulk_rock, create_output,
         print_info, create_gmin_struct, pwm_init, pwm_run,
@@ -718,6 +718,148 @@ function retrieve_solution_phase_information(dtb)
 end
 
 """
+    print_name_columns(names; indent=4, width=100)
+
+    Print a list of names wrapped into evenly-padded columns, `indent` spaces from the
+    left margin, each line kept under `width` characters. Internal formatting helper for
+    `print_phase_info`.
+"""
+function print_name_columns(names::AbstractVector{<:AbstractString}; indent::Int64=4, width::Int64=100)
+    if isempty(names)
+        println(" "^indent, "(none)")
+        return nothing
+    end
+    colwidth = maximum(length.(names)) + 2
+    ncols    = max(1, div(width - indent, colwidth))
+    for chunk in Iterators.partition(names, ncols)
+        print(" "^indent)
+        for name in chunk
+            print(rpad(name, colwidth))
+        end
+        println()
+    end
+    return nothing
+end
+
+"""
+    print_endmember_line(name, n_em, em_list; name_w, em_w, em_colwidth, width=140)
+
+    Print one `<name> :  <n_em> em  ->  <endmembers...>` row, with `name`/`n_em` padded to
+    `name_w`/`em_w` so this row lines up vertically against every other row printed with the
+    same widths, and each endmember slot padded to `em_colwidth` so the 1st/2nd/3rd/...
+    endmember columns line up vertically ACROSS rows too (not just the `->` prefix) -
+    `em_colwidth` must therefore be computed once from every phase's endmembers, not
+    per-row, and passed in shared by every call. Stays on a single line for ordinary
+    endmember counts; only wraps onto indent-aligned continuation lines once a phase has
+    enough endmembers to exceed `width` (in practice this only kicks in for outliers like
+    DEW's ~100-species aqueous model). A single outlier phase whose own endmember names
+    exceed `em_colwidth` (again, DEW) locally loses column alignment within its own
+    already-wrapped block, without forcing every short mineral endmember list to pad out to
+    its width. Internal formatting helper for `print_phase_info`.
+"""
+function print_endmember_line(name::AbstractString, n_em::Int64, em_list::AbstractVector{<:AbstractString};
+                                name_w::Int64, em_w::Int64, em_colwidth::Int64, width::Int64=140)
+    prefix = "   $(rpad(name, name_w)) :  $(lpad(n_em, em_w)) em  ->  "
+    indent = length(prefix)
+
+    if isempty(em_list)
+        println(prefix, "(none)")
+        return nothing
+    end
+
+    colwidth = max(em_colwidth, maximum(length.(em_list)) + 2)   # widen locally rather than let a long name run into the next column
+    ncols    = max(1, div(width - indent, colwidth))
+    chunks   = collect(Iterators.partition(em_list, ncols))
+
+    print(prefix)
+    for em in chunks[1]
+        print(rpad(em, colwidth))
+    end
+    println()
+    for chunk in chunks[2:end]
+        print(" "^indent)
+        for em in chunk
+            print(rpad(em, colwidth))
+        end
+        println()
+    end
+    return nothing
+end
+
+"""
+    print_phase_info(dtb; level=0)
+    print_phase_info(db_inf::db_infos; level=0)
+
+    Pretty-print the database information returned by `retrieve_solution_phase_information`.
+
+    Parameters
+    ----------
+    dtb : String
+        Database name (e.g., \"mp\", \"ig\"). Alternatively, pass an already-retrieved
+        `db_infos` struct (as returned by `retrieve_solution_phase_information`) directly.
+    level : Int64, optional
+        Verbosity level (default: 0):
+        - `0` : database info + dataset + solution-phase names + pure-phase names.
+        - `1` : same as level 0, plus the endmember list of every solution phase.
+
+    Examples
+    --------
+    ```julia
+    print_phase_info("mp")
+    print_phase_info("mp"; level=1)
+
+    db_inf = retrieve_solution_phase_information("all")
+    print_phase_info(db_inf; level=1)
+    ```
+"""
+function print_phase_info(db_inf::db_infos; level::Int64=0)
+
+    println("="^80)
+    println(" Database : $(db_inf.db_name)  -  $(db_inf.db_info)")
+    if isnothing(db_inf.dataset_opt)
+        println(" Dataset  : $(db_inf.db_dataset)")
+    else
+        println(" Dataset  : $(db_inf.db_dataset)  (available: $(db_inf.dataset_opt))")
+    end
+    println("="^80)
+
+    ss_fnames = [ss.ss_fName for ss in db_inf.data_ss]
+    println(" Solution phases ($(length(ss_fnames))):")
+    print_name_columns(ss_fnames)
+    println()
+
+    println(" Pure phases ($(length(db_inf.data_pp))):")
+    print_name_columns(db_inf.data_pp)
+    println()
+
+    if level >= 1
+        println("-"^80)
+        println(" Endmembers per solution phase:")
+        name_w = maximum(length(ss.ss_fName) for ss in db_inf.data_ss)
+        em_w   = maximum(length(string(ss.n_em)) for ss in db_inf.data_ss)
+
+        # Shared column width so the 1st/2nd/3rd/... endmember lines up across every
+        # phase, computed only from ordinary (n_em <= 20) solid-solution phases - excludes
+        # outliers like DEW's ~100-species aqueous model, whose much longer species names
+        # would otherwise force every short mineral endmember list to pad out to match.
+        normal_em_lengths = [length(e) for ss in db_inf.data_ss if ss.n_em <= 20
+                                        for e in filter(x -> x != "none", ss.ss_em)]
+        em_colwidth = (isempty(normal_em_lengths) ? 6 : maximum(normal_em_lengths)) + 2
+
+        for ss in db_inf.data_ss
+            em = filter(x -> x != "none", ss.ss_em)
+            print_endmember_line(ss.ss_fName, ss.n_em, em; name_w=name_w, em_w=em_w, em_colwidth=em_colwidth)
+        end
+    end
+
+    println("="^80)
+
+    return nothing
+end
+
+print_phase_info(dtb::String; level::Int64=0) = print_phase_info(retrieve_solution_phase_information(dtb); level=level)
+
+"""
     remove_phases(list, dtb)
 
     Retrieve the list of indexes of the solution phases to be removed from the minimization.
@@ -762,8 +904,99 @@ function remove_phases( list        :: Union{Nothing,Vector{String}},
     else
         rm_list = nothing
     end
-    
+
     return rm_list;
+end
+
+"""
+    ALWAYS_ACTIVE_PP
+
+    Pure-phase names of the buffer/activity indicators (oxygen-fugacity buffers and
+    fixed-activity phases). At most one of these can ever be active in a given calculation,
+    governed solely by the `buffer="..."` keyword of `Initialize_MAGEMin` (C-side:
+    `pp_min_function.c` force-deactivates every buffer-type pure phase whose name doesn't
+    match `gv.buffer`, regardless of any phase-selection list). `select_phases` therefore
+    never deactivates these names, so callers never need to list them explicitly.
+"""
+const ALWAYS_ACTIVE_PP = ["qfm","mw","qif","nno","hm","iw","cco",
+                           "aH2O","aO2","aMgO","aFeO","aAl2O3","aTiO2"]
+
+"""
+    select_phases(dtb; pp_list=nothing, ss_list=nothing)
+
+    Inverse of `remove_phases`: given the pure phases and/or solution phases the caller
+    wants to keep active, returns the index list of every OTHER phase to deactivate, in the
+    same `rm_list` encoding `remove_phases` produces (positive = solution-phase index,
+    negative = pure-phase index). `pp_list` and `ss_list` are independent - passing only one
+    of them leaves the other phase category untouched. The buffer/activity pure phases in
+    `ALWAYS_ACTIVE_PP` (qfm, mw, qif, nno, hm, iw, cco, aH2O, aO2, aMgO, aFeO, aAl2O3, aTiO2)
+    are never added to the deactivation list, so they never need to be listed in `pp_list`;
+    whether one of them is actually computed remains governed by `buffer="..."`.
+
+    Parameters
+    ----------
+    dtb : String
+        Database name (e.g., "mp", "ig").
+    pp_list : Union{Nothing, Vector{String}}
+        Pure phases to keep active, or `nothing` to leave all pure phases untouched.
+    ss_list : Union{Nothing, Vector{String}}
+        Solution phases to keep active, or `nothing` to leave all solution phases untouched.
+        Accepts either the bare name (`db_infos.ss_name`, e.g. "liq") or the citation-tagged
+        name (`ss_infos.ss_fName`, e.g. "liq_W14", the identifier `print_phase_info` shows).
+
+    Returns
+    -------
+    rm_list : Union{Nothing, Vector{Int64}}
+        Vector of phase indexes to deactivate (negative for pure phases), or `nothing` if
+        neither `pp_list` nor `ss_list` was given (or the resulting list is empty).
+"""
+function select_phases( dtb     :: String;
+                        pp_list :: Union{Nothing,Vector{String}} = nothing,
+                        ss_list :: Union{Nothing,Vector{String}} = nothing)
+
+    if isnothing(pp_list) && isnothing(ss_list)
+        return nothing
+    end
+
+    db_inf   = retrieve_solution_phase_information(dtb);
+    sel_list = zeros(Int64,0);
+
+    if ~isnothing(pp_list)
+        for i in pp_list
+            if ~isnothing(i) && !(i in db_inf.data_pp) && !(i in ALWAYS_ACTIVE_PP)
+                println(" \"$i\" is not a proper pure phase name, and thus cannot be selected")
+            end
+        end
+        for (idx,name) in enumerate(db_inf.data_pp)
+            if name in ALWAYS_ACTIVE_PP
+                continue    # never deactivated by select_phases - governed by buffer="..."
+            end
+            if !(name in pp_list)
+                sel_list = vcat(sel_list, idx * -1);
+            end
+        end
+    end
+
+    if ~isnothing(ss_list)
+        ss_fnames = [ss.ss_fName for ss in db_inf.data_ss]     # citation-tagged names, as shown by print_phase_info
+        for i in ss_list
+            if ~isnothing(i) && !(i in db_inf.ss_name) && !(i in ss_fnames)
+                println(" \"$i\" is not a proper solution phase name, and thus cannot be selected")
+            end
+        end
+        for (idx,name) in enumerate(db_inf.ss_name)
+            if !(name in ss_list) && !(ss_fnames[idx] in ss_list)
+                sel_list = vcat(sel_list, idx);
+            end
+        end
+    end
+
+    if isempty(sel_list)
+        sel_list = nothing
+        print(" The list of phases to be kept results in nothing left to deactivate...")
+    end
+
+    return sel_list;
 end
 
 """
@@ -1131,7 +1364,17 @@ end
     iguess : Bool, optional
         Whether to use initial guess (default: false).
     rm_list : Union{Nothing, Vector{Int64}}, optional
-        List of phase indexes to remove (default: nothing).
+        List of phase indexes to remove (default: nothing). Mutually exclusive with
+        `pp_list`/`ss_list`.
+    pp_list : Union{Nothing, Vector{String}}, optional
+        Pure phases to keep active; every other pure phase is deactivated (default: nothing,
+        i.e. no pure-phase selection). See [`select_phases`](@ref). Mutually exclusive with
+        `rm_list`. The buffer/activity pure phases in `ALWAYS_ACTIVE_PP` never need to be
+        listed - they remain governed by `buffer=\"...\"` regardless.
+    ss_list : Union{Nothing, Vector{String}}, optional
+        Solution phases to keep active; every other solution phase is deactivated (default:
+        nothing, i.e. no solution-phase selection). See [`select_phases`](@ref). Mutually
+        exclusive with `rm_list`.
     W : Union{Nothing, Vector{W_data{Float64, Int64}}}, optional
         Overriding Margules parameters (default: nothing).
     Xoxides : Vector{String}
@@ -1174,13 +1417,15 @@ function single_point_minimization(     P           ::  T1,
                                         name_solvus ::  Bool                            = false,
                                         fixed_bulk  ::  Bool                            = false,
                                         test        ::  Int64                           = 0, # if using a build-in test case,
-                                        X           ::  VecOrMat                        = nothing,      
+                                        X           ::  VecOrMat                        = nothing,
                                         B           ::  Union{Nothing, T1 }             = nothing,
                                         G           ::  Union{Nothing, Vector{LibMAGEMin.mSS_data},Vector{Vector{LibMAGEMin.mSS_data}}}  = nothing,
                                         scp         ::  Int64                           = 0,
                                         dT          ::  T1                              = 2.0,
                                         iguess      ::  Bool                            = false,
                                         rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
+                                        pp_list     ::  Union{Nothing, Vector{String}}  = nothing,
+                                        ss_list     ::  Union{Nothing, Vector{String}}  = nothing,
                                         W           ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}}          = nothing,
                                         Xoxides     = Vector{String},
                                         sys_in      = "mol",
@@ -1218,6 +1463,8 @@ function single_point_minimization(     P           ::  T1,
                                                 dT          =   dT,
                                                 iguess      =   iguess,
                                                 rm_list     =   rm_list,
+                                                pp_list     =   pp_list,
+                                                ss_list     =   ss_list,
                                                 W           =   W,
                                                 Xoxides     =   Xoxides,
                                                 sys_in      =   sys_in,
@@ -1281,6 +1528,8 @@ function multi_point_minimization(P           ::  AbstractMatrix{Float64},
                                   dT          ::  Float64                         = 2.0,
                                   iguess      ::  Union{Vector{Bool},Bool}        = false,
                                   rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
+                                  pp_list     ::  Union{Nothing, Vector{String}}  = nothing,
+                                  ss_list     ::  Union{Nothing, Vector{String}}  = nothing,
                                   W           ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}}  = nothing,
                                   Xoxides                                         = Vector{String},
                                   sys_in      ::  String                          = "mol",
@@ -1311,7 +1560,8 @@ function multi_point_minimization(P           ::  AbstractMatrix{Float64},
     out_vec = multi_point_minimization(Pvec, Tvec, MAGEMin_db;
                                        light=light, light_ig=light_ig, name_solvus=name_solvus,
                                        fixed_bulk=fixed_bulk, test=test, X=Xvec, B=B, G=G,
-                                       scp=scp, dT=dT, iguess=iguess, rm_list=rm_list, W=W,
+                                       scp=scp, dT=dT, iguess=iguess, rm_list=rm_list,
+                                       pp_list=pp_list, ss_list=ss_list, W=W,
                                        Xoxides=Xoxides, sys_in=sys_in, rg=rg,
                                        progressbar=progressbar, callback_fn=callback_fn,
                                        callback_int=callback_int, seismic_cor=seismic_cor,
@@ -1359,7 +1609,17 @@ end
     iguess : Union{Vector{Bool}, Bool}, optional
         Whether to use initial guess (default: false).
     rm_list : Union{Nothing, Vector{Int64}}, optional
-        List of phase indexes to remove (default: nothing).
+        List of phase indexes to remove (default: nothing). Mutually exclusive with
+        `pp_list`/`ss_list`.
+    pp_list : Union{Nothing, Vector{String}}, optional
+        Pure phases to keep active; every other pure phase is deactivated (default: nothing,
+        i.e. no pure-phase selection). See [`select_phases`](@ref). Mutually exclusive with
+        `rm_list`. The buffer/activity pure phases in `ALWAYS_ACTIVE_PP` never need to be
+        listed - they remain governed by `buffer=\"...\"` regardless.
+    ss_list : Union{Nothing, Vector{String}}, optional
+        Solution phases to keep active; every other solution phase is deactivated (default:
+        nothing, i.e. no solution-phase selection). See [`select_phases`](@ref). Mutually
+        exclusive with `rm_list`.
     W : Union{Nothing, Vector{W_data{Float64, Int64}}}, optional
         Overriding Margules parameters (default: nothing).
     Xoxides : Vector{String}
@@ -1414,6 +1674,8 @@ function multi_point_minimization(P           ::  T2,
                                   dT          ::  T1                              = 2.0,
                                   iguess      ::  Union{Vector{Bool},Bool}        = false,
                                   rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
+                                  pp_list     ::  Union{Nothing, Vector{String}}  = nothing,
+                                  ss_list     ::  Union{Nothing, Vector{String}}  = nothing,
                                   W           ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}}  = nothing,
                                   Xoxides     = Vector{String},
                                   sys_in      :: String                           = "mol",
@@ -1428,6 +1690,13 @@ function multi_point_minimization(P           ::  T2,
                                   fluid_as_melt ::  Bool                          = false,
                                   anelastic_cor::  Bool                          = false
                                   ) where {T1 <: Float64, T2 <: AbstractVector{Float64}}
+
+    if ~isnothing(pp_list) || ~isnothing(ss_list)
+        isnothing(rm_list) || error("Cannot combine `rm_list` with `pp_list`/`ss_list` - use " *
+            "either an exclude-list (rm_list/remove_phases) or an include-list " *
+            "(pp_list/ss_list), not both.")
+        rm_list = select_phases(MAGEMin_db.db; pp_list, ss_list)
+    end
 
     # Set the compositional info
     CompositionType::Int64 = 0;
@@ -1542,7 +1811,17 @@ end
     iguess : Union{Vector{Bool}, Bool}, optional
         Whether to use initial guess (default: false).
     rm_list : Union{Nothing, Vector{Int64}}, optional
-        List of phase indexes to remove (default: nothing).
+        List of phase indexes to remove (default: nothing). Mutually exclusive with
+        `pp_list`/`ss_list`.
+    pp_list : Union{Nothing, Vector{String}}, optional
+        Pure phases to keep active; every other pure phase is deactivated (default: nothing,
+        i.e. no pure-phase selection). See [`select_phases`](@ref). Mutually exclusive with
+        `rm_list`. The buffer/activity pure phases in `ALWAYS_ACTIVE_PP` never need to be
+        listed - they remain governed by `buffer=\"...\"` regardless.
+    ss_list : Union{Nothing, Vector{String}}, optional
+        Solution phases to keep active; every other solution phase is deactivated (default:
+        nothing, i.e. no solution-phase selection). See [`select_phases`](@ref). Mutually
+        exclusive with `rm_list`.
     W : Union{Nothing, Vector{W_data{Float64, Int64}}}, optional
         Overriding Margules parameters (default: nothing).
     Xoxides : Vector{String}
@@ -1593,6 +1872,8 @@ function AMR_minimization(  init_sub    ::  Int64,
                             dT          ::  T1                              = 2.0,
                             iguess      ::  Union{Vector{Bool},Bool}        = false,
                             rm_list     ::  Union{Nothing, Vector{Int64}}   = nothing,
+                            pp_list     ::  Union{Nothing, Vector{String}}  = nothing,
+                            ss_list     ::  Union{Nothing, Vector{String}}  = nothing,
                             W           ::  Union{Nothing, Vector{MAGEMin_C.W_data{Float64, Int64}}}  = nothing,
                             Xoxides     =  Vector{String},
                             sys_in      ::  String                          = "mol",
@@ -1640,7 +1921,7 @@ function AMR_minimization(  init_sub    ::  Int64,
                 end
             end
             Out_XY_new  =   multi_point_minimization(   Pvec, Tvec, MAGEMin_db,
-                                                        X=Xvec, B=Bvec, G=Gvec, Xoxides=Xoxides, sys_in=sys_in, scp=scp, dT=dT, iguess=iguess, rm_list=rm_list, rg=rg, test=test); 
+                                                        X=Xvec, B=Bvec, G=Gvec, Xoxides=Xoxides, sys_in=sys_in, scp=scp, dT=dT, iguess=iguess, rm_list=rm_list, pp_list=pp_list, ss_list=ss_list, rg=rg, test=test);
         else
             println("There is no new point to compute...")
         end

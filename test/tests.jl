@@ -84,6 +84,33 @@ end
     Finalize_MAGEMin(data)
 end
 
+
+@testset verbose=true "test global TC database" begin
+
+    using MAGEMin_C
+    ss_list = ["liq_W14", "fsp_H22", "bi_W14", "g_W14", "ep_H11", "ma_W14", "mu_W14", "opx_W14", "sa_W14", "cd_W14", "st_W14", "chl_W14", "ctd_W14", "sp_W02", "ilm_W00", "DEW_S14"]
+    pp_list = ["q", "crst", "trd", "coe", "stv", "law", "ky", "sill", "and", "ru", "sph","prl"]
+
+    data    = Initialize_MAGEMin("all", verbose=false, solver=0);
+    P, T    = 10.0, 400.0;
+    Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "MnO"; "Cr2O3"; "H2O"; "CO2"; "S"];
+    X       = [0.62212, 0.1122, 0.0, 0.03486, 0.05557, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.17525, 0.0, 0.0];
+    sys_in  = "mol";
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, ss_list=ss_list, pp_list=pp_list)
+    @test sort(out.ph) == ["DEW_S14", "chl_W14", "ctd_W14", "prl", "q"]
+
+    ss_list = ["liq_W14", "fsp_H22", "bi_W14", "g_W14", "ep_H11", "ma_W14", "mu_W14", "opx_W14", "sa_W14", "cd_W14", "st_W14",  "ctd_W14", "sp_W02", "ilm_W00", "DEW_S14"]
+    pp_list = ["q", "crst", "trd", "coe", "stv", "law", "ky", "sill", "and", "ru", "sph"]
+    P, T    = 10.0, 400.0;
+    Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "MnO"; "Cr2O3"; "H2O"; "CO2"; "S"];
+    X       = [0.62212, 0.1122, 0.0, 0.03486, 0.05557, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.17525, 0.0, 0.0];
+    sys_in  = "mol";
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, ss_list=ss_list, pp_list=pp_list)
+    @test sort(out.ph) == ["DEW_S14", "ctd_W14", "ky", "q"]
+
+    Finalize_MAGEMin(data)
+end
+
 # Tests from L. Candioti - ETH - Oct 2024
 @testset verbose=true "test mass conservation" begin
 
