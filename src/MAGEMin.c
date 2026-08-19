@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Moccetti, N. B., Dominguez, H., Assunção J., Green E., Dolejš, D., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -465,9 +465,18 @@ int runMAGEMin(			int    argc,
 		   gated to exclude "sb" explicitly - see simplex_levelling.c */
 	}
 
+	/* DEW warm start: SS_ref_db is allocated once for the whole run (InitializeDatabases,
+	   called before the point loop) and reused across every point, so a stale
+	   dew_warm_ok==1 left over from the PREVIOUS point would wrongly let this point's very
+	   first outer iteration skip the full multistart grid and warm-start from a different
+	   point's converged composition. Cross-point continuity is not trusted here (P-T-X can
+	   jump arbitrarily between points); only within-point, across-outer-iteration continuity
+	   is - see NLopt_opt_DEW_function. */
+	for (int iss = 0; iss < gv.len_ss; iss++){ SS_ref_db[iss].dew_warm_ok = 0; }
+
 	/****************************************************************************************/
 	/**                                   LEVELLING                                        **/
-	/****************************************************************************************/	
+	/****************************************************************************************/
 	// leveling mode = 0 is default, without using initial guess
 	// leveling mode = 1 uses initial guess
 	if (gv.leveling_mode == 0){
@@ -600,7 +609,9 @@ int runMAGEMin(			int    argc,
 		for (int i = 0; i < gv.len_cp; i++){ 
 			if (cp[i].ss_flags[1] == 1){
 				gv.n_ss_array[cp[i].id] += 1;
-				if (strcmp( gv.SS_list[cp[i].id], "liq")  == 0){
+				if (strcmp( gv.SS_list[cp[i].id], "liq")  == 0
+				 || strcmp( gv.SS_list[cp[i].id], "liq_W14") == 0 || strcmp( gv.SS_list[cp[i].id], "liq_G16") == 0
+				 || strcmp( gv.SS_list[cp[i].id], "liq_G25w") == 0 || strcmp( gv.SS_list[cp[i].id], "liq_W24d") == 0){
 					ig_liq += cp[i].ss_n;
 					n_liq  += 1;
 				}
@@ -804,6 +815,8 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		{ "ig_ed",  	ko_optional_argument, 329 },
 		{ "SB_eos",  	ko_optional_argument, 330 },
 		{ "SB_eos_cor", ko_optional_argument, 331 },
+		{ "DEW_solve_algorithm", ko_optional_argument, 333 },
+		{ "warm_start", ko_optional_argument, 334 },
     	{ NULL, 0, 0 }
 	};
 	ketopt_t opt = KETOPT_INIT;
@@ -824,6 +837,8 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		else if (c == 329){ gv.ig_ed   			= atoi(opt.arg);			}
 		else if (c == 330){ gv.SB_eos   			= atoi(opt.arg);			}
 		else if (c == 331){ gv.SB_eos_cor			= atoi(opt.arg);			}
+		else if (c == 333){ gv.DEW_solve_algorithm	= atoi(opt.arg);			}
+		else if (c == 334){ gv.warm_start			= atoi(opt.arg);			}
 		else if (c == 316){ gv.solver   		= atoi(opt.arg);			}																		
 		else if (c == 318){ gv.output_matlab   	= atoi(opt.arg); 			}																		
 		else if (c == 304){ gv.n_points 		= atoi(opt.arg); 	 		}
@@ -881,7 +896,7 @@ global_variable SetupDatabase(			global_variable 	 gv,
 
 
 	// checks if research group is correct, otherwise sets to default
-	if 	( strcmp(gv.research_group, "tc") 	== 0 || strcmp(gv.research_group, "sb") == 0){// || strcmp(gv.research_group, "gh") == 0 ){
+	if 	( strcmp(gv.research_group, "tc") 	== 0 || strcmp(gv.research_group, "sb") == 0 || strcmp(gv.research_group, "gh") == 0 ){
 	}
 	else{
 		printf(" WARNING: Unknown research group '%s' has been provided, setting default one 'tc'\n",gv.research_group);
@@ -933,6 +948,9 @@ global_variable SetupDatabase(			global_variable 	 gv,
 		}
 		else if (strcmp(gv.db, "mpe") 	== 0){
 			gv.EM_database = 7;
+		}
+		else if (strcmp(gv.db, "all") 	== 0){
+			gv.EM_database = 8;
 		}
 		else {
 			printf(" No or wrong database acronym has been provided, using default (metapelite [mp])\n");
@@ -1034,6 +1052,8 @@ global_variable SetupDatabase(			global_variable 	 gv,
 		printf("--mpSp        : mpSp                 = %i \n", 	 	   		gv.mpSp				);
 		printf("--mpIlm       : mpIlm                = %i \n", 	 	   		gv.mpIlm			);
 		printf("--ig_ed       : ig_ed                = %i \n", 	 	   		gv.ig_ed			);
+		printf("--DEW_solve_algorithm: DEW_solve_algorithm = %i \n", 	 	   	gv.DEW_solve_algorithm	);
+		printf("--warm_start  : warm_start            = %i \n", 	 	   		gv.warm_start		);
 
 		printf("--out_matlab  : out_matlab           = %i \n", 	 	   		gv.output_matlab	);
 	}
@@ -1103,8 +1123,8 @@ Databases InitializeDatabases(	global_variable gv,
 	}
 
 
-	/* Endmember names */
-	DB.FS_names  =	get_FS_DB_names(		gv									);
+	/* DEW2019 aqueous species names */
+	DB.DEW_names =	get_DEW_DB_names(		gv									);
 
 	/* Create endmember Hashtable */
 	/* Fix: clear stale entries from any previous Initialize_MAGEMin call before
@@ -1135,18 +1155,15 @@ Databases InitializeDatabases(	global_variable gv,
         HASH_ADD_STR( PP, PP_tag, pp_s );
     }
 
-	/* Create fluid species Hashtable */
-	FS2id *fs_s, *tmp_fs;
-	HASH_ITER(hh, FS, fs_s, tmp_fs) { HASH_DEL(FS, fs_s); free(fs_s); }
-	// Previous code (no clear — left as reference):
-	// FS2id *fs_s, *tmp_fs;
-	FS_db FS_return;
-	int n_fs_db = gv.n_fs_db;
-    for (int i = 0; i < n_fs_db; ++i) {
-        fs_s = (FS2id *)malloc(sizeof *fs_s);
-        strcpy(fs_s->FS_tag, DB.FS_names[i]);
-        fs_s->id = i;
-        HASH_ADD_STR( FS, FS_tag, fs_s );
+	/* Create DEW2019 aqueous species Hashtable */
+	DEW2id *dew_s, *tmp_dew;
+	HASH_ITER(hh, DEW, dew_s, tmp_dew) { HASH_DEL(DEW, dew_s); free(dew_s); }
+	int n_dew_db = gv.n_dew_db;
+    for (int i = 0; i < n_dew_db; ++i) {
+        dew_s = (DEW2id *)malloc(sizeof *dew_s);
+        strcpy(dew_s->DEW_tag, DB.DEW_names[i]);
+        dew_s->id = i;
+        HASH_ADD_STR( DEW, DEW_tag, dew_s );
     }
 
 	return DB;
@@ -1183,9 +1200,11 @@ void FreeDatabases(		global_variable gv,
 		if  (DB.sp[0].SS[i].Comp_apfu		!=NULL)  free( DB.sp[0].SS[i].Comp_apfu		);	
 		if  (DB.sp[0].SS[i].compVariables	!=NULL)  free( DB.sp[0].SS[i].compVariables );	
 		if  (DB.sp[0].SS[i].siteFractions	!=NULL)  free( DB.sp[0].SS[i].siteFractions );	
-		if  (DB.sp[0].SS[i].emFrac			!=NULL)  free( DB.sp[0].SS[i].emFrac 		);	
-		if  (DB.sp[0].SS[i].emFrac_wt		!=NULL)  free( DB.sp[0].SS[i].emFrac_wt 	);	
-		if  (DB.sp[0].SS[i].emChemPot		!=NULL)  free( DB.sp[0].SS[i].emChemPot 	);	
+		if  (DB.sp[0].SS[i].emFrac			!=NULL)  free( DB.sp[0].SS[i].emFrac 		);
+		if  (DB.sp[0].SS[i].emFrac_wt		!=NULL)  free( DB.sp[0].SS[i].emFrac_wt 	);
+		if  (DB.sp[0].SS[i].emChemPot		!=NULL)  free( DB.sp[0].SS[i].emChemPot 	);
+		if  (DB.sp[0].SS[i].molality		!=NULL)  free( DB.sp[0].SS[i].molality 	);
+		if  (DB.sp[0].SS[i].activity		!=NULL)  free( DB.sp[0].SS[i].activity 	);
 		for ( j = 0; j < n_ox*3; j++){
 			if  (DB.sp[0].SS[i].compVariablesNames[j]	!=NULL)  free( DB.sp[0].SS[i].compVariablesNames[j] 	);	
 			if  (DB.sp[0].SS[i].siteFractionsNames[j]	!=NULL)  free( DB.sp[0].SS[i].siteFractionsNames[j] 	);	
@@ -1271,11 +1290,6 @@ void FreeDatabases(		global_variable gv,
 	for (i = 0; i < n_em_db; i++) {
 		free(DB.EM_names[i]);
 	}
-	int n_fs_db = gv.n_fs_db;
-	for (i = 0; i < n_fs_db; i++) {
-		free(DB.FS_names[i]);
-	}
-
 	/*  ==================== SS_ref_db ==============================  */
 	ndif 	= gv.n_Diff;
 	n_Ppc  	= gv.n_Ppc;
@@ -1360,7 +1374,7 @@ void FreeDatabases(		global_variable gv,
 		free(DB.SS_ref_db[i].xeos_pc);
 
 		/** free Ppc */
-		for (j = 0; j < n_em; j++){ 
+		for (j = 0; j < n_em; j++){
 			free(DB.SS_ref_db[i].EM_list[j]);
 			free(DB.SS_ref_db[i].eye[j]);
 			free(DB.SS_ref_db[i].Comp[j]);
@@ -1371,6 +1385,11 @@ void FreeDatabases(		global_variable gv,
 		free(DB.SS_ref_db[i].eye);
 		free(DB.SS_ref_db[i].Comp);
 		free(DB.SS_ref_db[i].dp_dx);
+
+		if (strcmp(gv.SS_list[i], "DEW") == 0 || strcmp(gv.SS_list[i], "DEW_S14") == 0){
+			for (j = 0; j < n_em; j++){ free(DB.SS_ref_db[i].mu_comp[j]); }
+			free(DB.SS_ref_db[i].mu_comp);
+		}
 
 		for (j = 0; j < n_xeos; j++){ 
 			free(DB.SS_ref_db[i].CV_list[j]);
@@ -1495,7 +1514,6 @@ void FreeDatabases(		global_variable gv,
 
 	/* ================ final free ============= */
 	free(DB.EM_names);
-	free(DB.FS_names);
 	free(DB.PP_ref_db);
 	free(DB.SS_ref_db);
 	free(DB.sp);

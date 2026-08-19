@@ -3,7 +3,7 @@
 #   Project      : MAGEMin_C
 #   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 #   Developers   : Nicolas Riel, Boris Kaus
-#   Contributors : Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+#   Contributors : Moccetti, N. B., Dominguez, H., Assunção J., Green E., Dolejš, D., Berlie N., and Rummel L.
 #   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
 #   Contact      : nriel[at]uni-mainz.de
 #
@@ -110,6 +110,61 @@ function get_mineral_name(db, ss, SS_vec)
             else                        mineral_name = "ged";   end
         end
 
+    elseif db == "all"
+        x = SS_vec.compVariables
+        if ss == "fsp_H22" || ss == "fsp_H22op"
+            if x[2] - 0.5 > 0.0;       mineral_name = "afs";
+            else                        mineral_name = "pl";    end
+        elseif ss == "spl_T21"
+            if x[3] - 0.5 > 0.0;        mineral_name = "cm";
+            elseif x[2] - 0.5 > 0.0;    mineral_name = "mgt";
+            else                        mineral_name = "spl";    end
+        elseif ss == "sp_W02"
+            if x[2] - 0.5 > 0.0;        mineral_name = "sp";
+            else                        mineral_name = "smt";    end
+        elseif ss == "ilm_W24"
+            if -x[1] + 0.5 > 0.0;       mineral_name = "hem";
+            else                        mineral_name = "ilm";   end
+        elseif ss == "ilm_W00"
+            if 1.0 - x[1] > 0.5;        mineral_name = "hem";
+            else                        mineral_name = "ilm";   end
+        elseif ss == "ilmm_W14"
+            if x[1] - 0.5 > 0.0;        mineral_name = "ilmm";
+            else                        mineral_name = "hemm";   end
+        elseif ss == "amp_G16"
+            if x[3] - 0.5 > 0.0;        mineral_name = "gl";
+            elseif -x[3]-x[4]+0.2>0.0;  mineral_name = "act";
+            else
+                if x[6] < 0.1;          mineral_name = "cumm";
+                elseif -1/2*x[4]+x[6]-x[7]-x[8]-x[2]+x[3]>0.5;      mineral_name = "tr";
+                else                    mineral_name = "amp";    end
+            end
+        elseif ss == "mu_W14"
+            if x[4] - 0.5 > 0.0;        mineral_name = "pat";
+            else                        mineral_name = "mu";    end
+        elseif ss == "cpx_W24"
+            if x[3] - 0.6 > 0.0;        mineral_name = "pig";
+            elseif x[4] - 0.5 > 0.0;    mineral_name = "Na-cpx";
+            else                        mineral_name = "cpx";   end
+        elseif ss == "nph_W24"
+            if x[2] - 0.5 > 0.0;       mineral_name = "K-nph";
+            else                        mineral_name = "nph";   end
+        elseif ss == "dio_G16"
+            if x[2] > 0.0 && x[2] <= 0.3;       mineral_name = "dio";
+            elseif x[2] > 0.3 && x[2] <= 0.7;   mineral_name = "omph";
+            else                                mineral_name = "jd";   end
+        elseif ss == "occm_F11"
+            if x[2] > 0.5;              mineral_name = "sid";
+            elseif x[3] > 0.5;          mineral_name = "ank";
+            elseif x[1] > 0.25 && x[3] < 0.01;         mineral_name = "mag";
+            else                        mineral_name = "cc";   end
+        elseif ss == "oamp_D07"
+            if x[2] < 0.3;              mineral_name = "anth";
+            else                        mineral_name = "ged";   end
+        elseif occursin("_", ss)
+            mineral_name = split(ss, "_")[1]
+        end
+
     end
 
     return mineral_name
@@ -184,7 +239,35 @@ function get_ss_from_mineral(db, mrl, mbCpx)
             ss = "oamp"
         end
 
+    elseif db == "all"
+        if mrl == "afs" || mrl == "pl"
+            ss = "fsp_H22"
+        elseif mrl == "cm" || mrl == "mgt" || mrl == "spl"
+            ss = "spl_T21"
+        elseif mrl == "sp" || mrl == "smt"
+            ss = "sp_W02"
+        elseif mrl == "hem" || mrl == "ilm"
+            ss = "ilm_W24"
+        elseif mrl == "hemm" || mrl == "ilmm"
+            ss = "ilmm_W14"
+        elseif mrl == "gl" || mrl == "act" || mrl == "amp" || mrl == "cumm" || mrl == "tr"
+            ss = "amp_G16"
+        elseif mrl == "pat" || mrl == "mu"
+            ss = "mu_W14"
+        elseif mrl == "pig" || mrl == "Na-cpx" || mrl == "cpx"
+            ss = "cpx_W24"
+        elseif mrl == "K-nph" || mrl == "nph"
+            ss = "nph_W24"
+        elseif mrl == "omph" || mrl == "dio" || mrl == "jd"
+            ss = "dio_G16"
+        elseif mrl == "sid" || mrl == "mag" || mrl == "ank" || mrl == "cc"
+            ss = "occm_F11"
+        elseif mrl == "anth" || mrl == "ged"
+            ss = "oamp_D07"
+        end
 
+    elseif occursin("_", mrl)
+        ss = split(mrl, "_")[1]
     end
 
     return ss

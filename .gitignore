@@ -1,10 +1,14 @@
 environmental_variables.m
 MAGEMin
+MAGEMin_asan
+MAGEMin_asan_cli
+*.dSYM/
 MAGEMin_input.dat
 output/*
 src/*.o
 src/TC_database/*.o
 src/SB_database/*.o
+src/GH_database/*.o
 julia/output/*
 ref_database/SB_ref_database/.DS_Store
 matlab/.DS_Store
@@ -17,3 +21,4 @@ Manifest.toml
 .DS_Store
 libMAGEMin.dylib
 **/.DS_Store
+**/.md

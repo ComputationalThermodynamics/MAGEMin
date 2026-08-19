@@ -3,12 +3,24 @@
 #   Project      : MAGEMin_C
 #   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 #   Developers   : Nicolas Riel, Boris Kaus
-#   Contributors : Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+#   Contributors : Moccetti, N. B., Dominguez, H., Assunção J., Green E., Dolejš, D., Berlie N., and Rummel L.
 #   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
 #   Contact      : nriel[at]uni-mainz.de
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ =#
 
+
+function find_ss_idx(out, name::Symbol)
+    idx = get(out.SS_syms, name, 0)
+    idx != 0 && return idx
+    prefix = String(name)
+    for (sym, i) in out.SS_syms
+        startswith(String(sym), prefix) && return i
+    end
+    return 0
+end
+
+find_liq_idx(out) = find_ss_idx(out, :liq)
 
 """
     zirconium_saturation(out; model="WH")
@@ -183,8 +195,8 @@ function phosphate_saturation(      out     :: MAGEMin_C.gmin_struct{Float64, In
         ox_list         = ["SiO2","TiO2","Al2O3","FeO","MgO","CaO","Na2O","K2O"]
         T_K             = out.T_C + 273.15
 
-        M_liq_dry       = [out.SS_vec[out.SS_syms[:liq]].Comp[i] * get_molar_mass(out.oxides[i]) for i in eachindex(out.oxides) if out.oxides[i] in ox_list]
-        bulk_dry        = [out.SS_vec[out.SS_syms[:liq]].Comp[i] for i in eachindex(out.oxides) if out.oxides[i] in ox_list]
+        M_liq_dry       = [out.SS_vec[find_liq_idx(out)].Comp[i] * get_molar_mass(out.oxides[i]) for i in eachindex(out.oxides) if out.oxides[i] in ox_list]
+        bulk_dry        = [out.SS_vec[find_liq_idx(out)].Comp[i] for i in eachindex(out.oxides) if out.oxides[i] in ox_list]
         ox_dry          = [out.oxides[i] for i in eachindex(out.oxides) if out.oxides[i] in ox_list]
         bulk_dry_norm   = bulk_dry./sum(bulk_dry)
 
@@ -201,11 +213,11 @@ function phosphate_saturation(      out     :: MAGEMin_C.gmin_struct{Float64, In
 
     elseif model == "HWBea92"
 
-        SiO2_wt     = out.SS_vec[out.SS_syms[:liq]].Comp_wt[findfirst(isequal("SiO2"), out.oxides)]
-        Al2O3_mol   = out.SS_vec[out.SS_syms[:liq]].Comp[findfirst(isequal("Al2O3"), out.oxides)]
-        CaO_mol     = out.SS_vec[out.SS_syms[:liq]].Comp[findfirst(isequal("CaO"), out.oxides)]
-        Na2O_mol    = out.SS_vec[out.SS_syms[:liq]].Comp[findfirst(isequal("Na2O"), out.oxides)]
-        K2O_mol     = out.SS_vec[out.SS_syms[:liq]].Comp[findfirst(isequal("K2O"), out.oxides)]
+        SiO2_wt     = out.SS_vec[find_liq_idx(out)].Comp_wt[findfirst(isequal("SiO2"), out.oxides)]
+        Al2O3_mol   = out.SS_vec[find_liq_idx(out)].Comp[findfirst(isequal("Al2O3"), out.oxides)]
+        CaO_mol     = out.SS_vec[find_liq_idx(out)].Comp[findfirst(isequal("CaO"), out.oxides)]
+        Na2O_mol    = out.SS_vec[find_liq_idx(out)].Comp[findfirst(isequal("Na2O"), out.oxides)]
+        K2O_mol     = out.SS_vec[find_liq_idx(out)].Comp[findfirst(isequal("K2O"), out.oxides)]
         T_K         = out.T_C + 273.15
 
         AoCNK       = Al2O3_mol / (2.0*CaO_mol + Na2O_mol + K2O_mol)    # A over CNK
@@ -213,11 +225,11 @@ function phosphate_saturation(      out     :: MAGEMin_C.gmin_struct{Float64, In
         C_P2O5_WH   = 52.5525567/ exp( (8400.0 + 2.64e4(SiO2_wt - 0.5))/T_K - (3.1 + 12.4(SiO2_wt - 0.5)) )  # wt% as in Harrison and Watson 1984
         C_P2O5_liq  =  maximum([C_P2O5_WH * 1e4, (C_P2O5_WH * (AoCNK -1.0) * 6429.0/out.T_C) * 1e4])   # ppm Harrison and Watson 1984 + Correction from Bea et al. 1992
     elseif model == "Klein26"
-        SiO2_wt     = out.SS_vec[out.SS_syms[:liq]].Comp_wt[findfirst(isequal("SiO2"), out.oxides)]
-        Al2O3_mol   = out.SS_vec[out.SS_syms[:liq]].Comp[findfirst(isequal("Al2O3"), out.oxides)]
-        CaO_mol     = out.SS_vec[out.SS_syms[:liq]].Comp[findfirst(isequal("CaO"), out.oxides)]
-        Na2O_mol    = out.SS_vec[out.SS_syms[:liq]].Comp[findfirst(isequal("Na2O"), out.oxides)]
-        K2O_mol     = out.SS_vec[out.SS_syms[:liq]].Comp[findfirst(isequal("K2O"), out.oxides)]
+        SiO2_wt     = out.SS_vec[find_liq_idx(out)].Comp_wt[findfirst(isequal("SiO2"), out.oxides)]
+        Al2O3_mol   = out.SS_vec[find_liq_idx(out)].Comp[findfirst(isequal("Al2O3"), out.oxides)]
+        CaO_mol     = out.SS_vec[find_liq_idx(out)].Comp[findfirst(isequal("CaO"), out.oxides)]
+        Na2O_mol    = out.SS_vec[find_liq_idx(out)].Comp[findfirst(isequal("Na2O"), out.oxides)]
+        K2O_mol     = out.SS_vec[find_liq_idx(out)].Comp[findfirst(isequal("K2O"), out.oxides)]
         T_K         = out.T_C + 273.15
 
         ASI         = Al2O3_mol / (2.0*CaO_mol + Na2O_mol + K2O_mol)    # A over CNK
@@ -333,7 +345,7 @@ function sulfur_saturation(     out     :: MAGEMin_C.gmin_struct{Float64, Int64}
             Sulfur concentration at sulfide saturation (SCSS) in magmatic silicate melts
             NR: does not seem to work for anhydrous conditions
         =#
-        X_ox        = out.SS_vec[out.SS_syms[:liq]].Comp
+        X_ox        = out.SS_vec[find_liq_idx(out)].Comp
         oxides      = out.oxides
         oxide_data  = Dict(
             "SiO2"  => ("Si",   1),
@@ -366,8 +378,8 @@ function sulfur_saturation(     out     :: MAGEMin_C.gmin_struct{Float64, Int64}
         P_bar   = out.P_kbar * 1000.0
         T_K     = out.T_C + 273.15
 
-        X_H2O_melt = out.SS_vec[out.SS_syms[:liq]].Comp[findfirst(isequal("H2O"), out.oxides)]
-        X_FeO_melt = out.SS_vec[out.SS_syms[:liq]].Comp[findfirst(isequal("FeO"), out.oxides)]
+        X_H2O_melt = out.SS_vec[find_liq_idx(out)].Comp[findfirst(isequal("H2O"), out.oxides)]
+        X_FeO_melt = out.SS_vec[find_liq_idx(out)].Comp[findfirst(isequal("FeO"), out.oxides)]
 
         # Function to calculate ln(S in ppm)_SCSS
         ln_S_SCSS = 11.35251 -
@@ -383,7 +395,7 @@ function sulfur_saturation(     out     :: MAGEMin_C.gmin_struct{Float64, Int64}
         #=
             O'Neill, H.S.C. (2021) The thermodynamic controls on sulfide saturation in silicate melts with application to ocean floor basalts.
         =#
-        X_ox        = out.SS_vec[out.SS_syms[:liq]].Comp
+        X_ox        = out.SS_vec[find_liq_idx(out)].Comp
         oxides      = out.oxides
         oxide_data  = Dict(
             "SiO2"  => ("Si",   1),
@@ -430,7 +442,7 @@ function sulfur_saturation(     out     :: MAGEMin_C.gmin_struct{Float64, Int64}
         ΔVr         = 0.904 #J/bar
         ΔFMQ        = out.dQFM
         logfO2      = out.fO2
-        X_FeO_melt  = out.SS_vec[out.SS_syms[:liq]].Comp[findfirst(isequal("FeO"), out.oxides)]
+        X_FeO_melt  = out.SS_vec[find_liq_idx(out)].Comp[findfirst(isequal("FeO"), out.oxides)]
         logfS2      = 6.7 - 12800 / T_K - 2 * log10(X_FeO_melt) + ΔFMQ + (ΔVr * (P_bar - 1)) / (2.303 * R * T_K)
 
         C_s_liq      = exp(lnCs2) * (exp10(logfS2)/exp10(logfO2))^(0.5)
@@ -582,7 +594,7 @@ function volatile_saturation_SY26(  out     :: MAGEMin_C.gmin_struct{Float64, In
 
     # --- volatile-free mole fractions from the melt ---
     volatile_ox = ("H2O", "CO2", "S", "O")
-    liq_comp    = out.SS_vec[out.SS_syms[:liq]].Comp   # mole fractions (include volatiles)
+    liq_comp    = out.SS_vec[find_liq_idx(out)].Comp   # mole fractions (include volatiles)
 
     dry_mol  = [liq_comp[i] for i in eachindex(oxides) if !(oxides[i] in volatile_ox)]
     dry_oxs  = [oxides[i]   for i in eachindex(oxides) if !(oxides[i] in volatile_ox)]
@@ -725,7 +737,7 @@ Convenience overload: reads dissolved H₂O directly from the melt phase of `out
 Returns `(NaN, NaN, NaN)` if no melt is present or the melt contains no H₂O.
 """
 function CO2_from_dissolved_H2O(out :: MAGEMin_C.gmin_struct{Float64, Int64})
-    liq_idx = get(out.SS_syms, :liq, 0)
+    liq_idx = find_liq_idx(out)
     liq_idx == 0 && return NaN, NaN, NaN
 
     H2O_idx = findfirst(==("H2O"), out.oxides)

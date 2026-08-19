@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Moccetti, N. B., Dominguez, H., Assunção J., Green E., Dolejš, D., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -94,20 +94,20 @@ char** get_EM_DB_names_gh(global_variable gv) {
 }
 
 /**
-    Function to retrieve the species names from the database 
-    Note the size of the array is n_em_db+1, required for the hashtable              
+    Function to retrieve the DEW2019 aqueous species names from the database
+    Note the size of the array is n_dew_db+1, required for the hashtable
 */
-char** get_FS_DB_names(global_variable gv) {
-    FS_db FS_return;
-    int i, n_fs_db;
-    n_fs_db = gv.n_fs_db;
-    char ** names = malloc((n_fs_db+1) * sizeof(char*));
-    for ( i = 0; i < n_fs_db; i++){
+char** get_DEW_DB_names(global_variable gv) {
+    DEW_db DEW_return;
+    int i, n_dew_db;
+    n_dew_db = gv.n_dew_db;
+    char ** names = malloc((n_dew_db+1) * sizeof(char*));
+    for ( i = 0; i < n_dew_db; i++){
         names[i] = malloc(20 * sizeof(char));
     }
-    for ( i = 0; i < n_fs_db; i++){	
-        FS_return = Access_FS_DB(i);
-        strcpy(names[i],FS_return.Name);
+    for ( i = 0; i < n_dew_db; i++){
+        DEW_return = Access_DEW_DB(i);
+        strcpy(names[i],DEW_return.Name);
     }
     return names;
 }
@@ -138,133 +138,135 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.arg_gamma 		= malloc (gv.maxlen_ox * sizeof(double)	);
 
 	for (i = 0; i < gv.maxlen_ox; i++) {
-		gv.arg_bulk[i]  = 0.0;
-		gv.arg_gamma[i] = 0.0;
+		gv.arg_bulk[i]  	=  0.0;
+		gv.arg_gamma[i] 	=  0.0;
 	}
 
-	strcpy(gv.outpath,"./output/");				/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"1.9.11 [12/08/2026]");		/** MAGEMin version 																*/
+	strcpy(gv.outpath,"./output/");					/** define the outpath to save logs and final results file	 						*/
+	strcpy(gv.version,"2.0.0 [20/09/2026]");		/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
-	gv.EM_dataset 		= -1;
-	gv.max_n_mSS		= 128;					/** maximum number of metastable pseudocompounds 									*/
-	gv.max_n_cp 		= 256;					/** number of considered solution phases 											*/	
-	gv.max_ss_size_cp   = 24;					/** maximum size for a solution phase saved in the cp structure                     */
-	gv.buffer_n 		= 0.0;					/** factor for QFM buffer 															*/
-	gv.limitCaOpx       = 0;					/** limit Ca-bearing  orthopyroxene (add-hoc correction) 							*/
-	gv.CaOpxLim         = 1.0;					/** limit Ca-bearing  orthopyroxene (add-hoc correction) 							*/
-	gv.fixed_bulk	    = 0;                   /** by default we don't activate the initial guess for fixed bulk 					*/
+	gv.EM_dataset 			= -1;
+	gv.max_n_mSS			=  128;					/** maximum number of metastable pseudocompounds 									*/
+	gv.max_n_cp 			=  256;					/** number of considered solution phases 											*/	
+	gv.max_ss_size_cp   	=  130;					/** maximum size for a solution phase saved in the cp structure - 24 sufficed for every
+													phase up to aq17; DEW (DEW2019 aqueous model) can need up to DEW_N_SPECIES_DB=120
+													species + water endmembers, so this was bumped in step with struct ss_pc.xeos_pc[]
+													(MAGEMin.h) - both are sized for the same reason. */
+	gv.buffer_n 			=  0.0;					/** factor for QFM buffer 															*/
+	gv.limitCaOpx       	=  0;					/** limit Ca-bearing  orthopyroxene (add-hoc correction) 							*/
+	gv.CaOpxLim         	=  1.0;					/** limit Ca-bearing  orthopyroxene (add-hoc correction) 							*/
+	gv.fixed_bulk	    	=  0;                   /** by default we don't activate the initial guess for fixed bulk 					*/
 
 	/* Phase selection 					*/
-	gv.mbCpx 			= 0;					/** 0: omphacite LT, 1: augite HT													*/
-	gv.mbIlm 			= 0;					/** 0: Ilmm, 1: Ilm 																*/
-	gv.mpSp 			= 0;					/** 0: Sp LT, 1: Mt1													*/
-	gv.mpIlm 			= 0;					/** 0: Ilmm, 1: Ilm 																*/
-	gv.ig_ed 			= 0;					/** 0: flag to activate edited version of bi and amp for igneous database 			*/
-	gv.precond 			= 1;					/** 1: precondition (Ruiz-scale) the stoichiometric matrix before inverseMatrix's LU inversion, 0: preconditioning off 	*/
-	gv.BR_rel_norm 		= 1;					/** 1: PGE mass-residual convergence norm is per-oxide-relative (normalized by bulk abundance), 0: old absolute norm 	*/
-	gv.gh_multistart_order = 0;					/** 0 (default): single starting guess for gh's embedded order-parameter phases, matching real xMELTS' own order() exactly; 1: legacy multi-start (see MAGEMin.h) 	*/
+	gv.mbCpx 				=  0;					/** 0: omphacite LT, 1: augite HT													*/
+	gv.mbIlm 				=  0;					/** 0: Ilmm, 1: Ilm 																*/
+	gv.mpSp 				=  0;					/** 0: Sp LT, 1: Mt1													*/
+	gv.mpIlm 				=  0;					/** 0: Ilmm, 1: Ilm 																*/
+	gv.ig_ed 				=  0;					/** 0: flag to activate edited version of bi and amp for igneous database 			*/
+	gv.precond 				=  1;					/** 1: precondition (Ruiz-scale) the stoichiometric matrix before inverseMatrix's LU inversion, 0: preconditioning off 	*/
+	gv.BR_rel_norm 			=  1;					/** 1: PGE mass-residual convergence norm is per-oxide-relative (normalized by bulk abundance), 0: old absolute norm 	*/
+	gv.gh_multistart_order 	=  0;					/** 0 (default): single starting guess for gh's embedded order-parameter phases, matching real xMELTS' own order() exactly; 1: legacy multi-start (see MAGEMin.h) 	*/
 
 	// gv.calc_seismic_cor = 1;					/** compute seismic velocity corrections (melt and anelastic)						*/
 	// gv.melt_pressure 	= 0.0;				/** [kbar] pressure shift in case of modelling melt pressure 						*/
 
 	/* fluid speciation parameters 	    */
-	gv.fluidSpec        = 0;					/** by default the fluid speciation option is deactivated 							*/
-	gv.n_fs_db 			= 44; 					/** number of fluid species for the database 										*/
+	gv.fluidSpec        	=  0;					/** by default the fluid speciation option is deactivated 							*/
+	gv.n_dew_db 			=  120;					/** number of aqueous species in the DEW2019 database 								*/
 
 	/* residual tolerance 				*/
-	gv.br_max_tol       = 1.0e-5;				/** value under which the solution is accepted to satisfy the mass constraint 		*/
+	gv.br_max_tol       	=  1.0e-5;				/** value under which the solution is accepted to satisfy the mass constraint 		*/
 
 	/* pc composite parameters */
-	gv.pc_composite_dist= 2.5e-3;				/** parameter setting the distance for the pseudocompounds created around a minimized point 
+	gv.pc_composite_dist	=  2.5e-3;				/** parameter setting the distance for the pseudocompounds created around a minimized point 
 													this parameter has a big impact on performances, it is advised to not change it */
 	
 	/* Magic PGE under-relaxing numbers */
-	gv.relax_PGE_val    = 128.0;				/** restricting factor 																*/
-	gv.PC_check_val1	= 1.0e-2;				/** br norm under which PC are tested for potential candidate to be added 			*/
-	gv.PC_check_val2	= 1.0e-4;				/** br norm under which PC are tested for potential candidate to be added 			*/
-	gv.PC_min_dist 		= 1.0;					/** factor multiplying the diagonal of the hyperbox of xeos s-tep 					*/
-	gv.mSS_df_max_add 	= 0.4;					/** driving force under which a metastable solution phase is added to the assemblage */
-	gv.mSS_df_min_add   = 1e-4;					/** driving force under which a metastable solution phase is added to the assemblage */
+	gv.relax_PGE_val    	=  128.0;				/** restricting factor 																*/
+	gv.PC_check_val1		=  1.0e-2;				/** br norm under which PC are tested for potential candidate to be added 			*/
+	gv.PC_check_val2		=  1.0e-4;				/** br norm under which PC are tested for potential candidate to be added 			*/
+	gv.PC_min_dist 			=  1.0;					/** factor multiplying the diagonal of the hyperbox of xeos s-tep 					*/
+	gv.mSS_df_max_add 		=  0.4;					/** driving force under which a metastable solution phase is added to the assemblage */
+	gv.mSS_df_min_add   	=  1e-4;					/** driving force under which a metastable solution phase is added to the assemblage */
 
 	/* levelling parameters 			*/
-	gv.em2ss_shift		= 2e-7;					/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
-	gv.bnd_filter_pc    = 10.0;					/** value of driving force the pseudocompound is considered 						*/
-	gv.bnd_filter_pge   = 2.5;					/** value of driving force the pseudocompound is considered 						*/
-	gv.max_G_pc         = 2.5;					/** dG under which PC is considered after their generation		 					*/
-	gv.eps_sf_pc		= 1e-12;				/** Minimum value of site fraction under which PC is rejected, 
+	gv.em2ss_shift			=  2e-7;				/** small value to shift x-eos of pure endmember from bounds after levelling 		*/
+	gv.bnd_filter_pc    	=  10.0;				/** value of driving force the pseudocompound is considered 						*/
+	gv.bnd_filter_pge   	=  2.5;					/** value of driving force the pseudocompound is considered 						*/
+	gv.max_G_pc         	=  2.5;					/** dG under which PC is considered after their generation		 					*/
+	gv.eps_sf_pc			=  1e-12;				/** Minimum value of site fraction under which PC is rejected, 
 													don't put it too high as it will conflict with bounds of x-eos					*/
 
 	/* PGE LP pseudocompounds parameters */
-	gv.launch_PGE 		= 0;
-	gv.n_pc 			= 8192;
-	gv.n_Ppc			= 8192;
-	gv.max_LP_ite 		= 512;
-	gv.save_Ppc_val     = 0.0; 					/** During PGE iterations, if the driving force is < save_Ppc_val, then the 
+	gv.launch_PGE 			=  0;
+	gv.n_pc 				=  8192;
+	gv.n_Ppc				=  8192;
+	gv.max_LP_ite 			=  512;
+	gv.save_Ppc_val     	=  0.0; 				/** During PGE iterations, if the driving force is < save_Ppc_val, then the 
 													pseudocompound is added to the Ppc list 										*/
 
 	/* local minimizer options 	*/
-	gv.bnd_val          = 1.0e-6;				/** boundary value for x-eos 										 				*/
-	gv.box_size_mode_PGE= 0.25;					/** box edge size of the compositional variables used during PGE local minimization */
-	gv.maxeval   		= 1024;					/** max number of evaluation of the obj function for mode 1 (PGE)					*/
-	gv.maxgmTime        = 0.1; 					/** set a maximum minimization time for the local minimizer (sec)					*/
-	gv.box_size_mode_LP	= 1.0;					/** box edge size of the compositional variables used during PGE local minimization */
+	gv.bnd_val          	=  1.0e-6;				/** boundary value for x-eos 										 				*/
+	gv.box_size_mode_PGE	=  0.25;				/** box edge size of the compositional variables used during PGE local minimization */
+	gv.maxeval   			=  1024;				/** max number of evaluation of the obj function for mode 1 (PGE)					*/
+	gv.maxgmTime        	=  0.1; 				/** set a maximum minimization time for the local minimizer (sec)					*/
+	gv.box_size_mode_LP		=  1.0;					/** box edge size of the compositional variables used during PGE local minimization */
 
 	/* "liq" redundant-occurrence pseudocompound synthesis (gh and tc) */
 	gv.n_max_val 					= 3;	 		/** controls the max number of minimization per identical phases */
 	gv.act_rMELTS_liq_pc_synth      = 64;	     	/** number of global iterations steps before lienar discretization of the PC generation */
 	gv.liq_pc_synth_active			= 1;			/** 1: composite method active; 0: fully disabled, legacy per-occurrence NLopt path 	*/
-	gv.gh_liq_pc_synth_h			= 1e-2;			/** base xeos step size for the synthetic pseudocompound spread - actual step used
-													    is this * sqrt(gv.gamma_norm[.]), clamped to [1e-6, 1e-2] (see GH_liq_pc_synth_step) */
 	gv.gh_liq_pc_synth_threshold	= 2;			/** n_ss_ph[liq] above which the composite (1 real solve + synthesis) method fires 	*/
 
 	/* set of parameters to record the evolution of the norm of the mass constraint */
-	gv.it_1             = 128;                  /** first critical iteration                                                        */
-	gv.ur_1             = 4.;                   /** under relaxing factor on mass constraint if iteration is bigger than it_1       */
-	gv.it_2             = 160;                  /** second critical iteration                                                       */
-	gv.ur_2             = 8.;                   /** under relaxing factor on mass constraint if iteration is bigger than it_2       */
-	gv.it_3             = 192;                  /** third critical iteration                                                        */
-	gv.ur_3             = 16.;                  /** under relaxing factor on mass constraint if iteration is bigger than it_3       */
-	gv.it_f             = 256;                  /** gives back failure when the number of iteration is bigger than it_f             */
+	gv.it_1             	=  128;                  /** first critical iteration                                                        */
+	gv.ur_1             	=  4.;                   /** under relaxing factor on mass constraint if iteration is bigger than it_1       */
+	gv.it_2             	=  160;                  /** second critical iteration                                                       */
+	gv.ur_2             	=  8.;                   /** under relaxing factor on mass constraint if iteration is bigger than it_2       */
+	gv.it_3             	=  192;                  /** third critical iteration                                                        */
+	gv.ur_3             	=  16.;                  /** under relaxing factor on mass constraint if iteration is bigger than it_3       */
+	gv.it_f             	=  256;                  /** gives back failure when the number of iteration is bigger than it_f             */
 
 	/* phase update options 			*/
-	gv.min_df 			= -1e-6;				/** value under which a phase in hold is reintroduced 								*/
-	gv.re_in_df 		= -1e-6;
+	gv.min_df 				= -1e-6;				/** value under which a phase in hold is reintroduced 								*/
+	gv.re_in_df 			= -1e-6;
 	
 	/* numerical derivatives P,T steps (same value as TC) */
-	gv.gb_P_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
-	gv.gb_T_eps			= 2e-3;					/** small value to calculate V using finite difference: V = dG/dP;					*/
-	gv.poisson_ratio 	= 0.3;					/** poisson ratio to compute elastic shear modulus 									*/
+	gv.gb_P_eps				=  2e-3;				/** small value to calculate V using finite difference: V = dG/dP;					*/
+	gv.gb_T_eps				=  2e-3;				/** small value to calculate V using finite difference: V = dG/dP;					*/
+	gv.poisson_ratio 		=  0.3;					/** poisson ratio to compute elastic shear modulus 									*/
 
 	/* initialize other values 			*/
-	gv.mean_sum_xi		= 1.0;
-	gv.sigma_sum_xi		= 1.0;
-	gv.alpha        	= gv.max_fac;			/** active under-relaxing factor 													*/
-	gv.tot_min_time 	= 0.0;
-	gv.tot_time 		= 0.0;
-	gv.seismicScheme 	= 0;					/** 0: Voigt-Reuss-Hill, 1: Hashin-Shtrikman */
-	gv.seismicWeightFactor = 0.5;				/** 0->1: soft-to-stiff weight within chosen scheme. VRH: 0=Reuss, 0.5=classic VRH, 1=Voigt. HS: 0=HS-, 0.5=HS avg, 1=HS+. Default 0.5 preserves classic VRH. */
-	/* set default parameters (overwritten later from args)*/
-	gv.EM_database  	=  0; 					
-	gv.n_points 		=  1;
-	gv.solver   		=  2;					/* 0 -> Legacy, 1 = PGE, Hybrid PGE/LP */
-	gv.leveling_mode	=  0;
-	gv.verbose 			=  0;
-	gv.output_matlab 	=  0;
-	gv.test     		= -1;
-	gv.SB_eos			=  0;					/* 0 -> legacy (Perple_X-style), 1 -> burnman-style, 2 -> burnman-style + HeFESTo volume bounds */
-	gv.SB_eos_cor		=  1;					/* 0 -> legacy compute_G0() unchanged, 1 -> destabilize on non-convergence + tightened v/v0 bound */
+	gv.mean_sum_xi			=  1.0;
+	gv.sigma_sum_xi			=  1.0;
+	gv.alpha        		=  gv.max_fac;			/** active under-relaxing factor 													*/
+	gv.tot_min_time 		=  0.0;
+	gv.tot_time 			=  0.0;
+	gv.seismicScheme 		=  0;					/** 0: Voigt-Reuss-Hill, 1: Hashin-Shtrikman */
+	gv.seismicWeightFactor 	=  0.5;					/** 0->1: soft-to-stiff weight within chosen scheme. VRH: 0=Reuss, 0.5=classic VRH, 1=Voigt. HS: 0=HS-, 0.5=HS avg, 1=HS+. Default 0.5 preserves classic VRH. */
+	gv.EM_database  		=  0; 					
+	gv.n_points 			=  1;
+	gv.solver   			=  2;					/* 0 -> Legacy, 1 = PGE, Hybrid PGE/LP */
+	gv.DEW_solve_algorithm 	=  2;              		/** 0: original plain Picard DEW inner solver (default), 1: damped/mixed variant, 2: plain Picard + Newton-safeguarded-by-bisection mu_Hp solve - see DEW_aq_solver.c */
+	gv.warm_start			=  1;					/** 1 (default): DEW outer-PGE warm start active, 0: disabled (always re-explore the full 8-start multistart grid) - see NLopt_opt_DEW_function */
+	gv.leveling_mode		=  0;
+	gv.verbose 				=  0;
+	gv.output_matlab 		=  0;
+	gv.test     			= -1;
+	gv.SB_eos				=  0;					/* 0 -> legacy (Perple_X-style), 1 -> burnman-style, 2 -> burnman-style + HeFESTo volume bounds */
+	gv.SB_eos_cor			=  1;					/* 0 -> legacy compute_G0() unchanged, 1 -> destabilize on non-convergence + tightened v/v0 bound */
 
 	/* default PT conditions for test */
-	z_b->P 				= 12.0;		
-	z_b->T 				= 1100.0 + 273.15;		
-	z_b->R 				= 0.0083144;
+	z_b->P 					=  12.0;		
+	z_b->T 					=  1100.0 + 273.15;		
+	z_b->R 					=  0.0083144;
 
-	strcpy(gv.File,				"none"); 	/** Filename to be read to have multiple P-T-bulk conditions to solve 	*/
-	strcpy(gv.sys_in,			"mol"); 	/** system unit 														*/
-	strcpy(gv.db,				"ig"); 		/** database															*/
-	strcpy(gv.research_group,	"tc"); 		/** Research group, THERMOCALC(tc) or  Stixrude-Lithgow-Bertelloni(sb)	*/
+	strcpy(gv.File,				"none"); 			/** Filename to be read to have multiple P-T-bulk conditions to solve 	*/
+	strcpy(gv.sys_in,			"mol"); 			/** system unit 														*/
+	strcpy(gv.db,				"ig"); 				/** database															*/
+	strcpy(gv.research_group,	"tc"); 				/** Research group, THERMOCALC(tc) or  Stixrude-Lithgow-Bertelloni(sb)	*/
 
 	return gv;
 }
@@ -357,26 +359,36 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 	sp.SS 		 			= malloc(gv.len_ox  * sizeof(stb_SS_phase)		); 
 	sp.mSS 		 			= malloc(gv.max_n_mSS  * sizeof(mstb_SS_phase)	); 
 
+	/* gv.len_ox*3 sufficed for every phase up to aq17; DEW (DEW2019 aqueous
+	   model) can need up to gv.max_ss_size_cp endmembers regardless of len_ox (its
+	   species count comes from the DEW database, not the oxide system), so this is
+	   sized against whichever bound is larger. Shared by both the sp.SS[] loop below
+	   and the sp.mSS[] loop further down (same DEW-sized-endmember situation). */
+	int n_max_pc = (gv.len_ox*3 > gv.max_ss_size_cp) ? gv.len_ox*3 : gv.max_ss_size_cp;
+
 	for (int n = 0; n< gv.len_ox; n++){
 		sp.PP[n].Comp 			= malloc(gv.len_ox 	* sizeof(double)		);
 		sp.SS[n].Comp 			= malloc(gv.len_ox 	* sizeof(double)		);
 		sp.PP[n].Comp_wt 		= malloc(gv.len_ox 	* sizeof(double)		);
 		sp.SS[n].Comp_wt 		= malloc(gv.len_ox 	* sizeof(double)		);
 		sp.PP[n].Comp_apfu		= malloc(gv.len_ox 	* sizeof(double)		);
-		sp.SS[n].Comp_apfu		= malloc(gv.len_ox 	* sizeof(double)		);        
-		sp.SS[n].compVariables	= malloc(gv.len_ox*3   * sizeof(double)	    );
-        sp.SS[n].siteFractions	= malloc(gv.len_ox*3   * sizeof(double)	    );
-		sp.SS[n].emFrac			= malloc((gv.len_ox*3) * sizeof(double)		);
-		sp.SS[n].emFrac_wt		= malloc((gv.len_ox*3) * sizeof(double)		);
-		sp.SS[n].emChemPot		= malloc((gv.len_ox*3) * sizeof(double)		);
-		sp.SS[n].compVariablesNames	= malloc(gv.len_ox*3 * sizeof(char*)	);
-		sp.SS[n].siteFractionsNames	= malloc(gv.len_ox*3 * sizeof(char*)	);
-		sp.SS[n].emNames 	    = malloc((gv.len_ox*3) * sizeof(char*)		);
-		sp.SS[n].emComp 	    = malloc((gv.len_ox*3) * sizeof(double*)	);
-		sp.SS[n].emComp_wt 	    = malloc((gv.len_ox*3) * sizeof(double*)	);
-        sp.SS[n].emComp_apfu    = malloc((gv.len_ox*3) * sizeof(double*)	);
+		sp.SS[n].Comp_apfu		= malloc(gv.len_ox 	* sizeof(double)		);
 
-		for (int i = 0; i < gv.len_ox*3; i++){
+		sp.SS[n].compVariables	= malloc(n_max_pc   * sizeof(double)	    );
+        sp.SS[n].siteFractions	= malloc(n_max_pc   * sizeof(double)	    );
+		sp.SS[n].emFrac			= malloc(n_max_pc * sizeof(double)		);
+		sp.SS[n].emFrac_wt		= malloc(n_max_pc * sizeof(double)		);
+		sp.SS[n].emChemPot		= malloc(n_max_pc * sizeof(double)		);
+		sp.SS[n].molality		= malloc(n_max_pc * sizeof(double)		);
+		sp.SS[n].activity		= malloc(n_max_pc * sizeof(double)		);
+		sp.SS[n].compVariablesNames	= malloc(n_max_pc * sizeof(char*)	);
+		sp.SS[n].siteFractionsNames	= malloc(n_max_pc * sizeof(char*)	);
+		sp.SS[n].emNames 	    = malloc(n_max_pc * sizeof(char*)		);
+		sp.SS[n].emComp 	    = malloc(n_max_pc * sizeof(double*)	);
+		sp.SS[n].emComp_wt 	    = malloc(n_max_pc * sizeof(double*)	);
+        sp.SS[n].emComp_apfu    = malloc(n_max_pc * sizeof(double*)	);
+
+		for (int i = 0; i < n_max_pc; i++){
             sp.SS[n].compVariablesNames[i]		= malloc(20 * sizeof(char)	);
             sp.SS[n].siteFractionsNames[i]		= malloc(20 * sizeof(char)	);
 			sp.SS[n].emNames[i]		= malloc(20 * sizeof(char)				);
@@ -386,15 +398,21 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 		}
 	}
     
-    /** allocate memory for metastable phases len_ox * 2 to be safe?        */
+    /** allocate memory for metastable phases. p_Ppc/mu_Ppc/xeos_Ppc are written up to
+        SS_ref_db[ph_id].n_em/n_xeos in dump_function.c's mSS_output_struct - same
+        "DEW can need far more slots than len_ox*2" situation as sp.SS[n] above (a
+        heap-buffer-overflow WRITE confirmed via AddressSanitizer here: mpe's DEW has
+        up to ~101 endmembers against a len_ox*2=26 allocation), so sized against the same
+        n_max_pc bound for consistency - comp_Ppc stays len_ox-sized since it's only ever
+        indexed by oxide, not by endmember. */
 	for (int n = 0; n< gv.max_n_mSS; n++){
         sp.mSS[n].ph_name	    = malloc(20 * sizeof(char)	                );
         sp.mSS[n].ph_type	    = malloc(20 * sizeof(char)	                );
         sp.mSS[n].info	        = malloc(20 * sizeof(char)	                );
-        sp.mSS[n].comp_Ppc 	    = malloc((gv.len_ox) 	* sizeof(double)	);  
-        sp.mSS[n].p_Ppc 	    = malloc((gv.len_ox*2) 	* sizeof(double)	);  
-        sp.mSS[n].mu_Ppc 	    = malloc((gv.len_ox*2) 	* sizeof(double)	);  
-        sp.mSS[n].xeos_Ppc 	    = malloc((gv.len_ox*2) 	* sizeof(double)	);  
+        sp.mSS[n].comp_Ppc 	    = malloc((gv.len_ox) 	* sizeof(double)	);
+        sp.mSS[n].p_Ppc 	    = malloc(n_max_pc 	* sizeof(double)	);
+        sp.mSS[n].mu_Ppc 	    = malloc(n_max_pc 	* sizeof(double)	);
+        sp.mSS[n].xeos_Ppc 	    = malloc(n_max_pc 	* sizeof(double)	);
 	}
 
 	return sp;
@@ -424,6 +442,7 @@ SS_ref G_SS_init_EM_function(		SS_init_type		*SS_init,
 	int n_cat  = SS_ref_db.n_cat;
 
     SS_ref_db.orderVar       = 0;
+	SS_ref_db.dew_warm_ok    = 0;
 	SS_ref_db.fName 		 = malloc(20 * sizeof(char)		);		
 	SS_ref_db.EM_list 		 = malloc ((n_em) * sizeof (char*)	);
 	for (int i = 0; i < n_em; i++){ 
@@ -463,19 +482,34 @@ SS_ref G_SS_init_EM_function(		SS_init_type		*SS_init,
 		SS_ref_db.bounds[i] = malloc (2 * sizeof (double) );
 	}
 	
-	SS_ref_db.eye 			= malloc (n_em 			* sizeof (double*)); 
-	SS_ref_db.dp_dx 		= malloc (n_em 			* sizeof (double*)); 
-	SS_ref_db.Comp 			= malloc (n_em 			* sizeof (double*)); 
+	SS_ref_db.eye 			= malloc (n_em 			* sizeof (double*));
+	SS_ref_db.dp_dx 		= malloc (n_em 			* sizeof (double*));
+	SS_ref_db.Comp 			= malloc (n_em 			* sizeof (double*));
 	for (int i = 0; i < n_em; i++){
 		SS_ref_db.eye[i] 	= malloc (n_em	 		* sizeof (double) );
 		SS_ref_db.Comp[i] 	= malloc (gv.len_ox 	* sizeof (double) );
 		SS_ref_db.dp_dx[i] 	= malloc (n_xeos 		* sizeof (double) );
 	}
-	
+
+	/* DEW (DEW2019 aqueous model) needs each species' formation-reaction
+	   stoichiometry vs oxide components + H+, not just its mass-balance composition -
+	   see MAGEMin.h's SS_ref.mu_comp doc comment. NULL/unallocated for every other phase. */
+	if (strcmp(name, "DEW") == 0 || strcmp(name, "DEW_S14") == 0){
+		SS_ref_db.mu_comp = malloc (n_em * sizeof (double*));
+		for (int i = 0; i < n_em; i++){
+			SS_ref_db.mu_comp[i] = malloc ((gv.len_ox+1) * sizeof (double));
+		}
+	}
+	else{
+		SS_ref_db.mu_comp = NULL;
+	}
+
 	SS_ref_db.gbase   		= malloc (n_em   	 	* sizeof (double) ); 
 	SS_ref_db.gb_lvl  		= malloc (n_em   	 	* sizeof (double) ); 
 	SS_ref_db.z_em    		= malloc (n_em   	 	* sizeof (double) ); 
 	SS_ref_db.d_em    		= malloc (n_em   	 	* sizeof (double) );
+	SS_ref_db.ox_penalty 	= malloc (n_em   	 	* sizeof (double) );
+	for (int i = 0; i < n_em; i++){ SS_ref_db.ox_penalty[i] = 0.0; }
 	SS_ref_db.density 		= malloc (n_em   	 	* sizeof (double) ); 
 	SS_ref_db.dguess 		= malloc (n_xeos 		* sizeof (double) );
 	SS_ref_db.iguess  		= malloc (n_xeos   	  	* sizeof (double) );
@@ -1096,6 +1130,7 @@ void reset_SS(						global_variable 	 gv,
 			SS_ref_db[iss].gbase[j]      = 0.0;
 			SS_ref_db[iss].xi_em[j]      = 0.0;
 			SS_ref_db[iss].d_em[j]       = 0.0;
+			SS_ref_db[iss].ox_penalty[j] = 0.0;
 			SS_ref_db[iss].z_em[j]       = 1.0;
 			SS_ref_db[iss].mu[j] 	     = 0.0;
 		}

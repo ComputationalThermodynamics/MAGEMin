@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Moccetti, N. B., Dominguez, H., Assunção J., Green E., Dolejš, D., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -28,158 +28,91 @@ Igneous dataset to use with tc-ds633.txt
 #include "../all_solution_phases.h"
 #include "../simplex_levelling.h"
 #include "../toolkit.h"
-
-
-em_data get_fs_data(	int             len_ox,
-						bulk_info 	    z_b,
-                        solvent_prop   *wat,
-                        double          P,
-                        double          T,
-						char 		   *name, 
-						char 		   *state		){
-
-	em_data data; 
-	PP_ref PP_db   		= G_FS_function(    len_ox,
-                                            wat,
-                                            z_b.id,
-                                            z_b.bulk_rock,
-                                            z_b.ElEntropy,
-                                            z_b.apo,
-                                            P,
-                                            T,
-                                            name,
-                                            state     );
-
-   	data.ElShearMod  	= PP_db.phase_shearModulus;
-   	data.gb  			= PP_db.gbase;
-    data.charge         = PP_db.charge;
-
-	for (int i = 0; i < len_ox; i++){
-		data.C[i] = PP_db.Comp[i];
-	}
-	return data;
-}
+#include "DEW_aq_solver.h"
 
 
 /**************************************************************************************/
-/* Import text file extracted from Miron et al. (2017) database:                      */
-/* aq17-thermofun.json from db.thermohub.org, v. 17.07.2021 16:49:29                  */
-/*--------------------------------------------------------------------------          */
-/* Miron, G. D., Wagner, T., Kulik, D. A., & Lothenbach, B. (2017). An                */
-/* internally consistent thermodynamic dataset for aqueous species in the             */
-/* system Ca-Mg-Na-K-Al-Si-OHC-Cl to 800 C and 5 kbar. American Journal               */
-/* of Science, 317(7), 755-806.                                                       */
-/* DOI: https://doi.org/10.2475/07.2017.01                                            */
+/* DEW2019 aqueous fluid ("DEW") - see TC_database/DEW_aq_solver.h.             */
+/* Reuses the already-verified init_DEW_aqueous_model_at_point (Phase 2-4) rather than */
+/* re-deriving gbase/composition here; this function's only job is copying that       */
+/* per-point species data into the SS_ref fields the rest of the pipeline expects.    */
+/* Water is kept LAST (index n_em-1), matching AQ_data's own convention throughout.    */
 /**************************************************************************************/
+SS_ref G_SS_DEW_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
 
-
-SS_ref G_SS_aq17_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
     int i, j;
     int n_em    = SS_ref_db.n_em;
     double eps2 = 1e-15;
-    // char   *EM_tmp[] 		= {"H2O","Al(OH)2+", "Al(OH)3@", "Al(OH)4-", "Al+3", "AlH3SiO4+2", "AlOH+2", "CO3-2", "CO@", "Ca+2", "CaCO3@", "CaCl+", "CaCl2@", "CaHCO3+", "CaHSiO3+", "CaOH+", "CaSiO3@", "Cl-", "HCO3-", "HCl@", "HSiO3-", "K+", "KAlO2@", "KCO3-", "KCl@", "KHCO3@", "KOH@", "Mg+2", "MgCO3@", "MgCl+", "MgCl2@", "MgHCO3+", "MgHSiO3+", "MgOH+", "MgSiO3@", "Na+", "NaAl(OH)4@", "NaCO3-", "NaCl@", "NaHCO3@", "NaHSiO3@", "NaOH@", "OH-", "SiO2@"};
-    char   *EM_tmp[] 		= {"H2O","Al(OH)2+", "Al(OH)3@", "Al(OH)4-", "Al+3", "AlH3SiO4+2", "AlOH+2", "Ca+2", "CaHSiO3+", "CaOH+", "CaSiO3@", "HSiO3-", "K+", "KAlO2@", "KOH@", "Mg+2", "MgHSiO3+", "MgOH+", "MgSiO3@", "Na+", "NaAl(OH)4@", "NaHSiO3@", "NaOH@", "OH-", "SiO2@"};
-    for (int i = 0; i < n_em; i++){
-        strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
-    };
 
-    solvent_prop wat;
+    strcpy(SS_ref_db.fName, "DEW_S14");   /* citation tag (Sverjensky et al. 2014 dielectric model), matching every other phase's G_SS_xxx_function setting fName - unset here left it as uninitialized malloc'd garbage, which crashed fill_output_struct's strcpy the first time a DEW instance was ever exercised */
 
-    rho_wat_calc(      &wat,
-                        SS_ref_db.P*1000.0,
-                        SS_ref_db.T,
-                        "WP"                           );
+    AQ_data AQ = init_DEW_aqueous_model_at_point(  DEW_N_SPECIES_DB,
+                                                    EM_dataset,
+                                                    len_ox,
+                                                    z_b.id,
+                                                    z_b.bulk_rock,
+                                                    z_b.apo,
+                                                    z_b.ElEntropy,
+                                                    SS_ref_db.P,
+                                                    SS_ref_db.T                );
 
-    char   solventOpt[] =  {"JN91"};
-
-    if (strcmp( solventOpt, "JN91") == 0){
-        propSolvent_JN91_calc(     &wat,
-                                    SS_ref_db.T         );
-    }
-    else if (strcmp( solventOpt, "FE97") == 0){
-        propSolvent_FE97_calc(     &wat,
-                                    SS_ref_db.P*1000.0,
-                                    SS_ref_db.T         );                                
-    }
-    else if (strcmp( solventOpt, "SV14") == 0){
-        propSolvent_SV14_calc(     &wat,
-                                    SS_ref_db.P*1000.0,
-                                    SS_ref_db.T         );
-    }
-    SS_ref_db.densityW      = wat.density;
-    SS_ref_db.g             = wat.g;
-    SS_ref_db.Z             = wat.Z;
-    SS_ref_db.epsilon       = wat.epsilon;
-
-    em_data species;
-
-    species 	= get_em_data(	    research_group,
-                                    EM_dataset, 
-                                    len_ox,
-                                    z_b,
-                                    SS_ref_db.P,
-                                    SS_ref_db.T,
-                                    "H2O", 
-                                    "equilibrium"	);
-
-    SS_ref_db.gbase[0] 		    = species.gb;
-    SS_ref_db.z_em[0]           = 1.0;
-    SS_ref_db.ElShearMod[0] 	= 0.0;
-    SS_ref_db.bounds_ref[0][0]  = 0.0+eps2;  SS_ref_db.bounds_ref[0][1] = 1.0-eps2;
-    SS_ref_db.mat_phi[0]        = 0.0; //serve to store charge here
-
-    for (j = 0; j < len_ox; j++){
-        SS_ref_db.Comp[0][j] 	= species.C[j];
+    if (AQ.n_sp + 1 != n_em){
+        printf(" DEW: active species count changed since init (%d+1 != %d) - the active oxide set must be identical for every point in a run\n", AQ.n_sp, n_em);
     }
 
-    /* start at 1, as 0 is water */
-    for (i = 1; i < n_em; i++){
+    SS_ref_db.densityW = AQ.rho_w;
+    SS_ref_db.g         = 0.0;   /* DEW has its own gSolvent/epsilon (TC_gem_function.c) - kept 0 here to avoid a stale/misleading value */
+    SS_ref_db.Z          = 0.0;
+    SS_ref_db.epsilon    = 0.0;
 
-        species 	= get_fs_data(	len_ox,
-                                    z_b,
-                                    &wat,
-                                    SS_ref_db.P,
-                                    SS_ref_db.T,
-                                    SS_ref_db.EM_list[i], 
-                                    "equilibrium"	);
+    /* xeos and site fractions are both just the mole fraction of each endmember for
+       DEW (n_xeos == n_em == n_sf, no separate compositional-variable transform,
+       p[i]=x[i] directly) - CV_list/SF_list reuse the species names accordingly. Every
+       other (actually-exercised) phase populates both of these from a static name
+       table; leaving them unset here left them as uninitialized malloc'd garbage, which
+       crashed fill_output_struct's strcpy the first time a DEW instance was ever
+       exercised (same class of bug as fName, just two more instances of it). */
+    for (i = 0; i < AQ.n_sp; i++){
+        strcpy(SS_ref_db.EM_list[i], AQ.em_names[i]);
+        strcpy(SS_ref_db.CV_list[i], AQ.em_names[i]);
+        strcpy(SS_ref_db.SF_list[i], AQ.em_names[i]);
+        SS_ref_db.gbase[i]         = AQ.gbase[i];
+        SS_ref_db.z_em[i]          = 1.0;
+        SS_ref_db.ElShearMod[i]    = 0.0;
+        SS_ref_db.bounds_ref[i][0] = 0.0+eps2;  SS_ref_db.bounds_ref[i][1] = 1.0-eps2;
+        SS_ref_db.mat_phi[i]       = AQ.z[i];   /* charge */
+        for (j = 0; j < len_ox; j++){    SS_ref_db.Comp[i][j]    = AQ.em_comp[i][j]; }
+        for (j = 0; j <= len_ox; j++){   SS_ref_db.mu_comp[i][j] = AQ.mu_comp[i][j]; }
 
-        SS_ref_db.gbase[i] 		    = species.gb;
-        SS_ref_db.z_em[i]           = 1.0;
-        SS_ref_db.ElShearMod[i] 	= 0.0;
-        SS_ref_db.bounds_ref[i][0]  = 0.0+eps2;  SS_ref_db.bounds_ref[i][1] = 1.0-eps2;
-        SS_ref_db.mat_phi[i]        = species.charge; //serves to store charge here
-
+        int touches_other_zero = 0;
         for (j = 0; j < len_ox; j++){
-            SS_ref_db.Comp[i][j] 	= species.C[j];
+            if (j == z_b.O_id){ continue; }
+            if (z_b.bulk_rock[j] == 0. && AQ.em_comp[i][j] != 0.){ touches_other_zero = 1; break; }
         }
-    };
 
-
-    /* copy molar elemental entropy */
-    for(int i = 0; i < len_ox; i++){
-        SS_ref_db.ElEntropy[i] = z_b.ElEntropy[i];
+        int mu_depends_on_O = (z_b.O_id >= 0 && z_b.bulk_rock[z_b.O_id] == 0. && AQ.mu_comp[i][z_b.O_id] != 0.);
+        if (touches_other_zero || mu_depends_on_O){
+            SS_ref_db.gbase[i] = 1.0e6;
+        }
     }
-    SS_ref_db.len_ox           = len_ox;
 
-	// if (z_b.bulk_rock[10] == 0.){ 					
-	// 	SS_ref_db.z_em[14]          = 0.0;
-	// 	SS_ref_db.bounds_ref[9][0] = eps; 
-	// 	SS_ref_db.bounds_ref[9][1] = eps;	
-	// }
-	// if (z_b.bulk_rock[9] == 0.){ 					
-	// 	SS_ref_db.z_em[7]          = 0.0;
-    //     SS_ref_db.d_em[7]          = 1.0;
-	// 	SS_ref_db.bounds_ref[6][0] = 0.0; 
-	// 	SS_ref_db.bounds_ref[6][1] = 0.0;	
-	// }
-	// if (z_b.bulk_rock[8] == 0.){ 					
-	// 	SS_ref_db.z_em[6]          = 0.0;
-    //     SS_ref_db.d_em[6]          = 1.0;
-	// 	SS_ref_db.bounds_ref[5][0] = 0.0; 
-	// 	SS_ref_db.bounds_ref[5][1] = 0.0;	
-	// }
+    /* water row, last index */
+    int iw = AQ.n_sp;
+    strcpy(SS_ref_db.EM_list[iw], "H2O");
+    strcpy(SS_ref_db.CV_list[iw], "H2O");
+    strcpy(SS_ref_db.SF_list[iw], "H2O");
+    SS_ref_db.gbase[iw]         = AQ.gb_w;
+    SS_ref_db.z_em[iw]          = 1.0;
+    SS_ref_db.ElShearMod[iw]    = 0.0;
+    SS_ref_db.bounds_ref[iw][0] = 0.0+eps2;  SS_ref_db.bounds_ref[iw][1] = 1.0-eps2;
+    SS_ref_db.mat_phi[iw]       = 0.0;
+    for (j = 0; j < len_ox; j++){    SS_ref_db.Comp[iw][j]    = AQ.em_comp[iw][j]; }
+    for (j = 0; j <= len_ox; j++){   SS_ref_db.mu_comp[iw][j] = AQ.mu_comp[iw][j]; }
 
+    for (i = 0; i < len_ox; i++){ SS_ref_db.ElEntropy[i] = z_b.ElEntropy[i]; }
+    SS_ref_db.len_ox = len_ox;
+
+    free_DEW_aqueous_model(&AQ);
 
     return SS_ref_db;
 }
@@ -195,10 +128,15 @@ SS_ref G_SS_aq17_function(SS_ref SS_ref_db, char* research_group, int EM_dataset
    retrieve reference thermodynamic data for igd_liq
 */
 SS_ref G_SS_igd_liq_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    /* fName was left unset (see G_SS_mpe_carp_function's fix for why that's a real
+       heap-buffer-overflow, not cosmetic) - igd mirrors igad's byte-identical liq algebra,
+       so reuses igad_liq's own tag. */
+    strcpy(SS_ref_db.fName,"liq_W24d");
+
     int i, j;
     int n_em = SS_ref_db.n_em;
-    
+
+
     char   *EM_tmp[] 		= {"q3L","sl1L","wo1L","fo2L","fa2L","neL","hmL","ekL","tiL","kjL","anL","ab1L","enL","kfL"};
     for (int i = 0; i < SS_ref_db.n_em; i++){
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
@@ -469,30 +407,58 @@ SS_ref G_SS_igd_liq_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[11][0] = 0.0+eps;  SS_ref_db.bounds_ref[11][1] = 1.0-eps;
     SS_ref_db.bounds_ref[12][0] = 0.0+eps;  SS_ref_db.bounds_ref[12][1] = 1.0-eps;
     
-	if (z_b.bulk_rock[9] == 0.){ 					
+	if (z_b.bulk_rock[z_b.Cr2O3_id] == 0.){ 					
 		SS_ref_db.z_em[7]          = 0.0;
         SS_ref_db.d_em[7]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
 		SS_ref_db.bounds_ref[6][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[6]          = 0.0;
         SS_ref_db.d_em[6]          = 1.0;
 		SS_ref_db.bounds_ref[5][0] = 0.0; 
 		SS_ref_db.bounds_ref[5][1] = 0.0;	
 	}	
-    if (z_b.bulk_rock[7] == 0.){ 					
+    if (z_b.bulk_rock[z_b.TiO2_id] == 0.){
 		SS_ref_db.z_em[8]          = 0.0;
         SS_ref_db.d_em[8]          = 1.0;
-		SS_ref_db.bounds_ref[7][0] = 0.0; 
-		SS_ref_db.bounds_ref[7][1] = 0.0;	
+		SS_ref_db.bounds_ref[7][0] = 0.0;
+		SS_ref_db.bounds_ref[7][1] = 0.0;
 	}
-    // if (z_b.bulk_rock[5] == 0.){ 					
-	// 	SS_ref_db.z_em[9]          = 0.0;
-    //     SS_ref_db.d_em[9]          = 1.0;
-	// 	SS_ref_db.bounds_ref[8][0] = 0.0; 
-	// 	SS_ref_db.bounds_ref[8][1] = 0.0;	
-	// }
+	/* CaO: wo1L (p[2]=x0*(...)-x9) and anL (p[10]=x9, bare) - dual-pin x0("wo") AND x9("yan") */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[2]          = 0.0;
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 0.0;
+		SS_ref_db.bounds_ref[0][1] = 0.0;
+		SS_ref_db.z_em[10]         = 0.0;
+        SS_ref_db.d_em[10]         = 1.0;
+		SS_ref_db.bounds_ref[9][0] = 0.0;
+		SS_ref_db.bounds_ref[9][1] = 0.0;
+	}
+	/* Na2O: neL (p[5]=x4*(...)-x10) and ab1L (p[11]=x10, bare) - dual-pin x4("ne") AND x10("yab") */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[5]          = 0.0;
+        SS_ref_db.d_em[5]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0;
+		SS_ref_db.bounds_ref[4][1] = 0.0;
+		SS_ref_db.z_em[11]         = 0.0;
+        SS_ref_db.d_em[11]         = 1.0;
+		SS_ref_db.bounds_ref[10][0] = 0.0;
+		SS_ref_db.bounds_ref[10][1] = 0.0;
+	}
+	/* K2O: kjL (p[9]=x8*(...)-x12) and kfL (p[13]=x12, bare) - dual-pin x8("kj") AND x12("ykf") */
+	if (z_b.bulk_rock[z_b.K2O_id] == 0.){
+		SS_ref_db.z_em[9]          = 0.0;
+        SS_ref_db.d_em[9]          = 1.0;
+		SS_ref_db.bounds_ref[8][0] = 0.0;
+		SS_ref_db.bounds_ref[8][1] = 0.0;
+		SS_ref_db.z_em[13]         = 0.0;
+        SS_ref_db.d_em[13]         = 1.0;
+		SS_ref_db.bounds_ref[12][0] = 0.0;
+		SS_ref_db.bounds_ref[12][1] = 0.0;
+	}
+
     return SS_ref_db;
 }
 
@@ -500,10 +466,13 @@ SS_ref G_SS_igd_liq_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for igd_fsp
 */
 SS_ref G_SS_igd_fsp_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    /* fName was left unset - see G_SS_mpe_carp_function's fix. Reuses igad_fsp's own tag. */
+    strcpy(SS_ref_db.fName,"fsp_H22");
+
     int i, j;
     int n_em = SS_ref_db.n_em;
-    
+
+
     char   *EM_tmp[] 		= {"ab","an","san","op"};
     for (int i = 0; i < SS_ref_db.n_em; i++){
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
@@ -583,7 +552,72 @@ SS_ref G_SS_igd_fsp_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
-    
+
+	/* an=p[1]=x0-0.5*x2 (CaO), san=p[2]=x1 (K2O, bare, independent), op=p[3]=x2 (order
+	   parameter, "y") is BOTH Ca- and Na-bearing (op=0.5*ab+0.5*an structurally, a fixed
+	   50/50 mix - it cannot exist unless BOTH CaO!=0 AND Na2O!=0), ab=p[0]=1-x0-x1-0.5*x2
+	   (Na2O, baseline). x2 must be pinned to 0 whenever EITHER CaO OR Na2O is zero. Given
+	   x2=0, an=x0 (so CaO=0 also needs x0=0) and ab=1-x0-x1 (so Na2O=0 needs x0+x1=1, a
+	   linear constraint - box-representable only when x0 or x1 is independently pinned by
+	   CaO or K2O respectively). Same combined-pin logic as ig/mb/mp/igad's simpler 3-em
+	   fsp, extended with the extra x2 term. */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0. && z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[1]          = 0.0;
+		SS_ref_db.d_em[1]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 0.0;
+		SS_ref_db.bounds_ref[0][1] = 0.0;
+		SS_ref_db.z_em[3]          = 0.0;
+		SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+		SS_ref_db.z_em[0]          = 0.0;
+		SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 1.0;
+		SS_ref_db.bounds_ref[1][1] = 1.0;
+	}
+	else if (z_b.bulk_rock[z_b.K2O_id] == 0. && z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[2]          = 0.0;
+		SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;
+		SS_ref_db.bounds_ref[1][1] = 0.0;
+		SS_ref_db.z_em[3]          = 0.0;
+		SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+		SS_ref_db.z_em[0]          = 0.0;
+		SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 1.0;
+		SS_ref_db.bounds_ref[0][1] = 1.0;
+	}
+	else {
+		if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+			SS_ref_db.z_em[1]          = 0.0;
+			SS_ref_db.d_em[1]          = 1.0;
+			SS_ref_db.bounds_ref[0][0] = 0.0;
+			SS_ref_db.bounds_ref[0][1] = 0.0;
+			SS_ref_db.z_em[3]          = 0.0;
+			SS_ref_db.d_em[3]          = 1.0;
+			SS_ref_db.bounds_ref[2][0] = 0.0;
+			SS_ref_db.bounds_ref[2][1] = 0.0;
+		}
+		if (z_b.bulk_rock[z_b.K2O_id] == 0.){
+			SS_ref_db.z_em[2]          = 0.0;
+			SS_ref_db.d_em[2]          = 1.0;
+			SS_ref_db.bounds_ref[1][0] = 0.0;
+			SS_ref_db.bounds_ref[1][1] = 0.0;
+		}
+		if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+			SS_ref_db.z_em[3]          = 0.0;
+			SS_ref_db.d_em[3]          = 1.0;
+			SS_ref_db.bounds_ref[2][0] = 0.0;
+			SS_ref_db.bounds_ref[2][1] = 0.0;
+			double na_penalty_coeff = 1.0e6;
+			for (i = 0; i < n_em; i++){
+				SS_ref_db.ox_penalty[i] += na_penalty_coeff * SS_ref_db.Comp[i][z_b.Na2O_id];
+			}
+		}
+	}
+
     return SS_ref_db;
 }
 
@@ -591,10 +625,10 @@ SS_ref G_SS_igd_fsp_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for igd_spl
 */
 SS_ref G_SS_igd_spl_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"spl_T21");
     int i, j;
     int n_em = SS_ref_db.n_em;
-    
+
     char   *EM_tmp[] 		= {"nsp","isp","nhc","ihc","nmt","imt","pcr","usp"};
     for (int i = 0; i < SS_ref_db.n_em; i++){
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
@@ -732,13 +766,13 @@ SS_ref G_SS_igd_spl_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[5][0] = -1.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
     SS_ref_db.bounds_ref[6][0] = -1.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
     
-	if (z_b.bulk_rock[9] == 0.){ 
+	if (z_b.bulk_rock[z_b.Cr2O3_id] == 0.){ 
 		SS_ref_db.z_em[6]          = 0.0;
 		SS_ref_db.d_em[6]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.z_em[5]          = 0.0;
@@ -748,7 +782,7 @@ SS_ref G_SS_igd_spl_function(SS_ref SS_ref_db, char* research_group, int EM_data
 		SS_ref_db.bounds_ref[1][0] = 0.0; 
 		SS_ref_db.bounds_ref[1][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[7] == 0.){ 					
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 					
 		SS_ref_db.z_em[7]          = 0.0;
         SS_ref_db.d_em[7]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
@@ -768,10 +802,10 @@ SS_ref G_SS_igd_spl_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for igd_g
 */
 SS_ref G_SS_igd_g_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"g_W24");
     int i, j;
     int n_em = SS_ref_db.n_em;
-    
+
     char   *EM_tmp[] 		= {"py","alm","gr","andr","knr","tig"};
     for (int i = 0; i < SS_ref_db.n_em; i++){
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
@@ -910,17 +944,36 @@ SS_ref G_SS_igd_g_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[9] == 0.){ 					
+	if (z_b.bulk_rock[z_b.Cr2O3_id] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
 		SS_ref_db.bounds_ref[3][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
-		SS_ref_db.bounds_ref[2][0] = 0.0; 
-		SS_ref_db.bounds_ref[2][1] = 0.0;	
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+	}
+	/* CaO: gr (p[2]=x1-x2) and andr (p[3]=x2, bare, andradite is itself a Ca-Fe3+
+	   garnet so needs Ca regardless of O) - dual-pin x1("c") AND x2("f", O's own trigger) */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[2]          = 0.0;
+		SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;
+		SS_ref_db.bounds_ref[1][1] = 0.0;
+		SS_ref_db.z_em[3]          = 0.0;
+		SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+	}
+	/* TiO2: tig (p[5]=4*x4, bare) - clean single pin x4("t") */
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){
+		SS_ref_db.z_em[5]          = 0.0;
+		SS_ref_db.d_em[5]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0;
+		SS_ref_db.bounds_ref[4][1] = 0.0;
 	}
     return SS_ref_db;
 }
@@ -929,10 +982,10 @@ SS_ref G_SS_igd_g_function(SS_ref SS_ref_db, char* research_group, int EM_datase
    retrieve reference thermodynamic data for igd_ol
 */
 SS_ref G_SS_igd_ol_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"ol_H18");
     int i, j;
     int n_em = SS_ref_db.n_em;
-    
+
     char   *EM_tmp[] 		= {"mnt","fa","fo","cfm"};
     for (int i = 0; i < SS_ref_db.n_em; i++){
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
@@ -1006,7 +1059,15 @@ SS_ref G_SS_igd_ol_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
-    
+
+	/* CaO: mnt (p[0]=x1, bare) - clean single pin x1("c") */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[0]          = 0.0;
+		SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;
+		SS_ref_db.bounds_ref[1][1] = 0.0;
+	}
+
     return SS_ref_db;
 }
 
@@ -1014,10 +1075,10 @@ SS_ref G_SS_igd_ol_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for igd_opx
 */
 SS_ref G_SS_igd_opx_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"opx_W24");
     int i, j;
     int n_em = SS_ref_db.n_em;
-    
+
     char   *EM_tmp[] 		= {"en","fs","fm","odi","mgts","cren","obuf","mess","ojd"};
     for (int i = 0; i < SS_ref_db.n_em; i++){
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
@@ -1208,23 +1269,37 @@ SS_ref G_SS_igd_opx_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[6][0] = 0.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
     SS_ref_db.bounds_ref[7][0] = 0.0+eps;  SS_ref_db.bounds_ref[7][1] = 1.0-eps;
     
-	if (z_b.bulk_rock[9] == 0.){ 					
+	if (z_b.bulk_rock[z_b.Cr2O3_id] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
 		SS_ref_db.bounds_ref[6][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[7]          = 0.0;
         SS_ref_db.d_em[7]          = 1.0;
 		SS_ref_db.bounds_ref[4][0] = 0.0; 
 		SS_ref_db.bounds_ref[4][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[7] == 0.){ 					
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){
 		SS_ref_db.z_em[6]          = 0.0;
         SS_ref_db.d_em[6]          = 1.0;
-		SS_ref_db.bounds_ref[5][0] = 0.0; 
-		SS_ref_db.bounds_ref[5][1] = 0.0;	
+		SS_ref_db.bounds_ref[5][0] = 0.0;
+		SS_ref_db.bounds_ref[5][1] = 0.0;
+	}
+	/* CaO: odi (p[3]=x2, bare) - clean single pin x2("c") */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[3]          = 0.0;
+		SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+	}
+	/* Na2O: ojd (p[8]=x7, bare) - clean single pin x7("j") */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[8]          = 0.0;
+		SS_ref_db.d_em[8]          = 1.0;
+		SS_ref_db.bounds_ref[7][0] = 0.0;
+		SS_ref_db.bounds_ref[7][1] = 0.0;
 	}
     return SS_ref_db;
 }
@@ -1233,10 +1308,10 @@ SS_ref G_SS_igd_opx_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for igd_cpx
 */
 SS_ref G_SS_igd_cpx_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"cpx_W24");
     int i, j;
     int n_em = SS_ref_db.n_em;
-    
+
     char   *EM_tmp[] 		= {"di","cfs","cats","crdi","cess","cbuf","jd","cen","cfm","kjd"};
     for (int i = 0; i < SS_ref_db.n_em; i++){
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
@@ -1458,30 +1533,46 @@ SS_ref G_SS_igd_cpx_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[7][0] = 0.0+eps;  SS_ref_db.bounds_ref[7][1] = 1.0-eps;
     SS_ref_db.bounds_ref[8][0] = 0.0+eps;  SS_ref_db.bounds_ref[8][1] = 1.0-eps;
         
-	if (z_b.bulk_rock[9] == 0.){ 					
+	if (z_b.bulk_rock[z_b.Cr2O3_id] == 0.){ 					
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
 		SS_ref_db.bounds_ref[6][1] = 0.0;	
 	}
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[5][0] = 0.0; 
 		SS_ref_db.bounds_ref[5][1] = 0.0;	
 	}
-  	if (z_b.bulk_rock[7] == 0.){ 					
+  	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[7][0] = 0.0; 
 		SS_ref_db.bounds_ref[7][1] = 0.0;	
 	} 
-    if (z_b.bulk_rock[5] == 0.){ 					
+    if (z_b.bulk_rock[z_b.K2O_id] == 0.){
 		SS_ref_db.z_em[9]          = 0.0;
         SS_ref_db.d_em[9]          = 1.0;
-		SS_ref_db.bounds_ref[8][0] = 0.0; 
-		SS_ref_db.bounds_ref[8][1] = 0.0;	
+		SS_ref_db.bounds_ref[8][0] = 0.0;
+		SS_ref_db.bounds_ref[8][1] = 0.0;
+	}
+	/* Na2O: jd (p[6]=x3, bare) - clean single pin x3("n") */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[6]          = 0.0;
+		SS_ref_db.d_em[6]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+	}
+	/* CaO: di is the unpinnable baseline; crdi/cess/cbuf are independent bare xeos
+	   pins but their real Comp[][] still carries genuine Ca (built from cats+... reaction
+	   terms) - same entangled-baseline shape as ig/mb/igad's cpx, penalty is correct here. */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		double ca_penalty_coeff = 1.0e6;
+		for (i = 0; i < n_em; i++){
+			SS_ref_db.ox_penalty[i] += ca_penalty_coeff * SS_ref_db.Comp[i][z_b.CaO_id];
+		}
 	}
     return SS_ref_db;
 }
@@ -1490,10 +1581,10 @@ SS_ref G_SS_igd_cpx_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for igd_ilm
 */
 SS_ref G_SS_igd_ilm_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"ilm_W24");
     int i, j;
     int n_em = SS_ref_db.n_em;
-    
+
     char   *EM_tmp[] 		= {"oilm","dilm","hm","ogk","dgk"};
     for (int i = 0; i < SS_ref_db.n_em; i++){
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
@@ -1576,11 +1667,32 @@ SS_ref G_SS_igd_ilm_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
-		SS_ref_db.bounds_ref[0][0] = 1.0; 
-		SS_ref_db.bounds_ref[0][1] = 1.0;	
+		SS_ref_db.bounds_ref[0][0] = 1.0;
+		SS_ref_db.bounds_ref[0][1] = 1.0;
+	}
+	/* TiO2: oilm+dilm+ogk+dgk together sum to x0 (same shape as igad's ilm); zeroing x0
+	   alone leaves p[0]=x2,p[1]=-x2,p[3]=x3-x2,p[4]=x2-x3 (sum to 0 but not each
+	   individually 0) - x2("q") and x3("qt") must ALSO be pinned to 0, giving pure hm.
+	   Conflicts with the O==0 pin above (x0->1, opposite direction) - combined
+	   TiO2==0 && O==0 whole-phase disable added in the dispatch table. */
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){
+		SS_ref_db.z_em[0]          = 0.0;
+		SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.z_em[1]          = 0.0;
+		SS_ref_db.d_em[1]          = 1.0;
+		SS_ref_db.z_em[3]          = 0.0;
+		SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.z_em[4]          = 0.0;
+		SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 0.0;
+		SS_ref_db.bounds_ref[0][1] = 0.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;
+		SS_ref_db.bounds_ref[3][1] = 0.0;
 	}
     return SS_ref_db;
 }
@@ -1762,23 +1874,61 @@ SS_ref G_SS_mb_liq_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[6][0] = 0.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
     SS_ref_db.bounds_ref[7][0] = 0.0+eps;  SS_ref_db.bounds_ref[7][1] = 1.0-eps;
 
-	// if (z_b.bulk_rock[9] == 0.){ 					
-	// 	SS_ref_db.z_em[7]          = 0.0;
-	// 	SS_ref_db.bounds_ref[9][0] = eps; 
-	// 	SS_ref_db.bounds_ref[9][1] = eps;	
-	// }
-	// if (z_b.bulk_rock[9] == 0.){ 					
-	// 	SS_ref_db.z_em[7]          = 0.0;
-    //     SS_ref_db.d_em[7]          = 1.0;
-	// 	SS_ref_db.bounds_ref[6][0] = 0.0; 
-	// 	SS_ref_db.bounds_ref[6][1] = 0.0;	
-	// }
-	// if (z_b.bulk_rock[8] == 0.){ 					
-	// 	SS_ref_db.z_em[6]          = 0.0;
-    //     SS_ref_db.d_em[6]          = 1.0;
-	// 	SS_ref_db.bounds_ref[5][0] = 0.0; 
-	// 	SS_ref_db.bounds_ref[5][1] = 0.0;	
-	// }
+	/* pin: abL+kspL (Na2O/K2O). p[abL]=x1*x2*(x7+1), p[kspL]=x1*(1-x2)*(x7+1) - x2 ("na")
+	   is the Na/(Na+K) split within the total alkali-feldspar-liquid fraction x1 ("fsp").
+	   x1 appears nowhere else as a bare factor (only a safe additive term in h2oL's
+	   baseline), so when BOTH Na2O=0 and K2O=0 it must be x1 that gets pinned (kills both
+	   abL and kspL regardless of x2) - pinning only x2 in that combined case is the exact
+	   dueling-pin bug caught in amp's prgm/kprg and dio's CaO/Na2O pairs: x2=0 (from Na2O)
+	   gets silently overwritten by x2=1 (from K2O), leaving abL incorrectly nonzero. When
+	   only ONE of the two oxides is zero, x2 alone is still the clean, correct pin. */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0. && z_b.bulk_rock[z_b.K2O_id] == 0.){
+		SS_ref_db.z_em[1]          = 0.0;      /* abL */
+        SS_ref_db.d_em[1]          = 1.0;
+		SS_ref_db.z_em[2]          = 0.0;      /* kspL */
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;
+		SS_ref_db.bounds_ref[1][1] = 0.0;
+	}
+	else if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		/* pin: abL (Na2O) - forcing x2=0 leaves kspL=x1*(x7+1), abL=0 */
+		SS_ref_db.z_em[1]          = 0.0;
+        SS_ref_db.d_em[1]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+	}
+	else if (z_b.bulk_rock[z_b.K2O_id] == 0.){
+		/* pin: kspL (K2O) - forcing x2=1 leaves abL=x1*(x7+1), kspL=0 */
+		SS_ref_db.z_em[2]          = 0.0;
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 1.0;
+		SS_ref_db.bounds_ref[2][1] = 1.0;
+	}
+	/* pin: wo1L+anoL (CaO). p[wo1L]=x3*(x7+1)-x7, p[anoL]=x7 (px_mb_liq), so
+	   p[wo1L]+p[anoL]=x3*(x7+1) - pinning x3("wo") alone only zeroes that SUM (same
+	   glm/mrb-class mistake seen elsewhere: wo1L ends up = -anoL, a near-cancellation, not
+	   each individually 0). x7("yan") must ALSO be pinned. Safe for sl1L (the only other
+	   endmember referencing x7): p[sl1L]=x4*(x7+1)-x7 just loses its -x7 correction term,
+	   sl1L stays a valid, non-Ca-bearing (Al2O3/SiO2) liquid component. */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[3]          = 0.0;      /* wo1L */
+        SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+		SS_ref_db.z_em[8]          = 0.0;      /* anoL */
+        SS_ref_db.d_em[8]          = 1.0;
+		SS_ref_db.bounds_ref[7][0] = 0.0;
+		SS_ref_db.bounds_ref[7][1] = 0.0;
+	}
+	/* penalty: h2oL (H2O, baseline, unpinnable) - p[h2oL] spans x0,x1,x3,x4,x5,x7, no clean
+	   single-var isolation possible. */
+	if (z_b.bulk_rock[z_b.H2O_id] == 0.){
+		double h2o_penalty_coeff = 1.0e6;
+		for (i = 0; i < n_em; i++){
+			SS_ref_db.ox_penalty[i] += h2o_penalty_coeff * SS_ref_db.Comp[i][z_b.H2O_id];
+		}
+	}
+
     return SS_ref_db;
 }
 
@@ -2025,17 +2175,66 @@ SS_ref G_SS_mb_amp_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     
 
 
-	if (z_b.bulk_rock[8] == 0.){ 	    //O				
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 	    //O
 		SS_ref_db.z_em[8]          = 0.0;
         SS_ref_db.d_em[8]          = 1.0;
-		SS_ref_db.bounds_ref[6][0] = 0.0; 
-		SS_ref_db.bounds_ref[6][1] = 0.0;	
+		SS_ref_db.bounds_ref[6][0] = 0.0;
+		SS_ref_db.bounds_ref[6][1] = 0.0;
 	}
-	if (z_b.bulk_rock[7] == 0.){ 		//TiO2	
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 		//TiO2
 		SS_ref_db.z_em[10]          = 0.0;
         SS_ref_db.d_em[10]          = 1.0;
-		SS_ref_db.bounds_ref[7][0]  = 0.0; 
-		SS_ref_db.bounds_ref[7][1]  = 0.0;	
+		SS_ref_db.bounds_ref[7][0]  = 0.0;
+		SS_ref_db.bounds_ref[7][1]  = 0.0;
+	}
+	/* pin: glm+mrb (Na2O). p[glm]=x2-x6, p[mrb]=x6 (px_mb_amp), so p[glm]+p[mrb]=x2 -
+	   pinning x2("z") alone only zeroes that SUM (near-cancellation, not each individually
+	   0). x6("f") must ALSO be pinned - same variable the O check above already pins,
+	   reused here as an independent trigger. */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[3]          = 0.0;      /* glm */
+        SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+		SS_ref_db.z_em[8]          = 0.0;      /* mrb */
+        SS_ref_db.d_em[8]          = 1.0;
+		SS_ref_db.bounds_ref[6][0] = 0.0;
+		SS_ref_db.bounds_ref[6][1] = 0.0;
+	}
+	/* prgm/kprg (Na2O+K2O, product-coupled): p[prgm]=x3*(1-x4), p[kprg]=x3*x4 (px_mb_amp).
+	   x3("a") is total pargasite-site occupancy, x4("k") is the K/(Na+K) split within it -
+	   x4 appears nowhere else, so unlike glm/mrb this pair IS cleanly pinnable, just needs
+	   the right variable/direction depending on which of Na2O/K2O (or both) are zero:
+	   - both zero: pin x3=0, killing both prgm and kprg regardless of x4.
+	   - only Na2O=0: pin x4=1 (all pargasite-site K, none Na) -> prgm=x3*(1-1)=0, kprg free.
+	   - only K2O=0: pin x4=0 (all pargasite-site Na, none K) -> kprg=x3*0=0, prgm free. */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0. && z_b.bulk_rock[z_b.K2O_id] == 0.){
+		SS_ref_db.z_em[2]          = 0.0;      /* prgm */
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.z_em[9]          = 0.0;      /* kprg */
+        SS_ref_db.d_em[9]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+	}
+	else if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[2]          = 0.0;      /* prgm */
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 1.0;
+		SS_ref_db.bounds_ref[4][1] = 1.0;
+	}
+	else if (z_b.bulk_rock[z_b.K2O_id] == 0.){
+		SS_ref_db.z_em[9]          = 0.0;      /* kprg */
+        SS_ref_db.d_em[9]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0;
+		SS_ref_db.bounds_ref[4][1] = 0.0;
+	}
+	/* penalty: any endmember carrying CaO - tr (em0) is amp's own baseline/reference
+	   endmember, unconditionally calcic, so unpinnable; tsm/prgm/kprg/tts also carry Ca. */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		double ca_penalty_coeff = 1.0e6;
+		for (i = 0; i < n_em; i++){
+			SS_ref_db.ox_penalty[i] += ca_penalty_coeff * SS_ref_db.Comp[i][z_b.CaO_id];
+		}
 	}
 
     /* this lists the index of the order variables */
@@ -2194,14 +2393,47 @@ SS_ref G_SS_mb_aug_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
-    SS_ref_db.bounds_ref[5][0] = 0.0+eps;  SS_ref_db.bounds_ref[5][1] = 2.0-eps;
+    SS_ref_db.bounds_ref[5][0] = 0.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
     SS_ref_db.bounds_ref[6][0] = 0.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
     
-	if (z_b.bulk_rock[8] == 0.){ 	    //O				
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 	    //O
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
-		SS_ref_db.bounds_ref[2][0] = 0.0; 
-		SS_ref_db.bounds_ref[2][1] = 0.0;	
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+	}
+	/* pin: acmm+jdm (Na2O). p[acmm]=x2, p[jdm]=x4-x2 (px_mb_aug), so acmm needs Na AND O
+	   (sodic-ferric pyroxene) - already zeroed by the O check above via x2=0, reused here
+	   as an independent trigger. jdm additionally needs x4=0 to vanish once x2=0. */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[4]          = 0.0;      /* acmm */
+        SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+		SS_ref_db.z_em[3]          = 0.0;      /* jdm */
+        SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0;
+		SS_ref_db.bounds_ref[4][1] = 0.0;
+	}
+	/* pin: di+ocats+dcats (CaO). p[di]=x3-x1, p[dcats]=x1-x6, p[ocats]=x6 (px_mb_aug), so
+	   di+dcats+ocats=x3 - a 3-way entangled group. Pinning x1=0, x3=0, x6=0 together zeroes
+	   each individually (verified algebraically): di=x3-x1=0, dcats=x1-x6=0, ocats=x6=0.
+	   Safe for cfs/cenh/jdm/fmc (the only other endmembers referencing x1/x3/x6): those
+	   references are all additive/product cross-terms, not bare factors, so they just lose
+	   a term rather than being incorrectly zeroed. */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[0]          = 0.0;      /* di */
+        SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;      /* x1 = "y" */
+		SS_ref_db.bounds_ref[1][1] = 0.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;      /* x3 = "z" */
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+		SS_ref_db.z_em[5]          = 0.0;      /* ocats */
+        SS_ref_db.d_em[5]          = 1.0;
+		SS_ref_db.z_em[6]          = 0.0;      /* dcats */
+        SS_ref_db.d_em[6]          = 1.0;
+		SS_ref_db.bounds_ref[6][0] = 0.0;      /* x6 = "Qa1" */
+		SS_ref_db.bounds_ref[6][1] = 0.0;
 	}
 
     return SS_ref_db;
@@ -2322,7 +2554,7 @@ SS_ref G_SS_mb_dio_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[4][0] = -0.5+eps;  SS_ref_db.bounds_ref[4][1] = 0.5-eps;
     SS_ref_db.bounds_ref[5][0] = -0.5+eps;  SS_ref_db.bounds_ref[5][1] = 0.5-eps;
 
-    if (z_b.bulk_rock[8] == 0.){ 	    //O				
+    if (z_b.bulk_rock[z_b.O_id] == 0.){ 	    //O				
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
@@ -2339,6 +2571,43 @@ SS_ref G_SS_mb_dio_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.idOrderVar[4] = -1.0;
     SS_ref_db.idOrderVar[5] = -1.0;
 
+	/* pin: jd+acmm+om+jac (Na2O). Algebraically jd+acmm+jac=x1-x3 and om=2*x3 (px_mb_dio);
+	   pinning x1=0, x3=0, x4=0 together zeroes each individually: jd=-x1*x2+x1-x3-x4=0,
+	   acmm=x1*x2-x4=0, om=2*x3=0, jac=2*x4=0 (verified for all x0,x2,x5). x4 is the same
+	   variable the O check above already pins, reused as an independent trigger. */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[0]          = 0.0;      /* jd */
+        SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;      /* x1 = "j" */
+		SS_ref_db.bounds_ref[1][1] = 0.0;
+		SS_ref_db.z_em[3]          = 0.0;      /* acmm */
+        SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.z_em[4]          = 0.0;      /* om */
+        SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;      /* x3 = "c" */
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+		SS_ref_db.z_em[6]          = 0.0;      /* jac */
+        SS_ref_db.d_em[6]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0;      /* x4 = "Qaf", shared trigger with O */
+		SS_ref_db.bounds_ref[4][1] = 0.0;
+	}
+	/* pin: di+hed+om+cfm (CaO). Pinning x1 to its UPPER bound (1) and x3=0 together zeroes
+	   each individually regardless of x0,x2,x4,x5 (verified algebraically: di=x0*x1-x0*x3-x0
+	   -x1*x5-x1-x3*x5-x3+x5+1 -> 0 at x1=1,x3=0; same for hed/om/cfm). */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[1]          = 0.0;      /* di */
+        SS_ref_db.d_em[1]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 1.0;      /* x1 = "j" */
+		SS_ref_db.bounds_ref[1][1] = 1.0;
+		SS_ref_db.z_em[2]          = 0.0;      /* hed */
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.z_em[4]          = 0.0;      /* om */
+        SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;      /* x3 = "c" */
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+		SS_ref_db.z_em[5]          = 0.0;      /* cfm */
+        SS_ref_db.d_em[5]          = 1.0;
+	}
     return SS_ref_db;
 }
 
@@ -2471,11 +2740,19 @@ SS_ref G_SS_mb_opx_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
     
 
-    if (z_b.bulk_rock[8] == 0.){ 	    //O				
+    if (z_b.bulk_rock[z_b.O_id] == 0.){ 	    //O
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
-		SS_ref_db.bounds_ref[2][0] = 0.0; 
-		SS_ref_db.bounds_ref[2][1] = 0.0;	
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+	}
+
+	/* pin: odi (CaO) - p[odi]=x3, single var, clean */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[5]          = 0.0;
+        SS_ref_db.d_em[5]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;
+		SS_ref_db.bounds_ref[3][1] = 0.0;
 	}
 
     return SS_ref_db;
@@ -2573,12 +2850,20 @@ SS_ref G_SS_mb_g_function(SS_ref SS_ref_db, char* research_group, int EM_dataset
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
-    
-    if (z_b.bulk_rock[8] == 0.){ 	    //O				
+
+	/* pin: gr (CaO) - p[gr]=x1, single var, clean */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[2]          = 0.0;
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;
+		SS_ref_db.bounds_ref[1][1] = 0.0;
+	}
+
+    if (z_b.bulk_rock[z_b.O_id] == 0.){ 	    //O
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
-		SS_ref_db.bounds_ref[2][0] = 0.0; 
-		SS_ref_db.bounds_ref[2][1] = 0.0;	
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
 	}
 
 
@@ -2723,7 +3008,59 @@ SS_ref G_SS_mb_fsp_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
-    
+
+	/* an=p[1]=x0 (CaO), san=p[2]=x1 (K2O), ab=p[0]=1-x0-x1 (Na2O, baseline - no bare pin).
+	   A soft penalty alone cannot force the ab baseline exactly to 0 (NLopt just
+	   settles at a small nonzero residual) - it only works combined with a bound
+	   that clamps the OTHER variable to the opposite extreme (1), making x0+x1=1
+	   exact. CaO=Na2O=0 forces x0=0 (an) AND x1=1 (san pure); K2O=Na2O=0 forces
+	   x1=0 (san) AND x0=1 (an pure). All-three-zero has no valid corner at all
+	   (p[0]+p[1]+p[2]=1 always) - handled as a whole-phase disable in the dispatch
+	   table. Only CaO!=0 && K2O!=0 && Na2O==0 has no exact pin available (x0+x1=1
+	   is a linear constraint, not a box constraint) - kept on the soft penalty
+	   (documented residual-leak limitation). */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0. && z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[1]          = 0.0;
+        SS_ref_db.d_em[1]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 0.0;
+		SS_ref_db.bounds_ref[0][1] = 0.0;
+        SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 1.0;
+		SS_ref_db.bounds_ref[1][1] = 1.0;
+	}
+	else if (z_b.bulk_rock[z_b.K2O_id] == 0. && z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[2]          = 0.0;
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;
+		SS_ref_db.bounds_ref[1][1] = 0.0;
+        SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 1.0;
+		SS_ref_db.bounds_ref[0][1] = 1.0;
+	}
+	else {
+		/* pin: an (CaO) - p[an]=x0, single var, clean */
+		if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+			SS_ref_db.z_em[1]          = 0.0;
+			SS_ref_db.d_em[1]          = 1.0;
+			SS_ref_db.bounds_ref[0][0] = 0.0;
+			SS_ref_db.bounds_ref[0][1] = 0.0;
+		}
+		/* pin: san (K2O) - p[san]=x1, single var, clean */
+		if (z_b.bulk_rock[z_b.K2O_id] == 0.){
+			SS_ref_db.z_em[2]          = 0.0;
+			SS_ref_db.d_em[2]          = 1.0;
+			SS_ref_db.bounds_ref[1][0] = 0.0;
+			SS_ref_db.bounds_ref[1][1] = 0.0;
+		}
+		/* penalty: ab (Na2O, baseline, unpinnable in this branch) - p[ab]=1-x0-x1 */
+		if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+			double na_penalty_coeff = 1.0e6;
+			for (i = 0; i < n_em; i++){
+				SS_ref_db.ox_penalty[i] += na_penalty_coeff * SS_ref_db.Comp[i][z_b.Na2O_id];
+			}
+		}
+	}
+
     return SS_ref_db;
 }
 
@@ -2788,6 +3125,24 @@ SS_ref G_SS_mb_abc_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     };
     
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
+
+	/* abc is a 2-endmember complementary binary (like fper's per/wu): p[abm]=1-x0, p[anm]=x0.
+	   Both directions cleanly pinnable via the single variable x0. */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		/* pin: anm (CaO) - p[anm]=x0 */
+		SS_ref_db.z_em[1]          = 0.0;
+        SS_ref_db.d_em[1]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 0.0;
+		SS_ref_db.bounds_ref[0][1] = 0.0;
+	}
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		/* pin: abm (Na2O) - p[abm]=1-x0, forcing x0 to its upper bound zeroes it (only one
+		   other endmember, same class as fper/mb_spl's inverted pins) */
+		SS_ref_db.z_em[0]          = 0.0;
+        SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 1.0;
+		SS_ref_db.bounds_ref[0][1] = 1.0;
+	}
     
     return SS_ref_db;
 }
@@ -2949,7 +3304,7 @@ SS_ref G_SS_mb_spl_function(SS_ref SS_ref_db, char* research_group, int EM_datab
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     
 
-	if (z_b.bulk_rock[7] == 0.){ 	    //TiO2			
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 	    //TiO2			
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
 		SS_ref_db.bounds_ref[1][0] = 1.0; 
@@ -3049,11 +3404,17 @@ SS_ref G_SS_mb_sp_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     
-	if (z_b.bulk_rock[7] == 0. && z_b.bulk_rock[8] != 0.){ 		//TiO2	
+	/* NOTE: "sp" (this function) is only ever dispatched when O!=0 - G_SS_mb_EM_function
+	   whole-phase-disables it for O==0 and switches to "spl" (the O-free 3-endmember
+	   variant) instead. So the old "&& O!=0" guard here was always true when reached
+	   (harmless but redundant) - dropped for clarity. No O-specific pin/penalty is needed
+	   in this function at all: mt (the O-bearing endmember) is only ever evaluated in the
+	   O!=0 regime. */
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 		//TiO2 - p[usp]=x2, bare, single var, clean
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
-		SS_ref_db.bounds_ref[2][0]  = 0.0; 
-		SS_ref_db.bounds_ref[2][1]  = 0.0;	
+		SS_ref_db.bounds_ref[2][0]  = 0.0;
+		SS_ref_db.bounds_ref[2][1]  = 0.0;
 	}
 
     return SS_ref_db;
@@ -3124,13 +3485,13 @@ SS_ref G_SS_mb_ilm_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = -1.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     
-	if (z_b.bulk_rock[8] == 0.){ 	    //O				
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 	    //O				
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
 		SS_ref_db.bounds_ref[0][0] = 1.0; 
 		SS_ref_db.bounds_ref[0][1] = 1.0;	
 	}
-	if (z_b.bulk_rock[7] == 0.){ 		//TiO2	
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 		//TiO2	
 		SS_ref_db.z_em[0]          = 0.0;
         SS_ref_db.d_em[0]          = 1.0;
 		SS_ref_db.bounds_ref[0][0] = 0.0; 
@@ -3229,11 +3590,15 @@ SS_ref G_SS_mb_ilmm_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     
-	if (z_b.bulk_rock[8] == 0.){ 	    //O				
+	/* NOTE: ilmm is only ever dispatched when TiO2!=0 (G_SS_mb_EM_function whole-phase-
+	   disables it whenever TiO2==0, alongside "ilm" - the two are mutually-exclusive
+	   variants selected by gv.mbIlm). So no TiO2 pin is needed here at all - oilm/dilm/geik
+	   (the Ti-bearing endmembers) are only ever evaluated in the TiO2!=0 regime. */
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 	    //O
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
-		SS_ref_db.bounds_ref[0][0] = 1.0; 
-		SS_ref_db.bounds_ref[0][1] = 1.0;	
+		SS_ref_db.bounds_ref[0][0] = 1.0;
+		SS_ref_db.bounds_ref[0][1] = 1.0;
 	}
 
     return SS_ref_db;
@@ -3312,7 +3677,7 @@ SS_ref G_SS_mb_ep_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 0.5-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 	    //O			
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 	    //O			
 		SS_ref_db.z_em[1]          = 0.0;
         SS_ref_db.d_em[1]          = 1.0;
 		SS_ref_db.z_em[2]          = 0.0;
@@ -3455,13 +3820,13 @@ SS_ref G_SS_mb_bi_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 	    //O				
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 	    //O				
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[7] == 0.){ 		//TiO2	
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 		//TiO2	
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[3][0]  = 0.0; 
@@ -3533,7 +3898,7 @@ SS_ref G_SS_mb_mu_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     										"cel", 
     										"equilibrium"	);
     
-    em_data fcel_eq 		= get_em_data(		research_group, EM_dataset, 
+    em_data fcel_eq 		= get_em_data(	research_group, EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3565,7 +3930,7 @@ SS_ref G_SS_mb_mu_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     										"gr", 
     										"equilibrium"	);
     
-    em_data andr_eq 		= get_em_data(		research_group, EM_dataset, 
+    em_data andr_eq 		= get_em_data(	research_group, EM_dataset, 
     										len_ox,
     										z_b,
     										SS_ref_db.P,
@@ -3606,11 +3971,34 @@ SS_ref G_SS_mb_mu_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 	    //O				
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 	    //O				
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
+	}
+	/* pin: pa (Na2O) - p[pa]=x3, single var, clean */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[3]          = 0.0;
+        SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+	}
+	/* pin: mam (CaO) - p[mam]=x4, single var, clean */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[4]          = 0.0;
+        SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0;
+		SS_ref_db.bounds_ref[4][1] = 0.0;
+	}
+	/* penalty: mu/cel/fcel (K2O) - all carry K on the interlayer site; mu (baseline) is
+	   unpinnable, cel/fcel entangled via product x0*x1 - loop over every endmember rather
+	   than hand-picking indices (pa/mam naturally carry Comp[][K2O_id]=0). */
+	if (z_b.bulk_rock[z_b.K2O_id] == 0.){
+		double k_penalty_coeff = 1.0e6;
+		for (i = 0; i < n_em; i++){
+			SS_ref_db.ox_penalty[i] += k_penalty_coeff * SS_ref_db.Comp[i][z_b.K2O_id];
+		}
 	}
 
     return SS_ref_db;
@@ -3747,7 +4135,7 @@ SS_ref G_SS_mb_chl_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[4][0] = -1.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
     SS_ref_db.bounds_ref[5][0] = -1.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 	    //O				
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 	    //O				
 		SS_ref_db.z_em[6]          = 0.0;
         SS_ref_db.d_em[6]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
@@ -3761,7 +4149,7 @@ SS_ref G_SS_mb_chl_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mb_oamp
 */
 SS_ref G_SS_mb_oamp_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"oamp_D07");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -3955,12 +4343,39 @@ SS_ref G_SS_mb_oamp_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[6][0] = -1.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
     SS_ref_db.bounds_ref[7][0] = -1.0+eps;  SS_ref_db.bounds_ref[7][1] = 1.0-eps;
 
-    if (z_b.bulk_rock[8] == 0.){ 	    //O				
+    if (z_b.bulk_rock[z_b.O_id] == 0.){ 	    //O
         SS_ref_db.z_em[6]          = 0.0;
         SS_ref_db.d_em[6]          = 1.0;
-        SS_ref_db.bounds_ref[5][0] = 0.0; 
-        SS_ref_db.bounds_ref[5][1] = 0.0;	
+        SS_ref_db.bounds_ref[5][0] = 0.0;
+        SS_ref_db.bounds_ref[5][1] = 0.0;
     }
+	/* pin: ompa (Na2O) - p[ompa]=x3 ("a"), single var, bare, clean (anth+parg-tr: parg's
+	   and tr's CaO cancel exactly, leaving only parg's Na). */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[2]          = 0.0;      /* ompa */
+		SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+		/* pin: omgl+omrb (Na2O). p[omgl]=x2-x5, p[omrb]=x5 (px_mb_oamp), so
+		   p[omgl]+p[omrb]=x2 - same combined-pin class as amp's glm/mrb: pinning x2("z")
+		   alone only zeroes that sum, x5("f") must ALSO be pinned - same variable the O
+		   check above already pins, reused here as an independent trigger. */
+		SS_ref_db.z_em[3]          = 0.0;      /* omgl */
+		SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+		SS_ref_db.z_em[6]          = 0.0;      /* omrb */
+		SS_ref_db.d_em[6]          = 1.0;
+		SS_ref_db.bounds_ref[5][0] = 0.0;
+		SS_ref_db.bounds_ref[5][1] = 0.0;
+	}
+	/* pin: otr (CaO) - p[otr]=x4 ("c"), single var, bare, clean. */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[4]          = 0.0;      /* otr */
+		SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0;
+		SS_ref_db.bounds_ref[4][1] = 0.0;
+	}
 
     return SS_ref_db;
 }
@@ -3969,7 +4384,7 @@ SS_ref G_SS_mb_oamp_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for mb_ta
 */
 SS_ref G_SS_mb_ta_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+     strcpy(SS_ref_db.fName,"ta_EF21");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -4232,11 +4647,49 @@ SS_ref G_SS_mp_liq_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[5][0] = 0.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
     SS_ref_db.bounds_ref[6][0] = 0.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
     
-	if (z_b.bulk_rock[10] == 0.){ 					
+	if (z_b.bulk_rock[z_b.H2O_id] == 0.){ 					
 		SS_ref_db.z_em[7]          = 0.0;
 		SS_ref_db.d_em[7]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
 		SS_ref_db.bounds_ref[6][1] = 0.0;	
+	}
+
+	/* pin: abL+kspL (Na2O/K2O). p[abL]=x1*x2, p[kspL]=x1*(1-x2) - x2 ("na") is the Na/(Na+K)
+	   split within the total alkali-feldspar-liquid fraction x1 ("fsp"). x1 appears nowhere
+	   else as a bare factor (only a safe additive term in slL's baseline), so when BOTH
+	   Na2O=0 and K2O=0 it must be x1 that gets pinned (kills both regardless of x2) -
+	   pinning only x2 in that combined case is the dueling-pin bug already caught once in
+	   mb's liq (x2=0 from Na2O silently overwritten by x2=1 from K2O). When only ONE of the
+	   two oxides is zero, x2 alone is still the clean, correct pin. */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0. && z_b.bulk_rock[z_b.K2O_id] == 0.){
+		SS_ref_db.z_em[1]          = 0.0;      /* abL */
+        SS_ref_db.d_em[1]          = 1.0;
+		SS_ref_db.z_em[2]          = 0.0;      /* kspL */
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;
+		SS_ref_db.bounds_ref[1][1] = 0.0;
+	}
+	else if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		/* pin: abL (Na2O) - forcing x2=0 leaves kspL=x1, abL=0 */
+		SS_ref_db.z_em[1]          = 0.0;
+        SS_ref_db.d_em[1]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+	}
+	else if (z_b.bulk_rock[z_b.K2O_id] == 0.){
+		/* pin: kspL (K2O) - forcing x2=1 leaves abL=x1, kspL=0 */
+		SS_ref_db.z_em[2]          = 0.0;
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 1.0;
+		SS_ref_db.bounds_ref[2][1] = 1.0;
+	}
+	/* pin: anL (CaO) - p[anL]=x3, single var, bare, clean (no entangled Ca-bearing partner
+	   here, unlike mb's liq where wo1L/anoL needed a dual-pin). */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[3]          = 0.0;
+        SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;
+		SS_ref_db.bounds_ref[3][1] = 0.0;
 	}
 
     return SS_ref_db;
@@ -4389,21 +4842,21 @@ SS_ref G_SS_mp_bi_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
     SS_ref_db.bounds_ref[5][0] = 0.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
 
- 	if (z_b.bulk_rock[7] == 0.){ 					
+ 	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[4][0] = 0.0; 
 		SS_ref_db.bounds_ref[4][1] = 0.0;	
 	}   
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
 		SS_ref_db.bounds_ref[3][1] = 0.0;	
 	}
 
- 	if (z_b.bulk_rock[9] == 0.){ 					
+ 	if (z_b.bulk_rock[z_b.MnO_id] == 0.){ 					
 		SS_ref_db.z_em[6]          = 0.0;
         SS_ref_db.d_em[6]          = 1.0;
 		SS_ref_db.bounds_ref[1][0] = 0.0; 
@@ -4500,7 +4953,7 @@ SS_ref G_SS_mp_cd_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     
-	if (z_b.bulk_rock[9] == 0.){ 					
+	if (z_b.bulk_rock[z_b.MnO_id] == 0.){ 					
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
 		SS_ref_db.bounds_ref[1][0] = 0.0; 
@@ -4660,13 +5113,13 @@ SS_ref G_SS_mp_chl_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[5][0] = -1.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
     SS_ref_db.bounds_ref[6][0] = -1.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[6]          = 0.0;
         SS_ref_db.d_em[6]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[9] == 0.){ 					
+	if (z_b.bulk_rock[z_b.MnO_id] == 0.){ 					
 		SS_ref_db.z_em[7]          = 0.0;
         SS_ref_db.d_em[7]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
@@ -4776,14 +5229,14 @@ SS_ref G_SS_mp_ctd_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
 	}
 
-	if (z_b.bulk_rock[9] == 0.){ 					
+	if (z_b.bulk_rock[z_b.MnO_id] == 0.){ 					
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
 		SS_ref_db.bounds_ref[1][0] = 0.0; 
@@ -4865,7 +5318,7 @@ SS_ref G_SS_mp_ep_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 0.5-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.bounds_ref[0][0] = 0.0; 
 		SS_ref_db.bounds_ref[0][1] = 0.0;	
 		SS_ref_db.bounds_ref[1][0] = 0.0; 
@@ -4989,18 +5442,26 @@ SS_ref G_SS_mp_g_function(SS_ref SS_ref_db, char* research_group, int EM_dataset
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
 		SS_ref_db.bounds_ref[3][1] = 0.0;	
 	}
 
-	if (z_b.bulk_rock[9] == 0.){ 					
+	if (z_b.bulk_rock[z_b.MnO_id] == 0.){ 					
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
+	}
+
+	/* pin: gr (CaO) - p[gr]=x1, single var, bare, clean */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[3]          = 0.0;
+        SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;
+		SS_ref_db.bounds_ref[1][1] = 0.0;
 	}
     return SS_ref_db;
 }
@@ -5071,11 +5532,22 @@ SS_ref G_SS_mp_ilm_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = -1.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
-		SS_ref_db.bounds_ref[0][0] = 1.0; 
-		SS_ref_db.bounds_ref[0][1] = 1.0;	
+		SS_ref_db.bounds_ref[0][0] = 1.0;
+		SS_ref_db.bounds_ref[0][1] = 1.0;
+	}
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 		//TiO2
+		SS_ref_db.z_em[0]          = 0.0;
+        SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 0.0;
+		SS_ref_db.bounds_ref[0][1] = 0.0;
+
+		SS_ref_db.z_em[1]          = 0.0;
+        SS_ref_db.d_em[1]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;
+		SS_ref_db.bounds_ref[1][1] = 0.0;
 	}
 
     /* this lists the index of the order variables */
@@ -5184,14 +5656,14 @@ SS_ref G_SS_mp_ilmm_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[3][0] = -1.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
 
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
 		SS_ref_db.bounds_ref[0][0] = 1.0; 
 		SS_ref_db.bounds_ref[0][1] = 1.0;	
 	}
 
-	if (z_b.bulk_rock[9] == 0.){ 					
+	if (z_b.bulk_rock[z_b.MnO_id] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
@@ -5341,11 +5813,34 @@ SS_ref G_SS_mp_ma_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
+	}
+	/* pin: pat (Na2O) - p[pat]=x3, single var, bare, clean */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[3]          = 0.0;
+        SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+	}
+	/* pin: ma (CaO, margarite endmember) - p[ma]=x4, single var, bare, clean */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[4]          = 0.0;
+        SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0;
+		SS_ref_db.bounds_ref[4][1] = 0.0;
+	}
+	/* penalty: mut/cel/fcel (K2O) - all carry K on the interlayer site; mut (baseline) is
+	   unpinnable, cel/fcel entangled via product x0*x1 - loop over every endmember rather
+	   than hand-picking indices (pat/ma naturally carry Comp[][K2O_id]=0). */
+	if (z_b.bulk_rock[z_b.K2O_id] == 0.){
+		double k_penalty_coeff = 1.0e6;
+		for (i = 0; i < n_em; i++){
+			SS_ref_db.ox_penalty[i] += k_penalty_coeff * SS_ref_db.Comp[i][z_b.K2O_id];
+		}
 	}
     return SS_ref_db;
 }
@@ -5415,14 +5910,14 @@ SS_ref G_SS_mp_mt_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[7] == 0.){ 					
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 					
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
 		SS_ref_db.bounds_ref[0][0] = 1.0; 
 		SS_ref_db.bounds_ref[0][1] = 1.0;	
 	}
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[0]          = 0.0;
         SS_ref_db.d_em[0]          = 1.0;
 		SS_ref_db.z_em[1]          = 0.0;
@@ -5572,11 +6067,34 @@ SS_ref G_SS_mp_mu_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
+	}
+	/* pin: pat (Na2O) - p[pat]=x3, single var, bare, clean */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[3]          = 0.0;
+        SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+	}
+	/* pin: ma (CaO, margarite endmember) - p[ma]=x4, single var, bare, clean */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[4]          = 0.0;
+        SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0;
+		SS_ref_db.bounds_ref[4][1] = 0.0;
+	}
+	/* penalty: mut/cel/fcel (K2O) - all carry K on the interlayer site; mut (baseline) is
+	   unpinnable, cel/fcel entangled via product x0*x1 - loop over every endmember rather
+	   than hand-picking indices (pat/ma naturally carry Comp[][K2O_id]=0). */
+	if (z_b.bulk_rock[z_b.K2O_id] == 0.){
+		double k_penalty_coeff = 1.0e6;
+		for (i = 0; i < n_em; i++){
+			SS_ref_db.ox_penalty[i] += k_penalty_coeff * SS_ref_db.Comp[i][z_b.K2O_id];
+		}
 	}
     return SS_ref_db;
 }
@@ -5728,18 +6246,25 @@ SS_ref G_SS_mp_opx_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
     SS_ref_db.bounds_ref[5][0] = 0.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
     
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
 		SS_ref_db.bounds_ref[3][1] = 0.0;	
 	}
- 	if (z_b.bulk_rock[9] == 0.){ 					
+ 	if (z_b.bulk_rock[z_b.MnO_id] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[1][0] = 0.0; 
 		SS_ref_db.bounds_ref[1][1] = 0.0;	
 	}   
+	/* pin: odi (CaO) - p[odi]=x4, single var, bare, clean */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[6]          = 0.0;
+        SS_ref_db.d_em[6]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0;
+		SS_ref_db.bounds_ref[4][1] = 0.0;
+	}
     return SS_ref_db;
 }
 
@@ -5769,12 +6294,12 @@ SS_ref G_SS_mp_fsp_function(SS_ref SS_ref_db, char* research_group, int EM_datas
         SS_ref_db.W[0] = -0.04*SS_ref_db.P - 0.00935*SS_ref_db.T + 14.6;
         SS_ref_db.W[1] = 0.338*SS_ref_db.P - 0.00957*SS_ref_db.T + 24.1;
         SS_ref_db.W[2] = 48.5 - 0.13*SS_ref_db.P;
-        
+
         SS_ref_db.v[0] = 0.674;
         SS_ref_db.v[1] = 0.55;
         SS_ref_db.v[2] = 1.0;
     }
-    
+
     em_data ab_eq 		= get_em_data(		research_group, EM_dataset, 
     										len_ox,
     										z_b,
@@ -5820,6 +6345,58 @@ SS_ref G_SS_mp_fsp_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     
+	/* an=p[1]=x0 (CaO), san=p[2]=x1 (K2O), ab=p[0]=1-x0-x1 (Na2O, baseline - no bare pin).
+	   A soft penalty alone cannot force the ab baseline exactly to 0 (NLopt just
+	   settles at a small nonzero residual) - it only works combined with a bound
+	   that clamps the OTHER variable to the opposite extreme (1), making x0+x1=1
+	   exact. CaO=Na2O=0 forces x0=0 (an) AND x1=1 (san pure); K2O=Na2O=0 forces
+	   x1=0 (san) AND x0=1 (an pure). All-three-zero has no valid corner at all
+	   (p[0]+p[1]+p[2]=1 always) - handled as a whole-phase disable in the dispatch
+	   table. Only CaO!=0 && K2O!=0 && Na2O==0 has no exact pin available (x0+x1=1
+	   is a linear constraint, not a box constraint) - kept on the soft penalty
+	   (documented residual-leak limitation). */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0. && z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[1]          = 0.0;
+        SS_ref_db.d_em[1]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 0.0;
+		SS_ref_db.bounds_ref[0][1] = 0.0;
+        SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 1.0;
+		SS_ref_db.bounds_ref[1][1] = 1.0;
+	}
+	else if (z_b.bulk_rock[z_b.K2O_id] == 0. && z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[2]          = 0.0;
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;
+		SS_ref_db.bounds_ref[1][1] = 0.0;
+        SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 1.0;
+		SS_ref_db.bounds_ref[0][1] = 1.0;
+	}
+	else {
+		/* pin: an (CaO) - p[an]=x0, single var, clean */
+		if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+			SS_ref_db.z_em[1]          = 0.0;
+			SS_ref_db.d_em[1]          = 1.0;
+			SS_ref_db.bounds_ref[0][0] = 0.0;
+			SS_ref_db.bounds_ref[0][1] = 0.0;
+		}
+		/* pin: san (K2O) - p[san]=x1, single var, clean */
+		if (z_b.bulk_rock[z_b.K2O_id] == 0.){
+			SS_ref_db.z_em[2]          = 0.0;
+			SS_ref_db.d_em[2]          = 1.0;
+			SS_ref_db.bounds_ref[1][0] = 0.0;
+			SS_ref_db.bounds_ref[1][1] = 0.0;
+		}
+		/* penalty: ab (Na2O, baseline, unpinnable in this branch) - p[ab]=1-x0-x1 */
+		if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+			double na_penalty_coeff = 1.0e6;
+			for (i = 0; i < n_em; i++){
+				SS_ref_db.ox_penalty[i] += na_penalty_coeff * SS_ref_db.Comp[i][z_b.Na2O_id];
+			}
+		}
+	}
+
     return SS_ref_db;
 }
 
@@ -5927,7 +6504,7 @@ SS_ref G_SS_mp_sa_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = -1.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
@@ -6024,14 +6601,14 @@ SS_ref G_SS_mp_sp_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[7] == 0.){ 					
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 					
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
 	}
 
-	// if (z_b.bulk_rock[8] == 0.){ 					
+	// if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 	// 	SS_ref_db.z_em[2]          = 0.0;
     //     SS_ref_db.d_em[2]          = 1.0;
 	// 	SS_ref_db.bounds_ref[1][0] = 0.0; 
@@ -6160,19 +6737,19 @@ SS_ref G_SS_mp_st_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
 
-  	if (z_b.bulk_rock[7] == 0.){ 					
+  	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
 		SS_ref_db.bounds_ref[3][1] = 0.0;	
 	}  
-  	if (z_b.bulk_rock[8] == 0.){ 					
+  	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
 	}  
-	if (z_b.bulk_rock[9] == 0.){ 					
+	if (z_b.bulk_rock[z_b.MnO_id] == 0.){ 					
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
 		SS_ref_db.bounds_ref[1][0] = 0.0; 
@@ -6240,7 +6817,7 @@ SS_ref G_SS_ig_fper_function(SS_ref SS_ref_db, char* research_group, int EM_data
     };
     
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
-    
+
     return SS_ref_db;
 }
 
@@ -6374,13 +6951,13 @@ SS_ref G_SS_ig_bi_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
 	SS_ref_db.bounds_ref[4][0] = -1.0+eps;	SS_ref_db.bounds_ref[4][1] = 1.0-eps;	
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[7] == 0.){ 					
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
@@ -6396,7 +6973,7 @@ SS_ref G_SS_ig_bi_function(SS_ref SS_ref_db, char* research_group, int EM_datase
 }
 
 /**
-  retrieve reference thermodynamic data for biotite 
+  retrieve reference thermodynamic data for biotite
 */
 SS_ref G_SS_ig_bi_ed_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info  z_b, double eps){	
     strcpy(SS_ref_db.fName,"bi_G25");
@@ -6525,13 +7102,13 @@ SS_ref G_SS_ig_bi_ed_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
 	SS_ref_db.bounds_ref[4][0] = -1.0+eps;	SS_ref_db.bounds_ref[4][1] = 1.0-eps;	
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[7] == 0.){ 					
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
@@ -6779,30 +7356,46 @@ SS_ref G_SS_ig_cpx_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[7][0] = 0.0+eps;  SS_ref_db.bounds_ref[7][1] = 1.0-eps;
     SS_ref_db.bounds_ref[8][0] = 0.0+eps;  SS_ref_db.bounds_ref[8][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[9] == 0.){ 					
+	if (z_b.bulk_rock[z_b.Cr2O3_id] == 0.){ 					
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
 		SS_ref_db.bounds_ref[6][1] = 0.0;	
 	}
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[5][0] = 0.0; 
 		SS_ref_db.bounds_ref[5][1] = 0.0;	
 	}
-  	if (z_b.bulk_rock[7] == 0.){ 					
+  	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[7][0] = 0.0; 
 		SS_ref_db.bounds_ref[7][1] = 0.0;	
 	} 
-    if (z_b.bulk_rock[5] == 0.){ 					
+    if (z_b.bulk_rock[z_b.K2O_id] == 0.){ 					
 		SS_ref_db.z_em[9]          = 0.0;
         SS_ref_db.d_em[9]          = 1.0;
 		SS_ref_db.bounds_ref[8][0] = 0.0; 
 		SS_ref_db.bounds_ref[8][1] = 0.0;	
+	}
+
+	/* pin: jd (Na2O) - p[jd]=x3, single var, clean */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[6]          = 0.0;
+        SS_ref_db.d_em[6]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+	}
+	/* penalty: di (baseline, unpinnable) + any other endmember carrying uncancelled Ca -
+	   loop over every endmember rather than hand-picking indices */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		double ca_penalty_coeff = 1.0e6;
+		for (i = 0; i < n_em; i++){
+			SS_ref_db.ox_penalty[i] += ca_penalty_coeff * SS_ref_db.Comp[i][z_b.CaO_id];
+		}
 	}
     return SS_ref_db;
 }
@@ -6961,7 +7554,7 @@ SS_ref G_SS_ig_ep_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     SS_ref_db.bounds_ref[0][0] =  0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = -0.5+eps;  SS_ref_db.bounds_ref[1][1] = 0.5-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.bounds_ref[0][0] = 0.0; 
 		SS_ref_db.bounds_ref[0][1] = 0.0;	
 		SS_ref_db.bounds_ref[1][0] = 0.0; 
@@ -7200,35 +7793,50 @@ SS_ref G_SS_ig_fl_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     SS_ref_db.bounds_ref[8][0] = 0.0+eps;  SS_ref_db.bounds_ref[8][1] = 1.0-eps;
     SS_ref_db.bounds_ref[9][0] = 0.0+eps;  SS_ref_db.bounds_ref[9][1] = 1.0-eps;
     
-	if (z_b.bulk_rock[10] == 0.){
+	if (z_b.bulk_rock[z_b.H2O_id] == 0.){
 		SS_ref_db.z_em[10]         = 0.0;
 		SS_ref_db.bounds_ref[9][0] = eps;  
 		SS_ref_db.bounds_ref[9][1] = eps;	
 	}
     
-	if (z_b.bulk_rock[9] == 0.){ 					
+	if (z_b.bulk_rock[z_b.Cr2O3_id] == 0.){ 					
 		SS_ref_db.z_em[7]          = 0.0;
         SS_ref_db.d_em[7]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
 		SS_ref_db.bounds_ref[6][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[6]          = 0.0;
         SS_ref_db.d_em[6]          = 1.0;
 		SS_ref_db.bounds_ref[5][0] = 0.0; 
 		SS_ref_db.bounds_ref[5][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[7] == 0.){ 					
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 					
 		SS_ref_db.z_em[8]          = 0.0;
         SS_ref_db.d_em[8]          = 1.0;
 		SS_ref_db.bounds_ref[7][0] = 0.0; 
 		SS_ref_db.bounds_ref[7][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[5] == 0.){ 					
+	if (z_b.bulk_rock[z_b.K2O_id] == 0.){ 					
 		SS_ref_db.z_em[9]          = 0.0;
         SS_ref_db.d_em[9]          = 1.0;
 		SS_ref_db.bounds_ref[8][0] = 0.0; 
 		SS_ref_db.bounds_ref[8][1] = 0.0;	
+	}
+
+	/* pin: wofL (CaO) - p[wofL]=x0, single var, clean */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[2]          = 0.0;
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 0.0;
+		SS_ref_db.bounds_ref[0][1] = 0.0;
+	}
+	/* pin: jdfL (Na2O) - p[jdfL]=x4, single var, clean, mirrors liq's jdL */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[5]          = 0.0;
+        SS_ref_db.d_em[5]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0;
+		SS_ref_db.bounds_ref[4][1] = 0.0;
 	}
 	return SS_ref_db;
 }
@@ -7377,23 +7985,39 @@ SS_ref G_SS_ig_g_function(SS_ref SS_ref_db, char* research_group, int EM_dataset
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[9] == 0.){ 					
+	if (z_b.bulk_rock[z_b.Cr2O3_id] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
 		SS_ref_db.bounds_ref[3][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[7] == 0.){ 					
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[4][0] = 0.0; 
 		SS_ref_db.bounds_ref[4][1] = 0.0;	
+	}
+
+	/* pin: gr+andr (CaO). p[gr]=x1-x2, p[andr]=x2 (px_ig_g), so p[gr]+p[andr]=x1 - pinning
+	   x1("c") alone only zeroes that SUM (the same glm/mrb mistake as ig_amp: gr ends up
+	   = -andr, a near-cancellation, not each individually 0). x2("f") must ALSO be pinned -
+	   it's the same variable the O==0 block above already pins, so this just adds a second,
+	   independent trigger for it. */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[2]          = 0.0;      /* gr */
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;
+		SS_ref_db.bounds_ref[1][1] = 0.0;
+		SS_ref_db.z_em[3]          = 0.0;      /* andr */
+        SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
 	}
 	return SS_ref_db;
 }
@@ -7640,19 +8264,19 @@ SS_ref G_SS_ig_amp_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[9][0] = -1.0+eps;  SS_ref_db.bounds_ref[9][1] = 1.0-eps;
     
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[8]          = 0.0;
         SS_ref_db.d_em[8]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
 		SS_ref_db.bounds_ref[6][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[7] == 0.){ 					
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 					
 		SS_ref_db.z_em[10]          = 0.0;
         SS_ref_db.d_em[10]          = 1.0;
 		SS_ref_db.bounds_ref[7][0] = 0.0; 
 		SS_ref_db.bounds_ref[7][1] = 0.0;	
 	}
-    if (z_b.bulk_rock[5] == 0.){ 					
+    if (z_b.bulk_rock[z_b.K2O_id] == 0.){ 					
 		SS_ref_db.z_em[9]          = 0.0;
         SS_ref_db.d_em[9]          = 1.0;
 		SS_ref_db.bounds_ref[4][0] = 0.0; 
@@ -7665,7 +8289,40 @@ SS_ref G_SS_ig_amp_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     // SS_ref_db.idOrderVar[9] = -1.0;
 
 
-	return SS_ref_db;	
+
+	/* pin: glm+mrb (Na2O). p[glm]=x2-x6, p[mrb]=x6 (px_ig_amp), so p[glm]+p[mrb]=x2 - pinning
+	   x2("z") alone only zeroes that SUM (glm ends up = -mrb, a near-cancellation, not each
+	   individually 0 - this was the original ig_amp mistake). x6("f") must ALSO be pinned -
+	   it's the same variable the O==0 block above already pins, so this just adds a second,
+	   independent trigger for it. */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[3]          = 0.0;      /* glm */
+        SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+		SS_ref_db.z_em[8]          = 0.0;      /* mrb */
+        SS_ref_db.d_em[8]          = 1.0;
+		SS_ref_db.bounds_ref[6][0] = 0.0;
+		SS_ref_db.bounds_ref[6][1] = 0.0;
+	}
+	/* penalty: prgm+kprg (Na2O) - p[prgm]=x3*(1-x4), p[kprg]=x3*x4 (px_ig_amp), product-coupled
+	   via the shared "a" variable x3 - genuinely not separable the way glm/mrb are, since x3=0
+	   would incorrectly also kill kprg (a legitimate K2O-only endmember) even when K2O>0. */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		double na_penalty_coeff = 1.0e6;
+		SS_ref_db.ox_penalty[2] += na_penalty_coeff * SS_ref_db.Comp[2][z_b.Na2O_id]; /* prgm */
+		SS_ref_db.ox_penalty[9] += na_penalty_coeff * SS_ref_db.Comp[9][z_b.Na2O_id]; /* kprg */
+	}
+	/* penalty: any endmember carrying CaO - tr (em0) is amp's own baseline/reference
+	   endmember (like fsp's ab), unconditionally calcic, so unpinnable; tsm/prgm/kprg/tts
+	   also carry Ca per their gbase formulas. */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		double ca_penalty_coeff = 1.0e6;
+		for (i = 0; i < n_em; i++){
+			SS_ref_db.ox_penalty[i] += ca_penalty_coeff * SS_ref_db.Comp[i][z_b.CaO_id];
+		}
+	}
+	return SS_ref_db;
 }
 
 
@@ -7911,19 +8568,19 @@ SS_ref G_SS_ig_amp_ed_function(SS_ref SS_ref_db, char* research_group, int EM_da
     SS_ref_db.bounds_ref[9][0] = -1.0+eps;  SS_ref_db.bounds_ref[9][1] = 1.0-eps;
     
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[8]          = 0.0;
         SS_ref_db.d_em[8]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
 		SS_ref_db.bounds_ref[6][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[7] == 0.){ 					
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 					
 		SS_ref_db.z_em[10]          = 0.0;
         SS_ref_db.d_em[10]          = 1.0;
 		SS_ref_db.bounds_ref[7][0] = 0.0; 
 		SS_ref_db.bounds_ref[7][1] = 0.0;	
 	}
-    if (z_b.bulk_rock[5] == 0.){ 					
+    if (z_b.bulk_rock[z_b.K2O_id] == 0.){ 					
 		SS_ref_db.z_em[9]          = 0.0;
         SS_ref_db.d_em[9]          = 1.0;
 		SS_ref_db.bounds_ref[4][0] = 0.0; 
@@ -8041,7 +8698,7 @@ SS_ref G_SS_ig_ilm_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[2][0] = -1.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = -1.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
 		SS_ref_db.bounds_ref[0][0] = 1.0; 
@@ -8304,37 +8961,62 @@ SS_ref G_SS_ig_liq_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[9][0] = 0.0+eps;  SS_ref_db.bounds_ref[9][1] = 1.0-eps;
     SS_ref_db.bounds_ref[10][0] = 0.0+eps;  SS_ref_db.bounds_ref[10][1] = 1.0-eps;
     
-	if (z_b.bulk_rock[10] == 0.){ 					
+	if (z_b.bulk_rock[z_b.H2O_id] == 0.){ 					
 		SS_ref_db.z_em[11]          = 0.0;
         SS_ref_db.d_em[11]           = 1.0;
 		SS_ref_db.bounds_ref[10][0] = 0.0; 
 		SS_ref_db.bounds_ref[10][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[9] == 0.){ 					
+	if (z_b.bulk_rock[z_b.Cr2O3_id] == 0.){ 					
 		SS_ref_db.z_em[7]          = 0.0;
         SS_ref_db.d_em[7]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
 		SS_ref_db.bounds_ref[6][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[6]          = 0.0;
         SS_ref_db.d_em[6]          = 1.0;
 		SS_ref_db.bounds_ref[5][0] = 0.0; 
 		SS_ref_db.bounds_ref[5][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[7] == 0.){ 					
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 					
 		SS_ref_db.z_em[8]          = 0.0;
         SS_ref_db.d_em[8]          = 1.0;
 		SS_ref_db.bounds_ref[7][0] = 0.0; 
 		SS_ref_db.bounds_ref[7][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[5] == 0.){ 					
+	if (z_b.bulk_rock[z_b.K2O_id] == 0.){
 		SS_ref_db.z_em[9]          = 0.0;
         SS_ref_db.d_em[9]          = 1.0;
-		SS_ref_db.bounds_ref[8][0] = 0.0; 
-		SS_ref_db.bounds_ref[8][1] = 0.0;	
+		SS_ref_db.bounds_ref[8][0] = 0.0;
+		SS_ref_db.bounds_ref[8][1] = 0.0;
+	}
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[5]          = 0.0;
+        SS_ref_db.d_em[5]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0;
+		SS_ref_db.bounds_ref[4][1] = 0.0;
 	}
 
+
+	/* pin: wo1L+ctL (CaO). p[wo1L]=0.75*x0*x9+x0-x9, p[ctL]=x9 (px_ig_liq), so
+	   p[wo1L]+p[ctL]=x0*(0.75*x9+1) - pinning x0("wo") alone only zeroes that SUM (same
+	   glm/mrb mistake as ig_amp: wo1L ends up = -ctL, a near-cancellation, not each
+	   individually 0). x9("yct", the order parameter) must ALSO be pinned. This is safe for
+	   every other endmember: x9 only ever appears there as an additive "+x[k]" term inside a
+	   (0.75*x9+1)-type bracket, never as its own bare factor, so pinning it to 0 just removes
+	   the order-parameter correction rather than zeroing anything else (verified via
+	   px_ig_liq, same check that caught the ig_amp/ig_fper mistakes). */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[2]          = 0.0;      /* wo1L */
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 0.0;
+		SS_ref_db.bounds_ref[0][1] = 0.0;
+		SS_ref_db.z_em[10]         = 0.0;      /* ctL */
+        SS_ref_db.d_em[10]         = 1.0;
+		SS_ref_db.bounds_ref[9][0] = 0.0;
+		SS_ref_db.bounds_ref[9][1] = 0.0;
+	}
     return SS_ref_db;
 }
 
@@ -8477,12 +9159,27 @@ SS_ref G_SS_ig_mu_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
     
 	/* define box bounds according to bulk-rock */
-	if (z_b.bulk_rock[8] == 0.){
+	if (z_b.bulk_rock[z_b.O_id] == 0.){
 		SS_ref_db.z_em[5]          = 0.0;
 		SS_ref_db.bounds_ref[2][0] = eps;
 		SS_ref_db.bounds_ref[2][1] = eps;
 	}
 
+
+	/* pin: mam (CaO) - p[mam]=x4, single var, clean */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[4]          = 0.0;
+        SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0;
+		SS_ref_db.bounds_ref[4][1] = 0.0;
+	}
+	/* pin: pa (Na2O) - p[pa]=x3, single var, clean */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[3]          = 0.0;
+        SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+	}
 	return SS_ref_db;
 }
 
@@ -8566,6 +9263,14 @@ SS_ref G_SS_ig_ol_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = -0.5+eps;  SS_ref_db.bounds_ref[2][1] = 0.5-eps;
     
+
+	/* pin: mont (CaO) - p[mont]=x1, single var, clean */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[0]          = 0.0;
+        SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;
+		SS_ref_db.bounds_ref[1][1] = 0.0;
+	}
     return SS_ref_db;
 }
 
@@ -8774,25 +9479,40 @@ SS_ref G_SS_ig_opx_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[6][0] = 0.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
     SS_ref_db.bounds_ref[7][0] = 0.0+eps;  SS_ref_db.bounds_ref[7][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[9] == 0.){ 					
+	if (z_b.bulk_rock[z_b.Cr2O3_id] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
 		SS_ref_db.bounds_ref[6][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[7]          = 0.0;
         SS_ref_db.d_em[7]          = 1.0;
 		SS_ref_db.bounds_ref[4][0] = 0.0; 
 		SS_ref_db.bounds_ref[4][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[7] == 0.){ 					
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 					
 		SS_ref_db.z_em[6]          = 0.0;
         SS_ref_db.d_em[6]          = 1.0;
 		SS_ref_db.bounds_ref[5][0] = 0.0; 
 		SS_ref_db.bounds_ref[5][1] = 0.0;	
 	}
     
+
+	/* pin: odi (CaO) - p[odi]=x2, single var, clean */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[3]          = 0.0;
+        SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+	}
+	/* pin: ojd (Na2O) - p[ojd]=x7, single var, clean */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[8]          = 0.0;
+        SS_ref_db.d_em[8]          = 1.0;
+		SS_ref_db.bounds_ref[7][0] = 0.0;
+		SS_ref_db.bounds_ref[7][1] = 0.0;
+	}
     return SS_ref_db;
 }
 
@@ -8873,12 +9593,65 @@ SS_ref G_SS_ig_fsp_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
 
-    if (z_b.bulk_rock[5] == 0.){ 					
+    if (z_b.bulk_rock[z_b.K2O_id] == 0.){ 					
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
 		SS_ref_db.bounds_ref[1][0] = 0.0; 
 		SS_ref_db.bounds_ref[1][1] = 0.0;	
 	}
+
+	/* an=p[1]=x0 (CaO), san=p[2]=x1 (K2O), ab=p[0]=1-x0-x1 (Na2O, baseline - no bare pin).
+	   A soft penalty alone cannot force the ab baseline exactly to 0 (NLopt just
+	   settles at a small nonzero residual) - it only works combined with a bound
+	   that clamps the OTHER variable to the opposite extreme (1), making x0+x1=1
+	   exact. CaO=Na2O=0 forces x0=0 (an) AND x1=1 (san pure); K2O=Na2O=0 forces
+	   x1=0 (san) AND x0=1 (an pure). All-three-zero has no valid corner at all
+	   (p[0]+p[1]+p[2]=1 always) - handled as a whole-phase disable in the dispatch
+	   table. Only CaO!=0 && K2O!=0 && Na2O==0 has no exact pin available (x0+x1=1
+	   is a linear constraint, not a box constraint) - kept on the soft penalty
+	   (documented residual-leak limitation). */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0. && z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[1]          = 0.0;
+        SS_ref_db.d_em[1]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 0.0;
+		SS_ref_db.bounds_ref[0][1] = 0.0;
+        SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 1.0;
+		SS_ref_db.bounds_ref[1][1] = 1.0;
+	}
+	else if (z_b.bulk_rock[z_b.K2O_id] == 0. && z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[2]          = 0.0;
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;
+		SS_ref_db.bounds_ref[1][1] = 0.0;
+        SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 1.0;
+		SS_ref_db.bounds_ref[0][1] = 1.0;
+	}
+	else {
+		/* pin: an (CaO) - p[an]=x0, single var, clean */
+		if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+			SS_ref_db.z_em[1]          = 0.0;
+			SS_ref_db.d_em[1]          = 1.0;
+			SS_ref_db.bounds_ref[0][0] = 0.0;
+			SS_ref_db.bounds_ref[0][1] = 0.0;
+		}
+		/* pin: san (K2O) - p[san]=x1, single var, clean */
+		if (z_b.bulk_rock[z_b.K2O_id] == 0.){
+			SS_ref_db.z_em[2]          = 0.0;
+			SS_ref_db.d_em[2]          = 1.0;
+			SS_ref_db.bounds_ref[1][0] = 0.0;
+			SS_ref_db.bounds_ref[1][1] = 0.0;
+		}
+		/* penalty: ab (Na2O, baseline, unpinnable in this branch) - p[ab]=1-x0-x1 */
+		if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+			double na_penalty_coeff = 1.0e6;
+			for (i = 0; i < n_em; i++){
+				SS_ref_db.ox_penalty[i] += na_penalty_coeff * SS_ref_db.Comp[i][z_b.Na2O_id];
+			}
+		}
+	}
+
     return SS_ref_db;
 }
 
@@ -9027,13 +9800,13 @@ SS_ref G_SS_ig_spl_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[5][0] = -1.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
     SS_ref_db.bounds_ref[6][0] = -1.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[9] == 0.){ 
+	if (z_b.bulk_rock[z_b.Cr2O3_id] == 0.){ 
 		SS_ref_db.z_em[6]          = 0.0;
 		SS_ref_db.d_em[6]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.z_em[5]          = 0.0;
@@ -9043,7 +9816,7 @@ SS_ref G_SS_ig_spl_function(SS_ref SS_ref_db, char* research_group, int EM_datas
 		SS_ref_db.bounds_ref[1][0] = 0.0; 
 		SS_ref_db.bounds_ref[1][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[7] == 0.){ 					
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 					
 		SS_ref_db.z_em[7]          = 0.0;
         SS_ref_db.d_em[7]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
@@ -9054,8 +9827,6 @@ SS_ref G_SS_ig_spl_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.idOrderVar[4] = -1.0;
     SS_ref_db.idOrderVar[5] = -1.0;
     SS_ref_db.idOrderVar[6] = -1.0;
-
-
 
 	return SS_ref_db;
 }
@@ -9192,7 +9963,7 @@ SS_ref G_SS_ig_chl_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[4][0] = -1.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
     SS_ref_db.bounds_ref[5][0] = -1.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 	    //O				
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 	    //O				
 		SS_ref_db.z_em[6]          = 0.0;
         SS_ref_db.d_em[6]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
@@ -9481,17 +10252,57 @@ SS_ref G_SS_igad_liq_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     SS_ref_db.bounds_ref[11][0] = 0.0+eps;  SS_ref_db.bounds_ref[11][1] = 1.0-eps;
     SS_ref_db.bounds_ref[12][0] = 0.0+eps;  SS_ref_db.bounds_ref[12][1] = 1.0-eps;
     
-	if (z_b.bulk_rock[9] == 0.){ 					
+	if (z_b.bulk_rock[z_b.Cr2O3_id] == 0.){ 					
 		SS_ref_db.z_em[7]          = 0.0;
         SS_ref_db.d_em[7]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
 		SS_ref_db.bounds_ref[6][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){
 		SS_ref_db.z_em[6]          = 0.0;
         SS_ref_db.d_em[6]          = 1.0;
-		SS_ref_db.bounds_ref[5][0] = 0.0; 
-		SS_ref_db.bounds_ref[5][1] = 0.0;	
+		SS_ref_db.bounds_ref[5][0] = 0.0;
+		SS_ref_db.bounds_ref[5][1] = 0.0;
+	}
+	/* CaO: wo1L (p[2]=x0*(...)-x9) and anL (p[10]=x9, bare) - dual-pin x0("wo") AND x9("yan") */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[2]          = 0.0;
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 0.0;
+		SS_ref_db.bounds_ref[0][1] = 0.0;
+		SS_ref_db.z_em[10]         = 0.0;
+        SS_ref_db.d_em[10]         = 1.0;
+		SS_ref_db.bounds_ref[9][0] = 0.0;
+		SS_ref_db.bounds_ref[9][1] = 0.0;
+	}
+	/* Na2O: nmL (p[5]=x4*(...)-x10) and ab1L (p[11]=x10, bare) - dual-pin x4("ns") AND x10("yab") */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[5]          = 0.0;
+        SS_ref_db.d_em[5]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0;
+		SS_ref_db.bounds_ref[4][1] = 0.0;
+		SS_ref_db.z_em[11]         = 0.0;
+        SS_ref_db.d_em[11]         = 1.0;
+		SS_ref_db.bounds_ref[10][0] = 0.0;
+		SS_ref_db.bounds_ref[10][1] = 0.0;
+	}
+	/* K2O: kmL (p[9]=x8*(...)-x12) and kfL (p[13]=x12, bare) - dual-pin x8("ks") AND x12("ykf") */
+	if (z_b.bulk_rock[z_b.K2O_id] == 0.){
+		SS_ref_db.z_em[9]          = 0.0;
+        SS_ref_db.d_em[9]          = 1.0;
+		SS_ref_db.bounds_ref[8][0] = 0.0;
+		SS_ref_db.bounds_ref[8][1] = 0.0;
+		SS_ref_db.z_em[13]         = 0.0;
+        SS_ref_db.d_em[13]         = 1.0;
+		SS_ref_db.bounds_ref[12][0] = 0.0;
+		SS_ref_db.bounds_ref[12][1] = 0.0;
+	}
+	/* TiO2: tiL (p[8]=x7*(...), single term) - clean single pin x7("ti") */
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){
+		SS_ref_db.z_em[8]          = 0.0;
+        SS_ref_db.d_em[8]          = 1.0;
+		SS_ref_db.bounds_ref[7][0] = 0.0;
+		SS_ref_db.bounds_ref[7][1] = 0.0;
 	}
     return SS_ref_db;
 }
@@ -9570,7 +10381,54 @@ SS_ref G_SS_igad_fsp_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 3.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
-    
+
+	/* an=p[1]=x0 (CaO), san=p[2]=x1 (K2O), ab=p[0]=1-x0-x1 (Na2O, baseline - no bare pin).
+	   A soft penalty alone cannot force the ab baseline exactly to 0 - it only works
+	   combined with a bound that clamps the OTHER variable to the opposite extreme (1),
+	   making x0+x1=1 exact. CaO=Na2O=0 forces x0=0 (an) AND x1=1 (san pure); K2O=Na2O=0
+	   forces x1=0 (san) AND x0=1 (an pure). All-three-zero has no valid corner at all
+	   (p[0]+p[1]+p[2]=1 always) - handled as a whole-phase disable in the dispatch table.
+	   Only CaO!=0 && K2O!=0 && Na2O==0 has no exact pin available - kept on the soft
+	   penalty (documented residual-leak limitation). Same fix as ig/mb/mp's fsp. */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0. && z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[1]          = 0.0;
+		SS_ref_db.d_em[1]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 0.0;
+		SS_ref_db.bounds_ref[0][1] = 0.0;
+		SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 1.0;
+		SS_ref_db.bounds_ref[1][1] = 1.0;
+	}
+	else if (z_b.bulk_rock[z_b.K2O_id] == 0. && z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[2]          = 0.0;
+		SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;
+		SS_ref_db.bounds_ref[1][1] = 0.0;
+		SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 1.0;
+		SS_ref_db.bounds_ref[0][1] = 1.0;
+	}
+	else {
+		if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+			SS_ref_db.z_em[1]          = 0.0;
+			SS_ref_db.d_em[1]          = 1.0;
+			SS_ref_db.bounds_ref[0][0] = 0.0;
+			SS_ref_db.bounds_ref[0][1] = 0.0;
+		}
+		if (z_b.bulk_rock[z_b.K2O_id] == 0.){
+			SS_ref_db.z_em[2]          = 0.0;
+			SS_ref_db.d_em[2]          = 1.0;
+			SS_ref_db.bounds_ref[1][0] = 0.0;
+			SS_ref_db.bounds_ref[1][1] = 0.0;
+		}
+		if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+			double na_penalty_coeff = 1.0e6;
+			for (i = 0; i < n_em; i++){
+				SS_ref_db.ox_penalty[i] += na_penalty_coeff * SS_ref_db.Comp[i][z_b.Na2O_id];
+			}
+		}
+	}
+
     return SS_ref_db;
 }
 
@@ -9715,13 +10573,13 @@ SS_ref G_SS_igad_spl_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     SS_ref_db.bounds_ref[5][0] = -1.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
     SS_ref_db.bounds_ref[6][0] = -1.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[9] == 0.){ 
+	if (z_b.bulk_rock[z_b.Cr2O3_id] == 0.){ 
 		SS_ref_db.z_em[6]          = 0.0;
 		SS_ref_db.d_em[6]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.z_em[5]          = 0.0;
@@ -9731,7 +10589,7 @@ SS_ref G_SS_igad_spl_function(SS_ref SS_ref_db, char* research_group, int EM_dat
 		SS_ref_db.bounds_ref[1][0] = 0.0; 
 		SS_ref_db.bounds_ref[1][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[7] == 0.){ 					
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 					
 		SS_ref_db.z_em[7]          = 0.0;
         SS_ref_db.d_em[7]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
@@ -9889,17 +10747,36 @@ SS_ref G_SS_igad_g_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[9] == 0.){ 					
+	if (z_b.bulk_rock[z_b.Cr2O3_id] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
 		SS_ref_db.bounds_ref[3][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
-		SS_ref_db.bounds_ref[2][0] = 0.0; 
-		SS_ref_db.bounds_ref[2][1] = 0.0;	
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+	}
+	/* CaO: gr (p[2]=x1-x2) and andr (p[3]=x2, bare, andradite is itself a Ca-Fe3+
+	   garnet so needs Ca regardless of O) - dual-pin x1("c") AND x2("f", O's own trigger) */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[2]          = 0.0;
+		SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;
+		SS_ref_db.bounds_ref[1][1] = 0.0;
+		SS_ref_db.z_em[3]          = 0.0;
+		SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+	}
+	/* TiO2: tig (p[5]=4*x4, bare) - clean single pin x4("t") */
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){
+		SS_ref_db.z_em[5]          = 0.0;
+		SS_ref_db.d_em[5]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0;
+		SS_ref_db.bounds_ref[4][1] = 0.0;
 	}
     return SS_ref_db;
 }
@@ -9981,6 +10858,14 @@ SS_ref G_SS_igad_ol_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = -0.5+eps;  SS_ref_db.bounds_ref[2][1] = 0.5-eps;
+
+	/* CaO: mnt (p[0]=x1, bare) - clean single pin x1("c") */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[0]          = 0.0;
+		SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;
+		SS_ref_db.bounds_ref[1][1] = 0.0;
+	}
 
     return SS_ref_db;
 }
@@ -10188,25 +11073,39 @@ SS_ref G_SS_igad_opx_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     SS_ref_db.bounds_ref[6][0] = 0.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
     SS_ref_db.bounds_ref[7][0] = 0.0+eps;  SS_ref_db.bounds_ref[7][1] = 1.0-eps;
     
-	if (z_b.bulk_rock[9] == 0.){ 					
+	if (z_b.bulk_rock[z_b.Cr2O3_id] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
 		SS_ref_db.bounds_ref[6][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[7]          = 0.0;
         SS_ref_db.d_em[7]          = 1.0;
 		SS_ref_db.bounds_ref[4][0] = 0.0; 
 		SS_ref_db.bounds_ref[4][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[7] == 0.){ 					
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){
 		SS_ref_db.z_em[6]          = 0.0;
         SS_ref_db.d_em[6]          = 1.0;
-		SS_ref_db.bounds_ref[5][0] = 0.0; 
-		SS_ref_db.bounds_ref[5][1] = 0.0;	
+		SS_ref_db.bounds_ref[5][0] = 0.0;
+		SS_ref_db.bounds_ref[5][1] = 0.0;
 	}
-    
+	/* CaO: odi (p[3]=x2, bare) - clean single pin x2("c") */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[3]          = 0.0;
+		SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+	}
+	/* Na2O: ojd (p[8]=x7, bare) - clean single pin x7("j") */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[8]          = 0.0;
+		SS_ref_db.d_em[8]          = 1.0;
+		SS_ref_db.bounds_ref[7][0] = 0.0;
+		SS_ref_db.bounds_ref[7][1] = 0.0;
+	}
+
     return SS_ref_db;
 }
 
@@ -10443,30 +11342,48 @@ SS_ref G_SS_igad_cpx_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     SS_ref_db.bounds_ref[7][0] = 0.0+eps;  SS_ref_db.bounds_ref[7][1] = 1.0-eps;
     SS_ref_db.bounds_ref[8][0] = 0.0+eps;  SS_ref_db.bounds_ref[8][1] = 1.0-eps;
     
-	if (z_b.bulk_rock[9] == 0.){ 					
+	if (z_b.bulk_rock[z_b.Cr2O3_id] == 0.){ 					
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
 		SS_ref_db.bounds_ref[6][0] = 0.0; 
 		SS_ref_db.bounds_ref[6][1] = 0.0;	
 	}
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[5][0] = 0.0; 
 		SS_ref_db.bounds_ref[5][1] = 0.0;	
 	}
-  	if (z_b.bulk_rock[7] == 0.){ 					
+  	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[7][0] = 0.0; 
 		SS_ref_db.bounds_ref[7][1] = 0.0;	
 	} 
-    if (z_b.bulk_rock[5] == 0.){ 					
+    if (z_b.bulk_rock[z_b.K2O_id] == 0.){
 		SS_ref_db.z_em[9]          = 0.0;
         SS_ref_db.d_em[9]          = 1.0;
-		SS_ref_db.bounds_ref[8][0] = 0.0; 
-		SS_ref_db.bounds_ref[8][1] = 0.0;	
+		SS_ref_db.bounds_ref[8][0] = 0.0;
+		SS_ref_db.bounds_ref[8][1] = 0.0;
+	}
+	/* Na2O: jd (p[6]=x3, bare) - clean single pin x3("n") */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[6]          = 0.0;
+		SS_ref_db.d_em[6]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+	}
+	/* CaO: di is the unpinnable baseline (p[0]=-x1-x2-x3-x8+1); crdi/cess/cbuf are
+	   independent bare xeos pins (x6/x5/x7) but their REAL Comp[][] still carries Ca
+	   (built from cats+... reactions) even though their p[] formula doesn't reference
+	   x1 - so pinning x1 alone can't zero their Ca content. Same entangled-baseline
+	   shape as ig/mb's cpx CaO - penalty (uniform loop) is the correct fix here. */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		double ca_penalty_coeff = 1.0e6;
+		for (i = 0; i < n_em; i++){
+			SS_ref_db.ox_penalty[i] += ca_penalty_coeff * SS_ref_db.Comp[i][z_b.CaO_id];
+		}
 	}
 
     /* this lists the index of the order variables */
@@ -10580,13 +11497,37 @@ SS_ref G_SS_igad_ilm_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     SS_ref_db.bounds_ref[2][0] = -1.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = -1.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
-		SS_ref_db.bounds_ref[0][0] = 1.0; 
-		SS_ref_db.bounds_ref[0][1] = 1.0;	
+		SS_ref_db.bounds_ref[0][0] = 1.0;
+		SS_ref_db.bounds_ref[0][1] = 1.0;
 	}
-    
+	/* TiO2: oilm+dilm+ogk+dgk together sum to x0 (p[0]+p[1]+p[3]+p[4]=x0*(1-x1)+x0*x1=x0);
+	   hm=p[2]=1-x0 is the only Ti-free endmember. Zeroing x0 alone leaves p[0]=x2,
+	   p[1]=-x2, p[3]=x3-x2, p[4]=x2-x3 (they still sum to 0 but aren't each individually
+	   0) - x2("Q") and x3("Qt") must ALSO be pinned to 0, giving pure hm. Note this
+	   directly conflicts with the O==0 pin above (which forces x0=1, opposite direction)
+	   - if TiO2==0 AND O==0 simultaneously neither hm (needs O) nor the ilm/geikielite
+	   family (needs Ti) survives, so that combined case is disabled as a whole phase
+	   in the dispatch table instead (same class as mb/mp's mt dueling-pin fix). */
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){
+		SS_ref_db.z_em[0]          = 0.0;
+		SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.z_em[1]          = 0.0;
+		SS_ref_db.d_em[1]          = 1.0;
+		SS_ref_db.z_em[3]          = 0.0;
+		SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.z_em[4]          = 0.0;
+		SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 0.0;
+		SS_ref_db.bounds_ref[0][1] = 0.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+	}
+
     // /* this lists the index of the order variables */
     // SS_ref_db.orderVar      = 1;
     // SS_ref_db.idOrderVar[2] = -1.0;
@@ -10721,11 +11662,35 @@ SS_ref G_SS_igad_nph_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
-		SS_ref_db.bounds_ref[3][0] = 0.0; 
-		SS_ref_db.bounds_ref[3][1] = 0.0;	
+		SS_ref_db.bounds_ref[3][0] = 0.0;
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+	}
+	/* CaO: neC (p[4]=3*x4, bare) - clean single pin x4("c") */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[4]          = 0.0;
+		SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0;
+		SS_ref_db.bounds_ref[4][1] = 0.0;
+	}
+	/* Na2O/K2O: neN/neS/neK/neO all entangled multi-variable combinations of x0,x1,x2,x4
+	   (nepheline-kalsilite is inherently an alkali feldspathoid, no single bare pin
+	   isolates either alkali alone) - penalty for the single-oxide-zero case. If BOTH
+	   are zero simultaneously no endmember survives at all (every one requires Na or K
+	   in some combination) - disabled as a whole phase in the dispatch table instead. */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0. && !(z_b.bulk_rock[z_b.K2O_id] == 0.)){
+		double na_penalty_coeff = 1.0e6;
+		for (i = 0; i < n_em; i++){
+			SS_ref_db.ox_penalty[i] += na_penalty_coeff * SS_ref_db.Comp[i][z_b.Na2O_id];
+		}
+	}
+	if (z_b.bulk_rock[z_b.K2O_id] == 0. && !(z_b.bulk_rock[z_b.Na2O_id] == 0.)){
+		double k_penalty_coeff = 1.0e6;
+		for (i = 0; i < n_em; i++){
+			SS_ref_db.ox_penalty[i] += k_penalty_coeff * SS_ref_db.Comp[i][z_b.K2O_id];
+		}
 	}
     /* this lists the index of the order variables */
     SS_ref_db.orderVar      = 1;
@@ -10801,7 +11766,24 @@ SS_ref G_SS_igad_lct_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     };
     
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
-    
+
+	/* nlc=p[0]=x0 (Na, net K cancels in the ab+lc-san reaction), klc=p[1]=1-x0 (pure K)
+	   - a true 2-endmember binary, same class as mb's abc/ig's fper: pin toward whichever
+	   bound zeros the unwanted endmember. Both zero simultaneously has no valid corner
+	   (2-endmember-only phase) - disabled as a whole phase in the dispatch table. */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0. && !(z_b.bulk_rock[z_b.K2O_id] == 0.)){
+		SS_ref_db.z_em[0]          = 0.0;
+		SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 0.0;
+		SS_ref_db.bounds_ref[0][1] = 0.0;
+	}
+	if (z_b.bulk_rock[z_b.K2O_id] == 0. && !(z_b.bulk_rock[z_b.Na2O_id] == 0.)){
+		SS_ref_db.z_em[1]          = 0.0;
+		SS_ref_db.d_em[1]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 1.0;
+		SS_ref_db.bounds_ref[0][1] = 1.0;
+	}
+
     return SS_ref_db;
 }
 
@@ -10864,7 +11846,23 @@ SS_ref G_SS_igad_kals_function(SS_ref SS_ref_db, char* research_group, int EM_da
     };
     
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
-    
+
+	/* nks=p[0]=1-x0 (Na-kalsilite, built from ne), kls=p[1]=x0 (pure K-kalsilite) - true
+	   2-endmember binary, mirrors lct exactly (opposite bound direction: kls is x0 itself
+	   here, not 1-x0). Both zero simultaneously -> whole-phase disable in dispatch table. */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0. && !(z_b.bulk_rock[z_b.K2O_id] == 0.)){
+		SS_ref_db.z_em[0]          = 0.0;
+		SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 1.0;
+		SS_ref_db.bounds_ref[0][1] = 1.0;
+	}
+	if (z_b.bulk_rock[z_b.K2O_id] == 0. && !(z_b.bulk_rock[z_b.Na2O_id] == 0.)){
+		SS_ref_db.z_em[1]          = 0.0;
+		SS_ref_db.d_em[1]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 0.0;
+		SS_ref_db.bounds_ref[0][1] = 0.0;
+	}
+
     return SS_ref_db;
 }
 
@@ -10994,13 +11992,24 @@ SS_ref G_SS_igad_mel_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
-		SS_ref_db.bounds_ref[3][0] = 0.0; 
-		SS_ref_db.bounds_ref[3][1] = 0.0;	
+		SS_ref_db.bounds_ref[3][0] = 0.0;
+		SS_ref_db.bounds_ref[3][1] = 0.0;
 	}
-    
+	/* Na2O: nml (p[3]=2*x1, bare) - clean single pin x1("n") */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[3]          = 0.0;
+		SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;
+		SS_ref_db.bounds_ref[1][1] = 0.0;
+	}
+	/* CaO: geh/ak/fak/nml/fge are ALL Ca-bearing (ak/geh serve as the Ca-bearing base
+	   component for every reaction-derived endmember here) - melilite group minerals
+	   are unconditionally calcic, no Ca-free corner exists. Whole-phase disable added
+	   in the dispatch table, same class as ep/epidote in ig/mb/mp. */
+
     return SS_ref_db;
 }
 
@@ -11068,7 +12077,7 @@ SS_ref G_SS_um_fluid_function(SS_ref SS_ref_db, char* research_group, int EM_dat
 
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 0.01-eps;
     
-	if (z_b.bulk_rock[4] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[0]          = 0.0;
         SS_ref_db.d_em[0]          = 1.0;
 		SS_ref_db.bounds_ref[0][0] = 0.0; 
@@ -11389,7 +12398,7 @@ SS_ref G_SS_um_atg_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = -1.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     
-	if (z_b.bulk_rock[4] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
@@ -11583,7 +12592,7 @@ SS_ref G_SS_um_ta_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = -1.0+eps; SS_ref_db.bounds_ref[4][1] = 1.0-eps;
     
-	if (z_b.bulk_rock[4] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
@@ -11724,7 +12733,7 @@ SS_ref G_SS_um_chl_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[4][0] = -1.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
     SS_ref_db.bounds_ref[5][0] = -1.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
   
-	if (z_b.bulk_rock[4] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[6]          = 0.0;
         SS_ref_db.d_em[6]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
@@ -11905,7 +12914,7 @@ SS_ref G_SS_um_spi_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[4] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
 		SS_ref_db.bounds_ref[1][0] = 1.0; 
@@ -12019,7 +13028,7 @@ SS_ref G_SS_um_opx_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[4] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
@@ -12146,9 +13155,25 @@ SS_ref G_SS_ume_pl4tr_function(SS_ref SS_ref_db,  char* research_group, int EM_d
     for (i = 0; i < n_em; i++){
         SS_ref_db.z_em[i] = 1.0;
     };
-    
+
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
-    
+
+	/* pl4tr is a bare 2-endmember ab(Na)/an(Ca) join (p[ab]=1-x0, p[an]=x0) - no corner is
+	   both Ca-free AND Na-free (mole fractions always sum to 1); the combined case is
+	   handled as a whole-phase disable at dispatch, same class as mb's abc. */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[1]          = 0.0;      /* an */
+        SS_ref_db.d_em[1]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 0.0;
+		SS_ref_db.bounds_ref[0][1] = 0.0;
+	}
+	else if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[0]          = 0.0;      /* ab */
+        SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 1.0;
+		SS_ref_db.bounds_ref[0][1] = 1.0;
+	}
+
     return SS_ref_db;
 }
 
@@ -12331,11 +13356,39 @@ SS_ref G_SS_ume_amp_function(SS_ref SS_ref_db,  char* research_group, int EM_dat
     SS_ref_db.bounds_ref[6][0] = -1.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
     SS_ref_db.bounds_ref[7][0] = -1.0+eps;  SS_ref_db.bounds_ref[7][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[4] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){
 		SS_ref_db.z_em[8]          = 0.0;
         SS_ref_db.d_em[8]          = 1.0;
-		SS_ref_db.bounds_ref[5][0] = 0.0; 
-		SS_ref_db.bounds_ref[5][1] = 0.0;	
+		SS_ref_db.bounds_ref[5][0] = 0.0;
+		SS_ref_db.bounds_ref[5][1] = 0.0;
+	}
+	/* pin: prgm (Na2O) - p[prgm]=x3 ("a"), single var, bare, clean. Unlike mb/mpe's 11-em
+	   amp, ume's amp has no kprg (K-pargasite) endmember at all - K2O never made it into
+	   this model - so prgm is not product-coupled with anything and needs no combined pin. */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[2]          = 0.0;      /* prgm */
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+		/* pin: glm+mrb (Na2O). p[glm]=x2-x5, p[mrb]=x5 (px_ume_amp), so p[glm]+p[mrb]=x2 -
+		   pinning x2("z") alone only zeroes that SUM; x5("f") must ALSO be pinned - same
+		   variable the O check above already pins, reused here as an independent trigger. */
+		SS_ref_db.z_em[3]          = 0.0;      /* glm */
+        SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+		SS_ref_db.z_em[8]          = 0.0;      /* mrb */
+        SS_ref_db.d_em[8]          = 1.0;
+		SS_ref_db.bounds_ref[5][0] = 0.0;
+		SS_ref_db.bounds_ref[5][1] = 0.0;
+	}
+	/* penalty: any endmember carrying CaO - tr (em0) is amp's own baseline/reference
+	   endmember, unconditionally calcic, so unpinnable; tsm/prgm also carry Ca. */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		double ca_penalty_coeff = 1.0e6;
+		for (i = 0; i < n_em; i++){
+			SS_ref_db.ox_penalty[i] += ca_penalty_coeff * SS_ref_db.Comp[i][z_b.CaO_id];
+		}
 	}
 
     return SS_ref_db;
@@ -12488,14 +13541,47 @@ SS_ref G_SS_ume_aug_function(SS_ref SS_ref_db,  char* research_group, int EM_dat
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
-    SS_ref_db.bounds_ref[5][0] = 0.0+eps;  SS_ref_db.bounds_ref[5][1] = 2.0-eps;
+    SS_ref_db.bounds_ref[5][0] = 0.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
     SS_ref_db.bounds_ref[6][0] = 0.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[4] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
-		SS_ref_db.bounds_ref[2][0] = 0.0; 
-		SS_ref_db.bounds_ref[2][1] = 0.0;	
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+	}
+	/* pin: acmm+jdm (Na2O). p[acmm]=x2, p[jdm]=x4-x2 (px_ume_aug), so acmm needs Na AND O
+	   (sodic-ferric pyroxene) - already zeroed by the O check above via x2=0, reused here
+	   as an independent trigger. jdm additionally needs x4=0 to vanish once x2=0. */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[4]          = 0.0;      /* acmm */
+        SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+		SS_ref_db.z_em[3]          = 0.0;      /* jdm */
+        SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0;
+		SS_ref_db.bounds_ref[4][1] = 0.0;
+	}
+	/* pin: di+ocats+dcats (CaO). p[di]=x3-x1, p[dcats]=x1-x6, p[ocats]=x6 (px_ume_aug), so
+	   di+dcats+ocats=x3 - a 3-way entangled group. Pinning x1=0, x3=0, x6=0 together zeroes
+	   each individually (verified algebraically): di=x3-x1=0, dcats=x1-x6=0, ocats=x6=0.
+	   Safe for cfs/cenh/jdm/fmc (the only other endmembers referencing x1/x3/x6): those
+	   references are all additive/product cross-terms, not bare factors, so they just lose
+	   a term rather than being incorrectly zeroed. */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[0]          = 0.0;      /* di */
+        SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;      /* x1 = "y" */
+		SS_ref_db.bounds_ref[1][1] = 0.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;      /* x3 = "z" */
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+		SS_ref_db.z_em[5]          = 0.0;      /* ocats */
+        SS_ref_db.d_em[5]          = 1.0;
+		SS_ref_db.z_em[6]          = 0.0;      /* dcats */
+        SS_ref_db.d_em[6]          = 1.0;
+		SS_ref_db.bounds_ref[6][0] = 0.0;      /* x6 = "Qa1" */
+		SS_ref_db.bounds_ref[6][1] = 0.0;
 	}
 
     return SS_ref_db;
@@ -12505,10 +13591,10 @@ SS_ref G_SS_ume_aug_function(SS_ref SS_ref_db,  char* research_group, int EM_dat
    retrieve reference thermodynamic data for ume_spl
 */
 SS_ref G_SS_ume_spl_function(SS_ref SS_ref_db,  char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+    strcpy(SS_ref_db.fName,"spl_T21");
     int i, j;
     int n_em = SS_ref_db.n_em;
-    
+
     char   *EM_tmp[] 		= {"nsp","isp","nhc","ihc","nmt","imt","pcr"};
     for (int i = 0; i < SS_ref_db.n_em; i++){
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
@@ -12626,11 +13712,26 @@ SS_ref G_SS_ume_spl_function(SS_ref SS_ref_db,  char* research_group, int EM_dat
     SS_ref_db.bounds_ref[4][0] = -1.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
     SS_ref_db.bounds_ref[5][0] = -1.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
     
-    if (z_b.bulk_rock[9] == 0.){ 					
+    if (z_b.bulk_rock[z_b.Cr2O3_id] == 0.){
 		SS_ref_db.z_em[6]          = 0.0;
         SS_ref_db.d_em[6]          = 1.0;
-		SS_ref_db.bounds_ref[2][0] = 0.0; 
-		SS_ref_db.bounds_ref[2][1] = 0.0;	
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+	}
+	/* pin: nmt+imt (O). p[nmt]=1/3*x1*(1-x2)-2/3*x5, p[imt]=2/3*x1*(1-x2)+2/3*x5
+	   (px_ume_spl); pinning x1("y")=0 kills the shared x1*(1-x2) product in both, and x5
+	   ("q3") must ALSO be pinned to kill the remaining standalone +/-2/3*x5 term in each
+	   (verified exact-zero for all x0,x2,x3,x4). x1=0 does not wrongly zero nhc/ihc (p[2],
+	   p[3] remain free functions of x0/x4/x5 once the x1*x2 cross-term drops out). */
+	if (z_b.bulk_rock[z_b.O_id] == 0.){
+		SS_ref_db.z_em[4]          = 0.0;      /* nmt */
+        SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.z_em[5]          = 0.0;      /* imt */
+        SS_ref_db.d_em[5]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;      /* x1 = "y" */
+		SS_ref_db.bounds_ref[1][1] = 0.0;
+		SS_ref_db.bounds_ref[5][0] = 0.0;      /* x5 = "q3" */
+		SS_ref_db.bounds_ref[5][1] = 0.0;
 	}
     return SS_ref_db;
 }
@@ -12748,7 +13849,22 @@ SS_ref G_SS_mtl_g_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = -1.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
-    
+
+	/* CaO: gr (p[2]=x1, bare) - clean single pin x1("c") */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[2]          = 0.0;
+		SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;
+		SS_ref_db.bounds_ref[1][1] = 0.0;
+	}
+	/* Na2O: nagt (p[5]=x4, bare) - clean single pin x4("n") */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[5]          = 0.0;
+		SS_ref_db.d_em[5]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0;
+		SS_ref_db.bounds_ref[4][1] = 0.0;
+	}
+
     return SS_ref_db;
 }
 
@@ -12917,7 +14033,24 @@ SS_ref G_SS_mtl_mpv_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
-    
+
+	/* CaO: cpvm (p[2]=x2, bare) - a minor Ca-perovskite admixture in bridgmanite here
+	   (unlike the standalone "cpv" phase below where this same endmember is the
+	   phase-defining component) - clean single pin x2("c") */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[2]          = 0.0;
+		SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+	}
+	/* Na2O: npvm (p[4]=x3, bare) - clean single pin x3("n") */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[4]          = 0.0;
+		SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+	}
+
     return SS_ref_db;
 }
 
@@ -13024,7 +14157,20 @@ SS_ref G_SS_mtl_cpv_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
-    
+
+	/* Na2O: npvm (p[4]=x3, bare) - clean single pin x3("n"). CaO is NOT handled here:
+	   cpvm (Ca-perovskite) is THIS phase's defining component (gbase[2]=cpv_eq.gb with
+	   zero offset, everything else penalized relative to it) - CaO=0 means cpv has no
+	   reason to exist at all, handled as a whole-phase disable in the dispatch table
+	   instead of a phase-internal pin (unlike mtl_mpv above, where the identical
+	   endmember is only a minor admixture). */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[4]          = 0.0;
+		SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+	}
+
     return SS_ref_db;
 }
 
@@ -13225,7 +14371,22 @@ SS_ref G_SS_mtl_cf_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[2][0] = -1.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
-    
+
+	/* CaO: cacf (p[1]=x3, bare) - clean single pin x3("c") */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[1]          = 0.0;
+		SS_ref_db.d_em[1]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+	}
+	/* Na2O: nacfm (p[5]=x4, bare) - clean single pin x4("n") */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[5]          = 0.0;
+		SS_ref_db.d_em[5]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0;
+		SS_ref_db.bounds_ref[4][1] = 0.0;
+	}
+
     return SS_ref_db;
 }
 
@@ -13351,7 +14512,22 @@ SS_ref G_SS_mtl_nal_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[3][0] = -1.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
     SS_ref_db.bounds_ref[5][0] = 0.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
-    
+
+	/* CaO: canal (p[1]=x4, bare) - clean single pin x4("c") */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[1]          = 0.0;
+		SS_ref_db.d_em[1]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0;
+		SS_ref_db.bounds_ref[4][1] = 0.0;
+	}
+	/* Na2O: nanal (p[0]=x5, bare) - clean single pin x5("n") */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[0]          = 0.0;
+		SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[5][0] = 0.0;
+		SS_ref_db.bounds_ref[5][1] = 0.0;
+	}
+
     return SS_ref_db;
 }
 
@@ -13741,7 +14917,24 @@ SS_ref G_SS_mtl_cpx_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = -1.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
-    
+
+	/* Na2O: jd (p[3]=x3, bare) - clean single pin x3("n") */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[3]          = 0.0;
+		SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+	}
+	/* CaO: di is the unpinnable baseline (p[0]=1-x1-x2-x3); cats (p[2]=x1, bare) is also
+	   independently Ca-bearing but pinning x1 alone doesn't zero di - same entangled
+	   baseline shape as every other cpx in this project series, penalty is correct. */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		double ca_penalty_coeff = 1.0e6;
+		for (i = 0; i < n_em; i++){
+			SS_ref_db.ox_penalty[i] += ca_penalty_coeff * SS_ref_db.Comp[i][z_b.CaO_id];
+		}
+	}
+
     return SS_ref_db;
 }
 
@@ -13847,7 +15040,15 @@ SS_ref G_SS_mtl_opx_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 2.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = -1.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
-    
+
+	/* CaO: odi (p[3]=x2, bare) - clean single pin x2("c") */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[3]          = 0.0;
+		SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+	}
+
     return SS_ref_db;
 }
 
@@ -13960,7 +15161,15 @@ SS_ref G_SS_mtl_hpx_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = -1.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
-    
+
+	/* CaO: odi (p[3]=x2, bare) - clean single pin x2("c") */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[3]          = 0.0;
+		SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+	}
+
     return SS_ref_db;
 }
 
@@ -14131,11 +15340,49 @@ SS_ref G_SS_mpe_liq_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[5][0] = 0.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
     SS_ref_db.bounds_ref[6][0] = 0.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
     
-	if (z_b.bulk_rock[10] == 0.){ 					
+	if (z_b.bulk_rock[z_b.H2O_id] == 0.){
 		SS_ref_db.z_em[7]          = 0.0;
 		SS_ref_db.d_em[7]          = 1.0;
-		SS_ref_db.bounds_ref[6][0] = 0.0; 
-		SS_ref_db.bounds_ref[6][1] = 0.0;	
+		SS_ref_db.bounds_ref[6][0] = 0.0;
+		SS_ref_db.bounds_ref[6][1] = 0.0;
+	}
+
+	/* pin: abL+kspL (Na2O/K2O). p[abL]=x1*x2, p[kspL]=x1*(1-x2) - x2 ("na") is the Na/(Na+K)
+	   split within the total alkali-feldspar-liquid fraction x1 ("fsp"). x1 appears nowhere
+	   else as a bare factor (only a safe additive term in slL's baseline), so when BOTH
+	   Na2O=0 and K2O=0 it must be x1 that gets pinned (kills both regardless of x2) -
+	   pinning only x2 in that combined case is the dueling-pin bug already caught once in
+	   mb's liq (x2=0 from Na2O silently overwritten by x2=1 from K2O). When only ONE of the
+	   two oxides is zero, x2 alone is still the clean, correct pin. */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0. && z_b.bulk_rock[z_b.K2O_id] == 0.){
+		SS_ref_db.z_em[1]          = 0.0;      /* abL */
+        SS_ref_db.d_em[1]          = 1.0;
+		SS_ref_db.z_em[2]          = 0.0;      /* kspL */
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;
+		SS_ref_db.bounds_ref[1][1] = 0.0;
+	}
+	else if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		/* pin: abL (Na2O) - forcing x2=0 leaves kspL=x1, abL=0 */
+		SS_ref_db.z_em[1]          = 0.0;
+        SS_ref_db.d_em[1]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+	}
+	else if (z_b.bulk_rock[z_b.K2O_id] == 0.){
+		/* pin: kspL (K2O) - forcing x2=1 leaves abL=x1, kspL=0 */
+		SS_ref_db.z_em[2]          = 0.0;
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 1.0;
+		SS_ref_db.bounds_ref[2][1] = 1.0;
+	}
+	/* pin: anL (CaO) - p[anL]=x3, single var, bare, clean (no entangled Ca-bearing partner
+	   here, unlike mb's liq where wo1L/anoL needed a dual-pin). */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[3]          = 0.0;
+        SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;
+		SS_ref_db.bounds_ref[3][1] = 0.0;
 	}
 
     return SS_ref_db;
@@ -14288,21 +15535,21 @@ SS_ref G_SS_mpe_bi_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
     SS_ref_db.bounds_ref[5][0] = 0.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
 
- 	if (z_b.bulk_rock[7] == 0.){ 					
+ 	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[4][0] = 0.0; 
 		SS_ref_db.bounds_ref[4][1] = 0.0;	
 	}   
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
 		SS_ref_db.bounds_ref[3][1] = 0.0;	
 	}
 
- 	if (z_b.bulk_rock[9] == 0.){ 					
+ 	if (z_b.bulk_rock[z_b.MnO_id] == 0.){ 					
 		SS_ref_db.z_em[6]          = 0.0;
         SS_ref_db.d_em[6]          = 1.0;
 		SS_ref_db.bounds_ref[1][0] = 0.0; 
@@ -14399,7 +15646,7 @@ SS_ref G_SS_mpe_cd_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     
-	if (z_b.bulk_rock[9] == 0.){ 					
+	if (z_b.bulk_rock[z_b.MnO_id] == 0.){ 					
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
 		SS_ref_db.bounds_ref[1][0] = 0.0; 
@@ -14559,13 +15806,13 @@ SS_ref G_SS_mpe_chl_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[5][0] = -1.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
     SS_ref_db.bounds_ref[6][0] = -1.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[6]          = 0.0;
         SS_ref_db.d_em[6]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
 	}
-	if (z_b.bulk_rock[9] == 0.){ 					
+	if (z_b.bulk_rock[z_b.MnO_id] == 0.){ 					
 		SS_ref_db.z_em[7]          = 0.0;
         SS_ref_db.d_em[7]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
@@ -14675,14 +15922,14 @@ SS_ref G_SS_mpe_ctd_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
 	}
 
-	if (z_b.bulk_rock[9] == 0.){ 					
+	if (z_b.bulk_rock[z_b.MnO_id] == 0.){ 					
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
 		SS_ref_db.bounds_ref[1][0] = 0.0; 
@@ -14764,7 +16011,7 @@ SS_ref G_SS_mpe_ep_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 0.5-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.bounds_ref[0][0] = 0.0; 
 		SS_ref_db.bounds_ref[0][1] = 0.0;	
 		SS_ref_db.bounds_ref[1][0] = 0.0; 
@@ -14888,18 +16135,26 @@ SS_ref G_SS_mpe_g_function(SS_ref SS_ref_db, char* research_group, int EM_datase
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
 		SS_ref_db.bounds_ref[3][1] = 0.0;	
 	}
 
-	if (z_b.bulk_rock[9] == 0.){ 					
+	if (z_b.bulk_rock[z_b.MnO_id] == 0.){
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
-		SS_ref_db.bounds_ref[2][0] = 0.0; 
-		SS_ref_db.bounds_ref[2][1] = 0.0;	
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+	}
+
+	/* pin: gr (CaO) - p[gr]=x1, single var, bare, clean */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[3]          = 0.0;
+        SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;
+		SS_ref_db.bounds_ref[1][1] = 0.0;
 	}
     return SS_ref_db;
 }
@@ -14970,11 +16225,22 @@ SS_ref G_SS_mpe_ilm_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = -1.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
-		SS_ref_db.bounds_ref[0][0] = 1.0; 
-		SS_ref_db.bounds_ref[0][1] = 1.0;	
+		SS_ref_db.bounds_ref[0][0] = 1.0;
+		SS_ref_db.bounds_ref[0][1] = 1.0;
+	}
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 		//TiO2
+		SS_ref_db.z_em[0]          = 0.0;
+        SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 0.0;
+		SS_ref_db.bounds_ref[0][1] = 0.0;
+
+		SS_ref_db.z_em[1]          = 0.0;
+        SS_ref_db.d_em[1]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;
+		SS_ref_db.bounds_ref[1][1] = 0.0;
 	}
 
     /* this lists the index of the order variables */
@@ -15083,14 +16349,14 @@ SS_ref G_SS_mpe_ilmm_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     SS_ref_db.bounds_ref[3][0] = -1.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
 
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
 		SS_ref_db.bounds_ref[0][0] = 1.0; 
 		SS_ref_db.bounds_ref[0][1] = 1.0;	
 	}
 
-	if (z_b.bulk_rock[9] == 0.){ 					
+	if (z_b.bulk_rock[z_b.MnO_id] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
@@ -15240,11 +16506,34 @@ SS_ref G_SS_mpe_ma_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
-		SS_ref_db.bounds_ref[2][0] = 0.0; 
-		SS_ref_db.bounds_ref[2][1] = 0.0;	
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+	}
+	/* pin: pat (Na2O) - p[pat]=x3, single var, bare, clean */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[3]          = 0.0;
+        SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+	}
+	/* pin: ma (CaO, margarite endmember) - p[ma]=x4, single var, bare, clean */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[4]          = 0.0;
+        SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0;
+		SS_ref_db.bounds_ref[4][1] = 0.0;
+	}
+	/* penalty: mut/cel/fcel (K2O) - all carry K on the interlayer site; mut (baseline) is
+	   unpinnable, cel/fcel entangled via product x0*x1 - loop over every endmember rather
+	   than hand-picking indices (pat/ma naturally carry Comp[][K2O_id]=0). */
+	if (z_b.bulk_rock[z_b.K2O_id] == 0.){
+		double k_penalty_coeff = 1.0e6;
+		for (i = 0; i < n_em; i++){
+			SS_ref_db.ox_penalty[i] += k_penalty_coeff * SS_ref_db.Comp[i][z_b.K2O_id];
+		}
 	}
     return SS_ref_db;
 }
@@ -15314,14 +16603,14 @@ SS_ref G_SS_mpe_mt_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[7] == 0.){ 					
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 					
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
 		SS_ref_db.bounds_ref[0][0] = 1.0; 
 		SS_ref_db.bounds_ref[0][1] = 1.0;	
 	}
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[0]          = 0.0;
         SS_ref_db.d_em[0]          = 1.0;
 		SS_ref_db.z_em[1]          = 0.0;
@@ -15471,11 +16760,34 @@ SS_ref G_SS_mpe_mu_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
-		SS_ref_db.bounds_ref[2][0] = 0.0; 
-		SS_ref_db.bounds_ref[2][1] = 0.0;	
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+	}
+	/* pin: pat (Na2O) - p[pat]=x3, single var, bare, clean */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[3]          = 0.0;
+        SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+	}
+	/* pin: ma (CaO, margarite endmember) - p[ma]=x4, single var, bare, clean */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[4]          = 0.0;
+        SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0;
+		SS_ref_db.bounds_ref[4][1] = 0.0;
+	}
+	/* penalty: mut/cel/fcel (K2O) - all carry K on the interlayer site; mut (baseline) is
+	   unpinnable, cel/fcel entangled via product x0*x1 - loop over every endmember rather
+	   than hand-picking indices (pat/ma naturally carry Comp[][K2O_id]=0). */
+	if (z_b.bulk_rock[z_b.K2O_id] == 0.){
+		double k_penalty_coeff = 1.0e6;
+		for (i = 0; i < n_em; i++){
+			SS_ref_db.ox_penalty[i] += k_penalty_coeff * SS_ref_db.Comp[i][z_b.K2O_id];
+		}
 	}
     return SS_ref_db;
 }
@@ -15627,18 +16939,25 @@ SS_ref G_SS_mpe_opx_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[4][0] = 0.0+eps;  SS_ref_db.bounds_ref[4][1] = 1.0-eps;
     SS_ref_db.bounds_ref[5][0] = 0.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
     
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
 		SS_ref_db.bounds_ref[3][1] = 0.0;	
 	}
- 	if (z_b.bulk_rock[9] == 0.){ 					
+ 	if (z_b.bulk_rock[z_b.MnO_id] == 0.){
 		SS_ref_db.z_em[5]          = 0.0;
         SS_ref_db.d_em[5]          = 1.0;
-		SS_ref_db.bounds_ref[1][0] = 0.0; 
-		SS_ref_db.bounds_ref[1][1] = 0.0;	
-	}   
+		SS_ref_db.bounds_ref[1][0] = 0.0;
+		SS_ref_db.bounds_ref[1][1] = 0.0;
+	}
+	/* pin: odi (CaO) - p[odi]=x4, single var, bare, clean */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[6]          = 0.0;
+        SS_ref_db.d_em[6]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0;
+		SS_ref_db.bounds_ref[4][1] = 0.0;
+	}
     return SS_ref_db;
 }
 
@@ -15718,7 +17037,189 @@ SS_ref G_SS_mpe_fsp_function(SS_ref SS_ref_db, char* research_group, int EM_data
     
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
-    
+
+	/* an=p[1]=x0 (CaO), san=p[2]=x1 (K2O), ab=p[0]=1-x0-x1 (Na2O, baseline - no bare pin).
+	   A soft penalty alone cannot force the ab baseline exactly to 0 (NLopt just
+	   settles at a small nonzero residual) - it only works combined with a bound
+	   that clamps the OTHER variable to the opposite extreme (1), making x0+x1=1
+	   exact. CaO=Na2O=0 forces x0=0 (an) AND x1=1 (san pure); K2O=Na2O=0 forces
+	   x1=0 (san) AND x0=1 (an pure). All-three-zero has no valid corner at all
+	   (p[0]+p[1]+p[2]=1 always) - handled as a whole-phase disable in the dispatch
+	   table. Only CaO!=0 && K2O!=0 && Na2O==0 has no exact pin available (x0+x1=1
+	   is a linear constraint, not a box constraint) - kept on the soft penalty
+	   (documented residual-leak limitation). */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0. && z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[1]          = 0.0;
+        SS_ref_db.d_em[1]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 0.0;
+		SS_ref_db.bounds_ref[0][1] = 0.0;
+        SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 1.0;
+		SS_ref_db.bounds_ref[1][1] = 1.0;
+	}
+	else if (z_b.bulk_rock[z_b.K2O_id] == 0. && z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[2]          = 0.0;
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;
+		SS_ref_db.bounds_ref[1][1] = 0.0;
+        SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 1.0;
+		SS_ref_db.bounds_ref[0][1] = 1.0;
+	}
+	else {
+		/* pin: an (CaO) - p[an]=x0, single var, clean */
+		if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+			SS_ref_db.z_em[1]          = 0.0;
+			SS_ref_db.d_em[1]          = 1.0;
+			SS_ref_db.bounds_ref[0][0] = 0.0;
+			SS_ref_db.bounds_ref[0][1] = 0.0;
+		}
+		/* pin: san (K2O) - p[san]=x1, single var, clean */
+		if (z_b.bulk_rock[z_b.K2O_id] == 0.){
+			SS_ref_db.z_em[2]          = 0.0;
+			SS_ref_db.d_em[2]          = 1.0;
+			SS_ref_db.bounds_ref[1][0] = 0.0;
+			SS_ref_db.bounds_ref[1][1] = 0.0;
+		}
+		/* penalty: ab (Na2O, baseline, unpinnable in this branch) - p[ab]=1-x0-x1 */
+		if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+			double na_penalty_coeff = 1.0e6;
+			for (i = 0; i < n_em; i++){
+				SS_ref_db.ox_penalty[i] += na_penalty_coeff * SS_ref_db.Comp[i][z_b.Na2O_id];
+			}
+		}
+	}
+
+    return SS_ref_db;
+}
+
+/**
+    retrieve reference thermodynamic data for mpe_plc (ternary plagioclase,
+    Baldwin et al. 2005) - same ab/an/san endmembers as fsp_H22, different
+    (single A-site) mixing model, margules, and size parameters, plus a DQF
+    correction on "an" (+7.03 - 0.00466*T kJ, from the source a-x file's
+    "DQF 7.03 -0.00466 0" line on the "an" ideal-activity entry).
+*/
+SS_ref G_SS_mpe_plc_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
+    strcpy(SS_ref_db.fName,"plc_B05");
+    int i, j;
+    int n_em = SS_ref_db.n_em;
+
+    char   *EM_tmp[] 		= {"ab","an","san"};
+    for (int i = 0; i < SS_ref_db.n_em; i++){
+        strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
+    };
+    int n_xeos = SS_ref_db.n_xeos;
+    char   *CV_tmp[] 		= {"ca","k"};
+    for (int i = 0; i < SS_ref_db.n_xeos; i++){
+        strcpy(SS_ref_db.CV_list[i],CV_tmp[i]);
+    };
+    char   *SF_tmp[] 		= {"xNaA","xCaA","xKA"};
+    for (int i = 0; i < SS_ref_db.n_sf; i++){
+        strcpy(SS_ref_db.SF_list[i],SF_tmp[i]);
+    };
+
+    /* w(aban), w(sanab), w(sanan) in the source a-x file, same W[] pair ordering
+       convention as fsp_H22 (W[0]=ab-an, W[1]=ab-san, W[2]=an-san) */
+    SS_ref_db.W[0] = 3.1;
+    SS_ref_db.W[1] = 25.1 + 0.338*SS_ref_db.P - 0.0108*SS_ref_db.T;
+    SS_ref_db.W[2] = 40.0;
+
+    SS_ref_db.v[0] = 0.643;
+    SS_ref_db.v[1] = 1.0;
+    SS_ref_db.v[2] = 1.0;
+
+
+    em_data ab_eq 		= get_em_data(		research_group, EM_dataset,
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"ab",
+    										"equilibrium"	);
+
+    em_data an_eq 		= get_em_data(		research_group, EM_dataset,
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"an",
+    										"equilibrium"	);
+
+    em_data san_eq 		= get_em_data(		research_group, EM_dataset,
+    										len_ox,
+    										z_b,
+    										SS_ref_db.P,
+    										SS_ref_db.T,
+    										"san",
+    										"equilibrium"	);
+
+    SS_ref_db.gbase[0] 		= ab_eq.gb;
+    SS_ref_db.gbase[1] 		= an_eq.gb + (7.03 - 0.00466*SS_ref_db.T);
+    SS_ref_db.gbase[2] 		= san_eq.gb;
+
+    SS_ref_db.ElShearMod[0] 	= ab_eq.ElShearMod;
+    SS_ref_db.ElShearMod[1] 	= an_eq.ElShearMod;
+    SS_ref_db.ElShearMod[2] 	= san_eq.ElShearMod;
+
+    for (i = 0; i < len_ox; i++){
+        SS_ref_db.Comp[0][i] 	= ab_eq.C[i];
+        SS_ref_db.Comp[1][i] 	= an_eq.C[i];
+        SS_ref_db.Comp[2][i] 	= san_eq.C[i];
+    }
+
+    for (i = 0; i < n_em; i++){
+        SS_ref_db.z_em[i] = 1.0;
+    };
+
+    SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
+    SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
+
+	/* an=p[1]=x0 (CaO), san=p[2]=x1 (K2O), ab=p[0]=1-x0-x1 (Na2O, baseline - no bare pin).
+	   Same combined-pin derivation as fsp_H22 (identical ab/an/san endmember shape) - see
+	   G_SS_mpe_fsp_function for the full reasoning. */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0. && z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[1]          = 0.0;
+        SS_ref_db.d_em[1]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 0.0;
+		SS_ref_db.bounds_ref[0][1] = 0.0;
+        SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 1.0;
+		SS_ref_db.bounds_ref[1][1] = 1.0;
+	}
+	else if (z_b.bulk_rock[z_b.K2O_id] == 0. && z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[2]          = 0.0;
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;
+		SS_ref_db.bounds_ref[1][1] = 0.0;
+        SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[0][0] = 1.0;
+		SS_ref_db.bounds_ref[0][1] = 1.0;
+	}
+	else {
+		/* pin: an (CaO) - p[an]=x0, single var, clean */
+		if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+			SS_ref_db.z_em[1]          = 0.0;
+			SS_ref_db.d_em[1]          = 1.0;
+			SS_ref_db.bounds_ref[0][0] = 0.0;
+			SS_ref_db.bounds_ref[0][1] = 0.0;
+		}
+		/* pin: san (K2O) - p[san]=x1, single var, clean */
+		if (z_b.bulk_rock[z_b.K2O_id] == 0.){
+			SS_ref_db.z_em[2]          = 0.0;
+			SS_ref_db.d_em[2]          = 1.0;
+			SS_ref_db.bounds_ref[1][0] = 0.0;
+			SS_ref_db.bounds_ref[1][1] = 0.0;
+		}
+		/* penalty: ab (Na2O, baseline, unpinnable in this branch) - p[ab]=1-x0-x1 */
+		if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+			double na_penalty_coeff = 1.0e6;
+			for (i = 0; i < n_em; i++){
+				SS_ref_db.ox_penalty[i] += na_penalty_coeff * SS_ref_db.Comp[i][z_b.Na2O_id];
+			}
+		}
+	}
+
     return SS_ref_db;
 }
 
@@ -15826,7 +17327,7 @@ SS_ref G_SS_mpe_sa_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = -1.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 					
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
@@ -15839,7 +17340,7 @@ SS_ref G_SS_mpe_sa_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mp_sp
 */
 SS_ref G_SS_mpe_sp_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    strcpy(SS_ref_db.fName,"sa_W02");
+    strcpy(SS_ref_db.fName,"sp_W02");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -15923,14 +17424,14 @@ SS_ref G_SS_mpe_sp_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[7] == 0.){ 					
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 					
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
 	}
 
-	// if (z_b.bulk_rock[8] == 0.){ 					
+	// if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 	// 	SS_ref_db.z_em[2]          = 0.0;
     //     SS_ref_db.d_em[2]          = 1.0;
 	// 	SS_ref_db.bounds_ref[1][0] = 0.0; 
@@ -16059,19 +17560,19 @@ SS_ref G_SS_mpe_st_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
 
-  	if (z_b.bulk_rock[7] == 0.){ 					
+  	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 					
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
 		SS_ref_db.bounds_ref[3][0] = 0.0; 
 		SS_ref_db.bounds_ref[3][1] = 0.0;	
 	}  
-  	if (z_b.bulk_rock[8] == 0.){ 					
+  	if (z_b.bulk_rock[z_b.O_id] == 0.){ 					
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
 		SS_ref_db.bounds_ref[2][1] = 0.0;	
 	}  
-	if (z_b.bulk_rock[9] == 0.){ 					
+	if (z_b.bulk_rock[z_b.MnO_id] == 0.){ 					
 		SS_ref_db.z_em[2]          = 0.0;
         SS_ref_db.d_em[2]          = 1.0;
 		SS_ref_db.bounds_ref[1][0] = 0.0; 
@@ -16139,13 +17640,13 @@ SS_ref G_SS_mpe_fl_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
     
 
-  	if (z_b.bulk_rock[10] == 0.){ 	// no H2O				
+  	if (z_b.bulk_rock[z_b.H2O_id] == 0.){ 	// no H2O				
 		SS_ref_db.z_em[0]          = 0.0;
         SS_ref_db.d_em[0]          = 1.0;
 		SS_ref_db.bounds_ref[0][0] = 1.0; 
 		SS_ref_db.bounds_ref[0][1] = 1.0;	
 	}  
-  	if (z_b.bulk_rock[11] == 0.){ 	// no CO2				
+  	if (z_b.bulk_rock[z_b.CO2_id] == 0.){ 	// no CO2				
 		SS_ref_db.z_em[1]          = 0.0;
         SS_ref_db.d_em[1]          = 1.0;
 		SS_ref_db.bounds_ref[0][0] = 0.0; 
@@ -16250,7 +17751,20 @@ SS_ref G_SS_mpe_occm_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
     SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
     SS_ref_db.bounds_ref[3][0] = 0.0+eps;  SS_ref_db.bounds_ref[3][1] = 1.0-eps;
-    
+
+	/* penalty: cc/odo/oank (CaO) - all three carry Ca (cc=CaCO3, odo=0.5cc+0.5mag,
+	   oank=0.5cc+0.25mag+0.25sid); none of them is a bare single-xeos pin (x2/x3 each
+	   appear in several p[] formulas at once), so a hard bounds_ref pin risks leaving an
+	   unenforced linear residual (same class as fsp's "ab" baseline) - use the generic
+	   soft penalty instead, leaving mag/sid (the valid Ca-free magnesite-siderite join)
+	   unpenalized. */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		double ca_penalty_coeff = 1.0e6;
+		for (i = 0; i < n_em; i++){
+			SS_ref_db.ox_penalty[i] += ca_penalty_coeff * SS_ref_db.Comp[i][z_b.CaO_id];
+		}
+	}
+
     return SS_ref_db;
 }
 
@@ -16561,17 +18075,66 @@ SS_ref G_SS_mpe_amp_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[8][0] = -1.0+eps;  SS_ref_db.bounds_ref[8][1] = 1.0-eps;
     SS_ref_db.bounds_ref[9][0] = -1.0+eps;  SS_ref_db.bounds_ref[9][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 	    //O				
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 	    //O
 		SS_ref_db.z_em[8]          = 0.0;
         SS_ref_db.d_em[8]          = 1.0;
-		SS_ref_db.bounds_ref[6][0] = 0.0; 
-		SS_ref_db.bounds_ref[6][1] = 0.0;	
+		SS_ref_db.bounds_ref[6][0] = 0.0;
+		SS_ref_db.bounds_ref[6][1] = 0.0;
 	}
-	if (z_b.bulk_rock[7] == 0.){ 		//TiO2	
+	if (z_b.bulk_rock[z_b.TiO2_id] == 0.){ 		//TiO2
 		SS_ref_db.z_em[10]          = 0.0;
         SS_ref_db.d_em[10]          = 1.0;
-		SS_ref_db.bounds_ref[7][0]  = 0.0; 
-		SS_ref_db.bounds_ref[7][1]  = 0.0;	
+		SS_ref_db.bounds_ref[7][0]  = 0.0;
+		SS_ref_db.bounds_ref[7][1]  = 0.0;
+	}
+	/* pin: glm+mrb (Na2O). p[glm]=x2-x6, p[mrb]=x6 (px_mpe_amp), so p[glm]+p[mrb]=x2 -
+	   pinning x2("z") alone only zeroes that SUM (near-cancellation, not each individually
+	   0). x6("f") must ALSO be pinned - same variable the O check above already pins,
+	   reused here as an independent trigger. */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[3]          = 0.0;      /* glm */
+        SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+		SS_ref_db.z_em[8]          = 0.0;      /* mrb */
+        SS_ref_db.d_em[8]          = 1.0;
+		SS_ref_db.bounds_ref[6][0] = 0.0;
+		SS_ref_db.bounds_ref[6][1] = 0.0;
+	}
+	/* prgm/kprg (Na2O+K2O, product-coupled): p[prgm]=x3*(1-x4), p[kprg]=x3*x4 (px_mpe_amp).
+	   x3("a") is total pargasite-site occupancy, x4("k") is the K/(Na+K) split within it -
+	   x4 appears nowhere else, so unlike glm/mrb this pair IS cleanly pinnable, just needs
+	   the right variable/direction depending on which of Na2O/K2O (or both) are zero:
+	   - both zero: pin x3=0, killing both prgm and kprg regardless of x4.
+	   - only Na2O=0: pin x4=1 (all pargasite-site K, none Na) -> prgm=x3*(1-1)=0, kprg free.
+	   - only K2O=0: pin x4=0 (all pargasite-site Na, none K) -> kprg=x3*0=0, prgm free. */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0. && z_b.bulk_rock[z_b.K2O_id] == 0.){
+		SS_ref_db.z_em[2]          = 0.0;      /* prgm */
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.z_em[9]          = 0.0;      /* kprg */
+        SS_ref_db.d_em[9]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+	}
+	else if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[2]          = 0.0;      /* prgm */
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 1.0;
+		SS_ref_db.bounds_ref[4][1] = 1.0;
+	}
+	else if (z_b.bulk_rock[z_b.K2O_id] == 0.){
+		SS_ref_db.z_em[9]          = 0.0;      /* kprg */
+        SS_ref_db.d_em[9]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0;
+		SS_ref_db.bounds_ref[4][1] = 0.0;
+	}
+	/* penalty: any endmember carrying CaO - tr (em0) is amp's own baseline/reference
+	   endmember, unconditionally calcic, so unpinnable; tsm/prgm/kprg/tts also carry Ca. */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		double ca_penalty_coeff = 1.0e6;
+		for (i = 0; i < n_em; i++){
+			SS_ref_db.ox_penalty[i] += ca_penalty_coeff * SS_ref_db.Comp[i][z_b.CaO_id];
+		}
 	}
 
     return SS_ref_db;
@@ -16730,11 +18293,44 @@ SS_ref G_SS_mpe_aug_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[5][0] = 0.0+eps;  SS_ref_db.bounds_ref[5][1] = 1.0-eps;
     SS_ref_db.bounds_ref[6][0] = 0.0+eps;  SS_ref_db.bounds_ref[6][1] = 1.0-eps;
 
-	if (z_b.bulk_rock[8] == 0.){ 	    //O				
+	if (z_b.bulk_rock[z_b.O_id] == 0.){ 	    //O
 		SS_ref_db.z_em[4]          = 0.0;
         SS_ref_db.d_em[4]          = 1.0;
-		SS_ref_db.bounds_ref[2][0] = 0.0; 
-		SS_ref_db.bounds_ref[2][1] = 0.0;	
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+	}
+	/* pin: acmm+jdm (Na2O). p[acmm]=x2, p[jdm]=x4-x2 (px_mpe_aug), so acmm needs Na AND O
+	   (sodic-ferric pyroxene) - already zeroed by the O check above via x2=0, reused here
+	   as an independent trigger. jdm additionally needs x4=0 to vanish once x2=0. */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[4]          = 0.0;      /* acmm */
+        SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[2][0] = 0.0;
+		SS_ref_db.bounds_ref[2][1] = 0.0;
+		SS_ref_db.z_em[3]          = 0.0;      /* jdm */
+        SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0;
+		SS_ref_db.bounds_ref[4][1] = 0.0;
+	}
+	/* pin: di+ocats+dcats (CaO). p[di]=x3-x1, p[dcats]=x1-x6, p[ocats]=x6 (px_mpe_aug), so
+	   di+dcats+ocats=x3 - a 3-way entangled group. Pinning x1=0, x3=0, x6=0 together zeroes
+	   each individually (verified algebraically): di=x3-x1=0, dcats=x1-x6=0, ocats=x6=0.
+	   Safe for cfs/cenh/jdm/fmc (the only other endmembers referencing x1/x3/x6): those
+	   references are all additive/product cross-terms, not bare factors, so they just lose
+	   a term rather than being incorrectly zeroed. */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[0]          = 0.0;      /* di */
+        SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;      /* x1 = "y" */
+		SS_ref_db.bounds_ref[1][1] = 0.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;      /* x3 = "z" */
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+		SS_ref_db.z_em[5]          = 0.0;      /* ocats */
+        SS_ref_db.d_em[5]          = 1.0;
+		SS_ref_db.z_em[6]          = 0.0;      /* dcats */
+        SS_ref_db.d_em[6]          = 1.0;
+		SS_ref_db.bounds_ref[6][0] = 0.0;      /* x6 = "qal" */
+		SS_ref_db.bounds_ref[6][1] = 0.0;
 	}
 
     return SS_ref_db;
@@ -16857,7 +18453,7 @@ SS_ref G_SS_mpe_dio_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.bounds_ref[4][0] = -0.5+eps;  SS_ref_db.bounds_ref[4][1] = 0.5-eps;
     SS_ref_db.bounds_ref[5][0] = -0.5+eps;  SS_ref_db.bounds_ref[5][1] = 0.5-eps;
 
-    if (z_b.bulk_rock[8] == 0.){ 	    //O				
+    if (z_b.bulk_rock[z_b.O_id] == 0.){ 	    //O				
 		SS_ref_db.z_em[3]          = 0.0;
         SS_ref_db.d_em[3]          = 1.0;
 		SS_ref_db.bounds_ref[2][0] = 0.0; 
@@ -16874,118 +18470,47 @@ SS_ref G_SS_mpe_dio_function(SS_ref SS_ref_db, char* research_group, int EM_data
     SS_ref_db.idOrderVar[4] = -1.0;
     SS_ref_db.idOrderVar[5] = -1.0;
 
+	/* pin: jd+acmm+om+jac (Na2O). Algebraically jd+acmm+jac=x1-x3 and om=2*x3 (px_mpe_dio);
+	   pinning x1=0, x3=0, x4=0 together zeroes each individually: jd=-x1*x2+x1-x3-x4=0,
+	   acmm=x1*x2-x4=0, om=2*x3=0, jac=2*x4=0 (verified for all x0,x2,x5). x4 is the same
+	   variable the O check above already pins, reused as an independent trigger. */
+	if (z_b.bulk_rock[z_b.Na2O_id] == 0.){
+		SS_ref_db.z_em[0]          = 0.0;      /* jd */
+        SS_ref_db.d_em[0]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 0.0;      /* x1 = "j" */
+		SS_ref_db.bounds_ref[1][1] = 0.0;
+		SS_ref_db.z_em[3]          = 0.0;      /* acmm */
+        SS_ref_db.d_em[3]          = 1.0;
+		SS_ref_db.z_em[4]          = 0.0;      /* om */
+        SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;      /* x3 = "c" */
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+		SS_ref_db.z_em[6]          = 0.0;      /* jac */
+        SS_ref_db.d_em[6]          = 1.0;
+		SS_ref_db.bounds_ref[4][0] = 0.0;      /* x4 = "qaf", shared trigger with O */
+		SS_ref_db.bounds_ref[4][1] = 0.0;
+	}
+	/* pin: di+hed+om+cfm (CaO). Pinning x1 to its UPPER bound (1) and x3=0 together zeroes
+	   each individually regardless of x0,x2,x4,x5 (verified algebraically: di=x0*x1-x0*x3-x0
+	   -x1*x5-x1-x3*x5-x3+x5+1 -> 0 at x1=1,x3=0; same for hed/om/cfm). */
+	if (z_b.bulk_rock[z_b.CaO_id] == 0.){
+		SS_ref_db.z_em[1]          = 0.0;      /* di */
+        SS_ref_db.d_em[1]          = 1.0;
+		SS_ref_db.bounds_ref[1][0] = 1.0;      /* x1 = "j" */
+		SS_ref_db.bounds_ref[1][1] = 1.0;
+		SS_ref_db.z_em[2]          = 0.0;      /* hed */
+        SS_ref_db.d_em[2]          = 1.0;
+		SS_ref_db.z_em[4]          = 0.0;      /* om */
+        SS_ref_db.d_em[4]          = 1.0;
+		SS_ref_db.bounds_ref[3][0] = 0.0;      /* x3 = "c" */
+		SS_ref_db.bounds_ref[3][1] = 0.0;
+		SS_ref_db.z_em[5]          = 0.0;      /* cfm */
+        SS_ref_db.d_em[5]          = 1.0;
+	}
+
     return SS_ref_db;
 }
 
-
-/**
-   retrieve reference thermodynamic data for mpe_car
-*/
-SS_ref G_SS_mpe_car_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
-    int i, j;
-    int n_em = SS_ref_db.n_em;
-    
-    char   *EM_tmp[] 		= {"fcar","mcar","ncar","caro"};
-    for (int i = 0; i < SS_ref_db.n_em; i++){
-        strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
-    };
-    
-    int n_xeos = SS_ref_db.n_xeos;
-    char   *CV_tmp[] 		= {"m","n","f"};
-    for (int i = 0; i < SS_ref_db.n_xeos; i++){
-        strcpy(SS_ref_db.CV_list[i],CV_tmp[i]);
-    };
-    int n_sf = SS_ref_db.n_sf;
-    
-    char   *SF_tmp[] 		= {"xFeM1","xMgM1","xMnM1","xFe3M2","xAlM2"};
-    for (int i = 0; i < SS_ref_db.n_sf; i++){
-        strcpy(SS_ref_db.SF_list[i],SF_tmp[i]);
-    };
-    
-    SS_ref_db.W[0] = 1.0;
-    SS_ref_db.W[1] = 1.0;
-    SS_ref_db.W[2] = 0.0;
-    SS_ref_db.W[3] = 1.0;
-    SS_ref_db.W[4] = 0.0;
-    SS_ref_db.W[5] = 0.0;
-    
-    
-    em_data fcar_eq 		= get_em_data(		research_group, EM_dataset, 
-    										len_ox,
-    										z_b,
-    										SS_ref_db.P,
-    										SS_ref_db.T,
-    										"fcar", 
-    										"equilibrium"	);
-    
-    em_data mcar_eq 		= get_em_data(		research_group, EM_dataset, 
-    										len_ox,
-    										z_b,
-    										SS_ref_db.P,
-    										SS_ref_db.T,
-    										"mcar", 
-    										"equilibrium"	);
-    
-    em_data mang_eq 		= get_em_data(		research_group, EM_dataset, 
-    										len_ox,
-    										z_b,
-    										SS_ref_db.P,
-    										SS_ref_db.T,
-    										"mang", 
-    										"equilibrium"	);
-    
-    em_data per_eq 		= get_em_data(		research_group, EM_dataset, 
-    										len_ox,
-    										z_b,
-    										SS_ref_db.P,
-    										SS_ref_db.T,
-    										"per", 
-    										"equilibrium"	);
-    
-    em_data cor_eq 		= get_em_data(		research_group, EM_dataset, 
-    										len_ox,
-    										z_b,
-    										SS_ref_db.P,
-    										SS_ref_db.T,
-    										"cor", 
-    										"equilibrium"	);
-    
-    em_data hem_eq 		= get_em_data(		research_group, EM_dataset, 
-    										len_ox,
-    										z_b,
-    										SS_ref_db.P,
-    										SS_ref_db.T,
-    										"hem", 
-    										"equilibrium"	);
-    
-    SS_ref_db.gbase[0] 		= fcar_eq.gb;
-    SS_ref_db.gbase[1] 		= mcar_eq.gb;
-    SS_ref_db.gbase[2] 		= mang_eq.gb + mcar_eq.gb -per_eq.gb + 30.0;
-    SS_ref_db.gbase[3] 		= -0.5*cor_eq.gb + fcar_eq.gb + 0.5*hem_eq.gb + 45.0;
-    
-    SS_ref_db.ElShearMod[0] 	= fcar_eq.ElShearMod;
-    SS_ref_db.ElShearMod[1] 	= mcar_eq.ElShearMod;
-    SS_ref_db.ElShearMod[2] 	= mang_eq.ElShearMod + mcar_eq.ElShearMod -per_eq.ElShearMod;
-    SS_ref_db.ElShearMod[3] 	= -0.5*cor_eq.ElShearMod + fcar_eq.ElShearMod + 0.5*hem_eq.ElShearMod;
-    
-    for (i = 0; i < len_ox; i++){
-        SS_ref_db.Comp[0][i] 	= fcar_eq.C[i];
-        SS_ref_db.Comp[1][i] 	= mcar_eq.C[i];
-        SS_ref_db.Comp[2][i] 	= mang_eq.C[i] + mcar_eq.C[i] -per_eq.C[i];
-        SS_ref_db.Comp[3][i] 	= -0.5*cor_eq.C[i] + fcar_eq.C[i] + 0.5*hem_eq.C[i];
-    }
-    
-    for (i = 0; i < n_em; i++){
-        SS_ref_db.z_em[i] = 1.0;
-    };
-    
-    SS_ref_db.bounds_ref[0][0] = 0.0+eps;  SS_ref_db.bounds_ref[0][1] = 1.0-eps;
-    SS_ref_db.bounds_ref[1][0] = 0.0+eps;  SS_ref_db.bounds_ref[1][1] = 1.0-eps;
-    SS_ref_db.bounds_ref[2][0] = 0.0+eps;  SS_ref_db.bounds_ref[2][1] = 1.0-eps;
-    
-    return SS_ref_db;
-}
 
 
 
@@ -16993,10 +18518,19 @@ SS_ref G_SS_mpe_car_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for mpe_carp
 */
 SS_ref G_SS_mpe_carp_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    
+
+    /* fName left unset here (every sibling phase function sets it) - SS_ref_db.fName is a
+       20-byte malloc'd buffer (initialize.c) that starts as uninitialized garbage, not a
+       null-terminated empty string. A heap-buffer-overflow READ (strcpy scanning past the
+       20-byte allocation looking for a null it may never find) was confirmed via
+       AddressSanitizer in fill_output_struct (dump_function.c) whenever carp is in the
+       final stable assemblage - only reachable in practice once enough oxides are active
+       to stabilize it (e.g. mpe with both CO2 and S nonzero). */
+    strcpy(SS_ref_db.fName,"carp_W14");
+
     int i, j;
     int n_em = SS_ref_db.n_em;
-    
+
     char   *EM_tmp[] 		= {"mcar","fcar"};
     for (int i = 0; i < SS_ref_db.n_em; i++){
         strcpy(SS_ref_db.EM_list[i],EM_tmp[i]);
@@ -17081,6 +18615,10 @@ SS_ref G_SS_mb_EM_function(		global_variable 	 gv,
 			}
             SS_ref_db  = G_SS_mb_liq_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "amp") == 0 ){
+			/* amphibole is unconditionally hydrous (structural OH on every endmember) - no H2O-free corner exists, whole-phase disable is the right tool here, not a per-endmember pin/penalty. */
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
             SS_ref_db  = G_SS_mb_amp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "aug") == 0 ){
             if (gv.mbCpx == 0){
@@ -17091,6 +18629,12 @@ SS_ref G_SS_mb_EM_function(		global_variable 	 gv,
             if (gv.mbCpx == 1){
                 SS_ref_db.ss_flags[0]  = 0;
             }
+			/* dio (the jd-di/omphacite join) has NO endmember that is both Ca-free AND
+			   Na-free - jd/acmm/jac need Na, di/hed/cfm need Ca, om needs both. If neither
+			   oxide is present, no valid corner of this solid solution exists at all. */
+			if (z_b.bulk_rock[gv.CaO_id] == 0. && z_b.bulk_rock[gv.Na2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
             SS_ref_db  = G_SS_mb_dio_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "opx") == 0 ){
             SS_ref_db  = G_SS_mb_opx_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
@@ -17099,8 +18643,20 @@ SS_ref G_SS_mb_EM_function(		global_variable 	 gv,
         else if (strcmp( name, "ol") == 0 ){
             SS_ref_db  = G_SS_mb_ol_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "fsp") == 0 ){
+			/* an/san are bare pins but ab is fsp's unpinnable baseline (p[ab]=1-x0-x1) - if
+			   CaO, K2O, AND Na2O are all 0 simultaneously there is no valid corner at all
+			   (mole fractions always sum to 1), so disable the whole phase. */
+			if (z_b.bulk_rock[gv.CaO_id] == 0. && z_b.bulk_rock[gv.K2O_id] == 0. && z_b.bulk_rock[gv.Na2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
             SS_ref_db  = G_SS_mb_fsp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "abc") == 0 ){
+			/* abc has only 2 endmembers (abm=Na-bearing, anm=Ca-bearing) - no corner is
+			   both Ca-free and Na-free, so if neither oxide is present no valid
+			   composition exists at all (same class as dio's CaO+Na2O disable). */
+			if (z_b.bulk_rock[gv.CaO_id] == 0. && z_b.bulk_rock[gv.Na2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
             SS_ref_db  = G_SS_mb_abc_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "k4tr") == 0 ){
             SS_ref_db  = G_SS_mb_k4tr_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
@@ -17125,12 +18681,28 @@ SS_ref G_SS_mb_EM_function(		global_variable 	 gv,
 			}
             SS_ref_db  = G_SS_mb_ilmm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "ep") == 0 ){
+			/* epidote group (cz/ep/fep) is unconditionally Ca-bearing (no Ca-free corner) AND unconditionally hydrous (structural OH) - whole-phase disable for either. */
+			if (z_b.bulk_rock[gv.CaO_id] == 0. || z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
             SS_ref_db  = G_SS_mb_ep_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "bi") == 0 ){
+			/* biotite has K on the interlayer site (not a compositional variable) and structural OH on every endmember - whole-phase disable for either K2O=0 or H2O=0. */
+			if (z_b.bulk_rock[gv.K2O_id] == 0. || z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
             SS_ref_db  = G_SS_mb_bi_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "mu") == 0 ){
+			/* white mica is unconditionally hydrous (structural OH on every endmember) - whole-phase disable for H2O=0. */
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
             SS_ref_db  = G_SS_mb_mu_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "chl") == 0 ){
+			/* chlorite is unconditionally hydrous (heavily hydrous sheet silicate) - whole-phase disable for H2O=0. */
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
             SS_ref_db  = G_SS_mb_chl_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else{
             printf("\nsolid solution '%s' is not in the database\n",name);	}
@@ -17158,9 +18730,9 @@ SS_ref G_SS_mb_EM_function(		global_variable 	 gv,
 			SS_ref_db.ape[i] += SS_ref_db.Comp[i][j]*z_b.apo[j];
 		}
 	}
-	
-	SS_ref_db.fbc = z_b.fbc;	
-	
+
+	SS_ref_db.fbc = z_b.fbc;
+
 	if (gv.verbose == 1){
 		printf(" %4s:\n",name);
         printf("----\n");
@@ -17184,7 +18756,7 @@ SS_ref G_SS_mb_EM_function(		global_variable 	 gv,
             printf("\n");
         }
         printf("\n");
-	
+
 	}
 
 	return SS_ref_db;
@@ -17216,6 +18788,10 @@ SS_ref G_SS_mb_ext_EM_function(		global_variable 	 gv,
 			}
             SS_ref_db  = G_SS_mb_liq_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "amp") == 0 ){
+			/* amphibole is unconditionally hydrous (structural OH on every endmember) - no H2O-free corner exists, whole-phase disable is the right tool here, not a per-endmember pin/penalty. */
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
             SS_ref_db  = G_SS_mb_amp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "aug") == 0 ){
             if (gv.mbCpx == 0){
@@ -17226,6 +18802,12 @@ SS_ref G_SS_mb_ext_EM_function(		global_variable 	 gv,
             if (gv.mbCpx == 1){
                 SS_ref_db.ss_flags[0]  = 0;
             }
+			/* dio (the jd-di/omphacite join) has NO endmember that is both Ca-free AND
+			   Na-free - jd/acmm/jac need Na, di/hed/cfm need Ca, om needs both. If neither
+			   oxide is present, no valid corner of this solid solution exists at all. */
+			if (z_b.bulk_rock[gv.CaO_id] == 0. && z_b.bulk_rock[gv.Na2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
             SS_ref_db  = G_SS_mb_dio_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "opx") == 0 ){
             SS_ref_db  = G_SS_mb_opx_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
@@ -17234,8 +18816,20 @@ SS_ref G_SS_mb_ext_EM_function(		global_variable 	 gv,
         else if (strcmp( name, "ol") == 0 ){
             SS_ref_db  = G_SS_mb_ol_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "fsp") == 0 ){
+			/* an/san are bare pins but ab is fsp's unpinnable baseline (p[ab]=1-x0-x1) - if
+			   CaO, K2O, AND Na2O are all 0 simultaneously there is no valid corner at all
+			   (mole fractions always sum to 1), so disable the whole phase. */
+			if (z_b.bulk_rock[gv.CaO_id] == 0. && z_b.bulk_rock[gv.K2O_id] == 0. && z_b.bulk_rock[gv.Na2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
             SS_ref_db  = G_SS_mb_fsp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "abc") == 0 ){
+			/* abc has only 2 endmembers (abm=Na-bearing, anm=Ca-bearing) - no corner is
+			   both Ca-free and Na-free, so if neither oxide is present no valid
+			   composition exists at all (same class as dio's CaO+Na2O disable). */
+			if (z_b.bulk_rock[gv.CaO_id] == 0. && z_b.bulk_rock[gv.Na2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
             SS_ref_db  = G_SS_mb_abc_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "k4tr") == 0 ){
             SS_ref_db  = G_SS_mb_k4tr_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
@@ -17260,17 +18854,45 @@ SS_ref G_SS_mb_ext_EM_function(		global_variable 	 gv,
 			}
             SS_ref_db  = G_SS_mb_ilmm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "ep") == 0 ){
+			/* epidote group (cz/ep/fep) is unconditionally Ca-bearing (no Ca-free corner) AND unconditionally hydrous (structural OH) - whole-phase disable for either. */
+			if (z_b.bulk_rock[gv.CaO_id] == 0. || z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
             SS_ref_db  = G_SS_mb_ep_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "bi") == 0 ){
+			/* biotite has K on the interlayer site (not a compositional variable) and structural OH on every endmember - whole-phase disable for either K2O=0 or H2O=0. */
+			if (z_b.bulk_rock[gv.K2O_id] == 0. || z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
             SS_ref_db  = G_SS_mb_bi_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "mu") == 0 ){
+			/* white mica is unconditionally hydrous (structural OH on every endmember) - whole-phase disable for H2O=0. */
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
             SS_ref_db  = G_SS_mb_mu_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "chl") == 0 ){
+			/* chlorite is unconditionally hydrous (heavily hydrous sheet silicate) - whole-phase disable for H2O=0. */
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
             SS_ref_db  = G_SS_mb_chl_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "oamp") == 0 ){
             SS_ref_db  = G_SS_mb_oamp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "ta") == 0 ){
+			/* talc is unconditionally hydrous (structural OH on every endmember: ta/fta/ota/
+			   tap/tats all carry H2O=1 in TC_endmembers.c, no Ca/Na/K/Ti/Mn/O at all) -
+			   whole-phase disable for H2O=0, same class as amp/mu/chl. */
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
             SS_ref_db  = G_SS_mb_ta_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "DEW") == 0){
+			// aqueous fluid needs water - mbe has no other fluid model, DEW is unconditionally the free-fluid phase here
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_DEW_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else{
             printf("\nsolid solution '%s' is not in the database\n",name);	}
 
@@ -17373,7 +18995,10 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
 		else if (strcmp( name, "cpx") == 0){
 			SS_ref_db  = G_SS_ig_cpx_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}	
 		else if (strcmp( name, "ep") == 0){
-			if (z_b.bulk_rock[gv.H2O_id] == 0. || z_b.bulk_rock[gv.Al2O3_id] == 0.){
+			/* cz (baseline), ep, and fep are all unconditionally Ca-bearing - epidote has
+			   no Ca-free corner at all, unlike fsp (which keeps an/san), so whole-phase
+			   deactivation is the right tool here, not a penalty. */
+			if (z_b.bulk_rock[gv.H2O_id] == 0. || z_b.bulk_rock[gv.Al2O3_id] == 0. || z_b.bulk_rock[gv.CaO_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_ig_ep_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
@@ -17381,7 +19006,13 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_ig_fl_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}		
+			SS_ref_db  = G_SS_ig_fl_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "DEW") == 0){
+			/* dead branch: "DEW" is not in ig's SS_list, never reached via dispatch. */
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_DEW_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "g") == 0){
 			if (z_b.bulk_rock[gv.Al2O3_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
@@ -17422,7 +19053,13 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
 			if (z_b.bulk_rock[gv.Al2O3_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_ig_fsp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}	
+			/* an/san are bare pins but ab is fsp's unpinnable baseline (p[ab]=1-x0-x1) - if
+			   CaO, K2O, AND Na2O are all 0 simultaneously there is no valid corner at all
+			   (mole fractions always sum to 1), so disable the whole phase. */
+			if (z_b.bulk_rock[gv.CaO_id] == 0. && z_b.bulk_rock[gv.K2O_id] == 0. && z_b.bulk_rock[gv.Na2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_ig_fsp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "spl") == 0){
 			SS_ref_db  = G_SS_ig_spl_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "chl") == 0){
@@ -17517,6 +19154,9 @@ SS_ref G_SS_igd_EM_function(	global_variable 	 gv,
       if (strcmp( name, "liq") == 0 ){
          SS_ref_db  = G_SS_igd_liq_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
       else if (strcmp( name, "fsp") == 0 ){
+			if (z_b.bulk_rock[gv.CaO_id] == 0. && z_b.bulk_rock[gv.K2O_id] == 0. && z_b.bulk_rock[gv.Na2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
          SS_ref_db  = G_SS_igd_fsp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
       else if (strcmp( name, "spl") == 0 ){
          SS_ref_db  = G_SS_igd_spl_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
@@ -17529,7 +19169,7 @@ SS_ref G_SS_igd_EM_function(	global_variable 	 gv,
       else if (strcmp( name, "cpx") == 0 ){
          SS_ref_db  = G_SS_igd_cpx_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
       else if (strcmp( name, "ilm") == 0 ){
-			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
+			if (z_b.bulk_rock[gv.TiO2_id] == 0. && z_b.bulk_rock[gv.O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
          SS_ref_db  = G_SS_igd_ilm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
@@ -17620,6 +19260,9 @@ SS_ref G_SS_igad_EM_function(	global_variable 	 gv,
       if (strcmp( name, "liq") == 0 ){
          SS_ref_db  = G_SS_igad_liq_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
       else if (strcmp( name, "fsp") == 0 ){
+				if (z_b.bulk_rock[gv.CaO_id] == 0. && z_b.bulk_rock[gv.K2O_id] == 0. && z_b.bulk_rock[gv.Na2O_id] == 0.){
+					SS_ref_db.ss_flags[0]  = 0;
+				}
          SS_ref_db  = G_SS_igad_fsp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
       else if (strcmp( name, "spl") == 0 ){
          SS_ref_db  = G_SS_igad_spl_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
@@ -17632,17 +19275,29 @@ SS_ref G_SS_igad_EM_function(	global_variable 	 gv,
       else if (strcmp( name, "cpx") == 0 ){
          SS_ref_db  = G_SS_igad_cpx_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
       else if (strcmp( name, "ilm") == 0 ){
-			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
+			if (z_b.bulk_rock[gv.TiO2_id] == 0. && z_b.bulk_rock[gv.O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
          SS_ref_db  = G_SS_igad_ilm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
       else if (strcmp( name, "nph") == 0 ){
+			if (z_b.bulk_rock[gv.Na2O_id] == 0. && z_b.bulk_rock[gv.K2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
          SS_ref_db  = G_SS_igad_nph_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
       else if (strcmp( name, "lct") == 0 ){
+			if (z_b.bulk_rock[gv.Na2O_id] == 0. && z_b.bulk_rock[gv.K2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
          SS_ref_db  = G_SS_igad_lct_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
       else if (strcmp( name, "kals") == 0 ){
+			if (z_b.bulk_rock[gv.Na2O_id] == 0. && z_b.bulk_rock[gv.K2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
          SS_ref_db  = G_SS_igad_kals_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
       else if (strcmp( name, "mel") == 0 ){
+			if (z_b.bulk_rock[gv.CaO_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
          SS_ref_db  = G_SS_igad_mel_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
       else{
          printf("\nsolid solution '%s' is not in the database [Numerical diff]\n",name);	}
@@ -17739,16 +19394,30 @@ SS_ref G_SS_mp_EM_function(		global_variable 	 gv,
 			}
 			SS_ref_db = G_SS_mp_liq_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
         else if (strcmp( name, "bi") == 0 ){
+			/* biotite has K on the interlayer site for every endmember (phl/annm/obi/east/tbi/fbi/mmbi) - not a compositional variable, so there is no K-free corner at all. Whole-phase disable, same class as amp/mu/chl's H2O disable. */
+			if (z_b.bulk_rock[gv.K2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
 			// if no H2O, deactivate
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_mp_bi_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
 		else if (strcmp( name, "fsp") == 0){
+			/* an/san are bare pins but ab is fsp's unpinnable baseline (p[ab]=1-x0-x1) - if
+			   CaO, K2O, AND Na2O are all 0 simultaneously there is no valid corner at all
+			   (mole fractions always sum to 1), so disable the whole phase. */
+			if (z_b.bulk_rock[gv.CaO_id] == 0. && z_b.bulk_rock[gv.K2O_id] == 0. && z_b.bulk_rock[gv.Na2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
 			SS_ref_db  = G_SS_mp_fsp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "g") == 0){
 			SS_ref_db  = G_SS_mp_g_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "ep") == 0 ){
+			/* epidote group (cz/ep/fep) is unconditionally Ca-bearing (no Ca-free corner) - whole-phase disable, same as ig/mb. */
+			if (z_b.bulk_rock[gv.CaO_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
 			// if no H2O, deactivate
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
@@ -17810,14 +19479,15 @@ SS_ref G_SS_mp_EM_function(		global_variable 	 gv,
 			}
 			SS_ref_db  = G_SS_mp_ilmm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);    }
 		else if (strcmp( name, "mt") == 0){
+			if (z_b.bulk_rock[gv.TiO2_id] == 0. && z_b.bulk_rock[gv.O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
             if ( (z_b.bulk_rock[gv.TiO2_id] == 0. && z_b.bulk_rock[gv.MnO_id] == 0.) || gv.mpSp == 0){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_mp_mt_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
-		else if (strcmp( name, "aq17") == 0){
-			SS_ref_db  = G_SS_aq17_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
 		else{
-			printf("\nsolid solution '%s' is not in the database\n",name);	                    }	
+			printf("\nsolid solution '%s' is not in the database\n",name);	                    }
 		for (int j = 0; j < SS_ref_db.n_em; j++){
 			SS_ref_db.mu_array[FD][j] = SS_ref_db.gbase[j];
 			// printf(" %+10.10f",SS_ref_db.gbase[j]);
@@ -17904,7 +19574,7 @@ SS_ref G_SS_um_EM_function(		global_variable 	 gv,
 		}
 
 		if (strcmp( name, "fl") == 0 ){
-			// if no H2O, deactivate
+			// if no H2O, deactivate; also deactivated when DEW is active - it replaces this phase as the free-fluid model
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
@@ -17963,8 +19633,8 @@ SS_ref G_SS_um_EM_function(		global_variable 	 gv,
 		else if (strcmp( name, "spi") == 0){
 			SS_ref_db  = G_SS_um_spi_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else{
-			printf("\nsolid solution '%s' is not in the database\n",name);	}	
-		
+			printf("\nsolid solution '%s' is not in the database\n",name);	}
+
 		for (int j = 0; j < SS_ref_db.n_em; j++){
 			SS_ref_db.mu_array[FD][j] = SS_ref_db.gbase[j];
 			// printf(" %+10.10f",SS_ref_db.gbase[j]);
@@ -18050,7 +19720,6 @@ SS_ref G_SS_um_ext_EM_function(	global_variable 	 gv,
 		}
 
 		if (strcmp( name, "fl") == 0 ){
-			// if no H2O, deactivate
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
@@ -18109,6 +19778,10 @@ SS_ref G_SS_um_ext_EM_function(	global_variable 	 gv,
 		else if (strcmp( name, "spi") == 0){
 			SS_ref_db  = G_SS_um_spi_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "pl4tr") == 0){
+			/* bare 2-endmember ab(Na)/an(Ca) join - no corner is both Ca-free AND Na-free. */
+			if (z_b.bulk_rock[gv.CaO_id] == 0. && z_b.bulk_rock[gv.Na2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
 			SS_ref_db  = G_SS_ume_pl4tr_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);}
 		else if (strcmp( name, "amp") == 0){
 			// if no H2O, deactivate
@@ -18130,9 +19803,15 @@ SS_ref G_SS_um_ext_EM_function(	global_variable 	 gv,
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_mpe_fl_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
+		else if (strcmp( name, "DEW") == 0){
+			// aqueous fluid needs water - unconditionally active otherwise, like any other phase ("flc" above is a separate, independent H2O-CO2 fluid model, not tied to DEW)
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_DEW_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
 		else{
-			printf("\nsolid solution '%s' is not in the database\n",name);	}	
-		
+			printf("\nsolid solution '%s' is not in the database\n",name);	}
+
 		for (int j = 0; j < SS_ref_db.n_em; j++){
 			SS_ref_db.mu_array[FD][j] = SS_ref_db.gbase[j];
 			// printf(" %+10.10f",SS_ref_db.gbase[j]);
@@ -18228,7 +19907,14 @@ SS_ref G_SS_mtl_EM_function(	global_variable 	 gv,
 		else if (strcmp( name, "mpv") == 0){
 			SS_ref_db  = G_SS_mtl_mpv_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}	
 		else if (strcmp( name, "cpv") == 0){
-			SS_ref_db  = G_SS_mtl_cpv_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}	
+			/* cpvm (Ca-perovskite) is this phase's defining endmember (gbase[2] carries
+			   zero offset while every other endmember is penalized relative to it) -
+			   CaO==0 means cpv has no reason to exist at all, unlike mtl_mpv where the
+			   same endmember is only a minor admixture and gets a phase-internal pin. */
+			if (z_b.bulk_rock[gv.CaO_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mtl_cpv_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "crn") == 0){
 			SS_ref_db  = G_SS_mtl_crn_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "cf") == 0){
@@ -18317,7 +20003,7 @@ SS_ref G_SS_mtl_EM_function(	global_variable 	 gv,
 /**
   checks if it can satisfy the mass constraint
 */
-SS_ref G_SS_mpe_EM_function(		global_variable 	 gv,
+SS_ref G_SS_mpe_EM_function(	global_variable 	 gv,
 								SS_ref 				 SS_ref_db, 
 								int 				 EM_dataset, 
 								bulk_info 	 		 z_b, 
@@ -18348,16 +20034,36 @@ SS_ref G_SS_mpe_EM_function(		global_variable 	 gv,
 			}
 			SS_ref_db = G_SS_mpe_liq_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
         else if (strcmp( name, "bi") == 0 ){
+			/* biotite has K on the interlayer site for every endmember (phl/annm/obi/east/tbi/fbi/mmbi) - not a compositional variable, so there is no K-free corner at all. Whole-phase disable, same class as amp/mu/chl's H2O disable. */
+			if (z_b.bulk_rock[gv.K2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
 			// if no H2O, deactivate
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_mpe_bi_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
 		else if (strcmp( name, "fsp") == 0){
+			/* an/san are bare pins but ab is fsp's unpinnable baseline (p[ab]=1-x0-x1) - if
+			   CaO, K2O, AND Na2O are all 0 simultaneously there is no valid corner at all
+			   (mole fractions always sum to 1), so disable the whole phase. */
+			if (z_b.bulk_rock[gv.CaO_id] == 0. && z_b.bulk_rock[gv.K2O_id] == 0. && z_b.bulk_rock[gv.Na2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
 			SS_ref_db  = G_SS_mpe_fsp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "plc") == 0){
+			/* same ab/an/san shape as fsp - see fsp's guard above. */
+			if (z_b.bulk_rock[gv.CaO_id] == 0. && z_b.bulk_rock[gv.K2O_id] == 0. && z_b.bulk_rock[gv.Na2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mpe_plc_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "g") == 0){
 			SS_ref_db  = G_SS_mpe_g_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "ep") == 0 ){
+			/* epidote group (cz/ep/fep) is unconditionally Ca-bearing (no Ca-free corner) - whole-phase disable, same as ig/mb/mp. */
+			if (z_b.bulk_rock[gv.CaO_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
 			// if no H2O, deactivate
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
@@ -18419,6 +20125,11 @@ SS_ref G_SS_mpe_EM_function(		global_variable 	 gv,
 			}
 			SS_ref_db  = G_SS_mpe_ilmm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);    }
 		else if (strcmp( name, "mt") == 0){
+			/* mt (imt/dmt/usp): usp needs TiO2, imt/dmt need O (ferric Fe) - if NEITHER is
+			   present no valid corner exists at all, same as mp. */
+			if (z_b.bulk_rock[gv.TiO2_id] == 0. && z_b.bulk_rock[gv.O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
             if ( (z_b.bulk_rock[gv.TiO2_id] == 0. && z_b.bulk_rock[gv.MnO_id] == 0.) || gv.mpSp == 0){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
@@ -18429,7 +20140,7 @@ SS_ref G_SS_mpe_EM_function(		global_variable 	 gv,
 			}
 			SS_ref_db  = G_SS_mpe_occm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
 		else if (strcmp( name, "fl") == 0){
-            if (z_b.bulk_rock[gv.H2O_id] == 0. && z_b.bulk_rock[gv.CO2_id] == 0.){
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_mpe_fl_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
@@ -18439,6 +20150,12 @@ SS_ref G_SS_mpe_EM_function(		global_variable 	 gv,
 			}
 			SS_ref_db  = G_SS_mpe_po_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
 		else if (strcmp( name, "dio") == 0){
+			/* dio (the jd-di/omphacite join) has NO endmember that is both Ca-free AND
+			   Na-free - jd/acmm/jac need Na, di/hed/cfm need Ca, om needs both. If neither
+			   oxide is present, no valid corner of this solid solution exists at all. */
+			if (z_b.bulk_rock[gv.CaO_id] == 0. && z_b.bulk_rock[gv.Na2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
 			SS_ref_db  = G_SS_mpe_dio_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
 		else if (strcmp( name, "aug") == 0){
 			SS_ref_db  = G_SS_mpe_aug_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
@@ -18452,13 +20169,16 @@ SS_ref G_SS_mpe_EM_function(		global_variable 	 gv,
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_mb_oamp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
-        else if (strcmp( name, "car") == 0){
-			SS_ref_db  = G_SS_mpe_car_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
         else if (strcmp( name, "carp") == 0){
             if ( z_b.bulk_rock[gv.H2O_id] == 0.0 ){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_mpe_carp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
+		else if (strcmp( name, "DEW") == 0){
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_DEW_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
 		else{
 			printf("\nsolid solution '%s' is not in the database\n",name);	                    }	
 		for (int j = 0; j < SS_ref_db.n_em; j++){
@@ -18505,6 +20225,372 @@ SS_ref G_SS_mpe_EM_function(		global_variable 	 gv,
 
         /* display molar composition */
         printf(" S    A    C    M    F    K    N    T    O    Mn   H   CO   S\n");
+        for (int i = 0; i < SS_ref_db.n_em; i++){
+            for (int j = 0; j < gv.len_ox; j++){
+                printf(" %+.1f",SS_ref_db.Comp[i][j]);
+            }
+            printf("\n");
+        }
+        printf("\n");
+
+	}
+
+	return SS_ref_db;
+};
+
+
+/**
+  "all" database (--rg=tc --db=all, EM_database==8): unifies solution-phase models from
+  mp/mb/mbe/ig/igd/igad/um/ume/mpe. Each branch below reuses an EXISTING database's
+  G_SS_<db>_<phase>_function and copies that same source database's whole-phase disable
+  guard verbatim (see notes/all_database_dispatch_source_map.md for the per-phase source
+  table this was derived from).
+*/
+SS_ref G_SS_all_EM_function(	global_variable 	 gv,
+								SS_ref 				 SS_ref_db,
+								int 				 EM_dataset,
+								bulk_info 	 		 z_b,
+								char   				*name				){
+
+	double eps 		   	= gv.bnd_val;
+	double P 			= SS_ref_db.P;
+	double T 			= SS_ref_db.T;
+
+	SS_ref_db.ss_flags[0]  = 1;
+
+	/* Associate the right solid-solution data */
+	for (int FD = 0; FD < gv.n_Diff; FD++){				/* cycle twice in order to get gb_P_eps to calculate densities later on */
+
+		if (FD == 8 || FD == 9){				// dG/dP0 to get Volume at P = 1bar
+			SS_ref_db.P = 1.+ gv.gb_P_eps*gv.pdev[0][FD];
+			SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
+		}
+		else{
+			SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
+			SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
+		}
+
+		/* liq (4 citation variants: igd/mb/mpe/ig) */
+		if (strcmp( name, "liq_W24d") == 0 ){
+			SS_ref_db  = G_SS_igd_liq_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "liq_G16") == 0 ){
+			if ( T < gv.min_melt_T){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mb_liq_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "liq_W14") == 0 ){
+			if ( T < gv.min_melt_T){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mpe_liq_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "liq_G25w") == 0 ){
+			if ( T < gv.min_melt_T){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_ig_liq_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+
+		/* fsp (2 citation variants: mpe/igd) */
+		else if (strcmp( name, "fsp_H22") == 0 ){
+			if (z_b.bulk_rock[gv.CaO_id] == 0. && z_b.bulk_rock[gv.K2O_id] == 0. && z_b.bulk_rock[gv.Na2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mpe_fsp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "fsp_H22op") == 0 ){
+			if (z_b.bulk_rock[gv.CaO_id] == 0. && z_b.bulk_rock[gv.K2O_id] == 0. && z_b.bulk_rock[gv.Na2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_igd_fsp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+
+		/* g (3 citation variants: ig/mpe/um) */
+		else if (strcmp( name, "g_W24") == 0 ){
+			if (z_b.bulk_rock[gv.Al2O3_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_ig_g_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "g_W14") == 0 ){
+			SS_ref_db  = G_SS_mpe_g_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "g_H18") == 0 ){
+			SS_ref_db  = G_SS_um_g_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+
+		/* opx (2 citation variants: ig/mpe) */
+		else if (strcmp( name, "opx_W24") == 0 ){
+			SS_ref_db  = G_SS_ig_opx_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);
+			if (gv.limitCaOpx == 1){ SS_ref_db.bounds_ref[2][1] =  gv.CaOpxLim - eps;          }}
+		else if (strcmp( name, "opx_W14") == 0 ){
+			SS_ref_db  = G_SS_mpe_opx_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+
+		/* ol (2 citation variants: igad/mb) */
+		else if (strcmp( name, "ol_H18") == 0 ){
+			SS_ref_db  = G_SS_igad_ol_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "ol_H11") == 0 ){
+			SS_ref_db  = G_SS_mb_ol_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+
+		/* ilm (2 citation variants: ig/mb) */
+		else if (strcmp( name, "ilm_W24") == 0 ){
+			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_ig_ilm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "ilm_W00") == 0 ){
+			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mb_ilm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+
+		/* spl (2 citation variants: ume/mb) */
+		else if (strcmp( name, "spl_T21") == 0 ){
+			SS_ref_db  = G_SS_ume_spl_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "spl_W02") == 0 ){
+			if (z_b.bulk_rock[gv.O_id] != 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mb_spl_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+
+		/* bi (2 citation variants: ig/mpe) */
+		else if (strcmp( name, "bi_G25") == 0 ){
+			if (z_b.bulk_rock[gv.H2O_id] == 0. || z_b.bulk_rock[gv.K2O_id] == 0. || z_b.bulk_rock[gv.Al2O3_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			if (gv.ig_ed == 0){
+				SS_ref_db  = G_SS_ig_bi_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);
+			}
+			else {
+				SS_ref_db  = G_SS_ig_bi_ed_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}}
+		else if (strcmp( name, "bi_W14") == 0 ){
+			if (z_b.bulk_rock[gv.K2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mpe_bi_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+
+		/* cd (2 citation variants: ig/mpe) */
+		else if (strcmp( name, "cd_G25") == 0 ){
+			if (z_b.bulk_rock[gv.H2O_id] == 0.  || z_b.bulk_rock[gv.Al2O3_id] == 0. ){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_ig_cd_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "cd_W14") == 0 ){
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mpe_cd_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+
+		/* fl (3 citation variants: ig/um/mpe) */
+		else if (strcmp( name, "fl_G25") == 0 ){
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_ig_fl_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "fl_EF21") == 0 ){
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_um_fluid_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "fl_H03") == 0 ){
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mpe_fl_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+
+		/* non-collision tokens (bare phase name, single source db each) */
+		else if (strcmp( name, "ep_H11") == 0 ){
+			if (z_b.bulk_rock[gv.CaO_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mpe_ep_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "ma_W14") == 0 ){
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mpe_ma_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "mu_W14") == 0 ){
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mpe_mu_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "sa_W14") == 0 ){
+			SS_ref_db  = G_SS_mpe_sa_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "st_W14") == 0 ){
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mpe_st_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "chl_W14") == 0 ){
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mpe_chl_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "ctd_W14") == 0 ){
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mpe_ctd_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "sp_W02") == 0 ){
+			if (z_b.bulk_rock[gv.O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mb_sp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "mt_W00") == 0 ){
+			if (z_b.bulk_rock[gv.TiO2_id] == 0. && z_b.bulk_rock[gv.O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			if (z_b.bulk_rock[gv.TiO2_id] == 0. && z_b.bulk_rock[gv.MnO_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mp_mt_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "ilmm_W14") == 0 ){
+			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mb_ilmm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "amp_G16") == 0 ){
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mb_amp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "dio_G16") == 0 ){
+			if (z_b.bulk_rock[gv.CaO_id] == 0. && z_b.bulk_rock[gv.Na2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mb_dio_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "aug_G16") == 0 ){
+			SS_ref_db  = G_SS_mb_aug_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "abc_H11") == 0 ){
+			if (z_b.bulk_rock[gv.CaO_id] == 0. && z_b.bulk_rock[gv.Na2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mb_abc_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "ta_EF21") == 0 ){
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_um_ta_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "oamp_D07") == 0 ){
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mb_oamp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "DEW_S14") == 0 ){
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_DEW_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "cpx_W24") == 0 ){
+			SS_ref_db  = G_SS_ig_cpx_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "fper") == 0 ){
+			SS_ref_db  = G_SS_ig_fper_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "lct_W24") == 0 ){
+			if (z_b.bulk_rock[gv.Na2O_id] == 0. && z_b.bulk_rock[gv.K2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_igad_lct_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "mel_W24") == 0 ){
+			if (z_b.bulk_rock[gv.CaO_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_igad_mel_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "nph_W24") == 0 ){
+			if (z_b.bulk_rock[gv.Na2O_id] == 0. && z_b.bulk_rock[gv.K2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_igad_nph_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "kals_W24") == 0 ){
+			if (z_b.bulk_rock[gv.Na2O_id] == 0. && z_b.bulk_rock[gv.K2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_igad_kals_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "br_E13") == 0 ){
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_um_br_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "ch_EF21") == 0 ){
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_um_ch_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "atg_EF21") == 0 ){
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_um_atg_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "spi_W02") == 0 ){
+			SS_ref_db  = G_SS_um_spi_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "po_E10") == 0 ){
+			if (z_b.bulk_rock[gv.S_id] != 0. && z_b.bulk_rock[gv.O_id] != 0.){
+				SS_ref_db.ss_flags[0]  = 1;
+			}
+			else{
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_um_po_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "anth_D07") == 0 ){
+			if (z_b.bulk_rock[gv.H2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_um_anth_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "occm_F11") == 0 ){
+			if (z_b.bulk_rock[gv.CO2_id] == 0.0){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mpe_occm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "carp_W14") == 0 ){
+			if ( z_b.bulk_rock[gv.H2O_id] == 0.0 ){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mpe_carp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "plc_B05") == 0 ){
+			if (z_b.bulk_rock[gv.CaO_id] == 0. && z_b.bulk_rock[gv.K2O_id] == 0. && z_b.bulk_rock[gv.Na2O_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mpe_plc_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else{
+			printf("\nsolid solution '%s' is not in the database\n",name);	}
+
+		for (int j = 0; j < SS_ref_db.n_em; j++){
+			SS_ref_db.mu_array[FD][j] = SS_ref_db.gbase[j];
+		}
+	}
+
+	for (int j = 0; j < SS_ref_db.n_xeos; j++){
+		SS_ref_db.bounds[j][0] = SS_ref_db.bounds_ref[j][0];
+		SS_ref_db.bounds[j][1] = SS_ref_db.bounds_ref[j][1];
+	}
+
+	/* Calculate the number of atoms in the bulk-rock composition */
+	double fbc     = 0.0;
+	for (int i = 0; i < gv.len_ox; i++){
+		fbc += z_b.bulk_rock[i]*z_b.apo[i];
+	}
+
+	/* get the numer of atoms per endmember, needed to update normalization factor for liquid */
+	for (int i = 0; i < SS_ref_db.n_em; i++){
+		SS_ref_db.ape[i] = 0.0;
+		for (int j = 0; j < gv.len_ox; j++){
+			SS_ref_db.ape[i] += SS_ref_db.Comp[i][j]*z_b.apo[j];
+		}
+	}
+
+	SS_ref_db.fbc = z_b.fbc;
+
+	if (gv.verbose == 1){
+		printf(" %4s:\n",name);
+        printf("----\n");
+        for (int j = 0; j < SS_ref_db.n_em; j++){
+			printf(" %12s",SS_ref_db.EM_list[j]);
+		}
+		printf("\n");
+        for (int j = 0; j < SS_ref_db.n_em; j++){
+			printf(" %+12.5f",SS_ref_db.gbase[j]);
+		}
+		printf("\n");
+
+        printf(" S    A    C    M    F    K    N    T    O    Mn   Cr   H   CO   S\n");
         for (int i = 0; i < SS_ref_db.n_em; i++){
             for (int j = 0; j < gv.len_ox; j++){
                 printf(" %+.1f",SS_ref_db.Comp[i][j]);

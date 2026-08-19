@@ -31,6 +31,7 @@ SOURCES=src/MAGEMin.c 							\
 		src/TC_database/TC_init_database.c		\
 		src/TC_database/TC_endmembers.c			\
 		src/TC_database/TC_gem_function.c		\
+		src/TC_database/DEW_aq_solver.c		\
 		src/SB_database/SB_init_database.c		\
 		src/SB_database/SB_endmembers.c			\
 		src/SB_database/SB_gem_function.c		\

@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Moccetti, N. B., Dominguez, H., Assunção J., Green E., Dolejš, D., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -14,9 +14,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
-
-struct ss_pc aq17_pc_xeos[1] = {
-{{1.0-24.0e-6,1e-6,1e-6,1e-6,1e-6,1e-6,1e-6,1e-6,1e-6,1e-6,1e-6,1e-6,1e-6,1e-6,1e-6,1e-6,1e-6,1e-6,1e-6,1e-6,1e-6,1e-6,1e-6,1e-6,1e-6}}};
+#include "DEW_aq_solver.h"
 
 struct ss_pc mp_bi_pc_xeos[981] = {
 {{0.000100,0.000100,0.000100,0.000100,0.000100,0.000100}},
@@ -15974,8 +15972,9 @@ struct ss_pc mp_st_pc_xeos[540] = {
 
 void SS_mp_pc_init_function(	PC_ref 	*SS_pc_xeos,
 							    int 	 iss,
-							    char 	*name				){	
-						 
+							    char 	*name,
+							    global_variable gv			){
+
 	if      (strcmp( name, "liq")  == 0 ){
 		SS_pc_xeos[iss].ss_pc_xeos  = mp_liq_pc_xeos; 		}
 	else if (strcmp( name, "fsp")  == 0){
@@ -16010,9 +16009,48 @@ void SS_mp_pc_init_function(	PC_ref 	*SS_pc_xeos,
 		SS_pc_xeos[iss].ss_pc_xeos  = mp_ilmm_pc_xeos; 		}
 	else if (strcmp( name, "mt") == 0){
 		SS_pc_xeos[iss].ss_pc_xeos  = mp_mt_pc_xeos; 		}
-	else if (strcmp( name, "aq17") == 0){
-		SS_pc_xeos[iss].ss_pc_xeos  = aq17_pc_xeos; 		}
+	else if (strcmp( name, "DEW") == 0){
+		/* single (n_SS_PC=1) starting pseudocompound: mostly water, trace amounts of
+		   every dissolved species, with water LAST (index n_active) matching DEW's
+		   own convention (see G_SS_DEW_function). static storage: avoids a
+		   per-levelling-call malloc/free for what's really a per-run-constant
+		   (n_active only depends on gv.ox[]/gv.len_ox, fixed for the whole run). */
+		static struct ss_pc DEW_pc_xeos[1];
+
+		int id[gv.len_ox];
+		DEW_build_id_map(gv.len_ox, gv.ox, id);
+
+		/* Oxide=0.0 support: n_active (schema-active count) must stay exactly as before -
+		   it fixes n_em/array positions, shared with init_DEW_aqueous_model's assembly
+		   order, so every position here must line up 1:1 with G_SS_DEW_function's
+		   per-point species list. But a species whose Comp[] touches a bulk-zero oxide
+		   gets suppressed there (gbase=1e6) - if this seed still gives it the same 1e-6
+		   starting mass as a real species, the ONE seed's G is poisoned badly enough
+		   (1e-6 * 1e6 = +1 kJ per suppressed species) that DEW is never even promoted
+		   for NLopt refinement (n_Ppc stays 0), regardless of whether the surviving
+		   species would legitimately be favorable. Give suppressed positions 0.0 instead,
+		   same per-point bulk check as G_SS_DEW_function. */
+		int n_active = 0;
+		int n_survive = 0;
+		for (int s = 0; s < gv.n_dew_db; s++){
+			DEW_db sp = Access_DEW_DB(s);
+			if (!DEW_species_active(sp, gv.len_ox, id)){ continue; }
+
+			int touches_other_zero = 0;
+			for (int j = 0; j < gv.len_ox; j++){
+				if (j == gv.O_id){ continue; }
+				if (gv.bulk_rock[j] == 0. && sp.Comp[id[j]] != 0.){ touches_other_zero = 1; break; }
+			}
+			int mu_depends_on_O = (gv.O_id >= 0 && sp.MuComp[id[gv.O_id]] != 0.);
+			int suppressed = (touches_other_zero || mu_depends_on_O) ? 1 : 0;
+			DEW_pc_xeos[0].xeos_pc[n_active] = suppressed ? 0.0 : 1e-6;
+			if (!suppressed){ n_survive++; }
+			n_active++;
+		}
+		DEW_pc_xeos[0].xeos_pc[n_active] = 1.0 - n_survive*1e-6;
+
+		SS_pc_xeos[iss].ss_pc_xeos  = DEW_pc_xeos; 		}
 	else{
-		printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", name);	
-	}	
+		printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", name);
+	}
 }

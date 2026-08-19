@@ -3,7 +3,7 @@
  **   Project      : MAGEMin
  **   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
  **   Developers   : Nicolas Riel, Boris Kaus
- **   Contributors : Nickolas B. Moccetti, Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+ **   Contributors : Moccetti, N. B., Dominguez, H., Assunção J., Green E., Dolejš, D., Berlie N., and Rummel L.
  **   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
@@ -28,18 +28,18 @@
         return(p_s->id);	
     }
 
-    /*  Hashtable for fluid species in thermodynamic database                    */
-    typedef struct FS2id_{
-        char FS_tag[20];           /* key (string is WITHIN the structure)       */
+    /*  Hashtable for DEW2019 aqueous species in thermodynamic database          */
+    typedef struct DEW2id_{
+        char DEW_tag[20];          /* key (string is WITHIN the structure)       */
         int id;                    /* id of the key (array index)                */
         UT_hash_handle hh;         /* makes this structure hashable              */
-    } FS2id;
-    FS2id *FS = NULL;
+    } DEW2id;
+    DEW2id *DEW = NULL;
 
-    int find_FS_id(char *FS_tag) {
-        FS2id *fs_s;
-        HASH_FIND_STR ( FS, FS_tag, fs_s );
-        return(fs_s->id);	
+    int find_DEW_id(char *DEW_tag) {
+        DEW2id *dew_s;
+        HASH_FIND_STR ( DEW, DEW_tag, dew_s );
+        return(dew_s->id);
     }
 
     /**

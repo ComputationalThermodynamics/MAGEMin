@@ -3,7 +3,7 @@
 #   Project      : MAGEMin_C
 #   License      : GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 #   Developers   : Nicolas Riel, Boris Kaus
-#   Contributors : Dominguez, H., Assunção J., Green E., Berlie N., and Rummel L.
+#   Contributors : Moccetti, N. B., Dominguez, H., Assunção J., Green E., Dolejš, D., Berlie N., and Rummel L.
 #   Organization : Institute of Geosciences, Johannes-Gutenberg University, Mainz
 #   Contact      : nriel[at]uni-mainz.de
 #
@@ -98,7 +98,7 @@ function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Flo
                 else                        mineral_name = "FeTiOx";   end 
             end
     
-        elseif dtb == "mp" || dtb == "mpe" || dtb == "mb" || dtb == "ume" || db == "mbe"
+        elseif dtb == "mp" || dtb == "mpe" || dtb == "mb" || dtb == "ume" || dtb == "mbe"
             if ss == "sp"
                 if x[2] - 0.5 > 0.0;        mineral_name = "sp";
                 else                        mineral_name = "smt";    end
@@ -124,9 +124,47 @@ function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Flo
                 else                        mineral_name = "FeTiOx";   end 
             elseif ss == "occm"
                 if x[2] > 0.5;              mineral_name = "sid";
-                elseif x[3] > 0.5;          mineral_name = "ank";  
-                elseif x[1] > 0.25 && x[3] < 0.01;         mineral_name = "mag";  
-                else                        mineral_name = "cc";   end 
+                elseif x[3] > 0.5;          mineral_name = "ank";
+                elseif x[1] > 0.25 && x[3] < 0.01;         mineral_name = "mag";
+                else                        mineral_name = "cc";   end
+            end
+
+        elseif dtb == "all"
+            if ss == "fsp_H22" || ss == "fsp_H22op"
+                if x[2] - 0.5 > 0.0;        mineral_name = "afs";
+                else                        mineral_name = "pl";    end
+            elseif ss == "spl_T21"
+                if x[3] - 0.5 > 0.0;        mineral_name = "cm";
+                elseif x[2] - 0.5 > 0.0;    mineral_name = "mgt";
+                else                        mineral_name = "spl";    end
+            elseif ss == "sp_W02"
+                if x[2] - 0.5 > 0.0;        mineral_name = "sp";
+                else                        mineral_name = "smt";    end
+            elseif ss == "ilm_W24"
+                if -x[1] + 0.5 > 0.0;       mineral_name = "hem";
+                else                        mineral_name = "FeTiOx";   end
+            elseif ss == "ilm_W00"
+                if 1.0 - x[1] > 0.5;        mineral_name = "hem";
+                else                        mineral_name = "FeTiOx";   end
+            elseif ss == "ilmm_W14"
+                if x[1] - 0.5 > 0.0;        mineral_name = "FeTiOx";
+                else                        mineral_name = "hem";   end
+            elseif ss == "mu_W14"
+                if x[4] - 0.5 > 0.0;        mineral_name = "pat";
+                else                        mineral_name = "mu";    end
+            elseif ss == "amp_G16" || ss == "gl" || ss == "act" || ss == "cumm" || ss == "tr"
+                mineral_name = "amp";
+            elseif ss == "cpx_W24" || ss == "pig" || ss == "Na-cpx"
+                mineral_name = "cpx";
+            elseif ss == "dio_G16" || ss == "omph" || ss == "jd"
+                mineral_name = "cpx";
+            elseif ss == "occm_F11"
+                if x[2] > 0.5;              mineral_name = "sid";
+                elseif x[3] > 0.5;          mineral_name = "ank";
+                elseif x[1] > 0.25 && x[3] < 0.01;         mineral_name = "mag";
+                else                        mineral_name = "cc";   end
+            elseif occursin("_", ss)
+                mineral_name = split(ss, "_")[1];
             end
         end
 
@@ -314,7 +352,7 @@ end
 
     Rewrite `[:phase]` subscript tokens in a KD expression string to fully-qualified `gmin_struct` accessor calls.
 
-    The pattern `[:name]` is replaced with `out.SS_vec[out.SS_syms[:name]]`, allowing KD expressions to reference solution phase data by short name (e.g., `[:liq].compVariables[1]` → `out.SS_vec[out.SS_syms[:liq]].compVariables[1]`).
+    The pattern `[:name]` is replaced with `out.SS_vec[find_ss_idx(out, :name)]`, allowing KD expressions to reference solution phase data by short name (e.g., `[:liq].compVariables[1]` → `out.SS_vec[find_ss_idx(out, :liq)].compVariables[1]`). `find_ss_idx` resolves an exact `out.SS_syms` match first, falling back to any symbol with a matching prefix — needed because databases such as `all` carry citation-tagged phase symbols (e.g. `:liq_G16`) rather than the bare name.
 
     Parameters
     ----------
@@ -336,7 +374,7 @@ function convert_SS_eval_TE(str)
         raw in seen && continue
         push!(seen, raw)
         name = m.captures[1]
-        str = replace(str, raw => "out.SS_vec[out.SS_syms[:$name]]")
+        str = replace(str, raw => "out.SS_vec[find_ss_idx(out, :$name)]")
     end
 
     return str
@@ -755,7 +793,7 @@ function compute_Zr_sat_n_part(     out         :: MAGEMin_C.gmin_struct{Float64
         if Cliq_Zr > Sat_Zr_liq
             zrc_wt, SiO2_zrc_wt, O_zrc_wt       = adjust_bulk_4_zircon(Cliq_Zr, Sat_Zr_liq, liq_wt)
 
-            SiO2_bulk_wt             = out.SS_vec[out.SS_syms[:liq]].Comp_wt[findfirst(isequal("SiO2"), out.oxides)]
+            SiO2_bulk_wt             = out.SS_vec[find_ss_idx(out, :liq)].Comp_wt[findfirst(isequal("SiO2"), out.oxides)]
 
             if SiO2_zrc_wt*liq_wt  > SiO2_bulk_wt
                 @warn "Not enough SiO2 in the bulk composition to saturate in zircon. Increasing the Sat_Zr_liq to the available SiO2 content."
@@ -825,8 +863,8 @@ function compute_S_sat_n_part(      out         :: MAGEMin_C.gmin_struct{Float64
         if Cliq_S > Sat_S_liq
             sulf_wt, FeO_sulf_wt, O_sulf_wt     = adjust_bulk_4_sulfide(Cliq_S, Sat_S_liq, liq_wt)
 
-            FeO_bulk_wt             = out.SS_vec[out.SS_syms[:liq]].Comp_wt[findfirst(isequal("FeO"), out.oxides)]
-            # O_bulk_wt               = out.SS_vec[out.SS_syms[:liq]].Comp_wt[findfirst(isequal("O"),    out.oxides)]
+            FeO_bulk_wt             = out.SS_vec[find_ss_idx(out, :liq)].Comp_wt[findfirst(isequal("FeO"), out.oxides)]
+            # O_bulk_wt               = out.SS_vec[find_ss_idx(out, :liq)].Comp_wt[findfirst(isequal("O"),    out.oxides)]
             
             if FeO_sulf_wt*liq_wt > FeO_bulk_wt
                 @warn "Not enough FeO in the bulk composition to saturate in sulfide. Increasing the Sat_S_liq to the available FeO content."
@@ -897,7 +935,7 @@ function compute_P2O5_sat_n_part(   out         :: MAGEMin_C.gmin_struct{Float64
         if Cliq_P2O5 > Sat_P2O5_liq
             fapt, CaO_fpat_wt     = adjust_bulk_4_fapatite(Cliq_P2O5, Sat_P2O5_liq, liq_wt)
 
-            CaO_bulk_wt           = out.SS_vec[out.SS_syms[:liq]].Comp_wt[findfirst(isequal("CaO"), out.oxides)]
+            CaO_bulk_wt           = out.SS_vec[find_ss_idx(out, :liq)].Comp_wt[findfirst(isequal("CaO"), out.oxides)]
             if CaO_fpat_wt*liq_wt  > CaO_bulk_wt
                 @warn "Not enough CaO in the bulk composition to saturate in fapatite. Increasing the Sat_P2O5_liq to the available CaO content."
                 factor            = CaO_bulk_wt / CaO_fpat_wt*liq_wt 
@@ -1312,12 +1350,12 @@ function get_CO_KDs_database()
         for j in 1:n_el
             let D_f=D_func, syms=orig_syms, c=cache, j_cap=j, i_cap=i
                 KDs_expr[i_cap, j_cap] = function(out)
-                    liq_idx = get(out.SS_syms, :liq, 0)
+                    liq_idx = find_ss_idx(out, :liq)
                     liq_idx == 0 && return 0.0
 
                     min_idx = 0
                     for s in syms
-                        min_idx = get(out.SS_syms, s, 0)
+                        min_idx = find_ss_idx(out, s)
                         min_idx != 0 && break
                     end
                     min_idx == 0 && return 0.0
