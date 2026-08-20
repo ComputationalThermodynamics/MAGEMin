@@ -1,0 +1,43 @@
+{
+  "title": "MAGEMin: Mineral Assemblage Gibbs Energy Minimization",
+  "description": "MAGEMin is a Gibbs energy minimization solver package, written as a parallel C library, which computes the thermodynamically most stable assemblage for a given bulk rock composition and pressure/temperature condition.",
+  "creators": [
+    {
+      "name": "Riel, Nicolas",
+      "affiliation": "Johannes Gutenberg University Mainz, Germany",
+      "orcid": "https://orcid.org/0000-0002-5037-5519"
+    },
+    {
+      "name": "Kaus, Boris J.P.",
+      "affiliation": "Johannes Gutenberg University Mainz, Germany",
+      "orcid": "https://orcid.org/0000-0002-0247-8660"
+    },
+    {
+      "name": "Dominguez, Hugo",
+      "affiliation": "Johannes Gutenberg University Mainz, Germany",
+      "orcid": "https://orcid.org/0009-0001-8425-0503"
+    },
+    {
+      "name": "Ranocha, Hendrik",
+      "affiliation": "Johannes Gutenberg University Mainz, Germany",
+      "orcid": "https://orcid.org/0000-0002-3456-2277"
+    }
+  ],
+  "keywords": [
+    "Gibbs energy minimisation",
+    "computational thermodynamics",
+    "volcanology",
+    "petrology",
+    "metamorphic processes",
+    "geochemistry",
+    "C"
+  ],
+  "grants": [
+    {"id": "10.13039/501100000780::771143"}
+  ],
+  "license": {
+    "id": "GPL-3.0-or-later"
+  },
+  "upload_type": "software",
+  "access_right": "open"
+}
