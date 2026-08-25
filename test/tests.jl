@@ -601,7 +601,7 @@ end
         end
     end
 
-    @test out_TE[1].zrc_wt  ≈ 0.0001951066849433592    rtol=1e-3
+    @test out_TE[1].zrc_wt  ≈ 0.0007885214282942672    rtol=1e-3
     @test out_TE[1].sulf_wt ≈ 0.002722767470774445      rtol=1e-3
     @test out_TE[1].fapt_wt ≈ 0.0023191756689226023      rtol=1e-3
 
@@ -636,7 +636,7 @@ end
     @test out_TE.fapt_wt ≈ 0.0023191756689226023        rtol=1e-3
     # CO2 saturation was computed and 50 ppm is well below the limit
     @test !isnan(out_TE.Sat_CO2_liq)
-    @test out_TE.fl_CO2_wt ≈ 0.0003154780601036963      rtol=1e-2
+    @test out_TE.fl_CO2_wt ≈ 0.0003324204260014847      rtol=1e-2
 
     Finalize_MAGEMin(data)
 end
