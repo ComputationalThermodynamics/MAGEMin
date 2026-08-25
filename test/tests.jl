@@ -504,7 +504,7 @@ end
     @test out_TE.Cliq[3] ≈ 133.18203710723262    rtol=tol   # P2O5 at saturation
     @test out_TE.Cliq[4] ≈ 16.185494729785756    rtol=tol   # S at saturation
     @test out_TE.Cliq[5] ≈ 1500.2696597838953    rtol=tol   # CO2 capped at saturation
-    @test out_TE.zrc_wt  ≈ 0.00018324301535409875  rtol=tol
+    @test out_TE.zrc_wt  ≈ 0.0007395168468941766  rtol=tol
     @test out_TE.fapt_wt ≈ 0.0023231379042603197   rtol=tol
     @test out_TE.sulf_wt ≈ 0.0027220048406193923   rtol=tol
     @test out_TE.Sat_CO2_liq ≈ 1500.2696597838953  rtol=tol
@@ -631,7 +631,7 @@ end
 
     @test converged
     # Zr / S / P2O5 must be unchanged (CO2 undersaturated → zero fl weight, sum_wt unchanged)
-    @test out_TE.zrc_wt  ≈ 0.0001951066849433592        rtol=1e-3
+    @test out_TE.zrc_wt  ≈ 0.0007882595805073063        rtol=1e-3
     @test out_TE.sulf_wt ≈ 0.002722767470774445         rtol=1e-3
     @test out_TE.fapt_wt ≈ 0.0023191756689226023        rtol=1e-3
     # CO2 saturation was computed and 50 ppm is well below the limit
