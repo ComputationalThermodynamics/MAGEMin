@@ -17,7 +17,7 @@ function get_database_infos()
                         "Metabasite (Green et al., 2016)",
                         "Metabasite extended (Green et al., 2016 with oamp from Diener et al., 2007 and ta from Rebay et al., 2022)",
                         "Igneous (Green et al., 2025, corrected after Holland et al., 2018)",
-                        "Igneous (Bin et al., 2026, corrected after Tomlinson & Holland, 2021)",
+                        "Igneous (Su et al., 2026, corrected after Tomlinson & Holland, 2021)",
                         "Igneous alkaline dry (Weller et al., 2024)",
                         "Ultramafic (Evans & Frost., 2021)",
                         "Ultramafic extended (Evans & Frost., 2021 with pl, amp and aug from Green et al., 2016)",

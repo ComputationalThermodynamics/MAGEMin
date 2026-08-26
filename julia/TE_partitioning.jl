@@ -140,6 +140,9 @@ function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Flo
             elseif ss == "sp_W02"
                 if x[2] - 0.5 > 0.0;        mineral_name = "sp";
                 else                        mineral_name = "smt";    end
+            elseif ss == "ilm_T21"
+                if -x[1] + 0.5 > 0.0;       mineral_name = "hem";
+                else                        mineral_name = "FeTiOx";   end
             elseif ss == "ilm_W24"
                 if -x[1] + 0.5 > 0.0;       mineral_name = "hem";
                 else                        mineral_name = "FeTiOx";   end
@@ -154,6 +157,8 @@ function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Flo
                 else                        mineral_name = "mu";    end
             elseif ss == "amp_G16" || ss == "gl" || ss == "act" || ss == "cumm" || ss == "tr"
                 mineral_name = "amp";
+            elseif ss == "cpx_T21" || ss == "pig" || ss == "Na-cpx"
+                mineral_name = "cpx";
             elseif ss == "cpx_W24" || ss == "pig" || ss == "Na-cpx"
                 mineral_name = "cpx";
             elseif ss == "dio_G16" || ss == "omph" || ss == "jd"

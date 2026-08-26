@@ -27,7 +27,7 @@
 
 /**************************************************************************************/
 /**************************************************************************************/
-/************IGNEOUST DATABASE (Tomlinson & Holland 2021, Bin et al., 2026)************/
+/************IGNEOUST DATABASE (Tomlinson & Holland 2021, Su et al., 2026)************/
 /**************************************************************************************/
 /**************************************************************************************/
 /**
@@ -17215,7 +17215,7 @@ void TC_all_P2X_init(	            P2X_type 			*P2X_read,
 	for (int iss = 0; iss < gv.len_ss; iss++){
 
 		/* liq (4 citation variants) */
-		if      (strcmp( gv.SS_list[iss], "liq_W24d") == 0 ){
+		if      (strcmp( gv.SS_list[iss], "liq_S26") == 0 ){
 			P2X_read[iss]  = p2x_igd_liq; 		}
 		else if (strcmp( gv.SS_list[iss], "liq_G16")  == 0 ){
 			P2X_read[iss]  = p2x_mb_liq; 		}
@@ -17230,19 +17230,23 @@ void TC_all_P2X_init(	            P2X_type 			*P2X_read,
 		else if (strcmp( gv.SS_list[iss], "fsp_H22op") == 0 ){
 			P2X_read[iss]  = p2x_igd_fsp; 		}
 
-		/* g (3 citation variants) */
+		/* g (4 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "g_W24") == 0 ){
 			P2X_read[iss]  = p2x_ig_g; 		}
 		else if (strcmp( gv.SS_list[iss], "g_W14") == 0 ){
 			P2X_read[iss]  = p2x_mpe_g; 		}
 		else if (strcmp( gv.SS_list[iss], "g_H18") == 0 ){
 			P2X_read[iss]  = p2x_um_g; 		}
+		else if (strcmp( gv.SS_list[iss], "g_T21") == 0 ){
+			P2X_read[iss]  = p2x_igd_g; 		}
 
-		/* opx (2 citation variants) */
+		/* opx (3 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "opx_W24") == 0 ){
 			P2X_read[iss]  = p2x_ig_opx; 		}
 		else if (strcmp( gv.SS_list[iss], "opx_W14") == 0 ){
 			P2X_read[iss]  = p2x_mpe_opx; 		}
+		else if (strcmp( gv.SS_list[iss], "opx_T21") == 0 ){
+			P2X_read[iss]  = p2x_igd_opx; 		}
 
 		/* ol (2 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "ol_H18") == 0 ){
@@ -17250,11 +17254,13 @@ void TC_all_P2X_init(	            P2X_type 			*P2X_read,
 		else if (strcmp( gv.SS_list[iss], "ol_H11") == 0 ){
 			P2X_read[iss]  = p2x_mb_ol; 		}
 
-		/* ilm (2 citation variants) */
+		/* ilm (3 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "ilm_W24") == 0 ){
 			P2X_read[iss]  = p2x_ig_ilm; 		}
 		else if (strcmp( gv.SS_list[iss], "ilm_W00") == 0 ){
 			P2X_read[iss]  = p2x_mb_ilm; 		}
+		else if (strcmp( gv.SS_list[iss], "ilm_T21") == 0 ){
+			P2X_read[iss]  = p2x_igd_ilm; 		}
 
 		/* spl (2 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "spl_T21") == 0 ){
@@ -17319,6 +17325,8 @@ void TC_all_P2X_init(	            P2X_type 			*P2X_read,
 			P2X_read[iss]  = p2x_DEW; 		}
 		else if (strcmp( gv.SS_list[iss], "cpx_W24")   == 0){
 			P2X_read[iss]  = p2x_ig_cpx; 		}
+		else if (strcmp( gv.SS_list[iss], "cpx_T21")   == 0){
+			P2X_read[iss]  = p2x_igd_cpx; 		}
 		else if (strcmp( gv.SS_list[iss], "fper")  == 0){
 			P2X_read[iss]  = p2x_ig_fper; 		}
 		else if (strcmp( gv.SS_list[iss], "lct_W24")   == 0){
@@ -17863,7 +17871,7 @@ void TC_all_objective_init_function(	obj_type 			*SS_objective,
 	for (int iss = 0; iss < gv.len_ss; iss++){
 
 		/* liq (4 citation variants) */
-		if      (strcmp( gv.SS_list[iss], "liq_W24d") == 0 ){
+		if      (strcmp( gv.SS_list[iss], "liq_S26") == 0 ){
 			SS_objective[iss]  = obj_igd_liq; 		}
 		else if (strcmp( gv.SS_list[iss], "liq_G16")  == 0 ){
 			SS_objective[iss]  = obj_mb_liq; 		}
@@ -17878,19 +17886,23 @@ void TC_all_objective_init_function(	obj_type 			*SS_objective,
 		else if (strcmp( gv.SS_list[iss], "fsp_H22op") == 0 ){
 			SS_objective[iss]  = obj_igd_fsp; 		}
 
-		/* g (3 citation variants) */
+		/* g (4 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "g_W24") == 0 ){
 			SS_objective[iss]  = obj_ig_g; 		}
 		else if (strcmp( gv.SS_list[iss], "g_W14") == 0 ){
 			SS_objective[iss]  = obj_mpe_g; 		}
 		else if (strcmp( gv.SS_list[iss], "g_H18") == 0 ){
 			SS_objective[iss]  = obj_um_g; 		}
+		else if (strcmp( gv.SS_list[iss], "g_T21") == 0 ){
+			SS_objective[iss]  = obj_igd_g; 		}
 
-		/* opx (2 citation variants) */
+		/* opx (3 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "opx_W24") == 0 ){
 			SS_objective[iss]  = obj_ig_opx; 		}
 		else if (strcmp( gv.SS_list[iss], "opx_W14") == 0 ){
 			SS_objective[iss]  = obj_mpe_opx; 		}
+		else if (strcmp( gv.SS_list[iss], "opx_T21") == 0 ){
+			SS_objective[iss]  = obj_igd_opx; 		}
 
 		/* ol (2 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "ol_H18") == 0 ){
@@ -17898,11 +17910,13 @@ void TC_all_objective_init_function(	obj_type 			*SS_objective,
 		else if (strcmp( gv.SS_list[iss], "ol_H11") == 0 ){
 			SS_objective[iss]  = obj_mb_ol; 		}
 
-		/* ilm (2 citation variants) */
+		/* ilm (3 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "ilm_W24") == 0 ){
 			SS_objective[iss]  = obj_ig_ilm; 		}
 		else if (strcmp( gv.SS_list[iss], "ilm_W00") == 0 ){
 			SS_objective[iss]  = obj_mb_ilm; 		}
+		else if (strcmp( gv.SS_list[iss], "ilm_T21") == 0 ){
+			SS_objective[iss]  = obj_igd_ilm; 		}
 
 		/* spl (2 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "spl_T21") == 0 ){
@@ -17967,6 +17981,8 @@ void TC_all_objective_init_function(	obj_type 			*SS_objective,
 			SS_objective[iss]  = obj_DEW; 		}
 		else if (strcmp( gv.SS_list[iss], "cpx_W24")   == 0){
 			SS_objective[iss]  = obj_ig_cpx; 		}
+		else if (strcmp( gv.SS_list[iss], "cpx_T21")   == 0){
+			SS_objective[iss]  = obj_igd_cpx; 		}
 		else if (strcmp( gv.SS_list[iss], "fper")  == 0){
 			SS_objective[iss]  = obj_ig_fper; 		}
 		else if (strcmp( gv.SS_list[iss], "lct_W24")   == 0){
@@ -18505,7 +18521,7 @@ void TC_all_PC_init(	                PC_type 			*PC_read,
 	for (int iss = 0; iss < gv.len_ss; iss++){
 
 		/* liq (4 citation variants) */
-		if      (strcmp( gv.SS_list[iss], "liq_W24d") == 0 ){
+		if      (strcmp( gv.SS_list[iss], "liq_S26") == 0 ){
 			PC_read[iss]  = obj_igd_liq; 		}
 		else if (strcmp( gv.SS_list[iss], "liq_G16")  == 0 ){
 			PC_read[iss]  = obj_mb_liq; 		}
@@ -18520,19 +18536,23 @@ void TC_all_PC_init(	                PC_type 			*PC_read,
 		else if (strcmp( gv.SS_list[iss], "fsp_H22op") == 0 ){
 			PC_read[iss]  = obj_igd_fsp; 		}
 
-		/* g (3 citation variants) */
+		/* g (4 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "g_W24") == 0 ){
 			PC_read[iss]  = obj_ig_g; 		}
 		else if (strcmp( gv.SS_list[iss], "g_W14") == 0 ){
 			PC_read[iss]  = obj_mpe_g; 		}
 		else if (strcmp( gv.SS_list[iss], "g_H18") == 0 ){
 			PC_read[iss]  = obj_um_g; 		}
+		else if (strcmp( gv.SS_list[iss], "g_T21") == 0 ){
+			PC_read[iss]  = obj_igd_g; 		}
 
-		/* opx (2 citation variants) */
+		/* opx (3 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "opx_W24") == 0 ){
 			PC_read[iss]  = obj_ig_opx; 		}
 		else if (strcmp( gv.SS_list[iss], "opx_W14") == 0 ){
 			PC_read[iss]  = obj_mpe_opx; 		}
+		else if (strcmp( gv.SS_list[iss], "opx_T21") == 0 ){
+			PC_read[iss]  = obj_igd_opx; 		}
 
 		/* ol (2 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "ol_H18") == 0 ){
@@ -18540,11 +18560,13 @@ void TC_all_PC_init(	                PC_type 			*PC_read,
 		else if (strcmp( gv.SS_list[iss], "ol_H11") == 0 ){
 			PC_read[iss]  = obj_mb_ol; 		}
 
-		/* ilm (2 citation variants) */
+		/* ilm (3 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "ilm_W24") == 0 ){
 			PC_read[iss]  = obj_ig_ilm; 		}
 		else if (strcmp( gv.SS_list[iss], "ilm_W00") == 0 ){
 			PC_read[iss]  = obj_mb_ilm; 		}
+		else if (strcmp( gv.SS_list[iss], "ilm_T21") == 0 ){
+			PC_read[iss]  = obj_igd_ilm; 		}
 
 		/* spl (2 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "spl_T21") == 0 ){
@@ -18609,6 +18631,8 @@ void TC_all_PC_init(	                PC_type 			*PC_read,
 			PC_read[iss]  = obj_DEW; 		}
 		else if (strcmp( gv.SS_list[iss], "cpx_W24")   == 0){
 			PC_read[iss]  = obj_ig_cpx; 		}
+		else if (strcmp( gv.SS_list[iss], "cpx_T21")   == 0){
+			PC_read[iss]  = obj_igd_cpx; 		}
 		else if (strcmp( gv.SS_list[iss], "fper")  == 0){
 			PC_read[iss]  = obj_ig_fper; 		}
 		else if (strcmp( gv.SS_list[iss], "lct_W24")   == 0){

@@ -120,7 +120,7 @@ SS_ref G_SS_DEW_function(SS_ref SS_ref_db, char* research_group, int EM_dataset,
 
 /**************************************************************************************/
 /**************************************************************************************/
-/************IGNEOUST DATABASE (Tomlinson & Holland 2021, Bin et al., 2026)************/
+/************IGNEOUST DATABASE (Tomlinson & Holland 2021, Su et al., 2026)************/
 /**************************************************************************************/
 /**************************************************************************************/
 
@@ -131,7 +131,7 @@ SS_ref G_SS_igd_liq_function(SS_ref SS_ref_db, char* research_group, int EM_data
     /* fName was left unset (see G_SS_mpe_carp_function's fix for why that's a real
        heap-buffer-overflow, not cosmetic) - igd mirrors igad's byte-identical liq algebra,
        so reuses igad_liq's own tag. */
-    strcpy(SS_ref_db.fName,"liq_W24d");
+    strcpy(SS_ref_db.fName,"liq_S26");
 
     int i, j;
     int n_em = SS_ref_db.n_em;
@@ -802,7 +802,7 @@ SS_ref G_SS_igd_spl_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for igd_g
 */
 SS_ref G_SS_igd_g_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    strcpy(SS_ref_db.fName,"g_W24");
+    strcpy(SS_ref_db.fName,"g_T21");
     int i, j;
     int n_em = SS_ref_db.n_em;
 
@@ -1075,7 +1075,7 @@ SS_ref G_SS_igd_ol_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for igd_opx
 */
 SS_ref G_SS_igd_opx_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    strcpy(SS_ref_db.fName,"opx_W24");
+    strcpy(SS_ref_db.fName,"opx_T21");
     int i, j;
     int n_em = SS_ref_db.n_em;
 
@@ -1308,7 +1308,7 @@ SS_ref G_SS_igd_opx_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for igd_cpx
 */
 SS_ref G_SS_igd_cpx_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    strcpy(SS_ref_db.fName,"cpx_W24");
+    strcpy(SS_ref_db.fName,"cpx_T21");
     int i, j;
     int n_em = SS_ref_db.n_em;
 
@@ -1581,7 +1581,7 @@ SS_ref G_SS_igd_cpx_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for igd_ilm
 */
 SS_ref G_SS_igd_ilm_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    strcpy(SS_ref_db.fName,"ilm_W24");
+    strcpy(SS_ref_db.fName,"ilm_T21");
     int i, j;
     int n_em = SS_ref_db.n_em;
 
@@ -9982,7 +9982,7 @@ SS_ref G_SS_ig_chl_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for igad_liq
 */
 SS_ref G_SS_igad_liq_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    strcpy(SS_ref_db.fName,"liq_W24d");
+    strcpy(SS_ref_db.fName,"liq_S26");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -20271,7 +20271,7 @@ SS_ref G_SS_all_EM_function(	global_variable 	 gv,
 		}
 
 		/* liq (4 citation variants: igd/mb/mpe/ig) */
-		if (strcmp( name, "liq_W24d") == 0 ){
+		if (strcmp( name, "liq_S26") == 0 ){
 			SS_ref_db  = G_SS_igd_liq_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "liq_G16") == 0 ){
 			if ( T < gv.min_melt_T){
@@ -20301,7 +20301,7 @@ SS_ref G_SS_all_EM_function(	global_variable 	 gv,
 			}
 			SS_ref_db  = G_SS_igd_fsp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 
-		/* g (3 citation variants: ig/mpe/um) */
+		/* g (4 citation variants: ig/mpe/um/igd) */
 		else if (strcmp( name, "g_W24") == 0 ){
 			if (z_b.bulk_rock[gv.Al2O3_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
@@ -20311,13 +20311,21 @@ SS_ref G_SS_all_EM_function(	global_variable 	 gv,
 			SS_ref_db  = G_SS_mpe_g_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "g_H18") == 0 ){
 			SS_ref_db  = G_SS_um_g_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "g_T21") == 0 ){
+			if (z_b.bulk_rock[gv.Al2O3_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_igd_g_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 
-		/* opx (2 citation variants: ig/mpe) */
+		/* opx (3 citation variants: ig/mpe/igd) */
 		else if (strcmp( name, "opx_W24") == 0 ){
 			SS_ref_db  = G_SS_ig_opx_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);
 			if (gv.limitCaOpx == 1){ SS_ref_db.bounds_ref[2][1] =  gv.CaOpxLim - eps;          }}
 		else if (strcmp( name, "opx_W14") == 0 ){
 			SS_ref_db  = G_SS_mpe_opx_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "opx_T21") == 0 ){
+			SS_ref_db  = G_SS_igd_opx_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);
+			if (gv.limitCaOpx == 1){ SS_ref_db.bounds_ref[2][1] =  gv.CaOpxLim - eps;          }}
 
 		/* ol (2 citation variants: igad/mb) */
 		else if (strcmp( name, "ol_H18") == 0 ){
@@ -20325,7 +20333,7 @@ SS_ref G_SS_all_EM_function(	global_variable 	 gv,
 		else if (strcmp( name, "ol_H11") == 0 ){
 			SS_ref_db  = G_SS_mb_ol_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 
-		/* ilm (2 citation variants: ig/mb) */
+		/* ilm (3 citation variants: ig/mb/igd) */
 		else if (strcmp( name, "ilm_W24") == 0 ){
 			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
@@ -20336,6 +20344,11 @@ SS_ref G_SS_all_EM_function(	global_variable 	 gv,
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_mb_ilm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "ilm_T21") == 0 ){
+			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_igd_ilm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 
 		/* spl (2 citation variants: ume/mb) */
 		else if (strcmp( name, "spl_T21") == 0 ){
@@ -20482,6 +20495,8 @@ SS_ref G_SS_all_EM_function(	global_variable 	 gv,
 			SS_ref_db  = G_SS_DEW_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "cpx_W24") == 0 ){
 			SS_ref_db  = G_SS_ig_cpx_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "cpx_T21") == 0 ){
+			SS_ref_db  = G_SS_igd_cpx_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "fper") == 0 ){
 			SS_ref_db  = G_SS_ig_fper_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "lct_W24") == 0 ){

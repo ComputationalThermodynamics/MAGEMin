@@ -1749,10 +1749,10 @@ mutable struct all_datasets
     n_ss::Cint
     ox::NTuple{14, NTuple{20, Cchar}}
     PP::NTuple{36, NTuple{20, Cchar}}
-    SS::NTuple{57, NTuple{20, Cchar}}
-    verifyPC::NTuple{57, Cint}
-    n_SS_PC::NTuple{57, Cint}
-    SS_PC_stp::NTuple{57, Cdouble}
+    SS::NTuple{61, NTuple{20, Cchar}}
+    verifyPC::NTuple{61, Cint}
+    n_SS_PC::NTuple{61, Cint}
+    SS_PC_stp::NTuple{61, Cdouble}
     PC_df_add::Cdouble
     solver_switch_T::Cdouble
     min_melt_T::Cdouble

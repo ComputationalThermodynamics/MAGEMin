@@ -58,7 +58,7 @@ SS_ref G_SS_DEW_init_function(SS_ref SS_ref_db,  global_variable gv){
 
 /**************************************************************************************/
 /**************************************************************************************/
-/************IGNEOUST DATABASE (Tomlinson & Holland 2021, Bin et al., 2026)************/
+/************IGNEOUST DATABASE (Tomlinson & Holland 2021, Su et al., 2026)************/
 /**************************************************************************************/
 /**************************************************************************************/
 
@@ -2811,7 +2811,7 @@ void TC_SS_init_all(	            SS_init_type 		*SS_init,
 	for (int iss = 0; iss < gv.len_ss; iss++){
 
 		/* liq (4 citation variants) */
-		if      (strcmp( gv.SS_list[iss], "liq_W24d") == 0 ){
+		if      (strcmp( gv.SS_list[iss], "liq_S26") == 0 ){
 			SS_init[iss]  = G_SS_igd_liq_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "liq_G16")  == 0 ){
 			SS_init[iss]  = G_SS_mb_liq_init_function; 		}
@@ -2826,19 +2826,23 @@ void TC_SS_init_all(	            SS_init_type 		*SS_init,
 		else if (strcmp( gv.SS_list[iss], "fsp_H22op") == 0 ){
 			SS_init[iss]  = G_SS_igd_fsp_init_function; 		}
 
-		/* g (3 citation variants) */
+		/* g (4 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "g_W24") == 0 ){
 			SS_init[iss]  = G_SS_ig_g_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "g_W14") == 0 ){
 			SS_init[iss]  = G_SS_mpe_g_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "g_H18") == 0 ){
 			SS_init[iss]  = G_SS_um_g_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "g_T21") == 0 ){
+			SS_init[iss]  = G_SS_igd_g_init_function; 		}
 
-		/* opx (2 citation variants) */
+		/* opx (3 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "opx_W24") == 0 ){
 			SS_init[iss]  = G_SS_ig_opx_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "opx_W14") == 0 ){
 			SS_init[iss]  = G_SS_mpe_opx_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "opx_T21") == 0 ){
+			SS_init[iss]  = G_SS_igd_opx_init_function; 		}
 
 		/* ol (2 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "ol_H18") == 0 ){
@@ -2846,11 +2850,13 @@ void TC_SS_init_all(	            SS_init_type 		*SS_init,
 		else if (strcmp( gv.SS_list[iss], "ol_H11") == 0 ){
 			SS_init[iss]  = G_SS_mb_ol_init_function; 		}
 
-		/* ilm (2 citation variants) */
+		/* ilm (3 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "ilm_W24") == 0 ){
 			SS_init[iss]  = G_SS_ig_ilm_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "ilm_W00") == 0 ){
 			SS_init[iss]  = G_SS_mb_ilm_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ilm_T21") == 0 ){
+			SS_init[iss]  = G_SS_igd_ilm_init_function; 		}
 
 		/* spl (2 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "spl_T21") == 0 ){
@@ -2915,6 +2921,8 @@ void TC_SS_init_all(	            SS_init_type 		*SS_init,
 			SS_init[iss]  = G_SS_DEW_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "cpx_W24")   == 0){
 			SS_init[iss]  = G_SS_ig_cpx_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "cpx_T21")   == 0){
+			SS_init[iss]  = G_SS_igd_cpx_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "fper")  == 0){
 			SS_init[iss]  = G_SS_ig_fper_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "lct_W24")   == 0){

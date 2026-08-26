@@ -264,7 +264,7 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 				printf("  - Database                  : Igneous (Holland et al., 2018 -> Green et al., 2024)\n"	);
 			}
 			else if (gv.EM_database == 22){
-				printf("  - Database                  : Igneous dry (Tomlinson & Holland, 2021 -> Bin et al., 2026)\n"	);
+				printf("  - Database                  : Igneous dry (Tomlinson & Holland, 2021 -> Su et al., 2026)\n"	);
 			}
 			else if (gv.EM_database == 3){
 				printf("  - Database                  : Igneous alkaline dry (Weller et al., 2024)\n"	);
@@ -1664,7 +1664,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 		if (cp[i].ss_flags[1] == 1){
 
 			if (strcmp( cp[i].name, "liq") != 0
-			 && strcmp( cp[i].name, "liq_W14") != 0 && strcmp( cp[i].name, "liq_G16") != 0 && strcmp( cp[i].name, "liq_G25w") != 0 && strcmp( cp[i].name, "liq_W24d") != 0){
+			 && strcmp( cp[i].name, "liq_W14") != 0 && strcmp( cp[i].name, "liq_G16") != 0 && strcmp( cp[i].name, "liq_G25w") != 0 && strcmp( cp[i].name, "liq_S26") != 0){
 				not_only_liq = 1;
 			}
 
@@ -1778,7 +1778,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 
 
 			if (strcmp( cp[i].name, "liq") == 0
-			 || strcmp( cp[i].name, "liq_W14") == 0 || strcmp( cp[i].name, "liq_G16") == 0 || strcmp( cp[i].name, "liq_G25w") == 0 || strcmp( cp[i].name, "liq_W24d") == 0){
+			 || strcmp( cp[i].name, "liq_W14") == 0 || strcmp( cp[i].name, "liq_G16") == 0 || strcmp( cp[i].name, "liq_G25w") == 0 || strcmp( cp[i].name, "liq_S26") == 0){
 				gv.melt_density   	= cp[i].phase_density;
 				gv.melt_fraction  	= cp[i].ss_n_mol;
 				gv.melt_bulkModulus = cp[i].phase_bulkModulus/10.0;
@@ -1790,7 +1790,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 			sum_volume_cm3 += cp[i].ss_n_mol*cp[i].volume*10.0;
 
 			if (strcmp( cp[i].name, "liq") != 0 && strcmp( cp[i].name, "fl") != 0 && strcmp( cp[i].name, "DEW") != 0
-			 && strcmp( cp[i].name, "liq_W14") != 0 && strcmp( cp[i].name, "liq_G16") != 0 && strcmp( cp[i].name, "liq_G25w") != 0 && strcmp( cp[i].name, "liq_W24d") != 0
+			 && strcmp( cp[i].name, "liq_W14") != 0 && strcmp( cp[i].name, "liq_G16") != 0 && strcmp( cp[i].name, "liq_G25w") != 0 && strcmp( cp[i].name, "liq_S26") != 0
 			 && strcmp( cp[i].name, "fl_G25") != 0 && strcmp( cp[i].name, "fl_EF21") != 0 && strcmp( cp[i].name, "fl_H03") != 0 && strcmp( cp[i].name, "DEW_S14") != 0){
 				// sum_volume_sol 		+= cp[i].volume*cp[i].ss_n_mol*cp[i].factor;
 				sum_volume_sol 		+=  cp[i].ss_n_wt/cp[i].phase_density;
@@ -1922,7 +1922,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 			b1 +=  cp[i].ss_n_wt/cp[i].phase_density/sum_volume *  (cp[i].phase_bulkModulus /10.0);
 			b2 += (cp[i].ss_n_wt/cp[i].phase_density/sum_volume) / (cp[i].phase_bulkModulus /10.0);
 			if (strcmp( cp[i].name, "liq") != 0 && strcmp( cp[i].name, "fl") != 0 && strcmp( cp[i].name, "DEW") != 0
-			 && strcmp( cp[i].name, "liq_W14") != 0 && strcmp( cp[i].name, "liq_G16") != 0 && strcmp( cp[i].name, "liq_G25w") != 0 && strcmp( cp[i].name, "liq_W24d") != 0
+			 && strcmp( cp[i].name, "liq_W14") != 0 && strcmp( cp[i].name, "liq_G16") != 0 && strcmp( cp[i].name, "liq_G25w") != 0 && strcmp( cp[i].name, "liq_S26") != 0
 			 && strcmp( cp[i].name, "fl_G25") != 0 && strcmp( cp[i].name, "fl_EF21") != 0 && strcmp( cp[i].name, "fl_H03") != 0 && strcmp( cp[i].name, "DEW_S14") != 0){
 				s1S +=  cp[i].ss_n_wt/cp[i].phase_density/sum_volume_sol *  (cp[i].phase_shearModulus/10.0);
 				s2S += (cp[i].ss_n_wt/cp[i].phase_density/sum_volume_sol) / (cp[i].phase_shearModulus/10.0);
@@ -1963,7 +1963,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 			if (Ki > K_max) K_max = Ki;  if (Ki < K_min) K_min = Ki;
 			if (Gi > G_max) G_max = Gi;  if (Gi < G_min) G_min = Gi;
 			if (strcmp(cp[i].name, "liq") != 0 && strcmp(cp[i].name, "fl") != 0 && strcmp(cp[i].name, "DEW") != 0
-			 && strcmp(cp[i].name, "liq_W14") != 0 && strcmp(cp[i].name, "liq_G16") != 0 && strcmp(cp[i].name, "liq_G25w") != 0 && strcmp(cp[i].name, "liq_W24d") != 0
+			 && strcmp(cp[i].name, "liq_W14") != 0 && strcmp(cp[i].name, "liq_G16") != 0 && strcmp(cp[i].name, "liq_G25w") != 0 && strcmp(cp[i].name, "liq_S26") != 0
 			 && strcmp(cp[i].name, "fl_G25") != 0 && strcmp(cp[i].name, "fl_EF21") != 0 && strcmp(cp[i].name, "fl_H03") != 0 && strcmp(cp[i].name, "DEW_S14") != 0){
 				if (Ki > K_maxS) K_maxS = Ki;  if (Ki < K_minS) K_minS = Ki;
 				if (Gi > G_maxS) G_maxS = Gi;  if (Gi < G_minS) G_minS = Gi;
@@ -2023,7 +2023,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 		double bHSS_p = 0.0, bHSS_m = 0.0, sHSS_p = 0.0, sHSS_m = 0.0;
 		for (int i = 0; i < gv.len_cp; i++){
 			if (cp[i].ss_flags[1] == 1 && strcmp(cp[i].name,"liq") != 0 && strcmp(cp[i].name,"fl") != 0
-			 && strcmp(cp[i].name, "liq_W14") != 0 && strcmp(cp[i].name, "liq_G16") != 0 && strcmp(cp[i].name, "liq_G25w") != 0 && strcmp(cp[i].name, "liq_W24d") != 0
+			 && strcmp(cp[i].name, "liq_W14") != 0 && strcmp(cp[i].name, "liq_G16") != 0 && strcmp(cp[i].name, "liq_G25w") != 0 && strcmp(cp[i].name, "liq_S26") != 0
 			 && strcmp(cp[i].name, "fl_G25") != 0 && strcmp(cp[i].name, "fl_EF21") != 0 && strcmp(cp[i].name, "fl_H03") != 0){
 				double fi = cp[i].ss_n_wt / cp[i].phase_density / sum_volume_sol;
 				double Ki = cp[i].phase_bulkModulus  / 10.0;

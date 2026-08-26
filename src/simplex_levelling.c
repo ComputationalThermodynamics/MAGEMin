@@ -1321,7 +1321,7 @@ void SS_all_pc_init_function(	PC_ref 	*SS_pc_xeos,
 							    global_variable gv			){
 
 	/* liq (4 citation variants) */
-	if      (strcmp( name, "liq_W24d") == 0 ){
+	if      (strcmp( name, "liq_S26") == 0 ){
 		SS_igd_pc_init_function(		SS_pc_xeos, iss, "liq"			);	}
 	else if (strcmp( name, "liq_G16")  == 0 ){
 		SS_mb_pc_init_function(		SS_pc_xeos, iss, "liq", gv		);	}
@@ -1336,19 +1336,23 @@ void SS_all_pc_init_function(	PC_ref 	*SS_pc_xeos,
 	else if (strcmp( name, "fsp_H22op") == 0 ){
 		SS_igd_pc_init_function(		SS_pc_xeos, iss, "fsp"			);	}
 
-	/* g (3 citation variants) */
+	/* g (4 citation variants) */
 	else if (strcmp( name, "g_W24") == 0 ){
 		SS_ig_pc_init_function(		SS_pc_xeos, iss, "g", gv		);	}
 	else if (strcmp( name, "g_W14") == 0 ){
 		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "g", gv		);	}
 	else if (strcmp( name, "g_H18") == 0 ){
 		SS_um_pc_init_function(		SS_pc_xeos, iss, "g", gv		);	}
+	else if (strcmp( name, "g_T21") == 0 ){
+		SS_igd_pc_init_function(		SS_pc_xeos, iss, "g"			);	}
 
-	/* opx (2 citation variants) */
+	/* opx (3 citation variants) */
 	else if (strcmp( name, "opx_W24") == 0 ){
 		SS_ig_pc_init_function(		SS_pc_xeos, iss, "opx", gv		);	}
 	else if (strcmp( name, "opx_W14") == 0 ){
 		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "opx", gv		);	}
+	else if (strcmp( name, "opx_T21") == 0 ){
+		SS_igd_pc_init_function(		SS_pc_xeos, iss, "opx"			);	}
 
 	/* ol (2 citation variants) */
 	else if (strcmp( name, "ol_H18") == 0 ){
@@ -1356,11 +1360,13 @@ void SS_all_pc_init_function(	PC_ref 	*SS_pc_xeos,
 	else if (strcmp( name, "ol_H11") == 0 ){
 		SS_mb_pc_init_function(			SS_pc_xeos, iss, "ol", gv		);	}
 
-	/* ilm (2 citation variants) */
+	/* ilm (3 citation variants) */
 	else if (strcmp( name, "ilm_W24") == 0 ){
 		SS_ig_pc_init_function(		SS_pc_xeos, iss, "ilm", gv		);	}
 	else if (strcmp( name, "ilm_W00") == 0 ){
 		SS_mb_pc_init_function(			SS_pc_xeos, iss, "ilm", gv		);	}
+	else if (strcmp( name, "ilm_T21") == 0 ){
+		SS_igd_pc_init_function(		SS_pc_xeos, iss, "ilm"			);	}
 
 	/* spl (2 citation variants) */
 	else if (strcmp( name, "spl_T21") == 0 ){
@@ -1425,6 +1431,8 @@ void SS_all_pc_init_function(	PC_ref 	*SS_pc_xeos,
 		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "DEW", gv	);	}
 	else if (strcmp( name, "cpx_W24")   == 0){
 		SS_ig_pc_init_function(		SS_pc_xeos, iss, "cpx", gv		);	}
+	else if (strcmp( name, "cpx_T21")   == 0){
+		SS_igd_pc_init_function(		SS_pc_xeos, iss, "cpx"			);	}
 	else if (strcmp( name, "fper")  == 0){
 		SS_ig_pc_init_function(		SS_pc_xeos, iss, "fper", gv		);	}
 	else if (strcmp( name, "lct_W24")   == 0){

@@ -31,7 +31,7 @@
 
 /**************************************************************************************/
 /**************************************************************************************/
-/************IGNEOUST DATABASE (Tomlinson & Holland 2021, Bin et al., 2026)************/
+/************IGNEOUST DATABASE (Tomlinson & Holland 2021, Su et al., 2026)************/
 /**************************************************************************************/
 /**************************************************************************************/
 /**
@@ -13283,7 +13283,7 @@ void TC_all_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 	for (int iss = 0; iss < gv.len_ss; iss++){
 
 		/* liq (4 citation variants) */
-		if      (strcmp( gv.SS_list[iss], "liq_W24d") == 0 ){
+		if      (strcmp( gv.SS_list[iss], "liq_S26") == 0 ){
 			NLopt_opt[iss]  = NLopt_opt_igd_liq_function; 		}
 		else if (strcmp( gv.SS_list[iss], "liq_G16")  == 0 ){
 			NLopt_opt[iss]  = NLopt_opt_mb_liq_function; 		}
@@ -13298,19 +13298,23 @@ void TC_all_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 		else if (strcmp( gv.SS_list[iss], "fsp_H22op") == 0 ){
 			NLopt_opt[iss]  = NLopt_opt_igd_fsp_function; 		}
 
-		/* g (3 citation variants) */
+		/* g (4 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "g_W24") == 0 ){
 			NLopt_opt[iss]  = NLopt_opt_ig_g_function; 		}
 		else if (strcmp( gv.SS_list[iss], "g_W14") == 0 ){
 			NLopt_opt[iss]  = NLopt_opt_mpe_g_function; 		}
 		else if (strcmp( gv.SS_list[iss], "g_H18") == 0 ){
 			NLopt_opt[iss]  = NLopt_opt_um_g_function; 		}
+		else if (strcmp( gv.SS_list[iss], "g_T21") == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_igd_g_function; 		}
 
-		/* opx (2 citation variants) */
+		/* opx (3 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "opx_W24") == 0 ){
 			NLopt_opt[iss]  = NLopt_opt_ig_opx_function; 		}
 		else if (strcmp( gv.SS_list[iss], "opx_W14") == 0 ){
 			NLopt_opt[iss]  = NLopt_opt_mpe_opx_function; 		}
+		else if (strcmp( gv.SS_list[iss], "opx_T21") == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_igd_opx_function; 		}
 
 		/* ol (2 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "ol_H18") == 0 ){
@@ -13318,11 +13322,13 @@ void TC_all_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 		else if (strcmp( gv.SS_list[iss], "ol_H11") == 0 ){
 			NLopt_opt[iss]  = NLopt_opt_mb_ol_function; 		}
 
-		/* ilm (2 citation variants) */
+		/* ilm (3 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "ilm_W24") == 0 ){
 			NLopt_opt[iss]  = NLopt_opt_ig_ilm_function; 		}
 		else if (strcmp( gv.SS_list[iss], "ilm_W00") == 0 ){
 			NLopt_opt[iss]  = NLopt_opt_mb_ilm_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ilm_T21") == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_igd_ilm_function; 		}
 
 		/* spl (2 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "spl_T21") == 0 ){
@@ -13387,6 +13393,8 @@ void TC_all_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_DEW_function; 		}
 		else if (strcmp( gv.SS_list[iss], "cpx_W24")   == 0){
 			NLopt_opt[iss]  = NLopt_opt_ig_cpx_function; 		}
+		else if (strcmp( gv.SS_list[iss], "cpx_T21")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_igd_cpx_function; 		}
 		else if (strcmp( gv.SS_list[iss], "fper")  == 0){
 			NLopt_opt[iss]  = NLopt_opt_ig_fper_function; 		}
 		else if (strcmp( gv.SS_list[iss], "lct_W24")   == 0){

@@ -611,7 +611,7 @@ int runMAGEMin(			int    argc,
 				gv.n_ss_array[cp[i].id] += 1;
 				if (strcmp( gv.SS_list[cp[i].id], "liq")  == 0
 				 || strcmp( gv.SS_list[cp[i].id], "liq_W14") == 0 || strcmp( gv.SS_list[cp[i].id], "liq_G16") == 0
-				 || strcmp( gv.SS_list[cp[i].id], "liq_G25w") == 0 || strcmp( gv.SS_list[cp[i].id], "liq_W24d") == 0){
+				 || strcmp( gv.SS_list[cp[i].id], "liq_G25w") == 0 || strcmp( gv.SS_list[cp[i].id], "liq_S26") == 0){
 					ig_liq += cp[i].ss_n;
 					n_liq  += 1;
 				}

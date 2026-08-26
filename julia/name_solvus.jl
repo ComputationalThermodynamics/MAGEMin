@@ -122,6 +122,9 @@ function get_mineral_name(db, ss, SS_vec)
         elseif ss == "sp_W02"
             if x[2] - 0.5 > 0.0;        mineral_name = "sp";
             else                        mineral_name = "smt";    end
+        elseif ss == "ilm_T21"
+            if -x[1] + 0.5 > 0.0;       mineral_name = "hem";
+            else                        mineral_name = "ilm";   end
         elseif ss == "ilm_W24"
             if -x[1] + 0.5 > 0.0;       mineral_name = "hem";
             else                        mineral_name = "ilm";   end
@@ -142,6 +145,10 @@ function get_mineral_name(db, ss, SS_vec)
         elseif ss == "mu_W14"
             if x[4] - 0.5 > 0.0;        mineral_name = "pat";
             else                        mineral_name = "mu";    end
+        elseif ss == "cpx_T21"
+            if x[3] - 0.6 > 0.0;        mineral_name = "pig";
+            elseif x[4] - 0.5 > 0.0;    mineral_name = "Na-cpx";
+            else                        mineral_name = "cpx";   end
         elseif ss == "cpx_W24"
             if x[3] - 0.6 > 0.0;        mineral_name = "pig";
             elseif x[4] - 0.5 > 0.0;    mineral_name = "Na-cpx";
@@ -171,9 +178,18 @@ function get_mineral_name(db, ss, SS_vec)
 end
 
 """
-    get_ss_from_mineral(db, mrl, mbCpx)
+    get_ss_from_mineral(db, mrl, mbCpx, active_ss=String[])
 
     Return the solution phase name corresponding to a disambiguated mineral name (inverse of `get_mineral_name`).
+
+    For `db == "all"`, some generic mineral names are ambiguous: several solution-phase models
+    disambiguate to the same mineral name (e.g., `ilm_T21`, `ilm_W24`, and `ilm_W00` all disambiguate
+    to "ilm"/"hem"; `cpx_T21` and `cpx_W24` both disambiguate to "cpx"/"pig"/"Na-cpx"). When `active_ss`
+    is supplied (e.g., the list of solution phases actually available/used in the current database
+    configuration or computation), the first matching candidate is returned; otherwise a fixed default
+    is used for backward compatibility. For `db == "all"` mineral names with no dedicated solvus rule
+    (e.g. "opx", "ol"), `active_ss` is searched for an entry whose prefix before "_" equals `mrl`, so the
+    exact underlying solution-phase name (including its dataset tag) is recovered whenever available.
 
     Parameters
     ----------
@@ -183,16 +199,20 @@ end
         Disambiguated mineral name (e.g., "pl", "afs", "mgt", "hem", "omph").
     mbCpx : Int64
         Metabasite clinopyroxene model flag. Controls whether omphacite/diopside maps to "dio" (0) or "aug" (1).
+    active_ss : AbstractVector{<:AbstractString}
+        Optional list of solution phase names to disambiguate against when a mineral name maps to
+        more than one candidate solution phase (only relevant for `db == "all"`). Defaults to empty.
 
     Returns
     -------
     ss : String
         Solution phase short name (e.g., "fsp", "spl", "amp", "ilm").
 """
-function get_ss_from_mineral(db, mrl, mbCpx)
+function get_ss_from_mineral(db, mrl, mbCpx, active_ss::AbstractVector{<:AbstractString}=String[])
 
     ss = mrl
-   
+    pick(candidates) = candidates[something(findfirst(in(active_ss), candidates), firstindex(candidates))]
+
     if db =="ig" || db == "igad" || db == "igd"
 
         if mrl == "cm" || mrl == "mgt" || mrl == "usp" || mrl == "spl"
@@ -247,7 +267,7 @@ function get_ss_from_mineral(db, mrl, mbCpx)
         elseif mrl == "sp" || mrl == "smt"
             ss = "sp_W02"
         elseif mrl == "hem" || mrl == "ilm"
-            ss = "ilm_W24"
+            ss = pick(["ilm_W24", "ilm_T21", "ilm_W00"])
         elseif mrl == "hemm" || mrl == "ilmm"
             ss = "ilmm_W14"
         elseif mrl == "gl" || mrl == "act" || mrl == "amp" || mrl == "cumm" || mrl == "tr"
@@ -255,7 +275,7 @@ function get_ss_from_mineral(db, mrl, mbCpx)
         elseif mrl == "pat" || mrl == "mu"
             ss = "mu_W14"
         elseif mrl == "pig" || mrl == "Na-cpx" || mrl == "cpx"
-            ss = "cpx_W24"
+            ss = pick(["cpx_W24", "cpx_T21"])
         elseif mrl == "K-nph" || mrl == "nph"
             ss = "nph_W24"
         elseif mrl == "omph" || mrl == "dio" || mrl == "jd"
@@ -264,6 +284,11 @@ function get_ss_from_mineral(db, mrl, mbCpx)
             ss = "occm_F11"
         elseif mrl == "anth" || mrl == "ged"
             ss = "oamp_D07"
+        else
+            match = findfirst(s -> split(s, "_")[1] == mrl, active_ss)
+            if !isnothing(match)
+                ss = active_ss[match]
+            end
         end
 
     elseif occursin("_", mrl)
