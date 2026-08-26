@@ -37,6 +37,7 @@ chl,ss,Chlorite,Chl
 chl_W14,ss,Chlorite,Chl
 cpv,ss,Ca-perovskite,cpv
 cpx,ss,Clinopyroxene,Cpx
+cpx_T21,ss,Clinopyroxene,Cpx
 cpx_W24,ss,Clinopyroxene,Cpx
 crn,ss,Corundum (high-P),crn
 ctd,ss,Chloritoid,Cld
@@ -59,6 +60,7 @@ fsp_H22,ss,Feldspar,Fsp
 fsp_H22op,ss,Feldspar,Fsp
 g,ss,Garnet,Grt
 g_H18,ss,Garnet,Grt
+g_T21,ss,Garnet,Grt
 g_W14,ss,Garnet,Grt
 g_W24,ss,Garnet,Grt
 gtmj,ss,Garnet-majorite,Grt
@@ -66,6 +68,7 @@ hpcpx,ss,High-pressure clinopyroxene,hpcpx
 hpx,ss,High-pressure pyroxene,hpx
 ilm,ss,Ilmenite,Ilm
 ilm_W00,ss,Ilmenite,Ilm
+ilm_T21,ss,Ilmenite,Ilm
 ilm_W24,ss,Ilmenite,Ilm
 ilmm,ss,Ilmenite-hematite (Mn-bearing),Ilm
 ilmm_W14,ss,Ilmenite-hematite (Mn-bearing),Ilm
@@ -77,7 +80,7 @@ liq,ss,Melt (silicate liquid),liq
 liq_G16,ss,Melt (silicate liquid),liq
 liq_G25w,ss,Melt (silicate liquid),liq
 liq_W14,ss,Melt (silicate liquid),liq
-liq_W24d,ss,Melt (silicate liquid),liq
+liq_S26,ss,Melt (silicate liquid),liq
 ma,ss,Margarite,Mrg
 ma_W14,ss,Margarite,Mrg
 mel,ss,Melilite,Mel
@@ -99,6 +102,7 @@ ol_H11,ss,Olivine,Ol
 ol_H18,ss,Olivine,Ol
 opx,ss,Orthopyroxene,Opx
 opx_W14,ss,Orthopyroxene,Opx
+opx_T21,ss,Orthopyroxene,Opx
 opx_W24,ss,Orthopyroxene,Opx
 pl4tr,ss,Plagioclase,Pl
 plc,ss,Plagioclase,Pl

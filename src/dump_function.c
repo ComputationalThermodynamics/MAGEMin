@@ -726,9 +726,9 @@ void fill_output_struct(		global_variable 	 gv,
 			}
 
 			if (strcmp( cp[i].name, "liq") == 0 || strcmp( cp[i].name, "fl") == 0 || strcmp( cp[i].name, "DEW") == 0
-			 || strcmp( cp[i].name, "liq_W14") == 0 || strcmp( cp[i].name, "liq_G16") == 0 || strcmp( cp[i].name, "liq_G25w") == 0 || strcmp( cp[i].name, "liq_W24d") == 0
+			 || strcmp( cp[i].name, "liq_W14") == 0 || strcmp( cp[i].name, "liq_G16") == 0 || strcmp( cp[i].name, "liq_G25w") == 0 || strcmp( cp[i].name, "liq_S26") == 0
 			 || strcmp( cp[i].name, "fl_G25") == 0 || strcmp( cp[i].name, "fl_EF21") == 0 || strcmp( cp[i].name, "fl_H03") == 0 || strcmp( cp[i].name, "DEW_S14") == 0){
-				if (strcmp( cp[i].name, "liq") == 0 || strcmp( cp[i].name, "liq_W14") == 0 || strcmp( cp[i].name, "liq_G16") == 0 || strcmp( cp[i].name, "liq_G25w") == 0 || strcmp( cp[i].name, "liq_W24d") == 0){
+				if (strcmp( cp[i].name, "liq") == 0 || strcmp( cp[i].name, "liq_W14") == 0 || strcmp( cp[i].name, "liq_G16") == 0 || strcmp( cp[i].name, "liq_G25w") == 0 || strcmp( cp[i].name, "liq_S26") == 0){
 					if (gv.n_phase == 1){
 						sp[0].entropy_M 			= cp[i].phase_entropy;
 						sp[0].frac_M 				= 1.0;
@@ -865,9 +865,9 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].ph_frac_vol[n] = sp[0].ph_frac_wt[n] / sp[0].SS[n].rho;
 
 			if (strcmp( cp[i].name, "liq") == 0 || strcmp( cp[i].name, "fl") == 0 || strcmp( cp[i].name, "DEW") == 0
-			 || strcmp( cp[i].name, "liq_W14") == 0 || strcmp( cp[i].name, "liq_G16") == 0 || strcmp( cp[i].name, "liq_G25w") == 0 || strcmp( cp[i].name, "liq_W24d") == 0
+			 || strcmp( cp[i].name, "liq_W14") == 0 || strcmp( cp[i].name, "liq_G16") == 0 || strcmp( cp[i].name, "liq_G25w") == 0 || strcmp( cp[i].name, "liq_S26") == 0
 			 || strcmp( cp[i].name, "fl_G25") == 0 || strcmp( cp[i].name, "fl_EF21") == 0 || strcmp( cp[i].name, "fl_H03") == 0 || strcmp( cp[i].name, "DEW_S14") == 0){
-				if (strcmp( cp[i].name, "liq") == 0 || strcmp( cp[i].name, "liq_W14") == 0 || strcmp( cp[i].name, "liq_G16") == 0 || strcmp( cp[i].name, "liq_G25w") == 0 || strcmp( cp[i].name, "liq_W24d") == 0){
+				if (strcmp( cp[i].name, "liq") == 0 || strcmp( cp[i].name, "liq_W14") == 0 || strcmp( cp[i].name, "liq_G16") == 0 || strcmp( cp[i].name, "liq_G25w") == 0 || strcmp( cp[i].name, "liq_S26") == 0){
 						sp[0].frac_M_vol      = sp[0].ph_frac_vol[n];
 				}
 				else{
