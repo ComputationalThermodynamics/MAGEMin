@@ -8,19 +8,22 @@
  **   Contact      : nriel[at]uni-mainz.de, kaus[at]uni-mainz.de
  **
  ** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ @*/
-#ifndef __TC_all_sol_H_
-#define __TC_all_sol_H_
+#ifndef __PP_ENDMEMBER_DATABASE_BR_H_
+#define __PP_ENDMEMBER_DATABASE_BR_H_
 
-    /* This includes the activity model from THERMOCALC */
-    #include "./TC_database/TC_solution_phases.h"
+    typedef struct PP_db_br_ {
+        char   Name[16];
+        double Comp[16];
+        double H;
+        double S;
+        double V;
+        double cp_berman[11];
+        double eos_berman[4];
+    } PP_db_br;
 
-    /* This include Stixrude & Lithgow-Bertelloni solution phase models */
-    #include "./SB_database/SB_solution_phases.h"
+    #define BR_N_PP 86
 
-    /* This includes the Ghiorso/MELTS liquid model (research group "gh") */
-    #include "./GH_database/GH_solution_phases.h"
-
-    /* This includes the Berman (Pourteau et al. 2014) solution models (research group "br") */
-    #include "./BR_database/BR_solution_phases.h"
+    PP_db_br Access_BR_PP_DB(int id);
+    int      BR_find_PP_id(char *name);
 
 #endif

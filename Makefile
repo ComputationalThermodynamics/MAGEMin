@@ -40,6 +40,9 @@ SOURCES=src/MAGEMin.c 							\
 		src/GH_database/GH_PP_endmembers.c		\
 		src/GH_database/GH_fluid_eos.c			\
 		src/GH_database/GH_gem_function.c		\
+		src/BR_database/BR_init_database.c		\
+		src/BR_database/BR_PP_endmembers.c		\
+		src/BR_database/BR_gem_function.c		\
 		src/toolkit.c							\
 		src/io_function.c						\
 		src/gem_function.c 						\
@@ -49,12 +52,16 @@ SOURCES=src/MAGEMin.c 							\
 		src/SB_database/sb_gss_function.c		\
 		src/GH_database/gh_gss_init_function.c	\
 		src/GH_database/gh_gss_function.c		\
+		src/BR_database/br_gss_init_function.c	\
+		src/BR_database/br_gss_function.c		\
 		src/TC_database/NLopt_opt_function.c 	\
 		src/SB_database/SB_NLopt_opt_function.c \
 		src/GH_database/GH_NLopt_opt_function.c \
+		src/BR_database/BR_NLopt_opt_function.c \
 		src/TC_database/objective_functions.c	\
 		src/SB_database/sb_objective_functions.c\
 		src/GH_database/gh_objective_functions.c\
+		src/BR_database/br_objective_functions.c\
 		src/TC_database/SS_xeos_PC_mp.c			\
 		src/TC_database/SS_xeos_PC_mb.c			\
 		src/TC_database/SS_xeos_PC_ig.c			\
@@ -67,6 +74,7 @@ SOURCES=src/MAGEMin.c 							\
 		src/SB_database/SS_xeos_PC_sb21.c		\
 		src/SB_database/SS_xeos_PC_sb24.c		\
 		src/GH_database/SS_xeos_PC_gh.c			\
+		src/BR_database/SS_xeos_PC_br.c			\
 		src/pp_min_function.c 					\
 		src/ss_min_function.c 					\
 		src/simplex_levelling.c 				\
@@ -84,10 +92,10 @@ OBJECTS=$(SOURCES:.c=.o)
  
 all: $(OBJECTS)
 	$(CC)  -o $(EXE_NAME) $(OBJECTS) $(INC) $(LIBS)  -flto
-	rm src/*.o src/TC_database/*.o src/SB_database/*.o src/GH_database/*.o
+	rm src/*.o src/TC_database/*.o src/SB_database/*.o src/GH_database/*.o src/BR_database/*.o
 
 lib: $(OBJECTS)
 	$(CC) -shared -fPIC -o libMAGEMin.dylib $(OBJECTS) $(INC) $(LIBS) -flto
  
 clean:
-	rm -f src/*.o  src/TC_database/*.o src/SB_database/*.o src/GH_database/*.o *.dylib MAGEMin
+	rm -f src/*.o  src/TC_database/*.o src/SB_database/*.o src/GH_database/*.o src/BR_database/*.o *.dylib MAGEMin

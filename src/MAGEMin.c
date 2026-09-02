@@ -400,6 +400,18 @@ int runMAGEMin(			int    argc,
 								gv,
 								SS_ref_db						);
 	}
+	else if ( strcmp(gv.research_group, "br") 	== 0 ){
+		gv = init_em_db_br(		EM_database,
+								z_b,											/** bulk rock informations 			*/
+								gv,												/** global variables (e.g. Gamma) 	*/
+								PP_ref_db						);
+
+		/* Calculate solution phase data at given P-T conditions (G0 based on G0 of endmembers) */
+		gv = init_ss_db_br(		EM_database,
+								z_b,
+								gv,
+								SS_ref_db						);
+	}
 
 
 
@@ -463,6 +475,19 @@ int runMAGEMin(			int    argc,
 												gv								);
 		/* "sb" still has no P2X_read map: every codepath that reads it is
 		   gated to exclude "sb" explicitly - see simplex_levelling.c */
+	}
+	else if (strcmp(gv.research_group, "br") 	== 0 ){
+		BR_SS_objective_init_function(			SS_objective,
+												gv								);
+
+		BR_NLopt_opt_init(	        			NLopt_opt,
+												gv								);
+
+		BR_PC_init(	                    		PC_read,
+												gv								);
+
+		BR_P2X_init(	                		P2X_read,
+												gv								);
 	}
 
 	/* DEW warm start: SS_ref_db is allocated once for the whole run (InitializeDatabases,
@@ -896,7 +921,7 @@ global_variable SetupDatabase(			global_variable 	 gv,
 
 
 	// checks if research group is correct, otherwise sets to default
-	if 	( strcmp(gv.research_group, "tc") 	== 0 || strcmp(gv.research_group, "sb") == 0 || strcmp(gv.research_group, "gh") == 0 ){
+	if 	( strcmp(gv.research_group, "tc") 	== 0 || strcmp(gv.research_group, "sb") == 0 || strcmp(gv.research_group, "gh") == 0 || strcmp(gv.research_group, "br") == 0 ){
 	}
 	else{
 		printf(" WARNING: Unknown research group '%s' has been provided, setting default one 'tc'\n",gv.research_group);
@@ -1024,6 +1049,27 @@ global_variable SetupDatabase(			global_variable 	 gv,
 			gv.EM_database = 0;
 		}
 	}
+	else if( strcmp(gv.research_group, "br") == 0 ){
+		if (gv.solver != 0){
+			gv.solver = 0;
+			if (gv.verbose == 1){
+				printf(" INFO: Solver option is not available for the 'br' (Berman) database -> LP is used\n");
+			}
+		}
+
+		gv.EM_dataset = 1;
+
+		if 		(strcmp(gv.db, "po") 	== 0){
+			gv.EM_database = 0;
+		}
+		else {
+			if (gv.verbose == 1){
+				printf(" No or wrong database acronym has been provided, using default Pourteau et al. 2014 ([po])\n");
+			}
+			strcpy(gv.db, "po");
+			gv.EM_database = 0;
+		}
+	}
 
 	if (gv.verbose == 2){
 		printf("\n");	
@@ -1089,6 +1135,10 @@ Databases InitializeDatabases(	global_variable gv,
 		GH_SS_init(	        	    SS_init,
 									gv				);
 	}
+	else if (strcmp(gv.research_group, "br") == 0 ){
+		BR_SS_init(	        	    SS_init,
+									gv				);
+	}
 
 	DB.SS_ref_db = malloc ((gv.len_ss) 		* sizeof(SS_ref));
 	for (int iss = 0; iss < gv.len_ss; iss++){
@@ -1120,6 +1170,9 @@ Databases InitializeDatabases(	global_variable gv,
 	}
 	else if (strcmp(gv.research_group, "gh") == 0){
 		DB.EM_names  =	get_EM_DB_names_gh(		gv									);
+	}
+	else if (strcmp(gv.research_group, "br") == 0){
+		DB.EM_names  =	get_EM_DB_names_br(		gv									);
 	}
 
 

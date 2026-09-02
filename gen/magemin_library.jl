@@ -248,6 +248,39 @@ function GH_G_EM_function(EM_database, len_ox, id, bulk_rock, apo, P, T, name, s
     ccall((:GH_G_EM_function, libMAGEMin), PP_ref, (Cint, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), EM_database, len_ox, id, bulk_rock, apo, P, T, name, state)
 end
 
+mutable struct PP_db_br_
+    Name::NTuple{16, Cchar}
+    Comp::NTuple{16, Cdouble}
+    H::Cdouble
+    S::Cdouble
+    V::Cdouble
+    cp_berman::NTuple{11, Cdouble}
+    eos_berman::NTuple{4, Cdouble}
+    PP_db_br_() = new()
+end
+
+const PP_db_br = PP_db_br_
+
+function Access_BR_PP_DB(id)
+    ccall((:Access_BR_PP_DB, libMAGEMin), PP_db_br, (Cint,), id)
+end
+
+function BR_find_PP_id(name)
+    ccall((:BR_find_PP_id, libMAGEMin), Cint, (Ptr{Cchar},), name)
+end
+
+function BR_berman_HS(T, H0, S0, cp, H_out, S_out)
+    ccall((:BR_berman_HS, libMAGEMin), Cvoid, (Cdouble, Cdouble, Cdouble, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}), T, H0, S0, cp, H_out, S_out)
+end
+
+function BR_berman_EOS_dG(T, P, V0, eos)
+    ccall((:BR_berman_EOS_dG, libMAGEMin), Cdouble, (Cdouble, Cdouble, Cdouble, Ptr{Cdouble}), T, P, V0, eos)
+end
+
+function BR_G_EM_function(EM_dataset, len_ox, id, bulk_rock, apo, P, T, name, state)
+    ccall((:BR_G_EM_function, libMAGEMin), PP_ref, (Cint, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), EM_dataset, len_ox, id, bulk_rock, apo, P, T, name, state)
+end
+
 # typedef double ( * nlopt_func ) ( unsigned n , const double * x , double * gradient , /* NULL if not needed */ void * func_data )
 const nlopt_func = Ptr{Cvoid}
 
@@ -1928,6 +1961,40 @@ function get_bulk_pmelts_dataset(gv)
     ccall((:get_bulk_pmelts_dataset, libMAGEMin), global_variable, (global_variable,), gv)
 end
 
+mutable struct br_datasets
+    ds_version::Cint
+    n_ox::Cint
+    n_pp::Cint
+    n_ss::Cint
+    ox::NTuple{16, NTuple{20, Cchar}}
+    PP::NTuple{96, NTuple{20, Cchar}}
+    SS::NTuple{24, NTuple{20, Cchar}}
+    verifyPC::NTuple{24, Cint}
+    n_SS_PC::NTuple{24, Cint}
+    SS_PC_stp::NTuple{24, Cdouble}
+    PC_df_add::Cdouble
+    solver_switch_T::Cdouble
+    min_melt_T::Cdouble
+    inner_PGE_ite::Cdouble
+    max_n_phase::Cdouble
+    max_g_phase::Cdouble
+    max_fac::Cdouble
+    merge_value::Cdouble
+    re_in_n::Cdouble
+    obj_tol::Cdouble
+    br_datasets() = new()
+end
+
+const br_dataset = br_datasets
+
+function global_variable_BR_init(gv, z_b)
+    ccall((:global_variable_BR_init, libMAGEMin), global_variable, (global_variable, Ptr{bulk_info}), gv, z_b)
+end
+
+function get_bulk_br(gv)
+    ccall((:get_bulk_br, libMAGEMin), global_variable, (global_variable,), gv)
+end
+
 # typedef SS_ref ( * SS_init_type ) ( SS_ref SS_ref_db , global_variable gv )
 const SS_init_type = Ptr{Cvoid}
 
@@ -1941,6 +2008,10 @@ end
 
 function get_EM_DB_names_gh(gv)
     ccall((:get_EM_DB_names_gh, libMAGEMin), Ptr{Ptr{Cchar}}, (global_variable,), gv)
+end
+
+function get_EM_DB_names_br(gv)
+    ccall((:get_EM_DB_names_br, libMAGEMin), Ptr{Ptr{Cchar}}, (global_variable,), gv)
 end
 
 function get_DEW_DB_names(gv)
@@ -3166,6 +3237,330 @@ function GH_pc_init_function(SS_pc_xeos, iss, name, z_em, EM_database)
     ccall((:GH_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}, Ptr{Cdouble}, Cint), SS_pc_xeos, iss, name, z_em, EM_database)
 end
 
+function G_SS_br_ctd_init_function(SS_ref_db, gv)
+    ccall((:G_SS_br_ctd_init_function, libMAGEMin), SS_ref, (SS_ref, global_variable), SS_ref_db, gv)
+end
+
+function G_SS_br_car_init_function(SS_ref_db, gv)
+    ccall((:G_SS_br_car_init_function, libMAGEMin), SS_ref, (SS_ref, global_variable), SS_ref_db, gv)
+end
+
+function G_SS_br_chl_init_function(SS_ref_db, gv)
+    ccall((:G_SS_br_chl_init_function, libMAGEMin), SS_ref, (SS_ref, global_variable), SS_ref_db, gv)
+end
+
+function G_SS_br_mica_init_function(SS_ref_db, gv)
+    ccall((:G_SS_br_mica_init_function, libMAGEMin), SS_ref, (SS_ref, global_variable), SS_ref_db, gv)
+end
+
+function G_SS_br_talc_init_function(SS_ref_db, gv)
+    ccall((:G_SS_br_talc_init_function, libMAGEMin), SS_ref, (SS_ref, global_variable), SS_ref_db, gv)
+end
+
+function G_SS_br_ilm_init_function(SS_ref_db, gv)
+    ccall((:G_SS_br_ilm_init_function, libMAGEMin), SS_ref, (SS_ref, global_variable), SS_ref_db, gv)
+end
+
+function G_SS_br_bt_init_function(SS_ref_db, gv)
+    ccall((:G_SS_br_bt_init_function, libMAGEMin), SS_ref, (SS_ref, global_variable), SS_ref_db, gv)
+end
+
+function G_SS_br_ol_init_function(SS_ref_db, gv)
+    ccall((:G_SS_br_ol_init_function, libMAGEMin), SS_ref, (SS_ref, global_variable), SS_ref_db, gv)
+end
+
+function G_SS_br_ep_init_function(SS_ref_db, gv)
+    ccall((:G_SS_br_ep_init_function, libMAGEMin), SS_ref, (SS_ref, global_variable), SS_ref_db, gv)
+end
+
+function G_SS_br_opx_init_function(SS_ref_db, gv)
+    ccall((:G_SS_br_opx_init_function, libMAGEMin), SS_ref, (SS_ref, global_variable), SS_ref_db, gv)
+end
+
+function G_SS_br_amph_init_function(SS_ref_db, gv)
+    ccall((:G_SS_br_amph_init_function, libMAGEMin), SS_ref, (SS_ref, global_variable), SS_ref_db, gv)
+end
+
+function G_SS_br_spl_init_function(SS_ref_db, gv)
+    ccall((:G_SS_br_spl_init_function, libMAGEMin), SS_ref, (SS_ref, global_variable), SS_ref_db, gv)
+end
+
+function G_SS_br_stau_init_function(SS_ref_db, gv)
+    ccall((:G_SS_br_stau_init_function, libMAGEMin), SS_ref, (SS_ref, global_variable), SS_ref_db, gv)
+end
+
+function G_SS_br_crd_init_function(SS_ref_db, gv)
+    ccall((:G_SS_br_crd_init_function, libMAGEMin), SS_ref, (SS_ref, global_variable), SS_ref_db, gv)
+end
+
+function G_SS_br_grt_init_function(SS_ref_db, gv)
+    ccall((:G_SS_br_grt_init_function, libMAGEMin), SS_ref, (SS_ref, global_variable), SS_ref_db, gv)
+end
+
+function G_SS_br_omph_init_function(SS_ref_db, gv)
+    ccall((:G_SS_br_omph_init_function, libMAGEMin), SS_ref, (SS_ref, global_variable), SS_ref_db, gv)
+end
+
+function G_SS_br_amphx_init_function(SS_ref_db, gv)
+    ccall((:G_SS_br_amphx_init_function, libMAGEMin), SS_ref, (SS_ref, global_variable), SS_ref_db, gv)
+end
+
+function G_SS_br_fsp_init_function(SS_ref_db, gv)
+    ccall((:G_SS_br_fsp_init_function, libMAGEMin), SS_ref, (SS_ref, global_variable), SS_ref_db, gv)
+end
+
+function BR_SS_init(SS_init, gv)
+    ccall((:BR_SS_init, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
+end
+
+function G_SS_br_ctd_function(SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+    ccall((:G_SS_br_ctd_function, libMAGEMin), SS_ref, (SS_ref, Ptr{Cchar}, Cint, Cint, bulk_info, Cdouble), SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+end
+
+function G_SS_br_car_function(SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+    ccall((:G_SS_br_car_function, libMAGEMin), SS_ref, (SS_ref, Ptr{Cchar}, Cint, Cint, bulk_info, Cdouble), SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+end
+
+function G_SS_br_chl_function(SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+    ccall((:G_SS_br_chl_function, libMAGEMin), SS_ref, (SS_ref, Ptr{Cchar}, Cint, Cint, bulk_info, Cdouble), SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+end
+
+function G_SS_br_mica_function(SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+    ccall((:G_SS_br_mica_function, libMAGEMin), SS_ref, (SS_ref, Ptr{Cchar}, Cint, Cint, bulk_info, Cdouble), SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+end
+
+function G_SS_br_talc_function(SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+    ccall((:G_SS_br_talc_function, libMAGEMin), SS_ref, (SS_ref, Ptr{Cchar}, Cint, Cint, bulk_info, Cdouble), SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+end
+
+function G_SS_br_ilm_function(SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+    ccall((:G_SS_br_ilm_function, libMAGEMin), SS_ref, (SS_ref, Ptr{Cchar}, Cint, Cint, bulk_info, Cdouble), SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+end
+
+function G_SS_br_bt_function(SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+    ccall((:G_SS_br_bt_function, libMAGEMin), SS_ref, (SS_ref, Ptr{Cchar}, Cint, Cint, bulk_info, Cdouble), SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+end
+
+function G_SS_br_ol_function(SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+    ccall((:G_SS_br_ol_function, libMAGEMin), SS_ref, (SS_ref, Ptr{Cchar}, Cint, Cint, bulk_info, Cdouble), SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+end
+
+function G_SS_br_ep_function(SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+    ccall((:G_SS_br_ep_function, libMAGEMin), SS_ref, (SS_ref, Ptr{Cchar}, Cint, Cint, bulk_info, Cdouble), SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+end
+
+function G_SS_br_opx_function(SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+    ccall((:G_SS_br_opx_function, libMAGEMin), SS_ref, (SS_ref, Ptr{Cchar}, Cint, Cint, bulk_info, Cdouble), SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+end
+
+function G_SS_br_amph_function(SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+    ccall((:G_SS_br_amph_function, libMAGEMin), SS_ref, (SS_ref, Ptr{Cchar}, Cint, Cint, bulk_info, Cdouble), SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+end
+
+function G_SS_br_spl_function(SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+    ccall((:G_SS_br_spl_function, libMAGEMin), SS_ref, (SS_ref, Ptr{Cchar}, Cint, Cint, bulk_info, Cdouble), SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+end
+
+function G_SS_br_stau_function(SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+    ccall((:G_SS_br_stau_function, libMAGEMin), SS_ref, (SS_ref, Ptr{Cchar}, Cint, Cint, bulk_info, Cdouble), SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+end
+
+function G_SS_br_crd_function(SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+    ccall((:G_SS_br_crd_function, libMAGEMin), SS_ref, (SS_ref, Ptr{Cchar}, Cint, Cint, bulk_info, Cdouble), SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+end
+
+function G_SS_br_grt_function(SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+    ccall((:G_SS_br_grt_function, libMAGEMin), SS_ref, (SS_ref, Ptr{Cchar}, Cint, Cint, bulk_info, Cdouble), SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+end
+
+function G_SS_br_omph_function(SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+    ccall((:G_SS_br_omph_function, libMAGEMin), SS_ref, (SS_ref, Ptr{Cchar}, Cint, Cint, bulk_info, Cdouble), SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+end
+
+function G_SS_br_amphx_function(SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+    ccall((:G_SS_br_amphx_function, libMAGEMin), SS_ref, (SS_ref, Ptr{Cchar}, Cint, Cint, bulk_info, Cdouble), SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+end
+
+function G_SS_br_fsp_function(SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+    ccall((:G_SS_br_fsp_function, libMAGEMin), SS_ref, (SS_ref, Ptr{Cchar}, Cint, Cint, bulk_info, Cdouble), SS_ref_db, research_group, EM_dataset, len_ox, z_b, eps)
+end
+
+function G_SS_br_EM_function(gv, SS_ref_db, EM_dataset, z_b, name)
+    ccall((:G_SS_br_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_dataset, z_b, name)
+end
+
+function obj_br_ctd(n, x, grad, SS_ref_db)
+    ccall((:obj_br_ctd, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_br_car(n, x, grad, SS_ref_db)
+    ccall((:obj_br_car, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_br_chl(n, x, grad, SS_ref_db)
+    ccall((:obj_br_chl, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_br_mica(n, x, grad, SS_ref_db)
+    ccall((:obj_br_mica, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_br_talc(n, x, grad, SS_ref_db)
+    ccall((:obj_br_talc, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_br_ilm(n, x, grad, SS_ref_db)
+    ccall((:obj_br_ilm, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_br_bt(n, x, grad, SS_ref_db)
+    ccall((:obj_br_bt, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_br_ol(n, x, grad, SS_ref_db)
+    ccall((:obj_br_ol, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_br_ep(n, x, grad, SS_ref_db)
+    ccall((:obj_br_ep, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_br_opx(n, x, grad, SS_ref_db)
+    ccall((:obj_br_opx, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_br_amph(n, x, grad, SS_ref_db)
+    ccall((:obj_br_amph, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_br_spl(n, x, grad, SS_ref_db)
+    ccall((:obj_br_spl, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_br_stau(n, x, grad, SS_ref_db)
+    ccall((:obj_br_stau, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_br_crd(n, x, grad, SS_ref_db)
+    ccall((:obj_br_crd, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_br_grt(n, x, grad, SS_ref_db)
+    ccall((:obj_br_grt, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_br_omph(n, x, grad, SS_ref_db)
+    ccall((:obj_br_omph, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_br_amphx(n, x, grad, SS_ref_db)
+    ccall((:obj_br_amphx, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_br_fsp(n, x, grad, SS_ref_db)
+    ccall((:obj_br_fsp, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function BR_SS_objective_init_function(SS_objective, gv)
+    ccall((:BR_SS_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
+end
+
+function BR_PC_init(PC_read, gv)
+    ccall((:BR_PC_init, libMAGEMin), Cvoid, (Ptr{PC_type}, global_variable), PC_read, gv)
+end
+
+function BR_PC_function(gv, PC_read, SS_ref_db, z_b, ph_id)
+    ccall((:BR_PC_function, libMAGEMin), SS_ref, (global_variable, Ptr{PC_type}, SS_ref, bulk_info, Cint), gv, PC_read, SS_ref_db, z_b, ph_id)
+end
+
+function p2x_br_generic(SS_ref_db, eps)
+    ccall((:p2x_br_generic, libMAGEMin), Cvoid, (Ptr{Cvoid}, Cdouble), SS_ref_db, eps)
+end
+
+function BR_P2X_init(P2X_read, gv)
+    ccall((:BR_P2X_init, libMAGEMin), Cvoid, (Ptr{P2X_type}, global_variable), P2X_read, gv)
+end
+
+function NLopt_opt_br_ctd_function(gv, SS_ref_db)
+    ccall((:NLopt_opt_br_ctd_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
+end
+
+function NLopt_opt_br_car_function(gv, SS_ref_db)
+    ccall((:NLopt_opt_br_car_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
+end
+
+function NLopt_opt_br_chl_function(gv, SS_ref_db)
+    ccall((:NLopt_opt_br_chl_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
+end
+
+function NLopt_opt_br_mica_function(gv, SS_ref_db)
+    ccall((:NLopt_opt_br_mica_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
+end
+
+function NLopt_opt_br_talc_function(gv, SS_ref_db)
+    ccall((:NLopt_opt_br_talc_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
+end
+
+function NLopt_opt_br_ilm_function(gv, SS_ref_db)
+    ccall((:NLopt_opt_br_ilm_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
+end
+
+function NLopt_opt_br_bt_function(gv, SS_ref_db)
+    ccall((:NLopt_opt_br_bt_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
+end
+
+function NLopt_opt_br_ol_function(gv, SS_ref_db)
+    ccall((:NLopt_opt_br_ol_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
+end
+
+function NLopt_opt_br_ep_function(gv, SS_ref_db)
+    ccall((:NLopt_opt_br_ep_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
+end
+
+function NLopt_opt_br_opx_function(gv, SS_ref_db)
+    ccall((:NLopt_opt_br_opx_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
+end
+
+function NLopt_opt_br_amph_function(gv, SS_ref_db)
+    ccall((:NLopt_opt_br_amph_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
+end
+
+function NLopt_opt_br_spl_function(gv, SS_ref_db)
+    ccall((:NLopt_opt_br_spl_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
+end
+
+function NLopt_opt_br_stau_function(gv, SS_ref_db)
+    ccall((:NLopt_opt_br_stau_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
+end
+
+function NLopt_opt_br_crd_function(gv, SS_ref_db)
+    ccall((:NLopt_opt_br_crd_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
+end
+
+function NLopt_opt_br_grt_function(gv, SS_ref_db)
+    ccall((:NLopt_opt_br_grt_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
+end
+
+function NLopt_opt_br_omph_function(gv, SS_ref_db)
+    ccall((:NLopt_opt_br_omph_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
+end
+
+function NLopt_opt_br_amphx_function(gv, SS_ref_db)
+    ccall((:NLopt_opt_br_amphx_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
+end
+
+function NLopt_opt_br_fsp_function(gv, SS_ref_db)
+    ccall((:NLopt_opt_br_fsp_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
+end
+
+function BR_NLopt_opt_init(NLopt_opt, gv)
+    ccall((:BR_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
+end
+
+function BR_pc_init_function(SS_pc_xeos, iss, name, z_em)
+    ccall((:BR_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}, Ptr{Cdouble}), SS_pc_xeos, iss, name, z_em)
+end
+
 function PGE(z_b, gv, PC_read, SS_objective, NLopt_opt, splx_data, PP_ref_db, SS_ref_db, cp)
     ccall((:PGE, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PC_type}, Ptr{obj_type}, Ptr{NLopt_type}, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, PC_read, SS_objective, NLopt_opt, splx_data, PP_ref_db, SS_ref_db, cp)
 end
@@ -3335,6 +3730,10 @@ function init_em_db_gh(EM_database, z_b, gv, PP_ref_db)
     ccall((:init_em_db_gh, libMAGEMin), global_variable, (Cint, bulk_info, global_variable, Ptr{PP_ref}), EM_database, z_b, gv, PP_ref_db)
 end
 
+function init_em_db_br(EM_database, z_b, gv, PP_ref_db)
+    ccall((:init_em_db_br, libMAGEMin), global_variable, (Cint, bulk_info, global_variable, Ptr{PP_ref}), EM_database, z_b, gv, PP_ref_db)
+end
+
 function update_dG(splx_data)
     ccall((:update_dG, libMAGEMin), Cvoid, (Ptr{simplex_data},), splx_data)
 end
@@ -3433,6 +3832,10 @@ end
 
 function init_ss_db_gh(EM_database, z_b, gv, SS_ref_db)
     ccall((:init_ss_db_gh, libMAGEMin), global_variable, (Cint, bulk_info, global_variable, Ptr{SS_ref}), EM_database, z_b, gv, SS_ref_db)
+end
+
+function init_ss_db_br(EM_database, z_b, gv, SS_ref_db)
+    ccall((:init_ss_db_br, libMAGEMin), global_variable, (Cint, bulk_info, global_variable, Ptr{SS_ref}), EM_database, z_b, gv, SS_ref_db)
 end
 
 function print_help(gv)
@@ -3628,6 +4031,8 @@ function compute_density_volume_modulus(EM_database, z_b, gv, PP_ref_db, SS_ref_
 end
 
 const GH_N_PP = 64
+
+const BR_N_PP = 86
 
 const NLOPT_MINF_MAX_REACHED = NLOPT_STOPVAL_REACHED
 

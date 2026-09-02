@@ -50,8 +50,8 @@ void print_help(	global_variable gv	){
 	printf("  --Verb=       [int]   : Verbose option, 0. inactive, 1. active\n");	
 	printf("  --File=       [str]   : File name containing multiple point calculation\n");
 	printf("  --n_points=   [int]   : Number of points when using 'File' argument\n");
-	printf("  --rg=         [str]   : ResearchGroup, can be 'tc', 'sb' or 'gh' (THERMOCALC, Stixrude-Lithgow-Bertelloni, Ghiorso/MELTS)\n");
-	printf("  --db=         [str]   : Database, can be 'mp', 'ig', 'igad', 'um'or 'ume'* for TC, 2011/2024 for SB, or 'xMELTS'/'rMELTS'/'pMELTS' for GH\n");
+	printf("  --rg=         [str]   : ResearchGroup, can be 'tc', 'sb', 'gh' or 'br' (THERMOCALC, Stixrude-Lithgow-Bertelloni, Ghiorso/MELTS, Berman/Pourteau)\n");
+	printf("  --db=         [str]   : Database, can be 'mp', 'ig', 'igad', 'um'or 'ume'* for TC, 2011/2024 for SB, 'xMELTS'/'rMELTS'/'pMELTS' for GH, or 'po' for BR\n");
 	printf("  --ds=         [int]   : TC End-member dataset, 62, 633 or 634 (stands for ds6xx)\n");
 	printf("  --test=       [int]   : Number of points when using 'File' argument\n");
 	printf("  --Pres=       [float] : Pressure in kilobar\n");
@@ -1027,6 +1027,9 @@ global_variable get_tests_bulks(	global_variable  	 gv
 		else{
 			gv = get_bulk_gh( 		gv );
 		}
+	}
+	else if ( strcmp(gv.research_group, "br") 	== 0 ){
+		gv = get_bulk_br( 		gv );
 	}
 	else{
 		printf(" Wrong research group...\n");

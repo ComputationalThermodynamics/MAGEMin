@@ -81,6 +81,9 @@ SS_ref SS_UPDATE_function(		global_variable 	 gv,
 	else if (strcmp(gv.research_group, "gh") 	== 0 ){
 		SS_ref_db.sf_ok = 1;
 	}
+	else if (strcmp(gv.research_group, "br") 	== 0 ){
+		SS_ref_db.sf_ok = 1;
+	}
 
 	return SS_ref_db;
 };
@@ -1017,6 +1020,29 @@ global_variable init_ss_db_gh(	int 				 EM_database,
 		SS_ref_db[i].R  = 0.0083144;
 
 		SS_ref_db[i]    = G_SS_gh_EM_function(	gv,
+												SS_ref_db[i],
+												gv.EM_dataset,
+												z_b,
+												gv.SS_list[i]		);
+	}
+	return gv;
+};
+
+/**
+  initialize solution phase database for the "br" (Berman/Pourteau) research group
+**/
+global_variable init_ss_db_br(	int 				 EM_database,
+								bulk_info 	 		 z_b,
+								global_variable 	 gv,
+								SS_ref 				*SS_ref_db
+){
+	(void) EM_database;
+	for (int i = 0; i < gv.len_ss; i++){
+		SS_ref_db[i].P  = z_b.P;
+		SS_ref_db[i].T  = z_b.T;
+		SS_ref_db[i].R  = 0.0083144;
+
+		SS_ref_db[i]    = G_SS_br_EM_function(	gv,
 												SS_ref_db[i],
 												gv.EM_dataset,
 												z_b,

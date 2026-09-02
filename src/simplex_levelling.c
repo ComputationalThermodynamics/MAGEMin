@@ -1640,6 +1640,14 @@ void run_simplex_levelling(				bulk_info 	 		 z_b,
 												gv.EM_database				);
 		}
 	}
+	else if (strcmp(gv.research_group, "br") 	== 0 ){
+		for (iss = 0; iss < gv.len_ss; iss++){
+			BR_pc_init_function(				SS_pc_xeos,
+												iss,
+												gv.SS_list[iss],
+												SS_ref_db[iss].z_em				);
+		}
+	}
 
 
 	for (iss = 0; iss < gv.len_ss; iss++){

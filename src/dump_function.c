@@ -248,6 +248,12 @@ void mSS_output_struct(			global_variable 	 gv,
 		GH_P2X_init(	    	P2X_read,
 								gv			);
 	}
+	else if (strcmp(gv.research_group, "br") 	== 0 ){
+		BR_PC_init(	    		PC_read,
+								gv			);
+		BR_P2X_init(	    	P2X_read,
+								gv			);
+	}
 
 	int nox  = gv.len_ox;
 	int i, j, k, m, n, em_id, ph_id, pc_id;
@@ -414,7 +420,14 @@ void mSS_output_struct(			global_variable 	 gv,
 															z_b,
 															ph_id 		);
 			}
-											
+			else if (strcmp(gv.research_group, "br") 	== 0 ){
+				SS_ref_db[ph_id] = BR_PC_function(			gv,
+															PC_read,
+															SS_ref_db[ph_id],
+															z_b,
+															ph_id 		);
+			}
+
 			for (j = 0; j < gv.len_ox; j++){
 				sp[0].mSS[m].comp_Ppc[j] = SS_ref_db[ph_id].ss_comp[j]*SS_ref_db[ph_id].factor;
 			}

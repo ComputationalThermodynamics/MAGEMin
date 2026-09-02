@@ -34,6 +34,11 @@ global_variable global_variable_init( 	global_variable  	 gv,
 		gv 	=	global_variable_GH_init( 	gv,
 											z_b 	);
 	}
+	else if (strcmp(gv.research_group, "br") 	== 0 ){
+	/* here we initialize MAGEMin using the Berman (Pourteau et al. 2014) formalism */
+		gv 	=	global_variable_BR_init( 	gv,
+											z_b 	);
+	}
 	else{
 		printf(" wrong group, fix group name\n");
 	}
@@ -89,6 +94,17 @@ char** get_EM_DB_names_gh(global_variable gv) {
     for ( i = 0; i < n_em_db; i++){
         EM_return = Access_GH_EM_DB(gv.EM_database, i);
         strcpy(names[i],EM_return.Name);
+    }
+    return names;
+}
+
+char** get_EM_DB_names_br(global_variable gv) {
+
+    int i, n_em_db;
+    n_em_db = gv.n_em_db;
+    char ** names = malloc((n_em_db+1) * sizeof(char*));
+    for ( i = 0; i < n_em_db; i++){
+        names[i] = malloc(20 * sizeof(char));
     }
     return names;
 }

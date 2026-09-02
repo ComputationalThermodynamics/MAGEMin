@@ -1824,3 +1824,67 @@ global_variable init_em_db_gh(	int 				EM_database,
 		}
 		return gv;
 };
+
+/* Source: Pourteau et al. (2014), Contrib Mineral Petrol; Berman (1988)
+   EOS formalism via the THERIAK JUN92.bs lineage. */
+global_variable init_em_db_br(	int 				EM_database,
+								bulk_info 			z_b,
+								global_variable 	gv,
+								PP_ref 			   *PP_ref_db
+){
+		char state[] = "equilibrium";
+		int sum_zel;
+		for (int i = 0; i < gv.len_pp; i++){
+			PP_ref_db[i] = G_EM_function(	gv.research_group,
+											gv.EM_dataset,
+											gv.len_ox,
+											z_b.id,
+											z_b.bulk_rock,
+											z_b.apo,
+											z_b.P,
+											z_b.T,
+											gv.PP_list[i],
+											state					);
+
+			sum_zel = 0;
+			for (int j = 0; j < z_b.zEl_val; j++){
+				if (PP_ref_db[i].Comp[z_b.zEl_array[j]] != 0.0){
+					sum_zel += 1;
+				}
+			}
+
+			if (sum_zel != 0){
+				gv.pp_flags[i][0] = 0;
+				gv.pp_flags[i][1] = 0;
+				gv.pp_flags[i][2] = 0;
+				gv.pp_flags[i][3] = 1;
+			}
+			else{
+				if (gv.pp_flags[i][0] != 0){
+					gv.pp_flags[i][0] = 1;
+					gv.pp_flags[i][1] = 0;
+					gv.pp_flags[i][2] = 1;
+					gv.pp_flags[i][3] = 0;
+				}
+			}
+
+			if (gv.act_PP[i] == 0){
+				gv.pp_flags[i][0] = 0;
+				gv.pp_flags[i][1] = 0;
+				gv.pp_flags[i][2] = 0;
+				gv.pp_flags[i][3] = 1;
+			}
+
+			if (gv.verbose==1){
+				printf("\n %4s:  %+10f %+10f\n",gv.PP_list[i],PP_ref_db[i].gbase, PP_ref_db[i].factor);
+				for (int j = 0; j < gv.len_ox; j++){
+					printf(" %.1f",PP_ref_db[i].Comp[j]);
+				}
+				printf("\n");
+			}
+		}
+		if (gv.verbose==1){
+			printf("\n");
+		}
+		return gv;
+};

@@ -23,6 +23,7 @@
 	char** get_EM_DB_names_tc(			global_variable 	gv					);
 	char** get_EM_DB_names_sb(			global_variable 	gv					);
 	char** get_EM_DB_names_gh(			global_variable 	gv					);
+	char** get_EM_DB_names_br(			global_variable 	gv					);
 	char** get_DEW_DB_names(			global_variable 	gv					);
 
 	typedef struct em_datas{
