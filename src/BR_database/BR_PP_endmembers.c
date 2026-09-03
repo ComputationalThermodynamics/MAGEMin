@@ -368,6 +368,15 @@ static const PP_db_br arr_pp_db_br[BR_N_PP] = {
         -3.97079078e+06, 214.1451, 10.869,
         { 381.37231, -1941.045, -1.2037252e+07, 1.836425472e+09, 0,0,0, 0,0,0,0 },
         { -1.8045110e-06, 5.1120e-12, 1.5145075e-05, 5.4850e-09 } },
+    /* NOTE H2O: Pourt14's own raw STEAM/WATER entry (V=0, no eos_berman -
+       the source file itself says these properties are for steam and get
+       zeroed out once a real EOS, e.g. Haar 1988, is used). No such EOS
+       exists in br yet, so this pure phase is pressure-independent - H,S,Cp
+       only. Flagged approximation, not a full water fluid model. */
+    { "h2o", { 0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0 },
+        -2.41816e+05, 188.72, 0.0,
+        { 115.45, -3799.9, -2.8713e+06, 0.0, 51055.16, -0.002062, 0.0, 0,0,0,0 },
+        { 0.0, 0.0, 0.0, 0.0 } },
 
 };
 

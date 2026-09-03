@@ -35,15 +35,15 @@ oxide_data oxide_info_br = {
 br_dataset br_db = {
     1,
     10,
-    9,
+    14,
     17,
     {"SiO2","Al2O3","MgO","FeO","K2O","Na2O","H2O","CaO","TiO2","O"},
-    {"q","ky","and","sill","mtlc","ftlc","law","glc","dsp"},
+    {"cor","coe","q","ky","and","sill","mtlc","ftlc","law","glc","dsp","h2o","mt","hem"},
     {"ctd","car","chl","mica","talc","ilm","bt","ol","ep","opx","spl","stau","crd","grt","omph","amphx","fsp"},
 
     {1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1, 0,0,0,0,0,0,0},
-    {41,41,70,70, 41,41,41,41,41,41,41,41,41,41,66,66,66, 0,0,0,0,0,0,0},
-    {0.025,0.025,0.25,0.25, 0.025,0.025,0.025,0.025,0.025,0.025,0.025,0.025,0.025,0.025,0.1,0.1,0.1, 0.0,0.0,0.0,0.0,0.0,0.0,0.0},
+    {201,201,1001,1001, 201,201,201,201,201,201,201,201,201,201,861,861,861, 0,0,0,0,0,0,0},
+    {0.001,0.001,0.01,0.01, 0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.005,0.005,0.005, 0.0,0.0,0.0,0.0,0.0,0.0,0.0},
 
     6.0,
     673.15,
@@ -266,16 +266,29 @@ global_variable get_bulk_br( global_variable gv) {
 
     if (gv.test == 0){
         /* SiO2  Al2O3  MgO   FeO  K2O  Na2O  H2O  CaO  TiO2  O */
-        gv.bulk_rock[0]  = 50.0;   /** SiO2  */
-        gv.bulk_rock[1]  = 15.0;   /** Al2O3 */
-        gv.bulk_rock[2]  = 12.0;   /** MgO   */
-        gv.bulk_rock[3]  = 8.0;    /** FeO   */
-        gv.bulk_rock[4]  = 1.0;    /** K2O   */
-        gv.bulk_rock[5]  = 0.5;    /** Na2O  */
-        gv.bulk_rock[6]  = 13.5;   /** H2O   */
-        gv.bulk_rock[7]  = 0.0;    /** CaO   */
-        gv.bulk_rock[8]  = 0.0;    /** TiO2  */
-        gv.bulk_rock[9]  = 0.0;    /** O     */
+        gv.bulk_rock[0]  = 64.578;  /** SiO2  */
+        gv.bulk_rock[1]  = 13.651;  /** Al2O3 */
+        gv.bulk_rock[2]  = 5.529;   /** MgO   */
+        gv.bulk_rock[3]  = 8.025;   /** FeO   */
+        gv.bulk_rock[4]  = 2.943;   /** K2O   */
+        gv.bulk_rock[5]  = 2.0;     /** Na2O  */
+        gv.bulk_rock[6]  = 13.5;    /** H2O   */
+        gv.bulk_rock[7]  = 1.586;   /** CaO   */
+        gv.bulk_rock[8]  = 0.907;   /** TiO2  */
+        gv.bulk_rock[9]  = 0.5;     /** O     */
+    }
+    else if (gv.test == 1){
+        /* SiO2  Al2O3  MgO   FeO  K2O  Na2O  H2O  CaO  TiO2  O */
+        gv.bulk_rock[0]  = 64.578;  /** SiO2  */
+        gv.bulk_rock[1]  = 13.651;  /** Al2O3 */
+        gv.bulk_rock[2]  = 5.529;   /** MgO   */
+        gv.bulk_rock[3]  = 8.025;   /** FeO   */
+        gv.bulk_rock[4]  = 2.943;   /** K2O   */
+        gv.bulk_rock[5]  = 2.0;     /** Na2O  */
+        gv.bulk_rock[6]  = 13.5;    /** H2O   */
+        gv.bulk_rock[7]  = 1.586;   /** CaO   */
+        gv.bulk_rock[8]  = 0.907;   /** TiO2  */
+        gv.bulk_rock[9]  = 0.0;     /** O     */
     }
     else{
         printf("Unknown test %i for 'br' research group - please specify a different test! \n", gv.test);

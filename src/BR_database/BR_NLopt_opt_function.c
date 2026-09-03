@@ -38,6 +38,27 @@ static SS_ref NLopt_opt_br_generic(global_variable gv, SS_ref SS_ref_db, obj_typ
         SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
     }
 
+    /* SLSQP cold-starting exactly on a simplex vertex (all-but-one x[i] at
+       their lower bound) hits a genuine internal QP-subproblem singularity
+       in NLopt - reproducibly for fsp near pure-albite, reported as
+       nlopt_optimize returning -1 (NLOPT_FAILURE) even though the gradient
+       there is analytically correct (FD-verified). Standard mitigation:
+       nudge any component sitting within 1e-3 of a bound inward before the
+       solve, then renormalize to keep the equality constraint satisfied. */
+    {
+        double sum = 0.0;
+        int nudged = 0;
+        for (int i = 0; i < (int)n_em; i++){
+            double lb = SS_ref_db.lb[i], ub = SS_ref_db.ub[i];
+            if (x[i] - lb < 1e-3){ x[i] = lb + 1e-3; nudged = 1; }
+            else if (ub - x[i] < 1e-3){ x[i] = ub - 1e-3; nudged = 1; }
+            sum += x[i];
+        }
+        if (nudged && sum > 0.0){
+            for (int i = 0; i < (int)n_em; i++){ x[i] /= sum; }
+        }
+    }
+
     SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, n_em);
     nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);

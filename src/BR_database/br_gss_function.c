@@ -474,8 +474,8 @@ SS_ref G_SS_br_fsp_function(SS_ref SS_ref_db, char *research_group, int EM_datas
     double P = SS_ref_db.P;
     /* Fuhrman & Lindsley (1988): W1=ab2kfs, W2=abkfs2, W3=ab2an, W4=aban2,
        W5=an2kfs, W6=ankfs2, W7=ternary (ab-an-kfs) */
-    SS_ref_db.W[0] = 27320.0   - T*10.3;
-    SS_ref_db.W[1] = 18810.0   - T*10.3;
+    SS_ref_db.W[0] = 27320.0   - T*10.3    + P*0.394;
+    SS_ref_db.W[1] = 18810.0   - T*10.3    + P*0.394;
     SS_ref_db.W[2] = 8471.0;
     SS_ref_db.W[3] = 28226.0;
     SS_ref_db.W[4] = 47396.0;
@@ -602,6 +602,29 @@ SS_ref G_SS_br_EM_function( global_variable gv, SS_ref SS_ref_db, int EM_dataset
     }
 
     SS_ref_db.fbc = z_b.fbc;
+
+    if (gv.verbose == 1){
+        printf(" %4s:\n",name);
+        printf("----\n");
+        for (int j = 0; j < SS_ref_db.n_em; j++){
+            printf(" %12s",SS_ref_db.EM_list[j]);
+        }
+        printf("\n");
+        for (int j = 0; j < SS_ref_db.n_em; j++){
+            printf(" %+12.5f",SS_ref_db.gbase[j]);
+        }
+        printf("\n");
+
+        /* display molar composition, oxide order matching br_db.ox */
+        printf(" Si   Al   Mg   Fe   K    Na   H    Ca   Ti   O\n");
+        for (int i = 0; i < SS_ref_db.n_em; i++){
+            for (int j = 0; j < gv.len_ox; j++){
+                printf(" %+.1f",SS_ref_db.Comp[i][j]);
+            }
+            printf("\n");
+        }
+        printf("\n");
+    }
 
     return SS_ref_db;
 }

@@ -21,7 +21,7 @@
         double eos_berman[4];
     } PP_db_br;
 
-    #define BR_N_PP 86
+    #define BR_N_PP 87
 
     PP_db_br Access_BR_PP_DB(int id);
     int      BR_find_PP_id(char *name);
