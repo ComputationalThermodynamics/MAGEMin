@@ -410,7 +410,12 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 		}
 		for (i = 0; i < gv.n_mu_fix; i++){
 			gv.PP_list[db.n_pp+i] = malloc(20 * sizeof(char));
-			sprintf(gv.PP_list[db.n_pp+i], "mu%d", i);
+			if (gv.mu_fix_idx[i] >= 0 && gv.mu_fix_idx[i] < gv.len_ox){
+				sprintf(gv.PP_list[db.n_pp+i], "m%s", gv.ox[gv.mu_fix_idx[i]]);
+			}
+			else{
+				sprintf(gv.PP_list[db.n_pp+i], "mu%d", i);
+			}
 		}
 		gv.SS_list 			= malloc ((gv.len_ss) * sizeof (char*)	);
 		gv.n_SS_PC     		= malloc ((gv.len_ss) * sizeof (int) 	);
@@ -462,7 +467,12 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 		}
 		for (i = 0; i < gv.n_mu_fix; i++){
 			gv.PP_list[db.n_pp+i] = malloc(20 * sizeof(char));
-			sprintf(gv.PP_list[db.n_pp+i], "mu%d", i);
+			if (gv.mu_fix_idx[i] >= 0 && gv.mu_fix_idx[i] < gv.len_ox){
+				sprintf(gv.PP_list[db.n_pp+i], "m%s", gv.ox[gv.mu_fix_idx[i]]);
+			}
+			else{
+				sprintf(gv.PP_list[db.n_pp+i], "mu%d", i);
+			}
 		}
 
 		gv.SS_list 			= malloc ((gv.len_ss) * sizeof (char*)	);
@@ -516,7 +526,12 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 		}
 		for (i = 0; i < gv.n_mu_fix; i++){
 			gv.PP_list[db.n_pp+i] = malloc(20 * sizeof(char));
-			sprintf(gv.PP_list[db.n_pp+i], "mu%d", i);
+			if (gv.mu_fix_idx[i] >= 0 && gv.mu_fix_idx[i] < gv.len_ox){
+				sprintf(gv.PP_list[db.n_pp+i], "m%s", gv.ox[gv.mu_fix_idx[i]]);
+			}
+			else{
+				sprintf(gv.PP_list[db.n_pp+i], "mu%d", i);
+			}
 		}
 
 		gv.SS_list 			= malloc ((gv.len_ss) * sizeof (char*)	);
@@ -572,7 +587,12 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 		}
 		for (i = 0; i < gv.n_mu_fix; i++){
 			gv.PP_list[db.n_pp+i] = malloc(20 * sizeof(char));
-			sprintf(gv.PP_list[db.n_pp+i], "mu%d", i);
+			if (gv.mu_fix_idx[i] >= 0 && gv.mu_fix_idx[i] < gv.len_ox){
+				sprintf(gv.PP_list[db.n_pp+i], "m%s", gv.ox[gv.mu_fix_idx[i]]);
+			}
+			else{
+				sprintf(gv.PP_list[db.n_pp+i], "mu%d", i);
+			}
 		}
 
 		gv.SS_list 			= malloc ((gv.len_ss) * sizeof (char*)	);
@@ -628,7 +648,12 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 		}
 		for (i = 0; i < gv.n_mu_fix; i++){
 			gv.PP_list[db.n_pp+i] = malloc(20 * sizeof(char));
-			sprintf(gv.PP_list[db.n_pp+i], "mu%d", i);
+			if (gv.mu_fix_idx[i] >= 0 && gv.mu_fix_idx[i] < gv.len_ox){
+				sprintf(gv.PP_list[db.n_pp+i], "m%s", gv.ox[gv.mu_fix_idx[i]]);
+			}
+			else{
+				sprintf(gv.PP_list[db.n_pp+i], "mu%d", i);
+			}
 		}
 
 		gv.SS_list 			= malloc ((gv.len_ss) * sizeof (char*)	);
@@ -683,7 +708,12 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 		}
 		for (i = 0; i < gv.n_mu_fix; i++){
 			gv.PP_list[db.n_pp+i] = malloc(20 * sizeof(char));
-			sprintf(gv.PP_list[db.n_pp+i], "mu%d", i);
+			if (gv.mu_fix_idx[i] >= 0 && gv.mu_fix_idx[i] < gv.len_ox){
+				sprintf(gv.PP_list[db.n_pp+i], "m%s", gv.ox[gv.mu_fix_idx[i]]);
+			}
+			else{
+				sprintf(gv.PP_list[db.n_pp+i], "mu%d", i);
+			}
 		}
 
 		gv.SS_list 			= malloc ((gv.len_ss) * sizeof (char*)	);
@@ -734,7 +764,12 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 		}
 		for (i = 0; i < gv.n_mu_fix; i++){
 			gv.PP_list[db.n_pp+i] = malloc(20 * sizeof(char));
-			sprintf(gv.PP_list[db.n_pp+i], "mu%d", i);
+			if (gv.mu_fix_idx[i] >= 0 && gv.mu_fix_idx[i] < gv.len_ox){
+				sprintf(gv.PP_list[db.n_pp+i], "m%s", gv.ox[gv.mu_fix_idx[i]]);
+			}
+			else{
+				sprintf(gv.PP_list[db.n_pp+i], "mu%d", i);
+			}
 		}
 
 		gv.SS_list 			= malloc ((gv.len_ss) * sizeof (char*)	);
@@ -785,7 +820,12 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 		}
 		for (i = 0; i < gv.n_mu_fix; i++){
 			gv.PP_list[db.n_pp+i] = malloc(20 * sizeof(char));
-			sprintf(gv.PP_list[db.n_pp+i], "mu%d", i);
+			if (gv.mu_fix_idx[i] >= 0 && gv.mu_fix_idx[i] < gv.len_ox){
+				sprintf(gv.PP_list[db.n_pp+i], "m%s", gv.ox[gv.mu_fix_idx[i]]);
+			}
+			else{
+				sprintf(gv.PP_list[db.n_pp+i], "mu%d", i);
+			}
 		}
 
 		gv.SS_list 			= malloc ((gv.len_ss) * sizeof (char*)	);
@@ -836,7 +876,12 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 		}
 		for (i = 0; i < gv.n_mu_fix; i++){
 			gv.PP_list[db.n_pp+i] = malloc(20 * sizeof(char));
-			sprintf(gv.PP_list[db.n_pp+i], "mu%d", i);
+			if (gv.mu_fix_idx[i] >= 0 && gv.mu_fix_idx[i] < gv.len_ox){
+				sprintf(gv.PP_list[db.n_pp+i], "m%s", gv.ox[gv.mu_fix_idx[i]]);
+			}
+			else{
+				sprintf(gv.PP_list[db.n_pp+i], "mu%d", i);
+			}
 		}
 
 		gv.SS_list 			= malloc ((gv.len_ss) * sizeof (char*)	);
@@ -889,7 +934,12 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 		}
 		for (i = 0; i < gv.n_mu_fix; i++){
 			gv.PP_list[db.n_pp+i] = malloc(20 * sizeof(char));
-			sprintf(gv.PP_list[db.n_pp+i], "mu%d", i);
+			if (gv.mu_fix_idx[i] >= 0 && gv.mu_fix_idx[i] < gv.len_ox){
+				sprintf(gv.PP_list[db.n_pp+i], "m%s", gv.ox[gv.mu_fix_idx[i]]);
+			}
+			else{
+				sprintf(gv.PP_list[db.n_pp+i], "mu%d", i);
+			}
 		}
 		gv.SS_list 			= malloc ((gv.len_ss) * sizeof (char*)	);
 		gv.n_SS_PC     		= malloc ((gv.len_ss) * sizeof (int) 	);
@@ -941,7 +991,12 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 		}
 		for (i = 0; i < gv.n_mu_fix; i++){
 			gv.PP_list[db.n_pp+i] = malloc(20 * sizeof(char));
-			sprintf(gv.PP_list[db.n_pp+i], "mu%d", i);
+			if (gv.mu_fix_idx[i] >= 0 && gv.mu_fix_idx[i] < gv.len_ox){
+				sprintf(gv.PP_list[db.n_pp+i], "m%s", gv.ox[gv.mu_fix_idx[i]]);
+			}
+			else{
+				sprintf(gv.PP_list[db.n_pp+i], "mu%d", i);
+			}
 		}
 		gv.SS_list 			= malloc ((gv.len_ss) * sizeof (char*)	);
 		gv.n_SS_PC     		= malloc ((gv.len_ss) * sizeof (int) 	);

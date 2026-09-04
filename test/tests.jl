@@ -258,7 +258,7 @@ end
     X_oversat = copy(X); X_oversat[4] = 150.0
     out      = single_point_minimization(P, T, data; X=X_oversat, Xoxides=Xoxides, sys_in=sys_in, mu_fix_val=[-900.0]);
     @test out.Gamma[4] ≈ -900.0 atol=1e-6
-    @test "mu0" in out.ph
+    @test "mMgO" in out.ph
     @test isfinite(out.rho)
     @test isfinite(out.s_cp[1])
     Finalize_MAGEMin(data)
