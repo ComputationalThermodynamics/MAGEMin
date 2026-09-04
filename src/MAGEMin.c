@@ -842,6 +842,9 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		{ "SB_eos_cor", ko_optional_argument, 331 },
 		{ "DEW_solve_algorithm", ko_optional_argument, 333 },
 		{ "warm_start", ko_optional_argument, 334 },
+		{ "n_mu_fix",   ko_optional_argument, 335 },
+		{ "mu_fix_idx", ko_optional_argument, 336 },
+		{ "mu_fix_val", ko_optional_argument, 337 },
     	{ NULL, 0, 0 }
 	};
 	ketopt_t opt = KETOPT_INIT;
@@ -864,6 +867,23 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		else if (c == 331){ gv.SB_eos_cor			= atoi(opt.arg);			}
 		else if (c == 333){ gv.DEW_solve_algorithm	= atoi(opt.arg);			}
 		else if (c == 334){ gv.warm_start			= atoi(opt.arg);			}
+		else if (c == 335){ gv.n_mu_fix			= atoi(opt.arg);			}
+		else if (c == 336){
+			char *p = strtok(opt.arg,",");
+			size_t i = 0;
+			while(p && i<(size_t)gv.maxlen_ox) {
+					gv.mu_fix_idx[i++] = atoi(p);
+					p = strtok(NULL, ",");
+			}
+		}
+		else if (c == 337){
+			char *p = strtok(opt.arg,",");
+			size_t i = 0;
+			while(p && i<(size_t)gv.maxlen_ox) {
+					gv.mu_fix_val[i++] = strtold(p,NULL);
+					p = strtok(NULL, ",");
+			}
+		}
 		else if (c == 316){ gv.solver   		= atoi(opt.arg);			}																		
 		else if (c == 318){ gv.output_matlab   	= atoi(opt.arg); 			}																		
 		else if (c == 304){ gv.n_points 		= atoi(opt.arg); 	 		}
@@ -1492,6 +1512,8 @@ void FreeDatabases(		global_variable gv,
 	free(gv.research_group);
 	free(gv.arg_bulk);
 	free(gv.arg_gamma);
+	free(gv.mu_fix_idx);
+	free(gv.mu_fix_val);
 	free(gv.bulk_rock);
 
 	n_ox 	= gv.len_ox;

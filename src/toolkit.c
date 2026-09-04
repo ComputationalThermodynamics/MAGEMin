@@ -1524,7 +1524,7 @@ global_variable compute_phase_mol_fraction(			global_variable 	 gv,
 
 	/* pure phases */
 	for (int i = 0; i < gv.len_pp; i++){
-		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
+		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0 && i < gv.len_pp - gv.n_mu_fix){
 
 			sum 		= 0.0;
 			for (int j = 0; j < gv.len_ox; j++){
@@ -1615,7 +1615,7 @@ global_variable compute_phase_mol_fraction(			global_variable 	 gv,
 		}
 	}
 	for (int i = 0; i < gv.len_pp; i++){
-		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
+		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0 && i < gv.len_pp - gv.n_mu_fix){
 			gv.pp_n_mol[i]   /= sum_mol_tot;
 			gv.pp_n_wt[i]    /= sum_wt_tot;
 
@@ -1806,7 +1806,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 
 	for (int i = 0; i < gv.len_pp; i++){
 		/* if pure phase is active or on hold (PP cannot be removed from consideration */
-		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
+		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0 && i < gv.len_pp - gv.n_mu_fix){
 
 			/* calculate phase volume as V = dG/dP */
 			PP_db    	 = G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox,z_b.id,z_b.bulk_rock, z_b.apo, 1., z_b.T, gv.PP_list[i], "equilibrium");
@@ -1935,7 +1935,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 		}
 	}
 	for (int i = 0; i < gv.len_pp; i++){
-		if (gv.pp_flags[i][1] == 1  && gv.pp_flags[i][4] == 0){
+		if (gv.pp_flags[i][1] == 1  && gv.pp_flags[i][4] == 0 && i < gv.len_pp - gv.n_mu_fix){
 			s1 +=  gv.pp_n_wt[i]/PP_ref_db[i].phase_density/sum_volume *  (PP_ref_db[i].phase_shearModulus/10.0);
 			s2 += (gv.pp_n_wt[i]/PP_ref_db[i].phase_density/sum_volume) / (PP_ref_db[i].phase_shearModulus/10.0);
 			b1 +=  gv.pp_n_wt[i]/PP_ref_db[i].phase_density/sum_volume *  (PP_ref_db[i].phase_bulkModulus /10.0);
@@ -1974,7 +1974,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 		}
 	}
 	for (int i = 0; i < gv.len_pp; i++){
-		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
+		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0 && i < gv.len_pp - gv.n_mu_fix){
 			double Ki = PP_ref_db[i].phase_bulkModulus  / 10.0;
 			double Gi = PP_ref_db[i].phase_shearModulus / 10.0;
 			if (Ki > K_max) K_max = Ki;  if (Ki < K_min) K_min = Ki;
@@ -2003,7 +2003,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 		}
 	}
 	for (int i = 0; i < gv.len_pp; i++){
-		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
+		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0 && i < gv.len_pp - gv.n_mu_fix){
 			double fi = gv.pp_n_wt[i] / PP_ref_db[i].phase_density / sum_volume;
 			double Ki = PP_ref_db[i].phase_bulkModulus  / 10.0;
 			double Gi = PP_ref_db[i].phase_shearModulus / 10.0;
@@ -2038,7 +2038,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 			}
 		}
 		for (int i = 0; i < gv.len_pp; i++){
-			if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0 && strcmp(gv.PP_list[i],"H2O") != 0 && strcmp(gv.PP_list[i],"O2") != 0){
+			if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0 && i < gv.len_pp - gv.n_mu_fix && strcmp(gv.PP_list[i],"H2O") != 0 && strcmp(gv.PP_list[i],"O2") != 0){
 				double fi = gv.pp_n_wt[i] / PP_ref_db[i].phase_density / sum_volume_sol;
 				double Ki = PP_ref_db[i].phase_bulkModulus  / 10.0;
 				double Gi = PP_ref_db[i].phase_shearModulus / 10.0;
@@ -2075,7 +2075,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 		}
 	}
 	for (int i = 0; i < gv.len_pp; i++){
-		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
+		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0 && i < gv.len_pp - gv.n_mu_fix){
 			gv.system_entropy += PP_ref_db[i].phase_entropy*gv.pp_n_mol[i];//*PP_ref_db[i].factor;		
 			gv.system_cp 	  += PP_ref_db[i].phase_cp*gv.pp_n_mol[i];	
 			gv.system_expansivity 	  += PP_ref_db[i].phase_expansivity*gv.pp_n_mol[i];	

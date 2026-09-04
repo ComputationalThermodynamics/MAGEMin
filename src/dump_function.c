@@ -797,6 +797,18 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].ph_frac_1at[n]  = gv.pp_n[i];
 		}
 		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
+			/* native mu-fix fictive phase: has no real physical properties
+			   (phase_density/bulkModulus/shearModulus etc are deliberately
+			   0 at construction, pp_min_function.c) - still gets a real,
+			   uniquely-numbered ph[]/PP[] slot below (name, mode, mass,
+			   composition, G, deltaG are all safe/meaningful for it), but
+			   is excluded from the density-dependent lines (Vp/Vs) and
+			   from the system-wide aggregates (cp_wt, entropy_S/frac_S/
+			   frac_S_wt/rho_S/bulk_S, or the H2O-labelled equivalents),
+			   the same way buffer= phases are already excluded from those
+			   aggregates by never reaching this branch at all. */
+			int is_mu_fix = (gv.n_mu_fix > 0 && i >= gv.len_pp - gv.n_mu_fix);
+
 			strcpy(sp[0].ph[n],gv.PP_list[i]);
 
 			sp[0].ph_frac[n]  	 = gv.pp_n_mol[i];
@@ -815,7 +827,7 @@ void fill_output_struct(		global_variable 	 gv,
 				sp[0].PP[m].Comp_wt[j]   = PP_ref_db[i].Comp_wt[j];
 			}
 			if (gv.O_id != -1){
-				sp[0].PP[m].Comp_apfu[gv.O_id]    += sum_oxygens;	
+				sp[0].PP[m].Comp_apfu[gv.O_id]    += sum_oxygens;
 			}
 
 			phase_mass = calculate_mass_phase( nox, z_b, sp[0].PP[m].Comp);
@@ -831,7 +843,6 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].PP[m].deltaG	 = PP_ref_db[i].gb_lvl;
 			sp[0].PP[m].V 		 = PP_ref_db[i].volume*10.;
 			sp[0].PP[m].cp 		 = (PP_ref_db[i].phase_cp * PP_ref_db[i].factor)/phase_mass;
-			sp[0].cp_wt 		+= sp[0].PP[m].cp* gv.pp_n_wt[i];//PP_ref_db[i].phase_cp * gv.pp_n_wt[i] * PP_ref_db[i].factor;
 
 			sp[0].PP[m].rho 	 = PP_ref_db[i].phase_density;
 			sp[0].PP[m].alpha 	 = PP_ref_db[i].phase_expansivity;
@@ -839,28 +850,36 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].PP[m].enthalpy = PP_ref_db[i].phase_entropy*z_b.T + G;
 			sp[0].PP[m].bulkMod  = PP_ref_db[i].phase_bulkModulus/10.;
 			sp[0].PP[m].shearMod = PP_ref_db[i].phase_shearModulus/10.;
-			sp[0].PP[m].Vp 		 = sqrt((PP_ref_db[i].phase_bulkModulus/10. + 4.0/3.0*PP_ref_db[i].phase_shearModulus/10.)/(PP_ref_db[i].phase_density/1e3));
-			sp[0].PP[m].Vs 		 = sqrt(PP_ref_db[i].phase_shearModulus/10.0/(PP_ref_db[i].phase_density/1e3));	
 
-			if  (strcmp( gv.PP_list[i], "H2O") != 0){
-				sp[0].entropy_S 	+= PP_ref_db[i].phase_entropy*gv.pp_n_mol[i];
-				sp[0].frac_S 		+= gv.pp_n_mol[i];
-				sp[0].frac_S_wt		+= gv.pp_n_wt[i];
-				sp[0].rho_S  		+= gv.pp_n_wt[i]/PP_ref_db[i].phase_density;
-				for (j = 0; j < gv.len_ox; j++){
-					sp[0].bulk_S[j]	+= gv.pp_n_mol[i]*PP_ref_db[i].Comp_mol[j];
-					sp[0].bulk_S_wt[j]	+= gv.pp_n_wt[i]*PP_ref_db[i].Comp_wt[j];
+			if (!is_mu_fix){
+				sp[0].cp_wt 		+= sp[0].PP[m].cp* gv.pp_n_wt[i];//PP_ref_db[i].phase_cp * gv.pp_n_wt[i] * PP_ref_db[i].factor;
+				sp[0].PP[m].Vp 		 = sqrt((PP_ref_db[i].phase_bulkModulus/10. + 4.0/3.0*PP_ref_db[i].phase_shearModulus/10.)/(PP_ref_db[i].phase_density/1e3));
+				sp[0].PP[m].Vs 		 = sqrt(PP_ref_db[i].phase_shearModulus/10.0/(PP_ref_db[i].phase_density/1e3));
+
+				if  (strcmp( gv.PP_list[i], "H2O") != 0){
+					sp[0].entropy_S 	+= PP_ref_db[i].phase_entropy*gv.pp_n_mol[i];
+					sp[0].frac_S 		+= gv.pp_n_mol[i];
+					sp[0].frac_S_wt		+= gv.pp_n_wt[i];
+					sp[0].rho_S  		+= gv.pp_n_wt[i]/PP_ref_db[i].phase_density;
+					for (j = 0; j < gv.len_ox; j++){
+						sp[0].bulk_S[j]	+= gv.pp_n_mol[i]*PP_ref_db[i].Comp_mol[j];
+						sp[0].bulk_S_wt[j]	+= gv.pp_n_wt[i]*PP_ref_db[i].Comp_wt[j];
+					}
+				}
+				if  (strcmp( gv.PP_list[i], "H2O") == 0){
+					sp[0].entropy_F 	= PP_ref_db[i].phase_entropy*gv.pp_n_mol[i];
+					sp[0].frac_F 		= gv.pp_n_mol[i];
+					sp[0].frac_F_wt		= gv.pp_n_wt[i];
+					sp[0].rho_F  		= PP_ref_db[i].phase_density;
+					for (j = 0; j < gv.len_ox; j++){
+						sp[0].bulk_F[j]	= PP_ref_db[i].Comp_mol[j];
+						sp[0].bulk_F_wt[j]	= PP_ref_db[i].Comp_wt[j];
+					}
 				}
 			}
-			if  (strcmp( gv.PP_list[i], "H2O") == 0){
-				sp[0].entropy_F 	= PP_ref_db[i].phase_entropy*gv.pp_n_mol[i];
-				sp[0].frac_F 		= gv.pp_n_mol[i];
-				sp[0].frac_F_wt		= gv.pp_n_wt[i];
-				sp[0].rho_F  		= PP_ref_db[i].phase_density;
-				for (j = 0; j < gv.len_ox; j++){
-					sp[0].bulk_F[j]	= PP_ref_db[i].Comp_mol[j];
-					sp[0].bulk_F_wt[j]	= PP_ref_db[i].Comp_wt[j];
-				}
+			else{
+				sp[0].PP[m].Vp = 0.0;
+				sp[0].PP[m].Vs = 0.0;
 			}
 			n 			    	+= 1;
 			m 					+= 1;
@@ -900,18 +919,30 @@ void fill_output_struct(		global_variable 	 gv,
 	m = 0;
 	for (int i = 0; i < gv.len_pp; i++){
 		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0){
-			sp[0].ph_frac_vol[n] =  sp[0].ph_frac_wt[n] / sp[0].PP[m].rho;
+			/* mirror the mu-fix handling above: a real ph_frac_vol[]/PP[]
+			   slot either way (keeps this loop's n/m in step with the one
+			   above), but skip the density division (PP[m].rho is 0 for a
+			   fictive phase, which would give Inf/NaN) and the volume/mol/
+			   wt aggregate contribution for it */
+			int is_mu_fix = (gv.n_mu_fix > 0 && i >= gv.len_pp - gv.n_mu_fix);
 
-			if  (strcmp( gv.PP_list[i], "H2O") != 0){
-				sp[0].frac_S_vol += sp[0].ph_frac_vol[n];
-			}
-			if  (strcmp( gv.PP_list[i], "H2O") == 0){
-				sp[0].frac_F_vol = sp[0].ph_frac_vol[n];
-			}
+			if (!is_mu_fix){
+				sp[0].ph_frac_vol[n] =  sp[0].ph_frac_wt[n] / sp[0].PP[m].rho;
 
-			sum_vol += sp[0].ph_frac_vol[n];
-			sum_mol += sp[0].ph_frac[n];
-			sum_wt  += sp[0].ph_frac_wt[n];
+				if  (strcmp( gv.PP_list[i], "H2O") != 0){
+					sp[0].frac_S_vol += sp[0].ph_frac_vol[n];
+				}
+				if  (strcmp( gv.PP_list[i], "H2O") == 0){
+					sp[0].frac_F_vol = sp[0].ph_frac_vol[n];
+				}
+
+				sum_vol += sp[0].ph_frac_vol[n];
+				sum_mol += sp[0].ph_frac[n];
+				sum_wt  += sp[0].ph_frac_wt[n];
+			}
+			else{
+				sp[0].ph_frac_vol[n] = 0.0;
+			}
 			m +=1;
 			n +=1;
 		}

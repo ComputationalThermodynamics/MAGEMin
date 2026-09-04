@@ -152,10 +152,14 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 
 	gv.arg_bulk 		= malloc (gv.maxlen_ox * sizeof(double)	);
 	gv.arg_gamma 		= malloc (gv.maxlen_ox * sizeof(double)	);
+	gv.mu_fix_idx 		= malloc (gv.maxlen_ox * sizeof(int)		);
+	gv.mu_fix_val 		= malloc (gv.maxlen_ox * sizeof(double)	);
 
 	for (i = 0; i < gv.maxlen_ox; i++) {
 		gv.arg_bulk[i]  	=  0.0;
 		gv.arg_gamma[i] 	=  0.0;
+		gv.mu_fix_idx[i]	= -1;
+		gv.mu_fix_val[i]	=  0.0;
 	}
 
 	strcpy(gv.outpath,"./output/");					/** define the outpath to save logs and final results file	 						*/
@@ -171,6 +175,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 													species + water endmembers, so this was bumped in step with struct ss_pc.xeos_pc[]
 													(MAGEMin.h) - both are sized for the same reason. */
 	gv.buffer_n 			=  0.0;					/** factor for QFM buffer 															*/
+	gv.n_mu_fix 			=  0;					/** number of oxides with a fixed chemical potential (native mu-mu mechanism), 0 = off 	*/
 	gv.limitCaOpx       	=  0;					/** limit Ca-bearing  orthopyroxene (add-hoc correction) 							*/
 	gv.CaOpxLim         	=  1.0;					/** limit Ca-bearing  orthopyroxene (add-hoc correction) 							*/
 	gv.fixed_bulk	    	=  0;                   /** by default we don't activate the initial guess for fixed bulk 					*/
@@ -756,6 +761,17 @@ global_variable reset_gv(					global_variable 	 gv,
 				gv.pp_flags[i][1] = 0;
 				gv.pp_flags[i][2] = 0;
 				gv.pp_flags[i][3] = 1;
+				gv.pp_flags[i][4] = 0;
+			}
+			else if (gv.n_mu_fix > 0 && i >= gv.len_pp - gv.n_mu_fix){
+				/* native mu-fix fictive phase (mu<k>): always a live candidate,
+				   same as any ordinary pure phase - explicit branch so this
+				   doesn't silently depend on falling through to the generic
+				   "else" case below */
+				gv.pp_flags[i][0] = 1;
+				gv.pp_flags[i][1] = 0;
+				gv.pp_flags[i][2] = 1;
+				gv.pp_flags[i][3] = 0;
 				gv.pp_flags[i][4] = 0;
 			}
 			else{

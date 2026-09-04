@@ -1028,6 +1028,13 @@ end
         Igneous extended database flag (default: 0).
     buffer : String, optional
         Buffer type (default: "NONE").
+    mu_fix_idx : Vector{String}, optional
+        Oxide names (e.g. `["MgO","K2O"]`) whose chemical potential should be
+        fixed directly (native mu-mu mechanism). Each fixed oxide's bulk content must be
+        set generously in excess of what its target implies (same
+        requirement `buffer`/`buffer_n` already has) - see
+        `point_wise_minimization`'s `mu_fix_val` docs (default: `String[]`,
+        i.e. off).
     solver : Int64, optional
         Solver type (default: 0).
 
@@ -1046,6 +1053,7 @@ function Initialize_MAGEMin(db = "ig";  verbose     ::Union{Int64,Bool} = 0,
                                         mpIlm       ::Int64             = 0,
                                         ig_ed       ::Int64             = 0,
                                         buffer      ::String            = "NONE",
+                                        mu_fix_idx  ::Vector{String}    = String[],
                                         solver      ::Int64             = 0,
                                         seismicScheme :: String         = "VRH",
                                         seismicWeightFactor :: Float64    = 0.5)
@@ -1060,6 +1068,7 @@ function Initialize_MAGEMin(db = "ig";  verbose     ::Union{Int64,Bool} = 0,
                                                 limitCaOpx  = limitCaOpx,
                                                 CaOpxLim    = CaOpxLim,
                                                 buffer      = buffer,
+                                                mu_fix_idx  = mu_fix_idx,
                                                 solver      = solver,
                                                 seismicScheme = seismicScheme,
                                                 seismicWeightFactor = seismicWeightFactor );
@@ -1089,6 +1098,7 @@ function Initialize_MAGEMin(db = "ig";  verbose     ::Union{Int64,Bool} = 0,
                                                     limitCaOpx  = limitCaOpx,
                                                     CaOpxLim    = CaOpxLim,
                                                     buffer      = buffer,
+                                                    mu_fix_idx  = mu_fix_idx,
                                                     solver      = solver,
                                                     seismicScheme = seismicScheme,
                                                     seismicWeightFactor = seismicWeightFactor );
@@ -1154,6 +1164,18 @@ end
         Ca limit value for orthopyroxene (default: 1.0).
     buffer : String, optional
         Buffer type (default: "NONE").
+    mu_fix_idx : Vector{String}, optional
+        Oxide names (e.g. `["MgO","K2O"]`) whose chemical potential should be
+        fixed directly (native mu-mu mechanism), instead of solved for from
+        the bulk composition. Resolved against this database's canonical
+        oxide order; an unknown name errors immediately. Structural for the
+        whole diagram/grid (like `buffer`) - the per-point target values are
+        passed separately as `mu_fix_val` to `point_wise_minimization`/
+        `multi_point_minimization`. Each fixed oxide's bulk content must be
+        set generously in excess of what its target implies (same
+        requirement `buffer`/`buffer_n` already has) - see
+        `point_wise_minimization`'s `mu_fix_val` docs (default: `String[]`,
+        i.e. off).
     solver : Int64, optional
         Solver type (default: 0).
 
@@ -1179,6 +1201,7 @@ function  init_MAGEMin( db          :: String               =  "ig";
                         limitCaOpx  :: Int64                =   0,
                         CaOpxLim    :: Float64              =   1.0,
                         buffer      :: String               =  "NONE",
+                        mu_fix_idx  :: Vector{String}        =  String[],
                         solver      :: Int64                =   0,
                         seismicScheme :: String             =  "VRH",
                         seismicWeightFactor :: Float64      = 0.5 )
@@ -1299,6 +1322,23 @@ function  init_MAGEMin( db          :: String               =  "ig";
 
     unsafe_copyto!(convert(Ptr{UInt8}, gv.buffer), pointer(buffer), length(buffer) + 1)
 
+    # native mu-mu chemical-potential fixing: resolve oxide names against this
+    # database's canonical order *before* SetupDatabase/global_variable_init run,
+    # since those C calls read gv.n_mu_fix to size gv.len_pp/PP_list/act_PP -
+    # gv.ox itself isn't populated until after that point, so resolution has to
+    # happen here in Julia against get_oxide_list(db), not against a live gv.ox read.
+    n_mu_fix    = length(mu_fix_idx)
+    gv.n_mu_fix = n_mu_fix
+    if n_mu_fix > 0
+        ox_list = get_oxide_list(db)
+        idx0    = Vector{Cint}(undef, n_mu_fix)
+        for (k, name) in enumerate(mu_fix_idx)
+            j = findfirst(==(name), ox_list)
+            isnothing(j) && error("mu_fix_idx: oxide \"$name\" is not part of the \"$db\" database's oxide list ($(ox_list))")
+            idx0[k] = j - 1   # C is 0-indexed
+        end
+        unsafe_copyto!(gv.mu_fix_idx, pointer(idx0), n_mu_fix)
+    end
 
     if !isnothing(dataset) && rg == "tc" && dataset in available_TC_ds
         gv.EM_dataset = dataset
@@ -1433,6 +1473,7 @@ function single_point_minimization(     P           ::  T1,
                                         test        ::  Int64                           = 0, # if using a build-in test case,
                                         X           ::  VecOrMat                        = nothing,
                                         B           ::  Union{Nothing, T1 }             = nothing,
+                                        mu_fix_val  ::  Union{Nothing, Vector{Float64}} = nothing,
                                         G           ::  Union{Nothing, Vector{LibMAGEMin.mSS_data},Vector{Vector{LibMAGEMin.mSS_data}}}  = nothing,
                                         scp         ::  Int64                           = 0,
                                         dT          ::  T1                              = 2.0,
@@ -1461,6 +1502,7 @@ function single_point_minimization(     P           ::  T1,
     if !isnothing(B)
         B = [B]
     end
+    mu_fix_val_grid = isnothing(mu_fix_val) ? nothing : [mu_fix_val]
 
     Out_PT     =   multi_point_minimization(    P,
                                                 T,
@@ -1472,7 +1514,8 @@ function single_point_minimization(     P           ::  T1,
                                                 test        =   test,
                                                 X           =   X,
                                                 B           =   B,
-                                                G           =   G,   
+                                                mu_fix_val  =   mu_fix_val_grid,
+                                                G           =   G,
                                                 scp         =   scp,
                                                 dT          =   dT,
                                                 iguess      =   iguess,
@@ -1537,6 +1580,7 @@ function multi_point_minimization(P           ::  AbstractMatrix{Float64},
                                   test        ::  Int64                           = 0,
                                   X           ::  Union{Nothing, Vector{Float64}, Matrix{Float64}} = nothing,
                                   B           ::  Union{Nothing, Vector{Float64}} = nothing,
+                                  mu_fix_val  ::  Union{Nothing, Vector{Vector{Float64}}} = nothing,
                                   G           ::  Union{Nothing, Vector{LibMAGEMin.mSS_data},Vector{Vector{LibMAGEMin.mSS_data}}}  = nothing,
                                   scp         ::  Int64                           = 0,
                                   dT          ::  Float64                         = 2.0,
@@ -1573,7 +1617,7 @@ function multi_point_minimization(P           ::  AbstractMatrix{Float64},
 
     out_vec = multi_point_minimization(Pvec, Tvec, MAGEMin_db;
                                        light=light, light_ig=light_ig, name_solvus=name_solvus,
-                                       fixed_bulk=fixed_bulk, test=test, X=Xvec, B=B, G=G,
+                                       fixed_bulk=fixed_bulk, test=test, X=Xvec, B=B, mu_fix_val=mu_fix_val, G=G,
                                        scp=scp, dT=dT, iguess=iguess, rm_list=rm_list,
                                        pp_list=pp_list, ss_list=ss_list, W=W,
                                        Xoxides=Xoxides, sys_in=sys_in, rg=rg,
@@ -1683,6 +1727,7 @@ function multi_point_minimization(P           ::  T2,
                                   test        ::  Int64                           = 0, # if using a build-in test case,
                                   X           ::  VecOrMat                        = nothing,
                                   B           ::  Union{Nothing, Vector{T1}}  = nothing,
+                                  mu_fix_val  ::  Union{Nothing, Vector{Vector{Float64}}} = nothing,
                                   G           ::  Union{Nothing, Vector{LibMAGEMin.mSS_data},Vector{Vector{LibMAGEMin.mSS_data}}}  = nothing,
                                   scp         ::  Int64                           = 0, 
                                   dT          ::  T1                              = 2.0,
@@ -1771,9 +1816,10 @@ function multi_point_minimization(P           ::  T2,
         Gi          = isnothing(G) ? nothing :  G[i]
         ig          =  isa(iguess, Vector{Bool}) ? iguess[i] : iguess
 
-        buffer      = isnothing(B) ? 0.0 :      B[i] 
+        buffer      = isnothing(B) ? 0.0 :      B[i]
+        mu_val_i    = isnothing(mu_fix_val) ? Float64[] : mu_fix_val[i]
         out         = point_wise_minimization(  P[i], T[i], gv, z_b, DB, splx_data;
-                                                light=light, light_ig=light_ig, buffer_n=buffer, name_solvus=name_solvus, fixed_bulk=fixed_bulk, Gi=Gi, W=W, scp=scp, dT=dT, iguess=ig, rm_list=rm_list, seismic_cor=seismic_cor, aspect_ratio=aspect_ratio, seismic_water=seismic_water, shallow_correction=shallow_correction, fluid_as_melt=fluid_as_melt, anelastic_cor=anelastic_cor)
+                                                light=light, light_ig=light_ig, buffer_n=buffer, mu_fix_val=mu_val_i, name_solvus=name_solvus, fixed_bulk=fixed_bulk, Gi=Gi, W=W, scp=scp, dT=dT, iguess=ig, rm_list=rm_list, seismic_cor=seismic_cor, aspect_ratio=aspect_ratio, seismic_water=seismic_water, shallow_correction=shallow_correction, fluid_as_melt=fluid_as_melt, anelastic_cor=anelastic_cor)
 
         Out_PT[i]   = deepcopy(out)
 
@@ -2236,6 +2282,59 @@ end
 
 
 """
+    get_oxide_list(db::String)
+
+    Canonical oxide-name order for a given MAGEMin database, as expected by
+    `gv.ox` on the C side. Single source of truth used both by
+    `convertBulk4MAGEMin` (bulk-rock reindexing) and by `init_MAGEMin`'s
+    `mu_fix_idx` oxide-name resolution (native mu-mu chemical-potential
+    fixing) - kept in one place so the two can't silently drift apart.
+"""
+function get_oxide_list(db::String)
+    if db       == "mp"
+        return ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "MnO"; "H2O"];
+    elseif db   == "mb"
+        return ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "H2O"];
+    elseif db   == "mbe"
+        return ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "H2O"];
+    elseif db   == "ig"
+        return ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "H2O"];
+    elseif db   == "igd"
+        return ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"];
+    elseif db   == "igad"
+        return ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"];
+    elseif db   == "um"
+        return ["SiO2"; "Al2O3"; "MgO"; "FeO"; "O"; "H2O"; "S"];
+    elseif db   == "ume"
+        return ["SiO2"; "Al2O3"; "MgO"; "FeO"; "O"; "H2O"; "S"; "CaO";"Na2O";"Cr2O3";"CO2"];
+    elseif db   == "mtl"
+        return ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO";"Na2O"];
+    elseif db   == "mpe"
+        return ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "MnO"; "H2O"; "CO2"; "S"];
+    elseif db   == "all"
+        return ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "MnO"; "Cr2O3"; "H2O"; "CO2"; "S"];
+    elseif db   == "sb11"
+        return ["SiO2"; "CaO"; "Al2O3"; "FeO"; "MgO";"Na2O"];
+    elseif db   == "sb21"
+        return ["SiO2"; "CaO"; "Al2O3"; "FeO"; "MgO";"Na2O"];
+    elseif db   == "sb24"
+        # Recompute FeO + O -> Fe + O (negative O for reduced systems, positive for oxidized systems)
+        return ["SiO2"; "CaO"; "Al2O3"; "MgO"; "Na2O"; "O"; "Cr2O3"; "Fe"];
+    elseif db   == "xMELTS"
+        return ["SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"Cr2O3","H2O"	,"CO2"];
+    elseif db   == "rMELTS"
+        return ["SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"Cr2O3","H2O"	,"CO2"];
+    elseif db   == "pMELTS"
+        return ["SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"Cr2O3","H2O"];
+    elseif db   == "po"
+        return ["SiO2"; "Al2O3"; "MgO"; "FeO"; "K2O"; "Na2O"; "H2O"; "CaO"; "TiO2"; "O"];
+    else
+        print("Database not implemented... $db (get_oxide_list)\n")
+        return String[]
+    end
+end
+
+"""
     convertBulk4MAGEMin(bulk_in, bulk_in_ox, sys_in, db)
 
     Convert a bulk-rock composition (in mol or wt fraction) and its associated oxide list into the format expected by MAGEMin.
@@ -2264,51 +2363,12 @@ function convertBulk4MAGEMin(   bulk_in     :: T1,
                                 db          :: String;
                                 oxMinGuard  ::  Bool = true ) where {T1 <: AbstractVector{Float64}}
 
-    bulk_in = normalize(bulk_in);                            
+    bulk_in = normalize(bulk_in);
 
     ref_ox          = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "Fe2O3"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "MnO"; "H2O"; "CO2"; "S"; "Fe"];
 	ref_MolarMass   = [60.08; 101.96; 56.08; 40.30; 71.85; 159.69; 94.2; 61.98; 79.88; 16.0; 151.99; 70.937; 18.015; 44.01; 32.06; 55.85];      #Molar mass of oxides
 
-    if db       == "mp"
-        MAGEMin_ox      = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "MnO"; "H2O"];
-    elseif db   == "mb"
-        MAGEMin_ox      = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "H2O"];
-    elseif db   == "mbe"
-        MAGEMin_ox      = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "H2O"];
-    elseif db   == "ig"
-	    MAGEMin_ox      = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "H2O"];
-    elseif db   == "igd"
-        MAGEMin_ox      = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"];
-    elseif db   == "igad"
-        MAGEMin_ox      = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"];
-    elseif db   == "um"
-        MAGEMin_ox      = ["SiO2"; "Al2O3"; "MgO"; "FeO"; "O"; "H2O"; "S"];
-    elseif db   == "ume"
-        MAGEMin_ox      = ["SiO2"; "Al2O3"; "MgO"; "FeO"; "O"; "H2O"; "S"; "CaO";"Na2O";"Cr2O3";"CO2"];
-    elseif db   == "mtl"
-        MAGEMin_ox      = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO";"Na2O"];
-    elseif db   == "mpe"
-        MAGEMin_ox      = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "MnO"; "H2O"; "CO2"; "S"];
-    elseif db   == "all"
-        MAGEMin_ox      = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "MnO"; "Cr2O3"; "H2O"; "CO2"; "S"];
-    elseif db   == "sb11"
-        MAGEMin_ox      = ["SiO2"; "CaO"; "Al2O3"; "FeO"; "MgO";"Na2O"];
-    elseif db   == "sb21"
-        MAGEMin_ox      = ["SiO2"; "CaO"; "Al2O3"; "FeO"; "MgO";"Na2O"];
-    elseif db   == "sb24"
-        # Recompute FeO + O -> Fe + O (negative O for reduced systems, positive for oxidized systems)
-        MAGEMin_ox      = ["SiO2"; "CaO"; "Al2O3"; "MgO"; "Na2O"; "O"; "Cr2O3"; "Fe"];
-    elseif db   == "xMELTS"
-        MAGEMin_ox      = ["SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"Cr2O3","H2O"	,"CO2"];
-    elseif db   == "rMELTS"
-        MAGEMin_ox      = ["SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"Cr2O3","H2O"	,"CO2"];
-    elseif db   == "pMELTS"
-        MAGEMin_ox      = ["SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"Cr2O3","H2O"];
-    elseif db   == "po"
-        MAGEMin_ox      = ["SiO2"; "Al2O3"; "MgO"; "FeO"; "K2O"; "Na2O"; "H2O"; "CaO"; "TiO2"; "O"];
-    else
-        print("Database not implemented... $db (bulkConversion)\n")
-    end
+    MAGEMin_ox = get_oxide_list(db)
 
     # Keep oxides in MAGEMin_ox or special Fe species (Fe, FeO, Fe2O3)
     keep_mask = in(MAGEMin_ox).(bulk_in_ox) .| in(["Fe", "FeO", "Fe2O3"]).(bulk_in_ox)
@@ -2477,6 +2537,22 @@ end
         Use fixed bulk composition (default: false).
     buffer_n : Float64, optional
         Buffer value (default: 0.0).
+    mu_fix_val : Vector{Float64}, optional
+        Target chemical potential [J/mol] for each oxide named in
+        `mu_fix_idx` (same order, same length as `mu_fix_idx` - errors if
+        not). Ignored if `mu_fix_idx` was empty at `Initialize_MAGEMin`
+        time. Safe to vary per point/per thread, exactly like `buffer_n`
+        (each call writes directly into the caller's own `gv`, so no
+        synchronization is needed across a `multi_point_minimization`
+        `@threads` sweep). The fixed oxide's bulk content must be set well
+        in excess of what the target implies - e.g. several times its
+        "natural" amount - or the fictive phase that enforces the target
+        won't reliably become stable and `out.Gamma` for that oxide can
+        silently miss the target; there is currently no automatic check or
+        warning for this, so verify `out.Gamma[idx]` against the intended
+        target when in doubt, especially for physically extreme targets
+        that may exceed what any real phase in the database can support at
+        that pressure/temperature (default: `Float64[]`).
     Gi : Union{Nothing, Vector{LibMAGEMin.mSS_data}}, optional
         Initial guess from previous minimization (default: nothing).
     scp : Int64, optional
@@ -2543,6 +2619,7 @@ function point_wise_minimization(   P       ::Float64,
                                     name_solvus = false,
                                     fixed_bulk  = false,
                                     buffer_n    = 0.0,
+                                    mu_fix_val  ::Vector{Float64} = Float64[],
                                     Gi          = nothing,
                                     scp         = 0,
                                     dT          = 2.0,
@@ -2557,6 +2634,10 @@ function point_wise_minimization(   P       ::Float64,
                                     anelastic_cor = false)
 
     gv.buffer_n     =   buffer_n;
+    if gv.n_mu_fix > 0
+        length(mu_fix_val) == gv.n_mu_fix || error("mu_fix_val must have $(gv.n_mu_fix) entries (one per mu_fix_idx oxide), got $(length(mu_fix_val))")
+        unsafe_copyto!(gv.mu_fix_val, pointer(mu_fix_val), gv.n_mu_fix)
+    end
     input_data      =   LibMAGEMin.io_data();           # zero (not used actually)
     z_b.T           =   T + 273.15;                     # in K
 
@@ -2906,6 +2987,7 @@ point_wise_minimization(P       ::  Number,
                         DB,
                         splx_data;
                         buffer_n::  Float64     = 0.0,
+                        mu_fix_val::Vector{Float64} = Float64[],
                         Gi      ::  Union{Nothing, Vector{LibMAGEMin.mSS_data}}  = nothing,
                         scp     ::  Int64       = 0,
                         dT      ::  Float64     = 2.0,
@@ -2920,7 +3002,7 @@ point_wise_minimization(P       ::  Number,
                         shallow_correction::Bool = false,
                         fluid_as_melt::Bool      = false,
                         anelastic_cor::Bool     = false) =
-                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, Gi, scp, dT, iguess, rm_list, name_solvus, fixed_bulk, W, seismic_cor, aspect_ratio, seismic_water, shallow_correction, fluid_as_melt, anelastic_cor)
+                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, mu_fix_val, Gi, scp, dT, iguess, rm_list, name_solvus, fixed_bulk, W, seismic_cor, aspect_ratio, seismic_water, shallow_correction, fluid_as_melt, anelastic_cor)
 
 point_wise_minimization(P       ::  Number,
                         T       ::  Number,
@@ -2930,6 +3012,7 @@ point_wise_minimization(P       ::  Number,
                         splx_data:: LibMAGEMin.simplex_datas,
                         sys_in  ::  String;
                         buffer_n::  Float64     = 0.0,
+                        mu_fix_val::Vector{Float64} = Float64[],
                         Gi      ::  Union{Nothing, Vector{LibMAGEMin.mSS_data}}  = nothing,
                         scp     ::  Int64       = 0,
                         dT      ::  Float64     = 2.0,
@@ -2944,12 +3027,13 @@ point_wise_minimization(P       ::  Number,
                         shallow_correction::Bool = false,
                         fluid_as_melt::Bool      = false,
                         anelastic_cor::Bool     = false) =
-                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, Gi, scp, dT, iguess, rm_list, name_solvus, fixed_bulk, W, seismic_cor, aspect_ratio, seismic_water, shallow_correction, fluid_as_melt, anelastic_cor)
+                        point_wise_minimization(Float64(P),Float64(T), gv, z_b, DB, splx_data; buffer_n, mu_fix_val, Gi, scp, dT, iguess, rm_list, name_solvus, fixed_bulk, W, seismic_cor, aspect_ratio, seismic_water, shallow_correction, fluid_as_melt, anelastic_cor)
 
 point_wise_minimization(P       ::  Number,
                         T       ::  Number,
                         data    ::  MAGEMin_Data;
                         buffer_n::  Float64     = 0.0,
+                        mu_fix_val::Vector{Float64} = Float64[],
                         Gi      ::  Union{Nothing, Vector{LibMAGEMin.mSS_data}}  = nothing,
                         scp     ::  Int64       = 0,
                         dT      ::  Float64     = 2.0,
@@ -2964,7 +3048,7 @@ point_wise_minimization(P       ::  Number,
                         shallow_correction::Bool = false,
                         fluid_as_melt::Bool      = false,
                         anelastic_cor::Bool     = false) =
-                        point_wise_minimization(Float64(P),Float64(T), data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]; buffer_n, Gi, scp, dT, iguess, rm_list, name_solvus, fixed_bulk, W, seismic_cor, aspect_ratio, seismic_water, shallow_correction, fluid_as_melt, anelastic_cor)
+                        point_wise_minimization(Float64(P),Float64(T), data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]; buffer_n, mu_fix_val, Gi, scp, dT, iguess, rm_list, name_solvus, fixed_bulk, W, seismic_cor, aspect_ratio, seismic_water, shallow_correction, fluid_as_melt, anelastic_cor)
 
 
 """

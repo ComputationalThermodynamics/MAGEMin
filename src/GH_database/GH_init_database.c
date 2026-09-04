@@ -96,7 +96,7 @@ global_variable global_variable_GH_init(   global_variable      gv,
 
     gh_dataset db       = (gv.EM_database == 2) ? gh_db_pmelts_dataset : gh_db;
     gv.EM_dataset       = db.ds_version;
-    gv.len_pp           = db.n_pp;
+    gv.len_pp           = db.n_pp + gv.n_mu_fix;
     gv.len_ss           = db.n_ss;
     gv.len_ox           = db.n_ox;
 
@@ -120,9 +120,13 @@ global_variable global_variable_GH_init(   global_variable      gv,
     }
 
     gv.PP_list          = malloc ((gv.len_pp>0?gv.len_pp:1) * sizeof(char*)    );
-    for (i = 0; i < gv.len_pp; i++){
+    for (i = 0; i < db.n_pp; i++){
         gv.PP_list[i]   = malloc(20 * sizeof(char));
         strcpy(gv.PP_list[i],db.PP[i]);
+    }
+    for (i = 0; i < gv.n_mu_fix; i++){
+        gv.PP_list[db.n_pp+i] = malloc(20 * sizeof(char));
+        sprintf(gv.PP_list[db.n_pp+i], "mu%d", i);
     }
 
     gv.SS_list          = malloc ((gv.len_ss) * sizeof (char*) );

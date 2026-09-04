@@ -269,7 +269,7 @@ void swap_pure_phases(				bulk_info 	 		 z_b,
 			
 			/** update deltaG with respect to G hyperplane */
 			update_dG(splx_data);
-			
+
 			/** swap phase */
 			if (d->ph2swp != -1){															/** if the phase can be added */
 				d->swp 						   = 1;

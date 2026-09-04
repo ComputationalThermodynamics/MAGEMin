@@ -737,6 +737,9 @@ mutable struct global_variables
     tot_time::Cdouble
     buffer::Ptr{Cchar}
     buffer_n::Cdouble
+    n_mu_fix::Cint
+    mu_fix_idx::Ptr{Cint}
+    mu_fix_val::Ptr{Cdouble}
     limitCaOpx::Cint
     CaOpxLim::Cdouble
     mbCpx::Cint

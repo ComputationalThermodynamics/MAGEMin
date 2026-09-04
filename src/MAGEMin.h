@@ -84,6 +84,9 @@ typedef struct global_variables {
 	double 	 tot_time;
 	char*    buffer;
 	double   buffer_n;
+	int      n_mu_fix;			/** number of oxides with a fixed chemical potential (0..maxlen_ox), native mu-mu mechanism */
+	int     *mu_fix_idx;		/** oxide index (into gv.ox / len_ox) for each fixed-mu oxide, malloc'd to maxlen_ox entries */
+	double  *mu_fix_val;		/** target chemical potential, J/mol, same convention as gv.gam_tot; used directly (no RT*ln(a) conversion), malloc'd to maxlen_ox entries */
 	int      limitCaOpx;
 	double   CaOpxLim;
 	int      mbCpx;

@@ -126,7 +126,7 @@ global_variable global_variable_SB_init( 	global_variable  	 gv,
 	if (gv.EM_database == 0){
 		stx11_dataset db 	= stx11_db;
 		gv.EM_dataset 		= db.ds_version;	
-		gv.len_pp   		= db.n_pp;		
+		gv.len_pp   		= db.n_pp + gv.n_mu_fix;		
 		gv.len_ss  			= db.n_ss;
 		gv.len_ox  			= db.n_ox;
 
@@ -150,9 +150,13 @@ global_variable global_variable_SB_init( 	global_variable  	 gv,
 		}
 
 		gv.PP_list 			= malloc (gv.len_pp * sizeof(char*)		);
-		for (i = 0; i < (gv.len_pp); i++){	
+		for (i = 0; i < db.n_pp; i++){
 			gv.PP_list[i] 	= malloc(20 * sizeof(char));
 			strcpy(gv.PP_list[i],db.PP[i]);
+		}
+		for (i = 0; i < gv.n_mu_fix; i++){
+			gv.PP_list[db.n_pp+i] = malloc(20 * sizeof(char));
+			sprintf(gv.PP_list[db.n_pp+i], "mu%d", i);
 		}
 
 		gv.SS_list 			= malloc ((gv.len_ss) * sizeof (char*)	);
@@ -172,7 +176,7 @@ global_variable global_variable_SB_init( 	global_variable  	 gv,
 	else if (gv.EM_database == 1){
 		stx21_dataset db 	= stx21_db;
 		gv.EM_dataset 		= db.ds_version;	
-		gv.len_pp   		= db.n_pp;		
+		gv.len_pp   		= db.n_pp + gv.n_mu_fix;		
 		gv.len_ss  			= db.n_ss;
 		gv.len_ox  			= db.n_ox;
 
@@ -196,9 +200,13 @@ global_variable global_variable_SB_init( 	global_variable  	 gv,
 		}
 
 		gv.PP_list 			= malloc (gv.len_pp * sizeof(char*)		);
-		for (i = 0; i < (gv.len_pp); i++){	
+		for (i = 0; i < db.n_pp; i++){
 			gv.PP_list[i] 	= malloc(20 * sizeof(char));
 			strcpy(gv.PP_list[i],db.PP[i]);
+		}
+		for (i = 0; i < gv.n_mu_fix; i++){
+			gv.PP_list[db.n_pp+i] = malloc(20 * sizeof(char));
+			sprintf(gv.PP_list[db.n_pp+i], "mu%d", i);
 		}
 
 		gv.SS_list 			= malloc ((gv.len_ss) * sizeof (char*)	);
@@ -218,7 +226,7 @@ global_variable global_variable_SB_init( 	global_variable  	 gv,
 	else if (gv.EM_database == 2){
 		stx24_dataset db 	= stx24_db;
 		gv.EM_dataset 		= db.ds_version;	
-		gv.len_pp   		= db.n_pp;		
+		gv.len_pp   		= db.n_pp + gv.n_mu_fix;		
 		gv.len_ss  			= db.n_ss;
 		gv.len_ox  			= db.n_ox;
 
@@ -242,9 +250,13 @@ global_variable global_variable_SB_init( 	global_variable  	 gv,
 		}
 
 		gv.PP_list 			= malloc (gv.len_pp * sizeof(char*)		);
-		for (i = 0; i < (gv.len_pp); i++){	
+		for (i = 0; i < db.n_pp; i++){
 			gv.PP_list[i] 	= malloc(20 * sizeof(char));
 			strcpy(gv.PP_list[i],db.PP[i]);
+		}
+		for (i = 0; i < gv.n_mu_fix; i++){
+			gv.PP_list[db.n_pp+i] = malloc(20 * sizeof(char));
+			sprintf(gv.PP_list[db.n_pp+i], "mu%d", i);
 		}
 
 		gv.SS_list 			= malloc ((gv.len_ss) * sizeof (char*)	);

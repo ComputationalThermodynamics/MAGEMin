@@ -700,22 +700,62 @@ global_variable init_em_db(		int 				EM_database,
 												gv.PP_list[i], 
 												state				);
 			}
+			else if (i >= gv.len_pp - gv.n_mu_fix){
+				/* native mu-fix buffer phase (buffer= style, single positive fictive phase): see notes/mu-mu-native-legendre-transform.md */
+				int k = i - (gv.len_pp - gv.n_mu_fix);
+				int valid_idx = (gv.mu_fix_idx[k] >= 0 && gv.mu_fix_idx[k] < gv.len_ox);
+
+				if (!valid_idx){
+					/* n_mu_fix/mu_fix_idx are inconsistent (e.g. fewer indices
+					   provided than n_mu_fix, leaving this slot at its -1
+					   default) - fall back to an inert (all-zero composition,
+					   zero gbase) phase instead of reading z_b.apo[] out of
+					   bounds below. Zero Comp + zero gbase gives an exactly-
+					   zero driving force, so this can never be favorably
+					   swapped into the basis regardless of pp_flags. */
+					printf(" WARNING: mu_fix_idx[%d]=%d is out of range [0,%d) - disabling fictive phase '%s'\n", k, gv.mu_fix_idx[k], gv.len_ox, gv.PP_list[i]);
+				}
+
+				strcpy(PP_ref_db[i].Name, gv.PP_list[i]);
+				for (int j = 0; j < gv.len_ox; j++){
+					PP_ref_db[i].Comp[j] = (valid_idx && j == gv.mu_fix_idx[k]) ? 1.0 : 0.0;
+				}
+
+				double factor = 1.0;
+				if (valid_idx){
+					double fbc = 0.0;
+					for (int j = 0; j < gv.len_ox; j++){
+						fbc += z_b.bulk_rock[j]*z_b.apo[j];
+					}
+					factor = fbc/z_b.apo[gv.mu_fix_idx[k]];
+				}
+
+				PP_ref_db[i].gbase              = valid_idx ? gv.mu_fix_val[k] : 0.0;
+				PP_ref_db[i].factor             = factor;
+				PP_ref_db[i].factor_norm        = 1.0;
+				PP_ref_db[i].phase_density      = 0.0;
+				PP_ref_db[i].phase_shearModulus = 0.0;
+				PP_ref_db[i].phase_bulkModulus  = 0.0;
+				PP_ref_db[i].phase_cp           = 0.0;
+				PP_ref_db[i].volume             = 0.0;
+				PP_ref_db[i].mass               = 0.0;
+			}
 			else{
 				PP_ref_db[i] = G_EM_function(	gv.research_group,
-                                                gv.EM_dataset, 
+                                                gv.EM_dataset,
 												gv.len_ox,
 												z_b.id,
-												z_b.bulk_rock, 
-												z_b.apo, 
-												z_b.P, 
-												z_b.T, 
-												gv.PP_list[i], 
+												z_b.bulk_rock,
+												z_b.apo,
+												z_b.P,
+												z_b.T,
+												gv.PP_list[i],
 												state				);
 			}
 
 			sum_zel = 0;
 			for (int j = 0; j < z_b.zEl_val; j++){
-				
+
 				/* If pure-phase contains an oxide absent in the bulk-rock then do not take it into account */
 				if (PP_ref_db[i].Comp[z_b.zEl_array[j]] != 0.0){
 					sum_zel += 1;
@@ -746,6 +786,7 @@ global_variable init_em_db(		int 				EM_database,
 				gv.pp_flags[i][2] = 0;
 				gv.pp_flags[i][3] = 1;
 			}
+
 			if (gv.verbose==1){
 				printf("\n %4s:  %+10f %+10f\n",gv.PP_list[i],PP_ref_db[i].gbase, PP_ref_db[i].factor);
 
@@ -1451,22 +1492,62 @@ global_variable init_em_db_sb(	int 				EM_database,
 												gv.PP_list[i], 
 												state				);
 			}
+			else if (i >= gv.len_pp - gv.n_mu_fix){
+				/* native mu-fix buffer phase (buffer= style, single positive fictive phase): see notes/mu-mu-native-legendre-transform.md */
+				int k = i - (gv.len_pp - gv.n_mu_fix);
+				int valid_idx = (gv.mu_fix_idx[k] >= 0 && gv.mu_fix_idx[k] < gv.len_ox);
+
+				if (!valid_idx){
+					/* n_mu_fix/mu_fix_idx are inconsistent (e.g. fewer indices
+					   provided than n_mu_fix, leaving this slot at its -1
+					   default) - fall back to an inert (all-zero composition,
+					   zero gbase) phase instead of reading z_b.apo[] out of
+					   bounds below. Zero Comp + zero gbase gives an exactly-
+					   zero driving force, so this can never be favorably
+					   swapped into the basis regardless of pp_flags. */
+					printf(" WARNING: mu_fix_idx[%d]=%d is out of range [0,%d) - disabling fictive phase '%s'\n", k, gv.mu_fix_idx[k], gv.len_ox, gv.PP_list[i]);
+				}
+
+				strcpy(PP_ref_db[i].Name, gv.PP_list[i]);
+				for (int j = 0; j < gv.len_ox; j++){
+					PP_ref_db[i].Comp[j] = (valid_idx && j == gv.mu_fix_idx[k]) ? 1.0 : 0.0;
+				}
+
+				double factor = 1.0;
+				if (valid_idx){
+					double fbc = 0.0;
+					for (int j = 0; j < gv.len_ox; j++){
+						fbc += z_b.bulk_rock[j]*z_b.apo[j];
+					}
+					factor = fbc/z_b.apo[gv.mu_fix_idx[k]];
+				}
+
+				PP_ref_db[i].gbase              = valid_idx ? gv.mu_fix_val[k] : 0.0;
+				PP_ref_db[i].factor             = factor;
+				PP_ref_db[i].factor_norm        = 1.0;
+				PP_ref_db[i].phase_density      = 0.0;
+				PP_ref_db[i].phase_shearModulus = 0.0;
+				PP_ref_db[i].phase_bulkModulus  = 0.0;
+				PP_ref_db[i].phase_cp           = 0.0;
+				PP_ref_db[i].volume             = 0.0;
+				PP_ref_db[i].mass               = 0.0;
+			}
 			else{
 				PP_ref_db[i] = G_EM_function(	gv.research_group,
-                                                gv.EM_dataset, 
+                                                gv.EM_dataset,
 												gv.len_ox,
 												z_b.id,
-												z_b.bulk_rock, 
-												z_b.apo, 
-												z_b.P, 
-												z_b.T, 
-												gv.PP_list[i], 
+												z_b.bulk_rock,
+												z_b.apo,
+												z_b.P,
+												z_b.T,
+												gv.PP_list[i],
 												state				);
 			}
 
 			sum_zel = 0;
 			for (int j = 0; j < z_b.zEl_val; j++){
-				
+
 				/* If pure-phase contains an oxide absent in the bulk-rock then do not take it into account */
 				if (PP_ref_db[i].Comp[z_b.zEl_array[j]] != 0.0){
 					sum_zel += 1;
@@ -1496,7 +1577,7 @@ global_variable init_em_db_sb(	int 				EM_database,
 				gv.pp_flags[i][1] = 0;
 				gv.pp_flags[i][2] = 0;
 				gv.pp_flags[i][3] = 1;
-			}		
+			}
 
 			if (gv.verbose==1){
 				printf("\n %4s:  %+10f %+10f\n",gv.PP_list[i],PP_ref_db[i].gbase, PP_ref_db[i].factor);
@@ -1759,6 +1840,46 @@ global_variable init_em_db_gh(	int 				EM_database,
 				PP_ref_db[i].phase_shearModulus  = 6.0*hem.phase_shearModulus -4.0*mt.phase_shearModulus;
 				gv.pp_flags[i][4] 	= 1;
 			}
+			else if (i >= gv.len_pp - gv.n_mu_fix){
+				/* native mu-fix buffer phase (buffer= style, single positive fictive phase): see notes/mu-mu-native-legendre-transform.md */
+				int k = i - (gv.len_pp - gv.n_mu_fix);
+				int valid_idx = (gv.mu_fix_idx[k] >= 0 && gv.mu_fix_idx[k] < gv.len_ox);
+
+				if (!valid_idx){
+					/* n_mu_fix/mu_fix_idx are inconsistent (e.g. fewer indices
+					   provided than n_mu_fix, leaving this slot at its -1
+					   default) - fall back to an inert (all-zero composition,
+					   zero gbase) phase instead of reading z_b.apo[] out of
+					   bounds below. Zero Comp + zero gbase gives an exactly-
+					   zero driving force, so this can never be favorably
+					   swapped into the basis regardless of pp_flags. */
+					printf(" WARNING: mu_fix_idx[%d]=%d is out of range [0,%d) - disabling fictive phase '%s'\n", k, gv.mu_fix_idx[k], gv.len_ox, gv.PP_list[i]);
+				}
+
+				strcpy(PP_ref_db[i].Name, gv.PP_list[i]);
+				for (int j = 0; j < gv.len_ox; j++){
+					PP_ref_db[i].Comp[j] = (valid_idx && j == gv.mu_fix_idx[k]) ? 1.0 : 0.0;
+				}
+
+				double factor = 1.0;
+				if (valid_idx){
+					double fbc = 0.0;
+					for (int j = 0; j < gv.len_ox; j++){
+						fbc += z_b.bulk_rock[j]*z_b.apo[j];
+					}
+					factor = fbc/z_b.apo[gv.mu_fix_idx[k]];
+				}
+
+				PP_ref_db[i].gbase              = valid_idx ? gv.mu_fix_val[k] : 0.0;
+				PP_ref_db[i].factor             = factor;
+				PP_ref_db[i].factor_norm        = 1.0;
+				PP_ref_db[i].phase_density      = 0.0;
+				PP_ref_db[i].phase_shearModulus = 0.0;
+				PP_ref_db[i].phase_bulkModulus  = 0.0;
+				PP_ref_db[i].phase_cp           = 0.0;
+				PP_ref_db[i].volume             = 0.0;
+				PP_ref_db[i].mass               = 0.0;
+			}
 			else{
 				PP_ref_db[i] = G_EM_function(	gv.research_group,
 												gv.EM_dataset,
@@ -1835,16 +1956,58 @@ global_variable init_em_db_br(	int 				EM_database,
 		char state[] = "equilibrium";
 		int sum_zel;
 		for (int i = 0; i < gv.len_pp; i++){
-			PP_ref_db[i] = G_EM_function(	gv.research_group,
-											gv.EM_dataset,
-											gv.len_ox,
-											z_b.id,
-											z_b.bulk_rock,
-											z_b.apo,
-											z_b.P,
-											z_b.T,
-											gv.PP_list[i],
-											state					);
+			if (i >= gv.len_pp - gv.n_mu_fix){
+				/* native mu-fix buffer phase (buffer= style, single positive fictive phase): see notes/mu-mu-native-legendre-transform.md */
+				int k = i - (gv.len_pp - gv.n_mu_fix);
+				int valid_idx = (gv.mu_fix_idx[k] >= 0 && gv.mu_fix_idx[k] < gv.len_ox);
+
+				if (!valid_idx){
+					/* n_mu_fix/mu_fix_idx are inconsistent (e.g. fewer indices
+					   provided than n_mu_fix, leaving this slot at its -1
+					   default) - fall back to an inert (all-zero composition,
+					   zero gbase) phase instead of reading z_b.apo[] out of
+					   bounds below. Zero Comp + zero gbase gives an exactly-
+					   zero driving force, so this can never be favorably
+					   swapped into the basis regardless of pp_flags. */
+					printf(" WARNING: mu_fix_idx[%d]=%d is out of range [0,%d) - disabling fictive phase '%s'\n", k, gv.mu_fix_idx[k], gv.len_ox, gv.PP_list[i]);
+				}
+
+				strcpy(PP_ref_db[i].Name, gv.PP_list[i]);
+				for (int j = 0; j < gv.len_ox; j++){
+					PP_ref_db[i].Comp[j] = (valid_idx && j == gv.mu_fix_idx[k]) ? 1.0 : 0.0;
+				}
+
+				double factor = 1.0;
+				if (valid_idx){
+					double fbc = 0.0;
+					for (int j = 0; j < gv.len_ox; j++){
+						fbc += z_b.bulk_rock[j]*z_b.apo[j];
+					}
+					factor = fbc/z_b.apo[gv.mu_fix_idx[k]];
+				}
+
+				PP_ref_db[i].gbase              = valid_idx ? gv.mu_fix_val[k] : 0.0;
+				PP_ref_db[i].factor             = factor;
+				PP_ref_db[i].factor_norm        = 1.0;
+				PP_ref_db[i].phase_density      = 0.0;
+				PP_ref_db[i].phase_shearModulus = 0.0;
+				PP_ref_db[i].phase_bulkModulus  = 0.0;
+				PP_ref_db[i].phase_cp           = 0.0;
+				PP_ref_db[i].volume             = 0.0;
+				PP_ref_db[i].mass               = 0.0;
+			}
+			else{
+				PP_ref_db[i] = G_EM_function(	gv.research_group,
+												gv.EM_dataset,
+												gv.len_ox,
+												z_b.id,
+												z_b.bulk_rock,
+												z_b.apo,
+												z_b.P,
+												z_b.T,
+												gv.PP_list[i],
+												state					);
+			}
 
 			sum_zel = 0;
 			for (int j = 0; j < z_b.zEl_val; j++){
