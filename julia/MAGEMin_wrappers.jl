@@ -22,7 +22,7 @@ const available_TC_ds   = [62,633,634,635,636]
 export  anhydrous_renormalization, retrieve_solution_phase_information, print_phase_info, remove_phases, select_phases, get_ss_from_mineral, mineral_classification,
         init_MAGEMin, allocate_output,finalize_MAGEMin, point_wise_minimization, 
         get_all_stable_phases, convertBulk4MAGEMin, use_predefined_bulk_rock, define_bulk_rock, create_output,
-        print_info, create_gmin_struct, pwm_init, pwm_run,
+        print_info, create_gmin_struct, pwm_init, pwm_run, p2x_convert, pc_convert,
         point_wise_metastability,
         single_point_minimization, multi_point_minimization, AMR_minimization, MAGEMin_Data,
         MAGEMin_data2dataframe, MAGEMin_dataTE2dataframe, MAGEMin_data2dataframe_inlined,
@@ -3193,6 +3193,159 @@ function pwm_run(gv, z_b, DB, splx_data; name_solvus = false, seismic_cor = fals
     # LibMAGEMin.FreeDatabases(gv, DB, z_b);
 
     return out
+end
+
+
+"""
+    p2x_convert(gv, DB, ph_name, p)
+
+    Convert endmember fractions to compositional variables (xeos) for one
+    solution phase, via MAGEMin's own per-model P2X conversion (the C-side
+    `P2X_convert_function`, itself a thin wrapper around whatever `p2x_*`
+    function that model is registered with). Intended for thermodynamic
+    database inversion/calibration workflows, alongside `pc_convert` -
+    given a phase composition (e.g. from an EPMA analysis converted to
+    endmember fractions) and a target P-T, this pair lets you evaluate that
+    phase's Gibbs energy directly, without running a full multi-phase
+    equilibrium solve.
+
+    Parameters
+    ----------
+    gv : LibMAGEMin.global_variables
+        Global variables structure (from `Initialize_MAGEMin`/`init_MAGEMin`).
+    DB : LibMAGEMin.Database
+        Database structure (from `Initialize_MAGEMin`/`init_MAGEMin`).
+    ph_name : String
+        Solution phase name as it appears in `gv.SS_list` (e.g. `"fsp_H22"`).
+    p : Dict{String, Float64}
+        Endmember fraction for each of the phase's endmembers, keyed by
+        name (e.g. `Dict("ab"=>0.2,"an"=>0.2,"san"=>0.6)` for `"fsp_H22"`,
+        whose endmembers are albite/anorthite/sanidine) - must cover every
+        endmember MAGEMin registers for that model, or this errors; the
+        endmember names/order for a given phase can be read from the
+        returned struct's `.EM_list`/`.n_em`. Not required to sum to
+        exactly 1 for MAGEMin to accept it, but should for the result to be
+        physically meaningful.
+
+    Returns
+    -------
+    SS_ref_db : LibMAGEMin.SS_ref
+        The phase's reference struct with `.p`/`.iguess`/`.xeos` set to the
+        requested composition - pass this directly into `pc_convert` next
+        (its `.EM_list`/`.CV_list`/`.n_em`/`.n_xeos` describe what's in
+        `.p`/`.xeos`, for inspection).
+
+    Notes
+    -----
+    Some models pin an endmember's compositional variable(s) to a fixed
+    value when the relevant oxide is absent from the current bulk-rock
+    composition (e.g. `"fsp_H22"` pins `ca`/`k` to 0 or 1 when `CaO`/`K2O`/
+    `Na2O` are zero, to keep the ternary feldspar simplex non-degenerate) -
+    these bounds are (re-)computed from the bulk composition set on `gv`/
+    `z_b` at the time `pwm_init`/`ComputeG0_point` last ran, so set a
+    realistic bulk rock (e.g. via `use_predefined_bulk_rock` or
+    `define_bulk_rock`) *before* that call, or `p2x_convert` may clamp the
+    requested fractions to a degenerate range instead of converting them.
+
+    Examples
+    --------
+    ```julia
+    gv, z_b, DB, splx_data = init_MAGEMin("all");
+    gv = use_predefined_bulk_rock(gv, 0, "all")   # or define_bulk_rock(...)
+    p = Dict("ab"=>0.2, "an"=>0.2, "san"=>0.6)
+    SS_ref_db = p2x_convert(gv, DB, "fsp_H22", p)
+    ```
+"""
+function p2x_convert(gv, DB, ph_name::String, p::Dict{String,Float64})
+    ss_names = unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, gv.SS_list, gv.len_ss))
+    ph_id0   = findfirst(==(ph_name), ss_names)
+    isnothing(ph_id0) && error("p2x_convert: solution phase \"$ph_name\" not found in gv.SS_list ($ss_names)")
+    ph_id    = ph_id0 - 1   # C is 0-indexed
+
+    SS_ref_vec = unsafe_wrap(Vector{LibMAGEMin.SS_ref}, DB.SS_ref_db, gv.len_ss)
+    SS_ref_db  = SS_ref_vec[ph_id0]
+
+    em_names = unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, SS_ref_db.EM_list, SS_ref_db.n_em))
+    extra    = setdiff(keys(p), em_names)
+    isempty(extra) || error("p2x_convert: unknown endmember name(s) $extra for phase \"$ph_name\" (has endmembers $em_names)")
+
+    p_vec = Vector{Float64}(undef, SS_ref_db.n_em)
+    for (i, name) in enumerate(em_names)
+        haskey(p, name) || error("p2x_convert: missing endmember fraction for \"$name\" (phase \"$ph_name\" has endmembers $em_names)")
+        p_vec[i] = p[name]
+    end
+
+    SS_ref_db = LibMAGEMin.P2X_convert_function(gv, SS_ref_db, ph_id, pointer(p_vec), SS_ref_db.n_em)
+    return SS_ref_db
+end
+
+
+"""
+    pc_convert(gv, z_b, DB, ph_name, SS_ref_db)
+
+    Given a solution phase's compositional variables (from `p2x_convert`)
+    and P-T-dependent endmember reference energies already computed on
+    `DB.SS_ref_db` (e.g. via `pwm_init(P, T, gv, z_b, DB, splx_data)` or
+    `LibMAGEMin.ComputeG0_point` directly), compute that phase's Gibbs
+    energy at that composition - MAGEMin's own `PC_function` +
+    `SS_UPDATE_function` pipeline (the C-side `PC_convert_function`), the
+    same one used internally during a normal minimization, evaluated
+    against the phase's absolute (non-Gamma-rotated) reference energies -
+    i.e. an absolute molar Gibbs energy, not a value relative to some other
+    phase assemblage's chemical potentials.
+
+    Parameters
+    ----------
+    gv : LibMAGEMin.global_variables
+    z_b : LibMAGEMin.bulk_infos
+        `z_b.P`/`z_b.T` must already match the P-T the reference energies in
+        `DB.SS_ref_db` were computed at (set via `pwm_init`/
+        `ComputeG0_point`, not by this function).
+    DB : LibMAGEMin.Database
+    ph_name : String
+        Solution phase name, as passed to `p2x_convert`.
+    SS_ref_db : LibMAGEMin.SS_ref
+        The struct returned by `p2x_convert` for the same phase.
+
+    Returns
+    -------
+    SS_ref_db : LibMAGEMin.SS_ref
+        Updated struct:
+        - `.df` - the phase's Gibbs energy [kJ/mol] at the given
+          composition and P-T (this is what the workflow wants).
+        - `.ss_comp` (length `gv.len_ox`) - the phase's bulk composition
+          (oxide amounts per formula unit) at this `p`.
+        - `.sf_ok` - `1` if all site fractions are physically valid at this
+          composition, `0` otherwise (e.g. a fraction outside `[0,1]`).
+        - `.sum_xi`/`.xi_em` - phase-fraction-expression terms (PGE
+          internals), populated but not generally needed by this workflow.
+        `SS_ref` has no `.entropy`/`.enthalpy`/`.rho`/`.bulkMod`/
+        `.shearMod` fields at all, and while `.phase_density`/`.volume`/
+        `.mass` do exist on the struct, this pipeline does not compute
+        them (that requires the separate density/volume/modulus step run
+        during a full minimization) - reading them here returns stale or
+        uninitialized data, not a value for this composition.
+
+    Examples
+    --------
+    ```julia
+    gv, z_b, DB, splx_data = init_MAGEMin("all");
+    gv = use_predefined_bulk_rock(gv, 0, "all")   # see p2x_convert's notes
+    gv, z_b, DB, splx_data = pwm_init(2.0, 700.0, gv, z_b, DB, splx_data);
+    p = Dict("ab"=>0.2, "an"=>0.2, "san"=>0.6)
+    SS_ref_db = p2x_convert(gv, DB, "fsp_H22", p)
+    SS_ref_db = pc_convert(gv, z_b, DB, "fsp_H22", SS_ref_db)
+    println(SS_ref_db.df)   # Gibbs energy
+    ```
+"""
+function pc_convert(gv, z_b, DB, ph_name::String, SS_ref_db)
+    ss_names = unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, gv.SS_list, gv.len_ss))
+    ph_id0   = findfirst(==(ph_name), ss_names)
+    isnothing(ph_id0) && error("pc_convert: solution phase \"$ph_name\" not found in gv.SS_list ($ss_names)")
+    ph_id    = ph_id0 - 1   # C is 0-indexed
+
+    SS_ref_db = LibMAGEMin.PC_convert_function(gv, SS_ref_db, z_b, ph_id)
+    return SS_ref_db
 end
 
 

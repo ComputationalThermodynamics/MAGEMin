@@ -89,7 +89,109 @@ SS_ref SS_UPDATE_function(		global_variable 	 gv,
 };
 
 
-/** 
+/**
+  Convert endmember fractions (p, length SS_ref_db.n_em, in gv.SS_list[ph_id]'s
+  own EM_list order) to compositional variables (xeos), for one solution
+  phase. See ss_min_function.h for the full contract.
+*/
+SS_ref P2X_convert_function(		global_variable 	 gv,
+									SS_ref 				 SS_ref_db,
+									int 				 ph_id,
+									double 				*p,
+									int 				 n_p			){
+
+	if (n_p != SS_ref_db.n_em){
+		printf(" ERROR: P2X_convert_function: '%s' has %d endmembers, got %d fractions\n", gv.SS_list[ph_id], SS_ref_db.n_em, n_p);
+		return SS_ref_db;
+	}
+
+	for (int i = 0; i < n_p; i++){
+		SS_ref_db.p[i] = p[i];
+	}
+
+	/* .bounds is a working copy of .bounds_ref, normally refreshed by
+	   reset_SS() *before* ComputeG0_point() runs (the latter is what
+	   actually computes fresh, correct .bounds_ref values per phase, e.g.
+	   via G_SS_mpe_fsp_function) - harmless in the normal minimization
+	   pipeline (ss_min_LP/ss_min_PGE re-derive .bounds again from .iguess
+	   before ever using it), but this function reads .bounds immediately
+	   (P2X clamps its output against it), so refresh it here to not depend
+	   on caller ordering. */
+	for (int i = 0; i < SS_ref_db.n_xeos; i++){
+		SS_ref_db.bounds[i][0] = SS_ref_db.bounds_ref[i][0];
+		SS_ref_db.bounds[i][1] = SS_ref_db.bounds_ref[i][1];
+	}
+
+	P2X_type P2X_read[gv.len_ss];
+	if 		(strcmp(gv.research_group, "tc") == 0){ TC_P2X_init(P2X_read, gv); }
+	else if (strcmp(gv.research_group, "gh") == 0){ GH_P2X_init(P2X_read, gv); }
+	else if (strcmp(gv.research_group, "br") == 0){ BR_P2X_init(P2X_read, gv); }
+	else{
+		printf(" ERROR: P2X_convert_function: no p->xeos mapping for research_group '%s'\n", gv.research_group);
+		return SS_ref_db;
+	}
+
+	(*P2X_read[ph_id])( &SS_ref_db, gv.bnd_val );
+
+	/* P2X writes directly into .iguess[] (the field PC_convert_function/
+	   PC_function actually reads) - mirror it into .xeos[] too so both
+	   fields agree for callers inspecting either one */
+	for (int i = 0; i < SS_ref_db.n_xeos; i++){
+		SS_ref_db.xeos[i] = SS_ref_db.iguess[i];
+	}
+
+	return SS_ref_db;
+}
+
+/**
+  Given a solution phase's compositional variables (xeos, e.g. from
+  P2X_convert_function) and its endmembers' reference energies at the
+  desired P,T (already computed via ComputeG0_point on z_b/DB.SS_ref_db),
+  compute the phase's Gibbs energy (.df) and full thermodynamic properties
+  (entropy/enthalpy/volume/density/...), matching the same PC_function +
+  SS_UPDATE_function pipeline used internally during a normal minimization.
+  See ss_min_function.h for the full contract.
+*/
+SS_ref PC_convert_function(		global_variable 	 gv,
+									SS_ref 				 SS_ref_db,
+									bulk_info 	 		 z_b,
+									int 				 ph_id			){
+
+	PC_type PC_read[gv.len_ss];
+	if 		(strcmp(gv.research_group, "tc") == 0){ TC_PC_init(PC_read, gv); }
+	else if (strcmp(gv.research_group, "sb") == 0){ SB_PC_init(PC_read, gv); }
+	else if (strcmp(gv.research_group, "gh") == 0){ GH_PC_init(PC_read, gv); }
+	else if (strcmp(gv.research_group, "br") == 0){ BR_PC_init(PC_read, gv); }
+	else{
+		printf(" ERROR: PC_convert_function: no xeos->G mapping for research_group '%s'\n", gv.research_group);
+		return SS_ref_db;
+	}
+
+	/* .gb_lvl (what the PC objective functions actually read as each
+	   endmember's reference energy) is normally set by rotate_hyperplane()
+	   against the current Gamma during simplex/PGE - outside of that loop
+	   (as here) Gamma doesn't exist, so use the unrotated gbase directly to
+	   get each endmember's absolute reference energy. Without this, .gb_lvl
+	   stays at its zero-init default and .df comes out as only the
+	   mixing/excess term, missing the dominant reference-energy contribution. */
+	SS_ref_db = non_rot_hyperplane(gv, SS_ref_db);
+
+	SS_ref_db = PC_function(		gv,
+									PC_read,
+									SS_ref_db,
+									z_b,
+									ph_id			);
+
+	SS_ref_db = SS_UPDATE_function(	gv,
+										SS_ref_db,
+										z_b,
+										gv.SS_list[ph_id]		);
+
+	return SS_ref_db;
+}
+
+
+/**
 Function to update xi and sum_xi for the considered phases list (during the inner loop of the PGE stage).
 NOTE: When the phase is "liq", the normalization factor is also updated as it depends on the endmember fractions
 */

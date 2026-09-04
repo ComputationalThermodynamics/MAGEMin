@@ -3797,6 +3797,14 @@ function SS_UPDATE_function(gv, SS_ref_db, z_b, name)
     ccall((:SS_UPDATE_function, libMAGEMin), SS_ref, (global_variable, SS_ref, bulk_info, Ptr{Cchar}), gv, SS_ref_db, z_b, name)
 end
 
+function P2X_convert_function(gv, SS_ref_db, ph_id, p, n_p)
+    ccall((:P2X_convert_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, Ptr{Cdouble}, Cint), gv, SS_ref_db, ph_id, p, n_p)
+end
+
+function PC_convert_function(gv, SS_ref_db, z_b, ph_id)
+    ccall((:PC_convert_function, libMAGEMin), SS_ref, (global_variable, SS_ref, bulk_info, Cint), gv, SS_ref_db, z_b, ph_id)
+end
+
 function CP_UPDATE_function(gv, SS_ref_db, cp, z_b)
     ccall((:CP_UPDATE_function, libMAGEMin), csd_phase_set, (global_variable, SS_ref, csd_phase_set, bulk_info), gv, SS_ref_db, cp, z_b)
 end
