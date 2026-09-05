@@ -34,6 +34,11 @@ global_variable global_variable_init( 	global_variable  	 gv,
 		gv 	=	global_variable_GH_init( 	gv,
 											z_b 	);
 	}
+	else if (strcmp(gv.research_group, "br") 	== 0 ){
+	/* here we initialize MAGEMin using the Berman (Pourteau et al. 2014) formalism */
+		gv 	=	global_variable_BR_init( 	gv,
+											z_b 	);
+	}
 	else{
 		printf(" wrong group, fix group name\n");
 	}
@@ -93,6 +98,17 @@ char** get_EM_DB_names_gh(global_variable gv) {
     return names;
 }
 
+char** get_EM_DB_names_br(global_variable gv) {
+
+    int i, n_em_db;
+    n_em_db = gv.n_em_db;
+    char ** names = malloc((n_em_db+1) * sizeof(char*));
+    for ( i = 0; i < n_em_db; i++){
+        names[i] = malloc(20 * sizeof(char));
+    }
+    return names;
+}
+
 /**
     Function to retrieve the DEW2019 aqueous species names from the database
     Note the size of the array is n_dew_db+1, required for the hashtable
@@ -136,14 +152,18 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 
 	gv.arg_bulk 		= malloc (gv.maxlen_ox * sizeof(double)	);
 	gv.arg_gamma 		= malloc (gv.maxlen_ox * sizeof(double)	);
+	gv.mu_fix_idx 		= malloc (gv.maxlen_ox * sizeof(int)		);
+	gv.mu_fix_val 		= malloc (gv.maxlen_ox * sizeof(double)	);
 
 	for (i = 0; i < gv.maxlen_ox; i++) {
 		gv.arg_bulk[i]  	=  0.0;
 		gv.arg_gamma[i] 	=  0.0;
+		gv.mu_fix_idx[i]	= -1;
+		gv.mu_fix_val[i]	=  0.0;
 	}
 
 	strcpy(gv.outpath,"./output/");					/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"2.0.1 [20/10/2026]");		/** MAGEMin version 																*/
+	strcpy(gv.version,"2.0.2 [20/10/2026]");		/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
@@ -155,6 +175,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 													species + water endmembers, so this was bumped in step with struct ss_pc.xeos_pc[]
 													(MAGEMin.h) - both are sized for the same reason. */
 	gv.buffer_n 			=  0.0;					/** factor for QFM buffer 															*/
+	gv.n_mu_fix 			=  0;					/** number of oxides with a fixed chemical potential (native mu-mu mechanism), 0 = off 	*/
 	gv.limitCaOpx       	=  0;					/** limit Ca-bearing  orthopyroxene (add-hoc correction) 							*/
 	gv.CaOpxLim         	=  1.0;					/** limit Ca-bearing  orthopyroxene (add-hoc correction) 							*/
 	gv.fixed_bulk	    	=  0;                   /** by default we don't activate the initial guess for fixed bulk 					*/
@@ -740,6 +761,17 @@ global_variable reset_gv(					global_variable 	 gv,
 				gv.pp_flags[i][1] = 0;
 				gv.pp_flags[i][2] = 0;
 				gv.pp_flags[i][3] = 1;
+				gv.pp_flags[i][4] = 0;
+			}
+			else if (gv.n_mu_fix > 0 && i >= gv.len_pp - gv.n_mu_fix){
+				/* native mu-fix fictive phase (mu<k>): always a live candidate,
+				   same as any ordinary pure phase - explicit branch so this
+				   doesn't silently depend on falling through to the generic
+				   "else" case below */
+				gv.pp_flags[i][0] = 1;
+				gv.pp_flags[i][1] = 0;
+				gv.pp_flags[i][2] = 1;
+				gv.pp_flags[i][3] = 0;
 				gv.pp_flags[i][4] = 0;
 			}
 			else{

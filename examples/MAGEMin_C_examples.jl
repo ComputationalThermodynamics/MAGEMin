@@ -17,13 +17,23 @@ PP = ["q"	,"crst"	,"trd"	,"coe"	,"stv"	,"law"	,"ky"	,"sill"	,"and"	,"ru"	,"sph",
 =#
 
 using MAGEMin_C
+data    = Initialize_MAGEMin("po", verbose=1, solver=0);
+P, T    = 2.0, 500.0;
+Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "MnO"; "Cr2O3"; "H2O"; "CO2"; "S"];
+X       = [0.62212, 0.1122, 0.0, 0.03486, 0.05557, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.17525, 0.0, 0.0];
+sys_in  = "mol";
+out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in)
+Finalize_MAGEMin(data)
+
+
+using MAGEMin_C
 data    = Initialize_MAGEMin("all", verbose=false, solver=0);
 P, T    = 10.0, 400.0;
 Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "MnO"; "Cr2O3"; "H2O"; "CO2"; "S"];
 X       = [0.62212, 0.1122, 0.0, 0.03486, 0.05557, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.17525, 0.0, 0.0];
 sys_in  = "mol";
 out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, rm_list=[1, 2, 3, 4, 6, 7, 9, 10, 12, 13, 14, 16, 17, 18, 20, 22, 23, 24, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, -13])
-
+Finalize_MAGEMin(data)
 
 using MAGEMin_C
 ss_list = ["liq_W14", "fsp_H22", "bi_W14", "g_W14", "ep_H11", "ma_W14", "mu_W14", "opx_W14", "sa_W14", "cd_W14", "st_W14", "chl_W14", "ctd_W14", "sp_W02", "ilm_W00", "DEW_S14"]
@@ -35,7 +45,7 @@ Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "Mn
 X       = [0.62212, 0.1122, 0.0, 0.03486, 0.05557, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.17525, 0.0, 0.0];
 sys_in  = "mol";
 out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, ss_list=ss_list, pp_list=pp_list)
-
+Finalize_MAGEMin(data)
 
 using MAGEMin_C
 rm_list =   remove_phases(["fl","H2O"],"mpe")

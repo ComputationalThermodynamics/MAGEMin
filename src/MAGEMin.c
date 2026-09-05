@@ -400,6 +400,18 @@ int runMAGEMin(			int    argc,
 								gv,
 								SS_ref_db						);
 	}
+	else if ( strcmp(gv.research_group, "br") 	== 0 ){
+		gv = init_em_db_br(		EM_database,
+								z_b,											/** bulk rock informations 			*/
+								gv,												/** global variables (e.g. Gamma) 	*/
+								PP_ref_db						);
+
+		/* Calculate solution phase data at given P-T conditions (G0 based on G0 of endmembers) */
+		gv = init_ss_db_br(		EM_database,
+								z_b,
+								gv,
+								SS_ref_db						);
+	}
 
 
 
@@ -463,6 +475,19 @@ int runMAGEMin(			int    argc,
 												gv								);
 		/* "sb" still has no P2X_read map: every codepath that reads it is
 		   gated to exclude "sb" explicitly - see simplex_levelling.c */
+	}
+	else if (strcmp(gv.research_group, "br") 	== 0 ){
+		BR_SS_objective_init_function(			SS_objective,
+												gv								);
+
+		BR_NLopt_opt_init(	        			NLopt_opt,
+												gv								);
+
+		BR_PC_init(	                    		PC_read,
+												gv								);
+
+		BR_P2X_init(	                		P2X_read,
+												gv								);
 	}
 
 	/* DEW warm start: SS_ref_db is allocated once for the whole run (InitializeDatabases,
@@ -817,6 +842,9 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		{ "SB_eos_cor", ko_optional_argument, 331 },
 		{ "DEW_solve_algorithm", ko_optional_argument, 333 },
 		{ "warm_start", ko_optional_argument, 334 },
+		{ "n_mu_fix",   ko_optional_argument, 335 },
+		{ "mu_fix_idx", ko_optional_argument, 336 },
+		{ "mu_fix_val", ko_optional_argument, 337 },
     	{ NULL, 0, 0 }
 	};
 	ketopt_t opt = KETOPT_INIT;
@@ -839,6 +867,23 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		else if (c == 331){ gv.SB_eos_cor			= atoi(opt.arg);			}
 		else if (c == 333){ gv.DEW_solve_algorithm	= atoi(opt.arg);			}
 		else if (c == 334){ gv.warm_start			= atoi(opt.arg);			}
+		else if (c == 335){ gv.n_mu_fix			= atoi(opt.arg);			}
+		else if (c == 336){
+			char *p = strtok(opt.arg,",");
+			size_t i = 0;
+			while(p && i<(size_t)gv.maxlen_ox) {
+					gv.mu_fix_idx[i++] = atoi(p);
+					p = strtok(NULL, ",");
+			}
+		}
+		else if (c == 337){
+			char *p = strtok(opt.arg,",");
+			size_t i = 0;
+			while(p && i<(size_t)gv.maxlen_ox) {
+					gv.mu_fix_val[i++] = strtold(p,NULL);
+					p = strtok(NULL, ",");
+			}
+		}
 		else if (c == 316){ gv.solver   		= atoi(opt.arg);			}																		
 		else if (c == 318){ gv.output_matlab   	= atoi(opt.arg); 			}																		
 		else if (c == 304){ gv.n_points 		= atoi(opt.arg); 	 		}
@@ -896,7 +941,7 @@ global_variable SetupDatabase(			global_variable 	 gv,
 
 
 	// checks if research group is correct, otherwise sets to default
-	if 	( strcmp(gv.research_group, "tc") 	== 0 || strcmp(gv.research_group, "sb") == 0 || strcmp(gv.research_group, "gh") == 0 ){
+	if 	( strcmp(gv.research_group, "tc") 	== 0 || strcmp(gv.research_group, "sb") == 0 || strcmp(gv.research_group, "gh") == 0 || strcmp(gv.research_group, "br") == 0 ){
 	}
 	else{
 		printf(" WARNING: Unknown research group '%s' has been provided, setting default one 'tc'\n",gv.research_group);
@@ -1024,6 +1069,27 @@ global_variable SetupDatabase(			global_variable 	 gv,
 			gv.EM_database = 0;
 		}
 	}
+	else if( strcmp(gv.research_group, "br") == 0 ){
+		if (gv.solver != 0){
+			gv.solver = 0;
+			if (gv.verbose == 1){
+				printf(" INFO: Solver option is not available for the 'br' (Berman) database -> LP is used\n");
+			}
+		}
+
+		gv.EM_dataset = 1;
+
+		if 		(strcmp(gv.db, "po") 	== 0){
+			gv.EM_database = 0;
+		}
+		else {
+			if (gv.verbose == 1){
+				printf(" No or wrong database acronym has been provided, using default Pourteau et al. 2014 ([po])\n");
+			}
+			strcpy(gv.db, "po");
+			gv.EM_database = 0;
+		}
+	}
 
 	if (gv.verbose == 2){
 		printf("\n");	
@@ -1089,6 +1155,10 @@ Databases InitializeDatabases(	global_variable gv,
 		GH_SS_init(	        	    SS_init,
 									gv				);
 	}
+	else if (strcmp(gv.research_group, "br") == 0 ){
+		BR_SS_init(	        	    SS_init,
+									gv				);
+	}
 
 	DB.SS_ref_db = malloc ((gv.len_ss) 		* sizeof(SS_ref));
 	for (int iss = 0; iss < gv.len_ss; iss++){
@@ -1120,6 +1190,9 @@ Databases InitializeDatabases(	global_variable gv,
 	}
 	else if (strcmp(gv.research_group, "gh") == 0){
 		DB.EM_names  =	get_EM_DB_names_gh(		gv									);
+	}
+	else if (strcmp(gv.research_group, "br") == 0){
+		DB.EM_names  =	get_EM_DB_names_br(		gv									);
 	}
 
 
@@ -1439,6 +1512,8 @@ void FreeDatabases(		global_variable gv,
 	free(gv.research_group);
 	free(gv.arg_bulk);
 	free(gv.arg_gamma);
+	free(gv.mu_fix_idx);
+	free(gv.mu_fix_val);
 	free(gv.bulk_rock);
 
 	n_ox 	= gv.len_ox;

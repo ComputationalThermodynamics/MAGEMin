@@ -237,6 +237,58 @@ end
     Finalize_MAGEMin(data)
 end
 
+@testset verbose=true "test native mu-mu chemical potential fixing" begin
+    Xoxides = ["SiO2"; "Al2O3"; "CaO"; "MgO"; "FeO"; "K2O"; "Na2O"; "TiO2"; "O"; "Cr2O3"; "H2O"];
+    X       = [38.494; 1.977; 2.907; 50.264; 5.435; 0.017; 0.204; 0.077; 0.086; 0.469; 0.077];
+    P, T    = 10.0, 1100.0
+    sys_in  = "mol"
+
+    data_base   = Initialize_MAGEMin("ig", verbose=-1);
+    out_base    = single_point_minimization(P, T, data_base; X=X, Xoxides=Xoxides, sys_in=sys_in);
+    Gamma_MgO   = out_base.Gamma[4]    # 1-based; MgO is Xoxides[4]
+    Gamma_K2O   = out_base.Gamma[6]    # K2O is Xoxides[6]
+    Finalize_MAGEMin(data_base)
+
+    data = Initialize_MAGEMin("ig", verbose=-1, mu_fix_idx=["MgO"]);
+    out  = single_point_minimization(P, T, data; X=X, Xoxides=Xoxides, sys_in=sys_in, mu_fix_val=[Gamma_MgO]);
+    @test out.Gamma[4] ≈ Gamma_MgO atol=1e-3
+    Finalize_MAGEMin(data)
+
+    data     = Initialize_MAGEMin("ig", verbose=-1, mu_fix_idx=["MgO"]);
+    X_oversat = copy(X); X_oversat[4] = 150.0
+    out      = single_point_minimization(P, T, data; X=X_oversat, Xoxides=Xoxides, sys_in=sys_in, mu_fix_val=[-900.0]);
+    @test out.Gamma[4] ≈ -900.0 atol=1e-6
+    @test "mMgO" in out.ph
+    @test isfinite(out.rho)
+    @test isfinite(out.s_cp[1])
+    Finalize_MAGEMin(data)
+
+    # 3 oxides simultaneously, by name, all oversaturated: exercises both the
+    # arbitrary-N-oxides support and oxide-name resolution together
+    data = Initialize_MAGEMin("ig", verbose=-1, mu_fix_idx=["MgO", "K2O", "TiO2"]);
+    X3   = [38.494; 1.977; 2.907; 70.0; 5.435; 0.1; 0.204; 0.2; 0.086; 0.469; 0.077];
+    out  = single_point_minimization(P, T, data; X=X3, Xoxides=Xoxides, sys_in=sys_in,
+                                      mu_fix_val=[Gamma_MgO, Gamma_K2O, -1077.756911]);
+    @test out.Gamma[4] ≈ Gamma_MgO       atol=1e-3
+    @test out.Gamma[6] ≈ Gamma_K2O       atol=1e-3
+    @test out.Gamma[8] ≈ -1077.756911    atol=1e-3
+    Finalize_MAGEMin(data)
+
+    @test_throws ErrorException Initialize_MAGEMin("ig", verbose=-1, mu_fix_idx=["NotAnOxide"])
+    data     = Initialize_MAGEMin("ig", verbose=-1, mu_fix_idx=["MgO"]);
+    n        = 6
+    Pvec     = fill(P, n)
+    Tvec     = fill(T, n)
+    targets  = collect(range(-950.0, -700.0, length=n))
+    mu_grid  = [[t] for t in targets]
+    out_grid = multi_point_minimization(Pvec, Tvec, data; X=X_oversat, Xoxides=Xoxides, sys_in=sys_in,
+                                         mu_fix_val=mu_grid, progressbar=false);
+    for i in 1:n
+        @test out_grid[i].Gamma[4] ≈ targets[i] atol=1e-6
+    end
+    Finalize_MAGEMin(data)
+end
+
 @testset "test seismic corrections" begin
 
     using MAGEMin_C
@@ -1129,6 +1181,43 @@ end
     @test S_H2O_auto ≈ S_H2O_melt  rtol=1e-4
 
     Finalize_MAGEMin(data)
+end
+
+@testset verbose=true "test p2x_convert/pc_convert (endmember fractions -> phase Gibbs energy)" begin
+    gv, z_b, DB, splx_data = init_MAGEMin("all")
+    gv = use_predefined_bulk_rock(gv, 0, "all")
+    gv, z_b, DB, splx_data = pwm_init(2.0, 700.0, gv, z_b, DB, splx_data)
+
+    p = Dict("ab"=>0.2, "an"=>0.2, "san"=>0.6)
+    SS_ref_db = p2x_convert(gv, DB, "fsp_H22", p)
+
+    em_names = unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, SS_ref_db.EM_list, SS_ref_db.n_em))
+    cv_names = unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, SS_ref_db.CV_list, SS_ref_db.n_xeos))
+    @test em_names == ["ab", "an", "san"]
+    @test cv_names == ["ca", "k"]
+    @test unsafe_wrap(Vector{Float64}, SS_ref_db.p, SS_ref_db.n_em) ≈ [0.2, 0.2, 0.6]
+    # p2x_mpe_fsp: ca (an fraction) = p[an], k (san fraction) = p[san]
+    @test unsafe_wrap(Vector{Float64}, SS_ref_db.xeos, SS_ref_db.n_xeos) ≈ [0.2, 0.6] atol=1e-6
+
+    SS_ref_db = pc_convert(gv, z_b, DB, "fsp_H22", SS_ref_db)
+    @test SS_ref_db.sf_ok == 1
+    @test isfinite(SS_ref_db.df)
+    @test SS_ref_db.df < 0.0   # sanity: molar Gibbs energy of a stable silicate is negative
+
+    # p2x_mpe_fsp maps xeos[ca]=p[an], xeos[k]=p[san] directly (no per-variable
+    # clamp beyond each variable's own [eps,1-eps] bounds) - an+san > 1 here
+    # yields sf[0] = 1-ca-k < 0, an invalid site fraction: must still run and
+    # report sf_ok == 0, not silently return a "valid" number.
+    p_bad = Dict("ab"=>-0.4, "an"=>0.7, "san"=>0.7)
+    SS_ref_bad = p2x_convert(gv, DB, "fsp_H22", p_bad)
+    SS_ref_bad = pc_convert(gv, z_b, DB, "fsp_H22", SS_ref_bad)
+    @test SS_ref_bad.sf_ok == 0
+
+    @test_throws ErrorException p2x_convert(gv, DB, "fsp_H22", Dict("ab"=>0.5, "an"=>0.5))               # missing endmember
+    @test_throws ErrorException p2x_convert(gv, DB, "fsp_H22", Dict("ab"=>0.2,"an"=>0.2,"san"=>0.5,"xx"=>0.1)) # unknown endmember
+    @test_throws ErrorException p2x_convert(gv, DB, "not_a_phase", p)                                     # unknown phase
+
+    finalize_MAGEMin(gv, DB, z_b, splx_data)
 end
 
 

@@ -24,4 +24,8 @@
     #include "./GH_database/GH_PP_endmembers.h"
     #include "./GH_database/GH_gem_function.h"
 
+    /* This includes the Berman (Pourteau et al. 2014) database (research group "br") */
+    #include "./BR_database/BR_PP_endmembers.h"
+    #include "./BR_database/BR_gem_function.h"
+
 #endif

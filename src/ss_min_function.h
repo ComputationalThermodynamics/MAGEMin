@@ -15,10 +15,36 @@
 #include "all_solution_phases.h"
 
 SS_ref SS_UPDATE_function(				global_variable 	 gv,
-										SS_ref 				 SS_ref_db, 
+										SS_ref 				 SS_ref_db,
 										bulk_info 	 		 z_b,
-										char    			*name			);		
-								
+										char    			*name			);
+
+/** Convert endmember fractions (p, length SS_ref_db.n_em, in gv.SS_list[ph_id]'s
+    own EM_list order) to compositional variables (xeos), for one solution
+    phase. Writes into both SS_ref_db.iguess[] (what PC_convert_function
+    actually reads) and SS_ref_db.xeos[] (mirrored for callers inspecting
+    either field). research_group must be "tc", "gh" or "br" ("sb" has no
+    p->xeos mapping in MAGEMin at all). */
+SS_ref P2X_convert_function(			global_variable 	 gv,
+										SS_ref 				 SS_ref_db,
+										int 				 ph_id,
+										double 				*p,
+										int 				 n_p			);
+
+/** Given a solution phase's compositional variables (xeos, e.g. from
+    P2X_convert_function) and its endmembers' reference energies at the
+    desired P,T (already computed via ComputeG0_point on z_b/DB.SS_ref_db),
+    compute the phase's Gibbs energy (.df, absolute/non-Gamma-rotated) and
+    bulk composition (.ss_comp), matching the same non_rot_hyperplane +
+    PC_function + SS_UPDATE_function pipeline used internally during a
+    normal minimization. Does not compute density/volume/modulus - those
+    need the separate compute_density_volume_modulus() step. */
+SS_ref PC_convert_function(			global_variable 	 gv,
+										SS_ref 				 SS_ref_db,
+										bulk_info 	 		 z_b,
+										int 				 ph_id			);
+
+
 csd_phase_set CP_UPDATE_function(		global_variable 	 gv,
 										SS_ref 				 SS_ref_db,
 										csd_phase_set  		 cp, 
@@ -77,6 +103,11 @@ global_variable init_ss_db_sb(			int 				 EM_database,
 										SS_ref 				*SS_ref_db		);
 
 global_variable init_ss_db_gh(			int 				 EM_database,
+										bulk_info 	 		 z_b,
+										global_variable 	 gv,
+										SS_ref 				*SS_ref_db		);
+
+global_variable init_ss_db_br(			int 				 EM_database,
 										bulk_info 	 		 z_b,
 										global_variable 	 gv,
 										SS_ref 				*SS_ref_db		);

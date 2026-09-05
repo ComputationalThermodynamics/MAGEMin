@@ -20,4 +20,7 @@
     /* This includes the initializing routine for the Ghiorso/MELTS database */
     #include "./GH_database/GH_init_database.h"
 
+    /* This includes the initializing routine for the Berman (Pourteau et al. 2014) database */
+    #include "./BR_database/BR_init_database.h"
+
 #endif

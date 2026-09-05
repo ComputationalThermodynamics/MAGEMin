@@ -9,6 +9,7 @@ src/*.o
 src/TC_database/*.o
 src/SB_database/*.o
 src/GH_database/*.o
+src/BR_database/*.o
 julia/output/*
 ref_database/SB_ref_database/.DS_Store
 matlab/.DS_Store
