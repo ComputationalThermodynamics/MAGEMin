@@ -24,7 +24,7 @@ function get_database_infos()
                         "Mantle (Holland et al., 2013)",
                         "Metapelite extended (White et al., 2014 with po from Evans & Frost., 2021, amp dio and aug from Green et al., 2016)",
                         "Global solution dataset",
-                        "Metapelite HP/LT, Ctd-Car-Chl-Mica, Berman (1988) EOS (Pourteau et al., 2014)",
+                        "HP/LT (Pourteau et al., 2014)",
                         "Stixrude & Lithgow-Bertelloni (2011)",
                         "Stixrude & Lithgow-Bertelloni (2021)",
                         "Stixrude & Lithgow-Bertelloni (2024)",
