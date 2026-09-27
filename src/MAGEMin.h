@@ -367,7 +367,9 @@ int find_EM_id(								char* research_group, int EM_dataset, char* em_tag			);
 /* Function declaration from Initialize.h file */
 int find_DEW_id(								char* em_tag			);
 
-/** 
+void check_lookup_id(							int id, const char *kind, const char *name			);
+
+/**
 	definition of the objective function type in order to associate them with the right solution phase number
 */
 typedef double (*obj_type) (		unsigned  		 n,

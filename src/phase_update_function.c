@@ -598,10 +598,10 @@ global_variable phase_merge_function(		bulk_info 			z_b,
 								}
 								/* in case both phases are active, add phase B fraction on phase A */
 								if(cp[phA].ss_flags[1] == 1 && cp[phB].ss_flags[1] == 1){
+									double nA_w = cp[phA].ss_n, nB_w = cp[phB].ss_n;
 									cp[phA].ss_n 		  	+=  cp[phB].ss_n;
-									/* merge compositional variables at mid point */
 									for (i = 0; i < cp[phA].n_xeos; i++){
-										cp[phA].xeos[i] = (cp[phA].xeos[i] + cp[phB].xeos[i])/2.0;
+										cp[phA].xeos[i] = (nA_w*cp[phA].xeos[i] + nB_w*cp[phB].xeos[i])/(nA_w + nB_w);
 									}
 
 									gv.n_cp_phase 		  	-=  1;

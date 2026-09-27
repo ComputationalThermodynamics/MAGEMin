@@ -1292,6 +1292,7 @@ PP_ref SB_G_EM_function(	int 		 EM_dataset,
 	/* Get thermodynamic data */
     EM_db_sb EM_return;
     int i, p_id = find_EM_id("sb", EM_dataset, name);
+    check_lookup_id(p_id, "SB endmember", name);
     EM_return   = Access_SB_EM_DB(p_id, EM_dataset);
     
     /* Get composition (in molar amount) */

@@ -579,6 +579,7 @@ PP_ref GH_G_EM_function(   int          EM_database,
     }
 
     int p_id            = find_EM_id("gh", EM_database, name);
+    check_lookup_id(p_id, "GH endmember", name);
     EM_db_gh EM_return   = Access_GH_EM_DB(EM_database, p_id);
 
     /* H2O and CO2 liquid standard states. NOT GH_pitzer_sterner_G/

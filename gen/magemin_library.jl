@@ -965,6 +965,10 @@ function find_DEW_id(em_tag)
     ccall((:find_DEW_id, libMAGEMin), Cint, (Ptr{Cchar},), em_tag)
 end
 
+function check_lookup_id(id, kind, name)
+    ccall((:check_lookup_id, libMAGEMin), Cvoid, (Cint, Ptr{Cchar}, Ptr{Cchar}), id, kind, name)
+end
+
 # typedef double ( * obj_type ) ( unsigned n , const double * x , double * grad , void * SS_ref_db )
 const obj_type = Ptr{Cvoid}
 
@@ -3661,6 +3665,10 @@ end
 
 function get_EM_table(research_group, EM_dataset, n_names)
     ccall((:get_EM_table, libMAGEMin), Ptr{EM2id}, (Ptr{Cchar}, Cint, Cint), research_group, EM_dataset, n_names)
+end
+
+function warn_tag_truncation(kind, name, cap)
+    ccall((:warn_tag_truncation, libMAGEMin), Cvoid, (Ptr{Cchar}, Ptr{Cchar}, Csize_t), kind, name, cap)
 end
 
 function register_EM_table(research_group, EM_dataset, names, n_names)

@@ -639,10 +639,16 @@ global_variable PGE_solver(		bulk_info 	 		 z_b,
 									nrhs, 
 									gv.A_PGE, 
 									lda, 
-									gv.ipiv, 
-									gv.b_PGE, 
+									gv.ipiv,
+									gv.b_PGE,
 									ldb					);
 	#endif
+	if (info != 0){
+		fprintf(stderr, "MAGEMin: PGE linear solve failed (dgesv info = %d, system size = %d); terminating this point as non-converged\n", info, nEntry);
+		gv.div    = 1;
+		gv.status = 4;
+		return gv;
+	}
 	/**
 		get solution and max values for the set of variables
 	*/
@@ -670,7 +676,7 @@ global_variable PGE_inner_loop(		bulk_info 			 z_b,
 	double 	delta_fc_norm 	= 1.0;
 
 	/* transform to while if delta_phase fraction < val */
-	while (PGEi < gv.inner_PGE_ite && delta_fc_norm > 1e-10){
+	while (PGEi < gv.inner_PGE_ite && delta_fc_norm > 1e-10 && gv.div == 0){
 		u = clock();
 
 		gv =	PGE_solver(					z_b,								/** bulk rock constraint 				*/ 
@@ -1946,7 +1952,13 @@ global_variable PGE(	bulk_info 			z_b,
 
 										PP_ref_db,						/** pure phase database 				*/ 
 										SS_ref_db,						/** solution phase database 			*/
-										cp					); 
+										cp					);
+
+		if (gv.div == 1){
+			gv.status = 4;
+			iterate   = 0;
+			break;
+		}
 
 		/* dump & print */
 		if (gv.verbose == 1){

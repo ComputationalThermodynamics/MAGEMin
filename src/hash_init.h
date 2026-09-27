@@ -51,6 +51,12 @@
         return (i < 0) ? NULL : EM_tables[i].table;
     }
 
+    static void warn_tag_truncation(const char *kind, const char *name, size_t cap) {
+        if (strlen(name) >= cap){
+            fprintf(stderr, "MAGEMin warning: %s name '%s' is %zu characters, longer than the %zu available; it will be truncated to '%.*s' and may collide with another name sharing that prefix\n", kind, name, strlen(name), cap - 1, (int)(cap - 1), name);
+        }
+    }
+
     void register_EM_table(char *research_group, int EM_dataset, char **names, int n_names) {
         while (atomic_exchange_explicit(&EM_tables_lock, 1, memory_order_acquire)){}
         int n = atomic_load_explicit(&n_EM_tables, memory_order_relaxed);
@@ -61,6 +67,7 @@
             }
             EM2id *table = NULL;
             for (int i = 0; i < n_names; i++){
+                warn_tag_truncation("endmember", names[i], sizeof(((EM2id *)0)->EM_tag));
                 EM2id *p_s = (EM2id *)malloc(sizeof *p_s);
                 strncpy(p_s->EM_tag, names[i], sizeof(p_s->EM_tag) - 1);
                 p_s->EM_tag[sizeof(p_s->EM_tag) - 1] = '\0';
@@ -84,6 +91,14 @@
         return (p_s == NULL) ? -1 : p_s->id;
     }
 
+    void check_lookup_id(int id, const char *kind, const char *name) {
+        if (id < 0){
+            fprintf(stderr, "\nMAGEMin fatal: %s '%s' was not found in the registered name table (lookup returned %d).\n", kind, name ? name : "(null)", id);
+            fprintf(stderr, "Refusing to index the thermodynamic database with an invalid id.\n");
+            abort();
+        }
+    }
+
     /*  Hashtable for DEW2019 aqueous species in thermodynamic database          */
     typedef struct DEW2id_{
         char DEW_tag[20];          /* key (string is WITHIN the structure)       */
@@ -98,6 +113,7 @@
         if (atomic_load_explicit(&DEW_ready, memory_order_relaxed) == 0){
             DEW2id *table = NULL;
             for (int i = 0; i < n_names; i++){
+                warn_tag_truncation("DEW species", names[i], sizeof(((DEW2id *)0)->DEW_tag));
                 DEW2id *dew_s = (DEW2id *)malloc(sizeof *dew_s);
                 strncpy(dew_s->DEW_tag, names[i], sizeof(dew_s->DEW_tag) - 1);
                 dew_s->DEW_tag[sizeof(dew_s->DEW_tag) - 1] = '\0';

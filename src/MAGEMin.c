@@ -1233,18 +1233,20 @@ void FreeDatabases(		global_variable gv,
 		if  (DB.sp[0].PP[i].Comp_apfu		!=NULL)  free( DB.sp[0].PP[i].Comp_apfu		);	
 	}
 
+	int n_max_pc_free = (gv.len_ox*3 > gv.max_ss_size_cp) ? gv.len_ox*3 : gv.max_ss_size_cp;
+
 	for ( i = 0; i < n_ox; i++){
-		if  (DB.sp[0].SS[i].Comp			!=NULL)  free( DB.sp[0].SS[i].Comp 			);	
-		if  (DB.sp[0].SS[i].Comp_wt			!=NULL)  free( DB.sp[0].SS[i].Comp_wt 		);	
-		if  (DB.sp[0].SS[i].Comp_apfu		!=NULL)  free( DB.sp[0].SS[i].Comp_apfu		);	
-		if  (DB.sp[0].SS[i].compVariables	!=NULL)  free( DB.sp[0].SS[i].compVariables );	
-		if  (DB.sp[0].SS[i].siteFractions	!=NULL)  free( DB.sp[0].SS[i].siteFractions );	
+		if  (DB.sp[0].SS[i].Comp			!=NULL)  free( DB.sp[0].SS[i].Comp 			);
+		if  (DB.sp[0].SS[i].Comp_wt			!=NULL)  free( DB.sp[0].SS[i].Comp_wt 		);
+		if  (DB.sp[0].SS[i].Comp_apfu		!=NULL)  free( DB.sp[0].SS[i].Comp_apfu		);
+		if  (DB.sp[0].SS[i].compVariables	!=NULL)  free( DB.sp[0].SS[i].compVariables );
+		if  (DB.sp[0].SS[i].siteFractions	!=NULL)  free( DB.sp[0].SS[i].siteFractions );
 		if  (DB.sp[0].SS[i].emFrac			!=NULL)  free( DB.sp[0].SS[i].emFrac 		);
 		if  (DB.sp[0].SS[i].emFrac_wt		!=NULL)  free( DB.sp[0].SS[i].emFrac_wt 	);
 		if  (DB.sp[0].SS[i].emChemPot		!=NULL)  free( DB.sp[0].SS[i].emChemPot 	);
 		if  (DB.sp[0].SS[i].molality		!=NULL)  free( DB.sp[0].SS[i].molality 	);
 		if  (DB.sp[0].SS[i].activity		!=NULL)  free( DB.sp[0].SS[i].activity 	);
-		for ( j = 0; j < n_ox*3; j++){
+		for ( j = 0; j < n_max_pc_free; j++){
 			if  (DB.sp[0].SS[i].compVariablesNames[j]	!=NULL)  free( DB.sp[0].SS[i].compVariablesNames[j] 	);	
 			if  (DB.sp[0].SS[i].siteFractionsNames[j]	!=NULL)  free( DB.sp[0].SS[i].siteFractionsNames[j] 	);	
 			if  (DB.sp[0].SS[i].emNames[j]				!=NULL)  free( DB.sp[0].SS[i].emNames[j] 				);	
@@ -1266,6 +1268,7 @@ void FreeDatabases(		global_variable gv,
 		if  (DB.sp[0].mSS[i].p_Ppc			!=NULL)  free( DB.sp[0].mSS[i].p_Ppc		);
 		if  (DB.sp[0].mSS[i].mu_Ppc			!=NULL)  free( DB.sp[0].mSS[i].mu_Ppc		);
 		if  (DB.sp[0].mSS[i].xeos_Ppc		!=NULL)  free( DB.sp[0].mSS[i].xeos_Ppc		);
+		if  (DB.sp[0].mSS[i].info			!=NULL)  free( DB.sp[0].mSS[i].info			);
 		if  (DB.sp[0].mSS[i].ph_name		!=NULL)  free( DB.sp[0].mSS[i].ph_name		);
 		if  (DB.sp[0].mSS[i].ph_type		!=NULL)  free( DB.sp[0].mSS[i].ph_type		);
 	}
