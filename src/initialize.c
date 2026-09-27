@@ -271,7 +271,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.EM_database  		=  0; 					
 	gv.n_points 			=  1;
 	gv.solver   			=  2;					/* 0 -> Legacy, 1 = PGE, Hybrid PGE/LP */
-	gv.DEW_solve_algorithm 	=  2;              		/** 0: original plain Picard DEW inner solver (default), 1: damped/mixed variant, 2: plain Picard + Newton-safeguarded-by-bisection mu_Hp solve - see DEW_aq_solver.c */
+	gv.DEW_solve_algorithm 	=  4;              		/** 0: original plain Picard DEW inner solver, 1: damped/mixed variant, 2: plain Picard + Newton-safeguarded-by-bisection mu_Hp solve, 4 (default): Newton on ln(molality) of all species with activity coefficients inside the residual - see DEW_aq_solver.c */
 	gv.warm_start			=  1;					/** 1 (default): DEW outer-PGE warm start active, 0: disabled (always re-explore the full 8-start multistart grid) - see NLopt_opt_DEW_function */
 	gv.leveling_mode		=  0;
 	gv.verbose 				=  0;
@@ -1116,9 +1116,16 @@ void reset_SS(						global_variable 	 gv,
 	/* reset solution phases */
 	for (int iss = 0; iss < gv.len_ss; iss++){
 
-		for (int j = 0; j < gv.n_flags; j++){	
+		for (int j = 0; j < gv.n_flags; j++){
 			SS_ref_db[iss].ss_flags[j]   = 0;
 		}
+
+		/* a stale dew_warm_ok==1 left over from a previous point sharing this SS_ref_db
+		   (reset_SS runs once per point; the two Initialize_MAGEMin-time resets in
+		   MAGEMin.c/initialize.c only cover the very first point) would wrongly let this
+		   point's first outer iteration skip the full DEW multistart grid and warm-start
+		   from an unrelated point's converged composition - see NLopt_opt_DEW_function. */
+		SS_ref_db[iss].dew_warm_ok = 0;
 
 		SS_ref_db[iss].tot_pc[0] = 0;
 		SS_ref_db[iss].id_pc[0]  = 0;

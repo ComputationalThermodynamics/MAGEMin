@@ -9277,6 +9277,7 @@ SS_ref NLopt_opt_DEW_function(global_variable gv, SS_ref SS_ref_db){
 
     DEW_stat_reset();
     clock_t dew_stat_t0 = clock();
+    double mu_tmp[n_sp+1];
     int used_warm = 0;
     if (gv.warm_start && SS_ref_db.dew_warm_ok){
 
@@ -9290,6 +9291,11 @@ SS_ref NLopt_opt_DEW_function(global_variable gv, SS_ref SS_ref_db){
                                             1e-12,
                                             SS_ref_db.iguess,
                                             gv.DEW_solve_algorithm      );
+        if (used_warm){
+            double G_warm;
+            DEW_aq_evaluate(&AQ_shim, S.x, SS_ref_db.R, SS_ref_db.T, SS_ref_db.P, mu_tmp, &G_warm);
+            if (!(G_warm <= SS_ref_db.dew_warm_G + 1.0e-6)){ used_warm = 0; }
+        }
     }
     if (!used_warm){
         DEW_aq_min_multistart(  &AQ_shim,
@@ -9301,6 +9307,7 @@ SS_ref NLopt_opt_DEW_function(global_variable gv, SS_ref SS_ref_db){
                                 1000,       /* max_iter,  matches aq_min_iterative.jl's default */
                                 1e-12,      /* z_res_tol, matches aq_min_iterative.jl's default */
                                 gv.DEW_solve_algorithm      );
+        DEW_aq_evaluate(&AQ_shim, S.x, SS_ref_db.R, SS_ref_db.T, SS_ref_db.P, mu_tmp, &SS_ref_db.dew_warm_G);
         SS_ref_db.dew_warm_ok = 1;   /* this point now has a verified global-min branch to warm-start from next call */
     }
     clock_t dew_stat_t1 = clock();

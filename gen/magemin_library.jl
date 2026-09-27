@@ -1064,6 +1064,7 @@ struct SS_refs
     gbase::Ptr{Cdouble}
     mu_comp::Ptr{Ptr{Cdouble}}
     dew_warm_ok::Cint
+    dew_warm_G::Cdouble
     mu_array::Ptr{Ptr{Cdouble}}
     gb_lvl::Ptr{Cdouble}
     factor::Cdouble

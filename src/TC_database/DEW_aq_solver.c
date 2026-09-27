@@ -871,6 +871,227 @@ void DEW_aq_min_iterative_mixed(   AQ_data     *AQ,
     }
 }
 
+static void DEW_nt_act( double I, double Sm, double Ag, double Bg, double *lng, double *lnaw ){
+    const double Mw = 18.01528/1000.0, a_i = 3.72, b = 0.03, L10 = log(10.0);
+    double sI  = sqrt(fmax(I, 0.0));
+    double Lam = 1.0 + a_i*Bg*sI;
+    double Gam = -log10(1.0 + Mw*Sm);
+    for (int z = 0; z < 5; z++){ lng[z] = L10*(-Ag*(double)(z*z)*sI/Lam + Gam + b*I); }
+    double sigma = (I > 1e-8) ? 3.0/(pow(a_i*Bg, 3.0)*pow(I, 1.5))*(Lam - 1.0/Lam - 2.0*log(Lam)) : 1.0;
+    double SG    = (Mw*Sm > 1e-8) ? Gam/Mw : -Sm/L10;
+    *lnaw = L10*Mw*(SG - b*I*Sm/2.0 + (2.0/3.0)*Ag*I*sqrt(I*sigma));
+}
+
+static double DEW_nt_resid( int n_sp, const double *y, double muH, const double *base, const double *cw,
+                            const double *hh, const double *zz, const int *zid, double gb_w, double RT,
+                            double Ag, double Bg, double *r, double *rq_out, double *rq_rel_out,
+                            double *I_out, double *S_out, double *lng, double *lnaw ){
+    double I = 0.0, Sm = 0.0, q = 0.0, qa = 0.0;
+    for (int k = 0; k < n_sp; k++){
+        double mk = exp(y[k]);
+        I  += 0.5*zz[k]*zz[k]*mk;
+        Sm += mk;
+        q  += zz[k]*mk;
+        qa += fabs(zz[k])*mk;
+    }
+    DEW_nt_act(I, Sm, Ag, Bg, lng, lnaw);
+    double mu_w = gb_w + RT*(*lnaw);
+    double phi = 0.0;
+    for (int i = 0; i < n_sp; i++){
+        r[i] = y[i] + lng[zid[i]] - (base[i] + cw[i]*mu_w + hh[i]*muH)/RT;
+        phi += r[i]*r[i];
+    }
+    double qrel = (qa > 0.0) ? q/qa : 0.0;
+    phi += qrel*qrel;
+    *rq_out = q; *rq_rel_out = qrel; *I_out = I; *S_out = Sm;
+    return 0.5*phi;
+}
+
+static void DEW_aq_min_newton(  AQ_data     *AQ,
+                                AQ_solver   *S,
+                                double      *Gamma_ox,
+                                double       R,
+                                double       T,
+                                double       P,
+                                int          max_iter,
+                                double       z_res_tol,
+                                double       Hp_eps,
+                                const double *x_warm        ){
+
+    int n_sp   = AQ->n_sp;
+    int len_ox = AQ->len_ox;
+    int id_H2O = AQ->id_H2O;
+    double Pbar = P*1000.0, RT = R*T;
+    double Mw  = 18.01528/1000.0, Omega = 1.0/Mw, a_i = 3.72, b = 0.03;
+    double Ag  = DEW_Agamma(T, Pbar, AQ->rho_w);
+    double Bg  = DEW_Bgamma(T, Pbar, AQ->rho_w);
+
+    double *base = malloc(n_sp*sizeof(double)), *cw = malloc(n_sp*sizeof(double));
+    double *hh   = malloc(n_sp*sizeof(double)), *zz = malloc(n_sp*sizeof(double));
+    int    *zid  = malloc(n_sp*sizeof(int));
+    double *y    = malloc(n_sp*sizeof(double)), *yt = malloc(n_sp*sizeof(double));
+    double *r    = malloc(n_sp*sizeof(double)), *rt = malloc(n_sp*sizeof(double));
+    double *u1   = malloc(n_sp*sizeof(double)), *u2 = malloc(n_sp*sizeof(double));
+    double *v1   = malloc(n_sp*sizeof(double)), *v2 = malloc(n_sp*sizeof(double));
+    double *wa   = malloc(n_sp*sizeof(double)), *wc = malloc(n_sp*sizeof(double));
+    double *p    = malloc(n_sp*sizeof(double)), *dy = malloc(n_sp*sizeof(double));
+
+    for (int i = 0; i < n_sp; i++){
+        double bsum = -AQ->gbase[i];
+        for (int j = 0; j < len_ox; j++){ if (j != id_H2O){ bsum += AQ->mu_comp[i][j]*Gamma_ox[j]; } }
+        base[i] = bsum;
+        cw[i]   = (id_H2O >= 0) ? AQ->mu_comp[i][id_H2O] : 0.0;
+        hh[i]   = AQ->mu_comp[i][len_ox];
+        zz[i]   = AQ->z[i];
+        zid[i]  = (int)fabs(AQ->z[i]);
+        p[i]    = -hh[i]/RT;
+    }
+
+    double lng[5], lnaw, I, Sm, rq, rqrel;
+    double muH;
+    const double ymax = log(1e4);
+    int have_warm = 0;
+    if (x_warm != NULL && x_warm[n_sp] > 0.0 && isfinite(x_warm[n_sp])){
+        have_warm = 1;
+        for (int i = 0; i < n_sp; i++){
+            double mv = x_warm[i]*Omega/x_warm[n_sp];
+            if (!isfinite(mv) || mv < 0.0){ have_warm = 0; break; }
+            y[i] = log(fmax(mv, 1e-300));
+        }
+    }
+    if (have_warm){
+        double Iw = 0.0, Sw = 0.0;
+        for (int i = 0; i < n_sp; i++){ double mv = exp(y[i]); Iw += 0.5*zz[i]*zz[i]*mv; Sw += mv; }
+        DEW_nt_act(Iw, Sw, Ag, Bg, lng, &lnaw);
+        double mu_w = AQ->gb_w + RT*lnaw, num = 0.0, den = 0.0;
+        for (int i = 0; i < n_sp; i++){
+            double wgt = exp(y[i]);
+            double t   = y[i] + lng[zid[i]] - (base[i] + cw[i]*mu_w)/RT;
+            num += wgt*hh[i]*t;
+            den += wgt*hh[i]*hh[i];
+        }
+        muH = (den > 0.0) ? RT*num/den : RT*log(1e-6);
+        for (int i = 0; i < n_sp; i++){ y[i] = fmin((base[i] + cw[i]*mu_w + hh[i]*muH)/RT - lng[zid[i]], ymax - 1.0); }
+    }
+    else{
+        muH = RT*log(Hp_eps);
+        for (int i = 0; i < n_sp; i++){ y[i] = fmin((base[i] + cw[i]*AQ->gb_w + hh[i]*muH)/RT, 0.0); }
+    }
+
+    double phi = DEW_nt_resid(n_sp, y, muH, base, cw, hh, zz, zid, AQ->gb_w, RT, Ag, Bg, r, &rq, &rqrel, &I, &Sm, lng, &lnaw);
+    int converged = 0, ite = 0;
+    const double tol = 1e-9;
+    for (ite = 0; ite < max_iter; ite++){
+        double rmax = 0.0;
+        for (int i = 0; i < n_sp; i++){ if (fabs(r[i]) > rmax){ rmax = fabs(r[i]); } }
+        if (rmax < tol && fabs(rqrel) < tol){ converged = 1; break; }
+        if (!isfinite(phi)){ break; }
+        DEW_stat_picard_passes++;
+
+        double lg1[5], lg2[5], la1, la2;
+        double hI = fmax(1e-6*I, 1e-14), hS = fmax(1e-6*Sm, 1e-14);
+        double dgI[5], dgS[5], daI, daS;
+        DEW_nt_act(I + hI, Sm, Ag, Bg, lg1, &la1);
+        DEW_nt_act(fmax(I - hI, 0.0), Sm, Ag, Bg, lg2, &la2);
+        double dI = (I + hI) - fmax(I - hI, 0.0);
+        for (int z = 0; z < 5; z++){ dgI[z] = (lg1[z] - lg2[z])/dI; }
+        daI = (la1 - la2)/dI;
+        DEW_nt_act(I, Sm + hS, Ag, Bg, lg1, &la1);
+        DEW_nt_act(I, fmax(Sm - hS, 0.0), Ag, Bg, lg2, &la2);
+        double dS = (Sm + hS) - fmax(Sm - hS, 0.0);
+        for (int z = 0; z < 5; z++){ dgS[z] = (lg1[z] - lg2[z])/dS; }
+        daS = (la1 - la2)/dS;
+
+        double qa = 0.0;
+        for (int k = 0; k < n_sp; k++){
+            double mk = exp(y[k]);
+            u1[k] = dgI[zid[k]] - cw[k]*daI;
+            u2[k] = dgS[zid[k]] - cw[k]*daS;
+            v1[k] = 0.5*zz[k]*zz[k]*mk;
+            v2[k] = mk;
+            qa   += fabs(zz[k])*mk;
+        }
+        double M11 = 1.0, M12 = 0.0, M21 = 0.0, M22 = 1.0;
+        for (int k = 0; k < n_sp; k++){ M11 += v1[k]*u1[k]; M12 += v1[k]*u2[k]; M21 += v2[k]*u1[k]; M22 += v2[k]*u2[k]; }
+        double det = M11*M22 - M12*M21;
+        if (!(fabs(det) > 0.0) || !isfinite(det)){ break; }
+
+        #define DEW_NT_AINV(IN, OUT) do { \
+            double s1 = 0.0, s2 = 0.0; \
+            for (int k_ = 0; k_ < n_sp; k_++){ s1 += v1[k_]*(IN)[k_]; s2 += v2[k_]*(IN)[k_]; } \
+            double c1 = ( M22*s1 - M12*s2)/det, c2 = (-M21*s1 + M11*s2)/det; \
+            for (int k_ = 0; k_ < n_sp; k_++){ (OUT)[k_] = (IN)[k_] - u1[k_]*c1 - u2[k_]*c2; } \
+        } while (0)
+
+        for (int k = 0; k < n_sp; k++){ rt[k] = -r[k]; }
+        DEW_NT_AINV(rt, wa);
+        DEW_NT_AINV(p,  wc);
+        #undef DEW_NT_AINV
+        double qa_ = 0.0, qc_ = 0.0;
+        for (int k = 0; k < n_sp; k++){ double qk = zz[k]*exp(y[k])/fmax(qa, 1e-300); qa_ += qk*wa[k]; qc_ += qk*wc[k]; }
+        if (!(fabs(qc_) > 0.0)){ break; }
+        double dmu = (qa_ + rqrel)/qc_;
+        double smax = fabs(dmu)/RT;
+        for (int k = 0; k < n_sp; k++){ dy[k] = wa[k] - wc[k]*dmu; if (fabs(dy[k]) > smax){ smax = fabs(dy[k]); } }
+
+        double alpha = (smax > 2.0) ? 2.0/smax : 1.0;
+        int accepted = 0;
+        for (int ls = 0; ls < 30; ls++){
+            int bad = 0;
+            for (int k = 0; k < n_sp; k++){ yt[k] = y[k] + alpha*dy[k]; if (yt[k] > ymax){ bad = 1; } }
+            if (!bad){
+                double muHt = muH + alpha*dmu, It, St, rqt, rqrelt, lngt[5], lnawt;
+                double phit = DEW_nt_resid(n_sp, yt, muHt, base, cw, hh, zz, zid, AQ->gb_w, RT, Ag, Bg, rt, &rqt, &rqrelt, &It, &St, lngt, &lnawt);
+                DEW_stat_residual_evals++;
+                if (isfinite(phit) && phit < phi){
+                    for (int k = 0; k < n_sp; k++){ y[k] = yt[k]; r[k] = rt[k]; }
+                    muH = muHt; phi = phit; rq = rqt; rqrel = rqrelt; I = It; Sm = St;
+                    for (int z = 0; z < 5; z++){ lng[z] = lngt[z]; }
+                    lnaw = lnawt;
+                    accepted = 1;
+                    break;
+                }
+            }
+            alpha *= 0.5;
+        }
+        if (!accepted){ break; }
+    }
+
+    for (int i = 0; i < n_sp; i++){ S->m[i] = exp(y[i]); }
+    S->sum_m  = Sm;
+    S->I_str  = I;
+    S->Gamma  = -log10(1.0 + Mw*Sm);
+    S->Lambda = 1.0 + a_i*Bg*sqrt(I);
+    S->sigma  = (I > 1e-8) ? 3.0/(pow(a_i,3.0)*pow(Bg,3.0)*pow(I,1.5))*(S->Lambda - 1.0/S->Lambda - 2.0*log(S->Lambda)) : 1.0;
+    S->a_coef = exp(fmax(fmin(lnaw, 700.0), -700.0));
+    S->coef   = (Sm > 0.0) ? -lnaw/(Sm*Mw) : 0.0;
+    for (int z = 0; z < 5; z++){ S->gamma_e[z] = exp(fmax(fmin(lng[z], 690.0), -690.0)); }
+    S->mu_w   = AQ->gb_w + RT*lnaw;
+    S->mu_Hp  = muH;
+    S->sum_charged_p = 0.0; S->sum_charged_m = 0.0;
+    for (int i = 0; i < n_sp; i++){
+        if (zz[i] > 0.0){ S->sum_charged_p += fabs(zz[i])*S->m[i]; }
+        else if (zz[i] < 0.0){ S->sum_charged_m += fabs(zz[i])*S->m[i]; }
+    }
+    S->z_res     = fabs(rq);
+    S->converged = (converged && Sm < 1e4) ? 1 : 0;
+
+    double x_w = Omega/(Omega + Sm);
+    for (int i = 0; i < n_sp; i++){ S->m1[i] = S->m[i]; S->x[i] = S->m[i]/(Omega + Sm); }
+    S->x[n_sp] = x_w;
+    for (int i = 0; i < n_sp; i++){
+        S->a[i]  = S->m[i]*S->gamma_e[zid[i]];
+        S->mu[i] = AQ->gbase[i] + RT*(y[i] + lng[zid[i]]);
+    }
+    S->a[n_sp]  = S->a_coef;
+    S->mu[n_sp] = S->mu_w;
+    S->G = 0.0;
+    for (int i = 0; i <= n_sp; i++){ if (S->x[i] > 0.0){ S->G += S->mu[i]*S->x[i]; } }
+
+    free(base); free(cw); free(hh); free(zz); free(zid); free(y); free(yt); free(r); free(rt);
+    free(u1); free(u2); free(v1); free(v2); free(wa); free(wc); free(p); free(dy);
+}
+
 /**
     Shared core of DEW_aq_evaluate/DEW_aq_pH (and, externally, dump_function.c's
     DEW output reporting): derives per-species molality m[] (caller-allocated,
@@ -991,6 +1212,9 @@ static void DEW_aq_min_iterative_dispatch( int           algorithm,
     if (algorithm == 1){
         DEW_aq_min_iterative_mixed(AQ, S, Gamma_ox, R, T, P, max_iter, z_res_tol, Hp_eps, x_warm);
     }
+    else if (algorithm == 4){
+        DEW_aq_min_newton(AQ, S, Gamma_ox, R, T, P, 50, z_res_tol, Hp_eps, x_warm);
+    }
     else{
         DEW_aq_min_iterative(AQ, S, Gamma_ox, R, T, P, max_iter, z_res_tol, Hp_eps, x_warm, algorithm);
     }
@@ -1019,6 +1243,14 @@ void DEW_aq_min_multistart(    AQ_data     *AQ,
                                 int          algorithm    ){
 
 #if DEW_MULTISTART
+    if (algorithm == 4){
+        static const double Hp_eps_newton[] = {1e-6, 1e-4};
+        for (int s = 0; s < 2; s++){
+            DEW_aq_min_iterative_dispatch(algorithm, AQ, S, Gamma_ox, R, T, P, max_iter, z_res_tol, Hp_eps_newton[s], NULL);
+            if (S->converged){ return; }
+        }
+        algorithm = 2;
+    }
     static const double Hp_eps_starts[] = {1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-10, 1e-12};
     const int n_starts = (int)(sizeof(Hp_eps_starts)/sizeof(Hp_eps_starts[0]));
 
