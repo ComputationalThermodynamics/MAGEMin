@@ -706,13 +706,6 @@ global_variable init_em_db(		int 				EM_database,
 				int valid_idx = (gv.mu_fix_idx[k] >= 0 && gv.mu_fix_idx[k] < gv.len_ox);
 
 				if (!valid_idx){
-					/* n_mu_fix/mu_fix_idx are inconsistent (e.g. fewer indices
-					   provided than n_mu_fix, leaving this slot at its -1
-					   default) - fall back to an inert (all-zero composition,
-					   zero gbase) phase instead of reading z_b.apo[] out of
-					   bounds below. Zero Comp + zero gbase gives an exactly-
-					   zero driving force, so this can never be favorably
-					   swapped into the basis regardless of pp_flags. */
 					printf(" WARNING: mu_fix_idx[%d]=%d is out of range [0,%d) - disabling fictive phase '%s'\n", k, gv.mu_fix_idx[k], gv.len_ox, gv.PP_list[i]);
 				}
 
