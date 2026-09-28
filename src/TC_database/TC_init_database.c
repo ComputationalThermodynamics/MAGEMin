@@ -1212,7 +1212,7 @@ global_variable global_variable_TC_init( 	global_variable  	 gv,
 
 	/* sets end-member dataset information */
 	if (gv.EM_dataset == 62){
-			gv.n_em_db 			= 257;
+			gv.n_em_db 			= 260;
 	}
 	else if (gv.EM_dataset == 633){
 			gv.n_em_db 			= 289;

@@ -19,7 +19,7 @@ using DataFrames, Dates, CSV, SpecialFunctions
 const VecOrMat          = Union{Nothing, AbstractVector{Float64}, AbstractVector{<:AbstractVector{Float64}}}
 const available_TC_ds   = [62,633,634,635,636]
 
-export  anhydrous_renormalization, retrieve_solution_phase_information, print_phase_info, remove_phases, select_phases, exclude_DEW_species, get_ss_from_mineral, mineral_classification,
+export  anhydrous_renormalization, retrieve_solution_phase_information, print_phase_info, remove_phases, select_phases, ds62_placeholder_phases, ds62_placeholder_warning, DS62_PLACEHOLDER_SS, exclude_DEW_species, get_ss_from_mineral, mineral_classification,
         init_MAGEMin, allocate_output,finalize_MAGEMin, point_wise_minimization, 
         get_all_stable_phases, convertBulk4MAGEMin, use_predefined_bulk_rock, define_bulk_rock, create_output,
         print_info, create_gmin_struct, pwm_init, pwm_run, p2x_convert, pc_convert, lm_convert,
@@ -1173,6 +1173,67 @@ function print_phase_info(db_inf::db_infos; level::Int64=0)
 end
 
 print_phase_info(dtb::String; level::Int64=0) = print_phase_info(retrieve_solution_phase_information(dtb); level=level)
+
+const DS62_PLACEHOLDER_SS = ["liq_S26", "liq_G25w", "fl_G25"]
+
+"""
+    ds62_placeholder_phases(dtb, dataset, active_ss)
+
+    Solution phases of `active_ss` that are calibrated for ds633+ and, under the "all"
+    database with dataset ds62, run on ds633 placeholder values for the liquid end-members
+    `eskL`, `hemL` and `ruL` that ds62 lacks. Returns an empty vector for any other
+    database/dataset combination.
+
+    Parameters
+    ----------
+    dtb : String
+        Database acronym.
+    dataset : Integer
+        End-member dataset (62, 633, 634, 635, 636).
+    active_ss : AbstractVector{<:AbstractString}
+        Names of the active solution phases.
+
+    Returns
+    -------
+    phases : Vector{String}
+        Active phases whose results are not thermodynamically consistent with ds62.
+"""
+function ds62_placeholder_phases(   dtb         :: String,
+                                    dataset     :: Integer,
+                                    active_ss   :: AbstractVector{<:AbstractString})
+    (dtb == "all" && dataset == 62) || return String[]
+    return [ph for ph in DS62_PLACEHOLDER_SS if ph in active_ss]
+end
+
+"""
+    ds62_placeholder_warning(phases)
+
+    Warning message for the phases returned by `ds62_placeholder_phases`.
+"""
+ds62_placeholder_warning(phases::AbstractVector{<:AbstractString}) =
+    "Solution phase(s) $(join(phases, ", ")) active with the \"all\" database and dataset ds62. " *
+    "These models are calibrated for ds633+ and rely on liquid end-members (eskL, hemL, ruL) absent from ds62; " *
+    "ds633 placeholder values are used for them, so results involving these phases are not thermodynamically consistent. " *
+    "Deactivate them, or use dataset ds633 or newer."
+
+const _ds62_placeholder_warned = Set{Vector{String}}()
+const _ds62_placeholder_lock   = ReentrantLock()
+
+function warn_ds62_placeholder_phases(gv, rm_list)
+    (gv.EM_database == 8 && gv.EM_dataset == 62) || return nothing
+    ss_names = unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, gv.SS_list, gv.len_ss))
+    removed  = isnothing(rm_list) ? Int64[] : filter(>(0), rm_list)
+    active   = [ss_names[i] for i in eachindex(ss_names) if !(i in removed)]
+    phases   = ds62_placeholder_phases("all", 62, active)
+    isempty(phases) && return nothing
+    first_time = lock(_ds62_placeholder_lock) do
+        phases in _ds62_placeholder_warned && return false
+        push!(_ds62_placeholder_warned, phases)
+        return true
+    end
+    first_time && @warn ds62_placeholder_warning(phases)
+    return nothing
+end
 
 """
     remove_phases(list, dtb)
@@ -3125,6 +3186,8 @@ function point_wise_minimization(   P       ::Float64,
             end
         end
     end
+
+    warn_ds62_placeholder_phases(gv, rm_list)
 
     if iguess == true && Gi !== nothing
         SS_ref_db   = unsafe_wrap(Vector{LibMAGEMin.SS_ref},DB.SS_ref_db,gv.len_ss);
