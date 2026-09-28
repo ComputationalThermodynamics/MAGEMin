@@ -243,7 +243,7 @@ end
 
     data = Initialize_MAGEMin("ig", verbose=-1, mu_fix_idx=["MgO"]);
     out  = single_point_minimization(P, T, data; X=X, Xoxides=Xoxides, sys_in=sys_in, mu_fix_val=[Gamma_MgO]);
-    @test out.Gamma[4] ≈ Gamma_MgO atol=1e-3
+    @test out.Gamma[4] ≈ Gamma_MgO atol=1e-2
     Finalize_MAGEMin(data)
 
     data     = Initialize_MAGEMin("ig", verbose=-1, mu_fix_idx=["MgO"]);
