@@ -95,7 +95,7 @@ global_variable global_variable_GH_init(   global_variable      gv,
     int i, j;
 
     gh_dataset db       = (gv.EM_database == 2) ? gh_db_pmelts_dataset : gh_db;
-    gv.EM_dataset       = db.ds_version;
+    gv.EM_dataset       = gv.EM_database;
     gv.len_pp           = db.n_pp + gv.n_mu_fix;
     gv.len_ss           = db.n_ss;
     gv.len_ox           = db.n_ox;

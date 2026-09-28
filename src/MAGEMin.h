@@ -33,6 +33,7 @@ struct ss_pc{
 
 typedef struct PC_refs {
 	struct ss_pc *ss_pc_xeos;
+	struct ss_pc *pc_own;
 
 } PC_ref;
 
@@ -114,7 +115,7 @@ typedef struct global_variables {
 									via calibration_output_struct() in dump_function.c. See
 									~/.claude/working_tree/Lila_inversion/plans/magemin-calibration-mode.md (Lila_inversion
 									project) for the full design/rationale. */
-	int      DEW_solve_algorithm;	/** DEW inner speciation solver (DEW_aq_min_iterative family): 0 (default) = original plain (unmixed) Picard fixed-point iteration, bisection mu_Hp solve; 1 = damped/mixed variant that under-relaxes the composition<->activity-coefficient feedback loop, aimed at the high-ionic-strength (deep/hot P-T) regime where plain Picard oscillates/overshoots, bisection mu_Hp solve; 2 = same outer loop as 0 but with the mu_Hp charge-balance root-find replaced by a Newton step safeguarded by bisection (DEW_solve_mu_Hp_safeguarded) - same bracketing guarantee as algorithm 0's bisection (can never leave a verified sign-changing bracket) but converges quadratically, cutting residual evaluations per solve by 40-1000x; benchmarked with 0 regressions over an 84-point mpe/ume/mbe P-T sweep - see DEW_aq_solver.c. All three are exact fixed points of the same equilibrium condition when converged; algorithms 1 and 2 are opt-in pending broader validation. */
+	int      DEW_solve_algorithm;	/** DEW inner speciation solver (DEW_aq_min_iterative family): 0 = original plain (unmixed) Picard fixed-point iteration, bisection mu_Hp solve; 1 = damped/mixed variant that under-relaxes the composition<->activity-coefficient feedback loop, aimed at the high-ionic-strength (deep/hot P-T) regime where plain Picard oscillates/overshoots, bisection mu_Hp solve; 2 = same outer loop as 0 but with the mu_Hp charge-balance root-find replaced by a Newton step safeguarded by bisection (DEW_solve_mu_Hp_safeguarded) - same bracketing guarantee as algorithm 0's bisection (can never leave a verified sign-changing bracket) but converges quadratically, cutting residual evaluations per solve by 40-1000x; benchmarked with 0 regressions over an 84-point mpe/ume/mbe P-T sweep - see DEW_aq_solver.c. All three are exact fixed points of the same equilibrium condition when converged. 4 (default) = Newton on ln(molality) of every species plus mu_Hp with the activity coefficients inside the residual (DEW_aq_min_newton), two Newton starts, falling back to algorithm 2's 8-start multistart if neither converges. */
 	int      warm_start;		/** DEW outer-PGE-loop warm start (NLopt_opt_DEW_function/SS_ref.dew_warm_ok): 1 (default) = after a point's first DEW solve (always the full 8-start DEW_aq_min_multistart grid), later outer iterations of the SAME point first try a single solve warm-started from the previous converged composition, falling back to the full grid only if that fails to converge; 0 = disable the shortcut entirely and always re-run the full 8-start grid, every outer iteration, every point - a debugging/comparison knob to isolate whether the warm-start path itself is implicated in a given issue. */
 	int      SB_eos;			/** 0: legacy (Perple_X-style) SLB EOS solver, 1: burnman-style (Brent volume solve + 3rd order shear), 2: same as 1 but with HeFESTo's analytic vibrational/spinodal volume bounds */
 	int      SB_eos_cor;		/** 0: compute_G0() legacy Newton solver behaves exactly as before (default), 1: destabilize (NAN) on non-convergence instead of silently using the unconverged volume, and tighten its v/v0 sanity bound to match Perple_X/HeFESTo */
@@ -361,12 +362,14 @@ int runMAGEMin(								int argc,
 											char ** argv			);
 
 /* Function declaration from Initialize.h file */
-int find_EM_id(								char* em_tag			);
+int find_EM_id(								char* research_group, int EM_dataset, char* em_tag			);
 
 /* Function declaration from Initialize.h file */
 int find_DEW_id(								char* em_tag			);
 
-/** 
+void check_lookup_id(							int id, const char *kind, const char *name			);
+
+/**
 	definition of the objective function type in order to associate them with the right solution phase number
 */
 typedef double (*obj_type) (		unsigned  		 n,
@@ -506,6 +509,12 @@ typedef struct SS_refs {
     								NLopt_opt_DEW_function). Reset to 0 at the start of every
     								point in ComputeEquilibrium_Point. Unused by every other
     								solution phase. 															*/
+    double   dew_warm_G;		/** DEW only: the self-consistent G (DEW_aq_evaluate) of the
+    								verified-global-min branch dew_warm_ok refers to. A warm-started
+    								solve is only accepted if it reaches this G (within tolerance);
+    								otherwise NLopt_opt_DEW_function falls back to the full
+    								multistart grid instead of keeping a worse branch. Meaningless
+    								while dew_warm_ok==0. 														*/
 
     double **mu_array;        	/** 2d array of gbase, including values for numerical differentiation 		*/
     double  *gb_lvl;
@@ -563,6 +572,9 @@ typedef struct SS_refs {
 	double   phase_density;		/** density of the phase 								*/
 	double   volume;			/** volume of the phase 								*/
 	double   mass;				/** mass of the phase 									*/
+
+	int      EM_database;		/** gv.EM_database of the owning instance (gh: 0=xMELTS, 1=rMELTS, 2=pMELTS) */
+	int      gh_multistart_order;	/** gv.gh_multistart_order of the owning instance 		*/
 
 } SS_ref;
 

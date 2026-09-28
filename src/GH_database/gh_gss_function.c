@@ -235,9 +235,7 @@ SS_ref G_SS_gh_liq_function(SS_ref SS_ref_db, char* research_group, int EM_datas
         em_data CaSiO3_eq  = get_em_data(research_group, EM_dataset, len_ox, z_b, SS_ref_db.P, SS_ref_db.T, "Ca2Si2O6",    "equilibrium");
         em_data Na2SiO3_eq = get_em_data(research_group, EM_dataset, len_ox, z_b, SS_ref_db.P, SS_ref_db.T, "NaSi0.5O1.5", "equilibrium");
         em_data KAlSiO4_eq = get_em_data(research_group, EM_dataset, len_ox, z_b, SS_ref_db.P, SS_ref_db.T, "KAlSiO4",     "equilibrium");
-        GH_H2O_liquid_context = 1;
-        em_data H2O_eq     = get_em_data(research_group, EM_dataset, len_ox, z_b, SS_ref_db.P, SS_ref_db.T, "H2O",         "equilibrium");
-        GH_H2O_liquid_context = 0;
+        em_data H2O_eq     = get_em_data(research_group, EM_dataset, len_ox, z_b, SS_ref_db.P, SS_ref_db.T, "H2O",         "liquid");
 
         SS_ref_db.gbase[0]  = SiO2_eq.gb;
         SS_ref_db.gbase[1]  = TiO2_eq.gb;
@@ -356,9 +354,7 @@ SS_ref G_SS_gh_liq_function(SS_ref SS_ref_db, char* research_group, int EM_datas
     em_data Na2SiO3_eq = get_em_data(research_group, EM_dataset, len_ox, z_b, SS_ref_db.P, SS_ref_db.T, "Na2SiO3",   "equilibrium");
     em_data KAlSiO4_eq = get_em_data(research_group, EM_dataset, len_ox, z_b, SS_ref_db.P, SS_ref_db.T, "KAlSiO4",   "equilibrium");
     em_data CO2_eq     = get_em_data(research_group, EM_dataset, len_ox, z_b, SS_ref_db.P, SS_ref_db.T, "CO2",       "equilibrium");
-    GH_H2O_liquid_context = 1;   /* liquid's own "H2O" basis species, not the standalone "water" phase - see GH_gem_function.h */
-    em_data H2O_eq     = get_em_data(research_group, EM_dataset, len_ox, z_b, SS_ref_db.P, SS_ref_db.T, "H2O",       "equilibrium");
-    GH_H2O_liquid_context = 0;
+    em_data H2O_eq     = get_em_data(research_group, EM_dataset, len_ox, z_b, SS_ref_db.P, SS_ref_db.T, "H2O",       "liquid");
 
     SS_ref_db.gbase[0]  = SiO2_eq.gb;
     SS_ref_db.gbase[1]  = TiO2_eq.gb;
@@ -561,9 +557,7 @@ SS_ref G_SS_gh_fluid_function(SS_ref SS_ref_db, char* research_group, int EM_dat
         strcpy(SS_ref_db.EM_list[i], EM_tmp[i]);
     };
 
-    GH_H2O_liquid_context = 1;
-    em_data h2o_eq = get_em_data(research_group, EM_dataset, len_ox, z_b, SS_ref_db.P, SS_ref_db.T, "H2O", "equilibrium");
-    GH_H2O_liquid_context = 0;
+    em_data h2o_eq = get_em_data(research_group, EM_dataset, len_ox, z_b, SS_ref_db.P, SS_ref_db.T, "H2O", "liquid");
     em_data co2_eq = get_em_data(research_group, EM_dataset, len_ox, z_b, SS_ref_db.P, SS_ref_db.T, "CO2", "equilibrium");
 
     SS_ref_db.gbase[0] = GH_duan_pure_G(1, SS_ref_db.T, SS_ref_db.P*1000.0)/1000.0;   /* J -> kJ */

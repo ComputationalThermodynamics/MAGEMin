@@ -45,25 +45,6 @@
 #define GH_Pr    1.0      /* reference pressure (bar), matches xMELTS PR      */
 #define GH_kbar2bar 1000.0
 
-/** GH_G_EM_function's own "EM_database" parameter is NOT the calibration-
-    family id (0=xMELTS/1=rMELTS/2=pMELTS) despite the name - it's fed
-    gv.EM_dataset (always 1 for gh, a leftover from tc/sb's own, unrelated
-    "endmember dataset version" concept) all the way through the shared
-    get_em_data->G_EM_function->GH_G_EM_function call chain, which has
-    ~990 call sites across tc/sb/gh and was not worth widening just for
-    this. Real gv.EM_database is threaded in here instead the same way
-    GH_cpx_SS2/GH_spn_multistart_flag are: a plain global (not static,
-    since GH_SS_objective_init_function that sets it lives in a different
-    file, gh_objective_functions.c) set once at solution-phase init time.
-    Found while wiring pMELTS liquid support, 2026-07-14 - see
-    [[gh-multicalibration-xmelts-rmelts-pmelts]]. */
-int GH_actual_EM_database = 0;
-
-/** See GH_gem_function.h for the full explanation. Default 0 = pure
-    standalone "water" phase semantics; set to 1 only around the liquid's
-    own "H2O" basis-species lookups (gh_gss_function.c). */
-int GH_H2O_liquid_context = 0;
-
 /**
     Integrate the Berman (1988) solid Cp polynomial (k0,k1,k2,k3) from Tr to
     T, adding the order-disorder lambda-transition contribution (Tt, deltaH,
@@ -597,12 +578,9 @@ PP_ref GH_G_EM_function(   int          EM_database,
         return GH_pack_PP_ref(name, len_ox, O2_Comp, bulk_rock, apo, gbase_J);
     }
 
-    /* endmember lookup (implicit declaration of find_EM_id, resolved at
-       link time against src/hash_init.h's definition - same pattern used
-       by SB_G_EM_function/TC_G_EM_function, neither of which includes
-       hash_init.h directly either)                                        */
-    int p_id            = find_EM_id(name);
-    EM_db_gh EM_return   = Access_GH_EM_DB(GH_actual_EM_database, p_id);
+    int p_id            = find_EM_id("gh", EM_database, name);
+    check_lookup_id(p_id, "GH endmember", name);
+    EM_db_gh EM_return   = Access_GH_EM_DB(EM_database, p_id);
 
     /* H2O and CO2 liquid standard states. NOT GH_pitzer_sterner_G/
        fluidPhase() - that model is a separate real-gas EOS real gibbs.c
@@ -629,8 +607,8 @@ PP_ref GH_G_EM_function(   int          EM_database,
     /* Standalone "water" pure phase (gv.PP_list's "H2O" entry, plus
        toolkit.c's system_aH2O activity calc, both reached via this same
        name-dispatch since gh's PP list keeps the "H2O" string rather than
-       renaming to real xMELTS' own distinct "water" - see
-       GH_H2O_liquid_context's header comment). Real gibbs.c's own
+       renaming to real xMELTS' own distinct "water"; the
+       liquid basis-species lookups pass state "liquid" instead). Real gibbs.c's own
        "water" branch (line ~2326) is whaar()-at-actual-P(capped 10000)+
        wdh78()-above-that-cap for xMELTS/rMELTS - no Robie/Oaks-Lange
        wrapper (that wrapper is specific to the liquid's own "H2O" branch
@@ -654,9 +632,9 @@ PP_ref GH_G_EM_function(   int          EM_database,
        port fluidPhase()'s full dA/dT machinery - see its header comment
        for the derivation, verified exact against a real fluidPhase()
        harness. */
-    if (strcmp(name, "H2O") == 0 && !GH_H2O_liquid_context){
+    if (strcmp(name, "H2O") == 0 && strcmp(state, "liquid") != 0){
         double gbase_J;
-        if (GH_actual_EM_database == 2){
+        if (EM_database == 2){
             /* No 10000 bar cap here (unlike the whaar()-based xMELTS/
                rMELTS branch below) - real gibbs.c's pMELTS "water" branch
                calls fluidPhase() at the actual p directly, uncapped
@@ -676,7 +654,7 @@ PP_ref GH_G_EM_function(   int          EM_database,
 
     if (strcmp(name, "H2O") == 0 || strcmp(name, "CO2") == 0){
         double gbase_J;
-        if (GH_actual_EM_database == 2 && strcmp(name, "CO2") == 0){
+        if (EM_database == 2 && strcmp(name, "CO2") == 0){
             /* pMELTS' own liquid table has no real-gas EOS treatment for
                CO2 - real gibbs.c leaves it as a literal placeholder zero
                under MODE_pMELTS (verified directly via a standalone
@@ -685,7 +663,7 @@ PP_ref GH_G_EM_function(   int          EM_database,
                gap. */
             gbase_J = 0.0;
         }
-        else if (GH_actual_EM_database == 2){
+        else if (EM_database == 2){
             /* pMELTS' own liquid "H2O" branch (real gibbs.c line ~939-956,
                MODE_pMELTS): calls fluidPhase(t, 9550.0, x=[1,0], ...) at a
                FIXED 9550 bar reference (NOT the actual P), computing
@@ -826,7 +804,7 @@ PP_ref GH_G_EM_function(   int          EM_database,
     double dT = T - GH_liq_Trl;
     double dP = P - GH_Pr;
     double dG_P;
-    if (GH_actual_EM_database == 2){
+    if (EM_database == 2){
         /* pMELTS: Birch-Murnaghan replaces the Kress pressure integral
            entirely - see GH_pmelts_liq_BM3_dG's header comment. */
         dG_P = GH_pmelts_liq_BM3_dG(T, P, Vl, dvdt, dvdp, d2vdtp);

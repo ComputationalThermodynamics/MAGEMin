@@ -1512,6 +1512,9 @@ global_variable compute_phase_mol_fraction(			global_variable 	 gv,
 			}	
 
 			cp[i].factor_norm = n_at_bulk/n_at_ph;
+			if (strcmp(gv.SS_list[cp[i].id], "DEW") == 0 || strcmp(gv.SS_list[cp[i].id], "DEW_S24") == 0){
+				cp[i].factor_norm = cp[i].factor*sum;
+			}
 
 			cp[i].ss_n_mol   = cp[i].ss_n * cp[i].factor_norm;
 			cp[i].ss_n_wt 	 = cp[i].ss_n_mol * sum_wt;

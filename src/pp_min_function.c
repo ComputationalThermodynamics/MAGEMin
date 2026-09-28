@@ -706,13 +706,6 @@ global_variable init_em_db(		int 				EM_database,
 				int valid_idx = (gv.mu_fix_idx[k] >= 0 && gv.mu_fix_idx[k] < gv.len_ox);
 
 				if (!valid_idx){
-					/* n_mu_fix/mu_fix_idx are inconsistent (e.g. fewer indices
-					   provided than n_mu_fix, leaving this slot at its -1
-					   default) - fall back to an inert (all-zero composition,
-					   zero gbase) phase instead of reading z_b.apo[] out of
-					   bounds below. Zero Comp + zero gbase gives an exactly-
-					   zero driving force, so this can never be favorably
-					   swapped into the basis regardless of pp_flags. */
 					printf(" WARNING: mu_fix_idx[%d]=%d is out of range [0,%d) - disabling fictive phase '%s'\n", k, gv.mu_fix_idx[k], gv.len_ox, gv.PP_list[i]);
 				}
 
@@ -897,6 +890,9 @@ global_variable init_em_db_sb(	int 				EM_database,
 				else if (gv.buffer_n >= 1.0){
 					buffer_n = 1.0-1e-8;
 				}
+				else{
+					buffer_n = gv.buffer_n;
+				}
 				double G0 = MgO.gbase;
 				if (gv.EM_database == 1 || gv.EM_database == 2){
 					G0 /= 4.0; // divide by 4 for sb21
@@ -946,6 +942,9 @@ global_variable init_em_db_sb(	int 				EM_database,
 				else if (gv.buffer_n >= 1.0){
 					buffer_n = 1.0-1e-8;
 				}
+				else{
+					buffer_n = gv.buffer_n;
+				}
 				double G0 = FeO.gbase;
 				if (gv.EM_database == 1 || gv.EM_database == 2){
 					G0 /= 4.0; // divide by 4 for sb21
@@ -991,6 +990,9 @@ global_variable init_em_db_sb(	int 				EM_database,
 				}
 				else if (gv.buffer_n >= 1.0){
 					buffer_n = 1.0-1e-8;
+				}
+				else{
+					buffer_n = gv.buffer_n;
 				}
 
 				PP_ref_db[i].gbase   =  z_b.R * z_b.T*log(buffer_n) + Al2O3.gbase;
@@ -1620,15 +1622,7 @@ global_variable init_em_db_gh(	int 				EM_database,
 								global_variable 	gv,
 								PP_ref 			   *PP_ref_db
 ){
-		/* runs before GH_SS_objective_init_function (MAGEMin.c's own call
-		   order), so GH_actual_EM_database must ALSO be set here - not
-		   just there - otherwise the very first gbase computation for gh
-		   (this function, and init_ss_db_gh's own equivalent) would still
-		   see the stale default. See GH_gem_function.c's header comment
-		   and [[gh-multicalibration-xmelts-rmelts-pmelts]]. */
 		double buffer_n;
-
-		GH_actual_EM_database = gv.EM_database;
 		char state[] = "equilibrium";
 		int sum_zel;
 		for (int i = 0; i < gv.len_pp; i++){
@@ -1927,7 +1921,7 @@ global_variable init_em_db_gh(	int 				EM_database,
 
 			if (gv.verbose==1){
 				printf("\n %4s:  %+10f %+10f\n",gv.PP_list[i],PP_ref_db[i].gbase, PP_ref_db[i].factor);
-				if (GH_actual_EM_database == 2){
+				if (gv.EM_database == 2){
 					printf(" S   A   C   M   F   K   N   T   O   Mn  Cr  H\n");
 				}
 				else {

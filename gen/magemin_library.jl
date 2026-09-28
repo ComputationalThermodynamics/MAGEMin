@@ -702,6 +702,7 @@ end
 
 mutable struct PC_refs
     ss_pc_xeos::Ptr{ss_pc}
+    pc_own::Ptr{ss_pc}
     PC_refs() = new()
 end
 
@@ -956,12 +957,16 @@ function runMAGEMin(argc, argv)
     ccall((:runMAGEMin, libMAGEMin), Cint, (Cint, Ptr{Ptr{Cchar}}), argc, argv)
 end
 
-function find_EM_id(em_tag)
-    ccall((:find_EM_id, libMAGEMin), Cint, (Ptr{Cchar},), em_tag)
+function find_EM_id(research_group, EM_dataset, em_tag)
+    ccall((:find_EM_id, libMAGEMin), Cint, (Ptr{Cchar}, Cint, Ptr{Cchar}), research_group, EM_dataset, em_tag)
 end
 
 function find_DEW_id(em_tag)
     ccall((:find_DEW_id, libMAGEMin), Cint, (Ptr{Cchar},), em_tag)
+end
+
+function check_lookup_id(id, kind, name)
+    ccall((:check_lookup_id, libMAGEMin), Cvoid, (Cint, Ptr{Cchar}, Ptr{Cchar}), id, kind, name)
 end
 
 # typedef double ( * obj_type ) ( unsigned n , const double * x , double * grad , void * SS_ref_db )
@@ -1059,6 +1064,7 @@ struct SS_refs
     gbase::Ptr{Cdouble}
     mu_comp::Ptr{Ptr{Cdouble}}
     dew_warm_ok::Cint
+    dew_warm_G::Cdouble
     mu_array::Ptr{Ptr{Cdouble}}
     gb_lvl::Ptr{Cdouble}
     factor::Cdouble
@@ -1102,6 +1108,8 @@ struct SS_refs
     phase_density::Cdouble
     volume::Cdouble
     mass::Cdouble
+    EM_database::Cint
+    gh_multistart_order::Cint
 end
 
 const SS_ref = SS_refs
@@ -3246,8 +3254,8 @@ function GH_NLopt_opt_init(NLopt_opt, gv)
     ccall((:GH_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
 end
 
-function GH_pc_init_function(SS_pc_xeos, iss, name, z_em, EM_database)
-    ccall((:GH_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}, Ptr{Cdouble}, Cint), SS_pc_xeos, iss, name, z_em, EM_database)
+function GH_pc_init_function(SS_pc_xeos, iss, name, EM_database)
+    ccall((:GH_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}, Cint), SS_pc_xeos, iss, name, EM_database)
 end
 
 function G_SS_br_ctd_init_function(SS_ref_db, gv)
@@ -3570,8 +3578,8 @@ function BR_NLopt_opt_init(NLopt_opt, gv)
     ccall((:BR_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
 end
 
-function BR_pc_init_function(SS_pc_xeos, iss, name, z_em)
-    ccall((:BR_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}, Ptr{Cdouble}), SS_pc_xeos, iss, name, z_em)
+function BR_pc_init_function(SS_pc_xeos, iss, name)
+    ccall((:BR_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
 end
 
 function PGE(z_b, gv, PC_read, SS_objective, NLopt_opt, splx_data, PP_ref_db, SS_ref_db, cp)
@@ -3634,14 +3642,39 @@ function mergeParallel_LevellingGamma_Files(gv)
     ccall((:mergeParallel_LevellingGamma_Files, libMAGEMin), Cvoid, (global_variable,), gv)
 end
 
-mutable struct EM2id_
+struct EM2id_
     EM_tag::NTuple{20, Cchar}
     id::Cint
     hh::UT_hash_handle
-    EM2id_() = new()
 end
 
 const EM2id = EM2id_
+
+mutable struct EM_tables_
+    research_group::NTuple{20, Cchar}
+    EM_dataset::Cint
+    n_names::Cint
+    table::Ptr{EM2id}
+    EM_tables_() = new()
+end
+
+const EM_table = EM_tables_
+
+function get_EM_index(research_group, EM_dataset, n_names)
+    ccall((:get_EM_index, libMAGEMin), Cint, (Ptr{Cchar}, Cint, Cint), research_group, EM_dataset, n_names)
+end
+
+function get_EM_table(research_group, EM_dataset, n_names)
+    ccall((:get_EM_table, libMAGEMin), Ptr{EM2id}, (Ptr{Cchar}, Cint, Cint), research_group, EM_dataset, n_names)
+end
+
+function warn_tag_truncation(kind, name, cap)
+    ccall((:warn_tag_truncation, libMAGEMin), Cvoid, (Ptr{Cchar}, Ptr{Cchar}, Csize_t), kind, name, cap)
+end
+
+function register_EM_table(research_group, EM_dataset, names, n_names)
+    ccall((:register_EM_table, libMAGEMin), Cvoid, (Ptr{Cchar}, Cint, Ptr{Ptr{Cchar}}, Cint), research_group, EM_dataset, names, n_names)
+end
 
 mutable struct DEW2id_
     DEW_tag::NTuple{20, Cchar}
@@ -3652,17 +3685,8 @@ end
 
 const DEW2id = DEW2id_
 
-mutable struct PP2id_
-    PP_tag::NTuple{20, Cchar}
-    id::Cint
-    hh::UT_hash_handle
-    PP2id_() = new()
-end
-
-const PP2id = PP2id_
-
-function find_PP_id(PP_tag)
-    ccall((:find_PP_id, libMAGEMin), Cint, (Ptr{Cchar},), PP_tag)
+function register_DEW_table(names, n_names)
+    ccall((:register_DEW_table, libMAGEMin), Cvoid, (Ptr{Ptr{Cchar}}, Cint), names, n_names)
 end
 
 function read_in_data(gv, input_data, n_points)
@@ -4108,6 +4132,8 @@ const n_ox_ig = 11
 const n_ss_ig = 17
 
 const n_pp_ig = 27
+
+const n_EM_tables_max = 64
 
 const ko_no_argument = 0
 

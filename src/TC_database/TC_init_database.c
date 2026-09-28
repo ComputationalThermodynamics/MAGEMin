@@ -192,7 +192,7 @@ igneous_igad_dataset igneous_igad_db = {
 	{"spl"	,"cpx"	,"g"	,"ilm"	,"liq"	,"ol"	,"opx"	,"fsp"	,"lct"	,"mel"	,"nph"	,"kals"		},
 	
 	{1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1		,1		,1			}, // allow solvus?
-	{3318	,4128	,2450	,1671	,4910	,381	,3413	,861	,21		,270	,1210	,21			}, // # of pseudocompound
+	{3318	,4128	,2450	,1671	,4914	,381	,3413	,861	,21		,270	,1210	,21			}, // # of pseudocompound
 	{0.195	,0.249	,0.145	,0.05	,0.1	,0.098	,0.249	,0.0249	,0.049	,0.19	,0.149 	,0.049		}, // discretization step
 
 	6.0, 						/** max dG under which a phase is considered to be reintroduced  					*/
@@ -1578,76 +1578,76 @@ global_variable get_bulk_igneous_igd( global_variable gv) {
 			printf("   - No predefined bulk provided -> user custom bulk (if none provided, will run default KLB1)\n");	
 		}	
 	}
-	if (gv.test == 0){ //Ne-syenite
-		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 H2O */
-		/* Weller et al., 2023: New thermodynamic models for alkaline systems */
-		gv.bulk_rock[0]  = 63.84 ;		/** SiO2 	*/
-		gv.bulk_rock[1]  = 13.72;		/** Al2O2 	*/
-		gv.bulk_rock[2]  = 3.09;		/** CaO  	*/
-		gv.bulk_rock[3]  = 1.55;		/** MgO 	*/
-		gv.bulk_rock[4]  = 5.07;		/** FeOt 	*/
-		gv.bulk_rock[5]  = 4.04;		/** K2O	 	*/
-		gv.bulk_rock[6]  = 9.38;		/** Na2O 	*/
-		gv.bulk_rock[7]  = 0.78;		/** TiO2 	*/
-		gv.bulk_rock[8]  = 1.47;		/** O 		*/
-		gv.bulk_rock[9]  = 0.01;		/** Cr2O3 	*/
-	}
-	else if (gv.test == 1){ // Syenite
+	if (gv.test == 0){ //KLB1 Peridotite - Anhydrous
 		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 */
-		/* Weller et al., 2023: New thermodynamic models for alkaline systems */
-		gv.bulk_rock[0] = 70.06;	
-		gv.bulk_rock[1] = 11.63;	
-		gv.bulk_rock[2] = 2.76;	
-		gv.bulk_rock[3] = 1.50;	
-		gv.bulk_rock[4] = 4.30;	
-		gv.bulk_rock[5] = 3.72;	
-		gv.bulk_rock[6]  = 6.41;
-		gv.bulk_rock[7]  = 0.51;
-		gv.bulk_rock[8]  = 0.89;
-		gv.bulk_rock[9]  = 0.01;
-	}
-	else if (gv.test == 2){ // Ijolite
-		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 */
-		/* Weller et al., 2023: New thermodynamic models for alkaline systems */
-		gv.bulk_rock[0] = 48.97;	
-		gv.bulk_rock[1] = 12.76;	
-		gv.bulk_rock[2] = 12.87;	
-		gv.bulk_rock[3] = 5.21;	
-		gv.bulk_rock[4] = 7.97;	
-		gv.bulk_rock[5] = 1.66;	
-		gv.bulk_rock[6]  = 10.66;
-		gv.bulk_rock[7]  = 1.36;
-		gv.bulk_rock[8]  = 1.66;
-		gv.bulk_rock[9]  = 0.01;
-	}  
-	else if (gv.test == 3){ // 9418-Fig 3c
-		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 */
-		/* Weller et al., 2023: New thermodynamic models for alkaline systems */
-		gv.bulk_rock[0] = 53.221;	
-		gv.bulk_rock[1] = 11.671;	
-		gv.bulk_rock[2] = 10.009;	
-		gv.bulk_rock[3] = 6.597;	
-		gv.bulk_rock[4] = 7.053;	
-		gv.bulk_rock[5] = 5.582;	
-		gv.bulk_rock[6]  = 2.956;
-		gv.bulk_rock[7]  = 0.825;
-		gv.bulk_rock[8]  = 1.94;
-		gv.bulk_rock[9]  = 0.146;
-	}  
-	else if (gv.test == 4){ //KLB1
-		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 */
-		/* Bulk rock composition of Peridotite from Holland et al., 2018, given by E. Green */
-		gv.bulk_rock[0]  = 38.494 ;		/** SiO2 	*/
-		gv.bulk_rock[1]  = 1.776;		/** Al2O2 	*/
-		gv.bulk_rock[2]  = 2.824;		/** CaO  	*/
+		/* Holland et al., 2018 */
+		gv.bulk_rock[0]  = 38.494;		/** SiO2 	*/
+		gv.bulk_rock[1]  = 1.776;		/** Al2O3 	*/
+		gv.bulk_rock[2]  = 2.824;		/** CaO 	*/
 		gv.bulk_rock[3]  = 50.566;		/** MgO 	*/
 		gv.bulk_rock[4]  = 5.886;		/** FeO 	*/
-		gv.bulk_rock[5]  = 0.01;		/** K2O	 	*/
-		gv.bulk_rock[6]  = 0.250;		/** Na2O 	*/
-		gv.bulk_rock[7]  = 0.10;		/** TiO2 	*/
-		gv.bulk_rock[8]  = 0.096;		/** O 		*/
+		gv.bulk_rock[5]  = 0.01;		/** K2O 	*/
+		gv.bulk_rock[6]  = 0.25;		/** Na2O 	*/
+		gv.bulk_rock[7]  = 0.1;		/** TiO2 	*/
+		gv.bulk_rock[8]  = 0.096;		/** O 	*/
 		gv.bulk_rock[9]  = 0.109;		/** Cr2O3 	*/
-	}   
+	}
+	else if (gv.test == 1){ //RE46 - Icelandic basalt
+		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 */
+		/* Yang et al., 1996 */
+		gv.bulk_rock[0]  = 50.72;		/** SiO2 	*/
+		gv.bulk_rock[1]  = 9.16;		/** Al2O3 	*/
+		gv.bulk_rock[2]  = 15.21;		/** CaO 	*/
+		gv.bulk_rock[3]  = 16.25;		/** MgO 	*/
+		gv.bulk_rock[4]  = 7.06;		/** FeO 	*/
+		gv.bulk_rock[5]  = 0.01;		/** K2O 	*/
+		gv.bulk_rock[6]  = 1.47;		/** Na2O 	*/
+		gv.bulk_rock[7]  = 0.39;		/** TiO2 	*/
+		gv.bulk_rock[8]  = 0.35;		/** O 	*/
+		gv.bulk_rock[9]  = 0.01;		/** Cr2O3 	*/
+	}
+	else if (gv.test == 2){ //CMV - High-Ti ultramafic
+		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 */
+		/* Partial melting of high-Ti ultramafic composition CMV */
+		gv.bulk_rock[0]  = 35.95;		/** SiO2 	*/
+		gv.bulk_rock[1]  = 2.91;		/** Al2O3 	*/
+		gv.bulk_rock[2]  = 3.82;		/** CaO 	*/
+		gv.bulk_rock[3]  = 38.0;		/** MgO 	*/
+		gv.bulk_rock[4]  = 12.96;		/** FeO 	*/
+		gv.bulk_rock[5]  = 0.15;		/** K2O 	*/
+		gv.bulk_rock[6]  = 0.24;		/** Na2O 	*/
+		gv.bulk_rock[7]  = 5.9;		/** TiO2 	*/
+		gv.bulk_rock[8]  = 0.0;		/** O 	*/
+		gv.bulk_rock[9]  = 0.06;		/** Cr2O3 	*/
+	}
+	else if (gv.test == 3){ //Sample 10084
+		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 */
+		/* Apollo 11 high-Ti mare basalt */
+		gv.bulk_rock[0]  = 43.87;		/** SiO2 	*/
+		gv.bulk_rock[1]  = 8.57;		/** Al2O3 	*/
+		gv.bulk_rock[2]  = 14.23;		/** CaO 	*/
+		gv.bulk_rock[3]  = 12.67;		/** MgO 	*/
+		gv.bulk_rock[4]  = 14.03;		/** FeO 	*/
+		gv.bulk_rock[5]  = 0.09;		/** K2O 	*/
+		gv.bulk_rock[6]  = 0.42;		/** Na2O 	*/
+		gv.bulk_rock[7]  = 5.99;		/** TiO2 	*/
+		gv.bulk_rock[8]  = 0.0;		/** O 	*/
+		gv.bulk_rock[9]  = 0.12;		/** Cr2O3 	*/
+	}
+	else if (gv.test == 4){ //TiCum
+		/* SiO2 Al2O3 CaO MgO FeO K2O Na2O TiO2 O Cr2O3 */
+		/* Ti-cumulate composition */
+		gv.bulk_rock[0]  = 43.74;		/** SiO2 	*/
+		gv.bulk_rock[1]  = 1.73;		/** Al2O3 	*/
+		gv.bulk_rock[2]  = 9.24;		/** CaO 	*/
+		gv.bulk_rock[3]  = 11.75;		/** MgO 	*/
+		gv.bulk_rock[4]  = 26.02;		/** FeO 	*/
+		gv.bulk_rock[5]  = 0.07;		/** K2O 	*/
+		gv.bulk_rock[6]  = 0.2;		/** Na2O 	*/
+		gv.bulk_rock[7]  = 7.2;		/** TiO2 	*/
+		gv.bulk_rock[8]  = 0.0;		/** O 	*/
+		gv.bulk_rock[9]  = 0.04;		/** Cr2O3 	*/
+	}
 	else{
 		printf("Unknown test %i - please specify a different test! \n", gv.test);
 	 	exit(EXIT_FAILURE);

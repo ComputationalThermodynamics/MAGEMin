@@ -15407,7 +15407,8 @@ void SS_um_pc_init_function(	PC_ref 	*SS_pc_xeos,
 		SS_pc_xeos[iss].ss_pc_xeos  = ume_occm_pc_xeos; 		}
 	else if (strcmp( name, "DEW") == 0){
 		enum { DEW_N_PROFILES = 5 };
-		static struct ss_pc DEW_pc_xeos[DEW_N_PROFILES];
+		struct ss_pc *DEW_pc_xeos = calloc(DEW_N_PROFILES, sizeof(struct ss_pc));
+		SS_pc_xeos[iss].pc_own = DEW_pc_xeos;
 
 		int id[gv.len_ox];
 		DEW_build_id_map(gv.len_ox, gv.ox, id);

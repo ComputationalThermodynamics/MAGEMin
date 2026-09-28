@@ -16,7 +16,7 @@
     p[i] = x[i] directly (no reduced/rotated basis), with the Sigma(p)=1
     closure enforced by an NLopt equality constrain.
 
-    rMELTS only (GH_actual_EM_database==1): also includes real rMELTS'
+    rMELTS only (d->EM_database==1): also includes real rMELTS'
     embedded liquid speciation reaction CaSiO3 + CO2 <-> SiO2 + CaCO3
     (hidden species s), FIXED 2026-07-14 - see [[gh-gexcess-verification]].
     A first attempt at this same fix (earlier the same day, see
@@ -42,27 +42,6 @@
 #include "gh_objective_functions.h"
 #include "GH_fluid_eos.h"
 #include "GH_gem_function.h"
-
-/** Mirrors gv.gh_multistart_order (obj_gh_spn's own signature is fixed by
-    NLopt's callback interface and doesn't receive gv directly) - copied
-    once in GH_SS_objective_init_function, which does receive gv. Default 0
-    matches real xMELTS' own order() function exactly (single physically-
-    motivated starting guess, no multi-start) - see MAGEMin.h. */
-static int GH_spn_multistart_flag = 0;
-
-/** cpx's SS2 Taylor coefficient is xMELTS-only in real clinopyroxene.c
-    ("#define SS2 ((calculationMode == MODE_xMELTS) ? 0.25*(S027) : 0.0)")
-    - set once by GH_SS_objective_init_function per gv.EM_database, read
-    by the huge cpx constant table further down. Default matches xMELTS
-    (EM_database==0) in case this is ever read before init runs. */
-static double GH_cpx_SS2 = -1.08018328;
-/** Same role as GH_cpx_SS2 but for opx: real orthopyroxene.c has the
-    IDENTICAL "#define SS2 ((calculationMode==MODE_xMELTS)?0.25*(S027):0.0)"
-    macro text - only the VALUE of S027 differs (oS027, since opx's own
-    file-local "clino" always resolves FALSE), giving 0.25*oS027 =
-    -0.57977688 instead of cpx's 0.25*cS027 = -1.08018328. See obj_gh_opx's
-    header comment. */
-static double GH_opx_SS2 = -0.57977688;
 
 /** rMELTS-only liquid speciation reaction CaSiO3 + CO2 <-> SiO2 + CaCO3
     (hidden species, extent s). W(CaCO3,X) for gh's own 13 rMELTS liq
@@ -263,7 +242,7 @@ double obj_gh_liq(unsigned n, const double *x, double *grad, void *SS_ref_db){
        zero in the limit, not an approximation of it. */
     double dGex_rmelts = 0.0;
     double dSi_rmelts[13] = {0.0};
-    if (GH_actual_EM_database == 1 && n_em == 13){
+    if (d->EM_database == 1 && n_em == 13){
         /* d->W[]/GH_rmelts_Wcc[] are raw J (same convention mu_Gex's own
            /1000.0 conversion already relies on); d->R is kJ-scaled
            (0.0083144) for direct use against df_raw. This whole block
@@ -1711,7 +1690,7 @@ double obj_gh_spn(unsigned n, const double *x, double *grad, void *SS_ref_db){
         s1 = xal3oct0-xal3tet0/2.0;
         s2 = xfe3oct0-xfe3tet0/2.0;
     }
-    if (!GH_spn_multistart_flag){
+    if (!d->gh_multistart_order){
         double cs0, cs1, cs2;
         GH_spn_solve_s_from(p0,p2,p3,p4,T,Rgas,gc,d->d_em[2],s0,s1,s2,&cs0,&cs1,&cs2);
         s0 = cs0; s1 = cs1; s2 = cs2;
@@ -2772,13 +2751,8 @@ double obj_gh_kls(unsigned n, const double *x, double *grad, void *SS_ref_db){
        matching the value below) is xMELTS-only; rMELTS/pMELTS both use
        0.0 instead. Every OTHER constant in this table is a genuine
        compile-time constant (fine as "static const" at this file scope);
-       this one alone needs a runtime value, set by
-       GH_SS_objective_init_function into the file-scope GH_cpx_SS2
-       variable declared near GH_spn_multistart_flag above - so every
-       formula below that used the extracted "SS2" constant now reads
-       GH_cpx_SS2 directly instead (a file-scope "static const double SS2
-       = GH_cpx_SS2;" here would itself violate C's compile-time-constant-
-       initializer rule for statics, hence no local alias). Found while
+       this one alone depends on the calibration, so obj_gh_cpx
+       computes it from d->EM_database and passes it down as SS2. Found while
        wiring multi-calibration support, 2026-07-14. */
     static const double SS2S2 = 0, SX2 = 0;
     static const double SX2S1 = 0, SX2S2 = 0, SX2X2 = 0;
@@ -2863,11 +2837,11 @@ static void GH_cpx_composites(double xmg2m1,double xfe2m1,double xti4m1,double x
 }
 
 static void GH_cpx_dgds(double r0,double r1,double r2,double r3,double r4,double r5,double s0,double s1,
-                         double T,double Rgas,double Pv,double *dgds0,double *dgds1){
+                         double T,double Rgas,double Pv,double SS2,double *dgds0,double *dgds1){
     double xal3m1,xfe2m1,xfe3m1,xmg2m1,xti4m1,xca2m2,xfe2m2,xmg2m2,xna1m2,xal3tet,xfe3tet,xsi4tet;
     GH_cpx_site_fracs(r0,r1,r2,r3,r4,r5,s0,s1,&xal3m1,&xfe2m1,&xfe3m1,&xmg2m1,&xti4m1,&xca2m2,&xfe2m2,&xmg2m2,&xna1m2,&xal3tet,&xfe3tet,&xsi4tet);
     *dgds0 = 0.5*Rgas*T*(creal(clog(xfe3m1))-creal(clog(xal3m1))+creal(clog(xal3tet))-creal(clog(xfe3tet))) +                ((HS1)-T*(SS1)+Pv*(VS1)) +                ((HX2S1)-T*(SX2S1)+Pv*(VX2S1))*r0 +                ((HX3S1)-T*(SX3S1)+Pv*(VX3S1))*r1 +                ((HX4S1)-T*(SX4S1)+Pv*(VX4S1))*r2 +                ((HX5S1)-T*(SX5S1)+Pv*(VX5S1))*r3 +                ((HX6S1)-T*(SX6S1)+Pv*(VX6S1))*r4 +                ((HX7S1)-T*(SX7S1)+Pv*(VX7S1))*r5 +                ((HS1S1)-T*(SS1S1)+Pv*(VS1S1))*s0*2.0 +                ((HS1S2)-T*(SS1S2)+Pv*(VS1S2))*s1;
-    *dgds1 = 0.5*Rgas*T*(creal(clog(xmg2m1))-creal(clog(xfe2m1))+creal(clog(xfe2m2))-creal(clog(xmg2m2))) +                ((HS2)-T*(GH_cpx_SS2)+Pv*(VS2)) +                ((HX2S2)-T*(SX2S2)+Pv*(VX2S2))*r0 +                ((HX3S2)-T*(SX3S2)+Pv*(VX3S2))*r1 +                ((HX4S2)-T*(SX4S2)+Pv*(VX4S2))*r2 +                ((HX5S2)-T*(SX5S2)+Pv*(VX5S2))*r3 +                ((HX6S2)-T*(SX6S2)+Pv*(VX6S2))*r4 +                ((HX7S2)-T*(SX7S2)+Pv*(VX7S2))*r5 +                ((HS1S2)-T*(SS1S2)+Pv*(VS1S2))*s0 +                ((HS2S2)-T*(SS2S2)+Pv*(VS2S2))*s1*2.0 +                ((HX2X2S2)+Pv*(VX2X2S2))*r0*r0 +                ((HX2X3S2)+Pv*(VX2X3S2))*r0*r1 +                ((HX2X4S2)+Pv*(VX2X4S2))*r0*r2 +                ((HX2X5S2)+Pv*(VX2X5S2))*r0*r3 +                ((HX2X6S2)+Pv*(VX2X6S2))*r0*r4 +                ((HX2X7S2)+Pv*(VX2X7S2))*r0*r5 +                ((HX2S2S2)+Pv*(VX2S2S2))*r0*s1*2.0 +                ((HX3X3S2)+Pv*(VX3X3S2))*r1*r1 +                ((HX3X4S2)+Pv*(VX3X4S2))*r1*r2 +                ((HX3X5S2)+Pv*(VX3X5S2))*r1*r3 +                ((HX3X6S2)+Pv*(VX3X6S2))*r1*r4 +                ((HX3X7S2)-T*(SX3X7S2)+Pv*(VX3X7S2))*r1*r5 +                ((HX3S2S2)+Pv*(VX3S2S2))*r1*s1*2.0 +                ((HX4X4S2)+Pv*(VX4X4S2))*r2*r2 +                ((HX4X5S2)+Pv*(VX4X5S2))*r2*r3 +                ((HX4X6S2)+Pv*(VX4X6S2))*r2*r4 +                ((HX4X7S2)-T*(SX4X7S2)+Pv*(VX4X7S2))*r2*r5 +                ((HX4S2S2)+Pv*(VX4S2S2))*r2*s1*2.0 +                ((HX5X5S2)+Pv*(VX5X5S2))*r3*r3 +                ((HX5X6S2)+Pv*(VX5X6S2))*r3*r4 +                ((HX5X7S2)-T*(SX5X7S2)+Pv*(VX5X7S2))*r3*r5 +                ((HX5S2S2)+Pv*(VX5S2S2))*r3*s1*2.0 +                ((HX6X6S2)+Pv*(VX6X6S2))*r4*r4 +                ((HX6X7S2)-T*(SX6X7S2)+Pv*(VX6X7S2))*r4*r5 +                ((HX6S2S2)+Pv*(VX6S2S2))*r4*s1*2.0 +                ((HX7X7S2)-T*(SX7X7S2)+Pv*(VX7X7S2))*r5*r5 +                ((HX7S2S2)+Pv*(VX7S2S2))*r5*s1*2.0;
+    *dgds1 = 0.5*Rgas*T*(creal(clog(xmg2m1))-creal(clog(xfe2m1))+creal(clog(xfe2m2))-creal(clog(xmg2m2))) +                ((HS2)-T*(SS2)+Pv*(VS2)) +                ((HX2S2)-T*(SX2S2)+Pv*(VX2S2))*r0 +                ((HX3S2)-T*(SX3S2)+Pv*(VX3S2))*r1 +                ((HX4S2)-T*(SX4S2)+Pv*(VX4S2))*r2 +                ((HX5S2)-T*(SX5S2)+Pv*(VX5S2))*r3 +                ((HX6S2)-T*(SX6S2)+Pv*(VX6S2))*r4 +                ((HX7S2)-T*(SX7S2)+Pv*(VX7S2))*r5 +                ((HS1S2)-T*(SS1S2)+Pv*(VS1S2))*s0 +                ((HS2S2)-T*(SS2S2)+Pv*(VS2S2))*s1*2.0 +                ((HX2X2S2)+Pv*(VX2X2S2))*r0*r0 +                ((HX2X3S2)+Pv*(VX2X3S2))*r0*r1 +                ((HX2X4S2)+Pv*(VX2X4S2))*r0*r2 +                ((HX2X5S2)+Pv*(VX2X5S2))*r0*r3 +                ((HX2X6S2)+Pv*(VX2X6S2))*r0*r4 +                ((HX2X7S2)+Pv*(VX2X7S2))*r0*r5 +                ((HX2S2S2)+Pv*(VX2S2S2))*r0*s1*2.0 +                ((HX3X3S2)+Pv*(VX3X3S2))*r1*r1 +                ((HX3X4S2)+Pv*(VX3X4S2))*r1*r2 +                ((HX3X5S2)+Pv*(VX3X5S2))*r1*r3 +                ((HX3X6S2)+Pv*(VX3X6S2))*r1*r4 +                ((HX3X7S2)-T*(SX3X7S2)+Pv*(VX3X7S2))*r1*r5 +                ((HX3S2S2)+Pv*(VX3S2S2))*r1*s1*2.0 +                ((HX4X4S2)+Pv*(VX4X4S2))*r2*r2 +                ((HX4X5S2)+Pv*(VX4X5S2))*r2*r3 +                ((HX4X6S2)+Pv*(VX4X6S2))*r2*r4 +                ((HX4X7S2)-T*(SX4X7S2)+Pv*(VX4X7S2))*r2*r5 +                ((HX4S2S2)+Pv*(VX4S2S2))*r2*s1*2.0 +                ((HX5X5S2)+Pv*(VX5X5S2))*r3*r3 +                ((HX5X6S2)+Pv*(VX5X6S2))*r3*r4 +                ((HX5X7S2)-T*(SX5X7S2)+Pv*(VX5X7S2))*r3*r5 +                ((HX5S2S2)+Pv*(VX5S2S2))*r3*s1*2.0 +                ((HX6X6S2)+Pv*(VX6X6S2))*r4*r4 +                ((HX6X7S2)-T*(SX6X7S2)+Pv*(VX6X7S2))*r4*r5 +                ((HX6S2S2)+Pv*(VX6S2S2))*r4*s1*2.0 +                ((HX7X7S2)-T*(SX7X7S2)+Pv*(VX7X7S2))*r5*r5 +                ((HX7S2S2)+Pv*(VX7S2S2))*r5*s1*2.0;
 }
 
 static void GH_cpx_bounds_s0(double r1,double r2,double r3,double r4,double eps,double *lo,double *hi){
@@ -2910,7 +2884,7 @@ static void GH_cpx_d2gds(double r0,double r1,double r2,double r3,double r4,doubl
    obj_gh_spn's header comment). Reuses GH_cpx_bounds_s0/s1 (already
    verified equivalent to xMELTS' explicit MAX/MIN bound formulas) for
    the clamp step instead of re-deriving xMELTS' explicit expressions. */
-static void GH_cpx_solve_s_from(double r0,double r1,double r2,double r3,double r4,double r5,double T,double Rgas,double Pv,
+static void GH_cpx_solve_s_from(double r0,double r1,double r2,double r3,double r4,double r5,double T,double Rgas,double Pv,double SS2,
                                  double s0init,double s1init,double *s0o,double *s1o){
     const int maxIter = 1000; /* xMELTS' own maxIter (clinopyroxene.c) */
     double eps_s = 1.0e-8;
@@ -2920,7 +2894,7 @@ static void GH_cpx_solve_s_from(double r0,double r1,double r2,double r3,double r
     while ( (fabs(s0-s0Old) > 10.0*2.220446049250313e-16 ||
              fabs(s1-s1Old) > 10.0*2.220446049250313e-16) && iter < maxIter ){
         double dgds0, dgds1;
-        GH_cpx_dgds(r0,r1,r2,r3,r4,r5,s0,s1,T,Rgas,Pv,&dgds0,&dgds1);
+        GH_cpx_dgds(r0,r1,r2,r3,r4,r5,s0,s1,T,Rgas,Pv,SS2,&dgds0,&dgds1);
         double d00, d01, d11;
         GH_cpx_d2gds(r0,r1,r2,r3,r4,r5,s0,s1,T,Rgas,Pv,&d00,&d01,&d11);
 
@@ -2952,24 +2926,24 @@ static void GH_cpx_guess_s(double r0,double r1,double r2,double r3,double r4,dou
     *s1g = (totFe2+totMg != 0.0) ? (1.0-totM2)*(totFe2-totMg)/(totFe2+totMg) : 0.0;
 }
 static double GH_cpx_G_at(double r0,double r1,double r2,double r3,double r4,double r5,double s0,double s1,
-                           double T,double Rgas,double Pv){
+                           double T,double Rgas,double Pv,double SS2){
     double xal3m1,xfe2m1,xfe3m1,xmg2m1,xti4m1,xca2m2,xfe2m2,xmg2m2,xna1m2,xal3tet,xfe3tet,xsi4tet;
     GH_cpx_site_fracs(r0,r1,r2,r3,r4,r5,s0,s1,&xal3m1,&xfe2m1,&xfe3m1,&xmg2m1,&xti4m1,&xca2m2,&xfe2m2,&xmg2m2,&xna1m2,&xal3tet,&xfe3tet,&xsi4tet);
     double xm1_MgFeNoTi,xm1_notTi,xm1_MgFe,xtet_notSi,xrest_notNa,xm1_notMgFe,xm2_notNa;
     GH_cpx_composites(xmg2m1,xfe2m1,xti4m1,xna1m2,xsi4tet,&xm1_MgFeNoTi,&xm1_notTi,&xm1_MgFe,&xtet_notSi,&xrest_notNa,&xm1_notMgFe,&xm2_notNa);
     double SIC = -Rgas*(xmg2m1*creal(clog(xmg2m1))                + xfe2m1*creal(clog(xfe2m1))                + xal3m1*creal(clog(xal3m1))                + xfe3m1*creal(clog(xfe3m1))                + xti4m1*creal(clog(xti4m1))                + (xm1_MgFeNoTi)*creal(clog(xm1_MgFeNoTi))                - (xm1_notTi)*creal(clog(xm1_notTi))                - (xm1_MgFe)*creal(clog(xm1_MgFe))                - 2.0*(xtet_notSi)*creal(clog(xtet_notSi))                + 2.0*xal3tet*creal(clog(xal3tet))                + 2.0*xfe3tet*creal(clog(xfe3tet))                + xca2m2*creal(clog(xca2m2))                + xna1m2*creal(clog(xna1m2))                + xmg2m2*creal(clog(xmg2m2))                + xfe2m2*creal(clog(xfe2m2))                + (xrest_notNa)*creal(clog(xrest_notNa))                - (xm1_notMgFe)*creal(clog(xm1_notMgFe))                - (xm2_notNa)*creal(clog(xm2_notNa)) );
-    return -T*(SIC) + (H0)-T*(S0)+Pv*(V0) +              ((HX2)-T*(SX2)+Pv*(VX2))*r0 +              ((HX3)-T*(SX3)+Pv*(VX3))*r1 +              ((HX4)-T*(SX4)+Pv*(VX4))*r2 +              ((HX5)-T*(SX5)+Pv*(VX5))*r3 +              ((HX6)-T*(SX6)+Pv*(VX6))*r4 +              ((HX7)-T*(SX7)+Pv*(VX7))*r5 +              ((HS1)-T*(SS1)+Pv*(VS1))*s0 +              ((HS2)-T*(GH_cpx_SS2)+Pv*(VS2))*s1 +              ((HX2X2)-T*(SX2X2)+Pv*(VX2X2))*r0*r0 +              ((HX2X3)-T*(SX2X3)+Pv*(VX2X3))*r0*r1 +              ((HX2X4)-T*(SX2X4)+Pv*(VX2X4))*r0*r2 +              ((HX2X5)-T*(SX2X5)+Pv*(VX2X5))*r0*r3 +              ((HX2X6)-T*(SX2X6)+Pv*(VX2X6))*r0*r4 +              ((HX2X7)-T*(SX2X7)+Pv*(VX2X7))*r0*r5 +              ((HX2S1)-T*(SX2S1)+Pv*(VX2S1))*r0*s0 +              ((HX2S2)-T*(SX2S2)+Pv*(VX2S2))*r0*s1 +              ((HX3X3)-T*(SX3X3)+Pv*(VX3X3))*r1*r1 +              ((HX3X4)-T*(SX3X4)+Pv*(VX3X4))*r1*r2 +              ((HX3X5)-T*(SX3X5)+Pv*(VX3X5))*r1*r3 +              ((HX3X6)-T*(SX3X6)+Pv*(VX3X6))*r1*r4 +              ((HX3X7)-T*(SX3X7)+Pv*(VX3X7))*r1*r5 +              ((HX3S1)-T*(SX3S1)+Pv*(VX3S1))*r1*s0 +              ((HX3S2)-T*(SX3S2)+Pv*(VX3S2))*r1*s1 +              ((HX4X4)-T*(SX4X4)+Pv*(VX4X4))*r2*r2 +              ((HX4X5)-T*(SX4X5)+Pv*(VX4X5))*r2*r3 +              ((HX4X6)-T*(SX4X6)+Pv*(VX4X6))*r2*r4 +              ((HX4X7)-T*(SX4X7)+Pv*(VX4X7))*r2*r5 +              ((HX4S1)-T*(SX4S1)+Pv*(VX4S1))*r2*s0 +              ((HX4S2)-T*(SX4S2)+Pv*(VX4S2))*r2*s1 +              ((HX5X5)-T*(SX5X5)+Pv*(VX5X5))*r3*r3 +              ((HX5X6)-T*(SX5X6)+Pv*(VX5X6))*r3*r4 +              ((HX5X7)-T*(SX5X7)+Pv*(VX5X7))*r3*r5 +              ((HX5S1)-T*(SX5S1)+Pv*(VX5S1))*r3*s0 +              ((HX5S2)-T*(SX5S2)+Pv*(VX5S2))*r3*s1 +              ((HX6X6)-T*(SX6X6)+Pv*(VX6X6))*r4*r4 +              ((HX6X7)-T*(SX6X7)+Pv*(VX6X7))*r4*r5 +              ((HX6S1)-T*(SX6S1)+Pv*(VX6S1))*r4*s0 +              ((HX6S2)-T*(SX6S2)+Pv*(VX6S2))*r4*s1 +              ((HX7X7)-T*(SX7X7)+Pv*(VX7X7))*r5*r5 +              ((HX7S1)-T*(SX7S1)+Pv*(VX7S1))*r5*s0 +              ((HX7S2)-T*(SX7S2)+Pv*(VX7S2))*r5*s1 +              ((HS1S1)-T*(SS1S1)+Pv*(VS1S1))*s0*s0 +              ((HS1S2)-T*(SS1S2)+Pv*(VS1S2))*s0*s1 +              ((HS2S2)-T*(SS2S2)+Pv*(VS2S2))*s1*s1 +              ((HX2X2X7)+Pv*(VX2X2X7))*r0*r0*r5 +              ((HX2X2S2)+Pv*(VX2X2S2))*r0*r0*s1 +              ((HX2X3X7)+Pv*(VX2X3X7))*r0*r1*r5 +              ((HX2X3S2)+Pv*(VX2X3S2))*r0*r1*s1 +              ((HX2X4X7)+Pv*(VX2X4X7))*r0*r2*r5 +              ((HX2X4S2)+Pv*(VX2X4S2))*r0*r2*s1 +              ((HX2X5X7)+Pv*(VX2X5X7))*r0*r3*r5 +              ((HX2X5S2)+Pv*(VX2X5S2))*r0*r3*s1 +              ((HX2X6X7)+Pv*(VX2X6X7))*r0*r4*r5 +              ((HX2X6S2)+Pv*(VX2X6S2))*r0*r4*s1 +              ((HX2X7X7)-T*(SX2X7X7)+Pv*(VX2X7X7))*r0*r5*r5 +              ((HX2X7S2)+Pv*(VX2X7S2))*r0*r5*s1 +              ((HX2S2S2)+Pv*(VX2S2S2))*r0*s1*s1 +              ((HX3X3X7)+Pv*(VX3X3X7))*r1*r1*r5 +              ((HX3X3S2)+Pv*(VX3X3S2))*r1*r1*s1 +              ((HX3X4X7)+Pv*(VX3X4X7))*r1*r2*r5 +              ((HX3X4S2)+Pv*(VX3X4S2))*r1*r2*s1 +              ((HX3X5X7)+Pv*(VX3X5X7))*r1*r3*r5 +              ((HX3X5S2)+Pv*(VX3X5S2))*r1*r3*s1 +              ((HX3X6X7)+Pv*(VX3X6X7))*r1*r4*r5 +              ((HX3X6S2)+Pv*(VX3X6S2))*r1*r4*s1 +              ((HX3X7X7)-T*(SX3X7X7)+Pv*(VX3X7X7))*r1*r5*r5 +              ((HX3X7S2)-T*(SX3X7S2)+Pv*(VX3X7S2))*r1*r5*s1 +              ((HX3S2S2)+Pv*(VX3S2S2))*r1*s1*s1 +              ((HX4X4X7)+Pv*(VX4X4X7))*r2*r2*r5 +              ((HX4X4S2)+Pv*(VX4X4S2))*r2*r2*s1 +              ((HX4X5X7)+Pv*(VX4X5X7))*r2*r3*r5 +              ((HX4X5S2)+Pv*(VX4X5S2))*r2*r3*s1 +              ((HX4X6X7)+Pv*(VX4X6X7))*r2*r4*r5 +              ((HX4X6S2)+Pv*(VX4X6S2))*r2*r4*s1 +              ((HX4X7X7)-T*(SX4X7X7)+Pv*(VX4X7X7))*r2*r5*r5 +              ((HX4X7S2)-T*(SX4X7S2)+Pv*(VX4X7S2))*r2*r5*s1 +              ((HX4S2S2)+Pv*(VX4S2S2))*r2*s1*s1 +              ((HX5X5X7)+Pv*(VX5X5X7))*r3*r3*r5 +              ((HX5X5S2)+Pv*(VX5X5S2))*r3*r3*s1 +              ((HX5X6X7)+Pv*(VX5X6X7))*r3*r4*r5 +              ((HX5X6S2)+Pv*(VX5X6S2))*r3*r4*s1 +              ((HX5X7X7)-T*(SX5X7X7)+Pv*(VX5X7X7))*r3*r5*r5 +              ((HX5X7S2)-T*(SX5X7S2)+Pv*(VX5X7S2))*r3*r5*s1 +              ((HX5S2S2)+Pv*(VX5S2S2))*r3*s1*s1 +              ((HX6X6X7)+Pv*(VX6X6X7))*r4*r4*r5 +              ((HX6X6S2)+Pv*(VX6X6S2))*r4*r4*s1 +              ((HX6X7X7)-T*(SX6X7X7)+Pv*(VX6X7X7))*r4*r5*r5 +              ((HX6X7S2)-T*(SX6X7S2)+Pv*(VX6X7S2))*r4*r5*s1 +              ((HX6S2S2)+Pv*(VX6S2S2))*r4*s1*s1 +              ((HX7X7X7)-T*(SX7X7X7)+Pv*(VX7X7X7))*r5*r5*r5 +              ((HX7X7S2)-T*(SX7X7S2)+Pv*(VX7X7S2))*r5*r5*s1 +              ((HX7S2S2)+Pv*(VX7S2S2))*r5*s1*s1;
+    return -T*(SIC) + (H0)-T*(S0)+Pv*(V0) +              ((HX2)-T*(SX2)+Pv*(VX2))*r0 +              ((HX3)-T*(SX3)+Pv*(VX3))*r1 +              ((HX4)-T*(SX4)+Pv*(VX4))*r2 +              ((HX5)-T*(SX5)+Pv*(VX5))*r3 +              ((HX6)-T*(SX6)+Pv*(VX6))*r4 +              ((HX7)-T*(SX7)+Pv*(VX7))*r5 +              ((HS1)-T*(SS1)+Pv*(VS1))*s0 +              ((HS2)-T*(SS2)+Pv*(VS2))*s1 +              ((HX2X2)-T*(SX2X2)+Pv*(VX2X2))*r0*r0 +              ((HX2X3)-T*(SX2X3)+Pv*(VX2X3))*r0*r1 +              ((HX2X4)-T*(SX2X4)+Pv*(VX2X4))*r0*r2 +              ((HX2X5)-T*(SX2X5)+Pv*(VX2X5))*r0*r3 +              ((HX2X6)-T*(SX2X6)+Pv*(VX2X6))*r0*r4 +              ((HX2X7)-T*(SX2X7)+Pv*(VX2X7))*r0*r5 +              ((HX2S1)-T*(SX2S1)+Pv*(VX2S1))*r0*s0 +              ((HX2S2)-T*(SX2S2)+Pv*(VX2S2))*r0*s1 +              ((HX3X3)-T*(SX3X3)+Pv*(VX3X3))*r1*r1 +              ((HX3X4)-T*(SX3X4)+Pv*(VX3X4))*r1*r2 +              ((HX3X5)-T*(SX3X5)+Pv*(VX3X5))*r1*r3 +              ((HX3X6)-T*(SX3X6)+Pv*(VX3X6))*r1*r4 +              ((HX3X7)-T*(SX3X7)+Pv*(VX3X7))*r1*r5 +              ((HX3S1)-T*(SX3S1)+Pv*(VX3S1))*r1*s0 +              ((HX3S2)-T*(SX3S2)+Pv*(VX3S2))*r1*s1 +              ((HX4X4)-T*(SX4X4)+Pv*(VX4X4))*r2*r2 +              ((HX4X5)-T*(SX4X5)+Pv*(VX4X5))*r2*r3 +              ((HX4X6)-T*(SX4X6)+Pv*(VX4X6))*r2*r4 +              ((HX4X7)-T*(SX4X7)+Pv*(VX4X7))*r2*r5 +              ((HX4S1)-T*(SX4S1)+Pv*(VX4S1))*r2*s0 +              ((HX4S2)-T*(SX4S2)+Pv*(VX4S2))*r2*s1 +              ((HX5X5)-T*(SX5X5)+Pv*(VX5X5))*r3*r3 +              ((HX5X6)-T*(SX5X6)+Pv*(VX5X6))*r3*r4 +              ((HX5X7)-T*(SX5X7)+Pv*(VX5X7))*r3*r5 +              ((HX5S1)-T*(SX5S1)+Pv*(VX5S1))*r3*s0 +              ((HX5S2)-T*(SX5S2)+Pv*(VX5S2))*r3*s1 +              ((HX6X6)-T*(SX6X6)+Pv*(VX6X6))*r4*r4 +              ((HX6X7)-T*(SX6X7)+Pv*(VX6X7))*r4*r5 +              ((HX6S1)-T*(SX6S1)+Pv*(VX6S1))*r4*s0 +              ((HX6S2)-T*(SX6S2)+Pv*(VX6S2))*r4*s1 +              ((HX7X7)-T*(SX7X7)+Pv*(VX7X7))*r5*r5 +              ((HX7S1)-T*(SX7S1)+Pv*(VX7S1))*r5*s0 +              ((HX7S2)-T*(SX7S2)+Pv*(VX7S2))*r5*s1 +              ((HS1S1)-T*(SS1S1)+Pv*(VS1S1))*s0*s0 +              ((HS1S2)-T*(SS1S2)+Pv*(VS1S2))*s0*s1 +              ((HS2S2)-T*(SS2S2)+Pv*(VS2S2))*s1*s1 +              ((HX2X2X7)+Pv*(VX2X2X7))*r0*r0*r5 +              ((HX2X2S2)+Pv*(VX2X2S2))*r0*r0*s1 +              ((HX2X3X7)+Pv*(VX2X3X7))*r0*r1*r5 +              ((HX2X3S2)+Pv*(VX2X3S2))*r0*r1*s1 +              ((HX2X4X7)+Pv*(VX2X4X7))*r0*r2*r5 +              ((HX2X4S2)+Pv*(VX2X4S2))*r0*r2*s1 +              ((HX2X5X7)+Pv*(VX2X5X7))*r0*r3*r5 +              ((HX2X5S2)+Pv*(VX2X5S2))*r0*r3*s1 +              ((HX2X6X7)+Pv*(VX2X6X7))*r0*r4*r5 +              ((HX2X6S2)+Pv*(VX2X6S2))*r0*r4*s1 +              ((HX2X7X7)-T*(SX2X7X7)+Pv*(VX2X7X7))*r0*r5*r5 +              ((HX2X7S2)+Pv*(VX2X7S2))*r0*r5*s1 +              ((HX2S2S2)+Pv*(VX2S2S2))*r0*s1*s1 +              ((HX3X3X7)+Pv*(VX3X3X7))*r1*r1*r5 +              ((HX3X3S2)+Pv*(VX3X3S2))*r1*r1*s1 +              ((HX3X4X7)+Pv*(VX3X4X7))*r1*r2*r5 +              ((HX3X4S2)+Pv*(VX3X4S2))*r1*r2*s1 +              ((HX3X5X7)+Pv*(VX3X5X7))*r1*r3*r5 +              ((HX3X5S2)+Pv*(VX3X5S2))*r1*r3*s1 +              ((HX3X6X7)+Pv*(VX3X6X7))*r1*r4*r5 +              ((HX3X6S2)+Pv*(VX3X6S2))*r1*r4*s1 +              ((HX3X7X7)-T*(SX3X7X7)+Pv*(VX3X7X7))*r1*r5*r5 +              ((HX3X7S2)-T*(SX3X7S2)+Pv*(VX3X7S2))*r1*r5*s1 +              ((HX3S2S2)+Pv*(VX3S2S2))*r1*s1*s1 +              ((HX4X4X7)+Pv*(VX4X4X7))*r2*r2*r5 +              ((HX4X4S2)+Pv*(VX4X4S2))*r2*r2*s1 +              ((HX4X5X7)+Pv*(VX4X5X7))*r2*r3*r5 +              ((HX4X5S2)+Pv*(VX4X5S2))*r2*r3*s1 +              ((HX4X6X7)+Pv*(VX4X6X7))*r2*r4*r5 +              ((HX4X6S2)+Pv*(VX4X6S2))*r2*r4*s1 +              ((HX4X7X7)-T*(SX4X7X7)+Pv*(VX4X7X7))*r2*r5*r5 +              ((HX4X7S2)-T*(SX4X7S2)+Pv*(VX4X7S2))*r2*r5*s1 +              ((HX4S2S2)+Pv*(VX4S2S2))*r2*s1*s1 +              ((HX5X5X7)+Pv*(VX5X5X7))*r3*r3*r5 +              ((HX5X5S2)+Pv*(VX5X5S2))*r3*r3*s1 +              ((HX5X6X7)+Pv*(VX5X6X7))*r3*r4*r5 +              ((HX5X6S2)+Pv*(VX5X6S2))*r3*r4*s1 +              ((HX5X7X7)-T*(SX5X7X7)+Pv*(VX5X7X7))*r3*r5*r5 +              ((HX5X7S2)-T*(SX5X7S2)+Pv*(VX5X7S2))*r3*r5*s1 +              ((HX5S2S2)+Pv*(VX5S2S2))*r3*s1*s1 +              ((HX6X6X7)+Pv*(VX6X6X7))*r4*r4*r5 +              ((HX6X6S2)+Pv*(VX6X6S2))*r4*r4*s1 +              ((HX6X7X7)-T*(SX6X7X7)+Pv*(VX6X7X7))*r4*r5*r5 +              ((HX6X7S2)-T*(SX6X7S2)+Pv*(VX6X7S2))*r4*r5*s1 +              ((HX6S2S2)+Pv*(VX6S2S2))*r4*s1*s1 +              ((HX7X7X7)-T*(SX7X7X7)+Pv*(VX7X7X7))*r5*r5*r5 +              ((HX7X7S2)-T*(SX7X7S2)+Pv*(VX7X7S2))*r5*r5*s1 +              ((HX7S2S2)+Pv*(VX7S2S2))*r5*s1*s1;
 }
 /* Solve the embedded order-parameter problem at a FIXED r-vector (used
    only for the trial composition itself - see GH_cpx_pure_ES_G below for
    why the 7 pure-endmember reference values do NOT need this) and return
    G(r,s*) there. */
 static double GH_cpx_solve_and_G(double r0,double r1,double r2,double r3,double r4,double r5,
-                                  double T,double Rgas,double Pv,double *s0o,double *s1o){
+                                  double T,double Rgas,double Pv,double SS2,double *s0o,double *s1o){
     double s0g,s1g; GH_cpx_guess_s(r0,r1,r2,r3,r4,r5,&s0g,&s1g);
-    double cs0,cs1; GH_cpx_solve_s_from(r0,r1,r2,r3,r4,r5,T,Rgas,Pv,s0g,s1g,&cs0,&cs1);
+    double cs0,cs1; GH_cpx_solve_s_from(r0,r1,r2,r3,r4,r5,T,Rgas,Pv,SS2,s0g,s1g,&cs0,&cs1);
     *s0o = cs0; *s1o = cs1;
-    return GH_cpx_G_at(r0,r1,r2,r3,r4,r5,cs0,cs1,T,Rgas,Pv);
+    return GH_cpx_G_at(r0,r1,r2,r3,r4,r5,cs0,cs1,T,Rgas,Pv,SS2);
 }
 
 /**
@@ -3006,7 +2980,7 @@ static double GH_cpx_pure_ES_G_at_s(double s,double T,double Rgas,double Pv){
          - T*((S0)+(SX5)+(SS1)*s+(SX5X5)+(SX5S1)*s+(SS1S1)*s*s)
          + Pv*((V0)+(VX5)+(VS1)*s+(VX5X5)+(VS1S1)*s*s+(VX5S1)*s);
 }
-static double GH_cpx_pure_ES_G(double T,double Rgas,double Pv){
+static double GH_cpx_pure_ES_G_compute(double T,double Rgas,double Pv){
     double eps = 1.0e-8, lo = -1.0+eps, hi = 1.0-eps;
     double fa = GH_cpx_pure_ES_dgds(lo,T,Rgas,Pv), fb = GH_cpx_pure_ES_dgds(hi,T,Rgas,Pv);
     double a = lo, b = hi;
@@ -3022,12 +2996,22 @@ static double GH_cpx_pure_ES_G(double T,double Rgas,double Pv){
     return GH_cpx_pure_ES_G_at_s(0.5*(a+b),T,Rgas,Pv);
 }
 
+static double GH_cpx_pure_ES_G(double T,double Rgas,double Pv){
+    static __thread double c_T, c_R, c_P, c_G;
+    static __thread int    c_ok = 0;
+    if (c_ok && c_T == T && c_R == Rgas && c_P == Pv){ return c_G; }
+    c_G = GH_cpx_pure_ES_G_compute(T,Rgas,Pv);
+    c_T = T; c_R = Rgas; c_P = Pv; c_ok = 1;
+    return c_G;
+}
+
 double obj_gh_cpx(unsigned n, const double *x, double *grad, void *SS_ref_db){
     SS_ref *d = (SS_ref *) SS_ref_db;
 
     double T    = d->T;
     double Rgas = d->R*1000.0;
     double Pv   = d->P - 1.0;
+    double SS2  = (d->EM_database == 0) ? -1.08018328 : 0.0;
     double *p   = d->p;
     double *gb  = d->gb_lvl;
     double *mu_Gex = d->mu_Gex;
@@ -3039,7 +3023,7 @@ double obj_gh_cpx(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double r0=p2, r1=p3+0.5*p6, r2=p4-0.5*p6, r3=p5+0.5*p6, r4=p6, r5=p1;
 
     double s0, s1;
-    double Graw = GH_cpx_solve_and_G(r0,r1,r2,r3,r4,r5,T,Rgas,Pv,&s0,&s1);
+    double Graw = GH_cpx_solve_and_G(r0,r1,r2,r3,r4,r5,T,Rgas,Pv,SS2,&s0,&s1);
 
     double xal3m1,xfe2m1,xfe3m1,xmg2m1,xti4m1,xca2m2,xfe2m2,xmg2m2,xna1m2,xal3tet,xfe3tet,xsi4tet;
     GH_cpx_site_fracs(r0,r1,r2,r3,r4,r5,s0,s1,&xal3m1,&xfe2m1,&xfe3m1,&xmg2m1,&xti4m1,&xca2m2,&xfe2m2,&xmg2m2,&xna1m2,&xal3tet,&xfe3tet,&xsi4tet);
@@ -3154,7 +3138,7 @@ double obj_gh_cpx(unsigned n, const double *x, double *grad, void *SS_ref_db){
     for how they were generated/verified) - only the subset each function
     actually needs is declared, to keep -Wunused-variable quiet. */
 static void GH_opx_dgds(double r0,double r1,double r2,double r3,double r4,double r5,double s0,double s1,
-                         double T,double Rgas,double Pv,double *dgds0,double *dgds1){
+                         double T,double Rgas,double Pv,double SS2,double *dgds0,double *dgds1){
     static const double HS1 = -2677.12, HS2 = -7635.799999999999, HS2S2 = 15637.7;
     static const double HX2S1 = -3819.6450000000004, HX2S2 = -10773.800000000001, HX2S2S2 = 209.19999999999982;
     static const double HX3S1 = -19744.440000000002, HX3S2 = 5934.734999999998;
@@ -3194,7 +3178,7 @@ static void GH_opx_dgds(double r0,double r1,double r2,double r3,double r4,double
     double xal3m1,xfe2m1,xfe3m1,xmg2m1,xti4m1,xca2m2,xfe2m2,xmg2m2,xna1m2,xal3tet,xfe3tet,xsi4tet;
     GH_cpx_site_fracs(r0,r1,r2,r3,r4,r5,s0,s1,&xal3m1,&xfe2m1,&xfe3m1,&xmg2m1,&xti4m1,&xca2m2,&xfe2m2,&xmg2m2,&xna1m2,&xal3tet,&xfe3tet,&xsi4tet);
     *dgds0 = 0.5*Rgas*T*(creal(clog(xfe3m1))-creal(clog(xal3m1))+creal(clog(xal3tet))-creal(clog(xfe3tet))) +                ((HS1)-T*(SS1_OPX)+Pv*(VS1)) +                ((HX2S1)-T*(SX2S1_OPX)+Pv*(VX2S1))*r0 +                ((HX3S1)-T*(SX3S1_OPX)+Pv*(VX3S1))*r1 +                ((HX4S1)-T*(SX4S1_OPX)+Pv*(VX4S1))*r2 +                ((HX5S1)-T*(SX5S1_OPX)+Pv*(VX5S1))*r3 +                ((HX6S1)-T*(SX6S1_OPX)+Pv*(VX6S1))*r4 +                ((HX7S1)-T*(SX7S1_OPX)+Pv*(VX7S1))*r5 +                ((HS1S1)-T*(SS1S1)+Pv*(VS1S1))*s0*2.0 +                ((HS1S2)-T*(SS1S2)+Pv*(VS1S2))*s1;
-    *dgds1 = 0.5*Rgas*T*(creal(clog(xmg2m1))-creal(clog(xfe2m1))+creal(clog(xfe2m2))-creal(clog(xmg2m2))) +                ((HS2)-T*(GH_opx_SS2)+Pv*(VS2)) +                ((HX2S2)-T*(SX2S2)+Pv*(VX2S2))*r0 +                ((HX3S2)-T*(SX3S2)+Pv*(VX3S2))*r1 +                ((HX4S2)-T*(SX4S2)+Pv*(VX4S2))*r2 +                ((HX5S2)-T*(SX5S2)+Pv*(VX5S2))*r3 +                ((HX6S2)-T*(SX6S2)+Pv*(VX6S2))*r4 +                ((HX7S2)-T*(SX7S2)+Pv*(VX7S2))*r5 +                ((HS1S2)-T*(SS1S2)+Pv*(VS1S2))*s0 +                ((HS2S2)-T*(SS2S2_OPX)+Pv*(VS2S2))*s1*2.0 +                ((HX2X2S2)+Pv*(VX2X2S2))*r0*r0 +                ((HX2X3S2)+Pv*(VX2X3S2))*r0*r1 +                ((HX2X4S2)+Pv*(VX2X4S2))*r0*r2 +                ((HX2X5S2)+Pv*(VX2X5S2))*r0*r3 +                ((HX2X6S2)+Pv*(VX2X6S2))*r0*r4 +                ((HX2X7S2)+Pv*(VX2X7S2))*r0*r5 +                ((HX2S2S2)+Pv*(VX2S2S2))*r0*s1*2.0 +                ((HX3X3S2)+Pv*(VX3X3S2))*r1*r1 +                ((HX3X4S2)+Pv*(VX3X4S2))*r1*r2 +                ((HX3X5S2)+Pv*(VX3X5S2))*r1*r3 +                ((HX3X6S2)+Pv*(VX3X6S2))*r1*r4 +                ((HX3X7S2)-T*(SX3X7S2_OPX)+Pv*(VX3X7S2))*r1*r5 +                ((HX3S2S2)+Pv*(VX3S2S2))*r1*s1*2.0 +                ((HX4X4S2)+Pv*(VX4X4S2))*r2*r2 +                ((HX4X5S2)+Pv*(VX4X5S2))*r2*r3 +                ((HX4X6S2)+Pv*(VX4X6S2))*r2*r4 +                ((HX4X7S2)-T*(SX4X7S2_OPX)+Pv*(VX4X7S2))*r2*r5 +                ((HX4S2S2)+Pv*(VX4S2S2))*r2*s1*2.0 +                ((HX5X5S2)+Pv*(VX5X5S2))*r3*r3 +                ((HX5X6S2)+Pv*(VX5X6S2))*r3*r4 +                ((HX5X7S2)-T*(SX5X7S2_OPX)+Pv*(VX5X7S2))*r3*r5 +                ((HX5S2S2)+Pv*(VX5S2S2))*r3*s1*2.0 +                ((HX6X6S2)+Pv*(VX6X6S2))*r4*r4 +                ((HX6X7S2)-T*(SX6X7S2_OPX)+Pv*(VX6X7S2))*r4*r5 +                ((HX6S2S2)+Pv*(VX6S2S2))*r4*s1*2.0 +                ((HX7X7S2)-T*(SX7X7S2_OPX)+Pv*(VX7X7S2))*r5*r5 +                ((HX7S2S2)+Pv*(VX7S2S2))*r5*s1*2.0;
+    *dgds1 = 0.5*Rgas*T*(creal(clog(xmg2m1))-creal(clog(xfe2m1))+creal(clog(xfe2m2))-creal(clog(xmg2m2))) +                ((HS2)-T*(SS2)+Pv*(VS2)) +                ((HX2S2)-T*(SX2S2)+Pv*(VX2S2))*r0 +                ((HX3S2)-T*(SX3S2)+Pv*(VX3S2))*r1 +                ((HX4S2)-T*(SX4S2)+Pv*(VX4S2))*r2 +                ((HX5S2)-T*(SX5S2)+Pv*(VX5S2))*r3 +                ((HX6S2)-T*(SX6S2)+Pv*(VX6S2))*r4 +                ((HX7S2)-T*(SX7S2)+Pv*(VX7S2))*r5 +                ((HS1S2)-T*(SS1S2)+Pv*(VS1S2))*s0 +                ((HS2S2)-T*(SS2S2_OPX)+Pv*(VS2S2))*s1*2.0 +                ((HX2X2S2)+Pv*(VX2X2S2))*r0*r0 +                ((HX2X3S2)+Pv*(VX2X3S2))*r0*r1 +                ((HX2X4S2)+Pv*(VX2X4S2))*r0*r2 +                ((HX2X5S2)+Pv*(VX2X5S2))*r0*r3 +                ((HX2X6S2)+Pv*(VX2X6S2))*r0*r4 +                ((HX2X7S2)+Pv*(VX2X7S2))*r0*r5 +                ((HX2S2S2)+Pv*(VX2S2S2))*r0*s1*2.0 +                ((HX3X3S2)+Pv*(VX3X3S2))*r1*r1 +                ((HX3X4S2)+Pv*(VX3X4S2))*r1*r2 +                ((HX3X5S2)+Pv*(VX3X5S2))*r1*r3 +                ((HX3X6S2)+Pv*(VX3X6S2))*r1*r4 +                ((HX3X7S2)-T*(SX3X7S2_OPX)+Pv*(VX3X7S2))*r1*r5 +                ((HX3S2S2)+Pv*(VX3S2S2))*r1*s1*2.0 +                ((HX4X4S2)+Pv*(VX4X4S2))*r2*r2 +                ((HX4X5S2)+Pv*(VX4X5S2))*r2*r3 +                ((HX4X6S2)+Pv*(VX4X6S2))*r2*r4 +                ((HX4X7S2)-T*(SX4X7S2_OPX)+Pv*(VX4X7S2))*r2*r5 +                ((HX4S2S2)+Pv*(VX4S2S2))*r2*s1*2.0 +                ((HX5X5S2)+Pv*(VX5X5S2))*r3*r3 +                ((HX5X6S2)+Pv*(VX5X6S2))*r3*r4 +                ((HX5X7S2)-T*(SX5X7S2_OPX)+Pv*(VX5X7S2))*r3*r5 +                ((HX5S2S2)+Pv*(VX5S2S2))*r3*s1*2.0 +                ((HX6X6S2)+Pv*(VX6X6S2))*r4*r4 +                ((HX6X7S2)-T*(SX6X7S2_OPX)+Pv*(VX6X7S2))*r4*r5 +                ((HX6S2S2)+Pv*(VX6S2S2))*r4*s1*2.0 +                ((HX7X7S2)-T*(SX7X7S2_OPX)+Pv*(VX7X7S2))*r5*r5 +                ((HX7S2S2)+Pv*(VX7S2S2))*r5*s1*2.0;
 }
 
 static void GH_opx_d2gds(double r0,double r1,double r2,double r3,double r4,double r5,double s0,double s1,
@@ -3214,7 +3198,7 @@ static void GH_opx_d2gds(double r0,double r1,double r2,double r3,double r4,doubl
          + 2.0*r0*((HX2S2S2)+Pv*(VX2S2S2)) + 2.0*r1*((HX3S2S2)+Pv*(VX3S2S2)) + 2.0*r2*((HX4S2S2)+Pv*(VX4S2S2))
          + 2.0*r3*((HX5S2S2)+Pv*(VX5S2S2)) + 2.0*r4*((HX6S2S2)+Pv*(VX6S2S2)) + 2.0*r5*((HX7S2S2)+Pv*(VX7S2S2));
 }
-static void GH_opx_solve_s_from(double r0,double r1,double r2,double r3,double r4,double r5,double T,double Rgas,double Pv,
+static void GH_opx_solve_s_from(double r0,double r1,double r2,double r3,double r4,double r5,double T,double Rgas,double Pv,double SS2,
                                  double s0init,double s1init,double *s0o,double *s1o){
     const int maxIter = 1000;
     double eps_s = 1.0e-8;
@@ -3224,7 +3208,7 @@ static void GH_opx_solve_s_from(double r0,double r1,double r2,double r3,double r
     while ( (fabs(s0-s0Old) > 10.0*2.220446049250313e-16 ||
              fabs(s1-s1Old) > 10.0*2.220446049250313e-16) && iter < maxIter ){
         double dgds0, dgds1;
-        GH_opx_dgds(r0,r1,r2,r3,r4,r5,s0,s1,T,Rgas,Pv,&dgds0,&dgds1);
+        GH_opx_dgds(r0,r1,r2,r3,r4,r5,s0,s1,T,Rgas,Pv,SS2,&dgds0,&dgds1);
         double d00, d01, d11;
         GH_opx_d2gds(r0,r1,r2,r3,r4,r5,s0,s1,T,Rgas,Pv,&d00,&d01,&d11);
 
@@ -3246,7 +3230,7 @@ static void GH_opx_solve_s_from(double r0,double r1,double r2,double r3,double r
     *s0o = s0; *s1o = s1;
 }
 static double GH_opx_G_at(double r0,double r1,double r2,double r3,double r4,double r5,double s0,double s1,
-                           double T,double Rgas,double Pv){
+                           double T,double Rgas,double Pv,double SS2){
     static const double H0 = 2331.7432000000003, HS1 = -2677.12, HS2 = -7635.799999999999;
     static const double HS1S1 = -8917.5, HS1S2 = 7804.93, HS2S2 = 15637.7;
     static const double HX2 = 8086.416799999999, HX2S1 = -3819.6450000000004, HX2S2 = -10773.800000000001;
@@ -3339,14 +3323,14 @@ static double GH_opx_G_at(double r0,double r1,double r2,double r3,double r4,doub
     double xm1_MgFeNoTi,xm1_notTi,xm1_MgFe,xtet_notSi,xrest_notNa,xm1_notMgFe,xm2_notNa;
     GH_cpx_composites(xmg2m1,xfe2m1,xti4m1,xna1m2,xsi4tet,&xm1_MgFeNoTi,&xm1_notTi,&xm1_MgFe,&xtet_notSi,&xrest_notNa,&xm1_notMgFe,&xm2_notNa);
     double SIC = -Rgas*(xmg2m1*creal(clog(xmg2m1))                + xfe2m1*creal(clog(xfe2m1))                + xal3m1*creal(clog(xal3m1))                + xfe3m1*creal(clog(xfe3m1))                + xti4m1*creal(clog(xti4m1))                + (xm1_MgFeNoTi)*creal(clog(xm1_MgFeNoTi))                - (xm1_notTi)*creal(clog(xm1_notTi))                - (xm1_MgFe)*creal(clog(xm1_MgFe))                - 2.0*(xtet_notSi)*creal(clog(xtet_notSi))                + 2.0*xal3tet*creal(clog(xal3tet))                + 2.0*xfe3tet*creal(clog(xfe3tet))                + xca2m2*creal(clog(xca2m2))                + xna1m2*creal(clog(xna1m2))                + xmg2m2*creal(clog(xmg2m2))                + xfe2m2*creal(clog(xfe2m2))                + (xrest_notNa)*creal(clog(xrest_notNa))                - (xm1_notMgFe)*creal(clog(xm1_notMgFe))                - (xm2_notNa)*creal(clog(xm2_notNa)) );
-    return -T*(SIC) + (H0)-T*(S0)+Pv*(V0) +              ((HX2)-T*(SX2)+Pv*(VX2))*r0 +              ((HX3)-T*(SX3)+Pv*(VX3))*r1 +              ((HX4)-T*(SX4)+Pv*(VX4))*r2 +              ((HX5)-T*(SX5)+Pv*(VX5))*r3 +              ((HX6)-T*(SX6)+Pv*(VX6))*r4 +              ((HX7)-T*(SX7)+Pv*(VX7))*r5 +              ((HS1)-T*(SS1)+Pv*(VS1))*s0 +              ((HS2)-T*(GH_opx_SS2)+Pv*(VS2))*s1 +              ((HX2X2)-T*(SX2X2)+Pv*(VX2X2))*r0*r0 +              ((HX2X3)-T*(SX2X3)+Pv*(VX2X3))*r0*r1 +              ((HX2X4)-T*(SX2X4)+Pv*(VX2X4))*r0*r2 +              ((HX2X5)-T*(SX2X5)+Pv*(VX2X5))*r0*r3 +              ((HX2X6)-T*(SX2X6)+Pv*(VX2X6))*r0*r4 +              ((HX2X7)-T*(SX2X7)+Pv*(VX2X7))*r0*r5 +              ((HX2S1)-T*(SX2S1)+Pv*(VX2S1))*r0*s0 +              ((HX2S2)-T*(SX2S2)+Pv*(VX2S2))*r0*s1 +              ((HX3X3)-T*(SX3X3)+Pv*(VX3X3))*r1*r1 +              ((HX3X4)-T*(SX3X4)+Pv*(VX3X4))*r1*r2 +              ((HX3X5)-T*(SX3X5)+Pv*(VX3X5))*r1*r3 +              ((HX3X6)-T*(SX3X6)+Pv*(VX3X6))*r1*r4 +              ((HX3X7)-T*(SX3X7)+Pv*(VX3X7))*r1*r5 +              ((HX3S1)-T*(SX3S1)+Pv*(VX3S1))*r1*s0 +              ((HX3S2)-T*(SX3S2)+Pv*(VX3S2))*r1*s1 +              ((HX4X4)-T*(SX4X4)+Pv*(VX4X4))*r2*r2 +              ((HX4X5)-T*(SX4X5)+Pv*(VX4X5))*r2*r3 +              ((HX4X6)-T*(SX4X6)+Pv*(VX4X6))*r2*r4 +              ((HX4X7)-T*(SX4X7)+Pv*(VX4X7))*r2*r5 +              ((HX4S1)-T*(SX4S1)+Pv*(VX4S1))*r2*s0 +              ((HX4S2)-T*(SX4S2)+Pv*(VX4S2))*r2*s1 +              ((HX5X5)-T*(SX5X5)+Pv*(VX5X5))*r3*r3 +              ((HX5X6)-T*(SX5X6)+Pv*(VX5X6))*r3*r4 +              ((HX5X7)-T*(SX5X7)+Pv*(VX5X7))*r3*r5 +              ((HX5S1)-T*(SX5S1)+Pv*(VX5S1))*r3*s0 +              ((HX5S2)-T*(SX5S2)+Pv*(VX5S2))*r3*s1 +              ((HX6X6)-T*(SX6X6)+Pv*(VX6X6))*r4*r4 +              ((HX6X7)-T*(SX6X7)+Pv*(VX6X7))*r4*r5 +              ((HX6S1)-T*(SX6S1)+Pv*(VX6S1))*r4*s0 +              ((HX6S2)-T*(SX6S2)+Pv*(VX6S2))*r4*s1 +              ((HX7X7)-T*(SX7X7)+Pv*(VX7X7))*r5*r5 +              ((HX7S1)-T*(SX7S1)+Pv*(VX7S1))*r5*s0 +              ((HX7S2)-T*(SX7S2)+Pv*(VX7S2))*r5*s1 +              ((HS1S1)-T*(SS1S1)+Pv*(VS1S1))*s0*s0 +              ((HS1S2)-T*(SS1S2)+Pv*(VS1S2))*s0*s1 +              ((HS2S2)-T*(SS2S2)+Pv*(VS2S2))*s1*s1 +              ((HX2X2X7)+Pv*(VX2X2X7))*r0*r0*r5 +              ((HX2X2S2)+Pv*(VX2X2S2))*r0*r0*s1 +              ((HX2X3X7)+Pv*(VX2X3X7))*r0*r1*r5 +              ((HX2X3S2)+Pv*(VX2X3S2))*r0*r1*s1 +              ((HX2X4X7)+Pv*(VX2X4X7))*r0*r2*r5 +              ((HX2X4S2)+Pv*(VX2X4S2))*r0*r2*s1 +              ((HX2X5X7)+Pv*(VX2X5X7))*r0*r3*r5 +              ((HX2X5S2)+Pv*(VX2X5S2))*r0*r3*s1 +              ((HX2X6X7)+Pv*(VX2X6X7))*r0*r4*r5 +              ((HX2X6S2)+Pv*(VX2X6S2))*r0*r4*s1 +              ((HX2X7X7)-T*(SX2X7X7)+Pv*(VX2X7X7))*r0*r5*r5 +              ((HX2X7S2)+Pv*(VX2X7S2))*r0*r5*s1 +              ((HX2S2S2)+Pv*(VX2S2S2))*r0*s1*s1 +              ((HX3X3X7)+Pv*(VX3X3X7))*r1*r1*r5 +              ((HX3X3S2)+Pv*(VX3X3S2))*r1*r1*s1 +              ((HX3X4X7)+Pv*(VX3X4X7))*r1*r2*r5 +              ((HX3X4S2)+Pv*(VX3X4S2))*r1*r2*s1 +              ((HX3X5X7)+Pv*(VX3X5X7))*r1*r3*r5 +              ((HX3X5S2)+Pv*(VX3X5S2))*r1*r3*s1 +              ((HX3X6X7)+Pv*(VX3X6X7))*r1*r4*r5 +              ((HX3X6S2)+Pv*(VX3X6S2))*r1*r4*s1 +              ((HX3X7X7)-T*(SX3X7X7)+Pv*(VX3X7X7))*r1*r5*r5 +              ((HX3X7S2)-T*(SX3X7S2)+Pv*(VX3X7S2))*r1*r5*s1 +              ((HX3S2S2)+Pv*(VX3S2S2))*r1*s1*s1 +              ((HX4X4X7)+Pv*(VX4X4X7))*r2*r2*r5 +              ((HX4X4S2)+Pv*(VX4X4S2))*r2*r2*s1 +              ((HX4X5X7)+Pv*(VX4X5X7))*r2*r3*r5 +              ((HX4X5S2)+Pv*(VX4X5S2))*r2*r3*s1 +              ((HX4X6X7)+Pv*(VX4X6X7))*r2*r4*r5 +              ((HX4X6S2)+Pv*(VX4X6S2))*r2*r4*s1 +              ((HX4X7X7)-T*(SX4X7X7)+Pv*(VX4X7X7))*r2*r5*r5 +              ((HX4X7S2)-T*(SX4X7S2)+Pv*(VX4X7S2))*r2*r5*s1 +              ((HX4S2S2)+Pv*(VX4S2S2))*r2*s1*s1 +              ((HX5X5X7)+Pv*(VX5X5X7))*r3*r3*r5 +              ((HX5X5S2)+Pv*(VX5X5S2))*r3*r3*s1 +              ((HX5X6X7)+Pv*(VX5X6X7))*r3*r4*r5 +              ((HX5X6S2)+Pv*(VX5X6S2))*r3*r4*s1 +              ((HX5X7X7)-T*(SX5X7X7)+Pv*(VX5X7X7))*r3*r5*r5 +              ((HX5X7S2)-T*(SX5X7S2)+Pv*(VX5X7S2))*r3*r5*s1 +              ((HX5S2S2)+Pv*(VX5S2S2))*r3*s1*s1 +              ((HX6X6X7)+Pv*(VX6X6X7))*r4*r4*r5 +              ((HX6X6S2)+Pv*(VX6X6S2))*r4*r4*s1 +              ((HX6X7X7)-T*(SX6X7X7)+Pv*(VX6X7X7))*r4*r5*r5 +              ((HX6X7S2)-T*(SX6X7S2)+Pv*(VX6X7S2))*r4*r5*s1 +              ((HX6S2S2)+Pv*(VX6S2S2))*r4*s1*s1 +              ((HX7X7X7)-T*(SX7X7X7)+Pv*(VX7X7X7))*r5*r5*r5 +              ((HX7X7S2)-T*(SX7X7S2)+Pv*(VX7X7S2))*r5*r5*s1 +              ((HX7S2S2)+Pv*(VX7S2S2))*r5*s1*s1;
+    return -T*(SIC) + (H0)-T*(S0)+Pv*(V0) +              ((HX2)-T*(SX2)+Pv*(VX2))*r0 +              ((HX3)-T*(SX3)+Pv*(VX3))*r1 +              ((HX4)-T*(SX4)+Pv*(VX4))*r2 +              ((HX5)-T*(SX5)+Pv*(VX5))*r3 +              ((HX6)-T*(SX6)+Pv*(VX6))*r4 +              ((HX7)-T*(SX7)+Pv*(VX7))*r5 +              ((HS1)-T*(SS1)+Pv*(VS1))*s0 +              ((HS2)-T*(SS2)+Pv*(VS2))*s1 +              ((HX2X2)-T*(SX2X2)+Pv*(VX2X2))*r0*r0 +              ((HX2X3)-T*(SX2X3)+Pv*(VX2X3))*r0*r1 +              ((HX2X4)-T*(SX2X4)+Pv*(VX2X4))*r0*r2 +              ((HX2X5)-T*(SX2X5)+Pv*(VX2X5))*r0*r3 +              ((HX2X6)-T*(SX2X6)+Pv*(VX2X6))*r0*r4 +              ((HX2X7)-T*(SX2X7)+Pv*(VX2X7))*r0*r5 +              ((HX2S1)-T*(SX2S1)+Pv*(VX2S1))*r0*s0 +              ((HX2S2)-T*(SX2S2)+Pv*(VX2S2))*r0*s1 +              ((HX3X3)-T*(SX3X3)+Pv*(VX3X3))*r1*r1 +              ((HX3X4)-T*(SX3X4)+Pv*(VX3X4))*r1*r2 +              ((HX3X5)-T*(SX3X5)+Pv*(VX3X5))*r1*r3 +              ((HX3X6)-T*(SX3X6)+Pv*(VX3X6))*r1*r4 +              ((HX3X7)-T*(SX3X7)+Pv*(VX3X7))*r1*r5 +              ((HX3S1)-T*(SX3S1)+Pv*(VX3S1))*r1*s0 +              ((HX3S2)-T*(SX3S2)+Pv*(VX3S2))*r1*s1 +              ((HX4X4)-T*(SX4X4)+Pv*(VX4X4))*r2*r2 +              ((HX4X5)-T*(SX4X5)+Pv*(VX4X5))*r2*r3 +              ((HX4X6)-T*(SX4X6)+Pv*(VX4X6))*r2*r4 +              ((HX4X7)-T*(SX4X7)+Pv*(VX4X7))*r2*r5 +              ((HX4S1)-T*(SX4S1)+Pv*(VX4S1))*r2*s0 +              ((HX4S2)-T*(SX4S2)+Pv*(VX4S2))*r2*s1 +              ((HX5X5)-T*(SX5X5)+Pv*(VX5X5))*r3*r3 +              ((HX5X6)-T*(SX5X6)+Pv*(VX5X6))*r3*r4 +              ((HX5X7)-T*(SX5X7)+Pv*(VX5X7))*r3*r5 +              ((HX5S1)-T*(SX5S1)+Pv*(VX5S1))*r3*s0 +              ((HX5S2)-T*(SX5S2)+Pv*(VX5S2))*r3*s1 +              ((HX6X6)-T*(SX6X6)+Pv*(VX6X6))*r4*r4 +              ((HX6X7)-T*(SX6X7)+Pv*(VX6X7))*r4*r5 +              ((HX6S1)-T*(SX6S1)+Pv*(VX6S1))*r4*s0 +              ((HX6S2)-T*(SX6S2)+Pv*(VX6S2))*r4*s1 +              ((HX7X7)-T*(SX7X7)+Pv*(VX7X7))*r5*r5 +              ((HX7S1)-T*(SX7S1)+Pv*(VX7S1))*r5*s0 +              ((HX7S2)-T*(SX7S2)+Pv*(VX7S2))*r5*s1 +              ((HS1S1)-T*(SS1S1)+Pv*(VS1S1))*s0*s0 +              ((HS1S2)-T*(SS1S2)+Pv*(VS1S2))*s0*s1 +              ((HS2S2)-T*(SS2S2)+Pv*(VS2S2))*s1*s1 +              ((HX2X2X7)+Pv*(VX2X2X7))*r0*r0*r5 +              ((HX2X2S2)+Pv*(VX2X2S2))*r0*r0*s1 +              ((HX2X3X7)+Pv*(VX2X3X7))*r0*r1*r5 +              ((HX2X3S2)+Pv*(VX2X3S2))*r0*r1*s1 +              ((HX2X4X7)+Pv*(VX2X4X7))*r0*r2*r5 +              ((HX2X4S2)+Pv*(VX2X4S2))*r0*r2*s1 +              ((HX2X5X7)+Pv*(VX2X5X7))*r0*r3*r5 +              ((HX2X5S2)+Pv*(VX2X5S2))*r0*r3*s1 +              ((HX2X6X7)+Pv*(VX2X6X7))*r0*r4*r5 +              ((HX2X6S2)+Pv*(VX2X6S2))*r0*r4*s1 +              ((HX2X7X7)-T*(SX2X7X7)+Pv*(VX2X7X7))*r0*r5*r5 +              ((HX2X7S2)+Pv*(VX2X7S2))*r0*r5*s1 +              ((HX2S2S2)+Pv*(VX2S2S2))*r0*s1*s1 +              ((HX3X3X7)+Pv*(VX3X3X7))*r1*r1*r5 +              ((HX3X3S2)+Pv*(VX3X3S2))*r1*r1*s1 +              ((HX3X4X7)+Pv*(VX3X4X7))*r1*r2*r5 +              ((HX3X4S2)+Pv*(VX3X4S2))*r1*r2*s1 +              ((HX3X5X7)+Pv*(VX3X5X7))*r1*r3*r5 +              ((HX3X5S2)+Pv*(VX3X5S2))*r1*r3*s1 +              ((HX3X6X7)+Pv*(VX3X6X7))*r1*r4*r5 +              ((HX3X6S2)+Pv*(VX3X6S2))*r1*r4*s1 +              ((HX3X7X7)-T*(SX3X7X7)+Pv*(VX3X7X7))*r1*r5*r5 +              ((HX3X7S2)-T*(SX3X7S2)+Pv*(VX3X7S2))*r1*r5*s1 +              ((HX3S2S2)+Pv*(VX3S2S2))*r1*s1*s1 +              ((HX4X4X7)+Pv*(VX4X4X7))*r2*r2*r5 +              ((HX4X4S2)+Pv*(VX4X4S2))*r2*r2*s1 +              ((HX4X5X7)+Pv*(VX4X5X7))*r2*r3*r5 +              ((HX4X5S2)+Pv*(VX4X5S2))*r2*r3*s1 +              ((HX4X6X7)+Pv*(VX4X6X7))*r2*r4*r5 +              ((HX4X6S2)+Pv*(VX4X6S2))*r2*r4*s1 +              ((HX4X7X7)-T*(SX4X7X7)+Pv*(VX4X7X7))*r2*r5*r5 +              ((HX4X7S2)-T*(SX4X7S2)+Pv*(VX4X7S2))*r2*r5*s1 +              ((HX4S2S2)+Pv*(VX4S2S2))*r2*s1*s1 +              ((HX5X5X7)+Pv*(VX5X5X7))*r3*r3*r5 +              ((HX5X5S2)+Pv*(VX5X5S2))*r3*r3*s1 +              ((HX5X6X7)+Pv*(VX5X6X7))*r3*r4*r5 +              ((HX5X6S2)+Pv*(VX5X6S2))*r3*r4*s1 +              ((HX5X7X7)-T*(SX5X7X7)+Pv*(VX5X7X7))*r3*r5*r5 +              ((HX5X7S2)-T*(SX5X7S2)+Pv*(VX5X7S2))*r3*r5*s1 +              ((HX5S2S2)+Pv*(VX5S2S2))*r3*s1*s1 +              ((HX6X6X7)+Pv*(VX6X6X7))*r4*r4*r5 +              ((HX6X6S2)+Pv*(VX6X6S2))*r4*r4*s1 +              ((HX6X7X7)-T*(SX6X7X7)+Pv*(VX6X7X7))*r4*r5*r5 +              ((HX6X7S2)-T*(SX6X7S2)+Pv*(VX6X7S2))*r4*r5*s1 +              ((HX6S2S2)+Pv*(VX6S2S2))*r4*s1*s1 +              ((HX7X7X7)-T*(SX7X7X7)+Pv*(VX7X7X7))*r5*r5*r5 +              ((HX7X7S2)-T*(SX7X7S2)+Pv*(VX7X7S2))*r5*r5*s1 +              ((HX7S2S2)+Pv*(VX7S2S2))*r5*s1*s1;
 }
 static double GH_opx_solve_and_G(double r0,double r1,double r2,double r3,double r4,double r5,
-                                  double T,double Rgas,double Pv,double *s0o,double *s1o){
+                                  double T,double Rgas,double Pv,double SS2,double *s0o,double *s1o){
     double s0g,s1g; GH_cpx_guess_s(r0,r1,r2,r3,r4,r5,&s0g,&s1g);
-    double cs0,cs1; GH_opx_solve_s_from(r0,r1,r2,r3,r4,r5,T,Rgas,Pv,s0g,s1g,&cs0,&cs1);
+    double cs0,cs1; GH_opx_solve_s_from(r0,r1,r2,r3,r4,r5,T,Rgas,Pv,SS2,s0g,s1g,&cs0,&cs1);
     *s0o = cs0; *s1o = cs1;
-    return GH_opx_G_at(r0,r1,r2,r3,r4,r5,cs0,cs1,T,Rgas,Pv);
+    return GH_opx_G_at(r0,r1,r2,r3,r4,r5,cs0,cs1,T,Rgas,Pv,SS2);
 }
 
 double obj_gh_opx(unsigned n, const double *x, double *grad, void *SS_ref_db){
@@ -3355,6 +3339,7 @@ double obj_gh_opx(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double T    = d->T;
     double Rgas = d->R*1000.0;
     double Pv   = d->P - 1.0;
+    double SS2  = (d->EM_database == 0) ? -0.57977688 : 0.0;
     double *p   = d->p;
     double *gb  = d->gb_lvl;
     double *mu_Gex = d->mu_Gex;
@@ -3367,7 +3352,7 @@ double obj_gh_opx(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double r0=p2, r1=p3+0.5*p6, r2=p4-0.5*p6, r3=p5+0.5*p6, r4=p6, r5=p1;
 
     double s0, s1;
-    double Graw = GH_opx_solve_and_G(r0,r1,r2,r3,r4,r5,T,Rgas,Pv,&s0,&s1);
+    double Graw = GH_opx_solve_and_G(r0,r1,r2,r3,r4,r5,T,Rgas,Pv,SS2,&s0,&s1);
 
     double xal3m1,xfe2m1,xfe3m1,xmg2m1,xti4m1,xca2m2,xfe2m2,xmg2m2,xna1m2,xal3tet,xfe3tet,xsi4tet;
     GH_cpx_site_fracs(r0,r1,r2,r3,r4,r5,s0,s1,&xal3m1,&xfe2m1,&xfe3m1,&xmg2m1,&xti4m1,&xca2m2,&xfe2m2,&xmg2m2,&xna1m2,&xal3tet,&xfe3tet,&xsi4tet);
@@ -3521,10 +3506,6 @@ double obj_gh_opx(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
 void GH_SS_objective_init_function(    obj_type            *SS_objective,
                                         global_variable      gv                  ){
-    GH_spn_multistart_flag = gv.gh_multistart_order;
-    GH_cpx_SS2 = (gv.EM_database == 0) ? -1.08018328 : 0.0;
-    GH_opx_SS2 = (gv.EM_database == 0) ? -0.57977688 : 0.0;
-    GH_actual_EM_database = gv.EM_database;
     for (int iss = 0; iss < gv.len_ss; iss++){
         if (strcmp( gv.SS_list[iss], "liq") == 0 ){
             SS_objective[iss] = obj_gh_liq;

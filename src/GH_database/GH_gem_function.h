@@ -14,8 +14,6 @@
 #include "../gem_function.h"
 
 
-extern int GH_actual_EM_database;
-extern int GH_H2O_liquid_context;
 
 PP_ref GH_G_EM_function(   int          EM_database,
                             int          len_ox,

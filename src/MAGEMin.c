@@ -1200,44 +1200,10 @@ Databases InitializeDatabases(	global_variable gv,
 	DB.DEW_names =	get_DEW_DB_names(		gv									);
 
 	/* Create endmember Hashtable */
-	/* Fix: clear stale entries from any previous Initialize_MAGEMin call before
-	   rebuilding, otherwise HASH_FIND returns wrong indices when switching databases
-	   (e.g. "an" is at index 1 in sb11 but index 3 in sb21). */
-	EM2id *p_s, *tmp_p;
-	HASH_ITER(hh, EM, p_s, tmp_p) { HASH_DEL(EM, p_s); free(p_s); }
-	// Previous code (no clear — left as reference):
-	// EM2id *p_s, *tmp_p;
-	EM_db EM_return;
-	int n_em_db = gv.n_em_db;
-    for (int i = 0; i < n_em_db; ++i) {
-        p_s = (EM2id *)malloc(sizeof *p_s);
-        strcpy(p_s->EM_tag, DB.EM_names[i]);
-        p_s->id = i;
-        HASH_ADD_STR( EM, EM_tag, p_s );
-    }
-
-	/* Create pure-phase hashtable */
-	PP2id *pp_s, *tmp_pp;
-	HASH_ITER(hh, PP, pp_s, tmp_pp) { HASH_DEL(PP, pp_s); free(pp_s); }
-	// Previous code (no clear — left as reference):
-	// PP2id *pp_s, *tmp_pp;
-    for (int i = 0; i < gv.len_pp; ++i) {
-        pp_s = (PP2id *)malloc(sizeof *pp_s);
-        strcpy(pp_s->PP_tag, gv.PP_list[i]);
-        pp_s->id = i;
-        HASH_ADD_STR( PP, PP_tag, pp_s );
-    }
+	register_EM_table(gv.research_group, gv.EM_dataset, DB.EM_names, gv.n_em_db);
 
 	/* Create DEW2019 aqueous species Hashtable */
-	DEW2id *dew_s, *tmp_dew;
-	HASH_ITER(hh, DEW, dew_s, tmp_dew) { HASH_DEL(DEW, dew_s); free(dew_s); }
-	int n_dew_db = gv.n_dew_db;
-    for (int i = 0; i < n_dew_db; ++i) {
-        dew_s = (DEW2id *)malloc(sizeof *dew_s);
-        strcpy(dew_s->DEW_tag, DB.DEW_names[i]);
-        dew_s->id = i;
-        HASH_ADD_STR( DEW, DEW_tag, dew_s );
-    }
+	register_DEW_table(DB.DEW_names, gv.n_dew_db);
 
 	return DB;
 }
@@ -1267,18 +1233,20 @@ void FreeDatabases(		global_variable gv,
 		if  (DB.sp[0].PP[i].Comp_apfu		!=NULL)  free( DB.sp[0].PP[i].Comp_apfu		);	
 	}
 
+	int n_max_pc_free = (gv.len_ox*3 > gv.max_ss_size_cp) ? gv.len_ox*3 : gv.max_ss_size_cp;
+
 	for ( i = 0; i < n_ox; i++){
-		if  (DB.sp[0].SS[i].Comp			!=NULL)  free( DB.sp[0].SS[i].Comp 			);	
-		if  (DB.sp[0].SS[i].Comp_wt			!=NULL)  free( DB.sp[0].SS[i].Comp_wt 		);	
-		if  (DB.sp[0].SS[i].Comp_apfu		!=NULL)  free( DB.sp[0].SS[i].Comp_apfu		);	
-		if  (DB.sp[0].SS[i].compVariables	!=NULL)  free( DB.sp[0].SS[i].compVariables );	
-		if  (DB.sp[0].SS[i].siteFractions	!=NULL)  free( DB.sp[0].SS[i].siteFractions );	
+		if  (DB.sp[0].SS[i].Comp			!=NULL)  free( DB.sp[0].SS[i].Comp 			);
+		if  (DB.sp[0].SS[i].Comp_wt			!=NULL)  free( DB.sp[0].SS[i].Comp_wt 		);
+		if  (DB.sp[0].SS[i].Comp_apfu		!=NULL)  free( DB.sp[0].SS[i].Comp_apfu		);
+		if  (DB.sp[0].SS[i].compVariables	!=NULL)  free( DB.sp[0].SS[i].compVariables );
+		if  (DB.sp[0].SS[i].siteFractions	!=NULL)  free( DB.sp[0].SS[i].siteFractions );
 		if  (DB.sp[0].SS[i].emFrac			!=NULL)  free( DB.sp[0].SS[i].emFrac 		);
 		if  (DB.sp[0].SS[i].emFrac_wt		!=NULL)  free( DB.sp[0].SS[i].emFrac_wt 	);
 		if  (DB.sp[0].SS[i].emChemPot		!=NULL)  free( DB.sp[0].SS[i].emChemPot 	);
 		if  (DB.sp[0].SS[i].molality		!=NULL)  free( DB.sp[0].SS[i].molality 	);
 		if  (DB.sp[0].SS[i].activity		!=NULL)  free( DB.sp[0].SS[i].activity 	);
-		for ( j = 0; j < n_ox*3; j++){
+		for ( j = 0; j < n_max_pc_free; j++){
 			if  (DB.sp[0].SS[i].compVariablesNames[j]	!=NULL)  free( DB.sp[0].SS[i].compVariablesNames[j] 	);	
 			if  (DB.sp[0].SS[i].siteFractionsNames[j]	!=NULL)  free( DB.sp[0].SS[i].siteFractionsNames[j] 	);	
 			if  (DB.sp[0].SS[i].emNames[j]				!=NULL)  free( DB.sp[0].SS[i].emNames[j] 				);	
@@ -1300,6 +1268,7 @@ void FreeDatabases(		global_variable gv,
 		if  (DB.sp[0].mSS[i].p_Ppc			!=NULL)  free( DB.sp[0].mSS[i].p_Ppc		);
 		if  (DB.sp[0].mSS[i].mu_Ppc			!=NULL)  free( DB.sp[0].mSS[i].mu_Ppc		);
 		if  (DB.sp[0].mSS[i].xeos_Ppc		!=NULL)  free( DB.sp[0].mSS[i].xeos_Ppc		);
+		if  (DB.sp[0].mSS[i].info			!=NULL)  free( DB.sp[0].mSS[i].info			);
 		if  (DB.sp[0].mSS[i].ph_name		!=NULL)  free( DB.sp[0].mSS[i].ph_name		);
 		if  (DB.sp[0].mSS[i].ph_type		!=NULL)  free( DB.sp[0].mSS[i].ph_type		);
 	}

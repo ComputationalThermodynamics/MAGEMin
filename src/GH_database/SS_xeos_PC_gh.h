@@ -16,6 +16,5 @@
 void GH_pc_init_function(  PC_ref  *SS_pc_xeos,
                             int      iss,
                             char    *name,
-                            double  *z_em,
                             int      EM_database    );
 #endif

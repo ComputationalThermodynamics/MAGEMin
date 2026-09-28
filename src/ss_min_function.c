@@ -503,7 +503,7 @@ void ss_min_PGE(		global_variable 	 gv,
 			pc_check = gv.PC_checked;
 			ph_id = cp[i].id;
 			cp[i].min_time		  		= 0.0;								/** reset local minimization time to 0.0 */
-			u = clock();
+			if (gv.verbose == 1){ u = clock(); }
 			/**
 				set the iguess of the solution phase to the one of the considered phase
 			*/
@@ -549,8 +549,7 @@ void ss_min_PGE(		global_variable 	 gv,
 														z_b, 
 														gv.SS_list[ph_id]		);
 
-			u = clock() - u;
-			SS_ref_db[ph_id].LM_time = ((double)u)/CLOCKS_PER_SEC*1000.0; 
+			if (gv.verbose == 1){ u = clock() - u; SS_ref_db[ph_id].LM_time = ((double)u)/CLOCKS_PER_SEC*1000.0; } else { SS_ref_db[ph_id].LM_time = 0.0; } 
 
 			;
 			/** 
@@ -702,6 +701,7 @@ void ss_min_LP(			global_variable 	 gv,
 
 		if (cp[i].ss_flags[0] == 1){
 			candidate_ok 	= 1;
+			is_liq_synth_candidate = 0;
 			ph_id 			= cp[i].id;
 
 			int liq_l = -1;
@@ -714,6 +714,7 @@ void ss_min_LP(			global_variable 	 gv,
 			if (strcmp(gv.db, "rMELTS") == 0){
 				if (gv.global_ite < gv.act_rMELTS_liq_pc_synth){
 					act = 1;
+					is_liq_synth_candidate = (liq_l >= 0 && liq_synth_active[liq_l] && !liq_real_min_found[liq_l]);
 				}
 				else{
 					is_liq_synth_candidate = (liq_l >= 0 && liq_synth_active[liq_l] && !liq_real_min_found[liq_l]);
@@ -746,7 +747,7 @@ void ss_min_LP(			global_variable 	 gv,
 			gv.n_min[ph_id] += 1;
 			if (act == 1){
 				cp[i].min_time		  		= 0.0;								/** reset local minimization time to 0.0 */
-				u = clock(); 
+				if (gv.verbose == 1){ u = clock(); } 
 				/**
 					set the iguess of the solution phase to the one of the considered phase 
 				*/
@@ -775,8 +776,7 @@ void ss_min_LP(			global_variable 	 gv,
 															SS_ref_db[ph_id]		);
 
 
-				u = clock() - u;
-				SS_ref_db[ph_id].LM_time = ((double)u)/CLOCKS_PER_SEC*1000.0; 
+				if (gv.verbose == 1){ u = clock() - u; SS_ref_db[ph_id].LM_time = ((double)u)/CLOCKS_PER_SEC*1000.0; } else { SS_ref_db[ph_id].LM_time = 0.0; } 
 
 				if (gv.verbose == 1){
 
@@ -1192,9 +1192,6 @@ global_variable init_ss_db_gh(	int 				 EM_database,
 								global_variable 	 gv,
 								SS_ref 				*SS_ref_db
 ){
-	/* see init_em_db_gh's own comment on why this is also set here, not
-	   just in GH_SS_objective_init_function. */
-	GH_actual_EM_database = gv.EM_database;
 	for (int i = 0; i < gv.len_ss; i++){
 		SS_ref_db[i].P  = z_b.P;
 		SS_ref_db[i].T  = z_b.T;

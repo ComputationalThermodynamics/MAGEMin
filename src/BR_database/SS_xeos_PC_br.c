@@ -2289,114 +2289,63 @@ struct ss_pc br_ternary_pc_xeos[861] = {
     {{0.9998,0.0001,0.0001}},
 };
 
-static struct ss_pc br_ctd_pc_xeos_work[201];
-static struct ss_pc br_car_pc_xeos_work[201];
-static struct ss_pc br_chl_pc_xeos_work[1001];
-static struct ss_pc br_mica_pc_xeos_work[1001];
-static struct ss_pc br_talc_pc_xeos_work[201];
-static struct ss_pc br_ilm_pc_xeos_work[201];
-static struct ss_pc br_bt_pc_xeos_work[201];
-static struct ss_pc br_ol_pc_xeos_work[201];
-static struct ss_pc br_ep_pc_xeos_work[201];
-static struct ss_pc br_opx_pc_xeos_work[201];
-static struct ss_pc br_amph_pc_xeos_work[201];
-static struct ss_pc br_spl_pc_xeos_work[201];
-static struct ss_pc br_stau_pc_xeos_work[201];
-static struct ss_pc br_crd_pc_xeos_work[201];
-static struct ss_pc br_grt_pc_xeos_work[201];
-static struct ss_pc br_omph_pc_xeos_work[861];
-static struct ss_pc br_amphx_pc_xeos_work[861];
-static struct ss_pc br_fsp_pc_xeos_work[861];
-
-static void BR_build_pc_work(struct ss_pc *src, struct ss_pc *work, int n_row, int n_col, double *z_em){
-    for (int k = 0; k < n_row; k++){
-        double sum = 0.0;
-        for (int i = 0; i < n_col; i++){
-            double v = (z_em[i] == 0.0) ? 0.0 : src[k].xeos_pc[i];
-            work[k].xeos_pc[i] = v;
-            sum += v;
-        }
-        if (sum > 0.0){
-            for (int i = 0; i < n_col; i++){ work[k].xeos_pc[i] /= sum; }
-        }
-    }
-}
 
 void BR_pc_init_function(  PC_ref  *SS_pc_xeos,
                             int      iss,
-                            char    *name,
-                            double  *z_em            ){
+                            char    *name            ){
 
     if (strcmp(name, "ctd") == 0){
-        BR_build_pc_work(br_ctd_pc_xeos, br_ctd_pc_xeos_work, 201, 2, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = br_ctd_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = br_ctd_pc_xeos;
     }
     else if (strcmp(name, "car") == 0){
-        BR_build_pc_work(br_car_pc_xeos, br_car_pc_xeos_work, 201, 2, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = br_car_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = br_car_pc_xeos;
     }
     else if (strcmp(name, "chl") == 0){
-        BR_build_pc_work(br_chl_pc_xeos, br_chl_pc_xeos_work, 1001, 5, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = br_chl_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = br_chl_pc_xeos;
     }
     else if (strcmp(name, "mica") == 0){
-        BR_build_pc_work(br_chl_pc_xeos, br_mica_pc_xeos_work, 1001, 5, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = br_mica_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = br_chl_pc_xeos;
     }
     else if (strcmp(name, "talc") == 0){
-        BR_build_pc_work(br_ctd_pc_xeos, br_talc_pc_xeos_work, 201, 2, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = br_talc_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = br_ctd_pc_xeos;
     }
     else if (strcmp(name, "ilm") == 0){
-        BR_build_pc_work(br_ctd_pc_xeos, br_ilm_pc_xeos_work, 201, 2, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = br_ilm_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = br_ctd_pc_xeos;
     }
     else if (strcmp(name, "bt") == 0){
-        BR_build_pc_work(br_ctd_pc_xeos, br_bt_pc_xeos_work, 201, 2, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = br_bt_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = br_ctd_pc_xeos;
     }
     else if (strcmp(name, "ol") == 0){
-        BR_build_pc_work(br_ctd_pc_xeos, br_ol_pc_xeos_work, 201, 2, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = br_ol_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = br_ctd_pc_xeos;
     }
     else if (strcmp(name, "ep") == 0){
-        BR_build_pc_work(br_ctd_pc_xeos, br_ep_pc_xeos_work, 201, 2, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = br_ep_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = br_ctd_pc_xeos;
     }
     else if (strcmp(name, "opx") == 0){
-        BR_build_pc_work(br_ctd_pc_xeos, br_opx_pc_xeos_work, 201, 2, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = br_opx_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = br_ctd_pc_xeos;
     }
     else if (strcmp(name, "amph") == 0){
-        BR_build_pc_work(br_ctd_pc_xeos, br_amph_pc_xeos_work, 201, 2, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = br_amph_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = br_ctd_pc_xeos;
     }
     else if (strcmp(name, "spl") == 0){
-        BR_build_pc_work(br_ctd_pc_xeos, br_spl_pc_xeos_work, 201, 2, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = br_spl_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = br_ctd_pc_xeos;
     }
     else if (strcmp(name, "stau") == 0){
-        BR_build_pc_work(br_ctd_pc_xeos, br_stau_pc_xeos_work, 201, 2, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = br_stau_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = br_ctd_pc_xeos;
     }
     else if (strcmp(name, "crd") == 0){
-        BR_build_pc_work(br_ctd_pc_xeos, br_crd_pc_xeos_work, 201, 2, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = br_crd_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = br_ctd_pc_xeos;
     }
     else if (strcmp(name, "grt") == 0){
-        BR_build_pc_work(br_ctd_pc_xeos, br_grt_pc_xeos_work, 201, 2, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = br_grt_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = br_ctd_pc_xeos;
     }
     else if (strcmp(name, "omph") == 0){
-        BR_build_pc_work(br_ternary_pc_xeos, br_omph_pc_xeos_work, 861, 3, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = br_omph_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = br_ternary_pc_xeos;
     }
     else if (strcmp(name, "amphx") == 0){
-        BR_build_pc_work(br_ternary_pc_xeos, br_amphx_pc_xeos_work, 861, 3, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = br_amphx_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = br_ternary_pc_xeos;
     }
     else if (strcmp(name, "fsp") == 0){
-        BR_build_pc_work(br_ternary_pc_xeos, br_fsp_pc_xeos_work, 861, 3, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = br_fsp_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = br_ternary_pc_xeos;
     }
 }

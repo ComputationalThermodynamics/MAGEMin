@@ -19910,49 +19910,9 @@ struct ss_pc gh_cpx_pc_xeos[3003] = {
 #define GH_PC_EPS 1e-7
 
 
-/**
-    Per-bulk working copies of the (boundary-shifted) static grids: rebuilt
-    every call from the current phase's z_em, zeroing the column of any
-    boiled-out endmember and renormalizing the row back to Sigma=1, so a PC
-    point that concentrated weight on a since-absent endmember doesn't get
-    scored with an under-summed composition during levelling.
-*/
-static struct ss_pc gh_liq0_pc_xeos_work[1820];
-static struct ss_pc gh_liq_pmelts_pc_xeos_work[4368];
-static struct ss_pc gh_ol_pc_xeos_work[41];
-static struct ss_pc gh_bi_pc_xeos_work[41];
-static struct ss_pc gh_fsp_pc_xeos_work[231];
-static struct ss_pc gh_g_pc_xeos_work[231];
-static struct ss_pc gh_hb_pc_xeos_work[231];
-static struct ss_pc gh_lc_pc_xeos_work[231];
-static struct ss_pc gh_mel_pc_xeos_work[165];
-static struct ss_pc gh_cum_pc_xeos_work[41];
-static struct ss_pc gh_spn_pc_xeos_work[1001];
-static struct ss_pc gh_cpx_pc_xeos_work[3003];
-static struct ss_pc gh_opx_pc_xeos_work[3003];
-static struct ss_pc gh_fluid_pc_xeos_work[41];
-static struct ss_pc gh_rhm_pc_xeos_work[1820];
-static struct ss_pc gh_nph_pc_xeos_work[165];
-static struct ss_pc gh_kls_pc_xeos_work[165];
-
-static void GH_build_pc_work(struct ss_pc *src, struct ss_pc *work, int n_row, int n_col, double *z_em){
-    for (int k = 0; k < n_row; k++){
-        double sum = 0.0;
-        for (int i = 0; i < n_col; i++){
-            double v = (z_em[i] == 0.0) ? 0.0 : src[k].xeos_pc[i];
-            work[k].xeos_pc[i] = v;
-            sum += v;
-        }
-        if (sum > 0.0){
-            for (int i = 0; i < n_col; i++){ work[k].xeos_pc[i] /= sum; }
-        }
-    }
-}
-
 void GH_pc_init_function(  PC_ref  *SS_pc_xeos,
                             int      iss,
                             char    *name,
-                            double  *z_em,
                             int      EM_database    ){
 
     if (strcmp(name, "liq") == 0){
@@ -19960,72 +19920,55 @@ void GH_pc_init_function(  PC_ref  *SS_pc_xeos,
             /* pMELTS: 12 endmembers (CO2 dropped) - see
                gh_liq_pmelts_pc_xeos's own header comment for how this
                4368-row grid was derived from gh_liq_pc_xeos. */
-            GH_build_pc_work(gh_liq_pmelts_pc_xeos, gh_liq_pmelts_pc_xeos_work, 4368, 12, z_em);
-            SS_pc_xeos[iss].ss_pc_xeos = gh_liq_pmelts_pc_xeos_work;
+            SS_pc_xeos[iss].ss_pc_xeos = gh_liq_pmelts_pc_xeos;
         }
         else {
-            GH_build_pc_work(gh_liq0_pc_xeos, gh_liq0_pc_xeos_work, 1820, 13, z_em);
-            SS_pc_xeos[iss].ss_pc_xeos = gh_liq0_pc_xeos_work;
+            SS_pc_xeos[iss].ss_pc_xeos = gh_liq0_pc_xeos;
         }
     }
     else if (strcmp(name, "ol") == 0){
-        GH_build_pc_work(gh_ol_pc_xeos, gh_ol_pc_xeos_work, 41, 2, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = gh_ol_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = gh_ol_pc_xeos;
     }
     else if (strcmp(name, "bi") == 0){
-        GH_build_pc_work(gh_bi_pc_xeos, gh_bi_pc_xeos_work, 41, 2, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = gh_bi_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = gh_bi_pc_xeos;
     }
     else if (strcmp(name, "fsp") == 0){
-        GH_build_pc_work(gh_fsp_pc_xeos, gh_fsp_pc_xeos_work, 231, 3, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = gh_fsp_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = gh_fsp_pc_xeos;
     }
     else if (strcmp(name, "g") == 0){
-        GH_build_pc_work(gh_g_pc_xeos, gh_g_pc_xeos_work, 231, 3, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = gh_g_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = gh_g_pc_xeos;
     }
     else if (strcmp(name, "hb") == 0){
-        GH_build_pc_work(gh_hb_pc_xeos, gh_hb_pc_xeos_work, 231, 3, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = gh_hb_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = gh_hb_pc_xeos;
     }
     else if (strcmp(name, "lc") == 0){
-        GH_build_pc_work(gh_lc_pc_xeos, gh_lc_pc_xeos_work, 231, 3, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = gh_lc_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = gh_lc_pc_xeos;
     }
     else if (strcmp(name, "mel") == 0){
-        GH_build_pc_work(gh_mel_pc_xeos, gh_mel_pc_xeos_work, 165, 4, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = gh_mel_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = gh_mel_pc_xeos;
     }
     else if (strcmp(name, "cum") == 0){
-        GH_build_pc_work(gh_cum_pc_xeos, gh_cum_pc_xeos_work, 41, 2, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = gh_cum_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = gh_cum_pc_xeos;
     }
     else if (strcmp(name, "spn") == 0){
-        GH_build_pc_work(gh_spn_pc_xeos, gh_spn_pc_xeos_work, 1001, 5, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = gh_spn_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = gh_spn_pc_xeos;
     }
     else if (strcmp(name, "cpx") == 0){
-        GH_build_pc_work(gh_cpx_pc_xeos, gh_cpx_pc_xeos_work, 3003, 7, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = gh_cpx_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = gh_cpx_pc_xeos;
     }
     else if (strcmp(name, "opx") == 0){
-        GH_build_pc_work(gh_cpx_pc_xeos, gh_opx_pc_xeos_work, 3003, 7, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = gh_opx_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = gh_cpx_pc_xeos;
     }
     else if (strcmp(name, "fl") == 0){
-        GH_build_pc_work(gh_fluid_pc_xeos, gh_fluid_pc_xeos_work, 41, 2, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = gh_fluid_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = gh_fluid_pc_xeos;
     }
     else if (strcmp(name, "rhm") == 0){
-        GH_build_pc_work(gh_rhm_pc_xeos, gh_rhm_pc_xeos_work, 1820, 5, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = gh_rhm_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = gh_rhm_pc_xeos;
     }
     else if (strcmp(name, "nph") == 0){
-        GH_build_pc_work(gh_nph_pc_xeos, gh_nph_pc_xeos_work, 165, 4, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = gh_nph_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = gh_nph_pc_xeos;
     }
     else if (strcmp(name, "kls") == 0){
-        GH_build_pc_work(gh_kls_pc_xeos, gh_kls_pc_xeos_work, 165, 4, z_em);
-        SS_pc_xeos[iss].ss_pc_xeos = gh_kls_pc_xeos_work;
+        SS_pc_xeos[iss].ss_pc_xeos = gh_kls_pc_xeos;
     }
 }

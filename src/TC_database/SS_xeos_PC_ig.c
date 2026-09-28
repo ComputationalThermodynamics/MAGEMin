@@ -34386,7 +34386,8 @@ void SS_ig_pc_init_function(	PC_ref 	*SS_pc_xeos,
 		SS_pc_xeos[iss].ss_pc_xeos  = ig_chl_pc_xeos; 		}
 	else if (strcmp( name, "DEW") == 0){
 
-		static struct ss_pc DEW_pc_xeos[1];
+		struct ss_pc *DEW_pc_xeos = calloc(1, sizeof(struct ss_pc));
+		SS_pc_xeos[iss].pc_own = DEW_pc_xeos;
 
 		int id[gv.len_ox];
 		DEW_build_id_map(gv.len_ox, gv.ox, id);

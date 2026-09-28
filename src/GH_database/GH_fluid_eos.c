@@ -1250,13 +1250,22 @@ void GH_duan_mix_muGex(double x_h2o, double t, double p, double *muW, double *mu
 
     double lnPhiW, lnPhiC, lnPhiWpure, lnPhiCpure, dum;
     GH_dz_phi(t, p, x, &lnPhiW, &lnPhiC);
-    {
-        double xp[2] = {1.0, 0.0};
-        GH_dz_phi(t, p, xp, &lnPhiWpure, &dum);
+    static __thread double c_t, c_p, c_W, c_C;
+    static __thread int    c_ok = 0;
+    if (c_ok && c_t == t && c_p == p){
+        lnPhiWpure = c_W;
+        lnPhiCpure = c_C;
     }
-    {
-        double xp[2] = {0.0, 1.0};
-        GH_dz_phi(t, p, xp, &dum, &lnPhiCpure);
+    else {
+        {
+            double xp[2] = {1.0, 0.0};
+            GH_dz_phi(t, p, xp, &lnPhiWpure, &dum);
+        }
+        {
+            double xp[2] = {0.0, 1.0};
+            GH_dz_phi(t, p, xp, &dum, &lnPhiCpure);
+        }
+        c_t = t; c_p = p; c_W = lnPhiWpure; c_C = lnPhiCpure; c_ok = 1;
     }
     *muW = R_*t*(log(x[iW]) + lnPhiW - lnPhiWpure);
     *muC = R_*t*(log(x[iC]) + lnPhiC - lnPhiCpure);
