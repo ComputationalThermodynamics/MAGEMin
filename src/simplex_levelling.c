@@ -1437,6 +1437,8 @@ void SS_all_pc_init_function(	PC_ref 	*SS_pc_xeos,
 		SS_mp_pc_init_function(		SS_pc_xeos, iss, "mt", gv		);	}
 	else if (strcmp( name, "ilmm_W14")  == 0){
 		SS_mb_pc_init_function(			SS_pc_xeos, iss, "ilmm", gv		);	}
+	else if (strcmp( name, "ilmmn_W14") == 0){
+		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "ilmm", gv		);	}
 	else if (strcmp( name, "amp_G16")   == 0){
 		SS_mb_pc_init_function(			SS_pc_xeos, iss, "amp", gv		);	}
 	else if (strcmp( name, "dio_G16")   == 0){

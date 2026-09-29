@@ -91,7 +91,8 @@ ilm_W00,ss,Ilmenite,Ilm
 ilm_T21,ss,Ilmenite,Ilm
 ilm_W24,ss,Ilmenite,Ilm
 ilmm,ss,Ilmenite-hematite (Mn-bearing),Ilm
-ilmm_W14,ss,Ilmenite-hematite (Mn-bearing),Ilm
+ilmm_W14,ss,Ilmenite-hematite,Ilm
+ilmmn_W14,ss,Ilmenite-hematite (Mn-bearing),Ilm
 kals,ss,Kalsilite,Kls
 kals_W24,ss,Kalsilite,Kls
 lct,ss,Leucite,Lct

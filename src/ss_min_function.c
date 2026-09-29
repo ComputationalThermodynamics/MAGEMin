@@ -325,7 +325,7 @@ global_variable split_cp(		global_variable 	 gv,
 			
 			distance 	= euclidean_distance( cp[i].xeos, cp[i].dguess, SS_ref_db[ph_id].n_xeos);
 
-			if (distance > 2.0*gv.SS_PC_stp[ph_id]*pow((double)SS_ref_db[ph_id].n_xeos,0.5) && cp[i].split == 0){
+			if (distance > 2.0*gv.SS_PC_stp[ph_id]*pow((double)SS_ref_db[ph_id].n_xeos,0.5) && cp[i].split == 0 && gv.len_cp < gv.max_n_cp){
 				id_cp 					= gv.len_cp;
 						
 				cp[id_cp].split 		= 1;							/* set split number to one */

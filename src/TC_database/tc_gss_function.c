@@ -5563,7 +5563,7 @@ SS_ref G_SS_mp_ilm_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mp_ilmm
 */
 SS_ref G_SS_mp_ilmm_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    strcpy(SS_ref_db.fName,"ilmm_W14");
+    strcpy(SS_ref_db.fName,"ilmmn_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -16256,7 +16256,7 @@ SS_ref G_SS_mpe_ilm_function(SS_ref SS_ref_db, char* research_group, int EM_data
    retrieve reference thermodynamic data for mp_ilmm
 */
 SS_ref G_SS_mpe_ilmm_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    strcpy(SS_ref_db.fName,"ilmm_W14");
+    strcpy(SS_ref_db.fName,"ilmmn_W14");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -20461,6 +20461,11 @@ SS_ref G_SS_all_EM_function(	global_variable 	 gv,
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_mb_ilmm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+		else if (strcmp( name, "ilmmn_W14") == 0 ){
+			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
+				SS_ref_db.ss_flags[0]  = 0;
+			}
+			SS_ref_db  = G_SS_mpe_ilmm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "amp_G16") == 0 ){
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
