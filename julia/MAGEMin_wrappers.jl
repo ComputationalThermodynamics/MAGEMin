@@ -2245,7 +2245,7 @@ function multi_point_minimization(P           ::  T2,
         out         = point_wise_minimization(  P[i], T[i], gv, z_b, DB, splx_data;
                                                 light=light, light_ig=light_ig, buffer_n=buffer, mu_fix_val=mu_val_i, name_solvus=name_solvus, fixed_bulk=fixed_bulk, calibration=calibration, Gi=Gi, W=W, gbase=gbase, scp=scp, dT=dT, iguess=ig, rm_list=rm_list, seismic_cor=seismic_cor, aspect_ratio=aspect_ratio, seismic_water=seismic_water, shallow_correction=shallow_correction, fluid_as_melt=fluid_as_melt, anelastic_cor=anelastic_cor, filter_DEW_species=filter_DEW_species)
 
-        Out_PT[i]   = deepcopy(out)
+        Out_PT[i]   = out
 
         if progressbar
             next!(progr)
