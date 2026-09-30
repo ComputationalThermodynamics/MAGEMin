@@ -239,7 +239,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	/* "liq" redundant-occurrence pseudocompound synthesis (gh and tc) */
 	gv.n_max_val 					= 3;	 		/** controls the max number of minimization per identical phases */
 	gv.act_rMELTS_liq_pc_synth      = 64;	     	/** number of global iterations steps before lienar discretization of the PC generation */
-	gv.liq_pc_synth_active			= 1;			/** 1: composite method active; 0: fully disabled, legacy per-occurrence NLopt path 	*/
+	gv.liq_pc_synth_active			= 2;			/** 2: composite method for liq + clustered same-phase instances; 1: liq only; 0: fully disabled, legacy per-occurrence NLopt path */
 	gv.gh_liq_pc_synth_threshold	= 2;			/** n_ss_ph[liq] above which the composite (1 real solve + synthesis) method fires 	*/
 
 	/* set of parameters to record the evolution of the norm of the mass constraint */

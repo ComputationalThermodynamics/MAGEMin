@@ -587,7 +587,7 @@ end
     @test out_TE.Cliq[1] ≈ 189.83559381921782    rtol=tol   # Li
     @test out_TE.Cliq[2] ≈ 47.86020212957779     rtol=tol   # Zr at saturation
     @test out_TE.Cliq[3] ≈ 133.18203710723262    rtol=tol   # P2O5 at saturation
-    @test out_TE.Cliq[4] ≈ 16.185494729785756    rtol=tol   # S at saturation
+    @test out_TE.Cliq[4] ≈ 16.221576377269876    rtol=tol   # S at saturation
     @test out_TE.Cliq[5] ≈ 1500.2696597838953    rtol=tol   # CO2 capped at saturation
     @test out_TE.zrc_wt  ≈ 0.0007395168468941766  rtol=tol
     @test out_TE.fapt_wt ≈ 0.0023231379042603197   rtol=tol
@@ -792,7 +792,7 @@ end
 
     Sat_Montel_1  = MAGEMin_C.monazite_saturation(out, 1.0; model="Montel93")
     Sat_Montel_07 = MAGEMin_C.monazite_saturation(out, 0.7; model="Montel93")
-    @test Sat_Montel_1  ≈ 118.31340706544371 rtol=1e-3
+    @test Sat_Montel_1  ≈ 118.4447261766036 rtol=1e-3
     @test Sat_Montel_07 < Sat_Montel_1   # less pure REE-phosphate character -> lower solubility
 
     Sat_Maim_1  = MAGEMin_C.monazite_saturation(out, 1.0; model="Maimaiti19")
@@ -1304,7 +1304,7 @@ end
     Finalize_MAGEMin(data)
 
     @test abs(out.G_system + 806.7071168433587) < 1e-6
-    @test abs(out2.G_system + 791.4602868457285) < 1e-6
+    @test abs(out2.G_system + 791.4602921453513) < 1e-6
 end
 
 @testset verbose = true "Test Ws override" begin
