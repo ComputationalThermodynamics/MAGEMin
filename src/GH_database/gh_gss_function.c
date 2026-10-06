@@ -1590,6 +1590,7 @@ SS_ref G_SS_gh_EM_function(    global_variable  gv,
         for (int j = 0; j < SS_ref_db.n_em; j++){
             SS_ref_db.mu_array[FD][j] = SS_ref_db.gbase[j];
         }
+        store_FD_interactions(&SS_ref_db, FD);
     }
 
     for (int j = 0; j < SS_ref_db.n_xeos; j++){

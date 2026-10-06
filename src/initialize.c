@@ -480,12 +480,24 @@ SS_ref G_SS_init_EM_function(		SS_init_type		*SS_init,
 	for (int i = 0; i < n_sf; i++){ 
 		SS_ref_db.SF_list[i] = calloc(20, sizeof(char)		);		
 	}
+	SS_ref_db.W_array = NULL;
+	SS_ref_db.v_array = NULL;
 	if (sym == 0){
 		SS_ref_db.W   		= malloc (SS_ref_db.n_w * sizeof (double) ); 
 		SS_ref_db.v   		= malloc (SS_ref_db.n_v * sizeof (double) ); 
+		SS_ref_db.v_array	= malloc (gv.n_Diff * sizeof (double*) );
+		for (int i = 0; i < gv.n_Diff; i++){
+			SS_ref_db.v_array[i] = malloc (SS_ref_db.n_v * sizeof (double) );
+		}
 	}
 	else if (sym == 1){
 		SS_ref_db.W   		= malloc (SS_ref_db.n_w * sizeof (double) ); 
+	}
+	if (sym == 0 || sym == 1){
+		SS_ref_db.W_array	= malloc (gv.n_Diff * sizeof (double*) );
+		for (int i = 0; i < gv.n_Diff; i++){
+			SS_ref_db.W_array[i] = malloc (SS_ref_db.n_w * sizeof (double) );
+		}
 	}
 	
 	/* initialize fractions flags and cycle arrays with zeros */
@@ -1351,3 +1363,16 @@ void reset_simplex_B_em(			simplex_data 		*splx_data,
 		d->B1[j]  = 0.0;	
 	}
 };
+
+void store_FD_interactions(SS_ref *SS_ref_db, int FD){
+	if (SS_ref_db->W_array != NULL){
+		for (int j = 0; j < SS_ref_db->n_w; j++){
+			SS_ref_db->W_array[FD][j] = SS_ref_db->W[j];
+		}
+	}
+	if (SS_ref_db->v_array != NULL){
+		for (int j = 0; j < SS_ref_db->n_v; j++){
+			SS_ref_db->v_array[FD][j] = SS_ref_db->v[j];
+		}
+	}
+}

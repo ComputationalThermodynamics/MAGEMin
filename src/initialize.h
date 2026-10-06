@@ -91,5 +91,8 @@
 	void reset_simplex_B_em(			simplex_data 		*splx_data,
 										global_variable 	 gv					);
 
+	void store_FD_interactions(			SS_ref 				*SS_ref_db,
+										int 				 FD					);
+
 
 #endif

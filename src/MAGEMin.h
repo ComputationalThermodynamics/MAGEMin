@@ -519,6 +519,8 @@ typedef struct SS_refs {
     								while dew_warm_ok==0. 														*/
 
     double **mu_array;        	/** 2d array of gbase, including values for numerical differentiation 		*/
+    double **W_array;
+    double **v_array;
     double  *gb_lvl;
     double   factor;			/** normalizing factor 														*/
     double **bounds;			/** x-eos bounds 															*/

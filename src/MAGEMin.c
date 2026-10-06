@@ -1435,6 +1435,12 @@ void FreeDatabases(		global_variable gv,
 		}
 
 		for (j = 0; j < ndif; j++) {	free(DB.SS_ref_db[i].mu_array[j]);}	free(DB.SS_ref_db[i].mu_array);
+		if (DB.SS_ref_db[i].W_array != NULL){
+			for (j = 0; j < ndif; j++) {	free(DB.SS_ref_db[i].W_array[j]);}	free(DB.SS_ref_db[i].W_array);
+		}
+		if (DB.SS_ref_db[i].v_array != NULL){
+			for (j = 0; j < ndif; j++) {	free(DB.SS_ref_db[i].v_array[j]);}	free(DB.SS_ref_db[i].v_array);
+		}
 
 		free(DB.SS_ref_db[i].G_pc);
 		free(DB.SS_ref_db[i].DF_pc);

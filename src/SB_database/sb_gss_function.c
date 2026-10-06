@@ -1444,6 +1444,7 @@ SS_ref G_SS_sb11_EM_function(       global_variable        gv,
         for (int j = 0; j < SS_ref_db.n_em; j++){
             SS_ref_db.mu_array[FD][j] = SS_ref_db.gbase[j];
         }
+        store_FD_interactions(&SS_ref_db, FD);
     }
 
     for (int j = 0; j < SS_ref_db.n_em; j++){
@@ -3009,6 +3010,7 @@ SS_ref G_SS_sb21_EM_function(       global_variable          gv,
         for (int j = 0; j < SS_ref_db.n_em; j++){
             SS_ref_db.mu_array[FD][j] = SS_ref_db.gbase[j];
         }
+        store_FD_interactions(&SS_ref_db, FD);
     }
 
     for (int j = 0; j < SS_ref_db.n_em; j++){
@@ -4968,6 +4970,7 @@ SS_ref G_SS_sb24_nal_function(SS_ref SS_ref_db, char* research_group, int EM_dat
         for (int j = 0; j < SS_ref_db.n_em; j++){
             SS_ref_db.mu_array[FD][j] = SS_ref_db.gbase[j];
         }
+        store_FD_interactions(&SS_ref_db, FD);
     }
 
     for (int j = 0; j < SS_ref_db.n_em; j++){
