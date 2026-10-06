@@ -163,7 +163,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");					/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"2.0.6 [06/10/2026]");		/** MAGEMin version 																*/
+	strcpy(gv.version,"2.0.7 [07/10/2026]");		/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
@@ -343,9 +343,9 @@ csd_phase_set CP_INIT_function(csd_phase_set cp, global_variable gv){
 */
 stb_system SP_INIT_function(stb_system sp, global_variable gv){
 
-	sp.MAGEMin_ver   		= malloc(50  		* sizeof(char)				);
-	sp.dataset   		    = malloc(50  		* sizeof(char)				);
-	sp.database   			= malloc(50  		* sizeof(char)				);
+	sp.MAGEMin_ver   		= calloc(50, 		  sizeof(char)				);
+	sp.dataset   		    = calloc(50, 		  sizeof(char)				);
+	sp.database   			= calloc(50, 		  sizeof(char)				);
 	sp.oxides 	     		= malloc(gv.len_ox  * sizeof(char*)				);
 	sp.elements 	     	= malloc(gv.len_ox  * sizeof(char*)				);
 		

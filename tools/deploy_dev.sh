@@ -19,7 +19,7 @@ set -e
 
 REPO=$(cd "$(dirname "$0")/.." && pwd)
 DEV=${1:-"$HOME/.julia/dev/MAGEMin_C"}
-APP=${2:-"$HOME/seph/MAGEMinApp.jl_v1.7.0"}
+APP=${2:-"$HOME/seph/MAGEMinApp.jl_v1.7.2"}
 
 cd "$REPO"
 

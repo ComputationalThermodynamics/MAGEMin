@@ -359,6 +359,7 @@ end
     zr_sat  = MAGEMin_C.zirconium_saturation(out, model="CB")
 
     @test zr_sat ≈ 65.83158859091596 rtol=1e-5
+    Finalize_MAGEMin(data)
 end
 
 @testset verbose=true "test normalization" begin
@@ -512,6 +513,7 @@ end
     X       = [20.044,0.6256,29.24,3.149,0.0,46.755,0.0]
     sys_in  = "mol"    
     out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in);
+    Finalize_MAGEMin(data)
 end
 
 @testset verbose=true "PT adaptive refinement" begin
@@ -871,10 +873,12 @@ end
     @test "fapt" in KDs_dtb.phase_name
     @test "mnz" in KDs_dtb.phase_name
 
-    dummy_out = single_point_minimization(6.0, 800.0, Initialize_MAGEMin("mp", verbose=-1, solver=0),
+    data_dummy = Initialize_MAGEMin("mp", verbose=-1, solver=0)
+    dummy_out = single_point_minimization(6.0, 800.0, data_dummy,
                                             X=[58.509, 1.022, 14.858, 4.371, 0.141, 4.561, 5.912, 3.296, 2.399, 10.0, 0.2],
                                             Xoxides=["SiO2","TiO2","Al2O3","FeO","MnO","MgO","CaO","Na2O","K2O","H2O","O"],
                                             sys_in="wt")
+    Finalize_MAGEMin(data_dummy)
 
     id_zrc = findfirst(KDs_dtb.phase_name .== "zrc")
     id_mnz = findfirst(KDs_dtb.phase_name .== "mnz")
@@ -1223,7 +1227,8 @@ println("Testing points from the reference diagrams:")
         include("test_diagram_test1.jl")
         TestPoints(list, data)
     end
-   
+    Finalize_MAGEMin(data)
+
     println("  Starting Wet MORB tests")
     db          = "ig"  # database: ig, igneous (Holland et al., 2018); mp, metapelite (White et al 2014b)
     data = Initialize_MAGEMin(db, verbose=false);
@@ -1502,8 +1507,8 @@ end
     p                           = Dict("ab"=>0.2, "an"=>0.2, "san"=>0.6)
     SS_ref_db                   = p2x_convert(gv, DB, "fsp_H22", p)
 
-    em_names                    = unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, SS_ref_db.EM_list, SS_ref_db.n_em))
-    cv_names                    = unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, SS_ref_db.CV_list, SS_ref_db.n_xeos))
+    em_names                    = unsafe_string.(unsafe_wrap(Vector{Ptr{Cchar}}, SS_ref_db.EM_list, SS_ref_db.n_em))
+    cv_names                    = unsafe_string.(unsafe_wrap(Vector{Ptr{Cchar}}, SS_ref_db.CV_list, SS_ref_db.n_xeos))
 
     @test em_names == ["ab", "an", "san"]
     @test cv_names == ["ca", "k"]

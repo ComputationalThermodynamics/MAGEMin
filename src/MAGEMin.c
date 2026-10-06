@@ -1200,7 +1200,7 @@ Databases InitializeDatabases(	global_variable gv,
 									gv				);
 	}
 
-	DB.SS_ref_db = malloc ((gv.len_ss) 		* sizeof(SS_ref));
+	DB.SS_ref_db = calloc ((gv.len_ss), 		  sizeof(SS_ref));
 	for (int iss = 0; iss < gv.len_ss; iss++){
 
 		DB.SS_ref_db[iss] = G_SS_init_EM_function(		SS_init,	
