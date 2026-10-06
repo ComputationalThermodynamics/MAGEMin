@@ -803,8 +803,8 @@ global_variable phase_hold2act(		bulk_info 				z_b,
 
 	/** -----------------------------------SORTING PURE AND SOLUTION PHASES BY DRIVING FORCES------------------------------------------------------------------------- **/		
 	/* create the structures that will hold the phase array sorted by driving force */
-	struct str hld_cp_sort[n_cp_hld];
-	struct str hld_pp_sort[n_pp_hld];
+	struct str hld_cp_sort[n_cp_hld > 0 ? n_cp_hld : 1];
+	struct str hld_pp_sort[n_pp_hld > 0 ? n_pp_hld : 1];
 	
 	inc = 0;
 	for (int i = 0; i < gv.len_cp; i++){

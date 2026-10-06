@@ -34,7 +34,7 @@ global gv.verbose  = -1        # switch off any verbose
 global gv, z_b, DB, splx_data = pwm_init(P,T, gv, z_b, DB, splx_data);
 
 # get names of the solution phases
-ss_names  = unsafe_string.(unsafe_wrap(Vector{Ptr{Int8}}, gv.SS_list, gv.len_ss));
+ss_names  = unsafe_string.(unsafe_wrap(Vector{Ptr{Cchar}}, gv.SS_list, gv.len_ss));
 
 # get the solution phase structure (size gv.len_ss)
 ss_struct = unsafe_wrap(Vector{LibMAGEMin.SS_ref},DB.SS_ref_db,gv.len_ss);

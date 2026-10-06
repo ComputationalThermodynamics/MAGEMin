@@ -49,6 +49,8 @@ SS_ref G_SS_DEW_init_function(SS_ref SS_ref_db,  global_variable gv){
     SS_ref_db.n_sf      = n_active+1;   /* +1 water */
     SS_ref_db.n_em      = n_active+1;
     SS_ref_db.n_xeos    = n_active+1;
+    SS_ref_db.n_w       = 0;
+    SS_ref_db.n_v       = 0;
 
     return SS_ref_db;
 }
