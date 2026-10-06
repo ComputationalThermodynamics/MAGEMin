@@ -10,10 +10,37 @@
  ** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ @*/
 /* Source: Pourteau et al. (2014), Contrib Mineral Petrol -- Ctd/Car are
    both "(IDEAL) M(1):Fe,Mg", W=0, so this is a plain ideal 1-site binary. */
+#include <math.h>
 #include <complex.h>
 #include <string.h>
 
 #include "br_objective_functions.h"
+
+static inline void gex_sym_n2(SS_ref *d, const double *p, int jmax, double *Gex)
+{
+    int n = d->n_em, it = 0;
+    double Q = 0.0;
+    for (int i = 0; i < n; i++){ Gex[i] = 0.0; }
+    for (int j = 0; j < jmax; j++){
+        for (int k = j+1; k < n; k++){
+            double w = d->W[it++];
+            Gex[j] += w*p[k];
+            Gex[k] += w*p[j];
+            Q      += w*p[j]*p[k];
+        }
+    }
+    for (int i = 0; i < n; i++){ Gex[i] -= Q; }
+}
+
+
+static __attribute__((noinline)) double rlog(double complex z)
+{
+#if defined(__APPLE__)
+    return (cimag(z) == 0.0) ? log(fabs(creal(z))) : creal(clog(z));
+#else
+    return creal(clog(z));
+#endif
+}
 
 static double obj_br_ideal_binary(unsigned n, const double *x, double *grad, void *SS_ref_db){
     (void) n;
@@ -30,16 +57,10 @@ static double obj_br_ideal_binary(unsigned n, const double *x, double *grad, voi
         p[i] = x[i];
     }
 
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, n_em, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        double Gex = 0.0;
-        int it = 0;
-        for (int j = 0; j < n_em; j++){
-            double tmp = d->eye[i][j] - p[j];
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k]-p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        double Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
         d->sf[i]  = p[i];
     }
@@ -50,7 +71,7 @@ static double obj_br_ideal_binary(unsigned n, const double *x, double *grad, voi
     }
     d->factor = d->fbc/d->sum_apep;
 
-    double Sconfig = R*T*(p[0]*creal(clog(p[0] + d->d_em[0])) + p[1]*creal(clog(p[1] + d->d_em[1])));
+    double Sconfig = R*T*(p[0]*rlog((p[0] + d->d_em[0])) + p[1]*rlog((p[1] + d->d_em[1])));
 
     d->df_raw = 0.0;
     for (int i = 0; i < n_em; i++){
@@ -60,8 +81,8 @@ static double obj_br_ideal_binary(unsigned n, const double *x, double *grad, voi
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        double dS0 = R*T*(creal(clog(p[0] + d->d_em[0]))+1.0);
-        double dS1 = R*T*(creal(clog(p[1] + d->d_em[1]))+1.0);
+        double dS0 = R*T*(rlog((p[0] + d->d_em[0]))+1.0);
+        double dS1 = R*T*(rlog((p[1] + d->d_em[1]))+1.0);
         grad[0] = (dS0 + mu_Gex[0] + gb[0])*d->factor - (d->df_raw*d->factor*(d->ape[0]/d->sum_apep));
         grad[1] = (dS1 + mu_Gex[1] + gb[1])*d->factor - (d->df_raw*d->factor*(d->ape[1]/d->sum_apep));
     }
@@ -113,9 +134,9 @@ double obj_br_chl(unsigned n, const double *x, double *grad, void *SS_ref_db){
     d->sf[7] = xT1_Al; d->sf[8] = xT1_Si;
 
     double S_terms =
-        4.0*( x23_Fe*creal(clog(x23_Fe+eps)) + x23_Mg*creal(clog(x23_Mg+eps)) + x23_Al*creal(clog(x23_Al+eps)) ) +
-        1.0*( x1_Fe*creal(clog(x1_Fe+eps)) + x1_Mg*creal(clog(x1_Mg+eps)) + x1_Al*creal(clog(x1_Al+eps)) + x1_v*creal(clog(x1_v+eps)) ) +
-        2.0*( xT1_Al*creal(clog(xT1_Al+eps)) + xT1_Si*creal(clog(xT1_Si+eps)) );
+        4.0*( x23_Fe*rlog((x23_Fe+eps)) + x23_Mg*rlog((x23_Mg+eps)) + x23_Al*rlog((x23_Al+eps)) ) +
+        1.0*( x1_Fe*rlog((x1_Fe+eps)) + x1_Mg*rlog((x1_Mg+eps)) + x1_Al*rlog((x1_Al+eps)) + x1_v*rlog((x1_v+eps)) ) +
+        2.0*( xT1_Al*rlog((xT1_Al+eps)) + xT1_Si*rlog((xT1_Si+eps)) );
 
     /* W order: FeMg, FeAl, Fev, MgAl, Mgv, Alv */
     double G_xs_J = W[0]*x1_Fe*x1_Mg + W[1]*x1_Fe*x1_Al + W[2]*x1_Fe*x1_v
@@ -133,15 +154,15 @@ double obj_br_chl(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     if (grad){
         /* dS/d(site fraction), each = ln(x+eps)+1 */
-        double dS_23Fe = creal(clog(x23_Fe+eps))+1.0;
-        double dS_23Mg = creal(clog(x23_Mg+eps))+1.0;
-        double dS_23Al = creal(clog(x23_Al+eps))+1.0;
-        double dS_1Fe  = creal(clog(x1_Fe+eps))+1.0;
-        double dS_1Mg  = creal(clog(x1_Mg+eps))+1.0;
-        double dS_1Al  = creal(clog(x1_Al+eps))+1.0;
-        double dS_1v   = creal(clog(x1_v+eps))+1.0;
-        double dS_T1Al = creal(clog(xT1_Al+eps))+1.0;
-        double dS_T1Si = creal(clog(xT1_Si+eps))+1.0;
+        double dS_23Fe = rlog((x23_Fe+eps))+1.0;
+        double dS_23Mg = rlog((x23_Mg+eps))+1.0;
+        double dS_23Al = rlog((x23_Al+eps))+1.0;
+        double dS_1Fe  = rlog((x1_Fe+eps))+1.0;
+        double dS_1Mg  = rlog((x1_Mg+eps))+1.0;
+        double dS_1Al  = rlog((x1_Al+eps))+1.0;
+        double dS_1v   = rlog((x1_v+eps))+1.0;
+        double dS_T1Al = rlog((xT1_Al+eps))+1.0;
+        double dS_T1Si = rlog((xT1_Si+eps))+1.0;
 
         /* dGxs/d(M1 site fraction) */
         double dG_1Fe = W[0]*x1_Mg + W[1]*x1_Al + W[2]*x1_v;
@@ -217,9 +238,9 @@ double obj_br_mica(unsigned n, const double *x, double *grad, void *SS_ref_db){
     d->sf[6] = x_T1_Al; d->sf[7] = x_T1_Si;
 
     double S_terms =
-        1.0*( x_K*creal(clog(x_K+eps)) + x_Na*creal(clog(x_Na+eps)) + x_v*creal(clog(x_v+eps)) ) +
-        2.0*( x_M2_Al*creal(clog(x_M2_Al+eps)) + x_M2_Mg*creal(clog(x_M2_Mg+eps)) + x_M2_Fe*creal(clog(x_M2_Fe+eps)) ) +
-        2.0*( x_T1_Al*creal(clog(x_T1_Al+eps)) + x_T1_Si*creal(clog(x_T1_Si+eps)) );
+        1.0*( x_K*rlog((x_K+eps)) + x_Na*rlog((x_Na+eps)) + x_v*rlog((x_v+eps)) ) +
+        2.0*( x_M2_Al*rlog((x_M2_Al+eps)) + x_M2_Mg*rlog((x_M2_Mg+eps)) + x_M2_Fe*rlog((x_M2_Fe+eps)) ) +
+        2.0*( x_T1_Al*rlog((x_T1_Al+eps)) + x_T1_Si*rlog((x_T1_Si+eps)) );
 
     /* I-site subregular asymmetric term: Gex_ij = xi*xj*(xi*Wiij + xj*Wijj) */
     double G_xs_I_J =
@@ -242,14 +263,14 @@ double obj_br_mica(unsigned n, const double *x, double *grad, void *SS_ref_db){
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        double dS_K  = creal(clog(x_K+eps))+1.0;
-        double dS_Na = creal(clog(x_Na+eps))+1.0;
-        double dS_v  = creal(clog(x_v+eps))+1.0;
-        double dS_M2Al = creal(clog(x_M2_Al+eps))+1.0;
-        double dS_M2Mg = creal(clog(x_M2_Mg+eps))+1.0;
-        double dS_M2Fe = creal(clog(x_M2_Fe+eps))+1.0;
-        double dS_T1Al = creal(clog(x_T1_Al+eps))+1.0;
-        double dS_T1Si = creal(clog(x_T1_Si+eps))+1.0;
+        double dS_K  = rlog((x_K+eps))+1.0;
+        double dS_Na = rlog((x_Na+eps))+1.0;
+        double dS_v  = rlog((x_v+eps))+1.0;
+        double dS_M2Al = rlog((x_M2_Al+eps))+1.0;
+        double dS_M2Mg = rlog((x_M2_Mg+eps))+1.0;
+        double dS_M2Fe = rlog((x_M2_Fe+eps))+1.0;
+        double dS_T1Al = rlog((x_T1_Al+eps))+1.0;
+        double dS_T1Si = rlog((x_T1_Si+eps))+1.0;
 
         /* dGxs_I/d(I site fraction), from Gex_I = W0 K^2 Na + W1 K Na^2 + W2 Na^2 v
            + W3 Na v^2 + W4 K^2 v + W5 K v^2 + W6 K Na v */
@@ -319,16 +340,10 @@ static double obj_br_ideal_binary_mult(unsigned n, const double *x, double *grad
         p[i] = x[i];
     }
 
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, n_em, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        double Gex = 0.0;
-        int it = 0;
-        for (int j = 0; j < n_em; j++){
-            double tmp = d->eye[i][j] - p[j];
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k]-p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        double Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
         d->sf[i]  = p[i];
     }
@@ -339,7 +354,7 @@ static double obj_br_ideal_binary_mult(unsigned n, const double *x, double *grad
     }
     d->factor = d->fbc/d->sum_apep;
 
-    double Sconfig = R*T*mult*(p[0]*creal(clog(p[0] + d->d_em[0])) + p[1]*creal(clog(p[1] + d->d_em[1])));
+    double Sconfig = R*T*mult*(p[0]*rlog((p[0] + d->d_em[0])) + p[1]*rlog((p[1] + d->d_em[1])));
 
     d->df_raw = 0.0;
     for (int i = 0; i < n_em; i++){
@@ -349,8 +364,8 @@ static double obj_br_ideal_binary_mult(unsigned n, const double *x, double *grad
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        double dS0 = R*T*mult*(creal(clog(p[0] + d->d_em[0]))+1.0);
-        double dS1 = R*T*mult*(creal(clog(p[1] + d->d_em[1]))+1.0);
+        double dS0 = R*T*mult*(rlog((p[0] + d->d_em[0]))+1.0);
+        double dS1 = R*T*mult*(rlog((p[1] + d->d_em[1]))+1.0);
         grad[0] = (dS0 + mu_Gex[0] + gb[0])*d->factor - (d->df_raw*d->factor*(d->ape[0]/d->sum_apep));
         grad[1] = (dS1 + mu_Gex[1] + gb[1])*d->factor - (d->df_raw*d->factor*(d->ape[1]/d->sum_apep));
     }
@@ -405,7 +420,7 @@ double obj_br_grt(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     d->sf[0] = x1; d->sf[1] = x2;
 
-    double S_terms = mult*( x1*creal(clog(x1+eps)) + x2*creal(clog(x2+eps)) );
+    double S_terms = mult*( x1*rlog((x1+eps)) + x2*rlog((x2+eps)) );
 
     double G_xs = x1*x2*(x1*W[0] + x2*W[1]);
 
@@ -417,8 +432,8 @@ double obj_br_grt(unsigned n, const double *x, double *grad, void *SS_ref_db){
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        double dS1 = mult*(creal(clog(x1+eps))+1.0);
-        double dS2 = mult*(creal(clog(x2+eps))+1.0);
+        double dS1 = mult*(rlog((x1+eps))+1.0);
+        double dS2 = mult*(rlog((x2+eps))+1.0);
         double dG1 = 2.0*W[0]*x1*x2 + W[1]*x2*x2;
         double dG2 = W[0]*x1*x1 + 2.0*W[1]*x1*x2;
 
@@ -450,7 +465,7 @@ double obj_br_omph(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     d->sf[0] = b; d->sf[1] = a; d->sf[2] = c;
 
-    double S_terms = ( a*creal(clog(a+eps)) + b*creal(clog(b+eps)) + c*creal(clog(c+eps)) );
+    double S_terms = ( a*rlog((a+eps)) + b*rlog((b+eps)) + c*rlog((c+eps)) );
 
     /* W[0..1]=Jd-Di (Wjj*d,Wj*dd), W[2..3]=Di-Hd, W[4..5]=Jd-Hd */
     double G_xs = W[0]*a*a*b + W[1]*a*b*b
@@ -465,9 +480,9 @@ double obj_br_omph(unsigned n, const double *x, double *grad, void *SS_ref_db){
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        double dSa = creal(clog(a+eps))+1.0;
-        double dSb = creal(clog(b+eps))+1.0;
-        double dSc = creal(clog(c+eps))+1.0;
+        double dSa = rlog((a+eps))+1.0;
+        double dSb = rlog((b+eps))+1.0;
+        double dSc = rlog((c+eps))+1.0;
 
         double dGb = W[0]*a*a + 2.0*W[1]*a*b + 2.0*W[2]*b*c + W[3]*c*c;
         double dGa = 2.0*W[0]*a*b + W[1]*b*b + 2.0*W[4]*a*c + W[5]*c*c;
@@ -507,8 +522,8 @@ double obj_br_amphx(unsigned n, const double *x, double *grad, void *SS_ref_db){
     d->sf[0] = x_Av; d->sf[1] = x_ANa; d->sf[2] = x_M1Mg; d->sf[3] = x_M1Al;
 
     double S_terms =
-        1.0*( x_Av*creal(clog(x_Av+eps)) + x_ANa*creal(clog(x_ANa+eps)) ) +
-        2.0*( x_M1Mg*creal(clog(x_M1Mg+eps)) + x_M1Al*creal(clog(x_M1Al+eps)) );
+        1.0*( x_Av*rlog((x_Av+eps)) + x_ANa*rlog((x_ANa+eps)) ) +
+        2.0*( x_M1Mg*rlog((x_M1Mg+eps)) + x_M1Al*rlog((x_M1Al+eps)) );
 
     double G_xs = W[0]*p_tr*p_tsch + W[1]*p_tr*p_parg + W[2]*p_tsch*p_parg;
 
@@ -520,10 +535,10 @@ double obj_br_amphx(unsigned n, const double *x, double *grad, void *SS_ref_db){
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        double dS_Av   = creal(clog(x_Av+eps))+1.0;
-        double dS_ANa  = creal(clog(x_ANa+eps))+1.0;
-        double dS_M1Mg = creal(clog(x_M1Mg+eps))+1.0;
-        double dS_M1Al = creal(clog(x_M1Al+eps))+1.0;
+        double dS_Av   = rlog((x_Av+eps))+1.0;
+        double dS_ANa  = rlog((x_ANa+eps))+1.0;
+        double dS_M1Mg = rlog((x_M1Mg+eps))+1.0;
+        double dS_M1Al = rlog((x_M1Al+eps))+1.0;
 
         static const double dAv_dp[3]   = {1,1,0};
         static const double dANa_dp[3]  = {0,0,1};
@@ -570,7 +585,7 @@ double obj_br_fsp(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     d->sf[0] = px; d->sf[1] = py; d->sf[2] = pz;
 
-    double S_terms = ( px*creal(clog(px+eps)) + py*creal(clog(py+eps)) + pz*creal(clog(pz+eps)) );
+    double S_terms = ( px*rlog((px+eps)) + py*rlog((py+eps)) + pz*rlog((pz+eps)) );
 
     /* W[0..1]=Ab-Kfs (W_ab2kfs,W_abkfs2), W[2..3]=Ab-An, W[4..5]=An-Kfs, W[6]=ternary */
     double G_xs = W[0]*px*px*py + W[1]*px*py*py
@@ -586,9 +601,9 @@ double obj_br_fsp(unsigned n, const double *x, double *grad, void *SS_ref_db){
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        double dSx = creal(clog(px+eps))+1.0;
-        double dSy = creal(clog(py+eps))+1.0;
-        double dSz = creal(clog(pz+eps))+1.0;
+        double dSx = rlog((px+eps))+1.0;
+        double dSy = rlog((py+eps))+1.0;
+        double dSz = rlog((pz+eps))+1.0;
 
         double dGx = 2.0*W[0]*px*py + W[1]*py*py + 2.0*W[2]*px*pz + W[3]*pz*pz + W[6]*py*pz;
         double dGy = W[0]*px*px + 2.0*W[1]*px*py + W[4]*pz*pz + 2.0*W[5]*py*pz + W[6]*px*pz;

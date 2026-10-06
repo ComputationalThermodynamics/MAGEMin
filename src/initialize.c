@@ -163,7 +163,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");					/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"2.0.5 [28/09/2026]");		/** MAGEMin version 																*/
+	strcpy(gv.version,"2.0.6 [06/10/2026]");		/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
@@ -239,7 +239,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	/* "liq" redundant-occurrence pseudocompound synthesis (gh and tc) */
 	gv.n_max_val 					= 3;	 		/** controls the max number of minimization per identical phases */
 	gv.act_rMELTS_liq_pc_synth      = 64;	     	/** number of global iterations steps before lienar discretization of the PC generation */
-	gv.liq_pc_synth_active			= 1;			/** 1: composite method active; 0: fully disabled, legacy per-occurrence NLopt path 	*/
+	gv.liq_pc_synth_active			= 2;			/** 2: composite method for liq + clustered same-phase instances; 1: liq only; 0: fully disabled, legacy per-occurrence NLopt path */
 	gv.gh_liq_pc_synth_threshold	= 2;			/** n_ss_ph[liq] above which the composite (1 real solve + synthesis) method fires 	*/
 
 	/* set of parameters to record the evolution of the norm of the mass constraint */
@@ -480,12 +480,24 @@ SS_ref G_SS_init_EM_function(		SS_init_type		*SS_init,
 	for (int i = 0; i < n_sf; i++){ 
 		SS_ref_db.SF_list[i] = calloc(20, sizeof(char)		);		
 	}
+	SS_ref_db.W_array = NULL;
+	SS_ref_db.v_array = NULL;
 	if (sym == 0){
 		SS_ref_db.W   		= malloc (SS_ref_db.n_w * sizeof (double) ); 
 		SS_ref_db.v   		= malloc (SS_ref_db.n_v * sizeof (double) ); 
+		SS_ref_db.v_array	= malloc (gv.n_Diff * sizeof (double*) );
+		for (int i = 0; i < gv.n_Diff; i++){
+			SS_ref_db.v_array[i] = malloc (SS_ref_db.n_v * sizeof (double) );
+		}
 	}
 	else if (sym == 1){
 		SS_ref_db.W   		= malloc (SS_ref_db.n_w * sizeof (double) ); 
+	}
+	if (sym == 0 || sym == 1){
+		SS_ref_db.W_array	= malloc (gv.n_Diff * sizeof (double*) );
+		for (int i = 0; i < gv.n_Diff; i++){
+			SS_ref_db.W_array[i] = malloc (SS_ref_db.n_w * sizeof (double) );
+		}
 	}
 	
 	/* initialize fractions flags and cycle arrays with zeros */
@@ -1129,7 +1141,7 @@ void reset_SS(						global_variable 	 gv,
 
 		SS_ref_db[iss].tot_pc[0] = 0;
 		SS_ref_db[iss].id_pc[0]  = 0;
-		for (int j = 0; j < gv.len_ss*4; j++){
+		for (int j = 0; j < gv.max_n_cp; j++){
 			SS_ref_db[iss].solvus_id[j] = -1;	
 		}
 
@@ -1351,3 +1363,16 @@ void reset_simplex_B_em(			simplex_data 		*splx_data,
 		d->B1[j]  = 0.0;	
 	}
 };
+
+void store_FD_interactions(SS_ref *SS_ref_db, int FD){
+	if (SS_ref_db->W_array != NULL){
+		for (int j = 0; j < SS_ref_db->n_w; j++){
+			SS_ref_db->W_array[FD][j] = SS_ref_db->W[j];
+		}
+	}
+	if (SS_ref_db->v_array != NULL){
+		for (int j = 0; j < SS_ref_db->n_v; j++){
+			SS_ref_db->v_array[FD][j] = SS_ref_db->v[j];
+		}
+	}
+}

@@ -245,7 +245,9 @@ typedef struct global_variables {
 
 	/* "liq" redundant-occurrence pseudocompound synthesis (ss_min_LP, gh and tc) */
 	int 	 act_rMELTS_liq_pc_synth;	/** number of redundant per-occurrence liq NLopt solves to perform before switching to the analytic hyperplane synthesis */
-	int 	 liq_pc_synth_active;		/** 1 (default): replace redundant per-occurrence liq NLopt solves with the
+	int 	 liq_pc_synth_active;		/** 2 (default): as 1, plus one NLopt solve per cluster of same-phase instances whose converged
+											    minimum stays within merge_value, linear synthesis for the others (not br);
+											    1: replace redundant per-occurrence liq NLopt solves with the
 											    analytic hyperplane synthesis; 0: fully disabled, legacy per-occurrence path */
 	int 	 gh_liq_pc_synth_threshold;	/** n_ss_ph[liq] above which real per-occurrence NLopt solves are replaced
 											    by one real solve + synthetic pseudocompounds on the refined Gamma hyperplane */
@@ -517,6 +519,8 @@ typedef struct SS_refs {
     								while dew_warm_ok==0. 														*/
 
     double **mu_array;        	/** 2d array of gbase, including values for numerical differentiation 		*/
+    double **W_array;
+    double **v_array;
     double  *gb_lvl;
     double   factor;			/** normalizing factor 														*/
     double **bounds;			/** x-eos bounds 															*/

@@ -24,6 +24,22 @@
 #include "../toolkit.h"
 #include "sb_objective_functions.h"
 
+static inline void gex_sym_n2(SS_ref *d, const double *p, int jmax, double *Gex)
+{
+    int n = d->n_em, it = 0;
+    double Q = 0.0;
+    for (int i = 0; i < n; i++){ Gex[i] = 0.0; }
+    for (int j = 0; j < jmax; j++){
+        for (int k = j+1; k < n; k++){
+            double w = d->W[it++];
+            Gex[j] += w*p[k];
+            Gex[k] += w*p[j];
+            Q      += w*p[j]*p[k];
+        }
+    }
+    for (int i = 0; i < n; i++){ Gex[i] -= Q; }
+}
+
 /**************************************************************************************/
 /**************************************************************************************/
 /****************SB11 DATABASE (Stixrude & Lithgow-Bertelloni, 2011)*******************/
@@ -53,16 +69,10 @@ double obj_sb11_plg(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -111,16 +121,10 @@ double obj_sb11_sp(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -169,16 +173,10 @@ double obj_sb11_ol(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -227,16 +225,10 @@ double obj_sb11_wa(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -285,16 +277,10 @@ double obj_sb11_ri(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -343,16 +329,10 @@ double obj_sb11_opx(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -472,16 +452,10 @@ double obj_sb11_hpcpx(unsigned n, const double *x, double *grad, void *SS_ref_db
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -530,16 +504,10 @@ double obj_sb11_ak(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -589,16 +557,10 @@ double obj_sb11_gtmj(unsigned n, const double *x, double *grad, void *SS_ref_db)
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -717,16 +679,10 @@ double obj_sb11_ppv(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -776,16 +732,10 @@ double obj_sb11_mw(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -834,16 +784,10 @@ double obj_sb11_cf(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -977,16 +921,10 @@ double obj_sb21_plg(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -1035,16 +973,10 @@ double obj_sb21_sp(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -1093,16 +1025,10 @@ double obj_sb21_ol(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -1151,16 +1077,10 @@ double obj_sb21_wa(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -1209,16 +1129,10 @@ double obj_sb21_ri(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -1267,16 +1181,10 @@ double obj_sb21_opx(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -1396,16 +1304,10 @@ double obj_sb21_hpcpx(unsigned n, const double *x, double *grad, void *SS_ref_db
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -1454,16 +1356,10 @@ double obj_sb21_ak(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -1513,16 +1409,10 @@ double obj_sb21_gtmj(unsigned n, const double *x, double *grad, void *SS_ref_db)
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -1574,16 +1464,10 @@ double obj_sb21_pv(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -1633,16 +1517,10 @@ double obj_sb21_ppv(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -1759,16 +1637,10 @@ double obj_sb21_mw(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -1818,16 +1690,10 @@ double obj_sb21_nal(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -1960,16 +1826,10 @@ double obj_sb24_plg(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -2018,16 +1878,10 @@ double obj_sb24_sp(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -2078,16 +1932,10 @@ double obj_sb24_ol(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -2136,16 +1984,10 @@ double obj_sb24_wa(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -2194,16 +2036,10 @@ double obj_sb24_ri(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -2252,16 +2088,10 @@ double obj_sb24_opx(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -2382,16 +2212,10 @@ double obj_sb24_hpcpx(unsigned n, const double *x, double *grad, void *SS_ref_db
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -2509,16 +2333,10 @@ double obj_sb24_gtmj(unsigned n, const double *x, double *grad, void *SS_ref_db)
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -2572,16 +2390,10 @@ double obj_sb24_pv(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -2635,16 +2447,10 @@ double obj_sb24_ppv(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 
@@ -2834,16 +2640,10 @@ double obj_sb24_nal(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     double tmp = 0.0;
     double Gex = 0.0;
+    double Gex_n2[n_em];
+    gex_sym_n2(d, p, d->n_xeos, Gex_n2);
     for (int i = 0; i < n_em; i++){
-        Gex = 0.0;
-        int it    = 0;
-        for (int j = 0; j < d->n_xeos; j++){
-            tmp = (d->eye[i][j] - p[j]);
-            for (int k = j+1; k < n_em; k++){
-                Gex -= tmp*(d->eye[i][k] - p[k])*(d->W[it]);
-                it += 1;
-            }
-        }
+        Gex = Gex_n2[i];
         mu_Gex[i] = Gex/1000.0;
     }
 

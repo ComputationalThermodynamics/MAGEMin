@@ -134,7 +134,7 @@ global_variable check_PC(					bulk_info 	 		 z_b,
 		if (cp[i].ss_flags[0] == 1){
 			ph_id = cp[i].id;
 
-			if (SS_ref_db[ph_id].orderVar == 1 && add_max < 2){
+			if (SS_ref_db[ph_id].orderVar == 1 && add_max < 2 && gv.len_cp < gv.max_n_cp){
 
 				for (int k = 0; k < cp[i].n_xeos; k++) {
 					SS_ref_db[ph_id].iguess[k]   = cp[i].xeos[k]*SS_ref_db[ph_id].idOrderVar[k];
@@ -151,7 +151,7 @@ global_variable check_PC(					bulk_info 	 		 z_b,
 															z_b, 
 															gv.SS_list[ph_id]		);
 
-				if (SS_ref_db[ph_id].sf_ok == 1){
+				if (SS_ref_db[ph_id].sf_ok == 1 && gv.len_cp < gv.max_n_cp){
 				
 					gv.len_cp				   += 1;
 					id_cp 		 				= gv.len_cp-1;
@@ -243,7 +243,7 @@ global_variable check_PC(					bulk_info 	 		 z_b,
 
 				if (id_c == n_candidate){ id_c = 0;}
 
-				if (df_candidate[id_c] < gv.PC_df_add && pc_candidate[id_c] != -1){
+				if (df_candidate[id_c] < gv.PC_df_add && pc_candidate[id_c] != -1 && gv.len_cp < gv.max_n_cp){
 
 					if(phase_add == 0){
 											
@@ -304,7 +304,7 @@ global_variable check_PC(					bulk_info 	 		 z_b,
 																		z_b, 
 																		gv.SS_list[i]		);
 
-							if (SS_ref_db[i].sf_ok == 1){
+							if (SS_ref_db[i].sf_ok == 1 && gv.len_cp < gv.max_n_cp){
 
 								gv.len_cp				   += 1;
 								id_cp 		 				= gv.len_cp-1;
@@ -413,7 +413,7 @@ global_variable check_PC(					bulk_info 	 		 z_b,
 																			z_b, 
 																			gv.SS_list[i]		);
 
-								if (SS_ref_db[i].sf_ok == 1){
+								if (SS_ref_db[i].sf_ok == 1 && gv.len_cp < gv.max_n_cp){
 									gv.len_cp				   += 1;
 									id_cp 		 				= gv.len_cp-1;
 									strcpy(cp[id_cp].name,gv.SS_list[i]);				/* get phase name */				

@@ -2905,6 +2905,8 @@ void TC_SS_init_all(	            SS_init_type 		*SS_init,
 			SS_init[iss]  = G_SS_mp_mt_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "ilmm_W14")  == 0){
 			SS_init[iss]  = G_SS_mb_ilmm_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ilmmn_W14") == 0){
+			SS_init[iss]  = G_SS_mpe_ilmm_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "amp_G16")   == 0){
 			SS_init[iss]  = G_SS_mb_amp_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "dio_G16")   == 0){

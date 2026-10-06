@@ -1066,6 +1066,8 @@ struct SS_refs
     dew_warm_ok::Cint
     dew_warm_G::Cdouble
     mu_array::Ptr{Ptr{Cdouble}}
+    W_array::Ptr{Ptr{Cdouble}}
+    v_array::Ptr{Ptr{Cdouble}}
     gb_lvl::Ptr{Cdouble}
     factor::Cdouble
     bounds::Ptr{Ptr{Cdouble}}
@@ -2102,6 +2104,10 @@ end
 
 function reset_simplex_B_em(splx_data, gv)
     ccall((:reset_simplex_B_em, libMAGEMin), Cvoid, (Ptr{simplex_data}, global_variable), splx_data, gv)
+end
+
+function store_FD_interactions(SS_ref_db, FD)
+    ccall((:store_FD_interactions, libMAGEMin), Cvoid, (Ptr{SS_ref}, Cint), SS_ref_db, FD)
 end
 
 function TC_SS_init_mp(SS_init, gv)

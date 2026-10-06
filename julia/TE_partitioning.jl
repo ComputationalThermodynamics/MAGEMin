@@ -153,7 +153,7 @@ function mineral_classification(    out             :: MAGEMin_C.gmin_struct{Flo
             elseif ss == "ilm_W00"
                 if 1.0 - x[1] > 0.5;        mineral_name = "hem";
                 else                        mineral_name = "FeTiOx";   end
-            elseif ss == "ilmm_W14"
+            elseif ss == "ilmm_W14" || ss == "ilmmn_W14"
                 if x[1] - 0.5 > 0.0;        mineral_name = "FeTiOx";
                 else                        mineral_name = "hem";   end
             elseif ss == "mu_W14"

@@ -32,6 +32,7 @@ Function to call solution phase Minimization
 #include "all_solution_phases.h"
 
 #define LIQ_PC_SYNTH_MAX_DIM 16
+#define PC_SYNTH_MAX_EM 32
 #define MAX_LIQ_PHASES 8
 
 /** 
@@ -56,13 +57,6 @@ SS_ref SS_UPDATE_function(		global_variable 	 gv,
 		/* xi calculation (phase fraction expression for PGE) */
 		SS_ref_db.sum_xi 	= 0.0;
 		for (int i = 0; i < SS_ref_db.n_em; i++){
-			/* Clamp the exponent's upper bound: for an ordinary phase mu[i]/RT never gets
-			   close to this, but DEW's hyperplane-relative mu[i] can be astronomically
-			   negative for a formally-favored-but-effectively-absent charged species,
-			   overflowing exp() to +Inf; Inf*p[i] with p[i]==0 is then Inf*0=NaN, poisoning
-			   sum_xi (and everything downstream in PGE_function.c's mass-balance matrix
-			   that reads xi_em). No lower-bound clamp needed - underflow to 0 is the
-			   correct, harmless result for a genuinely unfavorable species. */
 			SS_ref_db.xi_em[i] = exp(fmin(-SS_ref_db.mu[i]/(SS_ref_db.R*SS_ref_db.T), 700.0));
 			SS_ref_db.sum_xi  += SS_ref_db.xi_em[i]*SS_ref_db.p[i]*SS_ref_db.z_em[i];
 		}
@@ -167,13 +161,6 @@ SS_ref PC_convert_function(		global_variable 	 gv,
 		return SS_ref_db;
 	}
 
-	/* .gb_lvl (what the PC objective functions actually read as each
-	   endmember's reference energy) is normally set by rotate_hyperplane()
-	   against the current Gamma during simplex/PGE - outside of that loop
-	   (as here) Gamma doesn't exist, so use the unrotated gbase directly to
-	   get each endmember's absolute reference energy. Without this, .gb_lvl
-	   stays at its zero-init default and .df comes out as only the
-	   mixing/excess term, missing the dominant reference-energy contribution. */
 	SS_ref_db = non_rot_hyperplane(gv, SS_ref_db);
 
 	SS_ref_db = PC_function(		gv,
@@ -325,7 +312,7 @@ global_variable split_cp(		global_variable 	 gv,
 			
 			distance 	= euclidean_distance( cp[i].xeos, cp[i].dguess, SS_ref_db[ph_id].n_xeos);
 
-			if (distance > 2.0*gv.SS_PC_stp[ph_id]*pow((double)SS_ref_db[ph_id].n_xeos,0.5) && cp[i].split == 0){
+			if (distance > 2.0*gv.SS_PC_stp[ph_id]*pow((double)SS_ref_db[ph_id].n_xeos,0.5) && cp[i].split == 0 && gv.len_cp < gv.max_n_cp){
 				id_cp 					= gv.len_cp;
 						
 				cp[id_cp].split 		= 1;							/* set split number to one */
@@ -652,6 +639,37 @@ void init_PGE_from_LP(	global_variable 	 gv,
 /**
 	Minimization function for PGE
 */
+static void add_linear_pc(			global_variable 	 gv,
+								PC_type				*PC_read,
+								obj_type 			*SS_objective,
+								bulk_info 	 		 z_b,
+								SS_ref 			    *SS_ref_db,
+								int 				 ph_id,
+								int 				 pc_check,
+								double 				*x_star,
+								double 				*x_end
+){
+	double steps[3] = {0.3, 0.6, 0.9};
+	int    n_xeos   = SS_ref_db[ph_id].n_xeos;
+
+	for (int si = 0; si < 3; si++){
+		int ok = 1;
+		for (int k = 0; k < n_xeos; k++){
+			double x_syn = x_star[k] + steps[si] * (x_end[k] - x_star[k]);
+			if (x_syn < SS_ref_db[ph_id].bounds_ref[k][0] || x_syn > SS_ref_db[ph_id].bounds_ref[k][1]){ ok = 0; break; }
+			SS_ref_db[ph_id].iguess[k] = x_syn;
+		}
+		if (!ok){ continue; }
+
+		SS_ref_db[ph_id] = PC_function(gv, PC_read, SS_ref_db[ph_id], z_b, ph_id);
+		SS_ref_db[ph_id] = SS_UPDATE_function(gv, SS_ref_db[ph_id], z_b, gv.SS_list[ph_id]);
+
+		if (SS_ref_db[ph_id].sf_ok == 1){
+			copy_to_Ppc(pc_check, 1, ph_id, gv, SS_objective, SS_ref_db);
+		}
+	}
+}
+
 void ss_min_LP(			global_variable 	 gv,
 						PC_type				*PC_read,
 
@@ -694,6 +712,38 @@ void ss_min_LP(			global_variable 	 gv,
 		liq_synth_active[l]    = (N_liq >= gv.gh_liq_pc_synth_threshold);
 		liq_real_min_found[l]  = 0;
 		liq_candidate_index[l] = -1;
+	}
+
+	int    syn_on   = (gv.liq_pc_synth_active == 2 && gv.global_ite >= 1 && strcmp(gv.research_group, "br") != 0);
+	int    n_syn_cl = 0;
+	int    syn_cl[gv.len_cp], syn_rep[gv.len_cp], syn_multi[gv.len_cp], syn_found[gv.len_cp], syn_skip[gv.len_cp];
+	double syn_x[gv.len_cp][LIQ_PC_SYNTH_MAX_DIM];
+	double syn_p[gv.len_cp][PC_SYNTH_MAX_EM];
+	for (int i = 0; i < gv.len_cp; i++){ syn_cl[i] = -1; syn_multi[i] = 0; syn_found[i] = 0; syn_skip[i] = 0; }
+
+	if (syn_on){
+		for (int iss = 0; iss < gv.len_ss; iss++){
+			if (SS_ref_db[iss].is_liq == 1 || SS_ref_db[iss].n_xeos > LIQ_PC_SYNTH_MAX_DIM || SS_ref_db[iss].n_em > PC_SYNTH_MAX_EM){ continue; }
+
+			int idx[gv.len_cp], k = 0;
+			for (int i = 0; i < gv.len_cp; i++){ if (cp[i].ss_flags[0] == 1 && cp[i].id == iss){ idx[k++] = i; } }
+			if (k < 2){ continue; }
+
+			int first = n_syn_cl;
+			for (int a = 0; a < k; a++){
+				int i = idx[a], c = -1;
+				for (int r = first; r < n_syn_cl; r++){
+					if (euclidean_distance(cp[i].p_em, cp[syn_rep[r]].p_em, SS_ref_db[iss].n_em) < gv.merge_value){ c = r; break; }
+				}
+				if (c < 0){ c = n_syn_cl++; syn_rep[c] = i; }
+				syn_cl[i] = c;
+			}
+			for (int a = 0; a < k; a++){
+				int c = syn_cl[idx[a]], cnt = 0;
+				for (int b = 0; b < k; b++){ if (syn_cl[idx[b]] == c){ cnt++; } }
+				syn_multi[c] = (cnt >= 2);
+			}
+		}
 	}
 
 	pc_check = gv.PC_checked;
@@ -742,6 +792,11 @@ void ss_min_LP(			global_variable 	 gv,
 				else{
 					act = 1;
 				}
+			}
+
+			if (syn_cl[i] >= 0 && syn_multi[syn_cl[i]] && syn_found[syn_cl[i]] && euclidean_distance(syn_p[syn_cl[i]], cp[i].p_em, SS_ref_db[ph_id].n_em) < gv.merge_value){
+				act 		= 0;
+				syn_skip[i] = 1;
 			}
 
 			gv.n_min[ph_id] += 1;
@@ -858,6 +913,13 @@ void ss_min_LP(			global_variable 	 gv,
 				}
 
 
+				if (candidate_ok == 1 && syn_cl[i] >= 0 && syn_multi[syn_cl[i]] && !syn_found[syn_cl[i]]){
+					int c = syn_cl[i];
+					syn_found[c] = 1;
+					for (int k = 0; k < SS_ref_db[ph_id].n_xeos; k++){ syn_x[c][k] = cp[i].xeos_1[k]; }
+					for (int k = 0; k < SS_ref_db[ph_id].n_em; k++){   syn_p[c][k] = SS_ref_db[ph_id].p[k]; }
+				}
+
 				if (is_liq_synth_candidate && candidate_ok == 1){
 					liq_real_min_found[liq_l] = 1;
 					liq_candidate_index[liq_l] = i;
@@ -866,6 +928,12 @@ void ss_min_LP(			global_variable 	 gv,
 			}
 
 		}	
+	}
+
+	for (int i = 0; i < gv.len_cp; i++){
+		if (syn_skip[i]){
+			add_linear_pc(gv, PC_read, SS_objective, z_b, SS_ref_db, cp[i].id, pc_check, syn_x[syn_cl[i]], cp[i].xeos);
+		}
 	}
 
 	/**

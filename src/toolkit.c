@@ -1639,6 +1639,41 @@ global_variable compute_phase_mol_fraction(			global_variable 	 gv,
 }
 
 
+static double phase_entropy_full(	global_variable 	 gv,
+									PC_type 			 PC_obj,
+									SS_ref 				*d,
+									double 				*xeos				){
+
+	int    n_em = d->n_em;
+	int    n_w  = d->W_array != NULL ? d->n_w : 0;
+	int    n_v  = d->v_array != NULL ? d->n_v : 0;
+	double T0   = d->T;
+	double G[2];
+	double gb_save[n_em];
+	double W_save[n_w > 0 ? n_w : 1];
+	double v_save[n_v > 0 ? n_v : 1];
+
+	for (int j = 0; j < n_em; j++){ gb_save[j] = d->gb_lvl[j]; }
+	for (int j = 0; j < n_w;  j++){ W_save[j]  = d->W[j]; }
+	for (int j = 0; j < n_v;  j++){ v_save[j]  = d->v[j]; }
+
+	for (int k = 0; k < 2; k++){
+		for (int j = 0; j < n_em; j++){ d->gb_lvl[j] = d->mu_array[k][j]; }
+		for (int j = 0; j < n_w;  j++){ d->W[j]      = d->W_array[k][j]; }
+		for (int j = 0; j < n_v;  j++){ d->v[j]      = d->v_array[k][j]; }
+		d->T = T0 + gv.gb_T_eps*gv.pdev[1][k];
+		G[k] = (*PC_obj)(d->n_xeos, xeos, d->dfx, d);
+	}
+
+	for (int j = 0; j < n_em; j++){ d->gb_lvl[j] = gb_save[j]; }
+	for (int j = 0; j < n_w;  j++){ d->W[j]      = W_save[j]; }
+	for (int j = 0; j < n_v;  j++){ d->v[j]      = v_save[j]; }
+	d->T = T0;
+	(*PC_obj)(d->n_xeos, xeos, d->dfx, d);
+
+	return -(G[0] - G[1])/(gv.gb_T_eps*(gv.pdev[1][0] - gv.pdev[1][1]));
+}
+
 global_variable compute_density_volume_modulus(				int 				 EM_database,
 															bulk_info 	 		 z_b,
 															global_variable 	 gv,
@@ -1664,6 +1699,13 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 	double density[gv.len_ox];
 	int not_only_liq = 0;
 	int ss;
+
+	PC_type PC_read[gv.len_ss];
+	for (int k = 0; k < gv.len_ss; k++){ PC_read[k] = NULL; }
+	if      (strcmp(gv.research_group, "tc") == 0){ TC_PC_init(PC_read, gv); }
+	else if (strcmp(gv.research_group, "sb") == 0){ SB_PC_init(PC_read, gv); }
+	else if (strcmp(gv.research_group, "gh") == 0){ GH_PC_init(PC_read, gv); }
+	else if (strcmp(gv.research_group, "br") == 0){ BR_PC_init(PC_read, gv); }
 
 	/** calculate mass, volume and densities */
 	for (int i = 0; i < gv.len_cp; i++){
@@ -1766,13 +1808,20 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 				}
 			}	
 
-			G = 0.0;
-			for (int j = 0; j < gv.len_ox; j++){
-				G += cp[i].ss_comp[j]*gv.gam_tot[j];
+			if (PC_read[ss] != NULL && strcmp(gv.SS_list[ss], "DEW") != 0 && strcmp(gv.SS_list[ss], "DEW_S24") != 0){
+				cp[i].phase_entropy = phase_entropy_full(gv, PC_read[ss], &SS_ref_db[ss], cp[i].xeos);
 			}
 
+			double n_ox = 0.0;
+			G = 0.0;
+			for (int j = 0; j < gv.len_ox; j++){
+				n_ox += cp[i].ss_comp[j];
+				G    += cp[i].ss_comp[j]*gv.gam_tot[j];
+			}
+			cp[i].phase_entropy /= cp[i].factor*n_ox;
+
 			/* enthalpy   		*/
-			cp[i].phase_enthalpy = cp[i].phase_entropy*T + G*cp[i].factor;
+			cp[i].phase_enthalpy = cp[i].phase_entropy*T + G/n_ox;
 	
 			/** calculate density from volume */
 			cp[i].phase_density  = (cp[i].mass*1000.0)/(cp[i].volume*10.0);
@@ -1868,10 +1917,16 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 			
 
 			/* entropy 		*/
-			PP_ref_db[i].phase_entropy 		= -dGdTMP*PP_ref_db[i].factor;
+			double n_ox_pp = 0.0;
+			for (int j = 0; j < gv.len_ox; j++){
+				if (PP_ref_db[i].Comp[j] > 0.0){
+					n_ox_pp += PP_ref_db[i].Comp[j];
+				}
+			}
+			PP_ref_db[i].phase_entropy 		= -dGdTMP/n_ox_pp;
 			
 			/* enthalpy   		*/
-			PP_ref_db[i].phase_enthalpy 	= PP_ref_db[i].phase_entropy*T + PP_ref_db[i].gbase*PP_ref_db[i].factor;;
+			PP_ref_db[i].phase_enthalpy 	= PP_ref_db[i].phase_entropy*T + PP_ref_db[i].gbase/n_ox_pp;
 	
 			/* bulk modulus	- expansivity - calculate cp of pure phase */
 			if ( strcmp(gv.research_group, "sb") 	!= 0 ){

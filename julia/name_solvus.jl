@@ -87,6 +87,7 @@ const SOLVUS_FAMILY = Dict{Tuple{String,String},Vector{String}}(
     ("all",  "ilm_W24")     => ["hem", "ilm"],
     ("all",  "ilm_W00")     => ["hem", "ilm"],
     ("all",  "ilmm_W14")    => ["hemm", "ilmm"],
+    ("all",  "ilmmn_W14")   => ["hemm", "ilmm"],
     ("all",  "amp_G16")     => ["act", "amp", "cumm", "gl", "tr"],
     ("all",  "mu_W14")      => ["mu", "pat"],
     ("all",  "cpx_T21")     => ["Na-cpx", "cpx", "pig"],
@@ -220,7 +221,7 @@ function get_mineral_name(db, ss, SS_vec)
         elseif ss == "ilm_W00"
             if 1.0 - x[1] > 0.5;        mineral_name = "hem";
             else                        mineral_name = "ilm";   end
-        elseif ss == "ilmm_W14"
+        elseif ss == "ilmm_W14" || ss == "ilmmn_W14"
             if x[1] - 0.5 > 0.0;        mineral_name = "ilmm";
             else                        mineral_name = "hemm";   end
         elseif ss == "amp_G16"
@@ -358,7 +359,7 @@ function get_ss_from_mineral(db, mrl, mbCpx, active_ss::AbstractVector{<:Abstrac
         elseif mrl == "hem" || mrl == "ilm"
             ss = pick(["ilm_W24", "ilm_T21", "ilm_W00"])
         elseif mrl == "hemm" || mrl == "ilmm"
-            ss = "ilmm_W14"
+            ss = pick(["ilmm_W14", "ilmmn_W14"])
         elseif mrl == "gl" || mrl == "act" || mrl == "amp" || mrl == "cumm" || mrl == "tr"
             ss = "amp_G16"
         elseif mrl == "pat" || mrl == "mu"

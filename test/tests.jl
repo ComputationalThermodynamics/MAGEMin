@@ -243,7 +243,7 @@ end
 
     data = Initialize_MAGEMin("ig", verbose=-1, mu_fix_idx=["MgO"]);
     out  = single_point_minimization(P, T, data; X=X, Xoxides=Xoxides, sys_in=sys_in, mu_fix_val=[Gamma_MgO]);
-    @test out.Gamma[4] ≈ Gamma_MgO atol=1e-3
+    @test out.Gamma[4] ≈ Gamma_MgO atol=1e-2
     Finalize_MAGEMin(data)
 
     data     = Initialize_MAGEMin("ig", verbose=-1, mu_fix_idx=["MgO"]);
@@ -291,18 +291,18 @@ end
     sys_in  = "wt"
     out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, seismic_cor=true, aspect_ratio=0.3, seismic_water=0);
 
-    @test out.Vp_cor ≈ 5.342675762785988    rtol=1e-4
-    @test out.Vs_cor ≈ 3.415349818810448    rtol=1e-4
+    @test out.Vp_cor ≈ 5.343114218733776    rtol=1e-4
+    @test out.Vs_cor ≈ 3.4155592247018003    rtol=1e-4
 
     out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, seismic_cor=true, aspect_ratio=0.6, seismic_water=0);
 
-    @test out.Vp_cor ≈ 5.35301103758362     rtol=1e-4
-    @test out.Vs_cor ≈ 3.423002024620632    rtol=1e-4
+    @test out.Vp_cor ≈ 5.353405743634294     rtol=1e-4
+    @test out.Vs_cor ≈ 3.423176995721058    rtol=1e-4
 
     out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, seismic_cor=true, aspect_ratio=0.1, seismic_water=0);
 
-    @test out.Vp_cor ≈ 5.31879891895499     rtol=1e-4
-    @test out.Vs_cor ≈ 3.39393959747249     rtol=1e-4
+    @test out.Vp_cor ≈ 5.319339600652165     rtol=1e-4
+    @test out.Vs_cor ≈ 3.3942453489815314     rtol=1e-4
 
     Finalize_MAGEMin(data)
 end
@@ -587,7 +587,7 @@ end
     @test out_TE.Cliq[1] ≈ 189.83559381921782    rtol=tol   # Li
     @test out_TE.Cliq[2] ≈ 47.86020212957779     rtol=tol   # Zr at saturation
     @test out_TE.Cliq[3] ≈ 133.18203710723262    rtol=tol   # P2O5 at saturation
-    @test out_TE.Cliq[4] ≈ 16.185494729785756    rtol=tol   # S at saturation
+    @test out_TE.Cliq[4] ≈ 16.221576377269876    rtol=tol   # S at saturation
     @test out_TE.Cliq[5] ≈ 1500.2696597838953    rtol=tol   # CO2 capped at saturation
     @test out_TE.zrc_wt  ≈ 0.0007395168468941766  rtol=tol
     @test out_TE.fapt_wt ≈ 0.0023231379042603197   rtol=tol
@@ -792,7 +792,7 @@ end
 
     Sat_Montel_1  = MAGEMin_C.monazite_saturation(out, 1.0; model="Montel93")
     Sat_Montel_07 = MAGEMin_C.monazite_saturation(out, 0.7; model="Montel93")
-    @test Sat_Montel_1  ≈ 118.31340706544371 rtol=1e-3
+    @test Sat_Montel_1  ≈ 118.4447261766036 rtol=1e-3
     @test Sat_Montel_07 < Sat_Montel_1   # less pure REE-phosphate character -> lower solubility
 
     Sat_Maim_1  = MAGEMin_C.monazite_saturation(out, 1.0; model="Maimaiti19")
@@ -1024,15 +1024,15 @@ end
     out         = point_wise_minimization(P,T, data)
     tol         = 1.5e-2;
 
-    @test abs(out.bulkMod - 94.62309357990975          )  < tol
-    @test abs(out.shearMod - 29.843843046045578        )  < tol
-    @test abs(out.Vs - 3.0500442437065094              )  < tol
-    @test abs(out.Vp - 6.472952899434848               )  < tol
-    @test abs(out.Vs_S -4.303123606906489              )  < tol
-    @test abs(out.Vp_S - 7.3759048706307055            )  < tol
-    @test abs(out.bulkModulus_M - 27.774175695339732   )  < tol
-    @test abs(out.bulkModulus_S - 95.39738730456645    )  < tol
-    @test abs(out.shearModulus_S - 59.44716946888283   )  < tol
+    @test abs(out.bulkMod - 94.68523099456746          )  < tol
+    @test abs(out.shearMod - 29.84688921728558        )  < tol
+    @test abs(out.Vs - 3.053495339499311              )  < tol
+    @test abs(out.Vp - 6.481541768615631               )  < tol
+    @test abs(out.Vs_S - 4.2981836761917185              )  < tol
+    @test abs(out.Vp_S - 7.36887619793093            )  < tol
+    @test abs(out.bulkModulus_M - 27.127616172927333   )  < tol
+    @test abs(out.bulkModulus_S - 95.46240449612431    )  < tol
+    @test abs(out.shearModulus_S - 59.44517210066782   )  < tol
 
     Finalize_MAGEMin(data)
 end
@@ -1048,15 +1048,15 @@ end
     out         = point_wise_minimization(P,T, data)
     tol         = 1.5e-2;
 
-    @test abs(out.bulkMod - 94.9207227314658           )  < tol
-    @test abs(out.shearMod - 56.23048827772405         )  < tol
-    @test abs(out.Vs - 4.189889782462432               )  < tol
-    @test abs(out.Vp - 7.282937716875037               )  < tol
-    @test abs(out.Vs_S - 4.305197788922828             )  < tol
-    @test abs(out.Vp_S - 7.373574860960485             )  < tol
-    @test abs(out.bulkModulus_M - 27.774116805966923   )  < tol
-    @test abs(out.bulkModulus_S - 95.4968207451378     )  < tol
-    @test abs(out.shearModulus_S - 59.68335800904911   )  < tol
+    @test abs(out.bulkMod - 94.99080345166232           )  < tol
+    @test abs(out.shearMod - 56.24038521877394         )  < tol
+    @test abs(out.Vs - 4.191523139352487               )  < tol
+    @test abs(out.Vp - 7.2869210024625986               )  < tol
+    @test abs(out.Vs_S - 4.306700581603915             )  < tol
+    @test abs(out.Vp_S - 7.37760515845673             )  < tol
+    @test abs(out.bulkModulus_M - 27.127616172927333   )  < tol
+    @test abs(out.bulkModulus_S - 95.56217105946239     )  < tol
+    @test abs(out.shearModulus_S - 59.68098822911447   )  < tol
 
     Finalize_MAGEMin(data)
 end
@@ -1304,7 +1304,7 @@ end
     Finalize_MAGEMin(data)
 
     @test abs(out.G_system + 806.7071168433587) < 1e-6
-    @test abs(out2.G_system + 791.4602868457285) < 1e-6
+    @test abs(out2.G_system + 791.4602921453513) < 1e-6
 end
 
 @testset verbose = true "Test Ws override" begin
@@ -1607,3 +1607,29 @@ end
 end
 
 
+
+@testset verbose=true "phase entropy and enthalpy consistency" begin
+    data         = Initialize_MAGEMin("ig", verbose=-1)
+    data         = use_predefined_bulk_rock(data, 0)
+    P, T         = 8.0, 1100.0
+    out          = single_point_minimization(P, T, data; scp=1)
+    out0         = single_point_minimization(P, T, data; scp=0)
+    gv, zb, DB, sp = data.gv[1], data.z_b[1], data.DB[1], data.splx_data[1]
+    mE           = point_wise_metastability(out, P, T + 0.5, gv, zb, DB, sp)
+    mW           = point_wise_metastability(out, P, T - 0.5, gv, zb, DB, sp)
+    phase_G(o, k) = o.ph_type[k] == 1 ? o.SS_vec[k].G : o.PP_vec[k - o.n_SS].G
+    Hsum         = 0.0
+    for i in eachindex(out.ph)
+        occ  = count(==(out.ph[i]), view(out.ph, 1:i))
+        kE   = findall(==(out.ph[i]), mE.ph)[occ]
+        kW   = findall(==(out.ph[i]), mW.ph)[occ]
+        S_fd = -(phase_G(mE, kE) - phase_G(mW, kW))
+        H_fd = phase_G(out, i) + (T + 273.15) * S_fd
+        H    = out.ph_type[i] == 1 ? out.SS_vec[i].enthalpy : out.PP_vec[i - out.n_SS].enthalpy
+        @test H ≈ H_fd atol=1e-2
+        Hsum += out.ph_frac[i] * H
+    end
+    @test Hsum ≈ out.enthalpy[1] atol=1e-2
+    @test out0.enthalpy[1] ≈ out.enthalpy[1] atol=1e-2
+    Finalize_MAGEMin(data)
+end

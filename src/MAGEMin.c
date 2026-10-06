@@ -419,7 +419,45 @@ int runMAGEMin(			int    argc,
 }
 
 
-/** 
+static atomic_int ds62_placeholder_warned = 0;
+
+static void warn_ds62_placeholder_phases(	global_variable 	 gv,
+											SS_ref  			*SS_ref_db		){
+
+	static const char *ds62_placeholder_ss[] = {"liq_S26", "liq_G25w", "fl_G25"};
+	const int n_placeholder = sizeof(ds62_placeholder_ss) / sizeof(ds62_placeholder_ss[0]);
+
+	if (gv.verbose == -1 || gv.EM_database != 8 || gv.EM_dataset != 62 || strcmp(gv.research_group, "tc") != 0){
+		return;
+	}
+	if (atomic_load_explicit(&ds62_placeholder_warned, memory_order_relaxed) != 0){
+		return;
+	}
+
+	char active[64] = "";
+	for (int iss = 0; iss < gv.len_ss; iss++){
+		if (SS_ref_db[iss].ss_flags[0] != 1){ continue; }
+		for (int k = 0; k < n_placeholder; k++){
+			if (strcmp(gv.SS_list[iss], ds62_placeholder_ss[k]) == 0){
+				if (active[0] != '\0'){ strcat(active, ", "); }
+				strcat(active, ds62_placeholder_ss[k]);
+			}
+		}
+	}
+	if (active[0] == '\0'){
+		return;
+	}
+	if (atomic_exchange_explicit(&ds62_placeholder_warned, 1, memory_order_relaxed) != 0){
+		return;
+	}
+	fprintf(stderr, "\n MAGEMin WARNING: solution phase(s) %s active with the \"all\" database and dataset ds62.\n", active);
+	fprintf(stderr, " These models are calibrated for ds633+ and rely on liquid end-members (eskL, hemL, ruL) absent from ds62;\n");
+	fprintf(stderr, " ds633 placeholder values are used for them. Results involving these phases are not thermodynamically consistent.\n");
+	fprintf(stderr, " Deactivate them, or use dataset ds633 or newer. (This warning is printed once per session.)\n\n");
+}
+
+
+/**
   Compute stable equilibrium at given Pressure, Temperature and bulk-rock composition
 */
 	global_variable ComputeEquilibrium_Point( 	int 				 EM_database,
@@ -498,6 +536,8 @@ int runMAGEMin(			int    argc,
 	   jump arbitrarily between points); only within-point, across-outer-iteration continuity
 	   is - see NLopt_opt_DEW_function. */
 	for (int iss = 0; iss < gv.len_ss; iss++){ SS_ref_db[iss].dew_warm_ok = 0; }
+
+	warn_ds62_placeholder_phases(gv, SS_ref_db);
 
 	/****************************************************************************************/
 	/**                                   LEVELLING                                        **/
@@ -1395,6 +1435,12 @@ void FreeDatabases(		global_variable gv,
 		}
 
 		for (j = 0; j < ndif; j++) {	free(DB.SS_ref_db[i].mu_array[j]);}	free(DB.SS_ref_db[i].mu_array);
+		if (DB.SS_ref_db[i].W_array != NULL){
+			for (j = 0; j < ndif; j++) {	free(DB.SS_ref_db[i].W_array[j]);}	free(DB.SS_ref_db[i].W_array);
+		}
+		if (DB.SS_ref_db[i].v_array != NULL){
+			for (j = 0; j < ndif; j++) {	free(DB.SS_ref_db[i].v_array[j]);}	free(DB.SS_ref_db[i].v_array);
+		}
 
 		free(DB.SS_ref_db[i].G_pc);
 		free(DB.SS_ref_db[i].DF_pc);
