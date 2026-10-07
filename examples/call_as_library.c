@@ -53,6 +53,24 @@ int main(void){
 		printf("\n");
 	}
 
+	/* optional settings, persisting on the handle until changed */
+	MAGEMin_SetSolver(h, 2);									/* default solver						*/
+	MAGEMin_SetBuffer(h, "qfm", 0.0);							/* fix fO2 at the QFM buffer			*/
+	const char *suppress[] = { "spl" };
+	MAGEMin_SetSuppressedPhases(h, suppress, 1);				/* exclude spinel						*/
+
+	stb_system *sp = MAGEMin_ComputeEquilibrium(h, 10.0, 1100.0, bulk, "mol");
+	if (sp != NULL){
+		printf("QFM buffer, spinel suppressed: P = 10.0 kbar, T = 1100.0 C -> status = %d, %d phase(s):\n",
+				sp->status, sp->n_ph);
+		for (int j = 0; j < sp->n_ph; j++){
+			printf("    %-10s frac (mol) = %.5f\n", sp->ph[j], sp->ph_frac[j]);
+		}
+	}
+
+	MAGEMin_SetBuffer(h, "none", 0.0);							/* clear both again					*/
+	MAGEMin_SetSuppressedPhases(h, NULL, 0);
+
 	MAGEMin_Free(h);
 	return 0;
 }
