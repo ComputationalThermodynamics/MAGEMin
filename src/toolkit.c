@@ -67,8 +67,8 @@ void print_help(	global_variable gv	){
 	printf("  --buffer_n= 	[float] : multiplier with respect to qfm buffer\n");
 	printf("  --mbCpx= 		[int]   : 0. omphacite, 1. augite (applies to metabasite database, see Green et al., 2016)\n");
 	printf("  --mbIlm=      [int]   : 0. Ilm, 1. Ilmm see (Green et al., 2016)\n");
-	printf("  --mpSp=       [int]   : 0. Ilm, 1. Ilmm see (White et al., 2014)\n");
-	printf("  --mpIlm=      [int]   : 0. Sp, 1. Mt1 see (White et al., 2014)\n");
+	printf("  --mpSp=       [int]   : 0. Sp, 1. Mt1 see (White et al., 2014)\n");
+	printf("  --mpIlm=      [int]   : 0. Ilm, 1. Ilmm see (White et al., 2014)\n");
 	printf("  --ig_ed=      [int]   : 0. default bi,amp for ig, 1. updated bi,amp for ig\n");
 	printf("\n");
 	printf(" *'mp': metapelite, 'mb': metabasite, 'ig': igneous H18->G23, 'igad': igneous alkaline dry, 'um': ultramafic, 'ume': ultramafic extended, 'mtl': mantle\n");

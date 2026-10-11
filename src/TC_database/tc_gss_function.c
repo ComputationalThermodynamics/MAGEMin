@@ -19121,15 +19121,29 @@ SS_ref G_SS_mb_EM_function(		global_variable 	 gv,
 			}
             SS_ref_db  = G_SS_mb_spl_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "ilm") == 0){
-			if (z_b.bulk_rock[gv.TiO2_id] == 0. || gv.mbIlm == 1){
+			if ((z_b.bulk_rock[gv.TiO2_id] == 0. && z_b.bulk_rock[gv.O_id] == 0.) || gv.mbIlm == 1){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
             SS_ref_db  = G_SS_mb_ilm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "ilmm") == 0){
-			if (z_b.bulk_rock[gv.TiO2_id] == 0. || gv.mbIlm == 0){
+			if ((z_b.bulk_rock[gv.TiO2_id] == 0. && z_b.bulk_rock[gv.O_id] == 0.) || gv.mbIlm == 0){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-            SS_ref_db  = G_SS_mb_ilmm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+            SS_ref_db  = G_SS_mb_ilmm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);
+			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
+				SS_ref_db.z_em[0] = 0.0;
+				SS_ref_db.d_em[0] = 1.0;
+				SS_ref_db.z_em[1] = 0.0;
+				SS_ref_db.d_em[1] = 1.0;
+				SS_ref_db.z_em[3] = 0.0;
+				SS_ref_db.d_em[3] = 1.0;
+				SS_ref_db.bounds_ref[0][0] = 0.0;
+				SS_ref_db.bounds_ref[0][1] = 0.0;
+				SS_ref_db.bounds_ref[1][0] = 0.0;
+				SS_ref_db.bounds_ref[1][1] = 0.0;
+				SS_ref_db.bounds_ref[2][0] = 0.0;
+				SS_ref_db.bounds_ref[2][1] = 0.0;
+			}	}
         else if (strcmp( name, "ep") == 0 ){
 			/* epidote group (cz/ep/fep) is unconditionally Ca-bearing (no Ca-free corner) AND unconditionally hydrous (structural OH) - whole-phase disable for either. */
 			if (z_b.bulk_rock[gv.CaO_id] == 0. || z_b.bulk_rock[gv.H2O_id] == 0.){
@@ -19295,15 +19309,29 @@ SS_ref G_SS_mb_ext_EM_function(		global_variable 	 gv,
 			}
             SS_ref_db  = G_SS_mb_spl_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "ilm") == 0){
-			if (z_b.bulk_rock[gv.TiO2_id] == 0. || gv.mbIlm == 1){
+			if ((z_b.bulk_rock[gv.TiO2_id] == 0. && z_b.bulk_rock[gv.O_id] == 0.) || gv.mbIlm == 1){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
             SS_ref_db  = G_SS_mb_ilm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
         else if (strcmp( name, "ilmm") == 0){
-			if (z_b.bulk_rock[gv.TiO2_id] == 0. || gv.mbIlm == 0){
+			if ((z_b.bulk_rock[gv.TiO2_id] == 0. && z_b.bulk_rock[gv.O_id] == 0.) || gv.mbIlm == 0){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-            SS_ref_db  = G_SS_mb_ilmm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+            SS_ref_db  = G_SS_mb_ilmm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);
+			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
+				SS_ref_db.z_em[0] = 0.0;
+				SS_ref_db.d_em[0] = 1.0;
+				SS_ref_db.z_em[1] = 0.0;
+				SS_ref_db.d_em[1] = 1.0;
+				SS_ref_db.z_em[3] = 0.0;
+				SS_ref_db.d_em[3] = 1.0;
+				SS_ref_db.bounds_ref[0][0] = 0.0;
+				SS_ref_db.bounds_ref[0][1] = 0.0;
+				SS_ref_db.bounds_ref[1][0] = 0.0;
+				SS_ref_db.bounds_ref[1][1] = 0.0;
+				SS_ref_db.bounds_ref[2][0] = 0.0;
+				SS_ref_db.bounds_ref[2][1] = 0.0;
+			}	}
         else if (strcmp( name, "ep") == 0 ){
 			/* epidote group (cz/ep/fep) is unconditionally Ca-bearing (no Ca-free corner) AND unconditionally hydrous (structural OH) - whole-phase disable for either. */
 			if (z_b.bulk_rock[gv.CaO_id] == 0. || z_b.bulk_rock[gv.H2O_id] == 0.){
@@ -19483,10 +19511,26 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
             else {
                 SS_ref_db  = G_SS_ig_amp_ed_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);}}
 		else if (strcmp( name, "ilm") == 0){
-			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
+			if ((z_b.bulk_rock[gv.TiO2_id] == 0. && z_b.bulk_rock[gv.O_id] == 0.)){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_ig_ilm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+			SS_ref_db  = G_SS_ig_ilm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);
+			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
+				SS_ref_db.z_em[0] = 0.0;
+				SS_ref_db.d_em[0] = 1.0;
+				SS_ref_db.z_em[1] = 0.0;
+				SS_ref_db.d_em[1] = 1.0;
+				SS_ref_db.z_em[3] = 0.0;
+				SS_ref_db.d_em[3] = 1.0;
+				SS_ref_db.z_em[4] = 0.0;
+				SS_ref_db.d_em[4] = 1.0;
+				SS_ref_db.bounds_ref[0][0] = 0.0;
+				SS_ref_db.bounds_ref[0][1] = 0.0;
+				SS_ref_db.bounds_ref[2][0] = 0.0;
+				SS_ref_db.bounds_ref[2][1] = 0.0;
+				SS_ref_db.bounds_ref[3][0] = 0.0;
+				SS_ref_db.bounds_ref[3][1] = 0.0;
+			}	}
 		else if (strcmp( name, "liq") == 0){
 			if ( T < gv.min_melt_T){
 				SS_ref_db.ss_flags[0]  = 0;
@@ -19927,15 +19971,33 @@ SS_ref G_SS_mp_EM_function(		global_variable 	 gv,
 			}
 			SS_ref_db  = G_SS_mp_sp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
 		else if (strcmp( name, "ilm") == 0){
-			if (z_b.bulk_rock[gv.TiO2_id] == 0. || gv.mpIlm == 1){
+			if ((z_b.bulk_rock[gv.TiO2_id] == 0. && z_b.bulk_rock[gv.O_id] == 0.) || gv.mpIlm == 1){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_mp_ilm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);    }
 		else if (strcmp( name, "ilmm") == 0){
-			if (z_b.bulk_rock[gv.TiO2_id] == 0.  || gv.mpIlm == 0){
+			if ((z_b.bulk_rock[gv.TiO2_id] == 0. && z_b.bulk_rock[gv.O_id] == 0.)  || gv.mpIlm == 0){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_mp_ilmm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);    }
+			SS_ref_db  = G_SS_mp_ilmm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);
+			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
+				SS_ref_db.z_em[0] = 0.0;
+				SS_ref_db.d_em[0] = 1.0;
+				SS_ref_db.z_em[1] = 0.0;
+				SS_ref_db.d_em[1] = 1.0;
+				SS_ref_db.z_em[3] = 0.0;
+				SS_ref_db.d_em[3] = 1.0;
+				SS_ref_db.z_em[4] = 0.0;
+				SS_ref_db.d_em[4] = 1.0;
+				SS_ref_db.bounds_ref[0][0] = 0.0;
+				SS_ref_db.bounds_ref[0][1] = 0.0;
+				SS_ref_db.bounds_ref[1][0] = 0.0;
+				SS_ref_db.bounds_ref[1][1] = 0.0;
+				SS_ref_db.bounds_ref[2][0] = 0.0;
+				SS_ref_db.bounds_ref[2][1] = 0.0;
+				SS_ref_db.bounds_ref[3][0] = 0.0;
+				SS_ref_db.bounds_ref[3][1] = 0.0;
+			}    }
 		else if (strcmp( name, "mt") == 0){
 			if (z_b.bulk_rock[gv.TiO2_id] == 0. && z_b.bulk_rock[gv.O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
@@ -20582,15 +20644,33 @@ SS_ref G_SS_mpe_EM_function(	global_variable 	 gv,
 			}
 			SS_ref_db  = G_SS_mpe_sp_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	    }
 		else if (strcmp( name, "ilm") == 0){
-			if (z_b.bulk_rock[gv.TiO2_id] == 0. || gv.mpIlm == 1){
+			if ((z_b.bulk_rock[gv.TiO2_id] == 0. && z_b.bulk_rock[gv.O_id] == 0.) || gv.mpIlm == 1){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_mpe_ilm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);    }
 		else if (strcmp( name, "ilmm") == 0){
-			if (z_b.bulk_rock[gv.TiO2_id] == 0.  || gv.mpIlm == 0){
+			if ((z_b.bulk_rock[gv.TiO2_id] == 0. && z_b.bulk_rock[gv.O_id] == 0.)  || gv.mpIlm == 0){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_mpe_ilmm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);    }
+			SS_ref_db  = G_SS_mpe_ilmm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);
+			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
+				SS_ref_db.z_em[0] = 0.0;
+				SS_ref_db.d_em[0] = 1.0;
+				SS_ref_db.z_em[1] = 0.0;
+				SS_ref_db.d_em[1] = 1.0;
+				SS_ref_db.z_em[3] = 0.0;
+				SS_ref_db.d_em[3] = 1.0;
+				SS_ref_db.z_em[4] = 0.0;
+				SS_ref_db.d_em[4] = 1.0;
+				SS_ref_db.bounds_ref[0][0] = 0.0;
+				SS_ref_db.bounds_ref[0][1] = 0.0;
+				SS_ref_db.bounds_ref[1][0] = 0.0;
+				SS_ref_db.bounds_ref[1][1] = 0.0;
+				SS_ref_db.bounds_ref[2][0] = 0.0;
+				SS_ref_db.bounds_ref[2][1] = 0.0;
+				SS_ref_db.bounds_ref[3][0] = 0.0;
+				SS_ref_db.bounds_ref[3][1] = 0.0;
+			}    }
 		else if (strcmp( name, "mt") == 0){
 			/* mt (imt/dmt/usp): usp needs TiO2, imt/dmt need O (ferric Fe) - if NEITHER is
 			   present no valid corner exists at all, same as mp. */
@@ -20808,17 +20888,33 @@ SS_ref G_SS_all_EM_function(	global_variable 	 gv,
 
 		/* ilm (3 citation variants: ig/mb/igd) */
 		else if (strcmp( name, "ilm_W24") == 0 ){
-			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
+			if ((z_b.bulk_rock[gv.TiO2_id] == 0. && z_b.bulk_rock[gv.O_id] == 0.)){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_ig_ilm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
-		else if (strcmp( name, "ilm_W00") == 0 ){
+			SS_ref_db  = G_SS_ig_ilm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);
 			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
+				SS_ref_db.z_em[0] = 0.0;
+				SS_ref_db.d_em[0] = 1.0;
+				SS_ref_db.z_em[1] = 0.0;
+				SS_ref_db.d_em[1] = 1.0;
+				SS_ref_db.z_em[3] = 0.0;
+				SS_ref_db.d_em[3] = 1.0;
+				SS_ref_db.z_em[4] = 0.0;
+				SS_ref_db.d_em[4] = 1.0;
+				SS_ref_db.bounds_ref[0][0] = 0.0;
+				SS_ref_db.bounds_ref[0][1] = 0.0;
+				SS_ref_db.bounds_ref[2][0] = 0.0;
+				SS_ref_db.bounds_ref[2][1] = 0.0;
+				SS_ref_db.bounds_ref[3][0] = 0.0;
+				SS_ref_db.bounds_ref[3][1] = 0.0;
+			}	}
+		else if (strcmp( name, "ilm_W00") == 0 ){
+			if ((z_b.bulk_rock[gv.TiO2_id] == 0. && z_b.bulk_rock[gv.O_id] == 0.)){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_mb_ilm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "ilm_T21") == 0 ){
-			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
+			if ((z_b.bulk_rock[gv.TiO2_id] == 0. && z_b.bulk_rock[gv.O_id] == 0.)){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_igd_ilm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
@@ -20930,15 +21026,47 @@ SS_ref G_SS_all_EM_function(	global_variable 	 gv,
 			}
 			SS_ref_db  = G_SS_mp_mt_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
 		else if (strcmp( name, "ilmm_W14") == 0 ){
-			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
+			if ((z_b.bulk_rock[gv.TiO2_id] == 0. && z_b.bulk_rock[gv.O_id] == 0.)){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_mb_ilmm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+			SS_ref_db  = G_SS_mb_ilmm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);
+			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
+				SS_ref_db.z_em[0] = 0.0;
+				SS_ref_db.d_em[0] = 1.0;
+				SS_ref_db.z_em[1] = 0.0;
+				SS_ref_db.d_em[1] = 1.0;
+				SS_ref_db.z_em[3] = 0.0;
+				SS_ref_db.d_em[3] = 1.0;
+				SS_ref_db.bounds_ref[0][0] = 0.0;
+				SS_ref_db.bounds_ref[0][1] = 0.0;
+				SS_ref_db.bounds_ref[1][0] = 0.0;
+				SS_ref_db.bounds_ref[1][1] = 0.0;
+				SS_ref_db.bounds_ref[2][0] = 0.0;
+				SS_ref_db.bounds_ref[2][1] = 0.0;
+			}	}
 		else if (strcmp( name, "ilmmn_W14") == 0 ){
-			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
+			if ((z_b.bulk_rock[gv.TiO2_id] == 0. && z_b.bulk_rock[gv.O_id] == 0.)){
 				SS_ref_db.ss_flags[0]  = 0;
 			}
-			SS_ref_db  = G_SS_mpe_ilmm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
+			SS_ref_db  = G_SS_mpe_ilmm_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);
+			if (z_b.bulk_rock[gv.TiO2_id] == 0.){
+				SS_ref_db.z_em[0] = 0.0;
+				SS_ref_db.d_em[0] = 1.0;
+				SS_ref_db.z_em[1] = 0.0;
+				SS_ref_db.d_em[1] = 1.0;
+				SS_ref_db.z_em[3] = 0.0;
+				SS_ref_db.d_em[3] = 1.0;
+				SS_ref_db.z_em[4] = 0.0;
+				SS_ref_db.d_em[4] = 1.0;
+				SS_ref_db.bounds_ref[0][0] = 0.0;
+				SS_ref_db.bounds_ref[0][1] = 0.0;
+				SS_ref_db.bounds_ref[1][0] = 0.0;
+				SS_ref_db.bounds_ref[1][1] = 0.0;
+				SS_ref_db.bounds_ref[2][0] = 0.0;
+				SS_ref_db.bounds_ref[2][1] = 0.0;
+				SS_ref_db.bounds_ref[3][0] = 0.0;
+				SS_ref_db.bounds_ref[3][1] = 0.0;
+			}	}
 		else if (strcmp( name, "amp_G16") == 0 ){
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;

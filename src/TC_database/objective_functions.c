@@ -3246,14 +3246,14 @@ double obj_mb_ilmm(unsigned n, const double *x, double *grad, void *SS_ref_db){
     sf[6]          = 1.0 - x[0];
     
     
-    mu[0]          = gb[0] + R*T*rlog((sf[0]*sf[5])) + mu_Gex[0];
+    mu[0]          = gb[0] + R*T*rlog((sf[0]*sf[5] + d_em[0])) + mu_Gex[0];
     double complex cs_0 = csqrt(sf[0]);
     double complex cs_1 = csqrt(sf[1]);
     double complex cs_4 = csqrt(sf[4]);
     double complex cs_5 = csqrt(sf[5]);
-    mu[1]          = gb[1] + R*T*rlog((4.0*cs_0*cs_1*cs_4*cs_5)) + mu_Gex[1];
+    mu[1]          = gb[1] + R*T*rlog((4.0*cs_0*cs_1*cs_4*cs_5 + d_em[1])) + mu_Gex[1];
     mu[2]          = gb[2] + R*T*rlog((sf[3]*sf[6] + d_em[2])) + mu_Gex[2];
-    mu[3]          = gb[3] + R*T*rlog((sf[2]*sf[5])) + mu_Gex[3];
+    mu[3]          = gb[3] + R*T*rlog((sf[2]*sf[5] + d_em[3])) + mu_Gex[3];
     
     d->sum_apep = 0.0;
     for (int i = 0; i < n_em; i++){
@@ -7220,15 +7220,15 @@ double obj_mp_ilmm(unsigned n, const double *x, double *grad, void *SS_ref_db){
     sf[6]          = 0.5*x[0] + 0.5*x[1] + 0.5*x[2] + 0.5*x[3];
     
     
-    mu[0]          = gb[0] + R*T*rlog((sf[0]*sf[6])) + mu_Gex[0];
+    mu[0]          = gb[0] + R*T*rlog((sf[0]*sf[6] + d_em[0])) + mu_Gex[0];
     double complex cp_4_2p0 = cpow(sf[4], 2.0);
     double complex cs_0 = csqrt(sf[0]);
     double complex cs_1 = csqrt(sf[1]);
     double complex cs_5 = csqrt(sf[5]);
     double complex cs_6 = csqrt(sf[6]);
-    mu[1]          = gb[1] + R*T*rlog((4.0*cs_0*cs_1*cs_5*cs_6)) + mu_Gex[1];
+    mu[1]          = gb[1] + R*T*rlog((4.0*cs_0*cs_1*cs_5*cs_6 + d_em[1])) + mu_Gex[1];
     mu[2]          = gb[2] + R*T*rlog((cp_4_2p0 + d_em[2])) + mu_Gex[2];
-    mu[3]          = gb[3] + R*T*rlog((sf[2]*sf[6])) + mu_Gex[3];
+    mu[3]          = gb[3] + R*T*rlog((sf[2]*sf[6] + d_em[3])) + mu_Gex[3];
     mu[4]          = gb[4] + R*T*rlog((sf[3]*sf[6] + d_em[4])) + mu_Gex[4];
     
     d->sum_apep = 0.0;
@@ -9322,11 +9322,11 @@ double obj_ig_ilm(unsigned n, const double *x, double *grad, void *SS_ref_db) {
     double complex cs_2 = csqrt(sf[2]);
     double complex cs_6 = csqrt(sf[6]);
     double complex cs_3 = csqrt(sf[3]);
-    mu[0]          = gb[0] + R*T*rlog((cs_0*cs_5)) + mu_Gex[0];
-    mu[1]          = gb[1] + R*T*rlog((2.0*cp_0_0p25*cp_1_0p25*cp_4_0p25*cp_5_0p25)) + mu_Gex[1];
+    mu[0]          = gb[0] + R*T*rlog((cs_0*cs_5 + d_em[0])) + mu_Gex[0];
+    mu[1]          = gb[1] + R*T*rlog((2.0*cp_0_0p25*cp_1_0p25*cp_4_0p25*cp_5_0p25 + d_em[1])) + mu_Gex[1];
     mu[2]          = gb[2] + R*T*rlog((cs_2*cs_6 + d_em[2])) + mu_Gex[2];
-    mu[3]          = gb[3] + R*T*rlog((cs_3*cs_5)) + mu_Gex[3];
-    mu[4]          = gb[4] + R*T*rlog((2.0*cp_1_0p25*cp_3_0p25*cp_5_0p25*cp_7_0p25)) + mu_Gex[4];
+    mu[3]          = gb[3] + R*T*rlog((cs_3*cs_5 + d_em[3])) + mu_Gex[3];
+    mu[4]          = gb[4] + R*T*rlog((2.0*cp_1_0p25*cp_3_0p25*cp_5_0p25*cp_7_0p25 + d_em[4])) + mu_Gex[4];
     
     d->sum_apep = 0.0;
     for (int i = 0; i < n_em; i++){
@@ -15488,15 +15488,15 @@ double obj_mpe_ilmm(unsigned n, const double *x, double *grad, void *SS_ref_db){
     sf[6]          = 0.5*x[0] + 0.5*x[1] + 0.5*x[2] + 0.5*x[3];
     
     
-    mu[0]          = gb[0] + R*T*rlog((sf[0]*sf[6])) + mu_Gex[0];
+    mu[0]          = gb[0] + R*T*rlog((sf[0]*sf[6] + d_em[0])) + mu_Gex[0];
     double complex cp_4_2p0 = cpow(sf[4], 2.0);
     double complex cs_0 = csqrt(sf[0]);
     double complex cs_1 = csqrt(sf[1]);
     double complex cs_5 = csqrt(sf[5]);
     double complex cs_6 = csqrt(sf[6]);
-    mu[1]          = gb[1] + R*T*rlog((4.0*cs_0*cs_1*cs_5*cs_6)) + mu_Gex[1];
+    mu[1]          = gb[1] + R*T*rlog((4.0*cs_0*cs_1*cs_5*cs_6 + d_em[1])) + mu_Gex[1];
     mu[2]          = gb[2] + R*T*rlog((cp_4_2p0 + d_em[2])) + mu_Gex[2];
-    mu[3]          = gb[3] + R*T*rlog((sf[2]*sf[6])) + mu_Gex[3];
+    mu[3]          = gb[3] + R*T*rlog((sf[2]*sf[6] + d_em[3])) + mu_Gex[3];
     mu[4]          = gb[4] + R*T*rlog((sf[3]*sf[6] + d_em[4])) + mu_Gex[4];
     
     d->sum_apep = 0.0;
