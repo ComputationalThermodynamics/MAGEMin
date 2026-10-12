@@ -1,6 +1,6 @@
 {
 "_header_": ["abbrev", "full_name", ["SiO2", "Al2O3", "CaO", "MgO", "FeO", "K2O", "Na2O", "TiO2", "O", "MnO", "Cr2O3", "H2O", "CO2", "S", "Fe"]],
-"_ambiguous_": ["aH2O", "aTiO2", "ab", "cats", "cfm", "fak", "hem", "jdmj", "ota", "pe", "pyr", "slL", "sp", "trov", "wu"],
+"_ambiguous_": ["aH2O", "aTiO2", "cats", "cfm", "fak", "hem", "jdmj", "ota", "pe", "pyr", "slL", "sp", "trov", "wu"],
 "Al(OH)3": ["Al(OH)3", "", [0, 0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.5, 0, 0, 0]],
 "Al(OH)4-": ["Al(OH)4-", "", [0, 0.5, 0, 0, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 0, 0]],
 "Al(OH)Si(OH)-": ["Al(OH)Si(OH)-", "", [1, 0.5, 0, 0, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 0, 0]],
@@ -140,6 +140,7 @@
 "annm": ["annm", "Annite", [3, 0.5, 0, 0, 3, 0.5, 0, 0, 0, 0, 0, 1, 0, 0, 0]],
 "anoL": ["anoL", "Anorthite liquid component (alkaline db)", [2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
 "anth": ["anth", "Anthophyllite", [8, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]],
+"any": ["any", "", [0, 0, 1, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 1, 0]],
 "apbo": ["apbo", "Al-phase (SLB)", [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
 "appv": ["appv", "Al-post-perovskite component", [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
 "apv": ["apv", "Al-perovskite component", [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],

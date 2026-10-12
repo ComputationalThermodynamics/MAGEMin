@@ -645,7 +645,7 @@ void generate_pseudocompounds(	int 		 		 ss,
 
 	int rg_br_gh = (strcmp(gv.research_group, "br") == 0 || strcmp(gv.research_group, "gh") == 0);
 	int rg_sb    = (strcmp(gv.research_group, "sb") == 0);
-	int ns_pc    = (strcmp(gv.research_group, "tc") == 0 || strcmp(gv.research_group, "sb") == 0) ? ns_pc_mode(gv, &SS_ref_db[ss]) : 0;
+	int ns_pc    = (strcmp(gv.research_group, "tc") == 0 || strcmp(gv.research_group, "sb") == 0 || strcmp(gv.research_group, "br") == 0) ? ns_pc_mode(gv, &SS_ref_db[ss]) : 0;
 
 	if (ns_pc == 2){ return; }
 	int rg_gh    = (strcmp(gv.research_group, "gh") == 0);

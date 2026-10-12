@@ -1335,6 +1335,10 @@ Databases InitializeDatabases(	global_variable gv,
 		SB_NS_init(										gv,
 														DB.SS_ref_db			);
 	}
+	else if (strcmp(gv.research_group, "br") == 0){
+		BR_NS_init(										gv,
+														DB.SS_ref_db			);
+	}
 
 	/* Allocate memory of the considered set of phases 								*/
 	DB.cp 		 = malloc ((gv.max_n_cp) 	* sizeof(csd_phase_set)); 

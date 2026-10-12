@@ -26,6 +26,7 @@
 #include "NLopt_opt_function.h"
 #include "NS_opt_function.h"
 #include "../SB_database/sb_objective_functions.h"
+#include "../BR_database/br_objective_functions.h"
 
 #define NS_N_SAMP_ADD 		4
 #define NS_RES_TOL 			1e-9
@@ -33,6 +34,7 @@
 #define NS_RANK_TOL 		1e-10
 #define NS_FIX_TOL 			1e-12
 #define NS_ABSENT_EPS 		1e-12
+#define NS_SKIP_MAX 		3
 
 static int ns_n_samp(	SS_ref *d	){
 	return 2*d->n_em + NS_N_SAMP_ADD;
@@ -710,6 +712,7 @@ static int ns_minimize(		global_variable 	 gv,
 	int 	converged = 0;
 	int 	n_rel     = 0;
 	int 	reset_h   = 1;
+	int 	n_skip    = 0;
 
 	while (red){
 		double G_out = G;
@@ -788,7 +791,19 @@ static int ns_minimize(		global_variable 	 gv,
 					if (fabs(b) > pgm){ pgm = fabs(b); }
 				}
 				if (sy > 0.0 && yy > 0.0){ h0 = sy/yy; }
-				if (ss > 0.0 && sy > 1e-300){
+				n_skip = (ss > 0.0 && sy > 1e-300) ? 0 : n_skip + 1;
+				if (n_skip >= NS_SKIP_MAX){
+					double gm = 0.0;
+					for (int i = 0; i < n_sf; i++){
+						double a = 0.0;
+						for (int k = 0; k < n_dir; k++){ a += d->ns_N[i][k]*gz1[k]; }
+						if (fabs(sf[i]*a) > gm){ gm = fabs(sf[i]*a); }
+					}
+					if (gm > 0.0){ h0 = 0.1/gm; }
+					ns_restart_H(d, n_dir, h0);
+					n_skip = 0;
+				}
+				else if (ss > 0.0 && sy > 1e-300){
 					for (int k = 0; k < n_dir; k++){
 						double a = 0.0;
 						for (int l = 0; l < n_dir; l++){ a += BkI[k][l]*yz[l]; }
@@ -1475,14 +1490,9 @@ void TC_NS_init(			global_variable 	 gv,
 	}
 }
 
-void SB_NS_init(			global_variable 	 gv,
-							SS_ref 				*SS_ref_db		){
-	obj_type 	SS_objective[gv.len_ss];
-
-	for (int iss = 0; iss < gv.len_ss; iss++){ SS_objective[iss] = NULL; }
-	SB_SS_objective_init_function(	SS_objective,
-									gv							);
-
+static void ns_init_p_native(	global_variable 	 gv,
+								SS_ref 				*SS_ref_db,
+								obj_type 			*SS_objective	){
 	for (int iss = 0; iss < gv.len_ss; iss++){
 		SS_ref *d     = &SS_ref_db[iss];
 		d->ns_obj     = NULL;
@@ -1501,4 +1511,28 @@ void SB_NS_init(			global_variable 	 gv,
 		ns_alloc(gv, d);
 		d->ns_ok_init = 0;
 	}
+}
+
+void SB_NS_init(			global_variable 	 gv,
+							SS_ref 				*SS_ref_db		){
+	obj_type 	SS_objective[gv.len_ss];
+
+	for (int iss = 0; iss < gv.len_ss; iss++){ SS_objective[iss] = NULL; }
+	SB_SS_objective_init_function(	SS_objective,
+									gv							);
+	ns_init_p_native(				gv,
+									SS_ref_db,
+									SS_objective				);
+}
+
+void BR_NS_init(			global_variable 	 gv,
+							SS_ref 				*SS_ref_db		){
+	obj_type 	SS_objective[gv.len_ss];
+
+	for (int iss = 0; iss < gv.len_ss; iss++){ SS_objective[iss] = NULL; }
+	BR_SS_objective_init_function(	SS_objective,
+									gv							);
+	ns_init_p_native(				gv,
+									SS_ref_db,
+									SS_objective				);
 }

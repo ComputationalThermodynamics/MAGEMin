@@ -220,7 +220,7 @@ int MAGEMin_SetSSSolver(		MAGEMin_Handle *h,
 
 	h->gv.ss_solver = ss_solver;
 
-	if (strcmp(h->gv.research_group,"tc") != 0 && strcmp(h->gv.research_group,"sb") != 0){
+	if (strcmp(h->gv.research_group,"tc") != 0 && strcmp(h->gv.research_group,"sb") != 0 && strcmp(h->gv.research_group,"br") != 0){
 		return ss_solver == 0 ? 0 : 1;
 	}
 	return 0;

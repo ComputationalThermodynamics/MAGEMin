@@ -601,6 +601,31 @@ end
 end
 
 
+@testset verbose=true "OL12 TE database (Laurent 2012)" begin
+    data    = Initialize_MAGEMin("mp", verbose=-1, solver=0)
+    P, T    = 6.0, 750.0
+    Xoxides = ["SiO2","TiO2","Al2O3","FeO","MnO","MgO","CaO","Na2O","K2O","H2O","O"]
+    X       = [58.509, 1.022, 14.858, 4.371, 0.141, 4.561, 5.912, 3.296, 2.399, 10.0, 0.2]
+    out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in="wt", name_solvus=true)
+    Finalize_MAGEMin(data)
+
+    KDs_database = get_TE_database("OL12")
+    @test KDs_database isa custom_KDs_database
+    @test length(KDs_database.element_name) == 27
+    @test get_TE_database() isa custom_KDs_database
+    @test_throws ErrorException get_TE_database("OL")
+
+    C0      = fill(10.0, 27)
+    out_TE  = TE_prediction(out, C0, KDs_database, "mp")
+
+    tol = 1e-3
+    @test out_TE.liq_wt_norm ≈ 0.36786183037028913 rtol=tol
+    @test out_TE.Cliq[1]     ≈ 18.336              rtol=tol
+    @test out_TE.Cliq[2]     ≈ 12.49               rtol=tol
+    @test out_TE.Cliq[27]    ≈ 8.183               rtol=tol
+end
+
+
 @testset verbose=true "CO lattice-strain TE database (Cornet 2017)" begin
     # KLB-1 peridotite (predefined test=0), ig database.
     # At P=10.01 kbar, T=1300°C the stable assembly is liq + cpx

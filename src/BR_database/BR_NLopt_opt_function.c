@@ -46,16 +46,24 @@ static SS_ref NLopt_opt_br_generic(global_variable gv, SS_ref SS_ref_db, obj_typ
        nudge any component sitting within 1e-3 of a bound inward before the
        solve, then renormalize to keep the equality constraint satisfied. */
     {
-        double sum = 0.0;
+        double sum_free = 0.0;
+        double sum_pin  = 0.0;
         int nudged = 0;
         for (int i = 0; i < (int)n_em; i++){
             double lb = SS_ref_db.lb[i], ub = SS_ref_db.ub[i];
+            if (ub - lb <= 2e-3){
+                if (x[i] != lb){ x[i] = lb; nudged = 1; }
+                sum_pin += x[i];
+                continue;
+            }
             if (x[i] - lb < 1e-3){ x[i] = lb + 1e-3; nudged = 1; }
             else if (ub - x[i] < 1e-3){ x[i] = ub - 1e-3; nudged = 1; }
-            sum += x[i];
+            sum_free += x[i];
         }
-        if (nudged && sum > 0.0){
-            for (int i = 0; i < (int)n_em; i++){ x[i] /= sum; }
+        if (nudged && sum_free > 0.0){
+            for (int i = 0; i < (int)n_em; i++){
+                if (SS_ref_db.ub[i] - SS_ref_db.lb[i] > 2e-3){ x[i] *= (1.0 - sum_pin)/sum_free; }
+            }
         }
     }
 

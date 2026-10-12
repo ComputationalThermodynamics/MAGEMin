@@ -590,6 +590,14 @@ SS_ref G_SS_br_EM_function( global_variable gv, SS_ref SS_ref_db, int EM_dataset
         store_FD_interactions(&SS_ref_db, FD);
     }
 
+    int n_em_act = 0;
+    for (int i = 0; i < SS_ref_db.n_em; i++){
+        if (SS_ref_db.z_em[i] == 1.0){ n_em_act += 1; }
+    }
+    if (n_em_act == 0){
+        SS_ref_db.ss_flags[0] = 0;
+    }
+
     for (int j = 0; j < SS_ref_db.n_xeos; j++){
         SS_ref_db.bounds[j][0] = SS_ref_db.bounds_ref[j][0];
         SS_ref_db.bounds[j][1] = SS_ref_db.bounds_ref[j][1];

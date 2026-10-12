@@ -1366,5 +1366,10 @@ global_variable init_ss_db_br(	int 				 EM_database,
 												z_b,
 												gv.SS_list[i]		);
 	}
+	for (int i = 0; i < gv.len_ss; i++){
+		ns_reduce_system(						gv,
+												z_b,
+												&SS_ref_db[i]		);
+	}
 	return gv;
 };

@@ -286,6 +286,10 @@ function BR_berman_EOS_dG(T, P, V0, eos)
     ccall((:BR_berman_EOS_dG, libMAGEMin), Cdouble, (Cdouble, Cdouble, Cdouble, Ptr{Cdouble}), T, P, V0, eos)
 end
 
+function BR_albite_Salje_G(T, P)
+    ccall((:BR_albite_Salje_G, libMAGEMin), Cdouble, (Cdouble, Cdouble), T, P)
+end
+
 function BR_G_EM_function(EM_dataset, len_ox, id, bulk_rock, apo, P, T, name, state)
     ccall((:BR_G_EM_function, libMAGEMin), PP_ref, (Cint, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), EM_dataset, len_ox, id, bulk_rock, apo, P, T, name, state)
 end
@@ -1844,7 +1848,7 @@ mutable struct ultramafic_ext_datasets
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{11, NTuple{20, Cchar}}
-    PP::NTuple{27, NTuple{20, Cchar}}
+    PP::NTuple{28, NTuple{20, Cchar}}
     SS::NTuple{19, NTuple{20, Cchar}}
     verifyPC::NTuple{19, Cint}
     n_SS_PC::NTuple{19, Cint}
@@ -1896,7 +1900,7 @@ mutable struct metapelite_datasets_ext
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{13, NTuple{20, Cchar}}
-    PP::NTuple{33, NTuple{20, Cchar}}
+    PP::NTuple{34, NTuple{20, Cchar}}
     SS::NTuple{28, NTuple{20, Cchar}}
     verifyPC::NTuple{28, Cint}
     n_SS_PC::NTuple{28, Cint}
@@ -1922,7 +1926,7 @@ mutable struct all_datasets
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{14, NTuple{20, Cchar}}
-    PP::NTuple{36, NTuple{20, Cchar}}
+    PP::NTuple{37, NTuple{20, Cchar}}
     SS::NTuple{63, NTuple{20, Cchar}}
     verifyPC::NTuple{63, Cint}
     n_SS_PC::NTuple{63, Cint}
@@ -3028,6 +3032,10 @@ end
 
 function SB_NS_init(gv, SS_ref_db)
     ccall((:SB_NS_init, libMAGEMin), Cvoid, (global_variable, Ptr{SS_ref}), gv, SS_ref_db)
+end
+
+function BR_NS_init(gv, SS_ref_db)
+    ccall((:BR_NS_init, libMAGEMin), Cvoid, (global_variable, Ptr{SS_ref}), gv, SS_ref_db)
 end
 
 function NS_free(SS_ref_db)
@@ -4269,7 +4277,7 @@ end
 
 const GH_N_PP = 64
 
-const BR_N_PP = 87
+const BR_N_PP = 88
 
 const NLOPT_MINF_MAX_REACHED = NLOPT_STOPVAL_REACHED
 

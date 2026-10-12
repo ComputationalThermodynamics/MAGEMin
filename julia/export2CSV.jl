@@ -81,10 +81,12 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
                                     Symbol("S_sat[μg/g]")       => Float64[],
                                     Symbol("P2O5_sat[wt%]")     => Float64[],
                                     Symbol("CO2_sat[wt%]")      => Float64[],
+                                    Symbol("LREE_sat[μg/g]")    => Float64[],
                                     Symbol("zrc_wt[wt%]")       => Float64[],
                                     Symbol("sulf_wt[wt%]")      => Float64[],
                                     Symbol("fapt_wt[wt%]")      => Float64[],
                                     Symbol("fl_CO2_wt[wt%]")    => Float64[],
+                                    Symbol("mnz_wt[wt%]")       => Float64[],
                                     Symbol("bulk_D[-]")         => Float64[],
     )
     for i in out[1].oxides
@@ -117,10 +119,12 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
                         "S_sat[μg/g]"   => "-",
                         "P2O5_sat[wt%]" => "-",
                         "CO2_sat[wt%]"  => "-",
+                        "LREE_sat[μg/g]"=> "-",
                         "zrc_wt[wt%]"   => "-",
                         "sulf_wt[wt%]"  => "-",
                         "fapt_wt[wt%]"  => "-",
                         "fl_CO2_wt[wt%]"=> "-",
+                        "mnz_wt[wt%]"   => "-",
                         "bulk_D[-]"     => out_te[k].bulk_D)
 
         if ~isnothing(out_te[k].bulk_cor_wt) && !any(isnan, out_te[k].bulk_cor_wt)
@@ -162,37 +166,49 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
         if isnothing(out_te[k].Sat_P2O5_liq)
             Sat_P2O5_liq = "-"
         else
-            Sat_P2O5_liq = out_te[k].Sat_P2O5_liq
+            Sat_P2O5_liq = out_te[k].Sat_P2O5_liq / 1e4
         end
 
         if isnothing(out_te[k].Sat_CO2_liq)
             Sat_CO2_liq = "-"
         else
-            Sat_CO2_liq = out_te[k].Sat_CO2_liq
+            Sat_CO2_liq = out_te[k].Sat_CO2_liq / 1e4
         end
 
         if isnothing(out_te[k].zrc_wt)
             zrc_wt = "-"
         else
-            zrc_wt = out_te[k].zrc_wt
+            zrc_wt = out_te[k].zrc_wt * 100.0
         end
 
         if isnothing(out_te[k].sulf_wt)
             sulf_wt = "-"
         else
-            sulf_wt = out_te[k].sulf_wt
+            sulf_wt = out_te[k].sulf_wt * 100.0
         end
 
         if isnothing(out_te[k].fapt_wt)
             fapt_wt = "-"
         else
-            fapt_wt = out_te[k].fapt_wt
+            fapt_wt = out_te[k].fapt_wt * 100.0
         end
 
         if isnothing(out_te[k].fl_CO2_wt)
             fl_CO2_wt = "-"
         else
-            fl_CO2_wt = out_te[k].fl_CO2_wt
+            fl_CO2_wt = out_te[k].fl_CO2_wt * 100.0
+        end
+
+        if isnothing(out_te[k].Sat_LREE_liq)
+            Sat_LREE_liq = "-"
+        else
+            Sat_LREE_liq = out_te[k].Sat_LREE_liq
+        end
+
+        if isnothing(out_te[k].mnz_wt)
+            mnz_wt = "-"
+        else
+            mnz_wt = out_te[k].mnz_wt * 100.0
         end
 
         if ~isnothing(out_te[k].liq_wt_norm) && !any(isnan, out_te[k].liq_wt_norm)
@@ -206,10 +222,12 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
                             "S_sat[μg/g]"   => Sat_S_liq,
                             "P2O5_sat[wt%]" => Sat_P2O5_liq,
                             "CO2_sat[wt%]"  => Sat_CO2_liq,
+                            "LREE_sat[μg/g]"=> Sat_LREE_liq,
                             "zrc_wt[wt%]"   => zrc_wt,
                             "sulf_wt[wt%]"  => sulf_wt,
                             "fapt_wt[wt%]"  => fapt_wt,
                             "fl_CO2_wt[wt%]"=> fl_CO2_wt,
+                            "mnz_wt[wt%]"   => mnz_wt,
                             "bulk_D[-]"     => "-")
 
             part_2 = Dict(  (out[1].oxides[j]*"_cor[wt%]" => "-")
@@ -243,10 +261,12 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
                             "S_sat[μg/g]"   => "-",
                             "P2O5_sat[wt%]" => "-",
                             "CO2_sat[wt%]"  => "-",
+                            "LREE_sat[μg/g]"=> "-",
                             "zrc_wt[wt%]"   => "-",
                             "sulf_wt[wt%]"  => "-",
                             "fapt_wt[wt%]"  => "-",
                             "fl_CO2_wt[wt%]"=> "-",
+                            "mnz_wt[wt%]"   => "-",
                             "bulk_D[-]"     => "-")
 
             part_2 = Dict(  (out[1].oxides[j]*"_cor[wt%]" => "-")
@@ -277,10 +297,12 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
                                 "S_sat[μg/g]"   => "-",
                                 "P2O5_sat[wt%]" => "-",
                                 "CO2_sat[wt%]"  => "-",
+                                "LREE_sat[μg/g]"=> "-",
                                 "zrc_wt[wt%]"   => "-",
                                 "sulf_wt[wt%]"  => "-",
                                 "fapt_wt[wt%]"  => "-",
                                 "fl_CO2_wt[wt%]"=> "-",
+                                "mnz_wt[wt%]"   => "-",
                                 "bulk_D[-]"     => "-")
 
                 part_2 = Dict(  (out[1].oxides[j]*"_cor[wt%]" => "-")

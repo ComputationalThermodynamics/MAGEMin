@@ -240,10 +240,10 @@ ultramafic_dataset ultramafic_db = {
 ultramafic_ext_dataset ultramafic_ext_db = {
 	633,						/* Endmember default dataset number */
 	11,							/* number of oxides */
-	27,							/* number of pure phases */
+	28,							/* number of pure phases */
 	19,							/* number of solution phases */
 	{"SiO2"	,"Al2O3","MgO"	,"FeO"	,"O"	,"H2O"	,"S"	,"CaO"	,"Na2O", "Cr2O3","CO2"											},
-	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"pyr"	,"O2"  	,"hem"	,"H2O"	,"cor"	,"gph",
+	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"pyr"	,"O2"  	,"hem"	,"H2O"	,"cor"	,"gph"	,"any",
 	"qfm"	,"qif"	,"nno"	,"hm"	,"mw"	,"iw"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"				},
 	{"fl"	,"ol"  ,"br"	,"ch"	,"atg"	,"g"	,"ta"	,"chl"	,"spi"	,"opx"	,"po"	,"anth"	,"pl4tr","amp"	,"aug"	,"spl"	,"flc"	,"occm"	,"DEW"	},
 
@@ -297,10 +297,10 @@ mantle_dataset mantle_db = {
 metapelite_dataset_ext metapelite_ext_db = {
 	62,							/* Endmember default dataset number */
 	13,							/* number of oxides */
-	33,							/* number of pure phases */
+	34,							/* number of pure phases */
 	28,							/* number of solution phases  */
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"H2O"	,"CO2"	,"S"										},
-	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2" 	,"pyr"	,"gph"	,"law"	,"zo" ,"prl"  ,"mpm"   ,"pre"	,"cor",	"H2O",
+	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2" 	,"pyr"	,"gph"	,"law"	,"zo" ,"prl"  ,"mpm"   ,"pre"	,"cor",	"H2O"	,"any",
 	"qfm"	,"mw"	,"qif"	,"nno"	,"hm"	,"iw" 	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"											},
 	{"liq"	,"fsp"	,"bi"	,"g"	,"ep"	,"ma"	,"mu"	,"opx"	,"sa"	,"cd"	,"st"	,"chl"	,"ctd"	,"sp"  ,"mt"  ,"ilm"  ,"ilmm"  ,"occm"	,"fl"	,"po"	,"dio"	,"aug"	,"amp"	,"oamp"	,"carp"	,"plc","scp"	,"DEW"		},
 
@@ -326,10 +326,10 @@ metapelite_dataset_ext metapelite_ext_db = {
 all_dataset all_db = {
 	636,						/* Endmember default dataset number */
 	14,							/* number of oxides */
-	36,							/* number of pure phases */
+	37,							/* number of pure phases */
 	63,							/* number of solution phases */
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"Cr2O3","H2O"	,"CO2"	,"S"											},
-	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"law"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2"	,"H2O"	,"ab"	,"zo"	,"cor"	,"pyr"	,"hem"	,"gph"	,"ne"	,"prl"	,"mpm"	,"pre",
+	{"q"	,"crst"	,"trd"	,"coe"	,"stv"	,"law"	,"ky"	,"sill"	,"and"	,"ru"	,"sph"	,"O2"	,"H2O"	,"ab"	,"zo"	,"cor"	,"pyr"	,"hem"	,"gph"	,"ne"	,"prl"	,"mpm"	,"pre"	,"any",
 	"qfm"	,"mw"	,"qif"	,"nno"	,"hm"	,"iw"	,"cco"	,"aH2O"	, "aO2"	,"aMgO"	,"aFeO"	,"aAl2O3"		,"aTiO2"											},
 	{"liq_S26"	,"liq_G16"	,"liq_W14"	,"liq_G25w"	,"fsp_H22"	,"fsp_H22op","g_W24"	,"g_W14"	,"g_H18"	,"g_T21"	,"opx_W24"	,"opx_W14"	,"opx_T21"	,"ol_H18"	,"ol_H11"	,
 	 "ilm_W24"	,"ilm_W00"	,"ilm_T21"	,"spl_T21"	,"spl_W02"	,"bi_G25"	,"bi_W14"	,"cd_G25"	,"cd_W14"	,"fl_G25"	,"fl_EF21"	,"fl_H03"	,

@@ -1646,7 +1646,7 @@ end
         Solver type (default: 0).
     optimizer : Int64, optional
         Local optimizer of the solution phases, used by the legacy solver (`solver=0`) for the
-        THERMOCALC and Stixrude & Lithgow-Bertelloni databases: 0 NLopt (default), 1 nullspace
+        THERMOCALC, Stixrude & Lithgow-Bertelloni and Berman databases: 0 NLopt (default), 1 nullspace
         minimization with NLopt fallback.
         With 1, oxides set exactly to zero in the bulk are removed from the system, including
         the core oxides that are otherwise raised to 1e-4 (reduced systems below FMAS).
@@ -1787,7 +1787,7 @@ end
         Solver type (default: 0).
     optimizer : Int64, optional
         Local optimizer of the solution phases, used by the legacy solver (`solver=0`) for the
-        THERMOCALC and Stixrude & Lithgow-Bertelloni databases: 0 NLopt (default), 1 nullspace
+        THERMOCALC, Stixrude & Lithgow-Bertelloni and Berman databases: 0 NLopt (default), 1 nullspace
         minimization with NLopt fallback.
         With 1, oxides set exactly to zero in the bulk are removed from the system, including
         the core oxides that are otherwise raised to 1e-4 (reduced systems below FMAS).
@@ -2728,7 +2728,7 @@ end
 """
 function define_bulk_rock(gv, bulk_in, bulk_in_ox, sys_in,db)
 
-    ns_reduced      = is_db(db) && (get_db(db).research_group == "sb" || (gv.ss_solver == 1 && gv.solver == 0 && get_db(db).research_group == "tc"))
+    ns_reduced      = is_db(db) && (get_db(db).research_group in ("sb", "br") || (gv.ss_solver == 1 && gv.solver == 0 && get_db(db).research_group == "tc"))
     bulk_rock, ox   = convertBulk4MAGEMin(bulk_in,bulk_in_ox,sys_in,db; ns_reduced = ns_reduced)     # conversion changes the system unit to mol
     unsafe_copyto!(gv.bulk_rock, pointer(bulk_rock), gv.len_ox)            # copy the bulk-rock
 
@@ -2897,9 +2897,9 @@ end
     oxMinGuard : Bool, optional
         Set non-core oxides below 2e-5 to zero (default: true).
     ns_reduced : Bool, optional
-        Reduced system (SB databases, or THERMOCALC with the nullspace optimizer: `optimizer=1`,
-        `solver=0`): core oxides set exactly to zero (or below 2e-5 with `oxMinGuard`) stay zero
-        instead of being raised to 1e-4 (default: false).
+        Reduced system (SB and Berman databases, or THERMOCALC with the nullspace optimizer:
+        `optimizer=1`, `solver=0`): core oxides set exactly to zero (or below 2e-5 with `oxMinGuard`)
+        stay zero instead of being raised to 1e-4 (default: false).
 
     Returns
     -------
@@ -3382,7 +3382,7 @@ function point_wise_minimization(   P       ::Float64,
                 id_pc       = unsafe_wrap(Vector{Cint},SS_ref_db[ph_id].id_pc, 1)
 
                 xeos        = copy(Gi[i].xeos_Ppc)
-                ns_pc       = rg in ("tc", "sb") ? LibMAGEMin.ns_pc_mode(gv, pointer(SS_ref_db, ph_id)) : 0
+                ns_pc       = rg in ("tc", "sb", "br") ? LibMAGEMin.ns_pc_mode(gv, pointer(SS_ref_db, ph_id)) : 0
                 if ns_pc == 2 || (ns_pc == 1 && LibMAGEMin.ns_project_x(gv, pointer(SS_ref_db, ph_id), xeos) == 0)
                     continue
                 end
@@ -4952,7 +4952,7 @@ function point_wise_minimization_with_guess(    mSS_vec ::  Vector{LibMAGEMin.mS
 
                 unsafe_copyto!(SS_ref_db[ph_id].gb_lvl,SS_ref_db[ph_id].gbase, SS_ref_db[ph_id].n_em)
                 xeos        = copy(mSS_vec[i].xeos_Ppc)
-                ns_pc       = rg in ("tc", "sb") ? LibMAGEMin.ns_pc_mode(gv, pointer(SS_ref_db, ph_id)) : 0
+                ns_pc       = rg in ("tc", "sb", "br") ? LibMAGEMin.ns_pc_mode(gv, pointer(SS_ref_db, ph_id)) : 0
                 if ns_pc == 2 || (ns_pc == 1 && LibMAGEMin.ns_project_x(gv, pointer(SS_ref_db, ph_id), xeos) == 0)
                     continue
                 end
