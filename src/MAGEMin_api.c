@@ -45,8 +45,21 @@ static const char *research_group_of(	const char *database		){
 	return "tc";
 }
 
-MAGEMin_Handle *MAGEMin_Init(	const char *database,
-								int         verbose			){
+/* index of name in list[0..n-1], or -1 */
+static int find_name(			const char     *name,
+								char          **list,
+								int             n				){
+	for (int i = 0; i < n; i++){
+		if (strcmp(name,list[i]) == 0){ return i; }
+	}
+	return -1;
+}
+
+/* MAGEMin_Init body; n_mu_fix must be known before SetupDatabase, which sizes
+   gv.len_pp/PP_list with one fictive pure phase per fixed oxide */
+static MAGEMin_Handle *init_handle(	const char *database,
+									int         verbose,
+									int         n_mu_fix		){
 
 	if (database != NULL && strlen(database) >= len_gv_db){
 		printf(" MAGEMin_Init error: database acronym '%s' is too long\n",database);
@@ -57,7 +70,8 @@ MAGEMin_Handle *MAGEMin_Init(	const char *database,
 
 	h->gv = global_variable_alloc(		&h->z_b					);
 
-	h->gv.verbose = verbose;
+	h->gv.verbose  = verbose;
+	h->gv.n_mu_fix = n_mu_fix;
 	if (database != NULL){
 		snprintf(h->gv.db, len_gv_db, "%s", database);
 	}
@@ -88,6 +102,87 @@ MAGEMin_Handle *MAGEMin_Init(	const char *database,
 	}
 
 	return h;
+}
+
+MAGEMin_Handle *MAGEMin_Init(	const char *database,
+								int         verbose			){
+	return init_handle(database, verbose, 0);
+}
+
+MAGEMin_Handle *MAGEMin_InitMuFix(	const char  *database,
+									int          verbose,
+									const char **mu_fix_oxides,
+									int          n				){
+
+	if (mu_fix_oxides == NULL || n < 1){
+		printf(" MAGEMin_InitMuFix error: at least one oxide is required\n");
+		return NULL;
+	}
+	for (int k = 0; k < n; k++){
+		if (mu_fix_oxides[k] == NULL){
+			printf(" MAGEMin_InitMuFix error: oxide name %d is NULL\n",k);
+			return NULL;
+		}
+		for (int l = 0; l < k; l++){
+			if (strcmp(mu_fix_oxides[k],mu_fix_oxides[l]) == 0){
+				printf(" MAGEMin_InitMuFix error: oxide '%s' is given twice\n",mu_fix_oxides[k]);
+				return NULL;
+			}
+		}
+	}
+
+	MAGEMin_Handle *h = init_handle(database, verbose, n);
+	if (h == NULL){ return NULL; }
+
+	/* gv.ox only exists now, so the fictive phases were initialized with
+	   mu_fix_idx = -1 ("mu<k>"): resolve the names and rename them "m<oxide>".
+	   mu_fix_idx is only read at compute time (pp_min_function.c) */
+	if (n > h->gv.len_ox){
+		printf(" MAGEMin_InitMuFix error: %d oxides given, database '%s' has only %d\n",n,h->gv.db,h->gv.len_ox);
+		MAGEMin_Free(h);
+		return NULL;
+	}
+	for (int k = 0; k < n; k++){
+		int idx = find_name(mu_fix_oxides[k], h->gv.ox, h->gv.len_ox);
+		if (idx < 0){
+			printf(" MAGEMin_InitMuFix error: unknown oxide '%s' for database '%s'\n",mu_fix_oxides[k],h->gv.db);
+			MAGEMin_Free(h);
+			return NULL;
+		}
+		h->gv.mu_fix_idx[k] = idx;
+		snprintf(h->gv.PP_list[h->gv.len_pp - n + k], 20, "m%s", h->gv.ox[idx]);
+	}
+
+	return h;
+}
+
+int MAGEMin_NMuFix(				MAGEMin_Handle *h				){
+	return h->gv.n_mu_fix;
+}
+
+int MAGEMin_SetMuFix(			MAGEMin_Handle *h,
+								const double   *mu_fix_val,
+								int             n				){
+
+	if (h == NULL || n != h->gv.n_mu_fix || (n > 0 && mu_fix_val == NULL)){
+		printf(" MAGEMin_SetMuFix error: expected %d values\n", h == NULL ? 0 : h->gv.n_mu_fix);
+		return -1;
+	}
+	for (int k = 0; k < n; k++){ h->gv.mu_fix_val[k] = mu_fix_val[k]; }
+	return 0;
+}
+
+int MAGEMin_SetSeismicScheme(	MAGEMin_Handle *h,
+								int             scheme,
+								double          weight			){
+
+	if (h == NULL || scheme < 0 || scheme > 1 || !(weight >= 0.0 && weight <= 1.0)){
+		printf(" MAGEMin_SetSeismicScheme error: scheme must be 0 or 1 and weight in [0,1]\n");
+		return -1;
+	}
+	h->gv.seismicScheme       = scheme;
+	h->gv.seismicWeightFactor = weight;
+	return 0;
 }
 
 int MAGEMin_NOxides(			MAGEMin_Handle *h				){
@@ -205,16 +300,6 @@ int MAGEMin_SetBuffer(			MAGEMin_Handle *h,
 	return 0;
 }
 
-/* index of name in list[0..n-1], or -1 */
-static int find_name(			const char     *name,
-								char          **list,
-								int             n				){
-	for (int i = 0; i < n; i++){
-		if (strcmp(name,list[i]) == 0){ return i; }
-	}
-	return -1;
-}
-
 int MAGEMin_SetSuppressedPhases(	MAGEMin_Handle  *h,
 									const char     **names,
 									int              n				){
@@ -222,11 +307,14 @@ int MAGEMin_SetSuppressedPhases(	MAGEMin_Handle  *h,
 	if (h == NULL){ return -1; }
 	if (names == NULL){ n = 0; }
 
-	/* validate everything first, so a bad name leaves the previous set intact */
+	/* validate everything first, so a bad name leaves the previous set intact;
+	   the fictive mu-fix phases (last n_mu_fix of PP_list) are not suppressible,
+	   that would silently drop the constraint */
+	int n_pp_real = h->gv.len_pp - h->gv.n_mu_fix;
 	for (int k = 0; k < n; k++){
 		if (	names[k] == NULL ||
 				(	find_name(names[k], h->gv.SS_list, h->gv.len_ss) < 0 &&
-					find_name(names[k], h->gv.PP_list, h->gv.len_pp) < 0	)	){
+					find_name(names[k], h->gv.PP_list, n_pp_real) < 0	)	){
 			printf(" MAGEMin_SetSuppressedPhases error: unknown phase '%s' for database '%s'\n",
 					names[k] == NULL ? "(null)" : names[k], h->gv.db);
 			return -1;
@@ -240,7 +328,7 @@ int MAGEMin_SetSuppressedPhases(	MAGEMin_Handle  *h,
 	for (int k = 0; k < n; k++){
 		int i = find_name(names[k], h->gv.SS_list, h->gv.len_ss);
 		if (i >= 0){ h->ss_suppressed[i] = 1; }
-		else       { h->pp_suppressed[find_name(names[k], h->gv.PP_list, h->gv.len_pp)] = 1; }
+		else       { h->pp_suppressed[find_name(names[k], h->gv.PP_list, n_pp_real)] = 1; }
 	}
 	for (int i = 0; i < h->gv.len_ss; i++){ h->n_suppressed += h->ss_suppressed[i]; }
 	for (int i = 0; i < h->gv.len_pp; i++){ h->n_suppressed += h->pp_suppressed[i]; }

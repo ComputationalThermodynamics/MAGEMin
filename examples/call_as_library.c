@@ -58,6 +58,7 @@ int main(void){
 	MAGEMin_SetBuffer(h, "qfm", 0.0);							/* fix fO2 at the QFM buffer			*/
 	const char *suppress[] = { "spl" };
 	MAGEMin_SetSuppressedPhases(h, suppress, 1);				/* exclude spinel						*/
+	MAGEMin_SetSeismicScheme(h, 1, 0.5);						/* Hashin-Shtrikman average moduli		*/
 
 	stb_system *sp = MAGEMin_ComputeEquilibrium(h, 10.0, 1100.0, bulk, "mol");
 	if (sp != NULL){
@@ -70,6 +71,30 @@ int main(void){
 
 	MAGEMin_SetBuffer(h, "none", 0.0);							/* clear both again					*/
 	MAGEMin_SetSuppressedPhases(h, NULL, 0);
+
+	MAGEMin_Free(h);
+
+	/* fixed chemical potential of MgO (mu-mu diagrams): the set of fixed oxides
+	   is chosen at init, the targets per call; the fixed oxide's bulk content
+	   must be well in excess of what the target implies */
+	const char *mu_fix[] = { "MgO" };
+	h = MAGEMin_InitMuFix("ig", 0, mu_fix, 1);
+	if (h == NULL){
+		fprintf(stderr,"MAGEMin_InitMuFix failed\n");
+		return 1;
+	}
+	double mu_MgO = -900.0;										/* same units as sp->gamma				*/
+	MAGEMin_SetMuFix(h, &mu_MgO, 1);
+	bulk[3] = 150.0;											/* MgO, oversaturated					*/
+
+	sp = MAGEMin_ComputeEquilibrium(h, 10.0, 1100.0, bulk, "mol");
+	if (sp != NULL){
+		printf("\nmu(MgO) fixed at %.1f: gamma(MgO) = %.6f, status = %d, %d phase(s):\n",
+				mu_MgO, sp->gamma[3], sp->status, sp->n_ph);
+		for (int j = 0; j < sp->n_ph; j++){
+			printf("    %-10s frac (mol) = %.5f\n", sp->ph[j], sp->ph_frac[j]);
+		}
+	}
 
 	MAGEMin_Free(h);
 	return 0;

@@ -49,6 +49,57 @@ MAGEMin_Handle *MAGEMin_Init(	const char *database,
 								int         verbose			);
 
 /**
+ * Like MAGEMin_Init, but with the chemical potential of the n oxides named in
+ * mu_fix_oxides (MAGEMin_OxideNames, e.g. {"MgO","K2O"}) fixed directly instead
+ * of solved for from the bulk (native mu-mu mechanism, CLI --n_mu_fix/
+ * --mu_fix_idx). Each fixed oxide gets a fictive pure phase "m<oxide>",
+ * appended as the last n entries of MAGEMin_PurePhaseNames, which appears in
+ * the stable assemblage when its target is active. The targets are set with
+ * MAGEMin_SetMuFix. The set of fixed oxides is structural (it sizes the pure-
+ * phase list), so it is fixed for the handle's lifetime.
+ *
+ * Each fixed oxide's bulk content must be set generously in excess of what its
+ * target implies, or the fictive phase may not become stable and the
+ * oxide's chemical potential silently misses the target. The final Newton
+ * step (MAGEMin_SetFinalNewtonStep) is skipped while any oxide is fixed.
+ *
+ * Returns NULL on failure, including an unknown or repeated oxide name.
+ */
+MAGEMin_Handle *MAGEMin_InitMuFix(	const char  *database,
+									int          verbose,
+									const char **mu_fix_oxides,
+									int          n				);
+
+/** number of oxides with a fixed chemical potential (0 unless MAGEMin_InitMuFix) */
+int MAGEMin_NMuFix(				MAGEMin_Handle *h				);
+
+/**
+ * Set the target chemical potentials of the oxides fixed by MAGEMin_InitMuFix
+ * (CLI --mu_fix_val): n = MAGEMin_NMuFix(h) values, same order and same units
+ * as the chemical potentials reported in stb_system.gamma. Persists across
+ * MAGEMin_ComputeEquilibrium calls until changed.
+ *
+ * Returns 0 on success, -1 if n does not match MAGEMin_NMuFix(h).
+ */
+int MAGEMin_SetMuFix(			MAGEMin_Handle *h,
+								const double   *mu_fix_val,
+								int             n				);
+
+/**
+ * Select how the elastic moduli of the phases are averaged into the system's
+ * seismic properties: scheme 0 = Voigt-Reuss-Hill (default), 1 = Hashin-
+ * Shtrikman; weight (0..1) positions the result between the soft and the stiff
+ * bound of that scheme (VRH: 0 = Reuss, 0.5 = classic VRH (default), 1 =
+ * Voigt; HS: 0 = HS-, 0.5 = HS average, 1 = HS+). Stays in effect for the
+ * handle's lifetime.
+ *
+ * Returns 0 on success, -1 on an invalid scheme or weight.
+ */
+int MAGEMin_SetSeismicScheme(	MAGEMin_Handle *h,
+								int             scheme,
+								double          weight			);
+
+/**
  * Select the minimization solver (CLI --solver): 0 = legacy, 1 = PGE + legacy
  * hybrid, 2 = hybrid PGE/LP (default), 3 = metastable calculation without
  * minimization (diagnostic). Stays in effect for the handle's lifetime.
@@ -110,7 +161,8 @@ int MAGEMin_SetBuffer(			MAGEMin_Handle *h,
  * Exclude phases from minimization. names holds n solution-phase model names
  * (MAGEMin_SolutionPhaseNames) and/or pure-phase names (MAGEMin_PurePhaseNames);
  * the set replaces any previous one and persists across
- * MAGEMin_ComputeEquilibrium calls. Pass NULL/0 to clear it.
+ * MAGEMin_ComputeEquilibrium calls. Pass NULL/0 to clear it. The fictive
+ * "m<oxide>" phases of MAGEMin_InitMuFix cannot be suppressed.
  *
  * While any phase is suppressed, both variants of the near-degenerate model
  * pairs gated by gv.mbCpx/mbIlm/mpSp/mpIlm are generated (set to 2), so that
