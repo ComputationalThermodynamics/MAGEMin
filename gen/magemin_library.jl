@@ -290,6 +290,10 @@ function BR_albite_Salje_G(T, P)
     ccall((:BR_albite_Salje_G, libMAGEMin), Cdouble, (Cdouble, Cdouble), T, P)
 end
 
+function BR_water_Haar_G(T, P)
+    ccall((:BR_water_Haar_G, libMAGEMin), Cdouble, (Cdouble, Cdouble), T, P)
+end
+
 function BR_G_EM_function(EM_dataset, len_ox, id, bulk_rock, apo, P, T, name, state)
     ccall((:BR_G_EM_function, libMAGEMin), PP_ref, (Cint, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), EM_dataset, len_ox, id, bulk_rock, apo, P, T, name, state)
 end

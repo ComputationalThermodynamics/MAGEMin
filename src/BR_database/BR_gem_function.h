@@ -17,6 +17,7 @@ void BR_berman_HS(double T, double H0, double S0, const double cp[11],
                    double *H_out, double *S_out);
 double BR_berman_EOS_dG(double T, double P, double V0, const double eos[4]);
 double BR_albite_Salje_G(double T, double P);
+double BR_water_Haar_G(double T, double P);
 
 PP_ref BR_G_EM_function(   int          EM_dataset,
                             int          len_ox,
