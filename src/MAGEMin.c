@@ -57,6 +57,7 @@
 #include "phase_update_function.h"
 #include "all_solution_phases.h"
 #include "MAGEMin.h"
+#include "TC_database/NS_opt_function.h"
 
 /** 
   Main routine
@@ -424,7 +425,7 @@ static atomic_int ds62_placeholder_warned = 0;
 static void warn_ds62_placeholder_phases(	global_variable 	 gv,
 											SS_ref  			*SS_ref_db		){
 
-	static const char *ds62_placeholder_ss[] = {"liq_S26", "liq_G25w", "fl_G25"};
+	static const char *ds62_placeholder_ss[] = {"liq_S26", "liq_G25w", "liqmn_R27", "fl_G25"};
 	const int n_placeholder = sizeof(ds62_placeholder_ss) / sizeof(ds62_placeholder_ss[0]);
 
 	if (gv.verbose == -1 || gv.EM_database != 8 || gv.EM_dataset != 62 || strcmp(gv.research_group, "tc") != 0){
@@ -676,7 +677,7 @@ static void warn_ds62_placeholder_phases(	global_variable 	 gv,
 				gv.n_ss_array[cp[i].id] += 1;
 				if (strcmp( gv.SS_list[cp[i].id], "liq")  == 0
 				 || strcmp( gv.SS_list[cp[i].id], "liq_W14") == 0 || strcmp( gv.SS_list[cp[i].id], "liq_G16") == 0
-				 || strcmp( gv.SS_list[cp[i].id], "liq_G25w") == 0 || strcmp( gv.SS_list[cp[i].id], "liq_S26") == 0){
+				 || strcmp( gv.SS_list[cp[i].id], "liq_G25w") == 0 || strcmp( gv.SS_list[cp[i].id], "liqmn_R27") == 0 || strcmp( gv.SS_list[cp[i].id], "liq_S26") == 0){
 					ig_liq += cp[i].ss_n;
 					n_liq  += 1;
 				}
@@ -794,6 +795,13 @@ static void warn_ds62_placeholder_phases(	global_variable 	 gv,
 		printf("  Wrong solver option: should be 0 (legacy) or 1 (PGE & legacy)");
 	}
 
+	gv = final_Newton(					z_b,
+										gv,
+										PC_read,
+										PP_ref_db,
+										SS_ref_db,
+										cp						);
+
 	if (gv.verbose == 1){
 		gv = check_PC_driving_force( 	z_b,							/** bulk rock constraint 			*/ 
 										gv,								/** global variables (e.g. Gamma) 	*/
@@ -836,6 +844,109 @@ static void warn_ds62_placeholder_phases(	global_variable 	 gv,
 		}
 		printf("\n");
 	}
+
+	return gv;
+}
+
+	global_variable ComputeEquilibrium_FromState(	bulk_info 	 		 z_b,
+													global_variable 	 gv,
+													PP_ref  			*PP_ref_db,
+													SS_ref  			*SS_ref_db,
+													csd_phase_set  		*cp,
+													int 				 n_ss,
+													int 				*ss_ids,
+													double 				*ss_x,
+													double 				*ss_n,
+													int 				 n_pp,
+													int 				*pp_ids,
+													double 				*pp_n,
+													double 				*gam				){
+
+	PC_type 								PC_read[gv.len_ss];
+
+	if (strcmp(gv.research_group, "tc") 	== 0 ){
+		TC_PC_init(	                    		PC_read,
+												gv								);
+	}
+	else if (strcmp(gv.research_group, "sb") 	== 0 ){
+		SB_PC_init(	                    		PC_read,
+												gv								);
+	}
+	else{
+		gv.status = -1;
+		return gv;
+	}
+
+	gv.fn_from_state = 1;
+	gv.status 		 = 0;
+	gv.div 			 = 0;
+	for (int j = 0; j < gv.len_ox; j++){
+		gv.gam_tot[j] 	= gam[j];
+		gv.gam_tot_0[j] = gam[j];
+	}
+
+	int off = 0;
+	for (int q = 0; q < n_ss && q < gv.max_n_cp; q++){
+		int ph_id = ss_ids[q];
+
+		for (int k = 0; k < SS_ref_db[ph_id].n_xeos; k++){
+			SS_ref_db[ph_id].iguess[k] = ss_x[off + k];
+		}
+		off += SS_ref_db[ph_id].n_xeos;
+
+		SS_ref_db[ph_id] = rotate_hyperplane(			gv,
+														SS_ref_db[ph_id]				);
+		SS_ref_db[ph_id] = PC_function(					gv,
+														PC_read,
+														SS_ref_db[ph_id],
+														z_b,
+														ph_id							);
+		SS_ref_db[ph_id] = SS_UPDATE_function(			gv,
+														SS_ref_db[ph_id],
+														z_b,
+														gv.SS_list[ph_id]				);
+
+		strcpy(cp[q].name,gv.SS_list[ph_id]);
+		cp[q].split 		= 0;
+		cp[q].id 			= ph_id;
+		cp[q].n_xeos		= SS_ref_db[ph_id].n_xeos;
+		cp[q].n_em			= SS_ref_db[ph_id].n_em;
+		cp[q].n_sf			= SS_ref_db[ph_id].n_sf;
+		cp[q].ss_flags[0] 	= 1;
+		cp[q].ss_flags[1] 	= 1;
+		cp[q].ss_flags[2] 	= 0;
+		for (int k = 0; k < SS_ref_db[ph_id].n_xeos; k++){
+			cp[q].xeos[k]   = SS_ref_db[ph_id].iguess[k];
+			cp[q].dguess[k] = SS_ref_db[ph_id].iguess[k];
+		}
+		copy_to_cp(										q,
+														ph_id,
+														gv,
+														SS_ref_db,
+														cp								);
+		cp[q].ss_n 			= ss_n[q];
+
+		gv.n_solvi[ph_id]  += 1;
+		gv.len_cp 		   += 1;
+		gv.n_cp_phase 	   += 1;
+		gv.n_phase 		   += 1;
+	}
+
+	for (int q = 0; q < n_pp; q++){
+		gv.pp_flags[pp_ids[q]][1] 	= 1;
+		gv.pp_flags[pp_ids[q]][2] 	= 0;
+		gv.pp_n[pp_ids[q]] 			= pp_n[q];
+		gv.n_pp_phase 			   += 1;
+		gv.n_phase 				   += 1;
+	}
+
+	gv = final_Newton(								z_b,
+													gv,
+													PC_read,
+													PP_ref_db,
+													SS_ref_db,
+													cp								);
+	if (gv.fn_status <= 0){ gv.status = -1; }
 
 	return gv;
 }
@@ -885,6 +996,8 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 		{ "n_mu_fix",   ko_optional_argument, 335 },
 		{ "mu_fix_idx", ko_optional_argument, 336 },
 		{ "mu_fix_val", ko_optional_argument, 337 },
+		{ "ss_solver",  ko_optional_argument, 338 },
+		{ "final_Newton_step", ko_optional_argument, 339 },
     	{ NULL, 0, 0 }
 	};
 	ketopt_t opt = KETOPT_INIT;
@@ -924,7 +1037,9 @@ global_variable ReadCommandLineOptions(	global_variable 	 gv,
 					p = strtok(NULL, ",");
 			}
 		}
-		else if (c == 316){ gv.solver   		= atoi(opt.arg);			}																		
+		else if (c == 316){ gv.solver   		= atoi(opt.arg);			}
+		else if (c == 338){ gv.ss_solver   		= atoi(opt.arg);			}																		
+		else if (c == 339){ gv.final_Newton_step = atoi(opt.arg);			}
 		else if (c == 318){ gv.output_matlab   	= atoi(opt.arg); 			}																		
 		else if (c == 304){ gv.n_points 		= atoi(opt.arg); 	 		}
 		else if (c == 305){ gv.test  			= atoi(opt.arg); 			}
@@ -1149,6 +1264,8 @@ global_variable SetupDatabase(			global_variable 	 gv,
 		printf("--buffer_n    : buffer_n             = %f \n", 				gv.buffer_n			);
 
 		printf("--solver      : solver               = %i \n", 	 	   		gv.solver			);
+		printf("--ss_solver   : ss_solver            = %i \n", 	 	   		gv.ss_solver		);
+		printf("--final_Newton_step: final_Newton_step = %i \n", 	 	   	gv.final_Newton_step	);
 
 		printf("--limitCaOpx  : limitCaOpx           = %i \n", 	 	   		gv.limitCaOpx		);
 		printf("--CaOpxLim    : CaOpxLim             = %f \n", 	 	   		gv.CaOpxLim			);
@@ -1208,6 +1325,15 @@ Databases InitializeDatabases(	global_variable gv,
 														DB.SS_ref_db[iss],
 														gv.SS_list[iss], 
 														gv						);
+	}
+
+	if (strcmp(gv.research_group, "tc") == 0){
+		TC_NS_init(										gv,
+														DB.SS_ref_db			);
+	}
+	else if (strcmp(gv.research_group, "sb") == 0){
+		SB_NS_init(										gv,
+														DB.SS_ref_db			);
 	}
 
 	/* Allocate memory of the considered set of phases 								*/
@@ -1382,6 +1508,8 @@ void FreeDatabases(		global_variable gv,
 		n_em 	= DB.SS_ref_db[i].n_em;
 		n_sf 	= DB.SS_ref_db[i].n_sf;
 		n_xeos 	= DB.SS_ref_db[i].n_xeos;
+
+		NS_free(&DB.SS_ref_db[i]);
 
 		if (DB.SS_ref_db[i].n_cat > 0){
 			n_cat = DB.SS_ref_db[i].n_cat;
@@ -1576,6 +1704,10 @@ void FreeDatabases(		global_variable gv,
 	free(gv.delta_pp_xi);
 
 	free(gv.A_PGE);
+	free(gv.fn_A);
+	free(gv.fn_b);
+	free(gv.fn_ipiv);
+	fn_kkt_free(gv.fn_sys);
 	free(gv.A0_PGE);
 	free(gv.b_PGE);
 	free(gv.cp_id);

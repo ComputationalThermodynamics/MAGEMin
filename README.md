@@ -29,6 +29,22 @@ Full support to install and use MAGEMin is available [here](https://computationa
 ### Native chemical-potential fixing
 `MAGEMin` natively supports fixing the chemical potential of one or more oxide components directly (`mu_fix_idx`/`mu_fix_val` in `MAGEMin_C`), instead of only their bulk content, via a fictive-phase mechanism generalizing the existing single-component `buffer`/`buffer_n` option. This is the engine behind `MAGEMinApp`'s μ-μ diagrams, and can also be used directly through `MAGEMin_C` for single-point or grid calculations. The fixed oxide's bulk content must be set generously in excess of what the target chemical potential implies for the mechanism to reliably activate.
 
+### Nullspace solution-phase minimizer
+For the THERMOCALC databases and the Stixrude & Lithgow-Bertelloni databases (`sb11`, `sb21`, `sb24`), the local minimization of solution phases during the LP stage of the legacy solver (`solver = 0`) can use a nullspace minimizer instead of NLopt (BFGS in site-fraction space for THERMOCALC, in endmember-proportion space for SB, where Σp = 1 holds by construction instead of as an equality constraint). It works without heap allocation after initialization and falls back to NLopt when it cannot handle a phase. Select it with the `optimizer` keyword of `Initialize_MAGEMin` (`MAGEMin_C`), `--ss_solver` (command line) or `MAGEMin_SetSSSolver` (C API):
+
+| `optimizer` (`--ss_solver`) | behaviour |
+|---|---|
+| `0` (default) | NLopt |
+| `1` | nullspace minimizer, NLopt fallback |
+| `2` (command line and C API only) | both, keeps the lower Gibbs energy |
+
+With the nullspace minimizer, oxides set exactly to zero are removed from the system, including the core oxides (`SiO2`, `Al2O3`, `MgO`, `FeO`; `Fe` and `O` for `sb24`) that NLopt needs at a minimum of 1e-4 mol fraction. Systems below FMAS (e.g. MS, MAS, CMAS, FASH, MgO-FeO) can therefore be computed directly; amounts between 0 and 1e-4 are still raised to 1e-4. For the SB databases, exact zeros of core oxides are kept with NLopt as well.
+
+```julia
+data = Initialize_MAGEMin("ig", verbose=-1, solver=0, optimizer=1)
+out  = single_point_minimization(10.0, 1200.0, data, X=[45.0, 10.0, 8.0, 35.0], Xoxides=["SiO2", "Al2O3", "CaO", "MgO"], sys_in="mol")
+```
+
 ## Installing and using MAGEMinApp
 
 `MAGEMinApp` is a web-browser application ([see repository](https://github.com/ComputationalThermodynamics/MAGEMinApp.jl)) developped in Julia using `Dash.jl` that relies on `MAGEMin_C` (which relies `MAGEMin`) to compute phase diagrams (PT, TX and PX) but also fractional melting and crystallization paths.

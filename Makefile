@@ -55,6 +55,7 @@ SOURCES=src/MAGEMin.c 							\
 		src/BR_database/br_gss_init_function.c	\
 		src/BR_database/br_gss_function.c		\
 		src/TC_database/NLopt_opt_function.c 	\
+		src/TC_database/NS_opt_function.c 		\
 		src/SB_database/SB_NLopt_opt_function.c \
 		src/GH_database/GH_NLopt_opt_function.c \
 		src/BR_database/BR_NLopt_opt_function.c \

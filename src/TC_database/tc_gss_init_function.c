@@ -1044,6 +1044,21 @@ SS_ref G_SS_ig_liq_init_function(SS_ref SS_ref_db,  global_variable gv){
     return SS_ref_db;
 }
 
+SS_ref G_SS_igmn_liq_init_function(SS_ref SS_ref_db,  global_variable gv){
+    
+    SS_ref_db.n_cat     = 0;
+    SS_ref_db.is_liq    = 1;
+    SS_ref_db.override  = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 19;
+    SS_ref_db.n_em      = 13;
+    SS_ref_db.n_v       = 13;
+    SS_ref_db.n_w       = 78;
+    SS_ref_db.n_xeos    = 12;
+    
+    return SS_ref_db;
+}
+
 /** 
   allocate memory for muscovite
 */
@@ -2000,6 +2015,20 @@ SS_ref G_SS_mpe_ksp_init_function(SS_ref SS_ref_db, global_variable gv){
 /**
     allocate memory for ep
 */
+SS_ref G_SS_mpe_scp_init_function(SS_ref SS_ref_db, global_variable gv){
+
+    SS_ref_db.n_cat     = 0;
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_sf      = 6;
+    SS_ref_db.n_em      = 3;
+    SS_ref_db.n_w       = 3;
+    SS_ref_db.n_xeos    = 2;
+
+    return SS_ref_db;
+}
+
 SS_ref G_SS_mpe_ep_init_function(SS_ref SS_ref_db, global_variable gv){
     
     SS_ref_db.n_cat     = 0;
@@ -2753,6 +2782,8 @@ void TC_SS_init_mp_ext(	            SS_init_type 		*SS_init,
 			SS_init[iss]  = G_SS_mpe_fsp_init_function; 	}
 		else if (strcmp( gv.SS_list[iss], "plc") == 0){
 			SS_init[iss]  = G_SS_mpe_plc_init_function; 	}
+		else if (strcmp( gv.SS_list[iss], "scp") == 0){
+			SS_init[iss]  = G_SS_mpe_scp_init_function; 	}
 		else if (strcmp( gv.SS_list[iss], "bi")    == 0){
 			SS_init[iss]  = G_SS_mpe_bi_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "g")     == 0){
@@ -2821,6 +2852,8 @@ void TC_SS_init_all(	            SS_init_type 		*SS_init,
 			SS_init[iss]  = G_SS_mpe_liq_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "liq_G25w") == 0 ){
 			SS_init[iss]  = G_SS_ig_liq_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "liqmn_R27") == 0 ){
+			SS_init[iss]  = G_SS_igmn_liq_init_function; 		}
 
 		/* fsp (2 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "fsp_H22")   == 0 ){
@@ -2955,6 +2988,8 @@ void TC_SS_init_all(	            SS_init_type 		*SS_init,
 			SS_init[iss]  = G_SS_mpe_carp_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "plc_B05")   == 0){
 			SS_init[iss]  = G_SS_mpe_plc_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "scp_K04")   == 0){
+			SS_init[iss]  = G_SS_mpe_scp_init_function; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}

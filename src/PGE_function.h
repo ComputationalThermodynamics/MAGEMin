@@ -78,4 +78,11 @@ global_variable LP_metastable(	bulk_info 			z_b,
 
 double norm_vector(double *array ,int n);
 
+global_variable final_Newton(		bulk_info 	 		 z_b,
+									global_variable 	 gv,
+									PC_type 			*PC_read,
+									PP_ref 				*PP_ref_db,
+									SS_ref 				*SS_ref_db,
+									csd_phase_set  		*cp				);
+
 #endif

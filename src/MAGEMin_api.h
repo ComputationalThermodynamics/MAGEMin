@@ -60,6 +60,36 @@ MAGEMin_Handle *MAGEMin_Init(	const char *database,
 int MAGEMin_SetSolver(			MAGEMin_Handle *h,
 								int             solver			);
 
+int MAGEMin_SetSSSolver(		MAGEMin_Handle *h,
+								int             ss_solver		);
+
+/**
+ * Newton polish of the converged assemblage (CLI --final_Newton_step): 1 = active
+ * (default), 0 = inactive. Applies to the "tc" and "sb" research groups.
+ *
+ * Returns 0 on success, 1 if the request has no effect for the database's
+ * research group, -1 on an invalid value.
+ */
+int MAGEMin_SetFinalNewtonStep(	MAGEMin_Handle *h,
+								int             final_Newton_step	);
+
+/**
+ * Store the final Newton system at the converged state (1) or not (0, default).
+ * When stored, MAGEMin_GetFinalNewtonSystem returns the Jacobian (column-major,
+ * nz x nz), the residual, the layout and the converged state of the last call.
+ *
+ * Returns 0 on success, -1 on an invalid value.
+ */
+int MAGEMin_SetStoreKKT(		MAGEMin_Handle *h,
+								int             fn_store_kkt		);
+
+/**
+ * Final Newton system of the last MAGEMin_ComputeEquilibrium call, or NULL when
+ * the polish was not accepted or storage is off. Owned by the handle, valid
+ * until the next call.
+ */
+const fn_kkt *MAGEMin_GetFinalNewtonSystem(	MAGEMin_Handle *h			);
+
 /**
  * Set (or clear) the oxygen buffer / fixed-activity constraint (CLI --buffer,
  * --buffer_n). Persists across MAGEMin_ComputeEquilibrium calls until changed.

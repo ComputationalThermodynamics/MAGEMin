@@ -30,6 +30,7 @@ Function to call solution phase Minimization
 #include "GH_database/GH_gem_function.h"
 #include "phase_update_function.h"
 #include "all_solution_phases.h"
+#include "TC_database/NS_opt_function.h"
 
 #define LIQ_PC_SYNTH_MAX_DIM 16
 #define PC_SYNTH_MAX_EM 32
@@ -670,6 +671,63 @@ static void add_linear_pc(			global_variable 	 gv,
 	}
 }
 
+SS_ref ss_local_min(			global_variable 	 gv,
+								NLopt_type 			*NLopt_opt,
+								int 				 ph_id,
+								SS_ref 				 SS_ref_db,
+								double 				 box_size
+){
+	if (gv.ss_solver > 0 && gv.solver == 0 && SS_ref_db.ns_ok == 1){
+		int    n_x = SS_ref_db.n_xeos;
+		double x_ns[n_x];
+
+		SS_ref_db = NS_opt_function(				gv,
+													SS_ref_db				);
+
+		if (gv.verbose == 1){
+			printf(" NS %4s: status %3d, ite %4d, df %+.10f\n", gv.SS_list[ph_id], SS_ref_db.ns_status, SS_ref_db.ns_ite, SS_ref_db.df);
+		}
+		if ((SS_ref_db.ns_status == 3 || SS_ref_db.ns_absent == 1) && gv.ss_solver == 1){
+			return SS_ref_db;
+		}
+		if (gv.ss_solver == 2){
+			int    st_ns = SS_ref_db.ns_status;
+			double df_ns = SS_ref_db.df;
+			for (int k = 0; k < n_x; k++){ x_ns[k] = SS_ref_db.xeos[k]; }
+
+			SS_ref_db = restrict_SS_HyperVolume(	gv,
+													SS_ref_db,
+													box_size				);
+			SS_ref_db = (*NLopt_opt[ph_id])(		gv,
+													SS_ref_db				);
+
+			if (gv.verbose == 1){
+				printf(" NL %4s: status %3d,            df %+.10f, df_ns - df_nl %+.3e\n", gv.SS_list[ph_id], SS_ref_db.status, SS_ref_db.df, df_ns - SS_ref_db.df);
+			}
+			if (st_ns == 3 && (SS_ref_db.status != 3 || df_ns < SS_ref_db.df)){
+				for (int k = 0; k < n_x; k++){ SS_ref_db.xeos[k] = x_ns[k]; }
+				SS_ref_db.df     = df_ns;
+				SS_ref_db.status = 3;
+			}
+			return SS_ref_db;
+		}
+	}
+
+	SS_ref_db = restrict_SS_HyperVolume(			gv,
+													SS_ref_db,
+													box_size				);
+	SS_ref_db = (*NLopt_opt[ph_id])(				gv,
+													SS_ref_db				);
+
+	if (gv.solver == 0 && ns_pc_mode(gv, &SS_ref_db) == 1){
+		int    n_x = SS_ref_db.n_xeos;
+		double x_pr[n_x];
+		for (int k = 0; k < n_x; k++){ x_pr[k] = SS_ref_db.xeos[k]; }
+		ns_project_x(gv, &SS_ref_db, x_pr);
+	}
+	return SS_ref_db;
+}
+
 void ss_min_LP(			global_variable 	 gv,
 						PC_type				*PC_read,
 
@@ -716,16 +774,17 @@ void ss_min_LP(			global_variable 	 gv,
 
 	int    syn_on   = (gv.liq_pc_synth_active == 2 && gv.global_ite >= 1 && strcmp(gv.research_group, "br") != 0);
 	int    n_syn_cl = 0;
-	int    syn_cl[gv.len_cp], syn_rep[gv.len_cp], syn_multi[gv.len_cp], syn_found[gv.len_cp], syn_skip[gv.len_cp];
-	double syn_x[gv.len_cp][LIQ_PC_SYNTH_MAX_DIM];
-	double syn_p[gv.len_cp][PC_SYNTH_MAX_EM];
+	int    n_cp_vla = (gv.len_cp > 0) ? gv.len_cp : 1;
+	int    syn_cl[n_cp_vla], syn_rep[n_cp_vla], syn_multi[n_cp_vla], syn_found[n_cp_vla], syn_skip[n_cp_vla];
+	double syn_x[n_cp_vla][LIQ_PC_SYNTH_MAX_DIM];
+	double syn_p[n_cp_vla][PC_SYNTH_MAX_EM];
 	for (int i = 0; i < gv.len_cp; i++){ syn_cl[i] = -1; syn_multi[i] = 0; syn_found[i] = 0; syn_skip[i] = 0; }
 
 	if (syn_on){
 		for (int iss = 0; iss < gv.len_ss; iss++){
 			if (SS_ref_db[iss].is_liq == 1 || SS_ref_db[iss].n_xeos > LIQ_PC_SYNTH_MAX_DIM || SS_ref_db[iss].n_em > PC_SYNTH_MAX_EM){ continue; }
 
-			int idx[gv.len_cp], k = 0;
+			int idx[n_cp_vla], k = 0;
 			for (int i = 0; i < gv.len_cp; i++){ if (cp[i].ss_flags[0] == 1 && cp[i].id == iss){ idx[k++] = i; } }
 			if (k < 2){ continue; }
 
@@ -817,18 +876,11 @@ void ss_min_LP(			global_variable 	 gv,
 				SS_ref_db[ph_id] = rotate_hyperplane(		gv, 
 															SS_ref_db[ph_id]		);
 
-				/**
-					Define a sub-hypervolume for the solution phases bounds
-				*/
-				SS_ref_db[ph_id] = restrict_SS_HyperVolume(	gv, 
+				SS_ref_db[ph_id] = ss_local_min(			gv,
+															NLopt_opt,
+															ph_id,
 															SS_ref_db[ph_id],
 															gv.box_size_mode_LP		);
-
-				/**
-					call to NLopt for non-linear + inequality constraints optimization
-				*/
-				SS_ref_db[ph_id] = (*NLopt_opt[ph_id])(		gv,
-															SS_ref_db[ph_id]		);
 
 
 				if (gv.verbose == 1){ u = clock() - u; SS_ref_db[ph_id].LM_time = ((double)u)/CLOCKS_PER_SEC*1000.0; } else { SS_ref_db[ph_id].LM_time = 0.0; } 
@@ -1175,6 +1227,14 @@ global_variable init_ss_db(		int 				 EM_database,
 		}
 	}
 
+	if (strcmp(gv.research_group, "tc") == 0){
+		for (int i = 0; i < gv.len_ss; i++){
+			ns_reduce_system(						gv,
+													z_b,
+													&SS_ref_db[i]		);
+		}
+	}
+
 	return gv;
 };
 
@@ -1249,6 +1309,18 @@ global_variable init_ss_db_sb(	int 				 EM_database,
 										/** can become a global variable instead */
 		}
 	}
+	for (int i = 0; i < gv.len_ss; i++){
+		for (int k = 0; k < SS_ref_db[i].n_em; k++){
+			if (SS_ref_db[i].z_em[k] == 0.0 && SS_ref_db[i].bounds_ref[k][0] == 0.0 && SS_ref_db[i].bounds_ref[k][1] == 0.0){
+				SS_ref_db[i].bounds_ref[k][0] = 1e-12;
+				SS_ref_db[i].bounds_ref[k][1] = 1e-12;
+			}
+		}
+		ns_reduce_system(							gv,
+													z_b,
+													&SS_ref_db[i]		);
+	}
+
 	return gv;
 };
 

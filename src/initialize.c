@@ -163,7 +163,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");					/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"2.0.7 [07/10/2026]");		/** MAGEMin version 																*/
+	strcpy(gv.version,"2.0.8 [13/10/2026]");		/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
@@ -271,6 +271,29 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.EM_database  		=  0; 					
 	gv.n_points 			=  1;
 	gv.solver   			=  2;					/* 0 -> Legacy, 1 = PGE, Hybrid PGE/LP */
+	gv.ss_solver 			=  0;
+	gv.ns_alpha 			=  1e-4;
+	gv.ns_beta_ini 			=  0.25;
+	gv.ns_beta 				=  0.25;
+	gv.ns_tol 				=  1e-6;
+	gv.ns_tol_pg 			=  1e-4;
+	gv.ns_eps 				=  2e-10;
+	gv.ns_eps_bnd 			=  1e-10;
+	gv.ns_frac_bnd 			=  0.9;
+	gv.ns_omax 				=  128;
+	gv.ns_imax 				=  512;
+	gv.ns_max_ite 			=  4096;
+	gv.ns_gn_max 			=  4;
+	gv.final_Newton_step 	=  1;
+	gv.fn_status 			=  0;
+	gv.fn_ite 				=  0;
+	gv.fn_nz_max 			=  0;
+	gv.fn_A 				=  NULL;
+	gv.fn_b 				=  NULL;
+	gv.fn_ipiv 				=  NULL;
+	gv.fn_store_kkt 		=  0;
+	gv.fn_from_state 		=  0;
+	gv.fn_sys 				=  NULL;
 	gv.DEW_solve_algorithm 	=  4;              		/** 0: original plain Picard DEW inner solver, 1: damped/mixed variant, 2: plain Picard + Newton-safeguarded-by-bisection mu_Hp solve, 4 (default): Newton on ln(molality) of all species with activity coefficients inside the residual - see DEW_aq_solver.c */
 	gv.warm_start			=  1;					/** 1 (default): DEW outer-PGE warm start active, 0: disabled (always re-explore the full 8-start multistart grid) - see NLopt_opt_DEW_function */
 	gv.leveling_mode		=  0;
@@ -845,6 +868,7 @@ global_variable reset_gv(					global_variable 	 gv,
 	gv.check_PC1		  = 0;
 	gv.check_PC2		  = 0;
 	gv.len_cp 		  	  = 0;
+	gv.fn_from_state 	  = 0;
 	gv.ph_change  	      = 0;
 	gv.BR_norm            = 1.0;					/** start with 1.0 																	*/
 	gv.G_system           = 0.0;	
@@ -1363,6 +1387,68 @@ void reset_simplex_B_em(			simplex_data 		*splx_data,
 		d->B1[j]  = 0.0;	
 	}
 };
+
+fn_kkt *fn_kkt_alloc(				global_variable 	 gv				){
+	int 	n_max = gv.len_ox;
+
+	fn_kkt *k  = malloc (sizeof(fn_kkt));
+	k->stored  = 0;
+	k->nz      = 0;
+	k->m       = 0;
+	k->n_y     = 0;
+	k->n_cc    = 0;
+	k->n_ph    = 0;
+	k->n_pp    = 0;
+	k->n_s     = 0;
+	k->n_Nb    = 0;
+	k->cap_nz  = 0;
+	k->cap_s   = 0;
+	k->cap_Nb  = 0;
+	k->G       = 0.0;
+	k->ox_id   = malloc ((n_max) 				* sizeof(int)	);
+	k->ss_id   = malloc ((n_max) 				* sizeof(int)	);
+	k->cp_id   = malloc ((n_max) 				* sizeof(int)	);
+	k->pp_id   = malloc ((n_max) 				* sizeof(int)	);
+	k->off_y   = malloc ((n_max + 1) 			* sizeof(int)	);
+	k->off_s   = malloc ((n_max + 1) 			* sizeof(int)	);
+	k->off_N   = malloc ((n_max + 1) 			* sizeof(int)	);
+	k->off_c   = malloc ((n_max + 1) 			* sizeof(int)	);
+	k->drop    = malloc ((2*n_max) 				* sizeof(int)	);
+	k->gam     = malloc ((n_max) 				* sizeof(double));
+	k->n       = malloc ((2*n_max) 				* sizeof(double));
+	k->c_x     = NULL;
+	k->c_b     = NULL;
+	k->mu      = NULL;
+	k->R       = NULL;
+	k->J       = NULL;
+	k->s       = NULL;
+	k->Nb      = NULL;
+
+	return k;
+}
+
+void fn_kkt_free(					fn_kkt 				*k				){
+	if (k == NULL){ return; }
+	free(k->ox_id);
+	free(k->ss_id);
+	free(k->cp_id);
+	free(k->pp_id);
+	free(k->off_y);
+	free(k->off_s);
+	free(k->off_N);
+	free(k->off_c);
+	free(k->drop);
+	free(k->gam);
+	free(k->n);
+	free(k->c_x);
+	free(k->c_b);
+	free(k->mu);
+	free(k->R);
+	free(k->J);
+	free(k->s);
+	free(k->Nb);
+	free(k);
+}
 
 void store_FD_interactions(SS_ref *SS_ref_db, int FD){
 	if (SS_ref_db->W_array != NULL){

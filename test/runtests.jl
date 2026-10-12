@@ -30,6 +30,10 @@ end
     include(joinpath(@__DIR__, "tests.jl"))
 end
 
+@testset "nullspace" begin
+    include(joinpath(@__DIR__, "test_nullspace.jl"))
+end
+
 @testset "threaded" begin
     # Do a dummy `@test true`:
     # If the process errors out the testset would error out as well

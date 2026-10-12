@@ -60,13 +60,15 @@ void print_help(	global_variable gv	){
 	printf("  --Gam=        [float] : Chemical potential of oxides (pure components)**\n");
 	printf("  --sys_in=     [str]   : inputed system composition, [mol](default) or [wt]\n");
 	printf("  --solver=     [int]   : solver: 0 for legacy and 1 for PGE (default)\n");
+	printf("  --ss_solver=  [int]   : solution phase local minimizer (legacy solver only): 0 NLopt (default), 1 nullspace with NLopt fallback, 2 both, keep lower df\n");
+	printf("  --final_Newton_step= [int] : Newton polish of the converged assemblage (TC/SB): 1 active (default), 0 inactive\n");
 	printf("  --out_matlab= [int]   : Matlab text file output, 0. inactive, 1. active\n");
 	printf("  --buffer= 	[str]   : choose among O2, qfm, mw, qif, nno, hm, cco, aH2O, aO2, aMgO, aFeO, aAl2O3, aTiO2\n");
 	printf("  --buffer_n= 	[float] : multiplier with respect to qfm buffer\n");
 	printf("  --mbCpx= 		[int]   : 0. omphacite, 1. augite (applies to metabasite database, see Green et al., 2016)\n");
 	printf("  --mbIlm=      [int]   : 0. Ilm, 1. Ilmm see (Green et al., 2016)\n");
-	printf("  --mpSp=       [int]   : 0. Ilm, 1. Ilmm see (White et al., 2014)\n");
-	printf("  --mpIlm=      [int]   : 0. Sp, 1. Mt1 see (White et al., 2014)\n");
+	printf("  --mpSp=       [int]   : 0. Sp, 1. Mt1 see (White et al., 2014)\n");
+	printf("  --mpIlm=      [int]   : 0. Ilm, 1. Ilmm see (White et al., 2014)\n");
 	printf("  --ig_ed=      [int]   : 0. default bi,amp for ig, 1. updated bi,amp for ig\n");
 	printf("\n");
 	printf(" *'mp': metapelite, 'mb': metabasite, 'ig': igneous H18->G23, 'igad': igneous alkaline dry, 'um': ultramafic, 'ume': ultramafic extended, 'mtl': mantle\n");
@@ -211,13 +213,56 @@ double* norm_array(double *array, int size) {
 /**
   retrieve bulk rock composition and PT compositions
 */
+/**
+  oxides that are raised to 1e-4 when (almost) absent from the bulk; all others may be zero
+*/
+int is_core_oxide(						const char 			*research_group,
+										int 				 EM_database,
+										const char 			*ox				){
+	static const char *opt_mp[]   = {"H2O","MnO","O","TiO2","CaO","Na2O","K2O"};
+	static const char *opt_mb[]   = {"TiO2","O","CaO","Na2O","K2O","H2O"};
+	static const char *opt_ig[]   = {"H2O","TiO2","Cr2O3","O","K2O","Na2O","CaO"};
+	static const char *opt_igd[]  = {"TiO2","Cr2O3","O","CaO","Na2O","K2O"};
+	static const char *opt_um[]   = {"H2O","S","O"};
+	static const char *opt_ume[]  = {"H2O","S","O","Cr2O3","CO2","CaO","Na2O","Al2O3"};
+	static const char *opt_mtl[]  = {"CaO","Na2O"};
+	static const char *opt_mpe[]  = {"H2O","S","O","MnO","TiO2","CO2","CaO","Na2O","K2O"};
+	static const char *opt_all[]  = {"H2O","S","O","MnO","TiO2","CO2","CaO","Na2O","K2O","Cr2O3"};
+	const char 	**opt = NULL;
+	int 		  n   = 0;
+
+	if (strcmp(research_group, "gh") == 0){ return (strcmp(ox, "FeO") == 0); }
+	if (strcmp(research_group, "tc") != 0){ return 0; }
+
+	if 		(EM_database == 0){ 					opt = opt_mp;  n = 7;  }
+	else if (EM_database == 1 || EM_database == 11){ opt = opt_mb;  n = 6;  }
+	else if (EM_database == 2){ 					opt = opt_ig;  n = 7;  }
+	else if (EM_database == 22 || EM_database == 3){ opt = opt_igd; n = 6;  }
+	else if (EM_database == 4){ 					opt = opt_um;  n = 3;  }
+	else if (EM_database == 5){ 					opt = opt_ume; n = 8;  }
+	else if (EM_database == 6){ 					opt = opt_mtl; n = 2;  }
+	else if (EM_database == 7){ 					opt = opt_mpe; n = 9;  }
+	else if (EM_database == 8){ 					opt = opt_all; n = 10; }
+	else { return 0; }
+
+	for (int k = 0; k < n; k++){
+		if (strcmp(ox, opt[k]) == 0){ return 0; }
+	}
+	return 1;
+}
+
 bulk_info retrieve_bulk_PT(				global_variable      gv,
 										io_data 		    *input_data,
 										int					 sgleP,
 										bulk_info 			 z_b			){
 
+	int 	arg_bulk_set = 0;
+	for (int i = 0; i < gv.len_ox; i++){
+		if (gv.arg_bulk[i] > 0.0){ arg_bulk_set = 1; }
+	}
+
 	/* bulk from command line arguments */
-	if (gv.arg_bulk[0] > 0.0) {
+	if (arg_bulk_set == 1) {
 		if (gv.verbose == 1){
 			printf("\n");
 			printf("  - Minimization using bulk-rock composition from arg\n");	
@@ -318,122 +363,31 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 	norm_array(							gv.bulk_rock,
 										gv.len_ox					);		
 
-	/** here we check if the normalized mol fraction is < 1e-4 for oxides != H2O */
+	int id_FeO = -1, id_O = -1;
+	for (int i = 0; i < gv.len_ox; i++){
+		if (strcmp(gv.ox[i], "FeO") == 0){ id_FeO = i; }
+		if (strcmp(gv.ox[i], "O")   == 0){ id_O   = i; }
+	}
+	if (id_FeO >= 0 && id_O >= 0 && gv.bulk_rock[id_FeO] == 0.0 && gv.bulk_rock[id_O] > 0.0){
+		gv.bulk_rock[id_O] = 0.0;
+		norm_array(						gv.bulk_rock,
+										gv.len_ox					);
+		if (gv.verbose == 1){
+			printf("  - FeO is absent: O (ferric iron) set to 0\n");
+		}
+	}
+
+	/** here we check if the normalized mol fraction is < 1e-4 for core oxides */
 	/** if it is, then the fraction is set to 1e-4 -> this is a current limitation of system component reduction */
 	int renorm = 0;
+	int ns_red = (strcmp(gv.research_group, "tc") == 0 && gv.ss_solver > 0 && gv.solver == 0);
 	for (int i = 0; i < gv.len_ox; i++){
-		if (gv.bulk_rock[i] < 1.0e-4){
-
-			if (strcmp(gv.research_group, "gh") == 0){
-				if(strcmp( gv.ox[i], "FeO") == 0){
-					gv.bulk_rock[i] = 1.0e-4;
-					renorm = 1;
-					if (gv.verbose == 1){
-						printf("  - mol of %4s = %+.5f < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i],gv.bulk_rock[i]);
-					}
-				}
+		if (gv.bulk_rock[i] < 1.0e-4 && !(ns_red && gv.bulk_rock[i] == 0.0) && is_core_oxide(gv.research_group, gv.EM_database, gv.ox[i]) == 1){
+			gv.bulk_rock[i] = 1.0e-4;
+			renorm = 1;
+			if (gv.verbose == 1){
+				printf("  - mol of %4s = %+.5f < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i],gv.bulk_rock[i]);
 			}
-			else if (gv.EM_database == 0){ 				// metapelite database
-				if(strcmp( gv.ox[i], "H2O") != 0 && strcmp( gv.ox[i], "MnO") != 0  && strcmp( gv.ox[i], "O") != 0  && strcmp( gv.ox[i], "TiO2") != 0 && strcmp( gv.ox[i], "CaO") != 0 && strcmp( gv.ox[i], "Na2O") != 0 && strcmp( gv.ox[i], "K2O") != 0){
-					gv.bulk_rock[i] = 1.0e-4;
-					renorm = 1;
-					if (gv.verbose == 1){
-						printf("  - mol of %4s = %+.5f < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i],gv.bulk_rock[i]);
-					}
-				}
-			}
-			else if (gv.EM_database == 1){ 			// metabasite database
-				if(strcmp( gv.ox[i], "TiO2") != 0  && strcmp( gv.ox[i], "O") != 0 && strcmp( gv.ox[i], "CaO") != 0 && strcmp( gv.ox[i], "Na2O") != 0 && strcmp( gv.ox[i], "K2O") != 0 && strcmp( gv.ox[i], "H2O") != 0){
-					gv.bulk_rock[i] = 1.0e-4;
-					renorm = 1;
-					if (gv.verbose == 1){
-						printf("  - mol of %4s = %+.5f < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i],gv.bulk_rock[i]);
-					}	
-				}
-			}
-			else if (gv.EM_database == 11){ 			// metabasite database
-				if(strcmp( gv.ox[i], "TiO2") != 0  && strcmp( gv.ox[i], "O") != 0 && strcmp( gv.ox[i], "CaO") != 0 && strcmp( gv.ox[i], "Na2O") != 0 && strcmp( gv.ox[i], "K2O") != 0 && strcmp( gv.ox[i], "H2O") != 0){
-					gv.bulk_rock[i] = 1.0e-4;
-					renorm = 1;
-					if (gv.verbose == 1){
-						printf("  - mol of %4s = %+.5f < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i],gv.bulk_rock[i]);
-					}	
-				}
-			}
-			else if (gv.EM_database == 2){ 			// igneous database
-				if(strcmp( gv.ox[i], "H2O") != 0  && strcmp( gv.ox[i], "TiO2") != 0 && strcmp( gv.ox[i], "Cr2O3") != 0 && strcmp( gv.ox[i], "O")  != 0 && strcmp( gv.ox[i], "K2O") != 0 && strcmp( gv.ox[i], "Na2O") != 0 && strcmp( gv.ox[i], "CaO") != 0){
-					gv.bulk_rock[i] = 1.0e-4;
-					renorm = 1;
-					if (gv.verbose == 1){
-						printf("  - mol of %4s = %+.5f < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i],gv.bulk_rock[i]);
-					}	
-				}
-			}
-			else if (gv.EM_database == 22){ 			// igneous database
-				if(strcmp( gv.ox[i], "TiO2") != 0 && strcmp( gv.ox[i], "Cr2O3") != 0 && strcmp( gv.ox[i], "O")  != 0 && strcmp( gv.ox[i], "CaO") != 0 && strcmp( gv.ox[i], "Na2O") != 0 && strcmp( gv.ox[i], "K2O") != 0 ){
-					gv.bulk_rock[i] = 1.0e-4;
-					renorm = 1;
-					if (gv.verbose == 1){
-						printf("  - mol of %4s = %+.5f < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i],gv.bulk_rock[i]);
-					}	
-				}
-			}
-			else if (gv.EM_database == 3){ 			// igneous database
-				if(strcmp( gv.ox[i], "TiO2") != 0 && strcmp( gv.ox[i], "Cr2O3") != 0 && strcmp( gv.ox[i], "O")  != 0 && strcmp( gv.ox[i], "CaO") != 0 && strcmp( gv.ox[i], "Na2O") != 0 && strcmp( gv.ox[i], "K2O") != 0 ){
-					gv.bulk_rock[i] = 1.0e-4;
-					renorm = 1;
-					if (gv.verbose == 1){
-						printf("  - mol of %4s = %+.5f < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i],gv.bulk_rock[i]);
-					}	
-				}
-			}
-			else if (gv.EM_database == 4){ 			// ultramafic database
-				if(strcmp( gv.ox[i], "H2O") != 0 && strcmp( gv.ox[i], "S") != 0  && strcmp( gv.ox[i], "O") != 0){
-					gv.bulk_rock[i] = 1.0e-4;
-					renorm = 1;
-					if (gv.verbose == 1){
-						printf("  - mol of %4s = %+.5f < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i],gv.bulk_rock[i]);
-					}	
-				}
-			}
-			else if (gv.EM_database == 5){ 			// ultramafic database
-				if(strcmp( gv.ox[i], "H2O") != 0 && strcmp( gv.ox[i], "S") != 0  && strcmp( gv.ox[i], "O") != 0 && strcmp( gv.ox[i], "Cr2O3") != 0 && strcmp( gv.ox[i], "CO2") != 0 && strcmp( gv.ox[i], "CaO") != 0 && strcmp( gv.ox[i], "Na2O") != 0){
-					gv.bulk_rock[i] = 1.0e-4;
-					renorm = 1;
-					if (gv.verbose == 1){
-						printf("  - mol of %4s = %+.5f < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i],gv.bulk_rock[i]);
-					}	
-				}
-			}
-			else if (gv.EM_database == 6){ 			// mantle database
-				if(strcmp( gv.ox[i], "CaO") != 0 && strcmp( gv.ox[i], "Na2O") != 0){
-					gv.bulk_rock[i] = 1.0e-4;
-					renorm = 1;
-					if (gv.verbose == 1){
-						printf("  - mol of %4s = %+.5f < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i],gv.bulk_rock[i]);
-					}
-				}
-			}
-			else if (gv.EM_database == 7){ 			// metapelite_ext database
-				if(strcmp( gv.ox[i], "H2O") != 0 && strcmp( gv.ox[i], "S") != 0  && strcmp( gv.ox[i], "O") != 0 && strcmp( gv.ox[i], "MnO") != 0 && strcmp( gv.ox[i], "TiO2") != 0 && strcmp( gv.ox[i], "CO2") != 0 && strcmp( gv.ox[i], "CaO") != 0 && strcmp( gv.ox[i], "Na2O") != 0 && strcmp( gv.ox[i], "K2O") != 0){
-					gv.bulk_rock[i] = 1.0e-4;
-					renorm = 1;
-					if (gv.verbose == 1){
-						printf("  - mol of %4s = %+.5f < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i],gv.bulk_rock[i]);
-					}
-				}
-			}
-			else if (gv.EM_database == 8){ 			// all database
-				if(strcmp( gv.ox[i], "H2O") != 0 && strcmp( gv.ox[i], "S") != 0  && strcmp( gv.ox[i], "O") != 0 && strcmp( gv.ox[i], "MnO") != 0 && strcmp( gv.ox[i], "TiO2") != 0 && strcmp( gv.ox[i], "CO2") != 0 && strcmp( gv.ox[i], "CaO") != 0 && strcmp( gv.ox[i], "Na2O") != 0 && strcmp( gv.ox[i], "K2O") != 0 && strcmp( gv.ox[i], "Cr2O3") != 0){
-					gv.bulk_rock[i] = 1.0e-4;
-					renorm = 1;
-					if (gv.verbose == 1){
-						printf("  - mol of %4s = %+.5f < 1e-4        : set back to 1e-4 to avoid minimization issues\n",gv.ox[i],gv.bulk_rock[i]);
-					}
-				}
-			}
-
-
 		}
 	}
 	if (gv.verbose == 1){
@@ -1712,7 +1666,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 		if (cp[i].ss_flags[1] == 1){
 
 			if (strcmp( cp[i].name, "liq") != 0
-			 && strcmp( cp[i].name, "liq_W14") != 0 && strcmp( cp[i].name, "liq_G16") != 0 && strcmp( cp[i].name, "liq_G25w") != 0 && strcmp( cp[i].name, "liq_S26") != 0){
+			 && strcmp( cp[i].name, "liq_W14") != 0 && strcmp( cp[i].name, "liq_G16") != 0 && strcmp( cp[i].name, "liq_G25w") != 0 && strcmp( cp[i].name, "liqmn_R27") != 0 && strcmp( cp[i].name, "liq_S26") != 0){
 				not_only_liq = 1;
 			}
 
@@ -1833,7 +1787,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 
 
 			if (strcmp( cp[i].name, "liq") == 0
-			 || strcmp( cp[i].name, "liq_W14") == 0 || strcmp( cp[i].name, "liq_G16") == 0 || strcmp( cp[i].name, "liq_G25w") == 0 || strcmp( cp[i].name, "liq_S26") == 0){
+			 || strcmp( cp[i].name, "liq_W14") == 0 || strcmp( cp[i].name, "liq_G16") == 0 || strcmp( cp[i].name, "liq_G25w") == 0 || strcmp( cp[i].name, "liqmn_R27") == 0 || strcmp( cp[i].name, "liq_S26") == 0){
 				gv.melt_density   	= cp[i].phase_density;
 				gv.melt_fraction  	= cp[i].ss_n_mol;
 				gv.melt_bulkModulus = cp[i].phase_bulkModulus/10.0;
@@ -1845,7 +1799,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 			sum_volume_cm3 += cp[i].ss_n_mol*cp[i].volume*10.0;
 
 			if (strcmp( cp[i].name, "liq") != 0 && strcmp( cp[i].name, "fl") != 0 && strcmp( cp[i].name, "DEW") != 0
-			 && strcmp( cp[i].name, "liq_W14") != 0 && strcmp( cp[i].name, "liq_G16") != 0 && strcmp( cp[i].name, "liq_G25w") != 0 && strcmp( cp[i].name, "liq_S26") != 0
+			 && strcmp( cp[i].name, "liq_W14") != 0 && strcmp( cp[i].name, "liq_G16") != 0 && strcmp( cp[i].name, "liq_G25w") != 0 && strcmp( cp[i].name, "liqmn_R27") != 0 && strcmp( cp[i].name, "liq_S26") != 0
 			 && strcmp( cp[i].name, "fl_G25") != 0 && strcmp( cp[i].name, "fl_EF21") != 0 && strcmp( cp[i].name, "fl_H03") != 0 && strcmp( cp[i].name, "DEW_S24") != 0){
 				// sum_volume_sol 		+= cp[i].volume*cp[i].ss_n_mol*cp[i].factor;
 				sum_volume_sol 		+=  cp[i].ss_n_wt/cp[i].phase_density;
@@ -1983,7 +1937,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 			b1 +=  cp[i].ss_n_wt/cp[i].phase_density/sum_volume *  (cp[i].phase_bulkModulus /10.0);
 			b2 += (cp[i].ss_n_wt/cp[i].phase_density/sum_volume) / (cp[i].phase_bulkModulus /10.0);
 			if (strcmp( cp[i].name, "liq") != 0 && strcmp( cp[i].name, "fl") != 0 && strcmp( cp[i].name, "DEW") != 0
-			 && strcmp( cp[i].name, "liq_W14") != 0 && strcmp( cp[i].name, "liq_G16") != 0 && strcmp( cp[i].name, "liq_G25w") != 0 && strcmp( cp[i].name, "liq_S26") != 0
+			 && strcmp( cp[i].name, "liq_W14") != 0 && strcmp( cp[i].name, "liq_G16") != 0 && strcmp( cp[i].name, "liq_G25w") != 0 && strcmp( cp[i].name, "liqmn_R27") != 0 && strcmp( cp[i].name, "liq_S26") != 0
 			 && strcmp( cp[i].name, "fl_G25") != 0 && strcmp( cp[i].name, "fl_EF21") != 0 && strcmp( cp[i].name, "fl_H03") != 0 && strcmp( cp[i].name, "DEW_S24") != 0){
 				s1S +=  cp[i].ss_n_wt/cp[i].phase_density/sum_volume_sol *  (cp[i].phase_shearModulus/10.0);
 				s2S += (cp[i].ss_n_wt/cp[i].phase_density/sum_volume_sol) / (cp[i].phase_shearModulus/10.0);
@@ -2024,7 +1978,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 			if (Ki > K_max) K_max = Ki;  if (Ki < K_min) K_min = Ki;
 			if (Gi > G_max) G_max = Gi;  if (Gi < G_min) G_min = Gi;
 			if (strcmp(cp[i].name, "liq") != 0 && strcmp(cp[i].name, "fl") != 0 && strcmp(cp[i].name, "DEW") != 0
-			 && strcmp(cp[i].name, "liq_W14") != 0 && strcmp(cp[i].name, "liq_G16") != 0 && strcmp(cp[i].name, "liq_G25w") != 0 && strcmp(cp[i].name, "liq_S26") != 0
+			 && strcmp(cp[i].name, "liq_W14") != 0 && strcmp(cp[i].name, "liq_G16") != 0 && strcmp(cp[i].name, "liq_G25w") != 0 && strcmp( cp[i].name, "liqmn_R27") != 0 && strcmp(cp[i].name, "liq_S26") != 0
 			 && strcmp(cp[i].name, "fl_G25") != 0 && strcmp(cp[i].name, "fl_EF21") != 0 && strcmp(cp[i].name, "fl_H03") != 0 && strcmp(cp[i].name, "DEW_S24") != 0){
 				if (Ki > K_maxS) K_maxS = Ki;  if (Ki < K_minS) K_minS = Ki;
 				if (Gi > G_maxS) G_maxS = Gi;  if (Gi < G_minS) G_minS = Gi;
@@ -2084,7 +2038,7 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 		double bHSS_p = 0.0, bHSS_m = 0.0, sHSS_p = 0.0, sHSS_m = 0.0;
 		for (int i = 0; i < gv.len_cp; i++){
 			if (cp[i].ss_flags[1] == 1 && strcmp(cp[i].name,"liq") != 0 && strcmp(cp[i].name,"fl") != 0
-			 && strcmp(cp[i].name, "liq_W14") != 0 && strcmp(cp[i].name, "liq_G16") != 0 && strcmp(cp[i].name, "liq_G25w") != 0 && strcmp(cp[i].name, "liq_S26") != 0
+			 && strcmp(cp[i].name, "liq_W14") != 0 && strcmp(cp[i].name, "liq_G16") != 0 && strcmp(cp[i].name, "liq_G25w") != 0 && strcmp( cp[i].name, "liqmn_R27") != 0 && strcmp(cp[i].name, "liq_S26") != 0
 			 && strcmp(cp[i].name, "fl_G25") != 0 && strcmp(cp[i].name, "fl_EF21") != 0 && strcmp(cp[i].name, "fl_H03") != 0){
 				double fi = cp[i].ss_n_wt / cp[i].phase_density / sum_volume_sol;
 				double Ki = cp[i].phase_bulkModulus  / 10.0;

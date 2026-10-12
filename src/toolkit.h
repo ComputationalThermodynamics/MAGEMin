@@ -16,6 +16,10 @@
 /* set of matrix operations */
 void 	print_help(global_variable gv);
 
+int is_core_oxide(						const char 			*research_group,
+										int 				 EM_database,
+										const char 			*ox				);
+
 bulk_info retrieve_bulk_PT(				global_variable      gv,
 										io_data 		    *input_data,
 										int					 sgleP,

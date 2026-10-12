@@ -725,6 +725,42 @@ end
 
 const oxide_data = oxide_datas
 
+struct fn_kkts
+    stored::Cint
+    nz::Cint
+    m::Cint
+    n_y::Cint
+    n_cc::Cint
+    n_ph::Cint
+    n_pp::Cint
+    n_s::Cint
+    n_Nb::Cint
+    cap_nz::Cint
+    cap_s::Cint
+    cap_Nb::Cint
+    ox_id::Ptr{Cint}
+    ss_id::Ptr{Cint}
+    cp_id::Ptr{Cint}
+    pp_id::Ptr{Cint}
+    off_y::Ptr{Cint}
+    off_s::Ptr{Cint}
+    off_N::Ptr{Cint}
+    off_c::Ptr{Cint}
+    c_x::Ptr{Cint}
+    drop::Ptr{Cint}
+    c_b::Ptr{Cdouble}
+    Nb::Ptr{Cdouble}
+    s::Ptr{Cdouble}
+    gam::Ptr{Cdouble}
+    n::Ptr{Cdouble}
+    mu::Ptr{Cdouble}
+    R::Ptr{Cdouble}
+    J::Ptr{Cdouble}
+    G::Cdouble
+end
+
+const fn_kkt = fn_kkts
+
 mutable struct global_variables
     version::Ptr{Cchar}
     verbose::Cint
@@ -739,6 +775,29 @@ mutable struct global_variables
     leveling_mode::Cint
     status::Cint
     solver::Cint
+    ss_solver::Cint
+    ns_alpha::Cdouble
+    ns_beta_ini::Cdouble
+    ns_beta::Cdouble
+    ns_tol::Cdouble
+    ns_tol_pg::Cdouble
+    ns_eps::Cdouble
+    ns_eps_bnd::Cdouble
+    ns_frac_bnd::Cdouble
+    ns_omax::Cint
+    ns_imax::Cint
+    ns_max_ite::Cint
+    ns_gn_max::Cint
+    final_Newton_step::Cint
+    fn_status::Cint
+    fn_ite::Cint
+    fn_nz_max::Cint
+    fn_A::Ptr{Cdouble}
+    fn_b::Ptr{Cdouble}
+    fn_ipiv::Ptr{Cint}
+    fn_store_kkt::Cint
+    fn_from_state::Cint
+    fn_sys::Ptr{fn_kkt}
     solver_switch_T::Cdouble
     seismicScheme::Cint
     seismicWeightFactor::Cdouble
@@ -972,6 +1031,9 @@ end
 # typedef double ( * obj_type ) ( unsigned n , const double * x , double * grad , void * SS_ref_db )
 const obj_type = Ptr{Cvoid}
 
+# typedef void ( * ns_p2x_type ) ( void * SS_ref_db , double eps )
+const ns_p2x_type = Ptr{Cvoid}
+
 mutable struct simplex_datas
     gamma_ps::Ptr{Cdouble}
     gamma_ss::Ptr{Cdouble}
@@ -1112,6 +1174,58 @@ struct SS_refs
     mass::Cdouble
     EM_database::Cint
     gh_multistart_order::Cint
+    ns_ok::Cint
+    ns_ok_init::Cint
+    ns_mode::Cint
+    ns_nc::Cint
+    ns_fd::Cint
+    ns_absent::Cint
+    ns_n_dir0::Cint
+    ns_n_dir::Cint
+    ns_n_C::Cint
+    ns_n_em_act::Cint
+    ns_lwork::Cint
+    ns_ite::Cint
+    ns_status::Cint
+    ns_obj::obj_type
+    ns_p2x::ns_p2x_type
+    ns_V::Ptr{Ptr{Cdouble}}
+    ns_M::Ptr{Ptr{Cdouble}}
+    ns_N0::Ptr{Ptr{Cdouble}}
+    ns_N::Ptr{Ptr{Cdouble}}
+    ns_BkI::Ptr{Ptr{Cdouble}}
+    ns_sf0::Ptr{Cdouble}
+    ns_sfc::Ptr{Cdouble}
+    ns_sf::Ptr{Cdouble}
+    ns_sf_prev::Ptr{Cdouble}
+    ns_trial::Ptr{Cdouble}
+    ns_g::Ptr{Cdouble}
+    ns_pg0::Ptr{Cdouble}
+    ns_pg1::Ptr{Cdouble}
+    ns_pk::Ptr{Cdouble}
+    ns_sk::Ptr{Cdouble}
+    ns_yk::Ptr{Cdouble}
+    ns_vt::Ptr{Cdouble}
+    ns_r::Ptr{Cdouble}
+    ns_x::Ptr{Cdouble}
+    ns_x0::Ptr{Cdouble}
+    ns_w::Ptr{Cdouble}
+    ns_pt::Ptr{Cdouble}
+    ns_sft::Ptr{Cdouble}
+    ns_gb::Ptr{Cdouble}
+    ns_bsave::Ptr{Cdouble}
+    ns_ub::Ptr{Cdouble}
+    ns_S::Ptr{Cdouble}
+    ns_P::Ptr{Cdouble}
+    ns_z::Ptr{Cdouble}
+    ns_svdA::Ptr{Cdouble}
+    ns_svdS::Ptr{Cdouble}
+    ns_svdU::Ptr{Cdouble}
+    ns_svdVt::Ptr{Cdouble}
+    ns_work::Ptr{Cdouble}
+    ns_sf_state::Ptr{Cint}
+    ns_C::Ptr{Cint}
+    ns_em_act::Ptr{Cint}
 end
 
 const SS_ref = SS_refs
@@ -1472,6 +1586,10 @@ function ComputeEquilibrium_Point(EM_database, input_data, z_b, gv, splx_data, P
     ccall((:ComputeEquilibrium_Point, libMAGEMin), global_variable, (Cint, io_data, bulk_info, global_variable, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), EM_database, input_data, z_b, gv, splx_data, PP_ref_db, SS_ref_db, cp)
 end
 
+function ComputeEquilibrium_FromState(z_b, gv, PP_ref_db, SS_ref_db, cp, n_ss, ss_ids, ss_x, ss_n, n_pp, pp_ids, pp_n, gam)
+    ccall((:ComputeEquilibrium_FromState, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}), z_b, gv, PP_ref_db, SS_ref_db, cp, n_ss, ss_ids, ss_x, ss_n, n_pp, pp_ids, pp_n, gam)
+end
+
 function ComputeLevellingOnly(EM_database, input_data, z_b, gv, splx_data, PP_ref_db, SS_ref_db, cp)
     ccall((:ComputeLevellingOnly, libMAGEMin), global_variable, (Cint, io_data, bulk_info, global_variable, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), EM_database, input_data, z_b, gv, splx_data, PP_ref_db, SS_ref_db, cp)
 end
@@ -1805,10 +1923,10 @@ mutable struct all_datasets
     n_ss::Cint
     ox::NTuple{14, NTuple{20, Cchar}}
     PP::NTuple{36, NTuple{20, Cchar}}
-    SS::NTuple{61, NTuple{20, Cchar}}
-    verifyPC::NTuple{61, Cint}
-    n_SS_PC::NTuple{61, Cint}
-    SS_PC_stp::NTuple{61, Cdouble}
+    SS::NTuple{63, NTuple{20, Cchar}}
+    verifyPC::NTuple{63, Cint}
+    n_SS_PC::NTuple{63, Cint}
+    SS_PC_stp::NTuple{63, Cdouble}
     PC_df_add::Cdouble
     solver_switch_T::Cdouble
     min_melt_T::Cdouble
@@ -2110,6 +2228,14 @@ function store_FD_interactions(SS_ref_db, FD)
     ccall((:store_FD_interactions, libMAGEMin), Cvoid, (Ptr{SS_ref}, Cint), SS_ref_db, FD)
 end
 
+function fn_kkt_alloc(gv)
+    ccall((:fn_kkt_alloc, libMAGEMin), Ptr{fn_kkt}, (global_variable,), gv)
+end
+
+function fn_kkt_free(k)
+    ccall((:fn_kkt_free, libMAGEMin), Cvoid, (Ptr{fn_kkt},), k)
+end
+
 function TC_SS_init_mp(SS_init, gv)
     ccall((:TC_SS_init_mp, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
 end
@@ -2387,6 +2513,10 @@ end
 
 function obj_ig_liq(n, x, grad, SS_ref_db)
     ccall((:obj_ig_liq, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_igmn_liq(n, x, grad, SS_ref_db)
+    ccall((:obj_igmn_liq, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
 function obj_ig_mu(n, x, grad, SS_ref_db)
@@ -2693,6 +2823,10 @@ function obj_mpe_plc(n, x, grad, SS_ref_db)
     ccall((:obj_mpe_plc, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
+function obj_mpe_scp(n, x, grad, SS_ref_db)
+    ccall((:obj_mpe_scp, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
 function obj_mpe_bi(n, x, grad, SS_ref_db)
     ccall((:obj_mpe_bi, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
@@ -2886,6 +3020,42 @@ end
 
 function NLopt_opt_ig_amp_function(gv, SS_ref_db)
     ccall((:NLopt_opt_ig_amp_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
+end
+
+function TC_NS_init(gv, SS_ref_db)
+    ccall((:TC_NS_init, libMAGEMin), Cvoid, (global_variable, Ptr{SS_ref}), gv, SS_ref_db)
+end
+
+function SB_NS_init(gv, SS_ref_db)
+    ccall((:SB_NS_init, libMAGEMin), Cvoid, (global_variable, Ptr{SS_ref}), gv, SS_ref_db)
+end
+
+function NS_free(SS_ref_db)
+    ccall((:NS_free, libMAGEMin), Cvoid, (Ptr{SS_ref},), SS_ref_db)
+end
+
+function ns_reduce_system(gv, z_b, SS_ref_db)
+    ccall((:ns_reduce_system, libMAGEMin), Cvoid, (global_variable, bulk_info, Ptr{SS_ref}), gv, z_b, SS_ref_db)
+end
+
+function ns_x_of_sf(gv, SS_ref_db, sf)
+    ccall((:ns_x_of_sf, libMAGEMin), Cdouble, (global_variable, Ptr{SS_ref}, Ptr{Cdouble}), gv, SS_ref_db, sf)
+end
+
+function ns_eval(gv, SS_ref_db, sf, grad)
+    ccall((:ns_eval, libMAGEMin), Cdouble, (global_variable, Ptr{SS_ref}, Ptr{Cdouble}, Ptr{Cdouble}), gv, SS_ref_db, sf, grad)
+end
+
+function NS_opt_function(gv, SS_ref_db)
+    ccall((:NS_opt_function, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
+end
+
+function ns_project_x(gv, SS_ref_db, x)
+    ccall((:ns_project_x, libMAGEMin), Cint, (global_variable, Ptr{SS_ref}, Ptr{Cdouble}), gv, SS_ref_db, x)
+end
+
+function ns_pc_mode(gv, SS_ref_db)
+    ccall((:ns_pc_mode, libMAGEMin), Cint, (global_variable, Ptr{SS_ref}), gv, SS_ref_db)
 end
 
 function SS_mp_pc_init_function(SS_pc_xeos, iss, name, gv)
@@ -3616,6 +3786,10 @@ function norm_vector(array, n)
     ccall((:norm_vector, libMAGEMin), Cdouble, (Ptr{Cdouble}, Cint), array, n)
 end
 
+function final_Newton(z_b, gv, PC_read, PP_ref_db, SS_ref_db, cp)
+    ccall((:final_Newton, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PC_type}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, PC_read, PP_ref_db, SS_ref_db, cp)
+end
+
 function dump_init(gv)
     ccall((:dump_init, libMAGEMin), Cvoid, (global_variable,), gv)
 end
@@ -3849,6 +4023,10 @@ function LM_convert_function(gv, SS_ref_db, z_b, ph_id, gamma, n_gamma, xeos, n_
     ccall((:LM_convert_function, libMAGEMin), SS_ref, (global_variable, SS_ref, bulk_info, Cint, Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint), gv, SS_ref_db, z_b, ph_id, gamma, n_gamma, xeos, n_xeos)
 end
 
+function ss_local_min(gv, NLopt_opt, ph_id, SS_ref_db, box_size)
+    ccall((:ss_local_min, libMAGEMin), SS_ref, (global_variable, Ptr{Ptr{Cvoid}}, Cint, SS_ref, Cdouble), gv, NLopt_opt, ph_id, SS_ref_db, box_size)
+end
+
 function CP_UPDATE_function(gv, SS_ref_db, cp, z_b)
     ccall((:CP_UPDATE_function, libMAGEMin), csd_phase_set, (global_variable, SS_ref, csd_phase_set, bulk_info), gv, SS_ref_db, cp, z_b)
 end
@@ -3895,6 +4073,10 @@ end
 
 function print_help(gv)
     ccall((:print_help, libMAGEMin), Cvoid, (global_variable,), gv)
+end
+
+function is_core_oxide(research_group, EM_database, ox)
+    ccall((:is_core_oxide, libMAGEMin), Cint, (Ptr{Cchar}, Cint, Ptr{Cchar}), research_group, EM_database, ox)
 end
 
 function retrieve_bulk_PT(gv, input_data, sgleP, z_b)

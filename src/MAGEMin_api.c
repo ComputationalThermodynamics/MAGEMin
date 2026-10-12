@@ -115,6 +115,58 @@ int MAGEMin_SetSolver(			MAGEMin_Handle *h,
 	return 0;
 }
 
+int MAGEMin_SetSSSolver(		MAGEMin_Handle *h,
+								int             ss_solver		){
+
+	if (h == NULL || ss_solver < 0 || ss_solver > 2){
+		printf(" MAGEMin_SetSSSolver error: ss_solver must be 0, 1 or 2\n");
+		return -1;
+	}
+
+	h->gv.ss_solver = ss_solver;
+
+	if (strcmp(h->gv.research_group,"tc") != 0 && strcmp(h->gv.research_group,"sb") != 0){
+		return ss_solver == 0 ? 0 : 1;
+	}
+	return 0;
+}
+
+int MAGEMin_SetFinalNewtonStep(	MAGEMin_Handle *h,
+								int             final_Newton_step	){
+
+	if (h == NULL || final_Newton_step < 0 || final_Newton_step > 1){
+		printf(" MAGEMin_SetFinalNewtonStep error: final_Newton_step must be 0 or 1\n");
+		return -1;
+	}
+
+	h->gv.final_Newton_step = final_Newton_step;
+
+	if (strcmp(h->gv.research_group,"tc") != 0 && strcmp(h->gv.research_group,"sb") != 0){
+		return final_Newton_step == 0 ? 0 : 1;
+	}
+	return 0;
+}
+
+int MAGEMin_SetStoreKKT(		MAGEMin_Handle *h,
+								int             fn_store_kkt		){
+
+	if (h == NULL || fn_store_kkt < 0 || fn_store_kkt > 1){
+		printf(" MAGEMin_SetStoreKKT error: fn_store_kkt must be 0 or 1\n");
+		return -1;
+	}
+
+	h->gv.fn_store_kkt = fn_store_kkt;
+	return 0;
+}
+
+const fn_kkt *MAGEMin_GetFinalNewtonSystem(	MAGEMin_Handle *h			){
+
+	if (h == NULL || h->gv.fn_sys == NULL || h->gv.fn_sys->stored != 1){
+		return NULL;
+	}
+	return h->gv.fn_sys;
+}
+
 int MAGEMin_SetBuffer(			MAGEMin_Handle *h,
 								const char     *buffer,
 								double          buffer_n		){

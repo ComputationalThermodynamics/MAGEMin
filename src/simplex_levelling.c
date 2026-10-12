@@ -645,6 +645,9 @@ void generate_pseudocompounds(	int 		 		 ss,
 
 	int rg_br_gh = (strcmp(gv.research_group, "br") == 0 || strcmp(gv.research_group, "gh") == 0);
 	int rg_sb    = (strcmp(gv.research_group, "sb") == 0);
+	int ns_pc    = (strcmp(gv.research_group, "tc") == 0 || strcmp(gv.research_group, "sb") == 0) ? ns_pc_mode(gv, &SS_ref_db[ss]) : 0;
+
+	if (ns_pc == 2){ return; }
 	int rg_gh    = (strcmp(gv.research_group, "gh") == 0);
 	int n_pv     = (SS_ref_db[ss].n_xeos > SS_ref_db[ss].n_em) ? SS_ref_db[ss].n_xeos : SS_ref_db[ss].n_em;
 
@@ -653,7 +656,7 @@ void generate_pseudocompounds(	int 		 		 ss,
 			get_ss_pv.xeos_pc[i] = SS_pc_xeos[ss].ss_pc_xeos[k].xeos_pc[i];
 		}
 
-		if (rg_br_gh){
+		if (rg_br_gh || rg_sb){
 			double pc_sum = 0.0;
 			for (int i = 0; i < SS_ref_db[ss].n_xeos; i++){
 				if (SS_ref_db[ss].z_em[i] == 0.0){
@@ -677,6 +680,7 @@ void generate_pseudocompounds(	int 		 		 ss,
 				get_ss_pv.xeos_pc[i] = SS_ref_db[ss].bounds_ref[i][0];
 			}
 		}
+		if (ns_pc == 1 && !ns_project_x(gv, &SS_ref_db[ss], get_ss_pv.xeos_pc)){ continue; }
 
 		G 	= (*SS_objective[ss])(SS_ref_db[ss].n_xeos, get_ss_pv.xeos_pc, 	NULL, &SS_ref_db[ss]);
 
@@ -1351,6 +1355,8 @@ void SS_all_pc_init_function(	PC_ref 	*SS_pc_xeos,
 		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "liq", gv		);	}
 	else if (strcmp( name, "liq_G25w") == 0 ){
 		SS_ig_pc_init_function(		SS_pc_xeos, iss, "liq", gv		);	}
+	else if (strcmp( name, "liqmn_R27") == 0 ){
+		SS_ig_pc_init_function(		SS_pc_xeos, iss, "liqmn", gv		);	}
 
 	/* fsp (2 citation variants) */
 	else if (strcmp( name, "fsp_H22")   == 0 ){
@@ -1485,6 +1491,8 @@ void SS_all_pc_init_function(	PC_ref 	*SS_pc_xeos,
 		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "carp", gv		);	}
 	else if (strcmp( name, "plc_B05")   == 0){
 		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "plc", gv		);	}
+	else if (strcmp( name, "scp_K04")   == 0){
+		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "scp", gv		);	}
 	else{
 		printf("\nsolid solution '%s' is not in the database, cannot be initiated [all]\n", name);
 	}

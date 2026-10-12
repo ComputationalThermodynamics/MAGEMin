@@ -141,6 +141,8 @@ opx_W24,ss,Orthopyroxene,Opx
 pl4tr,ss,Plagioclase,Pl
 plc,ss,Plagioclase,Pl
 plc_B05,ss,Plagioclase,Pl
+scp,ss,Scapolite,Scp
+scp_K04,ss,Scapolite,Scp
 plg,ss,Plagioclase,Pl
 plg_SB11,ss,Plagioclase,Pl
 plg_SB21,ss,Plagioclase,Pl
@@ -201,6 +203,7 @@ ames,em,Amesite,Ame
 amoa,em,Orthoamphibole component A,amoa
 amob,em,Orthoamphibole component B,amob
 an,em,Anorthite,An
+me,em,Meionite,Mei
 anL,em,Anorthite liquid component,anL
 andr,em,Andradite,Adr
 anm,em,Anorthite ordered,An

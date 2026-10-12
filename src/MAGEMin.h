@@ -67,6 +67,40 @@ typedef struct oxide_datas {
 } oxide_data;
 
 
+typedef struct fn_kkts {
+	int 	 stored;
+	int 	 nz;
+	int 	 m;
+	int 	 n_y;
+	int 	 n_cc;
+	int 	 n_ph;
+	int 	 n_pp;
+	int 	 n_s;
+	int 	 n_Nb;
+	int 	 cap_nz;
+	int 	 cap_s;
+	int 	 cap_Nb;
+	int 	*ox_id;
+	int 	*ss_id;
+	int 	*cp_id;
+	int 	*pp_id;
+	int 	*off_y;
+	int 	*off_s;
+	int 	*off_N;
+	int 	*off_c;
+	int 	*c_x;
+	int 	*drop;
+	double 	*c_b;
+	double 	*Nb;
+	double 	*s;
+	double 	*gam;
+	double 	*n;
+	double 	*mu;
+	double 	*R;
+	double 	*J;
+	double 	 G;
+} fn_kkt;
+
 /* structure to store global variables */
 typedef struct global_variables {
 	
@@ -84,6 +118,29 @@ typedef struct global_variables {
 	int 	 leveling_mode;
 	int      status;			/** status of the minimization 		*/
 	int      solver;
+	int      ss_solver;
+	double   ns_alpha;
+	double   ns_beta_ini;
+	double   ns_beta;
+	double   ns_tol;
+	double   ns_tol_pg;
+	double   ns_eps;
+	double   ns_eps_bnd;
+	double   ns_frac_bnd;
+	int      ns_omax;
+	int      ns_imax;
+	int      ns_max_ite;
+	int      ns_gn_max;
+	int      final_Newton_step;
+	int      fn_status;
+	int      fn_ite;
+	int      fn_nz_max;
+	double  *fn_A;
+	double  *fn_b;
+	int     *fn_ipiv;
+	int      fn_store_kkt;
+	int      fn_from_state;
+	fn_kkt  *fn_sys;
 	double   solver_switch_T;
 	int 	 seismicScheme; 	/** 0: Voigt-Reuss-Hill, 1: Hashin-Shtrikman */
 	double   seismicWeightFactor; 	/** value between 0 and 1 to blend VRH and HS bounds for seismic properties calculation. 0 = pure VRH, 1 = pure HS, values in between = linear blend. When a fluid phase is present, G_min = 0, so HS- shear bound = 0 (handled by IEEE 754). */
@@ -379,6 +436,9 @@ typedef double (*obj_type) (		unsigned  		 n,
 									double 			*grad,
 									void 			*SS_ref_db			);
 
+typedef void (*ns_p2x_type) (		void 			*SS_ref_db,
+									double 			 eps				);
+
 typedef struct simplex_datas
 {
 	/* global variables */
@@ -579,6 +639,59 @@ typedef struct SS_refs {
 
 	int      EM_database;		/** gv.EM_database of the owning instance (gh: 0=xMELTS, 1=rMELTS, 2=pMELTS) */
 	int      gh_multistart_order;	/** gv.gh_multistart_order of the owning instance 		*/
+
+	int          ns_ok;
+	int          ns_ok_init;
+	int          ns_mode;
+	int          ns_nc;
+	int          ns_fd;
+	int          ns_absent;
+	int          ns_n_dir0;
+	int          ns_n_dir;
+	int          ns_n_C;
+	int          ns_n_em_act;
+	int          ns_lwork;
+	int          ns_ite;
+	int          ns_status;
+	obj_type     ns_obj;
+	ns_p2x_type  ns_p2x;
+	double     **ns_V;
+	double     **ns_M;
+	double     **ns_N0;
+	double     **ns_N;
+	double     **ns_BkI;
+	double      *ns_sf0;
+	double      *ns_sfc;
+	double      *ns_sf;
+	double      *ns_sf_prev;
+	double      *ns_trial;
+	double      *ns_g;
+	double      *ns_pg0;
+	double      *ns_pg1;
+	double      *ns_pk;
+	double      *ns_sk;
+	double      *ns_yk;
+	double      *ns_vt;
+	double      *ns_r;
+	double      *ns_x;
+	double      *ns_x0;
+	double      *ns_w;
+	double      *ns_pt;
+	double      *ns_sft;
+	double      *ns_gb;
+	double      *ns_bsave;
+	double      *ns_ub;
+	double      *ns_S;
+	double      *ns_P;
+	double      *ns_z;
+	double      *ns_svdA;
+	double      *ns_svdS;
+	double      *ns_svdU;
+	double      *ns_svdVt;
+	double      *ns_work;
+	int         *ns_sf_state;
+	int         *ns_C;
+	int         *ns_em_act;
 
 } SS_ref;
 
@@ -957,6 +1070,20 @@ global_variable ComputeEquilibrium_Point(	int 				 EM_database,
 											SS_ref  			*SS_ref_db,
 											csd_phase_set  		*cp					);
 										
+global_variable ComputeEquilibrium_FromState(	bulk_info 	 		 z_b,
+												global_variable 	 gv,
+												PP_ref  			*PP_ref_db,
+												SS_ref  			*SS_ref_db,
+												csd_phase_set  		*cp,
+												int 				 n_ss,
+												int 				*ss_ids,
+												double 				*ss_x,
+												double 				*ss_n,
+												int 				 n_pp,
+												int 				*pp_ids,
+												double 				*pp_n,
+												double 				*gam				);
+
 global_variable ComputeLevellingOnly( 		int 				 EM_database,
 											io_data 			 input_data,
 											bulk_info 	 		 z_b,

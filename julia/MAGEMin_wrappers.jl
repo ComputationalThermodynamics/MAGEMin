@@ -23,6 +23,7 @@ export  anhydrous_renormalization, retrieve_solution_phase_information, print_ph
         init_MAGEMin, allocate_output,finalize_MAGEMin, point_wise_minimization, 
         get_all_stable_phases, convertBulk4MAGEMin, use_predefined_bulk_rock, define_bulk_rock, create_output,
         print_info, create_gmin_struct, pwm_init, pwm_run, p2x_convert, pc_convert, lm_convert,
+        pwm_run_from_state, point_wise_newton_from_state, equilibrium_state, get_final_newton_system,
         point_wise_metastability,
         single_point_minimization, multi_point_minimization, AMR_minimization, MAGEMin_Data,
         MAGEMin_data2dataframe, MAGEMin_dataTE2dataframe, MAGEMin_data2dataframe_inlined,
@@ -748,6 +749,136 @@ end
 
 
 """
+    v_data{T, I}
+
+    Mutable structure holding overriding asymmetry (van Laar) parameters of a
+    solution phase. Like `W_data`, it *replaces* the default values:
+    `v[i] = vs[i,1] + vs[i,2]*T + vs[i,3]*P`.
+
+    Database mapping is the same as for `W_data`.
+
+    Fields
+    ------
+    dtb : I
+        Database identifier.
+    ss_ids : I
+        Solution phase identifier.
+    n_vs : I
+        Number of asymmetry parameters (must equal the number of endmembers of the solution phase).
+    vs : Matrix{T}
+        Asymmetry parameters matrix (n_vs × 3), columns = [constant, T-coeff, P-coeff].
+"""
+mutable struct v_data{T <: Float64,I <: Int64}
+    dtb         :: I
+    ss_ids      :: I
+    n_vs        :: I
+    vs          :: Matrix{T}
+end
+
+
+function override_interactions!(gv, z_b, DB, ovr, name)
+    SS_ref_db   = unsafe_wrap(Vector{LibMAGEMin.SS_ref},DB.SS_ref_db,gv.len_ss);
+    pdev_P      = unsafe_wrap(Vector{Cdouble}, unsafe_load(gv.pdev, 1), gv.n_Diff)
+    pdev_T      = unsafe_wrap(Vector{Cdouble}, unsafe_load(gv.pdev, 2), gv.n_Diff)
+    Pw          = z_b.P
+    Tw          = z_b.T
+
+    for n=1:length(ovr)
+        if gv.EM_database != ovr[n].dtb
+            continue
+        end
+        ss          = ovr[n].ss_ids
+        d           = SS_ref_db[ss]
+        if name == "W"
+            n_par, n_in, coef, val_ptr, arr_ptr = d.n_w, ovr[n].n_Ws, ovr[n].Ws, d.W, d.W_array
+        else
+            n_par, n_in, coef, val_ptr, arr_ptr = d.n_v, ovr[n].n_vs, ovr[n].vs, d.v, d.v_array
+        end
+        if n_in != n_par || val_ptr == C_NULL
+            print(" Wrong number of $(name)'s, please make sure the custom $(name)s are linked to the right solution model\n $(name)s override will be ignored\n")
+            println(" n_$(name) target= $(n_par), n_$(name) provided = $(n_in)")
+            continue
+        end
+
+        val         = unsafe_wrap(Vector{Cdouble}, val_ptr, n_par)
+        for i=1:n_par
+            val[i]  = coef[i,1] + coef[i,2]*Tw + coef[i,3]*Pw
+        end
+        if arr_ptr != C_NULL
+            rows    = unsafe_wrap(Vector{Ptr{Cdouble}}, arr_ptr, gv.n_Diff)
+            for FD=1:gv.n_Diff
+                Pfd     = Pw + gv.gb_P_eps*pdev_P[FD]
+                Tfd     = Tw + gv.gb_T_eps*pdev_T[FD]
+                row     = unsafe_wrap(Vector{Cdouble}, rows[FD], n_par)
+                for i=1:n_par
+                    row[i] = coef[i,1] + coef[i,2]*Tfd + coef[i,3]*Pfd
+                end
+            end
+        end
+    end
+    return nothing
+end
+
+function override_gbase!(gv, z_b, DB, gbase)
+    n_over_g    = length(gbase)
+    Pw          = z_b.P
+    Tw          = z_b.T
+    for n=1:n_over_g
+
+        if gv.EM_database == gbase[n].dtb
+            ss          = gbase[n].ss_ids
+            SS_ref_db   = unsafe_wrap(Vector{LibMAGEMin.SS_ref},DB.SS_ref_db,gv.len_ss);
+            n_em        = SS_ref_db[ss].n_em;
+            if gbase[n].n_Gs == length(gbase[n].em_ids) == size(gbase[n].dG,1)
+                gbase_vec   = unsafe_wrap(Vector{Cdouble}, SS_ref_db[ss].gbase, n_em)
+                mu_array_ptr= unsafe_wrap(Vector{Ptr{Cdouble}}, SS_ref_db[ss].mu_array, gv.n_Diff)
+                pdev_P      = unsafe_wrap(Vector{Cdouble}, unsafe_load(gv.pdev, 1), gv.n_Diff)
+                pdev_T      = unsafe_wrap(Vector{Cdouble}, unsafe_load(gv.pdev, 2), gv.n_Diff)
+
+                for k=1:gbase[n].n_Gs
+                    em_id   = gbase[n].em_ids[k]
+                    if 1 <= em_id <= n_em
+                        delta0              = gbase[n].dG[k,1] + gbase[n].dG[k,2]*Tw + gbase[n].dG[k,3]*Pw
+                        gbase_vec[em_id]    += delta0
+
+                        for FD=1:gv.n_Diff
+                            Pfd             = Pw + gv.gb_P_eps*pdev_P[FD]
+                            Tfd             = Tw + gv.gb_T_eps*pdev_T[FD]
+                            deltaFD         = gbase[n].dG[k,1] + gbase[n].dG[k,2]*Tfd + gbase[n].dG[k,3]*Pfd
+                            mu_row          = unsafe_wrap(Vector{Cdouble}, mu_array_ptr[FD], n_em)
+                            mu_row[em_id]   += deltaFD
+                        end
+                    else
+                        print(" Invalid endmember index, please make sure em_ids are within the solution model's endmember range\n gbase override for this endmember will be ignored\n")
+                        println(" n_em target= $(n_em), em_id provided = $(em_id)")
+                    end
+                end
+            else
+                print(" Inconsistent gbase_data sizes, n_Gs, em_ids and dG must all agree in length\n gbase override will be ignored\n")
+                println(" n_Gs= $(gbase[n].n_Gs), length(em_ids)= $(length(gbase[n].em_ids)), size(dG,1)= $(size(gbase[n].dG,1))")
+            end
+        end
+
+    end
+    return nothing
+end
+
+"""
+    apply_parameter_overrides!(gv, z_b, DB; W = nothing, gbase = nothing, v = nothing)
+
+    Apply the Margules (`W_data`), asymmetry (`v_data`) and endmember reference Gibbs energy
+    (`gbase_data`) overrides at the current (P,T) of `z_b`, and at the finite-difference
+    (P,T) points used for the derived properties. Must be called after `ComputeG0_point`.
+"""
+function apply_parameter_overrides!(gv, z_b, DB; W = nothing, gbase = nothing, v = nothing)
+    isnothing(W)     || override_interactions!(gv, z_b, DB, W, "W")
+    isnothing(v)     || override_interactions!(gv, z_b, DB, v, "v")
+    isnothing(gbase) || override_gbase!(gv, z_b, DB, gbase)
+    return nothing
+end
+
+
+"""
     retrieve_solution_phase_information(dtb)
 
     Retrieve the general information of the thermodynamic databases (solution phases, endmembers, pure phases).
@@ -1268,7 +1399,7 @@ function remove_phases( list        :: Union{Nothing,Vector{String}},
                     idx = findfirst(db_inf.ss_name .== i)
                     rm_list = vcat(rm_list,idx);
                 else
-                    println(" \"$phase_type\" is not a proper phase type, and thus cannot be deactivated")
+                    println(" \"$i\" is not a proper phase type, and thus cannot be deactivated")
                 end
             end
         end
@@ -1476,7 +1607,7 @@ function exclude_DEW_species(  dtb     :: String,
 end
 
 """
-    Initialize_MAGEMin(db="ig"; verbose=0, dataset=nothing, limitCaOpx=0, CaOpxLim=0.0, mbCpx=1, mbIlm=0, mpSp=0, mpIlm=0, ig_ed=0, buffer="NONE", solver=0)
+    Initialize_MAGEMin(db="ig"; verbose=0, dataset=nothing, limitCaOpx=0, CaOpxLim=0.0, mbCpx=1, mbIlm=0, mpSp=0, mpIlm=0, ig_ed=0, buffer="NONE", solver=0, optimizer=0, final_Newton_step=1)
 
     Initialize MAGEMin on one or more threads for the specified database.
 
@@ -1513,6 +1644,17 @@ end
         i.e. off).
     solver : Int64, optional
         Solver type (default: 0).
+    optimizer : Int64, optional
+        Local optimizer of the solution phases, used by the legacy solver (`solver=0`) for the
+        THERMOCALC and Stixrude & Lithgow-Bertelloni databases: 0 NLopt (default), 1 nullspace
+        minimization with NLopt fallback.
+        With 1, oxides set exactly to zero in the bulk are removed from the system, including
+        the core oxides that are otherwise raised to 1e-4 (reduced systems below FMAS).
+    final_Newton_step : Int64, optional
+        Newton polish of the converged assemblage (THERMOCALC and Stixrude & Lithgow-Bertelloni
+        databases): 1 active (default), 0 inactive. Solves the equilibrium conditions of the
+        stable assemblage to machine precision, so that chemical potentials, phase fractions and
+        compositions are consistent; the solver result is kept when the step does not converge.
 
     Returns
     -------
@@ -1531,6 +1673,8 @@ function Initialize_MAGEMin(db = "ig";  verbose     ::Union{Int64,Bool} = 0,
                                         buffer      ::String            = "NONE",
                                         mu_fix_idx  ::Vector{String}    = String[],
                                         solver      ::Int64             = 0,
+                                        optimizer   ::Int64             = 0,
+                                        final_Newton_step ::Int64       = 1,
                                         seismicScheme :: String         = "VRH",
                                         seismicWeightFactor :: Float64    = 0.5)
 
@@ -1561,6 +1705,8 @@ function Initialize_MAGEMin(db = "ig";  verbose     ::Union{Int64,Bool} = 0,
                                                     buffer      = buffer,
                                                     mu_fix_idx  = mu_fix_idx,
                                                     solver      = solver,
+                                                    optimizer   = optimizer,
+                                                    final_Newton_step = final_Newton_step,
                                                     seismicScheme = seismicScheme,
                                                     seismicWeightFactor = seismicWeightFactor );
 
@@ -1597,7 +1743,7 @@ end
 
 
 """
-    init_MAGEMin(db="ig"; verbose=0, dataset=nothing, mbCpx=0, mbIlm=0, mpSp=0, mpIlm=0, ig_ed=0, limitCaOpx=0, CaOpxLim=1.0, buffer="NONE", solver=0)
+    init_MAGEMin(db="ig"; verbose=0, dataset=nothing, mbCpx=0, mbIlm=0, mpSp=0, mpIlm=0, ig_ed=0, limitCaOpx=0, CaOpxLim=1.0, buffer="NONE", solver=0, optimizer=0, final_Newton_step=1)
 
     Initialize MAGEMin (including setting global options) and load the database for a single thread.
 
@@ -1639,6 +1785,17 @@ end
         i.e. off).
     solver : Int64, optional
         Solver type (default: 0).
+    optimizer : Int64, optional
+        Local optimizer of the solution phases, used by the legacy solver (`solver=0`) for the
+        THERMOCALC and Stixrude & Lithgow-Bertelloni databases: 0 NLopt (default), 1 nullspace
+        minimization with NLopt fallback.
+        With 1, oxides set exactly to zero in the bulk are removed from the system, including
+        the core oxides that are otherwise raised to 1e-4 (reduced systems below FMAS).
+    final_Newton_step : Int64, optional
+        Newton polish of the converged assemblage (THERMOCALC and Stixrude & Lithgow-Bertelloni
+        databases): 1 active (default), 0 inactive. Solves the equilibrium conditions of the
+        stable assemblage to machine precision, so that chemical potentials, phase fractions and
+        compositions are consistent; the solver result is kept when the step does not converge.
 
     Returns
     -------
@@ -1664,6 +1821,8 @@ function  init_MAGEMin( db          :: String               =  "ig";
                         buffer      :: String               =  "NONE",
                         mu_fix_idx  :: Vector{String}        =  String[],
                         solver      :: Int64                =   0,
+                        optimizer   :: Int64                =   0,
+                        final_Newton_step :: Int64          =   1,
                         seismicScheme :: String             =  "VRH",
                         seismicWeightFactor :: Float64      = 0.5 )
 
@@ -1695,7 +1854,11 @@ function  init_MAGEMin( db          :: String               =  "ig";
 
     gv.limitCaOpx   = limitCaOpx
     gv.CaOpxLim     = CaOpxLim
+    optimizer in (0, 1) || error("optimizer must be 0 (NLopt) or 1 (nullspace), got $optimizer")
     gv.solver       = solver
+    gv.ss_solver    = optimizer
+    final_Newton_step in (0, 1) || error("final_Newton_step must be 0 or 1, got $final_Newton_step")
+    gv.final_Newton_step = final_Newton_step
     gv.seismicScheme        = seismicScheme == "VRH" ? 0 : 1
     gv.seismicWeightFactor  = seismicWeightFactor
 
@@ -2565,7 +2728,8 @@ end
 """
 function define_bulk_rock(gv, bulk_in, bulk_in_ox, sys_in,db)
 
-    bulk_rock, ox   = convertBulk4MAGEMin(bulk_in,bulk_in_ox,sys_in,db)     # conversion changes the system unit to mol
+    ns_reduced      = is_db(db) && (get_db(db).research_group == "sb" || (gv.ss_solver == 1 && gv.solver == 0 && get_db(db).research_group == "tc"))
+    bulk_rock, ox   = convertBulk4MAGEMin(bulk_in,bulk_in_ox,sys_in,db; ns_reduced = ns_reduced)     # conversion changes the system unit to mol
     unsafe_copyto!(gv.bulk_rock, pointer(bulk_rock), gv.len_ox)            # copy the bulk-rock
 
     LibMAGEMin.norm_array(gv.bulk_rock, gv.len_ox)
@@ -2682,6 +2846,7 @@ function FeO2Fe_O!(    bulk_mol     :: AbstractVector{Float64},
         bulk_ox[tmp_idFeO]  = "Fe"; bulk_ox[tmp_idFe2O3]  = "O"
     elseif ("FeO" in bulk_ox && !("O" in bulk_ox)) # If only FeO is present, assume excess oxygen to be zero
         push!(bulk_ox, "O"); push!(bulk_mol, 0.0);
+    elseif !("FeO" in bulk_ox)
     else # Recompute FeO + O -> Fe + O (negative O for reduced systems, positive for oxidized systems)
         tmp_idFeO, tmp_idO  = findfirst(bulk_ox .== "FeO"), findfirst(bulk_ox .== "O")
         XFe2O3 = bulk_mol[tmp_idO]; XFeO = bulk_mol[tmp_idFeO] - 2XFe2O3
@@ -2729,6 +2894,12 @@ end
         Input system units, "mol" or "wt".
     db : String
         Database identifier, e.g. "ig", "mp", "mb", "sb24".
+    oxMinGuard : Bool, optional
+        Set non-core oxides below 2e-5 to zero (default: true).
+    ns_reduced : Bool, optional
+        Reduced system (SB databases, or THERMOCALC with the nullspace optimizer: `optimizer=1`,
+        `solver=0`): core oxides set exactly to zero (or below 2e-5 with `oxMinGuard`) stay zero
+        instead of being raised to 1e-4 (default: false).
 
     Returns
     -------
@@ -2741,7 +2912,8 @@ function convertBulk4MAGEMin(   bulk_in     :: T1,
                                 bulk_in_ox  :: Vector{String},
                                 sys_in      :: String,
                                 db          :: String;
-                                oxMinGuard  ::  Bool = true ) where {T1 <: AbstractVector{Float64}}
+                                oxMinGuard  ::  Bool = true,
+                                ns_reduced  ::  Bool = false ) where {T1 <: AbstractVector{Float64}}
 
     bulk_in = normalize(bulk_in);
 
@@ -2799,43 +2971,16 @@ function convertBulk4MAGEMin(   bulk_in     :: T1,
 
     MAGEMin_bulk .= normalize(MAGEMin_bulk);
 
-    # Define core and optional oxides for each database
+    idx_FeO_ox  = findfirst(isequal("FeO"), MAGEMin_ox)
+    idx_O_ox    = findfirst(isequal("O"),   MAGEMin_ox)
+    if !isnothing(idx_FeO_ox) && !isnothing(idx_O_ox) && MAGEMin_bulk[idx_O_ox] > 0.0 && MAGEMin_bulk[idx_FeO_ox] < (oxMinGuard ? 2e-5 : eps(Float64))
+        @warn "FeO is absent from the bulk-rock composition: O (ferric iron) is set to 0.0" maxlog=1
+        MAGEMin_bulk[idx_O_ox] = 0.0
+        MAGEMin_bulk .= normalize(MAGEMin_bulk)
+    end
+
+    # Core oxides of the THERMOCALC databases come from the C library (is_core_oxide), the others are defined here
     oxide_config = Dict(
-
-        #= THERMOCALC databases =#
-        "mb"   => (core=["SiO2", "Al2O3","MgO", "FeO"],
-                   optional=["CaO", "K2O", "Na2O", "H2O", "TiO2", "O"]),
-
-        "mp"   => (core=["SiO2", "Al2O3", "MgO", "FeO"],  
-                   optional=["CaO", "K2O", "Na2O", "TiO2", "O", "MnO", "H2O"]),
-
-        "ig"   => (core=["SiO2", "Al2O3", "MgO", "FeO"],
-                   optional=["CaO", "Na2O", "K2O", "Cr2O3", "TiO2", "O", "H2O"]),
-
-        "igad" => (core=["SiO2", "Al2O3", "MgO", "FeO"],
-                   optional=["CaO", "K2O", "Na2O", "Cr2O3", "TiO2", "O"]),
-
-        "igd" => (core=["SiO2", "Al2O3", "MgO", "FeO"],
-                   optional=["CaO", "K2O", "Na2O", "Cr2O3", "TiO2", "O",]),
-
-        "mtl"   => (core=["SiO2", "Al2O3","MgO", "FeO"],
-                   optional=[ "CaO", "Na2O"]),
-
-        "um"   => (core=["SiO2", "Al2O3", "MgO", "FeO"],
-                   optional=["S", "O", "H2O"]),
-
-        #= extended database =#
-        "mbe"  => (core=["SiO2", "Al2O3", "MgO", "FeO"],
-                   optional=["TiO2", "O", "K2O", "Na2O", "H2O"]),
-
-        "mpe"  => (core=["SiO2", "Al2O3", "MgO", "FeO"],
-                   optional=["CaO", "CO2", "S", "TiO2", "O", "MnO", "H2O", "K2O", "Na2O"]),
-
-        "ume"  => (core=["SiO2", "MgO", "FeO"],
-                   optional=["Al2O3", "S", "O", "Cr2O3", "CO2", "H2O", "Na2O", "CaO"]),
-
-        "all"  => (core=["SiO2", "Al2O3", "MgO", "FeO"],
-                   optional=["CaO", "K2O", "Na2O", "TiO2", "O", "MnO", "Cr2O3", "H2O", "CO2", "S"]),
 
         #= Stixrude & Lithgow-Bertelloni databases =#
         "sb11"   => (core=["SiO2", "Al2O3", "FeO", "MgO"],
@@ -2864,12 +3009,26 @@ function convertBulk4MAGEMin(   bulk_in     :: T1,
     )
 
     # Get core and optional indices for current database
-    config  = get(oxide_config, db, (core=1:length(MAGEMin_ox), optional=Int64[]))
-    c       = findall(in(config.core).(MAGEMin_ox))
-    d       = findall(in(config.optional).(MAGEMin_ox))
+    if is_db(db) && get_db(db).research_group == "tc"
+        EM_db   = get_db(db).EM_database
+        c       = findall(ox -> LibMAGEMin.is_core_oxide("tc", EM_db, ox) == 1, MAGEMin_ox)
+        d       = setdiff(eachindex(MAGEMin_ox), c)
+    else
+        config  = get(oxide_config, db, (core=MAGEMin_ox, optional=String[]))
+        c       = findall(in(config.core).(MAGEMin_ox))
+        d       = findall(in(config.optional).(MAGEMin_ox))
+    end
 
-    # Set core oxides to minimum 1e-4 if below threshold
-    id0 = findall(MAGEMin_bulk[c] .< 1e-4)
+    # Set core oxides to minimum 1e-4 if below threshold (exact zeros are kept when the nullspace optimizer reduces the system)
+    if ns_reduced
+        if oxMinGuard
+            idz = findall(MAGEMin_bulk[c] .< 2e-5)
+            MAGEMin_bulk[c[idz]] .= 0.0
+        end
+        id0 = findall(0.0 .< MAGEMin_bulk[c] .< 1e-4)
+    else
+        id0 = findall(MAGEMin_bulk[c] .< 1e-4)
+    end
     if ~isempty(id0)
         MAGEMin_bulk[c[id0]] .= 1e-4;
     end
@@ -2959,6 +3118,11 @@ end
     seismic_water : Int, optional
         Water content mode passed to [`anelastic_correction`](@ref) when `seismic_cor=true`:
         `0` = dry mantle, `1` = damp mantle, `2` = wet mantle (default: 0).
+    v : Union{Nothing, Vector{v_data{Float64, Int64}}}, optional
+        Overriding asymmetry (van Laar) parameters (default: nothing).
+    hook : Union{Nothing, Function}, optional
+        Function `hook(gv, z_b, DB)` called after the reference Gibbs energies and the
+        `W`/`gbase`/`v` overrides are set, right before the minimization (default: nothing).
 
     Returns
     -------
@@ -3020,7 +3184,9 @@ function point_wise_minimization(   P       ::Float64,
                                     shallow_correction = false,
                                     fluid_as_melt = false,
                                     anelastic_cor = false,
-                                    filter_DEW_species = false)
+                                    filter_DEW_species = false,
+                                    v           = nothing,
+                                    hook        = nothing)
 
     gv.buffer_n     =   buffer_n;
     if gv.n_mu_fix > 0
@@ -3061,79 +3227,9 @@ function point_wise_minimization(   P       ::Float64,
 
     gv      = LibMAGEMin.ComputeG0_point(gv.EM_database, z_b, gv, DB.PP_ref_db,DB.SS_ref_db);
 
-    # here we can over-ride default W's
-    if ~isnothing(W)
-        n_over  = length(W)
-        Pw      = z_b.P
-        Tw      = z_b.T
-        for n=1:n_over
+    apply_parameter_overrides!(gv, z_b, DB; W = W, gbase = gbase, v = v)
 
-            if gv.EM_database == W[n].dtb
-                ss          = W[n].ss_ids
-                SS_ref_db   = unsafe_wrap(Vector{LibMAGEMin.SS_ref},DB.SS_ref_db,gv.len_ss);
-                n_W         = SS_ref_db[ss].n_w;
-                if W[n].n_Ws == n_W
-                    # override = 1
-                    # unsafe_copyto!(pointer(SS_ref_db[ss].override), pointer(override), 1) 
-                    # SS_ref_db[ss].override = 1;                                                     # set the override flag to 1
-                    # Wdef    = unsafe_wrap(Vector{Cdouble},SS_ref_db[ss].W, SS_ref_db[ss].n_w);      # retrieve default Ws
-                    new_Ws  = zeros(n_W)
-                    for i=1:n_W
-                        new_Ws[i] = W[n].Ws[i,1] + W[n].Ws[i,2]*Tw + W[n].Ws[i,3]*Pw 
-                    end
-                    unsafe_copyto!(SS_ref_db[ss].W, pointer(new_Ws), SS_ref_db[ss].n_w) 
-                else
-                    print(" Wrong number of W's, please make sure the custom Ws are linked to the right solution model\n Ws override will be ignored\n")
-                    println(" n_W target= $(n_W), n_W provided = $(W[n].n_Ws)")
-                end
-            end
-
-        end
-    end
-
-    # here we can apply additive shifts to default endmember gbase's
-    if ~isnothing(gbase)
-        n_over_g    = length(gbase)
-        Pw          = z_b.P
-        Tw          = z_b.T
-        for n=1:n_over_g
-
-            if gv.EM_database == gbase[n].dtb
-                ss          = gbase[n].ss_ids
-                SS_ref_db   = unsafe_wrap(Vector{LibMAGEMin.SS_ref},DB.SS_ref_db,gv.len_ss);
-                n_em        = SS_ref_db[ss].n_em;
-                if gbase[n].n_Gs == length(gbase[n].em_ids) == size(gbase[n].dG,1)
-                    gbase_vec   = unsafe_wrap(Vector{Cdouble}, SS_ref_db[ss].gbase, n_em)
-                    mu_array_ptr= unsafe_wrap(Vector{Ptr{Cdouble}}, SS_ref_db[ss].mu_array, gv.n_Diff)
-                    pdev_P      = unsafe_wrap(Vector{Cdouble}, unsafe_load(gv.pdev, 1), gv.n_Diff)
-                    pdev_T      = unsafe_wrap(Vector{Cdouble}, unsafe_load(gv.pdev, 2), gv.n_Diff)
-
-                    for k=1:gbase[n].n_Gs
-                        em_id   = gbase[n].em_ids[k]
-                        if 1 <= em_id <= n_em
-                            delta0              = gbase[n].dG[k,1] + gbase[n].dG[k,2]*Tw + gbase[n].dG[k,3]*Pw
-                            gbase_vec[em_id]    += delta0
-
-                            for FD=1:gv.n_Diff
-                                Pfd             = Pw + gv.gb_P_eps*pdev_P[FD]
-                                Tfd             = Tw + gv.gb_T_eps*pdev_T[FD]
-                                deltaFD         = gbase[n].dG[k,1] + gbase[n].dG[k,2]*Tfd + gbase[n].dG[k,3]*Pfd
-                                mu_row          = unsafe_wrap(Vector{Cdouble}, mu_array_ptr[FD], n_em)
-                                mu_row[em_id]   += deltaFD
-                            end
-                        else
-                            print(" Invalid endmember index, please make sure em_ids are within the solution model's endmember range\n gbase override for this endmember will be ignored\n")
-                            println(" n_em target= $(n_em), em_id provided = $(em_id)")
-                        end
-                    end
-                else
-                    print(" Inconsistent gbase_data sizes, n_Gs, em_ids and dG must all agree in length\n gbase override will be ignored\n")
-                    println(" n_Gs= $(gbase[n].n_Gs), length(em_ids)= $(length(gbase[n].em_ids)), size(dG,1)= $(size(gbase[n].dG,1))")
-                end
-            end
-
-        end
-    end
+    hook === nothing || hook(gv, z_b, DB)
 
     # gv      = LibMAGEMin.ComputeG0_point(gv.EM_database, z_b, gv, DB.PP_ref_db,DB.SS_ref_db);
 
@@ -3285,6 +3381,12 @@ function point_wise_minimization(   P       ::Float64,
                 tot_pc      = unsafe_wrap(Vector{Cint},SS_ref_db[ph_id].tot_pc, 1)
                 id_pc       = unsafe_wrap(Vector{Cint},SS_ref_db[ph_id].id_pc, 1)
 
+                xeos        = copy(Gi[i].xeos_Ppc)
+                ns_pc       = rg in ("tc", "sb") ? LibMAGEMin.ns_pc_mode(gv, pointer(SS_ref_db, ph_id)) : 0
+                if ns_pc == 2 || (ns_pc == 1 && LibMAGEMin.ns_project_x(gv, pointer(SS_ref_db, ph_id), xeos) == 0)
+                    continue
+                end
+
                 if tot_pc[1] < n_SS_PC[ph_id]   # here we make sure we have the space to store the pseudocompound
 
                     m_pc        = id_pc[1]+1;
@@ -3298,7 +3400,6 @@ function point_wise_minimization(   P       ::Float64,
                     ptr_xeos_pc = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].xeos_pc,SS_ref_db[ph_id].n_pc)
         
                     unsafe_copyto!(SS_ref_db[ph_id].gb_lvl,SS_ref_db[ph_id].gbase, SS_ref_db[ph_id].n_em)
-                    xeos        = Gi[i].xeos_Ppc
         
                     # get solution phase information for given compositional variables
                     unsafe_copyto!(SS_ref_db[ph_id].iguess,pointer(xeos), n_xeos)
@@ -3642,6 +3743,188 @@ function pwm_run(gv, z_b, DB, splx_data; name_solvus = false, seismic_cor = fals
     # LibMAGEMin.FreeDatabases(gv, DB, z_b);
 
     return out
+end
+
+
+"""
+    equilibrium_state(out)
+
+    Equilibrium state of a minimization result, in the form expected by
+    [`pwm_run_from_state`](@ref) and [`point_wise_newton_from_state`](@ref).
+
+    Parameters
+    ----------
+    out : gmin_struct{Float64, Int64}
+        Minimization result.
+
+    Returns
+    -------
+    state : NamedTuple
+        `ss_ids` (0-based solution phase ids), `ss_x` (concatenated compositional variables),
+        `ss_n` (solution phase fractions, 1-atom basis), `pp_ids` (0-based pure phase ids),
+        `pp_n` (pure phase fractions, 1-atom basis) and `gam` (oxide chemical potentials).
+"""
+function equilibrium_state(out)
+    ss_ids  = Cint[]
+    ss_x    = Float64[]
+    ss_n    = Float64[]
+    pp_ids  = Cint[]
+    pp_n    = Float64[]
+    iss     = 0
+    for i in eachindex(out.ph)
+        if out.ph_type[i] == 1
+            iss += 1
+            push!(ss_ids, out.ph_id_db[i])
+            append!(ss_x, out.SS_vec[iss].compVariables)
+            push!(ss_n, out.ph_frac_1at[i])
+        else
+            push!(pp_ids, out.ph_id_db[i])
+            push!(pp_n, out.ph_frac_1at[i])
+        end
+    end
+    return (ss_ids = ss_ids, ss_x = ss_x, ss_n = ss_n, pp_ids = pp_ids, pp_n = pp_n, gam = copy(out.Gamma))
+end
+
+
+"""
+    pwm_run_from_state(gv, z_b, DB, splx_data, state; name_solvus=false, seismic_cor=false, aspect_ratio=0.3)
+
+    Load a given equilibrium state (see [`equilibrium_state`](@ref)) after `pwm_init` and solve the
+    equilibrium of this assemblage with the final Newton step only (no levelling, no LP/PGE).
+    Phases can still be removed by the Newton step when their fraction vanishes. The result
+    follows the branch of the given state, which makes it suited for continuation in
+    thermodynamic database calibration workflows.
+
+    `out.status` is `0` when the Newton step converged and `-1` otherwise (the loaded state is
+    then returned unchanged). The `mSS_vec` of the result holds no LP basis.
+
+    Returns
+    -------
+    out : gmin_struct{Float64, Int64}
+        Structure containing the minimization results.
+"""
+function pwm_run_from_state(gv, z_b, DB, splx_data, state; name_solvus = false, seismic_cor = false, aspect_ratio = 0.3, seismic_water = 0, shallow_correction = false, fluid_as_melt = false, anelastic_cor = false, filter_DEW_species = false)
+    ss_ids  = Vector{Cint}(state.ss_ids)
+    ss_x    = Vector{Cdouble}(state.ss_x)
+    ss_n    = Vector{Cdouble}(state.ss_n)
+    pp_ids  = Vector{Cint}(state.pp_ids)
+    pp_n    = Vector{Cdouble}(state.pp_n)
+    gam     = Vector{Cdouble}(state.gam)
+
+    time = @elapsed  gv      = LibMAGEMin.ComputeEquilibrium_FromState(z_b, gv, DB.PP_ref_db, DB.SS_ref_db, DB.cp, length(ss_ids), ss_ids, ss_x, ss_n, length(pp_ids), pp_ids, pp_n, gam);
+
+    gv = LibMAGEMin.ComputePostProcessing(z_b, gv, DB.PP_ref_db, DB.SS_ref_db, DB.cp)
+
+    LibMAGEMin.fill_output_struct(gv, pointer_from_objref(splx_data), z_b, DB.PP_ref_db,DB.SS_ref_db, DB.cp, DB.sp );
+
+    LibMAGEMin.PrintOutput(gv, 0, 1, DB, time, z_b);
+
+    out = deepcopy(create_gmin_struct(DB, gv, time; name_solvus = name_solvus, seismic_cor = seismic_cor, aspect_ratio = aspect_ratio, seismic_water = seismic_water, shallow_correction = shallow_correction, fluid_as_melt = fluid_as_melt, anelastic_cor = anelastic_cor, filter_DEW_species = filter_DEW_species));
+
+    return out
+end
+
+
+"""
+    point_wise_newton_from_state(P, T, gv, z_b, DB, splx_data, state; W=nothing, gbase=nothing, v=nothing, hook=nothing, name_solvus=false)
+
+    Same as [`pwm_run_from_state`](@ref), preceded by `pwm_init` at (P, T) and by the `W`, `gbase`
+    and `v` overrides and the `hook` of [`point_wise_minimization`](@ref).
+
+    Examples
+    --------
+    ```julia
+    gv, z_b, DB, splx_data = init_MAGEMin("mp");
+    gv      = use_predefined_bulk_rock(gv, 0, "mp");
+    gv.verbose = -1
+    out     = point_wise_minimization(6.0, 650.0, gv, z_b, DB, splx_data)
+    st      = equilibrium_state(out)
+    out2    = point_wise_newton_from_state(6.0, 655.0, gv, z_b, DB, splx_data, st)
+    ```
+"""
+function point_wise_newton_from_state(  P       ::Float64,
+                                        T       ::Float64,
+                                        gv,
+                                        z_b,
+                                        DB,
+                                        splx_data,
+                                        state;
+                                        W           = nothing,
+                                        gbase       = nothing,
+                                        v           = nothing,
+                                        hook        = nothing,
+                                        name_solvus = false)
+
+    if P < 0.001
+        P = 0.001
+    end
+    gv, z_b, DB, splx_data = pwm_init(P, T, gv, z_b, DB, splx_data)
+
+    apply_parameter_overrides!(gv, z_b, DB; W = W, gbase = gbase, v = v)
+
+    hook === nothing || hook(gv, z_b, DB)
+
+    return pwm_run_from_state(gv, z_b, DB, splx_data, state; name_solvus = name_solvus)
+end
+
+
+"""
+    get_final_newton_system(gv)
+
+    Final Newton system stored by the last minimization when `gv.fn_store_kkt = 1` and the final
+    Newton step was accepted, `nothing` otherwise.
+
+    Unknowns z = [Γ (`m` oxides with non-zero bulk); y (`n_y` coordinates along the reduced
+    nullspace of each solution phase); μ (`n_cc` compositional bound multipliers); n (`n_ph`
+    solution phases, then `n_pp` pure phases)]. Residuals R = [Nᵀ∇D − Σμ∇x (`n_y`); x − bound
+    (`n_cc`); D or n if removed (`n_ph`); G − Γ·c or n if removed (`n_pp`); mass balance (`m`)].
+    J = ∂R/∂z at the converged state (column-major, `nz` × `nz`).
+
+    Returns
+    -------
+    sys : NamedTuple
+        Layout (`nz`, `m`, `n_y`, `n_cc`, `n_ph`, `n_pp`, 1-based `ox_id`, `off_y`, `off_c`),
+        phases (1-based `ss_id`, `ss_name`, `cp_id`, `pp_id`, `pp_name`, `drop`), the nullspace
+        coordinates `s` and bases `N` (`ns_nc` × k) of each solution phase, the active
+        compositional bounds (`c_ph`, 1-based `c_x`, `c_b`), the state (`Gamma`, `n`, `mu`, `G`),
+        `R` and `J`.
+"""
+function get_final_newton_system(gv)
+    gv.fn_sys == C_NULL && return nothing
+    k       = unsafe_load(gv.fn_sys)
+    k.stored == 1 || return nothing
+
+    vi(p, n) = n > 0 ? Int.(copy(unsafe_wrap(Vector{Cint}, p, n))) : Int[]
+    vd(p, n) = n > 0 ? copy(unsafe_wrap(Vector{Cdouble}, p, n)) : Float64[]
+
+    n_ph, n_pp, nz, n_cc = Int(k.n_ph), Int(k.n_pp), Int(k.nz), Int(k.n_cc)
+    off_y   = vi(k.off_y, n_ph + 1)
+    off_s   = vi(k.off_s, n_ph + 1)
+    off_N   = vi(k.off_N, n_ph + 1)
+    off_c   = vi(k.off_c, n_ph + 1)
+    s_all   = vd(k.s, Int(k.n_s))
+    Nb      = vd(k.Nb, Int(k.n_Nb))
+    ss_list = unsafe_string.(unsafe_wrap(Vector{Ptr{Cchar}}, gv.SS_list, gv.len_ss))
+    pp_list = unsafe_string.(unsafe_wrap(Vector{Ptr{Cchar}}, gv.PP_list, gv.len_pp))
+    ss_id   = vi(k.ss_id, n_ph) .+ 1
+    pp_id   = vi(k.pp_id, n_pp) .+ 1
+
+    s       = [s_all[off_s[q]+1:off_s[q+1]] for q in 1:n_ph]
+    N       = Matrix{Float64}[]
+    for q in 1:n_ph
+        nc  = off_s[q+1] - off_s[q]
+        kq  = off_y[q+1] - off_y[q]
+        push!(N, kq == 0 ? zeros(nc, 0) : permutedims(reshape(Nb[off_N[q]+1:off_N[q]+nc*kq], kq, nc)))
+    end
+    c_ph    = [q for q in 1:n_ph for c in off_c[q]+1:off_c[q+1]]
+
+    return (nz = nz, m = Int(k.m), n_y = Int(k.n_y), n_cc = n_cc, n_ph = n_ph, n_pp = n_pp,
+            ox_id = vi(k.ox_id, Int(k.m)) .+ 1, off_y = off_y, off_c = off_c,
+            ss_id = ss_id, ss_name = ss_list[ss_id], cp_id = vi(k.cp_id, n_ph) .+ 1,
+            pp_id = pp_id, pp_name = pp_list[pp_id], drop = vi(k.drop, n_ph + n_pp) .== 1,
+            s = s, N = N, c_ph = c_ph, c_x = vi(k.c_x, n_cc) .+ 1, c_b = vd(k.c_b, n_cc),
+            Gamma = vd(k.gam, Int(gv.len_ox)), n = vd(k.n, n_ph + n_pp), mu = vd(k.mu, n_cc), G = k.G,
+            R = vd(k.R, nz), J = reshape(vd(k.J, nz*nz), nz, nz))
 end
 
 
@@ -4668,7 +4951,11 @@ function point_wise_minimization_with_guess(    mSS_vec ::  Vector{LibMAGEMin.mS
                 ptr_xeos_pc = unsafe_wrap(Vector{Ptr{Cdouble}},SS_ref_db[ph_id].xeos_pc,SS_ref_db[ph_id].n_pc)
 
                 unsafe_copyto!(SS_ref_db[ph_id].gb_lvl,SS_ref_db[ph_id].gbase, SS_ref_db[ph_id].n_em)
-                xeos        = mSS_vec[i].xeos_Ppc
+                xeos        = copy(mSS_vec[i].xeos_Ppc)
+                ns_pc       = rg in ("tc", "sb") ? LibMAGEMin.ns_pc_mode(gv, pointer(SS_ref_db, ph_id)) : 0
+                if ns_pc == 2 || (ns_pc == 1 && LibMAGEMin.ns_project_x(gv, pointer(SS_ref_db, ph_id), xeos) == 0)
+                    continue
+                end
 
                 # retrieve bounds
                 bounds_ref      = zeros( n_xeos,2)
@@ -4731,6 +5018,54 @@ end
 
 
 """
+    shift_mSS_to_out!(mSS_vec, out)
+
+Translates the solution-phase pseudocompounds of the LP basis (the first `n` entries of `mSS_vec`, `n` = number
+of non-zero oxides) so that, for every stable phase instance of `out`, the fraction-weighted mean of its
+pseudocompounds equals the composition reported in `out.SS_vec`. The weights are the LP fractions of the basis
+(`A n = bulk`); each pseudocompound is assigned to the closest stable instance of the same phase. Entries after the
+basis (e.g. "ppc") are left unchanged. Used by `point_wise_metastability` so that metastable evaluations refer to the reported
+(final Newton polished) phase compositions; `out.mSS_vec` itself is left unchanged.
+"""
+function shift_mSS_to_out!(mSS_vec, out)
+    nz      = findall(>(0.0), out.bulk)
+    nm      = min(length(nz), length(mSS_vec))
+    nm == 0 && return mSS_vec
+    A       = zeros(length(nz), nm)
+    for k = 1:nm
+        A[:, k] .= mSS_vec[k].comp_Ppc[nz]
+    end
+    w       = A \ out.bulk[nz]
+
+    ss_ids  = findall(==(1), out.ph_type)
+    group   = [Int[] for _ in ss_ids]
+    for k = 1:nm
+        mSS_vec[k].ph_type == "ss" || continue
+        best = 0; dbest = Inf
+        for (q, i) in enumerate(ss_ids)
+            out.ph[i] == mSS_vec[k].ph_name || continue
+            d = sum(abs2, mSS_vec[k].xeos_Ppc .- out.SS_vec[q].compVariables)
+            if d < dbest
+                best = q; dbest = d
+            end
+        end
+        best > 0 && push!(group[best], k)
+    end
+
+    for (q, g) in enumerate(group)
+        isempty(g) && continue
+        sw = sum(w[g])
+        sw > 0.0 || continue
+        xm = sum(w[k] .* mSS_vec[k].xeos_Ppc for k in g) ./ sw
+        dx = out.SS_vec[q].compVariables .- xm
+        for k in g
+            mSS_vec[k].xeos_Ppc .+= dx
+        end
+    end
+    return mSS_vec
+end
+
+"""
     point_wise_metastability(out, P, T, gv, z_b, DB, splx_data)
 
     Compute the metastability of the solution phases from a previous minimization result at new pressure and temperature conditions.
@@ -4791,6 +5126,7 @@ function point_wise_metastability(  out     :: MAGEMin_C.gmin_struct{Float64, In
                                     anelastic_cor::  Bool   = false)
 
     mSS_vec = deepcopy(out.mSS_vec)                                
+    shift_mSS_to_out!(mSS_vec, out)
     gv      = define_bulk_rock(gv, out.bulk, out.oxides, "mol", out.database);
     # initialize MAGEMin up to G0 computation included
     gv, z_b, DB, splx_data = pwm_init(P, T, gv, z_b, DB, splx_data);
@@ -4846,9 +5182,10 @@ function point_wise_metastability(  out     :: MAGEMin_C.gmin_struct{Float64, In
             unsafe_copyto!(SS_ref_db[ph_id].gb_lvl,SS_ref_db[ph_id].gbase, SS_ref_db[ph_id].n_em)
             unsafe_copyto!(SS_ref_db[ph_id].iguess,pointer(mSS_vec[i].xeos_Ppc), SS_ref_db[ph_id].n_xeos)
             SS_ref_db[ph_id] = LibMAGEMin.PC_function(gv, PC_read, SS_ref_db[ph_id], z_b, ph_id-1)
+            ss_comp     = unsafe_wrap(Vector{Cdouble}, SS_ref_db[ph_id].ss_comp, gv.len_ox)
 
             g0_A_jll[i] = SS_ref_db[ph_id].df
-            A_jll[i,:]  = mSS_vec[i].comp_Ppc[nzEl_array]
+            A_jll[i,:]  = (ss_comp .* SS_ref_db[ph_id].factor)[nzEl_array]
             ph_id_A_jll[i,1] = 3
             ph_id_A_jll[i,2] = ph_id-1
             ph_id_A_jll[i,3] = 0

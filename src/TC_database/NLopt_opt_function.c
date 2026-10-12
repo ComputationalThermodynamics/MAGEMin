@@ -4841,6 +4841,261 @@ void liq_ig_c(unsigned m, double *result, unsigned n, const double *x, double *g
     return;
 };
 
+void liq_igmn_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+    result[0] = ( 0.75*x[0]*x[9] + 1.0*x[0] + 0.75*x[10]*x[9] + 1.0*x[10] + 0.75*x[11]*x[9] + 1.0*x[11] + 0.75*x[1]*x[9] + 1.0*x[1] + 0.75*x[2]*x[9] + 1.0*x[2] + 0.75*x[3]*x[9] + 1.0*x[3] + 0.75*x[4]*x[9] + 1.0*x[4] + 0.75*x[5]*x[9] + 1.0*x[5] + 0.75*x[6]*x[9] + 1.0*x[6] + 0.75*x[7]*x[9] + 1.0*x[7] + 0.75*x[8]*x[9] + 1.0*x[8] - 1.0*x[9] - 1.0);
+    result[1] = ( -0.75*x[1]*x[9] - 1.0*x[1] + 1.0*x[9]);
+    result[2] = ( -0.75*x[0]*x[9] - 1.0*x[0] + 1.0*x[9]);
+    result[3] = ( -0.75*x[4]*x[9] - 1.0*x[4]);
+    result[4] = ( -0.75*x[5]*x[9] - 1.0*x[5]);
+    result[5] = ( -0.75*x[6]*x[9] - 1.0*x[6]);
+    result[6] = ( -0.75*x[7]*x[9] - 1.0*x[7]);
+    result[7] = ( -0.75*x[8]*x[9] - 1.0*x[8]);
+    result[8] = ( -1.0*x[9]);
+    result[9] = ( -0.75*x[11]*x[9] - 1.0*x[11] - 0.75*x[2]*x[9] - 1.0*x[2] - 0.75*x[3]*x[9] - 1.0*x[3]);
+    result[10] = ( 0.75*x[10]*x[9] + 1.0*x[10] - 1.0);
+    result[11] = ( -3.0*x[2]*x[9] - 4.0*x[2]);
+    result[12] = ( -3.0*x[3]*x[9] - 4.0*x[3]);
+    result[13] = ( -0.75*x[0]*x[9] - 1.0*x[0] + 1.0*x[9]);
+    result[14] = ( -0.75*x[1]*x[9] - 1.0*x[1] + 1.0*x[9]);
+    result[15] = ( -0.75*x[0]*x[9] - 1.0*x[0] - 3.0*x[11]*x[9] - 4.0*x[11] - 0.75*x[1]*x[9] - 1.0*x[1] - 3.0*x[2]*x[9] - 4.0*x[2] - 3.0*x[3]*x[9] - 4.0*x[3] + 2.0*x[9]);
+    result[16] = ( -0.75*x[10]*x[9] - 1.0*x[10]);
+    result[17] = ( 0.75*x[10]*x[9] + 1.0*x[10] - 1.0);
+    result[18] = ( -3.0*x[11]*x[9] - 4.0*x[11]);
+
+    if (grad) {
+        grad[0] = 0.75*x[9] + 1.0;
+        grad[1] = 0.75*x[9] + 1.0;
+        grad[2] = 0.75*x[9] + 1.0;
+        grad[3] = 0.75*x[9] + 1.0;
+        grad[4] = 0.75*x[9] + 1.0;
+        grad[5] = 0.75*x[9] + 1.0;
+        grad[6] = 0.75*x[9] + 1.0;
+        grad[7] = 0.75*x[9] + 1.0;
+        grad[8] = 0.75*x[9] + 1.0;
+        grad[9] = 0.75*x[0] + 0.75*x[10] + 0.75*x[11] + 0.75*x[1] + 0.75*x[2] + 0.75*x[3] + 0.75*x[4] + 0.75*x[5] + 0.75*x[6] + 0.75*x[7] + 0.75*x[8] - 1.0;
+        grad[10] = 0.75*x[9] + 1.0;
+        grad[11] = 0.75*x[9] + 1.0;
+        grad[12] = 0;
+        grad[13] = -0.75*x[9] - 1.0;
+        grad[14] = 0;
+        grad[15] = 0;
+        grad[16] = 0;
+        grad[17] = 0;
+        grad[18] = 0;
+        grad[19] = 0;
+        grad[20] = 0;
+        grad[21] = 1.0 - 0.75*x[1];
+        grad[22] = 0;
+        grad[23] = 0;
+        grad[24] = -0.75*x[9] - 1.0;
+        grad[25] = 0;
+        grad[26] = 0;
+        grad[27] = 0;
+        grad[28] = 0;
+        grad[29] = 0;
+        grad[30] = 0;
+        grad[31] = 0;
+        grad[32] = 0;
+        grad[33] = 1.0 - 0.75*x[0];
+        grad[34] = 0;
+        grad[35] = 0;
+        grad[36] = 0;
+        grad[37] = 0;
+        grad[38] = 0;
+        grad[39] = 0;
+        grad[40] = -0.75*x[9] - 1.0;
+        grad[41] = 0;
+        grad[42] = 0;
+        grad[43] = 0;
+        grad[44] = 0;
+        grad[45] = -0.75*x[4];
+        grad[46] = 0;
+        grad[47] = 0;
+        grad[48] = 0;
+        grad[49] = 0;
+        grad[50] = 0;
+        grad[51] = 0;
+        grad[52] = 0;
+        grad[53] = -0.75*x[9] - 1.0;
+        grad[54] = 0;
+        grad[55] = 0;
+        grad[56] = 0;
+        grad[57] = -0.75*x[5];
+        grad[58] = 0;
+        grad[59] = 0;
+        grad[60] = 0;
+        grad[61] = 0;
+        grad[62] = 0;
+        grad[63] = 0;
+        grad[64] = 0;
+        grad[65] = 0;
+        grad[66] = -0.75*x[9] - 1.0;
+        grad[67] = 0;
+        grad[68] = 0;
+        grad[69] = -0.75*x[6];
+        grad[70] = 0;
+        grad[71] = 0;
+        grad[72] = 0;
+        grad[73] = 0;
+        grad[74] = 0;
+        grad[75] = 0;
+        grad[76] = 0;
+        grad[77] = 0;
+        grad[78] = 0;
+        grad[79] = -0.75*x[9] - 1.0;
+        grad[80] = 0;
+        grad[81] = -0.75*x[7];
+        grad[82] = 0;
+        grad[83] = 0;
+        grad[84] = 0;
+        grad[85] = 0;
+        grad[86] = 0;
+        grad[87] = 0;
+        grad[88] = 0;
+        grad[89] = 0;
+        grad[90] = 0;
+        grad[91] = 0;
+        grad[92] = -0.75*x[9] - 1.0;
+        grad[93] = -0.75*x[8];
+        grad[94] = 0;
+        grad[95] = 0;
+        grad[96] = 0;
+        grad[97] = 0;
+        grad[98] = 0;
+        grad[99] = 0;
+        grad[100] = 0;
+        grad[101] = 0;
+        grad[102] = 0;
+        grad[103] = 0;
+        grad[104] = 0;
+        grad[105] = -1.0;
+        grad[106] = 0;
+        grad[107] = 0;
+        grad[108] = 0;
+        grad[109] = 0;
+        grad[110] = -0.75*x[9] - 1.0;
+        grad[111] = -0.75*x[9] - 1.0;
+        grad[112] = 0;
+        grad[113] = 0;
+        grad[114] = 0;
+        grad[115] = 0;
+        grad[116] = 0;
+        grad[117] = -0.75*x[11] - 0.75*x[2] - 0.75*x[3];
+        grad[118] = 0;
+        grad[119] = -0.75*x[9] - 1.0;
+        grad[120] = 0;
+        grad[121] = 0;
+        grad[122] = 0;
+        grad[123] = 0;
+        grad[124] = 0;
+        grad[125] = 0;
+        grad[126] = 0;
+        grad[127] = 0;
+        grad[128] = 0;
+        grad[129] = 0.75*x[10];
+        grad[130] = 0.75*x[9] + 1.0;
+        grad[131] = 0;
+        grad[132] = 0;
+        grad[133] = 0;
+        grad[134] = -3.0*x[9] - 4.0;
+        grad[135] = 0;
+        grad[136] = 0;
+        grad[137] = 0;
+        grad[138] = 0;
+        grad[139] = 0;
+        grad[140] = 0;
+        grad[141] = -3.0*x[2];
+        grad[142] = 0;
+        grad[143] = 0;
+        grad[144] = 0;
+        grad[145] = 0;
+        grad[146] = 0;
+        grad[147] = -3.0*x[9] - 4.0;
+        grad[148] = 0;
+        grad[149] = 0;
+        grad[150] = 0;
+        grad[151] = 0;
+        grad[152] = 0;
+        grad[153] = -3.0*x[3];
+        grad[154] = 0;
+        grad[155] = 0;
+        grad[156] = -0.75*x[9] - 1.0;
+        grad[157] = 0;
+        grad[158] = 0;
+        grad[159] = 0;
+        grad[160] = 0;
+        grad[161] = 0;
+        grad[162] = 0;
+        grad[163] = 0;
+        grad[164] = 0;
+        grad[165] = 1.0 - 0.75*x[0];
+        grad[166] = 0;
+        grad[167] = 0;
+        grad[168] = 0;
+        grad[169] = -0.75*x[9] - 1.0;
+        grad[170] = 0;
+        grad[171] = 0;
+        grad[172] = 0;
+        grad[173] = 0;
+        grad[174] = 0;
+        grad[175] = 0;
+        grad[176] = 0;
+        grad[177] = 1.0 - 0.75*x[1];
+        grad[178] = 0;
+        grad[179] = 0;
+        grad[180] = -0.75*x[9] - 1.0;
+        grad[181] = -0.75*x[9] - 1.0;
+        grad[182] = -3.0*x[9] - 4.0;
+        grad[183] = -3.0*x[9] - 4.0;
+        grad[184] = 0;
+        grad[185] = 0;
+        grad[186] = 0;
+        grad[187] = 0;
+        grad[188] = 0;
+        grad[189] = -0.75*x[0] - 3.0*x[11] - 0.75*x[1] - 3.0*x[2] - 3.0*x[3] + 2.0;
+        grad[190] = 0;
+        grad[191] = -3.0*x[9] - 4.0;
+        grad[192] = 0;
+        grad[193] = 0;
+        grad[194] = 0;
+        grad[195] = 0;
+        grad[196] = 0;
+        grad[197] = 0;
+        grad[198] = 0;
+        grad[199] = 0;
+        grad[200] = 0;
+        grad[201] = -0.75*x[10];
+        grad[202] = -0.75*x[9] - 1.0;
+        grad[203] = 0;
+        grad[204] = 0;
+        grad[205] = 0;
+        grad[206] = 0;
+        grad[207] = 0;
+        grad[208] = 0;
+        grad[209] = 0;
+        grad[210] = 0;
+        grad[211] = 0;
+        grad[212] = 0;
+        grad[213] = 0.75*x[10];
+        grad[214] = 0.75*x[9] + 1.0;
+        grad[215] = 0;
+        grad[216] = 0;
+        grad[217] = 0;
+        grad[218] = 0;
+        grad[219] = 0;
+        grad[220] = 0;
+        grad[221] = 0;
+        grad[222] = 0;
+        grad[223] = 0;
+        grad[224] = 0;
+        grad[225] = -3.0*x[11];
+        grad[226] = 0;
+        grad[227] = -3.0*x[9] - 4.0;
+    }
+
+    return;
+};
+
 /** 
   local minimization for muscovite
 */
@@ -8018,6 +8273,41 @@ SS_ref NLopt_opt_ig_liq_function(global_variable gv, SS_ref SS_ref_db){
    return SS_ref_db;
 };
 
+SS_ref NLopt_opt_igmn_liq_function(global_variable gv, SS_ref SS_ref_db){
+
+   int    n_em     = SS_ref_db.n_em;
+   unsigned int n  = SS_ref_db.n_xeos;
+   unsigned int m  = SS_ref_db.n_sf;
+   
+   double *x  = SS_ref_db.iguess; 
+   
+   for (int i = 0; i < (SS_ref_db.n_xeos); i++){
+      SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+      SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
+   }
+
+   SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n)); 
+   nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
+   nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
+   nlopt_set_min_objective(SS_ref_db.opt, obj_igmn_liq, &SS_ref_db);
+   nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, liq_igmn_c, NULL, NULL);
+   nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
+   nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
+   
+   double minf;
+   SS_ref_db.status = nlopt_optimize(SS_ref_db.opt, x, &minf);
+
+   /* Send back needed local solution parameters */
+   for (int i = 0; i < SS_ref_db.n_xeos; i++){
+      SS_ref_db.xeos[i] = x[i];
+   }
+ 
+   SS_ref_db.df   = minf;
+   nlopt_destroy(SS_ref_db.opt);
+
+   return SS_ref_db;
+};
+
 SS_ref NLopt_opt_ig_mu_function(global_variable gv, SS_ref SS_ref_db){
 
    int    n_em     = SS_ref_db.n_em;
@@ -11096,6 +11386,32 @@ void g_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *gr
 /**
     Inequality constraints for ep_mp
 */
+void scp_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+    result[0] = ( -0.75*x[0]);
+    result[1] = ( 0.75*x[0] - 1.0);
+    result[2] = ( x[0] + 2.0/3.0*x[1] - 1.0);
+    result[3] = ( -x[0] - 2.0/3.0*x[1]);
+    result[4] = ( x[0] - x[1]/3.0 - 1.0);
+    result[5] = ( -x[0] + x[1]/3.0);
+
+    if (grad) {
+        grad[0]  = -0.75;
+        grad[1]  = 0.0;
+        grad[2]  = 0.75;
+        grad[3]  = 0.0;
+        grad[4]  = 1.0;
+        grad[5]  = 2.0/3.0;
+        grad[6]  = -1.0;
+        grad[7]  = -2.0/3.0;
+        grad[8]  = 1.0;
+        grad[9]  = -1.0/3.0;
+        grad[10] = -1.0;
+        grad[11] = 1.0/3.0;
+    }
+
+    return;
+};
+
 void ep_mpe_c(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
     result[0] = ( -x[0] + x[1]);
     result[1] = ( x[0] - x[1] - 1.0);
@@ -12303,6 +12619,41 @@ SS_ref NLopt_opt_mpe_g_function(global_variable gv, SS_ref SS_ref_db){
     return SS_ref_db;
 };
 
+SS_ref NLopt_opt_mpe_scp_function(global_variable gv, SS_ref SS_ref_db){
+    
+    int    n_em     = SS_ref_db.n_em;
+    unsigned int n  = SS_ref_db.n_xeos;
+    unsigned int m  = SS_ref_db.n_sf;
+    
+    double *x  = SS_ref_db.iguess; 
+    
+    for (int i = 0; i < (SS_ref_db.n_xeos); i++){
+       SS_ref_db.lb[i] = SS_ref_db.bounds[i][0];
+       SS_ref_db.ub[i] = SS_ref_db.bounds[i][1];
+    }
+    
+    SS_ref_db.opt = nlopt_create(NLOPT_LD_SLSQP, (n)); 
+    nlopt_set_lower_bounds(SS_ref_db.opt, SS_ref_db.lb);
+    nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
+    nlopt_set_min_objective(SS_ref_db.opt, obj_mpe_scp, &SS_ref_db);
+    nlopt_add_inequality_mconstraint(SS_ref_db.opt, m, scp_mpe_c, NULL, NULL);
+    nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
+    nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
+
+    double minf;
+    SS_ref_db.status = nlopt_optimize(SS_ref_db.opt, x, &minf);
+
+    /* Send back needed local solution parameters */
+    for (int i = 0; i < SS_ref_db.n_xeos; i++){
+       SS_ref_db.xeos[i] = x[i];
+    }
+    
+    SS_ref_db.df   = minf;
+    nlopt_destroy(SS_ref_db.opt);
+    
+    return SS_ref_db;
+};
+
 SS_ref NLopt_opt_mpe_ep_function(global_variable gv, SS_ref SS_ref_db){
     
     int    n_em     = SS_ref_db.n_em;
@@ -13161,6 +13512,8 @@ void TC_mpe_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_mpe_fsp_function; 		}
 		else if (strcmp( gv.SS_list[iss], "plc") == 0){
 			NLopt_opt[iss]  = NLopt_opt_mpe_plc_function; 		}
+		else if (strcmp( gv.SS_list[iss], "scp") == 0){
+			NLopt_opt[iss]  = NLopt_opt_mpe_scp_function; 		}
 		else if (strcmp( gv.SS_list[iss], "bi")    == 0){
 			NLopt_opt[iss]  = NLopt_opt_mpe_bi_function; 		}
 		else if (strcmp( gv.SS_list[iss], "g")     == 0){
@@ -13230,6 +13583,8 @@ void TC_all_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_mpe_liq_function; 		}
 		else if (strcmp( gv.SS_list[iss], "liq_G25w") == 0 ){
 			NLopt_opt[iss]  = NLopt_opt_ig_liq_function; 		}
+		else if (strcmp( gv.SS_list[iss], "liqmn_R27") == 0 ){
+			NLopt_opt[iss]  = NLopt_opt_igmn_liq_function; 		}
 
 		/* fsp (2 citation variants) */
 		else if (strcmp( gv.SS_list[iss], "fsp_H22")   == 0 ){
@@ -13364,6 +13719,8 @@ void TC_all_NLopt_opt_init(	        NLopt_type 			*NLopt_opt,
 			NLopt_opt[iss]  = NLopt_opt_mpe_carp_function; 		}
 		else if (strcmp( gv.SS_list[iss], "plc_B05")   == 0){
 			NLopt_opt[iss]  = NLopt_opt_mpe_plc_function; 		}
+		else if (strcmp( gv.SS_list[iss], "scp_K04")   == 0){
+			NLopt_opt[iss]  = NLopt_opt_mpe_scp_function; 		}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}

@@ -63,6 +63,12 @@ SS_ref LM_convert_function(			global_variable 	 gv,
 										double 				*xeos,
 										int 				 n_xeos			);
 
+SS_ref ss_local_min(					global_variable 	 gv,
+										SS_ref 			   (**NLopt_opt)(global_variable, SS_ref),
+										int 				 ph_id,
+										SS_ref 				 SS_ref_db,
+										double 				 box_size		);
+
 
 csd_phase_set CP_UPDATE_function(		global_variable 	 gv,
 										SS_ref 				 SS_ref_db,

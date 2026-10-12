@@ -15,6 +15,7 @@
     #include "tc_gss_function.h"
     #include "objective_functions.h"
     #include "NLopt_opt_function.h"
+    #include "NS_opt_function.h"
 
     /* include pseudocompounds */
     #include "SS_xeos_PC_mp.h" 				//mp is first, it contains the structure definition

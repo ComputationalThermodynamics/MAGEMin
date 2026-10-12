@@ -94,5 +94,9 @@
 	void store_FD_interactions(			SS_ref 				*SS_ref_db,
 										int 				 FD					);
 
+	fn_kkt *fn_kkt_alloc(				global_variable 	 gv					);
+
+	void fn_kkt_free(					fn_kkt 				*k					);
+
 
 #endif
