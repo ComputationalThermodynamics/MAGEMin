@@ -1651,8 +1651,8 @@ end
         With 1, oxides set exactly to zero in the bulk are removed from the system, including
         the core oxides that are otherwise raised to 1e-4 (reduced systems below FMAS).
     final_Newton_step : Int64, optional
-        Newton polish of the converged assemblage (THERMOCALC and Stixrude & Lithgow-Bertelloni
-        databases): 1 active (default), 0 inactive. Solves the equilibrium conditions of the
+        Newton polish of the converged assemblage (THERMOCALC, Stixrude & Lithgow-Bertelloni and
+        Berman databases): 1 active (default), 0 inactive. Solves the equilibrium conditions of the
         stable assemblage to machine precision, so that chemical potentials, phase fractions and
         compositions are consistent; the solver result is kept when the step does not converge.
 
@@ -1792,8 +1792,8 @@ end
         With 1, oxides set exactly to zero in the bulk are removed from the system, including
         the core oxides that are otherwise raised to 1e-4 (reduced systems below FMAS).
     final_Newton_step : Int64, optional
-        Newton polish of the converged assemblage (THERMOCALC and Stixrude & Lithgow-Bertelloni
-        databases): 1 active (default), 0 inactive. Solves the equilibrium conditions of the
+        Newton polish of the converged assemblage (THERMOCALC, Stixrude & Lithgow-Bertelloni and
+        Berman databases): 1 active (default), 0 inactive. Solves the equilibrium conditions of the
         stable assemblage to machine precision, so that chemical potentials, phase fractions and
         compositions are consistent; the solver result is kept when the step does not converge.
 

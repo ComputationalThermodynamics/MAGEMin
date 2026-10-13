@@ -208,7 +208,7 @@ double obj_gh_liq(unsigned n, const double *x, double *grad, void *SS_ref_db){
     for (int i = 0; i < n_em; i++){
         double lg = rlog((p[i] + d->d_em[i]));
         Sconfig += p[i]*lg;
-        dSi[i]   = R*T*(lg+1.0);
+        dSi[i]   = R*T*(lg + ((d->d_em[i] == 0.0) ? 1.0 : p[i]/(p[i] + d->d_em[i])));
     }
     Sconfig *= R*T;
 
@@ -399,8 +399,8 @@ double obj_gh_ol(unsigned n, const double *x, double *grad, void *SS_ref_db){
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        double dS0 = 2.0*R*T*(rlog((p[0] + d->d_em[0]))+1.0);
-        double dS1 = 2.0*R*T*(rlog((p[1] + d->d_em[1]))+1.0);
+        double dS0 = 2.0*R*T*(rlog((p[0] + d->d_em[0])) + ((d->d_em[0] == 0.0) ? 1.0 : p[0]/(p[0] + d->d_em[0])));
+        double dS1 = 2.0*R*T*(rlog((p[1] + d->d_em[1])) + ((d->d_em[1] == 0.0) ? 1.0 : p[1]/(p[1] + d->d_em[1])));
         grad[0] = (dS0 + mu_Gex[0] + gb[0])*d->factor - (d->df_raw*d->factor*(d->ape[0]/d->sum_apep));
         grad[1] = (dS1 + mu_Gex[1] + gb[1])*d->factor - (d->df_raw*d->factor*(d->ape[1]/d->sum_apep));
     }
@@ -524,8 +524,8 @@ double obj_gh_bi(unsigned n, const double *x, double *grad, void *SS_ref_db){
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        double dS0 = R*T*(rlog((p[0] + d->d_em[0]))+1.0);
-        double dS1 = R*T*(rlog((p[1] + d->d_em[1]))+1.0);
+        double dS0 = R*T*(rlog((p[0] + d->d_em[0])) + ((d->d_em[0] == 0.0) ? 1.0 : p[0]/(p[0] + d->d_em[0])));
+        double dS1 = R*T*(rlog((p[1] + d->d_em[1])) + ((d->d_em[1] == 0.0) ? 1.0 : p[1]/(p[1] + d->d_em[1])));
         grad[0] = (dS0 + mu_Gex[0] + gb[0])*d->factor - (d->df_raw*d->factor*(d->ape[0]/d->sum_apep));
         grad[1] = (dS1 + mu_Gex[1] + gb[1])*d->factor - (d->df_raw*d->factor*(d->ape[1]/d->sum_apep));
     }
@@ -619,7 +619,7 @@ double obj_gh_fsp(unsigned n, const double *x, double *grad, void *SS_ref_db){
     for (int i = 0; i < 3; i++){
         double lg = rlog((p[i] + d->d_em[i]));
         Sconfig += p[i]*lg;
-        dSi[i]   = R*T*(lg+1.0);
+        dSi[i]   = R*T*(lg + ((d->d_em[i] == 0.0) ? 1.0 : p[i]/(p[i] + d->d_em[i])));
     }
     Sconfig *= R*T;
 
@@ -713,7 +713,7 @@ double obj_gh_g(unsigned n, const double *x, double *grad, void *SS_ref_db){
     for (int i = 0; i < 3; i++){
         double lg = rlog((p[i] + d->d_em[i]));
         Sconfig += p[i]*lg;
-        dSi[i]   = 3.0*R*T*(lg+1.0);
+        dSi[i]   = 3.0*R*T*(lg + ((d->d_em[i] == 0.0) ? 1.0 : p[i]/(p[i] + d->d_em[i])));
     }
     Sconfig *= 3.0*R*T;
 

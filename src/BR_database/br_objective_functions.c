@@ -81,8 +81,8 @@ static double obj_br_ideal_binary(unsigned n, const double *x, double *grad, voi
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        double dS0 = R*T*(rlog((p[0] + d->d_em[0]))+1.0);
-        double dS1 = R*T*(rlog((p[1] + d->d_em[1]))+1.0);
+        double dS0 = R*T*(rlog((p[0] + d->d_em[0])) + ((d->d_em[0] == 0.0) ? 1.0 : p[0]/(p[0] + d->d_em[0])));
+        double dS1 = R*T*(rlog((p[1] + d->d_em[1])) + ((d->d_em[1] == 0.0) ? 1.0 : p[1]/(p[1] + d->d_em[1])));
         grad[0] = (dS0 + mu_Gex[0] + gb[0])*d->factor - (d->df_raw*d->factor*(d->ape[0]/d->sum_apep));
         grad[1] = (dS1 + mu_Gex[1] + gb[1])*d->factor - (d->df_raw*d->factor*(d->ape[1]/d->sum_apep));
     }
@@ -364,8 +364,8 @@ static double obj_br_ideal_binary_mult(unsigned n, const double *x, double *grad
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        double dS0 = R*T*mult*(rlog((p[0] + d->d_em[0]))+1.0);
-        double dS1 = R*T*mult*(rlog((p[1] + d->d_em[1]))+1.0);
+        double dS0 = R*T*mult*(rlog((p[0] + d->d_em[0])) + ((d->d_em[0] == 0.0) ? 1.0 : p[0]/(p[0] + d->d_em[0])));
+        double dS1 = R*T*mult*(rlog((p[1] + d->d_em[1])) + ((d->d_em[1] == 0.0) ? 1.0 : p[1]/(p[1] + d->d_em[1])));
         grad[0] = (dS0 + mu_Gex[0] + gb[0])*d->factor - (d->df_raw*d->factor*(d->ape[0]/d->sum_apep));
         grad[1] = (dS1 + mu_Gex[1] + gb[1])*d->factor - (d->df_raw*d->factor*(d->ape[1]/d->sum_apep));
     }

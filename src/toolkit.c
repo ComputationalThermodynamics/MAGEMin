@@ -61,7 +61,7 @@ void print_help(	global_variable gv	){
 	printf("  --sys_in=     [str]   : inputed system composition, [mol](default) or [wt]\n");
 	printf("  --solver=     [int]   : solver: 0 for legacy and 1 for PGE (default)\n");
 	printf("  --ss_solver=  [int]   : solution phase local minimizer (legacy solver only): 0 NLopt (default), 1 nullspace with NLopt fallback, 2 both, keep lower df\n");
-	printf("  --final_Newton_step= [int] : Newton polish of the converged assemblage (TC/SB): 1 active (default), 0 inactive\n");
+	printf("  --final_Newton_step= [int] : Newton polish of the converged assemblage (TC/SB/BR): 1 active (default), 0 inactive\n");
 	printf("  --out_matlab= [int]   : Matlab text file output, 0. inactive, 1. active\n");
 	printf("  --buffer= 	[str]   : choose among O2, qfm, mw, qif, nno, hm, cco, aH2O, aO2, aMgO, aFeO, aAl2O3, aTiO2\n");
 	printf("  --buffer_n= 	[float] : multiplier with respect to qfm buffer\n");
