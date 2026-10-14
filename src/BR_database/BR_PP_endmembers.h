@@ -17,8 +17,10 @@
         double H;
         double S;
         double V;
-        double cp_berman[11];
+        double cp_berman[7];
         double eos_berman[4];
+        double landa[4];
+        double dis[10];
     } PP_db_br;
 
     #define BR_N_PP 88

@@ -138,6 +138,10 @@ double ns_x_of_sf(			global_variable 	 gv,
 		d->p[e]      = a;
 		d->ns_pt[e]  = a;
 	}
+	if (d->ns_p2x == NULL){
+		for (int j = 0; j < n_x; j++){ d->ns_x[j] = d->p[j]; }
+		return 0.0;
+	}
 	d->ns_p2x(d, gv.bnd_val);
 	for (int j = 0; j < n_x; j++){ d->ns_x[j] = d->iguess[j]; }
 
@@ -177,7 +181,8 @@ double ns_eval(				global_variable 	 gv,
 	if (grad != NULL && d->ns_fd == 1){ return ns_eval_fd(gv, d, sf, grad); }
 
 	ns_x_of_sf(gv, d, sf);
-	double G = d->ns_obj(n_x, d->ns_x, (grad != NULL && (d->ns_mode == 2 || d->ns_mode == 4)) ? d->ns_w : NULL, d);
+	int 	pgrad = (d->ns_mode == 2 || d->ns_mode == 4 || (d->ns_mode == 1 && d->ns_p2x == NULL));
+	double G = d->ns_obj(n_x, d->ns_x, (grad != NULL && pgrad) ? d->ns_w : NULL, d);
 	if (!(ns_p_residual(d) <= NS_RES_TOL)){ return NAN; }
 	if (d->ns_mode == 3){
 		for (int i = 0; i < n_sf; i++){ if (d->sf[i] < -1e-12){ return NAN; } }
@@ -194,8 +199,10 @@ double ns_eval(				global_variable 	 gv,
 		}
 	}
 	else if (grad != NULL){
-		double c = d->df_raw/d->sum_apep;
-		for (int e = 0; e < n_em; e++){ d->ns_w[e] = d->factor*(d->mu[e] - d->ape[e]*c); }
+		if (d->ns_p2x != NULL){
+			double c = d->df_raw/d->sum_apep;
+			for (int e = 0; e < n_em; e++){ d->ns_w[e] = d->factor*(d->mu[e] - d->ape[e]*c); }
+		}
 		for (int i = 0; i < n_sf; i++){
 			double a = 0.0;
 			for (int e = 0; e < n_em; e++){ a += d->ns_M[i][e]*d->ns_w[e]; }
@@ -1287,6 +1294,7 @@ static int ns_init_phase(	global_variable 	 gv,
 	double 	x[n_x];
 
 	if (n_x > 16 || n_em < 2 || n_sf < 1){ return 0; }
+	int 	n_d = (d->ns_p2x == NULL) ? n_em - 1 : n_x;
 
 	for (int j = 0; j < n_x; j++){
 		d->ns_bsave[2*j]     = d->bounds[j][0];
@@ -1300,9 +1308,12 @@ static int ns_init_phase(	global_variable 	 gv,
 	}
 
 	for (int q = 0; q < n_samp; q++){
+		double sx = 0.0;
 		for (int j = 0; j < n_x; j++){
 			x[j] = 0.1 + 0.8*fmod((double)(q + 1)*sqrt(primes[j]), 1.0);
+			sx  += x[j];
 		}
+		for (int j = 0; j < n_x && d->ns_p2x == NULL; j++){ x[j] /= sx; }
 		d->ns_obj(n_x, x, NULL, d);
 		for (int i = 0; i < n_sf; i++){ S[q*n_sf + i] = d->sf[i]; }
 		for (int e = 0; e < n_em; e++){ P[q*n_em + e] = d->p[e]; }
@@ -1407,12 +1418,12 @@ static int ns_init_phase(	global_variable 	 gv,
 		for (int i = 0; i < n_sf; i++){
 			for (int r = 0; r < m; r++){ d->ns_svdA[r + i*m] = d->ns_V[r + 1][i] - d->ns_V[0][i]; }
 		}
-		if (ns_svd(d, m, n_sf) != 0 || ns_rank(d, m, n_sf) != n_x){ ok = 0; }
+		if (ns_svd(d, m, n_sf) != 0 || ns_rank(d, m, n_sf) != n_d){ ok = 0; }
 		else{
 			for (int i = 0; i < n_sf; i++){
-				for (int k = 0; k < n_x; k++){ d->ns_N0[i][k] = d->ns_svdVt[k + i*n_sf]; }
+				for (int k = 0; k < n_d; k++){ d->ns_N0[i][k] = d->ns_svdVt[k + i*n_sf]; }
 			}
-			d->ns_n_dir0 = n_x;
+			d->ns_n_dir0 = n_d;
 		}
 	}
 
@@ -1528,11 +1539,27 @@ void SB_NS_init(			global_variable 	 gv,
 void BR_NS_init(			global_variable 	 gv,
 							SS_ref 				*SS_ref_db		){
 	obj_type 	SS_objective[gv.len_ss];
+	obj_type 	p_objective[gv.len_ss];
 
 	for (int iss = 0; iss < gv.len_ss; iss++){ SS_objective[iss] = NULL; }
 	BR_SS_objective_init_function(	SS_objective,
 									gv							);
+	for (int iss = 0; iss < gv.len_ss; iss++){
+		p_objective[iss] = BR_sf_constrained(gv.SS_list[iss]) ? NULL : SS_objective[iss];
+	}
 	ns_init_p_native(				gv,
 									SS_ref_db,
-									SS_objective				);
+									p_objective					);
+
+	for (int iss = 0; iss < gv.len_ss; iss++){
+		SS_ref *d = &SS_ref_db[iss];
+		if (!BR_sf_constrained(gv.SS_list[iss]) || SS_objective[iss] == NULL || d->n_em < 2 || d->n_sf < 1 || d->n_xeos != d->n_em){ continue; }
+
+		d->ns_obj     = SS_objective[iss];
+		d->ns_p2x     = NULL;
+		d->ns_mode    = 0;
+		d->ns_nc      = d->n_sf;
+		ns_alloc(gv, d);
+		d->ns_ok_init = 0;
+	}
 }

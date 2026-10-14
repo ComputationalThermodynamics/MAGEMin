@@ -1,6 +1,6 @@
 {
 "_header_": ["abbrev", "full_name", ["SiO2", "Al2O3", "CaO", "MgO", "FeO", "K2O", "Na2O", "TiO2", "O", "MnO", "Cr2O3", "H2O", "CO2", "S", "Fe"]],
-"_ambiguous_": ["aH2O", "aTiO2", "cats", "cfm", "fak", "hem", "jdmj", "ota", "pe", "pyr", "slL", "sp", "trov", "wu"],
+"_ambiguous_": ["aH2O", "aTiO2", "cats", "cfm", "fak", "jdmj", "ota", "pe", "pyr", "slL", "sp", "trov", "wu"],
 "Al(OH)3": ["Al(OH)3", "", [0, 0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.5, 0, 0, 0]],
 "Al(OH)4-": ["Al(OH)4-", "", [0, 0.5, 0, 0, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 0, 0]],
 "Al(OH)Si(OH)-": ["Al(OH)Si(OH)-", "", [1, 0.5, 0, 0, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 0, 0]],
@@ -149,6 +149,7 @@
 "atgo": ["atgo", "Antigorite ordered component", [2.125, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 1.9375, 0, 0, 0]],
 "b": ["b", "Ordering component B", [8, 0, 0, 2, 5, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]],
 "benzene": ["benzene", "", [0, 0, 0, 0, 0, 0, 0, 0, -15, 0, 0, 3, 6, 0, 0]],
+"bq": ["bq", "", [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
 "br": ["br", "Brucite", [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]],
 "buff": ["buff", "", [1, 0, 1, 0.5, 1, 0, 0, 0.5, 0.5, 0, 0, 0, 0, 0, 0]],
 "cacf": ["cacf", "Ca-Ca-ferrite component", [0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],

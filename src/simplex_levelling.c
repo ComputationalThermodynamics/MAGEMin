@@ -74,6 +74,7 @@ void update_dG(	simplex_data *splx_data
 	if (d->dG_B < d->dG_B_tol){	
 		d->min_F  =  d->min_F_tol;												/** max value for F, tentative here because F can tend to +inf */
 		for ( i = 0; i < d->n_Ox; i++){
+			if (!(d->B1[i] > 1e-10)){ continue; }
 			F = (d->n_vec[i])/d->B1[i];
 			if (F < d->min_F && F > minF){
 				d->min_F  = F;

@@ -21,11 +21,10 @@
 #define BR_Pr    1.0
 #define BR_kbar2bar 1000.0
 
-void BR_berman_HS( double T, double H0, double S0, const double cp[11],
+void BR_berman_HS( double T, double H0, double S0, const double cp[7],
                     double *H_out, double *S_out               ){
     double k0 = cp[0], k1 = cp[1], k2 = cp[2], k3 = cp[3];
     double k4 = cp[4], k5 = cp[5], k6 = cp[6];
-    double Tt = cp[7], deltaH = cp[8], l1 = cp[9], l2 = cp[10];
 
     double H = H0 + k0*(T-BR_Tr) + 2.0*k1*(sqrt(T)-sqrt(BR_Tr))
              - k2*(1.0/T - 1.0/BR_Tr) - 0.5*k3*(1.0/(T*T) - 1.0/(BR_Tr*BR_Tr))
@@ -36,25 +35,50 @@ void BR_berman_HS( double T, double H0, double S0, const double cp[11],
              - (1.0/3.0)*k3*(1.0/(T*T*T) - 1.0/(BR_Tr*BR_Tr*BR_Tr))
              - k4*(1.0/T - 1.0/BR_Tr) + k5*(T-BR_Tr) + 0.5*k6*(T*T-BR_Tr*BR_Tr);
 
-    if (Tt != 0.0){
-        if (T > Tt){
-            H += deltaH + 0.5*l1*l1*(Tt*Tt-BR_Tr*BR_Tr)
-               + (2.0/3.0)*l1*l2*(Tt*Tt*Tt-BR_Tr*BR_Tr*BR_Tr)
-               + 0.25*l2*l2*(Tt*Tt*Tt*Tt-BR_Tr*BR_Tr*BR_Tr*BR_Tr);
-            S += deltaH/Tt + l1*l1*(Tt-BR_Tr) + l1*l2*(Tt*Tt-BR_Tr*BR_Tr)
-               + (1.0/3.0)*l2*l2*(Tt*Tt*Tt-BR_Tr*BR_Tr*BR_Tr);
-        }
-        else{
-            H += 0.5*l1*l1*(T*T-BR_Tr*BR_Tr)
-               + (2.0/3.0)*l1*l2*(T*T*T-BR_Tr*BR_Tr*BR_Tr)
-               + 0.25*l2*l2*(T*T*T*T-BR_Tr*BR_Tr*BR_Tr*BR_Tr);
-            S += l1*l1*(T-BR_Tr) + l1*l2*(T*T-BR_Tr*BR_Tr)
-               + (1.0/3.0)*l2*l2*(T*T*T-BR_Tr*BR_Tr*BR_Tr);
-        }
-    }
-
     *H_out = H;
     *S_out = S;
+}
+
+double BR_landa_G(double T, double P, const double landa[4]){
+    double tq1b = landa[0], teq = landa[1], l1 = landa[2], l2 = landa[3];
+    if (tq1b == 0.0){
+        return 0.0;
+    }
+    double ctr = teq*(P - BR_Pr);
+    double tqp = tq1b + ctr;
+    double T2  = fmin(T, tqp);
+    double T1  = (fabs(l2) > 1e-20) ? -l1/l2 + ctr : T2;
+    if (T < T1){
+        return 0.0;
+    }
+    double A = -ctr*T1*T1;
+    double B = T1*(2.0*ctr + T1);
+    double C = -(ctr + 2.0*T1);
+    double dH = A*(T2-T1) + B*(T2*T2-T1*T1)/2.0 + C*(T2*T2*T2-T1*T1*T1)/3.0
+              + (T2*T2*T2*T2-T1*T1*T1*T1)/4.0;
+    double dS = A*log(T2/T1) + B*(T2-T1) + C*(T2*T2-T1*T1)/2.0
+              + (T2*T2*T2-T1*T1*T1)/3.0;
+    return (dH - T*dS)*l2*l2;
+}
+
+double BR_disorder_G(double T, double P, const double dis[10]){
+    double d1 = dis[0], d2 = dis[1], d3 = dis[2], d4 = dis[3], d5 = dis[4];
+    double d6 = dis[5], d8 = dis[6], td0 = dis[7], tdmax = dis[8], vadj = dis[9];
+    if (fabs(td0) <= 1e-20 || fabs(tdmax) <= 1e-20 || T <= td0){
+        return 0.0;
+    }
+    double td  = fmin(T, tdmax);
+    double dH  = d1*(td-td0) + d2*(td*td-td0*td0)/2.0
+               - d3*(1.0/td-1.0/td0) + 2.0*d4*(sqrt(td)-sqrt(td0))
+               + d5*(td*td*td-td0*td0*td0)/3.0 + d6*log(td/td0)
+               - d8*(1.0/(td*td)-1.0/(td0*td0))/2.0;
+    double dS  = d1*log(td/td0) + d2*(td-td0)
+               - d3*(1.0/(td*td)-1.0/(td0*td0))/2.0
+               - 2.0*d4*(1.0/sqrt(td)-1.0/sqrt(td0))
+               + d5*(td*td-td0*td0)/2.0 - d6*(1.0/td-1.0/td0)
+               - d8*(1.0/(td*td*td)-1.0/(td0*td0*td0))/3.0;
+    double vd  = (fabs(vadj) > 10.0) ? dH/(10.0*vadj) : 0.0;
+    return dH - T*dS + vd*(P - BR_Pr);
 }
 
 double BR_berman_EOS_dG(double T, double P, double V0, const double eos[4]){
@@ -404,7 +428,8 @@ PP_ref BR_G_EM_function(   int          EM_dataset,
         PP_db_br PP_return = Access_BR_PP_DB(pp_id);
         double H_T, S_T;
         BR_berman_HS(T, PP_return.H, PP_return.S, PP_return.cp_berman, &H_T, &S_T);
-        double gbase_J = (H_T - T*S_T) + BR_berman_EOS_dG(T, P, PP_return.V, PP_return.eos_berman);
+        double gbase_J = (H_T - T*S_T) + BR_berman_EOS_dG(T, P, PP_return.V, PP_return.eos_berman)
+                       + BR_landa_G(T, P, PP_return.landa) + BR_disorder_G(T, P, PP_return.dis);
         if (strcmp(name, "ab") == 0){
             gbase_J += BR_albite_Salje_G(T, P);
         }

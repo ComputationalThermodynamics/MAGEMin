@@ -263,8 +263,10 @@ mutable struct PP_db_br_
     H::Cdouble
     S::Cdouble
     V::Cdouble
-    cp_berman::NTuple{11, Cdouble}
+    cp_berman::NTuple{7, Cdouble}
     eos_berman::NTuple{4, Cdouble}
+    landa::NTuple{4, Cdouble}
+    dis::NTuple{10, Cdouble}
     PP_db_br_() = new()
 end
 
@@ -280,6 +282,14 @@ end
 
 function BR_berman_HS(T, H0, S0, cp, H_out, S_out)
     ccall((:BR_berman_HS, libMAGEMin), Cvoid, (Cdouble, Cdouble, Cdouble, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}), T, H0, S0, cp, H_out, S_out)
+end
+
+function BR_landa_G(T, P, landa)
+    ccall((:BR_landa_G, libMAGEMin), Cdouble, (Cdouble, Cdouble, Ptr{Cdouble}), T, P, landa)
+end
+
+function BR_disorder_G(T, P, dis)
+    ccall((:BR_disorder_G, libMAGEMin), Cdouble, (Cdouble, Cdouble, Ptr{Cdouble}), T, P, dis)
 end
 
 function BR_berman_EOS_dG(T, P, V0, eos)
@@ -3668,6 +3678,10 @@ end
 
 function obj_br_fsp(n, x, grad, SS_ref_db)
     ccall((:obj_br_fsp, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function BR_sf_constrained(name)
+    ccall((:BR_sf_constrained, libMAGEMin), Cint, (Ptr{Cchar},), name)
 end
 
 function BR_SS_objective_init_function(SS_objective, gv)
