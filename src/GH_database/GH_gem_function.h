@@ -15,6 +15,8 @@
 
 
 
+double GH_anorthite_adjustment_G(double T);
+
 PP_ref GH_G_EM_function(   int          EM_database,
                             int          len_ox,
                             int         *id,

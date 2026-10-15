@@ -393,6 +393,24 @@ void swap_pure_endmembers(				bulk_info 	 		 z_b,
 /**
   function to swp solution phase pseudocompounds
 */
+static void splx_gamma(simplex_data *d, double *gam){
+	for (int j = 0; j < d->n_Ox; j++){
+		gam[j] = 0.0;
+		for (int i = 0; i < d->n_Ox; i++){ gam[j] += d->A1[j + i*d->n_Ox]*d->g0_A[i]; }
+	}
+}
+
+static int splx_prefilter(simplex_data *d, const double *gam){
+	double dG = d->g0_B;
+	for (int j = 0; j < d->n_Ox; j++){ dG -= d->B[j]*gam[j]; }
+	if (dG > d->dG_B_tol + 1.0e-9*(1.0 + fabs(d->g0_B))){
+		d->dG_B   = dG;
+		d->ph2swp = -1;
+		return 1;
+	}
+	return 0;
+}
+
 void swap_pseudocompounds(				bulk_info 	 		 z_b,
 										simplex_data 		*splx_data,
 										global_variable 	 gv,
@@ -404,6 +422,8 @@ void swap_pseudocompounds(				bulk_info 	 		 z_b,
 
 	int     i,j,k,l, max_n_pc;
 	
+	double gam[d->n_Ox];
+	splx_gamma(d, gam);
 	for ( i = 0; i < gv.len_ss; i++){										/**loop to pass informations from active endmembers */
 		if (SS_ref_db[i].ss_flags[0] == 1){
 
@@ -422,7 +442,7 @@ void swap_pseudocompounds(				bulk_info 	 		 z_b,
 				}
 
 				/** update deltaG with respect to G hyperplane */
-				update_dG(splx_data);
+				if (!splx_prefilter(d, gam)){ update_dG(splx_data); }
 				
 				/** save updated driving force */
 				SS_ref_db[i].DF_pc[l] = d->dG_B;
@@ -457,6 +477,7 @@ void swap_pseudocompounds(				bulk_info 	 		 z_b,
 									z_b.bulk_rock_cat,
 									d->n_vec,
 									d->n_Ox		);
+					splx_gamma(d, gam);
 				}
 			}
 		}
@@ -477,6 +498,8 @@ void swap_PGE_pseudocompounds(			bulk_info 	 		 z_b,
 
 	int     k, max_n_Ppc;
 	
+	double gam[d->n_Ox];
+	splx_gamma(d, gam);
 	for (int i = 0; i < gv.len_ss; i++){										/**loop to pass informations from active endmembers */
 		if (SS_ref_db[i].ss_flags[0] == 1){
 
@@ -495,7 +518,7 @@ void swap_PGE_pseudocompounds(			bulk_info 	 		 z_b,
 				}
 
 				/** update deltaG with respect to G hyperplane */
-				update_dG(splx_data);
+				if (!splx_prefilter(d, gam)){ update_dG(splx_data); }
 				
 				/** save updated driving force */
 				SS_ref_db[i].DF_Ppc[l] = d->dG_B;
@@ -531,6 +554,7 @@ void swap_PGE_pseudocompounds(			bulk_info 	 		 z_b,
 									z_b.bulk_rock_cat,
 									d->n_vec,
 									d->n_Ox		);
+					splx_gamma(d, gam);
 				}
 			}
 		}
@@ -646,7 +670,7 @@ void generate_pseudocompounds(	int 		 		 ss,
 
 	int rg_br_gh = (strcmp(gv.research_group, "br") == 0 || strcmp(gv.research_group, "gh") == 0);
 	int rg_sb    = (strcmp(gv.research_group, "sb") == 0);
-	int ns_pc    = (strcmp(gv.research_group, "tc") == 0 || strcmp(gv.research_group, "sb") == 0 || strcmp(gv.research_group, "br") == 0) ? ns_pc_mode(gv, &SS_ref_db[ss]) : 0;
+	int ns_pc    = (strcmp(gv.research_group, "tc") == 0 || strcmp(gv.research_group, "sb") == 0 || strcmp(gv.research_group, "br") == 0 || strcmp(gv.research_group, "gh") == 0) ? ns_pc_mode(gv, &SS_ref_db[ss]) : 0;
 
 	if (ns_pc == 2){ return; }
 	int rg_gh    = (strcmp(gv.research_group, "gh") == 0);

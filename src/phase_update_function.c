@@ -63,6 +63,7 @@ NOTES:
 #include "ss_min_function.h"
 #include "gem_function.h"
 #include "all_solution_phases.h"
+#include "GH_database/gh_objective_functions.h"
 #include "toolkit.h"
 
 /**
@@ -456,6 +457,101 @@ global_variable check_PC(					bulk_info 	 		 z_b,
 
 			}
 			
+		}
+	}
+
+	if (strcmp(gv.research_group, "gh") == 0){
+		for (i = 0; i < gv.len_ss; i++){
+			if (!GH_sf_constrained(gv.SS_list[i]) || SS_ref_db[i].ss_flags[0] != 1 || gv.verifyPC[i] != 1){ continue; }
+			int n_x = SS_ref_db[i].n_xeos;
+			for (int e = 0; e < 2; e++){
+				int    best    = -1;
+				double best_df = gv.PC_df_add;
+				for (l = 0; l < SS_ref_db[i].tot_pc[0]; l++){
+					double df = SS_ref_db[i].G_pc[l];
+					for (j = 0; j < gv.len_ox; j++){ df -= SS_ref_db[i].comp_pc[l][j]*gv.gam_tot[j]; }
+					if (df >= best_df){ continue; }
+					int near = 0;
+					for (c = 0; c < gv.len_cp && !near; c++){
+						if (cp[c].id == i && euclidean_distance(cp[c].xeos, SS_ref_db[i].xeos_pc[l], n_x) < 0.5){ near = 1; }
+					}
+					if (!near){ best_df = df; best = l; }
+				}
+				if (best < 0 || gv.len_cp >= gv.max_n_cp){ break; }
+
+				gv.len_cp				   += 1;
+				id_cp 		 				= gv.len_cp-1;
+				strcpy(cp[id_cp].name,gv.SS_list[i]);
+				cp[id_cp].in_iter			= gv.global_ite;
+				cp[id_cp].ss_flags[0] 		= 1;
+				cp[id_cp].ss_flags[1] 		= 0;
+				cp[id_cp].ss_flags[2] 		= 1;
+				cp[id_cp].split 			= 0;
+				cp[id_cp].id 				= i;
+				cp[id_cp].n_xeos			= n_x;
+				cp[id_cp].n_em				= SS_ref_db[i].n_em;
+				cp[id_cp].n_sf				= SS_ref_db[i].n_sf;
+				for (k = 0; k < n_x; k++){
+					cp[id_cp].dguess[k]     = SS_ref_db[i].xeos_pc[best][k];
+					cp[id_cp].xeos[k]       = SS_ref_db[i].xeos_pc[best][k];
+					cp[id_cp].mu[k]    		= 0.0;
+				}
+				gv.n_solvi[i] 	       	   += 1;
+
+				if (gv.verbose == 1){
+					printf("  - %4s %5d, DF: %+10f added [PC DF check, distant seed]",gv.SS_list[i],best,best_df);
+					for (k = 0; k < n_x; k++){ printf(" %+8f",cp[id_cp].dguess[k]); }
+					printf("\n");
+				}
+			}
+		}
+		for (i = 0; i < gv.len_ss; i++){
+			if (strcmp(gv.SS_list[i], "liq") != 0 || SS_ref_db[i].ss_flags[0] != 1 || gv.verifyPC[i] != 1){ continue; }
+			int    n_x = SS_ref_db[i].n_xeos;
+			double thr = gv.PC_min_dist*gv.SS_PC_stp[i]*sqrt((double)n_x);
+			for (int e = 0; e < n_x; e++){
+				int    best    = -1;
+				double best_df = gv.PC_df_add;
+				for (l = 0; l < SS_ref_db[i].tot_pc[0]; l++){
+					int am = 0;
+					for (k = 1; k < n_x; k++){ if (SS_ref_db[i].xeos_pc[l][k] > SS_ref_db[i].xeos_pc[l][am]){ am = k; } }
+					if (am != e){ continue; }
+					double df = SS_ref_db[i].G_pc[l];
+					for (j = 0; j < gv.len_ox; j++){ df -= SS_ref_db[i].comp_pc[l][j]*gv.gam_tot[j]; }
+					if (df < best_df){ best_df = df; best = l; }
+				}
+				if (best < 0 || gv.len_cp >= gv.max_n_cp){ continue; }
+				int near = 0;
+				for (c = 0; c < gv.len_cp; c++){
+					if (cp[c].id == i && euclidean_distance(cp[c].xeos, SS_ref_db[i].xeos_pc[best], n_x) < thr){ near = 1; }
+				}
+				if (near){ continue; }
+
+				gv.len_cp				   += 1;
+				id_cp 		 				= gv.len_cp-1;
+				strcpy(cp[id_cp].name,gv.SS_list[i]);
+				cp[id_cp].in_iter			= gv.global_ite;
+				cp[id_cp].ss_flags[0] 		= 1;
+				cp[id_cp].ss_flags[1] 		= 0;
+				cp[id_cp].ss_flags[2] 		= 1;
+				cp[id_cp].split 			= 0;
+				cp[id_cp].id 				= i;
+				cp[id_cp].n_xeos			= n_x;
+				cp[id_cp].n_em				= SS_ref_db[i].n_em;
+				cp[id_cp].n_sf				= SS_ref_db[i].n_sf;
+				for (k = 0; k < n_x; k++){
+					cp[id_cp].dguess[k]     = SS_ref_db[i].xeos_pc[best][k];
+					cp[id_cp].xeos[k]       = SS_ref_db[i].xeos_pc[best][k];
+					cp[id_cp].mu[k]    		= 0.0;
+				}
+				gv.n_solvi[i] 	       	   += 1;
+
+				if (gv.verbose == 1){
+					printf("  - %4s %5d, DF: %+10f added [PC DF check, liq region %d]",gv.SS_list[i],best,best_df,e);
+					for (k = 0; k < n_x; k++){ printf(" %+8f",cp[id_cp].dguess[k]); }
+					printf("\n");
+				}
+			}
 		}
 	}
 

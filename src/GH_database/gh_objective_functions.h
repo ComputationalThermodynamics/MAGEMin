@@ -29,6 +29,11 @@ double obj_gh_fluid(unsigned n, const double *x, double *grad, void *SS_ref_db);
 double obj_gh_rhm(unsigned n, const double *x, double *grad, void *SS_ref_db);
 double obj_gh_nph(unsigned n, const double *x, double *grad, void *SS_ref_db);
 double obj_gh_kls(unsigned n, const double *x, double *grad, void *SS_ref_db);
+double obj_gh_oox(unsigned n, const double *x, double *grad, void *SS_ref_db);
+double obj_gh_amp(unsigned n, const double *x, double *grad, void *SS_ref_db);
+int GH_sf_constrained(const char *name);
+int GH_n_sf(const char *name, int n_em);
+void GH_sf_of_p(const char *name, const double *p, double *sf);
 
 void GH_SS_objective_init_function(    obj_type            *SS_objective,
                                         global_variable      gv                  );
@@ -42,10 +47,6 @@ SS_ref GH_PC_function(     global_variable      gv,
                             bulk_info            z_b,
                             int                  ph_id                  );
 
-/** same typedef as TC_database/objective_functions.h's P2X_type - redeclared
-    locally here the same way each research group redeclares its own
-    (structurally identical) NLopt_type, since gh is compiled as its own
-    translation unit and doesn't otherwise pull in TC's header */
 typedef void (*P2X_type) (				void 				*SS_ref_db,
 										double 				 eps				);
 

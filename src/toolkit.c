@@ -61,7 +61,7 @@ void print_help(	global_variable gv	){
 	printf("  --sys_in=     [str]   : inputed system composition, [mol](default) or [wt]\n");
 	printf("  --solver=     [int]   : solver: 0 for legacy and 1 for PGE (default)\n");
 	printf("  --ss_solver=  [int]   : solution phase local minimizer (legacy solver only): 0 NLopt (default), 1 nullspace with NLopt fallback, 2 both, keep lower df\n");
-	printf("  --final_Newton_step= [int] : Newton polish of the converged assemblage (TC/SB/BR): 1 active (default), 0 inactive\n");
+	printf("  --final_Newton_step= [int] : Newton polish of the converged assemblage (TC/SB/BR/GH): 1 active (default), 0 inactive\n");
 	printf("  --out_matlab= [int]   : Matlab text file output, 0. inactive, 1. active\n");
 	printf("  --buffer= 	[str]   : choose among O2, qfm, mw, qif, nno, hm, cco, aH2O, aO2, aMgO, aFeO, aAl2O3, aTiO2\n");
 	printf("  --buffer_n= 	[float] : multiplier with respect to qfm buffer\n");
@@ -380,7 +380,7 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 	/** here we check if the normalized mol fraction is < 1e-4 for core oxides */
 	/** if it is, then the fraction is set to 1e-4 -> this is a current limitation of system component reduction */
 	int renorm = 0;
-	int ns_red = (strcmp(gv.research_group, "tc") == 0 && gv.ss_solver > 0 && gv.solver == 0);
+	int ns_red = ((strcmp(gv.research_group, "tc") == 0 || strcmp(gv.research_group, "gh") == 0) && gv.ss_solver > 0 && gv.solver == 0);
 	for (int i = 0; i < gv.len_ox; i++){
 		if (gv.bulk_rock[i] < 1.0e-4 && !(ns_red && gv.bulk_rock[i] == 0.0) && is_core_oxide(gv.research_group, gv.EM_database, gv.ox[i]) == 1){
 			gv.bulk_rock[i] = 1.0e-4;
@@ -2207,6 +2207,9 @@ global_variable compute_activities(			int					 EM_database,
 										"equilibrium"				);
 
 		double gO_qfm   	=  -3.0 * fa.gbase + 3.0*q.gbase + 2.0*mt.gbase;
+		if (strcmp(gv.research_group, "gh") == 0){
+			gO_qfm 			=  G0_O + 0.0083143*z_b.T*log(10.0)*(-24441.9/z_b.T + 0.110*(z_b.P*1000.0-1.0)/z_b.T + 8.290);
+		}
 		gv.system_deltaQFM 	= exp( (gv.gam_tot[O_ix]*2.0 - gO_qfm) / (z_b.R*z_b.T));
 
 		// double  QFM  =  42.14743 - 27792.8/z_b.T + 104.59*z_b.P/z_b.T - 4.7113*log(z_b.T) + 0.00180*z_b.T;

@@ -253,6 +253,10 @@ function GH_find_PP_id(name)
     ccall((:GH_find_PP_id, libMAGEMin), Cint, (Ptr{Cchar},), name)
 end
 
+function GH_anorthite_adjustment_G(T)
+    ccall((:GH_anorthite_adjustment_G, libMAGEMin), Cdouble, (Cdouble,), T)
+end
+
 function GH_G_EM_function(EM_database, len_ox, id, bulk_rock, apo, P, T, name, state)
     ccall((:GH_G_EM_function, libMAGEMin), PP_ref, (Cint, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), EM_database, len_ox, id, bulk_rock, apo, P, T, name, state)
 end
@@ -2088,11 +2092,11 @@ mutable struct gh_datasets
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{13, NTuple{20, Cchar}}
-    PP::NTuple{25, NTuple{20, Cchar}}
-    SS::NTuple{16, NTuple{20, Cchar}}
-    verifyPC::NTuple{16, Cint}
-    n_SS_PC::NTuple{16, Cint}
-    SS_PC_stp::NTuple{16, Cdouble}
+    PP::NTuple{29, NTuple{20, Cchar}}
+    SS::NTuple{18, NTuple{20, Cchar}}
+    verifyPC::NTuple{18, Cint}
+    n_SS_PC::NTuple{18, Cint}
+    SS_PC_stp::NTuple{18, Cdouble}
     PC_df_add::Cdouble
     solver_switch_T::Cdouble
     min_melt_T::Cdouble
@@ -3052,6 +3056,10 @@ function BR_NS_init(gv, SS_ref_db)
     ccall((:BR_NS_init, libMAGEMin), Cvoid, (global_variable, Ptr{SS_ref}), gv, SS_ref_db)
 end
 
+function GH_NS_init(gv, SS_ref_db)
+    ccall((:GH_NS_init, libMAGEMin), Cvoid, (global_variable, Ptr{SS_ref}), gv, SS_ref_db)
+end
+
 function NS_free(SS_ref_db)
     ccall((:NS_free, libMAGEMin), Cvoid, (Ptr{SS_ref},), SS_ref_db)
 end
@@ -3426,6 +3434,26 @@ end
 
 function obj_gh_kls(n, x, grad, SS_ref_db)
     ccall((:obj_gh_kls, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_gh_oox(n, x, grad, SS_ref_db)
+    ccall((:obj_gh_oox, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_gh_amp(n, x, grad, SS_ref_db)
+    ccall((:obj_gh_amp, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function GH_sf_constrained(name)
+    ccall((:GH_sf_constrained, libMAGEMin), Cint, (Ptr{Cchar},), name)
+end
+
+function GH_n_sf(name, n_em)
+    ccall((:GH_n_sf, libMAGEMin), Cint, (Ptr{Cchar}, Cint), name, n_em)
+end
+
+function GH_sf_of_p(name, p, sf)
+    ccall((:GH_sf_of_p, libMAGEMin), Cvoid, (Ptr{Cchar}, Ptr{Cdouble}, Ptr{Cdouble}), name, p, sf)
 end
 
 function GH_SS_objective_init_function(SS_objective, gv)
@@ -4293,7 +4321,7 @@ function compute_density_volume_modulus(EM_database, z_b, gv, PP_ref_db, SS_ref_
     ccall((:compute_density_volume_modulus, libMAGEMin), global_variable, (Cint, bulk_info, global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), EM_database, z_b, gv, PP_ref_db, SS_ref_db, cp)
 end
 
-const GH_N_PP = 64
+const GH_N_PP = 76
 
 const BR_N_PP = 88
 

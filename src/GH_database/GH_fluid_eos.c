@@ -33,6 +33,7 @@
     unabridged port - not a re-derivation.
 */
 #include <math.h>
+#include <stdlib.h>
 #include <float.h>
 
 #include "GH_fluid_eos.h"
@@ -728,6 +729,31 @@ static const double GH_idealCoeff_CO2[13] = {
     -0.000019222165
 };
 
+static double GH_dz_z(double v, double bv, double cv, double dv, double ev, double fv, double beta, double gammav){
+    return 1.0 + bv/v + cv/v/v + dv/v/v/v/v + ev/v/v/v/v/v + (fv/v/v) * (beta + gammav/v/v) * exp(-gammav/v/v);
+}
+
+static double GH_dz_v_fallback(double rt, double p, double bv, double cv, double dv, double ev, double fv, double beta, double gammav){
+    double hi = 1000.0*rt/p, lo = hi;
+    double fhi = GH_dz_z(hi, bv, cv, dv, ev, fv, beta, gammav)*rt/p - hi;
+    for (int k = 0; k < 4000 && fhi < 0.0; k++){
+        lo = 0.98*hi;
+        double flo = GH_dz_z(lo, bv, cv, dv, ev, fv, beta, gammav)*rt/p - lo;
+        if (flo > 0.0){ break; }
+        hi = lo; fhi = flo;
+    }
+    for (int k = 0; k < 200 && hi - lo > 4.0*DBL_EPSILON*hi; k++){
+        double mid = 0.5*(lo + hi);
+        double fm  = GH_dz_z(mid, bv, cv, dv, ev, fv, beta, gammav)*rt/p - mid;
+        if (fm > 0.0){ lo = mid; } else { hi = mid; }
+    }
+    return 0.5*(lo + hi);
+}
+
+static int GH_dz_v_bad(double v, double z, double rt, double p){
+    return !(v > 0.0) || !isfinite(z) || !(fabs(z*rt/p - v) <= 1.0e-9*v);
+}
+
 double GH_duan_CO2_G(double t){
     const double R_duan = 8.314467;
     const double p = 1.0; /* fixed reference pressure - matches propertiesOfPureCO2(t, 1.0, ...) call site in real gibbs.c */
@@ -780,6 +806,11 @@ double GH_duan_CO2_G(double t){
             if ( (fabs(dx) < 100.0*DBL_EPSILON) || (delv == 0.0) ) break;
             iter++;
         }
+    }
+
+    if (GH_dz_v_bad(v, z, R_duan*t, p)){
+        v = GH_dz_v_fallback(R_duan*t, p, bv, cv, dv, ev, fv, beta, gammav);
+        z = GH_dz_z(v, bv, cv, dv, ev, fv, beta, gammav);
     }
 
     double lnPhiCO2 = 0.0;
@@ -1127,6 +1158,11 @@ static void GH_dz_phi_driver(int useLowPcoeff, double t, double p, const double 
                 iter++;
             }
         }
+    }
+
+    if (GH_dz_v_bad(v, z, 8.314467*t, p)){
+        v = GH_dz_v_fallback(8.314467*t, p, bv, cv, dv, ev, fv, beta, gammav);
+        z = GH_dz_z(v, bv, cv, dv, ev, fv, beta, gammav);
     }
 
     *lnPhiH2O  = 0.0;

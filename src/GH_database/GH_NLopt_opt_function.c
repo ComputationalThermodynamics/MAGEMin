@@ -77,7 +77,30 @@ SS_ref NLopt_opt_gh_liq_function(global_variable gv, SS_ref SS_ref_db){
     "n = n_em = n_xeos, box bounds, single Sigma(x)=1 equality constraint"
     formulation.
 */
+typedef struct gh_sf_lin_ {
+    double  sf0[32];
+    double  J[32*16];
+} gh_sf_lin;
+
+static void gh_sf_constraint(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+    gh_sf_lin *L = (gh_sf_lin *) data;
+    for (unsigned i = 0; i < m; i++){
+        double r = L->sf0[i];
+        for (unsigned k = 0; k < n; k++){ r += L->J[i*n + k]*x[k]; }
+        result[i] = -r;
+        if (grad){
+            for (unsigned k = 0; k < n; k++){ grad[i*n + k] = -L->J[i*n + k]; }
+        }
+    }
+}
+
+static SS_ref GH_generic_NLopt_opt_function_sf(global_variable gv, SS_ref SS_ref_db, double (*obj)(unsigned, const double*, double*, void*), const char *sf_name);
+
 static SS_ref GH_generic_NLopt_opt_function(global_variable gv, SS_ref SS_ref_db, double (*obj)(unsigned, const double*, double*, void*)){
+    return GH_generic_NLopt_opt_function_sf(gv, SS_ref_db, obj, NULL);
+}
+
+static SS_ref GH_generic_NLopt_opt_function_sf(global_variable gv, SS_ref SS_ref_db, double (*obj)(unsigned, const double*, double*, void*), const char *sf_name){
     unsigned int n_em = SS_ref_db.n_em;
     double *x = SS_ref_db.iguess;
 
@@ -91,6 +114,18 @@ static SS_ref GH_generic_NLopt_opt_function(global_variable gv, SS_ref SS_ref_db
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj, &SS_ref_db);
     nlopt_add_equality_constraint(SS_ref_db.opt, gh_equality_constraint, NULL, 1e-5);
+    gh_sf_lin L;
+    if (sf_name != NULL){
+        int ns = SS_ref_db.n_sf;
+        double e[16], sfv[32], tol[32];
+        for (int k = 0; k < (int)n_em; k++){
+            for (int j = 0; j < (int)n_em; j++){ e[j] = (j == k) ? 1.0 : 0.0; }
+            GH_sf_of_p(sf_name, e, sfv);
+            for (int i = 0; i < ns; i++){ L.J[i*n_em + k] = sfv[i]; }
+        }
+        for (int i = 0; i < ns; i++){ L.sf0[i] = 0.0; tol[i] = 0.0; }
+        nlopt_add_inequality_mconstraint(SS_ref_db.opt, ns, gh_sf_constraint, &L, tol);
+    }
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
 
@@ -113,7 +148,7 @@ static SS_ref GH_generic_NLopt_opt_function(global_variable gv, SS_ref SS_ref_db
 }
 
 SS_ref NLopt_opt_gh_ol_function(global_variable gv, SS_ref SS_ref_db){
-    return GH_generic_NLopt_opt_function(gv, SS_ref_db, obj_gh_ol);
+    return GH_generic_NLopt_opt_function_sf(gv, SS_ref_db, obj_gh_ol, "ol");
 }
 SS_ref NLopt_opt_gh_fsp_function(global_variable gv, SS_ref SS_ref_db){
     return GH_generic_NLopt_opt_function(gv, SS_ref_db, obj_gh_fsp);
@@ -125,10 +160,10 @@ SS_ref NLopt_opt_gh_g_function(global_variable gv, SS_ref SS_ref_db){
     return GH_generic_NLopt_opt_function(gv, SS_ref_db, obj_gh_g);
 }
 SS_ref NLopt_opt_gh_hb_function(global_variable gv, SS_ref SS_ref_db){
-    return GH_generic_NLopt_opt_function(gv, SS_ref_db, obj_gh_hb);
+    return GH_generic_NLopt_opt_function_sf(gv, SS_ref_db, obj_gh_hb, "hb");
 }
 SS_ref NLopt_opt_gh_lc_function(global_variable gv, SS_ref SS_ref_db){
-    return GH_generic_NLopt_opt_function(gv, SS_ref_db, obj_gh_lc);
+    return GH_generic_NLopt_opt_function_sf(gv, SS_ref_db, obj_gh_lc, "lc");
 }
 SS_ref NLopt_opt_gh_mel_function(global_variable gv, SS_ref SS_ref_db){
     return GH_generic_NLopt_opt_function(gv, SS_ref_db, obj_gh_mel);
@@ -137,13 +172,13 @@ SS_ref NLopt_opt_gh_cum_function(global_variable gv, SS_ref SS_ref_db){
     return GH_generic_NLopt_opt_function(gv, SS_ref_db, obj_gh_cum);
 }
 SS_ref NLopt_opt_gh_spn_function(global_variable gv, SS_ref SS_ref_db){
-    return GH_generic_NLopt_opt_function(gv, SS_ref_db, obj_gh_spn);
+    return GH_generic_NLopt_opt_function_sf(gv, SS_ref_db, obj_gh_spn, "spn");
 }
 SS_ref NLopt_opt_gh_cpx_function(global_variable gv, SS_ref SS_ref_db){
-    return GH_generic_NLopt_opt_function(gv, SS_ref_db, obj_gh_cpx);
+    return GH_generic_NLopt_opt_function_sf(gv, SS_ref_db, obj_gh_cpx, "cpx");
 }
 SS_ref NLopt_opt_gh_opx_function(global_variable gv, SS_ref SS_ref_db){
-    return GH_generic_NLopt_opt_function(gv, SS_ref_db, obj_gh_opx);
+    return GH_generic_NLopt_opt_function_sf(gv, SS_ref_db, obj_gh_opx, "opx");
 }
 SS_ref NLopt_opt_gh_fluid_function(global_variable gv, SS_ref SS_ref_db){
     return GH_generic_NLopt_opt_function(gv, SS_ref_db, obj_gh_fluid);
@@ -152,10 +187,16 @@ SS_ref NLopt_opt_gh_rhm_function(global_variable gv, SS_ref SS_ref_db){
     return GH_generic_NLopt_opt_function(gv, SS_ref_db, obj_gh_rhm);
 }
 SS_ref NLopt_opt_gh_nph_function(global_variable gv, SS_ref SS_ref_db){
-    return GH_generic_NLopt_opt_function(gv, SS_ref_db, obj_gh_nph);
+    return GH_generic_NLopt_opt_function_sf(gv, SS_ref_db, obj_gh_nph, "nph");
 }
 SS_ref NLopt_opt_gh_kls_function(global_variable gv, SS_ref SS_ref_db){
-    return GH_generic_NLopt_opt_function(gv, SS_ref_db, obj_gh_kls);
+    return GH_generic_NLopt_opt_function_sf(gv, SS_ref_db, obj_gh_kls, "kls");
+}
+SS_ref NLopt_opt_gh_oox_function(global_variable gv, SS_ref SS_ref_db){
+    return GH_generic_NLopt_opt_function(gv, SS_ref_db, obj_gh_oox);
+}
+SS_ref NLopt_opt_gh_amp_function(global_variable gv, SS_ref SS_ref_db){
+    return GH_generic_NLopt_opt_function_sf(gv, SS_ref_db, obj_gh_amp, "amp");
 }
 
 void GH_NLopt_opt_init(             NLopt_type          *NLopt_opt,
@@ -208,6 +249,12 @@ void GH_NLopt_opt_init(             NLopt_type          *NLopt_opt,
         }
         else if (strcmp( gv.SS_list[iss], "kls") == 0 ){
             NLopt_opt[iss] = NLopt_opt_gh_kls_function;
+        }
+        else if (strcmp( gv.SS_list[iss], "oox") == 0 ){
+            NLopt_opt[iss] = NLopt_opt_gh_oox_function;
+        }
+        else if (strcmp( gv.SS_list[iss], "amp") == 0 ){
+            NLopt_opt[iss] = NLopt_opt_gh_amp_function;
         }
     }
 }

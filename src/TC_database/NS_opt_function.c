@@ -27,6 +27,7 @@
 #include "NS_opt_function.h"
 #include "../SB_database/sb_objective_functions.h"
 #include "../BR_database/br_objective_functions.h"
+#include "../GH_database/gh_objective_functions.h"
 
 #define NS_N_SAMP_ADD 		4
 #define NS_RES_TOL 			1e-9
@@ -1269,9 +1270,20 @@ static int ns_init_phase_p(	global_variable 	 gv,
 		for (int i = 0; i < nc; i++){ d->ns_S[q*nc + i] /= se; }
 	}
 	if (ok){
+		double dem[n_em], oxp[n_em];
+		for (int e = 0; e < n_em; e++){
+			dem[e]           = d->d_em[e];
+			oxp[e]           = d->ox_penalty[e];
+			d->d_em[e]       = 0.0;
+			d->ox_penalty[e] = 0.0;
+		}
 		d->ns_fd = 0;
 		d->ns_absent = 0;
 		if (!ns_check_gradient(gv, d)){ d->ns_fd = 1; }
+		for (int e = 0; e < n_em; e++){
+			d->d_em[e]       = dem[e];
+			d->ox_penalty[e] = oxp[e];
+		}
 		for (int i = 0; i < nc; i++){ d->ns_ub[i] = 1.0; }
 	}
 	for (int e = 0; e < n_em; e++){ d->gb_lvl[e] = d->ns_gb[e]; }
@@ -1534,6 +1546,34 @@ void SB_NS_init(			global_variable 	 gv,
 	ns_init_p_native(				gv,
 									SS_ref_db,
 									SS_objective				);
+}
+
+void GH_NS_init(			global_variable 	 gv,
+							SS_ref 				*SS_ref_db		){
+	obj_type 	SS_objective[gv.len_ss];
+	obj_type 	p_objective[gv.len_ss];
+
+	for (int iss = 0; iss < gv.len_ss; iss++){ SS_objective[iss] = NULL; }
+	GH_SS_objective_init_function(	SS_objective,
+									gv							);
+	for (int iss = 0; iss < gv.len_ss; iss++){
+		p_objective[iss] = GH_sf_constrained(gv.SS_list[iss]) ? NULL : SS_objective[iss];
+	}
+	ns_init_p_native(				gv,
+									SS_ref_db,
+									p_objective					);
+
+	for (int iss = 0; iss < gv.len_ss; iss++){
+		SS_ref *d = &SS_ref_db[iss];
+		if (!GH_sf_constrained(gv.SS_list[iss]) || SS_objective[iss] == NULL || d->n_em < 2 || d->n_sf < 1 || d->n_xeos != d->n_em){ continue; }
+
+		d->ns_obj     = SS_objective[iss];
+		d->ns_p2x     = NULL;
+		d->ns_mode    = 0;
+		d->ns_nc      = d->n_sf;
+		ns_alloc(gv, d);
+		d->ns_ok_init = 0;
+	}
 }
 
 void BR_NS_init(			global_variable 	 gv,

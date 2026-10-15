@@ -116,7 +116,7 @@ int MAGEMin_SetSSSolver(		MAGEMin_Handle *h,
 
 /**
  * Newton polish of the converged assemblage (CLI --final_Newton_step): 1 = active
- * (default), 0 = inactive. Applies to the "tc" and "sb" research groups.
+ * (default), 0 = inactive. Applies to the "tc", "sb", "br" and "gh" research groups.
  *
  * Returns 0 on success, 1 if the request has no effect for the database's
  * research group, -1 on an invalid value.

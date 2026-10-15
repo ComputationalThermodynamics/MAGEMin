@@ -1965,6 +1965,11 @@ global_variable final_Newton(		bulk_info 	 		 z_b,
 		double  x[d->n_xeos], r[nc], z[k0 > 0 ? k0 : 1];
 
 		for (int j = 0; j < d->n_xeos; j++){ x[j] = cp[ph_cp[q]].xeos[j]; }
+		if (d->ns_mode == 1 && d->ns_p2x == NULL){
+			double sx = 0.0;
+			for (int j = 0; j < d->n_xeos; j++){ sx += x[j]; }
+			if (sx > 0.0){ for (int j = 0; j < d->n_xeos; j++){ x[j] /= sx; } }
+		}
 		d->ns_obj(d->n_xeos, x, NULL, d);
 		double  sp  = 1.0;
 		if (d->ns_mode == 4){

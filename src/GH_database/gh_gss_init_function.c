@@ -55,26 +55,14 @@ SS_ref G_SS_gh_liq_init_function(SS_ref SS_ref_db, global_variable gv){
     return SS_ref_db;
 }
 
-/**
-    Olivine (Fo-Fa), "sb-trivial" tier: direct p=x, symmetric regular
-    solution (single W term, WH1MGFE=WH2MGFE=5075 J in xMELTS'
-    sources/olivine.c, i.e. the Mg-Fe binary happens to be symmetric even
-    though the full 6-component model is asymmetric/van-Laar elsewhere).
-    Real xMELTS olivine also carries 4 internal M1/M2 Fe-Mg-Mn-Co-Ni
-    order parameters (order-disorder machinery, "needs order-param
-    machinery" tier); this Fo-Fa reduction deliberately drops them and
-    uses the disordered-limit treatment instead, exactly like sb's own
-    "ol" (2 equivalent M-sites, Sconfig multiplicity 2, no order
-    parameter) - matching the "same structure as sb" scope the user chose.
-*/
 SS_ref G_SS_gh_ol_init_function(SS_ref SS_ref_db, global_variable gv){
     SS_ref_db.is_liq    = 0;
     SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 2;
-    SS_ref_db.n_xeos    = 2;
-    SS_ref_db.n_em      = 2;
-    SS_ref_db.n_sf      = 2;
+    SS_ref_db.n_xeos    = 4;
+    SS_ref_db.n_em      = 4;
+    SS_ref_db.n_sf      = 8;
     SS_ref_db.n_w       = 1;
 
     return SS_ref_db;
@@ -153,7 +141,7 @@ SS_ref G_SS_gh_hb_init_function(SS_ref SS_ref_db, global_variable gv){
     SS_ref_db.n_cat     = 1;
     SS_ref_db.n_xeos    = 3;
     SS_ref_db.n_em      = 3;
-    SS_ref_db.n_sf      = 3;
+    SS_ref_db.n_sf      = 4;
     SS_ref_db.n_w       = 2;
 
     return SS_ref_db;
@@ -172,7 +160,7 @@ SS_ref G_SS_gh_lc_init_function(SS_ref SS_ref_db, global_variable gv){
     SS_ref_db.n_cat     = 1;
     SS_ref_db.n_xeos    = 3;
     SS_ref_db.n_em      = 3;
-    SS_ref_db.n_sf      = 3;
+    SS_ref_db.n_sf      = 4;
     SS_ref_db.n_w       = 3;
 
     return SS_ref_db;
@@ -218,7 +206,7 @@ SS_ref G_SS_gh_spn_init_function(SS_ref SS_ref_db, global_variable gv){
     SS_ref_db.n_cat     = 1;
     SS_ref_db.n_xeos    = 5;
     SS_ref_db.n_em      = 5;
-    SS_ref_db.n_sf      = 5;
+    SS_ref_db.n_sf      = 10;
     SS_ref_db.n_w       = 1;
 
     return SS_ref_db;
@@ -228,13 +216,14 @@ SS_ref G_SS_gh_spn_init_function(SS_ref SS_ref_db, global_variable gv){
     NR=4/NS=3 reciprocal solution with a joint 3-variable order-parameter
     solve - see obj_gh_rhm in gh_objective_functions.c. */
 SS_ref G_SS_gh_rhm_init_function(SS_ref SS_ref_db, global_variable gv){
+    int n_rhm = (gv.EM_database == 2) ? 4 : 5;
     SS_ref_db.is_liq    = 0;
     SS_ref_db.override  = 0;
     SS_ref_db.symmetry  = 1;
     SS_ref_db.n_cat     = 1;
-    SS_ref_db.n_xeos    = 5;
-    SS_ref_db.n_em      = 5;
-    SS_ref_db.n_sf      = 5;
+    SS_ref_db.n_xeos    = n_rhm;
+    SS_ref_db.n_em      = n_rhm;
+    SS_ref_db.n_sf      = n_rhm;
     SS_ref_db.n_w       = 1;
 
     return SS_ref_db;
@@ -249,7 +238,7 @@ SS_ref G_SS_gh_nph_init_function(SS_ref SS_ref_db, global_variable gv){
     SS_ref_db.n_cat     = 1;
     SS_ref_db.n_xeos    = 4;
     SS_ref_db.n_em      = 4;
-    SS_ref_db.n_sf      = 4;
+    SS_ref_db.n_sf      = 7;
     SS_ref_db.n_w       = 1;
 
     return SS_ref_db;
@@ -264,7 +253,33 @@ SS_ref G_SS_gh_kls_init_function(SS_ref SS_ref_db, global_variable gv){
     SS_ref_db.n_cat     = 1;
     SS_ref_db.n_xeos    = 4;
     SS_ref_db.n_em      = 4;
-    SS_ref_db.n_sf      = 4;
+    SS_ref_db.n_sf      = 7;
+    SS_ref_db.n_w       = 1;
+
+    return SS_ref_db;
+}
+
+SS_ref G_SS_gh_oox_init_function(SS_ref SS_ref_db, global_variable gv){
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_cat     = 1;
+    SS_ref_db.n_xeos    = 3;
+    SS_ref_db.n_em      = 3;
+    SS_ref_db.n_sf      = 3;
+    SS_ref_db.n_w       = 1;
+
+    return SS_ref_db;
+}
+
+SS_ref G_SS_gh_amp_init_function(SS_ref SS_ref_db, global_variable gv){
+    SS_ref_db.is_liq    = 0;
+    SS_ref_db.override  = 0;
+    SS_ref_db.symmetry  = 1;
+    SS_ref_db.n_cat     = 1;
+    SS_ref_db.n_xeos    = 3;
+    SS_ref_db.n_em      = 3;
+    SS_ref_db.n_sf      = 6;
     SS_ref_db.n_w       = 1;
 
     return SS_ref_db;
@@ -280,13 +295,15 @@ SS_ref G_SS_gh_cpx_init_function(SS_ref SS_ref_db, global_variable gv){
     SS_ref_db.n_cat     = 1;
     SS_ref_db.n_xeos    = 7;
     SS_ref_db.n_em      = 7;
-    SS_ref_db.n_sf      = 7;
+    SS_ref_db.n_sf      = 22;
     SS_ref_db.n_w       = 1;
 
     return SS_ref_db;
 }
 SS_ref G_SS_gh_opx_init_function(SS_ref SS_ref_db, global_variable gv){
-    return G_SS_gh_cpx_init_function(SS_ref_db, gv);
+    SS_ref_db = G_SS_gh_cpx_init_function(SS_ref_db, gv);
+    SS_ref_db.n_sf      = 25;
+    return SS_ref_db;
 }
 
 /**
@@ -360,6 +377,12 @@ void GH_SS_init(            SS_init_type        *SS_init,
         }
         else if (strcmp( gv.SS_list[iss], "kls") == 0 ){
             SS_init[iss]  = G_SS_gh_kls_init_function;
+        }
+        else if (strcmp( gv.SS_list[iss], "oox") == 0 ){
+            SS_init[iss]  = G_SS_gh_oox_init_function;
+        }
+        else if (strcmp( gv.SS_list[iss], "amp") == 0 ){
+            SS_init[iss]  = G_SS_gh_amp_init_function;
         }
         else{
             printf("\nsolid solution '%s' is not in the 'gh' database, cannot be initiated\n", gv.SS_list[iss]);
