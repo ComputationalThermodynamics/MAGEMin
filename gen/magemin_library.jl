@@ -839,6 +839,8 @@ mutable struct global_variables
     mpIlm::Cint
     ig_ed::Cint
     precond::Cint
+    rank1_update::Cint
+    seed_dio::Cint
     BR_rel_norm::Cint
     gh_multistart_order::Cint
     fixed_bulk::Cint

@@ -161,6 +161,8 @@ typedef struct global_variables {
 	int      mpIlm;
 	int      ig_ed;				/** igneous endmember database? */
 	int      precond;			/** 1: equilibrate (Ruiz-scale) the stoichiometric matrix before inverseMatrix's LU inversion, 0: off (unmodified legacy behavior) */
+	int      rank1_update;
+	int      seed_dio;
 	int      BR_rel_norm;		/** 1: PGE mass-residual convergence norm (BR_norm) is computed per-oxide-relative (normalized by each oxide's own bulk abundance), 0: off (unmodified legacy absolute norm) */
 	int      gh_multistart_order;	/** gh phases with an embedded order-parameter solve (e.g. spinel): 0 (default) = single physically-motivated starting guess, exactly matching real xMELTS' own order() function; 1 (legacy/opt-in) = multi-start over several starting points, keeping the lowest-G result - finds a lower true minimum at extreme near-single-endmember compositions but can disagree with what real MELTS itself would compute there */
 	int      fixed_bulk;

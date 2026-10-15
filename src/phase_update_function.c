@@ -194,6 +194,78 @@ global_variable check_PC(					bulk_info 	 		 z_b,
 	}
 
 
+	ph_id = -1;
+	if (gv.seed_dio == 1 && strcmp(gv.research_group, "tc") == 0 && (gv.EM_database == 1 || gv.EM_database == 11)){
+		for (int q = 0; q < gv.len_ss; q++){
+			if (strcmp(gv.SS_list[q], "dio") == 0 && SS_ref_db[q].n_xeos == 6 && SS_ref_db[q].ss_flags[0] == 1){ ph_id = q; }
+		}
+	}
+	if (ph_id >= 0 && gv.len_cp < gv.max_n_cp){
+		int    has_omph = 0;
+		int    ref      = -1;
+		for (int q = 0; q < gv.len_cp; q++){
+			if (cp[q].ss_flags[0] != 1 || cp[q].id != ph_id){ continue; }
+			if (cp[q].xeos[1] > 0.3){ has_omph = 1; }
+			if (ref < 0){ ref = q; }
+		}
+		if (has_omph == 0){
+			const double j_seed = 0.5;
+			const double ord[6] = {0.95, 0.8, 0.6, 0.95, 0.8, 0.6};
+			double x_ref  = (ref >= 0) ? cp[ref].xeos[0] : 0.05;
+			double f_ref  = (ref >= 0) ? cp[ref].xeos[2] : 0.5;
+			double cf_ref = (ref >= 0) ? cp[ref].xeos[5] : 0.0;
+			for (int o = 0; o < 6; o++){
+				double f  = (o < 3) ? f_ref : 0.5;
+				double xs[6];
+				xs[0] = x_ref;
+				xs[1] = j_seed;
+				xs[2] = f;
+				xs[3] = ord[o]*j_seed;
+				xs[4] = ord[o]*j_seed*f;
+				xs[5] = cf_ref;
+				for (k = 0; k < 6; k++){
+					if (xs[k] < SS_ref_db[ph_id].bounds_ref[k][0]){ xs[k] = SS_ref_db[ph_id].bounds_ref[k][0]; }
+					if (xs[k] > SS_ref_db[ph_id].bounds_ref[k][1]){ xs[k] = SS_ref_db[ph_id].bounds_ref[k][1]; }
+					SS_ref_db[ph_id].iguess[k] = xs[k];
+				}
+				SS_ref_db[ph_id] = PC_function(			gv,
+														PC_read,
+														SS_ref_db[ph_id],
+														z_b,
+														ph_id 					);
+				SS_ref_db[ph_id] = SS_UPDATE_function(	gv,
+														SS_ref_db[ph_id],
+														z_b,
+														gv.SS_list[ph_id]		);
+				if (SS_ref_db[ph_id].sf_ok != 1 || !(SS_ref_db[ph_id].df < 0.0)){ continue; }
+
+				gv.len_cp				   += 1;
+				id_cp 		 				= gv.len_cp-1;
+				strcpy(cp[id_cp].name,gv.SS_list[ph_id]);
+				cp[id_cp].in_iter			= gv.global_ite;
+				cp[id_cp].ss_flags[0] 		= 1;
+				cp[id_cp].ss_flags[1] 		= 0;
+				cp[id_cp].ss_flags[2] 		= 1;
+				cp[id_cp].split 			= 0;
+				cp[id_cp].id 				= ph_id;
+				cp[id_cp].n_xeos			= SS_ref_db[ph_id].n_xeos;
+				cp[id_cp].n_em				= SS_ref_db[ph_id].n_em;
+				cp[id_cp].n_sf				= SS_ref_db[ph_id].n_sf;
+				for (k = 0; k < 6; k++){
+					cp[id_cp].dguess[k]     = xs[k];
+					cp[id_cp].xeos[k]       = xs[k];
+					cp[id_cp].mu[k]    		= 0.0;
+				}
+				if (gv.verbose == 1){
+					printf("  - %4s    ordered omphacite seed [%s]", gv.SS_list[ph_id], (ref >= 0) ? "act phase" : "default");
+					for (k = 0; k < 6; k++){ printf(" %+8f", xs[k]); }
+					printf("\n");
+				}
+				break;
+			}
+		}
+	}
+
 	for (i = 0; i < gv.len_ss; i++){
 		min_df    =  1e6;					// high starting value as it is expected to go down
 		phase_add =  0;

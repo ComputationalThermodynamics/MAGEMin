@@ -1295,6 +1295,8 @@ static void GH_narrow_bound(double val0, double slope, double eps, double *lo, d
     }
 }
 
+static inline double GH_spn_pos(double v){ return (v <= 0.0) ? 2.220446049250313e-16 : v; }
+
 static void GH_spn_site_fracs(double p0,double p2,double p3,double p4,double s0,double s1,double s2,double d_em2,
     double *xmg2tet,double *xfe2tet,double *xal3tet,double *xfe3tet,
     double *xmg2oct,double *xfe2oct,double *xal3oct,double *xfe3oct){
@@ -1353,8 +1355,8 @@ static double GH_spn_G_at(double p0,double p2,double p3,double p4,double s0,doub
                            double gx2x2,double gx2x3,double gx2x4,double gx2x5,
                            double gx3x3,double gx3x4,double gx3x5,double gx4x4,double gx4x5,double gx5x5,
                            double WV1,double WV2,double Pval,double d_em0,double d_em2,double d_em4){
-    double xmg2tet=(p3+s0)/2.0, xfe2tet=p4-0.5*p3-0.5*s0+s1+p0+s2, xal3tet=1.0-p0-p4-p2-s1, xfe3tet=p2-s2+d_em2;
-    double xmg2oct=(p3-s0)/4.0, xfe2oct=(2.0-p3+s0-2.0*s1-2.0*p0-2.0*s2)/4.0, xal3oct=(1.0-p0-p4-p2+s1)/2.0, xfe3oct=(p2+s2)/2.0+d_em2;
+    double xmg2tet=GH_spn_pos((p3+s0)/2.0), xfe2tet=GH_spn_pos(p4-0.5*p3-0.5*s0+s1+p0+s2), xal3tet=GH_spn_pos(1.0-p0-p4-p2-s1), xfe3tet=GH_spn_pos(p2-s2+d_em2);
+    double xmg2oct=GH_spn_pos((p3-s0)/4.0), xfe2oct=GH_spn_pos((2.0-p3+s0-2.0*s1-2.0*p0-2.0*s2)/4.0), xal3oct=GH_spn_pos((1.0-p0-p4-p2+s1)/2.0), xfe3oct=GH_spn_pos((p2+s2)/2.0+d_em2);
     double xcr3oct=p0+d_em0, xti4oct=(p4+d_em4)/2.0;
 
     double H = gx2x2*p3*p3 + gx2x3*p3*p0 + gx2x4*p3*p4 + gx2x5*p3*p2
@@ -1403,6 +1405,7 @@ static void GH_spn_solve_s_from(double p0,double p2,double p3,double p4,double T
         double det1 = d00*( r1*d22- r2*d12) -  r0*(d01*d22-d12*d02) + d02*(d01* r2- r1*d02);
         double det2 = d00*(d11* r2-d12* r1) - d01*(d01* r2- r1*d02) +  r0*(d01*d12-d11*d02);
         double deltaS0 = det0/det, deltaS1 = det1/det, deltaS2 = det2/det;
+        if (!isfinite(deltaS0) || !isfinite(deltaS1) || !isfinite(deltaS2)){ break; }
 
         double lambda = 1.0;
         double val, slope;
@@ -1613,8 +1616,8 @@ double obj_gh_spn(unsigned n, const double *x, double *grad, void *SS_ref_db){
         s0 = bs0; s1 = bs1; s2 = bs2;
     }
 
-    double xmg2tet=(p3+s0)/2.0, xfe2tet=p4-0.5*p3-0.5*s0+s1+p0+s2, xal3tet=1.0-p0-p4-p2-s1, xfe3tet=p2-s2+d->d_em[2];
-    double xmg2oct=(p3-s0)/4.0, xfe2oct=(2.0-p3+s0-2.0*s1-2.0*p0-2.0*s2)/4.0, xal3oct=(1.0-p0-p4-p2+s1)/2.0, xfe3oct=(p2+s2)/2.0+d->d_em[2];
+    double xmg2tet=GH_spn_pos((p3+s0)/2.0), xfe2tet=GH_spn_pos(p4-0.5*p3-0.5*s0+s1+p0+s2), xal3tet=GH_spn_pos(1.0-p0-p4-p2-s1), xfe3tet=GH_spn_pos(p2-s2+d->d_em[2]);
+    double xmg2oct=GH_spn_pos((p3-s0)/4.0), xfe2oct=GH_spn_pos((2.0-p3+s0-2.0*s1-2.0*p0-2.0*s2)/4.0), xal3oct=GH_spn_pos((1.0-p0-p4-p2+s1)/2.0), xfe3oct=GH_spn_pos((p2+s2)/2.0+d->d_em[2]);
     double xcr3oct=p0+d->d_em[0], xti4oct=(p4+d->d_em[4])/2.0;
 
     double H = gx2x2*p3*p3 + gx2x3*p3*p0 + gx2x4*p3*p4 + gx2x5*p3*p2
