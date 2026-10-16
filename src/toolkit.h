@@ -90,6 +90,8 @@ void print_SS_informations(		global_variable gv,
 								SS_ref SS_ref_db,
 								int		iss					);
 								
+double SS_G_zero_p_limit(			SS_ref 			*d					);
+
 /* functon related to hyperplane manipulation */
 SS_ref rotate_hyperplane(		global_variable gv,
 								SS_ref SS_ref_db			);

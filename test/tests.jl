@@ -1703,6 +1703,20 @@ end
             @test p.bulkMod ≈ KT * p.cp*1e3 / Cv  rtol=1e-6
         end
         @test Vsum ≈ out.V  rtol=1e-8
+        @test all(isfinite, (out.Vp, out.Vs, out.rho, out.bulkMod, out.alpha[1], out.beta, out.s_cp[1]))
+        Finalize_MAGEMin(data)
+    end
+
+    for (db, t, P, T) in [("mb", 0, 13.5, 420.0), ("mb", 0, 16.0, 430.0), ("ig", 1, 11.16, 838.5), ("ig", 1, 11.26, 844.531), ("mpe", 0, 1.01, 700.0), ("ume", 0, 60.01, 300.0)]
+        data = Initialize_MAGEMin(db, verbose=-1, solver=0)
+        out  = single_point_minimization(P, T, data, test=t)
+        @test all(isfinite, (out.Vp, out.Vs, out.bulkMod, out.alpha[1], out.beta))
+        for i in eachindex(out.ph)
+            p = phase_of(out, i)
+            @test isfinite(p.bulkMod) && p.bulkMod > 0.0
+            @test isfinite(p.beta) && p.beta > 0.0
+            @test isfinite(p.cp) && p.cp > 0.0
+        end
         Finalize_MAGEMin(data)
     end
 end

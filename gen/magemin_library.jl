@@ -4278,6 +4278,10 @@ function print_SS_informations(gv, SS_ref_db, iss)
     ccall((:print_SS_informations, libMAGEMin), Cvoid, (global_variable, SS_ref, Cint), gv, SS_ref_db, iss)
 end
 
+function SS_G_zero_p_limit(d)
+    ccall((:SS_G_zero_p_limit, libMAGEMin), Cdouble, (Ptr{SS_ref},), d)
+end
+
 function rotate_hyperplane(gv, SS_ref_db)
     ccall((:rotate_hyperplane, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
 end

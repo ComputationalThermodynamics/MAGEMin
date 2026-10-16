@@ -1593,6 +1593,64 @@ global_variable compute_phase_mol_fraction(			global_variable 	 gv,
 }
 
 
+double SS_G_zero_p_limit(			SS_ref 			*d					){
+	double sum = 0.0;
+	for (int j = 0; j < d->n_em; j++){
+		if (d->p[j] == 0.0){ continue; }
+		if (!isfinite(d->mu[j])){ return NAN; }
+		sum += d->p[j]*d->mu[j];
+	}
+	return sum*d->factor;
+}
+
+static double pp_G(						global_variable 	 gv,
+									bulk_info 	 		 z_b,
+									int 				 i,
+									double 				 P,
+									double 				 T					){
+	PP_ref PP_db = G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox, z_b.id, z_b.bulk_rock, z_b.apo, P, T, gv.PP_list[i], "equilibrium");
+	return PP_db.gbase;
+}
+
+static void pp_derivs(					global_variable 	 gv,
+									bulk_info 	 		 z_b,
+									int 				 i,
+									int 				 sT,
+									int 				 sP,
+									double 				*d						){
+	double eP = gv.gb_P_eps*sP;
+	double eT = gv.gb_T_eps;
+	double P  = z_b.P, T = z_b.T;
+	double G[4], GT[3];
+	for (int k = 0; k < 4; k++){ G[k] = pp_G(gv, z_b, i, P + k*eP, T); }
+	for (int k = 0; k < 3; k++){
+		if (sT == 0){ GT[k] = (pp_G(gv, z_b, i, P + k*eP, T + eT) - pp_G(gv, z_b, i, P + k*eP, T - eT))/(2.0*eT); }
+		else{
+			double h = eT*sT;
+			GT[k] = (-3.0*(k == 0 ? G[0] : pp_G(gv, z_b, i, P + k*eP, T)) + 4.0*pp_G(gv, z_b, i, P + k*eP, T + h) - pp_G(gv, z_b, i, P + k*eP, T + 2.0*h))/(2.0*h);
+		}
+	}
+	double G_TT;
+	if (sT == 0){ G_TT = (pp_G(gv, z_b, i, P, T + eT) - 2.0*G[0] + pp_G(gv, z_b, i, P, T - eT))/(eT*eT); }
+	else{
+		double h = eT*sT;
+		G_TT = (2.0*G[0] - 5.0*pp_G(gv, z_b, i, P, T + h) + 4.0*pp_G(gv, z_b, i, P, T + 2.0*h) - pp_G(gv, z_b, i, P, T + 3.0*h))/(h*h);
+	}
+	d[0] = (-3.0*G[0] + 4.0*G[1] - G[2])/(2.0*eP);
+	d[1] = G_TT;
+	d[2] = (-3.0*GT[0] + 4.0*GT[1] - GT[2])/(2.0*eP);
+	d[3] = (2.0*G[0] - 5.0*G[1] + 4.0*G[2] - G[3])/(eP*eP);
+}
+
+static int phase_props_valid(		double 				 Cp,
+									double 				 alpha,
+									double 				 beta,
+									double 				 K_T,
+									double 				 K_S					){
+	return (isfinite(Cp) && isfinite(alpha) && isfinite(beta) && isfinite(K_T) && isfinite(K_S)
+			&& Cp > 0.0 && beta > 0.0 && K_T > 0.0 && K_S > 0.0);
+}
+
 static void phase_G_stencil(		global_variable 	 gv,
 									PC_type 			 PC_obj,
 									SS_ref 				*d,
@@ -1619,6 +1677,7 @@ static void phase_G_stencil(		global_variable 	 gv,
 		d->P = P0 + gv.gb_P_eps*gv.pdev[0][k];
 		d->T = T0 + gv.gb_T_eps*gv.pdev[1][k];
 		G[k] = (*PC_obj)(d->n_xeos, xeos, d->dfx, d);
+		if (!isfinite(G[k])){ G[k] = SS_G_zero_p_limit(d); }
 	}
 
 	for (int j = 0; j < n_em; j++){ d->gb_lvl[j] = gb_save[j]; }
@@ -1762,6 +1821,39 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 				}
 			}	
 
+			int    is_dew 	= (strcmp(gv.SS_list[ss], "DEW") == 0 || strcmp(gv.SS_list[ss], "DEW_S24") == 0);
+			double em_prop[8] = {	cp[i].volume, cp[i].phase_entropy, cp[i].phase_cp, cp[i].phase_expansivity,
+									cp[i].phase_compressibility, cp[i].phase_isoTbulkModulus, cp[i].phase_bulkModulus, phase_isoTbulkModulus_P1 };
+
+			if (is_dew){
+				int jw = -1;
+				for (int j = 0; j < cp[i].n_em && SS_ref_db[ss].EM_list != NULL; j++){
+					if (strcmp(SS_ref_db[ss].EM_list[j], "H2O") == 0){ jw = j; break; }
+				}
+				if (jw >= 0){
+					double **mu = SS_ref_db[ss].mu_array;
+					int    c 	= gv.n_Diff - 1;
+					double eT 	= gv.gb_T_eps;
+					double eP 	= gv.gb_P_eps;
+					double W_P 	= (-3.0*mu[c][jw] + 4.0*mu[5][jw] - mu[4][jw])/(2.0*eP);
+					double W_PP = (2.0*mu[c][jw] - 5.0*mu[5][jw] + 4.0*mu[4][jw] - mu[6][jw])/(eP*eP);
+					double W_TT = (mu[0][jw] - 2.0*mu[c][jw] + mu[1][jw])/(eT*eT);
+					double W_TP = (-3.0*(mu[0][jw] - mu[1][jw]) + 4.0*(mu[2][jw] - mu[3][jw]) - (mu[7][jw] - mu[8][jw]))/(4.0*eT*eP);
+					double W_PN = (mu[4][jw] - mu[c][jw])/(2.0*eP);
+					double W_PPN= (mu[4][jw] - 2.0*mu[5][jw] + mu[c][jw])/(eP*eP);
+					cp[i].phase_expansivity 	= W_TP/W_P;
+					cp[i].phase_compressibility = -W_PP/W_P;
+					cp[i].phase_isoTbulkModulus = -W_P/W_PP;
+					cp[i].phase_bulkModulus 	= -W_P/(W_PP - W_TP*W_TP/W_TT);
+					phase_isoTbulkModulus_P1 	= -W_PN/W_PPN;
+					if (!(isfinite(cp[i].phase_cp) && cp[i].phase_cp > 0.0)){
+						double n_ox_w = 0.0;
+						for (int j = 0; j < gv.len_ox; j++){ n_ox_w += cp[i].ss_comp[j]; }
+						cp[i].phase_cp 			= -T*W_TT*n_ox_w;
+					}
+				}
+			}
+
 			if (PC_read[ss] != NULL && strcmp(gv.SS_list[ss], "DEW") != 0 && strcmp(gv.SS_list[ss], "DEW_S24") != 0){
 				double Gs[gv.n_Diff];
 				double eT 	= gv.gb_T_eps;
@@ -1811,6 +1903,25 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 				cp[i].phase_isoTbulkModulus = -G_P/G_PP;
 				cp[i].phase_bulkModulus 	= -G_P/(G_PP - G_TP*G_TP/G_TT);
 				phase_isoTbulkModulus_P1 	= -G_PN/G_PPN;
+
+				if (!(isfinite(cp[i].volume) && cp[i].volume > 0.0 && isfinite(cp[i].phase_entropy))){
+					cp[i].volume 				= em_prop[0];
+					cp[i].phase_entropy 		= em_prop[1];
+				}
+				if (!phase_props_valid(cp[i].phase_cp, cp[i].phase_expansivity, cp[i].phase_compressibility, cp[i].phase_isoTbulkModulus, cp[i].phase_bulkModulus)){
+					cp[i].phase_cp 				= em_prop[2];
+					cp[i].phase_expansivity 	= em_prop[3];
+					cp[i].phase_compressibility = em_prop[4];
+					cp[i].phase_isoTbulkModulus = em_prop[5];
+					cp[i].phase_bulkModulus 	= em_prop[6];
+					phase_isoTbulkModulus_P1 	= em_prop[7];
+				}
+			}
+			if (!phase_props_valid(cp[i].phase_cp, cp[i].phase_expansivity, cp[i].phase_compressibility, cp[i].phase_isoTbulkModulus, cp[i].phase_bulkModulus)){
+				cp[i].phase_expansivity 	= NAN;
+				cp[i].phase_compressibility = NAN;
+				cp[i].phase_isoTbulkModulus = NAN;
+				cp[i].phase_bulkModulus 	= NAN;
 			}
 
 			double n_ox = 0.0;
@@ -1945,6 +2056,41 @@ global_variable compute_density_volume_modulus(				int 				 EM_database,
 				dG2dP2 		= -Vp/eos_K;
 				dG2dP2_N 	= dG2dP2;
 				dGdP_N 		= Vp;
+			}
+			if (strcmp(gv.research_group, "sb") != 0){
+				double V0 	= PP_ref_db[i].volume;
+				double Cc 	= -T*dG2dT2;
+				double KSc 	= -V0/(dG2dP2 - dG2dTdP*dG2dTdP/dG2dT2);
+				double KTc 	= -V0/dG2dP2;
+				int    okc 	= phase_props_valid(Cc, dG2dTdP/V0, -dG2dP2/V0, KTc, KSc);
+				int    st[4][2] = {{-1, 1}, {1, 1}, {-1, -1}, {1, -1}};
+				double dd[4][4];
+				int    okd[4];
+				double KSlo = INFINITY, KShi = -INFINITY, Clo = INFINITY, Chi = -INFINITY;
+				int    n_ok = 0;
+				for (int c = 0; c < 4; c++){
+					pp_derivs(gv, z_b, i, st[c][0], st[c][1], dd[c]);
+					double Cd 	= -T*dd[c][1];
+					double KSd 	= -dd[c][0]/(dd[c][3] - dd[c][2]*dd[c][2]/dd[c][1]);
+					okd[c] 		= phase_props_valid(Cd, dd[c][2]/dd[c][0], -dd[c][3]/dd[c][0], -dd[c][0]/dd[c][3], KSd);
+					if (okd[c]){
+						n_ok += 1;
+						KSlo = fmin(KSlo, KSd); KShi = fmax(KShi, KSd);
+						Clo  = fmin(Clo, Cd);   Chi  = fmax(Chi, Cd);
+					}
+				}
+				int inside = okc && (n_ok == 0 || (KSc >= 0.8*KSlo && KSc <= 1.25*KShi && Cc >= 0.8*Clo && Cc <= 1.25*Chi));
+				if (!inside){
+					for (int c = 0; c < 4; c++){
+						if (!okd[c]){ continue; }
+						dG2dT2 	= dd[c][1];
+						dG2dTdP = dd[c][2];
+						dG2dP2 	= dd[c][3];
+						dG2dP2_N= dd[c][3];
+						dGdP_N 	= V0;
+						break;
+					}
+				}
 			}
 			PP_ref_db[i].phase_cp 			= -T*(dG2dT2);
 			PP_ref_db[i].phase_expansivity 	= dG2dTdP/PP_ref_db[i].volume;

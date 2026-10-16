@@ -18455,6 +18455,7 @@ SS_ref PC_function(		global_variable 	 gv,
                                          SS_ref_db.iguess, 
                                          SS_ref_db.dfx, 
                                         &SS_ref_db		        );	
+    if (!isfinite(G0)){ G0 = SS_G_zero_p_limit(&SS_ref_db); }
 
     SS_ref_db.df = G0;
 	
