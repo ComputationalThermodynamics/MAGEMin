@@ -108,6 +108,59 @@ int cmp_int(const void *a, const void *b)
 }
 
 
+static int add_seed_cp(	bulk_info 	 		 z_b,
+						global_variable 	*gv,
+						PC_type				*PC_read,
+						SS_ref 				*SS_ref_db,
+						csd_phase_set  		*cp,
+						int 				 ph_id,
+						double 				*xs,
+						const char 			*label				){
+	SS_ref *d = &SS_ref_db[ph_id];
+	int     n = d->n_xeos;
+
+	if (gv->len_cp >= gv->max_n_cp){ return 0; }
+	for (int k = 0; k < n; k++){
+		if (xs[k] < d->bounds_ref[k][0]){ xs[k] = d->bounds_ref[k][0]; }
+		if (xs[k] > d->bounds_ref[k][1]){ xs[k] = d->bounds_ref[k][1]; }
+		d->iguess[k] = xs[k];
+	}
+	*d = PC_function(			*gv,
+								PC_read,
+								*d,
+								z_b,
+								ph_id 					);
+	*d = SS_UPDATE_function(	*gv,
+								*d,
+								z_b,
+								gv->SS_list[ph_id]		);
+	if (d->sf_ok != 1 || !(d->df < 0.0)){ return 0; }
+
+	gv->len_cp				   += 1;
+	int id_cp 	 				= gv->len_cp-1;
+	strcpy(cp[id_cp].name,gv->SS_list[ph_id]);
+	cp[id_cp].in_iter			= gv->global_ite;
+	cp[id_cp].ss_flags[0] 		= 1;
+	cp[id_cp].ss_flags[1] 		= 0;
+	cp[id_cp].ss_flags[2] 		= 1;
+	cp[id_cp].split 			= 0;
+	cp[id_cp].id 				= ph_id;
+	cp[id_cp].n_xeos			= d->n_xeos;
+	cp[id_cp].n_em				= d->n_em;
+	cp[id_cp].n_sf				= d->n_sf;
+	for (int k = 0; k < n; k++){
+		cp[id_cp].dguess[k]     = xs[k];
+		cp[id_cp].xeos[k]       = xs[k];
+		cp[id_cp].mu[k]    		= 0.0;
+	}
+	if (gv->verbose == 1){
+		printf("  - %4s    %s seed", gv->SS_list[ph_id], label);
+		for (int k = 0; k < n; k++){ printf(" %+8f", xs[k]); }
+		printf("\n");
+	}
+	return 1;
+}
+
 /**
 	check PC driving force and add phase if below hyperplane
 */
@@ -262,6 +315,34 @@ global_variable check_PC(					bulk_info 	 		 z_b,
 					printf("\n");
 				}
 				break;
+			}
+		}
+	}
+
+	if (gv.seed_amp == 1 && strcmp(gv.research_group, "tc") == 0 && (gv.EM_database == 1 || gv.EM_database == 11)){
+		int amp_id = -1;
+		for (int q = 0; q < gv.len_ss; q++){
+			if (strcmp(gv.SS_list[q], "amp") == 0 && SS_ref_db[q].n_xeos == 10 && SS_ref_db[q].ss_flags[0] == 1){ amp_id = q; }
+		}
+		if (amp_id >= 0){
+			int    has_gl = 0, has_act = 0, n_ref = 0;
+			int    refs[8];
+			for (int q = 0; q < gv.len_cp; q++){
+				if (cp[q].ss_flags[0] != 1 || cp[q].id != amp_id){ continue; }
+				if (cp[q].xeos[2] > 0.7){ has_gl  = 1; }
+				if (cp[q].xeos[5] > 0.7){ has_act = 1; }
+				if (n_ref < 8){ refs[n_ref] = q; n_ref += 1; }
+			}
+			int n_try = (n_ref > 0) ? n_ref : 1;
+			for (int r = 0; r < n_try && has_gl == 0; r++){
+				int    q  = (n_ref > 0) ? refs[r] : -1;
+				double xs[10] = {(q >= 0) ? cp[q].xeos[0] : 0.2, 0.95, 0.95, 0.01, (q >= 0) ? cp[q].xeos[4] : 0.1, 0.03, (q >= 0) ? cp[q].xeos[6] : 0.0, (q >= 0) ? cp[q].xeos[7] : 0.0, 0.0, 0.0};
+				has_gl = add_seed_cp(z_b, &gv, PC_read, SS_ref_db, cp, amp_id, xs, "glaucophane");
+			}
+			for (int r = 0; r < n_try && has_act == 0; r++){
+				int    q  = (n_ref > 0) ? refs[r] : -1;
+				double xs[10] = {(q >= 0) ? cp[q].xeos[0] : 0.2, 0.04, 0.04, 0.01, (q >= 0) ? cp[q].xeos[4] : 0.1, 0.95, (q >= 0) ? cp[q].xeos[6] : 0.0, (q >= 0) ? cp[q].xeos[7] : 0.0, 0.0, 0.0};
+				has_act = add_seed_cp(z_b, &gv, PC_read, SS_ref_db, cp, amp_id, xs, "actinolite");
 			}
 		}
 	}

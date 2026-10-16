@@ -126,7 +126,7 @@ global_variable global_variable_BR_init(   global_variable      gv,
     gv.gibbs_ev         = malloc (gv.it_f*2 * sizeof (double) );
     gv.ite_time         = malloc (gv.it_f*2 * sizeof (double) );
 
-    gv.n_Diff = 8;
+    gv.n_Diff = 10;
     gv.pdev = malloc (2 * sizeof(double*));
     for (i = 0; i < 2; i++){
         gv.pdev[i] = malloc (gv.n_Diff * sizeof(double));
@@ -138,7 +138,9 @@ global_variable global_variable_BR_init(   global_variable      gv,
     gv.pdev[0][4]  =  2.0;  gv.pdev[1][4]  =  0.0;
     gv.pdev[0][5]  =  1.0;  gv.pdev[1][5]  =  0.0;
     gv.pdev[0][6]  =  3.0;  gv.pdev[1][6]  =  0.0;
-    gv.pdev[0][7]  =  0.0;  gv.pdev[1][7]  =  0.0;
+    gv.pdev[0][7]  =  2.0;	gv.pdev[1][7]  =  1.0;
+    gv.pdev[0][8]  =  2.0;	gv.pdev[1][8]  = -1.0;
+    gv.pdev[0][9]  =  0.0;	gv.pdev[1][9]  =  0.0;
 
     gv.V_cor = malloc (2 * sizeof(double));
 

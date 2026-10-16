@@ -291,18 +291,18 @@ end
     sys_in  = "wt"
     out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, seismic_cor=true, aspect_ratio=0.3, seismic_water=0);
 
-    @test out.Vp_cor ≈ 5.343114218733776    rtol=1e-4
-    @test out.Vs_cor ≈ 3.4155592247018003    rtol=1e-4
+    @test out.Vp_cor ≈ 5.515492397890496    rtol=1e-4
+    @test out.Vs_cor ≈ 3.4151980750942053    rtol=1e-4
 
     out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, seismic_cor=true, aspect_ratio=0.6, seismic_water=0);
 
-    @test out.Vp_cor ≈ 5.353405743634294     rtol=1e-4
-    @test out.Vs_cor ≈ 3.423176995721058    rtol=1e-4
+    @test out.Vp_cor ≈ 5.524875365954084     rtol=1e-4
+    @test out.Vs_cor ≈ 3.4227546102536026    rtol=1e-4
 
     out     = single_point_minimization(P, T, data, X=X, Xoxides=Xoxides, sys_in=sys_in, seismic_cor=true, aspect_ratio=0.1, seismic_water=0);
 
-    @test out.Vp_cor ≈ 5.319339600652165     rtol=1e-4
-    @test out.Vs_cor ≈ 3.3942453489815314     rtol=1e-2
+    @test out.Vp_cor ≈ 5.4938026129603506     rtol=1e-4
+    @test out.Vs_cor ≈ 3.394055532104126     rtol=1e-2
 
     Finalize_MAGEMin(data)
 end
@@ -1053,14 +1053,14 @@ end
     out         = point_wise_minimization(P,T, data)
     tol         = 1.5e-2;
 
-    @test abs(out.bulkMod - 94.68523099456746          )  < tol
+    @test abs(out.bulkMod - 106.0906253897965          )  < tol
     @test abs(out.shearMod - 29.84688921728558        )  < tol
     @test abs(out.Vs - 3.053495339499311              )  < tol
-    @test abs(out.Vp - 6.481541768615631               )  < tol
+    @test abs(out.Vp - 6.749645003639705               )  < tol
     @test abs(out.Vs_S - 4.2981836761917185              )  < tol
-    @test abs(out.Vp_S - 7.36887619793093            )  < tol
-    @test abs(out.bulkModulus_M - 27.127616172927333   )  < tol
-    @test abs(out.bulkModulus_S - 95.46240449612431    )  < tol
+    @test abs(out.Vp_S - 7.608032704694774            )  < tol
+    @test abs(out.bulkModulus_M - 27.829595288007063   )  < tol
+    @test abs(out.bulkModulus_S - 107.05455806011113    )  < tol
     @test abs(out.shearModulus_S - 59.44517210066782   )  < tol
 
     Finalize_MAGEMin(data)
@@ -1077,14 +1077,14 @@ end
     out         = point_wise_minimization(P,T, data)
     tol         = 1.5e-2;
 
-    @test abs(out.bulkMod - 94.99080345166232           )  < tol
+    @test abs(out.bulkMod - 106.49933646011556           )  < tol
     @test abs(out.shearMod - 56.24038521877394         )  < tol
     @test abs(out.Vs - 4.191523139352487               )  < tol
-    @test abs(out.Vp - 7.2869210024625986               )  < tol
+    @test abs(out.Vp - 7.52846334122606               )  < tol
     @test abs(out.Vs_S - 4.306700581603915             )  < tol
-    @test abs(out.Vp_S - 7.37760515845673             )  < tol
-    @test abs(out.bulkModulus_M - 27.127616172927333   )  < tol
-    @test abs(out.bulkModulus_S - 95.56217105946239     )  < tol
+    @test abs(out.Vp_S - 7.617807480338694             )  < tol
+    @test abs(out.bulkModulus_M - 27.829595288007063   )  < tol
+    @test abs(out.bulkModulus_S - 107.21407780892956     )  < tol
     @test abs(out.shearModulus_S - 59.68098822911447   )  < tol
 
     Finalize_MAGEMin(data)
@@ -1662,4 +1662,47 @@ end
     @test Hsum ≈ out.enthalpy[1] atol=1e-2
     @test out0.enthalpy[1] ≈ out.enthalpy[1] atol=1e-2
     Finalize_MAGEMin(data)
+end
+
+@testset "thermodynamic properties consistency" begin
+    phase_of(o, i) = o.ph_type[i] == 1 ? o.SS_vec[count(==(1), view(o.ph_type, 1:i))] : o.PP_vec[count(==(0), view(o.ph_type, 1:i))]
+
+    data = Initialize_MAGEMin("ig", verbose=-1, solver=0)
+    ox   = ["SiO2","Al2O3","CaO","MgO","FeO","K2O","Na2O","TiO2","O","Cr2O3","H2O"]
+    X    = [33.333, 1e-4, 1e-4, 66.666, 1e-4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    out  = single_point_minimization(0.001, 25.0, data, X=X, Xoxides=ox, sys_in="mol")
+    k    = findfirst(==("ol"), out.ph)
+    ol   = phase_of(out, k)
+    @test out.entropy[1] ≈ 0.0951/3   rtol=2e-3
+    @test out.V          ≈ 43.66/3    rtol=2e-3
+    @test ol.V_fu        ≈ 43.66      rtol=2e-3
+    @test ol.V_fu / ol.V ≈ 3.0        rtol=1e-3
+    Finalize_MAGEMin(data)
+
+    for (db, t, P, T) in [("ig", 0, 10.0, 1100.0), ("mp", 0, 6.0, 650.0), ("sb11", 0, 100.0, 1600.0)]
+        data = Initialize_MAGEMin(db, verbose=-1, solver=0)
+        out  = single_point_minimization(P, T, data, test=t)
+        hP, hT = 1e-3, 1e-2
+        Gp   = single_point_minimization(P + hP, T, data, test=t).G_system
+        Gm   = single_point_minimization(P - hP, T, data, test=t).G_system
+        Tp   = single_point_minimization(P, T + hT, data, test=t).G_system
+        Tm   = single_point_minimization(P, T - hT, data, test=t).G_system
+        @test out.V          ≈ 10*(Gp - Gm)/(2hP)  rtol=1e-6
+        @test out.entropy[1] ≈ -(Tp - Tm)/(2hT)    rtol=1e-6
+
+        Vsum = 0.0
+        TK   = T + 273.15
+        for i in eachindex(out.ph)
+            p    = phase_of(out, i)
+            Vsum += out.ph_frac[i] * p.V
+            p.bulkMod > 0.0 || continue
+            KT   = 1.0 / p.beta
+            Cv   = p.cp*1e3 - p.alpha^2 * KT*1e9 * p.V*1e-6 * TK
+            @test p.alpha > 0.0
+            @test p.bulkMod > KT
+            @test p.bulkMod ≈ KT * p.cp*1e3 / Cv  rtol=1e-6
+        end
+        @test Vsum ≈ out.V  rtol=1e-8
+        Finalize_MAGEMin(data)
+    end
 end
