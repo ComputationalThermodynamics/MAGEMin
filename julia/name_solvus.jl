@@ -95,7 +95,7 @@ const SOLVUS_FAMILY = Dict{Tuple{String,String},Vector{String}}(
     ("all",  "nph_W24")     => ["K-nph", "nph"],
     ("all",  "dio_G16")     => ["dio", "jd", "omph"],
     ("all",  "occm_F11")    => ["ank", "cc", "mag", "sid"],
-    ("all",  "oamp_D07")    => ["anth", "ged"],
+    ("all",  "oamp_D12")    => ["anth", "ged"],
 )
 
 """
@@ -255,7 +255,7 @@ function get_mineral_name(db, ss, SS_vec)
             elseif x[3] > 0.5;          mineral_name = "ank";
             elseif x[1] > 0.25 && x[3] < 0.01;         mineral_name = "mag";
             else                        mineral_name = "cc";   end
-        elseif ss == "oamp_D07"
+        elseif ss == "oamp_D12"
             if x[2] < 0.3;              mineral_name = "anth";
             else                        mineral_name = "ged";   end
         elseif occursin("_", ss)
@@ -373,7 +373,7 @@ function get_ss_from_mineral(db, mrl, mbCpx, active_ss::AbstractVector{<:Abstrac
         elseif mrl == "sid" || mrl == "mag" || mrl == "ank" || mrl == "cc"
             ss = "occm_F11"
         elseif mrl == "anth" || mrl == "ged"
-            ss = "oamp_D07"
+            ss = "oamp_D12"
         else
             match = findfirst(s -> split(s, "_")[1] == mrl, active_ss)
             if !isnothing(match)

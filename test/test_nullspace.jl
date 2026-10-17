@@ -112,10 +112,10 @@ end
 end
 
 @testset verbose=true "GH databases, absent oxides" begin
-    for (db, Xox, X, P, T) in [("rMELTS", ["SiO2", "Al2O3", "CaO", "MgO"], [48.0, 12.0, 12.0, 28.0], 8.0, 1150.0),
+    for (db, Xox, X, P, T) in filter(t -> MAGEMin_C.GH_ENABLED || MAGEMin_C.is_db(t[1]), [("rMELTS", ["SiO2", "Al2O3", "CaO", "MgO"], [48.0, 12.0, 12.0, 28.0], 8.0, 1150.0),
                                ("pMELTS", ["SiO2", "Al2O3", "MgO"], [50.0, 10.0, 40.0], 3.0, 900.0),
                                ("xMELTS", ["SiO2", "Al2O3", "CaO", "MgO", "K2O", "Na2O", "H2O"], [60.0, 14.0, 6.0, 6.0, 3.0, 4.0, 7.0], 8.0, 1150.0),
-                               ("rMELTS", ["SiO2", "Al2O3", "CaO", "MgO", "FeO", "K2O", "Na2O", "TiO2", "O", "H2O"], [49.9, 8.82, 10.69, 11.9, 7.51, 0.32, 2.42, 1.13, 0.37, 6.66], 5.0, 1100.0)]
+                               ("rMELTS", ["SiO2", "Al2O3", "CaO", "MgO", "FeO", "K2O", "Na2O", "TiO2", "O", "H2O"], [49.9, 8.82, 10.69, 11.9, 7.51, 0.32, 2.42, 1.13, 0.37, 6.66], 5.0, 1100.0)])
         res = []
         for optimizer in (0, 1)
             data = Initialize_MAGEMin(db, verbose=-1, solver=0, optimizer=optimizer)

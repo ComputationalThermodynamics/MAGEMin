@@ -4149,7 +4149,7 @@ SS_ref G_SS_mb_chl_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mb_oamp
 */
 SS_ref G_SS_mb_oamp_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    strcpy(SS_ref_db.fName,"oamp_D07");
+    strcpy(SS_ref_db.fName,"oamp_D12");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -21035,7 +21035,7 @@ SS_ref G_SS_all_EM_function(	global_variable 	 gv,
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_um_ta_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
-		else if (strcmp( name, "oamp_D07") == 0 ){
+		else if (strcmp( name, "oamp_D12") == 0 ){
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}

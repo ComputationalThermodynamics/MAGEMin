@@ -21,7 +21,7 @@ struct ns_case
     T           :: Vector{Float64}
 end
 
-ns_cases = [
+ns_cases = filter(c -> MAGEMin_C.GH_ENABLED || MAGEMin_C.is_db(c.db), [
     ns_case("ig_KLB1",      "ig",  0, String[], Float64[], [5.0, 10.0, 15.0, 20.0],      [900.0, 1050.0, 1200.0, 1350.0]),
     ns_case("mp_test0",     "mp",  0, String[], Float64[], [4.0, 6.0, 8.0, 10.0],        [550.0, 600.0, 650.0, 700.0]),
     ns_case("mb_test0",     "mb",  0, String[], Float64[], [5.0, 8.0, 11.0, 14.0],       [650.0, 750.0, 850.0, 950.0]),
@@ -52,7 +52,7 @@ ns_cases = [
     ns_case("rMELTS_CMAS",  "rMELTS",-1, ["SiO2", "Al2O3", "CaO", "MgO"],      [48.0, 12.0, 12.0, 28.0], [3.0, 8.0, 15.0],      [900.0, 1150.0, 1350.0]),
     ns_case("pMELTS_noH2O", "pMELTS",-1, ["SiO2", "Al2O3", "CaO", "MgO", "FeO", "K2O", "Na2O", "TiO2", "O"], [49.9, 8.82, 10.69, 11.9, 7.51, 0.32, 2.42, 1.13, 0.37], [3.0, 8.0, 15.0], [900.0, 1100.0, 1300.0]),
     ns_case("rMELTS_noCO2", "rMELTS",-1, ["SiO2", "Al2O3", "CaO", "MgO", "FeO", "K2O", "Na2O", "TiO2", "H2O"], [76.58, 7.93, 1.33, 0.46, 1.3, 2.97, 3.51, 0.16, 30.18], [2.0, 5.0, 10.0], [700.0, 850.0, 1000.0]),
-]
+])
 
 function ns_case_points(c :: ns_case)
     P = Float64[]; T = Float64[]

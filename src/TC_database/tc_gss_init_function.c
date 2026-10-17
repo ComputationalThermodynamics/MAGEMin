@@ -2952,7 +2952,7 @@ void TC_SS_init_all(	            SS_init_type 		*SS_init,
 			SS_init[iss]  = G_SS_mb_abc_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "ta_EF21")    == 0){
 			SS_init[iss]  = G_SS_um_ta_init_function; 		}
-		else if (strcmp( gv.SS_list[iss], "oamp_D07")  == 0){
+		else if (strcmp( gv.SS_list[iss], "oamp_D12")  == 0){
 			SS_init[iss]  = G_SS_mb_oamp_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "DEW_S24") == 0){
 			SS_init[iss]  = G_SS_DEW_init_function; 		}
