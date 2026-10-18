@@ -63,6 +63,7 @@ NOTES:
 #include "ss_min_function.h"
 #include "gem_function.h"
 #include "all_solution_phases.h"
+#include "GH_database/gh_objective_functions.h"
 #include "toolkit.h"
 
 /**
@@ -106,6 +107,59 @@ int cmp_int(const void *a, const void *b)
 		return 0;
 }
 
+
+static int add_seed_cp(	bulk_info 	 		 z_b,
+						global_variable 	*gv,
+						PC_type				*PC_read,
+						SS_ref 				*SS_ref_db,
+						csd_phase_set  		*cp,
+						int 				 ph_id,
+						double 				*xs,
+						const char 			*label				){
+	SS_ref *d = &SS_ref_db[ph_id];
+	int     n = d->n_xeos;
+
+	if (gv->len_cp >= gv->max_n_cp){ return 0; }
+	for (int k = 0; k < n; k++){
+		if (xs[k] < d->bounds_ref[k][0]){ xs[k] = d->bounds_ref[k][0]; }
+		if (xs[k] > d->bounds_ref[k][1]){ xs[k] = d->bounds_ref[k][1]; }
+		d->iguess[k] = xs[k];
+	}
+	*d = PC_function(			*gv,
+								PC_read,
+								*d,
+								z_b,
+								ph_id 					);
+	*d = SS_UPDATE_function(	*gv,
+								*d,
+								z_b,
+								gv->SS_list[ph_id]		);
+	if (d->sf_ok != 1 || !(d->df < 0.0)){ return 0; }
+
+	gv->len_cp				   += 1;
+	int id_cp 	 				= gv->len_cp-1;
+	strcpy(cp[id_cp].name,gv->SS_list[ph_id]);
+	cp[id_cp].in_iter			= gv->global_ite;
+	cp[id_cp].ss_flags[0] 		= 1;
+	cp[id_cp].ss_flags[1] 		= 0;
+	cp[id_cp].ss_flags[2] 		= 1;
+	cp[id_cp].split 			= 0;
+	cp[id_cp].id 				= ph_id;
+	cp[id_cp].n_xeos			= d->n_xeos;
+	cp[id_cp].n_em				= d->n_em;
+	cp[id_cp].n_sf				= d->n_sf;
+	for (int k = 0; k < n; k++){
+		cp[id_cp].dguess[k]     = xs[k];
+		cp[id_cp].xeos[k]       = xs[k];
+		cp[id_cp].mu[k]    		= 0.0;
+	}
+	if (gv->verbose == 1){
+		printf("  - %4s    %s seed", gv->SS_list[ph_id], label);
+		for (int k = 0; k < n; k++){ printf(" %+8f", xs[k]); }
+		printf("\n");
+	}
+	return 1;
+}
 
 /**
 	check PC driving force and add phase if below hyperplane
@@ -192,6 +246,106 @@ global_variable check_PC(					bulk_info 	 		 z_b,
 		}
 	}
 
+
+	ph_id = -1;
+	if (gv.seed_dio == 1 && strcmp(gv.research_group, "tc") == 0 && (gv.EM_database == 1 || gv.EM_database == 11)){
+		for (int q = 0; q < gv.len_ss; q++){
+			if (strcmp(gv.SS_list[q], "dio") == 0 && SS_ref_db[q].n_xeos == 6 && SS_ref_db[q].ss_flags[0] == 1){ ph_id = q; }
+		}
+	}
+	if (ph_id >= 0 && gv.len_cp < gv.max_n_cp){
+		int    has_omph = 0;
+		int    ref      = -1;
+		for (int q = 0; q < gv.len_cp; q++){
+			if (cp[q].ss_flags[0] != 1 || cp[q].id != ph_id){ continue; }
+			if (cp[q].xeos[1] > 0.3){ has_omph = 1; }
+			if (ref < 0){ ref = q; }
+		}
+		if (has_omph == 0){
+			const double j_seed = 0.5;
+			const double ord[6] = {0.95, 0.8, 0.6, 0.95, 0.8, 0.6};
+			double x_ref  = (ref >= 0) ? cp[ref].xeos[0] : 0.05;
+			double f_ref  = (ref >= 0) ? cp[ref].xeos[2] : 0.5;
+			double cf_ref = (ref >= 0) ? cp[ref].xeos[5] : 0.0;
+			for (int o = 0; o < 6; o++){
+				double f  = (o < 3) ? f_ref : 0.5;
+				double xs[6];
+				xs[0] = x_ref;
+				xs[1] = j_seed;
+				xs[2] = f;
+				xs[3] = ord[o]*j_seed;
+				xs[4] = ord[o]*j_seed*f;
+				xs[5] = cf_ref;
+				for (k = 0; k < 6; k++){
+					if (xs[k] < SS_ref_db[ph_id].bounds_ref[k][0]){ xs[k] = SS_ref_db[ph_id].bounds_ref[k][0]; }
+					if (xs[k] > SS_ref_db[ph_id].bounds_ref[k][1]){ xs[k] = SS_ref_db[ph_id].bounds_ref[k][1]; }
+					SS_ref_db[ph_id].iguess[k] = xs[k];
+				}
+				SS_ref_db[ph_id] = PC_function(			gv,
+														PC_read,
+														SS_ref_db[ph_id],
+														z_b,
+														ph_id 					);
+				SS_ref_db[ph_id] = SS_UPDATE_function(	gv,
+														SS_ref_db[ph_id],
+														z_b,
+														gv.SS_list[ph_id]		);
+				if (SS_ref_db[ph_id].sf_ok != 1 || !(SS_ref_db[ph_id].df < 0.0)){ continue; }
+
+				gv.len_cp				   += 1;
+				id_cp 		 				= gv.len_cp-1;
+				strcpy(cp[id_cp].name,gv.SS_list[ph_id]);
+				cp[id_cp].in_iter			= gv.global_ite;
+				cp[id_cp].ss_flags[0] 		= 1;
+				cp[id_cp].ss_flags[1] 		= 0;
+				cp[id_cp].ss_flags[2] 		= 1;
+				cp[id_cp].split 			= 0;
+				cp[id_cp].id 				= ph_id;
+				cp[id_cp].n_xeos			= SS_ref_db[ph_id].n_xeos;
+				cp[id_cp].n_em				= SS_ref_db[ph_id].n_em;
+				cp[id_cp].n_sf				= SS_ref_db[ph_id].n_sf;
+				for (k = 0; k < 6; k++){
+					cp[id_cp].dguess[k]     = xs[k];
+					cp[id_cp].xeos[k]       = xs[k];
+					cp[id_cp].mu[k]    		= 0.0;
+				}
+				if (gv.verbose == 1){
+					printf("  - %4s    ordered omphacite seed [%s]", gv.SS_list[ph_id], (ref >= 0) ? "act phase" : "default");
+					for (k = 0; k < 6; k++){ printf(" %+8f", xs[k]); }
+					printf("\n");
+				}
+				break;
+			}
+		}
+	}
+
+	if (gv.seed_amp == 1 && strcmp(gv.research_group, "tc") == 0 && (gv.EM_database == 1 || gv.EM_database == 11)){
+		int amp_id = -1;
+		for (int q = 0; q < gv.len_ss; q++){
+			if (strcmp(gv.SS_list[q], "amp") == 0 && SS_ref_db[q].n_xeos == 10 && SS_ref_db[q].ss_flags[0] == 1){ amp_id = q; }
+		}
+		if (amp_id >= 0){
+			int    has_gl = 0, has_act = 0, n_ref = 0;
+			int    refs[8];
+			for (int q = 0; q < gv.len_cp; q++){
+				if (cp[q].ss_flags[0] != 1 || cp[q].id != amp_id){ continue; }
+				if (cp[q].xeos[2] > 0.7){ has_gl  = 1; }
+				if (cp[q].xeos[5] > 0.7){ has_act = 1; }
+				if (n_ref < 8){ refs[n_ref] = q; n_ref += 1; }
+			}
+			int n_try = (n_ref > 0) ? n_ref : 1;
+			for (int r = 0; r < n_try && has_gl == 0; r++){
+				int    q  = (n_ref > 0) ? refs[r] : -1;
+				double xs[10] = {(q >= 0) ? cp[q].xeos[0] : 0.2, 0.95, 0.95, 0.01, (q >= 0) ? cp[q].xeos[4] : 0.1, 0.03, (q >= 0) ? cp[q].xeos[6] : 0.0, (q >= 0) ? cp[q].xeos[7] : 0.0, 0.0, 0.0};
+				has_gl = add_seed_cp(z_b, &gv, PC_read, SS_ref_db, cp, amp_id, xs, "glaucophane");
+			}
+			for (int r = 0; r < n_try && has_act == 0; r++){
+				int    q  = (n_ref > 0) ? refs[r] : -1;
+				double xs[10] = {(q >= 0) ? cp[q].xeos[0] : 0.2, 0.04, 0.04, 0.01, (q >= 0) ? cp[q].xeos[4] : 0.1, 0.95, (q >= 0) ? cp[q].xeos[6] : 0.0, (q >= 0) ? cp[q].xeos[7] : 0.0, 0.0, 0.0};
+				has_act = add_seed_cp(z_b, &gv, PC_read, SS_ref_db, cp, amp_id, xs, "actinolite");
+			}
+		}
+	}
 
 	for (i = 0; i < gv.len_ss; i++){
 		min_df    =  1e6;					// high starting value as it is expected to go down
@@ -456,6 +610,101 @@ global_variable check_PC(					bulk_info 	 		 z_b,
 
 			}
 			
+		}
+	}
+
+	if (strcmp(gv.research_group, "gh") == 0){
+		for (i = 0; i < gv.len_ss; i++){
+			if (!GH_sf_constrained(gv.SS_list[i]) || SS_ref_db[i].ss_flags[0] != 1 || gv.verifyPC[i] != 1){ continue; }
+			int n_x = SS_ref_db[i].n_xeos;
+			for (int e = 0; e < 2; e++){
+				int    best    = -1;
+				double best_df = gv.PC_df_add;
+				for (l = 0; l < SS_ref_db[i].tot_pc[0]; l++){
+					double df = SS_ref_db[i].G_pc[l];
+					for (j = 0; j < gv.len_ox; j++){ df -= SS_ref_db[i].comp_pc[l][j]*gv.gam_tot[j]; }
+					if (df >= best_df){ continue; }
+					int near = 0;
+					for (c = 0; c < gv.len_cp && !near; c++){
+						if (cp[c].id == i && euclidean_distance(cp[c].xeos, SS_ref_db[i].xeos_pc[l], n_x) < 0.5){ near = 1; }
+					}
+					if (!near){ best_df = df; best = l; }
+				}
+				if (best < 0 || gv.len_cp >= gv.max_n_cp){ break; }
+
+				gv.len_cp				   += 1;
+				id_cp 		 				= gv.len_cp-1;
+				strcpy(cp[id_cp].name,gv.SS_list[i]);
+				cp[id_cp].in_iter			= gv.global_ite;
+				cp[id_cp].ss_flags[0] 		= 1;
+				cp[id_cp].ss_flags[1] 		= 0;
+				cp[id_cp].ss_flags[2] 		= 1;
+				cp[id_cp].split 			= 0;
+				cp[id_cp].id 				= i;
+				cp[id_cp].n_xeos			= n_x;
+				cp[id_cp].n_em				= SS_ref_db[i].n_em;
+				cp[id_cp].n_sf				= SS_ref_db[i].n_sf;
+				for (k = 0; k < n_x; k++){
+					cp[id_cp].dguess[k]     = SS_ref_db[i].xeos_pc[best][k];
+					cp[id_cp].xeos[k]       = SS_ref_db[i].xeos_pc[best][k];
+					cp[id_cp].mu[k]    		= 0.0;
+				}
+				gv.n_solvi[i] 	       	   += 1;
+
+				if (gv.verbose == 1){
+					printf("  - %4s %5d, DF: %+10f added [PC DF check, distant seed]",gv.SS_list[i],best,best_df);
+					for (k = 0; k < n_x; k++){ printf(" %+8f",cp[id_cp].dguess[k]); }
+					printf("\n");
+				}
+			}
+		}
+		for (i = 0; i < gv.len_ss; i++){
+			if (strcmp(gv.SS_list[i], "liq") != 0 || SS_ref_db[i].ss_flags[0] != 1 || gv.verifyPC[i] != 1){ continue; }
+			int    n_x = SS_ref_db[i].n_xeos;
+			double thr = gv.PC_min_dist*gv.SS_PC_stp[i]*sqrt((double)n_x);
+			for (int e = 0; e < n_x; e++){
+				int    best    = -1;
+				double best_df = gv.PC_df_add;
+				for (l = 0; l < SS_ref_db[i].tot_pc[0]; l++){
+					int am = 0;
+					for (k = 1; k < n_x; k++){ if (SS_ref_db[i].xeos_pc[l][k] > SS_ref_db[i].xeos_pc[l][am]){ am = k; } }
+					if (am != e){ continue; }
+					double df = SS_ref_db[i].G_pc[l];
+					for (j = 0; j < gv.len_ox; j++){ df -= SS_ref_db[i].comp_pc[l][j]*gv.gam_tot[j]; }
+					if (df < best_df){ best_df = df; best = l; }
+				}
+				if (best < 0 || gv.len_cp >= gv.max_n_cp){ continue; }
+				int near = 0;
+				for (c = 0; c < gv.len_cp; c++){
+					if (cp[c].id == i && euclidean_distance(cp[c].xeos, SS_ref_db[i].xeos_pc[best], n_x) < thr){ near = 1; }
+				}
+				if (near){ continue; }
+
+				gv.len_cp				   += 1;
+				id_cp 		 				= gv.len_cp-1;
+				strcpy(cp[id_cp].name,gv.SS_list[i]);
+				cp[id_cp].in_iter			= gv.global_ite;
+				cp[id_cp].ss_flags[0] 		= 1;
+				cp[id_cp].ss_flags[1] 		= 0;
+				cp[id_cp].ss_flags[2] 		= 1;
+				cp[id_cp].split 			= 0;
+				cp[id_cp].id 				= i;
+				cp[id_cp].n_xeos			= n_x;
+				cp[id_cp].n_em				= SS_ref_db[i].n_em;
+				cp[id_cp].n_sf				= SS_ref_db[i].n_sf;
+				for (k = 0; k < n_x; k++){
+					cp[id_cp].dguess[k]     = SS_ref_db[i].xeos_pc[best][k];
+					cp[id_cp].xeos[k]       = SS_ref_db[i].xeos_pc[best][k];
+					cp[id_cp].mu[k]    		= 0.0;
+				}
+				gv.n_solvi[i] 	       	   += 1;
+
+				if (gv.verbose == 1){
+					printf("  - %4s %5d, DF: %+10f added [PC DF check, liq region %d]",gv.SS_list[i],best,best_df,e);
+					for (k = 0; k < n_x; k++){ printf(" %+8f",cp[id_cp].dguess[k]); }
+					printf("\n");
+				}
+			}
 		}
 	}
 

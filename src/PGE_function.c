@@ -1965,9 +1965,20 @@ global_variable final_Newton(		bulk_info 	 		 z_b,
 		double  x[d->n_xeos], r[nc], z[k0 > 0 ? k0 : 1];
 
 		for (int j = 0; j < d->n_xeos; j++){ x[j] = cp[ph_cp[q]].xeos[j]; }
+		if (d->ns_mode == 1 && d->ns_p2x == NULL){
+			double sx = 0.0;
+			for (int j = 0; j < d->n_xeos; j++){ sx += x[j]; }
+			if (sx > 0.0){ for (int j = 0; j < d->n_xeos; j++){ x[j] /= sx; } }
+		}
 		d->ns_obj(d->n_xeos, x, NULL, d);
+		double  sp  = 1.0;
+		if (d->ns_mode == 4){
+			sp = 0.0;
+			for (int i = 0; i < d->n_em; i++){ sp += d->p[i]; }
+			if (!(sp > 0.0)){ sp = 1.0; }
+		}
 		for (int i = 0; i < nc; i++){
-			r[i] = ((d->ns_mode == 3 || d->ns_mode == 4) ? ((i < d->n_em) ? d->p[i] : 0.0) : d->sf[i]) - d->ns_sf0[i];
+			r[i] = ((d->ns_mode == 3 || d->ns_mode == 4) ? ((i < d->n_em) ? d->p[i]/sp : 0.0) : d->sf[i]) - d->ns_sf0[i];
 		}
 		for (int kk = 0; kk < k0; kk++){
 			z[kk] = 0.0;
@@ -2189,8 +2200,14 @@ global_variable final_Newton(		bulk_info 	 		 z_b,
 			SS_ref *d = &SS_ref_db[cp[ph_cp[q]].id];
 			ns_x_of_sf(gv, d, &s[off_s[q]]);
 			for (int j = 0; j < d->n_xeos; j++){
-				if (d->ns_x[j] < d->bounds_ref[j][0] - FN_X_TOL || d->ns_x[j] > d->bounds_ref[j][1] + FN_X_TOL){ ok = 0; }
-				xs[off_x[q] + j] = fmin(fmax(d->ns_x[j], d->bounds_ref[j][0]), d->bounds_ref[j][1]);
+				double lo = d->bounds_ref[j][0];
+				double hi = d->bounds_ref[j][1];
+				if (d->ns_mode == 4 && hi - lo > 1e-14){
+					if (fabs(lo) <= 2.0*gv.bnd_val){ lo = 0.0; }
+					if (fabs(hi - 1.0) <= 2.0*gv.bnd_val){ hi = 1.0; }
+				}
+				if (d->ns_x[j] < lo - FN_X_TOL || d->ns_x[j] > hi + FN_X_TOL){ ok = 0; }
+				xs[off_x[q] + j] = fmin(fmax(d->ns_x[j], lo), hi);
 			}
 			if (ok && fn_sf_fit(d, &xs[off_x[q]], cp[ph_cp[q]].xeos) == 0){ ok = 0; }
 		}

@@ -1096,7 +1096,7 @@ global_variable SetupDatabase(			global_variable 	 gv,
 
 
 	// checks if research group is correct, otherwise sets to default
-	if 	( strcmp(gv.research_group, "tc") 	== 0 || strcmp(gv.research_group, "sb") == 0 || strcmp(gv.research_group, "gh") == 0 || strcmp(gv.research_group, "br") == 0 ){
+	if 	( strcmp(gv.research_group, "tc") 	== 0 || strcmp(gv.research_group, "sb") == 0 || strcmp(gv.research_group, "br") == 0 ){ //|| strcmp(gv.research_group, "gh") == 0 
 	}
 	else{
 		printf(" WARNING: Unknown research group '%s' has been provided, setting default one 'tc'\n",gv.research_group);
@@ -1333,6 +1333,14 @@ Databases InitializeDatabases(	global_variable gv,
 	}
 	else if (strcmp(gv.research_group, "sb") == 0){
 		SB_NS_init(										gv,
+														DB.SS_ref_db			);
+	}
+	else if (strcmp(gv.research_group, "br") == 0){
+		BR_NS_init(										gv,
+														DB.SS_ref_db			);
+	}
+	else if (strcmp(gv.research_group, "gh") == 0){
+		GH_NS_init(										gv,
 														DB.SS_ref_db			);
 	}
 

@@ -74,6 +74,7 @@ void update_dG(	simplex_data *splx_data
 	if (d->dG_B < d->dG_B_tol){	
 		d->min_F  =  d->min_F_tol;												/** max value for F, tentative here because F can tend to +inf */
 		for ( i = 0; i < d->n_Ox; i++){
+			if (!(d->B1[i] > 1e-10)){ continue; }
 			F = (d->n_vec[i])/d->B1[i];
 			if (F < d->min_F && F > minF){
 				d->min_F  = F;
@@ -205,6 +206,38 @@ void update_global_gamma_LU( 				bulk_info 			z_b,
 
 
 
+
+#define SPLX_REFACTOR_FREQ 16
+#define SPLX_PIVOT_MIN     1e-6
+
+static void splx_update_inverse(simplex_data *d, global_variable *gv){
+	int    n   = d->n_Ox;
+	int    r   = d->ph2swp;
+	double piv = d->B1[r];
+
+	if (gv->rank1_update == 0 || d->n_swp % SPLX_REFACTOR_FREQ == 0 || fabs(piv) < SPLX_PIVOT_MIN){
+		for (int k = 0; k < n*n; k++){ d->A1[k] = d->A[k];}
+		inverseMatrix(	gv->ipiv,
+						d->A1,
+						n,
+						gv->work,
+						gv->lwork,
+						gv->precond		);
+		return;
+	}
+
+	double *Xr = &d->A1[r*n];
+	double  ip = 1.0/piv;
+	for (int i = 0; i < n; i++){ Xr[i] *= ip; }
+	for (int c = 0; c < n; c++){
+		if (c == r){ continue; }
+		double b = d->B1[c];
+		if (b == 0.0){ continue; }
+		double *Xc = &d->A1[c*n];
+		for (int i = 0; i < n; i++){ Xc[i] -= Xr[i]*b; }
+	}
+}
+
 /**
   function to swp pure phases
 */	
@@ -284,15 +317,7 @@ void swap_pure_phases(				bulk_info 	 		 z_b,
 					d->A[k] = d->B[j];
 				}
 				
-				for (int k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k];}
-
-				/** inverse guessed assemblage stoechiometry matrix */
-				inverseMatrix(	gv.ipiv,
-								d->A1,
-								d->n_Ox,
-								gv.work,
-								gv.lwork,
-								gv.precond		);
+				splx_update_inverse(d, &gv);
 
 				/** update phase fractions */
 				MatVecMul(		d->A1,
@@ -366,15 +391,7 @@ void swap_pure_endmembers(				bulk_info 	 		 z_b,
 								int k = d->ph2swp + j*d->n_Ox;
 								d->A[k] = d->B[j];
 							}
-							for (int k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k];}
-
-							/** inverse guessed assemblage stoechiometry matrix */
-							inverseMatrix(	gv.ipiv,
-											d->A1,
-											d->n_Ox,
-											gv.work,
-											gv.lwork,
-											gv.precond	);
+							splx_update_inverse(d, &gv);
 
 							/** update phase fractions */
 							MatVecMul(		d->A1,
@@ -392,6 +409,24 @@ void swap_pure_endmembers(				bulk_info 	 		 z_b,
 /**
   function to swp solution phase pseudocompounds
 */
+static void splx_gamma(simplex_data *d, double *gam){
+	for (int j = 0; j < d->n_Ox; j++){
+		gam[j] = 0.0;
+		for (int i = 0; i < d->n_Ox; i++){ gam[j] += d->A1[j + i*d->n_Ox]*d->g0_A[i]; }
+	}
+}
+
+static int splx_prefilter(simplex_data *d, const double *gam){
+	double dG = d->g0_B;
+	for (int j = 0; j < d->n_Ox; j++){ dG -= d->B[j]*gam[j]; }
+	if (dG > d->dG_B_tol + 1.0e-9*(1.0 + fabs(d->g0_B))){
+		d->dG_B   = dG;
+		d->ph2swp = -1;
+		return 1;
+	}
+	return 0;
+}
+
 void swap_pseudocompounds(				bulk_info 	 		 z_b,
 										simplex_data 		*splx_data,
 										global_variable 	 gv,
@@ -403,6 +438,8 @@ void swap_pseudocompounds(				bulk_info 	 		 z_b,
 
 	int     i,j,k,l, max_n_pc;
 	
+	double gam[d->n_Ox];
+	splx_gamma(d, gam);
 	for ( i = 0; i < gv.len_ss; i++){										/**loop to pass informations from active endmembers */
 		if (SS_ref_db[i].ss_flags[0] == 1){
 
@@ -421,7 +458,7 @@ void swap_pseudocompounds(				bulk_info 	 		 z_b,
 				}
 
 				/** update deltaG with respect to G hyperplane */
-				update_dG(splx_data);
+				if (!splx_prefilter(d, gam)){ update_dG(splx_data); }
 				
 				/** save updated driving force */
 				SS_ref_db[i].DF_pc[l] = d->dG_B;
@@ -441,21 +478,14 @@ void swap_pseudocompounds(				bulk_info 	 		 z_b,
 						d->A[k] = d->B[j];
 					}
 					
-					for ( k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k];}
-
-					/** inverse guessed assemblage stoechiometry matrix */
-					inverseMatrix(	gv.ipiv,
-									d->A1,
-									d->n_Ox,
-									gv.work,
-									gv.lwork,
-									gv.precond	);
+					splx_update_inverse(d, &gv);
 
 					/** update phase fractions */
 					MatVecMul(		d->A1,
 									z_b.bulk_rock_cat,
 									d->n_vec,
 									d->n_Ox		);
+					splx_gamma(d, gam);
 				}
 			}
 		}
@@ -476,6 +506,8 @@ void swap_PGE_pseudocompounds(			bulk_info 	 		 z_b,
 
 	int     k, max_n_Ppc;
 	
+	double gam[d->n_Ox];
+	splx_gamma(d, gam);
 	for (int i = 0; i < gv.len_ss; i++){										/**loop to pass informations from active endmembers */
 		if (SS_ref_db[i].ss_flags[0] == 1){
 
@@ -494,7 +526,7 @@ void swap_PGE_pseudocompounds(			bulk_info 	 		 z_b,
 				}
 
 				/** update deltaG with respect to G hyperplane */
-				update_dG(splx_data);
+				if (!splx_prefilter(d, gam)){ update_dG(splx_data); }
 				
 				/** save updated driving force */
 				SS_ref_db[i].DF_Ppc[l] = d->dG_B;
@@ -515,21 +547,14 @@ void swap_PGE_pseudocompounds(			bulk_info 	 		 z_b,
 						d->A[k] = d->B[j];
 					}
 					
-					for (int k = 0; k < d->n_Ox*d->n_Ox; k++){ d->A1[k] = d->A[k];}
-
-					/** inverse guessed assemblage stoechiometry matrix */
-					inverseMatrix(	gv.ipiv,
-									d->A1,
-									d->n_Ox,
-									gv.work,
-									gv.lwork,
-									gv.precond	);
+					splx_update_inverse(d, &gv);
 
 					/** update phase fractions */
 					MatVecMul(		d->A1,
 									z_b.bulk_rock_cat,
 									d->n_vec,
 									d->n_Ox		);
+					splx_gamma(d, gam);
 				}
 			}
 		}
@@ -645,7 +670,7 @@ void generate_pseudocompounds(	int 		 		 ss,
 
 	int rg_br_gh = (strcmp(gv.research_group, "br") == 0 || strcmp(gv.research_group, "gh") == 0);
 	int rg_sb    = (strcmp(gv.research_group, "sb") == 0);
-	int ns_pc    = (strcmp(gv.research_group, "tc") == 0 || strcmp(gv.research_group, "sb") == 0) ? ns_pc_mode(gv, &SS_ref_db[ss]) : 0;
+	int ns_pc    = (strcmp(gv.research_group, "tc") == 0 || strcmp(gv.research_group, "sb") == 0 || strcmp(gv.research_group, "br") == 0 || strcmp(gv.research_group, "gh") == 0) ? ns_pc_mode(gv, &SS_ref_db[ss]) : 0;
 
 	if (ns_pc == 2){ return; }
 	int rg_gh    = (strcmp(gv.research_group, "gh") == 0);
@@ -1455,7 +1480,7 @@ void SS_all_pc_init_function(	PC_ref 	*SS_pc_xeos,
 		SS_mb_pc_init_function(			SS_pc_xeos, iss, "abc", gv		);	}
 	else if (strcmp( name, "ta_EF21")    == 0){
 		SS_um_pc_init_function(		SS_pc_xeos, iss, "ta", gv		);	}
-	else if (strcmp( name, "oamp_D07")  == 0){
+	else if (strcmp( name, "oamp_D12")  == 0){
 		SS_mb_pc_init_function(			SS_pc_xeos, iss, "oamp", gv		);	}
 	else if (strcmp( name, "DEW_S24") == 0){
 		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "DEW", gv	);	}

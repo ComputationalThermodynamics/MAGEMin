@@ -4149,7 +4149,7 @@ SS_ref G_SS_mb_chl_function(SS_ref SS_ref_db, char* research_group, int EM_datas
    retrieve reference thermodynamic data for mb_oamp
 */
 SS_ref G_SS_mb_oamp_function(SS_ref SS_ref_db, char* research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
-    strcpy(SS_ref_db.fName,"oamp_D07");
+    strcpy(SS_ref_db.fName,"oamp_D12");
     int i, j;
     int n_em = SS_ref_db.n_em;
     
@@ -19452,14 +19452,8 @@ SS_ref G_SS_ig_EM_function(		global_variable 	 gv,
 	/* Associate the right solid-solution data */
 	for (int FD = 0; FD < gv.n_Diff; FD++){				/* cycle twice in order to get gb_P_eps to calculate densities later on */
 		
-		if (FD == 8 || FD == 9){				// dG/dP0 to get Volume at P = 1bar
-			SS_ref_db.P = 1.+ gv.gb_P_eps*gv.pdev[0][FD];
-			SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-		}
-		else{
-			SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
-			SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-		}
+		SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
+		SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
 
 		if (strcmp( name, "bi") == 0 ){
 			if (z_b.bulk_rock[gv.H2O_id] == 0. || z_b.bulk_rock[gv.K2O_id] == 0. || z_b.bulk_rock[gv.Al2O3_id] == 0.){
@@ -19643,14 +19637,8 @@ SS_ref G_SS_igd_EM_function(	global_variable 	 gv,
 
    /* Associate the right solid-solution data */
    for (int FD = 0; FD < gv.n_Diff; FD++){				/* cycle twice in order to get gb_P_eps to calculate densities later on */
-      if (FD == 8 || FD == 9){				// dG/dP0 to get Volume at P = 1bar
-         SS_ref_db.P = 1.+ gv.gb_P_eps*gv.pdev[0][FD];
-         SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-      }
-      else{
-         SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
-         SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-      }
+      SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
+      SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
       if (strcmp( name, "liq") == 0 ){
          SS_ref_db  = G_SS_igd_liq_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
       else if (strcmp( name, "fsp") == 0 ){
@@ -19750,14 +19738,8 @@ SS_ref G_SS_igad_EM_function(	global_variable 	 gv,
 
    /* Associate the right solid-solution data */
    for (int FD = 0; FD < gv.n_Diff; FD++){				/* cycle twice in order to get gb_P_eps to calculate densities later on */
-      if (FD == 8 || FD == 9){				// dG/dP0 to get Volume at P = 1bar
-         SS_ref_db.P = 1.+ gv.gb_P_eps*gv.pdev[0][FD];
-         SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-      }
-      else{
-         SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
-         SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-      }
+      SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
+      SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
       if (strcmp( name, "liq") == 0 ){
          SS_ref_db  = G_SS_igad_liq_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
       else if (strcmp( name, "fsp") == 0 ){
@@ -19880,14 +19862,8 @@ SS_ref G_SS_mp_EM_function(		global_variable 	 gv,
 	/* Associate the right solid-solution data */
 	for (int FD = 0; FD < gv.n_Diff; FD++){				/* cycle twice in order to get gb_P_eps to calculate densities later on */
 		
-		if (FD == 8 || FD == 9){				// dG/dP0 to get Volume at P = 1bar
-			SS_ref_db.P = 1.+ gv.gb_P_eps*gv.pdev[0][FD];
-			SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-		}
-		else{
-			SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
-			SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-		}
+		SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
+		SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
 
 		if (strcmp( name, "liq") == 0){
 			/* turn of liquid when T < 600°C) */
@@ -20085,14 +20061,8 @@ SS_ref G_SS_um_EM_function(		global_variable 	 gv,
 	/* Associate the right solid-solution data */
 	for (int FD = 0; FD < gv.n_Diff; FD++){				/* cycle twice in order to get gb_P_eps to calculate densities later on */
 		//printf("%d %d %s...........\n",FD,EM_dataset,name);	
-		if (FD == 8 || FD == 9){				// dG/dP0 to get Volume at P = 1bar
-			SS_ref_db.P = 1.+ gv.gb_P_eps*gv.pdev[0][FD];
-			SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-		}
-		else{
-			SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
-			SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-		}
+		SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
+		SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
 
 		if (strcmp( name, "fl") == 0 ){
 			// if no H2O, deactivate; also deactivated when DEW is active - it replaces this phase as the free-fluid model
@@ -20232,14 +20202,8 @@ SS_ref G_SS_um_ext_EM_function(	global_variable 	 gv,
 	/* Associate the right solid-solution data */
 	for (int FD = 0; FD < gv.n_Diff; FD++){				/* cycle twice in order to get gb_P_eps to calculate densities later on */
 		//printf("%d %d %s...........\n",FD,EM_dataset,name);	
-		if (FD == 8 || FD == 9){				// dG/dP0 to get Volume at P = 1bar
-			SS_ref_db.P = 1.+ gv.gb_P_eps*gv.pdev[0][FD];
-			SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-		}
-		else{
-			SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
-			SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-		}
+		SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
+		SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
 
 		if (strcmp( name, "fl") == 0 ){
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
@@ -20414,14 +20378,8 @@ SS_ref G_SS_mtl_EM_function(	global_variable 	 gv,
 	/* Associate the right solid-solution data */
 	for (int FD = 0; FD < gv.n_Diff; FD++){				/* cycle twice in order to get gb_P_eps to calculate densities later on */
 		//printf("%d %d %s...........\n",FD,EM_dataset,name);	
-		if (FD == 8 || FD == 9){				// dG/dP0 to get Volume at P = 1bar
-			SS_ref_db.P = 1.+ gv.gb_P_eps*gv.pdev[0][FD];
-			SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-		}
-		else{
-			SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
-			SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-		}
+		SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
+		SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
 
 		if (strcmp( name, "g") == 0 ){
 			SS_ref_db  = G_SS_mtl_g_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);}
@@ -20542,14 +20500,8 @@ SS_ref G_SS_mpe_EM_function(	global_variable 	 gv,
 	/* Associate the right solid-solution data */
 	for (int FD = 0; FD < gv.n_Diff; FD++){				/* cycle twice in order to get gb_P_eps to calculate densities later on */
 		
-		if (FD == 8 || FD == 9){				// dG/dP0 to get Volume at P = 1bar
-			SS_ref_db.P = 1.+ gv.gb_P_eps*gv.pdev[0][FD];
-			SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-		}
-		else{
-			SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
-			SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-		}
+		SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
+		SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
 
 		if (strcmp( name, "liq") == 0){
 			/* turn of liquid when T < 600°C) */
@@ -20809,14 +20761,8 @@ SS_ref G_SS_all_EM_function(	global_variable 	 gv,
 	/* Associate the right solid-solution data */
 	for (int FD = 0; FD < gv.n_Diff; FD++){				/* cycle twice in order to get gb_P_eps to calculate densities later on */
 
-		if (FD == 8 || FD == 9){				// dG/dP0 to get Volume at P = 1bar
-			SS_ref_db.P = 1.+ gv.gb_P_eps*gv.pdev[0][FD];
-			SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-		}
-		else{
-			SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
-			SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-		}
+		SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
+		SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
 
 		/* liq (4 citation variants: igd/mb/mpe/ig) */
 		if (strcmp( name, "liq_S26") == 0 ){
@@ -21089,7 +21035,7 @@ SS_ref G_SS_all_EM_function(	global_variable 	 gv,
 				SS_ref_db.ss_flags[0]  = 0;
 			}
 			SS_ref_db  = G_SS_um_ta_function(SS_ref_db, gv.research_group, EM_dataset, gv.len_ox, z_b, eps);	}
-		else if (strcmp( name, "oamp_D07") == 0 ){
+		else if (strcmp( name, "oamp_D12") == 0 ){
 			if (z_b.bulk_rock[gv.H2O_id] == 0.){
 				SS_ref_db.ss_flags[0]  = 0;
 			}

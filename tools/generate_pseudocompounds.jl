@@ -47,6 +47,7 @@ const GH_N_EM = Dict(
     "opx" => 7,
     "fl"  => 2,
     "rhm" => 5,
+    "rhm_pmelts" => 4,
     "nph" => 4,
     "kls" => 4,
     "liq_pmelts_dataset" => 12,

@@ -25,28 +25,28 @@
    for oxide_info_sb) so "gh" doesn't depend on tc internals. */
 oxide_data oxide_info_gh = {
     16,
-    {"SiO2","Al2O3","CaO","MgO","FeO","K2O","Na2O","TiO2","O","MnO","Cr2O3","H2O","CO2","S","Cl","ecp"},
-    {"Si","Al","Ca","Mg","Fe","K","Na","Ti","O","Mn","Cr","H","C","S","Cl","ecp"},
-    {60.08,101.96,56.08,40.30,71.85,94.2,61.98,79.88,16.0,70.94,151.99,18.015,44.01,32.06,35.453,0.0},
-    {3.0,5.0,2.0,2.0,2.0,3.0,3.0,3.0,1.0,2.0,5.0,3.0,3.0,1.0,1.0,0.0},
-    {66.7736,108.653,42.9947,40.3262,38.7162,69.1514,61.1729,70.3246,30.5827,40.1891,106.9795,69.5449,62.8768,9.5557,33.2556,0.0},
-    {2,3,1,1,1,1,1,2,1,1,3,1,2,0,0,0},
-    {1,2,1,1,1,2,2,1,1,1,2,2,1,1,1,0}
+    {"SiO2"   ,"Al2O3"  ,"CaO"    ,"MgO"    ,"FeO"    ,"K2O"    ,"Na2O"   ,"TiO2"   ,"O"      ,"MnO"    ,"Cr2O3"  ,"H2O"    ,"CO2"    ,"S"      ,"Cl"     ,"ecp"    },
+    {"Si"     ,"Al"     ,"Ca"     ,"Mg"     ,"Fe"     ,"K"      ,"Na"     ,"Ti"     ,"O"      ,"Mn"     ,"Cr"     ,"H"      ,"C"      ,"S"      ,"Cl"     ,"ecp"    },
+    {60.08    ,101.96   ,56.08    ,40.30    ,71.85    ,94.2     ,61.98    ,79.88    ,16.0     ,70.94    ,151.99   ,18.015   ,44.01    ,32.06    ,35.453   ,0.0      },
+    {3.0      ,5.0      ,2.0      ,2.0      ,2.0      ,3.0      ,3.0      ,3.0      ,1.0      ,2.0      ,5.0      ,3.0      ,3.0      ,1.0      ,1.0      ,0.0      },
+    {66.7736  ,108.653  ,42.9947  ,40.3262  ,38.7162  ,69.1514  ,61.1729  ,70.3246  ,30.5827  ,40.1891  ,106.9795 ,69.5449  ,62.8768  ,9.5557   ,33.2556  ,0.0      },
+    {2        ,3        ,1        ,1        ,1        ,1        ,1        ,2        ,1        ,1        ,3        ,1        ,2        ,0        ,0        ,0        },
+    {1        ,2        ,1        ,1        ,1        ,2        ,2        ,1        ,1        ,1        ,2        ,2        ,1        ,1        ,1        ,0        }
 };
 
 gh_dataset gh_db = {
 	1,							/* ds_version (single Stage-A dataset)				*/
 	13,							/* number of oxides									*/
-	25,							/* number of pure phases							*/
-	16,							/* number of solution phases						*/
+	29,							/* number of pure phases							*/
+	18,							/* number of solution phases						*/
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"Cr2O3","H2O"	,"CO2"				            },
-	{"aTiO2","aAl2O3","qfm" ,"hm"   ,"q"	,"crst"	,"trd"	,"cor"	,"sill"	,"and"	,"ky"	,"ru"	,"sph"	,"perov","cc"	,"arag"	,"mgs"	,"sid"	,
-	 "dol"	,"spu"	,"til"	,"mu"	,"aeg"	,"aen"	,"O2"	/* ,"H2O"*/															        },
-	{"liq"	,"ol"	,"fsp"	,"bi"	,"g"	,"hb"	,"lc"	,"mel"	,"cum"	,"spn"	,"cpx"	,"opx"	,"fl"	,"rhm"	,"nph"	,"kls"	},
+	{"aTiO2","aAl2O3","qfm" ,"hm"   ,"nno"	,"iw"	,"q"	,"crst"	,"trd"	,"cor"	,"sill"	,"ru"	,"sph"	,"perov","cc"	,"arag"	,"mgs"	,"sid"	,
+	 "dol"	,"spu"	,"til"	,"mu"	,"aeg"	,"aen"	,"gph"	,"dia"	,"Fe"	,"Feliq","O2"	/* ,"H2O"*/															        },
+	{"liq"	,"ol"	,"fsp"	,"bi"	,"g"	,"hb"	,"lc"	,"mel"	,"cum"	,"spn"	,"cpx"	,"opx"	,"fl"	,"rhm"	,"nph"	,"kls"	,"oox"	,"amp"	},
 
-	{1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		}, // allow solvus?
-	{1820	,41		,231	,41		,231	,231	,231	,165	,41		,1001	,3003	,3003	,41		,1820	,165	,165	}, // # of pseudocompound
-	{0.15	,0.025	,0.05	,0.05	,0.05	,0.05	,0.05	,0.10	,0.025	,0.05	,0.10	,0.10	,0.025	,0.05	,0.125	,0.125	}, // discretization step
+	{1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		}, // allow solvus?
+	{1820	,1877	,231	,41		,231	,312	,312	,165	,41		,1591	,6201	,6195	,41		,1820	,536	,536	,231	,356	}, // # of pseudocompound
+	{0.15	,0.05	,0.05	,0.05	,0.05	,0.05	,0.05	,0.10	,0.025	,0.05	,0.10	,0.10	,0.025	,0.05	,0.125	,0.125	,0.05	,0.05	}, // discretization step
 
 	6.0, 						/** max dG under which a phase is considered to be reintroduced  					*/
 	673.15,						/** max temperature above which PGE solver is active 								*/
@@ -66,15 +66,15 @@ gh_dataset gh_db = {
 gh_dataset gh_db_pmelts_dataset = {
 	1,							/* ds_version (single Stage-A dataset)				*/
 	12,							/* number of oxides									*/
-	19,							/* number of pure phases							*/
-	15,							/* number of solution phases						*/
+	20,							/* number of pure phases							*/
+	17,							/* number of solution phases						*/
 	{"SiO2"	,"Al2O3","CaO"	,"MgO"	,"FeO"	,"K2O"	,"Na2O"	,"TiO2"	,"O"	,"MnO"	,"Cr2O3","H2O"						            },
-	{"aTiO2","aAl2O3","qfm" ,"hm"   ,"q"	,"crst"	,"trd"	,"cor"	,"sill"	,"and"	,"ky"	,"ru"	,"sph"	,"perov","mu"	,"aeg"	,"aen"	,"O2"	,"H2O"	},
-	{"liq"	,"ol"	,"fsp"	,"bi"	,"g"	,"hb"	,"lc"	,"mel"	,"cum"	,"spn"	,"cpx"	,"opx"	,"rhm"	,"nph"	,"kls"	},
+	{"aTiO2","aAl2O3","qfm" ,"hm"   ,"nno"	,"iw"	,"q"	,"crst"	,"trd"	,"cor"	,"ru"	,"sph"	,"perov","mu"	,"aeg"	,"aen"	,"Fe"	,"Feliq","O2"	,"H2O"	},
+	{"liq"	,"ol"	,"fsp"	,"bi"	,"g"	,"hb"	,"lc"	,"mel"	,"cum"	,"spn"	,"cpx"	,"opx"	,"rhm"	,"nph"	,"kls"	,"oox"	,"amp"	},
 
-	{1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		}, // allow solvus?
-	{4368	,41		,231	,41		,231	,231	,231	,165	,41		,1001	,3003	,3003	,1820	,165	,165	}, // # of pseudocompound
-	{0.15	,0.025	,0.05	,0.05	,0.05	,0.05	,0.05	,0.10	,0.025	,0.05	,0.10	,0.10	,0.05	,0.125	,0.125	}, // discretization step
+	{1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		}, // allow solvus?
+	{4368	,1877	,231	,41		,231	,312	,312	,165	,41		,1591	,6201	,6195	,1771	,536	,536	,231	,356	}, // # of pseudocompound
+	{0.15	,0.05	,0.05	,0.05	,0.05	,0.05	,0.05	,0.10	,0.025	,0.05	,0.10	,0.10	,0.05	,0.125	,0.125	,0.05	,0.05	}, // discretization step
 
 	6.0, 						/** max dG under which a phase is considered to be reintroduced  					*/
 	673.15,						/** max temperature above which PGE solver is active 								*/
@@ -162,7 +162,7 @@ global_variable global_variable_GH_init(   global_variable      gv,
     gv.gibbs_ev         = malloc (gv.it_f*2 * sizeof (double) );
     gv.ite_time         = malloc (gv.it_f*2 * sizeof (double) );
 
-    gv.n_Diff = 8;
+    gv.n_Diff = 10;
     gv.pdev = malloc (2 * sizeof(double*));
     for (i = 0; i < 2; i++){
         gv.pdev[i] = malloc (gv.n_Diff * sizeof(double));
@@ -174,7 +174,9 @@ global_variable global_variable_GH_init(   global_variable      gv,
     gv.pdev[0][4]  =  2.0;  gv.pdev[1][4]  =  0.0;
     gv.pdev[0][5]  =  1.0;  gv.pdev[1][5]  =  0.0;
     gv.pdev[0][6]  =  3.0;  gv.pdev[1][6]  =  0.0;
-    gv.pdev[0][7]  =  0.0;  gv.pdev[1][7]  =  0.0;
+    gv.pdev[0][7]  =  2.0;	gv.pdev[1][7]  =  1.0;
+    gv.pdev[0][8]  =  2.0;	gv.pdev[1][8]  = -1.0;
+    gv.pdev[0][9]  =  0.0;	gv.pdev[1][9]  =  0.0;
 
     gv.V_cor = malloc (2 * sizeof(double));
 
@@ -207,6 +209,12 @@ global_variable global_variable_GH_init(   global_variable      gv,
     gv.A_PGE  = malloc ((gv.len_ox*gv.len_ox*9)    * sizeof(double));
     gv.A0_PGE = malloc ((gv.len_ox*gv.len_ox*9)    * sizeof(double));
     gv.b_PGE  = malloc ((gv.len_ox*3)              * sizeof(double));
+
+    gv.fn_nz_max = gv.len_ox*20;
+    gv.fn_A    = malloc ((gv.fn_nz_max*gv.fn_nz_max)   * sizeof(double));
+    gv.fn_b    = malloc ((gv.fn_nz_max)                * sizeof(double));
+    gv.fn_ipiv = malloc ((gv.fn_nz_max)                * sizeof(int)   );
+    gv.fn_sys  = fn_kkt_alloc(gv);
 
     gv.cp_id  = malloc ((gv.len_ox)                * sizeof(int)  );
     gv.pp_id  = malloc ((gv.len_ox)                * sizeof(int)  );

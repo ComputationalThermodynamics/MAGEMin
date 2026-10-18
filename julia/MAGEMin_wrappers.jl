@@ -157,7 +157,7 @@ end
     buffer_n : T
         Buffer value.
     G_system : T
-        Gibbs free energy of the system.
+        Gibbs energy of the system per mol of bulk oxides (bulk normalised to 1 mol) [kJ/mol].
     Gamma : Vector{T}
         Chemical potentials of oxides.
     P_kbar : T
@@ -167,7 +167,7 @@ end
     X : Vector{T}
         Compositional variable(s).
     M_sys : T
-        Molar mass of the system.
+        Molar mass of the system per mol of bulk oxides [g/mol].
     bulk : Vector{T}
         Bulk rock composition [mol].
     bulk_M : Vector{T}
@@ -203,19 +203,21 @@ end
     frac_F_vol : T
         Fluid fraction [vol].
     entropy_S : T
-        Entropy of solid [J/K].
+        Entropy of the solid phases per mol of bulk oxides [kJ/K/mol].
     entropy_M : T
-        Entropy of melt [J/K].
+        Entropy of the melt per mol of bulk oxides [kJ/K/mol].
     entropy_F : T
-        Entropy of fluid [J/K].
+        Entropy of the fluid per mol of bulk oxides [kJ/K/mol].
     alpha : Vector{T}
-        Thermal expansivity.
+        Isobaric thermal expansivity of the system, volume-weighted mean of the phase expansivities at fixed phase compositions [1/K] (with `scp=1`: equilibrium value including reactions).
+    beta : T
+        Isothermal compressibility of the system, volume-weighted mean of the phase compressibilities at fixed phase compositions [1/GPa].
     V : T
-        Volume [J/bar].
+        Volume of the system per mol of bulk oxides (bulk normalised to 1 mol), ∂G/∂P including excess volumes [cm³/mol]; ∂G/∂P in kJ/kbar is `V/10`.
     V_cm3 : T
-        Volume [cm³].
+        Specific volume of the system, 1/ρ [cm³/kg].
     s_cp : Vector{T}
-        Heat capacity.
+        Specific isobaric heat capacity of the system at fixed phase compositions [J/K/kg] (with `scp=1`: equilibrium value including latent heat of reactions).
     rho : T
         System density [kg/m³].
     rho_M : T
@@ -273,11 +275,11 @@ end
     PH_vec : Dict{Symbol, Union{LibMAGEMin.SS_data, LibMAGEMin.PP_data}}
         Symbol-to-data mapping for stable phases (solution or pure); use `haskey(PH_vec, sym)` to check if a phase is stable before indexing.
     SS_vec : Vector{LibMAGEMin.SS_data}
-        Solution phase data.
+        Solution phase data. Extensive properties are per mol of oxides of the phase: `G`, `enthalpy` [kJ/mol], `entropy`, `cp` [kJ/K/mol], `V` [cm³/mol]; `V_fu` is the volume per mol of formula unit [cm³/mol]. Intensive: `rho` [kg/m³], `alpha` [1/K], `beta` (isothermal compressibility) [1/GPa], `bulkMod` (adiabatic), `shearMod` [GPa], `Vp`, `Vs` [km/s]. All at fixed phase composition, from the full phase Gibbs energy.
     mSS_vec : Vector{LibMAGEMin.mSS_data}
         Metastable solution phase data.
     PP_vec : Vector{LibMAGEMin.PP_data}
-        Pure phase data.
+        Pure phase data, same fields and units as `SS_vec` (extensive properties per mol of oxides of the phase, `V_fu` per formula unit).
     oxides : Vector{String}
         Oxide names.
     elements : Vector{String}
@@ -305,9 +307,9 @@ end
     Vs_cor : T
         Seismic-corrected S-wave velocity of solid aggregate [km/s] (melt + anelastic corrections; NaN if `seismic_cor=false`).
     entropy : Vector{T}
-        Entropy [J/K].
+        Entropy of the system per mol of bulk oxides [kJ/K/mol].
     enthalpy : Vector{T}
-        Enthalpy [J].
+        Enthalpy of the system per mol of bulk oxides [kJ/mol].
     iter : I
         Number of iterations required.
     bulk_res_norm : T
@@ -1646,13 +1648,13 @@ end
         Solver type (default: 0).
     optimizer : Int64, optional
         Local optimizer of the solution phases, used by the legacy solver (`solver=0`) for the
-        THERMOCALC and Stixrude & Lithgow-Bertelloni databases: 0 NLopt (default), 1 nullspace
+        THERMOCALC, Stixrude & Lithgow-Bertelloni, Berman and MELTS databases: 0 NLopt (default), 1 nullspace
         minimization with NLopt fallback.
         With 1, oxides set exactly to zero in the bulk are removed from the system, including
         the core oxides that are otherwise raised to 1e-4 (reduced systems below FMAS).
     final_Newton_step : Int64, optional
-        Newton polish of the converged assemblage (THERMOCALC and Stixrude & Lithgow-Bertelloni
-        databases): 1 active (default), 0 inactive. Solves the equilibrium conditions of the
+        Newton polish of the converged assemblage (THERMOCALC, Stixrude & Lithgow-Bertelloni,
+        Berman and MELTS databases): 1 active (default), 0 inactive. Solves the equilibrium conditions of the
         stable assemblage to machine precision, so that chemical potentials, phase fractions and
         compositions are consistent; the solver result is kept when the step does not converge.
 
@@ -1787,13 +1789,13 @@ end
         Solver type (default: 0).
     optimizer : Int64, optional
         Local optimizer of the solution phases, used by the legacy solver (`solver=0`) for the
-        THERMOCALC and Stixrude & Lithgow-Bertelloni databases: 0 NLopt (default), 1 nullspace
+        THERMOCALC, Stixrude & Lithgow-Bertelloni, Berman and MELTS databases: 0 NLopt (default), 1 nullspace
         minimization with NLopt fallback.
         With 1, oxides set exactly to zero in the bulk are removed from the system, including
         the core oxides that are otherwise raised to 1e-4 (reduced systems below FMAS).
     final_Newton_step : Int64, optional
-        Newton polish of the converged assemblage (THERMOCALC and Stixrude & Lithgow-Bertelloni
-        databases): 1 active (default), 0 inactive. Solves the equilibrium conditions of the
+        Newton polish of the converged assemblage (THERMOCALC, Stixrude & Lithgow-Bertelloni,
+        Berman and MELTS databases): 1 active (default), 0 inactive. Solves the equilibrium conditions of the
         stable assemblage to machine precision, so that chemical potentials, phase fractions and
         compositions are consistent; the solver result is kept when the step does not converge.
 
@@ -2728,7 +2730,7 @@ end
 """
 function define_bulk_rock(gv, bulk_in, bulk_in_ox, sys_in,db)
 
-    ns_reduced      = is_db(db) && (get_db(db).research_group == "sb" || (gv.ss_solver == 1 && gv.solver == 0 && get_db(db).research_group == "tc"))
+    ns_reduced      = is_db(db) && (get_db(db).research_group in ("sb", "br") || (gv.ss_solver == 1 && gv.solver == 0 && get_db(db).research_group in ("tc", "gh")))
     bulk_rock, ox   = convertBulk4MAGEMin(bulk_in,bulk_in_ox,sys_in,db; ns_reduced = ns_reduced)     # conversion changes the system unit to mol
     unsafe_copyto!(gv.bulk_rock, pointer(bulk_rock), gv.len_ox)            # copy the bulk-rock
 
@@ -2897,9 +2899,9 @@ end
     oxMinGuard : Bool, optional
         Set non-core oxides below 2e-5 to zero (default: true).
     ns_reduced : Bool, optional
-        Reduced system (SB databases, or THERMOCALC with the nullspace optimizer: `optimizer=1`,
-        `solver=0`): core oxides set exactly to zero (or below 2e-5 with `oxMinGuard`) stay zero
-        instead of being raised to 1e-4 (default: false).
+        Reduced system (SB and Berman databases, or THERMOCALC and MELTS with the nullspace optimizer:
+        `optimizer=1`, `solver=0`): core oxides set exactly to zero (or below 2e-5 with `oxMinGuard`)
+        stay zero instead of being raised to 1e-4 (default: false).
 
     Returns
     -------
@@ -3382,7 +3384,7 @@ function point_wise_minimization(   P       ::Float64,
                 id_pc       = unsafe_wrap(Vector{Cint},SS_ref_db[ph_id].id_pc, 1)
 
                 xeos        = copy(Gi[i].xeos_Ppc)
-                ns_pc       = rg in ("tc", "sb") ? LibMAGEMin.ns_pc_mode(gv, pointer(SS_ref_db, ph_id)) : 0
+                ns_pc       = rg in ("tc", "sb", "br", "gh") ? LibMAGEMin.ns_pc_mode(gv, pointer(SS_ref_db, ph_id)) : 0
                 if ns_pc == 2 || (ns_pc == 1 && LibMAGEMin.ns_project_x(gv, pointer(SS_ref_db, ph_id), xeos) == 0)
                     continue
                 end
@@ -3494,7 +3496,7 @@ function point_wise_minimization(   P       ::Float64,
 
         out.enthalpy    .= out.entropy*(T+273.15) .+ out.G_system;
         out.s_cp        .= hcp/out.M_sys*1e6;
-        out.alpha       .= 1.0/( (out_N.G_system - out.G_system)/dP * 10.0)*((dGdT_N-dGdT_P)/(dP))
+        out.alpha       .= 1.0/( (out_N.G_system - out.G_system)/dP )*((dGdT_N-dGdT_P)/(dP))
     end
 
     return out
@@ -4192,7 +4194,7 @@ function _filter_DEW_species(ss :: LibMAGEMin.SS_data, eps :: Float64 = 1e-40)
     keep = findall(x -> x > eps, ss.emFrac)
 
     return LibMAGEMin.SS_data(
-        ss.f, ss.G, ss.deltaG, ss.V, ss.alpha, ss.beta, ss.entropy, ss.enthalpy, ss.cp, ss.rho,
+        ss.f, ss.G, ss.deltaG, ss.V, ss.V_fu, ss.alpha, ss.beta, ss.entropy, ss.enthalpy, ss.cp, ss.rho,
         ss.bulkMod, ss.shearMod, ss.Vp, ss.Vs, ss.pH, ss.chargeResidual, ss.sumMolality, ss.G_water,
         ss.Comp, ss.Comp_wt, ss.Comp_apfu,
         ss.compVariables, ss.compVariablesNames,
@@ -4764,7 +4766,7 @@ function print_info(g::gmin_struct)
 
 
     println("Stable mineral assemblage:")
-    println("          phase  mode[mol1at] mode[wt]        f           G        V       Cp  rho[kg/m3]  Thermal_Exp Entropy[J/K] Enthalpy[J] BulkMod[GPa] ShearMod[GPa]   Vp[km/s]   Vs[km/s]")
+    println("          phase  mode[mol1at] mode[wt] mode[vol]       f  G[kJ/mol] V[cm3/mol] Cp[kJ/K/mol] rho[kg/m3] alpha[1/K] S[kJ/K/mol] H[kJ/mol] BulkMod[GPa] ShearMod[GPa]   Vp[km/s]   Vs[km/s]")
     for i=1:g.n_SS
         print("$(lpad(g.ph[i],15," ")) ")
         print("$(lpad(round(g.ph_frac[i],digits=5),13," ")) ")
@@ -4952,7 +4954,7 @@ function point_wise_minimization_with_guess(    mSS_vec ::  Vector{LibMAGEMin.mS
 
                 unsafe_copyto!(SS_ref_db[ph_id].gb_lvl,SS_ref_db[ph_id].gbase, SS_ref_db[ph_id].n_em)
                 xeos        = copy(mSS_vec[i].xeos_Ppc)
-                ns_pc       = rg in ("tc", "sb") ? LibMAGEMin.ns_pc_mode(gv, pointer(SS_ref_db, ph_id)) : 0
+                ns_pc       = rg in ("tc", "sb", "br", "gh") ? LibMAGEMin.ns_pc_mode(gv, pointer(SS_ref_db, ph_id)) : 0
                 if ns_pc == 2 || (ns_pc == 1 && LibMAGEMin.ns_project_x(gv, pointer(SS_ref_db, ph_id), xeos) == 0)
                     continue
                 end

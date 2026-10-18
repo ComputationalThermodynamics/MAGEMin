@@ -45,6 +45,8 @@ struct db_registry
     dataset_opt     :: NTuple{5,Int64}
 end
 
+const GH_ENABLED = false
+
 """
     MAGEMIN_DATABASES
 
@@ -60,7 +62,7 @@ end
 
     The row order is significant: `db_infos_generated.jl` is emitted in this order.
 """
-const MAGEMIN_DATABASES = db_registry[
+const MAGEMIN_DATABASES = filter(d -> GH_ENABLED || d.research_group != "gh", db_registry[
     db_registry("mp",     "tc",  0, "Metapelite (White et al., 2014)",                                                                              62, (62, 633, 634, 635, 636)),
     db_registry("mb",     "tc",  1, "Metabasite (Green et al., 2016)",                                                                              62, (62, 633, 634, 635, 636)),
     db_registry("mbe",    "tc", 11, "Metabasite extended (Green et al., 2016 with oamp from Diener et al., 2007 and ta from Rebay et al., 2022)",   62, (62, 633, 634, 635, 636)),
@@ -79,7 +81,7 @@ const MAGEMIN_DATABASES = db_registry[
     db_registry("xMELTS", "gh",  0, "xMELTS dev",                                                                                                    1, ( 1,   1,   1,   1,   1)),
     db_registry("pMELTS", "gh",  2, "pMELTS 5.6.1",                                                                                                  1, ( 1,   1,   1,   1,   1)),
     db_registry("rMELTS", "gh",  1, "rMELTS 1.2.0",                                                                                                  1, ( 1,   1,   1,   1,   1)),
-]
+])
 
 const _DB_REGISTRY_BY_NAME = Dict{String,db_registry}(d.db_name => d for d in MAGEMIN_DATABASES)
 const _DB_REGISTRY_INDEX   = Dict{String,Int64}(d.db_name => i for (i,d) in enumerate(MAGEMIN_DATABASES))
@@ -93,7 +95,7 @@ const _DB_REGISTRY_INDEX   = Dict{String,Int64}(d.db_name => i for (i,d) in enum
     Examples
     --------
     ```julia
-    get_db_list()                       # all 18
+    get_db_list()                       # all enabled databases
     get_db_list(research_group = "sb")  # ["sb11", "sb21", "sb24"]
     ```
 """

@@ -10,6 +10,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ =#
 # This script generates the reference points of the nullspace optimizer test suite (optimizer=1, solver=0)
 # One file test_diagram_ns_<case>.jl is written per case of ns_cases.jl; points that do not converge are skipped
+# Case names given as arguments restrict the generation to these cases (default: all cases)
 
 cur_dir = pwd();    
 if  cur_dir[end-3:end]=="test"
@@ -20,6 +21,9 @@ using MAGEMin_C
 include(joinpath(@__DIR__, "ns_cases.jl"))
 
 for c in ns_cases
+    if !isempty(ARGS) && !(c.name in ARGS)
+        continue
+    end
     P, T    = ns_case_points(c)
     out     = ns_case_run(c, P, T)
 

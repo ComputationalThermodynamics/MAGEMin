@@ -137,7 +137,7 @@ SS_ref G_SS_br_chl_function(SS_ref SS_ref_db, char *research_group, int EM_datas
     };
 
     double T = SS_ref_db.T;
-    double P = SS_ref_db.P;
+    double P = SS_ref_db.P*1000.0;
     /* M1 pairs, order: FeMg, FeAl, Fev, MgAl, Mgv, Alv (WH,WS,WV; FeMg=0) */
     SS_ref_db.W[0] = 0.0;
     SS_ref_db.W[1] = 1200.0    - T*31.0   + P*0.7;
@@ -167,8 +167,8 @@ SS_ref G_SS_br_chl_function(SS_ref SS_ref_db, char *research_group, int EM_datas
     }
 
     for (i = 0; i < SS_ref_db.n_xeos; i++){
-        SS_ref_db.bounds_ref[i][0] = 0.0+eps;
-        SS_ref_db.bounds_ref[i][1] = 1.0-eps;
+        SS_ref_db.bounds_ref[i][0] = -1.0;
+        SS_ref_db.bounds_ref[i][1] =  1.0;
     }
 
     for (i = 0; i < n_em; i++){
@@ -193,7 +193,7 @@ SS_ref G_SS_br_mica_function(SS_ref SS_ref_db, char *research_group, int EM_data
     };
 
     double T = SS_ref_db.T;
-    double P = SS_ref_db.P;
+    double P = SS_ref_db.P*1000.0;
     /* I-site (K,Na,v), subregular: KKNa,KNaNa,NaNav,Navv,KKv,Kvv,KNav(ternary) */
     SS_ref_db.W[0] = 12230.0  - T*(-5.0)   + P*0.67;
     SS_ref_db.W[1] = 19456.0  - T*(-1.65)  + P*(-0.46);
@@ -227,8 +227,8 @@ SS_ref G_SS_br_mica_function(SS_ref SS_ref_db, char *research_group, int EM_data
     }
 
     for (i = 0; i < SS_ref_db.n_xeos; i++){
-        SS_ref_db.bounds_ref[i][0] = 0.0+eps;
-        SS_ref_db.bounds_ref[i][1] = 1.0-eps;
+        SS_ref_db.bounds_ref[i][0] = -1.0;
+        SS_ref_db.bounds_ref[i][1] =  1.0;
     }
 
     for (i = 0; i < n_em; i++){
@@ -348,7 +348,7 @@ SS_ref G_SS_br_crd_function(SS_ref SS_ref_db, char *research_group, int EM_datas
 
 SS_ref G_SS_br_grt_function(SS_ref SS_ref_db, char *research_group, int EM_dataset, int len_ox, bulk_info z_b, double eps){
     strcpy(SS_ref_db.fName,"grt_BR");
-    double P = SS_ref_db.P;
+    double P = SS_ref_db.P*1000.0;
     /* W_112 (py-py-alm), W_122 (py-alm-alm); W_S=0 for both */
     SS_ref_db.W[0] = 230.0  + P*0.01;
     SS_ref_db.W[1] = 3720.0 + P*0.06;
@@ -471,7 +471,7 @@ SS_ref G_SS_br_fsp_function(SS_ref SS_ref_db, char *research_group, int EM_datas
     };
 
     double T = SS_ref_db.T;
-    double P = SS_ref_db.P;
+    double P = SS_ref_db.P*1000.0;
     /* Fuhrman & Lindsley (1988): W1=ab2kfs, W2=abkfs2, W3=ab2an, W4=aban2,
        W5=an2kfs, W6=ankfs2, W7=ternary (ab-an-kfs) */
     SS_ref_db.W[0] = 27320.0   - T*10.3    + P*0.394;
@@ -588,6 +588,14 @@ SS_ref G_SS_br_EM_function( global_variable gv, SS_ref SS_ref_db, int EM_dataset
             SS_ref_db.mu_array[FD][j] = SS_ref_db.gbase[j];
         }
         store_FD_interactions(&SS_ref_db, FD);
+    }
+
+    int n_em_act = 0;
+    for (int i = 0; i < SS_ref_db.n_em; i++){
+        if (SS_ref_db.z_em[i] == 1.0){ n_em_act += 1; }
+    }
+    if (n_em_act == 0){
+        SS_ref_db.ss_flags[0] = 0;
     }
 
     for (int j = 0; j < SS_ref_db.n_xeos; j++){

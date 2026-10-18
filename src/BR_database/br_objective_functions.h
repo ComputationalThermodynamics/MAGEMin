@@ -32,6 +32,8 @@ double obj_br_omph(unsigned n, const double *x, double *grad, void *SS_ref_db);
 double obj_br_amphx(unsigned n, const double *x, double *grad, void *SS_ref_db);
 double obj_br_fsp(unsigned n, const double *x, double *grad, void *SS_ref_db);
 
+int BR_sf_constrained(const char *name);
+
 void BR_SS_objective_init_function(obj_type *SS_objective, global_variable gv);
 
 void BR_PC_init(PC_type *PC_read, global_variable gv);

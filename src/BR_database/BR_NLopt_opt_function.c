@@ -29,7 +29,42 @@ static double br_equality_constraint(unsigned n, const double *x, double *grad, 
     return sum - 1.0;
 }
 
-static SS_ref NLopt_opt_br_generic(global_variable gv, SS_ref SS_ref_db, obj_type obj){
+typedef struct br_sf_lin_ {
+    int     n_sf;
+    double  sf0[16];
+    double  J[16*16];
+} br_sf_lin;
+
+static void br_sf_constraint(unsigned m, double *result, unsigned n, const double *x, double *grad, void *data){
+    br_sf_lin *L = (br_sf_lin *) data;
+    for (unsigned i = 0; i < m; i++){
+        double r = L->sf0[i];
+        for (unsigned k = 0; k < n; k++){ r += L->J[i*n + k]*x[k]; }
+        result[i] = -r;
+        if (grad){
+            for (unsigned k = 0; k < n; k++){ grad[i*n + k] = -L->J[i*n + k]; }
+        }
+    }
+}
+
+static void br_sf_linearize(SS_ref *d, obj_type obj, br_sf_lin *L){
+    int     n  = d->n_xeos;
+    double  z[n], s1[d->n_sf];
+    L->n_sf = d->n_sf;
+    for (int k = 0; k < n; k++){
+        for (int j = 0; j < n; j++){ z[j] = (j == k) ? 1.0 : 0.0; }
+        obj(n, z, NULL, d);
+        for (int i = 0; i < L->n_sf; i++){ s1[i] = d->sf[i]; }
+        z[k] = 2.0;
+        obj(n, z, NULL, d);
+        for (int i = 0; i < L->n_sf; i++){
+            L->J[i*n + k] = d->sf[i] - s1[i];
+            if (k == 0){ L->sf0[i] = 2.0*s1[i] - d->sf[i]; }
+        }
+    }
+}
+
+static SS_ref NLopt_opt_br_generic_sf(global_variable gv, SS_ref SS_ref_db, obj_type obj, int sf_constrained){
     unsigned int n_em = SS_ref_db.n_em;
     double *x = SS_ref_db.iguess;
 
@@ -46,16 +81,24 @@ static SS_ref NLopt_opt_br_generic(global_variable gv, SS_ref SS_ref_db, obj_typ
        nudge any component sitting within 1e-3 of a bound inward before the
        solve, then renormalize to keep the equality constraint satisfied. */
     {
-        double sum = 0.0;
+        double sum_free = 0.0;
+        double sum_pin  = 0.0;
         int nudged = 0;
         for (int i = 0; i < (int)n_em; i++){
             double lb = SS_ref_db.lb[i], ub = SS_ref_db.ub[i];
+            if (ub - lb <= 2e-3){
+                if (x[i] != lb){ x[i] = lb; nudged = 1; }
+                sum_pin += x[i];
+                continue;
+            }
             if (x[i] - lb < 1e-3){ x[i] = lb + 1e-3; nudged = 1; }
             else if (ub - x[i] < 1e-3){ x[i] = ub - 1e-3; nudged = 1; }
-            sum += x[i];
+            sum_free += x[i];
         }
-        if (nudged && sum > 0.0){
-            for (int i = 0; i < (int)n_em; i++){ x[i] /= sum; }
+        if (nudged && sum_free > 0.0){
+            for (int i = 0; i < (int)n_em; i++){
+                if (SS_ref_db.ub[i] - SS_ref_db.lb[i] > 2e-3){ x[i] *= (1.0 - sum_pin)/sum_free; }
+            }
         }
     }
 
@@ -64,6 +107,13 @@ static SS_ref NLopt_opt_br_generic(global_variable gv, SS_ref SS_ref_db, obj_typ
     nlopt_set_upper_bounds(SS_ref_db.opt, SS_ref_db.ub);
     nlopt_set_min_objective(SS_ref_db.opt, obj, &SS_ref_db);
     nlopt_add_equality_constraint(SS_ref_db.opt, br_equality_constraint, NULL, 1e-5);
+    br_sf_lin L;
+    if (sf_constrained){
+        double tol[SS_ref_db.n_sf];
+        for (int i = 0; i < SS_ref_db.n_sf; i++){ tol[i] = 0.0; }
+        br_sf_linearize(&SS_ref_db, obj, &L);
+        nlopt_add_inequality_mconstraint(SS_ref_db.opt, SS_ref_db.n_sf, br_sf_constraint, &L, tol);
+    }
     nlopt_set_ftol_rel(SS_ref_db.opt, gv.obj_tol);
     nlopt_set_maxeval(SS_ref_db.opt, gv.maxeval);
 
@@ -85,6 +135,10 @@ static SS_ref NLopt_opt_br_generic(global_variable gv, SS_ref SS_ref_db, obj_typ
     return SS_ref_db;
 }
 
+static SS_ref NLopt_opt_br_generic(global_variable gv, SS_ref SS_ref_db, obj_type obj){
+    return NLopt_opt_br_generic_sf(gv, SS_ref_db, obj, 0);
+}
+
 SS_ref NLopt_opt_br_ctd_function(global_variable gv, SS_ref SS_ref_db){
     return NLopt_opt_br_generic(gv, SS_ref_db, obj_br_ctd);
 }
@@ -93,15 +147,12 @@ SS_ref NLopt_opt_br_car_function(global_variable gv, SS_ref SS_ref_db){
     return NLopt_opt_br_generic(gv, SS_ref_db, obj_br_car);
 }
 
-/* obj_br_chl/obj_br_mica now carry full analytic gradients (derived via the
-   site-fraction chain rule, same structural approach as TC's own dp_dx
-   matrices) - SLSQP throughout, same as every other BR solution phase. */
 SS_ref NLopt_opt_br_chl_function(global_variable gv, SS_ref SS_ref_db){
-    return NLopt_opt_br_generic(gv, SS_ref_db, obj_br_chl);
+    return NLopt_opt_br_generic_sf(gv, SS_ref_db, obj_br_chl, 1);
 }
 
 SS_ref NLopt_opt_br_mica_function(global_variable gv, SS_ref SS_ref_db){
-    return NLopt_opt_br_generic(gv, SS_ref_db, obj_br_mica);
+    return NLopt_opt_br_generic_sf(gv, SS_ref_db, obj_br_mica, 1);
 }
 
 SS_ref NLopt_opt_br_talc_function(global_variable gv, SS_ref SS_ref_db){

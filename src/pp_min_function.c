@@ -1729,109 +1729,52 @@ global_variable init_em_db_gh(	int 				EM_database,
 				PP_ref_db[i].phase_shearModulus  = TiO2.phase_shearModulus;
 				gv.pp_flags[i][4] 	= 1;
 			}	
-			else if (strcmp( gv.PP_list[i], "qfm") 	== 0){
+			else if (	strcmp( gv.PP_list[i], "qfm") == 0 || strcmp( gv.PP_list[i], "hm") == 0 ||
+						strcmp( gv.PP_list[i], "nno") == 0 || strcmp( gv.PP_list[i], "iw") == 0){
 
-				PP_ref q 	= G_EM_function(	gv.research_group,
-                                                gv.EM_dataset, 
+				PP_ref O2 	= G_EM_function(	gv.research_group,
+                                                gv.EM_dataset,
 												gv.len_ox,
 												z_b.id,
-												z_b.bulk_rock, 
-												z_b.apo, 
-												z_b.P, 
-												z_b.T, 
-												"q", 
-												state				);
-				PP_ref fa 	= G_EM_function(	gv.research_group,
-                                                gv.EM_dataset, 
-												gv.len_ox,
-												z_b.id,
-												z_b.bulk_rock, 
-												z_b.apo, 
-												z_b.P, 
-												z_b.T, 
-												"fa", 
+												z_b.bulk_rock,
+												z_b.apo,
+												0.001,
+												z_b.T,
+												"O2",
 												state				);
 
-				PP_ref mt 	= G_EM_function(	gv.research_group,
-                                                gv.EM_dataset, 
-												gv.len_ox,
-												z_b.id,
-												z_b.bulk_rock, 
-												z_b.apo, 
-												z_b.P, 
-												z_b.T, 
-												"mt", 
-												state				);
+				double Pbar 	= z_b.P*1000.0;
+				double log10fo2;
+				if (strcmp( gv.PP_list[i], "qfm") == 0){
+					log10fo2 = -24441.9/z_b.T + 0.110*(Pbar-1.0)/z_b.T + 8.290;
+				}
+				else if (strcmp( gv.PP_list[i], "hm") == 0){
+					log10fo2 = -23847.6/z_b.T + 13.480;
+				}
+				else if (strcmp( gv.PP_list[i], "nno") == 0){
+					log10fo2 = -24930.0/z_b.T + 9.360;
+				}
+				else{
+					log10fo2 = -26834.7/z_b.T + 6.471;
+				}
 
 				strcpy(PP_ref_db[i].Name, gv.PP_list[i]);
 				for (int j = 0; j < gv.len_ox; j++){
-					PP_ref_db[i].Comp[j] = -3.0 * fa.Comp[j] + 3.0*q.Comp[j] + 2.0*mt.Comp[j];
-				}		
+					PP_ref_db[i].Comp[j] = O2.Comp[j];
+				}
 
-				/* Calculate the number of atoms in the bulk-rock composition */
 				double fbc     = 0.0;
 				for (int j = 0; j < gv.len_ox; j++){
 					fbc += z_b.bulk_rock[j]*z_b.apo[j];
 				}
-				
-				/* Calculate the number of atom in the solution */
 				double ape = 0.0;
 				for (int j = 0; j < gv.len_ox; j++){
 					ape += PP_ref_db[i].Comp[j]*z_b.apo[j];
 				}
-				/* Calculate normalizing factor */
-				double factor = fbc/ape;
 
-				PP_ref_db[i].gbase   =  -3.0 * fa.gbase + 3.0*q.gbase + 2.0*mt.gbase + z_b.T*0.019145*gv.buffer_n;
-				PP_ref_db[i].factor  =  factor;
-				PP_ref_db[i].phase_shearModulus  =  -3.0 * fa.phase_shearModulus + 3.0*q.phase_shearModulus + 2.0*mt.phase_shearModulus;
-				gv.pp_flags[i][4] 	= 1;
-			}
-			else if (strcmp( gv.PP_list[i], "hm") 	== 0){
-
-				PP_ref mt 	= G_EM_function(	gv.research_group,
-                                                gv.EM_dataset, 
-												gv.len_ox,
-												z_b.id,
-												z_b.bulk_rock, 
-												z_b.apo, 
-												z_b.P, 
-												z_b.T, 
-												"mt", 
-												state				);
-				PP_ref hem 	= G_EM_function(	gv.research_group,
-                                                gv.EM_dataset, 
-												gv.len_ox,
-												z_b.id,
-												z_b.bulk_rock, 
-												z_b.apo, 
-												z_b.P, 
-												z_b.T, 
-												"hem", 
-												state				);
-
-				strcpy(PP_ref_db[i].Name, gv.PP_list[i]);
-				for (int j = 0; j < gv.len_ox; j++){
-					PP_ref_db[i].Comp[j] = 6.0*hem.Comp[j] - 4.0*mt.Comp[j];
-				}		
-
-				/* Calculate the number of atoms in the bulk-rock composition */
-				double fbc     = 0.0;
-				for (int j = 0; j < gv.len_ox; j++){
-					fbc += z_b.bulk_rock[j]*z_b.apo[j];
-				}
-				
-				/* Calculate the number of atom in the solution */
-				double ape = 0.0;
-				for (int j = 0; j < gv.len_ox; j++){
-					ape += PP_ref_db[i].Comp[j]*z_b.apo[j];
-				}
-				/* Calculate normalizing factor */
-				double factor = fbc/ape;
-
-				PP_ref_db[i].gbase   =  6.0*hem.gbase -4.0*mt.gbase + z_b.T*0.019145*gv.buffer_n;
-				PP_ref_db[i].factor  =  factor;
-				PP_ref_db[i].phase_shearModulus  = 6.0*hem.phase_shearModulus -4.0*mt.phase_shearModulus;
+				PP_ref_db[i].gbase   			 =  O2.gbase + 0.0083143*z_b.T*log(10.0)*(log10fo2 + gv.buffer_n);
+				PP_ref_db[i].factor  			 =  fbc/ape;
+				PP_ref_db[i].phase_shearModulus  =  0.0;
 				gv.pp_flags[i][4] 	= 1;
 			}
 			else if (i >= gv.len_pp - gv.n_mu_fix){

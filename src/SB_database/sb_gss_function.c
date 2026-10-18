@@ -1398,14 +1398,8 @@ SS_ref G_SS_sb11_EM_function(       global_variable        gv,
     /* Associate the right solid-solution data */
     for (int FD = 0; FD < gv.n_Diff; FD++){	
 
-        if (FD == 8 || FD == 9){
-            SS_ref_db.P = 1.+ gv.gb_P_eps*gv.pdev[0][FD];
-            SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-        }
-        else{
-            SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
-            SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-        }
+        SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
+        SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
 
         if (strcmp( name, "plg") == 0 ){
 			if ( SS_ref_db.P > 500.0 ){
@@ -2962,14 +2956,8 @@ SS_ref G_SS_sb21_EM_function(       global_variable          gv,
     /* Associate the right solid-solution data */
     for (int FD = 0; FD < gv.n_Diff; FD++){
 
-        if (FD == 8 || FD == 9){
-            SS_ref_db.P = 1.+ gv.gb_P_eps*gv.pdev[0][FD];
-            SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-        }
-        else{
-            SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
-            SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-        }
+        SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
+        SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
 
         if (strcmp( name, "plg") == 0 ){
 			if ( SS_ref_db.P > 500.0 ){
@@ -4922,14 +4910,8 @@ SS_ref G_SS_sb24_nal_function(SS_ref SS_ref_db, char* research_group, int EM_dat
     /* Associate the right solid-solution data */
     for (int FD = 0; FD < gv.n_Diff; FD++){	
 
-        if (FD == 8 || FD == 9){
-            SS_ref_db.P = 1.+ gv.gb_P_eps*gv.pdev[0][FD];
-            SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-        }
-        else{
-            SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
-            SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
-        }
+        SS_ref_db.P = P + gv.gb_P_eps*gv.pdev[0][FD];
+        SS_ref_db.T = T + gv.gb_T_eps*gv.pdev[1][FD];
 
         if (strcmp( name, "plg") == 0 ){
             if ( SS_ref_db.P > 500.0 ){

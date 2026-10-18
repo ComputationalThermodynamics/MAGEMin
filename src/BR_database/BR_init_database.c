@@ -22,28 +22,28 @@
 
 oxide_data oxide_info_br = {
     16,
-    {"SiO2","Al2O3","MgO","FeO","K2O","Na2O","H2O","CaO","TiO2","O","MnO","Cr2O3","CO2","S","Cl","ecp"},
-    {"Si","Al","Mg","Fe","K","Na","H","Ca","Ti","O","Mn","Cr","C","S","Cl","ecp"},
-    {60.08,101.96,40.30,71.85,94.2,61.98,18.015,56.08,79.88,16.0,70.94,151.99,44.01,32.06,35.453,0.0},
-    {3.0,5.0,2.0,2.0,3.0,3.0,3.0,2.0,3.0,1.0,2.0,5.0,3.0,1.0,1.0,0.0},
-    {66.7736,108.653,40.3262,38.7162,69.1514,61.1729,69.5449,42.9947,70.3246,30.5827,40.1891,106.9795,62.8768,9.5557,33.2556,0.0},
-    {2,3,1,1,1,1,1,1,2,1,1,3,2,0,0,0},
-    {1,2,1,1,2,2,2,1,1,1,1,2,1,1,1,0}
+    {"SiO2"   ,"Al2O3"  ,"MgO"    ,"FeO"    ,"K2O"    ,"Na2O"   ,"H2O"    ,"CaO"    ,"TiO2"   ,"O"      ,"MnO"    ,"Cr2O3"  ,"CO2"    ,"S"      ,"Cl"     ,"ecp"    },
+    {"Si"     ,"Al"     ,"Mg"     ,"Fe"     ,"K"      ,"Na"     ,"H"      ,"Ca"     ,"Ti"     ,"O"      ,"Mn"     ,"Cr"     ,"C"      ,"S"      ,"Cl"     ,"ecp"    },
+    {60.08    ,101.96   ,40.30    ,71.85    ,94.2     ,61.98    ,18.015   ,56.08    ,79.88    ,16.0     ,70.94    ,151.99   ,44.01    ,32.06    ,35.453   ,0.0      },
+    {3.0      ,5.0      ,2.0      ,2.0      ,3.0      ,3.0      ,3.0      ,2.0      ,3.0      ,1.0      ,2.0      ,5.0      ,3.0      ,1.0      ,1.0      ,0.0      },
+    {66.7736  ,108.653  ,40.3262  ,38.7162  ,69.1514  ,61.1729  ,69.5449  ,42.9947  ,70.3246  ,30.5827  ,40.1891  ,106.9795 ,62.8768  ,9.5557   ,33.2556  ,0.0      },
+    {2        ,3        ,1        ,1        ,1        ,1        ,1        ,1        ,2        ,1        ,1        ,3        ,2        ,0        ,0        ,0        },
+    {1        ,2        ,1        ,1        ,2        ,2        ,2        ,1        ,1        ,1        ,1        ,2        ,1        ,1        ,1        ,0        }
 };
 
 /* Active subset of the full 85-entry BR_PP_endmembers.c table, curated for "po". */
 br_dataset br_db = {
     1,
     10,
-    14,
+    15,
     17,
-    {"SiO2","Al2O3","MgO","FeO","K2O","Na2O","H2O","CaO","TiO2","O"},
-    {"cor","coe","q","ky","and","sill","mtlc","ftlc","law","glc","dsp","h2o","mt","hem"},
-    {"ctd","car","chl","mica","talc","ilm","bt","ol","ep","opx","spl","stau","crd","grt","omph","amphx","fsp"},
+    {"SiO2" ,"Al2O3","MgO"  ,"FeO"  ,"K2O"  ,"Na2O" ,"H2O"  ,"CaO"  ,"TiO2" ,"O"    },
+    {"cor"  ,"coe"  ,"q"    ,"ky"   ,"and"  ,"sill" ,"law"  ,"glc"  ,"dsp"  ,"h2o"  ,"mt"   ,"hem"  ,"ru"   ,"bq"   ,"sph"  },
+    {"ctd"  ,"car"  ,"chl"  ,"mica" ,"talc" ,"ilm"  ,"bt"   ,"ol"   ,"ep"   ,"opx"  ,"spl"  ,"stau" ,"crd"  ,"grt"  ,"omph" ,"amphx","fsp"  },
 
-    {1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1, 0,0,0,0,0,0,0},
-    {201,201,1001,1001, 201,201,201,201,201,201,201,201,201,201,861,861,861, 0,0,0,0,0,0,0},
-    {0.001,0.001,0.01,0.01, 0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.005,0.005,0.005, 0.0,0.0,0.0,0.0,0.0,0.0,0.0},
+    {1      ,1      ,1      ,1      ,1      ,1      ,1      ,1      ,1      ,1      ,1      ,1      ,1      ,1      ,1      ,1      ,1      ,0      ,0      ,0      ,0      ,0      ,0      ,0      },
+    {201    ,201    ,1239   ,870    ,201    ,201    ,201    ,201    ,201    ,201    ,201    ,201    ,201    ,201    ,861    ,861    ,861    ,0      ,0      ,0      ,0      ,0      ,0      ,0      },
+    {0.001  ,0.001  ,0.01   ,0.01   ,0.001  ,0.001  ,0.001  ,0.001  ,0.001  ,0.001  ,0.001  ,0.001  ,0.001  ,0.001  ,0.005  ,0.005  ,0.005  ,0.0    ,0.0    ,0.0    ,0.0    ,0.0    ,0.0    ,0.0    },
 
     6.0,
     673.15,
@@ -126,7 +126,7 @@ global_variable global_variable_BR_init(   global_variable      gv,
     gv.gibbs_ev         = malloc (gv.it_f*2 * sizeof (double) );
     gv.ite_time         = malloc (gv.it_f*2 * sizeof (double) );
 
-    gv.n_Diff = 8;
+    gv.n_Diff = 10;
     gv.pdev = malloc (2 * sizeof(double*));
     for (i = 0; i < 2; i++){
         gv.pdev[i] = malloc (gv.n_Diff * sizeof(double));
@@ -138,7 +138,9 @@ global_variable global_variable_BR_init(   global_variable      gv,
     gv.pdev[0][4]  =  2.0;  gv.pdev[1][4]  =  0.0;
     gv.pdev[0][5]  =  1.0;  gv.pdev[1][5]  =  0.0;
     gv.pdev[0][6]  =  3.0;  gv.pdev[1][6]  =  0.0;
-    gv.pdev[0][7]  =  0.0;  gv.pdev[1][7]  =  0.0;
+    gv.pdev[0][7]  =  2.0;	gv.pdev[1][7]  =  1.0;
+    gv.pdev[0][8]  =  2.0;	gv.pdev[1][8]  = -1.0;
+    gv.pdev[0][9]  =  0.0;	gv.pdev[1][9]  =  0.0;
 
     gv.V_cor = malloc (2 * sizeof(double));
 
@@ -171,6 +173,12 @@ global_variable global_variable_BR_init(   global_variable      gv,
     gv.A_PGE  = malloc ((gv.len_ox*gv.len_ox*9)    * sizeof(double));
     gv.A0_PGE = malloc ((gv.len_ox*gv.len_ox*9)    * sizeof(double));
     gv.b_PGE  = malloc ((gv.len_ox*3)              * sizeof(double));
+
+    gv.fn_nz_max = gv.len_ox*20;
+    gv.fn_A    = malloc ((gv.fn_nz_max*gv.fn_nz_max)   * sizeof(double));
+    gv.fn_b    = malloc ((gv.fn_nz_max)                * sizeof(double));
+    gv.fn_ipiv = malloc ((gv.fn_nz_max)                * sizeof(int)   );
+    gv.fn_sys  = fn_kkt_alloc(gv);
 
     gv.cp_id  = malloc ((gv.len_ox)                * sizeof(int)  );
     gv.pp_id  = malloc ((gv.len_ox)                * sizeof(int)  );

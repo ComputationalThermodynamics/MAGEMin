@@ -163,7 +163,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");					/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"2.0.8 [13/10/2026]");		/** MAGEMin version 																*/
+	strcpy(gv.version,"2.0.9 [18/10/2026]");		/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
@@ -188,6 +188,9 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.mpIlm 				=  0;					/** 0: Ilmm, 1: Ilm 																*/
 	gv.ig_ed 				=  0;					/** 0: flag to activate edited version of bi and amp for igneous database 			*/
 	gv.precond 				=  1;					/** 1: precondition (Ruiz-scale) the stoichiometric matrix before inverseMatrix's LU inversion, 0: preconditioning off 	*/
+	gv.rank1_update 		=  1;					/** 1: update the rank-1 matrix, 0: do not update */
+	gv.seed_dio 			=  1;					/** 1: seeds ordering instances for better HP-LP convergence */
+	gv.seed_amp 			=  1;
 	gv.BR_rel_norm 			=  1;					/** 1: PGE mass-residual convergence norm is per-oxide-relative (normalized by bulk abundance), 0: old absolute norm 	*/
 	gv.gh_multistart_order 	=  0;					/** 0 (default): single starting guess for gh's embedded order-parameter phases, matching real xMELTS' own order() exactly; 1: legacy multi-start (see MAGEMin.h) 	*/
 
@@ -256,8 +259,8 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.re_in_df 			= -1e-6;
 	
 	/* numerical derivatives P,T steps (same value as TC) */
-	gv.gb_P_eps				=  2e-3;				/** small value to calculate V using finite difference: V = dG/dP;					*/
-	gv.gb_T_eps				=  2e-3;				/** small value to calculate V using finite difference: V = dG/dP;					*/
+	gv.gb_P_eps				=  1e-2;				/** small value to calculate V using finite difference: V = dG/dP;					*/
+	gv.gb_T_eps				=  1e-1;				/** small value to calculate V using finite difference: V = dG/dP;					*/
 	gv.poisson_ratio 		=  0.3;					/** poisson ratio to compute elastic shear modulus 									*/
 
 	/* initialize other values 			*/

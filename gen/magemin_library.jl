@@ -253,6 +253,10 @@ function GH_find_PP_id(name)
     ccall((:GH_find_PP_id, libMAGEMin), Cint, (Ptr{Cchar},), name)
 end
 
+function GH_anorthite_adjustment_G(T)
+    ccall((:GH_anorthite_adjustment_G, libMAGEMin), Cdouble, (Cdouble,), T)
+end
+
 function GH_G_EM_function(EM_database, len_ox, id, bulk_rock, apo, P, T, name, state)
     ccall((:GH_G_EM_function, libMAGEMin), PP_ref, (Cint, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Cdouble, Cdouble, Ptr{Cchar}, Ptr{Cchar}), EM_database, len_ox, id, bulk_rock, apo, P, T, name, state)
 end
@@ -263,8 +267,10 @@ mutable struct PP_db_br_
     H::Cdouble
     S::Cdouble
     V::Cdouble
-    cp_berman::NTuple{11, Cdouble}
+    cp_berman::NTuple{7, Cdouble}
     eos_berman::NTuple{4, Cdouble}
+    landa::NTuple{4, Cdouble}
+    dis::NTuple{10, Cdouble}
     PP_db_br_() = new()
 end
 
@@ -282,8 +288,24 @@ function BR_berman_HS(T, H0, S0, cp, H_out, S_out)
     ccall((:BR_berman_HS, libMAGEMin), Cvoid, (Cdouble, Cdouble, Cdouble, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}), T, H0, S0, cp, H_out, S_out)
 end
 
+function BR_landa_G(T, P, landa)
+    ccall((:BR_landa_G, libMAGEMin), Cdouble, (Cdouble, Cdouble, Ptr{Cdouble}), T, P, landa)
+end
+
+function BR_disorder_G(T, P, dis)
+    ccall((:BR_disorder_G, libMAGEMin), Cdouble, (Cdouble, Cdouble, Ptr{Cdouble}), T, P, dis)
+end
+
 function BR_berman_EOS_dG(T, P, V0, eos)
     ccall((:BR_berman_EOS_dG, libMAGEMin), Cdouble, (Cdouble, Cdouble, Cdouble, Ptr{Cdouble}), T, P, V0, eos)
+end
+
+function BR_albite_Salje_G(T, P)
+    ccall((:BR_albite_Salje_G, libMAGEMin), Cdouble, (Cdouble, Cdouble), T, P)
+end
+
+function BR_water_Haar_G(T, P)
+    ccall((:BR_water_Haar_G, libMAGEMin), Cdouble, (Cdouble, Cdouble), T, P)
 end
 
 function BR_G_EM_function(EM_dataset, len_ox, id, bulk_rock, apo, P, T, name, state)
@@ -817,6 +839,9 @@ mutable struct global_variables
     mpIlm::Cint
     ig_ed::Cint
     precond::Cint
+    rank1_update::Cint
+    seed_dio::Cint
+    seed_amp::Cint
     BR_rel_norm::Cint
     gh_multistart_order::Cint
     fixed_bulk::Cint
@@ -1365,6 +1390,7 @@ struct stb_SS_phases
     G::Cdouble
     deltaG::Cdouble
     V::Cdouble
+    V_fu::Cdouble
     alpha::Cdouble
     beta::Cdouble
     cp::Cdouble
@@ -1427,6 +1453,7 @@ struct stb_PP_phases
     G::Cdouble
     deltaG::Cdouble
     V::Cdouble
+    V_fu::Cdouble
     alpha::Cdouble
     beta::Cdouble
     cp::Cdouble
@@ -1844,7 +1871,7 @@ mutable struct ultramafic_ext_datasets
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{11, NTuple{20, Cchar}}
-    PP::NTuple{27, NTuple{20, Cchar}}
+    PP::NTuple{28, NTuple{20, Cchar}}
     SS::NTuple{19, NTuple{20, Cchar}}
     verifyPC::NTuple{19, Cint}
     n_SS_PC::NTuple{19, Cint}
@@ -1896,7 +1923,7 @@ mutable struct metapelite_datasets_ext
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{13, NTuple{20, Cchar}}
-    PP::NTuple{33, NTuple{20, Cchar}}
+    PP::NTuple{34, NTuple{20, Cchar}}
     SS::NTuple{28, NTuple{20, Cchar}}
     verifyPC::NTuple{28, Cint}
     n_SS_PC::NTuple{28, Cint}
@@ -1922,7 +1949,7 @@ mutable struct all_datasets
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{14, NTuple{20, Cchar}}
-    PP::NTuple{36, NTuple{20, Cchar}}
+    PP::NTuple{37, NTuple{20, Cchar}}
     SS::NTuple{63, NTuple{20, Cchar}}
     verifyPC::NTuple{63, Cint}
     n_SS_PC::NTuple{63, Cint}
@@ -2070,11 +2097,11 @@ mutable struct gh_datasets
     n_pp::Cint
     n_ss::Cint
     ox::NTuple{13, NTuple{20, Cchar}}
-    PP::NTuple{25, NTuple{20, Cchar}}
-    SS::NTuple{16, NTuple{20, Cchar}}
-    verifyPC::NTuple{16, Cint}
-    n_SS_PC::NTuple{16, Cint}
-    SS_PC_stp::NTuple{16, Cdouble}
+    PP::NTuple{29, NTuple{20, Cchar}}
+    SS::NTuple{18, NTuple{20, Cchar}}
+    verifyPC::NTuple{18, Cint}
+    n_SS_PC::NTuple{18, Cint}
+    SS_PC_stp::NTuple{18, Cdouble}
     PC_df_add::Cdouble
     solver_switch_T::Cdouble
     min_melt_T::Cdouble
@@ -3030,6 +3057,14 @@ function SB_NS_init(gv, SS_ref_db)
     ccall((:SB_NS_init, libMAGEMin), Cvoid, (global_variable, Ptr{SS_ref}), gv, SS_ref_db)
 end
 
+function BR_NS_init(gv, SS_ref_db)
+    ccall((:BR_NS_init, libMAGEMin), Cvoid, (global_variable, Ptr{SS_ref}), gv, SS_ref_db)
+end
+
+function GH_NS_init(gv, SS_ref_db)
+    ccall((:GH_NS_init, libMAGEMin), Cvoid, (global_variable, Ptr{SS_ref}), gv, SS_ref_db)
+end
+
 function NS_free(SS_ref_db)
     ccall((:NS_free, libMAGEMin), Cvoid, (Ptr{SS_ref},), SS_ref_db)
 end
@@ -3406,6 +3441,26 @@ function obj_gh_kls(n, x, grad, SS_ref_db)
     ccall((:obj_gh_kls, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
+function obj_gh_oox(n, x, grad, SS_ref_db)
+    ccall((:obj_gh_oox, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_gh_amp(n, x, grad, SS_ref_db)
+    ccall((:obj_gh_amp, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function GH_sf_constrained(name)
+    ccall((:GH_sf_constrained, libMAGEMin), Cint, (Ptr{Cchar},), name)
+end
+
+function GH_n_sf(name, n_em)
+    ccall((:GH_n_sf, libMAGEMin), Cint, (Ptr{Cchar}, Cint), name, n_em)
+end
+
+function GH_sf_of_p(name, p, sf)
+    ccall((:GH_sf_of_p, libMAGEMin), Cvoid, (Ptr{Cchar}, Ptr{Cdouble}, Ptr{Cdouble}), name, p, sf)
+end
+
 function GH_SS_objective_init_function(SS_objective, gv)
     ccall((:GH_SS_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
 end
@@ -3656,6 +3711,10 @@ end
 
 function obj_br_fsp(n, x, grad, SS_ref_db)
     ccall((:obj_br_fsp, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function BR_sf_constrained(name)
+    ccall((:BR_sf_constrained, libMAGEMin), Cint, (Ptr{Cchar},), name)
 end
 
 function BR_SS_objective_init_function(SS_objective, gv)
@@ -4219,6 +4278,10 @@ function print_SS_informations(gv, SS_ref_db, iss)
     ccall((:print_SS_informations, libMAGEMin), Cvoid, (global_variable, SS_ref, Cint), gv, SS_ref_db, iss)
 end
 
+function SS_G_zero_p_limit(d)
+    ccall((:SS_G_zero_p_limit, libMAGEMin), Cdouble, (Ptr{SS_ref},), d)
+end
+
 function rotate_hyperplane(gv, SS_ref_db)
     ccall((:rotate_hyperplane, libMAGEMin), SS_ref, (global_variable, SS_ref), gv, SS_ref_db)
 end
@@ -4267,9 +4330,9 @@ function compute_density_volume_modulus(EM_database, z_b, gv, PP_ref_db, SS_ref_
     ccall((:compute_density_volume_modulus, libMAGEMin), global_variable, (Cint, bulk_info, global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), EM_database, z_b, gv, PP_ref_db, SS_ref_db, cp)
 end
 
-const GH_N_PP = 64
+const GH_N_PP = 76
 
-const BR_N_PP = 87
+const BR_N_PP = 88
 
 const NLOPT_MINF_MAX_REACHED = NLOPT_STOPVAL_REACHED
 
@@ -4339,6 +4402,7 @@ struct SS_data
     G::Cdouble
     deltaG::Cdouble
     V::Cdouble
+    V_fu::Cdouble
     alpha::Cdouble
     beta::Cdouble
     entropy::Cdouble
@@ -4372,7 +4436,7 @@ struct SS_data
 end
 
 function Base.convert(::Type{SS_data}, a::stb_SS_phases)
-    return SS_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.beta, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs, a.pH,
+    return SS_data(a.f, a.G, a.deltaG, a.V, a.V_fu, a.alpha, a.beta, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs, a.pH,
                                     a.chargeResidual, a.sumMolality, a.G_water,
                                     unsafe_wrap( Vector{Cdouble},        a.Comp,             a.nOx),
                                     unsafe_wrap( Vector{Cdouble},        a.Comp_wt,          a.nOx),
@@ -4449,6 +4513,7 @@ struct PP_data
     G::Cdouble
     deltaG::Cdouble
     V::Cdouble
+    V_fu::Cdouble
     alpha::Cdouble
     beta::Cdouble
     entropy::Cdouble
@@ -4465,7 +4530,7 @@ struct PP_data
 end
 
 function Base.convert(::Type{PP_data}, a::stb_PP_phases) 
-    return PP_data(a.f, a.G, a.deltaG, a.V, a.alpha, a.beta, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
+    return PP_data(a.f, a.G, a.deltaG, a.V, a.V_fu, a.alpha, a.beta, a.entropy, a.enthalpy, a.cp, a.rho, a.bulkMod, a.shearMod, a.Vp, a.Vs,
                     unsafe_wrap(Vector{Cdouble},a.Comp, a.nOx),
                     unsafe_wrap(Vector{Cdouble},a.Comp_wt, a.nOx),
                     unsafe_wrap(Vector{Cdouble},a.Comp_apfu, a.nOx))

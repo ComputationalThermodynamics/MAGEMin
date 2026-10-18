@@ -86,6 +86,15 @@ static void GH_berman_HS(  double T, double H0, double S0, const double cp[8],
     *S_out = S;
 }
 
+static void GH_saxena_HS(double T, double H0, double S0, const double cp[7], double *H_out, double *S_out){
+    double a = cp[0], b = cp[1], c = cp[2], d = cp[3], e = cp[4], g = cp[5], h = cp[6];
+    double Tr = GH_Tr;
+    *H_out = H0 + a*(T-Tr) + (b/2.0)*(T*T-Tr*Tr) - c*(1.0/T-1.0/Tr) + (d/3.0)*(T*T*T-Tr*Tr*Tr)
+           - (e/2.0)*(1.0/(T*T)-1.0/(Tr*Tr)) + 2.0*g*(sqrt(T)-sqrt(Tr)) + h*log(T/Tr);
+    *S_out = S0 + a*log(T/Tr) + b*(T-Tr) - (c/2.0)*(1.0/(T*T)-1.0/(Tr*Tr)) + (d/2.0)*(T*T-Tr*Tr)
+           - (e/3.0)*(1.0/(T*T*T)-1.0/(Tr*Tr*Tr)) - 2.0*g*(1.0/sqrt(T)-1.0/sqrt(Tr)) - h*(1.0/T-1.0/Tr);
+}
+
 /**
     Berman (1988) solid volume-EOS pressure integral (dG = V dP from Pr to
     P), ported from xMELTS' sources/gibbs.c (intEOSsolid, EOS_BERMAN case):
@@ -203,6 +212,26 @@ static double GH_SiO2_polymorph_G(int is_quartz, double T, double P,
     T<1436K and never feed back into gs beyond what's captured here via
     the td=min(1436,T) cap). Zero below Tr (T<=Tr).
 */
+#define GH_PMELTS_CORRH19        663.955
+#define GH_PMELTS_CORRS19          9.219
+#define GH_SANIDINE_ADJUSTMENT  3400.0
+#define GH_LEUCITE_PMELTS_DH    (27000.0 - 21866.4)
+#define GH_ANORTHITE_ADJ_H      (3.7*4184.0)
+#define GH_ANORTHITE_ADJ_S      (3.7*4184.0/2200.0)
+
+double GH_anorthite_adjustment_G(double T){
+    return GH_ANORTHITE_ADJ_H - T*GH_ANORTHITE_ADJ_S;
+}
+
+static double GH_gehlenite_disorder_G(double T){
+    const double t0 = 698.0, d0 = -221.74, d2 = 172.91e5, d3 = 36.950e-2, d4 = -146.900e-6;
+    if (T <= t0) return 0.0;
+    double td = (T < 1600.0) ? T : 1600.0;
+    double dh = d0*(td-t0) - d2*(1.0/td-1.0/t0) + d3*(td*td-t0*t0)/2.0 + d4*(td*td*td-t0*t0*t0)/3.0;
+    double ds = d0*(log(td)-log(t0)) - d2*(1.0/(td*td)-1.0/(t0*t0))/2.0 + d3*(td-t0) + d4*(td*td-t0*t0)/2.0;
+    return dh - T*ds;
+}
+
 static double GH_sanidine_ordering_G(double T, double P){
     double td = (T < 1436.0) ? T : 1436.0;
     double d0=282.98, d1=-4.83e3, d2=36.21e5, d3=-15.733e-2, d4=34.770e-6, d5=41.063e4;
@@ -380,6 +409,41 @@ static double GH_naneph_vinet_G(double T, double P, double V0){
     return (H_T - T*S_T) + GH_vinet_EOS_dG(T, P, V0, 31.802e-6, 48.7805, 1.4747);
 }
 
+static double GH_fe_V_G(double T, double P, double v0, double v1, double v2, double v3, double v4){
+    double Tr = GH_Tr, Pr = GH_Pr;
+    return v0*((v1/2.0-v2)*(P*P-Pr*Pr) + v2*(P*P*P-Pr*Pr*Pr)/3.0
+             + (1.0-v1+v2+v3*(T-Tr)+v4*(T-Tr)*(T-Tr))*(P-Pr));
+}
+
+static double GH_fe_metal_G(double T, double P){
+    double Tr = GH_Tr;
+    double k0 = 23.9788, k1 = -0.12875, k2 = 662.0648, k3 = -111298.07, ct = 0.00836712;
+    double h = 7788.0 + k0*(T-Tr) + 0.5*ct*(T*T-Tr*Tr) + 2.0*k1*(sqrt(T)-sqrt(Tr))
+             - k2*(1.0/T-1.0/Tr) - 0.5*k3*(1.0/(T*T)-1.0/(Tr*Tr));
+    double s = 35.545 + k0*log(T/Tr) - 2.0*k1*(1.0/sqrt(T)-1.0/sqrt(Tr)) + ct*(T-Tr)
+             - 0.5*k2*(1.0/(T*T)-1.0/(Tr*Tr)) - (1.0/3.0)*k3*(1.0/(T*T*T)-1.0/(Tr*Tr*Tr));
+    return h - T*s + GH_fe_V_G(T, P, 0.709258*0.964596, -0.594e-6, 0.0, 75.8e-06, 0.0);
+}
+
+static double GH_fe_liquid_G(double T, double P){
+    double cp = 46.024, T1 = 1200.0;
+    double h = 12395.0 + 32028.0 + cp*(T-T1);
+    double s = 80.932 + cp*log(T/T1);
+    return h - T*s + GH_fe_V_G(T, P, 0.652697, -8.87646e-7, 1.306567e-12, 1.31136e-4, 7.2557e-9);
+}
+
+static double GH_carbon_G(int diamond, double T, double P){
+    static const double cp_gph[7] = { 60.86, -1.024e-2, 7.139e5, 1.669e-6, 0.0, -9.922e2, 0.0 };
+    static const double cp_dia[7] = { 98.45, -3.655e-2, 1.217e6, 1.098e-5, 0.0, -1.659e3, 0.0 };
+    double H_T, S_T;
+    if (diamond){
+        GH_saxena_HS(T, 1900.0, 2.38, cp_dia, &H_T, &S_T);
+        return (H_T - T*S_T) + GH_vinet_EOS_dG(T, P, 0.3417, 0.2243e-4, 444.0, 1.9);
+    }
+    GH_saxena_HS(T, 0.0, 5.74, cp_gph, &H_T, &S_T);
+    return (H_T - T*S_T) + GH_vinet_EOS_dG(T, P, 0.5298, 0.3460e-4, 33.8, 8.9);
+}
+
 /**
     Vc-nepheline (Na3Al3Si5O16) real standard state, ported from xMELTS'
     gibbs.c: a "phantom" 2:1 reaction [2*high-albite + na-nepheline]/2,
@@ -548,6 +612,16 @@ PP_ref GH_G_EM_function(   int          EM_database,
         }
         else if (strcmp(name, "san") == 0){
             gbase_J += GH_sanidine_ordering_G(T, P);
+            if (EM_database != 2){ gbase_J += GH_SANIDINE_ADJUSTMENT; }
+        }
+        else if (strcmp(name, "an") == 0){
+            if (EM_database == 2){ gbase_J -= GH_anorthite_adjustment_G(T); }
+        }
+        else if (strcmp(name, "lc") == 0){
+            if (EM_database == 2){ gbase_J += GH_LEUCITE_PMELTS_DH; }
+        }
+        else if (strcmp(name, "geh") == 0){
+            gbase_J += GH_gehlenite_disorder_G(T);
         }
         /* rhm-oxide (geikielite-hematite-ilmenite-pyrophanite-corundum,
            Ghiorso & Evans 2008) intracrystalline-ordering / short-range-
@@ -569,8 +643,19 @@ PP_ref GH_G_EM_function(   int          EM_database,
         }
         else if (strcmp(name, "cane") == 0){
             gbase_J += GH_caneph_G(T, P);
+            if (EM_database == 2){ gbase_J -= GH_anorthite_adjustment_G(T); }
         }
         return GH_pack_PP_ref(name, len_ox, PP_return.Comp, bulk_rock, apo, gbase_J);
+    }
+    if (strcmp(name, "Fe") == 0 || strcmp(name, "Feliq") == 0){
+        double Fe_Comp[16] = {0,0,0,0,1.0,0,0,0,-1.0,0,0,0,0,0,0,0};
+        double gbase_J = (strcmp(name, "Fe") == 0) ? GH_fe_metal_G(T, P) : GH_fe_liquid_G(T, P);
+        return GH_pack_PP_ref(name, len_ox, Fe_Comp, bulk_rock, apo, gbase_J);
+    }
+    if (strcmp(name, "gph") == 0 || strcmp(name, "dia") == 0){
+        double C_Comp[16] = {0,0,0,0,0,0,0,0,-2.0,0,0,0,1.0,0,0,0};
+        double gbase_J = GH_carbon_G(strcmp(name, "dia") == 0, T, P);
+        return GH_pack_PP_ref(name, len_ox, C_Comp, bulk_rock, apo, gbase_J);
     }
     if (strcmp(name, "O2") == 0){
         double O2_Comp[16] = {0,0,0,0,0,0,0,0,2.0,0,0,0,0,0,0,0};   /* O2 = 2 "O" (excess-oxygen axis) */
@@ -687,7 +772,8 @@ PP_ref GH_G_EM_function(   int          EM_database,
                machinery - see its header comment for the derivation.
                Fixed 2026-07-16, closing the last pMELTS gap from the
                10x10 grid sweep - see [[gh-spn-liq-gbase-verification]]. */
-            gbase_J = GH_pitzer_sterner_H2O_hTs_G(T, 9550.0);
+            gbase_J = GH_pitzer_sterner_H2O_hTs_G(T, 9550.0) + GH_PMELTS_CORRH19 - T*GH_PMELTS_CORRS19
+                    + GH_pmelts_liq_BM3_dG(T, P, 2.775, 10.86e-4, -6.00e-5, 0.0);
         }
         else if (strcmp(name, "H2O") == 0){
             const double r_ = 8.3143;

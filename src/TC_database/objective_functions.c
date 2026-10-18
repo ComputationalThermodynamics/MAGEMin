@@ -17022,7 +17022,7 @@ void TC_all_P2X_init(	            P2X_type 			*P2X_read,
 			P2X_read[iss]  = p2x_mb_abc; 		}
 		else if (strcmp( gv.SS_list[iss], "ta_EF21")    == 0){
 			P2X_read[iss]  = p2x_um_ta; 		}
-		else if (strcmp( gv.SS_list[iss], "oamp_D07")  == 0){
+		else if (strcmp( gv.SS_list[iss], "oamp_D12")  == 0){
 			P2X_read[iss]  = p2x_mb_oamp; 		}
 		else if (strcmp( gv.SS_list[iss], "DEW_S24") == 0){
 			P2X_read[iss]  = p2x_DEW; 		}
@@ -17690,7 +17690,7 @@ void TC_all_objective_init_function(	obj_type 			*SS_objective,
 			SS_objective[iss]  = obj_mb_abc; 		}
 		else if (strcmp( gv.SS_list[iss], "ta_EF21")    == 0){
 			SS_objective[iss]  = obj_um_ta; 		}
-		else if (strcmp( gv.SS_list[iss], "oamp_D07")  == 0){
+		else if (strcmp( gv.SS_list[iss], "oamp_D12")  == 0){
 			SS_objective[iss]  = obj_mb_oamp; 		}
 		else if (strcmp( gv.SS_list[iss], "DEW_S24") == 0){
 			SS_objective[iss]  = obj_DEW; 		}
@@ -18348,7 +18348,7 @@ void TC_all_PC_init(	                PC_type 			*PC_read,
 			PC_read[iss]  = obj_mb_abc; 		}
 		else if (strcmp( gv.SS_list[iss], "ta_EF21")    == 0){
 			PC_read[iss]  = obj_um_ta; 		}
-		else if (strcmp( gv.SS_list[iss], "oamp_D07")  == 0){
+		else if (strcmp( gv.SS_list[iss], "oamp_D12")  == 0){
 			PC_read[iss]  = obj_mb_oamp; 		}
 		else if (strcmp( gv.SS_list[iss], "DEW_S24") == 0){
 			PC_read[iss]  = obj_DEW; 		}
@@ -18455,6 +18455,7 @@ SS_ref PC_function(		global_variable 	 gv,
                                          SS_ref_db.iguess, 
                                          SS_ref_db.dfx, 
                                         &SS_ref_db		        );	
+    if (!isfinite(G0)){ G0 = SS_G_zero_p_limit(&SS_ref_db); }
 
     SS_ref_db.df = G0;
 	

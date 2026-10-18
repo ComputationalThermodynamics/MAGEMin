@@ -853,6 +853,10 @@ void ss_min_LP(			global_variable 	 gv,
 				}
 			}
 
+			if (is_gh && act == 0 && liq_l >= 0 && liq_synth_active[liq_l]){
+				act = 1;
+			}
+
 			if (syn_cl[i] >= 0 && syn_multi[syn_cl[i]] && syn_found[syn_cl[i]] && euclidean_distance(syn_p[syn_cl[i]], cp[i].p_em, SS_ref_db[ph_id].n_em) < gv.merge_value){
 				act 		= 0;
 				syn_skip[i] = 1;
@@ -1343,6 +1347,11 @@ global_variable init_ss_db_gh(	int 				 EM_database,
 												z_b,
 												gv.SS_list[i]		);
 	}
+	for (int i = 0; i < gv.len_ss; i++){
+		ns_reduce_system(						gv,
+												z_b,
+												&SS_ref_db[i]		);
+	}
 	return gv;
 };
 
@@ -1365,6 +1374,11 @@ global_variable init_ss_db_br(	int 				 EM_database,
 												gv.EM_dataset,
 												z_b,
 												gv.SS_list[i]		);
+	}
+	for (int i = 0; i < gv.len_ss; i++){
+		ns_reduce_system(						gv,
+												z_b,
+												&SS_ref_db[i]		);
 	}
 	return gv;
 };

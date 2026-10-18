@@ -81,8 +81,8 @@ static double obj_br_ideal_binary(unsigned n, const double *x, double *grad, voi
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        double dS0 = R*T*(rlog((p[0] + d->d_em[0]))+1.0);
-        double dS1 = R*T*(rlog((p[1] + d->d_em[1]))+1.0);
+        double dS0 = R*T*(rlog((p[0] + d->d_em[0])) + ((d->d_em[0] == 0.0) ? 1.0 : p[0]/(p[0] + d->d_em[0])));
+        double dS1 = R*T*(rlog((p[1] + d->d_em[1])) + ((d->d_em[1] == 0.0) ? 1.0 : p[1]/(p[1] + d->d_em[1])));
         grad[0] = (dS0 + mu_Gex[0] + gb[0])*d->factor - (d->df_raw*d->factor*(d->ape[0]/d->sum_apep));
         grad[1] = (dS1 + mu_Gex[1] + gb[1])*d->factor - (d->df_raw*d->factor*(d->ape[1]/d->sum_apep));
     }
@@ -148,7 +148,11 @@ double obj_br_chl(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     d->df_raw = 0.0;
     for (int i = 0; i < n_em; i++){ d->df_raw += gb[i]*p[i]; }
-    d->df_raw += R*T*S_terms;
+    static const double ln_emxx[5] = {-1.3862943611198906, -1.3862943611198906, 0.0, -4.1588830833596715, 0.0};
+    double S_ref = 0.0;
+    for (int i = 0; i < n_em; i++){ S_ref -= p[i]*ln_emxx[i]; }
+
+    d->df_raw += R*T*(S_terms + S_ref);
     d->df_raw += G_xs_J/1000.0;
     d->df = d->df_raw * d->factor;
 
@@ -189,7 +193,7 @@ double obj_br_chl(unsigned n, const double *x, double *grad, void *SS_ref_db){
             double dG =
                 dG_1Fe*d1Fe_dp[k] + dG_1Mg*d1Mg_dp[k] + dG_1Al*d1Al_dp[k] + dG_1v*d1v_dp[k];
 
-            grad[k] = (gb[k] + R*T*dS + dG/1000.0)*d->factor
+            grad[k] = (gb[k] + R*T*(dS - ln_emxx[k]) + dG/1000.0)*d->factor
                     - (d->df_raw*d->factor*(d->ape[k]/d->sum_apep));
         }
     }
@@ -258,7 +262,11 @@ double obj_br_mica(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     d->df_raw = 0.0;
     for (int i = 0; i < n_em; i++){ d->df_raw += gb[i]*p[i]; }
-    d->df_raw += R*T*S_terms;
+    static const double ln_emxx[5] = {-1.3862943611198906, -1.3862943611198906, -1.3862943611198906, -1.3862943611198906, 0.0};
+    double S_ref = 0.0;
+    for (int i = 0; i < n_em; i++){ S_ref -= p[i]*ln_emxx[i]; }
+
+    d->df_raw += R*T*(S_terms + S_ref);
     d->df_raw += (G_xs_I_J + G_xs_M2_J)/1000.0;
     d->df = d->df_raw * d->factor;
 
@@ -302,7 +310,7 @@ double obj_br_mica(unsigned n, const double *x, double *grad, void *SS_ref_db){
                 dGI_K*dK_dp[k] + dGI_Na*dNa_dp[k] + dGI_v*dv_dp[k] +
                 dGM2_Al*dM2Al_dp[k] + dGM2_Mg*dM2Mg_dp[k] + dGM2_Fe*dM2Fe_dp[k];
 
-            grad[k] = (gb[k] + R*T*dS + dG/1000.0)*d->factor
+            grad[k] = (gb[k] + R*T*(dS - ln_emxx[k]) + dG/1000.0)*d->factor
                     - (d->df_raw*d->factor*(d->ape[k]/d->sum_apep));
         }
     }
@@ -364,8 +372,8 @@ static double obj_br_ideal_binary_mult(unsigned n, const double *x, double *grad
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        double dS0 = R*T*mult*(rlog((p[0] + d->d_em[0]))+1.0);
-        double dS1 = R*T*mult*(rlog((p[1] + d->d_em[1]))+1.0);
+        double dS0 = R*T*mult*(rlog((p[0] + d->d_em[0])) + ((d->d_em[0] == 0.0) ? 1.0 : p[0]/(p[0] + d->d_em[0])));
+        double dS1 = R*T*mult*(rlog((p[1] + d->d_em[1])) + ((d->d_em[1] == 0.0) ? 1.0 : p[1]/(p[1] + d->d_em[1])));
         grad[0] = (dS0 + mu_Gex[0] + gb[0])*d->factor - (d->df_raw*d->factor*(d->ape[0]/d->sum_apep));
         grad[1] = (dS1 + mu_Gex[1] + gb[1])*d->factor - (d->df_raw*d->factor*(d->ape[1]/d->sum_apep));
     }
@@ -444,8 +452,7 @@ double obj_br_grt(unsigned n, const double *x, double *grad, void *SS_ref_db){
     return d->df;
 }
 
-/* Omphacite: (MARGULES,IDEAL), plain ideal ternary entropy (no site
-   splitting) + 3-pair subregular Margules, no ternary correction term.
+/* Omphacite: (MARGULES,IDEAL), subregular Margules with WK = 1.
    Endmember order: di, jd, hed. */
 double obj_br_omph(unsigned n, const double *x, double *grad, void *SS_ref_db){
     (void) n;
@@ -468,9 +475,20 @@ double obj_br_omph(unsigned n, const double *x, double *grad, void *SS_ref_db){
     double S_terms = ( a*rlog((a+eps)) + b*rlog((b+eps)) + c*rlog((c+eps)) );
 
     /* W[0..1]=Jd-Di (Wjj*d,Wj*dd), W[2..3]=Di-Hd, W[4..5]=Jd-Hd */
-    double G_xs = W[0]*a*a*b + W[1]*a*b*b
-                + W[2]*b*b*c + W[3]*b*c*c
-                + W[4]*a*a*c + W[5]*a*c*c;
+    double G_xs = 0.0, dGa = 0.0, dGb = 0.0, dGc = 0.0;
+    double *xi[3] = {&a, &b, &a};
+    double *xj[3] = {&b, &c, &c};
+    double *gi[3] = {&dGa, &dGb, &dGa};
+    double *gj[3] = {&dGb, &dGc, &dGc};
+    for (int k = 0; k < 3; k++){
+        double u = *xi[k], v = *xj[k], wa = W[2*k], wb = W[2*k+1];
+        double s = u + v;
+        if (s <= 0.0) continue;
+        double f = u*v*(wa*u + wb*v)/s;
+        G_xs   += f;
+        *gi[k] += v*(2.0*wa*u + wb*v)/s - f/s;
+        *gj[k] += u*(wa*u + 2.0*wb*v)/s - f/s;
+    }
 
     d->sum_apep = 0.0;
     for (int i = 0; i < 3; i++){ d->sum_apep += d->ape[i]*p[i]; }
@@ -484,9 +502,6 @@ double obj_br_omph(unsigned n, const double *x, double *grad, void *SS_ref_db){
         double dSb = rlog((b+eps))+1.0;
         double dSc = rlog((c+eps))+1.0;
 
-        double dGb = W[0]*a*a + 2.0*W[1]*a*b + 2.0*W[2]*b*c + W[3]*c*c;
-        double dGa = 2.0*W[0]*a*b + W[1]*b*b + 2.0*W[4]*a*c + W[5]*c*c;
-        double dGc = W[2]*b*b + 2.0*W[3]*b*c + W[4]*a*a + 2.0*W[5]*a*c;
 
         grad[0] = (gb[0] + R*T*dSb + dGb/1000.0)*d->factor - (d->df_raw*d->factor*(d->ape[0]/d->sum_apep));
         grad[1] = (gb[1] + R*T*dSa + dGa/1000.0)*d->factor - (d->df_raw*d->factor*(d->ape[1]/d->sum_apep));
@@ -496,9 +511,7 @@ double obj_br_omph(unsigned n, const double *x, double *grad, void *SS_ref_db){
     return d->df;
 }
 
-/* AMPHx: (IDEAL,MARGULES) A(1):v,Na - M1(2):Mg,Al, reciprocal 2-site
-   entropy + symmetric ternary Margules on raw endmember fractions
-   (unlike Chl/Mica, whose Margules acts on site fractions).
+/* AMPHx: (IDEAL,MARGULES)1.7, symmetric Margules on endmember fractions.
    Endmember order: tr, tsch, parg. */
 double obj_br_amphx(unsigned n, const double *x, double *grad, void *SS_ref_db){
     (void) n;
@@ -521,9 +534,8 @@ double obj_br_amphx(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     d->sf[0] = x_Av; d->sf[1] = x_ANa; d->sf[2] = x_M1Mg; d->sf[3] = x_M1Al;
 
-    double S_terms =
-        1.0*( x_Av*rlog((x_Av+eps)) + x_ANa*rlog((x_ANa+eps)) ) +
-        2.0*( x_M1Mg*rlog((x_M1Mg+eps)) + x_M1Al*rlog((x_M1Al+eps)) );
+    double alpha = 1.7;
+    double S_terms = alpha*( p_tr*rlog((p_tr+eps)) + p_tsch*rlog((p_tsch+eps)) + p_parg*rlog((p_parg+eps)) );
 
     double G_xs = W[0]*p_tr*p_tsch + W[1]*p_tr*p_parg + W[2]*p_tsch*p_parg;
 
@@ -535,25 +547,13 @@ double obj_br_amphx(unsigned n, const double *x, double *grad, void *SS_ref_db){
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        double dS_Av   = rlog((x_Av+eps))+1.0;
-        double dS_ANa  = rlog((x_ANa+eps))+1.0;
-        double dS_M1Mg = rlog((x_M1Mg+eps))+1.0;
-        double dS_M1Al = rlog((x_M1Al+eps))+1.0;
-
-        static const double dAv_dp[3]   = {1,1,0};
-        static const double dANa_dp[3]  = {0,0,1};
-        static const double dM1Mg_dp[3] = {1,0,0.5};
-        static const double dM1Al_dp[3] = {0,1,0.5};
-
         double dG_tr   = W[0]*p_tsch + W[1]*p_parg;
         double dG_tsch = W[0]*p_tr   + W[2]*p_parg;
         double dG_parg = W[1]*p_tr   + W[2]*p_tsch;
         double dG[3] = { dG_tr, dG_tsch, dG_parg };
 
         for (int k = 0; k < 3; k++){
-            double dS =
-                1.0*( dS_Av*dAv_dp[k] + dS_ANa*dANa_dp[k] ) +
-                2.0*( dS_M1Mg*dM1Mg_dp[k] + dS_M1Al*dM1Al_dp[k] );
+            double dS = alpha*(rlog((p[k]+eps)) + 1.0);
 
             grad[k] = (gb[k] + R*T*dS + dG[k]/1000.0)*d->factor
                     - (d->df_raw*d->factor*(d->ape[k]/d->sum_apep));
@@ -563,10 +563,8 @@ double obj_br_amphx(unsigned n, const double *x, double *grad, void *SS_ref_db){
     return d->df;
 }
 
-/* Feldspar: (EXT,MARGULES), plain ideal ternary entropy (no site given) +
-   3-pair subregular + ternary Margules, Fuhrman & Lindsley (1988).
-   Endmember order: ab, kfs, an. Al-Si order-disorder (D1/D2) dropped -
-   fixed-G0 endmembers, per the decided simplification. */
+/* Feldspar: (EXT,MARGULES), Fuhrman & Lindsley (1988).
+   Endmember order: ab, kfs, an. */
 double obj_br_fsp(unsigned n, const double *x, double *grad, void *SS_ref_db){
     (void) n;
     SS_ref *d = (SS_ref *) SS_ref_db;
@@ -585,7 +583,9 @@ double obj_br_fsp(unsigned n, const double *x, double *grad, void *SS_ref_db){
 
     d->sf[0] = px; d->sf[1] = py; d->sf[2] = pz;
 
-    double S_terms = ( px*rlog((px+eps)) + py*rlog((py+eps)) + pz*rlog((pz+eps)) );
+    double q  = 1.0 - pz*pz;
+    double r  = (1.0 + pz)*(1.0 + pz)/4.0;
+    double S_terms = px*rlog((px*q+eps)) + py*rlog((py*q+eps)) + pz*rlog((pz*r+eps));
 
     /* W[0..1]=Ab-Kfs (W_ab2kfs,W_abkfs2), W[2..3]=Ab-An, W[4..5]=An-Kfs, W[6]=ternary */
     double G_xs = W[0]*px*px*py + W[1]*px*py*py
@@ -601,9 +601,9 @@ double obj_br_fsp(unsigned n, const double *x, double *grad, void *SS_ref_db){
     d->df = d->df_raw * d->factor;
 
     if (grad){
-        double dSx = rlog((px+eps))+1.0;
-        double dSy = rlog((py+eps))+1.0;
-        double dSz = rlog((pz+eps))+1.0;
+        double dSx = rlog((px*q+eps))+1.0;
+        double dSy = rlog((py*q+eps))+1.0;
+        double dSz = rlog((pz*r+eps))+1.0 - 2.0*pz*(px+py)/(q+eps) + 2.0*pz/(1.0+pz);
 
         double dGx = 2.0*W[0]*px*py + W[1]*py*py + 2.0*W[2]*px*pz + W[3]*pz*pz + W[6]*py*pz;
         double dGy = W[0]*px*px + 2.0*W[1]*px*py + W[4]*pz*pz + 2.0*W[5]*py*pz + W[6]*px*pz;
@@ -615,6 +615,10 @@ double obj_br_fsp(unsigned n, const double *x, double *grad, void *SS_ref_db){
     }
 
     return d->df;
+}
+
+int BR_sf_constrained(const char *name){
+    return strcmp(name, "mica") == 0 || strcmp(name, "chl") == 0;
 }
 
 void BR_SS_objective_init_function(obj_type *SS_objective, global_variable gv){

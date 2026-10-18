@@ -17,6 +17,10 @@ void TC_NS_init(					global_variable 	 gv,
 									SS_ref 				*SS_ref_db		);
 void SB_NS_init(					global_variable 	 gv,
 									SS_ref 				*SS_ref_db		);
+void BR_NS_init(					global_variable 	 gv,
+									SS_ref 				*SS_ref_db		);
+void GH_NS_init(					global_variable 	 gv,
+									SS_ref 				*SS_ref_db		);
 
 void NS_free(						SS_ref 				*SS_ref_db		);
 

@@ -96,7 +96,7 @@ void dump_init(global_variable gv){
 		#endif
 
 		loc_min 	= fopen(out_lm, 	"w"); 
-		fprintf(loc_min, "// {number status[] P[kbar] T[C] G_sys[G] BR_norm[wt] Gamma[G] Vp[km/s] Vs[km/s] entropy[J/K]} nextline {Phase[name] mode[wt] density[kg.m-3] x-eos}\n");
+		fprintf(loc_min, "// {number status[] P[kbar] T[C] G_sys[kJ/mol] BR_norm[wt] Gamma[kJ/mol] Vp[km/s] Vs[km/s] entropy[kJ/K/mol]} nextline {Phase[name] mode[wt] density[kg.m-3] x-eos}\n");
 		fclose(loc_min);	
 	}
 }
@@ -147,7 +147,7 @@ void reset_output_struct(		global_variable 	 gv,
 	sp[0].buffer_n				 = gv.buffer_n;
 
 	sp[0].alpha				 	 = gv.system_expansivity;
-	sp[0].beta				 	 = gv.system_compressibility;
+	sp[0].beta				 	 = gv.system_compressibility*10.;
 	sp[0].V				 	 	 = gv.system_volume_cm3mol;	
 	sp[0].V_cm3				 	 = gv.system_volume*1e6;	
 	sp[0].cp				 	 = gv.system_cp;	
@@ -804,12 +804,14 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].SS[m].f 		 = cp[i].factor;
 			sp[0].SS[m].G 		 = G;
 			sp[0].SS[m].deltaG	 = cp[i].df;
-			sp[0].SS[m].V 		 = cp[i].volume*10.;
-			sp[0].SS[m].cp 		 = (cp[i].phase_cp * cp[i].factor)/phase_mass;
-			sp[0].cp_wt 		+= sp[0].SS[m].cp* cp[i].ss_n_wt;//cp[i].phase_cp * cp[i].ss_n_wt * cp[i].factor;
+			double n_ox_ss = 0.0;
+			for (j = 0; j < gv.len_ox; j++){ n_ox_ss += cp[i].ss_comp[j]; }
+			sp[0].SS[m].V 		 = cp[i].volume*10./n_ox_ss;
+			sp[0].SS[m].V_fu 	 = cp[i].volume*10.;
+			sp[0].SS[m].cp 		 = cp[i].phase_cp/n_ox_ss;
 			sp[0].SS[m].rho 	 = cp[i].phase_density;
 			sp[0].SS[m].alpha 	 = cp[i].phase_expansivity;
-			sp[0].SS[m].beta 	 = cp[i].phase_compressibility;
+			sp[0].SS[m].beta 	 = cp[i].phase_compressibility*10.;
 			sp[0].SS[m].entropy  = cp[i].phase_entropy;
 			sp[0].SS[m].enthalpy = cp[i].phase_entropy*z_b.T + G;
 			sp[0].SS[m].bulkMod  = cp[i].phase_bulkModulus/10.;
@@ -1051,18 +1053,25 @@ void fill_output_struct(		global_variable 	 gv,
 			sp[0].PP[m].G 		 = G;
 
 			sp[0].PP[m].deltaG	 = PP_ref_db[i].gb_lvl;
-			sp[0].PP[m].V 		 = PP_ref_db[i].volume*10.;
-			sp[0].PP[m].cp 		 = (PP_ref_db[i].phase_cp * PP_ref_db[i].factor)/phase_mass;
+			double n_ox_pp = 0.0;
+			for (int j = 0; j < gv.len_ox; j++){ n_ox_pp += PP_ref_db[i].Comp[j]; }
+			if (!(n_ox_pp > 0.0)){
+				n_ox_pp = 0.0;
+				for (int j = 0; j < gv.len_ox; j++){ if (PP_ref_db[i].Comp[j] > 0.0){ n_ox_pp += PP_ref_db[i].Comp[j]; } }
+			}
+			sp[0].PP[m].V 		 = PP_ref_db[i].volume*10./n_ox_pp;
+			sp[0].PP[m].V_fu 	 = PP_ref_db[i].volume*10.;
+			sp[0].PP[m].cp 		 = PP_ref_db[i].phase_cp/n_ox_pp;
 
 			sp[0].PP[m].rho 	 = PP_ref_db[i].phase_density;
 			sp[0].PP[m].alpha 	 = PP_ref_db[i].phase_expansivity;
+			sp[0].PP[m].beta 	 = PP_ref_db[i].phase_compressibility*10.;
 			sp[0].PP[m].entropy  = PP_ref_db[i].phase_entropy;
 			sp[0].PP[m].enthalpy = PP_ref_db[i].phase_entropy*z_b.T + G;
 			sp[0].PP[m].bulkMod  = PP_ref_db[i].phase_bulkModulus/10.;
 			sp[0].PP[m].shearMod = PP_ref_db[i].phase_shearModulus/10.;
 
 			if (!is_mu_fix){
-				sp[0].cp_wt 		+= sp[0].PP[m].cp* gv.pp_n_wt[i];//PP_ref_db[i].phase_cp * gv.pp_n_wt[i] * PP_ref_db[i].factor;
 				sp[0].PP[m].Vp 		 = sqrt((PP_ref_db[i].phase_bulkModulus/10. + 4.0/3.0*PP_ref_db[i].phase_shearModulus/10.)/(PP_ref_db[i].phase_density/1e3));
 				sp[0].PP[m].Vs 		 = sqrt(PP_ref_db[i].phase_shearModulus/10.0/(PP_ref_db[i].phase_density/1e3));
 
@@ -1245,7 +1254,8 @@ void fill_output_struct(		global_variable 	 gv,
 
 
 	/* compute cp as J/K/kg for given bulk-rock composition */
-	sp[0].s_cp 					= sp[0].cp_wt;///mass_bulk*1e6;
+	sp[0].cp_wt 				= gv.system_cp*1e6/mass_bulk;
+	sp[0].s_cp 					= sp[0].cp_wt;
 
 	mSS_output_struct(	gv,
 						splx_data,
@@ -1446,7 +1456,7 @@ void output_thermocalc(			global_variable 	 gv,
 	double G;
 	fprintf(loc_min, "\n");	
 	fprintf(loc_min, "Stable mineral assemblage:\n");	
-	fprintf(loc_min, "%6s%12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n","phase","mod[mol fr]","f","G[J]" ,"V[cm3/mol]" ,"Cp[kJ/K]","Rho[kg/m3]","Alpha[1/K]","Entropy[J/K]","Enthalpy[J]","BulkMod[GPa]","ShearMod[GPa]","Vp[km/s]","Vs[km/s]");
+	fprintf(loc_min, "%6s%12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n","phase","mod[mol fr]","f","G[kJ/mol]" ,"V[cm3/mol]" ,"Cp[kJ/K/mol]","Rho[kg/m3]","Alpha[1/K]","S[kJ/K/mol]","H[kJ/mol]","BulkMod[GPa]","ShearMod[GPa]","Vp[km/s]","Vs[km/s]");
 				
 	for (i = 0; i < gv.len_cp; i++){
 		if (cp[i].ss_flags[1] == 1){
@@ -1457,13 +1467,15 @@ void output_thermocalc(			global_variable 	 gv,
 				G += cp[i].ss_comp[j]*gv.gam_tot[j];
 			}
 
+			double n_ox = 0.0;
+			for (j = 0; j < gv.len_ox; j++){ n_ox += cp[i].ss_comp[j]; }
 			fprintf(loc_min, "%6s", cp[i].name);
 			fprintf(loc_min, "%+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.6f %+12.6f %+12.2f %+12.2f %+12.2f %+12.2f",
 						cp[i].ss_n,
 						cp[i].factor,
-						G,
-						cp[i].volume*10.,
-						cp[i].phase_cp,
+						G/n_ox,
+						cp[i].volume*10./n_ox,
+						cp[i].phase_cp/n_ox,
 						cp[i].phase_density,
 						cp[i].phase_expansivity,
 						cp[i].phase_entropy,
@@ -1479,13 +1491,16 @@ void output_thermocalc(			global_variable 	 gv,
 	
 	for (i = 0; i < gv.len_pp; i++){
 		if (gv.pp_flags[i][1] == 1){ 
+			double n_ox = 0.0;
+			for (j = 0; j < gv.len_ox; j++){ n_ox += PP_ref_db[i].Comp[j]; }
+			if (!(n_ox > 0.0)){ n_ox = 0.0; for (j = 0; j < gv.len_ox; j++){ if (PP_ref_db[i].Comp[j] > 0.0){ n_ox += PP_ref_db[i].Comp[j]; } } }
 			fprintf(loc_min, "%6s", gv.PP_list[i]);
 			fprintf(loc_min, "%+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.5f %+12.8f %+12.6f %+12.6f %+12.2f %+12.2f %+12.2f %+12.2f",
 					gv.pp_n[i],
 					PP_ref_db[i].factor,
-					PP_ref_db[i].gbase,
-					PP_ref_db[i].volume*10.,
-					PP_ref_db[i].phase_cp,
+					PP_ref_db[i].gbase/n_ox,
+					PP_ref_db[i].volume*10./n_ox,
+					PP_ref_db[i].phase_cp/n_ox,
 					PP_ref_db[i].phase_density,
 					PP_ref_db[i].phase_expansivity,
 					PP_ref_db[i].phase_entropy,
@@ -1805,7 +1820,7 @@ void output_matlab(				global_variable 	 gv,
 	double G;
 	fprintf(loc_min, "\n\n");	
 	fprintf(loc_min, "Stable mineral assemblage:\n");	
-	fprintf(loc_min, "%6s%15s %13s %17s %17s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n","phase","fraction[wt]","G[J]" ,"V_molar[cm3/mol]","V_partial[cm3]" ,"Cp[kJ/K]","Rho[kg/m3]","Alpha[1/K]","Entropy[J/K]","Enthalpy[J]","BulkMod[GPa]","ShearMod[GPa]","Vp[km/s]","Vs[km/s]");
+	fprintf(loc_min, "%6s%15s %13s %17s %17s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n","phase","fraction[wt]","G[kJ/mol]" ,"V_molar[cm3/mol]","V_partial[cm3/mol]" ,"Cp[kJ/K/mol]","Rho[kg/m3]","Alpha[1/K]","S[kJ/K/mol]","H[kJ/mol]","BulkMod[GPa]","ShearMod[GPa]","Vp[km/s]","Vs[km/s]");
 
 	n = 0;		
 	for (i = 0; i < gv.len_cp; i++){
@@ -1816,13 +1831,15 @@ void output_matlab(				global_variable 	 gv,
 				G += cp[i].ss_comp[j]*gv.gam_tot[j];
 			}
 
+			double n_ox = 0.0;
+			for (j = 0; j < gv.len_ox; j++){ n_ox += cp[i].ss_comp[j]; }
 			fprintf(loc_min, "%6s", cp[i].name);
 			fprintf(loc_min, "%+15.5f %+13.5f %+17.5f %+17.5f %+12.5f %+12.5f %+12.8f %+12.6f %+14.4f %+12.2f %+12.2f %+12.2f %+12.2f",
 						sp[0].ph_frac_wt[n],
-						G,
-						cp[i].volume*10.,
-						cp[i].volume*10.*cp[i].ss_n_mol*cp[i].factor,
-						cp[i].phase_cp,
+						G/n_ox,
+						cp[i].volume*10./n_ox,
+						cp[i].volume*10./n_ox*cp[i].ss_n*cp[i].factor_norm,
+						cp[i].phase_cp/n_ox,
 						cp[i].phase_density,
 						cp[i].phase_expansivity,
 						cp[i].phase_entropy,
@@ -1839,13 +1856,16 @@ void output_matlab(				global_variable 	 gv,
 	int n_ss = n;
 	for (i = 0; i < gv.len_pp; i++){
 		if (gv.pp_flags[i][1] == 1){ 
+			double n_ox = 0.0;
+			for (j = 0; j < gv.len_ox; j++){ n_ox += PP_ref_db[i].Comp[j]; }
+			if (!(n_ox > 0.0)){ n_ox = 0.0; for (j = 0; j < gv.len_ox; j++){ if (PP_ref_db[i].Comp[j] > 0.0){ n_ox += PP_ref_db[i].Comp[j]; } } }
 			fprintf(loc_min, "%6s", gv.PP_list[i]);
 			fprintf(loc_min, "%+15.5f %+13.5f %+17.5f %+17.5f %+12.5f %+12.5f %+12.8f %+12.6f %+14.4f %+12.2f %+12.2f %+12.2f %+12.2f",
 					sp[0].ph_frac_wt[n],
-					PP_ref_db[i].gbase,
-					PP_ref_db[i].volume*10.,
-					PP_ref_db[i].volume*10.*gv.pp_n[i]*PP_ref_db[i].factor,
-					PP_ref_db[i].phase_cp,
+					PP_ref_db[i].gbase/n_ox,
+					PP_ref_db[i].volume*10./n_ox,
+					PP_ref_db[i].volume*10./n_ox*gv.pp_n[i]*PP_ref_db[i].factor_norm,
+					PP_ref_db[i].phase_cp/n_ox,
 					PP_ref_db[i].phase_density,
 					PP_ref_db[i].phase_expansivity,
 					PP_ref_db[i].phase_entropy,
@@ -1864,15 +1884,15 @@ void output_matlab(				global_variable 	 gv,
 	for (j = 0; j < gv.len_ox; j++){
 		G += z_b.bulk_rock[j]*gv.gam_tot[j];
 	}
-	fprintf(loc_min, "%6s %14s %+13.5f %17s %+17.5f %+12.5f %+12.5f %12s %+12.6f %+14.4f %+12.5f %+12.5f %+12.5f %+12.5f\n",
+	fprintf(loc_min, "%6s %14s %+13.5f %17s %+17.5f %+12.5f %+12.5f %+12.8f %+12.6f %+14.4f %+12.5f %+12.5f %+12.5f %+12.5f\n",
 			"SYS",
 			" ",
 			G,
 			" ",
-			gv.system_volume*10.,
+			gv.system_volume_cm3mol,
 			gv.system_cp,
 			gv.system_density,
-			" ",
+			gv.system_expansivity,
 			gv.system_entropy,
 			gv.system_enthalpy,
 			gv.system_bulkModulus,
@@ -1882,7 +1902,7 @@ void output_matlab(				global_variable 	 gv,
 	);
 	
 	/* output solution phase composition */ 	
-	fprintf(loc_min, "\n\nGamma[J] (chemical potential of oxides):\n");
+	fprintf(loc_min, "\n\nGamma[kJ/mol] (chemical potential of oxides):\n");
 	for (i = 0; i < gv.len_ox; i++){
 		fprintf(loc_min, "%6s %+12.5f\n", gv.ox[i], gv.gam_tot[i]);
 	}
