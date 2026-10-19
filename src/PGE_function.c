@@ -65,6 +65,29 @@ The routine is the core of MAGEMin algorithm and is constructed around the Gibbs
 #define FN_MU_TOL 			1e-6
 #define FN_DEP_TOL 			1e-8
 #define FN_SNAP_TOL 		1e-12
+#define FN_SEC_MAX_ITE 		24
+#define FN_SEC_DP 			1.0
+#define FN_SEC_DT 			20.0
+#define FN_SEC_TOL 			5e-8
+
+typedef struct fn_secs {
+	int 		 use_S;
+	int 		 use_V;
+	int 		 free_P;
+	int 		 free_T;
+	int 		 n_th;
+	int 		 EM_database;
+	int 		 n_ss;
+	int 		 ss_id[64];
+	int 		 n_pp;
+	int 		 pp_id[64];
+	double 		 S;
+	double 		 V;
+	double 		 Pcur;
+	double 		 Tcur;
+	double 		 pp_g[64*16];
+	bulk_info 	 zb;
+} fn_sec;
 
 /** 
   Partitioning Gibbs Energy function 
@@ -1517,6 +1540,62 @@ static int fn_sf_fit(				SS_ref 				*d,
 	return 0;
 }
 
+static double fn_eval_fd(			global_variable 	 gv,
+									SS_ref 				*d,
+									const double 		*gam,
+									const double 		*s,
+									double 				*g,
+									int 				 k				){
+	int 	n_w 	= d->W_array != NULL ? d->n_w : 0;
+	int 	n_v 	= d->v_array != NULL ? d->n_v : 0;
+	double 	W_save[n_w > 0 ? n_w : 1];
+	double 	v_save[n_v > 0 ? n_v : 1];
+	double 	P0 		= d->P;
+	double 	T0 		= d->T;
+
+	for (int j = 0; j < n_w; j++){ W_save[j] = d->W[j]; d->W[j] = d->W_array[k][j]; }
+	for (int j = 0; j < n_v; j++){ v_save[j] = d->v[j]; d->v[j] = d->v_array[k][j]; }
+	for (int e = 0; e < d->n_em; e++){
+		d->gb_lvl[e] = d->mu_array[k][e];
+		for (int j = 0; j < gv.len_ox; j++){ d->gb_lvl[e] -= d->Comp[e][j]*gam[j]; }
+	}
+	d->P = P0 + gv.gb_P_eps*gv.pdev[0][k];
+	d->T = T0 + gv.gb_T_eps*gv.pdev[1][k];
+	double D = ns_eval(gv, d, s, g);
+	for (int j = 0; j < n_w; j++){ d->W[j] = W_save[j]; }
+	for (int j = 0; j < n_v; j++){ d->v[j] = v_save[j]; }
+	d->P = P0;
+	d->T = T0;
+	return D;
+}
+
+static void fn_sec_refresh(			global_variable 	 gv,
+									fn_sec 				*sc,
+									PP_ref 				*PP_ref_db,
+									SS_ref 				*SS_ref_db,
+									const double 		*th				){
+	int flags[gv.len_pp*5];
+	for (int i = 0; i < gv.len_pp; i++){
+		for (int f = 0; f < 5; f++){ flags[i*5 + f] = gv.pp_flags[i][f]; }
+	}
+	sc->zb.P = th[0];
+	sc->zb.T = th[1];
+	ComputeG0_point(sc->EM_database, sc->zb, gv, PP_ref_db, SS_ref_db);
+	for (int i = 0; i < gv.len_pp; i++){
+		for (int f = 0; f < 5; f++){ gv.pp_flags[i][f] = flags[i*5 + f]; }
+	}
+	for (int q = 0; q < sc->n_ss; q++){ fn_bounds(&SS_ref_db[sc->ss_id[q]], 1.0); }
+	for (int q = 0; q < sc->n_pp; q++){
+		PP_ref *pp = &PP_ref_db[sc->pp_id[q]];
+		for (int k = 0; k < gv.n_Diff; k++){
+			PP_ref PP_db = G_EM_function(gv.research_group, gv.EM_dataset, gv.len_ox, sc->zb.id, sc->zb.bulk_rock, sc->zb.apo, th[0] + gv.gb_P_eps*gv.pdev[0][k], th[1] + gv.gb_T_eps*gv.pdev[1][k], gv.PP_list[sc->pp_id[q]], "equilibrium");
+			sc->pp_g[q*16 + k] = PP_db.gbase*pp->factor;
+		}
+	}
+	sc->Pcur = th[0];
+	sc->Tcur = th[1];
+}
+
 static int fn_system(				global_variable 	 gv,
 									bulk_info 	 		 z_b,
 									PP_ref 				*PP_ref_db,
@@ -1540,11 +1619,26 @@ static int fn_system(				global_variable 	 gv,
 									const double 		*n,
 									const int 			*drop,
 									double 				*R,
-									double 				*A				){
+									double 				*A,
+									fn_sec 				*sc,
+									const double 		*th				){
 	int 	m    = z_b.nzEl_val;
 	int 	n_y  = off_y[n_ph];
 	int 	n_cc = off_c[n_ph];
-	int 	nz   = m + n_y + n_cc + n_ph + n_pp;
+	int 	n_th = (sc != NULL) ? sc->n_th : 0;
+	int 	nz   = m + n_y + n_cc + n_ph + n_pp + n_th;
+	int 	ct   = m + n_y + n_cc + n_ph + n_pp;
+	int 	rs   = n_y + n_cc + n_ph + n_pp + m;
+	int 	cP   = (sc != NULL && sc->free_P) ? ct : -1;
+	int 	cT   = (sc != NULL && sc->free_T) ? ct + ((sc->free_P) ? 1 : 0) : -1;
+	int 	rS   = (sc != NULL && sc->use_S) ? rs : -1;
+	int 	rV   = (sc != NULL && sc->use_V) ? rs + ((sc->use_S) ? 1 : 0) : -1;
+	double 	eT   = gv.gb_T_eps;
+	double 	eP   = gv.gb_P_eps;
+
+	if (sc != NULL && (th[0] != sc->Pcur || th[1] != sc->Tcur)){ fn_sec_refresh(gv, sc, PP_ref_db, SS_ref_db, th); }
+	if (rS >= 0){ R[rS] = -sc->S; }
+	if (rV >= 0){ R[rV] = -sc->V; }
 	int 	rc   = n_y;
 	int 	r2   = n_y + n_cc;
 	int 	r3   = r2 + n_ph;
@@ -1576,6 +1670,48 @@ static int fn_system(				global_variable 	 gv,
 		}
 		R[r2 + q] = (drop[q]) ? n[q] : D;
 		for (int jj = 0; jj < m; jj++){ R[r4 + jj] += n[q]*c[z_b.nzEl_array[jj]]; }
+
+		if (sc != NULL && !drop[q]){
+			double 	Dk[9], gk[9][nc];
+			int 	fd[8] = {0, 1, 2, 3, 4, 5, 7, 8};
+			for (int f = 0; f < 8; f++){
+				Dk[fd[f]] = fn_eval_fd(gv, d, gam, sq, gk[fd[f]], fd[f]);
+				if (isnan(Dk[fd[f]]) || isinf(Dk[fd[f]])){ return 1; }
+			}
+			fn_eval(gv, d, gam, sq, g, c);
+			double sq_s = -(Dk[0] - Dk[1])/(2.0*eT);
+			double sq_v = (-3.0*D + 4.0*Dk[5] - Dk[4])/(2.0*eP);
+			if (rS >= 0){ R[rS] += n[q]*sq_s; }
+			if (rV >= 0){ R[rV] += n[q]*sq_v; }
+			if (A != NULL){
+				double DTT = (Dk[0] - 2.0*D + Dk[1])/(eT*eT);
+				double DTP = (-3.0*(Dk[0] - Dk[1]) + 4.0*(Dk[2] - Dk[3]) - (Dk[7] - Dk[8]))/(4.0*eT*eP);
+				double DPP = (Dk[4] - 2.0*Dk[5] + D)/(eP*eP);
+				if (cT >= 0){ A[cT*nz + r2 + q] = -sq_s; }
+				if (cP >= 0){ A[cP*nz + r2 + q] =  sq_v; }
+				for (int kk = 0; kk < k; kk++){
+					double gT = 0.0, gP = 0.0;
+					for (int i = 0; i < nc; i++){
+						gT += Nq[i*k + kk]*(gk[0][i] - gk[1][i])/(2.0*eT);
+						gP += Nq[i*k + kk]*(-3.0*g[i] + 4.0*gk[5][i] - gk[4][i])/(2.0*eP);
+					}
+					if (cT >= 0){ A[cT*nz + off_y[q] + kk] = gT; }
+					if (cP >= 0){ A[cP*nz + off_y[q] + kk] = gP; }
+					if (rS >= 0){ A[(m + off_y[q] + kk)*nz + rS] = -n[q]*gT; }
+					if (rV >= 0){ A[(m + off_y[q] + kk)*nz + rV] =  n[q]*gP; }
+				}
+				if (rS >= 0){
+					A[(cn + q)*nz + rS] = sq_s;
+					if (cT >= 0){ A[cT*nz + rS] += -n[q]*DTT; }
+					if (cP >= 0){ A[cP*nz + rS] += -n[q]*DTP; }
+				}
+				if (rV >= 0){
+					A[(cn + q)*nz + rV] = sq_v;
+					if (cT >= 0){ A[cT*nz + rV] += n[q]*DTP; }
+					if (cP >= 0){ A[cP*nz + rV] += n[q]*DPP; }
+				}
+			}
+		}
 
 		for (int ci = off_c[q]; ci < off_c[q + 1]; ci++){
 			int id = c_id[ci];
@@ -1643,6 +1779,36 @@ static int fn_system(				global_variable 	 gv,
 		}
 		R[r3 + q] = (drop[n_ph + q]) ? n[n_ph + q] : G;
 		if (A != NULL && drop[n_ph + q]){ A[(cn + n_ph + q)*nz + r3 + q] = 1.0; }
+
+		if (sc != NULL && !drop[n_ph + q]){
+			int 	 w = -1;
+			for (int t = 0; t < sc->n_pp; t++){ if (sc->pp_id[t] == pp_id[q]){ w = t; } }
+			if (w < 0){ return 1; }
+			double 	*Gk  = &sc->pp_g[w*16];
+			double 	 Gc  = pp->gbase*pp->factor;
+			double 	 ps  = -(Gk[0] - Gk[1])/(2.0*eT);
+			double 	 pv  = (-3.0*Gc + 4.0*Gk[5] - Gk[4])/(2.0*eP);
+			double 	 nq  = n[n_ph + q];
+			if (rS >= 0){ R[rS] += nq*ps; }
+			if (rV >= 0){ R[rV] += nq*pv; }
+			if (A != NULL){
+				double DTT = (Gk[0] - 2.0*Gc + Gk[1])/(eT*eT);
+				double DTP = (-3.0*(Gk[0] - Gk[1]) + 4.0*(Gk[2] - Gk[3]) - (Gk[7] - Gk[8]))/(4.0*eT*eP);
+				double DPP = (Gk[4] - 2.0*Gk[5] + Gc)/(eP*eP);
+				if (cT >= 0){ A[cT*nz + r3 + q] = -ps; }
+				if (cP >= 0){ A[cP*nz + r3 + q] =  pv; }
+				if (rS >= 0){
+					A[(cn + n_ph + q)*nz + rS] = ps;
+					if (cT >= 0){ A[cT*nz + rS] += -nq*DTT; }
+					if (cP >= 0){ A[cP*nz + rS] += -nq*DTP; }
+				}
+				if (rV >= 0){
+					A[(cn + n_ph + q)*nz + rV] = pv;
+					if (cT >= 0){ A[cT*nz + rV] += nq*DTP; }
+					if (cP >= 0){ A[cP*nz + rV] += nq*DPP; }
+				}
+			}
+		}
 	}
 
 	return 0;
@@ -1846,7 +2012,7 @@ static int fn_kkt_store(			global_variable 	 gv,
 
 	k->stored = 0;
 	if (fn_kkt_reserve(k, nz, (off_s[n_ph] > 0) ? off_s[n_ph] : 1, (off_N[n_ph] > 0) ? off_N[n_ph] : 1) != 0){ return 1; }
-	if (fn_system(gv, z_b, PP_ref_db, SS_ref_db, cp, n_ph, n_pp, ph_cp, pp_id, off_y, off_s, off_N, Nb, off_c, c_id, cx_j, cx_b, gam, s, mu, n, drop, k->R, k->J) != 0){ return 1; }
+	if (fn_system(gv, z_b, PP_ref_db, SS_ref_db, cp, n_ph, n_pp, ph_cp, pp_id, off_y, off_s, off_N, Nb, off_c, c_id, cx_j, cx_b, gam, s, mu, n, drop, k->R, k->J, NULL, NULL) != 0){ return 1; }
 
 	k->nz   = nz;
 	k->m    = m;
@@ -1885,16 +2051,17 @@ static int fn_kkt_store(			global_variable 	 gv,
 	return 0;
 }
 
-global_variable final_Newton(		bulk_info 	 		 z_b,
+static global_variable fn_run(		bulk_info 	 		 z_b,
 									global_variable 	 gv,
 									PC_type 			*PC_read,
 									PP_ref 				*PP_ref_db,
 									SS_ref 				*SS_ref_db,
-									csd_phase_set  		*cp				){
+									csd_phase_set  		*cp,
+									fn_sec 				*sc				){
 	gv.fn_status = 0;
 	gv.fn_ite    = 0;
 	if (gv.fn_sys != NULL){ gv.fn_sys->stored = 0; }
-	if (gv.final_Newton_step != 1 || gv.fn_A == NULL){ return gv; }
+	if ((sc == NULL && gv.final_Newton_step != 1) || gv.fn_A == NULL){ return gv; }
 
 	gv.fn_status = -1;
 	if (gv.status != 0 || gv.solver == 3 || gv.n_mu_fix > 0){ return gv; }
@@ -1930,7 +2097,19 @@ global_variable final_Newton(		bulk_info 	 		 z_b,
 		pp_id[n_pp] = i;
 		n_pp       += 1;
 	}
-	if (n_ph == 0 || m + 2*off_d[n_ph] + n_ph + n_pp > gv.fn_nz_max){ return gv; }
+	int 	n_th = (sc != NULL) ? sc->n_th : 0;
+	if (n_ph == 0 || m + 2*off_d[n_ph] + n_ph + n_pp + n_th > gv.fn_nz_max){ return gv; }
+	double 	th0[2] = {z_b.P, z_b.T};
+	double 	th[2]  = {z_b.P, z_b.T};
+	double 	tht[2] = {z_b.P, z_b.T};
+	if (sc != NULL){
+		if (n_ph > 64 || n_pp > 64){ return gv; }
+		sc->n_ss = n_ph;
+		sc->n_pp = n_pp;
+		for (int q = 0; q < n_ph; q++){ sc->ss_id[q] = cp[ph_cp[q]].id; }
+		for (int q = 0; q < n_pp; q++){ sc->pp_id[q] = pp_id[q]; }
+		fn_sec_refresh(gv, sc, PP_ref_db, SS_ref_db, th0);
+	}
 
 	int 	n_dmax = off_d[n_ph];
 	int 	off_y[n_ph + 1];
@@ -2019,7 +2198,7 @@ global_variable final_Newton(		bulk_info 	 		 z_b,
 		done = 0;
 		for (int j = 0; j < gv.len_ox; j++){ gam[j] = gam0[j]; }
 		for (int i = 0; i < off_s[n_ph]; i++){ s[i] = s0[i]; }
-		for (int q = 0; q < n_ph + n_pp; q++){ n[q] = (drop[q]) ? 0.0 : n0[q]; }
+		for (int q = 0; q < n_ph + n_pp; q++){ n[q] = (drop[q]) ? 0.0 : n0[q]; } th[0] = th0[0]; th[1] = th0[1];
 
 		for (int att = 0; att < FN_MAX_ATT && ok && done == 0; att++){
 			int n_cc = 0;
@@ -2044,7 +2223,7 @@ global_variable final_Newton(		bulk_info 	 		 z_b,
 				off_c[q + 1] = n_cc;
 			}
 			n_y    = off_y[n_ph];
-			int nz = m + n_y + n_cc + n_ph + n_pp;
+			int nz = m + n_y + n_cc + n_ph + n_pp + n_th;
 			int cm = m + n_y;
 			int cn = m + n_y + n_cc;
 			if (nz > gv.fn_nz_max){ ok = 0; break; }
@@ -2052,7 +2231,7 @@ global_variable final_Newton(		bulk_info 	 		 z_b,
 			double R[nz], Rt[nz];
 			for (int c = 0; c < n_cc; c++){ mu[c] = 0.0; }
 
-			if (fn_system(gv, z_b, PP_ref_db, SS_ref_db, cp, n_ph, n_pp, ph_cp, pp_id, off_y, off_s, off_N, Nb, off_c, c_id, cx_j, cx_b, gam, s, mu, n, drop, R, NULL) != 0){ ok = 0; break; }
+			if (fn_system(gv, z_b, PP_ref_db, SS_ref_db, cp, n_ph, n_pp, ph_cp, pp_id, off_y, off_s, off_N, Nb, off_c, c_id, cx_j, cx_b, gam, s, mu, n, drop, R, NULL, sc, th) != 0){ ok = 0; break; }
 			r0 = fn_norm(R, nz);
 			if (att == 0 && dr == 0){
 				G0 = fn_G_system(gv, PP_ref_db, SS_ref_db, cp, n_ph, n_pp, ph_cp, pp_id, off_s, s, n);
@@ -2065,8 +2244,9 @@ global_variable final_Newton(		bulk_info 	 		 z_b,
 			}
 			ite = 0;
 
-			while (ok && r0 > FN_TOL && ite < FN_MAX_ITE){
-				if (fn_system(gv, z_b, PP_ref_db, SS_ref_db, cp, n_ph, n_pp, ph_cp, pp_id, off_y, off_s, off_N, Nb, off_c, c_id, cx_j, cx_b, gam, s, mu, n, drop, R, gv.fn_A) != 0){ ok = 0; break; }
+			double 	r_tol = (sc != NULL) ? FN_SEC_TOL : FN_TOL;
+			while (ok && r0 > r_tol && ite < ((sc != NULL) ? FN_SEC_MAX_ITE : FN_MAX_ITE)){
+				if (fn_system(gv, z_b, PP_ref_db, SS_ref_db, cp, n_ph, n_pp, ph_cp, pp_id, off_y, off_s, off_N, Nb, off_c, c_id, cx_j, cx_b, gam, s, mu, n, drop, R, gv.fn_A, sc, th) != 0){ ok = 0; break; }
 				for (int i = 0; i < nz; i++){ gv.fn_b[i] = -R[i]; }
 
 				int 	nrhs = 1;
@@ -2100,6 +2280,15 @@ global_variable final_Newton(		bulk_info 	 		 z_b,
 					if (dn < 0.0 && FN_FRAC*n[q]/(-dn) < alpha){ alpha = FN_FRAC*n[q]/(-dn); }
 				}
 
+				double 	dth[2] = {0.0, 0.0};
+				if (sc != NULL){
+					int ct = m + n_y + n_cc + n_ph + n_pp;
+					if (sc->free_P){ dth[0] = gv.fn_b[ct]; }
+					if (sc->free_T){ dth[1] = gv.fn_b[ct + sc->free_P]; }
+					if (fabs(alpha*dth[0]) > FN_SEC_DP){ alpha = FN_SEC_DP/fabs(dth[0]); }
+					if (fabs(alpha*dth[1]) > FN_SEC_DT){ alpha = FN_SEC_DT/fabs(dth[1]); }
+				}
+
 				int 	acc = 0;
 				double 	r1  = r0;
 				for (int ls = 0; ls < FN_MAX_LS && acc == 0; ls++){
@@ -2114,10 +2303,12 @@ global_variable final_Newton(		bulk_info 	 		 z_b,
 					}
 					for (int c = 0; c < n_cc; c++){ mut[c] = mu[c] + alpha*gv.fn_b[cm + c]; }
 					for (int q = 0; q < n_ph + n_pp; q++){ nt[q] = n[q] + alpha*gv.fn_b[cn + q]; }
+					tht[0] = th[0] + alpha*dth[0];
+					tht[1] = th[1] + alpha*dth[1];
 
-					if (fn_system(gv, z_b, PP_ref_db, SS_ref_db, cp, n_ph, n_pp, ph_cp, pp_id, off_y, off_s, off_N, Nb, off_c, c_id, cx_j, cx_b, gamt, st, mut, nt, drop, Rt, NULL) == 0){
+					if (fn_system(gv, z_b, PP_ref_db, SS_ref_db, cp, n_ph, n_pp, ph_cp, pp_id, off_y, off_s, off_N, Nb, off_c, c_id, cx_j, cx_b, gamt, st, mut, nt, drop, Rt, NULL, sc, tht) == 0){
 						r1 = fn_norm(Rt, nz);
-						if (r1 < r0 || r1 <= FN_TOL){ acc = 1; }
+						if (r1 < r0 || r1 <= r_tol){ acc = 1; }
 					}
 					if (acc == 0){ alpha *= 0.5; }
 				}
@@ -2127,10 +2318,12 @@ global_variable final_Newton(		bulk_info 	 		 z_b,
 				for (int i = 0; i < off_s[n_ph]; i++){ s[i] = st[i]; }
 				for (int c = 0; c < n_cc; c++){ mu[c] = mut[c]; }
 				for (int q = 0; q < n_ph + n_pp; q++){ n[q] = nt[q]; }
+				th[0] = tht[0];
+				th[1] = tht[1];
 				r0   = r1;
 				ite += 1;
 			}
-			if (r0 > FN_TOL){ ok = 0; }
+			if (r0 > r_tol){ ok = 0; }
 			if (!ok){
 				int n_new = fn_add_xbounds(gv, SS_ref_db, cp, n_ph, ph_cp, off_s, s0, FN_X_ACT, cx_q, cx_j, cx_b, cx_sg, cx_on, &n_cx, n_dmax)
 						  + fn_add_xbounds(gv, SS_ref_db, cp, n_ph, ph_cp, off_s, s, FN_X_ACT, cx_q, cx_j, cx_b, cx_sg, cx_on, &n_cx, n_dmax);
@@ -2148,7 +2341,7 @@ global_variable final_Newton(		bulk_info 	 		 z_b,
 				if (n_new > 0 && att < FN_MAX_ATT - 1){
 					for (int j = 0; j < gv.len_ox; j++){ gam[j] = gam0[j]; }
 					for (int i = 0; i < off_s[n_ph]; i++){ s[i] = s0[i]; }
-					for (int q = 0; q < n_ph + n_pp; q++){ n[q] = (drop[q]) ? 0.0 : n0[q]; }
+					for (int q = 0; q < n_ph + n_pp; q++){ n[q] = (drop[q]) ? 0.0 : n0[q]; } th[0] = th0[0]; th[1] = th0[1];
 					ok = 1;
 					continue;
 				}
@@ -2169,7 +2362,7 @@ global_variable final_Newton(		bulk_info 	 		 z_b,
 			else{
 				for (int j = 0; j < gv.len_ox; j++){ gam[j] = gam0[j]; }
 				for (int i = 0; i < off_s[n_ph]; i++){ s[i] = s0[i]; }
-				for (int q = 0; q < n_ph + n_pp; q++){ n[q] = (drop[q]) ? 0.0 : n0[q]; }
+				for (int q = 0; q < n_ph + n_pp; q++){ n[q] = (drop[q]) ? 0.0 : n0[q]; } th[0] = th0[0]; th[1] = th0[1];
 			}
 		}
 		if (done == 0){ ok = 0; }
@@ -2190,9 +2383,14 @@ global_variable final_Newton(		bulk_info 	 		 z_b,
 		n_drop 	+= 1;
 	}
 
+	if (ok && sc != NULL){
+		if (th[0] != sc->Pcur || th[1] != sc->Tcur){ fn_sec_refresh(gv, sc, PP_ref_db, SS_ref_db, th); }
+		z_b.P = th[0];
+		z_b.T = th[1];
+	}
 	if (ok){
 		G1 = fn_G_system(gv, PP_ref_db, SS_ref_db, cp, n_ph, n_pp, ph_cp, pp_id, off_s, s, n);
-		if (!(G1 <= Gc + FN_G_TOL + FN_G_MB*rmb)){ ok = 0; }
+		if (sc == NULL && !(G1 <= Gc + FN_G_TOL + FN_G_MB*rmb)){ ok = 0; }
 	}
 	if (ok){
 		for (int q = 0; q < n_ph && ok; q++){
@@ -2214,7 +2412,7 @@ global_variable final_Newton(		bulk_info 	 		 z_b,
 	}
 
 	int kkt = 0;
-	if (ok && gv.fn_store_kkt == 1 && gv.fn_sys != NULL){
+	if (ok && sc == NULL && gv.fn_store_kkt == 1 && gv.fn_sys != NULL){
 		kkt = (fn_kkt_store(gv, z_b, PP_ref_db, SS_ref_db, cp, n_ph, n_pp, ph_cp, pp_id, off_y, off_s, off_N, Nb, off_c, c_id, cx_j, cx_b, gam, s, mu, n, drop, G1, gv.fn_sys) == 0);
 	}
 
@@ -2315,6 +2513,11 @@ global_variable final_Newton(		bulk_info 	 		 z_b,
 		if (kkt){ gv.fn_sys->stored = 1; }
 	}
 	else{
+		if (sc != NULL){
+			fn_sec_refresh(gv, sc, PP_ref_db, SS_ref_db, th0);
+			z_b.P = th0[0];
+			z_b.T = th0[1];
+		}
 		fn_restore_ss(gv, z_b, PC_read, SS_ref_db, cp, n_ph, ph_cp);
 		gv.fn_status = (set) ? -2 : -1;
 	}
@@ -2324,6 +2527,54 @@ global_variable final_Newton(		bulk_info 	 		 z_b,
 		printf("\n Final Newton step: status %d, %d iterations, %d bound constraints, %d phase(s) removed, |R| %.3e, dG %+.3e\n", gv.fn_status, ite, n_cx, n_drop, r0, G1 - Gc);
 	}
 
+	return gv;
+}
+
+global_variable final_Newton(		bulk_info 	 		 z_b,
+									global_variable 	 gv,
+									PC_type 			*PC_read,
+									PP_ref 				*PP_ref_db,
+									SS_ref 				*SS_ref_db,
+									csd_phase_set  		*cp				){
+	return fn_run(z_b, gv, PC_read, PP_ref_db, SS_ref_db, cp, NULL);
+}
+
+void section_mode_flags(				int 				 mode,
+										int 				*use_S,
+										int 				*use_V,
+										int 				*free_P,
+										int 				*free_T			){
+	*use_S 	= (mode == 1 || mode == 2 || mode == 5);
+	*use_V 	= (mode == 1 || mode == 3 || mode == 4);
+	*free_P = (mode == 1 || mode == 3 || mode == 5);
+	*free_T = (mode == 1 || mode == 2 || mode == 4);
+}
+
+global_variable final_Newton_section(	bulk_info 	 		 z_b,
+										global_variable 	 gv,
+										PC_type 			*PC_read,
+										PP_ref 				*PP_ref_db,
+										SS_ref 				*SS_ref_db,
+										csd_phase_set  		*cp,
+										double 				*P,
+										double 				*T				){
+	fn_sec sc;
+	memset(&sc, 0, sizeof(sc));
+	section_mode_flags(gv.sec_mode, &sc.use_S, &sc.use_V, &sc.free_P, &sc.free_T);
+	sc.n_th 		= sc.free_P + sc.free_T;
+	sc.S 			= gv.sec_S;
+	sc.V 			= gv.sec_V/10.0;
+	sc.EM_database 	= gv.EM_database;
+	sc.zb 			= z_b;
+	sc.Pcur 		= NAN;
+	sc.Tcur 		= NAN;
+
+	gv = fn_run(z_b, gv, PC_read, PP_ref_db, SS_ref_db, cp, &sc);
+
+	if (gv.fn_status > 0){
+		*P = sc.Pcur;
+		*T = sc.Tcur;
+	}
 	return gv;
 }
 

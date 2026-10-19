@@ -848,34 +848,19 @@ static void warn_ds62_placeholder_phases(	global_variable 	 gv,
 	return gv;
 }
 
-	global_variable ComputeEquilibrium_FromState(	bulk_info 	 		 z_b,
-													global_variable 	 gv,
-													PP_ref  			*PP_ref_db,
-													SS_ref  			*SS_ref_db,
-													csd_phase_set  		*cp,
-													int 				 n_ss,
-													int 				*ss_ids,
-													double 				*ss_x,
-													double 				*ss_n,
-													int 				 n_pp,
-													int 				*pp_ids,
-													double 				*pp_n,
-													double 				*gam				){
-
-	PC_type 								PC_read[gv.len_ss];
-
-	if (strcmp(gv.research_group, "tc") 	== 0 ){
-		TC_PC_init(	                    		PC_read,
-												gv								);
-	}
-	else if (strcmp(gv.research_group, "sb") 	== 0 ){
-		SB_PC_init(	                    		PC_read,
-												gv								);
-	}
-	else{
-		gv.status = -1;
-		return gv;
-	}
+static global_variable load_equilibrium_state(	bulk_info 	 		 z_b,
+												global_variable 	 gv,
+												SS_ref  			*SS_ref_db,
+												csd_phase_set  		*cp,
+												PC_type 			*PC_read,
+												int 				 n_ss,
+												int 				*ss_ids,
+												double 				*ss_x,
+												double 				*ss_n,
+												int 				 n_pp,
+												int 				*pp_ids,
+												double 				*pp_n,
+												double 				*gam				){
 
 	gv.fn_from_state = 1;
 	gv.status 		 = 0;
@@ -940,6 +925,57 @@ static void warn_ds62_placeholder_phases(	global_variable 	 gv,
 		gv.n_phase 				   += 1;
 	}
 
+	return gv;
+}
+
+	global_variable ComputeEquilibrium_FromState(	bulk_info 	 		 z_b,
+													global_variable 	 gv,
+													PP_ref  			*PP_ref_db,
+													SS_ref  			*SS_ref_db,
+													csd_phase_set  		*cp,
+													int 				 n_ss,
+													int 				*ss_ids,
+													double 				*ss_x,
+													double 				*ss_n,
+													int 				 n_pp,
+													int 				*pp_ids,
+													double 				*pp_n,
+													double 				*gam				){
+
+	PC_type 								PC_read[gv.len_ss];
+
+	if (strcmp(gv.research_group, "tc") 	== 0 ){
+		TC_PC_init(	                    		PC_read,
+												gv								);
+	}
+	else if (strcmp(gv.research_group, "sb") 	== 0 ){
+		SB_PC_init(	                    		PC_read,
+												gv								);
+	}
+	else{
+		gv.status = -1;
+		return gv;
+	}
+
+	if (n_ss + n_pp > gv.len_ox){
+		gv.status 	 = -1;
+		gv.fn_status = -1;
+		return gv;
+	}
+	gv = load_equilibrium_state(					z_b,
+													gv,
+													SS_ref_db,
+													cp,
+													PC_read,
+													n_ss,
+													ss_ids,
+													ss_x,
+													ss_n,
+													n_pp,
+													pp_ids,
+													pp_n,
+													gam								);
+
 	gv = final_Newton(								z_b,
 													gv,
 													PC_read,
@@ -947,6 +983,86 @@ static void warn_ds62_placeholder_phases(	global_variable 	 gv,
 													SS_ref_db,
 													cp								);
 	if (gv.fn_status <= 0){ gv.status = -1; }
+
+	return gv;
+}
+
+
+	global_variable ComputeEquilibrium_SectionFromState(	bulk_info 	 		 z_b,
+														global_variable 	 gv,
+														PP_ref  			*PP_ref_db,
+														SS_ref  			*SS_ref_db,
+														csd_phase_set  		*cp,
+														int 				 n_ss,
+														int 				*ss_ids,
+														double 				*ss_x,
+														double 				*ss_n,
+														int 				 n_pp,
+														int 				*pp_ids,
+														double 				*pp_n,
+														double 				*gam				){
+
+	PC_type 								PC_read[gv.len_ss];
+	double 									P = z_b.P;
+	double 									T = z_b.T;
+
+	gv.sec_P = P;
+	gv.sec_T = T;
+	if (gv.sec_mode < 1 || gv.sec_mode > 5){
+		gv.status 	 = -1;
+		gv.fn_status = -1;
+		return gv;
+	}
+	if (strcmp(gv.research_group, "tc") == 0){
+		TC_PC_init(									PC_read,
+													gv								);
+	}
+	else if (strcmp(gv.research_group, "sb") == 0){
+		SB_PC_init(									PC_read,
+													gv								);
+	}
+	else if (strcmp(gv.research_group, "br") == 0){
+		BR_PC_init(									PC_read,
+													gv								);
+	}
+	else{
+		gv.status 	 = -1;
+		gv.fn_status = -1;
+		return gv;
+	}
+
+	if (n_ss + n_pp > gv.len_ox){
+		gv.status 	 = -1;
+		gv.fn_status = -1;
+		return gv;
+	}
+	gv = load_equilibrium_state(					z_b,
+													gv,
+													SS_ref_db,
+													cp,
+													PC_read,
+													n_ss,
+													ss_ids,
+													ss_x,
+													ss_n,
+													n_pp,
+													pp_ids,
+													pp_n,
+													gam								);
+
+	gv = final_Newton_section(						z_b,
+													gv,
+													PC_read,
+													PP_ref_db,
+													SS_ref_db,
+													cp,
+												   &P,
+												   &T								);
+	if (gv.fn_status <= 0){ gv.status = -1; }
+	else{
+		gv.sec_P = P;
+		gv.sec_T = T;
+	}
 
 	return gv;
 }

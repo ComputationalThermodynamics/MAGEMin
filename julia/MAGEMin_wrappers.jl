@@ -24,6 +24,8 @@ export  anhydrous_renormalization, retrieve_solution_phase_information, print_ph
         get_all_stable_phases, convertBulk4MAGEMin, use_predefined_bulk_rock, define_bulk_rock, create_output,
         print_info, create_gmin_struct, pwm_init, pwm_run, p2x_convert, pc_convert, lm_convert,
         pwm_run_from_state, point_wise_newton_from_state, equilibrium_state, get_final_newton_system,
+        pwm_run_section_from_state, point_wise_section_newton_from_state, SECTION_MODES,
+        SECTION_XY, section_info, section_point, section_ranges, multi_point_section,
         point_wise_metastability,
         single_point_minimization, multi_point_minimization, AMR_minimization, MAGEMin_Data,
         MAGEMin_data2dataframe, MAGEMin_dataTE2dataframe, MAGEMin_data2dataframe_inlined,
@@ -2902,6 +2904,10 @@ end
         Reduced system (SB and Berman databases, or THERMOCALC and MELTS with the nullspace optimizer:
         `optimizer=1`, `solver=0`): core oxides set exactly to zero (or below 2e-5 with `oxMinGuard`)
         stay zero instead of being raised to 1e-4 (default: false).
+    ns : Bool, optional
+        Nullspace optimizer, as used by MAGEMinApp: only SiO2 is raised to 1e-4; every other oxide is
+        kept as given (values within ±2e-5 set to 0 with `oxMinGuard`). Takes precedence over
+        `ns_reduced` (default: false).
 
     Returns
     -------
@@ -2911,11 +2917,16 @@ end
         Oxide names in the order expected by MAGEMin for the given database.
 """
 function convertBulk4MAGEMin(   bulk_in     :: T1,
-                                bulk_in_ox  :: Vector{String},
-                                sys_in      :: String,
-                                db          :: String;
+                                bulk_in_ox  :: AbstractVector{<:AbstractString},
+                                sys_in      :: AbstractString,
+                                db          :: AbstractString;
                                 oxMinGuard  ::  Bool = true,
-                                ns_reduced  ::  Bool = false ) where {T1 <: AbstractVector{Float64}}
+                                ns_reduced  ::  Bool = false,
+                                ns          ::  Bool = false ) where {T1 <: AbstractVector{Float64}}
+
+    bulk_in_ox  = String.(bulk_in_ox)
+    sys_in      = String(sys_in)
+    db          = String(db)
 
     bulk_in = normalize(bulk_in);
 
@@ -3021,8 +3032,13 @@ function convertBulk4MAGEMin(   bulk_in     :: T1,
         d       = findall(in(config.optional).(MAGEMin_ox))
     end
 
+    if ns
+        c       = findall(isequal("SiO2"), MAGEMin_ox)
+        d       = setdiff(eachindex(MAGEMin_ox), c)
+    end
+
     # Set core oxides to minimum 1e-4 if below threshold (exact zeros are kept when the nullspace optimizer reduces the system)
-    if ns_reduced
+    if ns_reduced && !ns
         if oxMinGuard
             idz = findall(MAGEMin_bulk[c] .< 2e-5)
             MAGEMin_bulk[c[idz]] .= 0.0
@@ -3867,6 +3883,124 @@ function point_wise_newton_from_state(  P       ::Float64,
     hook === nothing || hook(gv, z_b, DB)
 
     return pwm_run_from_state(gv, z_b, DB, splx_data, state; name_solvus = name_solvus)
+end
+
+
+"""
+    SECTION_MODES
+
+    Section types of [`pwm_run_section_from_state`](@ref) and the corresponding `gv.sec_mode`:
+    `:sv` (S, V fixed; P, T free) = 1, `:ps` (P, S fixed; T free) = 2, `:tv` (T, V fixed; P free) = 3,
+    `:pv` (P, V fixed; T free) = 4, `:ts` (T, S fixed; P free) = 5.
+"""
+const SECTION_MODES = Dict(:sv => 1, :ps => 2, :tv => 3, :pv => 4, :ts => 5)
+
+
+"""
+    pwm_run_section_from_state(gv, z_b, DB, splx_data, state; section, S=NaN, V=NaN, name_solvus=false, ...)
+
+    Section variant of [`pwm_run_from_state`](@ref): load the given equilibrium state (see
+    [`equilibrium_state`](@ref)) after `pwm_init` and solve this assemblage with the final Newton
+    step extended by free pressure and/or temperature and by entropy and/or volume equations
+    (see [`SECTION_MODES`](@ref)). The fixed P or T is the one set by `pwm_init`; the free ones
+    start from it.
+
+    `S` is the system entropy in kJ/K and `V` the system volume in cm³, both per mol of bulk
+    oxides, i.e. the units of `out.entropy[1]` and `out.V`. TC, SB and BR databases are supported.
+
+    No stability test is done: phases can be removed by the Newton step when their fraction
+    vanishes, but no phase is added. Check stability with a point minimization at the returned
+    `P_kbar`, `T_C`.
+
+    `out.status` is `0` when the Newton step converged and `-1` otherwise; `out.P_kbar` and
+    `out.T_C` hold the solved pressure and temperature (the start values on failure).
+
+    Returns
+    -------
+    out : gmin_struct{Float64, Int64}
+"""
+function pwm_run_section_from_state(gv, z_b, DB, splx_data, state; section::Symbol, S::Float64 = NaN, V::Float64 = NaN, name_solvus = false, seismic_cor = false, aspect_ratio = 0.3, seismic_water = 0, shallow_correction = false, fluid_as_melt = false, anelastic_cor = false, filter_DEW_species = false)
+    haskey(SECTION_MODES, section) || error("Unknown section $(section); use one of $(collect(keys(SECTION_MODES)))")
+    mode    = SECTION_MODES[section]
+    if (mode in (1, 2, 5) && !isfinite(S)) || (mode in (1, 3, 4) && !isfinite(V))
+        error("Section $(section) needs finite targets: S = $(S), V = $(V)")
+    end
+
+    ss_ids  = Vector{Cint}(state.ss_ids)
+    ss_x    = Vector{Cdouble}(state.ss_x)
+    ss_n    = Vector{Cdouble}(state.ss_n)
+    pp_ids  = Vector{Cint}(state.pp_ids)
+    pp_n    = Vector{Cdouble}(state.pp_n)
+    gam     = Vector{Cdouble}(state.gam)
+
+    gv_in           = gv
+    gv_in.sec_mode  = mode
+    gv_in.sec_S     = isfinite(S) ? S : 0.0
+    gv_in.sec_V     = isfinite(V) ? V : 0.0
+
+    time = @elapsed  gv      = LibMAGEMin.ComputeEquilibrium_SectionFromState(z_b, gv_in, DB.PP_ref_db, DB.SS_ref_db, DB.cp, length(ss_ids), ss_ids, ss_x, ss_n, length(pp_ids), pp_ids, pp_n, gam);
+
+    gv_in.sec_mode  = 0
+    gv.sec_mode     = 0
+    z_b.P       = gv.sec_P
+    z_b.T       = gv.sec_T
+
+    gv = LibMAGEMin.ComputePostProcessing(z_b, gv, DB.PP_ref_db, DB.SS_ref_db, DB.cp)
+
+    LibMAGEMin.fill_output_struct(gv, pointer_from_objref(splx_data), z_b, DB.PP_ref_db,DB.SS_ref_db, DB.cp, DB.sp );
+
+    LibMAGEMin.PrintOutput(gv, 0, 1, DB, time, z_b);
+
+    out = deepcopy(create_gmin_struct(DB, gv, time; name_solvus = name_solvus, seismic_cor = seismic_cor, aspect_ratio = aspect_ratio, seismic_water = seismic_water, shallow_correction = shallow_correction, fluid_as_melt = fluid_as_melt, anelastic_cor = anelastic_cor, filter_DEW_species = filter_DEW_species));
+
+    return out
+end
+
+
+"""
+    point_wise_section_newton_from_state(P, T, gv, z_b, DB, splx_data, state; section, S=NaN, V=NaN, W=nothing, gbase=nothing, v=nothing, hook=nothing, name_solvus=false)
+
+    Same as [`pwm_run_section_from_state`](@ref), preceded by `pwm_init` at the start point (P, T)
+    and by the `W`, `gbase` and `v` overrides and the `hook` of [`point_wise_minimization`](@ref).
+
+    Examples
+    --------
+    ```julia
+    gv, z_b, DB, splx_data = init_MAGEMin("mp");
+    gv      = use_predefined_bulk_rock(gv, 0, "mp");
+    gv.verbose = -1
+    out     = point_wise_minimization(6.0, 650.0, gv, z_b, DB, splx_data)
+    st      = equilibrium_state(out)
+    # same assemblage, at 6 kbar and the temperature where V = out.V + 0.05 cm³
+    out2    = point_wise_section_newton_from_state(6.0, 650.0, gv, z_b, DB, splx_data, st; section = :pv, V = out.V + 0.05)
+    ```
+"""
+function point_wise_section_newton_from_state(  P       ::Float64,
+                                                T       ::Float64,
+                                                gv,
+                                                z_b,
+                                                DB,
+                                                splx_data,
+                                                state;
+                                                section     ::Symbol,
+                                                S           ::Float64 = NaN,
+                                                V           ::Float64 = NaN,
+                                                W           = nothing,
+                                                gbase       = nothing,
+                                                v           = nothing,
+                                                hook        = nothing,
+                                                name_solvus = false)
+
+    if P < 0.001
+        P = 0.001
+    end
+    gv, z_b, DB, splx_data = pwm_init(P, T, gv, z_b, DB, splx_data)
+
+    apply_parameter_overrides!(gv, z_b, DB; W = W, gbase = gbase, v = v)
+
+    hook === nothing || hook(gv, z_b, DB)
+
+    return pwm_run_section_from_state(gv, z_b, DB, splx_data, state; section = section, S = S, V = V, name_solvus = name_solvus)
 end
 
 
@@ -5316,6 +5450,7 @@ include("lattice_strain.jl")
 include("TE_partitioning.jl")
 include("TE_saturation_models.jl")
 include("export2CSV.jl")
+include("Section_minimization.jl")
 include("External_routines.jl")
 
 # Loading Adaptive mesh refinement functions

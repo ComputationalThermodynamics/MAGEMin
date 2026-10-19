@@ -286,9 +286,9 @@ end
     ph_TE : Vector{String}
         Names of the phases included in the partitioning calculation.
     ph_wt_norm : Vector{Float64}
-        Normalized weight fractions of the solid phases.
+        System weight fractions of the phases listed in `ph_TE` (renormalized when `norm_TE=true`).
     liq_wt_norm : Float64
-        Normalized weight fraction of the melt.
+        Weight fraction of the melt (renormalized when `norm_TE=true`).
     bulk_D : Float64
         Bulk partition coefficient.
     bulk_cor_wt : Vector{Float64}
@@ -317,6 +317,12 @@ end
         Weight fraction of monazite precipitated (NaN if not computed).
     X_mnz_LREE : Float64
         Molar ratio of LREE to all cations (LREE, Y, Th, U) in monazite, updated from `Cmin` (NaN if not computed).
+    Cfl : Vector{Float64}
+        Trace element concentrations in the fluid [ppm] (free fluid phase plus exsolved CO₂).
+    sol_wt_norm : Float64
+        Weight fraction of the solid (MAGEMin solids plus solid saturation phases) used in the mass balance.
+    fl_wt_norm : Float64
+        Weight fraction of the fluid (MAGEMin fluid plus exsolved CO₂) used in the mass balance.
 """
 struct out_tepm
     elements        :: Union{Float64, Vector{String}}
@@ -347,6 +353,10 @@ struct out_tepm
     Sat_LREE_liq    :: Union{Float64, Float64}
     mnz_wt          :: Union{Float64, Float64}
     X_mnz_LREE      :: Union{Float64, Float64}
+
+    Cfl             :: Union{Float64, Vector{Float64}}
+    sol_wt_norm     :: Float64
+    fl_wt_norm      :: Float64
 end
 
 
@@ -626,7 +636,7 @@ function partition_TE(  KDs_database:: custom_KDs_database,
 
     D           = KDs'*ph_wt_norm;
     bulk_D      = sum(D);
-    Cliq        = C0 ./ (D .+ liq_wt_norm.*(1.0 .- D));
+    Cliq        = norm_TE ? C0 ./ (D .+ liq_wt_norm.*(1.0 .- D)) : C0 ./ (liq_wt_norm .+ D);
     Csol        = (C0 .- Cliq .*  liq_wt_norm) ./ (1.0 .- liq_wt_norm)
     Cmin        = similar(KDs); 
 
@@ -1183,11 +1193,25 @@ function _rescale_Cmin!(Cmin, Cliq, Cliq_pre)
 end
 
 """
-    TE_prediction(out, C0, KDs_database, dtb; ZrSat_model="none", SSat_model="none", P2O5Sat_model="none", MnzSat_model="none", norm_TE=false)
+    TE_prediction(out, C0, KDs_database, dtb; ZrSat_model="none", SSat_model="none", P2O5Sat_model="none", CO2Sat_model="none", MnzSat_model="none", X_mnz_LREE=1.0, sat=nothing, norm_TE=false)
 
-    Perform trace element partitioning, optionally with zircon, sulfide, apatite, and/or monazite saturation corrections.
+    Perform trace element partitioning between melt, solids and fluid, optionally with zircon, sulfide, apatite, monazite and CO₂-fluid saturation.
 
-    Phases are classified via `mineral_classification`, elements are partitioned using the batch melting equation, and saturation corrections are applied when the corresponding model is not `"none"`. The corrected bulk composition (accounting for precipitated saturation phases) is also returned.
+    Mass balance is solved on the whole system (weight fractions from MAGEMin):
+
+        C0 = F·Cliq + Σᵢ xᵢ·Kdᵢ·Cliq + M
+
+    where F is the melt fraction, xᵢ the system weight fraction of every phase that has KDs (solid or fluid; phases without
+    KDs hold no trace element) and M the mass locked in saturation phases. When the melt exceeds the saturation
+    concentration of an element, Cliq is set to the saturation value and the whole excess M = C0 - Sat·(F + ΣxᵢKdᵢ) goes to
+    the saturation phase (zircon, sulfide, apatite, monazite) or to a CO₂ fluid. Saturation phases are stoichiometric for
+    their own element(s) and use their KDs (when present in `KDs_database`) for every other element. Monazite and apatite
+    share the P₂O₅ budget (monazite first, apatite takes what is left). The saturation phase masses and the monazite LREE
+    fraction are iterated to a fixed point. Without melt the KDs (defined relative to the melt) are not evaluated: trace
+    elements are assigned to the bulk solid and every saturation-controlled element is fully stored in its saturation phase.
+
+    The result always satisfies `liq_wt_norm*Cliq + sol_wt_norm*Csol + fl_wt_norm*Cfl == C0` and
+    `liq_wt_norm*Cliq + Σ ph_wt_norm .* Cmin == C0` (when Cmin is a matrix).
 
     Parameters
     ----------
@@ -1199,24 +1223,20 @@ end
         Compiled trace element partitioning coefficient database.
     dtb : String
         Database identifier used for mineral classification (e.g., "ig", "mp").
-    ZrSat_model : String, optional
-        Zirconium saturation model — "none" disables Zr correction (default: "none"). Valid options: "CB", "W85", "BD92", "RZ93", "CZLD08".
-    SSat_model : String, optional
-        Sulfur saturation model — "none" disables S correction (default: "none"). Valid option: "1000ppm".
-    P2O5Sat_model : String, optional
-        Phosphate saturation model — "none" disables P₂O₅ correction (default: "none"). Valid options: "Klein26", "HWBea92", "Tollari06".
-    MnzSat_model : String, optional
-        Monazite saturation model — "none" disables ΣLREE correction (default: "none"). Valid options: "Stepanov12", "Montel93", "Maimaiti19".
+    ZrSat_model, SSat_model, P2O5Sat_model, CO2Sat_model, MnzSat_model : String, optional
+        Saturation models, "none" disables the correction (default: "none").
     X_mnz_LREE : Float64, optional
-        Molar ratio of LREE to all cations (LREE, Y, Th, U) in monazite, carried over from a previous
-        `TE_prediction`/`solve_with_saturation` iteration (default: 1.0, i.e. no Y/Th/U substitution).
+        Starting guess of the molar LREE/(LREE+Y+Th+U) ratio of monazite (default: 1.0). The returned value is converged.
+    sat : SaturationConfig, optional
+        Overrides the individual model keywords and appends the saturation phases to the KD database.
     norm_TE : Bool, optional
-        Normalize phase fractions before computing KDs (default: false).
+        Renormalize the melt and phase fractions over the melt and the phases that have KDs (default: false).
 
     Returns
     -------
     out_TE : out_tepm
-        Structure containing melt/solid/mineral TE concentrations, saturation values, and corrected bulk compositions.
+        Melt (`Cliq`), bulk solid (`Csol`), fluid (`Cfl`) and mineral (`Cmin`) concentrations, phase fractions, saturation
+        values, saturation phase masses (system weight fractions) and the major-oxide correction of the saturation phases.
 """
 function TE_prediction( out, C0, KDs_database, dtb;
                         ZrSat_model     :: String                       = "none",
@@ -1226,10 +1246,11 @@ function TE_prediction( out, C0, KDs_database, dtb;
                         MnzSat_model    :: String                       = "none",
                         X_mnz_LREE      :: Float64                      = 1.0,
                         sat             :: Union{Nothing,SaturationConfig} = nothing,
-                        norm_TE         :: Bool                         = false )
+                        norm_TE         :: Bool                         = false,
+                        max_iter        :: Int                          = 50,
+                        tol             :: Float64                      = 1e-12 )
 
-    # New-style SaturationConfig overrides individual keyword args when provided.
-    # Old keyword args are kept for backward compatibility.
+    sat_phase = Dict("Zr" => "zrc", "S" => "sulf", "P2O5" => "fapt", "Mnz" => "mnz", "CO2" => "flC")
     if !isnothing(sat)
         ZrSat_model   = sat.Zr
         SSat_model    = sat.S
@@ -1237,198 +1258,303 @@ function TE_prediction( out, C0, KDs_database, dtb;
         CO2Sat_model  = sat.CO2
         MnzSat_model  = sat.Mnz
         KDs_database  = _augment_KDs_for_saturation(KDs_database, sat)
-    end
-
-    # Initialize output variables
-    Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm = NaN, NaN, NaN, nothing, NaN, NaN
-    Sat_Zr_liq, zrc_wt, bulk_cor_wt       = NaN, NaN, NaN
-    Sat_S_liq, sulf_wt                    = NaN, NaN, NaN
-    Sat_P2O5_liq, fapt_wt,                = NaN, NaN, NaN
-    Sat_CO2_liq, fl_CO2_wt                = NaN, NaN
-    Sat_LREE_liq, mnz_wt                  = NaN, NaN
-    X_mnz_LREE_out                        = X_mnz_LREE
-
-    # input data
-    liq_wt      = out.frac_M_wt
-    sol_wt      = out.frac_S_wt
-
-    status      = health_check_TE(C0, KDs_database)
-    ph, ph_wt   =  mineral_classification(out, dtb)
-
-    # first let's partition elements
-    Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D = compute_TE_partitioning(     KDs_database,
-                                                                                            out,
-                                                                                            C0,
-                                                                                            ph,
-                                                                                            ph_wt, 
-                                                                                            liq_wt,
-                                                                                            sol_wt;
-                                                                                            norm_TE = norm_TE)
-
-    bulk_cor_wt = copy(out.bulk_wt); bulk_cor_wt .= 0.0;                                                                              
-
-    if !isnothing(findfirst(KDs_database.element_name .== "Zr")) && ZrSat_model != "none"
-        Sat_Zr_liq, zrc_wt, bulk_cor_wt = compute_Zr_sat_n_part(            out,
-                                                                            KDs_database,
-                                                                            Cliq, bulk_cor_wt, C0,
-                                                                            liq_wt;
-                                                                            ZrSat_model = ZrSat_model)
-        push!(ph,"zrc")
-        push!(ph_wt, zrc_wt)
-    end
-
-    if !isnothing(findfirst(KDs_database.element_name .== "S")) && SSat_model != "none"
-        Sat_S_liq, sulf_wt, bulk_cor_wt = compute_S_sat_n_part(             out,
-                                                                            KDs_database,
-                                                                            Cliq, bulk_cor_wt, C0,
-                                                                            liq_wt;
-                                                                            SSat_model  = SSat_model)
-        push!(ph,"sulf")
-        push!(ph_wt, sulf_wt)
-    end
-
-    if !isnothing(findfirst(KDs_database.element_name .== "P2O5")) && P2O5Sat_model != "none"
-        if P2O5Sat_model == "Tollari06" && out.oxides[findfirst(out.oxides .== "H2O")] != 0.0
-            @warn "P2O5 saturation model 'Tollari06' is calibrated for dry systems. Use HWBea92 model for hydrous systems."
+        for el in keys(sat_phase)
+            p = _sat_phase(sat, el)
+            isnothing(p) || (sat_phase[el] = p)
         end
-
-        Sat_P2O5_liq, fapt_wt, bulk_cor_wt = compute_P2O5_sat_n_part(       out,
-                                                                            KDs_database,
-                                                                            Cliq, bulk_cor_wt, C0,
-                                                                            liq_wt;
-                                                                            P2O5Sat_model   = P2O5Sat_model)
-        push!(ph,"fapt")
-        push!(ph_wt, fapt_wt)
     end
 
-    if !isnothing(findfirst(KDs_database.element_name .== "La")) && MnzSat_model != "none"
-        Sat_LREE_liq, mnz_wt = compute_Mnz_sat_n_part(                      out,
-                                                                            KDs_database,
-                                                                            Cliq, C0,
-                                                                            liq_wt,
-                                                                            Sat_P2O5_liq;
-                                                                            MnzSat_model = MnzSat_model,
-                                                                            X_mnz_LREE   = X_mnz_LREE)
-        push!(ph,"mnz")
-        push!(ph_wt, mnz_wt)
+    health_check_TE(C0, KDs_database)
+
+    els     = KDs_database.element_name
+    n_el    = length(els)
+    eid(e)  = findfirst(==(e), els)
+    id_Zr, id_S, id_P, id_CO2 = eid("Zr"), eid("S"), eid("P2O5"), eid("CO2")
+    id_LREE = [eid(e) for e in _mnz_LREE_els]
+
+    act_Zr  = ZrSat_model   != "none" && !isnothing(id_Zr)
+    act_S   = SSat_model    != "none" && !isnothing(id_S)
+    act_P   = P2O5Sat_model != "none" && !isnothing(id_P)
+    act_CO2 = CO2Sat_model  != "none" && !isnothing(id_CO2)
+    act_Mnz = MnzSat_model  != "none" && all(!isnothing, id_LREE)
+
+    if act_P && P2O5Sat_model == "Tollari06" && "H2O" in out.oxides && out.bulk[findfirst(out.oxides .== "H2O")] != 0.0
+        @warn "P2O5 saturation model 'Tollari06' is calibrated for dry systems. Use HWBea92 model for hydrous systems."
     end
 
-    if !isnothing(findfirst(KDs_database.element_name .== "CO2")) && CO2Sat_model != "none"
-        Sat_CO2_liq, fl_CO2_wt, bulk_cor_wt = compute_CO2_sat_n_part(       out,
-                                                                            KDs_database,
-                                                                            Cliq, bulk_cor_wt, C0,
-                                                                            liq_wt;
-                                                                            CO2Sat_model = CO2Sat_model)
-        push!(ph,"flC")
-        push!(ph_wt, fl_CO2_wt)
+    melt    = out.frac_M_wt > 0.0
+    Sat_Zr_liq   = act_Zr  && melt ? zirconium_saturation(out; model = ZrSat_model)  : NaN
+    Sat_S_liq    = act_S   && melt ? sulfur_saturation(out;    model = SSat_model)   : NaN
+    Sat_P2O5_liq = act_P   && melt ? phosphate_saturation(out; model = P2O5Sat_model) : NaN
+    Sat_CO2_liq  = act_CO2 && melt ? co2_saturation(out;       model = CO2Sat_model) : NaN
+    Sat_LREE_liq = NaN
+
+    # phases with KDs (melt excluded), their system weight fractions and KD rows
+    ph, ph_wt   = mineral_classification(out, dtb)
+    kd_row(p)   = (i = findfirst(==(p), KDs_database.phase_name);
+                   (isnothing(i) || !melt) ? nothing : Float64[Base.invokelatest(KDs_database.KDs_expr[i, j], out) for j in 1:n_el])
+    part_ph     = String[]
+    part_x      = Float64[]
+    part_kd     = Vector{Vector{Float64}}()
+    part_fl     = Bool[]
+    for (p, w) in zip(ph, ph_wt)
+        _is_melt_phase(p) && continue
+        kd = kd_row(p)
+        isnothing(kd) && continue
+        push!(part_ph, p); push!(part_x, w); push!(part_kd, kd); push!(part_fl, _is_fluid_phase(p))
     end
-    sum_wt       = sum(ph_wt)
-    bulk_cor_wt .= bulk_cor_wt  ./ sum_wt
-    ph_wt        = ph_wt        ./ sum_wt
 
+    F       = out.frac_M_wt
+    F_sol   = out.frac_S_wt
+    F_fl    = out.frac_F_wt
+    if norm_TE
+        tot     = F + sum(part_x; init = 0.0)
+        if tot > 0.0
+            F       = F / tot
+            part_x  = part_x ./ tot
+        end
+        F_sol   = sum(part_x[.!part_fl]; init = 0.0)
+        F_fl    = sum(part_x[part_fl];   init = 0.0)
+    end
 
-    Cliq, Csol, Cmin, ph_TE, ph_wt_norm, liq_wt_norm, bulk_D = compute_TE_partitioning(     KDs_database,
-                                                                                            out,
-                                                                                            C0,
-                                                                                            ph,
-                                                                                            ph_wt, 
-                                                                                            liq_wt,
-                                                                                            sol_wt;
-                                                                                            norm_TE = norm_TE)
+    # saturation phases: order zrc, sulf, fapt, mnz (solids), flC (fluid)
+    s_name  = [sat_phase["Zr"], sat_phase["S"], sat_phase["P2O5"], sat_phase["Mnz"], sat_phase["CO2"]]
+    s_act   = [act_Zr, act_S, act_P, act_Mnz, act_CO2]
+    s_own   = [ act_Zr  ? [id_Zr]  : Int[],
+                act_S   ? [id_S]   : Int[],
+                act_P   ? [id_P]   : Int[],
+                act_Mnz ? vcat(id_LREE, isnothing(id_P) ? Int[] : [id_P]) : Int[],
+                act_CO2 ? [id_CO2] : Int[] ]
+    s_kd    = Vector{Union{Nothing,Vector{Float64}}}(undef, 5)
+    for s in 1:5
+        kd = s_act[s] ? kd_row(s_name[s]) : nothing
+        if !isnothing(kd)
+            kd[s_own[s]] .= 0.0
+        end
+        s_kd[s] = kd
+    end
+    kd_mnz_full = act_Mnz ? kd_row(s_name[4]) : nothing
 
-    Cliq_pre = Cmin isa Matrix{Float64} ? copy(Cliq) : Float64[]
+    m       = zeros(5)
+    X_mnz   = X_mnz_LREE
+    Cref    = zeros(n_el)
+    D_sol   = zeros(n_el)
+    D_fl    = zeros(n_el)
+    M_sol   = zeros(n_el)
+    M_fl    = zeros(n_el)
+    free    = zeros(n_el)
+    M_Zr = M_S = P_apt = P_mnz = M_CO2 = 0.0
+    M_LREE  = zeros(length(id_LREE))
 
-    if liq_wt > 0.0
-        if !isnothing(findfirst(KDs_database.element_name .== "Zr"))    && ZrSat_model != "none"
-            id_Zr           = findfirst(KDs_database.element_name .== "Zr")
-            Sat_Zr_liq      = zirconium_saturation(     out; 
-                                                        model = ZrSat_model)   
+    for ite in 1:max_iter
+        D_sol .= 0.0; D_fl .= 0.0
+        for (x, kd, isfl) in zip(part_x, part_kd, part_fl)
+            isfl ? (D_fl .+= x .* kd) : (D_sol .+= x .* kd)
+        end
+        for s in 1:4
+            (m[s] > 0.0 && !isnothing(s_kd[s])) && (D_sol .+= m[s] .* s_kd[s])
+        end
+        (m[5] > 0.0 && !isnothing(s_kd[5])) && (D_fl .+= m[5] .* s_kd[5])
 
-            if Cliq[id_Zr] > Sat_Zr_liq
-                Cliq[id_Zr] = Sat_Zr_liq
-                Csol[id_Zr] = (C0[id_Zr] - Sat_Zr_liq*liq_wt_norm) / (1.0 - liq_wt_norm)
+        denom   = F .+ D_sol .+ D_fl
+        free   .= 0.0
+        for j in 1:n_el
+            if denom[j] > 0.0
+                Cref[j] = C0[j] / denom[j]
             else
-                Csol[id_Zr] = 0.0
+                Cref[j] = 0.0
+                free[j] = C0[j]
             end
         end
-        if !isnothing(findfirst(KDs_database.element_name .== "S"))     && SSat_model != "none"
-            id_S            = findfirst(KDs_database.element_name .== "S")
-            Sat_S_liq       = sulfur_saturation(    out; 
-                                                    model = SSat_model)  
-            if Cliq[id_S] > Sat_S_liq
-                Cliq[id_S] = Sat_S_liq
-                Csol[id_S] = (C0[id_S] - Sat_S_liq*liq_wt_norm) / (1.0 - liq_wt_norm)
-            else
-                Csol[id_S] = 0.0
-            end
-        end
-        if !isnothing(findfirst(KDs_database.element_name .== "P2O5"))  && P2O5Sat_model != "none"
-            id_P2O5         = findfirst(KDs_database.element_name .== "P2O5")
-            Sat_P2O5_liq    = phosphate_saturation(     out; 
-                                                        model = P2O5Sat_model)  
-            if Cliq[id_P2O5] > Sat_P2O5_liq
-                Cliq[id_P2O5] = Sat_P2O5_liq
-                Csol[id_P2O5] = (C0[id_P2O5] - Sat_P2O5_liq*liq_wt_norm) / (1.0 - liq_wt_norm)
-            else
-                Csol[id_P2O5] = 0.0
-            end
-        end
-        if !isnothing(findfirst(KDs_database.element_name .== "CO2"))   && CO2Sat_model != "none"
-            id_CO2          = findfirst(KDs_database.element_name .== "CO2")
-            Sat_CO2_liq     = co2_saturation(   out;
-                                                model = CO2Sat_model)
-            if !isnan(Sat_CO2_liq) && Cliq[id_CO2] > Sat_CO2_liq
-                Cliq[id_CO2] = Sat_CO2_liq
-                Csol[id_CO2] = (C0[id_CO2] - Sat_CO2_liq*liq_wt_norm) / (1.0 - liq_wt_norm)
-            else
-                Csol[id_CO2] = 0.0
-            end
-        end
-        _rescale_Cmin!(Cmin, Cliq, Cliq_pre)
 
-        if !isnothing(findfirst(KDs_database.element_name .== "La"))    && MnzSat_model != "none"
-            id_LREE         = [findfirst(KDs_database.element_name .== el) for el in _mnz_LREE_els]
-            Sat_LREE_liq    = monazite_saturation(  out, X_mnz_LREE;
-                                                    model = MnzSat_model)
+        M_Zr = M_S = P_apt = P_mnz = M_CO2 = 0.0
+        M_LREE .= 0.0
 
-            ΣLREE_liq       = sum(Cliq[id_LREE])
-            if ΣLREE_liq > Sat_LREE_liq
-                LREE_excess         = (ΣLREE_liq - Sat_LREE_liq) .* (Cliq[id_LREE] ./ ΣLREE_liq)
-                Cliq[id_LREE]      .= Cliq[id_LREE] .- LREE_excess
-                Csol[id_LREE]      .= (C0[id_LREE] .- Cliq[id_LREE].*liq_wt_norm) ./ (1.0 - liq_wt_norm)
+        if melt
+            if act_Zr && !isnan(Sat_Zr_liq) && Cref[id_Zr] > Sat_Zr_liq
+                M_Zr         = C0[id_Zr] - Sat_Zr_liq * denom[id_Zr]
+                Cref[id_Zr]  = Sat_Zr_liq
             end
-
-            id_Y, id_Th, id_U   = findfirst(KDs_database.element_name .== "Y"), findfirst(KDs_database.element_name .== "Th"), findfirst(KDs_database.element_name .== "U")
-            mnz_idx             = findfirst(ph_TE .== "mnz")
-            if !isnothing(mnz_idx)
-                mol_LREE    = sum(Cmin[mnz_idx, id_LREE] ./ _mnz_LREE_mass)
-                mol_Y       = isnothing(id_Y)  ? 0.0 : Cmin[mnz_idx, id_Y]  / 88.90584
-                mol_Th      = isnothing(id_Th) ? 0.0 : Cmin[mnz_idx, id_Th] / 232.0377
-                mol_U       = isnothing(id_U)  ? 0.0 : Cmin[mnz_idx, id_U]  / 238.02891
-                X_mnz_LREE_out = mol_LREE / (mol_LREE + mol_Y + mol_Th + mol_U)
+            if act_S && !isnan(Sat_S_liq) && Cref[id_S] > Sat_S_liq
+                M_S          = C0[id_S] - Sat_S_liq * denom[id_S]
+                Cref[id_S]   = Sat_S_liq
+            end
+            if act_CO2 && !isnan(Sat_CO2_liq) && Cref[id_CO2] > Sat_CO2_liq
+                M_CO2        = C0[id_CO2] - Sat_CO2_liq * denom[id_CO2]
+                Cref[id_CO2] = Sat_CO2_liq
+            end
+            if act_Mnz
+                Sat_LREE_liq = monazite_saturation(out, X_mnz; model = MnzSat_model)
+                ΣLREE        = sum(Cref[id_LREE])
+                if ΣLREE > Sat_LREE_liq
+                    Cl_LREE  = Cref[id_LREE] .* (Sat_LREE_liq / ΣLREE)
+                    M_LREE  .= C0[id_LREE] .- Cl_LREE .* denom[id_LREE]
+                    P_mnz    = _mnz_P2O5_ppm(M_LREE)
+                    if !isnothing(id_P) && P_mnz > C0[id_P]
+                        M_LREE .*= C0[id_P] / P_mnz
+                        P_mnz    = C0[id_P]
+                        Cl_LREE  = (C0[id_LREE] .- M_LREE) ./ denom[id_LREE]
+                        Sat_LREE_liq = sum(Cl_LREE)
+                    end
+                    Cref[id_LREE] .= Cl_LREE
+                end
+            end
+            if !isnothing(id_P)
+                avail        = C0[id_P] - P_mnz
+                Cref[id_P]   = denom[id_P] > 0.0 ? avail / denom[id_P] : 0.0
+                if act_P && !isnan(Sat_P2O5_liq) && Cref[id_P] > Sat_P2O5_liq
+                    P_apt        = avail - Sat_P2O5_liq * denom[id_P]
+                    Cref[id_P]   = Sat_P2O5_liq
+                end
+            end
+        else
+            act_Zr  && (M_Zr  = C0[id_Zr];  Cref[id_Zr]  = 0.0; free[id_Zr]  = 0.0)
+            act_S   && (M_S   = C0[id_S];   Cref[id_S]   = 0.0; free[id_S]   = 0.0)
+            act_CO2 && (M_CO2 = C0[id_CO2]; Cref[id_CO2] = 0.0; free[id_CO2] = 0.0)
+            if act_Mnz
+                M_LREE .= C0[id_LREE]
+                P_mnz   = _mnz_P2O5_ppm(M_LREE)
+                if !isnothing(id_P) && P_mnz > C0[id_P]
+                    M_LREE .*= C0[id_P] / P_mnz
+                    P_mnz    = C0[id_P]
+                end
+                for (k, j) in enumerate(id_LREE)
+                    rest     = C0[j] - M_LREE[k]
+                    Cref[j]  = denom[j] > 0.0 ? rest / denom[j] : 0.0
+                    free[j]  = denom[j] > 0.0 ? 0.0 : rest
+                end
+            end
+            if !isnothing(id_P)
+                avail = C0[id_P] - P_mnz
+                if act_P
+                    P_apt = avail; Cref[id_P] = 0.0; free[id_P] = 0.0
+                else
+                    Cref[id_P] = denom[id_P] > 0.0 ? avail / denom[id_P] : 0.0
+                    free[id_P] = denom[id_P] > 0.0 ? 0.0 : avail
+                end
             end
         end
+
+        m_new = [ act_Zr  ? adjust_bulk_4_zircon(M_Zr, 0.0, 1.0)[1]     : 0.0,
+                  act_S   ? adjust_bulk_4_sulfide(M_S, 0.0, 1.0)[1]     : 0.0,
+                  act_P   ? adjust_bulk_4_fapatite(P_apt, 0.0, 1.0)[1]  : 0.0,
+                  act_Mnz ? (sum(M_LREE) + P_mnz) / 1e6                  : 0.0,
+                  act_CO2 ? adjust_bulk_4_fluid(M_CO2, 0.0, 1.0)[1]     : 0.0 ]
+
+        X_new = X_mnz
+        if act_Mnz && m_new[4] > 0.0 && !isnothing(kd_mnz_full)
+            mol_LREE = sum(M_LREE ./ _mnz_LREE_mass)
+            mol_oth  = 0.0
+            for (e, mm) in (("Y", 88.90584), ("Th", 232.0377), ("U", 238.02891))
+                j = eid(e)
+                isnothing(j) || (mol_oth += m_new[4] * kd_mnz_full[j] * Cref[j] / mm)
+            end
+            X_new = mol_LREE / (mol_LREE + mol_oth)
+        end
+
+        done  = maximum(abs.(m_new .- m)) <= tol * max(1.0, maximum(m_new)) && abs(X_new - X_mnz) <= 1e-10
+        m    .= m_new
+        X_mnz = X_new
+        done && ite > 1 && break
     end
 
-    # compute corrected bulk molar composition
-    n_sys           = [out.bulk_wt[i]       / get_molar_mass(out.oxides[i]) for i in eachindex(out.oxides) ]
-    n_cor           = [bulk_cor_wt[i]       / get_molar_mass(out.oxides[i]) for i in eachindex(out.oxides) ]
-    n_cor_fac       = n_cor./(n_sys .+ n_cor)
+    M_sol .= 0.0; M_fl .= 0.0
+    act_Zr  && (M_sol[id_Zr] += M_Zr)
+    act_S   && (M_sol[id_S]  += M_S)
+    act_Mnz && (M_sol[id_LREE] .+= M_LREE)
+    isnothing(id_P) || (M_sol[id_P] += P_apt + P_mnz)
+    act_CO2 && (M_fl[id_CO2] += M_CO2)
+
+    S       = F_sol + m[1] + m[2] + m[3] + m[4]
+    Fl      = F_fl  + m[5]
+    Cliq    = melt ? copy(Cref) : zeros(n_el)
+    Csol    = zeros(n_el)
+    Cfl     = zeros(n_el)
+    to_sol  = S > 0.0
+    for j in 1:n_el
+        fs = to_sol ? free[j] : 0.0
+        ff = to_sol ? 0.0 : free[j]
+        S  > 0.0 && (Csol[j] = (D_sol[j] * Cref[j] + M_sol[j] + fs) / S)
+        Fl > 0.0 && (Cfl[j]  = (D_fl[j]  * Cref[j] + M_fl[j]  + ff) / Fl)
+    end
+
+    # mineral concentrations: KD phases, then saturation phases (stoichiometric for their own elements)
+    rows_ph = copy(part_ph)
+    rows_x  = copy(part_x)
+    rows_C  = [kd .* Cref for kd in part_kd]
+    own_C   = [ act_Zr  ? (j = zeros(n_el); m[1] > 0 && (j[id_Zr]  = M_Zr  / m[1]); j) : nothing,
+                act_S   ? (j = zeros(n_el); m[2] > 0 && (j[id_S]   = M_S   / m[2]); j) : nothing,
+                act_P   ? (j = zeros(n_el); m[3] > 0 && (j[id_P]   = P_apt / m[3]); j) : nothing,
+                act_Mnz ? (j = zeros(n_el); m[4] > 0 && (j[id_LREE] .= M_LREE ./ m[4]; isnothing(id_P) || (j[id_P] = P_mnz / m[4])); j) : nothing,
+                act_CO2 ? (j = zeros(n_el); m[5] > 0 && (j[id_CO2] = M_CO2 / m[5]); j) : nothing ]
+    for s in 1:5
+        m[s] > 0.0 || continue
+        row = isnothing(s_kd[s]) ? zeros(n_el) : s_kd[s] .* Cref
+        row .+= own_C[s]
+        push!(rows_ph, s_name[s]); push!(rows_x, m[s]); push!(rows_C, row)
+    end
+
+    if isempty(rows_ph)
+        Cmin, ph_TE, ph_wt_norm = NaN, nothing, NaN
+    else
+        Cmin       = permutedims(reduce(hcat, rows_C))
+        ph_TE      = rows_ph
+        ph_wt_norm = rows_x
+    end
+    bulk_D = sum(D_sol .+ D_fl)
+
+    # major oxides consumed by the saturation phases (same convention as before)
+    bulk_cor_wt = zeros(length(out.oxides))
+    id_ox(o)    = findfirst(out.oxides .== o)
+    if act_Zr && M_Zr > 0.0
+        _, SiO2_zrc, O_zrc = adjust_bulk_4_zircon(M_Zr, 0.0, 1.0)
+        isnothing(id_ox("SiO2")) || (bulk_cor_wt[id_ox("SiO2")] += SiO2_zrc)
+        isnothing(id_ox("O"))    || (bulk_cor_wt[id_ox("O")]    += 2.0 * O_zrc)
+    end
+    if act_S && M_S > 0.0
+        _, FeO_sulf, O_sulf = adjust_bulk_4_sulfide(M_S, 0.0, 1.0)
+        isnothing(id_ox("FeO")) || (bulk_cor_wt[id_ox("FeO")] += FeO_sulf)
+        isnothing(id_ox("O"))   || (bulk_cor_wt[id_ox("O")]   += O_sulf)
+    end
+    if act_P && P_apt > 0.0
+        _, CaO_fapt = adjust_bulk_4_fapatite(P_apt, 0.0, 1.0)
+        isnothing(id_ox("CaO")) || (bulk_cor_wt[id_ox("CaO")] += CaO_fapt)
+    end
+    for i in eachindex(bulk_cor_wt)
+        if out.oxides[i] != "O" && bulk_cor_wt[i] > out.bulk_wt[i] && bulk_cor_wt[i] > 0.0
+            @warn "Saturation phases require more $(out.oxides[i]) than available in the bulk composition."
+        end
+    end
+    sum_wt          = 1.0 + sum(m)
+    bulk_cor_wt   ./= sum_wt
+
+    n_sys           = [out.bulk_wt[i] / get_molar_mass(out.oxides[i]) for i in eachindex(out.oxides)]
+    n_cor           = [bulk_cor_wt[i] / get_molar_mass(out.oxides[i]) for i in eachindex(out.oxides)]
+    n_cor_fac       = n_cor ./ (n_sys .+ n_cor)
     bulk_cor_mol    = out.bulk .* n_cor_fac
 
-    out_TE = out_tepm(  KDs_database.element_name, 
+    nan_if(on, v)   = on ? v : NaN
+    out_TE = out_tepm(  els,
                         C0, Cliq, Csol, Cmin,
-                        ph_TE, ph_wt_norm, liq_wt_norm, bulk_D, bulk_cor_wt, bulk_cor_mol,
+                        ph_TE, ph_wt_norm, F, bulk_D, bulk_cor_wt, bulk_cor_mol,
 
-                        Sat_Zr_liq,     zrc_wt/ sum_wt,
-                        Sat_S_liq,      sulf_wt/ sum_wt,
-                        Sat_P2O5_liq,   fapt_wt/ sum_wt,
-                        Sat_CO2_liq,    fl_CO2_wt/ sum_wt,
+                        Sat_Zr_liq,     nan_if(act_Zr,  m[1]),
+                        Sat_S_liq,      nan_if(act_S,   m[2]),
+                        Sat_P2O5_liq,   nan_if(act_P,   m[3]),
+                        Sat_CO2_liq,    nan_if(act_CO2, m[5]),
 
-                        Sat_LREE_liq,   mnz_wt/ sum_wt,
-                        X_mnz_LREE_out)
+                        Sat_LREE_liq,   nan_if(act_Mnz, m[4]),
+                        X_mnz,
+                        Cfl, S, Fl)
 
     return out_TE
+end
+
+_is_melt_phase(p)  = p == "liq"
+_is_fluid_phase(p) = p in ("H2O", "fl", "aq17", "fluid")
+
+function _mnz_P2O5_ppm(M_LREE::Vector{Float64})
+    return sum(M_LREE ./ _mnz_LREE_mass) / 2.0 * get_molar_mass("P2O5")
 end
 
 

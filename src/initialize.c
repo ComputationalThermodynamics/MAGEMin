@@ -296,6 +296,11 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.fn_ipiv 				=  NULL;
 	gv.fn_store_kkt 		=  0;
 	gv.fn_from_state 		=  0;
+	gv.sec_mode 			=  0;
+	gv.sec_S 				=  0.0;
+	gv.sec_V 				=  0.0;
+	gv.sec_P 				=  0.0;
+	gv.sec_T 				=  0.0;
 	gv.fn_sys 				=  NULL;
 	gv.DEW_solve_algorithm 	=  4;              		/** 0: original plain Picard DEW inner solver, 1: damped/mixed variant, 2: plain Picard + Newton-safeguarded-by-bisection mu_Hp solve, 4 (default): Newton on ln(molality) of all species with activity coefficients inside the residual - see DEW_aq_solver.c */
 	gv.warm_start			=  1;					/** 1 (default): DEW outer-PGE warm start active, 0: disabled (always re-explore the full 8-start multistart grid) - see NLopt_opt_DEW_function */

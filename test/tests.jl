@@ -553,7 +553,7 @@ end
 
     out_TE = TE_prediction(out, C0, KDs_database, dtb; ZrSat_model = "CB");
 
-    @test out_TE.Cliq[1] ≈ 189.11851095903208 rtol=1e-3
+    @test out_TE.Cliq[1] ≈ 172.54752339080198 rtol=1e-3
     @test out_TE.Cliq[2] ≈ 47.86020212957779  rtol=1e-3
 end
 
@@ -586,16 +586,16 @@ end
     out_TE  = TE_prediction(out, C0, KDs_dtb, "mp"; sat=sat)
 
     tol = 1e-3
-    @test out_TE.Cliq[1] ≈ 189.83559381921782    rtol=tol   # Li
+    @test out_TE.Cliq[1] ≈ 172.54988356439762    rtol=tol   # Li
     @test out_TE.Cliq[2] ≈ 47.86020212957779     rtol=tol   # Zr at saturation
     @test out_TE.Cliq[3] ≈ 133.18203710723262    rtol=tol   # P2O5 at saturation
     @test out_TE.Cliq[4] ≈ 16.221576377269876    rtol=tol   # S at saturation
     @test out_TE.Cliq[5] ≈ 1500.2696597838953    rtol=tol   # CO2 capped at saturation
-    @test out_TE.zrc_wt  ≈ 0.0007395168468941766  rtol=tol
-    @test out_TE.fapt_wt ≈ 0.0023231379042603197   rtol=tol
-    @test out_TE.sulf_wt ≈ 0.0027220048406193923   rtol=tol
+    @test out_TE.zrc_wt  ≈ 0.0007927213347987691  rtol=tol
+    @test out_TE.fapt_wt ≈ 0.0023361673007227233   rtol=tol
+    @test out_TE.sulf_wt ≈ 0.002737229116092828   rtol=tol
     @test out_TE.Sat_CO2_liq ≈ 1500.2696597838953  rtol=tol
-    @test out_TE.fl_CO2_wt   ≈ 0.0003371727572556881 rtol=tol
+    @test out_TE.fl_CO2_wt   ≈ 0.0003392116701357703 rtol=tol
 
     Finalize_MAGEMin(data)
 end
@@ -620,9 +620,9 @@ end
 
     tol = 1e-3
     @test out_TE.liq_wt_norm ≈ 0.36786183037028913 rtol=tol
-    @test out_TE.Cliq[1]     ≈ 18.336              rtol=tol
-    @test out_TE.Cliq[2]     ≈ 12.49               rtol=tol
-    @test out_TE.Cliq[27]    ≈ 8.183               rtol=tol
+    @test out_TE.Cliq[1]     ≈ 15.4158              rtol=tol
+    @test out_TE.Cliq[2]     ≈ 9.50138             rtol=tol
+    @test out_TE.Cliq[27]    ≈ 5.81654              rtol=tol
 end
 
 
@@ -713,9 +713,9 @@ end
         end
     end
 
-    @test out_TE[1].zrc_wt  ≈ 0.0007885214282942672    rtol=1e-3
-    @test out_TE[1].sulf_wt ≈ 0.002722767470774445      rtol=1e-3
-    @test out_TE[1].fapt_wt ≈ 0.0023191756689226023      rtol=1e-3
+    @test out_TE[1].zrc_wt  ≈ 0.000793131533767571    rtol=1e-3
+    @test out_TE[1].sulf_wt ≈ 0.0027373723430909793      rtol=1e-3
+    @test out_TE[1].fapt_wt ≈ 0.002335055326005699      rtol=1e-3
 
     Finalize_MAGEMin(data)
 end
@@ -743,9 +743,9 @@ end
 
     @test converged
     # Zr / S / P2O5 must be unchanged (CO2 undersaturated → zero fl weight, sum_wt unchanged)
-    @test out_TE.zrc_wt  ≈ 0.0007882595805073063        rtol=1e-3
-    @test out_TE.sulf_wt ≈ 0.002722767470774445         rtol=1e-3
-    @test out_TE.fapt_wt ≈ 0.0023191756689226023        rtol=1e-3
+    @test out_TE.zrc_wt  ≈ 0.0007931316491950163        rtol=1e-3
+    @test out_TE.sulf_wt ≈ 0.002737372288797117         rtol=1e-3
+    @test out_TE.fapt_wt ≈ 0.002335055696088505        rtol=1e-3
     # CO2 saturation was computed and 50 ppm is well below the limit
     @test !isnan(out_TE.Sat_CO2_liq)
     @test out_TE.fl_CO2_wt ≈ 0.0003324204260014847      rtol=1e-2
@@ -797,9 +797,9 @@ end
 
     @test converged
     @test sum(out_TE.Cliq[1:5]) ≈ out_TE.Sat_LREE_liq   rtol=1e-6
-    @test out_TE.fapt_wt ≈ 0.0027272216144428353 rtol=1e-3
-    @test out_TE.mnz_wt  ≈ 0.0001369575950076943 rtol=1e-2
-    @test out_TE.X_mnz_LREE ≈ 0.8573455544311409 rtol=1e-2
+    @test out_TE.fapt_wt ≈ 0.0007510812340663346 rtol=1e-3
+    @test out_TE.mnz_wt  ≈ 0.0025005394799048953 rtol=1e-2
+    @test out_TE.X_mnz_LREE ≈ 0.8755180372485855 rtol=1e-2
     @test out_TE.X_mnz_LREE < 1.0
 
     Finalize_MAGEMin(data)
@@ -852,11 +852,11 @@ end
 
     @test converged
     @test sum(out_TE.Cliq[1:5]) ≈ out_TE.Sat_LREE_liq   rtol=1e-6
-    @test out_TE.Sat_LREE_liq ≈ 150.08389000223016 rtol=1e-2
-    # the P2O5 joint clamp binds identically regardless of which saturation-front model is used
-    @test out_TE.fapt_wt ≈ 0.0027272216144428353 rtol=1e-3
-    @test out_TE.mnz_wt  ≈ 0.0001369575950076943 rtol=1e-2
-    @test out_TE.X_mnz_LREE ≈ 0.8573455544311409 rtol=1e-2
+    @test out_TE.Sat_LREE_liq ≈ 152.83679272782865 rtol=1e-2
+    # monazite takes the LREE excess first; apatite only gets the P2O5 left over
+    @test out_TE.fapt_wt ≈ 0.0007390125202788386 rtol=1e-3
+    @test out_TE.mnz_wt  ≈ 0.002515750567538116 rtol=1e-2
+    @test out_TE.X_mnz_LREE ≈ 0.8759568977475114 rtol=1e-2
 
     Finalize_MAGEMin(data)
 end
@@ -881,10 +881,10 @@ end
 
     @test converged
     @test sum(out_TE.Cliq[1:5]) ≈ out_TE.Sat_LREE_liq   rtol=1e-6
-    @test out_TE.Sat_LREE_liq ≈ 296.1406721714649 rtol=1e-2
-    @test out_TE.fapt_wt ≈ 0.0027272216144428353 rtol=1e-3
-    @test out_TE.mnz_wt  ≈ 0.0001369575950076943 rtol=1e-2
-    @test out_TE.X_mnz_LREE ≈ 0.8573455544311409 rtol=1e-2
+    @test out_TE.Sat_LREE_liq ≈ 300.89002256907503 rtol=1e-2
+    @test out_TE.fapt_wt ≈ 0.0007808288273457742 rtol=1e-3
+    @test out_TE.mnz_wt  ≈ 0.002463046353698279 rtol=1e-2
+    @test out_TE.X_mnz_LREE ≈ 0.8744219357072004 rtol=1e-2
 
     Finalize_MAGEMin(data)
 end
@@ -925,8 +925,8 @@ end
     X_mol ./= sum(X_mol)
 
     el   = KDs_dtb.element_name
-    vals = Dict("La"=>40.0, "Ce"=>80.0, "Pr"=>9.0, "Nd"=>35.0, "Sm"=>7.0, "Eu"=>1.6, "Gd"=>4.0,
-                "Y"=>20.0, "Th"=>8.5, "U"=>2.0, "Zr"=>150.0, "P2O5"=>1200.0)
+    vals = Dict("La"=>80.0, "Ce"=>160.0, "Pr"=>18.0, "Nd"=>70.0, "Sm"=>14.0, "Eu"=>1.6, "Gd"=>4.0,
+                "Y"=>20.0, "Th"=>8.5, "U"=>2.0, "Zr"=>300.0, "P2O5"=>1200.0)
     C0   = [vals[e] for e in el]
 
     sat = SaturationConfig(Zr="CB", P2O5="HWBea92", Mnz="Stepanov12")
@@ -943,6 +943,50 @@ end
     @test out_TE.Cmin[fapt_idx, id_Th] > 0.0
     @test out_TE.Cmin[mnz_idx,  id_Th] > 0.0
 
+    Finalize_MAGEMin(data)
+end
+
+
+@testset verbose=true "Trace-element mass balance (melt + solid + fluid + saturation phases)" begin
+    te_err(te) = maximum(abs.(te.liq_wt_norm .* te.Cliq .+ te.sol_wt_norm .* te.Csol .+ te.fl_wt_norm .* te.Cfl .- te.C0) ./ te.C0)
+    te_err_min(te) = maximum(abs.(te.liq_wt_norm .* te.Cliq .+ vec(sum(te.ph_wt_norm .* te.Cmin, dims=1)) .- te.C0) ./ te.C0)
+
+    # fluid-saturated partial melt: free H2O fluid must not dilute the solid
+    data    = Initialize_MAGEMin("mp", verbose=-1, solver=0)
+    Xoxides = ["SiO2","Al2O3","CaO","MgO","FeO","K2O","Na2O","TiO2","O","MnO","H2O"]
+    X       = [64.578, 13.651, 1.586, 5.529, 8.025, 2.943, 2.000, 0.907, 0.65, 0.175, 40.0]
+    out     = single_point_minimization(8.0, 760.0, data, X=X, Xoxides=Xoxides, sys_in="wt", name_solvus=true)
+    KDs     = get_TE_database("Yak25")
+    C0      = [get(Dict("Zr"=>400.0, "P2O5"=>3000.0, "La"=>60.0, "Ce"=>120.0, "Nd"=>50.0), e, 10.0) for e in KDs.element_name]
+    for kw in ((;), (ZrSat_model="CB", P2O5Sat_model="HWBea92", MnzSat_model="Stepanov12"))
+        te = TE_prediction(out, C0, KDs, "mp"; kw...)
+        @test out.frac_F_wt > 0.0
+        @test te.fl_wt_norm ≈ out.frac_F_wt rtol=1e-12
+        @test te_err(te)     < 1e-10
+        @test te_err_min(te) < 1e-8
+    end
+    Finalize_MAGEMin(data)
+
+    # fully molten system with S and CO2 oversaturated: finite solid/fluid, nothing lost
+    data    = Initialize_MAGEMin("ig", verbose=-1, solver=0)
+    Xoxides = ["SiO2","Al2O3","CaO","MgO","FeO","K2O","Na2O","TiO2","O","Cr2O3","H2O"]
+    X       = [56.0, 17.0, 7.0, 4.0, 7.0, 2.0, 3.5, 1.0, 0.5, 0.01, 1.0]
+    el      = ["Zr","S","CO2","La"]
+    KDs     = create_custom_KDs_database(el, ["cpx","opx","pl"], ["0.1" "0" "0" "0.05"; "0.05" "0" "0" "0.01"; "0.01" "0" "0" "0.2"])
+    C0      = [400.0, 2000.0, 20000.0, 60.0]
+    out     = single_point_minimization(3.0, 1300.0, data, X=X, Xoxides=Xoxides, sys_in="wt", name_solvus=true)
+    te      = TE_prediction(out, C0, KDs, "ig"; ZrSat_model="WH", SSat_model="Liu07", CO2Sat_model="SY26")
+    @test out.frac_S_wt == 0.0
+    @test all(isfinite, te.Csol) && all(isfinite, te.Cfl)
+    @test te.sulf_wt > 0.0 && te.fl_CO2_wt > 0.0
+    @test te_err(te) < 1e-10
+
+    # undersaturated Zr keeps its share in the minerals
+    out     = single_point_minimization(3.0, 1000.0, data, X=X, Xoxides=Xoxides, sys_in="wt", name_solvus=true)
+    te      = TE_prediction(out, C0, KDs, "ig"; ZrSat_model="WH")
+    @test te.Cliq[1] < te.Sat_Zr_liq
+    @test te.Csol[1] > 0.0
+    @test te_err(te) < 1e-10
     Finalize_MAGEMin(data)
 end
 

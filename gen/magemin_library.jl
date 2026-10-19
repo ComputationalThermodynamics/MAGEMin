@@ -819,6 +819,11 @@ mutable struct global_variables
     fn_ipiv::Ptr{Cint}
     fn_store_kkt::Cint
     fn_from_state::Cint
+    sec_mode::Cint
+    sec_S::Cdouble
+    sec_V::Cdouble
+    sec_P::Cdouble
+    sec_T::Cdouble
     fn_sys::Ptr{fn_kkt}
     solver_switch_T::Cdouble
     seismicScheme::Cint
@@ -1615,6 +1620,10 @@ end
 
 function ComputeEquilibrium_FromState(z_b, gv, PP_ref_db, SS_ref_db, cp, n_ss, ss_ids, ss_x, ss_n, n_pp, pp_ids, pp_n, gam)
     ccall((:ComputeEquilibrium_FromState, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}), z_b, gv, PP_ref_db, SS_ref_db, cp, n_ss, ss_ids, ss_x, ss_n, n_pp, pp_ids, pp_n, gam)
+end
+
+function ComputeEquilibrium_SectionFromState(z_b, gv, PP_ref_db, SS_ref_db, cp, n_ss, ss_ids, ss_x, ss_n, n_pp, pp_ids, pp_n, gam)
+    ccall((:ComputeEquilibrium_SectionFromState, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}), z_b, gv, PP_ref_db, SS_ref_db, cp, n_ss, ss_ids, ss_x, ss_n, n_pp, pp_ids, pp_n, gam)
 end
 
 function ComputeLevellingOnly(EM_database, input_data, z_b, gv, splx_data, PP_ref_db, SS_ref_db, cp)
@@ -3847,6 +3856,14 @@ end
 
 function final_Newton(z_b, gv, PC_read, PP_ref_db, SS_ref_db, cp)
     ccall((:final_Newton, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PC_type}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, PC_read, PP_ref_db, SS_ref_db, cp)
+end
+
+function section_mode_flags(mode, use_S, use_V, free_P, free_T)
+    ccall((:section_mode_flags, libMAGEMin), Cvoid, (Cint, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}), mode, use_S, use_V, free_P, free_T)
+end
+
+function final_Newton_section(z_b, gv, PC_read, PP_ref_db, SS_ref_db, cp, P, T)
+    ccall((:final_Newton_section, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PC_type}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}, Ptr{Cdouble}, Ptr{Cdouble}), z_b, gv, PC_read, PP_ref_db, SS_ref_db, cp, P, T)
 end
 
 function dump_init(gv)
