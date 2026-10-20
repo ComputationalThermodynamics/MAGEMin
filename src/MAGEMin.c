@@ -928,6 +928,26 @@ static global_variable load_equilibrium_state(	bulk_info 	 		 z_b,
 	return gv;
 }
 
+static int init_PC_read(						global_variable 	 gv,
+												PC_type 			*PC_read			){
+	if (strcmp(gv.research_group, "tc") == 0){
+		TC_PC_init(									PC_read,
+													gv								);
+	}
+	else if (strcmp(gv.research_group, "sb") == 0){
+		SB_PC_init(									PC_read,
+													gv								);
+	}
+	else if (strcmp(gv.research_group, "br") == 0){
+		BR_PC_init(									PC_read,
+													gv								);
+	}
+	else{
+		return 0;
+	}
+	return 1;
+}
+
 	global_variable ComputeEquilibrium_FromState(	bulk_info 	 		 z_b,
 													global_variable 	 gv,
 													PP_ref  			*PP_ref_db,
@@ -944,20 +964,7 @@ static global_variable load_equilibrium_state(	bulk_info 	 		 z_b,
 
 	PC_type 								PC_read[gv.len_ss];
 
-	if (strcmp(gv.research_group, "tc") 	== 0 ){
-		TC_PC_init(	                    		PC_read,
-												gv								);
-	}
-	else if (strcmp(gv.research_group, "sb") 	== 0 ){
-		SB_PC_init(	                    		PC_read,
-												gv								);
-	}
-	else{
-		gv.status = -1;
-		return gv;
-	}
-
-	if (n_ss + n_pp > gv.len_ox){
+	if (!init_PC_read(gv, PC_read) || n_ss + n_pp > gv.len_ox){
 		gv.status 	 = -1;
 		gv.fn_status = -1;
 		return gv;
@@ -1008,30 +1015,12 @@ static global_variable load_equilibrium_state(	bulk_info 	 		 z_b,
 
 	gv.sec_P = P;
 	gv.sec_T = T;
-	if (gv.sec_mode < 1 || gv.sec_mode > 5){
+	if (gv.sec_mode < 1 || gv.sec_mode > 8){
 		gv.status 	 = -1;
 		gv.fn_status = -1;
 		return gv;
 	}
-	if (strcmp(gv.research_group, "tc") == 0){
-		TC_PC_init(									PC_read,
-													gv								);
-	}
-	else if (strcmp(gv.research_group, "sb") == 0){
-		SB_PC_init(									PC_read,
-													gv								);
-	}
-	else if (strcmp(gv.research_group, "br") == 0){
-		BR_PC_init(									PC_read,
-													gv								);
-	}
-	else{
-		gv.status 	 = -1;
-		gv.fn_status = -1;
-		return gv;
-	}
-
-	if (n_ss + n_pp > gv.len_ox){
+	if (!init_PC_read(gv, PC_read) || n_ss + n_pp > gv.len_ox){
 		gv.status 	 = -1;
 		gv.fn_status = -1;
 		return gv;

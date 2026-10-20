@@ -143,6 +143,7 @@ typedef struct global_variables {
 	int      sec_mode;
 	double   sec_S;
 	double   sec_V;
+	double   sec_H;
 	double   sec_P;
 	double   sec_T;
 	fn_kkt  *fn_sys;

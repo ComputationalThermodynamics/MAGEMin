@@ -3,20 +3,22 @@
 
     Diagram axes `(x, y)` of each section type used by [`section_point`](@ref),
     [`multi_point_section`](@ref) and [`section_ranges`](@ref):
-    `:ps` → (S, P), `:pv` → (V, P), `:ts` → (T, S), `:tv` → (T, V), `:sv` → (S, V).
+    `:ps` → (S, P), `:pv` → (V, P), `:ts` → (T, S), `:tv` → (T, V), `:sv` → (S, V), `:ph` → (H, P), `:sh` → (S, H), `:vh` → (V, H).
 
-    Units: P [kbar], T [°C], S [kJ/K per mol of bulk oxides] (`out.entropy[1]`) and
-    V [cm³ per mol of bulk oxides] (`out.V`).
+    Units: P [kbar], T [°C], S [kJ/K per mol of bulk oxides] (`out.entropy[1]`),
+    V [cm³ per mol of bulk oxides] (`out.V`) and H [kJ per mol of bulk oxides] (`out.enthalpy[1]`).
 """
-const SECTION_XY = Dict(:ps => (:S, :P), :pv => (:V, :P), :ts => (:T, :S), :tv => (:T, :V), :sv => (:S, :V))
+const SECTION_XY = Dict(:ps => (:S, :P), :pv => (:V, :P), :ts => (:T, :S), :tv => (:T, :V), :sv => (:S, :V), :ph => (:H, :P), :sh => (:S, :H), :vh => (:V, :H))
 
 """
     section_info
 
     Per-point diagnostics returned by [`section_point`](@ref) and [`multi_point_section`](@ref).
 
-    - `status`: 0 converged; 1 maximum iterations; 2 target outside the image of the P–T box;
-      3 first-order jump not resolved; 4 repeated clamping on the box; 6 point minimization failed.
+    - `status`: 0 converged; 1 maximum iterations; 2 target outside the image of the P–T box
+      (including a step that leaves the box with `max_clamp = 0`, and a solution on the box bound
+      with `bound_tol`); 3 first-order jump not resolved; 4 repeated clamping on the box (`:sv`,
+      `:sh`, `:vh`; more than `max_clamp` clamped steps); 6 point minimization failed.
     - `n_solve`: point minimizations; `n_newton`: section Newton calls.
     - `latent`: the result is a coexistence of assemblages (inside a first-order transition)
       that no single point minimization returns; `out.mSS_vec` then holds the minimization's
@@ -35,13 +37,13 @@ struct section_info
     residual    :: Float64
 end
 
-section_value(out, c::Symbol) = c === :P ? out.P_kbar : c === :T ? out.T_C : c === :S ? out.entropy[1] : out.V
+section_value(out, c::Symbol) = c === :P ? out.P_kbar : c === :T ? out.T_C : c === :S ? out.entropy[1] : c === :H ? out.enthalpy[1] : out.V
 
 function section_targets(section::Symbol, x::Float64, y::Float64)
     haskey(SECTION_XY, section) || error("Unknown section $(section); use one of $(collect(keys(SECTION_XY)))")
     ax      = SECTION_XY[section]
     get_c(c) = ax[1] === c ? x : ax[2] === c ? y : NaN
-    return (P = get_c(:P), T = get_c(:T), S = get_c(:S), V = get_c(:V))
+    return (P = get_c(:P), T = get_c(:T), S = get_c(:S), V = get_c(:V), H = get_c(:H))
 end
 
 section_assemblage(out) = sort(out.ph)
@@ -95,7 +97,7 @@ function section_state_union(a, wa::Float64, b, wb::Float64; dx::Float64 = 5e-2)
 end
 
 """
-    section_point(section, x, y, gv, z_b, DB, splx_data; Pbox, Tbox, seeds=nothing, P0=nothing, T0=nothing, scales=nothing, buffer_n=0.0, rm_list=nothing, W=nothing, scp=0, name_solvus=true, maxit=16, tol_G=1e-7, ...)
+    section_point(section, x, y, gv, z_b, DB, splx_data; Pbox, Tbox, seeds=nothing, P0=nothing, T0=nothing, scales=nothing, buffer_n=0.0, rm_list=nothing, W=nothing, scp=0, name_solvus=true, maxit=16, max_clamp=nothing, bound_tol=nothing, log_P=true, tol_G=1e-7, ...)
 
     Equilibrium at fixed diagram coordinates `(x, y)` of a thermodynamic section (see
     [`SECTION_XY`](@ref)), solved on one MAGEMin handle (`gv, z_b, DB, splx_data`, e.g. one thread
@@ -108,12 +110,21 @@ end
     `tol_G`). Otherwise the Newton step is repeated on the union of both assemblages, which
     resolves targets inside a first-order transition. When the Newton step cannot reach the
     target, the free variables are moved by point minimizations with secant/bisection (1-D
-    sections) or Broyden (`:sv`) steps, and the Newton step is tried again from the new state.
+    sections) or Broyden (`:sv`, `:sh`, `:vh`) steps, and the Newton step is tried again from the new state.
 
     Start: the closest of `seeds` (vector of `gmin_struct`, e.g. converged neighbours) in the
     diagram coordinates scaled by `scales = (dx, dy)`, whose `mSS_vec` are also used as initial
     guess; otherwise a point minimization at `(P0, T0)` (default: box centre), with the fixed
     coordinate set.
+
+    With `log_P` (default), 1-D sections with free pressure (`:ts`, `:tv`) step in log P, where
+    the volume of fluid-rich assemblages (V ∝ 1/P at low pressure) is close to linear.
+
+    Box bounds: by default a step leaving the box is clamped to the bound (1-D: the bound is
+    evaluated once, a second step past it gives status 2; `:sv`/`:sh`/`:vh`: more than 4 clamped steps give
+    status 4). `max_clamp = k` stops after `k` clamped steps instead (`0`: as soon as a step leaves the
+    box). `bound_tol` rejects a converged state whose free P or T lies within `bound_tol` × box width of
+    a bound (status 2).
 
     TC, SB and BR databases are supported (section Newton step).
 
@@ -136,6 +147,9 @@ function section_point( section     :: Symbol,
                         scp         :: Int64 = 0,
                         name_solvus :: Bool = true,
                         maxit       :: Int64 = 16,
+                        max_clamp   :: Union{Nothing, Int64} = nothing,
+                        bound_tol   :: Union{Nothing, Float64} = nothing,
+                        log_P       :: Bool = true,
                         tol_G       :: Float64 = 1e-7,
                         warm        :: Bool = false,
                         verbose     :: Bool = false,
@@ -146,14 +160,17 @@ function section_point( section     :: Symbol,
     tg      = section_targets(section, x, y)
     fixP    = !isnan(tg.P)
     fixT    = !isnan(tg.T)
-    rows    = [r for r in (:S, :V) if !isnan(getfield(tg, r))]
+    rows    = [r for r in (:S, :V, :H) if !isnan(getfield(tg, r))]
     free    = [c for c in (:P, :T) if isnan(getfield(tg, c))]
-    lo      = Dict(:P => Pbox[1], :T => Tbox[1])
-    hi      = Dict(:P => Pbox[2], :T => Tbox[2])
-    wid     = Dict(:P => Pbox[2] - Pbox[1], :T => Tbox[2] - Tbox[1])
+    lgP     = log_P && free == [:P] && Pbox[1] > 0.0
+    tP(v)   = lgP ? log(max(v, 1e-300)) : v
+    uP(u)   = lgP ? exp(u) : u
+    lo      = Dict(:P => tP(Pbox[1]), :T => Tbox[1])
+    hi      = Dict(:P => tP(Pbox[2]), :T => Tbox[2])
+    wid     = Dict(:P => tP(Pbox[2]) - tP(Pbox[1]), :T => Tbox[2] - Tbox[1])
     eps_th  = Dict(:P => 1e-5, :T => 1e-4)
-    target  = Dict(:S => tg.S, :V => tg.V)
-    rscale  = Dict(:S => max(abs(tg.S), 1e-3), :V => max(abs(tg.V), 1e-3))
+    target  = Dict(:S => tg.S, :V => tg.V, :H => tg.H)
+    rscale  = Dict(:S => max(abs(tg.S), 1e-3), :V => max(abs(tg.V), 1e-3), :H => max(abs(tg.H), 1e-3))
     n_solve = 0
     n_newt  = 0
     Gs      = LibMAGEMin.mSS_data[]
@@ -171,12 +188,13 @@ function section_point( section     :: Symbol,
     newton(P, T, st) = begin
         n_newt += 1
         point_wise_section_newton_from_state(max(P, 0.001), T, gv, z_b, DB, splx_data, st;
-                                             section = section, S = tg.S, V = tg.V, W = W, name_solvus = name_solvus)
+                                             section = section, S = tg.S, V = tg.V, H = tg.H, W = W, name_solvus = name_solvus)
     end
     resid(o)    = [ (section_value(o, r) - target[r]) / rscale[r] for r in rows ]
     rnorm(o)    = maximum(abs.(resid(o)))
-    theta(o)    = [ section_value(o, c) for c in free ]
-    inbox(o)    = all(c -> lo[c] - 1e-9 <= section_value(o, c) <= hi[c] + 1e-9, free)
+    fval(o, c)  = c === :P ? tP(section_value(o, c)) : section_value(o, c)
+    theta(o)    = [ fval(o, c) for c in free ]
+    inbox(o)    = all(c -> lo[c] - 1e-9 <= fval(o, c) <= hi[c] + 1e-9, free)
     pt_of(o)    = (fixP ? tg.P : o.P_kbar, fixT ? tg.T : o.T_C)
     on_fixed(o) = (!fixP || abs(o.P_kbar - tg.P) <= 1e-9*max(1.0, abs(tg.P))) && (!fixT || abs(o.T_C - tg.T) <= 1e-9*max(1.0, abs(tg.T)))
     stable_ok(c)  = c.status < 3
@@ -199,10 +217,12 @@ function section_point( section     :: Symbol,
         length(free) == 1 || return NaN
         k = length(hist)
         k >= 2 || return NaN
-        dth = hist[k].th[1] - hist[k-1].th[1]
+        dth = section_value(hist[k].out, free[1]) - section_value(hist[k-1].out, free[1])
         return dth != 0 ? (hist[k].r[1] - hist[k-1].r[1])*rscale[rows[1]]/dth : NaN
     end
-    finish(o, st, lat) = (o, section_info(st, n_solve, n_newt, lat, dfree_est(), rnorm(o)))
+    on_bound(o) = !isnothing(bound_tol) && any(c -> min(fval(o, c) - lo[c], hi[c] - fval(o, c)) <= bound_tol*wid[c], free)
+    finish(o, st, lat) = ((!isnothing(seeds) && any(sd -> sd === o, seeds)) ? deepcopy(o) : o,
+                          section_info((st == 0 && on_bound(o)) ? 2 : st, n_solve, n_newt, lat, dfree_est(), rnorm(o)))
 
     function newton_accept(P, T, st, G)
         o = newton(P, T, st)
@@ -232,7 +252,8 @@ function section_point( section     :: Symbol,
         cur = solve(Ps, Ts, nothing)
         stable_ok(cur) || return finish(cur, 6, false)
     end
-    if on_fixed(cur)
+    own(o) = isnothing(seeds) || !any(sd -> sd === o, seeds)
+    if on_fixed(cur) && own(cur)
         record!(cur)
     end
 
@@ -241,7 +262,7 @@ function section_point( section     :: Symbol,
 
     for it in 1:maxit
         Ps, Ts      = pt_of(cur)
-        if on_fixed(cur) && stable_ok(cur) && !isempty(cur.mSS_vec) && rnorm(cur) < tol_point
+        if own(cur) && on_fixed(cur) && stable_ok(cur) && !isempty(cur.mSS_vec) && rnorm(cur) < tol_point
             return finish(cur, 0, false)
         end
         verbose && println("section iteration $(it): current P $(round(cur.P_kbar, digits = 6)) T $(round(cur.T_C, digits = 4)) $(join(section_assemblage(cur), " ")) res $(rnorm(cur))")
@@ -258,7 +279,7 @@ function section_point( section     :: Symbol,
                 record!(c2[2])
                 cur = c2[2]
             end
-            if on_fixed(cur) && rnorm(cur) < tol_point
+            if own(cur) && on_fixed(cur) && rnorm(cur) < tol_point
                 return finish(cur, 0, false)
             end
         end
@@ -284,7 +305,7 @@ function section_point( section     :: Symbol,
                     ra, rb  = hist[ka].r[1], hist[kb].r[1]
                     lam     = ra/(ra - rb)
                     thm     = a + lam*(b - a)
-                    Pm, Tm  = f === :P ? (thm, Ts) : (Ps, thm)
+                    Pm, Tm  = f === :P ? (uP(thm), Ts) : (Ps, thm)
                     st      = section_state_union(hist[ka].out, 1.0 - lam, hist[kb].out, lam)
                     res3, _ = newton_accept(Pm, Tm, st, vcat(gof(hist[ka].out), gof(hist[kb].out)))
                     isnothing(res3) || return finish(res3[1], 0, res3[2])
@@ -303,7 +324,7 @@ function section_point( section     :: Symbol,
                     der = (hist[end].r[1] - hist[end-1].r[1])/(hist[end].th[1] - hist[end-1].th[1])
                 else
                     h   = 1e-2*wid[f]*(th0[1] + 1e-2*wid[f] > hi[f] ? -1 : 1)
-                    Pn, Tn = f === :P ? (th0[1] + h, Ts) : (Ps, th0[1] + h)
+                    Pn, Tn = f === :P ? (uP(th0[1] + h), Ts) : (Ps, th0[1] + h)
                     cf  = solve(Pn, Tn, gof(cur))
                     stable_ok(cf) || return finish(cur, 6, false)
                     record!(cf)
@@ -319,10 +340,11 @@ function section_point( section     :: Symbol,
                 bnd      = thn < lo[f] ? lo[f] : hi[f]
                 k_b      = findlast(k -> abs(hist[k].th[1] - bnd) <= 1e-12*max(1.0, abs(bnd)), eachindex(hist))
                 isnothing(k_b) || return finish(hist[k_b].out, 2, false)
+                (!isnothing(max_clamp) && n_clamp >= max_clamp) && return finish(cur, 2, false)
                 thn      = bnd
                 n_clamp += 1
             end
-            Pn, Tn = f === :P ? (thn, Ts) : (Ps, thn)
+            Pn, Tn = f === :P ? (uP(thn), Ts) : (Ps, thn)
         else
             if isnothing(Jb)
                 Jb = zeros(2, 2)
@@ -355,7 +377,7 @@ function section_point( section     :: Symbol,
                 end
             end
             n_clamp += clamped
-            n_clamp > 4 && return finish(cur, 4, false)
+            n_clamp > something(max_clamp, 4) && return finish(cur, 4, false)
             Pn = th0[findfirst(==(:P), free)] + step[findfirst(==(:P), free)]
             Tn = th0[findfirst(==(:T), free)] + step[findfirst(==(:T), free)]
         end
@@ -402,6 +424,7 @@ function section_ranges(section     :: Symbol,
     grid    = section_seed_grid(MAGEMin_db, Pbox, Tbox, n; X = X, B = Bv, Xoxides = Xoxides, sys_in = sys_in, test = test,
                                 rm_list = rm_list, W = W, scp = scp, name_solvus = true, progressbar = progressbar)
     ok      = filter(o -> o.status < 3, grid)
+    isempty(ok) && error("section_ranges: no point minimization of the $(n)×$(n) grid converged in Pbox = $(Pbox), Tbox = $(Tbox)")
     rng(c)  = c === :P ? Pbox : c === :T ? Tbox : (minimum(section_value.(ok, c)), maximum(section_value.(ok, c)))
     ax      = SECTION_XY[section]
     return rng(ax[1]), rng(ax[2]), grid
@@ -410,7 +433,7 @@ end
 function section_retry_seeds(section::Symbol, x::Float64, y::Float64, pool, tried, Pbox, Tbox; n_max::Int64 = 6)
     tg      = section_targets(section, x, y)
     fixc    = isnan(tg.P) ? :T : :P
-    prop    = isnan(tg.S) ? :V : :S
+    prop    = !isnan(tg.S) ? :S : !isnan(tg.H) ? :H : :V
     span    = fixc === :P ? Pbox[2] - Pbox[1] : Tbox[2] - Tbox[1]
     target  = getfield(tg, prop)
     fixv    = getfield(tg, fixc)
@@ -429,13 +452,39 @@ function section_retry_seeds(section::Symbol, x::Float64, y::Float64, pool, trie
     return out
 end
 
+function section_foreach(f::Function, n::Int)
+    next = Threads.Atomic{Int}(0)
+    @threads :static for w in 1:Threads.nthreads()
+        id = Threads.threadid()
+        while true
+            k = Threads.atomic_add!(next, 1) + 1
+            k > n && break
+            f(k, id)
+        end
+    end
+    return nothing
+end
+
 """
-    multi_point_section(section, x, y, MAGEMin_db; Pbox, Tbox, seeds=nothing, grid=nothing, seed_grid=7, xrange=nothing, yrange=nothing, X=nothing, B=nothing, Xoxides=String[], sys_in="mol", test=0, rm_list=nothing, W=nothing, scp=0, name_solvus=true, progressbar=true, callback_fn=nothing, callback_int=1, ...)
+    multi_point_section(section, x, y, MAGEMin_db; Pbox, Tbox, seeds=nothing, grid=nothing, seed_grid=7, xrange=nothing, yrange=nothing, X=nothing, B=nothing, Xoxides=String[], sys_in="mol", test=0, rm_list=nothing, W=nothing, scp=0, name_solvus=true, max_clamp=:auto, bound_tol=1e-6, log_P=true, retry_passes=2, retry_maxit=16, retry_max_clamp=:auto, progressbar=true, callback_fn=nothing, callback_int=1, ...)
 
     Threaded [`section_point`](@ref) over the targets `(x[i], y[i])` of a thermodynamic section
     ([`SECTION_XY`](@ref)), with one MAGEMin handle per thread as in
-    [`multi_point_minimization`](@ref). The bulk rock is the same for all points (`X` with
-    `Xoxides`, or the built-in `test`); `B` is the buffer value.
+    [`multi_point_minimization`](@ref). The bulk rock follows `multi_point_minimization`: one
+    composition `X` (with `Xoxides`, `sys_in`) for all points, one composition per target
+    (`X::Vector{Vector{Float64}}`), or the built-in `test`. `B` is the buffer value, one for all points
+    or one per target. With one composition per target, the internal P–T seed grid is not built:
+    pass `seeds` (e.g. points computed at each target's bulk) or `grid`; targets without seeds start
+    from a point minimization at the box centre. Failed targets are retried from their nearest
+    converged targets, in `(x, y)` or in the coordinates `retry_xy = (u, v)` (one value per target, e.g.
+    the composition axis of an S–X diagram). The retries (`retry_passes`, each attempt from one neighbour,
+    all attempts in parallel) use at most `retry_maxit` iterations and stop after `retry_max_clamp` steps
+    clamped on the search box. With `max_clamp = :auto` (default, also for `retry_max_clamp`),
+    2-D sections (`:sv`, `:sh`, `:vh`) leave a target blank as soon as a step leaves the box
+    (`max_clamp = 0`, see [`section_point`](@ref)), while 1-D sections keep the clamp to the bound,
+    which is evaluated once (`nothing`): 1-D properties such as V(P) of a fluid-rich bulk are very
+    non-linear, and a secant step from a distant seed often overshoots the box although the target
+    is inside. Solutions on the box bound are rejected (`bound_tol = 1e-6`).
 
     Seeds per target: `seeds[i]` (vector of `gmin_struct`, e.g. the converged neighbours of a refined
     mesh point). Without `seeds`, or for an empty `seeds[i]`, the closest node of a
@@ -466,6 +515,13 @@ function multi_point_section(section     :: Symbol,
                              seed_grid   :: Int64 = 7,
                              seed_Pbox   = nothing,
                              seed_Tbox   = nothing,
+                             retry_xy    = nothing,
+                             retry_passes:: Int64 = 2,
+                             retry_maxit :: Int64 = 16,
+                             retry_max_clamp = :auto,
+                             max_clamp   = :auto,
+                             bound_tol   :: Union{Nothing, Float64} = 1e-6,
+                             log_P       :: Bool = true,
                              xrange      = nothing,
                              yrange      = nothing,
                              X           = nothing,
@@ -488,25 +544,35 @@ function multi_point_section(section     :: Symbol,
     @assert length(x) == length(y) "x and y must have the same length"
     haskey(SECTION_XY, section) || error("Unknown section $(section); use one of $(collect(keys(SECTION_XY)))")
     isnothing(seeds) || @assert length(seeds) == length(x) "seeds must have one entry per target"
-    buffer  = isnothing(B) ? 0.0 : Float64(B isa Number ? B : B[1])
+    per_pt  = X isa AbstractVector && !isempty(X) && first(X) isa AbstractVector
+    per_pt && @assert length(X) == length(x) "X must have one bulk composition per target"
+    bufs    = isnothing(B) ? fill(0.0, length(x)) : B isa Number ? fill(Float64(B), length(x)) :
+              length(B) == length(x) ? Float64.(B) : fill(Float64(B[1]), length(x))
+    buffer  = bufs[1]
 
     need_pool = isnothing(seeds) || any(isempty, seeds)
-    if need_pool && isnothing(grid)
+    if need_pool && isnothing(grid) && !per_pt
         grid = section_seed_grid(MAGEMin_db, something(seed_Pbox, Pbox), something(seed_Tbox, Tbox), seed_grid; X = X, B = fill(buffer, seed_grid^2), Xoxides = Xoxides,
                                  sys_in = sys_in, test = test, rm_list = rm_list, W = W, scp = scp, name_solvus = name_solvus,
                                  progressbar = false)
     end
 
-    for i in 1:Threads.maxthreadid()
-        MAGEMin_db.gv[i] = isnothing(X) ? use_predefined_bulk_rock(MAGEMin_db.gv[i], test, MAGEMin_db.db) :
-                                          define_bulk_rock(MAGEMin_db.gv[i], X, Xoxides, sys_in, MAGEMin_db.db)
+    if !per_pt
+        for i in 1:Threads.maxthreadid()
+            MAGEMin_db.gv[i] = isnothing(X) ? use_predefined_bulk_rock(MAGEMin_db.gv[i], test, MAGEMin_db.db) :
+                                              define_bulk_rock(MAGEMin_db.gv[i], X, Xoxides, sys_in, MAGEMin_db.db)
+        end
     end
 
     ax      = SECTION_XY[section]
+    one_d   = any(c -> c === :P || c === :T, ax)
+    max_clamp       === :auto && (max_clamp = one_d ? nothing : 0)
+    retry_max_clamp === :auto && (retry_max_clamp = one_d ? nothing : 0)
     pool    = isnothing(grid) ? nothing : filter(o -> o.status < 3, grid)
     span(v) = (isempty(v) || maximum(v) == minimum(v)) ? 1.0 : maximum(v) - minimum(v)
     axspan(c, r) = !isnothing(r) ? r[2] - r[1] : c === :P ? Pbox[2] - Pbox[1] : c === :T ? Tbox[2] - Tbox[1] :
-                   !isnothing(pool) ? span(section_value.(pool, c)) : span(section_value.(reduce(vcat, seeds), c))
+                   !isnothing(pool) ? span(section_value.(pool, c)) :
+                   (!isnothing(seeds) && any(!isempty, seeds)) ? span(section_value.(reduce(vcat, seeds), c)) : 1.0
     scales  = (axspan(ax[1], xrange), axspan(ax[2], yrange))
 
     n       = length(x)
@@ -515,29 +581,34 @@ function multi_point_section(section     :: Symbol,
     progr   = progressbar ? Progress(n, desc = "Computing $(n) section points...") : nothing
     count   = Threads.Atomic{Int}(0)
 
-    @threads :static for i in 1:n
-        id          = Threads.threadid()
+    section_foreach(n) do i, id
         gv          = MAGEMin_db.gv[id]
         z_b         = MAGEMin_db.z_b[id]
         DB          = MAGEMin_db.DB[id]
         splx_data   = MAGEMin_db.splx_data[id]
 
+        per_pt && (gv = define_bulk_rock(gv, X[i], Xoxides, sys_in, MAGEMin_db.db))
+
         sd          = isnothing(seeds) ? pool : seeds[i]
         if isnothing(seeds) || isempty(sd)
-            sd      = pool
-            d       = [ ((section_value(s, ax[1]) - x[i])/scales[1])^2 + ((section_value(s, ax[2]) - y[i])/scales[2])^2 for s in pool ]
-            sd      = pool[partialsortperm(d, 1:min(2, length(d)))]
+            if isnothing(pool)
+                sd  = nothing
+            else
+                d   = [ ((section_value(s, ax[1]) - x[i])/scales[1])^2 + ((section_value(s, ax[2]) - y[i])/scales[2])^2 for s in pool ]
+                sd  = pool[partialsortperm(d, 1:min(2, length(d)))]
+            end
         end
 
         solve_i(sds) = section_point(section, x[i], y[i], gv, z_b, DB, splx_data;
-                                    Pbox = Pbox, Tbox = Tbox, seeds = sds, scales = scales, buffer_n = buffer,
+                                    Pbox = Pbox, Tbox = Tbox, seeds = sds, scales = scales, buffer_n = bufs[i],
                                     rm_list = rm_list, W = W, scp = scp, name_solvus = name_solvus, maxit = maxit, warm = warm,
+                                    max_clamp = max_clamp, bound_tol = bound_tol, log_P = log_P,
                                     seismic_cor = seismic_cor, aspect_ratio = aspect_ratio, seismic_water = seismic_water,
                                     shallow_correction = shallow_correction, fluid_as_melt = fluid_as_melt, anelastic_cor = anelastic_cor)
         out, info   = solve_i(sd)
-        if info.status != 0 && !isnothing(pool) && section in (:ps, :pv, :ts, :tv)
+        if info.status != 0 && !isnothing(pool) && one_d
             n0, k0  = info.n_solve, info.n_newton
-            for alt in section_retry_seeds(section, x[i], y[i], pool, sd, Pbox, Tbox)
+            for alt in section_retry_seeds(section, x[i], y[i], pool, something(sd, []), Pbox, Tbox)
                 out2, info2 = solve_i([alt])
                 n0 += info2.n_solve; k0 += info2.n_newton
                 if info2.status == 0
@@ -558,31 +629,59 @@ function multi_point_section(section     :: Symbol,
     end
     isnothing(progr) || finish!(progr)
 
-    for pass in 1:2
+    ru, rv  = isnothing(retry_xy) ? (x, y) : (Float64.(retry_xy[1]), Float64.(retry_xy[2]))
+    rsc     = isnothing(retry_xy) ? scales : (span(ru), span(rv))
+    tried   = [Set{Int}() for _ in 1:n]
+    for pass in 1:retry_passes
         bad  = [i for i in 1:n if infos[i].status != 0]
         good = [i for i in 1:n if infos[i].status == 0]
         (isempty(bad) || isempty(good)) && break
-        @threads :static for b in bad
-            id          = Threads.threadid()
+        jobs = Tuple{Int,Int,Int}[]
+        for b in bad
+            d = [((ru[g] - ru[b])/rsc[1])^2 + ((rv[g] - rv[b])/rsc[2])^2 for g in good]
+            for (r, g) in enumerate(good[partialsortperm(d, 1:min(3, length(d)))])
+                g in tried[b] && continue
+                push!(jobs, (b, g, r))
+                push!(tried[b], g)
+            end
+        end
+        isempty(jobs) && break
+        res = Vector{Tuple{gmin_struct{Float64, Int64}, section_info}}(undef, length(jobs))
+        rprog = progressbar ? Progress(length(jobs), desc = "Retrying $(length(bad)) unresolved point(s), pass $(pass)...") : nothing
+        section_foreach(length(jobs)) do k, id
+            b, g, _     = jobs[k]
             gv          = MAGEMin_db.gv[id]
             z_b         = MAGEMin_db.z_b[id]
             DB          = MAGEMin_db.DB[id]
             splx_data   = MAGEMin_db.splx_data[id]
-            d           = [((x[g] - x[b])/scales[1])^2 + ((y[g] - y[b])/scales[2])^2 for g in good]
-            n0, k0      = infos[b].n_solve, infos[b].n_newton
-            for g in good[partialsortperm(d, 1:min(3, length(d)))]
-                out2, info2 = section_point(section, x[b], y[b], gv, z_b, DB, splx_data;
-                                            Pbox = Pbox, Tbox = Tbox, seeds = [outs[g]], scales = scales, buffer_n = buffer,
-                                            rm_list = rm_list, W = W, scp = scp, name_solvus = name_solvus, maxit = maxit, warm = warm,
-                                            seismic_cor = seismic_cor, aspect_ratio = aspect_ratio, seismic_water = seismic_water,
-                                            shallow_correction = shallow_correction, fluid_as_melt = fluid_as_melt, anelastic_cor = anelastic_cor)
-                n0 += info2.n_solve; k0 += info2.n_newton
-                if info2.status == 0
-                    outs[b], infos[b] = out2, info2
-                    break
-                end
+            per_pt && (gv = define_bulk_rock(gv, X[b], Xoxides, sys_in, MAGEMin_db.db))
+            res[k]      = section_point(section, x[b], y[b], gv, z_b, DB, splx_data;
+                                        Pbox = Pbox, Tbox = Tbox, seeds = [outs[g]], scales = scales, buffer_n = bufs[b],
+                                        rm_list = rm_list, W = W, scp = scp, name_solvus = name_solvus, maxit = retry_maxit,
+                                        max_clamp = retry_max_clamp, bound_tol = bound_tol, log_P = log_P, warm = warm,
+                                        seismic_cor = seismic_cor, aspect_ratio = aspect_ratio, seismic_water = seismic_water,
+                                        shallow_correction = shallow_correction, fluid_as_melt = fluid_as_melt, anelastic_cor = anelastic_cor)
+            isnothing(rprog) || next!(rprog)
+        end
+        isnothing(rprog) || finish!(rprog)
+        by_pt = Dict{Int,Vector{Int}}()
+        for (k, (b, _, _)) in enumerate(jobs)
+            push!(get!(by_pt, b, Int[]), k)
+        end
+        for (b, ks) in by_pt
+            sort!(ks, by = k -> jobs[k][3])
+            kb     = something(findfirst(k -> res[k][2].status == 0, ks), 0)
+            used   = kb == 0 ? ks : ks[1:kb]
+            kb     = kb == 0 ? 0 : ks[kb]
+            n0     = infos[b].n_solve + sum(k -> res[k][2].n_solve, used)
+            k0     = infos[b].n_newton + sum(k -> res[k][2].n_newton, used)
+            if kb > 0
+                o, inf     = res[kb]
+                outs[b]    = o
+                infos[b]   = section_info(inf.status, n0, k0, inf.latent, inf.dfree, inf.residual)
+            else
+                infos[b]   = section_info(infos[b].status, n0, k0, infos[b].latent, infos[b].dfree, infos[b].residual)
             end
-            infos[b].status == 0 || (infos[b] = section_info(infos[b].status, n0, k0, infos[b].latent, infos[b].dfree, infos[b].residual))
         end
     end
     isnothing(callback_fn) || callback_fn(n, n, time())

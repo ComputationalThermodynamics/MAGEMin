@@ -73,6 +73,7 @@ The routine is the core of MAGEMin algorithm and is constructed around the Gibbs
 typedef struct fn_secs {
 	int 		 use_S;
 	int 		 use_V;
+	int 		 use_H;
 	int 		 free_P;
 	int 		 free_T;
 	int 		 n_th;
@@ -83,6 +84,7 @@ typedef struct fn_secs {
 	int 		 pp_id[64];
 	double 		 S;
 	double 		 V;
+	double 		 H;
 	double 		 Pcur;
 	double 		 Tcur;
 	double 		 pp_g[64*16];
@@ -1633,12 +1635,16 @@ static int fn_system(				global_variable 	 gv,
 	int 	cT   = (sc != NULL && sc->free_T) ? ct + ((sc->free_P) ? 1 : 0) : -1;
 	int 	rS   = (sc != NULL && sc->use_S) ? rs : -1;
 	int 	rV   = (sc != NULL && sc->use_V) ? rs + ((sc->use_S) ? 1 : 0) : -1;
+	int 	rH   = (sc != NULL && sc->use_H) ? rs + ((sc->use_S) ? 1 : 0) + ((sc->use_V) ? 1 : 0) : -1;
+	double 	Tk   = (sc != NULL) ? th[1] : 0.0;
+	double 	Ssys = 0.0;
 	double 	eT   = gv.gb_T_eps;
 	double 	eP   = gv.gb_P_eps;
 
 	if (sc != NULL && (th[0] != sc->Pcur || th[1] != sc->Tcur)){ fn_sec_refresh(gv, sc, PP_ref_db, SS_ref_db, th); }
 	if (rS >= 0){ R[rS] = -sc->S; }
 	if (rV >= 0){ R[rV] = -sc->V; }
+	if (rH >= 0){ R[rH] = -sc->H; }
 	int 	rc   = n_y;
 	int 	r2   = n_y + n_cc;
 	int 	r3   = r2 + n_ph;
@@ -1683,6 +1689,7 @@ static int fn_system(				global_variable 	 gv,
 			double sq_v = (-3.0*D + 4.0*Dk[5] - Dk[4])/(2.0*eP);
 			if (rS >= 0){ R[rS] += n[q]*sq_s; }
 			if (rV >= 0){ R[rV] += n[q]*sq_v; }
+			if (rH >= 0){ R[rH] += Tk*n[q]*sq_s; Ssys += n[q]*sq_s; }
 			if (A != NULL){
 				double DTT = (Dk[0] - 2.0*D + Dk[1])/(eT*eT);
 				double DTP = (-3.0*(Dk[0] - Dk[1]) + 4.0*(Dk[2] - Dk[3]) - (Dk[7] - Dk[8]))/(4.0*eT*eP);
@@ -1699,6 +1706,7 @@ static int fn_system(				global_variable 	 gv,
 					if (cP >= 0){ A[cP*nz + off_y[q] + kk] = gP; }
 					if (rS >= 0){ A[(m + off_y[q] + kk)*nz + rS] = -n[q]*gT; }
 					if (rV >= 0){ A[(m + off_y[q] + kk)*nz + rV] =  n[q]*gP; }
+					if (rH >= 0){ A[(m + off_y[q] + kk)*nz + rH] = -Tk*n[q]*gT; }
 				}
 				if (rS >= 0){
 					A[(cn + q)*nz + rS] = sq_s;
@@ -1709,6 +1717,11 @@ static int fn_system(				global_variable 	 gv,
 					A[(cn + q)*nz + rV] = sq_v;
 					if (cT >= 0){ A[cT*nz + rV] += n[q]*DTP; }
 					if (cP >= 0){ A[cP*nz + rV] += n[q]*DPP; }
+				}
+				if (rH >= 0){
+					A[(cn + q)*nz + rH] = Tk*sq_s;
+					if (cT >= 0){ A[cT*nz + rH] += -Tk*n[q]*DTT; }
+					if (cP >= 0){ A[cP*nz + rH] += -Tk*n[q]*DTP; }
 				}
 			}
 		}
@@ -1791,6 +1804,7 @@ static int fn_system(				global_variable 	 gv,
 			double 	 nq  = n[n_ph + q];
 			if (rS >= 0){ R[rS] += nq*ps; }
 			if (rV >= 0){ R[rV] += nq*pv; }
+			if (rH >= 0){ R[rH] += Tk*nq*ps; Ssys += nq*ps; }
 			if (A != NULL){
 				double DTT = (Gk[0] - 2.0*Gc + Gk[1])/(eT*eT);
 				double DTP = (-3.0*(Gk[0] - Gk[1]) + 4.0*(Gk[2] - Gk[3]) - (Gk[7] - Gk[8]))/(4.0*eT*eP);
@@ -1807,8 +1821,22 @@ static int fn_system(				global_variable 	 gv,
 					if (cT >= 0){ A[cT*nz + rV] += nq*DTP; }
 					if (cP >= 0){ A[cP*nz + rV] += nq*DPP; }
 				}
+				if (rH >= 0){
+					A[(cn + n_ph + q)*nz + rH] = Tk*ps;
+					if (cT >= 0){ A[cT*nz + rH] += -Tk*nq*DTT; }
+					if (cP >= 0){ A[cP*nz + rH] += -Tk*nq*DTP; }
+				}
 			}
 		}
+	}
+
+	if (rH >= 0){
+		for (int jj = 0; jj < m; jj++){
+			double bj = z_b.bulk_rock[z_b.nzEl_array[jj]];
+			R[rH] += gam[z_b.nzEl_array[jj]]*bj;
+			if (A != NULL){ A[jj*nz + rH] = bj; }
+		}
+		if (A != NULL && cT >= 0){ A[cT*nz + rH] += Ssys; }
 	}
 
 	return 0;
@@ -2542,12 +2570,14 @@ global_variable final_Newton(		bulk_info 	 		 z_b,
 void section_mode_flags(				int 				 mode,
 										int 				*use_S,
 										int 				*use_V,
+										int 				*use_H,
 										int 				*free_P,
 										int 				*free_T			){
-	*use_S 	= (mode == 1 || mode == 2 || mode == 5);
-	*use_V 	= (mode == 1 || mode == 3 || mode == 4);
-	*free_P = (mode == 1 || mode == 3 || mode == 5);
-	*free_T = (mode == 1 || mode == 2 || mode == 4);
+	*use_S 	= (mode == 1 || mode == 2 || mode == 5 || mode == 7);
+	*use_V 	= (mode == 1 || mode == 3 || mode == 4 || mode == 8);
+	*use_H 	= (mode == 6 || mode == 7 || mode == 8);
+	*free_P = (mode == 1 || mode == 3 || mode == 5 || mode == 7 || mode == 8);
+	*free_T = (mode == 1 || mode == 2 || mode == 4 || mode == 6 || mode == 7 || mode == 8);
 }
 
 global_variable final_Newton_section(	bulk_info 	 		 z_b,
@@ -2560,10 +2590,11 @@ global_variable final_Newton_section(	bulk_info 	 		 z_b,
 										double 				*T				){
 	fn_sec sc;
 	memset(&sc, 0, sizeof(sc));
-	section_mode_flags(gv.sec_mode, &sc.use_S, &sc.use_V, &sc.free_P, &sc.free_T);
+	section_mode_flags(gv.sec_mode, &sc.use_S, &sc.use_V, &sc.use_H, &sc.free_P, &sc.free_T);
 	sc.n_th 		= sc.free_P + sc.free_T;
 	sc.S 			= gv.sec_S;
 	sc.V 			= gv.sec_V/10.0;
+	sc.H 			= gv.sec_H;
 	sc.EM_database 	= gv.EM_database;
 	sc.zb 			= z_b;
 	sc.Pcur 		= NAN;

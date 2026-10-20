@@ -822,6 +822,7 @@ mutable struct global_variables
     sec_mode::Cint
     sec_S::Cdouble
     sec_V::Cdouble
+    sec_H::Cdouble
     sec_P::Cdouble
     sec_T::Cdouble
     fn_sys::Ptr{fn_kkt}
@@ -3858,8 +3859,8 @@ function final_Newton(z_b, gv, PC_read, PP_ref_db, SS_ref_db, cp)
     ccall((:final_Newton, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PC_type}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, PC_read, PP_ref_db, SS_ref_db, cp)
 end
 
-function section_mode_flags(mode, use_S, use_V, free_P, free_T)
-    ccall((:section_mode_flags, libMAGEMin), Cvoid, (Cint, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}), mode, use_S, use_V, free_P, free_T)
+function section_mode_flags(mode, use_S, use_V, use_H, free_P, free_T)
+    ccall((:section_mode_flags, libMAGEMin), Cvoid, (Cint, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}), mode, use_S, use_V, use_H, free_P, free_T)
 end
 
 function final_Newton_section(z_b, gv, PC_read, PP_ref_db, SS_ref_db, cp, P, T)

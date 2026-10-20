@@ -3891,22 +3891,25 @@ end
 
     Section types of [`pwm_run_section_from_state`](@ref) and the corresponding `gv.sec_mode`:
     `:sv` (S, V fixed; P, T free) = 1, `:ps` (P, S fixed; T free) = 2, `:tv` (T, V fixed; P free) = 3,
-    `:pv` (P, V fixed; T free) = 4, `:ts` (T, S fixed; P free) = 5.
+    `:pv` (P, V fixed; T free) = 4, `:ts` (T, S fixed; P free) = 5, `:ph` (P, H fixed; T free) = 6,
+    `:sh` (S, H fixed; P, T free) = 7, `:vh` (V, H fixed; P, T free) = 8.
 """
-const SECTION_MODES = Dict(:sv => 1, :ps => 2, :tv => 3, :pv => 4, :ts => 5)
+const SECTION_MODES = Dict(:sv => 1, :ps => 2, :tv => 3, :pv => 4, :ts => 5, :ph => 6, :sh => 7, :vh => 8)
+
+const SECTION_ROWS = Dict(:sv => (:S, :V), :ps => (:S,), :tv => (:V,), :pv => (:V,), :ts => (:S,), :ph => (:H,), :sh => (:S, :H), :vh => (:V, :H))
 
 
 """
-    pwm_run_section_from_state(gv, z_b, DB, splx_data, state; section, S=NaN, V=NaN, name_solvus=false, ...)
+    pwm_run_section_from_state(gv, z_b, DB, splx_data, state; section, S=NaN, V=NaN, H=NaN, name_solvus=false, ...)
 
     Section variant of [`pwm_run_from_state`](@ref): load the given equilibrium state (see
     [`equilibrium_state`](@ref)) after `pwm_init` and solve this assemblage with the final Newton
-    step extended by free pressure and/or temperature and by entropy and/or volume equations
-    (see [`SECTION_MODES`](@ref)). The fixed P or T is the one set by `pwm_init`; the free ones
+    step extended by free pressure and/or temperature and by entropy, volume and/or enthalpy
+    equations (see [`SECTION_MODES`](@ref)). The fixed P or T is the one set by `pwm_init`; the free ones
     start from it.
 
-    `S` is the system entropy in kJ/K and `V` the system volume in cm³, both per mol of bulk
-    oxides, i.e. the units of `out.entropy[1]` and `out.V`. TC, SB and BR databases are supported.
+    `S` is the system entropy in kJ/K, `V` the system volume in cm³ and `H` the system enthalpy in kJ,
+    all per mol of bulk oxides, i.e. the units of `out.entropy[1]`, `out.V` and `out.enthalpy[1]`. TC, SB and BR databases are supported.
 
     No stability test is done: phases can be removed by the Newton step when their fraction
     vanishes, but no phase is added. Check stability with a point minimization at the returned
@@ -3919,12 +3922,11 @@ const SECTION_MODES = Dict(:sv => 1, :ps => 2, :tv => 3, :pv => 4, :ts => 5)
     -------
     out : gmin_struct{Float64, Int64}
 """
-function pwm_run_section_from_state(gv, z_b, DB, splx_data, state; section::Symbol, S::Float64 = NaN, V::Float64 = NaN, name_solvus = false, seismic_cor = false, aspect_ratio = 0.3, seismic_water = 0, shallow_correction = false, fluid_as_melt = false, anelastic_cor = false, filter_DEW_species = false)
+function pwm_run_section_from_state(gv, z_b, DB, splx_data, state; section::Symbol, S::Float64 = NaN, V::Float64 = NaN, H::Float64 = NaN, name_solvus = false, seismic_cor = false, aspect_ratio = 0.3, seismic_water = 0, shallow_correction = false, fluid_as_melt = false, anelastic_cor = false, filter_DEW_species = false)
     haskey(SECTION_MODES, section) || error("Unknown section $(section); use one of $(collect(keys(SECTION_MODES)))")
     mode    = SECTION_MODES[section]
-    if (mode in (1, 2, 5) && !isfinite(S)) || (mode in (1, 3, 4) && !isfinite(V))
-        error("Section $(section) needs finite targets: S = $(S), V = $(V)")
-    end
+    tgt     = (S = S, V = V, H = H)
+    all(r -> isfinite(getfield(tgt, r)), SECTION_ROWS[section]) || error("Section $(section) needs finite targets $(SECTION_ROWS[section]): S = $(S), V = $(V), H = $(H)")
 
     ss_ids  = Vector{Cint}(state.ss_ids)
     ss_x    = Vector{Cdouble}(state.ss_x)
@@ -3937,6 +3939,7 @@ function pwm_run_section_from_state(gv, z_b, DB, splx_data, state; section::Symb
     gv_in.sec_mode  = mode
     gv_in.sec_S     = isfinite(S) ? S : 0.0
     gv_in.sec_V     = isfinite(V) ? V : 0.0
+    gv_in.sec_H     = isfinite(H) ? H : 0.0
 
     time = @elapsed  gv      = LibMAGEMin.ComputeEquilibrium_SectionFromState(z_b, gv_in, DB.PP_ref_db, DB.SS_ref_db, DB.cp, length(ss_ids), ss_ids, ss_x, ss_n, length(pp_ids), pp_ids, pp_n, gam);
 
@@ -3958,7 +3961,7 @@ end
 
 
 """
-    point_wise_section_newton_from_state(P, T, gv, z_b, DB, splx_data, state; section, S=NaN, V=NaN, W=nothing, gbase=nothing, v=nothing, hook=nothing, name_solvus=false)
+    point_wise_section_newton_from_state(P, T, gv, z_b, DB, splx_data, state; section, S=NaN, V=NaN, H=NaN, W=nothing, gbase=nothing, v=nothing, hook=nothing, name_solvus=false)
 
     Same as [`pwm_run_section_from_state`](@ref), preceded by `pwm_init` at the start point (P, T)
     and by the `W`, `gbase` and `v` overrides and the `hook` of [`point_wise_minimization`](@ref).
@@ -3985,6 +3988,7 @@ function point_wise_section_newton_from_state(  P       ::Float64,
                                                 section     ::Symbol,
                                                 S           ::Float64 = NaN,
                                                 V           ::Float64 = NaN,
+                                                H           ::Float64 = NaN,
                                                 W           = nothing,
                                                 gbase       = nothing,
                                                 v           = nothing,
@@ -4000,7 +4004,7 @@ function point_wise_section_newton_from_state(  P       ::Float64,
 
     hook === nothing || hook(gv, z_b, DB)
 
-    return pwm_run_section_from_state(gv, z_b, DB, splx_data, state; section = section, S = S, V = V, name_solvus = name_solvus)
+    return pwm_run_section_from_state(gv, z_b, DB, splx_data, state; section = section, S = S, V = V, H = H, name_solvus = name_solvus)
 end
 
 

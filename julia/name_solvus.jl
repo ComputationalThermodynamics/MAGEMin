@@ -152,7 +152,7 @@ function get_mineral_name(db, ss, SS_vec)
             if x[2] - 0.5 > 0.0;       mineral_name = "K-nph";
             else                        mineral_name = "nph";   end 
         elseif ss == "cpx"
-            if x[3] - 0.6 > 0.0;        mineral_name = "pig";
+            if x[3] - 0.85 > 0.0;        mineral_name = "pig";
             elseif x[4] - 0.5 > 0.0;    mineral_name = "Na-cpx";
             else                        mineral_name = "cpx";   end 
         end
@@ -236,11 +236,11 @@ function get_mineral_name(db, ss, SS_vec)
             if x[4] - 0.5 > 0.0;        mineral_name = "pat";
             else                        mineral_name = "mu";    end
         elseif ss == "cpx_T21"
-            if x[3] - 0.6 > 0.0;        mineral_name = "pig";
+            if x[3] - 0.85 > 0.0;        mineral_name = "pig";
             elseif x[4] - 0.5 > 0.0;    mineral_name = "Na-cpx";
             else                        mineral_name = "cpx";   end
         elseif ss == "cpx_W24"
-            if x[3] - 0.6 > 0.0;        mineral_name = "pig";
+            if x[3] - 0.85 > 0.0;        mineral_name = "pig";
             elseif x[4] - 0.5 > 0.0;    mineral_name = "Na-cpx";
             else                        mineral_name = "cpx";   end
         elseif ss == "nph_W24"

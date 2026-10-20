@@ -299,6 +299,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.sec_mode 			=  0;
 	gv.sec_S 				=  0.0;
 	gv.sec_V 				=  0.0;
+	gv.sec_H 				=  0.0;
 	gv.sec_P 				=  0.0;
 	gv.sec_T 				=  0.0;
 	gv.fn_sys 				=  NULL;

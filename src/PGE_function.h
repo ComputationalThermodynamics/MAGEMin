@@ -88,6 +88,7 @@ global_variable final_Newton(		bulk_info 	 		 z_b,
 void section_mode_flags(				int 				 mode,
 										int 				*use_S,
 										int 				*use_V,
+										int 				*use_H,
 										int 				*free_P,
 										int 				*free_T			);
 
