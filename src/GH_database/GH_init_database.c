@@ -182,6 +182,7 @@ global_variable global_variable_GH_init(   global_variable      gv,
 
     gv.dGamma           = malloc (gv.len_ox * sizeof(double)   );
     gv.gam_tot          = malloc (gv.len_ox * sizeof (double)  );
+    gv.face_l = calloc(gv.len_ox*gv.len_ox, sizeof(double));
     gv.gam_tot_0        = malloc (gv.len_ox * sizeof (double)  );
     gv.delta_gam_tot    = malloc (gv.len_ox * sizeof (double)  );
     gv.mass_residual    = malloc (gv.len_ox * sizeof(double)   );

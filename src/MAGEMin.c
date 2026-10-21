@@ -57,6 +57,7 @@
 #include "phase_update_function.h"
 #include "all_solution_phases.h"
 #include "MAGEMin.h"
+#include "face_function.h"
 #include "TC_database/NS_opt_function.h"
 
 /** 
@@ -338,6 +339,11 @@ int runMAGEMin(			int    argc,
 										SS_ref_db,
 										cp				);
 
+	gv = remove_zero_amount_phases(		gv,
+										z_b,
+										PP_ref_db,
+										SS_ref_db,
+										cp				);
 
 	gv = compute_activities (			gv.EM_database,	
 										gv,
@@ -538,6 +544,27 @@ static void warn_ds62_placeholder_phases(	global_variable 	 gv,
 	   is - see NLopt_opt_DEW_function. */
 	for (int iss = 0; iss < gv.len_ss; iss++){ SS_ref_db[iss].dew_warm_ok = 0; }
 
+	gv = face_detect(						z_b,
+											gv,
+											PP_ref_db,
+											SS_ref_db						);
+
+	if (gv.face_n > 0 && strcmp(gv.research_group, "tc") == 0){
+		for (int iss = 0; iss < gv.len_ss; iss++){
+			if (SS_ref_db[iss].ss_flags[0] != 1){ continue; }
+			int straddle = 0;
+			for (int k = 0; k < SS_ref_db[iss].n_em && !straddle; k++){
+				if (SS_ref_db[iss].z_em[k] == 1.0 && face_deviation(gv, SS_ref_db[iss].Comp[k]) > 1e-12){ straddle = 1; }
+			}
+			if (straddle){
+				for (int k = 0; k < SS_ref_db[iss].n_em; k++){ SS_ref_db[iss].z_em[k] = 1.0; }
+				ns_reduce_system(			gv,
+											z_b,
+											&SS_ref_db[iss]					);
+			}
+		}
+	}
+
 	warn_ds62_placeholder_phases(gv, SS_ref_db);
 
 	/****************************************************************************************/
@@ -545,6 +572,13 @@ static void warn_ds62_placeholder_phases(	global_variable 	 gv,
 	/****************************************************************************************/
 	// leveling mode = 0 is default, without using initial guess
 	// leveling mode = 1 uses initial guess
+	if (gv.leveling_mode == 1 && gv.face_n != 0){
+		gv.leveling_mode = 0;
+		for (int iss = 0; iss < gv.len_ss; iss++){
+			SS_ref_db[iss].tot_pc[0] = 0;
+			SS_ref_db[iss].id_pc[0]  = 0;
+		}
+	}
 	if (gv.leveling_mode == 0){
 		gv = Levelling(			z_b,										/** bulk rock informations 			*/
 								gv,											/** global variables (e.g. Gamma) 	*/
@@ -801,6 +835,10 @@ static void warn_ds62_placeholder_phases(	global_variable 	 gv,
 										PP_ref_db,
 										SS_ref_db,
 										cp						);
+
+	if (gv.face_n < 0){
+		gv.status = 5;
+	}
 
 	if (gv.verbose == 1){
 		gv = check_PC_driving_force( 	z_b,							/** bulk rock constraint 			*/ 
@@ -1800,6 +1838,7 @@ void FreeDatabases(		global_variable gv,
 	free(gv.V_cor);
 	free(gv.dGamma);
 	free(gv.gam_tot);
+	free(gv.face_l);
 	free(gv.gam_tot_0);
 	free(gv.delta_gam_tot);
 	free(gv.mass_residual);

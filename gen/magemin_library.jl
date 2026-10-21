@@ -899,6 +899,8 @@ mutable struct global_variables
     gam_tot::Ptr{Cdouble}
     gam_tot_0::Ptr{Cdouble}
     delta_gam_tot::Ptr{Cdouble}
+    face_n::Cint
+    face_l::Ptr{Cdouble}
     n_flags::Cint
     PP_list::Ptr{Ptr{Cchar}}
     SS_list::Ptr{Ptr{Cchar}}
@@ -3899,6 +3901,18 @@ function mergeParallel_LevellingGamma_Files(gv)
     ccall((:mergeParallel_LevellingGamma_Files, libMAGEMin), Cvoid, (global_variable,), gv)
 end
 
+function face_detect(z_b, gv, PP_ref_db, SS_ref_db)
+    ccall((:face_detect, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PP_ref}, Ptr{SS_ref}), z_b, gv, PP_ref_db, SS_ref_db)
+end
+
+function face_deviation(gv, comp)
+    ccall((:face_deviation, libMAGEMin), Cdouble, (global_variable, Ptr{Cdouble}), gv, comp)
+end
+
+function face_project_gamma(gv, gam)
+    ccall((:face_project_gamma, libMAGEMin), Cvoid, (global_variable, Ptr{Cdouble}), gv, gam)
+end
+
 struct EM2id_
     EM_tag::NTuple{20, Cchar}
     id::Cint
@@ -4338,6 +4352,10 @@ end
 
 function compute_phase_mol_fraction(gv, z_b, PP_ref_db, SS_ref_db, cp)
     ccall((:compute_phase_mol_fraction, libMAGEMin), global_variable, (global_variable, bulk_info, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, z_b, PP_ref_db, SS_ref_db, cp)
+end
+
+function remove_zero_amount_phases(gv, z_b, PP_ref_db, SS_ref_db, cp)
+    ccall((:remove_zero_amount_phases, libMAGEMin), global_variable, (global_variable, bulk_info, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, z_b, PP_ref_db, SS_ref_db, cp)
 end
 
 function compute_activities(EM_database, gv, PP_ref_db, z_b)

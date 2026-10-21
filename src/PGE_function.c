@@ -35,6 +35,7 @@ The routine is the core of MAGEMin algorithm and is constructed around the Gibbs
 #endif 
 
 #include "MAGEMin.h"
+#include "face_function.h"
 #include "simplex_levelling.h"
 #include "toolkit.h"
 #include "gem_function.h"
@@ -861,6 +862,8 @@ global_variable run_LP(								bulk_info 			 z_b,
 	/* update global variable gamma */
 	update_global_gamma_LU(					z_b,
 											splx_data		);	
+
+	face_project_gamma(gv, d->gamma_tot);
 
 	/* copy gamma total to the global variables */
 	for (int i = 0; i < gv.len_ox; i++){

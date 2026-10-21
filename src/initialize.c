@@ -275,6 +275,8 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.n_points 			=  1;
 	gv.solver   			=  2;					/* 0 -> Legacy, 1 = PGE, Hybrid PGE/LP */
 	gv.ss_solver 			=  0;
+	gv.face_n 				=  0;
+	gv.face_l 				=  NULL;
 	gv.ns_alpha 			=  1e-4;
 	gv.ns_beta_ini 			=  0.25;
 	gv.ns_beta 				=  0.25;
@@ -635,7 +637,7 @@ SS_ref G_SS_init_EM_function(		SS_init_type		*SS_init,
 		Allocate memory for levelling pseudocompounds 
 	*/
 	// SS_ref_db.n_pc   	= gv.n_pc;
-	SS_ref_db.n_pc   	= gv.n_SS_PC[ph_id];
+	SS_ref_db.n_pc   	= gv.n_SS_PC[ph_id] + n_em;
     SS_ref_db.tot_pc   	= malloc (1 * sizeof (double) ); 
     SS_ref_db.id_pc   	= malloc (1 * sizeof (double) ); 
 	SS_ref_db.G_pc   	= malloc ((SS_ref_db.n_pc) * sizeof (double) ); 

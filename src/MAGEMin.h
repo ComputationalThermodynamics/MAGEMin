@@ -237,6 +237,8 @@ typedef struct global_variables {
 	double  *gam_tot;     		/** chemical potential of components (gamma) */
 	double  *gam_tot_0;     	/** chemical potential of components (gamma) */
 	double  *delta_gam_tot;     /** chemical potential of components (gamma) */
+	int      face_n;			/** codimension of the composition face holding the bulk (0 interior, -1 bulk outside the composition space) */
+	double  *face_l;			/** face_n orthonormal face normals, len_ox each (zero on absent oxides) */
 				
 	int      n_flags;			/** number of column in the flag array */
 	char   **PP_list;			/** pure phase list */
