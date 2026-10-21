@@ -1058,7 +1058,8 @@ static int init_PC_read(						global_variable 	 gv,
 		gv.fn_status = -1;
 		return gv;
 	}
-	if (!init_PC_read(gv, PC_read) || n_ss + n_pp > gv.len_ox){
+	int n_free = (gv.sec_mode == 1 || gv.sec_mode == 7 || gv.sec_mode == 8) ? 2 : 1;
+	if (!init_PC_read(gv, PC_read) || n_ss + n_pp > gv.len_ox + n_free){
 		gv.status 	 = -1;
 		gv.fn_status = -1;
 		return gv;
@@ -1539,20 +1540,22 @@ void FreeDatabases(		global_variable gv,
 
 	for ( i = 0; i < n_ox; i++){
 		if  (DB.sp[0].oxides[i]				!=NULL)  free( DB.sp[0].oxides[i] 			);	
-		if  (DB.sp[0].elements[i]			!=NULL)  free( DB.sp[0].elements[i] 		);	
-		if  (DB.sp[0].ph[i]					!=NULL)  free( DB.sp[0].ph[i] 				);	
-		if  (DB.sp[0].sol_name[i]			!=NULL)  free( DB.sp[0].sol_name[i] 		);	
+		if  (DB.sp[0].elements[i]			!=NULL)  free( DB.sp[0].elements[i] 		);
+	}
+	for ( i = 0; i < n_ox + 2; i++){
+		if  (DB.sp[0].ph[i]					!=NULL)  free( DB.sp[0].ph[i] 				);
+		if  (DB.sp[0].sol_name[i]			!=NULL)  free( DB.sp[0].sol_name[i] 		);
 	}
 
-	for ( i = 0; i < n_ox; i++){
-		if  (DB.sp[0].PP[i].Comp			!=NULL)  free( DB.sp[0].PP[i].Comp 			);	
+	for ( i = 0; i < n_ox + 2; i++){
+		if  (DB.sp[0].PP[i].Comp			!=NULL)  free( DB.sp[0].PP[i].Comp 			);
 		if  (DB.sp[0].PP[i].Comp_wt			!=NULL)  free( DB.sp[0].PP[i].Comp_wt 		);	
 		if  (DB.sp[0].PP[i].Comp_apfu		!=NULL)  free( DB.sp[0].PP[i].Comp_apfu		);	
 	}
 
 	int n_max_pc_free = (gv.len_ox*3 > gv.max_ss_size_cp) ? gv.len_ox*3 : gv.max_ss_size_cp;
 
-	for ( i = 0; i < n_ox; i++){
+	for ( i = 0; i < n_ox + 2; i++){
 		if  (DB.sp[0].SS[i].Comp			!=NULL)  free( DB.sp[0].SS[i].Comp 			);
 		if  (DB.sp[0].SS[i].Comp_wt			!=NULL)  free( DB.sp[0].SS[i].Comp_wt 		);
 		if  (DB.sp[0].SS[i].Comp_apfu		!=NULL)  free( DB.sp[0].SS[i].Comp_apfu		);

@@ -39,6 +39,7 @@ export TE_prediction, adjust_bulk_4_zircon, create_custom_KDs_database, get_TE_d
 export custom_KDs_database, TE_names
 export zirconium_saturation, sulfur_saturation, phosphate_saturation, co2_saturation, monazite_saturation, volatile_saturation_SY26, CO2_from_dissolved_H2O
 export SaturationConfig, solve_with_saturation
+export O18_database, O18_mapping, out_O18, get_O18_database, get_O18_mapping, O18_fractionation, O18_mass_balance, O18_prediction, Δ18O, cipw_norm, norm_coefficients, ZZ03_coefficients
 
 
 export initialize_AMR, split_and_keep, AMR
@@ -5453,6 +5454,7 @@ include("TE_ph_models.jl")
 include("lattice_strain.jl")
 include("TE_partitioning.jl")
 include("TE_saturation_models.jl")
+include("O_isotopes.jl")
 include("export2CSV.jl")
 include("Section_minimization.jl")
 include("External_routines.jl")

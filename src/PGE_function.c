@@ -2390,7 +2390,7 @@ static global_variable fn_run(		bulk_info 	 		 z_b,
 			}
 			if (n_rel == 0 && n_add == 0){ done = 1; }
 			else if (att == FN_MAX_ATT - 1){ ok = 0; }
-			else{
+			else if (sc == NULL){
 				for (int j = 0; j < gv.len_ox; j++){ gam[j] = gam0[j]; }
 				for (int i = 0; i < off_s[n_ph]; i++){ s[i] = s0[i]; }
 				for (int q = 0; q < n_ph + n_pp; q++){ n[q] = (drop[q]) ? 0.0 : n0[q]; } th[0] = th0[0]; th[1] = th0[1];

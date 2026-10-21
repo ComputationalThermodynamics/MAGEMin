@@ -398,21 +398,22 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 	sp.bulk_S_wt 			= malloc(gv.len_ox 	* sizeof(double)			);	
 	sp.bulk_M_wt 			= malloc(gv.len_ox 	* sizeof(double)			);	
 	sp.bulk_F_wt 			= malloc(gv.len_ox 	* sizeof(double)			);	
-	sp.ph 	     			= malloc(gv.len_ox  * sizeof(char*)				);
-	sp.sol_name 	     	= malloc(gv.len_ox  * sizeof(char*)				);
-	sp.ph_frac 	     		= malloc(gv.len_ox  * sizeof(double)			);
-	sp.ph_frac_wt     		= malloc(gv.len_ox  * sizeof(double)			);
-	sp.ph_frac_1at    		= malloc(gv.len_ox  * sizeof(double)			);
-	sp.ph_frac_vol     		= malloc(gv.len_ox  * sizeof(double)			);
-	for (int i = 0; i < gv.len_ox; i++){
-		sp.ph[i] 			= malloc(20 * sizeof(char));	
-		sp.sol_name[i] 		= malloc(20 * sizeof(char));	
+	int n_ph_max				= gv.len_ox + 2;
+	sp.ph 	     			= malloc(n_ph_max  * sizeof(char*)				);
+	sp.sol_name 	     	= malloc(n_ph_max  * sizeof(char*)				);
+	sp.ph_frac 	     		= malloc(n_ph_max  * sizeof(double)			);
+	sp.ph_frac_wt     		= malloc(n_ph_max  * sizeof(double)			);
+	sp.ph_frac_1at    		= malloc(n_ph_max  * sizeof(double)			);
+	sp.ph_frac_vol     		= malloc(n_ph_max  * sizeof(double)			);
+	for (int i = 0; i < n_ph_max; i++){
+		sp.ph[i] 			= malloc(20 * sizeof(char));
+		sp.sol_name[i] 		= malloc(20 * sizeof(char));
 	}
-	sp.ph_type 				= malloc(gv.len_ox 	* sizeof(int)				);	
-	sp.ph_id 				= malloc(gv.len_ox 	* sizeof(int)				);	
-	sp.ph_id_db 			= malloc(gv.len_ox 	* sizeof(int)				);	
-	sp.PP 		 			= malloc(gv.len_ox  * sizeof(stb_PP_phase)		); 
-	sp.SS 		 			= malloc(gv.len_ox  * sizeof(stb_SS_phase)		); 
+	sp.ph_type 				= malloc(n_ph_max 	* sizeof(int)				);
+	sp.ph_id 				= malloc(n_ph_max 	* sizeof(int)				);
+	sp.ph_id_db 			= malloc(n_ph_max 	* sizeof(int)				);
+	sp.PP 		 			= malloc(n_ph_max  * sizeof(stb_PP_phase)		);
+	sp.SS 		 			= malloc(n_ph_max  * sizeof(stb_SS_phase)		);
 	sp.mSS 		 			= malloc(gv.max_n_mSS  * sizeof(mstb_SS_phase)	); 
 
 	/* gv.len_ox*3 sufficed for every phase up to aq17; DEW (DEW2019 aqueous
@@ -422,7 +423,7 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 	   and the sp.mSS[] loop further down (same DEW-sized-endmember situation). */
 	int n_max_pc = (gv.len_ox*3 > gv.max_ss_size_cp) ? gv.len_ox*3 : gv.max_ss_size_cp;
 
-	for (int n = 0; n< gv.len_ox; n++){
+	for (int n = 0; n< n_ph_max; n++){
 		sp.PP[n].Comp 			= malloc(gv.len_ox 	* sizeof(double)		);
 		sp.SS[n].Comp 			= malloc(gv.len_ox 	* sizeof(double)		);
 		sp.PP[n].Comp_wt 		= malloc(gv.len_ox 	* sizeof(double)		);

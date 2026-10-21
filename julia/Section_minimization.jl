@@ -3,12 +3,15 @@
 
     Diagram axes `(x, y)` of each section type used by [`section_point`](@ref),
     [`multi_point_section`](@ref) and [`section_ranges`](@ref):
-    `:ps` → (S, P), `:pv` → (V, P), `:ts` → (T, S), `:tv` → (T, V), `:sv` → (S, V), `:ph` → (H, P), `:sh` → (S, H), `:vh` → (V, H).
+    `:ps` → (S, P), `:pv` → (V, P), `:ts` → (T, S), `:tv` → (T, V), `:sv` → (S, V), `:ph` → (H, P), `:sh` → (S, H), `:vh` → (V, H),
+    `:rh` → (ρ, H).
 
     Units: P [kbar], T [°C], S [kJ/K per mol of bulk oxides] (`out.entropy[1]`),
-    V [cm³ per mol of bulk oxides] (`out.V`) and H [kJ per mol of bulk oxides] (`out.enthalpy[1]`).
+    V [cm³ per mol of bulk oxides] (`out.V`), H [kJ per mol of bulk oxides] (`out.enthalpy[1]`) and
+    ρ [kg/m³] (`out.rho`, system density). For a fixed bulk ρ = 1000 M / V with M the molar mass of the bulk
+    [g per mol of oxides], so a ρ–H target is solved as the V–H target V = 1000 M / ρ.
 """
-const SECTION_XY = Dict(:ps => (:S, :P), :pv => (:V, :P), :ts => (:T, :S), :tv => (:T, :V), :sv => (:S, :V), :ph => (:H, :P), :sh => (:S, :H), :vh => (:V, :H))
+const SECTION_XY = Dict(:ps => (:S, :P), :pv => (:V, :P), :ts => (:T, :S), :tv => (:T, :V), :sv => (:S, :V), :ph => (:H, :P), :sh => (:S, :H), :vh => (:V, :H), :rh => (:rho, :H))
 
 """
     section_info
@@ -37,18 +40,18 @@ struct section_info
     residual    :: Float64
 end
 
-section_value(out, c::Symbol) = c === :P ? out.P_kbar : c === :T ? out.T_C : c === :S ? out.entropy[1] : c === :H ? out.enthalpy[1] : out.V
+section_value(out, c::Symbol) = c === :P ? out.P_kbar : c === :T ? out.T_C : c === :S ? out.entropy[1] : c === :H ? out.enthalpy[1] : c === :rho ? out.rho : out.V
 
 function section_targets(section::Symbol, x::Float64, y::Float64)
     haskey(SECTION_XY, section) || error("Unknown section $(section); use one of $(collect(keys(SECTION_XY)))")
     ax      = SECTION_XY[section]
     get_c(c) = ax[1] === c ? x : ax[2] === c ? y : NaN
-    return (P = get_c(:P), T = get_c(:T), S = get_c(:S), V = get_c(:V), H = get_c(:H))
+    return (P = get_c(:P), T = get_c(:T), S = get_c(:S), V = get_c(:V), H = get_c(:H), rho = get_c(:rho))
 end
 
 section_assemblage(out) = sort(out.ph)
 
-function section_state_union(a, wa::Float64, b, wb::Float64; dx::Float64 = 5e-2)
+function section_state_union(a, wa::Float64, b, wb::Float64; dx::Float64 = 5e-2, nfree::Int64 = 0)
     sa, sb  = equilibrium_state(a), equilibrium_state(b)
     ss_ids  = copy(sa.ss_ids)
     ss_n    = wa .* sa.ss_n
@@ -82,7 +85,7 @@ function section_state_union(a, wa::Float64, b, wb::Float64; dx::Float64 = 5e-2)
             pp_n[f] += wb*sb.pp_n[q]
         end
     end
-    nmax    = length(a.oxides)
+    nmax    = length(a.oxides) + nfree
     while length(ss_ids) + length(pp_ids) > nmax
         ks  = isempty(ss_n) ? 0 : argmin(ss_n)
         kp  = isempty(pp_n) ? 0 : argmin(pp_n)
@@ -118,7 +121,10 @@ end
     coordinate set.
 
     With `log_P` (default), 1-D sections with free pressure (`:ts`, `:tv`) step in log P, where
-    the volume of fluid-rich assemblages (V ∝ 1/P at low pressure) is close to linear.
+    the volume of fluid-rich assemblages (V ∝ 1/P at low pressure) is close to linear. `log_P_2d`
+    extends this to the 2-D sections (`:sv`, `:sh`, `:vh`, `:rh`): Broyden steps and finite-difference
+    Jacobians are then taken in (log P, T), which recovers low-pressure fluid-rich targets but spends
+    more iterations on unreachable ones (use it to re-solve isolated failures).
 
     Box bounds: by default a step leaving the box is clamped to the bound (1-D: the bound is
     evaluated once, a second step past it gives status 2; `:sv`/`:sh`/`:vh`: more than 4 clamped steps give
@@ -127,6 +133,9 @@ end
     a bound (status 2).
 
     TC, SB and BR databases are supported (section Newton step).
+
+    `:rh` (ρ–H) targets are converted to V–H targets with the bulk molar mass `M = ρ V / 1000` of the closest
+    seed (or of a point minimization at `(P0, T0)`), and solved as `:vh`.
 
     Returns `(out, info)`: `out::gmin_struct` at the solved `P_kbar`, `T_C`, and
     `info::section_info`.
@@ -150,6 +159,7 @@ function section_point( section     :: Symbol,
                         max_clamp   :: Union{Nothing, Int64} = nothing,
                         bound_tol   :: Union{Nothing, Float64} = nothing,
                         log_P       :: Bool = true,
+                        log_P_2d    :: Bool = false,
                         tol_G       :: Float64 = 1e-7,
                         warm        :: Bool = false,
                         verbose     :: Bool = false,
@@ -157,12 +167,29 @@ function section_point( section     :: Symbol,
                         seismic_cor = false, aspect_ratio = 0.3, seismic_water = 0, shallow_correction = false,
                         fluid_as_melt = false, anelastic_cor = false)
 
+    if section === :rh
+        probe = if !isnothing(seeds) && !isempty(seeds)
+            sc0 = isnothing(scales) ? (1.0, 1.0) : scales
+            seeds[argmin([((s.rho - x)/sc0[1])^2 + ((s.enthalpy[1] - y)/sc0[2])^2 for s in seeds])]
+        else
+            point_wise_minimization(isnothing(P0) ? 0.5*(Pbox[1] + Pbox[2]) : Float64(P0), isnothing(T0) ? 0.5*(Tbox[1] + Tbox[2]) : Float64(T0),
+                                    gv, z_b, DB, splx_data; buffer_n = buffer_n, rm_list = rm_list, W = W, scp = scp, name_solvus = name_solvus)
+        end
+        M   = probe.rho * probe.V / 1000.0
+        Vt  = 1000.0 * M / x
+        sc  = isnothing(scales) ? nothing : (scales[1] * Vt / x, scales[2])
+        return section_point(:vh, Vt, y, gv, z_b, DB, splx_data;
+                             Pbox, Tbox, seeds, P0, T0, scales = sc, buffer_n, rm_list, W, scp, name_solvus, maxit, max_clamp,
+                             bound_tol, log_P, log_P_2d, tol_G, warm, verbose, tol_point, seismic_cor, aspect_ratio, seismic_water,
+                             shallow_correction, fluid_as_melt, anelastic_cor)
+    end
+
     tg      = section_targets(section, x, y)
     fixP    = !isnan(tg.P)
     fixT    = !isnan(tg.T)
     rows    = [r for r in (:S, :V, :H) if !isnan(getfield(tg, r))]
     free    = [c for c in (:P, :T) if isnan(getfield(tg, c))]
-    lgP     = log_P && free == [:P] && Pbox[1] > 0.0
+    lgP     = log_P && Pbox[1] > 0.0 && (free == [:P] || (log_P_2d && :P in free))
     tP(v)   = lgP ? log(max(v, 1e-300)) : v
     uP(u)   = lgP ? exp(u) : u
     lo      = Dict(:P => tP(Pbox[1]), :T => Tbox[1])
@@ -271,7 +298,7 @@ function section_point( section     :: Symbol,
 
         if !isnothing(other)
             o, c        = other
-            res2, c2    = newton_accept(o.P_kbar, o.T_C, section_state_union(o, 0.5, c, 0.5), gof(c))
+            res2, c2    = newton_accept(o.P_kbar, o.T_C, section_state_union(o, 0.5, c, 0.5; nfree = length(free)), gof(c))
             isnothing(res2) || return finish(res2[1], 0, res2[2])
             record!(c)
             cur = c
@@ -306,7 +333,7 @@ function section_point( section     :: Symbol,
                     lam     = ra/(ra - rb)
                     thm     = a + lam*(b - a)
                     Pm, Tm  = f === :P ? (uP(thm), Ts) : (Ps, thm)
-                    st      = section_state_union(hist[ka].out, 1.0 - lam, hist[kb].out, lam)
+                    st      = section_state_union(hist[ka].out, 1.0 - lam, hist[kb].out, lam; nfree = length(free))
                     res3, _ = newton_accept(Pm, Tm, st, vcat(gof(hist[ka].out), gof(hist[kb].out)))
                     isnothing(res3) || return finish(res3[1], 0, res3[2])
                 end
@@ -350,8 +377,8 @@ function section_point( section     :: Symbol,
                 Jb = zeros(2, 2)
                 for (j, f) in enumerate(free)
                     h   = 1e-2*wid[f]*(th0[j] + 1e-2*wid[f] > hi[f] ? -1 : 1)
-                    Pn  = f === :P ? cur.P_kbar + h : cur.P_kbar
-                    Tn  = f === :T ? cur.T_C + h : cur.T_C
+                    Pn  = f === :P ? uP(th0[j] + h) : cur.P_kbar
+                    Tn  = f === :T ? th0[j] + h : cur.T_C
                     cf  = solve(Pn, Tn, gof(cur))
                     stable_ok(cf) || return finish(cur, 6, false)
                     Jb[:, j] = (resid(cf) .- r0) ./ h
@@ -378,14 +405,14 @@ function section_point( section     :: Symbol,
             end
             n_clamp += clamped
             n_clamp > something(max_clamp, 4) && return finish(cur, 4, false)
-            Pn = th0[findfirst(==(:P), free)] + step[findfirst(==(:P), free)]
+            Pn = uP(th0[findfirst(==(:P), free)] + step[findfirst(==(:P), free)])
             Tn = th0[findfirst(==(:T), free)] + step[findfirst(==(:T), free)]
         end
 
         c = solve(Pn, Tn, gof(cur))
         stable_ok(c) || return finish(cur, 6, false)
         if length(free) == 2 && section_assemblage(c) != section_assemblage(cur)
-            res4, _ = newton_accept(c.P_kbar, c.T_C, section_state_union(cur, 0.5, c, 0.5), gof(c))
+            res4, _ = newton_accept(c.P_kbar, c.T_C, section_state_union(cur, 0.5, c, 0.5; nfree = length(free)), gof(c))
             isnothing(res4) || return finish(res4[1], 0, res4[2])
         end
         record!(c)
@@ -466,7 +493,7 @@ function section_foreach(f::Function, n::Int)
 end
 
 """
-    multi_point_section(section, x, y, MAGEMin_db; Pbox, Tbox, seeds=nothing, grid=nothing, seed_grid=7, xrange=nothing, yrange=nothing, X=nothing, B=nothing, Xoxides=String[], sys_in="mol", test=0, rm_list=nothing, W=nothing, scp=0, name_solvus=true, max_clamp=:auto, bound_tol=1e-6, log_P=true, retry_passes=2, retry_maxit=16, retry_max_clamp=:auto, progressbar=true, callback_fn=nothing, callback_int=1, ...)
+    multi_point_section(section, x, y, MAGEMin_db; Pbox, Tbox, seeds=nothing, grid=nothing, seed_grid=7, xrange=nothing, yrange=nothing, X=nothing, B=nothing, Xoxides=String[], sys_in="mol", test=0, rm_list=nothing, W=nothing, scp=0, name_solvus=true, max_clamp=:auto, bound_tol=1e-6, log_P=true, log_P_2d=false, retry_passes=2, retry_maxit=16, retry_max_clamp=:auto, progressbar=true, callback_fn=nothing, callback_int=1, ...)
 
     Threaded [`section_point`](@ref) over the targets `(x[i], y[i])` of a thermodynamic section
     ([`SECTION_XY`](@ref)), with one MAGEMin handle per thread as in
@@ -480,7 +507,7 @@ end
     the composition axis of an S–X diagram). The retries (`retry_passes`, each attempt from one neighbour,
     all attempts in parallel) use at most `retry_maxit` iterations and stop after `retry_max_clamp` steps
     clamped on the search box. With `max_clamp = :auto` (default, also for `retry_max_clamp`),
-    2-D sections (`:sv`, `:sh`, `:vh`) leave a target blank as soon as a step leaves the box
+    2-D sections (`:sv`, `:sh`, `:vh`, `:rh`) leave a target blank as soon as a step leaves the box
     (`max_clamp = 0`, see [`section_point`](@ref)), while 1-D sections keep the clamp to the bound,
     which is evaluated once (`nothing`): 1-D properties such as V(P) of a fluid-rich bulk are very
     non-linear, and a secant step from a distant seed often overshoots the box although the target
@@ -522,6 +549,7 @@ function multi_point_section(section     :: Symbol,
                              max_clamp   = :auto,
                              bound_tol   :: Union{Nothing, Float64} = 1e-6,
                              log_P       :: Bool = true,
+                             log_P_2d    :: Bool = false,
                              xrange      = nothing,
                              yrange      = nothing,
                              X           = nothing,
@@ -602,7 +630,7 @@ function multi_point_section(section     :: Symbol,
         solve_i(sds) = section_point(section, x[i], y[i], gv, z_b, DB, splx_data;
                                     Pbox = Pbox, Tbox = Tbox, seeds = sds, scales = scales, buffer_n = bufs[i],
                                     rm_list = rm_list, W = W, scp = scp, name_solvus = name_solvus, maxit = maxit, warm = warm,
-                                    max_clamp = max_clamp, bound_tol = bound_tol, log_P = log_P,
+                                    max_clamp = max_clamp, bound_tol = bound_tol, log_P = log_P, log_P_2d = log_P_2d,
                                     seismic_cor = seismic_cor, aspect_ratio = aspect_ratio, seismic_water = seismic_water,
                                     shallow_correction = shallow_correction, fluid_as_melt = fluid_as_melt, anelastic_cor = anelastic_cor)
         out, info   = solve_i(sd)
@@ -658,7 +686,7 @@ function multi_point_section(section     :: Symbol,
             res[k]      = section_point(section, x[b], y[b], gv, z_b, DB, splx_data;
                                         Pbox = Pbox, Tbox = Tbox, seeds = [outs[g]], scales = scales, buffer_n = bufs[b],
                                         rm_list = rm_list, W = W, scp = scp, name_solvus = name_solvus, maxit = retry_maxit,
-                                        max_clamp = retry_max_clamp, bound_tol = bound_tol, log_P = log_P, warm = warm,
+                                        max_clamp = retry_max_clamp, bound_tol = bound_tol, log_P = log_P, log_P_2d = log_P_2d, warm = warm,
                                         seismic_cor = seismic_cor, aspect_ratio = aspect_ratio, seismic_water = seismic_water,
                                         shallow_correction = shallow_correction, fluid_as_melt = fluid_as_melt, anelastic_cor = anelastic_cor)
             isnothing(rprog) || next!(rprog)
