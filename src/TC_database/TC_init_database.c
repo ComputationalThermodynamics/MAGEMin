@@ -163,7 +163,7 @@ igneous_igd_dataset igneous_igd_db = {
 	{"spl"	,"cpx"	,"g"	,"ilm"	,"liq"	,"ol"	,"opx"	,"fsp"},
 	
 	{1		,1		,1		,1		,1 		,1 		,1 		,1 				}, // allow solvus?
-	{3946	,5547	,1124	,658	,4958	,279	,4213	,328			}, // # of pseudocompound
+	{3000	,4000	,1124	,658	,4958	,279	,4213	,328			}, // # of pseudocompound
 	{0.10	,0.10	,0.1	,0.05	,0.10	,0.05	,0.10	,0.09			}, // discretization step
 
 	6.0, 						/** max dG under which a phase is considered to be reintroduced  					*/
