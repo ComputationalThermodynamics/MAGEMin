@@ -29,6 +29,7 @@ The routine is the core of MAGEMin algorithm and is constructed around the Gibbs
 	//extern void dgetrf( int* M, int* N, double* A, int* lda, int* ipiv, int* info);
 	//extern void dgetrs(char* T, int* N, int* nrhs, double* A, int* lda, int* ipiv, double* B, int* ldb, int* info);
 	extern void dgesv( int* n, int* nrhs, double* a, int* lda, int* ipiv, double* b, int* ldb, int* info );
+	extern void dgelsd( int* m, int* n, int* nrhs, double* a, int* lda, double* b, int* ldb, double* s, double* rcond, int* rank, double* work, int* lwork, int* iwork, int* info );
 
 #else
 	#include <lapacke.h> 
@@ -70,6 +71,17 @@ The routine is the core of MAGEMin algorithm and is constructed around the Gibbs
 #define FN_SEC_DP 			1.0
 #define FN_SEC_DT 			20.0
 #define FN_SEC_TOL 			5e-8
+#define FN_S_TRACE 			1e-5
+#define FN_S_TRACE2 		1e-3
+#define FN_CG_TOL 			1e-6
+#define FN_ESC_TOL 			1e-6
+#define FN_ESC_MAX_ITE 		20
+#define FN_N_GHOST 			1e-10
+#define FN_N_SMALL 			1e-4
+#define FN_LSQ_RCOND 		1e-12
+#define FN_PRE_TOL 			1e-12
+#define FN_PRE_TOL_PG 		1e-9
+#define FN_PRE_DF 			1e-12
 
 typedef struct fn_secs {
 	int 		 use_S;
@@ -1898,24 +1910,92 @@ static void fn_restore_ss(			global_variable 	 gv,
 	}
 }
 
+static int fn_prepolish(			global_variable 	 gv,
+									SS_ref 				*d,
+									double 				*x				){
+	if (d->ns_ok != 1 || d->ns_fd != 0){ return 0; }
+	int 	n_x = d->n_xeos;
+	double 	x0[n_x];
+	for (int j = 0; j < n_x; j++){ x0[j] = x[j]; }
+	*d = rotate_hyperplane(gv, *d);
+	double df0 = d->ns_obj(n_x, x0, NULL, d);
+	for (int j = 0; j < n_x; j++){ d->iguess[j] = x0[j]; }
+	global_variable g = gv;
+	g.ns_tol 	= FN_PRE_TOL;
+	g.ns_tol_pg = FN_PRE_TOL_PG;
+	*d = NS_opt_function(g, *d);
+	if (d->ns_status != 3 || !(d->df <= df0 + FN_PRE_DF)){ return 0; }
+	for (int j = 0; j < n_x; j++){ x[j] = d->xeos[j]; }
+	return 1;
+}
+
+static int fn_lsq(					int 				 nz,
+									double 				*A,
+									double 				*b				){
+	int 	m 	  = nz;
+	int 	n 	  = nz;
+	int 	nrhs  = 1;
+	int 	lda   = nz;
+	int 	ldb   = nz;
+	int 	rank  = 0;
+	int 	info  = 0;
+	double 	rcond = FN_LSQ_RCOND;
+	double *sv 	  = malloc(nz*sizeof(double));
+	#if __APPLE__
+		int 	lwork = -1;
+		double 	wq 	  = 0.0;
+		int    *iw 	  = malloc((64*nz + 64)*sizeof(int));
+		dgelsd(&m, &n, &nrhs, A, &lda, b, &ldb, sv, &rcond, &rank, &wq, &lwork, iw, &info);
+		if (info == 0){
+			lwork 		 = (int)wq + 1;
+			double *work = malloc(lwork*sizeof(double));
+			dgelsd(&m, &n, &nrhs, A, &lda, b, &ldb, sv, &rcond, &rank, work, &lwork, iw, &info);
+			free(work);
+		}
+		free(iw);
+	#else
+		info = LAPACKE_dgelsd(LAPACK_COL_MAJOR, m, n, nrhs, A, lda, b, ldb, sv, rcond, &rank);
+	#endif
+	free(sv);
+	return info;
+}
+
 static int fn_basis(				SS_ref 				*d,
 									const double 		*sq,
-									double 				*Nq				){
+									double 				*Nq,
+									double 				 s_trace		){
 	int 	nc  = d->ns_nc;
 	int 	k0  = d->ns_n_dir0;
 	double 	v[k0 > 0 ? k0 : 1], Q[k0 > 0 ? k0*k0 : 1];
-	int 	act[nc];
+	int 	act[nc], trc[nc];
 	int 	n_q = 0;
 
 	for (int i = 0; i < nc; i++){
 		double nr = 0.0;
 		for (int kk = 0; kk < k0; kk++){ nr += fabs(d->ns_N0[i][kk]); }
-		act[i] = (d->ns_sf_state[i] == 0 && nr > FN_N_TOL && (sq[i] <= FN_S_FIX || sq[i] >= d->ns_ub[i] - FN_S_FIX));
+		int free_i = (d->ns_sf_state[i] == 0 && nr > FN_N_TOL);
+		act[i] = (free_i && (sq[i] <= FN_S_FIX || sq[i] >= d->ns_ub[i] - FN_S_FIX));
+		trc[i] = (free_i && act[i] == 0 && s_trace > FN_S_FIX && (sq[i] <= s_trace || sq[i] >= d->ns_ub[i] - s_trace));
 	}
 	for (int i = 0; i < nc; i++){
 		if (act[i] == 0){ continue; }
 		for (int kk = 0; kk < k0; kk++){ v[kk] = d->ns_N0[i][kk]; }
 		n_q += fn_orth_add(Q, n_q, k0, v);
+	}
+	for (;;){
+		int 	ib = -1;
+		double 	db = 0.0;
+		for (int i = 0; i < nc; i++){
+			if (trc[i] != 1){ continue; }
+			double dist = fmin(sq[i], d->ns_ub[i] - sq[i]);
+			if (ib < 0 || dist < db){ ib = i; db = dist; }
+		}
+		if (ib < 0){ break; }
+		trc[ib] = 2;
+		if (n_q >= k0 - 1){ continue; }
+		for (int kk = 0; kk < k0; kk++){ v[kk] = d->ns_N0[ib][kk]; }
+		n_q    += fn_orth_add(Q, n_q, k0, v);
+		act[ib] = 1;
 	}
 	int r_a = n_q;
 	for (int kk = 0; kk < k0; kk++){
@@ -2010,6 +2090,41 @@ static int fn_kkt_reserve(			fn_kkt 				*k,
 		return 1;
 	}
 	return 0;
+}
+
+static int fn_drop_ok(				global_variable 	 gv,
+									PP_ref 				*PP_ref_db,
+									SS_ref 				*SS_ref_db,
+									csd_phase_set  		*cp,
+									int 				 n_ph,
+									int 				 n_pp,
+									const int 			*ph_cp,
+									const int 			*pp_id,
+									const int 			*drop,
+									const double 		*gam			){
+	for (int q = 0; q < n_ph + n_pp; q++){
+		if (drop[q] == 0){ continue; }
+		if (q < n_ph){
+			int 	i     = ph_cp[q];
+			int 	ph_id = cp[i].id;
+			SS_ref *d     = &SS_ref_db[ph_id];
+			for (int k = 0; k < d->n_em; k++){
+				d->gb_lvl[k] = d->gbase[k];
+				for (int j = 0; j < gv.len_ox; j++){ d->gb_lvl[k] -= d->Comp[k][j]*gam[j]; }
+			}
+			for (int k = 0; k < cp[i].n_xeos; k++){ d->iguess[k] = cp[i].xeos[k]; }
+			SS_ref_db[ph_id] = NS_opt_function(		gv,
+														SS_ref_db[ph_id]		);
+			if (SS_ref_db[ph_id].ns_status != 3 || !(SS_ref_db[ph_id].df >= -FN_DF_TOL)){ return 0; }
+		}
+		else{
+			PP_ref *pp = &PP_ref_db[pp_id[q - n_ph]];
+			double  D  = pp->gbase*pp->factor;
+			for (int j = 0; j < gv.len_ox; j++){ D -= gam[j]*pp->Comp[j]*pp->factor; }
+			if (!(D >= -FN_DF_TOL)){ return 0; }
+		}
+	}
+	return 1;
 }
 
 static int fn_kkt_store(			global_variable 	 gv,
@@ -2124,7 +2239,7 @@ static global_variable fn_run(		bulk_info 	 		 z_b,
 	}
 	for (int i = 0; i < gv.len_pp; i++){
 		if (gv.pp_flags[i][1] != 1){ continue; }
-		if (n_pp >= gv.len_ox || gv.pp_flags[i][4] == 1){ return gv; }
+		if (n_pp >= gv.len_ox || (gv.pp_flags[i][4] == 1 && sc != NULL)){ return gv; }
 		pp_id[n_pp] = i;
 		n_pp       += 1;
 	}
@@ -2165,48 +2280,6 @@ static global_variable fn_run(		bulk_info 	 		 z_b,
 	for (int q = 0; q < n_ph; q++){ n0[q] = cp[ph_cp[q]].ss_n; }
 	for (int q = 0; q < n_pp; q++){ n0[n_ph + q] = gv.pp_n[pp_id[q]]; }
 
-	for (int q = 0; q < n_ph; q++){ fn_bounds(&SS_ref_db[cp[ph_cp[q]].id], 1.0); }
-
-	for (int q = 0; q < n_ph && set; q++){
-		SS_ref *d   = &SS_ref_db[cp[ph_cp[q]].id];
-		int     nc  = d->ns_nc;
-		int     k0  = d->ns_n_dir0;
-		double *sq  = &s0[off_s[q]];
-		double  x[d->n_xeos], r[nc], z[k0 > 0 ? k0 : 1];
-
-		for (int j = 0; j < d->n_xeos; j++){ x[j] = cp[ph_cp[q]].xeos[j]; }
-		if (d->ns_mode == 1 && d->ns_p2x == NULL){
-			double sx = 0.0;
-			for (int j = 0; j < d->n_xeos; j++){ sx += x[j]; }
-			if (sx > 0.0){ for (int j = 0; j < d->n_xeos; j++){ x[j] /= sx; } }
-		}
-		d->ns_obj(d->n_xeos, x, NULL, d);
-		double  sp  = 1.0;
-		if (d->ns_mode == 4){
-			sp = 0.0;
-			for (int i = 0; i < d->n_em; i++){ sp += d->p[i]; }
-			if (!(sp > 0.0)){ sp = 1.0; }
-		}
-		for (int i = 0; i < nc; i++){
-			r[i] = ((d->ns_mode == 3 || d->ns_mode == 4) ? ((i < d->n_em) ? d->p[i]/sp : 0.0) : d->sf[i]) - d->ns_sf0[i];
-		}
-		for (int kk = 0; kk < k0; kk++){
-			z[kk] = 0.0;
-			for (int i = 0; i < nc; i++){ z[kk] += d->ns_N0[i][kk]*r[i]; }
-		}
-		for (int i = 0; i < nc; i++){
-			double a = 0.0;
-			for (int kk = 0; kk < k0; kk++){ a += d->ns_N0[i][kk]*z[kk]; }
-			if (fabs(a - r[i]) > FN_PROJ_TOL){ set = 0; }
-			sq[i] = (d->ns_sf_state[i] == 0) ? d->ns_sf0[i] + a : d->ns_sf0[i];
-			if (sq[i] < -FN_S_FIX || sq[i] > d->ns_ub[i] + FN_S_FIX){ set = 0; }
-		}
-	}
-	if (set){
-		fn_add_xbounds(gv, SS_ref_db, cp, n_ph, ph_cp, off_s, s0, FN_X_TOL, cx_q, cx_j, cx_b, cx_sg, cx_on, &n_cx, n_dmax);
-	}
-
-	ok = set;
 	double 	r0   = 0.0;
 	double 	G0   = 0.0;
 	double 	Gc   = 0.0;
@@ -2215,203 +2288,318 @@ static global_variable fn_run(		bulk_info 	 		 z_b,
 	int 	done = 0;
 	int 	n_y  = 0;
 	double 	rmb  = 0.0;
-
-	int 	drop[n_ph + n_pp], push[n_ph + n_pp];
+	int 	drop[n_ph + n_pp], push[n_ph + n_pp], ghost[n_ph + n_pp];
 	int 	n_drop = 0;
-	int 	n_cx0  = n_cx;
-	for (int q = 0; q < n_ph + n_pp; q++){ drop[q] = 0; }
+	int 	n_cx0  = 0;
+	int 	esc_max = (sc == NULL) ? 3 : 0;
+	int 	ghost_fail = 0;
+	double 	n_tot0 = 0.0;
+	for (int q = 0; q < n_ph + n_pp; q++){ n_tot0 += fabs(n0[q]); }
 
-	for (int dr = 0; dr <= FN_MAX_DROP && set; dr++){
-		for (int q = 0; q < n_ph + n_pp; q++){ push[q] = 0; }
-		n_cx = n_cx0;
-		for (int c = 0; c < n_cx; c++){ cx_on[c] = (drop[cx_q[c]]) ? 0 : 1; }
-		ok   = 1;
-		done = 0;
-		for (int j = 0; j < gv.len_ox; j++){ gam[j] = gam0[j]; }
-		for (int i = 0; i < off_s[n_ph]; i++){ s[i] = s0[i]; }
-		for (int q = 0; q < n_ph + n_pp; q++){ n[q] = (drop[q]) ? 0.0 : n0[q]; } th[0] = th0[0]; th[1] = th0[1];
+	for (int esc = 0; esc <= esc_max; esc++){
+		if (esc == 3 && ghost_fail == 0){ break; }
+		if (esc == 2 && ghost_fail == 1){ continue; }
+		double 	s_trace = (esc == 0) ? 0.0 : (esc == 2) ? FN_S_TRACE2 : FN_S_TRACE;
+		n_cx = 0; set = 1; ok = 1;
+		r0 = 0.0; G0 = 0.0; Gc = 0.0; G1 = 0.0; ite = 0; done = 0; n_y = 0; rmb = 0.0; n_drop = 0;
 
-		for (int att = 0; att < FN_MAX_ATT && ok && done == 0; att++){
-			int n_cc = 0;
-			off_y[0] = 0;
-			off_c[0] = 0;
-			for (int q = 0; q < n_ph; q++){
-				SS_ref *d  = &SS_ref_db[cp[ph_cp[q]].id];
-				double *Nq = &Nb[off_N[q]];
-				int     k  = (drop[q]) ? 0 : fn_basis(d, &s[off_s[q]], Nq);
-				double  cg[k > 0 ? k : 1], Qx[k > 0 ? k*k : 1];
-				int     n_qx = 0;
+		for (int q = 0; q < n_ph; q++){ fn_bounds(&SS_ref_db[cp[ph_cp[q]].id], 1.0); }
 
-				off_y[q + 1] = off_y[q] + k;
-				for (int c = 0; c < n_cx && k > 0; c++){
-					if (cx_q[c] != q || cx_on[c] != 1){ continue; }
-					fn_xgrad(gv, d, &s[off_s[q]], Nq, k, cx_j[c], cg, NULL);
-					if (fn_orth_add(Qx, n_qx, k, cg) == 0){ continue; }
-					n_qx 	   += 1;
-					c_id[n_cc]  = c;
-					n_cc 	   += 1;
-				}
-				off_c[q + 1] = n_cc;
+		for (int q = 0; q < n_ph && set; q++){
+			SS_ref *d   = &SS_ref_db[cp[ph_cp[q]].id];
+			int     nc  = d->ns_nc;
+			int     k0  = d->ns_n_dir0;
+			double *sq  = &s0[off_s[q]];
+			double  x[d->n_xeos], r[nc], z[k0 > 0 ? k0 : 1];
+
+			for (int j = 0; j < d->n_xeos; j++){ x[j] = cp[ph_cp[q]].xeos[j]; }
+			if (esc > 0){
+				fn_prepolish(gv, d, x);
+				fn_bounds(d, 1.0);
 			}
-			n_y    = off_y[n_ph];
-			int nz = m + n_y + n_cc + n_ph + n_pp + n_th;
-			int cm = m + n_y;
-			int cn = m + n_y + n_cc;
-			if (nz > gv.fn_nz_max){ ok = 0; break; }
-
-			double R[nz], Rt[nz];
-			for (int c = 0; c < n_cc; c++){ mu[c] = 0.0; }
-
-			if (fn_system(gv, z_b, PP_ref_db, SS_ref_db, cp, n_ph, n_pp, ph_cp, pp_id, off_y, off_s, off_N, Nb, off_c, c_id, cx_j, cx_b, gam, s, mu, n, drop, R, NULL, sc, th) != 0){ ok = 0; break; }
-			r0 = fn_norm(R, nz);
-			if (att == 0 && dr == 0){
-				G0 = fn_G_system(gv, PP_ref_db, SS_ref_db, cp, n_ph, n_pp, ph_cp, pp_id, off_s, s, n);
-				Gc = G0;
-				for (int jj = 0; jj < m; jj++){
-					double rj = R[n_y + n_cc + n_ph + n_pp + jj];
-					Gc  -= gam[z_b.nzEl_array[jj]]*rj;
-					rmb += rj*rj;
-				}
+			if (d->ns_mode == 1 && d->ns_p2x == NULL){
+				double sx = 0.0;
+				for (int j = 0; j < d->n_xeos; j++){ sx += x[j]; }
+				if (sx > 0.0){ for (int j = 0; j < d->n_xeos; j++){ x[j] /= sx; } }
 			}
-			ite = 0;
+			d->ns_obj(d->n_xeos, x, NULL, d);
+			double  sp  = 1.0;
+			if (d->ns_mode == 4){
+				sp = 0.0;
+				for (int i = 0; i < d->n_em; i++){ sp += d->p[i]; }
+				if (!(sp > 0.0)){ sp = 1.0; }
+			}
+			for (int i = 0; i < nc; i++){
+				r[i] = ((d->ns_mode == 3 || d->ns_mode == 4) ? ((i < d->n_em) ? d->p[i]/sp : 0.0) : d->sf[i]) - d->ns_sf0[i];
+			}
+			for (int kk = 0; kk < k0; kk++){
+				z[kk] = 0.0;
+				for (int i = 0; i < nc; i++){ z[kk] += d->ns_N0[i][kk]*r[i]; }
+			}
+			for (int i = 0; i < nc; i++){
+				double a = 0.0;
+				for (int kk = 0; kk < k0; kk++){ a += d->ns_N0[i][kk]*z[kk]; }
+				if (fabs(a - r[i]) > FN_PROJ_TOL){ set = 0; }
+				sq[i] = (d->ns_sf_state[i] == 0) ? d->ns_sf0[i] + a : d->ns_sf0[i];
+				if (sq[i] < -FN_S_FIX || sq[i] > d->ns_ub[i] + FN_S_FIX){ set = 0; }
+			}
+		}
+		if (set){
+			fn_add_xbounds(gv, SS_ref_db, cp, n_ph, ph_cp, off_s, s0, FN_X_TOL, cx_q, cx_j, cx_b, cx_sg, cx_on, &n_cx, n_dmax);
+		}
 
-			double 	r_tol = (sc != NULL) ? FN_SEC_TOL : FN_TOL;
-			while (ok && r0 > r_tol && ite < ((sc != NULL) ? FN_SEC_MAX_ITE : FN_MAX_ITE)){
-				if (fn_system(gv, z_b, PP_ref_db, SS_ref_db, cp, n_ph, n_pp, ph_cp, pp_id, off_y, off_s, off_N, Nb, off_c, c_id, cx_j, cx_b, gam, s, mu, n, drop, R, gv.fn_A, sc, th) != 0){ ok = 0; break; }
-				for (int i = 0; i < nz; i++){ gv.fn_b[i] = -R[i]; }
+		ok = set;
+		n_cx0 = n_cx;
+		for (int q = 0; q < n_ph + n_pp; q++){ drop[q] = 0; ghost[q] = 0; }
+		if (esc > 0){
+			for (int q = 0; q < n_ph + n_pp; q++){
+				if (!(n0[q] < FN_N_GHOST*n_tot0)){ continue; }
+				if (esc == 3){ ghost[q] = 1; }
+				else{ drop[q] = 1; n_drop += 1; }
+			}
+		}
 
-				int 	nrhs = 1;
-				int 	lda  = nz;
-				int 	info = 0;
-				#if __APPLE__
-					dgesv(&nz, &nrhs, gv.fn_A, &lda, gv.fn_ipiv, gv.fn_b, &lda, &info);
-				#else
-					info = LAPACKE_dgesv(LAPACK_COL_MAJOR, nz, nrhs, gv.fn_A, lda, gv.fn_ipiv, gv.fn_b, lda);
-				#endif
-				if (info != 0){ ok = 0; break; }
+		for (int dr = 0; dr <= FN_MAX_DROP && set; dr++){
+			for (int q = 0; q < n_ph + n_pp; q++){ push[q] = 0; }
+			n_cx = n_cx0;
+			for (int c = 0; c < n_cx; c++){ cx_on[c] = (drop[cx_q[c]]) ? 0 : 1; }
+			ok   = 1;
+			done = 0;
+			for (int j = 0; j < gv.len_ox; j++){ gam[j] = gam0[j]; }
+			for (int i = 0; i < off_s[n_ph]; i++){ s[i] = s0[i]; }
+			for (int q = 0; q < n_ph + n_pp; q++){ n[q] = (drop[q]) ? 0.0 : n0[q]; } th[0] = th0[0]; th[1] = th0[1];
 
-				double alpha = 1.0;
+			for (int att = 0; att < FN_MAX_ATT && ok && done == 0; att++){
+				int n_cc = 0;
+				off_y[0] = 0;
+				off_c[0] = 0;
 				for (int q = 0; q < n_ph; q++){
-					SS_ref 		 *d  = &SS_ref_db[cp[ph_cp[q]].id];
-					int 		  k  = off_y[q + 1] - off_y[q];
-					const double *Nq = &Nb[off_N[q]];
-					const double *dy = &gv.fn_b[m + off_y[q]];
-					for (int i = 0; i < d->ns_nc; i++){
-						double ds = 0.0;
-						for (int kk = 0; kk < k; kk++){ ds += Nq[i*k + kk]*dy[kk]; }
-						double si = s[off_s[q] + i];
-						if (ds < 0.0 && FN_FRAC_S*si/(-ds) < alpha){ alpha = FN_FRAC_S*si/(-ds); }
-						if (ds > 0.0 && FN_FRAC_S*(d->ns_ub[i] - si)/ds < alpha){ alpha = FN_FRAC_S*(d->ns_ub[i] - si)/ds; }
+					SS_ref *d  = &SS_ref_db[cp[ph_cp[q]].id];
+					double *Nq = &Nb[off_N[q]];
+					int     k  = (drop[q]) ? 0 : fn_basis(d, &s[off_s[q]], Nq, s_trace);
+					double  cg[k > 0 ? k : 1], Qx[k > 0 ? k*k : 1];
+					int     n_qx = 0;
+
+					off_y[q + 1] = off_y[q] + k;
+					for (int c = 0; c < n_cx && k > 0; c++){
+						if (cx_q[c] != q || cx_on[c] != 1){ continue; }
+						fn_xgrad(gv, d, &s[off_s[q]], Nq, k, cx_j[c], cg, NULL);
+						if (s_trace > 0.0){
+							double nc2 = 0.0;
+							for (int kk = 0; kk < k; kk++){ nc2 += cg[kk]*cg[kk]; }
+							if (!(sqrt(nc2) > FN_CG_TOL)){ continue; }
+						}
+						if (fn_orth_add(Qx, n_qx, k, cg) == 0){ continue; }
+						n_qx 	   += 1;
+						c_id[n_cc]  = c;
+						n_cc 	   += 1;
+					}
+					off_c[q + 1] = n_cc;
+				}
+				n_y    = off_y[n_ph];
+				int nz = m + n_y + n_cc + n_ph + n_pp + n_th;
+				int cm = m + n_y;
+				int cn = m + n_y + n_cc;
+				if (nz > gv.fn_nz_max){ ok = 0; break; }
+
+				double R[nz], Rt[nz];
+				for (int c = 0; c < n_cc; c++){ mu[c] = 0.0; }
+
+				if (fn_system(gv, z_b, PP_ref_db, SS_ref_db, cp, n_ph, n_pp, ph_cp, pp_id, off_y, off_s, off_N, Nb, off_c, c_id, cx_j, cx_b, gam, s, mu, n, drop, R, NULL, sc, th) != 0){ ok = 0; break; }
+				r0 = fn_norm(R, nz);
+				if (att == 0 && dr == 0){
+					G0 = fn_G_system(gv, PP_ref_db, SS_ref_db, cp, n_ph, n_pp, ph_cp, pp_id, off_s, s, n);
+					Gc = G0;
+					for (int jj = 0; jj < m; jj++){
+						double rj = R[n_y + n_cc + n_ph + n_pp + jj];
+						Gc  -= gam[z_b.nzEl_array[jj]]*rj;
+						rmb += rj*rj;
 					}
 				}
-				for (int q = 0; q < n_ph + n_pp; q++){
-					double dn = gv.fn_b[cn + q];
-					if (drop[q]){ continue; }
-					if (dn < 0.0 && n[q] + dn <= 0.0){ push[q] += 1; }
-					if (dn < 0.0 && FN_FRAC*n[q]/(-dn) < alpha){ alpha = FN_FRAC*n[q]/(-dn); }
-				}
+				ite = 0;
+				int 	use_lsq = 0;
 
-				double 	dth[2] = {0.0, 0.0};
-				if (sc != NULL){
-					int ct = m + n_y + n_cc + n_ph + n_pp;
-					if (sc->free_P){ dth[0] = gv.fn_b[ct]; }
-					if (sc->free_T){ dth[1] = gv.fn_b[ct + sc->free_P]; }
-					if (fabs(alpha*dth[0]) > FN_SEC_DP){ alpha = FN_SEC_DP/fabs(dth[0]); }
-					if (fabs(alpha*dth[1]) > FN_SEC_DT){ alpha = FN_SEC_DT/fabs(dth[1]); }
-				}
+				double 	r_tol = (sc != NULL) ? FN_SEC_TOL : FN_TOL;
+				while (ok && r0 > r_tol && ite < ((sc != NULL) ? FN_SEC_MAX_ITE : (esc > 0) ? FN_ESC_MAX_ITE : FN_MAX_ITE)){
+					if (fn_system(gv, z_b, PP_ref_db, SS_ref_db, cp, n_ph, n_pp, ph_cp, pp_id, off_y, off_s, off_N, Nb, off_c, c_id, cx_j, cx_b, gam, s, mu, n, drop, R, gv.fn_A, sc, th) != 0){ ok = 0; break; }
+					for (int i = 0; i < nz; i++){ gv.fn_b[i] = -R[i]; }
 
-				int 	acc = 0;
-				double 	r1  = r0;
-				for (int ls = 0; ls < FN_MAX_LS && acc == 0; ls++){
-					for (int j = 0; j < gv.len_ox; j++){ gamt[j] = gam[j]; }
-					for (int jj = 0; jj < m; jj++){ gamt[z_b.nzEl_array[jj]] += alpha*gv.fn_b[jj]; }
+					int 	nrhs = 1;
+					int 	lda  = nz;
+					int 	info = 0;
+					double *A_sv = NULL;
+					double *b_sv = NULL;
+					if (esc > 0){
+						A_sv = malloc(nz*nz*sizeof(double));
+						b_sv = malloc(nz*sizeof(double));
+						memcpy(A_sv, gv.fn_A, nz*nz*sizeof(double));
+						memcpy(b_sv, gv.fn_b, nz*sizeof(double));
+					}
+					if (use_lsq == 0){
+					#if __APPLE__
+						dgesv(&nz, &nrhs, gv.fn_A, &lda, gv.fn_ipiv, gv.fn_b, &lda, &info);
+					#else
+						info = LAPACKE_dgesv(LAPACK_COL_MAJOR, nz, nrhs, gv.fn_A, lda, gv.fn_ipiv, gv.fn_b, lda);
+					#endif
+					}
+					if (esc > 0 && (info != 0 || use_lsq == 1)){
+						info = fn_lsq(nz, A_sv, b_sv);
+						if (info == 0){ memcpy(gv.fn_b, b_sv, nz*sizeof(double)); }
+					}
+					free(A_sv);
+					free(b_sv);
+					if (info != 0){ ok = 0; break; }
+
+					double alpha = 1.0;
+					for (int q = 0; q < n_ph; q++){
+						SS_ref 		 *d  = &SS_ref_db[cp[ph_cp[q]].id];
+						int 		  k  = off_y[q + 1] - off_y[q];
+						const double *Nq = &Nb[off_N[q]];
+						const double *dy = &gv.fn_b[m + off_y[q]];
+						for (int i = 0; i < d->ns_nc; i++){
+							double ds = 0.0;
+							for (int kk = 0; kk < k; kk++){ ds += Nq[i*k + kk]*dy[kk]; }
+							double si = s[off_s[q] + i];
+							if (ds < 0.0 && FN_FRAC_S*si/(-ds) < alpha){ alpha = FN_FRAC_S*si/(-ds); }
+							if (ds > 0.0 && FN_FRAC_S*(d->ns_ub[i] - si)/ds < alpha){ alpha = FN_FRAC_S*(d->ns_ub[i] - si)/ds; }
+						}
+					}
+					for (int q = 0; q < n_ph + n_pp; q++){
+						double dn = gv.fn_b[cn + q];
+						if (drop[q]){ continue; }
+						if (ghost[q]){ continue; }
+						if (dn < 0.0 && n[q] + dn <= 0.0){ push[q] += 1; }
+						if (dn < 0.0 && FN_FRAC*n[q]/(-dn) < alpha){ alpha = FN_FRAC*n[q]/(-dn); }
+					}
+
+					double 	dth[2] = {0.0, 0.0};
+					if (sc != NULL){
+						int ct = m + n_y + n_cc + n_ph + n_pp;
+						if (sc->free_P){ dth[0] = gv.fn_b[ct]; }
+						if (sc->free_T){ dth[1] = gv.fn_b[ct + sc->free_P]; }
+						if (fabs(alpha*dth[0]) > FN_SEC_DP){ alpha = FN_SEC_DP/fabs(dth[0]); }
+						if (fabs(alpha*dth[1]) > FN_SEC_DT){ alpha = FN_SEC_DT/fabs(dth[1]); }
+					}
+
+					int 	acc = 0;
+					double 	r1  = r0;
+					for (int ls = 0; ls < FN_MAX_LS && acc == 0; ls++){
+						for (int j = 0; j < gv.len_ox; j++){ gamt[j] = gam[j]; }
+						for (int jj = 0; jj < m; jj++){ gamt[z_b.nzEl_array[jj]] += alpha*gv.fn_b[jj]; }
+						for (int q = 0; q < n_ph; q++){
+							SS_ref *d = &SS_ref_db[cp[ph_cp[q]].id];
+							int     k = off_y[q + 1] - off_y[q];
+							double  dy[k > 0 ? k : 1];
+							for (int kk = 0; kk < k; kk++){ dy[kk] = alpha*gv.fn_b[m + off_y[q] + kk]; }
+							fn_shift(d, &s[off_s[q]], &Nb[off_N[q]], k, dy, &st[off_s[q]]);
+						}
+						for (int c = 0; c < n_cc; c++){ mut[c] = mu[c] + alpha*gv.fn_b[cm + c]; }
+						for (int q = 0; q < n_ph + n_pp; q++){ nt[q] = n[q] + alpha*gv.fn_b[cn + q]; }
+						tht[0] = th[0] + alpha*dth[0];
+						tht[1] = th[1] + alpha*dth[1];
+
+						if (fn_system(gv, z_b, PP_ref_db, SS_ref_db, cp, n_ph, n_pp, ph_cp, pp_id, off_y, off_s, off_N, Nb, off_c, c_id, cx_j, cx_b, gamt, st, mut, nt, drop, Rt, NULL, sc, tht) == 0){
+							r1 = fn_norm(Rt, nz);
+							if (r1 < r0 || r1 <= r_tol){ acc = 1; }
+						}
+						if (acc == 0){ alpha *= 0.5; }
+					}
+					if (acc == 0){
+						if (esc > 0 && use_lsq == 0 && r0 > FN_ESC_TOL){ use_lsq = 1; continue; }
+						if (!(esc > 0 && r0 <= FN_ESC_TOL)){ ok = 0; }
+						break;
+					}
+
+					for (int j = 0; j < gv.len_ox; j++){ gam[j] = gamt[j]; }
+					for (int i = 0; i < off_s[n_ph]; i++){ s[i] = st[i]; }
+					for (int c = 0; c < n_cc; c++){ mu[c] = mut[c]; }
+					for (int q = 0; q < n_ph + n_pp; q++){ n[q] = nt[q]; }
+					th[0] = tht[0];
+					th[1] = tht[1];
+					r0   = r1;
+					ite += 1;
+				}
+				if (r0 > ((esc > 0) ? FN_ESC_TOL : r_tol)){ ok = 0; }
+				if (!ok){
+					int n_new = fn_add_xbounds(gv, SS_ref_db, cp, n_ph, ph_cp, off_s, s0, FN_X_ACT, cx_q, cx_j, cx_b, cx_sg, cx_on, &n_cx, n_dmax)
+							  + fn_add_xbounds(gv, SS_ref_db, cp, n_ph, ph_cp, off_s, s, FN_X_ACT, cx_q, cx_j, cx_b, cx_sg, cx_on, &n_cx, n_dmax);
+					int n_fix = 0;
 					for (int q = 0; q < n_ph; q++){
 						SS_ref *d = &SS_ref_db[cp[ph_cp[q]].id];
 						int     k = off_y[q + 1] - off_y[q];
-						double  dy[k > 0 ? k : 1];
-						for (int kk = 0; kk < k; kk++){ dy[kk] = alpha*gv.fn_b[m + off_y[q] + kk]; }
-						fn_shift(d, &s[off_s[q]], &Nb[off_N[q]], k, dy, &st[off_s[q]]);
+						for (int i = 0; i < d->ns_nc; i++){
+							double v = 0.0;
+							for (int kk = 0; kk < k; kk++){ v += fabs(Nb[off_N[q] + i*k + kk]); }
+							double si = s[off_s[q] + i];
+							if (v > 0.0 && (si <= FN_S_FIX || si >= d->ns_ub[i] - FN_S_FIX)){ n_fix += 1; }
+						}
 					}
-					for (int c = 0; c < n_cc; c++){ mut[c] = mu[c] + alpha*gv.fn_b[cm + c]; }
-					for (int q = 0; q < n_ph + n_pp; q++){ nt[q] = n[q] + alpha*gv.fn_b[cn + q]; }
-					tht[0] = th[0] + alpha*dth[0];
-					tht[1] = th[1] + alpha*dth[1];
-
-					if (fn_system(gv, z_b, PP_ref_db, SS_ref_db, cp, n_ph, n_pp, ph_cp, pp_id, off_y, off_s, off_N, Nb, off_c, c_id, cx_j, cx_b, gamt, st, mut, nt, drop, Rt, NULL, sc, tht) == 0){
-						r1 = fn_norm(Rt, nz);
-						if (r1 < r0 || r1 <= r_tol){ acc = 1; }
+					if (n_new > 0 && att < FN_MAX_ATT - 1){
+						for (int j = 0; j < gv.len_ox; j++){ gam[j] = gam0[j]; }
+						for (int i = 0; i < off_s[n_ph]; i++){ s[i] = s0[i]; }
+						for (int q = 0; q < n_ph + n_pp; q++){ n[q] = (drop[q]) ? 0.0 : n0[q]; } th[0] = th0[0]; th[1] = th0[1];
+						ok = 1;
+						continue;
 					}
-					if (acc == 0){ alpha *= 0.5; }
+					if (n_fix > 0 && att < FN_MAX_ATT - 1){ ok = 1; continue; }
+					break;
 				}
-				if (acc == 0){ ok = 0; break; }
 
-				for (int j = 0; j < gv.len_ox; j++){ gam[j] = gamt[j]; }
-				for (int i = 0; i < off_s[n_ph]; i++){ s[i] = st[i]; }
-				for (int c = 0; c < n_cc; c++){ mu[c] = mut[c]; }
-				for (int q = 0; q < n_ph + n_pp; q++){ n[q] = nt[q]; }
-				th[0] = tht[0];
-				th[1] = tht[1];
-				r0   = r1;
-				ite += 1;
-			}
-			if (r0 > r_tol){ ok = 0; }
-			if (!ok){
-				int n_new = fn_add_xbounds(gv, SS_ref_db, cp, n_ph, ph_cp, off_s, s0, FN_X_ACT, cx_q, cx_j, cx_b, cx_sg, cx_on, &n_cx, n_dmax)
-						  + fn_add_xbounds(gv, SS_ref_db, cp, n_ph, ph_cp, off_s, s, FN_X_ACT, cx_q, cx_j, cx_b, cx_sg, cx_on, &n_cx, n_dmax);
-				int n_fix = 0;
-				for (int q = 0; q < n_ph; q++){
-					SS_ref *d = &SS_ref_db[cp[ph_cp[q]].id];
-					int     k = off_y[q + 1] - off_y[q];
-					for (int i = 0; i < d->ns_nc; i++){
-						double v = 0.0;
-						for (int kk = 0; kk < k; kk++){ v += fabs(Nb[off_N[q] + i*k + kk]); }
-						double si = s[off_s[q] + i];
-						if (v > 0.0 && (si <= FN_S_FIX || si >= d->ns_ub[i] - FN_S_FIX)){ n_fix += 1; }
-					}
+				int n_rel = 0;
+				int n_add = 0;
+				for (int c = 0; c < n_cc; c++){
+					if (cx_sg[c_id[c]]*mu[c] < -FN_MU_TOL){ cx_on[c_id[c]] = 0; n_rel += 1; }
 				}
-				if (n_new > 0 && att < FN_MAX_ATT - 1){
+				if (n_rel == 0){
+					n_add = fn_add_xbounds(gv, SS_ref_db, cp, n_ph, ph_cp, off_s, s, -FN_X_TOL, cx_q, cx_j, cx_b, cx_sg, cx_on, &n_cx, n_dmax);
+				}
+				if (n_rel == 0 && n_add == 0){ done = 1; }
+				else if (att == FN_MAX_ATT - 1){ ok = 0; }
+				else if (sc == NULL){
 					for (int j = 0; j < gv.len_ox; j++){ gam[j] = gam0[j]; }
 					for (int i = 0; i < off_s[n_ph]; i++){ s[i] = s0[i]; }
 					for (int q = 0; q < n_ph + n_pp; q++){ n[q] = (drop[q]) ? 0.0 : n0[q]; } th[0] = th0[0]; th[1] = th0[1];
-					ok = 1;
-					continue;
 				}
-				if (n_fix > 0 && att < FN_MAX_ATT - 1){ ok = 1; continue; }
-				break;
 			}
+			if (done == 0){ ok = 0; }
+			if (ok){
+				for (int q = 0; q < n_ph + n_pp; q++){
+					if (ghost[q]){
+						if (!(fabs(n[q]) <= FN_N_GHOST*n_tot0)){ ok = 0; }
+						continue;
+					}
+					if (drop[q] == 0 && !(n[q] > 0.0)){ push[q] += 1; ok = 0; }
+				}
+			}
+			if (ok){ break; }
 
-			int n_rel = 0;
-			int n_add = 0;
-			for (int c = 0; c < n_cc; c++){
-				if (cx_sg[c_id[c]]*mu[c] < -FN_MU_TOL){ cx_on[c_id[c]] = 0; n_rel += 1; }
-			}
-			if (n_rel == 0){
-				n_add = fn_add_xbounds(gv, SS_ref_db, cp, n_ph, ph_cp, off_s, s, -FN_X_TOL, cx_q, cx_j, cx_b, cx_sg, cx_on, &n_cx, n_dmax);
-			}
-			if (n_rel == 0 && n_add == 0){ done = 1; }
-			else if (att == FN_MAX_ATT - 1){ ok = 0; }
-			else if (sc == NULL){
-				for (int j = 0; j < gv.len_ox; j++){ gam[j] = gam0[j]; }
-				for (int i = 0; i < off_s[n_ph]; i++){ s[i] = s0[i]; }
-				for (int q = 0; q < n_ph + n_pp; q++){ n[q] = (drop[q]) ? 0.0 : n0[q]; } th[0] = th0[0]; th[1] = th0[1];
-			}
-		}
-		if (done == 0){ ok = 0; }
-		if (ok){
+			int qd = -1;
 			for (int q = 0; q < n_ph + n_pp; q++){
-				if (drop[q] == 0 && !(n[q] > 0.0)){ push[q] += 1; ok = 0; }
+				if (drop[q] == 1 || push[q] == 0){ continue; }
+				if (qd < 0 || push[q] > push[qd] || (push[q] == push[qd] && n[q]/n0[q] < n[qd]/n0[qd])){ qd = q; }
 			}
+			if (qd < 0 && esc > 0){
+				double n_tot = 0.0;
+				for (int q = 0; q < n_ph + n_pp; q++){ n_tot += fabs(n0[q]); }
+				for (int q = 0; q < n_ph + n_pp; q++){
+					if (drop[q] == 1 || !(n0[q] < FN_N_SMALL*n_tot)){ continue; }
+					if (qd < 0 || n0[q] < n0[qd]){ qd = q; }
+				}
+			}
+			if (qd < 0 || dr == FN_MAX_DROP){ break; }
+			drop[qd] = 1;
+			n_drop 	+= 1;
+		}
+		if (ok && sc == NULL && esc < esc_max){
+			double Gt = fn_G_system(gv, PP_ref_db, SS_ref_db, cp, n_ph, n_pp, ph_cp, pp_id, off_s, s, n);
+			if (!(Gt <= Gc + FN_G_TOL + FN_G_MB*rmb)){ ok = 0; }
+		}
+		if (ok && sc == NULL && esc > 0 && esc < 3 && n_drop > 0){
+			int gd = 0;
+			for (int q = 0; q < n_ph + n_pp; q++){ if (drop[q] && n0[q] < FN_N_GHOST*n_tot0){ gd = 1; } }
+			if (gd && !fn_drop_ok(gv, PP_ref_db, SS_ref_db, cp, n_ph, n_pp, ph_cp, pp_id, drop, gam)){ ok = 0; ghost_fail = 1; }
 		}
 		if (ok){ break; }
-
-		int qd = -1;
-		for (int q = 0; q < n_ph + n_pp; q++){
-			if (drop[q] == 1 || push[q] == 0){ continue; }
-			if (qd < 0 || push[q] > push[qd] || (push[q] == push[qd] && n[q]/n0[q] < n[qd]/n0[qd])){ qd = q; }
-		}
-		if (qd < 0 || dr == FN_MAX_DROP){ break; }
-		drop[qd] = 1;
-		n_drop 	+= 1;
 	}
 
 	if (ok && sc != NULL){
@@ -2447,28 +2635,15 @@ static global_variable fn_run(		bulk_info 	 		 z_b,
 		kkt = (fn_kkt_store(gv, z_b, PP_ref_db, SS_ref_db, cp, n_ph, n_pp, ph_cp, pp_id, off_y, off_s, off_N, Nb, off_c, c_id, cx_j, cx_b, gam, s, mu, n, drop, G1, gv.fn_sys) == 0);
 	}
 
-	for (int q = 0; q < n_ph + n_pp && ok && n_drop > 0; q++){
-		if (drop[q] == 0){ continue; }
-		if (q < n_ph){
-			int 	i     = ph_cp[q];
-			int 	ph_id = cp[i].id;
-			SS_ref *d     = &SS_ref_db[ph_id];
-			for (int k = 0; k < d->n_em; k++){
-				d->gb_lvl[k] = d->gbase[k];
-				for (int j = 0; j < gv.len_ox; j++){ d->gb_lvl[k] -= d->Comp[k][j]*gam[j]; }
-			}
-			for (int k = 0; k < cp[i].n_xeos; k++){ d->iguess[k] = cp[i].xeos[k]; }
-			SS_ref_db[ph_id] = NS_opt_function(		gv,
-														SS_ref_db[ph_id]		);
-			if (SS_ref_db[ph_id].ns_status != 3 || !(SS_ref_db[ph_id].df >= -FN_DF_TOL)){ ok = 0; }
-		}
-		else{
-			PP_ref *pp = &PP_ref_db[pp_id[q - n_ph]];
-			double  D  = pp->gbase*pp->factor;
-			for (int j = 0; j < gv.len_ox; j++){ D -= gam[j]*pp->Comp[j]*pp->factor; }
-			if (!(D >= -FN_DF_TOL)){ ok = 0; }
+	if (ok){
+		for (int q = 0; q < n_ph + n_pp; q++){
+			if (ghost[q] == 0){ continue; }
+			drop[q] = 1;
+			n[q] 	= 0.0;
+			n_drop += 1;
 		}
 	}
+	if (ok && n_drop > 0 && !fn_drop_ok(gv, PP_ref_db, SS_ref_db, cp, n_ph, n_pp, ph_cp, pp_id, drop, gam)){ ok = 0; }
 
 	if (ok){
 		for (int j = 0; j < gv.len_ox; j++){ gv.gam_tot[j] = gam[j]; }

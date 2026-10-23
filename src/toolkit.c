@@ -51,7 +51,7 @@ void print_help(	global_variable gv	){
 	printf("  --File=       [str]   : File name containing multiple point calculation\n");
 	printf("  --n_points=   [int]   : Number of points when using 'File' argument\n");
 	printf("  --rg=         [str]   : ResearchGroup, can be 'tc', 'sb', 'gh' or 'br' (THERMOCALC, Stixrude-Lithgow-Bertelloni, Ghiorso/MELTS, Berman/Pourteau)\n");
-	printf("  --db=         [str]   : Database, can be 'mp', 'ig', 'igad', 'um'or 'ume'* for TC, 2011/2024 for SB, 'xMELTS'/'rMELTS'/'pMELTS' for GH, or 'po' for BR\n");
+	printf("  --db=         [str]   : Database, can be 'mp', 'ig', 'igaw', 'igad', 'um'or 'ume'* for TC, 2011/2024 for SB, 'xMELTS'/'rMELTS'/'pMELTS' for GH, or 'po' for BR\n");
 	printf("  --ds=         [int]   : TC End-member dataset, 62, 633 or 634 (stands for ds6xx)\n");
 	printf("  --test=       [int]   : Number of points when using 'File' argument\n");
 	printf("  --Pres=       [float] : Pressure in kilobar\n");
@@ -71,10 +71,11 @@ void print_help(	global_variable gv	){
 	printf("  --mpIlm=      [int]   : 0. Ilm, 1. Ilmm see (White et al., 2014)\n");
 	printf("  --ig_ed=      [int]   : 0. default bi,amp for ig, 1. updated bi,amp for ig\n");
 	printf("\n");
-	printf(" *'mp': metapelite, 'mb': metabasite, 'ig': igneous H18->G23, 'igad': igneous alkaline dry, 'um': ultramafic, 'ume': ultramafic extended, 'mtl': mantle\n");
+	printf(" *'mp': metapelite, 'mb': metabasite, 'ig': igneous H18->G23, 'igaw': igneous alkaline wet, 'igad': igneous alkaline dry, 'um': ultramafic, 'ume': ultramafic extended, 'mtl': mantle\n");
 	printf("\n");
 	printf(" **the list of oxides must be provided as follow:\n");
 	printf("  'ig':               SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3, H2O\n");
+	printf("  'igaw':             SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3, H2O\n");
 	printf("  'igad':             SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3\n");
 	printf("  'mp':               SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, MnO, H2O\n");
 	printf("  'mb':               SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, H2O\n");
@@ -236,7 +237,7 @@ int is_core_oxide(						const char 			*research_group,
 
 	if 		(EM_database == 0){ 					opt = opt_mp;  n = 7;  }
 	else if (EM_database == 1 || EM_database == 11){ opt = opt_mb;  n = 6;  }
-	else if (EM_database == 2){ 					opt = opt_ig;  n = 7;  }
+	else if (EM_database == 2 || EM_database == 10){ opt = opt_ig;  n = 7;  }
 	else if (EM_database == 22 || EM_database == 3){ opt = opt_igd; n = 6;  }
 	else if (EM_database == 4){ 					opt = opt_um;  n = 3;  }
 	else if (EM_database == 5){ 					opt = opt_ume; n = 8;  }
@@ -307,6 +308,9 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 			}
 			else if (gv.EM_database == 2){
 				printf("  - Database                  : Igneous (Green et al., 2025, corrected after Holland et al., 2018)\n"	);
+			}
+	else if (gv.EM_database == 10){
+				printf("  - Database                  : Igneous alkaline wet (Holland et al., 2026, in progress)\n"	);
 			}
 			else if (gv.EM_database == 22){
 				printf("  - Database                  : Igneous dry (Su et al., 2026, corrected after Tomlinson & Holland, 2021)\n"	);
@@ -933,6 +937,9 @@ global_variable get_tests_bulks(	global_variable  	 gv
 		}
 		else if (gv.EM_database == 2){
 			gv = get_bulk_igneous( 			gv );
+		}
+	else if (gv.EM_database == 10){
+			gv = get_bulk_igneous_igaw( 	gv );
 		}
 		else if (gv.EM_database == 22){
 			gv = get_bulk_igneous_igd( 		gv );

@@ -1058,6 +1058,21 @@ SS_ref G_SS_igmn_liq_init_function(SS_ref SS_ref_db,  global_variable gv){
     
     return SS_ref_db;
 }
+SS_ref G_SS_igaw_liq_init_function(SS_ref SS_ref_db, global_variable gv){
+    
+    SS_ref_db.n_cat     = 0;
+    SS_ref_db.is_liq    = 1;
+    SS_ref_db.override  = 0;
+    SS_ref_db.symmetry  = 0;
+    SS_ref_db.n_sf      = 21;
+    SS_ref_db.n_em      = 15;
+    SS_ref_db.n_v       = 15;
+    SS_ref_db.n_w       = 105;
+    SS_ref_db.n_xeos    = 14;
+    
+    return SS_ref_db;
+}
+
 
 /** 
   allocate memory for muscovite
@@ -2609,6 +2624,57 @@ void TC_SS_init_ig(	                SS_init_type 		*SS_init,
 }
 
 
+void TC_SS_init_igaw(	                SS_init_type 		*SS_init,
+									global_variable 	 gv				){
+					 
+	for (int iss = 0; iss < gv.len_ss; iss++){
+
+		if      (strcmp( gv.SS_list[iss], "bi")  == 0 ){
+			SS_init[iss]  = G_SS_ig_bi_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "fper")  == 0){
+			SS_init[iss]  = G_SS_ig_fper_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "cd")  == 0){
+			SS_init[iss]  = G_SS_ig_cd_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "cpx") == 0){
+			SS_init[iss]  = G_SS_ig_cpx_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ep")  == 0){
+			SS_init[iss]  = G_SS_ig_ep_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "fl")  == 0){
+			SS_init[iss]  = G_SS_ig_fl_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "g")   == 0){
+			SS_init[iss]  = G_SS_ig_g_init_function; 		    }
+		else if (strcmp( gv.SS_list[iss], "amp")  == 0){
+			SS_init[iss]  = G_SS_ig_amp_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ilm") == 0){
+			SS_init[iss]  = G_SS_ig_ilm_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "liq") == 0){
+			SS_init[iss]  = G_SS_igaw_liq_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "mu")  == 0){
+			SS_init[iss]  = G_SS_ig_mu_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "ol")  == 0){
+			SS_init[iss]  = G_SS_ig_ol_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "opx") == 0){
+			SS_init[iss]  = G_SS_ig_opx_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "fsp") == 0){
+			SS_init[iss]  = G_SS_ig_fsp_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "spl") == 0){
+			SS_init[iss]  = G_SS_ig_spl_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "chl") == 0){
+			SS_init[iss]  = G_SS_ig_chl_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "nph") == 0){
+			SS_init[iss]  = G_SS_igad_nph_init_function;	}
+		else if (strcmp( gv.SS_list[iss], "lct") == 0){
+			SS_init[iss]  = G_SS_igad_lct_init_function;	}
+		else if (strcmp( gv.SS_list[iss], "kals") == 0){
+			SS_init[iss]  = G_SS_igad_kals_init_function;	}
+		else if (strcmp( gv.SS_list[iss], "mel") == 0){
+			SS_init[iss]  = G_SS_igad_mel_init_function;	}
+		else{
+			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
+		}
+	};
+}
+
 void TC_SS_init_igad(	            SS_init_type 		*SS_init,
 									global_variable 	 gv				){
 					 
@@ -2990,6 +3056,14 @@ void TC_SS_init_all(	            SS_init_type 		*SS_init,
 			SS_init[iss]  = G_SS_mpe_plc_init_function; 		}
 		else if (strcmp( gv.SS_list[iss], "scp_K04")   == 0){
 			SS_init[iss]  = G_SS_mpe_scp_init_function; 		}
+		else if (strcmp( gv.SS_list[iss], "liq_H26") == 0){
+			SS_init[iss]  = G_SS_igaw_liq_init_function;	}
+		else if (strcmp( gv.SS_list[iss], "bi_H26") == 0){
+			SS_init[iss]  = G_SS_ig_bi_init_function;	}
+		else if (strcmp( gv.SS_list[iss], "amp_H26") == 0){
+			SS_init[iss]  = G_SS_ig_amp_init_function;	}
+		else if (strcmp( gv.SS_list[iss], "fl_H26") == 0){
+			SS_init[iss]  = G_SS_ig_fl_init_function;	}
 		else{
 			printf("\nsolid solution '%s' is not in the database, cannot be initiated\n", gv.SS_list[iss]);
 		}
@@ -3017,6 +3091,10 @@ void TC_SS_init(	        	    SS_init_type 		*SS_init,
     }
 	else if (gv.EM_database == 2){			// igneous database //
 		TC_SS_init_ig(	 				    SS_init,
+											gv							);
+	}
+	else if (gv.EM_database == 10){			// igneous alkaline wet database //
+		TC_SS_init_igaw(	 				    SS_init,
 											gv							);
 	}
 	else if (gv.EM_database == 22){			// igneousT database //

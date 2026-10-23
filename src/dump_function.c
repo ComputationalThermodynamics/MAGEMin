@@ -40,6 +40,7 @@
 #include "ss_min_function.h"
 #include "TC_database/objective_functions.h"
 #include "TC_database/NLopt_opt_function.h"
+#include "TC_database/NS_opt_function.h"
 #include "SB_database/sb_objective_functions.h"
 #include "SB_database/SB_NLopt_opt_function.h"
 #include "GH_database/gh_objective_functions.h"
@@ -562,12 +563,14 @@ void calibration_output_struct(		global_variable 	 gv,
 	PC_type 				PC_read[gv.len_ss];
 	P2X_type 				P2X_read[gv.len_ss];
 	NLopt_type 				NLopt_opt[gv.len_ss];
+	int 					has_p2x = 0;
 
 	if (strcmp(gv.research_group, "tc") 	== 0 ){
 		TC_SS_objective_init_function(		SS_objective,	gv	);
 		TC_NLopt_opt_init(					NLopt_opt,		gv	);
 		TC_PC_init(							PC_read,		gv	);
 		TC_P2X_init(						P2X_read,		gv	);
+		has_p2x = 1;
 	}
 	else if (strcmp(gv.research_group, "sb") 	== 0 ){
 		SB_SS_objective_init_function(		SS_objective,	gv	);
@@ -579,6 +582,7 @@ void calibration_output_struct(		global_variable 	 gv,
 		GH_NLopt_opt_init(					NLopt_opt,		gv	);
 		GH_PC_init(							PC_read,		gv	);
 		GH_P2X_init(						P2X_read,		gv	);
+		has_p2x = 1;
 	}
 	else if (strcmp(gv.research_group, "br") 	== 0 ){
 		BR_SS_objective_init_function(		SS_objective,	gv	);
@@ -593,16 +597,22 @@ void calibration_output_struct(		global_variable 	 gv,
 	int m = sp[0].n_mSS;		/* continue directly from wherever mSS_output_struct left off */
 
 	for (int i = 0; i < gv.len_ss; i++){
-		if (SS_ref_db[i].ss_flags[0] != 1){ continue; }
+		if (SS_ref_db[i].ss_flags[0] != 1 && SS_ref_db[i].ss_flags[3] != 1){ continue; }
 		if (m >= gv.max_n_mSS){ break; }
 
 		int n_em   = SS_ref_db[i].n_em;
 		int n_xeos = SS_ref_db[i].n_xeos;
 		int tot    = SS_ref_db[i].tot_Ppc;
-		if (tot <= 0 || n_em <= 0 || n_xeos <= 0){ continue; }
+		int use_em = (tot <= 0 && has_p2x == 1 && P2X_read[i] != NULL);
+		if ((tot <= 0 && use_em == 0) || n_em <= 0 || n_xeos <= 0){ continue; }
 
-		int stride = tot / n_em;
+		int n_act  = 0;
+		for (int e = 0; e < n_em; e++){ if (SS_ref_db[i].z_em[e] == 1.0){ n_act += 1; } }
+		if (use_em == 1 && n_act == 0){ continue; }
+
+		int stride = (use_em == 1) ? 1 : tot / n_em;
 		if (stride < 1){ stride = 1; }
+		int n_try  = (use_em == 1) ? n_em : tot;
 
 		int    best_found = 0;
 		double best_df    = 0.0;
@@ -611,9 +621,42 @@ void calibration_output_struct(		global_variable 	 gv,
 		double best_p[n_em];
 		double best_mu[n_em];
 
-		for (int l = 0; l < tot; l += stride){
-			for (int k = 0; k < n_xeos; k++){
-				SS_ref_db[i].iguess[k] = SS_ref_db[i].xeos_Ppc[l][k];
+		if (use_em == 1 && n_act == 1){
+			int e = 0;
+			for (int k = 0; k < n_em; k++){ if (SS_ref_db[i].z_em[k] == 1.0){ e = k; } }
+			for (int jj = 0; jj < n_em; jj++){ SS_ref_db[i].p[jj] = (jj == e) ? 1.0 : 0.0; }
+			(*P2X_read[i])(&SS_ref_db[i], gv.bnd_val);
+			double factor = z_b.fbc/SS_ref_db[i].ape[e];
+			double df 	  = SS_ref_db[i].gbase[e];
+			for (int j = 0; j < gv.len_ox; j++){ df -= SS_ref_db[i].Comp[e][j]*gv.gam_tot[j]; }
+			best_found = 1;
+			best_df    = df*factor;
+			for (int k = 0; k < n_xeos; k++){ best_xeos[k] = isfinite(SS_ref_db[i].iguess[k]) ? SS_ref_db[i].iguess[k] : 0.0; }
+			for (int j = 0; j < gv.len_ox; j++){ best_comp[j] = SS_ref_db[i].Comp[e][j]*factor; }
+			for (int k = 0; k < n_em; k++){
+				best_p[k]  = (k == e) ? 1.0 : 0.0;
+				best_mu[k] = (k == e) ? SS_ref_db[i].gbase[e] : 0.0;
+			}
+			n_try = 0;
+		}
+
+		for (int l = 0; l < n_try; l += stride){
+			if (use_em == 1){
+				if (SS_ref_db[i].z_em[l] != 1.0){ continue; }
+				for (int jj = 0; jj < n_em; jj++){ SS_ref_db[i].p[jj] = (SS_ref_db[i].z_em[jj] == 1.0) ? gv.em2ss_shift : 0.0; }
+				SS_ref_db[i].p[l] = 1.0 - gv.em2ss_shift*(n_act - 1);
+				(*P2X_read[i])(&SS_ref_db[i], gv.bnd_val);
+				if (ns_pc_mode(gv, &SS_ref_db[i]) == 1){
+					double xp[n_xeos];
+					for (int k = 0; k < n_xeos; k++){ xp[k] = SS_ref_db[i].iguess[k]; }
+					if (!ns_project_x(gv, &SS_ref_db[i], xp)){ continue; }
+					for (int k = 0; k < n_xeos; k++){ SS_ref_db[i].iguess[k] = xp[k]; }
+				}
+			}
+			else{
+				for (int k = 0; k < n_xeos; k++){
+					SS_ref_db[i].iguess[k] = SS_ref_db[i].xeos_Ppc[l][k];
+				}
 			}
 
 			SS_ref_db[i] = rotate_hyperplane(				gv,

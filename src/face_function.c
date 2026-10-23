@@ -189,7 +189,7 @@ global_variable face_detect(			bulk_info 	 		 z_b,
 	int 	 m 	  = 0;
 
 	for (int i = 0; i < gv.len_pp; i++){
-		if (gv.pp_flags[i][0] != 1 || gv.pp_flags[i][4] != 0){ continue; }
+		if (gv.pp_flags[i][0] != 1){ continue; }
 		if (gv.n_mu_fix > 0 && i >= gv.len_pp - gv.n_mu_fix){ continue; }
 		int ok = 1;
 		for (int j = 0; j < nox && ok; j++){ if (z_b.bulk_rock[j] == 0.0 && fabs(PP_ref_db[i].Comp[j]) > 1e-12){ ok = 0; } }

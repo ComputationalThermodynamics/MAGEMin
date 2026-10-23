@@ -100,7 +100,7 @@ stx24_dataset stx24_db = {
 	{"plg"	,"sp"	,"ol"	,"wa"	,"ri"	,"opx"	,"cpx"	,"hpcpx", "ak"	,"gtmj"	,"pv"	 ,"ppv"	 ,"cf"	 ,"mw"	  ,"nal"					},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1		,1						}, // allow solvus?
-	{11 	,286 	,11 	,11 	,11 	,286	,3003	,11 	,1001 	,3003	,3003 	,1001 	,1001	,1001 	,66						}, // # of pseudocompound
+	{11 	,286 	,11 	,11 	,11 	,286	,1873	,11 	,1001 	,2341	,2749 	,1001 	,1001	,1001 	,66						}, // # of pseudocompound
 	{0.050	,0.050	,0.050	,0.050	,0.050	,0.050	,0.050	,0.050	,0.050	,0.125	,0.125	,0.050	,0.050 	,0.050	,0.050					}, // discretization step in endmember fraction
 
 	6.0, 						/** max dG under which a phase is considered to be reintroduced  					*/

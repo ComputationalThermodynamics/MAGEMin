@@ -50,6 +50,9 @@ Levelling occurs in two stages:
 #include "PGE_function.h"
 #include "all_solution_phases.h"
 
+#define SPLX_PEN_PIV 1e-6
+#define SPLX_PEN_N   1e-12
+
 /**
   function to calculate delta G (position of potential phases with current G hyperplane*)
 */
@@ -79,6 +82,14 @@ void update_dG(	simplex_data *splx_data
 			F = (d->n_vec[i])/d->B1[i];
 			if (F < d->min_F && F > minF){
 				d->min_F  = F;
+				d->ph2swp = i;
+			}
+		}
+		for ( i = 0; i < d->n_Ox; i++){
+			if (d->ph_id_A[i][0] != 0 || !(fabs(d->B1[i]) > SPLX_PEN_PIV)){ continue; }
+			if (!(fabs(d->n_vec[i]) <= SPLX_PEN_N*fabs(d->B1[i]))){ continue; }
+			if (d->ph2swp < 0 || d->min_F > 0.0 || fabs(d->B1[i]) > fabs(d->B1[d->ph2swp])){
+				d->min_F  = 0.0;
 				d->ph2swp = i;
 			}
 		}
@@ -827,7 +838,7 @@ void generate_pseudocompounds(	int 		 		 ss,
 	if (P2X_read != NULL && gv.face_n > 0 && strcmp(gv.research_group, "tc") == 0 && gv.solver == 0 && gv.ss_solver > 0){
 		int n_em = SS_ref_db[ss].n_em, n_act = 0;
 		for (int e = 0; e < n_em; e++){ if (SS_ref_db[ss].z_em[e] == 1.0){ n_act += 1; } }
-		for (int e = 0; e < n_em && n_act > 1; e++){
+		for (int e = 0; e < n_em && n_act >= 1; e++){
 			if (SS_ref_db[ss].z_em[e] != 1.0){ continue; }
 			for (int jj = 0; jj < n_em; jj++){ SS_ref_db[ss].p[jj] = (SS_ref_db[ss].z_em[jj] == 1.0) ? gv.em2ss_shift : 0.0; }
 			SS_ref_db[ss].p[e] = 1.0 - gv.em2ss_shift*(n_act - 1);
@@ -1577,6 +1588,14 @@ void SS_all_pc_init_function(	PC_ref 	*SS_pc_xeos,
 		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "plc", gv		);	}
 	else if (strcmp( name, "scp_K04")   == 0){
 		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "scp", gv		);	}
+		else if (strcmp( name, "liq_H26") == 0){
+		SS_igaw_pc_init_function(		SS_pc_xeos, iss, "liq", gv		);	}
+		else if (strcmp( name, "bi_H26") == 0){
+		SS_igaw_pc_init_function(		SS_pc_xeos, iss, "bi", gv		);	}
+		else if (strcmp( name, "amp_H26") == 0){
+		SS_igaw_pc_init_function(		SS_pc_xeos, iss, "amp", gv		);	}
+		else if (strcmp( name, "fl_H26") == 0){
+		SS_igaw_pc_init_function(		SS_pc_xeos, iss, "fl", gv		);	}
 	else{
 		printf("\nsolid solution '%s' is not in the database, cannot be initiated [all]\n", name);
 	}
@@ -1668,6 +1687,14 @@ void run_simplex_levelling(				bulk_info 	 		 z_b,
 		else if (gv.EM_database == 2){
 			for (iss = 0; iss < gv.len_ss; iss++){
 				SS_ig_pc_init_function(			SS_pc_xeos,
+												iss,
+												gv.SS_list[iss],
+												gv								);
+			}
+		}
+	else if (gv.EM_database == 10){
+			for (iss = 0; iss < gv.len_ss; iss++){
+				SS_igaw_pc_init_function(		SS_pc_xeos,
 												iss,
 												gv.SS_list[iss],
 												gv								);

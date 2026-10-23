@@ -688,7 +688,7 @@ end
     Mutable structure holding overriding Margules (Ws) parameters.
 
     Database mapping is independent per research group (`gv.research_group`):
-    for "tc", 0 = "mp", 1 = "mb", 11 = "mbe", 2 = "ig", 22 = "igd", 3 = "igad", 4 = "um", 5 = "ume", 6 = "mtl", 7 = "mpe", 8 = "all";
+    for "tc", 0 = "mp", 1 = "mb", 11 = "mbe", 2 = "ig", 10 = "igaw", 22 = "igd", 3 = "igad", 4 = "um", 5 = "ume", 6 = "mtl", 7 = "mpe", 8 = "all";
     for "sb", 0 = "sb11", 1 = "sb21", 2 = "sb24";
     for "br", 0 = "po".
 
@@ -725,7 +725,7 @@ end
     its default, unmodified value.
 
     Database mapping is independent per research group (`gv.research_group`):
-    for "tc", 0 = "mp", 1 = "mb", 11 = "mbe", 2 = "ig", 22 = "igd", 3 = "igad", 4 = "um", 5 = "ume", 6 = "mtl", 7 = "mpe", 8 = "all";
+    for "tc", 0 = "mp", 1 = "mb", 11 = "mbe", 2 = "ig", 10 = "igaw", 22 = "igd", 3 = "igad", 4 = "um", 5 = "ume", 6 = "mtl", 7 = "mpe", 8 = "all";
     for "sb", 0 = "sb11", 1 = "sb21", 2 = "sb24";
     for "br", 0 = "po".
 
@@ -891,7 +891,7 @@ end
     Parameters
     ----------
     dtb : String
-        Database name (e.g., "mp", "mb", "ig", "igad", "um", "ume", "mtl", "mpe", "all", "po", "sb11", "sb21", "sb24").
+        Database name (e.g., "mp", "mb", "ig", "igaw", "igad", "um", "ume", "mtl", "mpe", "all", "po", "sb11", "sb21", "sb24").
 
     Returns
     -------
@@ -1045,7 +1045,7 @@ const EM_COMP_BASIS = vcat(DB_OXIDES_GENERATED["all"], "Fe")
         Name to its composition, one entry per `EM_COMP_BASIS` oxide.
 """
 function harvest_em_compositions(dtb :: String)
-    ox   = get_oxide_list(dtb)
+    ox   = harvest_oxide_list(dtb)
     n_ox = length(ox)
     isempty(ox) && error("harvest_em_compositions: unknown database \"$dtb\".")
     pos  = Dict(o => i for (i, o) in enumerate(EM_COMP_BASIS))
@@ -1091,7 +1091,7 @@ end
     [`get_phase_oxide_support`](@ref), which is a table lookup.
 """
 function harvest_phase_oxide_support(dtb :: String; eps :: Float64 = 1e-8)
-    ox_list = get_oxide_list(dtb)
+    ox_list = harvest_oxide_list(dtb)
     n_ox    = length(ox_list)
     isempty(ox_list) && error("harvest_phase_oxide_support: unknown database \"$dtb\".")
 
@@ -1519,7 +1519,7 @@ end
     [`gbase_data`](@ref)). Only the databases that carry a DEW aqueous phase are
     listed - DEW doesn't exist in the "sb"/"gh"/"br" research groups.
 """
-const DEW_DB_CODE = Dict("mp"=>0, "mb"=>1, "mbe"=>11, "ig"=>2, "igd"=>22, "igad"=>3,
+const DEW_DB_CODE = Dict("mp"=>0, "mb"=>1, "mbe"=>11, "ig"=>2, "igaw"=>10, "igd"=>22, "igad"=>3,
                           "um"=>4, "ume"=>5, "mtl"=>6, "mpe"=>7, "all"=>8)
 
 """
@@ -1619,7 +1619,7 @@ end
     Parameters
     ----------
     db : String, optional
-        Database name (default: "ig"). Options: "mp", "mb", "mbe", "ig", "igad", "um", "ume", "mtl", "mpe", "all", "po", "sb11", "sb21", "sb24".
+        Database name (default: "ig"). Options: "mp", "mb", "mbe", "ig", "igaw", "igad", "um", "ume", "mtl", "mpe", "all", "po", "sb11", "sb21", "sb24".
     verbose : Union{Int64, Bool}, optional
         Verbosity level (default: 0). `false` or `-1` suppresses output, `true` or `0` gives a brief summary, `1` gives detailed output.
     dataset : Union{Nothing, Int64}, optional
@@ -2620,6 +2620,9 @@ function use_predefined_bulk_rock(gv, test=0, db="ig")
         elseif  db == "igd"
             gv.test = test
             gv = LibMAGEMin.get_bulk_igneous_igd(gv)
+        elseif  db == "igaw"
+            gv.test = test
+            gv = LibMAGEMin.get_bulk_igneous_igaw(gv)
         elseif  db == "igad"
             gv.test = test
             gv = LibMAGEMin.get_bulk_igneous_igad(gv)
@@ -3404,6 +3407,16 @@ function point_wise_minimization(   P       ::Float64,
                 ns_pc       = rg in ("tc", "sb", "br", "gh") ? LibMAGEMin.ns_pc_mode(gv, pointer(SS_ref_db, ph_id)) : 0
                 if ns_pc == 2 || (ns_pc == 1 && LibMAGEMin.ns_project_x(gv, pointer(SS_ref_db, ph_id), xeos) == 0)
                     continue
+                end
+
+                ptr_bounds_ref  = unsafe_wrap(Vector{Ptr{Cdouble}}, SS_ref_db[ph_id].bounds_ref, n_xeos)
+                for k=1:n_xeos
+                    lo, hi = unsafe_wrap(Vector{Cdouble}, ptr_bounds_ref[k], 2)
+                    if xeos[k] < lo
+                        xeos[k] = lo
+                    elseif xeos[k] > hi
+                        xeos[k] = hi
+                    end
                 end
 
                 if tot_pc[1] < n_SS_PC[ph_id]   # here we make sure we have the space to store the pseudocompound
@@ -4241,7 +4254,7 @@ end
     multi-phase equilibrium solve.
 
     Currently only supported for the "tc" (THERMOCALC) research group, i.e.
-    any of MAGEMin's THERMOCALC-derived databases ("ig", "igd", "igad",
+    any of MAGEMin's THERMOCALC-derived databases ("ig", "igaw", "igd", "igad",
     "mp", "mb", "um", ... or the combined "all" database).
 
     Parameters
