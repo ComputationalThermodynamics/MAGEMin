@@ -45,7 +45,8 @@ struct db_registry
     dataset_opt     :: NTuple{5,Int64}
 end
 
-const GH_ENABLED = false
+const GH_ENABLED   = false
+const IGAW_ENABLED = false
 
 """
     MAGEMIN_DATABASES
@@ -62,7 +63,7 @@ const GH_ENABLED = false
 
     The row order is significant: `db_infos_generated.jl` is emitted in this order.
 """
-const MAGEMIN_DATABASES = filter(d -> GH_ENABLED || d.research_group != "gh", db_registry[
+const MAGEMIN_DATABASES = filter(d -> (GH_ENABLED || d.research_group != "gh") && (IGAW_ENABLED || d.db_name != "igaw"), db_registry[
     db_registry("mp",     "tc",  0, "Metapelite (White et al., 2014)",                                                                              62, (62, 633, 634, 635, 636)),
     db_registry("mb",     "tc",  1, "Metabasite (Green et al., 2016)",                                                                              62, (62, 633, 634, 635, 636)),
     db_registry("mbe",    "tc", 11, "Metabasite extended (Green et al., 2016 with oamp from Diener et al., 2007 and ta from Rebay et al., 2022)",   62, (62, 633, 634, 635, 636)),
