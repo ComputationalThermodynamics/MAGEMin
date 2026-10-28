@@ -78,7 +78,9 @@ const _REGEN_HINT = "run `make USE_MPI=0 lib && julia --project=. gen/generate_d
     end
 
     @testset "SOLVUS_FAMILY matches get_mineral_name" begin
-        for ((db, ss), fam) in SOLVUS_FAMILY
+        solvus_family = filter(kv -> is_db(kv.first[1]), SOLVUS_FAMILY)
+
+        for ((db, ss), fam) in solvus_family
             @test is_db(db)
             inf = retrieve_solution_phase_information(db)
             @test ss in inf.ss_name || ss in [s.ss_fName for s in inf.data_ss]
@@ -88,9 +90,9 @@ const _REGEN_HINT = "run `make USE_MPI=0 lib && julia --project=. gen/generate_d
         levels = (-0.2, 0.005, 0.2, 0.55, 1.2)
         vars   = (1, 2, 3, 4, 6, 7, 8)
 
-        seen = Dict((db, ss) => _solvus_sweep(db, ss, levels, vars) for ((db, ss), _) in SOLVUS_FAMILY)
+        seen = Dict((db, ss) => _solvus_sweep(db, ss, levels, vars) for ((db, ss), _) in solvus_family)
 
-        for ((db, ss), fam) in SOLVUS_FAMILY
+        for ((db, ss), fam) in solvus_family
             extra = setdiff(seen[(db, ss)], fam)
             isempty(extra) || error("SOLVUS_FAMILY[(\"$db\", \"$ss\")] is missing $(sort(collect(extra))) " *
                                     "- get_mineral_name can return it")

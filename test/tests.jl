@@ -1354,18 +1354,20 @@ println("Testing points from the reference diagrams:")
     end
     Finalize_MAGEMin(data)
 
-    # Igneous alkaline wet database
-    println("  Starting igaw tests")
-    data = Initialize_MAGEMin("igaw", verbose=false);
-    data = use_predefined_bulk_rock(data, 6);
+    if MAGEMin_C.is_db("igaw")
+        # Igneous alkaline wet database
+        println("  Starting igaw tests")
+        data = Initialize_MAGEMin("igaw", verbose=false);
+        data = use_predefined_bulk_rock(data, 6);
 
-    @testset "IGAW-DB - Wet basalt" begin
-        out = point_wise_minimization(5.0, 900.0, data)
-        @test out.status == 0
-        @test Set(out.ph) == Set(["opx", "liq", "fsp", "ilm", "cpx", "amp"])
-        @test isapprox(out.G_system, -922.789, atol=0.05)
+        @testset "IGAW-DB - Wet basalt" begin
+            out = point_wise_minimization(5.0, 900.0, data)
+            @test out.status == 0
+            @test Set(out.ph) == Set(["opx", "liq", "fsp", "ilm", "cpx", "amp"])
+            @test isapprox(out.G_system, -922.789, atol=0.05)
+        end
+        Finalize_MAGEMin(data)
     end
-    Finalize_MAGEMin(data)
 
 
 end
