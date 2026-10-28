@@ -25,6 +25,7 @@
 #include "objective_functions.h"
 #include "NLopt_opt_function.h"
 #include "NS_opt_function.h"
+#include "../face_function.h"
 #include "../SB_database/sb_objective_functions.h"
 #include "../BR_database/br_objective_functions.h"
 #include "../GH_database/gh_objective_functions.h"
@@ -352,6 +353,17 @@ static int ns_absent_comp(	global_variable 	 gv,
 							double 				*c				){
 	int 	n_c = 0;
 	d->ns_obj(d->n_xeos, x, NULL, d);
+	for (int f = 0; f < gv.face_n; f++){
+		int 	in = 0;
+		double 	a  = 0.0;
+		for (int k = 0; k < d->n_em; k++){
+			double v = 0.0;
+			for (int j = 0; j < gv.len_ox; j++){ v += gv.face_l[f*gv.len_ox + j]*d->Comp[k][j]; }
+			if (fabs(v) > 1e-12){ in = 1; }
+			a += d->p[k]*v;
+		}
+		if (in){ c[n_c] = a; n_c += 1; }
+	}
 	for (int j = 0; j < gv.len_ox; j++){
 		if (z_b.bulk_rock[j] != 0.0){ continue; }
 		int 	in = 0;
@@ -473,6 +485,7 @@ static int ns_has_absent(	global_variable 	 gv,
 							SS_ref 				*d				){
 	for (int k = 0; k < d->n_em; k++){
 		if (d->z_em[k] != 1.0){ continue; }
+		if (gv.face_n > 0 && face_deviation(gv, d->Comp[k]) > 1e-12){ return 1; }
 		for (int j = 0; j < gv.len_ox; j++){
 			if (z_b.bulk_rock[j] == 0.0 && fabs(d->Comp[k][j]) > 1e-12){ return 1; }
 		}
@@ -516,6 +529,7 @@ static void ns_reduce_phase(	global_variable 	 gv,
 
 	for (int k = 0; k < n_em; k++){
 		int ok = (d->z_em[k] == 1.0);
+		if (gv.face_n > 0 && face_deviation(gv, d->Comp[k]) > 1e-12){ ok = 0; }
 		if (d->ns_mode == 4 && d->bounds_ref[k][1] - d->bounds_ref[k][0] <= 1e-14){ ok = 0; }
 		for (int j = 0; j < gv.len_ox && ok; j++){
 			if (z_b.bulk_rock[j] == 0.0 && fabs(d->Comp[k][j]) > 1e-12){ ok = 0; }
@@ -600,6 +614,7 @@ void ns_reduce_system(		global_variable 	 gv,
 	ns_reduce_phase(gv, z_b, d);
 	if (d->ns_absent != 1 || d->ns_ok_init != 1){ return; }
 	for (int k = 0; k < d->n_em; k++){
+		if (gv.face_n > 0 && face_deviation(gv, d->Comp[k]) > 1e-12){ d->z_em[k] = 0.0; }
 		for (int j = 0; j < gv.len_ox; j++){
 			if (z_b.bulk_rock[j] == 0.0 && fabs(d->Comp[k][j]) > 1e-12){ d->z_em[k] = 0.0; }
 		}

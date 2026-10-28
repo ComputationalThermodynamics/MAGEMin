@@ -57,6 +57,7 @@
 #include "phase_update_function.h"
 #include "all_solution_phases.h"
 #include "MAGEMin.h"
+#include "face_function.h"
 #include "TC_database/NS_opt_function.h"
 
 /** 
@@ -338,6 +339,11 @@ int runMAGEMin(			int    argc,
 										SS_ref_db,
 										cp				);
 
+	gv = remove_zero_amount_phases(		gv,
+										z_b,
+										PP_ref_db,
+										SS_ref_db,
+										cp				);
 
 	gv = compute_activities (			gv.EM_database,	
 										gv,
@@ -538,6 +544,27 @@ static void warn_ds62_placeholder_phases(	global_variable 	 gv,
 	   is - see NLopt_opt_DEW_function. */
 	for (int iss = 0; iss < gv.len_ss; iss++){ SS_ref_db[iss].dew_warm_ok = 0; }
 
+	gv = face_detect(						z_b,
+											gv,
+											PP_ref_db,
+											SS_ref_db						);
+
+	if (gv.face_n > 0 && strcmp(gv.research_group, "tc") == 0){
+		for (int iss = 0; iss < gv.len_ss; iss++){
+			if (SS_ref_db[iss].ss_flags[0] != 1){ continue; }
+			int straddle = 0;
+			for (int k = 0; k < SS_ref_db[iss].n_em && !straddle; k++){
+				if (SS_ref_db[iss].z_em[k] == 1.0 && face_deviation(gv, SS_ref_db[iss].Comp[k]) > 1e-12){ straddle = 1; }
+			}
+			if (straddle){
+				for (int k = 0; k < SS_ref_db[iss].n_em; k++){ SS_ref_db[iss].z_em[k] = 1.0; }
+				ns_reduce_system(			gv,
+											z_b,
+											&SS_ref_db[iss]					);
+			}
+		}
+	}
+
 	warn_ds62_placeholder_phases(gv, SS_ref_db);
 
 	/****************************************************************************************/
@@ -545,6 +572,13 @@ static void warn_ds62_placeholder_phases(	global_variable 	 gv,
 	/****************************************************************************************/
 	// leveling mode = 0 is default, without using initial guess
 	// leveling mode = 1 uses initial guess
+	if (gv.leveling_mode == 1 && gv.face_n != 0){
+		gv.leveling_mode = 0;
+		for (int iss = 0; iss < gv.len_ss; iss++){
+			SS_ref_db[iss].tot_pc[0] = 0;
+			SS_ref_db[iss].id_pc[0]  = 0;
+		}
+	}
 	if (gv.leveling_mode == 0){
 		gv = Levelling(			z_b,										/** bulk rock informations 			*/
 								gv,											/** global variables (e.g. Gamma) 	*/
@@ -802,6 +836,10 @@ static void warn_ds62_placeholder_phases(	global_variable 	 gv,
 										SS_ref_db,
 										cp						);
 
+	if (gv.face_n < 0){
+		gv.status = 5;
+	}
+
 	if (gv.verbose == 1){
 		gv = check_PC_driving_force( 	z_b,							/** bulk rock constraint 			*/ 
 										gv,								/** global variables (e.g. Gamma) 	*/
@@ -848,34 +886,19 @@ static void warn_ds62_placeholder_phases(	global_variable 	 gv,
 	return gv;
 }
 
-	global_variable ComputeEquilibrium_FromState(	bulk_info 	 		 z_b,
-													global_variable 	 gv,
-													PP_ref  			*PP_ref_db,
-													SS_ref  			*SS_ref_db,
-													csd_phase_set  		*cp,
-													int 				 n_ss,
-													int 				*ss_ids,
-													double 				*ss_x,
-													double 				*ss_n,
-													int 				 n_pp,
-													int 				*pp_ids,
-													double 				*pp_n,
-													double 				*gam				){
-
-	PC_type 								PC_read[gv.len_ss];
-
-	if (strcmp(gv.research_group, "tc") 	== 0 ){
-		TC_PC_init(	                    		PC_read,
-												gv								);
-	}
-	else if (strcmp(gv.research_group, "sb") 	== 0 ){
-		SB_PC_init(	                    		PC_read,
-												gv								);
-	}
-	else{
-		gv.status = -1;
-		return gv;
-	}
+static global_variable load_equilibrium_state(	bulk_info 	 		 z_b,
+												global_variable 	 gv,
+												SS_ref  			*SS_ref_db,
+												csd_phase_set  		*cp,
+												PC_type 			*PC_read,
+												int 				 n_ss,
+												int 				*ss_ids,
+												double 				*ss_x,
+												double 				*ss_n,
+												int 				 n_pp,
+												int 				*pp_ids,
+												double 				*pp_n,
+												double 				*gam				){
 
 	gv.fn_from_state = 1;
 	gv.status 		 = 0;
@@ -940,6 +963,64 @@ static void warn_ds62_placeholder_phases(	global_variable 	 gv,
 		gv.n_phase 				   += 1;
 	}
 
+	return gv;
+}
+
+static int init_PC_read(						global_variable 	 gv,
+												PC_type 			*PC_read			){
+	if (strcmp(gv.research_group, "tc") == 0){
+		TC_PC_init(									PC_read,
+													gv								);
+	}
+	else if (strcmp(gv.research_group, "sb") == 0){
+		SB_PC_init(									PC_read,
+													gv								);
+	}
+	else if (strcmp(gv.research_group, "br") == 0){
+		BR_PC_init(									PC_read,
+													gv								);
+	}
+	else{
+		return 0;
+	}
+	return 1;
+}
+
+	global_variable ComputeEquilibrium_FromState(	bulk_info 	 		 z_b,
+													global_variable 	 gv,
+													PP_ref  			*PP_ref_db,
+													SS_ref  			*SS_ref_db,
+													csd_phase_set  		*cp,
+													int 				 n_ss,
+													int 				*ss_ids,
+													double 				*ss_x,
+													double 				*ss_n,
+													int 				 n_pp,
+													int 				*pp_ids,
+													double 				*pp_n,
+													double 				*gam				){
+
+	PC_type 								PC_read[gv.len_ss];
+
+	if (!init_PC_read(gv, PC_read) || n_ss + n_pp > gv.len_ox){
+		gv.status 	 = -1;
+		gv.fn_status = -1;
+		return gv;
+	}
+	gv = load_equilibrium_state(					z_b,
+													gv,
+													SS_ref_db,
+													cp,
+													PC_read,
+													n_ss,
+													ss_ids,
+													ss_x,
+													ss_n,
+													n_pp,
+													pp_ids,
+													pp_n,
+													gam								);
+
 	gv = final_Newton(								z_b,
 													gv,
 													PC_read,
@@ -947,6 +1028,69 @@ static void warn_ds62_placeholder_phases(	global_variable 	 gv,
 													SS_ref_db,
 													cp								);
 	if (gv.fn_status <= 0){ gv.status = -1; }
+
+	return gv;
+}
+
+
+	global_variable ComputeEquilibrium_SectionFromState(	bulk_info 	 		 z_b,
+														global_variable 	 gv,
+														PP_ref  			*PP_ref_db,
+														SS_ref  			*SS_ref_db,
+														csd_phase_set  		*cp,
+														int 				 n_ss,
+														int 				*ss_ids,
+														double 				*ss_x,
+														double 				*ss_n,
+														int 				 n_pp,
+														int 				*pp_ids,
+														double 				*pp_n,
+														double 				*gam				){
+
+	PC_type 								PC_read[gv.len_ss];
+	double 									P = z_b.P;
+	double 									T = z_b.T;
+
+	gv.sec_P = P;
+	gv.sec_T = T;
+	if (gv.sec_mode < 1 || gv.sec_mode > 8){
+		gv.status 	 = -1;
+		gv.fn_status = -1;
+		return gv;
+	}
+	int n_free = (gv.sec_mode == 1 || gv.sec_mode == 7 || gv.sec_mode == 8) ? 2 : 1;
+	if (!init_PC_read(gv, PC_read) || n_ss + n_pp > gv.len_ox + n_free){
+		gv.status 	 = -1;
+		gv.fn_status = -1;
+		return gv;
+	}
+	gv = load_equilibrium_state(					z_b,
+													gv,
+													SS_ref_db,
+													cp,
+													PC_read,
+													n_ss,
+													ss_ids,
+													ss_x,
+													ss_n,
+													n_pp,
+													pp_ids,
+													pp_n,
+													gam								);
+
+	gv = final_Newton_section(						z_b,
+													gv,
+													PC_read,
+													PP_ref_db,
+													SS_ref_db,
+													cp,
+												   &P,
+												   &T								);
+	if (gv.fn_status <= 0){ gv.status = -1; }
+	else{
+		gv.sec_P = P;
+		gv.sec_T = T;
+	}
 
 	return gv;
 }
@@ -1136,6 +1280,9 @@ global_variable SetupDatabase(			global_variable 	 gv,
 		}
 		else if (strcmp(gv.db, "igad") 	== 0){
 			gv.EM_database = 3;
+		}
+		else if (strcmp(gv.db, "igaw") 	== 0){
+			gv.EM_database = 10;
 		}
 		else if (strcmp(gv.db, "um") 	== 0){
 			gv.EM_database = 4;
@@ -1396,20 +1543,22 @@ void FreeDatabases(		global_variable gv,
 
 	for ( i = 0; i < n_ox; i++){
 		if  (DB.sp[0].oxides[i]				!=NULL)  free( DB.sp[0].oxides[i] 			);	
-		if  (DB.sp[0].elements[i]			!=NULL)  free( DB.sp[0].elements[i] 		);	
-		if  (DB.sp[0].ph[i]					!=NULL)  free( DB.sp[0].ph[i] 				);	
-		if  (DB.sp[0].sol_name[i]			!=NULL)  free( DB.sp[0].sol_name[i] 		);	
+		if  (DB.sp[0].elements[i]			!=NULL)  free( DB.sp[0].elements[i] 		);
+	}
+	for ( i = 0; i < n_ox + 2; i++){
+		if  (DB.sp[0].ph[i]					!=NULL)  free( DB.sp[0].ph[i] 				);
+		if  (DB.sp[0].sol_name[i]			!=NULL)  free( DB.sp[0].sol_name[i] 		);
 	}
 
-	for ( i = 0; i < n_ox; i++){
-		if  (DB.sp[0].PP[i].Comp			!=NULL)  free( DB.sp[0].PP[i].Comp 			);	
+	for ( i = 0; i < n_ox + 2; i++){
+		if  (DB.sp[0].PP[i].Comp			!=NULL)  free( DB.sp[0].PP[i].Comp 			);
 		if  (DB.sp[0].PP[i].Comp_wt			!=NULL)  free( DB.sp[0].PP[i].Comp_wt 		);	
 		if  (DB.sp[0].PP[i].Comp_apfu		!=NULL)  free( DB.sp[0].PP[i].Comp_apfu		);	
 	}
 
 	int n_max_pc_free = (gv.len_ox*3 > gv.max_ss_size_cp) ? gv.len_ox*3 : gv.max_ss_size_cp;
 
-	for ( i = 0; i < n_ox; i++){
+	for ( i = 0; i < n_ox + 2; i++){
 		if  (DB.sp[0].SS[i].Comp			!=NULL)  free( DB.sp[0].SS[i].Comp 			);
 		if  (DB.sp[0].SS[i].Comp_wt			!=NULL)  free( DB.sp[0].SS[i].Comp_wt 		);
 		if  (DB.sp[0].SS[i].Comp_apfu		!=NULL)  free( DB.sp[0].SS[i].Comp_apfu		);
@@ -1695,6 +1844,7 @@ void FreeDatabases(		global_variable gv,
 	free(gv.V_cor);
 	free(gv.dGamma);
 	free(gv.gam_tot);
+	free(gv.face_l);
 	free(gv.gam_tot_0);
 	free(gv.delta_gam_tot);
 	free(gv.mass_residual);

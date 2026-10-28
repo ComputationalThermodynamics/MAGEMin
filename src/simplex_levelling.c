@@ -40,6 +40,7 @@ Levelling occurs in two stages:
 #endif
 
 #include "MAGEMin.h"
+#include "face_function.h"
 #include "simplex_levelling.h"
 #include "gem_function.h"
 #include "pp_min_function.h"
@@ -48,6 +49,9 @@ Levelling occurs in two stages:
 #include "toolkit.h"
 #include "PGE_function.h"
 #include "all_solution_phases.h"
+
+#define SPLX_PEN_PIV 1e-6
+#define SPLX_PEN_N   1e-12
 
 /**
   function to calculate delta G (position of potential phases with current G hyperplane*)
@@ -78,6 +82,14 @@ void update_dG(	simplex_data *splx_data
 			F = (d->n_vec[i])/d->B1[i];
 			if (F < d->min_F && F > minF){
 				d->min_F  = F;
+				d->ph2swp = i;
+			}
+		}
+		for ( i = 0; i < d->n_Ox; i++){
+			if (d->ph_id_A[i][0] != 0 || !(fabs(d->B1[i]) > SPLX_PEN_PIV)){ continue; }
+			if (!(fabs(d->n_vec[i]) <= SPLX_PEN_N*fabs(d->B1[i]))){ continue; }
+			if (d->ph2swp < 0 || d->min_F > 0.0 || fabs(d->B1[i]) > fabs(d->B1[d->ph2swp])){
+				d->min_F  = 0.0;
 				d->ph2swp = i;
 			}
 		}
@@ -649,13 +661,53 @@ void print_levelling(		bulk_info 	 		 z_b,
 /**
 	Generate pseudocompounds
 */
+static void store_em_pseudocompound(	int 		 		 ss,
+										bulk_info 	 		 z_b,
+										global_variable 	 gv,
+										simplex_data 		*d,
+										SS_ref 				*SS_ref_db,
+										obj_type 			*SS_objective,
+										double 				*xeos				){
+	int n_x = SS_ref_db[ss].n_xeos;
+	for (int i = 0; i < n_x; i++){
+		if (xeos[i] > SS_ref_db[ss].bounds_ref[i][1]){ xeos[i] = SS_ref_db[ss].bounds_ref[i][1]; }
+		if (xeos[i] < SS_ref_db[ss].bounds_ref[i][0]){ xeos[i] = SS_ref_db[ss].bounds_ref[i][0]; }
+	}
+	double G = (*SS_objective[ss])(n_x, xeos, NULL, &SS_ref_db[ss]);
+	if (isnan(G) || isinf(G)){ return; }
+	for (int i = 0; i < SS_ref_db[ss].n_sf; i++){
+		if (SS_ref_db[ss].sf[i] < 0.0 || isnan(SS_ref_db[ss].sf[i]) || isinf(SS_ref_db[ss].sf[i])){ return; }
+	}
+	for (int j = 0; j < gv.len_ox; j++){
+		SS_ref_db[ss].ss_comp[j] = 0.0;
+		for (int i = 0; i < SS_ref_db[ss].n_em; i++){
+			SS_ref_db[ss].ss_comp[j] += SS_ref_db[ss].Comp[i][j]*SS_ref_db[ss].p[i]*SS_ref_db[ss].z_em[i];
+		}
+	}
+	if (SS_ref_db[ss].id_pc[0] >= SS_ref_db[ss].n_pc){
+		SS_ref_db[ss].id_pc[0] = 0;
+		printf("MAXIMUM PC REACHED for %4s\n", gv.SS_list[ss]);
+	}
+	int m_pc = SS_ref_db[ss].id_pc[0];
+	SS_ref_db[ss].info[m_pc]      = 0;
+	SS_ref_db[ss].factor_pc[m_pc] = SS_ref_db[ss].factor;
+	SS_ref_db[ss].DF_pc[m_pc]     = G;
+	for (int j = 0; j < gv.len_ox; j++){ SS_ref_db[ss].comp_pc[m_pc][j] = SS_ref_db[ss].ss_comp[j]*SS_ref_db[ss].factor; }
+	for (int j = 0; j < SS_ref_db[ss].n_em; j++){ SS_ref_db[ss].p_pc[m_pc][j] = SS_ref_db[ss].p[j]; }
+	for (int j = 0; j < n_x; j++){ SS_ref_db[ss].xeos_pc[m_pc][j] = xeos[j]; }
+	SS_ref_db[ss].G_pc[m_pc] = G;
+	SS_ref_db[ss].id_pc[0]  += 1;
+	if (SS_ref_db[ss].tot_pc[0] < SS_ref_db[ss].n_pc){ SS_ref_db[ss].tot_pc[0] += 1; }
+}
+
 void generate_pseudocompounds(	int 		 		 ss,
 								bulk_info 	 		 z_b,
 								global_variable 	 gv,
 								simplex_data 		*splx_data,
 								SS_ref 				*SS_ref_db,
 								PC_ref 				*SS_pc_xeos,
-								obj_type 			*SS_objective				){
+								obj_type 			*SS_objective,
+								P2X_type 			*P2X_read				){
 
 	simplex_data *d  = (simplex_data *) splx_data;
 	struct ss_pc get_ss_pv;							
@@ -782,6 +834,21 @@ void generate_pseudocompounds(	int 		 		 ss,
     		}
 		}
 	}
+
+	if (P2X_read != NULL && gv.face_n > 0 && strcmp(gv.research_group, "tc") == 0 && gv.solver == 0 && gv.ss_solver > 0){
+		int n_em = SS_ref_db[ss].n_em, n_act = 0;
+		for (int e = 0; e < n_em; e++){ if (SS_ref_db[ss].z_em[e] == 1.0){ n_act += 1; } }
+		for (int e = 0; e < n_em && n_act >= 1; e++){
+			if (SS_ref_db[ss].z_em[e] != 1.0){ continue; }
+			for (int jj = 0; jj < n_em; jj++){ SS_ref_db[ss].p[jj] = (SS_ref_db[ss].z_em[jj] == 1.0) ? gv.em2ss_shift : 0.0; }
+			SS_ref_db[ss].p[e] = 1.0 - gv.em2ss_shift*(n_act - 1);
+			(*P2X_read[ss])(&SS_ref_db[ss], gv.bnd_val);
+			double xeos[SS_ref_db[ss].n_xeos];
+			for (int jj = 0; jj < SS_ref_db[ss].n_xeos; jj++){ xeos[jj] = SS_ref_db[ss].iguess[jj]; }
+			if (ns_pc == 1 && !ns_project_x(gv, &SS_ref_db[ss], xeos)){ continue; }
+			store_em_pseudocompound(ss, z_b, gv, d, SS_ref_db, SS_objective, xeos);
+		}
+	}
 }
 
 
@@ -793,6 +860,7 @@ void reduce_ss_list( SS_ref 			*SS_ref_db,
 						 
 	int max_n_pc;			 
 	int phase_on;
+	if (gv.face_n > 0){ return; }
 	for (int iss = 0; iss < gv.len_ss; iss++){										/**loop to pass informations from active endmembers */
 		if (SS_ref_db[iss].ss_flags[0] == 1){
 			phase_on = 0;
@@ -830,6 +898,8 @@ global_variable update_global_info(		bulk_info 	 		 z_b,
 										csd_phase_set  		*cp
 ){	
 	simplex_data *d  = (simplex_data *) splx_data;
+
+	face_project_gamma(gv, d->gamma_tot);
 
 	/* copy gamma total to the global variables */
 	for (int i = 0; i < gv.len_ox; i++){
@@ -1518,6 +1588,14 @@ void SS_all_pc_init_function(	PC_ref 	*SS_pc_xeos,
 		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "plc", gv		);	}
 	else if (strcmp( name, "scp_K04")   == 0){
 		SS_mpe_pc_init_function(		SS_pc_xeos, iss, "scp", gv		);	}
+		else if (strcmp( name, "liq_H26") == 0){
+		SS_igaw_pc_init_function(		SS_pc_xeos, iss, "liq", gv		);	}
+		else if (strcmp( name, "bi_H26") == 0){
+		SS_igaw_pc_init_function(		SS_pc_xeos, iss, "bi", gv		);	}
+		else if (strcmp( name, "amp_H26") == 0){
+		SS_igaw_pc_init_function(		SS_pc_xeos, iss, "amp", gv		);	}
+		else if (strcmp( name, "fl_H26") == 0){
+		SS_igaw_pc_init_function(		SS_pc_xeos, iss, "fl", gv		);	}
 	else{
 		printf("\nsolid solution '%s' is not in the database, cannot be initiated [all]\n", name);
 	}
@@ -1534,7 +1612,8 @@ void run_simplex_levelling(				bulk_info 	 		 z_b,
 
 										PP_ref 				*PP_ref_db,
 										SS_ref 				*SS_ref_db,
-										obj_type			*SS_objective
+										obj_type			*SS_objective,
+										P2X_type			*P2X_read
 ){
 	simplex_data *d  = (simplex_data *) splx_data;
 
@@ -1608,6 +1687,14 @@ void run_simplex_levelling(				bulk_info 	 		 z_b,
 		else if (gv.EM_database == 2){
 			for (iss = 0; iss < gv.len_ss; iss++){
 				SS_ig_pc_init_function(			SS_pc_xeos,
+												iss,
+												gv.SS_list[iss],
+												gv								);
+			}
+		}
+	else if (gv.EM_database == 10){
+			for (iss = 0; iss < gv.len_ss; iss++){
+				SS_igaw_pc_init_function(		SS_pc_xeos,
 												iss,
 												gv.SS_list[iss],
 												gv								);
@@ -1717,7 +1804,8 @@ void run_simplex_levelling(				bulk_info 	 		 z_b,
 										splx_data,
 										SS_ref_db,
 										SS_pc_xeos,
-										SS_objective				);
+										SS_objective,
+										P2X_read					);
 
 			if (gv.verbose == 1){
 				printf(" %4s -> %05d active PCs\n",gv.SS_list[iss],SS_ref_db[iss].tot_pc[0] );
@@ -2072,7 +2160,8 @@ global_variable run_levelling_function(		bulk_info 	 z_b,
 											gv,
 											PP_ref_db,
 											SS_ref_db,
-											SS_objective	);
+											SS_objective,
+											P2X_read		);
 	
 	/* update global variable gamma */
 	update_global_gamma_LU(					z_b,

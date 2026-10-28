@@ -45,7 +45,7 @@ gh_dataset gh_db = {
 	{"liq"	,"ol"	,"fsp"	,"bi"	,"g"	,"hb"	,"lc"	,"mel"	,"cum"	,"spn"	,"cpx"	,"opx"	,"fl"	,"rhm"	,"nph"	,"kls"	,"oox"	,"amp"	},
 
 	{1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		}, // allow solvus?
-	{1820	,1877	,231	,41		,231	,312	,312	,165	,41		,1591	,6201	,6195	,41		,1820	,536	,536	,231	,356	}, // # of pseudocompound
+	{1820	,359	,231	,41		,231	,312	,312	,165	,41		,840	,4152	,4167	,41		,969	,536	,536	,231	,356	}, // # of pseudocompound
 	{0.15	,0.05	,0.05	,0.05	,0.05	,0.05	,0.05	,0.10	,0.025	,0.05	,0.10	,0.10	,0.025	,0.05	,0.125	,0.125	,0.05	,0.05	}, // discretization step
 
 	6.0, 						/** max dG under which a phase is considered to be reintroduced  					*/
@@ -73,7 +73,7 @@ gh_dataset gh_db_pmelts_dataset = {
 	{"liq"	,"ol"	,"fsp"	,"bi"	,"g"	,"hb"	,"lc"	,"mel"	,"cum"	,"spn"	,"cpx"	,"opx"	,"rhm"	,"nph"	,"kls"	,"oox"	,"amp"	},
 
 	{1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		,1		}, // allow solvus?
-	{4368	,1877	,231	,41		,231	,312	,312	,165	,41		,1591	,6201	,6195	,1771	,536	,536	,231	,356	}, // # of pseudocompound
+	{4368	,359	,231	,41		,231	,312	,312	,165	,41		,840	,4152	,4167	,390	,536	,536	,231	,356	}, // # of pseudocompound
 	{0.15	,0.05	,0.05	,0.05	,0.05	,0.05	,0.05	,0.10	,0.025	,0.05	,0.10	,0.10	,0.05	,0.125	,0.125	,0.05	,0.05	}, // discretization step
 
 	6.0, 						/** max dG under which a phase is considered to be reintroduced  					*/
@@ -182,6 +182,7 @@ global_variable global_variable_GH_init(   global_variable      gv,
 
     gv.dGamma           = malloc (gv.len_ox * sizeof(double)   );
     gv.gam_tot          = malloc (gv.len_ox * sizeof (double)  );
+    gv.face_l = calloc(gv.len_ox*gv.len_ox, sizeof(double));
     gv.gam_tot_0        = malloc (gv.len_ox * sizeof (double)  );
     gv.delta_gam_tot    = malloc (gv.len_ox * sizeof (double)  );
     gv.mass_residual    = malloc (gv.len_ox * sizeof(double)   );

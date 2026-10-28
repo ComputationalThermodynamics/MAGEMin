@@ -21,6 +21,8 @@ void TC_mb_ext_objective_init_function(	obj_type 		 	*SS_objective,
 									global_variable  	 gv					);
 void TC_ig_objective_init_function(	obj_type 		 	*SS_objective,
 									global_variable   	 gv					);
+void TC_igaw_objective_init_function(	obj_type 		 	*SS_objective,
+									global_variable   	 gv					);
 void TC_igd_objective_init_function(obj_type 		 	*SS_objective,
 									global_variable   	 gv					);
 void TC_igad_objective_init_function(obj_type 		*SS_objective,
@@ -92,6 +94,8 @@ double obj_ig_opx(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_fsp(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_spl(unsigned  n, const double *x, double *grad, void *SS_ref_db);
 double obj_ig_chl(unsigned  n, const double *x, double *grad, void *SS_ref_db);
+
+double obj_igaw_liq(unsigned n, const double *x, double *grad, void *SS_ref_db);
 
 double obj_igd_liq(unsigned n, const double *x, double *grad, void *SS_ref_db);
 double obj_igd_fsp(unsigned  n, const double *x, double *grad, void *SS_ref_db);
@@ -211,6 +215,8 @@ void TC_mb_PC_init(	                PC_type 			*PC_read,
 void TC_mb_ext_PC_init(	            PC_type 			*PC_read,
 									global_variable 	 gv				);
 void TC_ig_PC_init(	                PC_type 			*PC_read,
+									global_variable 	 gv				);
+void TC_igaw_PC_init(	                PC_type 			*PC_read,
 									global_variable 	 gv				);
 void TC_igad_PC_init(	            PC_type 			*PC_read,
 									global_variable 	 gv				);

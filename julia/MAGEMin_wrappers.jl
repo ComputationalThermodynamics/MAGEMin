@@ -24,6 +24,8 @@ export  anhydrous_renormalization, retrieve_solution_phase_information, print_ph
         get_all_stable_phases, convertBulk4MAGEMin, use_predefined_bulk_rock, define_bulk_rock, create_output,
         print_info, create_gmin_struct, pwm_init, pwm_run, p2x_convert, pc_convert, lm_convert,
         pwm_run_from_state, point_wise_newton_from_state, equilibrium_state, get_final_newton_system,
+        pwm_run_section_from_state, point_wise_section_newton_from_state, SECTION_MODES,
+        SECTION_XY, section_info, section_point, section_ranges, multi_point_section,
         point_wise_metastability,
         single_point_minimization, multi_point_minimization, AMR_minimization, MAGEMin_Data,
         MAGEMin_data2dataframe, MAGEMin_dataTE2dataframe, MAGEMin_data2dataframe_inlined,
@@ -37,6 +39,7 @@ export TE_prediction, adjust_bulk_4_zircon, create_custom_KDs_database, get_TE_d
 export custom_KDs_database, TE_names
 export zirconium_saturation, sulfur_saturation, phosphate_saturation, co2_saturation, monazite_saturation, volatile_saturation_SY26, CO2_from_dissolved_H2O
 export SaturationConfig, solve_with_saturation
+export O18_database, O18_mapping, out_O18, get_O18_database, get_O18_mapping, O18_fractionation, O18_mass_balance, O18_prediction, Δ18O, cipw_norm, norm_coefficients, ZZ03_coefficients
 
 
 export initialize_AMR, split_and_keep, AMR
@@ -685,7 +688,7 @@ end
     Mutable structure holding overriding Margules (Ws) parameters.
 
     Database mapping is independent per research group (`gv.research_group`):
-    for "tc", 0 = "mp", 1 = "mb", 11 = "mbe", 2 = "ig", 22 = "igd", 3 = "igad", 4 = "um", 5 = "ume", 6 = "mtl", 7 = "mpe", 8 = "all";
+    for "tc", 0 = "mp", 1 = "mb", 11 = "mbe", 2 = "ig", 10 = "igaw", 22 = "igd", 3 = "igad", 4 = "um", 5 = "ume", 6 = "mtl", 7 = "mpe", 8 = "all";
     for "sb", 0 = "sb11", 1 = "sb21", 2 = "sb24";
     for "br", 0 = "po".
 
@@ -722,7 +725,7 @@ end
     its default, unmodified value.
 
     Database mapping is independent per research group (`gv.research_group`):
-    for "tc", 0 = "mp", 1 = "mb", 11 = "mbe", 2 = "ig", 22 = "igd", 3 = "igad", 4 = "um", 5 = "ume", 6 = "mtl", 7 = "mpe", 8 = "all";
+    for "tc", 0 = "mp", 1 = "mb", 11 = "mbe", 2 = "ig", 10 = "igaw", 22 = "igd", 3 = "igad", 4 = "um", 5 = "ume", 6 = "mtl", 7 = "mpe", 8 = "all";
     for "sb", 0 = "sb11", 1 = "sb21", 2 = "sb24";
     for "br", 0 = "po".
 
@@ -888,7 +891,7 @@ end
     Parameters
     ----------
     dtb : String
-        Database name (e.g., "mp", "mb", "ig", "igad", "um", "ume", "mtl", "mpe", "all", "po", "sb11", "sb21", "sb24").
+        Database name (e.g., "mp", "mb", "ig", "igaw", "igad", "um", "ume", "mtl", "mpe", "all", "po", "sb11", "sb21", "sb24").
 
     Returns
     -------
@@ -1042,7 +1045,7 @@ const EM_COMP_BASIS = vcat(DB_OXIDES_GENERATED["all"], "Fe")
         Name to its composition, one entry per `EM_COMP_BASIS` oxide.
 """
 function harvest_em_compositions(dtb :: String)
-    ox   = get_oxide_list(dtb)
+    ox   = harvest_oxide_list(dtb)
     n_ox = length(ox)
     isempty(ox) && error("harvest_em_compositions: unknown database \"$dtb\".")
     pos  = Dict(o => i for (i, o) in enumerate(EM_COMP_BASIS))
@@ -1088,7 +1091,7 @@ end
     [`get_phase_oxide_support`](@ref), which is a table lookup.
 """
 function harvest_phase_oxide_support(dtb :: String; eps :: Float64 = 1e-8)
-    ox_list = get_oxide_list(dtb)
+    ox_list = harvest_oxide_list(dtb)
     n_ox    = length(ox_list)
     isempty(ox_list) && error("harvest_phase_oxide_support: unknown database \"$dtb\".")
 
@@ -1516,7 +1519,7 @@ end
     [`gbase_data`](@ref)). Only the databases that carry a DEW aqueous phase are
     listed - DEW doesn't exist in the "sb"/"gh"/"br" research groups.
 """
-const DEW_DB_CODE = Dict("mp"=>0, "mb"=>1, "mbe"=>11, "ig"=>2, "igd"=>22, "igad"=>3,
+const DEW_DB_CODE = Dict("mp"=>0, "mb"=>1, "mbe"=>11, "ig"=>2, "igaw"=>10, "igd"=>22, "igad"=>3,
                           "um"=>4, "ume"=>5, "mtl"=>6, "mpe"=>7, "all"=>8)
 
 """
@@ -1616,7 +1619,7 @@ end
     Parameters
     ----------
     db : String, optional
-        Database name (default: "ig"). Options: "mp", "mb", "mbe", "ig", "igad", "um", "ume", "mtl", "mpe", "all", "po", "sb11", "sb21", "sb24".
+        Database name (default: "ig"). Options: "mp", "mb", "mbe", "ig", "igaw", "igad", "um", "ume", "mtl", "mpe", "all", "po", "sb11", "sb21", "sb24".
     verbose : Union{Int64, Bool}, optional
         Verbosity level (default: 0). `false` or `-1` suppresses output, `true` or `0` gives a brief summary, `1` gives detailed output.
     dataset : Union{Nothing, Int64}, optional
@@ -2617,6 +2620,9 @@ function use_predefined_bulk_rock(gv, test=0, db="ig")
         elseif  db == "igd"
             gv.test = test
             gv = LibMAGEMin.get_bulk_igneous_igd(gv)
+        elseif  db == "igaw"
+            gv.test = test
+            gv = LibMAGEMin.get_bulk_igneous_igaw(gv)
         elseif  db == "igad"
             gv.test = test
             gv = LibMAGEMin.get_bulk_igneous_igad(gv)
@@ -2902,6 +2908,10 @@ end
         Reduced system (SB and Berman databases, or THERMOCALC and MELTS with the nullspace optimizer:
         `optimizer=1`, `solver=0`): core oxides set exactly to zero (or below 2e-5 with `oxMinGuard`)
         stay zero instead of being raised to 1e-4 (default: false).
+    ns : Bool, optional
+        Nullspace optimizer, as used by MAGEMinApp: only SiO2 is raised to 1e-4; every other oxide is
+        kept as given (values within ±2e-5 set to 0 with `oxMinGuard`). Takes precedence over
+        `ns_reduced` (default: false).
 
     Returns
     -------
@@ -2911,11 +2921,16 @@ end
         Oxide names in the order expected by MAGEMin for the given database.
 """
 function convertBulk4MAGEMin(   bulk_in     :: T1,
-                                bulk_in_ox  :: Vector{String},
-                                sys_in      :: String,
-                                db          :: String;
+                                bulk_in_ox  :: AbstractVector{<:AbstractString},
+                                sys_in      :: AbstractString,
+                                db          :: AbstractString;
                                 oxMinGuard  ::  Bool = true,
-                                ns_reduced  ::  Bool = false ) where {T1 <: AbstractVector{Float64}}
+                                ns_reduced  ::  Bool = false,
+                                ns          ::  Bool = false ) where {T1 <: AbstractVector{Float64}}
+
+    bulk_in_ox  = String.(bulk_in_ox)
+    sys_in      = String(sys_in)
+    db          = String(db)
 
     bulk_in = normalize(bulk_in);
 
@@ -3021,8 +3036,13 @@ function convertBulk4MAGEMin(   bulk_in     :: T1,
         d       = findall(in(config.optional).(MAGEMin_ox))
     end
 
+    if ns
+        c       = findall(isequal("SiO2"), MAGEMin_ox)
+        d       = setdiff(eachindex(MAGEMin_ox), c)
+    end
+
     # Set core oxides to minimum 1e-4 if below threshold (exact zeros are kept when the nullspace optimizer reduces the system)
-    if ns_reduced
+    if ns_reduced && !ns
         if oxMinGuard
             idz = findall(MAGEMin_bulk[c] .< 2e-5)
             MAGEMin_bulk[c[idz]] .= 0.0
@@ -3387,6 +3407,16 @@ function point_wise_minimization(   P       ::Float64,
                 ns_pc       = rg in ("tc", "sb", "br", "gh") ? LibMAGEMin.ns_pc_mode(gv, pointer(SS_ref_db, ph_id)) : 0
                 if ns_pc == 2 || (ns_pc == 1 && LibMAGEMin.ns_project_x(gv, pointer(SS_ref_db, ph_id), xeos) == 0)
                     continue
+                end
+
+                ptr_bounds_ref  = unsafe_wrap(Vector{Ptr{Cdouble}}, SS_ref_db[ph_id].bounds_ref, n_xeos)
+                for k=1:n_xeos
+                    lo, hi = unsafe_wrap(Vector{Cdouble}, ptr_bounds_ref[k], 2)
+                    if xeos[k] < lo
+                        xeos[k] = lo
+                    elseif xeos[k] > hi
+                        xeos[k] = hi
+                    end
                 end
 
                 if tot_pc[1] < n_SS_PC[ph_id]   # here we make sure we have the space to store the pseudocompound
@@ -3871,6 +3901,128 @@ end
 
 
 """
+    SECTION_MODES
+
+    Section types of [`pwm_run_section_from_state`](@ref) and the corresponding `gv.sec_mode`:
+    `:sv` (S, V fixed; P, T free) = 1, `:ps` (P, S fixed; T free) = 2, `:tv` (T, V fixed; P free) = 3,
+    `:pv` (P, V fixed; T free) = 4, `:ts` (T, S fixed; P free) = 5, `:ph` (P, H fixed; T free) = 6,
+    `:sh` (S, H fixed; P, T free) = 7, `:vh` (V, H fixed; P, T free) = 8.
+"""
+const SECTION_MODES = Dict(:sv => 1, :ps => 2, :tv => 3, :pv => 4, :ts => 5, :ph => 6, :sh => 7, :vh => 8)
+
+const SECTION_ROWS = Dict(:sv => (:S, :V), :ps => (:S,), :tv => (:V,), :pv => (:V,), :ts => (:S,), :ph => (:H,), :sh => (:S, :H), :vh => (:V, :H))
+
+
+"""
+    pwm_run_section_from_state(gv, z_b, DB, splx_data, state; section, S=NaN, V=NaN, H=NaN, name_solvus=false, ...)
+
+    Section variant of [`pwm_run_from_state`](@ref): load the given equilibrium state (see
+    [`equilibrium_state`](@ref)) after `pwm_init` and solve this assemblage with the final Newton
+    step extended by free pressure and/or temperature and by entropy, volume and/or enthalpy
+    equations (see [`SECTION_MODES`](@ref)). The fixed P or T is the one set by `pwm_init`; the free ones
+    start from it.
+
+    `S` is the system entropy in kJ/K, `V` the system volume in cm³ and `H` the system enthalpy in kJ,
+    all per mol of bulk oxides, i.e. the units of `out.entropy[1]`, `out.V` and `out.enthalpy[1]`. TC, SB and BR databases are supported.
+
+    No stability test is done: phases can be removed by the Newton step when their fraction
+    vanishes, but no phase is added. Check stability with a point minimization at the returned
+    `P_kbar`, `T_C`.
+
+    `out.status` is `0` when the Newton step converged and `-1` otherwise; `out.P_kbar` and
+    `out.T_C` hold the solved pressure and temperature (the start values on failure).
+
+    Returns
+    -------
+    out : gmin_struct{Float64, Int64}
+"""
+function pwm_run_section_from_state(gv, z_b, DB, splx_data, state; section::Symbol, S::Float64 = NaN, V::Float64 = NaN, H::Float64 = NaN, name_solvus = false, seismic_cor = false, aspect_ratio = 0.3, seismic_water = 0, shallow_correction = false, fluid_as_melt = false, anelastic_cor = false, filter_DEW_species = false)
+    haskey(SECTION_MODES, section) || error("Unknown section $(section); use one of $(collect(keys(SECTION_MODES)))")
+    mode    = SECTION_MODES[section]
+    tgt     = (S = S, V = V, H = H)
+    all(r -> isfinite(getfield(tgt, r)), SECTION_ROWS[section]) || error("Section $(section) needs finite targets $(SECTION_ROWS[section]): S = $(S), V = $(V), H = $(H)")
+
+    ss_ids  = Vector{Cint}(state.ss_ids)
+    ss_x    = Vector{Cdouble}(state.ss_x)
+    ss_n    = Vector{Cdouble}(state.ss_n)
+    pp_ids  = Vector{Cint}(state.pp_ids)
+    pp_n    = Vector{Cdouble}(state.pp_n)
+    gam     = Vector{Cdouble}(state.gam)
+
+    gv_in           = gv
+    gv_in.sec_mode  = mode
+    gv_in.sec_S     = isfinite(S) ? S : 0.0
+    gv_in.sec_V     = isfinite(V) ? V : 0.0
+    gv_in.sec_H     = isfinite(H) ? H : 0.0
+
+    time = @elapsed  gv      = LibMAGEMin.ComputeEquilibrium_SectionFromState(z_b, gv_in, DB.PP_ref_db, DB.SS_ref_db, DB.cp, length(ss_ids), ss_ids, ss_x, ss_n, length(pp_ids), pp_ids, pp_n, gam);
+
+    gv_in.sec_mode  = 0
+    gv.sec_mode     = 0
+    z_b.P       = gv.sec_P
+    z_b.T       = gv.sec_T
+
+    gv = LibMAGEMin.ComputePostProcessing(z_b, gv, DB.PP_ref_db, DB.SS_ref_db, DB.cp)
+
+    LibMAGEMin.fill_output_struct(gv, pointer_from_objref(splx_data), z_b, DB.PP_ref_db,DB.SS_ref_db, DB.cp, DB.sp );
+
+    LibMAGEMin.PrintOutput(gv, 0, 1, DB, time, z_b);
+
+    out = deepcopy(create_gmin_struct(DB, gv, time; name_solvus = name_solvus, seismic_cor = seismic_cor, aspect_ratio = aspect_ratio, seismic_water = seismic_water, shallow_correction = shallow_correction, fluid_as_melt = fluid_as_melt, anelastic_cor = anelastic_cor, filter_DEW_species = filter_DEW_species));
+
+    return out
+end
+
+
+"""
+    point_wise_section_newton_from_state(P, T, gv, z_b, DB, splx_data, state; section, S=NaN, V=NaN, H=NaN, W=nothing, gbase=nothing, v=nothing, hook=nothing, name_solvus=false)
+
+    Same as [`pwm_run_section_from_state`](@ref), preceded by `pwm_init` at the start point (P, T)
+    and by the `W`, `gbase` and `v` overrides and the `hook` of [`point_wise_minimization`](@ref).
+
+    Examples
+    --------
+    ```julia
+    gv, z_b, DB, splx_data = init_MAGEMin("mp");
+    gv      = use_predefined_bulk_rock(gv, 0, "mp");
+    gv.verbose = -1
+    out     = point_wise_minimization(6.0, 650.0, gv, z_b, DB, splx_data)
+    st      = equilibrium_state(out)
+    # same assemblage, at 6 kbar and the temperature where V = out.V + 0.05 cm³
+    out2    = point_wise_section_newton_from_state(6.0, 650.0, gv, z_b, DB, splx_data, st; section = :pv, V = out.V + 0.05)
+    ```
+"""
+function point_wise_section_newton_from_state(  P       ::Float64,
+                                                T       ::Float64,
+                                                gv,
+                                                z_b,
+                                                DB,
+                                                splx_data,
+                                                state;
+                                                section     ::Symbol,
+                                                S           ::Float64 = NaN,
+                                                V           ::Float64 = NaN,
+                                                H           ::Float64 = NaN,
+                                                W           = nothing,
+                                                gbase       = nothing,
+                                                v           = nothing,
+                                                hook        = nothing,
+                                                name_solvus = false)
+
+    if P < 0.001
+        P = 0.001
+    end
+    gv, z_b, DB, splx_data = pwm_init(P, T, gv, z_b, DB, splx_data)
+
+    apply_parameter_overrides!(gv, z_b, DB; W = W, gbase = gbase, v = v)
+
+    hook === nothing || hook(gv, z_b, DB)
+
+    return pwm_run_section_from_state(gv, z_b, DB, splx_data, state; section = section, S = S, V = V, H = H, name_solvus = name_solvus)
+end
+
+
+"""
     get_final_newton_system(gv)
 
     Final Newton system stored by the last minimization when `gv.fn_store_kkt = 1` and the final
@@ -4102,7 +4254,7 @@ end
     multi-phase equilibrium solve.
 
     Currently only supported for the "tc" (THERMOCALC) research group, i.e.
-    any of MAGEMin's THERMOCALC-derived databases ("ig", "igd", "igad",
+    any of MAGEMin's THERMOCALC-derived databases ("ig", "igaw", "igd", "igad",
     "mp", "mb", "um", ... or the combined "all" database).
 
     Parameters
@@ -5315,7 +5467,9 @@ include("TE_ph_models.jl")
 include("lattice_strain.jl")
 include("TE_partitioning.jl")
 include("TE_saturation_models.jl")
+include("O_isotopes.jl")
 include("export2CSV.jl")
+include("Section_minimization.jl")
 include("External_routines.jl")
 
 # Loading Adaptive mesh refinement functions

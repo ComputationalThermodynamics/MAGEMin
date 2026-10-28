@@ -140,6 +140,12 @@ typedef struct global_variables {
 	int     *fn_ipiv;
 	int      fn_store_kkt;
 	int      fn_from_state;
+	int      sec_mode;
+	double   sec_S;
+	double   sec_V;
+	double   sec_H;
+	double   sec_P;
+	double   sec_T;
 	fn_kkt  *fn_sys;
 	double   solver_switch_T;
 	int 	 seismicScheme; 	/** 0: Voigt-Reuss-Hill, 1: Hashin-Shtrikman */
@@ -231,6 +237,8 @@ typedef struct global_variables {
 	double  *gam_tot;     		/** chemical potential of components (gamma) */
 	double  *gam_tot_0;     	/** chemical potential of components (gamma) */
 	double  *delta_gam_tot;     /** chemical potential of components (gamma) */
+	int      face_n;			/** codimension of the composition face holding the bulk (0 interior, -1 bulk outside the composition space) */
+	double  *face_l;			/** face_n orthonormal face normals, len_ox each (zero on absent oxides) */
 				
 	int      n_flags;			/** number of column in the flag array */
 	char   **PP_list;			/** pure phase list */
@@ -1088,6 +1096,20 @@ global_variable ComputeEquilibrium_FromState(	bulk_info 	 		 z_b,
 												int 				*pp_ids,
 												double 				*pp_n,
 												double 				*gam				);
+
+global_variable ComputeEquilibrium_SectionFromState(	bulk_info 	 		 z_b,
+														global_variable 	 gv,
+														PP_ref  			*PP_ref_db,
+														SS_ref  			*SS_ref_db,
+														csd_phase_set  		*cp,
+														int 				 n_ss,
+														int 				*ss_ids,
+														double 				*ss_x,
+														double 				*ss_n,
+														int 				 n_pp,
+														int 				*pp_ids,
+														double 				*pp_n,
+														double 				*gam				);
 
 global_variable ComputeLevellingOnly( 		int 				 EM_database,
 											io_data 			 input_data,

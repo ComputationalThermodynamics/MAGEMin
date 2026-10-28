@@ -100,7 +100,7 @@ stx24_dataset stx24_db = {
 	{"plg"	,"sp"	,"ol"	,"wa"	,"ri"	,"opx"	,"cpx"	,"hpcpx", "ak"	,"gtmj"	,"pv"	 ,"ppv"	 ,"cf"	 ,"mw"	  ,"nal"					},
 	
 	{1		,1		,1		,1		,1		,1		,1		,1		,1 		,1 		,1 		,1 		,1		,1		,1						}, // allow solvus?
-	{11 	,286 	,11 	,11 	,11 	,286	,3003	,11 	,1001 	,3003	,3003 	,1001 	,1001	,1001 	,66						}, // # of pseudocompound
+	{11 	,286 	,11 	,11 	,11 	,286	,1873	,11 	,1001 	,2341	,2749 	,1001 	,1001	,1001 	,66						}, // # of pseudocompound
 	{0.050	,0.050	,0.050	,0.050	,0.050	,0.050	,0.050	,0.050	,0.050	,0.125	,0.125	,0.050	,0.050 	,0.050	,0.050					}, // discretization step in endmember fraction
 
 	6.0, 						/** max dG under which a phase is considered to be reintroduced  					*/
@@ -323,6 +323,7 @@ global_variable global_variable_SB_init( 	global_variable  	 gv,
 	/* declare size of chemical potential (gamma) vector */
 	gv.dGamma 			= malloc (gv.len_ox * sizeof(double)	);
 	gv.gam_tot  		= malloc (gv.len_ox * sizeof (double) 	); 
+	gv.face_l = calloc(gv.len_ox*gv.len_ox, sizeof(double));
 	gv.gam_tot_0		= malloc (gv.len_ox * sizeof (double) 	); 
 	gv.delta_gam_tot  	= malloc (gv.len_ox * sizeof (double) 	); 
 	gv.mass_residual 	= malloc (gv.len_ox * sizeof(double)	);	

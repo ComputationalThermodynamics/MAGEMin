@@ -29,13 +29,14 @@ const SKIP   = ("xMELTS", "pMELTS", "rMELTS")
 const TITLES = Dict(
     "mp"   => "Metapelite (mp)",            "mb"   => "Metabasite (mb)",
     "mbe"  => "Metabasite extended (mbe)",  "ig"   => "Igneous (ig)",
+    "igaw" => "Igneous Alkaline Wet (igaw)",
     "igd"  => "Igneous (igd)",              "igad" => "Igneous Alkaline (igad)",
     "um"   => "Ultramafic (um)",            "ume"  => "Ultramafic extended (ume)",
     "mtl"  => "Mantle (mtl)",               "mpe"  => "Metapelite extended (mpe)",
     "po"   => "HP/LT Metapelite (po)",      "sb11" => "Mantle SB11",
     "sb21" => "Mantle SB21",                "sb24" => "Mantle SB24",
     "all"  => "Global (all)")
-const ORDER = ["mp","mb","mbe","ig","igd","igad","um","ume","mtl","mpe","po",
+const ORDER = ["mp","mb","mbe","ig","igaw","igd","igad","um","ume","mtl","mpe","po",
                "sb11","sb21","sb24","all"]
 
 """

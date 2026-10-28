@@ -246,7 +246,9 @@ function MAGEMin_dataTE2dataframe(  out     :: Union{Vector{gmin_struct{Float64,
 
         # solid
         if ~isnothing(out_te[k].Csol) && !any(isnan, out_te[k].Csol)
-            if ~isnothing(out_te[k].liq_wt_norm) && !isnan(out_te[k].liq_wt_norm)
+            if !isnan(out_te[k].sol_wt_norm)
+                sol_mode = out_te[k].sol_wt_norm*100.0
+            elseif ~isnothing(out_te[k].liq_wt_norm) && !isnan(out_te[k].liq_wt_norm)
                 sol_mode = (1.0-out_te[k].liq_wt_norm)*100.0
             else
                 sol_mode = 100.0

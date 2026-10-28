@@ -1,0 +1,159 @@
+# DBOxygen version 2.0.3 (updated May 9, 2019): oxygen isotope fractionation quartz/phase
+# 1000 ln alpha(Qz-phase) = A*1e6/T^2 + B*1e3/T + C, T in K; uncertainties at 2 sigma
+# Vho A., Lanari P., Rubatto D. (2019) An internally-consistent database for oxygen isotope fractionation between minerals.
+# Journal of Petrology 60, 2101-2129. doi:10.1093/petrology/egaa001 (Table 1, CC-BY 4.0)
+phase,group,A,sA,B,sB,C,sC
+Quartz,Quartz,0.00,0.00,0.00,0.00,0.00,0.00
+Water,Water,4.11,0.11,-3.33,0.61,0.00,0.15
+Ankerite,Carbonates,0.41,0.01,-0.29,0.01,0.00,0.00
+Aragonite,Carbonates,0.28,0.16,1.23,0.02,0.00,0.01
+Azurite,Carbonates,2.83,0.03,-9.43,0.00,0.00,0.02
+Calcite,Carbonates,0.39,0.26,0.15,0.15,0.00,0.08
+Cerussite,Carbonates,0.68,0.00,0.01,0.00,0.00,0.01
+Dolomite,Carbonates,0.24,0.21,-0.21,0.00,0.00,0.00
+Magnesite,Carbonates,0.38,0.02,-0.21,0.03,0.00,0.00
+Malachite,Carbonates,2.71,0.00,-8.42,0.01,0.00,0.30
+Norsethite,Carbonates,0.49,0.07,0.14,0.01,0.00,0.00
+Otavite,Carbonates,0.64,0.16,-0.23,0.01,0.00,0.02
+Rhodochrosite,Carbonates,0.56,0.02,-0.80,0.05,0.00,0.04
+Siderite,Carbonates,0.30,0.05,-0.09,0.01,0.00,0.01
+Smithsonite,Carbonates,-0.06,0.05,0.27,0.01,0.00,0.01
+Strontianite,Carbonates,0.82,0.09,-0.21,0.20,0.00,0.24
+Witherite,Carbonates,0.78,0.11,0.33,0.04,0.00,0.01
+Albite,Feldspar,0.33,0.00,0.53,0.02,0.00,0.13
+Anorthite,Feldspar,0.71,0.00,1.13,0.64,0.00,0.07
+K-Feldspar,Feldspar,0.20,0.00,1.08,0.01,0.00,0.03
+Almandine,Garnet,1.29,0.01,1.98,0.01,0.00,0.36
+Andradite,Garnet,1.17,0.03,2.35,0.01,0.00,0.12
+Grossular,Garnet,1.37,0.01,1.91,0.02,0.00,0.35
+Pyrope,Garnet,1.18,0.01,2.39,0.00,0.00,0.24
+Spessartine,Garnet,1.29,0.01,2.04,0.03,0.00,0.18
+Melanite,Garnet,1.15,0.01,2.02,0.00,0.00,0.01
+Uvarovite,Garnet,1.13,0.02,2.46,0.07,0.00,0.16
+Allanite,Epidote,1.68,0.04,1.83,0.01,0.00,0.01
+Epidote,Epidote,0.57,0.00,2.23,0.03,0.00,0.95
+Piemontite,Epidote,1.21,0.01,2.02,0.00,0.00,0.06
+Zoisite,Epidote,0.81,0.00,1.82,0.91,0.00,0.98
+Actinolite,Amphibole,0.81,0.02,2.11,0.01,0.00,0.14
+Anthophyllite,Amphibole,0.81,0.01,2.12,0.02,0.00,0.16
+Cummingtonite,Amphibole,0.86,0.01,1.99,0.01,0.00,0.13
+Edenite,Amphibole,1.91,0.02,0.95,0.01,0.00,0.00
+Gedrite,Amphibole,1.04,0.01,2.21,0.09,0.00,0.05
+Glaucophane,Amphibole,0.73,0.00,1.92,0.02,0.00,0.29
+Grunerite,Amphibole,0.80,0.01,2.04,0.06,0.00,0.09
+Hornblende,Amphibole,0.90,0.00,2.37,0.11,0.00,0.21
+Katophorite,Amphibole,2.58,0.01,-0.31,0.02,0.00,0.01
+Pargasite,Amphibole,1.13,0.00,2.38,0.03,0.00,0.21
+Richterite,Amphibole,-0.58,0.02,3.89,0.04,0.00,0.03
+Riebeckite,Amphibole,0.63,0.00,2.01,0.05,0.00,0.16
+Taramite,Amphibole,1.65,0.00,1.15,0.03,0.00,0.01
+Tremolite,Amphibole,0.81,0.02,2.15,0.04,0.00,0.16
+Tschermakite,Amphibole,1.42,0.00,1.48,0.01,0.00,0.00
+Chamosite,Chlorite,0.69,0.02,1.78,0.06,0.00,0.00
+Chlorite,Chlorite,0.47,0.00,3.12,0.00,0.00,0.04
+Clinochlore,Chlorite,0.76,0.00,2.17,0.05,0.00,0.18
+Thuringite,Chlorite,0.88,0.02,2.31,0.07,0.00,0.19
+Annite,Mica,0.92,0.00,2.29,0.03,0.00,0.23
+Biotite,Mica,0.90,0.00,2.67,0.09,0.00,0.49
+Glauconite,Mica,0.84,0.03,1.82,0.01,0.00,0.01
+Lepidolite,Mica,0.61,0.01,1.69,0.02,0.00,0.07
+Margarite,Mica,0.51,0.01,2.06,0.01,0.00,0.29
+Muscovite,Mica,0.85,0.01,1.06,0.03,0.00,0.25
+Paragonite,Mica,0.62,0.00,1.55,0.01,0.00,0.08
+Phengite,Mica,0.55,0.02,1.68,0.08,0.00,0.13
+F-phlogopite,Mica,2.13,0.02,0.00,0.03,0.00,0.45
+Phlogopite,Mica,1.17,0.00,1.79,0.08,0.00,0.49
+Acmite,Pyroxene,0.53,0.00,1.29,0.00,0.00,0.00
+Diopside,Pyroxene,1.03,0.02,1.74,0.03,0.00,0.36
+Hedenbergite,Pyroxene,0.86,0.01,2.16,0.02,0.00,0.15
+Jadeite,Pyroxene,0.63,0.01,1.09,0.06,0.00,0.28
+Enstatite,Pyroxene,0.76,0.01,2.23,0.14,0.00,0.69
+Ferrosilite,Pyroxene,0.72,0.01,2.15,0.08,0.00,0.92
+Fayalite,Olivine,1.20,0.00,3.03,0.56,0.00,0.88
+Forsterite,Olivine,1.50,0.02,2.84,1.04,0.00,0.21
+Tephroite,Olivine,1.21,0.01,3.01,0.01,0.00,0.46
+Analcime,Zeolite,0.47,0.00,-0.01,0.00,0.00,0.01
+Stilbite,Zeolite,0.54,0.00,-0.56,0.02,0.00,0.02
+Wairakite,Zeolite,2.06,0.02,0.59,0.00,0.00,0.02
+Andalusite,Al2SiO5,0.33,0.00,1.72,0.01,0.00,0.37
+Kyanite,Al2SiO5,0.40,0.00,1.87,0.01,0.00,0.23
+Sillimanite,Al2SiO5,0.06,0.00,1.91,0.03,0.00,0.68
+Topaz,Al2SiO5,0.51,0.01,1.42,0.00,0.00,0.04
+Hercynite,Spinel,3.05,0.02,4.81,0.00,0.00,0.94
+Spinel,Spinel,3.25,0.03,4.85,0.03,0.00,0.96
+Ulvospinel,Spinel,2.46,0.01,4.27,0.04,0.00,0.73
+Geikielite,Ilmenite,2.49,0.00,4.32,0.09,0.00,0.85
+Ilmenite,Ilmenite,2.37,0.01,4.17,0.03,0.00,0.69
+Chondrodite,Humite,1.14,0.01,2.59,0.02,0.00,0.29
+Clinohumite,Humite,1.08,0.00,2.48,0.06,0.00,0.19
+Humite,Humite,1.07,0.01,2.55,0.04,0.00,0.30
+Norbergite,Humite,1.26,0.00,2.92,0.03,0.00,0.37
+Amesite,Serpentine,0.72,0.01,2.44,0.07,0.00,0.31
+Chrysotile,Serpentine,2.43,0.01,1.33,0.06,0.00,0.01
+Lizardite,Serpentine,0.84,0.00,1.96,0.02,0.00,0.11
+Serpentine,Serpentine,0.73,0.02,2.35,0.02,0.00,0.41
+Illite,Clay,0.74,0.03,0.91,0.14,0.00,0.04
+Kaolinite,Clay,0.51,0.13,0.96,0.00,0.00,0.00
+Pyrophyllite,Clay,0.06,0.01,0.67,0.02,0.00,0.00
+Smectite,Clay,1.54,0.01,-3.42,0.02,0.00,0.03
+Talc,Clay,0.28,0.01,1.89,0.05,0.00,0.27
+Malayaite,Titanite,0.90,0.00,2.40,0.03,0.00,0.26
+Titanite,Titanite,1.05,0.01,2.41,0.05,0.00,0.85
+Leucite,Feldspathoid,0.37,0.01,1.13,0.00,0.00,0.00
+Nepheline,Feldspathoid,0.61,0.01,1.64,0.02,0.00,0.04
+Pectolite,Pyroxenoid,0.65,0.00,1.77,0.03,0.00,0.08
+Rhodonite,Pyroxenoid,0.95,0.01,2.40,0.00,0.00,0.28
+Phenacite,Phenacite,1.51,0.02,3.29,0.01,0.00,0.48
+Willemite,Phenacite,1.04,0.00,2.56,0.03,0.00,0.32
+Thorite,Zircon,1.14,0.01,2.83,0.01,0.00,0.38
+Zircon,Zircon,1.56,0.03,1.23,0.16,0.00,0.27
+Axinite,Other silicates,0.41,0.02,1.47,0.02,0.00,0.01
+Beryl,Other silicates,0.79,0.01,1.99,0.01,0.00,0.13
+Chloritoid,Other silicates,0.77,0.00,2.00,0.03,0.00,0.10
+Cordierite,Other silicates,0.66,0.00,1.58,0.03,0.00,0.02
+Datolite,Other silicates,0.18,0.01,1.02,0.03,0.00,0.01
+Gehlenite,Other silicates,3.54,0.00,0.00,0.01,0.00,0.01
+Ilvaite,Other silicates,1.52,0.00,3.23,0.00,0.00,0.49
+Lawsonite,Other silicates,1.93,0.00,0.21,0.12,0.00,0.02
+Prehnite,Other silicates,0.65,0.08,1.30,0.00,0.00,0.04
+Staurolite,Other silicates,0.46,0.00,2.25,0.00,0.00,0.39
+Tourmaline,Other silicates,0.43,0.01,1.35,0.04,0.00,0.21
+Wollastonite,Other silicates,1.36,0.01,1.52,0.03,0.00,0.35
+Vesuvianite,Other silicates,1.39,0.01,2.91,0.04,0.00,0.30
+Cassiterite,Oxides,1.06,0.01,3.30,0.06,0.00,0.77
+Cerianite,Oxides,2.81,0.01,4.41,0.16,0.00,0.63
+Chromite,Oxides,2.69,0.01,4.50,0.04,0.00,0.80
+Corundum,Oxides,2.98,0.01,5.54,0.16,0.00,0.18
+Franklinite,Oxides,2.62,0.01,4.31,0.09,0.00,0.72
+Hematite,Oxides,1.32,0.67,5.86,0.06,0.00,0.62
+Jacobsite,Oxides,2.18,0.00,4.03,0.07,0.00,0.66
+Magnesiochromite,Oxides,2.84,0.03,4.67,0.08,0.00,0.86
+Magnesioferrite,Oxides,2.26,0.04,4.13,0.00,0.00,0.69
+Magnetite,Oxides,2.34,0.03,4.00,2.37,0.00,0.43
+Perovskite,Oxides,6.86,0.04,0.00,0.01,0.00,0.02
+Plattnerite,Oxides,1.26,0.00,2.73,0.04,0.00,0.28
+Pyrolusite,Oxides,1.32,0.01,3.07,0.03,0.00,0.41
+Rutile,Oxides,1.50,0.04,3.68,0.29,0.00,0.94
+Thorianite,Oxides,2.75,0.00,4.50,0.01,0.00,0.84
+Uraninite,Oxides,2.66,0.02,4.52,0.02,0.00,0.88
+Wolframite,Oxides,0.73,0.01,3.08,0.12,0.00,0.86
+Akaganeite,Hydroxides,-2.76,0.01,9.48,0.07,0.00,0.02
+Brucite,Hydroxides,1.75,0.04,3.62,0.02,0.00,0.57
+Bayerite,Hydroxides,1.00,0.00,2.51,0.05,0.00,0.29
+Boehmite,Hydroxides,1.88,0.00,3.74,0.01,0.00,0.74
+Diaspore,Hydroxides,1.89,0.01,3.78,0.04,0.00,0.64
+Goethite,Hydroxides,1.73,0.03,3.04,0.00,0.00,0.22
+Gibbsite,Hydroxides,1.17,0.12,1.83,0.01,0.00,0.02
+Lepidocrocite,Hydroxides,1.68,0.02,3.32,0.02,0.00,0.43
+Limonite,Hydroxides,0.83,0.01,2.04,0.00,0.00,0.16
+Nordstrandite,Hydroxides,1.01,0.02,2.24,0.00,0.00,0.18
+Pyrochroite,Hydroxides,1.48,0.01,3.20,0.02,0.00,0.46
+Spertiniite,Hydroxides,1.33,0.00,2.97,0.11,0.00,0.30
+Apatite,Phosphates,1.64,0.02,1.14,0.00,0.00,0.05
+Monazite,Phosphates,0.85,0.01,1.33,0.08,0.00,0.44
+Xenotime,Phosphates,-0.13,0.00,-0.38,0.01,0.00,0.00
+Alunite,Sulfates,-0.01,0.00,1.00,0.00,0.00,0.00
+Anglesite,Sulfates,0.70,0.02,0.10,0.01,0.00,0.00
+Anhydrite,Sulfates,-0.06,0.00,-0.05,0.00,0.00,0.00
+Barite,Sulfates,0.52,0.00,0.72,0.01,0.00,0.05
+Portlandite,Salts,1.73,0.00,3.53,0.09,0.00,0.47

@@ -27,13 +27,20 @@
     variables and fails if it ever returns a name this table does not list.
 """
 const SOLVUS_FAMILY = Dict{Tuple{String,String},Vector{String}}(
-    # ig, igad, igd
+    # ig, igaw, igad, igd
     ("ig",   "spl")         => ["cm", "mgt", "spl", "usp"],
     ("ig",   "fsp")         => ["afs", "pl"],
     ("ig",   "mu")          => ["mu", "pat"],
     ("ig",   "amp")         => ["act", "amp", "cumm", "gl", "tr"],
     ("ig",   "ilm")         => ["hem", "ilm"],
     ("ig",   "cpx")         => ["Na-cpx", "cpx", "pig"],
+    ("igaw", "spl")         => ["cm", "mgt", "spl", "usp"],
+    ("igaw", "fsp")         => ["afs", "pl"],
+    ("igaw", "mu")          => ["mu", "pat"],
+    ("igaw", "amp")         => ["act", "amp", "cumm", "gl", "tr"],
+    ("igaw", "ilm")         => ["hem", "ilm"],
+    ("igaw", "nph")         => ["K-nph", "nph"],
+    ("igaw", "cpx")         => ["Na-cpx", "cpx", "pig"],
     ("igad", "spl")         => ["cm", "mgt", "spl", "usp"],
     ("igad", "fsp")         => ["afs", "pl"],
     ("igad", "ilm")         => ["hem", "ilm"],
@@ -108,7 +115,7 @@ const SOLVUS_FAMILY = Dict{Tuple{String,String},Vector{String}}(
     Parameters
     ----------
     db : String
-        Database identifier (e.g., "ig", "igad", "mp", "mpe", "mb", "ume", "mbe").
+        Database identifier (e.g., "ig", "igaw", "igad", "mp", "mpe", "mb", "ume", "mbe").
     ss : String
         Solution phase short name (e.g., "fsp", "spl", "amp", "ilm").
     SS_vec : LibMAGEMin.SS_data
@@ -124,7 +131,7 @@ function get_mineral_name(db, ss, SS_vec)
     # @warn "Breaking changes in v2.1.3 by disambiguation of solvus names: 'spl': 'sp' > 'spl'; 'sp': 'mt' > 'smt'."
     mineral_name = ss
    
-    if db == "ig" || db == "igad"  || db == "igd"
+    if db == "ig" || db == "igaw" || db == "igad"  || db == "igd"
         x = SS_vec.compVariables
         if ss == "spl"
             if x[3] - 0.5 > 0.0;        mineral_name = "cm";
@@ -152,7 +159,7 @@ function get_mineral_name(db, ss, SS_vec)
             if x[2] - 0.5 > 0.0;       mineral_name = "K-nph";
             else                        mineral_name = "nph";   end 
         elseif ss == "cpx"
-            if x[3] - 0.6 > 0.0;        mineral_name = "pig";
+            if x[3] - 0.85 > 0.0;        mineral_name = "pig";
             elseif x[4] - 0.5 > 0.0;    mineral_name = "Na-cpx";
             else                        mineral_name = "cpx";   end 
         end
@@ -236,11 +243,11 @@ function get_mineral_name(db, ss, SS_vec)
             if x[4] - 0.5 > 0.0;        mineral_name = "pat";
             else                        mineral_name = "mu";    end
         elseif ss == "cpx_T21"
-            if x[3] - 0.6 > 0.0;        mineral_name = "pig";
+            if x[3] - 0.85 > 0.0;        mineral_name = "pig";
             elseif x[4] - 0.5 > 0.0;    mineral_name = "Na-cpx";
             else                        mineral_name = "cpx";   end
         elseif ss == "cpx_W24"
-            if x[3] - 0.6 > 0.0;        mineral_name = "pig";
+            if x[3] - 0.85 > 0.0;        mineral_name = "pig";
             elseif x[4] - 0.5 > 0.0;    mineral_name = "Na-cpx";
             else                        mineral_name = "cpx";   end
         elseif ss == "nph_W24"
@@ -284,7 +291,7 @@ end
     Parameters
     ----------
     db : String
-        Database identifier (e.g., "ig", "igad", "mp", "mpe", "mb", "ume", "mbe").
+        Database identifier (e.g., "ig", "igaw", "igad", "mp", "mpe", "mb", "ume", "mbe").
     mrl : String
         Disambiguated mineral name (e.g., "pl", "afs", "mgt", "hem", "omph").
     mbCpx : Int64
@@ -303,7 +310,7 @@ function get_ss_from_mineral(db, mrl, mbCpx, active_ss::AbstractVector{<:Abstrac
     ss = mrl
     pick(candidates) = candidates[something(findfirst(in(active_ss), candidates), firstindex(candidates))]
 
-    if db =="ig" || db == "igad" || db == "igd"
+    if db =="ig" || db == "igaw" || db == "igad" || db == "igd"
 
         if mrl == "cm" || mrl == "mgt" || mrl == "usp" || mrl == "spl"
             ss = "spl"

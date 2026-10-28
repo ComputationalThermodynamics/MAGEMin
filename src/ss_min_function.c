@@ -728,6 +728,134 @@ SS_ref ss_local_min(			global_variable 	 gv,
 	return SS_ref_db;
 }
 
+
+static void revive_deleted_models(	global_variable 	 gv,
+									PC_type				*PC_read,
+									obj_type 			*SS_objective,
+									NLopt_type 			*NLopt_opt,
+									bulk_info 	 		 z_b,
+									SS_ref 			    *SS_ref_db					){
+
+	P2X_type 	P2X_read[gv.len_ss];
+	int 		p2x_set = 0;
+	for (int ss = 0; ss < gv.len_ss; ss++){
+		if (SS_ref_db[ss].ss_flags[3] != 1 || SS_ref_db[ss].ss_flags[0] != 0){ continue; }
+		int    best    = -1;
+		double best_df = 1e30;
+		for (int l = 0; l < SS_ref_db[ss].tot_pc[0]; l++){
+			double df = SS_ref_db[ss].G_pc[l];
+			for (int j = 0; j < gv.len_ox; j++){ df -= SS_ref_db[ss].comp_pc[l][j]*gv.gam_tot[j]; }
+			df *= SS_ref_db[ss].factor_pc[l];
+			if (df < best_df){ best_df = df; best = l; }
+		}
+		int    n_x     = SS_ref_db[ss].n_xeos;
+		double x_em[n_x];
+		int    use_em  = 0;
+		if ((best < 0 || best_df >= 0.0) && strcmp(gv.research_group, "tc") == 0 && ns_pc_mode(gv, &SS_ref_db[ss]) == 1){
+			if (p2x_set == 0){ TC_P2X_init(P2X_read, gv); p2x_set = 1; }
+			int n_em = SS_ref_db[ss].n_em, n_act = 0;
+			for (int e = 0; e < n_em; e++){ if (SS_ref_db[ss].z_em[e] == 1.0){ n_act += 1; } }
+			SS_ref_db[ss] = rotate_hyperplane(gv, SS_ref_db[ss]);
+			double em_df = 0.0;
+			for (int e = 0; e < n_em && n_act > 1 && P2X_read[ss] != NULL; e++){
+				if (SS_ref_db[ss].z_em[e] != 1.0){ continue; }
+				for (int jj = 0; jj < n_em; jj++){ SS_ref_db[ss].p[jj] = (SS_ref_db[ss].z_em[jj] == 1.0) ? gv.em2ss_shift : 0.0; }
+				SS_ref_db[ss].p[e] = 1.0 - gv.em2ss_shift*(n_act - 1);
+				(*P2X_read[ss])(&SS_ref_db[ss], gv.bnd_val);
+				double xp[n_x];
+				for (int k = 0; k < n_x; k++){ xp[k] = SS_ref_db[ss].iguess[k]; }
+				if (!ns_project_x(gv, &SS_ref_db[ss], xp)){ continue; }
+				double df = (*SS_objective[ss])(n_x, xp, NULL, &SS_ref_db[ss]);
+				if (isfinite(df) && df < em_df){ em_df = df; use_em = 1; for (int k = 0; k < n_x; k++){ x_em[k] = xp[k]; } }
+			}
+			if (use_em == 1){ best_df = em_df; }
+		}
+		if ((best < 0 || best_df >= 0.0) && use_em == 0){ continue; }
+		SS_ref_db[ss].ss_flags[0] = 1;
+		SS_ref_db[ss].ss_flags[1] = 0;
+		SS_ref_db[ss].ss_flags[2] = 0;
+		SS_ref_db[ss].ss_flags[3] = 0;
+		for (int k = 0; k < n_x; k++){ SS_ref_db[ss].iguess[k] = (use_em == 1) ? x_em[k] : SS_ref_db[ss].xeos_pc[best][k]; }
+		SS_ref_db[ss] = rotate_hyperplane(gv, SS_ref_db[ss]);
+		SS_ref_db[ss] = ss_local_min(gv, NLopt_opt, ss, SS_ref_db[ss], gv.box_size_mode_LP);
+		for (int k = 0; k < n_x; k++){ SS_ref_db[ss].iguess[k] = SS_ref_db[ss].xeos[k]; }
+		SS_ref_db[ss] = PC_function(gv, PC_read, SS_ref_db[ss], z_b, ss);
+		SS_ref_db[ss] = SS_UPDATE_function(gv, SS_ref_db[ss], z_b, gv.SS_list[ss]);
+		if (SS_ref_db[ss].sf_ok == 1){
+			copy_to_Ppc(1, 1, ss, gv, SS_objective, SS_ref_db);
+		}
+		if (gv.verbose == 1){ printf(" [revive] %4s best PC df %+.4f -> minimized df %+.6f\n", gv.SS_list[ss], best_df, SS_ref_db[ss].df); }
+	}
+}
+
+static const char *PROBE_MODELS[] = {"cpx", "spl"};
+static const int    PROBE_N_SEEDS  = 2;
+static const double PROBE_MIN_DIST = 0.4;
+
+static int probe_model_selected(global_variable gv, int ss){
+	for (size_t k = 0; k < sizeof(PROBE_MODELS)/sizeof(PROBE_MODELS[0]); k++){
+		if (strcmp(gv.SS_list[ss], PROBE_MODELS[k]) == 0){ return 1; }
+	}
+	return 0;
+}
+
+static void probe_far_instances(	global_variable 	 gv,
+									PC_type				*PC_read,
+									obj_type 			*SS_objective,
+									NLopt_type 			*NLopt_opt,
+									bulk_info 	 		 z_b,
+									SS_ref 			    *SS_ref_db,
+									csd_phase_set  		*cp					){
+
+	if (strcmp(gv.research_group, "tc") != 0 || gv.solver != 0 || gv.ss_solver == 0){ return; }
+	int    K     = PROBE_N_SEEDS;
+	double D     = PROBE_MIN_DIST;
+
+	for (int ss = 0; ss < gv.len_ss; ss++){
+		if (SS_ref_db[ss].ss_flags[0] != 1 || !probe_model_selected(gv, ss)){ continue; }
+		int n_em = SS_ref_db[ss].n_em, n_x = SS_ref_db[ss].n_xeos;
+		int inst[gv.len_cp > 0 ? gv.len_cp : 1], n_inst = 0;
+		for (int i = 0; i < gv.len_cp; i++){ if (cp[i].ss_flags[0] == 1 && cp[i].id == ss){ inst[n_inst++] = i; } }
+		if (n_inst == 0){ continue; }
+
+		int    chosen[K > 0 ? K : 1], n_ch = 0;
+		int    n_pc = SS_ref_db[ss].tot_pc[0];
+		for (int c = 0; c < K; c++){
+			int    best   = -1;
+			double best_df = 1e30;
+			for (int l = 0; l < n_pc; l++){
+				double df = SS_ref_db[ss].G_pc[l];
+				for (int j = 0; j < gv.len_ox; j++){ df -= SS_ref_db[ss].comp_pc[l][j]*gv.gam_tot[j]; }
+				if (!(df < best_df)){ continue; }
+				int far = 1;
+				for (int a = 0; a < n_inst && far; a++){
+					if (euclidean_distance(SS_ref_db[ss].p_pc[l], cp[inst[a]].p_em, n_em) < D){ far = 0; }
+				}
+				for (int a = 0; a < n_ch && far; a++){
+					if (euclidean_distance(SS_ref_db[ss].p_pc[l], SS_ref_db[ss].p_pc[chosen[a]], n_em) < D){ far = 0; }
+				}
+				if (far){ best = l; best_df = df; }
+			}
+			if (best < 0){ break; }
+			chosen[n_ch++] = best;
+		}
+
+		for (int c = 0; c < n_ch; c++){
+			int l = chosen[c];
+			for (int k = 0; k < n_x; k++){ SS_ref_db[ss].iguess[k] = SS_ref_db[ss].xeos_pc[l][k]; }
+			SS_ref_db[ss] = rotate_hyperplane(gv, SS_ref_db[ss]);
+			SS_ref_db[ss] = ss_local_min(gv, NLopt_opt, ss, SS_ref_db[ss], gv.box_size_mode_LP);
+			for (int k = 0; k < n_x; k++){ SS_ref_db[ss].iguess[k] = SS_ref_db[ss].xeos[k]; }
+			SS_ref_db[ss] = PC_function(gv, PC_read, SS_ref_db[ss], z_b, ss);
+			SS_ref_db[ss] = SS_UPDATE_function(gv, SS_ref_db[ss], z_b, gv.SS_list[ss]);
+			if (SS_ref_db[ss].sf_ok == 1){
+				copy_to_Ppc(1, 1, ss, gv, SS_objective, SS_ref_db);
+				if (gv.verbose == 1){ printf(" [probe] %4s seed %d -> df %+.6f\n", gv.SS_list[ss], l, SS_ref_db[ss].df); }
+			}
+		}
+	}
+}
+
 void ss_min_LP(			global_variable 	 gv,
 						PC_type				*PC_read,
 
@@ -747,6 +875,8 @@ void ss_min_LP(			global_variable 	 gv,
 	for (int i = 0; i < gv.len_ss; i++){
 		gv.n_min[i] = 0;
 	}
+	revive_deleted_models(gv, PC_read, SS_objective, NLopt_opt, z_b, SS_ref_db);
+	probe_far_instances(gv, PC_read, SS_objective, NLopt_opt, z_b, SS_ref_db, cp);
 	int    is_gh            = (strcmp(gv.research_group, "gh") == 0);
 	int    is_tc            = (strcmp(gv.research_group, "tc") == 0);
 
@@ -1109,6 +1239,23 @@ global_variable init_ss_db(		int 				 EM_database,
 			// }
 
 			SS_ref_db[i]    = G_SS_ig_EM_function(	gv, 
+													SS_ref_db[i], 
+													gv.EM_dataset, 
+													z_b, 
+													gv.SS_list[i]		);
+		}
+	}
+	else if (EM_database == 10){
+		for (int i = 0; i < gv.len_ss; i++){
+			SS_ref_db[i].P  = z_b.P;									/** needed to pass to local minimizer, allows for P variation for liq/sol */
+			SS_ref_db[i].T  = z_b.T;		
+			SS_ref_db[i].R  = 0.0083144;
+
+			// if (SS_ref_db[i].is_liq == 1){
+			// 	SS_ref_db[i].P  = z_b.P + gv.melt_pressure;
+			// }
+
+			SS_ref_db[i]    = G_SS_igaw_EM_function(	gv, 
 													SS_ref_db[i], 
 													gv.EM_dataset, 
 													z_b, 

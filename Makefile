@@ -44,6 +44,7 @@ SOURCES=src/MAGEMin.c 							\
 		src/BR_database/BR_PP_endmembers.c		\
 		src/BR_database/BR_gem_function.c		\
 		src/toolkit.c							\
+		src/face_function.c						\
 		src/io_function.c						\
 		src/gem_function.c 						\
 		src/TC_database/tc_gss_init_function.c	\
@@ -68,6 +69,7 @@ SOURCES=src/MAGEMin.c 							\
 		src/TC_database/SS_xeos_PC_ig.c			\
 		src/TC_database/SS_xeos_PC_igd.c		\
 		src/TC_database/SS_xeos_PC_igad.c		\
+		src/TC_database/SS_xeos_PC_igaw.c		\
 		src/TC_database/SS_xeos_PC_um.c			\
 		src/TC_database/SS_xeos_PC_mtl.c		\
 		src/TC_database/SS_xeos_PC_mpe.c		\

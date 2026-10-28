@@ -163,7 +163,7 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	}
 
 	strcpy(gv.outpath,"./output/");					/** define the outpath to save logs and final results file	 						*/
-	strcpy(gv.version,"2.0.9 [18/10/2026]");		/** MAGEMin version 																*/
+	strcpy(gv.version,"2.1.0 [28/10/2026]");		/** MAGEMin version 																*/
 
 	/* generate parameters        		*/
 	strcpy(gv.buffer,"none");
@@ -275,6 +275,8 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.n_points 			=  1;
 	gv.solver   			=  2;					/* 0 -> Legacy, 1 = PGE, Hybrid PGE/LP */
 	gv.ss_solver 			=  0;
+	gv.face_n 				=  0;
+	gv.face_l 				=  NULL;
 	gv.ns_alpha 			=  1e-4;
 	gv.ns_beta_ini 			=  0.25;
 	gv.ns_beta 				=  0.25;
@@ -296,6 +298,12 @@ global_variable global_variable_alloc( bulk_info  *z_b ){
 	gv.fn_ipiv 				=  NULL;
 	gv.fn_store_kkt 		=  0;
 	gv.fn_from_state 		=  0;
+	gv.sec_mode 			=  0;
+	gv.sec_S 				=  0.0;
+	gv.sec_V 				=  0.0;
+	gv.sec_H 				=  0.0;
+	gv.sec_P 				=  0.0;
+	gv.sec_T 				=  0.0;
 	gv.fn_sys 				=  NULL;
 	gv.DEW_solve_algorithm 	=  4;              		/** 0: original plain Picard DEW inner solver, 1: damped/mixed variant, 2: plain Picard + Newton-safeguarded-by-bisection mu_Hp solve, 4 (default): Newton on ln(molality) of all species with activity coefficients inside the residual - see DEW_aq_solver.c */
 	gv.warm_start			=  1;					/** 1 (default): DEW outer-PGE warm start active, 0: disabled (always re-explore the full 8-start multistart grid) - see NLopt_opt_DEW_function */
@@ -390,21 +398,22 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 	sp.bulk_S_wt 			= malloc(gv.len_ox 	* sizeof(double)			);	
 	sp.bulk_M_wt 			= malloc(gv.len_ox 	* sizeof(double)			);	
 	sp.bulk_F_wt 			= malloc(gv.len_ox 	* sizeof(double)			);	
-	sp.ph 	     			= malloc(gv.len_ox  * sizeof(char*)				);
-	sp.sol_name 	     	= malloc(gv.len_ox  * sizeof(char*)				);
-	sp.ph_frac 	     		= malloc(gv.len_ox  * sizeof(double)			);
-	sp.ph_frac_wt     		= malloc(gv.len_ox  * sizeof(double)			);
-	sp.ph_frac_1at    		= malloc(gv.len_ox  * sizeof(double)			);
-	sp.ph_frac_vol     		= malloc(gv.len_ox  * sizeof(double)			);
-	for (int i = 0; i < gv.len_ox; i++){
-		sp.ph[i] 			= malloc(20 * sizeof(char));	
-		sp.sol_name[i] 		= malloc(20 * sizeof(char));	
+	int n_ph_max				= gv.len_ox + 2;
+	sp.ph 	     			= malloc(n_ph_max  * sizeof(char*)				);
+	sp.sol_name 	     	= malloc(n_ph_max  * sizeof(char*)				);
+	sp.ph_frac 	     		= malloc(n_ph_max  * sizeof(double)			);
+	sp.ph_frac_wt     		= malloc(n_ph_max  * sizeof(double)			);
+	sp.ph_frac_1at    		= malloc(n_ph_max  * sizeof(double)			);
+	sp.ph_frac_vol     		= malloc(n_ph_max  * sizeof(double)			);
+	for (int i = 0; i < n_ph_max; i++){
+		sp.ph[i] 			= malloc(20 * sizeof(char));
+		sp.sol_name[i] 		= malloc(20 * sizeof(char));
 	}
-	sp.ph_type 				= malloc(gv.len_ox 	* sizeof(int)				);	
-	sp.ph_id 				= malloc(gv.len_ox 	* sizeof(int)				);	
-	sp.ph_id_db 			= malloc(gv.len_ox 	* sizeof(int)				);	
-	sp.PP 		 			= malloc(gv.len_ox  * sizeof(stb_PP_phase)		); 
-	sp.SS 		 			= malloc(gv.len_ox  * sizeof(stb_SS_phase)		); 
+	sp.ph_type 				= malloc(n_ph_max 	* sizeof(int)				);
+	sp.ph_id 				= malloc(n_ph_max 	* sizeof(int)				);
+	sp.ph_id_db 			= malloc(n_ph_max 	* sizeof(int)				);
+	sp.PP 		 			= malloc(n_ph_max  * sizeof(stb_PP_phase)		);
+	sp.SS 		 			= malloc(n_ph_max  * sizeof(stb_SS_phase)		);
 	sp.mSS 		 			= malloc(gv.max_n_mSS  * sizeof(mstb_SS_phase)	); 
 
 	/* gv.len_ox*3 sufficed for every phase up to aq17; DEW (DEW2019 aqueous
@@ -414,7 +423,7 @@ stb_system SP_INIT_function(stb_system sp, global_variable gv){
 	   and the sp.mSS[] loop further down (same DEW-sized-endmember situation). */
 	int n_max_pc = (gv.len_ox*3 > gv.max_ss_size_cp) ? gv.len_ox*3 : gv.max_ss_size_cp;
 
-	for (int n = 0; n< gv.len_ox; n++){
+	for (int n = 0; n< n_ph_max; n++){
 		sp.PP[n].Comp 			= malloc(gv.len_ox 	* sizeof(double)		);
 		sp.SS[n].Comp 			= malloc(gv.len_ox 	* sizeof(double)		);
 		sp.PP[n].Comp_wt 		= malloc(gv.len_ox 	* sizeof(double)		);
@@ -629,7 +638,7 @@ SS_ref G_SS_init_EM_function(		SS_init_type		*SS_init,
 		Allocate memory for levelling pseudocompounds 
 	*/
 	// SS_ref_db.n_pc   	= gv.n_pc;
-	SS_ref_db.n_pc   	= gv.n_SS_PC[ph_id];
+	SS_ref_db.n_pc   	= gv.n_SS_PC[ph_id] + n_em;
     SS_ref_db.tot_pc   	= malloc (1 * sizeof (double) ); 
     SS_ref_db.id_pc   	= malloc (1 * sizeof (double) ); 
 	SS_ref_db.G_pc   	= malloc ((SS_ref_db.n_pc) * sizeof (double) ); 

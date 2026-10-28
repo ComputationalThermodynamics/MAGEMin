@@ -51,7 +51,7 @@ void print_help(	global_variable gv	){
 	printf("  --File=       [str]   : File name containing multiple point calculation\n");
 	printf("  --n_points=   [int]   : Number of points when using 'File' argument\n");
 	printf("  --rg=         [str]   : ResearchGroup, can be 'tc', 'sb', 'gh' or 'br' (THERMOCALC, Stixrude-Lithgow-Bertelloni, Ghiorso/MELTS, Berman/Pourteau)\n");
-	printf("  --db=         [str]   : Database, can be 'mp', 'ig', 'igad', 'um'or 'ume'* for TC, 2011/2024 for SB, 'xMELTS'/'rMELTS'/'pMELTS' for GH, or 'po' for BR\n");
+	printf("  --db=         [str]   : Database, can be 'mp', 'ig', 'igaw', 'igad', 'um'or 'ume'* for TC, 2011/2024 for SB, 'xMELTS'/'rMELTS'/'pMELTS' for GH, or 'po' for BR\n");
 	printf("  --ds=         [int]   : TC End-member dataset, 62, 633 or 634 (stands for ds6xx)\n");
 	printf("  --test=       [int]   : Number of points when using 'File' argument\n");
 	printf("  --Pres=       [float] : Pressure in kilobar\n");
@@ -71,10 +71,11 @@ void print_help(	global_variable gv	){
 	printf("  --mpIlm=      [int]   : 0. Ilm, 1. Ilmm see (White et al., 2014)\n");
 	printf("  --ig_ed=      [int]   : 0. default bi,amp for ig, 1. updated bi,amp for ig\n");
 	printf("\n");
-	printf(" *'mp': metapelite, 'mb': metabasite, 'ig': igneous H18->G23, 'igad': igneous alkaline dry, 'um': ultramafic, 'ume': ultramafic extended, 'mtl': mantle\n");
+	printf(" *'mp': metapelite, 'mb': metabasite, 'ig': igneous H18->G23, 'igaw': igneous alkaline wet, 'igad': igneous alkaline dry, 'um': ultramafic, 'ume': ultramafic extended, 'mtl': mantle\n");
 	printf("\n");
 	printf(" **the list of oxides must be provided as follow:\n");
 	printf("  'ig':               SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3, H2O\n");
+	printf("  'igaw':             SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3, H2O\n");
 	printf("  'igad':             SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, Cr2O3\n");
 	printf("  'mp':               SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, MnO, H2O\n");
 	printf("  'mb':               SiO2, Al2O3, CaO, MgO, FeOt, K2O, Na2O, TiO2, O, H2O\n");
@@ -236,7 +237,7 @@ int is_core_oxide(						const char 			*research_group,
 
 	if 		(EM_database == 0){ 					opt = opt_mp;  n = 7;  }
 	else if (EM_database == 1 || EM_database == 11){ opt = opt_mb;  n = 6;  }
-	else if (EM_database == 2){ 					opt = opt_ig;  n = 7;  }
+	else if (EM_database == 2 || EM_database == 10){ opt = opt_ig;  n = 7;  }
 	else if (EM_database == 22 || EM_database == 3){ opt = opt_igd; n = 6;  }
 	else if (EM_database == 4){ 					opt = opt_um;  n = 3;  }
 	else if (EM_database == 5){ 					opt = opt_ume; n = 8;  }
@@ -307,6 +308,9 @@ bulk_info retrieve_bulk_PT(				global_variable      gv,
 			}
 			else if (gv.EM_database == 2){
 				printf("  - Database                  : Igneous (Green et al., 2025, corrected after Holland et al., 2018)\n"	);
+			}
+	else if (gv.EM_database == 10){
+				printf("  - Database                  : Igneous alkaline wet (Holland et al., 2026, in progress)\n"	);
 			}
 			else if (gv.EM_database == 22){
 				printf("  - Database                  : Igneous dry (Su et al., 2026, corrected after Tomlinson & Holland, 2021)\n"	);
@@ -933,6 +937,9 @@ global_variable get_tests_bulks(	global_variable  	 gv
 		}
 		else if (gv.EM_database == 2){
 			gv = get_bulk_igneous( 			gv );
+		}
+	else if (gv.EM_database == 10){
+			gv = get_bulk_igneous_igaw( 	gv );
 		}
 		else if (gv.EM_database == 22){
 			gv = get_bulk_igneous_igd( 		gv );
@@ -1590,6 +1597,62 @@ global_variable compute_phase_mol_fraction(			global_variable 	 gv,
 	}
 
 	return gv;										
+}
+
+global_variable remove_zero_amount_phases(	global_variable 	 gv,
+											bulk_info 	 		 z_b,
+											PP_ref  			*PP_ref_db,
+											SS_ref  			*SS_ref_db,
+											csd_phase_set  		*cp					){
+
+	const double tol = 1e-10;
+	int    n_keep    = 0;
+	int    n_removed = 0;
+
+	for (int i = 0; i < gv.len_cp; i++){
+		if (cp[i].ss_flags[1] == 1 && fabs(cp[i].ss_n_mol) >= tol){ n_keep += 1; }
+	}
+	for (int i = 0; i < gv.len_pp; i++){
+		if (gv.pp_flags[i][1] == 1 && (gv.pp_flags[i][4] == 1 || i >= gv.len_pp - gv.n_mu_fix || fabs(gv.pp_n_mol[i]) >= tol)){ n_keep += 1; }
+	}
+	if (n_keep == 0){
+		return gv;
+	}
+
+	for (int i = 0; i < gv.len_cp; i++){
+		if (cp[i].ss_flags[1] == 1 && fabs(cp[i].ss_n_mol) < tol){
+			cp[i].ss_flags[1] = 0;
+			cp[i].ss_flags[2] = 1;
+			cp[i].ss_n        = 0.0;
+			cp[i].ss_n_mol    = 0.0;
+			cp[i].ss_n_wt     = 0.0;
+			gv.n_cp_phase    -= 1;
+			gv.n_phase       -= 1;
+			n_removed        += 1;
+		}
+	}
+	for (int i = 0; i < gv.len_pp; i++){
+		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 0 && i < gv.len_pp - gv.n_mu_fix && fabs(gv.pp_n_mol[i]) < tol){
+			gv.pp_flags[i][1] = 0;
+			gv.pp_flags[i][2] = 1;
+			gv.pp_n[i]        = 0.0;
+			gv.pp_n_mol[i]    = 0.0;
+			gv.pp_n_wt[i]     = 0.0;
+			gv.n_pp_phase    -= 1;
+			gv.n_phase       -= 1;
+			n_removed        += 1;
+		}
+	}
+
+	if (n_removed > 0){
+		gv = compute_phase_mol_fraction(	gv,
+											z_b,
+											PP_ref_db,
+											SS_ref_db,
+											cp				);
+	}
+
+	return gv;
 }
 
 
@@ -2392,7 +2455,16 @@ global_variable compute_activities(			int					 EM_database,
 			break;
 		}
 	}
-	if (O_ix != -1){
+	int buffer_on = 0;
+	for (int i = 0; i < gv.len_pp; i++){
+		if (gv.pp_flags[i][1] == 1 && gv.pp_flags[i][4] == 1){ buffer_on = 1; break; }
+	}
+	int O_active = (O_ix != -1) && (z_b.bulk_rock[O_ix] > 0.0 || buffer_on || gv.n_mu_fix > 0);
+	if (!O_active){
+		gv.system_fO2      = NAN;
+		gv.system_deltaQFM = NAN;
+	}
+	if (O_active){
 		gv.system_fO2 = exp( (gv.gam_tot[O_ix]*2.0 - G0_O) / (z_b.R*z_b.T)) ;
 		char qstr[4];
 		char mtstr[4];

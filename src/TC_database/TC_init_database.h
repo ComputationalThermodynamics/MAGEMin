@@ -187,6 +187,42 @@
 	} igneous_igd_dataset;
 
 	/** 
+		Igneous alkaline wet database informations 
+	**/
+	#define n_ox_igaw 11 		// as of now this is n_oxides = 11 + electrochemical potential
+	#define n_ss_igaw 20
+	#define n_pp_igaw 26
+	typedef struct igneous_igaw_datasets {
+		int 	ds_version;
+		int 	n_ox;
+		int 	n_pp;
+		int 	n_ss;
+		char    ox[n_ox_igaw][20];
+		char    PP[n_pp_igaw][20];
+		int 	act_PP[n_pp_igaw];
+		char    SS[n_ss_igaw][20];
+
+		int 	verifyPC[n_ss_igaw];
+		int 	n_SS_PC[n_ss_igaw];
+		double 	SS_PC_stp[n_ss_igaw];
+
+		double 	PC_df_add;	
+		double  solver_switch_T;
+		double  min_melt_T;
+
+		double  inner_PGE_ite;				/** number of inner PGE iterations, this has to be made mass or dG dependent 		*/
+		double  max_n_phase;				/** maximum mol% phase change during one PGE iteration in wt% 						*/
+		double  max_g_phase;				/** maximum delta_G of reference change during PGE 									*/
+		double 	max_fac;					/** maximum update factor during PGE under-relax < 0.0, over-relax > 0.0 	 		*/
+
+		double  merge_value;				/** max norm distance between two instances of a solution phase						*/	
+		double 	re_in_n;					/** fraction of phase when being reintroduce.  										*/
+
+		double  obj_tol;
+
+	} igneous_igaw_dataset;
+
+	/** 
 		Igneous Alkali database wet test
 	**/
 	typedef struct igneous_igad_datasets {
@@ -356,11 +392,11 @@
 		int 	n_ss;
 		char    ox[14][20];
 		char    PP[37][20];
-		char    SS[63][20];
+		char    SS[67][20];
 
-		int 	verifyPC[63];
-		int 	n_SS_PC[63];
-		double 	SS_PC_stp[63];
+		int 	verifyPC[67];
+		int 	n_SS_PC[67];
+		double 	SS_PC_stp[67];
 
 		double 	PC_df_add;					/** min value of df under which the PC is added 									*/
 		double  solver_switch_T;
@@ -386,6 +422,7 @@
     global_variable get_bulk_igneous( 			global_variable gv);
 	global_variable get_bulk_igneous_igd( 		global_variable gv);
 	global_variable get_bulk_igneous_igad( 		global_variable gv);
+	global_variable get_bulk_igneous_igaw( 		global_variable gv);
     global_variable get_bulk_ultramafic( 		global_variable gv);
     global_variable get_bulk_ultramafic_ext( 	global_variable gv);
     global_variable get_bulk_mantle( 			global_variable gv);

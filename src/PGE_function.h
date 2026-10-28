@@ -85,4 +85,20 @@ global_variable final_Newton(		bulk_info 	 		 z_b,
 									SS_ref 				*SS_ref_db,
 									csd_phase_set  		*cp				);
 
+void section_mode_flags(				int 				 mode,
+										int 				*use_S,
+										int 				*use_V,
+										int 				*use_H,
+										int 				*free_P,
+										int 				*free_T			);
+
+global_variable final_Newton_section(	bulk_info 	 		 z_b,
+										global_variable 	 gv,
+										PC_type 			*PC_read,
+										PP_ref 				*PP_ref_db,
+										SS_ref 				*SS_ref_db,
+										csd_phase_set  		*cp,
+										double 				*P,
+										double 				*T				);
+
 #endif

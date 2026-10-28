@@ -819,6 +819,12 @@ mutable struct global_variables
     fn_ipiv::Ptr{Cint}
     fn_store_kkt::Cint
     fn_from_state::Cint
+    sec_mode::Cint
+    sec_S::Cdouble
+    sec_V::Cdouble
+    sec_H::Cdouble
+    sec_P::Cdouble
+    sec_T::Cdouble
     fn_sys::Ptr{fn_kkt}
     solver_switch_T::Cdouble
     seismicScheme::Cint
@@ -893,6 +899,8 @@ mutable struct global_variables
     gam_tot::Ptr{Cdouble}
     gam_tot_0::Ptr{Cdouble}
     delta_gam_tot::Ptr{Cdouble}
+    face_n::Cint
+    face_l::Ptr{Cdouble}
     n_flags::Cint
     PP_list::Ptr{Ptr{Cchar}}
     SS_list::Ptr{Ptr{Cchar}}
@@ -1617,6 +1625,10 @@ function ComputeEquilibrium_FromState(z_b, gv, PP_ref_db, SS_ref_db, cp, n_ss, s
     ccall((:ComputeEquilibrium_FromState, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}), z_b, gv, PP_ref_db, SS_ref_db, cp, n_ss, ss_ids, ss_x, ss_n, n_pp, pp_ids, pp_n, gam)
 end
 
+function ComputeEquilibrium_SectionFromState(z_b, gv, PP_ref_db, SS_ref_db, cp, n_ss, ss_ids, ss_x, ss_n, n_pp, pp_ids, pp_n, gam)
+    ccall((:ComputeEquilibrium_SectionFromState, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}, Cint, Ptr{Cint}, Ptr{Cdouble}, Ptr{Cdouble}), z_b, gv, PP_ref_db, SS_ref_db, cp, n_ss, ss_ids, ss_x, ss_n, n_pp, pp_ids, pp_n, gam)
+end
+
 function ComputeLevellingOnly(EM_database, input_data, z_b, gv, splx_data, PP_ref_db, SS_ref_db, cp)
     ccall((:ComputeLevellingOnly, libMAGEMin), global_variable, (Cint, io_data, bulk_info, global_variable, Ptr{simplex_data}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), EM_database, input_data, z_b, gv, splx_data, PP_ref_db, SS_ref_db, cp)
 end
@@ -1813,6 +1825,33 @@ end
 
 const igneous_igd_dataset = igneous_igd_datasets
 
+mutable struct igneous_igaw_datasets
+    ds_version::Cint
+    n_ox::Cint
+    n_pp::Cint
+    n_ss::Cint
+    ox::NTuple{11, NTuple{20, Cchar}}
+    PP::NTuple{26, NTuple{20, Cchar}}
+    act_PP::NTuple{26, Cint}
+    SS::NTuple{20, NTuple{20, Cchar}}
+    verifyPC::NTuple{20, Cint}
+    n_SS_PC::NTuple{20, Cint}
+    SS_PC_stp::NTuple{20, Cdouble}
+    PC_df_add::Cdouble
+    solver_switch_T::Cdouble
+    min_melt_T::Cdouble
+    inner_PGE_ite::Cdouble
+    max_n_phase::Cdouble
+    max_g_phase::Cdouble
+    max_fac::Cdouble
+    merge_value::Cdouble
+    re_in_n::Cdouble
+    obj_tol::Cdouble
+    igneous_igaw_datasets() = new()
+end
+
+const igneous_igaw_dataset = igneous_igaw_datasets
+
 mutable struct igneous_igad_datasets
     ds_version::Cint
     n_ox::Cint
@@ -1950,10 +1989,10 @@ mutable struct all_datasets
     n_ss::Cint
     ox::NTuple{14, NTuple{20, Cchar}}
     PP::NTuple{37, NTuple{20, Cchar}}
-    SS::NTuple{63, NTuple{20, Cchar}}
-    verifyPC::NTuple{63, Cint}
-    n_SS_PC::NTuple{63, Cint}
-    SS_PC_stp::NTuple{63, Cdouble}
+    SS::NTuple{67, NTuple{20, Cchar}}
+    verifyPC::NTuple{67, Cint}
+    n_SS_PC::NTuple{67, Cint}
+    SS_PC_stp::NTuple{67, Cdouble}
     PC_df_add::Cdouble
     solver_switch_T::Cdouble
     min_melt_T::Cdouble
@@ -1983,6 +2022,10 @@ end
 
 function get_bulk_igneous_igad(gv)
     ccall((:get_bulk_igneous_igad, libMAGEMin), global_variable, (global_variable,), gv)
+end
+
+function get_bulk_igneous_igaw(gv)
+    ccall((:get_bulk_igneous_igaw, libMAGEMin), global_variable, (global_variable,), gv)
 end
 
 function get_bulk_mantle(gv)
@@ -2275,6 +2318,10 @@ function TC_SS_init_ig(SS_init, gv)
     ccall((:TC_SS_init_ig, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
 end
 
+function TC_SS_init_igaw(SS_init, gv)
+    ccall((:TC_SS_init_igaw, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
+end
+
 function TC_SS_init_igd(SS_init, gv)
     ccall((:TC_SS_init_igd, libMAGEMin), Cvoid, (Ptr{SS_init_type}, global_variable), SS_init, gv)
 end
@@ -2335,6 +2382,10 @@ function G_SS_igad_EM_function(gv, SS_ref_db, EM_dataset, z_b, name)
     ccall((:G_SS_igad_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_dataset, z_b, name)
 end
 
+function G_SS_igaw_EM_function(gv, SS_ref_db, EM_dataset, z_b, name)
+    ccall((:G_SS_igaw_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_dataset, z_b, name)
+end
+
 function G_SS_um_EM_function(gv, SS_ref_db, EM_dataset, z_b, name)
     ccall((:G_SS_um_EM_function, libMAGEMin), SS_ref, (global_variable, SS_ref, Cint, bulk_info, Ptr{Cchar}), gv, SS_ref_db, EM_dataset, z_b, name)
 end
@@ -2365,6 +2416,10 @@ end
 
 function TC_ig_objective_init_function(SS_objective, gv)
     ccall((:TC_ig_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
+end
+
+function TC_igaw_objective_init_function(SS_objective, gv)
+    ccall((:TC_igaw_objective_init_function, libMAGEMin), Cvoid, (Ptr{obj_type}, global_variable), SS_objective, gv)
 end
 
 function TC_igd_objective_init_function(SS_objective, gv)
@@ -2568,6 +2623,10 @@ end
 
 function obj_ig_chl(n, x, grad, SS_ref_db)
     ccall((:obj_ig_chl, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
+end
+
+function obj_igaw_liq(n, x, grad, SS_ref_db)
+    ccall((:obj_igaw_liq, libMAGEMin), Cdouble, (Cuint, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cvoid}), n, x, grad, SS_ref_db)
 end
 
 function obj_igd_liq(n, x, grad, SS_ref_db)
@@ -2966,6 +3025,10 @@ function TC_ig_PC_init(PC_read, gv)
     ccall((:TC_ig_PC_init, libMAGEMin), Cvoid, (Ptr{PC_type}, global_variable), PC_read, gv)
 end
 
+function TC_igaw_PC_init(PC_read, gv)
+    ccall((:TC_igaw_PC_init, libMAGEMin), Cvoid, (Ptr{PC_type}, global_variable), PC_read, gv)
+end
+
 function TC_igad_PC_init(PC_read, gv)
     ccall((:TC_igad_PC_init, libMAGEMin), Cvoid, (Ptr{PC_type}, global_variable), PC_read, gv)
 end
@@ -3003,6 +3066,10 @@ end
 
 function TC_ig_NLopt_opt_init(NLopt_opt, gv)
     ccall((:TC_ig_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
+end
+
+function TC_igaw_NLopt_opt_init(NLopt_opt, gv)
+    ccall((:TC_igaw_NLopt_opt_init, libMAGEMin), Cvoid, (Ptr{NLopt_type}, global_variable), NLopt_opt, gv)
 end
 
 function TC_igd_NLopt_opt_init(NLopt_opt, gv)
@@ -3111,6 +3178,10 @@ end
 
 function SS_igad_pc_init_function(SS_pc_xeos, iss, name)
     ccall((:SS_igad_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}), SS_pc_xeos, iss, name)
+end
+
+function SS_igaw_pc_init_function(SS_pc_xeos, iss, name, gv)
+    ccall((:SS_igaw_pc_init_function, libMAGEMin), Cvoid, (Ptr{PC_ref}, Cint, Ptr{Cchar}, global_variable), SS_pc_xeos, iss, name, gv)
 end
 
 function SS_um_pc_init_function(SS_pc_xeos, iss, name, gv)
@@ -3849,6 +3920,14 @@ function final_Newton(z_b, gv, PC_read, PP_ref_db, SS_ref_db, cp)
     ccall((:final_Newton, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PC_type}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), z_b, gv, PC_read, PP_ref_db, SS_ref_db, cp)
 end
 
+function section_mode_flags(mode, use_S, use_V, use_H, free_P, free_T)
+    ccall((:section_mode_flags, libMAGEMin), Cvoid, (Cint, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}), mode, use_S, use_V, use_H, free_P, free_T)
+end
+
+function final_Newton_section(z_b, gv, PC_read, PP_ref_db, SS_ref_db, cp, P, T)
+    ccall((:final_Newton_section, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PC_type}, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}, Ptr{Cdouble}, Ptr{Cdouble}), z_b, gv, PC_read, PP_ref_db, SS_ref_db, cp, P, T)
+end
+
 function dump_init(gv)
     ccall((:dump_init, libMAGEMin), Cvoid, (global_variable,), gv)
 end
@@ -3879,6 +3958,18 @@ end
 
 function mergeParallel_LevellingGamma_Files(gv)
     ccall((:mergeParallel_LevellingGamma_Files, libMAGEMin), Cvoid, (global_variable,), gv)
+end
+
+function face_detect(z_b, gv, PP_ref_db, SS_ref_db)
+    ccall((:face_detect, libMAGEMin), global_variable, (bulk_info, global_variable, Ptr{PP_ref}, Ptr{SS_ref}), z_b, gv, PP_ref_db, SS_ref_db)
+end
+
+function face_deviation(gv, comp)
+    ccall((:face_deviation, libMAGEMin), Cdouble, (global_variable, Ptr{Cdouble}), gv, comp)
+end
+
+function face_project_gamma(gv, gam)
+    ccall((:face_project_gamma, libMAGEMin), Cvoid, (global_variable, Ptr{Cdouble}), gv, gam)
 end
 
 struct EM2id_
@@ -4322,6 +4413,10 @@ function compute_phase_mol_fraction(gv, z_b, PP_ref_db, SS_ref_db, cp)
     ccall((:compute_phase_mol_fraction, libMAGEMin), global_variable, (global_variable, bulk_info, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, z_b, PP_ref_db, SS_ref_db, cp)
 end
 
+function remove_zero_amount_phases(gv, z_b, PP_ref_db, SS_ref_db, cp)
+    ccall((:remove_zero_amount_phases, libMAGEMin), global_variable, (global_variable, bulk_info, Ptr{PP_ref}, Ptr{SS_ref}, Ptr{csd_phase_set}), gv, z_b, PP_ref_db, SS_ref_db, cp)
+end
+
 function compute_activities(EM_database, gv, PP_ref_db, z_b)
     ccall((:compute_activities, libMAGEMin), global_variable, (Cint, global_variable, Ptr{PP_ref}, bulk_info), EM_database, gv, PP_ref_db, z_b)
 end
@@ -4383,6 +4478,12 @@ const n_ox_ig = 11
 const n_ss_ig = 17
 
 const n_pp_ig = 27
+
+const n_ox_igaw = 11
+
+const n_ss_igaw = 20
+
+const n_pp_igaw = 26
 
 const n_EM_tables_max = 64
 
