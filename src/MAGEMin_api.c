@@ -94,6 +94,8 @@ static MAGEMin_Handle *init_handle(	const char *database,
 	h->ss_suppressed = calloc(h->gv.len_ss, sizeof(int));
 	h->pp_suppressed = calloc(h->gv.len_pp, sizeof(int));
 	h->n_suppressed  = 0;
+	for (int k = 0; k < 4; k++){ h->model_variant[k] = -1; }
+	h->has_point     = 0;
 	if (	(h->gv.len_ss > 0 && h->ss_suppressed == NULL) ||
 			(h->gv.len_pp > 0 && h->pp_suppressed == NULL)		){
 		printf(" MAGEMin_Init error: out of memory\n");
@@ -408,19 +410,25 @@ stb_system *MAGEMin_ComputeEquilibrium(	MAGEMin_Handle *h,
 
 	/* mbCpx/mbIlm/mpSp/mpIlm select which variant of a near-degenerate model
 	   pair gets pseudocompounds at all; 2 generates both, so suppressing one
-	   variant leaves the other reachable. Assigned on every call so a reused
-	   handle never carries it over from an earlier suppressing call. */
+	   variant leaves the other reachable. Switches left automatic (-1, see
+	   MAGEMin_SetModelVariant) follow the suppression state. Assigned on every
+	   call so a reused handle never carries it over from an earlier call. */
 	int both_variants = h->n_suppressed > 0 ? 2 : 0;
-	h->gv.mbCpx = both_variants;
-	h->gv.mbIlm = both_variants;
-	h->gv.mpSp  = both_variants;
-	h->gv.mpIlm = both_variants;
+	int variant[4];
+	for (int k = 0; k < 4; k++){
+		variant[k] = h->model_variant[k] >= 0 ? h->model_variant[k] : both_variants;
+	}
+	h->gv.mbCpx = variant[0];
+	h->gv.mbIlm = variant[1];
+	h->gv.mpSp  = variant[2];
+	h->gv.mpIlm = variant[3];
 
 	h->gv = ComputeG0_point(			h->gv.EM_database,
 										h->z_b,
 										h->gv,
 										h->DB.PP_ref_db,
 										h->DB.SS_ref_db			);
+	h->has_point = 1;
 
 	/* phase suppression: reset_gv cleared the flags and ComputeG0_point just
 	   re-activated them, so this is the only place where it takes effect
@@ -465,6 +473,162 @@ stb_system *MAGEMin_ComputeEquilibrium(	MAGEMin_Handle *h,
 										h->DB.sp				);
 
 	return &h->DB.sp[0];
+}
+
+int MAGEMin_SetModelVariant(	MAGEMin_Handle *h,
+								const char     *name,
+								int             value			){
+	static const char *switch_names[4] = {"mbCpx", "mbIlm", "mpSp", "mpIlm"};
+
+	if (value < -1 || value > 2){
+		printf(" MAGEMin_SetModelVariant error: value must be -1, 0, 1 or 2 (got %d)\n",value);
+		return -1;
+	}
+	if (name == NULL){
+		for (int k = 0; k < 4; k++){ h->model_variant[k] = value; }
+		return 0;
+	}
+	for (int k = 0; k < 4; k++){
+		if (strcmp(name,switch_names[k]) == 0){
+			h->model_variant[k] = value;
+			return 0;
+		}
+	}
+	printf(" MAGEMin_SetModelVariant error: unknown switch '%s' (mbCpx, mbIlm, mpSp, mpIlm)\n",name);
+	return -1;
+}
+
+/* index of a solution phase, or -1 */
+static int solution_phase_id(	MAGEMin_Handle *h,
+								const char     *name			){
+	if (name == NULL){ return -1; }
+	return find_name(name, h->gv.SS_list, h->gv.len_ss);
+}
+
+/* common preconditions of the evaluation calls: 0, or the error code */
+static int check_eval_state(	MAGEMin_Handle *h,
+								const char     *caller			){
+	if (strcmp(h->gv.research_group,"tc") != 0){
+		printf(" %s error: research group '%s' is not supported (only \"tc\" databases)\n",caller,h->gv.research_group);
+		return -3;
+	}
+	if (h->has_point != 1){
+		printf(" %s error: call MAGEMin_ComputeEquilibrium first (it sets P, T and the reference energies)\n",caller);
+		return -2;
+	}
+	return 0;
+}
+
+int MAGEMin_SolutionPhaseSize(	MAGEMin_Handle *h,
+								const char     *name,
+								int            *n_em,
+								int            *n_xeos			){
+	int ph_id = solution_phase_id(h, name);
+	if (ph_id < 0){ return -1; }
+	if (n_em   != NULL){ *n_em   = h->DB.SS_ref_db[ph_id].n_em;   }
+	if (n_xeos != NULL){ *n_xeos = h->DB.SS_ref_db[ph_id].n_xeos; }
+	return 0;
+}
+
+char **MAGEMin_SolutionPhaseEndmemberNames(	MAGEMin_Handle *h,
+											const char     *name		){
+	/* the name strings are filled by the per-model functions that
+	   ComputeG0_point runs, i.e. only from the first equilibrium on */
+	int ph_id = solution_phase_id(h, name);
+	return (ph_id < 0 || h->has_point != 1) ? NULL : h->DB.SS_ref_db[ph_id].EM_list;
+}
+
+char **MAGEMin_SolutionPhaseVariableNames(	MAGEMin_Handle *h,
+											const char     *name		){
+	int ph_id = solution_phase_id(h, name);
+	return (ph_id < 0 || h->has_point != 1) ? NULL : h->DB.SS_ref_db[ph_id].CV_list;
+}
+
+int MAGEMin_EvaluateSolutionPhase(	MAGEMin_Handle *h,
+									const char     *name,
+									const double   *p,
+									int             n_p,
+									double         *G,
+									double         *xeos,
+									double         *comp,
+									int            *sf_ok			){
+	int ph_id = solution_phase_id(h, name);
+	if (ph_id < 0 || p == NULL || n_p != h->DB.SS_ref_db[ph_id].n_em){
+		printf(" MAGEMin_EvaluateSolutionPhase error: unknown phase or wrong number of end-member fractions\n");
+		return -1;
+	}
+	int err = check_eval_state(h, "MAGEMin_EvaluateSolutionPhase");
+	if (err != 0){ return err; }
+
+	double p_copy[n_p];
+	for (int k = 0; k < n_p; k++){ p_copy[k] = p[k]; }
+
+	/* P2X/PC_convert write into the phase's heap arrays (iguess, xeos, p, ...),
+	   which every MAGEMin_ComputeEquilibrium re-initializes */
+	SS_ref r = P2X_convert_function(	h->gv,
+										h->DB.SS_ref_db[ph_id],
+										ph_id,
+										p_copy,
+										n_p						);
+	r = PC_convert_function(			h->gv,
+										r,
+										h->z_b,
+										ph_id					);
+
+	/* .df carries MAGEMin's normalisation to the bulk-rock atom count
+	   (factor = fbc / atoms per formula unit); remove it */
+	if (G     != NULL){ *G = r.factor != 0.0 ? r.df / r.factor : r.df; }
+	if (sf_ok != NULL){ *sf_ok = r.sf_ok; }
+	if (xeos  != NULL){ for (int k = 0; k < r.n_xeos;    k++){ xeos[k] = r.xeos[k];    } }
+	if (comp  != NULL){ for (int k = 0; k < h->gv.len_ox; k++){ comp[k] = r.ss_comp[k]; } }
+	return 0;
+}
+
+int MAGEMin_MinimizeSolutionPhase(	MAGEMin_Handle *h,
+									const char     *name,
+									const double   *gamma,
+									int             n_gamma,
+									const double   *xeos0,
+									int             n_xeos,
+									double         *df,
+									double         *xeos,
+									double         *p,
+									double         *comp,
+									int            *status			){
+	int ph_id = solution_phase_id(h, name);
+	if (	ph_id < 0 || gamma == NULL || xeos0 == NULL ||
+			n_gamma != h->gv.len_ox || n_xeos != h->DB.SS_ref_db[ph_id].n_xeos	){
+		printf(" MAGEMin_MinimizeSolutionPhase error: unknown phase or wrong length of gamma/xeos0\n");
+		return -1;
+	}
+	int err = check_eval_state(h, "MAGEMin_MinimizeSolutionPhase");
+	if (err != 0){ return err; }
+
+	double gamma_copy[n_gamma], xeos_copy[n_xeos], gam_saved[n_gamma];
+	for (int k = 0; k < n_gamma; k++){
+		gamma_copy[k] = gamma[k];
+		gam_saved[k]  = h->gv.gam_tot[k];
+	}
+	for (int k = 0; k < n_xeos; k++){ xeos_copy[k] = xeos0[k]; }
+
+	SS_ref r = LM_convert_function(		h->gv,
+										h->DB.SS_ref_db[ph_id],
+										h->z_b,
+										ph_id,
+										gamma_copy,
+										n_gamma,
+										xeos_copy,
+										n_xeos					);
+
+	/* LM_convert_function writes gv.gam_tot (shared heap array): restore it */
+	for (int k = 0; k < n_gamma; k++){ h->gv.gam_tot[k] = gam_saved[k]; }
+
+	if (df     != NULL){ *df = r.factor != 0.0 ? r.df / r.factor : r.df; }
+	if (status != NULL){ *status = r.status; }
+	if (xeos   != NULL){ for (int k = 0; k < r.n_xeos;    k++){ xeos[k] = r.xeos[k];    } }
+	if (p      != NULL){ for (int k = 0; k < r.n_em;      k++){ p[k]    = r.p[k];       } }
+	if (comp   != NULL){ for (int k = 0; k < h->gv.len_ox; k++){ comp[k] = r.ss_comp[k]; } }
+	return 0;
 }
 
 void MAGEMin_Free(				MAGEMin_Handle *h				){

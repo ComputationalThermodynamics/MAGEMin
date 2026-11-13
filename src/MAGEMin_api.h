@@ -32,6 +32,15 @@ typedef struct MAGEMin_Handles {
 	int            *ss_suppressed;		/** [gv.len_ss] 1 = suppressed		*/
 	int            *pp_suppressed;		/** [gv.len_pp] 1 = suppressed		*/
 	int             n_suppressed;
+
+	/* model-variant selection, see MAGEMin_SetModelVariant; order mbCpx,
+	   mbIlm, mpSp, mpIlm; -1 = automatic (2 while any phase is suppressed,
+	   0 otherwise) */
+	int             model_variant[4];
+
+	/* 1 once MAGEMin_ComputeEquilibrium has computed reference energies, so
+	   the solution-phase evaluation calls have a P,T state to work on */
+	int             has_point;
 } MAGEMin_Handle;
 
 /**
@@ -167,7 +176,8 @@ int MAGEMin_SetBuffer(			MAGEMin_Handle *h,
  * While any phase is suppressed, both variants of the near-degenerate model
  * pairs gated by gv.mbCpx/mbIlm/mpSp/mpIlm are generated (set to 2), so that
  * suppressing one variant (e.g. "ilm" in "mp") lets the other ("ilmm") replace
- * it; otherwise they keep their default (0).
+ * it; otherwise they keep their default (0). This automatic behaviour applies
+ * only to switches left at -1 by MAGEMin_SetModelVariant.
  *
  * Returns 0 on success, -1 if any name is unknown (the previous set is kept).
  */
@@ -212,6 +222,125 @@ stb_system *MAGEMin_ComputeEquilibrium(	MAGEMin_Handle *h,
 											double          T,
 											const double   *bulk,
 											const char     *sys_in		);
+
+/**
+ * Select the variant of a near-degenerate solution-model pair, independently
+ * of phase suppression. name is one of the CLI switch names:
+ *   "mbCpx" : metabasite, 0 = omphacite (dio), 1 = augite (aug)
+ *   "mbIlm" : metabasite, 0 = ilm, 1 = ilmm
+ *   "mpSp"  : metapelite, 0 = sp, 1 = mt
+ *   "mpIlm" : metapelite, 0 = ilm, 1 = ilmm
+ * or NULL for all four. value: 0 or 1 as above, 2 = generate both variants,
+ * -1 = automatic (the default: 2 while any phase is suppressed, 0 otherwise,
+ * see MAGEMin_SetSuppressedPhases).
+ *
+ * The setting persists across MAGEMin_ComputeEquilibrium calls. Fixing it
+ * matters whenever results with and without phase suppression are compared
+ * (e.g. the garnet-free matrix of an overstepped rock against the equilibrium
+ * assemblage): in automatic mode suppressing any phase also switches the
+ * variants, which can move phase boundaries substantially.
+ *
+ * Returns 0 on success, -1 for an unknown name or a value outside -1..2.
+ */
+int MAGEMin_SetModelVariant(	MAGEMin_Handle *h,
+								const char     *name,
+								int             value			);
+
+/**
+ * Evaluating a single solution phase
+ * ----------------------------------
+ * The following calls work on the reference state left by the last
+ * MAGEMin_ComputeEquilibrium on the same handle: P, T, bulk composition and
+ * the end-member reference energies of every solution phase of the database
+ * (computed for suppressed phases too). They do not modify the stb_system
+ * returned by MAGEMin_ComputeEquilibrium. Only THERMOCALC-type databases
+ * (research group "tc") are supported. Phase names are model names as
+ * returned by MAGEMin_SolutionPhaseNames (e.g. "g" in "mp").
+ *
+ * Energies are returned in kJ per mole of the phase formula unit (as defined
+ * by its end-members, e.g. 12 oxygens for garnet), i.e. without MAGEMin's
+ * internal normalisation to the bulk-rock atom count. comp[] is the phase
+ * composition in moles of oxides per formula unit, MAGEMin_OxideNames order.
+ */
+
+/**
+ * Number of end-members and of compositional variables (x-eos) of a
+ * solution phase. Returns 0, or -1 for an unknown name.
+ */
+int MAGEMin_SolutionPhaseSize(	MAGEMin_Handle *h,
+								const char     *name,
+								int            *n_em,
+								int            *n_xeos			);
+
+/**
+ * End-member names (n_em entries) of a solution phase. The names are set up
+ * during the first MAGEMin_ComputeEquilibrium, so NULL before it, and NULL
+ * for an unknown name. Owned by the handle.
+ */
+char **MAGEMin_SolutionPhaseEndmemberNames(	MAGEMin_Handle *h,
+											const char     *name		);
+
+/** compositional-variable names (n_xeos entries); same rules as above */
+char **MAGEMin_SolutionPhaseVariableNames(	MAGEMin_Handle *h,
+											const char     *name		);
+
+/**
+ * Gibbs energy of a solution phase at given end-member fractions p[n_em]
+ * (MAGEMin_SolutionPhaseEndmemberNames order), at the handle's P,T.
+ *
+ * Outputs (any may be NULL):
+ *   G     : absolute Gibbs energy [kJ/mol formula unit]
+ *   xeos  : [n_xeos] compositional variables corresponding to p
+ *   comp  : [n_ox] composition, moles of oxides per formula unit
+ *   sf_ok : 1 if all site fractions are valid, 0 otherwise
+ *
+ * Returns 0 on success; -1 unknown phase or wrong n_p; -2 no prior
+ * MAGEMin_ComputeEquilibrium; -3 database not supported.
+ */
+int MAGEMin_EvaluateSolutionPhase(	MAGEMin_Handle *h,
+									const char     *name,
+									const double   *p,
+									int             n_p,
+									double         *G,
+									double         *xeos,
+									double         *comp,
+									int            *sf_ok			);
+
+/**
+ * Local minimisation of one solution phase against a caller-supplied
+ * chemical-potential hyperplane gamma[n_ox] (same units and order as
+ * stb_system gamma), starting from xeos0[n_xeos], over the phase's full
+ * compositional bounds - MAGEMin's own per-model NLopt minimisation, as used
+ * inside the PGE/LP solvers.
+ *
+ * The result is the composition at which the phase lies furthest below (or
+ * least above) the hyperplane; with gamma from an equilibrium where the phase
+ * is suppressed, -df is its maximum driving force (parallel-tangent / nucleus
+ * composition, e.g. for reaction-overstepping studies). With gamma from an
+ * equilibrium where the phase is stable, df is ~0 at its stable composition.
+ * The problem can have several local minima: call it from several starts.
+ *
+ * Outputs (any may be NULL):
+ *   df     : G - sum(comp * gamma) [kJ/mol formula unit] at the minimum
+ *   xeos   : [n_xeos] compositional variables at the minimum
+ *   p      : [n_em] end-member fractions at the minimum
+ *   comp   : [n_ox] composition, moles of oxides per formula unit
+ *   status : NLopt return status (3 = converged on the tolerance)
+ *
+ * Returns 0 on success; -1 unknown phase or wrong n_gamma/n_xeos; -2 no prior
+ * MAGEMin_ComputeEquilibrium; -3 database not supported.
+ */
+int MAGEMin_MinimizeSolutionPhase(	MAGEMin_Handle *h,
+									const char     *name,
+									const double   *gamma,
+									int             n_gamma,
+									const double   *xeos0,
+									int             n_xeos,
+									double         *df,
+									double         *xeos,
+									double         *p,
+									double         *comp,
+									int            *status			);
 
 /** free everything allocated by MAGEMin_Init and the handle itself */
 void MAGEMin_Free(				MAGEMin_Handle *h				);
